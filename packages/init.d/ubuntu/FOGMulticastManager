@@ -1,0 +1,43 @@
+#!/bin/sh
+#  FOGMulticastManager Init Script
+#  	Created by Chuck Syperski
+#
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/bin:/usr/sbin
+DAEMON=/opt/fog/service/FOGMulticastManager/FOGMulticastManager
+NAME=FOGMulticastManager
+PIDFILE=/var/run/fog/$NAME.pid
+DESC="FOG Computer Imaging Solution"
+
+test -f $DAEMON || exit 1
+
+. /lib/lsb/init-functions
+
+case "$1" in 
+	start)
+		log_begin_msg "Starting $DESC: $NAME"
+		mkdir -p `dirname "$PIDFILE"`
+		start-stop-daemon --start --quiet --oknodo --pidfile "$PIDFILE" -b --exec "$DAEMON"
+		log_end_msg $?
+		;;
+	stop)
+		log_begin_msg "Stopping $DESC: $NAME"
+		rm -Rf $PIDFILE;
+		killall -9 -r "$NAME"
+		log_end_msg $?
+		;;
+	restart)
+		log_begin_msg "Restarting $DESC: $NAME"
+		killall -9 -r "$NAME"
+		rm -Rf $PIDFILE;
+		start-stop-daemon --start --quiet --oknodo --pidfile "$PIDFILE" -b --exec "$DAEMON"
+		log_end_msg $?
+		;;						
+	*)
+		echo "Usage FOGMulticastManager {start|stop|restart}" >&2
+		exit 1;
+		;;
+esac
+
+exit 0;
+

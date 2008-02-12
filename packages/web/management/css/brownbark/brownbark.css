@@ -1,0 +1,352 @@
+*
+{
+	font-family: arial;
+	font-size: 10px;
+}
+
+body
+{
+	background-image: url( ../../images/bg.jpg );
+	background-color: #ffffff;
+	background-repeat: repeat-x;
+	text-align: center;
+	font-family: arial;
+	color: #2c2c2c;
+	margin: 0px;
+}
+
+div.mainContainer
+{
+	border-width: 1px;
+	border-color: #000000;
+	border-style: solid;
+	background-color: #ba9c8a;
+	width: 750px;
+	min-width: 750px;
+	max-width: 750px;
+	height: 600px;
+	min-height: 600px;
+	max-height: 600px;
+	overflow: hidden;
+	margin-left: auto; 			/* Center the div */
+	margin-right: auto;			/* Center the div */
+}
+
+div.header
+{
+	width: 750px;
+	height: 100px;
+	border-width: 0px 0px 1px 0px;
+	border-style: solid;
+	background-color: #000000;
+	margin: 0px;
+	padding: 0px;
+	background-image: url( ./images/fogbanner.jpg );
+	text-align: right;
+	
+}
+
+div.login
+{
+	background-image: url( ../../images/login.png );
+	background-position: top left;
+	background-repeat: no-repeat;
+	width: 300px;
+	padding: 10px;
+	margin: 40px;
+	border-width: 1px;
+	border-color: #6e6f6a;
+	border-style: solid;	
+	background-color: #ffffff;
+}
+
+input, textarea, select
+{
+	font-size: 10px;
+	border-width: 1px;
+	border-color: #6e6f6a;
+	border-style: solid;
+}
+
+img.link
+{
+	border-width: 0px;
+	padding: 3px 25px 3px 25px;
+}
+
+div.menuBar
+{
+	text-align: center;
+}
+
+div.subMenu
+{
+	font-size: 12px;
+	width: 100px;
+	border-color: black;
+	border-width: 1px;
+	border-style: solid;
+	background-color: #E7E7E7;
+	margin: 2px 1px 1px 1px;
+}
+
+.plainfont
+{
+	font-size: 14px;
+	font-style: normal;
+	color: black;
+	text-decoration: none;
+}
+
+div.scroll
+{
+	overflow: scroll;
+	height: 420px;
+	border-color: black;
+	border-width: 1px;
+	border-style: solid;
+	background-color: white;	
+	margin: 5px;
+}
+
+p.title
+{
+	font-size: 14px;
+	border-color: black;
+	border-width: 0px 0px 1px 0px;
+	border-style: solid;
+	background-color: #BDBDBD;
+	margin: 0px 0px 6px 0px;
+	padding: 4px;
+}
+
+p.titleBottom
+{
+	font-size: 14px;
+	border-color: black;
+	border-width: 1px 0px 1px 0px;
+	border-style: solid;
+	background-color: #BDBDBD;
+	margin: 0px 0px 6px 0px;
+	padding: 4px;
+}
+
+p.msgbox
+{
+	font-size: 14px;
+	border-color: black;
+	border-width: 1px 1px 1px 1px;
+	border-style: solid;
+	background-color: #BDBDBD;
+	margin: 0px 0px 6px 0px;
+	padding: 4px;
+}
+
+/*  This is for the little version text in the top right of every page */
+.version
+{
+	font-size: 11px;
+	color: #ffffff;
+	padding-right: 15px;
+	padding-top: 2px;
+}
+
+.smaller
+{	
+	font-size: 10px;
+}
+
+.hide
+{
+	display: none;
+}
+
+div.msgbox
+{
+	position: absolute;
+	top: 100px;
+	left: 340px;
+	border-color: black;
+	border-width: 1px;
+	border-style: solid;
+	width: 400px;
+	background-color: white;
+	filter: alpha(opacity=95);
+	padding: 5px;
+}
+
+div.searchResults
+{
+	padding: 5px;
+	margin: 5px;
+	
+}	
+
+img.noBorder
+{
+	border-width: 0px;
+}
+
+.plainlink
+{
+	font-family: arial;
+	font-style: normal;
+	color: black;
+	text-decoration: none;
+}
+
+div.dashbaord
+{
+	border-color: black;
+	border-width: 1px;
+	border-style: solid;
+	background-color: white;
+	background-image: url(../../images/statusbg.jpg);	
+	margin: 5px 3px 6px 5px;
+	width: 239px;
+	height: 120px;
+	float: left;
+	padding: 0px;
+	text-align: left;
+	overflow: hidden;
+}
+
+div.footer
+{
+	border-width: 0px 1px 1px 1px;
+	border-color: #000000;
+	border-style: solid;
+	background-color: #ba9c8a;
+	width: 750px;
+	min-width: 750px;
+	max-width: 750px;
+	overflow: hidden;
+	padding 1px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* Footer */
+h1
+{
+	font-size: 9px;
+	margin: 0px;
+}
+
+div.imgObj
+{
+	margin: 4px 0px 0px 0px;
+	
+}
+
+div.hostgroup
+{
+	margin: 40px;
+	border-width: 1px 1px 1px 1px;
+	border-color: #000000;
+	border-style: solid;	
+	background-color: #E7E7E7;
+}
+
+p.wrap
+{
+	width: 400px;
+}
+
+p.helpItem, ul
+{
+	text-align: left;
+	margin: 5px;
+	font-size: 10px;
+}
+
+.leadingSpace
+{
+	padding-left: 4px;
+}
+
+.bottomLightBorder
+{
+	border-width: 0px 0px 1px 0px;
+	border-style: solid;
+	border-color: #aeaeae;
+	padding-top: 5px;
+}
+
+img.advancedIcon
+{
+	border-width: 0px;
+}
+
+p.advancedTitle
+{
+	color: #8e8e8e;
+}
+
+p.confirmMessage
+{
+	padding-left: 5px;
+	margin: 5px 10px 5px 10px;
+	border-width: 1px;
+	border-style: dotted;
+	border-color: #5f0000;
+	background-image: url( ../../images/alertbg.gif );
+	background-repeat: repeat-x;
+}
+
+p.infoMessage
+{
+	padding-left: 5px;
+	margin: 5px 10px 5px 10px;
+	border-width: 1px;
+	border-style: dotted;
+	border-color: #5f0000;
+	background-image: url( ../../images/infobg.gif );
+	background-repeat: repeat-x;
+}
+
+
+p.noSpace
+{
+	margin-bottom: 0px;
+	margin-top: 0px;
+	padding-left: 2px;
+
+}
+
+p.infoTitle
+{
+	padding: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-left: 0px;
+	text-align: center;
+	font-weight: bold;
+	border-width: 0px 0px 1px 0px;
+	border-style: solid;
+	border-color: #000000;
+	background-color: #bcbcbc;
+}
+
+div.pb
+{
+	background-color: #dedede;
+	width: 200px;
+	height:25px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 4px;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #bcbcbc;
+}
+
+p.taskPCT
+{	
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 0px;
+	text-align: center;	
+	padding: 0px;
+	color: #797979;
+}

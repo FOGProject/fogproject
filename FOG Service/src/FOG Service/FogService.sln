@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FOGService", "FOGService.csproj", "{F5CA5B02-4E56-4FEC-9055-B03C58542C2F}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "FOG Service Installer", "..\FOG Service Installer\FOG Service Installer.vdproj", "{C285A7B9-7826-45D9-B732-0831F6FDCA71}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F5CA5B02-4E56-4FEC-9055-B03C58542C2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5CA5B02-4E56-4FEC-9055-B03C58542C2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5CA5B02-4E56-4FEC-9055-B03C58542C2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5CA5B02-4E56-4FEC-9055-B03C58542C2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C285A7B9-7826-45D9-B732-0831F6FDCA71}.Debug|Any CPU.ActiveCfg = Debug
+		{C285A7B9-7826-45D9-B732-0831F6FDCA71}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

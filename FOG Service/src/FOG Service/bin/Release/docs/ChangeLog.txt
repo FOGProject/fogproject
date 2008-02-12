@@ -1,0 +1,8 @@
+Version 0.06
+------------
+
+* Change Log added.
+* Added docs directory.
+* Added Vista support to FOG Hostname Changer Module.
+* Added FOG Host Registration Module which supports both XP and Vista.
+* Changed Service installer to allow service to interact with the desktop.

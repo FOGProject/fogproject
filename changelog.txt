@@ -1,0 +1,139 @@
+Version 0.11
+------------
+
+* Cleaned up group removal page.
+* Cleaned up user removal page.
+* Fixed CSS on footer
+* Moved delete button to the bottom of the group edit page to keep a consistant look and feel.
+* Added FUSE to the kernel
+* Added ClamAV to the boot image
+* Added Virus History to the Host Edit pages
+* Added Virus Summary to Information Section
+* Feature Request #1886328: Added insecure option to exports
+
+Version 0.10
+------------
+
+* Fix #1881264: GPT/MSDOS MBR Error
+* Added client kernel updater 
+* Branched to two kernel types: kitchensink and skinny
+* Added FOG version and estimated users to login screen.
+* Added DNS and router configuration to the installation script.
+* Added interface configuration to the installation script.
+* Added DD disk imaging support.
+* Updated schema to version 5.
+
+Version 0.09
+------------
+
+* Added Multicast support using UDPCast
+* Added FOGMulticastManager service
+* Feature Request #1860234: Added "List all Hosts" to hosts section
+* Feature Request #1860774: Added ability to modify all the oses for a group
+	- Thanks bjornan
+* Added unmanaged api call to reboot client in FOG service
+* Added Search to Groups section of FOG Management
+* Added Search to Images section of FOG Management
+
+
+
+Version 0.08
+------------
+* Fix #1843328: changed constant()'s to define()'s in functions.include.php
+	- Thanks Gabor Halasz
+* Fix #1845874: fixed image by group problem.
+	- Thanks Gabor Halasz
+* Fix #1848708: Replaced hardcoded image directory with STORAGE_DATADIR
+	- Thanks Gabor Halasz
+* Fix #1850687: WOL enhancement merged.
+	- Thanks Gabor Halasz
+* Fix #1850700: Hardcoded webroot in dashboard.include.php
+	- Thanks Gabor Halasz
+* Fix #1850854: hardcoded dns server in intrd & tmp cleanup
+	- Thanks Gabor Halasz
+* Fix #N/A:     Fixed capital Y/N response in installer returning: "Invalid repsonse"
+
+* Added Ubuntu installer support
+* Added Snapin support
+* Added Snapin subservice
+* Added domain registration
+* Added patition resize percent to config.php
+* Added advanced option Send without Snapins
+* Added advanced option Deploy Snapins
+* Added advanced option Deploy sinlge snapin
+* Changed function getNumberOfTasks to not include orphaned tasks
+* Updated jpgraph to version 2.3
+* updated db schema to version 3
+
+
+Version 0.07
+------------
+* Changed default theme from BrownBark to BlackEye.
+* Added theme option to config file.
+* Added Fast Disk wipe.
+* Added Disk Surface test.
+* Updated Linux Kernel to 2.6.23.8.
+* Removed Kernel module support.
+* Removed Kernel swap disk support.
+* Added ramdisk size option to config file.
+* Added GUI support to the FOG Service.
+* Added graphical config to the FOG Service.
+* Added Task Reboot sub service.
+* Changed IP address from a mandatory to optional field.
+* Modified host upload making IP address optional here too.
+* Added ability to delete image files from web GUI.
+
+Version 0.06
+------------
+* Fixed Upload Resize Bug.
+* Added CSV host import
+* Added Vista support to hostname change module.
+* Added Host Registration module with XP and Vista support
+* Corrected join in Active Tasks page
+
+Version 0.05
+------------
+* Added memtest86+
+* Added testdisk
+* Added photorec
+* Cleaned up GUI a little
+* Added AJAX bandwidth monitor
+* Added AJAX HD monitor
+
+Version 0.04
+------------
+* Added advanced boot options
+
+Version 0.03
+------------
+* Added Windows Vista Support^
+* Added vista MBR to boot image
+* Added FOGVistaMbr Fix application to image
+* Added xxd to the image
+* updated ntfsutils to version 2.0
+* updated db schema to version 2
+* Added url to download the client installation package
+
+Bug Fixes
+* Added alternate method to detect hard disks, which
+  will detect a disk that has not partition on it.
+* Fixed sudo to allow apache to run etherwake.
+  
+^  In order for vista to work, the following commands
+   must be run as administrator BEFORE uploading the image.
+   
+bcdedit /set {bootmgr} device boot
+bcdedit /set {default} device boot
+bcdedit /set {default} osdevice boot   
+
+Version 0.02
+------------
+* Moved user config settings from the main install script to lib/config.sh
+* Cleaned up Kernel and included new .config file
+* added installation notification
+* added fog service with hostname changer
+* minor bug fixes
+
+Version 0.01
+------------
+Initial Product Release

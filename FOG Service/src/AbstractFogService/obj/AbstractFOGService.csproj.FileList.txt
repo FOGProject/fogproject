@@ -1,0 +1,14 @@
+obj\Release\ResolveAssemblyReference.cache
+obj\Release\AbstractFOGService.csproj.ResolveComReference.cache
+obj\Release\AbstractFOGService.dll
+..\..\OutputDirectory\AbstractFOGService.dll
+..\..\OutputDirectory\AbstractFOGService.pdb
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\AbstractFOGService.csproj.ResolveComReference.cache
+obj\Debug\AbstractFOGService.dll
+..\..\OutputDirectory\modules\AbstractFOGService.dll
+bin\Release\AbstractFOGService.dll
+bin\Release\IniReaderObj.dll
+obj\Debug\FOG.FrmUI.resources
+obj\Debug\FOG.Properties.Resources.resources
+obj\Debug\AbstractFOGService.csproj.GenerateResource.Cache
