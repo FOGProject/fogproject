@@ -1,0 +1,9 @@
+DISPLAY boot.txt
+
+DEFAULT local 
+
+LABEl local
+	localboot 0
+
+PROMPT 0
+TIMEOUT 10000

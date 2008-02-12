@@ -1,0 +1,10 @@
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\FOGSetup.csproj.GenerateResource.Cache
+obj\Debug\FOG.FrmSetup.resources
+obj\Debug\FOG.Properties.Resources.resources
+bin\Debug\FOGServiceConfig.exe
+bin\Debug\FOGServiceConfig.pdb
+bin\Debug\AbstractFOGService.dll
+bin\Debug\IniReaderObj.dll
+obj\Debug\FOGServiceConfig.exe
+obj\Debug\FOGServiceConfig.pdb

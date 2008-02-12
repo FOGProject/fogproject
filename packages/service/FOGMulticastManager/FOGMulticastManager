@@ -1,0 +1,205 @@
+#!/usr/bin/php -q
+<?php
+
+/*
+ *  FOG is a computer imaging solution.
+ *  Copyright (C) 2007  Chuck Syperski & Jian Zhang
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ */
+ 
+@error_reporting( 0 );
+
+
+
+require_once( dirname(realpath(__FILE__)) . "/../etc/config.php" );
+require_once( dirname(realpath(__FILE__)) . "/../common/functions.php" );
+require_once( dirname(realpath(__FILE__)) . "/../common/lib/MulticastTask.class.php" );
+
+function outall( $string )
+{
+	out( $string, MULTICASTDEVICEOUTPUT );
+	wlog( $string, MULTICASTLOGPATH );
+}
+
+out( getBanner(), MULTICASTDEVICEOUTPUT);
+
+outall( " * Starting FOG Multicast Manager Service" );
+
+sleep( 5 );
+
+outall( " * [" . getDateTime() . "] Checking for new tasks every " . MULTICASTSLEEPTIME . " seconds." );
+outall( " * [" . getDateTime() . "] Starting service loop." );
+
+$arKnownTasks = array();
+
+if( ! file_exists( UPDSENDERPATH ) )
+{
+	outall( " * [" . getDateTime() . "] Unable to locate udp-sender!." );
+	exit;
+}
+
+while( true )
+{
+	out( " ", MULTICASTDEVICEOUTPUT );
+	out( " +---------------------------------------------------------", MULTICASTDEVICEOUTPUT );
+	//out( " | [" . getDateTime() . "] Connecting to FOG Server: " . MYSQL_HOST, MULTICASTDEVICEOUTPUT );
+	$conn = mysql_connect(MYSQL_HOST, MYSQL_USERNAME, MYSQL_PASSWORD);
+	if ( $conn )
+	{
+		if( mysql_select_db( MYSQL_DATABASE, $conn ) )
+		{
+			out( " | [" . getDateTime() . "] Connected to FOG Server successfully", MULTICASTDEVICEOUTPUT );
+			
+			$allTasks = MulticastTask::getAllMulticastTasks( $conn );
+			
+			out( " | [" . getDateTime() . "] " . count( $allTasks ) . " task(s) found.", MULTICASTDEVICEOUTPUT );
+			for( $i = 0; $i < count( $allTasks ); $i++ )
+			{
+				if ( $allTasks[$i] != null )
+				{
+					if ( isMCTaskNew( $arKnownTasks, $allTasks[$i]->getID() ) )
+					{
+						outall( " | [" . getDateTime() . "] Task (" . $allTasks[$i]->getID() . ") " . $allTasks[$i]->getName() . " is new!" );
+						
+						if ( file_exists( $allTasks[$i]->getImagePath() ) )
+						{
+							outall( " | [" . getDateTime() . "] Task (" . $allTasks[$i]->getID() . ") " . $allTasks[$i]->getName() . " image file found." );
+							if ( $allTasks[$i]->getClientCount() > 0 )
+							{
+								outall( " | [" . getDateTime() . "] Task (" . $allTasks[$i]->getID() . ") " . $allTasks[$i]->getName() . " " . $allTasks[$i]->getClientCount() . " clients found." );
+								if ( is_numeric($allTasks[$i]->getPortBase()) && $allTasks[$i]->getPortBase() % 2 == 0 )
+								{
+									outall( " | [" . getDateTime() . "] Task (" . $allTasks[$i]->getID() . ") " . $allTasks[$i]->getName() . " sending on base port: " . $allTasks[$i]->getPortBase()  );
+									
+									wlog( "CMD: " . $allTasks[$i]->getCMD(), MULTICASTLOGPATH );
+									
+									if ( $allTasks[$i]->startTask($conn) )
+									{
+										outall( " | [" . getDateTime() . "] Task (" . $allTasks[$i]->getID() . ") " . $allTasks[$i]->getName() . " has started."  );
+										$arKnownTasks[] = $allTasks[$i];										
+									}
+									else
+									{
+										outall( " | [" . getDateTime() . "] Task (" . $allTasks[$i]->getID() . ") " . $allTasks[$i]->getName() . " failed to start!"  );
+										outall( " | * Don't panic, check all your settings!" );
+										outall( " |       even if the interface is incorrect the task won't start." );										
+										outall( " |       If all else fails run the following command and see what it says:"  );
+										outall( " |  " . $allTasks[$i]->getCMD() );
+																				
+										if ( $allTasks[$i]->killTask($conn) )
+										{
+											outall( " | [" . getDateTime() . "] Task (" . $allTasks[$i]->getID() . ") " . $allTasks[$i]->getName() . " has been cleaned." );
+										}
+										else
+										{
+											outall( " | [" . getDateTime() . "] Task (" . $allTasks[$i]->getID() . ") " . $allTasks[$i]->getName() . " has NOT been cleaned." );
+										}
+									}
+								}
+								else
+								{
+									outall( " | [" . getDateTime() . "] Task (" . $allTasks[$i]->getID() . ") " . $allTasks[$i]->getName() . " failed to execute, port must be even and numeric" );
+								}
+							}
+							else
+							{
+								outall( " | [" . getDateTime() . "] Task (" . $allTasks[$i]->getID() . ") " . $allTasks[$i]->getName() . " failed to execute, no clients are included!" );
+							}
+						}
+						else
+						{
+							outall( " | [" . getDateTime() . "] Task (" . $allTasks[$i]->getID() . ") " . $allTasks[$i]->getName() . " failed to execute, image file not found!" );
+						}					
+					}
+					else
+					{	
+						$runningTask = getMCExistingTask( $arKnownTasks, $allTasks[$i]->getID() );
+						if ( $runningTask != null )
+						{
+							if ( $runningTask->isRunning() )
+							{
+								// update percents
+								out( " | [" . getDateTime() . "] Task (" . $runningTask->getID() . ") " . $runningTask->getName() . " is already running PID " . $runningTask->getPID() . ".", MULTICASTDEVICEOUTPUT );
+								$pct = $runningTask->updateStats($conn);
+								if ( $pct != -1 )
+								{
+									out( " | [" . getDateTime() . "] Task (" . $runningTask->getID() . ") " . $runningTask->getName() . " $pct complete.", MULTICASTDEVICEOUTPUT );								
+								}
+								else
+								{
+									out( " | [" . getDateTime() . "] Task (" . $runningTask->getID() . ") " . $runningTask->getName() . " failed to update statistics.", MULTICASTDEVICEOUTPUT );																
+								}
+							}
+							else
+							{
+								outall( " | [" . getDateTime() . "] Task (" . $runningTask->getID() . ") " . $runningTask->getName() . " is no longer running." );
+								$runningTask->flagAsDead();
+								if ( $runningTask->canBeSafelyKilled() )
+								{
+									if ( $runningTask->killTask($conn) )
+									{
+										$arKnownTasks = removeFromKnownList( $arKnownTasks, $runningTask->getID() );
+										outall( " | [" . getDateTime() . "] Task (" . $runningTask->getID() . ") " . $runningTask->getName() . " has been cleaned." );
+									}
+									else
+										outall( " | [" . getDateTime() . "] Task (" . $runningTask->getID() . ") " . $runningTask->getName() . " has NOT been cleaned." );
+								}
+								else
+								{
+									outall( " | [" . getDateTime() . "] Task (" . $runningTask->getID() . ") " . $runningTask->getName() . " will not be cleaned yet (5 min delay)." );
+								}
+							}
+						}
+						else
+							outall( " | [" . getDateTime() . "] Task (" . $allTasks[$i]->getID() . ") " . $allTasks[$i]->getName() . " failed to locate associated object!" );
+					}
+				}
+			}
+			
+			$arRMTasks = getMCTasksNotInDB( $arKnownTasks, $allTasks );
+			if ( count( $arRMTasks) > 0 )
+			{
+				out( " | [" . getDateTime() . "] Cleaning " . count( $arRMTasks) . " task(s) removed from FOG Database.", MULTICASTDEVICEOUTPUT );
+				for( $i = 0; $i < count( $arRMTasks ); $i++ )
+				{
+					if ($arRMTasks[$i] != null)
+					{
+						outall( " | [" . getDateTime() . "] Cleaning Task (" . $arRMTasks[$i]->getID() . ") " . $arRMTasks[$i]->getName()  );
+						$arRMTasks[$i]->killTask( null, true );
+						$arKnownTasks = removeFromKnownList( $arKnownTasks, $arRMTasks[$i]->getID() );
+						outall( " | [" . getDateTime() . "] Task (" . $arRMTasks[$i]->getID() . ") " . $arRMTasks[$i]->getName() . " has been cleaned." );
+					}
+				}
+			}
+			
+		}
+		else
+			outall( " | [" . getDateTime() . "] Failed to use database: " . MYSQL_DATABASE );
+			
+		@mysql_close($conn);
+	}
+	else
+	{
+		outall( " | [" . getDateTime() . "] Failed to connect to database server, will try again in next iteration." );
+	}
+
+	out( " +---------------------------------------------------------", MULTICASTDEVICEOUTPUT );
+	sleep( MULTICASTSLEEPTIME );
+}
+
+outall( " * [" . getDateTime() . "] Service has ended." );
+?>
