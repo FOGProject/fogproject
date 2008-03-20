@@ -26,6 +26,25 @@ define( "WIPE_FULL", 3 );
 define( "FOG_AV_SCANONLY", 1 );
 define( "FOG_AV_SCANQUARANTINE", 2 );
 
+function userTrackerActionToString( $code )
+{
+	switch( $code )
+	{
+		case "0":
+			return "Logout";
+			break;
+		case "1":
+			return "Login";
+			break;
+		case "99":
+			return "Service Start";
+			break;
+		default:
+			return "N/A";
+			break;
+	}
+}
+
 function criticalError( $description, $title="FOG :: Critical Error!" )
 {
 	echo "<div class=\"errorBox\">";
@@ -96,6 +115,20 @@ function getCurrentDBVersion($conn)
 	return 0;
 }
  
+function getOSNameByID( $conn, $osid )
+{
+	if ( $conn != null )
+	{
+		$sql = "select * from supportedOS where osValue = '" . mysql_real_escape_string($osid) . "'";
+		$res = mysql_query( $sql, $conn ) or criticalError( mysql_error(), "FOG :: Database error!" );
+		while( $ar = mysql_fetch_array( $res ) )
+		{
+			return $ar["osName"];
+		}
+	}
+	return null;
+}
+ 
 function getOSDropDown( $conn, $name="os", $selected=null )
 {
 	if ( $conn != null )
@@ -109,7 +142,28 @@ function getOSDropDown( $conn, $name="os", $selected=null )
 			$sel = "";
 			if ( $selected == $ar["osValue"] )
 				$sel = "selected=\"selected\"";
-			$buffer .= "<option value=\"" . $ar["osValue"] . "\" label=\"" . $ar["osName"] . "\" $sel>" . $ar["osName"] . "</option>\n";
+			$buffer .= "<option value=\"" . $ar["osValue"] . "\" label=\"" . $ar["osName"] . "\" $sel>" . $ar["osName"] . " (" . $ar["osValue"] . ")</option>\n";
+		}
+		$buffer .= "</select>\n";
+		return $buffer;
+	}
+	return null;
+}
+
+function getImageDropDown( $conn, $name="image", $selected=null )
+{
+	if ( $conn != null )
+	{
+		$sql = "select * from images order by imageName";
+		$res = mysql_query( $sql, $conn ) or criticalError( mysql_error(), "FOG :: Database error!" );
+		$buffer = "<select name=\"$name\" size=\"1\">\n";
+		$buffer .= "<option value=\"-1\" label=\"Select One\">Select One</option>\n";
+		while( $ar = mysql_fetch_array( $res ) )
+		{
+			$sel = "";
+			if ( $selected == $ar["imageID"] )
+				$sel = "selected=\"selected\"";
+			$buffer .= "<option value=\"" . $ar["imageID"] . "\" label=\"" . $ar["imageName"] . "\" $sel>" . $ar["imageName"] . " (" . $ar["imageID"] . ")</option>\n";
 		}
 		$buffer .= "</select>\n";
 		return $buffer;
@@ -131,6 +185,115 @@ function getSnapinDropDown( $conn, $name="snap", $selected=null )
 			if ( $selected == $ar["sName"] )
 				$sel = "selected=\"selected\"";
 			$buffer .= "<option value=\"" . $ar["sID"] . "\" label=\"" . $ar["sName"] . "\" $sel>" . $ar["sName"] . "</option>\n";
+		}
+		$buffer .= "</select>\n";
+		return $buffer;
+	}
+	return null;
+}
+
+function addPrinter( $conn, $hostId, $printerId )
+{
+	if ( $conn != null )
+	{
+		$host = mysql_real_escape_string( $hostId );
+		$printer = mysql_real_escape_string( $printerId );	
+		
+		$sql = "select count(*) as cnt from printerAssoc where paPrinterID = '$printer' and paHostID = '$host'";
+		$res = mysql_query( $sql, $conn ) or criticalError( mysql_error(), "FOG :: Database error!" );
+		if ( $ar = mysql_fetch_array( $res ) )
+		{
+			if ( $ar["cnt"] == 0 )
+			{
+				$sql = "select count(*) as cnt from printerAssoc where paHostID = '$host' and paIsDefault = '1'";
+				$res = mysql_query( $sql, $conn ) or criticalError( mysql_error(), "FOG :: Database error!" );
+				if ( $ar = mysql_fetch_array( $res ) )
+				{
+					$default = "0";
+					if ( $ar["cnt"] == 0 )
+					{
+						$default = "1";
+					}
+					$sql = "INSERT INTO 
+							printerAssoc( paHostID, paPrinterID, paIsDefault )
+							values( '$host', '$printer', '$default' )";
+
+					if ( mysql_query( $sql, $conn ) )
+					{
+						return true;
+					}
+				}
+			}
+
+		}			
+	}
+	return false;	
+}
+
+function deletePrinter( $conn, $printerAssocId )
+{
+	if ( $conn != null )
+	{
+		$printer = mysql_real_escape_string( $printerAssocId );
+		$sql = "delete from printerAssoc where paID = '$printer'";	
+		if ( mysql_query( $sql, $conn ) )
+			return true;
+	}
+	return false;
+}
+
+function deletePrinterByHost( $conn, $printerId, $hostId )
+{
+	if ( $conn != null )
+	{
+		$printer = mysql_real_escape_string( $printerId );
+		$host = mysql_real_escape_string( $hostId );
+		$sql = "delete from printerAssoc where paPrinterID = '$printer' and paHostID = '$host'";	
+		if ( mysql_query( $sql, $conn ) )
+			return true;
+	}
+	return false;
+}
+
+function setDefaultPrinter( $conn, $printerAssocId )
+{
+	if ( $conn != null )
+	{
+		$printer = mysql_real_escape_string( $printerAssocId );	
+		$sql = "select paHostID from printerAssoc where paID = '$printer'";
+		$res = mysql_query( $sql, $conn ) or criticalError( mysql_error(), "FOG :: Database error!" );;
+		$hostid = null;
+		while( $ar = mysql_fetch_array( $res ) )
+		{
+			$hostid = $ar["paHostID"];
+			if ( $hostid !== null && is_numeric($hostid) )
+			{
+				$sql = "update printerAssoc set paIsDefault = '0' where paHostID = '$hostid'";
+				if ( mysql_query( $sql, $conn ) )
+				{
+					$sql = "update printerAssoc set paIsDefault = '1' where paID = '$printer'";
+					return mysql_query( $sql, $conn );
+				}
+			}
+		}
+	}
+	return false;
+}
+
+function getPrinterDropDown( $conn, $name="printer", $selected=null )
+{
+	if ( $conn != null )
+	{
+		$sql = "select * from printers order by pAlias";
+		$res = mysql_query( $sql, $conn ) or criticalError( mysql_error(), "FOG :: Database error!" );
+		$buffer = "<select name=\"$name\" size=\"1\">\n";
+		$buffer .= "<option value=\"-1\" label=\"Select One\">Select One</option>\n";
+		while( $ar = mysql_fetch_array( $res ) )
+		{
+			$sel = "";
+			if ( $selected == $ar["pID"] )
+				$sel = "selected=\"selected\"";
+			$buffer .= "<option value=\"" . $ar["pID"] . "\" label=\"" . $ar["pAlias"] . "\" $sel>" . $ar["pAlias"] . "</option>\n";
 		}
 		$buffer .= "</select>\n";
 		return $buffer;
@@ -331,6 +494,8 @@ function getImageAction( $char )
 		return "Multicast";					
 	else if ( strtolower( $char ) == "v" )
 		return "Virus Scan";			
+	else if ( strtolower( $char ) == "i" )
+		return "Inventory";			
 	else
 		return "N/A";
 }
@@ -474,7 +639,11 @@ function msgBox( $msg )
 function lg( $string )
 {
 	global $conn, $currentUser;
-	$sql = "insert into history( hText, hUser, hTime, hIP ) values( '" . mysql_real_escape_string( $string ) . "', '" . mysql_real_escape_string( $currentUser->getUserName() ) . "', NOW(), '" . $_SERVER[REMOTE_ADDR] . "')";
+	$uname = "";
+	if ( $currentUser != null )
+		$uname = mysql_real_escape_string( $currentUser->getUserName() );
+		
+	$sql = "insert into history( hText, hUser, hTime, hIP ) values( '" . mysql_real_escape_string( $string ) . "', '" . $uname . "', NOW(), '" . $_SERVER[REMOTE_ADDR] . "')";
 	@mysql_query( $sql, $conn );
 }
 
@@ -551,6 +720,11 @@ function trimString( $string, $len )
 	}
 	
 	return $string;
+}
+
+function endsWith( $str, $sub ) 
+{
+   return ( substr( $str, strlen( $str ) - strlen( $sub ) ) === $sub );
 }
 
 function getCheckedItems( $post )
@@ -742,6 +916,77 @@ function sloppyNameLookup( $host )
 		return gethostbyname( $host );
 	
 	return $host;
+}
+
+function createInventoryPackage( $conn, $member, &$reason )
+{
+	global $currentUser;
+	if ( $conn != null && $member != null )
+	{
+		if (  $member->getMACDash() != null  )
+		{
+
+			$mac = strtolower( $member->getMACImageReady() );			
+			$output = "# Created by FOG Imaging System\n\n
+						  DEFAULT send\n
+						  LABEL send\n
+						  kernel " . PXE_KERNEL . "\n
+						  append initrd=" . PXE_IMAGE . "  root=/dev/ram0 rw ramdisk_size=" . PXE_KERNEL_RAMDISK . " ip=dhcp dns=" . PXE_IMAGE_DNSADDRESS . " mac_deployed=" . $member->getMACColon() . " web=" . sloppyNameLookup(WEB_HOST) . WEB_ROOT . " mode=autoreg deployed=1 quiet";
+			$tmp = createPXEFile( $output );
+			if( $tmp !== null )
+			{
+				$num = getCountOfActiveTasksWithMAC( $conn, $member->getMACColon());
+					
+				if ( $num == 0 )
+				{	
+				
+					$ftp = ftp_connect(TFTP_HOST); 
+					$ftp_loginres = ftp_login($ftp, TFTP_FTP_USERNAME, TFTP_FTP_PASSWORD); 			
+					if ($ftp && $ftp_loginres ) 
+					{
+						if ( ftp_put( $ftp, TFTP_PXE_CONFIG_DIR . $mac, $tmp, FTP_ASCII ) )
+						{		
+							$sql = "insert into 
+									tasks(taskName, taskCreateTime, taskCheckIn, taskHostID, taskState, taskCreateBy, taskForce, taskType ) 
+									values('" . mysql_real_escape_string($member->getHostName() . " Inventory") . "', NOW(), NOW(), '" . $member->getID() . "', '0', '" . mysql_real_escape_string( $currentUser->getUserName() ) . "', '0', 'I' )";
+							if ( mysql_query( $sql, $conn ) )
+							{
+								wakeUp( $member->getMACColon() );																			
+								lg( "Inventory package created for host " . $member->getHostName() . " [" . $member->getMACDash() . "]" );										
+								@ftp_close($ftp);
+								@unlink( $tmp );
+								return true;								
+							}
+							else
+							{
+								ftp_delete( $ftp, TFTP_PXE_CONFIG_DIR . $mac ); 									
+								$reason = mysql_error();								
+							}							
+						}  
+ 						else
+							$reason = "Unable to upload file."; 											
+ 					}	
+ 					else
+						$reason = "Unable to connect to tftp server."; 				
+					
+					@ftp_close($ftp); 					
+					@unlink( $tmp );		
+				}
+				else
+					$reason = "This host is already a member of a task!";	
+			}
+			else
+				$reason = "Failed to open tmp file.";
+			
+		} 
+		else
+			$reason = "MAC is null.";
+	}
+	else
+	{
+		$reason = "Either member of database connection was null";
+	}
+	return false;	
 }
 
 function createDiskSufaceTestPackage( $conn, $member, &$reason )
@@ -1108,11 +1353,16 @@ function createUploadImagePackage( $conn, $member, &$reason, $debug=false )
 			if ( is_numeric(UPLOADRESIZEPCT) && UPLOADRESIZEPCT >= 5 && UPLOADRESIZEPCT < 100 )
 				$pct = "pct=" . UPLOADRESIZEPCT;
 			
+			$ignorepg = "0";
+			
+			if ( FOG_UPLOADIGNOREPAGEHIBER )
+				$ignorepg = "1";
+			
 			$output = "# Created by FOG Imaging System\n\n
 						  DEFAULT send\n
 						  LABEL send\n
 						  kernel " . PXE_KERNEL . "\n
-						  append initrd=" . PXE_IMAGE . "  root=/dev/ram0 rw ramdisk_size=" . PXE_KERNEL_RAMDISK . " ip=dhcp dns=" . PXE_IMAGE_DNSADDRESS . " type=up img=$image imgid=$imageid mac=" . $member->getMACColon() . " storage=" . sloppyNameLookup(STORAGE_HOST) . ":" . STORAGE_DATADIR_UPLOAD . " web=" . sloppyNameLookup(WEB_HOST) . WEB_ROOT . " osid=" . $member->getOSID() . " $mode $pct $imgType quiet";
+						  append initrd=" . PXE_IMAGE . "  root=/dev/ram0 rw ramdisk_size=" . PXE_KERNEL_RAMDISK . " ip=dhcp dns=" . PXE_IMAGE_DNSADDRESS . " type=up img=$image imgid=$imageid mac=" . $member->getMACColon() . " storage=" . sloppyNameLookup(STORAGE_HOST) . ":" . STORAGE_DATADIR_UPLOAD . " web=" . sloppyNameLookup(WEB_HOST) . WEB_ROOT . " ignorepg=$ignorepg osid=" . $member->getOSID() . " $mode $pct $imgType quiet";
 			$tmp = createPXEFile( $output );
 			if( $tmp !== null )
 			{
@@ -1646,10 +1896,14 @@ function createImagePackage($conn, $member, $taskName, &$reason, $debug=false, $
 					if ($ftp && $ftp_loginres ) 
 					{
 						if ( ftp_put( $ftp, TFTP_PXE_CONFIG_DIR . $mac, $tmp, FTP_ASCII ) )
-						{						
+						{			
+							$uname = "";
+							if ( $currentUser != null )
+								$uname = mysql_real_escape_string( $currentUser->getUserName() );
+											
 							$sql = "insert into 
 									tasks(taskName, taskCreateTime, taskCheckIn, taskHostID, taskState, taskCreateBy, taskForce, taskType ) 
-									values('" . mysql_real_escape_string($taskName) . "', NOW(), NOW(), '" . $member->getID() . "', '0', '" . mysql_real_escape_string( $currentUser->getUserName() ) . "', '0', 'D' )";
+									values('" . mysql_real_escape_string($taskName) . "', NOW(), NOW(), '" . $member->getID() . "', '0', '" . $uname . "', '0', 'D' )";
 							if ( mysql_query( $sql, $conn ) )
 							{
 								if ( $deploySnapins )

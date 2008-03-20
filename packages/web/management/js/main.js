@@ -144,6 +144,35 @@ function getContentResponseHost()
 
 }
 
+function getContentPrinter( node )
+{
+	xmlObj 		= getXmlHttpObject();
+	var contentType = "application/x-www-form-urlencoded; charset=UTF-8";
+	var url 	= "ajax/printers.search.php";
+	var query	= "crit=" + node;	
+	
+		
+	
+	xmlObj.onreadystatechange=getContentResponsePrinter;
+	xmlObj.open("post",url,true);
+	xmlObj.setRequestHeader("Content-Type", contentType);
+	xmlObj.send(query);
+	
+}
+
+function getContentResponsePrinter()
+{
+	if (xmlObj.readyState==2)
+	{
+		document.getElementById("printerSearchContent").innerHTML='<center><b>Performing Search...</b></center>';
+	}
+	if (xmlObj.readyState==4 || xmlObj.readyState=="complete")
+	{ 
+		document.getElementById("printerSearchContent").innerHTML=xmlObj.responseText;
+	} 
+
+}
+
 function getContentTask( node )
 {
 	xmlObj 		= getXmlHttpObject();

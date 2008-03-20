@@ -1,9 +1,24 @@
 DISPLAY boot.txt
 
-DEFAULT local 
+DEFAULT fog.local
 
-LABEl local
+LABEL fog.local
 	localboot 0
 
-PROMPT 0
-TIMEOUT 10000
+LABEL fog.memtest
+	kernel fog/memtest/memtest
+
+LABEL fog.reg
+	kernel fog/kernel/bzImage
+	append initrd=fog/images/init.gz  root=/dev/ram0 rw ramdisk_size=127000 ip=dhcp dns=1.1.1.38 mode=autoreg web=1.1.1.100/fog/ quiet
+
+LABEL fog.reginput
+	kernel fog/kernel/bzImage
+	append initrd=fog/images/init.gz  root=/dev/ram0 rw ramdisk_size=127000 ip=dhcp dns=1.1.1.38 mode=manreg web=1.1.1.100/fog/ quiet
+
+LABEL fog.debug
+	kernel fog/kernel/bzImage
+	append initrd=fog/images/init.gz  root=/dev/ram0 rw ramdisk_size=127000 ip=dhcp dns=1.1.1.38 mode=onlydebug
+
+PROMPT 1
+TIMEOUT 30

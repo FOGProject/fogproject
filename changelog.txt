@@ -1,6 +1,38 @@
-Version 0.12 Prelease
----------------------
+Version 0.13
+------------
 
+* Made installer language independent
+* Made DHCP startup optional
+* Added build-essential to the ubuntu install list
+
+Version 0.12
+------------
+
+* Added Hardware Inventory Task
+* Added Printer Installation Service Module
+* Added User Tracking Service Module
+* Added FOG Reporting
+* Added Enhanced Registration Method
+* Added Client FOG Service Updater
+* Feature Request #1902517 - Change FOG upload behavior to include removal of Page File and Hibernate file.
+* Added Basic Tasks to Host management screen
+* Added Login History to the Host management screen
+* Added Hardware Inventory to host management screen
+* Added printer management to host management screen
+* Updated Kernel to 2.6.25-rc3
+* Fix # 1901545 - Add insecure option to all exports
+* Fix # 1892693 - New user passwords only characters
+* Added HTMLDoc to list of install packages
+* Added 3 sec pause to pxe boot
+* Added pxe boot option fog.memtest
+* Added pxe boot option fog.reg
+* Added pxe boot option fog.reginput
+* Updated Partprobe to 1.8.6
+* Put a freeze on changes to AbstartFOGService.dll
+* Put a freeze on changes to FOGService.exe
+
+  Known Issues
+* Setting of default printer is currently not functional.
 
 
 Version 0.11

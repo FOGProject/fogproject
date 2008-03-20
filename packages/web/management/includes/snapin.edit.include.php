@@ -129,21 +129,29 @@ else
 	if ( $ar = mysql_fetch_array( $res ) )
 	{
 
-		echo ( "<center><form method=\"POST\" action=\"?node=$_GET[node]&sub=$_GET[sub]&imageid=$_GET[imageid]\">" );
-		echo ( "<table cellpadding=0 cellspacing=0 border=0 width=90%>" );
-			echo ( "<tr><td>Snapin Name:</td><td><input class=\"smaller\" type=\"text\" name=\"name\" value=\"" . $ar["sName"] . "\" /></td></tr>" );
-			echo ( "<tr><td>Snapin Description:</td><td><textarea class=\"smaller\" name=\"description\" rows=\"5\" cols=\"65\">" . $ar["sDesc"] . "</textarea></td></tr>" );
-			echo ( "<tr><td>Snapin File:</td><td>" . $ar["sFilePath"] . "</td></tr>" );
-			echo ( "<tr><td>Snapin Arguments:</td><td><input class=\"smaller\" type=\"text\" name=\"args\" value=\"" . $ar["sArgs"] . "\" /></td></tr>" );	
-			$checked = "";
-			if ( $ar["sReboot"] == "1" )
-				$checked = "checked=\"checked\"";
-			echo ( "<tr><td>Reboot after install:</td><td><input type=\"checkbox\" name=\"reboot\" $checked /></td></tr>" );				
-		
-			echo ( "<tr><td colspan=2><font><center><br /><input type=\"hidden\" name=\"update\" value=\"1\" /><input type=\"hidden\" name=\"snapinid\" value=\"" . $ar["sID"] . "\" /><input class=\"smaller\" type=\"submit\" value=\"Update\" /></center></font></td></tr>" );				
-		echo ( "</table>" );
-		echo ( "</form>" );
-		echo ( "<br /><p class=\"titleBottom\"><a href=\"?node=" . $_GET["node"] . "&sub=" . $_GET["sub"] . "&rmsnapinid=" . $ar["sID"] . "\"><img class=\"link\" src=\"images/delete.png\"></a></p>" );
+		echo ( "<center>" );
+		if ( $_GET["tab"] == "gen" || $_GET["tab"] == "" )
+		{
+			echo ( "<form method=\"POST\" action=\"?node=$_GET[node]&sub=$_GET[sub]&snapinid=$_GET[snapinid]\">" );
+			echo ( "<table cellpadding=0 cellspacing=0 border=0 width=90%>" );
+				echo ( "<tr><td>Snapin Name:</td><td><input class=\"smaller\" type=\"text\" name=\"name\" value=\"" . $ar["sName"] . "\" /></td></tr>" );
+				echo ( "<tr><td>Snapin Description:</td><td><textarea class=\"smaller\" name=\"description\" rows=\"5\" cols=\"65\">" . $ar["sDesc"] . "</textarea></td></tr>" );
+				echo ( "<tr><td>Snapin File:</td><td>" . $ar["sFilePath"] . "</td></tr>" );
+				echo ( "<tr><td>Snapin Arguments:</td><td><input class=\"smaller\" type=\"text\" name=\"args\" value=\"" . $ar["sArgs"] . "\" /></td></tr>" );	
+				$checked = "";
+				if ( $ar["sReboot"] == "1" )
+					$checked = "checked=\"checked\"";
+				echo ( "<tr><td>Reboot after install:</td><td><input type=\"checkbox\" name=\"reboot\" $checked /></td></tr>" );				
+			
+				echo ( "<tr><td colspan=2><font><center><br /><input type=\"hidden\" name=\"update\" value=\"1\" /><input type=\"hidden\" name=\"snapinid\" value=\"" . $ar["sID"] . "\" /><input class=\"smaller\" type=\"submit\" value=\"Update\" /></center></font></td></tr>" );				
+			echo ( "</table>" );
+			echo ( "</form>" );
+		}
+		else if ( $_GET["tab"] == "delete" )
+		{
+			echo ( "<p>Are you sure you wish to remove this snapin?</p>" );
+			echo ( "<p><a href=\"?node=" . $_GET["node"] . "&sub=" . $_GET["sub"] . "&rmsnapinid=" . $ar["sID"] . "\"><img class=\"link\" src=\"images/delete.png\"></a></p>" );
+		}
 		echo ( "</center>" );
 	}
 	echo ( "</div>" );	

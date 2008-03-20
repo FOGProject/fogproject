@@ -72,6 +72,9 @@ if ( $currentUser != null && $currentUser->isLoggedIn() )
 	echo ( "<center>" );
 	echo ( "<table width=\"98%\" cellpadding=0 cellspacing=0 border=0>" );
 	echo ( "<tr><td width=\"100\" valign=\"top\" >" );
+		echo ( "<p class=\"mainTitle\">" );
+				echo ( "Main Menu" );		
+		echo ( "</p>" );	
 		echo ( "<div class=\"subMenu\">" );
 			echo ( "<a href=\"?node=home\" class=\"plainfont\">Home</a>" );
 		echo ( "</div>" );
@@ -86,7 +89,66 @@ if ( $currentUser != null && $currentUser->isLoggedIn() )
 		echo ( "</div>" );	
 		echo ( "<div class=\"subMenu\">" );
 			echo ( "<a href=\"?node=$_GET[node]&sub=upload\" class=\"plainfont\">Upload Hosts</a>" );
-		echo ( "</div>" );		
+		echo ( "</div>" );
+		
+		if ( $_GET["id"] !== null )
+		{
+			if ( is_numeric( $_GET["id"] ) )
+			{
+				echo ( "<p class=\"hostTitle\">" );
+						echo ( "Host Menu" );		
+				echo ( "</p>" );
+				
+				echo ( "<div class=\"subMenu\">" );
+					echo ( "<a href=\"?node=$_GET[node]&sub=edit&id=$_GET[id]&tab=gen\" class=\"plainfont\">General</a>" );
+				echo ( "</div>" );
+				echo ( "<div class=\"subMenu\">" );
+					echo ( "<a href=\"?node=$_GET[node]&sub=edit&id=$_GET[id]&tab=tasks\" class=\"plainfont\">Basic Tasks</a>" );
+				echo ( "</div>" );								
+				echo ( "<div class=\"subMenu\">" );
+					echo ( "<a href=\"?node=$_GET[node]&sub=edit&id=$_GET[id]&tab=ad\" class=\"plainfont\">Active Directory</a>" );
+				echo ( "</div>" );				
+				echo ( "<div class=\"subMenu\">" );
+					echo ( "<a href=\"?node=$_GET[node]&sub=printers&id=$_GET[id]\" class=\"plainfont\">Printers</a>" );
+				echo ( "</div>" );					
+				echo ( "<div class=\"subMenu\">" );
+					echo ( "<a href=\"?node=$_GET[node]&sub=edit&id=$_GET[id]&tab=snapins\" class=\"plainfont\">Snapins</a>" );
+				echo ( "</div>" );		
+				echo ( "<div class=\"subMenu\">" );
+					echo ( "<a href=\"?node=$_GET[node]&sub=inv&id=$_GET[id]\" class=\"plainfont\">Hardware</a>" );
+				echo ( "</div>" );						
+				echo ( "<div class=\"subMenu\">" );
+					echo ( "<a href=\"?node=$_GET[node]&sub=edit&id=$_GET[id]&tab=virus\" class=\"plainfont\">Virus History</a>" );
+				echo ( "</div>" );
+				echo ( "<div class=\"subMenu\">" );
+					echo ( "<a href=\"?node=$_GET[node]&sub=loginhist&id=$_GET[id]\" class=\"plainfont\">Login History</a>" );
+				echo ( "</div>" );								
+				echo ( "<div class=\"subMenu\">" );
+					echo ( "<a href=\"?node=$_GET[node]&sub=edit&id=$_GET[id]&tab=delete\" class=\"plainfont\">Delete</a>" );
+				echo ( "</div>" );
+				
+				echo ( "<p class=\"miscTitle\">" );
+						echo ( "Quick Info" );		
+				echo ( "</p>" );
+				
+				echo ( "<div class=\"infoItem\">" );
+					$hid = mysql_real_escape_string( $_GET["id"] );
+					$sql = "select * from hosts where hostID = '$hid'";
+					$res = mysql_query( $sql, $conn ) or die( mysql_error() );
+					if ( $ar = mysql_fetch_array( $res ) )
+					{
+						echo "<p class=\"hostInfoTitleFirst\">Host:</p>"; 
+						echo ( "<p class=\"hostInfoItem\">" . trimString( stripslashes($ar["hostName"]), 20 ) . "</p>" );
+						echo "<p class=\"hostInfoTitle\">MAC:</p>"; 
+						echo ( "<p class=\"hostInfoItem\">" . stripslashes($ar["hostMAC"]) . "</p>" );						
+						echo "<p class=\"hostInfoTitle\">Operat. System:</p>"; 
+						echo ( "<p class=\"hostInfoItem\">" . stripslashes(getOSNameByID( $conn, $ar["hostOS"] )) . "</p>" );						
+					}
+				echo ( "</div>" );
+														
+			}
+		}
+		
 	echo ( "</td>" );
 	echo ( "<td>" );
 		echo ( "<div class=\"sub\">" );
@@ -109,6 +171,18 @@ if ( $currentUser != null && $currentUser->isLoggedIn() )
 		else if ( $_GET[sub] == "upload" )
 		{
 			require_once( "./includes/hosts.upload.include.php" );
+		}
+		else if ( $_GET[sub] == "loginhist" )
+		{
+			require_once( "./includes/hosts.login.include.php" );
+		}	
+		else if ( $_GET[sub] == "printers" )
+		{
+			require_once( "./includes/hosts.printers.include.php" );
+		}					
+		else if ( $_GET[sub] == "inv" )
+		{
+			require_once( "./includes/hosts.inventory.include.php" );
 		}			
 		else
 		{

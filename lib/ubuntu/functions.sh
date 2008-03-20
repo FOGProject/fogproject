@@ -34,8 +34,8 @@ configureFOGService()
 {
 	echo -n "  * Starting FOG Multicast Management Server"; 
 	${initdpath}/${initdfullname} stop >/dev/null 2>&1;
-	ret=`${initdpath}/${initdfullname} start 2>/dev/null | grep "[ OK ]"`;
-	if [ "$ret" = "" ]
+	${initdpath}/${initdfullname} start >/dev/null 2>&1;
+	if [ "$?" != "0" ]
 	then
 		echo "...Failed!";
 		exit 1;	
@@ -48,13 +48,13 @@ configureNFS()
 {
 	echo -n "  * Setting up and starting NFS Server"; 
 	
-	echo "/images                        *(ro,sync,no_wdelay,insecure_locks,no_root_squash)
+	echo "/images                        *(ro,sync,no_wdelay,insecure_locks,no_root_squash,insecure)
 /images/dev                    *(rw,sync,no_wdelay,no_root_squash,insecure)" > "${nfsconfig}";
 	
 	sysv-rc-conf nfs-kernel-server on >/dev/null 2>&1;
 	/etc/init.d/nfs-kernel-server stop >/dev/null 2>&1;
-	ret=`/etc/init.d/nfs-kernel-server start 2>/dev/null | grep "[ OK ]"`;	
-	if [ "$ret" = "" ]
+	/etc/init.d/nfs-kernel-server start >/dev/null 2>&1;
+	if [ "$?" != "0" ]
 	then
 		echo "...Failed!";
 		exit 1;	
@@ -86,8 +86,8 @@ tcp_wrappers=YES" > "$ftpconfig";
 
 	sysv-rc-conf vsftpd on >/dev/null 2>&1;
 	/etc/init.d/vsftpd stop >/dev/null 2>&1;
-	ret=`/etc/init.d/vsftpd start 2>/dev/null | grep "[ OK ]"`;	
-	if [ "$ret" = "" ] 
+	/etc/init.d/vsftpd start >/dev/null 2>&1;
+	if [ "$?" != "0" ] 
 	then
 		echo "...Failed!";
 		exit 1;	
@@ -119,6 +119,27 @@ configureTFTPandPXE()
 	chown -R ${username} "${tftpdirdst}";
 	chmod -R 777 "${tftpdirdst}";
 
+	echo "DISPLAY boot.txt
+
+DEFAULT fog.local
+
+LABEL fog.local
+	localboot 0
+
+LABEL fog.memtest
+	kernel fog/memtest/memtest
+
+LABEL fog.reg
+	kernel fog/kernel/bzImage
+	append initrd=fog/images/init.gz  root=/dev/ram0 rw ramdisk_size=127000 ip=dhcp dns=${dnsbootimage} mode=autoreg web=${ipaddress}/fog/ quiet
+
+LABEL fog.reginput
+	kernel fog/kernel/bzImage
+	append initrd=fog/images/init.gz  root=/dev/ram0 rw ramdisk_size=127000 ip=dhcp dns=${dnsbootimage} mode=manreg web=${ipaddress}/fog/ quiet
+
+PROMPT 1
+TIMEOUT 30" > "${tftpdirdst}/pxelinux.cfg/default";
+
 	if [ -f "$tftpconfig" ]
 	then
 		mv "$tftpconfig" "${tftpconfig}.fogbackup";
@@ -145,8 +166,8 @@ service tftp
 
 	sysv-rc-conf xinetd on >/dev/null 2>&1;
 	/etc/init.d/xinetd stop >/dev/null 2>&1;
-	ret=`/etc/init.d/xinetd start 2>/dev/null | grep "[ OK ]"`;		
-	if [ "$ret" = "" ]
+	/etc/init.d/xinetd start >/dev/null 2>&1;
+	if [ "$?" != "0" ]
 	then
 		echo "...Failed!";
 		exit 1;	
@@ -189,15 +210,19 @@ ${routeraddress}
         filename \"pxelinux.0\";
 }" > "$dhcpconfig";
 		
-	sysv-rc-conf dhcpd on >/dev/null 2>&1;
-	/etc/init.d/dhcp3-server stop >/dev/null 2>&1;
-	ret=`/etc/init.d/dhcp3-server start 2>/dev/null | grep "[ OK ]"`;		
-	if [ "$ret" = "" ]
-	then
-		echo "...Failed!";
-		exit 1;	
+	if [ "$bldhcp" = "1" ]; then	
+		sysv-rc-conf dhcpd on >/dev/null 2>&1;
+		/etc/init.d/dhcp3-server stop >/dev/null 2>&1;
+		/etc/init.d/dhcp3-server start >/dev/null 2>&1;
+		if [ "$?" != "0" ]
+		then
+			echo "...Failed!";
+			exit 1;	
+		else
+			echo "...OK";
+		fi
 	else
-		echo "...OK";
+		echo "...Skipped";
 	fi
 
 }
@@ -207,8 +232,8 @@ configureHttpd()
 	echo -n "  * Setting up and starting Apache Web Server";
 	sysv-rc-conf apache2 on;
 	/etc/init.d/apache2  stop  >/dev/null 2>&1
-	ret=`/etc/init.d/apache2 start  2>/dev/null  | grep "[ OK ]"`;	
-	if [ "$ret" = "" ]
+	/etc/init.d/apache2 start >/dev/null 2>&1;
+	if [ "$?" != "0" ]
 	then
 		echo "...Failed!";
 		exit 1;	
@@ -225,7 +250,7 @@ configureHttpd()
 		
 		echo "<?php
 /*
- *  FOG - Free, Open-Source Ghost is a computer imaging solution.
+ *  FOG  is a computer imaging solution.
  *  Copyright (C) 2007  Chuck Syperski & Jian Zhang
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -245,59 +270,47 @@ configureHttpd()
  */
 
 define( \"IS_INCLUDED\", true );
-
 define( \"TFTP_HOST\", \"${ipaddress}\" );
 define( \"TFTP_FTP_USERNAME\", \"${username}\" );
 define( \"TFTP_FTP_PASSWORD\", \"${password}\" );
 define( \"TFTP_PXE_CONFIG_DIR\", \"/tftpboot/pxelinux.cfg/\" );
 define( \"TFTP_PXE_KERNEL_DIR\", \"/tftpboot/fog/kernel/\" );
-
 define( \"PXE_KERNEL\", \"fog/kernel/bzImage\" );
 define( \"PXE_KERNEL_RAMDISK\", 127000 ); 
 define( \"USE_SLOPPY_NAME_LOOKUPS\", true);
 define( \"MEMTEST_KERNEL\", \"fog/memtest/memtest\" );
-
 define( \"PXE_IMAGE\",  \"fog/images/init.gz\" );
 define( \"PXE_IMAGE_DNSADDRESS\",  \"${dnsbootimage}\" );
-
 define( \"STORAGE_HOST\", \"${ipaddress}\" );
 define( \"STORAGE_DATADIR\", \"/images/\" );
 define( \"STORAGE_DATADIR_UPLOAD\", \"/images/dev/\" );
 define( \"STORAGE_BANDWIDTHPATH\", \"/fog/status/bandwidth.php\" );
-
 define( \"CLONEMETHOD\", \"ntfsclone\" );  // valid values partimage, ntfsclone
 define( \"UPLOADRESIZEPCT\", 5 ); 
-
 define( \"WEB_HOST\", \"${ipaddress}\" );
 define( \"WEB_ROOT\", \"/fog/\" );
-
 define( \"WOL_HOST\", \"${ipaddress}\" ); 	
 define( \"WOL_PATH\", \"/fog/wol/wol.php\" );   
 define( \"WOL_INTERFACE\", \"${interface}\" );
-
 define( \"SNAPINDIR\", \"${snapindir}/\" );
-
 define( \"QUEUESIZE\", \"10\" );
 define( \"CHECKIN_TIMEOUT\", 600 );
-
 define( \"MYSQL_HOST\", \"localhost\" );
 define( \"MYSQL_DATABASE\", \"fog\" );
 define( \"MYSQL_USERNAME\", \"root\" );
 define( \"MYSQL_PASSWORD\", \"\" );
-
 define( \"USER_MINPASSLENGTH\", 4 );
-define( \"USER_VALIDPASSCHARS\", \"ABCDEFGHIJKLMNOPQRSTUVWZXYabcdefghijklmnopqrstuvwxyz_$-()^!\" );
-
+define( \"USER_VALIDPASSCHARS\", \"1234567890ABCDEFGHIJKLMNOPQRSTUVWZXYabcdefghijklmnopqrstuvwxyz_$-()^!\" );
 define( \"NFS_ETH_MONITOR\", \"${interface}\" );
-
 define(\"UDPCAST_INTERFACE\",\"${interface}\");
 define(\"UDPCAST_STARTINGPORT\", 63100 ); 					// Must be an even number! recommended between 49152 to 65535
-
 define(\"FOG_MULTICAST_MAX_SESSIONS\", 64 );
-
+define( \"FOG_JPGRAPH_VERSION\", \"2.3\" );
+define( \"FOG_REPORT_DIR\", \"./reports/\" );
 define( \"FOG_THEME\", \"blackeye/blackeye.css\" );
-define( \"FOG_VERSION\", \"0.11\" );
-define( \"FOG_SCHEMA\", 6);
+define( \"FOG_UPLOADIGNOREPAGEHIBER\", true );
+define( \"FOG_VERSION\", \"0.12\" );
+define( \"FOG_SCHEMA\", 7);
 ?>" > "${webdirdest}/commons/config.php";
 		
 		
@@ -322,9 +335,9 @@ configureMySql()
 {
 	echo -n "  * Setting up and starting MySql";
 	sysv-rc-conf mysql on >/dev/null 2>&1;
-	/etc/init.d/mysql stop >/dev/null 2>&1
-	ret=`/etc/init.d/mysql start 2>/dev/null | grep "[ OK ]"`;
-	if [ "$ret" = "" ]
+	/etc/init.d/mysql stop >/dev/null 2>&1;
+	/etc/init.d/mysql start >/dev/null 2>&1;
+	if [ "$?" != "0" ]
 	then
 		echo "...Failed!";
 		exit 1;	

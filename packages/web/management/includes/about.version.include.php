@@ -1,6 +1,6 @@
 <?php
 /*
- *  FOG - Free, Open-Source Ghost is a computer imaging solution.
+ *  FOG is a computer imaging solution.
  *  Copyright (C) 2007  Chuck Syperski & Jian Zhang
  *
  *   This program is free software: you can redistribute it and/or modify

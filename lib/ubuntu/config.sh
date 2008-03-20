@@ -22,7 +22,7 @@
 # Ubuntu Config Settings
 
 # apt-get packages to install
-packages="apache2 php5 php5-gd php5-cli php5-mysql php5-curl mysql-server mysql-client dhcp3-server tftpd-hpa tftp-hpa nfs-kernel-server vsftpd net-tools wget xinetd  sysv-rc-conf etherwake tar gzip cpp gcc g++ m4";
+packages="apache2 php5 php5-gd php5-cli php5-mysql php5-curl mysql-server mysql-client dhcp3-server tftpd-hpa tftp-hpa nfs-kernel-server vsftpd net-tools wget xinetd  sysv-rc-conf etherwake tar gzip build-essential cpp gcc g++ m4 htmldoc";
 
 # where do the init scripts go?
 initdpath="/etc/init.d";

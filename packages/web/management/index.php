@@ -107,6 +107,10 @@ FOG :: A Free, Open Source Computer Cloning Solution :: Version <?php echo FOG_V
 					require_once( "./includes/help.include.php" );							
 				else if ( $_GET[node] == "snap" )
 					require_once( "./includes/snapins.include.php" );	
+				else if ( $_GET[node] == "report" )
+					require_once( "./includes/reports.include.php" );
+				else if ( $_GET[node] == "print" )
+					require_once( "./includes/printer.include.php" );					
 				else
 					require_once( "./includes/dashboard.include.php" );
 			}

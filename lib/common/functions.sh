@@ -139,7 +139,7 @@ sendInstallationNotice()
 	case "$send" in
 	    yes | y | Yes | YES )
 	    	echo -n "  * Thank you, sending notification..."
-	    	wget "http://freeghost.no-ip.org/notify/index.php?version=$version" &>/dev/null;
+	    	wget -q -O - "http://freeghost.no-ip.org/notify/index.php?version=$version" >/dev/null 2>&1;
 	    	echo "Done";
 	    	;;
     	    *)

@@ -6,8 +6,9 @@ function getD($aLabel)
 	return date("M j", strtotime( "-" .(30 -$aLabel) ." day"));	
 }
 
-require_once ("../lib/jpgraph/2.2/src/jpgraph.php");
-require_once ("../lib/jpgraph/2.2/src/jpgraph_line.php");
+require_once( "../../commons/config.php" );
+require_once ("../lib/jpgraph/" . FOG_JPGRAPH_VERSION . "/src/jpgraph.php");
+require_once ("../lib/jpgraph/" . FOG_JPGRAPH_VERSION . "/src/jpgraph_line.php");
 
 $ydata = $_SESSION["30day"];
 

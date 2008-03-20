@@ -201,99 +201,138 @@ if ( $_GET["groupid"] != null && is_numeric( $_GET["groupid"] ) )
 	if ( $ar = mysql_fetch_array( $res ) )
 	{
 		echo ( "<div class=\"scroll\">" );
-			echo ( "<p class=\"title\">Modify Group " . $ar["groupName"] . "</p>" );
-			echo ( "<form method=\"POST\" action=\"?node=" . $_GET["node"] . "&sub=" . $_GET["sub"] . "&groupid=" . $_GET["groupid"] . "\">" );
-				echo ( "<center><table cellpadding=0 cellspacing=0 border=0 width=90%>" );
-				echo ( "<tr><td>Group Name:</td><td><input class=\"smaller\" type=\"text\" name=\"name\" value=\"$ar[groupName]\" /></td></tr>" );
-				echo ( "<tr><td>Group Description:</td><td><textarea name=\"description\" rows=\"3\" cols=\"40\">$ar[groupDesc]</textarea></td></tr>" );
-				echo ( "<tr><td colspan=2><center><br /><input type=\"hidden\" name=\"update\" value=\"1\" /><input class=\"smaller\" type=\"submit\" value=\"Update\" /></center></td></tr>" );				
-				echo ( "</table></center>" );
-			echo ( "</form>" );
-	
-			echo ( "<br /><p class=\"titleBottomLeft\">Image Association for $ar[groupName]</p>" );	
-			echo ( "<div class=\"hostgroup\">" );	
-				echo ( "<form method=\"POST\" action=\"?node=$_GET[node]&sub=$_GET[sub]&groupid=$_GET[groupid]\">" );	
-				$sql = "select * from images order by imageName";
-				$res = mysql_query( $sql, $conn ) or die( mysql_error() );
-				echo( "<select name=\"image\" size=\"1\">" );
-				echo ( "<option value=\"\">Do Nothing</option>" );
-				while( $ar1 = mysql_fetch_array( $res ) )
-				{
-					echo ( "<option value=\"" . $ar1["imageID"] . "\" >" . $ar1["imageName"] . "</option>" );
-				}
-				echo ( "</select>" );
-				echo ( "<p><input class=\"smaller\" type=\"submit\" value=\"Update Images\" /></p>" );	
-				echo ( "</form>" );	
-			echo ( "</div>" );
-			
-			echo ( "<p class=\"titleBottomLeft\">Operating System Association for $ar[groupName]</p>" );
-			echo ( "<div class=\"hostgroup\">" );	
-				echo ( "<form method=\"POST\" action=\"?node=$_GET[node]&sub=$_GET[sub]&groupid=$_GET[groupid]\">" );	
-				echo ( getOSDropDown( $conn, $name="grpos" ) );
-				echo ( "<p><input class=\"smaller\" type=\"submit\" value=\"Update Operating System\" /></p>" );		
-				echo ( "</form>" );			
-			echo ( "</div>" );	
-	
-			echo ( "<p class=\"titleBottomLeft\">Add Snapin to all hosts in " . $ar["groupName"] . "</p>" );
-			echo ( "<div class=\"hostgroup\">" );
-				echo ( "<form method=\"POST\" action=\"?node=" . $_GET["node"] . "&sub=" . $_GET["sub"] . "&groupid=" . $_GET["groupid"] . "\">" );
-				echo ( getSnapinDropDown( $conn ) );
-				echo( "<p><input type=\"hidden\" name=\"gsnapinadd\" value=\"1\" /><input type=\"submit\" value=\"Add Snapin\" /></p>" );
-				echo ( "</form>" );
-			echo ( "</div>" );
-			
-			echo ( "<p class=\"titleBottomLeft\">Remove Snapin to all hosts in " . $ar["groupName"] . "</p>" );
-			echo ( "<div class=\"hostgroup\">" );
-				echo ( "<form method=\"POST\" action=\"?node=" . $_GET["node"] . "&sub=" . $_GET["sub"] . "&groupid=" . $_GET["groupid"] . "\">" );
-				echo ( getSnapinDropDown( $conn ) );
-				echo( "<p><input type=\"hidden\" name=\"gsnapindel\" value=\"1\" /><input type=\"submit\" value=\"Remove Snapin\" /></p>" );
-				echo ( "</form>" );
-			echo ( "</div>" );								
-	
-			echo ( "<p class=\"titleBottomLeft\">Modify AD information for " . $ar["groupName"] . "</p>" );	
-	
-			echo ( "<form method=\"POST\" action=\"?node=" . $_GET["node"] . "&sub=" . $_GET["sub"] . "&groupid=" . $_GET["groupid"] . "\">" );
-			echo ( "<table cellpadding=0 cellspacing=0 border=0 width=90%>" );
-				echo ( "<tr><td>Join Domain after image task:</td><td><input class=\"smaller\" type=\"checkbox\" name=\"domain\" /></td></tr>" );
-				echo ( "<tr><td>Domain name:</td><td><input class=\"smaller\" type=\"text\" name=\"domainname\" /></td></tr>" );				
-				echo ( "<tr><td>Organizational Unit:</td><td><input class=\"smaller\" type=\"text\" name=\"ou\" /> <span class=\"lightColor\">(Blank for default)</span></td></tr>" );				
-				echo ( "<tr><td>Domain Username:</td><td><input class=\"smaller\" type=\"text\" name=\"domainuser\" /></td></tr>" );						
-				echo ( "<tr><td>Domain Password:</td><td><input class=\"smaller\" type=\"text\" name=\"domainpassword\" /> <span class=\"lightColor\">(Must be encrypted)</span></td></tr>" );												
-				echo ( "<tr><td colspan=2><center><br /><input type=\"hidden\" name=\"updatead\" value=\"1\" /><input class=\"smaller\" type=\"submit\" value=\"Update\" /></center></td></tr>" );									
-			echo ( "</table>" );
-			echo ( "</form>" );
-	
-			echo ( "<p class=\"titleBottomLeft\">Modify Membership for " . $ar["groupName"] . "</p>" );
-			
-			echo ( "<form method=\"POST\" action=\"?node=$_GET[node]&sub=$_GET[sub]&groupid=$_GET[groupid]\">" );
-			echo ( "<center><table cellpadding=0 cellspacing=0 border=0 width=100%>" );
-			if ( $_GET["delhostid"] != null && is_numeric( $_GET["delhostid"] ) )
+			if ( $_GET["tab"] == "gen" || $_GET["tab"] == "" )
 			{
-				$sql = "delete from groupMembers where gmGroupID = '" . mysql_real_escape_string( $_GET["groupid"] ) . "' and gmHostID = '" . mysql_real_escape_string( $_GET["delhostid"] ) . "'";
-				if ( !mysql_query( $sql, $conn ) )
-					msgBox( "Failed to remove host from group!" );
+				echo ( "<p class=\"title\">Modify Group " . $ar["groupName"] . "</p>" );
+				echo ( "<form method=\"POST\" action=\"?node=" . $_GET["node"] . "&sub=" . $_GET["sub"] . "&groupid=" . $_GET["groupid"] . "\">" );
+					echo ( "<center><table cellpadding=0 cellspacing=0 border=0 width=90%>" );
+					echo ( "<tr><td>Group Name:</td><td><input class=\"smaller\" type=\"text\" name=\"name\" value=\"$ar[groupName]\" /></td></tr>" );
+					echo ( "<tr><td>Group Description:</td><td><textarea name=\"description\" rows=\"3\" cols=\"40\">$ar[groupDesc]</textarea></td></tr>" );
+					echo ( "<tr><td colspan=2><center><br /><input type=\"hidden\" name=\"update\" value=\"1\" /><input class=\"smaller\" type=\"submit\" value=\"Update\" /></center></td></tr>" );				
+					echo ( "</table></center>" );
+				echo ( "</form>" );
+			}
 			
-			}		
-	
-	
-			$members = getImageMembersByGroupID( $conn, $ar["groupID"] );
-			if ( $members != null )
+			if ( $_GET["tab"] == "image"  )
 			{
-				for( $i = 0; $i < count( $members ); $i++ )
-				{
-					if ( $members[$i] != null )
+				echo ( "<p class=\"title\">Image Association for $ar[groupName]</p>" );	
+				echo ( "<div class=\"hostgroup\">" );	
+					echo ( "<form method=\"POST\" action=\"?node=$_GET[node]&sub=$_GET[sub]&groupid=$_GET[groupid]&tab=$_GET[tab]\">" );	
+					$sql = "select * from images order by imageName";
+					$res = mysql_query( $sql, $conn ) or die( mysql_error() );
+					echo( "<select name=\"image\" size=\"1\">" );
+					echo ( "<option value=\"\">Do Nothing</option>" );
+					while( $ar1 = mysql_fetch_array( $res ) )
 					{
-						$bgcolor = "";
-						if ( $i % 2 == 0 ) $bgcolor = "#E7E7E7";
-						echo ( "<tr bgcolor=\"$bgcolor\"><td>&nbsp;" . $members[$i]->getHostName() . "</td><td>&nbsp;" . $members[$i]->getIPaddress() . "</td><td>&nbsp;" . $members[$i]->getMAC() . "</td><td><a href=\"?node=$_GET[node]&sub=$_GET[sub]&groupid=" . $_GET["groupid"] . "&delhostid=" . $members[$i]->getID() . "\"><img src=\"images/deleteSmall.png\" class=\"link\" /></a></td></tr>" );
-					}	
-				}
-			}							
-		echo ( "</table></center>" );
-		echo ( "</form>" );	
+						echo ( "<option value=\"" . $ar1["imageID"] . "\" >" . $ar1["imageName"] . "</option>" );
+					}
+					echo ( "</select>" );
+					echo ( "<p><input class=\"smaller\" type=\"submit\" value=\"Update Images\" /></p>" );	
+					echo ( "</form>" );	
+				echo ( "</div>" );
+			}
+			
+			if ( $_GET["tab"] == "os"  )
+			{			
+				echo ( "<p class=\"title\">Operating System Association for $ar[groupName]</p>" );
+				echo ( "<div class=\"hostgroup\">" );	
+					echo ( "<form method=\"POST\" action=\"?node=$_GET[node]&sub=$_GET[sub]&groupid=$_GET[groupid]&tab=$_GET[tab]\">" );	
+					echo ( getOSDropDown( $conn, $name="grpos" ) );
+					echo ( "<p><input class=\"smaller\" type=\"submit\" value=\"Update Operating System\" /></p>" );		
+					echo ( "</form>" );			
+				echo ( "</div>" );	
+			}
+			
+			if ( $_GET["tab"] == "tasks" )
+			{	
+				echo ( "<p class=\"title\">Basic Imaging Tasks</p>" );
+
+				?>
+				
+				<table cellpadding="0" cellspacing="0" border="0" width="100%">
+				<tr><td class="leadingSpace bottomLightBorder" width="50"><a href="?node=tasks&type=group&direction=down&noconfirm=<?php echo $_GET["groupid"]; ?>"><img class="advancedIcon" src="./images/senddebug.png" /><p class="advancedTitle">Send</p></a></td><td class="leadingSpace bottomLightBorder"><p class=\"advancedDesc\">Send action will deploy an image saved on the FOG server to the client computer with all included snapins.</p></td></tr>
+				</table>
+				
+				<?php
+			}			
+			
+			if ( $_GET["tab"] == "snapadd"  )
+			{				
+				echo ( "<p class=\"title\">Add Snapin to all hosts in " . $ar["groupName"] . "</p>" );
+				echo ( "<div class=\"hostgroup\">" );
+					echo ( "<form method=\"POST\" action=\"?node=" . $_GET["node"] . "&sub=" . $_GET["sub"] . "&groupid=" . $_GET["groupid"] . "&tab=$_GET[tab]\">" );
+					echo ( getSnapinDropDown( $conn ) );
+					echo( "<p><input type=\"hidden\" name=\"gsnapinadd\" value=\"1\" /><input type=\"submit\" value=\"Add Snapin\" /></p>" );
+					echo ( "</form>" );
+				echo ( "</div>" );
+			}
+			
+			if ( $_GET["tab"] == "snapdel" )
+			{
+				echo ( "<p class=\"title\">Remove Snapin to all hosts in " . $ar["groupName"] . "</p>" );
+				echo ( "<div class=\"hostgroup\">" );
+					echo ( "<form method=\"POST\" action=\"?node=" . $_GET["node"] . "&sub=" . $_GET["sub"] . "&groupid=" . $_GET["groupid"] . "&tab=$_GET[tab]\">" );
+					echo ( getSnapinDropDown( $conn ) );
+					echo( "<p><input type=\"hidden\" name=\"gsnapindel\" value=\"1\" /><input type=\"submit\" value=\"Remove Snapin\" /></p>" );
+					echo ( "</form>" );
+				echo ( "</div>" );								
+			}
+			
+			if ( $_GET["tab"] == "ad" )
+			{			
+				echo ( "<p class=\"title\">Modify AD information for " . $ar["groupName"] . "</p>" );	
+		
+				echo ( "<form method=\"POST\" action=\"?node=" . $_GET["node"] . "&sub=" . $_GET["sub"] . "&groupid=" . $_GET["groupid"] . "&tab=$_GET[tab]\">" );
+				echo ( "<table cellpadding=0 cellspacing=0 border=0 width=90%>" );
+					echo ( "<tr><td>Join Domain after image task:</td><td><input class=\"smaller\" type=\"checkbox\" name=\"domain\" /></td></tr>" );
+					echo ( "<tr><td>Domain name:</td><td><input class=\"smaller\" type=\"text\" name=\"domainname\" /></td></tr>" );				
+					echo ( "<tr><td>Organizational Unit:</td><td><input class=\"smaller\" type=\"text\" name=\"ou\" /> <span class=\"lightColor\">(Blank for default)</span></td></tr>" );				
+					echo ( "<tr><td>Domain Username:</td><td><input class=\"smaller\" type=\"text\" name=\"domainuser\" /></td></tr>" );						
+					echo ( "<tr><td>Domain Password:</td><td><input class=\"smaller\" type=\"text\" name=\"domainpassword\" /> <span class=\"lightColor\">(Must be encrypted)</span></td></tr>" );												
+					echo ( "<tr><td colspan=2><center><br /><input type=\"hidden\" name=\"updatead\" value=\"1\" /><input class=\"smaller\" type=\"submit\" value=\"Update\" /></center></td></tr>" );									
+				echo ( "</table>" );
+				echo ( "</form>" );
+			}
+			
+			if ( $_GET["tab"] == "member" )
+			{			
+				echo ( "<p class=\"title\">Modify Membership for " . $ar["groupName"] . "</p>" );
+				
+				echo ( "<form method=\"POST\" action=\"?node=$_GET[node]&sub=$_GET[sub]&groupid=$_GET[groupid]&tab=$_GET[tab]\">" );
+				echo ( "<center><table cellpadding=0 cellspacing=0 border=0 width=100%>" );
+				if ( $_GET["delhostid"] != null && is_numeric( $_GET["delhostid"] ) )
+				{
+					$sql = "delete from groupMembers where gmGroupID = '" . mysql_real_escape_string( $_GET["groupid"] ) . "' and gmHostID = '" . mysql_real_escape_string( $_GET["delhostid"] ) . "'";
+					if ( !mysql_query( $sql, $conn ) )
+						msgBox( "Failed to remove host from group!" );
+				
+				}		
+		
+		
+				$members = getImageMembersByGroupID( $conn, $ar["groupID"] );
+				if ( $members != null )
+				{
+					for( $i = 0; $i < count( $members ); $i++ )
+					{
+						if ( $members[$i] != null )
+						{
+							$bgcolor = "";
+							if ( $i % 2 == 0 ) $bgcolor = "#E7E7E7";
+							echo ( "<tr bgcolor=\"$bgcolor\"><td>&nbsp;" . $members[$i]->getHostName() . "</td><td>&nbsp;" . $members[$i]->getIPaddress() . "</td><td>&nbsp;" . $members[$i]->getMAC() . "</td><td><a href=\"?node=$_GET[node]&sub=$_GET[sub]&groupid=" . $_GET["groupid"] . "&tab=$_GET[tab]&delhostid=" . $members[$i]->getID() . "\"><img src=\"images/deleteSmall.png\" class=\"link\" /></a></td></tr>" );
+						}	
+					}
+				}							
+				echo ( "</table></center>" );
+				echo ( "</form>" );
+			}	
 	
-		echo ( "<p class=\"titleBottom\"><a href=\"?node=$_GET[node]&sub=$_GET[sub]&delgroupid=" . $ar["groupID"] . "\"><img class=\"link\" src=\"images/delete.png\"></a></p>" );
-	
+			if ( $_GET["tab"] == "del" )
+			{		
+				echo ( "<p class=\"title\">Delete Group</p>" );	
+				echo ( "<p>Click on the icon below to delete this group from the FOG database.</p>" );					
+				echo ( "<p><a href=\"?node=$_GET[node]&sub=$_GET[sub]&delgroupid=" . $ar["groupID"] . "\"><img class=\"link\" src=\"images/delete.png\"></a></p>" );
+			}
+			
 		echo ( "</div>" );		
 	}	
 }

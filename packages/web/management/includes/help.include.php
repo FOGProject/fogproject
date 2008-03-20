@@ -6,6 +6,9 @@ if ( $currentUser != null && $currentUser->isLoggedIn() )
 	echo ( "<center>" );
 	echo ( "<table width=\"98%\" cellpadding=0 cellspacing=0 border=0>" );
 	echo ( "<tr><td width=\"100\" valign=\"top\" >" );
+		echo ( "<p class=\"mainTitle\">" );
+			echo ( "Main Menu" );		
+		echo ( "</p>" );	
 		echo ( "<div class=\"subMenu\">" );
 			echo ( "<a href=\"?node=home\" class=\"plainfont\">Home</a>" );
 		echo ( "</div>" );	

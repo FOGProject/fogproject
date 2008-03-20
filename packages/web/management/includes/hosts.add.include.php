@@ -47,10 +47,12 @@ if ( $_POST["add"] != null )
 		if ( createHost( $conn, $mac, $hostname, $ip, $desc, $user, $os, $image, $useAD, $adDomain, $adOU, $adUser, $adPass) )
 		{
 			msgBox( "Host Added, you may now add another." );
+			lg( "New Host Added via management form: " . $hostname );
 		}
 		else
 		{
 			msgBox( "Failed to create host!" );
+			lg( "Failed add add new host via management form: " . $hostname );
 		}			
 	}
 }
@@ -63,22 +65,10 @@ echo ( "<center><table cellpadding=0 cellspacing=0 border=0 width=90%>" );
 	echo ( "<tr><td>Host MAC:*</td><td><input class=\"smaller\" type=\"text\" name=\"mac\" value=\"\" /></td></tr>" );
 	echo ( "<tr><td>Host Description:</td><td><textarea name=\"description\" rows=\"5\" cols=\"40\"></textarea></td></tr>" );
 	echo ( "<tr><td>Host Image:</td><td>" );
-
-	$sql = "select * from images order by imageName";
-	$res = mysql_query( $sql, $conn ) or die( mysql_error() );
-	echo ( "<select name=\"image\" size=\"1\">" );
-	echo ( "<option value=\"\"></option>" );	
-	while( $ar1 = mysql_fetch_array( $res ) )
-	{
-		$selected = "";
-		if ( $ar["hostImage"] == $ar1["imageID"] )
-			$selected = "selected=\"selected\"";
-		echo ( "<option value=\"" . $ar1["imageID"] . "\" $selected>" . $ar1["imageName"] . "</option>" );
-	}
-	echo ( "</select>" );
+		echo getImageDropDown( $conn );
 	echo ( "</td></tr>" );
 	echo ( "<tr><td>Host OS:</td><td>" );		
-		echo ( getOSDropDown( $conn, $name="os") );
+		echo ( getOSDropDown( $conn ) );
 	echo ( "</td></tr>" );	
 	echo ( "</table>" );
 	echo ( "<table cellpadding=0 cellspacing=0 border=0 width=90%>" );
