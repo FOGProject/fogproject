@@ -179,7 +179,7 @@ service tftp
 	chkconfig xinetd on;
 	service xinetd restart >/dev/null 2>&1;
 	service xinetd status  >/dev/null 2>&1;	
-	if [ "$?"!= "0" ]
+	if [ "$?" != "0" ]
 	then
 		echo "...Failed!";
 		exit 1;	

@@ -77,7 +77,9 @@ case "$blGo" in
            echo "";
            configureUsers;
            configureMySql;
+           backupReports;
            configureHttpd;
+           restoreReports;
            configureStorage;
            configureNFS;
            configureDHCP;
