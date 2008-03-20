@@ -1,6 +1,6 @@
 <?php
 /*
- *  FOG - Free, Open-Source Ghost is a computer imaging solution.
+ *  FOG  is a computer imaging solution.
  *  Copyright (C) 2007  Chuck Syperski & Jian Zhang
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -368,7 +368,30 @@ if ( $currentUser != null && $currentUser->isLoggedIn() )
 			{
 				echo ( "No Host are members of this group" );
 			}
-		}														
+		}
+		else if ( $_GET["direction"] == "inventory" )
+		{
+			$imageMembers = null;
+			if ( $_GET["type"] == "host" )
+			{
+				$imageMembers = array( getImageMemberFromHostID( $conn, $noconfirm ) );
+			}
+			else if ( $_GET["type"] == "group" )
+			{
+				$imageMembers = getImageMembersByGroupID( $conn, $noconfirm );
+			}	
+			
+			echo ( "<p class=\"confirmMessage\">Are you sure you wish to update/take an inventory of these machines?</p>" );
+			echo ( "<table width=\"98%\" cellspacing=\"0\" cellpadding=0 border=0>" );
+			for( $i = 0; $i < count( $imageMembers ); $i++ )
+			{
+				echo ( "<tr><td>&nbsp;" . $imageMembers[$i]->getHostName() . "</td><td><font class=\"smaller\">" . $imageMembers[$i]->getMac() . "</font></td><td><font class=\"smaller\">" . $imageMembers[$i]->getIPAddress() . "</font></td><td><font class=\"smaller\">" . $imageMembers[$i]->getImage() . "</font></td></tr>" );
+			}
+			echo ( "<tr><td colspan=10><center><br /><br /><input class=\"smaller\" type=\"button\" value=\"Run Inventory\" onClick=\"location.href='?node=$_GET[node]&confirm=$noconfirm&type=$_GET[type]&direction=$_GET[direction]';\" /></center></td></tr>" );
+			echo ( "</table>" );				
+		}		
+		
+																
 	}
 	else if ( $_GET["confirm"] != null )
 	{
@@ -1021,7 +1044,53 @@ if ( $currentUser != null && $currentUser->isLoggedIn() )
 					echo "<p class=\"infoMessage\">$suc snapins were queued, $fail Failed!.</p><p>$output</p>";
 				}
 			}					
-		}															
+		}	
+		else if ( $_GET["direction"] == "inventory" )
+		{
+			
+			$imageMembers = null;
+			if ( $_GET["type"] == "host" )
+			{
+				$imageMembers = array( getImageMemberFromHostID( $conn, $confirm ) );
+			}
+			else if ( $_GET["type"] == "group" )
+			{
+				$imageMembers = getImageMembersByGroupID( $conn, $confirm );
+			}	
+
+			$output = "";
+			$suc = 0;
+			$fail = 0;
+			for( $i = 0; $i < count( $imageMembers ); $i++ )
+			{
+				$tmp = "";
+				if ( $imageMembers[$i] != null )
+				{			
+					if(! createInventoryPackage($conn, $imageMembers[$i], $tmp))
+					{
+						$output .= "[" . $imageMembers[$i]->getHostName() . "] " . $tmp . "<br />";
+						$fail++;					
+					}
+					else
+					{
+						$suc++;
+					}					
+				}
+			}
+			
+			if ( $fail == 0 )
+			{
+				echo "<p class=\"infoMessage\">All $suc machines were prepared for inventory without error.</p>";
+			}
+			else if ( $suc == 0 )
+			{
+				echo ( "<p class=\"infoMessage\">None of the machines were prepared for inventory!</p><p>$output</p>" );
+			}
+			else
+			{
+				echo "<p class=\"infoMessage\">$suc machines were prepared for inventory, $fail Failed!.</p><p>$output</p>";
+			}
+		}																
 							
 	}
 	echo ( "</div>" );

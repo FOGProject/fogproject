@@ -77,6 +77,7 @@ if ( $_GET["file"] != null )
 							echo ( "<p>Kernel: " . basename( $file ) . " has been installed!</p>" );						
 							echo ( "<p>If you have problems with the new kernel, the original can restored by coping  $backupfile to $bzImage</p>" );
 							echo ( "<p><pre class=\"shellcommand\">cp $backupfile \\ \n$bzImage</pre></p>" );
+							lg( "New Kernel installed!" );
 						}
 						else
 						{

@@ -15,7 +15,7 @@ if ( $_POST["add"] != null )
 				$sql = "insert into users( uName, uPass, uCreateDate, uCreateBy ) values( '$name', MD5('$password1'), NOW(), '$user')";
 				if ( mysql_query( $sql, $conn ) )
 				{
-					msgBox( "User Created, you may now add another." );
+					msgBox( "User created.<br />You may now add another." );
 					lg( "User Added :: $name" );
 				}
 				else

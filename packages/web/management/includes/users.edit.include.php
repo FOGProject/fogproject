@@ -111,16 +111,24 @@ else
 	$res = mysql_query( $sql, $conn ) or die( mysql_error() );
 	if ( $ar = mysql_fetch_array( $res ) )
 	{
-
-		echo ( "<center><form method=\"POST\" action=\"?node=$_GET[node]&sub=$_GET[sub]&userid=$_GET[userid]\">" );
-		echo ( "<table cellpadding=0 cellspacing=0 border=0 width=90%>" );
-			echo ( "<tr><td><font class=\"smaller\">User Name:</font></td><td><input class=\"smaller\" type=\"text\" name=\"name\" value=\"" . $ar["uName"] . "\" /></td></tr>" );
-			echo ( "<tr><td><font class=\"smaller\">New Password:</font></td><td><input type=\"password\" name=\"p1\" value=\"\" /></td></tr>" );
-			echo ( "<tr><td><font class=\"smaller\">New Password (confirm):</font></td><td><input type=\"password\" name=\"p2\" value=\"\" /></td></tr>" );
-			echo ( "<tr><td colspan=2><font class=\"smaller\"><center><br /><input type=\"hidden\" name=\"update\" value=\"" . $ar["uId"] . "\" /><input class=\"smaller\" type=\"submit\" value=\"Update\" /></center></font></td></tr>" );				
-		echo ( "</table>" );
-		echo ( "</form>" );
-		echo ( "<br /><p class=\"titleBottom\"><a href=\"?node=" . $_GET["node"] . "&sub=" . $_GET["sub"] . "&rmuserid=" . $ar["uId"] . "\"><img class=\"link\" src=\"images/delete.png\"></a></p>" );
+	
+		echo ( "<center>" );
+		if ( $_GET["tab"] == "gen" || $_GET["tab"] == "" )
+		{
+			echo ( "<form method=\"POST\" action=\"?node=$_GET[node]&sub=$_GET[sub]&userid=$_GET[userid]\">" );
+			echo ( "<table cellpadding=0 cellspacing=0 border=0 width=90%>" );
+				echo ( "<tr><td><font class=\"smaller\">User Name:</font></td><td><input class=\"smaller\" type=\"text\" name=\"name\" value=\"" . $ar["uName"] . "\" /></td></tr>" );
+				echo ( "<tr><td><font class=\"smaller\">New Password:</font></td><td><input type=\"password\" name=\"p1\" value=\"\" /></td></tr>" );
+				echo ( "<tr><td><font class=\"smaller\">New Password (confirm):</font></td><td><input type=\"password\" name=\"p2\" value=\"\" /></td></tr>" );
+				echo ( "<tr><td colspan=2><font class=\"smaller\"><center><br /><input type=\"hidden\" name=\"update\" value=\"" . $ar["uId"] . "\" /><input class=\"smaller\" type=\"submit\" value=\"Update\" /></center></font></td></tr>" );				
+			echo ( "</table>" );
+			echo ( "</form>" );
+		}
+		else if ( $_GET["tab"] == "delete" )
+		{
+			echo ( "<p>Are you sure you wish to remove this user?</p>" );
+			echo ( "<p><a href=\"?node=" . $_GET["node"] . "&sub=" . $_GET["sub"] . "&rmuserid=" . $ar["uId"] . "\"><img class=\"link\" src=\"images/delete.png\"></a></p>" );
+		}
 		echo ( "</center>" );
 	}
 	echo ( "</div>" );	

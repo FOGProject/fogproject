@@ -34,7 +34,7 @@ if ( $_POST["add"] != null )
 			$sql = "insert into images(imageName, imageDesc, imagePath, imageDateTime, imageCreateBy, imageDD) values('$name', '$description', '$file', NOW(), '" . mysql_real_escape_string( $currentUser->getUserName() ) . "', '$dd' )";
 			if ( mysql_query( $sql, $conn ) )
 			{
-				msgBox( "Image Added, you may now add another." );
+				msgBox( "Image created.<br />You may now add another." );
 				lg( "Image Added :: $name" );
 			}
 			else

@@ -28,6 +28,7 @@ $installPath[2] = array( 15, 16, 17, 18, 19, 20 );
 $installPath[3] = array( 21, 22, 23 ); 
 $installPath[4] = array( 24, 25, 26, 27, 28 ); 
 $installPath[5] = array( 29, 30 ); 
+$installPath[6] = array( 31, 32, 33, 34, 35, 36, 37 ); 
 
 $dbschema[0] = "CREATE DATABASE " . MYSQL_DATABASE ;
 
@@ -268,6 +269,109 @@ $dbschema[29] = "CREATE TABLE `" . MYSQL_DATABASE . "`.`virus` (
 		)
 		ENGINE = MyISAM";
 $dbschema[30] = "UPDATE `" . MYSQL_DATABASE . "`.`schemaVersion` set vValue = '6'";	
+
+$dbschema[31] = "CREATE TABLE `" . MYSQL_DATABASE . "`.`userTracking` (
+		  `utID` integer  NOT NULL AUTO_INCREMENT,
+		  `utHostID` integer  NOT NULL,
+		  `utUserName` varchar(50)  NOT NULL,
+		  `utAction` varchar(2)  NOT NULL,
+		  `utDateTime` datetime  NOT NULL,
+		  `utDesc` varchar(250)  NOT NULL,
+		  `utDate` date  NOT NULL,
+		  `utAnon3` varchar(2)  NOT NULL,
+		  PRIMARY KEY (`utID`),
+		  INDEX `new_index`(`utHostID`),
+		  INDEX `new_index1`(`utUserName`),
+		  INDEX `new_index2`(`utAction`),
+		  INDEX `new_index3`(`utDateTime`)
+		)
+		ENGINE = MyISAM";
+
+$dbschema[32] = "ALTER TABLE `" . MYSQL_DATABASE . "`.`hosts` CHANGE COLUMN `hostAnon1` `hostPrinterLevel` VARCHAR(2)  CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL";
+
+$dbschema[33] = "CREATE TABLE `" . MYSQL_DATABASE . "`.`printers` (
+		  `pID` integer  NOT NULL AUTO_INCREMENT,
+		  `pPort` longtext  NOT NULL,
+		  `pDefFile` longtext  NOT NULL,
+		  `pModel` varchar(250)  NOT NULL,
+		  `pAlias` varchar(250)  NOT NULL,
+		  `pConfig` varchar(10)  NOT NULL,
+		  `pIP` varchar(20)  NOT NULL,
+		  `pAnon2` varchar(10)  NOT NULL,
+		  `pAnon3` varchar(10)  NOT NULL,
+		  `pAnon4` varchar(10)  NOT NULL,
+		  `pAnon5` varchar(10)  NOT NULL,
+		  PRIMARY KEY (`pID`),
+		  INDEX `new_index1`(`pModel`),
+		  INDEX `new_index2`(`pAlias`)
+		)
+		ENGINE = MyISAM";
+
+
+$dbschema[34] = "CREATE TABLE `" . MYSQL_DATABASE . "`.`printerAssoc` (
+		  `paID` integer  NOT NULL AUTO_INCREMENT,
+		  `paHostID` integer  NOT NULL,
+		  `paPrinterID` integer  NOT NULL,
+		  `paIsDefault` varchar(2)  NOT NULL,
+		  `paAnon1` varchar(2)  NOT NULL,
+		  `paAnon2` varchar(2)  NOT NULL,
+		  `paAnon3` varchar(2)  NOT NULL,
+		  `paAnon4` varchar(2)  NOT NULL,
+		  `paAnon5` varchar(2)  NOT NULL,
+		  PRIMARY KEY (`paID`),
+		  INDEX `new_index1`(`paHostID`),
+		  INDEX `new_index2`(`paPrinterID`)
+		)
+		ENGINE = MyISAM";
+
+$dbschema[35] = "CREATE TABLE  `" . MYSQL_DATABASE . "`.`inventory` (
+		  `iID` int(11) NOT NULL auto_increment,
+		  `iHostID` int(11) NOT NULL,
+		  `iPrimaryUser` varchar(50) NOT NULL,
+		  `iOtherTag` varchar(50) NOT NULL,
+		  `iOtherTag1` varchar(50) NOT NULL,
+		  `iCreateDate` datetime NOT NULL,
+		  `iSysman` varchar(250) NOT NULL,
+		  `iSysproduct` varchar(250) NOT NULL,
+		  `iSysversion` varchar(250) NOT NULL,
+		  `iSysserial` varchar(250) NOT NULL,
+		  `iSystype` varchar(250) NOT NULL,
+		  `iBiosversion` varchar(250) NOT NULL,
+		  `iBiosvendor` varchar(250) NOT NULL,
+		  `iBiosdate` varchar(250) NOT NULL,
+		  `iMbman` varchar(250) NOT NULL,
+		  `iMbproductname` varchar(250) NOT NULL,
+		  `iMbversion` varchar(250) NOT NULL,
+		  `iMbserial` varchar(250) NOT NULL,
+		  `iMbasset` varchar(250) NOT NULL,
+		  `iCpuman` varchar(250) NOT NULL,
+		  `iCpuversion` varchar(250) NOT NULL,
+		  `iCpucurrent` varchar(250) NOT NULL,
+		  `iCpumax` varchar(250) NOT NULL,
+		  `iMem` varchar(250) NOT NULL,
+		  `iHdmodel` varchar(250) NOT NULL,
+		  `iHdfirmware` varchar(250) NOT NULL,
+		  `iHdserial` varchar(250) NOT NULL,
+		  `iCaseman` varchar(250) NOT NULL,
+		  `iCasever` varchar(250) NOT NULL,
+		  `iCaseserial` varchar(250) NOT NULL,
+		  `iCaseasset` varchar(250) NOT NULL,
+		  PRIMARY KEY  (`iID`)
+		) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=latin1";
+
+$dbschema[36] = "CREATE TABLE `" . MYSQL_DATABASE . "`.`clientUpdates` (
+		  `cuID` integer  NOT NULL AUTO_INCREMENT,
+		  `cuName` varchar(200)  NOT NULL,
+		  `cuMD5` varchar(100)  NOT NULL,
+		  `cuType` varchar(3)  NOT NULL,
+		  `cuFile` LONGBLOB  NOT NULL,
+		  PRIMARY KEY (`cuID`),
+		  INDEX `new_index`(`cuName`),
+		  INDEX `new_index1`(`cuType`)
+		)
+		ENGINE = MyISAM";
+
+$dbschema[37] = "UPDATE `" . MYSQL_DATABASE . "`.`schemaVersion` set vValue = '7'";
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

@@ -112,20 +112,27 @@ else
 	$res = mysql_query( $sql, $conn ) or die( mysql_error() );
 	if ( $ar = mysql_fetch_array( $res ) )
 	{
-
-		echo ( "<center><form method=\"POST\" action=\"?node=$_GET[node]&sub=$_GET[sub]&imageid=$_GET[imageid]\">" );
-		echo ( "<table cellpadding=0 cellspacing=0 border=0 width=90%>" );
-			echo ( "<tr><td><font class=\"smaller\">Image Name:</font></td><td><input class=\"smaller\" type=\"text\" name=\"name\" value=\"" . $ar["imageName"] . "\" /></td></tr>" );
-			echo ( "<tr><td><font class=\"smaller\">Image Description:</font></td><td><textarea class=\"smaller\" name=\"description\" rows=\"5\" cols=\"65\">" . $ar["imageDesc"] . "</textarea></td></tr>" );
-			echo ( "<tr><td><font class=\"smaller\">Image File:</font></td><td><font class=\"smaller\">" . STORAGE_DATADIR . "</font><input class=\"smaller\" type=\"text\" name=\"file\" value=\"" . $ar["imagePath"] . "\" /></td></tr>" );
-			$checked = "";
-			if ( $ar["imageDD"] == "1" )
-				$checked="checked=\"checked\"";
-			echo ( "<tr><td>Disk Image:</td><td><input type=\"checkbox\" name=\"dd\" $checked /></td></tr>" );			
-			echo ( "<tr><td colspan=2><font><center><br /><input type=\"hidden\" name=\"update\" value=\"1\" /><input type=\"hidden\" name=\"imgid\" value=\"" . $ar["imageID"] . "\" /><input class=\"smaller\" type=\"submit\" value=\"Update\" /></center></font></td></tr>" );				
-		echo ( "</table>" );
-		echo ( "</form>" );
-		echo ( "<br /><p class=\"titleBottom\"><a href=\"?node=" . $_GET["node"] . "&sub=" . $_GET["sub"] . "&rmimageid=" . $ar["imageID"] . "\"><img class=\"link\" src=\"images/delete.png\"></a></p>" );
+		echo ( "<center>" );
+		if ( $_GET["tab"] == "gen" || $_GET["tab"] == "" )
+		{
+			echo ( "<form method=\"POST\" action=\"?node=$_GET[node]&sub=$_GET[sub]&imageid=$_GET[imageid]\">" );
+			echo ( "<table cellpadding=0 cellspacing=0 border=0 width=90%>" );
+				echo ( "<tr><td><font class=\"smaller\">Image Name:</font></td><td><input class=\"smaller\" type=\"text\" name=\"name\" value=\"" . $ar["imageName"] . "\" /></td></tr>" );
+				echo ( "<tr><td><font class=\"smaller\">Image Description:</font></td><td><textarea class=\"smaller\" name=\"description\" rows=\"5\" cols=\"65\">" . $ar["imageDesc"] . "</textarea></td></tr>" );
+				echo ( "<tr><td><font class=\"smaller\">Image File:</font></td><td><font class=\"smaller\">" . STORAGE_DATADIR . "</font><input class=\"smaller\" type=\"text\" name=\"file\" value=\"" . $ar["imagePath"] . "\" /></td></tr>" );
+				$checked = "";
+				if ( $ar["imageDD"] == "1" )
+					$checked="checked=\"checked\"";
+				echo ( "<tr><td>Disk Image:</td><td><input type=\"checkbox\" name=\"dd\" $checked /></td></tr>" );			
+				echo ( "<tr><td colspan=2><font><center><br /><input type=\"hidden\" name=\"update\" value=\"1\" /><input type=\"hidden\" name=\"imgid\" value=\"" . $ar["imageID"] . "\" /><input class=\"smaller\" type=\"submit\" value=\"Update\" /></center></font></td></tr>" );				
+			echo ( "</table>" );
+			echo ( "</form>" );
+		}
+		else if ( $_GET["tab"] == "delete" )
+		{
+			echo ( "<p>Are you sure you would like to remove this image?</p>" );
+			echo ( "<p><a href=\"?node=" . $_GET["node"] . "&sub=" . $_GET["sub"] . "&rmimageid=" . $ar["imageID"] . "\"><img class=\"link\" src=\"images/delete.png\"></a></p>" );
+		}
 		echo ( "</center>" );
 	}
 	echo ( "</div>" );	

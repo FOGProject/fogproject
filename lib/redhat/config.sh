@@ -20,7 +20,7 @@
 #
 
 # Yum packages to install
-packages="httpd php php-gd php-cli mysql mysql-server php-mysql dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip gcc gcc-c++";
+packages="httpd php php-gd php-cli mysql mysql-server php-mysql dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip gcc gcc-c++ htmldoc";
 
 # where do the init scripts go?
 initdpath="/etc/rc.d/init.d";
