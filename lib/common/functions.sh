@@ -19,6 +19,30 @@
 #
 #
 
+backupReports()
+{
+	echo -n "  * Backing up user reports";
+	mkdir "../rpttmp/";
+	if [ -d "${webdirdest}/management/reports" ]
+	then
+		cp -a ${webdirdest}/management/reports/* "../rpttmp/";
+	fi
+	echo "...OK";
+}
+
+restoreReports()
+{
+	echo -n "  * Restoring user reports"; 
+	if [ -d "${webdirdest}/management/reports" ]
+	then
+		if [ -d "../rpttmp/" ]
+		then
+			cp -a "../rpttmp/" ${webdirdest}/management/reports/* ;
+		fi
+	fi
+	echo "...OK";
+}
+
 installFOGServices()
 {
 	echo -n "  * Setting up FOG Services";
