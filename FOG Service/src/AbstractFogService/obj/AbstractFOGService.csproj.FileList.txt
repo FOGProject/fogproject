@@ -12,3 +12,6 @@ bin\Release\IniReaderObj.dll
 obj\Debug\FOG.FrmUI.resources
 obj\Debug\FOG.Properties.Resources.resources
 obj\Debug\AbstractFOGService.csproj.GenerateResource.Cache
+obj\Release\FOG.FrmUI.resources
+obj\Release\FOG.Properties.Resources.resources
+obj\Release\AbstractFOGService.csproj.GenerateResource.Cache

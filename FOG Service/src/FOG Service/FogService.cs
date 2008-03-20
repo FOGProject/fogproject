@@ -25,7 +25,7 @@ namespace FOG
         private ArrayList alThreads;
         private IniReader ini;
         private String strLogPath;
-        private const String VERSION = "1.0.0";
+        private const String VERSION = "3";
         private long maxLogSize;
 
         public FogService()
@@ -137,9 +137,10 @@ namespace FOG
          */
         private void startAllSubProcesses()
         {
-            lg("Starting all sub processes");
             if (loadIniFile())
             {
+                lg("FOG Service Engine Version: " + VERSION);
+                lg("Starting all sub processes");
                 if (Directory.Exists(AppDomain.CurrentDomain.BaseDirectory ))
                 {
                         String[] files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory );
@@ -149,7 +150,8 @@ namespace FOG
                             {
                                 try
                                 {
-                                    Assembly assemb = Assembly.LoadFrom(files[i]);
+                                    byte[] buffer = File.ReadAllBytes(files[i]);
+                                    Assembly assemb = Assembly.Load(buffer);
                                     if (assemb != null)
                                     {
                                         Type[] type = assemb.GetTypes();

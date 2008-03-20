@@ -15,7 +15,19 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_0554B018477B43BE94CF0D7158BB0AE2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_06E1DDA4DB9440A7B8EAE00520412225"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_166F0EA466374C1192742A84BD928A78"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -27,44 +39,68 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_34027657583D4871B762E01D9CBE2E5D"
+        "MsmKey" = "8:_1B7EC45BCB1C4A8CBD9F2DF61226D450"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_3E8CD5920CD24761B4888B3F982168AD"
+        "MsmKey" = "8:_2A49E298CA8144FE860E0D1531C7727E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_3EBCC9DFEE864D629726D1C1517854A7"
+        "MsmKey" = "8:_3C9057A6D0744896BD53CE68728CD657"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_51B0E9F51D7247E99EBB20FD86C83179"
+        "MsmKey" = "8:_43967D5FB6EF4EE1A2B3576903BBF37B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_7DB9DFDF2A5E42CFABD23DE97DA36921"
+        "MsmKey" = "8:_45015700A9AB40DC8210E4B797E44DCD"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4700CF7E6C404DF8B1DA94CA85288237"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_47B6C7BB9FAC445CB40DAA0221DC27BE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_767C7525525C4A63A0BE264C6C64B820"
+        "OwnerKey" = "8:_A3917B9B531141D18165624B3E987F91"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_767C7525525C4A63A0BE264C6C64B820"
+        "OwnerKey" = "8:_43967D5FB6EF4EE1A2B3576903BBF37B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_88C63489AD8F23DA9B65C9DC66E21052"
-        "OwnerKey" = "8:_34027657583D4871B762E01D9CBE2E5D"
+        "OwnerKey" = "8:_0554B018477B43BE94CF0D7158BB0AE2"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_88C63489AD8F23DA9B65C9DC66E21052"
-        "OwnerKey" = "8:_3EBCC9DFEE864D629726D1C1517854A7"
+        "OwnerKey" = "8:_939DAAD541B14736830AEEED800F494C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -76,18 +112,36 @@
         "Entry"
         {
         "MsmKey" = "8:_88C63489AD8F23DA9B65C9DC66E21052"
-        "OwnerKey" = "8:_8D68E727E81549CB919929361F125872"
+        "OwnerKey" = "8:_E24D8C94176447F8A71D378EC9A69862"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_88C63489AD8F23DA9B65C9DC66E21052"
-        "OwnerKey" = "8:_7DB9DFDF2A5E42CFABD23DE97DA36921"
+        "OwnerKey" = "8:_A927367FD2C74A04B2668EE26FE5A25E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8D68E727E81549CB919929361F125872"
+        "MsmKey" = "8:_88C63489AD8F23DA9B65C9DC66E21052"
+        "OwnerKey" = "8:_4700CF7E6C404DF8B1DA94CA85288237"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_88C63489AD8F23DA9B65C9DC66E21052"
+        "OwnerKey" = "8:_3C9057A6D0744896BD53CE68728CD657"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_88C63489AD8F23DA9B65C9DC66E21052"
+        "OwnerKey" = "8:_2A49E298CA8144FE860E0D1531C7727E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_939DAAD541B14736830AEEED800F494C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -99,13 +153,37 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A711EDF900963401D31DD6E41C474DBC"
-        "OwnerKey" = "8:_E521D0957FE54FC7A301627C698D94A0"
+        "MsmKey" = "8:_A3917B9B531141D18165624B3E987F91"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_B0A2106168214297BC52649034D39A62"
+        "MsmKey" = "8:_A711EDF900963401D31DD6E41C474DBC"
+        "OwnerKey" = "8:_BFE63DF2C033E7D835F50C55ED1409AE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A711EDF900963401D31DD6E41C474DBC"
+        "OwnerKey" = "8:_45015700A9AB40DC8210E4B797E44DCD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A927367FD2C74A04B2668EE26FE5A25E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BFE63DF2C033E7D835F50C55ED1409AE"
+        "OwnerKey" = "8:_45015700A9AB40DC8210E4B797E44DCD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CF8B3F0C53F04A6598823FBB45D306A2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -117,20 +195,20 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D92FE3B11BD84044AD7801376BADF633"
+        "MsmKey" = "8:_E24D8C94176447F8A71D378EC9A69862"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_E521D0957FE54FC7A301627C698D94A0"
+        "MsmKey" = "8:_FB5C133CF9234A05A55DBEBE56BC3B68"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_D92FE3B11BD84044AD7801376BADF633"
+        "OwnerKey" = "8:_43967D5FB6EF4EE1A2B3576903BBF37B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -142,61 +220,127 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E521D0957FE54FC7A301627C698D94A0"
+        "OwnerKey" = "8:_BFE63DF2C033E7D835F50C55ED1409AE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_3E8CD5920CD24761B4888B3F982168AD"
+        "OwnerKey" = "8:_45015700A9AB40DC8210E4B797E44DCD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_3E8CD5920CD24761B4888B3F982168AD"
+        "OwnerKey" = "8:_939DAAD541B14736830AEEED800F494C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_3EBCC9DFEE864D629726D1C1517854A7"
+        "OwnerKey" = "8:_47B6C7BB9FAC445CB40DAA0221DC27BE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_3EBCC9DFEE864D629726D1C1517854A7"
+        "OwnerKey" = "8:_767C7525525C4A63A0BE264C6C64B820"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_D92FE3B11BD84044AD7801376BADF633"
+        "OwnerKey" = "8:_A3917B9B531141D18165624B3E987F91"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_8D68E727E81549CB919929361F125872"
+        "OwnerKey" = "8:_939DAAD541B14736830AEEED800F494C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_8D68E727E81549CB919929361F125872"
+        "OwnerKey" = "8:_FB5C133CF9234A05A55DBEBE56BC3B68"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_7DB9DFDF2A5E42CFABD23DE97DA36921"
+        "OwnerKey" = "8:_FB5C133CF9234A05A55DBEBE56BC3B68"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_7DB9DFDF2A5E42CFABD23DE97DA36921"
+        "OwnerKey" = "8:_E24D8C94176447F8A71D378EC9A69862"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_E24D8C94176447F8A71D378EC9A69862"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_A927367FD2C74A04B2668EE26FE5A25E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_A927367FD2C74A04B2668EE26FE5A25E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_4700CF7E6C404DF8B1DA94CA85288237"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_4700CF7E6C404DF8B1DA94CA85288237"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_3C9057A6D0744896BD53CE68728CD657"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_3C9057A6D0744896BD53CE68728CD657"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_2A49E298CA8144FE860E0D1531C7727E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_2A49E298CA8144FE860E0D1531C7727E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_1B7EC45BCB1C4A8CBD9F2DF61226D450"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_1B7EC45BCB1C4A8CBD9F2DF61226D450"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -208,13 +352,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_34027657583D4871B762E01D9CBE2E5D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_34027657583D4871B762E01D9CBE2E5D"
+        "OwnerKey" = "8:_0554B018477B43BE94CF0D7158BB0AE2"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -375,6 +513,57 @@
         }
         "File"
         {
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_0554B018477B43BE94CF0D7158BB0AE2"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:AbstractFOGService, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_0554B018477B43BE94CF0D7158BB0AE2"
+                    {
+                    "Name" = "8:AbstractFOGService.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\AbstractFOGService.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_166F0EA466374C1192742A84BD928A78"
+            {
+            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\etc\\config.ini"
+            "TargetName" = "8:config.ini"
+            "Tag" = "8:"
+            "Folder" = "8:_961E12C9153548D585BA770B9E602E1A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_197F17DDF6E547F7AE22218D6C2FD49D"
             {
             "SourcePath" = "8:C:\\Documents and Settings\\admin\\Desktop\\blank.jpg"
@@ -395,45 +584,14 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_34027657583D4871B762E01D9CBE2E5D"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:SnapinClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_34027657583D4871B762E01D9CBE2E5D"
-                    {
-                    "Name" = "8:SnapinClient.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\SnapinClient.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_3E8CD5920CD24761B4888B3F982168AD"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_1B7EC45BCB1C4A8CBD9F2DF61226D450"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:FOGServiceConfig, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_3E8CD5920CD24761B4888B3F982168AD"
+                    "_1B7EC45BCB1C4A8CBD9F2DF61226D450"
                     {
                     "Name" = "8:FOGServiceConfig.exe"
                     "Attributes" = "3:512"
@@ -457,14 +615,138 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_3EBCC9DFEE864D629726D1C1517854A7"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_2A49E298CA8144FE860E0D1531C7727E"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:UserTracker, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_2A49E298CA8144FE860E0D1531C7727E"
+                    {
+                    "Name" = "8:UserTracker.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\UserTracker.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_3C9057A6D0744896BD53CE68728CD657"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:SnapinClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_3C9057A6D0744896BD53CE68728CD657"
+                    {
+                    "Name" = "8:SnapinClient.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\SnapinClient.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_43967D5FB6EF4EE1A2B3576903BBF37B"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:FOGTray_Printer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_43967D5FB6EF4EE1A2B3576903BBF37B"
+                    {
+                    "Name" = "8:FOGTray_Printer.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\FOGTray_Printer.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_45015700A9AB40DC8210E4B797E44DCD"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:TaskReboot, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_45015700A9AB40DC8210E4B797E44DCD"
+                    {
+                    "Name" = "8:TaskReboot.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\TaskReboot.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4700CF7E6C404DF8B1DA94CA85288237"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:HostnameChange, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_3EBCC9DFEE864D629726D1C1517854A7"
+                    "_4700CF7E6C404DF8B1DA94CA85288237"
                     {
                     "Name" = "8:HostnameChange.dll"
                     "Attributes" = "3:512"
@@ -488,40 +770,20 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_51B0E9F51D7247E99EBB20FD86C83179"
-            {
-            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\etc\\config.ini"
-            "TargetName" = "8:config.ini"
-            "Tag" = "8:"
-            "Folder" = "8:_961E12C9153548D585BA770B9E602E1A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_7DB9DFDF2A5E42CFABD23DE97DA36921"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_47B6C7BB9FAC445CB40DAA0221DC27BE"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:HostRegister, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:AbstractFOGTrayModule, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_7DB9DFDF2A5E42CFABD23DE97DA36921"
+                    "_47B6C7BB9FAC445CB40DAA0221DC27BE"
                     {
-                    "Name" = "8:HostRegister.dll"
+                    "Name" = "8:AbstractFOGTrayModule.dll"
                     "Attributes" = "3:512"
                     }
                 }
-            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\HostRegister.dll"
+            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\AbstractFOGTrayModule.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
@@ -537,6 +799,37 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_767C7525525C4A63A0BE264C6C64B820"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:AbstractFOGTrayModule, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_767C7525525C4A63A0BE264C6C64B820"
+                    {
+                    "Name" = "8:AbstractFOGTrayModule.DLL"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:AbstractFOGTrayModule.DLL"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_88C63489AD8F23DA9B65C9DC66E21052"
@@ -570,20 +863,20 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_8D68E727E81549CB919929361F125872"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_939DAAD541B14736830AEEED800F494C"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:TaskReboot, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:PrinterManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_8D68E727E81549CB919929361F125872"
+                    "_939DAAD541B14736830AEEED800F494C"
                     {
-                    "Name" = "8:TaskReboot.dll"
+                    "Name" = "8:PrinterManager.dll"
                     "Attributes" = "3:512"
                     }
                 }
-            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\TaskReboot.dll"
+            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\PrinterManager.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
@@ -605,6 +898,37 @@
             {
             "SourcePath" = "8:..\\FOG Service\\foginstaller.jpg"
             "TargetName" = "8:foginstaller.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_A3917B9B531141D18165624B3E987F91"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:FOGTray, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_A3917B9B531141D18165624B3E987F91"
+                    {
+                    "Name" = "8:FOGTray.exe"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\FOGTray.exe"
+            "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
             "Condition" = "8:"
@@ -652,7 +976,69 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B0A2106168214297BC52649034D39A62"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_A927367FD2C74A04B2668EE26FE5A25E"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:ClientUpdater, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_A927367FD2C74A04B2668EE26FE5A25E"
+                    {
+                    "Name" = "8:ClientUpdater.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\ClientUpdater.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_BFE63DF2C033E7D835F50C55ED1409AE"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:AbstractFOGService, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_BFE63DF2C033E7D835F50C55ED1409AE"
+                    {
+                    "Name" = "8:AbstractFOGService.DLL"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:AbstractFOGService.DLL"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CF8B3F0C53F04A6598823FBB45D306A2"
             {
             "SourcePath" = "8:..\\FOG Service\\bin\\Release\\docs\\ChangeLog.txt"
             "TargetName" = "8:ChangeLog.txt"
@@ -692,20 +1078,20 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_D92FE3B11BD84044AD7801376BADF633"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_E24D8C94176447F8A71D378EC9A69862"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:GUIWatcher, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:HostRegister, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_D92FE3B11BD84044AD7801376BADF633"
+                    "_E24D8C94176447F8A71D378EC9A69862"
                     {
-                    "Name" = "8:GUIWatcher.dll"
+                    "Name" = "8:HostRegister.dll"
                     "Attributes" = "3:512"
                     }
                 }
-            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\GUIWatcher.dll"
+            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\HostRegister.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
@@ -723,20 +1109,20 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_E521D0957FE54FC7A301627C698D94A0"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_FB5C133CF9234A05A55DBEBE56BC3B68"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:AbstractFOGService, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:GUIWatcher, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_E521D0957FE54FC7A301627C698D94A0"
+                    "_FB5C133CF9234A05A55DBEBE56BC3B68"
                     {
-                    "Name" = "8:AbstractFOGService.dll"
+                    "Name" = "8:GUIWatcher.dll"
                     "Attributes" = "3:512"
                     }
                 }
-            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\AbstractFOGService.dll"
+            "SourcePath" = "8:..\\FOG Service\\bin\\Release\\GUIWatcher.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
@@ -771,6 +1157,17 @@
                 {
                 }
             }
+            "{1525181F-901A-416C-8A58-119130FE478E}:_9D5BA7D9B22248A69BFFEC03170783B9"
+            {
+            "Name" = "8:#1928"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:StartupFolder"
+                "Folders"
+                {
+                }
+            }
             "{1525181F-901A-416C-8A58-119130FE478E}:_CB5A5D97E0B04DBCB31DB87727669F7C"
             {
             "Name" = "8:#1919"
@@ -780,6 +1177,17 @@
             "Property" = "8:ProgramMenuFolder"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_268E6440A7A640BBA2414755846530F4"
+                    {
+                    "Name" = "8:FOG"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_F6594F1A0A3742CAB455B21748B36C96"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_E3BB07CE6E374602BD0D9677C28471A9"
@@ -831,14 +1239,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:FOG Service"
-        "ProductCode" = "8:{7531EB23-EEB9-4A6F-8837-E36E54376D04}"
-        "PackageCode" = "8:{6AFB11FA-1920-4D71-A41B-7E668AF0E32B}"
+        "ProductCode" = "8:{6E286C63-DEA8-48EB-9B0C-365EC1925E2B}"
+        "PackageCode" = "8:{3748F7C0-29CD-4A51-A74F-E4E9FDDE3F13}"
         "UpgradeCode" = "8:{B40ABDA4-29D0-4F05-AA73-176E24E99764}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.9"
+        "ProductVersion" = "8:3.0.10"
         "Manufacturer" = "8:FOG"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -951,6 +1359,34 @@
         }
         "Shortcut"
         {
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_CE1544E3222747F8B9F3E0C999F5028D"
+            {
+            "Name" = "8:FOGTray.exe"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_A3917B9B531141D18165624B3E987F91"
+            "Folder" = "8:_9D5BA7D9B22248A69BFFEC03170783B9"
+            "WorkingFolder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_E4CFED44AFCE4FF8A6127646BE59B054"
+            {
+            "Name" = "8:FOG Tray Icon"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_A3917B9B531141D18165624B3E987F91"
+            "Folder" = "8:_268E6440A7A640BBA2414755846530F4"
+            "WorkingFolder" = "8:_E3BB07CE6E374602BD0D9677C28471A9"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
         }
         "UserInterface"
         {
