@@ -309,7 +309,7 @@ define( \"FOG_JPGRAPH_VERSION\", \"2.3\" );
 define( \"FOG_REPORT_DIR\", \"./reports/\" );
 define( \"FOG_THEME\", \"blackeye/blackeye.css\" );
 define( \"FOG_UPLOADIGNOREPAGEHIBER\", true );
-define( \"FOG_VERSION\", \"0.12\" );
+define( \"FOG_VERSION\", \"${version}\" );
 define( \"FOG_SCHEMA\", 7);
 ?>" > "${webdirdest}/commons/config.php";
 		

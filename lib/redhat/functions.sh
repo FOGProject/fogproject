@@ -319,7 +319,7 @@ define( \"FOG_JPGRAPH_VERSION\", \"2.3\" );
 define( \"FOG_REPORT_DIR\", \"./reports/\" );
 define( \"FOG_THEME\", \"blackeye/blackeye.css\" );
 define( \"FOG_UPLOADIGNOREPAGEHIBER\", true );
-define( \"FOG_VERSION\", \"0.12\" );
+define( \"FOG_VERSION\", \"${version}\" );
 define( \"FOG_SCHEMA\", 7);
 ?>" > "${webdirdest}/commons/config.php";
 		
@@ -363,10 +363,11 @@ confirmPackageInstallation()
 		rpm -q $x >/dev/null 2>&1;
 		if [ "$?" != "0" ]
 		then
-			echo "...OK";
-		else
 			echo "...Failed!"
-			exit 1;
+			exit 1;		
+
+		else
+			echo "...OK";
 		fi
 	done;
 }
