@@ -8,3 +8,13 @@ bin\Debug\AbstractFOGService.dll
 bin\Debug\IniReaderObj.dll
 obj\Debug\FOGServiceConfig.exe
 obj\Debug\FOGServiceConfig.pdb
+bin\Release\FOGServiceConfig.exe
+bin\Release\FOGServiceConfig.pdb
+bin\Release\AbstractFOGService.dll
+bin\Release\IniReaderObj.dll
+obj\Release\ResolveAssemblyReference.cache
+obj\Release\FOG.FrmSetup.resources
+obj\Release\FOG.Properties.Resources.resources
+obj\Release\FOGSetup.csproj.GenerateResource.Cache
+obj\Release\FOGServiceConfig.exe
+obj\Release\FOGServiceConfig.pdb

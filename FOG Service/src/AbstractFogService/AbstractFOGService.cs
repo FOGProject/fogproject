@@ -17,6 +17,8 @@ namespace FOG
         public const int STATUS_TASKCOMPLETE = 2;
         public const int STATUS_FAILED = -1;
 
+        public const String VERSION = "3";
+
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
         [DllImport("user32.dll")]
@@ -413,6 +415,36 @@ namespace FOG
             return alMacs;
         }
 
+        public String[] getAllUsers()
+        {
+            ArrayList alUsers = new ArrayList();
+            try
+            {
+
+                try
+                {
+                    ManagementObjectSearcher searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_ComputerSystem");
+
+                    foreach (ManagementObject queryObj in searcher.Get())
+                    {
+                        alUsers.Add( queryObj["UserName"].ToString() );
+                    }
+                }
+                catch
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            return (String[])(alUsers.ToArray(typeof(String)));
+        }
+
+        // depracted as of version 0.12 of FOG
+        // please use getAllUsers()
         public String getUserName()
         {
             String username = null;

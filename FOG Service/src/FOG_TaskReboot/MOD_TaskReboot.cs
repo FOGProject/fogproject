@@ -31,12 +31,14 @@ namespace FOG
         private int intCheckIn;
         private String url;
         private Boolean blGo;
+        private Boolean blForce;
 
         private const String MOD_NAME = "FOG::TaskReboot";
 
         public TaskReboot()
         {
             intStatus = STATUS_STOPPED;
+            blForce = false;
         }
 
         public override void mStart()
@@ -64,6 +66,13 @@ namespace FOG
                     String tmpPre = ini.readSetting("taskreboot", "urlprefix");
                     String tmpPost = ini.readSetting("taskreboot", "urlpostfix");
                     String tmpIP = ini.readSetting("fog_service", "ipaddress");
+                    blForce = (ini.readSetting("taskreboot", "forcerestart") == "1");
+
+                    if (blForce)
+                        log(MOD_NAME, "Taskreboot in force mode.");
+                    else
+                        log(MOD_NAME, "Taskreboot in lazy mode.");
+
                     intCheckIn = Int32.Parse(ini.readSetting("taskreboot", "checkintime"));
                     url = tmpPre + tmpIP + tmpPost + "?mac=";
                     if (tmpPre != null && tmpPost != null && tmpIP != null && intCheckIn > 0)
@@ -97,6 +106,7 @@ namespace FOG
                             String strMAC = (String)alMACs[i];
                             
                             WebClient web = new WebClient();
+                            
                             String strData = web.DownloadString(url + strMAC);
                             strData = strData.Trim();
                             //*  "#!db" => Database error
@@ -104,7 +114,8 @@ namespace FOG
                             //*  "#!er" => Other error.
                             //*  "#!ok" => Job Exists -> GO!
                             //*  "#!nj" => No Job Exists
-                            if (strData.StartsWith("#!OK=", true, null))
+                            
+                            if (strData.StartsWith("#!OK", true, null))
                             {
                                 return true;
                             }
@@ -146,7 +157,7 @@ namespace FOG
 
                 while (blGo)
                 {
-                    if (!isLoggedIn())
+                    if (!isLoggedIn() || blForce)
                     {
                         if (hasTask())
                         {
@@ -155,9 +166,12 @@ namespace FOG
                             try
                             {
                                 Thread.Sleep(30000);
+                                restartComputer();
                             }
                             catch { }
                         }
+                        else
+                            log(MOD_NAME, "No task found for client.");
                     }
 
                     try
