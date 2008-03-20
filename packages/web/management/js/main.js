@@ -1,6 +1,91 @@
 var xmlObj;
 var xmlObjHD;
 
+function changeClass( id, cssclass )
+{
+	var ele = document.getElementById( id );
+	if ( ele != null )
+	{
+		if ( ele.className != null )
+		{
+			ele.className = cssclass;
+		}
+	}	
+}
+
+function rollDownElement(id, cssclass)
+{
+	var ele = document.getElementById( id );
+	if ( ele != null )
+	{
+		if ( ele.className != null )
+		{
+
+			ele.style.top = '-100px';
+			var newValue = -100;
+			
+			ele.className = cssclass;
+			
+			var x = document.body.offsetWidth;
+			var y = document.body.offsetHeight;			
+			
+			if ( ele.style != null )
+			{
+				ele.style.left = ( ( x / 2 ) - 150 ) + "px";
+				updateRollDownElement(id, (newValue + 1), ((y / 4 )));
+			}
+		}
+	}
+}
+
+function updateRollDownElement(id, nextValue, maxValue)
+{
+	var ele = document.getElementById( id );
+	if ( ele != null )
+	{
+		if ( ele.style != null )
+		{	
+			ele.left =  + "0px;";
+			ele.style.top = nextValue + 'px';
+			nextValue = (nextValue + 3);
+			if ( nextValue < maxValue  )
+			{			
+				setTimeout( "updateRollDownElement('" + id + "', " + nextValue + ", " + maxValue + ");", 1 );
+			}
+		}
+	}
+}
+
+function rollUpElement(id)
+{
+	var ele = document.getElementById( id );
+	if ( ele != null )
+	{
+		var newValue = ele.style.top;
+		newValue = newValue.replace("px", "" );
+		var intValue = parseInt( newValue );
+		updateRollUpElement(id, (intValue - 1), -200);
+	}
+}
+
+function updateRollUpElement(id, nextValue, minValue)
+{
+	var ele = document.getElementById( id );
+	if ( ele != null )
+	{
+		if ( ele.style != null )
+		{	
+			ele.left =  + "0px;";
+			ele.style.top = nextValue + 'px';
+			nextValue = (nextValue - 3);
+			if ( nextValue > minValue  )
+			{			
+				setTimeout( "updateRollUpElement('" + id + "', " + nextValue + ", " + minValue + ");", 1 );
+			}
+		}
+	}
+}
+
 function colorImage( ele, imageName )
 {
 

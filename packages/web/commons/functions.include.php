@@ -629,11 +629,10 @@ function imageDefExists( $conn, $name, $id=-1 )
 
 function msgBox( $msg )
 {
-	echo ( "<div class=\"msgbox\" id=\"msgbox\">" );
-		echo ( "<p class=\"msgbox\">FOG Message</p>" );
-		echo ( $msg );
-		echo ( "<p><input class=\"smaller\" type=\"button\" value=\"   OK    \" onClick=\"document.getElementById('msgbox').className='hide'\" /></p>" );
-	echo ( "</div>" );
+	echo ( "<script type=\"text/javascript\">" );
+		echo ( "document.getElementById('msgboxmsg').innerHTML='$msg';" );
+		echo ( "rollDownElement('msgBox', 'alert');" );
+	echo ( "</script>" );
 }
 
 function lg( $string )

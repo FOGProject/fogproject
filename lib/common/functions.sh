@@ -22,7 +22,11 @@
 backupReports()
 {
 	echo -n "  * Backing up user reports";
-	mkdir "../rpttmp/";
+	if [ ! -d "../rpttmp/" ]
+	then
+		mkdir "../rpttmp/";
+	fi
+	
 	if [ -d "${webdirdest}/management/reports" ]
 	then
 		cp -a ${webdirdest}/management/reports/* "../rpttmp/";
@@ -37,7 +41,7 @@ restoreReports()
 	then
 		if [ -d "../rpttmp/" ]
 		then
-			cp -a "../rpttmp/" ${webdirdest}/management/reports/* ;
+			cp -a ../rpttmp/* ${webdirdest}/management/reports/ ;
 		fi
 	fi
 	echo "...OK";

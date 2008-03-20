@@ -64,6 +64,12 @@ FOG :: A Free, Open Source Computer Cloning Solution :: Version <?php echo FOG_V
 </title>
 </head>
 <body>
+	<div class="hidden" id="msgBox">
+		<p class="msgBoxTitle">FOG Message</p>
+		<div id="msgboxmsg"></div>
+		<p><input type="button" value="OK" onClick="rollUpElement('msgBox');"/></p>
+	</div>	
+
 	<div class="mainContainer">
 		<div class="header">
 			<?php echo ("<div class=\"version\">Version: " . FOG_VERSION . "</div>\n"); ?>
