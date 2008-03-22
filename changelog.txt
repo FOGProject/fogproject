@@ -4,6 +4,8 @@ Version 0.13
 * Made installer language independent
 * Made DHCP startup optional
 * Added build-essential to the ubuntu install list
+* Added FOG Tray Icon
+* Changed TaskReboot to optionally reboot with user logged in
 
 Version 0.12
 ------------

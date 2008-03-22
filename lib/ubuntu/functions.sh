@@ -383,13 +383,14 @@ confirmPackageInstallation()
 	for x in $packages
 	do
 		echo -n "  * Checking package: $x";
-		ret=`dpkg -l $x 2>&1 | grep "No packages found matching"`;
-		if [ "$ret" = "" ]
+		dpkg -l $x >/dev/null 2>&1;
+		if [ "$?" != "0" ]
 		then
-			echo "...OK";
-		else
 			echo "...Failed!"
 			exit 1;
+
+		else
+			echo "...OK";
 		fi
 	done;
 }

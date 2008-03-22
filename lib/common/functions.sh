@@ -29,7 +29,7 @@ backupReports()
 	
 	if [ -d "${webdirdest}/management/reports" ]
 	then
-		cp -a ${webdirdest}/management/reports/* "../rpttmp/";
+		cp -a ${webdirdest}/management/reports/* "../rpttmp/" >/dev/null 2>&1;
 	fi
 	echo "...OK";
 }
@@ -41,7 +41,7 @@ restoreReports()
 	then
 		if [ -d "../rpttmp/" ]
 		then
-			cp -a ../rpttmp/* ${webdirdest}/management/reports/ ;
+			cp -a ../rpttmp/* ${webdirdest}/management/reports/ >/dev/null 2>&1;
 		fi
 	fi
 	echo "...OK";
