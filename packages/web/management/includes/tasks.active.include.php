@@ -30,7 +30,7 @@ if ( $_GET[rmtask] != null && is_numeric($_GET[rmtask]) )
 	$sql = "delete from tasks where taskID = '" . mysql_real_escape_string( $_GET[rmtask] ) . "' limit 1";
 	if ( mysql_query( $sql, $conn ) )
 	{
-		msgBox( "Task removed, but if the task was in progress or the computer already booted to the Linux Image you will need to reboot it!" );
+		msgBox( "Task removed, but if the task was in progress or the computer already booted to the Linux Image, you will need to reboot it!" );
 		lg( "Task deleted :: $_GET[rmtask]" );
 	}
 	else
