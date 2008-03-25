@@ -59,6 +59,6 @@ define( "FOG_JPGRAPH_VERSION", "2.3" );
 define( "FOG_REPORT_DIR", "./reports/" );
 define( "FOG_THEME", "blackeye/blackeye.css" );
 define( "FOG_UPLOADIGNOREPAGEHIBER", true );
-define( "FOG_VERSION", "0.13" );
+define( "FOG_VERSION", "0.14" );
 define( "FOG_SCHEMA", 7);
 ?>
