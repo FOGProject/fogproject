@@ -17,13 +17,41 @@
 #
 #
 #
+if [ "${guessdefaults}" = "1" ]
+then
+	tmpOS=`cat /etc/*release | head -n 1 | grep "Fedora"`;
+	strSuggestedOS="";
+	if [ "$tmpOS" != "" ]
+	then
+		strSuggestedOS="1";
+	fi
+
+	strSuggestedIPaddress=`ifconfig | grep "inet addr:" | head -n 1  | cut -d':' -f2 | cut -d' ' -f1`;
+	strSuggestedInterface=`ifconfig | grep "Link encap:" | head -n 1 | cut -d' ' -f1`;
+	strSuggestedRoute=`route -n | grep "^.*UG.*${strSuggestedInterface}$"  | head -n 1`;
+	strSuggestedRoute=`echo ${strSuggestedRoute:16:16} | tr -d [:blank:]`;
+	strSuggestedDNS="";
+	if [ -f "/etc/resolv.conf" ]
+	then
+		strSuggestedDNS=` cat /etc/resolv.conf | grep "nameserver" | head -n 1 | tr -d "nameserver" | tr -d [:blank:] | grep "^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$"`
+	fi
+fi
 
 displayOSChoices;
 
 while [ "${ipaddress}" = "" ]
 do
-	echo -n "  What is the IP address to be used by FOG Server? ";
+	echo -n "  What is the IP address to be used by FOG Server? [${strSuggestedIPaddress}]";
 	read ipaddress;
+	
+	if [ "$ipaddress" = "" ]
+	then
+		if [ "$strSuggestedIPaddress" != "" ]
+		then
+			ipaddress=${strSuggestedIPaddress};
+		fi
+	fi
+	
 	test=`echo "$ipaddress" | grep "^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$"`;
 	if [ "$test" != "$ipaddress" ]
 	then
@@ -35,18 +63,31 @@ done
 while [ "${routeraddress}" = "" ]
 do
 	echo
-	echo -n "  Would you like to setup a router address for the DHCP server? (Y/N) ";
+	echo -n "  Would you like to setup a router address for the DHCP server? [Y/n] ";
 	read blRouter;
+	
+	if [ "$blRouter" = "" ]
+	then
+		blRouter="Y";
+	fi
+	
 	case "$blRouter" in
 		Y | yes | y | Yes | YES )
-			echo -n "  What is the IP address to be used for the router on the DHCP server? ";		
+			echo -n "  What is the IP address to be used for the router on the DHCP server? [${strSuggestedRoute}]";		
 			read routeraddress;
+			
+			if [ "$routeraddress" = "" ]
+			then
+				routeraddress=${strSuggestedRoute};
+			fi
+			
 			test=`echo "$routeraddress" | grep "^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$"`;
 			if [ "$test" != "$routeraddress" ]
 			then
 				routeraddress="";
 				echo "  Invalid router IP address!";
 			else
+				plainrouter=${routeraddress};
 				routeraddress="		option routers      ${routeraddress};";
 			fi			
 			;;
@@ -62,12 +103,24 @@ done
 while [ "${dnsaddress}" = "" ]
 do
 	echo
-	echo -n "  Would you like to setup a DNS address for the DHCP server and client boot image? (Y/N) ";
+	echo -n "  Would you like to setup a DNS address for the DHCP server and client boot image? [Y/n] ";
 	read blDNS;
+	
+	if [ "$blDNS" = "" ]
+	then
+		blDNS="Y";
+	fi	
+	
 	case "$blDNS" in
 		Y | yes | y | Yes | YES )
-			echo -n "  What is the IP address to be used for DNS on the DHCP server and client boot image? ";		
+			echo -n "  What is the IP address to be used for DNS on the DHCP server and client boot image? [${strSuggestedDNS}] ";		
 			read dnsaddress;
+			
+			if [ "$dnsaddress" = "" ]
+			then
+				dnsaddress=${strSuggestedDNS};
+			fi
+			
 			test=`echo "$dnsaddress" | grep "^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$"`;
 			if [ "$test" != "$dnsaddress" ]
 			then
@@ -91,7 +144,7 @@ while [ "${interface}" = "" ]
 do
 	echo 
 	echo "  Would you like to change the default network interface from eth0?"
-	echo -n "  If you are not sure, select No. (Y/N)"
+	echo -n "  If you are not sure, select No. [y/N]"
 	read blInt;
 	case "$blInt" in
 		Y | yes | y | Yes | YES )
@@ -102,7 +155,7 @@ do
 			interface="eth0";
 			;;
 		*)
-			echo "  Invalid input, please try again.";
+			interface="eth0";
 			;;	
 	esac	
 done
@@ -110,7 +163,7 @@ done
 while [ "${dodhcp}" = "" ]
 do
 	echo 
-	echo -n "  Would you like to use the FOG server for dhcp service? (Y/N) "
+	echo -n "  Would you like to use the FOG server for dhcp service? [Y/n] "
 	read dodhcp;
 	case "$dodhcp" in
 		Y | yes | y | Yes | YES )
@@ -131,7 +184,8 @@ do
 			bldhcp="0";
 			;;
 		*)
-			echo "  Invalid input, please try again.";
+			bldhcp="1";
+			dodhcp="y";
 			;;	
 	esac	
 done
