@@ -19,6 +19,17 @@
 #
 #
 
+help()
+{
+	echo "";
+	echo "  Usage: ./installfog.sh [options]";
+	echo "       Options:";
+	echo "             --help              Displays this message";
+	echo "             --no-defaults       Don't guess default values";
+	echo "             --uninstall         Not yet supported";
+	echo "";
+}
+
 backupReports()
 {
 	echo -n "  * Backing up user reports";
@@ -106,8 +117,17 @@ displayOSChoices()
 		echo "          1) Redhat Based Linux (Fedora, CentOS)";
 		echo "          2) Ubuntu Based Linux (Kubuntu, Edubuntu)";		
 		echo "";
-		echo -n "  Choice: ";
+		echo -n "  Choice: [${strSuggestedOS}]";
 		read osid;
+		
+		if [ "$osid" = "" ] 
+		then
+			if [ "$strSuggestedOS" != "" ]
+			then
+				osid=$strSuggestedOS;
+			fi
+		fi
+		
 		echo "";
 		case "$osid" in
 			"1")

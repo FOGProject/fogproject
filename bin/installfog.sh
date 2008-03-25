@@ -27,6 +27,7 @@
 ipaddress="";
 interface="";
 routeraddress="";
+plainrouter="";
 dnsaddress="";
 dnsbootimage="";
 password="";
@@ -35,6 +36,9 @@ osname="";
 dodhcp="";
 bldhcp="";
 
+#argument options
+guessdefaults="1";
+
 clearScreen;
 displayBanner;
 echo "  Version: ${version} Installer/Updater";
@@ -42,8 +46,24 @@ echo "";
 
 sleep 1;
 
+# process arguments
+for arg in $*
+do 
+	case "$arg" in
+		"--help" )
+			help;
+			exit 1;
+			;;
+		"--no-defaults" )
+			guessdefaults="0";
+			;;
+	esac
+done
+
 . ../lib/common/input.sh
 
+echo "";
+echo "  #####################################################################";
 echo "";
 echo "  FOG now has everything it needs to setup your server, but please"
 echo "  understand that this script will overwrite any setting you may"
@@ -52,68 +72,76 @@ echo "  ";
 echo "  It is not recommended that you install this on a production system";
 echo "  as this script modifies many of your system settings.";
 echo "";
-echo "  If this is an upgrade, please remember to *backup any custom";
-echo "  reports* as they will be removed during this installation.";
-echo " ";
 echo "  This script should be run by the root user, or with sudo."
 echo "";
-echo -n "  Are you sure you wish to continue (Y/N) ";
-read blGo;
+echo "  Here are the settings FOG will use:";
+echo "         Distro: ${osname}";
+echo "         Server IP Address: ${ipaddress}";
+echo "         DHCP router Address: ${plainrouter}";
+echo "         DHCP DNS Address: ${dnsbootimage}";
+echo "         Interface: ${interface}";
+echo "         Using FOG DHCP: ${bldhcp}";
 echo "";
-case "$blGo" in
-    Y | yes | y | Yes | YES )
-           echo "  Installation Started...";
-           echo "";
-           echo "  Installing required packages, if this fails";
-           echo "  make sure you have an active internet connection.";
-           echo "";
-           installPackages;
-           echo "";
-           echo "  Confirming package installation.";
-           echo "";
-           confirmPackageInstallation;
-           echo "";
-           echo "  Configuring services.";
-           echo "";
-           configureUsers;
-           configureMySql;
-           backupReports;
-           configureHttpd;
-           restoreReports;
-           configureStorage;
-           configureNFS;
-           configureDHCP;
-           configureTFTPandPXE;
-           configureFTP;
-           configureSudo;
-           configureSnapins;
-           configureUDPCast;          
-           installInitScript;
-	   installFOGServices;
-           configureFOGService;
-           sendInstallationNotice;
-           echo "";
-           echo "  Setup complete!";
-           echo "";
-           echo "  You still need to install/update your database schema.";
-           echo "  This can be done by opening a web browser and going to:";
-           echo "";
-           echo "      http://${ipaddress}/fog/management";
-           echo ""
-           echo "      Default User:";
-           echo "             Username: fog";
-           echo "             Password: password";
-           echo "";
-           ;;
-    [nN]*)
-           echo "  FOG installer exited by user request."
-           exit 1;
-           ;;
-    *)
-           echo "  Sorry, answer not recognized."
-           exit 1
-           ;;
-esac
-
+while [ "$blGo" = "" ]
+do
+	echo -n "  Are you sure you wish to continue (Y/N) ";
+	read blGo;
+	echo "";
+	case "$blGo" in
+	    Y | yes | y | Yes | YES )
+	           echo "  Installation Started...";
+	           echo "";
+	           echo "  Installing required packages, if this fails";
+	           echo "  make sure you have an active internet connection.";
+	           echo "";
+	           installPackages;
+	           echo "";
+	           echo "  Confirming package installation.";
+	           echo "";
+	           confirmPackageInstallation;
+	           echo "";
+	           echo "  Configuring services.";
+	           echo "";
+	           configureUsers;
+	           configureMySql;
+	           backupReports;
+	           configureHttpd;
+	           restoreReports;
+	           configureStorage;
+	           configureNFS;
+	           configureDHCP;
+	           configureTFTPandPXE;
+	           configureFTP;
+	           configureSudo;
+	           configureSnapins;
+	           configureUDPCast;          
+	           installInitScript;
+		   installFOGServices;
+	           configureFOGService;
+	           sendInstallationNotice;
+	           echo "";
+	           echo "  Setup complete!";
+	           echo "";
+	           echo "  You still need to install/update your database schema.";
+	           echo "  This can be done by opening a web browser and going to:";
+	           echo "";
+	           echo "      http://${ipaddress}/fog/management";
+	           echo ""
+	           echo "      Default User:";
+	           echo "             Username: fog";
+	           echo "             Password: password";
+	           echo "";
+	           ;;
+	    [nN]*)
+	           echo "  FOG installer exited by user request."
+	           exit 1;
+	           ;;
+	    *)
+	    	   echo "";
+	           echo "  Sorry, answer not recognized."
+	           echo "";
+	           ;;
+	esac
+done
 
 
