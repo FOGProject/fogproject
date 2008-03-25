@@ -1,3 +1,8 @@
+Version 0.14
+------------
+
+* Improved installer with default values
+
 Version 0.13
 ------------
 

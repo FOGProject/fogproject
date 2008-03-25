@@ -43,4 +43,4 @@ servicedst="/opt/fog/service"
 servicelogs="/opt/fog/log"
 
 # what version are we working with?
-version="0.13";
+version="0.14";
