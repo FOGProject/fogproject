@@ -3,6 +3,7 @@ Version 0.14
 
 * Improved installer with default values
 * (1920830) After host removal, all tasks linked with host are deleted.
+* Modified S01reboot in boot image to disable saving of random seed
 
 Version 0.13
 ------------
