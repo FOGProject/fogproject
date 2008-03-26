@@ -2,6 +2,7 @@ Version 0.14
 ------------
 
 * Improved installer with default values
+* (1920830) After host removal, all tasks linked with host are deleted.
 
 Version 0.13
 ------------
