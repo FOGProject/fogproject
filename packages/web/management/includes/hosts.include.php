@@ -6,6 +6,9 @@ if ( $currentUser != null && $currentUser->isLoggedIn() )
 	if ( $_GET["rmhostid"] != null && is_numeric( $_GET["rmhostid"] ) )
 	{
 		$rmid = mysql_real_escape_string( $_GET["rmhostid"] );
+		
+		removeAllTasksForHostID( $conn, $rmid );
+		
 		$sql = "delete from hosts where hostID = '" . $rmid . "'";
 		if ( mysql_query( $sql, $conn ) )
 		{

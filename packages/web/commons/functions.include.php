@@ -26,6 +26,63 @@ define( "WIPE_FULL", 3 );
 define( "FOG_AV_SCANONLY", 1 );
 define( "FOG_AV_SCANQUARANTINE", 2 );
 
+// returns the # of tasks killed
+function removeAllTasksForHostMac( $conn, $mac )
+{
+	if ( $conn != null )
+	{
+		$macColon = str_replace ( "-", ":", strtolower($mac) );
+		
+		$sql = "SELECT 
+				hostID
+			FROM
+				hosts
+			WHERE
+				hostMAC = '$macColon'";
+				
+		$res = mysql_query( $sql, $conn );
+	
+		while( $ar = mysql_fetch_array( $res ) )
+		{
+			return removeAllTasksForHostID( $conn, $ar["hostID"] );
+		}
+		return $num;
+	}
+	return 0;
+}
+
+function removeAllTasksForHostID( $conn, $id )
+{
+	if ( $conn != null && is_numeric( $id ) )
+	{
+		$sql = "SELECT 
+				taskID, hostMAC
+			FROM
+				tasks
+				inner join (SELECT * FROM hosts where hostID = '$id' ) hosts on (hosts.hostID = tasks.taskHostID)";
+
+		$macDash = str_replace ( ":", "-", strtolower($mac) );
+		
+		@ftpDelete( TFTP_PXE_CONFIG_DIR . "01-" . $macDash );
+		
+		$res = mysql_query( $sql, $conn );
+		if ( $res )
+		{
+			$num = 0;
+			while( $ar = mysql_fetch_array( $res ) )
+			{
+				$sql = "delete from tasks where taskID = '" . mysql_real_escape_string( $ar["taskID"] ) . "' limit 1";
+				if ( mysql_query( $sql, $conn ) )
+				{
+					$num++;
+				}
+			}
+			return $num;
+		}
+	}
+	return 0;
+}
+
 function userTrackerActionToString( $code )
 {
 	switch( $code )
