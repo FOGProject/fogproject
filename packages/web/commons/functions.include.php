@@ -26,6 +26,10 @@ define( "WIPE_FULL", 3 );
 define( "FOG_AV_SCANONLY", 1 );
 define( "FOG_AV_SCANQUARANTINE", 2 );
 
+define( "FOG_PART_TYPE_SINGLERESIZE", 0 );
+define( "FOG_PART_TYPE_DDIMAGE", 1 );
+define( "FOG_PART_TYPE_MULTIPART", 2 );
+
 // returns the # of tasks killed
 function removeAllTasksForHostMac( $conn, $mac )
 {
@@ -184,6 +188,33 @@ function getOSNameByID( $conn, $osid )
 		}
 	}
 	return null;
+}
+ 
+function getImageTypeDropDown( $name="imagetype", $selected=null )
+{
+
+	$buffer = "<select name=\"$name\" size=\"1\">\n";
+	$buffer .= "<option value=\"-1\" label=\"Select One\">Select One</option>\n";
+		$tmpType = "Single Partition (NTFS Only, Resizable)";
+		$sel = "";
+		if ( $selected == FOG_PART_TYPE_SINGLERESIZE && $selected !== null && $selected != "")
+			$sel = "selected=\"selected\"";
+		$buffer .= "<option value=\"0\" label=\"$tmpType\" $sel>" . $tmpType . "</option>\n";		
+		
+		$tmpType = "Multiple Partition Image (Not Resizable)";
+		$sel = "";
+		if ( $selected == FOG_PART_TYPE_MULTIPART )
+			$sel = "selected=\"selected\"";
+		$buffer .= "<option value=\"2\" label=\"$tmpType\" $sel>" . $tmpType . "</option>\n";
+		
+		$tmpType = "Raw Image (Sector By Sector, DD, Slow)";
+		$sel = "";
+		if ( $selected == FOG_PART_TYPE_DDIMAGE )
+			$sel = "selected=\"selected\"";
+		$buffer .= "<option value=\"1\" label=\"$tmpType\" $sel>" . $tmpType . "</option>\n";					
+	$buffer .= "</select>\n";
+	return $buffer;
+
 }
  
 function getOSDropDown( $conn, $name="os", $selected=null )
