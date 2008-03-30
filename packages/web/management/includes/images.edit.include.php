@@ -91,8 +91,8 @@ else
 			$file = mysql_real_escape_string( $_POST["file"] );
 			$imgid = mysql_real_escape_string( $_POST["imgid"] );
 			$dd = "0";
-			if ( $_POST["dd"] == "on" )
-				$dd = "1";
+			if ( is_numeric($_POST["imagetype"]) )
+				$dd = mysql_real_escape_string($_POST["imagetype"]);
 			$sql = "update images set imageName = '$name', imageDesc = '$description', imagePath ='$file', imageDD = '$dd' where imageID = '$imgid'";
 			if ( mysql_query( $sql, $conn ) )
 			{
@@ -120,10 +120,7 @@ else
 				echo ( "<tr><td><font class=\"smaller\">Image Name:</font></td><td><input class=\"smaller\" type=\"text\" name=\"name\" value=\"" . $ar["imageName"] . "\" /></td></tr>" );
 				echo ( "<tr><td><font class=\"smaller\">Image Description:</font></td><td><textarea class=\"smaller\" name=\"description\" rows=\"5\" cols=\"65\">" . $ar["imageDesc"] . "</textarea></td></tr>" );
 				echo ( "<tr><td><font class=\"smaller\">Image File:</font></td><td><font class=\"smaller\">" . STORAGE_DATADIR . "</font><input class=\"smaller\" type=\"text\" name=\"file\" value=\"" . $ar["imagePath"] . "\" /></td></tr>" );
-				$checked = "";
-				if ( $ar["imageDD"] == "1" )
-					$checked="checked=\"checked\"";
-				echo ( "<tr><td>Disk Image:</td><td><input type=\"checkbox\" name=\"dd\" $checked /></td></tr>" );			
+				echo ( "<tr><td>Image Type:</td><td>" . getImageTypeDropDown( "imagetype", $ar["imageDD"] ) . "</td></tr>" );
 				echo ( "<tr><td colspan=2><font><center><br /><input type=\"hidden\" name=\"update\" value=\"1\" /><input type=\"hidden\" name=\"imgid\" value=\"" . $ar["imageID"] . "\" /><input class=\"smaller\" type=\"submit\" value=\"Update\" /></center></font></td></tr>" );				
 			echo ( "</table>" );
 			echo ( "</form>" );

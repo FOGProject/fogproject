@@ -1,6 +1,6 @@
 <?php
 /*
- *  FOG - Free, Open-Source Ghost is a computer imaging solution.
+ *  FOG - is a computer imaging solution.
  *  Copyright (C) 2007  Chuck Syperski & Jian Zhang
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -29,8 +29,8 @@ if ( $_POST["add"] != null )
 			$file = mysql_real_escape_string( $_POST[file] );
 			$user = mysql_real_escape_string( $currentUser->getUserName() );
 			$dd = "0";
-			if ( $_POST["dd"] == "on" )
-				$dd = "1";			
+			if ( is_numeric($_POST["imagetype"]) )
+				$dd = mysql_real_escape_string($_POST["imagetype"]);			
 			$sql = "insert into images(imageName, imageDesc, imagePath, imageDateTime, imageCreateBy, imageDD) values('$name', '$description', '$file', NOW(), '" . mysql_real_escape_string( $currentUser->getUserName() ) . "', '$dd' )";
 			if ( mysql_query( $sql, $conn ) )
 			{
@@ -51,7 +51,7 @@ echo ( "<center><table cellpadding=0 cellspacing=0 border=0 width=90%>" );
 	echo ( "<tr><td>Image Name:</td><td><input class=\"smaller\" type=\"text\" name=\"name\" value=\"\" /></td></tr>" );
 	echo ( "<tr><td>Image Description:</td><td><textarea class=\"smaller\" name=\"description\" rows=\"5\" cols=\"65\"></textarea></td></tr>" );
 	echo ( "<tr><td>Image File:</td><td>" . STORAGE_DATADIR . "<input class=\"smaller\" type=\"text\" name=\"file\" value=\"\" /></td></tr>" );
-	echo ( "<tr><td>Disk Image:</td><td><input type=\"checkbox\" name=\"dd\" /></td></tr>" );				
+	echo ( "<tr><td>Image Type:</td><td>" . getImageTypeDropDown(  ) . "</td></tr>" );				
 	echo ( "<tr><td colspan=2><center><br /><input type=\"hidden\" name=\"add\" value=\"1\" /><input class=\"smaller\" type=\"submit\" value=\"Add\" /></center></td></tr>" );				
 echo ( "</table></center>" );
 echo ( "</form>" );
