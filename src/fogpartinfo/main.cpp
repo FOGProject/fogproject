@@ -29,11 +29,7 @@ int main(int argc, char *argv[] )
 			listAllParts( argv[2] );
 			blFound = true;
 		}
-		else if ( strcmp(argv[1], "--fs-type" ) == 0 )
-		{
-			getFSType( argv[2] );
-			blFound = true;
-		}
+
 		
 	}
 
@@ -49,48 +45,7 @@ int main(int argc, char *argv[] )
 	}
 }
 
-void getFSType( char *strDev )
-{
-	PedDevice *dev = 0;
-        PedPartition *part = 0;
-	ped_device_probe_all();
-	
-        do 
-        {
-                dev = ped_device_get_next(dev);
-                if ( !dev )
-                        break;
 
-                PedDisk *disk = 0;
-                if ( (disk = ped_disk_new(dev)) == 0 ) 
-                {
-			cout << dev->path;
-                        continue;
-                }
-
-
-                do 
-                {
-                        part = ped_disk_next_partition(disk, part);
-                        if ( !part )
-                                break;
-
-                        if ( part->type == PED_PARTITION_NORMAL || part->type == PED_PARTITION_LOGICAL || part->type == PED_PARTITION_EXTENDED ) 
-                        {
-                        	char *strPartPath = ped_partition_get_path(part);
-				if ( strcmp( strDev, strPartPath ) == 0 )
-				{                        
-	                        	PedFileSystemType *fs = 0;
-	                        	fs = ped_file_system_type_get( strPartPath );
-	                                cout << fs->name << " ";                        
-                                }
-                        }
-                } while (part);
-                
-                return;
-                
-        } while ( dev );
-}
 
 void listAllParts( char *strDev )
 {
