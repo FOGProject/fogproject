@@ -62,7 +62,6 @@ void listAllParts( char *strDev )
                 PedDisk *disk = 0;
                 if ( (disk = ped_disk_new(dev)) == 0 ) 
                 {
-			cout << dev->path;
                         continue;
                 }
 
@@ -95,6 +94,13 @@ void listAllDevices()
                 dev = ped_device_get_next(dev);
                 if ( !dev )
                         break;
+                        
+                PedDisk *disk = 0;
+                if ( (disk = ped_disk_new(dev)) == 0 ) 
+                {
+                        continue;
+                }
+                        
 
                 cout << dev->path << " ";
         } while ( dev );
