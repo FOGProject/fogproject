@@ -26,9 +26,9 @@ define( "WIPE_FULL", 3 );
 define( "FOG_AV_SCANONLY", 1 );
 define( "FOG_AV_SCANQUARANTINE", 2 );
 
-define( "FOG_PART_TYPE_SINGLERESIZE", 0 );
-define( "FOG_PART_TYPE_DDIMAGE", 1 );
-define( "FOG_PART_TYPE_MULTIPART", 2 );
+//define( "FOG_PART_TYPE_SINGLERESIZE", 0 );
+//define( "FOG_PART_TYPE_DDIMAGE", 1 );
+//define( "FOG_PART_TYPE_MULTIPART", 2 );
 
 // returns the # of tasks killed
 function removeAllTasksForHostMac( $conn, $mac )
@@ -197,21 +197,27 @@ function getImageTypeDropDown( $name="imagetype", $selected=null )
 	$buffer .= "<option value=\"-1\" label=\"Select One\">Select One</option>\n";
 		$tmpType = "Single Partition (NTFS Only, Resizable)";
 		$sel = "";
-		if ( $selected == FOG_PART_TYPE_SINGLERESIZE && $selected !== null && $selected != "")
+		if ( $selected == ImageMember::IMAGETYPE_PARTITION && $selected !== null && $selected != "")
 			$sel = "selected=\"selected\"";
-		$buffer .= "<option value=\"0\" label=\"$tmpType\" $sel>" . $tmpType . "</option>\n";		
+		$buffer .= "<option value=\"" . ImageMember::IMAGETYPE_PARTITION . "\" label=\"$tmpType\" $sel>" . $tmpType . "</option>\n";		
 		
-		$tmpType = "Multiple Partition Image (Not Resizable)";
+		$tmpType = "Multiple Partition Image - Single Disk (Not Resizable)";
 		$sel = "";
-		if ( $selected == FOG_PART_TYPE_MULTIPART )
+		if ( $selected == ImageMember::IMAGETYPE_MULTIPART_SINGLEDRIVE )
 			$sel = "selected=\"selected\"";
-		$buffer .= "<option value=\"2\" label=\"$tmpType\" $sel>" . $tmpType . "</option>\n";
+		$buffer .= "<option value=\"" . ImageMember::IMAGETYPE_MULTIPART_SINGLEDRIVE . "\" label=\"$tmpType\" $sel>" . $tmpType . "</option>\n";
+
+		$tmpType = "Multiple Partition Image - All Disks  (Not Resizable)";
+		$sel = "";
+		if ( $selected == ImageMember::IMAGETYPE_MULTIPART_ALLDRIVES )
+			$sel = "selected=\"selected\"";
+		$buffer .= "<option value=\"" . ImageMember::IMAGETYPE_MULTIPART_ALLDRIVES . "\" label=\"$tmpType\" $sel>" . $tmpType . "</option>\n";
 		
 		$tmpType = "Raw Image (Sector By Sector, DD, Slow)";
 		$sel = "";
-		if ( $selected == FOG_PART_TYPE_DDIMAGE )
+		if ( $selected == ImageMember::IMAGETYPE_DISKIMAGE )
 			$sel = "selected=\"selected\"";
-		$buffer .= "<option value=\"1\" label=\"$tmpType\" $sel>" . $tmpType . "</option>\n";					
+		$buffer .= "<option value=\"" . ImageMember::IMAGETYPE_DISKIMAGE . "\" label=\"$tmpType\" $sel>" . $tmpType . "</option>\n";					
 	$buffer .= "</select>\n";
 	return $buffer;
 
@@ -935,7 +941,12 @@ function getImageMemberFromHostID( $conn, $hostid )
 		{
 			$imgType = ImageMember::IMAGETYPE_PARTITION;
 			if ( $ar["imageDD"] == "1" )
-				$imgType = ImageMember::IMAGETYPE_DISKIMAGE;		
+				$imgType = ImageMember::IMAGETYPE_DISKIMAGE;
+			else if ( $ar["imageDD"] == "2" )
+				$imgType = ImageMember::IMAGETYPE_MULTIPART_SINGLEDRIVE;
+			else if ( $ar["imageDD"] == "3" )
+				$imgType = ImageMember::IMAGETYPE_MULTIPART_ALLDRIVES;	
+								
 			$member = new ImageMember( $ar["hostName"], $ar["hostIP"], $ar["hostMAC"], $ar["imagePath"], $ar["hostID"], 0, $ar["imageID"], false, $ar["hostOS"], $imgType );
 		}
 	}
@@ -1434,7 +1445,11 @@ function createUploadImagePackage( $conn, $member, &$reason, $debug=false )
 			$imgType = "imgType=n";
 			if ( $member->getImageType() == ImageMember::IMAGETYPE_DISKIMAGE )
 				$imgType = "imgType=dd";
-			
+			else if ( $member->getImageType() == ImageMember::IMAGETYPE_MULTIPART_SINGLEDRIVE )
+				$imgType = "imgType=mps";
+			else if ( $member->getImageType() == ImageMember::IMAGETYPE_MULTIPART_ALLDRIVES )
+				$imgType = "imgType=mpa";			
+				
 			$pct = "pct=5"; // default percentage
 			
 			if ( is_numeric(UPLOADRESIZEPCT) && UPLOADRESIZEPCT >= 5 && UPLOADRESIZEPCT < 100 )
@@ -1823,6 +1838,10 @@ function createImagePackageMulticast($conn, $member, $taskName, $port, &$reason,
 				$imgType = "imgType=n";
 				if ( $member->getImageType() == ImageMember::IMAGETYPE_DISKIMAGE )
 					$imgType = "imgType=dd";
+				else if ( $member->getImageType() == ImageMember::IMAGETYPE_MULTIPART_SINGLEDRIVE )
+					$imgType = "imgType=mps";
+				else if ( $member->getImageType() == ImageMember::IMAGETYPE_MULTIPART_ALLDRIVES )
+					$imgType = "imgType=mpa";						
 				else
 				{
 					if ( $member->getOSID() == "99" )
@@ -1946,6 +1965,10 @@ function createImagePackage($conn, $member, $taskName, &$reason, $debug=false, $
 			$imgType = "imgType=n";
 			if ( $member->getImageType() == ImageMember::IMAGETYPE_DISKIMAGE )
 				$imgType = "imgType=dd";
+			else if ( $member->getImageType() == ImageMember::IMAGETYPE_MULTIPART_SINGLEDRIVE )
+				$imgType = "imgType=mps";
+			else if ( $member->getImageType() == ImageMember::IMAGETYPE_MULTIPART_ALLDRIVES )
+				$imgType = "imgType=mpa";					
 			else
 			{
 				if ( $member->getOSID() == "99" )
