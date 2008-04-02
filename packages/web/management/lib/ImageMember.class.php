@@ -15,6 +15,8 @@ class ImageMember
 	
 	const IMAGETYPE_PARTITION = 0;
 	const IMAGETYPE_DISKIMAGE = 1;
+	const IMAGETYPE_MULTIPART_SINGLEDRIVE = 2;
+	const IMAGETYPE_MULTIPART_ALLDRIVES = 3;
 
 	function __construct( $host=null, $ip=null, $mac=null, $image=null, $hid=null, $building=null, $imageid=null, $force=false, $osid=null, $imgType=self::IMAGETYPE_PARTITION )
 	{
