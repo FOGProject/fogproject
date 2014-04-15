@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+#
+# rc.single     This file is executed by init when it goes into runlevel
+#               1, which is the administrative state. It kills all
+#               deamons and then puts the system into single user mode.
+#               Note that the file systems are kept mounted.
+#
+# Author:       Miquel van Smoorenburg, <miquels@drinkel.nl.mugnet.org>
+#               Modified for RHS Linux by Damien Neil
+#               Modified for FOG by Chuck Syperski
+#
+
+if [ -n "$keymap" ]
+then
+	loadkeys $keymap;
+fi
+
+run="";
+after="";
+
+afterActionTerm="reboot -f";
+if [ "$shutdown" = "1" ]
+then
+	afterActionTerm="poweroff";
+fi
+
+
+if [ "$mode" == "debug" ]; then
+	run="/bin/fog.debug";
+	after="";
+elif [ "$mode" == "onlydebug" ]; then
+	run="";
+	after="";	
+elif [ "$mode" == "wipe" ]; then
+	run="/bin/fog.wipe";
+	after=$afterActionTerm;
+elif [ "$mode" == "checkdisk" ]; then
+	run="/bin/fog.testdisk";
+	after=$afterActionTerm;
+elif [ "$mode" == "photorec" ]; then
+	run="/bin/fog.photorec";
+	after=$afterActionTerm;
+elif [ "$mode" == "badblocks" ]; then
+	run="/bin/fog.surfacetest";
+	after=$afterActionTerm;
+elif [ "$mode" == "clamav" ]; then
+	run="/bin/fog.av";
+	after=$afterActionTerm;
+elif [ "$mode" == "autoreg" ]; then
+	run="/bin/fog.auto.reg";
+	after=$afterActionTerm;
+elif [ "$mode" == "delreg" ]; then
+	run="/bin/fog.auto.del";
+	after=$afterActionTerm;
+elif [ "$mode" == "manreg" ]; then
+	run="/bin/fog.man.reg";
+	after=$afterActionTerm;		
+elif [ "$mode" == "capone" ]; then
+	run="/bin/fog.capone";
+	after=$afterActionTerm;
+elif [ "$mode" == "winpassreset" ]; then
+	run="/bin/fog.chntpw";
+	after=$afterActionTerm;		
+elif [ "$mode" == "quickimage" ]; then
+	run="/bin/fog.quickimage";
+	after=$afterActionTerm;			
+elif [ "$mode" == "sysinfo" ]; then
+	run="/bin/fog.sysinfo";
+	after=$afterActionTerm;		
+else	
+	run="/bin/fog";
+	after=$afterActionTerm;
+fi
+$run;
+$after;

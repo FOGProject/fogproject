@@ -1,0 +1,61 @@
+Binary files chntpw-140201/chntpw.static and chntpw-140201_new/chntpw.static differ
+diff -rupN chntpw-140201/Makefile chntpw-140201_new/Makefile
+--- chntpw-140201/Makefile	2014-02-01 11:54:37.000000000 -0500
++++ chntpw-140201_new/Makefile	2014-03-06 21:17:44.603673531 -0500
+@@ -7,13 +7,8 @@
+ #
+ 
+ #SSLPATH=/usr/local/ssl
+-OSSLPATH=/usr
++OSSLPATH=../../.././output/target/usr
+ OSSLINC=$(OSSLPATH)/include
+-
+-CC=gcc
+-
+-# Force 32 bit
+-CFLAGS= -DUSEOPENSSL -g -I. -I$(OSSLINC) -Wall -m32 
+ OSSLLIB=$(OSSLPATH)/lib
+ 
+ # 64 bit if default for compiler setup
+@@ -26,37 +21,22 @@ OSSLLIB=$(OSSLPATH)/lib
+ LIBS=-L$(OSSLLIB)
+ 
+ 
+-all: chntpw chntpw.static cpnt reged reged.static samusrgrp samusrgrp.static sampasswd sampasswd.static
+-
++all: chntpw cpnt reged samusrgrp sampasswd
+ chntpw: chntpw.o ntreg.o edlib.o libsam.o
+ 	$(CC) $(CFLAGS) -o chntpw chntpw.o ntreg.o edlib.o libsam.o $(LIBS)
+ 
+-chntpw.static: chntpw.o ntreg.o edlib.o libsam.o
+-	$(CC) -static $(CFLAGS) -o chntpw.static chntpw.o ntreg.o edlib.o libsam.o $(LIBS)
+-
+ cpnt: cpnt.o
+ 	$(CC) $(CFLAGS) -o cpnt cpnt.o $(LIBS)
+ 
+ reged: reged.o ntreg.o edlib.o
+ 	$(CC) $(CFLAGS) -o reged reged.o ntreg.o edlib.o
+ 
+-reged.static: reged.o ntreg.o edlib.o
+-	$(CC) -static $(CFLAGS) -o reged.static reged.o ntreg.o edlib.o
+-
+-samusrgrp.static: samusrgrp.o ntreg.o libsam.o
+-	$(CC) -static $(CFLAGS) -o samusrgrp.static samusrgrp.o ntreg.o libsam.o 
+-
+ samusrgrp: samusrgrp.o ntreg.o libsam.o
+ 	$(CC) $(CFLAGS) -o samusrgrp samusrgrp.o ntreg.o libsam.o 
+ 
+ sampasswd: sampasswd.o ntreg.o libsam.o
+ 	$(CC) $(CFLAGS) -o sampasswd sampasswd.o ntreg.o libsam.o 
+ 
+-sampasswd.static: sampasswd.o ntreg.o libsam.o
+-	$(CC) -static $(CFLAGS) -o sampasswd.static sampasswd.o ntreg.o libsam.o 
+-
+-
+-
+ #ts: ts.o ntreg.o
+ #	$(CC) $(CFLAGS) -nostdlib -o ts ts.o ntreg.o $(LIBS)
+ 
+Binary files chntpw-140201/reged.static and chntpw-140201_new/reged.static differ
+Binary files chntpw-140201/sampasswd.static and chntpw-140201_new/sampasswd.static differ
+Binary files chntpw-140201/samusrgrp.static and chntpw-140201_new/samusrgrp.static differ

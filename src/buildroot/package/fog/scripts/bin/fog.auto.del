@@ -1,0 +1,49 @@
+#!/bin/sh
+. /usr/share/fog/lib/funcs.sh
+clear;
+displayBanner;
+mac=`ifconfig|grep HWaddr|head -n1|base64`;
+if [ -n "$mac" ]; then
+	echo -n "Would you like to delete this host? (y/N): ";
+	read deleteMe;
+	case "$deleteMe" in
+		N|n|NO|No|nO|no )
+		;;
+		Y|y|YES|yes|Yes|YEs|yES|yEs|YeS|yeS )
+		echo " * Starting host deletion...";
+		echo -n " * Attempting to delete host.................";
+		res="";
+		while [ "$res" = "" ]; do
+			res=`wget -O - --post-data="mac=${mac}" "http://${web}service/auto.delete.php" 2>/dev/null`;
+			echo "${res}";
+			sleep 2;
+		done
+		;;
+		*)
+		;;
+	esac
+	echo -n "Would you like to (Fully) re-inventory this host? (y/N): ";
+	read inventoryMe;
+	case "$inventoryMe" in
+		Y|y|YES|yes|Yes|YEs|yES|yEs|YeS|yeS )
+		/bin/fog.man.reg;
+		;;
+		N|n|NO|No|nO|no )
+		echo -n "Would you like to (Quickly) re-inventory this host? (y/N): "
+		read quickInv;
+		case "$quickInv" in
+			N|n|NO|No|nO|no )
+			;;
+			Y|y|YES|yes|Yes|YEs|yES|yEs|YeS|yeS )
+			/bin/fog.auto.reg;
+			;;
+			*)
+			;;
+		esac
+		;;
+		*)
+		;;
+	esac
+else
+	echo "Did not find MAC address!";
+fi

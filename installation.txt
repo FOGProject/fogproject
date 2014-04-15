@@ -1,0 +1,34 @@
+Overview
+--------
+
+FOG is an Open-Source computer imaging solution.  It currently works with Windows XP,
+ Windows Vista, and Linux (Beta).  FOG ties together many open-source 
+applications and adds a web interface to manage everything.  
+
+Installation
+------------
+
+The installer will only work correctly on Fedora/Red Hat (and maybe Centos) or Ubuntu.  
+It has only been tested on Fedora 7, 8, 9, Ubuntu 7.10, & 8.04.
+
+Fedora 7, 8, 9:
+ * firewall disabled 
+ * selinux disabled
+ * default packages
+ * static IP v4 address
+ * stop IP tables service (very important on fedora 9 that is this done prior to install)
+
+Ubuntu:
+ * Add software sources for Ubuntu Software: main, universe, restricted, multiverse
+ * Add software sources for Third-Party Software: partner
+
+Download the latest FOG package from http://www.sf.net/projects/freeghost and extract the tar file to the /opt directory
+
+cd into the bin directory and run ./installfog.sh
+
+Open firefox and go to http://localhost/fog/management to install the schema when prompted.
+
+Client Setup
+------------
+
+The Windows Service can be downloaded from the FOG server by navigating to http://x.x.x.x/fog/client/
