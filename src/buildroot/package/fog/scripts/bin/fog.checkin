@@ -1,0 +1,157 @@
+#!/bin/sh
+. /usr/share/fog/lib/funcs.sh
+RUN_CHKDSK="";
+HOSTNAME_EARLY="0";
+OS_ID_WIN7="5";
+OS_ID_WIN8="6";
+for arg in `cat /proc/cmdline`; do
+	case "$arg" in
+	initsh)
+		ash -i;
+		;;
+	nombr)
+		nombr=1;
+		;;
+	*)
+		;;
+	esac
+done
+clear;
+displayBanner;
+setupDNS $dns;
+osname="";
+mbrfile="";
+determineOS $osid;
+macWinSafe=`echo $mac|sed 's/://g'`;
+cores=$(grep "core id" /proc/cpuinfo|sort -u|wc -l);
+sockets=$(grep "physical id" /proc/cpuinfo|sort -u|wc -l);
+cores=$((cores * sockets));
+if [ "$cores" == "0" ]; then
+	cores=1;
+fi
+if [ "$chkdsk"  == "1" ]; then
+	RUN_CHKDSK="-x";
+fi
+if [ -n "$hostname" ]; then
+	HOSTNAME_EARLY="1";
+fi
+if [ "$mc" == "yes" ]; then
+	method="UDPCAST";
+	#mccmd="udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partclone.restore -O";
+else
+	method="NFS";
+fi
+fdisk -l &> /tmp/fdisk-before;
+echo "";
+echo " * Checking Operating System...................$osname";
+echo " * Checking CPU Cores..........................$cores";
+echo "";
+echo " * Send method.................................$method";
+blGo="0";
+nfsServerName="";
+if [ "$type" == "up" ]; then
+	echo -n " * Checking In.................................";
+	queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
+	echo "Done";
+	echo -n " * Mounting File System........................";
+	mkdir /images 2>/dev/null;
+	mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images;
+	echo "Done";
+elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
+	mac64=`ifconfig | grep HWaddr | head -n1 | base64`;
+	echo -n " * Attempting to send inventory................";
+	doInventory 2>/dev/null;
+	poststring="mac=${mac64}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}";
+	invres="";
+	while [ "$invres" == "" ]; do
+		invres=`wget -O - --post-data="$poststring" "http://${web}service/inventory.php" 2>/dev/null`;
+		echo "$invres";
+	done
+	echo -n " * Checking In.................................";
+	while [ "$blGo" == "0" ]; do
+		if [ "$capone" != "1" ]; then
+			if [ "$mc" != "yes" ]; then
+				queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
+				blPass=`echo $queueinfo|grep "##"`;
+				waittime=0;
+				while [ ! -n "$blPass" ]; do
+					echo -n "		* $queueinfo (";
+					sec2String $waittime;
+					echo ")"
+					queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
+					blPass=`echo $queueinfo | grep "##"`;
+					sleep 5;
+					waittime=$(expr $waittime "+" 5);
+				done
+				echo "Done";
+				directive="${queueinfo:3}";
+				if [ ! "$directive" = "GO" ]; then
+					tmpStorageIp=`echo $queueinfo|cut -d'@' -f2 2>/dev/null`;
+					tmpStorage=`echo $queueinfo|cut -d'@' -f3 2>/dev/null`;
+					tmpName=`echo $queueinfo|cut -d'@' -f4 2>/dev/null`;
+					if [ "$tmpStorage" != "" -a "$tmpStorageIp" != "" ]; then
+						storage=$tmpStorage;
+						storageip=$tmpStorageIp;
+						nfsServerName=$tmpName;
+					else
+						handleError "Error determining storage server!";
+						exit 1;
+					fi
+					echo " * Using Storage Node..........................$nfsServerName";
+				fi
+			else
+				queueinfo=`wget -q -O - "http://${web}service/mc_checkin.php?mac=$mac&type=$type" 2>/dev/null`;
+				blPass=`echo $queueinfo|grep "##"`;
+				echo "Done";
+				waittime=0;
+				while [ ! -n "$blPass" ]; do
+					echo -n "		* $queueinfo (";
+					sec2String $waittime
+					echo ")"
+					queueinfo=`wget -q -O - "http://${web}service/mc_checkin.php?mac=$mac&type=$type" 2>/dev/null`;
+					blPass=`echo $queueinfo | grep "##"`;
+					sleep 5;
+					waittime=$(expr $waittime "+" 5);
+				done
+			fi
+			echo -n " * Mounting File System........................";
+			mkdir /images $debugstring 2>/dev/null;
+			mount -o nolock,proto=tcp,rsize=32768,intr,noatime $storage /images 2>/tmp/mntfail;
+			mntRet="$?";
+			if [ ! "$mntRet" == "0" ] && [ ! -f "/images/.mntcheck" ]; then
+				blame=`wget -q -O - "http://${web}service/blame.php?mac=$mac&type=$type" 2>/dev/null`;
+				if [ ! "$blame" == "##" ]; then
+					echo "Failed";
+					echo "";
+					echo -n " * ";
+					cat /tmp/mntfail;
+					echo "";
+					echo "Error during failure notification: $blame";
+					while [ ! "$blame" == "##" ]; do
+						blame=`wget -q -O - "http://${web}service/blame.php?mac=$mac&type=$type" 2>/dev/null`;
+						if [ ! "$blame" == "##" ]; then
+							echo $blame;
+						fi
+							sleep 5;
+					done
+				else
+					echo "Failed";
+					echo "";
+					echo -n " * ";
+					cat /tmp/mntfail;
+					echo "";
+				fi
+				sleep 5;
+			else
+				echo "Done";
+				blGo="1";
+			fi
+		fi
+	done
+else
+	echo "Done";
+	echo -n " * Mounting File System........................";
+	mkdir /images $debugstring 2>/dev/null;
+	mount -o nolock,proto=tcp,rsize=32768,intr,noatime $storage /images 2>/tmp/mntfail;
+	echo "Done";
+fi

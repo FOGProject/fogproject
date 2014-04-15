@@ -1,0 +1,59 @@
+#!/bin/sh
+. /usr/share/fog/lib/funcs.sh
+clearScreen;
+displayBanner;
+setupDNS ${dns}
+hd="";
+getHardDisk;
+echo "";
+echo "";
+if [ -n "$hd" ]; then
+	echo " Warning!  You are about to destroy the contents of the following hard disk:";
+	echo "      ${hd}";
+	echo "";
+	echo " You have 60 seconds to turn off this computer to cancel!";
+	echo "";
+	sleep 60;
+	if [ "$wipemode" == "full" ]; then
+		echo " Starting disk wipe using shred...";
+		echo "";
+		sleep 10;
+		shred -f -v -z -n 3 ${hd}
+		echo "";
+		echo " Wiping complete.";
+		echo "";	
+	elif [ "$wipemode" == "normal" ]; then
+		echo " Writing to zeros to ${hd}";
+		dd if=/dev/zero of=${hd};
+	elif [ "$wipemode" == "fast" ]; then
+		echo " Writing to zeros to ${hd}";
+		dd if=/dev/zero of=${hd} bs=512 count=100000;
+	fi
+
+	echo "";
+	
+	queueinfo="";
+	cd /tmp			
+	wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+	queueinfo=`cat co.txt`;
+	
+
+	while [ "$queueinfo" != "##" ]
+	do
+		echo "       * $queueinfo";
+		rm co.txt
+		wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+		queueinfo=`cat co.txt`;
+		sleep 5;
+	done  
+
+	echo "";
+	echo " * Database updated!";
+	echo "";	
+	
+	echo " Task Complete";
+	
+else
+	echo "hard disk not found!";
+fi
+sleep 10
