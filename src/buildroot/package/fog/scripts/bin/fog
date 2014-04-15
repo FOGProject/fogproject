@@ -1,0 +1,10 @@
+#!/bin/sh
+. /usr/share/fog/lib/funcs.sh
+if [ "$type" == "down" ]; then
+	fog.download;
+elif [ "$type" == "up" ]; then
+	fog.upload;
+else
+	handleError " Fatal Error: Unknown request type :: Null";
+fi
+fdisk -l &> /tmp/fdisk-after

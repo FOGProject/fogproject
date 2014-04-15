@@ -1,0 +1,5 @@
+config BR2_PACKAGE_FOG
+	bool "FOG Binaries & Scripts"
+	select BR2_PACKAGE_PARTED
+	help
+	  FOG specific scripts & binaries from the current release. 

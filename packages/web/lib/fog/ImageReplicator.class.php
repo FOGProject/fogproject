@@ -1,0 +1,75 @@
+<?php
+class ImageReplicator extends FOGBase
+{
+	function outall($string)
+	{
+		$this->FOGCore->out($string,REPLICATORDEVICEOUTPUT);
+		$this->FOGCore->wlog($string,REPLICATORLOGPATH);
+	}
+	public function serviceStart()
+	{
+		$this->FOGCore->out($this->FOGCore->getBanner(),REPLICATORDEVICEOUTPUT);
+		$this->outall(" * Starting FOG Image Replicator Service");
+		sleep(5);
+		$this->outall(sprintf(" * Checking for new tasks every %s seconds.",REPLICATORSLEEPTIME));
+		$this->outall(sprintf(" * Starting service loop."));
+	}
+	private function commonOutput()
+	{
+		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1, 'ip' => current($this->FOGCore->getIPAddress()))));
+		if ($StorageNode)
+		{
+			$this->FOGCore->out(' * I am the group manager.',REPLICATORDEVICEOUTPUT);
+			$this->FOGCore->wlog(' * I am the group manager.','/opt/fog/log/groupmanager.log');
+			$this->outall(" * Starting Image Replication.");
+			$this->outall(sprintf(" * We are group ID: #%s",$StorageNode->get('storageGroupID')));
+			$this->outall(sprintf(" * We have node ID: #%s",$StorageNode->get('id')));
+			$StorageNodes = $this->FOGCore->getClass('StorageNodeManager')->find(array('storageGroupID' => $StorageNode->get('storageGroupID')));
+			foreach($StorageNodes AS $OtherNode)
+			{
+				if ($OtherNode->get('id') != $StorageNode->get('id'))
+					$StorageNodeCount[] = $OtherNode;
+			}
+			if (count($StorageNodeCount) > 0)
+			{
+				$this->outall(sprintf(" * Found: %s other member(s).",count($StorageNodeCount)));
+				$this->outall(sprintf(''));
+				$myRoot = rtrim($StorageNode->get('path'),'/');
+				$this->outall(sprintf(" * My root: %s",$myRoot));
+				$this->outall(sprintf(" * Starting Sync."));
+				foreach($StorageNodeCount AS $StorageNodeFTP)
+				{
+					$username = $StorageNodeFTP->get('user');
+					$password = $StorageNodeFTP->get('pass');
+					$ip = $StorageNodeFTP->get('ip');
+					$remRoot = rtrim($StorageNodeFTP->get('path'),'/');
+					$this->outall(sprintf(" * Syncing: %s",$StorageNodeFTP->get('name')));
+					$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30; mirror -R -vvv --exclude 'dev/' --delete $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
+					while(!feof($process) && $process != null)
+					{
+						$output = fgets($process,256);
+						$this->outall(sprintf(" * SubProcess -> %s",$output));
+					}
+					pclose($process);
+					$this->outall(sprintf(" * SubProcess -> Complete"));
+				}
+			}
+			else
+				$this->outall(sprintf(" * I am the only member, no need to copy anything!."));
+		}
+		else
+		{
+			$this->FOGCore->out(" * I don't appear to be the group manager, I will check back later.",REPLICATORDEVICEOUTPUT);
+			$this->FOGCore->wlog(" * I don't appear to be the group manager, I will check back later.",'/opt/fog/log/groupmanager.log');
+		}
+	}
+	public function serviceRun()
+	{
+		$this->FOGCore->out(' ',REPLICATORDEVICEOUTPUT);
+		$this->FOGCore->out(' +---------------------------------------------------------',REPLICATORDEVICEOUTPUT);
+		$this->FOGCore->out(' * Checking if I am the group manager.',REPLICATORDEVICEOUTPUT);
+		$this->FOGCore->wlog(' * Checking if I am the group manager.','/opt/fog/log/groupmanager.log');
+		$this->commonOutput();
+		$this->FOGCore->out(' +---------------------------------------------------------',REPLICATORDEVICEOUTPUT);
+	}
+}

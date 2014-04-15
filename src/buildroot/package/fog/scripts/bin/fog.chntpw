@@ -1,0 +1,81 @@
+#!/bin/sh
+. /usr/share/fog/lib/funcs.sh
+clearScreen;
+displayBanner;
+setupDNS ${dns}
+hd="";
+getHardDisk;
+echo "";
+echo "";
+acct="$winuser";
+if [ -n "$hd" ]; then
+	if [ -n "$acct" ]
+	then
+		blCont="0";
+		blStop="0";
+		partNum=1;
+		part="";
+		mkdir /ntfs;
+		sam="";
+		while [ "$blCont" == "0" ] && [ "$blStop" == "0" ]
+		do
+			part="${hd}${partNum}";
+			umount /ntfs 2>/dev/null >/dev/null
+			mount.ntfs-3g $part /ntfs 
+			getSAMLoc;
+			if [ -f "$sam" ]
+			then
+				blCont="1";
+			else
+				partNum=$((${partNum}+1));
+				if [ $partNum -gt 10 ]
+				then
+					blStop="1";
+				fi
+			fi			
+		done
+		
+		umount /ntfs 2>/dev/null >/dev/null
+
+		if [ "$blCont" == "1" ]
+		then
+			echo -n " * Mounting Windows File System................";
+			mount.ntfs-3g $part /ntfs 
+			echo "Done";
+			echo "";
+			
+			echo -n " * Attempting to change password...............";
+			chntpw -u ${acct} ${sam}  &>/dev/null << EOF
+1
+y
+EOF
+			echo "Done";
+			echo "";
+			echo " Task Complete";
+		else 
+			echo " Unable to locate SAM file.";		
+		fi
+	else
+		echo " Invalid User Account.";
+	fi
+else
+	echo "hard disk not found!";
+fi
+
+queueinfo="";
+cd /tmp			
+wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+queueinfo=`cat co.txt`;
+while [ "$queueinfo" != "##" ]
+do
+	echo "       * $queueinfo";
+	rm co.txt
+	wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+	queueinfo=`cat co.txt`;
+	sleep 5;
+done  
+echo "";
+echo " * Database updated!";
+echo "";	
+
+sleep 3;

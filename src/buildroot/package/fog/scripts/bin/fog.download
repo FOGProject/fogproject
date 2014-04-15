@@ -1,0 +1,421 @@
+#!/bin/sh
+. /usr/share/fog/lib/funcs.sh;
+. /bin/fog.checkin;
+layPartSize="99%";
+imagePath="/images/$img";
+defaultpart1end="105906175B";
+defaultpart2start="105906176B";
+fog.statusreporter $mac $web &
+echo -n " * Checking Mounted File System................";
+if [ -f "/images/.mntcheck" ]; then
+	echo "Done";
+	echo "";
+	echo " * Starting Image Push";
+	if [ -n "$img" ] || [ "$mc" == "yes" ]; then
+		if [ "$mc" != "yes" ]; then
+			echo " * Using Image: $img";
+			echo "";
+		fi
+	fi
+	echo -n " * Looking for Hard Disks......................";
+	getHardDisk;
+	echo "Done";
+	if [ ! -n $hd ]; then
+		handleError "HD is null, no hard disk found.";
+		exit 1;
+	fi
+	echo " * Using Hard Disk: $hd";
+	# Generates the partitions.  If singledisk resizeable, it generates
+	# based on default normal values.
+	# Otherwise it uses MBR/GPT to generate the partition table(s).
+	if [ "$imgType" == "n" ]; then
+		if [ "$osid" != "1" ] && [ "$osid" != "2" ] && [ "$osid" != "5" ] && [ "$osid" != "6" ]; then
+			handleError " * Invalid Operating System ID: $osname ($osid)!";
+		fi
+		echo -n " * Checking write caching status on HDD........";
+		wcache=$(hdparm -i $hd 2>/dev/null|sed '/WriteCache=/!d; s/^.*WriteCache=//; s/ .*$//');
+		if [ "$wcache" == "enabled" ]; then
+			echo "OK";
+		elif [ "$wcache" == "disabled" ]; then
+			hdparm -W 1 $hd 2&1 >/dev/null;
+			echo "Enabled";
+		else
+			echo "Unknown status $wcache";
+		fi
+		cd /images;
+		part="${hd}1";
+		win7partcnt="0";
+		win7rec="";
+		win7sys="";
+		win7imgroot="$imagePath";
+		if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
+			echo -n " * Windows Boot Partition Exists...............";
+			if [ -f "$win7imgroot/rec.img.000" ]; then
+				echo "Yes";
+				win7partcnt="2";
+				win7rec="${hd}1";
+				win7sys="${hd}2";
+				part=$win7sys;
+			elif [ -f "$win7imgroot/gpt.bak" ]; then
+				win7partcnt="3";
+				win7rec="gpt";
+				win7sys="${hd}3";
+				part=$win7sys;
+			else
+				echo "No";
+				win7partcnt="1";
+				win7sys="${hd}1";
+			fi
+			if [ -f "$win7imgroot/sys.img.000" ]; then
+				echo -n " * Preparing Hard Disks (Stage 1)..............";
+				if [ "$nombr" == "1" ]; then
+					echo "Skipped";
+				else
+					dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
+					dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
+					echo "Done";
+				fi
+				diskSize=`parted -s $hd u kB print | grep "Disk" | grep -v "Flags" | sed 's/Disk \/dev\/[a-zA-Z0-9]*: //' | sed 's/kB//'`;
+				if [ $diskSize -gt 2199023256 ]; then
+					layPartSize="2tB";
+				fi
+				if [ "$win7partcnt" == "1" ]; then
+					echo -n " * Preparing Hard Disks (Stage 2)..............";
+					parted -s $hd u kB rm 1 &>/dev/null;
+					echo "Done";
+					echo -n " * Preparing Hard Disks (Stage 3)..............";
+					parted -s $hd -a opt u kB mkpart primary ntfs 2048s $layPartSize &>/dev/null;
+					parted -s $hd u kB set 1 boot on &>/dev/null;
+				elif [ "$win7partcnt" == "2" ]; then
+					echo -n " * Preparing Hard Disks (Stage 2)..............";
+					parted -s $hd u kB rm 2 &>/dev/null;
+					echo "Done";
+					echo -n " * Preparing Hard Disks (Stage 3)..............";
+					parted -s $hd -a opt u kB mkpart primary ntfs $defaultpart2start $layPartSize &>/dev/null;
+				elif [ "$win7partcnt" == "3" ]; then
+					echo -n " * Preparing Hard Disks (Stage 2)..............";
+					sgdisk --zap-all $hd 2>&1 >/dev/null;
+					runPartprobe;
+					sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
+					echo "Done";
+					echo -n " * Preparing Hard Disks (Stage 3)..............";
+					sgdisk -x 3:$(sgdisk -E $hd) $hd &>/dev/null
+				fi
+				echo "Done";
+			else
+				handleError "Unable to locate image file for Windows 7/8! (sys.img.000)";
+			fi
+		elif [ "$osid" == "1" ]; then
+			echo -n " * Preparing Hard Disks (Stage 1)..............";
+			if [ "$nombr" == "1" ]; then
+				echo "Skipped";
+			else
+				dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
+				dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
+				echo "Done";
+			fi
+			echo -n " * Preparing Hard Disks (Stage 2)..............";
+			fdisk $hd >/dev/null << EOFPT
+d
+w
+EOFPT
+			echo "Done";
+			echo -n " * Preparing hard Disks (Stage 3)..............";
+			parted -s $hd u kB mkpart primary ntfs 63s $layPartSize &>/dev/null;
+			parted -s $hd u kB set 1 boot on &>/dev/null;
+			echo "Done";
+		elif [ "$osid" == "2" ]; then
+			echo -n " * Preparing Hard Disks (Stage 1)..............";
+			if [ "$nombr" == "1" ]; then
+				echo "Skipped";
+			else
+				dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
+				dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
+				echo "Done";
+			fi
+			echo -n " * Preparing Hard Disks (Stage 2)..............";
+			parted -s $hd u kB rm 2 &>/dev/null;
+			runPartprobe;
+			echo "Done";
+			echo -n " * Preparing Hard Disks (Stage 3)..............";
+			parted -s $hd u kB mkpart primary ntfs $defaultpart2start $layPartSize &>/dev/null;
+			echo "Done";
+			correctVistaMBR $hd;
+		fi
+	elif [ "$imgType" == "mps" ]; then
+		if [ -d "$imagePath" ]; then
+			echo -n " * Erasing current MBR/GPT Tables.............."
+			sgdisk -Z $hd >/dev/null;
+			runPartprobe;
+			echo "Done";
+			tmpMBR="$imagePath/d1.mbr";
+			mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
+			if [ -f $tmpMBR ]; then
+				if [ "$mbrsize" != "32256" ] && [ "$mbrsize" != "512" ]; then
+					echo -n " * Restoring Partition Tables..................";
+					sgdisk -gel $tmpMBR $hd 2>&1 >/dev/null;
+					gptcheck="yes";
+				elif [ "$mbrsize" == "32256" ] && [ "$osid" == "50" ]; then
+					echo -n " * Restoring MBR and GRUB......................";
+					dd if=$tmpMBR of=$hd bs=512 count=63 &>/dev/null;
+				else
+					echo -n " * Restoring MBR...............................";
+					dd if=$tmpMBR of=$hd bs=512 count=1 &>/dev/null;
+				fi
+				echo "Done";
+				sleep 3;
+			else
+				handleError "Image Store Corrupt: Unable to locate MBR.";
+			fi
+		else
+			handleError "Unable to locate image store.";
+		fi
+	elif [ "$imgType" == "mpa" ]; then
+		disks=`fogpartinfo --list-devices 2>/dev/null`
+		intDisk=1;
+		if [ -d "$imagePath" ]; then
+			for disk in $disks; do
+				echo -n " * Erasing current MBR/GPT Tables.............."
+				sgdisk -Z $disk >/dev/null;
+				runPartprobe;
+				echo "Done";
+				tmpMBR="$imagePath/d${intDisk}.mbr";
+				mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
+				if [ -f $tmpMBR ]; then
+					if [ "$mbrsize" != "32256" ] && [ "$mbrsize" != "512" ]; then
+						echo -n " * Restoring Partition Tables..................";
+						sgdisk -gel $tmpMBR $disk 2>&1 >/dev/null;
+						gptcheck="yes";
+					elif [ "$mbrsize" == "32256" ] && [ "$intDisk" == "1" ] && [ "$osid" == "50" ]; then
+						echo -n " * Restoring MBR and GRUB......................";
+						dd if=$tmpMBR of=$disk bs=512 count=63 &>/dev/null;
+					else
+						echo -n " * Restoring MBR...............................";
+						dd if=$tmpMBR of=$disk bs=512 count=1 &>/dev/null;
+					fi
+					echo "Done";
+					sleep 3;
+				else
+					handleError "Image Store Corrupt: Unable to locate MBR.";
+				fi
+				intDisk=`expr $intDisk '+' 1`;
+			done
+		else
+			handleError "Unable to locate image store.";
+		fi
+	fi
+	# This performs all the Multicast Imaging Tasks.
+	if [ "$mc" == "yes" ]; then
+		echo -n " * Checking Hard Disks.........................";
+		runPartprobe;
+		echo "Done";
+		if [ "$imgType" == "n" ]; then
+			if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
+				if [ "$win7partcnt" == "1" ]; then
+					writeImageMultiCast $win7sys
+				elif [ "$win7partcnt" == "2" ]; then
+					writeImageMultiCast $win7rec
+					writeImageMultiCast $win7sys
+				elif [ "$win7partcnt" == "3" ]; then
+					writeImageMultiCast ${hd}1
+					writeImageMultiCast ${hd}2
+					writeImageMultiCast $win7sys
+				fi
+				echo -n " * Performing Clean up (Stage 1)..............";
+				ntfsresize $win7sys $RUN_CHKDSK -f -b -P &>/dev/null << EOFNTFS
+Y
+EOFNTFS
+				echo "Done";
+				echo -n " * Performing Clean up (Stage 2)..............";
+				fstype=`blkid -po udev $win7sys | grep FS_TYPE | awk -F'=' '{print $2}'`;
+				if [ "$fstype" == "ntfs" ]; then
+					ntfsfix -b -d $win7sys &>/dev/null | grep -i "success"
+				fi
+				echo "Done";
+			else
+				writeImageMultiCast $part
+				echo -n " * Performing Clean up (Stage 1)..............";
+				ntfsresize $part $RUN_CHKDSK -f -b -P &>/dev/null << EOFNTFS
+Y
+EOFNTFS
+				echo "Done";
+				echo -n " * Performing Clean up (Stage 2)..............";
+				fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
+				if [ "$fstype" == "ntfs" ]; then
+					ntfsfix -b -d $part &>/dev/null | grep -i "success"
+				fi
+				echo "Done";
+			fi
+		elif [ "$imgType" == "mps" ]; then
+			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
+			diskLength=`expr length $hd`;
+			for part in $parts; do
+				partNum=${part:$diskLength};
+				echo " * Processing Partition: $part ($partNum)";
+				sleep 2;
+				imgpart="$imagePath/d1p$partNum.img";
+				if [ ! -f $imgpart ]; then
+					echo " * Partition File Missing: $imgpart";
+				else
+					writeImageMultiCast $part
+				fi
+			done
+		elif [ "$imgType" == "mpa" ]; then
+			disks=`fogpartinfo --list-devices 2>/dev/null`;
+			intDisk=1;
+			for disk in $disks; do
+				parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
+				diskLength=`expr length $disk`;
+				for part in $parts; do
+					partNum=${part:$diskLength};
+					echo " * Processing Partition: $part ($partNum)";
+					imgpart="$imagePath/d${intDisk}p${partNum}.img";
+					if [ ! -f $imgpart ]; then
+						echo " * Partition File Missing: $imgpart";
+					else
+						writeImageMultiCast $part
+					fi
+				done
+				intDisk=`expr $intDisk '+' 1`;
+			done
+		else
+			writeImageMultiCast $hd
+		fi
+	else
+		echo -n " * Checking Hard Disks.........................";
+		runPartprobe;
+		echo "Done";
+		if [ "$imgType" == "n" ]; then
+			if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
+				if [ "$win7partcnt" == "1" ]; then
+					writeImage $imagePath/sys.img.000 $win7sys
+				elif [ "$win7partcnt" == "2" ]; then
+					writeImage $imagePath/rec.img.000 $win7rec
+					writeImage $imagePath/sys.img.000 $win7sys
+				elif [ "$win7partcnt" == "3" ]; then
+					writeImage $imagePath/rec1.img.000 ${hd}1 
+					writeImage $imagePath/rec3.img.000 ${hd}2
+					writeImage $imagePath/sys.img.000 $win7sys
+				fi
+				echo -n " * Performing Clean up (Stage 1)..............";
+				ntfsresize $win7sys $RUN_CHKDSK -f -b -P &>/dev/null << EOFNTFS
+Y
+EOFNTFS
+				echo "Done";
+				echo -n " * Performing Clean up (Stage 2)..............";
+				fstype=`blkid -po udev $win7sys | grep FS_TYPE | awk -F'=' '{print $2}'`;
+				if [ "$fstype" == "ntfs" ]; then
+					ntfsfix -b -d $win7sys &>/dev/null | grep -i "success"
+				fi
+				echo "Done";
+			else
+				writeImage $imagePath $part
+				clear;
+				echo -n " * Performing Clean up (Stage 1)..............";
+				ntfsresize $part $RUN_CHKDSK -f -b -P &>/dev/null << EOFNTFS1
+Y
+EOFNTFS1
+				echo "Done";
+				echo -n " * Performing Clean up (Stage 2)..............";
+				fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
+				if [ "$fstype" == "ntfs" ]; then
+					ntfsfix -b -d $part &>/dev/null | grep -i "success"
+				fi
+				echo "Done";
+			fi
+		elif [ "$imgType" == "mps" ]; then
+			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
+			diskLength=`expr length $hd`;
+			for part in $parts; do
+				partNum=${part:$diskLength};
+				echo " * Processing Partition: $part ($partNum)";
+				imgpart="$imagePath/d1p${partNum}.img";
+				sleep 2;
+				if [ ! -f $imgpart ]; then
+					echo " * Partition File Missing: $imgpart";
+				else
+					writeImage $imgpart $part
+				fi
+				fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
+				if [ "$fstype" == "ntfs" ]; then
+					ntfsfix -b -d $part &>/dev/null | grep -i "success"
+				fi
+			done
+			if [ "$osid" == "50" ]; then
+				echo " * Restore Linux swap paritions:";
+				swaps=`LANG=C fdisk -l | grep swap | cut -d' ' -f1 2>/dev/null`;
+IFS='
+';
+				for x in $swaps; do
+					echo "		* Restoring partition: $x";
+					mkswap $x &>/dev/null
+				done
+			fi
+		elif [ "$imgType" == "mpa" ]; then
+			disks=`fogpartinfo --list-devices 2>/dev/null`;
+			intDisk=1;
+			for disk in $disks; do
+				parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
+				diskLength=`expr length $disk`;
+				for part in $parts; do
+					partNum=${part:$diskLength};
+					echo " * Processing Partition: $part ($partNum)";
+					imgpart="${imagePath}/d${intDisk}p${partNum}.img";
+					if [ ! -f $imgpart ]; then
+						echo " * Partition File Missing: $imgpart";
+					else
+						writeImage $imgpart $part
+					fi
+					fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
+					if [ "$fstype" == "ntfs" ]; then
+						ntfsfix -b -d $part &>/dev/null | grep -i "success"
+					fi
+				done
+				intDisk=`expr $intDisk '+' 1`;
+			done
+			if [ "$osid" == "50" ]; then
+				echo " * Restore Linux swap paritions:";
+				swaps=`LANG=C fdisk -l | grep swap | cut -d' ' -f1 2>/dev/null`;
+IFS='
+';
+				for x in $swaps; do
+					echo "		* Restoring partition: $x";
+					mkswap $x &>/dev/null
+				done
+			fi
+		else
+			writeImage $imagePath/$img $hd
+		fi
+	fi
+	if [ "$gptcheck" == "yes" ]; then
+		sgdisk -G $hd;
+	fi
+	if [ "$capone" != "1" ]; then
+		if [ "$osid" == "5" -a "$imgType" == "n" ]; then
+			fixWin7boot;
+		fi
+		changeHostname;
+		echo "";
+		echo " * Updating Computer Database Status";
+		echo "";
+		cd /tmp;
+		queueinfo="";
+		wget -q -O /tmp/co.txt "http://${web}service/Post_Stage3.php?mac=$mac&type=$type" &>/dev/null;
+		queueinfo=`cat co.txt`;
+		while [ $queueinfo != '##' ]; do
+			echo "		* $queueinfo";
+			rm co.txt
+			wget -q -O /tmp/co.txt "http://${web}service/Post_Stage3.php?mac=$mac&type=$type" &>/dev/null;
+			queueinfo=`cat co.txt`;
+			sleep 5;
+		done
+		echo "";
+		echo " * Database Updated!";
+		echo "";
+	fi
+	echo "";
+	echo " * Task is completed, computer will now restart.";
+	echo "";
+else
+	handleError "Fatal Error: Failed to mount NFS Volume.\n* If you believe the filesystem is mounted,\n\tmake sure you have a file called .mntcheck\n\tin the directory you are mounting on the server";
+fi
