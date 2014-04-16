@@ -114,27 +114,12 @@ class HostManager extends FOGManagerController
 	}
 	public function getHostByMacAddress($mac,$primaryOnly = false)
 	{
-		if (!is_object($mac))
-			$mac = new MACAddress($mac);
-		if ($mac->isValid())
-		{
-			if (!$primaryOnly)
-			{
-				$HostMAC = current($this->FOGCore->getClass('MACAddressAssociationManager')->find(array('mac' => $mac)));
-				$Host = current($this->FOGCore->getClass('HostManager')->find(array('mac' => $mac)));
-				if ($Host && $Host->isValid())
-					return $Host;
-				else if ((!$Host || !$Host->isValid()) && ($HostMAC && $HostMAC->isValid()))
-					return new Host($HostMAC->get('hostID'));
-			}
-			else
-			{
-				$Host = current($this->FOGCore->getClass('HostManager')->find(array('mac' => $mac)));
-				if ($Host && $Host->isValid())
-					return $Host;
-			}
-		}
-		return new Host(array('id' => 0));
+		$Host = current($this->FOGCore->getClass('HostManager')->find(array('mac' => $mac)));
+		$HostMAC = current($this->FOGCore->getClass('MACAddressAssociationManager')->find(array('mac' => $mac)));
+		if ($primaryOnly || ($Host && $Host->isValid()))
+			return $Host;
+		else
+			return ($HostMAC && $HostMAC->isValid() ? new Host($HostMAC->get('hostID')) : new Host(array('id' => -1)));
 	}
 	public function doesHostExistWithMac( $mac, $ignoringHostId=-1 )
 	{
@@ -151,31 +136,19 @@ class HostManager extends FOGManagerController
 	}
 	public function getHostByMacAddresses($MACs)
 	{
-		if ($MACs)
+		$hostReturn = null;
+		foreach((array)$MACs as $MAC)
 		{
-			if (is_array($MACs))
-			{
-				$hostReturn = null;
-				foreach($MACs as $MAC)
-				{
-					if ($MAC && $MAC->isValid())
-					{
-						$tmpHost = $this->getHostByMacAddress($MAC);
-						if ($hostReturn == null)
-							$hostReturn = $tmpHost;
-						else
-						{
-							if ($hostReturn->get('id') != $tmpHost->get('id'))
-								throw new Exception(_('Error multiple hosts returned for list of mac addresses!'));
-						}
-					}
-				}
-				return $hostReturn;
-			}
+			$tmpHost = $this->getHostByMacAddress($MAC);
+			if ($hostReturn == null && $tmpHost && $tmpHost->isValid())
+				$hostReturn = $tmpHost;
 			else
-				return $this->getHostByMacAddress($MACs);
+			{
+				if (($tmpHost && $tmpHost->isValid()) && ($hostReturn && $hostReturn->isValid()) && ($hostReturn->get('id') != $tmpHost->get('id')))
+					throw new Exception(_('Error multiple hosts returned for list of mac addresses!'));
+			}
 		}
-		return null;
+		return $hostReturn;
 	}
 	/** isSafeHostName($hsotname)
 		Checks that the hostname is safe as in string length and characters.
