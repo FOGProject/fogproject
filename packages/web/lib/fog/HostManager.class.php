@@ -148,7 +148,7 @@ class HostManager extends FOGManagerController
 					throw new Exception(_('Error multiple hosts returned for list of mac addresses!'));
 			}
 		}
-		return $hostReturn;
+		return ($hostReturn && $hostReturn->isValid() ? $hostReturn : new Host(array('id' => 0)));
 	}
 	/** isSafeHostName($hsotname)
 		Checks that the hostname is safe as in string length and characters.
