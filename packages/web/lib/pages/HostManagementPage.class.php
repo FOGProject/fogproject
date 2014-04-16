@@ -1530,7 +1530,7 @@ class HostManagementPage extends FOGPage
 		parent::render();
 		
 		// Add action-box
-		if (in_array($_REQUEST['sub'], array('list', 'search')) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest() || $this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN') == 'list')
+		if ((in_array($_REQUEST['sub'], array('list', 'search')) || $this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN') == 'list') && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
 		{	
 			print '<form method="post" action="'.sprintf('%s?node=%s&sub=save_group', $_SERVER['PHP_SELF'], $this->node).'" id="action-box">';
 			print "\n\t\t\t".'<input type="hidden" name="hostIDArray" id="hostIDArray" value="" autocomplete="off" />';
