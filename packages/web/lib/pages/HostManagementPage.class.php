@@ -298,8 +298,8 @@ class HostManagementPage extends FOGPage
 		// Inventory find for host.
 		$Inventory = current($Host->get('inventory'));
 		// Get the associated Groups.
-		foreach($Host->get('groups') AS $Group)
-			$GroupIDs[] = $Group->get('id');
+		foreach((array)$Host->get('groups') AS $Group)
+			$GroupIDs[] = $Group && $Group->isValid() ? $Group->get('id') : '';
 		// Location Find for host.
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
@@ -1530,7 +1530,7 @@ class HostManagementPage extends FOGPage
 		parent::render();
 		
 		// Add action-box
-		if (in_array($_REQUEST['sub'], array('list', 'search')) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
+		if (in_array($_REQUEST['sub'], array('list', 'search')) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest() || $this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN') == 'list')
 		{	
 			print '<form method="post" action="'.sprintf('%s?node=%s&sub=save_group', $_SERVER['PHP_SELF'], $this->node).'" id="action-box">';
 			print "\n\t\t\t".'<input type="hidden" name="hostIDArray" id="hostIDArray" value="" autocomplete="off" />';
