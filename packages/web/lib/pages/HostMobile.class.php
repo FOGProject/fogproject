@@ -49,7 +49,7 @@ class HostMobile extends FOGPage
 
 	public function index()
 	{
-		$this->render();
+		$this->search();
 	}
 
 	public function deploy()
