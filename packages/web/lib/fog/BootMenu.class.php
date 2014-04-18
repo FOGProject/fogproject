@@ -313,6 +313,13 @@ class BootMenu
 			);
 			if ($Task->get('typeID') == 12 || $Task->get('typeID') == 13)
 				$this->printDefault();
+			else if ($Task->get('typeID') == 4)
+			{
+				print "#!ipxe\n";
+				print "kernel memdisk iso raw\n";
+				print "$this->memtest\n";
+				print "boot";
+			}
 			else
 				$this->printTasking($kernelArgsArray);
 		}
