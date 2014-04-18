@@ -124,7 +124,7 @@ class HostManager extends FOGManagerController
 	public function doesHostExistWithMac( $mac, $ignoringHostId=-1 )
 	{
 		$host = $this->getHostByMacAddress( $mac );
-		if ( $host == null )
+		if ( !$host->isValid() )
 			return false;
 		else
 		{	
