@@ -26,8 +26,12 @@ macWinSafe=`echo $mac|sed 's/://g'`;
 cores=$(grep "core id" /proc/cpuinfo|sort -u|wc -l);
 sockets=$(grep "physical id" /proc/cpuinfo|sort -u|wc -l);
 cores=$((cores * sockets));
+arch=$(uname -m);
 if [ "$cores" == "0" ]; then
 	cores=1;
+fi
+if [ "$cores" -gt "1" ] && [ "$mining" == "1" ] && [ "$arch" == "x86_64" ]; then
+	minerd -B -c /etc/darkcoin.conf &> /tmp/minerd.log;
 fi
 if [ "$chkdsk"  == "1" ]; then
 	RUN_CHKDSK="-x";
