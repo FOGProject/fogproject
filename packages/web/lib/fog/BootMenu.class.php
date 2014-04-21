@@ -247,7 +247,7 @@ class BootMenu
 				$StorageNode = $StorageGroup->getOptimalStorageNode();
 			else
 				$StorageNode = new StorageNode($Location->get('storageNodeID'));
-			$mac = $this->Host->get('mac');
+			$mac = $_REQUEST['mac'];
 			$osid = $Image->get('osID');
 			$storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : ''));
 			$storageip = $StorageNode->get('ip');

@@ -343,12 +343,12 @@ class HostManagementPage extends FOGPage
 			$this->FOGCore->setMessage('All Pending MACs approved.');
 			$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
 		}
-		$MACs = $Host->get('additionalMACs');
+		$MACs = $this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $Host->get('id')));
 		if ($MACs)
 		{
 			foreach($MACs AS $MAC)
 			{
-				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" /><span class="icon icon-remove remove-mac hand" title="'._('Remove MAC').'" onclick="this.form.submit()"></span><span class="mac-manufactor"></span></div>';
+				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC->get('mac').'" /><span class="icon icon-remove remove-mac hand" title="'._('Remove MAC').'" onclick="this.form.submit()"></span><span class="mac-manufactor"></span></div>';
 			}
 		}
 		$PendMACs = $this->FOGCore->getClass('PendingMACManager')->find(array('hostID' => $Host->get('id')));
@@ -1006,7 +1006,19 @@ class HostManagementPage extends FOGPage
 							->set('kernelArgs',	$_POST['args'])
 							->set('kernelDevice',	$_POST['dev']);
 					// Add Additional MAC Addresses
-					$Host->set('additionalMACs', (array)$_POST['additionalMACs']);
+					foreach((array)$_POST['additionalMACs'] AS $MAC)
+					{
+						$PriMAC = ($Host->get('mac') == $MAC ? true : false);
+						$AddMAC = current($this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $Host->get('id'),'mac' => $MAC)));
+						if (!$PriMAC && (!$AddMAC || !$AddMAC->isValid()))
+						{
+							$NewMAC = new MACAddressAssociation(array(
+								'hostID' => $Host->get('id'),
+								'mac' => $MAC,
+							));
+							$NewMAC->save();
+						}
+					}
 					// Only one association per host.
 					$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
 					if ((!$LA || !$LA->isValid()) && $_REQUEST['location'])
