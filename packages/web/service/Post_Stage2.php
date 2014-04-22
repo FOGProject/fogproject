@@ -75,9 +75,11 @@ try
 	// Log it
 	$ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
 	foreach($ImagingLogs AS $ImagingLog)
-	{
 		$id[] = $ImagingLog->get('id');
-	}
+	// Last Uploaded date of image.
+	$Image = $Host->getImage();
+	$Image->set('deployed',date('Y-m-d H:i:s'))->save();
+	// Log
 	$il = new ImagingLog(max($id));
 	$il->set('finish',date('Y-m-d H:i:s'))->save();
 	// Task Logging.

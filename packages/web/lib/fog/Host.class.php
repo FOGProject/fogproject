@@ -14,6 +14,7 @@ class Host extends FOGController
 		'imageID'	=> 'hostImage',
 		'building'	=> 'hostBuilding',
 		'createdTime'	=> 'hostCreateDate',
+		'deployed'	=> 'hostLastDeploy',
 		'createdBy'	=> 'hostCreateBy',
 		'mac'		=> 'hostMAC',
 		'useAD'		=> 'hostUseAD',

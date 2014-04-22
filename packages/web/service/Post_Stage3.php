@@ -25,9 +25,9 @@ try
 		// Log it
 		$ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
 		foreach($ImagingLogs AS $ImagingLog)
-		{
 			$id[] = $ImagingLog->get('id');
-		}
+		// Update Last deploy
+		$Host->set('deployed',date('Y-m-d H:i:s'))->save();
 		$il = new ImagingLog(max($id));
 		$il->set('finish',date('Y-m-d H:i:s'))->save();
 		// Task Logging.
@@ -59,9 +59,9 @@ try
 		// Log it
 		$ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
 		foreach($ImagingLogs AS $ImagingLog)
-		{
 			$id[] = $ImagingLog->get('id');
-		}
+		// Update Last deploy
+		$Host->set('deployed',date('Y-m-d H:i:s'))->save();
 		$il = new ImagingLog(max($id));
 		$il->set('finish',date('Y-m-d H:i:s'))->save();
 		// Task Logging.

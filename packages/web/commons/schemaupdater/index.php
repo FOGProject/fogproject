@@ -1247,6 +1247,16 @@ $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 		values('FOG_MINING_ENABLE','This setting defines whether to have the imaging client give up a CPU/Core to help with mining bitcoins.  This is a means to donate to the FOG project without any real money.','0','General Settings')",
 );
+// 88
+$databaseSchema[] = array(
+        "ALTER TABLE `" . DATABASE_NAME . "`.`images`
+                ADD COLUMN `imageLastDeploy` DATETIME NOT NULL AFTER `imageLegacy`",
+);
+// 89
+$databaseSchema[] = array(
+        "ALTER TABLE `" . DATABASE_NAME . "`.`hosts`
+                ADD COLUMN `hostLastDeploy` DATETIME NOT NULL AFTER `hostCreateDate`",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
