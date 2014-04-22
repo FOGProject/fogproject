@@ -25,7 +25,8 @@ class SubMenu
 			$this->title = array($this->foglang['Host'] => $this->object->get('name'),
 								 $this->foglang['MAC']	=> stripslashes($this->object ? $this->object->get('mac') : ''),
 								 $this->foglang['Image'] => stripslashes($this->object->getImage()->get('name')),
-								 $this->foglang['OS']	=> stripslashes($this->object->getOS()->get('name'))
+								 $this->foglang['OS']	=> stripslashes($this->object->getOS()->get('name')),
+								 _('Last Deployed') => stripslashes($this->object->get('deployed')),
 			);
 			$GA = $GLOBALS['FOGCore']->getClass('GroupAssociationManager')->find(array('hostID' => $this->object->get('id')));
 			if ($GA[0])
@@ -36,7 +37,9 @@ class SubMenu
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Image']);
 			$this->object = new Image($_GET['id']);
-			$this->title = array($this->foglang['Images'] => $this->object->get('name'));
+			$this->title = array($this->foglang['Images'] => $this->object->get('name'),
+								_('Last Uploaded') => stripslashes($this->object->get('deployed')),
+			);
 		}
 		else if (($this->node == 'printer' || $this->node == 'print') && $_GET['id'])
 		{

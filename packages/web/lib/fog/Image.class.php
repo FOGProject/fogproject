@@ -21,7 +21,8 @@ class Image extends FOGController
 		'storageGroupID'=> 'imageNFSGroupID',
 		'osID'		=> 'imageOSID',
 		'size'		=> 'imageSize', 
-		'legacy'        => 'imageLegacy'
+		'deployed'	=> 'imageLastDeploy',
+		'legacy'        => 'imageLegacy',
 	);
 	
 	// Custom functions
