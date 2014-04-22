@@ -380,7 +380,7 @@ class Host extends FOGController
 		if ($this->isLoaded('additionalMACs'))
 		{
 			// Remove existing Additional MAC Addresses
-			$this->FOGCore->getClass('MACAddressAssociation')->destroy(array('hostID' => $this->get('id')));
+			$this->FOGCore->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id')));
 			// Add new Additional MAC Addresses
 			foreach ((array)$this->get('additionalMACs') AS $MAC)
 			{
