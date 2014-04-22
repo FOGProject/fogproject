@@ -35,7 +35,8 @@ class ImageManagementPage extends FOGPage
 			_('Image Name'),
 			_('Storage Group'),
 			_('O/S'),
-			_('Image Size'),
+			_('Image Size: ON CLIENT'),
+			_('Image Size: ON SERVER'),
 			_('Uploaded'),
 			'',
 		);
@@ -45,12 +46,14 @@ class ImageManagementPage extends FOGPage
 			'${storageGroup}',
 			'${os}',
 			'${size}',
+			'${serv_size}',
 			'${deployed}',
 			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').'"><span class="icon icon-edit"></span></a> <a href="?node='.$this->node.'&sub=delete&'.$this->id.'=${id}" title="'._('Delete').'"><span class="icon icon-delete"></span></a>',
 		);
 		// Row attributes
 		$this->attributes = array(
 			array(),
+			array('width' => '100'),
 			array('width' => '100'),
 			array('width' => '100'),
 			array('width' => '100'),
@@ -111,8 +114,9 @@ class ImageManagementPage extends FOGPage
 				'storageGroupID'=> $Image->get('storageGroupID'),
 				'osID'		=> $Image->get('osID'),
 				'os'		=> $Image->getOS()->get('name'),
-				'deployed' => $Image->get('deployed'),
+				'deployed' => $this->FOGCore->formatTime($Image->get('deployed')),
 				'size'		=> $imageSize,
+				'serv_size' => sprintf('%.2f %s',shell_exec("ls -l ".$Image->getStorageGroup()->getOptimalStorageNode()->get('path').'/'.$Image->get('path')." | awk '{SUM += \$5} END {print SUM/1024/1024/1024}'"),'GiB'),
 			);
 		}
 		// Hook

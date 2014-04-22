@@ -43,7 +43,7 @@ try
 				 ->save();
 			// Suppose I could just add the data together, but easier to just
 			// Use the largest partition on the system as the file representation.
-			if ($Image->get('size') < $str[6])
+			if ($str[6] > (int)$Image->get('size'))
 				$Image->set('size',$str[6])->save();
 		}
 	}
