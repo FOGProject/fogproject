@@ -191,6 +191,7 @@ class ImageManagementPage extends FOGPage
 				'os'		=> $Image->getOS()->get('name'),
 				'deployed' => $Image->get('deployed'),
 				'size'		=> $imageSize,
+				'serv_size' => sprintf('%.2f %s',shell_exec("ls -l ".$Image->getStorageGroup()->getOptimalStorageNode()->get('path').'/'.$Image->get('path')." | awk '{SUM += \$5} END {print SUM/1024/1024/1024}'"),'GiB'),
 			);
 		}
 		// Hook
