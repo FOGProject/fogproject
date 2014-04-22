@@ -81,7 +81,7 @@ class HostManagementPage extends FOGPage
 			$Location = ($LA ? new Location($LA->get('locationID')) : '');
 			$this->data[] = array(
 				'host_id'	=> $Host->get('id'),
-				'deployed' => $Host->get('deployed'),
+				'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
 				'host_name'	=> $Host->get('name'),
 				'host_mac'	=> $Host->get('mac')->__toString(),
 				'host_desc'  => $Host->get('description'),
@@ -125,7 +125,7 @@ class HostManagementPage extends FOGPage
 		{
 			$this->data[] = array(
 				'host_id'	=> $Host->get('id'),
-				'deployed' => $Host->get('deployed'),
+				'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
 				'host_name'	=> $Host->get('name'),
 				'host_mac'	=> $Host->get('mac')->__toString(),
 				'host_desc'  => $Host->get('description'),

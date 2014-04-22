@@ -53,11 +53,11 @@ class ImageManagementPage extends FOGPage
 		// Row attributes
 		$this->attributes = array(
 			array(),
-			array('width' => '100'),
-			array('width' => '100'),
-			array('width' => '100'),
-			array('width' => '100'),
+			array('width' => 50, 'class' => 'c'),
 			array(),
+			array('width' => 50, 'class' => 'c'),
+			array('width' => 50, 'class' => 'c'),
+			array('width' => 50, 'class' => 'c'),
 			array('class' => 'c', 'width' => '50'),
 		);
 	}
@@ -114,7 +114,7 @@ class ImageManagementPage extends FOGPage
 				'storageGroupID'=> $Image->get('storageGroupID'),
 				'osID'		=> $Image->get('osID'),
 				'os'		=> $Image->getOS()->get('name'),
-				'deployed' => $this->FOGCore->formatTime($Image->get('deployed')),
+				'deployed' => checkdate($this->FOGCore->formatTime($Image->get('deployed'),'m'),$this->FOGCore->formatTime($Image->get('deployed'),'d'),$this->FOGCore->formatTime($Image->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
 				'serv_size' => sprintf('%.2f %s',shell_exec("ls -l ".$Image->getStorageGroup()->getOptimalStorageNode()->get('path').'/'.$Image->get('path')." | awk '{SUM += \$5} END {print SUM/1024/1024/1024}'"),'GiB'),
 			);
@@ -189,7 +189,7 @@ class ImageManagementPage extends FOGPage
 				'storageGroupID'=> $Image->get('storageGroupID'),
 				'osID'		=> $Image->get('osID'),
 				'os'		=> $Image->getOS()->get('name'),
-				'deployed' => $Image->get('deployed'),
+				'deployed' => checkdate($this->FOGCore->formatTime($Image->get('deployed'),'m'),$this->FOGCore->formatTime($Image->get('deployed'),'d'),$this->FOGCore->formatTime($Image->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
 				'serv_size' => sprintf('%.2f %s',shell_exec("ls -l ".$Image->getStorageGroup()->getOptimalStorageNode()->get('path').'/'.$Image->get('path')." | awk '{SUM += \$5} END {print SUM/1024/1024/1024}'"),'GiB'),
 			);

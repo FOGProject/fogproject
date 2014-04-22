@@ -383,7 +383,7 @@ class GroupManagementPage extends FOGPage
 		}
 		$this->headerData = array(
 			_('Hostname'),
-			_('IP'),
+			_('Last Deployed'),
 			_('MAC'),
 			_('Remove'),
 		);
@@ -395,7 +395,7 @@ class GroupManagementPage extends FOGPage
 		);
 		$this->templates = array(
 			'<a href="?node=host&sub=edit&id=${host_id}">${host_name}</a>',
-			'${host_ip}',
+			'${deployed}',
 			'${host_mac}',
 			'<input type="checkbox" name="member" value="${host_id}" class="delid" onclick="this.form.submit()" id="memberdel${host_id}" /><label for="memberdel${host_id}">Delete</label>',
 		);
@@ -404,7 +404,7 @@ class GroupManagementPage extends FOGPage
 			$this->data[] = array(
 				'host_id' => $Host->get('id'),
 				'host_name' => $Host->get('name'),
-				'host_ip' => $Host->get('ip'),
+				'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
 				'host_mac' => $Host->get('mac'),
 			);
 		}
