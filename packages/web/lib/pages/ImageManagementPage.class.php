@@ -36,14 +36,16 @@ class ImageManagementPage extends FOGPage
 			_('Storage Group'),
 			_('O/S'),
 			_('Image Size'),
+			_('Uploaded'),
 			'',
 		);
 		// Row templates
 		$this->templates = array(
-			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').'">${name}</a>',
+			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name}</a>',
 			'${storageGroup}',
 			'${os}',
 			'${size}',
+			'${deployed}',
 			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').'"><span class="icon icon-edit"></span></a> <a href="?node='.$this->node.'&sub=delete&'.$this->id.'=${id}" title="'._('Delete').'"><span class="icon icon-delete"></span></a>',
 		);
 		// Row attributes
@@ -52,6 +54,7 @@ class ImageManagementPage extends FOGPage
 			array('width' => '100'),
 			array('width' => '100'),
 			array('width' => '100'),
+			array(),
 			array('class' => 'c', 'width' => '50'),
 		);
 	}
@@ -108,6 +111,7 @@ class ImageManagementPage extends FOGPage
 				'storageGroupID'=> $Image->get('storageGroupID'),
 				'osID'		=> $Image->get('osID'),
 				'os'		=> $Image->getOS()->get('name'),
+				'deployed' => $Image->get('deployed'),
 				'size'		=> $imageSize,
 			);
 		}
@@ -181,6 +185,7 @@ class ImageManagementPage extends FOGPage
 				'storageGroupID'=> $Image->get('storageGroupID'),
 				'osID'		=> $Image->get('osID'),
 				'os'		=> $Image->getOS()->get('name'),
+				'deployed' => $Image->get('deployed'),
 				'size'		=> $imageSize,
 			);
 		}
