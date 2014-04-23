@@ -933,7 +933,7 @@ class GroupManagementPage extends FOGPage
 		$Group = new Group($_REQUEST['id']);
 		$TaskType = new TaskType(($this->REQUEST['type'] ? $this->REQUEST['type'] : '1'));
 		// Title
-		$this->title = sprintf("%s '%s' %s '%s'", _('Deploy Task'), $TaskType->get('name'), _('to Group'), $Group->get('name'));
+		$this->title = sprintf("%s '%s' task %s '%s'", _('Create'), $TaskType->get('name'), _('for Group'), $Group->get('name'));
 		// Deploy
 		print "\n\t\t\t".'<p class="c"><b>'._('Are you sure you wish to deploy these machines?').'</b></p>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" id="deploy-container">';
