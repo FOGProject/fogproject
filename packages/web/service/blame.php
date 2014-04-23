@@ -19,7 +19,6 @@ function getAllBlamedNodes($taskid,$hostid)
 }
 try
 {
-	$Functions = new Functions();
 	// Get the MAC
 	$MACAddress = new MACAddress($_REQUEST['mac']);
 	if (!$MACAddress->isValid())
