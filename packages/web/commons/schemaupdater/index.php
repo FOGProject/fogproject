@@ -1257,6 +1257,11 @@ $databaseSchema[] = array(
         "ALTER TABLE `" . DATABASE_NAME . "`.`hosts`
                 ADD COLUMN `hostLastDeploy` DATETIME NOT NULL AFTER `hostCreateDate`",
 );
+// 90
+$databaseSchema[] = array(
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+		values('FOG_BOOT_EXIT_TYPE','The method of booting to the hard drive.  Most will accept sanboot, but some require exit.','','FOG Boot Settings')",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
