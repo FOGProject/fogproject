@@ -187,9 +187,17 @@ class HookManager
 		return false;
 	}
 	
-	function unregister()
+	function unregister($event)
 	{
-	
+		try
+		{
+			if(!in_array($event, $this->events))
+				throw new Exception('Invalid event');
+			unset($this->data[$event]);
+			return true;
+		}
+		catch (Exception $e) {}
+		return false;
 	}
 	
 	function processEvent($event, $arguments = array())

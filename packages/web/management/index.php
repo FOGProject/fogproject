@@ -87,7 +87,7 @@ if (!$isHomepage)
 }
 print "\n\t</div>";
 print "\n\t<!-- Footer: Be nice, give us some credit -->";
-print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gilchrist &amp; Tom Elliott FOG Client/Prep link: <a href="'.$_SERVER['PHP_SELF'].rtrim($GLOBALS['FOGCore']->getSetting('FOG_WEB_ROOT'),'/').'/client">FOG Client/FOG Prep</a></div>';
+print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gilchrist &amp; Tom Elliott FOG Client/Prep link: <a href="http://'.$FOGCore->getSetting('FOG_WEB_HOST').$FOGCore->getSetting('FOG_WEB_ROOT').'client">FOG Client/FOG Prep</a></div>';
 // Session Messages
 $FOGCore->getMessages();
 print "\n\t".'<div class="fog-variable" id="FOGPingActive">'.($_SESSION['FOGPingActive'] ? '1' : '0').'</div>';

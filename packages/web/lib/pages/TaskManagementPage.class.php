@@ -192,7 +192,7 @@ class TaskManagementPage extends FOGPage
 		$this->headerData = array(
 			_('Host Name'),
 			_('MAC'),
-			_('Deploy'),
+			_('Download'),
 			_('Upload'),
 			_('Advanced'),
 		);
@@ -217,7 +217,7 @@ class TaskManagementPage extends FOGPage
 		foreach ($Hosts AS $Host)
 		{
 			$imgUp = '<a href="?node=tasks&sub=hostdeploy&type=2&id='.$Host->get('id').'"><span class="icon icon-upload" title="Upload"></span></a>';
-			$imgDown = '<a href="?node=tasks&sub=hostdeploy&type=1&id='.$Host->get('id').'"><span class="icon icon-download" title="Deploy"></span></a>';
+			$imgDown = '<a href="?node=tasks&sub=hostdeploy&type=1&id='.$Host->get('id').'"><span class="icon icon-download" title="Download"></span></a>';
 			$imgAdvanced = '<a href="?node=tasks&sub=hostadvanced&id='.$Host->get('id').'#host-tasks"><span class="icon icon-advanced" title="Advanced Deployment"></span></a>';
 			$this->data[] = array(
 				'id'			=>	$Host->get('id'),
@@ -354,8 +354,8 @@ class TaskManagementPage extends FOGPage
 		$Groups = $this->FOGCore->getClass('GroupManager')->find();
 		foreach ($Groups AS $Group)
 		{
-			$deployLink = '<a href="?node=tasks&sub=groupdeploy&type=1&id='.$Group->get('id').'"><span class="icon icon-download" title="Deploy"></span></a>';
-			$multicastLink = '<a href="?node=tasks&sub=groupdeploy&type=8&id='.$Group->get('id').'"><span class="icon icon-multicast" title="Deploy Multicast"></span></a>';
+			$deployLink = '<a href="?node=tasks&sub=groupdeploy&type=1&id='.$Group->get('id').'"><span class="icon icon-download" title="Download"></span></a>';
+			$multicastLink = '<a href="?node=tasks&sub=groupdeploy&type=8&id='.$Group->get('id').'"><span class="icon icon-multicast" title="Upload Multicast"></span></a>';
 			$advancedLink = '<a href="?node=tasks&sub=groupadvanced&id='.$Group->get('id').'"><span class="icon icon-advanced" title="Advanced Deployment"></span></a>';
 			$this->data[] = array(
 				'id'			=>	$Group->get('id'),

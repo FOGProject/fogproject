@@ -432,7 +432,7 @@ class HostManagementPage extends FOGPage
 		{
 			$Group = new Group($GA->get('groupID'));
 			$this->data[] = array(
-				'group_id' => $GA->get('id'),
+				'group_id' => $Group->get('id'),
 				'group_name' => $Group->get('name'),
 				'group_count' => $Group->getHostCount(),
 			);
@@ -1421,7 +1421,7 @@ class HostManagementPage extends FOGPage
 		$Host = new Host($this->REQUEST['id']);
 		$TaskType = new TaskType(($this->REQUEST['type'] ? $this->REQUEST['type'] : '1'));
 		// Title
-		$this->title = _('Deploy Task '.$TaskType->get('name').' to Host '.$Host->get('name'));
+		$this->title = _('Create '.$TaskType->get('name').' task for Host '.$Host->get('name'));
 		// Deploy
 		print "\n\t\t\t".'<p class="c"><b>'._('Are you sure you wish to deploy these machines?').'</b></p>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" id="deploy-container">';

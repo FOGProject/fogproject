@@ -357,7 +357,7 @@ class BootMenu
 			print "param username \${username}\n";
 			print "param password \${password}\n";
 			print "param qihost 1\n";
-			print "chain $this->booturl/ipxe/boot.php##params\n ||";
+			print "chain $this->booturl/ipxe/boot.php##params ||\n";
 			print "goto MENU\n";
 		}
 		else if ($option == 'fog.quickdel')
@@ -419,13 +419,15 @@ class BootMenu
 			{
 				print "colour --rgb 0x00ff00 0\n";
 				print "cpair --foreground 0 3\n";
-				print "item --gap Host is registered as ".$this->Host->get('name')."!\n";
+				print "item --gap Host is registered as ".$this->Host->get('name')."\n";
+				print "item --gap -------------------------------------\n";
 			}
 			else
 			{
 				print "colour --rgb 0xff0000 0\n";
 				print "cpair --foreground 0 3\n";
 				print "item --gap Host is NOT registered!\n";
+				print "item --gap -------------------------------------\n";
 			}
 			foreach($this->pxemenu AS $option => $desc)
 			{
