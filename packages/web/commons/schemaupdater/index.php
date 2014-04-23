@@ -1347,6 +1347,6 @@ print "\n\t\t\t</div>";
 print "\n\t\t</div>";
 print "\n\t</div>";
 print "\n\t<!-- Footer: Be nice, give us some credit -->";
-print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gilchrist &amp; Tom Elliott</div>';
+print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gilchrist &amp; Tom Elliott FOG Client/Prep link: <a href="'.$_SERVER['PHP_SELF'].rtrim($GLOBALS['FOGCore']->getSetting('FOG_WEB_ROOT'),'/').'/client">FOG Client/FOG Prep</a></div>';
 print "\n</body>";
 print "\n</html>";
