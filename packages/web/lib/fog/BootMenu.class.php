@@ -7,7 +7,7 @@
 class BootMenu 
 {
 	// Variables
-	private $Host,$pxemenu,$kernel,$initrd,$booturl,$memtest,$web,$defaultChoice;
+	private $Host,$pxemenu,$kernel,$initrd,$booturl,$memtest,$web,$defaultChoice,$bootexittype;
 	private $storage, $shutdown, $path;
 	private $hiddenmenu, $timeout, $KS;
 	private $debug, $FOGCore;
@@ -19,6 +19,7 @@ class BootMenu
 	{
 		// Sets the 
 		$this->FOGCore = $GLOBALS['FOGCore'];
+		$this->bootexittype = $this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'exit' : 'sanboot --no-describe --drive 0x80';
 		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'isMaster' => 1)));
 		$webserver = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_WEB_HOST'));
 		$webroot = $this->FOGCore->getSetting('FOG_WEB_ROOT');
@@ -104,7 +105,7 @@ class BootMenu
 	    } 
 	    else
 	    {
-	        print "prompt --key ".($this->KS && $this->KS->isValid() ? $this->KS->get('ascii') : '0x1b')." --timeout $this->timeout Booting... (Press ".($this->KS && $this->KS->isValid() ?  $this->KS->get('name') : 'Escape')." to access the menu) && goto menuAccess || sanboot --no-describe --drive 0x80\n";
+	        print "prompt --key ".($this->KS && $this->KS->isValid() ? $this->KS->get('ascii') : '0x1b')." --timeout $this->timeout Booting... (Press ".($this->KS && $this->KS->isValid() ?  $this->KS->get('name') : 'Escape')." to access the menu) && goto menuAccess || $this->bootexittype\n";
 			print ":menuAccess\n";
 			print "login\n";
 			print "params\n";
@@ -218,7 +219,7 @@ class BootMenu
 	public function noMenu()
 	{
 		print "#!ipxe\n";
-		print "sanboot --no-describe --drive 0x80\n";
+		print "$this->bootexittype\n";
 	}
 
 	// Get if the tasking is present or not.
@@ -337,7 +338,7 @@ class BootMenu
 		if ($option == 'fog.local')
 		{
 			print ":$option\n";
-			print "sanboot --no-describe --drive 0x80 || goto MENU\n";
+			print "$this->bootexittype || goto MENU\n";
 		}
 		else if ($option == 'fog.memtest')
 		{
