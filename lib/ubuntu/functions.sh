@@ -433,6 +433,7 @@ define('FOG_MULTICAST_MAX_SESSIONS',64);
 define('FOG_JPGRAPH_VERSION', '2.3');
 define('FOG_REPORT_DIR', './reports/');
 define('FOG_UPLOADIGNOREPAGEHIBER',true);
+define('FOG_DONATE_MINING', \"${donate}\");
 ?>" > "${webdirdest}/commons/config.php";
 		
 		
