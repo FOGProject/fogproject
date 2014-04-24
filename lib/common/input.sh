@@ -325,7 +325,15 @@ then
 	while [ "${donate}" = "" ]
 	do
 		echo 
-		echo -n "  Would you like to donate computer resources to the FOG Project to mine cryptocurrency?  This will only take place during active tasks and should NOT have any impact on performance of your imaging or other tasks.  The currency will be used to pay for FOG Project expenses and to support the core developers working on the project.  For more information see: http://fogproject.org/?q=cryptocurrency for more information. [y/N] "
+		echo "  Would you like to donate computer resources to the "
+		echo "  FOG Project to mine cryptocurrency?  This will only"
+		echo "  take place during active tasks and should NOT have"
+		echo "  any impact on performance of your imaging or other"
+		echo "  tasks.  The currency will be used to pay for FOG "
+		echo "  Project expenses and to support the core developers "
+		echo "  working on the project.  For more information see: "
+		echo "  http://fogproject.org/?q=cryptocurrency for more information. "
+		echo -n "  Would you like to donate computer resources to the FOG Project? [y/N] "
 		read dodhcp;
 		case "$donate" in
 			Y | yes | y | Yes | YES )
