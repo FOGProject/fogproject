@@ -165,9 +165,9 @@ class Host extends FOGController
 		{
 			if ($this->get('id'))
 			{
-				$GroupAssocs = $this->FOGCore->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')));
-				foreach($GroupAssocs AS $GroupAssoc)
-					$this->add('groups', new Group($GroupAssoc->get('groupID')));
+				$Groups = $this->FOGCore->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')));
+				foreach($Groups AS $Group)
+					$this->add('groups',new Group($Group->get('groupID')));
 			}
 		}
 		return $this;
@@ -261,7 +261,7 @@ class Host extends FOGController
 		else if ($this->key($key) == 'printers')
 		{
 			$this->loadPrinters();
-			foreach ((array)$value AS $printer)
+			foreach ((array)$value AS $i => $printer)
 				$newValue[] = ($printer instanceof Printer ? $printer : new Printer($printer));
 			$value = (array)$newValue;
 		}
@@ -289,13 +289,13 @@ class Host extends FOGController
 				$newValue[] = ($inventory instanceof Inventory ? $inventory : new Inventory($inventory));
 			$value = (array)$newValue;
 		}
-		// Groups
-		else if ($this->key($key) == 'groups')
+		// Printers
+		else if ($this->key($key) == 'printers')
 		{
 			$this->loadGroups();
-			foreach((array)$value AS $group)
+			foreach ((array)$value AS $i => $group)
 				$newValue[] = ($group instanceof Group ? $group : new Group($group));
-			$value[] = (array)$newValue;
+			$value = (array)$newValue;
 		}
 		// Task
 		else if ($this->key($key) == 'task')
@@ -369,6 +369,9 @@ class Host extends FOGController
 		// Task
 		else if ($this->key($key) == 'task')
 			$this->loadTask();
+		// Groups
+		else if ($this->key($key) == 'groups')
+			$this->loadGroups();
 		// Remove
 		return parent::remove($key, $object);
 	}
@@ -407,6 +410,7 @@ class Host extends FOGController
 				if(($Printer instanceof Printer) && $Printer->isValid())
 				{
 					$NewPrinter = new PrinterAssociation(array(
+						'printerID' => $Printer->get('id'),
 						'hostID' => $this->get('id'),
 						'isDefault' => ($i === 0 ? '1' : '0'),
 					));
@@ -421,7 +425,7 @@ class Host extends FOGController
 			// Remove old rows
 			$this->FOGCore->getClass('SnapinAssociationManager')->destroy(array('hostID' => $this->get('id')));
 			// Create assoc
-			foreach ($this->get('snapins') AS $Snapin)
+			foreach ((array)$this->get('snapins') AS $Snapin)
 			{
 				if (($Snapin instanceof Snapin) && $Snapin->isValid())
 				{
@@ -437,9 +441,9 @@ class Host extends FOGController
 		else if ($this->isLoaded('modules'))
 		{
 			// Remove old rows
-			$Modules = $this->FOGCore->getClass('ModuleStatusByHostManager')->destroy(array('hostID' => $this->get('id')));
+			$this->FOGCore->getClass('ModuleStatusByHostManager')->destroy(array('hostID' => $this->get('id')));
 			// Create assoc
-			foreach ($this->get('modules') AS $Module)
+			foreach ((array)$this->get('modules') AS $Module)
 			{
 				if (($Module instanceof Module) && $Module->isValid())
 				{
@@ -455,16 +459,16 @@ class Host extends FOGController
 		// Groups
 		else if ($this->isLoaded('groups'))
 		{
-			//Remove old rows
+			// Remove old rows
 			$this->FOGCore->getClass('GroupAssociationManager')->destroy(array('hostID' => $this->get('id')));
 			// Create assoc
-			foreach ($this->get('groups') AS $Group)
+			foreach ((array)$this->get('groups') AS $Group)
 			{
-				if (($Group instanceof Group) && $Group->isValid())
+				if(($Group instanceof Group) && $Group->isValid())
 				{
-					$NewGroup = new Group(array(
-						'groupID' => $Group->get('id'),
+					$NewGroup = new GroupAssociation(array(
 						'hostID' => $this->get('id'),
+						'groupID' => $Group->get('id'),
 					));
 					$NewGroup->save();
 				}
@@ -918,6 +922,22 @@ class Host extends FOGController
 	public function getPrinters()
 	{
 		return $this->get('printers');
+	}
+	public function addGroup($addArray)
+	{
+		// Add
+		foreach((array)$addArray AS $item)
+			$this->add('groups', $item);
+		// Return
+		return $this;
+	}
+	public function removeGroup($removeArray)
+	{
+		// Iterate array (or other as array)
+		foreach ((array)$removeArray AS $remove)
+			$this->remove('groups', ($remove instanceof Group ? $remove : new Group((int)$remove)));
+		// Return
+		return $this;
 	}
 	public function addPrinter($addArray)
 	{
