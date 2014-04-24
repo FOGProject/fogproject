@@ -36,7 +36,6 @@ initdSDfullname="FOGScheduler";
 
 # where do the php files go?
 webdirdest="/var/www/fog";
-webredirect="/var/www/index.php";
 apacheuser="www-data";
 
 # where do we store the image files?
