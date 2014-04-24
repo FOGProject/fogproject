@@ -438,13 +438,11 @@ define('FOG_DONATE_MINING', \"${donate}\");
 		
 		chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 		
-		if [ ! -f "$webredirect" ]
-		then
-			echo "<?php header('Location: ./fog/index.php');?>" > $webredirect;
-		fi		
-		
-		if [ -f "/var/www/html" ]; then
+		if [ -d "/var/www/html" ]; then
 			ln -s "${webdirdest}" "/var/www/html/" &> /dev/null;
+			echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/html/index.php";
+		else 
+			echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/index.php";
 		fi
 		echo "OK";
 	fi
