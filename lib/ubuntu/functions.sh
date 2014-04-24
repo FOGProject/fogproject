@@ -443,6 +443,9 @@ define('FOG_UPLOADIGNOREPAGEHIBER',true);
 			echo "<?php header('Location: ./fog/index.php');?>" > $webredirect;
 		fi		
 		
+		if [ -f "/var/www/html" ]; then
+			ln -s "${webdirdest}" "/var/www/html/" &> /dev/null;
+		fi
 		echo "OK";
 	fi
 }
