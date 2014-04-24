@@ -266,18 +266,17 @@ sendInstallationNotice()
 configureUsers()
 {
 	echo -n "  * Setting up fog user";
-	password=`date | md5sum | cut -d" " -f1`;
+	password="password";
 	if [ "$installtype" = "S" ]
 	then
 		# save everyone wrist injuries
-		password="${password:0:6}";
 		storageftpuser=${username};
 		storageftppass=${password};
 	fi
 	
 	if [ $password != "" ]
 	then
-		useradd -d "/home/${username}" ${username} >/dev/null 2>&1;
+		useradd -s "/bin/bash" -d "/home/${username}" ${username} >/dev/null 2>&1;
 		if [ "$?" = "0" ] 
 		then
 			passwd ${username} >/dev/null 2>&1 << EOF
