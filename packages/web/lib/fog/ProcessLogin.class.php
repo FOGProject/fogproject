@@ -2,7 +2,7 @@
 
 class ProcessLogin
 {
-	private $FOGCore, $HookManager, $foglang;
+	private $this->FOGCore, $HookManager, $foglang;
 	private $username, $password, $currentUser;
 	private $mobileMenu, $mainMenu, $langMenu;
 
@@ -205,7 +205,7 @@ class ProcessLogin
 		print "\n\t\t\t</div>";
 		print "\n\t\t</div>";
 		print "\n\t\t<!-- Footer -->";
-		print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gilchrist &amp; Tom Elliott FOG Client/Prep link: <a href="http://'.$FOGCore->getSetting('FOG_WEB_HOST').$FOGCore->getSetting('FOG_WEB_ROOT').'client">FOG Client/FOG Prep</a></div>';
+		print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gilchrist &amp; Tom Elliott FOG Client/Prep link: <a href="http://'.$this->FOGCore->getSetting('FOG_WEB_HOST').$this->FOGCore->getSetting('FOG_WEB_ROOT').'client">FOG Client/FOG Prep</a></div>';
 		$this->FOGCore->getMessages();
 		print "\n\t<!-- JavaScript -->";
 		print "\n\t".'<script type="text/javascript" src="js/jquery.js"></script>';
