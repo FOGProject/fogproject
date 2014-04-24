@@ -132,7 +132,6 @@ tcp_wrappers=YES" > "$ftpconfig";
 
 configureDefaultiPXEfile()
 {
-    echo -n " * Updating default.ipxe file.....................";
     find "${tftpdirdst}" ! -type d -exec chmod 644 {} \;
     echo "#!ipxe
 cpuid --ext 29 && set arch x86_64 || set arch i386
@@ -141,7 +140,6 @@ param mac \${net0/mac}
 param arch \${arch}
 chain http://${ipaddress}/fog/service/ipxe/boot.php##params
 " > "${tftpdirdst}/default.ipxe";
-    echo "Done";
 }
 
 configureTFTPandPXE()
@@ -198,6 +196,7 @@ TFTP_OPTIONS=\"-s\"" > "${tftpconfigupstartdefaults}";
 		service tftpd-hpa stop >/dev/null 2>&1;
 		sleep 5;
 		service tftpd-hpa start >/dev/null 2>&1;
+		
 		if [ "$?" != "0" ]
 		then
 			echo "Failed!";
