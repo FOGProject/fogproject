@@ -166,7 +166,7 @@ class SnapinManagementPage extends FOGPage
 				throw new Exception('Snapin already exists');
 			if ($_POST['snapin'] != null || $_FILES['snapin']['name'] != null)
 			{
-				$uploadfile = $this->FOGCore->getSetting('FOG_SNAPINDIR').basename($_FILES['snapin']['name']);
+				$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
 				if(!file_exists($this->FOGCore->getSetting('FOG_SNAPINDIR')))
 					throw new Exception('Failed to add snapin, unable to locate snapin directory.');
 				else if (!is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))

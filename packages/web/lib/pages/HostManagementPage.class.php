@@ -300,8 +300,6 @@ class HostManagementPage extends FOGPage
 		// Inventory find for host.
 		$Inventory = current($Host->get('inventory'));
 		// Get the associated Groups.
-		foreach((array)$Host->get('groups') AS $Group)
-			$GroupIDs[] = $Group && $Group->isValid() ? $Group->get('id') : '';
 		// Location Find for host.
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
@@ -397,6 +395,8 @@ class HostManagementPage extends FOGPage
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_GEN', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		$this->render();
+		foreach((array)$Host->get('groups') AS $Group)
+			$GroupIDs[] = $Group && $Group->isValid() ? $Group->get('id') : '';
 		$GroupStuff = $this->FOGCore->getClass('GroupManager')->buildSelectBox('','group[]" multiple="multiple','',$GroupIDs);
 		print '</form>';
 		print "\n\t\t\t</div>";
@@ -569,11 +569,11 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<h2>"._('Host Printer Configuration').'</h2>';
 		print "\n\t\t\t<p>"._('Select Management Level for this Host').'</p>';
 		print "\n\t\t\t<p>";
-		print "\n\t\t\t".'<input type="radio" name="level" value="0"'.($Host->get('printerLevel') === 0 ? 'checked="checked"' : '').' />'._('No Printer Management').'<br/>';
-		print "\n\t\t\t".'<input type="radio" name="level" value="1"'.($Host->get('printerLevel') === 1 ? 'checked="checked"' : '').' />'._('Add Only').'<br/>';
-		print "\n\t\t\t".'<input type="radio" name="level" value="2"'.($Host->get('printerLevel') === 2 ? 'checked="checked"' : '').' />'._('Add and Remove').'<br/>';
+		print "\n\t\t\t".'<input type="radio" name="level" value="0"'.($Host->get('printerLevel') == 0 ? 'checked="checked"' : '').' />'._('No Printer Management').'<br/>';
+		print "\n\t\t\t".'<input type="radio" name="level" value="1"'.($Host->get('printerLevel') == 1 ? 'checked="checked"' : '').' />'._('Add Only').'<br/>';
+		print "\n\t\t\t".'<input type="radio" name="level" value="2"'.($Host->get('printerLevel') == 2 ? 'checked="checked"' : '').' />'._('Add and Remove').'<br/>';
 		print "\n\t\t\t</p>";
-		foreach ($Host->get('printers') AS $Printer)
+		foreach ((array)$Host->get('printers') AS $Printer)
 		{
 			$this->data[] = array(
 				'printer_id' => $Printer->get('id'),
@@ -609,7 +609,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<div id="host-snapins" class="organic-tabs-hidden">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-snapins">';
 		print "\n\t\t\t<h2>"._('Snapins').'</h2>';
-		foreach ($Host->get('snapins') AS $Snapin)
+		foreach ((array)$Host->get('snapins') AS $Snapin)
 		{
 			$this->data[] = array(
 				'snap_id' => $Snapin->get('id'),
@@ -1038,24 +1038,10 @@ class HostManagementPage extends FOGPage
 					}
 				break;
 				case 'host-grouprel';
-					$joinGroups = $_POST['group'];
-					foreach($joinGroups AS $selectedGroup)
-					{
-						$Selected = current($this->FOGCore->getClass('GroupAssociationManager')->find(array('hostID' => $Host->get('id'), 'groupID' => $selectedGroup)));
-						if (!$Selected || !$Selected->isValid())
-						{
-							if(is_numeric($selectedGroup))
-							{
-								$GroupAssociation = new GroupAssociation(array('hostID' => $Host->get('id'), 'groupID' => $selectedGroup));
-								$GroupAssociation->save();
-							}
-						}
-					}
+					if($_POST['group'])
+						$Host->addGroup($_POST['group']);
 					if(isset($_POST['groupdel']))
-					{
-						$GroupAssoc = new GroupAssociation($_POST['groupdel']);
-						$GroupAssoc->destroy();
-					}
+						$Host->removeGroup($_POST['groupdel']);
 				break;
 				case 'host-active-directory';
 					$Host	->set('useAD',		($_POST["domain"] == "on" ? '1' : '0'))
