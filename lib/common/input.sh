@@ -331,7 +331,9 @@ then
 		echo "  imaging or other tasks.  The currency will be used to pay for"
 		echo "  FOG Project expenses and to support the core developers working"
 		echo "  on the project.  For more information see: "
-		echo "  http://fogproject.org/?q=cryptocurrency for more information. "
+		echo 
+		echo "  http://fogproject.org/?q=cryptocurrency"
+		echo
 		echo -n "  Would you like to donate computer resources to the FOG Project? [y/N] "
 		read dodhcp;
 		case "$donate" in
