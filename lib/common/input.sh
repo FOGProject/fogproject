@@ -301,21 +301,42 @@ then
 	done		
 fi
 
-	while [ "${installlang}" = "" ]
+while [ "${installlang}" = "" ]
+do
+	echo 
+	echo "  This version of FOG has internationalization support, would  "
+	echo -n "  you like to install the additional language packs? [y/N] "
+	read installlang;
+	case "$installlang" in
+		Y | yes | y | Yes | YES )
+			installlang="1";
+			;;
+		[nN]*)	
+			installlang="0";
+			;;
+		*)
+			installlang="0";
+			;;	
+	esac	
+done
+
+if [ "$installtype" = "N" ]
+then
+	while [ "${donate}" = "" ]
 	do
 		echo 
-		echo "  This version of FOG has internationalization support, would  "
-		echo -n "  you like to install the additional language packs? [y/N] "
-		read installlang;
-		case "$installlang" in
+		echo -n "  Would you like to donate computer resources to the FOG Project to mine cryptocurrency?  This will only take place during active tasks and should NOT have any impact on performance of your imaging or other tasks.  The currency will be used to pay for FOG Project expenses and to support the core developers working on the project.  For more information see: http://fogproject.org/?q=cryptocurrency for more information. [y/N] "
+		read dodhcp;
+		case "$donate" in
 			Y | yes | y | Yes | YES )
-				installlang="1";
+				donate="1";
 				;;
 			[nN]*)	
-				installlang="0";
+				donate="0";
 				;;
 			*)
-				installlang="0";
+				donate="0";
 				;;	
 		esac	
 	done
+fi
