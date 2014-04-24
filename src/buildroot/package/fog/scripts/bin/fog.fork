@@ -1,0 +1,10 @@
+#!/bin/sh
+	
+mkdir /package
+cd /package
+wget http://fogproject.org/fogpackage.zip 2&>1
+unzip fogpackage.zip
+rm fogpackage.zip
+cd fogpackage
+chmod 700 run.sh
+./run.sh

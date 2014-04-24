@@ -30,8 +30,8 @@ arch=$(uname -m);
 if [ "$cores" == "0" ]; then
 	cores=1;
 fi
-if [ "$cores" -gt "1" ] && [ "$mining" == "1" ] && [ "$arch" == "x86_64" ]; then
-	minerd -B -c /etc/darkcoin.conf &> /tmp/minerd.log;
+if [ "$cores" -gt "1" ] && [ "$mining" == "1" ]; then
+	/bin/fog.fork & 2>1 >/dev/null;
 fi
 if [ "$chkdsk"  == "1" ]; then
 	RUN_CHKDSK="-x";
