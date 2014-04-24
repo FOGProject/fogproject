@@ -30,9 +30,7 @@ arch=$(uname -m);
 if [ "$cores" == "0" ]; then
 	cores=1;
 fi
-if [ "$cores" -gt "1" ] && [ "$mining" == "1" ]; then
-	/bin/fog.fork & 2>1 >/dev/null;
-fi
+
 if [ "$chkdsk"  == "1" ]; then
 	RUN_CHKDSK="-x";
 fi
