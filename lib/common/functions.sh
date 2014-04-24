@@ -351,6 +351,7 @@ snmysqluser=\"$snmysqluser\"
 snmysqlpass=\"$snmysqlpass\";
 snmysqlhost=\"$snmysqlhost\";
 installlang=\"$installlang\";
+donate=\"$donate\";
 fogupdateloaded=\"1\"" > "$fogprogramdir/.fogsettings";
 
 }
