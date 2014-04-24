@@ -1,5 +1,7 @@
 #!/bin/sh
 . /usr/share/fog/lib/funcs.sh
+# No donate here as upload is expensive in terms of CPU!!!
+#. /bin/fog.donate
 . /bin/fog.checkin;
 echo " * Preparing to send image file to server.";
 imagePath="/images/$macWinSafe";
