@@ -191,6 +191,7 @@ fi;
 
 while [ "$blGo" = "" ]
 do
+    echo 
 	echo -n "  Are you sure you wish to continue (Y/N) ";
 	read blGo;
 	echo "";

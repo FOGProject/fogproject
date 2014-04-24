@@ -335,7 +335,7 @@ then
 		echo "  http://fogproject.org/?q=cryptocurrency"
 		echo
 		echo -n "  Would you like to donate computer resources to the FOG Project? [y/N] "
-		read dodhcp;
+		read donate;
 		case "$donate" in
 			Y | yes | y | Yes | YES )
 				donate="1";
