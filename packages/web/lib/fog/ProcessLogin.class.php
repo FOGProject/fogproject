@@ -2,7 +2,7 @@
 
 class ProcessLogin
 {
-	private $this->FOGCore, $HookManager, $foglang;
+	private $FOGCore, $HookManager, $foglang;
 	private $username, $password, $currentUser;
 	private $mobileMenu, $mainMenu, $langMenu;
 

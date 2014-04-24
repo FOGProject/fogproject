@@ -1245,7 +1245,7 @@ $databaseSchema[] = array(
 // 87
 $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-		values('FOG_MINING_ENABLE','This setting defines whether to have the imaging client give up a resources for mining cryptocurrency.  This is a means to donate to the FOG project without any real money.','" . FOG_DONATE_MINING ."','General Settings')",
+		values('FOG_MINING_ENABLE','This setting defines whether to have the imaging client give up a CPU/Core to help with mining bitcoins.  This is a means to donate to the FOG project without any real money.','0','General Settings')",
 );
 // 88
 $databaseSchema[] = array(
@@ -1262,12 +1262,6 @@ $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 		values('FOG_BOOT_EXIT_TYPE','The method of booting to the hard drive.  Most will accept sanboot, but some require exit.','','FOG Boot Settings')",
 );
-// 91
-$databaseSchema[] = array(
-	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-		values('FOG_MINING_MAX_CORES','This setting defines the maximum number of CPU cores you are willing to dedicate to mining cryptocurrency.','1','General Settings')",
-);
-
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
