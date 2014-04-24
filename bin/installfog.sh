@@ -146,6 +146,7 @@ then
 	echo "         Interface: ${interface}";
 	echo "         Using FOG DHCP: ${bldhcp}";
 	echo "         Internationalization: ${installlang}";
+	echo "         Donate: ${donate}";
 	echo "";
 elif [ "$installtype" = "S" ]
 then
