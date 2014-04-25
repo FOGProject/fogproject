@@ -56,9 +56,7 @@ $(function()
 		$('.tipsy').remove();
 		
 		if ($('#additionalMACsCell').find('.additionalMAC').size() == 0)
-		{
 			$('#additionalMACsRow').hide();
-		}
 
 		return false;
 	});
@@ -67,7 +65,7 @@ $(function()
 	$('.add-mac').click(function()
 	{
 		$('#additionalMACsRow').show();
-		$('#additionalMACsCell').append('<div><input class="addMac" type="text" name="additionalMACs[]" /> <span class="icon icon-remove remove-mac hand" title="Remove MAC"></span> <span class="mac-manufactor"></span></div>');
+		$('#additionalMACsCell').append('<div><input class="addMac" type="text" name="additionalMACs[]" /><span class="icon icon-remove remove-mac hand" title="Remove MAC"></span><span class="mac-manufactor"></span></div>');
 		
 		HookTooltips();
 		
