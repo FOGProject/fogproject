@@ -332,7 +332,7 @@ class HostManagementPage extends FOGPage
 		foreach((array)$Host->get('additionalMACs') AS $MAC)
 		{
 			if ($MAC && $MAC->isValid())
-				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC->get('mac').'" /><input type="checkbox" id="rm'.$MAC->get('id').'" class="delvid" name="additionalMACsRM[]" value="'.$MAC->get('mac').'"/><label for="rm'.$MAC->get('id').'"><span class="icon icon-remove remove-mac hand" title="'._('Remove MAC').'"></span></label><span class="mac-manufactor"></span></div>';
+				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC->get('mac').'" /><input type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC->get('id').'" name="additionalMACsRM[]" value="'.$MAC->get('id').'" title="'._('Remove MAC').'"/><label for="rm'.$MAC->get('id').'" class="icon icon-remove remove-mac hand"></label><span class="mac-manufactor"></span></div>';
 		}
 		foreach ((array)$Host->get('pendingMACs') AS $MAC)
 		{
@@ -1007,10 +1007,13 @@ class HostManagementPage extends FOGPage
 						if (!$PriMAC && (!$AddMAC || !$AddMAC->isValid()))
 							$Host->addAddMAC($MAC);
 					}
-					foreach((array)$_POST['additionalMACsRM'] AS $MAC)
+					if(isset($_POST['additionalMACsRM']))
 					{
-						$this->FOGCore->setMessage($MAC.' PASSED HERE');
-						$this->FOGCore->redirect('#');
+						foreach((array)$_POST['additionalMACsRM'] AS $MAC)
+						{
+							$DelMAC = new MACAddressAssociation($MAC);
+							$Host->removeAddMAC($DelMAC);
+						}
 					}
 					// Only one association per host.
 					$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
