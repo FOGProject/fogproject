@@ -248,7 +248,7 @@ class SnapinManagementPage extends FOGPage
 			_('Snapin Run With') => '<input type="text" name="rw" value="${snapin_rw}" />',
 			_('Snapin Run With Argument') => '<input type="text" name="rwa" value="${snapin_rwa}" />',
 			_('Snapin File').' <span class="lightColor">'._('Max Size').':${max_size}</span>' => '<span id="uploader">${snapin_file}<a href="#" id="snapin-upload"><img class="noBorder" src="images/upload.png" /></a></span>',
-			(count($files) > 0 ?_('Snapin File (exists)') : null)=> (count($files) > 0 ? '<select name="snapinfileexist"><<span class="lightColor"><option value="">- '._('Please select an option').'-</option>${snapin_filesexist}</select>' : null),
+			(count($files) > 0 ? _('Snapin File (exists)') : null)=> (count($files) > 0 ? '<select name="snapinfileexist"><<span class="lightColor"><option value="">- '._('Please select an option').'-</option>${snapin_filesexist}</select>' : null),
 			_('Snapin Arguments') => '<input type="text" name="args" value="${snapin_args}" />',
 			_('Reboot after install') => '<input type="checkbox" name="reboot" />',
 			'<input type="hidden" name="snapinid" value="${snapin_id}" /><input type="hidden" name="update" value="1" />' => '<input type="hidden" name="snapinfile" value="${snapin_file}" /><input type="submit" value="'._('Update').'" />',
@@ -290,7 +290,7 @@ class SnapinManagementPage extends FOGPage
 			// Error checking
 			if ($_POST['snapin'] != null || $_FILES['snapin']['name'] != null)
 			{
-				$uploadfile = $this->FOGCore->getSetting('FOG_SNAPINDIR').basename($_FILES['snapin']['name']);
+				$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
 				if(!file_exists($this->FOGCore->getSetting('FOG_SNAPINDIR')))
 					throw new Exception('Failed to add snapin, unable to locate snapin directory.');
 				else if (!is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
