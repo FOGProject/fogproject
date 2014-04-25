@@ -51,8 +51,8 @@ if ( $_SESSION["allow_ajax_kdl"] && $_SESSION["dest-kernel-file"] != null && $_S
 			->set('password', $FOGCore->getSetting('FOG_TFTP_FTP_PASSWORD'));
 		if ($ftp->connect()) 
 		{				
-			$backuppath = $FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR')."backup/";	
-			$orig = $FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR').$_SESSION['dest-kernel-file'];
+			$backuppath = rtrim($FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/')."/backup/";	
+			$orig = rtrim($FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/').'/'.$_SESSION['dest-kernel-file'];
 			$backupfile = $backuppath.$_SESSION["dest-kernel-file"].date("Ymd")."_".date("His");
 			$ftp->mkdir($backuppath);
 			$ftp->rename($backupfile,$orig);
