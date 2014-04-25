@@ -49,18 +49,6 @@ $(function()
 		$this.load('./ajax/mac-getman.php?prefix=' + mac);
 	});
 	
-	// Remove MAC Buttons
-	$('.remove-mac').unbind().live('click', function()
-	{
-		$(this).parent().remove();
-		$('.tipsy').remove();
-		
-		if ($('#additionalMACsCell').find('.additionalMAC').size() == 0)
-			$('#additionalMACsRow').hide();
-
-		return false;
-	});
-	
 	// Add MAC Buttons - TODO: Rewrite OLD CODE
 	$('.add-mac').click(function()
 	{
