@@ -1035,13 +1035,8 @@ class Host extends FOGController
 	}
 	public function removeAddMAC($removeArray)
 	{
-		// Iterate array (or other as array)
-		foreach ((array)$removeArray AS $remove)
-		{
-			$NewMACAdd = current($this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'), 'mac' => $remove)));
-			$NewMACAdd->destroy();
-			$this->remove('additionalMACs', $NewMACAdd);
-		}
+		$removeArray->destroy();
+		$this->remove('additionalMACs', $removeArray);
 		// Return
 		return $this;
 	}
