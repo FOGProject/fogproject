@@ -440,11 +440,14 @@ class Host extends FOGController
 			// Add new Additional MAC Addresses
 			foreach ((array)$this->get('additionalMACs') AS $MAC)
 			{
-				$NewMAC = new MACAddressAssociation(array(
-					'hostID' => $this->get('id'),
-					'mac' => $MAC->get('mac'),
-				));
-				$NewMAC->save();
+				if ($MAC && $MAC->isValid())
+				{
+					$NewMAC = new MACAddressAssociation(array(
+						'hostID' => $this->get('id'),
+						'mac' => $MAC->get('mac'),
+					));
+					$NewMAC->save();
+				}
 			}
 		}
 		// Pending MAC Addresses
