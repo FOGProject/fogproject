@@ -174,7 +174,7 @@ abstract class FOGPage extends FOGBase
 						$result .= sprintf('<tr id="%s-%s" class="%s">%s</tr>%s',
 							(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
 							$rowData['id'],
-							(++$i % 2 ? 'alt1' : (in_array($_REQUEST['sub'],array('list','search')) ? 'alt2' : '')),
+							(++$i % 2 ? 'alt1' : ((!$_REQUEST['sub'] && $this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN') == 'list') || in_array($_REQUEST['sub'],array('list','search')) ? 'alt2' : '')),
 							$this->buildRow($rowData),
 							"\n\t\t\t\t\t"
 						);
