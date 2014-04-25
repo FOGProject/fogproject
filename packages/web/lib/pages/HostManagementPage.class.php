@@ -317,52 +317,35 @@ class HostManagementPage extends FOGPage
 		);
 		if ($_REQUEST['confirmMac'])
 		{
-			$PM = current($this->FOGCore->getClass('PendingMACManager')->find(array('hostID' => $Host->get('id'),'pending' => base64_decode($_REQUEST['confirmMac']))));
-			$HostMAC = new MACAddressAssociation(array(
-				'hostID' => $Host->get('id'),
-				'mac' => trim($PM->get('pending')),
-			));
-			if ($HostMAC->save())
-			{
-				$this->FOGCore->getClass('HostManager')->deletePendingMacAddressForHost($Host,$PM->get('pending'));
-				$this->FOGCore->setMessage('Approved MAC Address');
-				$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
-			}
+			$MAC = new PendingMAC($_REQUEST['confirmMac']);
+			$Host->addPendtoAdd($MAC);
+			$this->FOGCore->setMessage('MAC: '.$MAC->get('pending').' Approved!');
+			$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
 		}
 		if ($_REQUEST['approveAll'] == 1)
 		{
-			foreach($this->FOGCore->getClass('PendingMACManager')->find(array('hostID' => $Host->get('id'))) AS $PM)
-			{
-				$HostMAC = new MACAddressAssociation(array(
-					'hostID' => $Host->get('id'),
-					'mac' => trim($PM->get('pending')),
-				));
-				if ($HostMAC->save())
-					$PM->destroy();
-			}
+			foreach((array)$Host->get('pendingMACs') AS $MAC)
+				$Host->addPendtoAdd($MAC);
 			$this->FOGCore->setMessage('All Pending MACs approved.');
 			$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
 		}
-		$MACs = $this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $Host->get('id')));
-		if ($MACs)
+		foreach((array)$Host->get('additionalMACs') AS $MAC)
 		{
-			foreach($MACs AS $MAC)
-			{
-				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC->get('mac').'" /><span class="icon icon-remove remove-mac hand" title="'._('Remove MAC').'" onclick="this.form.submit()"></span><span class="mac-manufactor"></span></div>';
-			}
+			if ($MAC && $MAC->isValid())
+				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC->get('mac').'" /><input type="checkbox" id="rm'.$MAC->get('id').'" class="delvid" name="additionalMACsRM[]" value="'.$MAC->get('mac').'"/><label for="rm'.$MAC->get('id').'"><span class="icon icon-remove remove-mac hand" title="'._('Remove MAC').'"></span></label><span class="mac-manufactor"></span></div>';
 		}
-		$PendMACs = $this->FOGCore->getClass('PendingMACManager')->find(array('hostID' => $Host->get('id')));
-		if ($PendMACs)
+		foreach ((array)$Host->get('pendingMACs') AS $MAC)
 		{
-			foreach ($PendMACs AS $PendMAC)
-				$pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$PendMAC->get('pending').'" /><a href="${link}&confirmMac='.base64_encode($PendMAC->get('pending')).'"><span class="icon icon-tick"></span></a><span class="mac-manufactor"></span></div>';
+			if ($MAC && $MAC->isValid())
+				$pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC->get('pending').'" /><a href="${link}&confirmMac='.$MAC->get('id').'"><span class="icon icon-tick"></span></a><span class="mac-manufactor"></span></div>';
+		}
+		if ($pending != null && $pending != '')
 			$pending .= '<div>'._('Approve All MACs?').'<a href="${link}&approveAll=1"><span class="icon icon-tick"></span></a></div>';
-		}
 		$genFields = array(
 			_('Host Name') => '<input type="text" name="host" value="${host_name}" maxlength="15" class="hostname-input" />*',
 			_('Primary MAC') => '<input type="text" name="mac" id="mac" value="${host_mac}" />*<span id="priMaker"></span><span class="icon icon-add add-mac hand" title="'._('Add MAC').'"></span><span class="mac-manufactor"></span>',
 			'<span id="additionalMACsRow">'._('Additional MACs').'</span>' => '<span id="additionalMACsCell">'.$addMACs.'</span>',
-			($PendMACs ? _('Pending MACs') : '') => ($PendMACs ? $pending : ''),
+			($Host->get('pendingMACs') ? _('Pending MACs') : null) => ($Host->get('pendingMACs') ? $pending : null),
 			_('Host Description') => '<textarea name="description" rows="5" cols="40">${host_desc}</textarea>',
 			_('Host Image') => '${host_image}',
 			($LocPluginInst ? _('Host Location') : '') => ($LocPluginInst ? '${host_locs}' : ''),
@@ -430,12 +413,15 @@ class HostManagementPage extends FOGPage
 		$GAs = $this->FOGCore->getClass('GroupAssociationManager')->find(array('hostID' => $Host->get('id')));
 		foreach($GAs AS $GA)
 		{
-			$Group = new Group($GA->get('groupID'));
-			$this->data[] = array(
-				'group_id' => $Group->get('id'),
-				'group_name' => $Group->get('name'),
-				'group_count' => $Group->getHostCount(),
-			);
+			if ($GA && $GA->isValid())
+			{
+				$Group = new Group($GA->get('groupID'));
+				$this->data[] = array(
+					'group_id' => $Group->get('id'),
+					'group_name' => $Group->get('name'),
+					'group_count' => $Group->getHostCount(),
+				);
+			}
 		}
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_GROUP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -575,12 +561,15 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t</p>";
 		foreach ((array)$Host->get('printers') AS $Printer)
 		{
-			$this->data[] = array(
-				'printer_id' => $Printer->get('id'),
-				'is_default' => ($Host->getDefault($Printer->get('id')) ? 'checked="checked"' : ''),
-				'printer_name' => addslashes($Printer->get('name')),
-				'printer_type' => $Printer->get('config'),
-			);
+			if ($Printer && $Printer->isValid())
+			{
+				$this->data[] = array(
+					'printer_id' => $Printer->get('id'),
+					'is_default' => ($Host->getDefault($Printer->get('id')) ? 'checked="checked"' : ''),
+					'printer_name' => addslashes($Printer->get('name')),
+					'printer_type' => $Printer->get('config'),
+				);
+			}
 		}
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_PRINTER', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -611,10 +600,13 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<h2>"._('Snapins').'</h2>';
 		foreach ((array)$Host->get('snapins') AS $Snapin)
 		{
-			$this->data[] = array(
-				'snap_id' => $Snapin->get('id'),
-				'snap_name' => $Snapin->get('name'),
-			);
+			if ($Snapin && $Snapin->isValid())
+			{
+				$this->data[] = array(
+					'snap_id' => $Snapin->get('id'),
+					'snap_name' => $Snapin->get('name'),
+				);
+			}
 		}
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_SNAPIN', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -1013,13 +1005,12 @@ class HostManagementPage extends FOGPage
 						$PriMAC = ($Host->get('mac') == $MAC ? true : false);
 						$AddMAC = current($this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $Host->get('id'),'mac' => $MAC)));
 						if (!$PriMAC && (!$AddMAC || !$AddMAC->isValid()))
-						{
-							$NewMAC = new MACAddressAssociation(array(
-								'hostID' => $Host->get('id'),
-								'mac' => $MAC,
-							));
-							$NewMAC->save();
-						}
+							$Host->addAddMAC($MAC);
+					}
+					foreach((array)$_POST['additionalMACsRM'] AS $MAC)
+					{
+						$this->FOGCore->setMessage($MAC.' PASSED HERE');
+						$this->FOGCore->redirect('#');
 					}
 					// Only one association per host.
 					$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
