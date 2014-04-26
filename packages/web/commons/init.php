@@ -48,6 +48,9 @@ if (!function_exists('__autoload'))
 					return true;
 				}
 			}
+			unset($className);
+			if (!$className)
+				return true;
 			throw new Exception(sprintf('Could not find file: File: %s, Paths: %s', $fileName, implode(', ', $paths)));
 		}
 		catch (Exception $e)
