@@ -115,6 +115,7 @@ xferlog_std_format=YES
 listen=YES
 pam_service_name=vsftpd
 userlist_enable=NO
+secomp_sandbox=no
 tcp_wrappers=YES" > "$ftpconfig";
 
 	sysv-rc-conf vsftpd on >/dev/null 2>&1;
