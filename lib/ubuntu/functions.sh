@@ -320,9 +320,6 @@ configureHttpd()
 		if [ ! -d "$webdirdest" ]
 		then
 			mkdir "$webdirdest";
-		else
-			rm -Rf "$webdirdest";
-			mkdir "$webdirdest";
 		fi		
 		
 		cp -Rf $webdirsrc/* $webdirdest/
