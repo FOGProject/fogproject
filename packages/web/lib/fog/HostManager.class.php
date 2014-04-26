@@ -18,6 +18,9 @@ class HostManager extends FOGManagerController
 				LEFT OUTER JOIN
 					images
 					ON (hostImage=imageID)
+				LEFT OUTER JOIN
+					(SELECT * FROM location INNER JOIN locationAssoc ON (lID = laLocationID) WHERE lName LIKE "%${keyword}%" OR lDesc LIKE "%${keyword}%") locationAssoc
+					ON (laHostID=hostID)
 				WHERE 
 					hostID LIKE "%${keyword}%" OR
 					hostName LIKE "%${keyword}%" OR 
@@ -29,6 +32,8 @@ class HostManager extends FOGManagerController
 					groupDesc LIKE "%${keyword}%" OR
 					imageName LIKE "%${keyword}%" OR
 					imageDesc LIKE "%${keyword}%" OR
+					lName LIKE "%${keyword}%" OR
+					lDesc LIKE "%{keyword}%" OR
 					iSysserial LIKE "%${keyword}%" OR
 					iCaseserial LIKE "%${keyword}%" OR
 					iMbserial LIKE "%${keyword}%" OR

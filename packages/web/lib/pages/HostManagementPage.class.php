@@ -56,7 +56,7 @@ class HostManagementPage extends FOGPage
 		$this->attributes = array(
 			array('width' => 22, 'id' => 'host-${host_name}'),
 			array('class' => 'c','width' => 16),
-			array('width' => 20),
+			($_SESSION['FOGPingActive'] ? array('width' => 20) : ''),
 			array(),
 			array('width' => 50, 'class' => 'c'),
 			array('width' => 90, 'class' => 'r'),
