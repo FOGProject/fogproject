@@ -122,7 +122,7 @@ class HostManagementPage extends FOGPage
 		foreach($this->FOGCore->getClass('HostManager')->search($keyword) AS $Host)
 		{
 			$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
-			$Location = ($LA ? new Location($Location->get('locationID')) : '');
+			$Location = ($LA ? new Location($LA->get('locationID')) : '');
 			$this->data[] = array(
 				'host_id'	=> $Host->get('id'),
 				'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
