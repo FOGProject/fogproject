@@ -116,13 +116,13 @@ class HostManagementPage extends FOGPage
 	public function search_post()
 	{
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
-		$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
-		$Location = ($LA ? new Location($Location->get('locationID')) : '');
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Find data -> Push data
 		foreach($this->FOGCore->getClass('HostManager')->search($keyword) AS $Host)
 		{
+			$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
+			$Location = ($LA ? new Location($Location->get('locationID')) : '');
 			$this->data[] = array(
 				'host_id'	=> $Host->get('id'),
 				'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
