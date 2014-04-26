@@ -241,7 +241,7 @@ configureDHCP()
 {
 	echo -n "  * Setting up and starting DHCP Server...";
 
-	activeconfig="";
+	activeconfig="/dev/null";
 	if [ -f "$dhcpconfig" ]
 	then
 		mv "$dhcpconfig" "${dhcpconfig}.fogbackup"
