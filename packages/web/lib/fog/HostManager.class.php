@@ -73,7 +73,11 @@ class HostManager extends FOGManagerController
 		{
 			foreach($macs AS $MAC)
 			{
-				if ($mac->getMACWithColon() == $mac->getMACWithColon())
+				if (!is_object($mac))
+					$mac = new MACAddress($mac);
+				if (!is_object($MAC))
+					$MAC = new MACAddress($MAC);
+				if ($mac->getMACWithColon() == $MAC->getMACWithColon())
 					return false;
 			}
 		}

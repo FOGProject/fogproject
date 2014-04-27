@@ -49,11 +49,24 @@ $(function()
 		$this.load('./ajax/mac-getman.php?prefix=' + mac);
 	});
 	
+	// Remove MAC Buttons
+	$('.remove-mac').click(function()
+	{
+		//$(this).parent().remove();
+		//$('.tipsy').remove();
+		
+		if ($('#additionalMACsCell').find('.additionalMAC').size() == 0)
+		{
+			$('#additionalMACsRow').hide();
+		}
+		//$(this).attr('checked', ischecked);
+	});
+	
 	// Add MAC Buttons - TODO: Rewrite OLD CODE
 	$('.add-mac').click(function()
 	{
 		$('#additionalMACsRow').show();
-		$('#additionalMACsCell').append('<div><input class="addMac" type="text" name="additionalMACs[]" /><span class="icon icon-remove remove-mac hand" title="Remove MAC"></span><span class="mac-manufactor"></span></div>');
+		$('#additionalMACsCell').append('<div><input class="addMac" type="text" name="additionalMACs[]" /> <span class="icon icon-remove remove-mac hand" title="Remove MAC"></span> <span class="mac-manufactor"></span></div>');
 		
 		HookTooltips();
 		

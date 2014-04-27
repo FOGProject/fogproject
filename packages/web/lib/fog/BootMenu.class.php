@@ -11,13 +11,13 @@ class BootMenu
 	private $storage, $shutdown, $path;
 	private $hiddenmenu, $timeout, $KS;
 	private $debug, $FOGCore;
-	/** \function __construct
+	/** __construct($Host = null)
 		Construtor for the whole system.
 	 	Sets all the variables as needed.
 	*/
 	public function __construct($Host = null)
 	{
-		// Sets the 
+		// Setups of the basic construct for the menu system.
 		$this->FOGCore = $GLOBALS['FOGCore'];
 		$this->bootexittype = $this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'exit' : 'sanboot --no-describe --drive 0x80';
 		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'isMaster' => 1)));
@@ -116,7 +116,6 @@ class BootMenu
 			print "param menuaccess 1\n";
 			print "param debug ".($debug ? "1\n" : "0\n");
 			print "chain $this->booturl/ipxe/boot.php##params\n";
-			print "exit\n";
 	    }
 	}
 

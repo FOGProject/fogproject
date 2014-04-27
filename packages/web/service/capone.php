@@ -9,7 +9,6 @@ try
 	else if ($_REQUEST['action'] == 'imagelookup' && $_REQUEST['key'] != null)
 	{
 		$key = trim(base64_decode(trim($_REQUEST['key'])));
-		
 		// Find the key association
 		$Capones = $FOGCore->getClass('CaponeManager')->find(array('key' => $key));
 		if (count($Capones) > 0)

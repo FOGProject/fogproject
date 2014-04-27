@@ -1043,19 +1043,18 @@ class Host extends FOGController
 		// Return
 		return $this;
 	}
-	public function addPendMAC($addArray)
+	public function addPendMAC($MAC)
 	{
-		// Add
-		foreach ((array)$addArray AS $item)
-			$this->add('pendingMACs',$item);
-		// Return
-		return $this;
+		$NewMACAdd = new PendingMAC(array(
+			'hostID' => $this->get('id'),
+			'pending' => $MAC,
+		));
+		return ($NewMACAdd->save());
 	}
 	public function removePendMAC($removeArray)
 	{
-		// Iterate array (or other as array)
-		foreach ((array)$removeArray AS $remove)
-			$this->remove('pendingMACs', ($remove instanceof PendingMAC ? $remove : new PendingMAC((int)$remove)));
+		$removeArray->destroy();
+		$this->remove('pendingMACs', $removeArray);
 		// Return
 		return $this;
 	}

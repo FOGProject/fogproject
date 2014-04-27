@@ -48,11 +48,11 @@ try
 		{
 			//Store the failure
 			$NodeFailure = new NodeFailure(array(
-							'storageNodeID' => $Task->get('NFSMemberID'),
-							'taskID' => $Task->get('id'),
-							'hostID' => $Host->get('id'),
-							'groupID' => $Task->get('NFSGroupID'),
-							'failureTime' => date('Y-m-d H:i:s'),
+				'storageNodeID' => $Task->get('NFSMemberID'),
+				'taskID' => $Task->get('id'),
+				'hostID' => $Host->get('id'),
+				'groupID' => $Task->get('NFSGroupID'),
+				'failureTime' => date('Y-m-d H:i:s'),
 			));
 			if ($NodeFailure->save())
 				$Task->set('stateID','1');
