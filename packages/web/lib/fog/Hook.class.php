@@ -7,7 +7,7 @@
  *	Last Update:	$LastChangedDate$
  ***/
  
-abstract class Hook
+abstract class Hook extends FOGBase
 {
 	public $name;
 	public $description;
