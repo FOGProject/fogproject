@@ -23,25 +23,29 @@ try
 	foreach($MACs AS $MAC)
 	{
 		$MAC = strtolower($MAC);
+		$mac1[] = strtolower($Host->get('mac'));
+		// Get all the additional MACs
+		foreach((array)$Host->get('additionalMACs') AS $mac)
+			$mac1[] = $mac && $mac->isValid() ? strtolower($mac->get('mac')) : '';
+		// Get all the pending MACs
+		foreach((array)$Host->get('pendingMACs') AS $mac)
+			$mac1[] = $mac && $mac->isValid() ? strtolower($mac->get('pending')) : '';
 		// Cycle the ignorelist if there is anything.
 		if ($ignoreList)
 		{
-			foreach($ignoreList AS $mac)
+			foreach((array)$ignoreList AS $mac)
 				$mac1[] = strtolower($mac);
-			if(in_array($MAC, $mac1))
-				throw new Exception('#!ig');
 		}
-		// For comparing the additionalMACs registered if there are any.
-		if ($Host->get('additionalMACs'))
+		$mac1 = array_unique($mac1);
+		if (!in_array($MAC,(array)$mac1))
 		{
-			foreach ($Host->get('additionalMACs') AS $mac)
-				$mac2[] = strtolower($mac);
+			if ($Host->addPendMAC($MAC))
+				print "#!ok\n";
+			else
+				throw new Exception('#!er: Error adding MAC');
 		}
-		// Is this one already registered?
-		if($MAC == strtolower($Host->get('mac')) || in_array($MAC, $mac2))
-			throw new Exception('#!ig');
-		if($HostManager->addMACToPendingForHost($Host,$MAC))
-			print ('#!ok');
+		else
+			print "#!ig\n";
 	}
 }
 catch (Exception $e)

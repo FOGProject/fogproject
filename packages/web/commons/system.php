@@ -37,7 +37,7 @@ function DetermineBasePath()
 	}
 	if($_SERVER['DOCUMENT_ROOT'] != null)
 	{
-		if(preg_match('#fog#i',$_SERVER['PHP_SELF']))
+		if(preg_match('#/fog/#i',$_SERVER['PHP_SELF']))
 		{
 			define('WEB_ROOT', '/fog/');
 			return $_SERVER['DOCUMENT_ROOT'].WEB_ROOT;

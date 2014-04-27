@@ -7,30 +7,43 @@
 abstract class FOGController extends FOGBase
 {
 	// Table
+	/** Gets the database table */
 	public $databaseTable = '';
 	// Name -> Database field name
+	/** Gets the database fields */
 	public $databaseFields = array();
 	// ->load() queries, this way subclasses can override (ie: NodeFailure)
+	/** The standard query template for a single call */
 	protected $loadQueryTemplateSingle = "SELECT * FROM `%s` WHERE `%s`='%s'";
+	/** The standard query template for a multiple call */
 	protected $loadQueryTemplateMultiple = "SELECT * FROM `%s` WHERE %s";
 	// Do not update these database fields
+	/** Ignore these fileds */
 	public $databaseFieldsToIgnore = array(
 		'createdBy',
 		'createdTime'
 	);
 	// Allow setting / getting of these additional fields
+	/** set or get additional fields. */
 	public $additionalFields = array();
 	// Required database fields
+	/** Required Database Fields */
 	public $databaseFieldsRequired = array();
 	// Store data array
+	/** The data to return */
 	protected $data = array();
 	// Auto save class data on __destruct
+	/** If true will save db on exit auto matically */
 	public $autoSave = false;
 	// Debug & Info
+	/** Debug is off or on.  Right now it's on */
 	public $debug = true;
+	/** Info is off or on, default is on */
 	public $info = true;
-	// Database field to Class relationships
+	// Database field to Class relationship
+	/** For classes that are assigned to a particular field */
 	public $databaseFieldClassRelationships = array();
+	/** The Manager of the info. */
 	private $Manager;
 	// Construct
 	/** __construct($data)
