@@ -62,7 +62,10 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t<li>";
 		print "\n\t\t\t<h4>"._('Disk Information').'</h4>';
 		print "\n\t\t\t".'<div id="diskusage-selector">';
-		print $this->FOGCore->getClass('StorageNodeManager')->buildSelectBox(current($this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' =>     1,'isMaster' => 1)))->get('id'),'storagesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;');
+		foreach ($this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1)) AS $StorageNode)
+			$options[] = "\n\t\t\t".'<option value="'.$StorageNode->get('id').'">'.$StorageNode->get('name').($StorageNode->get('isMaster') == '1' ? ' *' : '').'</option>';
+
+		print "\n\t\t\t".'<select name="storagesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">'.implode("\n",$options).'</select>';
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t".'<a href="?node=hwinfo"><div class="graph pie-graph" id="graph-diskusage"></div></a>';
 		print "\n\t\t\t</li>";

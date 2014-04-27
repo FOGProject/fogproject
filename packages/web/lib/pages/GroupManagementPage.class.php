@@ -253,7 +253,7 @@ class GroupManagementPage extends FOGPage
 			}
 			$locationIDMult = (is_array($locationID) ? array_unique($locationID) : $locationID);
 			if (count($locationIDMult) == 1)
-				$locationMatchID = $LA->get('locationID');
+				$locationMatchID = $LA && $LA->isValid() ? $LA->get('locationID') : null;
 		}
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', _('Edit'), $Group->get('name'));
@@ -674,25 +674,16 @@ class GroupManagementPage extends FOGPage
 								->set('kernelDevice',	$_POST['dev']);
 						// Sets the location for the group.
 						$Location = new Location($_REQUEST['location']);
-						foreach ($Group->getHosts() AS $Host)
+						foreach ($Group->get('hosts') AS $Host)
 						{
-							$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'), 'locationID' => $Location->get('id'))));
-							if (!$LA && $_REQUEST['location'])
-							{
-								$LA = new LocationAssociation(array(
-									'locationID' => $Location->get('id'),
-									'hostID' => $Host->get('id'),
-								));
-								$LA->save();
-							}
-							else if ($LA)
-							{
-								if ($LA->get('locationID') != $_REQUEST['location'])
-								{
-									$LA->set('locationID', $_REQUEST['location']);
-									$LA->save();
-								}
-							}
+							// Remove all associations
+							$this->FOGCore->getClass('LocationAssociationManager')->destroy(array('hostID' => $Host->get('id')));
+							// Create new association
+							$LA = new LocationAssociation(array(
+								'locationID' => $Location->get('id'),
+								'hostID' => $Host->get('id'),
+							));
+							$LA->save();
 						}
 					}
 				break;
