@@ -11,11 +11,11 @@ if ( $_GET["prefix"] != null && strlen($_GET["prefix"]) >= 8 )
 		if ( $mac != null )
 		{
 			$mac = $FOGCore->getMACManufacturer($mac->getMACPrefix());
-			echo ($mac == 'n/a' ? _('Unknown') : $mac);
+			print '<small>'.($mac == 'n/a' ? _('Unknown') : $mac).'</small>';
 		}
 	}
 	else
-		echo "<a href='?node=about&sub=mac-list'>"._("Load MAC Vendors")."</a>";
+		print "<a href='?node=about&sub=mac-list'>"._("Load MAC Vendors")."</a>";
 }
 else
-	echo _('Unknown');
+	print _('Unknown');

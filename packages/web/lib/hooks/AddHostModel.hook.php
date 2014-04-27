@@ -6,11 +6,6 @@ class AddHostModel extends Hook
 	var $description = 'Adds host model to the host lists';
 	var $author = 'Rowlett/TomElliott';
 	var $active = false;
-	private $FOGCore;
-	function __construct()
-	{
-		$this->FOGCore = $GLOBALS['FOGCore'];
-	}
 	function HostData($arguments)
 	{
 		if ($_REQUEST['node'] == 'host')

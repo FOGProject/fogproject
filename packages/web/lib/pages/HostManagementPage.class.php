@@ -90,8 +90,8 @@ class HostManagementPage extends FOGPage
 			);
 		}
 		// Hook
-		$this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes, 'headerData' => &$this->headerData));
-		$this->HookManager->processEvent('HOST_HEADER_DATA', array('templates' => &$this->templates, ' attributes' => &$this->attributes, 'headerData' => &$this->headerData));
+		$this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		$this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData' => &$this->headerData, 'title' => &$this->title));
 		// Output
 		$this->render();
 	}
