@@ -1,5 +1,6 @@
 <?php
-/** \class GreenFog
+/** Class Name: GreenFog
+	Extends: FOGController
 	Gets the database information for the Green FOG database stuff.
 	Green FOG is what can be used to perform shutdown and restart
 	tasks.
