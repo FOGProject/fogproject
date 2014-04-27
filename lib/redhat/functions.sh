@@ -372,7 +372,7 @@ require_once('system.php');
 define('TFTP_HOST', \"${ipaddress}\");
 define('TFTP_FTP_USERNAME', \"${username}\");
 define('TFTP_FTP_PASSWORD', \"${password}\");
-define('TFTP_PXE_KERNEL_DIR', '\"${webdirdest}\"/service/ipxe/');
+define('TFTP_PXE_KERNEL_DIR', '${webdirdest}/service/ipxe/');
 define('PXE_KERNEL', 'bzImage');
 define('PXE_KERNEL_RAMDISK',127000);
 define('USE_SLOPPY_NAME_LOOKUPS',true);
