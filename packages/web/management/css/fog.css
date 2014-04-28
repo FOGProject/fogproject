@@ -129,13 +129,13 @@ table tr td:first-child {padding: 0px 0px;}
 table tr td:last-child {padding: 0px 0px;}
 table td .icon {margin: 0 3px;}
 table tr.header {color: #ededed;}
-table tr.header td {padding: 8px; border: 0; background: #7386ad;}
-table tr.header td:first-child { border-radius: 3px 0 0 0; }
-table tr.header td:last-child { border-radius: 0 3px 0 0; }
-table tr.header td.toggle { width: 25px; }
-table tr.header td.hostname {}
-table tr.header td.edit { width: 25px; }
-table tr.header td.ping { width: 25px; }
+table tr.header th {padding: 8px; border: 0; background: #7386ad;}
+table tr.header th:first-child { border-radius: 3px 0 0 0; }
+table tr.header th:last-child { border-radius: 0 3px 0 0; }
+table tr.header th.toggle { width: 25px; }
+table tr.header th.hostname {}
+table tr.header th.edit { width: 25px; }
+table tr.header th.ping { width: 25px; }
 table tr td { border-bottom: 1px dashed #ddd; }
 table tr:last-child td { border-bottom: 0; }
 table tr.alt1 {}
@@ -143,6 +143,7 @@ table tr.alt1 td {}
 table tr.alt2 {}
 table tr.alt2 td {}
 table tr.header a { color: #ededed; }
+.headerSortUp {background: url(http://tablesorter.com/themes/blue/bg.gif) no-repeat 99%;}
 
 textarea { width: 100%; }
 

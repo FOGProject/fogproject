@@ -92,9 +92,11 @@ print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gi
 $FOGCore->getMessages();
 print "\n\t".'<div class="fog-variable" id="FOGPingActive">'.($_SESSION['FOGPingActive'] ? '1' : '0').'</div>';
 print "\n\t<!-- JavaScript -->";
-print "\n\t".'<script type="text/javascript" src="js/jquery.js"></script>';
+print "\n\t".'<script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>';
+print "\n\t".'<script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/calendar/jquery.dynDateTime.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/calendar/calendar-en.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/jquery.tipsy.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/jquery.progressbar.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/jquery.tmpl.js"></script>';
