@@ -13,7 +13,7 @@ try
 	// Try and get the task.
 	$Task = current($Host->get('task'));
 	// Get the Job if possible
-	$SnapinJob = current($FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $Host->get('id'),'stateID' => 1)));
+	$SnapinJob = new SnapinJob($_REQUEST['taskid']);
 	// Get the current task, if possible.
 	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('state' => array(0,1),'jobID' => $SnapinJob->get('id'))));
 	// If there's no more tasks, or job, don't continue on.  Just report there's no jobs.
