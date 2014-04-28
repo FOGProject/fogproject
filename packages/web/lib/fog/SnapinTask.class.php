@@ -9,7 +9,7 @@ class SnapinTask extends FOGController
 	public $databaseFields = array(
 		'id'		=> 'stID',
 		'jobID'		=> 'stJobID',
-		'state'		=> 'stState',
+		'stateID'		=> 'stState',
 		'checkin'	=> 'stCheckinDate',
 		'complete'	=> 'stCompleteDate',
 		'snapinID'	=> 'stSnapinID',
