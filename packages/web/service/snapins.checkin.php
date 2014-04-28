@@ -12,18 +12,18 @@ try
 		throw new Exception('#!ih');
 	// Only worry about if the Task is queued, in line, or in progress (for reporting reasons).
 	$Task = current($Host->get('task'));
-	//Get the snapin job.
-	$SnapinJob = current($FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $Host->get('id'),'stateID' => array(-1,0,1))));
-	if (!$SnapinJob)
-		throw new Exception('#!ns');
 	// If the task is Valid and is not of type 12 or 13 report that it's waiting for other tasks.
 	if ($Task && $Task->isValid())
 	{
 		if ($Task->get('typeID') != 12 && $Task->get('typeID') != 13)
 			throw new Exception('#!it');
 	}
+	//Get the snapin job.
+	$SnapinJob = current($FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $Host->get('id'),'stateID' => array(0,1))));
+	if (!$SnapinJob)
+		throw new Exception('#!ns');
 	// Work on the current Snapin Task.
-	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('state' => array(-1,0,1),'jobID' => $SnapinJob->get('id'))));
+	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('state' => array(0,1),'jobID' => $SnapinJob->get('id'))));
 	if ($SnapinTask)
 	{
 		// Get the information (the Snapin itself)
@@ -76,8 +76,6 @@ try
 			}
 		}
 	}
-	else
-		print "#!ns";
 }
 catch(Exception $e)
 {

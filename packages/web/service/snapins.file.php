@@ -12,6 +12,12 @@ try
 		throw new Exception('#!ih');
 	// Try and get the task.
 	$Task = current($Host->get('task'));
+	// if there's a task and it's not a deploy task (12 or 13) don't send the file (report back)
+	if ($Task && $Task->isValid())
+	{
+		if ($Task->get('typeID') != 12 && $Task->get('typeID') != 13)
+			throw new Exception('#!it');
+	}
 	// Get the Job if possible
 	$SnapinJob = new SnapinJob($_REQUEST['taskid']);
 	// Get the current task, if possible.
@@ -19,12 +25,6 @@ try
 	// If there's no more tasks, or job, don't continue on.  Just report there's no jobs.
 	if (!$SnapinJob || !$SnapinTask)
 		throw new Exception('#!ns');
-	// if there's a task and it's not a deploy task (12 or 13) don't send the file (report back)
-	if ($Task && $Task->isValid())
-	{
-		if ($Task->get('typeID') != 12 && $Task->get('typeID') != 13)
-			throw new Exception('#!it');
-	}
 	//Get the snapin to work off of.
 	$Snapin = new Snapin($SnapinTask->get('snapinID'));
 	// Assign the file for sending.
