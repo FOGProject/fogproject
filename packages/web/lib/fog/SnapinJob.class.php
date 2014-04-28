@@ -9,6 +9,7 @@ class SnapinJob extends FOGController
 	public $databaseFields = array(
 		'id'		=> 'sjID',
 		'hostID'	=> 'sjHostID',
+		'stateID'	=> 'sjStateID',
 		'createTime' => 'sjCreateTime',
 	);
 }
