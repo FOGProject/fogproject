@@ -637,7 +637,7 @@ class Host extends FOGController
 					'NFSMemberID'	=> $StorageGroup->getOptimalStorageNode()->get('id'),
 					'shutdown' => $shutdown,
 				));
-				$SnapinJobs = current($this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'))));
+				$SnapinJobs = current($this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(-1,0,1))));
 				if ($SnapinJobs && $SnapinJobs->isValid() && $deploySnapins == -1)
 					throw new Exception('Snapins Are already deployed to this host.');
 				else
@@ -645,6 +645,7 @@ class Host extends FOGController
 					// Create Snapin Job.  Only one job, but will do multiple SnapinTasks.
 					$SnapinJob = new SnapinJob(array(
 						'hostID' => $this->get('id'),
+						'stateID' => -1,
 						'createTime' => date('Y-m-d H:i:s'),
 					));
 					// Create Snapin Tasking
@@ -658,7 +659,7 @@ class Host extends FOGController
 							{
 								$SnapinTask = current($this->FOGCore->getClass('SnapinTaskManager')->find(array('snapinID' => $SA->get('snapinID'), 'state' => array(-1,0,1))));
 								if ($SnapinTask && $SnapinTask->isValid())
-									$SnapinJobCheck = current($this->FOGCore->getClass('SnapinJobManager')->find(array('id' => $SnapinTask->get('jobID'), 'hostID' => $this->get('id'))));
+									$SnapinJobCheck = current($this->FOGCore->getClass('SnapinJobManager')->find(array('id' => $SnapinTask->get('jobID'), 'hostID' => $this->get('id'),'stateID' => array(-1,0,1))));
 								if (!$SnapinJobCheck || !$SnapinJobCheck->isValid())
 								{
 									$ST = new SnapinTask(array(
@@ -682,7 +683,7 @@ class Host extends FOGController
 							$Snapin = new Snapin($deploySnapins);
 							$SnapinTask = current($this->FOGCore->getClass('SnapinTaskManager')->find(array('snapinID' => $Snapin->get('id'), 'state' => array(-1,0,1))));
 							if ($SnapinTask && $SnapinTask->isValid())
-								$SnapinJobCheck = current($this->FOGCore->getClass('SnapinJobManager')->find(array('id' => $SnapinTask->get('jobID'), 'hostID' => $this->get('id'))));
+								$SnapinJobCheck = current($this->FOGCore->getClass('SnapinJobManager')->find(array('id' => $SnapinTask->get('jobID'), 'hostID' => $this->get('id'),'stateID' => array(-1,0,1))));
 							if (!$SnapinJobCheck || !$SnapinJobCheck->isValid())
 							{
 								$ST = new SnapinTask(array(
