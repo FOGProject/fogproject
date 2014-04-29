@@ -97,6 +97,7 @@ print "\n\t".'<script type="text/javascript" src="//code.jquery.com/jquery-migra
 print "\n\t".'<script type="text/javascript" src="js/calendar/jquery.dynDateTime.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/calendar/calendar-en.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/jquery.tablesorter.pager.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/jquery.tipsy.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/jquery.progressbar.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/jquery.tmpl.js"></script>';

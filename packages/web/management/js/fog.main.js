@@ -14,7 +14,9 @@ $(function()
 	$("table thead th").addClass("hand");
 	$("table thead th").addClass("headerSortUp");
 	$("table thead th").addClass("headerSortDown");
-	$("table").tablesorter();
+	$("table")
+			.tablesorter({widthFixed: true, widgets: ['zebra']})
+			.tablesorterPager({container: $("#pager")});
 	// Process FOG JS Variables
 	$('.fog-variable').fogVariable();
 	
