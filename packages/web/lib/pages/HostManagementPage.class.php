@@ -411,12 +411,10 @@ class HostManagementPage extends FOGPage
 			'<input type="checkbox" class="delid" onclick="this.form.submit()" name="groupdel" id="groupdelmem${group_id}" value="${group_id}" /><label for="groupdelmem${group_id}">'._('Delete').'</label>',
 		);
 		// Find Group Relationships
-		$GAs = $this->FOGCore->getClass('GroupAssociationManager')->find(array('hostID' => $Host->get('id')));
-		foreach($GAs AS $GA)
+		foreach($Host->get('groups') AS $Group)
 		{
-			if ($GA && $GA->isValid())
+			if ($Group && $Group->isValid())
 			{
-				$Group = new Group($GA->get('groupID'));
 				$this->data[] = array(
 					'group_id' => $Group->get('id'),
 					'group_name' => $Group->get('name'),
