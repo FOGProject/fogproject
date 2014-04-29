@@ -327,7 +327,8 @@ if ($_GET['node'] == 'snapin')
 	$foglang['SubMenu']['snapin']['add'] = sprintf($foglang['CreateNew'],$foglang['Snapin']);
 	if ($_GET['id'])
 	{
-		$foglang['SubMenu']['snapin']['id'][$linkformat] = $foglang['General'];
+		$foglang['SubMenu']['snapin']['id'][$linkformat.'#snap-gen'] = $foglang['General'];
+		$foglang['SubMenu']['snapin']['id'][$linkformat.'#snap-host'] = $foglang['Host'];
 		$foglang['SubMenu']['snapin']['id'][$delformat] = $foglang['Delete'];
 	}
 }

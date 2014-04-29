@@ -253,7 +253,10 @@ class SnapinManagementPage extends FOGPage
 			_('Reboot after install') => '<input type="checkbox" name="reboot" />',
 			'<input type="hidden" name="snapinid" value="${snapin_id}" /><input type="hidden" name="update" value="1" />' => '<input type="hidden" name="snapinfile" value="${snapin_file}" /><input type="submit" value="'._('Update').'" />',
 		);
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&snapinid='.$Snapin->get('id').'" enctype="multipart/form-data">';
+		print "\n\t\t\t".'<div id="tab-container">';
+		print "\n\t\t\t\t".'<!-- General -->';
+		print "\n\t\t\t\t".'<div id="snap-gen">';
+		print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&id='.$Snapin->get('id').'&tab=snap-gen" enctype="multipart/form-data">';
 		foreach ($fields AS $field => $input)
 		{
 			$this->data[] = array(
@@ -275,6 +278,55 @@ class SnapinManagementPage extends FOGPage
 		// Output
 		$this->render();
 		print '</form>';
+		print "\n\t\t\t</div>";
+		unset($this->data);
+        $this->headerData = array(
+            _('Host Name'),
+            _('MAC'),
+            _('Remove Membership?'),
+        );       
+        $this->attributes = array(
+            array(),
+            array(),
+            array(),
+        );       
+        $this->templates = array(
+            '<a href="?node=host&sub=edit&id=${host_id}" title="'._('Edit Host').':${host_name}">${host_name}</a>',
+            '${host_mac}',
+            '<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}">'._('Delete').'</label>',        
+        );
+        foreach((array)$Snapin->get('hosts') AS $Host)
+            $HostIDs[] = $Host && $Host->isValid() ? $Host->get('id') : '';
+        $HostStuff = $this->FOGCore->getClass('HostManager')->buildSelectBox('','host[]" multiple="multiple','',$HostIDs);
+		print "\n\t\t\t\t".'<!-- Hosts Memberships -->';
+		print "\n\t\t\t\t".'<div id="snap-host">';
+        print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=snap-host">';
+        if ($HostStuff)
+        {    
+            print "\n\t\t\t<p>"._('The selection box below will add this snapin to the selected hosts automatically.').'</p>';
+            print "\n\t\t\t<p><center>$HostStuff";
+            print "\n\t\t\t".'<input type="submit" value="'._('Add to Snapin(s)').'" /></center></p>';
+        }        
+        unset($this->data);
+        // Find Host Relationships
+        $Hosts = $Snapin->get('hosts');
+        foreach($Hosts AS $Host)
+        {    
+            if ($Host && $Host->isValid())
+            {    
+                $this->data[] = array(
+                    'host_id' => $Host->get('id'),
+                    'host_name' => $Host->get('name'),
+                    'host_mac' => $Host->get('mac'),
+                );       
+            }
+        }
+        // Hook
+        $this->HookManager->processEvent('SNAPIN_EDIT_HOST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        $this->render();
+		print '</form>';
+		print "\n\t\t\t\t".'</div>';
+		print "\n\t\t\t".'</div>';
 	}
 	public function edit_post()
 	{
@@ -285,31 +337,42 @@ class SnapinManagementPage extends FOGPage
 		// POST
 		try
 		{
-			// SnapinManager
-			$SnapinManager = $this->FOGCore->getClass('SnapinManager');
-			// Error checking
-			if ($_POST['snapin'] != null || $_FILES['snapin']['name'] != null)
+			switch ($_REQUEST['tab'])
 			{
-				$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
-				if(!file_exists($this->FOGCore->getSetting('FOG_SNAPINDIR')))
-					throw new Exception('Failed to add snapin, unable to locate snapin directory.');
-				else if (!is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
-					throw new Exception('Failed to add snapin, snapin directory is not writeable.');
-				else if (file_exists($uploadfile))
-					throw new Exception('Failed to add snapin, file already exists.');
-				else if (!move_uploaded_file($_FILES['snapin']['tmp_name'],$uploadfile))
-					throw new Exception('Failed to add snapin, file upload failed.');
+				case 'snap-del';
+					// SnapinManager
+					$SnapinManager = $this->FOGCore->getClass('SnapinManager');
+					// Error checking
+					if ($_POST['snapin'] != null || $_FILES['snapin']['name'] != null)
+					{
+						$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
+						if(!file_exists($this->FOGCore->getSetting('FOG_SNAPINDIR')))
+							throw new Exception('Failed to add snapin, unable to locate snapin directory.');
+						else if (!is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
+							throw new Exception('Failed to add snapin, snapin directory is not writeable.');
+						else if (file_exists($uploadfile))
+							throw new Exception('Failed to add snapin, file already exists.');
+						else if (!move_uploaded_file($_FILES['snapin']['tmp_name'],$uploadfile))
+							throw new Exception('Failed to add snapin, file upload failed.');
+					}
+					if ($_POST['name'] != $Snapin->get('name') && $SnapinManager->exists($_POST['name'], $Snapin->get('id')))
+						throw new Exception('Snapin already exists');
+					// Update Object
+					$Snapin ->set('name',			$_POST['name'])
+							->set('description',	$_POST['description'])
+							->set('file',($_REQUEST['snapinfileexist'] ? $_REQUEST['snapinfileexist'] : ($_FILES['snapin']['name'] ? $_FILES['snapin']['name'] : $Snapin->get('file'))))
+							->set('args',			$_POST['args'])
+							->set('reboot',			(isset($_POST['reboot']) ? 1 : 0 ))
+							->set('runWith',		$_POST['rw'])
+							->set('runWithArgs',	$_POST['rwa']);
+				break;
+				case 'snap-host';
+					if ($_POST['host'])
+						$Snapin->addHost($_POST['host']);
+					if ($_POST['hostdel'])
+						$Snapin->removeHost($_POST['hostdel']);
+				break;
 			}
-			if ($_POST['name'] != $Snapin->get('name') && $SnapinManager->exists($_POST['name'], $Snapin->get('id')))
-				throw new Exception('Snapin already exists');
-			// Update Object
-			$Snapin ->set('name',			$_POST['name'])
-					->set('description',	$_POST['description'])
-					->set('file',($_REQUEST['snapinfileexist'] ? $_REQUEST['snapinfileexist'] : ($_FILES['snapin']['name'] ? $_FILES['snapin']['name'] : $Snapin->get('file'))))
-					->set('args',			$_POST['args'])
-					->set('reboot',			(isset($_POST['reboot']) ? 1 : 0 ))
-					->set('runWith',		$_POST['rw'])
-					->set('runWithArgs',	$_POST['rwa']);
 			// Save
 			if ($Snapin->save())
 			{
@@ -320,7 +383,7 @@ class SnapinManagementPage extends FOGPage
 				// Set session message
 				$this->FOGCore->setMessage(_('Snapin updated'));
 				// Redirect to new entry
-				$this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s', $this->request['node'], $this->id, $Snapin->get('id')));
+				$this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $this->request['node'], $this->id, $Snapin->get('id'),$_REQUEST['tab']));
 			}
 			else
 				throw new Exception('Snapin update failed');
