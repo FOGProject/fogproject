@@ -1269,7 +1269,7 @@ $databaseSchema[] = array(
 );
 // 92-93
 $databaseSchema[] = array(
-		"ALTER TABLE `" . DATABASE_NAME . "'.`snapinJobs` DROP `sjStateID`",
+		"ALTER TABLE `" . DATABASE_NAME . "`.`snapinJobs` DROP `sjStateID`",
         "ALTER TABLE `" . DATABASE_NAME . "`.`snapinJobs`
                 ADD COLUMN `sjStateID` char NOT NULL AFTER `sjHostID`",
 );
