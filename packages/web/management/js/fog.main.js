@@ -9,13 +9,6 @@
 // JQuery autoloader
 $(function()
 {
-	// Table sorting.
-	// call the tablesorter plugin 
-	$("table thead th").addClass("hand");
-	$("table thead th").addClass("headerSortUp");
-	$("table thead th").addClass("headerSortDown");
-	$("table")
-			.tablesorter({widthFixed: true, widgets: ['zebra']});
 	// Process FOG JS Variables
 	$('.fog-variable').fogVariable();
 	
