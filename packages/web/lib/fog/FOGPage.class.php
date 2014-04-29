@@ -197,8 +197,6 @@ abstract class FOGPage extends FOGBase
 				
 				// Table close
 				$result .= sprintf('%s</tbody>%s</table>%s', "\n\t\t\t\t", "\n\t\t\t", "\n\n\t\t\t");
-				if ($_REQUEST['node'] != 'home' && count($this->data) > 10)
-					$result .= sprintf('<div id="pager" class="pager"><form><span class="first hand">&lt;&lt;</span>&nbsp;<span class="prev hand"/>&lt;</span>&nbsp;<input type="text" class="pagedisplay"/>&nbsp;<span class="next hand">&gt;</span>&nbsp;<span class="last hand">&gt;&gt;</span>&nbsp;<select class="pagesize"><option selected="selected" value="10">10</option><option value="20">20</option><option value="30">30</option><option value="40">40</option></select></form></div>',"\n\n\t\t\t");
 			}
 		
 			// Return output

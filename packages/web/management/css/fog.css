@@ -143,8 +143,6 @@ table tr.alt1 td {}
 table tr.alt2 {}
 table tr.alt2 td {}
 table tr.header a { color: #ededed; }
-.headerSortUp {background: url(http://tablesorter.com/themes/blue/bg.gif) no-repeat 99%;}
-.pager {width: 100%; margin: 25px auto;}
 
 textarea { width: 100%; }
 

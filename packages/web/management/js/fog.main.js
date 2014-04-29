@@ -15,8 +15,7 @@ $(function()
 	$("table thead th").addClass("headerSortUp");
 	$("table thead th").addClass("headerSortDown");
 	$("table")
-			.tablesorter({widthFixed: true, widgets: ['zebra']})
-			.tablesorterPager({container: $("#pager")});
+			.tablesorter({widthFixed: true, widgets: ['zebra']});
 	// Process FOG JS Variables
 	$('.fog-variable').fogVariable();
 	

@@ -104,9 +104,10 @@ class HostManagementPage extends FOGPage
 		$this->title = _('Search');
 		// Set search form
 		$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
+
 		// Hook
-		$this->HookManager->processEvent('HOST_DATA');
-		$this->HookManager->processEvent('HOST_HEADER_DATA');
+		$this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		$this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData' => &$this->headerData));
 		// Output
 		$this->render();
 	}
