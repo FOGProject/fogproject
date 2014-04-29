@@ -38,14 +38,14 @@ $sectionTitle = $FOGPageManager->getFOGPageName();
 $pageTitle = $FOGPageManager->getFOGPageTitle();
 if ($FOGCore->isAJAXRequest())
 {
-	print $content;
+	print $content; 
 	exit;
 }
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
 print "\n\t\t".'<meta http-equiv="X-UA-Compatible" content="IE=Edge" />';
-print "\n\t\t".'<meta http-equiv="content-type" content="text/html; charset=utf-8" />';
+print "\n\t\t".'<meta http-equiv="content-type" content="text/json; charset=utf-8" />';
 print "\n\t\t".'<title>'.($pageTitle ? $pageTitle.' &gt; ' : '').$sectionTitle.' &gt; FOG &gt; '.$foglang['Slogan'].'</title>';
 print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/calendar/calendar-win2k-1.css" />';
 print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/jquery.organicTabs.css" />';

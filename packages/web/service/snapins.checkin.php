@@ -23,7 +23,7 @@ try
 	if (!$SnapinJob)
 		throw new Exception('#!ns');
 	// Work on the current Snapin Task.
-	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('state' => array(0,1),'jobID' => $SnapinJob->get('id'))));
+	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('stateID' => array(0,1),'jobID' => $SnapinJob->get('id'))));
 	if ($SnapinTask)
 	{
 		// Get the information (the Snapin itself)
@@ -32,14 +32,14 @@ try
 		if (strlen($_REQUEST['exitcode']) > 0 && is_numeric($_REQUEST['exitcode']))
 		{
 			// Place the task for records, but outside of recognizable as Complete or Done!
-			$SnapinTask->set('state','2')
+			$SnapinTask->set('stateID','2')
 					   ->set('return',$_REQUEST['exitcode'])
 					   ->set('details',$_REQUEST['exitdesc'])
 					   ->set('complete',date('Y-m-d H:i:s'));
 			if ($SnapinTask->save())
 				print "#!ok";
 			// Get the current count of snapin tasks.
-			$cnt = count($FOGCore->getClass('SnapinTaskManager')->find(array('state' => array(-1,0,1),'jobID' => $SnapinJob->get('id'))));
+			$cnt = count($FOGCore->getClass('SnapinTaskManager')->find(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id'))));
 			// If that was the last task, delete the job.
 			if ($cnt == 0)
 			{
@@ -59,7 +59,7 @@ try
 					 ->set('checkInTime',date('Y-m-d H:i:s'))->save();
 			}
 			//If not from above, update the Task information.
-			$SnapinTask->set('state',1)
+			$SnapinTask->set('stateID',1)
 					   ->set('checkin',date('Y-m-d H:i:s'));
 			// As long as things update, send the information.
 			if ($SnapinTask->save())
