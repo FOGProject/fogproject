@@ -22,51 +22,101 @@ class Group extends FOGController
 	public $additionalFields = array(
 		'hosts',
 	);
+    // Overides
+    private function loadHosts()
+    {   
+        if (!$this->isLoaded('hosts'))
+        {   
+            if ($this->get('id'))
+            {   
+                $GroupAssocs = $this->FOGCore->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','name');
+                foreach($GroupAssocs AS $GroupAssoc)
+                    $this->add('hosts', new Host($GroupAssoc->get('hostID')));
+            }   
+        }   
+        return $this;
+    }   
+
+    public function get($key = '') 
+    {   
+        if ($this->key($key) == 'hosts')
+            $this->loadHosts();
+        return parent::get($key);
+    }   
+
+    public function set($key, $value)
+    {   
+        if ($this->key($key) == 'hosts')
+        {   
+            foreach((array)$value AS $Host)
+                $newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
+            $value = (array)$newValue;
+        }   
+        // Set
+        return parent::set($key, $value);
+    }   
+
+    public function add($key, $value)
+    {   
+        if ($this->key($key) == 'hosts' && !($value instanceof Host))
+        {   
+            $this->loadHosts();
+            $value = new Host($value);
+        }   
+        // Add
+        return parent::add($key, $value);
+    }
+
+    public function remove($key, $object)
+    {   
+        if ($this->key($key) == 'hosts')
+            $this->loadHosts();
+        // Remove
+        return parent::remove($key, $object);
+    }
+
+    public function save()
+    {
+        parent::save();
+        if ($this->isLoaded('hosts'))
+        {
+            // Remove all old entries.
+            $this->FOGCore->getClass('GroupAssociationManager')->destroy(array('snapinID' => $this->get('id')));
+            // Create new Assocs
+            foreach ((array)$this->get('hosts') AS $Host)
+            {
+                if (($Host instanceof Host) && $Host->isValid())
+                {
+                    $NewGroup = new GroupAssociation(array(
+                        'groupID' => $this->get('id'),
+                        'hostID' => $Host->get('id'),
+                    ));
+                    $NewGroup->save();
+                }
+            }
+        }
+        return $this;
+    }
+
+    public function addHost($addArray)
+    {
+        // Add
+        foreach((array)$addArray AS $item)
+            $this->add('hosts', $item);
+        // Return
+        return $this;
+    }
+
+    public function removeHost($removeArray)
+    {
+        // Iterate array (or other as array)
+        foreach ((array)$removeArray AS $remove)
+            $this->remove('hosts', ($remove instanceof Host ? $remove : new Host((int)$remove)));
+        // Return
+        return $this;
+    }
+
 	// Custom Variables
-	private $hostsLoaded = false;
-	// Legacy - remove when fully converted
-	private $id, $name, $description, $createTime, $createdBy, $building, $hosts, $kernel, $kernelArgs, $primaryDisk;
-	public $lastError;
-	public function get($key = '')
-	{
-		if ($this->key($key) == 'hosts' && !$this->hostsLoaded)
-		{
-			$this->updateHosts();
-			$hostsLoaded = true;
-		}
-		// Get
-		return parent::get($key);
-	}
-	// Host related functions
-	public function getHostCount()
-	{
-		return (is_array($this->getHosts()) ? count($this->getHosts()) : 0);
-	}
-	public function getHosts()
-	{
-		return $this->get('hosts');
-	}
-	public function removeHost($removeHost)
-	{
-		foreach((array)$this->get('hosts') AS $host)
-		{
-			if($host->get('id') != $removeHost)
-				$newHostArray[] = $host;
-		}
-		$this->set('hosts', (array)$newHostArray);
-		return $this;
-	}
-	function updateHosts()
-	{
-		// Reset hosts
-		$this->set('hosts', array());
-		// Find all group members
-		$Hosts = $this->FOGCore->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')));
-		foreach($Hosts AS $Host)
-			$this->add('hosts',new Host($Host->get('hostID')));
-		// Return
-		return $this;
-	}
 	function doMembersHaveUniformImages()
 	{
 		foreach ($this->get('hosts') AS $Host)

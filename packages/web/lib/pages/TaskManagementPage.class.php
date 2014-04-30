@@ -360,7 +360,7 @@ class TaskManagementPage extends FOGPage
 			$this->data[] = array(
 				'id'			=>	$Group->get('id'),
 				'name'			=>	$Group->get('name'),
-				'memberCount'	=>	$Group->getHostCount(),
+				'memberCount'	=>	count($Group->get('hosts')),
 				'deployLink'	=>	$deployLink,
 				'advancedLink'	=>	$advancedLink,
 				'multicastLink'	=>	$multicastLink,
