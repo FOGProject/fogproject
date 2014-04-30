@@ -93,7 +93,7 @@ class Task extends FOGController
 		if($SnapinJobs)
 		{
 			foreach($SnapinJobs AS $SnapinJob)
-				$SnapinTasks[]= $this->FOGCore->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id'),'state' => array(0,1)));
+				$SnapinTasks[]= $this->FOGCore->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id'),'stateID' => array(0,1)));
 		}
 		// cancel's all the snapin tasks for that host.
 		if ($SnapinTasks)
@@ -101,7 +101,7 @@ class Task extends FOGController
 			foreach($SnapinTasks AS $ST)
 			{
 				foreach($ST AS $SnapinTask)
-					$SnapinTask->set('state', -1)->save();
+					$SnapinTask->set('stateID', -1)->save();
 			}
 		}
 		// FOGController destroy

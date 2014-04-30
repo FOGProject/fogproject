@@ -600,7 +600,7 @@ class TaskManagementPage extends FOGPage
 			array('class' => 'c'),
 			array('width' => 40, 'class' => 'c'),
 		);
-		$SnapinTasks = $this->FOGCore->getClass('SnapinTaskManager')->find(array('state' => array(-1,0,1)));
+		$SnapinTasks = $this->FOGCore->getClass('SnapinTaskManager')->find(array('stateID' => array(-1,0,1)));
 		foreach ($SnapinTasks AS $SnapinTask)
 		{
 			$SnapinJobs = $this->FOGCore->getClass('SnapinJobManager')->find(array('id' => $SnapinTask->get('jobID')));
@@ -612,7 +612,7 @@ class TaskManagementPage extends FOGPage
 					'hostID'	=> $this->FOGCore->getClass('Host',$SnapinJob->get('hostID'))->get('id'),
 					'host_name'	=> $this->FOGCore->getClass('Host',$SnapinJob->get('hostID'))->get('name'),
 					'startDate' => $SnapinTask->get('checkin'),
-					'state'		=> ($SnapinTask->get('state') == 0 ? 'Queued' : ($SnapinTask->get('state') == 1 ? 'In-Progress' : 'N/A')),
+					'stateID'		=> ($SnapinTask->get('stateID') == 0 ? 'Queued' : ($SnapinTask->get('stateID') == 1 ? 'In-Progress' : 'N/A')),
 				);
 			}
 		}
