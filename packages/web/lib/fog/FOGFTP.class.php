@@ -32,9 +32,7 @@ class FOGFTP extends FOGGetSet
 		// Return if - already connected && last connection is the same || details unset
 		$connectionHash = md5(serialize($this->data));
 		if (($this->link && $this->lastConnectionHash == $connectionHash) || !$this->get('host') || !$this->get('username') || !$this->get('password') || !$this->get('port'))
-		{
 			return $this;
-		}
 		
 		// Connect
 		$this->link = @ftp_connect($this->get('host'), $this->get('port'), $this->get('timeout'));
@@ -52,9 +50,7 @@ class FOGFTP extends FOGGetSet
 		}
 		
 		if ($this->passiveMode)
-		{
 			ftp_pasv($this->link, true);
-		}
 		
 		// Store connection hash
 		$this->lastConnectionHash = $connectionHash;
@@ -96,10 +92,19 @@ class FOGFTP extends FOGGetSet
 	{
 		if(!@ftp_rename($this->link, $localPath, $remotePath))
 		{
-			$error = error_get_last();
-			throw new Exception(sprintf('%s: Failed to %s file. Remote Path: %s, Local Path: %s, Error: %s', get_class($this), __FUNCTION__, $remotePath, $localPath, $error['message']));
+			$filelist = @ftp_nlist($this->link,$path);
+			if ($filelist)
+			{
+				foreach($filelist AS $file)
+				{
+					if(!@ftp_rename($this->link, $localPath, $remotePath))
+					{
+						$error = error_get_last();
+						throw new Exception(sprintf('%s: Failed to %s file. Remote Path: %s, Local Path: %s, Error: %s', get_class($this), __FUNCTION__, $remotePath, $localPath, $error['message']));
+					}
+				}
+			}
 		}
-
 		return $this;
 	}
 
