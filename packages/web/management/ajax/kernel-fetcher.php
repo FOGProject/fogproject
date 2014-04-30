@@ -30,22 +30,15 @@ if ( $_SESSION["allow_ajax_kdl"] && $_SESSION["dest-kernel-file"] != null && $_S
 			curl_exec ($ch);
 			curl_close ($ch);
 			fclose($fp);
-			try
+			if ( file_exists( $_SESSION["tmp-kernel-file"] ) )
 			{
-				if ( file_exists( $_SESSION["tmp-kernel-file"] ) )
-				{
-					if (filesize( $_SESSION["tmp-kernel-file"]) > 1048576 )
-						print "##OK##";
-					else
-						print "Error: Download failed: filesize = " . filesize( $_SESSION["tmp-kernel-file"]);
-				}
+				if (filesize( $_SESSION["tmp-kernel-file"]) > 1048576 )
+					print "##OK##";
 				else
-					print "Error: Failed to download kernel!";
+					print "Error: Download failed: filesize = " . filesize( $_SESSION["tmp-kernel-file"]);
 			}
-			catch (Exception $e)
-			{
-				print $e->getMessage();
-			}
+			else
+				print "Error: Failed to download kernel!";
 		}
 		else
 			print "Error: Failed to open temp file.";
@@ -58,19 +51,26 @@ if ( $_SESSION["allow_ajax_kdl"] && $_SESSION["dest-kernel-file"] != null && $_S
 			->set('password', $FOGCore->getSetting('FOG_TFTP_FTP_PASSWORD'));
 		if ($ftp->connect()) 
 		{				
-			$backuppath = rtrim($FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/')."/backup/";	
-			$orig = rtrim($FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/').'/'.$_SESSION['dest-kernel-file'];
-			$backupfile = $backuppath.$_SESSION["dest-kernel-file"].date("Ymd")."_".date("His");
-			$ftp->mkdir($backuppath);
-			$ftp->rename($backupfile,$orig);
-			if ($ftp->put($orig,$_SESSION['tmp-kernel-file'],FTP_BINARY))
-			{	
-				@unlink($_SESSION['tmp-kernel-file']);
-				print '##OK##';
+			try
+			{
+				$backuppath = rtrim($FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/')."/backup/";	
+				$orig = rtrim($FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/').'/'.$_SESSION['dest-kernel-file'];
+				$backupfile = $backuppath.$_SESSION["dest-kernel-file"].date("Ymd")."_".date("His");
+				$ftp->mkdir($backuppath);
+				$ftp->rename($backupfile,$orig);
+				if ($ftp->put($orig,$_SESSION['tmp-kernel-file'],FTP_BINARY))
+				{	
+					@unlink($_SESSION['tmp-kernel-file']);
+					print '##OK##';
+				}
+				else
+					print _('Error: Failed to install new kernel!');
+				$ftp->close();
 			}
-			else
-				print _('Error: Failed to install new kernel!');
-			$ftp->close();
+			catch (Exception $e)
+			{
+				print $e->getMessage();
+			}
 		}
 		else
 			print _('Error: Unable to connect to tftp server.');
