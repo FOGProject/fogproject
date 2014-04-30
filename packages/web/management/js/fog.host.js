@@ -12,11 +12,9 @@ $(function()
 	$('.host-ping').fogPing({ 'Delay': 0, 'UpdateStatus': 0 }).removeClass('host-ping');
 	
 	// Checkbox toggle
-	$('.toggle-checkbox').click(function()
-	{
-		var $this = $(this);
-		var checked = $this.attr('checked');
-		$this.parents('table').find('tbody').find('input[type="checkbox"]').attr('checked', (checked ? 'checked' : ''));
+	$('.toggle-checkbox').click(function() {
+		var ischecked = $(this).attr('checked');
+		$('input:checkbox').attr('checked', (ischecked ? 'checked' : false));
 	});
 	
 	// Action box submit
@@ -28,6 +26,7 @@ $(function()
 		{
 			hostIDArray[hostIDArray.length] = checked.eq(i).attr('value');
 		}
+		
 		$('#hostIDArray', this).val( hostIDArray.join(',') );
 	});
 });
