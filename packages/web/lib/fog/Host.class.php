@@ -657,7 +657,7 @@ class Host extends FOGController
 							$SnapinAssoc = $this->FOGCore->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')));
 							foreach ($SnapinAssoc AS $SA)
 							{
-								$SnapinTask = current($this->FOGCore->getClass('SnapinTaskManager')->find(array('snapinID' => $SA->get('snapinID'), 'state' => array(-1,0,1))));
+								$SnapinTask = current($this->FOGCore->getClass('SnapinTaskManager')->find(array('snapinID' => $SA->get('snapinID'), 'stateID' => array(-1,0,1))));
 								if ($SnapinTask && $SnapinTask->isValid())
 									$SnapinJobCheck = current($this->FOGCore->getClass('SnapinJobManager')->find(array('id' => $SnapinTask->get('jobID'), 'hostID' => $this->get('id'),'stateID' => array(-1,0,1))));
 								if (!$SnapinJobCheck || !$SnapinJobCheck->isValid())
@@ -681,7 +681,7 @@ class Host extends FOGController
 						else
 						{
 							$Snapin = new Snapin($deploySnapins);
-							$SnapinTask = current($this->FOGCore->getClass('SnapinTaskManager')->find(array('snapinID' => $Snapin->get('id'), 'state' => array(-1,0,1))));
+							$SnapinTask = current($this->FOGCore->getClass('SnapinTaskManager')->find(array('snapinID' => $Snapin->get('id'), 'stateID' => array(-1,0,1))));
 							if ($SnapinTask && $SnapinTask->isValid())
 								$SnapinJobCheck = current($this->FOGCore->getClass('SnapinJobManager')->find(array('id' => $SnapinTask->get('jobID'), 'hostID' => $this->get('id'),'stateID' => array(-1,0,1))));
 							if (!$SnapinJobCheck || !$SnapinJobCheck->isValid())
@@ -821,7 +821,7 @@ class Host extends FOGController
 						$Snapin = new Snapin($SA->get('snapinID'));
 						$SnapinTask = new SnapinTask(array(
 							'jobID' => $SnapinJob->get('id'),
-							'state' => -1,
+							'stateID' => -1,
 							'snapinID' => $Snapin->get('id'),
 						));
 						$SnapinTask->save();
