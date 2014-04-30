@@ -49,18 +49,21 @@ if ( $_SESSION["allow_ajax_kdl"] && $_SESSION["dest-kernel-file"] != null && $_S
 		$ftp->set('host',$FOGCore->getSetting('FOG_TFTP_HOST'))
 			->set('username', $FOGCore->getSetting('FOG_TFTP_FTP_USERNAME'))
 			->set('password', $FOGCore->getSetting('FOG_TFTP_FTP_PASSWORD'));
+		$destfile=$_SESSION['dest-kernel-file'];
+		$tmpfile=$_SESSION['tmp-kernel-file'];
+		unset($_SESSION['dest-kernel-file'],$_SESSION['tmp-kernel-file'],$_SESSION['dl-kernel-file']);
 		if ($ftp->connect()) 
 		{				
 			try
 			{
 				$backuppath = rtrim($FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/')."/backup/";	
-				$orig = rtrim($FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/').'/'.$_SESSION['dest-kernel-file'];
-				$backupfile = $backuppath.$_SESSION["dest-kernel-file"].date("Ymd")."_".date("His");
+				$orig = rtrim($FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/').'/'.$destfile;
+				$backupfile = $backuppath.$destfile.date("Ymd")."_".date("His");
 				$ftp->mkdir($backuppath);
 				$ftp->rename($backupfile,$orig);
-				if ($ftp->put($orig,$_SESSION['tmp-kernel-file'],FTP_BINARY))
+				if ($ftp->put($orig,$tmpfile,FTP_BINARY))
 				{	
-					@unlink($_SESSION['tmp-kernel-file']);
+					@unlink($tmpfile);
 					print '##OK##';
 				}
 				else
