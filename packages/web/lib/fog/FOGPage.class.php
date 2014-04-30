@@ -223,10 +223,10 @@ abstract class FOGPage extends FOGBase
 				}
 
 				// Push into results array
-				$result[] = sprintf('<%s%s>%s</%s>',	$this->wrapper,
+				$result[] = sprintf('<%s%s>%s</%s>',	'th',
 									(count($attributes) ? ' ' . implode(' ', $attributes) : ''),
 									$content,
-									$this->wrapper);
+									'th');
 				
 				// Reset
 				unset($attributes);

@@ -16,7 +16,6 @@ $(function()
 	{
 		var $this = $(this);
 		var checked = $this.attr('checked');
-		
 		$this.parents('table').find('tbody').find('input[type="checkbox"]').attr('checked', (checked ? 'checked' : ''));
 	});
 	
@@ -29,7 +28,6 @@ $(function()
 		{
 			hostIDArray[hostIDArray.length] = checked.eq(i).attr('value');
 		}
-		
 		$('#hostIDArray', this).val( hostIDArray.join(',') );
 	});
 });
