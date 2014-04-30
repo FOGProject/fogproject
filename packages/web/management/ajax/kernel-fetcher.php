@@ -29,19 +29,26 @@ if ( $_SESSION["allow_ajax_kdl"] && $_SESSION["dest-kernel-file"] != null && $_S
 			curl_setopt($ch, CURLOPT_FILE, $fp);
 			curl_exec ($ch);
 			curl_close ($ch);
-			fclose($fp);	
-			if ( file_exists( $_SESSION["tmp-kernel-file"] ) )
+			fclose($fp);
+			try
 			{
-				if (filesize( $_SESSION["tmp-kernel-file"]) > 1048576 )
-					echo "##OK##";
+				if ( file_exists( $_SESSION["tmp-kernel-file"] ) )
+				{
+					if (filesize( $_SESSION["tmp-kernel-file"]) > 1048576 )
+						print "##OK##";
+					else
+						print "Error: Download failed: filesize = " . filesize( $_SESSION["tmp-kernel-file"]);
+				}
 				else
-					echo "Error: Download failed: filesize = " . filesize( $_SESSION["tmp-kernel-file"]);
+					print "Error: Failed to download kernel!";
 			}
-			else
-				echo "Error: Failed to download kernel!";
+			catch (Exception $e)
+			{
+				print $e->getMessage();
+			}
 		}
 		else
-			echo "Error: Failed to open temp file.";
+			print "Error: Failed to open temp file.";
 	}
 	else if ( $_POST["msg"] == "tftp" )
 	{

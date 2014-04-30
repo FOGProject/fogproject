@@ -92,7 +92,7 @@ class FOGFTP extends FOGGetSet
 	{
 		if(!@ftp_rename($this->link, $localPath, $remotePath))
 		{
-			$filelist = @ftp_nlist($this->link,$path);
+			$filelist = @ftp_nlist($this->link,$localPath);
 			if ($filelist)
 			{
 				foreach($filelist AS $file)
