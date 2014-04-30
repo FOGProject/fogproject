@@ -11,6 +11,9 @@ $(function()
 {
 	// Process FOG JS Variables
 	$('.fog-variable').fogVariable();
+	$('table').tablesorter({sortList: [[0,0], [1,0]]});
+	$('th').addClass('hand headerSortUp')
+		.addClass('headerSortDown');
 	
 	// Process FOG Message Boxes
 	$('.fog-message-box').fogMessageBox();

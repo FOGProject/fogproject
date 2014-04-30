@@ -34,7 +34,7 @@ class HostManagementPage extends FOGPage
 		$this->headerData = array(
 			'',
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkbox" checked="checked" />',
-			($_SESSION['FOGPingActive'] ? '' : ''),
+			($_SESSION['FOGPingActive'] ? '' : null),
 			_('Host Name'),
 			($LocPluginInst ? _('Location/Deployed') : _('Deployed')),
 			_('Task'),
