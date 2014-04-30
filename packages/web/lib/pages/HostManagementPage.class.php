@@ -418,7 +418,7 @@ class HostManagementPage extends FOGPage
 				$this->data[] = array(
 					'group_id' => $Group->get('id'),
 					'group_name' => $Group->get('name'),
-					'group_count' => $Group->getHostCount(),
+					'group_count' => count($Group->get('hosts')),
 				);
 			}
 		}
