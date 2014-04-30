@@ -80,7 +80,7 @@ class GroupManagementPage extends FOGPage
 				'id'		=> $Group->get('id'),
 				'name'		=> $Group->get('name'),
 				'description'	=> $Group->get('description'),
-				'count'		=> $Group->getHostCount()
+				'count'		=> count($Group->get('hosts')),
 			);
 		}
 		// Hook
@@ -119,7 +119,7 @@ class GroupManagementPage extends FOGPage
 				'id'		=> $Group->get('id'),
 				'name'		=> $Group->get('name'),
 				'description'	=> $Group->get('description'),
-				'count'		=> $Group->getHostCount()
+				'count'		=> count($Group->get('hosts'))
 			);
 		}
 		// Hook
@@ -366,7 +366,7 @@ class GroupManagementPage extends FOGPage
 		$GAs = $this->FOGCore->getClass('GroupAssociationManager')->find(array('groupID' => $Group->get('id')));
 		foreach($GAs AS $GA)
 			$HostIDs[] = $GA->get('hostID');
-		$HostStuff = $this->FOGCore->getClass('HostManager')->buildSelectBox('','host[]" multiple="','',$HostIDs);
+		$HostStuff = $this->FOGCore->getClass('HostManager')->buildSelectBox('','host[]" multiple="','name',$HostIDs);
 		// Unset for later use.
 		unset ($this->data);
 		print '</div>';
@@ -399,7 +399,7 @@ class GroupManagementPage extends FOGPage
 			'${host_mac}',
 			'<input type="checkbox" name="member" value="${host_id}" class="delid" onclick="this.form.submit()" id="memberdel${host_id}" /><label for="memberdel${host_id}">Delete</label>',
 		);
-		foreach ($Group->getHosts() AS $Host)
+		foreach ($Group->get('hosts') AS $Host)
 		{
 			$this->data[] = array(
 				'host_id' => $Host->get('id'),

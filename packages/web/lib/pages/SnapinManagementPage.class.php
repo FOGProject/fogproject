@@ -339,7 +339,7 @@ class SnapinManagementPage extends FOGPage
 		{
 			switch ($_REQUEST['tab'])
 			{
-				case 'snap-del';
+				case 'snap-gen';
 					// SnapinManager
 					$SnapinManager = $this->FOGCore->getClass('SnapinManager');
 					// Error checking
