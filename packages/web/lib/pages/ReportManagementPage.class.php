@@ -1069,7 +1069,7 @@ class ReportManagementPage extends FOGPage
 				$snapinArgs = $Snapin->isValid() ? $Snapin->get('args') : '';
 				$snapinRw = $Snapin->isValid() ? $Snapin->get('runWith') : '';
 				$snapinRwa = $Snapin->isValid() ? $Snapin->get('runWithArgs') : '';
-				$snapinState = $SnapinTask->get('state');
+				$snapinState = $SnapinTask->get('stateID');
 				$snapinReturn = $SnapinTask->get('return');
 				$snapinDetail = $SnapinTask->get('detail');
 				$snapinCreateDate = $Snapin->isValid() ? date('Y-m-d',strtotime($Snapin->get('createdTime'))) : '';
