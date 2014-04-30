@@ -237,7 +237,7 @@ class GroupManagementPage extends FOGPage
 		// If location is installed.
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// If all hosts have the same image setup up the selection.
-		foreach ($Group->getHosts() AS $Host)
+		foreach ($Group->get('hosts') AS $Host)
 			$imageID[] = $Host->getImage()->get('id');
 		$imageIDMult = (is_array($imageID) ? array_unique($imageID) : $imageID);
 		if (count($imageIDMult) == 1)
@@ -246,7 +246,7 @@ class GroupManagementPage extends FOGPage
 		if ($LocPluginInst)
 		{
 			// To set the location similar to the rest of the groups.
-			foreach ($Group->getHosts() AS $Host)
+			foreach ($Group->get('hosts') AS $Host)
 			{
 				$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
 				$LA ? $locationID[] = $LA->get('locationID') : null;
@@ -492,13 +492,13 @@ class GroupManagementPage extends FOGPage
 		print "\n\t\t\t<legend>"._('General')."</legend>";
         foreach ($this->FOGCore->getClass('ModuleManager')->find() AS $Module)
         {
-			foreach($Group->getHosts() AS $Host)
+			foreach($Group->get('hosts') AS $Host)
 				$ModONs[] = $Host->getModuleStatus($Module->get('id'));
 			$MODON = array_filter((array)$ModONs);
 			$this->data[] = array(
 				'input' => '<input type="checkbox" class="checkboxes" name="${mod_shname}" value="${mod_id}" ${checked} />',
 				'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
-				'checked' => (count($MODON) == count($Group->getHosts()) ? 'checked="checked"' : ''),
+				'checked' => (count($MODON) == count($Group->get('hosts')) ? 'checked="checked"' : ''),
 				'mod_name' => $Module->get('name'),
 				'mod_shname' => $Module->get('shortName'),
 				'mod_id' => $Module->get('id'),
@@ -689,17 +689,10 @@ class GroupManagementPage extends FOGPage
 				break;
 				// Group membership
 				case 'group-membership';
-					$hostMembers = $_POST['host'];
-					foreach((array)$hostMembers as $selectedHost)
-					{
-						if(is_numeric($selectedHost))
-						{
-							$GroupAssociation = new GroupAssociation(array('hostID' => $selectedHost, 'groupID' => $Group->get('id')));
-							$GroupAssociation->save();
-						}
-					}
+					if($_POST['host'])
+						$Group->addHost($_POST['host']);
 					if(isset($_POST['member']))
-						$this->FOGCore->getClass('GroupAssociationManager')->destroy(array('groupID' => $Group->get('id'),'hostID' => $_POST['member']));
+						$Group->removeHost($_POST['member']);
 				break;
 				// Image Association
 				case 'group-image';
@@ -708,7 +701,7 @@ class GroupManagementPage extends FOGPage
 						throw new Exception('Select an Image');
 					else
 					{
-						foreach ($Group->getHosts() AS $Host)
+						foreach ($Group->get('hosts') AS $Host)
 						{
 							$Task = current($this->FOGCore->getClass('TaskManager')->find(array('hostID' => $Host->get('id'),'stateID' => array(1,2,3))));
 							if ($Task && $Task->isValid() && !$_REQUEST['image'])
@@ -726,11 +719,8 @@ class GroupManagementPage extends FOGPage
 						throw new Exception('Select a Snapin');
 					else
 					{
-						foreach ($Group->getHosts() AS $Host)
-						{
-							$Host->addSnapin($this->REQUEST['snapin']);
-							$Host->save();
-						}
+						foreach ($Group->get('hosts') AS $Host)
+							$Host->addSnapin($_REQUEST['snapin']);
 					}
 				break;
 				// Snapin Del
@@ -740,19 +730,13 @@ class GroupManagementPage extends FOGPage
 						throw new Exception('Select a Snapin');
 					else
 					{
-						foreach ($Group->getHosts() AS $Host)
-						{
-							$SnapinAssociation = new SnapinAssociationManager(array(
-								'hostID' => $Host->get('id'),
-								'snapinID' => $this->REQUEST['snapin'],
-					    	));
-							$SnapinAssociation->destroy();
-						}
+						foreach ($Group->get('hosts') AS $Host)
+							$Host->removeSnapin($_REQUEST['snapin']);
 					}
 				break;
 				// Active Directory
 				case 'group-active-directory';
-					foreach ($Group->getHosts() AS $Host)
+					foreach ($Group->get('hosts') AS $Host)
 					{
 						$Host->set('useAD', ($this->REQUEST['domain'] == "on" ? '1' : '0'))
 							 ->set('ADDomain', $this->REQUEST['domainname'])
@@ -765,27 +749,14 @@ class GroupManagementPage extends FOGPage
 				// Printer Add/Rem
 				case 'group-printers';
 					// Error Checking
-					foreach ($Group->getHosts() AS $Host)
+					foreach ($Group->get('hosts') AS $Host)
 					{
 						if (!empty($_POST['level']))
-						{
-							//$Host = new Host($Host->get('id'));
-							$Host->set('printerLevel', $this->REQUEST['level']);
-							$Host->save();
-						}
+							$Host->set('printerLevel', $this->REQUEST['level'])->save();
 						if (!empty($_POST['prntadd']))
-						{
 							$Host->addPrinter($this->REQUEST['prntadd']);
-							$Host->save();
-						}
 						if (!empty($_POST['prntdel']))
-						{
-							$PrinterAssociation = new PrinterAssociationManager(array(
-								'printerID', $this->REQUEST['prntdel'],
-								'hostID', $Host->get('id'),
-							));
-							$PrinterAssociation->destroy();
-						}
+							$Host->removePrinter($_REQUEST['prntdel']);
 					}
 				break;
 				// Update Services
@@ -797,7 +768,7 @@ class GroupManagementPage extends FOGPage
 					$y =(is_numeric($_POST['y']) ? $_POST['y'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
 					$r =(is_numeric($_POST['r']) ? $_POST['r'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
 					$tme = (is_numeric($_POST['tme']) ? $_POST['tme'] : $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
-					foreach ($Group->getHosts() AS $Host)
+					foreach ($Group->get('hosts') AS $Host)
 					{
 						if ($_POST['updatestatus'] == '1')
 						{

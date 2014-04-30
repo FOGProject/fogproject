@@ -612,7 +612,7 @@ class TaskManagementPage extends FOGPage
 					'hostID'	=> $this->FOGCore->getClass('Host',$SnapinJob->get('hostID'))->get('id'),
 					'host_name'	=> $this->FOGCore->getClass('Host',$SnapinJob->get('hostID'))->get('name'),
 					'startDate' => $SnapinTask->get('checkin'),
-					'stateID'		=> ($SnapinTask->get('stateID') == 0 ? 'Queued' : ($SnapinTask->get('stateID') == 1 ? 'In-Progress' : 'N/A')),
+					'state'		=> ($SnapinTask->get('stateID') == 0 ? 'Queued' : ($SnapinTask->get('stateID') == 1 ? 'In-Progress' : 'N/A')),
 				);
 			}
 		}
