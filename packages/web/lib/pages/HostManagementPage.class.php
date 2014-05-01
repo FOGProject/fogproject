@@ -75,7 +75,7 @@ class HostManagementPage extends FOGPage
 		// Get location if enabled:
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// Find data -> Push data
-		foreach ($this->FOGCore->getClass('HostManager')->find() AS $Host)
+		foreach ((array)$this->FOGCore->getClass('HostManager')->find() AS $Host)
 		{
 			$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
 			$Location = ($LA ? new Location($LA->get('locationID')) : '');
@@ -120,7 +120,7 @@ class HostManagementPage extends FOGPage
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Find data -> Push data
-		foreach($this->FOGCore->getClass('HostManager')->search($keyword) AS $Host)
+		foreach((array)$this->FOGCore->getClass('HostManager')->search($keyword) AS $Host)
 		{
 			$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
 			$Location = ($LA ? new Location($LA->get('locationID')) : '');
@@ -180,7 +180,7 @@ class HostManagementPage extends FOGPage
 		);
 		print "\n\t\t\t<h2>"._('Add new host definition').'</h2>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-		foreach ($fields AS $field => $input)
+		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -202,7 +202,7 @@ class HostManagementPage extends FOGPage
 		// unset for use later.
 		unset ($this->data);
 		print "\n\t\t\t<h2>"._('Active Directory').'</h2>';
-		foreach ($fieldsad AS $field => $input)
+		foreach ((array)$fieldsad AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -383,11 +383,11 @@ class HostManagementPage extends FOGPage
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_GEN', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		$this->render();
+		print '</form>';
+		print "\n\t\t\t</div>";
 		foreach((array)$Host->get('groups') AS $Group)
 			$GroupIDs[] = $Group && $Group->isValid() ? $Group->get('id') : '';
 		$GroupStuff = $this->FOGCore->getClass('GroupManager')->buildSelectBox('','group[]" multiple="multiple','',$GroupIDs);
-		print '</form>';
-		print "\n\t\t\t</div>";
 		print "\n\t\t\t<!-- Group Relationships -->";
 		print "\n\t\t\t".'<div id="host-grouprel" class="organic-tabs-hidden">';
 		print "\n\t\t\t<h2>"._('Group Relationships').'</h2>';
@@ -415,7 +415,7 @@ class HostManagementPage extends FOGPage
 			'<input type="checkbox" class="delid" onclick="this.form.submit()" name="groupdel" id="groupdelmem${group_id}" value="${group_id}" /><label for="groupdelmem${group_id}">'._('Delete').'</label>',
 		);
 		// Find Group Relationships
-		foreach($Host->get('groups') AS $Group)
+		foreach((array)$Host->get('groups') AS $Group)
 		{
 			if ($Group && $Group->isValid())
 			{
@@ -446,7 +446,7 @@ class HostManagementPage extends FOGPage
 		// Find TaskTypes
 		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'host'), 'isAdvanced' => '0'), 'AND', 'id');
 		// Iterate -> Print
-		foreach ($TaskTypes AS $TaskType)
+		foreach ((array)$TaskTypes AS $TaskType)
 		{
 			$this->data[] = array(
 				'node' => $this->node,
@@ -477,7 +477,7 @@ class HostManagementPage extends FOGPage
 		// Find TaskTypes
 		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'host'), 'isAdvanced' => '1'), 'AND', 'id');
 		// Iterate -> Print
-		foreach ($TaskTypes AS $TaskType)
+		foreach ((array)$TaskTypes AS $TaskType)
 		{
 			$this->data[] = array(
 				'node' => $this->node,
@@ -515,7 +515,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<div id="host-active-directory" class="organic-tabs-hidden">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-active-directory">';
 		print "\n\t\t\t<h2>"._('Active Directory').'</h2>';
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -585,7 +585,19 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<input type="submit" value="Update" />';
 		print "\n\t\t\t</form>";
 		print "\n\t\t\t</div>";
+		foreach((array)$Host->get('snapins') AS $Snapin)
+			$SnapinIDs[] = $Snapin && $Snapin->isValid() ? $Snapin->get('id') : '';
+		$SnapinStuff = $this->FOGCore->getClass('SnapinManager')->buildSelectBox('','snapin[]" multiple="multiple','',$SnapinIDs);
 		print "\n\t\t\t<!-- Snapins -->";
+		print "\n\t\t\t".'<div id="host-snapins" class="organic-tabs-hidden">';
+		print "\n\t\t\t<h2>"._('Snapins').'</h2>';
+		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-snapins">';
+		if ($SnapinStuff)
+		{
+			print "\n\t\t\t<p>"._('The selection box below will add the selected snapins to your host automatically.').'</p>';
+			print "\n\t\t\t<p><center>$SnapinStuff";
+			print "\n\t\t\t".'<input type="submit" value="'._('Add Snapin(s)').'" /></center></p>';
+		}
 		$this->headerData = array(
 			_('Snapin Name'),
 			_('Remove'),
@@ -598,9 +610,6 @@ class HostManagementPage extends FOGPage
 			'<a href="?node=snapin&sub=edit&id=${snap_id}">${snap_name}</a>',
 			'<input type="checkbox" name="snapinRemove[]" value="${snap_id}" class="delid" onclick="this.form.submit()" id="snap${snap_id}" /><label for="snap${snap_id}">Delete</label>',
 		);
-		print "\n\t\t\t".'<div id="host-snapins" class="organic-tabs-hidden">';
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-snapins">';
-		print "\n\t\t\t<h2>"._('Snapins').'</h2>';
 		foreach ((array)$Host->get('snapins') AS $Snapin)
 		{
 			if ($Snapin && $Snapin->isValid())
@@ -615,13 +624,10 @@ class HostManagementPage extends FOGPage
 		$this->HookManager->processEvent('HOST_EDIT_SNAPIN', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
-		// Reset for next tab
-		unset($this->data, $this->headerData);
-		print "\n\t\t\t<h2>"._('Add new snapin package').'</h2>';
-		print $this->FOGCore->getClass('SnapinManager')->buildSelectBox();
-		print "\n\t\t\t<p>".'<input type="submit" value="'._('Update Snapins').'" /></p>';
 		print "\n\t\t\t</form>";
 		print "\n\t\t\t</div>";
+		// Reset for next tab
+		unset($this->data, $this->headerData);
 		print "\n\t\t\t<!-- Service Configuration -->";
        	$this->attributes = array(
 			array('width' => 270),
@@ -643,7 +649,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<h2>"._('Service Configuration').'</h2>';
 		print "\n\t\t\t<fieldset>";
 		print "\n\t\t\t<legend>"._('General').'</legend>';
-		foreach ($this->FOGCore->getClass('ModuleManager')->find() AS $Module)
+		foreach ((array)$this->FOGCore->getClass('ModuleManager')->find() AS $Module)
 		{
 			$this->data[] = array(
 				'input' => '<input type="checkbox" class="checkboxes" name="${mod_shname}" value="${mod_id}" ${checked} />',
@@ -682,7 +688,7 @@ class HostManagementPage extends FOGPage
 			'${span}',
 		);
 		$Services = $this->FOGCore->getClass('ServiceManager')->find(array('name' => array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')), 'OR', 'id');
-		foreach($Services AS $Service)
+		foreach((array)$Services AS $Service)
 		{
 			$this->data[] = array(
 				'input' => '<input type="text" name="${type}" value="${disp}" />',
@@ -788,7 +794,7 @@ class HostManagementPage extends FOGPage
 		{
 			foreach(array('cpuman','cpuversion') AS $x)
 				$Inventory->set($x,implode(' ',array_unique(explode(' ',$Inventory->get($x)))));
-			foreach($fields AS $field => $input)
+			foreach((array)$fields AS $field => $input)
 			{
 				$this->data[] = array(
 					'field' => $field,
@@ -861,7 +867,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<h2>'._('Virus History').'</h2>';
 		print "\n\t\t\t".'<h2><a href="#"><input type="checkbox" class="delvid" id="all" name="delvid" value="all" onclick="this.form.submit()" /><label for="all">('._('clear all history').')</label></a></h2>';
 		$Viruses = $this->FOGCore->getClass('VirusManager')->find(array('hostMAC' => $Host->get('mac')));
-		foreach($Viruses AS $Virus)
+		foreach((array)$Viruses AS $Virus)
 		{
 			$this->data[] = array(
 				'virus_name' => $Virus->get('name'),
@@ -902,7 +908,7 @@ class HostManagementPage extends FOGPage
 			'${user_desc}',
 		);
 		$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id')));
-		foreach($UserLogins AS $UserLogin)
+		foreach((array)$UserLogins AS $UserLogin)
 			$DatesOld[] = date('Y-m-d',strtotime($UserLogin->get('datetime')));
 		if (is_array($DatesOld))
 			$Dates = array_unique($DatesOld);
@@ -910,7 +916,7 @@ class HostManagementPage extends FOGPage
 		{
 			rsort($Dates);
 			print "\n\t\t\t<p>"._('View History for').'</p>';
-			foreach($Dates AS $Date)
+			foreach((array)$Dates AS $Date)
 			{
 				if ($_GET['dte'] == '')
 					$_GET['dte'] = $Date;
@@ -921,7 +927,7 @@ class HostManagementPage extends FOGPage
 			$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => $_GET['dte']),'AND','datetime');
 			$_SESSION['fog_logins'] = array();
 			$cnt = 0;
-			foreach ($UserLogins AS $UserLogin)
+			foreach ((array)$UserLogins AS $UserLogin)
 			{
 				$this->data[] = array(
 					'action' => ($UserLogin->get('action') == 1 ? _('Login') : ($UserLogin->get('action') == 0 ? _('Logout') : ($UserLogin->get('action') == 99 ? _('Service Start') : _('Service Stop')))),
@@ -1089,7 +1095,7 @@ class HostManagementPage extends FOGPage
 					// with the Module's ID to insert into the db.  If they're disabled
 					// they'll delete from the database.
 					$ServiceModules = $this->FOGCore->getClass('ModuleManager')->find('','','id');
-					foreach($ServiceModules AS $ServiceModule)
+					foreach((array)$ServiceModules AS $ServiceModule)
 						$_POST[$ServiceModule->get('shortName')] ? $ServiceSetting[$ServiceModule->get('id')] = $_POST[$ServiceModule->get('shortName')] : null;
 					// The values below set the display Width, Height, and Refresh.  If they're not set by you, they'll
 					// be set to the default values within the system.
@@ -1099,7 +1105,7 @@ class HostManagementPage extends FOGPage
 					$tme = (is_numeric($_POST['tme']) ? $_POST['tme'] : $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
 					if ($_POST['updatestatus'] == '1')
 					{
-						foreach($ServiceSetting AS $id => $onoff)
+						foreach((array)$ServiceSetting AS $id => $onoff)
 							$ids[] = $id;
 						$Host->set('modules',$ids)->save();
 					}
@@ -1241,7 +1247,7 @@ class HostManagementPage extends FOGPage
 			_('CSV File') => '<input class="smaller" type="file" name="file" />',
 			'&nbsp;' => '<input class="smaller" type="submit" value="'._('Upload CSV').'" />',
 		);
-		foreach ($fields AS $field => $input)
+		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -1335,7 +1341,7 @@ class HostManagementPage extends FOGPage
 			_('Errors') => $uploadErrors,
 		);
 
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -1371,7 +1377,7 @@ class HostManagementPage extends FOGPage
 		);
 		$report = new ReportMaker();
 		$Hosts = $this->FOGCore->getClass('HostManager')->find();
-		foreach($Hosts AS $Host)
+		foreach((array)$Hosts AS $Host)
 		{
 			$report->addCSVCell($Host->get('mac'));
 			$report->addCSVCell($Host->get('name'));
@@ -1382,7 +1388,7 @@ class HostManagementPage extends FOGPage
 		}
 		$_SESSION['foglastreport']=serialize($report);
 		print "\n\t\t\t".'<form method="post" action="export.php?type=host">';
-		foreach ($fields AS $field => $input)
+		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -1415,7 +1421,7 @@ class HostManagementPage extends FOGPage
 			$SAs = $this->FOGCore->getClass('SnapinAssociationManager')->find(array('hostID' => $Host->get('id')));
 			if ($SAs)
 			{
-				foreach($SAs AS $SA)
+				foreach((array)$SAs AS $SA)
 				{
 					$Snapin = new Snapin($SA->get('snapinID'));
 					$optionSnapinSel .= '<option value="'.$Snapin->get('id').'">'.$Snapin->get('name').' - ('.$Snapin->get('id').')</option>';
