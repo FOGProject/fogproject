@@ -82,8 +82,8 @@ fixWin7boot()
 	echo -n " * Backing up and replacing BCD................";
 	mkdir /bcdstore &>/dev/null;
 	ntfs-3g -o force,rw $part /bcdstore &> /tmp/bcdstore-mount-output;
-	mv /bcdstore/boot/BCD /bcdstore/boot/BCD.bak;
-	cp /usr/share/fog/BCD /bcdstore/boot/BCD;
+	mv /bcdstore/Boot/BCD /bcdstore/Boot/BCD.bak;
+	cp /usr/share/fog/BCD /bcdstore/Boot/BCD;
 	umount /bcdstore;
 	echo "Done";
 }
