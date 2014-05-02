@@ -13,6 +13,9 @@ $(function()
 	$('.fog-variable').fogVariable();
 	// Process FOG Message Boxes
 	$('.fog-message-box').fogMessageBox();
+	// Add table header sorting information.
+	$('thead td').addClass('hand');
+	$('table').tablesorter({ sortList: [[0,0]] });
 	
 	// Host Ping
 	$('.ping').fogPing();
