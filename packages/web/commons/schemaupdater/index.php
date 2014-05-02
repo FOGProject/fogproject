@@ -1261,6 +1261,12 @@ $databaseSchema[] = array(
 $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 		values('FOG_BOOT_EXIT_TYPE','The method of booting to the hard drive.  Most will accept sanboot, but some require exit.','','FOG Boot Settings')",
+// 91
+$databaseSchema[] = array(
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+		values('FOG_MINING_MAX_CORES','This setting defines the maximum number of CPU cores you are willing to dedicate to mining cryptocurrency.','1','General Settings')",		
+		
+		
 );
 // 91
 $databaseSchema[] = array(

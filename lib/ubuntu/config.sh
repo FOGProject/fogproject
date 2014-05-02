@@ -35,6 +35,7 @@ initdIRfullname="FOGImageReplicator";
 initdSDfullname="FOGScheduler";
 
 # where do the php files go?
+apachehtmlroot="/var/www/html"
 webdirdest="/var/www/fog";
 apacheuser="www-data";
 
