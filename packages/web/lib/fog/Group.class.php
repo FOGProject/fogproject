@@ -35,7 +35,15 @@ class Group extends FOGController
             }   
         }   
         return $this;
-    }   
+    }
+
+	public function getHostCount()
+	{
+		$i = 0;
+		foreach($this->get('hosts') AS $Host)
+			$Host && $Host->isValid() ? $i++ : null;
+		return $i;
+	}
 
     public function get($key = '') 
     {   
