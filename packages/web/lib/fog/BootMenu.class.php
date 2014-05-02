@@ -307,6 +307,11 @@ class BootMenu
 					'value' => 'mining=1',
 					'active' => $this->FOGCore->getSetting('FOG_MINING_ENABLE'),
 				),
+				array(
+                                        'value' => 'miningcores=' . $this->FOGCore->getSetting('FOG_MINING_MAX_CORES'),
+                                        'active' => $this->FOGCore->getSetting('FOG_MINING_ENABLE'),
+                                ),
+
 				$TaskType->get('kernelArgs'),
 				$this->FOGCore->getSetting('FOG_KERNEL_ARGS'),
 				$this->Host->get('kernelArgs'),
