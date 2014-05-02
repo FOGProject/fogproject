@@ -8,7 +8,7 @@ try
 		throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host->isValid())
+	if (!$Host || !$Host->isValid())
 		throw new Exception('#!er:No Host Found');
 	// get the module id
 	if (empty($_REQUEST['moduleid']))
