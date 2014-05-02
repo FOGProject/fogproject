@@ -1,5 +1,5 @@
 <?php
-class ModuleStatusByHost extends FOGController
+class ModuleAssociation extends FOGController
 {
 	// Table
 	public $databaseTable = 'moduleStatusByHost';
@@ -11,10 +11,4 @@ class ModuleStatusByHost extends FOGController
 		'moduleID' => 'msModuleID',
 		'state' => 'msState',
 	);
-
-	public function getModuleName()
-	{
-		$Module = new Module($this->get('moduleID'));
-		return $Module->get('name');
-	}
 }

@@ -422,7 +422,7 @@ class HostManagementPage extends FOGPage
 				$this->data[] = array(
 					'group_id' => $Group->get('id'),
 					'group_name' => $Group->get('name'),
-					'group_count' => count($Group->get('hosts')),
+					'group_count' => $Group->getHostCount(),
 				);
 			}
 		}
@@ -651,15 +651,21 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<legend>"._('General').'</legend>';
 		foreach ((array)$this->FOGCore->getClass('ModuleManager')->find() AS $Module)
 		{
+			foreach($Host->get('modules') AS $ModHost)
+			{
+				if ($ModHost->get('id') == $Module->get('id'))
+					$ModOns[] = $ModHost->get('id');
+			}
 			$this->data[] = array(
 				'input' => '<input type="checkbox" class="checkboxes" name="${mod_shname}" value="${mod_id}" ${checked} />',
 				'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
-				'checked' => ($Host->getModuleStatus($Module->get('id')) == 1 ? 'checked="checked"' : ''),
+				'checked' => ($ModOns ? 'checked="checked"' : ''),
                 'mod_name' => $Module->get('name'),
                 'mod_shname' => $Module->get('shortName'),
                 'mod_id' => $Module->get('id'),
                 'mod_desc' => str_replace('"','\"',$Module->get('description')),
             );
+			unset($ModOns);
         }
 		$this->data[] = array(
 			'mod_name' => '&nbsp',
@@ -1095,8 +1101,8 @@ class HostManagementPage extends FOGPage
 					// with the Module's ID to insert into the db.  If they're disabled
 					// they'll delete from the database.
 					$ServiceModules = $this->FOGCore->getClass('ModuleManager')->find('','','id');
-					foreach((array)$ServiceModules AS $ServiceModule)
-						$_POST[$ServiceModule->get('shortName')] ? $ServiceSetting[$ServiceModule->get('id')] = $_POST[$ServiceModule->get('shortName')] : null;
+					foreach($ServiceModules AS $ServiceModule)
+						$ServiceSetting[$ServiceModule->get('id')] = $_POST[$ServiceModule->get('shortName')];
 					// The values below set the display Width, Height, and Refresh.  If they're not set by you, they'll
 					// be set to the default values within the system.
 					$x =(is_numeric($_POST['x']) ? $_POST['x'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
@@ -1106,13 +1112,13 @@ class HostManagementPage extends FOGPage
 					if ($_POST['updatestatus'] == '1')
 					{
 						foreach((array)$ServiceSetting AS $id => $onoff)
-							$ids[] = $id;
-						$Host->set('modules',$ids)->save();
+							$onoff ? $Host->addModule($id) : $Host->removeModule($id);
 					}
 					if ($_POST['updatedisplay'] == '1')
 						$Host->setDisp($x,$y,$r);
 					if ($_POST['updatealo'] == '1')
 						$Host->setAlo($tme);
+					$Host->save();
 				break;
 				case 'host-hardware-inventory';
 					$pu = trim($_POST['pu']);

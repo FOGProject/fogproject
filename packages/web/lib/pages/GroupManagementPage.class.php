@@ -80,7 +80,7 @@ class GroupManagementPage extends FOGPage
 				'id'		=> $Group->get('id'),
 				'name'		=> $Group->get('name'),
 				'description'	=> $Group->get('description'),
-				'count'		=> count($Group->get('hosts')),
+				'count'		=> $Group->getHostCount(),
 			);
 		}
 		// Hook
@@ -119,7 +119,7 @@ class GroupManagementPage extends FOGPage
 				'id'		=> $Group->get('id'),
 				'name'		=> $Group->get('name'),
 				'description'	=> $Group->get('description'),
-				'count'		=> count($Group->get('hosts'))
+				'count'		=> $Group->getHostCount(), 
 			);
 		}
 		// Hook
@@ -492,19 +492,26 @@ class GroupManagementPage extends FOGPage
 		print "\n\t\t\t<legend>"._('General')."</legend>";
         foreach ($this->FOGCore->getClass('ModuleManager')->find() AS $Module)
         {
+			$i = 0;
 			foreach($Group->get('hosts') AS $Host)
-				$ModONs[] = $Host->getModuleStatus($Module->get('id'));
-			$MODON = array_filter((array)$ModONs);
+			{
+				foreach($Host->get('modules') AS $ModHost)
+				{
+					if ($ModHost->get('id') == $Module->get('id'))
+						$ModOns[] = $ModHost->get('id');
+				}
+				$i = count($ModOns);
+			}
 			$this->data[] = array(
 				'input' => '<input type="checkbox" class="checkboxes" name="${mod_shname}" value="${mod_id}" ${checked} />',
 				'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
-				'checked' => (count($MODON) == count($Group->get('hosts')) ? 'checked="checked"' : ''),
+				'checked' => ($i == $Group->getHostCount() ? 'checked="checked"' : ''),
 				'mod_name' => $Module->get('name'),
 				'mod_shname' => $Module->get('shortName'),
 				'mod_id' => $Module->get('id'),
 				'mod_desc' => str_replace('"','\"',$Module->get('description')),
 			);
-			unset($ModONs);
+			unset($ModOns);
 		}
 		$this->data[] = array(
 			'mod_name' => '<input type="hidden" name="updatestatus" value="1" />',
@@ -761,28 +768,36 @@ class GroupManagementPage extends FOGPage
 				break;
 				// Update Services
 				case 'group-service';
-					$ServiceModules = $this->FOGCore->getClass('ModuleManager')->find('','','id');
-					foreach($ServiceModules AS $ServiceModule)
-						$_POST[$ServiceModule->get('shortName')] ? $ServiceSetting[$ServiceModule->get('id')] = $_POST[$ServiceModule->get('shortName')] : null;
-					$x =(is_numeric($_POST['x']) ? $_POST['x'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
-					$y =(is_numeric($_POST['y']) ? $_POST['y'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
-					$r =(is_numeric($_POST['r']) ? $_POST['r'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
-					$tme = (is_numeric($_POST['tme']) ? $_POST['tme'] : $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
-					foreach ($Group->get('hosts') AS $Host)
+                    // The values below are the checking of the service enabled/disabled.
+                    // If they're enabled when you click update, they'll send the call
+                    // with the Module's ID to insert into the db.  If they're disabled
+                    // they'll delete from the database.
+                    $ServiceModules = $this->FOGCore->getClass('ModuleManager')->find('','','id');
+                    foreach($ServiceModules AS $ServiceModule)
+						$ServiceSetting[$ServiceModule->get('id')] = $_POST[$ServiceModule->get('shortName')];
+                    // The values below set the display Width, Height, and Refresh.  If they're not set by you, they'll
+                    // be set to the default values within the system.
+                    $x =(is_numeric($_POST['x']) ? $_POST['x'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
+                    $y =(is_numeric($_POST['y']) ? $_POST['y'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
+                    $r =(is_numeric($_POST['r']) ? $_POST['r'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
+                    $tme = (is_numeric($_POST['tme']) ? $_POST['tme'] : $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
+					foreach($Group->get('hosts') AS $Host)
 					{
-						if ($_POST['updatestatus'] == '1')
+						if ($Host && $Host->isValid())
 						{
-							foreach($ServiceSetting AS $id => $onoff)
-								$ids[] = $id;
-							$Host->set('modules',$ids)->save();
+							if($_POST['updatestatus'] == '1')
+							{
+								foreach((array)$ServiceSetting AS $id => $onoff)
+									$onoff ? $Host->addModule($id) : $Host->removeModule($id);
+							}
+							if ($_POST['updatedisplay'] == '1')
+								$Host->setDisp($x,$y,$r);
+							if ($_POST['updatealo'] == '1')
+								$Host->setAlo($tme);
+							$Host->save();
 						}
-						if ($_POST['updatedisplay'] == '1')
-					    	$Host->setDisp($x,$y,$r);
-						if ($_POST['updatealo'] == '1')
-							$Host->setAlo($tme);
-						$Host->save();
 					}
-				break;
+                break;
 			}
             // Save to database
 			if ($Group->save())
