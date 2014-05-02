@@ -214,18 +214,9 @@ EOFPT
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
 				if [ "$win7partcnt" == "1" ]; then
 					writeImageMultiCast $win7sys
-					if [ "$osid" == "5" ]; then
-						part=$win7sys;
-						fixWin7boot;
-					fi
 				elif [ "$win7partcnt" == "2" ]; then
 					writeImageMultiCast $win7rec
-					if [ "$osid" == "5" ]; then
-						part=$win7rec;
-						fixWin7boot;
-					fi
 					writeImageMultiCast $win7sys
-					part=$win7sys;
 				elif [ "$win7partcnt" == "3" ]; then
 					writeImageMultiCast ${hd}1
 					writeImageMultiCast ${hd}2
@@ -299,18 +290,9 @@ EOFNTFS
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
 				if [ "$win7partcnt" == "1" ]; then
 					writeImage $imagePath/sys.img.000 $win7sys
-					if [ "$osid" == "5" ]; then
-						part=$win7sys;
-						fixWin7boot;
-					fi
 				elif [ "$win7partcnt" == "2" ]; then
 					writeImage $imagePath/rec.img.000 $win7rec
-					if [ "$osid" == "5" ]; then
-						part=$win7rec;
-						fixWin7boot;
-					fi
 					writeImage $imagePath/sys.img.000 $win7sys
-					part=$win7sys;
 				elif [ "$win7partcnt" == "3" ]; then
 					writeImage $imagePath/rec1.img.000 ${hd}1 
 					writeImage $imagePath/rec3.img.000 ${hd}2
@@ -410,6 +392,9 @@ IFS='
 		sgdisk -G $hd;
 	fi
 	if [ "$capone" != "1" ]; then
+		if [ "$osid" == "5" -a "$imgType" == "n" ]; then
+			fixWin7boot;
+		fi
 		changeHostname;
 		echo "";
 		echo " * Updating Computer Database Status";
