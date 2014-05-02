@@ -66,11 +66,6 @@ class Host extends FOGController
 	{
 		return $this->getImage()->getOS();
 	}
-	public function getModuleStatus($mod_id)
-	{
-		$Module = current($this->FOGCore->getClass('ModuleStatusByHostManager')->find(array('hostID' => $this->get('id'),'moduleID' => $mod_id)));
-		return $Module && $Module->isValid() ? $Module->get('state') : '';
-	}
 	public function getMACAddress()
 	{
 		return $this->get('mac');
@@ -218,7 +213,7 @@ class Host extends FOGController
 		{
 			if ($this->get('id'))
 			{
-				$Modules = $this->FOGCore->getClass('ModuleStatusByHostManager')->find(array('hostID' => $this->get('id')));
+				$Modules = $this->FOGCore->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')));
 				foreach($Modules AS $Module)
 					$this->add('modules', new Module($Module->get('moduleID')));
 			}
@@ -509,13 +504,13 @@ class Host extends FOGController
 		else if ($this->isLoaded('modules'))
 		{
 			// Remove old rows
-			$this->FOGCore->getClass('ModuleStatusByHostManager')->destroy(array('hostID' => $this->get('id')));
+			$this->FOGCore->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id')));
 			// Create assoc
 			foreach ((array)$this->get('modules') AS $Module)
 			{
 				if (($Module instanceof Module) && $Module->isValid())
 				{
-					$ModuleInsert = new ModuleStatusByHost(array(
+					$ModuleInsert = new ModuleAssociation(array(
 						'hostID' => $this->get('id'),
 						'moduleID' => $Module->get('id'),
 						'state' => 1,
@@ -1114,7 +1109,7 @@ class Host extends FOGController
 		// Remove Group associations
 		$this->FOGCore->getClass('GroupAssociationManager')->destroy(array('hostID' => $this->get('id')));
 		// Remove Module associations
-		//$this->FOGCore->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id')));
+		$this->FOGCore->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id')));
 		// Remove Snapin associations
 		$this->FOGCore->getClass('SnapinAssociationManager')->destroy(array('hostID' => $this->get('id')));
 		// Remove Printer associations
