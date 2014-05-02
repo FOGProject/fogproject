@@ -324,12 +324,6 @@ configureHttpd()
 		
 		cp -Rf $webdirsrc/* $webdirdest/
 		
-		# check if there is a html directory in the /var/www directory
-		# if so, then we need to create a link in there for the fog web files
-		if [ -d "$apachehtmlroot" ]; then
-            ln -s $webdirdest $apachehtmlroot/fog
-		fi
-		
 		
 		echo "<?php
 /*
@@ -442,8 +436,11 @@ define('FOG_DONATE_MINING', \"${donate}\");
 		
 		chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 		
-		if [ -d "/var/www/html" ]; then
-			ln -s "${webdirdest}" "/var/www/html/" &> /dev/null;
+		if [ -d "$apachehtmlroot" ]; then
+		    # check if there is a html directory in the /var/www directory
+    		# if so, then we need to create a link in there for the fog web files
+    		[ ! -h ${apachehtmlroot}/fog ] && ln -s ${webdirdest} ${apachehtmlroot}/fog
+
 			echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/html/index.php";
 		else 
 			echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/index.php";
