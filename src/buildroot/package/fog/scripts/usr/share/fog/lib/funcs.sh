@@ -323,7 +323,7 @@ displayBanner()
 	echo "  |                      #                     ..:;###..                     |";
 	echo "  |                                                                          |";
 	echo "  |                       Free Computer Imaging Solution                     |";
-	echo "  |                               Version 0.33B                              |";
+	echo "  |                               Version 1.0.0                              |";
 	echo "  |                                                                          |";
 	echo "  +--------------------------------------------------------------------------+";
 	echo "  | Created by:                                                              |";
