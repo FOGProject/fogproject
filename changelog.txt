@@ -1,4 +1,4 @@
-Version 0.33
+Version 1.0.0 
 ------------
 *Operating system was moved from the Host object to the Image object.
 *****All images created on previous versions will need to be updated!

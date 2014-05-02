@@ -324,6 +324,13 @@ configureHttpd()
 		
 		cp -Rf $webdirsrc/* $webdirdest/
 		
+		# check if there is a html directory in the /var/www directory
+		# if so, then we need to create a link in there for the fog web files
+		if [ -d "$apachehtmlroot" ]; then
+            ln -s $webdirdest $apachehtmlroot/fog
+		fi
+		
+		
 		echo "<?php
 /*
  *  FOG  is a computer imaging solution.
