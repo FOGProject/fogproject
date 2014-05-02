@@ -1216,7 +1216,7 @@ $databaseSchema[] = array(
 // 82
 $databaseSchema[] = array(
     "INSERT INTO `" . DATABASE_NAME . "`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-	                     values('FOG_LEGACY_FLAG_IN_GUI', '"._("This setting allows you to set whether or not an image is legacy.  Valid values are 0 or 1")."', '1', 'General Settings')"
+	                     values('FOG_LEGACY_FLAG_IN_GUI', '"._("This setting allows you to set whether or not an image is legacy.  Valid values are 0 or 1")."', '0', 'General Settings')"
 );
 // 83
 $databaseSchema[] = array(
