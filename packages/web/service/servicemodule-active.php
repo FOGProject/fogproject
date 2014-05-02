@@ -8,7 +8,7 @@ try
 		throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host || !$Host->isValid())
+	if (!$Host->isValid())
 		throw new Exception('#!er:No Host Found');
 	// get the module id
 	if (empty($_REQUEST['moduleid']))
@@ -33,10 +33,13 @@ try
 	// If it's globally disabled, return that so the client doesn't keep trying it.
 	if ($FOGCore->getSetting($moduleName[$_REQUEST['moduleid']]) == 1)
 	{
-		if ($Host->getModuleStatus($moduleID->get('id')) == 1)
-			print '#!ok';
-		else
-			print '#!nh';
+		foreach($Host->get('modules') AS $Module)
+		{
+			if (($Module && $Module->isValid()) && $Module->get('id') == $_REQUEST['moduleid'] && $Module->get('state') == 1)
+				print '#!ok';
+			else
+				print '#!nh';
+		}
 	}
 	else
 		throw new Exception('#!ng');
