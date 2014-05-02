@@ -10,7 +10,7 @@
 if (!ini_get('date.timezone'))
 	date_default_timezone_set('UTC');
 define('IS_INCLUDED', true);
-define('FOG_VERSION', '0.33B');
+define('FOG_VERSION', '1.0.0');
 define('FOG_SCHEMA', 93);
 define('FOG_SVN_REVISION', '$Revision$');
 define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');
