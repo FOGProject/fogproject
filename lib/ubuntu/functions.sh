@@ -148,7 +148,7 @@ configureTFTPandPXE()
 	if [ -d "${tftpdirdst}.prev" ]; then
 		rm -rf "${tftpdirdst}.prev" 2>/dev/null;
 	fi
-	if [ -d "$tftpdirds" ]; then
+	if [ -d "$tftpdirdst" ]; then
 		rm -rf "${tftpdirdst}.fogbackup" 2>/dev/null;
 		mv "$tftpdirdst" "${tftpdirdst}.prev" 2>/dev/null;
 	fi
