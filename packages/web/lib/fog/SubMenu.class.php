@@ -39,6 +39,7 @@ class SubMenu
 			$this->object = new Image($_GET['id']);
 			$this->title = array($this->foglang['Images'] => $this->object->get('name'),
 								_('Last Uploaded') => stripslashes($this->object->get('deployed')),
+								_('Deploy Method') => ($this->object->get('legacy') ? 'Partimage' : 'Partclone'),
 			);
 		}
 		else if (($this->node == 'printer' || $this->node == 'print') && $_GET['id'])

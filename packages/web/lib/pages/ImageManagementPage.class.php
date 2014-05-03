@@ -317,6 +317,7 @@ class ImageManagementPage extends FOGPage
 		$Image = new Image($this->request['id']);
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', _('Edit'), $Image->get('name'));
+		print "\n\t\t\t".'<div id="tab-container">';
 		// Unset the headerData
 		unset($this->headerData);
 		// Set the table row information
@@ -340,8 +341,6 @@ class ImageManagementPage extends FOGPage
 			$this->FOGCore->getSetting('FOG_LEGACY_FLAG_IN_GUI') ? _('Image Manager') : '' => $this->FOGCore->getSetting('FOG_LEGACY_FLAG_IN_GUI') ? '<select name="imagemanage"><option value="1" ${is_legacy}>'._('PartImage').'</option><option value="0" ${is_modern}>'._('PartClone').'</option></select>' : '',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" /><!--<span class="icon icon-help" title="TODO!"></span>-->',
 		);
-		print "\n\t\t\t<h2>"._('Edit image definition').'</h2>';
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 		foreach ($fields AS $field => $input)
 		{
 			$this->data[] = array(
@@ -361,8 +360,55 @@ class ImageManagementPage extends FOGPage
 		// Hook
 		$this->HookManager->processEvent('IMAGE_EDIT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
+		print "\n\t\t\t<!-- General -->";
+		print "\n\t\t\t".'<div id="image-gen">';
+		print "\n\t\t\t<h2>"._('Edit image definition').'</h2>';
+		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-gen">';
 		$this->render();
 		print '</form>';
+		print "\n\t\t\t\t</div>";
+		// Reset for next tab
+		unset($this->data);
+		$this->headerData = array(
+			_('Host Name'),
+			_('MAC'),
+			_('Remove Image?'),
+		);
+		$this->templates = array(
+			'<a href="?node=host&sub=edit&id=${host_id}" title="'._('Edit Host').':${host_name}">${host_name}</a>',
+			'${host_mac}',
+			'<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}">'._('Delete').'</label>',
+		);
+		foreach((array)$Image->get('hosts') AS $Host)
+			$HostIDs[] = $Host && $Host->isValid() ? $Host->get('id') : '';
+		$HostStuff = $this->FOGCore->getClass('HostManager')->buildSelectBox('','host[]" multiple="multiple','',$HostIDs);
+		foreach((array)$Image->get('hosts') AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				$this->data[] = array(
+					'host_id' => $Host->get('id'),
+					'host_name' => $Host->get('name'),
+					'host_mac' => $Host->get('mac'),
+				);
+			}
+		}
+		// Hook
+		$this->HookManager->processEvent('IMAGE_EDIT_HOST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		// Output
+		print "\n\t\t\t\t<!-- Hosts with Assigned Image -->";
+		print "\n\t\t\t\t".'<div id="image-host">';
+		print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-host">';
+		if ($HostStuff)
+		{
+			print "\n\t\t\t<p>"._('The selection box below will add this image to the selected hosts automatically.').'</p>';
+			print "\n\t\t\t<p><center>$HostStuff";
+			print "\n\t\t\t".'<input type="submit" value="'._('Add Image to Host(s)').'" /></center></p>';
+		}
+		$this->render();
+		print '</form>';
+		print "\n\t\t\t\t</div>";
+		print "\n\t\t\t</div>";
 	}
 	/** edit_post()
 		Actually updates the image object based on what was filled out in the form.
@@ -376,27 +422,38 @@ class ImageManagementPage extends FOGPage
 		// POST
 		try
 		{
-			// Error checking
-			if (empty($_POST['name']))
-				throw new Exception('An image name is required!');
-			if ($Image->get('name') != $_POST['name'] && $this->FOGCore->getClass('ImageManager')->exists($_POST['name'], $Image->get('id')))
-				throw new Exception('An image already exists with this name!');
-			if (empty($_POST['file']))
-				throw new Exception('An image file name is required!');
-			if (empty($_POST['storagegroup']))
-				throw new Exception('A Storage Group is required!');
-			if (empty($_POST['os']))
-				throw new Exception('An Operating System is required!');
-			if (empty($_POST['imagetype']) && $_POST['imagetype'] != '0')
-				throw new Exception('An image type is required!');
-			// Update Object
-			$Image	->set('name',		$_POST['name'])
-				->set('description',	$_POST['description'])
-				->set('storageGroupID',	$_POST['storagegroup'])
-				->set('osID',		$_POST['os'])
-				->set('path',		$_POST['file'])
-				->set('imageTypeID',	$_POST['imagetype'])
-				->set('legacy',$_REQUEST['imagemanage']);
+			switch ($_REQUEST['tab'])
+			{
+				case 'image-gen';
+					// Error checking
+					if (empty($_POST['name']))
+						throw new Exception('An image name is required!');
+					if ($Image->get('name') != $_POST['name'] && $this->FOGCore->getClass('ImageManager')->exists($_POST['name'], $Image->get('id')))
+						throw new Exception('An image already exists with this name!');
+					if (empty($_POST['file']))
+						throw new Exception('An image file name is required!');
+					if (empty($_POST['storagegroup']))
+						throw new Exception('A Storage Group is required!');
+					if (empty($_POST['os']))
+						throw new Exception('An Operating System is required!');
+					if (empty($_POST['imagetype']) && $_POST['imagetype'] != '0')
+						throw new Exception('An image type is required!');
+					// Update Object
+					$Image	->set('name',		$_POST['name'])
+						->set('description',	$_POST['description'])
+						->set('storageGroupID',	$_POST['storagegroup'])
+						->set('osID',		$_POST['os'])
+						->set('path',		$_POST['file'])
+						->set('imageTypeID',	$_POST['imagetype'])
+						->set('legacy',$_REQUEST['imagemanage']);
+				break;
+				case 'image-host';
+					if ($_POST['host'])
+						$Image->addHost($_POST['host']);
+					if ($_POST['hostdel'])
+						$Image->removeHost($_POST['hostdel']);
+				break;
+			}
 			// Save
 			if ($Image->save())
 			{
@@ -407,7 +464,7 @@ class ImageManagementPage extends FOGPage
 				// Set session message
 				$this->FOGCore->setMessage(_('Image updated'));
 				// Redirect to new entry
-				$this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s', $this->request['node'], $this->id, $Image->get('id')));
+				$this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $this->request['node'], $this->id, $Image->get('id'), $_REQUEST['tab']));
 			}
 			else
 				throw new Exception('Database update failed');
