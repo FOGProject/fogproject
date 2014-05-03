@@ -24,6 +24,103 @@ class Image extends FOGController
 		'deployed'	=> 'imageLastDeploy',
 		'legacy'        => 'imageLegacy',
 	);
+
+	// Additional Fields
+	public $additionalFields = array(
+		'hosts',
+	);
+
+	// Overrides
+	private function loadHosts()
+	{
+		if (!$this->isLoaded('hosts'))
+		{
+			if ($this->get('id'))
+			{
+				$Hosts = $this->FOGCore->getClass('HostManager')->find(array('imageID' => $this->get('id')));
+				foreach($Hosts AS $Host)
+					$this->add('hosts', $Host);
+			}
+		}
+		return $this;
+	}
+
+	public function get($key = '')
+	{
+		if ($this->key($key) == 'hosts')
+			$this->loadHosts();
+		return parent::get($key);
+	}
+
+	public function set($key, $value)
+	{
+		if ($this->key($key) == 'hosts')
+		{
+			foreach((array)$value AS $Host)
+				$newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
+			$value = (array)$newValue;
+		}
+		// Set
+		return parent::set($key, $value);
+	}
+
+	public function add($key, $value)
+	{
+		if ($this->key($key) == 'hosts' && !($value instanceof Host))
+		{
+			$this->loadHosts();
+			$value = new Host($value);
+		}
+		// Add
+		return parent::add($key, $value);
+	}
+
+	public function remove($key, $object)
+	{
+		if ($this->key($key) == 'hosts')
+			$this->loadHosts();
+		// Remove
+		return parent::remove($key, $object);
+	}
+
+	public function save()
+	{
+		parent::save();
+		if ($this->isLoaded('hosts'))
+		{
+			// Unset all hosts
+			foreach($this->FOGCore->getClass('HostManager')->find(array('imageID' => $this->get('id'))) AS $Host)
+			{
+				if(($Host instanceof Host) && $Host->isValid())
+					$Host->set('imageID', 0)->save();
+			}
+			// Reset the hosts necessary
+			foreach ((array)$this->get('hosts') AS $Host)
+			{
+				if (($Host instanceof Host) && $Host->isValid())
+					$Host->set('imageID', $this->get('id'))->save();
+			}
+		}
+		return $this;
+	}
+
+	public function addHost($addArray)
+	{
+		// Add
+		foreach((array)$addArray AS $item)
+			$this->add('hosts', $item);
+		// Return
+		return $this;
+	}
+
+	public function removeHost($removeArray)
+	{
+		// Iterate array (or other as array)
+		foreach((array)$removeArray AS $remove)
+			$this->remove('hosts', ($remove instanceof Host ? $remove : new Host((int)$remove)));
+		// Return
+		return $this;
+	}
 	
 	// Custom functions
 	/** getStorageGroup()
