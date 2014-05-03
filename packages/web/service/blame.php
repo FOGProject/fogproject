@@ -2,7 +2,7 @@
 require('../commons/base.inc.php');
 function getAllBlamedNodes($taskid,$hostid)
 {
-	$NodeFailures = $FOGCore->getClass('NodeFailureManager')->find(array('taskID' => $taskid,'hostID' => $hostid));
+	$NodeFailures = $GLOBALS['FOGCore']->getClass('NodeFailureManager')->find(array('taskID' => $taskid,'hostID' => $hostid));
 	$TimeZone = new DateTimeZone((!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone')));
 	$DateInterval = new DateTime('-5 minutes',$TimeZone);
 	foreach($NodeFailures AS $NodeFailure)
@@ -14,6 +14,8 @@ function getAllBlamedNodes($taskid,$hostid)
 			if (!in_array($node,$nodeRet))
 				$nodeRet[] = $node;
 		}
+		else
+			$NodeFailure->destroy();
 	}
 	return $nodeRet;
 }
@@ -44,7 +46,7 @@ try
 	{
 		// Get the nodes in blame.
 		$blamed = getAllBlamedNodes($Task->get('id'),$Host->get('id'));
-		if ($Task->get('NFSMemberID') && !in_array($Task->get('NFSMemberID'),$blamed))
+		if ($Task->get('NFSMemberID') && !in_array($Task->get('NFSMemberID'),(array)$blamed))
 		{
 			//Store the failure
 			$NodeFailure = new NodeFailure(array(
