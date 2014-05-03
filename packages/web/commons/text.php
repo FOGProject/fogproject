@@ -242,7 +242,8 @@ if ($_GET['node'] == 'images')
 	$foglang['SubMenu']['images']['add'] = sprintf($foglang['CreateNew'],$foglang['Image']);
 	if ($_GET['id'])
 	{
-		$foglang['SubMenu']['images']['id'][$linkformat] = $foglang['General'];
+		$foglang['SubMenu']['images']['id'][$linkformat.'#image-gen'] = $foglang['General'];
+		$foglang['SubMenu']['images']['id'][$linkformat.'#image-host'] = $foglang['Host'];
 		$foglang['SubMenu']['images']['id'][$delformat] = $foglang['Delete'];
 	}
 }
