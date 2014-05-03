@@ -1298,7 +1298,7 @@ print "\n\t".'<div id="content" class="dashboard">';
 print "\n\t\t<h1>"._('Database Schema Installer / Updater').'</h1>';
 print "\n\t".'<div id="content-inner">';
 $FOG_SCHEMA = count($databaseSchema);
-if ( $_POST["confirm"] == "yes" )
+if ( $_REQUEST["confirm"] == "yes" )
 {
 	if ($DatabaseManager && $DB)
 	{
