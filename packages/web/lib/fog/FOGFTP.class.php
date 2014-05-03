@@ -92,18 +92,8 @@ class FOGFTP extends FOGGetSet
 	{
 		if(!@ftp_rename($this->link, $localPath, $remotePath))
 		{
-			$filelist = @ftp_nlist($this->link,$localPath);
-			if ($filelist)
-			{
-				foreach($filelist AS $file)
-				{
-					if(!@ftp_rename($this->link, $localPath, $remotePath))
-					{
-						$error = error_get_last();
-						throw new Exception(sprintf('%s: Failed to %s file. Remote Path: %s, Local Path: %s, Error: %s', get_class($this), __FUNCTION__, $remotePath, $localPath, $error['message']));
-					}
-				}
-			}
+			$error = error_get_last();
+			throw new Exception(sprintf('%s: Failed to %s file. Remote Path: %s, Local Path: %s, Error: %s', get_class($this), __FUNCTION__, $remotePath, $localPath, $error['message']));
 		}
 		return $this;
 	}
