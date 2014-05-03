@@ -157,35 +157,24 @@ chain http://${ipaddress}/fog/service/ipxe/boot.php##params
 configureTFTPandPXE()
 {
 	echo -n "  * Setting up and starting TFTP and PXE Servers...";
-	if [ -d "$tftpdirdst" ]
-	then
-		rm -rf "${tftpdirdst}.fogbackup" 2>/dev/null;
-		cp -Rf "$tftpdirdst" "${tftpdirdst}.fogbackup" 2>/dev/null;
-		chown -R ${username} "${webdirdest}/service/ipxe" 2>/dev/null;
-		#if [ -d "$tftpdirdst" ]
-		#then
-		#	echo "Failed!";
-		#	echo "  * Failed to move $tftpdirdst to ${tftpdirdst}.fogbackup";
-		#	echo "  * Make sure ${tftpdirdst}.fogbackup does NOT exists.";		
-		#	echo "  * If ${tftpdirdst}.fogbackup does exist delete or rename ";	
-		#	echo "    it and start over and everything should work.";
-		#	exit 1;
-		#fi
+	if [ -d "${tftpdirdst}.prev" ]; then
+		rm -rf "${tftpdirdst}.prev" 2>/dev/null;
 	fi
-	
+	if [ -d "$tftpdirdst" ]; then
+		rm -rf "${tftpdirdst}.fogbackup" 2>/dev/null;
+		mv "$tftpdirdst" "${tftpdirdst}.prev" 2>/dev/null;
+	fi
 	mkdir "$tftpdirdst" 2>/dev/null;
 	cp -Rf $tftpdirsrc/* ${tftpdirdst}/
-	
 	chown -R ${username} "${tftpdirdst}";
+	chown -R ${username} "${webdirdest}/service/ipxe" 2>/dev/null;
 	find "${tftpdirdst}" -type d -exec chmod 755 {} \;
 	find "${tftpdirdst}" ! -type d -exec chmod 644 {} \;
 	configureDefaultiPXEfile;
-
 	if [ -f "$tftpconfig" ]
 	then
 		mv "$tftpconfig" "${tftpconfig}.fogbackup";
 	fi
-
 	echo "# default: off
 # description: The tftp server serves files using the trivial file transfer \
 #	protocol.  The tftp protocol is often used to boot diskless \
@@ -290,11 +279,13 @@ configureHttpd()
 		echo "Failed! ($ret)";
 		exit 1;	
 	else
-		if [ ! -d "$webdirdest" ]
-		then
-			mkdir "$webdirdest";
-		fi		
-		
+		if [ -d "${webdirdest}.prev" ]; then
+			rm -rf "${webdirdest}.prev";
+		fi
+		if [ -d "$webdirdest" ]; then
+			mv "$webdirdest" "${webdirdest}.prev";
+		fi
+		mkdir "$webdirdest";
 		cp -Rf $webdirsrc/* $webdirdest/
 		
 		echo "<?php
