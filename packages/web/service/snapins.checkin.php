@@ -23,7 +23,7 @@ try
 	if (!$SnapinJob)
 		throw new Exception('#!ns');
 	// Work on the current Snapin Task.
-	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('stateID' => array(0,1),'jobID' => $SnapinJob->get('id'))));
+	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id'))));
 	if ($SnapinTask)
 	{
 		// Get the information (the Snapin itself)
@@ -51,15 +51,15 @@ try
 		}
 		else
 		{
+			$SnapinJob->set('stateID',1)->save();
 			// If it's part of a task deployment update the task information.
 			if ($Task && $Task->isValid())
 			{
-				$SnapinJob->set('stateID',1)->save();
 				$Task->set('stateID',3)
 					 ->set('checkInTime',date('Y-m-d H:i:s'))->save();
 			}
 			//If not from above, update the Task information.
-			$SnapinTask->set('stateID',1)
+			$SnapinTask->set('stateID',0)
 					   ->set('checkin',date('Y-m-d H:i:s'));
 			// As long as things update, send the information.
 			if ($SnapinTask->save())
