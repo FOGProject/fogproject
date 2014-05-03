@@ -21,7 +21,8 @@ class TaskManager extends FOGManagerController
 			hmMAC LIKE "%${keyword}%" OR
 			tsName LIKE "%${keyword}%" OR
 			ttName LIKE "%${keyword}%" OR
-			imageName LIKE "%${keyword}%"
+			imageName LIKE "%${keyword}%" OR
+			taskCreateBy LIKE "%${keyword}%"
 		GROUP BY
 			taskID DESC';
 
