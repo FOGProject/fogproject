@@ -63,7 +63,7 @@ class TaskManagementPage extends FOGPage
 		// Set title
 		$this->title = _('All Tasks');
 		// Find data -> Push data
-		foreach ($this->FOGCore->getClass('TaskManager')->find(array('stateID' => array(1,2,3))) AS $Task)
+		foreach ((array)$this->FOGCore->getClass('TaskManager')->find(array('stateID' => array(1,2,3))) AS $Task)
 		{
 			$Host = current($this->FOGCore->getClass('HostManager')->find(array('id' => $Task->get('hostID'))));
 			$this->data[] = array(
@@ -106,7 +106,7 @@ class TaskManagementPage extends FOGPage
 		// Set search form
 		$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
 		// Find data -> Push data
-		foreach ($this->FOGCore->getClass('TaskManager')->find(array('stateID' => array(1,2,3))) AS $Task)
+		foreach ((array)$this->FOGCore->getClass('TaskManager')->find(array('stateID' => array(1,2,3))) AS $Task)
 		{
 			$Host = current($this->FOGCore->getClass('HostManager')->find(array('id' => $Task->get('hostID'))));
 			$this->data[] = array(
@@ -147,7 +147,7 @@ class TaskManagementPage extends FOGPage
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Find data -> Push data
-		foreach ($this->FOGCore->getClass('TaskManager')->search($keyword) AS $Task)
+		foreach ((array)$this->FOGCore->getClass('TaskManager')->search($keyword) AS $Task)
 		{
 			$Host = current($this->FOGCore->getClass('HostManager')->find(array('id' => $Task->get('hostID'))));
 			$this->data[] = array(
@@ -214,7 +214,7 @@ class TaskManagementPage extends FOGPage
 			array('width' => 55, 'class' => 'c'),
 		);
 		$Hosts = $this->FOGCore->getClass('HostManager')->find();
-		foreach ($Hosts AS $Host)
+		foreach ((array)$Hosts AS $Host)
 		{
 			$imgUp = '<a href="?node=tasks&sub=hostdeploy&type=2&id='.$Host->get('id').'"><span class="icon icon-upload" title="Upload"></span></a>';
 			$imgDown = '<a href="?node=tasks&sub=hostdeploy&type=1&id='.$Host->get('id').'"><span class="icon icon-download" title="Download"></span></a>';
@@ -271,7 +271,7 @@ class TaskManagementPage extends FOGPage
 		// Find TaskTypes
 		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'host'), 'isAdvanced' => '1'), 'AND', 'id');
 		// Iterate -> Print
-		foreach ($TaskTypes AS $TaskType)
+		foreach ((array)$TaskTypes AS $TaskType)
 		{
 			$this->data[] = array(
 				'node' => $_REQUEST['node'],
@@ -308,7 +308,7 @@ class TaskManagementPage extends FOGPage
 		// Find TaskTypes
 		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'group'), 'isAdvanced' => '1'), 'AND', 'id');
 		// Iterate -> Print
-		foreach ($TaskTypes AS $TaskType)
+		foreach ((array)$TaskTypes AS $TaskType)
 		{
 			$this->data[] = array(
 				'node' => $_REQUEST['node'],
@@ -352,7 +352,7 @@ class TaskManagementPage extends FOGPage
 			'${advancedLink}',
 		);
 		$Groups = $this->FOGCore->getClass('GroupManager')->find();
-		foreach ($Groups AS $Group)
+		foreach ((array)$Groups AS $Group)
 		{
 			$deployLink = '<a href="?node=tasks&sub=groupdeploy&type=1&id='.$Group->get('id').'"><span class="icon icon-download" title="Download"></span></a>';
 			$multicastLink = '<a href="?node=tasks&sub=groupdeploy&type=8&id='.$Group->get('id').'"><span class="icon icon-multicast" title="Upload Multicast"></span></a>';
@@ -379,7 +379,7 @@ class TaskManagementPage extends FOGPage
 		$enableShutdown = false;
 		$enableSnapins = ($_REQUEST['type'] == 1 ? true : false);
 		$taskName = ($taskTypeID == 8 ? 'Multicast Group Quick Deploy' : 'Group Quick Deploy');
-		foreach ($Group->get('hosts') AS $Host)
+		foreach ((array)$Group->get('hosts') AS $Host)
 			$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, false, $enableSnapins, true);
 		$this->FOGCore->setMessage('Successfully created Group tasking!');
 		$this->FOGCore->redirect('?node=tasks&sub=active');
@@ -391,7 +391,7 @@ class TaskManagementPage extends FOGPage
 		$this->title = _('Active Tasks');
 		// Tasks
 		$i = 0;
-		foreach ($this->FOGCore->getClass('TaskManager')->find(array('stateID' => array(1,2,3))) AS $Task)
+		foreach ((array)$this->FOGCore->getClass('TaskManager')->find(array('stateID' => array(1,2,3))) AS $Task)
 		{
 			$this->data[] = array(
 				'columnkill' => '${details_taskforce} <a href="?node=tasks&sub=cancel-task&id=${id}"><span class="icon icon-kill" title="' . _('Cancel Task') . '"></span></a>',
@@ -473,7 +473,7 @@ class TaskManagementPage extends FOGPage
 				$SnapinJob = $Host->getActiveSnapinJob();
 				$SnapinTasks = $this->FOGCore->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id')));
 				print $SnapinJob->get('id');
-				foreach ($SnapinTasks AS $SnapinTask)
+				foreach ((array)$SnapinTasks AS $SnapinTask)
 					$SnapinTask->destroy();
 				$SnapinJob->destroy();
 			}
@@ -511,7 +511,7 @@ class TaskManagementPage extends FOGPage
 		{
 			// Remove task from associations and multicast sessions.
 			$MSAs = $this->FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $_REQUEST['id']));
-			foreach($MSAs AS $MSA)
+			foreach((array)$MSAs AS $MSA)
 			{
 				$Task = new Task($MSA->get('taskID'));
 				$MulticastTask = new MulticastSessions($MSA->get('msID'));
@@ -557,7 +557,7 @@ class TaskManagementPage extends FOGPage
 		);
 		
 		// Multicast data
-		foreach ($this->FOGCore->getClass('MulticastSessionsManager')->find(array('stateID' => array(1,2,3))) AS $MS)
+		foreach ((array)$this->FOGCore->getClass('MulticastSessionsManager')->find(array('stateID' => array(1,2,3))) AS $MS)
 		{
 			$TS = new TaskState($MS->get('stateID'));
 			$this->data[] = array(
@@ -601,10 +601,10 @@ class TaskManagementPage extends FOGPage
 			array('width' => 40, 'class' => 'c'),
 		);
 		$SnapinTasks = $this->FOGCore->getClass('SnapinTaskManager')->find(array('stateID' => array(-1,0,1)));
-		foreach ($SnapinTasks AS $SnapinTask)
+		foreach ((array)$SnapinTasks AS $SnapinTask)
 		{
 			$SnapinJobs = $this->FOGCore->getClass('SnapinJobManager')->find(array('id' => $SnapinTask->get('jobID')));
-			foreach ($SnapinJobs AS $SnapinJob)
+			foreach ((array)$SnapinJobs AS $SnapinJob)
 			{
 				$this->data[] = array(
 					'id'		=> $SnapinTask->get('id'),
@@ -679,7 +679,7 @@ class TaskManagementPage extends FOGPage
 			array('width' => 100, 'class' => 'c', 'style' => 'padding-right: 10px'),
 			array('class' => 'c'),
 		);
-		foreach ($this->FOGCore->getClass('ScheduledTaskManager')->find() AS $task)
+		foreach ((array)$this->FOGCore->getClass('ScheduledTaskManager')->find() AS $task)
 		{
 			$taskType = $task->getTaskType();
 			$taskTime = ($task->get('type') == 'C' ? $task->get('minute').' '.$task->get('hour').' '.$task->get('dayOfMonth').' '.$task->get('month').' '.$task->get('dayOfWeek') : $task->get('scheduleTime'));

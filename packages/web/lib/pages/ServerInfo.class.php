@@ -49,7 +49,7 @@ class ServerInfo extends FOGPage
 				$arGeneral = array();
 				$arFS = array();
 				$arNIC = array();
-				foreach( $arRet as $line ) 
+				foreach((array)$arRet AS $line) 
 				{
 					$line = trim( $line );
 					if ( $line == "@@start" ) {}
@@ -133,7 +133,7 @@ class ServerInfo extends FOGPage
 						'<b>'._('Network Information').'</b>' => '&nbsp;',
 					);
 					$i = 0;
-					foreach($NICTrans AS $txtran)
+					foreach((array)$NICTrans AS $txtran)
 					{
 						$ethName = explode(' ',$NICTrans[$i]);
 						$fields['<b>'.$ethName[0].' '._('Information').'</b>'] = '&nbsp;';
@@ -144,7 +144,7 @@ class ServerInfo extends FOGPage
 						$i++;
 					}
 				}
-				foreach($fields AS $field => $input)
+				foreach((array)$fields AS $field => $input)
 				{
 					$this->data[] = array(
 						'field' => $field,

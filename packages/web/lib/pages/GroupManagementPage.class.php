@@ -74,7 +74,7 @@ class GroupManagementPage extends FOGPage
 		// Find data
 		$Groups = $this->FOGCore->getClass('GroupManager')->find();
 		// Row data
-		foreach ($Groups AS $Group)
+		foreach ((array)$Groups AS $Group)
 		{
 			$this->data[] = array(
 				'id'		=> $Group->get('id'),
@@ -113,7 +113,7 @@ class GroupManagementPage extends FOGPage
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Find data -> Push data
-		foreach($this->FOGCore->getClass('GroupManager')->search($keyword) AS $Group)
+		foreach((array)$this->FOGCore->getClass('GroupManager')->search($keyword) AS $Group)
 		{
 			$this->data[] = array(
 				'id'		=> $Group->get('id'),
@@ -159,7 +159,7 @@ class GroupManagementPage extends FOGPage
 			'' => '<input type="submit" value="'._('Add').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-		foreach ($fields AS $field => $formField)
+		foreach ((array)$fields AS $field => $formField)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -237,7 +237,7 @@ class GroupManagementPage extends FOGPage
 		// If location is installed.
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// If all hosts have the same image setup up the selection.
-		foreach ($Group->get('hosts') AS $Host)
+		foreach ((array)$Group->get('hosts') AS $Host)
 			$imageID[] = $Host->getImage()->get('id');
 		$imageIDMult = (is_array($imageID) ? array_unique($imageID) : $imageID);
 		if (count($imageIDMult) == 1)
@@ -246,7 +246,7 @@ class GroupManagementPage extends FOGPage
 		if ($LocPluginInst)
 		{
 			// To set the location similar to the rest of the groups.
-			foreach ($Group->get('hosts') AS $Host)
+			foreach ((array)$Group->get('hosts') AS $Host)
 			{
 				$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
 				$LA ? $locationID[] = $LA->get('locationID') : null;
@@ -284,7 +284,7 @@ class GroupManagementPage extends FOGPage
 		print "\n\t\t\t<!-- General -->";
 		print "\n\t\t\t".'<div id="group-general">';
 		print "\n\t\t\t".'<h2>'._('Modify Group').': '.$Group->get('name').'</h2>';
-		foreach ($fields AS $field => $input)
+		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -316,7 +316,7 @@ class GroupManagementPage extends FOGPage
 		// Find TaskTypes
 		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'group'), 'isAdvanced' => '0'), 'AND', 'id');
 		// Iterate -> Print
-		foreach ($TaskTypes AS $TaskType)
+		foreach ((array)$TaskTypes AS $TaskType)
 		{
 			$this->data[] = array(
 				'node' => $this->node,
@@ -347,7 +347,7 @@ class GroupManagementPage extends FOGPage
 		// Find TaskTypes
 		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'group'), 'isAdvanced' => '1'), 'AND', 'id');
 		// Iterate -> Print
-		foreach ($TaskTypes AS $TaskType)
+		foreach ((array)$TaskTypes AS $TaskType)
 		{
 			$this->data[] = array(
 				'node' => $this->node,
@@ -364,7 +364,7 @@ class GroupManagementPage extends FOGPage
 		// Output
 		$this->render();
 		$GAs = $this->FOGCore->getClass('GroupAssociationManager')->find(array('groupID' => $Group->get('id')));
-		foreach($GAs AS $GA)
+		foreach((array)$GAs AS $GA)
 			$HostIDs[] = $GA->get('hostID');
 		$HostStuff = $this->FOGCore->getClass('HostManager')->buildSelectBox('','host[]" multiple="','name',$HostIDs);
 		// Unset for later use.
@@ -399,7 +399,7 @@ class GroupManagementPage extends FOGPage
 			'${host_mac}',
 			'<input type="checkbox" name="member" value="${host_id}" class="delid" onclick="this.form.submit()" id="memberdel${host_id}" /><label for="memberdel${host_id}">Delete</label>',
 		);
-		foreach ($Group->get('hosts') AS $Host)
+		foreach ((array)$Group->get('hosts') AS $Host)
 		{
 			$this->data[] = array(
 				'host_id' => $Host->get('id'),
@@ -490,12 +490,12 @@ class GroupManagementPage extends FOGPage
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-service">';
 		print "\n\t\t\t<fieldset>";
 		print "\n\t\t\t<legend>"._('General')."</legend>";
-        foreach ($this->FOGCore->getClass('ModuleManager')->find() AS $Module)
+        foreach ((array)$this->FOGCore->getClass('ModuleManager')->find() AS $Module)
         {
 			$i = 0;
-			foreach($Group->get('hosts') AS $Host)
+			foreach((array)$Group->get('hosts') AS $Host)
 			{
-				foreach($Host->get('modules') AS $ModHost)
+				foreach((array)$Host->get('modules') AS $ModHost)
 				{
 					if ($ModHost->get('id') == $Module->get('id'))
 						$ModOns[] = $ModHost->get('id');
@@ -539,7 +539,7 @@ class GroupManagementPage extends FOGPage
 			'${span}',
 		);
 		$Services = $this->FOGCore->getClass('ServiceManager')->find(array('name' => array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR','id');
-		foreach($Services AS $Service)
+		foreach((array)$Services AS $Service)
 		{
 			$this->data[] = array(
 				'input' => '<input type="text" name="${type}" value="${disp}" />',
@@ -615,7 +615,7 @@ class GroupManagementPage extends FOGPage
 			_('Domain Password') => '<input id="adPassword" type="password" name="domainpass" /><span class="lightColor">('._('Must be encrypted').')</span>',
 			'<input type="hidden" name="updatead" value="1" />' => '<input type="submit" value="'._('Update').'" />',
 		);
-		foreach ($fields AS $field => $input)
+		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -681,7 +681,7 @@ class GroupManagementPage extends FOGPage
 								->set('kernelDevice',	$_POST['dev']);
 						// Sets the location for the group.
 						$Location = new Location($_REQUEST['location']);
-						foreach ($Group->get('hosts') AS $Host)
+						foreach ((array)$Group->get('hosts') AS $Host)
 						{
 							// Remove all associations
 							$this->FOGCore->getClass('LocationAssociationManager')->destroy(array('hostID' => $Host->get('id')));
@@ -708,7 +708,7 @@ class GroupManagementPage extends FOGPage
 						throw new Exception('Select an Image');
 					else
 					{
-						foreach ($Group->get('hosts') AS $Host)
+						foreach ((array)$Group->get('hosts') AS $Host)
 						{
 							$Task = current($this->FOGCore->getClass('TaskManager')->find(array('hostID' => $Host->get('id'),'stateID' => array(1,2,3))));
 							if ($Task && $Task->isValid() && !$_REQUEST['image'])
@@ -726,7 +726,7 @@ class GroupManagementPage extends FOGPage
 						throw new Exception('Select a Snapin');
 					else
 					{
-						foreach ($Group->get('hosts') AS $Host)
+						foreach ((array)$Group->get('hosts') AS $Host)
 							$Host->addSnapin($_REQUEST['snapin']);
 					}
 				break;
@@ -737,13 +737,13 @@ class GroupManagementPage extends FOGPage
 						throw new Exception('Select a Snapin');
 					else
 					{
-						foreach ($Group->get('hosts') AS $Host)
+						foreach ((array)$Group->get('hosts') AS $Host)
 							$Host->removeSnapin($_REQUEST['snapin']);
 					}
 				break;
 				// Active Directory
 				case 'group-active-directory';
-					foreach ($Group->get('hosts') AS $Host)
+					foreach ((array)$Group->get('hosts') AS $Host)
 					{
 						$Host->set('useAD', ($this->REQUEST['domain'] == "on" ? '1' : '0'))
 							 ->set('ADDomain', $this->REQUEST['domainname'])
@@ -756,7 +756,7 @@ class GroupManagementPage extends FOGPage
 				// Printer Add/Rem
 				case 'group-printers';
 					// Error Checking
-					foreach ($Group->get('hosts') AS $Host)
+					foreach ((array)$Group->get('hosts') AS $Host)
 					{
 						if (!empty($_POST['level']))
 							$Host->set('printerLevel', $this->REQUEST['level'])->save();
@@ -773,7 +773,7 @@ class GroupManagementPage extends FOGPage
                     // with the Module's ID to insert into the db.  If they're disabled
                     // they'll delete from the database.
                     $ServiceModules = $this->FOGCore->getClass('ModuleManager')->find('','','id');
-                    foreach($ServiceModules AS $ServiceModule)
+                    foreach((array)$ServiceModules AS $ServiceModule)
 						$ServiceSetting[$ServiceModule->get('id')] = $_POST[$ServiceModule->get('shortName')];
                     // The values below set the display Width, Height, and Refresh.  If they're not set by you, they'll
                     // be set to the default values within the system.
@@ -781,7 +781,7 @@ class GroupManagementPage extends FOGPage
                     $y =(is_numeric($_POST['y']) ? $_POST['y'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
                     $r =(is_numeric($_POST['r']) ? $_POST['r'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
                     $tme = (is_numeric($_POST['tme']) ? $_POST['tme'] : $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
-					foreach($Group->get('hosts') AS $Host)
+					foreach((array)$Group->get('hosts') AS $Host)
 					{
 						if ($Host && $Host->isValid())
 						{
@@ -850,7 +850,7 @@ class GroupManagementPage extends FOGPage
 		$fields = array(
 			_('Please confirm you want to delete').' <b>'.$Group->get('name').'</b>' => '<input type="submit" value="${title}" />',
 		);
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -951,7 +951,7 @@ class GroupManagementPage extends FOGPage
 			'${host_mac}${host_ip}',
 			'${image_name}',
 		);
-		foreach ($Group->get('hosts') AS $Host)
+		foreach ((array)$Group->get('hosts') AS $Host)
 		{
 			$this->data[] = array(
 				'link' => $_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
@@ -1014,7 +1014,7 @@ class GroupManagementPage extends FOGPage
 					));
 					if ($ScheduledTask->save())
 					{
-						foreach($Group->get('hosts') AS $Host)
+						foreach((array)$Group->get('hosts') AS $Host)
 							$success[] = sprintf('<li>%s &ndash; %s</li>', $Host->get('name'), $Host->getImage()->get('name'));
 					}
 				}
@@ -1037,13 +1037,13 @@ class GroupManagementPage extends FOGPage
 					));
 					if ($ScheduledTask->save())
 					{
-						foreach($Group->get('hosts') AS $Host)
+						foreach((array)$Group->get('hosts') AS $Host)
 							$success[] = sprintf('<li>%s &ndash; %s</li>', $Host->get('name'), $Host->getImage()->get('name'));
 					}
 				}
 				else
 				{
-					foreach ($Group->get('hosts') AS $Host)
+					foreach ((array)$Group->get('hosts') AS $Host)
 					{
 						if($Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, true, $_SESSION['FOG_USERNAME']))
 							$success[] = sprintf('<li>%s &ndash; %s</li>', $Host->get('name'), $Host->getImage()->get('name'));

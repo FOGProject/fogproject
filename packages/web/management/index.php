@@ -48,6 +48,7 @@ print "\n\t\t".'<meta http-equiv="X-UA-Compatible" content="IE=Edge" />';
 print "\n\t\t".'<meta http-equiv="content-type" content="text/json; charset=utf-8" />';
 print "\n\t\t".'<title>'.($pageTitle ? $pageTitle.' &gt; ' : '').$sectionTitle.' &gt; FOG &gt; '.$foglang['Slogan'].'</title>';
 print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/calendar/calendar-win2k-1.css" />';
+print "\n\t\t".'<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />';
 print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/jquery.organicTabs.css" />';
 print "\n\t\t".'<!--<link rel="stylesheet" type="text/css" href="css/'.$GLOBALS['FOGCore']->getSetting('FOG_THEME').'" />-->';
 print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/fog.css" />';
@@ -105,6 +106,7 @@ print "\n\t".'<script type="text/javascript" src="js/jquery.placeholder.js"></sc
 print "\n\t".'<script type="text/javascript" src="js/jquery.disableSelection.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/fog.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/fog.main.js"></script>';
+print "\n\t".'<script type="text/javascript" src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>';
 // Auto find javascript based on $node and/or $sub
 foreach (array("js/fog.{$node}.js", "js/fog.{$node}.{$sub}.js") AS $jsFilepath)
 {

@@ -49,7 +49,7 @@ class UserManagementPage extends FOGPage
 		// Find data
 		$Users = $this->FOGCore->getClass('UserManager')->find();
 		// Row data
-		foreach ($Users AS $User)
+		foreach ((array)$Users AS $User)
 		{
 			$this->data[] = array(
 				'id'	=> $User->get('id'),
@@ -81,7 +81,7 @@ class UserManagementPage extends FOGPage
 			'name'		=> $keyword
 		);
 		// Find data -> Push data
-		foreach ($this->FOGCore->getClass('UserManager')->find($findWhere, 'OR') AS $User)
+		foreach ((array)$this->FOGCore->getClass('UserManager')->find($findWhere, 'OR') AS $User)
 		{
 			$this->data[] = array(
 				'id'	=> $User->get('id'),
@@ -116,7 +116,7 @@ class UserManagementPage extends FOGPage
 		print "\n\t\t\t<h2>"._('Add new user account').'</h2>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 		print "\n\t\t\t".'<input type="hidden" name="add" value="1" />';
-		foreach ($fields AS $field => $input)
+		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -199,7 +199,7 @@ class UserManagementPage extends FOGPage
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 		print "\n\t\t\t".'<input type="hidden" name="update" value="'.$User->get('id').'" />';
-		foreach ($fields AS $field => $formData)
+		foreach ((array)$fields AS $field => $formData)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -283,7 +283,7 @@ class UserManagementPage extends FOGPage
 		$fields = array(
 			_('Please confirm you want to delete').' <b>'.$User->get('name').'</b>' => '<input type="submit" value="${title}" />',
 		);
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
