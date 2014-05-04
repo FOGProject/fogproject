@@ -78,7 +78,7 @@ class ServiceConfigurationPage extends FOGPage
 			'usertracker' => 'FOG_SERVICE_USERTRACKER_ENABLED',
 		);
 		$Modules = $this->FOGCore->getClass('ModuleManager')->find();
-		foreach ($Modules AS $Module)
+		foreach ((array)$Modules AS $Module)
 		{
 			unset($this->data,$this->headerData,$this->attributes,$this->templates);
 			$this->attributes = array(
@@ -94,7 +94,7 @@ class ServiceConfigurationPage extends FOGPage
 			$fields = array(
 				_($Module->get('name').' Enabled?') => '<input type="checkbox" name="en"${checked} />',
 			);
-			foreach($fields AS $field => $input)
+			foreach((array)$fields AS $field => $input)
 			{
 				$Service = current($this->FOGCore->getClass('ServiceManager')->find(array('name' => $moduleName[$Module->get('shortName')])));
 				$this->data[] = array(
@@ -156,7 +156,7 @@ class ServiceConfigurationPage extends FOGPage
 				print "\n\t\t\t".'<p><input type="hidden" name="name" value="'.$moduleName[$Module->get('shortName')].'" /><input type="submit" value="'._('Add Directory').'" /></p>';
 				print "\n\t\t\t<h2>"._('Directories Cleaned').'</h2>';
 				$dirs = $this->FOGCore->getClass('DirCleanerManager')->find();
-				foreach ($dirs AS $DirCleaner)
+				foreach ((array)$dirs AS $DirCleaner)
 				{
 					$this->data[] = array(
 						'dir_path' => $DirCleaner->get('path'),
@@ -187,7 +187,7 @@ class ServiceConfigurationPage extends FOGPage
 				);
 				print "\n\t\t\t<h2>"._('Default Setting').'</h2>';
 				print "\n\t\t\t".'<form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'">';
-				foreach($fields AS $field => $input)
+				foreach((array)$fields AS $field => $input)
 				{
 					$this->data[] = array(
 						'field' => $field,
@@ -226,7 +226,7 @@ class ServiceConfigurationPage extends FOGPage
 				print "\n\t\t\t<p>"._('Add Event (24 Hour Format):').'<input class="short" type="text" name="h" maxlength="2" value="HH" onFocus="this.value=\'\'" />:<input class="short" type="text" name="m" maxlength="2" value="MM" onFocus="this.value=\'\'" /><select name="style" size="1"><option value="">'._('Select One').'</option><option value="s">'._('Shut Down').'</option><option value="r">'._('Reboot').'</option></select></p>';
 				print "\n\t\t\t".'<p><input type="hidden" name="name" value="'.$moduleName[$Module->get('shortName')].'" /><input type="hidden" name="addevent" value="1" /><input type="submit" value="'._('Add Event').'" /></p>';
 				$greenfogs = $this->FOGCore->getClass('GreenFogManager')->find();
-				foreach($greenfogs AS $GreenFog)
+				foreach((array)$greenfogs AS $GreenFog)
 				{
 					$this->data[] = array(
 						'gf_hour' => $GreenFog->get('hour'),
@@ -257,7 +257,7 @@ class ServiceConfigurationPage extends FOGPage
 				);
 				print "\n\t\t\t<h2>"._('Add Protected User').'</h2>';
 				print "\n\t\t\t".'<form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'">';
-				foreach($fields AS $field => $input)
+				foreach((array)$fields AS $field => $input)
 				{
 					$this->data[] = array(
 						'field' => $field,
@@ -281,7 +281,7 @@ class ServiceConfigurationPage extends FOGPage
 				);
 				print "\n\t\t\t<h2>"._('Current Protected User Accounts').'</h2>';
 				$UCs = $this->FOGCore->getClass('UserCleanupManager')->find();
-				foreach ($UCs AS $UserCleanup)
+				foreach ((array)$UCs AS $UserCleanup)
 				{
 					$this->data[] = array(
 						'user_name' => $UserCleanup->get('name'),

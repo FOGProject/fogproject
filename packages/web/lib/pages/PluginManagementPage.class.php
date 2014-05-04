@@ -67,7 +67,7 @@ class PluginManagementPage extends FOGPage
 		$this->title = _('Activate Plugins');
 		$Plugins = new Plugin(array('name' => null)); 
 		// Find data
-		foreach ($Plugins->getPlugins() AS $Plugin)
+		foreach ((array)$Plugins->getPlugins() AS $Plugin)
 		{
 			if(!$Plugin->isActive())
 			{
@@ -102,7 +102,7 @@ class PluginManagementPage extends FOGPage
 		$this->title = 'Install Plugins';
 		$Plugins = new Plugin(array('name' => null)); 
 		// Find data
-		foreach ($Plugins->getPlugins() AS $Plugin)
+		foreach ((array)$Plugins->getPlugins() AS $Plugin)
 		{
 			$PluginMan = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $Plugin->getName())));
 			if($Plugin->isActive() && !$Plugin->isInstalled())
@@ -131,7 +131,7 @@ class PluginManagementPage extends FOGPage
 		$this->title = _('Installed Plugins');
 		$Plugins = new Plugin(array('name' => null)); 
 		// Find data
-		foreach ($Plugins->getPlugins() AS $Plugin)
+		foreach ((array)$Plugins->getPlugins() AS $Plugin)
 		{
 			$PluginMan = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $Plugin->getName())));
 			if($Plugin->isActive())
@@ -208,7 +208,7 @@ class PluginManagementPage extends FOGPage
 					array(),
 					array(),
 				);
-				foreach($dmiFields AS $dmifield)
+				foreach((array)$dmiFields AS $dmifield)
 				{
 					$checked = $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_DMI') == $dmifield ? 'selected="selected"' : '';
 					$dmiOpts[] = '<option value="'.$dmifield.'" label="'.$dmifield.'" '.$checked.'>'.$dmifield.'</option>';
@@ -224,7 +224,7 @@ class PluginManagementPage extends FOGPage
 					_('Shutdown').':' => "\n\t\t\t\t\t\t\t".'<select name="shutdown" size="1">'."\n\t\t\t\t\t\t\t\t".'<option value="">- '._('Please select an option').' -</option>'."\n\t\t\t\t\t\t\t\t".implode("\n\t\t\t\t\t\t\t\t",$shutOpts)."\n\t\t\t\t\t\t\t</select>\n\t\t\t\t\t\t",
 					'<input type="hidden" name="basics" value="1" />' => '<input style="margin-top: 7px;" type="submit" value="'._('Update Settings').'" />',
 				);
-				foreach ($fields AS $field => $input)
+				foreach ((array)$fields AS $field => $input)
 				{
 					$this->data[] = array(
 						'field' => $field,
@@ -241,7 +241,7 @@ class PluginManagementPage extends FOGPage
 					_('DMI Result').':' => '<input type="text" name="key" />',
 					'<input type="hidden" name="addass" value="1" />' => '<input type="submit" style="margin-top: 7px;" value="'._('Add Association').'" />',
 				);
-				foreach($fields AS $field => $input)
+				foreach((array)$fields AS $field => $input)
 				{
 					$this->data[] = array(
 						'field' => $field,
@@ -272,7 +272,7 @@ class PluginManagementPage extends FOGPage
 					array(),
 					array(),
 				);
-				foreach($Capones AS $Capone)
+				foreach((array)$Capones AS $Capone)
 				{
 					$Image = new Image($Capone->get('imageID'));
 					$OS = $Image->getOS();

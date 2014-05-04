@@ -391,7 +391,7 @@ END OF TERMS AND CONDITIONS</pre>";
 			'&nbsp;' => '<input type="submit" value="'._('Save PXE MENU').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-		foreach ($fields AS $field => $input)
+		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -467,7 +467,7 @@ END OF TERMS AND CONDITIONS</pre>";
 		print _("This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.");
 		print "\n\t\t\t</div>";
 		$ClientUpdates = $this->FOGCore->getClass('ClientUpdaterManager')->find('','name');
-		foreach ($ClientUpdates AS $ClientUpdate)
+		foreach ((array)$ClientUpdates AS $ClientUpdate)
 		{
 			$this->data[] = array(
 				'action' => $this->formAction.'&tab=clientupdater',
@@ -498,7 +498,7 @@ END OF TERMS AND CONDITIONS</pre>";
 		$fields = array(
 			'<input type="file" name="module[]" value="" multiple/> <span class="lightColor">'._('Max Size:').ini_get('post_max_size').'</span>' => '<input type="submit" value="'._('Upload File').'" />',
 		);
-		foreach ($fields AS $field => $input)
+		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -691,17 +691,18 @@ END OF TERMS AND CONDITIONS</pre>";
 			'${span}',
 		);
 		$ServiceCats = $this->FOGCore->getClass('ServiceManager')->getSettingCats();
-		foreach ($ServiceCats AS $ServiceCAT)
+		foreach ((array)$ServiceCats AS $ServiceCAT)
 		{
 			
 			$divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',$ServiceCAT));
 			print "\n\t\t\t\t\t\t".'<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$ServiceCAT.'</h3></a>';
 			print "\n\t\t\t".'<div id="'.$divTab.'">';
 			$ServMan = $this->FOGCore->getClass('ServiceManager')->find(array('category' => $ServiceCAT),'AND','id');
-			foreach ($ServMan AS $Service)
+			foreach ((array)$ServMan AS $Service)
 			{
 				if ($Service->get('name') == 'FOG_PIGZ_COMP')
-					$type = '<input type="range" name="${service_id}" id="pigz" min="0" max="9" value="${service_value}" autocomplete="off" style="width: 200px;" /><input id="showVal" type="text" maxsize="1" value="${service_value}" disabled style="width: 10px" />';
+					$type = '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" name="${service_id}" id="showVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
+					//$type = '<input type="range" name="${service_id}" id="pigz" min="0" max="9" value="${service_value}" autocomplete="off" style="width: 200px;" /><input id="showVal" type="text" maxsize="1" value="${service_value}" disabled style="width: 10px" />';
 				else if (preg_match('#(pass|PASS)#i',$Service->get('name')) && !preg_match('#(VALID|MIN)#i',$Service->get('name')))
 					$type = '<input type="password" name="${service_id}" value="${service_value}" />';
 				else if ($Service->get('name') == 'FOG_VIEW_DEFAULT_SCREEN')
@@ -722,7 +723,7 @@ END OF TERMS AND CONDITIONS</pre>";
 					$type = '<input type="checkbox" name="${service_id}" value="1" '.($Service->get('value') ? 'checked="checked"' : '').' />';
 				else if ($Service->get('name') == 'FOG_DEFAULT_LOCALE')
 				{
-					foreach($GLOBALS['foglang']['Language'] AS $lang => $humanreadable)
+					foreach((array)$GLOBALS['foglang']['Language'] AS $lang => $humanreadable)
 					{
 						if ($lang == 'en')
 							$lang = 'en_US.UTF-8';
@@ -781,9 +782,9 @@ END OF TERMS AND CONDITIONS</pre>";
 	public function settings_post()
 	{
 		$ServiceMan = $this->FOGCore->getClass('ServiceManager')->find();
-		foreach ($ServiceMan AS $Service)
+		foreach ((array)$ServiceMan AS $Service)
 			$key[] = $Service->get('id');
-		foreach ($key AS $key)
+		foreach ((array)$key AS $key)
 		{
 			$Service = new Service($key);
 			if ($Service->get('name') == 'FOG_QUICKREG_IMG_ID' && empty($_REQUEST[$key]))

@@ -72,7 +72,7 @@ class ImageManagementPage extends FOGPage
 		// Find data
 		$Images = $this->FOGCore->getClass('ImageManager')->find();
 		// Row data
-		foreach ($Images AS $Image)
+		foreach ((array)$Images AS $Image)
 		{
 			$kbyte = 1024;
 			$mbyte = $kbyte * $kbyte;
@@ -147,7 +147,7 @@ class ImageManagementPage extends FOGPage
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Find data -> Push data
-		foreach ($this->FOGCore->getClass('ImageManager')->find(array('name' => $keyword)) AS $Image)
+		foreach ((array)$this->FOGCore->getClass('ImageManager')->find(array('name' => $keyword)) AS $Image)
 		{
 			$kbyte = 1024;
 			$mbyte = $kbyte * $kbyte;
@@ -226,7 +226,7 @@ class ImageManagementPage extends FOGPage
 		);
 		print "\n\t\t\t<h2>"._('Add new image definition').'</h2>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-		foreach ($fields AS $field => $input)
+		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -341,7 +341,7 @@ class ImageManagementPage extends FOGPage
 			$this->FOGCore->getSetting('FOG_LEGACY_FLAG_IN_GUI') ? _('Image Manager') : '' => $this->FOGCore->getSetting('FOG_LEGACY_FLAG_IN_GUI') ? '<select name="imagemanage"><option value="1" ${is_legacy}>'._('PartImage').'</option><option value="0" ${is_modern}>'._('PartClone').'</option></select>' : '',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" /><!--<span class="icon icon-help" title="TODO!"></span>-->',
 		);
-		foreach ($fields AS $field => $input)
+		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -508,7 +508,7 @@ class ImageManagementPage extends FOGPage
 			_('Please confirm you want to delete').' <b>'.$Image->get('name').'</b>' => '<input type="submit" value="${title}" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" class="c">';
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,

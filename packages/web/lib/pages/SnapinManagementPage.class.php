@@ -49,7 +49,7 @@ class SnapinManagementPage extends FOGPage
 		// Find data
 		$Snapins = $this->FOGCore->getClass('SnapinManager')->find();
 		// Row data
-		foreach ($Snapins AS $Snapin)
+		foreach ((array)$Snapins AS $Snapin)
 		{
 			$this->data[] = array(
 				'id'		=> $Snapin->get('id'),
@@ -79,7 +79,7 @@ class SnapinManagementPage extends FOGPage
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Find data -> Push data
-		foreach ($this->FOGCore->getClass('SnapinManager')->search($keyword) AS $Snapin)
+		foreach ((array)$this->FOGCore->getClass('SnapinManager')->search($keyword) AS $Snapin)
 		{
 			$this->data[] = array(
 				'id'		=> $Snapin->get('id'),
@@ -113,7 +113,7 @@ class SnapinManagementPage extends FOGPage
 		// See's what files are available and sorts them.
 		$files = array_diff(scandir($this->FOGCore->getSetting('FOG_SNAPINDIR')), array('..', '.'));
 		sort($files);
-		foreach($files AS $file)
+		foreach((array)$files AS $file)
 			$filesFound .= '<option value="'.basename($file).'"'.(basename($_REQUEST['snapinfileexist']) == basename($file) ? 'selected="selected"' : '').'>'.basename($file).'</option>';
 		// Fields to work from:
 		$fields = array(
@@ -128,7 +128,7 @@ class SnapinManagementPage extends FOGPage
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" enctype="multipart/form-data">';
-		foreach ($fields AS $field => $input)
+		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -239,7 +239,7 @@ class SnapinManagementPage extends FOGPage
 		// See's what files are available and sorts them.
 		$files = array_diff(scandir($this->FOGCore->getSetting('FOG_SNAPINDIR')), array('..', '.'));
 		sort($files);
-		foreach($files AS $file)
+		foreach((array)$files AS $file)
 			$filesFound .= '<option value="'.basename($file).'" '.(basename($file) == basename($Snapin->get('file')) ? 'selected="selected"' : '').'>'. basename($file) .'</option>';
 		// Fields to work from:
 		$fields = array(
@@ -257,7 +257,7 @@ class SnapinManagementPage extends FOGPage
 		print "\n\t\t\t\t".'<!-- General -->';
 		print "\n\t\t\t\t".'<div id="snap-gen">';
 		print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&id='.$Snapin->get('id').'&tab=snap-gen" enctype="multipart/form-data">';
-		foreach ($fields AS $field => $input)
+		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -310,7 +310,7 @@ class SnapinManagementPage extends FOGPage
         unset($this->data);
         // Find Host Relationships
         $Hosts = $Snapin->get('hosts');
-        foreach($Hosts AS $Host)
+        foreach((array)$Hosts AS $Host)
         {    
             if ($Host && $Host->isValid())
             {    
@@ -421,7 +421,7 @@ class SnapinManagementPage extends FOGPage
 			_('Please confirm you want to delete').' <b>'.$Snapin->get('name').'</b>' => '<input type="submit" value="${title}" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" class="c">';
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,

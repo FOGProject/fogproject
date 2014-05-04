@@ -49,7 +49,7 @@ class StorageManagementPage extends FOGPage
 		// Find data
 		$StorageNodes = $this->FOGCore->getClass('StorageNodeManager')->find();
 		// Row data
-		foreach ($StorageNodes AS $StorageNode)
+		foreach ((array)$StorageNodes AS $StorageNode)
 		{
 			$this->data[] = array_merge(
 				(array)$StorageNode->get(),
@@ -122,7 +122,7 @@ class StorageManagementPage extends FOGPage
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -253,7 +253,7 @@ class StorageManagementPage extends FOGPage
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -373,7 +373,7 @@ class StorageManagementPage extends FOGPage
         $fields = array(
             _('Please confirm you want to delete').' <b>'.$StorageNode->get('name').'</b>' => '<input type="submit" value="${title}" />',
         );   
-        foreach($fields AS $field => $input)
+        foreach((array)$fields AS $field => $input)
         {    
             $this->data[] = array(
                 'field' => $field,
@@ -429,7 +429,7 @@ class StorageManagementPage extends FOGPage
 		// Find data
 		$StorageGroups = $this->FOGCore->getClass('StorageGroupManager')->find();
 		// Row data
-		foreach ($StorageGroups AS $StorageGroup)
+		foreach ((array)$StorageGroups AS $StorageGroup)
 			$this->data[] = $StorageGroup->get();
 		// Header row
 		$this->headerData = array(
@@ -474,7 +474,7 @@ class StorageManagementPage extends FOGPage
 			'&nbsp;' => '<input type="submit" value="'._('Add').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -559,7 +559,7 @@ class StorageManagementPage extends FOGPage
 			'&nbsp;' => '<input type="submit" value="'._('Update').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -639,7 +639,7 @@ class StorageManagementPage extends FOGPage
         $fields = array(
             _('Please confirm you want to delete').' <b>'.$StorageGroup->get('name').'</b>' => '<input type="submit" value="${title}" />',
         );   
-        foreach($fields AS $field => $input)
+        foreach((array)$fields AS $field => $input)
         {    
             $this->data[] = array(
                 'field' => $field,

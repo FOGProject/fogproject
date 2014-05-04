@@ -364,7 +364,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<div id="host-general">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-general">';
 		print "\n\t\t\t<h2>"._('Edit host definition').'</h2>';
-		foreach($genFields AS $field => $input)
+		foreach((array)$genFields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -651,7 +651,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<legend>"._('General').'</legend>';
 		foreach ((array)$this->FOGCore->getClass('ModuleManager')->find() AS $Module)
 		{
-			foreach($Host->get('modules') AS $ModHost)
+			foreach((array)$Host->get('modules') AS $ModHost)
 			{
 				if ($ModHost->get('id') == $Module->get('id'))
 					$ModOns[] = $ModHost->get('id');
@@ -1101,7 +1101,7 @@ class HostManagementPage extends FOGPage
 					// with the Module's ID to insert into the db.  If they're disabled
 					// they'll delete from the database.
 					$ServiceModules = $this->FOGCore->getClass('ModuleManager')->find('','','id');
-					foreach($ServiceModules AS $ServiceModule)
+					foreach((array)$ServiceModules AS $ServiceModule)
 						$ServiceSetting[$ServiceModule->get('id')] = $_POST[$ServiceModule->get('shortName')];
 					// The values below set the display Width, Height, and Refresh.  If they're not set by you, they'll
 					// be set to the default values within the system.
