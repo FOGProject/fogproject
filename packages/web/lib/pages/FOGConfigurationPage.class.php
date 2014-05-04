@@ -700,62 +700,59 @@ END OF TERMS AND CONDITIONS</pre>";
 			$ServMan = $this->FOGCore->getClass('ServiceManager')->find(array('category' => $ServiceCAT),'AND','id');
 			foreach ($ServMan AS $Service)
 			{
-				if (count(explode(chr(10),$Service->get('value'))) <= 1)
+				if ($Service->get('name') == 'FOG_PIGZ_COMP')
+					$type = '<input type="range" name="${service_id}" id="pigz" min="0" max="9" value="${service_value}" autocomplete="off" style="width: 200px;" /><input id="showVal" type="text" maxsize="1" value="${service_value}" disabled style="width: 10px" />';
+				else if (preg_match('#(pass|PASS)#i',$Service->get('name')) && !preg_match('#(VALID|MIN)#i',$Service->get('name')))
+					$type = '<input type="password" name="${service_id}" value="${service_value}" />';
+				else if ($Service->get('name') == 'FOG_VIEW_DEFAULT_SCREEN')
 				{
-					if ($Service->get('name') == 'FOG_PIGZ_COMP')
-						$type = '<input type="range" name="${service_id}" id="pigz" min="0" max="9" value="${service_value}" autocomplete="off" style="width: 200px;" /><input id="showVal" type="text" maxsize="1" value="${service_value}" disabled style="width: 10px" />';
-					else if (preg_match('#(pass|PASS)#i',$Service->get('name')) && !preg_match('#(VALID|MIN)#i',$Service->get('name')))
-						$type = '<input type="password" name="${service_id}" value="${service_value}" />';
-					else if ($Service->get('name') == 'FOG_VIEW_DEFAULT_SCREEN')
-					{
-						foreach(array('SEARCH','LIST') AS $viewop)
-							$options[] = '<option value="'.strtolower($viewop).'" '.($Service->get('value') == strtolower($viewop) ? 'selected="selected"' : '').'>'.$viewop.'</option>';
-						$type = "\n\t\t\t".'<select name="${service_id}" style="width: 220px" autocomplete="off">'."\n\t\t\t\t".implode("\n",$options)."\n\t\t\t".'</select>';
-						unset($options);
-					}
-					else if ($Service->get('name') == 'FOG_BOOT_EXIT_TYPE')
-					{
-						foreach(array('sanboot','exit') AS $viewop)
-							$options[] = '<option value=".'.$viewop.'" '.($Service->get('value') == $viewop ? 'selected="selected"' : '').'>'.strtoupper($viewop).'</option>';
-						$type = "\n\t\t\t".'<select name="${service_id}" style="width: 220px" autocomplete="off">'."\n\t\t\t\t".implode("\n",$options)."\n\t\t\t".'</select>';
-						unset($options);
-					}
-					else if (in_array($Service->get('name'),$ServiceNames))
-						$type = '<input type="checkbox" name="${service_id}" value="1" '.($Service->get('value') ? 'checked="checked"' : '').' />';
-					else if ($Service->get('name') == 'FOG_DEFAULT_LOCALE')
-					{
-						foreach($GLOBALS['foglang']['Language'] AS $lang => $humanreadable)
-						{
-							if ($lang == 'en')
-								$lang = 'en_US.UTF-8';
-							else if ($lang == 'zh')
-								$lang = 'zh_CN.UTF-8';
-							else if ($lang == 'it')
-								$lang = 'it_IT.UTF-8';
-							else if ($lang == 'fr')
-								$lang = 'fr_FR.UTF-8';
-							else if ($lang == 'es')
-								$lang = 'es_ES.UTF-8';
-							$options2[] = '<option value="'.$lang.'" '.($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') == $lang ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
-						}
-						$type = "\n\t\t\t".'<select name="${service_id}" autocomplete="off" style="width: 220px">'."\n\t\t\t\t".implode("\n",$options2)."\n\t\t\t".'</select>';
-					}
-					else if ($Service->get('name') == 'FOG_QUICKREG_IMG_ID')
-						$type = $this->FOGCore->getClass('ImageManager')->buildSelectBox($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID'),$Service->get('id'));
-					else if ($Service->get('name') == 'FOG_KEY_SEQUENCE')
-						$type = $this->FOGCore->getClass('KeySequenceManager')->buildSelectBox($this->FOGCore->getSetting('FOG_KEY_SEQUENCE'),$Service->get('id'));
-					else if ($Service->get('name') == 'FOG_QUICKREG_OS_ID')
-					{
-						if ($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID') > 0)
-							$Image = new Image($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID'));
-						$type = '<p>'.($Image && $Image->isValid() ? $Image->getOS()->get('name') : _('No image specified')).'</p>';
-					}
-					else
-						$type = '<input type="text" name="${service_id}" value="${service_value}" />';
+					foreach(array('SEARCH','LIST') AS $viewop)
+						$options[] = '<option value="'.strtolower($viewop).'" '.($Service->get('value') == strtolower($viewop) ? 'selected="selected"' : '').'>'.$viewop.'</option>';
+					$type = "\n\t\t\t".'<select name="${service_id}" style="width: 220px" autocomplete="off">'."\n\t\t\t\t".implode("\n",$options)."\n\t\t\t".'</select>';
+					unset($options);
 				}
+				else if ($Service->get('name') == 'FOG_BOOT_EXIT_TYPE')
+				{
+					foreach(array('sanboot','exit') AS $viewop)
+						$options[] = '<option value=".'.$viewop.'" '.($Service->get('value') == $viewop ? 'selected="selected"' : '').'>'.strtoupper($viewop).'</option>';
+					$type = "\n\t\t\t".'<select name="${service_id}" style="width: 220px" autocomplete="off">'."\n\t\t\t\t".implode("\n",$options)."\n\t\t\t".'</select>';
+					unset($options);
+				}
+				else if (in_array($Service->get('name'),$ServiceNames))
+					$type = '<input type="checkbox" name="${service_id}" value="1" '.($Service->get('value') ? 'checked="checked"' : '').' />';
+				else if ($Service->get('name') == 'FOG_DEFAULT_LOCALE')
+				{
+					foreach($GLOBALS['foglang']['Language'] AS $lang => $humanreadable)
+					{
+						if ($lang == 'en')
+							$lang = 'en_US.UTF-8';
+						else if ($lang == 'zh')
+							$lang = 'zh_CN.UTF-8';
+						else if ($lang == 'it')
+							$lang = 'it_IT.UTF-8';
+						else if ($lang == 'fr')
+							$lang = 'fr_FR.UTF-8';
+						else if ($lang == 'es')
+							$lang = 'es_ES.UTF-8';
+						$options2[] = '<option value="'.$lang.'" '.($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') == $lang ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
+					}
+					$type = "\n\t\t\t".'<select name="${service_id}" autocomplete="off" style="width: 220px">'."\n\t\t\t\t".implode("\n",$options2)."\n\t\t\t".'</select>';
+				}
+				else if ($Service->get('name') == 'FOG_QUICKREG_IMG_ID')
+					$type = $this->FOGCore->getClass('ImageManager')->buildSelectBox($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID'),$Service->get('id'));
+				else if ($Service->get('name') == 'FOG_KEY_SEQUENCE')
+					$type = $this->FOGCore->getClass('KeySequenceManager')->buildSelectBox($this->FOGCore->getSetting('FOG_KEY_SEQUENCE'),$Service->get('id'));
+				else if ($Service->get('name') == 'FOG_QUICKREG_OS_ID')
+				{
+					if ($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID') > 0)
+						$Image = new Image($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID'));
+					$type = '<p>'.($Image && $Image->isValid() ? $Image->getOS()->get('name') : _('No image specified')).'</p>';
+				}
+				else
+					$type = '<input type="text" name="${service_id}" value="${service_value}" />';
 				$this->data[] = array(
-					'service_name' => (count(explode(chr(10),$Service->get('value'))) <= 1 ? $Service->get('name') : '<textarea rows="3" cols="25" name="${service_id}">${service_value}</textarea>'),
-					'input_type' => $type,
+					'service_name' => $Service->get('name'),
+					'input_type' => (count(explode(chr(10),$Service->get('value'))) <= 1 ? $type : '<textarea name="${service_id}">${service_value}</textarea>'),
 					'span' => '<span class="icon icon-help hand" title="${service_desc}"></span>',
 					'service_id' => $Service->get('id'),
 					'service_value' => $Service->get('value'),
