@@ -45,7 +45,7 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t".'<ul id="dashboard-boxes">';
 		print "\n\t\t\t<li>";
 		print "\n\t\t\t<h4>"._('System Overview').'</h4>';
-		foreach ($fields AS $field => $fielddata)
+		foreach ((array)$fields AS $field => $fielddata)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -62,7 +62,7 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t<li>";
 		print "\n\t\t\t<h4>"._('Disk Information').'</h4>';
 		print "\n\t\t\t".'<div id="diskusage-selector">';
-		foreach ($this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1,'isGraphEnabled' => 1)) AS $StorageNode)
+		foreach ((array)$this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1,'isGraphEnabled' => 1)) AS $StorageNode)
 			$options[] = "\n\t\t\t".'<option value="'.$StorageNode->get('id').'">'.$StorageNode->get('name').($StorageNode->get('isMaster') == '1' ? ' *' : '').'</option>';
 		$options ? print "\n\t\t\t".'<select name="storagesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">'.implode("\n",$options).'</select>' : null;
 		print "\n\t\t\t</div>";
@@ -92,7 +92,7 @@ class DashboardPage extends FOGPage
 		$DateTimeEnd = new DateTime(date('Y-m-d'), (!ini_get('date.timezone') ? new DateTimeZone('GMT') : new DateTimeZone(ini_get('date.timezone'))));
 		$DateTimeEnd = $DateTimeEnd->modify('+1 day');
 		$DatePeriod = new DatePeriod($DateTimeStart, new DateInterval('P1D'), $DateTimeEnd);
-		foreach($DatePeriod AS $Date)
+		foreach((array)$DatePeriod AS $Date)
 		{
 			$keyword = '%'.$Date->format('Y-m-d').'%';
 			$ImagingLogs = $this->FOGCore->getClass('ImagingLogManager')->count(array('start' => $keyword, 'type' => array('up','down')));

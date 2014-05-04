@@ -52,7 +52,7 @@ class LocationManagementPage extends FOGPage
 		// Find data
 		$Locations = $this->FOGCore->getClass('LocationManager')->find();
 		// Row data
-		foreach ($Locations AS $Location)
+		foreach ((array)$Locations AS $Location)
 		{
 			$StorageGroup = new StorageGroup($Location->get('storageGroupID'));
 			$this->data[] = array(
@@ -92,7 +92,7 @@ class LocationManagementPage extends FOGPage
 			'storageGroupID' => $keyword,
 		);
 		// Find data -> Push data
-		foreach ($this->FOGCore->getClass('LocationManager')->find($where,'OR') AS $Location)
+		foreach ((array)$this->FOGCore->getClass('LocationManager')->find($where,'OR') AS $Location)
 		{
 			$this->data[] = array(
 				'id'		=> $Location->get('id'),
@@ -128,7 +128,7 @@ class LocationManagementPage extends FOGPage
 			'<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
 		);
 		print '<form method="post" action="'.$this->formAction.'">';
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -197,7 +197,7 @@ class LocationManagementPage extends FOGPage
 			'<input type="hidden" name="update" value="1" />' => '<input type="submit" class="smaller" value="'._('Update').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&id='.$Location->get('id').'">';
-		foreach ($fields AS $field => $input)
+		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -264,7 +264,7 @@ class LocationManagementPage extends FOGPage
 		$fields = array(
 			_('Please confirm you want to delete').' <b>'.$Location->get('name').'</b>' => '<input type="submit" value="${title}" />',
 		);
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,

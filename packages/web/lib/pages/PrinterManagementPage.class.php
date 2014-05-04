@@ -68,7 +68,7 @@ class PrinterManagementPage extends FOGPage
 		// Find data
 		$Printers = $this->FOGCore->getClass('PrinterManager')->find();
 		// Row data
-		foreach ($Printers AS $Printer)
+		foreach ((array)$Printers AS $Printer)
 		{
 			$this->data[] = array(
 				'id'		=> $Printer->get('id'),
@@ -110,7 +110,7 @@ class PrinterManagementPage extends FOGPage
 			'ip'		=> $keyword
 		);
 		// Find data -> Push data
-		foreach ($this->FOGCore->getClass('PrinterManager')->find($where, 'OR') AS $Printer)
+		foreach ((array)$this->FOGCore->getClass('PrinterManager')->find($where, 'OR') AS $Printer)
 		{
 			$this->data[] = array(
 				'id'		=> $Printer->get('id'),
@@ -150,7 +150,7 @@ class PrinterManagementPage extends FOGPage
 			'iPrint' => _('iPrint Printer'),
 			'Network' => _('Network Printer'),
 		);
-		foreach ($printerTypes AS $short => $long)
+		foreach ((array)$printerTypes AS $short => $long)
 			$optionPrinter .= "\n\t\t\t\t".'<option value="'.$short.'" '.($_GET['printertype'] == $short ? 'selected="selected"' : '').'>'.$long.'</option>';
 		print "\n\t\t\t".'<select name="printertype" onchange="this.form.submit()">'.$optionPrinter."\n\t\t\t</select>";
 		print "\n\t\t\t</form>";
@@ -179,7 +179,7 @@ class PrinterManagementPage extends FOGPage
 			);
 		}
 		$fields['<input type="hidden" name="printertype" value="'.$_GET['printertype'].'" />'] = '<input type="hidden" name="add" value="1" /><input type="submit" value="'._('Add Printer').'" />';
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -323,7 +323,7 @@ class PrinterManagementPage extends FOGPage
 			'iPrint' => _('iPrint Printer'),
 			'Network' => _('Network Printer'),
 		);
-		foreach ($printerTypes AS $short => $long)
+		foreach ((array)$printerTypes AS $short => $long)
 			$optionPrinter .= "\n\t\t\t\t".'<option value="'.$short.'" '.($_GET['printertype'] == $short ? 'selected="selected"' : '').'>'.$long.'</option>';
 		print "\n\t\t\t".'<select name="printertype" onchange="this.form.submit()">'.$optionPrinter."\n\t\t\t</select>";
 		print "\n\t\t\t</form>";
@@ -352,7 +352,7 @@ class PrinterManagementPage extends FOGPage
 			);
 		}
 		$fields['<input type="hidden" name="printertype" value="'.$_GET['printertype'].'" />'] = '<input type="hidden" name="add" value="1" /><input type="submit" value="'._('Update Printer').'" />';
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -485,7 +485,7 @@ class PrinterManagementPage extends FOGPage
 		$fields = array(
 			_('Please confirm you want to delete').' <b>'.addslashes($Printer->get('name')).'</b>' => '<input type="submit" value="${title}" />',
 		);
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,

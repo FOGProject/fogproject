@@ -86,7 +86,7 @@ class ReportManagementPage extends FOGPage
 		// Get the dates to use!
 		$ImagingLogs = $this->FOGCore->getClass('ImagingLogManager')->find();
 		$TimeZone = new DateTimeZone(!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone'));
-		foreach ($ImagingLogs AS $ImagingLog)
+		foreach ((array)$ImagingLogs AS $ImagingLog)
 		{
 			$DateStart = new DateTime($ImagingLog->get('start'),$TimeZone);
 			$DateEnd = new DateTime($ImagingLog->get('finish'),$TimeZone);
@@ -104,7 +104,7 @@ class ReportManagementPage extends FOGPage
 		{
 			$Dates = array_unique($Dates);
 			rsort($Dates);
-			foreach($Dates AS $Date)
+			foreach((array)$Dates AS $Date)
 			{
 				$dates1 .= '<option value="'.$Date.'">'.$Date.'</option>';
 				$dates2 .= '<option value="'.$Date.'">'.$Date.'</option>';
@@ -116,7 +116,7 @@ class ReportManagementPage extends FOGPage
 				_('Select End Date') => $date2,
 				'&nbsp;' => '<input type="submit" value="'._('Search for Entries').'" />',
 			);
-			foreach($fields AS $field => $input)
+			foreach((array)$fields AS $field => $input)
 			{
 				$this->data[] = array(
 					'field' => $field,
@@ -185,13 +185,13 @@ class ReportManagementPage extends FOGPage
 			_('Duration'),
 			_('Download/Upload'),
 		);
-		foreach($csvHead AS $csvHeader)
+		foreach((array)$csvHead AS $csvHeader)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
 		// Set time zone so DateTime works if none is set.
 		$TimeZone = new DateTimeZone((!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone')));
 		$ImagingLogs = $this->FOGCore->getClass('ImagingLogManager')->find();
-		foreach($ImagingLogs AS $ImagingLog)
+		foreach((array)$ImagingLogs AS $ImagingLog)
 		{
 			$start = new DateTime($ImagingLog->get('start'),$TimeZone);
 			$end = new DateTime($ImagingLog->get('finish'),$TimeZone);
@@ -283,7 +283,7 @@ class ReportManagementPage extends FOGPage
 			_('HD Device') => 'kernelDevice',
 			_('OS Name') => 'name',
 		);
-		foreach($csvHead AS $csvHeader => $classGet)
+		foreach((array)$csvHead AS $csvHeader => $classGet)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
 		// Header Data
@@ -303,7 +303,7 @@ class ReportManagementPage extends FOGPage
 		// Find hosts
 		$Hosts = $this->FOGCore->getClass('HostManager')->find();
 		// Store the data
-		foreach($Hosts AS $Host)
+		foreach((array)$Hosts AS $Host)
 		{
 			$Image = $Host->getImage();
 			$OS = $Image->getOS();
@@ -318,7 +318,7 @@ class ReportManagementPage extends FOGPage
 				'os_name' => $osName,
 			);
 			// The below lines create the csv.
-			foreach ($csvHead AS $head => $classGet)
+			foreach ((array)$csvHead AS $head => $classGet)
 			{
 				if ($head == _('Image ID'))
 					$ReportMaker->addCSVCell($imgID);
@@ -391,7 +391,7 @@ class ReportManagementPage extends FOGPage
 			_('Chassis Serial') => 'caseser',
 			_('Chassis Asset') => 'caseasset',
 		);
-		foreach($csvHead AS $csvHeader => $classGet)
+		foreach((array)$csvHead AS $csvHeader => $classGet)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
 		$this->headerData = array(
@@ -421,7 +421,7 @@ class ReportManagementPage extends FOGPage
 		// All hosts
 		$Hosts = $this->FOGCore->getClass('HostManager')->find();
 		// Loop through each of the hosts.
-		foreach($Hosts AS $Host)
+		foreach((array)$Hosts AS $Host)
 		{
 			// Find the image information
 			if ($Host->get('imageID'))
@@ -442,7 +442,7 @@ class ReportManagementPage extends FOGPage
 					'sysprod' => $Inventory->get('sysproduct'),
 					'sysser' => $Inventory->get('sysserial'),
 				);
-				foreach($csvHead AS $head => $classGet)
+				foreach((array)$csvHead AS $head => $classGet)
 				{
 					if ($head == _('Host ID'))
 						$ReportMaker->addCSVCell($Host->get('id'));
@@ -492,7 +492,7 @@ class ReportManagementPage extends FOGPage
 			_('Host Desc'),
 			_('Host Pending MAC'),
 		);
-		foreach($csvHead AS $csvHeader => $classGet)
+		foreach((array)$csvHead AS $csvHeader => $classGet)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
 		$this->headerData = array(
@@ -511,9 +511,9 @@ class ReportManagementPage extends FOGPage
 			array(),
 		);
 		$Hosts = $this->FOGCore->getClass('HostManager')->getAllHostsWithPendingMacs();
-		foreach($Hosts AS $Host)
+		foreach((array)$Hosts AS $Host)
 			$MACs = $this->FOGCore->getClass('HostManager')->getPendingMacAddressesForHost($Host);
-		foreach($MACs AS $MAC)
+		foreach((array)$MACs AS $MAC)
 		{
 			$this->data[] = array(
 				'host_name' => $Host->get('name'),
@@ -578,12 +578,12 @@ class ReportManagementPage extends FOGPage
 			array(),
 			array(),
 		);
-		foreach($csvHead AS $csvHeader => $classGet)
+		foreach((array)$csvHead AS $csvHeader => $classGet)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
 		// Find all viruses
 		$Viruses = $this->FOGCore->getClass('VirusManager')->find();
-		foreach($Viruses AS $Virus)
+		foreach((array)$Viruses AS $Virus)
 		{
 			$Host = current($this->FOGCore->getClass('HostManager')->search($Virus->get('hostMAC')));
 			$this->data[] = array(
@@ -594,7 +594,7 @@ class ReportManagementPage extends FOGPage
 				'vir_mode' => $Virus->get('mode') == 'q' ? _('Quarantine') : _('Report'),
 				'vir_date' => $Virus->get('date'),
 			);
-			foreach($csvHead AS $head => $classGet)
+			foreach((array)$csvHead AS $head => $classGet)
 			{
 				if ($head == _('Host name'))
 					$ReportMaker->addCSVCell($Host ? $Host->get('name') : '');
@@ -619,7 +619,7 @@ class ReportManagementPage extends FOGPage
 	{
 		if ($_REQUEST['delvall'] == 'all')
 		{
-			foreach($this->FOGCore->getClass('VirusManager')->find() AS $Virus)
+			foreach((array)$this->FOGCore->getClass('VirusManager')->find() AS $Virus)
 				$Virus->destroy();
 			$this->FOGCore->setMessage(_("All Virus' cleared"));
 			$this->FOGCore->redirect($this->formAction);
@@ -659,14 +659,14 @@ class ReportManagementPage extends FOGPage
 		);
 		$Users = $this->FOGCore->getClass('UserTrackingManager')->find();
 		$Hosts = $this->FOGCore->getClass('HostManager')->find();
-		foreach($Hosts AS $Host)
+		foreach((array)$Hosts AS $Host)
 			$HostNames[] = $Host->get('name');
-		foreach($Users AS $User)
+		foreach((array)$Users AS $User)
 			$UserNames[] = $User->get('username');
 		if($UserNames)
 		{
 			$UserNames = array_unique($UserNames);
-			foreach($UserNames AS $Username)
+			foreach((array)$UserNames AS $Username)
 			{
 				if($Username)
 					$userSel .= "\n\t\t\t\t".'<option value="'.$Username.'">'.$Username.'</option>';
@@ -675,11 +675,11 @@ class ReportManagementPage extends FOGPage
 		}
 		if ($HostNames)
 		{
-			foreach($HostNames AS $Hostname)
+			foreach((array)$HostNames AS $Hostname)
 				$hostSel .= "\n\t\t\t\t".'<option value="'.$Hostname.'">'.$Hostname.'</option>';
 			$hostSelForm = "\n\t\t\t".'<select name="hostsearch">'."\n\t\t\t\t".'<option value="">- '._('Please select an option').' -</option>'.$hostSel.'</option>';
 		}
-		foreach($fields AS $field => $input)
+		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -720,10 +720,10 @@ class ReportManagementPage extends FOGPage
 		if (trim($_REQUEST['hostsearch']) && !trim($_REQUEST['usersearch']))
 		{
 			$HostSearch = $this->FOGCore->getClass('HostManager')->find(array('name' => $hostsearch));
-			foreach($HostSearch AS $Host)
+			foreach((array)$HostSearch AS $Host)
 				$Hostnames[] = $Host->get('name');
 			$Hostnames = array_unique($Hostnames);
-			foreach($Hostnames AS $Hostname)
+			foreach((array)$Hostnames AS $Hostname)
 			{
 				$Host = current($this->FOGCore->getClass('HostManager')->find(array('name' => $Hostname)));
 				if ($Host && $Host->isValid())
@@ -740,14 +740,14 @@ class ReportManagementPage extends FOGPage
 		else if (!trim($_REQUEST['hostsearch']) && trim($_REQUEST['usersearch']))
 		{
 			$UserSearch = $this->FOGCore->getClass('UserTrackingManager')->find(array('username' => $usersearch));
-			foreach($UserSearch AS $User)
+			foreach((array)$UserSearch AS $User)
 			{
 				$Usernames[] = $User->get('username');
 				$HostIDs[] = $User->get('hostID');
 			}
 			$Usernames = array_unique($Usernames);
 			$HostIDs = array_unique($HostIDs);
-			foreach($Usernames AS $Username)
+			foreach((array)$Usernames AS $Username)
 			{
 				$Hosts = $this->FOGCore->getClass('HostManager')->find(array('id' => $HostIDs));
 				if($Hosts)
@@ -764,7 +764,7 @@ class ReportManagementPage extends FOGPage
 		else if (trim($_REQUEST['hostsearch']) && trim($_REQUEST['usersearch']))
 		{
 			$UserSearch = $this->FOGCore->getClass('UserTrackingManager')->find(array('username' => $usersearch,'action' => 1));
-			foreach($UserSearch AS $User)
+			foreach((array)$UserSearch AS $User)
 			{
 				$Usernames[] = $User->get('username');
 				$HostIDs[] = $User->get('hostID');
@@ -772,7 +772,7 @@ class ReportManagementPage extends FOGPage
 			$Usernames = array_unique($Usernames);
 			$HostIDs = array_unique($HostIDs);
 			$Hosts = $this->FOGCore->getClass('HostManager')->find(array('id' => $HostIDs,'name' => $hostsearch));
-			foreach($Hosts AS $Host)
+			foreach((array)$Hosts AS $Host)
 			{
 				$User = current($this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'username' => $Usernames)));
 				$this->data[] = array(
@@ -807,13 +807,13 @@ class ReportManagementPage extends FOGPage
 			$UserSearchDates = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $_REQUEST['hostID']));
 		if (base64_decode($_REQUEST['userID']) && $_REQUEST['hostID'])
 			$UserSearchDates = $this->FOGCore->getClass('UserTrackingManager')->find(array('username' => base64_decode($_REQUEST['userID']),'hostID' => $_REQUEST['hostID']));
-		foreach($UserSearchDates AS $User)
+		foreach((array)$UserSearchDates AS $User)
 			$Dates[] = date('Y-m-d',strtotime($User->get('datetime')));
 		if ($Dates)
 		{
 			$Dates = array_unique($Dates);
 			rsort($Dates);
-			foreach($Dates AS $Date)
+			foreach((array)$Dates AS $Date)
 			{
 				$dates1 .= '<option value="'.$Date.'">'.$Date.'</option>';
 				$dates2 .= '<option value="'.$Date.'">'.$Date.'</option>';
@@ -825,7 +825,7 @@ class ReportManagementPage extends FOGPage
 				_('Select End Date') => $date2,
 				'&nbsp;' => '<input type="submit" value="'._('Search for Entries').'" />',
 			);
-			foreach($fields AS $field => $input)
+			foreach((array)$fields AS $field => $input)
 			{
 				$this->data[] = array(
 					'field' => $field,
@@ -894,7 +894,7 @@ class ReportManagementPage extends FOGPage
 		}
 		// Get all the User Trackers Based on info found.
 		$UserTrackers = $this->FOGCore->getClass('UserTrackingManager')->find(array('username' => base64_decode($_REQUEST['userID']),'hostID' => $_REQUEST['hostID'] ? $_REQUEST['hostID'] : '%'));
-		foreach($UserTrackers AS $User)
+		foreach((array)$UserTrackers AS $User)
 		{
 			$date = new DateTime($User->get('datetime'),$Timezone);
 			if ($date->format('Y-m-d') >= $date1 && $date->format('Y-m-d') <= $date2)
@@ -939,7 +939,7 @@ class ReportManagementPage extends FOGPage
 		);
 		// Get the dates to use!
 		$SnapinLogs = $this->FOGCore->getClass('SnapinTaskManager')->find();
-		foreach ($SnapinLogs AS $SnapinLog)
+		foreach ((array)$SnapinLogs AS $SnapinLog)
 		{
 			$datesold[] = date('Y-m-d',strtotime($SnapinLog->get('checkin')));
 			$datesnew[] = date('Y-m-d',strtotime($SnapinLog->get('complete')));
@@ -949,7 +949,7 @@ class ReportManagementPage extends FOGPage
 		{
 			$Dates = array_unique($Dates);
 			rsort($Dates);
-			foreach($Dates AS $Date)
+			foreach((array)$Dates AS $Date)
 			{
 				$dates1 .= '<option value="'.$Date.'">'.$Date.'</option>';
 				$dates2 .= '<option value="'.$Date.'">'.$Date.'</option>';
@@ -963,7 +963,7 @@ class ReportManagementPage extends FOGPage
 					_('Select End Date') => $date2,
 					'&nbsp;' => '<input type="submit" value="'._('Search for Entries').'" />',
 				);
-				foreach($fields AS $field => $input)
+				foreach((array)$fields AS $field => $input)
 				{
 					$this->data[] = array(
 						'field' => $field,
@@ -1039,14 +1039,14 @@ class ReportManagementPage extends FOGPage
 			_('Task Checkin Date'),
 			_('Task Checkin Time'),
 		);
-		foreach($csvHead AS $csvHeader)
+		foreach((array)$csvHead AS $csvHeader)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
 		// Set time zone so DateTime works if none is set.
 		$TimeZone = new DateTimeZone((!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone')));
 		// Find all snapin tasks
 		$SnapinTasks = $this->FOGCore->getClass('SnapinTaskManager')->find();
-		foreach($SnapinTasks AS $SnapinTask)
+		foreach((array)$SnapinTasks AS $SnapinTask)
 		{
 			$SnapinCheckin1 = new DateTime($SnapinTask->get('checkin'),$TimeZone);
 			$SnapinCheckin2 = new DateTime($SnapinTask->get('complete'),$TimeZone);
@@ -1139,7 +1139,7 @@ class ReportManagementPage extends FOGPage
 		// Get data (other users) from inventory.
 		$InventoryUsers = $this->FOGCore->getClass('InventoryManager')->find();
 		// Create the select field.
-		foreach($InventoryUsers AS $Inventory)
+		foreach((array)$InventoryUsers AS $Inventory)
 		{
 			if ($Inventory->get('primaryUser'))
 				$useropt .= "\n\t\t\t\t\t\t".'<option value="'.$Inventory->get('id').'">'.$Inventory->get('primaryUser').'</option>';
@@ -1147,7 +1147,7 @@ class ReportManagementPage extends FOGPage
 		if ($useropt)
 		{
 			$selForm = "\n\t\t\t\t\t".'<select name="user" size= "1">'.$useropt."\n\t\t\t\t\t</select>\n\t\t\t\t\t";
-			foreach($fields AS $field => $input)
+			foreach((array)$fields AS $field => $input)
 			{
 				$this->data[] = array(
 					'field' => $field,

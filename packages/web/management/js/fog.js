@@ -42,11 +42,18 @@ var Content;
 var Loader;
 
 // Main FOG JQuery Functions
-(function($)
+$(function()
 {
-	$('#pigz').change(function() {
-		$('#showVal').val($(this).val());
+	$("#pigz").slider({
+		min: 0,
+		max: 9,
+		range: 'min',
+		value: $("#showVal").val(),
+		slide: function(event, ui) {
+			$("#showVal").val(ui.value);
+		}
 	});
+	$("#showVal").val($("#pigz").slider("value"));
 	// Assign DOM elements
 	Content = $('#content');
 	Loader = $('#loader');
