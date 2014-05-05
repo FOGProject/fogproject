@@ -7,10 +7,6 @@
 */
 class FOGFTP extends FOGGetSet
 {
-	// Debug & Info
-	public $debug = false;
-	public $info = false;
-	
 	// Data
 	public $data = array(
 		'host'		=> '',

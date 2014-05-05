@@ -15,9 +15,6 @@ abstract class FOGManagerController extends FOGBase
 		Alternate is find().
 	*/
 	public $searchQuery = '';
-	// DEBUG mode - print all debug messages
-	/** Prints the messages if true. */
-	public $debug = true;
 	// Child class name variables
 	/** For the child class */
 	protected $childClass;

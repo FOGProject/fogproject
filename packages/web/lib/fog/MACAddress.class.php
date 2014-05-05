@@ -5,9 +5,6 @@ class MACAddress extends FOGBase
 {
 	private $MAC;
 	
-	public $debug = false;
-	public $info = false;
-
 	public function __construct($MAC)
 	{
 		$this->setMAC($MAC);

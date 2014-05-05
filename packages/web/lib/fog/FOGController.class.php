@@ -35,11 +35,6 @@ abstract class FOGController extends FOGBase
 	// Auto save class data on __destruct
 	/** If true will save db on exit auto matically */
 	public $autoSave = false;
-	// Debug & Info
-	/** Debug is off or on.  Right now it's on */
-	public $debug = true;
-	/** Info is off or on, default is on */
-	public $info = true;
 	// Database field to Class relationship
 	/** For classes that are assigned to a particular field */
 	public $databaseFieldClassRelationships = array();
