@@ -31,8 +31,8 @@ if ($_REQUEST['id'])
 }
 else
 {
-	$StorageNode = new StorageNode(($_REQUEST['idnew'] ? $_REQUEST['idnew'] : array('id' => 0)));
-	if (!$StorageNode->isValid())
+	$StorageNode = ($_REQUEST['idnew'] ? new StorageNode($_REQUEST['idnew']) : null);
+	if (!$StorageNode || !$StorageNode->isValid())
 		$t = shell_exec("df ".SPACE_DEFAULT_STORAGE."| grep -vE \"^Filesystem|shm\"");
 	else
 		$t = shell_exec("df ".$StorageNode->get('path')."| grep -vE \"^Filesystem|shm\"");

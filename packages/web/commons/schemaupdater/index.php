@@ -678,9 +678,9 @@ $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME . "`.nfsGroups (ngName, ngDesc) values ('default', '"._("Auto generated fog nfs group")."' );",
 	 "INSERT INTO 
 				`" . DATABASE_NAME . "`.nfsGroupMembers
-				(ngmMemberName, ngmMemberDescription, ngmIsMasterNode, ngmGroupID, ngmRootPath, ngmIsEnabled, ngmHostname, ngmMaxClients, ngmUser, ngmPass ) 
+				(ngmMemberName, ngmMemberDescription, ngmIsMasterNode, ngmGroupID, ngmRootPath, ngmIsEnabled, ngmHostname, ngmMaxClients, ngmUser, ngmPass, ngmGraphEnabled)) 
 				VALUES
-				('DefaultMember', '"._("Auto generated fog nfs group member")."', '1', '1', '/images/', '1', '" . STORAGE_HOST . "', '10', '" . STORAGE_FTP_USERNAME . "', '" . STORAGE_FTP_PASSWORD . "' )",
+				('DefaultMember', '"._("Auto generated fog nfs group member")."', '1', '1', '/images/', '1', '" . STORAGE_HOST . "', '10', '" . STORAGE_FTP_USERNAME . "', '" . STORAGE_FTP_PASSWORD . "','1')",
 	"UPDATE `" . DATABASE_NAME . "`.images set imageNFSGroupID = '1'",
 	"DELETE FROM `" . DATABASE_NAME . "`.`globalSettings` WHERE settingKey = 'FOG_NFS_HOST'",
 	"DELETE FROM `" . DATABASE_NAME . "`.`globalSettings` WHERE settingKey = 'FOG_NFS_FTP_USERNAME'",
