@@ -178,11 +178,11 @@ determineOS()
 		elif [ "$1" = "5" ]; then
 			osname="Windows 7";
 			mbrfile="/usr/share/fog/mbr/win7.mbr";	
-			part2start="105906"
+			defaultpart2start="105906176B";
 		elif [ "$1" = "6" ]; then
 			osname="Windows 8";
 			mbrfile="/usr/share/fog/mbr/win8.mbr";				
-			part2start="368050"
+			defaultpart2start="368050176B"
 		elif [ "$1" = "50" ]; then
 			osname="Linux";
 			mbrfile="";								
