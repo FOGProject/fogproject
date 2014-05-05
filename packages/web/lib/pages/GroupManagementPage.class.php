@@ -241,7 +241,7 @@ class GroupManagementPage extends FOGPage
 			$imageID[] = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
 		$imageIDMult = (is_array($imageID) ? array_unique($imageID) : $imageID);
 		if (count($imageIDMult) == 1)
-			$imageMatchID = $Host->getImage()->get('id');
+			$imageMatchID = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
 		// For the location plugin.  If all have the same location, setup the selection to let people know.
 		if ($LocPluginInst)
 		{
@@ -401,12 +401,15 @@ class GroupManagementPage extends FOGPage
 		);
 		foreach ((array)$Group->get('hosts') AS $Host)
 		{
-			$this->data[] = array(
-				'host_id' => $Host->get('id'),
-				'host_name' => $Host->get('name'),
-				'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-				'host_mac' => $Host->get('mac'),
-			);
+			if ($Host && $Host->isValid())
+			{
+				$this->data[] = array(
+					'host_id' => $Host->get('id'),
+					'host_name' => $Host->get('name'),
+					'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+					'host_mac' => $Host->get('mac'),
+				);
+			}
 		}
 		// Hook
 		$this->HookManager->processEvent('GROUP_MEMBERSHIP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -495,12 +498,15 @@ class GroupManagementPage extends FOGPage
 			$i = 0;
 			foreach((array)$Group->get('hosts') AS $Host)
 			{
-				foreach((array)$Host->get('modules') AS $ModHost)
+				if ($Host && $Host->isValid())
 				{
-					if ($ModHost->get('id') == $Module->get('id'))
-						$ModOns[] = $ModHost->get('id');
+					foreach((array)$Host->get('modules') AS $ModHost)
+					{
+						if ($ModHost->get('id') == $Module->get('id'))
+							$ModOns[] = $ModHost->get('id');
+					}
+					$i = count($ModOns);
 				}
-				$i = count($ModOns);
 			}
 			$this->data[] = array(
 				'input' => '<input type="checkbox" class="checkboxes" name="${mod_shname}" value="${mod_id}" ${checked} />',
@@ -683,14 +689,17 @@ class GroupManagementPage extends FOGPage
 						$Location = new Location($_REQUEST['location']);
 						foreach ((array)$Group->get('hosts') AS $Host)
 						{
-							// Remove all associations
-							$this->FOGCore->getClass('LocationAssociationManager')->destroy(array('hostID' => $Host->get('id')));
-							// Create new association
-							$LA = new LocationAssociation(array(
-								'locationID' => $Location->get('id'),
-								'hostID' => $Host->get('id'),
-							));
-							$LA->save();
+							if ($Host && $Host->isValid())
+							{
+								// Remove all associations
+								$this->FOGCore->getClass('LocationAssociationManager')->destroy(array('hostID' => $Host->get('id')));
+								// Create new association
+								$LA = new LocationAssociation(array(
+									'locationID' => $Location->get('id'),
+									'hostID' => $Host->get('id'),
+								));
+								$LA->save();
+							}
 						}
 					}
 				break;
@@ -710,12 +719,15 @@ class GroupManagementPage extends FOGPage
 					{
 						foreach ((array)$Group->get('hosts') AS $Host)
 						{
-							$Task = current($this->FOGCore->getClass('TaskManager')->find(array('hostID' => $Host->get('id'),'stateID' => array(1,2,3))));
-							if ($Task && $Task->isValid() && !$_REQUEST['image'])
-								throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
-							else
-								$Host->set('imageID', $this->REQUEST['image']);
-							$Host->save();
+							if ($Host && $Host->isValid())
+							{
+								$Task = current($this->FOGCore->getClass('TaskManager')->find(array('hostID' => $Host->get('id'),'stateID' => array(1,2,3))));
+								if ($Task && $Task->isValid() && !$_REQUEST['image'])
+									throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
+								else
+									$Host->set('imageID', $this->REQUEST['image']);
+								$Host->save();
+							}
 						}
 					}
 				break;
@@ -727,7 +739,10 @@ class GroupManagementPage extends FOGPage
 					else
 					{
 						foreach ((array)$Group->get('hosts') AS $Host)
-							$Host->addSnapin($_REQUEST['snapin']);
+						{
+							if ($Host && $Host->isValid())
+								$Host->addSnapin($_REQUEST['snapin']);
+						}
 					}
 				break;
 				// Snapin Del
@@ -738,19 +753,25 @@ class GroupManagementPage extends FOGPage
 					else
 					{
 						foreach ((array)$Group->get('hosts') AS $Host)
-							$Host->removeSnapin($_REQUEST['snapin']);
+						{
+							if ($Host && $Host->isValid())
+								$Host->removeSnapin($_REQUEST['snapin']);
+						}
 					}
 				break;
 				// Active Directory
 				case 'group-active-directory';
 					foreach ((array)$Group->get('hosts') AS $Host)
 					{
-						$Host->set('useAD', ($this->REQUEST['domain'] == "on" ? '1' : '0'))
-							 ->set('ADDomain', $this->REQUEST['domainname'])
-							 ->set('ADOU', $this->REQUEST['ou'])
-							 ->set('ADUser', $this->REQUEST['domainuser'])
-							 ->set('ADPass', $this->REQUEST['domainpass']);
-						$Host->save();
+						if ($Host && $Host->isValid())
+						{
+							$Host->set('useAD', ($this->REQUEST['domain'] == "on" ? '1' : '0'))
+								 ->set('ADDomain', $this->REQUEST['domainname'])
+								 ->set('ADOU', $this->REQUEST['ou'])
+								 ->set('ADUser', $this->REQUEST['domainuser'])
+								 ->set('ADPass', $this->REQUEST['domainpass']);
+							$Host->save();
+						}
 					}
 				break;
 				// Printer Add/Rem
@@ -758,12 +779,15 @@ class GroupManagementPage extends FOGPage
 					// Error Checking
 					foreach ((array)$Group->get('hosts') AS $Host)
 					{
-						if (!empty($_POST['level']))
-							$Host->set('printerLevel', $this->REQUEST['level'])->save();
-						if (!empty($_POST['prntadd']))
-							$Host->addPrinter($this->REQUEST['prntadd']);
-						if (!empty($_POST['prntdel']))
-							$Host->removePrinter($_REQUEST['prntdel']);
+						if ($Host && $Host->isValid())
+						{
+							if (!empty($_POST['level']))
+								$Host->set('printerLevel', $this->REQUEST['level'])->save();
+							if (!empty($_POST['prntadd']))
+								$Host->addPrinter($this->REQUEST['prntadd']);
+							if (!empty($_POST['prntdel']))
+								$Host->removePrinter($_REQUEST['prntdel']);
+						}
 					}
 				break;
 				// Update Services
@@ -953,14 +977,17 @@ class GroupManagementPage extends FOGPage
 		);
 		foreach ((array)$Group->get('hosts') AS $Host)
 		{
-			$this->data[] = array(
-				'link' => $_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
-				'host_id' => $Host->get('id'),
-				'host_name' => $Host->get('name'),
-				'host_mac' => $Host->get('mac'),
-				'host_ip' => ($Host->get('ip') ? '('.$Host->get('ip').')' : ''),
-				'image_name' => $Host->getImage()->get('name'),
-			);
+			if ($Host && $Host->isValid())
+			{
+				$this->data[] = array(
+					'link' => $_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
+					'host_id' => $Host->get('id'),
+					'host_name' => $Host->get('name'),
+					'host_mac' => $Host->get('mac'),
+					'host_ip' => ($Host->get('ip') ? '('.$Host->get('ip').')' : ''),
+					'image_name' => $Host->getImage()->get('name'),
+				);
+			}
 		}
 		// Hook
 		$this->HookManager->processEvent('GROUP_DEPLOY', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
