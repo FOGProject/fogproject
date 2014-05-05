@@ -104,7 +104,7 @@ class ReportManagementPage extends FOGPage
 		{
 			$Dates = array_unique($Dates);
 			rsort($Dates);
-			foreach((array)$Dates AS $Date)
+			foreach($Dates AS $Date)
 			{
 				$dates1 .= '<option value="'.$Date.'">'.$Date.'</option>';
 				$dates2 .= '<option value="'.$Date.'">'.$Date.'</option>';
