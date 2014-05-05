@@ -238,7 +238,7 @@ class GroupManagementPage extends FOGPage
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// If all hosts have the same image setup up the selection.
 		foreach ((array)$Group->get('hosts') AS $Host)
-			$imageID[] = $Host->getImage()->get('id');
+			$imageID[] = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
 		$imageIDMult = (is_array($imageID) ? array_unique($imageID) : $imageID);
 		if (count($imageIDMult) == 1)
 			$imageMatchID = $Host->getImage()->get('id');
