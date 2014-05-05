@@ -4,8 +4,7 @@
 . /bin/fog.checkin;
 layPartSize="99%";
 imagePath="/images/$img";
-defaultpart1end="105906175B";
-defaultpart2start="105906176B";
+
 fog.statusreporter $mac $web &
 echo -n " * Checking Mounted File System................";
 if [ -f "/images/.mntcheck" ]; then
@@ -236,7 +235,7 @@ EOFPT
 Y
 EOFNTFS
 				echo "Done";
-				echo -n " * Performing Clean up (Stage 2)..............";
+				echo -n " * Performing Clean up (Stage 2)...............";
 				fstype=`blkid -po udev $win7sys | grep FS_TYPE | awk -F'=' '{print $2}'`;
 				if [ "$fstype" == "ntfs" ]; then
 					ntfsfix -b -d $win7sys &>/dev/null | grep -i "success"
@@ -244,7 +243,7 @@ EOFNTFS
 				echo "Done";
 			else
 				writeImageMultiCast $part
-				echo -n " * Performing Clean up (Stage 1)..............";
+				echo -n " * Performing Clean up (Stage 1)...............";
 				ntfsresize $part $RUN_CHKDSK -f -b -P &>/dev/null << EOFNTFS
 Y
 EOFNTFS
