@@ -135,6 +135,12 @@ then
 	echo "  as this script modifies many of your system settings.";
 	echo "";
 	echo "  This script should be run by the root user on Redhat or with sudo on Ubuntu."
+	
+	echo
+	echo "  ** Notice ** Redhat users will need to disable SELinux and iptables in order to use FOG"
+	echo "  Please see our wiki for more information at http://www.fogproject.org/wiki"
+	echo 
+	
 	echo "";
 	echo "  Here are the settings FOG will use:";
 	echo "         Base Linux: ${osname}";
