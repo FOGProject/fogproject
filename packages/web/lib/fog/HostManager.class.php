@@ -37,8 +37,8 @@ class HostManager extends FOGManagerController
 					iOtherTag1 LIKE "%${keyword}%" OR
 					iSysman LIKE "%${keyword}%" OR
 					iSysproduct LIKE "%${keyword}%" 
-				GROUP BY 	
-					hostID DESC';
+				ORDER BY
+					hostName ASC';
 	// Custom functions
 	public static function parseMacList( $stringlist )
 	{

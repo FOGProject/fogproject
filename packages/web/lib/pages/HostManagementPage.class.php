@@ -75,7 +75,7 @@ class HostManagementPage extends FOGPage
 		// Get location if enabled:
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// Find data -> Push data
-		foreach ((array)$this->FOGCore->getClass('HostManager')->find() AS $Host)
+		foreach ((array)$this->FOGCore->getClass('HostManager')->find('','','name') AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
@@ -1047,23 +1047,17 @@ class HostManagementPage extends FOGPage
 					// Add Additional MAC Addresses
 					foreach((array)$_POST['additionalMACs'] AS $MAC)
 					{
-						if ($MAC && $MAC->isValid())
-						{
-							$PriMAC = ($Host->get('mac') == $MAC ? true : false);
-							$AddMAC = current($this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $Host->get('id'),'mac' => $MAC)));
-							if (!$PriMAC && (!$AddMAC || !$AddMAC->isValid()))
-								$Host->addAddMAC($MAC);
-						}
+						$PriMAC = ($Host->get('mac') == $MAC ? true : false);
+						$AddMAC = current($this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $Host->get('id'),'mac' => $MAC)));
+						if (!$PriMAC && (!$AddMAC || !$AddMAC->isValid()))
+							$Host->addAddMAC($MAC);
 					}
 					if(isset($_POST['additionalMACsRM']))
 					{
 						foreach((array)$_POST['additionalMACsRM'] AS $MAC)
 						{
-							if ($MAC && $MAC->isValid())
-							{
-								$DelMAC = new MACAddressAssociation($MAC);
-								$Host->removeAddMAC($DelMAC);
-							}
+							$DelMAC = new MACAddressAssociation($MAC);
+							$Host->removeAddMAC($DelMAC);
 						}
 					}
 					// Only one association per host.
