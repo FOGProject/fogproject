@@ -137,7 +137,8 @@ then
 	echo "  This script should be run by the root user on Redhat or with sudo on Ubuntu."
 	
 	echo
-	echo "  ** Notice ** Redhat users will need to disable SELinux and iptables in order to use FOG"
+	echo "  ** Notice ** Redhat users will need to disable SELinux and iptables in "
+	echo "  order to use FOG"
 	echo "  Please see our wiki for more information at http://www.fogproject.org/wiki"
 	echo 
 	
