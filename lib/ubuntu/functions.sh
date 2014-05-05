@@ -118,8 +118,8 @@ userlist_enable=NO
 tcp_wrappers=YES" > "$ftpconfig";
 
 	sysv-rc-conf vsftpd on >/dev/null 2>&1;
-	/etc/init.d/vsftpd stop >/dev/null 2>&1;
-	/etc/init.d/vsftpd start >/dev/null 2>&1;
+	service vsftpd stop >/dev/null 2>&1;
+	service vsftpd start >/dev/null 2>&1;
 	if [ "$?" != "0" ] 
 	then
 		echo "Failed!";
