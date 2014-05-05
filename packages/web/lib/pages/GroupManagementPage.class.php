@@ -502,8 +502,11 @@ class GroupManagementPage extends FOGPage
 				{
 					foreach((array)$Host->get('modules') AS $ModHost)
 					{
-						if ($ModHost->get('id') == $Module->get('id'))
-							$ModOns[] = $ModHost->get('id');
+						if ($ModHost && $ModHost->isValid())
+						{
+							if ($ModHost->get('id') == $Module->get('id'))
+								$ModOns[] = $ModHost->get('id');
+						}
 					}
 					$i = count($ModOns);
 				}
