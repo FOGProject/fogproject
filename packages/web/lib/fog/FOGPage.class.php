@@ -29,8 +29,6 @@ abstract class FOGPage extends FOGBase
 		
 	);
 	
-	// Debug
-	public $debug = true;
 	
 	// Variables
 	// Page title

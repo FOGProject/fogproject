@@ -5,10 +5,6 @@
 */
 class FOGPageManager extends FOGBase
 {
-	// Debug & Info
-	public $debug = true;
-	public $info = false;
-	
 	private $pageTitle;
 	private $nodes = array();
 	
