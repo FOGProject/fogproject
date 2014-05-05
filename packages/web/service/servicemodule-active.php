@@ -33,11 +33,17 @@ try
 	// If it's globally disabled, return that so the client doesn't keep trying it.
 	if ($FOGCore->getSetting($moduleName[$_REQUEST['moduleid']]) == 1)
 	{
-		foreach($Host->get('modules') AS $Module)
+		foreach((array)$Host->get('modules') AS $Module)
 		{
-			if (($Module && $Module->isValid()) && $Module->get('id') == $_REQUEST['moduleid'] && $Module->get('state') == 1)
-				print '#!ok';
-			else
+			if (($Module && $Module->isValid()) && ($moduleID && $moduleID->isValid()))
+			{
+				if ($Module->get('id') == $moduleID->get('id'))
+				{
+					$modState = current($FOGCore->getClass('ModuleAssociationManager')->find(array('moduleID' => $Module->get('id'))));
+					print (($modState && $modState->isValid()) && $modState->get('state') ? '#!ok' : '#!nh');
+				}
+			}
+			if ((!$Module || !$Module->isValid()) || (!$moduleID || !$moduleID->isValid()))
 				print '#!nh';
 		}
 	}
