@@ -490,25 +490,5 @@ confirmPackageInstallation()
 setupFreshClam()
 {
 	echo  -n "  * Configuring Fresh Clam...";
-
-	if [ ! -d "${freshwebroot}" ]
-	then
-		mkdir "${freshwebroot}"
-		ln -s "${freshdb}" "${freshwebroot}"
-		chown -R ${apacheuser} "${freshwebroot}"
-	fi
-
-	dte=`date +%m-%d-%y`;
-	
-	cp -f "${freshconf}" "${freshconf}.backup.${dte}";
-	cp -f "${freshcron}" "${freshcron}.backup.${dte}";
-
-	if [ -f "${freshconf}.backup.${dte}" ] && [ -f "${freshcron}.backup.${dte}" ]; then
-		cat "${freshconf}.backup.${dte}" | sed '/Example/d' > ${freshconf};
-		cat "${freshcron}.backup.${dte}" | sed '/^FRESHCLAM_DELAY=.*$/d' > ${freshcron};
-
-		echo "OK";
-	else
-		echo "Failed!"
-	fi
+	echo "Skipped (See wiki for installation instructions)";
 }
