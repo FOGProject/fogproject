@@ -77,17 +77,20 @@ class HostManagementPage extends FOGPage
 		// Find data -> Push data
 		foreach ((array)$this->FOGCore->getClass('HostManager')->find() AS $Host)
 		{
-			$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
-			$Location = ($LA ? new Location($LA->get('locationID')) : '');
-			$this->data[] = array(
-				'host_id'	=> $Host->get('id'),
-				'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-				'host_name'	=> $Host->get('name'),
-				'host_mac'	=> $Host->get('mac')->__toString(),
-				'host_desc'  => $Host->get('description'),
-				'image_name' => $Host->getImage()->get('name'),
-				'location' => ($Location && $Location->isValid() ? $Location->get('name') : ''),
-			);
+			if ($Host && $Host->isValid())
+			{
+				$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
+				$Location = ($LA ? new Location($LA->get('locationID')) : '');
+				$this->data[] = array(
+					'host_id'	=> $Host->get('id'),
+					'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+					'host_name'	=> $Host->get('name'),
+					'host_mac'	=> $Host->get('mac')->__toString(),
+					'host_desc'  => $Host->get('description'),
+					'image_name' => $Host->getImage()->get('name'),
+					'location' => ($Location && $Location->isValid() ? $Location->get('name') : ''),
+				);
+			}
 		}
 		// Hook
 		$this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -122,17 +125,20 @@ class HostManagementPage extends FOGPage
 		// Find data -> Push data
 		foreach((array)$this->FOGCore->getClass('HostManager')->search($keyword) AS $Host)
 		{
-			$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
-			$Location = ($LA ? new Location($LA->get('locationID')) : '');
-			$this->data[] = array(
-				'host_id'	=> $Host->get('id'),
-				'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-				'host_name'	=> $Host->get('name'),
-				'host_mac'	=> $Host->get('mac')->__toString(),
-				'host_desc'  => $Host->get('description'),
-				'image_name' => $Host->getImage()->get('name'),
-				'location' => ($Location && $Location->isValid() ? $Location->get('name') : ''),
-			);
+			if ($Host && $Host->isValid())
+			{
+				$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
+				$Location = ($LA ? new Location($LA->get('locationID')) : '');
+				$this->data[] = array(
+					'host_id'	=> $Host->get('id'),
+					'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+					'host_name'	=> $Host->get('name'),
+					'host_mac'	=> $Host->get('mac')->__toString(),
+					'host_desc'  => $Host->get('description'),
+					'image_name' => $Host->getImage()->get('name'),
+					'location' => ($Location && $Location->isValid() ? $Location->get('name') : ''),
+				);
+			}
 		}
 		// Hook
 		$this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -330,7 +336,10 @@ class HostManagementPage extends FOGPage
 		if ($_REQUEST['approveAll'] == 1)
 		{
 			foreach((array)$Host->get('pendingMACs') AS $MAC)
-				$Host->addPendtoAdd($MAC);
+			{
+				if ($MAC && $MAC->isValid())
+					$Host->addPendtoAdd($MAC);
+			}
 			$this->FOGCore->setMessage('All Pending MACs approved.');
 			$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
 		}
@@ -448,15 +457,18 @@ class HostManagementPage extends FOGPage
 		// Iterate -> Print
 		foreach ((array)$TaskTypes AS $TaskType)
 		{
-			$this->data[] = array(
-				'node' => $this->node,
-				'sub' => 'deploy',
-				'host_id' => $Host->get('id'),
-				'task_type' => '&type='.$TaskType->get('id'),
-				'task_icon' => $TaskType->get('icon'),
-				'task_name' => $TaskType->get('name'),
-				'task_desc' => $TaskType->get('description'),
-			);
+			if ($TaskType && $TaskType->isValid())
+			{
+				$this->data[] = array(
+					'node' => $this->node,
+					'sub' => 'deploy',
+					'host_id' => $Host->get('id'),
+					'task_type' => '&type='.$TaskType->get('id'),
+					'task_icon' => $TaskType->get('icon'),
+					'task_name' => $TaskType->get('name'),
+					'task_desc' => $TaskType->get('description'),
+				);
+			}
 		}
 		$this->data[] = array(
 			'node' => $this->node,
@@ -479,15 +491,18 @@ class HostManagementPage extends FOGPage
 		// Iterate -> Print
 		foreach ((array)$TaskTypes AS $TaskType)
 		{
-			$this->data[] = array(
-				'node' => $this->node,
-				'sub' => 'deploy',
-				'host_id' => $Host->get('id'),
-				'task_type' => '&type='.$TaskType->get('id'),
-				'task_icon' => $TaskType->get('icon'),
-				'task_name' => $TaskType->get('name'),
-				'task_desc' => $TaskType->get('description'),
-			);
+			if ($TaskType && $TaskType->isValid())
+			{
+				$this->data[] = array(
+					'node' => $this->node,
+					'sub' => 'deploy',
+					'host_id' => $Host->get('id'),
+					'task_type' => '&type='.$TaskType->get('id'),
+					'task_icon' => $TaskType->get('icon'),
+					'task_name' => $TaskType->get('name'),
+					'task_desc' => $TaskType->get('description'),
+				);
+			}
 		}
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_ADV', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -651,21 +666,27 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<legend>"._('General').'</legend>';
 		foreach ((array)$this->FOGCore->getClass('ModuleManager')->find() AS $Module)
 		{
-			foreach((array)$Host->get('modules') AS $ModHost)
+			if ($Module && $Module->isValid())
 			{
-				if ($ModHost->get('id') == $Module->get('id'))
-					$ModOns[] = $ModHost->get('id');
+				foreach((array)$Host->get('modules') AS $ModHost)
+				{
+					if ($ModHost && $ModHost->isValid())
+					{
+						if ($ModHost->get('id') == $Module->get('id'))
+							$ModOns[] = $ModHost->get('id');
+					}
+				}
+				$this->data[] = array(
+					'input' => '<input type="checkbox" class="checkboxes" name="${mod_shname}" value="${mod_id}" ${checked} />',
+					'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
+					'checked' => ($ModOns ? 'checked="checked"' : ''),
+           	     	'mod_name' => $Module->get('name'),
+           	     	'mod_shname' => $Module->get('shortName'),
+           	     	'mod_id' => $Module->get('id'),
+           	     	'mod_desc' => str_replace('"','\"',$Module->get('description')),
+            	);
+				unset($ModOns);
 			}
-			$this->data[] = array(
-				'input' => '<input type="checkbox" class="checkboxes" name="${mod_shname}" value="${mod_id}" ${checked} />',
-				'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
-				'checked' => ($ModOns ? 'checked="checked"' : ''),
-                'mod_name' => $Module->get('name'),
-                'mod_shname' => $Module->get('shortName'),
-                'mod_id' => $Module->get('id'),
-                'mod_desc' => str_replace('"','\"',$Module->get('description')),
-            );
-			unset($ModOns);
         }
 		$this->data[] = array(
 			'mod_name' => '&nbsp',
@@ -696,14 +717,17 @@ class HostManagementPage extends FOGPage
 		$Services = $this->FOGCore->getClass('ServiceManager')->find(array('name' => array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')), 'OR', 'id');
 		foreach((array)$Services AS $Service)
 		{
-			$this->data[] = array(
-				'input' => '<input type="text" name="${type}" value="${disp}" />',
-				'span' => '<span class="icon icon-help hand" title="${desc}"></span>',
-				'field' => ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? _('Screen Width (in pixels)') : ($Service->get('name') == 'FOG_SERVICE_DISPLAY_MANAGER_Y' ? _('Screen Height (in pixels)') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? _('Screen Refresh Rate (in Hz)') : ''))),
-				'type' => ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? 'x' : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_Y' ? 'y' : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? 'r' : ''))),
-				'disp' => ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? $Host->getDispVals('width') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_Y' ? $Host->getDispVals('height') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? $Host->getDispVals('refresh') : ''))),
-				'desc' => $Service->get('description'),
-			);
+			if ($Service && $Service->isValid())
+			{
+				$this->data[] = array(
+					'input' => '<input type="text" name="${type}" value="${disp}" />',
+					'span' => '<span class="icon icon-help hand" title="${desc}"></span>',
+					'field' => ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? _('Screen Width (in pixels)') : ($Service->get('name') == 'FOG_SERVICE_DISPLAY_MANAGER_Y' ? _('Screen Height (in pixels)') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? _('Screen Refresh Rate (in Hz)') : ''))),
+					'type' => ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? 'x' : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_Y' ? 'y' : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? 'r' : ''))),
+					'disp' => ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? $Host->getDispVals('width') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_Y' ? $Host->getDispVals('height') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? $Host->getDispVals('refresh') : ''))),
+					'desc' => $Service->get('description'),
+				);
+			}
 		}
 		$this->data[] = array(
 			'field' => '&nbsp;',
@@ -875,13 +899,16 @@ class HostManagementPage extends FOGPage
 		$Viruses = $this->FOGCore->getClass('VirusManager')->find(array('hostMAC' => $Host->get('mac')));
 		foreach((array)$Viruses AS $Virus)
 		{
-			$this->data[] = array(
-				'virus_name' => $Virus->get('name'),
-				'virus_file' => $Virus->get('file'),
-				'virus_mode' => ($Virus->get('mode') == 'q' ? _('Quarantine') : ($Virus->get('mode') == 's' ? _('Report') : 'N/A')),
-				'virus_date' => $Virus->get('date'),
-				'virus_id' => $Virus->get('id'),
-			);
+			if ($Virus && $Virus->isValid())
+			{
+				$this->data[] = array(
+					'virus_name' => $Virus->get('name'),
+					'virus_file' => $Virus->get('file'),
+					'virus_mode' => ($Virus->get('mode') == 'q' ? _('Quarantine') : ($Virus->get('mode') == 's' ? _('Report') : 'N/A')),
+					'virus_date' => $Virus->get('date'),
+					'virus_id' => $Virus->get('id'),
+				);
+			}
 		}
 		// Hook
 		$this->HookManager->processEvent('HOST_VIRUS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -924,8 +951,8 @@ class HostManagementPage extends FOGPage
 			print "\n\t\t\t<p>"._('View History for').'</p>';
 			foreach((array)$Dates AS $Date)
 			{
-				if ($_GET['dte'] == '')
-					$_GET['dte'] = $Date;
+				if ($_REQUEST['dte'] == '')
+					$_REQUEST['dte'] = $Date;
 				$optionDate .= '<option value="'.$Date.'" '.($Date == $_GET['dte'] ? 'selected="selected"' : '').'>'.$Date.'</option>';
 			}
 			print "\n\t\t\t".'<select name="dte" size="1" onchange="document.getElementById(\'dte\').submit()">'.$optionDate.'</select>';
@@ -935,27 +962,30 @@ class HostManagementPage extends FOGPage
 			$cnt = 0;
 			foreach ((array)$UserLogins AS $UserLogin)
 			{
-				$this->data[] = array(
-					'action' => ($UserLogin->get('action') == 1 ? _('Login') : ($UserLogin->get('action') == 0 ? _('Logout') : ($UserLogin->get('action') == 99 ? _('Service Start') : _('Service Stop')))),
-					'user_name' => $UserLogin->get('username'),
-					'user_time' => date('H:i:s',strtotime($UserLogin->get('datetime'))),
-					'user_desc' => $UserLogin->get('description'),
-				);
-				$loginTime = new DateTime($UserLogin->get('datetime'));
-				$arAllUsers[] = ($UserLogin->get('username') != 'Array' ? $UserLogin->get('username') : '');
-				if ($UserLogin->get('action') == 1 || $UserLogin->get('action') == 99)
+				if ($UserLogin && $UserLogin->isValid())
 				{
-					$tmpUserLogin = new UserLoginEntry($UserLogin->get('username'));
-					$tmpUserLogin->setLogInTime($UserLogin->get('datetime'));
-					$tmpUserLogin->setClean(true);
-				}
-				else if ($UserLogin->get('action') == 0)
-				{
-					if ($tmpUserLogin instanceof UserLoginEntry)
+					$this->data[] = array(
+						'action' => ($UserLogin->get('action') == 1 ? _('Login') : ($UserLogin->get('action') == 0 ? _('Logout') : ($UserLogin->get('action') == 99 ? _('Service Start') : _('Service Stop')))),
+						'user_name' => $UserLogin->get('username'),
+						'user_time' => date('H:i:s',strtotime($UserLogin->get('datetime'))),
+						'user_desc' => $UserLogin->get('description'),
+					);
+					$loginTime = new DateTime($UserLogin->get('datetime'));
+					$arAllUsers[] = ($UserLogin->get('username') != 'Array' ? $UserLogin->get('username') : '');
+					if ($UserLogin->get('action') == 1 || $UserLogin->get('action') == 99)
 					{
-						$tmpUserLogin->setLogOutTime($UserLogin->get('datetime'));
-						$_SESSION['fog_logins'][] = serialize($tmpUserLogin);
-						$tmpUserLogin = '';
+						$tmpUserLogin = new UserLoginEntry($UserLogin->get('username'));
+						$tmpUserLogin->setLogInTime($UserLogin->get('datetime'));
+						$tmpUserLogin->setClean(true);
+					}
+					else if ($UserLogin->get('action') == 0)
+					{
+						if ($tmpUserLogin instanceof UserLoginEntry)
+						{
+							$tmpUserLogin->setLogOutTime($UserLogin->get('datetime'));
+							$_SESSION['fog_logins'][] = serialize($tmpUserLogin);
+							$tmpUserLogin = '';
+						}
 					}
 				}
 			}
@@ -1017,17 +1047,23 @@ class HostManagementPage extends FOGPage
 					// Add Additional MAC Addresses
 					foreach((array)$_POST['additionalMACs'] AS $MAC)
 					{
-						$PriMAC = ($Host->get('mac') == $MAC ? true : false);
-						$AddMAC = current($this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $Host->get('id'),'mac' => $MAC)));
-						if (!$PriMAC && (!$AddMAC || !$AddMAC->isValid()))
-							$Host->addAddMAC($MAC);
+						if ($MAC && $MAC->isValid())
+						{
+							$PriMAC = ($Host->get('mac') == $MAC ? true : false);
+							$AddMAC = current($this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $Host->get('id'),'mac' => $MAC)));
+							if (!$PriMAC && (!$AddMAC || !$AddMAC->isValid()))
+								$Host->addAddMAC($MAC);
+						}
 					}
 					if(isset($_POST['additionalMACsRM']))
 					{
 						foreach((array)$_POST['additionalMACsRM'] AS $MAC)
 						{
-							$DelMAC = new MACAddressAssociation($MAC);
-							$Host->removeAddMAC($DelMAC);
+							if ($MAC && $MAC->isValid())
+							{
+								$DelMAC = new MACAddressAssociation($MAC);
+								$Host->removeAddMAC($DelMAC);
+							}
 						}
 					}
 					// Only one association per host.
@@ -1118,7 +1154,6 @@ class HostManagementPage extends FOGPage
 						$Host->setDisp($x,$y,$r);
 					if ($_POST['updatealo'] == '1')
 						$Host->setAlo($tme);
-					$Host->save();
 				break;
 				case 'host-hardware-inventory';
 					$pu = trim($_POST['pu']);
@@ -1385,12 +1420,15 @@ class HostManagementPage extends FOGPage
 		$Hosts = $this->FOGCore->getClass('HostManager')->find();
 		foreach((array)$Hosts AS $Host)
 		{
-			$report->addCSVCell($Host->get('mac'));
-			$report->addCSVCell($Host->get('name'));
-			$report->addCSVCell($Host->get('ip'));
-			$report->addCSVCell($Host->get('description'));
-			$report->addCSVCell($Host->get('imageID'));
-			$report->endCSVLine();
+			if ($Host && $Host->isValid())
+			{
+				$report->addCSVCell($Host->get('mac'));
+				$report->addCSVCell($Host->get('name'));
+				$report->addCSVCell($Host->get('ip'));
+				$report->addCSVCell($Host->get('description'));
+				$report->addCSVCell($Host->get('imageID'));
+				$report->endCSVLine();
+			}
 		}
 		$_SESSION['foglastreport']=serialize($report);
 		print "\n\t\t\t".'<form method="post" action="export.php?type=host">';
@@ -1429,8 +1467,11 @@ class HostManagementPage extends FOGPage
 			{
 				foreach((array)$SAs AS $SA)
 				{
-					$Snapin = new Snapin($SA->get('snapinID'));
-					$optionSnapinSel .= '<option value="'.$Snapin->get('id').'">'.$Snapin->get('name').' - ('.$Snapin->get('id').')</option>';
+					if ($SA && $SA->isValid())
+					{
+						$Snapin = new Snapin($SA->get('snapinID'));
+						$optionSnapinSel .= '<option value="'.$Snapin->get('id').'">'.$Snapin->get('name').' - ('.$Snapin->get('id').')</option>';
+					}
 				}
 				print "\n\t\t\t".'<select name="snapin">'.$optionSnapinSel.'</select>';
 			}
