@@ -1,9 +1,6 @@
 <?php
 class StorageGroup extends FOGController
 {
-	// Debug & Info
-	public $debug = true;
-	public $info = false;
 	// Table
 	public $databaseTable = 'nfsGroups';
 	// Name -> Database field name
