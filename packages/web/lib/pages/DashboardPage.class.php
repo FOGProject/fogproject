@@ -92,7 +92,7 @@ class DashboardPage extends FOGPage
 		$DateTimeEnd = new DateTime(date('Y-m-d'), (!ini_get('date.timezone') ? new DateTimeZone('GMT') : new DateTimeZone(ini_get('date.timezone'))));
 		$DateTimeEnd = $DateTimeEnd->modify('+1 day');
 		$DatePeriod = new DatePeriod($DateTimeStart, new DateInterval('P1D'), $DateTimeEnd);
-		foreach((array)$DatePeriod AS $Date)
+		foreach($DatePeriod AS $Date)
 		{
 			$keyword = '%'.$Date->format('Y-m-d').'%';
 			$ImagingLogs = $this->FOGCore->getClass('ImagingLogManager')->count(array('start' => $keyword, 'type' => array('up','down')));
