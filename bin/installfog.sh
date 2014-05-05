@@ -134,7 +134,7 @@ then
 	echo "  It is not recommended that you install this on a production system";
 	echo "  as this script modifies many of your system settings.";
 	echo "";
-	echo "  This script should be run by the root user on Fedora, or with sudo on Ubuntu."
+	echo "  This script should be run by the root user on Redhat or with sudo on Ubuntu."
 	echo "";
 	echo "  Here are the settings FOG will use:";
 	echo "         Base Linux: ${osname}";
