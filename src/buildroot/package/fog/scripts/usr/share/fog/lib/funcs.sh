@@ -11,6 +11,23 @@ REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
 #If a sub shell gets involked and we lose kernel vars this will reimport them
 $(for var in $(cat /proc/cmdline); do echo export $var | grep =; done)
 
+dots() 
+{
+    max=45
+    if [ -n "$1" ]; then
+        len=${#1}
+        if [ "$len" -gt "$max" ]; then
+            echo -n " * ${1:0:max}"
+        else
+            echo -n " * ${1}"
+            n=$((max - len))
+            for ((x = 0; x < n; x++)); do
+              printf %s .
+            done
+        fi
+    fi
+}
+
 setupDNS()
 {
 	echo "nameserver $1" > /etc/resolv.conf
@@ -43,7 +60,7 @@ writeImageMultiCast()
 
 changeHostname()
 {
-	echo -n " * Changing hostname...........................";
+	dots "Changing hostname";
 	if [ -n "$hostname" ]
 	then
 		mkdir /ntfs &>/dev/null
@@ -79,7 +96,7 @@ EOFREG
 
 fixWin7boot()
 {
-	echo -n " * Backing up and replacing BCD................";
+	dots "Backing up and replacing BCD";
 	mkdir /bcdstore &>/dev/null;
 	ntfs-3g -o force,rw $part /bcdstore &> /tmp/bcdstore-mount-output;
 	mv /bcdstore/Boot/BCD /bcdstore/Boot/BCD.bak;
@@ -96,7 +113,7 @@ clearMountedDevices()
 
 	if [ "$osid" = "5" ] || [ "$osid" = "6" ]
 	then
-		echo -n " * Clearing mounted devices....................";
+		dots "Clearing mounted devices";
 		ntfs-3g -o force,rw $win7sys /ntfs
 		reged -e "$REG_LOCAL_MACHINE_7" &>/dev/null  <<EOFMOUNT
 cd $REG_HOSTNAME_MOUNTED_DEVICES_7
@@ -295,7 +312,7 @@ getHardDisk()
 
 correctVistaMBR()
 {
-	echo -n " * Correcting Vista MBR........................";
+	dots "Correcting Vista MBR";
 	dd if=$1 of=/tmp.mbr count=1 bs=512 &>/dev/null
 	xxd /tmp.mbr /tmp.mbr.txt &>/dev/null
 	rm /tmp.mbr &>/dev/null
