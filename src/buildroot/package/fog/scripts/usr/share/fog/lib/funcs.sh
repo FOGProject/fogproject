@@ -28,6 +28,34 @@ dots()
     fi
 }
 
+# $1 is the partition
+expandPartition() 
+{
+    if [ -n "$1" ]; then
+        dots "Resizing ntfs volume ($part)";
+	ntfsresize $1 -f -b -P &>/dev/null << EOFNTFSRESTORE
+Y
+EOFNTFSRESTORE
+	echo "Done";   
+
+	resetFlag $1
+    fi
+}
+
+# $1 is the part
+resetFlag() 
+{
+        if [ -n "$1" ]; then
+                dots "Clearing ntfs flag";	
+	        fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
+	        if [ "$fstype" == "ntfs" ]; then
+		        ntfsfix -b -d $1 &>/dev/null
+	        fi
+	        echo "Done"; 
+	fi
+}
+
+
 setupDNS()
 {
 	echo "nameserver $1" > /etc/resolv.conf
