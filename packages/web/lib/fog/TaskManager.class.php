@@ -24,7 +24,8 @@ class TaskManager extends FOGManagerController
 			imageName LIKE "%${keyword}%" OR
 			taskCreateBy LIKE "%${keyword}%"
 		GROUP BY
-			taskID DESC';
+			taskID DESC
+		ORDER BY hostName';
 
 	// Custom
 	// Clean up
