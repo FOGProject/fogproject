@@ -166,7 +166,7 @@
 	};
 	// Form no redirect, but update page.
 
-	$('form').on('submit',function(e) {
+	$('form:not(#action-box)').on('submit',function(e) {
 		$.post(url);
 		return false;
 	});
