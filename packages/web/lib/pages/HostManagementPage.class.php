@@ -309,7 +309,7 @@ class HostManagementPage extends FOGPage
 		// Find
 		$Host = new Host($this->REQUEST['id']);
 		// Inventory find for host.
-		$Inventory = current($Host->get('inventory'));
+		$Inventory = current((array)$Host->get('inventory'));
 		// Get the associated Groups.
 		// Location Find for host.
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
@@ -1560,7 +1560,7 @@ class HostManagementPage extends FOGPage
 		}
 		catch (Exception $e)
 		{
-			printf('%s',sprintf('<div class="task-start-failed"><p>%s task failed to create for<u>%s></u> with image<u>%s</u></p><p>%s</p></div>',$TaskType->get('name'),$Host->get('name'),$Host->getImage()->get('name'),$e->getMessage()));
+			printf('%s',sprintf('<div class="task-start-failed"><p>%s task failed to create for <u>%s</u> with image<u>%s</u></p><p>%s</p></div>',$TaskType->get('name'),$Host->get('name'),$Host->getImage()->get('name'),$e->getMessage()));
 		}
 	}
 	// Overrides

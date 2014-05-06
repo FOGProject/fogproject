@@ -701,7 +701,7 @@ END OF TERMS AND CONDITIONS</pre>";
 			foreach ((array)$ServMan AS $Service)
 			{
 				if ($Service->get('name') == 'FOG_PIGZ_COMP')
-					$type = '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" name="${service_id}" id="showVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
+					$type = '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
 					//$type = '<input type="range" name="${service_id}" id="pigz" min="0" max="9" value="${service_value}" autocomplete="off" style="width: 200px;" /><input id="showVal" type="text" maxsize="1" value="${service_value}" disabled style="width: 10px" />';
 				else if (preg_match('#(pass|PASS)#i',$Service->get('name')) && !preg_match('#(VALID|MIN)#i',$Service->get('name')))
 					$type = '<input type="password" name="${service_id}" value="${service_value}" />';
