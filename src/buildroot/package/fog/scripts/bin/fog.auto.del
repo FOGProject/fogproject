@@ -12,7 +12,7 @@ if [ -n "$mac" ]; then
 		;;
 		Y|y|YES|yes|Yes|YEs|yES|yEs|YeS|yeS )
 		echo " * Starting host deletion...";
-		echo -n " * Attempting to delete host.................";
+		dots "Attempting to delete host";
 		res="";
 		while [ "$res" = "" ]; do
 			res=`wget -O - --post-data="mac=${mac}" "http://${web}service/auto.delete.php" 2>/dev/null`;

@@ -40,12 +40,12 @@ if [ -n "$hd" ]; then
 
 		if [ "$blCont" == "1" ]
 		then
-			echo -n " * Mounting Windows File System................";
+			dots "Mounting Windows File System";
 			mount.ntfs-3g $part /ntfs 
 			echo "Done";
 			echo "";
 			
-			echo -n " * Attempting to change password...............";
+			dots "Attempting to change password";
 			chntpw -u ${acct} ${sam}  &>/dev/null << EOF
 1
 y

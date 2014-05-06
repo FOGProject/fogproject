@@ -11,7 +11,7 @@ echo "";
 
 mac=`ifconfig | grep HWaddr | head -n1 | cut -d' ' -f 11`;
 
-echo -n " * Starting Quick Image........................";
+dots "Starting Quick Image";
 hostinfo=`wget -O - --post-data="mac=${mac}" "http://${web}service/hostlookupbymac.php" 2>/dev/null`
 echo "Done";
 
