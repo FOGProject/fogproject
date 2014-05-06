@@ -94,6 +94,13 @@ class FOGFTP extends FOGGetSet
 		return $this;
 	}
 
+	public function chdir($path)
+	{
+		if (@ftp_chdir($this->link, $path))
+			return $this;
+		return false;
+	}
+
 	public function mkdir($remotePath)
 	{
 		return @ftp_mkdir($this->link,$remotePath);

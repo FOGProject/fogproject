@@ -590,6 +590,22 @@ class Host extends FOGController
 			// Storage Node: Variables
 			// NOTE: Master storage node node for Uploads or, Optimal storage node for Deploy
 			$StorageNode = ($isUpload ? ($LocPlugInst ? $StorageGroup->getMasterStorageNode() : $Image->getStorageGroup()->getMasterStorageNode()) : ($LocPlugInst ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode()));
+			if (in_array($TaskType->get('id'),array('1','8','15','17')))
+			{
+				// FTP
+				$ftp = $this->FOGFTP;
+				$ftp->set('username',$StorageNode->get('user'))
+					->set('password',$StorageNode->get('pass'))
+					->set('host',$StorageNode->get('ip'));
+				if ($ftp->connect())
+				{
+					if(!$ftp->chdir(rtrim($StorageNode->get('path'),'/').'/'.$Image->get('path')))
+						throw new Exception(_('You need to upload the image first before you can deploy it'));
+				}
+				else
+					throw new Exception('You have not successfully connected.');
+				$ftp->close();
+			}
 			// Task type wake on lan, deploy only this part.
 			if ($taskTypeID == '14')
 			{
