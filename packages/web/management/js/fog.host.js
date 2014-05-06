@@ -1,7 +1,7 @@
 /****************************************************
  * * FOG Host Management - Edit - JavaScript
- *	Author:		Blackout
- *	Created:	9:34 AM 1/01/2012
+ *	Author:		$CreatedBy$	
+ *	Created:	$CreatedTime$
  *	Revision:	$Revision$
  *	Last Update:	$LastChangedDate$
  ***/
@@ -13,20 +13,16 @@ $(function()
 	
 	// Checkbox toggle
 	$('.toggle-checkbox').click(function() {
-		var ischecked = $(this).attr('checked');
-		$('input:checkbox').attr('checked', (ischecked ? 'checked' : false));
+		$('input.toggle-host:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
 	});
-	
-	// Action box submit
-	$('#action-box').submit(function()
-	{
+	//Action Box, had to remove action-box id search as it seems broken.
+	//$('#action-box').submit(function() {
 		var checked = $('input.toggle-host:checked');
 		var hostIDArray = new Array();
 		for (var i = 0, len = checked.size(); i < len; i++)
 		{
 			hostIDArray[hostIDArray.length] = checked.eq(i).attr('value');
 		}
-		
-		$('#hostIDArray', this).val( hostIDArray.join(',') );
-	});
+		$('#hostIDArray',this).val(hostIDArray.join(','));
+	//});
 });
