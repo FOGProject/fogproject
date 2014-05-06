@@ -235,12 +235,8 @@ EOFPT
 Y
 EOFNTFS
 				echo "Done";
-				dots "Performing Clean up (Stage 2)";
-				fstype=`blkid -po udev $win7sys | grep FS_TYPE | awk -F'=' '{print $2}'`;
-				if [ "$fstype" == "ntfs" ]; then
-					ntfsfix -b -d $win7sys &>/dev/null | grep -i "success"
-				fi
-				echo "Done";
+				
+				resetFlag $win7sys
 			else
 				writeImageMultiCast $part
 				dots "Performing Clean up (Stage 1)";
@@ -248,12 +244,8 @@ EOFNTFS
 Y
 EOFNTFS
 				echo "Done";
-				dots "Performing Clean up (Stage 2)";
-				fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
-				if [ "$fstype" == "ntfs" ]; then
-					ntfsfix -b -d $part &>/dev/null | grep -i "success"
-				fi
-				echo "Done";
+				
+				resetFlag $win7sys
 			fi
 		elif [ "$imgType" == "mps" ]; then
 			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
@@ -320,12 +312,8 @@ EOFNTFS
 Y
 EOFNTFS
 				echo "Done";
-				dots "Performing Clean up (Stage 2)";
-				fstype=`blkid -po udev $win7sys | grep FS_TYPE | awk -F'=' '{print $2}'`;
-				if [ "$fstype" == "ntfs" ]; then
-					ntfsfix -b -d $win7sys &>/dev/null | grep -i "success"
-				fi
-				echo "Done";
+				
+				resetFlag $win7sys
 			else
 				writeImage $imagePath $part
 				clear;
@@ -334,12 +322,8 @@ EOFNTFS
 Y
 EOFNTFS1
 				echo "Done";
-				dots "Performing Clean up (Stage 2)";
-				fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
-				if [ "$fstype" == "ntfs" ]; then
-					ntfsfix -b -d $part &>/dev/null | grep -i "success"
-				fi
-				echo "Done";
+				
+				resetFlag $part
 			fi
 		elif [ "$imgType" == "mps" ]; then
 			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
@@ -354,10 +338,8 @@ EOFNTFS1
 				else
 					writeImage $imgpart $part
 				fi
-				fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
-				if [ "$fstype" == "ntfs" ]; then
-					ntfsfix -b -d $part &>/dev/null | grep -i "success"
-				fi
+				
+				resetFlag $part
 			done
 			if [ "$osid" == "50" ]; then
 				echo " * Restore Linux swap paritions:";
@@ -384,10 +366,8 @@ IFS='
 					else
 						writeImage $imgpart $part
 					fi
-					fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
-					if [ "$fstype" == "ntfs" ]; then
-						ntfsfix -b -d $part &>/dev/null | grep -i "success"
-					fi
+					
+					resetFlag $part
 				done
 				intDisk=`expr $intDisk '+' 1`;
 			done

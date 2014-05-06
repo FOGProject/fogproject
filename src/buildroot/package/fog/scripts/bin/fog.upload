@@ -168,9 +168,9 @@ FORCEY
 					dots "Checking Hard Disks";
 					runPartprobe;
 					echo "Done";
-					dots "Cleaning Hard Disks";
-					ntfsfix -b -d $part | grep -i "success" &>/dev/null;
-					echo "Done";
+					
+        			        resetFlag $part
+					
 					mkfifo /tmp/pigz1;
 					mkfifo /tmp/pigz2;
 					mkfifo /tmp/pigz3;
@@ -208,24 +208,15 @@ w
 EOFRESTOREPART
 					fi
 					echo "Done";
+					
 					if [ "$osid" == "2" ]; then
 						correctVistaMBR $hd;
 					fi
+					
 					if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
-						dots "Resizing ntfs";
-						ntfsresize $win7sys $RUN_CHKDSK -f -b -P &>/dev/null << EOFNTFSRESTORE1
-Y
-EOFNTFSRESTORE1
-						echo "Done";
+					        expandPartition $win7sys
 					else
-						dots "Resizing ntfs";
-						ntfsresize $part $RUN_CHKDSK -f -b -P &>/dev/null << EOFNTFSRESTORE
-Y
-EOFNTFSRESTORE
-						echo "Done";
-						dots "Cleaning disks";
-						ntfsfix -b -d $part | grep -i "success" &>/dev/null;
-						echo "Done";
+					        expandPartition $part
 					fi
 				else
 					handleError "Resize test failed!\n $tmpSuc";
