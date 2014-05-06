@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86 3.14.2 Kernel Configuration
+# Linux/x86 3.14.3 Kernel Configuration
 #
 CONFIG_64BIT=y
 CONFIG_X86_64=y
@@ -1236,7 +1236,7 @@ CONFIG_USB_NET_AX88179_178A=y
 # CONFIG_USB_NET_CDC_MBIM is not set
 CONFIG_USB_NET_DM9601=y
 CONFIG_USB_NET_SR9700=y
-# CONFIG_USB_NET_SR9800 is not set
+CONFIG_USB_NET_SR9800=y
 CONFIG_USB_NET_SMSC75XX=y
 CONFIG_USB_NET_SMSC95XX=y
 # CONFIG_USB_NET_GL620A is not set
