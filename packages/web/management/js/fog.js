@@ -42,7 +42,7 @@ var Content;
 var Loader;
 
 // Main FOG JQuery Functions
-$(function()
+(function($)
 {
 	if ( typeof( $("#pigz").slider ) == typeof(Function) ) {
 		$("#pigz").slider({

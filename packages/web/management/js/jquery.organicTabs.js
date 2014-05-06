@@ -60,14 +60,12 @@
 							newContent.addClass('organic-tabs-current');
 						});
 						
-						window.location.hash = newContentID;
+						location.hash = newContentID;
 					}
 					else if (newContent.attr('href').substring(0, 1) != '#' && window.location.href.replace(new RegExp(window.location.hash), '') != newContent.attr('href'))
 					{
 						// Content container was not found - but URL differs from the current URL - forward browser to new URL with anchor so the tab can be auto displayed
-						//alert('Content container not found, but the URL differs from the current page. Redirecting you to the URL.');
-					
-						window.location = newContent.attr('href');
+						location = newContent.attr('href');
 					}
 					else
 					{
@@ -75,10 +73,14 @@
 						alert('Failed to find new content container with the ID: #' + newContentID);
 					}
 				}
+				else if ((newContentID == currentContentID) || (base.$el.find(':animated').length != 0))
+				{
+					location = newContent.attr('href');
+				}
 				
 				// Don't behave like a regular link
 				// Stop propegation and bubbling
-				return true;
+				return false;
 			});
 			
 			// Find start slide from anchor if it exists
@@ -162,5 +164,11 @@
 			(new $.organicTabs(this, options));
 		});
 	};
+	// Form no redirect, but update page.
+
+	$('form').on('submit',function(e) {
+		$.post(url);
+		return false;
+	});
 	
 })(jQuery);

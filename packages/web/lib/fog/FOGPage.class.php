@@ -122,15 +122,17 @@ abstract class FOGPage extends FOGBase
 			}
 			
 			// Variables
-			$result = '';
+			//$result = '';
 			
 			// Is AJAX Request?
 			if ($this->FOGCore->isAJAXRequest())
 			{
 				// JSON output
-				$result = @json_encode(array(
+				$result[] = @json_encode(array(
 					'data'		=> $this->data,
 					'templates'	=> $this->templates,
+					'headerData' => $this->headerData,
+					'title' => $this->title,
 					'attributes'	=> $this->attributes,
 				));
 			}
@@ -139,7 +141,7 @@ abstract class FOGPage extends FOGBase
 				// HTML output
 				if ($this->searchFormURL)
 				{
-					$result = sprintf('%s<form method="POST" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" '.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'name="host-search"' : '').'/> <input id="%s-search-submit" class="search-submit" type="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'submit' : 'button').'" value="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? _('Search') : '').'" /></form>',
+					$result[] = sprintf('%s<form method="POST" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" '.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'name="host-search"' : '').'/> <input id="%s-search-submit" class="search-submit" type="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'submit' : 'button').'" value="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? _('Search') : '').'" /></form>',
 						"\n\t\t\t",
 						$this->searchFormURL,
 						(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),	// TODO: Store this in class as variable
@@ -149,7 +151,7 @@ abstract class FOGPage extends FOGBase
 				}
 			
 				// Table -> Header Row
-				$result .= sprintf('%s<table width="%s" cellpadding="0" cellspacing="0" border="0"%s>%s<thead>%s<tr class="header">%s</tr>%s</thead>%s<tbody>%s',
+				$result[] = sprintf('%s<table width="%s" cellpadding="0" cellspacing="0" border="0"%s>%s<thead>%s<tr class="header">%s</tr>%s</thead>%s<tbody>%s',
 					"\n\n\t\t\t",
 					'100%',
 					($this->searchFormURL ? ' id="search-content"' : ($this->node == 'tasks' && $_REQUEST['sub'] == 'active' ? ' id="active-tasks"' : '')),
@@ -169,7 +171,7 @@ abstract class FOGPage extends FOGBase
 					// Data found
 					foreach ($this->data AS $rowData)
 					{
-						$result .= sprintf('<tr id="%s-%s" class="%s">%s</tr>%s',
+						$result[] = sprintf('<tr id="%s-%s" class="%s">%s</tr>%s',
 							(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
 							$rowData['id'],
 							(++$i % 2 ? 'alt1' : ((!$_REQUEST['sub'] && $this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN') == 'list') || in_array($_REQUEST['sub'],array('list','search')) ? 'alt2' : '')),
@@ -187,18 +189,18 @@ abstract class FOGPage extends FOGBase
 				else
 				{
 					// No data found
-					$result .= sprintf('<tr><td colspan="%s" class="no-active-tasks">%s</td></tr>',
+					$result[] = sprintf('<tr><td colspan="%s" class="no-active-tasks">%s</td></tr>',
 						count($this->templates),
 						($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : _('No results found'))
 					);
 				}
 				
 				// Table close
-				$result .= sprintf('%s</tbody>%s</table>%s', "\n\t\t\t\t", "\n\t\t\t", "\n\n\t\t\t");
+				$result[] = sprintf('%s</tbody>%s</table>%s', "\n\t\t\t\t", "\n\t\t\t", "\n\n\t\t\t");
 			}
 		
 			// Return output
-			return $result;
+			return implode("\n",$result);
 		}
 		catch (Exception $e)
 		{
