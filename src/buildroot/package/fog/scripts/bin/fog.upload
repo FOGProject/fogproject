@@ -104,7 +104,7 @@ if [ -f "/images/.mntcheck" ]; then
 					handleError "FOG requires your Windows XP's partition start sector to be 63 but is ${partitionStart}";
 				fi
 			fi
-			ntfsresizetest="ntfsresize $RUN_CHKDSK -f -i -P $part";
+			ntfsresizetest="ntfsresize -f -i -P $part";
 			size=`$ntfsresizetest | grep "You might resize" | cut -d" " -f5`;
 			if [ -n "$size" ]; then
 				sizentfsresize=`expr $size '/' 1000`;
@@ -114,7 +114,7 @@ if [ -f "/images/.mntcheck" ]; then
 				echo "";
 				echo " * Possible partition size: $sizentfsresize k";
 				dots "Running resize test";
-				tmpSuc=`ntfsresize $RUN_CHKDSK -f -n -s ${sizentfsresize}k $part << EOFNTFS
+				tmpSuc=`ntfsresize -f -n -s ${sizentfsresize}k $part << EOFNTFS
 Y
 EOFNTFS`
 				success=`echo $tmpSuc | grep "ended successfully"`;
@@ -131,7 +131,7 @@ EOFNTFS`
 					echo "Done";
 					
 					dots "Resizing partition";
-					ntfsresize $RUN_CHKDSK -f -s ${sizentfsresize}k $part &>/dev/null << FORCEY
+					ntfsresize -f -s ${sizentfsresize}k $part &>/dev/null << FORCEY
 y
 FORCEY
 					echo "Done";
