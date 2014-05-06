@@ -135,6 +135,7 @@ FORCEY
 							adjustedfdsize=`expr $sizefd '+' $win7part1start`;
 							parted -s $hd u kB rm 1 &>/dev/null;
 							parted -s $hd -a opt u kB mkpart primary ntfs 2048s ${adjustedfdsize}kB &>/dev/null;
+    						parted -s $hd u kB set 1 boot on &>/dev/null
 						elif [ "$win7partcnt" == "2" ]; then
 							win7part2start=`parted -s $hd u B print | sed -e '/^.2/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//'`;
 							if [ "$win7part2start" == "" ]; then
@@ -142,6 +143,7 @@ FORCEY
 							fi
 							adjustedfdsize=`expr $sizefd '+' $win7part2start`;
 							parted -s $hd -a opt u kB mkpart primary ntfs ${defaultpart2start}B ${adjustedfdsize}kB &>/dev/null;
+    						parted -s $hd u kB set 1 boot on &>/dev/null
 						else
 							handleError "Invalid partition count.";
 						fi
