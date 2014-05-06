@@ -45,23 +45,26 @@ else
 fi
 fdisk -l &> /tmp/fdisk-before;
 echo "";
-echo " * Checking Operating System...................$osname";
-echo " * Checking CPU Cores..........................$cores";
+dots "Checking Operating System"
+echo $osname;
+dots "Checking CPU Cores"
+echo $cores
 echo "";
-echo " * Send method.................................$method";
+dots "Send method"
+echo $method
 blGo="0";
 nfsServerName="";
 if [ "$type" == "up" ]; then
-	echo -n " * Checking In.................................";
+	dots "Checking In"
 	queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
 	echo "Done";
-	echo -n " * Mounting File System........................";
+	dots "Mounting File System"
 	mkdir /images 2>/dev/null;
 	mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images;
 	echo "Done";
 elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 	mac64=`ifconfig | grep HWaddr | head -n1 | base64`;
-	echo -n " * Attempting to send inventory................";
+	dots "Attempting to send inventory";
 	doInventory 2>/dev/null;
 	poststring="mac=${mac64}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}";
 	invres="";
@@ -69,7 +72,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 		invres=`wget -O - --post-data="$poststring" "http://${web}service/inventory.php" 2>/dev/null`;
 		echo "$invres";
 	done
-	echo -n " * Checking In.................................";
+	dots "Checking In";
 	while [ "$blGo" == "0" ]; do
 		if [ "$capone" != "1" ]; then
 			if [ "$mc" != "yes" ]; then
@@ -99,7 +102,8 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 						handleError "Error determining storage server!";
 						exit 1;
 					fi
-					echo " * Using Storage Node..........................$nfsServerName";
+					dots "Using Storage Node"
+					echo "$nfsServerName"
 				fi
 			else
 				queueinfo=`wget -q -O - "http://${web}service/mc_checkin.php?mac=$mac&type=$type" 2>/dev/null`;
@@ -116,7 +120,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 					waittime=$(expr $waittime "+" 5);
 				done
 			fi
-			echo -n " * Mounting File System........................";
+			dots "Mounting File System";
 			mkdir /images $debugstring 2>/dev/null;
 			mount -o nolock,proto=tcp,rsize=32768,intr,noatime $storage /images 2>/tmp/mntfail;
 			mntRet="$?";
@@ -124,9 +128,6 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 				blame=`wget -q -O - "http://${web}service/blame.php?mac=$mac&type=$type" 2>/dev/null`;
 				if [ ! "$blame" == "##" ]; then
 					echo "Failed";
-					echo "";
-					echo -n " * ";
-					cat /tmp/mntfail;
 					echo "";
 					echo "Error during failure notification: $blame";
 					while [ ! "$blame" == "##" ]; do
@@ -139,7 +140,6 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 				else
 					echo "Failed";
 					echo "";
-					echo -n " * ";
 					cat /tmp/mntfail;
 					echo "";
 				fi
@@ -152,7 +152,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 	done
 else
 	echo "Done";
-	echo -n " * Mounting File System........................";
+	dots "Mounting File System";
 	mkdir /images $debugstring 2>/dev/null;
 	mount -o nolock,proto=tcp,rsize=32768,intr,noatime $storage /images 2>/tmp/mntfail;
 	echo "Done";

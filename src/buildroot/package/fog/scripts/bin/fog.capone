@@ -68,7 +68,7 @@ displayBanner;
 setupDNS ${dns}
 echo " * Loading Capone...";	
 echo
-echo -n " * Looking up DMI field........................";	
+dots "Looking up DMI field";	
 dmi="";
 while [ "$dmi" = "" ]; do
 	dmi=`wget -O - "http://${web}service/capone.php?action=dmi" 2>/dev/null`
@@ -81,7 +81,7 @@ echo " * Using Key Value: ${dmivalue}";
 echo "";
 sleep 1;
 dmi64=`echo $dmivalue | base64`
-echo -n " * Looking for images..........................";	
+dots "Looking for images";	
 img="";
 while [ "$img" = "" ]; do
 	img=`wget -O - "http://${web}service/capone.php?action=imagelookup&key=${dmi64}" 2>/dev/null`
@@ -143,7 +143,7 @@ else
 fi
 IFS=$oIFS;
 echo "";
-echo " * Setting up environment to deploy image...";
+dots "Setting up environment to deploy image";
 export type=down 
 export mac="00:00:00:00:00:00";					# Not important for Capone
 export img;
