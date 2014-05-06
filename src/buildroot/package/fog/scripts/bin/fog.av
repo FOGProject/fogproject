@@ -19,21 +19,23 @@ if [ -n "$hd" ]; then
 		done
 		part=${hd}${win7partcnt};
 	fi
-	echo " * Using disk device...........................$hd";
-	echo " * Scanning partition..........................$part";
-	echo -n " * Mounting device.............................";
+	dots "Using disk device";
+	echo $hd
+	dots "Scanning partition";
+	echo $part
+	dots "Mounting device";
 	mkdir /ntfs;
 	mount.ntfs-3g $part /ntfs
 	if [ "$?" = "0" ]; then
 		echo "Done";
-		echo -n " * Creating ram disk...........................";
+		dots "Creating ram disk";
 		mount -t tmpfs none /usr/share/clamav/ -o size=100m;
 		cd /usr/share/clamav/;
 		echo "Done";
-		echo -n " * Updating ClamAV.............................";
+		dots "Updating ClamAV";
 		wget -r -nd --no-parent -l 1 "http://${web}av/clamav/" >/dev/null 2>&1;
 		echo "Done";		
-		echo -n " * Creating working directory..................";
+		dots "Creating working directory";
 		mkdir /ntfs/fog >/dev/null 2>&1;
 		mkdir /ntfs/fog/tmp >/dev/null 2>&1;
 		mkdir /ntfs/fog/infected >/dev/null 2>&1;
@@ -52,7 +54,8 @@ if [ -n "$hd" ]; then
 		else
 			handleError "Unable to determine scanning mode!";
 		fi
-		echo " * Clam AV Mode................................${modename}";
+		dots "Clam AV Mode";
+		echo ${modename}
 		echo "";
 		echo "   Starting AV scan...";
 		echo -n "   ";

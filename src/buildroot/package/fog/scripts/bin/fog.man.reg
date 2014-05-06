@@ -60,7 +60,8 @@ echo "";
 echo "";
 if [ -n "$hd" ]; then
 	part=$hd'1';	
-	echo " * Using disk device...........................$hd";
+	dots "Using disk device"
+	echo $hd
 	
 
 	echo " * Starting host registration...";
@@ -243,7 +244,7 @@ if [ -n "$hd" ]; then
 				;;
 		esac
 		echo 
-		echo -n " * Attempting to register host.................";
+		dots "Attempting to register host";
 		res="";
 		while [ "${res}" = "" ]
 		do
@@ -322,7 +323,7 @@ if [ -n "$hd" ]; then
 	echo 
 	echo 		
 	poststring="mac=${mac}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}";
-	echo -n " * Attempting to send inventory................";
+	dots "Attempting to send inventory................";
 	res="";
 	while [ "$res" = "" ]; do
 		res=`wget -O - --post-data="${poststring}" "http://${web}service/inventory.php" 2>/dev/null`
