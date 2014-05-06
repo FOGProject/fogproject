@@ -121,6 +121,15 @@ EOFNTFS`
 				echo "Done";
 				if [ -n "$success" ]; then
 					echo " * Resize test was successful";
+					
+					dots "Backing up MBR";
+					if [ "$win7rec" == "gpt" ]; then
+						sgdisk -b /gpt.bak $hd 2>&1 >/dev/null;
+					else
+						dd if=$hd of=/mbr.backup count=1 bs=512 &>/dev/null;
+					fi
+					echo "Done";
+					
 					dots "Resizing partition";
 					ntfsresize $RUN_CHKDSK -f -s ${sizentfsresize}k $part &>/dev/null << FORCEY
 y
@@ -155,13 +164,7 @@ FORCEY
 					if [ "$osid" == "2" ]; then
 						correctVistaMBR $hd;
 					fi
-					dots "Backing up MBR";
-					if [ "$win7rec" == "gpt" ]; then
-						sgdisk -b /gpt.bak $hd 2>&1 >/dev/null;
-					else
-						dd if=$hd of=/mbr.backup count=1 bs=512 &>/dev/null;
-					fi
-					echo "Done";
+					
 					dots "Checking Hard Disks";
 					runPartprobe;
 					echo "Done";
