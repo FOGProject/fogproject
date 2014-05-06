@@ -32,16 +32,9 @@ if [ -f "/images/.mntcheck" ]; then
 		if [ "$osid" != "1" ] && [ "$osid" != "2" ] && [ "$osid" != "5" ] && [ "$osid" != "6" ]; then
 			handleError " * Invalid Operating System ID: $osname ($osid)!";
 		fi
-		dots "Checking write caching status on HDD";
-		wcache=$(hdparm -i $hd 2>/dev/null|sed '/WriteCache=/!d; s/^.*WriteCache=//; s/ .*$//');
-		if [ "$wcache" == "enabled" ]; then
-			echo "OK";
-		elif [ "$wcache" == "disabled" ]; then
-			hdparm -W 1 $hd 2&1 >/dev/null;
-			echo "Enabled";
-		else
-			echo "Unknown status $wcache";
-		fi
+		
+		enableWriteCache $hd
+
 		cd /images;
 		part="${hd}1";
 		win7partcnt="0";
@@ -230,22 +223,11 @@ EOFPT
 					writeImageMultiCast ${hd}2
 					writeImageMultiCast $win7sys
 				fi
-				dots "Performing Clean up (Stage 1)";
-				ntfsresize $win7sys  -f -b -P &>/dev/null << EOFNTFS
-Y
-EOFNTFS
-				echo "Done";
 				
-				resetFlag $win7sys
+				expandPartition $win7sys
 			else
 				writeImageMultiCast $part
-				dots "Performing Clean up (Stage 1)";
-				ntfsresize $part  -f -b -P &>/dev/null << EOFNTFS
-Y
-EOFNTFS
-				echo "Done";
-				
-				resetFlag $win7sys
+				expandPartition $part
 			fi
 		elif [ "$imgType" == "mps" ]; then
 			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
@@ -307,23 +289,11 @@ EOFNTFS
 					writeImage $imagePath/rec3.img.000 ${hd}2
 					writeImage $imagePath/sys.img.000 $win7sys
 				fi
-				dots "Performing Clean up (Stage 1)";
-				ntfsresize $win7sys  -f -b -P &>/dev/null << EOFNTFS
-Y
-EOFNTFS
-				echo "Done";
 				
-				resetFlag $win7sys
+				expandPartition $win7sys
 			else
 				writeImage $imagePath $part
-				clear;
-				dots "Performing Clean up (Stage 1)";
-				ntfsresize $part  -f -b -P &>/dev/null << EOFNTFS1
-Y
-EOFNTFS1
-				echo "Done";
-				
-				resetFlag $part
+				expandPartition $part
 			fi
 		elif [ "$imgType" == "mps" ]; then
 			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
