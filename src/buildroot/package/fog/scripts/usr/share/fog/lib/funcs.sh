@@ -28,6 +28,23 @@ dots()
     fi
 }
 
+# $1 is the drive
+enableWriteCache() 
+{
+        if [ -n "$1" ]; then
+                dots "Checking write caching status on HDD";
+		wcache=$(hdparm -i $1 2>/dev/null|sed '/WriteCache=/!d; s/^.*WriteCache=//; s/ .*$//');
+		if [ "$wcache" == "enabled" ]; then
+			echo "OK";
+		elif [ "$wcache" == "disabled" ]; then
+			hdparm -W 1 $1 2&1 >/dev/null;
+			echo "Enabled";
+		else
+			echo "Unknown status $wcache";
+		fi
+        fi
+}
+
 # $1 is the partition
 expandPartition() 
 {
