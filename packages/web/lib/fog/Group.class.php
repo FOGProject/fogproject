@@ -40,7 +40,7 @@ class Group extends FOGController
 	public function getHostCount()
 	{
 		$i = 0;
-		foreach($this->get('hosts') AS $Host)
+		foreach((array)$this->get('hosts') AS $Host)
 			$Host && $Host->isValid() ? $i++ : null;
 		return $i;
 	}
