@@ -15,5 +15,9 @@ class GroupManager extends FOGManagerController
 							groupDesc LIKE "%${keyword}%" OR
 							hostID LIKE "%${keyword}%" OR
 							hostName LIKE "%${keyword}" OR
-							hostDesc LIKE "%${keyword}%"';
+							hostDesc LIKE "%${keyword}%"
+						GROUP BY
+							groupName
+						ORDER BY
+							groupName';
 }
