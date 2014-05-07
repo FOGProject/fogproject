@@ -1545,7 +1545,7 @@ class HostManagementPage extends FOGPage
 			{
 				// Cron Deployment
 				// NOTE: Function will throw an exception if it fails
-				$Host->createCronScheduledPackage($taskTypeID, $taskName, $this->REQUEST['scheduleCronMin'], $this->REQUEST['scheduleCronHour'], $this->REQUEST['scheduleCronDOM'], $this->REQUEST['scheduleCronMonth'], $this->REQUEST['scheduleCronDOW'], $enableShutdown, $enableSnapins,$this->FOGCore->get('name'));
+				$Host->createCronScheduledPackage($taskTypeID, $taskName, $this->REQUEST['scheduleCronMin'], $this->REQUEST['scheduleCronHour'], $this->REQUEST['scheduleCronDOM'], $this->REQUEST['scheduleCronMonth'], $this->REQUEST['scheduleCronDOW'], $enableShutdown, $enableSnapins,$this->FOGUser->get('name'));
 				// Success
 				printf('%s',sprintf('<div class="task-start-ok"><p>%s task created for <u>%s</u> with image <u>%s</u></p><p>%s%s</p></div>',$TaskType->get('name'),$Host->get('name'),$Host->getImage()->get('name'),_('Cron Schedule:'),implode(' ', array($_REQUEST['scheduleCronMin'],$_REQUEST['scheduleCronHour'],$_REQUEST['scheduleCronDOM'],$_REQUEST['scheduleCronMonth'],$_REQUEST['scheduleCronDOW']))));
 			}

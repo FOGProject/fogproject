@@ -20,6 +20,8 @@ class TaskScheduler extends FOGBase
 	private function commonOutput()
 	{
 		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1, 'ip' => current($this->FOGCore->getIPAddress()))));
+		try
+		{
 		if ($StorageNode)
 		{
 			$Tasks = $this->FOGCore->getClass('ScheduledTaskManager')->find(array('isActive' => 1));
@@ -108,6 +110,11 @@ class TaskScheduler extends FOGBase
 			}
 			else
 				$this->outall(" * No tasks found!");
+		}
+		}
+		catch (Exception $e)
+		{
+			$this->outall(" * ".$e->getMessage());
 		}
 	}
 	public function serviceRun()
