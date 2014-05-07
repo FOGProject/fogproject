@@ -166,7 +166,7 @@ pre { white-space: pre-wrap; }
 .bolder { font-weight: bold; }
 .hidden { display: none; }
 
-#action-box { display: hidden; margin: 20px 10px 0 10px; padding-top: 10px; padding-bottom: 10px; border: 1px solid #CCCCCC; background-color: #EFEFEF; }
+#action-box { display: none; margin: 20px 10px 0 10px; padding-top: 10px; padding-bottom: 10px; border: 1px solid #CCCCCC; background-color: #EFEFEF; }
 #action-box p { margin: 5px 0; line-height: 18px; }
 #action-box label { float: left; margin: 3px 0; width: 200px; text-align: right; margin-right: 15px; }
 
