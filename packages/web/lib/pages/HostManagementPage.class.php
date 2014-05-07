@@ -1553,7 +1553,7 @@ class HostManagementPage extends FOGPage
 			{
 				// Instant Deployment
 				// NOTE: Function will throw an exception if it fails
-				$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins);
+				$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, $this->FOGUser->get('name'));
 				// Success
 				printf('%s',sprintf('<div class="task-start-ok"><p>%s task created for <u>%s</u> with image <u>%s</u></p></div>',$TaskType->get('name'),$Host->get('name'),$Host->getImage()->get('name')));
 			}
