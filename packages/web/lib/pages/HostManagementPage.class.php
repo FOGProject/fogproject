@@ -1533,6 +1533,10 @@ class HostManagementPage extends FOGPage
 		// Deploy
 		try
 		{
+			if (!$Host->get('imageID'))
+				throw new Exception(_('You need to assign an image to the host'));
+			if (!$Host->checkIfExist($taskTypeID))
+				throw new Exception(_('To setup download task, you must first upload an image'));
 			if ($this->REQUEST['scheduleType'] == 'single')
 			{
 				// Scheduled Deployment
