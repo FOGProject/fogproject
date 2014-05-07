@@ -70,7 +70,7 @@ function ActiveTasksUpdate()
 				for (var i in response['data'])
 				{
 					// Reset
-					var row = '<tr id="host-' + response['data'][i]['host_id'] + '" class="' + (i % 2 ? 'alt2' : 'alt1')  + (response['data'][i]['percent'] ? ' with-progress' : '') + '">';
+					var row = '<tr id="task-' + response['data'][i]['id'] + '" class="' + (i % 2 ? 'alt2' : 'alt1')  + (response['data'][i]['percent'] ? ' with-progress' : '') + '">';
 					// Add column templates
 					for (var j in response['templates'])
 					{
@@ -85,6 +85,7 @@ function ActiveTasksUpdate()
 					}
 					//response['data'][i]['percentText'].remove();
 					// Replace variable data
+					row += '<td colspan="7">' + '<tr id="progress-${host_id}" class="${class}"><td colspan="7" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percent}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr></td>';
 					for (var k in response['data'][i])
 					{
 						row = row.replace(new RegExp('\\$\\{' + k + '\\}', 'g'), response['data'][i][k]);
@@ -212,6 +213,7 @@ function ActiveTasksButtonHook()
 	{
 		var id = $(this).attr('id').replace(/^host-/, '');
 		var progress = $('#progress-' + id);
+		progress.show();
 		progress.find('.min').addClass('no-min').removeClass('min').end().find('ul').show();
 	}, function()
 	{
