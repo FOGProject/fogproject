@@ -16,7 +16,7 @@ $(function()
 		$('input.toggle-host:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
 	});
 	//Action Box, had to remove action-box id search as it seems broken.
-	//$('#action-box').submit(function() {
+	$('#action-box').submit(function() {
 		var checked = $('input.toggle-host:checked');
 		var hostIDArray = new Array();
 		for (var i = 0, len = checked.size(); i < len; i++)
@@ -24,5 +24,5 @@ $(function()
 			hostIDArray[hostIDArray.length] = checked.eq(i).attr('value');
 		}
 		$('#hostIDArray',this).val(hostIDArray.join(','));
-	//});
+	});
 });
