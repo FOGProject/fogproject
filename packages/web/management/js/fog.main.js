@@ -13,9 +13,6 @@ $(function()
 	$('.fog-variable').fogVariable();
 	// Process FOG Message Boxes
 	$('.fog-message-box').fogMessageBox();
-	// Add table header sorting information.
-	$('thead td').addClass('hand');
-	$('table').tablesorter({ sortList: [[0,0]] });
 	
 	// Host Ping
 	$('.ping').fogPing();
@@ -57,6 +54,7 @@ $(function()
 
 	// Search boxes
 	$('.search-input').fogAjaxSearch();
+	$('#content-inner').fogTableInfo();
 	
 	// Disable text selection in <label> elements
 	$('label').disableSelection();
