@@ -43,7 +43,6 @@ class TaskManagementPage extends FOGPage
 			'<small>${time}</small>',
 			'<span class="icon icon-${icon_state}" title="${state}"></span> <span class="icon icon-${icon_type}" title="${type}"></span>',
 			'${columnkill}',
-			'${tablerow}',
 		);
 		// Row attributes
 		$this->attributes = array(
@@ -76,7 +75,6 @@ class TaskManagementPage extends FOGPage
 				'forced'	=> ($Task->get('isForced') ? '1' : '0'),
 				'type'	=> $Task->getTaskTypeText(),
 				'percentText' => $Task->get('percent'),
-				'tablerow' => $Task->get('percent') ? '<tr id="progress-${host_id}" class="${class}"><td colspan="7" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percent}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr>' : '',
 				'class' => ++$i % 2 ? 'alt2' : 'alt1',
 				'width' => 600 * ($Task->get('percent')/100),
 				'elapsed' => $Task->get('timeElapsed'),
@@ -122,7 +120,6 @@ class TaskManagementPage extends FOGPage
 				'forced'	=> ($Task->get('isForced') ? '1' : '0'),
 				'type'	=> $Task->getTaskTypeText(),
 				'percentText' => $Task->get('percent'),
-				'tablerow' => $Task->get('percent') ? '<tr id="progress-${host_id}" style="display: none;" class="${class}"><td colspan="7" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percent}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr>' : '',
 				'class' => ++$i % 2 ? 'alt2' : 'alt1',
 				'width' => 600 * ($Task->get('percent')/100),
 				'elapsed' => $Task->get('timeElapsed'),
@@ -163,7 +160,6 @@ class TaskManagementPage extends FOGPage
 				'forced'	=> ($Task->get('isForced') ? '1' : '0'),
 				'type'	=> $Task->getTaskTypeText(),
 				'percentText' => $Task->get('percent'),
-				'tablerow' => ($Task->get('percent') && $Task->get('stateID') == 3 ? '<tr id="progress-${host_id}" style="display:none;" class="${class}"><td colspan="7" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percent}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr>' : ''),
 				'class' => ++$i % 2 ? 'alt2' : 'alt1',
 				'width' => 600 * ($Task->get('percent')/100),
 				'elapsed' => $Task->get('timeElapsed'),
@@ -406,7 +402,6 @@ class TaskManagementPage extends FOGPage
 				'forced'	=> ($Task->get('isForced') ? '1' : '0'),
 				'type'	=> $Task->getTaskTypeText(),
 				'percentText' => $Task->get('percent'),
-				'tablerow' => $Task->get('percent') ? '<tr id="progress-${host_id}" style="display: none;" class="${class}"><td colspan="7" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percent}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr>' : '',
 				'class' => ++$i % 2 ? 'alt2' : 'alt1',
 				'width' => 600 * ($Task->get('percent')/100),
 				'elapsed' => $Task->get('timeElapsed'),
