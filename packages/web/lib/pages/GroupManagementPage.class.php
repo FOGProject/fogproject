@@ -746,6 +746,7 @@ class GroupManagementPage extends FOGPage
 							if ($Host && $Host->isValid())
 								$Host->addSnapin($_REQUEST['snapin']);
 						}
+						$Host->save();
 					}
 				break;
 				// Snapin Del
@@ -760,6 +761,7 @@ class GroupManagementPage extends FOGPage
 							if ($Host && $Host->isValid())
 								$Host->removeSnapin($_REQUEST['snapin']);
 						}
+						$Host->save();
 					}
 				break;
 				// Active Directory

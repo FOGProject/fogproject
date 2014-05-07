@@ -17,6 +17,8 @@ class ImageReplicator extends FOGBase
 	private function commonOutput()
 	{
 		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1, 'ip' => current($this->FOGCore->getIPAddress()))));
+		try
+		{
 		if ($StorageNode)
 		{
 			$this->FOGCore->out(' * I am the group manager.',REPLICATORDEVICEOUTPUT);
@@ -61,6 +63,11 @@ class ImageReplicator extends FOGBase
 		{
 			$this->FOGCore->out(" * I don't appear to be the group manager, I will check back later.",REPLICATORDEVICEOUTPUT);
 			$this->FOGCore->wlog(" * I don't appear to be the group manager, I will check back later.",'/opt/fog/log/groupmanager.log');
+		}
+		}
+		catch (Exception $e)
+		{
+			$this->outall(' * '.$e->getMessage());
 		}
 	}
 	public function serviceRun()
