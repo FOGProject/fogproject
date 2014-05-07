@@ -70,7 +70,7 @@ function ActiveTasksUpdate()
 				for (var i in response['data'])
 				{
 					// Reset
-					var row = '<tr id="host-' + response['data'][i]['id'] + '" class="' + (i % 2 ? 'alt2' : 'alt1')  + (response['data'][i]['percentData'] ? ' with-progress' : '') + '">';
+					var row = '<tr id="host-' + response['data'][i]['host_id'] + '" class="' + (i % 2 ? 'alt2' : 'alt1')  + (response['data'][i]['percent'] ? ' with-progress' : '') + '">';
 					// Add column templates
 					for (var j in response['templates'])
 					{
@@ -93,16 +93,16 @@ function ActiveTasksUpdate()
 					// Add to rows
 					rows += row + "</tr>";
 					// Percentage data
-					if (response['data'][i]['percentData'])
+					if (response['data'][i]['percent'])
 					{
-						rows += response['data'][i]['percentData'];
+						rows += response['data'][i]['percent'];
 					}
 				}
 				// Append rows into tbody
 				tbody.append(rows);
 				// Add data to new elements - elements should be in tbody, so we dont have to search all DOM
 				var tr = $('tr', tbody);
-				for (i in response['data']) tr.eq(i).data({ 'id': response['data'][i]['id'], 'hostname': response['data'][i]['hostname'] });
+				for (i in response['data']) tr.eq(i).data({ 'host_id': response['data'][i]['host_id'], 'host_name': response['data'][i]['host_name'] });
 				// Tooltips
 				HookTooltips();
 				// Hook buttons
