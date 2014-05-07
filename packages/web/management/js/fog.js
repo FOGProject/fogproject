@@ -105,6 +105,7 @@ var Loader;
 			Container.hide();
 			ActionBox.hide();
 		}
+
 		
 		// Iterate each element
 		return this.each(function()
@@ -294,6 +295,12 @@ var Loader;
 				});
 			}
 		});
+	}
+
+	$.fn.fogTableInfo = function() {
+		// Add table header sorting information.
+		$('table:not(#search-content) > thead > tr > td').addClass('hand');
+		$('table:not(#search-content)').tablesorter({ sortList: [[0,0]] });
 	}
 	
 	$.fn.fogPing = function(opts)
@@ -576,9 +583,11 @@ var Loader;
 	{
 		return $.browser.msie && parseInt($.browser.version, 10) <= 8;
 	}
+
+	$('#action-box').show();
 	
-/*
-	$.fn.fogTemplate = function(opts)
+
+	/*$.fn.fogTemplate = function(opts)
 	{
 		// If no elements were found before this was called
 		if (this.length == 0) return this;
@@ -596,6 +605,6 @@ var Loader;
 			// Variables
 			var $this = $(this);
 		});
-	}
-*/
+	}*/
+
 })(jQuery);
