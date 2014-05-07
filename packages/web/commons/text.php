@@ -204,7 +204,7 @@ if ($_GET['node'] == 'group')
 		$foglang['SubMenu']['group']['id'][$linkformat.'#group-membership'] = $foglang['Membership'];
 		$foglang['SubMenu']['group']['id'][$linkformat.'#group-image'] = $foglang['ImageAssoc'];
 		$foglang['SubMenu']['group']['id'][$linkformat.'#group-snap-add'] = $foglang['Add'].' '.$foglang['Snapins'];
-		$foglang['SubMenu']['group']['id'][$linkformat.'#group-snap-delete'] = $foglang['Remove'].' '.$foglang['Snapins'];
+		$foglang['SubMenu']['group']['id'][$linkformat.'#group-snap-del'] = $foglang['Remove'].' '.$foglang['Snapins'];
 		$foglang['SubMenu']['group']['id'][$linkformat.'#group-service'] = $foglang['Service'].' '.$foglang['Settings'];
 		$foglang['SubMenu']['group']['id'][$linkformat.'#group-active-directory'] = $foglang['AD'];
 		$foglang['SubMenu']['group']['id'][$linkformat.'#group-printers'] = $foglang['Printers'];
