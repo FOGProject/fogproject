@@ -563,8 +563,34 @@ class Host extends FOGController
 	{
 		return $this->get('optimalStorageNode');
 	}
-	public function checkIfExist($StorageNode,$TaskType,$Image)
+	public function checkIfExist($taskTypeID)
 	{
+		$LocPlugInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
+		// TaskType: Variables
+		$TaskType = new TaskType($taskTypeID);
+		$isUpload = $TaskType->isUpload();
+		// Image: Variables
+		$Image = $this->getImage();
+		if ($LocPlugInst)
+		{
+			$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $this->get('id'))));
+			if ($LA)
+			{
+				$Location = new Location($LA->get('locationID'));
+				$StorageGroup = new StorageGroup($Location->get('storageGroupID'));
+				$StorageNode = ($isUpload ? $StorageGroup->getMasterStorageNode() : ($Location->get('storageNodeID') ? new StorageNode($Location->get('storageNodeID')) : $StorageGroup->getOptimalStorageNode()));
+			}
+			else
+			{
+				$StorageGroup = $Image->getStorageGroup();
+				$StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $Image->getStorageGroup()->getMasterStorageNode());
+			}
+		}
+		else
+		{
+			$StorageGroup = $Image->getStorageGroup();
+			$StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode());
+		}
 		if (in_array($TaskType->get('id'),array('1','8','15','17')))
 		{
 			// FTP
@@ -577,8 +603,6 @@ class Host extends FOGController
 				if(!$ftp->chdir(rtrim($StorageNode->get('path'),'/').'/'.$Image->get('path')))
 					return false;
 			}
-			else
-				throw new Exception('You have not successfully connected.');
 			$ftp->close();
 		}
 		return true;
@@ -615,9 +639,6 @@ class Host extends FOGController
 				$StorageGroup = $Image->getStorageGroup();
 				$StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode());
 			}
-			// Check if exists
-			if (!$this->checkIfExist($StorageNode,$TaskType,$Image))
-				throw new Exception(_('You need to upload the image first before you can deploy it'));
 			// Task type wake on lan, deploy only this part.
 			if ($taskTypeID == '14')
 			{
