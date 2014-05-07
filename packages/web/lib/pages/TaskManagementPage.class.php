@@ -102,9 +102,12 @@ class TaskManagementPage extends FOGPage
 	public function search()
 	{
 		// Set title
-		$this->title = _('Search');
-		// Set search form
-		$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
+		$this->title = _('All Active Tasks');
+		if ($_REQUEST['sub'] == 'search')
+			$this->title = _('Search');
+		if ($_REQUEST['sub'] == 'search')
+			// Set search form
+			$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
 		// Find data -> Push data
 		foreach ((array)$this->FOGCore->getClass('TaskManager')->find(array('stateID' => array(1,2,3))) AS $Task)
 		{
