@@ -458,7 +458,7 @@ class GroupManagementPage extends FOGPage
 		print '</form>';
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t<!-- Remove Snap-ins -->";
-		print "\n\t\t\t".'<div id="group-snap-delete">';
+		print "\n\t\t\t".'<div id="group-snap-del">';
 		print "\n\t\t\t<h2>"._('Remove Snapin to all hosts in').': '.$Group->get('name').'</h2>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-snap-del">';
 		$this->data[] = array(
