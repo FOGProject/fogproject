@@ -165,10 +165,8 @@
 		});
 	};
 	// Form no redirect, but update page.
-
-	$('form:not(#action-box)').on('submit',function(e) {
+	$('form').not('#action-box,#search-wrapper').on('submit',function(e) {
 		$.post(url);
 		return false;
 	});
-	
 })(jQuery);
