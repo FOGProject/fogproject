@@ -67,7 +67,10 @@ elif [ "$mode" == "quickimage" ]; then
 	after=$afterActionTerm;			
 elif [ "$mode" == "sysinfo" ]; then
 	run="/bin/fog.sysinfo";
-	after=$afterActionTerm;		
+	after=$afterActionTerm;
+elif [ "$mode" == "donate.full" ]; then
+	run="/bin/fog.donatefull";
+	after=$afterActionTerm;					
 else	
 	run="/bin/fog";
 	after=$afterActionTerm;
