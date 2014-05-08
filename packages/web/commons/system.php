@@ -8,7 +8,7 @@
  ***/
 // These variables are for the FOG system and do NOT need to be modified by the end user
 if (!ini_get('date.timezone'))
-	date_default_timezone_set('UTC');
+	date_default_timezone_set(date_default_timezone_get());
 define('IS_INCLUDED', true);
 define('FOG_VERSION', '1.0.0');
 define('FOG_SCHEMA', 95);
