@@ -2,6 +2,9 @@
 	
 . /usr/share/fog/lib/funcs.sh
 
+clearScreen;
+displayBanner;
+
 setupDNS $dns;
 
 echo 
