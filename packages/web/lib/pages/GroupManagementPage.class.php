@@ -875,9 +875,11 @@ class GroupManagementPage extends FOGPage
 			'${input}',
 		);
 		$fields = array(
-			_('Please confirm you want to delete').' <b>'.$Group->get('name').'</b>' => '<input type="submit" value="${title}" />',
+			_('Please confirm you want to delete').' <b>'.$Group->get('name').'</b>' => '&nbsp;',
+			_('Delete all hosts within the group as well?') => '<input type="checkbox" name="massDelHosts" value="1" />',
+			'&nbsp;' => '<input type="submit" value="${title}" />',
 		);
-		foreach((array)$fields AS $field => $input)
+		foreach($fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -904,19 +906,63 @@ class GroupManagementPage extends FOGPage
 		// POST
 		try
 		{
-			// Remove Group associations
-			$this->FOGCore->getClass('GroupAssociationManager')->destroy(array('groupID' => $Group->get('id')));
-			// Remove Group
-			if (!$Group->destroy())
-				throw new Exception(_('Failed to destroy Group'));
-			// Hook
-			$this->HookManager->processEvent('GROUP_DELETE_SUCCESS', array('Group' => &$Group));
-			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Group deleted'), $Group->get('id'), $Group->get('name')));
-			// Set session message
-			$this->FOGCore->setMessage(sprintf('%s: %s', _('Group deleted'), $Group->get('name')));
-			// Redirect
-			$this->FOGCore->redirect(sprintf('?node=%s', $this->request['node']));
+			if ($_REQUEST['delHostConfirm'] == '1')
+			{
+				foreach((array)$Group->get('hosts') AS $Host)
+					$Host->destroy();
+			}
+			// Remove hosts first.
+			if (isset($_REQUEST['massDelHosts']))
+			{
+				unset($this->data);
+				// Header Data
+				$this->headerData = array(
+					_('Host Name'),
+					_('Last Deployed'),
+				);
+				// Attributes
+				$this->attributes = array(
+					array(),
+					array(),
+				);
+				// Templates
+				$this->templates = array(
+					'${host_name}<br /><small>${host_mac}</small>',
+					'<small>${host_deployed}</small>',
+				);
+				foreach((array)$Group->get('hosts') AS $Host)
+				{
+					$this->data[] = array(
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac'),
+						'host_deployed' => $Host->get('deployed'),
+					);
+				}
+				print "\n\t\t\t".'<p>'._('Please confirm you want to delete the following hosts from the FOG Database.').'</p>';
+				print "\n\t\t\t".'<form method="post" action="?node=group&sub=delete&id='.$Group->get('id').'" class="c">';
+				// Hook
+				$this->HookManager->processEvent('GROUP_DELETE_HOST_FORM', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+				// output
+				$this->render();
+				print '<input type="hidden" name="delHostConfirm" value="1" /><input type="submit" value="Delete all hosts?" />';
+				print "\n\t\t\t".'</form>';
+			}
+			else
+			{
+				// Remove Group associations
+				$this->FOGCore->getClass('GroupAssociationManager')->destroy(array('groupID' => $Group->get('id')));
+				// Remove Group
+				if (!$Group->destroy())
+					throw new Exception(_('Failed to destroy Group'));
+				// Hook
+				$this->HookManager->processEvent('GROUP_DELETE_SUCCESS', array('Group' => &$Group));
+				// Log History event
+				$this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Group deleted'), $Group->get('id'), $Group->get('name')));
+				// Set session message
+				$this->FOGCore->setMessage(sprintf('%s: %s', _('Group deleted'), $Group->get('name')));
+				// Redirect
+				$this->FOGCore->redirect(sprintf('?node=%s', $this->request['node']));
+			}
 		}
 		catch (Exception $e)
 		{
