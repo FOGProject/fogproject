@@ -670,6 +670,7 @@ END OF TERMS AND CONDITIONS</pre>";
 			'FOG_LEGACY_FLAG_IN_GUI',
 			'FOG_NO_MENU',
 			'FOG_MINING_ENABLE',
+			'FOG_MINING_FULL_RUN_ON_WEEKEND',
 		);
 		// Set title
 		$this->title = _("FOG System Settings");
