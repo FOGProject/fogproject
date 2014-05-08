@@ -181,7 +181,7 @@ abstract class FOGManagerController extends FOGBase
 		$matchID = ($_REQUEST['node'] == 'images' ? ($matchID === '0' ? '1' : $matchID) : $matchID);
 		if (empty($elementName))
 			$elementName = strtolower($this->childClass);
-		foreach($this->find('','',$order) AS $Object)
+		foreach($this->find('','',$orderBy) AS $Object)
 		{
 			if (!in_array($Object->get('id'),(array)$filter))
 				$listArray[] = '<option value="'.$Object->get('id').'"'.($matchID == $Object->get('id') ? ' selected="selected"' : '' ).'>'.$Object->get('name').' - ('.$Object->get('id').')</option>';
