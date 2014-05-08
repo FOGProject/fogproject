@@ -11,7 +11,7 @@ try
                 } else {
                     // it is a weekday check the hour
                     if ( $abortHour == ($date->format('G')) ) {
-                        print "#!RESTART";
+                        print "Restarting the client...";
                     } else { 
                         print "#!OK";
                     }
