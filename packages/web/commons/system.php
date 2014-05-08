@@ -11,7 +11,7 @@ if (!ini_get('date.timezone'))
 	date_default_timezone_set('UTC');
 define('IS_INCLUDED', true);
 define('FOG_VERSION', '1.0.0');
-define('FOG_SCHEMA', 93);
+define('FOG_SCHEMA', 94);
 define('FOG_SVN_REVISION', '$Revision$');
 define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');
 define('PHP_VERSION_REQUIRED', '5.2.1');
