@@ -9,6 +9,18 @@
 // JQuery autoloader
 $(function()
 {
+	if (typeof($("#pigz").slider) == typeof(Function)) {
+		$("#pigz").slider({
+			min: 0,
+			max: 9,
+			range: 'min',
+			value: $("#showVal").val(),
+			slide: function(event, ui) {
+				$("#showVal").val(ui.value);
+			}
+		});
+		$("#showVal").val($("#pigz").slider("value"));
+	}
 	// Process FOG JS Variables
 	$('.fog-variable').fogVariable();
 	// Process FOG Message Boxes
