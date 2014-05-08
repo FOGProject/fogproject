@@ -67,8 +67,8 @@ class Task extends FOGController
 		$curTime = strtotime(date('Y-m-d H:i:s'));
 		foreach($Tasks AS $Task)
 		{
-			if ($curTime - strtotime($Task->get('createdTime')) < $this->FOGCore->getSetting('FOG_CHECKIN_TIMEOUT'))
-				$count++;
+			if ($this->get('id') > $Task->get('id') && $curTime - strtotime($Task->get('checkInTime')) < $this->FOGCore->getSetting('FOG_CHECKIN_TIMEOUT'))
+                                $count++;
 		}
 		return $count;
 	}
