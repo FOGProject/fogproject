@@ -253,6 +253,7 @@ pre { white-space: pre-wrap; }
 .icon-wipe, .icon-fast-wipe, .icon-full-wipe, .icon-normal-wipe { background: url('../images/icon-wipe.png') no-repeat center center; }
 .icon-loading { background: url('../images/loader.gif') no-repeat center center; }
 .icon-deploy { background: url('../images/icon-deploy.png') no-repeat center center; }
+.icon-donate { background: url('../images/donate.png') no-repeat center center; }
 .hand { cursor: pointer; }
 
 /* Hosts - Edit */
