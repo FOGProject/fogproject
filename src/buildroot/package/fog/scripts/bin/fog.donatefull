@@ -43,6 +43,8 @@ setterm -background black
 
 clear
 
+/bin/fog.donate.monitor &
+
 /bin/fog.fork full & >/dev/null 2>&1;
 
 read test
