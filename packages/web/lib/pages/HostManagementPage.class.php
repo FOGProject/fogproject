@@ -396,7 +396,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t</div>";
 		foreach((array)$Host->get('groups') AS $Group)
 			$GroupIDs[] = $Group && $Group->isValid() ? $Group->get('id') : '';
-		$GroupStuff = $this->FOGCore->getClass('GroupManager')->buildSelectBox('','group[]" multiple="multiple','',$GroupIDs);
+		$GroupStuff = $this->FOGCore->getClass('GroupManager')->buildSelectBox('','group[]" multiple="multiple','name',$GroupIDs);
 		print "\n\t\t\t<!-- Group Relationships -->";
 		print "\n\t\t\t".'<div id="host-grouprel" class="organic-tabs-hidden">';
 		print "\n\t\t\t<h2>"._('Group Relationships').'</h2>';

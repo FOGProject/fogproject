@@ -87,7 +87,7 @@ writeImage()
 		partimage restore $2 $1 -f3 -b 2>/tmp/status.fog
 	else 
 		# partclone
-		gunzip -d -c < $1 | partclone.restore --ignore-crc -O $2 -N -f 1 2>/tmp/status.fog;
+		gunzip -d -c < $1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
 	fi
 }
 
@@ -99,7 +99,7 @@ writeImageMultiCast()
 		udp-receiver --nokbd --portbase ${port} --mcast-rdv-address ${storageip} 2>/dev/null | gunzip -d -c | partimage -f3 -b restore $1 stdin 2>/tmp/status.fog;
 	else 
 		# partclone
-		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partclone.restore --ignore-crc -O $1 -N -f 1 2>/tmp/status.fog;
+		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;
 	fi
 }
 
