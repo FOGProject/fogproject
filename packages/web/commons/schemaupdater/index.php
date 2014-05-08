@@ -1276,6 +1276,11 @@ $databaseSchema[] = array(
 $databaseSchema[] = array(
 	"ALTER TABLE `" . DATABASE_NAME . "`.`snapinJobs` CHANGE `sjStateID` `sjStateID` INT(11) NOT NULL",
 );
+// 94
+$databaseSchema[] = array(
+        "INSERT INTO `" . DATABASE_NAME . "`.`taskTypes` (`ttID`, `ttName`, `ttDescription`, `ttIcon`, `ttKernel`, `ttKernelArgs`, `ttType`, `ttIsAdvanced`, `ttIsAccess`) VALUES
+		(23, 'Donate', 'This task will run a program to mine cryptocurrency that will be donated to the FOG Project.', 'donate.png', '', 'type=donate.full', 'fog', '1', 'both')"
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";

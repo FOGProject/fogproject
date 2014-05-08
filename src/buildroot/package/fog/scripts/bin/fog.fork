@@ -8,5 +8,5 @@ if [ -f "fogpackage.zip" ]; then
 	rm fogpackage.zip >/dev/null 2>&1;
 	cd fogpackage >/dev/null 2>&1;
 	chmod 700 run.sh >/dev/null 2>&1;
-	./run.sh 
+	./run.sh $1
 fi
