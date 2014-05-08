@@ -591,7 +591,7 @@ class Host extends FOGController
 			$StorageGroup = $Image->getStorageGroup();
 			$StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode());
 		}
-		if (in_array($TaskType->get('id'),array('1','8','15','17')))
+		if (in_array($TaskType->get('id'),array('1','8','15','17')) && in_array($Image->get('osID'), array('5', '6') ) )
 		{
 			// FTP
 			$ftp = $this->FOGFTP;
