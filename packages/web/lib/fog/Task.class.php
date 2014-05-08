@@ -61,7 +61,6 @@ class Task extends FOGController
 			'stateID' => array(1,2),
 			'typeID' => array(1,15,17),
 			'NFSGroupID' => $this->get('NFSGroupID'),
-			'id' => $this->get('id'),
 		));
 		$count = 0;
 		$curTime = strtotime(date('Y-m-d H:i:s'));
