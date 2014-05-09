@@ -302,7 +302,7 @@ then
 		echo "  'FOG Storage Nodes' -> "		
 		echo  -n "  'FOG_STORAGENODE_MYSQLPASS'.  Password: "
 		read snmysqlpass;
-        dbpass=${password};
+        dbpass=${snmysqlpass};
 	done		
 fi
 
