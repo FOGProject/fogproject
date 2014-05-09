@@ -274,9 +274,7 @@ configureUsers()
 		# save everyone wrist injuries
 		storageftpuser=${username};
 		storageftppass=${password};
-		
-        dbuser=${username};
-        dbpass=${password};
+
 	fi
 	
 	if [ $password != "" ]
