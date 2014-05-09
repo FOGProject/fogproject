@@ -21,6 +21,11 @@
 # Linux Account that is used for FTP transactions
 username="fog";
 
+# This is used for storage nodes
+dbuser="root"
+dbpass=""
+dbhost="localhost"
+
 # where are the php files from the download package?
 webdirsrc="../packages/web";
 
