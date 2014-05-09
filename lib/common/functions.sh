@@ -266,7 +266,7 @@ sendInstallationNotice()
 configureUsers()
 {
 	echo -n "  * Setting up fog user";
-	password="password";
+	password="${snmysqlpass}";
 	if [ "$installtype" = "S" ]
 	then
 		# save everyone wrist injuries
