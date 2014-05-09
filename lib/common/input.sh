@@ -278,8 +278,9 @@ then
 		echo 
 		echo "  What is the username to access the database?"
 		echo "  This information is storage in the management portal under ";
-		echo "  'Other Information' -> "
+		echo "  'FOG Configuration' -> "
 		echo "  'FOG Settings' -> "
+		echo "  'FOG Storage Nodes' -> "
 		echo -n "  'FOG_STORAGENODE_MYSQLUSER'. Username [${strSuggestedSNUser}]: "
 		read snmysqluser;
 		if [ "$snmysqluser" = "" ]
@@ -293,8 +294,9 @@ then
 		echo 
 		echo "  What is the password to access the database?  "
 		echo "  This information is storage in the management portal under "
-		echo "  'Other Information' -> "
+		echo "  'FOG Configuration' -> "
 		echo "  'FOG Settings' -> "
+		echo "  'FOG Storage Nodes' -> "		
 		echo  -n "  'FOG_STORAGENODE_MYSQLPASS'.  Password: "
 		read snmysqlpass;
 		
