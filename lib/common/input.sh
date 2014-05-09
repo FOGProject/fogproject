@@ -271,6 +271,7 @@ then
 		echo "  the fog database?  This is typically the server that also "
 		echo -n "  runs the web server, dhcp, and tftp.  IP or Hostname: "
 		read snmysqlhost;
+		dbhost=$snmysqlhost;
 	done
 	
 	while [ "${snmysqluser}" = "" ]
@@ -287,6 +288,8 @@ then
 		then
 			snmysqluser=${strSuggestedSNUser};
 		fi		
+		dbuser=${snmysqluser};
+
 	done	
 	
 	while [ "${snmysqlpass}" = "" ]
@@ -299,7 +302,7 @@ then
 		echo "  'FOG Storage Nodes' -> "		
 		echo  -n "  'FOG_STORAGENODE_MYSQLPASS'.  Password: "
 		read snmysqlpass;
-		
+        dbpass=${password};
 	done		
 fi
 

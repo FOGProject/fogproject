@@ -344,10 +344,10 @@ configureHttpd()
  */
 
 define('DATABASE_TYPE',		'mysql');	// mysql or oracle
-define('DATABASE_HOST',		'localhost');
+define('DATABASE_HOST',		'${dbhost}');
 define('DATABASE_NAME',		'fog');
-define('DATABASE_USERNAME',		'root');
-define('DATABASE_PASSWORD',		'');
+define('DATABASE_USERNAME',		'${dbuser}');
+define('DATABASE_PASSWORD',		'${dbpass}');
 
 /*
  *  SYSTEM SERVICE VARIABLES
