@@ -57,6 +57,13 @@ class StorageNode extends FOGController
 				return $NodeFailure;
 		}
 	}
+	public function getClientLoad() {
+        $max = $this->get('maxClients');
+	    if ( $max > 0 ) {
+    	    return (($this->getUsedSlotCount() + $this->getQueuedSlotCount()) / $max);
+	    }
+	    return 0;
+	}
 	public function getUsedSlotCount()
 	{
 		return $this->FOGCore->getClass('TaskManager')->count(array(
