@@ -37,8 +37,17 @@ class StorageGroup extends FOGController
 	function getOptimalStorageNode()
 	{
 		$StorageNodes = $this->getStorageNodes();
-		// Change this to count client connections -> Return based on that (instead of random)
-		return (count($StorageNodes) ? $StorageNodes[rand(0, count($StorageNodes)-1)] : false);
+		$winner = null;
+		foreach( $StorageNodes AS $StorageNode ) {
+		    if ( $winner == null ) {
+		        $winner = $StorageNode;
+		    } else {
+		        if (  $StorageNode->getClientLoad() < $winner->getClientLoad() ) {
+		            $winner = $StorageNode;
+		        }
+		    }
+		}
+		return $winner;
 	}
 	public function getUsedSlotCount()
 	{
