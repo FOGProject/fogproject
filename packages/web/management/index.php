@@ -106,6 +106,7 @@ print "\n\t".'<script type="text/javascript" src="js/jquery.placeholder.js"></sc
 print "\n\t".'<script type="text/javascript" src="js/jquery.disableSelection.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/fog.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/fog.main.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/hideShowPassword.min.js"></script>';
 print "\n\t".'<script type="text/javascript" src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>';
 // Auto find javascript based on $node and/or $sub
 foreach (array("js/fog.{$node}.js", "js/fog.{$node}.{$sub}.js") AS $jsFilepath)
