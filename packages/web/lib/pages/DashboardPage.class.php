@@ -98,10 +98,23 @@ class DashboardPage extends FOGPage
 			$ImagingLogs = $this->FOGCore->getClass('ImagingLogManager')->count(array('start' => $keyword, 'type' => array('up','down')));
 			$Graph30dayData[] = '["'.($Date->getTimestamp()*1000).'", '.$ImagingLogs.']';
 		}
+		
+		$ActivityActive = 0;
+       	$ActivityQueued = 0;
+  		$ActivitySlots = 0;
+  		$ActivityTotalClients = 0;
+		foreach( $this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1)) AS $StorageNode ) {
+		    if ( $StorageNode && $StorageNode->isValid() ) {
+           		$ActivityActive += $StorageNode->getUsedSlotCount();
+	        	$ActivityQueued += $StorageNode->getQueuedSlotCount();
+	        	$ActivityTotalClients += $StorageNode->get('maxClients');
+
+    		}
+		}
+   		$ActivitySlots = $ActivityTotalClients -  $ActivityActive - $ActivityQueued;		    		
+   		
 		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isMaster' => 1, 'isEnabled' => 1)));
-		$ActivityActive = $StorageNode && $StorageNode->isValid() ? $StorageNode->getUsedSlotCount() : 0;
-		$ActivityQueued = $StorageNode && $StorageNode->isValid() ? $StorageNode->getQueuedSlotCount() : 0;
-		$ActivitySlots = $StorageNode && $StorageNode->isValid() ? $StorageNode->get('maxClients') - $ActivityActive : 0;
+
 		print "\n\t\t\t".'<div class="fog-variable" id="ActivityActive">'.$ActivityActive.'</div>';
 		print "\n\t\t\t".'<div class="fog-variable" id="ActivityQueued">'.$ActivityQueued.'</div>';
 		print "\n\t\t\t".'<div class="fog-variable" id="ActivitySlots">'.($ActivitySlots < 0 ? 0 : $ActivitySlots).'</div>';
