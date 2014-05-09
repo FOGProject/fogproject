@@ -39,11 +39,11 @@ class StorageGroup extends FOGController
 		$StorageNodes = $this->getStorageNodes();
 		$winner = null;
 		foreach( $StorageNodes AS $StorageNode ) {
-		    if ( $winner == null ) {
-		        $winner = $StorageNode;
-		    } else {
-		        if (  $StorageNode->getClientLoad() < $winner->getClientLoad() ) {
+		    if ( $StorageNode->get('maxClients') > 0 ) {
+		        if ( $winner == null ) {
 		            $winner = $StorageNode;
+		        } else if ( $StorageNode->getClientLoad() < $winner->getClientLoad() ) {
+	                $winner = $StorageNode;
 		        }
 		    }
 		}
