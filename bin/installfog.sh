@@ -255,18 +255,21 @@ do
 	           if [ "$installtype" = "S" ]
 	           then
 	           	# Storage Node installation
-			configureUsers;
-			configureMinHttpd;
-	           	configureStorage;
-	           	configureNFS;
-	           	configureFTP;
-			configureUDPCast;          
-			installInitScript;
-			installFOGServices;
-			configureFOGService;	
-			sendInstallationNotice;
-			writeUpdateFile;
-			configureDefaultiPXEfile;
+			        configureUsers;
+			        configureMinHttpd;
+	                configureStorage;
+	                configureNFS;
+	                configureFTP;
+			        configureUDPCast;          
+			        installInitScript;
+			        installFOGServices;
+			        configureFOGService;	
+			        sendInstallationNotice;
+			        writeUpdateFile;
+			        
+			        # Removed because this puts a file in the /tftpboot directory
+			        # which doesn't exist and there isn't a tftp server installed
+			        #configureDefaultiPXEfile;
 			if [ "$bluseralreadyexists" = "1" ]
 			then
 				echo "";
@@ -291,40 +294,40 @@ do
 				echo "";
 			fi									           	
 	           else
-			# Normal installation
-			configureUsers;
-			configureMySql;
-			backupReports;
-			configureHttpd;
-			restoreReports;
-			setupFreshClam;
-			configureStorage;
-			configureNFS;
-			configureDHCP;
-			configureTFTPandPXE;
-			configureFTP;
-			configureSudo;
-			configureSnapins;
-			configureUDPCast;          
-			installInitScript;
-			installFOGServices;
-			configureFOGService;
-			installUtils;
-			sendInstallationNotice;
-			writeUpdateFile;
-			echo "";
+			    # Normal installation
+			    configureUsers;
+			    configureMySql;
+			    backupReports;
+			    configureHttpd;
+			    restoreReports;
+			    setupFreshClam;
+			    configureStorage;
+			    configureNFS;
+			    configureDHCP;
+			    configureTFTPandPXE;
+			    configureFTP;
+			    configureSudo;
+			    configureSnapins;
+			    configureUDPCast;          
+			    installInitScript;
+			    installFOGServices;
+			    configureFOGService;
+			    installUtils;
+			    sendInstallationNotice;
+			    writeUpdateFile;
+			    echo "";
 		
-			echo "  Setup complete!";
-			echo "";
-			echo "  You still need to install/update your database schema.";
-			echo "  This can be done by opening a web browser and going to:";
-			echo "";
-			echo "      http://${ipaddress}/fog/management";
-			echo ""
-			echo "      Default User:";
-			echo "             Username: fog";
-			echo "             Password: password";
-			echo "";	           	
+			    echo "  Setup complete!";
+			    echo "";
+			    echo "  You still need to install/update your database schema.";
+			    echo "  This can be done by opening a web browser and going to:";
+			    echo "";
+			    echo "      http://${ipaddress}/fog/management";
+			    echo ""
+			    echo "      Default User:";
+			    echo "             Username: fog";
+			    echo "             Password: password";
+			    echo "";	           	
 	           fi
 	           
 
