@@ -303,24 +303,27 @@ then
 	done		
 fi
 
-while [ "${installlang}" = "" ]
-do
-	echo 
-	echo "  This version of FOG has internationalization support, would  "
-	echo -n "  you like to install the additional language packs? [y/N] "
-	read installlang;
-	case "$installlang" in
-		Y | yes | y | Yes | YES )
-			installlang="1";
-			;;
-		[nN]*)	
-			installlang="0";
-			;;
-		*)
-			installlang="0";
-			;;	
-	esac	
-done
+if [ "$installtype" = "N" ]
+then
+    while [ "${installlang}" = "" ]
+    do
+	    echo 
+	    echo "  This version of FOG has internationalization support, would  "
+	    echo -n "  you like to install the additional language packs? [y/N] "
+	    read installlang;
+	    case "$installlang" in
+		    Y | yes | y | Yes | YES )
+			    installlang="1";
+			    ;;
+		    [nN]*)	
+			    installlang="0";
+			    ;;
+		    *)
+			    installlang="0";
+			    ;;	
+	    esac	
+    done
+fi
 
 if [ "$installtype" = "N" ]
 then
