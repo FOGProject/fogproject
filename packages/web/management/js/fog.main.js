@@ -21,6 +21,9 @@ $(function()
 		});
 		$("#showVal").val($("#pigz").slider("value"));
 	}
+	// Show Password information
+	$(':password').hideShowPassword(false,true);
+
 	// Process FOG JS Variables
 	$('.fog-variable').fogVariable();
 	// Process FOG Message Boxes
