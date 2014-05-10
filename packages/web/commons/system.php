@@ -33,6 +33,7 @@ function DetermineBasePath()
 			$_SERVER['DOCUMENT_ROOT'] = '/var/www/html/fog';
 		if(file_exists('/var/www/fog'))
 			$_SERVER['DOCUMENT_ROOT'] = '/var/www/fog';
+		define('WEB_ROOT','/'.basename($_SERVER['DOCUMENT_ROOT']).'/');
 		return $_SERVER['DOCUMENT_ROOT'];
 	}
 	if($_SERVER['DOCUMENT_ROOT'] != null)
