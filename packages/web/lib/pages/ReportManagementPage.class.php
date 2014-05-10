@@ -512,20 +512,22 @@ class ReportManagementPage extends FOGPage
 		);
 		$Hosts = $this->FOGCore->getClass('HostManager')->getAllHostsWithPendingMacs();
 		foreach((array)$Hosts AS $Host)
-			$MACs = $this->FOGCore->getClass('HostManager')->getPendingMacAddressesForHost($Host);
-		foreach((array)$MACs AS $MAC)
 		{
-			$this->data[] = array(
-				'host_name' => $Host->get('name'),
-				'host_mac' => $Host->get('mac'),
-				'host_pend' => $MAC,
-			);
-			$ReportMaker->addCSVCell($Host->get('id'));
-			$ReportMaker->addCSVCell($Host->get('name'));
-			$ReportMaker->addCSVCell($Host->get('mac'));
-			$ReportMaker->addCSVCell($Host->get('description'));
-			$ReportMaker->addCSVCell($MAC);
-			$ReportMaker->endCSVLine();
+			$MACs = $this->FOGCore->getClass('HostManager')->getPendingMacAddressesForHost($Host);
+			foreach((array)$MACs AS $MAC)
+			{
+				$this->data[] = array(
+					'host_name' => $Host->get('name'),
+					'host_mac' => $Host->get('mac'),
+					'host_pend' => $MAC,
+				);
+				$ReportMaker->addCSVCell($Host->get('id'));
+				$ReportMaker->addCSVCell($Host->get('name'));
+				$ReportMaker->addCSVCell($Host->get('mac'));
+				$ReportMaker->addCSVCell($Host->get('description'));
+				$ReportMaker->addCSVCell($MAC);
+				$ReportMaker->endCSVLine();
+			}
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
