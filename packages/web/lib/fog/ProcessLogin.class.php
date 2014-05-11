@@ -155,6 +155,7 @@ class ProcessLogin
 
 	public function mainLoginForm()
 	{
+		ob_start();
 		print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 		print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 		print "\n\t<head>";
@@ -205,7 +206,7 @@ class ProcessLogin
 		print "\n\t\t\t</div>";
 		print "\n\t\t</div>";
 		print "\n\t\t<!-- Footer -->";
-		print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gilchrist &amp; Tom Elliott FOG Client/Prep link: <a href="http://'.$this->FOGCore->getSetting('FOG_WEB_HOST').$this->FOGCore->getSetting('FOG_WEB_ROOT').'client">FOG Client/FOG Prep</a></div>';
+		print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gilchrist &amp; Tom Elliott FOG Client/Prep link: <a href="?node=client">FOG Client/FOG Prep</a></div>';
 		$this->FOGCore->getMessages();
 		print "\n\t<!-- JavaScript -->";
 		print "\n\t".'<script type="text/javascript" src="js/jquery.js"></script>';
@@ -214,11 +215,12 @@ class ProcessLogin
 		print "\n\t".'<script type="text/javascript" src="js/fog.login.js"></script>';
 		print "\n</body>";
 		print "\n</html>";
-		exit;
+		ob_end_flush(ob_gzhandler);
 	}
 
 	public function mobileLoginForm()
 	{
+		ob_start();
 		print "\n\t\t\t".'<center><div class="login">';
 		print "\n\t\t\t\t".'<p class="loginTitle">'._('FOG Mobile Login').'</p>';
 		print "\n\t\t\t\t".'<form method="post" action="?node=login">';
@@ -229,6 +231,7 @@ class ProcessLogin
 		print "\n\t\t\t\t\t".'<p><input type="submit" value="'._('Login').'" /></p>';
 		print "\n\t\t\t\t</form>";
 		print "\n\t\t\t</div></center>";
+		ob_end_flush(ob_gzhandler);
 	}
 }
 
