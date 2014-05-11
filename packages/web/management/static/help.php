@@ -1,31 +1,24 @@
 <?php
 session_start();
-
-if(!isset($_SESSION["locale"]))
-        $_SESSION['locale'] = "en_US";
-        
+(!isset($_SESSION['locale']) ? $_SESSION['locale'] = 'en_US' : null);
 putenv("LC_ALL=".$_SESSION['locale']);
 setlocale(LC_ALL, $_SESSION['locale']);
 bindtextdomain("messages", "../languages");
 textdomain("messages");
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
-<head>
-<link rel="stylesheet" type="text/css" href="./css/static.css" />
-</head>
-<body>
-	<div class="main">
-	<h3><?php echo(_("FOG General Help")); ?></h3>
-		
-		<h5><?php echo(_("Description")); ?></h5>
-		<p>
-			<?php
-				echo base64_decode( $_GET["data"] );
-			?>
-		</p>
-		
-
-	</div>
-</body>
-</html>
+ob_start();
+print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
+print "\n<html>";
+print "\n\t<head>";
+print "\n\t\t".'<link rel="stylesheet" type="text/css" href="./css/static.css" />';
+print "\n\t</head>";
+print "\n<body>";
+print "\n\t".'<div class="main">';
+print "\n\t\t<h3>"._('FOG General Help').'</h3>';
+print "\n\t\t<h5>"._('Description').'</h5>';
+print "\n\t\t<p>";
+print "\n\t\t\t".base64_decode($_REQUEST['data']);
+print "\n\t\t</p>";
+print "\n\t</div>";
+print "\n</body>";
+print "\n</html>";
+ob_end_flush(ob_gzhandler);
