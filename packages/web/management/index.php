@@ -10,7 +10,7 @@ $SubMenu = new SubMenu($currentUser);
 // Process Login
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 // Login form + logout
-if ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn())
+if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
 {
 	// Hook
 	$HookManager->processEvent('LOGOUT', array('user' => &$currentUser));
@@ -27,7 +27,7 @@ $_SESSION['FOGPingActive'] = ($FOGCore->getSetting('FOG_HOST_LOOKUP') == '1' ? t
 // Allow AJAX Tasks
 $_SESSION['AllowAJAXTasks'] = true;
 // Are we on the Homeapge?
-$isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard')) ? true : false);
+$isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','client')) ? true : false);
 // Render content - must be done before anything is outputted so classes can change HTTP headers
 $FOGPageManager = new FOGPageManager();
 // Load Page Classes -> Render content based on incoming node variables
@@ -89,7 +89,7 @@ if (!$isHomepage)
 }
 print "\n\t</div>";
 print "\n\t<!-- Footer: Be nice, give us some credit -->";
-print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gilchrist &amp; Tom Elliott FOG Client/Prep link: <a href="http://'.$FOGCore->getSetting('FOG_WEB_HOST').$FOGCore->getSetting('FOG_WEB_ROOT').'client">FOG Client/FOG Prep</a></div>';
+print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gilchrist &amp; Tom Elliott FOG Client/Prep link: <a href="?node=client">FOG Client/FOG Prep</a></div>';
 // Session Messages
 $FOGCore->getMessages();
 print "\n\t".'<div class="fog-variable" id="FOGPingActive">'.($_SESSION['FOGPingActive'] ? '1' : '0').'</div>';
