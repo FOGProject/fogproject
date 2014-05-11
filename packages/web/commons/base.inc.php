@@ -7,3 +7,5 @@
 	require_once(BASEPATH . '/commons/init.php');
 	require_once(BASEPATH . '/commons/init.database.php');
 	require_once(BASEPATH . '/commons/text.php');
+	$HookManager = new HookManager();
+	$FOGPageManager = new FOGPageManager();
