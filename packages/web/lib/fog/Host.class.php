@@ -609,7 +609,7 @@ class Host extends FOGController
 	}
 
 	// Should be called: createDeployTask
-	function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '')
+	function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '')
 	{
 		try
 		{
@@ -680,6 +680,7 @@ class Host extends FOGController
 					'NFSGroupID' 	=> $StorageGroup->get('id'),
 					'NFSMemberID'	=> $StorageGroup->getOptimalStorageNode()->get('id'),
 					'shutdown' => $shutdown,
+					'passreset' => $passreset,	
 				));
 				$SnapinJobs = current($this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(0,1))));
 				if ($SnapinJobs && $SnapinJobs->isValid() && $deploySnapins == -1)
@@ -784,6 +785,7 @@ class Host extends FOGController
 				'NFSGroupID' 	=> ($Location ? $StorageGroup->get('id') : $Image->getStorageGroup()->get('id')),
 				'NFSMemberID'	=> ($Location ? $StorageGroup->getOptimalStorageNode()->get('id') : $Image->getStorageGroup()->getOptimalStorageNode()->get('id')),
 				'shutdown' => $shutdown,
+				'passreset' => $passreset,
 			));
 			// Task: Save to database
 			if (!$Task->save())
@@ -884,7 +886,7 @@ class Host extends FOGController
 			throw new Exception($e->getMessage());
 		}
 	}
-	function createSingleRunScheduledPackage($taskTypeID, $taskName = '', $scheduledDeployTime, $enableShutdown = false, $enableSnapins = true, $isGroupTask = false, $username = '')
+	function createSingleRunScheduledPackage($taskTypeID, $taskName = '', $scheduledDeployTime, $enableShutdown = false, $enableSnapins = true, $isGroupTask = false, $username = '',$passreset = null)
 	{
 		try
 		{
@@ -915,6 +917,7 @@ class Host extends FOGController
 				'shutdown'	=> ($enableShutdown ? '1' : '0'),
 				'other1'	=> ($isUpload && $enableSnapins ? '1' : '0'),
 				'other2'	=> ($enableSnapins ? $enableSnapins : ''),
+				'other3'	=> ($username ? $username : ($passreset ? $passreset : '')),
 			)));
 			// Save
 			if (!$Task->save())

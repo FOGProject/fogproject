@@ -308,9 +308,13 @@ class BootMenu
 					'active' => $this->FOGCore->getSetting('FOG_MINING_ENABLE'),
 				),
 				array(
-                                        'value' => 'miningcores=' . $this->FOGCore->getSetting('FOG_MINING_MAX_CORES'),
-                                        'active' => $this->FOGCore->getSetting('FOG_MINING_ENABLE'),
-                                ),
+					'value' => 'miningcores=' . $this->FOGCore->getSetting('FOG_MINING_MAX_CORES'),
+					'active' => $this->FOGCore->getSetting('FOG_MINING_ENABLE'),
+				),
+				array(
+					'value' => 'winuser='.$Task->get('passreset'),
+					'active' => $TaskType->get('id') == '11' ? true : false,
+				),
 
 				$TaskType->get('kernelArgs'),
 				$this->FOGCore->getSetting('FOG_KERNEL_ARGS'),

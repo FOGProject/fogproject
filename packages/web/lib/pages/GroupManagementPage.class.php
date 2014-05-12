@@ -996,7 +996,7 @@ class GroupManagementPage extends FOGPage
 		print "\n\t\t\t".'<div class="advanced-settings">';
 		print "\n\t\t\t<h2>"._('Advanced Settings').'</h2>';
 		print "\n\t\t\t".'<p><input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"> <label for="shutdown">'._('Schedule <u>Shutdown</u> after task completion').'</label></p>';
-		if (!$TaskType->isDebug())
+		if (!$TaskType->isDebug() && $TaskType->get('id') != 11)
 		{
 			print "\n\t\t\t".'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked="checked" /><label for="scheduleInstant">'._('Schedule ').' <u>'._('Instant Deployment').'</u></label></p>';
 			print "\n\t\t\t".'<p><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off" /><label for="scheduleSingle">'._('Schedule ').' <u>'._('Delayed Deployment').'</u></label></p>';
@@ -1009,6 +1009,11 @@ class GroupManagementPage extends FOGPage
 			print "\n\t\t\t".'<input type="text" name="scheduleCronMonth" id="scheduleCronMonth" placeholder="month" autocomplete="off" />';
 			print "\n\t\t\t".'<input type="text" name="scheduleCronDOW" id="scheduleCronDOW" placeholder="dow" autocomplete="off" />';
 			print "\n\t\t\t</p>";
+		}
+		if ($TaskType->get('id') == 11)
+		{
+			print "\n\t\t\t<p>"._('Which account would you like to reset the password for?').'</p>';
+			print "\n\t\t\t".'<input type="text" name="account" value="Administrator" />';
 		}
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t</div>";
@@ -1074,6 +1079,8 @@ class GroupManagementPage extends FOGPage
 				throw new Exception(_('You need to assign an image to the host'));
 			if (!$Host->checkIfExist($taskTypeID))
 				throw new Exception(_('To setup download task, you must first upload an image'));
+			if ($taskTypeID == '11' && !trim($_REQUEST['account']))
+				throw new Exception(_('To setup password reset request, you must specify a user'));
 			try
 			{
 				// NOTE: These functions will throw an exception if they fail
@@ -1125,7 +1132,7 @@ class GroupManagementPage extends FOGPage
 				{
 					foreach ((array)$Group->get('hosts') AS $Host)
 					{
-						if($Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, true, $_SESSION['FOG_USERNAME']))
+						if($Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, true, $_SESSION['FOG_USERNAME'], trim($_REQUEST['account'])))
 							$success[] = sprintf('<li>%s &ndash; %s</li>', $Host->get('name'), $Host->getImage()->get('name'));
 					}
 				}
