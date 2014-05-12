@@ -227,9 +227,10 @@ class MulticastTask
 		{
 			$Task = new Task($MultiSessAssoc->get('taskID'));
 			$Task->set('stateID','5')->save();
-			$MultiSess = new MulticastSessions($this->intID);
-			$MultiSess->set('stateID','5')->save();
+
 		}
+		$MultiSess = new MulticastSessions($this->intID);
+		$MultiSess->set('stateID','5')->save();
 		return true;
 	}
 
