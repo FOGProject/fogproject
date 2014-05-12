@@ -1288,6 +1288,11 @@ $databaseSchema[] = array(
         "INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 		values('FOG_MINING_FULL_RUN_ON_WEEKEND','If set to 1, then FOG_MINING_FULL_RESTART_HOUR is ignored over weekends.','1','General Settings')",				
 );
+// 96
+$databaseSchema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME . "`.`tasks`
+		ADD COLUMN `taskPassreset` varchar(250)  NOT NULL AFTER `taskLastMemberID`",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";

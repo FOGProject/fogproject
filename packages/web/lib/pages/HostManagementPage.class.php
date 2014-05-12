@@ -1475,7 +1475,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<div class="advanced-settings">';
 		print "\n\t\t\t<h2>"._('Advanced Settings').'</h2>';
 		print "\n\t\t\t".'<p><input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">'._('Schedule').' <u>'._('Shutdown').'</u>'._(' after task completion').'</label></p>';
-		if (!$TaskType->isDebug())
+		if (!$TaskType->isDebug() && $TaskType->get('id') != 11)
 		{
 			print "\n\t\t\t".'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked="checked" /><label for="scheduleInstant">'._('Schedule ').' <u>'._('Instant Deployment').'</u></label></p>';
 			print "\n\t\t\t".'<p><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off" /><label for="scheduleSingle">'._('Schedule ').' <u>'._('Delayed Deployment').'</u></label></p>';
@@ -1488,6 +1488,11 @@ class HostManagementPage extends FOGPage
 			print "\n\t\t\t".'<input type="text" name="scheduleCronMonth" id="scheduleCronMonth" placeholder="month" autocomplete="off" />';
 			print "\n\t\t\t".'<input type="text" name="scheduleCronDOW" id="scheduleCronDOW" placeholder="dow" autocomplete="off" />';
 			print "\n\t\t\t</p>";
+		}
+		if ($TaskType->get('id') == 11)
+		{
+			print "\n\t\t\t<p>"._('Which account would you like to reset the password for?').'</p>';
+			print "\n\t\t\t".'<input type="text" name="account" value="Administrator" />';
 		}
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t</div>";
@@ -1537,11 +1542,13 @@ class HostManagementPage extends FOGPage
 				throw new Exception(_('You need to assign an image to the host'));
 			if (!$Host->checkIfExist($taskTypeID))
 				throw new Exception(_('To setup download task, you must first upload an image'));
+			if ($taskTypeID == '11' && !trim($_REQUEST['account']))
+				throw new Exception(_('To setup password reset request, you must specify a user'));
 			if ($this->REQUEST['scheduleType'] == 'single')
 			{
 				// Scheduled Deployment
 				// NOTE: Function will throw an exception if it fails
-				$Host->createSingleRunScheduledPackage($taskTypeID, $taskName, $scheduledDeployTime, $enableShutdown, $enableSnapins, $this->FOGUser->get('name'));
+				$Host->createSingleRunScheduledPackage($taskTypeID, $taskName, $scheduledDeployTime, $enableShutdown, $enableSnapins, $this->FOGUser->get('name'),trim($_REQUEST['account']));
 				// Success
 				printf('%s',sprintf('<div class="task-start-ok"><p>%s task created for <u>%s</u> with image <u>%s</u></p><p>%s%s</p></div>',$TaskType->get('name'),$Host->get('name'),$Host->getImage()->get('name'),_('Scheduled to start at: '),$_REQUEST['scheduleSingleTime']));
 			}
@@ -1557,7 +1564,7 @@ class HostManagementPage extends FOGPage
 			{
 				// Instant Deployment
 				// NOTE: Function will throw an exception if it fails
-				$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, $this->FOGUser->get('name'));
+				$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, false,$this->FOGUser->get('name'),$_REQUEST['account']);
 				// Success
 				printf('%s',sprintf('<div class="task-start-ok"><p>%s task created for <u>%s</u> with image <u>%s</u></p></div>',$TaskType->get('name'),$Host->get('name'),$Host->getImage()->get('name')));
 			}
