@@ -56,7 +56,7 @@ abstract class FOGManagerController extends FOGBase
 			if (empty($keyword))
 				throw new Exception('No keyword passed');
 			// Build query
-			$keyword = preg_replace(array('#\*#', '#[[:space:]]#'), array('%', '%'), $keyword);
+			$keyword = preg_replace(array('#\*#', '#[[:space:]]#'), array('%', '%'), $this->DB->sanitize($keyword));
 			$query = preg_replace(array('#\$\{keyword\}#'), array($keyword), $this->searchQuery);
 			// Execute query -> Build new object -> Push into data array
 			$allSearchResults = $this->DB->query($query);
@@ -94,9 +94,9 @@ abstract class FOGManagerController extends FOGBase
 				foreach ($where AS $field => $value)
 				{
 					if (is_array($value))
-						$whereArray[] = sprintf("`%s` IN ('%s')", $this->key($field), implode("', '", $value));
+						$whereArray[] = sprintf("`%s` IN ('%s')", $this->DB->sanitize($this->key($field)), implode("', '", $value));
 					else
-						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : '='), $value);
+						$whereArray[] = sprintf("`%s` %s '%s'", $this->DB->sanitize($this->key($field)), (preg_match('#%#', $value) ? 'LIKE' : '='), $value);
 				}
 			}
 			// Select all
@@ -141,9 +141,9 @@ abstract class FOGManagerController extends FOGBase
 				foreach ($where AS $field => $value)
 				{
 					if (is_array($value))
-						$whereArray[] = sprintf("`%s` IN ('%s')", $this->key($field), implode("', '", $value));
+						$whereArray[] = sprintf("`%s` IN ('%s')", $this->DB->sanitize($this->key($field)), implode("', '", $value));
 					else
-						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : '='), $value);
+						$whereArray[] = sprintf("`%s` %s '%s'", $this->DB->sanitize($this->key($field)), (preg_match('#%#', $value) ? 'LIKE' : '='), $value);
 				}
 			}
 			// Count result rows
@@ -186,7 +186,6 @@ abstract class FOGManagerController extends FOGBase
 			if (!in_array($Object->get('id'),(array)$filter))
 				$listArray[] = '<option value="'.$Object->get('id').'"'.($matchID == $Object->get('id') ? ' selected="selected"' : '' ).'>'.$Object->get('name').' - ('.$Object->get('id').')</option>';
 		}
-		//return (isset($listArray) ? sprintf('<select name="'.$elementName.'" autocomplete="off"><option value="">- Please Select an option -</option>'.implode("\n",$listArray)) : false).'</select>';
 		return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',$elementName,'- '._('Please select an option').' -',implode("\n",$listArray)) : false);
 	}
 	// TODO: Read DB fields from child class
@@ -216,12 +215,8 @@ abstract class FOGManagerController extends FOGBase
 		if (array_key_exists($key, $this->databaseFields))
 			return $this->databaseFields[$key];
 		// Cannot be used until all references to acual field names are converted to common names
-		/*
 		if (array_key_exists($key, $this->databaseFieldsFlipped))
-		{
 			return $this->databaseFieldsFlipped[$key];
-		}
-		*/
 		return $key;
 	}
 }
