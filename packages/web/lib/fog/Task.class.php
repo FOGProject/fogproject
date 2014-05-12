@@ -29,6 +29,7 @@ class Task extends FOGController
 		'NFSFailures'		=> 'taskNFSFailures',
 		'NFSLastMemberID'	=> 'taskLastMemberID',
 		'shutdown'			=> 'taskShutdown',
+		'passreset'			=> 'taskPassreset',
 	);
 	// Required database fields
 	public $databaseFieldsRequired = array(
