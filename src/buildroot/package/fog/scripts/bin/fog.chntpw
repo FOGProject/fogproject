@@ -48,6 +48,7 @@ if [ -n "$hd" ]; then
 			dots "Attempting to change password";
 			chntpw -u ${acct} ${sam}  &>/dev/null << EOF
 1
+q
 y
 EOF
 			echo "Done";
