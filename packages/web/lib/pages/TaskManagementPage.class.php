@@ -511,10 +511,10 @@ class TaskManagementPage extends FOGPage
 		{
 			// Remove task from associations and multicast sessions.
 			$MSAs = $this->FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $_REQUEST['id']));
+			$MulticastTask = new MulticastSessions($_REQUEST['id']);
 			foreach((array)$MSAs AS $MSA)
 			{
 				$Task = new Task($MSA->get('taskID'));
-				$MulticastTask = new MulticastSessions($MSA->get('msID'));
 				$MSA->destroy();
 				$Task->cancel();
 			}
