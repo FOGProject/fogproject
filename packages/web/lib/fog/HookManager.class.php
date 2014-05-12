@@ -145,18 +145,7 @@ class HookManager extends FOGBase
 	
 	function __construct()
 	{
-		parent::__construct();
-		spl_autoload_register(function ()
-		{
-			global $HookManager;
-			$hookDirectory = BASEPATH . '/lib/hooks';
-			$hookIterator = new DirectoryIterator($hookDirectory);
-			foreach ($hookIterator AS $fileInfo)
-			{
-				if ($fileInfo->isFile() && substr($fileInfo->getFilename(), -8) == 'hook.php')
-					include($hookDirectory . '/' . $fileInfo->getFilename());
-			}
-		});
+	//	parent::__construct();
 	}
 	
 	function register($event, $function)
@@ -211,6 +200,21 @@ class HookManager extends FOGBase
 					$this->log(sprintf('Inactive Hook: Event: %s, Class: %s', $event, get_class($function[0]), $function[0]));
 			}
 		}
+	}
+
+	public function load()
+	{
+		spl_autoload_register(function ()
+		{
+			global $HookManager;
+			$hookDirectory = BASEPATH . '/lib/hooks';
+			$hookIterator = new DirectoryIterator($hookDirectory);
+			foreach ($hookIterator AS $fileInfo)
+			{
+				if ($fileInfo->isFile() && substr($fileInfo->getFilename(), -8) == 'hook.php')
+					include($hookDirectory . '/' . $fileInfo->getFilename());
+			}
+		});
 	}
 	
 	// Moved to OutputManager - remove once all code has been converted
