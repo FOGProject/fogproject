@@ -89,7 +89,7 @@ class MulticastManager extends FOGBase
 				$this->FOGCore->out(sprintf(" | %s task(s) found",count($allTasks)),MULTICASTDEVICEOUTPUT);
 				if ($allTasks)
 				{
-					foreach($allTasks AS $curTask)
+					foreach((array)$allTasks AS $curTask)
 					{
 						if($this->isMCTaskNew($KnownTasks, $curTask->getID()))
 						{
@@ -137,52 +137,32 @@ class MulticastManager extends FOGBase
 							if ($runningTask->isRunning())
 							{
 								$this->outall(sprintf(" | Task (%s) %s is already running PID %s",$runningTask->getID(),$runningTask->getName(),$runningTask->getPID()));
-								$pct = $runningTask->updateStats();
-								if ($pct != -1)
-									$this->outall(sprintf(" | Task (%s) %s %s%% complete.",$runningTask->getID(),$runningTask->getName(),$pct));
-								else
-									$this->outall(sprintf(" | Task (%s) %s failed to update statistics.",$runningTask->getID(),$runningTask->getName()));
+								$runningTask->updateStats();
 							}
 							else
 							{
 								$this->outall(sprintf(" | Task (%s) %s is no longer running.",$runningTask->getID(),$runningTask->getName()));
-								$runningTask->flagAsDead();
-								if ($runningTask->canBeSafelyKilled())
+								if ($runningTask->killTask())
 								{
-									if ($runningTask->killTask())
-									{
-										$KnownTasks = $this->removeFromKnownList($KnownTasks,$runningTask->getID());
-										$this->outall(sprintf(" | Task (%s) %s has been cleaned.",$runningTask->getID(),$runningTask->getName()));
-									}
-									else
-									{
-										$this->outall(sprintf(" | Task (%s) %s is no longer running.",$runningTask->getID(),$runningTask->getName()));
-										$runningTask->flagAsDead();
-										if ($runningTask->canBeSafelyKilled())
-										{
-											if ($runningTask->killTask())
-												$this->outall(sprintf(" | Task (%s) %s has been cleaned.",$runningTask->getID(),$runningTask->getName()));
-											else
-												$this->outall(sprintf(" | Task (%s) %s has NOT been cleaned.",$runningTask->getID(),$runningTask->getName()));
-										}
-										else
-											$this->outall(sprintf(" | Task (%s) %s will not be cleaned yet (5 min delay).",$runningTask->getID(),$runningTask->getName()));
-									}
+									$KnownTasks = $this->removeFromKnownList($KnownTasks,$runningTask->getID());
+									$this->outall(sprintf(" | Task (%s) %s has been cleaned.",$runningTask->getID(),$runningTask->getName()));
+								}
+								else
+								{
+									$this->outall(sprintf(" | Failed to kill task (%s) %s!",$runningTask->getID(),$runningTask->getName()));
 								}
 							}
+							
 							$RMTasks = $this->getMCTasksNotInDB($KnownTasks,$allTasks);
 							if (count($RMTasks))
 							{
 								$this->outall(sprintf(" | Cleaning %s task(s) removed from FOG Database.",count($RMTasks)));
-								if ($RMTasks)
+								foreach((array)$RMTasks AS $RMTask)
 								{
-									foreach($RMTasks AS $RMTask)
-									{
-										$this->outall(sprintf(" | Cleaning Task (%s) %s",$RMTask->getID(),$RMTask->getName()));
-										$RMTask->killTask();
-										$KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
-										$this->outall(sprintf(" | Task (%s) %s has been cleaned.",$RMTask->getID(),$RMTask->getName()));
-									}
+									$this->outall(sprintf(" | Cleaning Task (%s) %s",$RMTask->getID(),$RMTask->getName()));
+									$RMTask->killTask();
+									$KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
+									$this->outall(sprintf(" | Task (%s) %s has been cleaned.",$RMTask->getID(),$RMTask->getName()));
 								}
 							}
 						}
