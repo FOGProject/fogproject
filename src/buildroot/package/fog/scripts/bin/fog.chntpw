@@ -43,8 +43,7 @@ if [ -n "$hd" ]; then
 			dots "Mounting Windows File System";
 			mount.ntfs-3g $part /ntfs 
 			echo "Done";
-			echo "";
-			
+
 			dots "Attempting to change password";
 			chntpw -u ${acct} ${sam}  &>/dev/null << EOF
 1
