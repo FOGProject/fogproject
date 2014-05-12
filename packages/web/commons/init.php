@@ -30,41 +30,22 @@ foreach (array('node','id','sub','snapinid','userid','storagegroupid','storageno
 	$$x = (isset($_REQUEST[$x]) ? addslashes($_REQUEST[$x]) : '');
 unset($x);
 // Auto Loader
-if (!function_exists('__autoload'))
+spl_autoload_register(function ($className) 
 {
-	function __autoload($className) 
+	$paths = array(BASEPATH . '/lib/fog', BASEPATH . '/lib/db', BASEPATH . '/lib/pages');
+	foreach ($paths as $path)
 	{
-		try
-		{
-			$paths = array(BASEPATH . '/lib/fog', BASEPATH . '/lib/db', BASEPATH . '/lib/pages');
-			foreach ($paths as $path)
-			{
-				$fileName = $className . '.class.php';
-				$filePath = rtrim($path, '/') . '/' . $fileName;
-				if (file_exists($filePath))
-				{
-					if (!include($filePath))
-						throw new Exception(sprintf('Failed to include: %s', $filePath));
-					return true;
-				}
-			}
-			unset($className);
-			if (!$className)
-				return true;
-			throw new Exception(sprintf('Could not find file: File: %s, Paths: %s', $fileName, implode(', ', $paths)));
-		}
-		catch (Exception $e)
-		{
-			die(sprintf('Failed to load Class file: Class: %s, Error: %s', $className, $e->getMessage()));
-		}
+		$fileName = $className . '.class.php';
+		$filePath = rtrim($path, '/') . '/' . $fileName;
+		if (!class_exists($className) && file_exists($filePath))
+			include($filePath);
 	}
-}
+});
 // Core
 $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
 // Hook Manager - Init & Load Hooks
 $HookManager = new HookManager();
-$HookManager->load();
 // Locale
 if ($_SESSION['locale'])
 {

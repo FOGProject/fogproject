@@ -90,7 +90,7 @@ class FOGPageManager extends FOGBase
 			// Arguments
 			$this->arguments = (!empty($GLOBALS[$class->id]) ? array('id' => $GLOBALS[$class->id]) : array());
 			// Render result to variable - we do this so we can send HTTP Headers in a class method
-			ob_start();
+			ob_start('ob_gzhandler');
 			call_user_func(array($class, $method));
 			return ob_get_clean();
 		}
