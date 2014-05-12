@@ -1,4 +1,3 @@
 #!ipxe
-:retry
-dhcp || goto retry
+dhcp
 chain default.ipxe || exit
