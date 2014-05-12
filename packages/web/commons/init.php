@@ -46,6 +46,7 @@ $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
 // Hook Manager - Init & Load Hooks
 $HookManager = new HookManager();
+$HookManager->load();
 // Locale
 if ($_SESSION['locale'])
 {
