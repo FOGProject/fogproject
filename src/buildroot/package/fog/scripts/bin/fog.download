@@ -203,6 +203,9 @@ EOFPT
 		dots "Checking Hard Disks";
 		runPartprobe;
 		echo "Done";
+		# we need an artificial pause to allow the server to spin up the upd-cast
+		# process.
+		sleep 10
 		if [ "$imgType" == "n" ]; then
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
 				if [ "$win7partcnt" == "1" ]; then
