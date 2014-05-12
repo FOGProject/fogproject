@@ -6,7 +6,7 @@
  *	Revision:	$Revision$
  *	Last Update:	$LastChangedDate$
  ***/
-class HookManager
+class HookManager extends FOGBase
 {
 	public $logLevel = 0;
 	private $data;
@@ -145,8 +145,18 @@ class HookManager
 	
 	function __construct()
 	{
-		// Cannot load on init as each hook requires $HostManager - this variable isnt avaiable until __construct() returns
-		//$this->load();
+		parent::__construct();
+		spl_autoload_register(function ()
+		{
+			global $HookManager;
+			$hookDirectory = BASEPATH . '/lib/hooks';
+			$hookIterator = new DirectoryIterator($hookDirectory);
+			foreach ($hookIterator AS $fileInfo)
+			{
+				if ($fileInfo->isFile() && substr($fileInfo->getFilename(), -8) == 'hook.php')
+					include($hookDirectory . '/' . $fileInfo->getFilename());
+			}
+		});
 	}
 	
 	function register($event, $function)
@@ -154,36 +164,21 @@ class HookManager
 		try
 		{
 			if (!is_array($function) || count($function) != 2)
-			{
 				throw new Exception('Function is invalid');
-			}
-			
 			if (!method_exists($function[0], $function[1]))
-			{
 				throw new Exception('Function does not exist');
-			}
-			
 			if (!in_array($event, $this->events))
-			{
 				throw new Exception('Invalid event');
-			}
-			
 			if (!($function[0] instanceof Hook))
-			{
 				throw new Exception('Not a valid hook class');
-			}
-			
 			$this->log(sprintf('Registering Hook: Event: %s, Function: %s', $event, print_r($function, 1)));
-
 			$this->data[$event][] = $function;
-			
 			return true;
 		}
 		catch (Exception $e)
 		{
 			$this->log(sprintf('Could not register Hook: Error: %s, Event: %s, Function: %s', $e->getMessage(), $event, print_r($function, 1)));
 		}
-			
 		return false;
 	}
 	
@@ -210,28 +205,10 @@ class HookManager
 				if ($function[0]->active)
 				{
 					$this->log(sprintf('Running Hook: Event: %s, Class: %s', $event, get_class($function[0]), $function[0]));
-				
 					call_user_func($function, array_merge(array('event' => $event), (array)$arguments));
 				}
 				else
-				{
 					$this->log(sprintf('Inactive Hook: Event: %s, Class: %s', $event, get_class($function[0]), $function[0]));
-				}
-			}
-		}
-	}
-	
-	function load()
-	{
-		global $HookManager;
-	
-		$hookDirectory = BASEPATH . '/lib/hooks/';
-		$hookIterator = new DirectoryIterator($hookDirectory);
-		foreach ($hookIterator AS $fileInfo)
-		{
-			if ($fileInfo->isFile() && substr($fileInfo->getFilename(), -8) == 'hook.php')
-			{
-				include($hookDirectory . '/' . $fileInfo->getFilename());
 			}
 		}
 	}
@@ -245,71 +222,23 @@ class HookManager
 			// Create attributes data
 			$attributes = array();
 			foreach ((array)$attributeData[$i] as $attributeName => $attributeValue)
-			{
-				// Format into HTML attributes -> push into attributes array
 				$attributes[] = sprintf('%s="%s"', $attributeName, $attributeValue);
-			}
-
 			// Push into results array
 			$result[] = sprintf('<%s%s>%s</%s>',	$wrapper,
 								(count($attributes) ? ' ' . implode(' ', $attributes) : ''),
 								$content,
 								$wrapper);
-			
 			// Reset
 			unset($attributes);
 		}
-		
 		// Return result
 		return implode("\n", $result);
 	}
-	
-	// Moved to OutputManager - remove once all code has been converted
-	function processRow($data, $templateData, $attributeData = array(), $wrapper = 'td')
-	{
-		// Loop template data
-		foreach ($templateData AS $i => $template)
-		{
-			// Create find and replace arrays for data
-			foreach ($data AS $dataName => $dataValue)
-			{
-				$dataFind[] = '#%' . $dataName . '%#';
-				$dataReplace[] = $dataValue;
-			}
-			// Remove any other data keys not found
-			$dataFind[] = '#%\w+%#';
-			$dataReplace[] = '';
-			
-			// Create attributes data
-			$attributes = array();
-			foreach ((array)$attributeData[$i] as $attributeName => $attributeValue)
-			{
-				// Format into HTML attributes -> push into attributes array
-				$attributes[] = sprintf('%s="%s"', $attributeName, $attributeValue);
-			}
-			
-			// Replace variables in template with data -> wrap in $wrapper -> push into $result
-			$result[] = sprintf('<%s%s>%s</%s>',	$wrapper,
-								(count($attributes) ? ' ' . implode(' ', $attributes) : ''),
-								preg_replace($dataFind, $dataReplace, $template),
-								$wrapper);
-			
-			// Reset
-			unset($dataFind, $dataReplace);
-		}
-		
-		// Return result
-		return implode("\n", $result);
-	}
-	
 	private function log($txt, $level = 1)
 	{
 		if (!$this->isAJAXRequest() && $this->logLevel >= $level)
-		{
 			printf('[%s] %s%s', date("d-m-Y H:i:s"), trim(preg_replace(array("#\r#", "#\n#", "#\s+#", "# ,#"), array("", " ", " ", ","), $txt)), "<br />\n");
-		}
 	}
-	
 	function isAJAXRequest()
 	{
 		return (strtolower(@$_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' ? true : false);
