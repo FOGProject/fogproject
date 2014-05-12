@@ -59,7 +59,8 @@ if [ -f "/images/.mntcheck" ]; then
 				win7partcnt="1";
 				win7sys="${hd}1";
 			fi
-			if [ -f "$win7imgroot/sys.img.000" ]; then
+			
+			if [ -f "$win7imgroot/sys.img.000" ] || [ "$mc" == "yes" ] ; then
 				dots "Preparing Hard Disks (Stage 1)";
 				if [ "$nombr" == "1" ]; then
 					echo "Skipped";
