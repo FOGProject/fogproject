@@ -10,7 +10,7 @@ class HookManager extends FOGBase
 {
 	public $logLevel = 0;
 	private $data;
-	private $events = array(
+	public $events = array(
 		// Global
 		'CSS',
 		'JavaScript',
