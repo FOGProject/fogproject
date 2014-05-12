@@ -44,27 +44,24 @@ class MulticastManager extends FOGBase
 	}
 	public function getMCTasksNotInDB($KnownTasks, $AllTasks)
 	{
-		if ($KnownTasks)
+		foreach ((array)$KnownTasks AS $Known)
 		{
-			foreach ($KnownTasks AS $Known)
+			if ($Known && $Known->getID())
 			{
-				if ($Known && $Known->getID())
+				$kID = $Known->getID();
+				$blFound = false;
+				foreach((array)$AllTasks AS $All)
 				{
-					$kID = $Known->getID();
-					$blFound = false;
-					foreach($AllTasks AS $All)
+					if ($kID == $All->getID())
 					{
-						if ($kID == $All->getID())
-						{
-							$blFound = true;
-							break;
-						}
+						$blFound = true;
+						break;
 					}
-					if (!$blFound)
-						$ret[] = $Known;
 				}
+				if (!$blFound)
+					$ret[] = $Known;
 			}
-		}
+		}	
 		return $ret;
 	}
 	public function serviceStart()
@@ -87,6 +84,20 @@ class MulticastManager extends FOGBase
 				$myroot = $StorageNode->get('path');
 				$allTasks = MulticastTask::getAllMulticastTasks($myroot);
 				$this->FOGCore->out(sprintf(" | %s task(s) found",count($allTasks)),MULTICASTDEVICEOUTPUT);
+    
+    			$RMTasks = $this->getMCTasksNotInDB($KnownTasks,$allTasks);
+				if (count($RMTasks))
+				{
+					$this->outall(sprintf(" | Cleaning %s task(s) removed from FOG Database.",count($RMTasks)));
+					foreach((array)$RMTasks AS $RMTask)
+					{
+						$this->outall(sprintf(" | Cleaning Task (%s) %s",$RMTask->getID(),$RMTask->getName()));
+						$RMTask->killTask();
+						$KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
+						$this->outall(sprintf(" | Task (%s) %s has been cleaned.",$RMTask->getID(),$RMTask->getName()));
+					}
+				}
+				
 				if ($allTasks)
 				{
 					foreach((array)$allTasks AS $curTask)
@@ -150,19 +161,6 @@ class MulticastManager extends FOGBase
 								else
 								{
 									$this->outall(sprintf(" | Failed to kill task (%s) %s!",$runningTask->getID(),$runningTask->getName()));
-								}
-							}
-							
-							$RMTasks = $this->getMCTasksNotInDB($KnownTasks,$allTasks);
-							if (count($RMTasks))
-							{
-								$this->outall(sprintf(" | Cleaning %s task(s) removed from FOG Database.",count($RMTasks)));
-								foreach((array)$RMTasks AS $RMTask)
-								{
-									$this->outall(sprintf(" | Cleaning Task (%s) %s",$RMTask->getID(),$RMTask->getName()));
-									$RMTask->killTask();
-									$KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
-									$this->outall(sprintf(" | Task (%s) %s has been cleaned.",$RMTask->getID(),$RMTask->getName()));
 								}
 							}
 						}

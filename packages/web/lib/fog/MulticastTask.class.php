@@ -213,13 +213,12 @@ class MulticastTask
 		if ($this->isRunning())
 		{
 			$pid = $this->getPID();
-			if ($pid)
+			if ($pid) {
 				@posix_kill($pid, SIGTERM);
-			else
-				@proc_terminate($this->procRef, SIGKILL);
+			}
+			@proc_terminate($this->procRef, SIGTERM);
 		}
-		else
-			@proc_close($this->procRef);
+    	@proc_close($this->procRef);
 		$this->procRef=null;
 		@unlink($this->getUDPCastLogFile());
 
