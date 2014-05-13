@@ -21,29 +21,12 @@ class ClientManagementPage extends FOGPage
 	);
 	var $subMenu = array(
 	);
-/*	// __construct
+	// __construct
 	public function __construct($name = '')
 	{
 		// Call parent constructor
 		parent::__construct($name);
-		// Header row
-		$this->headerData = array(
-			'Location Name',
-			'Storage Group',
-			'Storage Node',
-		);
-		// Row templates
-		$this->templates = array(
-			'<a href="?node=location&sub=edit&id=${id}" title="Edit">${name}</a>',
-			'${storageGroup}',
-			'${storageNode}',
-		);
-		$this->attributes = array(
-			array('class' => 'l', 'width' => 50),
-			array('class' => 'l', 'width' => 50),
-			array('class' => 'r', 'width' => 50),
-		);
-	}*/
+	}
 	// Pages
 	public function index()
 	{
