@@ -8,4 +8,3 @@ print "set fog-webroot ".basename($FOGCore->getSetting('FOG_WEB_ROOT'))."\n";
 print "cpair --foreground 7 --background 2 2\n";
 print "console --picture http://\${fog-ip}/\${fog-webroot}/service/ipxe/bg.png --left 100 --right 80\n";
 print $FOGCore->getSetting('FOG_PXE_ADVANCED');
-?>
