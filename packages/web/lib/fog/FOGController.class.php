@@ -204,9 +204,9 @@ abstract class FOGController extends FOGBase
 			$updateData[] = sprintf("`%s` = LAST_INSERT_ID(%s)", $this->DB->sanitize($this->databaseFields['id']), $this->DB->sanitize($this->databaseFields['id']));
 			// Insert & Update query all-in-one
 			$query = sprintf("INSERT INTO `%s` (`%s`) VALUES ('%s') ON DUPLICATE KEY UPDATE %s",
-				$this->DB->sanitize($this->databaseTable),
-				implode("`, `", $insertKeys),
-				implode("', '", $insertValues),
+				$this->databaseTable,
+				implode("`, `", (array)$insertKeys),
+				implode("', '", (array)$insertValues),
 				implode(', ', $updateData)
 			);
 			if (!$this->DB->query($query))
