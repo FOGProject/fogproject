@@ -1299,6 +1299,14 @@ $databaseSchema[] = array(
 	"truncate table `" . DATABASE_NAME . "`.`tasks`",
 );
 
+// 98
+$databaseSchema[] = array(
+    "CREATE TABLE `" . DATABASE_NAME . "`groupMembersTemp` LIKE `" . DATABASE_NAME . "`groupMembers`",
+    "INSERT `" . DATABASE_NAME . "`groupMembersTemp` SELECT * FROM `" . DATABASE_NAME . "`groupMembers`",
+    "delete from `" . DATABASE_NAME . "`groupMembers` where gmID in (select gmID from `" . DATABASE_NAME . "`groupMembersTemp` group by gmHostID, gmGroupID having count(*) > 1)",
+    "drop table `" . DATABASE_NAME . "`groupMembersTemp`",
+);
+
 
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
