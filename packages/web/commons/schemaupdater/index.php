@@ -1293,6 +1293,13 @@ $databaseSchema[] = array(
 	"ALTER TABLE `" . DATABASE_NAME . "`.`tasks`
 		ADD COLUMN `taskPassreset` varchar(250)  NOT NULL AFTER `taskLastMemberID`",
 );
+
+// 97
+$databaseSchema[] = array(
+	"truncate table `" . DATABASE_NAME . "`.`tasks`",
+);
+
+
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
