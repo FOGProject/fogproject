@@ -445,7 +445,7 @@ class ImageManagementPage extends FOGPage
 						->set('osID',		$_POST['os'])
 						->set('path',		$_POST['file'])
 						->set('imageTypeID',	$_POST['imagetype'])
-						->set('legacy',$_REQUEST['imagemanage']);
+						->set('legacy',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $Image->get('legacy') );
 				break;
 				case 'image-host';
 					if ($_POST['host'])
