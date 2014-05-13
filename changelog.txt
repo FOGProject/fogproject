@@ -1,3 +1,9 @@
+Version 1.0.1
+-------------
+
+* Fixed issue with image 'engine' being changed to partclone after updating the OS settings
+* Improved the update process for the settings from version 0.32
+
 Version 1.0.0 
 ------------
 *Operating system was moved from the Host object to the Image object.
