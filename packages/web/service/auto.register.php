@@ -61,7 +61,7 @@ try
 			'createdTime' => date("Y-m-d H:i:s"),
 			'createdBy' => 'FOGREG',
 		));
-		$Host->set('modules',$ids);
+		$Host->addModule($ids);
 		if ($Host->save())
 		{
 			$LocPlugInst = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
@@ -121,8 +121,8 @@ try
 		if ($FOGCore->getSetting('FOG_QUICKREG_AUTOPOP') == '1')
 		{
 			// Get the image id if autopop is set.
-			$imageid = $FOGCore->getSetting('FOG_QUICKREG_IMG_ID');
-			($imageid != null && is_numeric($imageid) && $imageid > 0 ? $realimageid=$imageid : $realimageid = '');
+			$Image = new Image($FOGCore->getSetting('FOG_QUICKREG_IMG_ID'));
+			($Image && $Image->isValid() ? $realimageid=$Image->get('id') : $realimageid='');
 			// get the name to use
 			$autoregSysName = $FOGCore->getSetting('FOG_QUICKREG_SYS_NAME');
 			// get the increment to use
@@ -142,7 +142,7 @@ try
 				// Same as above.
 				(strtoupper($autoregSysName) == 'MAC' ? $realhost = $macsimple : $realhost = $autoregSysName);
 			// As long as the host doesn't exist, create it.
-			if (!$Host)
+			if (!$Host || !$Host->isValid())
 			{
 				$Host = new Host(array(
 					'name' => $realhost,
@@ -152,7 +152,7 @@ try
 					'createdTime' => date('Y-m-d H:i:s'),
 					'createdBy' => 'FOGREG'
 				));
-				$Host->set('modules',$ids);
+				$Host->addModule($ids);
 			}
 			if ($Host->save())
 			{

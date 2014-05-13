@@ -952,7 +952,7 @@ class Host extends FOGController
 		}
 		catch (Exception $e)
 		{
-			FOGCore::error(sprintf('%s():xError: %s', __FUNCTION__, $e->getMessage()));
+			$this->FOGCore->error(sprintf('%s():xError: %s', __FUNCTION__, $e->getMessage()));
 			exit;
 		}
 	}
