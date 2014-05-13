@@ -1102,10 +1102,10 @@ $databaseSchema[] = array(
 // 36
 // Blackout - 12:18 PM 4/05/2012
 $databaseSchema[] = array(
-    "CREATE TABLE `" . DATABASE_NAME . "`groupMembersTemp` LIKE `" . DATABASE_NAME . "`groupMembers`",
-    "INSERT `" . DATABASE_NAME . "`groupMembersTemp` SELECT * FROM `" . DATABASE_NAME . "`groupMembers`",
-    "delete from `" . DATABASE_NAME . "`groupMembers` where gmID in (select gmID from `" . DATABASE_NAME . "`groupMembersTemp` group by gmHostID, gmGroupID having count(*) > 1)",
-    "drop table `" . DATABASE_NAME . "`groupMembersTemp`",
+    "CREATE TABLE `" . DATABASE_NAME . "`.`groupMembersTemp` LIKE `" . DATABASE_NAME . "`.`groupMembers`",
+    "INSERT `" . DATABASE_NAME . "`.`groupMembersTemp` SELECT * FROM `" . DATABASE_NAME . "`.`groupMembers`",
+    "delete from `" . DATABASE_NAME . "`.`groupMembers` where gmID in (select gmID from `" . DATABASE_NAME . "`.`groupMembersTemp` group by gmHostID, gmGroupID having count(*) > 1)",
+    "drop table `" . DATABASE_NAME . "`.`groupMembersTemp`",
 	"ALTER TABLE `" . DATABASE_NAME . "`.`groups` ADD UNIQUE ( `groupName` )",
 	"ALTER TABLE `" . DATABASE_NAME . "`.`groupMembers` ADD UNIQUE ( `gmHostID`, `gmGroupID` )"
 );
