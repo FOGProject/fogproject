@@ -427,7 +427,7 @@ class ReportManagementPage extends FOGPage
 			if ($Host->get('imageID'))
 				$Image = $Host->getImage();
 			// Find the os information if image is set.
-			if ($Image->getOS())
+			if ($Image->isValid() && $Image->getOS())
 				$OS = $Image->getOS();
 			// Find the current inventory for this host
 			$Inventory = current($this->FOGCore->getClass('InventoryManager')->find(array('hostID' => $Host->get('id'))));
