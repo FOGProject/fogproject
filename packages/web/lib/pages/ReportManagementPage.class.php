@@ -459,7 +459,7 @@ class ReportManagementPage extends FOGPage
 					else if ($head == _('Image Desc'))
 						$ReportMaker->addCSVCell($Image->isValid() ? $Image->get('description') : '');
 					else if ($head == _('OS Name'))
-						$ReportMaker->addCSVCell($OS->isValid() ? $OS->get('name') : '');
+						$ReportMaker->addCSVCell($OS && $OS->isValid() ? $OS->get('name') : '');
 					else if ($head == _('Memory'))
 						$ReportMaker->addCSVCell($Inventory->getMem());
 					else
