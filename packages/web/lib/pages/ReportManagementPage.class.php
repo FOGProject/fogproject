@@ -437,7 +437,7 @@ class ReportManagementPage extends FOGPage
 				$this->data[] = array(
 					'host_name' => $Host->get('name'),
 					'host_mac' => $Host->get('mac'),
-					'os_name' => $OS->isValid() ? $OS->get('name') : '',
+					'os_name' => $OS && $OS->isValid()  ? $OS->get('name') : '',
 					'memory' => $Inventory->getMem(),
 					'sysprod' => $Inventory->get('sysproduct'),
 					'sysser' => $Inventory->get('sysserial'),
