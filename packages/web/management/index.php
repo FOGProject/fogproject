@@ -49,7 +49,7 @@ print "\n\t\t".'<meta http-equiv="X-UA-Compatible" content="IE=Edge" />';
 print "\n\t\t".'<meta http-equiv="content-type" content="text/json; charset=utf-8" />';
 print "\n\t\t".'<title>'.($pageTitle ? $pageTitle.' &gt; ' : '').$sectionTitle.' &gt; FOG &gt; '.$foglang['Slogan'].'</title>';
 print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/calendar/calendar-win2k-1.css" />';
-print "\n\t\t".'<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />';
+print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/jquery-ui.css" />';
 print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/jquery.organicTabs.css" />';
 print "\n\t\t".'<!--<link rel="stylesheet" type="text/css" href="css/'.$GLOBALS['FOGCore']->getSetting('FOG_THEME').'" />-->';
 print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/fog.css" />';
@@ -94,8 +94,8 @@ print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gi
 $FOGCore->getMessages();
 print "\n\t".'<div class="fog-variable" id="FOGPingActive">'.($_SESSION['FOGPingActive'] ? '1' : '0').'</div>';
 print "\n\t<!-- JavaScript -->";
-print "\n\t".'<script type="text/javascript" src="//code.jquery.com/jquery-latest.js"></script>';
-print "\n\t".'<script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/jquery-latest.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/jquery-migrate-1.2.1.min.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/calendar/jquery.dynDateTime.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/calendar/calendar-en.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>';
@@ -108,7 +108,7 @@ print "\n\t".'<script type="text/javascript" src="js/jquery.disableSelection.js"
 print "\n\t".'<script type="text/javascript" src="js/fog.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/fog.main.js"></script>';
 print "\n\t".'<script type="text/javascript" src="js/hideShowPassword.min.js"></script>';
-print "\n\t".'<script type="text/javascript" src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/jquery-ui.min.js"></script>';
 // Auto find javascript based on $node and/or $sub
 foreach (array("js/fog.{$node}.js", "js/fog.{$node}.{$sub}.js") AS $jsFilepath)
 {
