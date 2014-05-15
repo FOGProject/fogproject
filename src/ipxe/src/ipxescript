@@ -1,3 +1,5 @@
 #!ipxe
-dhcp
+:retry
+sync --timeout 500
+dhcp || goto retry
 chain default.ipxe || exit
