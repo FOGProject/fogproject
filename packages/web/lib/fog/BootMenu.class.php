@@ -315,7 +315,10 @@ class BootMenu
 					'value' => 'winuser='.$Task->get('passreset'),
 					'active' => $TaskType->get('id') == '11' ? true : false,
 				),
-
+				array(
+					'value' => 'miningpath=' . $this->FOGCore->getSetting('FOG_MINING_PACKAGE_PATH'),
+					'active' => $this->FOGCore->getSetting('FOG_MINING_ENABLE'),
+				),
 				$TaskType->get('kernelArgs'),
 				$this->FOGCore->getSetting('FOG_KERNEL_ARGS'),
 				$this->Host->get('kernelArgs'),
