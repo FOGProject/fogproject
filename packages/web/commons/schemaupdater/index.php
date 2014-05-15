@@ -1313,6 +1313,17 @@ $databaseSchema[] = array(
     "UPDATE `" . DATABASE_NAME . "`.`globalSettings` set settingValue = 'memtest.bin' WHERE settingKey = 'FOG_MEMTEST_KERNEL'",
 );
 
+// 99
+// Clean up the settings a bit
+$databaseSchema[] = array(
+    "UPDATE `" . DATABASE_NAME . "`.`globalSettings` set settingCategory = 'Donations' WHERE settingKey = 'FOG_MINING_ENABLE'",
+    "UPDATE `" . DATABASE_NAME . "`.`globalSettings` set settingCategory = 'Donations' WHERE settingKey = 'FOG_MINING_MAX_CORES'",
+    "UPDATE `" . DATABASE_NAME . "`.`globalSettings` set settingCategory = 'Donations' WHERE settingKey = 'FOG_MINING_FULL_RESTART_HOUR'",
+    "UPDATE `" . DATABASE_NAME . "`.`globalSettings` set settingCategory = 'Donations' WHERE settingKey = 'FOG_MINING_FULL_RUN_ON_WEEKEND'",
+    "INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+		values('FOG_MINING_PACKAGE_PATH','Where should we pull the donation script from?','http://fogproject.org/fogpackage.zip','Donations')",
+
+);
 
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
