@@ -310,7 +310,7 @@ class ReportManagementPage extends FOGPage
 			$imgID = $Image->isValid() ? $Image->get('id') : '';
 			$imgName = $Image->isValid() ? $Image->get('name') : '';
 			$imgDesc = $Image->isValid() ? $Image->get('description') : '';
-			$osName = $OS->isValid() ? $OS->get('name') : '';
+			$osName = $OS && $OS->isValid() ? $OS->get('name') : '';
 			$this->data[] = array(
 				'host_name' => $Host->get('name'),
 				'host_mac' => $Host->get('mac'),
@@ -331,7 +331,7 @@ class ReportManagementPage extends FOGPage
 				else if ($head == _('AD Join'))
 					$ReportMaker->addCSVCell(($Host->get('useAD') == 1 ? _('Yes') : _('No')));
 				else
-					$ReportMaker->addCSVCell($classGet);
+					$ReportMaker->addCSVCell($Host->get($classGet));
 			}
 			$ReportMaker->endCSVLine();
 		}
