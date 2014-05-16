@@ -464,8 +464,8 @@ class ReportManagementPage extends FOGPage
 						$ReportMaker->addCSVCell($Inventory->getMem());
 					else
 						$ReportMaker->addCSVCell($Inventory->get($classGet));
-					$ReportMaker->endCSVLine();
 				}
+				$ReportMaker->endCSVLine();
 			}
 		}
 		// This is for the pdf.
