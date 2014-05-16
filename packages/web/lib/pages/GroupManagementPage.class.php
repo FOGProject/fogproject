@@ -684,10 +684,17 @@ class GroupManagementPage extends FOGPage
 					{
 						// Define new Image object with data provided
 						$Group	->set('name',		$_POST['name'])
-								->set('description',	$_POST['description'])
-								->set('kernel',		$_POST['kern'])
-								->set('kernelArgs',	$_POST['args'])
-								->set('kernelDevice',	$_POST['dev']);
+								->set('description',	$_POST['description']);
+								foreach((array)$Group->get('hosts') AS $Host)
+								{
+									if ($Host && $Host->isValid())
+									{
+										$Host->set('kernel',		$_POST['kern'])
+											 ->set('kernelArgs',	$_POST['args'])
+											 ->set('kernelDevice',	$_POST['dev'])
+											 ->save();
+									}
+								}
 						// Sets the location for the group.
 						$Location = new Location($_REQUEST['location']);
 						foreach ((array)$Group->get('hosts') AS $Host)
