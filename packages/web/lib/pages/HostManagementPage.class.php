@@ -309,7 +309,7 @@ class HostManagementPage extends FOGPage
 		// Find
 		$Host = new Host($this->REQUEST['id']);
 		// Inventory find for host.
-		$Inventory = current($Host->get('inventory'));
+		$Inventory = $Host->get('inventory') ? current($Host->get('inventory')) : new Inventory(array('id' => '0'));
 		// Get the associated Groups.
 		// Location Find for host.
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
