@@ -10,14 +10,13 @@ class HookManager extends FOGBase
 {
 	public $logLevel = 0;
 	private $data;
-	public $events = array(
+	private $events = array(
 		// Global
 		'CSS',
 		'JavaScript',
 		'MainMenuData',				// data => array
 		'SubMenuData',				// FOGSubMenu => FOGSubMenu Object
 		//'MessageBox',				// data => string
-		
 		// Host Management
 		// List / Search
 		'HOST_DATA',
@@ -40,7 +39,6 @@ class HookManager extends FOGBase
 		'HostEditRemoveSnapinUpdate',
 		'HostEditRemoveSnapinUpdateSuccess',
 		'HostEditRemoveSnapinUpdateFail',
-		
 		// Group Management
 		'GROUP_DATA',	// Index/Search Group
 		'GROUP_ADD',    // Adding a Group
@@ -56,14 +54,12 @@ class HookManager extends FOGBase
 		'GROUP_MODULES', // Group Service Modules
 		'GROUP_DISPLAY', // Group Service Display settings
 		'GROUP_ALO', // Group Service ALO settings
-
 		// Image Management
 		'IMAGE_DATA', // Index/Search Image
 		'IMAGE_ADD', // Adding an Image
 		'IMAGE_ADD_POST', // Add Post data
 		'IMAGE_EDIT', // Editing an Image
 		'IMAGE_EDIT_POST', // Edit Post data
-		
 		// Storage Node Management
 		// All Storage Nodes
 		'StorageGroupTableHeader',
@@ -73,17 +69,14 @@ class HookManager extends FOGBase
 		'StorageNodeTableHeader',
 		'StorageNodeData',
 		'StorageNodeAfterTable',
-		
 		// Snapin Management
 		'SnapinTableHeader',
 		'SnapinData',
 		'SnapinAfterTable',
-		
 		// Printer Management
 		'PrinterTableHeader',
 		'PrinterData',
 		'PrinterAfterTable',
-		
 		// Task Management
 		// Active Tasks
 		'TasksActiveTableHeader',
@@ -124,7 +117,6 @@ class HookManager extends FOGBase
 		'TasksActiveSnapinsRemove',			// id => snapinID, hostID => hostID
 		'TasksActiveSnapinsRemoveSuccess',		// id => snapinID, hostID => hostID
 		'TasksActiveSnapinsRemoveFail',			// id => snapinID, hostID => hostID
-		
 		// User Management
 		'USER_DATA',
 		'USER_ADD_SUCCESS',				// User Object
@@ -133,21 +125,13 @@ class HookManager extends FOGBase
 		'USER_DELETE_FAIL',				// User Object
 		'USER_UPDATE_SUCCESS',				// User Object
 		'USER_UPDATE_FAIL',				// User Object
-		
 		// Login
 		'Login',					// username => string, password => string
 		'LoginSuccess',					// username => string, password => string, user => User Object
 		'LoginFail',					// username => string, password => string
-		
 		// Logout
 		'Logout',
 	);
-	
-	function __construct()
-	{
-	//	parent::__construct();
-	}
-	
 	function register($event, $function)
 	{
 		try
@@ -170,7 +154,6 @@ class HookManager extends FOGBase
 		}
 		return false;
 	}
-	
 	function unregister($event)
 	{
 		try
@@ -183,7 +166,6 @@ class HookManager extends FOGBase
 		catch (Exception $e) {}
 		return false;
 	}
-	
 	function processEvent($event, $arguments = array())
 	{
 		if ($this->data[$event])
@@ -201,42 +183,16 @@ class HookManager extends FOGBase
 			}
 		}
 	}
-
-	public function load()
+	function load()
 	{
-		spl_autoload_register(function ()
+		global $HookManager;
+		$hookDirectory = BASEPATH.'/lib/hooks';
+		$hookIterator = new DirectoryIterator($hookDirectory);
+		foreach($hookIterator AS $fileInfo)
 		{
-			global $HookManager;
-			$hookDirectory = BASEPATH . '/lib/hooks';
-			$hookIterator = new DirectoryIterator($hookDirectory);
-			foreach ($hookIterator AS $fileInfo)
-			{
-				if ($fileInfo->isFile() && substr($fileInfo->getFilename(), -8) == 'hook.php')
-					include($hookDirectory . '/' . $fileInfo->getFilename());
-			}
-		});
-	}
-	
-	// Moved to OutputManager - remove once all code has been converted
-	function processHeaderRow($templateData, $attributeData = array(), $wrapper = 'td')
-	{
-		// Loop data
-		foreach ($templateData AS $i => $content)
-		{
-			// Create attributes data
-			$attributes = array();
-			foreach ((array)$attributeData[$i] as $attributeName => $attributeValue)
-				$attributes[] = sprintf('%s="%s"', $attributeName, $attributeValue);
-			// Push into results array
-			$result[] = sprintf('<%s%s>%s</%s>',	$wrapper,
-								(count($attributes) ? ' ' . implode(' ', $attributes) : ''),
-								$content,
-								$wrapper);
-			// Reset
-			unset($attributes);
+			if ($fileInfo->isFile() && substr($fileInfo->getFilename(), -8) == 'hook.php')
+				include($hookDirectory.'/'.$fileInfo->getFilename());
 		}
-		// Return result
-		return implode("\n", $result);
 	}
 	private function log($txt, $level = 1)
 	{
