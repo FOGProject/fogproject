@@ -1,9 +1,7 @@
 <?php
 // Require FOG Base
 require_once('../config.php');
-require_once(BASEPATH . '/commons/init.php');
-require_once(BASEPATH . '/commons/init.database.php');
-require_once(BASEPATH . '/commons/text.php');
+require_once(BASEPATH . '/commons/base.inc.php');
 // 0
 $databaseSchema[] = array(
 	"CREATE DATABASE " . DATABASE_NAME ,
