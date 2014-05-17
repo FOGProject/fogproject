@@ -10,7 +10,7 @@ class DatabaseManager
 	/** __construct($type,$host,$user,$pass,$database)
 		Constructs the connection variables for connecting to the database.
 	*/
-	function __construct($type, $host, $user, $pass, $database) 
+	function __construct($type = DATABASE_TYPE, $host = DATABASE_HOST, $user = DATABASE_USERNAME, $pass = DATABASE_PASSWORD, $database = DATABASE_NAME) 
 	{
 		try
 		{

@@ -47,6 +47,9 @@ $FOGCore = new FOGCore();
 // Hook Manager - Init & Load Hooks
 $HookManager = new HookManager();
 $HookManager->load();
+// Database Load initiator
+$DatabaseManager = new DatabaseManager();
+$DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
 // Locale
 if ($_SESSION['locale'])
 {
