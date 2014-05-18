@@ -10,7 +10,7 @@ class HookManager extends FOGBase
 {
 	public $logLevel = 0;
 	private $data;
-	private $events = array(
+	public $events = array(
 		// Global
 		'CSS',
 		'JavaScript',
@@ -132,7 +132,7 @@ class HookManager extends FOGBase
 		// Logout
 		'Logout',
 	);
-	function register($event, $function)
+	public function register($event, $function)
 	{
 		try
 		{
@@ -154,19 +154,7 @@ class HookManager extends FOGBase
 		}
 		return false;
 	}
-	function unregister($event)
-	{
-		try
-		{
-			if(!in_array($event, $this->events))
-				throw new Exception('Invalid event');
-			unset($this->data[$event]);
-			return true;
-		}
-		catch (Exception $e) {}
-		return false;
-	}
-	function processEvent($event, $arguments = array())
+	public function processEvent($event, $arguments = array())
 	{
 		if ($this->data[$event])
 		{
@@ -183,15 +171,15 @@ class HookManager extends FOGBase
 			}
 		}
 	}
-	function load()
+	public function load()
 	{
 		global $HookManager;
-		$hookDirectory = BASEPATH.'/lib/hooks';
-		$hookIterator = new DirectoryIterator($hookDirectory);
-		foreach($hookIterator AS $fileInfo)
+		$path = BASEPATH.'/lib/hooks';
+		$Iterator = new DirectoryIterator($path);
+		foreach($Iterator AS $file)
 		{
-			if ($fileInfo->isFile() && substr($fileInfo->getFilename(), -8) == 'hook.php')
-				include($hookDirectory.'/'.$fileInfo->getFilename());
+			if ($file->isFile() && !class_exists(substr($file->getFilename(),0,-9)))
+				include($path.'/'.$file->getFilename());
 		}
 	}
 	private function log($txt, $level = 1)
