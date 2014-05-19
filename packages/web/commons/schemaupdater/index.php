@@ -1,7 +1,6 @@
 <?php
 // Require FOG Base
-require_once('../config.php');
-require_once(BASEPATH . '/commons/base.inc.php');
+require_once('../base.inc.php');
 // 0
 $databaseSchema[] = array(
 	"CREATE DATABASE " . DATABASE_NAME ,
@@ -1321,6 +1320,13 @@ $databaseSchema[] = array(
     "INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 		values('FOG_MINING_PACKAGE_PATH','Where should we pull the donation script from?','http://fogproject.org/fogpackage.zip','Donations')",
 
+);
+
+// 100
+// Changes Single Partition (NTFS Only, resizable) to Single Disk (NTFS Only, resizable) for less confusion
+// as FOG creates multipartitions for Windows 7 resizable images.
+$databaseSchema[] = array(
+	"UPDATE `". DATABASE_NAME ."`.`imageTypes` SET `imageTypeName` = 'Single Disk (NTFS Only, Resizable)' WHERE `imageTypes`.`imageTypeName` = 'Single Partition (NTFS Only, Resizable)'",
 );
 
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
