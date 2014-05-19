@@ -18,7 +18,7 @@ class MySQL
 	{
 		try
 		{
-			if (!function_exists('mysqli_connect'))
+			if (!class_exists('mysqli'))
 				throw new Exception(sprintf('%s PHP extension not loaded', __CLASS__));
 			$this->host = $host;
 			$this->user = $user;
@@ -42,7 +42,7 @@ class MySQL
 		{
 			if (!$this->link)
 				return;
-			if ($this->link && !mysqli_close($this->link))
+			if ($this->link && !$this->link = null)
 				throw new Exception('Could not disconnect');
 		}
 		catch (Exception $e)
@@ -66,8 +66,8 @@ class MySQL
 		{
 			if ($this->link)
 				$this->close();
-			if (!$this->link = @mysqli_connect($this->host, $this->user, $this->pass))
-				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s', $this->host, $this->user, $this->pass, $this->db));
+			if (!$this->link = new mysqli($this->host, $this->user, $this->pass))
+				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s', $this->host, $this->user, '[Protected]', $this->db));
 			if ($this->db)
 				$this->select_db($this->db);
 		}
@@ -91,7 +91,7 @@ class MySQL
 				$sql = vsprintf($sql, $data);
 			// Query
 			$this->query = $sql;
-			$this->queryResult = mysqli_query($this->link,$this->query) or $GLOBALS['FOGCore']->debug($this->error(), $this->query);
+			$this->queryResult = $this->link->query($this->query) or $GLOBALS['FOGCore']->debug($this->error(), $this->query);
 			// INFO
 			$GLOBALS['FOGCore']->info($this->query);
 		}
@@ -115,7 +115,7 @@ class MySQL
 			elseif ($this->queryResult === true)
 				$this->result = true;
 			else
-				$this->result = mysqli_fetch_array($this->queryResult, $type);
+				$this->result = $this->queryResult->fetch_array($type);
 			//return $this->result;
 		}
 		catch (Exception $e)
@@ -167,7 +167,7 @@ class MySQL
 	{
 		try
 		{
-			if (!mysqli_select_db($this->link,$db))
+			if (!$this->link->select_db($db))
 				throw new Exception("$db");
 			$this->db = $db;
 		}
@@ -182,14 +182,14 @@ class MySQL
 	*/
 	public function error()
 	{
-		return mysqli_error($this->link);
+		return $this->link->error;
 	}
 	/** insert_id()
 		Return the id of the inserted element.
 	*/
 	public function insert_id()
 	{
-		$id = mysqli_insert_id($this->link);
+		$id = $this->link->insert_id;
 		return ($id ? $id : 0);
 	}
 	/** affected_rows()
@@ -197,7 +197,7 @@ class MySQL
 	*/
 	public function affected_rows()
 	{
-		$count = mysqli_affected_rows($this->link);
+		$count = $this->link->affected_rows;
 		return ($count ? $count : 0);
 	}
 	/** num_rows()
@@ -205,7 +205,7 @@ class MySQL
 	*/
 	public function num_rows()
 	{
-		return (is_resource($this->queryResult) ? mysqli_num_rows($this->queryResult) : null);
+		return ($this->link->num_rows ? $this->link->num_rows : null);
 	}
 	/** age()
 		Return the age of the information.
@@ -249,7 +249,7 @@ class MySQL
 	*/
 	private function clean($data)
 	{
-		return (get_magic_quotes_gpc() ? mysqli_real_escape_string($this->link,stripslashes($data)) : mysqli_real_escape_string($this->link,$data));;
+		return (get_magic_quotes_gpc() ? $this->link->escape_string(stripslashes($data)) : $this->link->escape_string($data));;
 	}
 	// For legacy $conn connections
 	/** getLink()
