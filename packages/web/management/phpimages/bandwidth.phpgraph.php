@@ -9,11 +9,8 @@ putenv("LC_ALL=".$_SESSION['locale']);
 setlocale(LC_ALL, $_SESSION['locale']);
 bindtextdomain("messages", "../languages");
 textdomain("messages");
-$conn = mysql_connect( DATABASE_HOST, DATABASE_USERNAME, DATABASE_PASSWORD);
-if ( $conn )
-	@mysql_select_db( DATABASE_NAME );
-require_once ("../lib/jpgraph/" . $GLOBALS['FOGCore']->getSetting( "FOG_JPGRAPH_VERSION" ). "/src/jpgraph.php");
-require_once ("../lib/jpgraph/" . $GLOBALS['FOGCore']->getSetting( "FOG_JPGRAPH_VERSION" ). "/src/jpgraph_line.php");
+require_once ("../lib/jpgraph/" . $FOGCore->getSetting("FOG_JPGRAPH_VERSION"). "/src/jpgraph.php");
+require_once ("../lib/jpgraph/" . $FOGCore->getSetting("FOG_JPGRAPH_VERSION"). "/src/jpgraph_line.php");
 $data1 = $_SESSION["rx"];
 $data2 = $_SESSION["tx"];
 $ydata = $data1;
