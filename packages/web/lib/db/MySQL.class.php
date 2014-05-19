@@ -4,7 +4,7 @@
 */
 class MySQL
 {
-	private $host, $user, $pass, $db, $startTime, $result, $queryResult, $link, $query;
+	private $host, $user, $pass, $db, $startTime, $result, $queryResult, $queryHandle, $link, $query;
 	// Cannot use constants as you cannot access constants from $this->db::ROW_ASSOC
 	public $ROW_ASSOC = 1;	// MYSQL_ASSOC
 	public $ROW_NUM = 2;	// MYSQL_NUM
@@ -91,7 +91,7 @@ class MySQL
 				$sql = vsprintf($sql, $data);
 			// Query
 			$this->query = $sql;
-			$this->queryResult = $this->link->query($this->query) or $GLOBALS['FOGCore']->debug($this->error(), $this->query);
+			$this->queryResult = $this->link->query($this->query) or $GLOBALS['FOGCore']->debug($this->error(),$this->query);
 			// INFO
 			$GLOBALS['FOGCore']->info($this->query);
 		}
