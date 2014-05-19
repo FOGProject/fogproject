@@ -10,8 +10,10 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid())
 		throw new Exception('#!er:No Host Found');
+	// Get the true module ID for comparing what the host has.
+	$moduleID = current($FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['moduleid'])));
 	// get the module id
-	if (empty($_REQUEST['moduleid']))
+	if (empty($_REQUEST['moduleid']) || !$moduleID || !$moduleID->isValid())
 		throw new Exception('#!um');
 	// Associate the moduleid param with the global name.
 	$moduleName = array(
@@ -28,24 +30,13 @@ try
 		'taskreboot' => 'FOG_SERVICE_TASKREBOOT_ENABLED',
 		'usertracker' => 'FOG_SERVICE_USERTRACKER_ENABLED',
 	);
-	// Get the module status for the host level
-	$moduleID = current($FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['moduleid'])));
 	// If it's globally disabled, return that so the client doesn't keep trying it.
 	if ($FOGCore->getSetting($moduleName[$_REQUEST['moduleid']]) == 1)
 	{
 		foreach((array)$Host->get('modules') AS $Module)
-		{
-			if (($Module && $Module->isValid()) && ($moduleID && $moduleID->isValid()))
-			{
-				if ($Module->get('id') == $moduleID->get('id'))
-				{
-					$modState = current($FOGCore->getClass('ModuleAssociationManager')->find(array('moduleID' => $Module->get('id'))));
-					print (($modState && $modState->isValid()) && $modState->get('state') ? '#!ok' : '#!nh');
-				}
-			}
-			if ((!$Module || !$Module->isValid()) || (!$moduleID || !$moduleID->isValid()))
-				print '#!nh';
-		}
+			$activeIDs[] = $Module->get('id');
+		print (in_array($moduleID->get('id'),$activeIDs) ? '#!ok' : '#!nh');
+
 	}
 	else
 		throw new Exception('#!ng');
