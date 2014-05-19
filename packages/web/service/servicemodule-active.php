@@ -34,7 +34,10 @@ try
 	if ($FOGCore->getSetting($moduleName[$_REQUEST['moduleid']]) == 1)
 	{
 		foreach((array)$Host->get('modules') AS $Module)
-			$activeIDs[] = $Module->get('id');
+		{
+			if ($Module && $Module->isValid())
+				$activeIDs[] = $Module->get('id');
+		}
 		print (in_array($moduleID->get('id'),$activeIDs) ? '#!ok' : '#!nh');
 
 	}

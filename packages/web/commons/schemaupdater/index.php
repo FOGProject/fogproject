@@ -1402,7 +1402,7 @@ if ( $_REQUEST["confirm"] == "yes" )
 		}
 	}
 	else
-		print "\n\t\t\t<p>"._('Unable to connect to Database').'</p><p>'._('Database Error').':<br /><pre class="shellcommand">'. mysql_error() . '</pre></p><p>'._('Make sure your database username and password are correct.').'</p>';
+		print "\n\t\t\t<p>"._('Unable to connect to Database').'</p><p>'._('Database Error').':<br /><pre class="shellcommand">'. $FOGCore->DB->error() . '</pre></p><p>'._('Make sure your database username and password are correct.').'</p>';
 }
 else
 {
