@@ -41,11 +41,14 @@ class Plugin extends FOGController
 	}
 	private function getDirs()
 	{
-		$strLocation = $this->FOGCore->getSetting('FOG_PLUGINSYS_DIR').'/';
+		// For now, automatically sets the plugin directory.  Should not be moved though so classes work properly.
+		if ($this->FOGCore->getSetting('FOG_PLUGINSYS_DIR') != '../lib/plugins/')
+			$this->FOGCore->setSetting('FOG_PLUGINSYS_DIR','../lib/plugins/');
+		$strLocation = $this->FOGCore->getSetting('FOG_PLUGINSYS_DIR');
 		$handle=opendir($strLocation);
 		while(false !== ($file=readdir($handle)))
 		{
-			if(file_exists($strLocation.$file.'/plugin.config.php'))
+			if(file_exists($strLocation.$file.'/config/plugin.config.php'))
 				$files[] = $strLocation.$file.'/';
 		}
 		closedir($handle);
@@ -56,7 +59,7 @@ class Plugin extends FOGController
 		$cfgfile = 'plugin.config.php';
 		foreach($this->getDirs() AS $file)
 		{
-			include($file.$cfgfile);
+			include(rtrim($file,'/').'/config/'.$cfgfile);
 			$p=new Plugin(array('name' => $fog_plugin['name']));
 			$p->strPath = $file;
 			$p->strName = $fog_plugin['name'];
