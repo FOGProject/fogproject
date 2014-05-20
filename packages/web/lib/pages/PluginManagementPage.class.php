@@ -313,7 +313,7 @@ class PluginManagementPage extends FOGPage
 		$plugin = unserialize($_SESSION['fogactiveplugin']);
 		if ($_REQUEST['install'] == 1)
 		{
-			if($this->FOGCore->getClass(ucfirst($plugin->getName()).'Manager')->addSchema($plugin->getName()))
+			if($this->FOGCore->getClass(ucfirst($plugin->getName()).'Manager')->install($plugin->getName()))
 			{
 				$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $plugin->getName())));
 				$Plugin->set('installed',1)
@@ -324,7 +324,7 @@ class PluginManagementPage extends FOGPage
 					$this->FOGCore->setMessage(_('Plugin Installation Failed!'));
 			}
 			else
-				$this->FOGCore->setMessage(_('Failed to install schema!'));
+				$this->FOGCore->setMessage(_('Failed to install Plugin!'));
 			$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&run='.$_REQUEST['run']);
 		}
 		if ($_REQUEST['basics'])
@@ -355,20 +355,13 @@ class PluginManagementPage extends FOGPage
 			$Plugin = new Plugin($_REQUEST['rmid']);
 		if ($Plugin)
 		{
-			if ($Plugin->get('name') == 'location')
+			if($this->FOGCore->getClass(ucfirst($Plugin->get('name')).'Manager')->uninstall())
 			{
-				$this->DB->query("DROP TABLE location");
-				$this->DB->query("DROP TABLE locationAssoc");
-			}
-			else if ($Plugin->get('name') == 'capone')
-			{
-				$this->DB->query("DROP TABLE capone");
-				$this->FOGCore->getClass('ServiceManager')->destroy(array('name' => 'FOG_PLUGIN_CAPON_%'));
-			}
-			if ($Plugin->destroy())
-			{
-				$this->FOGCore->setMessage('Plugin Removed');
-				$this->FOGCore->redirect('?node=plugin&sub=installed');
+				if ($Plugin->destroy())
+				{
+					$this->FOGCore->setMessage('Plugin Removed');
+					$this->FOGCore->redirect('?node=plugin&sub=installed');
+				}
 			}
 		}
 	}
