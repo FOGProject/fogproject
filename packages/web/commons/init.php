@@ -82,6 +82,9 @@ class Initiator
 	private function loader($className) 
 	{
 		$plugPaths = array_filter(glob(BASEPATH . '/lib/plugins/*'), 'is_dir');
+		foreach($plugPaths AS $plugPath)
+			$plug_path[] = $plugPath.'/class';
+		$plugPaths = array_unique($plug_path);
 		$paths = array(BASEPATH . '/lib/fog', BASEPATH . '/lib/db', BASEPATH . '/lib/pages');
 		$paths = array_merge((array)$paths,(array)$plugPaths);
 		foreach ($paths as $path)
