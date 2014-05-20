@@ -81,7 +81,7 @@ class Initiator
 	*/
 	private function loader($className) 
 	{
-		$paths = array(BASEPATH . '/lib/fog', BASEPATH . '/lib/db', BASEPATH . '/lib/pages');
+		$paths = array(BASEPATH . '/lib/fog', BASEPATH . '/lib/db', BASEPATH . '/lib/pages', BASEPATH .'/lib/plugins');
 		foreach ($paths as $path)
 		{
 			$fileName = $className . '.class.php';

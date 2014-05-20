@@ -2,7 +2,13 @@
 
 class LocationManager extends FOGManagerController
 {
-	public function addSchema($name)
+	/**	install($name)
+		Method that installs the relevant plugin.
+
+		$name just sends the plugin name.  Useful
+		for schema adding.
+	*/
+	public function install($name)
     {   
         $sql = "CREATE TABLE fog.location
         (lID INTEGER NOT NULL AUTO_INCREMENT,
@@ -29,5 +35,13 @@ class LocationManager extends FOGManagerController
             	return true;
         }   
         return false;
-    } 
+    }
+	public function uninstall()
+	{
+		if (!$this->DB->query("DROP TABLE locationAssoc"))
+			return false;
+		else if (!$this->DB->query("DROP TABLE location"))
+			return false;
+		return true
+	}
 }
