@@ -4,14 +4,13 @@
 */
 class ExampleManager extends FOGManagerController
 {
-	/** addSchema($name)
-		Function just creates the database
-		entries used if they're needed.
-		\variable $name
-		Sends the plugin name so things
-		update appropriately.
+	/**	install($name)
+		Method that installs the relevant plugin.
+
+		$name just sends the plugin name.  Useful
+		for schema adding.
 	*/
-	public function addSchema($name)
+	public function install($name)
     {   
 		/** Add the information into the database.
 			This is commented out so we don't actually
@@ -42,4 +41,8 @@ class ExampleManager extends FOGManagerController
 		*/
 		return true;
     } 
+	public function uninstall()
+	{
+		return true;
+	}
 }

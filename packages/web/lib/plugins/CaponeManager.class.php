@@ -7,14 +7,13 @@
 */
 class CaponeManager extends FOGManagerController
 {
-	/** addSchema($name)
-		Function just creates the database
-		entries used by Capone.
-		\variable $name
-		Sends the plugin name so things
-		update appropriately.
+	/**	install($name)
+		Method that installs the relevant plugin.
+
+		$name just sends the plugin name.  Useful
+		for schema adding.
 	*/
-	public function addSchema($name)
+	public function install($name)
     {   
         $sql = "CREATE TABLE fog.capone
         (cID INTEGER NOT NULL AUTO_INCREMENT,
@@ -51,5 +50,13 @@ class CaponeManager extends FOGManagerController
             return true;
         }   
         return false;
-    } 
+    }
+	public function uninstall()
+	{
+		if( !$this->DB->query("DROP TABLE capone"))
+			return false;
+		if (!$this->FOGCore->getClass('ServiceManager')->destroy(array('name' => 'FOG_PLUGIN_CAPON_%')))
+			return false;
+		return true;
+	}
 }
