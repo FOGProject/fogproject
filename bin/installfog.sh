@@ -299,6 +299,12 @@ do
 			    configureMySql;
 			    backupReports;
 			    configureHttpd;
+			    echo "  You still need to install/update your database schema.";
+			    echo "  This can be done by opening a web browser and going to:";
+			    echo "";
+			    echo "      http://${ipaddress}/fog/management";
+				echo "";
+				read -p "  Press [Enter] key when database is updated/installed.";
 			    restoreReports;
 			    setupFreshClam;
 			    configureStorage;
