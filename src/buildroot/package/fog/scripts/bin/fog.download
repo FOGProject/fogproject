@@ -152,6 +152,14 @@ EOFPT
 				elif [ "$mbrsize" == "32256" ] && [ "$osid" == "50" ]; then
 					dots "Restoring MBR and GRUB";
 					dd if=$tmpMBR of=$hd bs=512 count=63 &>/dev/null;
+					if [ -e "${imagePath}/d1.partitions" ]; then
+						echo "Done";
+						dots "Extended partitions";
+						sfdisk $hd < ${imgePath}/d1.partitions &>/dev/null;
+					else
+						echo "Done";
+						dots "No extended partitions";
+					fi
 				else
 					dots "Restoring MBR";
 					dd if=$tmpMBR of=$hd bs=512 count=1 &>/dev/null;
@@ -183,6 +191,14 @@ EOFPT
 					elif [ "$mbrsize" == "32256" ] && [ "$intDisk" == "1" ] && [ "$osid" == "50" ]; then
 						dots "Restoring MBR and GRUB";
 						dd if=$tmpMBR of=$disk bs=512 count=63 &>/dev/null;
+						if [ -e "${imagePath}/d${intDisk}.partitions" ]; then
+							echo "Done";
+							dots "Extended partitions";
+							sfdisk $disk < ${imagePath}/d${intDisk}.partitions &>/dev/null;
+						else
+							echo "Done"
+							dots "No extended partitions";
+						fi
 					else
 						dots "Restoring MBR";
 						dd if=$tmpMBR of=$disk bs=512 count=1 &>/dev/null;
