@@ -1382,7 +1382,7 @@ if ( $_REQUEST["confirm"] == "yes" )
 					}
 					// Update is SQL
 					else if (! $DB->query($update)->queryResult())
-						$errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i", $DB->error(), $update);
+						$errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i", $DB->sqlerror(), $update);
 				}
 				// Update schema version
 				$DB->query("UPDATE `%s`.`schemaVersion` set vValue = '%s'", array(DATABASE_NAME, $version));
@@ -1408,7 +1408,7 @@ if ( $_REQUEST["confirm"] == "yes" )
 		}
 	}
 	else
-		print "\n\t\t\t<p>"._('Unable to connect to Database').'</p><p>'._('Database Error').':<br /><pre class="shellcommand">'. $FOGCore->DB->error() . '</pre></p><p>'._('Make sure your database username and password are correct.').'</p>';
+		print "\n\t\t\t<p>"._('Unable to connect to Database').'</p><p>'._('Database Error').':<br /><pre class="shellcommand">'. $FOGCore->DB->sqlerror() . '</pre></p><p>'._('Make sure your database username and password are correct.').'</p>';
 }
 else
 {

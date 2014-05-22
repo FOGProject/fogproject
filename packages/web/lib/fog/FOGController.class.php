@@ -210,7 +210,7 @@ abstract class FOGController extends FOGBase
 				implode(', ', $updateData)
 			);
 			if (!$this->DB->query($query))
-				throw new Exception($this->DB->error());
+				throw new Exception($this->DB->sqlerror());
 			// Database query was successful - set ID if ID was not set
 			if (!$this->get('id'))
 				$this->set('id', $this->DB->insert_id());
@@ -260,7 +260,7 @@ abstract class FOGController extends FOGBase
 			}
 			// Did we find a row in the database?
 			if (!$queryData = $this->DB->query($query)->fetch()->get())
-				throw new Exception(($this->DB->error() ? $this->DB->error() : 'Row not found'));
+				throw new Exception(($this->DB->sqlerror() ? $this->DB->sqlerror() : 'Row not found'));
 			// Loop returned rows -> Set new data
 			foreach ($queryData AS $key => $value)
 				$this->set($this->key($key), (string)$value);
