@@ -268,6 +268,15 @@ configureMinHttpd()
 
 configureHttpd()
 {
+	while [ $dbpass != $PASSWORD1 ]; do
+		echo "*     Please enter your mysql password: "
+		read -s PASSWORD1
+		echo "*     Please re-enter your mysql password: "
+		read -s PASSWORD2
+		if [ $PASSWORD1 == $PASSWORD2 ]; then
+			dbpass=$PASSWORD1;
+		fi
+	done
 	echo -n "  * Setting up and starting Apache Web Server...";
 	chkconfig httpd on;
 	service httpd restart >/dev/null 2>&1
@@ -287,16 +296,6 @@ configureHttpd()
 		fi
 		mkdir "$webdirdest";
 		cp -Rf $webdirsrc/* $webdirdest/
-		
-		while [ $dbpass != $PASSWORD1 ]; do
-			echo "Please enter your mysql password: "
-			read -s PASSWORD1
-			echo "Please re-enter your mysql password: "
-			read -s PASSWORD2
-			if [ $PASSWORD1 == $PASSWORD2 ]; then
-				dbpass=$PASSWORD1;
-			fi
-		done
 		
 		echo "<?php
 /*
