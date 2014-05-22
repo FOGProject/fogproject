@@ -305,7 +305,7 @@ do
 			    echo "      http://${ipaddress}/fog/management";
 				echo "";
 				read -p "  Press [Enter] key when database is updated/installed.";
-			    restoreReports;
+			    #restoreReports;
 			    setupFreshClam;
 			    configureStorage;
 			    configureNFS;
