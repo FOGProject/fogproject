@@ -1,12 +1,28 @@
 <?php
 class Initiator
 {
+	public $HookPaths,$FOGPaths;
 	/** __construct()
 		Tells the initial call to load all the calls files.
 	*/
 	public function __construct()
 	{
-		spl_autoload_register(array($this,'loader'));
+		$plugPaths = array_filter(glob(BASEPATH . '/lib/plugins/*'), 'is_dir');
+		foreach($plugPaths AS $plugPath)
+		{
+			$plug_class[] = $plugPath.'/class/';
+			$plug_hook[] = $plugPath.'/hooks/';
+		}
+		$FOGPaths = array(BASEPATH . '/lib/fog/', BASEPATH . '/lib/db/', BASEPATH . '/lib/pages/');
+		$HookPaths = array(BASEPATH . '/lib/hooks/');
+		$this->FOGPaths = array_merge((array)$FOGPaths,(array)$plug_class);
+		$this->HookPaths = array_merge((array)$HookPaths,(array)$plug_hook);
+		$GLOBALS['HookPaths'] = $this->HookPaths;
+		spl_autoload_register(array($this,'FOGLoader'));
+	}
+	public function __destruct()
+	{
+		spl_autoload_unregister(array($this,'FOGLoader'));
 	}
 	/** startInit()
 		Starts the initiation of the environment.
@@ -30,8 +46,8 @@ class Initiator
 	{
 		try
 		{
-			if (!version_compare(phpversion(), '5.2.1', '>='))
-				throw new Exception('FOG Requires PHP v5.2.1 or higher.  You have PHP v'.phpversion());
+			if (!version_compare(phpversion(), '5.3.0', '>='))
+				throw new Exception('FOG Requires PHP v5.3.0 or higher.  You have PHP v'.phpversion());
 		}
 		catch (Exception $e)
 		{
@@ -76,22 +92,15 @@ class Initiator
 		bindtextdomain('messages', 'languages');
 		textdomain('messages');
 	}
-	/** loader($className)
+	/** FOGLoader($className)
 		Loads the class files as they're needed.
 	*/
-	private function loader($className) 
+	private function FOGLoader($className) 
 	{
-		$plugPaths = array_filter(glob(BASEPATH . '/lib/plugins/*'), 'is_dir');
-		foreach($plugPaths AS $plugPath)
-			$plug_path[] = $plugPath.'/class';
-		$plugPaths = array_unique($plug_path);
-		$paths = array(BASEPATH . '/lib/fog', BASEPATH . '/lib/db', BASEPATH . '/lib/pages');
-		$paths = array_merge((array)$paths,(array)$plugPaths);
-		foreach ($paths as $path)
+		foreach($this->FOGPaths AS $path)
 		{
-			$fileName = $className . '.class.php';
-			$filePath = rtrim($path, '/') . '/' . $fileName;
-			if (!class_exists($className) && file_exists($filePath))
+			$filePath = (!class_exists($className) && file_exists($path.$className.'.class.php') ? $path.$className.'.class.php' : null);
+			if ($filePath)
 				include($filePath);
 		}
 	}
@@ -105,10 +114,10 @@ $Init::startInit();
 // Core
 $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
-// Hook Manager - Init & Load Hooks
-$HookManager = new HookManager();
-$HookManager->load();
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
+// HookManager
+$HookManager = new HookManager();
+$HookManager->load();
 $Init::endInit();

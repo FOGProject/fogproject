@@ -2,10 +2,10 @@
 /**	Class Name: MySQL
 	For mysql connections specifically.
 */
-class MySQL
+class MySQL extends FOGBase
 {
-	private $host, $user, $pass, $db, $startTime, $result, $queryResult, $queryHandle, $link, $query;
-	// Cannot use constants as you cannot access constants from $this->db::ROW_ASSOC
+	private $host, $user, $pass, $dbname, $startTime, $result, $queryResult, $queryHandle, $link, $query;
+	// Cannot use constants as you cannot access constants from $this->dbname::ROW_ASSOC
 	public $ROW_ASSOC = 1;	// MYSQL_ASSOC
 	public $ROW_NUM = 2;	// MYSQL_NUM
 	public $ROW_BOTH = 3;	// MYSQL_BOTH
@@ -16,6 +16,7 @@ class MySQL
 	*/
 	function __construct($host, $user, $pass, $db = '')
 	{
+		parent::__construct();
 		try
 		{
 			if (!class_exists('mysqli'))
@@ -23,7 +24,7 @@ class MySQL
 			$this->host = $host;
 			$this->user = $user;
 			$this->pass = $pass;
-			$this->db = $db;
+			$this->dbname = $db;
 			if (!$this->connect())
 				throw new Exception('Failed to connect');
 			$this->startTime = $this->now();
@@ -47,7 +48,7 @@ class MySQL
 		}
 		catch (Exception $e)
 		{
-			$GLOBALS['FOGCore']->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$this->FOGCore->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 	}
 	/** close()
@@ -67,9 +68,9 @@ class MySQL
 			if ($this->link)
 				$this->close();
 			if (!$this->link = new mysqli($this->host, $this->user, $this->pass))
-				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s', $this->host, $this->user, '[Protected]', $this->db));
-			if ($this->db)
-				$this->select_db($this->db);
+				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s', $this->host, $this->user, '[Protected]', $this->dbname));
+			if ($this->dbname)
+				$this->select_db($this->dbname);
 		}
 		catch (Exception $e)
 		{
@@ -91,7 +92,7 @@ class MySQL
 				$sql = vsprintf($sql, $data);
 			// Query
 			$this->query = $sql;
-			$this->queryResult = $this->link->query($this->query) or $GLOBALS['FOGCore']->debug($this->error(),$this->query);
+			$this->queryResult = $this->link->query($this->query) or $GLOBALS['FOGCore']->debug($this->sqlerror(),$this->query);
 			// INFO
 			$GLOBALS['FOGCore']->info($this->query);
 		}
@@ -169,7 +170,7 @@ class MySQL
 		{
 			if (!$this->link->select_db($db))
 				throw new Exception("$db");
-			$this->db = $db;
+			$this->dbname = $db;
 		}
 		catch (Exception $e)
 		{
@@ -177,10 +178,10 @@ class MySQL
 		}
 		return $this;
 	}
-	/** error()
+	/** sqlerror()
 		What was the error.
 	*/
-	public function error()
+	public function sqlerror()
 	{
 		return $this->link->error;
 	}
@@ -265,7 +266,7 @@ class MySQL
 	public function dump($exit = false)
 	{
 		printf('<p>Last Error: %s</p><p>Last Query: %s</p><p>Last Query Result: %s</p><p>Last Num Rows: %s</p><p>Last Affected Rows: %s</p><p>Last Result: %s</p>',
-			$this->error(),
+			$this->sqlerror(),
 			$this->query,
 			(is_bool($this->queryResult) === true ? ($this->queryResult == true ? 'true' : 'false') : $this->queryResult),
 			$this->num_rows(),

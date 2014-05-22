@@ -174,12 +174,15 @@ class HookManager extends FOGBase
 	public function load()
 	{
 		global $HookManager;
-		$path = BASEPATH.'/lib/hooks';
-		$Iterator = new DirectoryIterator($path);
-		foreach($Iterator AS $file)
+		foreach($GLOBALS['HookPaths'] AS $hookDirectory)
 		{
-			if ($file->isFile() && !class_exists(substr($file->getFilename(),0,-9)))
-				include($path.'/'.$file->getFilename());
+			$hookIterator = new DirectoryIterator($hookDirectory);
+			foreach ($hookIterator AS $fileInfo)
+			{
+				$filePath = (!$fileInfo->isDot() ? $fileInfo->getPathname() : null);
+				if ($filePath)
+					include($filePath);
+			}
 		}
 	}
 	private function log($txt, $level = 1)
