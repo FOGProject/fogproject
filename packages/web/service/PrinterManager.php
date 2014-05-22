@@ -19,7 +19,7 @@ try
 	if ($level > 0)
 	{
 		// Get all the printers set for this host.
-		$Printers = $FOGCore->getClass('PrinterManagementAssociationManager')->find(array('hostID' => $Host->get('id')));
+		$Printers = $FOGCore->getClass('PrinterAssociationManager')->find(array('hostID' => $Host->get('id')));
 		foreach ($Printers AS $Printer)
 		{
 			$Printers[] = new Printer($Printer->get('printerID'));
