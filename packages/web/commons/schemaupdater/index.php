@@ -1328,6 +1328,12 @@ $databaseSchema[] = array(
 $databaseSchema[] = array(
 	"UPDATE `". DATABASE_NAME ."`.`imageTypes` SET `imageTypeName` = 'Single Disk (NTFS Only, Resizable)' WHERE `imageTypes`.`imageTypeName` = 'Single Partition (NTFS Only, Resizable)'",
 );
+// 101
+// Adds a number that if data returned is larger than will display search.
+$databaseSchema[] = array(
+    "INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	values('FOG_DATA_RETURNED','This setting presents the search bar if list has more returned than this number. A value of 0 disables it.','100','FOG View Settings')",
+);
 
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
