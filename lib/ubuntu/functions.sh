@@ -298,9 +298,9 @@ configureMinHttpd()
 configureHttpd()
 {
 	while [ $dbpass != $PASSWORD1 ]; do
-		echo "*     Please enter your mysql password: "
+		echo -n "  * Please enter your mysql password: "
 		read -s PASSWORD1
-		echo "*     Please re-enter your mysql password: "
+		echo -n "  * Please re-enter your mysql password: "
 		read -s PASSWORD2
 		if [ $PASSWORD1 == $PASSWORD2 ]; then
 			dbpass=$PASSWORD1;
