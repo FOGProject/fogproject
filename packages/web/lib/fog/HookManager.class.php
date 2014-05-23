@@ -179,7 +179,7 @@ class HookManager extends FOGBase
 			$hookIterator = new DirectoryIterator($hookDirectory);
 			foreach ($hookIterator AS $fileInfo)
 			{
-				$filePath = (!$fileInfo->isDot() && substr($fileInfo->getFilename(),-8) == 'hook.php' ? $fileInfo->getPathname() : null);
+				$filePath = (!$fileInfo->isDot() && substr($fileInfo->getFilename(),-8) == 'hook.php' && !class_exists(substr($fileInfo->getFilename,0,-9)) ? $fileInfo->getPathname() : null);
 				if ($filePath)
 					include($filePath);
 			}

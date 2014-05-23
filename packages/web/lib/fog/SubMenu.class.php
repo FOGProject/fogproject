@@ -1,12 +1,13 @@
 <?php 
-class SubMenu
+class SubMenu extends FOGBase
 {
 	private $node, $id, $name, $object, $title, $FOGSubMenu;
-	function __construct($currentUser)
+	
+	public function __construct($currentUser)
 	{
-		$this->node = $_GET['node'];
+		parent::__construct();
+		$this->node = $_REQUEST['node'];
 		$this->currentUser = $currentUser;
-		$this->foglang = $GLOBALS['foglang'];
 		$this->FOGSubMenu = new FOGSubMenu();
 		if ($this->node == 'group' && $_GET['id'])
 		{
@@ -28,9 +29,9 @@ class SubMenu
 								 $this->foglang['OS']	=> stripslashes($this->object->getOS()->get('name')),
 								 _('Last Deployed') => stripslashes($this->object->get('deployed')),
 			);
-			$GA = $GLOBALS['FOGCore']->getClass('GroupAssociationManager')->find(array('hostID' => $this->object->get('id')));
+			$GA = $this->FOGCore->getClass('GroupAssociationManager')->find(array('hostID' => $this->object->get('id')));
 			if ($GA[0])
-				$this->title[$this->foglang['PrimaryGroup']] = $GLOBALS['FOGCore']->getClass('Group',$GA[0]->get('groupID'))->get('name');
+				$this->title[$this->foglang['PrimaryGroup']] = $this->FOGCore->getClass('Group',$GA[0]->get('groupID'))->get('name');
 		}
 		else if ($this->node == 'images' && $_GET['id'])
 		{
@@ -91,7 +92,7 @@ class SubMenu
 			$this->object = new Location($_GET['id']);
 			$this->title = array($this->foglang['Location'] => $this->object->get('name'),
 							     $this->foglang['Storage'].' '.$this->foglang['Group'] => 
-								 		$GLOBALS['FOGCore']->getClass('StorageGroup',$this->object->get('storageGroupID'))->get('name')
+								 		$this->FOGCore->getClass('StorageGroup',$this->object->get('storageGroupID'))->get('name')
 			);
 		}
 		else if ($this->node == 'hwinfo' && $_GET['id'])

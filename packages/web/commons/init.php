@@ -104,6 +104,18 @@ class Initiator
 				include($filePath);
 		}
 	}
+	/** FOGHooks($className)
+		Loads the hook files as they're needed.
+	*/
+	private function FOGHooks($className) 
+	{
+		foreach($this->HookPaths AS $path)
+		{
+			$filePath = (!class_exists($className) && file_exists($path.$className.'.hook.php') ? $path.$className.'.hook.php' : null);
+			if ($filePath)
+				include($filePath);
+		}
+	}
 }
 // Sanitize valid input variables
 foreach(array('node','sub','printertype','id','sub','crit','sort','confirm','tab') AS $x)

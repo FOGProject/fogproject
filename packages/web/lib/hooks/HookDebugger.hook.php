@@ -13,25 +13,20 @@ class HookDebugger extends Hook
 	var $name = 'HookDebugger';
 	var $description = 'Prints all Hook data to the web page and/or file when a hook is encountered';
 	var $author = 'Blackout';
-	var $active = true;
+	var $active = false;
 	var $logLevel = 9;
 	var $logToFile = false;		// Logs to: lib/hooks/HookDebugger.log
 	var $logToBrowser = true;
 
-	function __construct()
-	{
-		foreach($this->events AS $event)
-			$this->HookManager->register($event, array($this,'run'));
-	}
-	
 	function run($arguments)
 	{
 		$this->log(print_r($arguments, 1));
 	}
 }
+$HookDebugger = new HookDebugger();
 // Debug all events
-//$HookDebugger = new HookDebugger();
-//foreach ($HookManager->events AS $event)
-//{
-//	$HookManager->register($event, array($HookDebugger, 'run'));
-//}
+if ($HookDebugger->active)
+{
+	foreach ($HookManager->events AS $event)
+		$HookManager->register($event, array($HookDebugger, 'run'));
+}
