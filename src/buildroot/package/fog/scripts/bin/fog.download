@@ -202,6 +202,14 @@ EOFPT
 					else
 						dots "Restoring MBR";
 						dd if=$tmpMBR of=$disk bs=512 count=1 &>/dev/null;
+						if [ -e "${imagePath}/d${intDisk}.partitions" ]; then
+							echo "Done";
+							dots "Extended partitions";
+							sfdisk $disk < ${imagePath}/d${intDisk}.partitions &>/dev/null;
+						else
+							echo "Done"
+							dots "No extended partitions";
+						fi
 					fi
 					echo "Done";
 					sleep 3;
