@@ -7,7 +7,7 @@
  *	Last Update:	$LastChangedDate$
  ***/
 // Hook Template
-class HookTemplate extends Hook
+class Template extends Hook
 {
 	var $name = 'Hook Name';
 	var $description = 'Hook Description';
@@ -19,6 +19,7 @@ class HookTemplate extends Hook
 	}
 }
 // Init class
-$HookTemplate = new HookTemplate();
+$Template = new Template();
 // Hook Event
-$HookManager->register('HOST_DATA', array(new HookTemplate(), 'HostData'));
+if ($Template->active)
+	$HookManager->register('HOST_DATA', array($HookTemplate, 'HostData'));

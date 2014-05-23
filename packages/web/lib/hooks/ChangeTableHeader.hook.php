@@ -3,12 +3,12 @@
  * FOG Hook: Example Change Table Header
  *	Author:		Blackout
  *	Created:	8:57 AM 31/08/2011
- *	Revision:	$Revision$
- *	Last Update:	$LastChangedDate$
+ *	Revision:	$Revision: 1438 $
+ *	Last Update:	$LastChangedDate: 2014-04-08 21:08:05 -0400 (Tue, 08 Apr 2014) $
  ***/
 
 // Example class
-class TestHookChangeTableHeader extends Hook
+class ChangeTableHeader extends Hook
 {
 	var $name = 'ChangeTableHeader';
 	var $description = 'Remove & add table header columns';
@@ -20,5 +20,7 @@ class TestHookChangeTableHeader extends Hook
 		$arguments['headerData'][3] = 'Chicken Sandwiches';
 	}
 }
+$ChangeTableHeader = new ChangeTableHeader();
 // Example: Change Table Header and Data
-$HookManager->register('HOST_HEADER_DATA', array(new TestHookChangeTableHeader(), 'HostTableHeader'));
+if ($ChangeTableHeader->active)
+	$HookManager->register('HOST_HEADER_DATA', array($ChangeTableHeader, 'HostTableHeader'));
