@@ -541,7 +541,7 @@ END OF TERMS AND CONDITIONS</pre>";
 							$ClientUpdater->set('name',basename($_FILES['module']['name'][$index]))
 								->set('md5',md5(file_get_contents($_FILES['module']['tmp_name'][$index])))
 								->set('type',($this->FOGCore->endsWith($_FILES['module']['name'][$index],'.ini') ? 'txt' : 'bin'))
-								->set('file',basename(file_get_contents($_FILES['module']['tmp_name'][$index])));
+								->set('file',file_get_contents($_FILES['module']['tmp_name'][$index]));
 						}
 						else
 						{
@@ -549,7 +549,7 @@ END OF TERMS AND CONDITIONS</pre>";
 								'name' => basename($_FILES['module']['name'][$index]),
 								'md5' => md5(file_get_contents($_FILES['module']['tmp_name'][$index])),
 								'type'=> ($this->FOGCore->endsWith($_FILES['module']['name'][$index],'.ini') ? 'txt' : 'bin'),
-								'file' => basename($_FILES['module']['tmp_name'][$index]),
+								'file' => file_get_contents($_FILES['module']['tmp_name'][$index]),
 							));
 						}
 						if ($ClientUpdater->save())
