@@ -42,6 +42,6 @@ class LocationManager extends FOGManagerController
 			return false;
 		else if (!$this->DB->query("DROP TABLE location"))
 			return false;
-		return true
+		return true;
 	}
 }
