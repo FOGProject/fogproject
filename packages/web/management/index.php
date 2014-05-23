@@ -85,6 +85,8 @@ if (!$isHomepage)
 	print "\n\t<!-- Menu -->";
 	print "\n\t\t".'<div id="sidebar">';
 	$SubMenu->buildMenu();
+	$FOGSubMenu = new FOGSubMenu();
+	//$HookManager->processEvent('SubMenuData', array('FOGSubMenu' => &$FOGSubMenu));
 	print "\n\t\t</div>";
 }
 print "\n\t</div>";

@@ -49,7 +49,7 @@ class FOGSubMenu
 	}
 	
 	// Add menu items
-	function addItems($node, $items, $ifVariable = '', $ifVariableTitle = '')
+	public function addItems($node, $items, $ifVariable = '', $ifVariableTitle = '')
 	{
 		// TODO: Clean up - use this below to start
 		// No check variable? then Main Menu
@@ -75,7 +75,7 @@ class FOGSubMenu
 		}
 	}
 	// Add notes below menu items
-	function addNotes($node, $data, $ifVariable = '') {
+	public function addNotes($node, $data, $ifVariable = '') {
 		if (is_callable($data))
 			$data = $data();
 		if (is_array($data))
@@ -87,7 +87,7 @@ class FOGSubMenu
 	}
 	
 	// Get menu items & notes for $node
-	function get($node)
+	public function get($node)
 	{
 		// Menu Items
 		if ($this->items[$node])
@@ -116,7 +116,7 @@ class FOGSubMenu
 	}
 	
 	// Pretty up section titles
-	function fixTitle($title)
+	public function fixTitle($title)
 	{
 		if (preg_match('#[[:space:]]#', $title))
 		{
@@ -133,12 +133,12 @@ class FOGSubMenu
 		return $title;
 	}
 	// Test if the link is a node link or an external link
-	function isExternalLink($link) {
+	public function isExternalLink($link) {
 		if (substr($link, 0, 4) == 'http' || $link{0} == '/' ||  $link{0} == '?' || $link{0} == '#') return true;
 		return false;
 	}
 	// Debug
-	function debug($txt) {
+	public function debug($txt) {
 		if ($this->DEBUG) print '[' . date("m/d/y H:i:s") . "] " . htmlspecialchars(is_array($txt) ? print_r($txt, 1) : $txt) . "\n";
 	}
 }

@@ -3,11 +3,11 @@
  * FOG Hook: Example Change Hostname
  *	Author:		$Author: Blackout $
  *	Created:	8:57 AM 31/08/2011
- *	Revision:	$Revision$
- *	Last Update:	$LastChangedDate$
+ *	Revision:	$Revision: 1438 $
+ *	Last Update:	$LastChangedDate: 2014-04-08 21:08:05 -0400 (Tue, 08 Apr 2014) $
  ***/
 // Example class
-class TestHookChangeHostname extends Hook
+class ChangeHostname extends Hook
 {
 	var $name = 'ChangeHostname';
 	var $description = 'Appends "Chicken-" to all hostnames ';
@@ -19,6 +19,8 @@ class TestHookChangeHostname extends Hook
 			$arguments['data'][$i]['host_name'] = 'Chicken-' . $data['host_name'];
 	}
 }
+$ChangeHostname = new ChangeHostname();
 // Example: Test by changing all hostnames in Host Management
 // $HookManager->register('REPLACE_DATA', array(ClassNameCall), 'FunctionWithinClass')
-$HookManager->register('HOST_DATA', array(new TestHookChangeHostname(), 'HostData'));
+if ($ChangeHostName->active)
+	$HookManager->register('HOST_DATA', array($ChangeHostName, 'HostData'));
