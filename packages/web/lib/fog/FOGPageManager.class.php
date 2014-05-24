@@ -106,10 +106,16 @@ class FOGPageManager extends FOGBase
 		if ($this->isLoaded('PageClasses'))
 			return;
 		// This variable is required as each class file uses it
-		global $FOGPageManager;
-		$path = rtrim(BASEPATH,'/').'/lib/pages';
-		$iterator = new DirectoryIterator($path);
-		foreach ($iterator as $fileInfo)
-			($fileInfo->isFile() && substr($fileInfo->getFilename(), -10) == '.class.php' ? require_once($path.'/'.$fileInfo->getFilename()) : null);
+		global $FOGPageManager,$Init;
+		foreach($Init->PagePaths as $path)
+		{
+			$iterator = new DirectoryIterator($path);
+			foreach ($iterator as $fileInfo)
+			{
+				$className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
+				if ($className)
+					$class = new $className();
+			}
+		}
 	}
 }

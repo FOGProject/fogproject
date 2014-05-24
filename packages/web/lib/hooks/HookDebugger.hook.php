@@ -23,7 +23,6 @@ class HookDebugger extends Hook
 		$this->log(print_r($arguments, 1));
 	}
 }
-$HookDebugger = new HookDebugger();
 // Debug all events
 if ($HookDebugger->active)
 {
