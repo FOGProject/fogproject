@@ -1,7 +1,7 @@
 <?php
 class Initiator
 {
-	public $HookPaths,$FOGPaths;
+	public $HookPaths,$FOGPaths,$PagePaths;
 	/** __construct()
 		Tells the initial call to load all the calls files.
 	*/
@@ -12,13 +12,17 @@ class Initiator
 		{
 			$plug_class[] = $plugPath.'/class/';
 			$plug_hook[] = $plugPath.'/hooks/';
+			$plug_page[] = $plugPath.'/pages/';
 		}
-		$FOGPaths = array(BASEPATH . '/lib/fog/', BASEPATH . '/lib/db/', BASEPATH . '/lib/pages/');
+		$FOGPaths = array(BASEPATH . '/lib/fog/', BASEPATH . '/lib/db/');
 		$HookPaths = array(BASEPATH . '/lib/hooks/');
+		$PagePaths = array(BASEPATH . '/lib/pages/');
 		$this->FOGPaths = array_merge((array)$FOGPaths,(array)$plug_class);
 		$this->HookPaths = array_merge((array)$HookPaths,(array)$plug_hook);
-		$GLOBALS['HookPaths'] = $this->HookPaths;
+		$this->PagePaths = array_merge((array)$PagePaths,(array)$plug_page);
 		spl_autoload_register(array($this,'FOGLoader'));
+		spl_autoload_register(array($this,'FOGPages'));
+		spl_autoload_register(array($this,'FOGHooks'));
 	}
 	public function __destruct()
 	{
@@ -98,23 +102,25 @@ class Initiator
 	private function FOGLoader($className) 
 	{
 		foreach($this->FOGPaths AS $path)
-		{
-			$filePath = (!class_exists($className) && file_exists($path.$className.'.class.php') ? $path.$className.'.class.php' : null);
-			if ($filePath)
-				include($filePath);
-		}
+			(!class_exists($className) && file_exists($path.$className.'.class.php') ? include($path.$className.'.class.php') : null);
+	}
+	/** FOGPages($className)
+		Loads the page files as they're needed.
+	*/
+	private function FOGPages($className)
+	{
+		global $FOGPageManager;
+		foreach($this->PagePaths as $path)
+			(!class_exists($className) && file_exists($path.$className.'.class.php') ? require_once($path.$className.'.class.php') : null);
 	}
 	/** FOGHooks($className)
 		Loads the hook files as they're needed.
 	*/
 	private function FOGHooks($className) 
 	{
+		global $HookManager;
 		foreach($this->HookPaths AS $path)
-		{
-			$filePath = (!class_exists($className) && file_exists($path.$className.'.hook.php') ? $path.$className.'.hook.php' : null);
-			if ($filePath)
-				include($filePath);
-		}
+			(!class_exists($className) && file_exists($path.$className.'.hook.php') ? include($path.$className.'.hook.php') : null);
 	}
 }
 // Sanitize valid input variables
@@ -132,4 +138,6 @@ $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
 // HookManager
 $HookManager = new HookManager();
 $HookManager->load();
+// FOGPageManager Loading
+$FOGPageManager = new FOGPageManager();
 $Init::endInit();

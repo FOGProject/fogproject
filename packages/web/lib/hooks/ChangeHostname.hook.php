@@ -20,7 +20,6 @@ class ChangeHostname extends Hook
 	}
 }
 $ChangeHostname = new ChangeHostname();
-// Example: Test by changing all hostnames in Host Management
 // $HookManager->register('REPLACE_DATA', array(ClassNameCall), 'FunctionWithinClass')
-if ($ChangeHostName->active)
-	$HookManager->register('HOST_DATA', array($ChangeHostName, 'HostData'));
+if ($ChangeHostname->active)
+	$HookManager->register('HOST_DATA', array($ChangeHostname, 'HostData'));
