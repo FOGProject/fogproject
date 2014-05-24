@@ -19,7 +19,5 @@ class ChangeHostname extends Hook
 			$arguments['data'][$i]['host_name'] = 'Chicken-' . $data['host_name'];
 	}
 }
-$ChangeHostname = new ChangeHostname();
 // $HookManager->register('REPLACE_DATA', array(ClassNameCall), 'FunctionWithinClass')
-if ($ChangeHostname->active)
-	$HookManager->register('HOST_DATA', array($ChangeHostname, 'HostData'));
+$HookManager->register('HOST_DATA', array(new ChangeHostname(), 'HostData'));

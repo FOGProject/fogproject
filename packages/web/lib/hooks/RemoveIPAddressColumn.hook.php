@@ -25,10 +25,6 @@ class RemoveIPAddressColumn extends Hook
 		unset($arguments['templates'][4]);
 	}
 }
-$RemoveIPAddressColumn = new RemoveIPAddressColumn();
 // Register hooks
-if ($RemoveIPAddressColumn->active)
-{
-	$HookManager->register('HOST_HEADER_DATA', array($RemoveIPAddressColumn, 'HostTableHeader'));
-	$HookManager->register('HOST_DATA', array($RemoveIPAddressColumn, 'HostData'));
-}
+$HookManager->register('HOST_HEADER_DATA', array(new RemoveIPAddressColumn(), 'HostTableHeader'));
+$HookManager->register('HOST_DATA', array(new RemoveIPAddressColumn(), 'HostData'));

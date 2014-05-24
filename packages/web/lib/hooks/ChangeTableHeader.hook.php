@@ -20,7 +20,5 @@ class ChangeTableHeader extends Hook
 		$arguments['headerData'][3] = 'Chicken Sandwiches';
 	}
 }
-$ChangeTableHeader = new ChangeTableHeader();
 // Example: Change Table Header and Data
-if ($ChangeTableHeader->active)
-	$HookManager->register('HOST_HEADER_DATA', array($ChangeTableHeader, 'HostTableHeader'));
+$HookManager->register('HOST_HEADER_DATA', array(new ChangeTableHeader(), 'HostTableHeader'));
