@@ -62,6 +62,7 @@ try
 			'createdTime' => date("Y-m-d H:i:s"),
 			'createdBy' => 'FOGREG',
 		));
+		$Host->addModule($ids);
 		if ($Host->save())
 		{
 			$GroupAssoc = new GroupAssociation(array(
