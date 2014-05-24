@@ -322,11 +322,11 @@ class Host extends FOGController
 				$newValue[] = ($inventory instanceof Inventory ? $inventory : new Inventory($inventory));
 			$value = (array)$newValue;
 		}
-		// Printers
-		else if ($this->key($key) == 'printers')
+		// Groups
+		else if ($this->key($key) == 'groups')
 		{
 			$this->loadGroups();
-			foreach ((array)$value AS $i => $group)
+			foreach ((array)$value AS $group)
 				$newValue[] = ($group instanceof Group ? $group : new Group($group));
 			$value = (array)$newValue;
 		}
@@ -555,9 +555,9 @@ class Host extends FOGController
 		$OS = $this->getOS();
 		$StorageGroup = $Image->getStorageGroup();
 		$StorageNode = $StorageGroup->getStorageNode();
-		return ($Image->isValid() && $OS->isValid() && $StorageGroup->isValid() && $StorageNode->isValid() ? true : false);
+		//return ($Image->isValid() && $OS->isValid() && $StorageGroup->isValid() && $StorageNode->isValid() ? true : false);
 		// TODO: Use this version when class caching has been finialized
-		//return ($this->getImage()->isValid() && $this->getImage()->getOS()->isValid() && $this->getImage()->getStorageGroup()->isValid() && $this->getImage()->getStorageGroup()->getStorageNode*(->isValid() ? true : false);
+		return ($this->getImage()->isValid() && $this->getImage()->getOS()->isValid() && $this->getImage()->getStorageGroup()->isValid() && $this->getImage()->getStorageGroup()->getStorageNode()->isValid() ? true : false);
 	}
 	public function getOptimalStorageNode()
 	{
@@ -1028,22 +1028,6 @@ class Host extends FOGController
 	{
 		return $this->get('printers');
 	}
-	public function addGroup($addArray)
-	{
-		// Add
-		foreach((array)$addArray AS $item)
-			$this->add('groups', $item);
-		// Return
-		return $this;
-	}
-	public function removeGroup($removeArray)
-	{
-		// Iterate array (or other as array)
-		foreach ((array)$removeArray AS $remove)
-			$this->remove('groups', ($remove instanceof Group ? $remove : new Group((int)$remove)));
-		// Return
-		return $this;
-	}
 	public function addPrinter($addArray)
 	{
 		// Add
@@ -1150,6 +1134,22 @@ class Host extends FOGController
 		// Iterate array (or other as array)
 		foreach ((array)$removeArray AS $remove)
 			$this->remove('modules', ($remove instanceof Module ? $remove : new Module((int)$remove)));
+		// Return
+		return $this;
+	}
+	public function addGroup($addArray)
+	{
+		// Add
+		foreach((array)$addArray AS $item)
+			$this->add('groups', $item);
+		// Return
+		return $this;
+	}
+	public function removeGroup($removeArray)
+	{
+		// Iterate array (or other as array)
+		foreach ((array)$removeArray AS $remove)
+			$this->remove('groups', ($remove instanceof Group ? $remove : new Group((int)$remove)));
 		// Return
 		return $this;
 	}
