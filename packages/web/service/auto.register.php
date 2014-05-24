@@ -5,6 +5,8 @@ try
 	// Set the services so all id's can be enabled.
 	foreach($FOGCore->getClass('ModuleManager')->find() AS $Module)
 		$ids[] = $Module->get('id');
+	// Get the autoreg group id:
+	$groupid[] = $FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC');
 	$HostManager = new HostManager();
 	$ifconfig = explode('HWaddr',base64_decode($_REQUEST['mac']));
 	$mac = strtolower(trim($ifconfig[1]));
@@ -122,7 +124,7 @@ try
 		{
 			// Get the image id if autopop is set.
 			$Image = new Image($FOGCore->getSetting('FOG_QUICKREG_IMG_ID'));
-			($Image && $Image->isValid() ? $realimageid=$Image->get('id') : $realimageid='');
+			$realimageid = ($Image && $Image->isValid() ? $Image->get('id') : '');
 			// get the name to use
 			$autoregSysName = $FOGCore->getSetting('FOG_QUICKREG_SYS_NAME');
 			// get the increment to use
@@ -156,6 +158,8 @@ try
 			}
 			if ($Host->save())
 			{
+				$Host = new Host($Host->get('id'));
+				$Host->addGroup($groupid)->save();
 				// Increment the Quickreg System Number if needed.
 				(strtoupper($autoregSysName == 'MAC' ? null : $FOGCore->setSetting('FOG_QUICKREG_SYS_NUMBER',($autoregSysNumber+1))));
 				if ($Host->getImageMemberFromHostID())

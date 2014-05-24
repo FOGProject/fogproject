@@ -742,6 +742,8 @@ END OF TERMS AND CONDITIONS</pre>";
 				}
 				else if ($Service->get('name') == 'FOG_QUICKREG_IMG_ID')
 					$type = $this->FOGCore->getClass('ImageManager')->buildSelectBox($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID'),$Service->get('id'));
+				else if ($Service->get('name') == 'FOG_QUICKREG_GROUP_ASSOC')
+					$type = $this->FOGCore->getClass('GroupManager')->buildSelectBox($this->FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC'),$Service->get('id'));
 				else if ($Service->get('name') == 'FOG_KEY_SEQUENCE')
 					$type = $this->FOGCore->getClass('KeySequenceManager')->buildSelectBox($this->FOGCore->getSetting('FOG_KEY_SEQUENCE'),$Service->get('id'));
 				else if ($Service->get('name') == 'FOG_QUICKREG_OS_ID')
