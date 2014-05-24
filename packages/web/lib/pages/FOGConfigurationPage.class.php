@@ -911,5 +911,3 @@ END OF TERMS AND CONDITIONS</pre>";
 		}
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new FOGConfigurationPage());

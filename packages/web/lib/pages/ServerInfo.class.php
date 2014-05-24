@@ -163,5 +163,3 @@ class ServerInfo extends FOGPage
 			print "\n\t\t\t".'<p>'._('Invalid Server Information!').'</p>';
     }
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new ServerInfo());

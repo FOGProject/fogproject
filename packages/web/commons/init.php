@@ -111,7 +111,6 @@ class Initiator
 	*/
 	private function FOGPages($className)
 	{
-		global $FOGPageManager;
 		foreach($this->PagePaths as $path)
 			(!class_exists($className) && file_exists($path.$className.'.class.php') ? require_once($path.$className.'.class.php') : null);
 	}

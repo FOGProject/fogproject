@@ -334,5 +334,3 @@ class UserManagementPage extends FOGPage
 		}
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new UserManagementPage());

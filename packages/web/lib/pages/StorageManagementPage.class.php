@@ -691,5 +691,3 @@ class StorageManagementPage extends FOGPage
 		}
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new StorageManagementPage());

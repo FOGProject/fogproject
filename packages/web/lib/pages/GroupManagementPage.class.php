@@ -1175,5 +1175,3 @@ class GroupManagementPage extends FOGPage
 		}
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new GroupManagementPage());
