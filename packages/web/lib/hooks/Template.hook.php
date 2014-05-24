@@ -18,8 +18,5 @@ class Template extends Hook
 		$this->log(print_r($arguments, 1));
 	}
 }
-// Init class
-$Template = new Template();
 // Hook Event
-if ($Template->active)
-	$HookManager->register('HOST_DATA', array($HookTemplate, 'HostData'));
+$HookManager->register('HOST_DATA', array(new Template(), 'HostData'));

@@ -33,11 +33,6 @@ class AddHostModel extends Hook
 		}
 	}
 }
-// Init
-$AddHostModel = new AddHostModel();
 // Register hooks with HookManager on desired events
-if ($AddHostModel->active)
-{
-	$HookManager->register('HOST_DATA', array(new AddHostModel(), 'HostData'));
-	$HookManager->register('HOST_HEADER_DATA', array(new AddHostModel(), 'HostTableHeader'));
-}
+$HookManager->register('HOST_DATA', array(new AddHostModel(), 'HostData'));
+$HookManager->register('HOST_HEADER_DATA', array(new AddHostModel(), 'HostTableHeader'));

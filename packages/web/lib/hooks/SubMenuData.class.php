@@ -14,18 +14,17 @@ class SubMenuData extends Hook
 	var $description = 'Example showing how to manipulate SubMenu Data. Adds Menu items under "Host Management"';
 	var $author = 'Blackout';
 	var $active = false;
-	public function SubMenuData()
+	public function SubMenuData($arguments)
 	{
 		$arguments['FOGSubMenu'] = new FOGSubMenu();
 		if ($_REQUEST['node'] == 'host')
 		{
 			$arguments['FOGSubMenu']->addItems('host',array(_('New Hook Item') => 'http://www.google.com',_('New Hook Item 2')),'id');
 			if ($_REQUEST['id'])
-				$arguments['FOGSubMenu']->addItems('host',array(_('New Hook Item') => 'http://www.google.com',_('New Hook Item 2')),'id');
+				$arguments['FOGSubMenu']->addNotes('host',array(_('New Hook Item') => 'http://www.google.com',_('New Hook Item 2')),'id');
 		}
 	}
 }
 $SubMenuData = new SubMenuData();
 // Hook Event
-if ($SubMenuData->active)
-	$HookManager->register('SubMenuData', array($SubMenuData, 'SubMenuData'));
+$HookManager->register('SubMenuData', array(new SubMenuData(), 'SubMenuData'));
