@@ -1,3 +1,34 @@
+Version 1.1.0
+-------------
+
+* Hooks and Plugins are now able to work together.
+* Hooks are autoloaded properly now.
+* Plugins are autoloaded as well as their pages.
+* All pages are now auto registered rather than being registered
+** within their files.
+* Added ability to QUICKREG elements to add system to a group.
+* Added ability to add host to group during full registration.
+* Moved Plugins from management/plugins to lib/plugins.
+* Fixes for Printer Management and Client Updater
+* Adds ability to image logical/extended partitions now.
+* Fixes the location plugin.
+* Install script now asks for mysql password.
+* Install script waits for schema update to be performed.
+* Kernel Updater from GUI fixed.
+* undionly still in use, but provides multiple choices.
+** undionly.kpxe, undionly.kkpxe, ipxe.pxe, ipxe.kpxe, ipxe.kkpxe
+** If one isn't working try another.  Most should have success with
+** undionly.kpxe.  VirtualBox will work with any of the ipxe. files.
+* Database backend no longer requires init.database.php.  Used modern
+** methods to keep compatibility into the future.
+* Change php required version.  We now require 5.3.0 or higher.
+* Fix ReportManagementPage if image isn't set.
+* Remove theh recoverReports part as commented on installer script.
+** This because default reports are managed directly within the report page.
+* Hooks are now fixed as they were broken in 1.0.1
+* Fix group page so setting of kernel, kernelArgs, kernelDevice actually
+** happens.
+
 Version 1.0.1
 -------------
 
