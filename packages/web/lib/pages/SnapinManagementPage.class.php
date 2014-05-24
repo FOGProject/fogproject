@@ -474,5 +474,3 @@ class SnapinManagementPage extends FOGPage
 		}
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new SnapinManagementPage());

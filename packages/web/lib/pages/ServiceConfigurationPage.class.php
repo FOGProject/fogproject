@@ -378,5 +378,3 @@ class ServiceConfigurationPage extends FOGPage
 		$this->index();
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new ServiceConfigurationPage());

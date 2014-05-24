@@ -1213,5 +1213,3 @@ class ReportManagementPage extends FOGPage
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new ReportManagementPage());

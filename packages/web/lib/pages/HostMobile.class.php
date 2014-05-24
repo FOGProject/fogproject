@@ -120,5 +120,3 @@ class HostMobile extends FOGPage
 		$this->render();
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new HostMobile());

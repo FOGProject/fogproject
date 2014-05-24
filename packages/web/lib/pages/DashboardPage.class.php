@@ -144,5 +144,3 @@ class DashboardPage extends FOGPage
 		print json_encode((array)$data);
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new DashboardPage());

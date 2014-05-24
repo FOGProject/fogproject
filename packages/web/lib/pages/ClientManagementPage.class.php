@@ -67,5 +67,3 @@ class ClientManagementPage extends FOGPage
 		print "\n\t\t\t\t\t</div>";
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new ClientManagementPage());
