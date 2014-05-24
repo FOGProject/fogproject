@@ -427,7 +427,7 @@ class ReportManagementPage extends FOGPage
 			if ($Host->get('imageID'))
 				$Image = $Host->getImage();
 			// Find the os information if image is set.
-			if ($Image->isValid() && $Image->getOS())
+			if ($Image && $Image->isValid() && $Image->getOS())
 				$OS = $Image->getOS();
 			// Find the current inventory for this host
 			$Inventory = current($this->FOGCore->getClass('InventoryManager')->find(array('hostID' => $Host->get('id'))));
@@ -453,11 +453,11 @@ class ReportManagementPage extends FOGPage
 					else if ($head == _('Host Desc'))
 						$ReportMaker->addCSVCell($Host->get('description'));
 					else if ($head == _('Image ID'))
-						$ReportMaker->addCSVCell($Image->isValid() ? $Image->get('id') : '');
+						$ReportMaker->addCSVCell($Image && $Image->isValid() ? $Image->get('id') : '');
 					else if ($head == _('Image Name'))
-						$ReportMaker->addCSVCell($Image->isValid() ? $Image->get('name') : '');
+						$ReportMaker->addCSVCell($Image && $Image->isValid() ? $Image->get('name') : '');
 					else if ($head == _('Image Desc'))
-						$ReportMaker->addCSVCell($Image->isValid() ? $Image->get('description') : '');
+						$ReportMaker->addCSVCell($Image && $Image->isValid() ? $Image->get('description') : '');
 					else if ($head == _('OS Name'))
 						$ReportMaker->addCSVCell($OS && $OS->isValid() ? $OS->get('name') : '');
 					else if ($head == _('Memory'))
