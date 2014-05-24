@@ -568,5 +568,3 @@ class ImageManagementPage extends FOGPage
 		}
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new ImageManagementPage());

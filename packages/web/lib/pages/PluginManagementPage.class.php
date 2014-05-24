@@ -366,5 +366,3 @@ class PluginManagementPage extends FOGPage
 		}
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new PluginManagementPage());

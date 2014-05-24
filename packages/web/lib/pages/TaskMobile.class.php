@@ -85,5 +85,3 @@ class TaskMobile extends FOGPage
 		$this->FOGCore->redirect('?node='.$this->node);
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new TaskMobile());

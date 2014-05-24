@@ -182,13 +182,16 @@ class HookManager extends FOGBase
 			{
 				$file = $fileInfo->isFile() && substr($fileInfo->getFilename(),-9) == '.hook.php' ? file($fileInfo->getPathname()) : null;
 				$key = '$active';
-				foreach($file AS $lineNumber => $line)
+				if ($file)
 				{
-					if (strpos($line,$key) !== false)
-						break;
+					foreach($file AS $lineNumber => $line)
+					{
+						if (strpos($line,$key) !== false)
+							break;
+					}
+					if(preg_match('#true#i',$file[$lineNumber]))
+						$className = (!$fileInfo->isDot() && substr($fileInfo->getFileName(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
 				}
-				if(preg_match('#true#i',$file[$lineNumber]))
-					$className = (!$fileInfo->isDot() && substr($fileInfo->getFileName(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
 				foreach($PluginNames AS $PluginName)
 				{
 					if (preg_match('#plugins#i',$fileInfo->getPathname()) && preg_match('#'.$PluginName.'#i',$fileInfo->getPathname()))

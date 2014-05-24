@@ -538,5 +538,3 @@ class PrinterManagementPage extends FOGPage
 		}
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new PrinterManagementPage());

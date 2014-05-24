@@ -52,5 +52,3 @@ class HomeMobile extends FOGPage
 		$this->render();
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new HomeMobile());

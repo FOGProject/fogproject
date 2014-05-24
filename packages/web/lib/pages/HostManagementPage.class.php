@@ -1646,5 +1646,3 @@ class HostManagementPage extends FOGPage
 		}
 	}
 }
-// Register page with FOGPageManager
-$FOGPageManager->register(new HostManagementPage());
