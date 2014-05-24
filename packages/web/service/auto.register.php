@@ -5,8 +5,7 @@ try
 	// Set the services so all id's can be enabled.
 	foreach($FOGCore->getClass('ModuleManager')->find() AS $Module)
 		$ids[] = $Module->get('id');
-	// Get the autoreg group id:
-	$groupid[] = $FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC');
+	$groupid[] = base64_decode($_REQUEST['groupid']);
 	$HostManager = new HostManager();
 	$ifconfig = explode('HWaddr',base64_decode($_REQUEST['mac']));
 	$mac = strtolower(trim($ifconfig[1]));
@@ -63,9 +62,13 @@ try
 			'createdTime' => date("Y-m-d H:i:s"),
 			'createdBy' => 'FOGREG',
 		));
-		$Host->addModule($ids);
 		if ($Host->save())
 		{
+			$GroupAssoc = new GroupAssociation(array(
+				'groupID' => base64_decode($_REQUEST['groupid']),
+				'hostID' => $Host->get('id'),
+			));
+			$GroupAssoc->save();
 			$LocPlugInst = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
 			if ($LocPlugInst)
 			{
@@ -119,6 +122,8 @@ try
 	}
 	else
 	{
+		// Get the autoreg group id:
+		$groupid[] = $FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC');
 		// Quick Registration
 		if ($FOGCore->getSetting('FOG_QUICKREG_AUTOPOP') == '1')
 		{

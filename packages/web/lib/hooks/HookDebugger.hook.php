@@ -13,7 +13,7 @@ class HookDebugger extends Hook
 	var $name = 'HookDebugger';
 	var $description = 'Prints all Hook data to the web page and/or file when a hook is encountered';
 	var $author = 'Blackout';
-	var $active = true;
+	var $active = false;
 	var $logLevel = 9;
 	var $logToFile = false;		// Logs to: lib/hooks/HookDebugger.log
 	var $logToBrowser = true;
