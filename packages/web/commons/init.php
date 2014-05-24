@@ -1,14 +1,14 @@
 <?php
 class Initiator
 {
-	public $HookPaths,$FOGPaths,$PagePaths;
+	public $HookPaths,$FOGPaths,$PagePaths, $plugPaths;
 	/** __construct()
 		Tells the initial call to load all the calls files.
 	*/
 	public function __construct()
 	{
-		$plugPaths = array_filter(glob(BASEPATH . '/lib/plugins/*'), 'is_dir');
-		foreach($plugPaths AS $plugPath)
+		$this->plugPaths = array_filter(glob(BASEPATH . '/lib/plugins/*'), 'is_dir');
+		foreach($this->plugPaths AS $plugPath)
 		{
 			$plug_class[] = $plugPath.'/class/';
 			$plug_hook[] = $plugPath.'/hooks/';
@@ -27,6 +27,8 @@ class Initiator
 	public function __destruct()
 	{
 		spl_autoload_unregister(array($this,'FOGLoader'));
+		spl_autoload_unregister(array($this,'FOGPages'));
+		spl_autoload_unregister(array($this,'FOGHooks'));
 	}
 	/** startInit()
 		Starts the initiation of the environment.
@@ -135,6 +137,8 @@ $FOGCore = new FOGCore();
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
+foreach($Init->plugPaths AS $path)
+	$PluginNames[] = basename($path);
 // HookManager
 $HookManager = new HookManager();
 $HookManager->load();
