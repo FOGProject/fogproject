@@ -79,6 +79,7 @@ if [ -n "$hd" ]; then
 		other1="";
 		other2="";
 		blImage="";
+		blDoAddGroup="";
 		blDoAD="";
 		echo
 		echo -n "    Enter the hostname of this computer: ";
@@ -170,6 +171,49 @@ if [ -n "$hd" ]; then
 			done
 			locationid=`echo $locationid | base64`;
 		fi
+		if [ "$blDoAddGroup" = "" ]
+		then
+			echo
+			echo -n "    Would you like to add this host to a group (using default settings)? (y/N) ";
+			read askme;
+			blDoAddGroup="0";
+			case "$askme" in
+				Y | y | yes | yEs | yES | Yes | YeS | YES )
+					while [ "$groupid" == "" ]; do		
+						echo
+						echo -n "    Enter the group ID for this system (? for listing): ";
+						read groupid;
+						if [ "$groupid" == "?" ]; then
+							clear;
+							res=`wget -O - "http://${web}service/grouplisting.php" 2>/dev/null`;
+							i=0
+							OLDIFS=$IFS;
+							IFS='
+'	;
+							for line in $res; do
+								i=$((i+1));
+								echo $line;
+								if [ "$i" == "20" ]; then
+									echo -n "Press Enter to Proceed..."
+									read dummy;
+								clear;
+								i=0;
+								fi
+							done
+							IFS=$OLDIFS
+							echo
+							groupid="";
+						fi
+					done
+					group64=`echo $groupid | base64`;
+					blDoAddGroup="1";
+					;;
+				[nN]*)
+					;;
+				*)
+					;;
+			esac			
+		fi
 		if [ "$blDoAD" = "" ]
 		then
 			echo
@@ -248,7 +292,7 @@ if [ -n "$hd" ]; then
 		res="";
 		while [ "${res}" = "" ]
 		do
-			res=`wget -O - --post-data="mac=${mac}&advanced=1&host=${host}&imageid=${imageid}&primaryuser=${primaryuser}&other1=${other1}&other2=${other2}&doimage=${realdoimage}&doad=${blDoAD}&location=${locationid}&username=$user64" "http://${web}service/auto.register.php" 2>/dev/null`
+			res=`wget -O - --post-data="mac=$mac&advanced=1&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$locationid&username=$user64&groupid=$group64" "http://${web}service/auto.register.php" 2>/dev/null`
 			echo "${res}";			
 			sleep 2;
 		done;
