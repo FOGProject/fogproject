@@ -28,8 +28,6 @@ $_SESSION['FOGPingActive'] = ($FOGCore->getSetting('FOG_HOST_LOOKUP') == '1' ? t
 $_SESSION['AllowAJAXTasks'] = true;
 // Are we on the Homeapge?
 $isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','client')) ? true : false);
-// Render content - must be done before anything is outputted so classes can change HTTP headers
-$FOGPageManager = new FOGPageManager();
 // Load Page Classes -> Render content based on incoming node variables
 $content = $FOGPageManager->render();
 // Section title
