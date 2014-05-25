@@ -239,7 +239,7 @@ class ImageManagementPage extends FOGPage
 				'operating_systems' => $this->FOGCore->getClass('OSManager')->buildSelectBox($_REQUEST['os']),
 				'image_path' => current($this->FOGCore->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1)))->get('path').'/&nbsp;',
 				'image_file' => $_REQUEST['file'],
-				'image_types' => $this->FOGCore->getClass('ImageTypeManager')->buildSelectBox($_REQUEST['imagetype']),
+				'image_types' => $this->FOGCore->getClass('ImageTypeManager')->buildSelectBox($_REQUEST['imagetype'],'','id'),
 			);
 		}
 		// Hook
@@ -354,7 +354,7 @@ class ImageManagementPage extends FOGPage
 				'operating_systems' => $this->FOGCore->getClass('OSManager')->buildSelectBox($Image->get('osID')),
 				'image_path' => current($this->FOGCore->getClass('StorageNodeManager')->find(array('storageGroupID' => $Image->get('storageGroupID'),'isMaster' => 1,'isEnabled' => 1)))->get('path').'/&nbsp;',
 				'image_file' => $Image->get('path'),
-				'image_types' => $this->FOGCore->getClass('ImageTypeManager')->buildSelectBox($Image->get('imageTypeID')),
+				'image_types' => $this->FOGCore->getClass('ImageTypeManager')->buildSelectBox($Image->get('imageTypeID'),'','id'),
 				'is_legacy' => $Image->get('legacy') ? 'selected="selected"' : '',
 				'is_modern' => !$Image->get('legacy') ? 'selected="selected"' : '',
 			);
