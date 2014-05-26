@@ -10,7 +10,7 @@ class DatabaseManager
 	/** __construct($type,$host,$user,$pass,$database)
 		Constructs the connection variables for connecting to the database.
 	*/
-	function __construct($type = DATABASE_TYPE, $host = DATABASE_HOST, $user = DATABASE_USERNAME, $pass = DATABASE_PASSWORD, $database = DATABASE_NAME) 
+	public function __construct($type = DATABASE_TYPE, $host = DATABASE_HOST, $user = DATABASE_USERNAME, $pass = DATABASE_PASSWORD, $database = DATABASE_NAME) 
 	{
 		try
 		{
@@ -40,7 +40,7 @@ class DatabaseManager
 	/** connect()
 		Connects the system to the database.
 	*/
-	function connect()
+	public function connect()
 	{
 		try
 		{
@@ -91,7 +91,7 @@ class DatabaseManager
 		Gets the version stored in the database.  Sets
 		up for if there's a need to update or not.
 	*/
-	function getVersion()
+	public function getVersion()
 	{
 		try
 		{
