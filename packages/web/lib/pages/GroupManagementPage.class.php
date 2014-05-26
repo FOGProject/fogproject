@@ -620,10 +620,10 @@ class GroupManagementPage extends FOGPage
 		);
 		$fields = array(
 			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain" value="on"'.($_REQUEST['domain'] == 'on' ? ' selected="selected"' : '').' />',
-			_('Domain name') => '<input id="adDomain" type="text" name="domainname" />',
-			_('Organizational Unit') => '<input id="adOU" type="text" name="ou" /><span class="lightColor">('._('Blank for default').')</span>',
-			_('Domain Username') => '<input id="adUsername" type="text" name="domainuser" />',
-			_('Domain Password') => '<input id="adPassword" type="password" name="domainpass" /><span class="lightColor">('._('Must be encrypted').')</span>',
+			_('Domain name') => '<input id="adDomain" type="text" name="domainname" autocomplete="off" />',
+			_('Organizational Unit') => '<input id="adOU" type="text" name="ou" autocomplete="off" /><span class="lightColor">('._('Blank for default').')</span>',
+			_('Domain Username') => '<input id="adUsername" type="text" name="domainuser" autocomplete="off" />',
+			_('Domain Password') => '<input id="adPassword" type="password" name="domainpass" autocomplete="off" /><span class="lightColor">('._('Must be encrypted').')</span>',
 			'<input type="hidden" name="updatead" value="1" />' => '<input type="submit" value="'._('Update').'" />',
 		);
 		foreach ((array)$fields AS $field => $input)
