@@ -48,10 +48,23 @@ fieldset { border: 1px solid #94C3D3; border-radius: 5px; margin-bottom: 40px; p
 /*input { min-width: 200px; }*/
 input, textarea, select { font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; font-size: 13px; color: #333333; border: 1px solid #94c3d3; border-radius: 3px; background-color: #fff; vertical-align: top; padding: 4px 8px; }
 select { padding: 4px 3px 4px 8px; }
-input:focus, textarea:focus { border-color: #5372af; background-image: url('../images/icon_pencil.png'); background-repeat: no-repeat; background-position: 97% center; }
 input[type="password"] { width: 200px; }
 input[type="text"] { width: 200px; }
 input[type="text"]:focus { padding-right: 8px; }
+input:focus, textarea:focus { border-color: #5372af; background-image: url('../images/icon_pencil.png'); background-repeat: no-repeat; background-position: 97% center; }
+.hideShowPassword-toggle {
+	background-image: url(../images/wink.svg);
+	background-position: -44px center;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	overflow: hidden;
+	text-indent: -9999em;
+	height: 26px;
+	width: 44px;
+}
+.hideShowPassword-toggle-hide {
+	background-position: 0px center;
+}
 textarea:focus { background-position: 95% 90%; }
 input:hover, textarea:hover, select:hover { border-color: #5372af; }
 input[type="submit"] { border: 1px solid #eee; border-radius: 5px 5px 5px 5px; box-shadow: 0 0 5px #666; box-shadow: 0 0 5px rgba(102, 102, 102, 0.5); text-shadow: 1px 1px 0 #6a97a6; color: #fff; font-weight: bold; cursor: pointer; font-size: 14px; font-variant: small-caps; letter-spacing: 1px; padding: 4px 10px; min-width: 220px;  background: #94c3d3; /* Old browsers */ background: -moz-linear-gradient(top,  #94c3d3 0%, #6aa8dd 41%, #94c3d3 100%); /* FF3.6+ */ background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#94c3d3), color-stop(41%,#6aa8dd), color-stop(100%,#94c3d3)); /* Chrome,Safari4+ */ background: -webkit-linear-gradient(top,  #94c3d3 0%,#6aa8dd 41%,#94c3d3 100%); /* Chrome10+,Safari5.1+ */ background: -o-linear-gradient(top,  #94c3d3 0%,#6aa8dd 41%,#94c3d3 100%); /* Opera 11.10+ */ background: -ms-linear-gradient(top,  #94c3d3 0%,#6aa8dd 41%,#94c3d3 100%); /* IE10+ */ background: linear-gradient(top,  #94c3d3 0%,#6aa8dd 41%,#94c3d3 100%); /* W3C */ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#94c3d3', endColorstr='#94c3d3',GradientType=0 ); /* IE6-9 */   }
