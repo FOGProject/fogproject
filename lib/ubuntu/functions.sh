@@ -326,113 +326,113 @@ configureHttpd()
 		cp -Rf $webdirsrc/* $webdirdest/
 		
 		echo "<?php
-/*
- *  FOG  is a computer imaging solution.
- *  Copyright (C) 2007  Chuck Syperski & Jian Zhang
- *
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
-
-/*
- *  DATABASE VARIABLES
- *  ------------------
- */
-
-define('DATABASE_TYPE',		'mysql');	// mysql or oracle
-define('DATABASE_HOST',		'${dbhost}');
-define('DATABASE_NAME',		'fog');
-define('DATABASE_USERNAME',		'${dbuser}');
-define('DATABASE_PASSWORD',		'${dbpass}');
-
-/*
- *  SYSTEM SERVICE VARIABLES
- *  ------------------------
- */
-
-define( \"UDPSENDERPATH\", \"/usr/local/sbin/udp-sender\" );
-define( \"MULTICASTLOGPATH\", \"/opt/fog/log/multicast.log\" );
-define( \"MULTICASTDEVICEOUTPUT\", \"/dev/tty2\" );
-define( \"MULTICASTSLEEPTIME\", 10 );
-define( \"MULTICASTINTERFACE\", \"${interface}\" );
-define( \"UDPSENDER_MAXWAIT\", null );
-define( \"LOGMAXSIZE\", \"1000000\" );
-
-define( \"REPLICATORLOGPATH\", \"/opt/fog/log/fogreplicator.log\" );
-define( \"REPLICATORDEVICEOUTPUT\", \"/dev/tty3\" );
-define( \"REPLICATORSLEEPTIME\", 600 );
-define( \"REPLICATORIFCONFIG\", \"/sbin/ifconfig\" );
-
-define( \"SCHEDULERLOGPATH\", \"/opt/fog/log/fogscheduler.log\" );
-define( \"SCHEDULERDEVICEOUTPUT\", \"/dev/tty4\" );
-define( \"SCHEDULERSLEEPTIME\", 60 );
-
-/*
- *  SYSTEM CONFIG VARIABLES
- *  -----------------------
- */
-
-require_once('system.php');
-
-/*
- *  IMPORTANT NOTICE!
- *  -----------------
- *  In order to make updating from version to version of fog easier, we have moved
- *  most off these settings into the fog database.  The only settings which are 
- *  active are the settings above.  All settings below this message are transfered 
- *  to the fog database during schema update/installation.  To modify these 
- *  settings please use the fog management portal.
- *
- */
-
-define('TFTP_HOST', \"${ipaddress}\");
-define('TFTP_FTP_USERNAME', \"${username}\");
-define('TFTP_FTP_PASSWORD', \"${password}\");
-define('TFTP_PXE_KERNEL_DIR', '${webdirdest}/service/ipxe/');
-define('PXE_KERNEL', 'bzImage');
-define('PXE_KERNEL_RAMDISK',127000);
-define('USE_SLOPPY_NAME_LOOKUPS',true);
-define('MEMTEST_KERNEL', 'memtest.bin');
-define('PXE_IMAGE', 'init.xz');
-define('PXE_IMAGE_DNSADDRESS', \"${dnsbootimage}\");
-define('STORAGE_HOST', \"${ipaddress}\");
-define('STORAGE_FTP_USERNAME', \"${username}\");
-define('STORAGE_FTP_PASSWORD', \"${password}\");
-define('STORAGE_DATADIR', '/images/');
-define('STORAGE_DATADIR_UPLOAD', '/images/dev/');
-define('STORAGE_BANDWIDTHPATH', '/fog/status/bandwidth.php');
-define('UPLOADRESIZEPCT',5);
-define('WEB_HOST', \"${ipaddress}\");
-define('WOL_HOST', \"${ipaddress}\");
-define('WOL_PATH', '/fog/wol/wol.php');
-define('WOL_INTERFACE', \"${interface}\");					
-define('SNAPINDIR', \"${snapindir}/\");
-define('QUEUESIZE', '10');
-define('CHECKIN_TIMEOUT',600);
-define('USER_MINPASSLENGTH',4);
-define('USER_VALIDPASSCHARS', '1234567890ABCDEFGHIJKLMNOPQRSTUVWZXYabcdefghijklmnopqrstuvwxyz_()^!#-');
-define('NFS_ETH_MONITOR', \"${interface}\");
-define('UDPCAST_INTERFACE', \"${interface}\");
-define('UDPCAST_STARTINGPORT', 63100 ); 					// Must be an even number! recommended between 49152 to 65535
-define('FOG_MULTICAST_MAX_SESSIONS',64);
-define('FOG_JPGRAPH_VERSION', '2.3');
-define('FOG_REPORT_DIR', './reports/');
-define('FOG_UPLOADIGNOREPAGEHIBER',true);
-define('FOG_DONATE_MINING', \"${donate}\");
-?>" > "${webdirdest}/commons/config.php";
-		
+/**
+* Class Name: Config
+* Initializes default settings.
+* Most notably the sql connection.
+*/
+class Config
+{
+	/**
+	* Calls the required functions to define the settings.
+	* method db_settings()
+	* method svc_setting()
+	* method init_setting()
+	*/
+	public function __construct()
+	{
+		self::db_settings();
+		self::svc_setting();
+		self::init_setting();
+	}
+	/**
+	* db_settings()
+	* Defines the database settings for FOG
+	* @return void
+	*/
+	private static function db_settings()
+	{
+		define('DATABASE_TYPE',		'mysql');	// mysql or oracle
+		define('DATABASE_HOST',		'${dbhost}');
+		define('DATABASE_NAME',		'fog');
+		define('DATABASE_USERNAME',		'${dbuser}');
+		define('DATABASE_PASSWORD',		'${dbpass}');
+	}
+	/**
+	* svc_setting()
+	* Defines the service settings.
+	* (e.g. FOGMulticastManager,
+	*       FOGScheduler,
+	*       FOGImageReplicator)
+	* @return void
+	*/
+	private static function svc_setting()
+	{
+		define( \"UDPSENDERPATH\", \"/usr/local/sbin/udp-sender\" );
+		define( \"MULTICASTLOGPATH\", \"/opt/fog/log/multicast.log\" );
+		define( \"MULTICASTDEVICEOUTPUT\", \"/dev/tty2\" );
+		define( \"MULTICASTSLEEPTIME\", 10 );
+		define( \"MULTICASTINTERFACE\", \"${interface}\" );
+		define( \"UDPSENDER_MAXWAIT\", null );
+		define( \"LOGMAXSIZE\", \"1000000\" );
+		define( \"REPLICATORLOGPATH\", \"/opt/fog/log/fogreplicator.log\" );
+		define( \"REPLICATORDEVICEOUTPUT\", \"/dev/tty3\" );
+		define( \"REPLICATORSLEEPTIME\", 600 );
+		define( \"REPLICATORIFCONFIG\", \"/sbin/ifconfig\" );
+		define( \"SCHEDULERLOGPATH\", \"/opt/fog/log/fogscheduler.log\" );
+		define( \"SCHEDULERDEVICEOUTPUT\", \"/dev/tty4\" );
+		define( \"SCHEDULERSLEEPTIME\", 60 );
+	}
+	/**
+	* init_setting()
+	* Initial values if fresh install are set here
+	* NOTE: These values are only used on initial
+	* installation to set the database values.
+	* If this is an upgrade, they do not change
+	* the values within the Database.
+	* Please use FOG Configuration->FOG Settings
+	* to change these values after everything is
+	* setup.
+	* @return void
+	*/
+	private static function init_setting()
+	{
+		define('TFTP_HOST', \"${ipaddress}\");
+		define('TFTP_FTP_USERNAME', \"${username}\");
+		define('TFTP_FTP_PASSWORD', \"${password}\");
+		define('TFTP_PXE_KERNEL_DIR', '${webdirdest}/service/ipxe/');
+		define('PXE_KERNEL', 'bzImage');
+		define('PXE_KERNEL_RAMDISK',127000);
+		define('USE_SLOPPY_NAME_LOOKUPS',true);
+		define('MEMTEST_KERNEL', 'memtest.bin');
+		define('PXE_IMAGE', 'init.xz');
+		define('PXE_IMAGE_DNSADDRESS', \"${dnsbootimage}\");
+		define('STORAGE_HOST', \"${ipaddress}\");
+		define('STORAGE_FTP_USERNAME', \"${username}\");
+		define('STORAGE_FTP_PASSWORD', \"${password}\");
+		define('STORAGE_DATADIR', '/images/');
+		define('STORAGE_DATADIR_UPLOAD', '/images/dev/');
+		define('STORAGE_BANDWIDTHPATH', '/fog/status/bandwidth.php');
+		define('UPLOADRESIZEPCT',5);
+		define('WEB_HOST', \"${ipaddress}\");
+		define('WOL_HOST', \"${ipaddress}\");
+		define('WOL_PATH', '/fog/wol/wol.php');
+		define('WOL_INTERFACE', \"${interface}\");					
+		define('SNAPINDIR', \"${snapindir}/\");
+		define('QUEUESIZE', '10');
+		define('CHECKIN_TIMEOUT',600);
+		define('USER_MINPASSLENGTH',4);
+		define('USER_VALIDPASSCHARS', '1234567890ABCDEFGHIJKLMNOPQRSTUVWZXYabcdefghijklmnopqrstuvwxyz_()^!#-');
+		define('NFS_ETH_MONITOR', \"${interface}\");
+		define('UDPCAST_INTERFACE', \"${interface}\");
+		define('UDPCAST_STARTINGPORT', 63100 ); 					// Must be an even number! recommended between 49152 to 65535
+		define('FOG_MULTICAST_MAX_SESSIONS',64);
+		define('FOG_JPGRAPH_VERSION', '2.3');
+		define('FOG_REPORT_DIR', './reports/');
+		define('FOG_UPLOADIGNOREPAGEHIBER',true);
+		define('FOG_DONATE_MINING', \"${donate}\");
+	}
+}" > "${webdirdest}/commons/config.php";
 		
 		chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 		

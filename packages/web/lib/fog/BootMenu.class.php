@@ -1,24 +1,50 @@
 <?php
-/**	Class Name: BootMenu
-	Builds the ipxe menu system.
-	Serves to also generate the taskings on the fly.
-	Changes are automatically adjusted as needed.
+/**
+* \class BootMenu
+* Builds the ipxe menu system.
+* Serves to also generate the taskings on the fly.
+* Changes are automatically adjusted as needed.
+* @param $Host is the host set.  Can be null.
+* @param $pxemenu builds the default pxemenu as array().
+* @param $kernel sets the kernel information.
+* @param $initrd sets the init information.
+* @param $booturl sets the bootup url info.
+* @param $memtest sets the memtest info
+* @param $Host is the host set.  Can be null.
+* @param $pxemenu builds the default pxemenu as array().
+* @param $kernel sets the kernel information.
+* @param $initrd sets the init information.
+* @param $booturl sets the bootup url info.
+* @param $memtest sets the memtest info.
+* @param $web sets the web address.
+* @param $defaultChoice chooses the defaults.
+* @param $bootexittype sets the exit type to hdd.
+* @param $storage sets the storage node
+* @param $shutdown sets whether shutdown is set or not.
+* @param $path sets the default path.
+* @param $hiddenmenu sets if hidden menu is setup.
+* @param $timeout gets the timout to OS/HDD
+* @param $KS gets the key sequence.
+* @param $debug sets the debug information. Displays debug menu.
 */
-class BootMenu 
+class BootMenu extends FOGBase
 {
 	// Variables
 	private $Host,$pxemenu,$kernel,$initrd,$booturl,$memtest,$web,$defaultChoice,$bootexittype;
 	private $storage, $shutdown, $path;
 	private $hiddenmenu, $timeout, $KS;
-	private $debug, $FOGCore;
+	public $debug;
 	/** __construct($Host = null)
-		Construtor for the whole system.
-	 	Sets all the variables as needed.
+	* Construtor for the whole system.
+	* Sets all the variables as needed.
+	* @param $Host can be nothing, but is sent to
+	* verify if there's a tasking for the host.
+	* @return void
 	*/
 	public function __construct($Host = null)
 	{
+		parent::__construct();
 		// Setups of the basic construct for the menu system.
-		$this->FOGCore = $GLOBALS['FOGCore'];
 		$this->bootexittype = $this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'exit' : 'sanboot --no-describe --drive 0x80';
 		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'isMaster' => 1)));
 		$webserver = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_WEB_HOST'));
@@ -83,11 +109,19 @@ class BootMenu
 		else
 			$this->getTasking();
 	}
-
-	// Used often for return to menu/check tasking after setting something.
-	// $debug is a flat to indicate if we should show the debug menu item; typically you only want to do this after
-	// a person has authenticated
-	// $shortCircuit is a flag that will shortCircuit the hiddenMenu check; this is need for quick image
+	/**
+	* chainBoot()
+	* Prints the bootmenu or hides it.  If access is not allowed but tried
+	* requests login information from WEB GUI.
+	* Used often for return to menu/check tasking after setting somthing.
+	* $debug is a flat to indicate if we show the debug menu item.  Typically
+	* you only want this after a person authenticates.
+	* $shortCircuit is a flag that will shortCircuit the hiddenMenu check.
+	* This is needed for quick image.
+	* @param $debug set to false but if true enables access.
+	* @param $shortCircuit set to false, but if true enables display.
+	* @return void
+	*/
 	private function chainBoot($debug=false, $shortCircuit=false)
 	{
 	    // csyperski: added hiddenMenu check; without it entering
@@ -118,8 +152,13 @@ class BootMenu
 			print "chain $this->booturl/ipxe/boot.php##params\n";
 	    }
 	}
-
-	// Deletes the Host
+	/**
+	* delHost()
+	* Deletes the host from the system.
+	* If it failes will return that it failed.
+	* Each interval sends back to chainBoot()
+	* @return void
+	*/
 	private function delHost()
 	{
 		if($this->Host->destroy())
@@ -137,10 +176,15 @@ class BootMenu
 			$this->chainBoot();
 		}
 	}
-
-	// Send the 01-XX-XX-XX-XX-XX-XX
-	// This just tells the system it's got a task
-	// and performs the task.
+	/**
+	* printTasking()
+	* Sends the Tasking file.  In PXE this is equivalent to the creation
+	* of the 01-XX-XX-XX-XX-XX-XX file.
+	* Just tells the system it's got a task.
+	* @param $kernelArgsArray sets up the tasking through the 
+	* kernelArgs information.
+	* @return void
+	*/
 	private function printTasking($kernelArgsArray)
 	{
 		foreach($kernelArgsArray AS $arg)
@@ -154,8 +198,11 @@ class BootMenu
         print "$this->initrd";
         print "boot";
 	}
-
-	// Confirm Deletion
+	/**
+	* delConf()
+	* If you're trying to delete the host, requests confirmation of deletion.
+	* @return void
+	*/
 	public function delConf()
 	{
 		print "#!ipxe\n";
@@ -167,7 +214,11 @@ class BootMenu
 		print "param delconf 1\n";
 		print "chain $this->booturl/ipxe/boot.php##params";
 	}
-
+	/**
+	* debugAccess()
+	* Set's up for debug menu as requested.
+	* @return void
+	*/
 	private function debugAccess()
 	{
 		print "#!ipxe\n";
@@ -175,9 +226,13 @@ class BootMenu
 		print "$this->initrd";
 		print "boot\n";
 	}
-
-	// Verifies the credentials and logs in.
-	// Based on the FOG GUI Login information.
+	/**
+	* verifyCreds()
+	* Verifies the login information is valid
+	* and correct.
+	* Otherwise return that it's broken.
+	* @return void
+	*/
 	public function verifyCreds()
 	{
 		if ($this->FOGCore->attemptLogin($_REQUEST['username'],$_REQUEST['password']))
@@ -206,22 +261,33 @@ class BootMenu
 			$this->chainBoot();
 		}
 	}
-
-	// Set's the quick image task.
+	/**
+	* setTasking()
+	* If quick image tasking requested, this sets up the tasking.
+	* @return void
+	*/
 	public function setTasking()
 	{
 		if($this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,$_REQUEST['username']))
 			$this->chainBoot(false, true);
 	}
-
-	// If the no menu option is sent:
+	/**
+	* noMenu()
+	* If no menu option is set, just exits to harddrive if there's no tasking.
+	* @return void
+	*/
 	public function noMenu()
 	{
 		print "#!ipxe\n";
 		print "$this->bootexittype\n";
 	}
-
-	// Get if the tasking is present or not.
+	/**
+	* getTasking()
+	* Finds out if there's a tasking for the relevant host.
+	* if there is, returns the printTasking, otherwise 
+	* presents the menu.
+	* @return void
+	*/
 	public function getTasking()
 	{
 		$Image = $this->Host->getImage();
@@ -336,14 +402,24 @@ class BootMenu
 				$this->printTasking($kernelArgsArray);
 		}
 	}
-
-	// Just does the menu items.
+	/**
+	* menuItem()
+	* @param $option the menu option
+	* @param $desc the description of the menu item.
+	* Prints the menu items.
+	* @return void
+	*/
 	private function menuItem($option, $desc)
 	{
 		print "item $option $desc\n";
 	}
-
-	// Just does the options per the menu items.
+	/**
+	* menuOpt()
+	* Prints the actual menu related items for booting.
+	* @param $option the related menu option
+	* @param $type the type of menu information.
+	* @return void
+	*/
 	private function menuOpt($option,$type)
 	{
 		if ($option == 'fog.local')
@@ -409,8 +485,12 @@ class BootMenu
 			print "boot || goto MENU\n";
 		}
 	}
-
-	// Print the Default
+	/**
+	* printDefault()
+	* Prints the Menu which is equivalent to the
+	* old default file from PXE boot.
+	* @return void
+	*/
 	public function printDefault()
 	{
 		print "#!ipxe\n";
