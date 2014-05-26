@@ -22,7 +22,9 @@ $(function()
 		$("#showVal").val($("#pigz").slider("value"));
 	}
 	// Show Password information
-	$(':password').hideShowPassword(false,true);
+	$(':password').hideShowPassword({
+		innerToggle: true
+	});
 
 	// Process FOG JS Variables
 	$('.fog-variable').fogVariable();
