@@ -1331,7 +1331,7 @@ $databaseSchema[] = array(
 // Adds a number that if data returned is larger than will display search.
 $databaseSchema[] = array(
     "INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
-	values('FOG_DATA_RETURNED','This setting presents the search bar if list has more returned than this number. A value of 0 disables it.','100','FOG View Settings')",
+	values('FOG_DATA_RETURNED','This setting presents the search bar if list has more returned than this number. A value of 0 disables it.','0','FOG View Settings')",
 );
 // 102
 // Adds a group field to add a quick registered host to.

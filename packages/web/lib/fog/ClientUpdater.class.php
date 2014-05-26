@@ -6,9 +6,14 @@
 */
 class ClientUpdater extends FOGController
 {
-	// Table
+	/**
+	* @param $databaseTable the database table field to compare.
+	*/
 	public $databaseTable = 'clientUpdates';
-	// Name -> Database field name
+	/**
+	* @param $databaseFields the array for nice name to table association
+	* for calling back the data requested.
+	*/
 	public $databaseFields = array(
 		'id'		=> 'cuID',
 		'name'		=> 'cuName',
