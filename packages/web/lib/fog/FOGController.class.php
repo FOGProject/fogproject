@@ -57,21 +57,21 @@ abstract class FOGController extends FOGBase
 			// Flip database fields and common name - used multiple times
 			$this->databaseFieldsFlipped = array_flip($this->databaseFields);
 			// Created By
-			if (array_key_exists('createdBy', $this->databaseFields) && !empty($_SESSION['FOG_USER']))
-				$this->set('createdBy', $_SESSION['FOG_USER']);
+			if (array_key_exists('createdBy', $this->databaseFields) && !empty($_SESSION['FOG_USERNAME']))
+				$this->set('createdBy', $this->DB->sanitize($_SESSION['FOG_USERNAME']));
 			// Add incoming data
 			if (is_array($data))
 			{
 				// Iterate data -> Set data
 				foreach ($data AS $key => $value)
-					$this->set($this->key($key), $value);
+					$this->set($this->key($key), $this->DB->sanitize($value));
 			}
 			// If incoming data is an INT -> Set as ID -> Load from database
 			elseif (is_numeric($data))
 			{
 				if ($data === 0 || $data < 0)
 					throw new Exception(sprintf('No data passed, or less than zero, Value: %s', $data));
-				$this->set('id', $data)->load();
+				$this->set('id', $this->DB->sanitize($data))->load();
 			}
 			// Unknown data format
 			else
