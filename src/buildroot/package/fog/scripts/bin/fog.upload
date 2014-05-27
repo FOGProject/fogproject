@@ -236,11 +236,14 @@ EOFRESTOREPART
 					dots "Saving MBR and GRUB";
 					dd if=$hd of=$imagePath/d1.mbr count=63 bs=512 &>/dev/null;
 					if [ "$have_extended_partition" == "1" ]; then
-						sfdisk -d $hd 2>/dev/null >${imgPath}/d1.partitions;
+						sfdisk -d $hd 2>/dev/null >${imagePath}/d1.partitions;
 					fi
 				elif [ "$gptormbr" == "not present" ]; then
 					dots "Saving MBR";
 					dd if=$hd of=$imagePath/d1.mbr count=1 bs=512 &>/dev/null;
+					if [ "$have_extended_partition" == "1" ]; then
+						sfdisk -d $hd 2>/dev/null >${imagePath}/d1.partitions;
+					fi
 				else
 					dots "Saving Partition Tables";
 					sgdisk -b $imagePath/d1.mbr $hd 2>&1 >/dev/null;
@@ -303,11 +306,14 @@ EOFRESTOREPART
 						dots "Saving MBR and GRUB";
 						dd if=$disk of=$imagePath/d${intDisk}.mbr count=63 bs=512 &>/dev/null;
 						if [ "$have_extended_partition" == "1" ]; then
-							sfdisk -d $hd 2>/dev/null >${imgPath}/d1.partitions;
+							sfdisk -d $disk 2>/dev/null >${imagePath}/d${intdisk}.partitions;
 						fi
 					elif [ "$gptormbr" == "not present" ]; then
 						dots "Saving MBR";
 						dd if=$disk of=$imagePath/d${intDisk}.mbr count=1 bs=512 &>/dev/null;
+						if [ "$have_extended_partition" == "1" ]; then
+							sfdisk -d $disk 2>/dev/null >${imagePath}/d${intDisk}.partitions;
+						fi
 					else
 						dots "Saving Partition Tables";
 						sgdisk -b $imagePath/d${intDisk}.mbr $hd 2>&1 >/dev/null;
