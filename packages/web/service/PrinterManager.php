@@ -32,7 +32,7 @@ try
 			else if ($Printer->get('type') == 'iPrint')
 				print base64_encode($Printer->get('port').'|||'.$Printer->get('name').'||'.($Host->getDefault($Printer->get('id'))?'1':'0'))."\n";
 			else
-				print base64_encode($Printer->get('port').'|'.$Printer->get('file').'|'.$Printer->get('model').'|'.$Printer->get('name').'|'.$Printer->get('ip').'|'.($Host->getDefault($Printer->get('id'))?'1':'0')."\n");
+				print base64_encode($Printer->get('port').'|'.$Printer->get('file').'|'.$Printer->get('model').'|'.$Printer->get('name').'|'.$Printer->get('ip').'|'.($Host->getDefault($Printer->get('id'))?'1':'0'))."\n";
 		}
 	}
 }
