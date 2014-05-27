@@ -227,7 +227,7 @@ EOFRESTOREPART
 		elif [ "$imgType" == "mps" ]; then
 			gptormbr=`gdisk -l $disk | grep 'GPT:' | awk '{$1=""; print $0}' | sed 's/^ //'`;
 			if [ "$gptormbr" == "not present" -a "$osid" == "50" ]; then
-				have_extended_partition=`sfdisk -l $disk 2>/dev/null | egrep "^${disk}.*  Extended$" | wc -l`;
+				have_extended_partition=`sfdisk -l $disk 2>/dev/null | egrep "^${disk}.*  (Extended|W95 Ext'd \(LBA\))$" | wc -l`;
 			else
 				have_extended_partition="0";
 			fi
@@ -297,7 +297,7 @@ EOFRESTOREPART
 				echo " * Processing Hard Disk: $disk";
 				gptormbr=`gdisk -l $disk | grep 'GPT:' | awk '{$1=""; print $0}' | sed 's/^ //'`;
 				if [ "$gptormbr" == "not present" -a "$osid" == "50" ]; then
-					have_extended_partition=`sfdisk -l $disk 2>/dev/null | egrep "^${disk}.*  Extended$" | wc -l`;
+					have_extended_partition=`sfdisk -l $disk 2>/dev/null | egrep "^${disk}.*  (Extended|W95 Ext'd \(LBA\))$" | wc -l`;
 				else
 					have_extended_partition="0";
 				fi
