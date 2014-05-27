@@ -21,6 +21,20 @@ class TaskScheduler extends FOGBase
 	{
 		try
 		{
+			$Tasks = $this->FOGCore->getClass('TaskManager')->find(array('stateID' => 1,'typeID' => array(1,15,17)));
+			if ($Tasks)
+			{
+				$this->outall(sprintf(" * %s active task(s) awaiting check-in sending WOL request(s).",$this->FOGCore->getClass('TaskManager')->count(array('stateID' => 1,'typeID' => array(1,15,17)))));
+				foreach($Tasks AS $Task)
+				{
+					$Host = new Host($Task->get('hostID'));
+					$this->FOGCore->wakeOnLan($Host->get('mac'));
+					$this->outall(sprintf("\t\t- Host: %s WOL sent using MAC: %s",$Host->get('name'),$Host->get('mac')));
+					usleep(500000);
+				}
+			}
+			else
+				$this->outall(" * 0 active task(s) awaiting check-in.");
 			$Tasks = $this->FOGCore->getClass('ScheduledTaskManager')->find(array('isActive' => 1));
 			if ($Tasks)
 			{
