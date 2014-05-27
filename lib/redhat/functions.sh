@@ -268,15 +268,28 @@ configureMinHttpd()
 
 configureHttpd()
 {
-	while [ $dbpass != $PASSWORD1 ]; do
-		echo -n "  * Please enter your mysql password: "
-		read -s PASSWORD1
-		echo -n "  * Please re-enter your mysql password: "
-		read -s PASSWORD2
-		if [ $PASSWORD1 == $PASSWORD2 ]; then
-			dbpass=$PASSWORD1;
-		fi
-	done
+	echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
+	read dummy
+	echo "";
+	case "$dummy" in
+		[nN]*)
+		while [ $dbpass != $PASSWORD1 ]; do
+			echo -n "  * Please enter your mysql password: "
+			read -s PASSWORD1
+			echo "";
+			echo -n "  * Please re-enter your mysql password: "
+			read -s PASSWORD2
+			echo "";
+			if [ $PASSWORD1 = $PASSWORD2 ]; then
+				dbpass=$PASSWORD1;
+			fi
+			done
+		;;
+		[yY]*)
+		;;
+		*)
+		;;
+	esac
 	echo -n "  * Setting up and starting Apache Web Server...";
 	chkconfig httpd on;
 	service httpd restart >/dev/null 2>&1
