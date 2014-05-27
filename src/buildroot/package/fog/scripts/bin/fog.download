@@ -155,7 +155,7 @@ EOFPT
 					if [ -e "${imagePath}/d1.partitions" ]; then
 						echo "Done";
 						dots "Extended partitions";
-						sfdisk $hd < ${imgePath}/d1.partitions &>/dev/null;
+						sfdisk $hd < ${imagePath}/d1.partitions &>/dev/null;
 					else
 						echo "Done";
 						dots "No extended partitions";
@@ -166,7 +166,7 @@ EOFPT
 					if [ -e "${imagePath}/d1.partitions" ]; then
 						echo "Done";
 						dots "Extended partitions";
-						sfdisk $hd < ${imgePath}/d1.partitions &>/dev/null;
+						sfdisk $hd < ${imagePath}/d1.partitions &>/dev/null;
 					else
 						echo "Done";
 						dots "No extended partitions";
