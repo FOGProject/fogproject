@@ -12,6 +12,7 @@ try
 	$Host = $MACAddress->getHost();
 	if (!$Host->isValid())
 		throw new Exception( _('Invalid Host') );
+	$Host->getImage()->set('size','0')->save();
 	// Task for Host
 	$Task = current($Host->get('task'));
 	if (!$Task->isValid())
