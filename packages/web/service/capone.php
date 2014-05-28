@@ -39,10 +39,7 @@ try
 					print base64_encode($Image->get('path').'|'.$OS->get('id').'|'.$imgType)."\n";
 				}
 				else
-				{
 					throw new Exception(base64_encode('null'));
-					break;
-				}
 			}
 		}
 		else
