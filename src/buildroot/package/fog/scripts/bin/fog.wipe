@@ -24,10 +24,10 @@ if [ -n "$hd" ]; then
 		echo " Wiping complete.";
 		echo "";	
 	elif [ "$wipemode" == "normal" ]; then
-		echo " Writing to zeros to ${hd}";
+		echo " Writing zeros to ${hd}";
 		dd if=/dev/zero of=${hd};
 	elif [ "$wipemode" == "fast" ]; then
-		echo " Writing to zeros to ${hd}";
+		echo " Writing zeros to ${hd}";
 		dd if=/dev/zero of=${hd} bs=512 count=100000;
 	fi
 
