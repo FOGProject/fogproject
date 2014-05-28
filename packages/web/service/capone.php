@@ -11,7 +11,7 @@ try
 		$key = trim(base64_decode(trim($_REQUEST['key'])));
 		// Find the key association
 		$Capones = $FOGCore->getClass('CaponeManager')->find();
-		if (count($Capones) > 0)
+		if ($FOGCore->getClass('CaponeManager')->count() > 0)
 		{
 			foreach($Capones AS $Capone)
 			{
@@ -38,8 +38,6 @@ try
 					}
 					print base64_encode($Image->get('path').'|'.$OS->get('id').'|'.$imgType)."\n";
 				}
-				else
-					throw new Exception(base64_encode('null'));
 			}
 		}
 		else
