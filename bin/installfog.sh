@@ -192,7 +192,7 @@ then
 	echo "         On a Windows DHCP server you must set:";
 	echo "             option 066 & 067";
 	echo;
-	echo "		   Option 066 is the IP of the FOG Server: (e.g. ${ipaddres}";
+	echo "		   Option 066 is the IP of the FOG Server: (e.g. ${ipaddress}";
 	echo "		   Option 067 is the undionly.kpxe file: (e.g. undionly.kpxe)";
 fi;
 
@@ -325,7 +325,10 @@ do
 		
 			    echo "  Setup complete!";
 			    echo "";
-			    echo "  You still need to install/update your database schema.";
+			    echo "  You can now login to the FOG Management Portal using";
+				echo "  the information listed below.  The login information";
+				echo "  is only if this is the first install.";
+				echo "";
 			    echo "  This can be done by opening a web browser and going to:";
 			    echo "";
 			    echo "      http://${ipaddress}/fog/management";
