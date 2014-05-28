@@ -28,6 +28,8 @@ Version 1.1.0
 * Hooks are now fixed as they were broken in 1.0.1
 * Fix group page so setting of kernel, kernelArgs, kernelDevice actually
 ** happens.
+* Fix capone so strings sent for search operate as expected.
+* Add's awaiting check wol to task scheduler.
 
 Version 1.0.1
 -------------

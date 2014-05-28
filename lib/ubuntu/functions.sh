@@ -510,11 +510,7 @@ installPackages()
 			echo "";
 			echo "     We are about to install MySQL Server on ";
 			echo "     this server, if MySQL isn't installed already";
-			echo "     you will be prompted for a root password.  If";
-			echo "     you don't leave it blank you will need to change";
-			echo "     it in the config.php file located at:";
-			echo "     ";
-			echo "     ${webdirdest}/commons/config.php";
+			echo "     you will be prompted for a root password.";
 			echo "";
 			sleep 3;
 			echo "     Press enter to acknowledge this message.";
