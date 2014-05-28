@@ -15,7 +15,7 @@ try
 		{
 			foreach($Capones AS $Capone)
 			{
-				if (strstr($key,$Capone->get('key')))
+				if (stristr($key,$Capone->get('key')))
 				{
 					$Image = new Image($Capone->get('imageID'));
 					$OS = new OS($Capone->get('osID'));
