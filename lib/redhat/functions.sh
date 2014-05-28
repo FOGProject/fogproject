@@ -459,28 +459,28 @@ installPackages()
 	for x in $packages
 	do
 		rpm -q $x >/dev/null 2>&1
-		if [ $x == "mysql" ]
+		if [ $x == "mariadb" ]
 		then
 			rpm -q $x >/dev/null 2>&1;
 			if [ "$?" != "0" ]
 			then
-				x="mariadb";
+				x="mysql";
 			fi
 		fi
-		if [ $x == "mysql-server" ]
+		if [ $x == "mariadb-server" ]
 		then
 			rpm -q $x >/dev/null 2>&1;
 			if [ "$?" != "0" ]
 			then
-				x="mariadb-server";
+				x="mysql-server";
 			fi
 		fi
-		if [ $x == "php-mysql" ]
+		if [ $x == "php-mysqlnd" ]
 		then
 			rpm -q $x >/dev/null 2>&1;
 			if [ "$?" != "0" ]
 			then
-				x="php-mysqlnd";
+				x="php-mysql";
 			fi
 		fi
 		rpm -q $x >/dev/null 2>&1;
