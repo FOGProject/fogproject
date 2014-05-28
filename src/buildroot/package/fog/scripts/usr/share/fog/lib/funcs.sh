@@ -385,14 +385,14 @@ displayBanner()
 	echo "  |                      #                     ..:;###..                     |";
 	echo "  |                                                                          |";
 	echo "  |                       Free Computer Imaging Solution                     |";
-	echo "  |                               Version 1.0.0                              |";
+	echo "  |                               Version 1.1.0                              |";
 	echo "  |                                                                          |";
 	echo "  +--------------------------------------------------------------------------+";
 	echo "  | Created by:                                                              |";
 	echo "  |              Chuck Syperski                                              |";
 	echo "  |              Jian Zhang                                                  |";
+	echo "  |              Peter Gilchrist                                             |";
 	echo "  |              Tom Elliott                                                 |";
-	echo "  |                                                                          |";
 	echo "  | Released under GPL Version 3                                             |";
 	echo "  +--------------------------------------------------------------------------+";
 	echo "";
