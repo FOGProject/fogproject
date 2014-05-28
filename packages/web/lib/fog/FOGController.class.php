@@ -64,7 +64,7 @@ abstract class FOGController extends FOGBase
 			{
 				// Iterate data -> Set data
 				foreach ($data AS $key => $value)
-					$this->set($this->key($key), $this->DB->sanitize($value));
+					$this->set($this->key($key), $value);
 			}
 			// If incoming data is an INT -> Set as ID -> Load from database
 			elseif (is_numeric($data))
