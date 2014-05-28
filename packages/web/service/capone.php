@@ -36,9 +36,10 @@ try
 							$imgType = 'dd';
 							break;
 					}
-					print base64_encode($Image->get('path').'|'.$OS->get('id').'|'.$imgType)."\n";
+					$ret[] = base64_encode($Image->get('path').'|'.$OS->get('id').'|'.$imgType);
 				}
 			}
+			throw new Exception(base64_encode((count($ret) > 0 ? implode("\n",$ret) : 'null')));
 		}
 		else
 			throw new Exception(base64_encode('null'));
