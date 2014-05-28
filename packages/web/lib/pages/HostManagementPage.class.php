@@ -523,10 +523,10 @@ class HostManagementPage extends FOGPage
 		);
 		$fields = array(
 			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain"${domainon} />',
-			_('Domain name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="${host_dom}" />',
-			_('Organizational Unit').'<br /><span class="lightColor">('._('Blank for default').')</span>' => '<input id="adOU" class="smaller" type="text" name="ou" value="${host_ou}" />',
-			_('Domain Username') => '<input id="adUsername" class="smaller" type="text" name="domainuser" value="${host_aduser}" />',
-			_('Domain Password').'<br />('._('Must be encrypted').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${host_adpass}" />',
+			_('Domain name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="${host_dom}" autocomplete="off" />',
+			_('Organizational Unit').'<br /><span class="lightColor">('._('Blank for default').')</span>' => '<input id="adOU" class="smaller" type="text" name="ou" value="${host_ou}" autocomplete="off" />',
+			_('Domain Username') => '<input id="adUsername" class="smaller" type="text" name="domainuser" value="${host_aduser}" autocomplete="off" />',
+			_('Domain Password').'<br />('._('Must be encrypted').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${host_adpass}" autocomplete="off" />',
 			'<input type="hidden" name="updatead" value="1" />' => '<input type="submit" value="'._('Update').'" />',
 		);
 		print "\n\t\t\t".'<div id="host-active-directory" class="organic-tabs-hidden">';
