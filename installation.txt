@@ -33,9 +33,11 @@ Download the latest FOG package from http://www.sf.net/projects/freeghost and ex
 
 cd into the bin directory and run ./installfog.sh
 
-Open firefox and go to http://<FOG STATIC IP ADDRESS>/fog/management to install the schema when prompted.
+Open firefox and go to http://x.x.x.x/fog/management to install the schema when prompted.
+NOTE: change x's to that of your FOG Server's IP address.
 
 Client Setup
 ------------
 
-The Windows Service can be downloaded from the FOG server by navigating to http://<FOG STATIC IP ADDRESS>/fog/client/
+The Windows Service can be downloaded from the FOG server by navigating to http://x.x.x.x/fog/client/
+NOTE: change x's to that of your FOG Server's IP Address.
