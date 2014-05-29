@@ -49,7 +49,7 @@ print "\n\t\t".'<title>'.($pageTitle ? $pageTitle.' &gt; ' : '').$sectionTitle.'
 print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/calendar/calendar-win2k-1.css" />';
 print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/jquery-ui.css" />';
 print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/jquery.organicTabs.css" />';
-print "\n\t\t".'<!--<link rel="stylesheet" type="text/css" href="css/'.$GLOBALS['FOGCore']->getSetting('FOG_THEME').'" />-->';
+print "\n\t\t".'<!--<link rel="stylesheet" type="text/css" href="css/'.$FOGCore->getSetting('FOG_THEME').'" />-->';
 print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/fog.css" />';
 print "\n\t\t".'<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />';
 // Hook
