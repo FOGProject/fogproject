@@ -39,7 +39,7 @@ try
 					$ret[] = base64_encode($Image->get('path').'|'.$OS->get('id').'|'.$imgType);
 				}
 			}
-			throw new Exception(base64_encode((count($ret) > 0 ? implode("\n",$ret) : 'null')));
+			throw new Exception((count($ret) > 0 ? implode("\n",$ret) : base64_encode('null')));
 		}
 		else
 			throw new Exception(base64_encode('null'));
