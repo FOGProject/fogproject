@@ -34,7 +34,7 @@ class StorageGroup extends FOGController
 		// Failed to find Master - return first Storage Node if there is one, otherwise false
 		return (count($this->getStorageNodes()) ? current($this->getStorageNodes()) : false);
 	}
-	function getOptimalStorageNode()
+	public function getOptimalStorageNode()
 	{
 		$StorageNodes = $this->getStorageNodes();
 		$winner = null;
