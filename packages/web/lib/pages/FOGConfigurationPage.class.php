@@ -386,7 +386,7 @@ END OF TERMS AND CONDITIONS</pre>";
 			_('Hide Menu') => '<input type="checkbox" name="hidemenu" ${checked} value="1" /><span class="icon icon-help hand" title="Option below sets the key sequence.  If none is specified, ESC is defaulted. Login with the FOG credentials and you will see the menu.  Otherwise it will just boot like normal."></span>',
 			_('Boot Key Sequence') => '${boot_keys}',
 			_('Menu Timeout (in seconds)').':*' => '<input type="text" name="timeout" value="${timeout}" id="timeout" />',
-			_('Exit to Hard Drive Type') => '<select name="bootTypeExit"><option value="sanboot" '.($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'sanboot' ? 'selected="selected"' : '').'>Sanboot style</option><option value="exit" '.($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'selected="selected"' : '').'>Exit style</option></select>',
+			_('Exit to Hard Drive Type') => '<select name="bootTypeExit"><option value="sanboot" '.($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'sanboot' ? 'selected="selected"' : '').'>Sanboot style</option><option value="exit" '.($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'selected="selected"' : '').'>Exit style</option><option value="grub" '.($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'grub' ? 'selected="selected"' : '').'>Grub style</option></select>',
 			'<a href="#" onload="$(\'#advancedTextArea\').hide();" onclick="$(\'#advancedTextArea\').toggle();" id="pxeAdvancedLink">Advanced Configuration Options</a>' => '<div id="advancedTextArea" class="hidden"><div class="lighterText tabbed">Add any custom text you would like included added as part of your <i>default</i> file.</div><textarea rows="5" cols="40" name="adv">${adv}</textarea></div>',
 			'&nbsp;' => '<input type="submit" value="'._('Save PXE MENU').'" />',
 		);
@@ -715,7 +715,7 @@ END OF TERMS AND CONDITIONS</pre>";
 				}
 				else if ($Service->get('name') == 'FOG_BOOT_EXIT_TYPE')
 				{
-					foreach(array('sanboot','exit') AS $viewop)
+					foreach(array('sanboot','grub','exit') AS $viewop)
 						$options[] = '<option value=".'.$viewop.'" '.(strpos($Service->get('value'),$viewop) ? 'selected="selected"' : '').'>'.strtoupper($viewop).'</option>';
 					$type = "\n\t\t\t".'<select name="${service_id}" style="width: 220px" autocomplete="off">'."\n\t\t\t\t".implode("\n",$options)."\n\t\t\t".'</select>';
 					unset($options);
