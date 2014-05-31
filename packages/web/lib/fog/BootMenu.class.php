@@ -45,11 +45,11 @@ class BootMenu extends FOGBase
 	{
 		parent::__construct();
 		// Setups of the basic construct for the menu system.
-		$this->bootexittype = $this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'exit' : 'sanboot --no-describe --drive 0x80';
 		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'isMaster' => 1)));
 		$webserver = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_WEB_HOST'));
 		$webroot = $this->FOGCore->getSetting('FOG_WEB_ROOT');
 		$this->web = "${webserver}${webroot}";
+		$this->bootexittype = ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'exit' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'sanboot' ? 'sanboot --no-describe --drive 0x80' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'grub' ? 'chain http://'.rtrim($this->web,'/').'/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"' : 'exit')));
 		$ramsize = $this->FOGCore->getSetting('FOG_KERNEL_RAMDISK_SIZE');
 		$dns = $this->FOGCore->getSetting('FOG_PXE_IMAGE_DNSADDRESS');
 		$keymap = $this->FOGCore->getSetting('FOG_KEYMAP');
