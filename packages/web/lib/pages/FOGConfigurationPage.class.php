@@ -716,7 +716,7 @@ END OF TERMS AND CONDITIONS</pre>";
 				else if ($Service->get('name') == 'FOG_BOOT_EXIT_TYPE')
 				{
 					foreach(array('sanboot','grub','exit') AS $viewop)
-						$options[] = '<option value=".'.$viewop.'" '.(strpos($Service->get('value'),$viewop) ? 'selected="selected"' : '').'>'.strtoupper($viewop).'</option>';
+						$options[] = '<option value="'.$viewop.'" '.($Service->get('value') == $viewop ? 'selected="selected"' : '').'>'.strtoupper($viewop).'</option>';
 					$type = "\n\t\t\t".'<select name="${service_id}" style="width: 220px" autocomplete="off">'."\n\t\t\t\t".implode("\n",$options)."\n\t\t\t".'</select>';
 					unset($options);
 				}
