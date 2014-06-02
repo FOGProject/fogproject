@@ -143,15 +143,16 @@ EOFPT
 			runPartprobe;
 			echo "Done";
 			tmpMBR="$imagePath/d1.mbr";
+			has_GRUB=`hasGRUB "${hd}" "1" "${imagePath}"`;
 			mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
 			if [ -f $tmpMBR ]; then
-				if [ "$mbrsize" != "32256" ] && [ "$mbrsize" != "512" ]; then
+				if [ "$mbrsize" != "32256" -a "$has_GRUB" != "1" ] && [ "$mbrsize" != "512" ]; then
 					dots "Restoring Partition Tables";
 					sgdisk -gel $tmpMBR $hd 2>&1 >/dev/null;
 					gptcheck="yes";
-				elif [ "$mbrsize" == "32256" ] && [ "$osid" == "50" ]; then
+				elif [ "$mbrsize" == "32256" -o "$has_GRUB" == "1" ] && [ "$osid" == "50" ]; then
 					dots "Restoring MBR and GRUB";
-					dd if=$tmpMBR of=$hd bs=512 count=63 &>/dev/null;
+					restoreGRUB "${hd}" "1" "${imagePath}";
 					if [ -e "${imagePath}/d1.partitions" ]; then
 						echo "Done";
 						dots "Extended partitions";
@@ -190,15 +191,16 @@ EOFPT
 				runPartprobe;
 				echo "Done";
 				tmpMBR="$imagePath/d${intDisk}.mbr";
+				has_GRUB=`hasGRUB "${disk}" "${intDisk}" "${imagePath}"`;
 				mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
 				if [ -f $tmpMBR ]; then
-					if [ "$mbrsize" != "32256" ] && [ "$mbrsize" != "512" ]; then
+					if [ "$mbrsize" != "32256" -a "$has_GRUB" != "1" ] && [ "$mbrsize" != "512" ]; then
 						dots "Restoring Partition Tables";
 						sgdisk -gel $tmpMBR $disk 2>&1 >/dev/null;
 						gptcheck="yes";
-					elif [ "$mbrsize" == "32256" ] && [ "$intDisk" == "1" ] && [ "$osid" == "50" ]; then
+					elif [ "$mbrsize" == "32256" -o "$has_GRUB" == "1" ] && [ "$intDisk" == "1" ] && [ "$osid" == "50" ]; then
 						dots "Restoring MBR and GRUB";
-						dd if=$tmpMBR of=$disk bs=512 count=63 &>/dev/null;
+						restoreGRUB "${disk}" "${intDisk}" "${imagePath}";
 						if [ -e "${imagePath}/d${intDisk}.partitions" ]; then
 							echo "Done";
 							dots "Extended partitions";
