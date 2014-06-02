@@ -433,3 +433,69 @@ debugCommand()
 		echo $1 >> /tmp/cmdlist
 	fi
 }
+
+# Thank you, fractal13 Code Base
+# Save enough MBR and embedding area to capture all of GRUB
+# Strategy is to capture EVERYTHING before the first partition.
+# Then, leave a marker that this is a GRUB MBR for restoration.
+# We could get away with less storage, but more details are required
+# to parse the information correctly.  It would make the process
+# more complicated.
+#
+# See the discussion about the diskboot.img and the sector list
+# here: http://banane-krumm.de/bootloader/grub2.html
+#
+# Expects:
+# the device name (e.g. /dev/sda) as the first parameter,
+# the disk number (e.g. 1) as the second parameter
+# the directory to store images in (e.g. /image/dev/xyz) as the third parameter
+saveGRUB()
+{
+	local disk="$1";
+	local disk_number="$2";
+	local imagePath="$3";
+	local first=`sfdisk -d "${disk}" 2>/dev/null | \
+		awk -F: '{print $2;}' | \
+		awk -F, '{print $1;}' | \
+		grep start= | \
+		awk -F= 'BEGIN{start=1000000000;}{if($2 < start){start=$2;}}END{printf("%d\n", start);}'`;
+	local count=$((first-1));
+	dd if="$disk" of="$imagePath/d${disk_number}.mbr" count="${count}" bs=512 &>/dev/null;
+	touch "$imagePath/d${disk_number}.has_grub";
+}
+# Checks for the existence of the grub embedding area in the image directory.
+# Echos 1 for true, and 0 for false.
+#
+# Expects:
+# the device name (e.g. /dev/sda) as the first parameter,
+# the disk number (e.g. 1) as the second parameter
+# the directory images stored in (e.g. /image/xyz) as the third parameter
+hasGRUB()
+{
+	local disk="$1";
+	local disk_number="$2";
+	local imagePath="$3";
+	if [ -e "$imagePath/d${disk_number}.has_grub" ]; then
+		echo "1";
+	else
+		echo "0";
+	fi
+}
+
+# Restore the grub boot record and all of the embedding area data
+# necessary for grub2.
+#
+# Expects:
+# the device name (e.g. /dev/sda) as the first parameter,
+# the disk number (e.g. 1) as the second parameter
+# the directory images stored in (e.g. /image/xyz) as the third parameter
+restoreGRUB()
+{
+	local disk="$1";
+	local disk_number="$2";
+	local imagePath="$3";
+	local tmpMBR="${imagePath}/d${disk_number}.mbr";
+	local count=`du -B 512 "${tmpMBR}" | awk '{print $1;}'`;
+	count=$((count-1));
+	dd if="${tmpMBR}" of="${disk}" bs=512 count="${count}" &>/dev/null;
+}
