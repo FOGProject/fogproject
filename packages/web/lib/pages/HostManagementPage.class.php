@@ -204,7 +204,7 @@ class HostManagementPage extends FOGPage
 			);
 		}
 		// Hook
-		$this->HookManager->processEvent('HOST_ADD_GEN', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		$this->HookManager->processEvent('HOST_ADD_GEN', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes, 'fields' => &$fields));
 		// Output
 		$this->render();
 		// unset for use later.
