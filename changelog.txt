@@ -30,6 +30,8 @@ Version 1.1.0
 ** happens.
 * Fix capone so strings sent for search operate as expected.
 * Add's awaiting check wol to task scheduler.
+* Fix grub hopefully.
+* Updated init.xz/init_32.xz to buildroot-2014.05
 
 Version 1.0.1
 -------------
