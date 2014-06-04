@@ -309,10 +309,12 @@ class BootMenu extends FOGBase
 				$StorageGroup = new StorageGroup($Location->get('storageGroupID'));
 			else
 				$StorageGroup = $Image->getStorageGroup();
-			if ($TaskType->isUpload() || (!$Location || !$Location->get('storageNodeID')))
+			if (!$Location || !$Location->get('storageNodeID')))
 				$StorageNode = $StorageGroup->getOptimalStorageNode();
 			else
 				$StorageNode = new StorageNode($Location->get('storageNodeID'));
+			if ($TaskType->isUpload())
+				$StorageNode = $StorageGroup->getMasterStorageNode();
 			$mac = $_REQUEST['mac'];
 			$osid = $Image->get('osID');
 			$storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : ''));
