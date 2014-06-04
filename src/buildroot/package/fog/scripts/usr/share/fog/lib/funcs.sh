@@ -460,12 +460,8 @@ saveGRUB()
 		awk -F: '{print $2;}' | \
 		awk -F, '{print $1;}' | \
 		grep start= | \
-		awk -F= 'BEGIN{start=1000000000;}{if($2 < start){start=$2;}}END{printf("%d\n", start);}'`;
-	if [ "$first" == 0 ]; then
-		local count=63
-	else
-		local count=$((first-1));
-	fi
+		awk -F= 'BEGIN{start=1000000000;}{if($2 > 0 && $2 < start){start=$2;}}END{printf("%d\n", start);}'`;
+	local count=$((first-1));
 	dd if="$disk" of="$imagePath/d${disk_number}.mbr" count="${count}" bs=512 &>/dev/null;
 	touch "$imagePath/d${disk_number}.has_grub";
 }
