@@ -32,6 +32,8 @@ Version 1.1.0
 * Add's awaiting check wol to task scheduler.
 * Fix grub hopefully.
 * Updated init.xz/init_32.xz to buildroot-2014.05
+* Fix image deletion to go off of pathname not imagename.
+* Should have working undionly.kpxe now!
 
 Version 1.0.1
 -------------
