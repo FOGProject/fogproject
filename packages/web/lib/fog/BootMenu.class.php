@@ -309,7 +309,7 @@ class BootMenu extends FOGBase
 				$StorageGroup = new StorageGroup($Location->get('storageGroupID'));
 			else
 				$StorageGroup = $Image->getStorageGroup();
-			if (!$Location || !$Location->get('storageNodeID')))
+			if (!$Location || !$Location->get('storageNodeID'))
 				$StorageNode = $StorageGroup->getOptimalStorageNode();
 			else
 				$StorageNode = new StorageNode($Location->get('storageNodeID'));
