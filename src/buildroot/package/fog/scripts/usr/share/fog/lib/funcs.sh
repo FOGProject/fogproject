@@ -435,6 +435,7 @@ debugCommand()
 }
 
 # Thank you, fractal13 Code Base
+#
 # Save enough MBR and embedding area to capture all of GRUB
 # Strategy is to capture EVERYTHING before the first partition.
 # Then, leave a marker that this is a GRUB MBR for restoration.
@@ -449,6 +450,7 @@ debugCommand()
 # the device name (e.g. /dev/sda) as the first parameter,
 # the disk number (e.g. 1) as the second parameter
 # the directory to store images in (e.g. /image/dev/xyz) as the third parameter
+# 
 saveGRUB()
 {
 	local disk="$1";
@@ -459,10 +461,15 @@ saveGRUB()
 		awk -F, '{print $1;}' | \
 		grep start= | \
 		awk -F= 'BEGIN{start=1000000000;}{if($2 < start){start=$2;}}END{printf("%d\n", start);}'`;
-	local count=$((first-1));
+	if [ "$first" == 0 ]; then
+		local count=63
+	else
+		local count=$((first-1));
+	fi
 	dd if="$disk" of="$imagePath/d${disk_number}.mbr" count="${count}" bs=512 &>/dev/null;
 	touch "$imagePath/d${disk_number}.has_grub";
 }
+
 # Checks for the existence of the grub embedding area in the image directory.
 # Echos 1 for true, and 0 for false.
 #
