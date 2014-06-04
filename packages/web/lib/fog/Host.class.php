@@ -843,7 +843,7 @@ class Host extends FOGController
 				}
 			}
 			// Snapin deploy/cancel after deploy
-			if (!$isUpload && $deploySnapins && $taskTypeID != '12' && $taskTypeID != '13')
+			if (!$isUpload && $deploySnapins && $taskTypeID != '12' && $taskTypeID != '13' && $taskTypeID != '17')
 			{
 				// Remove any exists snapin tasks
 				$SnapinJobs = $this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id')));
@@ -854,23 +854,28 @@ class Host extends FOGController
 						$SnapinTask->destroy();
 					$SnapinJob->destroy();
 				}
-				// now do a clean snapin deploy
-				$SnapinJob = new SnapinJob(array(
-					'hostID' => $this->get('id'),
-					'createTime' => date('Y-m-d H:i:s'),
-				));
-				if ($SnapinJob->save())
+				// Check if there's any snapins assigned to the host.
+				$SnapinAssoc = $this->FOGCore->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')));
+				if ($this->FOGCore->getClass('SnapinAssociationmanager')->count(array('hostID' => $this->get('id'))) > 0)
 				{
-					$SnapinAssoc = $this->FOGCore->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')));
-					foreach ($SnapinAssoc AS $SA)
+					// now do a clean snapin deploy
+					$SnapinJob = new SnapinJob(array(
+						'hostID' => $this->get('id'),
+						'createTime' => date('Y-m-d H:i:s'),
+					));
+					if ($SnapinJob->save())
 					{
-						$Snapin = new Snapin($SA->get('snapinID'));
-						$SnapinTask = new SnapinTask(array(
-							'jobID' => $SnapinJob->get('id'),
-							'stateID' => -1,
-							'snapinID' => $Snapin->get('id'),
-						));
-						$SnapinTask->save();
+						$SnapinAssoc = $this->FOGCore->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')));
+						foreach ($SnapinAssoc AS $SA)
+						{
+							$Snapin = new Snapin($SA->get('snapinID'));
+							$SnapinTask = new SnapinTask(array(
+								'jobID' => $SnapinJob->get('id'),
+								'stateID' => -1,
+								'snapinID' => $Snapin->get('id'),
+							));
+							$SnapinTask->save();
+						}
 					}
 				}
 			}
