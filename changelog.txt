@@ -34,6 +34,7 @@ Version 1.1.0
 * Updated init.xz/init_32.xz to buildroot-2014.05
 * Fix image deletion to go off of pathname not imagename.
 * Should have working undionly.kpxe now!
+* Fix QUICKREG_SYS_NUM problem on auto/quick registration.
 
 Version 1.0.1
 -------------
