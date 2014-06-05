@@ -57,10 +57,7 @@ class Host extends FOGController
 	// Snapins
 	public function getImage()
 	{
-		if ($this->get('imageID') == '0')
-			return new Image(array('id' => '0'));
-		else
-			return new Image($this->get('imageID'));
+		return new Image($this->get('imageID'));
 	}
 	public function getOS()
 	{
