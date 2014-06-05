@@ -5,7 +5,6 @@ try
 	// Set the services so all id's can be enabled.
 	foreach($FOGCore->getClass('ModuleManager')->find() AS $Module)
 		$ids[] = $Module->get('id');
-	$groupid[] = base64_decode($_REQUEST['groupid']);
 	$HostManager = new HostManager();
 	$ifconfig = explode('HWaddr',base64_decode($_REQUEST['mac']));
 	$mac = strtolower(trim($ifconfig[1]));
@@ -126,15 +125,15 @@ try
 		// Get the autoreg group id:
 		$groupid[] = $FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC');
 		// Quick Registration
-		if ($FOGCore->getSetting('FOG_QUICKREG_AUTOPOP') == '1')
+		if ($FOGCore->getSetting('FOG_QUICKREG_AUTOPOP'))
 		{
 			// Get the image id if autopop is set.
-			$Image = new Image($FOGCore->getSetting('FOG_QUICKREG_IMG_ID'));
-			$realimageid = ($Image && $Image->isValid() ? $Image->get('id') : '');
+			$Image = ($FOGCore->getSetting('FOG_QUICKREG_IMG_ID') ? new Image($FOGCore->getSetting('FOG_QUICKREG_IMG_ID')) : new Image(array('id' => 0)));
+			$realimageid = ($Image->isValid() ? $Image->get('id') : '');
 			// get the name to use
 			$autoregSysName = $FOGCore->getSetting('FOG_QUICKREG_SYS_NAME');
 			// get the increment to use
-			$autoregSysNumber = $FOGCore->getSetting('FOG_QUICKREG_SYS_NUMBER');
+			$autoregSysNumber = (int)$FOGCore->getSetting('FOG_QUICKREG_SYS_NUMBER');
 			// pad as and where necessary.
 			$paddingLen = substr_count($autoregSysName,'*');
 			$paddingString = null;
@@ -144,11 +143,12 @@ try
 				$paddedInsert = str_pad($autoregSysNumber, $paddingLen, '0',STR_PAD_LEFT);
 				// Coolest part: if the MAC is designated to be the name
 				// Set it, otherwise use the predefined values.
-				(strtoupper($autoregSysName) == 'MAC' ? $realhost = $macsimple : $realhost = str_replace($paddingString,$paddedInsert,$autoregSysName));
+				$realhost = (strtoupper($autoregSysName) == 'MAC' ? $macsimple : str_replace($paddingString,$paddedInsert,$autoregSysName));
+				// Increment the Quickreg System number
+				$FOGCore->setSetting('FOG_QUICKREG_SYS_NUMBER',($autoregSysNumber + 1));
 			}
 			else
-				// Same as above.
-				(strtoupper($autoregSysName) == 'MAC' ? $realhost = $macsimple : $realhost = $autoregSysName);
+				$realhost = (strtoupper($autoregSysName) == 'MAC' ? $macsimple : $autoregSysName);
 			// As long as the host doesn't exist, create it.
 			if (!$Host || !$Host->isValid())
 			{
@@ -166,21 +166,14 @@ try
 			{
 				$Host = new Host($Host->get('id'));
 				$Host->addGroup($groupid)->save();
-				// Increment the Quickreg System Number if needed.
-				(strtoupper($autoregSysName == 'MAC' ? null : $FOGCore->setSetting('FOG_QUICKREG_SYS_NUMBER',($autoregSysNumber+1))));
-				if ($Host->getImageMemberFromHostID())
+				// If the image is valid and get's the member from the host
+				// create the tasking, otherwise just register!.
+				if ($Image->isValid() && $Host->getImageMemberFromHostID())
 				{
-					$tmp;
-					// As long as the image id is valid create image package.
-					if ($realimageid > 0)
-					{
-						if ($Host->createImagePackage(1,'AutoRegTask'))
-							print _('Done, with imaging!');
-						else
-							print _('Done, but without imaging!');
-					}
+					if ($Host->createImagePackage(1,'AutoRegTask'))
+						print _('Done, with imaging!');
 					else
-						print _('Done, but without imaging!');
+						print _('Done, but unable to create task!');
 				}
 				else
 					print _('Done!');
