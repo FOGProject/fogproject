@@ -1,4 +1,4 @@
-  Generated: Sun, 01 Jun 2014 05:00:03 -0400
+  Generated: Thu, 05 Jun 2014 05:00:02 -0400
 
   OUI/MA-L			Organization
   company_id			Organization
@@ -38084,7 +38084,7 @@
   00-17-88   (hex)		Philips Lighting BV
   001788     (base 16)		Philips Lighting BV
   				High Tech Campus 45
-				Eindhoven Noord Brabant 5611 BD
+				Eindhoven Noord Brabant 5656 AE
 				NETHERLANDS
 
   00-17-89   (hex)		Zenitron Corporation
@@ -83590,6 +83590,12 @@
 				Dallas TX 75243
 				UNITED STATES
 
+  10-2F-6B   (hex)		Microsoft Corporation
+  102F6B     (base 16)		Microsoft Corporation
+  				1 Microsoft Way
+				Redmond Washington 98052
+				UNITED STATES
+
   10-30-47   (hex)		Samsung Electronics Co.,Ltd
   103047     (base 16)		Samsung Electronics Co.,Ltd
   				#94-1, Imsoo-Dong
@@ -86499,6 +86505,12 @@
 				Shenzhen GuangDong 518000
 				CHINA
 
+  20-C3-8F   (hex)		Texas Instruments Inc
+  20C38F     (base 16)		Texas Instruments Inc
+  				12500 TI Blvd
+				Dallas TX 75243
+				UNITED STATES
+
   20-C6-0D   (hex)		Shanghai annijie Information technology Co.,LTD
   20C60D     (base 16)		Shanghai annijie Information technology Co.,LTD
   				Room605,NO.9,Lane 777
@@ -88047,6 +88059,13 @@
 				Union City CA 94587
 				UNITED STATES
 
+  2C-1A-31   (hex)		Electronics Company Limited
+  2C1A31     (base 16)		Electronics Company Limited
+  				Units 12,15&16,8/F,Metro Centre 2
+				No.21 Lam Hing Street,
+				Kowloon Bay HongKong 852
+				CHINA
+
   2C-1E-EA   (hex)		AERODEV
   2C1EEA     (base 16)		AERODEV
   				No.59,1985 Lane,Chunshen Road,
@@ -89334,6 +89353,12 @@
   				12/F,ZTE R&D Buliding,Kejinan Road,Shenzhen,P.R.China
 				Shenzhen Guangdong 518057
 				CHINA
+
+  34-4D-F7   (hex)		LG Electronics
+  344DF7     (base 16)		LG Electronics
+  				60-39, Gasan-dong, Geumcheon-gu
+				Seoul Seoul 153-801
+				KOREA, REPUBLIC OF
 
   34-4F-3F   (hex)		IO-Power Technology Co., Ltd.
   344F3F     (base 16)		IO-Power Technology Co., Ltd.
@@ -92724,6 +92749,13 @@
 				Newport Pagnell Buckinghamshire MK16 9HS
 				UNITED KINGDOM
 
+  48-9D-18   (hex)		Flashbay Limited
+  489D18     (base 16)		Flashbay Limited
+  				6 The Fountain Centre
+				Imperial Wharf
+				London London SW6 2TW
+				UNITED KINGDOM
+
   48-9D-24   (hex)		Research In Motion
   489D24     (base 16)		Research In Motion
   				295 Phillip Street
@@ -93563,6 +93595,13 @@
   				AKAMONDORI Bldg., 30-20,Ohsu 3-chome
 				Naka-ku,Nagoya Aichi Pref. 460-8315
 				JAPAN
+
+  4C-E9-33   (hex)		RailComm, LLC
+  4CE933     (base 16)		RailComm, LLC
+  				1387 Fairport Road
+				Building 900
+				Fairport New York 14450
+				UNITED STATES
 
   4C-EB-42   (hex)		Intel Corporate
   4CEB42     (base 16)		Intel Corporate
@@ -94820,6 +94859,12 @@
 				Moenchengladbach NRW 41238
 				GERMANY
 
+  54-FF-CF   (hex)		Mopria Alliance
+  54FFCF     (base 16)		Mopria Alliance
+  				2400 Camino Ramon, Ste #375
+				San Ramon CA 94583
+				UNITED STATES
+
   58-05-28   (hex)		LABRIS NETWORKS
   580528     (base 16)		LABRIS NETWORKS
   				Silikon Blok 1 NK 24 Teknokent
@@ -95751,6 +95796,12 @@
 				Cupertino CA 95014
 				UNITED STATES
 
+  5C-93-A2   (hex)		Liteon Technology Corporation
+  5C93A2     (base 16)		Liteon Technology Corporation
+  				4F,90,Chien 1 Road, ChungHo, TaiPei Hsien
+				TaiPei TaiWan 23585
+				TAIWAN, PROVINCE OF CHINA
+
   5C-95-AE   (hex)		Apple
   5C95AE     (base 16)		Apple
   				1 Infinite Loop
@@ -96246,6 +96297,13 @@
 				Xizhi City
 				Taipei  221
 				TAIWAN, PROVINCE OF CHINA
+
+  60-50-C1   (hex)		Kinetek Sports
+  6050C1     (base 16)		Kinetek Sports
+  				16885 Via Del Campo Ct.
+				Suite 207
+				San Diego Ca 92127
+				UNITED STATES
 
   60-51-2C   (hex)		TCT mobile limited
   60512C     (base 16)		TCT mobile limited
@@ -97346,6 +97404,12 @@
   				15 Minneakoning Rd. Suite 311
 				Flemington NJ 08822
 				UNITED STATES
+
+  64-B4-73   (hex)		Xiaomi inc.
+  64B473     (base 16)		Xiaomi inc.
+  				Office Building,The Rainbow City of China Resources, NO.68,Qinghe Middle Street,Haidian District,Beijing,China,100085
+				Beijing Beijing 100085
+				CHINA
 
   64-B6-4A   (hex)		ViVOtech, Inc.
   64B64A     (base 16)		ViVOtech, Inc.
@@ -104097,6 +104161,12 @@
 				Richmond Surrey TW9 2JN
 				UNITED KINGDOM
 
+  8C-B0-94   (hex)		Airtech I&C Co., Ltd
+  8CB094     (base 16)		Airtech I&C Co., Ltd
+  				33B-9L #613-9, Namchon-dong
+				Namdong-gu Incheon 405-846
+				KOREA, REPUBLIC OF
+
   8C-B6-4F   (hex)		CISCO SYSTEMS, INC.
   8CB64F     (base 16)		CISCO SYSTEMS, INC.
   				170 W. TASMAN DRIVE
@@ -107546,6 +107616,12 @@
 				Mountain View California 94041
 				UNITED STATES
 
+  A0-E6-F8   (hex)		Texas Instruments Inc
+  A0E6F8     (base 16)		Texas Instruments Inc
+  				12500 TI Blvd
+				Dallas TX 75243
+				UNITED STATES
+
   A0-E9-DB   (hex)		Ningbo FreeWings Technologies Co.,Ltd
   A0E9DB     (base 16)		Ningbo FreeWings Technologies Co.,Ltd
   				Room 1107-1108, No 298 XueShi Road Yinzhou District Ningbo,
@@ -110569,6 +110645,13 @@
   				12045 East Waterfront Drive
 				Playa Vista CA. 90094
 				UNITED STATES
+
+  B4-7C-29   (hex)		Shenzhen Guzidi Technology Co.,Ltd
+  B47C29     (base 16)		Shenzhen Guzidi Technology Co.,Ltd
+  				South 6/F,Yingtang Building,No.5 Kejiyuan Road,Nanshan District,Shenzhen City,Guangdong Province,P.R. China
+				Room403,4/f,3Building,Meilin Industrial Zone,Meilin Street,Futian District,Shenzhen City,Guangdong Province,P.R. China
+				Shenzhen Guangdong 518000
+				CHINA
 
   B4-7F-5E   (hex)		Foresight Manufacture (S) Pte Ltd
   B47F5E     (base 16)		Foresight Manufacture (S) Pte Ltd
@@ -114866,6 +114949,12 @@
 				Netanya  42504
 				ISRAEL
 
+  CC-E1-7F   (hex)		juniper networks
+  CCE17F     (base 16)		juniper networks
+  				1194 N Mathilda Avenue
+				sunnyvale CA 94089
+				UNITED STATES
+
   CC-E1-D5   (hex)		Buffalo Inc.
   CCE1D5     (base 16)		Buffalo Inc.
   				AKAMONDORI Bldg.,30-20,Ohsu 3-chome
@@ -115979,6 +116068,12 @@
   				Elberfelder Strasse 96
 				Remscheid NRW 42853
 				GERMANY
+
+  D4-7B-35   (hex)		NEO Monitors AS
+  D47B35     (base 16)		NEO Monitors AS
+  				PoBox 384
+				Loerenskog Loerenskog 1471
+				NORWAY
 
   D4-7B-75   (hex)		HARTING Electronics GmbH
   D47B75     (base 16)		HARTING Electronics GmbH
