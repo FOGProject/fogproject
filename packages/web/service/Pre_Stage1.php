@@ -40,7 +40,8 @@ try
 	$inFrontOfMe = $Task->getInFrontOfHostCount();
 	$groupOpenSlots = $totalSlots - $usedSlots;
 	// Fail if all Slots are used
-	if (! $Task->get('isForced')) {
+	if (!$Task->get('isForced'))
+	{
 	    if ($usedSlots >= $totalSlots)
 		    throw new Exception(sprintf('%s, %s %s', _('Waiting for a slot'), $inFrontOfMe, _('PCs are in front of me.')));
 	    // At this point we know there are open slots, but are we next in line for that slot (or has the next is line timed out?)
@@ -48,22 +49,23 @@ try
 		    throw new Exception(sprintf('%s %s %s', _('There are open slots, but I am waiting for'), $inFrontOfMe, _('PCs in front of me.')));
     }
 	// Determine the best Storage Node to use - based off amount of clients connected
-	
 	$messageArray = array();
 	$winner = null;
-	foreach( $StorageNodes AS $StorageNode ) {
-	    if ( $StorageNode->get('maxClients') > 0 ) {
-	        if ( $winner == null ) {
+	foreach($StorageNodes AS $StorageNode)
+	{
+		$nodeAvailableSlots = $StorageNode->get('maxClients') - $StorageNode->getUsedSlotCount();
+	    if ($StorageNode->get('maxClients') > 0 && $nodeAvailableSlots > 0)
+		{
+	        if ($winner == null)
 	            $winner = $StorageNode;
-	        } else if ( $StorageNode->getClientLoad() < $winner->getClientLoad() ) {
-	            if ($StorageNode->getNodeFailure($Host) === null)
-			    {
-                    $winner = $StorageNode;
-			    }
-			    else
-				    $messageArray[] = sprintf("%s '%s' (%s) %s", _('Storage Node'), $StorageNode->get('name'), $StorageNode->get('ip'), _('is open, but has recently failed for this Host'));
-	        }
-	    }
+	        else if ( $StorageNode->getClientLoad() < $winner->getClientLoad() )
+			{
+	        	if ($StorageNode->getNodeFailure($Host) === null)
+                   	$winner = $StorageNode;
+		    }
+		    else
+			    $messageArray[] = sprintf("%s '%s' (%s) %s", _('Storage Node'), $StorageNode->get('name'), $StorageNode->get('ip'), _('is open, but has recently failed for this Host'));
+		}
 	}
 	// Failed to find a Storage Node - this should only occur if all Storage Nodes in this Storage Group have failed
 	if (!isset($winner) || !$winner->isValid())
