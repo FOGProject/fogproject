@@ -15,7 +15,7 @@ try
 	if (!$Task->isValid())
 		throw new Exception( sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'), $MACAddress) );
 	// Get the current Multicast Session
-	$MultiSess = new MulticastSessions(current($GLOBALS['FOGCore']->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))))->get('msID'));
+	$MultiSess = new MulticastSessions(current($FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))))->get('msID'));
 	if ($Task->get('stateID') == 1)
 	{
 		// Check In Task for Host
@@ -24,7 +24,7 @@ try
 		$MultiSess->set('clients', $MultiSess->get('clients')+1);
 	}
 	// Get the count of total associations.
-	$MSAs = count($GLOBALS['FOGCore']->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $MultiSess->get('id'))));
+	$MSAs = $FOGCore->getClass('MulticastSessionsAssociationManager')->count(array('msID' => $MultiSess->get('id'))));
 	// This should not matter, but just in case.
 	if ($MSAs)
 	{

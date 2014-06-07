@@ -1391,8 +1391,8 @@ if ( $_REQUEST["confirm"] == "yes" )
 				// Update schema version
 				$DB->query("UPDATE `%s`.`schemaVersion` set vValue = '%s'", array(DATABASE_NAME, $version));
 			}
-			// BUG: Must reconnect to get right version. BUG is in getVersion()
-			if ($FOG_SCHEMA == $DatabaseManager->connect()->getVersion())
+			$version = current($FOGCore->getClass('SchemaManager')->find());
+			if ($FOG_SCHEMA == $version->get('version'))
 			{
 				print "\n\t\t\t<p>"._('Update/Install Successful!').'</p>';
 				print "\n\t\t\t<p>"._('Click').' <a href="../../management">'._('here').'</a> '._('to login.').'</p>';
