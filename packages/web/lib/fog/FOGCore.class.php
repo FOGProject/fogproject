@@ -88,8 +88,13 @@ class FOGCore extends FOGBase
 		$uname = "";
 		if ( $currentUser != null )
 			$uname = $this->DB->sanitize($currentUser->get('name'));
-		$sql = "insert into history( hText, hUser, hTime, hIP ) values( '".$this->DB->sanitize($string)."', '".$uname."', NOW(), '".$_SERVER[REMOTE_ADDR]."')";
-		$this->DB->query($sql);
+		$History = new History(array(
+			'info' => $string,
+			'createdBy' => $currentUser->get('name'),
+			'createdTime' => date('Y-m-d H:i:s'),
+			'ip' => $_SERVER[REMOTE_ADDR],
+		));
+		$History->save();
 	}
 	
 	/** searchManager($manager = 'Host', $keyword = '*')
