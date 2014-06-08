@@ -29,7 +29,7 @@ if [ -f "/images/.mntcheck" ]; then
 	# based on default normal values.
 	# Otherwise it uses MBR/GPT to generate the partition table(s).
 	if [ "$imgType" == "n" ]; then
-		if [ "$osid" != "1" ] && [ "$osid" != "2" ] && [ "$osid" != "5" ] && [ "$osid" != "6" ]; then
+		if [ "$osid" != "1" ] && [ "$osid" != "2" ] && [ "$osid" != "5" ] && [ "$osid" != "6" ] || [ "$osid" != "7" ]; then
 			handleError " * Invalid Operating System ID: $osname ($osid)!";
 		fi
 		
@@ -41,7 +41,7 @@ if [ -f "/images/.mntcheck" ]; then
 		win7rec="";
 		win7sys="";
 		win7imgroot="$imagePath";
-		if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
+		if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 			dots "Windows Boot Partition Exists";
 			if [ -f "$win7imgroot/rec.img.000" ]; then
 				echo "Yes";
@@ -201,6 +201,7 @@ EOFPT
 					elif [ "$mbrsize" == "32256" -o "$has_GRUB" == "1" ] && [ "$intDisk" == "1" ] && [ "$osid" == "50" ]; then
 						dots "Restoring MBR and GRUB";
 						restoreGRUB "${disk}" "${intDisk}" "${imagePath}";
+						#dd if=$tmpMBR of=$disk bs=512 count=63 &>/dev/null;
 						if [ -e "${imagePath}/d${intDisk}.partitions" ]; then
 							echo "Done";
 							dots "Extended partitions";
@@ -241,7 +242,7 @@ EOFPT
 		# process.
 		sleep 10
 		if [ "$imgType" == "n" ]; then
-			if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
+			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				if [ "$win7partcnt" == "1" ]; then
 					writeImageMultiCast $win7sys
 					if [ "$osid" == "5" ]; then
@@ -307,7 +308,7 @@ EOFPT
 		runPartprobe;
 		echo "Done";
 		if [ "$imgType" == "n" ]; then
-			if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
+			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				if [ "$win7partcnt" == "1" ]; then
 					writeImage $imagePath/sys.img.000 $win7sys
 					if [ "$osid" == "5" ]; then
@@ -405,7 +406,7 @@ IFS='
 		queueinfo="";
 		wget -q -O /tmp/co.txt "http://${web}service/Post_Stage3.php?mac=$mac&type=$type" &>/dev/null;
 		queueinfo=`cat co.txt`;
-		while [ $queueinfo != '##' ]; do
+		while [ "$queueinfo" != '##' ]; do
 			echo "		* $queueinfo";
 			rm co.txt
 			wget -q -O /tmp/co.txt "http://${web}service/Post_Stage3.php?mac=$mac&type=$type" &>/dev/null;
