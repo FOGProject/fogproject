@@ -21,7 +21,7 @@ try
 	// Get the Job if possible
 	$SnapinJob = new SnapinJob($_REQUEST['taskid']);
 	// Get the current task, if possible.
-	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('stateID' => array(0,1),'jobID' => $SnapinJob->get('id'))));
+	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id'))));
 	// If there's no more tasks, or job, don't continue on.  Just report there's no jobs.
 	if (!$SnapinJob || !$SnapinTask)
 		throw new Exception('#!ns');
