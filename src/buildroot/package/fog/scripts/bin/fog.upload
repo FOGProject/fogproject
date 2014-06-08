@@ -40,13 +40,13 @@ if [ -f "/images/.mntcheck" ]; then
 			handleError "HD is null, no hard disk found!";
 		fi
 		if [ "$imgType" == "n" ]; then
-			if [ "$osid" != "1" ] && [ "$osid" != "2" ] && [ "$osid" != "5" ] && [ "$osid" != "6" ]; then
+			if [ "$osid" != "1" ] && [ "$osid" != "2" ] && [ "$osid" != "5" ] && [ "$osid" != "6" ] && [ "$osid" != "7" ]; then
 				handleError " * Invalid operating system id: $osname ($osid)!";
 			fi
 			part="${hd}1";
 			win7partcnt="0";
 			win7sys="";
-			if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
+			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				for part in $parts; do
 					win7partcnt=`expr $win7partcnt '+' 1`;
@@ -134,7 +134,7 @@ EOFNTFS`
 y
 FORCEY
 					echo "Done";
-					if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
+					if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 						if [ "$win7partcnt" == "1" ]; then
 							win7part1start=`parted -s $hd u kB print | sed -e '/^.1/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//'`;
 							if [ "$win7part1start" == "" ]; then
@@ -176,7 +176,7 @@ FORCEY
 					echo "";
 					echo " * Now FOG will attempt to upload the image using Partclone.";
 					echo "";
-					if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
+					if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 						if [ "$win7partcnt" == "1" ]; then
 							echo " * Processing a Windows 7 System with 1 partition.";
 							pigz -p $cores $PIGZ_COMP < /tmp/pigz1 > $imagePath/sys.img.000 &
@@ -212,7 +212,7 @@ EOFRESTOREPART
 						correctVistaMBR $hd;
 					fi
 					
-					if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
+					if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 					        expandPartition $win7sys
 					else
 					        expandPartition $part
@@ -265,11 +265,11 @@ EOFRESTOREPART
 						fstype="ntfs -c";
 						echo $fstype;
 						sleep 10;
-					elif [ "$osid" != "6" ] && [ "$fstype" == "vfat" ]; then
+					elif [ "$osid" != "6" -o "$osid" != "7" ] && [ "$fstype" == "vfat" ]; then
 						fstype="fat -c";
 						echo $fstype;
 						sleep 10;
-					elif [ "$osid" == "6" ] && [ "$fstype" == "vfat" ]; then
+					elif [ "$osid" == "6" -o "$osid" != "7" ] && [ "$fstype" == "vfat" ]; then
 						fstype="imager -c";
 						echo $fstype;
 						sleep 10;
@@ -335,11 +335,11 @@ EOFRESTOREPART
 							fstype="ntfs -c";
 							echo $fstype;
 							sleep 10;
-						elif [ "$osid" != "6" ] && [ "$fstype" == "vfat" ]; then
+						elif [ "$osid" != "6" -o "$osid" != "7" ] && [ "$fstype" == "vfat" ]; then
 							fstype="fat -c";
 							echo $fstype;
 							sleep 10;
-						elif [ "$osid" == "6" ] && [ "$fstype" == "vfat" ]; then
+						elif [ "$osid" == "6" -o "$osid" != "7" ] && [ "$fstype" == "vfat" ]; then
 							fstype="imager -c";
 							echo $fstype;
 							sleep 10;
@@ -371,7 +371,7 @@ EOFRESTOREPART
 		fi
 		chmod -R 777 $imagePath;
 		queueinfo="";
-		if [ "$osid" == "5" ] || [ "$osid" == "6" ]; then
+		if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 			imgType="mps";
 		fi
 		post="http://${web}service/Post_Stage2.php?to=$img&mac=$mac&ftp=$ftp&size=$size&imgid=$imgid&imgtype=$imgType&osid=$osid&type=$type"

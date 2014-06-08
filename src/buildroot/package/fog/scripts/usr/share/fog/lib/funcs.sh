@@ -113,7 +113,7 @@ changeHostname()
 		regfile="";
 		key1="";
 		key2="";
-		if [ "$osid" = "5" ] || [ "$osid" = "6" ]
+		if [ "$osid" = "5" ] || [ "$osid" = "6" ] || [ "$osid" = "7" ]
 		then
 			regfile=$REG_LOCAL_MACHINE_7
 			key1=$REG_HOSTNAME_KEY1_7
@@ -156,7 +156,7 @@ clearMountedDevices()
 
 	mkdir /ntfs &>/dev/null
 
-	if [ "$osid" = "5" ] || [ "$osid" = "6" ]
+	if [ "$osid" = "5" ] || [ "$osid" = "6" ] || [ "$osid" = "7" ]
 	then
 		dots "Clearing mounted devices";
 		ntfs-3g -o force,rw $win7sys /ntfs
@@ -243,6 +243,10 @@ determineOS()
 			defaultpart2start="105906176B";
 		elif [ "$1" = "6" ]; then
 			osname="Windows 8";
+			mbrfile="/usr/share/fog/mbr/win8.mbr";				
+			defaultpart2start="368050176B"
+		elif [ "$1" = "7" ]; then
+			osname="Windows 8.1";
 			mbrfile="/usr/share/fog/mbr/win8.mbr";				
 			defaultpart2start="368050176B"
 		elif [ "$1" = "50" ]; then
