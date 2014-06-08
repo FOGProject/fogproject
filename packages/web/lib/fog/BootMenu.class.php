@@ -352,6 +352,26 @@ class BootMenu extends FOGBase
 					'active' => $Task->get('shutdown'),
 				),
 				array(
+					'value' => 'adon=1',
+					'active' => $this->Host->get('useAD'),
+				),
+				array(
+					'value' => 'addomain='.$this->Host->get('ADDomain'),
+					'active' => $this->Host->get('useAD'),
+				),
+				array(
+					'value' => 'adou='.$this->Host->get('ADOU'),
+					'active' => $this->Host->get('useAD'),
+				),
+				array(
+					'value' => 'aduser='.$this->Host->get('ADUser'),
+					'active' => $this->Host->get('useAD'),
+				),
+				array(
+					'value' => 'adpass='.$this->Host->get('ADPass'),
+					'active' => $this->Host->get('useAD'),
+				),
+				array(
 					'value' => 'fdrive='.$this->Host->get('kernelDevice'),
 					'active' => $this->Host->get('kernelDevice'),
 				),

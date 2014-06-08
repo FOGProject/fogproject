@@ -25,7 +25,7 @@ class System
 		if (!ini_get('date.timezone'))
 			date_default_timezone_set(date_default_timezone_get());
 		define('IS_INCLUDED', true);
-		define('FOG_VERSION', '1793');
+		define('FOG_VERSION', '1795');
 		define('FOG_SCHEMA', 102);
 		define('FOG_SVN_REVISION', '$Revision$');
 		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');
