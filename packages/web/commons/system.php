@@ -25,8 +25,8 @@ class System
 		if (!ini_get('date.timezone'))
 			date_default_timezone_set(date_default_timezone_get());
 		define('IS_INCLUDED', true);
-		define('FOG_VERSION', '1796');
-		define('FOG_SCHEMA', 102);
+		define('FOG_VERSION', '1797');
+		define('FOG_SCHEMA', 103);
 		define('FOG_SVN_REVISION', '$Revision$');
 		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');
 		define('PHP_VERSION_REQUIRED', '5.3.0');
