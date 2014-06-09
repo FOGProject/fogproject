@@ -90,7 +90,7 @@ class FOGCore extends FOGBase
 			$uname = $this->DB->sanitize($currentUser->get('name'));
 		$History = new History(array(
 			'info' => $string,
-			'createdBy' => $currentUser->get('name'),
+			'createdBy' => $uname,
 			'createdTime' => date('Y-m-d H:i:s'),
 			'ip' => $_SERVER[REMOTE_ADDR],
 		));

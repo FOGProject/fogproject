@@ -29,12 +29,10 @@ if [ -f "/images/.mntcheck" ]; then
 	# based on default normal values.
 	# Otherwise it uses MBR/GPT to generate the partition table(s).
 	if [ "$imgType" == "n" ]; then
-		if [ "$osid" != "1" ] && [ "$osid" != "2" ] && [ "$osid" != "5" ] && [ "$osid" != "6" ] || [ "$osid" != "7" ]; then
+		if [ "$osid" != "1" ] && [ "$osid" != "2" ] && [ "$osid" != "5" ] && [ "$osid" != "6" ] && [ "$osid" != "7" ]; then
 			handleError " * Invalid Operating System ID: $osname ($osid)!";
 		fi
-		
 		enableWriteCache $hd
-
 		cd /images;
 		part="${hd}1";
 		win7partcnt="0";
