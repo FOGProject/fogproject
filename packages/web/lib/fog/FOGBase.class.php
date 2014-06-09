@@ -83,7 +83,7 @@ abstract class FOGBase
 	/** error($txt, $data = array())
 		Prints to the screen in case of error.  Same as above it seems.
 	*/
-	public static function error($txt, $data = array())
+	public function error($txt, $data = array())
 	{
 		if ((((isset($this->debug)) && $this->debug === true)) && !preg_match('#/service/#', $_SERVER['PHP_SELF']) && !FOGCore::isAJAXRequest())
 		{
