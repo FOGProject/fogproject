@@ -22,7 +22,7 @@ class Oracle
 		}
 		catch (Exception $e)
 		{
-			FOGCore::error(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$FOGCore->error(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 	}
 	function __destruct()
@@ -36,7 +36,7 @@ class Oracle
 		}
 		catch (Exception $e)
 		{
-			FOGCore::debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$FOGCore->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 	}
 	public function close()
@@ -57,7 +57,7 @@ class Oracle
 		}
 		catch (Exception $e)
 		{
-			FOGCore::error(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$FOGCore->error(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 		return $this;
 	}
@@ -67,15 +67,15 @@ class Oracle
 		{
 			$this->query = $sql;
 			if (count($data))
-				$this->queryResult = oci_parse(vsprintf($this->query, $data), $this->link) or FOGCore::debug($this->error(), $this->query);
+				$this->queryResult = oci_parse(vsprintf($this->query, $data), $this->link) or $FOGCore->debug($this->error(), $this->query);
 			else
-				$this->queryResult = oci_parse($this->query, $this->link) or FOGCore::debug($this->error(), $this->query);
+				$this->queryResult = oci_parse($this->query, $this->link) or $FOGCore->debug($this->error(), $this->query);
 			if (!oci_execute($this->queryResult))
 				throw new Exception('Query failed');
 		}
 		catch (Exception $e)
 		{
-			FOGCore::debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$FOGCore->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 		return $this;
 	}
@@ -90,7 +90,7 @@ class Oracle
 		}
 		catch (Exception $e)
 		{
-			FOGCore::debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$FOGCore->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 		//return false;
 		return $this;
@@ -115,7 +115,7 @@ class Oracle
 		}
 		catch (Exception $e)
 		{
-			FOGCore::debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$FOGCore->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 		return false;
 	}
@@ -129,7 +129,7 @@ class Oracle
 		}
 		catch (Exception $e)
 		{
-			FOGCore::debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$FOGCore->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 		return $this;
 	}
@@ -157,7 +157,7 @@ class Oracle
 		}
 		catch (Exception $e)
 		{
-			FOGCore::debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$FOGCore->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 		return 0;
 	}
