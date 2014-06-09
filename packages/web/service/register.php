@@ -26,10 +26,10 @@ try
 		$mac1[] = strtolower($Host->get('mac'));
 		// Get all the additional MACs
 		foreach((array)$Host->get('additionalMACs') AS $mac)
-			$mac1[] = $mac && $mac->isValid() ? strtolower($mac->get('mac')) : '';
+			$mac1[] = $mac && $mac->isValid() ? strtolower($mac) : '';
 		// Get all the pending MACs
 		foreach((array)$Host->get('pendingMACs') AS $mac)
-			$mac1[] = $mac && $mac->isValid() ? strtolower($mac->get('pending')) : '';
+			$mac1[] = $mac && $mac->isValid() ? strtolower($mac) : '';
 		// Cycle the ignorelist if there is anything.
 		if ($ignoreList)
 		{
