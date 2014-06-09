@@ -157,7 +157,9 @@ abstract class FOGController extends FOGBase
 				$key = $this->databaseFieldsFlipped[$key];
 			foreach ((array)$this->data[$key] AS $i => $data)
 			{
-				if ($data->get('id') != $object->get('id'))
+				if ($data instanceof MACAddress)
+					$newDataArray[] = $data;
+				else if ($data->get('id') != $object->get('id'))
 					$newDataArray[] = $data;
 			}
 			$this->data[$key] = (array)$newDataArray;

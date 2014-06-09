@@ -348,12 +348,12 @@ class HostManagementPage extends FOGPage
 		foreach((array)$Host->get('additionalMACs') AS $MAC)
 		{
 			if ($MAC && $MAC->isValid())
-				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC->get('mac').'" /><input type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC->get('id').'" name="additionalMACsRM[]" value="'.$MAC->get('id').'" title="'._('Remove MAC').'"/><label for="rm'.$MAC->get('id').'" class="icon icon-remove remove-mac hand"></label><span class="mac-manufactor"></span></div>';
+				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" /><input type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" title="'._('Remove MAC').'"/><label for="rm'.$MAC.'" class="icon icon-remove remove-mac hand"></label><span class="mac-manufactor"></span></div>';
 		}
 		foreach ((array)$Host->get('pendingMACs') AS $MAC)
 		{
 			if ($MAC && $MAC->isValid())
-				$pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC->get('pending').'" /><a href="${link}&confirmMac='.$MAC->get('id').'"><span class="icon icon-tick"></span></a><span class="mac-manufactor"></span></div>';
+				$pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC.'" /><a href="${link}&confirmMac='.$MAC.'"><span class="icon icon-tick"></span></a><span class="mac-manufactor"></span></div>';
 		}
 		if ($pending != null && $pending != '')
 			$pending .= '<div>'._('Approve All MACs?').'<a href="${link}&approveAll=1"><span class="icon icon-tick"></span></a></div>';
@@ -1058,7 +1058,7 @@ class HostManagementPage extends FOGPage
 					{
 						foreach((array)$_POST['additionalMACsRM'] AS $MAC)
 						{
-							$DelMAC = new MACAddressAssociation($MAC);
+							$DelMAC = new MACAddress($MAC);
 							$Host->removeAddMAC($DelMAC);
 						}
 					}
