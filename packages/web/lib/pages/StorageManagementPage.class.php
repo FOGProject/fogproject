@@ -107,19 +107,19 @@ class StorageManagementPage extends FOGPage
 		);
 		// Fields
 		$fields = array(
-			_('Storage Node Name') => '<input type="text" name="name" value="${node_name}" />*',
-			_('Storage Node Description') => '<textarea name="description" rows="5" cols="40">${node_desc}</textarea>',
-			_('IP Address') => '<input type="text" name="ip" value="${node_ip}" />*',
-			_('Max Clients') => '<input type="text" name="maxClients" value="${node_maxclient}" />*',
+			_('Storage Node Name') => '<input type="text" name="name" value="${node_name}" autocomplete="off" />*',
+			_('Storage Node Description') => '<textarea name="description" rows="5" cols="40" autocomplete="off">${node_desc}</textarea>',
+			_('IP Address') => '<input type="text" name="ip" value="${node_ip}" autocomplete="off" />*',
+			_('Max Clients') => '<input type="text" name="maxClients" value="${node_maxclient}" autocomplete="off" />*',
 			_('Is Master Node') => '<input type="checkbox" name="isMaster" value="1" />&nbsp;&nbsp;${span}',
 			_('Storage Group') => '${node_group}',
-			_('Image Path') => '<input type="text" name="path" value="${node_path}" />',
-			_('Interface') => '<input type="text" name="interface" value="${node_interface}" />',
+			_('Image Path') => '<input type="text" name="path" value="${node_path}" autocomplete="off" />',
+			_('Interface') => '<input type="text" name="interface" value="${node_interface}" autocomplete="off" />',
 			_('Is Enabled') => '<input type="checkbox" name="isEnabled" checked="checked" value="1" />',
 			_('Is Graph Enabled').'<br /><small>('._('On Dashboard').')'  => '<input type="checkbox" name="isGraphEnabled" checked="checked" value="1" />',
-			_('Management Username') => '<input type="text" name="user" value="${node_user}" />*',
-			_('Management Password') => '<input type="password" name="pass" value="${node_pass}" />*',
-			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" />',
+			_('Management Username') => '<input type="text" name="user" value="${node_user}" autocomplete="off" />*',
+			_('Management Password') => '<input type="password" name="pass" value="${node_pass}" autocomplete="off" />*',
+			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" autocomplete="off" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 		foreach((array)$fields AS $field => $input)
@@ -238,18 +238,18 @@ class StorageManagementPage extends FOGPage
 		);
 		// Fields
 		$fields = array(
-			_('Storage Node Name') => '<input type="text" name="name" value="${node_name}" />*',
-			_('Storage Node Description') => '<textarea name="description" rows="5" cols="40">${node_desc}</textarea>',
-			_('IP Address') => '<input type="text" name="ip" value="${node_ip}" />*',
-			_('Max Clients') => '<input type="text" name="maxClients" value="${node_maxclient}" />*',
-			_('Is Master Node') => '<input type="checkbox" name="isMaster" value="1" ${ismaster} />&nbsp;&nbsp;${span}',
+			_('Storage Node Name') => '<input type="text" name="name" value="${node_name}" autocomplete="off" />*',
+			_('Storage Node Description') => '<textarea name="description" rows="5" cols="40" autocomplete="off">${node_desc}</textarea>',
+			_('IP Address') => '<input type="text" name="ip" value="${node_ip}" autocomplete="off" />*',
+			_('Max Clients') => '<input type="text" name="maxClients" value="${node_maxclient}" autocomplete="off" />*',
+			_('Is Master Node') => '<input type="checkbox" name="isMaster" value="1" ${ismaster} autocomplete="off" />&nbsp;&nbsp;${span}',
 			_('Storage Group') => '${node_group}',
-			_('Image Path') => '<input type="text" name="path" value="${node_path}" />',
-			_('Interface') => '<input type="text" name="interface" value="${node_interface}" />',
-			_('Is Enabled') => '<input type="checkbox" name="isEnabled" value="1" ${isenabled} />',
+			_('Image Path') => '<input type="text" name="path" value="${node_path}" autocomplete="off"/>',
+			_('Interface') => '<input type="text" name="interface" value="${node_interface}" autocomplete="off"/>',
+			_('Is Enabled') => '<input type="checkbox" name="isEnabled" value="1" ${isenabled}/>',
 			_('Is Graph Enabled').'<br /><small>('._('On Dashboard').')'  => '<input type="checkbox" name="isGraphEnabled" value="1" ${graphenabled} />',
 			_('Management Username') => '<input type="text" name="user" value="${node_user}" />*',
-			_('Management Password') => '<input type="password" name="pass" value="${node_pass}" />*',
+			_('Management Password') => '<input type="password" name="pass" value="${node_pass}" autocomplete="off" />*',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
