@@ -138,6 +138,9 @@ cpuid --ext 29 && set arch x86_64 || set arch i386
 params
 param mac \${net0/mac}
 param arch \${arch}
+isset(\${net1/mac}) && param mac1 \${net1/mac} || goto bootme
+isset(\${net2/mac}) && param mac2 \${net2/mac} || goto bootme
+:bootme
 chain http://${ipaddress}/fog/service/ipxe/boot.php##params
 " > "${tftpdirdst}/default.ipxe";
 }
