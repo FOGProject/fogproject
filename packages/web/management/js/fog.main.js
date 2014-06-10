@@ -221,7 +221,7 @@ function getContentHD(url)
 					var pct = Math.round( (arRes[1] / totalspace) * 100 );
 					var pctText = Math.round( (arRes[1] / totalspace) * 10000 ) / 100;
 					
-					$('#dashSpaceGraph').html("<img src=\"./images/openslots.jpg\" height=25 width=\"" + pct + "%\" />");
+					$('#dashSpaceGraph').html("<img src=\"../images/openslots.jpg\" height=25 width=\"" + pct + "%\" />");
 					$('#dashPCTText').html(pctText + "% Used <br />Used: " + arRes[1] + " GB  Free: " + arRes[0] + " GB  Total: " + totalspace + " GB");
 				}				
 			}

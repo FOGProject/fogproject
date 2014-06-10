@@ -8,7 +8,7 @@ else if ($_REQUEST['mac0'] && $_REQUEST['mac1'] && !$_REQUEST['mac2'])
 else if ($_REQUEST['mac0'] && !$_REQUEST['mac1'] && $_REQUEST['mac2'])
 	$_REQUEST['mac'] = $_REQUEST['mac0'].'|'.$_REQUEST['mac2'];
 else if ($_REQUEST['mac0'] && $_REQUEST['mac1'] && $_REQUEST['mac2'])
-	$_REQUEST['mac'] = $_REQUEST['mac0'].'|'.$_REQUEST['mac2'].'|'.$_REQUEST['mac3'];
+	$_REQUEST['mac'] = $_REQUEST['mac0'].'|'.$_REQUEST['mac1'].'|'.$_REQUEST['mac2'];
 $MACs = HostManager::parseMacList($_REQUEST['mac']);
 $Host = $FOGCore->getClass('HostManager')->getHostByMacAddresses($MACs);
 new BootMenu($Host);
