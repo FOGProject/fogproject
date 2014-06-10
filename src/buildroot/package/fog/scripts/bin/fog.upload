@@ -261,6 +261,10 @@ EOFRESTOREPART
 						fstype="extfs -c";
 						echo $fstype;
 						sleep 10;
+					elif [ "$fstype" == "xfs" ]; then
+						fstype="xfs -c";
+						echo $fstype;
+						sleep 10;
 					elif [ "$fstype" == "ntfs" ]; then
 						fstype="ntfs -c";
 						echo $fstype;
@@ -329,6 +333,10 @@ EOFRESTOREPART
 						echo -n "	* Partition type is: ($fstype)  Using partclone.";
 						if [ "$fstype" == "ext4" ] || [ "$fstype" == "ext3" ] || [ "$fstype" == "ext2" ]; then
 							fstype="extfs -c";
+							echo $fstype;
+							sleep 10;
+						elif [ "$fstype" == "xfs" ]; then
+							fstype="xfs -c";
 							echo $fstype;
 							sleep 10;
 						elif [ "$fstype" == "ntfs" ]; then
