@@ -131,10 +131,13 @@ class BootMenu extends FOGBase
     		print "#!ipxe\n";
 			print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
 			print "params\n";
-			print "param mac \${net0/mac}\n";
+			print "param mac0 \${net0/mac}\n";
 			print "param arch \${arch}\n";
 			print "param menuAccess 1\n";
 			print "param debug ".($debug ? "1\n" : "0\n");
+			print "isset(\${net1/mac}) && param mac1 \${net1/mac} || goto bootme\n";
+			print "isset(\${net2/mac}) && param mac2 \${net2/mac} || goto bootme\n";
+			print ":bootme\n";
 	    	print "chain $this->booturl/ipxe/boot.php##params\n";
 	    } 
 	    else
@@ -143,12 +146,15 @@ class BootMenu extends FOGBase
 			print ":menuAccess\n";
 			print "login\n";
 			print "params\n";
-			print "param mac \${net0/mac}\n";
+			print "param mac0 \${net0/mac}\n";
 			print "param arch \${arch}\n";
 			print "param username \${username}\n";
 			print "param password \${password}\n";
 			print "param menuaccess 1\n";
 			print "param debug ".($debug ? "1\n" : "0\n");
+			print "isset(\${net1/mac}) && param mac1 \${net1/mac} || goto bootme\n";
+			print "isset(\${net2/mac}) && param mac2 \${net2/mac} || goto bootme\n";
+			print ":bootme\n";
 			print "chain $this->booturl/ipxe/boot.php##params\n";
 	    }
 	}
@@ -209,9 +215,12 @@ class BootMenu extends FOGBase
 		print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
 		print "prompt --key y Would you like to delete this host? (y/N): &&\n";
 		print "params\n";
-		print "param mac \${net0/mac}\n";
+		print "param mac0 \${net0/mac}\n";
 		print "param arch \${arch}\n";
 		print "param delconf 1\n";
+		print "isset(\${net1/mac}) && param mac1 \${net1/mac} || goto bootme\n";
+		print "isset(\${net2/mac}) && param mac2 \${net2/mac} || goto bootme\n";
+		print ":bootme\n";
 		print "chain $this->booturl/ipxe/boot.php##params";
 	}
 	/**
@@ -461,11 +470,14 @@ class BootMenu extends FOGBase
 			print ":$option\n";
 			print "login\n";
 			print "params\n";
-			print "param mac \${net0/mac}\n";
+			print "param mac0 \${net0/mac}\n";
 			print "param arch \${arch}\n";
 			print "param username \${username}\n";
 			print "param password \${password}\n";
 			print "param qihost 1\n";
+			print "isset(\${net1/mac}) && param mac1 \${net1/mac} || goto bootme\n";
+			print "isset(\${net2/mac}) && param mac2 \${net2/mac} || goto bootme\n";
+			print ":bootme\n";
 			print "chain $this->booturl/ipxe/boot.php##params ||\n";
 			print "goto MENU\n";
 		}
@@ -474,11 +486,14 @@ class BootMenu extends FOGBase
 			print ":$option\n";
 			print "login\n";
 			print "params\n";
-			print "param mac \${net0/mac}\n";
+			print "param mac0 \${net0/mac}\n";
 			print "param arch \${arch}\n";
 			print "param username \${username}\n";
 			print "param password \${password}\n";
 			print "param delhost 1\n";
+			print "isset(\${net1/mac}) && param mac1 \${net1/mac} || goto bootme\n";
+			print "isset(\${net2/mac}) && param mac2 \${net2/mac} || goto bootme\n";
+			print ":bootme\n";
 			print "chain $this->booturl/ipxe/boot.php##params ||\n";
 			print "goto MENU\n";
 		}
@@ -492,11 +507,14 @@ class BootMenu extends FOGBase
 			print ":$option\n";
 			print "login\n";
 			print "params\n";
-			print "param mac \${net0/mac}\n";
+			print "param mac0 \${net0/mac}\n";
 			print "param arch \${arch}\n";
 			print "param username \${username}\n";
 			print "param password \${password}\n";
 			print "param debugAccess 1\n";
+			print "isset(\${net1/mac}) && param mac1 \${net1/mac} || goto bootme\n";
+			print "isset(\${net2/mac}) && param mac2 \${net2/mac} || goto bootme\n";
+			print ":bootme\n";
 			print "chain $this->booturl/ipxe/boot.php##params ||\n";
 		}
 		else
