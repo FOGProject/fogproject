@@ -200,7 +200,7 @@ class BootMenu extends FOGBase
         }   
         $kernelArgs = array_unique($kernelArgs);
 		print "#!ipxe\n";
-        print "$this->kernel pcie_aspm=off loglevel=4 ".implode(' ',(array)$kernelArgs)."\n";
+        print "$this->kernel loglevel=4 ".implode(' ',(array)$kernelArgs)."\n";
         print "$this->initrd";
         print "boot";
 	}
@@ -520,7 +520,7 @@ class BootMenu extends FOGBase
 		else
 		{
 			print ":$option\n";
-			print "$this->kernel pcie_aspm=off loglevel=4 $type\n";
+			print "$this->kernel loglevel=4 $type\n";
 			print "$this->initrd";
 			print "boot || goto MENU\n";
 		}
