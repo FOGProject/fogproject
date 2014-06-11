@@ -27,7 +27,7 @@ class DashboardPage extends FOGPage
 	{
 		$SystemUptime = $this->FOGCore->SystemUptime();
 		$fields = array(
-			_('Username') => $this->FOGUser ? $this->FOGUser-get('name') : '',
+			_('Username') => $this->FOGUser ? $this->FOGUser->get('name') : '',
 			_('Web Server') => $this->FOGCore->getSetting('FOG_WEB_HOST'),
 			_('TFTP Server') => $this->FOGCore->getSetting('FOG_TFTP_HOST'),
 			_('Load Average') => $SystemUptime['load'],
