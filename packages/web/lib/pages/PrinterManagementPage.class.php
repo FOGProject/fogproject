@@ -362,7 +362,7 @@ class PrinterManagementPage extends FOGPage
 				'printer_name' => addslashes($Printer->get('name')),
 				'printer_port' => $Printer->get('port'),
 				'printer_model' => $Printer->get('model'),
-				'printer_inf' => $Printer->get('file'),
+				'printer_inf' => addslashes($Printer->get('file')),
 				'printer_ip' => $Printer->get('ip'),
 			);
 		}
