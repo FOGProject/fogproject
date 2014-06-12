@@ -201,9 +201,9 @@ class HookManager extends FOGBase
 							$className = null;
 					}
 				}
+				if ($className)
+					$class = new $className();
 			}
-			if ($className)
-				$class = new $className();
 		}
 	}
 	private function log($txt, $level = 1)
