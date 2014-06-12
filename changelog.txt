@@ -8,6 +8,8 @@ Version 1.1.X
 * Added snapcheck.php for hopeful transition to using init to stage snapins.
 * Add multiple NIC MACs sent to find host.
 * SVN Trunk versions now have SVN Rev for Version for better support.
+* Fix Multicast Group issues.
+* Fix changing image default group if there is no master node in the group.
 
 Version 1.1.0
 -------------
