@@ -330,9 +330,18 @@ class HostManagementPage extends FOGPage
 		);
 		if ($_REQUEST['confirmMac'])
 		{
-			$MAC = new PendingMAC($_REQUEST['confirmMac']);
-			$Host->addPendtoAdd($MAC);
-			$this->FOGCore->setMessage('MAC: '.$MAC->get('pending').' Approved!');
+			try
+			{
+				$MAC = new MACAddress($_REQUEST['confirmMac']);
+				if (!$MAC->isValid())
+					throw new Exception(_('Invalid MAC Address'));
+				$Host->addPendtoAdd($MAC);
+				$this->FOGCore->setMessage('MAC: '.$MAC.' Approved!');
+			}
+			catch (Exception $e)
+			{
+				$this->FOGCore->setMessage($e->getMessage());
+			}
 			$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
 		}
 		if ($_REQUEST['approveAll'] == 1)
