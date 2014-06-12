@@ -5,7 +5,7 @@ class AddHostSerial extends Hook
 	var $name = 'AddHostSerial';
 	var $description = 'Adds host serial to the host lists';
 	var $author = 'Junkhacker with edits from Tom Elliott';
-	var $active = true;
+	var $active = false;
 	function HostData($arguments)
 	{
 		if ($_REQUEST['node'] == 'host')
