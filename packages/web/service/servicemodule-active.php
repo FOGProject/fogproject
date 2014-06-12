@@ -38,7 +38,7 @@ try
 			if ($Module && $Module->isValid())
 				$activeIDs[] = $Module->get('id');
 		}
-		print (in_array($moduleID->get('id'),$activeIDs) ? '#!ok' : '#!nh');
+		print (in_array($moduleID->get('id'),(array)$activeIDs) ? '#!ok' : '#!nh');
 
 	}
 	else
