@@ -22,7 +22,7 @@ try
 		// Check In Task for Host
 		$Task->set('stateID',2)->set('checkInTime',date('Y-m-d H:i:s'))->save();
 		// If the state is queued, meaning the client has checked in increment clients
-		$MultiSess->set('clients', $MultiSess->get('clients')+1);
+		$MultiSess->set('clients', $MultiSess->get('clients')+1)->save();
 	}
 	// Get the count of total associations.
 	$MSAs = $FOGCore->getClass('MulticastSessionsAssociationManager')->count(array('msID' => $MultiSess->get('id')));

@@ -779,7 +779,7 @@ class Host extends FOGController
 			// If task is multicast perform the following.
 			if ($TaskType->isMulticast())
 			{
-				$MultiSessAssoc = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('image' => $this->getImage()->get('id'))));
+				$MultiSessAssoc = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('image' => $this->getImage()->get('id'),'stateID' => array('0','1'))));
 				// If no Associations, create new job and association.
 				if (!$MultiSessAssoc || !$isGroupTask)	
 				{
