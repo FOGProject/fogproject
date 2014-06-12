@@ -1,3 +1,14 @@
+Version 1.1.X
+-------------
+
+* Add xfs filesystem imaging support.
+* Fix bug in Post_Stage3.php so task completetion happens properly.
+* All MAC's are now objects of the MACAddress class.
+* Add Win 8.1 OSID as drivers and such can be different from Win 8.
+* Added snapcheck.php for hopeful transition to using init to stage snapins.
+* Add multiple NIC MACs sent to find host.
+* SVN Trunk versions now have SVN Rev for Version for better support.
+
 Version 1.1.0
 -------------
 
