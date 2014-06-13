@@ -32,6 +32,7 @@ then
 	linuxReleaseName=`cat /etc/issue /etc/*release* 2>/dev/null | head -n1 | awk '{print $1}'`;
 fi
 
+echo $linuxReleaseName;
 installtype="";
 ipaddress="";
 interface="";
@@ -299,12 +300,14 @@ do
 			    configureMySql;
 			    backupReports;
 			    configureHttpd;
-			    echo "  You still need to install/update your database schema.";
-			    echo "  This can be done by opening a web browser and going to:";
-			    echo "";
-			    echo "      http://${ipaddress}/fog/management";
-				echo "";
-				read -p "  Press [Enter] key when database is updated/installed.";
+				if [ "$installType" == N ]; then
+			    	echo "  You still need to install/update your database schema.";
+			   		echo "  This can be done by opening a web browser and going to:";
+			    	echo "";
+			    	echo "      http://${ipaddress}/fog/management";
+					echo "";
+					read -p "  Press [Enter] key when database is updated/installed.";
+				fi
 			    #restoreReports;
 			    setupFreshClam;
 			    configureStorage;
