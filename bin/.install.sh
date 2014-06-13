@@ -242,8 +242,6 @@ do
 			done	  
 			packages=$newpackagelist;	           	
 	           fi
-	           
-	           
 	           installPackages;
 	           echo "";
 	           echo "  Confirming package installation.";
