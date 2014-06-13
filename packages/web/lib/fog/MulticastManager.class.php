@@ -92,9 +92,29 @@ class MulticastManager extends FOGBase
 					foreach((array)$RMTasks AS $RMTask)
 					{
 						$this->outall(sprintf(" | Cleaning Task (%s) %s",$RMTask->getID(),$RMTask->getName()));
-						$RMTask->killTask();
-						$KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
-						$this->outall(sprintf(" | Task (%s) %s has been cleaned.",$RMTask->getID(),$RMTask->getName()));
+						$Assocs = $this->FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $RMTask->getID()));
+						foreach($Assocs AS $Assoc)
+						{
+							if ($Assoc && $Assoc->isValid())
+							{
+								$curTaskGet = new Task($Assoc->get('taskID'));
+								$StateIDs[] = $curTaskGet->get('stateID');
+							}
+						}
+						$States = array_unique((array)$StateIDs);
+						if (in_array(5,(array)$States))
+						{
+							$RMTask->killTask();
+							$KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
+							$this->outall(sprintf(" | Task (%s) %s has been cleaned as cancelled.",$RMTask->getID(),$RMTask->getName()));
+						}
+						else if (!in_array(array(0,1,2,3,5),(array)$States))
+						{
+							$KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
+							$this->outall(sprintf(" | Task (%s) %s has been cleaned as complete.",$RMTask->getID(),$RMTask->getName()));
+						}
+						else
+							$this->outall(sprintf(" | Awaiting all other tasks to complete and submit work."));
 					}
 				}
 				
@@ -145,6 +165,7 @@ class MulticastManager extends FOGBase
 						else
 						{
 							$runningTask = $this->getMCExistingTask($KnownTasks, $curTask->getID());
+							$curSession = new MulticastSessions($runningTask->getID());
 							if ($runningTask->isRunning())
 							{
 								$this->outall(sprintf(" | Task (%s) %s is already running PID %s",$runningTask->getID(),$runningTask->getName(),$runningTask->getPID()));
@@ -153,14 +174,20 @@ class MulticastManager extends FOGBase
 							else
 							{
 								$this->outall(sprintf(" | Task (%s) %s is no longer running.",$runningTask->getID(),$runningTask->getName()));
-								if ($runningTask->killTask())
+								if ($curSession->get('stateID') == 4)
 								{
 									$KnownTasks = $this->removeFromKnownList($KnownTasks,$runningTask->getID());
-									$this->outall(sprintf(" | Task (%s) %s has been cleaned.",$runningTask->getID(),$runningTask->getName()));
+									$this->outall(sprintf(" | Task (%s) %s has been cleaned as complete.",$runningTask->getID(),$runningTask->getName()));
 								}
-								else
+								else if ($curSession->get('stateID') == 5)
 								{
-									$this->outall(sprintf(" | Failed to kill task (%s) %s!",$runningTask->getID(),$runningTask->getName()));
+									if ($runningTask->killTask())
+									{
+										$KnownTasks = $this->removeFromKnownList($KnownTasks,$runningTask->getID());
+										$this->outall(sprintf(" | Task (%s) %s has been cleaned as cancelled.",$runningTask->getID(),$runningTask->getName()));
+									}
+									else
+										$this->outall(sprintf(" | Failed to kill task (%s) %s!",$runningTask->getID(),$runningTask->getName()));
 								}
 							}
 						}
