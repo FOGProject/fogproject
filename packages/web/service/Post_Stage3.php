@@ -31,58 +31,33 @@ try
 		// If it's zero (or less)
 		if($MultiSession->get('clients') <= 0)
 		{
-			// Set the tasks to complete.
-			foreach($MS AS $MulticastTask)
-			{
-				$MSAs = $FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $MulticastTask->get('id')));
-				foreach($MSAs AS $MSA)
-					$FOGCore->getClass('Task',$MSA->get('taskID'))->set('stateID',4)->save();
-			}
 			// Delete all associations.
 			$FOGCore->getClass('MulticastSessionsAssociationManager')->destroy(array('msID' => $MultiSession->get('id')));
 			$ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
-			// Log it
-			foreach($ImagingLogs AS $ImagingLog)
-				$id[] = $ImagingLog->get('id');
-			// Update Last deploy
-			$Host->set('deployed',date('Y-m-d H:i:s'))->save();
-			$il = new ImagingLog(max($id));
-			$il->set('finish',date('Y-m-d H:i:s'))->save();
-			// Task Logging.
-			$TaskLog = new TaskLog($Task);
-			$TaskLog->set('taskID',$Task->get('id'))
-					->set('taskStateID',$Task->get('stateID'))
-					->set('createdTime',$Task->get('createdTime'))
-					->set('createdBy',$Task->get('createdBy'))
-					->save();
-			$MultiSession->set('stateID',4)->save();
+			$MultiSession->set('stateID',4)->set('completetime',date('Y-m-d H:i:s'))->save();
 		}
-		print '##';
 	}
-	else
-	{
-		// Set the task as complete.
-		if ($Task->get('stateID') < 4)
-			$Task->set('stateID',4);
-		$ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
-		// Log it
-		foreach($ImagingLogs AS $ImagingLog)
-			$id[] = $ImagingLog->get('id');
-		// Update Last deploy
-		$Host->set('deployed',date('Y-m-d H:i:s'))->save();
-		$il = new ImagingLog(max($id));
-		$il->set('finish',date('Y-m-d H:i:s'))->save();
-		// Task Logging.
-		$TaskLog = new TaskLog($Task);
-		$TaskLog->set('taskID',$Task->get('id'))
-				->set('taskStateID',$Task->get('stateID'))
-				->set('createdTime',$Task->get('createdTime'))
-				->set('createdBy',$Task->get('createdBy'))
-				->save();
-		if (!$Task->save())
-			throw new Exception('Failed to update task.');
-		print '##';
-	}
+	// Set the task as complete.
+	if ($Task->get('stateID') < 4)
+		$Task->set('stateID',4);
+	$ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
+	// Log it
+	foreach($ImagingLogs AS $ImagingLog)
+		$id[] = $ImagingLog->get('id');
+	// Update Last deploy
+	$Host->set('deployed',date('Y-m-d H:i:s'))->save();
+	$il = new ImagingLog(max($id));
+	$il->set('finish',date('Y-m-d H:i:s'))->save();
+	// Task Logging.
+	$TaskLog = new TaskLog($Task);
+	$TaskLog->set('taskID',$Task->get('id'))
+			->set('taskStateID',$Task->get('stateID'))
+			->set('createdTime',$Task->get('createdTime'))
+			->set('createdBy',$Task->get('createdBy'))
+			->save();
+	if (!$Task->save())
+		throw new Exception('Failed to update task.');
+	print '##';
 }
 catch (Exception $e)
 {
