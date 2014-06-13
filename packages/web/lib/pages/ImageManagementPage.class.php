@@ -116,7 +116,7 @@ class ImageManagementPage extends FOGPage
 				'os'		=> $Image->getOS()->get('name'),
 				'deployed' => checkdate($this->FOGCore->formatTime($Image->get('deployed'),'m'),$this->FOGCore->formatTime($Image->get('deployed'),'d'),$this->FOGCore->formatTime($Image->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
-				'serv_size' => sprintf('%.2f %s',shell_exec("ls -l ".$Image->getStorageGroup()->getOptimalStorageNode()->get('path').'/'.$Image->get('path')." | awk '{SUM += \$5} END {print SUM/1024/1024/1024}'"),'GiB'),
+				'serv_size' => sprintf('%.2f %s',shell_exec("ls -l ".$Image->getStorageGroup()->getMasterStorageNode()->get('path').'/'.$Image->get('path')." | awk '{SUM += \$5} END {print SUM/1024/1024/1024}'"),'GiB'),
 			);
 		}
 		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
@@ -193,7 +193,7 @@ class ImageManagementPage extends FOGPage
 				'os'		=> $Image->getOS()->get('name'),
 				'deployed' => checkdate($this->FOGCore->formatTime($Image->get('deployed'),'m'),$this->FOGCore->formatTime($Image->get('deployed'),'d'),$this->FOGCore->formatTime($Image->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
-				'serv_size' => sprintf('%.2f %s',shell_exec("ls -l ".$Image->getStorageGroup()->getOptimalStorageNode()->get('path').'/'.$Image->get('path')." | awk '{SUM += \$5} END {print SUM/1024/1024/1024}'"),'GiB'),
+				'serv_size' => sprintf('%.2f %s',shell_exec("ls -l ".$Image->getStorageGroup()->getMasterStorageNode()->get('path').'/'.$Image->get('path')." | awk '{SUM += \$5} END {print SUM/1024/1024/1024}'"),'GiB'),
 			);
 		}
 		// Hook
