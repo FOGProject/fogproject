@@ -305,15 +305,15 @@ configureHttpd()
 	echo "";
 	case "$dummy" in
 		[nN]*)
-		while [ "$dbpass" != "$PASSWORD1" ]; do
+		while [ $dbpass != $PASSWORD1 ]; do
 			echo -n "  * Please enter your mysql password: "
 			read -s PASSWORD1
 			echo "";
 			echo -n "  * Please re-enter your mysql password: "
 			read -s PASSWORD2
 			echo "";
-			if [ "$PASSWORD1" == "$PASSWORD2" ]; then
-				dbpass="$PASSWORD1";
+			if [ $PASSWORD1 == $PASSWORD2 ]; then
+				dbpass=$PASSWORD1;
 			fi
 			done
 		;;
