@@ -389,7 +389,7 @@ displayBanner()
 	echo "  |                      #                     ..:;###..                     |";
 	echo "  |                                                                          |";
 	echo "  |                       Free Computer Imaging Solution                     |";
-	echo "  |                               Version 1.1.0                              |";
+	echo "  |                               Version 1.1.1                              |";
 	echo "  |                                                                          |";
 	echo "  +--------------------------------------------------------------------------+";
 	echo "  | Created by:                                                              |";
