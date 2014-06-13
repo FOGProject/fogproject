@@ -301,18 +301,18 @@ configureMinHttpd()
 configureHttpd()
 {
 	echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
-	read dummy
+	read dummy;
 	echo "";
 	case "$dummy" in
 		[nN]*)
-		while [ "$dbpass" -ne "$PASSWORD1" ]; do
+		while [ "$dbpass" != "$PASSWORD1" ]; do
 			echo -n "  * Please enter your mysql password: "
 			read -s PASSWORD1
 			echo "";
 			echo -n "  * Please re-enter your mysql password: "
 			read -s PASSWORD2
 			echo "";
-			if [ "$PASSWORD1" -e "$PASSWORD2" ]; then
+			if [ "$PASSWORD1" == "$PASSWORD2" ]; then
 				dbpass="$PASSWORD1";
 			fi
 			done
