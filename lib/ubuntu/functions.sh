@@ -316,6 +316,9 @@ configureHttpd()
 				if [ $PASSWORD1 == $PASSWORD2 ]; then
 					dbpass=$PASSWORD1;
 				fi
+				if [ $snmysqlpass != $dbpass ]; then
+					snmysqlpass=$dbpass;
+				fi
 				done
 			;;
 			[yY]*)
@@ -374,7 +377,7 @@ class Config
 		define('DATABASE_HOST',		'${dbhost}');
 		define('DATABASE_NAME',		'fog');
 		define('DATABASE_USERNAME',		'${dbuser}');
-		define('DATABASE_PASSWORD',		'${dbpass}');
+		define('DATABASE_PASSWORD',		'${snmysqlpass}');
 	}
 	/**
 	* svc_setting()
