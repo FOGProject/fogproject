@@ -319,13 +319,16 @@ configureHttpd()
 				if [ $snmysqlpass != $dbpass ]; then
 					snmysqlpass=$dbpass;
 				fi
-				done
+			done
 			;;
 			[yY]*)
 			;;
 			*)
 			;;
 		esac
+	fi
+	if [ $snmysqlhost != "" ] && [ $snmysqlhost != $dbhost ]; then
+		dbhost=$snmysqlhost;
 	fi
 	echo -n "  * Setting up and starting Apache Web Server...";
 	sysv-rc-conf apache2 on;
