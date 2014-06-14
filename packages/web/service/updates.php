@@ -17,12 +17,12 @@ try
 				header("Content-Description: File Transfer");
 				header("ContentType: application/octet-stream");
 				header("Content-Disposition: attachment; filename=".basename($ClientUpdate->get('name')));
-				print $ClientUpdate->get('file')."\n";
+				print $ClientUpdate->get('file');
 			}
 		}
 		else if ( $_REQUEST['action'] == 'list' )
 		{
-			foreach($FOGCore->getClass('ClientUpdaterManager')->find(array('type' => 'bin')) AS $ClientUpdate)
+			foreach($FOGCore->getClass('ClientUpdaterManager')->find() AS $ClientUpdate)
 				print base64_encode($ClientUpdate->get('name'))."\n";
 		}
 		else
