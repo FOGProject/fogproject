@@ -17,7 +17,7 @@ try
 				header("Content-Description: File Transfer");
 				header("ContentType: application/octet-stream");
 				header("Content-Disposition: attachment; filename=".basename($ClientUpdate->get('name')));
-				print base64_decode($ClientUpdate->get('file'))."\n";
+				print $ClientUpdate->get('file')."\n";
 			}
 		}
 		else if ( $_REQUEST['action'] == 'list' )
