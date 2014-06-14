@@ -309,7 +309,8 @@ class FOGConfigurationPage extends FOGPage
 	public function client_updater_post()
 	{
 		$Service = current($this->FOGCore->getClass('ServiceManager')->find(array('name' => $_REQUEST['name'])));
-		$Service && $Service->isValid() ? $Service->set('value', $_REQUEST['en'] ? 1 : 0)->save() : null;
+		if ($_REQUEST['en'])
+			$Service && $Service->isValid() ? $Service->set('value',$_REQUEST['en'])->save() : null;
 		if ($_REQUEST['delcu'])
 		{
 			$ClientUpdater = new ClientUpdater($_REQUEST['delcu']);
