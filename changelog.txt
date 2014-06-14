@@ -1,4 +1,11 @@
-Version 1.1.X
+Version 1.1.2
+-------------
+
+* Fix client updater so hash is returned properly.
+* Fix client updater so files are downloaded properly.
+* FIx installer functions so they upgrade/install properly.
+
+Version 1.1.1
 -------------
 
 * Add xfs filesystem imaging support.
