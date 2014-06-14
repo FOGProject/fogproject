@@ -277,17 +277,17 @@ configureHttpd()
 		echo "";
 		case "$dummy" in
 			[nN]*)
-			while [ $dbpass != $PASSWORD1 ]; do
+			while [ "$dbpass" != $PASSWORD1 ]; do
 				echo -n "  * Please enter your mysql password: "
 				read -s PASSWORD1
 				echo "";
 				echo -n "  * Please re-enter your mysql password: "
 				read -s PASSWORD2
 				echo "";
-				if [ $PASSWORD1 == $PASSWORD2 ]; then
+				if [ "$PASSWORD2" == $PASSWORD1 ]; then
 					dbpass=$PASSWORD1;
 				fi
-				if [ $snmysqlpass != $dbpass ]; then
+				if [ "$snmysqlpass" != "$dbpass" ]; then
 					snmysqlpass=$dbpass;
 				fi
 				done
@@ -298,7 +298,7 @@ configureHttpd()
 			;;
 		esac
 	fi
-	if [ $snmysqlhost != "" ] && [ $snmysqlhost != $dbhost ]; then
+	if [ "$snmysqlhost" != "" ] && [ "$snmysqlhost" != $dbhost ]; then
 		dbhost=$snmysqlhost;
 	fi
 	echo -n "  * Setting up and starting Apache Web Server...";
