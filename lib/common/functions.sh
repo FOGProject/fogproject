@@ -267,6 +267,7 @@ configureUsers()
 {
 	echo -n "  * Setting up fog user";
 	password=`date | md5sum | cut -d" " -f1`;
+	password=${password:0:6}
 	if [ "$installtype" = "S" ]
 	then
 		# save everyone wrist injuries
