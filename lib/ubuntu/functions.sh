@@ -467,7 +467,7 @@ class Config
 		define('FOG_UPLOADIGNOREPAGEHIBER',true);
 		define('FOG_DONATE_MINING', \"${donate}\");
 	}
-}" > "${webdirdest}/commons/config.php";
+}" > "${webdirdest}/lib/fog/Config.class.php";
 		
 		chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 		
