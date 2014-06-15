@@ -86,6 +86,7 @@ class MulticastManager extends FOGBase
 				$this->FOGCore->out(sprintf(" | %s task(s) found",count($allTasks)),MULTICASTDEVICEOUTPUT);
     
     			$RMTasks = $this->getMCTasksNotInDB($KnownTasks,$allTasks);
+				$jobcancelled = false;
 				if (count($RMTasks))
 				{
 					$this->outall(sprintf(" | Cleaning %s task(s) removed from FOG Database.",count($RMTasks)));
@@ -93,31 +94,34 @@ class MulticastManager extends FOGBase
 					{
 						$this->outall(sprintf(" | Cleaning Task (%s) %s",$RMTask->getID(),$RMTask->getName()));
 						$Assocs = $this->FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $RMTask->getID()));
+						$curSession = new MulticastSessions($RMTask->getID());
 						foreach($Assocs AS $Assoc)
 						{
 							if ($Assoc && $Assoc->isValid())
 							{
 								$curTaskGet = new Task($Assoc->get('taskID'));
-								$StateIDs[] = $curTaskGet->get('stateID');
+								if ($curTaskGet->get('stateID') == 5)
+								{
+									$jobcancelled = true;
+									break;
+								}
 							}
 						}
-						$States = array_unique((array)$StateIDs);
-						if (in_array(5,(array)$States))
+						if ($jobcancelled || $curSession->get('stateID') == 5)
 						{
 							$RMTask->killTask();
 							$KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
 							$this->outall(sprintf(" | Task (%s) %s has been cleaned as cancelled.",$RMTask->getID(),$RMTask->getName()));
+							$this->FOGCore->getClass('MulticastSessionsAssociationManager')->destroy(array('msID' => $RMTask->getID()));
 						}
-						else if (!in_array(array(0,1,2,3,5),(array)$States))
+						else if ($curSession->get('stateID') == 4)
 						{
 							$KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
 							$this->outall(sprintf(" | Task (%s) %s has been cleaned as complete.",$RMTask->getID(),$RMTask->getName()));
+							$this->FOGCore->getClass('MulticastSessionsAssociationManager')->destroy(array('msID' => $RMTask->getID()));
 						}
-						else
-							$this->outall(sprintf(" | Awaiting all other tasks to complete and submit work."));
 					}
 				}
-				
 				if ($allTasks)
 				{
 					foreach((array)$allTasks AS $curTask)
@@ -127,10 +131,10 @@ class MulticastManager extends FOGBase
 							$this->outall(sprintf(" | Task (%s) %s is new!",$curTask->getID(),$curTask->getName()));
 							if(file_exists($curTask->getImagePath()))
 							{
-								$this->outall(sprintf(" | Task (%s) %s image file found.",$curTask->getID(),$curTask->getName()));
+								$this->outall(sprintf(" | Task (%s) %s image file found.",$curTask->getID(),$curTask->getImagePath()));
 								if($curTask->getClientCount() > 0)
 								{
-									$this->outall(sprintf(" | Task (%s) %s client(s) found.",$curTask->getID(),$curTask->getName()));
+									$this->outall(sprintf(" | Task (%s) %s client(s) found.",$curTask->getID(),$curTask->getClientCount()));
 									if(is_numeric($curTask->getPortBase()) && $curTask->getPortBase() % 2 == 0)
 									{
 										$this->outall(sprintf(" | Task (%s) %s sending on base port: %s",$curTask->getID(),$curTask->getName(),$curTask->getPortBase()));

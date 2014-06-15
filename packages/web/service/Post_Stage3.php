@@ -30,12 +30,7 @@ try
 		$MultiSession->set('clients',$MultiSession->get('clients')-1)->save();
 		// If it's zero (or less)
 		if($MultiSession->get('clients') <= 0)
-		{
-			// Delete all associations.
-			$FOGCore->getClass('MulticastSessionsAssociationManager')->destroy(array('msID' => $MultiSession->get('id')));
-			$ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
 			$MultiSession->set('stateID',4)->set('completetime',date('Y-m-d H:i:s'))->save();
-		}
 	}
 	// Set the task as complete.
 	if ($Task->get('stateID') < 4)
