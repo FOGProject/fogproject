@@ -9,6 +9,7 @@
 * @param $kernel sets the kernel information.
 * @param $initrd sets the init information.
 * @param $booturl sets the bootup url info.
+* @param $memdisk sets the memdisk info
 * @param $memtest sets the memtest info
 * @param $Host is the host set.  Can be null.
 * @param $pxemenu builds the default pxemenu as array().
@@ -30,7 +31,7 @@
 class BootMenu extends FOGBase
 {
 	// Variables
-	private $Host,$pxemenu,$kernel,$initrd,$booturl,$memtest,$web,$defaultChoice,$bootexittype;
+	private $Host,$pxemenu,$kernel,$initrd,$booturl,$memdisk,$memtest,$web,$defaultChoice,$bootexittype;
 	private $storage, $shutdown, $path;
 	private $hiddenmenu, $timeout, $KS;
 	public $debug;
@@ -47,7 +48,7 @@ class BootMenu extends FOGBase
 		// Setups of the basic construct for the menu system.
 		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'isMaster' => 1)));
 		$webserver = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_WEB_HOST'));
-		$webroot = $this->FOGCore->getSetting('FOG_WEB_ROOT');
+		$webroot = '/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/';
 		$this->web = "${webserver}${webroot}";
 		$this->bootexittype = ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'exit' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'sanboot' ? 'sanboot --no-describe --drive 0x80' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'grub' ? 'chain http://'.rtrim($this->web,'/').'/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"' : 'exit')));
 		$ramsize = $this->FOGCore->getSetting('FOG_KERNEL_RAMDISK_SIZE');
@@ -55,17 +56,56 @@ class BootMenu extends FOGBase
 		$keymap = $this->FOGCore->getSetting('FOG_KEYMAP');
 		$timeout = $this->FOGCore->getSetting('FOG_PXE_MENU_TIMEOUT') * 1000;
 		$this->timeout = $timeout;
-		if ($Host && $Host->isValid() && $Host->get('kernel'))
-			$bzImage = $Host->get('kernel');
-		else if ($_REQUEST['arch'] != 'x86_64')
-			$bzImage = $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_32');
-		else
-			$bzImage = $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL');
+		$memdisk = 'memdisk';
 		$memtest = $this->FOGCore->getSetting('FOG_MEMTEST_KERNEL');
 		if ($_REQUEST['arch'] != 'x86_64')
+		{
+			$bzImage = $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_32');
 			$imagefile = $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32');
+		}
 		else
+		{
+			$bzImage = $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL');
 			$imagefile = $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE');
+		}
+		if ($Host && $Host->isValid())
+		{
+			$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
+			if ($LA)
+				$Location = new Location($LA->get('locationID'));
+			if ($Location && $Location->isValid())
+			{
+				$StorageNode = $Location->get('tftp') ? new StorageNode($Location->get('storageNodeID')) : null;
+				if ($Location->get('tftp'))
+				{
+					$memdisk = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/memdisk';
+					$memtest = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_MEMTEST_KERNEL');
+					if ($Host->get('kernel') && $_REQUEST['arch'] != 'x86_64')
+					{
+						$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$Host->get('kernel');
+						$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32');
+					}
+					else if ($Host->get('kernel') && $_REQUEST['arch'] == 'x86_64')
+					{
+						$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$Host->get('kernel');
+						$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE');
+					}
+					else if ($_REQUEST['arch'] != 'x86_64')
+					{
+						$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_32');
+						$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32');
+					}
+					else
+					{
+						$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL');
+						$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE');
+					}
+				}
+
+			}
+			else if ($Host->get('kernel'))
+				$bzImage = $Host->get('kernel');
+		}
 		$keySequence = $this->FOGCore->getSetting('FOG_KEY_SEQUENCE');
 		if ($keySequence)
 			$this->KS = new KeySequence($keySequence);
@@ -96,6 +136,7 @@ class BootMenu extends FOGBase
 		$Advanced = $this->FOGCore->getSetting('FOG_PXE_ADVANCED');
 		if ($Advanced)
 			$this->pxemenu['fog.advanced'] = 'Advanced Menu';
+		$this->memdisk = "kernel $memdisk";
 		$this->memtest = "initrd $memtest";
 		$this->kernel = "kernel $bzImage root=/dev/ram0 rw ramdisk_size=$ramsize ip=dhcp dns=$dns keymap=$keymap web=${webserver}${webroot} consoleblank=0";
 		$this->initrd = "imgfetch $imagefile\n";
@@ -425,7 +466,7 @@ class BootMenu extends FOGBase
 			else if ($Task->get('typeID') == 4)
 			{
 				print "#!ipxe\n";
-				print "kernel memdisk iso raw\n";
+				print "$this->memdisk iso raw\n";
 				print "$this->memtest\n";
 				print "boot";
 			}
@@ -461,7 +502,7 @@ class BootMenu extends FOGBase
 		else if ($option == 'fog.memtest')
 		{
 			print ":$option\n";
-			print "kernel memdisk iso raw\n";
+			print "$this->memdisk iso raw\n";
 			print "$this->memtest\n";
 			print "boot || goto MENU\n";
 		}
