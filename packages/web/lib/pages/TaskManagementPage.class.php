@@ -356,7 +356,7 @@ class TaskManagementPage extends FOGPage
 		foreach ((array)$Groups AS $Group)
 		{
 			$deployLink = '<a href="?node=tasks&sub=groupdeploy&type=1&id='.$Group->get('id').'"><span class="icon icon-download" title="Download"></span></a>';
-			$multicastLink = '<a href="?node=tasks&sub=groupdeploy&type=8&id='.$Group->get('id').'"><span class="icon icon-multicast" title="Upload Multicast"></span></a>';
+			$multicastLink = '<a href="?node=tasks&sub=groupdeploy&type=8&id='.$Group->get('id').'"><span class="icon icon-multicast" title="Multicast"></span></a>';
 			$advancedLink = '<a href="?node=tasks&sub=groupadvanced&id='.$Group->get('id').'"><span class="icon icon-advanced" title="Advanced Deployment"></span></a>';
 			$this->data[] = array(
 				'id'			=>	$Group->get('id'),
@@ -514,10 +514,9 @@ class TaskManagementPage extends FOGPage
 			foreach((array)$MSAs AS $MSA)
 			{
 				$Task = new Task($MSA->get('taskID'));
-				$MSA->destroy();
 				$Task->cancel();
 			}
-			$MulticastTask->destroy();
+			$MulticastTask->set('completetime',date('Y-m-d H:i:s'))->set('stateID',5)->save();
 		}
 		catch (Exception $e){}
 	}
