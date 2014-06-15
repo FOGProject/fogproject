@@ -193,7 +193,7 @@ then
 	echo "         On a Windows DHCP server you must set:";
 	echo "             option 066 & 067";
 	echo;
-	echo "		   Option 066 is the IP of the FOG Server: (e.g. ${ipaddress}";
+	echo "		   Option 066 is the IP of the FOG Server: (e.g. ${ipaddress})";
 	echo "		   Option 067 is the undionly.kpxe file: (e.g. undionly.kpxe)";
 fi;
 
