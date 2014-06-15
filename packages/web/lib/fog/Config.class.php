@@ -26,7 +26,7 @@ class Config
 	private static function db_settings()
 	{
 		define('DATABASE_TYPE',		'mysql');	// mysql or oracle
-		define('DATABASE_HOST',		'127.0.0.1');
+		define('DATABASE_HOST',		'10.0.0.10');
 		define('DATABASE_NAME',		'fog');
 		define('DATABASE_USERNAME',		'root');
 		define('DATABASE_PASSWORD',		'');
