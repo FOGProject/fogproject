@@ -483,8 +483,7 @@ class TaskManagementPage extends FOGPage
 				$MS = new MulticastSessions($MSA->get('msID'));
 				$MS->set('clients', $MS->get('clients')-1)->save();
 				if ($MS->get('clients') <= 0)
-					$MS->destroy();
-				$MSA->destroy();
+					$MS->set('completetime',date('Y-m-d H:i:s'))->set('stateID', 5)->save();
 			}
 			$Task->cancel();
 		}
