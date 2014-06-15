@@ -17,6 +17,7 @@ class LocationManager extends FOGManagerController
 		lStorageGroupID INTEGER NOT NULL,
 		lStorageNodeID INTEGER NOT NULL,
 		lCreatedBy VARCHAR(30) NOT NULL,
+		lTftpEnabled VARCHAR(1) NOT NULL,
 		lCreatedTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY(lID),
 		KEY new_index (lName),
