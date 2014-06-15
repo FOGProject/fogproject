@@ -40,7 +40,6 @@ class Initiator
 	public function __construct()
 	{
 		self::init_system();
-		self::init_config();
 		$this->plugPaths = array_filter(glob(BASEPATH . '/lib/plugins/*'), 'is_dir');
 		foreach($this->plugPaths AS $plugPath)
 		{
@@ -78,15 +77,6 @@ class Initiator
 	{
 		include('system.php');
 		new System();
-	}
-	/** init_config()
-	* Load the configuration.
-	* @return void
-	*/
-	private static function init_config()
-	{
-		include(BASEPATH.'/commons/config.php');
-		new Config();
 	}
 	/** startInit()
 	* Starts the initiation of the environment.
@@ -208,6 +198,7 @@ class Initiator
 // Initialize everything.
 $Init = new Initiator();
 $Init::startInit();
+$Config = new Config();
 // Core
 $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
