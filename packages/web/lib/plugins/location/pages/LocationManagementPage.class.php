@@ -41,8 +41,8 @@ class LocationManagementPage extends FOGPage
 			'${tftp}',
 		);
 		$this->attributes = array(
-			array('class' => 'l', 'width' => 50),
-			array('class' => 'l', 'width' => 50),
+			array('class' => 'l'),
+			array('class' => 'l'),
 			array('class' => 'c'),
 			array('class' => 'r'),
 		);
