@@ -250,8 +250,11 @@ class GroupManagementPage extends FOGPage
 			// To set the location similar to the rest of the groups.
 			foreach ((array)$Group->get('hosts') AS $Host)
 			{
-				$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
-				$LA ? $locationID[] = $LA->get('locationID') : null;
+				if ($Host && $Host->isValid())
+				{
+					$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
+					$LA ? $locationID[] = $LA->get('locationID') : null;
+				}
 			}
 			$locationIDMult = (is_array($locationID) ? array_unique($locationID) : $locationID);
 			if (count($locationIDMult) == 1)
