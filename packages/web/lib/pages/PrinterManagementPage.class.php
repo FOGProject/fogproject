@@ -353,7 +353,7 @@ class PrinterManagementPage extends FOGPage
 				_('Printer IP (optional)') => '<input type="text" name="ip" value="${printer_ip}" />',
 			);
 		}
-		$fields['<input type="hidden" name="printertype" value="'.$_GET['printertype'].'" />'] = '<input type="hidden" name="add" value="1" /><input type="submit" value="'._('Update Printer').'" />';
+		$fields['<input type="hidden" name="printertype" value="'.$_GET['printertype'].'" />'] = '<input type="hidden" name="update" value="1" /><input type="submit" value="'._('Update Printer').'" />';
 		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
