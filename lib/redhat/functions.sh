@@ -299,10 +299,8 @@ configureHttpd()
 					fi
 				done
 			fi
-			if [ "$installtype" == "S" ]; then
-				if [ "$snmysqlpass" != "$dbpass" ]; then
-					snmysqlpass=$dbpass;
-				fi
+			if [ "$snmysqlpass" != "$dbpass" ]; then
+				snmysqlpass=$dbpass;
 			fi
 			;;
 			[yY]*)
@@ -311,8 +309,10 @@ configureHttpd()
 			;;
 		esac
 	fi
-	if [ "$snmysqlhost" != "" ] && [ "$snmysqlhost" != $dbhost ]; then
-		dbhost=$snmysqlhost;
+	if [ "$installtype" == "S" ]; then
+		if [ "$snmysqlhost" != "" ] && [ "$snmysqlhost" != $dbhost ]; then
+			dbhost=$snmysqlhost;
+		fi
 	fi
 	if [ "$snmysqluser" != "" ] && [ "$snmysqluser" != $dbuser ]; then
 		dbuser=$snmysqluser;
