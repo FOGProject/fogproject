@@ -1161,6 +1161,9 @@ class Host extends FOGController
 		$this->FOGCore->getClass('PendingMACManager')->destroy(array('hostID' => $this->get('id')));
 		// Remove Additional MAC Associations
 		$this->FOGCore->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id')));
+		// Update inventory to know when it was deleted
+		if ($this->get('inventory'))
+			current($this->get('inventory'))->set('deleteDate',date('Y-m-d H:i:s'))->save();
 		// Return
 		return parent::destroy($field);
 	}
