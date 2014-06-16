@@ -14,7 +14,7 @@ class AddLocationTasks extends Hook
 
 	function TasksActiveData($arguments)
 	{
-		if ($_REQUEST['node'] == 'tasks')
+		if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']))
 		{
 			foreach((array)$arguments['data'] AS $i => $data)
 			{
