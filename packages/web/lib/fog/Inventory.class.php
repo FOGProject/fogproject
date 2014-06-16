@@ -14,6 +14,7 @@ class Inventory extends FOGController
 		'other1'		=> 'iOtherTag',
 		'other2'		=> 'iOtherTag1',
 		'createdTime'	=> 'iCreateDate',
+		'deleteDate'	=> 'iDeleteDate',
 		'sysman'		=> 'iSysman',
 		'sysproduct'	=> 'iSysproduct',
 		'sysversion'	=> 'iSysversion',
