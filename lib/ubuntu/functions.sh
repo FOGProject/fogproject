@@ -341,6 +341,9 @@ configureHttpd()
 	if [ "$snmysqlhost" != "" ] && [ "$snmysqlhost" != $dbhost ]; then
 		dbhost=$snmysqlhost;
 	fi
+	if [ "$snmysqluser" != "" ] && [ "$snmysqluser" != $dbuser ]; then
+		dbuser=$snmysqluser;
+	fi
 	echo -n "  * Setting up and starting Apache Web Server...";
 	sysv-rc-conf apache2 on;
 	mv /etc/apache2/mods-available/php5* /etc/apache2/mods-enabled/  >/dev/null 2>&1
