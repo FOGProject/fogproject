@@ -968,7 +968,7 @@ class HostManagementPage extends FOGPage
 			}
 			print "\n\t\t\t".'<select name="dte" size="1" onchange="document.getElementById(\'dte\').submit()">'.$optionDate.'</select>';
 			print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><img src="images/go.png" class="noBorder" /></a></p>';
-			$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => $_GET['dte']),'AND','datetime');
+			$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => ($_GET['dte'] ? $_GET['dte'] : date('Y-m-d'))),'AND','datetime');
 			$_SESSION['fog_logins'] = array();
 			$cnt = 0;
 			foreach ((array)$UserLogins AS $UserLogin)
