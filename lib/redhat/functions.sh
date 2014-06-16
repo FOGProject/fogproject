@@ -312,6 +312,9 @@ configureHttpd()
 	if [ "$snmysqlhost" != "" ] && [ "$snmysqlhost" != $dbhost ]; then
 		dbhost=$snmysqlhost;
 	fi
+	if [ "$snmysqluser" != "" ] && [ "$snmysqluser" != $dbuser ]; then
+		dbuser=$snmysqluser;
+	fi
 	echo -n "  * Setting up and starting Apache Web Server...";
 	chkconfig httpd on;
 	service httpd restart >/dev/null 2>&1

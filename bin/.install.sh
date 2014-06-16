@@ -298,7 +298,7 @@ do
 			    configureMySql;
 			    backupReports;
 			    configureHttpd;
-				if [ "$installType" == N ]; then
+				if [ "$installtype" == N ]; then
 			    	echo "  You still need to install/update your database schema.";
 			   		echo "  This can be done by opening a web browser and going to:";
 			    	echo "";
