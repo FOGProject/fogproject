@@ -799,12 +799,12 @@ class GroupManagementPage extends FOGPage
 					{
 						if ($Host && $Host->isValid())
 						{
-							if (!empty($_POST['level']))
-								$Host->set('printerLevel', $this->REQUEST['level'])->save();
+							$Host->set('printerLevel', $_REQUEST['level']);
 							if (!empty($_POST['prntadd']))
-								$Host->addPrinter($this->REQUEST['prntadd']);
+								$Host->addPrinter($_REQUEST['prntadd']);
 							if (!empty($_POST['prntdel']))
 								$Host->removePrinter($_REQUEST['prntdel']);
+							$Host->save();
 						}
 					}
 				break;
