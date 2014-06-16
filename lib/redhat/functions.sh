@@ -299,8 +299,10 @@ configureHttpd()
 					fi
 				done
 			fi
-			if [ "$snmysqlpass" != "$dbpass" ]; then
-				snmysqlpass=$dbpass;
+			if [ "$installtype" == "S" ]; then
+				if [ "$snmysqlpass" != "$dbpass" ]; then
+					snmysqlpass=$dbpass;
+				fi
 			fi
 			;;
 			[yY]*)
