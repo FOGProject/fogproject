@@ -87,7 +87,7 @@ if [ -f "/images/.mntcheck" ]; then
 				elif [ "$win7partcnt" == "3" ]; then
 					dots "Preparing Hard Disks (Stage 2)";
 					sgdisk --zap-all $hd 2>&1 >/dev/null;
-					runPartprobe;
+					runPartprobe $hdyy;
 					sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
 					echo "Done";
 					dots "Preparing Hard Disks (Stage 3)";
@@ -127,7 +127,7 @@ EOFPT
 			fi
 			dots "Preparing Hard Disks (Stage 2)";
 			parted -s $hd u kB rm 2 &>/dev/null;
-			runPartprobe;
+			runPartprobe $hd;
 			echo "Done";
 			dots "Preparing Hard Disks (Stage 3)";
 			parted -s $hd u kB mkpart primary ntfs $defaultpart2start $layPartSize &>/dev/null;
@@ -171,6 +171,7 @@ EOFPT
 						dots "No extended partitions";
 					fi
 				fi
+				runPartprobe $hd;
 				echo "Done";
 				sleep 3;
 			else
@@ -220,6 +221,7 @@ EOFPT
 							dots "No extended partitions";
 						fi
 					fi
+					runPartprobe $disk;
 					echo "Done";
 					sleep 3;
 				else
@@ -233,9 +235,6 @@ EOFPT
 	fi
 	# This performs all the Multicast Imaging Tasks.
 	if [ "$mc" == "yes" ]; then
-		dots "Checking Hard Disks";
-		runPartprobe;
-		echo "Done";
 		# we need an artificial pause to allow the server to spin up the upd-cast
 		# process.
 		sleep 10
@@ -302,10 +301,10 @@ EOFPT
 			writeImageMultiCast $hd
 		fi
 	else
-		dots "Checking Hard Disks";
-		runPartprobe;
-		echo "Done";
 		if [ "$imgType" == "n" ]; then
+			dots "Checking Hard Disks";
+			runPartprobe;
+			echo "Done";
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				if [ "$win7partcnt" == "1" ]; then
 					writeImage $imagePath/sys.img.000 $win7sys
@@ -333,6 +332,9 @@ EOFPT
 				expandPartition $part
 			fi
 		elif [ "$imgType" == "mps" ]; then
+			dots "Checking Hard Disks";
+			partprobe $hd &> /dev/null;
+			echo "Done";
 			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 			diskLength=`expr length $hd`;
 			for part in $parts; do
@@ -362,6 +364,9 @@ IFS='
 			disks=`fogpartinfo --list-devices 2>/dev/null`;
 			intDisk=1;
 			for disk in $disks; do
+				dots "Checking Hard Disks";
+				partprobe $disk &> /dev/null;
+				echo "Done";
 				parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
 				diskLength=`expr length $disk`;
 				for part in $parts; do

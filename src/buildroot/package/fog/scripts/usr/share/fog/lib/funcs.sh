@@ -426,9 +426,10 @@ handleError()
 	exit 0;
 }
 
+# $1 is the drive
 runPartprobe()
 {
-	partprobe &> /dev/null
+	partprobe $1 &> /dev/null
 }
 
 debugCommand()
