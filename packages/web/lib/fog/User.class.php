@@ -4,8 +4,7 @@
 class User extends FOGController
 {
 	// Variables
-	public $inactivitySessionTimeout = 1;			// In hours
-	public $regenerateSessionTimeout = 0.5;		// In hours
+	public $inactivitySessionTimeout,$regenerateSessionTimeout;
 
 	// Table
 	public $databaseTable = 'users';
@@ -32,6 +31,9 @@ class User extends FOGController
 	{
 		// FOGController constructor
 		parent::__construct($data);
+
+		$this->inactivitySessionTimeout = $this->FOGCore->getSetting('FOG_INACTIVITY_TIMEOUT');
+		$this->regenerateSessionTimeout = $this->FOGCore->getSetting('FOG_REGENERATE_TIMEOUT');
 		
 		// Add password salt
 		if (!$this->get('salt'))
@@ -56,7 +58,7 @@ class User extends FOGController
 		if (!$_SERVER['REMOTE_ADDR'] || $this->get('authIP') != $_SERVER['REMOTE_ADDR'])
 			return false;
 		// Has session expired due to inactivity
-		if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > ($this->inactivitySessionTimeout * 60 * 60)))
+		if (!$this->FOGCore->getSetting('FOG_ALWAYS_LOGGED_IN') && isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > ($this->inactivitySessionTimeout * 60 * 60)))
 		{
 			// Logout
 			$this->logout();
