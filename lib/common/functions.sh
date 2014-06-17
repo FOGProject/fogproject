@@ -172,7 +172,7 @@ displayOSChoices()
 		else
 			echo "  What version of Linux would you like to run the installation for?"
 			echo "";
-			echo "          1) Redhat Based Linux (Redhat, CentOS)";
+			echo "          1) Redhat Based Linux (Redhat, CentOS, Mageia)";
 			echo "          2) Debian Based Linux (Debian, Ubuntu, Kubuntu, Edubuntu)";		
 			echo "";
 			echo -n "  Choice: [${strSuggestedOS}]";

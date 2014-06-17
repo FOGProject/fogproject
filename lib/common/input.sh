@@ -23,7 +23,7 @@ then
 	strSuggestedOS="";
 	
 	#tmpOS=`cat /etc/*release* /etc/issue 2> /dev/null | grep -Ei "Fedora|Redhat|CentOS"`;
-	if [ "`echo $linuxReleaseName | grep -Ei "Fedora|Redhat|CentOS"`" != "" ]
+	if [ "`echo $linuxReleaseName | grep -Ei "Fedora|Redhat|CentOS|Mageia"`" != "" ]
 	then
 		strSuggestedOS="1";
 	fi
