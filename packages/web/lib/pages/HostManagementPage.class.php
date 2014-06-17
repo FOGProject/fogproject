@@ -533,7 +533,7 @@ class HostManagementPage extends FOGPage
 		$fields = array(
 			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain"${domainon} />',
 			_('Domain name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="${host_dom}" autocomplete="off" />',
-			_('Organizational Unit').'<br /><span class="lightColor">('._('Blank for default').')</span>' => '<input id="adOU" class="smaller" type="text" name="ou" value="${host_ou}" autocomplete="off" />',
+			_('Organizational Unit').'<br /><span class="lightColor">('._('Blank for default').')</span>' => '${host_ou}',
 			_('Domain Username') => '<input id="adUsername" class="smaller" type="text" name="domainuser" value="${host_aduser}" autocomplete="off" />',
 			_('Domain Password').'<br />('._('Must be encrypted').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${host_adpass}" autocomplete="off" />',
 			'<input type="hidden" name="updatead" value="1" />' => '<input type="submit" value="'._('Update').'" />',
@@ -541,6 +541,21 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<div id="host-active-directory" class="organic-tabs-hidden">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-active-directory">';
 		print "\n\t\t\t<h2>"._('Active Directory').'</h2>';
+		
+		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
+		foreach ((array)$OUs AS $OU)
+			$OUOptions[] = $OU;
+		if ($OUOptions)
+		{
+			$OUs = array_unique((array)$OUOptions);
+			$optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
+			foreach ($OUs AS $OU)
+			{
+				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
+				$optionOU[] = '<option value="'.$opt.'"'.($Host->get('ADOU') == $opt ? ' selected="selected"' : (preg_match('#;#i',$OU) ? ' selected="selected"' : '')).'>'.$opt.'</option>';
+			}
+		}
+		
 		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
@@ -548,11 +563,12 @@ class HostManagementPage extends FOGPage
 				'input' => $input,
 				'domainon' => ($Host->get('useAD') == '1' ? 'checked="checked"' : ''),
 				'host_dom' => $Host->get('ADDomain'),
-				'host_ou' => $Host->get('ADOU'),
+				'host_ou' => $optionOU ? '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>' : $Host->get('ou'),
 				'host_aduser' => $Host->get('ADUser'),
 				'host_adpass' => $Host->get('ADPass'),
 			);
 		}
+
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_AD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
@@ -799,8 +815,8 @@ class HostManagementPage extends FOGPage
 		);
 		$fields = array(
 			_('Primary User') => '<input type="text" value="${inv_user}" name="pu" />',
-			_('Other Tag #1') => '<input type="text" value="${inv_oth1}" name="other1" />',
-			_('Other Tag #2') => '<input type="text" value="${inv_oth2}" name="other2" />',
+			_('Current Footprints Incident') => '<input type="text" value="${inv_oth1}" name="other1" />',
+//			_('Other Tag #2') => '<input type="text" value="${inv_oth2}" name="other2" />',
 			_('System Manufacturer') => '${inv_sysman}',
 			_('System Product') => '${inv_sysprod}',
 			_('System Version') => '${inv_sysver}',
@@ -968,7 +984,7 @@ class HostManagementPage extends FOGPage
 			}
 			print "\n\t\t\t".'<select name="dte" size="1" onchange="document.getElementById(\'dte\').submit()">'.$optionDate.'</select>';
 			print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><img src="images/go.png" class="noBorder" /></a></p>';
-			$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => ($_GET['dte'] ? $_GET['dte'] : date('Y-m-d'))),'AND','datetime');
+			$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => $_GET['dte']),'AND','datetime');
 			$_SESSION['fog_logins'] = array();
 			$cnt = 0;
 			foreach ((array)$UserLogins AS $UserLogin)
@@ -1327,7 +1343,7 @@ class HostManagementPage extends FOGPage
 				if (preg_match('#ie#', $data[0]))
 					continue;
 				$totalRows++;
-				if ( count( $data ) < 6 && count( $data ) >= 2 )
+				if ( count( $data ) < 7 && count( $data ) >= 2 )
 				{
 					try
 					{
@@ -1347,7 +1363,23 @@ class HostManagementPage extends FOGPage
 						));
 						
 						if ($Host->save())
+						{
+							$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
+							if ($LocPluginInst && $LocPluginInst->isValid())
+							{
+								$LA = new LocationAssociation(array(
+									'locationID' => $data[5],
+									'hostID' => $Host->get('id'),
+								));
+							}
+							else
+								$LA = '';
+							if($LA)
+							{
+								$LA->save();
+							}
 							$numSuccess++;
+						}
 						else
 							$numFailed++;
 					}
