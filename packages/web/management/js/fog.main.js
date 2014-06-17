@@ -21,6 +21,31 @@ $(function()
 		});
 		$("#showVal").val($("#pigz").slider("value"));
 	}
+	if (typeof($("#inact").slider) == typeof(Function)) {
+		$("#inact").slider({
+			min: 1,
+			max: 24,
+			range: 'min',
+			value: $("#showValInAct").val(),
+			slide: function(event, ui) {
+				$("#showValInAct").val(ui.value);
+			}
+		});
+		$("#showValInAct").val($("#inact").slider("value"));
+	}
+	if (typeof($("#regen").slider) == typeof(Function)) {
+		$("#regen").slider({
+			step: 0.25,
+			min: 0.25,
+			max: 24,
+			range: 'min',
+			value: $("#showValRegen").val(),
+			slide: function(event, ui) {
+				$("#showValRegen").val(ui.value);
+			}
+		});
+		$("#showValRegen").val($("#regen").slider("value"));
+	}
 	// Show Password information
 	$(':password').hideShowPassword({
 		innerToggle: true
