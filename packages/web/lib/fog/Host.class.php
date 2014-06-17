@@ -944,8 +944,8 @@ class Host extends FOGController
 		catch (Exception $e)
 		{
 			$this->FOGCore->error(sprintf('%s():xError: %s', __FUNCTION__, $e->getMessage()));
-			exit;
 		}
+		return false;
 	}
 	public function clearAVRecordsForHost()
 	{
