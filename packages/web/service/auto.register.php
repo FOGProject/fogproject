@@ -41,9 +41,27 @@ try
 		// If it's to join to AD, set the values.
 		if($_REQUEST['doad'] == '1')
 		{
+			$OUs = explode('|',$FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
+			foreach ((array)$OUs AS $OU)
+				$OUOptions[] = $OU;
+			if ($OUOptions)
+			{
+				$OUs = array_unique((array)$OUOptions);
+				foreach ($OUs AS $OU)
+				{
+					$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : '';
+					$optionOU = $opt ? $opt : '';
+					if ($optionOU)
+						break;
+					else
+						continue;
+				}
+				if (!$optionOU)
+					$optionOU = $OUs[0];
+			}
 			$strDoAD="1";
 			$strADDomain = $FOGCore->getSetting( "FOG_AD_DEFAULT_DOMAINNAME");
-			$strADOU = $FOGCore->getSetting( "FOG_AD_DEFAULT_OU");
+			$strADOU = $optionOU;
 			$strADUser = $FOGCore->getSetting( "FOG_AD_DEFAULT_USER");
 			$strADPass = $FOGCore->getSetting( "FOG_AD_DEFAULT_PASSWORD");
 		}

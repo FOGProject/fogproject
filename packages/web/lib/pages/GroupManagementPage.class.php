@@ -613,6 +613,19 @@ class GroupManagementPage extends FOGPage
 		print "\n\t\t\t".'<div id="group-active-directory">';
 		print "\n\t\t\t<h2>"._('Modify AD information for').': '.$Group->get('name').'</h2>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-active-directory">';
+		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
+		foreach ((array)$OUs AS $OU)
+			$OUOptions[] = $OU;
+		if ($OUOptions)
+		{
+			$OUs = array_unique((array)$OUOptions);
+			$optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
+			foreach ($OUs AS $OU)
+			{
+				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
+				$optionOU[] = '<option value="'.$opt.'"'.(preg_match('#;#i',$OU) ? ' selected="selected"' : '').'>'.$opt.'</option>';
+            }    
+        }
 		$this->attributes = array(
 			array(),
 			array(),
@@ -624,7 +637,7 @@ class GroupManagementPage extends FOGPage
 		$fields = array(
 			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain" value="on"'.($_REQUEST['domain'] == 'on' ? ' selected="selected"' : '').' />',
 			_('Domain name') => '<input id="adDomain" type="text" name="domainname" autocomplete="off" />',
-			_('Organizational Unit') => '<input id="adOU" type="text" name="ou" autocomplete="off" /><span class="lightColor">('._('Blank for default').')</span>',
+			_('Organizational Unit') => '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>',
 			_('Domain Username') => '<input id="adUsername" type="text" name="domainuser" autocomplete="off" />',
 			_('Domain Password') => '<input id="adPassword" type="password" name="domainpass" autocomplete="off" /><span class="lightColor">('._('Must be encrypted').')</span>',
 			'<input type="hidden" name="updatead" value="1" />' => '<input type="submit" value="'._('Update').'" />',
