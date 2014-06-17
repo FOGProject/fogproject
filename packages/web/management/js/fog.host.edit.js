@@ -12,8 +12,8 @@ $(function()
 	$('#adEnabled').change(function() {
 		
 		if ( $(this).attr('checked') )
-		{	
-			if ( $('#adDomain').val() == '' && $('#adOU').val() == '' && $('#adUsername').val() == '' &&  $('#adPassword').val() == '' )
+		{
+			if ( $('#adDomain').val() == '' && /*$('#adOU').val() == '' &&*/ $('#adUsername').val() == '' &&  $('#adPassword').val() == '' )
 			{
 				$.ajax({
 					'type':		'GET',
