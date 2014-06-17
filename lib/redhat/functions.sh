@@ -81,13 +81,13 @@ configureNFS()
 {
 	echo -n "  * Setting up and starting NFS Server..."; 
 	
-	echo "/images                        *(ro,sync,no_wdelay,insecure_locks,no_root_squash,insecure,fsid=1)
-/images/dev                    *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=2)" > "$nfsconfig";
+	echo "/images *(ro,sync,no_wdelay,insecure_locks,no_root_squash,insecure,fsid=1,${nfsexportsopts})
+/images/dev *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=2,${nfsexportsopts})" > "$nfsconfig";
 	chkconfig rpcbind on;
 	service rpcbind restart >/dev/null 2>&1;
-	chkconfig nfs on;
-	service nfs restart >/dev/null 2>&1;
-	service nfs status  >/dev/null 2>&1;
+	chkconfig ${nfsservice} on;
+	service ${nfsservice} restart >/dev/null 2>&1;
+	service ${nfsservice} status  >/dev/null 2>&1;
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
@@ -190,7 +190,7 @@ service tftp
 	wait			= yes
 	user			= root
 	server			= /usr/sbin/in.tftpd
-	server_args		= -s /tftpboot
+	server_args		= -s ${tftpdirdst}
 	disable			= no
 	per_source		= 11
 	cps			= 100 2
@@ -232,10 +232,32 @@ configureDHCP()
 	echo "# DHCP Server Configuration file.
 # see /usr/share/doc/dhcp*/dhcpd.conf.sample
 # This file was created by FOG
+
+# Definition of PXE-specific options
+# Code 1: Multicast IP address of bootfile
+# Code 2: UDP port that client should monitor for MTFTP responses
+# Code 3: UDP port that MTFTP servers are using to listen for MTFTP requests
+# Code 4: Number of seconds a client must listen for activity before trying
+#         to start a new MTFTP transfer
+# Code 5: Number of seconds a client must listen before trying to restart
+#         a MTFTP transfer
+
+option space PXE;
+option PXE.mtftp-ip    code 1 = ip-address;
+option PXE.mtftp-cport code 2 = unsigned integer 16;
+option PXE.mtftp-sport code 3 = unsigned integer 16;
+option PXE.mtftp-tmout code 4 = unsigned integer 8;
+option PXE.mtftp-delay code 5 = unsigned integer 8;
+option arch code 93 = unsigned integer 16; # RFC4578
+
 use-host-decl-names on;
 ddns-update-style interim;
 ignore client-updates;
 next-server ${ipaddress};
+
+# Specify subnet of ether device you do NOT want serviced.  For systems with
+# two or more ethernet devices. 
+# subnet 136.165.0.0 netmask 255.255.0.0 { }
 
 subnet ${network} netmask 255.255.255.0 {
         option subnet-mask              255.255.255.0;

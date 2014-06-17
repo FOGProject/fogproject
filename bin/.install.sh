@@ -25,7 +25,7 @@
 . ../lib/common/config.sh
 
 # Determine Linux release name
-linuxReleaseName=`lsb_release -a 2> /dev/null | grep "Distributor ID" | awk '{print $3,$4,$5,$6,$7,$8,$9}'`;
+linuxReleaseName=`lsb_release -a 2> /dev/null | grep "Distributor ID" | awk '{print $3,$4,$5,$6,$7,$8,$9}' | tr -d " "`;
 if [ -z "$linuxReleaseName" ];
 then
 	# Fall back incase lsb_release does not exist / fails - use /etc/issue over /etc/*release*
