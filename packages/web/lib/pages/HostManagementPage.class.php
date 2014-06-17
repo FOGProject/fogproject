@@ -210,6 +210,19 @@ class HostManagementPage extends FOGPage
 		// unset for use later.
 		unset ($this->data);
 		print "\n\t\t\t<h2>"._('Active Directory').'</h2>';
+		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
+		foreach ((array)$OUs AS $OU)
+			$OUOptions[] = $OU;
+		if ($OUOptions)
+		{
+			$OUs = array_unique((array)$OUOptions);
+			$optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
+			foreach ($OUs AS $OU)
+			{
+				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
+				$optionOU[] = '<option value="'.$opt.'"'.($_REQUEST['ou'] == $opt ? ' selected="selected"' : (preg_match('#;#i',$OU) ? ' selected="selected"' : '')).'>'.$opt.'</option>';
+			}
+		}
 		foreach ((array)$fieldsad AS $field => $input)
 		{
 			$this->data[] = array(
@@ -217,7 +230,7 @@ class HostManagementPage extends FOGPage
 				'input' => $input,
 				'ad_dom' => ($_REQUEST['domain'] == 'on' ? 'checked="checked"' : ''),
 				'ad_name' => $_REQUEST['domainname'],
-				'ad_ou' => $_REQUEST['ou'],
+				'ad_ou' => '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>',
 				'ad_user' => $_REQUEST['domainuser'],
 				'ad_pass' => $_REQUEST['domainpassword'],
 			);
@@ -541,7 +554,6 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<div id="host-active-directory" class="organic-tabs-hidden">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-active-directory">';
 		print "\n\t\t\t<h2>"._('Active Directory').'</h2>';
-		
 		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
 		foreach ((array)$OUs AS $OU)
 			$OUOptions[] = $OU;
@@ -555,7 +567,6 @@ class HostManagementPage extends FOGPage
 				$optionOU[] = '<option value="'.$opt.'"'.($Host->get('ADOU') == $opt ? ' selected="selected"' : (preg_match('#;#i',$OU) ? ' selected="selected"' : '')).'>'.$opt.'</option>';
 			}
 		}
-		
 		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
@@ -563,7 +574,7 @@ class HostManagementPage extends FOGPage
 				'input' => $input,
 				'domainon' => ($Host->get('useAD') == '1' ? 'checked="checked"' : ''),
 				'host_dom' => $Host->get('ADDomain'),
-				'host_ou' => $optionOU ? '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>' : $Host->get('ou'),
+				'host_ou' => '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>',
 				'host_aduser' => $Host->get('ADUser'),
 				'host_adpass' => $Host->get('ADPass'),
 			);

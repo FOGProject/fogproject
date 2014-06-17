@@ -13,7 +13,7 @@ $(function()
 		
 		if ( $(this).attr('checked') )
 		{	
-			if ( $('#adDomain').val() == '' && $('#adOU').val() == '' && $('#adUsername').val() == '' &&  $('#adPassword').val() == '' )
+			if ( $('#adDomain').val() == '' && /*$('#adOU').val() == '' &&*/ $('#adUsername').val() == '' &&  $('#adPassword').val() == '' )
 			{
 				$.ajax({
 					'type':		'GET',
@@ -23,7 +23,7 @@ $(function()
 					'success':	function(data)
 					{	
 						$('#adDomain').val(data['domainname']);
-						$('#adOU').val(data['ou']);
+						//$('#adOU').val(data['ou']);
 						$('#adUsername').val(data['domainuser']);
 						$('#adPassword').val(data['domainpass']);
 					}

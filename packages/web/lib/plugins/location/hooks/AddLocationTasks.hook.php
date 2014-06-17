@@ -8,7 +8,7 @@ class AddLocationTasks extends Hook
 	
 	function TasksActiveTableHeader($arguments)
 	{
-		if ($_REQUEST['node'] == 'tasks')
+		if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'action' || $_REQUEST['sub']))
 			$arguments['headerData'][3] = 'Location';
 	}
 
