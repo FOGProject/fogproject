@@ -461,6 +461,7 @@ class FOGConfigurationPage extends FOGPage
 			'FOG_NO_MENU',
 			'FOG_MINING_ENABLE',
 			'FOG_MINING_FULL_RUN_ON_WEEKEND',
+			'FOG_ALWAYS_LOGGED_IN',
 		);
 		// Set title
 		$this->title = _("FOG System Settings");
@@ -493,7 +494,10 @@ class FOGConfigurationPage extends FOGPage
 			{
 				if ($Service->get('name') == 'FOG_PIGZ_COMP')
 					$type = '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
-					//$type = '<input type="range" name="${service_id}" id="pigz" min="0" max="9" value="${service_value}" autocomplete="off" style="width: 200px;" /><input id="showVal" type="text" maxsize="1" value="${service_value}" disabled style="width: 10px" />';
+				else if ($Service->get('name') == 'FOG_INACTIVITY_TIMEOUT')
+					$type = '<div id="inact" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValInAct" maxsize="2" style="width: 15px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
+				else if ($Service->get('name') == 'FOG_REGENERATE_TIMEOUT')
+					$type = '<div id="regen" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValRegen" maxsize="5" style="width: 25px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
 				else if (preg_match('#(pass|PASS)#i',$Service->get('name')) && !preg_match('#(VALID|MIN)#i',$Service->get('name')))
 					$type = '<input type="password" name="${service_id}" value="${service_value}" autocomplete="off" />';
 				else if ($Service->get('name') == 'FOG_VIEW_DEFAULT_SCREEN')
