@@ -6,13 +6,13 @@ class AddLocationTasks extends Hook
 	var $author = 'Rowlett';
 	var $active = true;
 	
-	function TasksActiveTableHeader($arguments)
+	public function TasksActiveTableHeader($arguments)
 	{
-		if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || $_REQUEST['sub']))
+		if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']))
 			$arguments['headerData'][3] = 'Location';
 	}
 
-	function TasksActiveData($arguments)
+	public function TasksActiveData($arguments)
 	{
 		if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']))
 		{
