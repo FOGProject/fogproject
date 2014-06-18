@@ -29,7 +29,7 @@ class ImageReplicator extends FOGBase
 			$StorageNodes = $this->FOGCore->getClass('StorageNodeManager')->find(array('storageGroupID' => $StorageNode->get('storageGroupID')));
 			foreach($StorageNodes AS $OtherNode)
 			{
-				if ($OtherNode->get('id') != $StorageNode->get('id'))
+				if ($OtherNode->get('id') != $StorageNode->get('id') && $OtherNode->get('isEnabled'))
 					$StorageNodeCount[] = $OtherNode;
 			}
 			if (count($StorageNodeCount) > 0)
