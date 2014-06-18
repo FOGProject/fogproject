@@ -3,7 +3,13 @@ Version 1.1.2
 
 * Fix client updater so hash is returned properly.
 * Fix client updater so files are downloaded properly.
-* FIx installer functions so they upgrade/install properly.
+* Fix installer functions so they upgrade/install properly.
+* Fix bug in imageid setting for full host registration.
+* Fix installer issues from moving commons/config.php to
+lib/fog/Config.class.php
+* Add ability to adjust timeout values on login system or remove them
+completely.
+* Fix Storage Node/Image Replicator so it only replicates to enabled nodes.
 
 Version 1.1.1
 -------------
