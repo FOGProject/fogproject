@@ -181,7 +181,7 @@ class HostManagementPage extends FOGPage
 		$fieldsad = array(
 			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain"${ad_dom}value="on" />',
 			_('Domain Name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="${ad_name}" autocomplete="off" />',
-			_('Domain OU') => '<input id="adOU" class="smaller" type="text" name="ou" value="${ad_ou}" autocomplete="off" />',
+			_('Domain OU') => '${ad_ou}',
 			_('Domain Username') => '<input id="adUsername" class="smaller" type="text" name="domainuser" value="${ad_user}" autocomplete="off" />',
 			_('Domain Password').'<br/>'._('Must be encrypted') => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${ad_pass}" autocomplete="off" />',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" />'
