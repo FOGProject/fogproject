@@ -3,7 +3,7 @@
 COMMONWEBROOTS="/var/www/html /var/www";
 UPDATEMIRRORS="http://internap.dl.sourceforge.net/sourceforge/freeghost/ http://voxel.dl.sourceforge.net/sourceforge/freeghost/ http://kent.dl.sourceforge.net/sourceforge/freeghost/ http://heanet.dl.sourceforge.net/sourceforge/freeghost/";
 DOWNLOADDIR="/opt/";
-CONFIGPATH="fog/commons/config.php";
+CONFIGPATH="fog/lib/fog/Config.class.php";
 
 displayBanner()
 {
@@ -53,9 +53,9 @@ do
 	then
 		if [ -d "$wroot" ]
 		then
-			if [ -f "$wroot/fog/commons/config.php" ]
+			if [ -f "$wroot/fog/lib/fog/Config.class.php" ]
 			then
-				fle="$wroot/fog/commons/config.php";
+				fle="$wroot/fog/lib/fog/Config.class.php";
 				ver=`cat "$fle" | grep "FOG_VERSION" | cut -d"," -f2 | cut -d"\"" -f2`
 				if [ "$ver" != "" ]
 				then

@@ -65,7 +65,7 @@ class DatabaseManager extends FOGBase
 						$this->DB = $db;			
 					break;								
 				default:
-					throw new Exception(sprintf('Unknown database type. Check that DATABASE_TYPE is being set in "%s/commons/config.php"', rtrim($_SERVER['DOCUMENT_ROOT'], '/') . dirname($_SERVER['PHP_SELF'])));
+					throw new Exception(sprintf('Unknown database type. Check that DATABASE_TYPE is being set in "%s/lib/fog/Config.class.php"', rtrim($_SERVER['DOCUMENT_ROOT'], '/') . dirname($_SERVER['PHP_SELF'])));
 			}
 			// Database Schema version check
 			if ($this->getVersion() < FOG_SCHEMA && !preg_match('#schemaupdater#i', $_SERVER['PHP_SELF']))
