@@ -265,44 +265,39 @@ sendInstallationNotice()
 
 configureUsers()
 {
-	ret=false
-	getent passwd ${username} >/dev/null 2>&1 && ret=true;
-	if [ "$doupdate" != "1" ] || [ !$ret ]; then
-		echo -n "  * Setting up fog user";
-		password=`date | md5sum | cut -d" " -f1`;
-		password=${password:0:6}
-		if [ "$installtype" = "S" ]
+	echo -n "  * Setting up fog user";
+	password=`date | md5sum | cut -d" " -f1`;
+	password=${password:0:6}
+	if [ "$installtype" = "S" ]
+	then
+		# save everyone wrist injuries
+		storageftpuser=${username};
+		storageftppass=${password};
+	fi
+	
+	if [ $password != "" ]
+	then
+		useradd -s "/bin/bash" -d "/home/${username}" ${username} >/dev/null 2>&1;
+		if [ "$?" = "0" ] 
 		then
-			# save everyone wrist injuries
-			storageftpuser=${username};
-			storageftppass=${password};
-		fi
-		
-		if [ $password != "" ]
-		then
-			useradd -s "/bin/bash" -d "/home/${username}" ${username} >/dev/null 2>&1;
-			if [ "$?" = "0" ] 
-			then
-				passwd ${username} >/dev/null 2>&1 << EOF
+			passwd ${username} >/dev/null 2>&1 << EOF
 ${password}
 ${password}
 EOF
-				mkdir "/home/${username}" >/dev/null 2>&1;
-				chown -R ${username} "/home/${username}" >/dev/null 2>&1;
-				echo "...OK";
-			else
-				if [ -f "${webdirdest}/commons/config.php" ]
-				then
-					password=`cat ${webdirdest}/commons/config.php | grep TFTP_FTP_PASSWORD | cut -d"," -f2 | cut -d"\"" -f2`;
-				fi
-				echo "...Exists";
-				bluseralreadyexists="1";
-			fi
-			
+			mkdir "/home/${username}" >/dev/null 2>&1;
+			chown -R ${username} "/home/${username}" >/dev/null 2>&1;
+			echo "...OK";
 		else
-			echo "...Failed!";
-			exit 1;
+			if [ -f "${webdirdest}/lib/fog/Config.class.php" ]
+			then
+				password=`cat ${webdirdest}/lib/fog/Config.class.php | grep TFTP_FTP_PASSWORD | cut -d"," -f2 | cut -d"\"" -f2`;
+			fi
+			echo "...Exists";
+			bluseralreadyexists="1";
 		fi
+	else
+		echo "...Failed!";
+		exit 1;
 	fi
 }
 
