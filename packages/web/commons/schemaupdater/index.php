@@ -1385,6 +1385,7 @@ if ( $_REQUEST["confirm"] == "yes" )
 	if ($DatabaseManager && $DB)
 	{
 		$currentSchema = $DatabaseManager->getVersion();
+		$newSchema = current($FOGCore->getClass('SchemaManager')->find());
 		if ( $FOG_SCHEMA != $currentSchema )
 		{
 			// Blackout - 1:05 PM 12/01/2012
@@ -1408,10 +1409,10 @@ if ( $_REQUEST["confirm"] == "yes" )
 						$errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i", $DB->sqlerror(), $update);
 				}
 				// Update schema version
-				$DB->query("UPDATE `%s`.`schemaVersion` set vValue = '%s'", array(DATABASE_NAME, $version));
+				if ($newSchema && $newSchema->isValid())
+					$newSchema->set('version',$version)->save();
 			}
-			$version = current($FOGCore->getClass('SchemaManager')->find());
-			if ($FOG_SCHEMA == $version->get('version'))
+			if ($newSchema && $newSchema->isValid() && $FOG_SCHEMA == $newSchema->get('version'))
 			{
 				print "\n\t\t\t<p>"._('Update/Install Successful!').'</p>';
 				print "\n\t\t\t<p>"._('Click').' <a href="../../management">'._('here').'</a> '._('to login.').'</p>';
