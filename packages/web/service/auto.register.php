@@ -28,8 +28,9 @@ try
 		// Set ip if filled out.
 		$ip=trim(base64_decode($_REQUEST["ip"]));
 		// Set the image ID, if there is one.
-		$imageid=trim(base64_decode($_REQUEST["imageid"]));
-		($imageid != null && is_numeric($imageid) && $imageid > 0 ? $realimageid = $imageid : $realimageid = '');
+		$imageid = trim(base64_decode($_REQUEST['imageid']));
+		$Image = ($imageid && is_numeric($imageid) && $imageid > 0 ? new Image($imageid) : new Image(array('id' => 0)));
+		$realimageid = ($Image && $Image->isValid() ? $Image->get('id') : '0');
 		$locationid=trim(base64_decode($_REQUEST['location']));
 		($locationid != null && is_numeric($locationid) && $locationid > 0 ? $reallocid = $locationid : $locationid = '');
 		// Filled out?
@@ -80,13 +81,12 @@ try
 			'createdBy' => 'FOGREG',
 		));
 		$Host->addModule($ids);
+		$groupid = trim(base64_decode($_REQUEST['groupid']));
+		$Group = ($groupid && is_numeric($groupid) && $groupid > 0 ? new Group($groupid) : new Group(array('id' => 0)));
 		if ($Host->save())
 		{
-			$GroupAssoc = new GroupAssociation(array(
-				'groupID' => base64_decode($_REQUEST['groupid']),
-				'hostID' => $Host->get('id'),
-			));
-			$GroupAssoc->save();
+			$Host = new Host($Host->get('id'));
+			$Group && $Group->isValid() ? $Host->addGroup((array)$Group->get('id'))->save() : null;
 			$LocPlugInst = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
 			if ($LocPlugInst)
 			{
@@ -141,7 +141,8 @@ try
 	else
 	{
 		// Get the autoreg group id:
-		$groupid[] = $FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC');
+		$groupid = trim($FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC'));
+		$Group = ($groupid && is_numeric($groupid) && $groupid > 0 ? new Group($groupid) : new Group(array('id' => 0)));
 		// Quick Registration
 		if ($FOGCore->getSetting('FOG_QUICKREG_AUTOPOP'))
 		{
@@ -183,7 +184,7 @@ try
 			if ($Host->save())
 			{
 				$Host = new Host($Host->get('id'));
-				$Host->addGroup($groupid)->save();
+				$Group && $Group->isValid() ? $Host->addGroup($groupid)->save() : null;
 				// If the image is valid and get's the member from the host
 				// create the tasking, otherwise just register!.
 				if ($Image->isValid() && $Host->getImageMemberFromHostID())
