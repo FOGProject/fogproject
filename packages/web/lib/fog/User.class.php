@@ -31,9 +31,6 @@ class User extends FOGController
 	{
 		// FOGController constructor
 		parent::__construct($data);
-
-		$this->inactivitySessionTimeout = $this->FOGCore->getSetting('FOG_INACTIVITY_TIMEOUT');
-		$this->regenerateSessionTimeout = $this->FOGCore->getSetting('FOG_REGENERATE_TIMEOUT');
 		
 		// Add password salt
 		if (!$this->get('salt'))
@@ -54,6 +51,8 @@ class User extends FOGController
 	
 	public function isLoggedIn()
 	{
+		$this->inactivitySessionTimeout = $this->FOGCore->getSetting('FOG_INACTIVITY_TIMEOUT');
+		$this->regenerateSessionTimeout = $this->FOGCore->getSetting('FOG_REGENERATE_TIMEOUT');
 		// Has IP Address has changed
 		if (!$_SERVER['REMOTE_ADDR'] || $this->get('authIP') != $_SERVER['REMOTE_ADDR'])
 			return false;
