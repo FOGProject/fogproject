@@ -47,9 +47,6 @@ clear
 
 /bin/fog.fork full & >/dev/null 2>&1;
 
-read test
-
 reset
-
 echo "Restarting computer..."
 sleep 1
