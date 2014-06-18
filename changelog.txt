@@ -11,6 +11,7 @@ lib/fog/Config.class.php
 completely.
 * Fix Storage Node/Image Replicator so it only replicates to enabled nodes.
 * OU system is now a select box.  Documentation will follow, but in beta atm.
+* Add Mageia to installer system.  ****THANKS CHUCK SITES****
 
 Version 1.1.1
 -------------

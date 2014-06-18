@@ -551,7 +551,7 @@ installPackages()
 		if [ "$?" != "0" ]
 		then
 			echo  "  * Installing package: $x";
-			yum -y install $x 1>/dev/null;
+			${packageinstaller} $x 1>/dev/null;
 		else
 			echo  "  * Skipping package: $x (Already installed)";
 		fi
