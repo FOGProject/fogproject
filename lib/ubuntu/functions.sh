@@ -506,6 +506,7 @@ configureMySql()
 	echo -n "  * Setting up and starting MySql...";
 	sysv-rc-conf mysql on >/dev/null 2>&1;
 	service mysql stop >/dev/null 2>&1;
+	sleep 10;
 	service mysql start >/dev/null 2>&1;
 	if [ "$?" != "0" ]
 	then
