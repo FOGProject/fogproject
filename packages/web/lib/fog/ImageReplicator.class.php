@@ -41,19 +41,22 @@ class ImageReplicator extends FOGBase
 				$this->outall(sprintf(" * Starting Sync."));
 				foreach($StorageNodeCount AS $StorageNodeFTP)
 				{
-					$username = $StorageNodeFTP->get('user');
-					$password = $StorageNodeFTP->get('pass');
-					$ip = $StorageNodeFTP->get('ip');
-					$remRoot = rtrim($StorageNodeFTP->get('path'),'/');
-					$this->outall(sprintf(" * Syncing: %s",$StorageNodeFTP->get('name')));
-					$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30; mirror -R -vvv --exclude 'dev/' --delete $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
-					while(!feof($process) && $process != null)
+					if ($StorageNodeFTP->get('isEnabled'))
 					{
-						$output = fgets($process,256);
-						$this->outall(sprintf(" * SubProcess -> %s",$output));
+						$username = $StorageNodeFTP->get('user');
+						$password = $StorageNodeFTP->get('pass');
+						$ip = $StorageNodeFTP->get('ip');
+						$remRoot = rtrim($StorageNodeFTP->get('path'),'/');
+						$this->outall(sprintf(" * Syncing: %s",$StorageNodeFTP->get('name')));
+						$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30; mirror -R -vvv --exclude 'dev/' --delete $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
+						while(!feof($process) && $process != null)
+						{
+							$output = fgets($process,256);
+							$this->outall(sprintf(" * SubProcess -> %s",$output));
+						}
+						pclose($process);
+						$this->outall(sprintf(" * SubProcess -> Complete"));
 					}
-					pclose($process);
-					$this->outall(sprintf(" * SubProcess -> Complete"));
 				}
 			}
 			else
