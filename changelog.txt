@@ -6,17 +6,19 @@ Version 1.1.2
 * Fix installer functions so they upgrade/install properly.
 * Fix bug in imageid setting for full host registration.
 * Fix installer issues from moving commons/config.php to
-lib/fog/Config.class.php
-* Add ability to adjust timeout values on login system or remove them
-completely.
 * Fix Storage Node/Image Replicator so it only replicates to enabled nodes.
-* OU system is now a select box.  Documentation will follow, but in beta atm.
-* Add Mageia to installer system.  ****THANKS CHUCK SITES****
-* Only Imaging Tasks only require Images, not all tasks now.
+lib/fog/Config.class.php
 * Group deployment only cares if uniform image for multicast not for all
 tasks.
+* Add ability to adjust timeout values on login system or remove them
+completely.
+* Add Mageia to installer system.  ****THANKS CHUCK SITES****
+* OU system is now a select box.  Documentation will follow, but in beta atm.
+* Only Imaging Tasks require Images, not all tasks now.
+
 * Hosts within group can now have image set within group from membership
 field.
+* Schema and update of schema is it's own class.
 
 Version 1.1.1
 -------------

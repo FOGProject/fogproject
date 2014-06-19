@@ -368,12 +368,12 @@ class BootMenu extends FOGBase
 				$StorageNode = $StorageGroup->getMasterStorageNode();
 			$mac = $_REQUEST['mac'];
 			$osid = $Image->get('osID');
-			$storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : ''));
-			$storageip = $StorageNode->get('ip');
-			$img = $Image->get('path');
-			$imgLegacy = $Image->get('legacy');
-			$imgType = $Image->getImageType()->get('type');
-			$imgid = $Image->get('id');
+			$storage = in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null;
+			$storageip = in_array($TaskType->get('id'),$imagingTasks) ? $StorageNode->get('ip') : null;
+			$img = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('path') : null;
+			$imgLegacy = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('legacy') : null;
+			$imgType = in_array($TaskType->get('id'),$imagingTasks) ? $Image->getImageType()->get('type') : null;
+			$imgid = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('id') : null;
 			$ftp = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_TFTP_HOST'));
 			$chkdsk = $this->FOGCore->getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
 			$PIGZ_COMP = $this->FOGCore->getSetting('FOG_PIGZ_COMP');
