@@ -1405,14 +1405,20 @@ if ( $_REQUEST["confirm"] == "yes" )
 							$errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Function Error:</b> <pre>%s</pre></p><p><b>Function:</b> <pre>%s</pre></p>', "$version - $i", $result, print_r($update, 1));
 					}
 					// Update is SQL
-					else if (! $DB->query($update)->queryResult())
+					else if (!$DB->query($update)->queryResult())
 						$errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i", $DB->sqlerror(), $update);
 				}
 				// Update schema version
 				if ($newSchema && $newSchema->isValid())
-					$newSchema->set('version',$version)->save();
+					$newSchema->set('version',$version);
+				else
+				{
+					$newSchema = new Schema(array(
+						'version' => $version,
+					));
+				}
 			}
-			if ($newSchema && $newSchema->isValid() && $FOG_SCHEMA == $newSchema->get('version'))
+			if ($newSchema->save() && $FOG_SCHEMA == $newSchema->get('version'))
 			{
 				print "\n\t\t\t<p>"._('Update/Install Successful!').'</p>';
 				print "\n\t\t\t<p>"._('Click').' <a href="../../management">'._('here').'</a> '._('to login.').'</p>';
