@@ -1593,10 +1593,11 @@ class HostManagementPage extends FOGPage
 		$enableDebug = ($this->REQUEST['debug'] == 'true' ? true : false);
 		$scheduledDeployTime = strtotime($this->REQUEST['scheduleSingleTime']);
 		$taskName = ($taskTypeID == '12' ? 'All Snapins Deploy' : ($taskTypeID == '13' ? 'Single Snapin Deploy' : ''));
+		$imagingTasks = array(1,2,8,15,16,17);
 		// Deploy
 		try
 		{
-			if (!$Host->get('imageID'))
+			if (in_array($taskTypeID,$imagingTasks) && !$Host->get('imageID'))
 				throw new Exception(_('You need to assign an image to the host'));
 			if (!$Host->checkIfExist($taskTypeID))
 				throw new Exception(_('To setup download task, you must first upload an image'));

@@ -1128,17 +1128,20 @@ class GroupManagementPage extends FOGPage
 		$enableDebug = ($this->REQUEST['debug'] == 'true' ? true : false);
 		$scheduledDeployTime = strtotime($this->REQUEST['scheduleSingleTime']);
 		$taskName = $Group->get('name');
+		$imagingTasks = array(1,2,8,15,16,17);
 		// Deploy
 		try
 		{
 			// Error checking
 			if ($TaskType->isMulticast() && !$Group->doMembersHaveUniformImages())
 				throw new Exception(_('Hosts do not have Uniformed Image assignments'));
-			$Host = current($Group->get('hosts'));
-			if (!$Host->get('imageID'))
-				throw new Exception(_('You need to assign an image to the host'));
-			if (!$Host->checkIfExist($taskTypeID))
-				throw new Exception(_('To setup download task, you must first upload an image'));
+			foreach((array)$Group->get('hosts') AS $Host)
+			{
+				if (in_array($taskTypeID,$imageTasks) && !$Host->get('imageID'))
+					throw new Exception(_('You need to assign an image to the host'));
+				if (!$Host->checkIfExist($taskTypeID))
+					throw new Exception(_('To setup download task, you must first upload an image'));
+			}
 			if ($taskTypeID == '11' && !trim($_REQUEST['account']))
 				throw new Exception(_('To setup password reset request, you must specify a user'));
 			try
