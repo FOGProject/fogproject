@@ -22,10 +22,12 @@ class System
 	*/
 	private static function default_values()
 	{
-		if (!ini_get('date.timezone'))
+		if (ini_get('date.timezone'))
 			date_default_timezone_set(date_default_timezone_get());
+		else
+			date_default_timezone_set('UTC');
 		define('IS_INCLUDED', true);
-		define('FOG_VERSION', '1883');
+		define('FOG_VERSION', '1884');
 		define('FOG_SCHEMA', 105);
 		define('FOG_SVN_REVISION', '$Revision$');
 		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');
