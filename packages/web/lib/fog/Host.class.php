@@ -753,12 +753,12 @@ class Host extends FOGController
 			// Image: Error checking
 			if (in_array($TaskType->get('id'),$imageTypes) && !$Image->isValid())
 				throw new Exception('Image is not valid');
-			if (!$Image->getStorageGroup()->isValid())
+			if (in_array($TaskType->get('id'),$imageTypes) && !$Image->getStorageGroup()->isValid())
 				throw new Exception('The Image\'s associated Storage Group is not valid');
 			// Storage Node: Error Checking
-			if (!$StorageNode || !($StorageNode instanceof StorageNode))
+			if (in_array($TaskType->get('id'),$imageTypes) && (!$StorageNode || !($StorageNode instanceof StorageNode)))
 				throw new Exception( _('Could not find a Storage Node. Is there one enabled within this Storage Group?') );
-			if (!$StorageNode->isValid())
+			if (in_array($TaskType->get('id'),$imageTypes) && !$StorageNode->isValid())
 				throw new Exception(_('The Storage Group\'s associated Storage Node is not valid'));
 			// Variables
 			$mac = $this->getMACAddress()->getMACWithColon();
