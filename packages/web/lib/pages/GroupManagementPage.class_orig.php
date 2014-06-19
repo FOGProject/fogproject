@@ -369,14 +369,6 @@ class GroupManagementPage extends FOGPage
 		// Output
 		$this->render();
 		$GAs = $this->FOGCore->getClass('GroupAssociationManager')->find(array('groupID' => $Group->get('id')));
-		$AllGAs = $this->FOGCore->getClass('GroupAssociationManager')->find();
-		foreach((array)$AllGAs AS $GAAll)
-		{
-			$MyCurGroup = new Group($GAAll->get('groupID'));
-			if ($MyCurGroup->isValid())
-				$AllHostIDs[] = $GAAll->get('hostID');
-		}
-		$AllHostIDs = array_unique((array)$AllHostIDs);
 		foreach((array)$GAs AS $GA)
 			$HostIDs[] = $GA->get('hostID');
 		$HostStuff = $this->FOGCore->getClass('HostManager')->buildSelectBox('','host[]" multiple="','name',$HostIDs);
@@ -388,57 +380,39 @@ class GroupManagementPage extends FOGPage
 		print "\n\t\t\t<!-- Membership -->";
 		print "\n\t\t\t".'<div id="group-membership">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
-		// These methods below will get all Hosts without a Group Association at all.
-		$AllHostsInGeneral = $this->FOGCore->getClass('HostManager')->find();
-		foreach($AllHostsInGeneral AS $HostGroupStuff)
-		{
-			if (!in_array($HostGroupStuff->get('id'),(array)$AllHostIDs))
-				$GroupOption[] = '<option value="'.$HostGroupStuff->get('id').'">'.$HostGroupStuff->get('name').' - ('.$HostGroupStuff->get('id').')</option>';
-		}
 		if ($HostStuff)
 		{
 			print "\n\t\t\t".'<h2>'._('Modify Membership for').' '.$Group->get('name').'</h2>';
 			print "\n\t\t\t".'<p><center>'._('Add hosts to group').' '.$Group->get('name').':</center></p>';
-			print "\n\t\t\t".'<p><center>'.$HostStuff.'</center></p>';
+			print "\n\t\t\t".'<p><center>'.$HostStuff.'<input type="submit" value="'._('Add Host(s) to Group').'" /></center></p>';
 		}
-		if ($GroupOption)
-		{
-			print "\n\t\t\t"._('Check here to see hosts not within a group').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" />';
-			print "\n\t\t\t".'<center><div id="hostNoGroup">';
-			print "\n\t\t\t".'<p><center>'._('Hosts below do not belong to a group').'</center></p>';
-			print "\n\t\t\t".'<select name="host[]" multiple="" autocomplete="off">'."\n\t\t\t".'<option value=""> - '._('Please select an option').' - </option>'.implode("\n\t\t\t\t",(array)$GroupOption)."\n\t\t\t</select>";
-			print "\n\t\t\t".'</div></center>';
-		}
-		if ($HostStuff || $GroupOption)
-			print "\n\t\t\t".'<center><input type="submit" value="'._('Add Host(s) to Group').'" /></center>';
 		$this->headerData = array(
-            _('Hostname'),
-            ('Deployed'),
-            _('Remove'),
-            _('Image'),
+			_('Hostname'),
+			_('Last Deployed'),
+			_('MAC'),
+			_('Remove'),
 		);
 		$this->attributes = array(
-            array(),
-            array(),
-            array(),
-            array(),
+			array(),
+			array(),
+			array(),
+			array(),
 		);
 		$this->templates = array(
-			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-			'<small>${deployed}</small>',
+			'<a href="?node=host&sub=edit&id=${host_id}">${host_name}</a>',
+			'${deployed}',
+			'${host_mac}',
 			'<input type="checkbox" name="member" value="${host_id}" class="delid" onclick="this.form.submit()" id="memberdel${host_id}" /><label for="memberdel${host_id}">Delete</label>',
-			'<small>${image_name}</small>',
 		);
 		foreach ((array)$Group->get('hosts') AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
 				$this->data[] = array(
-                    'host_id'   => $Host->get('id'),
-                    'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-                    'host_name' => $Host->get('name'),
-                    'host_mac'  => $Host->get('mac')->__toString(),
-                    'image_name' => $this->FOGCore->getClass('ImageManager')->buildSelectBox($Host->getImage()->get('id'),$Host->get('name').'_'.$Host->get('id')),
+					'host_id' => $Host->get('id'),
+					'host_name' => $Host->get('name'),
+					'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+					'host_mac' => $Host->get('mac'),
 				);
 			}
 		}
@@ -447,8 +421,7 @@ class GroupManagementPage extends FOGPage
 		// Output
 		$this->render();
 		unset($this->data);
-		print '<input type="hidden" name="updatehosts" value="1" /><center><input type="submit" value="'._('Update Hosts').'" /></center>';
-		print "\n\t\t\t</form>";
+		print '</form>';
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t<!-- Image Association -->";
 		print "\n\t\t\t".'<div id="group-image">';
@@ -763,11 +736,6 @@ class GroupManagementPage extends FOGPage
 				break;
 				// Group membership
 				case 'group-membership';
-					if ($_POST['updatehosts'])
-					{
-						foreach((array)$Group->get('hosts') AS $Host)
-							$Host->set('imageID',$_POST[$Host->get('name').'_'.$Host->get('id')])->save();
-					}
 					if($_POST['host'])
 						$Group->addHost($_POST['host']);
 					if(isset($_POST['member']))
@@ -1132,7 +1100,7 @@ class GroupManagementPage extends FOGPage
 		try
 		{
 			// Error checking
-			if ($TaskType->isMulticast() && !$Group->doMembersHaveUniformImages())
+			if (!$Group->doMembersHaveUniformImages())
 				throw new Exception(_('Hosts do not have Uniformed Image assignments'));
 			$Host = current($Group->get('hosts'));
 			if (!$Host->get('imageID'))

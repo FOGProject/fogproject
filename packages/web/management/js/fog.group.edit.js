@@ -8,6 +8,8 @@
 
 $(function()
 {
+	// Just hide the group info
+	$('#hostNoGroup').hide();
 	// Bind to AD Settings checkbox
 	$('#adEnabled').change(function() {
 		
@@ -30,6 +32,17 @@ $(function()
 				});
 			}
 
+		}
+	});
+	// Show hide based on checked state.
+	$('#hostNoShow').change(function() {
+		if ($(this).attr('checked'))
+		{
+			$('#hostNoGroup').show();
+		}
+		else
+		{
+			$('#hostNoGroup').hide();
 		}
 	});
 	
