@@ -36,8 +36,6 @@ class Task extends FOGController
 		'id',
 		'typeID',
 		'hostID',
-		'NFSGroupID',
-		'NFSMemberID'
 	);
 	// Custom Functions
 	public function getHost()
