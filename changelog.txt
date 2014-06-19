@@ -12,6 +12,11 @@ completely.
 * Fix Storage Node/Image Replicator so it only replicates to enabled nodes.
 * OU system is now a select box.  Documentation will follow, but in beta atm.
 * Add Mageia to installer system.  ****THANKS CHUCK SITES****
+* Only Imaging Tasks only require Images, not all tasks now.
+* Group deployment only cares if uniform image for multicast not for all
+tasks.
+* Hosts within group can now have image set within group from membership
+field.
 
 Version 1.1.1
 -------------
