@@ -751,7 +751,7 @@ class Host extends FOGController
 			if (!$TaskType->isValid())
 				throw new Exception('Task Type is not valid');
 			// Image: Error checking
-			if (!$Image->isValid())
+			if (in_array($TaskType->get('id'),$imageTypes) && !$Image->isValid())
 				throw new Exception('Image is not valid');
 			if (!$Image->getStorageGroup()->isValid())
 				throw new Exception('The Image\'s associated Storage Group is not valid');
