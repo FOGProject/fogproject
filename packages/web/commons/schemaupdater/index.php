@@ -1385,8 +1385,7 @@ if ( $_REQUEST["confirm"] == "yes" )
 	if ($DatabaseManager && $DB)
 	{
 		$currentSchema = $DatabaseManager->getVersion();
-		$newSchema = current($FOGCore->getClass('SchemaManager')->find());
-		if ( $FOG_SCHEMA != $currentSchema )
+		if ($FOG_SCHEMA != $currentSchema)
 		{
 			// Blackout - 1:05 PM 12/01/2012
 			// Get applicable schema updates by slicing array at $currentSchema
@@ -1409,14 +1408,9 @@ if ( $_REQUEST["confirm"] == "yes" )
 						$errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i", $DB->sqlerror(), $update);
 				}
 				// Update schema version
+				$newSchema = current($FOGCore->getClass('SchemaManager')->find());
 				if ($newSchema && $newSchema->isValid())
 					$newSchema->set('version',$version);
-				else
-				{
-					$newSchema = new Schema(array(
-						'version' => $version,
-					));
-				}
 			}
 			if ($newSchema->save() && $FOG_SCHEMA == $newSchema->get('version'))
 			{
