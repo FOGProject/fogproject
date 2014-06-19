@@ -263,6 +263,9 @@ class HostManagementPage extends FOGPage
 			if ($this->FOGCore->getClass('HostManager')->exists($_POST['host']))
 				throw new Exception(_('Hostname already exists'));
 			$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
+			// Get all the service id's so they can be enabled.
+			foreach($this->FOGCore->getClass('ModuleManager')->find() AS $Module)
+				$ModuleIDs[] = $Module->get('id');
 			// Define new Image object with data provided
 			$Host = new Host(array(
 				'name'		=> $_POST['host'],
@@ -278,6 +281,7 @@ class HostManagementPage extends FOGPage
 				'ADUser'	=> $_POST['domainuser'],
 				'ADPass'	=> $_POST['domainpassword']
 			));
+			$Host->addModule($ModuleIDs);
 			if ($LocPluginInst && $LocPluginInst->isValid())
 			{
 				$LA = new LocationAssociation(array(
