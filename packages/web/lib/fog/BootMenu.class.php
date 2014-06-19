@@ -352,6 +352,7 @@ class BootMenu extends FOGBase
 		else
 		{
 			$TaskType = new TaskType($Task->get('typeID'));
+			$imagingTasks = array(1,2,8,15,16,17);
 			$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $this->Host->get('id'))));
 			if ($LA)
 				$Location = new Location($LA->get('locationID'));
@@ -391,12 +392,30 @@ class BootMenu extends FOGBase
 				"loglevel=4",
 				"consoleblank=0",
 				"irqpoll",
-				"chkdsk=$chkdsk",
-				"img=$img",
-				"imgType=$imgType",
-				"imgid=$imgid",
-				"imgLegacy=$imgLegacy",
-				"PIGZ_COMP=-$PIGZ_COMP",
+				array(
+					'value' => "chkdsk=$chkdsk",
+					'active' => in_array($TaskType->get('id'),$imagingTasks),
+				),
+				array(
+					'value' => "img=$img",
+					'active' => in_array($TaskType->get('id'),$imagingTasks),
+				),
+				array(
+					'value' => "imgType=$imgType",
+					'active' => in_array($TaskType->get('id'),$imagingTasks),
+				),
+				array(
+					'value' => "imgid=$mgid",
+					'active' => in_array($TaskType->get('id'),$imagingTasks),
+				),
+				array(
+					'value' => "imgLegacy=$imgLegacy",
+					'active' => in_array($TaskType->get('id'),$imagingTasks),
+				),
+				array(
+					'value' => "PIGZ_COMP=-$PIGZ_COMP",
+					'active' => in_array($TaskType->get('id'),$imagingTasks),
+				),
 				array(
 					'value' => 'shutdown=1',
 					'active' => $Task->get('shutdown'),
@@ -427,15 +446,15 @@ class BootMenu extends FOGBase
 				),
 				array(
 					'value' => 'hostname='.$this->Host->get('name'),
-					'active' => $this->FOGCore->getSetting('FOG_CHANGE_HOSTNAME_EARLY'),
+					'active' => $this->FOGCore->getSetting('FOG_CHANGE_HOSTNAME_EARLY') && in_array($TaskType->get('id'),$imagingTasks) ? true : false,
 				),
 				array(
 					'value' => 'pct='.(is_numeric($this->FOGCore->getSetting('FOG_UPLOADRESIZEPCT')) && $this->FOGCore->getSetting('FOG_UPLOADRESIZEPCT') >= 5 && $this->FOGCore->getSetting('FOG_UPLOADRESIZEPCT') < 100 ? $this->FOGCore->getSetting('FOG_UPLOADRESIZEPCT') : '5'),
-					'active' => $TaskType->isUpload(),
+					'active' => $TaskType->isUpload() && in_array($TaskType->get('id'),$imagingTasks) ? true : false,
 				),
 				array(
 					'value' => 'ignorepg='.($this->FOGCore->getSetting('FOG_UPLOADIGNOREPAGEHIBER') ? 1 : 0),
-					'active' => $TaskType->isUpload(),
+					'active' => $TaskType->isUpload() && in_array($TaskType->get('id'),$imagingTasks) ? true : false,
 				),
 				array(
 					'value' => 'port='.($TaskType->isMulticast() ? $MulticastSession->get('port') : null),
