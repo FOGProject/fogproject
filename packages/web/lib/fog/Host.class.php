@@ -602,6 +602,8 @@ class Host extends FOGController
 			$LocPlugInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
 			// TaskType: Variables
 			$TaskType = new TaskType($taskTypeID);
+			// Imaging types.
+			$imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17)) ? true : false;
 			$isUpload = $TaskType->isUpload();
 			// Image: Variables
 			$Image = $this->getImage();
@@ -635,8 +637,8 @@ class Host extends FOGController
 					'isForced'	=> 0,
 					'stateID'	=> 1,
 					'typeID'	=> $taskTypeID,
-					'NFSGroupID'	=> ($LocPlugInst ? $StorageGroup->get('id') : $Image->getStorageGroup()->get('id')),
-					'NFSMemberID'	=> ($LocPlugInst ? $StorageGroup->getOptimalStorageNode()->get('id') : $Image->getStorageGroup()->getOptimalStorageNode()->get('id')),
+					'NFSGroupID' => $imagingTypes ? ($LocPlugInst ? $StorageGroup->get('id') : $Image->getStorageGroup()->get('id')) : false,
+					'NFSMemberID'	=> $imagingTypes ? ($LocPlugInst ? $StorageGroup->getOptimalStorageNode()->get('id') : ($this->get('imageID') ? $Image->getStorageGroup()->getOptimalStorageNode()->get('id') : $StorageGroup->getOptimalStorageNode()->get('id'))) : false,
 					'shutdown' => $shutdown,
 				));
 				if ($Task->save())
@@ -663,8 +665,8 @@ class Host extends FOGController
 					'isForced'	=> 0,
 					'stateID'	=> 1,
 					'typeID'	=> $taskTypeID, 
-					'NFSGroupID' 	=> $StorageGroup->get('id'),
-					'NFSMemberID'	=> $StorageGroup->getOptimalStorageNode()->get('id'),
+					'NFSGroupID' 	=> $imagingTypes ? $StorageGroup->get('id') : false,
+					'NFSMemberID'	=> $imagingTypes ? $StorageGroup->getOptimalStorageNode()->get('id') : false,
 					'shutdown' => $shutdown,
 					'passreset' => $passreset,	
 				));
@@ -768,8 +770,8 @@ class Host extends FOGController
 				'isForced'	=> '0',
 				'stateID'	=> '1',
 				'typeID'	=> $taskTypeID, 
-				'NFSGroupID' 	=> ($Location ? $StorageGroup->get('id') : $Image->getStorageGroup()->get('id')),
-				'NFSMemberID'	=> ($Location ? $StorageGroup->getOptimalStorageNode()->get('id') : $Image->getStorageGroup()->getOptimalStorageNode()->get('id')),
+				'NFSGroupID' 	=> $imagingTypes ? ($Location ? $StorageGroup->get('id') : $Image->getStorageGroup()->get('id')) : false,
+				'NFSMemberID'	=> $imagingTypes ? ($Location ? $StorageGroup->getOptimalStorageNode()->get('id') : $Image->getStorageGroup()->getOptimalStorageNode()->get('id')) : false,
 				'shutdown' => $shutdown,
 				'passreset' => $passreset,
 			));
