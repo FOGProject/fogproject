@@ -48,7 +48,7 @@ class GroupManagementPage extends FOGPage
 			sprintf('<a href="?node=group&sub=edit&%s=${id}" title="Edit">${name}</a>', $this->id),
 			//'${description}',
 			'${count}',
-			sprintf('<a href="?node=group&sub=deploy&type=1&%s=${id}"><span class="icon icon-download" title="Download"></span></a> <a href="?node=group&sub=deploy&type=8&%s=${id}"><span class="icon icon-multicast" title="Mutli-cast"></span></a> <a href="?node=group&sub=edit&%s=${id}#group-tasks"><span class="icon icon-deploy" title="Deploy"></span></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
+			sprintf('<a href="?node=group&sub=deploy&type=1&%s=${id}"><span class="icon icon-download" title="Download"></span></a> <a href="?node=group&sub=deploy&type=8&%s=${id}"><span class="icon icon-multicast" title="Multi-cast"></span></a> <a href="?node=group&sub=edit&%s=${id}#group-tasks"><span class="icon icon-deploy" title="Deploy"></span></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
 			sprintf('<a href="?node=group&sub=edit&%s=${id}"><span class="icon icon-edit" title="Edit"></span></a> <a href="?node=group&sub=delete&%s=${id}"><span class="icon icon-delete" title="Delete"></span></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
 		);
 		// Row attributes
