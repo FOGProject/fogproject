@@ -256,8 +256,11 @@ class HostManagementPage extends FOGPage
 				throw new Exception(_('Hostname is required'));
 			if (empty($_POST['mac']))
 				throw new Exception(_('MAC Address is required'));
+			$MAC = new MACAddress($_POST['mac']);
+			if (!$MAC || !$MAC->isValid())
+				throw new Exception(_('MAC Format is invalid'));
 			// Check if host exists with MAC Address.
-			$Host = $this->FOGCore->getClass('HostManager')->getHostByMacAddresses($_POST['mac']);
+			$Host = $this->FOGCore->getClass('HostManager')->getHostByMacAddresses($MAC);
 			if ($Host && $Host->isValid())
 				throw new Exception(_('A host with this MAC already exists with Hostname: ').$Host->get('name'));
 			if ($this->FOGCore->getClass('HostManager')->exists($_POST['host']))
