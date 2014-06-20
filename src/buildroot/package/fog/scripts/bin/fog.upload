@@ -94,8 +94,8 @@ if [ -f "/images/.mntcheck" ]; then
 				fi
 			fi
 			diskSize=`parted -s $hd u kB print | grep "Disk" | grep -v "Flags" | sed 's/Disk \/dev\/[a-zA-Z0-9]*: //' | sed 's/kB//'`;
+			partitionStart=`fdisk -lu | grep $part | awk '{print $3}'`;
 			if [ "$osid" == "1" ]; then
-				partitionStart=`fdisk -lu | grep $part | awk '{print $3}'`;
 				if [ "$partitionStart" == "" ]; then
 					partitionStart="63";
 				fi
@@ -136,22 +136,22 @@ FORCEY
 					echo "Done";
 					if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 						if [ "$win7partcnt" == "1" ]; then
-							win7part1start=`parted -s $hd u kB print | sed -e '/^.1/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//'`;
+							win7part1start=`parted -s $hd u kB print | sed -e '/^.1/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
 							if [ "$win7part1start" == "" ]; then
 								handleError "Unable to determine disk start location.";
 							fi
 							adjustedfdsize=`expr $sizefd '+' $win7part1start`;
 							parted -s $hd u kB rm 1 &>/dev/null;
-							parted -s $hd -a opt u kB mkpart primary ntfs 2048s ${adjustedfdsize}kB &>/dev/null;
+							parted -s $hd -a opt u kB mkpart primary ntfs ${partitionStart}s ${adjustedfdsize}kB &>/dev/null;
     						parted -s $hd u kB set 1 boot on &>/dev/null
 						elif [ "$win7partcnt" == "2" ]; then
-							win7part2start=`parted -s $hd u B print | sed -e '/^.2/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//'`;
+							win7part2start=`parted -s $hd u B print | sed -e '/^.2/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
 							if [ "$win7part2start" == "" ]; then
 								handleError "Unable to determine disk start location.";
 							fi
 							adjustedfdsize=`expr $sizefd '+' $win7part2start`;
 							parted -s $hd -a opt u kB mkpart primary ntfs ${defaultpart2start}B ${adjustedfdsize}kB &>/dev/null;
-    						parted -s $hd u kB set 1 boot on &>/dev/null
+							parted -s $hd u kB set 1 boot on &>/dev/null;
 						else
 							handleError "Invalid partition count.";
 						fi
