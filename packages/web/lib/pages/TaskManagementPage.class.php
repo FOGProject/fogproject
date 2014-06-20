@@ -244,7 +244,7 @@ class TaskManagementPage extends FOGPage
 		$taskName = 'Quick Deploy';
 		try
 		{
-			$Host->createImagePackage($taskTypeID, $taskName, false, false, $enableSnapins);
+			$Host->createImagePackage($taskTypeID, $taskName, false, false, $enableSnapins, false, $this->FOGUser->get('name'));
 			$this->FOGCore->setMessage('Successfully created tasking!');
 			$this->FOGCore->redirect('?node=tasks&sub=active');
 		}
@@ -378,10 +378,10 @@ class TaskManagementPage extends FOGPage
 		$taskTypeID = $this->REQUEST['type'];
 		$snapin = '-1';
 		$enableShutdown = false;
-		$enableSnapins = ($_REQUEST['type'] == 1 ? true : false);
+		$enableSnapins = ($_REQUEST['type'] == 17 ? false : -1);
 		$taskName = ($taskTypeID == 8 ? 'Multicast Group Quick Deploy' : 'Group Quick Deploy');
 		foreach ((array)$Group->get('hosts') AS $Host)
-			$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, false, $enableSnapins, true);
+			$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, false, $enableSnapins, true, $this->FOGUser->get('name'));
 		$this->FOGCore->setMessage('Successfully created Group tasking!');
 		$this->FOGCore->redirect('?node=tasks&sub=active');
 	}
