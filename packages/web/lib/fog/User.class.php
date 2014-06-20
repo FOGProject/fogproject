@@ -74,7 +74,11 @@ class User extends FOGController
 		else if (!headers_sent() && time() - $_SESSION['CREATED'] > ($this->regenerateSessionTimeout * 60 * 60))
 		{
 			// Regenerate session ID
-			session_regenerate_id(true);
+			@session_regenerate_id();
+			$sid = session_id();
+			@session_write_close();
+			@session_id($sid);
+			@session_start();
 			$_SESSION['CREATED'] = time();
 		}
 		// Logged in
@@ -85,7 +89,6 @@ class User extends FOGController
 		// Destroy session
 		@session_destroy();
 		@session_unset();
-		
 		$_SESSION = array();
 	}
 }

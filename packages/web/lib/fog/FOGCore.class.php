@@ -16,7 +16,9 @@ class FOGCore extends FOGBase
 	{
 		$User = current($this->getClass('UserManager')->find(array('name' => $username,'password' => md5($password))));
 		if ($User && $User->isValid())
+		{
 			return $User;
+		}
 		return null;
 	}
 
