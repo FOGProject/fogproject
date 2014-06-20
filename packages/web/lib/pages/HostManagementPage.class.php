@@ -48,7 +48,7 @@ class HostManagementPage extends FOGPage
 			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			($LocPluginInst ? '${location}<br/><small>${deployed}</small>' : '<small>${deployed}</small>'),
-			'<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${host_id}"><span class="icon icon-download" title="Download"></span></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${host_id}"><span class="icon icon-upload" title="Upload"></span></a> <a href="?node=host&sub=deploy&type=8&id=${host_id}"><span class="icon icon-deploy" title="Deploy"></span></a>',
+			'<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${host_id}"><span class="icon icon-download" title="Download"></span></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${host_id}"><span class="icon icon-upload" title="Upload"></span></a> <a href="?node=host&sub=deploy&type=8&id=${host_id}"><span class="icon icon-multicast" title="Multi-cast"></span></a> <a href="?node=host&sub=edit&id=${host_id}#host-tasks"><span class="icon icon-deploy" title="Deploy"></span></a>',
 			'<a href="?node=host&sub=edit&id=${host_id}"><span class="icon icon-edit" title="Edit"></span></a> <a href="?node=host&sub=delete&id=${host_id}"><span class="icon icon-delete" title="Delete"></span></a>',
 			'${image_name}',
 		);
