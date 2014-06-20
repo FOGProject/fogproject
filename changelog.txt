@@ -1,4 +1,4 @@
-Version 1.1.2
+Version 1.X.X
 -------------
 
 * Fix client updater so hash is returned properly.
@@ -8,6 +8,7 @@ Version 1.1.2
 * Fix installer issues from moving commons/config.php to
 * Fix Storage Node/Image Replicator so it only replicates to enabled nodes.
 lib/fog/Config.class.php
+* Fix issue where invalid mac would still create Host with 0 ID in DB.
 * Group deployment only cares if uniform image for multicast not for all
 tasks.
 * Add ability to adjust timeout values on login system or remove them
