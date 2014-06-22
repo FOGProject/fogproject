@@ -34,6 +34,7 @@ $content = $FOGPageManager->render();
 $sectionTitle = $FOGPageManager->getFOGPageName();
 // Page Title - should be set after page has been rendered
 $pageTitle = $FOGPageManager->getFOGPageTitle();
+$HookManager->processEvent('CONTENT_DISPLAY',array('content' => &$content,'sectionTitle' => &$sectionTitle,'pageTitle' => &$pageTitle));
 if ($FOGCore->isAJAXRequest())
 {
 	print $content; 
