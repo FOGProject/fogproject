@@ -4,12 +4,12 @@ class RemoveMenuItems extends Hook
 	var $name = 'RemoveMenuItems';
 	var $description = 'Removes menu items and restricts the links from the page.';
 	var $author = 'Tom Elliott';
-	var $active = false;
+	var $active = true;
 	private $linkToFilter;
 	public function __construct()
 	{
 		parent::__construct();
-		$this->linksToFilter = array('home','host','plugin','storage','images');
+		$this->linksToFilter = array('host','storage','images');
 	}
 	public function MenuData($arguments)
 	{
