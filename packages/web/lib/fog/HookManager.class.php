@@ -15,6 +15,7 @@ class HookManager extends FOGBase
 		'CSS',
 		'JavaScript',
 		'MAIN_MENU_DATA',				// data => array
+		'SUB_MENULINK_DATA',
 		'SubMenuData',				// FOGSubMenu => FOGSubMenu Object
 		'CONTENT_DISPLAY',
 		//'MessageBox',				// data => string
