@@ -19,7 +19,7 @@ class Mainmenu extends FOGBase
 		else
 		{
 			$menuItem[] = sprintf("%s%s","\n\t\t\t",'<div id="menuBar">');
-			foreach($this->mobile AS $title => $link)
+			foreach($this->main AS $link => $title)
 				$menuItem[] = sprintf("%s%s","\n\t\t\t\t",'<a href="?node='.$link.($link != 'logout' ? 's' : '').'"><img class="'.$link.'" src="images/icon-'.$link.'.png" alt="'.$title.'" /></a>');
 			$menuItem[] = sprintf("%s%s","\n\t\t\t","</div>");
 		}
@@ -60,9 +60,14 @@ class Mainmenu extends FOGBase
 			'logout' => $this->foglang['Logout'],
 		);
 		$menu = array_unique(array_filter($menu));
+		$links = array();
 		foreach ($menu AS $link => $title)
 			$this->main[$link] = $title;
 		$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
+		foreach ($this->main AS $link => $title)
+			array_push($links,($link != 'logout' ? $link.'s' : $link));
+		if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links))
+			$this->FOGCore->redirect('index.php');
 	}
 	public function mainMenu()
 	{

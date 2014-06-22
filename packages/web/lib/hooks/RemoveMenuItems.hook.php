@@ -3,7 +3,7 @@ class RemoveMenuItems extends Hook
 {
 	var $name = 'RemoveMenuItems';
 	var $description = 'Removes the "IP Address" column from Host Lists';
-	var $author = 'Blackout';
+	var $author = 'Tom Elliott';
 	var $active = false;
 	private $linkToFilter;
 	public function __construct()
@@ -21,13 +21,10 @@ class RemoveMenuItems extends Hook
 	}
 	public function NotAllowed($arguments)
 	{
-		foreach($this->linksToFilter AS $link)
+		if (in_array($_REQUEST['node'],(array)$this->linkToFilter))
 		{
-			if (preg_match('#node='.$link.'#i',$_SERVER['REQUEST_URI']))
-			{
-				$this->FOGCore->setMessage('You are not allowed here.');
-				$this->FOGCore->redirect('index.php');
-			}
+			$this->FOGCore->setMessage('You are not allowed here.');
+			$this->FOGCore->redirect('index.php');
 		}
 	}
 }
