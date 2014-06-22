@@ -1,53 +1,86 @@
 <?php 
-class Mainmenu
+class Mainmenu extends FOGBase
 {
-	private $mainMenuItems, $foglang;
-	private $currentUser, $HookManager;
+	private $mainMenuItems,$mobile,$main,$menuItem;
 
-	function __construct($currentUser)
+	public function __construct()
 	{
-		$this->currentUser = $currentUser;
-		$this->HookManager = $GLOBALS['FOGCore']->getClass('HookManager');
-		$this->foglang = $GLOBALS['foglang'];
+		parent::__construct();
 	}
-
 	private function manageData()
 	{
-		$this->HookManager->processEvent('MAIN_MENU_DATA',array('data' =>&$this->mainMenuItems));
 		if(!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
 		{
-			print "\n\t\t\t<ul>";
-			foreach($this->mainMenuItems AS $title => $link) 
-				print "\n\t\t\t\t".'<li><a href="?node='.$link.'" title="'.$title.'"><img src="images/icon-'.$link.'.png" alt="'.$title.'" /></a></li>';
-			print "\n\t\t\t</ul>";
+			$menuItem[] = sprintf("%s%s","\n\t\t\t","<ul>");
+			foreach($this->main AS $link => $title)
+				$menuItem[] = sprintf("%s%s","\n\t\t\t\t",'<li><a href="?node='.$link.'" title="'.$title.'"><img src="images/icon-'.$link.'.png" alt="'.$title.'" /></a></li>');
+			$menuItem[] = sprintf("%s%s","\n\t\t\t","</ul>");
 		}
 		else
 		{
-			print "\n\t\t\t".'<div id="menuBar">';
-			foreach($this->mainMenuItems AS $title => $link)
-				print "\n\t\t\t".'<a href="?node='.($link != 'logout' ? $link.'s' : $link.'').'"><img class="'.$link.'" src="images/icon-'.$link.'.png" alt="'.$title.'" /></a>';
-			print "\n\t\t\t</div>";
+			$menuItem[] = sprintf("%s%s","\n\t\t\t",'<div id="menuBar">');
+			foreach($this->mobile AS $title => $link)
+				$menuItem[] = sprintf("%s%s","\n\t\t\t\t",'<a href="?node='.$link.($link != 'logout' ? 's' : '').'"><img class="'.$link.'" src="images/icon-'.$link.'.png" alt="'.$title.'" /></a>');
+			$menuItem[] = sprintf("%s%s","\n\t\t\t","</div>");
 		}
+		print implode($menuItem);
 	}
-
+	private function mainSetting()
+	{
+		$location = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location', 'installed' => 1)));
+		$plugin = $this->FOGCore->getSetting('FOG_PLUGINSYS_ENABLED');
+		$menu = array(
+			'home' => $this->foglang['Home'],
+			'users' => $this->foglang['User'].' '.$this->foglang['Management'],
+			'host' => $this->foglang['Host'].' '.$this->foglang['Management'],
+			'group' => $this->foglang['Group'].' '.$this->foglang['Management'],
+			'images' => $this->foglang['Image'].' '.$this->foglang['Management'],
+			'storage' => $this->foglang['Storage'].' '.$this->foglang['Management'],
+			'snapin' => $this->foglang['Snapin'].' '.$this->foglang['Management'],
+			'printer' => $this->foglang['Printer'].' '.$this->foglang['Management'],
+			'service' => $this->foglang['Service'].' '.$this->foglang['Management'],
+			'tasks' => $this->foglang['Task'].' '.$this->foglang['Management'],
+			'report' => $this->foglang['Reports'].' '.$this->foglang['Management'],
+			'about' => $this->foglang['FOG'].' '.$this->foglang['Configuration'],
+			$location ? 'location' : '' => $location ? $this->foglang['Location'].' '.$this->foglang['Management'] : '',
+			$plugin ? 'plugin' : '' => $plugin ? $this->foglang['Plugin'].' '.$this->foglang['Management'] : '',
+			'logout' => $this->foglang['Logout'],
+		);
+		$menu = array_unique(array_filter($menu));
+		foreach ($menu AS $link => $title)
+			$this->main[$link] = $title;
+		$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
+	}
+	private function mobileSetting()
+	{
+		$menu = array(
+			'home' => $this->foglang['Home'],
+			'host' => $this->foglang['Host'],
+			'tasks' => $this->foglang['Task'],
+			'logout' => $this->foglang['Logout'],
+		);
+		$menu = array_unique(array_filter($menu));
+		foreach ($menu AS $link => $title)
+			$this->main[$link] = $title;
+		$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
+	}
 	public function mainMenu()
 	{
-		if ($this->currentUser != null && $this->currentUser->isLoggedIn() && preg_match('#mobile#i',$_SERVER['PHP_SELF']))
+		try
 		{
-			foreach($this->foglang['Mobile'] AS $menu => $value)
-			{
+			if ($this->FOGUser != null && $this->FOGUser->isLoggedIn() && preg_match('#mobile#i',$_SERVER['PHP_SELF']))
+				$this->mobileSetting();
+			else if ($this->FOGUser != null && $this->FOGUser->isLoggedIn() && $this->FOGUser->get('type') == 0)
+				$this->mainSetting();
+			else if ($this->FOGUser != null && $this->FOGUser->isLoggedIn() && $this->FOGUser->get('type') != 0)
+				throw new Exception('Not Allowed Here!');
+			foreach($this->main AS $menu => $value)
 				$this->mainMenuItems[$value] = $menu;
-			}
 		}
-		else if ($this->currentUser != null && $this->currentUser->isLoggedIn() && $this->currentUser->get('type') == 0)
+		catch (Exception $e)
 		{
-			foreach($this->foglang['Menu'] AS $menu => $value)
-			{
-				$this->mainMenuItems[$value] = $menu;
-			}
+			$this->FOGCore->redirect('?node=logout');
 		}
-		else if ($this->currentUser != null && $this->currentUser->isLoggedIn() && $this->currentUser->get('type') != 0)
-			$GLOBALS['FOGCore']->redirect('?node=logout');
 		$this->manageData();
 	}
 }
