@@ -9,6 +9,7 @@ Version 1.X.X
 * Fix Storage Node/Image Replicator so it only replicates to enabled nodes.
 lib/fog/Config.class.php
 * Fix issue where invalid mac would still create Host with 0 ID in DB.
+* Fix scheduled tasks so styles of 4,5,6 will work properly.
 * Group deployment only cares if uniform image for multicast not for all
 tasks.
 * Add ability to adjust timeout values on login system or remove them

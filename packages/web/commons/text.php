@@ -157,32 +157,6 @@ $foglang['Language']['en']			= _('English');
 $foglang['Language']['es']			= _('Español');
 $foglang['Language']['fr']			= _('Français');
 $foglang['Language']['it']			= _('Italiano');
-// Structure is $foglang['Menu'][NODELINK] = ITEM PHRASE
-// These are the main menu systems of FOG.
-$foglang['Menu']['home']			= $foglang['Home'];
-$foglang['Menu']['users']			= $foglang['User'].' '.$foglang['Management'];
-$foglang['Menu']['host']			= $foglang['Host'].' '.$foglang['Management'];
-$foglang['Menu']['group']			= $foglang['Group'].' '.$foglang['Management'];
-$foglang['Menu']['images']			= $foglang['Image'].' '.$foglang['Management'];
-$foglang['Menu']['storage']			= $foglang['Storage'].' '.$foglang['Management'];
-$foglang['Menu']['snapin']			= $foglang['Snapin'].' '.$foglang['Management'];
-$foglang['Menu']['printer']			= $foglang['Printer'].' '.$foglang['Management'];
-$foglang['Menu']['service']			= $foglang['Service'].' '.$foglang['Management'];
-$foglang['Menu']['tasks']			= $foglang['Task'].' '.$foglang['Management'];
-$foglang['Menu']['report']			= $foglang['Reports'];
-$foglang['Menu']['about']			= $foglang['FOG'].' '.$foglang['Configuration'];
-//Below checks if the location plugin is installed and running.  If it is, display the location management page.
-$location = current($GLOBALS['FOGCore']->getClass('PluginManager')->find(array('name' => 'location', 'installed' => 1)));
-($location ? $foglang['Menu']['location'] = $foglang['Location'].' '.$foglang['Management'] : null);
-//Below checks and plugin enabled/disabled and sets the menu up.
-($GLOBALS['FOGCore']->getSetting('FOG_PLUGINSYS_ENABLED') ? $foglang['Menu']['plugin']	= $foglang['Plugin'].' '.$foglang['Management'] : null);
-//Always need this.
-$foglang['Menu']['logout']			= $foglang['Logout'];
-//Mobile Menu, Basically the same, just different call.
-$foglang['Mobile']['home']			= $foglang['Home'];
-$foglang['Mobile']['host']			= $foglang['Host'];
-$foglang['Mobile']['tasks']			= $foglang['Task'];
-$foglang['Mobile']['logout']		= $foglang['Logout'];
 /** Sub Menu Items Common items will contain placeholders.
  ** Each node has it's own subset.
  */

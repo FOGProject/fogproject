@@ -120,7 +120,6 @@ class ProcessLogin
 		{
 			// Hook
 			$this->HookManager->processEvent('Login', array('username' => &$this->username, 'password' => &$this->password));
-
 			$tmpUser = $this->FOGCore->attemptLogin($this->username, $this->password);
 			if ($tmpUser != null)
 			{
@@ -234,4 +233,3 @@ class ProcessLogin
 		ob_end_flush();
 	}
 }
-
