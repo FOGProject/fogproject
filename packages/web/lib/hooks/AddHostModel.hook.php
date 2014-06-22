@@ -6,7 +6,7 @@ class AddHostModel extends Hook
 	var $description = 'Adds host model to the host lists';
 	var $author = 'Rowlett/TomElliott';
 	var $active = false;
-	function HostData($arguments)
+	public function HostData($arguments)
 	{
 		if ($_REQUEST['node'] == 'host')
 		{
@@ -24,7 +24,7 @@ class AddHostModel extends Hook
 			}
 		}
 	}
-	function HostTableHeader($arguments)
+	public function HostTableHeader($arguments)
 	{
 		if ($_REQUEST['node'] == 'host')
 		{
