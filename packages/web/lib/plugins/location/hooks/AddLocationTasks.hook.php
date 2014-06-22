@@ -28,7 +28,6 @@ class AddLocationTasks extends Hook
 		}
 	}
 }
-// Init AddLocation Tasks
 $AddLocationTasks = new AddLocationTasks();
 // Register hooks
 $HookManager->register('HOST_DATA', array($AddLocationTasks, 'TasksActiveTableHeader'));

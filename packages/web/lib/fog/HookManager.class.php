@@ -182,9 +182,13 @@ class HookManager extends FOGBase
 			$hookIterator = new DirectoryIterator($hookDirectory);
 			foreach ($hookIterator AS $fileInfo)
 			{
-				$file = $fileInfo->isFile() && substr($fileInfo->getFilename(),-9) == '.hook.php' ? file($fileInfo->getPathname()) : null;
+				$file = !$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-9) == '.hook.php' ? file($fileInfo->getPathname()) : null;
 				$key = '$active';
-				if ($file)
+				$PluginName = preg_match('#plugins#i',$hookDirectory) ? basename(substr($hookDirectory,0,-6)) : null;
+				$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $PluginName,'installed' => 1)));
+				if ($Plugin)
+					$className = (substr($fileInfo->getFilename(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
+				else if ($file && !preg_match('#plugins#',$fileInfo->getPathname()))
 				{
 					foreach($file AS $lineNumber => $line)
 					{
@@ -192,16 +196,7 @@ class HookManager extends FOGBase
 							break;
 					}
 					if(preg_match('#true#i',$file[$lineNumber]))
-						$className = (!$fileInfo->isDot() && substr($fileInfo->getFileName(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
-				}
-				foreach($PluginNames AS $PluginName)
-				{
-					if (preg_match('#plugins#i',$fileInfo->getPathname()) && preg_match('#'.$PluginName.'#i',$fileInfo->getPathname()))
-					{
-						$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $PluginName,'installed' => 1,'state' => 1)));
-						if (!$Plugin)
-							$className = null;
-					}
+						$className = (substr($fileInfo->getFileName(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
 				}
 				if ($className)
 					$class = new $className();
@@ -213,7 +208,7 @@ class HookManager extends FOGBase
 		if (!$this->isAJAXRequest() && $this->logLevel >= $level)
 			printf('[%s] %s%s', date("d-m-Y H:i:s"), trim(preg_replace(array("#\r#", "#\n#", "#\s+#", "# ,#"), array("", " ", " ", ","), $txt)), "<br />\n");
 	}
-	function isAJAXRequest()
+	public function isAJAXRequest()
 	{
 		return (strtolower(@$_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' ? true : false);
 	}
