@@ -19,7 +19,7 @@ abstract class Hook extends FOGBase
 	public function run($arguments)
 	{
 	}
-	function log($txt, $level = 1)
+	public function log($txt, $level = 1)
 	{
 		$log = trim(preg_replace(array("#\r#", "#\n#", "#\s+#", "# ,#"), array("", " ", " ", ","), $txt));
 		
@@ -28,8 +28,7 @@ abstract class Hook extends FOGBase
 		if ($this->logToFile)
 			file_put_contents(BASEPATH . '/lib/hooks/' . get_class($this) . '.log', sprintf("[%s] %s\r\n", date("d-m-Y H:i:s"), $log), FILE_APPEND | LOCK_EX);
 	}
-	
-	function isAJAXRequest()
+	public function isAJAXRequest()
 	{
 		return (strtolower(@$_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' ? true : false);
 	}
