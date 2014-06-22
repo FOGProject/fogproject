@@ -31,6 +31,7 @@ if ($node != 'logout')
 $sectionTitle = $FOGPageManager->getFOGPageName();
 // Page Title - should be set after page has been rendered
 $pageTitle = $FOGPageManager->getFOGPageTitle();
+$HookManager->processEvent('CONTENT_DISPLAY',array('content' => &$content,'sectionTitle' => &$sectionTitle,'pageTitle' => &$pageTitle));
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
