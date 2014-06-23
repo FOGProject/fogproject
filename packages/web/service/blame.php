@@ -33,13 +33,14 @@ try
 	$Task = current($Host->get('task'));
 	if (!$Task->isValid())
 		throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'),$MACAddress));
+	$imagingTasks = in_array($Task->get('typeID'),array(1,2,8,15,16,17));
 	// Get the Storage Group
 	$StorageGroup = $Task->getStorageGroup();
-	if (!$StorageGroup->isValid())
+	if ($imagingTasks && !$StorageGroup->isValid())
 		throw new Exception(_('Invalid Storage Group'));
 	// Get the node.
 	$StorageNodes = $StorageGroup->getStorageNodes();
-	if (!$StorageNodes)
+	if ($imagingTasks && !$StorageNodes)
 		throw new Exception(_('Could not find a Storage Node. Is there one enabled within this Storage Group?'));
 	// Cycle through the nodes
 	foreach ($StorageNodes AS $StorageNode)
