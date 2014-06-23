@@ -108,7 +108,7 @@ class StorageManagementPage extends FOGPage
 		// Fields
 		$fields = array(
 			_('Storage Node Name') => '<input type="text" name="name" value="${node_name}" autocomplete="off" />*',
-			_('Storage Node Description') => '<textarea name="description" rows="5" cols="40" autocomplete="off">${node_desc}</textarea>',
+			_('Storage Node Description') => '<textarea name="description" rows="5" cols="60" autocomplete="off">${node_desc}</textarea>',
 			_('IP Address') => '<input type="text" name="ip" value="${node_ip}" autocomplete="off" />*',
 			_('Max Clients') => '<input type="text" name="maxClients" value="${node_maxclient}" autocomplete="off" />*',
 			_('Is Master Node') => '<input type="checkbox" name="isMaster" value="1" />&nbsp;&nbsp;${span}',
@@ -239,7 +239,7 @@ class StorageManagementPage extends FOGPage
 		// Fields
 		$fields = array(
 			_('Storage Node Name') => '<input type="text" name="name" value="${node_name}" autocomplete="off" />*',
-			_('Storage Node Description') => '<textarea name="description" rows="5" cols="40" autocomplete="off">${node_desc}</textarea>',
+			_('Storage Node Description') => '<textarea name="description" rows="5" cols="60" autocomplete="off">${node_desc}</textarea>',
 			_('IP Address') => '<input type="text" name="ip" value="${node_ip}" autocomplete="off" />*',
 			_('Max Clients') => '<input type="text" name="maxClients" value="${node_maxclient}" autocomplete="off" />*',
 			_('Is Master Node') => '<input type="checkbox" name="isMaster" value="1" ${ismaster} autocomplete="off" />&nbsp;&nbsp;${span}',
@@ -470,7 +470,7 @@ class StorageManagementPage extends FOGPage
 		// Fields
 		$fields = array(
 			_('Storage Group Name') => '<input type="text" name="name" value="${storgrp_name}" />',
-			_('Storage Group Description') => '<textarea name="description" rows="5" cols="40">${storgrp_desc}</textarea>',
+			_('Storage Group Description') => '<textarea name="description" rows="5" cols="60">${storgrp_desc}</textarea>',
 			'&nbsp;' => '<input type="submit" value="'._('Add').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
@@ -555,7 +555,7 @@ class StorageManagementPage extends FOGPage
 		// Fields
 		$fields = array(
 			_('Storage Group Name') => '<input type="text" name="name" value="${storgrp_name}" />',
-			_('Storage Group Description') => '<textarea name="description" rows="5" cols="40">${storgrp_desc}</textarea>',
+			_('Storage Group Description') => '<textarea name="description" rows="5" cols="60">${storgrp_desc}</textarea>',
 			'&nbsp;' => '<input type="submit" value="'._('Update').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';

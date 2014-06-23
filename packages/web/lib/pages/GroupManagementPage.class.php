@@ -154,7 +154,7 @@ class GroupManagementPage extends FOGPage
 		);
 		$fields = array(
 			_('Group Name') => '<input type="text" name="name" />',
-			_('Group Description') => '<textarea name="description" rows="5" cols="40"></textarea>',
+			_('Group Description') => '<textarea name="description" rows="5" cols="60"></textarea>',
 			_('Group Kernel') => '<input type="text" name="kern" />',
 			_('Group Kernel Arguments') => '<input type="text" name="args" />',
 			_('Group Primary Disk') => '<input type="text" name="dev" />',
@@ -276,7 +276,7 @@ class GroupManagementPage extends FOGPage
 		);
 		$fields = array(
 			_('Group Name') => '<input type="text" name="name" value="${group_name}" />',
-			_('Group Description') => '<textarea name="description" rows="5" cols="40">${group_desc}</textarea>',
+			_('Group Description') => '<textarea name="description" rows="5" cols="60">${group_desc}</textarea>',
 			($LocPluginInst ? _('Group Location') : null) => ($LocPluginInst ? $this->FOGCore->getClass('LocationManager')->buildSelectBox($locationMatchID) : null),
 			_('Group Kernel') => '<input type="text" name="kern" value="${group_kern}" />',
 			_('Group Kernel Arguments') => '<input type="text" name="args" value="${group_args}" />',
