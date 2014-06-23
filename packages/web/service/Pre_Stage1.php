@@ -20,13 +20,14 @@ try
 	// Check-in Host
 	if ($Task->get('stateID') == 1)
 		$Task->set('stateID', '2')->set('checkInTime', time())->save();
+	$imagingTasks = in_array($Task->get('typeID'),array(1,2,8,15,16,17));
 	// Storage Group
 	$StorageGroup = $Task->getStorageGroup();
-	if (!$StorageGroup->isValid())
+	if ($imagingTasks && !$StorageGroup->isValid())
 		throw new Exception( _('Invalid StorageGroup') );
 	// Storage Node
 	$StorageNodes = $StorageGroup->getStorageNodes();
-	if (!$StorageNodes)
+	if ($imagingTasks && !$StorageNodes)
 		throw new Exception( _('Could not find a Storage Node. Is there one enabled within this Storage Group?') );
 	// Forced to start
 	if ($Task->get('isForced'))
