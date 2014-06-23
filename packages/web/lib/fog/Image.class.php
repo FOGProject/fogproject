@@ -22,7 +22,7 @@ class Image extends FOGController
 		'osID'		=> 'imageOSID',
 		'size'		=> 'imageSize', 
 		'deployed'	=> 'imageLastDeploy',
-		'legacy'        => 'imageLegacy',
+		'format'        => 'imageFormat',
 	);
 
 	// Additional Fields

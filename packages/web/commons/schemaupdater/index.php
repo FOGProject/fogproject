@@ -1357,6 +1357,11 @@ $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	 values('FOG_REGENERATE_TIMEOUT','This setting allows user to be signed in all the time or not. Between 0.25 and 24 by hours.','0.5','Login Settings')",
 );
+// 106
+$databaseSchema[] = array(
+	"ALTER TABLE images CHANGE imageLegacy imageFormat char",
+	"UPDATE globalSettings SET settingKey='FOG_FORMAT_FLAG_IN_GUI' WHERE settingKey='FOG_LEGACY_FLAG_IN_GUI'",
+);
 
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';

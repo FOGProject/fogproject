@@ -66,8 +66,8 @@ try
 		}
 	}
 	// If image is currently legacy, set as not legacy.
-	if ($Image->get('legacy'))
-		$Image->set('legacy',0)->save();
+	if ($Image->get('format') == 1)
+		$Image->set('format',0)->save();
 	// Complete the Task.
 	$Task->set('stateID','4');
 	if (!$Task->save())

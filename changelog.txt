@@ -10,14 +10,17 @@ Version 1.X.X
 lib/fog/Config.class.php
 * Fix issue where invalid mac would still create Host with 0 ID in DB.
 * Fix scheduled tasks so styles of 4,5,6 will work properly.
+* Fix Group Host add so they are in their own forms.
+* Change imageLegacy to imageFormat for future adjustments where needed.
+* Adjust all 'legacy' image calls to 'format' and change db class for this.
 * Group deployment only cares if uniform image for multicast not for all
 tasks.
+* Add basic element for Access Control as plugin elements. (BETA)
 * Add ability to adjust timeout values on login system or remove them
 completely.
 * Add Mageia to installer system.  ****THANKS CHUCK SITES****
 * OU system is now a select box.  Documentation will follow, but in beta atm.
 * Only Imaging Tasks require Images, not all tasks now.
-
 * Hosts within group can now have image set within group from membership
 field.
 * Schema and update of schema is it's own class.
