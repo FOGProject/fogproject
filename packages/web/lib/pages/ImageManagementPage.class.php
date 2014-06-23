@@ -219,7 +219,7 @@ class ImageManagementPage extends FOGPage
 		);
 		$fields = array(
 			_('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="${image_name}" />',
-			_('Image Description') => '<textarea name="description" rows="5" cols="60">${image_desc}</textarea>',
+			_('Image Description') => '<textarea name="description" rows="8" cols="40">${image_desc}</textarea>',
 			_('Storage Group') => '${storage_groups}',
 			_('Operating System') => '${operating_systems}',
 			_('Image Path') => '${image_path}<input type="text" name="file" id="iFile" value="${image_file}" />',
@@ -335,7 +335,7 @@ class ImageManagementPage extends FOGPage
 		// Set the fields and inputs.
 		$fields = array(
 			_('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="${image_name}" />',
-			_('Image Description') => '<textarea name="description" rows="5" cols="60">${image_desc}</textarea>',
+			_('Image Description') => '<textarea name="description" rows="8" cols="40">${image_desc}</textarea>',
 			_('Storage Group') => '${storage_groups}',
 			_('Operating System') => '${operating_systems}',
 			_('Image Path') => '${image_path}<input type="text" name="file" id="iFile" value="${image_file}" />',

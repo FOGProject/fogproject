@@ -171,7 +171,7 @@ class HostManagementPage extends FOGPage
 		$fields = array(
 			_('Host Name') => '<input type="text" name="host" value="${host_name}" maxlength="15" class="hostname-input" />*',
 			_('Primary MAC') => '<input type="text" id="mac" name="mac" value="${host_mac}" />* <span id="priMaker></span><span class="icon icon-add add-mac hand" title="'._('Add Mac').'"></span><span class="mac-manufactor"></span>',
-			_('Host Description') => '<textarea name="description" rows="5" cols="60">${host_desc}</textarea>',
+			_('Host Description') => '<textarea name="description" rows="8" cols="40">${host_desc}</textarea>',
 			_('Host Image') => '${host_image}',
 			($LocPluginInst ? _('Host Location') : '') => ($LocPluginInst ? '${host_locs}' : ''),
 			_('Host Kernel') => '<input type="text" name="kern" value="${host_kern}" />',
@@ -391,7 +391,7 @@ class HostManagementPage extends FOGPage
 			_('Primary MAC') => '<input type="text" name="mac" id="mac" value="${host_mac}" />*<span id="priMaker"></span><span class="icon icon-add add-mac hand" title="'._('Add MAC').'"></span><span class="mac-manufactor"></span>',
 			'<span id="additionalMACsRow">'._('Additional MACs').'</span>' => '<span id="additionalMACsCell">'.$addMACs.'</span>',
 			($Host->get('pendingMACs') ? _('Pending MACs') : null) => ($Host->get('pendingMACs') ? $pending : null),
-			_('Host Description') => '<textarea name="description" rows="5" cols="60">${host_desc}</textarea>',
+			_('Host Description') => '<textarea name="description" rows="8" cols="40">${host_desc}</textarea>',
 			_('Host Image') => '${host_image}',
 			($LocPluginInst ? _('Host Location') : '') => ($LocPluginInst ? '${host_locs}' : ''),
 			_('Host Kernel') => '<input type="text" name="kern" value="${host_kern}" />',

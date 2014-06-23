@@ -21,13 +21,14 @@ try
 	$Task = current($Host->get('task'));
 	if (!$Task->isValid())
 		throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'), $MACAddress));
+	$TaskType = new TaskType($Task->get('typeID');
 	// Get the storage group
 	$StorageGroup = $Task->getStorageGroup();
-	if (!$StorageGroup->isValid())
+	if ($TaskType->isUpload() && !$StorageGroup->isValid())
 		throw new Exception(_('Invalid Storage Group'));
 	// Get the storage node.
 	$StorageNodes = $StorageGroup->getStorageNodes();
-	if (!$StorageNodes)
+	if ($TaskType->isUpload() && !$StorageNodes)
 		throw new Exception(_('Could not find a Storage Node. Is there one enabled within this Storage Group?'));
 	// Image Name store for logging the image task later.
 	$Image = new Image($Host->get('imageID'));
