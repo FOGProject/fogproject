@@ -410,7 +410,11 @@ class GroupManagementPage extends FOGPage
 			print "\n\t\t\t".'</div></center>';
 		}
 		if ($HostStuff || $GroupOption)
+		{
 			print "\n\t\t\t".'<center><input type="submit" value="'._('Add Host(s) to Group').'" /></center>';
+			print "\n\t\t\t</form>";
+			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
+		}
 		$this->headerData = array(
             _('Hostname'),
             ('Deployed'),
