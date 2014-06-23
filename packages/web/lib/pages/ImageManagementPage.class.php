@@ -219,7 +219,7 @@ class ImageManagementPage extends FOGPage
 		);
 		$fields = array(
 			_('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="${image_name}" />',
-			_('Image Description') => '<textarea name="description" rows="5" cols="40">${image_desc}</textarea>',
+			_('Image Description') => '<textarea name="description" rows="5" cols="60">${image_desc}</textarea>',
 			_('Storage Group') => '${storage_groups}',
 			_('Operating System') => '${operating_systems}',
 			_('Image Path') => '${image_path}<input type="text" name="file" id="iFile" value="${image_file}" />',
@@ -335,12 +335,12 @@ class ImageManagementPage extends FOGPage
 		// Set the fields and inputs.
 		$fields = array(
 			_('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="${image_name}" />',
-			_('Image Description') => '<textarea name="description" rows="5" cols="40">${image_desc}</textarea>',
+			_('Image Description') => '<textarea name="description" rows="5" cols="60">${image_desc}</textarea>',
 			_('Storage Group') => '${storage_groups}',
 			_('Operating System') => '${operating_systems}',
 			_('Image Path') => '${image_path}<input type="text" name="file" id="iFile" value="${image_file}" />',
 			_('Image Type') => '${image_types}',
-			$this->FOGCore->getSetting('FOG_LEGACY_FLAG_IN_GUI') ? _('Image Manager') : '' => $this->FOGCore->getSetting('FOG_LEGACY_FLAG_IN_GUI') ? '<select name="imagemanage"><option value="1" ${is_legacy}>'._('PartImage').'</option><option value="0" ${is_modern}>'._('PartClone').'</option></select>' : '',
+			$this->FOGCore->getSetting('FOG_FORMAT_FLAG_IN_GUI') ? _('Image Manager') : '' => $this->FOGCore->getSetting('FOG_FORMAT_FLAG_IN_GUI') ? '<select name="imagemanage"><option value="1" ${is_legacy}>'._('PartImage').'</option><option value="0" ${is_modern}>'._('PartClone').'</option></select>' : '',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" /><!--<span class="icon icon-help" title="TODO!"></span>-->',
 		);
 		foreach ((array)$fields AS $field => $input)
@@ -355,8 +355,8 @@ class ImageManagementPage extends FOGPage
 				'image_path' => current($this->FOGCore->getClass('StorageNodeManager')->find(array('storageGroupID' => $Image->getStorageGroup()->get('id'),'isEnabled' => 1)))->get('path').'/&nbsp;',
 				'image_file' => $Image->get('path'),
 				'image_types' => $this->FOGCore->getClass('ImageTypeManager')->buildSelectBox($Image->get('imageTypeID'),'','id'),
-				'is_legacy' => $Image->get('legacy') ? 'selected="selected"' : '',
-				'is_modern' => !$Image->get('legacy') ? 'selected="selected"' : '',
+				'is_legacy' => $Image->get('format') == 1 ? 'selected="selected"' : '',
+				'is_modern' => $Image->get('format') == 0 ? 'selected="selected"' : '',
 			);
 		}
 		// Hook
@@ -447,7 +447,7 @@ class ImageManagementPage extends FOGPage
 						->set('osID',		$_POST['os'])
 						->set('path',		$_POST['file'])
 						->set('imageTypeID',	$_POST['imagetype'])
-						->set('legacy',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $Image->get('legacy') );
+						->set('format',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $Image->get('format') );
 				break;
 				case 'image-host';
 					if ($_POST['host'])

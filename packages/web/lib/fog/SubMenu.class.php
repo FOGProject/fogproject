@@ -39,7 +39,7 @@ class SubMenu extends FOGBase
 			$this->object = new Image($_GET['id']);
 			$this->title = array($this->foglang['Images'] => $this->object->get('name'),
 								_('Last Uploaded') => stripslashes($this->object->get('deployed')),
-								_('Deploy Method') => ($this->object->get('legacy') ? 'Partimage' : 'Partclone'),
+								_('Deploy Method') => ($this->object->get('format') == 1 ? 'Partimage' : ($this->object->get('format') == 0 ? 'Partclone' : 'N/A')),
 			);
 		}
 		else if (($this->node == 'printer' || $this->node == 'print') && $_GET['id'])
