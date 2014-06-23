@@ -41,7 +41,7 @@ try
 	$inFrontOfMe = $Task->getInFrontOfHostCount();
 	$groupOpenSlots = $totalSlots - $usedSlots;
 	// Fail if all Slots are used
-	if (!$Task->get('isForced'))
+	if ($imagingTasks && !$Task->get('isForced'))
 	{
 	    if ($usedSlots >= $totalSlots)
 		    throw new Exception(sprintf('%s, %s %s', _('Waiting for a slot'), $inFrontOfMe, _('PCs are in front of me.')));
@@ -49,46 +49,49 @@ try
 	    if ($groupOpenSlots <= $inFrontOfMe)
 		    throw new Exception(sprintf('%s %s %s', _('There are open slots, but I am waiting for'), $inFrontOfMe, _('PCs in front of me.')));
     }
-	// Determine the best Storage Node to use - based off amount of clients connected
-	$messageArray = array();
-	$winner = null;
-	foreach($StorageNodes AS $StorageNode)
+	if ($imagingTasks)
 	{
-		$nodeAvailableSlots = $StorageNode->get('maxClients') - $StorageNode->getUsedSlotCount();
-	    if ($StorageNode->get('maxClients') > 0 && $nodeAvailableSlots > 0)
+		// Determine the best Storage Node to use - based off amount of clients connected
+		$messageArray = array();
+		$winner = null;
+		foreach($StorageNodes AS $StorageNode)
 		{
-	        if ($winner == null)
-	            $winner = $StorageNode;
-	        else if ( $StorageNode->getClientLoad() < $winner->getClientLoad() )
+			$nodeAvailableSlots = $StorageNode->get('maxClients') - $StorageNode->getUsedSlotCount();
+		    if ($StorageNode->get('maxClients') > 0 && $nodeAvailableSlots > 0)
 			{
-	        	if ($StorageNode->getNodeFailure($Host) === null)
-                   	$winner = $StorageNode;
-		    }
-		    else
-			    $messageArray[] = sprintf("%s '%s' (%s) %s", _('Storage Node'), $StorageNode->get('name'), $StorageNode->get('ip'), _('is open, but has recently failed for this Host'));
+		        if ($winner == null)
+		            $winner = $StorageNode;
+		        else if ( $StorageNode->getClientLoad() < $winner->getClientLoad() )
+				{
+		        	if ($StorageNode->getNodeFailure($Host) === null)
+   	                	$winner = $StorageNode;
+			    }
+			    else
+				    $messageArray[] = sprintf("%s '%s' (%s) %s", _('Storage Node'), $StorageNode->get('name'), $StorageNode->get('ip'), _('is open, but has recently failed for this Host'));
+			}
 		}
-	}
-	// Failed to find a Storage Node - this should only occur if all Storage Nodes in this Storage Group have failed
-	if (!isset($winner) || !$winner->isValid())
-	{
-		// Print failed node messages if we are unable to find a valid node
-		if (count($messageArray))
-			print implode(PHP_EOL, $messageArray) . PHP_EOL;
-		throw new Exception(_("Unable to find a suitable Storage Node for transfer!"));
+		// Failed to find a Storage Node - this should only occur if all Storage Nodes in this Storage Group have failed
+		if (!isset($winner) || !$winner->isValid())
+		{
+			// Print failed node messages if we are unable to find a valid node
+			if (count($messageArray))
+				print implode(PHP_EOL, $messageArray) . PHP_EOL;
+			throw new Exception(_("Unable to find a suitable Storage Node for transfer!"));
+		}
+		$Task->set('NFSMemberID', $winner->get('id'));
 	}
 	// All tests passed! Almost there!
 	$Task->set('stateID', '3')
-		 ->set('NFSMemberID', $winner->get('id'));
 	// Update Task State ID -> Update Storage Node ID -> Save
 	if (!$Task->save())
 		throw new Exception(_('Failed to update Task'));
 	// Success!
-	$il = new ImagingLog(array('hostID' => $Host->get('id'),
-							   'start' => date('Y-m-d H:i:s'),
-							   'image' => $Host->getImage()->get('name'),
-							   'type' => $_REQUEST['type'],
-							  )
-	);
+	$il = new ImagingLog(array(
+		'hostID' => $Host->get('id'),
+		'start' => date('Y-m-d H:i:s'),
+		'image' => $Host->getImage()->get('name'),
+		'type' => $_REQUEST['type'],
+	));
 	$il->save();
 	// Task Logging.
 	$TaskLog = new TaskLog(array(
