@@ -556,6 +556,28 @@ class Host extends FOGController
 				}
 			}
 		}
+		// Users
+		else if ($this->isLoaded('users'))
+		{
+			// Remove old rows
+			$this->FOGCore->getClass('UserTrackingManager')->destroy(array('hostID' => $this->get('id')));
+			// Create Assoc
+			foreach ((array)$this->get('users') AS $User)
+			{
+				if (($User instanceof UserTracking) && $User->isValid())
+				{
+					$NewUser = new GroupAssociation(array(
+						'hostID' => $this->get('id'),
+						'username' => $User->get('username'),
+						'action' => $User->get('action'),
+						'datetime' => $User->get('datetime'),
+						'description' => $User->get('description'),
+						'date' => $User->get('date'),
+					));
+					$NewUser->save();
+				}
+			}
+		}
 		// Return
 		return $this;
 	}

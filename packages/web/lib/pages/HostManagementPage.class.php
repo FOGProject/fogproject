@@ -986,9 +986,8 @@ class HostManagementPage extends FOGPage
 			'${user_desc}',
 		);
 		foreach((array)$Host->get('users') AS $UserLogin)
-			$DatesOld[] = date('Y-m-d',strtotime($UserLogin->get('datetime')));
-		if (is_array($DatesOld))
-			$Dates = array_unique($DatesOld);
+			$Dates[] = $UserLogin->get('date');
+		$Dates = array_unique((array)$Dates);
 		if ($Dates)
 		{
 			rsort($Dates);
@@ -997,16 +996,16 @@ class HostManagementPage extends FOGPage
 			{
 				if ($_REQUEST['dte'] == '')
 					$_REQUEST['dte'] = $Date;
-				$optionDate .= '<option value="'.$Date.'" '.($Date == $_GET['dte'] ? 'selected="selected"' : '').'>'.$Date.'</option>';
+				$optionDate[] = '<option value="'.$Date.'" '.($Date == $_REQUEST['dte'] ? 'selected="selected"' : '').'>'.$Date.'</option>';
 			}
-			print "\n\t\t\t".'<select name="dte" size="1" onchange="document.getElementById(\'dte\').submit()">'.$optionDate.'</select>';
+			print "\n\t\t\t".'<select name="dte" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select>';
 			print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><img src="images/go.png" class="noBorder" /></a></p>';
 			$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => ($_GET['dte'] ? $_GET['dte'] : date('Y-m-d'))),'AND','datetime');
 			$_SESSION['fog_logins'] = array();
 			$cnt = 0;
 			foreach ((array)$Host->get('users') AS $UserLogin)
 			{
-				if ($UserLogin && $UserLogin->isValid())
+				if ($UserLogin->isValid() && $UserLogin->get('date') == $_REQUEST['dte'])
 				{
 					$this->data[] = array(
 						'action' => ($UserLogin->get('action') == 1 ? _('Login') : ($UserLogin->get('action') == 0 ? _('Logout') : ($UserLogin->get('action') == 99 ? _('Service Start') : _('Service Stop')))),
