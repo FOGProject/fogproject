@@ -82,7 +82,7 @@ class FOGPageManager extends FOGBase
 			if ($this->methodValue != 'list' && $method == 'index' && $this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN') != 'list' && method_exists($class, 'search'))
 				$method = 'search';
 			// POST - Append '_post' to method name if request method is POST and the method exists
-			if ($this->FOGCore->isPOSTRequest() && method_exists($class, $method . '_post'))
+			if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGCore->isPOSTRequest() && method_exists($class, $method . '_post'))
 				$method = $method . '_post';
 			// AJAX - Append '_ajax' to method name if request is ajax and the method exists
 			if ($this->FOGCore->isAJAXRequest() && method_exists($class, $method . '_ajax'))

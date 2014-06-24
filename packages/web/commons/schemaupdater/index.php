@@ -1359,8 +1359,8 @@ $databaseSchema[] = array(
 );
 // 106
 $databaseSchema[] = array(
-	"ALTER TABLE images CHANGE imageLegacy imageFormat char",
-	"UPDATE globalSettings SET settingKey='FOG_FORMAT_FLAG_IN_GUI' WHERE settingKey='FOG_LEGACY_FLAG_IN_GUI'",
+	"ALTER TABLE `" . DATABASE_NAME . "`.images CHANGE imageLegacy imageFormat char",
+	"UPDATE `" . DATABASE_NAME ."`.globalSettings SET settingKey='FOG_FORMAT_FLAG_IN_GUI' WHERE settingKey='FOG_LEGACY_FLAG_IN_GUI'",
 );
 
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
@@ -1412,12 +1412,12 @@ if ( $_REQUEST["confirm"] == "yes" )
 					else if (!$DB->query($update)->queryResult())
 						$errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i", $DB->sqlerror(), $update);
 				}
-				// Update schema version
-				$newSchema = current($FOGCore->getClass('SchemaManager')->find());
-				if ($newSchema && $newSchema->isValid())
-					$newSchema->set('version',$version);
 			}
-			if ($newSchema->save() && $FOG_SCHEMA == $newSchema->get('version'))
+			$DB->connect();
+			$newSchema = current($FOGCore->getClass('SchemaManager')->find());
+			if ($newSchema && $newSchema->isValid())
+				$newSchema->set('version',$version);
+			if ($newSchema && $newSchema->save() && $FOG_SCHEMA == $newSchema->get('version'))
 			{
 				print "\n\t\t\t<p>"._('Update/Install Successful!').'</p>';
 				print "\n\t\t\t<p>"._('Click').' <a href="../../management">'._('here').'</a> '._('to login.').'</p>';

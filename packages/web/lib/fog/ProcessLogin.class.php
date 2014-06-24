@@ -1,18 +1,11 @@
 <?php
-
-class ProcessLogin
+class ProcessLogin extends FOGBase
 {
-	private $FOGCore, $HookManager, $foglang;
 	private $username, $password, $currentUser;
 	private $mobileMenu, $mainMenu, $langMenu;
-
-	function __construct()
+	public function __construct()
 	{
-		$this->FOGCore = $GLOBALS['FOGCore'];
-		$this->HookManager = $this->FOGCore->getClass('HookManager');
-		$this->username = trim($_POST['uname']);
-		$this->password = trim($_POST['upass']);
-		$this->foglang = $GLOBALS['foglang'];
+		parent::__construct();
 	}
 	
 	private function getLanguages()
@@ -97,42 +90,42 @@ class ProcessLogin
 		$redirect = array_merge($_GET, $_POST);
 		unset($redirect['upass'],$redirect['uname'],$redirect['ulang']);
 		if (in_array($redirect['node'], array('login','logout')))
-			unset ($redirect['node']);
+			unset($redirect['node']);
 		foreach ($redirect AS $key => $value)
-		{
 			$redirectData[] = $key.'='.$value;
-		}
 		$this->FOGCore->redirect($_SERVER['PHP_SELF'].($redirectData ? '?' . implode('&',(array)$redirectData) : ''));
 	}
 
-	public function loginFail()
+	public function loginFail($string)
 	{
 		// Hook
 		$this->HookManager->processEvent('LoginFail', array('username' => &$this->username, 'password' => &$this->password));
-		$this->FOGCore->setMessage(_('Invalid Login'));
+		$this->FOGCore->setMessage($string);
 	}
-
 
 	public function processMainLogin()
 	{
 		$this->setLang();
 		if(isset($_POST['uname']) && isset($_POST['upass']))
 		{
+			$this->username = trim($_POST['uname']);
+			$this->password = trim($_POST['upass']);
 			// Hook
 			$this->HookManager->processEvent('Login', array('username' => &$this->username, 'password' => &$this->password));
 			$tmpUser = $this->FOGCore->attemptLogin($this->username, $this->password);
-			if ($tmpUser != null)
+			try
 			{
+				if (!$tmpUser)
+					throw new Exception(_('Invalid Login'));
 				if ($tmpUser->isValid() && $tmpUser->get('type') == 0 && $tmpUser->get('type') != 1)
 					$this->setCurUser($tmpUser);
 				else if ($tmpUser->get('type') == 0)
-				{
-					$this->setCurUser($tmpUser);
-					$this->FOGCore->redirect(WEB_ROOT.'/mobile/');
-				}
+					throw new Exception(_('Not allowed here!'));
 			}
-			else
-				$this->loginFail();
+			catch (Exception $e)
+			{
+				$this->loginFail($e->getMessage());
+			}
 		}
 	}
 
@@ -141,14 +134,22 @@ class ProcessLogin
 		$this->setLang();
 		if (isset($_POST['uname']) && isset($_POST['upass']))
 		{
+			$this->username = trim($_POST['uname']);
+			$this->password = trim($_POST['upass']);
 			// Hook
 			$this->HookManager->processEvent('Login', array('username' => &$this->username, 'password' =>&$this->password));
-
 			$tmpUser = $this->FOGCore->attemptLogin($this->username, $this->password);
-			if ($tmpUser != null && $tmpUser->isValid() && $tmpUser->get('type') == 0 || $tmpUser->get('type') == 1)
-				$this->setCurUser($tmpUser);
-			else
-				$this->loginFail();
+			try
+			{
+				if (!$tmpUser)
+					throw new Exception(_('Invalid Login'));
+				if ($tmpUser->isValid())
+					$this->setCurUser($tmpUser);
+			}
+			catch (Exception $e)
+			{
+				$this->loginFail($e->getMessage());
+			}
 		}
 	}
 
@@ -174,7 +175,7 @@ class ProcessLogin
 		print "\n\t\t\t".'<div id="header" class="login">';
 		print "\n\t\t\t\t".'<div id="logo">';
 		print "\n\t\t\t\t\t".'<h1><img src="images/fog-logo.png" alt="logo" /><sup>'.FOG_VERSION.'</sup></h1>';
-		print "\n\t\t\t\t\t".'<h2>'.$foglang['Slogan'].'</h2>';
+		print "\n\t\t\t\t\t".'<h2>'.$this->foglang['Slogan'].'</h2>';
 		print "\n\t\t\t\t</div>";
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t<!-- Content -->";
