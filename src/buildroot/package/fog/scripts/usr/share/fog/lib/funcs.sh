@@ -82,7 +82,7 @@ setupDNS()
 # $2 = Target
 writeImage() 
 {
-	if [ "$imgLegacy" = "1" ]; then
+	if [ "$imgFormat" = "1" ]; then
 		#partimage
 		partimage restore $2 $1 -f3 -b 2>/tmp/status.fog
 	else 
@@ -94,7 +94,7 @@ writeImage()
 # $1 = Target
 writeImageMultiCast() 
 {
-	if [ "$imgLegacy" = "1" ]; then
+	if [ "$imgFormat" = "1" ]; then
 		#partimage
 		udp-receiver --nokbd --portbase ${port} --mcast-rdv-address ${storageip} 2>/dev/null | gunzip -d -c | partimage -f3 -b restore $1 stdin 2>/tmp/status.fog;
 	else 
@@ -405,7 +405,7 @@ displayBanner()
 
 handleError()
 {
-        echo "";
+    echo "";
 	echo " #############################################################################";
 	echo " #                                                                           #";	
 	echo " #                     An error has been detected!                           #";
