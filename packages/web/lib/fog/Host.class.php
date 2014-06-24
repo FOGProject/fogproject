@@ -38,6 +38,7 @@ class Host extends FOGController
 		'modules',
 		'inventory',
 		'task',
+		'users',
 	);
 	// Required database fields
 	public $databaseFieldsRequired = array(
@@ -245,6 +246,19 @@ class Host extends FOGController
 		}
 		return $this;
 	}
+	private function loadUsers()
+	{
+		if (!$this->isLoaded('users'))
+		{
+			if ($this->get('id'))
+			{
+				$Users = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $this->get('id')));
+				foreach($Users AS $User)
+					$this->add('users', $User);
+			}
+		}
+		return $this;
+	}
 	// Overrides
 	public function get($key = '')
 	{
@@ -264,6 +278,8 @@ class Host extends FOGController
 			$this->loadGroups();
 		else if ($this->key($key) == 'task')
 			$this->loadTask();
+		else if ($this->key($key) == 'users')
+			$this->loadUsers();
 		else if ($this->key($key) == 'pendingMACs')
 			$this->loadPending();
 		return parent::get($key);
@@ -321,6 +337,14 @@ class Host extends FOGController
 				$newValue[] = ($task instanceof Task ? $task : new Task($task));
 			$value[] = (array)$newValue;
 		}
+		// Users
+		else if ($this->key($key) == 'users')
+		{
+			$this->loadUsers();
+			foreach ((array)$value AS $user)
+				$newValue[] = ($user instanceof UserTracking ? $user : new UserTracking($user));
+			$value = (array)$newValue;
+		}
 		// Set
 		return parent::set($key, $value);
 	}
@@ -374,6 +398,12 @@ class Host extends FOGController
 			$this->loadTask();
 			$value = new Task($value);
 		}
+		// Users
+		else if ($this->key($key) == 'users' && !($value instanceof UserTracking))
+		{
+			$this->loadUsers();
+			$value = new UserTracking($value);
+		}
 		// Add
 		return parent::add($key, $value);
 	}
@@ -403,6 +433,9 @@ class Host extends FOGController
 		// Additional MAC Addresses
 		else if ($this->key($key) == 'additionalMACs')
 			$this->loadAdditional();
+		// Users
+		else if ($this->key($key) == 'users')
+			$this->loadUsers();
 		// Remove
 		return parent::remove($key, $object);
 	}

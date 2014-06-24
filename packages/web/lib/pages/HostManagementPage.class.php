@@ -985,8 +985,7 @@ class HostManagementPage extends FOGPage
 			'${user_time}',
 			'${user_desc}',
 		);
-		$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id')));
-		foreach((array)$UserLogins AS $UserLogin)
+		foreach((array)$Host->get('users') AS $UserLogin)
 			$DatesOld[] = date('Y-m-d',strtotime($UserLogin->get('datetime')));
 		if (is_array($DatesOld))
 			$Dates = array_unique($DatesOld);
@@ -1005,7 +1004,7 @@ class HostManagementPage extends FOGPage
 			$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => ($_GET['dte'] ? $_GET['dte'] : date('Y-m-d'))),'AND','datetime');
 			$_SESSION['fog_logins'] = array();
 			$cnt = 0;
-			foreach ((array)$UserLogins AS $UserLogin)
+			foreach ((array)$Host->get('users') AS $UserLogin)
 			{
 				if ($UserLogin && $UserLogin->isValid())
 				{
