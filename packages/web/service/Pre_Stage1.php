@@ -81,7 +81,7 @@ try
 		$Task->set('NFSMemberID', $winner->get('id'));
 	}
 	// All tests passed! Almost there!
-	$Task->set('stateID', '3')
+	$Task->set('stateID', '3');
 	// Update Task State ID -> Update Storage Node ID -> Save
 	if (!$Task->save())
 		throw new Exception(_('Failed to update Task'));
