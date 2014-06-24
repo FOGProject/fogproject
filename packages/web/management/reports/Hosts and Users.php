@@ -28,7 +28,7 @@ class HostUsers extends FOGBase
 			if ($Host->get('users'))
 			{
 				$report->endCSVLine();
-				$report->appendHTML('<tr bgcolor="#BDBDBD"><td><b>Username</b></td><td><b>Action</b></td><td><b>Time</b></td></tr>');
+				$report->appendHTML('<tr bgcolor="#BDBDBD"><td><b>Username</b></td><td><b>Action</b></td><td><b>Date</b></td><td><b>Time</b></td></tr>');
 				$report->addCSVCell('Username');
 				$report->addCSVCell('Action');
 				$report->addCSVCell('Time');
@@ -37,13 +37,14 @@ class HostUsers extends FOGBase
 				foreach ($Host->get('users') AS $User)
 				{
 					$bg1 = ($cnt1++ % 2 == 0 ? "#E7E7E7" : '');
-					$logintext = ($User->get('action') == 1 ? 'Login' : ($User->get('action') == 0 ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
+					$logintext = ($User->get('action') == 1 ? 'Login' : (!$User->get('action') ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
 					if ($logintext == 'Login' || $logintext == 'Logout')
 					{
-						$report->appendHTML('<tr bgcolor="'.$bg1.'"><td>'.$User->get('username').'</td><td>'.$logintext.'</td><td>'.$this->FOGCore->formatTime($User->get('datetime')).'</td></tr>');
+						$report->appendHTML('<tr bgcolor="'.$bg1.'"><td>'.$User->get('username').'</td><td>'.$logintext.'</td><td>'.$User->get('date').'</td><td>'.$User->get('datetime').'</td></tr>');
 						$report->addCSVCell($User->get('username'));
 						$report->addCSVCell($logintext);
-						$report->addCSVCell($this->FOGCore->formatTime($User->get('datetime')));
+						$report->addCSVCell($User->get('date'));
+						$report->addCSVCell($User->get('datetime'));
 						$report->endCSVLine();
 					}
 				}
