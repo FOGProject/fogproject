@@ -14,10 +14,13 @@ class FOGCore extends FOGBase
 	*/
 	public function attemptLogin($username,$password)
 	{
-		$User = current($this->getClass('UserManager')->find(array('name' => $username,'password' => md5($password))));
-		if ($User && $User->isValid())
+		$Users = $this->getClass('UserManager')->find();
+		foreach ($Users AS $User)
 		{
-			return $User;
+			$pass = md5($password);
+			$user = $username;
+			if ($User->get('name') == $user && $User->get('password') == $pass)
+				return $User;
 		}
 		return null;
 	}

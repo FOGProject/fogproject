@@ -304,8 +304,8 @@ class SubMenu extends FOGBase
 		{
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['active'] = $this->foglang['ActiveTasks'];
-			$this->subMenu[$this->node]['listhosts'] = sprintf($this->foglang['ListAll'],$foglang['Hosts']);
-			$this->subMenu[$this->node]['listgroups'] = sprintf($this->foglang['ListAll'],$foglang['Groups']);
+			$this->subMenu[$this->node]['listhosts'] = sprintf($this->foglang['ListAll'],$this->foglang['Hosts']);
+			$this->subMenu[$this->node]['listgroups'] = sprintf($this->foglang['ListAll'],$this->foglang['Groups']);
 			$this->subMenu[$this->node]['active-multicast'] = $this->foglang['ActiveMCTasks'];
 			$this->subMenu[$this->node]['active-snapins'] = $this->foglang['ActiveSnapins'];
 			$this->subMenu[$this->node]['scheduled'] = $this->foglang['ScheduledTasks'];
@@ -314,8 +314,8 @@ class SubMenu extends FOGBase
 		if ($this->node == 'users')
 		{
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
-			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$foglang['Users']);
-			$this->subMenu[$this->node]['add'] = sprintf($this->foglang['CreateNew'],$foglang['User']);
+			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Users']);
+			$this->subMenu[$this->node]['add'] = sprintf($this->foglang['CreateNew'],$this->foglang['User']);
 			if ($_REQUEST['id'])
 			{
 				$this->subMenu[$this->node]['id'][$linkformat] = $this->foglang['General'];
@@ -326,8 +326,8 @@ class SubMenu extends FOGBase
 		if ($this->node == 'location' || $this->node == 'locations')
 		{
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
-			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$foglang['Locations']);
-			$this->subMenu[$this->node]['add'] = sprintf($this->foglang['CreateNew'],$foglang['Location']);
+			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Locations']);
+			$this->subMenu[$this->node]['add'] = sprintf($this->foglang['CreateNew'],$this->foglang['Location']);
 			if ($_REQUEST['id'])
 			{
 				$this->subMenu[$this->node]['id'][$linkformat] = $this->foglang['General'];
