@@ -18,8 +18,8 @@ try
 		if ($Task->get('typeID') != 12 && $Task->get('typeID') != 13)
 			throw new Exception('#!it');
 	}
+	$SnapinJob = current((array)$Host->get('snapinjob'));
 	//Get the snapin job.
-	$SnapinJob = current($FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $Host->get('id'),'stateID' => array(0,1))));
 	if (!$SnapinJob)
 		throw new Exception('#!ns');
 	// Work on the current Snapin Task.
