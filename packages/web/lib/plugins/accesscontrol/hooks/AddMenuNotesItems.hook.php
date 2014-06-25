@@ -12,11 +12,12 @@ class AddMenuNotesItems extends Hook
 	}
 	public function MenuData($arguments)
 	{
-		$arguments['main'] = array_splice($arguments['main'],0,2,true)+array($this->node => _('Access Control'))+array_slice($arguments['main'], 1, count($arguments['main']) - 1, true);
+		global $MainMenu;
+		$MainMenu->main = $this->array_insert_after('users',$MainMenu->main,$this->node,_('Access Control'));
+		$arguments['main'] = $arguments['main'];
 	}
 	public function SubMenuData($arguments)
 	{
-		$this->foglang = $GLOBALS['foglang'];
 		$arguments['submenu'][$this->node]['search'] = $this->foglang['NewSearch'];
 		$arguments['submenu'][$this->node]['list'] = sprintf($this->foglang['ListAll'],_('Controls'));
 		$arguments['submenu'][$this->node]['add'] = sprintf($this->foglang['CreateNew'],_('Control'));

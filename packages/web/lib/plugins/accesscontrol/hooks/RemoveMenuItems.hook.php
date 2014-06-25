@@ -9,7 +9,7 @@ class RemoveMenuItems extends Hook
 	public function __construct()
 	{
 		parent::__construct();
-		$this->linksToFilter = array('host','storage','images');
+		$this->linksToFilter = array('images','host');
 	}
 	public function MenuData($arguments)
 	{

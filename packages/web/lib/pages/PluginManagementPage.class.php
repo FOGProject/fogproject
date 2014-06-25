@@ -154,13 +154,13 @@ class PluginManagementPage extends FOGPage
 			'attributes' => &$this->attributes));
 		// Output
 		$this->render();
-		if(!empty($_REQUEST['run']))
+		if ($_REQUEST['run'])
 		{
 			$runner = $Plugin->getRunInclude($_REQUEST['run']);
-			if($runner != null && $_REQUEST['sub'] == 'installed' && !$Plugin->isInstalled())
-				$this->run();
-			if ($Plugin->isInstalled() && file_exists($runner))
+			if (file_exists($runner) && $Plugin->isInstalled())
 				require_once($runner);
+			else
+				$this->run();
 		}
 	}
 	public function run()
