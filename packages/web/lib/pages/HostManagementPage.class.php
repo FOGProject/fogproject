@@ -986,7 +986,10 @@ class HostManagementPage extends FOGPage
 			'${user_desc}',
 		);
 		foreach((array)$Host->get('users') AS $UserLogin)
-			$Dates[] = $UserLogin->get('date');
+		{
+			if ($UserLogin && $UserLogin->isValid())
+				$Dates[] = $UserLogin->get('date');
+		}
 		$Dates = array_unique((array)$Dates);
 		if ($Dates)
 		{
