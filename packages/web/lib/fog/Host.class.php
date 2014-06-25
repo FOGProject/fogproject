@@ -38,6 +38,7 @@ class Host extends FOGController
 		'modules',
 		'inventory',
 		'task',
+		'snapinjob',
 		'users',
 	);
 	// Required database fields
@@ -139,6 +140,19 @@ class Host extends FOGController
 		if (!$SnapinJob)
 			throw new Exception(sprintf('%s: %s (%s)', _('No Active Snapin Jobs found for Host'), $this->get('name'), $this->get('mac')));
 		return $SnapinJob;
+	}
+	private function loadSnapinJob()
+	{
+		if (!$this->isLoaded('snapinjob'))
+		{
+			if ($this->get('id'))
+			{
+				$SnapinJobs = $this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(-1,0,1)));
+				foreach ($SnapinJobs AS $SnapinJob)
+					$this->add('snapinjob', new SnapinJob($SnapinJob->get('id')));
+			}
+		}
+		return $this;
 	}
 	private function loadAdditional()
 	{
@@ -268,6 +282,8 @@ class Host extends FOGController
 			$this->loadAdditional();
 		else if ($this->key($key) == 'snapins')
 			$this->loadSnapins();
+		else if ($this->key($key) == 'snapinjob')
+			$this->loadSnapinJob();
 		else if ($this->key($key) == 'optimalStorageNode' && !$this->isLoaded('optimalStorageNode'))
 			$this->set($key, $this->getImage()->getStorageGroup()->getOptimalStorageNode());
 		else if ($this->key($key) == 'modules')
@@ -303,6 +319,14 @@ class Host extends FOGController
 			$this->loadSnapins();
 			foreach ((array)$value AS $snapin)
 				$newValue[] = ($snapin instanceof Snapin ? $snapin : new Snapin($snapin));
+			$value = (array)$newValue;
+		}
+		// SnapinJob
+		else if ($this->key($key) == 'snapinjob')
+		{
+			$this->loadSnapinJob();
+			foreach ((array)$value AS $snapinjob)
+				$newValue[] = ($snapinjob instanceof SnapinJob ? $snapinjob : new SnapinJob($snapinjob));
 			$value = (array)$newValue;
 		}
 		// Modules
@@ -374,6 +398,12 @@ class Host extends FOGController
 			$this->loadSnapins();
 			$value = new Snapin($value);
 		}
+		// SnapinJob
+		else if ($this->key($key) == 'snapinjob' && !($value instanceof SnapinJob))
+		{
+			$this->loadSnapinJob();
+			$value = new SnapinJob($value);
+		}
 		// Modules
 		else if ($this->key($key) == 'modules' && !($value instanceof Module))
 		{
@@ -415,6 +445,9 @@ class Host extends FOGController
 		// Snapins
 		else if ($this->key($key) == 'snapins')
 			$this->loadSnapins();
+		// SnapinJob
+		else if ($this->key($key) == 'snapinjob')
+			$this->loadSnapinJob();
 		// Modules
 		else if ($this->key($key) == 'modules')
 			$this->loadModules();
