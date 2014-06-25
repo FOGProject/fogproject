@@ -242,16 +242,12 @@ EOFPT
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				if [ "$win7partcnt" == "1" ]; then
 					writeImageMultiCast $win7sys
-					if [ "$osid" == "5" ]; then
-						part=$win7sys;
-						fixWin7boot;
-					fi
+					part=$win7sys;
+					fixWin7boot;
 				elif [ "$win7partcnt" == "2" ]; then
 					writeImageMultiCast $win7rec
-					if [ "$osid" == "5" ]; then
-						part=$win7rec;
-						fixWin7boot;
-					fi
+					part=$win7rec;
+					fixWin7boot;
 					writeImageMultiCast $win7sys
 					part=$win7sys;
 				elif [ "$win7partcnt" == "3" ]; then
@@ -308,16 +304,12 @@ EOFPT
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				if [ "$win7partcnt" == "1" ]; then
 					writeImage $imagePath/sys.img.000 $win7sys
-					if [ "$osid" == "5" ]; then
-						part=$win7sys;
-						fixWin7boot;
-					fi
+					part=$win7sys;
+					fixWin7boot;
 				elif [ "$win7partcnt" == "2" ]; then
 					writeImage $imagePath/rec.img.000 $win7rec
-					if [ "$osid" == "5" ]; then
-						part=$win7rec;
-						fixWin7boot;
-					fi
+					part=$win7rec;
+					fixWin7boot;
 					writeImage $imagePath/sys.img.000 $win7sys
 					part=$win7sys;
 				elif [ "$win7partcnt" == "3" ]; then
