@@ -17,13 +17,15 @@ class HookDebugger extends Hook
 	var $logLevel = 9;
 	var $logToFile = false;		// Logs to: lib/hooks/HookDebugger.log
 	var $logToBrowser = true;
-
-	function run($arguments)
+	public function run($arguments)
 	{
-		$this->log(print_r($arguments, 1));
+		$this->log(print_r($arguments,1));
 	}
 }
 $HookDebugger = new HookDebugger();
 // Debug all events
 foreach ($HookManager->events AS $event)
-	$HookManager->register($event, array($HookDebugger, 'run'));
+{
+	if ($event != 'CONTENT_DISPLAY')
+		$HookManager->register($event, array($HookDebugger, 'run'));
+}
