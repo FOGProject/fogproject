@@ -14,29 +14,25 @@ try
 	$Task = current($Host->get('task'));
 	if (!$Task->isValid())
 		throw new Exception(sprintf('%s: %s (%s)',_('No Active Task found for Host'), $Host->get('name'),$MACAddress));
+	$TaskType = new TaskType($Task->get('typeID'));
+	// Set the task to state 4
+	$Task->set('stateID',4);
 	// If it's a multicast job, destroy the association and remove the client.
-	if ($Task->get('typeID') == 8)
+	if ($TaskType->isMulticast())
 	{
-		// Get the session itself.
-		$MS = $FOGCore->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3)));
-		// Find the associated tasks based on JOB and TASK ID's
-		foreach ($MS AS $MultiSession)
+		$MSA = current($FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))));
+		if ($MSA && $MSA->isValid())
+			$MulticastSession = new MulticastSessions($MSA->get('msID'));
+		if ($MulticastSession && $MulticastSession->isValid())
 		{
-			$MSA = current($FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $MultiSession->get('id'),'taskID' => $Task->get('id'))));
-			if ($MSA && $MSA->isValid())
-				break;
+			$MulticastSession->set('clients',(int)$MulticastSession->get('clients')-1)->save();
+			$MulticastSession = new MulticastSessions($MSA->get('msID'));
+			if ($MulticastSession->get('clients') <= 0)
+				$MulticastSession->set('stateID',4)->set('completetime',date('Y-m-d H:i:s'))->save();
 		}
-		// Decrement the client.
-		$MultiSession->set('clients',$MultiSession->get('clients')-1)->save();
-		// If it's zero (or less)
-		if($MultiSession->get('clients') <= 0)
-			$MultiSession->set('stateID',4)->set('completetime',date('Y-m-d H:i:s'))->save();
 	}
-	// Set the task as complete.
-	if ($Task->get('stateID') < 4)
-		$Task->set('stateID',4);
-	$ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
 	// Log it
+	$ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
 	foreach($ImagingLogs AS $ImagingLog)
 		$id[] = $ImagingLog->get('id');
 	// Update Last deploy
