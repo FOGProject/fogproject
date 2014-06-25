@@ -21,7 +21,7 @@ try
 	$Task = current($Host->get('task'));
 	if (!$Task->isValid())
 		throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'), $MACAddress));
-	$TaskType = new TaskType($Task->get('typeID');
+	$TaskType = new TaskType($Task->get('typeID'));
 	// Get the storage group
 	$StorageGroup = $Task->getStorageGroup();
 	if ($TaskType->isUpload() && !$StorageGroup->isValid())
