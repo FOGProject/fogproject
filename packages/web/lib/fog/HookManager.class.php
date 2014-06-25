@@ -134,6 +134,10 @@ class HookManager extends FOGBase
 		// Logout
 		'Logout',
 	);
+	public function __construct()
+	{
+		parent::__construct();
+	}
 	public function register($event, $function)
 	{
 		try
