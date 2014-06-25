@@ -26,7 +26,6 @@ abstract class Hook extends FOGBase
 	public function log($txt, $level = 1)
 	{
 		$log = trim(preg_replace(array("#\r#", "#\n#", "#\s+#", "# ,#"), array("", " ", " ", ","), $txt));
-		
 		if ($this->logToBrowser && $this->logLevel >= $level && !$this->isAJAXRequest())
 			printf('%s<div class="debug-hook">%s</div>%s', "\n", $log, "\n");
 		if ($this->logToFile)

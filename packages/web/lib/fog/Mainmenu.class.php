@@ -11,23 +11,17 @@ class Mainmenu extends FOGBase
 	{
 		if(!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
 		{
-			if ($this->main && is_array($this->main))
-			{
-				$menuItem[] = sprintf("%s%s","\n\t\t\t","<ul>");
-				foreach($this->main AS $link => $title)
-					$menuItem[] = sprintf("%s%s","\n\t\t\t\t",'<li><a href="?node='.$link.'" title="'.$title.'"><img src="images/icon-'.$link.'.png" alt="'.$title.'" /></a></li>');
-				$menuItem[] = sprintf("%s%s","\n\t\t\t","</ul>");
-			}
+			$menuItem[] = sprintf("%s%s","\n\t\t\t","<ul>");
+			foreach($this->main AS $link => $title)
+				$menuItem[] = sprintf("%s%s","\n\t\t\t\t",'<li><a href="?node='.$link.'" title="'.$title.'"><img src="images/icon-'.$link.'.png" alt="'.$title.'" /></a></li>');
+			$menuItem[] = sprintf("%s%s","\n\t\t\t","</ul>");
 		}
 		else
 		{
-			if ($this->main && is_array($this->main))
-			{
-				$menuItem[] = sprintf("%s%s","\n\t\t\t",'<div id="menuBar">');
-				foreach($this->main AS $link => $title)
-					$menuItem[] = sprintf("%s%s","\n\t\t\t\t",'<a href="?node='.$link.($link != 'logout' ? 's' : '').'"><img class="'.$link.'" src="images/icon-'.$link.'.png" alt="'.$title.'" /></a>');
-				$menuItem[] = sprintf("%s%s","\n\t\t\t","</div>");
-			}
+			$menuItem[] = sprintf("%s%s","\n\t\t\t",'<div id="menuBar">');
+			foreach($this->main AS $link => $title)
+				$menuItem[] = sprintf("%s%s","\n\t\t\t\t",'<a href="?node='.$link.($link != 'logout' ? 's' : '').'"><img class="'.$link.'" src="images/icon-'.$link.'.png" alt="'.$title.'" /></a>');
+			$menuItem[] = sprintf("%s%s","\n\t\t\t","</div>");
 		}
 		return implode($menuItem);
 	}
@@ -51,6 +45,7 @@ class Mainmenu extends FOGBase
 			$plugin ? 'plugin' : '' => $plugin ? $this->foglang['Plugin'].' '.$this->foglang['Management'] : '',
 			'logout' => $this->foglang['Logout'],
 		);
+		$this->main = array_unique(array_filter($this->main));
 		$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
 	}
 	private function mobileSetting()
@@ -61,13 +56,11 @@ class Mainmenu extends FOGBase
 			'tasks' => $this->foglang['Task'],
 			'logout' => $this->foglang['Logout'],
 		);
+		$this->main = array_unique(array_filter($this->main));
 		$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
 		$links = array();
-		if ($this->main && is_array($this->main))
-		{
-			foreach ($this->main AS $link => $title)
-				array_push($links,($link != 'logout' ? $link.'s' : $link));
-		}
+		foreach ($this->main AS $link => $title)
+			array_push($links,($link != 'logout' ? $link.'s' : $link));
 		if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links))
 			$this->FOGCore->redirect('index.php');
 	}
