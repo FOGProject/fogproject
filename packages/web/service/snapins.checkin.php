@@ -23,8 +23,13 @@ try
 	if (!$SnapinJob)
 		throw new Exception('#!ns');
 	// Work on the current Snapin Task.
-	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('stateID' => array(-1,0,1,2),'jobID' => $SnapinJob->get('id'))));
-	if (!$SnapinTask)
+	$SnapinTasks = $FOGCore->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id')));
+	foreach($SnapinTasks AS $SnapinTask)
+	{
+		if ($SnapinTask->get('stateID') < 2)
+			break;
+	}
+	if (!$SnapinTask->get('stateID') < 2)
 		throw new Exception('#!ns');
 	// Get the information (the Snapin itself)
 	$Snapin = new Snapin($SnapinTask->get('snapinID'));
