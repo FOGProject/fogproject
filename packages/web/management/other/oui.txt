@@ -1,4 +1,4 @@
-  Generated: Thu, 19 Jun 2014 05:00:02 -0400
+  Generated: Wed, 25 Jun 2014 05:00:03 -0400
 
   OUI/MA-L			Organization
   company_id			Organization
@@ -68181,10 +68181,10 @@
 				LAKE FOREST CA 92630
 				UNITED STATES
 
-  00-50-F9   (hex)		SENSORMATIC ACD
-  0050F9     (base 16)		SENSORMATIC ACD
-  				70 WESTVIEW STREET
-				LEXINGTON MA 02173
+  00-50-F9   (hex)		Sensormatic Electronics LLC
+  0050F9     (base 16)		Sensormatic Electronics LLC
+  				1501 Yamato Rd
+				Boca Raton FL 33431
 				UNITED STATES
 
   00-50-FA   (hex)		OXTEL, LTD.
@@ -85064,6 +85064,12 @@
 				Hakuro, Dongan-Gu, Anyang-Si Kyunggi-Do 431-060
 				KOREA, REPUBLIC OF
 
+  18-71-17   (hex)		eta plus electronic gmbh
+  187117     (base 16)		eta plus electronic gmbh
+  				Lauterstr. 29
+				Nuertingen BW 72622
+				GERMANY
+
   18-79-A2   (hex)		GMJ ELECTRIC LIMITED
   1879A2     (base 16)		GMJ ELECTRIC LIMITED
   				RM 1405, 14/F, C C WU BUILDING
@@ -86333,6 +86339,13 @@
   				South Block 10th floor, Yuanxing Building, No. 1
 				Songpingshan Rd, Nanshan District,
 				Shenzhen Guangdong 518057
+				CHINA
+
+  20-5C-FA   (hex)		Yangzhou ChangLian Network Technology Co,ltd.
+  205CFA     (base 16)		Yangzhou ChangLian Network Technology Co,ltd.
+  				No.60, Shangfang Temple Road
+				Hanjiang Area
+				Yangzhou City Jiangsu 225000
 				CHINA
 
   20-64-32   (hex)		SAMSUNG ELECTRO MECHANICS CO.,LTD.
@@ -89480,6 +89493,13 @@
   				325 James S. McDonnell Blvd
 				MC S306-2115
 				Hazelwood MO 63042-2513
+				UNITED STATES
+
+  34-62-88   (hex)		Cisco
+  346288     (base 16)		Cisco
+  				170 West Tasman Drive
+				SJCM/2
+				San Jose CA 95134
 				UNITED STATES
 
   34-68-4A   (hex)		Teraworks Co., Ltd.
@@ -92788,6 +92808,12 @@
 				ShenZhen GuangDong 518129
 				CHINA
 
+  48-6B-2C   (hex)		BBK Electronics Corp., Ltd.,
+  486B2C     (base 16)		BBK Electronics Corp., Ltd.,
+  				 #255,BBK Road,
+				Wusha,Chang'An, DongGuan City,Guangdong,  523860
+				CHINA
+
   48-6B-91   (hex)		Fleetwood Group Inc.
   486B91     (base 16)		Fleetwood Group Inc.
   				11832 James St
@@ -93423,6 +93449,12 @@
 				Suite 2H
 				Chicago IL 60607
 				UNITED STATES
+
+  4C-74-03   (hex)		Mundo Reader (bq)
+  4C7403     (base 16)		Mundo Reader (bq)
+  				c Sofía 10. Polígono Európolis
+				Las Rozas de Madrid Madrid 28230
+				SPAIN
 
   4C-77-4F   (hex)		Embedded Wireless Labs
   4C774F     (base 16)		Embedded Wireless Labs
@@ -95025,6 +95057,12 @@
 				San Jose CA 95134
 				UNITED STATES
 
+  58-10-8C   (hex)		Intelbras
+  58108C     (base 16)		Intelbras
+  				BR 101, km 210, S/N°
+				São José Santa Catarina 88104800
+				BRAZIL
+
   58-12-43   (hex)		AcSiP Technology Corp.
   581243     (base 16)		AcSiP Technology Corp.
   				3F., No.22, Dalin Rd.,
@@ -95269,6 +95307,12 @@
 				Haidian District,
 				BeiJing  100085
 				CHINA
+
+  58-76-C5   (hex)		DIGI I'S LTD
+  5876C5     (base 16)		DIGI I'S LTD
+  				31, Takahata, Maesawa
+				Oshu Iwate 029-4204
+				JAPAN
 
   58-7A-4D   (hex)		Stonesoft Corporation
   587A4D     (base 16)		Stonesoft Corporation
@@ -96980,6 +97024,13 @@
   				2107 INDUSTRIAL DR
 				BRYAN OHIO 43506
 				UNITED STATES
+
+  64-00-2D   (hex)		Powerlinq Co., LTD
+  64002D     (base 16)		Powerlinq Co., LTD
+  				13 PingDong Road 4 ,
+				Nanping Sci & Tech, Indt'l Park
+				Zhuhai GD  519060
+				CHINA
 
   64-00-F1   (hex)		CISCO SYSTEMS, INC.
   6400F1     (base 16)		CISCO SYSTEMS, INC.
@@ -100257,6 +100308,13 @@
 				FuZhou FuJian 350005
 				CHINA
 
+  74-BA-DB   (hex)		Longconn Electornics(shenzhen)Co.,Ltd
+  74BADB     (base 16)		Longconn Electornics(shenzhen)Co.,Ltd
+  				Building D12,n 30,Xingye One Road
+				Fenghuang First Industrial Zone
+				Fuyong Street,Bao an District Shenzhen,Guangdong Province 518000
+				CHINA
+
   74-BE-08   (hex)		ATEK Products, LLC
   74BE08     (base 16)		ATEK Products, LLC
   				210 NE 10th Avenue
@@ -101766,6 +101824,12 @@
   				Berliner Allee 65
 				Augsburg Bayern 86136
 				GERMANY
+
+  7C-B1-77   (hex)		Satelco AG
+  7CB177     (base 16)		Satelco AG
+  				Seestrasse 241
+				Au / Waedenswil ZH 8804
+				SWITZERLAND
 
   7C-B2-1B   (hex)		Cisco SPVTG
   7CB21B     (base 16)		Cisco SPVTG
@@ -104186,6 +104250,13 @@
   				3-17-5 ShinYokohama Kouhoku-Ku
 				Yokohama Kanagawa 222-0033
 				JAPAN
+
+  8C-5D-60   (hex)		UCI Corporation Co.,Ltd.
+  8C5D60     (base 16)		UCI Corporation Co.,Ltd.
+  				299/195-7, Chaengwattana Road,
+				Thungsonghong, Laksi
+				Bangkok 10210
+				THAILAND
 
   8C-5F-DF   (hex)		Beijing Railway Signal Factory
   8C5FDF     (base 16)		Beijing Railway Signal Factory
@@ -108205,6 +108276,12 @@
 				NO.188 Shennan road
 				SHENZHEN GUANGDONG 518052
 				CHINA
+
+  A4-70-D6   (hex)		Motorola Mobility LLC
+  A470D6     (base 16)		Motorola Mobility LLC
+  				222 Merchandise Mart Plaza, Suite 1800
+				Chicago IL 60654
+				UNITED STATES
 
   A4-77-33   (hex)		Google
   A47733     (base 16)		Google
@@ -114764,6 +114841,12 @@
 				PYEONGTAEK GYEONGGI-DO 451-713
 				KOREA, REPUBLIC OF
 
+  CC-30-80   (hex)		VAIO Corporation
+  CC3080     (base 16)		VAIO Corporation
+  				5432 Toyoshina
+				Azumino Nagano 399-8282
+				JAPAN
+
   CC-33-BB   (hex)		SAGEMCOM SAS
   CC33BB     (base 16)		SAGEMCOM SAS
   				250 ROUTE DE L'EMPEREUR
@@ -118415,6 +118498,13 @@
 				Oakland CA 94612
 				UNITED STATES
 
+  E0-AC-F1   (hex)		Cisco
+  E0ACF1     (base 16)		Cisco
+  				170 West Tasman Drive
+				SJCM/2
+				San Jose CA 95134
+				UNITED STATES
+
   E0-AE-5E   (hex)		ALPS Co,. Ltd.
   E0AE5E     (base 16)		ALPS Co,. Ltd.
   				6-3-36 Furukawanakazato,
@@ -121756,6 +121846,12 @@
 				Cupertino CA 95014
 				UNITED STATES
 
+  F4-F1-E1   (hex)		Motorola Mobility LLC
+  F4F1E1     (base 16)		Motorola Mobility LLC
+  				222 Merchandise Mart Plaza, Suite 1800
+				Chicago IL 60654
+				UNITED STATES
+
   F4-F2-6D   (hex)		TP-LINK TECHNOLOGIES CO.,LTD.
   F4F26D     (base 16)		TP-LINK TECHNOLOGIES CO.,LTD.
   				Building 24(floors 1,3,4,5)and 28(floors 1-4)Central Science and Technology Park
@@ -121914,6 +122010,13 @@
   				6F-5, NO., 130 Jiankang Rd.,
 				Zhonghe Dist. New Taipei City 23585
 				TAIWAN, PROVINCE OF CHINA
+
+  F8-24-41   (hex)		Yeelink
+  F82441     (base 16)		Yeelink
+  				F10-B4, Bldg. B, International Innovation Park
+				169 Songling Rd., Laoshan
+				Qingdao Shandong 266101
+				CHINA
 
   F8-27-93   (hex)		Apple, Inc
   F82793     (base 16)		Apple, Inc
