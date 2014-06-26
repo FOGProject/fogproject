@@ -392,6 +392,11 @@ IFS='
 	if [ "$gptcheck" == "yes" ]; then
 		sgdisk -G $hd;
 	fi
+	if [ -f "/images/postdownloadscripts/fog.postdownload" ]; then
+		postdownpath="/images/postdownloadscripts/"
+		export $postdownpath;
+		sh ${postdownpath}fog.postdownload;
+	fi
 	if [ "$capone" != "1" ]; then
 		changeHostname;
 		echo "";

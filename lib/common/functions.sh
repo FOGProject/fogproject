@@ -313,6 +313,12 @@ configureStorage()
 	then
 		mkdir "$storage";
 		touch "$storage/.mntcheck";
+		mkdir "$storage/postdownloadscripts";
+		echo "#!bin/sh
+## This file serves as a starting point to call your custom postimaging scripts.
+## <SCRIPTNAME> should be changed to the script you're planning to use.
+## Syntax of post download scripts are
+#sh \${postdownpath}<SCRIPTNAME>" > "$storage/postdownloadscripts/fog.postdownload";
 		chmod -R 777 "$storage"
 	fi
 
