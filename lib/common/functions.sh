@@ -324,6 +324,7 @@ configureStorage()
 ## Syntax of post download scripts are
 #sh \${postdownpath}<SCRIPTNAME>" > "$storage/postdownloadscripts/fog.postdownload";
 		fi
+		chmod -R 777 "$storage";
 	fi
 	if [ ! -d "$storageupload" ]
 	then
