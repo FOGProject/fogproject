@@ -170,7 +170,7 @@ class MulticastManager extends FOGBase
 						{
 							$runningTask = $this->getMCExistingTask($KnownTasks, $curTask->getID());
 							$curSession = new MulticastSessions($runningTask->getID());
-							$Assocs = $this->FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $curSession->getID()));
+							$Assocs = $this->FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $curSession->get('id')));
 							foreach($Assocs AS $Assoc)
 							{
 								if ($Assoc && $Assoc->isValid())
