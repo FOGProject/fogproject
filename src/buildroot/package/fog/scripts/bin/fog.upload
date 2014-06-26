@@ -176,21 +176,46 @@ FORCEY
 					echo "";
 					echo " * Now FOG will attempt to upload the image using Partclone.";
 					echo "";
-					if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
-						if [ "$win7partcnt" == "1" ]; then
-							echo " * Processing a Windows 7 System with 1 partition.";
-							pigz -p $cores $PIGZ_COMP < /tmp/pigz1 > $imagePath/sys.img.000 &
-							partclone.ntfs -c -s $win7sys -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
-						elif [ "$win7partcnt" == "2" ]; then
-							echo " * Processing a Windows 7 System with 2 partitions.";
-							pigz -p $cores $PIGZ_COMP < /tmp/pigz1 > $imagePath/rec.img.000 &
-							partclone.ntfs -c -s $win7rec -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
-							pigz -p $cores $PIGZ_COMP < /tmp/pigz2 > $imagePath/sys.img.000 &
-							partclone.ntfs -c -s $win7sys -O /tmp/pigz2 -N -f 1 2>/tmp/status.fog;
+					if [ "$imgFormat" == "2" ]; then
+						if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
+							if [ "$win7partcnt" == "1" ]; then
+								echo " * Processing a Windows 7 System with 1 partition to a split image.";
+								pigz -p $cores $PIGZ_COMP < /tmp/pigz1 | split -a 3 -d -b 200m - $imagePath/sys.img. &
+								partclone.ntfs -c -s $win7sys -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
+							elif [ "$win7partcnt" == "2" ]; then
+								echo " * Processing a Windows 7 System with 2 partitions to a split image.";
+								pigz -p $cores $PIGZ_COMP < /tmp/pigz1 | split -a 3 -d -b 200m - $imagePath/rec.img. &
+								partclone.ntfs -c -s $win7rec -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
+								pigz -p $cores $PIGZ_COMP < /tmp/pigz2 | split -a 3 -d -b 200m - $imagePath/sys.img. &
+								partclone.ntfs -c -s $win7sys -O /tmp/pigz2 -N -f 1 2>/tmp/status.fog;
+							fi
+							echo " * Calculating Checksums";
+							cd $imagePath
+							md5sum * | cat >>filelist.txt;
+							cd /
+						else
+							pigz -p $cores $PIGZ_COMP < /tmp/pigz1 | split -a 3 -d -b 200m - $imagePath/${macWinSafe}. &
+							partclone.ntfs -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
 						fi
+					elif [ "$imgFormat" == "0" ] || [ "$imgFormat" == "1" ] || [ "$imgLegacy" == "0" ] || [ "$imgLegacy" == "1" ]; then
+						if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
+							if [ "$win7partcnt" == "1" ]; then
+								echo " * Processing a Windows 7 System with 1 partition.";
+								pigz -p $cores $PIGZ_COMP < /tmp/pigz1 > $imagePath/sys.img.000 &
+								partclone.ntfs -c -s $win7sys -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
+							elif [ "$win7partcnt" == "2" ]; then
+								echo " * Processing a Windows 7 System with 2 partitions.";
+								pigz -p $cores $PIGZ_COMP < /tmp/pigz1 > $imagePath/rec.img.000 &
+								partclone.ntfs -c -s $win7rec -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
+								pigz -p $cores $PIGZ_COMP < /tmp/pigz2 > $imagePath/sys.img.000 &
+								partclone.ntfs -c -s $win7sys -O /tmp/pigz2 -N -f 1 2>/tmp/status.fog;
+							fi
+						else
+							pigz -p $cores $PIGZ_COMP < /tmp/pigz1 > $imagePath/${macWinSafe}.000 &
+							partclone.ntfs -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
+						fi	
 					else
-						pigz -p $cores $PIGZ_COMP < /tmp/pigz1 > $imagePath/${macWinSafe}.000 &
-						partclone.ntfs -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
+						echo " * Invalid Image Format Type.";
 					fi
 					chmod -R 777 $imagePath;
 					rm /tmp/pigz1;
