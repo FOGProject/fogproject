@@ -317,11 +317,13 @@ configureStorage()
 	fi
 	if [ ! -d "$storage/postdownloadscripts" ]; then
 		mkdir "$storage/postdownloadscripts";
-		echo "#!bin/sh
+		if [ ! -f "$storage/postdownloadscripts/fog.postdownload" ]; then
+			echo "#!bin/sh
 ## This file serves as a starting point to call your custom postimaging scripts.
 ## <SCRIPTNAME> should be changed to the script you're planning to use.
 ## Syntax of post download scripts are
 #sh \${postdownpath}<SCRIPTNAME>" > "$storage/postdownloadscripts/fog.postdownload";
+		fi
 	fi
 	if [ ! -d "$storageupload" ]
 	then
