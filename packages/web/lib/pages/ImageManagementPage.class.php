@@ -266,8 +266,8 @@ class ImageManagementPage extends FOGPage
 				throw new Exception('An image already exists with this name!');
 			if (empty($_REQUEST['file']))
 				throw new Exception('An image file name is required!');
-			if ($_REQUEST['file'] == 'dev')
-				throw new Exception('Image file name cannot be dev!');
+			if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev')
+				throw new Exception('Please choose a different name, this one is reserved for FOG.');
 			if (empty($_REQUEST['storagegroup']))
 				throw new Exception('A Storage Group is required!');
 			if (empty($_REQUEST['os']))
@@ -432,6 +432,8 @@ class ImageManagementPage extends FOGPage
 						throw new Exception('An image name is required!');
 					if ($Image->get('name') != $_POST['name'] && $this->FOGCore->getClass('ImageManager')->exists($_POST['name'], $Image->get('id')))
 						throw new Exception('An image already exists with this name!');
+					if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev')
+						throw new Exception('Please choose a different name, this one is reserved for FOG.');
 					if (empty($_POST['file']))
 						throw new Exception('An image file name is required!');
 					if (empty($_POST['storagegroup']))
