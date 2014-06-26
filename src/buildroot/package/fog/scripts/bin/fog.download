@@ -303,19 +303,19 @@ EOFPT
 			echo "Done";
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				if [ "$win7partcnt" == "1" ]; then
-					writeImage $imagePath/sys.img.000 $win7sys
+					writeImage $imagePath/sys.img.* $win7sys
 					part=$win7sys;
 					fixWin7boot;
 				elif [ "$win7partcnt" == "2" ]; then
-					writeImage $imagePath/rec.img.000 $win7rec
+					writeImage $imagePath/rec.img.* $win7rec
 					part=$win7rec;
 					fixWin7boot;
-					writeImage $imagePath/sys.img.000 $win7sys
+					writeImage $imagePath/sys.img.* $win7sys
 					part=$win7sys;
 				elif [ "$win7partcnt" == "3" ]; then
-					writeImage $imagePath/rec1.img.000 ${hd}1 
-					writeImage $imagePath/rec3.img.000 ${hd}2
-					writeImage $imagePath/sys.img.000 $win7sys
+					writeImage $imagePath/rec1.img.* ${hd}1 
+					writeImage $imagePath/rec3.img.* ${hd}2
+					writeImage $imagePath/sys.img.* $win7sys
 				fi
 				
 				expandPartition $win7sys

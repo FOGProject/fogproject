@@ -82,19 +82,22 @@ setupDNS()
 # $2 = Target
 writeImage() 
 {
-	if [ "$imgFormat" = "1" ]; then
+	if [ "$imgFormat" = "1" || "$imgLegacy" = "1" ]; then
 		#partimage
 		partimage restore $2 $1 -f3 -b 2>/tmp/status.fog
 	else 
 		# partclone
-		gunzip -d -c < $1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
+		mkfifo /tmp/pigz1;
+		cat $1 > /tmp/pigz1 &
+		gunzip -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
+		rm /tmp/pigz1;
 	fi
 }
 
 # $1 = Target
 writeImageMultiCast() 
 {
-	if [ "$imgFormat" = "1" ]; then
+	if [ "$imgFormat" = "1" || "$imgLegacy" = "1" ]; then
 		#partimage
 		udp-receiver --nokbd --portbase ${port} --mcast-rdv-address ${storageip} 2>/dev/null | gunzip -d -c | partimage -f3 -b restore $1 stdin 2>/tmp/status.fog;
 	else 
