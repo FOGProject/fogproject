@@ -257,7 +257,9 @@ do
 			        configureUsers;
 			        configureMinHttpd;
 	                configureStorage;
-	                configureNFS;
+					if [ "$fogupdateloaded" = "1" ]; then
+	                	configureNFS;
+					fi
 	                configureFTP;
 			        configureUDPCast;          
 			        installInitScript;
@@ -309,7 +311,9 @@ do
 			    #restoreReports;
 			    setupFreshClam;
 			    configureStorage;
-			    configureNFS;
+				if [ "$fogupdateloaded" = "1" ]; then
+	               	configureNFS;
+				fi
 			    configureDHCP;
 			    configureTFTPandPXE;
 			    configureFTP;
