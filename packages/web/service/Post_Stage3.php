@@ -26,7 +26,7 @@ try
 	$TaskLog->set('taskID',$Task->get('id'))->set('taskStateID',$Task->get('stateID'))->set('createdTime',$Task->get('createdTime'))->set('createdBy',$Task->get('createdBy'))->save();
 	if (!$Task->save()) throw new Exception('Failed to update task.');
 	print '##';
-	// If it's a multicast job, destroy the association and remove the client.
+	// If it's a multicast job, decrement the client count, though not fully needed.
 	if ($TaskType->isMulticast())
 	{
 		$MyMulticastTask = current($FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))));
@@ -34,8 +34,6 @@ try
 		{
 			$MulticastSession = new MulticastSessions($MyMulticastTask->get('msID'));
 			$MulticastSession->set('clients',($MulticastSession->get('clients') - 1))->save();
-			if ($MulticastSession->get('clients') < 1)
-				$MulticastSession->set('stateID',4)->set('completetime',date('Y-m-d H:i:s'))->save();
 		}
 	}
 }
