@@ -4,28 +4,18 @@ try
 {
 	$HostManager = new HostManager();
 	$MACs = HostManager::parseMacList($_REQUEST['mac']);
-	if (!$MACs)
-		throw new Exception('#!im');
+	if (!$MACs) throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host->isValid())
-		throw new Exception('#!ih');
+	if (!$Host->isValid()) throw new Exception('#!ih');
 	// Try and get the task.
 	$Task = current($Host->get('task'));
-	// if there's a task and it's not a deploy task (12 or 13) don't send the file (report back)
-	if ($Task && $Task->isValid())
-	{
-		if ($Task->get('typeID') != 12 && $Task->get('typeID') != 13)
-			throw new Exception('#!it');
-	}
 	$SnapinJob = current((array)$Host->get('snapinjob'));
 	//Get the snapin job.
-	if (!$SnapinJob)
-		throw new Exception('#!ns');
+	if (!$SnapinJob) throw new Exception('#!ns');
 	// Work on the current Snapin Task.
 	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id'))));
-	if (!$SnapinTask)
-		throw new Exception('#!ns');
+	if (!$SnapinTask) throw new Exception('#!ns');
 	//Get the snapin to work off of.
 	$Snapin = new Snapin($SnapinTask->get('snapinID'));
 	// Assign the file for sending.
@@ -40,15 +30,11 @@ try
 		header("Content-Disposition: attachment; filename=".basename($Snapin->get('file')));
 		@readfile($SnapinFile);
 		// if the Task is deployed then update the task.
-		if ($Task && $Task->isValid())
-			$Task->set('stateID',3)->save();
+		if ($Task && $Task->isValid()) $Task->set('stateID',3)->save();
 		// Update the snapin task information.
-		$SnapinTask->set('stateID',1)
-				   ->set('return',-1)
-				   ->set('details','Pending...');
+		$SnapinTask->set('stateID',1)->set('return',-1)->set('details','Pending...');
 		// Save and return!
-		if ($SnapinTask->save())
-			print "#!ok";
+		if ($SnapinTask->save()) print "#!ok";
 	}
 }
 catch (Exception $e)
