@@ -392,7 +392,7 @@ IFS='
 	fi
 	if [ -f "/images/postdownloadscripts/fog.postdownload" ]; then
 		postdownpath="/images/postdownloadscripts/"
-		export $postdownpath;
+		export postdownpath="$postdownpath";
 		sh ${postdownpath}fog.postdownload;
 	fi
 	if [ "$capone" != "1" ]; then
