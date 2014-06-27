@@ -4,7 +4,7 @@
 . /bin/fog.checkin;
 layPartSize="99%";
 imagePath="/images/$img";
-
+win7imgroot="$imagePath";
 fog.statusreporter $mac $web &
 dots "Checking Mounted File System";
 if [ -f "/images/.mntcheck" ]; then
@@ -38,7 +38,6 @@ if [ -f "/images/.mntcheck" ]; then
 		win7partcnt="0";
 		win7rec="";
 		win7sys="";
-		win7imgroot="$imagePath";
 		if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 			dots "Windows Boot Partition Exists";
 			if [ -f "$win7imgroot/rec.img.000" ]; then
@@ -57,7 +56,7 @@ if [ -f "/images/.mntcheck" ]; then
 				win7partcnt="1";
 				win7sys="${hd}1";
 			fi
-			
+			handleError	$win7imgroot;
 			if [ -f "$win7imgroot/sys.img.000" ] || [ "$mc" == "yes" ] ; then
 				dots "Preparing Hard Disks (Stage 1)";
 				if [ "$nombr" == "1" ]; then
@@ -303,19 +302,19 @@ EOFPT
 			echo "Done";
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				if [ "$win7partcnt" == "1" ]; then
-					writeImage $imagePath/sys.img.* $win7sys
+					writeImage "$imagePath/sys.img.*" $win7sys
 					part=$win7sys;
 					fixWin7boot;
 				elif [ "$win7partcnt" == "2" ]; then
-					writeImage $imagePath/rec.img.* $win7rec
+					writeImage "$imagePath/rec.img.*" $win7rec
 					part=$win7rec;
 					fixWin7boot;
-					writeImage $imagePath/sys.img.* $win7sys
+					writeImage "$imagePath/sys.img.*" $win7sys
 					part=$win7sys;
 				elif [ "$win7partcnt" == "3" ]; then
-					writeImage $imagePath/rec1.img.* ${hd}1 
-					writeImage $imagePath/rec3.img.* ${hd}2
-					writeImage $imagePath/sys.img.* $win7sys
+					writeImage "$imagePath/rec1.img.*" ${hd}1 
+					writeImage "$imagePath/rec3.img.*" ${hd}2
+					writeImage "$imagePath/sys.img.*" $win7sys
 				fi
 				
 				expandPartition $win7sys
@@ -332,12 +331,12 @@ EOFPT
 			for part in $parts; do
 				partNum=${part:$diskLength};
 				echo " * Processing Partition: $part ($partNum)";
-				imgpart="$imagePath/d1p${partNum}.img";
+				imgpart="$imagePath/d1p${partNum}.img*";
 				sleep 2;
 				if [ ! -f $imgpart ]; then
 					echo " * Partition File Missing: $imgpart";
 				else
-					writeImage $imgpart $part
+					writeImage "$imgpart" $part
 				fi
 				
 				resetFlag $part
@@ -364,11 +363,11 @@ IFS='
 				for part in $parts; do
 					partNum=${part:$diskLength};
 					echo " * Processing Partition: $part ($partNum)";
-					imgpart="${imagePath}/d${intDisk}p${partNum}.img";
+					imgpart="${imagePath}/d${intDisk}p${partNum}.img*";
 					if [ ! -f $imgpart ]; then
 						echo " * Partition File Missing: $imgpart";
 					else
-						writeImage $imgpart $part
+						writeImage "$imgpart" $part
 					fi
 					
 					resetFlag $part

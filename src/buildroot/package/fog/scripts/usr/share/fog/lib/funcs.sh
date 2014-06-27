@@ -82,7 +82,7 @@ setupDNS()
 # $2 = Target
 writeImage() 
 {
-	if [ "$imgFormat" = "1" || "$imgLegacy" = "1" ]; then
+	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
 		partimage restore $2 $1 -f3 -b 2>/tmp/status.fog
 	else 
