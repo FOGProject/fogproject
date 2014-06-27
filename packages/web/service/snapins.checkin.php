@@ -28,10 +28,8 @@ try
 			// Place the task for records, but outside of recognizable as Complete or Done!
 			$SnapinTask->set('stateID','2')->set('return',$_REQUEST['exitcode'])->set('details',$_REQUEST['exitdesc'])->set('complete',date('Y-m-d H:i:s'));
 			if ($SnapinTask->save()) print "#!ok";
-			// Get the current count of snapin tasks.
-			$cnt = $FOGCore->getClass('SnapinTaskManager')->count(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id')));
 			// If that was the last task, delete the job.
-			if ($FOGCore->getClass9'SnapinTaskManager')->count(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id'))) < 1)
+			if ($FOGCore->getClass('SnapinTaskManager')->count(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id'))) < 1)
 			{
 				// If it's part of a task deployment update the task information.
 				$SnapinJob->set('stateID',2)->save();
