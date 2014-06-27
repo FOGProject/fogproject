@@ -10,12 +10,9 @@ try
 	if (!$Host->isValid()) throw new Exception('#!ih');
 	// Try and get the task.
 	$Task = current($Host->get('task'));
-	$SnapinJob = current((array)$Host->get('snapinjob'));
-	//Get the snapin job.
-	if (!$SnapinJob) throw new Exception('#!ns');
 	// Work on the current Snapin Task.
-	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id'))));
-	if (!$SnapinTask) throw new Exception('#!ns');
+	$SnapinTask = new SnapinTask($_REQUEST['taskid']);
+	if (!$SnapinTask->isValid()) throw new Exception('#!er: Something went wrong with getting the snapin.');
 	//Get the snapin to work off of.
 	$Snapin = new Snapin($SnapinTask->get('snapinID'));
 	// Assign the file for sending.
