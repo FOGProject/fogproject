@@ -89,11 +89,11 @@ class MulticastTask
 			if ($strRec && $strSys)
 			{
 				// two parts
-				$cmd = 'cat "'.$strRec.'"|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
-				$cmd .= 'cat "'.$strSys.'"|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
+				$cmd = 'cat '.$strRec.'|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
+				$cmd .= 'cat '.$strSys.'|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
 			}
 			else if (!$strRec && $strSys)
-				$cmd = 'cat "'.$strSys.'"|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
+				$cmd = 'cat '.$strSys.'|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
 		}
 		else if ($this->getImageType() == 1 || $this->getImageType() == 2)
 		{
@@ -118,11 +118,11 @@ class MulticastTask
 				foreach ($filelist AS $file)
 				{
 					$path = rtrim($this->getImagePath(),'/').'/'.$file;
-					$cmd .= 'cat "'.$path.'"|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
+					$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
 				}
 			}
 			else
-				$cmd = 'cat "'.rtrim($this->getImagePath(),'/').'"|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
+				$cmd = 'cat '.rtrim($this->getImagePath(),'/').'|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
 		}
 		else if ($this->getImageType() == 3)
 		{
@@ -150,7 +150,7 @@ class MulticastTask
 				foreach ($filelist AS $file)
 				{
 					$path = rtrim($this->getImagePath(),'/').'/'.$file;
-					$cmd .= 'cat "'.$path.'"|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
+					$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
 				}
 			}
 		}
@@ -175,7 +175,7 @@ class MulticastTask
 				foreach ($filelist AS $file)
 				{
 					$path = rtrim($this->getImagePath(),'/').'/'.$file;
-					$cmd .= 'cat "'.$path.'"|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
+					$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
 				}
 			}
 		}
