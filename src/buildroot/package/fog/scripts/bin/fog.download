@@ -391,6 +391,7 @@ IFS='
 		sgdisk -G $hd;
 	fi
 	if [ -f "/images/postdownloadscripts/fog.postdownload" ]; then
+		export part="$part";
 		postdownpath="/images/postdownloadscripts/"
 		export postdownpath="$postdownpath";
 		sh ${postdownpath}fog.postdownload;
