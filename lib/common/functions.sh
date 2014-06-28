@@ -319,13 +319,11 @@ configureStorage()
 		mkdir "$storage/postdownloadscripts";
 		if [ ! -f "$storage/postdownloadscripts/fog.postdownload" ]; then
 			echo "#!/bin/sh
-. /usr/share/fog/lib/funcs.sh
 ## This file serves as a starting point to call your custom postimaging scripts.
 ## <SCRIPTNAME> should be changed to the script you're planning to use.
 ## Syntax of post download scripts are
 #if a sub shell gets invoked we lose kernel vars this will reimport them
-$(for var in $(cat /proc/cmdline); do echo export_$var | grep =; done)
-#sh \${postdownpath}<SCRIPTNAME>" > "$storage/postdownloadscripts/fog.postdownload";
+#. \${postdownpath}<SCRIPTNAME>" > "$storage/postdownloadscripts/fog.postdownload";
 		fi
 		chmod -R 777 "$storage";
 	fi
