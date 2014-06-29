@@ -1,12 +1,11 @@
 <?php
 // Require FOG Base
 require('../commons/base.inc.php');
+$HookManager->load();
 // Config load check
 if (IS_INCLUDED !== true) die($foglang['NoLoad']);
 // User session data
 $currentUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
-$MainMenu = new Mainmenu();
-$SubMenu = new SubMenu();
 // Process Login
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 // Login form + logout
@@ -34,6 +33,8 @@ $content = $FOGPageManager->render();
 $sectionTitle = $FOGPageManager->getFOGPageName();
 // Page Title - should be set after page has been rendered
 $pageTitle = $FOGPageManager->getFOGPageTitle();
+$MainMenu = new Mainmenu();
+$SubMenu = new SubMenu();
 $HookManager->processEvent('CONTENT_DISPLAY',array('content' => &$content,'sectionTitle' => &$sectionTitle,'pageTitle' => &$pageTitle));
 if ($FOGCore->isAJAXRequest())
 {
