@@ -108,21 +108,19 @@ writeImageMultiCast()
 
 changeHostname()
 {
-	dots "Changing hostname";
-	if [ -n "$hostname" ] && [ "$hostearly" == "1" ]
+	if [ "$hostearly" == "1" ]
 	then
+		dots "Changing hostname";
 		mkdir /ntfs &>/dev/null
 		ntfs-3g -o force,rw $part /ntfs &> /tmp/ntfs-mount-output
 		regfile="";
 		key1="";
 		key2="";
-		if [ "$osid" = "5" ] || [ "$osid" = "6" ] || [ "$osid" = "7" ]
-		then
+		if [ "$osid" = "5" ] || [ "$osid" = "6" ] || [ "$osid" = "7" ]; then
 			regfile=$REG_LOCAL_MACHINE_7
 			key1=$REG_HOSTNAME_KEY1_7
 			key2=$REG_HOSTNAME_KEY2_7
-		elif [ "$osid" = "1" ]
-		then
+		elif [ "$osid" = "1" ];	then
 			regfile=$REG_LOCAL_MACHINE_XP
 			key1=$REG_HOSTNAME_KEY1_XP
 			key2=$REG_HOSTNAME_KEY2_XP
@@ -137,8 +135,6 @@ y
 EOFREG
 		umount /ntfs &> /dev/null
 		echo "Done";
-	else
-		echo "Skipped";
 	fi
 }
 
