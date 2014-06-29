@@ -322,7 +322,6 @@ configureStorage()
 ## This file serves as a starting point to call your custom postimaging scripts.
 ## <SCRIPTNAME> should be changed to the script you're planning to use.
 ## Syntax of post download scripts are
-#if a sub shell gets invoked we lose kernel vars this will reimport them
 #. \${postdownpath}<SCRIPTNAME>" > "$storage/postdownloadscripts/fog.postdownload";
 		fi
 		chmod -R 777 "$storage";
