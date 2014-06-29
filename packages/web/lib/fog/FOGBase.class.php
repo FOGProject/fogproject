@@ -52,7 +52,7 @@ abstract class FOGBase
 		// Class setup
 		$this->FOGFTP = $GLOBALS['FOGFTP'];
 		$this->FOGCore = $GLOBALS['FOGCore'];
-		$this->DB = $this->FOGCore->DB;
+		$this->DB = $GLOBALS['DB'];
 		$this->FOGUser = $GLOBALS['currentUser'];
 		$this->HookManager = $GLOBALS['HookManager'];
 		// Language Setup

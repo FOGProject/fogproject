@@ -206,4 +206,9 @@ $FOGCore = new FOGCore();
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
+// HookManager
+$HookManager = new HookManager();
+$HookManager->load();
+// FOGPageManager
+$FOGPageManager = new FOGPageManager();
 $Init::endInit();
