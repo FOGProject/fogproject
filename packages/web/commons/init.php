@@ -163,6 +163,7 @@ class Initiator
 		// Languages
 		bindtextdomain('messages', 'languages');
 		textdomain('messages');
+		@session_write_close();
 	}
 	/** FOGLoader($className)
 	* Loads the class files as they're needed.
