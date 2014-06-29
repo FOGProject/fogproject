@@ -50,33 +50,26 @@ abstract class FOGBase
 	public function __construct()
 	{
 		// Class setup
+		$this->FOGFTP = $GLOBALS['FOGFTP'];
 		$this->FOGCore = $GLOBALS['FOGCore'];
 		$this->DB = $this->FOGCore->DB;
-		$this->HookManager = $GLOBALS['HookManager'];
 		$this->FOGUser = $GLOBALS['currentUser'];
-		$this->FOGFTP = $GLOBALS['FOGFTP'];
+		$this->HookManager = $GLOBALS['HookManager'];
 		// Language Setup
 		$this->foglang = $GLOBALS['foglang'];
-		// LEGACY
-		$this->db = $this->FOGCore->DB;
-		$this->conn = $GLOBALS['conn'];
-		//printf('Creating Class: %s', get_class($this));
 	}
-	// Error - results in FOG halting with an error message
 	/** fatalError($txt, $data = array())
 		Fatal error in the case something went wrong.
 		Prints to the screen so it can be easily seen.
 	*/
 	public function fatalError($txt, $data = array())
 	{
-		//if (!$this->isAJAXRequest() && !preg_match('#/service/#', $_SERVER['PHP_SELF']))
 		if (!preg_match('#/service/#', $_SERVER['PHP_SELF']) && !FOGCore::isAJAXRequest())
 		{
 			printf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 			flush();
 			exit;
 		}
-		// TODO: Log to Database
 	}
 	
 	// Error - results in FOG halting with an error message
@@ -101,7 +94,6 @@ abstract class FOGBase
 		{
 			printf('<div class="debug-error">FOG DEBUG: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 			flush();
-			//ob_flush();
 		}
 	}
 	// Info - message is shown if info is enabled for that class
@@ -110,15 +102,10 @@ abstract class FOGBase
 	*/
 	public function info($txt, $data = array())
 	{
-		//printf('Info: %s', ($this->info === true ? 'true' : 'false'));
-		
-		// !isset gets used when a call is made statically. i.e. FOGCore::info('foo bah');
-		//if ((!isset($this) || (isset($this->info) && $this->info === true)) && !FOGCore::isAJAXRequest() && !preg_match('#/service/#', $_SERVER['PHP_SELF']))
 		if ($this->info === true && !FOGCore::isAJAXRequest() && !preg_match('#/service/#', $_SERVER['PHP_SELF']))
 		{
 			printf('<div class="debug-info">FOG INFO: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 			flush();
-			//ob_flush();
 		}
 	}
 	/** __toString()
@@ -131,7 +118,7 @@ abstract class FOGBase
 	/** toString()
 		Returns data as a string.
 	*/
-	function toString()
+	public function toString()
 	{
 		return $this->__toString();
 	}
@@ -154,11 +141,8 @@ abstract class FOGBase
 		array_shift($args);
 		if (count($args))
 		{
-			// TODO: Make this work
-			// http://au.php.net/ReflectionClass
 			$r = new ReflectionClass($class);
 			return $r->newInstanceArgs($args);
-			//return new $class((count($args) === 1 ? $args[0] : $args));
 		}
 		else
 			return new $class();

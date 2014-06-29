@@ -5,10 +5,13 @@ require('../commons/base.inc.php');
 if (IS_INCLUDED !== true) die($foglang['NoLoad']);
 // User session data
 $currentUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
+$HookManager = new HookManager();
 $MainMenu = new Mainmenu();
 $SubMenu = new SubMenu();
+$FOGPageManager = new FOGPageManager();
 // Process Login
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
+$HookManager->load();
 // Login form + logout
 if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
 {

@@ -5,11 +5,23 @@ class RemoveMenuItems extends Hook
 	var $description = 'Removes menu items and restricts the links from the page.';
 	var $author = 'Tom Elliott';
 	var $active = true;
-	private $linkToFilter;
 	public function __construct()
 	{
 		parent::__construct();
-		$this->linksToFilter = array('images','host');
+		//$this->FOGUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
+		$this->getLoggedIn();
+	}
+	public function getLoggedIn()
+	{
+		if ($this->FOGUser)
+		{
+			if(!in_array($this->FOGUser->get('name'),array('fog')))
+				$this->linksToFilter = array('accesscontrol','images','storage','location','snapin','printer','service','about');
+			elseif(in_array($this->FOGUser->get('name'),array('someother1','someother2')))
+				$this->linksToFilter = array('accesscontrol','printer','service','about');
+			else
+				$this->linksToFilter = array('printer','service');
+		}
 	}
 	public function MenuData($arguments)
 	{

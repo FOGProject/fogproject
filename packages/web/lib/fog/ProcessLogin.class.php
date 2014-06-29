@@ -76,13 +76,13 @@ class ProcessLogin extends FOGBase
 		$currentUser = $tmpUser;
 		$currentUser->set('authTime', time());
 		$currentUser->set('authIP',$_SERVER['REMOTE_ADDR']);
-		// Hook
-		$this->HookManager->processEvent('LoginSuccess', array('user' => &$currentUser, 'username' => $this->username, 'password' => &$this->password));
 		// Set session
 		$_SESSION['FOG_USER'] = serialize($currentUser);
 		$_SESSION['FOG_USERNAME'] = $currentUser->get('name');
 		$this->setRedirMode();
 		$this->currentUser = $currentUser;
+		// Hook
+		$this->HookManager->processEvent('LoginSuccess', array('user' => &$currentUser, 'username' => $this->username, 'password' => &$this->password));
 	}
 
 	private function setRedirMode()
