@@ -155,7 +155,6 @@ class ProcessLogin extends FOGBase
 
 	public function mainLoginForm()
 	{
-		ob_start('ob_gzhandler');
 		print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 		print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 		print "\n\t<head>";
@@ -215,12 +214,13 @@ class ProcessLogin extends FOGBase
 		print "\n\t".'<script type="text/javascript" src="js/fog.login.js"></script>';
 		print "\n</body>";
 		print "\n</html>";
+		session_write_close();
 		ob_end_flush();
+		flush();
 	}
 
 	public function mobileLoginForm()
 	{
-		ob_start('ob_gzhandler');
 		print "\n\t\t\t".'<center><div class="login">';
 		print "\n\t\t\t\t".'<p class="loginTitle">'._('FOG Mobile Login').'</p>';
 		print "\n\t\t\t\t".'<form method="post" action="?node=login">';
@@ -231,6 +231,8 @@ class ProcessLogin extends FOGBase
 		print "\n\t\t\t\t\t".'<p><input type="submit" value="'._('Login').'" /></p>';
 		print "\n\t\t\t\t</form>";
 		print "\n\t\t\t</div></center>";
+		session_write_close();
 		ob_end_flush();
+		flush();
 	}
 }
