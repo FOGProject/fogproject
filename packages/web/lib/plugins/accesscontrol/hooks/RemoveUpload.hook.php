@@ -7,7 +7,7 @@ class RemoveUpload extends Hook
 	var $active = true;
 	public function UploadData($arguments)
 	{
-		if (!in_array($this->FOGUser->get('name'),array('fog')))
+		if (!in_array($this->FOGUser->get('type'),array(0)))
 		{
 			if ($_REQUEST['node'] == 'tasks' && $_REQUEST['sub'] == 'listhosts')
 				unset($arguments['headerData'][3],$arguments['templates'][3]);
@@ -15,7 +15,7 @@ class RemoveUpload extends Hook
 	}
 	public function EditTasks($arguments)
     {
-		if (!in_array($this->FOGUser->get('name'),array('fog')))
+		if (!in_array($this->FOGUser->get('type'),array(0)))
 		{
 			unset($arguments['data'][1],$arguments['template'][1]);
 			unset($arguments['data'][11],$arguments['template'][11]);
@@ -23,7 +23,7 @@ class RemoveUpload extends Hook
     }
 	public function SubMenuData($arguments)
 	{
-		if (!in_array($this->FOGUser->get('name'),array('fog')))
+		if (!in_array($this->FOGUser->get('type'),array(0)))
 		{
 			$i = 0;
 			foreach($arguments['submenu'][$_REQUEST['node']]['id'] AS $link => $info)
