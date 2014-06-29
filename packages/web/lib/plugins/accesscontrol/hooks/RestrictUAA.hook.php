@@ -15,7 +15,7 @@ class RestrictUAA extends Hook
  
     public function UserData($arguments)
     {
-		if (!in_array($this->FOGUser->get('name'),array('fog')))
+		if (!in_array($this->FOGUser->get('type'),array(0)))
 		{
         	foreach ($arguments['data'] AS $i => $data)
 			{
@@ -27,7 +27,7 @@ class RestrictUAA extends Hook
 	
 	public function RemoveName($arguments)
     {
-		if (!in_array($this->FOGUser->get('name'),array('fog')))
+		if (!in_array($this->FOGUser->get('type'),array(0)))
 		{
 			unset($arguments['data'][0]);
 			unset($arguments['template'][0]);
@@ -40,7 +40,7 @@ class RestrictUAA extends Hook
 		{
 			if (in_array($node,$this->linksToFilter))
 			{
-				if (!in_array($this->FOGUser->get('name'),array('fog')))
+				if (!in_array($this->FOGUser->get('type'),array(0)))
 					unset($arguments['submenu'][$node]['add']);
 			}
 		}

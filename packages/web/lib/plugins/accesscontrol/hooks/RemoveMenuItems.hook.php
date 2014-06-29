@@ -14,9 +14,7 @@ class RemoveMenuItems extends Hook
 	{
 		if ($this->FOGUser && $this->FOGUser->isLoggedIn())
 		{
-			if (in_array($this->FOGUser->get('type'),array(1)))
-				$this->linksToFilter = array('home','host','tasks','logout');
-			elseif(in_array($this->FOGUser->get('type'),array(0)))
+			if(in_array($this->FOGUser->get('type'),array(2)))
 				$this->linksToFilter = array('accesscontrol','printer','service','about');
 		}
 	}
