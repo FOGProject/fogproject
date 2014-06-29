@@ -20,7 +20,7 @@ class RemoveMenuItems extends Hook
 	}
 	public function MenuData($arguments)
 	{
-		foreach($this->linksToFilter AS $link)
+		foreach((array)$this->linksToFilter AS $link)
 			unset($arguments['main'][$link]);
 	}
 	public function SubMenuData($arguments)
