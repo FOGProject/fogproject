@@ -69,6 +69,7 @@ class LocationManagementPage extends FOGPage
 		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED'))
 			$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
 		// Hook
+		$this->HookManager->event[] = 'LOCATION_DATA';
 		$this->HookManager->processEvent('LOCATION_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
@@ -81,6 +82,7 @@ class LocationManagementPage extends FOGPage
 		// Set search form
 		$this->searchFormURL = $_SERVER['PHP_SELF'].'?node=location&sub=search';
 		// Hook
+		$this->HookManager->event[] = 'LOCATION_SEARCH';
 		$this->HookManager->processEvent('LOCATION_SEARCH');
 		// Output
 		$this->render();
@@ -109,6 +111,7 @@ class LocationManagementPage extends FOGPage
 			);
 		}
 		// Hook
+		$this->HookManager->event[] = 'LOCATION_DATA';
 		$this->HookManager->processEvent('LOCATION_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
@@ -144,6 +147,7 @@ class LocationManagementPage extends FOGPage
 			);
 		}
 		// Hook
+		$this->HookManager->event[] = 'LOCATION_ADD';
 		$this->HookManager->processEvent('LOCATION_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
@@ -219,6 +223,7 @@ class LocationManagementPage extends FOGPage
 			);
 		}
 		// Hook
+		$this->HookManager->event[] = 'LOCATION_EDIT';
 		$this->HookManager->processEvent('LOCATION_EDIT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
@@ -228,6 +233,7 @@ class LocationManagementPage extends FOGPage
 	{
 		$Location = new Location($_REQUEST['id']);
 		$LocationMan = new LocationManager();
+		$this->HookManager->event[] = 'LOCATION_EDIT_POST';
 		$this->HookManager->processEvent('LOCATION_EDIT_POST', array('Location'=> &$Location));
 		try
 		{
@@ -286,6 +292,7 @@ class LocationManagementPage extends FOGPage
 		}
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" class="c">';
 		// Hook
+		$this->HookManager->event[] = 'LOCATION_DELETE';
 		$this->HookManager->processEvent('LOCATION_DELETE', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
@@ -296,6 +303,7 @@ class LocationManagementPage extends FOGPage
 		// Find
 		$Location = new Location($_REQUEST['id']);
 		// Hook
+		$this->HookManager->event[] = 'LOCATION_DELETE_POST';
 		$this->HookManager->processEvent('LOCATION_DELETE_POST', array('Location' => &$Location));
 		// POST
 		try
@@ -306,6 +314,7 @@ class LocationManagementPage extends FOGPage
 			if (!$Location->destroy())
 				throw new Exception(_('Failed to destroy Location'));
 			// Hook
+			$this->HookManager->event[] = 'LOCATION_DELETE_SUCCESS';
 			$this->HookManager->processEvent('LOCATION_DELETE_SUCCESS', array('Location' => &$Location));
 			// Log History event
 			$this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Location deleted'), $Location->get('id'), $Location->get('name')));
@@ -317,6 +326,7 @@ class LocationManagementPage extends FOGPage
 		catch (Exception $e)
 		{
 			// Hook
+			$this->HookManager->event[] = 'LOCATION_DELETE_FAIL';
 			$this->HookManager->processEvent('LOCATION_DELETE_FAIL', array('Location' => &$Location));
 			// Log History event
 			$this->FOGCore->logHistory(sprintf('%s %s: ID: %s, Name: %s', _('Location'), _('deleted'), $Location->get('id'), $Location->get('name')));
