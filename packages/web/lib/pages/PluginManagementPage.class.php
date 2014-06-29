@@ -315,7 +315,6 @@ class PluginManagementPage extends FOGPage
 		{
 			if($this->FOGCore->getClass(ucfirst($plugin->getName()).'Manager')->install($plugin->getName()))
 			{
-				session_regenerate_id(true);
 				$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $plugin->getName())));
 				$Plugin->set('installed',1)
 					   ->set('version',1);
@@ -358,7 +357,6 @@ class PluginManagementPage extends FOGPage
 		{
 			if($this->FOGCore->getClass(ucfirst($Plugin->get('name')).'Manager')->uninstall())
 			{
-				session_regenerate_id(true);
 				if ($Plugin->destroy())
 				{
 					$this->FOGCore->setMessage('Plugin Removed');
