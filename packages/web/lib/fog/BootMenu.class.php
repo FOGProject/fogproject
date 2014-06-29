@@ -392,6 +392,7 @@ class BootMenu extends FOGBase
 				"loglevel=4",
 				"consoleblank=0",
 				"irqpoll",
+				"hostname=".$Host->get('name'),
 				array(
 					'value' => "chkdsk=$chkdsk",
 					'active' => in_array($TaskType->get('id'),$imagingTasks),
@@ -445,7 +446,7 @@ class BootMenu extends FOGBase
 					'active' => $this->Host->get('kernelDevice'),
 				),
 				array(
-					'value' => 'hostname='.$this->Host->get('name'),
+					'value' => 'hostearly=1',
 					'active' => $this->FOGCore->getSetting('FOG_CHANGE_HOSTNAME_EARLY') && in_array($TaskType->get('id'),$imagingTasks) ? true : false,
 				),
 				array(
