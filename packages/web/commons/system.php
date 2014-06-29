@@ -27,8 +27,8 @@ class System
 		else
 			date_default_timezone_set('UTC');
 		define('IS_INCLUDED', true);
-		define('FOG_VERSION', '1963');
-		define('FOG_SCHEMA', 106);
+		define('FOG_VERSION', '1964');
+		define('FOG_SCHEMA', 107);
 		define('FOG_SVN_REVISION', '$Revision$');
 		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');
 		define('PHP_VERSION_REQUIRED', '5.3.0');
