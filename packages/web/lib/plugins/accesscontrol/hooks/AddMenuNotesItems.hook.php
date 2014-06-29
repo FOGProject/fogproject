@@ -10,7 +10,6 @@ class AddMenuNotesItems extends Hook
 	{
 		global $MainMenu;
 		$MainMenu->main = $this->array_insert_after('users',$MainMenu->main,$this->node,_('Access Control'));
-		$arguments['main'] = $arguments['main'];
 	}
 	public function SubMenuData($arguments)
 	{
