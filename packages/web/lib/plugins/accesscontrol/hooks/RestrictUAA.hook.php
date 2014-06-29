@@ -4,7 +4,7 @@ class RestrictUAA extends Hook
     var $name = 'RestrictUAA';
     var $description = 'Removes All users except the current user and ability to create/modify users';
     var $author = 'Rowlett';
-    var $active = false;
+    var $active = true;
 	private $linkToFilter;
 	
 	public function __construct()
@@ -38,7 +38,7 @@ class RestrictUAA extends Hook
 	{
 		foreach($arguments['submenu'] AS $node => $link)
 		{
-			if (in_array($node,$this->linksToFilter))
+			if (in_array($node,(array)$this->linksToFilter))
 			{
 				if (!in_array($this->FOGUser->get('type'),array(0)))
 					unset($arguments['submenu'][$node]['add']);
