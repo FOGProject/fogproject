@@ -109,7 +109,7 @@ writeImageMultiCast()
 changeHostname()
 {
 	dots "Changing hostname";
-	if [ -n "$hostname" ]
+	if [ -n "$hostname" ] && [ "$hostearly" == "1" ]
 	then
 		mkdir /ntfs &>/dev/null
 		ntfs-3g -o force,rw $part /ntfs &> /tmp/ntfs-mount-output

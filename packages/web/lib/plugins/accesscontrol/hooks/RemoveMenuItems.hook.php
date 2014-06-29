@@ -14,19 +14,16 @@ class RemoveMenuItems extends Hook
 	{
 		if ($this->FOGUser && $this->FOGUser->isLoggedIn())
 		{
-			if(!in_array($this->FOGUser->get('name'),array('fog')))
-				$this->linksToFilter = array('accesscontrol','images','storage','location','snapin','printer','service','about');
-			elseif(in_array($this->FOGUser->get('name'),array('someother1','someother2')))
+			if (in_array($this->FOGUser->get('type'),array(1)))
+				$this->linksToFilter = array('home','host','tasks','logout');
+			elseif(in_array($this->FOGUser->get('type'),array(0)))
 				$this->linksToFilter = array('accesscontrol','printer','service','about');
 		}
 	}
 	public function MenuData($arguments)
 	{
-		foreach($arguments['main'] AS $link => $title)
-		{
-			if (in_array($link,(array)$this->linksToFilter))
-				unset($arguments['main'][$link]);
-		}
+		foreach($this->linksToFilter AS $link)
+			unset($arguments['main'][$link]);
 	}
 	public function SubMenuData($arguments)
 	{
