@@ -76,7 +76,6 @@ class User extends FOGController
 			// Regenerate session ID
 			@session_regenerate_id();
 			$sid = session_id();
-			@session_write_close();
 			@session_id($sid);
 			@session_start();
 			$_SESSION['CREATED'] = time();
