@@ -206,11 +206,4 @@ $FOGCore = new FOGCore();
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
-foreach($Init->plugPaths AS $path)
-	$PluginNames[] = basename($path);
-// HookManager
-$HookManager = new HookManager();
-$HookManager->load();
-// FOGPageManager Loading
-$FOGPageManager = new FOGPageManager();
 $Init::endInit();
