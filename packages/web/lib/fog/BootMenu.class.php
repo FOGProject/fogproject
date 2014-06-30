@@ -392,7 +392,7 @@ class BootMenu extends FOGBase
 				"loglevel=4",
 				"consoleblank=0",
 				"irqpoll",
-				"hostname=".$Host->get('name'),
+				"hostname=".$this->Host->get('name'),
 				array(
 					'value' => "chkdsk=$chkdsk",
 					'active' => in_array($TaskType->get('id'),$imagingTasks),
