@@ -89,5 +89,6 @@ class User extends FOGController
 		@session_unset();
 		@session_destroy();
 		$_SESSION = array();
+		$this->FOGCore->redirect('index.php');
 	}
 }
