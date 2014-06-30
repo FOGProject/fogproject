@@ -97,15 +97,12 @@ writeImage()
 # $1 = Target
 writeImageMultiCast() 
 {
-	if [ "$imgFormat" = "1" || "$imgLegacy" = "1" ]; then
+	if [ "$imgFormat" = "1" -o "$imgLegacy" = "1" ]; then
 		#partimage
 		udp-receiver --nokbd --portbase ${port} --mcast-rdv-address ${storageip} 2>/dev/null | gunzip -d -c | partimage -f3 -b restore $1 stdin 2>/tmp/status.fog;
 	else 
 		# partclone
-		mkfifo /tmp/pigz1;
-		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip > /tmp/pigz1 &
-		gunzip -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
-		rm /tmp/pigz1;
+		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;
 	fi
 }
 
