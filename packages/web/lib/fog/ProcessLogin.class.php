@@ -73,10 +73,14 @@ class ProcessLogin extends FOGBase
 
 	private function setCurUser($tmpUser)
 	{
+		// reset session on login success
+		@session_write_close();
+		@session_regenerate_id(true);
+		$_SESSION = array();
+		@session_start();
 		$currentUser = $tmpUser;
 		$currentUser->set('authTime', time());
 		$currentUser->set('authIP',$_SERVER['REMOTE_ADDR']);
-		// Set session
 		$_SESSION['FOG_USER'] = serialize($currentUser);
 		$_SESSION['FOG_USERNAME'] = $currentUser->get('name');
 		$this->setRedirMode();

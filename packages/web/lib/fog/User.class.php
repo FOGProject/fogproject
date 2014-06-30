@@ -57,7 +57,7 @@ class User extends FOGController
 		if (!$_SERVER['REMOTE_ADDR'] || $this->get('authIP') != $_SERVER['REMOTE_ADDR'])
 			return false;
 		// Has session expired due to inactivity
-		if (!$this->FOGCore->getSetting('FOG_ALWAYS_LOGGED_IN') && isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > ($this->inactivitySessionTimeout * 60 * 60)))
+		if (!$this->FOGCore->getSetting('FOG_ALWAYS_LOGGED_IN') && isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] >= ($this->inactivitySessionTimeout * 60 * 60)))
 		{
 			// Logout
 			$this->logout();
@@ -73,10 +73,10 @@ class User extends FOGController
 			$_SESSION['CREATED'] = time();
 		else if (!headers_sent() && time() - $_SESSION['CREATED'] > ($this->regenerateSessionTimeout * 60 * 60))
 		{
-			// Regenerate session ID
-			@session_regenerate_id();
-			$sid = session_id();
-			@session_id($sid);
+			// reset session
+			@session_write_close();
+			@session_regenerate_id(true);
+			$_SESSION = array();
 			@session_start();
 			$_SESSION['CREATED'] = time();
 		}
@@ -86,8 +86,8 @@ class User extends FOGController
 	public function logout()
 	{
 		// Destroy session
-		@session_destroy();
 		@session_unset();
+		@session_destroy();
 		$_SESSION = array();
 	}
 }
