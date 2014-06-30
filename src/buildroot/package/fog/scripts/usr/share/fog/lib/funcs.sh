@@ -97,7 +97,7 @@ writeImage()
 # $1 = Target
 writeImageMultiCast() 
 {
-	if [ "$imgFormat" = "1" || "$imgLegacy" = "1" ]; then
+	if [ "$imgFormat" = "1" -o "$imgLegacy" = "1" ]; then
 		#partimage
 		udp-receiver --nokbd --portbase ${port} --mcast-rdv-address ${storageip} 2>/dev/null | gunzip -d -c | partimage -f3 -b restore $1 stdin 2>/tmp/status.fog;
 	else 
@@ -108,21 +108,19 @@ writeImageMultiCast()
 
 changeHostname()
 {
-	dots "Changing hostname";
-	if [ -n "$hostname" ]
+	if [ "$hostearly" == "1" ]
 	then
+		dots "Changing hostname";
 		mkdir /ntfs &>/dev/null
 		ntfs-3g -o force,rw $part /ntfs &> /tmp/ntfs-mount-output
 		regfile="";
 		key1="";
 		key2="";
-		if [ "$osid" = "5" ] || [ "$osid" = "6" ] || [ "$osid" = "7" ]
-		then
+		if [ "$osid" = "5" ] || [ "$osid" = "6" ] || [ "$osid" = "7" ]; then
 			regfile=$REG_LOCAL_MACHINE_7
 			key1=$REG_HOSTNAME_KEY1_7
 			key2=$REG_HOSTNAME_KEY2_7
-		elif [ "$osid" = "1" ]
-		then
+		elif [ "$osid" = "1" ];	then
 			regfile=$REG_LOCAL_MACHINE_XP
 			key1=$REG_HOSTNAME_KEY1_XP
 			key2=$REG_HOSTNAME_KEY2_XP
@@ -137,8 +135,6 @@ y
 EOFREG
 		umount /ntfs &> /dev/null
 		echo "Done";
-	else
-		echo "Skipped";
 	fi
 }
 
@@ -155,10 +151,7 @@ fixWin7boot()
 
 clearMountedDevices()
 {
-	
-
 	mkdir /ntfs &>/dev/null
-
 	if [ "$osid" = "5" ] || [ "$osid" = "6" ] || [ "$osid" = "7" ]
 	then
 		dots "Clearing mounted devices";
@@ -199,7 +192,6 @@ doInventory()
 	casever=`dmidecode -s chassis-version`;
 	caseserial=`dmidecode -s chassis-serial-number`;
 	casesasset=`dmidecode -s chassis-asset-tag`;
-	
 	sysman64=`echo $sysman | base64`;
 	sysproduct64=`echo $sysproduct | base64`;
 	sysversion64=`echo $sysversion | base64`;
@@ -320,13 +312,11 @@ getHardDisk()
 		return 0;
 	else
 		hd="";
-	
 		for i in `fogpartinfo --list-devices 2>/dev/null`
 		do
 			hd="$i";
 			return 0;
 		done;
-	
 		# Lets check and see if the partition shows up in /proc/partitions		
 		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf;
 		do		
@@ -337,7 +327,6 @@ getHardDisk()
 				return 0;
 			fi 
 		done;		
-		
 		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf;
 		do		
 			strData=`head -1 /dev/$i 2>/dev/null`
@@ -347,7 +336,6 @@ getHardDisk()
 				return 0;
 			fi 
 		done;	
-	
 		# Failed, probably because there is no partition on the device
 		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf;
 		do		
@@ -439,6 +427,26 @@ debugCommand()
 {
 	if [ "$mode" == "debug" ]; then
 		echo $1 >> /tmp/cmdlist
+	fi
+}
+
+# uploadFormat
+# Description:
+# Tells the system what format to upload in, whether split or not.
+# Expects first arguments to be the number of Cores.
+# Expects second argument to be the fifo to send to.
+# Expects part of the filename in the case of resizable
+#    will append 000 001 002 automatically
+uploadFormat()
+{
+	if [ "$imgFormat" == "2" ]; then
+		pigz -p $1 $PIGZ_COMP < $2 | split -a 3 -d -b 200m - ${3}. &
+	else
+		if [ "$imgType" == "n" ]; then
+			pigz -p $1 $PIGZ_COMP < $2 > ${3}.000 &
+		else
+			pigz -p $1 $PIGZ_COMP < $2 > $3 &
+		fi
 	fi
 }
 

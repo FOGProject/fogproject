@@ -1262,7 +1262,7 @@ class HostManagementPage extends FOGPage
 		// Title
 		$this->title = 'Remove: '.$Host->get('name');
 		// Hook
-		$this->HookManager->processEvent('HOST_ADD', array('Host' => &$Host));
+		$this->HookManager->processEvent('HOST_DEL', array('Host' => &$Host));
 		print "\n\t\t\t".'<p class="c">'._('Please confirm you want to delete').' <b>'.$Host->get('name').'</b></p>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" class="c">';
 		print "\n\t\t\t".'<input type="submit" value="'.$this->title.'" />';
@@ -1276,7 +1276,7 @@ class HostManagementPage extends FOGPage
 		// Find
 		$Host = new Host($this->REQUEST['id']);
 		// Hook
-		$this->HookManager->processEvent('HOST_ADD_POST', array('Host' => &$Host));
+		$this->HookManager->processEvent('HOST_DEL_POST', array('Host' => &$Host));
 		// POST
 		try
 		{

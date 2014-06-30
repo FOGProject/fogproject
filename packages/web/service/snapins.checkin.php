@@ -12,19 +12,12 @@ try
 	$Task = current($Host->get('task'));
 	// If the task is Valid and is not of type 12 or 13 report that it's waiting for other tasks.
 	if ($Task && $Task->isValid() && $Task->get('typeID') != 12 && $Task->get('typeID') != 13) throw new Exception('#!it');
+	// Get the job, if there isn't one report that there isn't one.
 	$SnapinJob = current((array)$Host->get('snapinjob'));
 	//Get the snapin job.  There should be tasks if the Job is still viable.
-	if (!$SnapinJob) throw new Exception('#!ns');
+	if (!$SnapinJob || !$SnapinJob->isValid()) throw new Exception('#!ns');
 	// Work on the current Snapin Task.
-	$SnapinTasks = $FOGCore->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id')));
-	foreach($SnapinTasks AS $ST)
-	{
-		if ($ST->get('stateID') < 2)
-		{
-			$SnapinTask = $ST;
-			break;
-		}
-	}
+	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id'),'stateID' => array(-1,0,1))));
 	if ($SnapinTask && $SnapinTask->isValid())
 	{
 		// Get the information (the Snapin itself)
@@ -35,14 +28,12 @@ try
 			// Place the task for records, but outside of recognizable as Complete or Done!
 			$SnapinTask->set('stateID','2')->set('return',$_REQUEST['exitcode'])->set('details',$_REQUEST['exitdesc'])->set('complete',date('Y-m-d H:i:s'));
 			if ($SnapinTask->save()) print "#!ok";
-			// Get the current count of snapin tasks.
-			$cnt = $FOGCore->getClass('SnapinTaskManager')->count(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id')));
 			// If that was the last task, delete the job.
-			if ($cnt < 1)
+			if ($FOGCore->getClass('SnapinTaskManager')->count(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id'))) < 1)
 			{
 				// If it's part of a task deployment update the task information.
 				$SnapinJob->set('stateID',2)->save();
-				if ($Task && $Task->isValid()) $Task->set('stateID',4)->save();
+				if ($Task->isValid()) $Task->set('stateID',4)->save();
 			}
 		}
 		else
@@ -57,7 +48,7 @@ try
 			{
 				$goodSnapin = array(
 					"#!ok\n",
-					"JOBTASKID=".$SnapinJob->get('id')."\n",
+					"JOBTASKID=".$SnapinTask->get('id')."\n",
 					"JOBCREATION=".$SnapinJob->get('createTime')."\n",
 					"SNAPINNAME=".$Snapin->get('name')."\n",
 					"SNAPINARGS=".$Snapin->get('args')."\n",
