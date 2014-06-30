@@ -102,7 +102,10 @@ writeImageMultiCast()
 		udp-receiver --nokbd --portbase ${port} --mcast-rdv-address ${storageip} 2>/dev/null | gunzip -d -c | partimage -f3 -b restore $1 stdin 2>/tmp/status.fog;
 	else 
 		# partclone
-		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;
+		mkfifo /tmp/pigz1;
+		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip > /tmp/pigz1 &
+		gunzip -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
+		rm /tmp/pigz1;
 	fi
 }
 
@@ -151,10 +154,7 @@ fixWin7boot()
 
 clearMountedDevices()
 {
-	
-
 	mkdir /ntfs &>/dev/null
-
 	if [ "$osid" = "5" ] || [ "$osid" = "6" ] || [ "$osid" = "7" ]
 	then
 		dots "Clearing mounted devices";
@@ -195,7 +195,6 @@ doInventory()
 	casever=`dmidecode -s chassis-version`;
 	caseserial=`dmidecode -s chassis-serial-number`;
 	casesasset=`dmidecode -s chassis-asset-tag`;
-	
 	sysman64=`echo $sysman | base64`;
 	sysproduct64=`echo $sysproduct | base64`;
 	sysversion64=`echo $sysversion | base64`;
@@ -316,13 +315,11 @@ getHardDisk()
 		return 0;
 	else
 		hd="";
-	
 		for i in `fogpartinfo --list-devices 2>/dev/null`
 		do
 			hd="$i";
 			return 0;
 		done;
-	
 		# Lets check and see if the partition shows up in /proc/partitions		
 		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf;
 		do		
@@ -333,7 +330,6 @@ getHardDisk()
 				return 0;
 			fi 
 		done;		
-		
 		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf;
 		do		
 			strData=`head -1 /dev/$i 2>/dev/null`
@@ -343,7 +339,6 @@ getHardDisk()
 				return 0;
 			fi 
 		done;	
-	
 		# Failed, probably because there is no partition on the device
 		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf;
 		do		
@@ -435,6 +430,26 @@ debugCommand()
 {
 	if [ "$mode" == "debug" ]; then
 		echo $1 >> /tmp/cmdlist
+	fi
+}
+
+# uploadFormat
+# Description:
+# Tells the system what format to upload in, whether split or not.
+# Expects first arguments to be the number of Cores.
+# Expects second argument to be the fifo to send to.
+# Expects part of the filename in the case of resizable
+#    will append 000 001 002 automatically
+uploadFormat()
+{
+	if [ "$imgFormat" == "2" ]; then
+		pigz -p $1 $PIGZ_COMP < $2 | split -a 3 -d -b 200m - ${3}. &
+	else
+		if [ "$imgType" == "n" ]; then
+			pigz -p $1 $PIGZ_COMP < $2 > ${3}.000 &
+		else
+			pigz -p $1 $PIGZ_COMP < $2 > $3 &
+		fi
 	fi
 }
 
