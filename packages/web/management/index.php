@@ -1,12 +1,11 @@
 <?php
 // Require FOG Base
 require('../commons/base.inc.php');
+$HookManager->load();
 // Config load check
 if (IS_INCLUDED !== true) die($foglang['NoLoad']);
 // User session data
 $currentUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
-$MainMenu = new Mainmenu();
-$SubMenu = new SubMenu();
 // Process Login
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 // Login form + logout
@@ -27,20 +26,21 @@ $_SESSION['FOGPingActive'] = ($FOGCore->getSetting('FOG_HOST_LOOKUP') == '1' ? t
 // Allow AJAX Tasks
 $_SESSION['AllowAJAXTasks'] = true;
 // Are we on the Homeapge?
-$isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','client')) ? true : false);
+$isHomepage = (($currentUser && $currentUser->isLoggedIn()) && (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','client'))) ? true : false);
 // Load Page Classes -> Render content based on incoming node variables
 $content = $FOGPageManager->render();
 // Section title
 $sectionTitle = $FOGPageManager->getFOGPageName();
 // Page Title - should be set after page has been rendered
 $pageTitle = $FOGPageManager->getFOGPageTitle();
+$MainMenu = new Mainmenu();
+$SubMenu = new SubMenu();
 $HookManager->processEvent('CONTENT_DISPLAY',array('content' => &$content,'sectionTitle' => &$sectionTitle,'pageTitle' => &$pageTitle));
 if ($FOGCore->isAJAXRequest())
 {
 	print $content; 
 	exit;
 }
-ob_start('ob_gzhandler');
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
@@ -131,4 +131,5 @@ if ($isHomepage)
 $HookManager->processEvent('JAVASCRIPT');
 print "\n</body>";
 print "\n</html>";
+session_write_close();
 ob_end_flush();

@@ -87,6 +87,7 @@ class Initiator
 	*/
 	public static function startInit()
 	{
+		ob_start('ob_gzhandler');
 		set_time_limit(0);
 		@error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
 		@header('Cache-Control: no-cache');
@@ -206,11 +207,8 @@ $FOGCore = new FOGCore();
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
-foreach($Init->plugPaths AS $path)
-	$PluginNames[] = basename($path);
 // HookManager
 $HookManager = new HookManager();
-$HookManager->load();
-// FOGPageManager Loading
+// FOGPageManager
 $FOGPageManager = new FOGPageManager();
 $Init::endInit();

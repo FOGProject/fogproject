@@ -1362,7 +1362,11 @@ $databaseSchema[] = array(
 	"ALTER TABLE `" . DATABASE_NAME . "`.images CHANGE imageLegacy imageFormat char",
 	"UPDATE `" . DATABASE_NAME ."`.globalSettings SET settingKey='FOG_FORMAT_FLAG_IN_GUI' WHERE settingKey='FOG_LEGACY_FLAG_IN_GUI'",
 );
-
+// 107
+$databaseSchema[] = array(
+	"DELETE FROM `" . DATABASE_NAME . "`.globalSettings WHERE settingCategory='SSH Client'",
+	"UPDATE `" . DATABASE_NAME ."`.globalSettings SET settingCategory='FOG Service - Snapins' WHERE settingKey='FOG_SNAPINDIR'",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
