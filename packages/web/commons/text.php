@@ -10,6 +10,7 @@
  ** Then the element Host or Printer could be translated later.
  **/
 //Set the global var to simpler calling.
+$GLOBALS['foglang'] = array();
 $foglang 							= $GLOBALS['foglang'];
 //Singular, status words to translate.
 $foglang['Display']					= _('Display');

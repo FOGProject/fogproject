@@ -34,12 +34,11 @@ fi
 if [ "$chkdsk"  == "1" ]; then
 	RUN_CHKDSK="-x";
 fi
-if [ -n "$hostname" ]; then
+if [ "$hostearly" == "1" ]; then
 	HOSTNAME_EARLY="1";
 fi
 if [ "$mc" == "yes" ]; then
 	method="UDPCAST";
-	#mccmd="udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partclone.restore -O";
 else
 	method="NFS";
 fi

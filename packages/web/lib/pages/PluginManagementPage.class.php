@@ -315,7 +315,6 @@ class PluginManagementPage extends FOGPage
 		{
 			if($this->FOGCore->getClass(ucfirst($plugin->getName()).'Manager')->install($plugin->getName()))
 			{
-				session_regenerate_id(true);
 				$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $plugin->getName())));
 				$Plugin->set('installed',1)
 					   ->set('version',1);
@@ -347,6 +346,11 @@ class PluginManagementPage extends FOGPage
 			$Capone = new Capone($_REQUEST['kill']);
 			$Capone->destroy();
 		}
+		// reset session
+		@session_write_close();
+		@session_regenerate_id(true);
+		$_SESSION = array();
+		@session_start();
 		$this->FOGCore->setMessage('Plugin updated!');
 		$this->FOGCore->redirect($this->formAction);
 	}
@@ -358,7 +362,6 @@ class PluginManagementPage extends FOGPage
 		{
 			if($this->FOGCore->getClass(ucfirst($Plugin->get('name')).'Manager')->uninstall())
 			{
-				session_regenerate_id(true);
 				if ($Plugin->destroy())
 				{
 					$this->FOGCore->setMessage('Plugin Removed');
@@ -366,5 +369,10 @@ class PluginManagementPage extends FOGPage
 				}
 			}
 		}
+		// reset session
+		@session_write_close();
+		@session_regenerate_id(true);
+		$_SESSION = array();
+		@session_start();
 	}
 }

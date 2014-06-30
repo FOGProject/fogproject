@@ -6,25 +6,18 @@ class AddMenuNotesItems extends Hook
 	var $author = 'Tom Elliott';
 	var $active = true;
 	var $node = 'accesscontrol';
-	public function __construct()
+	public function AddMenuData($arguments)
 	{
-		parent::__construct();
+		$arguments['main'] = $this->array_insert_after('users',$arguments['main'],$this->node,_('Access Control'));
 	}
-	public function MenuData($arguments)
+	public function AddSubMenuData($arguments)
 	{
-		global $MainMenu;
-		$MainMenu->main = $this->array_insert_after('users',$MainMenu->main,$this->node,_('Access Control'));
-		$arguments['main'] = $arguments['main'];
-	}
-	public function SubMenuData($arguments)
-	{
-		global $foglang;
-		$arguments['submenu'][$this->node]['search'] = $foglang['NewSearch'];
-		$arguments['submenu'][$this->node]['list'] = sprintf($foglang['ListAll'],_('Controls'));
-		$arguments['submenu'][$this->node]['add'] = sprintf($foglang['CreateNew'],_('Control'));
+		$arguments['submenu'][$this->node]['search'] = $this->foglang['NewSearch'];
+		$arguments['submenu'][$this->node]['list'] = sprintf($this->foglang['ListAll'],_('Controls'));
+		$arguments['submenu'][$this->node]['add'] = sprintf($this->foglang['CreateNew'],_('Control'));
 	}
 }
 $AddMenuNotesItems = new AddMenuNotesItems();
 // Register hooks
-$HookManager->register('MAIN_MENU_DATA', array($AddMenuNotesItems, 'MenuData'));
-$HookManager->register('SUB_MENULINK_DATA', array($AddMenuNotesItems, 'SubMenuData'));
+$HookManager->register('MAIN_MENU_DATA', array($AddMenuNotesItems, 'AddMenuData'));
+$HookManager->register('SUB_MENULINK_DATA', array($AddMenuNotesItems, 'AddSubMenuData'));
