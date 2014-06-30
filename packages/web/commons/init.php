@@ -87,7 +87,6 @@ class Initiator
 	*/
 	public static function startInit()
 	{
-		ob_start('ob_gzhandler');
 		set_time_limit(0);
 		@error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
 		@header('Cache-Control: no-cache');
@@ -209,6 +208,7 @@ $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
 // HookManager
 $HookManager = new HookManager();
+$HookManager->load();
 // FOGPageManager
 $FOGPageManager = new FOGPageManager();
 $Init::endInit();
