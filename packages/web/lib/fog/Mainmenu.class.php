@@ -47,6 +47,10 @@ class Mainmenu extends FOGBase
 		);
 		$this->main = array_unique(array_filter($this->main));
 		$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
+		foreach ($this->main AS $link => $title)
+			$links[] = $link;
+		if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links))
+			$this->FOGCore->redirect('index.php');
 	}
 	private function mobileSetting()
 	{
