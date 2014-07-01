@@ -68,7 +68,7 @@ print "\n\t\t\t".'<h1><a href="'.$_SERVER['PHP_SELF'].'"><img src="images/fog-lo
 print "\n\t\t\t".'<h2>'.$foglang['Slogan'].'</h2>';
 print "\n\t\t".'</div>';
 print "\n\t\t".'<div id="menu">';
-if ($currentUser && $currentUser())
+if ($currentUser && $currentUser->isLoggedIn())
 	$MainMenu->mainMenu();
 print "\n\t\t</div>";
 print "\n\t</div>";
