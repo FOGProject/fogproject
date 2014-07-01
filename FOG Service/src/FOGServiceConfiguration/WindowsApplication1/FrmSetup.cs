@@ -15,40 +15,104 @@ namespace FOG
 {
     public partial class FrmSetup : Form
     {
+        public const String PROGRAMFILES_VAR = "{{FOG_PF_DIR}}";
+
         private CheckBox[] arChkBx;
         private ArrayList alModules;
         private String CONFIGPATH;
         private String CONFIGPATHBACKUP;
+        private String strInstallLocation;
+        private bool headless;
 
-        public FrmSetup()
+        public FrmSetup(String[] args)
         {
             InitializeComponent();
+            parseArgs(args);
+            CONFIGPATH = Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\etc\config.ini";
+            CONFIGPATHBACKUP = Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\etc\config.ini.backup";
+        }
+
+        private void parseArgs(String[] args)
+        {
+            if (args != null)
+            {
+                strInstallLocation = @"c:\program files\fog";
+                for (int i = 0; i < args.Length; i++)
+                {
+                    String arg = args[i];
+                    if (arg != null && arg.CompareTo("/fog-defaults=true") == 0)
+                    {
+                        headless = true;
+                    }
+                    else if (arg != null && arg.StartsWith("/pf=", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        strInstallLocation = arg.Replace("/pf=","");
+                        if (strInstallLocation != null && strInstallLocation.Length > 0)
+                        {
+
+                            strInstallLocation = strInstallLocation.Replace("\"", "");
+                            if (strInstallLocation.EndsWith("\\"))
+                                strInstallLocation.Remove(strInstallLocation.LastIndexOf(@"\"));
+                        }
+                    }
+                }
+            }
+        }
+
+        public Boolean isQuiet()
+        {
+            return headless;
+        }
+
+        public Boolean writeQuiet()
+        {
+            return writeFile("", strInstallLocation);
+        }
+
+        public Boolean isConfigFilePresent()
+        {
+            try
+            {
+                return (File.Exists(CONFIGPATH));
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public Boolean isConfigured()
+        {
+            if (File.Exists(CONFIGPATH))
+            {
+                String[] strConfig = File.ReadAllLines(CONFIGPATH);
+                Boolean found = false;
+                for (int i = 0; i < strConfig.Length; i++)
+                {
+                    if (strConfig[i].Contains("x.x.x.x"))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                return !found;
+            }
+            return false;
         }
 
         private void FrmSetup_Load(object sender, EventArgs e)
-        {
-
-            CONFIGPATH = Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location) +@"\etc\config.ini";
-            CONFIGPATHBACKUP = Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\etc\config.ini.backup";
-            
+        { 
             pnlIP.Dock = DockStyle.Fill;
             pnlDone.Dock = DockStyle.Fill;
             pnlDone.Visible = false;
             btnDone.Left = btnSave.Left;
             btnDone.Top = btnSave.Top;
-            if (File.Exists(CONFIGPATH))
+            if (isConfigFilePresent())
             {
-                Boolean blFound = false;
-                String[] strConfig = File.ReadAllLines(CONFIGPATH);
-                for (int i = 0; i < strConfig.Length; i++)
-                {
-                    if (strConfig[i].Contains("x.x.x.x"))
-                    {
-                        loadServiceInfo();
-                        blFound = true;
-                    }
-                }
-
+                Boolean blFound = !isConfigured();
+                if (blFound)
+                    loadServiceInfo();
+                
                 if (!blFound)
                 {
                     MessageBox.Show("It appears that the FOG service has already been configured");
@@ -157,58 +221,70 @@ namespace FOG
             File.Copy(CONFIGPATH, CONFIGPATHBACKUP);
         }
 
+        private Boolean writeFile(String address, String pf)
+        {
+            if (address != null && pf != null)
+            {
+                String[] strConfig = File.ReadAllLines(CONFIGPATH);
+                Boolean blWrite = false;
+                for (int i = 0; i < strConfig.Length; i++)
+                {
+                    if (strConfig[i].Contains("x.x.x.x"))
+                    {
+                        strConfig[i] = strConfig[i].Replace("x.x.x.x", address.Trim());
+                        blWrite = true;
+                    }
+                    if (strConfig[i].Contains(PROGRAMFILES_VAR))
+                    {
+                        strConfig[i] = strConfig[i].Replace(PROGRAMFILES_VAR, pf);
+                    }
+                }
+
+                if (blWrite)
+                {
+                    makeBackup();
+                    File.WriteAllLines(CONFIGPATH, strConfig);
+                }
+
+                return blWrite;
+            }
+            return false;
+        }
+
         private void btnSave_Click(object sender, EventArgs e)
         {
-
-
-                String strIP = txtIP.Text;
-                if (strIP != null && strIP.Length > 0)
+            String strIP = txtIP.Text;
+            if (strIP != null )
+            {
+                writeFile(strIP, strInstallLocation);
+                for (int i = 0; i < arChkBx.Length; i++)
                 {
-                    String[] strConfig = File.ReadAllLines(CONFIGPATH);
-                    Boolean blWrite = false;
-                    for (int i = 0; i < strConfig.Length; i++)
+                    if (!arChkBx[i].Checked)
                     {
-                        if (strConfig[i].Contains("x.x.x.x"))
+                        try
                         {
-                            strConfig[i] = strConfig[i].Replace("x.x.x.x", strIP.Trim());
-                            blWrite = true;
-                        }
-                    }
-
-                    if (blWrite)
-                    {
-                        makeBackup();
-                        File.WriteAllLines(CONFIGPATH, strConfig);
-                    }
-
-                    for (int i = 0; i < arChkBx.Length; i++)
-                    {
-                        if (!arChkBx[i].Checked)
-                        {
-                            try
+                            String strF = ((SubClassMenuItem)alModules[i]).getFile();
+                            if (File.Exists(strF))
                             {
-                                String strF = ((SubClassMenuItem)alModules[i]).getFile();
+                                File.Delete(strF);
                                 if (File.Exists(strF))
-                                {
-                                    File.Delete(strF);
-                                    if (File.Exists(strF))
-                                        MessageBox.Show("Error removing module!\nYou must manually delete:\n" + strF);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show(ex.Message);
+                                    MessageBox.Show("Error removing module!\nYou must manually delete:\n" + strF);
+                                else
+                                    File.Create(strF);
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
                     }
-
-
-                    pnlIP.Visible = false;
-                    pnlDone.Visible = true;
                 }
-                else
-                    MessageBox.Show("Unable to save changes:\nPlease enter an IP address or hostname.");
+                pnlIP.Visible = false;
+                pnlDone.Visible = true;
             }
+            else
+                MessageBox.Show("Unable to save changes:\nPlease enter an IP address or hostname.");
+        }
 
         private void btnDone_Click(object sender, EventArgs e)
         {

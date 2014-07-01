@@ -1,80 +1,40 @@
 <?php
-/*
- *  FOG is a computer imaging solution.
- *  Copyright (C) 2007  Chuck Syperski & Jian Zhang
- *
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
-@error_reporting(0);
-
-require_once( "../commons/config.php" );
-require_once( "../commons/functions.include.php" );
-
-if ( isset($_GET["mac"] ) && isset( $_GET["taskid"] ) )
+require_once('../commons/base.inc.php');
+try
 {
-	$conn = @mysql_connect( MYSQL_HOST, MYSQL_USERNAME, MYSQL_PASSWORD);
-	if ( $conn )
+	$HostManager = new HostManager();
+	$MACs = HostManager::parseMacList($_REQUEST['mac']);
+	if (!$MACs) throw new Exception('#!im');
+	// Get the Host
+	$Host = $HostManager->getHostByMacAddresses($MACs);
+	if (!$Host->isValid()) throw new Exception('#!ih');
+	// Try and get the task.
+	$Task = current($Host->get('task'));
+	// Work on the current Snapin Task.
+	$SnapinTask = new SnapinTask($_REQUEST['taskid']);
+	if (!$SnapinTask->isValid()) throw new Exception('#!er: Something went wrong with getting the snapin.');
+	//Get the snapin to work off of.
+	$Snapin = new Snapin($SnapinTask->get('snapinID'));
+	// Assign the file for sending.
+	$SnapinFile = rtrim($FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.$Snapin->get('file');
+	// If it exists and is readable send it!
+	if (file_exists($SnapinFile) && is_readable($SnapinFile))
 	{
-		if ( ! @mysql_select_db( MYSQL_DATABASE, $conn ) ) die( "#!db" );
-		
-		$mac = mysql_real_escape_string( strtolower($_GET["mac"]) );
-		$taskid = mysql_real_escape_string( $_GET["taskid"] );
-
-		if ( isValidMACAddress( $mac ) )
-		{
-			if ( ! getCountOfActiveTasksWithMAC( $conn, $mac ) > 0 )
-			{
-				$hostid = mysql_real_escape_string(getHostID( $conn, $mac ));
-				if ( $hostid !== null && is_numeric( $hostid ) )
-				{
-					$sql = "SELECT 
-					 		sFilePath 
-					 	FROM 
-							snapinTasks
-							inner join snapinJobs on ( snapinTasks.stJobID = snapinJobs.sjID )
-							inner join snapins on ( snapins.sID = snapinTasks.stSnapinID )
-						WHERE
-							stState in ( '0', '1' ) and
-							sjHostID = '$hostid' and 
-							stID = '$taskid'";	
-							
-					$res = @mysql_query( $sql, $conn ) or die("#!db");
-					if ( mysql_num_rows( $res ) > 0 )
-					{			
-						if ( $ar = mysql_fetch_array( $res ) )
-						{
-							$strFile = mysql_real_escape_string( $ar["sFilePath"] );
-							if ( file_exists( $strFile ) && is_readable( $strFile ) )
-							{
-								header ("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-								header ("Content-Description: File Transfer");
-								header ("Content-Type: application/octet-stream");
-								header("Content-Length: " . filesize($strFile));
-								header("Content-Disposition: attachment; filename=" . basename($strFile));
-								@readfile($strFile); 	
-								
-								$sql = "update snapinTasks set stState = '2' where stID = '$taskid'";
-								@mysql_query( $sql, $conn );
-							}		
-						}
-					}
-				}
-			}
-		}
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+		header("Content-Description: File Transfer");
+		header("Content-Type: application/octet-stream");
+		header("Content-Length: ".filesize($SnapinFile));
+		header("Content-Disposition: attachment; filename=".basename($Snapin->get('file')));
+		@readfile($SnapinFile);
+		// if the Task is deployed then update the task.
+		if ($Task && $Task->isValid()) $Task->set('stateID',3)->save();
+		// Update the snapin task information.
+		$SnapinTask->set('stateID',1)->set('return',-1)->set('details','Pending...');
+		// Save and return!
+		if ($SnapinTask->save()) print "#!ok";
 	}
 }
-
-?>
+catch (Exception $e)
+{
+	print $e->getMessage();
+}

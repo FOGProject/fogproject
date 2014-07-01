@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Web
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstractFOGService", "AbstractFOGService.csproj", "{748D8496-096F-45E8-A9EB-AC34E40BBC4F}"
 EndProject
 Global

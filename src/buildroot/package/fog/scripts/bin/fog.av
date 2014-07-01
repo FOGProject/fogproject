@@ -1,0 +1,125 @@
+#!/bin/sh
+. /usr/share/fog/lib/funcs.sh
+. /bin/fog.donate
+clearScreen;
+displayBanner;
+hd="";
+getHardDisk;
+setupDNS ${dns}
+echo "";
+echo "";
+if [ -n "$hd" ]; then
+	part=$hd'1';	
+	if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
+		win7partcnt="0";
+		parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
+		for prt in $parts
+		do
+			win7partcnt=`expr ${win7partcnt} + 1`;
+		done
+		part=${hd}${win7partcnt};
+	fi
+	dots "Using disk device";
+	echo $hd
+	dots "Scanning partition";
+	echo $part
+	dots "Mounting device";
+	mkdir /ntfs;
+	mount.ntfs-3g $part /ntfs
+	if [ "$?" = "0" ]; then
+		echo "Done";
+		dots "Creating ram disk";
+		mount -t tmpfs none /usr/share/clamav/ -o size=100m;
+		cd /usr/share/clamav/;
+		echo "Done";
+		dots "Updating ClamAV";
+		wget -r -nd --no-parent -l 1 "http://${web}av/clamav/" >/dev/null 2>&1;
+		echo "Done";		
+		dots "Creating working directory";
+		mkdir /ntfs/fog >/dev/null 2>&1;
+		mkdir /ntfs/fog/tmp >/dev/null 2>&1;
+		mkdir /ntfs/fog/infected >/dev/null 2>&1;
+		mkdir /ntfs/fog/log >/dev/null 2>&1;
+		rm /ntfs/fog/log/log.txt >/dev/null 2>&1;
+		touch /ntfs/fog/log/log.txt 2>&1;
+		echo "Done";
+		action="";
+		modename="";
+		if [ "$avmode" = "s" ]; then
+			action="";
+			modename="Scan and Report";
+		elif [ "$avmode" = "q" ]; then
+			action="--move=/ntfs/fog/infected";
+			modename="Scan and Quarantine";
+		else
+			handleError "Unable to determine scanning mode!";
+		fi
+		dots "Clam AV Mode";
+		echo ${modename}
+		echo "";
+		echo "   Starting AV scan...";
+		echo -n "   ";
+		clamscan -V
+		sleep 4;
+		cd /ntfs
+		echo "";
+		start=`date +%s`;
+		clamscan -r --tempdir=/ntfs/fog/tmp $action --log=/ntfs/fog/log/log.txt --no-summary --exclude-dir=/ntfs/fog/* 
+		ret=$?;
+		if [ "$ret" == "2" ];
+		then
+			cur=`date +%s`;
+			diff=$((cur-start));
+			if [ $(( diff <= 60 )) ]; then
+				echo;
+				echo "   Clam AV Failed...";
+				echo "   	This may be due to a problem with the virus database files.";
+				echo "   	Trying to download virus database files from the web...";
+				echo; 
+				rm -f /usr/share/clamav/*
+				freshclam
+				clamscan -r --tempdir=/ntfs/fog/tmp $action --log=/ntfs/fog/log/log.txt --no-summary --exclude-dir=/ntfs/fog/* 
+			fi
+		fi
+		echo "";
+		echo "   Scan complete, processing log file...";
+		output=`cat /ntfs/fog/log/log.txt | grep FOUND`;
+		IFS="
+"
+		cd /tmp
+		cnt=0;
+		for line in $output; do
+			b64=`echo $line | base64`
+			cnt=`expr $cnt + 1`;
+			echo -n "   Sending data for file ID: ${cnt} ";
+			wget -q -O /tmp/avstat "http://${web}service/av.php?mac=${mac}&string=${b64}&mode=${avmode}"	
+			cat /tmp/avstat
+			echo "";
+			cat /dev/null > /tmp/avstat
+		done
+	else
+		handleError "Unable to mount $part";
+	fi	
+	echo "";
+	queueinfo="";
+	cd /tmp			
+	touch co.txt
+	wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+	queueinfo=`cat co.txt`;
+	while [ "$queueinfo" != "##" ]
+	do
+		echo "       * $queueinfo";
+		rm co.txt
+		touch co.txt
+		wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+		queueinfo=`cat co.txt`;
+		sleep 2;
+	done  
+	echo "";
+	echo " * Database updated!";
+	echo "";	
+	echo " Task Complete";
+else
+	echo "hard disk not found!";
+fi
+sleep 2

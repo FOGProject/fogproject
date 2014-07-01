@@ -35,6 +35,8 @@ namespace FOG
 
         private int intStatus;
         private String strURLPath;
+        private String strURLModuleStatus;
+        private Boolean blEnabled;
 
         private Boolean blGo;
 
@@ -42,7 +44,7 @@ namespace FOG
 
         private MessagingServer server;
         private PrinterManagerPackage printPack;
-        private String strMACAddress;
+        private String strMACList;
         private Object objMutex;
 
         public PrinterManager()
@@ -52,6 +54,7 @@ namespace FOG
             intStatus = STATUS_STOPPED;
             server = new MessagingServer("fog_printer_pipe");
             objMutex = new Object();
+            blEnabled = false;
             server.MessageReceived += new MessagingServer.MessageReceivedHandler(serverMessageReceived);
         }
 
@@ -59,10 +62,15 @@ namespace FOG
         {
             if (msg == "refresh")
             {
-                log(MOD_NAME, "Printer update was request from fog tray...");
-                pullNewServerList();
-                doInstallRemoveProcess();
-                doSetDefault();
+                if (blEnabled)
+                {
+                    log(MOD_NAME, "Printer update was request from fog tray...");
+                    pullNewServerList();
+                    doInstallRemoveProcess();
+                    doSetDefault();
+                }
+                else
+                    log(MOD_NAME, "Sevice is disabled.");
             }
             else
             {
@@ -79,6 +87,19 @@ namespace FOG
                     String pre = ini.readSetting("printmanager", "urlprefix");
                     String post = ini.readSetting("printmanager", "urlpostfix");
                     String ip = ini.readSetting("fog_service", "ipaddress");
+
+                    if (ip == null || ip.Trim().Length == 0)
+                        ip = "fogserver";
+
+                    String strPreMS = ini.readSetting("fog_service", "urlprefix");
+                    String strPostMS = ini.readSetting("fog_service", "urlpostfix");
+                    if (ip != null && strPreMS != null && strPostMS != null)
+                        strURLModuleStatus = strPreMS + ip + strPostMS;
+                    else
+                    {
+                        return false;
+                    }
+
                     if (ip != null && ip.Length > 0 && pre != null && pre.Length > 0 && post != null && post.Length > 0)
                     {
                         
@@ -105,29 +126,92 @@ namespace FOG
                     else
                         log(MOD_NAME, " interprocess comm startup: FAILED");
 
-                    strMACAddress = null;
-
                     ArrayList alMACs = getMacAddress();
-                    if (alMACs != null)
+
+                    strMACList = null;
+                    if (alMACs != null && alMACs.Count > 0)
                     {
-                        for (int i = 0; i < alMACs.Count; i++)
+                        String[] strMacs = (String[])alMACs.ToArray(typeof(String));
+                        strMACList = String.Join("|", strMacs);
+                    }
+
+
+
+                    if (strMACList != null && strMACList.Length > 0)
+                    {
+
+                        Boolean blConnectOK = false;
+                        String strDta = "";
+                        while (!blConnectOK)
                         {
-                            if (alMACs[i] != null)
+                            try
                             {
-                                // we take the first MAC address and use it
-                                strMACAddress = (String)alMACs[i];
-                                break;
+                                log(MOD_NAME, "Attempting to connect to fog server...");
+                                WebClient wc = new WebClient();
+                                String strPath = strURLModuleStatus + "?mac=" + strMACList + "&moduleid=printermanager";
+                                strDta = wc.DownloadString(strPath);
+                                blConnectOK = true;
+                            }
+                            catch (Exception exp)
+                            {
+                                log(MOD_NAME, "Failed to connect to fog server!");
+                                log(MOD_NAME, exp.Message);
+                                log(MOD_NAME, exp.StackTrace);
+                                log(MOD_NAME, "Sleeping for 1 minute.");
+                                try
+                                {
+                                    System.Threading.Thread.Sleep(60000);
+                                }
+                                catch { }
                             }
                         }
 
-                    }
+                        strDta = strDta.Trim();
+                        Boolean blLoop = false;
 
-                    managePrinters();
+                        if (strDta.StartsWith("#!ok", true, null))
+                        {
+                            log(MOD_NAME, "Module is active...");
+                            blLoop = true;
+                        }
+                        else if (strDta.StartsWith("#!db", true, null))
+                        {
+                            log(MOD_NAME, "Database error.");
+                        }
+                        else if (strDta.StartsWith("#!im", true, null))
+                        {
+                            log(MOD_NAME, "Invalid MAC address format.");
+                        }
+                        else if (strDta.StartsWith("#!ng", true, null))
+                        {
+                            log(MOD_NAME, "Module is disabled globally on the FOG Server, exiting.");
+                            return;
+                        }
+                        else if (strDta.StartsWith("#!nh", true, null))
+                        {
+                            log(MOD_NAME, "Module is disabled on this host.");
+                        }
+                        else if (strDta.StartsWith("#!um", true, null))
+                        {
+                            log(MOD_NAME, "Unknown Module ID passed to server.");
+                        }
+                        else if (strDta.StartsWith("#!er", true, null))
+                        {
+                            log(MOD_NAME, "General Error Returned: ");
+                            log(MOD_NAME, strDta);
+                        }
+                        else
+                        {
+                            log(MOD_NAME, "Unknown error, module will exit.");
+                        }
+
+                        blEnabled = blLoop;
+                        if (blLoop)
+                            managePrinters();
+                    }
                 }
                 else
-                {
                     log(MOD_NAME, "Failed to read ini settings.");
-                }
             }
             catch
             {
@@ -144,6 +228,7 @@ namespace FOG
             ArrayList installedPrinters = new ArrayList();
             foreach( String printer in PrinterSettings.InstalledPrinters )
             {
+                
                 installedPrinters.Add(printer);
             }
             return (String[])(installedPrinters.ToArray(typeof(String)));
@@ -171,15 +256,14 @@ namespace FOG
         {
             if (server != null && local != null)
             {
-                if (server != null)
+                for (int i = 0; i < local.Length; i++)
                 {
-                    for (int i = 0; i < local.Length; i++)
+                    if (server.getAlias().Trim() == local[i].Trim())
                     {
-                        if (server.getAlias().Trim() == local[i].Trim())
-                            return true;
+                        return true;
                     }
-                    return false;
                 }
+                return false;
             }
             
             return true;
@@ -191,7 +275,7 @@ namespace FOG
             {
                 lock (objMutex)
                 {
-                    if (strMACAddress != null)
+                    if (strMACList != null)
                     {
                         if (printPack != null)
                         {
@@ -266,6 +350,7 @@ namespace FOG
                                             if (!isInstalledLocally(arInstalledPrinters, printers[i]))
                                             {
                                                 log(MOD_NAME, "Installation requested for " + printers[i].getAlias());
+
                                                 if (printers[i].install())
                                                 {
                                                     log(MOD_NAME, "Printer Installed: " + printers[i].getAlias());
@@ -305,14 +390,12 @@ namespace FOG
 
         private Boolean pullNewServerList()
         {
-
-
             try
             {
                 lock( objMutex )
                 {
                     WebClient web = new WebClient();
-                    String strPath = strURLPath + "?mac=" + strMACAddress;
+                    String strPath = strURLPath + "?mac=" + strMACList;
                     String strData = web.DownloadString(strPath);
                     strData = strData.Trim();
                     printPack = new PrinterManagerPackage(strData);
@@ -334,7 +417,7 @@ namespace FOG
         {
             if (printPack != null && printPack.getManagementLevel() != PrinterManagerPackage.NOMANAGEMENT)
             {
-                if (strMACAddress != null)
+                if (strMACList != null)
                 {
                     try
                     {
@@ -356,8 +439,21 @@ namespace FOG
                                                 log(MOD_NAME, "Setting default for " + printers[i].getAlias());
                                                 try
                                                 {
-                                                    log(MOD_NAME, "Sending message to FOG Tray...");
-                                                    server.sendMessage("[MD]:" + printers[i].getAlias());
+
+
+                                                    int retries = 6;
+                                                    while (retries > 0)
+                                                    {
+                                                        log(MOD_NAME, "Remaining: " + retries + " Sending message to FOG Tray...");
+                                                        server.sendMessage("[MD]:" + printers[i].getAlias());
+
+                                                        retries--;
+                                                        try
+                                                        {
+                                                            System.Threading.Thread.Sleep(20000);
+                                                        }
+                                                        catch { }
+                                                    }
                                                 }
                                                 catch (Exception pe)
                                                 {
@@ -366,7 +462,9 @@ namespace FOG
                                                 }
                                             }
                                             else
+                                            {
                                                 log(MOD_NAME, "Failed: it looks like the local printer is missing.");
+                                            }
                                         }
                                     }
                                 }
@@ -395,7 +493,17 @@ namespace FOG
                 {
                 }
 
-                pullNewServerList();
+                while (!pullNewServerList())
+                {
+                    log(MOD_NAME, "Failed to connect to fog server!");
+                    log(MOD_NAME, "This is typically caused by a network error!");
+                    log(MOD_NAME, "Sleeping for 1 minute.");
+                    try
+                    {
+                        System.Threading.Thread.Sleep(60000);
+                    }
+                    catch { }
+                }
 
                 doInstallRemoveProcess();
 
@@ -409,12 +517,35 @@ namespace FOG
                     }
                     catch { }
 
-                    if (lastUser != getUserName() && isLoggedIn())
+                    try
                     {
-                        
-                        doSetDefault();
+                        if (isLoggedIn())
+                        {
+                            String tmpUsr = getUserName();
+                            if (lastUser != tmpUsr)
+                            {
+                                log(MOD_NAME, "New user detected: " + tmpUsr);
+                                try
+                                {
+                                    log(MOD_NAME, "Waiting for tray to load...");
+                                    System.Threading.Thread.Sleep(10000);
+                                }
+                                catch { }
 
-                        lastUser = getUserName();
+                                doSetDefault();
+                                lastUser = tmpUsr;
+                            }
+                        }
+                        else
+                        {
+                            lastUser = null;
+                        }
+                    }
+                    catch (Exception ex )
+                    {
+                        log(MOD_NAME, ex.Message);
+                        log(MOD_NAME, ex.StackTrace);
+                        log(MOD_NAME, ex.InnerException.StackTrace);
                     }
                 }
             }
@@ -585,6 +716,32 @@ namespace FOG
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern int ConnectNamedPipe(SafeFileHandle hNamedPipe, IntPtr lpOverlapped);
 
+        [DllImport("Advapi32.dll", SetLastError = true)]
+        public static extern bool InitializeSecurityDescriptor(out SECURITY_DESCRIPTOR sd, int dwRevision);
+
+        [DllImport("Advapi32.dll", SetLastError = true)]
+        public static extern bool SetSecurityDescriptorDacl(ref SECURITY_DESCRIPTOR sd, bool bDaclPresent, IntPtr Dacl, bool bDaclDefaulted);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SECURITY_ATTRIBUTES
+        {
+            public int nLength;
+            public IntPtr lpSecurityDescriptor;
+            public bool bInheritHandle;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SECURITY_DESCRIPTOR
+        {
+            private byte Revision;
+            private byte Sbz1;
+            private ushort Control;
+            private IntPtr Owner;
+            private IntPtr Group;
+            private IntPtr Sacl;
+            private IntPtr Dacl;
+        }
+
         public const uint DUPLEX = (0x00000003);
         public const uint FILE_FLAG_OVERLAPPED = (0x40000000);
 
@@ -615,27 +772,53 @@ namespace FOG
 
         private void listenForClients()
         {
-            while (true)
+            // Do the security stuff to allow any user to connect.
+            // This was fixed in version 0.16 to allow users in the group
+            // "users" to interact with the backend service.
+            Boolean blSecOk = false;
+
+            IntPtr ptrSec = IntPtr.Zero;
+            SECURITY_ATTRIBUTES secAttrib = new SECURITY_ATTRIBUTES();
+            SECURITY_DESCRIPTOR secDesc;
+
+            if (InitializeSecurityDescriptor(out secDesc, 1))
             {
-                SafeFileHandle clientHandle = CreateNamedPipe(@"\\.\pipe\" + strPipeName, DUPLEX | FILE_FLAG_OVERLAPPED, 0, 255, BUFFER_SIZE, BUFFER_SIZE, 0, IntPtr.Zero);
+                if (SetSecurityDescriptorDacl(ref secDesc, true, IntPtr.Zero, false))
+                {
+                    secAttrib.lpSecurityDescriptor = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SECURITY_DESCRIPTOR)));
+                    Marshal.StructureToPtr(secDesc, secAttrib.lpSecurityDescriptor, false);
+                    secAttrib.bInheritHandle = false;
+                    secAttrib.nLength = Marshal.SizeOf(typeof(SECURITY_ATTRIBUTES));
+                    ptrSec = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SECURITY_ATTRIBUTES)));
+                    Marshal.StructureToPtr(secAttrib, ptrSec, false);
+                    blSecOk = true;
+                }
+            }
 
-                if (clientHandle.IsInvalid)
-                    return;
+            if (blSecOk)
+            {
+                while (true)
+                {
+                    SafeFileHandle clientHandle = CreateNamedPipe(@"\\.\pipe\" + strPipeName, DUPLEX | FILE_FLAG_OVERLAPPED, 0, 255, BUFFER_SIZE, BUFFER_SIZE, 0, ptrSec);
 
-                int success = ConnectNamedPipe(clientHandle, IntPtr.Zero);
+                    if (clientHandle.IsInvalid)
+                        return;
 
-                if (success == 0)
-                    return;
+                    int success = ConnectNamedPipe(clientHandle, IntPtr.Zero);
 
-                Client client = new Client();
-                client.setHandle(clientHandle);
+                    if (success == 0)
+                        return;
 
-                lock (clients)
-                    this.clients.Add(client);
+                    Client client = new Client();
+                    client.setHandle(clientHandle);
 
-                Thread readThread = new Thread(new ParameterizedThreadStart(read));
-                readThread.IsBackground = true;
-                readThread.Start(client);
+                    lock (clients)
+                        this.clients.Add(client);
+
+                    Thread readThread = new Thread(new ParameterizedThreadStart(read));
+                    readThread.IsBackground = true;
+                    readThread.Start(client);
+                }
             }
         }
 
@@ -730,6 +913,26 @@ namespace FOG
             blIsDefault = isDefault;
         }
 
+        public string getPort()
+        {
+            return strPort;
+        }
+
+        public string getFile()
+        {
+            return strFile;
+        }
+
+        public string getIP()
+        {
+            return strIP;
+        }
+
+        public string getModel()
+        {
+            return strModel;
+        }
+
         public String getAlias()
         {
             return strAlias;
@@ -742,7 +945,7 @@ namespace FOG
 
         public Boolean isComplete()
         {
-            return ( strModel != null && strAlias != null && strFile != null && strPort!= null );
+            return ( strModel != null && strAlias != null && strPort!= null );
         }
 
         private void sleep(int millis)
@@ -778,7 +981,15 @@ namespace FOG
             {
                 if (strAlias != null)
                 {
-                    Process proc = Process.Start("rundll32.exe", " printui.dll,PrintUIEntry /dl /q /n \"" + strAlias + "\"");
+                    Process proc;
+                    if (strAlias.Trim().ToLower().StartsWith("\\\\"))
+                    {
+                        proc = Process.Start("rundll32.exe", " printui.dll,PrintUIEntry /gd /q /n \"" + strAlias + "\"");
+                    }
+                    else
+                    {
+                        proc = Process.Start("rundll32.exe", " printui.dll,PrintUIEntry /dl /q /n \"" + strAlias + "\"");
+                    }
                     while (!proc.HasExited)
                     {
                         sleep(100);
@@ -789,6 +1000,7 @@ namespace FOG
                             return false;
                         }
                     }
+                    //bounceSpooler();
 
                     return (proc.ExitCode == 0);
                 }
@@ -804,8 +1016,8 @@ namespace FOG
             {
                 if (maxWait > 0)
                 {
-                    if (File.Exists(strFile))
-                    {
+                    //if ( strFile.Length == 0 || File.Exists(strFile))
+                    //{
                         if (strIP != null && strIP.Length > 0 )
                         {
                             if (strIP.Contains(":"))
@@ -849,7 +1061,35 @@ namespace FOG
                             mPort.Put(put);
                         }
 
-                        Process proc = Process.Start("rundll32.exe", getInstallArguments() );
+                        Process proc;
+                        Boolean blIsIPP = false;
+
+                        if (strPort.Trim().ToLower().StartsWith("ipp://"))
+                        {
+                            // iprint installation
+                            proc = new Process();
+                            proc.StartInfo.FileName = @"c:\windows\system32\iprntcmd.exe";
+                            proc.StartInfo.Arguments = " -a no-gui \"" + strPort + "\"";
+                            proc.StartInfo.CreateNoWindow = true;
+                            proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                            proc.Start();
+                            blIsIPP = true;
+                        }
+                        else if (strAlias.Trim().ToLower().StartsWith("\\\\"))
+                        {
+                            // Add per machine printer connection
+                            proc = Process.Start("rundll32.exe", " printui.dll,PrintUIEntry /ga /n " + strAlias);
+                            proc.WaitForExit(120000);
+                            // Add printer network connection, download the drivers from the print server
+                            proc = Process.Start("rundll32.exe", " printui.dll,PrintUIEntry /in /n " + strAlias);
+                            proc.WaitForExit(120000);
+                            bounceSpooler();
+                        }
+                        else
+                        {
+                            // Normal Installation
+                            proc = Process.Start("rundll32.exe", getInstallArguments());
+                        }
                         
                         while (!proc.HasExited)
                         {
@@ -863,19 +1103,21 @@ namespace FOG
                             }
                         }
 
+                        if (blIsIPP)
+                        {
+                            strError = "IPP Return codes unknown";
+                            return true;
+                        }
+
                         if (proc.ExitCode == 0)
                         {
-                            if (blIsDefault)
-                            {
-                                //makeDefault();
-                            }
-
                             strError = "";
                             return true;
                         }
-                    }
-                    else
-                        strError = "Printer Definition file was not found!";
+                    //}
+                    //else
+                        //strError = "Printer Definition file was not found!";
+                    //strError = "Strfile:" + strFile + ".";
                 }
                 else
                     strError = "Max wait time was less than zero!";
@@ -883,6 +1125,21 @@ namespace FOG
             else
                 strError = "Printer information is incomplete";
             return false;
+        }
+
+        public void bounceSpooler()
+        {
+            // Restart print service so new printers show up
+            Process spool = new Process();
+            ProcessStartInfo pi = new ProcessStartInfo();
+            pi.FileName = "cmd";
+            pi.UseShellExecute = false;
+            pi.CreateNoWindow = true;
+            pi.RedirectStandardInput = true;
+            pi.RedirectStandardOutput = true;
+            spool.StartInfo = pi;
+            spool.Start();
+            spool.StandardInput.WriteLine(" net stop spooler && net start spooler");
         }
 
         public String getError()

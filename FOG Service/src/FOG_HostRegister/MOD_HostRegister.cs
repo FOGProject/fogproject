@@ -28,6 +28,7 @@ namespace FOG
 
         private int intStatus;
         private String strURLPath;
+        private String strURLModuleStatus;
 
         private const String MOD_NAME = "FOG::HostRegister";
 
@@ -45,9 +46,21 @@ namespace FOG
                     String pre = ini.readSetting("hostregister", "urlprefix");
                     String post = ini.readSetting("hostregister", "urlpostfix");
                     String ip = ini.readSetting("fog_service", "ipaddress");
+
+                    if (ip == null || ip.Trim().Length == 0)
+                        ip = "fogserver";
+
+                    String strPreMS = ini.readSetting("fog_service", "urlprefix");
+                    String strPostMS = ini.readSetting("fog_service", "urlpostfix");
+                    if (ip != null && strPreMS != null && strPostMS != null)
+                        strURLModuleStatus = strPreMS + ip + strPostMS;
+                    else
+                    {
+                        return false;
+                    }
+
                     if (ip != null && ip.Length > 0 && pre != null && pre.Length > 0 && post != null && post.Length > 0)
                     {
-                        
                         strURLPath = pre + ip + post;
                         return true;
                     }
@@ -84,82 +97,132 @@ namespace FOG
             {
                 log(MOD_NAME, "Starting host registration process...");
 
-                String strCurrentHostName = getHostName();
-                String strMACAddress = "";
-                String strIPAddress = "";
-                String strOS = "";
-
-                switch (System.Environment.OSVersion.Version.Major)
-                {
-                    case 5:
-                        strOS = "1";
-                        break;
-                    case 6:
-                        strOS = "2";
-                        break;
-                    default:
-                        log(MOD_NAME, "This module has only been tested on Windows XP or Vista!");
-                        break;
-                }
-
                 ArrayList alMACs = getMacAddress();
-                if ( alMACs != null )
+
+                String macList = null;
+                if (alMACs != null && alMACs.Count > 0)
                 {
-                        for (int i = 0; i < alMACs.Count; i++)
+                    String[] strMacs = (String[])alMACs.ToArray(typeof(String));
+                    macList = String.Join("|", strMacs);
+                }
+
+                if (alMACs != null && alMACs.Count < 2)
+                {
+                    log(MOD_NAME, "Exiting because only " + alMACs.Count + " mac address was found.");
+                    return;
+                }
+
+                if (macList != null && macList.Length > 0)
+                {
+                    Boolean blConnectOK = false;
+                    String strDta = "";
+                    while (!blConnectOK)
+                    {
+                        try
                         {
-                            if (alMACs[i] != null)
+                            log(MOD_NAME, "Attempting to connect to fog server...");
+                            WebClient wc = new WebClient();
+                            String strPath = strURLModuleStatus + "?mac=" + macList + "&moduleid=hostregister";
+                            strDta = wc.DownloadString(strPath);
+                            blConnectOK = true;
+                        }
+                        catch (Exception exp)
+                        {
+                            log(MOD_NAME, "Failed to connect to fog server!");
+                            log(MOD_NAME, exp.Message);
+                            log(MOD_NAME, exp.StackTrace);
+                            log(MOD_NAME, "Sleeping for 1 minute.");
+                            try
                             {
-                                // we take the first MAC address and use it
-                                strMACAddress = (String)alMACs[i];
-                                break;
+                                System.Threading.Thread.Sleep(60000);
                             }
-                        }
-                    
-                }
-
-                ArrayList alIPs = getIPAddress();
-                if (alIPs != null)
-                {
-                    for (int i = 0; i < alIPs.Count; i++)
-                    {
-                        if (alIPs[i] != null)
-                        {
-                            // take the first ip we find
-                            strIPAddress = (String)alIPs[i];
+                            catch { }
                         }
                     }
-                }
 
-
-                if (strMACAddress != null && strCurrentHostName != null)
-                {
-                    WebClient web = new WebClient();
-                    String strPath = strURLPath + "?mac=" + strMACAddress + "&hostname=" + strCurrentHostName + "&ip=" + strIPAddress + "&os=" + strOS;
-                    String strData = web.DownloadString(strPath);
-                    strData = strData.Trim();
-                    if (strData.StartsWith("#!ok", true, null))
+                    strDta = strDta.Trim();
+                    Boolean blLoop = false;
+                    if (strDta.StartsWith("#!ok", true, null))
                     {
-                        log(MOD_NAME, "Host has been registered.");
-                        pushMessage("This host has been registered with the FOG Server.");
+                        log(MOD_NAME, "Module is active...");
+                        blLoop = true;
+
                     }
-                    else if (strData.StartsWith("#!db", true, null))
+                    else if (strDta.StartsWith("#!db", true, null))
                     {
                         log(MOD_NAME, "Database error.");
-                        pushMessage("Unable to register host with FOG Server due to a database error.");
                     }
-                    else if (strData.StartsWith("#!ma", true, null))
+                    else if (strDta.StartsWith("#!im", true, null))
                     {
-                        log(MOD_NAME, "MAC already registered.");
+                        log(MOD_NAME, "Invalid MAC address format.");
+                    }
+                    else if (strDta.StartsWith("#!ng", true, null))
+                    {
+                        log(MOD_NAME, "Module is disabled globally on the FOG Server, exiting.");
+                        return;
+                    }
+                    else if (strDta.StartsWith("#!nh", true, null))
+                    {
+                        log(MOD_NAME, "Module is disabled on this mac.");
+                    }
+                    else if (strDta.StartsWith("#!um", true, null))
+                    {
+                        log(MOD_NAME, "Unknown Module ID passed to server.");
                     }
                     else
                     {
-                        log(MOD_NAME, "Unknown error.");
-                        pushMessage("Unable to register host with FOG Server due to an unknown error.");
+                        log(MOD_NAME, "Unknown error, module will exit.");
+                    }
+
+
+                    if (blLoop)
+                    {
+                        WebClient web = new WebClient();
+                        String strPath = strURLPath + "?mac=" + macList + "&version=2";
+                        String strData = null;
+                        
+                            try
+                            {
+                                log(MOD_NAME, "Attempting to connect to fog server...");
+                                web = new WebClient();
+                                strData = web.DownloadString(strPath);
+                                blConnectOK = true;
+                            }
+                            catch (Exception exp)
+                            {
+                                log(MOD_NAME, "Failed to connect to fog server!");
+                                log(MOD_NAME, exp.Message);
+                                log(MOD_NAME, exp.StackTrace);
+                            }
+
+                        
+                        strData = strData.Trim();
+                        if (strData.StartsWith("#!ok", true, null))
+                        {
+                            log(MOD_NAME, "At least one MAC address was added to the pending mac address list.");
+                        }
+                        else if (strData.StartsWith("#!ig", true, null))
+                        {
+                            log(MOD_NAME, "No action was taken.");
+                        }
+                        else if (strData.StartsWith("#!db", true, null))
+                        {
+                            log(MOD_NAME, "Database error.");
+                        }
+                        else if (strData.StartsWith("#!ma", true, null))
+                        {
+                            log(MOD_NAME, "MAC already registered.");
+                        }
+                        else
+                        {
+                            log(MOD_NAME, "Unknown error.");
+                            pushMessage("Unable to register host with FOG Server due to an unknown error. " + strData);
+                        }
                     }
                 }
                 else
                 {
-                    log(MOD_NAME, "Unable to register, either MAC or Hostname is null!");
+                    log(MOD_NAME, "Unable to register, MAC  is null!");
                 }
 
             }

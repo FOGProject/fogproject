@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FOGService", "FOGService.csproj", "{F5CA5B02-4E56-4FEC-9055-B03C58542C2F}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "FOG Service Installer", "..\FOG Service Installer\FOG Service Installer.vdproj", "{C285A7B9-7826-45D9-B732-0831F6FDCA71}"

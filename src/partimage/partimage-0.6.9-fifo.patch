@@ -1,0 +1,48 @@
+diff -pruN partimage-0.6.9/src/client/misc.cpp partimage-0.6.9.pigz/src/client/misc.cpp
+--- partimage-0.6.9/src/client/misc.cpp	2010-07-25 10:30:31.000000000 -0500
++++ partimage-0.6.9.pigz/src/client/misc.cpp	2010-12-02 23:22:10.963274582 -0600
+@@ -367,6 +367,7 @@ void savePartition(char *szDevice, char 
+   DWORD i, j;
+   int nMajor, nMinor;
+   char szFileSystem[1024];
++  struct stat fStat;
+ 
+   // structures to stock informations about the current partition
+   CImage image(options);
+@@ -381,6 +382,12 @@ void savePartition(char *szDevice, char 
+   //if (options->dwSplitMode == SPLIT_AUTO)
+   if ((strncmp(szImageName, "stdout", 6) == 0) || (strncmp(szImageName, "STDOUT", 6) == 0))
+ 	  options->qwSplitSize = 0;
++  if (stat(szImageName, &fStat) != -1 && S_ISFIFO(fStat.st_mode))
++    {
++          options->qwSplitSize = 0;
++          options->bOverwrite = true;
++    }
++
+   if (!options->qwSplitSize)
+     {
+       SNPRINTF(aux, "%s", szImageName); *(aux+MAXPATHLEN-1)='\0';
+@@ -1975,9 +1982,9 @@ int checkOptions(COptions options, char 
+   // check for an image file
+   if ((szImageFile) && (*szImageFile) && (stat(szImageFile, &fStat) != -1))
+     {
+-      if (!S_ISREG(fStat.st_mode))
++      if (!(S_ISREG(fStat.st_mode) || S_ISFIFO(fStat.st_mode)))
+ 	{
+-	  g_interface->msgBoxError(i18n("The third argument [%s] must be a valid regular file (not a directory, a symlink, ...)"), szImageFile);	
++	  g_interface->msgBoxError(i18n("The third argument [%s] must be a valid regular file or fifo (not a directory, a symlink, ...)"), szImageFile);	
+ 	  RETURN_int(-1);
+ 	}
+     }
+diff -pruN partimage-0.6.9/src/shared/image_disk.cpp partimage-0.6.9.pigz/src/shared/image_disk.cpp
+--- partimage-0.6.9/src/shared/image_disk.cpp	2010-07-25 10:30:31.000000000 -0500
++++ partimage-0.6.9.pigz/src/shared/image_disk.cpp	2010-12-02 23:18:46.580273115 -0600
+@@ -586,7 +586,7 @@ void CImageDisk::openWriting() // [Main-
+     #endif
+         THROW(ERR_ERRNO, errno);
+   
+-      if (!S_ISREG(fStat.st_mode)) // not a regular file
++      if (!(S_ISREG(fStat.st_mode) || S_ISFIFO(fStat.st_mode))) // not a regular file
+         THROW(ERR_NOTAREGULARFILE, m_szImageFilename);
+ 
+       // lock the image file

@@ -1,111 +1,68 @@
 <?php
-/*
- *  FOG - Free, Open-Source Ghost is a computer imaging solution.
- *  Copyright (C) 2007  Chuck Syperski & Jian Zhang
- *
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
-@error_reporting(0);
-require_once( "../commons/config.php" );
-require_once( "../commons/functions.include.php" );
-
-/*
- *  Possible return codes
- *  "#!db" => Database error
- *  "#!im" => Invalid MAC Format
- *  "#!er" => Other error.
- *  "#!it" => Image task exists -> no snapins to be installed
- *  "#!ns" => No Snapins found
- *  "#!ok" => Job Exists -> GO!
- *
- */
-
-
-if ( isset($_GET["mac"] ) )
+require_once('../commons/base.inc.php');
+try
 {
-	$conn = @mysql_connect( MYSQL_HOST, MYSQL_USERNAME, MYSQL_PASSWORD);
-	if ( $conn )
+	$HostManager = new HostManager();
+	$MACs = HostManager::parseMacList($_REQUEST['mac']);
+	if (!$MACs) throw new Exception('#!im');
+	// Get the Host
+	$Host = $HostManager->getHostByMacAddresses($MACs);
+	if (!$Host->isValid()) throw new Exception('#!ih');
+	// Only worry about if the Task is queued, in line, or in progress (for reporting reasons).
+	$Task = current($Host->get('task'));
+	// If the task is Valid and is not of type 12 or 13 report that it's waiting for other tasks.
+	if ($Task && $Task->isValid() && $Task->get('typeID') != 12 && $Task->get('typeID') != 13) throw new Exception('#!it');
+	// Get the job, if there isn't one report that there isn't one.
+	$SnapinJob = current((array)$Host->get('snapinjob'));
+	//Get the snapin job.  There should be tasks if the Job is still viable.
+	if (!$SnapinJob || !$SnapinJob->isValid()) throw new Exception('#!ns');
+	// Work on the current Snapin Task.
+	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id'),'stateID' => array(-1,0,1))));
+	if ($SnapinTask && $SnapinTask->isValid())
 	{
-		if ( ! @mysql_select_db( MYSQL_DATABASE, $conn ) ) die( "#!db" );
-		
-		$mac = mysql_real_escape_string( strtolower($_GET["mac"]) );
-
-		if ( isValidMACAddress( $mac ) )
+		// Get the information (the Snapin itself)
+		$Snapin = new Snapin($SnapinTask->get('snapinID'));
+		// Check for task status.  If it's got a numeric exitcode
+		if (strlen($_REQUEST['exitcode']) > 0 && is_numeric($_REQUEST['exitcode']))
 		{
-			if ( ! getCountOfActiveTasksWithMAC( $conn, $mac ) > 0 )
+			// Place the task for records, but outside of recognizable as Complete or Done!
+			$SnapinTask->set('stateID','2')->set('return',$_REQUEST['exitcode'])->set('details',$_REQUEST['exitdesc'])->set('complete',date('Y-m-d H:i:s'));
+			if ($SnapinTask->save()) print "#!ok";
+			// If that was the last task, delete the job.
+			if ($FOGCore->getClass('SnapinTaskManager')->count(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id'))) < 1)
 			{
-				$hostid = mysql_real_escape_string(getHostID( $conn, $mac ));
-				if ( $hostid !== null && is_numeric( $hostid ) )
-				{
-					$sql = "SELECT 
-					 		* 
-					 	FROM 
-							snapinTasks
-							inner join snapinJobs on ( snapinTasks.stJobID = snapinJobs.sjID )
-							inner join hosts on ( snapinJobs.sjHostID = hosts.hostID )
-							inner join snapins on ( snapins.sID = snapinTasks.stSnapinID )
-						WHERE
-							stState in ( '0', '1' ) and
-							sjHostID = '$hostid'";	
-							
-					$res = @mysql_query( $sql, $conn ) or die("#!db");
-					if ( mysql_num_rows( $res ) > 0 )
-					{			
-						if ( $ar = mysql_fetch_array( $res ) )
-						{
-							// we only want to first record
-							
-							$stID = mysql_real_escape_string( $ar["stID"] );
-							
-							// Do a checkin
-							$sql = "update snapinTasks set stState = '1', stCheckinDate = NOW() where stID = '" . $stID . "'";
-							if( mysql_query( $sql, $conn ) )
-							{							
-								echo "#!ok\n";
-								echo "JOBTASKID=" . trim($ar["stID"]) . "\n" ;
-								echo "JOBCREATION=" . trim($ar["sjCreateTime"]) . "\n";
-								echo "SNAPINNAME=" . trim($ar["sName"]) . "\n";
-								echo "SNAPINARGS=" . trim( $ar["sArgs"] ) . "\n";
-								echo "SNAPINBOUNCE=" . trim( $ar["sReboot"] ) . "\n";
-								echo "SNAPINFILENAME=" . trim( basename($ar["sFilePath"]) );
-							}
-							else
-								echo "#!db" ;
-							
-						}
-					}
-					else
-					{
-						echo "#!ns";
-					}
-				}
-				else
-				{
-					echo "#!er";
-				}
+				// If it's part of a task deployment update the task information.
+				$SnapinJob->set('stateID',2)->save();
+				if ($Task->isValid()) $Task->set('stateID',4)->save();
 			}
-			else
-				echo "#!it";	
 		}
 		else
-			echo "#!im";
+		{
+			$SnapinJob->set('stateID',1)->save();
+			// If it's part of a task deployment update the task information.
+			if ($Task && $Task->isValid()) $Task->set('stateID',3)->set('checkInTime',date('Y-m-d H:i:s'))->save();
+			//If not from above, update the Task information.
+			$SnapinTask->set('stateID',0)->set('checkin',date('Y-m-d H:i:s'));
+			// As long as things update, send the information.
+			if ($SnapinTask->save())
+			{
+				$goodSnapin = array(
+					"#!ok\n",
+					"JOBTASKID=".$SnapinTask->get('id')."\n",
+					"JOBCREATION=".$SnapinJob->get('createTime')."\n",
+					"SNAPINNAME=".$Snapin->get('name')."\n",
+					"SNAPINARGS=".$Snapin->get('args')."\n",
+					"SNAPINBOUNCE=".$Snapin->get('reboot')."\n",
+					"SNAPINFILENAME=".basename($Snapin->get('file'))."\n",
+					"SNAPINRUNWITH=".$Snapin->get('runWith')."\n",
+					"SNAPINRUNWITHARGS=".$Snapin->get('runWithArgs'),
+				);
+				print implode($goodSnapin);
+			}
+		}
 	}
-	else
-		echo "#!db" ;
 }
-else
-	echo "#!im";
-?>
+catch(Exception $e)
+{
+	print $e->getMessage();	
+}

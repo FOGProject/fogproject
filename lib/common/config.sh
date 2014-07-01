@@ -1,4 +1,3 @@
-#!/bin/sh
 #
 #  FOG is a computer imaging solution.
 #  Copyright (C) 2007  Chuck Syperski & Jian Zhang
@@ -22,6 +21,11 @@
 # Linux Account that is used for FTP transactions
 username="fog";
 
+# This is used for storage nodes
+dbuser="root"
+dbpass=""
+dbhost="localhost"
+
 # where are the php files from the download package?
 webdirsrc="../packages/web";
 
@@ -29,9 +33,9 @@ webdirsrc="../packages/web";
 tftpdirsrc="../packages/tftp";
 
 # where are the udpcast files from the download package?
-udpcastsrc="../packages/udpcast-20071228.tar.gz";
+udpcastsrc="../packages/udpcast-20120424.tar.gz";
 udpcasttmp="/tmp/udpcast.tar.gz";
-udpcastout="udpcast-20071228";
+udpcastout="udpcast-20120424";
 
 # where are the service files from the download package?
 servicesrc="../packages/service";
@@ -42,5 +46,17 @@ servicedst="/opt/fog/service"
 # where do the service log files go?
 servicelogs="/opt/fog/log"
 
+# where do the fog program files go?
+fogprogramdir="/opt/fog"
+
+# where do generic fog utils go?
+fogutilsdir="${fogprogramdir}/utils";
+
+# where do generic fog utils come from?
+fogutilsdirsrc="../packages/utils";
+
 # what version are we working with?
-version="0.14";
+version="1.1.2";
+
+# what is the schema version
+schemaversion="23";
