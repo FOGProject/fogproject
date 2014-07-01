@@ -207,8 +207,11 @@ $FOGCore = new FOGCore();
 $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
 // HookManager
-$HookManager = new HookManager();
-$HookManager->load();
+if (!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
+{
+	$HookManager = new HookManager();
+	$HookManager->load();
+}
 // FOGPageManager
 $FOGPageManager = new FOGPageManager();
 $Init::endInit();
