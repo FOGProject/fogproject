@@ -5,25 +5,33 @@ class AddLocationTasks extends Hook
 	var $description = 'Add Location to Active Tasks';
 	var $author = 'Rowlett';
 	var $active = true;
-	
+    var $node = 'location';	
 	public function TasksActiveTableHeader($arguments)
 	{
-		if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']))
-			$arguments['headerData'][3] = 'Location';
+		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
+		{
+			if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']))
+				$arguments['headerData'][3] = 'Location';
+		}
 	}
 
 	public function TasksActiveData($arguments)
 	{
-		if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']))
+		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
-			foreach((array)$arguments['data'] AS $i => $data)
+			if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']))
 			{
-				$Host = current($this->FOGCore->getClass('HostManager')->find(array('id' => $arguments['data'][$i]['host_id'])));
-				if ($Host && $Host->isValid())
-				$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
-				$Location = ($LA ? new Location($LA->get('locationID')) : '');
-				// Set the field.
-				$arguments['data'][$i]['details_taskname'] = $Location && $Location->isValid() ? $Location->get('name') : '';
+				foreach((array)$arguments['data'] AS $i => $data)
+				{
+					$Host = current($this->FOGCore->getClass('HostManager')->find(array('id' => $arguments['data'][$i]['host_id'])));
+					if ($Host && $Host->isValid())
+					$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
+					$Location = ($LA ? new Location($LA->get('locationID')) : '');
+					// Set the field.
+					$arguments['data'][$i]['details_taskname'] = $Location && $Location->isValid() ? $Location->get('name') : '';
+				}
 			}
 		}
 	}

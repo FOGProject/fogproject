@@ -5,32 +5,45 @@ class RemoveUpload extends Hook
 	var $description = 'Removes upload links for engineers';
 	var $author = 'Rowlett';
 	var $active = true;
+	var $node = 'accesscontrol';
 	public function UploadData($arguments)
 	{
-		if (!in_array($this->FOGUser->get('type'),array(0)))
+		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
-			if ($_REQUEST['node'] == 'tasks' && $_REQUEST['sub'] == 'listhosts')
-				unset($arguments['headerData'][3],$arguments['templates'][3]);
+			if (!in_array($this->FOGUser->get('type'),array(0)))
+			{
+				if ($_REQUEST['node'] == 'tasks' && $_REQUEST['sub'] == 'listhosts')
+					unset($arguments['headerData'][3],$arguments['templates'][3]);
+			}
 		}
 	}
 	public function EditTasks($arguments)
     {
-		if (!in_array($this->FOGUser->get('type'),array(0)))
+		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
-			unset($arguments['data'][1],$arguments['template'][1]);
-			unset($arguments['data'][11],$arguments['template'][11]);
+			if (!in_array($this->FOGUser->get('type'),array(0)))
+			{
+				unset($arguments['data'][1],$arguments['template'][1]);
+				unset($arguments['data'][11],$arguments['template'][11]);
+			}
 		}
     }
 	public function SubMenuData($arguments)
 	{
-		if (!in_array($this->FOGUser->get('type'),array(0)))
+		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
-			$i = 0;
-			foreach($arguments['submenu'][$_REQUEST['node']]['id'] AS $link => $info)
+			if (!in_array($this->FOGUser->get('type'),array(0)))
 			{
-				if (in_array($i,array(0,5,10,3)))
-					unset($arguments['submenu'][$_REQUEST['node']]['id'][$link]);
-				$i++;
+				$i = 0;
+				foreach($arguments['submenu'][$_REQUEST['node']]['id'] AS $link => $info)
+				{
+					if (in_array($i,array(0,5,10,3)))
+						unset($arguments['submenu'][$_REQUEST['node']]['id'][$link]);
+					$i++;
+				}
 			}
 		}
 	}
