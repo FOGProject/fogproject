@@ -1,4 +1,3 @@
-#!/bin/sh
 #
 #  FOG - Free, Open-Source Ghost is a computer imaging solution.
 #  Copyright (C) 2007  Chuck Syperski & Jian Zhang
@@ -19,6 +18,56 @@
 #
 #
 
+warnRoot()
+{
+	currentuser=`whoami`;
+	if [ "$currentuser" != "root" ]
+	then
+		echo 
+		echo "  This installation script should be run as"
+		echo "  user \"root\".  You are currenly running ";
+		echo "  as $currentuser.  "
+		echo 
+		echo -n "  Do you wish to continue? [N] "
+		
+		read ignoreroot;
+		if [ "$ignoreroot" = "" ]
+		then
+			ignoreroot="N";
+		else
+			case "$ignoreroot" in
+				Y | yes | y | Yes | YES )
+					ignoreroot="Y";			
+					;;
+				[nN]*)
+					ignoreroot="N";	
+					;;
+				*)
+					ignoreroot="N";
+					;;
+			esac		 
+		fi
+		
+		if [ "$ignoreroot" = "N" ];
+		then
+			echo " Exiting...";
+			echo
+			exit 1;
+		fi
+		
+	fi
+}
+
+installUtils()
+{
+	echo -n "  * Setting up FOG Utils";	
+	mkdir -p ${fogutilsdir} >/dev/null 2>&1;
+	cp -Rf ${fogutilsdirsrc}/* "${fogutilsdir}" >/dev/null 2>&1;
+	chown -R ${apacheuser} ${fogutilsdir} >/dev/null 2>&1;
+	chmod -R 700 ${fogutilsdir} >/dev/null 2>&1;
+	echo "...OK";
+}
+
 help()
 {
 	echo "";
@@ -26,7 +75,11 @@ help()
 	echo "       Options:";
 	echo "             --help              Displays this message";
 	echo "             --no-defaults       Don't guess default values";
+	echo "             --no-upgrade        Don't attempt to upgrade";
+	echo "				       from previous version.";	
 	echo "             --uninstall         Not yet supported";
+	echo "             --no-htmldoc        Don't try to install htmldoc";
+	echo "                                 (You won't be able to create pdf reports)";
 	echo "";
 }
 
@@ -110,15 +163,21 @@ configureUDPCast()
 
 displayOSChoices()
 {
+	blFirst="1";
 	while [ "$osid" = "" ]
 	do
-		echo "  What version of Linux would you like to run the installtion for?"
-		echo "";
-		echo "          1) Redhat Based Linux (Fedora, CentOS)";
-		echo "          2) Ubuntu Based Linux (Kubuntu, Edubuntu)";		
-		echo "";
-		echo -n "  Choice: [${strSuggestedOS}]";
-		read osid;
+		if [ "$fogupdateloaded" = "1" -a  "$osid" != "" -a "$blFirst" = "1" ]
+		then
+			blFirst="0";
+		else
+			echo "  What version of Linux would you like to run the installation for?"
+			echo "";
+			echo "          1) Redhat Based Linux (Redhat, CentOS, Mageia)";
+			echo "          2) Debian Based Linux (Debian, Ubuntu, Kubuntu, Edubuntu)";		
+			echo "";
+			echo -n "  Choice: [${strSuggestedOS}]";
+			read osid;
+		fi
 		
 		if [ "$osid" = "" ] 
 		then
@@ -128,35 +187,39 @@ displayOSChoices()
 			fi
 		fi
 		
-		echo "";
-		case "$osid" in
-			"1")
-			    	echo "  Staring Redhat Installation."
-			    	osname="Redhat";
-			    	. ../lib/redhat/functions.sh
-				. ../lib/redhat/config.sh
-			    	echo "";
-				;;
-			"2")
-				echo "  Starting Ubuntu Installtion.";
-				osname="Ubuntu";
-			    	. ../lib/ubuntu/functions.sh
-				. ../lib/ubuntu/config.sh
-				echo "";
-				;;				
-			*)
-				echo "  Sorry, answer not recognized."
-				echo "";
-				sleep 2;
-				echo "";
-				osid="";
-				;;
-		esac		
+		doOSSpecificIncludes;
+		
 	done
 }
 	
+doOSSpecificIncludes()
+{
+	echo "";
+	case "$osid" in
+		"1")
+		    	echo "  Staring Redhat / CentOS Installation."
+		    	osname="Redhat";
+		    	. ../lib/redhat/functions.sh
+			. ../lib/redhat/config.sh
+		    	echo "";
+			;;
+		"2")
+			echo "  Starting Debian / Ubuntu / Kubuntu / Edubuntu Installtion.";
+			osname="Debian";
+		    	. ../lib/ubuntu/functions.sh
+			. ../lib/ubuntu/config.sh
+			echo "";
+			;;				
+		*)
+			echo "  Sorry, answer not recognized."
+			echo "";
+			sleep 2;
+			echo "";
+			osid="";
+			;;
+	esac
+}	
 
-# to do change user to variable in config file
 configureSnapins()
 {
 	echo -n "  * Setting up FOG Snapins"; 
@@ -202,21 +265,42 @@ sendInstallationNotice()
 
 configureUsers()
 {
-	echo -n "  * Setting up fog user";
-	password=`date | md5sum | cut -d" " -f1`;
-	if [ $password != "" ]
-	then
-		useradd -d "/home/${username}" ${username} >/dev/null 2>&1;
-		passwd ${username} >/dev/null 2>&1 << EOF
+	getent passwd $username > /dev/null;
+	if [ $? != 0 ] || [ "$doupdate" != "1" ]; then
+		echo -n "  * Setting up fog user";
+		password=`date | md5sum | cut -d" " -f1`;
+		password=${password:0:6}
+		if [ "$installtype" = "S" ]
+		then
+			# save everyone wrist injuries
+			storageftpuser=${username};
+			storageftppass=${password};
+		fi
+		
+		if [ $password != "" ]
+		then
+			useradd -s "/bin/bash" -d "/home/${username}" ${username} >/dev/null 2>&1;
+			if [ "$?" = "0" ] 
+			then
+				passwd ${username} >/dev/null 2>&1 << EOF
 ${password}
 ${password}
 EOF
-		mkdir "/home/${username}" >/dev/null 2>&1;
-		chown -R ${username} "/home/${username}" >/dev/null 2>&1;
-		echo "...OK";
-	else
-		echo "...Failed!";
-		exit 1;
+				mkdir "/home/${username}" >/dev/null 2>&1;
+				chown -R ${username} "/home/${username}" >/dev/null 2>&1;
+				echo "...OK";
+			else
+				if [ -f "${webdirdest}/lib/fog/Config.class.php" ]
+				then
+					password=`cat ${webdirdest}/lib/fog/Config.class.php | grep TFTP_FTP_PASSWORD | cut -d"," -f2 | cut -d"\"" -f2`;
+				fi
+				echo "...Exists";
+				bluseralreadyexists="1";
+			fi
+		else
+			echo "...Failed!";
+			exit 1;
+		fi
 	fi
 }
 
@@ -231,7 +315,17 @@ configureStorage()
 		touch "$storage/.mntcheck";
 		chmod -R 777 "$storage"
 	fi
-
+	if [ ! -d "$storage/postdownloadscripts" ]; then
+		mkdir "$storage/postdownloadscripts";
+		if [ ! -f "$storage/postdownloadscripts/fog.postdownload" ]; then
+			echo "#!/bin/sh
+## This file serves as a starting point to call your custom postimaging scripts.
+## <SCRIPTNAME> should be changed to the script you're planning to use.
+## Syntax of post download scripts are
+#. \${postdownpath}<SCRIPTNAME>" > "$storage/postdownloadscripts/fog.postdownload";
+		fi
+		chmod -R 777 "$storage";
+	fi
 	if [ ! -d "$storageupload" ]
 	then
 		mkdir "$storageupload";
@@ -246,27 +340,60 @@ clearScreen()
 	echo -e "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
 }
 
+writeUpdateFile()
+{
+	
+	tmpDte=`date +%c`;
+	echo "## Created by the FOG Installer
+## Version: $version
+## Install time: $tmpDte
+	
+ipaddress=\"$ipaddress\";
+interface=\"$interface\";
+routeraddress=\"$routeraddress\";
+plainrouter=\"$plainrouter\";
+dnsaddress=\"$dnsaddress\";
+dnsbootimage=\"$dnsbootimage\";
+password=\"$password\";
+osid=\"$osid\";
+osname=\"$osname\";
+dodhcp=\"$dodhcp\";
+bldhcp=\"$bldhcp\";
+installtype=\"$installtype\";
+snmysqluser=\"$snmysqluser\"
+snmysqlpass=\"$snmysqlpass\";
+snmysqlhost=\"$snmysqlhost\";
+installlang=\"$installlang\";
+donate=\"$donate\";
+fogupdateloaded=\"1\"" > "$fogprogramdir/.fogsettings";
+
+}
+
 displayBanner()
 {
-	echo "        ___           ___           ___      ";
-	echo "       /\  \         /\  \         /\  \     ";
-	echo "      /::\  \       /::\  \       /::\  \    ";
-	echo "     /:/\:\  \     /:/\:\  \     /:/\:\  \   ";
-	echo "    /::\-\:\  \   /:/  \:\  \   /:/  \:\  \  ";
-	echo "   /:/\:\ \:\__\ /:/__/ \:\__\ /:/__/_\:\__\ ";
-	echo "   \/__\:\ \/__/ \:\  \ /:/  / \:\  /\ \/__/ ";
-	echo "        \:\__\    \:\  /:/  /   \:\ \:\__\   ";
-	echo "         \/__/     \:\/:/  /     \:\/:/  /   ";
-	echo "                    \::/  /       \::/  /    ";
-	echo "                     \/__/         \/__/     ";
+	echo "";                                        
+	echo "       ..#######:.    ..,#,..     .::##::.   ";
+	echo "  .:######          .:;####:......;#;..      ";
+	echo "  ...##...        ...##;,;##::::.##...       ";
+	echo "     ,#          ...##.....##:::##     ..::  ";
+	echo "     ##    .::###,,##.   . ##.::#.:######::. ";
+	echo "  ...##:::###::....#. ..  .#...#. #...#:::.  ";
+	echo "  ..:####:..    ..##......##::##  ..  #      ";
+	echo "      #  .      ...##:,;##;:::#: ... ##..    ";
+	echo "     .#  .       .:;####;::::.##:::;#:..     ";
+	echo "      #                     ..:;###..        ";
 	echo "";
 	echo "  ###########################################";
+	echo "  #     FOG                                 #";
 	echo "  #     Free Computer Imaging Solution      #";
 	echo "  #                                         #";
-	echo "  #     Created by:                         #";
+	echo "  #     http://www.fogproject.org/          #";
+	echo "  #                                         #";
+	echo "  #     Developers:                         #";
 	echo "  #         Chuck Syperski                  #";	
 	echo "  #         Jian Zhang                      #";
-	echo "  #                                         #";		
+	echo "  #         Peter Gilchrist                 #";
+	echo "  #         Tom Elliott                     #";		
 	echo "  #     GNU GPL Version 3                   #";		
 	echo "  ###########################################";
 	echo "";

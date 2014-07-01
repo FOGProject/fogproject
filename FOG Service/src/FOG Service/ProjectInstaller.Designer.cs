@@ -35,6 +35,7 @@ namespace Dist88ServiceManager
             // 
             this.serviceProcessInstaller.Password = null;
             this.serviceProcessInstaller.Username = null;
+            this.serviceProcessInstaller.AfterInstall += new System.Configuration.Install.InstallEventHandler(this.serviceProcessInstaller_AfterInstall);
             // 
             // serviceInstaller
             // 

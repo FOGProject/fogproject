@@ -1,84 +1,98 @@
 <?php
-/*
- *  FOG is a computer imaging solution.
- *  Copyright (C) 2007  Chuck Syperski & Jian Zhang
- *
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
-require_once( "../commons/config.php" );
-require_once( "../commons/functions.include.php" );
-
-$conn = mysql_connect( MYSQL_HOST, MYSQL_USERNAME, MYSQL_PASSWORD);
-if ( $conn )
+//
+// Post_Stage2.php
+// Triggered:	After image upload
+// Actions:	Moves uploaded image to final location via FTP
+//
+require('../commons/base.inc.php');
+try
 {
-	if ( ! mysql_select_db( MYSQL_DATABASE, $conn ) ) die( "Unable to select database" );
-}
-else
-{
-	die( "Unable to connect to Database" );
-}
-
-$mac = $_GET["mac"];
-$size = $_GET["size"];
-$imgid = $_GET["imgid"];
-if ( ! isValidMACAddress( $mac ) )
-{
-	die( "Invalid MAC address format!" );
-}
-
-if ( ! is_numeric( $imgid ) )
-{
-	die( "Image ID must be numeric" );
-}
-
-if ( $mac != null  )
-{
-	$ftp = ftp_connect(TFTP_HOST); 
-	$ftp_loginres = ftp_login($ftp, TFTP_FTP_USERNAME, TFTP_FTP_PASSWORD); 			
-	if ((!$ftp) || (!$ftp_loginres )) 
+	// Error checking
+	// NOTE: Most of these validity checks should never fail as checks are made during Task creation - better safe than sorry!
+	// MAC Address
+	$MACAddress = new MACAddress($_REQUEST['mac']);
+	if (!$MACAddress->isValid())
+		throw new Exception(_('Invalid MAC address'));
+	// Host for MAC Address
+	$Host = $MACAddress->getHost();
+	if (!$Host->isValid())
+		throw new Exception(_('Invalid Host'));
+	// Task for Host
+	$Task = current($Host->get('task'));
+	if (!$Task->isValid())
+		throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'), $MACAddress));
+	$TaskType = new TaskType($Task->get('typeID'));
+	// Get the storage group
+	$StorageGroup = $Task->getStorageGroup();
+	if ($TaskType->isUpload() && !$StorageGroup->isValid())
+		throw new Exception(_('Invalid Storage Group'));
+	// Get the storage node.
+	$StorageNodes = $StorageGroup->getStorageNodes();
+	if ($TaskType->isUpload() && !$StorageNodes)
+		throw new Exception(_('Could not find a Storage Node. Is there one enabled within this Storage Group?'));
+	// Image Name store for logging the image task later.
+	$Image = new Image($Host->get('imageID'));
+	$ImageName = $Image->get('name');
+	// Sets the class for ftp of files and deletion as necessary.
+	$ftp = $GLOBALS['FOGFTP'];
+	// Sets the mac address for tftp delete later.
+	$mactftp = strtolower(str_replace(':','-',$_REQUEST['mac']));
+	// Sets the mac address for ftp upload later.
+	$macftp = strtolower(str_replace(':','',$_REQUEST['mac']));
+	// Paths for use later.  Need to pass StorageNodes through loop to access functions.
+	foreach ($StorageNodes AS $StorageNode)
 	{
-  		echo "FTP connection has failed!";
- 		exit;
- 	}			
- 	$mac = str_replace( ":", "-", $mac );
-	@ftp_delete ( $ftp, TFTP_PXE_CONFIG_DIR . "01-". $mac );
-	
-	
-	$mac = str_replace( "-", ":", $mac );
-	$jobid = getTaskIDByMac( $conn, $mac, 0 );
-
-	$src = STORAGE_DATADIR_UPLOAD . $mac . ".000";
-	$srcdd = STORAGE_DATADIR_UPLOAD . $mac;
-	$dest = STORAGE_DATADIR . $_GET["to"];
-	if (ftp_rename ( $ftp, $src, $dest ) || ftp_rename ( $ftp, $srcdd, $dest ))
-	{
-		if ( checkOut( $conn, $jobid ) )
+		if ($StorageNode->get('isMaster'))
 		{
-			echo "##";
+			// Set the src based on the image and node path.
+			$src = $StorageNode->get('path').'/dev/'.$macftp;
+			// XP only, typically, had one part so only need the file part.
+			if ($_REQUEST['osid'] == '1' && $_REQUEST['imgtype'] == 'n')
+				$src = $StorageNode->get('path').'/dev/'.$macftp.'/'.$macftp.'.000';
+			// Where is it going?
+			$dest = $StorageNode->get('path').'/'.$_REQUEST['to'];
+			//Attempt transfer of image file to Storage Node
+			$ftp->set('host',$StorageNode->get('ip'))
+				->set('username',$StorageNode->get('user'))
+				->set('password',$StorageNode->get('pass'));
+			if (!$ftp->connect())
+				throw new Exception(_('Storage Node: '.$StorageNode->get('ip').' FTP Connection has failed!'));
+			// Try to delete the file.  Doesn't hurt anything if it doesn't delete anything.
+			$ftp->delete($dest);
+			if ($ftp->rename($dest,$src)||$ftp->put($dest,$src))
+				($_REQUEST['osid'] == '1' ? $ftp->delete($StorageNode->get('path').'/dev/'.$macftp) : null);
+			else
+				throw new Exception(_('Move/rename failed.'));
+			$ftp->close();
 		}
-		else
-			echo ( "Error: Checkout failed!" );
 	}
-	else
-	{
-		echo "unable to move $src to $dest";
-	}
-	
-	ftp_close($ftp); 
+	// If image is currently legacy, set as not legacy.
+	if ($Image->get('format') == 1)
+		$Image->set('format',0)->save();
+	// Complete the Task.
+	$Task->set('stateID','4');
+	if (!$Task->save())
+		throw new Exception(_('Failed to update Task'));
+	// Log it
+	$ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
+	foreach($ImagingLogs AS $ImagingLog)
+		$id[] = $ImagingLog->get('id');
+	// Last Uploaded date of image.
+	$Image = $Host->getImage();
+	$Image->set('deployed',date('Y-m-d H:i:s'))->save();
+	// Log
+	$il = new ImagingLog(max($id));
+	$il->set('finish',date('Y-m-d H:i:s'))->save();
+	// Task Logging.
+	$TaskLog = new TaskLog($Task);
+	$TaskLog->set('taskID',$Task->get('id'))
+			->set('taskStateID',$Task->get('stateID'))
+			->set('createdTime',$Task->get('createdTime'))
+			->set('createdBy',$Task->get('createdBy'))
+			->save();
+	print '##';
 }
-else
-	echo "Invalid MAC or FTP Address";
-?>
+catch (Exception $e)
+{
+	print $e->getMessage();
+}

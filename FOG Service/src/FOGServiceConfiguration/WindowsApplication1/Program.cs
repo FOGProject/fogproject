@@ -10,11 +10,36 @@ namespace FOG
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(String[] args)
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FrmSetup());
+            try
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                FrmSetup frm = new FrmSetup(args);
+                if (frm.isConfigFilePresent())
+                {
+                    if (!frm.isConfigured())
+                    {
+                        if (frm.isQuiet())
+                        {
+                            frm.writeQuiet();
+                        }
+                        else
+                        {
+                            if (frm.isConfigFilePresent())
+                                Application.Run(frm);
+                        }
+                    }
+                }
+                else
+                        System.Windows.Forms.MessageBox.Show("Unable to locate config file!");
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show(e.Message);
+                System.Windows.Forms.MessageBox.Show(e.StackTrace);
+            }
         }
     }
 }

@@ -1,64 +1,43 @@
 <?php
-
-require_once( "../commons/config.php" );
-require_once( "../commons/functions.include.php" );
-
-$conn = mysql_connect( MYSQL_HOST, MYSQL_USERNAME, MYSQL_PASSWORD);
-if ( $conn )
+require('../commons/base.inc.php');
+try
 {
-	if ( ! mysql_select_db( MYSQL_DATABASE, $conn ) ) die( "Unable to select database" );
-}
-else
-{
-	die( "Unable to connect to Database" );
-}
-
-$mac = $_GET["mac"];
-
-if ( ! isValidMACAddress( $mac ) )
-{
-	die( "Invalid MAC address format!" );
-}
-
-if ( $mac != null  )
-{
-	
-	$hostid = getHostID( $conn, $mac );	
-	$jobid = getTaskIDByMac( $conn, $mac, 1 );
-
-	$ftp = ftp_connect(TFTP_HOST); 
-	$ftp_loginres = ftp_login($ftp, TFTP_FTP_USERNAME, TFTP_FTP_PASSWORD); 				
-	if ((!$ftp) || (!$ftp_loginres )) 
+	// Get the MAC
+	$MACAddress = new MACAddress($_REQUEST['mac']);
+	if (!$MACAddress->isValid()) throw new Exception(_('Invalid MAC Address'));
+	// Host for MAC Address
+	$Host = $MACAddress->getHost();
+	if (!$Host->isValid()) throw new Exception(_('Invalid host'));
+	// Task for Host
+	$Task = current($Host->get('task'));
+	if (!$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)',_('No Active Task found for Host'), $Host->get('name'),$MACAddress));
+	$TaskType = new TaskType($Task->get('typeID'));
+	// Set the task to state 4
+	$Task->set('stateID',4);
+	// Log it
+	$ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
+	foreach($ImagingLogs AS $ImagingLog) $id[] = $ImagingLog->get('id');
+	// Update Last deploy
+	$Host->set('deployed',date('Y-m-d H:i:s'))->save();
+	$il = new ImagingLog(max($id));
+	$il->set('finish',date('Y-m-d H:i:s'))->save();
+	// Task Logging.
+	$TaskLog = new TaskLog($Task);
+	$TaskLog->set('taskID',$Task->get('id'))->set('taskStateID',$Task->get('stateID'))->set('createdTime',$Task->get('createdTime'))->set('createdBy',$Task->get('createdBy'))->save();
+	if (!$Task->save()) throw new Exception('Failed to update task.');
+	print '##';
+	// If it's a multicast job, decrement the client count, though not fully needed.
+	if ($TaskType->isMulticast())
 	{
-  		echo "FTP connection has failed!";
- 		exit;
- 	}			
-
- 	$mac = str_replace( ":", "-", $mac );
-	if ( ftp_delete ( $ftp, TFTP_PXE_CONFIG_DIR . "01-". $mac ) )
-	{
-		if ( $jobid !== null )
-		{			
-			if ( checkOut( $conn, $jobid ) )
-			{			
-				echo "##";
-			}
-			else
-			{
-				echo "Error: Checkout Failed.";
-			}	
-		}
-		else
+		$MyMulticastTask = current($FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))));
+		if ($MyMulticastTask && $MyMulticastTask->isValid())
 		{
-			echo "Unable to locate job in database, please ensure that mac address is correct.";
-		}							
+			$MulticastSession = new MulticastSessions($MyMulticastTask->get('msID'));
+			$MulticastSession->set('clients',($MulticastSession->get('clients') - 1))->save();
+		}
 	}
-	else
-	{
-		echo "Error: Unable to remove TFTP file";
-	}
-	ftp_close($ftp); 
 }
-else
-	echo "Invalid MAC or FTP Address";
-?>
+catch (Exception $e)
+{
+	print $e->getMessage();
+}

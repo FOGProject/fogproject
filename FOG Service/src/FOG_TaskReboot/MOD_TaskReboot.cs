@@ -32,6 +32,7 @@ namespace FOG
         private String url;
         private Boolean blGo;
         private Boolean blForce;
+        private String strURLModuleStatus;
 
         private const String MOD_NAME = "FOG::TaskReboot";
 
@@ -66,6 +67,19 @@ namespace FOG
                     String tmpPre = ini.readSetting("taskreboot", "urlprefix");
                     String tmpPost = ini.readSetting("taskreboot", "urlpostfix");
                     String tmpIP = ini.readSetting("fog_service", "ipaddress");
+
+                    if (tmpIP == null || tmpIP.Trim().Length == 0)
+                        tmpIP = "fogserver";
+
+                    String strPreMS = ini.readSetting("fog_service", "urlprefix");
+                    String strPostMS = ini.readSetting("fog_service", "urlpostfix");
+                    if (tmpIP != null && strPreMS != null && strPostMS != null)
+                        strURLModuleStatus = strPreMS + tmpIP + strPostMS;
+                    else
+                    {
+                        return false;
+                    }
+
                     blForce = (ini.readSetting("taskreboot", "forcerestart") == "1");
 
                     if (blForce)
@@ -97,49 +111,139 @@ namespace FOG
             try
             {
                 ArrayList alMACs = getMacAddress();
-                if (alMACs != null)
+
+                String macList = null;
+                if (alMACs != null && alMACs.Count > 0)
                 {
-                    for (int i = 0; i < alMACs.Count; i++)
+                    String[] strMacs = (String[])alMACs.ToArray(typeof(String));
+                    macList = String.Join("|", strMacs);
+                }
+
+                if (macList != null && macList.Length > 0)
+                {
+                    Boolean blConnectOK = false;
+                    String strDta = "";
+                    while (!blConnectOK)
                     {
-                        if (alMACs[i] != null)
+                        try
                         {
-                            String strMAC = (String)alMACs[i];
-                            
-                            WebClient web = new WebClient();
-                            
-                            String strData = web.DownloadString(url + strMAC);
-                            strData = strData.Trim();
-                            //*  "#!db" => Database error
-                            //*  "#!im" => Invalid MAC Format
-                            //*  "#!er" => Other error.
-                            //*  "#!ok" => Job Exists -> GO!
-                            //*  "#!nj" => No Job Exists
-                            
-                            if (strData.StartsWith("#!OK", true, null))
+                            log(MOD_NAME, "Attempting to connect to fog server...");
+                            WebClient wc = new WebClient();
+                            String strPath = strURLModuleStatus + "?mac=" + macList + "&moduleid=taskreboot";
+                            strDta = wc.DownloadString(strPath);
+                            blConnectOK = true;
+                        }
+                        catch (Exception exp)
+                        {
+                            log(MOD_NAME, "Failed to connect to fog server!");
+                            log(MOD_NAME, exp.Message);
+                            log(MOD_NAME, exp.StackTrace);
+                            log(MOD_NAME, "Sleeping for 1 minute.");
+                            try
                             {
-                                return true;
+                                System.Threading.Thread.Sleep(60000);
                             }
-                            else if (strData.StartsWith("#!im", true, null))
-                            {
-                                log(MOD_NAME, "Invalid MAC address format for " + strMAC);
-                            }
-                            else if (strData.StartsWith("#!er", true, null))
-                            {
-                                log(MOD_NAME, "General error for " + strMAC);
-                            }
-                            else if (strData.StartsWith("#!nj", true, null))
-                            {
-                                log(MOD_NAME, "No job exists for " + strMAC);
-                            }
-                            else if (strData.StartsWith("#!db", true, null))
-                            {
-                                log(MOD_NAME, "Database error for " + strMAC);
-                            }
+                            catch { }
+                        }
+                    }
+
+                    strDta = strDta.Trim();
+                    Boolean blLoop = false;
+                    if (strDta.StartsWith("#!ok", true, null))
+                    {
+                        log(MOD_NAME, "Module is active...");
+                        blLoop = true;
+
+                    }
+                    else if (strDta.StartsWith("#!db", true, null))
+                    {
+                        log(MOD_NAME, "Database error.");
+                    }
+                    else if (strDta.StartsWith("#!im", true, null))
+                    {
+                        log(MOD_NAME, "Invalid MAC address format.");
+                    }
+                    else if (strDta.StartsWith("#!ng", true, null))
+                    {
+                        log(MOD_NAME, "Module is disabled globally on the FOG Server, exiting.");
+                        return false;
+                    }
+                    else if (strDta.StartsWith("#!nh", true, null))
+                    {
+                        log(MOD_NAME, "Module is disabled on this mac.");
+                    }
+                    else if (strDta.StartsWith("#!um", true, null))
+                    {
+                        log(MOD_NAME, "Unknown Module ID passed to server.");
+                    }
+                    else if (strDta.StartsWith("#!er", true, null))
+                    {
+                        log(MOD_NAME, "General Error Returned: ");
+                        log(MOD_NAME, strDta);
+                    }
+                    else
+                    {
+                        log(MOD_NAME, "Unknown error, module will exit.");
+                    }
+
+                    WebClient web = new WebClient();
+                    String strData = null;
+
+                    if (blLoop)
+                    {
+                        try
+                        {
+                            log(MOD_NAME, "Attempting to connect to fog server...");
+                            web = new WebClient();
+                            strData = web.DownloadString(url + macList);
+                            blConnectOK = true;
+                        }
+                        catch (Exception exp)
+                        {
+                            log(MOD_NAME, "Failed to connect to fog server!");
+                            log(MOD_NAME, exp.Message);
+                            log(MOD_NAME, exp.StackTrace);
+                        }
+                    }
+
+                    if (strData != null)
+                    {
+                        strData = strData.Trim();
+                        //*  "#!db" => Database error
+                        //*  "#!im" => Invalid MAC Format
+                        //*  "#!er" => Other error.
+                        //*  "#!ok" => Job Exists -> GO!
+                        //*  "#!nj" => No Job Exists
+
+                        if (strData.StartsWith("#!OK", true, null))
+                        {
+                            return true;
+                        }
+                        else if (strData.StartsWith("#!im", true, null))
+                        {
+                            log(MOD_NAME, "Invalid MAC address format for " + macList);
+                        }
+                        else if (strData.StartsWith("#!er", true, null))
+                        {
+                            log(MOD_NAME, "General error for " + macList);
+                        }
+                        else if (strData.StartsWith("#!nj", true, null))
+                        {
+                            log(MOD_NAME, "No job exists for " + macList);
+                        }
+                        else if (strData.StartsWith("#!db", true, null))
+                        {
+                            log(MOD_NAME, "Database error for " + macList);
+                        }
+                        else if (strDta.StartsWith("#!er", true, null))
+                        {
+                            log(MOD_NAME, "General Error Returned: ");
+                            log(MOD_NAME, strDta);
                         }
                     }
                 }
                 else
-                    log(MOD_NAME, "No MAC address found.");
+                    log(MOD_NAME, "No valid MAC addresses found!");
             }
             catch (Exception e)
             {
@@ -166,7 +270,11 @@ namespace FOG
                             try
                             {
                                 Thread.Sleep(30000);
-                                restartComputer();
+                                // I give up on managed code!
+                                //restartComputer();
+
+                                unmanagedExitWindows(ExitWindows.Reboot | ExitWindows.Force);
+
                             }
                             catch { }
                         }

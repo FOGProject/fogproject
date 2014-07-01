@@ -1,0 +1,4 @@
+#!ipxe
+sync --timeout 500
+dhcp || reboot
+chain default.ipxe || exit

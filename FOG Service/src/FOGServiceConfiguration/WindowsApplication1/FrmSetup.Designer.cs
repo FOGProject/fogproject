@@ -118,7 +118,8 @@ namespace FOG
             this.lblIPMessage.Name = "lblIPMessage";
             this.lblIPMessage.Size = new System.Drawing.Size(647, 25);
             this.lblIPMessage.TabIndex = 0;
-            this.lblIPMessage.Text = "What is the IP address or host name of the FOG Web Server?";
+            this.lblIPMessage.Text = "What is the IP address or host name of the FOG Web Server? (Blank for default \"fo" +
+                "gserver\")";
             // 
             // pnlDone
             // 

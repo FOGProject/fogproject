@@ -16,8 +16,10 @@
                        \/__/         \/__/   
        
 ==================================================
-          * FOG Imaging Solution
+          * FOG Computer Cloning Solution
+            (http://www.fogproject.org)         
           * Written by:
                  Chuck Syperski
                  Jian Zhang
-                 
+                 Tom Elliott
+

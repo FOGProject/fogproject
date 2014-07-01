@@ -1,107 +1,42 @@
 <?php
-/*
- *  FOG  is a computer imaging solution.
- *  Copyright (C) 2007  Chuck Syperski & Jian Zhang
- *
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
-@error_reporting(0);
-require_once( "../commons/config.php" );
-require_once( "../commons/functions.include.php" );
-
-/*
- *  Possible return codes
- *  "#!db" => Database error
- *  "#!im" => Invalid MAC Format
- *  "#!er" => Other error.
- *  "#!np" => No Printers found.
- *  "#!mg=x" => management level = x where x is 0, 1, or 2
- *
- */
-
-
-if ( isset($_GET["mac"] ) )
+require_once('../commons/base.inc.php');
+try
 {
-	$conn = @mysql_connect( MYSQL_HOST, MYSQL_USERNAME, MYSQL_PASSWORD);
-	if ( $conn )
+	$HostManager = new HostManager();
+	$MACs = HostManager::parseMacList($_REQUEST['mac']);
+	if (!$MACs)
+		throw new Exception('#!im');
+	// Get the Host
+	$Host = $HostManager->getHostByMacAddresses($MACs);
+	if (!$Host->isValid())
+		throw new Exception('#ih');
+	// get and eval level
+	// ???? three separate levels of enabling/disabling ????
+	$level = $Host->get('printerLevel');
+	if (empty($level) || $level == 0 || $level > 2)
+		$level = 0;
+	print base64_encode('#!mg='.$level)."\n";
+	if ($level > 0)
 	{
-		if ( ! @mysql_select_db( MYSQL_DATABASE, $conn ) ) die( "#!db" );
-		
-		$mac = mysql_real_escape_string( strtolower($_GET["mac"]) );
-
-		if ( isValidMACAddress( $mac ) )
+		// Get all the printers set for this host.
+		$Printers = $FOGCore->getClass('PrinterAssociationManager')->find(array('hostID' => $Host->get('id')));
+		foreach ($Printers AS $Printer)
 		{
-			$hostid = mysql_real_escape_string(getHostID( $conn, $mac ));
-			$level = null;
-			if ( $hostid !== null && is_numeric( $hostid ) )
-			{
-				$sql = "SELECT 
-						hostPrinterLevel
-					FROM
-						hosts
-					WHERE
-						hostID = '$hostid'";
-				$res = mysql_query( $sql, $conn ) or die( "#!db" );
-				while( $ar = mysql_fetch_array( $res ) )
-				{
-					$level = $ar["hostPrinterLevel"];
-				}
-				
-				if ( $level == null )
-					$level = "0";
-			
-				if ($level != null)
-				{
-					echo ( base64_encode("#!mg=" . $level ) . "\n" );
-					
-					if ( $level > 0 )
-					{
-						$sql = "SELECT 
-						 		* 
-						 	FROM 
-								printerAssoc
-								inner join printers on ( printerAssoc.paPrinterID = printers.pID )
-							WHERE
-								paHostID = '$hostid'";	
-								
-								
-						$res = @mysql_query( $sql, $conn ) or die(base64_encode("#!db"));
-						if ( mysql_num_rows( $res ) > 0 )
-						{						
-							while( $ar = mysql_fetch_array( $res ) )
-							{
-								echo base64_encode($ar["pPort"] . "|" .$ar["pDefFile"] . "|" .$ar["pModel"] . "|".$ar["pAlias"] . "|".$ar["pIP"] . "|" .$ar["paIsDefault"]);
-								echo ( "\n" );
-							}						
-						}
-					}
-				}
-			}
-			else
-			{
-				echo base64_encode("#!er");
-			}
-	
+			$Printers[] = new Printer($Printer->get('printerID'));
 		}
-		else
-			echo base64_encode("#!im");
+		foreach ($Printers AS $Printer)
+		{
+			// Send the printer based on the type.
+			if ($Printer->get('type') == 'Network')
+				print base64_encode('|||'.$Printer->get('name').'||'.($Host->getDefault($Printer->get('id'))?'1':'0'))."\n";
+			else if ($Printer->get('type') == 'iPrint')
+				print base64_encode($Printer->get('port').'|||'.$Printer->get('name').'||'.($Host->getDefault($Printer->get('id'))?'1':'0'))."\n";
+			else
+				print base64_encode($Printer->get('port').'|'.$Printer->get('file').'|'.$Printer->get('model').'|'.$Printer->get('name').'|'.$Printer->get('ip').'|'.($Host->getDefault($Printer->get('id'))?'1':'0'))."\n";
+		}
 	}
-	else
-		echo base64_encode("#!db") ;
 }
-else
-	echo base64_encode("#!im");
-?>
+catch(Exception $e)
+{
+	print base64_encode('#!er:'.$e->getMessage());
+}
