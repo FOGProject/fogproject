@@ -1,0 +1,14 @@
+#!/usr/bin/php -q
+<?php
+@error_reporting( 0 );
+require_once( dirname(realpath(__FILE__)) . "/../etc/config.php" );
+require_once( WEBROOT . "/commons/base.inc.php" );
+$IR = new ImageReplicator();
+$IR->serviceStart();
+while( true )
+{
+	$IR = new ImageReplicator();
+	$IR->serviceRun();
+	sleep( REPLICATORSLEEPTIME );
+}
+$IR->outall(sprintf(" * Service has ended."));

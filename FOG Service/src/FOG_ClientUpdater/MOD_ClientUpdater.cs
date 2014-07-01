@@ -33,6 +33,7 @@ namespace FOG
         private int intStatus;
         private String strURL;
         private String strRoot;
+        private String strURLModuleStatus;
 
         private const String MOD_NAME = "FOG::ClientUpdater";
 
@@ -51,7 +52,19 @@ namespace FOG
                     String strURLPostfix = ini.readSetting("updater", "urlpostfix");
                     strRoot = ini.readSetting("fog_service", "root");
                     String ip = ini.readSetting("fog_service", "ipaddress");
- 
+
+                    if (ip == null || ip.Trim().Length == 0)
+                        ip = "fogserver";
+
+                    String strPreMS = ini.readSetting("fog_service", "urlprefix");
+                    String strPostMS = ini.readSetting("fog_service", "urlpostfix");
+                    if (ip != null && strPreMS != null && strPostMS != null)
+                        strURLModuleStatus = strPreMS + ip + strPostMS;
+                    else
+                    {
+                        return false;
+                    }
+
                     if ( strRoot != null && ip != null && ip.Length > 0 && strURLPrefix != null && strURLPostfix != null )
                     {
 
@@ -183,13 +196,36 @@ namespace FOG
                     
                     String strData = "-1";
                     String strLocalHash = "";
-                    WebClient webClient = new WebClient();
+                    
                     String strFileNameBase64 = encodeTo64(fleInfo.Name);
                     
                     strLocalHash = getFileHash(localFile); 
-                    String strPathCheckin = strURL + "?action=ask&file=" + strFileNameBase64;                        
-                    strData = webClient.DownloadString(strPathCheckin);
-                   
+                    String strPathCheckin = strURL + "?action=ask&file=" + strFileNameBase64;
+                    Boolean blConnectOK = false;
+                    WebClient webClient = null;
+
+                    while (!blConnectOK)
+                    {
+                        try
+                        {
+                            webClient = new WebClient();
+                            strData = webClient.DownloadString(strPathCheckin);
+                            blConnectOK = true;
+                        }
+                        catch (Exception exp)
+                        {
+                            log(MOD_NAME, "Failed to connect to fog server!");
+                            log(MOD_NAME, exp.Message);
+                            log(MOD_NAME, exp.StackTrace);
+                            log(MOD_NAME, "Sleeping for 1 minute.");
+                            try
+                            {
+                                System.Threading.Thread.Sleep(60000);
+                            }
+                            catch { }
+                        }
+                    }
+
                     if (strData != null && strData.Length > 0)
                     {
                             if (strData == "#!nf")
@@ -279,88 +315,165 @@ namespace FOG
 
                 try
                 {
-                    String[] files = Directory.GetFiles( strRoot );
-
-                    if (files != null && files.Length > 0)
+                    ArrayList alMACs = getMacAddress();
+                    String macList = null;
+                    if (alMACs != null && alMACs.Count > 0)
                     {
-                        for (int i = 0; i < files.Length; i++)
+                        String[] strMacs = (String[])alMACs.ToArray(typeof(String));
+                        macList = String.Join("|", strMacs);
+                    }
+
+                    if (macList != null && macList.Length > 0)
+                    {
+                        Boolean blConnectOK = false;
+                        String strDta = "";
+                        while (!blConnectOK)
                         {
-                            if (files[i] != null)
+                            try
                             {
-                                if (files[i].EndsWith(".dll"))
+                                log(MOD_NAME, "Attempting to connect to fog server...");
+                                WebClient wc = new WebClient();
+                                String strPath = strURLModuleStatus + "?mac=" + macList + "&moduleid=clientupdater";
+                                strDta = wc.DownloadString(strPath);
+                                blConnectOK = true;
+                            }
+                            catch (Exception exp)
+                            {
+                                log(MOD_NAME, "Failed to connect to fog server!");
+                                log(MOD_NAME, exp.Message);
+                                log(MOD_NAME, exp.StackTrace);
+                                log(MOD_NAME, "Sleeping for 1 minute.");
+                                try
                                 {
-                                    try
+                                    System.Threading.Thread.Sleep(60000);
+                                }
+                                catch { }
+                            }
+                        }
+
+                        strDta = strDta.Trim();
+                        Boolean blLoop = false;
+                        if (strDta.StartsWith("#!ok", true, null))
+                        {
+                            log(MOD_NAME, "Module is active...");
+                            blLoop = true;
+
+                        }
+                        else if (strDta.StartsWith("#!db", true, null))
+                        {
+                            log(MOD_NAME, "Database error.");
+                        }
+                        else if (strDta.StartsWith("#!im", true, null))
+                        {
+                            log(MOD_NAME, "Invalid MAC address format.");
+                        }
+                        else if (strDta.StartsWith("#!ng", true, null))
+                        {
+                            log(MOD_NAME, "Module is disabled globally on the FOG Server, exiting.");
+                            return;
+                        }
+                        else if (strDta.StartsWith("#!nh", true, null))
+                        {
+                            log(MOD_NAME, "Module is disabled on this mac.");
+                        }
+                        else if (strDta.StartsWith("#!um", true, null))
+                        {
+                            log(MOD_NAME, "Unknown Module ID passed to server.");
+                        }
+                        else
+                        {
+                            log(MOD_NAME, "Unknown error, module will exit.");
+                        }
+
+                        if (blLoop)
+                        {
+                            String[] files = Directory.GetFiles(strRoot);
+                            if (files != null && files.Length > 0)
+                            {
+                                for (int i = 0; i < files.Length; i++)
+                                {
+                                    if (files[i] != null)
                                     {
-                                        byte[] buffer = File.ReadAllBytes(files[i]);
-                                        Assembly assemb = Assembly.Load(buffer);
-                                        if (assemb != null)
+                                        if (files[i].EndsWith(".dll"))
                                         {
-                                            Type[] type = assemb.GetTypes();
-                                            for (int z = 0; z < type.Length; z++)
+                                            try
                                             {
-                                                Object module = Activator.CreateInstance(type[z]);
-                                                Assembly abstractA = Assembly.LoadFrom(strRoot + @"\" + @"AbstractFOGService.dll");
-                                                Type t = abstractA.GetTypes()[0];
-                                                if (module.GetType().IsSubclassOf(t))
+                                                byte[] buffer = File.ReadAllBytes(files[i]);
+                                                Assembly assemb = Assembly.Load(buffer);
+                                                if (assemb != null)
                                                 {
-                                                    downloadAndDeploy(files[i]);
-                                                    t = null;
-                                                    abstractA = null;
-                                                    module = null;
+                                                    Type[] type = assemb.GetTypes();
+                                                    for (int z = 0; z < type.Length; z++)
+                                                    {
+                                                        Object module = Activator.CreateInstance(type[z]);
+                                                        Assembly abstractA = Assembly.LoadFrom(strRoot + @"\" + @"AbstractFOGService.dll");
+                                                        Type t = abstractA.GetTypes()[0];
+                                                        if (module.GetType().IsSubclassOf(t))
+                                                        {
+                                                            downloadAndDeploy(files[i]);
+                                                            t = null;
+                                                            abstractA = null;
+                                                            module = null;
+                                                        }
+                                                    }
                                                 }
+                                            }
+                                            catch
+                                            {
                                             }
                                         }
                                     }
-                                    catch
-                                    {
-                                    }
                                 }
-                            }
-                        }
 
-                        // check if the config file needs an update
-                        String strConfig = strRoot + @"\etc\config.ini";
-                        downloadAndDeploy(strConfig);
+                                // check if the config file needs an update
+                                String strConfig = strRoot + @"\etc\config.ini";
+                                downloadAndDeploy(strConfig);
 
-                        // check for new modules posted
-                        String[] arModules = getAllPublishedModules();
-                        ArrayList alNewMods = new ArrayList();
+                                // check for new modules posted
+                                String[] arModules = getAllPublishedModules();
+                                ArrayList alNewMods = new ArrayList();
 
-                        
-                        if (arModules != null)
-                        {
-                            for (int i = 0; i < arModules.Length; i++)
-                            {
-                                Boolean blExists = false;
-                                for (int z = 0; z < files.Length; z++)
+
+                                if (arModules != null)
                                 {
-                                    FileInfo fInfo = new FileInfo(files[z]);
-                                    if (fInfo != null)
+                                    for (int i = 0; i < arModules.Length; i++)
                                     {
-                                        if (fInfo.Name.ToLower() == arModules[i].ToLower())
+                                        Boolean blExists = false;
+                                        for (int z = 0; z < files.Length; z++)
                                         {
-                                            blExists = true;
-                                            break;
+                                            FileInfo fInfo = new FileInfo(files[z]);
+                                            if (fInfo != null)
+                                            {
+                                                if (fInfo.Name.ToLower() == arModules[i].ToLower())
+                                                {
+                                                    blExists = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        if (!blExists)
+                                        {
+                                            alNewMods.Add(arModules[i]);
                                         }
                                     }
                                 }
 
-                                if (!blExists)
+                                // download and install new files
+                                String[] arNewFiles = (String[])alNewMods.ToArray(typeof(String));
+                                log(MOD_NAME, arNewFiles.Length + " new modules found!");
+                                for (int i = 0; i < arNewFiles.Length; i++)
                                 {
-                                    alNewMods.Add(arModules[i]);
+                                    downloadAndDeploy(strRoot + @"\" + arNewFiles[i]);
                                 }
-                            }
-                        }
 
-                        // download and install new files
-                        String[] arNewFiles = (String[])alNewMods.ToArray(typeof(String));
-                        log(MOD_NAME, arNewFiles.Length + " new modules found!");
-                        for (int i = 0; i < arNewFiles.Length; i++)
-                        {
-                            downloadAndDeploy(strRoot + @"\" + arNewFiles[i]);
+                            }
+                            else
+                                log(MOD_NAME, "No files found to update.");
                         }
-                        
                     }
+                    else
+                        log(MOD_NAME, "No valid mac address(es) found for this host.");
                 }
                 catch (Exception e)
                 {

@@ -31,11 +31,12 @@ namespace FOG
         private int intStatus;
         
         private String strURLPath;
+        private String strURLModuleStatus;
         private String strVarData;
         private Boolean blGo;
 
         private const String MOD_NAME = "FOG::UserTracker";
-        private const int SLEEP = 750;
+        private const int SLEEP = 5000;
 
         public UserTracker()
         {
@@ -52,6 +53,19 @@ namespace FOG
                     String pre = ini.readSetting("usertracker", "urlprefix");
                     String post = ini.readSetting("usertracker", "urlpostfix");
                     String ip = ini.readSetting("fog_service", "ipaddress");
+
+                    if (ip == null || ip.Trim().Length == 0)
+                        ip = "fogserver";
+
+                    String strPreMS = ini.readSetting("fog_service", "urlprefix");
+                    String strPostMS = ini.readSetting("fog_service", "urlpostfix");
+                    if (ip != null && strPreMS != null && strPostMS != null)
+                        strURLModuleStatus = strPreMS + ip + strPostMS;
+                    else
+                    {
+                        return false;
+                    }
+
                     strVarData = ini.readSetting("fog_service", "var");
                     if (strVarData != null && strVarData.Length > 0 && ip != null && ip.Length > 0 && pre != null && pre.Length > 0 && post != null && post.Length > 0)
                     {
@@ -107,6 +121,13 @@ namespace FOG
             }
         }
 
+        private String prepMacString(string maclist)
+        {
+            if (maclist != null)
+                return maclist.Replace('|', '@');
+            return null;
+        }
+
         private String sendMessage(String action, String mac, String user, String date)
         {
             try
@@ -141,7 +162,7 @@ namespace FOG
                     String d = getMySqlDateTime();
                     if (date != null)
                         d = date;
-                    String output = action + "|" + mac + "|" + user + "|" + d;
+                    String output = action + "|" + prepMacString( mac ) + "|" + user + "|" + d;
                     TextWriter txt = new StreamWriter(strVarData + @"\journal.dat", true);
                     txt.WriteLine(encodeTo64(output));
                     txt.Close();
@@ -236,6 +257,8 @@ namespace FOG
                         String[] arReal = strReal.Split(new char[] {'|'});
                         if (arReal.Length == 4)
                         {
+                            if (arReal[1] != null)
+                                arReal[1] = arReal[1].Replace('@', '|');
                             journal[intCurLine] = new JournalEntry(arReal[0], arReal[1], arReal[2], arReal[3]);
                         }
                         else
@@ -368,21 +391,11 @@ namespace FOG
                 log(MOD_NAME, "Starting user tracking process...");
                 ArrayList alMACs = getMacAddress();
 
-                // we use the first mac we find
-                String strMAC = null;
-
-                if (alMACs != null)
+                String macList = null;
+                if (alMACs != null && alMACs.Count > 0)
                 {
-                    if (alMACs.Count > 0)
-                    {
-                        for (int i = 0; i < alMACs.Count; i++)
-                        {
-                            if (alMACs[i] != null)
-                            {
-                                strMAC = (String)(alMACs[i]);
-                            }
-                        }
-                    }
+                    String[] strMacs = (String[])alMACs.ToArray(typeof(String));
+                    macList = String.Join("|", strMacs);
                 }
 
                 try
@@ -392,85 +405,152 @@ namespace FOG
                     Boolean blIsLoggedIn = isLoggedIn();
                     String strUser = getUserName();
 
-                    if (strMAC != null)
+                    if (macList != null)
                     {
-                        // attempt to reply journal on startup
-                        replayJournal();
-
-                        // alert server of service startup
-
-                        String strDataStart = sendMessage("START", strMAC, strUser, null);
-                        if (strDataStart == null)
-                            writeJournal("START", strMAC, strUser, null);
-                        
-
-                        while (blGo)
+                        Boolean blConnectOK = false;
+                        String strDta = "";
+                        while (!blConnectOK)
                         {
                             try
                             {
-                                Random r = new Random();
-                                if (r.Next(1, 10000) == 1776)
-                                {
-                                    replayJournal();
-                                }
-
-                                String tmpUser = getUserName();
-                                Boolean blNewLoggedIn = isLoggedIn();
-
-                                Boolean blStateChange = (blIsLoggedIn != blNewLoggedIn);
-
-                                if ( blStateChange )
-                                {
-                                    String action = "";
-                                    String user = "";
-                                    if (blNewLoggedIn)
-                                    {
-                                        action = "LOGIN";
-                                        user = tmpUser;
-                                    }
-                                    else
-                                    {
-                                        action = "LOGOUT";
-                                        user = strUser;
-                                    }
-
-
-                                    log(MOD_NAME, "Event: " + action + " for " + user);
-
-                                    String strData = sendMessage(action, strMAC, user, null);
-                                    if (strData != null)
-                                    {
-                                        strData = strData.Trim();
-                                        processServerResponse(strData);
-
-                                        // If last response was OK and the used has logged in attempt to replay journal
-                                        if (strData.StartsWith("#!ok") && isLoggedIn() )
-                                            replayJournal();
-                                    }
-                                    else
-                                    {
-                                        // write journal entry
-                                        writeJournal(action, strMAC, user, null);
-                                    }
-                                        
-                                    sleep(10);
-                                    blIsLoggedIn = blNewLoggedIn;
-
-                                    if (!blIsLoggedIn)
-                                        strUser = null;
-                                    else
-                                        strUser = tmpUser;
-                                }
+                                log(MOD_NAME, "Attempting to connect to fog server...");
+                                WebClient wc = new WebClient();
+                                String strPath = strURLModuleStatus + "?mac=" + macList + "&moduleid=usertracker";
+                                strDta = wc.DownloadString(strPath);
+                                blConnectOK = true;
                             }
                             catch (Exception exp)
                             {
+                                log(MOD_NAME, "Failed to connect to fog server!");
                                 log(MOD_NAME, exp.Message);
                                 log(MOD_NAME, exp.StackTrace);
+                                log(MOD_NAME, "Sleeping for 1 minute.");
+                                try
+                                {
+                                    System.Threading.Thread.Sleep(60000);
+                                }
+                                catch { }
                             }
+                        }
+
+                        strDta = strDta.Trim();
+                        Boolean blLoop = false;
+                        if (strDta.StartsWith("#!ok", true, null))
+                        {
+                            log(MOD_NAME, "Module is active...");
+                            blLoop = true;
+
+                        }
+                        else if (strDta.StartsWith("#!db", true, null))
+                        {
+                            log(MOD_NAME, "Database error.");
+                        }
+                        else if (strDta.StartsWith("#!im", true, null))
+                        {
+                            log(MOD_NAME, "Invalid MAC address format.");
+                        }
+                        else if (strDta.StartsWith("#!ng", true, null))
+                        {
+                            log(MOD_NAME, "Module is disabled globally on the FOG Server, exiting.");
+                            return;
+                        }
+                        else if (strDta.StartsWith("#!nh", true, null))
+                        {
+                            log(MOD_NAME, "Module is disabled on this mac.");
+                        }
+                        else if (strDta.StartsWith("#!um", true, null))
+                        {
+                            log(MOD_NAME, "Unknown Module ID passed to server.");
+                        }
+                        else
+                        {
+                            log(MOD_NAME, "Unknown error, module will exit.");
+                        }
+
+                        if ( blLoop )
+                        {
+
+                            // attempt to reply journal on startup
+                            replayJournal();
+
+                            // alert server of service startup
+
+                            String strDataStart = sendMessage("START", macList, strUser, null);
+                            if (strDataStart == null)
+                                writeJournal("START", macList, strUser, null);
+                            
+
+                            while (blGo)
+                            {
+                                try
+                                {
+                                    Random r = new Random();
+                                    if (r.Next(1, 120) == 50)
+                                        replayJournal();
+
+                                    String tmpUser = "";
+                                    Boolean blNewLoggedIn = isLoggedIn();
+                                    if (blNewLoggedIn)
+                                        tmpUser = getUserName();
+
+                                    Boolean blStateChange = (blIsLoggedIn != blNewLoggedIn);
+
+                                    if ( blStateChange  && ( ( blNewLoggedIn &&  tmpUser != null && tmpUser.Length > 0) || ! blNewLoggedIn))
+                                    {
+                                        String action = "";
+                                        String user = "";
+                                        if (blNewLoggedIn)
+                                        {
+                                            action = "LOGIN";
+                                            user = tmpUser;
+                                        }
+                                        else
+                                        {
+                                            action = "LOGOUT";
+                                            user = strUser;
+                                        }
 
 
-                            sleep(SLEEP);
+                                        log(MOD_NAME, "Event: " + action + " for " + user);
 
+                                        String strData = sendMessage(action, macList, user, null);
+                                        if (strData != null)
+                                        {
+                                            strData = strData.Trim();
+                                            processServerResponse(strData);
+
+                                            // If last response was OK and the used has logged in attempt to replay journal
+                                            if (strData.StartsWith("#!ok"))
+                                            {
+                                                if ( isLoggedIn() )
+                                                    replayJournal();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // write journal entry
+                                            writeJournal(action, macList, user, null);
+                                        }
+                                            
+                                        sleep(10);
+                                        blIsLoggedIn = blNewLoggedIn;
+
+                                        if (!blIsLoggedIn)
+                                            strUser = null;
+                                        else
+                                            strUser = tmpUser;
+                                    }
+                                }
+                                catch (Exception exp)
+                                {
+                                    log(MOD_NAME, exp.Message);
+                                    log(MOD_NAME, exp.StackTrace);
+                                }
+
+
+                                sleep(SLEEP);
+
+                            }
                         }
                     }
                     else

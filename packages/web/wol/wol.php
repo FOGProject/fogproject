@@ -1,12 +1,15 @@
 <?php
-require_once( "../commons/config.php" );
-require_once( "../commons/functions.include.php" );
-
-$mac = $_GET["wakeonlan"];
-if ( isValidMACAddress( $mac ) )
+// Require FOG Base
+require('../commons/base.inc.php');
+try
 {
-	$output;
-	$ret = "";
-	exec ( "sudo /sbin/ether-wake -i " . WOL_INTERFACE . " " . $mac, $output, $ret );
+	$MACAddress = new MACAddress($_REQUEST['wakeonlan']);
+	if ($MACAddress->isValid())
+	{
+		$wol = new WakeOnLan($MACAddress->getMACWithColon());
+		$wol->send();
+	}
+	else
+		throw new Exception(_('Invalid MAC Address!'));
 }
-?>
+catch (Exception $e){print $e->getMessage();}

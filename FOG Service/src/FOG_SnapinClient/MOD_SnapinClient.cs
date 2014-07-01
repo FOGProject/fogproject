@@ -30,6 +30,7 @@ namespace FOG
 
         private int intStatus, intPause;
         private String strURLPathCheckin, strURLPathDownload;
+        private String strURLModuleStatus;
         private Boolean blGo;
 
         private const String MOD_NAME = "FOG::SnapinClient";
@@ -54,6 +55,20 @@ namespace FOG
                     String postDL = ini.readSetting("snapinclient", "downloadurlpostfix");
 
                     String ip = ini.readSetting("fog_service", "ipaddress");
+
+                    if (ip == null || ip.Trim().Length == 0)
+                        ip = "fogserver";
+
+                    // get the module status URL 
+                    String strPreMS = ini.readSetting("fog_service", "urlprefix");
+                    String strPostMS = ini.readSetting("fog_service", "urlpostfix");
+                    if (ip != null && strPreMS != null && strPostMS != null)
+                        strURLModuleStatus = strPreMS + ip + strPostMS;
+                    else
+                    {
+                        return false;
+                    }
+
                     try
                     {
                         intPause = Int32.Parse( ini.readSetting("snapinclient", "checkintime").Trim() );
@@ -111,12 +126,13 @@ namespace FOG
                 try
                 {
                     Random r = new Random();
-                    int intSleep = r.Next(10, 30);
+                    //int intSleep = r.Next(350, 500);	// 0.32
+                    int intSleep = r.Next(30, 60);	// 0.33
+                    
                     log(MOD_NAME, "Sleeping for " + intSleep + " seconds.");
                     System.Threading.Thread.Sleep(intSleep * 1000);
                 }
                 catch{}
-
 
                 while (blGo)
                 {
@@ -124,25 +140,94 @@ namespace FOG
                     // to make sure we get all intended snapins
                     Boolean blInstalled = false;
 
-                    if (alMACs != null)
+                    String macList = null;
+                    if (alMACs != null && alMACs.Count > 0)
                     {
-                        for (int i = 0; i < alMACs.Count; i++)
+                        String[] strMacs = (String[])alMACs.ToArray(typeof(String));
+                        macList = String.Join("|", strMacs);
+                    }
+
+                    if (macList != null && macList.Length > 0)
+                    {
+                        try
                         {
-                            try
-                            {
-
-                                if (alMACs[i] != null)
+                            Boolean blConnectOK = false;
+                                String strDta = "";
+                                while (!blConnectOK)
                                 {
+                                    try
+                                    {
+                                        log(MOD_NAME, "Attempting to connect to fog server...");
+                                        WebClient wc = new WebClient();
+                                        String strPath = strURLModuleStatus + "?mac=" + macList + "&moduleid=snapin";
+                                        strDta = wc.DownloadString(strPath);
+                                        blConnectOK = true;
+                                    }
+                                    catch (Exception exp)
+                                    {
+                                        log(MOD_NAME, "Failed to connect to fog server!");
+                                        log(MOD_NAME, exp.Message);
+                                        log(MOD_NAME, exp.StackTrace);
+                                        log(MOD_NAME, "Sleeping for 1 minute.");
+                                        try
+                                        {
+                                            System.Threading.Thread.Sleep(60000);
+                                        }
+                                        catch { }
+                                    }
+                                }
 
-                                    String strMACAddress = (String)alMACs[i];
+                                strDta = strDta.Trim();
+                                Boolean blLoop = false;
+
+                                if (strDta.StartsWith("#!ok", true, null))
+                                {
+                                    log(MOD_NAME, "Module is active...");
+                                    blLoop = true;
+                                }
+                                else if (strDta.StartsWith("#!db", true, null))
+                                {
+                                    log(MOD_NAME, "Database error.");
+                                }
+                                else if (strDta.StartsWith("#!im", true, null))
+                                {
+                                    log(MOD_NAME, "Invalid MAC address format.");
+                                }
+                                else if (strDta.StartsWith("#!ng", true, null))
+                                {
+                                    log(MOD_NAME, "Module is disabled globally on the FOG Server, exiting.");
+                                    return;
+                                }
+                                else if (strDta.StartsWith("#!nh", true, null))
+                                {
+                                    log(MOD_NAME, "Module is disabled on this host.");
+                                }
+                                else if (strDta.StartsWith("#!um", true, null))
+                                {
+                                    log(MOD_NAME, "Unknown Module ID passed to server.");
+                                }
+                                else if (strDta.StartsWith("#!er", true, null))
+                                {
+                                    log(MOD_NAME, "General Error Returned: ");
+                                    log(MOD_NAME, strDta);
+                                }
+                                else
+                                {
+                                    log(MOD_NAME, "Unknown error, module will exit.");
+                                }
+
+
+                                if (blLoop)
+                                {
                                     WebClient web = new WebClient();
-                                    String strPathCheckin = strURLPathCheckin + "?mac=" + strMACAddress;
+                                    String strPathCheckin = strURLPathCheckin + "?mac=" + macList;
                                     String strData = web.DownloadString(strPathCheckin);
                                     if (strData != null)
                                     {
                                         String[] arData = strData.Split('\n');
                                         String strAction = arData[0];
                                         strAction = strAction.Trim();
+
                                         if (strAction.StartsWith("#!db"))
                                         {
                                             log(MOD_NAME, "Unable to determine snapin status due to a database error.");
@@ -154,6 +239,7 @@ namespace FOG
                                         else if (strAction.StartsWith("#!er"))
                                         {
                                             log(MOD_NAME, "Unable to determine snapin status due to an unknown error.");
+                                            log(MOD_NAME, "Maybe MAC isn't registered: " + macList);
                                         }
                                         else if (strAction.StartsWith("#!it"))
                                         {
@@ -161,19 +247,36 @@ namespace FOG
                                         }
                                         else if (strAction.StartsWith("#!ns"))
                                         {
-                                            // ok, not tasks found
+                                            // ok, no tasks found
+                                            log(MOD_NAME, "No Tasks found for: " + macList);
                                         }
                                         else if (strAction.StartsWith("#!ok"))
                                         {
                                             // task exists load meta data, then download file.
-                                            if (arData.Length == 7)
+
+                                            if (arData.Length == 9)
                                             {
+
                                                 String strTaskID = arData[1];
                                                 String strCreated = arData[2];
                                                 String strSnapinName = arData[3];
                                                 String strArgs = arData[4];
                                                 String strRestart = arData[5];
                                                 String strFileName = arData[6];
+                                                String strRunWith = arData[7];
+                                                String strRunWithArgs = arData[8];
+
+                                                if (strRunWith != null)
+                                                {
+                                                    strRunWith = strRunWith.Trim();
+                                                    if (strRunWith.StartsWith("SNAPINRUNWITH=")) strRunWith = strRunWith.Replace("SNAPINRUNWITH=", "");
+                                                }
+
+                                                if (strRunWithArgs != null)
+                                                {
+                                                    strRunWithArgs = strRunWithArgs.Trim();
+                                                    if (strRunWithArgs.StartsWith("SNAPINRUNWITHARGS=")) strRunWithArgs = strRunWithArgs.Replace("SNAPINRUNWITHARGS=", "");
+                                                }
 
                                                 if (strTaskID != null)
                                                 {
@@ -207,10 +310,10 @@ namespace FOG
                                                     if (strRestart.StartsWith("SNAPINBOUNCE=")) strRestart = strRestart.Replace("SNAPINBOUNCE=", "");
                                                 }
 
-                                                if ( strFileName != null )
+                                                if (strFileName != null)
                                                 {
                                                     strFileName = strFileName.Trim();
-                                                    if ( strFileName.StartsWith("SNAPINFILENAME=") ) strFileName = strFileName.Replace("SNAPINFILENAME=", "" );
+                                                    if (strFileName.StartsWith("SNAPINFILENAME=")) strFileName = strFileName.Replace("SNAPINFILENAME=", "");
                                                 }
                                                 // check all the values we got back and make sure the make sense.
 
@@ -229,15 +332,17 @@ namespace FOG
                                                     continue;
                                                 }
 
-                                                if ( strFileName == null )
+                                                if (strFileName == null)
                                                     continue;
 
                                                 log(MOD_NAME, "Snapin Found: ");
                                                 log(MOD_NAME, "    ID: " + intTaskID);
+                                                log(MOD_NAME, "    RunWith: " + strRunWith);
+                                                log(MOD_NAME, "    RunWithArgs: " + strRunWithArgs);
                                                 log(MOD_NAME, "    Name: " + strSnapinName);
                                                 log(MOD_NAME, "    Created: " + strCreated);
                                                 log(MOD_NAME, "    Args: " + strArgs);
-                                                if ( blReboot )
+                                                if (blReboot)
                                                     log(MOD_NAME, "    Reboot: Yes");
                                                 else
                                                     log(MOD_NAME, "    Reboot: No");
@@ -248,12 +353,12 @@ namespace FOG
                                                 {
                                                     WebClient download = new WebClient();
                                                     String strLocalDir = AppDomain.CurrentDomain.BaseDirectory + @"tmp";
-                                                    if (! Directory.Exists(strLocalDir))
+                                                    if (!Directory.Exists(strLocalDir))
                                                     {
                                                         Directory.CreateDirectory(strLocalDir);
                                                     }
                                                     strLocalPath = strLocalDir + @"\" + strFileName;
-                                                    download.DownloadFile(strURLPathDownload + "?mac=" + strMACAddress + "&taskid=" + intTaskID, strLocalPath);
+                                                    download.DownloadFile(strURLPathDownload + "?mac=" + macList + "&taskid=" + intTaskID, strLocalPath);
                                                 }
                                                 catch (Exception exDl)
                                                 {
@@ -282,12 +387,50 @@ namespace FOG
                                                             p.StartInfo.CreateNoWindow = true;
                                                             p.StartInfo.UseShellExecute = false;
                                                             p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                                                            p.StartInfo.FileName = strLocalPath;
-                                                            p.StartInfo.Arguments = strArgs;
-                                                            p.Start();
-                                                            p.WaitForExit();
+                                                            if (strRunWith != null && strRunWith.Length > 0)
+                                                            {
+                                                                String args = "";
+                                                                if (strRunWithArgs != null && strRunWithArgs.Length > 0)
+                                                                {
+                                                                    args = " " + strRunWithArgs + " ";
+                                                                }
+                                                                p.StartInfo.FileName = strRunWith;
 
-                                                            log(MOD_NAME, "FOG Snapin Installtion complete.");
+                                                                p.StartInfo.Arguments = args + " \"" + strLocalPath + "\" " + strArgs;
+                                                            }
+                                                            else
+                                                            {
+                                                                p.StartInfo.FileName = strLocalPath;
+                                                                p.StartInfo.Arguments = strArgs;
+                                                            }
+
+                                                            try
+                                                            {
+                                                                p.Start();
+                                                                p.WaitForExit();
+                                                                log(MOD_NAME, "FOG Snapin Installtion complete.");
+
+                                                                String strReturnCode = p.ExitCode.ToString();
+                                                                log(MOD_NAME, "Installation returned with code: " + strReturnCode);
+                                                                String strURLReturn = strPathCheckin + "&taskid=" + strTaskID + "&exitcode=" + strReturnCode;
+                                                                WebClient w = new WebClient();
+                                                                w.DownloadString(strURLReturn);
+                                                            }
+                                                            catch (Exception exp)
+                                                            {
+                                                                log(MOD_NAME, exp.Message);
+                                                                log(MOD_NAME, exp.StackTrace);
+                                                                String strURLReturn = strPathCheckin + "&taskid=" + strTaskID + "&exitcode=-1&exitdesc=" + encodeTo64(exp.Message);
+                                                                try
+                                                                {
+                                                                    WebClient w = new WebClient();
+                                                                    web.DownloadString(strURLReturn);
+                                                                }
+                                                                catch { }
+                                                            }
+
+
+
                                                             String strRebootMsg = "";
                                                             if (blReboot)
                                                                 strRebootMsg = "  This computer will restart very soon, please save all data!";
@@ -318,7 +461,7 @@ namespace FOG
                                                         log(MOD_NAME, exFle.Message);
                                                         log(MOD_NAME, exFle.StackTrace);
                                                     }
-                                                    
+
 
                                                 }
                                                 else
@@ -334,14 +477,12 @@ namespace FOG
                                         }
                                     }
                                 }
-                            }
-                            catch (Exception e)
-                            {
-                                log(MOD_NAME, e.Message);
-                                log(MOD_NAME, e.StackTrace);
-                            }
                         }
-
+                        catch (Exception e)
+                        {
+                            log(MOD_NAME, e.Message);
+                            log(MOD_NAME, e.StackTrace);
+                        }
                     }
 
 
@@ -367,6 +508,19 @@ namespace FOG
             }
             intStatus = STATUS_TASKCOMPLETE;
             
+        }
+
+        private string encodeTo64(string strEncode)
+        {
+            try
+            {
+                byte[] b = System.Text.ASCIIEncoding.ASCII.GetBytes(strEncode);
+                return System.Convert.ToBase64String(b);
+            }
+            catch
+            {
+                return "";
+            }
         }
 
         public override Boolean mStop()

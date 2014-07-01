@@ -1,64 +1,34 @@
 <?php
-
-require_once( "../commons/config.php" );
-require_once( "../commons/functions.include.php" );
-
-$conn = mysql_connect( MYSQL_HOST, MYSQL_USERNAME, MYSQL_PASSWORD);
-if ( $conn )
+require('../commons/base.inc.php');
+try
 {
-	if ( ! mysql_select_db( MYSQL_DATABASE, $conn ) ) die( "Unable to select database" );
-}
-else
-{
-	die( "Unable to connect to Database" );
-}
-
-$mac = $_GET["mac"];
-
-if ( ! isValidMACAddress( $mac ) )
-{
-	die( "Invalid MAC address format!" );
-}
-
-if ( $mac != null  )
-{
-	
-	$hostid = getHostID( $conn, $mac );	
-	$jobid = getTaskIDByMac( $conn, $mac);
-
-	$ftp = ftp_connect(TFTP_HOST); 
-	$ftp_loginres = ftp_login($ftp, TFTP_FTP_USERNAME, TFTP_FTP_PASSWORD); 				
-	if ((!$ftp) || (!$ftp_loginres )) 
+	// Error checking
+	//MAC Address
+	$MACAddress = new MACAddress($_REQUEST['mac']);
+	if (!$MACAddress->isValid())
+		throw new Exception(_('Invalid MAC address'));
+	// Host for MAC Address
+	$Host = $MACAddress->getHost();
+	if (!$Host->isValid())
+		throw new Exception(_('Invalid Host'));
+	// Task for Host
+	$Task = current($Host->get('task'));
+	if (!$Task->isValid())
+		throw new Exception(sprintf('%s: %s (%s)',_('No Active Task found for Host'),$Host->get('name'),$MACAddress));
+	$Task->set('stateID',4);
+	if ($Task->save())
 	{
-  		echo "FTP connection has failed!";
- 		exit;
- 	}			
-
- 	$mac = str_replace( ":", "-", $mac );
-	if ( ftp_delete ( $ftp, TFTP_PXE_CONFIG_DIR . "01-". $mac ) )
-	{
-		if ( $jobid !== null )
-		{			
-			if ( checkOut( $conn, $jobid ) )
-			{			
-				echo "##";
-			}
-			else
-			{
-				echo "Error: Checkout Failed.";
-			}	
-		}
-		else
-		{
-			echo "Unable to locate job in database, please ensure that mac address is correct.";
-		}							
+		// Task Logging.
+		$TaskLog = new TaskLog($Task);
+		$TaskLog->set('taskID',$Task->get('id'))
+				->set('taskStateID',$Task->get('stateID'))
+				->set('createdTime',$Task->get('createdTime'))
+				->set('createdBy',$Task->get('createdBy'))
+				->save();
+		print '##';
 	}
-	else
-	{
-		echo "Error: Unable to remove TFTP file";
-	}
-	ftp_close($ftp); 
 }
-else
-	echo "Invalid MAC or FTP Address";
-?>
+catch (Exception $e)
+{
+	print $e->getMessage();
+}

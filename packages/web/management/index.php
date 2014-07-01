@@ -1,134 +1,135 @@
 <?php
-/*
- *  FOG - Free, Open-Source Ghost is a computer imaging solution.
- *  Copyright (C) 2007  Chuck Syperski & Jian Zhang
- *
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
-session_start();
-@error_reporting( 0 );
-
-require_once( "../commons/config.php" );
-require_once( "../commons/functions.include.php" );
-
-require_once( "./lib/User.class.php" );
-require_once( "./lib/ImageMember.class.php" );
-
-$_SESSION["allow_ajax_host"] = false;
-
-if ( IS_INCLUDED !== true ) die( "Unable to load system configuration information." );
-
-$conn = mysql_connect( MYSQL_HOST, MYSQL_USERNAME, MYSQL_PASSWORD);
-if ( $conn )
+// Require FOG Base
+require('../commons/base.inc.php');
+// Config load check
+if (IS_INCLUDED !== true) die($foglang['NoLoad']);
+// User session data
+$currentUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
+// Process Login
+$FOGCore->getClass('ProcessLogin')->processMainLogin();
+// Login form + logout
+if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
 {
-	$blOk = false;
-	
-	$curVer=getCurrentDBVersion( $conn );
-	if ( $curVer == FOG_SCHEMA )
-		$blOk = true;
-
-	if ( ! $blOk )
-	{
-		header('Location: ../commons/schemaupdater/index.php');
-		exit;
-	}	
+	// Hook
+	$HookManager->processEvent('LOGOUT', array('user' => &$currentUser));
+	// Logout
+	if (method_exists($currentUser, 'logout'))
+		$currentUser->logout();
+	// Unset session variables
+	unset($currentUser, $_SESSION['FOG_USERNAME'], $_SESSION['FOG_USER'], $_SESSION['AllowAJAXTasks'], $MainMenu);
+	// Show login form
+	$FOGCore->getClass('ProcessLogin')->mainLoginForm();
 }
-else
+// Ping Active
+$_SESSION['FOGPingActive'] = ($FOGCore->getSetting('FOG_HOST_LOOKUP') == '1' ? true : false);
+// Allow AJAX Tasks
+$_SESSION['AllowAJAXTasks'] = true;
+// Are we on the Homeapge?
+$isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','client')) ? true : false);
+// Load Page Classes -> Render content based on incoming node variables
+$content = $FOGPageManager->render();
+// Section title
+$sectionTitle = $FOGPageManager->getFOGPageName();
+// Page Title - should be set after page has been rendered
+$pageTitle = $FOGPageManager->getFOGPageTitle();
+$MainMenu = new Mainmenu();
+$SubMenu = new SubMenu();
+$HookManager->processEvent('CONTENT_DISPLAY',array('content' => &$content,'sectionTitle' => &$sectionTitle,'pageTitle' => &$pageTitle));
+if ($FOGCore->isAJAXRequest())
 {
-	die( "Unable to connect to Database" );
+	print $content; 
+	exit;
 }
-
-$currentUser = null;
-
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
-<head>
-<link rel="stylesheet" type="text/css" href="css/<?php echo FOG_THEME;?>" />
-<script type="text/javascript" src="js/main.js"></script>
-<title>
-FOG :: A Free, Open Source Computer Cloning Solution :: Version <?php echo FOG_VERSION; ?>
-</title>
-</head>
-<body>
-	<div class="hidden" id="msgBox">
-		<p class="msgBoxTitle">FOG Message</p>
-		<div id="msgboxmsg"></div>
-		<p><input type="button" value="OK" onClick="rollUpElement('msgBox');"/></p>
-	</div>	
-
-	<div class="mainContainer">
-		<div class="header">
-			<?php echo ("<div class=\"version\">Version: " . FOG_VERSION . "</div>\n"); ?>
-		</div>
-		<div class="mainContent">
-		<?php
-			if ( $_SESSION["fog_user"] != null )
-				$currentUser = unserialize($_SESSION["fog_user"]);
-		
-			require_once( "./includes/processlogin.include.php" );
-			if ( $_GET["node"] == "logout" || $currentUser == null || ! $currentUser->isLoggedIn() )
-			{
-				if ( $_GET["node"] == "logout" )
-				{
-					$_SESSION["fog_user"] = null;
-					$currentUser  = null;
-					session_destroy();
-				}
-				
-				require_once( "./includes/loginform.include.php" );
-			}
-			else
-			{
-				require_once( "./includes/mainmenu.include.php" );				
-			
-				if( $_GET[node] == "images" )
-				{
-					require_once( "./includes/images.include.php" );
-				}
-				else if ( $_GET[node] == "host" )
-					require_once( "./includes/hosts.include.php" );
-				else if ( $_GET[node] == "group" )
-					require_once( "./includes/groups.include.php" );						
-				else if ( $_GET[node] == "tasks" )
-					require_once( "./includes/tasks.include.php" );	
-				else if ( $_GET[node] == "users" )
-					require_once( "./includes/users.include.php" );		
-				else if ( $_GET[node] == "about" )
-					require_once( "./includes/about.include.php" );																	
-				else if ( $_GET[node] == "help" )
-					require_once( "./includes/help.include.php" );							
-				else if ( $_GET[node] == "snap" )
-					require_once( "./includes/snapins.include.php" );	
-				else if ( $_GET[node] == "report" )
-					require_once( "./includes/reports.include.php" );
-				else if ( $_GET[node] == "print" )
-					require_once( "./includes/printer.include.php" );					
-				else
-					require_once( "./includes/dashboard.include.php" );
-			}
-			
-			if ( $currentUser != null )
-				$_SESSION["fog_user"] = serialize( $currentUser );
-		?>
-		</div>
-		<!-- Footer -->
-		
-	</div>
-
-	<div class="footer"><h1>Created By Chuck Syperski &amp; Jian Zhang | GNU GPL v3</h1></div>
-</body>
-</html>
+ob_start('ob_gzhandler');
+print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
+print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
+print "\n\t<head>";
+print "\n\t\t".'<meta http-equiv="X-UA-Compatible" content="IE=Edge" />';
+print "\n\t\t".'<meta http-equiv="content-type" content="text/json; charset=utf-8" />';
+print "\n\t\t".'<title>'.($pageTitle ? $pageTitle.' &gt; ' : '').$sectionTitle.' &gt; FOG &gt; '.$foglang['Slogan'].'</title>';
+print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/calendar/calendar-win2k-1.css" />';
+print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/jquery-ui.css" />';
+print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/jquery.organicTabs.css" />';
+print "\n\t\t".'<!--<link rel="stylesheet" type="text/css" href="css/'.$FOGCore->getSetting('FOG_THEME').'" />-->';
+print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/fog.css" />';
+print "\n\t\t".'<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />';
+// Hook
+$HookManager->processEvent('CSS');
+print "\n\t</head>";
+print "\n<body>";
+print "\n\t<!-- FOG Message Boxes -->";
+print "\n\t".'<div id="loader-wrapper"><div id="loader"><div id="progress"></div></div></div>';
+print "\n\t<!-- Main -->";
+print "\n\t".'<div id="wrapper">';
+print "\n\t\t<!-- Header -->";
+print "\n\t\t".'<div id="header">';
+print "\n\t\t".'<div id="logo">';
+print "\n\t\t\t".'<h1><a href="'.$_SERVER['PHP_SELF'].'"><img src="images/fog-logo.png" title="'.$foglang['Home'].'" /><sup>'.FOG_VERSION.'</sup></a></h1>';
+print "\n\t\t\t".'<h2>'.$foglang['Slogan'].'</h2>';
+print "\n\t\t".'</div>';
+print "\n\t\t".'<div id="menu">';
+if ($currentUser)
+	$MainMenu->mainMenu();
+print "\n\t\t</div>";
+print "\n\t</div>";
+print "\n\t<!-- Content -->";
+print "\n\t".'<div id="content"'.($isHomepage ? ' class="dashboard"' : '').'>';
+print "\n\t\t<h1>".$sectionTitle.'</h1>';
+print "\n\t\t".'<div id="content-inner">';
+if ($FOGPageManager->isFOGPageTitleEnabled())
+	printf('%s<h2>%s</h2>',"\n\t\t\t\t",$FOGPageManager->getFOGPageTitle());
+print $content."\n\t\t</div>\n";
+print "\n\t</div>";
+if (!$isHomepage) 
+{
+	print "\n\t<!-- Menu -->";
+	print "\n\t\t".'<div id="sidebar">';
+	$SubMenu->buildMenu();
+	$FOGSubMenu = new FOGSubMenu();
+	//$HookManager->processEvent('SubMenuData', array('FOGSubMenu' => &$FOGSubMenu));
+	print "\n\t\t</div>";
+}
+print "\n\t</div>";
+print "\n\t<!-- Footer: Be nice, give us some credit -->";
+print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gilchrist &amp; Tom Elliott FOG Client/Prep link: <a href="?node=client">FOG Client/FOG Prep</a></div>';
+// Session Messages
+$FOGCore->getMessages();
+print "\n\t".'<div class="fog-variable" id="FOGPingActive">'.($_SESSION['FOGPingActive'] ? '1' : '0').'</div>';
+print "\n\t<!-- JavaScript -->";
+print "\n\t".'<script type="text/javascript" src="js/jquery-latest.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/jquery-migrate-1.2.1.min.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/calendar/jquery.dynDateTime.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/calendar/calendar-en.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/jquery.tipsy.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/jquery.progressbar.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/jquery.tmpl.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/jquery.organicTabs.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/jquery.placeholder.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/jquery.disableSelection.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/fog.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/fog.main.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/hideShowPassword.min.js"></script>';
+print "\n\t".'<script type="text/javascript" src="js/jquery-ui.min.js"></script>';
+// Auto find javascript based on $node and/or $sub
+foreach (array("js/fog.{$node}.js", "js/fog.{$node}.{$sub}.js") AS $jsFilepath)
+{
+	if (file_exists($jsFilepath))
+		printf('%s<script type="text/javascript" src="%s"></script>%s', "\n\t", $jsFilepath, "\n");
+}
+if ($isHomepage)
+{
+	print "\n\t".'<script type="text/javascript" src="js/jquery.flot.js"></script>';
+	print "\n\t".'<script type="text/javascript" src="js/jquery.flot.pie.js"></script>';
+	print "\n\t".'<script type="text/javascript" src="js/fog.dashboard.js"></script>';
+	// Include 'excanvas' for HTML5 <canvas> support in IE 6/7/8/9...
+	// I hate IE soooo much, only Microsoft wouldnt fix their own broken software
+	if (preg_match('#MSIE [6|7|8|9|10|11]#', $_SERVER['HTTP_USER_AGENT']))
+		print "\n\t".'<script type="text/javascript" src="js/excanvas.js"></script>';
+}
+// Hook
+$HookManager->processEvent('JAVASCRIPT');
+print "\n</body>";
+print "\n</html>";
+session_write_close();
+ob_end_flush();

@@ -1,58 +1,59 @@
 <?php
-
-require_once( "../commons/config.php" );
-require_once( "../commons/functions.include.php" );
-
-$conn = mysql_connect( MYSQL_HOST, MYSQL_USERNAME, MYSQL_PASSWORD);
-if ( $conn )
+require('../commons/base.inc.php');
+try
 {
-	if ( ! mysql_select_db( MYSQL_DATABASE, $conn ) ) die( "Unable to select database" );
-}
-else
-{
-	die( "Unable to connect to Database" );
-}
-
-$mac = $_GET["mac"];
-
-if ( ! isValidMACAddress( $mac ) )
-{
-	die( "Invalid MAC address format!" );
-}
-
-if ( $mac != null  )
-{
-	$hostid = getHostID( $conn, $mac );
-	cleanIncompleteTasks( $conn, $hostid );	
-	if ( queuedTaskExists( $conn, $mac ) )
+	// Get the MAC
+	$MACAddress = new MACAddress($_REQUEST['mac']);
+	if (!$MACAddress->isValid())
+		throw new Exception(_('#!im'));
+	// Get the host
+	$Host = $MACAddress->getHost();
+	if (!$Host->isValid())
+		throw new Exception(_('#!ih'));
+	// Get the task
+	$Task = current($Host->get('task'));
+	if (!$Task->isValid())
+		throw new Exception( sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'), $MACAddress) );
+	// Get the current Multicast Session
+	$MulticastAssociation = current($FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))));
+	$MultiSess = new MulticastSessions($MulticastAssociation->get('msID'));
+	if ($Task->get('stateID') == 1)
 	{
-		$num = getNumberInQueue( $conn, 1 );
-		$jobid = getTaskIDByMac( $conn, $mac );
-		if ( $hostid != null && $jobid != null )
-		{
-			if ( checkIn( $conn, $jobid ) )
-			{
-				if ( doImage( $conn, $jobid ) )
-					echo "##";
-				else
-					echo "Error attempting to start imaging process";				
-				exit;			
-			}
-			else
-			{
-				echo "Error: Checkin Failed.";
-			}
-		}
-		else
-		{
-			echo "Unable to locate host in database, please ensure that mac address is correct.";
-		}
+		// Check In Task for Host
+		$Task->set('stateID',2)->set('checkInTime',date('Y-m-d H:i:s'))->save();
+		// If the state is queued, meaning the client has checked in increment clients
+		$MultiSess->set('clients', $MultiSess->get('clients')+1)->save();
 	}
+	// Get the count of total associations.
+	$MSAs = $FOGCore->getClass('MulticastSessionsAssociationManager')->count(array('msID' => $MultiSess->get('id')));
+	// Set the task state for this host as in-progress.
+	$Task->set('stateID',3);
+	// If client count is equal, place session task in-progress as it will likely start soon.
+	if ($MSAs == $MultiSess->get('clients'))
+		$MultiSess->set('stateID',3);
 	else
+		$MultiSess->set('stateID',1);
+	// Save the info.
+	if ($Task->save() && $MultiSess->save())
 	{
-		echo "No job was found for MAC Address: $mac";
+		$il = new ImagingLog(array(
+			'hostID' => $Host->get('id'),
+			'start' => date('Y-m-d H:i:s'),
+			'image' => $Host->getImage()->get('name'),
+			'type' => $_REQUEST['type'],
+		));
+		$il->save();
+		$TaskLog = new TaskLog(array(
+			'taskID' => $Task->get('id'),
+			'taskStateID' => $Task->get('stateID'),
+			'createTime' => $Task->get('createTime'),
+			'createdBy' => $Task->get('createdBy'),
+		));
+		$TaskLog->save();
+		print '##@GO';
 	}
 }
-else
-	echo "Invalid MAC Address";
-?>
+catch (Exception $e)
+{
+	print $e->getMessage();
+}
