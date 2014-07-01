@@ -86,7 +86,8 @@ class ProcessLogin extends FOGBase
 		$this->setRedirMode();
 		$this->currentUser = $currentUser;
 		// Hook
-		$this->HookManager->processEvent('LoginSuccess', array('user' => &$currentUser, 'username' => $this->username, 'password' => &$this->password));
+		if (!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
+			$this->HookManager->processEvent('LoginSuccess', array('user' => &$currentUser, 'username' => $this->username, 'password' => &$this->password));
 	}
 
 	private function setRedirMode()
@@ -103,7 +104,8 @@ class ProcessLogin extends FOGBase
 	public function loginFail($string)
 	{
 		// Hook
-		$this->HookManager->processEvent('LoginFail', array('username' => &$this->username, 'password' => &$this->password));
+		if (!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
+			$this->HookManager->processEvent('LoginFail', array('username' => &$this->username, 'password' => &$this->password));
 		$this->FOGCore->setMessage($string);
 	}
 
@@ -140,8 +142,6 @@ class ProcessLogin extends FOGBase
 		{
 			$this->username = trim($_POST['uname']);
 			$this->password = trim($_POST['upass']);
-			// Hook
-			$this->HookManager->processEvent('Login', array('username' => &$this->username, 'password' =>&$this->password));
 			$tmpUser = $this->FOGCore->attemptLogin($this->username, $this->password);
 			try
 			{

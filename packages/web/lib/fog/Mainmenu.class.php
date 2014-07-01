@@ -47,6 +47,8 @@ class Mainmenu extends FOGBase
 		);
 		$this->main = array_unique(array_filter($this->main));
 		$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
+		if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$this->main))
+			$this->FOGCore->redirect('index.php');
 	}
 	private function mobileSetting()
 	{
@@ -56,11 +58,8 @@ class Mainmenu extends FOGBase
 			'tasks' => $this->foglang['Task'],
 			'logout' => $this->foglang['Logout'],
 		);
-		$this->main = array_unique(array_filter($this->main));
-		$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
-		$links = array();
 		foreach ($this->main AS $link => $title)
-			array_push($links,($link != 'logout' ? $link.'s' : $link));
+			$links[] = ($link != 'logout' ? $link.'s' :$link);
 		if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links))
 			$this->FOGCore->redirect('index.php');
 	}

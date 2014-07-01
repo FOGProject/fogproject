@@ -96,8 +96,6 @@ class HostMobile extends FOGPage
 		$this->title = _('Host Search');
 		// Set search form
 		$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
-		// Hook
-		$this->HookManager->processEvent('HOST_MOBILE_SEARCH');
 		// Output
 		$this->render();
 	}
@@ -114,8 +112,6 @@ class HostMobile extends FOGPage
 				'node' => $this->node
 			);
 		}
-		// Hook
-		$this->HookManager->processEvent('HOST_MOBILE_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Ouput
 		$this->render();
 	}
