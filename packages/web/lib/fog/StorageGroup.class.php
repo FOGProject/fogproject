@@ -13,17 +13,17 @@ class StorageGroup extends FOGController
 	public $additionalFields = array(
 	);
 	// Custom functions: Storage Group
-	function getStorageNodes()
+	public function getStorageNodes()
 	{
 		return (array)$this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => '1', 'storageGroupID' => $this->get('id')));
 	}
-	function getTotalSupportedClients()
+	public function getTotalSupportedClients()
 	{
 		foreach ($this->getStorageNodes() AS $StorageNode)
 			$clients += $StorageNode->get('maxClients');
 		return ($clients ? $clients : 0);
 	}
-	function getMasterStorageNode()
+	public function getMasterStorageNode()
 	{
 		// Return master
 		foreach ($this->getStorageNodes() AS $StorageNode)
@@ -32,7 +32,7 @@ class StorageGroup extends FOGController
 				return $StorageNode;
 		}
 		// Failed to find Master - return first Storage Node if there is one, otherwise false
-		return (count($this->getStorageNodes()) ? current($this->getStorageNodes()) : false);
+		return (count($this->getStorageNodes()) ? current($this->getStorageNodes()) : new StorageNode(array('id' => 0)));
 	}
 	public function getOptimalStorageNode()
 	{
