@@ -2,7 +2,6 @@
 class Mainmenu extends FOGBase
 {
 	public $main;
-
 	public function __construct()
 	{
 		parent::__construct();
@@ -69,11 +68,11 @@ class Mainmenu extends FOGBase
 	{
 		try
 		{
-			if ($this->FOGUser != null && $this->FOGUser->isLoggedIn() && preg_match('#mobile#i',$_SERVER['PHP_SELF']))
+			if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn() && preg_match('#mobile#i',$_SERVER['PHP_SELF']))
 				$this->mobileSetting();
-			else if ($this->FOGUser != null && $this->FOGUser->isLoggedIn() && $this->FOGUser->get('type') == 0)
+			else if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn() && $this->FOGUser->get('type') == 0)
 				$this->mainSetting();
-			else if ($this->FOGUser != null && $this->FOGUser->isLoggedIn() && $this->FOGUser->get('type') != 0)
+			else if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn() && $this->FOGUser->get('type') != 0)
 				throw new Exception('Not Allowed Here!');
 		}
 		catch (Exception $e)

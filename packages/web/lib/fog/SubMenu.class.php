@@ -2,7 +2,6 @@
 class SubMenu extends FOGBase
 {
 	private $node, $id, $name, $object, $title, $FOGSubMenu, $subMenu;
-	
 	public function __construct()
 	{
 		parent::__construct();
@@ -351,7 +350,7 @@ class SubMenu extends FOGBase
 	public function buildMenu()
 	{
 		$this->buildMenuLinks();
-		if ($this->FOGUser != null && $this->FOGUser->isLoggedIn())
+		if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn())
 			$this->buildMenuStruct();
 	}
 }
