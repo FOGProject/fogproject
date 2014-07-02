@@ -257,7 +257,7 @@ do
 			        configureUsers;
 			        configureMinHttpd;
 	                configureStorage;
-					if [ "$fogupdateloaded" = "1" ]; then
+					if [ "$fogupdateloaded" != "1" ]; then
 	                	configureNFS;
 					fi
 	                configureFTP;
