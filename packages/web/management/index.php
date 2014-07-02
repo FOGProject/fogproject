@@ -10,6 +10,10 @@ $FOGCore->getClass('ProcessLogin')->processMainLogin();
 // Login form + logout
 if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
 {
+	@session_write_close();
+	@session_start();
+	@session_unset();
+	@session_destroy();
 	// Hook
 	$HookManager->processEvent('LOGOUT', array('user' => &$currentUser));
 	// Logout

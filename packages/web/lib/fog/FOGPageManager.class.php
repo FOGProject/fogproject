@@ -18,7 +18,8 @@ class FOGPageManager extends FOGBase
 	{
 		// FOGBase Constructor
 		parent::__construct();
-	
+		if (!$this->FOGUser)
+			$this->FOGUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
 		// Save class & method values into class - used many times through out
 		$this->classValue = ($GLOBALS[$this->classVariable] ? preg_replace('#[^\w]#', '_', urldecode($GLOBALS[$this->classVariable])) : (preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'homes' : 'home'));
 		$this->methodValue = preg_replace('#[^\w]#', '_', urldecode($GLOBALS[$this->methodVariable]));	// No default value as we want to detect an empty string for 'list' or 'search' default page
@@ -62,8 +63,7 @@ class FOGPageManager extends FOGBase
 	// Call FOGPage->method based on $this->classValue and $this->methodValue
 	public function render()
 	{
-		global $currentUser;
-		if ($currentUser && $currentUser->isValid() && $currentUser->isLoggedIn())
+		if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn())
 		{
 			$this->loadPageClasses();
 			try
