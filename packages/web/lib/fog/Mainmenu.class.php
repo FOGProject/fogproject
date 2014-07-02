@@ -48,6 +48,7 @@ class Mainmenu extends FOGBase
 		$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
 		foreach ($this->main AS $link => $title)
 			$links[] = $link;
+		$links[] = 'hwinfo';
 		if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links))
 			$this->FOGCore->redirect('index.php');
 	}
