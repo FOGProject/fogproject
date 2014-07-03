@@ -748,7 +748,7 @@ class Host extends FOGController
 				// Task: Create Task Object
 				$Task = new Task(array(
 					'name'		=> $taskName,
-					'createdBy'	=> ($this->FOGUser ? $this->FOGUser : ($username ? $username : '')),
+					'createdBy'	=> ($this->FOGUser ? $this->FOGUser : ($username ? $username : 'nobody')),
 					'hostID'	=> $this->get('id'),
 					'isForced'	=> 0,
 					'stateID'	=> 1,
