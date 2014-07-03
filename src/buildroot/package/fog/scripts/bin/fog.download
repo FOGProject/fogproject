@@ -240,7 +240,7 @@ EOFPT
 				if [ "$win7partcnt" == "1" ]; then
 					writeImageMultiCast $win7sys
 					part=$win7sys;
-					fixWin7boot;
+					#fixWin7boot;
 				elif [ "$win7partcnt" == "2" ]; then
 					writeImageMultiCast $win7rec
 					part=$win7rec;
