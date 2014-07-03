@@ -49,6 +49,7 @@ class Mainmenu extends FOGBase
 		foreach ($this->main AS $link => $title)
 			$links[] = $link;
 		$links[] = 'hwinfo';
+		$links[] = 'client';
 		if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links))
 			$this->FOGCore->redirect('index.php');
 	}
