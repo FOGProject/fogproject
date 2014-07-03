@@ -406,7 +406,7 @@ class BootMenu extends FOGBase
 					'active' => in_array($TaskType->get('id'),$imagingTasks),
 				),
 				array(
-					'value' => "imgid=$mgid",
+					'value' => "imgid=$imgid",
 					'active' => in_array($TaskType->get('id'),$imagingTasks),
 				),
 				array(
