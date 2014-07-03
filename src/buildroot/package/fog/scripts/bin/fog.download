@@ -198,7 +198,6 @@ EOFPT
 					elif [ "$mbrsize" == "32256" -o "$has_GRUB" == "1" ] && [ "$intDisk" == "1" ] && [ "$osid" == "50" ]; then
 						dots "Restoring MBR and GRUB";
 						restoreGRUB "${disk}" "${intDisk}" "${imagePath}";
-						#dd if=$tmpMBR of=$disk bs=512 count=63 &>/dev/null;
 						if [ -e "${imagePath}/d${intDisk}.partitions" ]; then
 							echo "Done";
 							dots "Extended partitions";
@@ -253,7 +252,6 @@ EOFPT
 					writeImageMultiCast ${hd}2
 					writeImageMultiCast $win7sys
 				fi
-				
 				expandPartition $win7sys
 			else
 				writeImageMultiCast $part
@@ -265,13 +263,7 @@ EOFPT
 			for part in $parts; do
 				partNum=${part:$diskLength};
 				echo " * Processing Partition: $part ($partNum)";
-				sleep 2;
-				imgpart="$imagePath/d1p$partNum.img";
-				if [ ! -f $imgpart ]; then
-					echo " * Partition File Missing: $imgpart";
-				else
-					writeImageMultiCast $part
-				fi
+				writeImageMultiCast $part
 			done
 		elif [ "$imgType" == "mpa" ]; then
 			disks=`fogpartinfo --list-devices 2>/dev/null`;
@@ -282,12 +274,7 @@ EOFPT
 				for part in $parts; do
 					partNum=${part:$diskLength};
 					echo " * Processing Partition: $part ($partNum)";
-					imgpart="$imagePath/d${intDisk}p${partNum}.img";
-					if [ ! -f $imgpart ]; then
-						echo " * Partition File Missing: $imgpart";
-					else
-						writeImageMultiCast $part
-					fi
+					writeImageMultiCast $part
 				done
 				intDisk=`expr $intDisk '+' 1`;
 			done
@@ -337,7 +324,6 @@ EOFPT
 				else
 					writeImage "$imgpart" $part
 				fi
-				
 				resetFlag $part
 			done
 			if [ "$osid" == "50" ]; then
@@ -368,7 +354,6 @@ IFS='
 					else
 						writeImage "$imgpart" $part
 					fi
-					
 					resetFlag $part
 				done
 				intDisk=`expr $intDisk '+' 1`;
@@ -384,7 +369,7 @@ IFS='
 				done
 			fi
 		else
-			writeImage $imagePath/$img $hd
+			writeImage "$imagePath/$img" $hd
 		fi
 	fi
 	if [ "$gptcheck" == "yes" ]; then

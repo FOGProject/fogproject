@@ -266,29 +266,19 @@ EOFRESTOREPART
 					echo -n "	* Partition type is: ($fstype)  Using partclone.";
 					if [ "$fstype" == "ext4" ] || [ "$fstype" == "ext3" ] || [ "$fstype" == "ext2" ]; then
 						fstype="extfs -c";
-						echo $fstype;
-						sleep 10;
 					elif [ "$fstype" == "xfs" ]; then
 						fstype="xfs -c";
-						echo $fstype;
-						sleep 10;
 					elif [ "$fstype" == "ntfs" ]; then
 						fstype="ntfs -c";
-						echo $fstype;
-						sleep 10;
-					elif [ "$osid" != "6" -o "$osid" != "7" ] && [ "$fstype" == "vfat" ]; then
+					elif [ "$fstype" == "vfat" ]; then
 						fstype="fat -c";
-						echo $fstype;
-						sleep 10;
-					elif [ "$osid" == "6" -o "$osid" != "7" ] && [ "$fstype" == "vfat" ]; then
-						fstype="imager -c";
-						echo $fstype;
-						sleep 10;
+					elif [ "$fstype" == "hfsplus" ]; then
+						fstype="hfsp -c";
 					else
 						fstype="imager -c";
-						echo $fstype;
-						sleep 10;
 					fi
+					echo $fstype;
+					sleep 10;
 					imgpart="$imagePath/d1p${partNum}.img";
 					uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
 					partclone.$fstype -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
@@ -340,29 +330,19 @@ EOFRESTOREPART
 						echo -n "	* Partition type is: ($fstype)  Using partclone.";
 						if [ "$fstype" == "ext4" ] || [ "$fstype" == "ext3" ] || [ "$fstype" == "ext2" ]; then
 							fstype="extfs -c";
-							echo $fstype;
-							sleep 10;
 						elif [ "$fstype" == "xfs" ]; then
 							fstype="xfs -c";
-							echo $fstype;
-							sleep 10;
 						elif [ "$fstype" == "ntfs" ]; then
 							fstype="ntfs -c";
-							echo $fstype;
-							sleep 10;
-						elif [ "$osid" != "6" -o "$osid" != "7" ] && [ "$fstype" == "vfat" ]; then
+						elif [ "$fstype" == "vfat" ]; then
 							fstype="fat -c";
-							echo $fstype;
-							sleep 10;
-						elif [ "$osid" == "6" -o "$osid" != "7" ] && [ "$fstype" == "vfat" ]; then
-							fstype="imager -c";
-							echo $fstype;
-							sleep 10;
+						elif [ "$fstype" == "hfsplus" ]; then
+							fstype="hfsp -c";
 						else
 							fstype="imager -c";
-							echo $fstype;
-							sleep 10;
 						fi
+						echo $fstype;
+						sleep 10;
 						imgpart="$imagePath/d${intDisk}p${partNum}.img";
 						uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
 						partclone.$fstype -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
