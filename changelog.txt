@@ -8,6 +8,8 @@ access to them.
 * Fix configureNFS line to only update exports if it's not an update.
 * Fix installer/upgrader to use values stored in .fogsettings if set.
 Post_Stage3.php
+* Fix client page so you don't have to be logged in to view it.
+* Fix hwinfo and client node= links to operate properly.
 * Add ftp file size checking.  All sizes are done through ftp now.
 * Add size of byte filtering to get pretty size.
 * Add $this->FOGUser to FOGPageManager and Hook to check if its set. This is
