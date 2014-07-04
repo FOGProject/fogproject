@@ -21,6 +21,8 @@ needed because FOGBase is loaded before FOGUser is actually established.
 * Add beginning stages to allow split file images.
 * Add hostname to kernel args as default.  Use hostearly variable sent if
 HOSTNAME_EARLY is enabled and check against this to change hostname.
+* Add ability for resizable image with Linux.  Only works on ext partitions
+and only tested with a single partition with ext.  Should still work though.
 * Update plugin hooks with system to check if they are enabled or not to
 display their relevant menu/submenu items or other actions.
 * Update ipxe/undionly tftp files to latest available.
