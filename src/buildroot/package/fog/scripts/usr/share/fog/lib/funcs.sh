@@ -49,14 +49,19 @@ enableWriteCache()
 expandPartition() 
 {
     if [ -n "$1" ]; then
-        dots "Resizing ntfs volume ($part)";
-	ntfsresize $1 -f -b -P &>/dev/null << EOFNTFSRESTORE
+		if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
+     	   dots "Resizing ntfs volume ($1)";
+			ntfsresize $1 -f -b -P &>/dev/null << EOFNTFSRESTORE
 Y
 EOFNTFSRESTORE
-	echo "Done";   
-
-	resetFlag $1
-    fi
+			echo "Done";   
+			resetFlag $1;
+		elif [ "$osid" == "50" ]; then
+			dots "Resizing linux volume ($1)";
+			resize2fs $1 &>/dev/null;
+			echo "Done";
+    	fi
+	fi
 }
 
 # $1 is the part
@@ -71,7 +76,6 @@ resetFlag()
 	        echo "Done"; 
 	fi
 }
-
 
 setupDNS()
 {
