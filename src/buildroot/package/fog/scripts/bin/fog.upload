@@ -177,7 +177,7 @@ if [ -f "/images/.mntcheck" ]; then
 				else
 					dd if=/mbr.backup of=$hd &>/dev/null;
 					fdisk $hd &>/dev/null << EOFRESTOREPART
-
+w
 EOFRESTOREPART
 				fi
 				echo "Done";
