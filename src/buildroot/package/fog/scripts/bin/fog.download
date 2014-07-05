@@ -1,6 +1,6 @@
 #!/bin/sh
 . /usr/share/fog/lib/funcs.sh;
-. /bin/fog.donate
+. /bin/fog.donate;
 . /bin/fog.checkin;
 layPartSize="99%";
 imagePath="/images/$img";
@@ -32,7 +32,7 @@ if [ -f "/images/.mntcheck" ]; then
 		if [ "$osid" != "1" ] && [ "$osid" != "2" ] && [ "$osid" != "5" ] && [ "$osid" != "6" ] && [ "$osid" != "7" ] && [ "$osid" != "50" ]; then
 			handleError " * Invalid Operating System ID: $osname ($osid)!";
 		fi
-		enableWriteCache $hd
+		enableWriteCache $hd;
 		cd /images;
 		part="${hd}1";
 		win7partcnt="0";
@@ -89,7 +89,7 @@ if [ -f "/images/.mntcheck" ]; then
 					sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
 					echo "Done";
 					dots "Preparing Hard Disks (Stage 3)";
-					sgdisk -x 3:$(sgdisk -E $hd) $hd &>/dev/null
+					sgdisk -x 3:$(sgdisk -E $hd) $hd &>/dev/null;
 				fi
 				echo "Done";
 			else
@@ -176,7 +176,7 @@ EOFPT
 		fi
 	elif [ "$imgType" == "mps" ]; then
 		if [ -d "$imagePath" ]; then
-			dots "Erasing current MBR/GPT Tables"
+			dots "Erasing current MBR/GPT Tables";
 			sgdisk -Z $hd >/dev/null;
 			runPartprobe;
 			echo "Done";
@@ -221,7 +221,7 @@ EOFPT
 			handleError "Unable to locate image store.";
 		fi
 	elif [ "$imgType" == "mpa" ]; then
-		disks=`fogpartinfo --list-devices 2>/dev/null`
+		disks=`fogpartinfo --list-devices 2>/dev/null`;
 		intDisk=1;
 		if [ -d "$imagePath" ]; then
 			for disk in $disks; do
@@ -245,7 +245,7 @@ EOFPT
 							dots "Extended partitions";
 							sfdisk $disk < ${imagePath}/d${intDisk}.partitions &>/dev/null;
 						else
-							echo "Done"
+							echo "Done";
 							dots "No extended partitions";
 						fi
 					else
@@ -280,19 +280,17 @@ EOFPT
 		if [ "$imgType" == "n" ]; then
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				if [ "$win7partcnt" == "1" ]; then
-					writeImageMultiCast $win7sys
-					part=$win7sys;
-					#fixWin7boot;
+					writeImageMultiCast $win7sys;
+					#fixWin7boot $win7sys;
 				elif [ "$win7partcnt" == "2" ]; then
-					writeImageMultiCast $win7rec
-					part=$win7rec;
-					fixWin7boot;
-					writeImageMultiCast $win7sys
+					writeImageMultiCast $win7rec;
+					fixWin7boot $win7rec;
+					writeImageMultiCast $win7sys;
 					part=$win7sys;
 				elif [ "$win7partcnt" == "3" ]; then
-					writeImageMultiCast ${hd}1
-					writeImageMultiCast ${hd}2
-					writeImageMultiCast $win7sys
+					writeImageMultiCast ${hd}1;
+					writeImageMultiCast ${hd}2;
+					writeImageMultiCast $win7sys;
 				fi
 				expandPartition $win7sys
 			elif [ "$osid" == "50" ]; then
@@ -301,15 +299,12 @@ EOFPT
 				for part in $parts; do
 					partNum=${part:$diskLength};
 					echo " * Processing Partition: $part ($partNum)";
-					writeImageMultiCast $part
-					fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
-					if [ "$fstype" == "ext4" ] || [ "$fstype" == "ext3" ] || [ "$fstype" == "ext2" ]; then
-						expandPartition $part;
-					fi
+					writeImageMultiCast $part;
+					expandPartition $part;
 				done
 			else
-				writeImageMultiCast $part
-				expandPartition $part
+				writeImageMultiCast $part;
+				expandPartition $part;
 			fi
 		elif [ "$imgType" == "mps" ]; then
 			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
@@ -317,7 +312,7 @@ EOFPT
 			for part in $parts; do
 				partNum=${part:$diskLength};
 				echo " * Processing Partition: $part ($partNum)";
-				writeImageMultiCast $part
+				writeImageMultiCast $part;
 			done
 		elif [ "$imgType" == "mpa" ]; then
 			disks=`fogpartinfo --list-devices 2>/dev/null`;
@@ -328,12 +323,12 @@ EOFPT
 				for part in $parts; do
 					partNum=${part:$diskLength};
 					echo " * Processing Partition: $part ($partNum)";
-					writeImageMultiCast $part
+					writeImageMultiCast $part;
 				done
 				intDisk=`expr $intDisk '+' 1`;
 			done
 		else
-			writeImageMultiCast $hd
+			writeImageMultiCast $hd;
 		fi
 	else
 		if [ "$imgType" == "n" ]; then
@@ -342,21 +337,19 @@ EOFPT
 			echo "Done";
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				if [ "$win7partcnt" == "1" ]; then
-					writeImage "$imagePath/sys.img.*" $win7sys
-					part=$win7sys;
-					#fixWin7boot;
+					writeImage "$imagePath/sys.img.*" $win7sys;
+					#fixWin7boot $win7sys;
 				elif [ "$win7partcnt" == "2" ]; then
-					writeImage "$imagePath/rec.img.*" $win7rec
-					part=$win7rec;
-					fixWin7boot;
-					writeImage "$imagePath/sys.img.*" $win7sys
+					writeImage "$imagePath/rec.img.*" $win7rec;
+					fixWin7boot $win7rec;
+					writeImage "$imagePath/sys.img.*" $win7sys;
 					part=$win7sys;
 				elif [ "$win7partcnt" == "3" ]; then
-					writeImage "$imagePath/rec1.img.*" ${hd}1 
-					writeImage "$imagePath/rec3.img.*" ${hd}2
-					writeImage "$imagePath/sys.img.*" $win7sys
+					writeImage "$imagePath/rec1.img.*" ${hd}1;
+					writeImage "$imagePath/rec3.img.*" ${hd}2;
+					writeImage "$imagePath/sys.img.*" $win7sys;
 				fi
-				expandPartition $win7sys
+				expandPartition $win7sys;
 			elif [ "$osid" == "50" ]; then
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				diskLength=`expr length $hd`;
@@ -368,7 +361,7 @@ EOFPT
 					if [ ! -f $imgpart ]; then
 						echo " * Partition File Missing: $imgpart";
 					else
-						writeImage "$imgpart" $part
+						writeImage "$imgpart" $part;
 					fi
 					fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
 					if [ "$fstype" == "ext4" ] || [ "$fstype" == "ext3" ] || [ "$fstype" == "ext2" ]; then
@@ -376,8 +369,8 @@ EOFPT
 					fi
 				done
 			else
-				writeImage $imagePath $part
-				expandPartition $part
+				writeImage $imagePath $part;
+				expandPartition $part;
 			fi
 		elif [ "$imgType" == "mps" ]; then
 			dots "Checking Hard Disks";
@@ -393,9 +386,9 @@ EOFPT
 				if [ ! -f $imgpart ]; then
 					echo " * Partition File Missing: $imgpart";
 				else
-					writeImage "$imgpart" $part
+					writeImage "$imgpart" $part;
 				fi
-				resetFlag $part
+				resetFlag $part;
 			done
 			if [ "$osid" == "50" ]; then
 				echo " * Restore Linux swap paritions:";
@@ -404,7 +397,7 @@ IFS='
 ';
 				for x in $swaps; do
 					echo "		* Restoring partition: $x";
-					mkswap $x &>/dev/null
+					mkswap $x &>/dev/null;
 				done
 			fi
 		elif [ "$imgType" == "mpa" ]; then
@@ -423,9 +416,9 @@ IFS='
 					if [ ! -f $imgpart ]; then
 						echo " * Partition File Missing: $imgpart";
 					else
-						writeImage "$imgpart" $part
+						writeImage "$imgpart" $part;
 					fi
-					resetFlag $part
+					resetFlag $part;
 				done
 				intDisk=`expr $intDisk '+' 1`;
 			done
@@ -436,18 +429,18 @@ IFS='
 ';
 				for x in $swaps; do
 					echo "		* Restoring partition: $x";
-					mkswap $x &>/dev/null
+					mkswap $x &>/dev/null;
 				done
 			fi
 		else
-			writeImage "$imagePath/$img" $hd
+			writeImage "$imagePath/$img" $hd;
 		fi
 	fi
 	if [ "$gptcheck" == "yes" ]; then
 		sgdisk -G $hd;
 	fi
 	if [ -f "/images/postdownloadscripts/fog.postdownload" ]; then
-		postdownpath="/images/postdownloadscripts/"
+		postdownpath="/images/postdownloadscripts/";
 		. ${postdownpath}fog.postdownload;
 	fi
 	if [ "$capone" != "1" ]; then
@@ -461,7 +454,7 @@ IFS='
 		queueinfo=`cat co.txt`;
 		while [ "$queueinfo" != '##' ]; do
 			echo "		* $queueinfo";
-			rm co.txt
+			rm co.txt;
 			wget -q -O /tmp/co.txt "http://${web}service/Post_Stage3.php?mac=$mac&type=$type" &>/dev/null;
 			queueinfo=`cat co.txt`;
 			sleep 5;

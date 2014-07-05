@@ -11,7 +11,7 @@ function getAllBlamedNodes($taskid,$hostid)
 		if ($DateTime->format('Y-m-d H:i:s') >= $DateInterval->format('Y-m-d H:i:s'))
 		{
 			$node = $NodeFailure->get('id');
-			if (!in_array($node,$nodeRet))
+			if (!in_array($node,(array)$nodeRet))
 				$nodeRet[] = $node;
 		}
 		else
