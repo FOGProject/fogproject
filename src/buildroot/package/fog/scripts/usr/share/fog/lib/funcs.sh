@@ -1,5 +1,4 @@
 #!/bin/sh
-
 REG_LOCAL_MACHINE_XP="/ntfs/WINDOWS/system32/config/system"
 REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
 REG_HOSTNAME_KEY1_XP="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
@@ -7,10 +6,8 @@ REG_HOSTNAME_KEY2_XP="\ControlSet001\Control\ComputerName\ComputerName\ComputerN
 REG_HOSTNAME_KEY1_7="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
 REG_HOSTNAME_KEY2_7="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
 REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
-
 #If a sub shell gets involked and we lose kernel vars this will reimport them
 $(for var in $(cat /proc/cmdline); do echo export $var | grep =; done)
-
 dots() 
 {
     max=45
@@ -27,12 +24,11 @@ dots()
         fi
     fi
 }
-
 # $1 is the drive
 enableWriteCache() 
 {
-        if [ -n "$1" ]; then
-                dots "Checking write caching status on HDD";
+	if [ -n "$1" ]; then
+		dots "Checking write caching status on HDD";
 		wcache=$(hdparm -i $1 2>/dev/null|sed '/WriteCache=/!d; s/^.*WriteCache=//; s/ .*$//');
 		if [ "$wcache" == "enabled" ]; then
 			echo "OK";
@@ -42,38 +38,129 @@ enableWriteCache()
 		else
 			echo "Unknown status $wcache";
 		fi
-        fi
+	fi
 }
-
 # $1 is the partition
 expandPartition() 
 {
-    if [ -n "$1" ]; then
-		if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
-     	   dots "Resizing ntfs volume ($1)";
-			ntfsresize $1 -f -b -P &>/dev/null << EOFNTFSRESTORE
+	if [ ! -n "$1" ]; then
+		echo "No parition";
+		return
+	fi
+	fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
+	is_ext=`echo "$fstype" | egrep '^ext[234]$' | wc -l`;
+	if [ "$fstype" == "ntfs" ]; then
+		dots "Resizing ntfs volume ($1)";
+		ntfsresize $1 -f -b -P &>/dev/null << EOFNTFSRESTORE
 Y
 EOFNTFSRESTORE
-			echo "Done";   
-			resetFlag $1;
-		elif [ "$osid" == "50" ]; then
-			dots "Resizing linux volume ($1)";
-			resize2fs $1 &>/dev/null;
-			echo "Done";
-    	fi
+		resetFlag $1;
+	elif ["x${is_ext}" == "x1" ]; then
+		dots "Resizing $fstype volume ($1)";
+		resize2fs $1 &>/dev/null;
+	else
+		dots "Not expanding ($1 $fstype)";
 	fi
+	echo "Done";
 }
-
+# $1 is the partition
+shrinkPartition() 
+{
+	if [ ! -n "$1" ]; then
+		echo "No partition";
+		return
+	fi
+	fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
+	is_ext=`echo "$fstype" | egrep '^ext[234]$' | wc -l`;
+	if [ "$fstype" == "ntfs" ]; then
+		ntfsresizetest="ntfsresize -f -i -P $1";
+		size=`$ntfsresizetest | grep "You might resize" | cut -d" " -f5`;
+		if [ ! -n "$size" ]; then
+			tmpoutput=`$ntfsresizetest`;
+			handleError " * Fatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t$tmpoutput";
+		fi
+		sizentfsresize=`expr $size '/' 1000`;
+		sizentfsresize=`expr $sizentfsresize '+' 300000`;
+		sizentfsresize=`expr $sizentfsresize '*' 1$percent '/' 100`;
+		sizefd=`expr $sizentfsresize '*' 103 '/' 100`;
+		echo "";
+		echo " * Possible resize partition size: $sizentfsresize k";
+		dots "Running resize test";
+		tmpSuc=`ntfsresize -f -n -s ${sizentfsresize}k $1 << EOFNTFS
+Y
+EOFNTFS`
+		success=`echo $tmpSuc | grep "ended successfully"`;
+		echo "Done";
+		if [ ! -n "$success" ]; then
+			handleError "Resize test failed!\n $tmpSuc";
+		fi
+		echo " * Resize test was successful";
+		dots "Backing up MBR";
+		if [ "$win7rec" == "gpt" ]; then
+			sgdisk -b /gpt.bak $hd 2>&1 >/dev/null;
+		else
+			dd if=$hd of=/mbr.backup count=1 bs=512 &>/dev/null;
+		fi
+		echo "Done";
+		dots "Resizing filesystem";
+		ntfsresize -f -s ${sizentfsresize}k $1 &>/dev/null << FORCEY
+y
+FORCEY
+		echo "Done";
+		dots "Resizing partition";
+		if [ "$osid" == "1" -o "$osid" == "2" ]; then
+			parted -s $hd u kB rm 1 &>/dev/null;
+			parted -s $hd -a opt u kB ${partitionStart}s ${sizentfsresize}kB &>/dev/null;
+			parted -s $hd u kB set 1 boot on &>/dev/null;
+			if [ "$osid" == "2" ]; then
+				correctVistaMBR $hd;
+			fi
+		elif [ "$win7partcnt" == "1" ]; then
+			win7part1start=`parted -s $hd u kB print | sed -e '/^.1/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
+			if [ "$win7part1start" == "" ]; then
+				handleError "Unable to determine disk start location.";
+			fi
+			adjustedfdsize=`expr $sizefd '+' $win7part1start`;
+			parted -s $hd u kB rm 1 &>/dev/null;
+			parted -s $hd -a opt u kB mkpart primary ntfs ${partitionStart}s ${adjustedfdsize}kB &>/dev/null;
+			parted -s $hd u kB set 1 boot on &>/dev/null;
+		elif [ "$win7partcnt" == "2" ]; then
+			win7part2start=`parted -s $hd u kB print | sed -e '/^.2/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
+			if [ "$win7part2start" == "" ]; then
+				handleError "Unable to determine disk start location.";
+			fi
+			adjustedfdsize=`expr $sizefd '+' $win7part2start`;
+			parted -s $hd u kB rm 2 &>/dev/null;
+			parted -s $hd -a opt u kB mkpart primary ntfs ${defaultpart2start}B ${adjustedfdsize}kB &>/dev/null;
+		else
+			handleError "Invalid partition count.";
+		fi
+	elif [ "x${is_ext}" == "x1" ]; then
+		dots "Shrinking $fstype volume ($1)";
+		resize2fs $1 -M &>/dev/null;
+	else
+		dots "Not shrinking ($1 $fstype)";
+	fi
+	echo "Done";
+}
+# $1 is the partition
+# $2 is the size in kb
+resizePartition()
+{
+	local size="$2";
+	hd=`echo $1 | sed -r 's/[0-9]+$//'`;
+	start=`sfdisk -d $hd 2>/dev/null  | grep ^/dev/sda1 | awk -F: '{print $2;}' | awk -F, '{print $1;}' | awk -F= '{print $2;}' | sed -r 's/\s//g'`;
+}
 # $1 is the part
 resetFlag() 
 {
-        if [ -n "$1" ]; then
-                dots "Clearing ntfs flag";	
-	        fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
-	        if [ "$fstype" == "ntfs" ]; then
-		        ntfsfix -b -d $1 &>/dev/null
-	        fi
-	        echo "Done"; 
+	if [ -n "$1" ]; then
+		dots "Clearing ntfs flag";
+		fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
+		if [ "$fstype" == "ntfs" ]; then
+			ntfsfix -b -d $1 &>/dev/null
+	    fi
+		echo "Done";
 	fi
 }
 
@@ -112,8 +199,7 @@ writeImageMultiCast()
 
 changeHostname()
 {
-	if [ "$hostearly" == "1" ]
-	then
+	if [ "$hostearly" == "1" ]; then
 		dots "Changing hostname";
 		mkdir /ntfs &>/dev/null
 		ntfs-3g -o force,rw $part /ntfs &> /tmp/ntfs-mount-output
@@ -146,7 +232,7 @@ fixWin7boot()
 {
 	dots "Backing up and replacing BCD";
 	mkdir /bcdstore &>/dev/null;
-	ntfs-3g -o force,rw $part /bcdstore &> /tmp/bcdstore-mount-output;
+	ntfs-3g -o force,rw $1 /bcdstore &> /tmp/bcdstore-mount-output;
 	mv /bcdstore/Boot/BCD /bcdstore/Boot/BCD.bak;
 	cp /usr/share/fog/BCD /bcdstore/Boot/BCD;
 	umount /bcdstore;
@@ -156,8 +242,7 @@ fixWin7boot()
 clearMountedDevices()
 {
 	mkdir /ntfs &>/dev/null
-	if [ "$osid" = "5" ] || [ "$osid" = "6" ] || [ "$osid" = "7" ]
-	then
+	if [ "$osid" = "5" ] || [ "$osid" = "6" ] || [ "$osid" = "7" ]; then
 		dots "Clearing mounted devices";
 		ntfs-3g -o force,rw $win7sys /ntfs
 		reged -e "$REG_LOCAL_MACHINE_7" &>/dev/null  <<EOFMOUNT
@@ -235,25 +320,25 @@ determineOS()
 			mbrfile="";
 		elif [ "$1" = "4" ]; then
 			osname="Windows (Other)";
-			mbrfile="";	
+			mbrfile="";
 		elif [ "$1" = "5" ]; then
 			osname="Windows 7";
-			mbrfile="/usr/share/fog/mbr/win7.mbr";	
+			mbrfile="/usr/share/fog/mbr/win7.mbr";
 			defaultpart2start="105906176B";
 		elif [ "$1" = "6" ]; then
 			osname="Windows 8";
-			mbrfile="/usr/share/fog/mbr/win8.mbr";				
-			defaultpart2start="368050176B"
+			mbrfile="/usr/share/fog/mbr/win8.mbr";
+			defaultpart2start="368050176B";
 		elif [ "$1" = "7" ]; then
 			osname="Windows 8.1";
-			mbrfile="/usr/share/fog/mbr/win8.mbr";				
-			defaultpart2start="368050176B"
+			mbrfile="/usr/share/fog/mbr/win8.mbr";
+			defaultpart2start="368050176B";
 		elif [ "$1" = "50" ]; then
 			osname="Linux";
-			mbrfile="";								
+			mbrfile="";
 		elif [ "$1" = "99" ]; then
 			osname="Other OS";
-			mbrfile="";			
+			mbrfile="";
 		else
 			handleError " * Invalid operating system id ($1)!";
 		fi
@@ -265,8 +350,7 @@ determineOS()
 clearScreen()
 {
 	if [ "$mode" != "debug" ]; then
-		for i in $(seq 0 99);
-		do
+		for i in $(seq 0 99); do
 			echo "";
 		done
 	fi
@@ -274,20 +358,17 @@ clearScreen()
 
 sec2String()
 {
-	if [ $1 -gt 60 ]
-	then
-		if [ $1 -gt 3600 ]
-		then
-			if [ $1 -gt 216000 ]
-			then
-				val=$(expr $1 "/" 216000)
+	if [ $1 -gt 60 ]; then
+		if [ $1 -gt 3600 ]; then
+			if [ $1 -gt 216000 ]; then
+				val=$(expr $1 "/" 216000);
 				echo -n "$val days";
 			else
-				val=$(expr $1 "/" 3600)
+				val=$(expr $1 "/" 3600);
 				echo -n "$val hours";
 			fi
 		else
-			val=$(expr $1 "/" 60)
+			val=$(expr $1 "/" 60);
 			echo -n "$val min";
 		fi
 	else
@@ -298,8 +379,7 @@ sec2String()
 getSAMLoc()
 {
 	poss="/ntfs/WINDOWS/system32/config/SAM /ntfs/Windows/System32/config/SAM";
-	for pth in $poss;
-	do
+	for pth in $poss; do
 		if [ -f $pth ]; then
 			sam=$pth;
 			return 0;
@@ -310,46 +390,38 @@ getSAMLoc()
 
 getHardDisk()
 {
-	if [ -n "${fdrive}" ]
-	then
+	if [ -n "${fdrive}" ]; then
 		hd="${fdrive}";
 		return 0;
 	else
 		hd="";
-		for i in `fogpartinfo --list-devices 2>/dev/null`
-		do
+		for i in `fogpartinfo --list-devices 2>/dev/null`; do
 			hd="$i";
 			return 0;
-		done;
+		done
 		# Lets check and see if the partition shows up in /proc/partitions		
-		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf;
-		do		
-			strData=`cat /proc/partitions | grep $i 2>/dev/null`
-			if [ -n "$strData" ]
-			then
-				hd="/dev/$i"
+		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf; do
+			strData=`cat /proc/partitions | grep $i 2>/dev/null`;
+			if [ -n "$strData" ]; then
+				hd="/dev/$i";
 				return 0;
 			fi 
-		done;		
-		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf;
-		do		
-			strData=`head -1 /dev/$i 2>/dev/null`
-			if [ -n "$strData" ]
-			then
-				hd="/dev/$i"
+		done
+		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf; do		
+			strData=`head -1 /dev/$i 2>/dev/null`;
+			if [ -n "$strData" ]; then
+				hd="/dev/$i";
 				return 0;
 			fi 
-		done;	
+		done	
 		# Failed, probably because there is no partition on the device
-		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf;
-		do		
-			strData=`fdisk -l | grep /dev/$i 2>/dev/null`
-			if [ -n "$strData" ]
-			then
-				hd="/dev/$i"
+		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf; do		
+			strData=`fdisk -l | grep /dev/$i 2>/dev/null`;
+			if [ -n "$strData" ]; then
+				hd="/dev/$i";
 				return 0;
 			fi 
-		done;	
+		done
 	fi
 	return 1;
 }
@@ -384,7 +456,7 @@ displayBanner()
 	echo "  |                      #                     ..:;###..                     |";
 	echo "  |                                                                          |";
 	echo "  |                       Free Computer Imaging Solution                     |";
-	echo "  |                               Version 1.1.2                              |";
+	echo "  |                               Version 1.2.0                              |";
 	echo "  |                                                                          |";
 	echo "  +--------------------------------------------------------------------------+";
 	echo "  | Created by:                                                              |";
@@ -406,7 +478,6 @@ handleError()
 	echo " #                     An error has been detected!                           #";
 	echo " #                                                                           #";	
 	echo " #############################################################################";
-#	sleep 3;
 	echo "";
 	echo "";
 	echo -e " $1";
@@ -424,13 +495,13 @@ handleError()
 # $1 is the drive
 runPartprobe()
 {
-	partprobe $1 &> /dev/null
+	partprobe $1 &> /dev/null;
 }
 
 debugCommand()
 {
 	if [ "$mode" == "debug" ]; then
-		echo $1 >> /tmp/cmdlist
+		echo $1 >> /tmp/cmdlist;
 	fi
 }
 
@@ -443,6 +514,16 @@ debugCommand()
 #    will append 000 001 002 automatically
 uploadFormat()
 {
+	if [ ! -n "$1" ]; then
+		echo "Missing Cores";
+		return;
+	elif [ ! -n "$2" ]; then
+		echo "Missing file in file out";
+		return;
+	elif [ ! -n "$3" ]; then
+		echo "Missing file name to store";
+		return;
+	fi
 	if [ "$imgFormat" == "2" ]; then
 		pigz -p $1 $PIGZ_COMP < $2 | split -a 3 -d -b 200m - ${3}. &
 	else

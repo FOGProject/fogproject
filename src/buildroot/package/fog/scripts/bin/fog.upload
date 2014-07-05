@@ -104,13 +104,8 @@ if [ -f "/images/.mntcheck" ]; then
 				fi
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				for part in $parts; do
-					fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
-					if [ "$fstype" == "ext4" ] || [ "$fstype" == "ext3" ] || [ "$fstype" == "ext2" ]; then
-						dots "Shrinking $fstype filesystem";
-						e2fsck $part &> /dev/null;
-						resize2fs $part -M &>/dev/null;
-						echo "Done";
-					fi
+					shrinkPartition $part;
+					#resizePartition $part;
 				done
 				if [ -d "$imagePath" ]; then
 					if [ "$gptormbr" == "not present" ]; then
@@ -136,122 +131,58 @@ if [ -f "/images/.mntcheck" ]; then
 					handleError "FOG requires your Windows XP's partition start sector to be 63 but is ${partitionStart}";
 				fi
 			fi
-			if [ "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" ]; then
-				ntfsresizetest="ntfsresize -f -i -P $part";
-				size=`$ntfsresizetest | grep "You might resize" | cut -d" " -f5`;
-				if [ -n "$size" ]; then
-					sizentfsresize=`expr $size '/' 1000`;
-					sizentfsresize=`expr $sizentfsresize '+' 300000`;
-					sizentfsresize=`expr $sizentfsresize '*' 1$percent '/' 100`;
-					sizefd=`expr $sizentfsresize '*' 103 '/' 100`;
-					echo "";
-					echo " * Possible partition size: $sizentfsresize k";
-					dots "Running resize test";
-					tmpSuc=`ntfsresize -f -n -s ${sizentfsresize}k $part << EOFNTFS
-Y
-EOFNTFS`
-					success=`echo $tmpSuc | grep "ended successfully"`;
-					echo "Done";
-					if [ -n "$success" ]; then
-						echo " * Resize test was successful";
-						dots "Backing up MBR";
-						if [ "$win7rec" == "gpt" ]; then
-							sgdisk -b /gpt.bak $hd 2>&1 >/dev/null;
-						else
-							dd if=$hd of=/mbr.backup count=1 bs=512 &>/dev/null;
-						fi
-						echo "Done";
-						dots "Resizing partition";
-						ntfsresize -f -s ${sizentfsresize}k $part &>/dev/null << FORCEY
-y
-FORCEY
-						echo "Done";
-						if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
-							if [ "$win7partcnt" == "1" ]; then
-								win7part1start=`parted -s $hd u kB print | sed -e '/^.1/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
-								if [ "$win7part1start" == "" ]; then
-									handleError "Unable to determine disk start location.";
-								fi
-								adjustedfdsize=`expr $sizefd '+' $win7part1start`;
-								parted -s $hd u kB rm 1 &>/dev/null;
-								parted -s $hd -a opt u kB mkpart primary ntfs ${partitionStart}s ${adjustedfdsize}kB &>/dev/null;
-	    						parted -s $hd u kB set 1 boot on &>/dev/null
-							elif [ "$win7partcnt" == "2" ]; then
-								win7part2start=`parted -s $hd u B print | sed -e '/^.2/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
-								if [ "$win7part2start" == "" ]; then
-									handleError "Unable to determine disk start location.";
-								fi
-								adjustedfdsize=`expr $sizefd '+' $win7part2start`;
-								parted -s $hd -a opt u kB mkpart primary ntfs ${defaultpart2start}B ${adjustedfdsize}kB &>/dev/null;
-								parted -s $hd u kB set 1 boot on &>/dev/null;
-							else
-								handleError "Invalid partition count.";
-							fi
-						else
-							parted -s $hd rm 1 &>/dev/null;
-							parted -s $hd u kB mkpart primary ntfs ${partitionStart}s 99% &>/dev/null;
-							parted -s $hd u kB set 1 boot on &>/dev/null;
-						fi
-						if [ "$osid" == "2" ]; then
-							correctVistaMBR $hd;
-						fi
-						dots "Checking Hard Disks";
-						runPartprobe;
-						echo "Done";
-						resetFlag $part
-						mkfifo /tmp/pigz1;
-						mkfifo /tmp/pigz2;
-						mkfifo /tmp/pigz3;
-						echo "";
-						echo " * Now FOG will attempt to upload the image using Partclone.";
-						echo "";
-						if [ "$imgFormat" -gt 2 ]; then
-							handleError "Invalid image format."
-						fi
-						if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
-							if [ "$win7partcnt" == "1" ]; then
-								echo " * Processing a Windows 7 System with 1 partition.";
-								uploadFormat "$cores" "/tmp/pigz1" "$imagePath/sys.img";
-								partclone.ntfs -c -s $win7sys -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
-							elif [ "$win7partcnt" == "2" ]; then
-								echo " * Processing a Windows 7 System with 2 partitions.";
-								uploadFormat "$cores" "/tmp/pigz1" "$imagePath/rec.img";
-								partclone.ntfs -c -s $win7rec -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
-								uploadFormat "$cores" "/tmp/pigz2" "$imagePath/sys.img";
-								partclone.ntfs -c -s $win7sys -O /tmp/pigz2 -N -f 1 2>/tmp/status.fog;
-							fi
-							echo " * Calculating Checksums";
-							cd $imagePath
-							md5sum * | cat >>filelist.txt;
-							cd /
-						else
-							uploadFormat "$cores" "/tmp/pigz1" "$imagePath/$macWinSafe";
-							partclone.ntfs -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
-						fi
-						chmod -R 777 $imagePath;
-						rm /tmp/pigz1;
-						rm /tmp/pigz2;
-						rm /tmp/pigz3;
-						clear;
-						dots "Restoring MBR";
-						if [ "$win7partcnt" == "3" ] && [ "$win7rec" == "gpt" ]; then
-							sgdisk -g -l /gpt.bak $hd 2>&1 >/dev/null;
-						else
-							dd if=/mbr.backup of=$hd &>/dev/null;
-							fdisk $hd &>/dev/null << EOFRESTOREPART
-w
-EOFRESTOREPART
-						fi
-						echo "Done";
-						if [ "$osid" == "2" ]; then
-							correctVistaMBR $hd;
-						fi
-					else
-						handleError "Resize test failed!\n $tmpSuc";
+			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" ]; then
+				shrinkPartition $part;
+				dots "Checking Hard Disks";
+				runPartprobe;
+				echo "Done";
+				resetFlag $part
+				mkfifo /tmp/pigz1;
+				mkfifo /tmp/pigz2;
+				mkfifo /tmp/pigz3;
+				echo "";
+				echo " * Now FOG will attempt to upload the image using Partclone.";
+				echo "";
+				if [ "$imgFormat" -gt 2 ]; then
+					handleError "Invalid image format."
+				fi
+				if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
+					if [ "$win7partcnt" == "1" ]; then
+						echo " * Processing a Windows 7 System with 1 partition.";
+						uploadFormat "$cores" "/tmp/pigz1" "$imagePath/sys.img";
+						partclone.ntfs -c -s $win7sys -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
+					elif [ "$win7partcnt" == "2" ]; then
+						echo " * Processing a Windows 7 System with 2 partitions.";
+						uploadFormat "$cores" "/tmp/pigz1" "$imagePath/rec.img";
+						partclone.ntfs -c -s $win7rec -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
+						uploadFormat "$cores" "/tmp/pigz2" "$imagePath/sys.img";
+						partclone.ntfs -c -s $win7sys -O /tmp/pigz2 -N -f 1 2>/tmp/status.fog;
 					fi
+					echo " * Calculating Checksums";
+					cd $imagePath
+					md5sum * | cat >>filelist.txt;
+					cd /
 				else
-					tmpoutput=`$ntfsresizetest;`;
-					handleError " Fatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\tbut this time with full output, please wait!\n\s$tmpoutput";
+					uploadFormat "$cores" "/tmp/pigz1" "$imagePath/$macWinSafe";
+					partclone.ntfs -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
+				fi
+				chmod -R 777 $imagePath;
+				rm /tmp/pigz1;
+				rm /tmp/pigz2;
+				rm /tmp/pigz3;
+				clear;
+				dots "Restoring MBR";
+				if [ "$win7partcnt" == "3" ] && [ "$win7rec" == "gpt" ]; then
+					sgdisk -g -l /gpt.bak $hd 2>&1 >/dev/null;
+				else
+					dd if=/mbr.backup of=$hd &>/dev/null;
+					fdisk $hd &>/dev/null << EOFRESTOREPART
+
+EOFRESTOREPART
+				fi
+				echo "Done";
+				if [ "$osid" == "2" ]; then
+					correctVistaMBR $hd;
 				fi
 			elif [ "$osid" == "50" ]; then
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
