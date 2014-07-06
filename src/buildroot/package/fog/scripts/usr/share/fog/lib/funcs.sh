@@ -47,21 +47,71 @@ expandPartition()
 		echo "No parition";
 		return
 	fi
-	fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
-	is_ext=`echo "$fstype" | egrep '^ext[234]$' | wc -l`;
+	fstype=`fsTypeSetting $1`;
 	if [ "$fstype" == "ntfs" ]; then
 		dots "Resizing ntfs volume ($1)";
 		ntfsresize $1 -f -b -P &>/dev/null << EOFNTFSRESTORE
 Y
 EOFNTFSRESTORE
 		resetFlag $1;
-	elif ["x${is_ext}" == "x1" ]; then
+	elif [ "$fstype" == "extfs" ]; then
 		dots "Resizing $fstype volume ($1)";
+		e2fsck -f $1 &>/dev/null;
 		resize2fs $1 &>/dev/null;
-	else
+	elif [ "$fstype" != "extfs" -o "$fstype" != "ntfs" ]; then
 		dots "Not expanding ($1 $fstype)";
 	fi
 	echo "Done";
+}
+# $1 is the partition
+fsTypeSetting()
+{
+	fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
+	is_ext=`echo "$fstype" | egrep '^ext[234]$' | wc -l`;
+	if [ "x${is_ext}" == "x1" ]; then
+		echo "extfs";
+	elif [ "$fstype" == "ntfs" ]; then
+		echo "ntfs";
+	elif [ "$fstype" == "vfat" ]; then
+		echo "fat";
+	elif [ "$fstype" == "hfsplus" ]; then
+		echo "hfsp";
+	else
+		echo "imager";
+	fi
+}
+# $1 is the partition
+# Returns the size in bytes.
+getPartSize()
+{
+	block_part_tot=`blockdev --getsz $1`;
+	part_block_size=`blockdev --getpbsz $1`;
+	partsize=`awk "BEGIN{print $block_part_tot * $part_block_size}"`;
+	echo $partsize;
+}
+# Returns the size in bytes.
+getDiskSize()
+{
+	block_disk_tot=`blockdev --getsz $hd`;
+	disk_block_size=`blockdev --getpbsz $hd`;
+	disksize=`awk "BEGIN{print $block_disk_tot * $disk_block_size}"`;
+	echo $disksize;
+}
+# $1 is the partition
+percentageUsed()
+{
+	partsize=`getPartSize $1`;
+	disksize=`getDiskSize`;
+	percent_part_uses=`awk "BEGIN{print $partsize / $disksize}"`;
+	echo "$part $percent_part_uses" >> $imagePath/fsInfo;
+	# Should maybe use here to write percentage into file.
+}
+validResizeOS()
+{
+	#Valid OSID's are 1 XP, 2 Vista, 5 Win 7, 6 Win 8, 7 Win 8.1, and 50 Linux
+	if [ "$osid" != "1" -a "$osid" != "2" -a "$osid" != "5" -a "$osid" != "6" -a "$osid" != "7" -a "$osid" != "50" ]; then
+		handleError " * Invalid operating system id: $osname ($osid)!";
+	fi
 }
 # $1 is the partition
 shrinkPartition() 
@@ -70,8 +120,7 @@ shrinkPartition()
 		echo "No partition";
 		return
 	fi
-	fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
-	is_ext=`echo "$fstype" | egrep '^ext[234]$' | wc -l`;
+	fstype=`fsTypeSetting $1`;
 	if [ "$fstype" == "ntfs" ]; then
 		ntfsresizetest="ntfsresize -f -i -P $1";
 		size=`$ntfsresizetest | grep "You might resize" | cut -d" " -f5`;
@@ -135,9 +184,37 @@ FORCEY
 		else
 			handleError "Invalid partition count.";
 		fi
-	elif [ "x${is_ext}" == "x1" ]; then
-		dots "Shrinking $fstype volume ($1)";
+	elif [ "$fstype" == "extfs" ]; then
+		dots "Backing up MBR";
+		dd if=$hd of=/mbr.backup count=1 bs=512 &>/dev/null;
+		echo "Done";
+		sfdisk -d $hd 2>/dev/null > /partitionbkup;
+		fs=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
+		percentageUsed $1 &>/dev/null;
+		extminsizenum=`resize2fs -P $1 | awk -F': ' '{print $2}'`;
+		block_size=`dumpe2fs -h $1 | grep "^Block size:" | awk '{print $3}'`;
+		size=`expr $extminsizenum '*' $block_size`;
+		sizeextresize=`expr $size '*' 103 '/' 100 '/' 1024`;
+		echo "";
+		echo " * Possible resize partition size: $sizeextresize k";
+		dots "Resizing $fstype volume ($1)";
+		e2fsck -f $1 &>/dev/null;
 		resize2fs $1 -M &>/dev/null;
+		echo "Done";
+		diskLength=`expr length $hd`;
+		partNum=${1:$diskLength};
+		partstart=`parted -s $hd u kB print | sed -e "/^.$partNum/!d" -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
+		if [ "$partstart" == "" ]; then
+			handleError "Unable to determine disk start location.";
+		fi
+		dots "Resizing $1 partition";
+		parted -s $hd u kB rm $partNum &>/dev/null;
+		parted -s $hd -a opt u kB mkpart primary $fs ${partstart}kB ${sizeextresize}kB &>/dev/null;
+		if [ "$partNum" == "1" ]; then
+			parted -s $hd u kB set 1 boot on &>/dev/null;
+		fi
+		runPartprobe $hd;
+		resize2fs $1 &>/dev/null;
 	else
 		dots "Not shrinking ($1 $fstype)";
 	fi
@@ -190,7 +267,7 @@ writeImageMultiCast()
 {
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-		udp-receiver --nokbd --portbase ${port} --mcast-rdv-address ${storageip} 2>/dev/null | gunzip -d -c | partimage -f3 -b restore $1 stdin 2>/tmp/status.fog;
+		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partimage -f3 -b restore $1 stdin 2>/tmp/status.fog;
 	else 
 		# partclone
 		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;

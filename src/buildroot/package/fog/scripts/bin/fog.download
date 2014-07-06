@@ -363,8 +363,8 @@ EOFPT
 					else
 						writeImage "$imgpart" $part;
 					fi
-					fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
-					if [ "$fstype" == "ext4" ] || [ "$fstype" == "ext3" ] || [ "$fstype" == "ext2" ]; then
+					fstype=`fsTypeSetting $part`;
+					if [ "$fstype" == "extfs" ]; then
 						expandPartition $part;
 					fi
 				done
