@@ -32,9 +32,7 @@ class ImageManagementPage extends FOGPage
 		parent::__construct($name);
 		// Header row
 		$this->headerData = array(
-			_('Image Name'),
-			_('Storage Group'),
-			_('O/S'),
+			_('Image Name') .'<br /><small>'._('Storage Group').':'._('O/S').'</small>',
 			_('Image Size: ON CLIENT'),
 			_('Image Size: ON SERVER'),
 			_('Uploaded'),
@@ -42,9 +40,7 @@ class ImageManagementPage extends FOGPage
 		);
 		// Row templates
 		$this->templates = array(
-			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name}</a>',
-			'${storageGroup}',
-			'${os}',
+			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name}</a><br /><small>${storageGroup}:${os}</small>',
 			'${size}',
 			'${serv_size}',
 			'${deployed}',
@@ -52,13 +48,11 @@ class ImageManagementPage extends FOGPage
 		);
 		// Row attributes
 		$this->attributes = array(
-			array(),
-			array('width' => 50, 'class' => 'c'),
-			array(),
+			array('width' => 50, 'class' => 'l'),
 			array('width' => 50, 'class' => 'c'),
 			array('width' => 50, 'class' => 'c'),
 			array('width' => 50, 'class' => 'c'),
-			array('class' => 'c', 'width' => '50'),
+			array('width' => 50, 'class' => 'c'),
 		);
 	}
 	// Pages
