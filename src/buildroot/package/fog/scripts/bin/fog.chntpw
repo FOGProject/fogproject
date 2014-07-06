@@ -3,29 +3,26 @@
 . /bin/fog.donate
 clearScreen;
 displayBanner;
-setupDNS ${dns}
+setupDNS ${dns};
 hd="";
 getHardDisk;
 echo "";
 echo "";
 acct="$winuser";
 if [ -n "$hd" ]; then
-	if [ -n "$acct" ]
-	then
+	if [ -n "$acct" ]; then
 		blCont="0";
 		blStop="0";
 		partNum=1;
 		part="";
 		mkdir /ntfs;
 		sam="";
-		while [ "$blCont" == "0" ] && [ "$blStop" == "0" ]
-		do
+		while [ "$blCont" == "0" ] && [ "$blStop" == "0" ]; do
 			part="${hd}${partNum}";
 			umount /ntfs 2>/dev/null >/dev/null
 			mount.ntfs-3g $part /ntfs 
 			getSAMLoc;
-			if [ -f "$sam" ]
-			then
+			if [ -f "$sam" ]; then
 				blCont="1";
 			else
 				partNum=$((${partNum}+1));
@@ -35,15 +32,11 @@ if [ -n "$hd" ]; then
 				fi
 			fi			
 		done
-		
 		umount /ntfs 2>/dev/null >/dev/null
-
-		if [ "$blCont" == "1" ]
-		then
+		if [ "$blCont" == "1" ]; then
 			dots "Mounting Windows File System";
 			mount.ntfs-3g $part /ntfs 
 			echo "Done";
-
 			dots "Attempting to change password";
 			chntpw -u ${acct} ${sam}  &>/dev/null << EOF
 1
@@ -62,13 +55,11 @@ EOF
 else
 	echo "hard disk not found!";
 fi
-
 queueinfo="";
-cd /tmp			
-wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+cd /tmp;
+wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null;
 queueinfo=`cat co.txt`;
-while [ "$queueinfo" != "##" ]
-do
+while [ "$queueinfo" != "##" ]; do
 	echo "       * $queueinfo";
 	rm co.txt
 	wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
@@ -78,5 +69,4 @@ done
 echo "";
 echo " * Database updated!";
 echo "";	
-
 sleep 3;

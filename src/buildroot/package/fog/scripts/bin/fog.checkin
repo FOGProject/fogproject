@@ -30,7 +30,6 @@ arch=$(uname -m);
 if [ "$cores" == "0" ]; then
 	cores=1;
 fi
-
 if [ "$chkdsk"  == "1" ]; then
 	RUN_CHKDSK="-x";
 fi
