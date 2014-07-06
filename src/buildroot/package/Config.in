@@ -6,6 +6,8 @@ source "package/fog/Config.in"
 source "package/partimage/Config.in"
 source "package/pigz/Config.in"
 source "package/testdisk/Config.in"
+source "package/cabextract/Config.in"
+source "package/libmspack/Config.in"
 endmenu
 
 menu "Target packages"
