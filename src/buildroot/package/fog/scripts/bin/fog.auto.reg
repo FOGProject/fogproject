@@ -1,11 +1,11 @@
 #!/bin/sh
-. /usr/share/fog/lib/funcs.sh
-. /bin/fog.donate
+. /usr/share/fog/lib/funcs.sh;
+. /bin/fog.donate;
 clear;
 displayBanner;
 hd="";
 getHardDisk;
-setupDNS ${dns}
+setupDNS ${dns};
 sysman="";
 sysman64="";
 sysproduct="";
@@ -87,17 +87,17 @@ if [ -n "$hd" ]; then
 	echo " * BIOS Version: $biosversion";
 	echo " * BIOS Vendor: $biosvendor";
 	echo " * BIOS Date: $biosdate";
-	sleep 1
-	echo 	
+	sleep 1;
+	echo
 	echo " Motherboard Information";
 	echo " -----------------------";
-	echo 	
+	echo
 	echo " * Motherboard Manufacturer: $mbman";
 	echo " * Motherboard Product Name: $mbproductname";	
 	echo " * Motherboard Product Version: $mbversion";
 	echo " * Motherboard Serial Number: $mbserial";	
 	echo " * Motherboard Asset Tag: $mbasset";		
-	sleep 1	
+	sleep 1;
 	echo 
 	echo " CPU Information";
 	echo " ---------------";

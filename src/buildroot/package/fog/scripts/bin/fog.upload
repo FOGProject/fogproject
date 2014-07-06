@@ -1,7 +1,5 @@
 #!/bin/sh
 . /usr/share/fog/lib/funcs.sh
-# No donate here as upload is expensive in terms of CPU!!!
-#. /bin/fog.donate
 . /bin/fog.checkin;
 echo " * Preparing to send image file to server.";
 imagePath="/images/$macWinSafe";
@@ -40,9 +38,7 @@ if [ -f "/images/.mntcheck" ]; then
 			handleError "HD is null, no hard disk found!";
 		fi
 		if [ "$imgType" == "n" ]; then
-			if [ "$osid" != "1" ] && [ "$osid" != "2" ] && [ "$osid" != "5" ] && [ "$osid" != "6" ] && [ "$osid" != "7" ] && [ "$osid" != "50" ]; then
-				handleError " * Invalid operating system id: $osname ($osid)!";
-			fi
+			validResizeOS;
 			part="${hd}1";
 			win7partcnt="0";
 			win7sys="";
@@ -105,7 +101,6 @@ if [ -f "/images/.mntcheck" ]; then
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				for part in $parts; do
 					shrinkPartition $part;
-					#resizePartition $part;
 				done
 				if [ -d "$imagePath" ]; then
 					if [ "$gptormbr" == "not present" ]; then
@@ -192,34 +187,26 @@ EOFRESTOREPART
 						mkfifo /tmp/pigz1;
 						partNum=${part:$diskLength};
 						echo " * Processing Partition: $part ($partNum)";
-						fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
-						echo -n "	* Partition type is: ($fstype)  Using partclone.";
-						if [ "$fstype" == "ext4" ] || [ "$fstype" == "ext3" ] || [ "$fstype" == "ext2" ]; then
-							fstype="extfs -c";
-						elif [ "$fstype" == "xfs" ]; then
-							fstype="xfs -c";
-						elif [ "$fstype" == "ntfs" ]; then
-							fstype="ntfs -c";
-						elif [ "$fstype" == "vfat" ]; then
-							fstype="fat -c";
-						elif [ "$fstype" == "hfsplus" ]; then
-							fstype="hfsp -c";
-						else
-							fstype="imager -c";
-						fi
+						fstype=`fsTypeSetting $part`;
+						echo -n " * Using partclone.";
 						echo $fstype;
-						sleep 10;
+						sleep 5;
 						imgpart="$imagePath/d1p${partNum}.img";
 						uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
-						partclone.$fstype -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
+						partclone.$fstype -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
 						mv $imgpart.000 $imgpart 2>/dev/null;
 						clear;
 						echo " * Image uploaded";
 						rm /tmp/pigz1;
-						if [ "$fstype" == "ext4" ] || [ "$fstype" == "ext3" ] || [ "$fstype" == "ext2" ]; then
-							expandPartition $part;
-						fi
+						expandPartition $part;
 					done
+					dots "Restoring MBR";
+					dd if=/mbr.backup of=$hd &>/dev/null;
+					sfdisk $hd < /partitionbkup &>/dev/null;
+					fdisk $hd &>/dev/null << EOFRESTOREPART
+w
+EOFRESTOREPART
+					echo "Done";
 				fi
 				if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				        expandPartition $win7sys
@@ -258,26 +245,13 @@ EOFRESTOREPART
 					mkfifo /tmp/pigz1;
 					partNum=${part:$diskLength};
 					echo " * Processing Partition: $part ($partNum)";
-					fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
-					echo -n "	* Partition type is: ($fstype)  Using partclone.";
-					if [ "$fstype" == "ext4" ] || [ "$fstype" == "ext3" ] || [ "$fstype" == "ext2" ]; then
-						fstype="extfs -c";
-					elif [ "$fstype" == "xfs" ]; then
-						fstype="xfs -c";
-					elif [ "$fstype" == "ntfs" ]; then
-						fstype="ntfs -c";
-					elif [ "$fstype" == "vfat" ]; then
-						fstype="fat -c";
-					elif [ "$fstype" == "hfsplus" ]; then
-						fstype="hfsp -c";
-					else
-						fstype="imager -c";
-					fi
+					fstype=`fsTypeSetting $part`;
+					echo -n " * Using partclone.";
 					echo $fstype;
-					sleep 10;
+					sleep 5;
 					imgpart="$imagePath/d1p${partNum}.img";
 					uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
-					partclone.$fstype -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
+					partclone.$fstype -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
 					mv $imgpart.000 $imgpart 2>/dev/null;
 					clear;
 					echo " * Image uploaded";
@@ -322,26 +296,12 @@ EOFRESTOREPART
 						mkfifo /tmp/pigz1;
 						partNum=${part:diskLength};
 						echo " * Processing Partition: $part ($partNum)";
-						fstype=`blkid -po udev $part | grep FS_TYPE | awk -F'=' '{print $2}'`;
-						echo -n "	* Partition type is: ($fstype)  Using partclone.";
-						if [ "$fstype" == "ext4" ] || [ "$fstype" == "ext3" ] || [ "$fstype" == "ext2" ]; then
-							fstype="extfs -c";
-						elif [ "$fstype" == "xfs" ]; then
-							fstype="xfs -c";
-						elif [ "$fstype" == "ntfs" ]; then
-							fstype="ntfs -c";
-						elif [ "$fstype" == "vfat" ]; then
-							fstype="fat -c";
-						elif [ "$fstype" == "hfsplus" ]; then
-							fstype="hfsp -c";
-						else
-							fstype="imager -c";
-						fi
+						fstype=`fsTypeSetting $part`;
+						echo -n " * Using partclone.";
 						echo $fstype;
-						sleep 10;
 						imgpart="$imagePath/d${intDisk}p${partNum}.img";
 						uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
-						partclone.$fstype -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
+						partclone.$fstype -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
 						mv $imgpart.000 $imgpart;
 						clear;
 						echo " * Image uploaded";
