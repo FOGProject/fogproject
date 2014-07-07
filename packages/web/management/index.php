@@ -11,9 +11,8 @@ $FOGCore->getClass('ProcessLogin')->processMainLogin();
 if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
 {
 	@session_write_close();
+	@session_regenerate_id(true);
 	@session_start();
-	@session_unset();
-	@session_destroy();
 	// Hook
 	$HookManager->processEvent('LOGOUT', array('user' => &$currentUser));
 	// Logout
