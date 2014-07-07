@@ -153,10 +153,10 @@ if [ -f "/images/.mntcheck" ]; then
 						uploadFormat "$cores" "/tmp/pigz2" "$imagePath/sys.img";
 						partclone.ntfs -c -s $win7sys -O /tmp/pigz2 -N -f 1 2>/tmp/status.fog;
 					fi
-					echo " * Calculating Checksums";
-					cd $imagePath
-					md5sum * | cat >>filelist.txt;
-					cd /
+					if [ "$imgFormat" == "2" || "$imgLegacy" == "2" ]; then
+						echo " * Calculating Checksums";
+						md5sum $imagePath/* | cat >> $imagePath/filelist.txt;
+					fi
 				else
 					uploadFormat "$cores" "/tmp/pigz1" "$imagePath/$macWinSafe";
 					partclone.ntfs -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;

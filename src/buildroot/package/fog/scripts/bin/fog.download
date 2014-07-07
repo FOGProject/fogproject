@@ -292,7 +292,7 @@ EOFPT
 					writeImageMultiCast ${hd}2;
 					writeImageMultiCast $win7sys;
 				fi
-				expandPartition $win7sys
+				expandPartition $win7sys;
 			elif [ "$osid" == "50" ]; then
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				diskLength=`expr length $hd`;
@@ -364,8 +364,8 @@ EOFPT
 						echo " * Partition File Missing: $imgpart";
 					else
 						writeImage "$imgpart" $part;
+						expandPartition $part;
 					fi
-					expandPartition $part;
 				done
 			else
 				writeImage $imagePath $part;
