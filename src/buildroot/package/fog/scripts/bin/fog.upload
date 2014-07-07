@@ -155,7 +155,9 @@ if [ -f "/images/.mntcheck" ]; then
 					fi
 					if [ "$imgFormat" == "2" || "$imgLegacy" == "2" ]; then
 						echo " * Calculating Checksums";
-						md5sum $imagePath/* | cat >> $imagePath/filelist.txt;
+						cd $imagePath;
+						md5sum * | cat >> $imagePath/filelist.txt;
+						cd /;
 					fi
 				else
 					uploadFormat "$cores" "/tmp/pigz1" "$imagePath/$macWinSafe";
