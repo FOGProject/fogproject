@@ -250,14 +250,6 @@ FORCEY
 	fi
 	echo "Done";
 }
-# $1 is the partition
-# $2 is the size in kb
-resizePartition()
-{
-	local size="$2";
-	hd=`echo $1 | sed -r 's/[0-9]+$//'`;
-	start=`sfdisk -d $hd 2>/dev/null  | grep ^/dev/sda1 | awk -F: '{print $2;}' | awk -F, '{print $1;}' | awk -F= '{print $2;}' | sed -r 's/\s//g'`;
-}
 # $1 is the part
 resetFlag() 
 {
@@ -265,9 +257,8 @@ resetFlag()
 		dots "Clearing ntfs flag";
 		fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
 		if [ "$fstype" == "ntfs" ]; then
-			ntfsfix -b -d $1 &>/dev/null
+			ntfsfix -b -d $1 &>/dev/null;
 	    fi
-		echo "Done";
 	fi
 }
 
@@ -457,9 +448,10 @@ determineOS()
 clearScreen()
 {
 	if [ "$mode" != "debug" ]; then
-		for i in $(seq 0 99); do
-			echo "";
-		done
+		clear;
+		#for i in $(seq 0 99); do
+			#echo "";
+		#done
 	fi
 }
 
