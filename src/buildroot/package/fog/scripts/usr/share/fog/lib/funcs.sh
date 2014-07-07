@@ -45,7 +45,7 @@ expandPartition()
 {
 	if [ ! -n "$1" ]; then
 		echo "No parition";
-		return
+		return;
 	fi
 	fstype=`fsTypeSetting $1`;
 	if [ "$fstype" == "ntfs" ]; then
@@ -56,7 +56,7 @@ EOFNTFSRESTORE
 		resetFlag $1;
 	elif [ "$fstype" == "extfs" ]; then
 		dots "Resizing $fstype volume ($1)";
-		e2fsck -f $1 &>/dev/null;
+		e2fsck -fp $1 &>/dev/null;
 		resize2fs $1 &>/dev/null;
 	else
 		dots "Not expanding ($1 $fstype)";
@@ -133,8 +133,8 @@ percentageExpand()
 			parted -s $hd u kB set 1 boot on &>/dev/null;
 		fi
 		runPartprobe $hd;
+		echo "Done";
 	fi
-	echo "Done";
 }
 validResizeOS()
 {
@@ -148,7 +148,7 @@ shrinkPartition()
 {
 	if [ ! -n "$1" ]; then
 		echo "No partition";
-		return
+		return;
 	fi
 	fstype=`fsTypeSetting $1`;
 	if [ "$fstype" == "ntfs" ]; then
@@ -448,10 +448,9 @@ determineOS()
 clearScreen()
 {
 	if [ "$mode" != "debug" ]; then
-		clear;
-		#for i in $(seq 0 99); do
-			#echo "";
-		#done
+		for i in $(seq 0 99); do
+			echo "";
+		done
 	fi
 }
 

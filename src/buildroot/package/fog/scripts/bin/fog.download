@@ -373,7 +373,7 @@ EOFPT
 			fi
 		elif [ "$imgType" == "mps" ]; then
 			dots "Checking Hard Disks";
-			partprobe $hd &> /dev/null;
+			runPartprobe $hd &> /dev/null;
 			echo "Done";
 			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 			diskLength=`expr length $hd`;
