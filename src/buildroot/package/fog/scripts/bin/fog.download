@@ -297,6 +297,7 @@ EOFPT
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				diskLength=`expr length $hd`;
 				for part in $parts; do
+					percentageExpand $part $imagePath;
 					partNum=${part:$diskLength};
 					echo " * Processing Partition: $part ($partNum)";
 					writeImageMultiCast $part;
@@ -354,6 +355,7 @@ EOFPT
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				diskLength=`expr length $hd`;
 				for part in $parts; do
+					percentageExpand $part $imagePath;
 					partNum=${part:$diskLength};
 					echo " * Processing Partition: $part ($partNum)";
 					imgpart="$imagePath/d1p${partNum}.img*";
@@ -362,9 +364,6 @@ EOFPT
 						echo " * Partition File Missing: $imgpart";
 					else
 						writeImage "$imgpart" $part;
-					fi
-					fstype=`fsTypeSetting $part`;
-					if [ "$fstype" == "extfs" ]; then
 						expandPartition $part;
 					fi
 				done

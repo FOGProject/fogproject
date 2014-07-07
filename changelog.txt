@@ -24,6 +24,7 @@ needed because FOGBase is loaded before FOGUser is actually established.
 HOSTNAME_EARLY is enabled and check against this to change hostname.
 * Add ability for resizable image with Linux.  Only works on ext partitions
 and only tested with a single partition with ext.  (Highly experimental)
+* Add cabextract and libmspack to inits and source code for buildroot.
 * Update plugin hooks with system to check if they are enabled or not to
 display their relevant menu/submenu items or other actions.
 * Update ipxe/undionly tftp files to latest available.

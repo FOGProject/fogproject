@@ -58,7 +58,7 @@ EOFNTFSRESTORE
 		dots "Resizing $fstype volume ($1)";
 		e2fsck -f $1 &>/dev/null;
 		resize2fs $1 &>/dev/null;
-	elif [ "$fstype" != "extfs" -o "$fstype" != "ntfs" ]; then
+	elif [ "$fstype" != "extfs" -a "$fstype" != "ntfs" ]; then
 		dots "Not expanding ($1 $fstype)";
 	fi
 	echo "Done";
@@ -105,6 +105,36 @@ percentageUsed()
 	percent_part_uses=`awk "BEGIN{print $partsize / $disksize}"`;
 	echo "$part $percent_part_uses" >> $imagePath/fsInfo;
 	# Should maybe use here to write percentage into file.
+}
+# $1 is the partition
+# $2 is the path to get the fsIno
+percentageExpand()
+{
+	diskLength=`expr length $hd`;
+	diskblocksize=`blockdev --getsz $hd`;
+	diskblockcount=`blockdev --getpbsz $hd`;
+	disksize=`awk "BEGIN{print $diskblocksize * $diskblockcount}"`;
+	partNum=${1:$diskLength};
+	fstype=`fsTypeSetting $1`;
+	fs=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
+	partstart=`parted -s $hd u kB print | sed -e "/^.$partNum/!d" -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
+	if [ "$partstart" == "" ]; then
+		handleError "Unable to determine disk start location.";
+	fi
+	if [ "$fstype" == "extfs" ]; then
+		percent=`cat $2/fsInfo | grep $1 | awk '{print $2}'`;
+		newdisksize=`awk "BEGIN{print $percent * $disksize}"`;
+		newdisksize=`awk "BEGIN{print $newdisksize / 1024}"`;
+		newdisksize=`echo $newdisksize | awk '{printf "%.0f", $1}'`;
+		dots "Resizing $1 partition";
+		parted -s $hd u kB rm $partNum &>/dev/null;
+		parted -s $hd -a opt u kB mkpart primary $fs ${partstart}kB ${newdisksize}kB &>/dev/null;
+		if [ "$partNum" == "1" ]; then
+			parted -s $hd u kB set 1 boot on &>/dev/null;
+		fi
+		runPartprobe $hd;
+	fi
+	echo "Done";
 }
 validResizeOS()
 {
