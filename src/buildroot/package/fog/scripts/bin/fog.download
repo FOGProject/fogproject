@@ -364,8 +364,8 @@ EOFPT
 						echo " * Partition File Missing: $imgpart";
 					else
 						writeImage "$imgpart" $part;
-						expandPartition $part;
 					fi
+					expandPartition $part;
 				done
 			else
 				writeImage $imagePath $part;
