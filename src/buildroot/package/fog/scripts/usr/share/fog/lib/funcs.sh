@@ -58,7 +58,7 @@ EOFNTFSRESTORE
 		dots "Resizing $fstype volume ($1)";
 		e2fsck -f $1 &>/dev/null;
 		resize2fs $1 &>/dev/null;
-	elif [ "$fstype" != "extfs" -a "$fstype" != "ntfs" ]; then
+	else
 		dots "Not expanding ($1 $fstype)";
 	fi
 	echo "Done";
