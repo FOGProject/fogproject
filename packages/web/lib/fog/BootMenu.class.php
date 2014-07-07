@@ -75,7 +75,7 @@ class BootMenu extends FOGBase
 				$Location = new Location($LA->get('locationID'));
 			if ($Location && $Location->isValid())
 			{
-				$StorageNode = $Location->get('tftp') ? new StorageNode($Location->get('storageNodeID')) : null;
+				$StorageNode = $Location->get('tftp') && $Location->get('storageNodeID') ? new StorageNode($Location->get('storageNodeID')) : $this->FOGCore->getClass('StorageGroup',$Location->get('storageGroupID'))->getOptimalStorageNode();
 				if ($Location->get('tftp'))
 				{
 					$memdisk = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/memdisk';
@@ -123,7 +123,7 @@ class BootMenu extends FOGBase
 			'fog.sysinfo' => 'Client System Information (Compatibility)',
 			'fog.debug' => 'Debug Mode',
 		);
-		$CaponePlugInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'capone','installed' => 1)));
+		$CaponePlugInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'capone','state' => 1,'installed' => 1)));
 		$DMISet = $CaponePlugInst ? $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_DMI') : false;
 		if ($CaponePlugInst && $DMISet)
 			$this->pxemenu['fog.capone'] = 'Capone Deploy';

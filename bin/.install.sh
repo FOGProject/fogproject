@@ -311,7 +311,7 @@ do
 			    #restoreReports;
 			    setupFreshClam;
 			    configureStorage;
-				if [ "$fogupdateloaded" = "1" ]; then
+				if [ "$fogupdateloaded" != "1" ]; then
 	               	configureNFS;
 				fi
 			    configureDHCP;
