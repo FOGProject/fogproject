@@ -103,6 +103,10 @@ percentageUsed()
 	partsize=`getPartSize $1`;
 	disksize=`getDiskSize`;
 	percent_part_uses=`awk "BEGIN{print $partsize / $disksize}"`;
+	partexists=`cat $imagePath/fsInfo|grep $1|wc -l`
+	if [ -f "$imagePath/fsInfo" ]; then
+		sed -i "/$1/d/g" $imagePath/fsInfo;
+	fi
 	echo "$part $percent_part_uses" >> $imagePath/fsInfo;
 	# Should maybe use here to write percentage into file.
 }
@@ -122,7 +126,7 @@ percentageExpand()
 		handleError "Unable to determine disk start location.";
 	fi
 	if [ "$fstype" == "extfs" ]; then
-		percent=`cat $2/fsInfo | grep $1 | awk '{print $2}'`;
+		percent=`cat $2/fsInfo | tail -1 | grep $1 | awk '{print $2}'`;
 		newdisksize=`awk "BEGIN{print $percent * $disksize}"`;
 		newdisksize=`awk "BEGIN{print $newdisksize / 1024}"`;
 		newdisksize=`echo $newdisksize | awk '{printf "%.0f", $1}'`;
