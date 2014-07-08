@@ -2,9 +2,11 @@
 REG_LOCAL_MACHINE_XP="/ntfs/WINDOWS/system32/config/system"
 REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
 REG_HOSTNAME_KEY1_XP="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
-REG_HOSTNAME_KEY2_XP="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
+REG_HOSTNAME_KEY2_XP="\ControlSet001\Services\Tcpip\Parameters\Hostname"
+REG_HOSTNAME_KEY3_XP="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
 REG_HOSTNAME_KEY1_7="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
-REG_HOSTNAME_KEY2_7="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
+REG_HOSTNAME_KEY1_7="\ControlSet001\services\Tcpip\Parameters\Hostname"
+REG_HOSTNAME_KEY3_7="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
 REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
 #If a sub shell gets involked and we lose kernel vars this will reimport them
 $(for var in $(cat /proc/cmdline); do echo export $var | grep =; done)
@@ -314,15 +316,19 @@ changeHostname()
 			regfile=$REG_LOCAL_MACHINE_7
 			key1=$REG_HOSTNAME_KEY1_7
 			key2=$REG_HOSTNAME_KEY2_7
+			key3=$REG_HOSTNAME_KEY3_7
 		elif [ "$osid" = "1" ];	then
 			regfile=$REG_LOCAL_MACHINE_XP
 			key1=$REG_HOSTNAME_KEY1_XP
 			key2=$REG_HOSTNAME_KEY2_XP
+			key1=$REG_HOSTNAME_KEY3_XP
 		fi
 		reged -e $regfile &>/dev/null <<EOFREG
 ed $key1
 $hostname
 ed $key2
+$hostname
+ed $key3
 $hostname
 q
 y
