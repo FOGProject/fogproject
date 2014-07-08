@@ -212,7 +212,7 @@ EOFRESTOREPART
 				fi
 				if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				        expandPartition $win7sys
-				else
+				elif [ "$osid" == "1" -o "$osid" == "2" ]; then
 				        expandPartition $part
 				fi
 			fi
