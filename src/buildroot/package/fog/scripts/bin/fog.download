@@ -281,12 +281,10 @@ EOFPT
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				if [ "$win7partcnt" == "1" ]; then
 					writeImageMultiCast $win7sys;
-					#fixWin7boot $win7sys;
 				elif [ "$win7partcnt" == "2" ]; then
 					writeImageMultiCast $win7rec;
 					fixWin7boot $win7rec;
 					writeImageMultiCast $win7sys;
-					part=$win7sys;
 				elif [ "$win7partcnt" == "3" ]; then
 					writeImageMultiCast ${hd}1;
 					writeImageMultiCast ${hd}2;
