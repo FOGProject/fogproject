@@ -133,8 +133,8 @@ percentageExpand()
 			parted -s $hd u kB set 1 boot on &>/dev/null;
 		fi
 		runPartprobe $hd;
-		echo "Done";
 	fi
+	echo "Done";
 }
 validResizeOS()
 {
@@ -221,14 +221,15 @@ FORCEY
 		sfdisk -d $hd 2>/dev/null > /partitionbkup;
 		fs=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
 		percentageUsed $1 &>/dev/null;
-		extminsizenum=`resize2fs -P $1 | awk -F': ' '{print $2}'`;
-		block_size=`dumpe2fs -h $1 | grep "^Block size:" | awk '{print $3}'`;
+		e2fsck -fp $1 &>/dev/null;
+		extminsizenum=`resize2fs -P $1 2>/dev/null | awk -F': ' '{print $2}'`;
+		block_size=`dumpe2fs -h $1 2>/dev/null | grep "^Block size:" | awk '{print $3}'`;
 		size=`expr $extminsizenum '*' $block_size`;
 		sizeextresize=`expr $size '*' 103 '/' 100 '/' 1024`;
 		echo "";
 		echo " * Possible resize partition size: $sizeextresize k";
+		sleep 3;
 		dots "Resizing $fstype volume ($1)";
-		e2fsck -f $1 &>/dev/null;
 		resize2fs $1 -M &>/dev/null;
 		echo "Done";
 		diskLength=`expr length $hd`;
@@ -254,12 +255,13 @@ FORCEY
 resetFlag() 
 {
 	if [ -n "$1" ]; then
-		dots "Clearing ntfs flag";
-		fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
 		if [ "$fstype" == "ntfs" ]; then
+			dots "Clearing ntfs flag";
+			fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
 			ntfsfix -b -d $1 &>/dev/null;
 	    fi
 	fi
+	echo "Done";
 }
 
 setupDNS()
