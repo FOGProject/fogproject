@@ -12,7 +12,6 @@ if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_e
 {
 	@session_write_close();
 	@session_regenerate_id(true);
-	@session_start();
 	// Hook
 	$HookManager->processEvent('LOGOUT', array('user' => &$currentUser));
 	// Logout
