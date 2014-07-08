@@ -9,20 +9,21 @@ class Image extends FOGController
 	
 	// Name -> Database field name
 	public $databaseFields = array(
-		'id'		=> 'imageID',
-		'name'		=> 'imageName',
-		'description'	=> 'imageDesc',
-		'path'		=> 'imagePath',
-		'createdTime'	=> 'imageDateTime',
-		'createdBy'	=> 'imageCreateBy',
-		'building'	=> 'imageBuilding',
-		'size'		=> 'imageSize',
-		'imageTypeID'	=> 'imageTypeID',
-		'storageGroupID'=> 'imageNFSGroupID',
-		'osID'		=> 'imageOSID',
-		'size'		=> 'imageSize', 
-		'deployed'	=> 'imageLastDeploy',
-		'format'        => 'imageFormat',
+		'id' => 'imageID',
+		'name' => 'imageName',
+		'description' => 'imageDesc',
+		'path' => 'imagePath',
+		'createdTime' => 'imageDateTime',
+		'createdBy' => 'imageCreateBy',
+		'building' => 'imageBuilding',
+		'size' => 'imageSize',
+		'imageTypeID' => 'imageTypeID',
+		'storageGroupID' => 'imageNFSGroupID',
+		'osID' => 'imageOSID',
+		'size' => 'imageSize', 
+		'deployed' => 'imageLastDeploy',
+		'format' => 'imageFormat',
+		'magnet' => 'imageMagnetUri',
 	);
 
 	// Additional Fields
