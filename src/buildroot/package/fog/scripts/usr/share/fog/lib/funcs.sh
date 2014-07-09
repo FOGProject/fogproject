@@ -128,8 +128,8 @@ percentageExpand()
 		handleError "Unable to determine disk start location.";
 	fi
 	if [ "$fstype" == "extfs" ]; then
-		percent=`cat $2/fsInfo | tail -1 | grep $1 | awk '{print $2}'`;
-		newdisksize=`awk "BEGIN{print $percent * $disksize}"`;
+		percent_used=`cat $2/fsInfo | tail -1 | grep $1 | awk '{print $2}'`;
+		newdisksize=`awk "BEGIN{print $percent_used * $disksize}"`;
 		newdisksize=`awk "BEGIN{print $newdisksize / 1024}"`;
 		newdisksize=`echo $newdisksize | awk '{printf "%.0f", $1}'`;
 		dots "Resizing $1 partition";
