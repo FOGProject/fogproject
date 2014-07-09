@@ -75,20 +75,24 @@ class User extends FOGController
 		{
 			// reset session
 			@session_write_close();
-			@session_regenerate_id(true);
-			$_SESSION = array();
 			@session_start();
+			@session_regenerate_id(true);
 			$_SESSION['CREATED'] = time();
 		}
 		// Logged in
-		return true;
+		$_SESSION['FOG_USER'] = serialize($this);
+		$_SESSION['FOG_USERNAME'] = $this->get('name');
+		return $this;
 	}
 	public function logout()
 	{
 		// Destroy session
+		@session_write_close();
+		@session_start();
+		@session_regenerate_id(true);
 		@session_unset();
 		@session_destroy();
-		$_SESSION = array();
+		$_SESSION=array();
 		$this->FOGCore->redirect('index.php');
 	}
 }

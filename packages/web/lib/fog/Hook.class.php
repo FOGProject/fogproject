@@ -20,7 +20,7 @@ abstract class Hook extends FOGBase
 	public function __construct()
 	{
 		parent::__construct();
-		if (!$this->FOGUser || !$this->FOGUser->isLoggedIn())
+		if (!$this->FOGUser)
 			$this->FOGUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
 	}
 	public function run($arguments)

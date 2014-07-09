@@ -1,19 +1,20 @@
 <?php
-class MulticastTask
+class MulticastTask extends FOGBase
 {
 	// Updated to only care about tasks in its group
 	public static function getAllMulticastTasks($root)
 	{
+		global $FOGCore;
 		$arTasks = array();
-		foreach($GLOBALS['FOGCore']->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3))) AS $MultiSess)
+		foreach($FOGCore->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3))) AS $MultiSess)
 		{
 			$Image = new Image($MultiSess->get('image'));
 			$Tasks[] = new self(
 				$MultiSess->get('id'), 
 				$MultiSess->get('name'),
 				$MultiSess->get('port'),$root.'/'.$MultiSess->get('logpath'),
-				MULTICASTINTERFACE,
-				count($GLOBALS['FOGCore']->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $MultiSess->get('id')))),
+				$FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),
+				count($FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $MultiSess->get('id')))),
 				$MultiSess->get('isDD'),
 				$Image->get('osID')
 			);
@@ -21,7 +22,6 @@ class MulticastTask
 		return $Tasks;
 	}
 
-	private $FOGCore;
 	private $intID, $strName, $intPort, $strImage, $strEth, $intClients;
 	private $intImageType, $intOSID;
 	private $procRef, $arPipes;
@@ -29,7 +29,7 @@ class MulticastTask
 
 	public function __construct($id, $name, $port, $image, $eth, $clients, $imagetype, $osid)
 	{
-		$this->FOGCore = $GLOBALS['FOGCore'];
+		parent::__construct();
 		$this->intID = $id;
 		$this->strName = $name;
 		$this->intPort = $port;

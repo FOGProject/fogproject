@@ -300,7 +300,7 @@ configureMinHttpd()
 
 configureHttpd()
 {
-	if [ "$installtype" == N ]; then
+	if [ "$installtype" == N -a "$fogupdateloaded" != 1 ]; then
 		echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
 		read dummy;
 		echo "";
@@ -338,12 +338,15 @@ configureHttpd()
 			;;
 		esac
 	fi
-	if [ "$installtype" == "S" ]; then
-		if [ "$snmysqlhost" != "" ] && [ "$snmysqlhost" != $dbhost ]; then
+	if [ "$installtype" == "S" -o "$fogupdateloaded" == 1 ]; then
+		if [ "$snmysqlhost" != "" ] && [ "$snmysqlhost" != "$dbhost" ]; then
 			dbhost=$snmysqlhost;
 		fi
+		if [ "$snmysqlhost" == "" ]; then
+			dbhost="localhost";
+		fi
 	fi
-	if [ "$snmysqluser" != "" ] && [ "$snmysqluser" != $dbuser ]; then
+	if [ "$snmysqluser" != "" ] && [ "$snmysqluser" != "$dbuser" ]; then
 		dbuser=$snmysqluser;
 	fi
 	echo -n "  * Setting up and starting Apache Web Server...";

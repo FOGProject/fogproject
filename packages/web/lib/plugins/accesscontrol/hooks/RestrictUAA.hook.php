@@ -5,8 +5,8 @@ class RestrictUAA extends Hook
     var $description = 'Removes All users except the current user and ability to create/modify users';
     var $author = 'Rowlett';
     var $active = true;
+	var $node = 'accesscontrol';
 	private $linkToFilter;
-	
 	public function __construct()
 	{
 		parent::__construct();
@@ -15,33 +15,44 @@ class RestrictUAA extends Hook
  
     public function UserData($arguments)
     {
-		if (!in_array($this->FOGUser->get('type'),array(0)))
+		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
-        	foreach ($arguments['data'] AS $i => $data)
+			if (!in_array($this->FOGUser->get('type'),array(0)))
 			{
-        		if($arguments['data'][$i]['name'] != $this->FOGUser->get('name'))
-					unset($arguments['data'][$i]);
+				foreach ($arguments['data'] AS $i => $data)
+				{
+					if($arguments['data'][$i]['name'] != $this->FOGUser->get('name'))
+						unset($arguments['data'][$i]);
+				}
 			}
 		}
     }
-	
 	public function RemoveName($arguments)
     {
-		if (!in_array($this->FOGUser->get('type'),array(0)))
+		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
-			unset($arguments['data'][0]);
-			unset($arguments['template'][0]);
+			if (!in_array($this->FOGUser->get('type'),array(0)))
+			{
+				unset($arguments['data'][0]);
+				unset($arguments['template'][0]);
+			}
 		}
 	}
 	
 	public function RemoveCreate($arguments)
 	{
-		foreach($arguments['submenu'] AS $node => $link)
+		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
-			if (in_array($node,(array)$this->linksToFilter))
+			foreach($arguments['submenu'] AS $node => $link)
 			{
-				if (!in_array($this->FOGUser->get('type'),array(0)))
-					unset($arguments['submenu'][$node]['add']);
+				if (in_array($node,(array)$this->linksToFilter))
+				{
+					if (!in_array($this->FOGUser->get('type'),array(0)))
+						unset($arguments['submenu'][$node]['add']);
+				}
 			}
 		}
 	}
