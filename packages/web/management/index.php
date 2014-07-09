@@ -1,7 +1,6 @@
 <?php
 // Require FOG Base
 require('../commons/base.inc.php');
-$HookManager->load();
 // Config load check
 if (IS_INCLUDED !== true) die($foglang['NoLoad']);
 // User session data
@@ -11,6 +10,8 @@ $FOGCore->getClass('ProcessLogin')->processMainLogin();
 // Login form + logout
 if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
 {
+	@session_write_close();
+	@session_regenerate_id(true);
 	// Hook
 	$HookManager->processEvent('LOGOUT', array('user' => &$currentUser));
 	// Logout
@@ -26,7 +27,7 @@ $_SESSION['FOGPingActive'] = ($FOGCore->getSetting('FOG_HOST_LOOKUP') == '1' ? t
 // Allow AJAX Tasks
 $_SESSION['AllowAJAXTasks'] = true;
 // Are we on the Homeapge?
-$isHomepage = (($currentUser && $currentUser->isLoggedIn()) && (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','client'))) ? true : false);
+$isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','client')) ? true : false);
 // Load Page Classes -> Render content based on incoming node variables
 $content = $FOGPageManager->render();
 // Section title
@@ -41,6 +42,7 @@ if ($FOGCore->isAJAXRequest())
 	print $content; 
 	exit;
 }
+ob_start('ob_gzhandler');
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
@@ -68,7 +70,7 @@ print "\n\t\t\t".'<h1><a href="'.$_SERVER['PHP_SELF'].'"><img src="images/fog-lo
 print "\n\t\t\t".'<h2>'.$foglang['Slogan'].'</h2>';
 print "\n\t\t".'</div>';
 print "\n\t\t".'<div id="menu">';
-if ($currentUser)
+if ($currentUser && $currentUser->isLoggedIn())
 	$MainMenu->mainMenu();
 print "\n\t\t</div>";
 print "\n\t</div>";

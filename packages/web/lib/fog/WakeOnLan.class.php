@@ -5,7 +5,6 @@
 class WakeOnLan
 {
 	private $strMac;
-	
 	/** __construct($mac)
 		Stores the MAC of which to system to wake.
 	*/
@@ -13,7 +12,6 @@ class WakeOnLan
 	{
 		$this->strMac = $mac;
 	}
-	
 	/** send()
 		Creates the packet and sends it to wake up the machine.
 	*/
@@ -22,19 +20,14 @@ class WakeOnLan
 		if ( $this->strMac != null )
 		{
 			$arByte = explode(':', $this->strMac);
-			
 			$strAddr = null;
-
 			for ($i=0; $i<count( $arByte); $i++) 
 				$strAddr .= chr(hexdec($arByte[$i]));
-		
 			$strRaw = null;
 			for ($i=0; $i<6; $i++) 
 				$strRaw .= chr(255);
-				
 			for ($i=0; $i<16; $i++) 
 				$strRaw .= $strAddr;
-				
 			$soc = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
 			if ( $soc !== FALSE )
 			{

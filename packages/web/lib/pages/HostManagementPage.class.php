@@ -213,7 +213,8 @@ class HostManagementPage extends FOGPage
 		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
 		foreach ((array)$OUs AS $OU)
 			$OUOptions[] = $OU;
-		if ($OUOptions)
+		$OUOptions = array_filter($OUOptions);
+		if (count($OUOptions) > 1)
 		{
 			$OUs = array_unique((array)$OUOptions);
 			$optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
@@ -222,7 +223,10 @@ class HostManagementPage extends FOGPage
 				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
 				$optionOU[] = '<option value="'.$opt.'"'.($_REQUEST['ou'] == $opt ? ' selected="selected"' : (preg_match('#;#i',$OU) ? ' selected="selected"' : '')).'>'.$opt.'</option>';
 			}
+			$OUOptions = '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>';
 		}
+		else
+			$OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" value="${ad_ou}" autocomplete="off" />';
 		foreach ((array)$fieldsad AS $field => $input)
 		{
 			$this->data[] = array(
@@ -564,7 +568,8 @@ class HostManagementPage extends FOGPage
 		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
 		foreach ((array)$OUs AS $OU)
 			$OUOptions[] = $OU;
-		if ($OUOptions)
+		$OUOptions = array_filter($OUOptions);
+		if (count($OUOptions) > 1)
 		{
 			$OUs = array_unique((array)$OUOptions);
 			$optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
@@ -573,7 +578,10 @@ class HostManagementPage extends FOGPage
 				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
 				$optionOU[] = '<option value="'.$opt.'"'.($Host->get('ADOU') == $opt ? ' selected="selected"' : (preg_match('#;#i',$OU) ? ' selected="selected"' : '')).'>'.$opt.'</option>';
 			}
+			$OUOptions = '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>';
 		}
+		else
+			$OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" value="${ad_ou}" autocomplete="off" />';
 		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
@@ -581,7 +589,8 @@ class HostManagementPage extends FOGPage
 				'input' => $input,
 				'domainon' => ($Host->get('useAD') == '1' ? 'checked="checked"' : ''),
 				'host_dom' => $Host->get('ADDomain'),
-				'host_ou' => '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>',
+				'host_ou' => $OUOptions,
+				'ad_ou' => $Host->get('ADOU'),
 				'host_aduser' => $Host->get('ADUser'),
 				'host_adpass' => $Host->get('ADPass'),
 			);

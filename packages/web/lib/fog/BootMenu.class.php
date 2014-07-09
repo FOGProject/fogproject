@@ -50,7 +50,7 @@ class BootMenu extends FOGBase
 		$webserver = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_WEB_HOST'));
 		$webroot = '/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/';
 		$this->web = "${webserver}${webroot}";
-		$this->bootexittype = ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'exit' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'sanboot' ? 'sanboot --no-describe --drive 0x80' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'grub' ? 'chain http://'.rtrim($this->web,'/').'/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"' : 'exit')));
+		$this->bootexittype = ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'exit' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'sanboot' ? 'sanboot --no-describe --drive 0x80' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'grub' ? 'chain -ar http://'.rtrim($this->web,'/').'/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"' : 'exit')));
 		$ramsize = $this->FOGCore->getSetting('FOG_KERNEL_RAMDISK_SIZE');
 		$dns = $this->FOGCore->getSetting('FOG_PXE_IMAGE_DNSADDRESS');
 		$keymap = $this->FOGCore->getSetting('FOG_KEYMAP');
@@ -75,7 +75,7 @@ class BootMenu extends FOGBase
 				$Location = new Location($LA->get('locationID'));
 			if ($Location && $Location->isValid())
 			{
-				$StorageNode = $Location->get('tftp') ? new StorageNode($Location->get('storageNodeID')) : null;
+				$StorageNode = $Location->get('tftp') && $Location->get('storageNodeID') ? new StorageNode($Location->get('storageNodeID')) : $this->FOGCore->getClass('StorageGroup',$Location->get('storageGroupID'))->getOptimalStorageNode();
 				if ($Location->get('tftp'))
 				{
 					$memdisk = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/memdisk';
@@ -123,7 +123,7 @@ class BootMenu extends FOGBase
 			'fog.sysinfo' => 'Client System Information (Compatibility)',
 			'fog.debug' => 'Debug Mode',
 		);
-		$CaponePlugInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'capone','installed' => 1)));
+		$CaponePlugInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'capone','state' => 1,'installed' => 1)));
 		$DMISet = $CaponePlugInst ? $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_DMI') : false;
 		if ($CaponePlugInst && $DMISet)
 			$this->pxemenu['fog.capone'] = 'Capone Deploy';
@@ -179,7 +179,7 @@ class BootMenu extends FOGBase
 			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
 			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
 			print ":bootme\n";
-	    	print "chain $this->booturl/ipxe/boot.php##params\n";
+	    	print "chain -ar $this->booturl/ipxe/boot.php##params\n";
 	    } 
 	    else
 	    {
@@ -196,7 +196,7 @@ class BootMenu extends FOGBase
 			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
 			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
 			print ":bootme\n";
-			print "chain $this->booturl/ipxe/boot.php##params\n";
+			print "chain -ar $this->booturl/ipxe/boot.php##params\n";
 	    }
 	}
 	/**
@@ -262,7 +262,7 @@ class BootMenu extends FOGBase
 		print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
 		print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
 		print ":bootme\n";
-		print "chain $this->booturl/ipxe/boot.php##params";
+		print "chain -ar $this->booturl/ipxe/boot.php##params";
 	}
 	/**
 	* debugAccess()
@@ -406,7 +406,7 @@ class BootMenu extends FOGBase
 					'active' => in_array($TaskType->get('id'),$imagingTasks),
 				),
 				array(
-					'value' => "imgid=$mgid",
+					'value' => "imgid=$imgid",
 					'active' => in_array($TaskType->get('id'),$imagingTasks),
 				),
 				array(
@@ -539,7 +539,7 @@ class BootMenu extends FOGBase
 			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
 			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
 			print ":bootme\n";
-			print "chain $this->booturl/ipxe/boot.php##params ||\n";
+			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
 			print "goto MENU\n";
 		}
 		else if ($option == 'fog.quickdel')
@@ -555,13 +555,13 @@ class BootMenu extends FOGBase
 			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
 			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
 			print ":bootme\n";
-			print "chain $this->booturl/ipxe/boot.php##params ||\n";
+			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
 			print "goto MENU\n";
 		}
 		else if ($option == 'fog.advanced')
 		{
 			print ":$option\n";
-			print "chain $this->booturl/ipxe/advanced.php || goto MENU\n";
+			print "chain -ar $this->booturl/ipxe/advanced.php || goto MENU\n";
 		}
 		else if ($option == 'fog.debug') 
 		{
@@ -576,7 +576,7 @@ class BootMenu extends FOGBase
 			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
 			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
 			print ":bootme\n";
-			print "chain $this->booturl/ipxe/boot.php##params ||\n";
+			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
 		}
 		else
 		{

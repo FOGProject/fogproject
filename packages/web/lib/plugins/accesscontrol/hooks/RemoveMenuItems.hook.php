@@ -5,6 +5,7 @@ class RemoveMenuItems extends Hook
 	var $description = 'Removes menu items and restricts the links from the page.';
 	var $author = 'Tom Elliott';
 	var $active = true;
+	var $node = 'accesscontrol';
 	public function __construct()
 	{
 		parent::__construct();
@@ -20,31 +21,43 @@ class RemoveMenuItems extends Hook
 	}
 	public function MenuData($arguments)
 	{
-		foreach((array)$this->linksToFilter AS $link)
-			unset($arguments['main'][$link]);
+		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
+		{
+			foreach((array)$this->linksToFilter AS $link)
+				unset($arguments['main'][$link]);
+		}
 	}
 	public function SubMenuData($arguments)
 	{
-		foreach($arguments['submenu'] AS $node => $link)
+		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
-			if (in_array($node,(array)$this->linksToFilter))
+			foreach($arguments['submenu'] AS $node => $link)
 			{
-				$linkformat = $_SERVER['PHP_SELF'].'?node='.$node.'&sub=edit&id='.$_REQUEST['id'];
-				$delformat = $_SERVER['PHP_SELF'].'?node='.$node.'&sub=delete&id='.$_REQUEST['id'];
-				unset($arguments['submenu'][$node]['id'][$linkformat.'#host-printers']);
-				unset($arguments['submenu'][$node]['id'][$linkformat.'#host-service']);
-				unset($arguments['submenu'][$node]['id'][$linkformat.'#host-virus-history']);
-				if(!in_array($this->FOGUser->get('name'),array('fog')))
-					unset($arguments['submenu'][$node]['id'][$delformat]);
+				if (in_array($node,(array)$this->linksToFilter))
+				{
+					$linkformat = $_SERVER['PHP_SELF'].'?node='.$node.'&sub=edit&id='.$_REQUEST['id'];
+					$delformat = $_SERVER['PHP_SELF'].'?node='.$node.'&sub=delete&id='.$_REQUEST['id'];
+					unset($arguments['submenu'][$node]['id'][$linkformat.'#host-printers']);
+					unset($arguments['submenu'][$node]['id'][$linkformat.'#host-service']);
+					unset($arguments['submenu'][$node]['id'][$linkformat.'#host-virus-history']);
+					if(!in_array($this->FOGUser->get('name'),array('fog')))
+						unset($arguments['submenu'][$node]['id'][$delformat]);
+				}
 			}
 		}
 	}
 	public function NotAllowed($arguments)
 	{
-		if (in_array($_REQUEST['node'],(array)$this->linksToFilter))
+		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
-			$this->FOGCore->setMessage('Not Allowed!');
-			$this->FOGCore->redirect('index.php');
+			if (in_array($_REQUEST['node'],(array)$this->linksToFilter))
+			{
+				$this->FOGCore->setMessage('Not Allowed!');
+				$this->FOGCore->redirect('index.php');
+			}
 		}
 	}
 }

@@ -257,7 +257,7 @@ do
 			        configureUsers;
 			        configureMinHttpd;
 	                configureStorage;
-					if [ "$fogupdateloaded" = "1" ]; then
+					if [ "$fogupdateloaded" != "1" ]; then
 	                	configureNFS;
 					fi
 	                configureFTP;
@@ -311,7 +311,7 @@ do
 			    #restoreReports;
 			    setupFreshClam;
 			    configureStorage;
-				if [ "$fogupdateloaded" = "1" ]; then
+				if [ "$fogupdateloaded" != "1" ]; then
 	               	configureNFS;
 				fi
 			    configureDHCP;

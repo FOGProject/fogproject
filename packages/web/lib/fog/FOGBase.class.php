@@ -154,6 +154,62 @@ abstract class FOGBase
 	{
 		return (substr($str,strlen($str)-strlen($sub)) === $sub);
 	}
+	public function getFTPByteSize($StorageNode,$file)
+	{
+		try
+		{
+			if (!$StorageNode || !$StorageNode->isValid())
+				throw new Exception('No Storage Node');
+			$this->FOGFTP->set('username',$StorageNode->get('user'))
+						 ->set('password',$StorageNode->get('pass'))
+						 ->set('host',$StorageNode->get('ip'));
+			if (!$this->FOGFTP->connect())
+				throw new Exception("Can't connect to node.");
+			$size = $this->formatByteSize((double)$this->FOGFTP->size($file));
+		}
+		catch (Exception $e)
+		{
+			$this->FOGFTP->close();
+			return $e->getMessage();
+		}
+		$this->FOGFTP->close();
+		return $size;
+	}
+	/* 
+	* formatByteSize
+	* @param $size the size in byptes to format
+	* @return $size retunres the size formatted neatly.
+	*/
+	public function formatByteSize($size)
+	{
+		$kbyte = 1024;
+		$mbyte = $kbyte * $kbyte;
+		$gbyte = $mbyte * $kbyte;
+		$tbyte = $gbyte * $kbyte;
+		$pbyte = $tbyte * $kbyte;
+		$ebyte = $pbyte * $kbyte;
+		$zbyte = $ebyte * $kbyte;
+		$ybyte = $zbyte * $kbyte;
+		if ($size < $kbyte)
+			$Size = sprintf('%3.2f iB',$size);
+		if ($size >= $kbyte)
+			$Size = sprintf('%3.2f KiB',$size/$kbyte);
+		if ($size >= $mbyte)
+			$Size = sprintf('%3.2f MiB',$size/$mbyte);
+		if ($size >= $gbyte)
+			$Size = sprintf('%3.2f GiB',$size/$gbyte);
+		if ($size >= $tbyte)
+			$Size = sprintf('%3.2f TiB',$size/$tbyte);
+		if ($size >= $pbyte)
+			$Size = sprintf('%3.2f PiB',$size/$pbyte);
+		if ($size >= $ebyte)
+			$Size = sprintf('%3.2f EiB',$size/$ebyte);
+		if ($size >= $zbyte)
+			$Size = sprintf('%3.2f ZiB',$size/$zbyte);
+		if ($size >= $ybyte)
+			$Size = sprintf('%3.2f YiB',$size/$ybyte);
+		return $Size;
+	}
 	/*
 	* Inserts a new key/value before the key in the array.
 	*
