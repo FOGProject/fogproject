@@ -5,11 +5,11 @@ try
 	// Error checking
 	// NOTE: Most of these validity checks should never fail as checks are made during Task creation - better safe than sorry!
 	// MAC Address
-	$MACAddress = new MACAddress($_REQUEST['mac']);
-	if (!$MACAddress->isValid())
-		throw new Exception( _('Invalid MAC address') );
-	// Host for MAC Address
-	$Host = $MACAddress->getHost();
+	$HostManager = new HostManager();
+	$MACs = HostManager::parseMacList($_REQUEST['mac']);
+	if (!$MACs) throw new Exception(_('Invalid MAC Address'));
+	// Get the Host
+	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid())
 		throw new Exception( _('Invalid Host') );
 	$Host->getImage()->set('size','0')->save();

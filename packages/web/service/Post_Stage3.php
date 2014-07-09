@@ -3,10 +3,11 @@ require('../commons/base.inc.php');
 try
 {
 	// Get the MAC
-	$MACAddress = new MACAddress($_REQUEST['mac']);
-	if (!$MACAddress->isValid()) throw new Exception(_('Invalid MAC Address'));
-	// Host for MAC Address
-	$Host = $MACAddress->getHost();
+	$HostManager = new HostManager();
+	$MACs = HostManager::parseMacList($_REQUEST['mac']);
+	if (!$MACs) throw new Exception(_('Invalid MAC Address'));
+	// Get the Host
+	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid()) throw new Exception(_('Invalid host'));
 	// Task for Host
 	$Task = current($Host->get('task'));
