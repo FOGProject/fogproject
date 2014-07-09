@@ -388,7 +388,7 @@ EOFPT
 				resetFlag $part;
 			done
 			if [ "$osid" == "50" ]; then
-				echo " * Restore Linux swap paritions:";
+				echo " * Restore Linux swap partitions:";
 				swaps=`LANG=C fdisk -l | grep swap | cut -d' ' -f1 2>/dev/null`;
 IFS='
 ';
@@ -420,7 +420,7 @@ IFS='
 				intDisk=`expr $intDisk '+' 1`;
 			done
 			if [ "$osid" == "50" ]; then
-				echo " * Restore Linux swap paritions:";
+				echo " * Restore Linux swap partitions:";
 				swaps=`LANG=C fdisk -l | grep swap | cut -d' ' -f1 2>/dev/null`;
 IFS='
 ';
