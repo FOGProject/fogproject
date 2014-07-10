@@ -36,9 +36,11 @@ class SubMenu extends FOGBase
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Image']);
 			$this->object = new Image($_GET['id']);
+			$imageType = $this->object->get('imageTypeID') ? new ImageType($this->object->get('imageTypeID')) : null;
 			$this->title = array($this->foglang['Images'] => $this->object->get('name'),
 								_('Last Uploaded') => stripslashes($this->object->get('deployed')),
 								_('Deploy Method') => ($this->object->get('format') == 1 ? 'Partimage' : ($this->object->get('format') == 0 ? 'Partclone' : 'N/A')),
+								_('Image Type') => ($imageType && $imageType->isValid() ? $imageType->get('name') : _('Not Available')),
 			);
 		}
 		else if (($this->node == 'printer' || $this->node == 'print') && $_GET['id'])

@@ -32,7 +32,7 @@ class ImageManagementPage extends FOGPage
 		parent::__construct($name);
 		// Header row
 		$this->headerData = array(
-			_('Image Name') .'<br /><small>'._('Storage Group').':'._('O/S').'</small>',
+			_('Image Name') .'<br /><small>'._('Storage Group').': '._('O/S').'</small><br /><small>'._('Image Type').'</small>',
 			_('Image Size: ON CLIENT'),
 			_('Image Size: ON SERVER'),
 			_('Uploaded'),
@@ -40,7 +40,7 @@ class ImageManagementPage extends FOGPage
 		);
 		// Row templates
 		$this->templates = array(
-			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name}</a><br /><small>${storageGroup}:${os}</small>',
+			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name}</a><br /><small>${storageGroup}:${os}</small><br /><small>${image_type}</small>',
 			'${size}',
 			'${serv_size}',
 			'${deployed}',
@@ -71,6 +71,7 @@ class ImageManagementPage extends FOGPage
 			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
 			$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
 			$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
+			$imageType = $Image->get('imageTypeID') ? new ImageType($Image->get('imageTypeID')) : null;
 			$this->data[] = array(
 				'id'		=> $Image->get('id'),
 				'name'		=> $Image->get('name'),
@@ -82,6 +83,7 @@ class ImageManagementPage extends FOGPage
 				'deployed' => checkdate($this->FOGCore->formatTime($Image->get('deployed'),'m'),$this->FOGCore->formatTime($Image->get('deployed'),'d'),$this->FOGCore->formatTime($Image->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
 				'serv_size' => $servSize,
+				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
 			);
 		}
 		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
@@ -119,6 +121,7 @@ class ImageManagementPage extends FOGPage
 			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
 			$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
 			$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
+			$imageType = $Image->get('imageTypeID') ? new ImageType($Image->get('imageTypeID')) : null;
 			$this->data[] = array(
 				'id'		=> $Image->get('id'),
 				'name'		=> $Image->get('name'),
@@ -130,6 +133,7 @@ class ImageManagementPage extends FOGPage
 				'deployed' => checkdate($this->FOGCore->formatTime($Image->get('deployed'),'m'),$this->FOGCore->formatTime($Image->get('deployed'),'d'),$this->FOGCore->formatTime($Image->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
 				'serv_size' => $servSize,
+				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
 			);
 		}
 		// Hook
