@@ -1,4 +1,5 @@
 #!/bin/sh
+. /usr/share/fog/lib/partition-funcs.sh
 REG_LOCAL_MACHINE_XP="/ntfs/WINDOWS/system32/config/system"
 REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
 REG_HOSTNAME_KEY1_XP="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
@@ -46,24 +47,38 @@ enableWriteCache()
 expandPartition() 
 {
 	if [ ! -n "$1" ]; then
-		echo "No parition";
+		echo " * No partition";
 		return;
 	fi
+	if [ -n "$fixed_size_partitions" ]; then
+		local partNum=`echo $1 | sed -r 's/^[^0-9]+//g'`;
+		is_fixed=`echo "$fixed_size_partitions" | egrep ':'${partNum}':|^'${partNum}':|:'${partNum}'$' | wc -l`;
+		if [ "$is_fixed" == "1" ]; then
+			dots "Not expanding ($1) fixed size";
+			echo "Done";
+			return;
+		fi
+	fi
+	do_reset_flag="0"
 	fstype=`fsTypeSetting $1`;
 	if [ "$fstype" == "ntfs" ]; then
 		dots "Resizing ntfs volume ($1)";
 		ntfsresize $1 -f -b -P &>/dev/null << EOFNTFSRESTORE
 Y
 EOFNTFSRESTORE
-		resetFlag $1;
+		do_reset_flag="1"
 	elif [ "$fstype" == "extfs" ]; then
 		dots "Resizing $fstype volume ($1)";
 		e2fsck -fp $1 &>/dev/null;
 		resize2fs $1 &>/dev/null;
+		e2fsck -fp $1 &>/dev/null; # prevent fsck at first boot of restored system
 	else
 		dots "Not expanding ($1 $fstype)";
 	fi
 	echo "Done";
+	if [ "$do_reset_flag" == "1" ]; then
+		resetFlag $1;
+	fi
 }
 # $1 is the partition
 fsTypeSetting()
@@ -78,6 +93,8 @@ fsTypeSetting()
 		echo "fat";
 	elif [ "$fstype" == "hfsplus" ]; then
 		echo "hfsp";
+	elif [ "$fstype" == "swap" ]; then
+		echo "swap";
 	else
 		echo "imager";
 	fi
@@ -99,49 +116,6 @@ getDiskSize()
 	disksize=`awk "BEGIN{print $block_disk_tot * $disk_block_size}"`;
 	echo $disksize;
 }
-# $1 is the partition
-percentageUsed()
-{
-	partsize=`getPartSize $1`;
-	disksize=`getDiskSize`;
-	percent_part_uses=`awk "BEGIN{print $partsize / $disksize}"`;
-	partexists=`cat $imagePath/fsInfo|grep $1|wc -l`
-	if [ -f "$imagePath/fsInfo" ]; then
-		sed -i "/$1/d/g" $imagePath/fsInfo;
-	fi
-	echo "$part $percent_part_uses" >> $imagePath/fsInfo;
-	# Should maybe use here to write percentage into file.
-}
-# $1 is the partition
-# $2 is the path to get the fsIno
-percentageExpand()
-{
-	diskLength=`expr length $hd`;
-	diskblocksize=`blockdev --getsz $hd`;
-	diskblockcount=`blockdev --getpbsz $hd`;
-	disksize=`awk "BEGIN{print $diskblocksize * $diskblockcount}"`;
-	partNum=${1:$diskLength};
-	fstype=`fsTypeSetting $1`;
-	fs=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
-	partstart=`parted -s $hd u kB print | sed -e "/^.$partNum/!d" -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
-	if [ "$partstart" == "" ]; then
-		handleError "Unable to determine disk start location.";
-	fi
-	if [ "$fstype" == "extfs" ]; then
-		percent_used=`cat $2/fsInfo | tail -1 | grep $1 | awk '{print $2}'`;
-		newdisksize=`awk "BEGIN{print $percent_used * $disksize}"`;
-		newdisksize=`awk "BEGIN{print $newdisksize / 1024}"`;
-		newdisksize=`echo $newdisksize | awk '{printf "%.0f", $1}'`;
-		dots "Resizing $1 partition";
-		parted -s $hd u kB rm $partNum &>/dev/null;
-		parted -s $hd -a opt u kB mkpart primary $fs ${partstart}kB ${newdisksize}kB &>/dev/null;
-		if [ "$partNum" == "1" ]; then
-			parted -s $hd u kB set 1 boot on &>/dev/null;
-		fi
-		runPartprobe $hd;
-	fi
-	echo "Done";
-}
 validResizeOS()
 {
 	#Valid OSID's are 1 XP, 2 Vista, 5 Win 7, 6 Win 8, 7 Win 8.1, and 50 Linux
@@ -150,13 +124,24 @@ validResizeOS()
 	fi
 }
 # $1 is the partition
+# $2 is the fstypes file location
 shrinkPartition() 
 {
 	if [ ! -n "$1" ]; then
-		echo "No partition";
+		echo " * No partition";
 		return;
 	fi
 	fstype=`fsTypeSetting $1`;
+	addToFstypesFile "$2" "$1" "$fstype";
+	if [ -n "$fixed_size_partitions" ]; then
+		local partNum=`echo $1 | sed -r 's/^[^0-9]+//g'`;
+		is_fixed=`echo "$fixed_size_partitions" | egrep ':'${partNum}':|^'${partNum}':|:'${partNum}'$' | wc -l`;
+		if [ "$is_fixed" == "1" ]; then
+			dots "Not shrinking ($1) fixed size";
+			echo "Done";
+			return;
+		fi
+	fi
 	if [ "$fstype" == "ntfs" ]; then
 		ntfsresizetest="ntfsresize -f -i -P $1";
 		size=`$ntfsresizetest | grep "You might resize" | cut -d" " -f5`;
@@ -170,64 +155,70 @@ shrinkPartition()
 		sizefd=`expr $sizentfsresize '*' 103 '/' 100`;
 		echo "";
 		echo " * Possible resize partition size: $sizentfsresize k";
-		dots "Running resize test";
+		dots "Running resize test $1";
 		tmpSuc=`ntfsresize -f -n -s ${sizentfsresize}k $1 << EOFNTFS
 Y
 EOFNTFS`
 		success=`echo $tmpSuc | grep "ended successfully"`;
+		too_big=`echo $tmpSuc | grep "bigger than the device size"`;
+		ok_size=`echo $tmpSuc | grep "volume size is already OK"`;
 		echo "Done";
-		if [ ! -n "$success" ]; then
-			handleError "Resize test failed!\n $tmpSuc";
-		fi
-		echo " * Resize test was successful";
-		dots "Backing up MBR";
-		if [ "$win7rec" == "gpt" ]; then
-			sgdisk -b /gpt.bak $hd 2>&1 >/dev/null;
+		if [ -n "$too_big" ]; then
+			echo " * Not resizing filesystem $1 (part too small)";
+			do_resizefs=0;
+			do_resizepart=0;
+		elif [ -n "$ok_size" ]; then
+			echo " * Not resizing filesystem $1 (already OK)";
+			do_resizefs=0;
+			do_resizepart=1;
+		elif [ ! -n "$success" ]; then
+			handleWarning "Resize test failed!\n $tmpSuc";
+			do_resizefs=0;
+			do_resizepart=0;
 		else
-			dd if=$hd of=/mbr.backup count=1 bs=512 &>/dev/null;
+			echo " * Resize test was successful";
+			do_resizefs=1;
+			do_resizepart=1;
 		fi
-		echo "Done";
-		dots "Resizing filesystem";
-		ntfsresize -f -s ${sizentfsresize}k $1 &>/dev/null << FORCEY
+		if [ "$do_resizefs" == "1" ]; then
+			dots "Resizing filesystem";
+			ntfsresize -f -s ${sizentfsresize}k $1 &>/dev/null << FORCEY
 y
 FORCEY
-		echo "Done";
-		dots "Resizing partition";
-		if [ "$osid" == "1" -o "$osid" == "2" ]; then
-			parted -s $hd u kB rm 1 &>/dev/null;
-			parted -s $hd -a opt u kB ${partitionStart}s ${sizentfsresize}kB &>/dev/null;
-			parted -s $hd u kB set 1 boot on &>/dev/null;
-			if [ "$osid" == "2" ]; then
-				correctVistaMBR $hd;
+			echo "Done";
+			resetFlag $1;
+		fi
+		if [ "$do_resizepart" == "1" ]; then
+			dots "Resizing partition $1";
+			if [ "$osid" == "1" -o "$osid" == "2" ]; then
+				resizePartition "$1" "$sizentfsresize"
+				if [ "$osid" == "2" ]; then
+					correctVistaMBR $hd;
+				fi
+			elif [ "$win7partcnt" == "1" ]; then
+				win7part1start=`parted -s $hd u kB print | sed -e '/^.1/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
+				if [ "$win7part1start" == "" ]; then
+					handleError "Unable to determine disk start location.";
+				fi
+				adjustedfdsize=`expr $sizefd '+' $win7part1start`;
+				resizePartition "$1" "$adjustedfdsize"
+			elif [ "$win7partcnt" == "2" ]; then
+				win7part2start=`parted -s $hd u kB print | sed -e '/^.2/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
+				if [ "$win7part2start" == "" ]; then
+					handleError "Unable to determine disk start location.";
+				fi
+				adjustedfdsize=`expr $sizefd '+' $win7part2start`;
+				resizePartition "$1" "$adjustedfdsize"
+			else
+				adjustedfdsize=`expr $sizefd '+' 1048576`;
+				resizePartition "$1" "$adjustedfdsize"
 			fi
-		elif [ "$win7partcnt" == "1" ]; then
-			win7part1start=`parted -s $hd u kB print | sed -e '/^.1/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
-			if [ "$win7part1start" == "" ]; then
-				handleError "Unable to determine disk start location.";
-			fi
-			adjustedfdsize=`expr $sizefd '+' $win7part1start`;
-			parted -s $hd u kB rm 1 &>/dev/null;
-			parted -s $hd -a opt u kB mkpart primary ntfs ${partitionStart}s ${adjustedfdsize}kB &>/dev/null;
-			parted -s $hd u kB set 1 boot on &>/dev/null;
-		elif [ "$win7partcnt" == "2" ]; then
-			win7part2start=`parted -s $hd u kB print | sed -e '/^.2/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
-			if [ "$win7part2start" == "" ]; then
-				handleError "Unable to determine disk start location.";
-			fi
-			adjustedfdsize=`expr $sizefd '+' $win7part2start`;
-			parted -s $hd u kB rm 2 &>/dev/null;
-			parted -s $hd -a opt u kB mkpart primary ntfs ${defaultpart2start}B ${adjustedfdsize}kB &>/dev/null;
-		else
-			handleError "Invalid partition count.";
+			runPartprobe $hd;
 		fi
 	elif [ "$fstype" == "extfs" ]; then
-		dots "Backing up MBR";
-		dd if=$hd of=/mbr.backup count=1 bs=512 &>/dev/null;
-		echo "Done";
-		sfdisk -d $hd 2>/dev/null > /partitionbkup;
-		fs=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
-		percentageUsed $1 &>/dev/null;
+		dots "Checking $fstype volume ($1)";
 		e2fsck -fp $1 &>/dev/null;
+		echo "Done";
 		extminsizenum=`resize2fs -P $1 2>/dev/null | awk -F': ' '{print $2}'`;
 		block_size=`dumpe2fs -h $1 2>/dev/null | grep "^Block size:" | awk '{print $3}'`;
 		size=`expr $extminsizenum '*' $block_size`;
@@ -235,23 +226,16 @@ FORCEY
 		echo "";
 		echo " * Possible resize partition size: $sizeextresize k";
 		sleep 3;
-		dots "Resizing $fstype volume ($1)";
+		dots "Shrinking $fstype volume ($1)";
 		resize2fs $1 -M &>/dev/null;
 		echo "Done";
-		diskLength=`expr length $hd`;
-		partNum=${1:$diskLength};
-		partstart=`parted -s $hd u kB print | sed -e "/^.$partNum/!d" -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
-		if [ "$partstart" == "" ]; then
-			handleError "Unable to determine disk start location.";
-		fi
-		dots "Resizing $1 partition";
-		parted -s $hd u kB rm $partNum &>/dev/null;
-		parted -s $hd -a opt u kB mkpart primary $fs ${partstart}kB ${sizeextresize}kB &>/dev/null;
-		if [ "$partNum" == "1" ]; then
-			parted -s $hd u kB set 1 boot on &>/dev/null;
-		fi
+		dots "Shrinking $1 partition";
+		resizePartition "$1" "$sizeextresize"
+		echo "Done";
 		runPartprobe $hd;
+		dots "Resizing $fstype volume ($1)";
 		resize2fs $1 &>/dev/null;
+		e2fsck -fp $1 &>/dev/null; # prevent fsck at first boot after uploaded system
 	else
 		dots "Not shrinking ($1 $fstype)";
 	fi
@@ -261,13 +245,31 @@ FORCEY
 resetFlag() 
 {
 	if [ -n "$1" ]; then
+		fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
 		if [ "$fstype" == "ntfs" ]; then
 			dots "Clearing ntfs flag";
-			fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
 			ntfsfix -b -d $1 &>/dev/null;
-	    fi
+			echo "Done";
+		fi
 	fi
-	echo "Done";
+}
+# $1 is the disk
+countNtfs() 
+{
+	local count=0;
+	local fstype="";
+	local part="";
+	local parts="";
+	if [ -n "$1" ]; then
+		parts=`fogpartinfo --list-parts $1 2>/dev/null`;
+		for part in $parts; do
+			fstype=`fsTypeSetting $part`;
+			if [ "$fstype" == "ntfs" ]; then
+				count=`expr $count '+' 1`;
+			fi
+		done
+	fi
+	echo $count;
 }
 
 setupDNS()
@@ -363,6 +365,36 @@ y
 EOFMOUNT
 		echo "Done";		
 		umount /ntfs
+	fi
+}
+# $1 is the device name of the windows system partition
+removePageFile()
+{
+	local part="$1";
+	local fstype="";
+	if [ "$part" != "" ]; then
+		fstype=`fsTypeSetting $part`
+	fi
+	if [ "$fstype" != "ntfs" ]; then
+		echo " * No ntfs file system to remove page file"
+	elif [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
+		if [ "$ignorepg" == "1" ]; then
+			dots "Mounting device";
+			mkdir /ntfs &>/dev/null;
+			ntfs-3g -o force,rw $part /ntfs;
+			if [ "$?" == "0" ]; then
+				echo "Done";
+				dots "Removing page file";
+				rm -f "/ntfs/pagefile.sys";
+				echo "Done";
+				dots "Removing hibernate file";
+				rm -f "/ntfs/hiberfil.sys";
+				echo "Done";
+				umount /ntfs;
+			else
+				echo "Failed";
+			fi
+		fi
 	fi
 }
 
@@ -602,6 +634,27 @@ handleError()
 	exit 0;
 }
 
+handleWarning()
+{
+    echo "";
+	echo " #############################################################################";
+	echo " #                                                                           #";	
+	echo " #                     A warning has been detected!                           #";
+	echo " #                                                                           #";	
+	echo " #############################################################################";
+	echo "";
+	echo "";
+	echo -e " $1";
+	echo "";
+	echo "";
+	echo " #############################################################################";
+	echo " #                                                                           #";	
+	echo " #                  Will continue in 1 minute.                               #";
+	echo " #                                                                           #";	
+	echo " #############################################################################";	
+	sleep 60;
+}
+
 # $1 is the drive
 runPartprobe()
 {
@@ -672,7 +725,7 @@ saveGRUB()
 		awk -F, '{print $1;}' | \
 		grep start= | \
 		awk -F= 'BEGIN{start=1000000000;}{if($2 > 0 && $2 < start){start=$2;}}END{printf("%d\n", start);}'`;
-	local count=$((first-1));
+	local count=$first;
 	dd if="$disk" of="$imagePath/d${disk_number}.mbr" count="${count}" bs=512 &>/dev/null;
 	touch "$imagePath/d${disk_number}.has_grub";
 }
@@ -710,6 +763,5 @@ restoreGRUB()
 	local imagePath="$3";
 	local tmpMBR="${imagePath}/d${disk_number}.mbr";
 	local count=`du -B 512 "${tmpMBR}" | awk '{print $1;}'`;
-	count=$((count-1));
 	dd if="${tmpMBR}" of="${disk}" bs=512 count="${count}" &>/dev/null;
 }
