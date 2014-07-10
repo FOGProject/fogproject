@@ -271,6 +271,24 @@ countNtfs()
 	fi
 	echo $count;
 }
+# $1 is the disk
+countExtfs()
+{
+	local count=0;
+	local fstype="";
+	local part="";
+	local parts="";
+	if [ -n "$1" ]; then
+		parts=`fogpartinfo --list-parts $1 2>/dev/null`;
+		for part in $parts; do
+			fstype=`fsTypeSetting $part`;
+			if [ "$fstype" == "extfs" ]; then
+				count=`expr $count '+' 1`;
+			fi
+		done
+	fi
+	echo $count;
+}
 
 setupDNS()
 {
