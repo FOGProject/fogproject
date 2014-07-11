@@ -75,6 +75,7 @@ class User extends FOGController
 		{
 			// reset session
 			@session_write_close();
+			@session_set_cookie_params(0);
 			@session_start();
 			@session_regenerate_id(true);
 			$_SESSION['CREATED'] = time();
@@ -88,6 +89,7 @@ class User extends FOGController
 	{
 		// Destroy session
 		@session_write_close();
+		@session_set_cookie_params(0);
 		@session_start();
 		@session_regenerate_id(true);
 		@session_unset();

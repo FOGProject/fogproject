@@ -1,5 +1,6 @@
 <?php
-session_start();
+@session_set_cookie_params(0);
+@session_start();
 (!isset($_SESSION['locale']) ? $_SESSION['locale'] = 'en_US' : null);
 putenv("LC_ALL=".$_SESSION['locale']);
 setlocale(LC_ALL, $_SESSION['locale']);
@@ -21,4 +22,5 @@ print "\n\t\t</p>";
 print "\n\t</div>";
 print "\n</body>";
 print "\n</html>";
+@session_write_close();
 ob_end_flush();

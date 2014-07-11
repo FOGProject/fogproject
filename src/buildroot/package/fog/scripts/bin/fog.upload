@@ -76,8 +76,9 @@ if [ -f "/images/.mntcheck" ]; then
 			#  assumes windows partitions are at the front of the disk (1,2,3, etc.)
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ] || [ "$osid" == "50" ]; then
 				win7partcnt=`countNtfs $hd`;
-				if [ "$win7partcnt" == "0" ]; then
-					handleError "No ntfs partitions found.";
+				extfsavail=`countExtfs $hd`;
+				if [ "$win7partcnt" == "0" ] && [ "$extfsavail" == "0" ]; then
+					handleError "No resizable partitions found.";
 				elif [ "$win7partcnt" == "1" ]; then
 					part="${hd}1";
 					win7sys="$part";
@@ -99,8 +100,8 @@ if [ -f "/images/.mntcheck" ]; then
 					win7sys=${hd}3;
 					part=${hd}3;
 					fixed_size_partitions="${fixed_size_partitions}:${hd}1:${hd}2";
-				else
-					handleError "More than ntfs 3 partitions found, not valid for this image type.";
+				elif [ "$win7partcnt" -gt 3 ]; then
+					handleError "More than 3 ntfs partitions found, not valid for this image type.";
 				fi
 				clearMountedDevices;
 			fi

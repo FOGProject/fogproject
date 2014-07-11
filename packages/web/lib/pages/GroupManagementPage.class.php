@@ -1145,7 +1145,7 @@ class GroupManagementPage extends FOGPage
 				throw new Exception(_('Hosts do not have Uniformed Image assignments'));
 			foreach((array)$Group->get('hosts') AS $Host)
 			{
-				if (in_array($taskTypeID,$imageTasks) && !$Host->get('imageID'))
+				if (in_array($taskTypeID,$imagingTasks) && !$Host->get('imageID'))
 					throw new Exception(_('You need to assign an image to the host'));
 				if (!$Host->checkIfExist($taskTypeID))
 					throw new Exception(_('To setup download task, you must first upload an image'));
