@@ -271,6 +271,24 @@ countNtfs()
 	fi
 	echo $count;
 }
+# $1 is the disk
+countExtfs()
+{
+	local count=0;
+	local fstype="";
+	local part="";
+	local parts="";
+	if [ -n "$1" ]; then
+		parts=`fogpartinfo --list-parts $1 2>/dev/null`;
+		for part in $parts; do
+			fstype=`fsTypeSetting $part`;
+			if [ "$fstype" == "extfs" ]; then
+				count=`expr $count '+' 1`;
+			fi
+		done
+	fi
+	echo $count;
+}
 
 setupDNS()
 {
@@ -283,14 +301,14 @@ writeImage()
 {
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-		partimage restore $2 $1 -f3 -b 2>/tmp/status.fog
+		partimage restore $2 $1 -f3 -b 2>/tmp/status.fog;
 	else 
 		# partclone
 		mkfifo /tmp/pigz1;
 		cat $1 > /tmp/pigz1 &
 		gunzip -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
-		rm /tmp/pigz1;
 	fi
+	rm /tmp/pigz1;
 }
 
 # $1 = Target
@@ -323,7 +341,7 @@ changeHostname()
 			regfile=$REG_LOCAL_MACHINE_XP
 			key1=$REG_HOSTNAME_KEY1_XP
 			key2=$REG_HOSTNAME_KEY2_XP
-			key1=$REG_HOSTNAME_KEY3_XP
+			key3=$REG_HOSTNAME_KEY3_XP
 		fi
 		reged -e $regfile &>/dev/null <<EOFREG
 ed $key1

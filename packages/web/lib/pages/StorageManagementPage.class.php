@@ -51,17 +51,20 @@ class StorageManagementPage extends FOGPage
 		// Row data
 		foreach ((array)$StorageNodes AS $StorageNode)
 		{
+			$StorageGroup = new StorageGroup($StorageNode->get('storageGroupID'));
 			$this->data[] = array_merge(
 				(array)$StorageNode->get(),
 				array(	'isMasterText'		=> ($StorageNode->get('isMaster') ? 'Yes' : 'No'),
 					'isEnabledText'		=> ($StorageNode->get('isEnabled') ? 'Yes' : 'No'),
-					'isGraphEnabledText'	=> ($StorageNode->get('isGraphEnabled') ? 'Yes' : 'No')
+					'isGraphEnabledText'	=> ($StorageNode->get('isGraphEnabled') ? 'Yes' : 'No'),
+					'storage_group' => $StorageGroup->get('name'),
 				)
 			);
 		}
 		// Header row
 		$this->headerData = array(
 			_('Storage Node'),
+			_('Storage Group'),
 			_('Enabled'),
 			_('Graph Enabled'),
 			_('Master Node'),
@@ -70,6 +73,7 @@ class StorageManagementPage extends FOGPage
 		// Row templates
 		$this->templates = array(
 			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, _('Edit')),
+			sprintf('${storage_group}', $this->node, $this->id),
 			sprintf('${isEnabledText}', $this->node, $this->id),
 			sprintf('${isGraphEnabledText}', $this->node, $this->id),
 			sprintf('${isMasterText}', $this->node, $this->id),
@@ -77,6 +81,7 @@ class StorageManagementPage extends FOGPage
 		);
 		// Row attributes
 		$this->attributes = array(
+			array(),
 			array(),
 			array('class' => 'c', 'width' => '90'),
 			array('class' => 'c', 'width' => '90'),
