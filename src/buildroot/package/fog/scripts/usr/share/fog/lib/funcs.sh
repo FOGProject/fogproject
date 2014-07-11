@@ -301,9 +301,7 @@ writeImage()
 {
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-		mkfifo /tmp/pigz1;
-		cat $1 > /tmp/pigz1 &
-		gunzip -d -c < /tmp/pigz1 | partimage restore $2 /tmp/pigz1 -f3 -b 2>/tmp/status.fog;
+		partimage restore $2 $1 -f3 -b 2>/tmp/status.fog;
 	else 
 		# partclone
 		mkfifo /tmp/pigz1;
@@ -343,7 +341,7 @@ changeHostname()
 			regfile=$REG_LOCAL_MACHINE_XP
 			key1=$REG_HOSTNAME_KEY1_XP
 			key2=$REG_HOSTNAME_KEY2_XP
-			key1=$REG_HOSTNAME_KEY3_XP
+			key3=$REG_HOSTNAME_KEY3_XP
 		fi
 		reged -e $regfile &>/dev/null <<EOFREG
 ed $key1

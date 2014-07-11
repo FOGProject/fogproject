@@ -157,5 +157,5 @@ $foglang['Language']['zh']			= _('中国的');
 $foglang['Language']['en']			= _('English');
 $foglang['Language']['es']			= _('Español');
 $foglang['Language']['fr']			= _('Français');
-$foglang['Lnaguage']['de']			= _('Deutsch');
+$foglang['Language']['de']			= _('Deutsch');
 $foglang['Language']['it']			= _('Italiano');
