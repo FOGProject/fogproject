@@ -301,7 +301,11 @@ writeImage()
 {
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-		partimage restore $hd $1 -f3 -b #2>/tmp/status.fog;
+		if [ "$osid" == "1" ]; then
+			partimage restore $hd $1 -f3 -b 2>/tmp/status.fog;
+		else
+			partimage restore $2 $1 -f3 -b 2>/tmp/status.fog;
+		fi
 	else 
 		# partclone
 		mkfifo /tmp/pigz1;
