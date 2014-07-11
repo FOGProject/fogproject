@@ -28,6 +28,8 @@ class ProcessLogin extends FOGBase
 				return $this->foglang['Language']['fr'];
 			case 'zh_CN.UTF-8':
 				return $this->foglang['Language']['zh'];
+			case 'de_DE.UTF-8':
+				return $this->foglang['Language']['de'];
 			default :
 				return $this->foglang['Language']['en'];
 		}
@@ -40,17 +42,20 @@ class ProcessLogin extends FOGBase
 			case _('English'):
 				$_POST['ulang'] = 'en_US.UTF-8';
 				break;
-			case _('French'):
+			case _('Français'):
 				$_POST['ulang'] = 'fr_FR.UTF-8';
 				break;
-			case _('Italian'):
+			case _('Italiano'):
 				$_POST['ulang'] = 'it_IT.UTF-8';
 				break;
-			case _('Chinese'):
+			case _('中国的'):
 				$_POST['ulang'] = 'zh_CN.UTF-8';
 				break;
-			case _('Spanish'):
+			case _('Español'):
 				$_POST['ulang'] = 'es_ES.UTF-8';
+				break;
+			case _('Deutsch'):
+				$_POST['ulang']	= 'de_DE.UTF-8';
 				break;
 			default :
 				$_POST['ulang'] = 'en_US.UTF-8';
@@ -77,6 +82,7 @@ class ProcessLogin extends FOGBase
 		@session_write_close();
 		@session_regenerate_id(true);
 		$_SESSION = array();
+		@session_set_cookie_params(0);
 		@session_start();
 		$currentUser = $tmpUser;
 		$currentUser->set('authTime', time());

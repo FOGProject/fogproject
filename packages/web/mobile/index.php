@@ -12,9 +12,7 @@ $FOGCore->getClass('ProcessLogin')->processMobileLogin();
 if($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn())
 {
 	@session_write_close();
-	@session_start();
-	@session_unset();
-	@session_destroy();
+	@session_regenerate_id(true);
 	// Logout
 	if(method_exists($currentUser, 'logout'))
 		$currentUser->logout();
