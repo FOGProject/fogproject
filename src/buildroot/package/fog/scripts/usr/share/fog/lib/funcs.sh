@@ -301,14 +301,16 @@ writeImage()
 {
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-		partimage restore $2 $1 -f3 -b 2>/tmp/status.fog
+		mkfifo /tmp/pigz1;
+		cat $1 > /tmp/pigz1 &
+		gunzip -d -c < /tmp/pigz1 | partimage restore $2 /tmp/pigz1 -f3 -b 2>/tmp/status.fog;
 	else 
 		# partclone
 		mkfifo /tmp/pigz1;
 		cat $1 > /tmp/pigz1 &
 		gunzip -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
-		rm /tmp/pigz1;
 	fi
+	rm /tmp/pigz1;
 }
 
 # $1 = Target
