@@ -1380,6 +1380,13 @@ $databaseSchema[] = array(
 $databaseSchema[] = array(
 	"UPDATE `" . DATABASE_NAME ."`.taskTypes SET ttKernelArgs='type=down' WHERE ttID='17'",
 );
+// 111
+// Changes Single Partition (NTFS Only, resizable) to Single Disk - resizable for less confusion
+// Especially now that Linux resizable is there.
+// Of note, linux resizable must be linux, windows resizable must be windows, multi-boot can be either for OS.
+$databaseSchema[] = array(
+	"UPDATE `". DATABASE_NAME ."`.`imageTypes` SET `imageTypeName` = 'Single Disk - Resizable' WHERE `imageTypes`.`imageTypeName` = 'Single Disk (NTFS Only, Resizable)'",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
