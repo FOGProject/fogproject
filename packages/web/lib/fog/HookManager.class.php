@@ -243,30 +243,33 @@ class HookManager extends FOGBase
 	}
 	public function load()
 	{
-		global $Init,$PluginNames;
+		global $Init;
 		foreach($Init->HookPaths AS $hookDirectory)
 		{
-			$hookIterator = new DirectoryIterator($hookDirectory);
-			foreach ($hookIterator AS $fileInfo)
+			if (file_exists($hookDirectory))
 			{
-				$file = !$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-9) == '.hook.php' ? file($fileInfo->getPathname()) : null;
-				$PluginName = preg_match('#plugins#i',$hookDirectory) ? basename(substr($hookDirectory,0,-6)) : null;
-				$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $PluginName,'installed' => 1)));
-				if ($Plugin)
-					$className = (substr($fileInfo->getFilename(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
-				else if ($file && !preg_match('#plugins#',$fileInfo->getPathname()))
+				$hookIterator = new DirectoryIterator($hookDirectory);
+				foreach ($hookIterator AS $fileInfo)
 				{
-					$key = '$active';
-					foreach($file AS $lineNumber => $line)
+					$file = !$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-9) == '.hook.php' ? file($fileInfo->getPathname()) : null;
+					$PluginName = preg_match('#plugins#i',$hookDirectory) ? basename(substr($hookDirectory,0,-6)) : null;
+					$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $PluginName,'installed' => 1)));
+					if ($Plugin)
+						$className = (substr($fileInfo->getFilename(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
+					else if ($file && !preg_match('#plugins#',$fileInfo->getPathname()))
 					{
-						if (strpos($line,$key) !== false)
-							break;
+						$key = '$active';
+						foreach($file AS $lineNumber => $line)
+						{
+							if (strpos($line,$key) !== false)
+								break;
+						}
+						if(preg_match('#true#i',$file[$lineNumber]))
+							$className = (substr($fileInfo->getFileName(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
 					}
-					if(preg_match('#true#i',$file[$lineNumber]))
-						$className = (substr($fileInfo->getFileName(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
+					if ($className)
+						$class = new $className();
 				}
-				if ($className)
-					$class = new $className();
 			}
 		}
 	}
