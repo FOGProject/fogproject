@@ -12,7 +12,7 @@ try
 	$MACAddress = new MACAddress($mac);
 	$Host = $HostManager->getHostByMacAddresses($mac);
 	if (!$MACAddress->isValid())
-		throw new Exception(_('Invalid MAC Address'));
+		throw new Exception($foglang['InvalidMAC']);
 	// Set safe and simple mac for hostname if needed.
 	$macsimple = str_replace(':','',$mac);
 	// Make sure it's a unique name.
