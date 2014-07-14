@@ -14,7 +14,7 @@ $(function()
 	$('#adEnabled').change(function() {
 		if ( $(this).attr('checked') )
 		{
-			if ( $('#adDomain').val() == '' && $('#adUsername').val() == '' && $('#adPassword').val() == '')
+			if ($('#adDomain').val() == '' && $('#adUsername').val() == '' && $('#adPassword').val() == '')
 			{
 				$.ajax({
 					'type':		'GET',

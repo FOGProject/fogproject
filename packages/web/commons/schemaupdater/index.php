@@ -1387,6 +1387,13 @@ $databaseSchema[] = array(
 $databaseSchema[] = array(
 	"UPDATE `". DATABASE_NAME ."`.`imageTypes` SET `imageTypeName` = 'Single Disk - Resizable' WHERE `imageTypes`.`imageTypeName` = 'Single Disk (NTFS Only, Resizable)'",
 );
+// 112
+$databaseSchema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME . "`.`hosts`
+		ADD COLUMN `hostProductKey` varchar(50) NOT NULL AFTER `hostADPass`",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_DEFAULT_PRODUCT_KEY','This setting allows the user to specify a default product key.','XXXXX-XXXXX-XXXXX-XXXXX-XXXXX','FOG Service - Hostname Changer')",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
