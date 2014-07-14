@@ -305,7 +305,10 @@ writeImage()
 {
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-		partimage restore $2 $1 -f3 -b 2>/tmp/status.fog;
+		mkfifo /tmp/pigz1;
+		cat $1 > /tmp/pigz1 &
+		gunzip -d -c < /tmp/pigz1 | partimage restore $2 stdin -f3 -b 2>/tmp/status.fog;
+		rm /tmp/pigz1;
 	else 
 		# partclone
 		mkfifo /tmp/pigz1;
