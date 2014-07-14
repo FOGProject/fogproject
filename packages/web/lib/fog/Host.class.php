@@ -22,6 +22,7 @@ class Host extends FOGController
 		'ADOU'		=> 'hostADOU',
 		'ADUser'	=> 'hostADUser',
 		'ADPass'	=> 'hostADPass',
+		'productKey' => 'hostProductKey',
 		'printerLevel'	=> 'hostPrinterLevel',
 		'kernel'	=> 'hostKernel',
 		'kernelArgs'	=> 'hostKernelArgs',
