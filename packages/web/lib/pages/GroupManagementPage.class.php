@@ -240,8 +240,12 @@ class GroupManagementPage extends FOGPage
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// If all hosts have the same image setup up the selection.
 		foreach ((array)$Group->get('hosts') AS $Host)
+		{
 			$imageID[] = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
+			$groupKey[] = $Host && $Host->isValid() ? base64_decode($Host->get('productKey')) : '';
+		}
 		$imageIDMult = (is_array($imageID) ? array_unique($imageID) : $imageID);
+		$groupKeyMult = (is_array($groupKey) ? array_unique($groupKey) : $groupKey);
 		if (count($imageIDMult) == 1)
 			$imageMatchID = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
 		// For the location plugin.  If all have the same location, setup the selection to let people know.
@@ -277,6 +281,7 @@ class GroupManagementPage extends FOGPage
 		$fields = array(
 			_('Group Name') => '<input type="text" name="name" value="${group_name}" />',
 			_('Group Description') => '<textarea name="description" rows="8" cols="40">${group_desc}</textarea>',
+			_('Group Product Key') => '<input id="productKey" type="text" name="key" value="${group_key}" />',
 			($LocPluginInst ? _('Group Location') : null) => ($LocPluginInst ? $this->FOGCore->getClass('LocationManager')->buildSelectBox($locationMatchID) : null),
 			_('Group Kernel') => '<input type="text" name="kern" value="${group_kern}" />',
 			_('Group Kernel Arguments') => '<input type="text" name="args" value="${group_args}" />',
@@ -299,6 +304,7 @@ class GroupManagementPage extends FOGPage
 				'group_kern' => $Group->get('kernel'),
 				'group_args' => $Group->get('kernelArgs'),
 				'group_devs' => $Group->get('kernelDev'),
+				'group_key' => count($groupKeyMult) == 1 ? $groupKeyMult : '',
 			);
 		}
 		// Hook
@@ -748,6 +754,7 @@ class GroupManagementPage extends FOGPage
 										$Host->set('kernel',		$_POST['kern'])
 											 ->set('kernelArgs',	$_POST['args'])
 											 ->set('kernelDevice',	$_POST['dev'])
+											 ->set('productKey', $_POST['key'])
 											 ->save();
 									}
 								}
