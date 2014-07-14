@@ -72,7 +72,11 @@ if [ -f "/images/.mntcheck" ]; then
 					parted -s $hd u kB rm 1 &>/dev/null;
 					echo "Done";
 					dots "Preparing Hard Disks (Stage 3)";
-					parted -s $hd -a opt u kB mkpart primary ntfs 2048s $layPartSize &>/dev/null;
+					if [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
+						parted -s $hd u kB mkpart primary ntfs 63s $layPartSize &>/dev/null;
+					else
+						parted -s $hd -a opt u kB mkpart primary ntfs 2048s $layPartSize &>/dev/null;
+					fi
 					parted -s $hd u kB set 1 boot on &>/dev/null;
 				elif [ "$win7partcnt" == "2" ]; then
 					dots "Preparing Hard Disks (Stage 2)";
@@ -282,6 +286,7 @@ EOFPT
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				if [ "$win7partcnt" == "1" ]; then
 					writeImageMultiCast $win7sys;
+					fixWin7boot $win7sys;
 				elif [ "$win7partcnt" == "2" ]; then
 					writeImageMultiCast $win7rec;
 					fixWin7boot $win7rec;
@@ -351,7 +356,7 @@ EOFPT
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				if [ "$win7partcnt" == "1" ]; then
 					writeImage "$imagePath/sys.img.*" $win7sys;
-					#fixWin7boot $win7sys;
+					fixWin7boot $win7sys;
 				elif [ "$win7partcnt" == "2" ]; then
 					writeImage "$imagePath/rec.img.*" $win7rec;
 					fixWin7boot $win7rec;
