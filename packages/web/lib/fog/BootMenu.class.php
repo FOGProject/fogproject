@@ -289,7 +289,7 @@ class BootMenu extends FOGBase
 	}
 	public function keyset()
 	{
-		$this->Host->set('productKey',$_REQUEST['key']);
+		$this->Host->set('productKey',base64_encode($_REQUEST['key']));
 		if ($this->Host->save())
 		{
 			print "echo Successfully changed key\n"
