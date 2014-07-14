@@ -26,6 +26,7 @@ HOSTNAME_EARLY is enabled and check against this to change hostname.
 * Add ability for resizable Multiboot systems, assuming Windows Parts are at
 the start of the hard-drive. Thanks Curtis
 * Add cabextract and libmspack to inits and source code for buildroot.
+* Add product key changer to FOG.  NEEDS: client installer recompile.
 * Update plugin hooks with system to check if they are enabled or not to
 display their relevant menu/submenu items or other actions.
 * Update ipxe/undionly tftp files to latest available.
