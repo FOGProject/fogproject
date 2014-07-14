@@ -8,8 +8,7 @@ try
 	$mac = strtolower(trim($arIfconfig[1]));
 	// Check if MAC Address is valid
 	$MACAddress = new MACAddress($mac);
-	if (!$MACAddress->isvalid())
-		throw new Exception(_('Invalid MAC address'));
+	if (!$MACAddress->isvalid()) throw new Exception($foglang['InvalidMAC']);
 	// Check if host already Exists
 	$Host = $FOGCore->getClass('HostManager')->getHostByMacAddresses($mac);
 	if ($Host)

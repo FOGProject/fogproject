@@ -110,22 +110,25 @@ class FOGPageManager extends FOGBase
 		if ($this->isLoaded('PageClasses'))
 			return;
 		// This variable is required as each class file uses it
-		global $Init,$PluginNames;
+		global $Init;
 		foreach($Init->PagePaths as $path)
 		{
-			$iterator = new DirectoryIterator($path);
-			foreach ($iterator as $fileInfo)
+			if (file_exists($path))
 			{
-				$PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : '';
-				$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $PluginName,'state' => 1, 'installed' => 1)));
-				if ($Plugin)
-					$className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
-				else if (!preg_match('#plugins#i',$path))
-					$className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
-				if ($className)
+				$iterator = new DirectoryIterator($path);
+				foreach ($iterator as $fileInfo)
 				{
-					$class = new $className();
-					$this->register($class);
+					$PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : '';
+					$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $PluginName,'state' => 1, 'installed' => 1)));
+					if ($Plugin)
+						$className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
+					else if (!preg_match('#plugins#i',$path))
+						$className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
+					if ($className)
+					{
+						$class = new $className();
+						$this->register($class);
+					}
 				}
 			}
 		}

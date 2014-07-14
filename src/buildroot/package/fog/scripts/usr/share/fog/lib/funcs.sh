@@ -5,9 +5,13 @@ REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
 REG_HOSTNAME_KEY1_XP="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
 REG_HOSTNAME_KEY2_XP="\ControlSet001\Services\Tcpip\Parameters\Hostname"
 REG_HOSTNAME_KEY3_XP="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
+REG_HOSTNAME_KEY4_XP="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
+REG_HOSTNAME_KEY5_XP="\ControlSet001\services\Tcpip\Parameters\Hostname"
 REG_HOSTNAME_KEY1_7="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
 REG_HOSTNAME_KEY2_7="\ControlSet001\Services\Tcpip\Parameters\Hostname"
 REG_HOSTNAME_KEY3_7="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
+REG_HOSTNAME_KEY4_7="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
+REG_HOSTNAME_KEY5_7="\ControlSet001\services\Tcpip\Parameters\Hostname"
 REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
 #If a sub shell gets involked and we lose kernel vars this will reimport them
 $(for var in $(cat /proc/cmdline); do echo export $var | grep =; done)
@@ -301,14 +305,17 @@ writeImage()
 {
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-		partimage restore $2 $1 -f3 -b 2>/tmp/status.fog;
+		mkfifo /tmp/pigz1;
+		cat $1 > /tmp/pigz1 &
+		gunzip -d -c < /tmp/pigz1 | partimage restore $2 stdin -f3 -b 2>/tmp/status.fog;
+		rm /tmp/pigz1;
 	else 
 		# partclone
 		mkfifo /tmp/pigz1;
 		cat $1 > /tmp/pigz1 &
 		gunzip -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
+		rm /tmp/pigz1;
 	fi
-	rm /tmp/pigz1;
 }
 
 # $1 = Target
@@ -316,7 +323,7 @@ writeImageMultiCast()
 {
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partimage -f3 -b restore $1 stdin 2>/tmp/status.fog;
+		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partimage -f3 -b restore $hd stdin 2>/tmp/status.fog;
 	else 
 		# partclone
 		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;
@@ -337,11 +344,15 @@ changeHostname()
 			key1=$REG_HOSTNAME_KEY1_7
 			key2=$REG_HOSTNAME_KEY2_7
 			key3=$REG_HOSTNAME_KEY3_7
+			key4=$REG_HOSTNAME_KEY4_7
+			key5=$REG_HOSTNAME_KEY5_7
 		elif [ "$osid" = "1" ];	then
 			regfile=$REG_LOCAL_MACHINE_XP
 			key1=$REG_HOSTNAME_KEY1_XP
 			key2=$REG_HOSTNAME_KEY2_XP
 			key3=$REG_HOSTNAME_KEY3_XP
+			key4=$REG_HOSTNAME_KEY4_XP
+			key5=$REG_HOSTNAME_KEY5_XP
 		fi
 		reged -e $regfile &>/dev/null <<EOFREG
 ed $key1
@@ -349,6 +360,10 @@ $hostname
 ed $key2
 $hostname
 ed $key3
+$hostname
+ed $key4
+$hostname
+ed $key5
 $hostname
 q
 y

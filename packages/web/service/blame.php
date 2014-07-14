@@ -23,8 +23,7 @@ try
 {
 	// Get the MAC
 	$MACAddress = new MACAddress($_REQUEST['mac']);
-	if (!$MACAddress->isValid())
-		throw new Exception(_('Invalid MAC address'));
+	if (!$MACAddress->isValid()) throw new Exception($foglang['InvalidMAC']);
 	// Get the host
 	$Host = $MACAddress->getHost();
 	if (!$Host->isValid())
