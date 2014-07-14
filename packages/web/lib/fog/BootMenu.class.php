@@ -276,7 +276,7 @@ class BootMenu extends FOGBase
 	{
 		print "#!ipxe\n";
 		print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
-		print "echo -n Please enter the product key: ";
+		print "echo -n Please enter the product key>\n";
 		print "read key\n";
 		print "params\n";
 		print "param mac0 \${net0/mac}\n";
@@ -292,8 +292,10 @@ class BootMenu extends FOGBase
 		$this->Host->set('productKey',base64_encode($_REQUEST['key']));
 		if ($this->Host->save())
 		{
-			print "echo Successfully changed key\n"
+			print "#!ipxe\n";
+			print "echo Successfully changed key\n";
 			print "sleep 3\n";
+			$this->chainBoot();
 		}
 	}
 	/**
@@ -322,7 +324,7 @@ class BootMenu extends FOGBase
 			if ($_REQUEST['delhost'])
 				$this->delConf();
 			else if ($_REQUEST['keyreg'])
-				$this->keyReg();
+				$this->keyreg();
 			else if ($_REQUEST['qihost'])
 				$this->setTasking();
 			else if ($_REQUEST['menuaccess'])
@@ -711,7 +713,7 @@ class BootMenu extends FOGBase
 						$this->menuOpt($option, "mode=onlydebug");
 					else if ($option == 'fog.capone')
 						$this->menuOpt($option, "mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path");
-					else if ($option == 'fog.local' || $option == 'fog.memtest' || $option == 'fog.advanced' || $option == 'fog.quickdel' || $option == 'fog.quickimage')
+					else if ($option == 'fog.local' || $option == 'fog.memtest' || $option == 'fog.advanced' || $option == 'fog.quickdel' || $option == 'fog.quickimage' || 'fog.keyreg')
 						$this->menuOpt($option, true);
 				}
 			}
