@@ -15,11 +15,7 @@ $(function()
 		
 		if ( $(this).attr('checked') )
 		{	
-<<<<<<< HEAD
-			if ( $('#adDomain').val() == '' && /*$('#adOU').val() == '' &&*/ $('#adUsername').val() == '' &&  $('#adPassword').val() == '' )
-=======
 			if ( $('#adDomain').val() == '' && $('#adUsername').val() == '' &&  $('#adPassword').val() == '')
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			{
 				$.ajax({
 					'type':		'GET',
@@ -29,18 +25,11 @@ $(function()
 					'success':	function(data)
 					{	
 						$('#adDomain').val(data['domainname']);
-<<<<<<< HEAD
-						//$('#adOU').val(data['ou']);
-=======
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 						$('#adUsername').val(data['domainuser']);
 						$('#adPassword').val(data['domainpass']);
 					}
 				});
 			}
-<<<<<<< HEAD
-
-=======
 			if ($('#adOU').is('input:text') && $('#adOU').val() == '')
 			{
 				$.ajax({
@@ -54,7 +43,6 @@ $(function()
 					}
 				});
 			}
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		}
 	});
 	// Show hide based on checked state.

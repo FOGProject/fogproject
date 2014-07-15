@@ -5,10 +5,7 @@ class RemoveMenuItems extends Hook
 	var $description = 'Removes menu items and restricts the links from the page.';
 	var $author = 'Tom Elliott';
 	var $active = true;
-<<<<<<< HEAD
-=======
 	var $node = 'accesscontrol';
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	public function __construct()
 	{
 		parent::__construct();
@@ -24,24 +21,6 @@ class RemoveMenuItems extends Hook
 	}
 	public function MenuData($arguments)
 	{
-<<<<<<< HEAD
-		foreach((array)$this->linksToFilter AS $link)
-			unset($arguments['main'][$link]);
-	}
-	public function SubMenuData($arguments)
-	{
-		foreach($arguments['submenu'] AS $node => $link)
-		{
-			if (in_array($node,(array)$this->linksToFilter))
-			{
-				$linkformat = $_SERVER['PHP_SELF'].'?node='.$node.'&sub=edit&id='.$_REQUEST['id'];
-				$delformat = $_SERVER['PHP_SELF'].'?node='.$node.'&sub=delete&id='.$_REQUEST['id'];
-				unset($arguments['submenu'][$node]['id'][$linkformat.'#host-printers']);
-				unset($arguments['submenu'][$node]['id'][$linkformat.'#host-service']);
-				unset($arguments['submenu'][$node]['id'][$linkformat.'#host-virus-history']);
-				if(!in_array($this->FOGUser->get('name'),array('fog')))
-					unset($arguments['submenu'][$node]['id'][$delformat]);
-=======
 		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
 		{
@@ -66,18 +45,11 @@ class RemoveMenuItems extends Hook
 					if(!in_array($this->FOGUser->get('name'),array('fog')))
 						unset($arguments['submenu'][$node]['id'][$delformat]);
 				}
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			}
 		}
 	}
 	public function NotAllowed($arguments)
 	{
-<<<<<<< HEAD
-		if (in_array($_REQUEST['node'],(array)$this->linksToFilter))
-		{
-			$this->FOGCore->setMessage('Not Allowed!');
-			$this->FOGCore->redirect('index.php');
-=======
 		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
 		{
@@ -86,7 +58,6 @@ class RemoveMenuItems extends Hook
 				$this->FOGCore->setMessage('Not Allowed!');
 				$this->FOGCore->redirect('index.php');
 			}
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		}
 	}
 }

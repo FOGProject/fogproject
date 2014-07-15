@@ -7,11 +7,7 @@ try
 	$mac = strtolower(trim($ifconfig[1]));
 	$MACAddress = new MACAddress($mac);
 	if (!$MACAddress->isValid())
-<<<<<<< HEAD
-		throw new Exception(_('Invalid MAC Address'));
-=======
 		throw new Exception($foglang['InvalidMAC']);
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	// Set the Host variable to find host record for update.
 	// If it doesn't exist, it creates new inventory record.
 	$Host = $MACAddress->getHost();

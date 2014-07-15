@@ -1,20 +1,11 @@
 #!/bin/sh
-<<<<<<< HEAD
-. /usr/share/fog/lib/funcs.sh
-. /bin/fog.donate
-=======
 . /usr/share/fog/lib/funcs.sh;
 . /bin/fog.donate;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 clearScreen;
 displayBanner;
 hd="";
 getHardDisk;
-<<<<<<< HEAD
-setupDNS ${dns}
-=======
 setupDNS ${dns};
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 echo "";
 echo "";
 if [ -n "$hd" ]; then
@@ -22,32 +13,18 @@ if [ -n "$hd" ]; then
 	if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 		win7partcnt="0";
 		parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
-<<<<<<< HEAD
-		for prt in $parts
-		do
-=======
 		for prt in $parts; do
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			win7partcnt=`expr ${win7partcnt} + 1`;
 		done
 		part=${hd}${win7partcnt};
 	fi
 	dots "Using disk device";
-<<<<<<< HEAD
-	echo $hd
-	dots "Scanning partition";
-	echo $part
-	dots "Mounting device";
-	mkdir /ntfs;
-	mount.ntfs-3g $part /ntfs
-=======
 	echo $hd;
 	dots "Scanning partition";
 	echo $part;
 	dots "Mounting device";
 	mkdir /ntfs;
 	mount.ntfs-3g $part /ntfs;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	if [ "$?" = "0" ]; then
 		echo "Done";
 		dots "Creating ram disk";
@@ -56,11 +33,7 @@ if [ -n "$hd" ]; then
 		echo "Done";
 		dots "Updating ClamAV";
 		wget -r -nd --no-parent -l 1 "http://${web}av/clamav/" >/dev/null 2>&1;
-<<<<<<< HEAD
-		echo "Done";		
-=======
 		echo "Done";
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		dots "Creating working directory";
 		mkdir /ntfs/fog >/dev/null 2>&1;
 		mkdir /ntfs/fog/tmp >/dev/null 2>&1;
@@ -81,21 +54,6 @@ if [ -n "$hd" ]; then
 			handleError "Unable to determine scanning mode!";
 		fi
 		dots "Clam AV Mode";
-<<<<<<< HEAD
-		echo ${modename}
-		echo "";
-		echo "   Starting AV scan...";
-		echo -n "   ";
-		clamscan -V
-		sleep 4;
-		cd /ntfs
-		echo "";
-		start=`date +%s`;
-		clamscan -r --tempdir=/ntfs/fog/tmp $action --log=/ntfs/fog/log/log.txt --no-summary --exclude-dir=/ntfs/fog/* 
-		ret=$?;
-		if [ "$ret" == "2" ];
-		then
-=======
 		echo ${modename};
 		echo "";
 		dots "Starting AV scan";
@@ -108,7 +66,6 @@ if [ -n "$hd" ]; then
 		clamscan -r --tempdir=/ntfs/fog/tmp $action --log=/ntfs/fog/log/log.txt --no-summary --exclude-dir=/ntfs/fog/*;
 		ret=$?;
 		if [ "$ret" == "2" ]; then
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			cur=`date +%s`;
 			diff=$((cur-start));
 			if [ $(( diff <= 60 )) ]; then
@@ -117,15 +74,9 @@ if [ -n "$hd" ]; then
 				echo "   	This may be due to a problem with the virus database files.";
 				echo "   	Trying to download virus database files from the web...";
 				echo; 
-<<<<<<< HEAD
-				rm -f /usr/share/clamav/*
-				freshclam
-				clamscan -r --tempdir=/ntfs/fog/tmp $action --log=/ntfs/fog/log/log.txt --no-summary --exclude-dir=/ntfs/fog/* 
-=======
 				rm -f /usr/share/clamav/*;
 				freshclam;
 				clamscan -r --tempdir=/ntfs/fog/tmp $action --log=/ntfs/fog/log/log.txt --no-summary --exclude-dir=/ntfs/fog/*;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			fi
 		fi
 		echo "";
@@ -133,18 +84,6 @@ if [ -n "$hd" ]; then
 		output=`cat /ntfs/fog/log/log.txt | grep FOUND`;
 		IFS="
 "
-<<<<<<< HEAD
-		cd /tmp
-		cnt=0;
-		for line in $output; do
-			b64=`echo $line | base64`
-			cnt=`expr $cnt + 1`;
-			echo -n "   Sending data for file ID: ${cnt} ";
-			wget -q -O /tmp/avstat "http://${web}service/av.php?mac=${mac}&string=${b64}&mode=${avmode}"	
-			cat /tmp/avstat
-			echo "";
-			cat /dev/null > /tmp/avstat
-=======
 		cd /tmp;
 		cnt=0;
 		for line in $output; do
@@ -155,25 +94,12 @@ if [ -n "$hd" ]; then
 			cat /tmp/avstat;
 			echo "";
 			cat /dev/null > /tmp/avstat;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		done
 	else
 		handleError "Unable to mount $part";
 	fi	
 	echo "";
 	queueinfo="";
-<<<<<<< HEAD
-	cd /tmp			
-	touch co.txt
-	wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-	queueinfo=`cat co.txt`;
-	while [ "$queueinfo" != "##" ]
-	do
-		echo "       * $queueinfo";
-		rm co.txt
-		touch co.txt
-		wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-=======
 	cd /tmp;
 	touch co.txt;
 	wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null;
@@ -183,7 +109,6 @@ if [ -n "$hd" ]; then
 		rm co.txt;
 		touch co.txt;
 		wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		queueinfo=`cat co.txt`;
 		sleep 2;
 	done  
@@ -194,8 +119,4 @@ if [ -n "$hd" ]; then
 else
 	echo "hard disk not found!";
 fi
-<<<<<<< HEAD
-sleep 2
-=======
 sleep 2;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157

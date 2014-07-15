@@ -152,17 +152,11 @@ $foglang['ActivatePlugins']			= _('Activate Plugins');
 $foglang['ExportConfig']			= _('Export Configuration');
 $foglang['ImportConfig']			= _('Import Configuration');
 $foglang['Slogan']					= _('Open Source Computer Cloning Solution');
-<<<<<<< HEAD
-=======
 $foglang['InvalidMAC']				= _('Invalid MAC Address!');
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 // Language menu options.
 $foglang['Language']['zh']			= _('中国的');
 $foglang['Language']['en']			= _('English');
 $foglang['Language']['es']			= _('Español');
 $foglang['Language']['fr']			= _('Français');
-<<<<<<< HEAD
-=======
 $foglang['Language']['de']			= _('Deutsch');
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 $foglang['Language']['it']			= _('Italiano');

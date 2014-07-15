@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-Version 1.X.X
-=======
 Version 1.2.0
 -------------
 * Fix GUI not loading if no nodes are in storage group.
@@ -48,7 +45,6 @@ FOG Snapin - Service category.
 have a relevant class to work with.
 
 Version 1.1.2
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 -------------
 
 * Fix client updater so hash is returned properly.

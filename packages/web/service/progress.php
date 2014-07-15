@@ -11,11 +11,7 @@ try
 	// Get the mac
 	$MACAddress = new MACAddress($_REQUEST['mac']);
 	if (!$MACAddress->isValid())
-<<<<<<< HEAD
-		throw new Exception(_('Invalid MAC address'));
-=======
 		throw new Exception($foglang['InvalidMAC']);
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	// get the host
 	$Host = $MACAddress->getHost();
 	if (!$Host->isValid())

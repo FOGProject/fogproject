@@ -1,0 +1,33 @@
+diff -pruN partimage-0.6.9/src/client/gui_text.cpp partimage-0.6.9.new/src/client/gui_text.cpp
+--- partimage-0.6.9/src/client/gui_text.cpp	2010-07-25 10:30:31.000000000 -0500
++++ partimage-0.6.9.new/src/client/gui_text.cpp	2010-12-02 10:08:26.142824126 -0600
+@@ -497,7 +497,7 @@ int CSavingWindow::create(const char *sz
+   m_labelStatsSpeed = newtLabel(1, 11, "");
+   m_labelStatsSpace = newtLabel(1, 12, "");
+ 
+-  m_progressSaving = newtScale(1, 18, 70, 100);
++  m_progressSaving = newtScale(1, 18, 70, 100,0);
+   m_labelPercent = newtLabel(72, 18, "");
+   
+   m_formMain = newtForm(NULL, NULL, 0);
+@@ -760,7 +760,7 @@ int CRestoringWindow::create(char *szDev
+   m_labelStatsSpeed = newtLabel(1, 11, "");
+   m_labelStatsSpace = newtLabel(1, 12, "");
+ 
+-  m_progressRestoring = newtScale(1, 18, 70, 100);
++  m_progressRestoring = newtScale(1, 18, 70, 100,0);
+   m_labelPercent = newtLabel(72, 18, "");
+   
+   m_formMain = newtForm(NULL, NULL, 0);
+diff -pruN partimage-0.6.9/src/client/interface_newt.cpp partimage-0.6.9.new/src/client/interface_newt.cpp
+--- partimage-0.6.9/src/client/interface_newt.cpp	2010-07-25 10:30:31.000000000 -0500
++++ partimage-0.6.9.new/src/client/interface_newt.cpp	2010-12-02 10:08:26.142824126 -0600
+@@ -611,7 +611,7 @@ static void set_lb_cursor(newtComponent 
+ char *filesel(char *dr)
+ {
+ 	newtComponent	lb, b1, b2, b3, l1, l2, f, f1;
+-	const char	*enr2, *enr3;
++	char		*enr2, *enr3;
+ 	char		*curv;
+ 	char		curvv[PATH_MAX]; // stupid, but who cares...
+ 	int		i, cnt;

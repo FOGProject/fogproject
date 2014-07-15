@@ -10,11 +10,8 @@ $FOGCore->getClass('ProcessLogin')->processMainLogin();
 // Login form + logout
 if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
 {
-<<<<<<< HEAD
-=======
 	@session_write_close();
 	@session_regenerate_id(true);
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	// Hook
 	$HookManager->processEvent('LOGOUT', array('user' => &$currentUser));
 	// Logout
@@ -73,11 +70,7 @@ print "\n\t\t\t".'<h1><a href="'.$_SERVER['PHP_SELF'].'"><img src="images/fog-lo
 print "\n\t\t\t".'<h2>'.$foglang['Slogan'].'</h2>';
 print "\n\t\t".'</div>';
 print "\n\t\t".'<div id="menu">';
-<<<<<<< HEAD
-if ($currentUser)
-=======
 if ($currentUser && $currentUser->isLoggedIn())
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	$MainMenu->mainMenu();
 print "\n\t\t</div>";
 print "\n\t</div>";

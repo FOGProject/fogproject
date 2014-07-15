@@ -92,8 +92,6 @@ class FOGFTP extends FOGGetSet
 			return $this;
 		return false;
 	}
-<<<<<<< HEAD
-=======
 	public function size($pathfile)
 	{
 		$size = 0;
@@ -110,7 +108,6 @@ class FOGFTP extends FOGGetSet
 			$size = @ftp_size($this->link, $pathfile);
 		return ($size > 0 ? $size : 0);
 	}
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	public function mkdir($remotePath)
 	{
 		return @ftp_mkdir($this->link,$remotePath);

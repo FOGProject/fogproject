@@ -240,17 +240,12 @@ class GroupManagementPage extends FOGPage
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// If all hosts have the same image setup up the selection.
 		foreach ((array)$Group->get('hosts') AS $Host)
-<<<<<<< HEAD
-			$imageID[] = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
-		$imageIDMult = (is_array($imageID) ? array_unique($imageID) : $imageID);
-=======
 		{
 			$imageID[] = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
 			$groupKey[] = $Host && $Host->isValid() ? base64_decode($Host->get('productKey')) : '';
 		}
 		$imageIDMult = (is_array($imageID) ? array_unique($imageID) : $imageID);
 		$groupKeyMult = (is_array($groupKey) ? array_unique($groupKey) : $groupKey);
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		if (count($imageIDMult) == 1)
 			$imageMatchID = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
 		// For the location plugin.  If all have the same location, setup the selection to let people know.
@@ -286,10 +281,7 @@ class GroupManagementPage extends FOGPage
 		$fields = array(
 			_('Group Name') => '<input type="text" name="name" value="${group_name}" />',
 			_('Group Description') => '<textarea name="description" rows="8" cols="40">${group_desc}</textarea>',
-<<<<<<< HEAD
-=======
 			_('Group Product Key') => '<input id="productKey" type="text" name="key" value="${group_key}" />',
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			($LocPluginInst ? _('Group Location') : null) => ($LocPluginInst ? $this->FOGCore->getClass('LocationManager')->buildSelectBox($locationMatchID) : null),
 			_('Group Kernel') => '<input type="text" name="kern" value="${group_kern}" />',
 			_('Group Kernel Arguments') => '<input type="text" name="args" value="${group_args}" />',
@@ -312,10 +304,7 @@ class GroupManagementPage extends FOGPage
 				'group_kern' => $Group->get('kernel'),
 				'group_args' => $Group->get('kernelArgs'),
 				'group_devs' => $Group->get('kernelDev'),
-<<<<<<< HEAD
-=======
 				'group_key' => count($groupKeyMult) == 1 ? $groupKeyMult : '',
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			);
 		}
 		// Hook
@@ -664,12 +653,8 @@ class GroupManagementPage extends FOGPage
 		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
 		foreach ((array)$OUs AS $OU)
 			$OUOptions[] = $OU;
-<<<<<<< HEAD
-		if ($OUOptions)
-=======
 		$OUOptions = array_filter($OUOptions);
 		if (count($OUOptions) > 1)
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		{
 			$OUs = array_unique((array)$OUOptions);
 			$optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
@@ -678,14 +663,10 @@ class GroupManagementPage extends FOGPage
 				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
 				$optionOU[] = '<option value="'.$opt.'"'.(preg_match('#;#i',$OU) ? ' selected="selected"' : '').'>'.$opt.'</option>';
             }    
-<<<<<<< HEAD
-        }
-=======
 			$OUOptions = '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>';
 		}
 		else
 			$OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" autocomplete="off" />';
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		$this->attributes = array(
 			array(),
 			array(),
@@ -697,11 +678,7 @@ class GroupManagementPage extends FOGPage
 		$fields = array(
 			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain" value="on"'.($_REQUEST['domain'] == 'on' ? ' selected="selected"' : '').' />',
 			_('Domain name') => '<input id="adDomain" type="text" name="domainname" autocomplete="off" />',
-<<<<<<< HEAD
-			_('Organizational Unit') => '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>',
-=======
 			_('Organizational Unit') => $OUOptions,
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			_('Domain Username') => '<input id="adUsername" type="text" name="domainuser" autocomplete="off" />',
 			_('Domain Password') => '<input id="adPassword" type="password" name="domainpass" autocomplete="off" /><span class="lightColor">('._('Must be encrypted').')</span>',
 			'<input type="hidden" name="updatead" value="1" />' => '<input type="submit" value="'._('Update').'" />',
@@ -777,10 +754,7 @@ class GroupManagementPage extends FOGPage
 										$Host->set('kernel',		$_POST['kern'])
 											 ->set('kernelArgs',	$_POST['args'])
 											 ->set('kernelDevice',	$_POST['dev'])
-<<<<<<< HEAD
-=======
 											 ->set('productKey', $_POST['key'])
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 											 ->save();
 									}
 								}
@@ -1178,11 +1152,7 @@ class GroupManagementPage extends FOGPage
 				throw new Exception(_('Hosts do not have Uniformed Image assignments'));
 			foreach((array)$Group->get('hosts') AS $Host)
 			{
-<<<<<<< HEAD
-				if (in_array($taskTypeID,$imageTasks) && !$Host->get('imageID'))
-=======
 				if (in_array($taskTypeID,$imagingTasks) && !$Host->get('imageID'))
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 					throw new Exception(_('You need to assign an image to the host'));
 				if (!$Host->checkIfExist($taskTypeID))
 					throw new Exception(_('To setup download task, you must first upload an image'));
