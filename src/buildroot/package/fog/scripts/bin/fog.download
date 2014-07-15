@@ -2,7 +2,7 @@
 . /usr/share/fog/lib/funcs.sh;
 . /bin/fog.donate;
 . /bin/fog.checkin;
-layPartSize="100%";
+layPartSize="99%";
 imagePath="/images/$img";
 win7imgroot="$imagePath";
 fog.statusreporter $mac $web &
@@ -20,6 +20,7 @@ if [ -f "/images/.mntcheck" ]; then
 	dots "Looking for Hard Disks";
 	getHardDisk;
 	echo "Done";
+	debugPause;
 	if [ ! -n $hd ]; then
 		handleError "HD is null, no hard disk found.";
 		exit 1;
@@ -54,6 +55,7 @@ if [ -f "/images/.mntcheck" ]; then
 				win7partcnt="1";
 				win7sys="${hd}1";
 			fi
+			debugPause;
 			if [ -f "$win7imgroot/sys.img.000" ] || [ "$mc" == "yes" ] ; then
 				dots "Preparing Hard Disks (Stage 1)";
 				if [ "$nombr" == "1" ]; then
@@ -94,6 +96,7 @@ if [ -f "/images/.mntcheck" ]; then
 					sgdisk -x 3:$(sgdisk -E $hd) $hd &>/dev/null;
 				fi
 				echo "Done";
+				debugPause;
 			else
 				handleError "Unable to locate image file for Windows 7/8! (sys.img.000)";
 			fi
@@ -106,6 +109,7 @@ if [ -f "/images/.mntcheck" ]; then
 				dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
 				echo "Done";
 			fi
+			debugPause;
 			dots "Preparing Hard Disks (Stage 2)";
 			fdisk $hd >/dev/null << EOFPT
 d
@@ -116,6 +120,7 @@ EOFPT
 			parted -s $hd u kB mkpart primary ntfs 63s $layPartSize &>/dev/null;
 			parted -s $hd u kB set 1 boot on &>/dev/null;
 			echo "Done";
+			debugPause;
 		elif [ "$osid" == "2" ]; then
 			dots "Preparing Hard Disks (Stage 1)";
 			if [ "$nombr" == "1" ]; then
@@ -125,6 +130,7 @@ EOFPT
 				dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
 				echo "Done";
 			fi
+			debugPause;
 			dots "Preparing Hard Disks (Stage 2)";
 			parted -s $hd u kB rm 2 &>/dev/null;
 			runPartprobe $hd;
@@ -133,6 +139,7 @@ EOFPT
 			parted -s $hd u kB mkpart primary ntfs $defaultpart2start $layPartSize &>/dev/null;
 			echo "Done";
 			correctVistaMBR $hd;
+			debugPause;
 		# Linux:
 		#  restore MBR/GRUB
 		#  resize original partition table to current disk, and apply it
@@ -141,6 +148,7 @@ EOFPT
 			sgdisk -Z $hd >/dev/null;
 			runPartprobe;
 			echo "Done";
+			debugPause;
 			tmpMBR="$imagePath/d1.mbr";
 			has_GRUB=`hasGRUB "${hd}" "1" "${imagePath}"`;
 			mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
@@ -153,6 +161,7 @@ EOFPT
 					dots "Restoring MBR and GRUB";
 					restoreGRUB "${hd}" "1" "${imagePath}";
 					echo "Done";
+					debugPause;
 					dots "Expanding partition table to fill disk";
 					if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
 						fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
@@ -164,6 +173,7 @@ EOFPT
 					dots "Restoring MBR";
 					dd if=$tmpMBR of=$hd bs=512 count=1 &>/dev/null;
 					echo "Done";
+					debugPause;
 					dots "Expanding partition table to fill disk";
 					if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
 						fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
@@ -174,6 +184,7 @@ EOFPT
 				fi
 				runPartprobe $hd;
 				echo "Done";
+				debugPause;
 				sleep 3;
 			else
 				handleError "Image Store Corrupt: Unable to locate MBR.";
@@ -185,6 +196,7 @@ EOFPT
 			sgdisk -Z $hd >/dev/null;
 			runPartprobe;
 			echo "Done";
+			debugPause;
 			tmpMBR="$imagePath/d1.mbr";
 			has_GRUB=`hasGRUB "${hd}" "1" "${imagePath}"`;
 			mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
@@ -218,6 +230,7 @@ EOFPT
 				fi
 				runPartprobe $hd;
 				echo "Done";
+				debugPause;
 				sleep 3;
 			else
 				handleError "Image Store Corrupt: Unable to locate MBR.";
@@ -234,6 +247,7 @@ EOFPT
 				sgdisk -Z $disk >/dev/null;
 				runPartprobe;
 				echo "Done";
+				debugPause;
 				tmpMBR="$imagePath/d${intDisk}.mbr";
 				has_GRUB=`hasGRUB "${disk}" "${intDisk}" "${imagePath}"`;
 				mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
@@ -267,6 +281,7 @@ EOFPT
 					fi
 					runPartprobe $disk;
 					echo "Done";
+					debugPause;
 					sleep 3;
 				else
 					handleError "Image Store Corrupt: Unable to locate MBR.";
@@ -353,6 +368,7 @@ EOFPT
 			dots "Checking Hard Disks";
 			runPartprobe;
 			echo "Done";
+			debugPause;
 			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 				if [ "$win7partcnt" == "1" ]; then
 					writeImage "$imagePath/sys.img.*" $win7sys;
@@ -368,6 +384,7 @@ EOFPT
 					writeImage "$imagePath/sys.img.*" $win7sys;
 				fi
 				expandPartition $win7sys;
+				debugPause;
 			# Linux:
 			#  save EBR so that the extended and logical partitions are not corrupted
 			#  clone filesystem
@@ -395,6 +412,7 @@ EOFPT
 				writeImage $imagePath $part;
 				expandPartition $part;
 			fi
+			debugPause;
 		elif [ "$imgType" == "mps" ]; then
 			dots "Checking Hard Disks";
 			runPartprobe $hd &> /dev/null;
@@ -458,14 +476,17 @@ IFS='
 		else
 			writeImage "$imagePath/$img" $hd;
 		fi
+		debugPause;
 	fi
 	if [ "$gptcheck" == "yes" ]; then
 		sgdisk -G $hd;
 	fi
+	debugPause;
 	if [ -f "/images/postdownloadscripts/fog.postdownload" ]; then
 		postdownpath="/images/postdownloadscripts/";
 		. ${postdownpath}fog.postdownload;
 	fi
+	debugPause;
 	if [ "$capone" != "1" ]; then
 		changeHostname;
 		echo "";
@@ -485,6 +506,7 @@ IFS='
 		echo "";
 		echo " * Database Updated!";
 		echo "";
+		debugPause;
 	fi
 	echo "";
 	echo " * Task is completed, computer will now restart.";
