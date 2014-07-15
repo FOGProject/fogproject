@@ -1,4 +1,8 @@
+<<<<<<< HEAD
   Generated: Wed, 25 Jun 2014 05:00:03 -0400
+=======
+  Generated: Fri, 04 Jul 2014 05:00:02 -0400
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 
   OUI/MA-L			Organization
   company_id			Organization
@@ -49288,8 +49292,13 @@
 				Lawrenceville GA 30044
 				UNITED STATES
 
+<<<<<<< HEAD
   00-1E-6C   (hex)		Carbon Mountain LLC
   001E6C     (base 16)		Carbon Mountain LLC
+=======
+  00-1E-6C   (hex)		Opaque Systems
+  001E6C     (base 16)		Opaque Systems
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   				4820 Fisher Road
 				Athens OH 45701
 				UNITED STATES
@@ -82060,6 +82069,15 @@
 				New Berlin WI 53151
 				UNITED STATES
 
+<<<<<<< HEAD
+=======
+  08-09-B6   (hex)		Masimo Corp
+  0809B6     (base 16)		Masimo Corp
+  				40 Parker
+				Irvine CA 92618
+				UNITED STATES
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   08-0C-0B   (hex)		SysMik GmbH Dresden
   080C0B     (base 16)		SysMik GmbH Dresden
   				Bertolt-Brecht-Allee 24
@@ -82256,6 +82274,16 @@
 				Mountain View CA 94043
 				UNITED STATES
 
+<<<<<<< HEAD
+=======
+  08-46-56   (hex)		VODALYS Ingénierie
+  084656     (base 16)		VODALYS Ingénierie
+  				14 rue du Patis Tatelin
+				Batiment D
+				RENNES Bretagne 35700
+				FRANCE
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   08-48-2C   (hex)		Raycore Taiwan Co., LTD.
   08482C     (base 16)		Raycore Taiwan Co., LTD.
   				3F-5, No.351, Sec.2, Zongshan Rd
@@ -83252,6 +83280,15 @@
 				Yokohama Kanagawa 224-0041
 				JAPAN
 
+<<<<<<< HEAD
+=======
+  0C-CF-D1   (hex)		SPRINGWAVE Co., Ltd
+  0CCFD1     (base 16)		SPRINGWAVE Co., Ltd
+  				#B-703,U-space 1-danji,670 Sampyeong-dong Bundang-gu
+				Seongnam-si Gyeonggi-do 463-400
+				KOREA, REPUBLIC OF
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   0C-D2-92   (hex)		Intel Corporate
   0CD292     (base 16)		Intel Corporate
   				Lot 8, Jalan Hi-Tech 2/3
@@ -84668,6 +84705,15 @@
 				Hannover Garbsen 30823
 				GERMANY
 
+<<<<<<< HEAD
+=======
+  14-ED-E4   (hex)		Kaiam Corporation
+  14EDE4     (base 16)		Kaiam Corporation
+  				39677 Eureka Drive
+				Newark California 94560
+				UNITED STATES
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   14-EE-9D   (hex)		AirNav Systems LLC
   14EE9D     (base 16)		AirNav Systems LLC
   				4660 La Jolla Village Dr. - Suite 500
@@ -85212,6 +85258,16 @@
 				Houston Texas 77070
 				UNITED STATES
 
+<<<<<<< HEAD
+=======
+  18-A9-58   (hex)		PROVISION THAI CO., LTD.
+  18A958     (base 16)		PROVISION THAI CO., LTD.
+  				155/7-10 Rachadapisek Rd.,
+				Bukkalo
+				Thonburi Bangkok 10600
+				THAILAND
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   18-A9-9B   (hex)		Dell Inc
   18A99B     (base 16)		Dell Inc
   				one dell way
@@ -88502,6 +88558,15 @@
 				Seoul  152-848
 				KOREA, REPUBLIC OF
 
+<<<<<<< HEAD
+=======
+  2C-A3-0E   (hex)		POWER DRAGON DEVELOPMENT LIMITED
+  2CA30E     (base 16)		POWER DRAGON DEVELOPMENT LIMITED
+  				Room D, 10/F Tower A, Billion Centre, 1 Wang Kwong Road, Kowloon Bay
+				HONG KONG HONG KONG 999077
+				CHINA
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   2C-A7-80   (hex)		True Technologies Inc.
   2CA780     (base 16)		True Technologies Inc.
   				R476, AngelCity 1st,
@@ -89270,6 +89335,15 @@
 				Tokyo  141-0001
 				JAPAN
 
+<<<<<<< HEAD
+=======
+  30-FA-B7   (hex)		Tunai Creative
+  30FAB7     (base 16)		Tunai Creative
+  				12F, No.221, Sec.4, Zongxiao E. Rd, Taipei 106, Taiwan
+				TAIPEI TAIPEI 10690
+				TAIWAN, PROVINCE OF CHINA
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   30-FD-11   (hex)		MACROTECH (USA) INC.
   30FD11     (base 16)		MACROTECH (USA) INC.
   				1799 BAYSHORE HIGHWAY
@@ -89383,6 +89457,16 @@
 				Shenzhen Guangdong 518054
 				CHINA
 
+<<<<<<< HEAD
+=======
+  34-28-F0   (hex)		ATN International Limited
+  3428F0     (base 16)		ATN International Limited
+  				4210, Office Tower, Convention Plaza
+				1 Harbour Road, Wanchai,
+				Hong Kong 00000
+				HONG KONG
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   34-29-EA   (hex)		MCD ELECTRONICS SP. Z O.O.
   3429EA     (base 16)		MCD ELECTRONICS SP. Z O.O.
   				Lelewela 26
@@ -91886,6 +91970,16 @@
 				PISCATAWAY NJ 08854
 				UNITED STATES
 
+<<<<<<< HEAD
+=======
+  40-E2-30   (hex)		AzureWave Technologies, Inc.
+  40E230     (base 16)		AzureWave Technologies, Inc.
+  				8F., No. 94, Baozhong Rd.,
+				Xindian Dist.,
+				New Taipei City Taiwan 231
+				TAIWAN, PROVINCE OF CHINA
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   40-E7-30   (hex)		DEY Storage Systems, Inc.
   40E730     (base 16)		DEY Storage Systems, Inc.
   				215 South B Street
@@ -92346,6 +92440,15 @@
 				Taipei  11493
 				TAIWAN, PROVINCE OF CHINA
 
+<<<<<<< HEAD
+=======
+  44-88-CB   (hex)		Camco Technologies NV
+  4488CB     (base 16)		Camco Technologies NV
+  				Technologielaan 13
+				Heverlee VB 3001
+				BELGIUM
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   44-8A-5B   (hex)		Micro-Star INT'L CO., LTD.
   448A5B     (base 16)		Micro-Star INT'L CO., LTD.
   				No69, LIde St.
@@ -93772,6 +93875,16 @@
 				San Bruno CA 94066
 				UNITED STATES
 
+<<<<<<< HEAD
+=======
+  4C-F5-A0   (hex)		Scalable Network Technologies Inc
+  4CF5A0     (base 16)		Scalable Network Technologies Inc
+  				600 Corporate Pointe
+				Suite 1200
+				Culver City CA 90230
+				UNITED STATES
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   4C-F7-37   (hex)		SamJi Electronics Co., Ltd
   4CF737     (base 16)		SamJi Electronics Co., Ltd
   				459-21, Gasan-dong, Gumchun-ku
@@ -93824,6 +93937,16 @@
 				Milton Keynes Bucks MK8 0AJ
 				UNITED KINGDOM
 
+<<<<<<< HEAD
+=======
+  50-14-B5   (hex)		Richfit Information Technology Co., Ltd
+  5014B5     (base 16)		Richfit Information Technology Co., Ltd
+  				Room 1501, Gehua Tower, Suite N0.1, Qinglong lane,
+				Dongcheng District
+				Beijing 100007
+				CHINA
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   50-17-FF   (hex)		Cisco
   5017FF     (base 16)		Cisco
   				170 West Tasman Drive
@@ -93875,6 +93998,15 @@
 				Kusatsu Shiga 525-0037
 				JAPAN
 
+<<<<<<< HEAD
+=======
+  50-29-4D   (hex)		NANJING IOT SENSOR TECHNOLOGY CO,LTD
+  50294D     (base 16)		NANJING IOT SENSOR TECHNOLOGY CO,LTD
+  				ROOM 422 NO.420 ZHONGHUA ROAD QINHUAI DISTRICT NANJING CITY
+				Nangjing jiangsu 210000
+				CHINA
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   50-2A-7E   (hex)		Smart electronic GmbH
   502A7E     (base 16)		Smart electronic GmbH
   				Industrie Str. 29
@@ -100416,6 +100548,16 @@
 				Marburg Hessen 35039
 				GERMANY
 
+<<<<<<< HEAD
+=======
+  74-E1-4A   (hex)		IEEE REGISTRATION AUTHORITY  - Please see MAM public listing for more information.
+  74E14A     (base 16)		IEEE REGISTRATION AUTHORITY  - Please see MAM public listing for more information.
+  				
+				445 HOES LANE
+				PISCATAWAY NJ 08854
+				UNITED STATES
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   74-E1-B6   (hex)		Apple
   74E1B6     (base 16)		Apple
   				1 Infinite Loop
@@ -101418,6 +101560,16 @@
 				Hsinchu Taiwan 300
 				TAIWAN, PROVINCE OF CHINA
 
+<<<<<<< HEAD
+=======
+  7C-0E-CE   (hex)		Cisco
+  7C0ECE     (base 16)		Cisco
+  				170 West Tasman Drive
+				SJCM/2
+				San Jose CA 95134
+				UNITED STATES
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   7C-11-BE   (hex)		Apple
   7C11BE     (base 16)		Apple
   				1 Infinite Loop
@@ -103142,6 +103294,15 @@
 				Abfaltersbach Tirol 9913
 				AUSTRIA
 
+<<<<<<< HEAD
+=======
+  84-86-F3   (hex)		Greenvity Communications
+  8486F3     (base 16)		Greenvity Communications
+  				673 S. Milpitas Blvd. Suite 204
+				Milpitas California 95035
+				UNITED STATES
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   84-8D-84   (hex)		Rajant Corporation
   848D84     (base 16)		Rajant Corporation
   				400 East King Street
@@ -103190,6 +103351,15 @@
 				Hsin-chu Taiwan 300
 				TAIWAN, PROVINCE OF CHINA
 
+<<<<<<< HEAD
+=======
+  84-96-81   (hex)		Cathay Communication Co.,Ltd
+  849681     (base 16)		Cathay Communication Co.,Ltd
+  				Tsinghua Institude A319 of Hi-tech Park,Nanshan district,Shenzhen China
+				Shenzhen Canton 0755
+				CHINA
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   84-96-D8   (hex)		Pace plc
   8496D8     (base 16)		Pace plc
   				Victoria Lane
@@ -103336,6 +103506,15 @@
 				Zeist Utrecht 3701 TD
 				NETHERLANDS
 
+<<<<<<< HEAD
+=======
+  84-E0-58   (hex)		Pace plc
+  84E058     (base 16)		Pace plc
+  				Victoria Lane
+				Saltaire West Yorkshire BD18 3LF
+				UNITED KINGDOM
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   84-E4-D9   (hex)		Shenzhen NEED technology Ltd.
   84E4D9     (base 16)		Shenzhen NEED technology Ltd.
   				Room 581 ,Jinda technology center,No.8, Kefeng road,
@@ -104567,6 +104746,15 @@
 				Kingston Ontario K7K 7K2
 				CANADA
 
+<<<<<<< HEAD
+=======
+  8C-DC-D4   (hex)		Hewlett Packard
+  8CDCD4     (base 16)		Hewlett Packard
+  				11445 Compaq Center Drive
+				Houston Texas 77070
+				UNITED STATES
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   8C-DD-8D   (hex)		Wifly-City System Inc.
   8CDD8D     (base 16)		Wifly-City System Inc.
   				4F.,-1,NO 106,RUEIGUANG Rd.Neihu District,
@@ -105335,6 +105523,15 @@
 				Southampton Hampshire S0302QU
 				UNITED KINGDOM
 
+<<<<<<< HEAD
+=======
+  90-EF-68   (hex)		ZyXEL Communications Corporation
+  90EF68     (base 16)		ZyXEL Communications Corporation
+  				No. 6 Innovation Road II, Science Park
+				Hsinchu  300
+				TAIWAN, PROVINCE OF CHINA
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   90-F1-AA   (hex)		Samsung Electronics Co.,LTD
   90F1AA     (base 16)		Samsung Electronics Co.,LTD
   				416,Maetan 3Dong,Yeongtong-Gu
@@ -106075,6 +106272,15 @@
 				Shenzhen Guangdong 518000
 				CHINA
 
+<<<<<<< HEAD
+=======
+  98-16-EC   (hex)		IC Intracom
+  9816EC     (base 16)		IC Intracom
+  				550 Commerce Blvd
+				Oldsmar Florida 34677
+				UNITED STATES
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   98-20-8E   (hex)		Definium Technologies
   98208E     (base 16)		Definium Technologies
   				34 Fairthorne Road
@@ -106402,6 +106608,15 @@
 				Shenzhen Guangdong 518053
 				CHINA
 
+<<<<<<< HEAD
+=======
+  98-90-96   (hex)		Dell Inc
+  989096     (base 16)		Dell Inc
+  				One Dell Way
+				Round Rock TX 78682
+				UNITED STATES
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   98-93-CC   (hex)		LG Electronics Inc.
   9893CC     (base 16)		LG Electronics Inc.
   				19-1, Cheongho-ri, Jinwi-myeon
@@ -107706,6 +107921,15 @@
 				Pompano Beach Florida 33062
 				UNITED STATES
 
+<<<<<<< HEAD
+=======
+  A0-93-47   (hex)		GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD.
+  A09347     (base 16)		GUANGDONG OPPO MOBILE TELECOMMUNICATIONS CORP.,LTD.
+  				NO.18 HAIBIN ROAD,WUSHA,CHANG'AN
+				DONGGUAN GUANGDONG 523860
+				CHINA
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   A0-98-05   (hex)		OpenVox Communication Co Ltd
   A09805     (base 16)		OpenVox Communication Co Ltd
   				F2,Building No.14,Shangsha Science &
@@ -114791,6 +115015,16 @@
 				Lawrenceville GA 30044
 				UNITED STATES
 
+<<<<<<< HEAD
+=======
+  CC-10-A3   (hex)		Beijing Nan Bao Technology Co., Ltd.
+  CC10A3     (base 16)		Beijing Nan Bao Technology Co., Ltd.
+  				Room 310,Building NO.2
+				Purple Royal International
+				Shijingshan District Beijing 100000
+				CHINA
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   CC-14-A6   (hex)		Yichun MyEnergy Domain, Inc
   CC14A6     (base 16)		Yichun MyEnergy Domain, Inc
   				349W. Yuanshan Rd, Yichun
@@ -115316,6 +115550,16 @@
 				Taipei City  11494
 				TAIWAN, PROVINCE OF CHINA
 
+<<<<<<< HEAD
+=======
+  CC-D8-C1   (hex)		Cisco
+  CCD8C1     (base 16)		Cisco
+  				170 West Tasman Drive
+				SJCM/2
+				San Jose CA 95134
+				UNITED STATES
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   CC-D9-E9   (hex)		SCR Engineers Ltd.
   CCD9E9     (base 16)		SCR Engineers Ltd.
   				6 Haomanut St.
@@ -115667,6 +115911,16 @@
 				Santa Clara CA 95050
 				UNITED STATES
 
+<<<<<<< HEAD
+=======
+  D0-62-A0   (hex)		China Essence Technology (Zhumadian) Co., Ltd.
+  D062A0     (base 16)		China Essence Technology (Zhumadian) Co., Ltd.
+  				4th Floor, Administrative Service Center Office of Yicheng District
+				West Jiefang Road
+				Zhumadian Henan Province 463000
+				CHINA
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   D0-63-4D   (hex)		Meiko Maschinenbau GmbH &amp; Co. KG
   D0634D     (base 16)		Meiko Maschinenbau GmbH &amp; Co. KG
   				Englerstraße 3
@@ -118026,6 +118280,15 @@
 				Shenzhen Guangdong 518031
 				CHINA
 
+<<<<<<< HEAD
+=======
+  DC-DA-4F   (hex)		GET Technology,INC
+  DCDA4F     (base 16)		GET Technology,INC
+  				Room 508, NO .48 ZhengYi road, YangPu District
+				SHANGHAI SHANGHAI 200082
+				CHINA
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   DC-DE-CA   (hex)		Akyllor
   DCDECA     (base 16)		Akyllor
   				Britannia House, 22, 2F, Cator Road
@@ -120140,6 +120403,16 @@
 				Raanana  2396
 				ISRAEL
 
+<<<<<<< HEAD
+=======
+  EC-3C-5A   (hex)		SHEN ZHEN HENG SHENG HUI DIGITAL TECHNOLOGY CO.,LTD
+  EC3C5A     (base 16)		SHEN ZHEN HENG SHENG HUI DIGITAL TECHNOLOGY CO.,LTD
+  				5A 6FLOOR, BLOCK C12, FUYUAN INDUSTRIAL AREA, ZHOU SHI ROAD,
+				NO111, XIXIANG STREET, BAOAN
+				SHENZHEN GUANGDONG 518102
+				CHINA
+
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
   EC-3E-09   (hex)		PERFORMANCE DESIGNED PRODUCTS, LLC
   EC3E09     (base 16)		PERFORMANCE DESIGNED PRODUCTS, LLC
   				14144 Ventura Blvd

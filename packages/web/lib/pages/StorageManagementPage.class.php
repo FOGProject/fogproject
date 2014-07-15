@@ -51,17 +51,30 @@ class StorageManagementPage extends FOGPage
 		// Row data
 		foreach ((array)$StorageNodes AS $StorageNode)
 		{
+<<<<<<< HEAD
+=======
+			$StorageGroup = new StorageGroup($StorageNode->get('storageGroupID'));
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			$this->data[] = array_merge(
 				(array)$StorageNode->get(),
 				array(	'isMasterText'		=> ($StorageNode->get('isMaster') ? 'Yes' : 'No'),
 					'isEnabledText'		=> ($StorageNode->get('isEnabled') ? 'Yes' : 'No'),
+<<<<<<< HEAD
 					'isGraphEnabledText'	=> ($StorageNode->get('isGraphEnabled') ? 'Yes' : 'No')
+=======
+					'isGraphEnabledText'	=> ($StorageNode->get('isGraphEnabled') ? 'Yes' : 'No'),
+					'storage_group' => $StorageGroup->get('name'),
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 				)
 			);
 		}
 		// Header row
 		$this->headerData = array(
 			_('Storage Node'),
+<<<<<<< HEAD
+=======
+			_('Storage Group'),
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			_('Enabled'),
 			_('Graph Enabled'),
 			_('Master Node'),
@@ -70,6 +83,10 @@ class StorageManagementPage extends FOGPage
 		// Row templates
 		$this->templates = array(
 			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, _('Edit')),
+<<<<<<< HEAD
+=======
+			sprintf('${storage_group}', $this->node, $this->id),
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			sprintf('${isEnabledText}', $this->node, $this->id),
 			sprintf('${isGraphEnabledText}', $this->node, $this->id),
 			sprintf('${isMasterText}', $this->node, $this->id),
@@ -78,6 +95,10 @@ class StorageManagementPage extends FOGPage
 		// Row attributes
 		$this->attributes = array(
 			array(),
+<<<<<<< HEAD
+=======
+			array(),
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			array('class' => 'c', 'width' => '90'),
 			array('class' => 'c', 'width' => '90'),
 			array('class' => 'c', 'width' => '90'),

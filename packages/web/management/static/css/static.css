@@ -1,7 +1,0 @@
-*{font-family:arial;font-size: 10px;}
-body{background-color:#dbdbdb;overflow:scroll;}
-p{padding-left:15px;padding-right: 5px;}
-div.main{margin:3px;border-width:1px 1px 1px 1px;border-color:#000000;border-style:solid;background-color:#f6f6f6;padding:0px;min-width:280px;min-height:380px;}
-h3{font-size:12px;border-width:0px 0px 1px 0px;border-color:#000000;border-style:solid;padding:2px;margin:0px;background-color:#363636;color:#ffffff;}
-h5{border-width:0px 0px 1px 0px;border-color:#747474;border-style:solid;padding:6px 2px 2px 2px;margin:3px;}
-h6{border-width:0px 0px 1px 0px;border-color:#b0b0b0;border-style:solid;padding:6px 2px 2px 2px;margin:3px 3px 3px 8px;color:#767676;}

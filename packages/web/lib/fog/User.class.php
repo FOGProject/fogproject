@@ -75,6 +75,7 @@ class User extends FOGController
 		{
 			// reset session
 			@session_write_close();
+<<<<<<< HEAD
 			@session_regenerate_id(true);
 			$_SESSION = array();
 			@session_start();
@@ -82,13 +83,34 @@ class User extends FOGController
 		}
 		// Logged in
 		return true;
+=======
+			@session_set_cookie_params(0);
+			@session_start();
+			@session_regenerate_id(true);
+			$_SESSION['CREATED'] = time();
+		}
+		// Logged in
+		$_SESSION['FOG_USER'] = serialize($this);
+		$_SESSION['FOG_USERNAME'] = $this->get('name');
+		return $this;
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	}
 	public function logout()
 	{
 		// Destroy session
+<<<<<<< HEAD
 		@session_unset();
 		@session_destroy();
 		$_SESSION = array();
+=======
+		@session_write_close();
+		@session_set_cookie_params(0);
+		@session_start();
+		@session_regenerate_id(true);
+		@session_unset();
+		@session_destroy();
+		$_SESSION=array();
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		$this->FOGCore->redirect('index.php');
 	}
 }

@@ -28,6 +28,11 @@ class ProcessLogin extends FOGBase
 				return $this->foglang['Language']['fr'];
 			case 'zh_CN.UTF-8':
 				return $this->foglang['Language']['zh'];
+<<<<<<< HEAD
+=======
+			case 'de_DE.UTF-8':
+				return $this->foglang['Language']['de'];
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			default :
 				return $this->foglang['Language']['en'];
 		}
@@ -40,6 +45,7 @@ class ProcessLogin extends FOGBase
 			case _('English'):
 				$_POST['ulang'] = 'en_US.UTF-8';
 				break;
+<<<<<<< HEAD
 			case _('French'):
 				$_POST['ulang'] = 'fr_FR.UTF-8';
 				break;
@@ -52,6 +58,23 @@ class ProcessLogin extends FOGBase
 			case _('Spanish'):
 				$_POST['ulang'] = 'es_ES.UTF-8';
 				break;
+=======
+			case _('Français'):
+				$_POST['ulang'] = 'fr_FR.UTF-8';
+				break;
+			case _('Italiano'):
+				$_POST['ulang'] = 'it_IT.UTF-8';
+				break;
+			case _('中国的'):
+				$_POST['ulang'] = 'zh_CN.UTF-8';
+				break;
+			case _('Español'):
+				$_POST['ulang'] = 'es_ES.UTF-8';
+				break;
+			case _('Deutsch'):
+				$_POST['ulang']	= 'de_DE.UTF-8';
+				break;
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			default :
 				$_POST['ulang'] = 'en_US.UTF-8';
 				break;
@@ -77,6 +100,10 @@ class ProcessLogin extends FOGBase
 		@session_write_close();
 		@session_regenerate_id(true);
 		$_SESSION = array();
+<<<<<<< HEAD
+=======
+		@session_set_cookie_params(0);
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		@session_start();
 		$currentUser = $tmpUser;
 		$currentUser->set('authTime', time());
@@ -86,7 +113,12 @@ class ProcessLogin extends FOGBase
 		$this->setRedirMode();
 		$this->currentUser = $currentUser;
 		// Hook
+<<<<<<< HEAD
 		$this->HookManager->processEvent('LoginSuccess', array('user' => &$currentUser, 'username' => $this->username, 'password' => &$this->password));
+=======
+		if (!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
+			$this->HookManager->processEvent('LoginSuccess', array('user' => &$currentUser, 'username' => $this->username, 'password' => &$this->password));
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	}
 
 	private function setRedirMode()
@@ -103,7 +135,12 @@ class ProcessLogin extends FOGBase
 	public function loginFail($string)
 	{
 		// Hook
+<<<<<<< HEAD
 		$this->HookManager->processEvent('LoginFail', array('username' => &$this->username, 'password' => &$this->password));
+=======
+		if (!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
+			$this->HookManager->processEvent('LoginFail', array('username' => &$this->username, 'password' => &$this->password));
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		$this->FOGCore->setMessage($string);
 	}
 
@@ -140,8 +177,11 @@ class ProcessLogin extends FOGBase
 		{
 			$this->username = trim($_POST['uname']);
 			$this->password = trim($_POST['upass']);
+<<<<<<< HEAD
 			// Hook
 			$this->HookManager->processEvent('Login', array('username' => &$this->username, 'password' =>&$this->password));
+=======
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			$tmpUser = $this->FOGCore->attemptLogin($this->username, $this->password);
 			try
 			{

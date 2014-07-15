@@ -16,7 +16,14 @@ try
 	//Get the snapin to work off of.
 	$Snapin = new Snapin($SnapinTask->get('snapinID'));
 	// Assign the file for sending.
+<<<<<<< HEAD
 	$SnapinFile = rtrim($FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.$Snapin->get('file');
+=======
+	if (file_exists($Snapin->get('file')))
+		$SnapinFile = $Snapin->get('file');
+	else if (file_exists(rtrim($FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.$Snapin->file('file')))
+		$SnapinFile = rtrim($FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.$Snapin->get('file');
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	// If it exists and is readable send it!
 	if (file_exists($SnapinFile) && is_readable($SnapinFile))
 	{

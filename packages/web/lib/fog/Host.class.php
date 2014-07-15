@@ -22,6 +22,10 @@ class Host extends FOGController
 		'ADOU'		=> 'hostADOU',
 		'ADUser'	=> 'hostADUser',
 		'ADPass'	=> 'hostADPass',
+<<<<<<< HEAD
+=======
+		'productKey' => 'hostProductKey',
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		'printerLevel'	=> 'hostPrinterLevel',
 		'kernel'	=> 'hostKernel',
 		'kernelArgs'	=> 'hostKernelArgs',
@@ -748,7 +752,11 @@ class Host extends FOGController
 				// Task: Create Task Object
 				$Task = new Task(array(
 					'name'		=> $taskName,
+<<<<<<< HEAD
 					'createdBy'	=> ($this->FOGUser ? $this->FOGUser : ($username ? $username : '')),
+=======
+					'createdBy'	=> ($this->FOGUser ? $this->FOGUser : ($username ? $username : 'nobody')),
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 					'hostID'	=> $this->get('id'),
 					'isForced'	=> 0,
 					'stateID'	=> 1,

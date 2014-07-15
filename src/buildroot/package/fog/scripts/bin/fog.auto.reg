@@ -1,11 +1,20 @@
 #!/bin/sh
+<<<<<<< HEAD
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.donate
+=======
+. /usr/share/fog/lib/funcs.sh;
+. /bin/fog.donate;
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 clear;
 displayBanner;
 hd="";
 getHardDisk;
+<<<<<<< HEAD
 setupDNS ${dns}
+=======
+setupDNS ${dns};
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 sysman="";
 sysman64="";
 sysproduct="";
@@ -87,17 +96,29 @@ if [ -n "$hd" ]; then
 	echo " * BIOS Version: $biosversion";
 	echo " * BIOS Vendor: $biosvendor";
 	echo " * BIOS Date: $biosdate";
+<<<<<<< HEAD
 	sleep 1
 	echo 	
 	echo " Motherboard Information";
 	echo " -----------------------";
 	echo 	
+=======
+	sleep 1;
+	echo
+	echo " Motherboard Information";
+	echo " -----------------------";
+	echo
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	echo " * Motherboard Manufacturer: $mbman";
 	echo " * Motherboard Product Name: $mbproductname";	
 	echo " * Motherboard Product Version: $mbversion";
 	echo " * Motherboard Serial Number: $mbserial";	
 	echo " * Motherboard Asset Tag: $mbasset";		
+<<<<<<< HEAD
 	sleep 1	
+=======
+	sleep 1;
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	echo 
 	echo " CPU Information";
 	echo " ---------------";
