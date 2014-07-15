@@ -287,6 +287,8 @@ class BootMenu extends FOGBase
 		print ":bootme\n";
 		print "chain -ar $this->booturl/ipxe/boot.php##params";
 	}
+	/**
+	*/
 	public function keyset()
 	{
 		$this->Host->set('productKey',base64_encode($_REQUEST['key']));
@@ -297,6 +299,16 @@ class BootMenu extends FOGBase
 			print "sleep 3\n";
 			$this->chainBoot();
 		}
+	}
+	/**
+	* advLogin()
+	* If advanced login is set this just passes when verifyCreds is correct
+	* @return void
+	*/
+	public function advLogin()
+	{
+		print "#!ipxe\n";
+		print "chain -ar $this->booturl/ipxe/advanced.php\n";
 	}
 	/**
 	* debugAccess()
@@ -321,6 +333,8 @@ class BootMenu extends FOGBase
 	{
 		if ($this->FOGCore->attemptLogin($_REQUEST['username'],$_REQUEST['password']))
 		{
+			if ($this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN') && $_REQUEST['advLog'])
+				$this->advLogin();
 			if ($_REQUEST['delhost'])
 				$this->delConf();
 			else if ($_REQUEST['keyreg'])
@@ -614,7 +628,23 @@ class BootMenu extends FOGBase
 		else if ($option == 'fog.advanced')
 		{
 			print ":$option\n";
-			print "chain -ar $this->booturl/ipxe/advanced.php || goto MENU\n";
+			if ($this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN'))
+			{
+				print "login\n";
+				print "params\n";
+				print "param mac0 \${net0/mac}\n";
+				print "param arch \${arch}\n";
+				print "param username \${username}\n";
+				print "param password \${password}\n";
+				print "param advLog  1\n";
+				print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+				print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+				print ":bootme\n";
+				print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
+				print "goto MENU\n";
+			}
+			else
+				print "chain -ar $this->booturl/ipxe/advanced.php || goto MENU\n";
 		}
 		else if ($option == 'fog.debug') 
 		{
