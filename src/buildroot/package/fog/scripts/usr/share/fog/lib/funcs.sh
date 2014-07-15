@@ -1,5 +1,5 @@
 #!/bin/sh
-. /usr/share/fog/lib/partition-funcs.sh
+. /usr/share/fog/lib/partition-funcs.sh;
 REG_LOCAL_MACHINE_XP="/ntfs/WINDOWS/system32/config/system"
 REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
 REG_HOSTNAME_KEY1_XP="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
@@ -797,4 +797,12 @@ restoreGRUB()
 	local tmpMBR="${imagePath}/d${disk_number}.mbr";
 	local count=`du -B 512 "${tmpMBR}" | awk '{print $1;}'`;
 	dd if="${tmpMBR}" of="${disk}" bs=512 count="${count}" &>/dev/null;
+}
+
+debugPause()
+{
+	if [ "$mode" == "debug" ]; then
+		echo 'Press [Enter] key to continue.';
+		read -p "$*";
+	fi
 }
