@@ -18,6 +18,7 @@ try
 	// Make sure it's a unique name.
 	if($_REQUEST['advanced'] == '1')
 	{
+		$productKey = trim($_REQUEST['productKey']);
 		$username = base64_decode(trim($_REQUEST['username']));
 		// trim the hostname (no spaces left or right of the name)
 		$host=trim(base64_decode($_REQUEST['host']));
@@ -77,6 +78,7 @@ try
 			'ADOU' => $strADOU,
 			'ADUser' => $strADUser,
 			'ADPass' => $strADPass,
+			'productKey' => $productKey,
 			'createdTime' => date("Y-m-d H:i:s"),
 			'createdBy' => 'FOGREG',
 		));
