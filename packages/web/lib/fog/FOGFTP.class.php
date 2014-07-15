@@ -92,6 +92,25 @@ class FOGFTP extends FOGGetSet
 			return $this;
 		return false;
 	}
+<<<<<<< HEAD
+=======
+	public function size($pathfile)
+	{
+		$size = 0;
+		if (@ftp_size($this->link,$pathfile) == -1)
+		{
+			$filelist = @ftp_nlist($this->link,$pathfile);
+			if ($filelist)
+			{
+				foreach($filelist AS $file)
+					$size += @ftp_size($this->link,$file);
+			}
+		}
+		else
+			$size = @ftp_size($this->link, $pathfile);
+		return ($size > 0 ? $size : 0);
+	}
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	public function mkdir($remotePath)
 	{
 		return @ftp_mkdir($this->link,$remotePath);

@@ -1,5 +1,9 @@
 #!/bin/sh
+<<<<<<< HEAD
 . /usr/share/fog/lib/funcs.sh
+=======
+. /usr/share/fog/lib/funcs.sh;
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 if [ "$type" == "down" ]; then
 	fog.download;
 elif [ "$type" == "up" ]; then
@@ -7,4 +11,8 @@ elif [ "$type" == "up" ]; then
 else
 	handleError " Fatal Error: Unknown request type :: Null";
 fi
+<<<<<<< HEAD
 fdisk -l &> /tmp/fdisk-after
+=======
+fdisk -l &> /tmp/fdisk-after;
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157

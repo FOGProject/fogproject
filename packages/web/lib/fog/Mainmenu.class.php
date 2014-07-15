@@ -2,7 +2,10 @@
 class Mainmenu extends FOGBase
 {
 	public $main;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	public function __construct()
 	{
 		parent::__construct();
@@ -47,6 +50,15 @@ class Mainmenu extends FOGBase
 		);
 		$this->main = array_unique(array_filter($this->main));
 		$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
+<<<<<<< HEAD
+=======
+		foreach ($this->main AS $link => $title)
+			$links[] = $link;
+		$links[] = 'hwinfo';
+		$links[] = 'client';
+		if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links))
+			$this->FOGCore->redirect('index.php');
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	}
 	private function mobileSetting()
 	{
@@ -56,11 +68,16 @@ class Mainmenu extends FOGBase
 			'tasks' => $this->foglang['Task'],
 			'logout' => $this->foglang['Logout'],
 		);
+<<<<<<< HEAD
 		$this->main = array_unique(array_filter($this->main));
 		$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
 		$links = array();
 		foreach ($this->main AS $link => $title)
 			array_push($links,($link != 'logout' ? $link.'s' : $link));
+=======
+		foreach ($this->main AS $link => $title)
+			$links[] = ($link != 'logout' ? $link.'s' :$link);
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links))
 			$this->FOGCore->redirect('index.php');
 	}
@@ -68,11 +85,19 @@ class Mainmenu extends FOGBase
 	{
 		try
 		{
+<<<<<<< HEAD
 			if ($this->FOGUser != null && $this->FOGUser->isLoggedIn() && preg_match('#mobile#i',$_SERVER['PHP_SELF']))
 				$this->mobileSetting();
 			else if ($this->FOGUser != null && $this->FOGUser->isLoggedIn() && $this->FOGUser->get('type') == 0)
 				$this->mainSetting();
 			else if ($this->FOGUser != null && $this->FOGUser->isLoggedIn() && $this->FOGUser->get('type') != 0)
+=======
+			if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn() && preg_match('#mobile#i',$_SERVER['PHP_SELF']))
+				$this->mobileSetting();
+			else if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn() && $this->FOGUser->get('type') == 0)
+				$this->mainSetting();
+			else if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn() && $this->FOGUser->get('type') != 0)
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 				throw new Exception('Not Allowed Here!');
 		}
 		catch (Exception $e)

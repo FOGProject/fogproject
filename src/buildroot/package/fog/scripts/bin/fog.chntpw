@@ -3,29 +3,45 @@
 . /bin/fog.donate
 clearScreen;
 displayBanner;
+<<<<<<< HEAD
 setupDNS ${dns}
+=======
+setupDNS ${dns};
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 hd="";
 getHardDisk;
 echo "";
 echo "";
 acct="$winuser";
 if [ -n "$hd" ]; then
+<<<<<<< HEAD
 	if [ -n "$acct" ]
 	then
+=======
+	if [ -n "$acct" ]; then
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		blCont="0";
 		blStop="0";
 		partNum=1;
 		part="";
 		mkdir /ntfs;
 		sam="";
+<<<<<<< HEAD
 		while [ "$blCont" == "0" ] && [ "$blStop" == "0" ]
 		do
+=======
+		while [ "$blCont" == "0" ] && [ "$blStop" == "0" ]; do
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			part="${hd}${partNum}";
 			umount /ntfs 2>/dev/null >/dev/null
 			mount.ntfs-3g $part /ntfs 
 			getSAMLoc;
+<<<<<<< HEAD
 			if [ -f "$sam" ]
 			then
+=======
+			if [ -f "$sam" ]; then
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 				blCont="1";
 			else
 				partNum=$((${partNum}+1));
@@ -35,6 +51,7 @@ if [ -n "$hd" ]; then
 				fi
 			fi			
 		done
+<<<<<<< HEAD
 		
 		umount /ntfs 2>/dev/null >/dev/null
 
@@ -44,6 +61,13 @@ if [ -n "$hd" ]; then
 			mount.ntfs-3g $part /ntfs 
 			echo "Done";
 
+=======
+		umount /ntfs 2>/dev/null >/dev/null
+		if [ "$blCont" == "1" ]; then
+			dots "Mounting Windows File System";
+			mount.ntfs-3g $part /ntfs 
+			echo "Done";
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			dots "Attempting to change password";
 			chntpw -u ${acct} ${sam}  &>/dev/null << EOF
 1
@@ -62,6 +86,7 @@ EOF
 else
 	echo "hard disk not found!";
 fi
+<<<<<<< HEAD
 
 queueinfo="";
 cd /tmp			
@@ -69,6 +94,13 @@ wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
 queueinfo=`cat co.txt`;
 while [ "$queueinfo" != "##" ]
 do
+=======
+queueinfo="";
+cd /tmp;
+wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null;
+queueinfo=`cat co.txt`;
+while [ "$queueinfo" != "##" ]; do
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	echo "       * $queueinfo";
 	rm co.txt
 	wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
@@ -78,5 +110,8 @@ done
 echo "";
 echo " * Database updated!";
 echo "";	
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 sleep 3;

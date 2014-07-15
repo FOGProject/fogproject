@@ -7,6 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG - A Free Cloning Solution\n"
 "Report-Msgid-Bugs-To: \n"
+<<<<<<< HEAD
 "POT-Creation-Date: 2010-04-13 17:05+0200\n"
 "PO-Revision-Date: 2010-04-21 20:02-0600\n"
 "Last-Translator: Jian Zhang\n"
@@ -5979,3 +5980,5305 @@ msgstr "任务菜单"
 msgid "Unable to delete PXE file."
 msgstr "无法删除PXE的文件。"
 
+=======
+"POT-Creation-Date: 2014-07-13 00:17-0400\n"
+"PO-Revision-Date: 2014-07-14 16:08+0100\n"
+"Last-Translator: \n"
+"Language-Team: Project Admins\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.6\n"
+
+msgid " Enabled?"
+msgstr "启用"
+
+msgid " after task completion"
+msgstr "关机后任务完成？"
+
+msgid " and select "
+msgstr ""
+
+msgid ""
+" include a header row, and make sure you resave the file as a CSV file and "
+"not XLS!"
+msgstr ""
+
+msgid " mac addresses updated!"
+msgstr "MAC地址更新！"
+
+msgid " or "
+msgstr ""
+
+msgid ""
+" to download a template file.  The only fields that are required are "
+"hostname and MAC address.  Do "
+msgstr ""
+
+msgid "# Computers Imaged"
+msgstr "＃计算机图像"
+
+msgid "#!ih"
+msgstr ""
+
+msgid "#!im"
+msgstr ""
+
+#, php-format
+msgid "%s Manager"
+msgstr "显示管理器 %s"
+
+#, php-format
+msgid "%s Menu"
+msgstr "主机菜单 %s"
+
+msgid "(To be released only by XXXXXXXXX)"
+msgstr "（被释放，只有 XXXXXXXXX）"
+
+msgid "1 Hour"
+msgstr ""
+
+msgid "10 Minutes"
+msgstr ""
+
+msgid "2 Minutes"
+msgstr ""
+
+msgid "30 Day Imaging History"
+msgstr "30日成像的历史"
+
+msgid "30 Minutes"
+msgstr ""
+
+msgid "<!-- "
+msgstr "<!-- "
+
+msgid "?"
+msgstr "?"
+
+msgid "A host with this MAC already exists with Hostname: "
+msgstr "具有此名称的用户已经存在！"
+
+msgid "A task already exists for this Host at this cron schedule"
+msgstr "已存在的图像与这个名字！"
+
+msgid "A task already exists for this Host at this scheduled date & time"
+msgstr ""
+
+msgid "AD Domain"
+msgstr "AD域"
+
+msgid "AD Join"
+msgstr ""
+
+msgid "AD OU"
+msgstr "AD OU"
+
+msgid "About FOG Reports"
+msgstr "关于 FOG 的报告"
+
+msgid "Accepted"
+msgstr "已接受"
+
+msgid "Access Control"
+msgstr ""
+
+msgid "Action"
+msgstr "操作"
+
+msgid "Actions"
+msgstr "操作"
+
+msgid "Activate Plugins"
+msgstr "激活插件"
+
+msgid "Active"
+msgstr "打开插槽"
+
+msgid "Active Directory"
+msgstr "活动目录"
+
+msgid "Active Multi-cast Tasks"
+msgstr "主动组播任务"
+
+msgid "Active Multicast Tasks"
+msgstr "主动组播任务"
+
+msgid "Active Snapin Tasks"
+msgstr "主动管理单元插件"
+
+msgid "Active Tasks"
+msgstr "打开插槽"
+
+msgid "Active/Type"
+msgstr "打开插槽"
+
+msgid "Add"
+msgstr "添加"
+
+msgid "Add Association"
+msgstr "高级动作"
+
+msgid "Add Directory"
+msgstr "添加目录"
+
+msgid "Add Event"
+msgstr "添加事件"
+
+msgid "Add Event (24 Hour Format):"
+msgstr "添加事件（24小时制）"
+
+msgid "Add Host(s) to Group"
+msgstr "添加到组"
+
+msgid "Add Image to DMI Associations"
+msgstr "图像描述"
+
+msgid "Add Image to Host(s)"
+msgstr "图像主机"
+
+msgid "Add MAC"
+msgstr "附加互助委员会"
+
+msgid "Add Mac"
+msgstr ""
+
+msgid "Add New Snapin"
+msgstr "在新的管理单元"
+
+msgid "Add New Storage Group"
+msgstr "添加新存储组"
+
+msgid "Add New Storage Node"
+msgstr "增加存储节点"
+
+msgid "Add Only"
+msgstr "只添加"
+
+msgid "Add Printer"
+msgstr "添加打印机"
+
+msgid "Add Protected User"
+msgstr "新增保护用户"
+
+msgid "Add Snapin"
+msgstr "在添加管理单元"
+
+msgid "Add Snapin to all hosts in"
+msgstr "添加管理单元中的所有主机中"
+
+msgid "Add Snapin(s)"
+msgstr "添加管理单元项"
+
+msgid "Add Storage Group"
+msgstr "添加存储组"
+
+msgid "Add Storage Node"
+msgstr "增加存储节点"
+
+msgid "Add User"
+msgstr "添加用户"
+
+msgid "Add and Remove"
+msgstr "添加和删除"
+
+msgid "Add hosts to group"
+msgstr "添加到组"
+
+msgid "Add new host definition"
+msgstr "添加新的主机定义"
+
+msgid "Add new image definition"
+msgstr "添加新的图像清晰度"
+
+msgid "Add new printer"
+msgstr "添加新的打印机"
+
+msgid "Add new printer to all hosts in this group."
+msgstr "添加新的打印机在这一组中的所有主机。"
+
+msgid "Add new user account"
+msgstr "添加新的用户帐户"
+
+msgid "Add to Group(s)"
+msgstr "添加到组"
+
+msgid "Add to Snapin(s)"
+msgstr "添加管理单元项"
+
+msgid "Add to group"
+msgstr "添加到组"
+
+msgid "Additional MACs"
+msgstr "附加互助委员会"
+
+msgid "Advanced"
+msgstr "高级"
+
+msgid "Advanced Actions"
+msgstr "高级动作"
+
+msgid "Advanced Settings"
+msgstr "高级设置"
+
+msgid "All"
+msgstr ""
+
+msgid "All Groups"
+msgstr "清单上的所有组"
+
+msgid "All Hosts"
+msgstr "所有主机列表"
+
+msgid "All Images"
+msgstr "清单上的所有图片"
+
+msgid "All Pending MACs approved."
+msgstr ""
+
+msgid "All Snap-ins"
+msgstr "所有管理单元"
+
+msgid "All Storage Groups"
+msgstr "所有存储组"
+
+msgid "All Storage Nodes"
+msgstr "所有的存储节点"
+
+msgid "All Tasks"
+msgstr "所有活动任务"
+
+msgid "All Users"
+msgstr "所有用户列表"
+
+msgid "All Virus' cleared"
+msgstr ""
+
+msgid "Already installed!"
+msgstr "已经安装好了！"
+
+msgid "Already registered as"
+msgstr "主机已注册"
+
+msgid "Approve All MACs?"
+msgstr ""
+
+msgid "Approve All Pending MACs for all hosts?"
+msgstr ""
+
+msgid "Are you sure you wish to deploy these machines?"
+msgstr "你确定要部署这些机器？"
+
+msgid "Are you sure you wish to install/update the FOG database?"
+msgstr "你确定要更新的MAC地址列表？"
+
+msgid "Auto"
+msgstr ""
+
+msgid "Auto Log Out Settings"
+msgstr "设置自动登出"
+
+msgid "Auto Log Out Time (in minutes)"
+msgstr "自动登出时间（分钟）"
+
+msgid "Auto generated fog nfs group"
+msgstr ""
+
+msgid "Auto generated fog nfs group member"
+msgstr ""
+
+msgid "BIOS Date"
+msgstr "主机板资产标签CPU的制造商CPU版本"
+
+msgid "BIOS Vendor"
+msgstr "BIOS供应商"
+
+msgid "BIOS Version"
+msgstr "BIOS版本"
+
+msgid "Bandwidth"
+msgstr "带宽"
+
+msgid "Barcode Numbers"
+msgstr "条码编号"
+
+msgid "Basic Tasks"
+msgstr "基本任务"
+
+msgid "Blank for default"
+msgstr "（默认为空）"
+
+msgid "Boot Key Sequence"
+msgstr ""
+
+msgid "CPU Cache"
+msgstr "CPU缓存"
+
+msgid "CPU Count"
+msgstr "CPU的计数"
+
+msgid "CPU Manufacturer"
+msgstr "CPU的制造商"
+
+msgid "CPU Max Speed"
+msgstr "CPU的最高速度"
+
+msgid "CPU Model"
+msgstr "CPU型号"
+
+msgid "CPU Normal Speed"
+msgstr "CPU的正常速度"
+
+msgid "CPU Speed"
+msgstr "CPU速度"
+
+msgid "CPU Type"
+msgstr "CPU类型"
+
+msgid "CPU Version"
+msgstr "CPU版本"
+
+msgid "CSV File"
+msgstr "CSV文件"
+
+msgid "Cancel Task"
+msgstr "基本任务"
+
+msgid "Chassis Asset"
+msgstr "底盘资产"
+
+msgid "Chassis Manufacturer"
+msgstr "底盘制造商"
+
+msgid "Chassis Serial"
+msgstr "机箱系列"
+
+msgid "Chassis Version"
+msgstr "底盘版本"
+
+msgid "Check here to see hosts not within a group"
+msgstr "添加新的打印机在这一组中的所有主机。"
+
+msgid "City / State / Zip"
+msgstr "城市，省 邮编"
+
+msgid "Clear"
+msgstr "清除"
+
+msgid "Click"
+msgstr ""
+
+msgid "Click the button to download the hosts table backup."
+msgstr ""
+
+msgid "Click the button to export the database."
+msgstr "在下面的图标点击删除 FOG数据库这台打印机。"
+
+msgid "Client"
+msgstr "最大客户"
+
+msgid "Client Service"
+msgstr "FOG 客户服务更新"
+
+msgid "Client Updater"
+msgstr "客户端更新"
+
+msgid "Client module update deleted!"
+msgstr "客户端模块更新删除："
+
+msgid "Complete"
+msgstr "完成"
+
+msgid "Computer Information"
+msgstr "计算机信息"
+
+msgid "Configuration"
+msgstr "模块配置"
+
+msgid "Configuration Save"
+msgstr "模块配置"
+
+msgid "Control"
+msgstr ""
+
+msgid "Controls"
+msgstr ""
+
+msgid ""
+"Could not find a Storage Node. Is there one enabled within this Storage "
+"Group?"
+msgstr ""
+
+msgid "Create"
+msgstr "创建人："
+
+msgid "Create "
+msgstr "创建人："
+
+msgid "Create Date"
+msgstr "创建日期"
+
+#, php-format
+msgid "Create New %s"
+msgstr "创建新组 %s"
+
+msgid "Create Report"
+msgstr "创建报告"
+
+msgid "Create Time"
+msgstr "建立时间"
+
+msgid "Create User"
+msgstr "创建用户"
+
+msgid "Create new group"
+msgstr "创建新组"
+
+msgid "Created by FOG Reg on"
+msgstr "创建者注册的 FOG"
+
+msgid "Cron Schedule:"
+msgstr ""
+
+msgid "Cron-style Deployment"
+msgstr ""
+
+msgid "Current Image to DMI Associations"
+msgstr ""
+
+msgid "Current Protected User Accounts"
+msgstr "电流保护用户帐户"
+
+msgid "Current Records: "
+msgstr "当前记录："
+
+msgid "DMI Field"
+msgstr ""
+
+msgid "DMI Key"
+msgstr ""
+
+msgid "DMI Result"
+msgstr "主机结果"
+
+msgid "Database Added!"
+msgstr "数据库错误"
+
+msgid "Database Error"
+msgstr "数据库错误"
+
+msgid "Database Schema Installer / Updater"
+msgstr ""
+
+msgid "Date"
+msgstr "日期"
+
+msgid "Date of Checkout"
+msgstr "结帐日期"
+
+msgid "Day of Month value is not valid"
+msgstr ""
+
+msgid "Day of Week value is not valid"
+msgstr ""
+
+msgid "Default"
+msgstr "默认"
+
+msgid "Default Height"
+msgstr "默认高度"
+
+msgid "Default Refresh Rate"
+msgstr "默认刷新率"
+
+msgid "Default Setting"
+msgstr "默认设置"
+
+msgid "Default Width"
+msgstr "默认宽度"
+
+msgid "Default log out time (in minutes): "
+msgstr "默认登出时间（分钟）"
+
+msgid "Delayed Deployment"
+msgstr ""
+
+msgid "Delete"
+msgstr "删除"
+
+msgid "Delete Current Records"
+msgstr "删除当前记录"
+
+msgid "Delete all hosts within the group as well?"
+msgstr "删除打印机从本组中的所有主机。"
+
+msgid "Deleted"
+msgstr "删除"
+
+msgid "Deploy"
+msgstr "部署"
+
+msgid "Deploy Image to Host"
+msgstr "图像主机"
+
+msgid "Deploy Method"
+msgstr "部署"
+
+msgid "Deploy Task"
+msgstr "部署管理单元插件"
+
+msgid "Deployed"
+msgstr "部署"
+
+msgid "Description"
+msgstr "描述"
+
+msgid "Deutsch"
+msgstr ""
+
+msgid "Directories Cleaned"
+msgstr "目录清洗"
+
+msgid "Directory"
+msgstr "添加目录"
+
+msgid "Directory Cleaner"
+msgstr "清洁目录"
+
+msgid "Directory Path"
+msgstr "目录路径"
+
+msgid "Directory already exists."
+msgstr "目录项已存在。"
+
+msgid "Disk Information"
+msgstr "磁盘信息"
+
+msgid "Display"
+msgstr "显示管理器"
+
+msgid "Domain Name"
+msgstr "域名"
+
+msgid "Domain OU"
+msgstr "域名"
+
+msgid "Domain Password"
+msgstr "域密码"
+
+msgid "Domain Username"
+msgstr "域用户名"
+
+msgid "Domain name"
+msgstr "域名"
+
+msgid "Done"
+msgstr "完成"
+
+msgid "Done!"
+msgstr "完成"
+
+msgid "Done, but unable to create task!"
+msgstr "无法启动任务"
+
+msgid "Done, with imaging!"
+msgstr "完成，其中成像！"
+
+msgid "Download"
+msgstr "下载"
+
+msgid "Download FOG Crypt which can be used to encrypt the AD Domain Password."
+msgstr ""
+
+msgid ""
+"Download FOG Prep which must be run on computers running Windows 7 "
+"immediately prior to image upload."
+msgstr ""
+
+msgid ""
+"Download the FOG client service. This service allows for advanced management "
+"of the PC, including hostname changing, etc..."
+msgstr ""
+
+msgid "Download/Upload"
+msgstr "下载"
+
+msgid "Dropped"
+msgstr "丢弃"
+
+msgid "Duration"
+msgstr "期限"
+
+msgid "Edit"
+msgstr "编辑"
+
+msgid "Edit Group"
+msgstr "团体名单"
+
+msgid "Edit Host"
+msgstr "现有的主机"
+
+msgid "Edit User"
+msgstr "添加用户"
+
+msgid "Edit host definition"
+msgstr "添加新的主机定义"
+
+msgid "Edit image definition"
+msgstr "编辑图像的清晰度"
+
+msgid "Edit/Remove"
+msgstr "删除"
+
+msgid "Enabled"
+msgstr "启用"
+
+msgid "End"
+msgstr "启用"
+
+msgid "End Date"
+msgstr "结束日期"
+
+msgid "End Time"
+msgstr "终结时刻"
+
+msgid "Engineer"
+msgstr ""
+
+msgid "English"
+msgstr ""
+
+msgid "Enter a hostname to search for"
+msgstr "输入一个用户名来搜索"
+
+msgid "Enter a username to search for"
+msgstr "输入一个用户名来搜索"
+
+msgid "Equipment Loan"
+msgstr "设备贷款"
+
+msgid "Error"
+msgstr "错误"
+
+msgid "Error contacting server"
+msgstr "联系服务器错误。"
+
+msgid "Error multiple hosts returned for list of mac addresses!"
+msgstr "多台主机返回错误的MAC地址列表！"
+
+msgid "Error: Failed to install new kernel!"
+msgstr "错误：无法安装新的内核！"
+
+msgid "Error: Is an image associated with the computer?"
+msgstr "错误：与计算机相关的图片？"
+
+msgid "Error: Unable to connect to tftp server."
+msgstr "错误：无法连接到TFTP服务器。"
+
+msgid "Errors"
+msgstr "错误"
+
+msgid "Español"
+msgstr ""
+
+msgid "Estimated FOG sites"
+msgstr "估计 FOG 网站"
+
+msgid "Exit to Hard Drive Type"
+msgstr ""
+
+msgid "Export"
+msgstr "报告"
+
+msgid "Export Configuration"
+msgstr "模块配置"
+
+msgid "Export Hosts"
+msgstr "现有的主机"
+
+msgid "Extension"
+msgstr "分机号"
+
+msgid "FOG"
+msgstr ""
+
+msgid "FOG :: Mobile Manager :: Version"
+msgstr "FOG ：：移动经理：：版本"
+
+msgid "FOG Client Installer"
+msgstr "FOG 客户服务更新"
+
+msgid "FOG Client Service"
+msgstr "FOG 客户服务更新"
+
+msgid "FOG Client Service Updater"
+msgstr "FOG 客户服务更新"
+
+msgid "FOG Crypt"
+msgstr ""
+
+msgid "FOG Equipment Loan Form"
+msgstr " FOG 设备贷款形式"
+
+msgid "FOG General Help"
+msgstr "FOG 一般说明"
+
+msgid "FOG Home Page"
+msgstr "主页"
+
+msgid "FOG Hosts and Users Login"
+msgstr ""
+
+msgid "FOG Imaging Log"
+msgstr "影像日志"
+
+msgid "FOG Imaging Log - Select Date Range"
+msgstr "FOG 单元中记录 - 选择日期范围"
+
+msgid "FOG License Information"
+msgstr "FOG 许可证信息"
+
+msgid "FOG Mobile Login"
+msgstr "FOG 手机登录"
+
+msgid "FOG PXE Boot Menu Configuration"
+msgstr "光纤 FOG 的PXE启动菜单配置"
+
+msgid "FOG Prep"
+msgstr ""
+
+msgid "FOG Service Configuration Information"
+msgstr "FOG 服务配置信息"
+
+msgid "FOG Settings"
+msgstr "FOG 设置"
+
+msgid "FOG Snapin Log"
+msgstr "光纤 FOG 在日志管理单元"
+
+msgid "FOG Snapin Log - Select Date Range"
+msgstr "FOG 单元中记录 - 选择日期范围"
+
+msgid "FOG Sourceforge Page"
+msgstr "SourceForge页面"
+
+msgid "FOG System Settings"
+msgstr "FOG 系统设置"
+
+msgid "FOG User Login History Summary"
+msgstr "FOG HostIP"
+
+msgid "FOG User Login History Summary - Search"
+msgstr "FOG 用户登录史研究综述 - 搜索"
+
+msgid "FOG User Login History Summary - Select Date Range"
+msgstr "FOG 用户登录的历史述评 - 选择日期范围"
+
+msgid "FOG Version Information"
+msgstr "FOG 版本信息"
+
+msgid "FOG Virus Summary"
+msgstr "FOG 病毒综述"
+
+msgid ""
+"FOG reports exist to give you information about what is going on with your "
+"FOG system.  To view a report, select an item from the menu on the left-hand "
+"side of this page."
+msgstr ""
+"FOG 的存在是为了给你的报告对正在发生的事情与你的光纤 FOG 系统的信息。要查看报"
+"告，请从本页面上左侧的菜单项"
+
+msgid "FOG session invalid"
+msgstr "MAC地址是无效的。"
+
+msgid "FOOTER CENTER"
+msgstr "页脚中心"
+
+msgid "Failed"
+msgstr "失败"
+
+msgid "Failed Hosts"
+msgstr "主机失败"
+
+msgid "Failed to Associate Hosts with Group"
+msgstr "无法从组中删除主机！"
+
+msgid "Failed to create deploy task"
+msgstr "无法建立主机！"
+
+msgid "Failed to create deployment tasks for the following Hosts"
+msgstr ""
+
+msgid "Failed to create image task."
+msgstr "没有找到图像文件。"
+
+msgid "Failed to create inventory for this host!"
+msgstr "无法建立主机！"
+
+msgid "Failed to create new Group"
+msgstr "无法创建打印机！"
+
+msgid "Failed to create task."
+msgstr "计划任务失败。"
+
+msgid "Failed to delete file!"
+msgstr "无法删除打印机"
+
+msgid "Failed to destroy Group"
+msgstr "无法存储组。"
+
+msgid "Failed to destroy Location"
+msgstr "无法更新管理单元"
+
+msgid "Failed to destroy Object"
+msgstr "无法连接！"
+
+msgid "Failed to destroy Printer"
+msgstr "无法删除打印机"
+
+msgid "Failed to destroy Snapin"
+msgstr "无法更新管理单元"
+
+msgid "Failed to destroy Storage Node"
+msgstr "无法更新存储节点"
+
+msgid "Failed to destroy User"
+msgstr "无法删除用户。"
+
+msgid "Failed to install Plugin!"
+msgstr "错误：无法安装新的内核！"
+
+msgid "Failed to save new Host!"
+msgstr "无法建立主机！"
+
+msgid "Failed to update Task"
+msgstr "无法更新主机！"
+
+msgid "Failed to update inventory for this host!"
+msgstr "无法更新主机！"
+
+msgid "File"
+msgstr "文件"
+
+msgid "File Import successful!"
+msgstr ""
+
+msgid "File System Information"
+msgstr "文件系统信息"
+
+msgid "File:"
+msgstr "文件:"
+
+msgid "Force"
+msgstr "力"
+
+msgid "Force task to start"
+msgstr ""
+
+msgid "Forced Task: Failed to update Task"
+msgstr "无法更新主机！"
+
+msgid "Français"
+msgstr ""
+
+msgid "Free Memory"
+msgstr "可用内存"
+
+msgid "Full Inventory Export"
+msgstr "全部库存出口"
+
+msgid "General"
+msgstr "概况"
+
+msgid "General Information"
+msgstr "常规信息"
+
+msgid "Graph Enabled"
+msgstr "管理单元启用？"
+
+msgid "Graphical"
+msgstr "图形"
+
+msgid "Green FOG"
+msgstr "绿 FOG"
+
+msgid "Group"
+msgstr "集团"
+
+msgid "Group Description"
+msgstr "集团简介"
+
+msgid "Group Kernel"
+msgstr "集团的核心"
+
+msgid "Group Kernel Arguments"
+msgstr "集团内核参数"
+
+msgid "Group Location"
+msgstr "地点"
+
+msgid "Group Name"
+msgstr "组名"
+
+msgid "Group Primary Disk"
+msgstr "集团主磁盘"
+
+msgid "Group Relationships"
+msgstr "集团业绩"
+
+msgid "Group Screen Resolution"
+msgstr "集团屏幕分辨率"
+
+msgid "Group Tasks"
+msgstr "集团业绩"
+
+msgid "Group added"
+msgstr "组名"
+
+msgid "Group deleted"
+msgstr "集团创建"
+
+msgid "Group is Invalid"
+msgstr "主机ID是无效的。"
+
+msgid "Groups"
+msgstr "集团"
+
+msgid "HD Device"
+msgstr "硬盘设备"
+
+msgid "HD Firmware"
+msgstr "硬盘固件"
+
+msgid "HD Model"
+msgstr "硬盘型号"
+
+msgid "HD Serial"
+msgstr "硬盘序列"
+
+msgid "Hard Disk Firmware"
+msgstr "硬盘固件"
+
+msgid "Hard Disk Model"
+msgstr "硬盘型号"
+
+msgid "Hard Disk Serial Number"
+msgstr "硬盘序列号"
+
+msgid "Hello FOG Client"
+msgstr "客户您好 FOG"
+
+msgid "Hide Menu"
+msgstr "隐藏菜单："
+
+msgid "Home"
+msgstr "首页"
+
+msgid "Home Address"
+msgstr "住址："
+
+msgid "Home Phone"
+msgstr "家庭电话"
+
+msgid "Host"
+msgstr "主持人"
+
+msgid "Host Created"
+msgstr "主机创建日期"
+
+msgid "Host Desc"
+msgstr "主持人介绍"
+
+msgid "Host Description"
+msgstr "主机简介"
+
+msgid "Host Hardware Inventory"
+msgstr "主机硬件清单"
+
+msgid "Host ID"
+msgstr "主机 ID:"
+
+msgid "Host Image"
+msgstr "主机图片"
+
+msgid "Host Kernel"
+msgstr "主机内核"
+
+msgid "Host Kernel Arguments"
+msgstr "主机内核参数"
+
+msgid "Host List"
+msgstr "主机列表"
+
+msgid "Host Listing Export"
+msgstr "主机上市出口"
+
+msgid "Host Location"
+msgstr "地点"
+
+msgid "Host Login History"
+msgstr "主机登录历史"
+
+msgid "Host MAC"
+msgstr "主机的MAC"
+
+msgid "Host Name"
+msgstr "主机名"
+
+msgid "Host Pending MAC"
+msgstr "主机的MAC"
+
+msgid "Host Primary Disk"
+msgstr "主机主磁盘"
+
+msgid "Host Primary MAC"
+msgstr "主要 MAC"
+
+msgid "Host Printer Configuration"
+msgstr "主机打印机配置"
+
+msgid "Host Registration"
+msgstr "主机注册"
+
+msgid "Host Screen Resolution"
+msgstr "主机屏幕分辨率"
+
+msgid "Host Search"
+msgstr "主机搜索"
+
+msgid "Host Tasks"
+msgstr "基本任务"
+
+msgid "Host added"
+msgstr "主机添加失败"
+
+msgid "Host name"
+msgstr "主机名"
+
+msgid "Host/User name"
+msgstr "用户名"
+
+msgid "Hostname"
+msgstr "主机名"
+
+msgid "Hostname Changer"
+msgstr "换主机名"
+
+msgid "Hostname already exists"
+msgstr "用户已经存在！"
+
+msgid "Hostname is required"
+msgstr "主机名称为空"
+
+msgid "Hostname or IP address of the TFTP Server."
+msgstr ""
+
+msgid "Hostname<br><small>MAC</small>"
+msgstr ""
+
+msgid "Hosts"
+msgstr "主机"
+
+msgid "Hosts below do not belong to a group"
+msgstr ""
+
+msgid "Hosts do not have Uniformed Image assignments"
+msgstr ""
+
+msgid "Hosts in Task"
+msgstr "主机列表"
+
+msgid "Hour value is not valid"
+msgstr "主机名是无效的。"
+
+msgid ""
+"I have read, understood, and agree to all the Terms and Condidtions on the "
+"following pages of this document."
+msgstr "我已阅读，理解并同意本文件的以下几页的所有条款和条件。"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "IP Address"
+msgstr "IP地址"
+
+msgid ""
+"If you would like to backup your FOG database you can do so my using MySql "
+"Administrator or by running the following command in a terminal window "
+"(Applications -> System Tools -> Terminal), this will save sqldump in your "
+"home directory."
+msgstr ""
+
+msgid "Image"
+msgstr "图像"
+
+msgid "Image Association"
+msgstr "图像定位"
+
+msgid "Image Association for"
+msgstr "图像定位"
+
+msgid "Image Definition"
+msgstr "图像描述"
+
+msgid "Image Desc"
+msgstr "图片说明"
+
+msgid "Image Description"
+msgstr "图像描述"
+
+msgid "Image ID"
+msgstr "图片ID"
+
+msgid "Image Manager"
+msgstr "图片名称"
+
+msgid "Image Name"
+msgstr "图片名称"
+
+msgid "Image Path"
+msgstr "图像路径"
+
+msgid "Image Size: ON CLIENT"
+msgstr ""
+
+msgid "Image Size: ON SERVER"
+msgstr ""
+
+msgid "Image Type"
+msgstr "图片类型"
+
+msgid "Image created"
+msgstr "图像创建。"
+
+msgid "Image deleted"
+msgstr "图片已删除"
+
+msgid "Image updated"
+msgstr "图像更新"
+
+msgid "Images"
+msgstr "图像"
+
+msgid "Imaging Log"
+msgstr "影像日志"
+
+msgid "Imaging over the last 30 days"
+msgstr ""
+
+msgid "Import"
+msgstr "报告"
+
+msgid "Import Configuration"
+msgstr "模块配置"
+
+msgid "Import Host Results"
+msgstr "主机结果"
+
+msgid "Import Hosts"
+msgstr "上传主机"
+
+msgid "Import a previous backup file."
+msgstr ""
+
+msgid "Information"
+msgstr "磁盘信息"
+
+msgid "Install/Upgrade Now"
+msgstr ""
+
+msgid "Installed Plugins"
+msgstr "安装插件"
+
+msgid "Instant Deployment"
+msgstr ""
+
+msgid "Interface"
+msgstr ""
+
+msgid "Invalid Group ID"
+msgstr "无效的NFS组ID"
+
+msgid "Invalid Host"
+msgstr "无效的MAC"
+
+msgid "Invalid Login"
+msgstr "无效的登录。"
+
+msgid "Invalid MAC Address"
+msgstr "无效的MAC地址"
+
+msgid "Invalid MAC Address!"
+msgstr "无效的MAC地址"
+
+msgid "Invalid Server Information!"
+msgstr "无效的服务器信息！"
+
+msgid "Invalid Storage Group"
+msgstr "添加存储组"
+
+msgid "Invalid StorageGroup"
+msgstr "添加存储组"
+
+msgid "Invalid Timeout Value."
+msgstr "无效的超时值。"
+
+msgid "Invalid host"
+msgstr "无效的MAC"
+
+msgid "Invalid hostname"
+msgstr "无效的端口号"
+
+msgid "Invalid image"
+msgstr "无效的Mac前缀"
+
+msgid "Invalid number of cells"
+msgstr "号码无效的细胞。"
+
+msgid "Invalid operational mode"
+msgstr "无效的运作模式"
+
+msgid "Inventory"
+msgstr "库存"
+
+msgid "Inventory Desc"
+msgstr "库存编号"
+
+msgid "Inventory ID"
+msgstr "库存编号"
+
+msgid "Is Enabled"
+msgstr "图像定位"
+
+msgid "Is Graph Enabled"
+msgstr "图像定位"
+
+msgid "Is Group"
+msgstr "是集团"
+
+msgid "Is Master Node"
+msgstr "是主节点"
+
+msgid "Italiano"
+msgstr ""
+
+msgid "Job Create Date"
+msgstr "主机创建日期"
+
+msgid "Job Create Time"
+msgstr "建立时间"
+
+msgid "Join Domain after image task"
+msgstr "加入域后的图像任务"
+
+msgid "Kernel"
+msgstr "核心"
+
+msgid "Kernel Update"
+msgstr "内核更新"
+
+msgid "Key Sequence for boot prompt."
+msgstr ""
+
+msgid "Kill"
+msgstr "取消"
+
+msgid "Language"
+msgstr "语言"
+
+msgid "Last Deployed"
+msgstr "部署"
+
+msgid "Last Uploaded"
+msgstr "上传"
+
+msgid "Latest Version"
+msgstr "最新版本"
+
+msgid "License"
+msgstr "许可协议"
+
+msgid "Linux"
+msgstr "Linux操作系统"
+
+#, php-format
+msgid "List All %s"
+msgstr "所有主机列表 %s"
+
+msgid "List all Groups"
+msgstr "清单上的所有组"
+
+msgid "Load Average"
+msgstr ""
+
+msgid "Load MAC Vendors"
+msgstr "负载陆委会供应商"
+
+msgid "Local Printer"
+msgstr "本地打印机"
+
+msgid "Location"
+msgstr "地点"
+
+msgid "Location Management"
+msgstr "没有打印机管理"
+
+msgid "Location Name"
+msgstr "地点"
+
+msgid "Location deleted"
+msgstr "管理单元删除"
+
+msgid ""
+"Location of kernel file on the PXE server, this should point to the kernel "
+"itself."
+msgstr ""
+
+msgid "Location of kernel files on the PXE server."
+msgstr ""
+
+msgid "Location of pxe boot files on the PXE server."
+msgstr ""
+
+msgid "Location/Deployed"
+msgstr "地点"
+
+msgid "Locations"
+msgstr "地点"
+
+msgid "Log Viewer"
+msgstr "日志查看器"
+
+msgid "Login"
+msgstr "登录"
+
+msgid "Login History"
+msgstr "登录历史"
+
+msgid "Logout"
+msgstr "注销"
+
+msgid "MAC"
+msgstr "MAC"
+
+msgid "MAC Address List"
+msgstr "MAC地址列表"
+
+msgid "MAC Address Manufacturer Listing"
+msgstr "MAC地址制造商名录"
+
+msgid "MAC Address is not valid"
+msgstr "MAC地址是无效的。"
+
+msgid "MAC Address is required"
+msgstr "MAC地址为空"
+
+msgid "MAC Format is invalid"
+msgstr "MAC地址是无效的。"
+
+msgid "MAC address listing source: "
+msgstr "MAC地址列表来源："
+
+msgid "MB Asset"
+msgstr "MB的资产"
+
+msgid "MB Manufacturer"
+msgstr "CPU的制造商"
+
+msgid "MB Name"
+msgstr "姓名"
+
+msgid "MB Serial"
+msgstr "MB的串行"
+
+msgid "MB Version"
+msgstr "版本"
+
+msgid "MB/s"
+msgstr "MB /秒"
+
+msgid "Main Menu"
+msgstr "主菜单"
+
+msgid "Make sure your database username and password are correct."
+msgstr ""
+
+msgid "Management"
+msgstr "管理帐号"
+
+msgid "Management Login"
+msgstr "FOG 管理登录"
+
+msgid "Management Password"
+msgstr "管理密码"
+
+msgid "Management Username"
+msgstr "管理帐号"
+
+msgid "Master Node"
+msgstr "是主节点"
+
+msgid "Max Clients"
+msgstr "最大客户"
+
+msgid "Max Size"
+msgstr "最大尺寸"
+
+msgid "Max Size:"
+msgstr "最大尺寸"
+
+msgid "Members"
+msgstr "成员"
+
+msgid "Membership"
+msgstr "会员"
+
+msgid "Memory"
+msgstr "内存"
+
+msgid "Menu Timeout (in seconds)"
+msgstr "菜单超时（秒）：*"
+
+msgid "Minute value is not valid"
+msgstr ""
+
+msgid "Mobile/Quick Image Access Only?"
+msgstr "移动/快速图像只能访问？"
+
+msgid "Mode"
+msgstr "模式"
+
+msgid "Model"
+msgstr "模型"
+
+msgid "Modify AD information for"
+msgstr "修改 AD 信息"
+
+msgid "Modify Group"
+msgstr "修改组"
+
+msgid "Modify Membership for"
+msgstr "修改为会员"
+
+msgid "Module MD5"
+msgstr ""
+
+msgid "Module Name"
+msgstr "节点名称"
+
+msgid "Module Type"
+msgstr ""
+
+msgid "Month value is not valid"
+msgstr "主机名是无效的。"
+
+msgid "Motherboard Asset Tag"
+msgstr "主机板资产标签"
+
+msgid "Motherboard Manufacturer"
+msgstr "主板制造商"
+
+msgid "Motherboard Product Name"
+msgstr "主板产品名称"
+
+msgid "Motherboard Serial Number"
+msgstr "主板序列号"
+
+msgid "Motherboard Version"
+msgstr "主机板版本"
+
+msgid "Move/rename failed."
+msgstr ""
+
+msgid "Multicast"
+msgstr "组播"
+
+msgid "Must be encrypted"
+msgstr "（必须加密）"
+
+msgid "N/A"
+msgstr "N/A (不允许借阅期刊）"
+
+msgid "NEW PAGE"
+msgstr "新页"
+
+msgid "NOT"
+msgstr ""
+
+msgid "Name"
+msgstr "姓名"
+
+msgid "Name:"
+msgstr "姓名"
+
+msgid "Network Information"
+msgstr "网络信息"
+
+msgid "Network Printer"
+msgstr "网络打印机"
+
+msgid "New"
+msgstr ""
+
+msgid "New Group"
+msgstr "集团"
+
+msgid "New Hook Item"
+msgstr ""
+
+msgid "New Hook Item 2"
+msgstr ""
+
+msgid "New Host"
+msgstr "添加新主机"
+
+msgid "New Image"
+msgstr "新形象"
+
+msgid "New Kernel name:"
+msgstr "内核更新"
+
+msgid "New Password"
+msgstr "用户密码"
+
+msgid "New Password (confirm)"
+msgstr "新密码（确认）"
+
+msgid "New Search"
+msgstr "新的搜寻"
+
+msgid "New User"
+msgstr "新用户"
+
+msgid "No"
+msgstr "节点"
+
+msgid "No Active Snapin Jobs found for Host"
+msgstr "没有主动管理单元插件发现"
+
+msgid "No Active Task found for Host"
+msgstr "没有找到活动任务"
+
+msgid "No Group selected and no new Group name entered"
+msgstr ""
+
+msgid "No Host found for MAC Address"
+msgstr "没有找到工作是MAC地址"
+
+msgid "No Hosts were selected"
+msgstr ""
+
+msgid "No Menu"
+msgstr "主机菜单"
+
+msgid "No Printer Management"
+msgstr "没有打印机管理"
+
+msgid "No image assigned for this host."
+msgstr "没有打印机连接到这台主机"
+
+msgid "No image specified"
+msgstr "没有找到图像"
+
+msgid "No results found"
+msgstr "没有找到结果。"
+
+msgid "No snapins Associated."
+msgstr "没有找到插件单元"
+
+msgid "No user history data found!"
+msgstr "没有找到用户"
+
+msgid "Node"
+msgstr "节点"
+
+msgid "Not Available"
+msgstr ""
+
+msgid "Not allowed here!"
+msgstr ""
+
+msgid "Notes / Miscellaneous / Included Items"
+msgstr "备注/杂项/包括项目"
+
+msgid "Number of lines:"
+msgstr "线数："
+
+msgid "O/S"
+msgstr ""
+
+msgid "OR"
+msgstr ""
+
+msgid "OS Name"
+msgstr "操作系统名称"
+
+msgid "OS name"
+msgstr "MB的名字"
+
+msgid "On Dashboard"
+msgstr ""
+
+msgid "Open Source Computer Cloning Solution"
+msgstr "FOG 电脑克隆解决方案"
+
+msgid "Operating System"
+msgstr "工作装置。体制"
+
+msgid "Organizational Unit"
+msgstr "组织单位"
+
+msgid "Other Tag #1"
+msgstr "其他标记＃1"
+
+msgid "Other Tag #2"
+msgstr "其他标记＃2"
+
+msgid "Other Tag 1"
+msgstr "其他标记1"
+
+msgid "Other Tag 2"
+msgstr "其他标记2"
+
+msgid "PC Check-Out Agreement"
+msgstr "电脑退房协议"
+
+msgid "PCs are in front of me."
+msgstr "个人电脑是在我面前。"
+
+msgid "PCs in front of me."
+msgstr "中央处理器在我面前"
+
+msgid "PIGZ Compression Rating"
+msgstr ""
+
+msgid "PXE Boot Menu"
+msgstr "PXE的启动菜单"
+
+msgid "PartClone"
+msgstr ""
+
+msgid "PartImage"
+msgstr "图像"
+
+msgid "Password"
+msgstr "密码"
+
+msgid "Password is invalid"
+msgstr "MAC地址是无效的。"
+
+msgid "Password used to access the tftp server via ftp."
+msgstr ""
+
+msgid "Path"
+msgstr "路径"
+
+msgid "Pending MAC Export"
+msgstr ""
+
+msgid "Pending MACs"
+msgstr ""
+
+msgid "Personal Information"
+msgstr "个人信息"
+
+msgid "Please confirm you want to delete"
+msgstr ""
+
+msgid ""
+"Please confirm you want to delete the following hosts from the FOG Database."
+msgstr "在下面的图标点击删除该主机 FOG 数据库。"
+
+msgid "Please select an option"
+msgstr "请选择或创建一个新的小组！"
+
+msgid "Please select the snapin you want to deploy"
+msgstr ""
+
+msgid "Plugin"
+msgstr "插件"
+
+msgid "Plugin Description"
+msgstr "管理单元说明"
+
+msgid "Plugin Installation"
+msgstr ""
+
+msgid "Plugin Installation Failed!"
+msgstr ""
+
+msgid "Plugin Installed!"
+msgstr "已经安装好了！"
+
+msgid "Plugin Name"
+msgstr "插件"
+
+msgid "Primary Group"
+msgstr "主要组"
+
+msgid "Primary MAC"
+msgstr "主要 MAC"
+
+msgid "Primary User"
+msgstr "主要用户"
+
+msgid "Printed"
+msgstr "印花"
+
+msgid "Printer"
+msgstr "打印机"
+
+msgid "Printer Alias"
+msgstr "打印机别名"
+
+msgid "Printer INF File"
+msgstr "INF文件打印"
+
+msgid "Printer IP (optional)"
+msgstr "打印IP地址（可选）"
+
+msgid "Printer Model"
+msgstr "打印机型号"
+
+msgid "Printer Port"
+msgstr "打印机端口"
+
+msgid "Printer Type"
+msgstr "打印机型号"
+
+msgid "Printer created"
+msgstr "用户创建"
+
+msgid "Printer deleted"
+msgstr "打印机型号"
+
+msgid "Printer updated"
+msgstr "用户更新"
+
+msgid "Printers"
+msgstr "打印机"
+
+msgid "Process Group Changes"
+msgstr "进程组的变化"
+
+msgid "Published Kernels"
+msgstr ""
+
+msgid "Quarantine"
+msgstr "检疫旗"
+
+msgid "Queued"
+msgstr "排队..."
+
+msgid "Quick Image Menu"
+msgstr "快速图像菜单"
+
+msgid "RX"
+msgstr "RX"
+
+msgid "Reboot"
+msgstr "重新启动"
+
+msgid "Reboot after deploy"
+msgstr "安装后重新启动"
+
+msgid "Reboot after install"
+msgstr "安装后重新启动"
+
+msgid "Receive"
+msgstr ""
+
+msgid "Refresh"
+msgstr "刷新"
+
+msgid "Releasing Staff Initials"
+msgstr "释放员工声母"
+
+msgid "Remove"
+msgstr "删除"
+
+msgid "Remove Association"
+msgstr "删除管理单元中"
+
+msgid "Remove Image?"
+msgstr "新形象"
+
+msgid "Remove MAC"
+msgstr "删除"
+
+msgid "Remove Membership?"
+msgstr "会员"
+
+msgid "Remove Snapin"
+msgstr "删除管理单元中"
+
+msgid "Remove Snapin to all hosts in"
+msgstr "删除管理单元中的所有主机中"
+
+msgid "Remove printer from all hosts in this group."
+msgstr "删除打印机从本组中的所有主机。"
+
+msgid "Removed"
+msgstr "删除"
+
+msgid "Replay from journal: real insert time"
+msgstr "重播从杂志：真正插入时间"
+
+msgid "Report"
+msgstr "报告"
+
+msgid "Reports"
+msgstr "报告"
+
+msgid "Required database field is empty"
+msgstr ""
+
+msgid "Results Found for user and/or hostname search"
+msgstr ""
+
+msgid "Return Code"
+msgstr "返回代码"
+
+msgid "Return Desc"
+msgstr "返回描述"
+
+msgid "Row"
+msgstr "行"
+
+msgid "Rx"
+msgstr "接收"
+
+msgid "Save Changes"
+msgstr "保存更改"
+
+msgid "Save PXE MENU"
+msgstr "保存的PXE菜单"
+
+msgid "Save target as..."
+msgstr "保存更改"
+
+msgid "Schedule"
+msgstr "计划任务"
+
+msgid "Schedule "
+msgstr "计划任务"
+
+msgid "Schedule <u>Shutdown</u> after task completion"
+msgstr "关机后任务完成？"
+
+msgid "Scheduled Tasks"
+msgstr "计划任务"
+
+#, php-format
+msgid "Scheduled date is in the past. Date: %s"
+msgstr ""
+
+msgid "Scheduled to start at:"
+msgstr "选择开始日期"
+
+msgid "Scheduled to start at: "
+msgstr "选择开始日期"
+
+msgid "Screen Height (in pixels)"
+msgstr "屏幕的高度（以像素为单位）"
+
+msgid "Screen Refresh Rate (in Hz)"
+msgstr "屏幕刷新率"
+
+msgid "Screen Width (in pixels)"
+msgstr "屏幕宽度（以像素为单位）"
+
+msgid "Search"
+msgstr "搜索"
+
+msgid "Search for Entries"
+msgstr "搜索项"
+
+msgid "Select End Date"
+msgstr "选择结束日期"
+
+msgid "Select Management Level for all Hosts in this group"
+msgstr "选择管理水平在这一组中的所有主机"
+
+msgid "Select Management Level for this Host"
+msgstr "选择这个主机管理水平"
+
+msgid "Select One"
+msgstr "选择一个"
+
+msgid "Select Start Date"
+msgstr "选择开始日期"
+
+msgid "Select User"
+msgstr "选择用户"
+
+msgid "Serial Number / Service Tag"
+msgstr "序列号/服务标签"
+
+msgid "Server Shell"
+msgstr "服务器壳牌"
+
+msgid "Service"
+msgstr "服务"
+
+msgid "Service Configuration"
+msgstr "服务配置"
+
+msgid "Service Start"
+msgstr "服务启动"
+
+msgid "Service Status"
+msgstr "服务状态"
+
+msgid "Service Stop"
+msgstr "服务启动"
+
+msgid "Session timeout"
+msgstr ""
+
+msgid "Settings"
+msgstr "FOG 设置"
+
+msgid "Shut Down"
+msgstr "关闭"
+
+msgid "Shutdown"
+msgstr "关闭"
+
+msgid "Shutdown after deploy"
+msgstr "关机后任务完成？"
+
+msgid "Shutdown/Reboot Schedule"
+msgstr "关机/重启附表"
+
+msgid "Signed"
+msgstr "签名"
+
+msgid ""
+"Since the fog boot image has an incomplete dhcp implementation, you can "
+"specify a dns address to be used with the boot image.  If you are going to "
+"use this settings, you should turn <b>FOG_USE_SLOPPY_NAME_LOOKUPS</b> off."
+msgstr ""
+
+msgid "Snapin"
+msgstr "管理单元"
+
+msgid "Snapin Args"
+msgstr "管理单元指定参数"
+
+msgid "Snapin Arguments"
+msgstr "管理单元参数"
+
+msgid "Snapin Client"
+msgstr "客户管理单元"
+
+msgid "Snapin Creation Date"
+msgstr "创建日期"
+
+msgid "Snapin Creation Time"
+msgstr "建立时间"
+
+msgid "Snapin Description"
+msgstr "管理单元说明"
+
+msgid "Snapin File"
+msgstr "管理单元文件"
+
+msgid "Snapin File (exists)"
+msgstr "管理单元文件路径"
+
+msgid "Snapin ID"
+msgstr "管理单元编号"
+
+msgid "Snapin Log"
+msgstr "管理单元日志"
+
+msgid "Snapin Name"
+msgstr "管理单元名称"
+
+msgid "Snapin Return Code"
+msgstr "管理单元返回代码"
+
+msgid "Snapin Return Detail"
+msgstr "管理单元返回的说明"
+
+msgid "Snapin Run With"
+msgstr "管理单元运行"
+
+msgid "Snapin Run With Args"
+msgstr "管理单元指定参数运行"
+
+msgid "Snapin Run With Argument"
+msgstr "管理单元运行参数"
+
+msgid "Snapin State"
+msgstr "管理单元状态"
+
+msgid "Snapin created"
+msgstr "管理单元更新"
+
+msgid "Snapin deleted"
+msgstr "管理单元删除"
+
+msgid "Snapin is already setup for tasking."
+msgstr "管理单元已经与这台主机。"
+
+msgid "Snapin updated"
+msgstr "管理单元更新"
+
+msgid "Snapins"
+msgstr "管理单元插件"
+
+msgid "Start"
+msgstr "开始时间"
+
+msgid "Start Date"
+msgstr "开始日期"
+
+msgid "Start Time"
+msgstr "开始时间"
+
+msgid "Started By:"
+msgstr "创建人："
+
+msgid "Starting process..."
+msgstr "启动过程..."
+
+msgid "State"
+msgstr "状态"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Storage"
+msgstr "存放"
+
+msgid "Storage Group"
+msgstr "存储组"
+
+msgid "Storage Group Description"
+msgstr "存储组的说明"
+
+msgid "Storage Group Name"
+msgstr "存储组名称"
+
+msgid "Storage Group Name is required"
+msgstr "一个存储组是必需的！"
+
+msgid "Storage Group already exists"
+msgstr "存储组去除结果"
+
+msgid "Storage Group created"
+msgstr "存储组中创建。"
+
+msgid "Storage Group deleted"
+msgstr "存储组中删除"
+
+msgid "Storage Group updated"
+msgstr "存储组更新"
+
+msgid "Storage Node"
+msgstr "存储节点"
+
+msgid "Storage Node Description"
+msgstr "存储节点描述"
+
+msgid "Storage Node IP Address is required"
+msgstr "一个存储组是必需的！"
+
+msgid "Storage Node Interface is required"
+msgstr "一个存储组是必需的！"
+
+msgid "Storage Node Management Password is required"
+msgstr "管理密码"
+
+msgid "Storage Node Management Username is required"
+msgstr "管理帐号"
+
+msgid "Storage Node Max Clients is required"
+msgstr "一个存储组是必需的！"
+
+msgid "Storage Node Name"
+msgstr "存储节点名称"
+
+msgid "Storage Node Name is required"
+msgstr "存储节点名称"
+
+msgid "Storage Node already exists"
+msgstr "已經存在"
+
+msgid "Storage Node created"
+msgstr "存储节点创建。"
+
+msgid "Storage Node deleted"
+msgstr "存储组中删除"
+
+msgid "Storage Node updated"
+msgstr "存储节点更新"
+
+msgid "Storage Node: "
+msgstr "存储节点"
+
+msgid "Successful Hosts"
+msgstr "成功的主机"
+
+msgid "Successfully associated Hosts with the Group "
+msgstr ""
+
+#, php-format
+msgid "Successfully created tasks for deployment to the following Hosts"
+msgstr ""
+
+msgid "System Activity"
+msgstr "系统活动"
+
+msgid "System Manufacturer"
+msgstr "系统制造商"
+
+msgid "System Overview"
+msgstr "系统概述"
+
+msgid "System Product"
+msgstr "系统产品"
+
+msgid "System Serial"
+msgstr "系统中的串行"
+
+msgid "System Serial Number"
+msgstr "系统序列号"
+
+msgid "System Type"
+msgstr "系统类型"
+
+msgid "System Version"
+msgstr "系统版本"
+
+msgid "TFTP From Node"
+msgstr ""
+
+msgid "TFTP Server"
+msgstr "TFTP服务器"
+
+msgid "TX"
+msgstr "TX"
+
+msgid "Task"
+msgstr "任务名称"
+
+msgid "Task Checkin Date"
+msgstr "签入日期"
+
+msgid "Task Checkin Time"
+msgstr "签入时间"
+
+msgid "Task Failed"
+msgstr "任务失败"
+
+msgid "Task Name"
+msgstr "任务名称"
+
+msgid "Task Reboot"
+msgstr "任务重新启动"
+
+msgid "Task Started"
+msgstr "任务开始！"
+
+msgid "Task Type"
+msgstr "任务类型"
+
+msgid "Task Type is not valid"
+msgstr ""
+
+msgid "Task creation failed"
+msgstr "FTP连接失败！"
+
+msgid "Task forced to start"
+msgstr ""
+
+msgid "Terms and Conditions"
+msgstr "合同条款"
+
+msgid "Text"
+msgstr "文本"
+
+msgid "The Storage Group's associated Storage Node is not valid"
+msgstr ""
+
+msgid "The following errors occured"
+msgstr ""
+
+msgid ""
+"The selection box below will add the selected snapins to your host "
+"automatically."
+msgstr ""
+
+msgid ""
+"The selection box below will add this image to the selected hosts "
+"automatically."
+msgstr ""
+
+msgid ""
+"The selection box below will add this snapin to the selected hosts "
+"automatically."
+msgstr ""
+
+msgid "The selection box below will add your host to a group automatically."
+msgstr ""
+
+msgid "The settings defines where the fog boot file system image is located."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid "The settings defines where the memtest boot image/kernel is located."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"The settings was added to workaround a partial implementation of DHCP in the "
+"boot image.  The boot image is unable to obtain a DNS server address from "
+"the DHCP server, so what this setting will do is resolve any hostnames to IP "
+"address on the FOG server before writing the config files."
+msgstr ""
+
+msgid "There are no groups on this server."
+msgstr ""
+
+msgid "There are no images on this server."
+msgstr ""
+
+msgid "There are no locations on this server."
+msgstr ""
+
+msgid "There are open slots, but I am waiting for"
+msgstr "有个空缺，但我等待"
+
+msgid "This Machine is already registered as"
+msgstr "主机已注册"
+
+msgid ""
+"This page allows you to upload a CSV file of hosts into FOG to ease "
+"migration.  Right click"
+msgstr "此页面允许您上传到 FOG，以减轻移民的主机CSV文件。用鼠标点击"
+
+msgid "This page can only be viewed via the FOG Management portal"
+msgstr "本页面只能被视为通过 FOG 管理门户"
+
+msgid ""
+"This plugin is currently not installed, would you like to install it now?"
+msgstr ""
+
+msgid ""
+"This section allows you to customize or alter the way in which FOG "
+"operates.  Please be very careful changing any of the following settings, as "
+"they can cause issues that are difficult to troubleshoot."
+msgstr ""
+"本部分允许您自定义或改变经营方式，光纤 FOG 。请小心更改以下任何设置，因为它们"
+"可能导致问题难以解决"
+
+msgid ""
+"This section allows you to import known mac address makers into the FOG "
+"database for easier identification."
+msgstr "本部分允许您导入到已知的 FOG 更容易识别数据库MAC地址厂商。"
+
+msgid ""
+"This section allows you to update the Linux kernel which is used to boot the "
+"client computers.  In FOG, this kernel holds all the drivers for the client "
+"computer, so if you are unable to boot a client you may wish to update to a "
+"newer kernel which may have more drivers built in.  This installation "
+"process may take a few minutes, as FOG will attempt to go out to the "
+"internet to get the requested Kernel, so if it seems like the process is "
+"hanging please be patient."
+msgstr ""
+"本部分允许您更新的Linux内核是用来启动客户端计算机。在 FOG，这个内核拥有为客户"
+"计算机上的所有驱动程序，所以如果您不能启动一个客户，您可能希望升级到一个较新"
+"的内核可能有此安装过程，只有建立更多的驱动程序可能需要几分钟的时间，因为 FOg "
+"将尝试走出去到互联网，以获得所要求的核心，因此，如果它的过程似乎是像挂请耐心"
+"等待。"
+
+msgid ""
+"This section allows you to update the modules and config files that run on "
+"the client computers.  The clients will checkin with the server from time to "
+"time to see if a new module is published.  If a new module is published the "
+"client will download the module and use it on the next time the service is "
+"started."
+msgstr ""
+"本部分允许您更新模块和配置文件，在客户端计算机上运行。客户端将签入与从时间服"
+"务器的时间，看看是否有新的模块发布。如果一个新的模块被公布的客户端将下载的模"
+"块和使用该服务下次启动它。"
+
+msgid ""
+"This section allows you to upload user defined reports that may not be part "
+"of the base FOG package.  The report files should end in .php"
+msgstr ""
+"这部分允许你上传用户定义的报告，可能无法在基地 FOG一揽子计划的一部分。该报告"
+"文件应以。PHP的。"
+
+msgid ""
+"This section of the FOG management portal allows you to configure how the "
+"FOG service functions on client computers.  The settings in this section "
+"tend to be global settings that effect all hosts.  If you are looking to "
+"configure settings for a service module that is specific to a host, please "
+"see the Servicesection.  To get started editing global settings, please "
+"select an item from the left hand menu."
+msgstr ""
+"这 FOG 的管理门户部分允许您配置客户端计算机上如何 FOG 服务功能。在本节中的设"
+"置往往是全球性的设置，所有主机的影响。如果您想配置一个服务模块，具体到主机"
+"时，主机设置请参阅部分。要开始编辑全局设置，请选择从左侧菜单项获得。"
+
+msgid ""
+"This setting allows you to add additional kernel arguments to the client "
+"boot image.  This setting is global for all hosts."
+msgstr ""
+
+msgid ""
+"This setting allows you to set whether or not an image is legacy.  Valid "
+"values are 0 or 1"
+msgstr ""
+
+msgid "This setting defines "
+msgstr ""
+
+msgid ""
+"This setting defines how many unicast tasks to allow to be active at one "
+"time."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines if the FOG management portal uses animation effects on "
+"it.  Valid values are 0 or 1"
+msgstr ""
+
+msgid ""
+"This setting defines if the Windows Service module directory cleaner should "
+"be enabled on client computers. This service is clean out the contents of a "
+"directory on when a user logs out of the workstation. (Valid values: 0 or 1)."
+msgstr ""
+
+msgid ""
+"This setting defines if the auto log off module should be enabled.  This "
+"module will log off any active user after X minutes of inactivity.  (Valid "
+"values are 0 or 1)"
+msgstr ""
+
+msgid ""
+"This setting defines if the fog client updater should be globally active.  "
+"(Valid values are 0 or 1)"
+msgstr ""
+
+msgid ""
+"This setting defines if the fog display manager should be active.  The fog "
+"display manager will reset the clients screen resolution to a fixed size on "
+"log off and on computer start up.  (Valid values are 0 or 1)"
+msgstr ""
+
+msgid ""
+"This setting defines if the fog host register should be globally active.  "
+"(Valid values are 0 or 1)"
+msgstr ""
+
+msgid ""
+"This setting defines if the fog hostname changer should be globally active.  "
+"(Valid values are 0 or 1)"
+msgstr ""
+
+msgid "This setting defines if the fog plugin system should be enabled."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines if the fog printer maanger should be globally active.  "
+"(Valid values are 0 or 1)"
+msgstr ""
+
+msgid ""
+"This setting defines if the fog printer manager should be globally active.  "
+"(Valid values are 0 or 1)"
+msgstr ""
+
+msgid ""
+"This setting defines if the fog snapin installer should be globally active.  "
+"(Valid values are 0 or 1)"
+msgstr ""
+
+msgid ""
+"This setting defines if the fog task reboot should be globally active.  "
+"(Valid values are 0 or 1)"
+msgstr ""
+
+msgid ""
+"This setting defines if the fog user tracker should be globally active.  "
+"(Valid values are 0 or 1)"
+msgstr ""
+
+msgid ""
+"This setting defines if the green fog module should be enabled.  The green "
+"fog module will shutdown or restart a computer at a set time.  (Valid values "
+"are 0 or 1)"
+msgstr ""
+
+msgid ""
+"This setting defines if user cleanup should be enabled.  The User Cleanup "
+"module will remove all local windows users from the workstation on log off "
+"accept for users that are whitelisted.  (Valid values are 0 or 1)"
+msgstr ""
+
+msgid ""
+"This setting defines if you would like the FOG pxe menu hidden or displayed"
+msgstr ""
+
+msgid ""
+"This setting defines if you would like to append any settings to the end of "
+"your PXE default file."
+msgstr ""
+
+msgid ""
+"This setting defines if you would like to remove hibernate and swap files "
+"before uploading a Windows image.  "
+msgstr ""
+
+msgid ""
+"This setting defines if you would like to use the legacy active tasks "
+"window.  Note:  The legacy screen will no longer be updated."
+msgstr ""
+
+msgid ""
+"This setting defines the amount of padding applied to a partition before "
+"attempting resize the ntfs volume and upload it."
+msgstr ""
+
+msgid ""
+"This setting defines the amount of physical memory (in KB) you want to use "
+"for the boot image.  This setting needs to be larger than the boot image and "
+"smaller that the total physical memory on the client."
+msgstr ""
+
+msgid ""
+"This setting defines the amount of time between client checks to determine "
+"if they are active clients."
+msgstr ""
+
+msgid "This setting defines the base location of fog plugins."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines the default height in pixels to reset the computer "
+"display to with the fog display manager service."
+msgstr ""
+
+msgid ""
+"This setting defines the default refresh rate to reset the computer display "
+"to with the fog display manager service."
+msgstr ""
+
+msgid "This setting defines the default value for the pxe menu timeout."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines the default value to populate the host\\'s Active "
+"Directory OU value."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines the default value to populate the host\\'s Active "
+"Directory domain name value."
+msgstr ""
+
+msgid ""
+"This setting defines the default value to populate the host\\'s Active "
+"Directory password value.  This settings must be encrypted."
+msgstr ""
+
+msgid ""
+"This setting defines the default value to populate the host\\'s Active "
+"Directory user name value.'"
+msgstr ""
+
+msgid ""
+"This setting defines the default width in pixels to reset the computer "
+"display to with the fog display manager service."
+msgstr ""
+
+msgid ""
+"This setting defines the directory on the NFS server where images are "
+"stored.  "
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines the directory on the NFS server where images are "
+"uploaded too."
+msgstr ""
+
+msgid ""
+"This setting defines the hostname or ip address of the NFS server used with "
+"FOG."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines the hostname or ip address of the web server used with "
+"fog."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid "This setting defines the interface used in multicast communications."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines the ip address of hostname for the server hosting the "
+"Wake-on-lan service."
+msgstr ""
+
+msgid "This setting defines the keymap used on the client boot image."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines the location of the background image used in the auto "
+"log off module.  The image should be 300px x 300px.  This image can be "
+"located locally (such as c:\\\\images\\\\myimage.jpg) or on a web server "
+"(such as http://freeghost.sf.net/images/image.jpg)"
+msgstr ""
+
+msgid "This setting defines the location of the fog utility directory."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines the location of the snapin files.  These files must be "
+"hosted on the web server."
+msgstr ""
+
+msgid ""
+"This setting defines the location of util base, which is typically /opt/fog/"
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid "This setting defines the location on the web server of the FOG reports."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines the maximum number of multicast sessions that can be "
+"running at one time."
+msgstr ""
+
+msgid ""
+"This setting defines the minimum number of characters in a user\\'s password."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid "This setting defines the network interface used in the WOL process."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines the number of minutes to wait before logging a user off "
+"of a PC. (Value of 0 will disable this module.)"
+msgstr ""
+
+msgid ""
+"This setting defines the password the storage nodes should use to connect to "
+"the fog server."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines the password used to access flies on the nfs server "
+"used with FOG."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid "This setting defines the path to the files performing the WOL tasks."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid "This setting defines the path to the fog webserver\\'s root directory."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid "This setting defines the port to use for the ssh client."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid "This setting defines the proxy ip address to use."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid "This setting defines the proxy password to use."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid "This setting defines the proxy port address to use."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid "This setting defines the proxy username to use."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines the starting port number used in multicast "
+"communications.  This starting port number must be an even number."
+msgstr ""
+
+msgid ""
+"This setting defines the username the storage nodes should use to connect to "
+"the fog server."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid "This setting defines the username used for the ssh client."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines the username used to access files on the nfs server "
+"used with FOG."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid "This setting defines the valid characters used in a password."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines the web page used to acquire the bandwidth used by the "
+"nfs server."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid "This setting defines what css style sheet and theme to use for FOG."
+msgstr "此设置定义的时间自动登出这台主机。"
+
+msgid ""
+"This setting defines which interface is monitored for traffic summaries."
+msgstr ""
+
+msgid ""
+"This setting defines which page is displayed in each section, valid settings "
+"includes <b>LIST</b> and <b>SEARCH</b>."
+msgstr ""
+
+msgid ""
+"This setting sets the system to no menu, if there is no task set, it boots "
+"to first device."
+msgstr ""
+
+msgid "Time"
+msgstr "时间"
+
+msgid "Time already exists."
+msgstr "任务已经存在。"
+
+msgid "To setup download task, you must first upload an image"
+msgstr ""
+
+msgid "To setup password reset request, you must specify a user"
+msgstr ""
+
+msgid "Total Disk Space"
+msgstr "总磁盘空间"
+
+msgid "Total Members"
+msgstr "总内存"
+
+msgid "Total Memory"
+msgstr "总内存"
+
+msgid "Total Rows"
+msgstr "共行"
+
+msgid "Transmit"
+msgstr ""
+
+msgid "Tx"
+msgstr "发送"
+
+msgid "Type"
+msgstr "类型"
+
+msgid "Unable to connect to Database"
+msgstr "无法连接到数据库"
+
+msgid "Unable to find a suitable Storage Node for transfer!"
+msgstr "无法确定最佳传输节点！"
+
+msgid "Unable to pull server information!"
+msgstr "无法拉服务器的信息！"
+
+msgid "Unable to resolve hostname"
+msgstr "无法删除的主机！"
+
+msgid "Undefined host to ping"
+msgstr ""
+
+msgid "Unknown"
+msgstr "未知"
+
+msgid "Unofficial Kernels"
+msgstr ""
+
+msgid "Update"
+msgstr "更新"
+
+msgid "Update Current Listing"
+msgstr "更新当前上市"
+
+msgid "Update Defaults"
+msgstr "更新默认"
+
+msgid "Update Hosts"
+msgstr "上传主机"
+
+msgid "Update Images"
+msgstr "最新图片"
+
+msgid "Update Printer"
+msgstr "更新打印机"
+
+msgid "Update Settings"
+msgstr "高级设置"
+
+msgid "Update not required, your database schema is up to date!"
+msgstr ""
+
+msgid "Update/Install Failed!"
+msgstr ""
+
+msgid "Update/Install Successful!"
+msgstr ""
+
+msgid "Upload"
+msgstr "上传"
+
+msgid "Upload CSV"
+msgstr "上传的CSV"
+
+msgid "Upload FOG Reports"
+msgstr "上传 FOG 报告"
+
+msgid "Upload File"
+msgstr "上传文件"
+
+msgid "Upload Reports"
+msgstr "上传报告"
+
+msgid "Upload a FOG report"
+msgstr "上传一个 FOG 报告"
+
+msgid "Upload a new client module/configuration file"
+msgstr "上传一个新的客户端模块/配置文件"
+
+msgid "Uploaded"
+msgstr "上传"
+
+msgid "Uptime"
+msgstr "正常运行时间"
+
+msgid ""
+"Use extreme caution with this setting!  This setting, if used incorrectly "
+"could potentially wipe out all of your images stored on all current storage "
+"nodes.  The 'Is Master Node' setting defines which node is the distributor "
+"of the images.  If you add a blank node, meaning a node that has no images "
+"on it, and set it to master, it will distribute its store, which is empty, "
+"to all hosts in the group"
+msgstr ""
+"使用极端谨慎使用此设置！此设置，如果使用不当，可能会消除您的所有图像上所有现"
+"有的存储节点中。在\"是主节点\"设置定义哪个节点是图像的分销商。如果您添加一个"
+"空白节点，这意味着一个节点上有没有图像，并将其设置为掌握，就会散发其商店，这"
+"是空的，在该组中的所有主机。"
+
+msgid "Used Disk Space"
+msgstr "使用的磁盘空间"
+
+msgid "Used Memory"
+msgstr "使用的内存"
+
+msgid "User"
+msgstr "用户"
+
+msgid "User Cleanup"
+msgstr "用户清理"
+
+msgid "User Login Hist"
+msgstr "用户登录组织胺"
+
+msgid "User Name"
+msgstr " 用户名"
+
+msgid "User Password"
+msgstr "用户密码"
+
+msgid "User Password (confirm)"
+msgstr "用户密码（确认）"
+
+msgid "User Tracker"
+msgstr "用户跟踪"
+
+msgid "User already exists."
+msgstr "用户已经存在！"
+
+msgid "User created"
+msgstr "用户创建"
+
+msgid "User deleted"
+msgstr "用户删除"
+
+msgid "User updated"
+msgstr "用户更新"
+
+msgid "Username"
+msgstr "用户名"
+
+msgid "Username already exists"
+msgstr "用户已经存在！"
+
+msgid "Username used to access the tftp server via ftp."
+msgstr "无法连接到TFTP服务器。"
+
+msgid "Users"
+msgstr "用户"
+
+msgid "Version"
+msgstr "版本"
+
+msgid "Version: "
+msgstr "版本"
+
+msgid "View History for"
+msgstr "病毒感染史"
+
+msgid "View advanced tasks for this group."
+msgstr "查看本组先进的任务。"
+
+msgid "View advanced tasks for this host."
+msgstr "查看先进为此主机的任务。"
+
+msgid "Virus History"
+msgstr "病毒感染史"
+
+msgid "Virus Name"
+msgstr "病毒名称"
+
+msgid "Virus cleared"
+msgstr "病毒扫描"
+
+msgid "Waiting for a slot"
+msgstr "等待插槽"
+
+msgid ""
+"Warning - if you tick this box, this user     will not be able to log into "
+"this FOG Management Console in the future."
+msgstr ""
+
+msgid ""
+"Warning - if you tick this box, this user will not be able to log into this "
+"FOG Management Console in the future."
+msgstr ""
+
+msgid "Web Server"
+msgstr "网站 服务器"
+
+msgid ""
+"Welcome to FOG - Mobile Edition!  This light weight interface for FOG allows "
+"for access via mobile, low power devices."
+msgstr ""
+"欢迎来到 FOG - 手机版！这为光纤 FOG 重量轻接口允许通过移动，低功耗设备的访"
+"问。"
+
+msgid "Welcome to FOG Mobile"
+msgstr "欢迎 FOG 移动"
+
+msgid "Which account would you like to reset the password for?"
+msgstr "哪个帐户你想重设密码？"
+
+msgid "Windows (other)"
+msgstr "视窗（其他）"
+
+msgid "Windows 7"
+msgstr "视窗 7"
+
+msgid "Windows 8"
+msgstr "视窗98"
+
+msgid "Windows 98"
+msgstr "视窗98"
+
+msgid "Windows Vista"
+msgstr "视窗远景"
+
+msgid "Windows XP"
+msgstr "视窗 7"
+
+msgid "X"
+msgstr "X"
+
+msgid "Yes"
+msgstr ""
+
+msgid "You must have at least one Storage Group"
+msgstr "无法更新存储组"
+
+msgid "You need to assign an image to the host"
+msgstr ""
+
+msgid ""
+"Your FOG database schema is not up to date, either because you have updated "
+"FOG or this is a new FOG installation.  If this is a upgrade, we highly "
+"recommend that you backup your FOG database before updating the schema (this "
+"will allow you to return the previous installed version)."
+msgstr ""
+
+msgid "Your Location Here"
+msgstr "您的位置在这里"
+
+msgid "Your form is ready."
+msgstr "您的报告准备好了！"
+
+#, php-format
+msgid ""
+"Your systems PHP version is not sufficient. You have version %s, version %s "
+"is required."
+msgstr ""
+
+msgid "Your terms and conditions here"
+msgstr "您的条款在这里"
+
+msgid "[YOUR ORGANIZATION HERE]"
+msgstr "[您的组织这里]"
+
+msgid "[sub-unit here]"
+msgstr "[小队在这里]"
+
+msgid "clear all history"
+msgstr "清除所有历史"
+
+msgid "deleted"
+msgstr "删除"
+
+msgid "file data too"
+msgstr ""
+
+msgid "for Group"
+msgstr "存储组"
+
+msgid "here"
+msgstr "这里"
+
+msgid "iPrint Printer"
+msgstr "iPrint打印机"
+
+msgid "is open, but has recently failed for this Host"
+msgstr "是开放的，但最近失败"
+
+msgid "n/a"
+msgstr "无效"
+
+msgid "of"
+msgstr "的"
+
+msgid "or"
+msgstr "或"
+
+msgid "to login."
+msgstr ""
+
+msgid "中国的"
+msgstr ""
+
+#~ msgid "FOG:: Database Error!"
+#~ msgstr "FOG::数据库错误!"
+
+#~ msgid "Boot from hard disk"
+#~ msgstr "从硬盘启动"
+
+#~ msgid ""
+#~ "Boot from the local hard drive.  \n"
+#~ "\tIf you are unsure, select this option."
+#~ msgstr ""
+#~ "启动从本地硬盘驱动器。\n"
+#~ "\t格式你不确定，请选择此选项。"
+
+#~ msgid "Run Memtest86+"
+#~ msgstr "运行memtest86 +有关"
+
+#~ msgid "Run Memtest86+ on the client computer."
+#~ msgstr "运行 memtest86 +有关客户端计算机上。"
+
+#~ msgid "Quick Host Registration and Inventory"
+#~ msgstr "快速主机注册及库存"
+
+#~ msgid ""
+#~ "Automatically register the client computer,\n"
+#~ "\tand perform a hardware inventory."
+#~ msgstr ""
+#~ "自动注册客户端计算机\n"
+#~ "\t和执行硬件清单。"
+
+#~ msgid "Perform Full Host Registration and Inventory"
+#~ msgstr "执行完整的主机注册及库存"
+
+#~ msgid ""
+#~ "Perform a full host registration on the client\n"
+#~ "\tcomputer, perform a hardware inventory, and \n"
+#~ "\toptionally image the host."
+#~ msgstr ""
+#~ "在客户端上执行\n"
+#~ "\tcomputer，充分主机登记执行硬件清单，以及\n"
+#~ "\ttoptionally形象主机。"
+
+#~ msgid "Quick Image"
+#~ msgstr "快速图像"
+
+#~ msgid ""
+#~ "This mode will allow you to image this host quickly with\n"
+#~ "\tit's default assigned image."
+#~ msgstr ""
+#~ "该模式将允许你的形象与\n"
+#~ "针锋相对的默认此主机分配形象迅速。"
+
+#~ msgid "Client System Information"
+#~ msgstr "客户端系统信息"
+
+#~ msgid ""
+#~ "View basic client information such as MAC address \n"
+#~ "\tand FOG compatibility."
+#~ msgstr ""
+#~ "查看如MAC地址\n"
+#~ "基本客户资料\t和 FOG 的兼容性。"
+
+#~ msgid "Debug Mode"
+#~ msgstr "调试模式"
+
+#~ msgid ""
+#~ "Debug mode will load the boot image and load a prompt so\n"
+#~ "\tyou can run any commands you wish."
+#~ msgstr ""
+#~ "调试模式将加载启动映像并加载迅速从而\n"
+#~ "\t优可以运行任何命令你的愿望。"
+
+#~ msgid "Encrypted Master Password is null."
+#~ msgstr "加密口令为空。"
+
+#~ msgid "Master Password is null."
+#~ msgstr "主密码为空。"
+
+#~ msgid "Unable to upload file."
+#~ msgstr "无法上传文件。"
+
+#~ msgid "Failed to open tmp file."
+#~ msgstr "tmp文件无法打开。"
+
+#~ msgid "Invalid PXE Menu Type."
+#~ msgstr "无效的PXE菜单类型。"
+
+#~ msgid "Database connection was null"
+#~ msgstr "数据库连接是空"
+
+#~ msgid "FOG :: Database error!"
+#~ msgstr "FOG：：数据库错误！"
+
+#~ msgid "Single Partition (NTFS Only, Resizable)"
+#~ msgstr "单个分区（仅NTFS，大小可调整）"
+
+#~ msgid "Multiple Partition Image - Single Disk (Not Resizable)"
+#~ msgstr "多个分区映像 - 单盘（不可调整大小）"
+
+#~ msgid "Multiple Partition Image - All Disks  (Not Resizable)"
+#~ msgstr "多个分区的图像 - 所有磁盘（不可调整大小）"
+
+#~ msgid "Raw Image (Sector By Sector, DD, Slow)"
+#~ msgstr "原始图像（按行业分，房屋署副署长，慢部门）"
+
+#~ msgid "Snapin added to host."
+#~ msgstr "管理单元添加到主机。"
+
+#~ msgid "Either the database connection, snapid ID, or host ID was null."
+#~ msgstr "无论是数据库连接，snapid ID或主机ID为null。"
+
+#~ msgid "Snapin removed from host."
+#~ msgstr "从主机中删除管理单元。"
+
+#~ msgid "Snapin is not linked with this host."
+#~ msgstr "管理单元是不是与此相连的主机。"
+
+#~ msgid "Wipe"
+#~ msgstr "擦拭"
+
+#~ msgid "Debug"
+#~ msgstr "调试"
+
+#~ msgid "Memtest"
+#~ msgstr "内存测试"
+
+#~ msgid "Testdisk"
+#~ msgstr "测试硬盘"
+
+#~ msgid "PhotoRec"
+#~ msgstr "照片市盈率"
+
+#~ msgid "Pass Reset"
+#~ msgstr "帕斯复位"
+
+#~ msgid "Single Snapin"
+#~ msgstr "在单扣"
+
+#~ msgid "Wake up"
+#~ msgstr "叫醒"
+
+#~ msgid "In progress"
+#~ msgstr "进行之中"
+
+#~ msgid "unknown"
+#~ msgstr "未知的"
+
+#~ msgid "added to group"
+#~ msgstr "添加到组"
+
+#~ msgid "Created by FOG Imaging System"
+#~ msgstr "创建FOG成像系统"
+
+#~ msgid "Inventory package created for host"
+#~ msgstr "库存包创建主机"
+
+#~ msgid "This host is already a member of a task!"
+#~ msgstr "此主机已经是一个任务的会员！"
+
+#~ msgid "MAC is null."
+#~ msgstr "MAC是空。"
+
+#~ msgid "Either member of database connection was null"
+#~ msgstr "连接数据库的成员之一为null"
+
+#~ msgid "Testdisk package created for host"
+#~ msgstr "测试硬盘包创建主机"
+
+#~ msgid "Password reset package created for host"
+#~ msgstr "密码重置包创建主机"
+
+#~ msgid "ClamAV package created for host"
+#~ msgstr "ClamAV的包创建为主机"
+
+#~ msgid "Host is already a member of an active task!"
+#~ msgstr "主机已经是一个积极工作的会员！"
+
+#~ msgid "Image upload package created for host"
+#~ msgstr "图片上传包创建主机"
+
+#~ msgid "Unable to determine valid settings for NFS Server."
+#~ msgstr "无法确定 NFS服务器有效设置。"
+
+#~ msgid "Unable to located master node from storage group."
+#~ msgstr "无法从存储组中位于主节点。"
+
+#~ msgid "Unable to determine the Group ID number."
+#~ msgstr "无法确定的组ID号码。"
+
+#~ msgid "Image assocation is null, please define an image for this host."
+#~ msgstr "图像协会为空，请确定该主机的图像。"
+
+#~ msgid "memtest package created for host"
+#~ msgstr "纪念测试包主机创建"
+
+#~ msgid "Host is already a member of a active task."
+#~ msgstr "主机已经是一个积极的工作成员。"
+
+#~ msgid "debug package created for host"
+#~ msgstr "创建主机调试包"
+
+#~ msgid "Unable to delete PXE file"
+#~ msgstr "无法删除文件的PXE"
+
+#~ msgid "Invalid OS type, unable to determine MBR."
+#~ msgstr "无效的操作系统类型，无法确定的 MBR"
+
+#~ msgid "Invalid OS type, you must specify an OS Type to image."
+#~ msgstr "无效的操作系统类型，您必须指定一个操作系统类型图像。"
+
+#~ msgid "Unsupported OS detected in host!"
+#~ msgstr "不支持的操作系统检测到主机！"
+
+#~ msgid "Image push multicast package created for host"
+#~ msgstr "图像推动组播包创建主机"
+
+#~ msgid "Unable to locate master storage node."
+#~ msgstr "无法找到主存储节点。"
+
+#~ msgid "Either member or database connection was null"
+#~ msgstr "任何一名成员或数据库连接被空"
+
+#~ msgid "Unable to determine a valid storage server root path or server IP."
+#~ msgstr "无法确定一个有效的存储服务器的根路径或服务器的IP。"
+
+#~ msgid "Image push package created for host"
+#~ msgstr "图像推动包创建主机"
+
+#~ msgid "Failed to connect to server"
+#~ msgstr "无法连接到服务器"
+
+#~ msgid "Server returned"
+#~ msgstr "服务器返回"
+
+#~ msgid "Username is null"
+#~ msgstr "用户名是空"
+
+#~ msgid "Query Failed"
+#~ msgstr "查询失败"
+
+#~ msgid "database connection is null."
+#~ msgstr "数据库连接是空。"
+
+#~ msgid "SQL query is null"
+#~ msgstr "SQL查询为空"
+
+#~ msgid "Result set is null."
+#~ msgstr "结果集为空"
+
+#~ msgid "Schema is required to connect to server."
+#~ msgstr "Schema是需要连接到服务器。"
+
+#~ msgid "Begin not implemented!"
+#~ msgstr "开始没有执行！"
+
+#~ msgid "Rollback not implemented!"
+#~ msgstr "回滚没有执行！"
+
+#~ msgid "executeUpdate not implemented!"
+#~ msgstr "执行更新没有执行！"
+
+#~ msgid "Query Failed: parse error"
+#~ msgstr "查询失败：解析错误"
+
+#~ msgid "Unable to lookup mac prefix!"
+#~ msgstr "无法查找雨衣前缀！"
+
+#~ msgid "Database Error!"
+#~ msgstr "数据库错误！"
+
+#~ msgid "Not implemented"
+#~ msgstr "未执行"
+
+#~ msgid "Windows 2000/XP"
+#~ msgstr "视窗2000 / XP"
+
+#~ msgid "Other"
+#~ msgstr "其他"
+
+#~ msgid "Error looking up service status for host!"
+#~ msgstr "错误查找主机服务的状态！"
+
+#~ msgid "MAC address object is null."
+#~ msgstr "MAC地址的对象是null。"
+
+#~ msgid "Operating System ID is invalid."
+#~ msgstr "作业系统ID是无效的。"
+
+#~ msgid "MAC address"
+#~ msgstr "MAC地址"
+
+#~ msgid "is already registered with FOG."
+#~ msgstr "已注册的 FOG。"
+
+#~ msgid "Another host exists with that MAC address."
+#~ msgstr "另一台主机存在与该MAC地址。"
+
+#~ msgid "Host object is null."
+#~ msgstr "宿主对象为null。"
+
+#~ msgid "Database object is null."
+#~ msgstr "数据库对象是null。"
+
+#~ msgid "Unable to load system configuration information."
+#~ msgstr "无法加载系统配置信息。"
+
+#~ msgid "Msg: "
+#~ msgstr "信息："
+
+#~ msgid "FOG :: A Free, Open Source Computer Cloning Solution :: Version"
+#~ msgstr "FOG：：自由，开放源码的电脑克隆解决方案：：版本"
+
+#~ msgid "Please Wait..."
+#~ msgstr "请稍候..."
+
+#~ msgid "FOG Message"
+#~ msgstr "FOG 消息"
+
+#~ msgid "OK"
+#~ msgstr "好"
+
+#~ msgid "FOG Snapin Uploader"
+#~ msgstr "在上载 FOG 单元"
+
+#~ msgid "Select Snapin file to upload."
+#~ msgstr "选择在文件管理单元上传。"
+
+#~ msgid "Created By Chuck Syperski &amp; Jian Zhang | GNU GPL v3"
+#~ msgstr "创建人查 Chuck Syperski＆张健|使用GNU GPL第三版建"
+
+#~ msgid "Unable to select database"
+#~ msgstr "无法选择数据库"
+
+#~ msgid "Speed:"
+#~ msgstr "速度："
+
+#~ msgid "min."
+#~ msgstr "最小的"
+
+#~ msgid "Waiting for host to check in..."
+#~ msgstr "等待主机检查英寸.."
+
+#~ msgid "No matches found"
+#~ msgstr "未找到匹配项"
+
+#~ msgid "Search criteria must be longer than 1 character."
+#~ msgstr "搜索标准必须大于1个字符长。"
+
+#~ msgid "Please enter a search criteria."
+#~ msgstr "请输入搜索条件。"
+
+#~ msgid "Unable to connect to database."
+#~ msgstr "无法连接到数据库"
+
+#~ msgid "Create new group:"
+#~ msgstr "创建新的组："
+
+#~ msgid "Select a group"
+#~ msgstr "选择一组"
+
+#~ msgid "FOG :: Group Lookup Error!"
+#~ msgstr "FOG ：：集团查找错误！"
+
+#~ msgid "Image Title"
+#~ msgstr "图像标题"
+
+#~ msgid "No images found matching"
+#~ msgstr "没有找到图像匹配"
+
+#~ msgid "Unable to contact server."
+#~ msgstr "无法联系服务器。"
+
+#~ msgid "Snapin Title"
+#~ msgstr "管理单元标题"
+
+#~ msgid "Deploy (Multicast)"
+#~ msgstr "部署（多播）"
+
+#~ msgid "No results found for"
+#~ msgstr "没有结果发现"
+
+#~ msgid "Client update module uploaded: "
+#~ msgstr "客户端更新模块上载："
+
+#~ msgid "No modules found."
+#~ msgstr "没有模块发现。"
+
+#~ msgid "FOG Feature Request"
+#~ msgstr "FOG 的功能要求"
+
+#~ msgid "Feature requests will be release in an upcoming version of FOG."
+#~ msgstr "功能要求将在一对光纤 FOG 即将版本。"
+
+#~ msgid "Version Info"
+#~ msgstr "版本信息"
+
+#~ msgid "FOG Kernel Updates"
+#~ msgstr "FOG 内核更新"
+
+#~ msgid "Downloading file..."
+#~ msgstr "下载文件..."
+
+#~ msgid "Download Completed! Moving file to TFTP server..."
+#~ msgstr "下载完成！移动文件到TFTP服务器.."
+
+#~ msgid "Download Failed!"
+#~ msgstr "下载失败！"
+
+#~ msgid "Failed to load new kernel to TFTP Server!"
+#~ msgstr "无法载入新内核TFTP服务器！"
+
+#~ msgid "What would you like to name your new kernel"
+#~ msgstr "你想命名您的新内核"
+
+#~ msgid "bzImage"
+#~ msgstr "bz图像"
+
+#~ msgid "Next"
+#~ msgstr "下一个"
+
+#~ msgid "GNU GENERAL PUBLIC LICENSE"
+#~ msgstr "GNU通用公共许可证"
+
+#~ msgid "FOG Log Viewer"
+#~ msgstr "FOG 的日志查看器"
+
+#~ msgid "Are you sure you wish to clear all mac address listings?"
+#~ msgstr "您是否确定要清除所有的MAC地址列表"
+
+#~ msgid ""
+#~ "This section allows you to customize the PXE Boot Menu Screen as well as "
+#~ "password protect certain boot options."
+#~ msgstr "本部分允许您自定义的PXE启动菜单画面以及密码保护某些启动选项。"
+
+#~ msgid "PXE Menu has been updated!"
+#~ msgstr "PXE的菜单已经更新！"
+
+#~ msgid "PXE Menu updated failed!"
+#~ msgstr "PXE的菜单更新失败！"
+
+#~ msgid "Boot Menu Type: "
+#~ msgstr "启动菜单类型："
+
+#~ msgid "Master password: *"
+#~ msgstr "主密码：*"
+
+#~ msgid "Memory Test password (blank for none): "
+#~ msgstr "内存测试密码（无空白）："
+
+#~ msgid "fog.reginput password (blank for none): "
+#~ msgstr "fog.reginput密码（无空白）："
+
+#~ msgid "fog.reg password (blank for none): "
+#~ msgstr "fog.reg密码（无空白）："
+
+#~ msgid "fog.quickimage password (blank for none): "
+#~ msgstr "fog.quickimage密码（无空白）："
+
+#~ msgid "fog.sysinfo password (blank for none): "
+#~ msgstr "fog.sysinfo密码（无空白）："
+
+#~ msgid "debug password (blank for none): "
+#~ msgstr "调试密码（无空白）："
+
+#~ msgid "Advanced Configuration Options"
+#~ msgstr "高级配置选项"
+
+#~ msgid ""
+#~ "Add any custom text you would like included added as part of your "
+#~ "<i>default</i> file."
+#~ msgstr "添加为您的<i>默认</i>部分任何你想自定义文本，包括添加“文件。"
+
+#~ msgid "FOG Server Shell Access"
+#~ msgstr "壳牌 FOG 服务器访问"
+
+#~ msgid "No Virus Information Reported"
+#~ msgstr "无病毒信息报告"
+
+#~ msgid "Queued Tasks"
+#~ msgstr "排队任务"
+
+#~ msgid "Open Slots"
+#~ msgstr "打开插槽"
+
+#~ msgid "of slots full"
+#~ msgstr "充分槽"
+
+#~ msgid "N/A Used "
+#~ msgstr "不提供使用"
+
+#~ msgid "Used: N/A  Free: N/A  Total: N/A"
+#~ msgstr "使用量: N/A 免费: N/A 共计：N/A"
+
+#~ msgid "Group Updated!"
+#~ msgstr "集团已更新！"
+
+#~ msgid "updated group"
+#~ msgstr "更新组"
+
+#~ msgid "Unable to update because the group name you picked already exists"
+#~ msgstr "无法更新，因为你所选择的组名称已存在"
+
+#~ msgid " hosts have been updated."
+#~ msgstr "主机已更新。"
+
+#~ msgid " hosts have failed."
+#~ msgstr "主机都失败了。"
+
+#~ msgid " were already linked."
+#~ msgstr "已经联系在一起的。"
+
+#~ msgid "updated image for host "
+#~ msgstr "更新后的照片主机"
+
+#~ msgid "updated os for host "
+#~ msgstr "主机更新操作系统"
+
+#~ msgid "hosts updated"
+#~ msgstr "主机更新"
+
+#~ msgid "Do Nothing"
+#~ msgstr "什么也不做"
+
+#~ msgid "Update Operating System"
+#~ msgstr "更新操作系统"
+
+#~ msgid "Basic Imaging Tasks"
+#~ msgstr "基本图像任务"
+
+#~ msgid ""
+#~ "Deploy action will send an image saved on the FOG server to the client "
+#~ "computer with all included snapins."
+#~ msgstr ""
+#~ "部署行动将在光纤 FOG 服务器发送的所有项，包括单元到客户端计算机上保存的图"
+#~ "像。"
+
+#~ msgid "Set Hostname Changer status on all hosts to"
+#~ msgstr "设置主机名换地位的所有主机"
+
+#~ msgid "Not Configured"
+#~ msgstr "未配置"
+
+#~ msgid "Disabled"
+#~ msgstr "关闭"
+
+#~ msgid ""
+#~ "This setting will enable or disable the hostname changer service module "
+#~ "on this specific host.  If the module is globally disabled, this setting "
+#~ "is ignored."
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的主机名更换服务模块。如果模块是全球禁用，此设"
+#~ "置将被忽略。"
+
+#~ msgid "Set Directory Cleaner status on all hosts to"
+#~ msgstr "设置目录清洁地位的所有主机"
+
+#~ msgid ""
+#~ "This setting will enable or disable the directory cleaner service module "
+#~ "on this specific host.  If the module is globally disabled, this setting "
+#~ "is ignored."
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的目录清洁服务模块。如果模块是全球禁用，此设置"
+#~ "将被忽略。"
+
+#~ msgid "Set User Cleanup status on all hosts to"
+#~ msgstr "设置用户清理地位的所有主机"
+
+#~ msgid ""
+#~ "This setting will enable or disable the user cleanup service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored."
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的用户清理服务模块。如果模块是全球禁用，此设置"
+#~ "将被忽略。"
+
+#~ msgid "Set Display Manager status on all hosts to"
+#~ msgstr "设置显示管理地位，对所有主机"
+
+#~ msgid ""
+#~ "This setting will enable or disable the display manager service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored."
+#~ msgstr ""
+#~ "此设置将启用或禁用自动登出这个特定的主机服务模块。如果模块是全球禁用，此设"
+#~ "置将被忽略。"
+
+#~ msgid "Set Auto Log Out on all hosts to"
+#~ msgstr "树立绿色 FOG 上的所有主机"
+
+#~ msgid ""
+#~ "This setting will enable or disable the auto log out service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored."
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的绿色 FOG 服务模块。如果模块是全球禁用，此设"
+#~ "置将被忽略。"
+
+#~ msgid "Set Green FOG on all hosts to"
+#~ msgstr "树立绿色 FOG 上的所有主机"
+
+#~ msgid ""
+#~ "This setting will enable or disable the green fog service module on this "
+#~ "specific host.  If the module is globally disabled, this setting is "
+#~ "ignored."
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的绿色 FOG 服务模块。如果模块是全球禁用，此设"
+#~ "置将被忽略。"
+
+#~ msgid "Set Snapin Client on all hosts to"
+#~ msgstr "所有主机上设置管理单元在客户端"
+
+#~ msgid ""
+#~ "This setting will enable or disable the snapin service module on this "
+#~ "specific host.  If the module is globally disabled, this setting is "
+#~ "ignored."
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机服务的管理单元模块。如果模块是全球禁用，此设置"
+#~ "将被忽略。"
+
+#~ msgid "Set Client Updater on all hosts to"
+#~ msgstr "设置客户端更新的所有主机"
+
+#~ msgid ""
+#~ "This setting will enable or disable the client updater service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored."
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的客户端更新服务模块。如果模块是全球禁用，此设"
+#~ "置将被忽略"
+
+#~ msgid "Set Host Register on all hosts to"
+#~ msgstr "设置主机上的所有主机注册"
+
+#~ msgid ""
+#~ "This setting will enable or disable the host register service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored."
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的主机注册服务模块。如果模块是全球禁用，此设置"
+#~ "将被忽略。"
+
+#~ msgid "Set Printer Manager on all hosts to"
+#~ msgstr "集打印管理器的所有主机"
+
+#~ msgid ""
+#~ "This setting will enable or disable the printer manager service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored."
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的打印机管理器服务模块。如果模块是全球禁用，此"
+#~ "设置将被忽略。"
+
+#~ msgid "Set Task Reboot on all hosts to"
+#~ msgstr "设置任务的所有主机上重新启动"
+
+#~ msgid ""
+#~ "This setting will enable or disable the task reboot service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored."
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机重新启动服务舱的任务。如果模块是全球禁用，此设"
+#~ "置将被忽略。"
+
+#~ msgid "Set User Tracker on all hosts to"
+#~ msgstr "设置用户跟踪所有主机"
+
+#~ msgid ""
+#~ "This setting will enable or disable the user tracker service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored."
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的用户跟踪服务模块。如果模块是全球禁用，此设置"
+#~ "将被忽略。"
+
+#~ msgid ""
+#~ "This setting defines the screen horizontal resolution to be used with "
+#~ "this host.  Leaving this field blank will force this host to use the "
+#~ "global default setting"
+#~ msgstr ""
+#~ "此设置定义屏幕的水平分辨率是与该主机使用。离开这一领域的空白将迫使本主机的"
+#~ "使用全局默认设置"
+
+#~ msgid ""
+#~ "This setting defines the screen vertial resolution to be used with this "
+#~ "host.  Leaving this field blank will force this host to use the global "
+#~ "default setting"
+#~ msgstr ""
+#~ "此设置立式装定义屏幕分辨率是与该主机使用。离开这一领域的空白将迫使本主机的"
+#~ "使用全局默认设置"
+
+#~ msgid ""
+#~ "This setting defines the screen refresh rate to be used with this host.  "
+#~ "Leaving this field blank will force this host to use the global default "
+#~ "setting"
+#~ msgstr ""
+#~ "此设置定义屏幕刷新率是与该主机使用。离开这一领域的空白将迫使本主机的使用全"
+#~ "局默认设置"
+
+#~ msgid "Delete Group"
+#~ msgstr "删除组"
+
+#~ msgid "Click on the icon below to delete this group from the FOG database."
+#~ msgstr "在下面的图标点击删除 FOG 数据库此小组。"
+
+#~ msgid "Confirm Group Removal"
+#~ msgstr "确认集团去除"
+
+#~ msgid "Yes, delete only this group"
+#~ msgstr "是的，只删除此小组"
+
+#~ msgid "Yes, delete group & ALL hosts objects"
+#~ msgstr "是的，删除所有主机组及对象"
+
+#~ msgid "Deleted group"
+#~ msgstr "删除组"
+
+#~ msgid "Group Removal Complete"
+#~ msgstr "集团完全去除"
+
+#~ msgid "Group has been deleted."
+#~ msgstr "集团已被删除。"
+
+#~ msgid "Invalid group information."
+#~ msgstr "无效的组信息。"
+
+#~ msgid "Group Menu"
+#~ msgstr "集团菜单"
+
+#~ msgid "Image Assoc"
+#~ msgstr "图像协会"
+
+#~ msgid "OS Assoc"
+#~ msgstr "操作系统协会"
+
+#~ msgid "Remove Snapins"
+#~ msgstr "添加管理单元项..."
+
+#~ msgid "Service Settings"
+#~ msgstr "服务设定"
+
+#~ msgid "Quick Info"
+#~ msgstr "快速信息"
+
+#~ msgid "All Current Groups"
+#~ msgstr "目前所有的组"
+
+#~ msgid "No Groups found"
+#~ msgstr "无小组发现"
+
+#~ msgid "Group Printer Configuration"
+#~ msgstr "集团打印机配置"
+
+#~ msgid "Printer added on "
+#~ msgstr "打印机将在"
+
+#~ msgid " hosts"
+#~ msgstr "主机"
+
+#~ msgid "Invalid host ID Number."
+#~ msgstr "无效的主机ID号码。"
+
+#~ msgid "Group Search"
+#~ msgstr "集团搜索"
+
+#~ msgid "FOG Help Resources"
+#~ msgstr "FOG 帮助资源"
+
+#~ msgid "FOG Wiki Documentation"
+#~ msgstr "FOG Wiki文档"
+
+#~ msgid "Host Added, you may now add another."
+#~ msgstr "主机加，你现在可以添加另一个"
+
+#~ msgid "New Host Added via management form"
+#~ msgstr "通过添加新的主机管理方式"
+
+#~ msgid "Failed add add new host via management form"
+#~ msgstr "无法通过管理形式增补新的主机"
+
+#~ msgid "Host IP"
+#~ msgstr "主机IP"
+
+#~ msgid "Host OS"
+#~ msgstr "主机操作系统"
+
+#~ msgid "Unable to add MAC address"
+#~ msgstr "无法添加MAC地址"
+
+#~ msgid "Invalid MAC address"
+#~ msgstr "无效的MAC地址"
+
+#~ msgid "Warning"
+#~ msgstr "警告"
+
+#~ msgid "has been updated."
+#~ msgstr "已更新。"
+
+#~ msgid "Error: "
+#~ msgstr "错误:"
+
+#~ msgid "Invalid MAC address: Must is the the format of 00:00:00:00:00:00"
+#~ msgstr "无效的MAC地址：必须是 00:00:00:00:00:00的格式"
+
+#~ msgid "Host added with MAC address"
+#~ msgstr "主机的MAC地址添加"
+
+#~ msgid ""
+#~ "Upload will pull an image from a client computer that will be saved on "
+#~ "the server."
+#~ msgstr "上传会轻易地从客户端计算机将在服务器上保存的图像。"
+
+#~ msgid "Hostname Changer Enabled?"
+#~ msgstr "主机名换启用？"
+
+#~ msgid ""
+#~ "This setting will enable or disable the hostname changer module on this "
+#~ "specific host.  If the module is globally disabled, this setting is "
+#~ "ignored."
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的主机名更换模块。如果模块是全球禁用，此设置将"
+#~ "被忽略。"
+
+#~ msgid "Directory Cleaner Enabled?"
+#~ msgstr "目录清洁启用？"
+
+#~ msgid "User Cleanup Enabled?"
+#~ msgstr "用户清理启用？"
+
+#~ msgid ""
+#~ "This setting will enable or disable the user cleaner service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored.  The user clean up service will remove all stale users on the "
+#~ "local machine, accept for user accounts that are whitelisted.  This is "
+#~ "typically used when dynamic local users is implemented on the workstation."
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的用户更清洁的服务模块。如果模块是全球禁用，此"
+#~ "设置将被忽略。清理服务，用户将本地计算机上删除所有过时的用户，接受用户的白"
+#~ "名单帐户。这通常是用在动态的本地用户是在工作站上执行。"
+
+#~ msgid "Display Manager Enabled?"
+#~ msgstr "显示管理器启用？"
+
+#~ msgid ""
+#~ "This setting will enable or disable the display manager service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored. "
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的显示管理服务模块。如果模块是全球禁用，此设置"
+#~ "将被忽略。"
+
+#~ msgid "Auto Log Out Enabled?"
+#~ msgstr "启用自动登出？"
+
+#~ msgid ""
+#~ "This setting will enable or disable the auto log out service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored. "
+#~ msgstr ""
+#~ "此设置将启用或禁用自动登出这个特定的主机服务模块。如果模块是全球禁用，此设"
+#~ "置将被忽略。"
+
+#~ msgid "Green FOG Enabled?"
+#~ msgstr "绿 FOG 启用？"
+
+#~ msgid ""
+#~ "This setting will enable or disable the green fog service module on this "
+#~ "specific host.  If the module is globally disabled, this setting is "
+#~ "ignored. "
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的绿色 FOG 服务模块。如果模块是全球禁用，此设"
+#~ "置将被忽略。"
+
+#~ msgid ""
+#~ "This setting will enable or disable the snapin service module on this "
+#~ "specific host.  If the module is globally disabled, this setting is "
+#~ "ignored. "
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机服务的管理单元模块。如果模块是全球禁用，此设置"
+#~ "将被忽略。"
+
+#~ msgid "Client Updater Enabled?"
+#~ msgstr "客户端更新启用？"
+
+#~ msgid ""
+#~ "This setting will enable or disable the client updater service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored. "
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的客户端更新服务模块。如果模块是全球禁用，此设"
+#~ "置将被忽略。"
+
+#~ msgid "Host Registration Enabled?"
+#~ msgstr "主机注册启用？"
+
+#~ msgid ""
+#~ "This setting will enable or disable the host register service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored. "
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的主机注册服务模块。如果模块是全球禁用，此设置"
+#~ "将被忽略。"
+
+#~ msgid "Printer Manager Enabled?"
+#~ msgstr "打印管理器启用？"
+
+#~ msgid ""
+#~ "This setting will enable or disable the printer manager service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored. "
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的打印机管理器服务模块。如果模块是全球禁用，此"
+#~ "设置将被忽略。"
+
+#~ msgid "Task Reboot Enabled?"
+#~ msgstr "任务重新启动已启用？"
+
+#~ msgid ""
+#~ "This setting will enable or disable the task reboot service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored. "
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机重新启动服务舱的任务。如果模块是全球禁用，此设"
+#~ "置将被忽略。"
+
+#~ msgid "User Tracker Enabled?"
+#~ msgstr "用户跟踪启用？"
+
+#~ msgid ""
+#~ "This setting will enable or disable the user tracker service module on "
+#~ "this specific host.  If the module is globally disabled, this setting is "
+#~ "ignored. "
+#~ msgstr ""
+#~ "此设置将启用或禁用此特定主机的用户跟踪服务模块。如果模块是全球禁用，此设置"
+#~ "将被忽略。"
+
+#~ msgid "No snapins linked to this host."
+#~ msgstr "无单元模组连结到这个主机。"
+
+#~ msgid "Add new snapin package."
+#~ msgstr "在包中添加新的单元。"
+
+#~ msgid "No Virus Information Reported for this host."
+#~ msgstr "无病毒信息报此主机。"
+
+#~ msgid "Delete Host"
+#~ msgstr "删除主机"
+
+#~ msgid "Host removed!"
+#~ msgstr "主机删除！"
+
+#~ msgid "Removed host id #"
+#~ msgstr "删除主机ID＃"
+
+#~ msgid "Failed to remove host. "
+#~ msgstr "无法删除主机。"
+
+#~ msgid "Unable to create new group, does it exist already?"
+#~ msgstr "无法创建新的组，它已经存在？"
+
+#~ msgid "was updated/created!"
+#~ msgstr "已更新/创建！"
+
+#~ msgid "Error updating "
+#~ msgstr "错误更新"
+
+#~ msgid "Hardware"
+#~ msgstr "硬件"
+
+#~ msgid "No Inventory found for this host"
+#~ msgstr "没有找到此主机库存"
+
+#~ msgid "All Current Hosts"
+#~ msgstr "目前所有的主机"
+
+#~ msgid "Failed to add printer"
+#~ msgstr "无法添加打印机"
+
+#~ msgid "Uploaded by batch import on"
+#~ msgstr "通过对一批进口上传"
+
+#~ msgid "General error."
+#~ msgstr "一般错误。"
+
+#~ msgid "Upload Results"
+#~ msgstr "上传结果"
+
+#~ msgid "Upload Host List"
+#~ msgstr "上传主持人名单"
+
+#~ msgid ""
+#~ "and select <strong>Save target as...</strong> or <strong>Save link as...</"
+#~ "strong>  to download a template file.  The only fields that are required "
+#~ "are hostname and MAC address.  Do <strong>NOT</strong> include a header "
+#~ "row, and make sure you resave the file as a CSV file and not XLS!"
+#~ msgstr ""
+#~ "并选择<strong>目标另存为...</强烈>或<strong>链接另存为...</强烈>下载一个模"
+#~ "板文件。所需要的字段只有主机名和MAC地址。不要<strong>不会</ 强>包括标题"
+#~ "行，并确保您重新保存为CSV文件，而不是XLS文件！"
+
+#~ msgid "Server Information"
+#~ msgstr "服务器信息"
+
+#~ msgid "You may now add another."
+#~ msgstr "您现在可以添加另一个。"
+
+#~ msgid "Image Added"
+#~ msgstr "图像新增"
+
+#~ msgid "Failed to add image."
+#~ msgstr "无法新增形象。"
+
+#~ msgid "Failed to add image"
+#~ msgstr "无法新增图片"
+
+#~ msgid "An image type is required!"
+#~ msgstr "一种图像类型是必需的！"
+
+#~ msgid "An image file name is required!"
+#~ msgstr "图像文件的名称是必需的！"
+
+#~ msgid "StorageNodeRootDir"
+#~ msgstr "存储节点的根目录"
+
+#~ msgid "Image File"
+#~ msgstr "影像档"
+
+#~ msgid "Confirm Image Removal"
+#~ msgstr "确认图像去除"
+
+#~ msgid "Delete only the image definition."
+#~ msgstr "只删除了图像的清晰度。"
+
+#~ msgid "Delete image definition, and image file."
+#~ msgstr "删除图像的清晰度和图像文件。"
+
+#~ msgid "Image Removal Results"
+#~ msgstr "图像去除结果"
+
+#~ msgid "Image file has been deleted."
+#~ msgstr "图像文件已被删除。"
+
+#~ msgid "Failed to delete image file."
+#~ msgstr "无法删除的图像文件。"
+
+#~ msgid "Image definition has been removed."
+#~ msgstr "图像清晰度已被删除。"
+
+#~ msgid "Failed to update image"
+#~ msgstr "无法更新的形象"
+
+#~ msgid "Are you sure you would like to remove this image?"
+#~ msgstr "您确定要删除此图片吗？"
+
+#~ msgid "All Current Images"
+#~ msgstr "目前所有图片"
+
+#~ msgid "Image Search"
+#~ msgstr "图片搜索"
+
+#~ msgid "Unable to open"
+#~ msgstr "无法打开"
+
+#~ msgid "Estimated FOG sites: "
+#~ msgstr "估计 FOG 网站："
+
+#~ msgid "Latest Version: "
+#~ msgstr "最新版本："
+
+#~ msgid "home"
+#~ msgstr "首頁"
+
+#~ msgid "users"
+#~ msgstr "用户"
+
+#~ msgid "hosts"
+#~ msgstr "主机"
+
+#~ msgid "group"
+#~ msgstr "群組"
+
+#~ msgid "images"
+#~ msgstr "图像"
+
+#~ msgid "snap-ins"
+#~ msgstr "管理单元"
+
+#~ msgid "print"
+#~ msgstr "列印"
+
+#~ msgid "tasks"
+#~ msgstr "任务"
+
+#~ msgid "reports"
+#~ msgstr "报告"
+
+#~ msgid "about"
+#~ msgstr "关于"
+
+#~ msgid "logout"
+#~ msgstr "注销"
+
+#~ msgid "Select a module to run."
+#~ msgstr "选择一个模块运行。"
+
+#~ msgid "No active modules found."
+#~ msgstr "没有找到积极的模块。"
+
+#~ msgid "No plugins found."
+#~ msgstr "没有找到插件。"
+
+#~ msgid "Select a module you would like to Activate."
+#~ msgstr "选择一个模块，你想激活。"
+
+#~ msgid "Module activated!"
+#~ msgstr "模块激活！"
+
+#~ msgid "Failed to activate module!"
+#~ msgstr "无法激活模块！"
+
+#~ msgid "No inactive modules found."
+#~ msgstr "没有找到无效的模块。"
+
+#~ msgid "Find not found"
+#~ msgstr "查找未找到"
+
+#~ msgid "Error finding entry point for modules"
+#~ msgstr "错误找到模块的入口点"
+
+#~ msgid "Printer Added, you may now add another."
+#~ msgstr "打印机加，你现在可以添加另一个。"
+
+#~ msgid "A required field is null, unable to create printer!"
+#~ msgstr "一个所需的字段为空，无法创建打印机"
+
+#~ msgid "You must specify a model, unable to create printer!"
+#~ msgstr "你必须指定一个模式，无法创建打印机！"
+
+#~ msgid "You must specify a port, unable to create printer!"
+#~ msgstr "您必须指定一个端口，无法创建打印机！"
+
+#~ msgid "Add new printer definition"
+#~ msgstr "添加新的打印机定义"
+
+#~ msgid "Change type"
+#~ msgstr "更改类型"
+
+#~ msgid "e.g. \\\\printserver\\printername"
+#~ msgstr "例如 \\打印\\打印机名称"
+
+#~ msgid "Delete printer definition"
+#~ msgstr "删除打印机定义"
+
+#~ msgid "Printer has been deleted!"
+#~ msgstr "打印机已被删除！"
+
+#~ msgid "A required field is null, unable to delete printer!"
+#~ msgstr "一个所需的字段为空，无法删除打印机！"
+
+#~ msgid "A required field is null, unable to update printer!"
+#~ msgstr "一个所需的字段为空，无法更新打印机"
+
+#~ msgid "Update printer definition"
+#~ msgstr "更新打印机定义"
+
+#~ msgid "List All Printers"
+#~ msgstr "清单上的所有打印机"
+
+#~ msgid "All Current Printers"
+#~ msgstr "目前所有打印机"
+
+#~ msgid "Alias"
+#~ msgstr "别名"
+
+#~ msgid "Port"
+#~ msgstr "港口"
+
+#~ msgid "INF"
+#~ msgstr "INF"
+
+#~ msgid "Printer Search"
+#~ msgstr "打印机搜索"
+
+#~ msgid "Either the username or password contains invalid characters"
+#~ msgstr "无论是用户名或密码包含无效字符"
+
+#~ msgid "User Login History"
+#~ msgstr "用户登录历史"
+
+#~ msgid "No Virus Information Reported."
+#~ msgstr "无病毒报告的信息。"
+
+#~ msgid "Your report has been added!"
+#~ msgstr "您的报告已添加！"
+
+#~ msgid "Unable to move uploaded file."
+#~ msgstr "无法移动上传的文件。"
+
+#~ msgid "File does not look like a php source file"
+#~ msgstr "文件看起来不像一个PHP源文件"
+
+#~ msgid "Unable to locate "
+#~ msgstr "找不到"
+
+#~ msgid "Configure Auto Log Out Service Module"
+#~ msgstr "配置自动登出服务模块"
+
+#~ msgid ""
+#~ "The Auto Log Out service module will log a user out of a workstation "
+#~ "after x minutes of inactivity."
+#~ msgstr "服务舱自动输出日志将记录一个用户从一个工作站在x分钟不活动。"
+
+#~ msgid ""
+#~ "This setting will globally enable or disable the auto log out service "
+#~ "module.  If you disable the module, it will be disabled for all clients, "
+#~ "regardsless of the host specific setting."
+#~ msgstr ""
+#~ "此设置将在全球范围启用或禁用自动登出服务模块。如果您禁用模块，它会被禁用，"
+#~ "所有的客户，对于东道国的具体设定。"
+
+#~ msgid "Configure Client Updater Service Module"
+#~ msgstr "配置客户端更新服务模块"
+
+#~ msgid "Client updater will keeps your FOG client up to date."
+#~ msgstr "客户端更新将让您的客户端为最新 FOG。"
+
+#~ msgid "Client Update Enabled?"
+#~ msgstr "客户端更新启用？"
+
+#~ msgid ""
+#~ "This setting will globally enable or disable the client updater service "
+#~ "module.  If you disable the module, it will be disabled for all clients, "
+#~ "regardsless of the host specific setting."
+#~ msgstr ""
+#~ "此设置将在全球范围启用或禁用客户端更新服务模块。如果您禁用模块，它会被禁"
+#~ "用，所有的客户，对于东道国的具体设定"
+
+#~ msgid "Configure Directory Cleaner Service Module"
+#~ msgstr "清洁服务模块配置目录"
+
+#~ msgid ""
+#~ "The Directory Cleaner module will clean out all files and directories "
+#~ "within a parent directory during log off.  This module can be useful if "
+#~ "you have an application that uses cache that you don't want to persist "
+#~ "between users."
+#~ msgstr ""
+#~ "该目录模块将干净清洁父目录内注销过程中的所有文件和目录。该模块可以是有用"
+#~ "的，如果你有一个应用程序使用缓存，你不想坚持用户之间。"
+
+#~ msgid ""
+#~ "This setting will globally enable or disable the directory cleaner "
+#~ "service module.  If you disable the module, it will be disabled for all "
+#~ "clients, regardsless of the host specific setting."
+#~ msgstr ""
+#~ "此设置将在全球范围启用或禁用目录清洁服务模块。如果您禁用模块，它会被禁用，"
+#~ "所有的客户，对于东道国的具体设定"
+
+#~ msgid "No Entries Found."
+#~ msgstr "路径"
+
+#~ msgid "Configure Display Manager Service Module"
+#~ msgstr "配置显示管理服务模块"
+
+#~ msgid ""
+#~ "The Display Manager service module will reset a computers display to a "
+#~ "fixed setting such as 1024 x 768 on user log in."
+#~ msgstr ""
+#~ "显示管理器服务模块将重新设置一个计算机显示屏，如1024 × 768的用户向固定设置"
+#~ "登录"
+
+#~ msgid ""
+#~ "This setting will globally enable or disable the display manager service "
+#~ "module.  If you disable the module, it will be disabled for all clients, "
+#~ "regardsless of the host specific setting."
+#~ msgstr ""
+#~ "此设置将在全球范围启用或禁用显示管理服务模块。如果您禁用模块，它会被禁用，"
+#~ "所有的客户，对于东道国的具体设定"
+
+#~ msgid "Configure Green FOG Service Module"
+#~ msgstr "绿 FOG 服务模块配置"
+
+#~ msgid ""
+#~ "Green FOG is a service module that will shutdown / restart the client "
+#~ "computers at a set time."
+#~ msgstr ""
+#~ "绿色光纤 FOG 是一种服务模块，将关闭/重新启动在特定时间的客户端计算机。"
+
+#~ msgid ""
+#~ "This setting will globally enable or disable the Green FOG service "
+#~ "module.  If you disable the module, it will be disabled for all clients, "
+#~ "regardsless of the host specific setting."
+#~ msgstr ""
+#~ "此设置将在全球范围启用或禁用该服务舱的绿 FOG。如果您禁用模块，它会被禁用，"
+#~ "所有的客户，对于东道国的具体设定。"
+
+#~ msgid "HH"
+#~ msgstr "HH"
+
+#~ msgid "MM"
+#~ msgstr "MM"
+
+#~ msgid "Configure Hostname Changer Service Module"
+#~ msgstr "配置主机名更换服务模块"
+
+#~ msgid ""
+#~ "The hostname changer is a service module that rename the client's "
+#~ "hostname after imaging.  This service also handles Microsoft Active "
+#~ "Directory integration."
+#~ msgstr ""
+#~ "更换的主机名是一个服务模块，重新命名客户端的主机名后成像。这项服务也处理的"
+#~ "Microsoft Active Directory集成。"
+
+#~ msgid ""
+#~ "This setting will globally enable or disable the hostname changer service "
+#~ "module.  If you disable the module, it will be disabled for all clients, "
+#~ "regardsless of the host specific setting."
+#~ msgstr ""
+#~ "此设置将在全球范围启用或禁用主机更换服务模块。如果您禁用模块，它会被禁用，"
+#~ "所有的客户，对于东道国的具体设定。"
+
+#~ msgid "Configure host registration Service Module"
+#~ msgstr "配置主机注册服务模块"
+
+#~ msgid ""
+#~ "Host registration is a service module that will register unknown fog "
+#~ "clients with the fog server."
+#~ msgstr "主机注册服务模块，将注册服务器与未知的FOG FOG的客户。"
+
+#~ msgid "Host Register Enabled?"
+#~ msgstr "主机注册启用？"
+
+#~ msgid ""
+#~ "This setting will globally enable or disable the host register service "
+#~ "module.  If you disable the module, it will be disabled for all clients, "
+#~ "regardsless of the host specific setting."
+#~ msgstr ""
+#~ "此设置将在全球范围启用或禁用主机注册服务模块。如果您禁用模块，它会被禁用，"
+#~ "所有的客户，对于东道国的具体设定"
+
+#~ msgid "Auto Log Out"
+#~ msgstr "自动登出"
+
+#~ msgid "Printer Manager"
+#~ msgstr "打印管理器"
+
+#~ msgid "Configuration for this module is coming soon."
+#~ msgstr "此模块配置即将到来。"
+
+#~ msgid "Configure Printer Manager Service Module"
+#~ msgstr "配置打印机管理服务模块"
+
+#~ msgid ""
+#~ "Printer Manager is a service module that will install, remove, and set "
+#~ "the default printer on clients."
+#~ msgstr "打印机管理器是一个服务模块，将安装，删除，设置客户端的默认打印机。"
+
+#~ msgid ""
+#~ "This setting will globally enable or disable the printer manager service "
+#~ "module.  If you disable the module, it will be disabled for all clients, "
+#~ "regardsless of the host specific setting."
+#~ msgstr ""
+#~ "此设置将在全球范围启用或禁用打印机管理器服务模块。如果您禁用模块，它会被禁"
+#~ "用，所有的客户，对于东道国的具体设定。"
+
+#~ msgid "Configure Snapin Service Module"
+#~ msgstr "在服务管理单元模块配置"
+
+#~ msgid ""
+#~ "The Snapin Service module is used to install snapin files to the client "
+#~ "computers."
+#~ msgstr "在服务管理单元模块是用于安装在单元文件到客户端计算机。"
+
+#~ msgid "Snapin Client Enabled?"
+#~ msgstr "在客户管理单元启用？"
+
+#~ msgid ""
+#~ "This setting will globally enable or disable the snapin service module.  "
+#~ "If you disable the module, it will be disabled for all clients, "
+#~ "regardsless of the host specific setting."
+#~ msgstr ""
+#~ "此设置将在全球范围启用或禁用服务管理单元模块。如果您禁用模块，它会被禁用，"
+#~ "所有的客户，对于东道国的具体设定。"
+
+#~ msgid "Configure Task Reboot Service Module"
+#~ msgstr "重新启动服务模块配置任务"
+
+#~ msgid ""
+#~ "The task reboot service will periodically query the fog service to "
+#~ "determine is a the client has a task associated with it.  If it does and "
+#~ "no user is logged in, the host will restart."
+#~ msgstr ""
+#~ "重新启动服务的任务将定期查询服务，以确定 FOG 是一种客户端具有与其关联的任"
+#~ "务。"
+
+#~ msgid ""
+#~ "This setting will globally enable or disable the task reboot service "
+#~ "module.  If you disable the module, it will be disabled for all clients, "
+#~ "regardsless of the host specific setting."
+#~ msgstr ""
+#~ "此设置将在全球范围启用或禁用重新启动服务舱的任务。如果您禁用模块，它会被禁"
+#~ "用，所有的客户，对于东道国的具体设定。"
+
+#~ msgid "User Entry Already Exists."
+#~ msgstr "用户项目已存在。"
+
+#~ msgid "Configure User Cleanup Service Module"
+#~ msgstr "配置用户清理服务模块"
+
+#~ msgid ""
+#~ "The User Cleanup module will clean out \"stale\" user account left over "
+#~ "from services such as dynamic local user."
+#~ msgstr ""
+#~ "该用户模块将清理干净了\"过期\"用户帐户遗留下来的服务，如动态的本地用户了。"
+
+#~ msgid ""
+#~ "This setting will globally enable or disable the user cleanup module."
+#~ msgstr "此设置将在全球范围启用或禁用用户的清理模块。"
+
+#~ msgid "Configure User Tracker Service Module"
+#~ msgstr "配置用户跟踪服务模块"
+
+#~ msgid ""
+#~ "The user tracker module will watch for local login/logoff and log them to "
+#~ "the fog database."
+#~ msgstr "用户跟踪模块将留意本地登录/注销和登录他们的 FOG 数据库。"
+
+#~ msgid ""
+#~ "This setting will globally enable or disable the user tracker service "
+#~ "module.  If you disable the module, it will be disabled for all clients, "
+#~ "regardsless of the host specific setting."
+#~ msgstr ""
+#~ "此设置将在全球范围启用或禁用用户跟踪服务模块。如果您禁用模块，它会被禁用，"
+#~ "所有的客户，对于东道国的具体设定。"
+
+#~ msgid "Snapin Added, you may now add another."
+#~ msgstr "管理单元添加，您现在可以添加另一个。"
+
+#~ msgid "Snapin Added"
+#~ msgstr "管理单元新增"
+
+#~ msgid "Failed to add snapin."
+#~ msgstr "无法新增单元。"
+
+#~ msgid "Failed to add snapin"
+#~ msgstr "无法添加管理单元"
+
+#~ msgid "Failed to add snapin, file upload failed."
+#~ msgstr "无法添加管理单元，文件上传失败。"
+
+#~ msgid "Failed to add snapin, file already exists."
+#~ msgstr "无法添加管理单元，文件已经存在。"
+
+#~ msgid "Failed to add snapin, snapin directory exists, but isn't writable."
+#~ msgstr "无法添加管理单元，管理单元目录中存在，但不写。"
+
+#~ msgid "Failed to add snapin, unable to locate snapin directory."
+#~ msgstr "无法添加管理单元，管理单元无法找到目录。"
+
+#~ msgid "Failed to add snapin, no file was uploaded."
+#~ msgstr "无法添加管理单元，没有文件被上传。"
+
+#~ msgid "Add new Snapin definition"
+#~ msgstr "添加新的管理单元的定义"
+
+#~ msgid "Snapin Updated!"
+#~ msgstr "管理单元更新！"
+
+#~ msgid "snapin updated."
+#~ msgstr "管理单元更新。"
+
+#~ msgid "Database Error (during snapin update)"
+#~ msgstr "数据库错误（在管理单元更新）"
+
+#~ msgid "Failed to update snapin, file upload failed."
+#~ msgstr "无法更新管理单元，文件上传失败。"
+
+#~ msgid "Failed to update snapin, unable to locate snapin directory."
+#~ msgstr "无法更新管理单元，管理单元目录中无法找到。"
+
+#~ msgid "Confirm Snapin Removal"
+#~ msgstr "在确认删除管理单元"
+
+#~ msgid "Delete snapin definition, and snapin file."
+#~ msgstr "删除管理单元的定义，管理单元文件。"
+
+#~ msgid "Snapin Removal Results"
+#~ msgstr "管理单元去除结果"
+
+#~ msgid "snapin file has been deleted."
+#~ msgstr "管理单元文件已被删除。"
+
+#~ msgid "Failed to delete snapin file."
+#~ msgstr "无法删除管理单元文件。"
+
+#~ msgid "Failed to locate snapin file."
+#~ msgstr "没有找到管理单元文件。"
+
+#~ msgid "Snapin definition has been removed."
+#~ msgstr "管理单元的定义已被删除。"
+
+#~ msgid "Failed to update Snapin."
+#~ msgstr "无法更新单元。"
+
+#~ msgid "Edit Snapin definition"
+#~ msgstr "编辑管理单元的定义"
+
+#~ msgid "Snapin Run With Arguments"
+#~ msgstr "管理单元运行参数"
+
+#~ msgid "Are you sure you wish to remove this snapin?"
+#~ msgstr "您确定要删除这个横幅？"
+
+#~ msgid "All Current Snapins"
+#~ msgstr "目前所有的管理单元插件"
+
+#~ msgid "Snapin Search"
+#~ msgstr "在搜索管理单元"
+
+#~ msgid "List All Snapins"
+#~ msgstr "所有管理单元列表项"
+
+#~ msgid "Snapin Menu"
+#~ msgstr "管理单元菜单"
+
+#~ msgid "Failed to add storage group."
+#~ msgstr "无法新增存储组。"
+
+#~ msgid "Failed to add storage group"
+#~ msgstr "无法新增存储组"
+
+#~ msgid "Add New Storage Node Definition"
+#~ msgstr "添加新的存储节点的定义"
+
+#~ msgid "node Added"
+#~ msgstr "新增节点"
+
+#~ msgid "Failed to update Storage Node."
+#~ msgstr "无法更新存储节点。"
+
+#~ msgid ""
+#~ "You have chosen to set this node as the master node in this storage "
+#~ "group.  "
+#~ msgstr "您已选择设置此作为这个存储组主节点的节点"
+
+#~ msgid "Caution"
+#~ msgstr "慎重"
+
+#~ msgid ""
+#~ "This is a very dangerous action, and should only be done if you known "
+#~ "what you are doing.  Settings this node as master could potentially wipe "
+#~ "out all images on all other nodes in this storage group."
+#~ msgstr ""
+#~ "这是一个非常危险的行动，只应如果你知道你在做什么。设置此作为主节点可能消灭"
+#~ "在此存储组中的所有其他节点上的所有图像。"
+
+#~ msgid "Are you sure you wish to do this?"
+#~ msgstr "你确定要这么做吗？"
+
+#~ msgid "Yes, make the node master."
+#~ msgstr "是的，使节点的主人。"
+
+#~ msgid "No, don't add node as master."
+#~ msgstr "不，不添加作为主节点。"
+
+#~ msgid "Confirm Storage Group Removal"
+#~ msgstr "确认删除存储组"
+
+#~ msgid "Delete Storage Definition"
+#~ msgstr "删除存储的定义"
+
+#~ msgid "Storage Group definition has been removed."
+#~ msgstr "存储组的定义已被删除。"
+
+#~ msgid "Edit Storage Group Definition"
+#~ msgstr "编辑存储组的定义"
+
+#~ msgid "Are you sure you would like to remove this Storage Group?"
+#~ msgstr "您确定要删除此存储组？"
+
+#~ msgid "Confirm Storage Node Removal"
+#~ msgstr "确认存储节点去除"
+
+#~ msgid "Delete Storage Node Definition"
+#~ msgstr "删除存储节点的定义"
+
+#~ msgid "Storage Node definition has been removed."
+#~ msgstr "存储节点的定义已被删除。"
+
+#~ msgid "Edit Storage Node Definition"
+#~ msgstr "编辑存储节点的定义"
+
+#~ msgid ""
+#~ "You have chosen to set this node as the master node in this storage group."
+#~ msgstr "您已选择设置此作为这个存储组主节点的节点。"
+
+#~ msgid "Failed to update storage node."
+#~ msgstr "无法更新存储节点。"
+
+#~ msgid "Are you sure you would like to remove this Storage Node?"
+#~ msgstr "您确定要删除此存储节点"
+
+#~ msgid "Storage Group Menu"
+#~ msgstr "存储组菜单"
+
+#~ msgid "Storage Node Menu"
+#~ msgstr "存储节点菜单"
+
+#~ msgid "All Current Storage Groups"
+#~ msgstr "目前所有的存储组"
+
+#~ msgid "No Storage Groups Found!"
+#~ msgstr "没有存储组找到！"
+
+#~ msgid "All Current Storage Nodes"
+#~ msgstr "目前所有的存储节点"
+
+#~ msgid "Is Master"
+#~ msgstr "是主"
+
+#~ msgid "No Storage Groups Nodes Found!"
+#~ msgstr "没有存储组节点找到！"
+
+#~ msgid ""
+#~ "Task removed, but if the task was in progress or the computer already "
+#~ "booted to the Linux Image, you will need to reboot it!"
+#~ msgstr ""
+#~ "任务删除，但如果该任务是正在进行或已经启动到Linux图像的计算机，您将需要重"
+#~ "新启动它！"
+
+#~ msgid "Task deleted"
+#~ msgstr "删除任务"
+
+#~ msgid "Task updated to force!"
+#~ msgstr "任务更新，以武力！"
+
+#~ msgid "Task set to Force"
+#~ msgstr "任务设置为强制"
+
+#~ msgid "Speed"
+#~ msgstr "速度"
+
+#~ msgid "All Active Multicast Tasks"
+#~ msgstr "所有将激活多播任务"
+
+#~ msgid "Snapin removed!"
+#~ msgstr "管理单元删除！"
+
+#~ msgid "Snapin Task deleted"
+#~ msgstr "删除管理单元任务"
+
+#~ msgid "Failed to remove snapin"
+#~ msgstr "无法删除管理单元"
+
+#~ msgid "All Active Snapins"
+#~ msgstr "所有管理单元将激活插件"
+
+#~ msgid "Advanced Options"
+#~ msgstr "高级选项"
+
+#~ msgid "MAC Address"
+#~ msgstr "MAC地址"
+
+#~ msgid ""
+#~ "Debug mode will load the boot image and load a prompt so you can run any "
+#~ "commands you wish.  When you are done, you must remember to remove the "
+#~ "PXE file, by clicking on \"Active Tasks\" and clicking on the \"Kill Task"
+#~ "\" button."
+#~ msgstr ""
+#~ "调试模式将加载启动映像并加载一个提示，以便您可以运行任何命令你的愿望。当您"
+#~ "完成时，你必须记住删除PXE的文件，由点击 \"活动任务\"”和在\"杀死任务\"按钮"
+#~ "点击。"
+
+#~ msgid "Deploy-Debug"
+#~ msgstr "部署，调试"
+
+#~ msgid ""
+#~ "Deploy-Debug mode allows FOG to setup the environment to allow you send a "
+#~ "specific image to a computer, but instead of sending the image, FOG will "
+#~ "leave you at a prompt right before sending.  If you actually wish to send "
+#~ "the image all you need to do is type \"fog\" and hit enter."
+#~ msgstr ""
+#~ "部署，调试模式允许 FOG 来设置环境，让您发送一个特定的图像到一台计算机，而"
+#~ "是发送图像，FOG 迅速离开，然后向你的权利。如果你确实想发送图片所有你需要做"
+#~ "的就是输入\"FOG \"，然后回车。"
+
+#~ msgid "Upload-Debug"
+#~ msgstr "上传调试"
+
+#~ msgid ""
+#~ "Upload-Debug mode allows FOG to setup the environment to allow you Upload "
+#~ "a specific image to a computer, but instead of Upload the image, FOG will "
+#~ "leave you at a prompt right before restoring.  If you actually wish to "
+#~ "Upload the image all you need to do is type \"fog\" and hit enter."
+#~ msgstr ""
+#~ "上传调试模式允许 FOG 设置的环境，让你上传一个特定的图像到一台计算机，但不"
+#~ "是上传的图像，FOG，将于迅速恢复之前你的权利。如果你确实想上传的图片所有你"
+#~ "需要做的就是输入\"FOG\"，然后回车。"
+
+#~ msgid "Deploy without Snapins"
+#~ msgstr "无扣项部署"
+
+#~ msgid ""
+#~ "Deploy without snapins allows FOG to image the workstation, but after the "
+#~ "task is complete any snapins linked to the host or group will NOT be sent."
+#~ msgstr ""
+#~ "未经允许 FOG 单元插件部署到图像工作站，但任务完成后，连接到主机或组中的任"
+#~ "何单元项将不被发送。"
+
+#~ msgid ""
+#~ "This option allows you to send all the snapins to host without imaging "
+#~ "the computer.  (Requires FOG Service to be installed on client)"
+#~ msgstr ""
+#~ "这个选项允许你把所有的单元项主办未经成像计算机。 （需要 FOG 服务，以安装在"
+#~ "客户端）"
+
+#~ msgid "Deploy Single Snapin"
+#~ msgstr "部署在单个管理单元"
+
+#~ msgid ""
+#~ "This option allows you to send a single snapin to a host.  (Requires FOG "
+#~ "Service to be installed on client)"
+#~ msgstr ""
+#~ "这个选项允许你发送一个管理单元到主机。（需要 FOG服务，以安装在客户端）"
+
+#~ msgid "Memtest86+"
+#~ msgstr "Memtest86+"
+
+#~ msgid ""
+#~ "Memtest86+ loads Memtest86+ on the client computer and will have it "
+#~ "continue to run until stopped.  When you are done, you must remember to "
+#~ "remove the PXE file, by clicking on \"Active Tasks\" and clicking on the "
+#~ "\"Kill Task\" button."
+#~ msgstr ""
+#~ "memtest86 +有关memtest86 +有关在客户端电脑，并会让它继续运行，直到停止负"
+#~ "载。当您完成时，你必须记住删除PXE的文件，由点击 \"活动任务\"和在\"杀死任务"
+#~ "\"按钮点击。"
+
+#~ msgid "Wake Up"
+#~ msgstr "叫醒"
+
+#~ msgid ""
+#~ "Wake Up will attempt to send the Wake-On-LAN packet to the computer to "
+#~ "turn the computer on.  In switched environments, you typically need to "
+#~ "configure your hardware to allow for this (iphelper)."
+#~ msgstr ""
+#~ "叫醒将尝试发送唤醒局域网数据包发送到计算机，以打开计算机。在交换环境中，您"
+#~ "通常需要配置您的硬件，以便本（iphelper）。"
+
+#~ msgid "Fast Wipe"
+#~ msgstr "快速擦除"
+
+#~ msgid ""
+#~ "Fast Wipe will boot the client computer and perform a quick and lazy disk "
+#~ "wipe.  This method writes zero's to the start of the hard disk, "
+#~ "destroying the MBR, but NOT overwritting everything on the disk."
+#~ msgstr ""
+#~ "快速擦除将启动客户端计算机和执行快速和懒惰的磁盘擦除。此方法写入零年代到硬"
+#~ "盘上的启动，摧毁了MBR，但不超过书面方式在磁盘上的一切。Kuàisù cā chú "
+#~ "jiāng qǐdòng kèhù duān jìsuànjī hé zhíxíng kuàisù hé lǎnduò de cípán cā "
+#~ "chú. Cǐ fāngfǎ xiě rù líng niándài dào yìngpán shàng de qǐdòng, cuīhuǐ le "
+#~ "MBR, dàn bù chāoguò shūmiàn fāngshì zài cípán shàng de yīqiè.Contribute a "
+#~ "better "
+
+#~ msgid "Normal Wipe"
+#~ msgstr "正常擦除"
+
+#~ msgid ""
+#~ "Normal Wipe will boot the client computer and perform a simple disk "
+#~ "wipe.  This method writes one pass of zero's to the hard disk."
+#~ msgstr ""
+#~ "正常擦拭将启动客户端计算机并执行一个简单的磁盘擦除。这种方法写一个零的到硬"
+#~ "盘上通过。"
+
+#~ msgid "Full Wipe"
+#~ msgstr "全部擦除"
+
+#~ msgid ""
+#~ "Full Wipe will boot the client computer and perform a full disk wipe.  "
+#~ "This method writes a few passes of random data to the hard disk."
+#~ msgstr ""
+#~ "全部擦除将启动客户端计算机和执行完整的磁盘擦除。此方法写入的随机数通过数据"
+#~ "到硬盘上。"
+
+#~ msgid "Disk Surface Test"
+#~ msgstr "磁盘表面测试"
+
+#~ msgid ""
+#~ "Disk Surface Test checks the hard drive's surface sector by sector for "
+#~ "any errors and reports back if errors are present."
+#~ msgstr ""
+#~ "磁盘表面测试检查硬盘驱动器的任何错误和所报告的背部表面行业，部门存在的错"
+#~ "误。"
+
+#~ msgid "Test Disk"
+#~ msgstr "测试硬盘"
+
+#~ msgid ""
+#~ "Test Disk loads the testdisk utility that can be used to check a hard "
+#~ "disk and recover lost partitions."
+#~ msgstr "测试硬盘加载testdisk实用工具，可用于检查硬盘和恢复丢失的分区。"
+
+#~ msgid "Recover"
+#~ msgstr "恢复"
+
+#~ msgid ""
+#~ "Recover loads the photorec utility that can be used to recover lost files "
+#~ "from a hard drisk.  When recovering files, make sure you save them to "
+#~ "your NFS volume (ie: /images)."
+#~ msgstr ""
+#~ "恢复加载photorec实用工具，可用于恢复丢失的文件从一个硬盘drisk。恢复文件"
+#~ "时，请务必将它们保存到您的NFS卷（即：/ 图像）。"
+
+#~ msgid "Anti-Virus"
+#~ msgstr "反病毒"
+
+#~ msgid ""
+#~ "Anti-Virus loads Clam AV on the client boot image, updates the scanner "
+#~ "and then scans the Windows partition."
+#~ msgstr ""
+#~ "防病毒客户端上加载启动映像克拉姆影音，更新的扫描仪扫描，然后将Windows分"
+#~ "区。"
+
+#~ msgid "Hardware Inventory"
+#~ msgstr "硬件清单"
+
+#~ msgid ""
+#~ "The hardware inventory task will boot the client computer and pull basic "
+#~ "hardware informtation from it and report it back to the FOG server."
+#~ msgstr ""
+#~ "在硬件清单的任务将启动客户端计算机和撤出它的基本硬件信息，报回 FOG 服务"
+#~ "器。"
+
+#~ msgid "Password Reset"
+#~ msgstr "密码重置"
+
+#~ msgid ""
+#~ "Password reset will blank out a Windows user password that may have been "
+#~ "lost or forgotten."
+#~ msgstr "密码重置将空出一个 Windows用户的密码可能已丢失或遗忘。"
+
+#~ msgid "Confirm Task"
+#~ msgstr "确认工作"
+
+#~ msgid "Schedule Single Task Execution?"
+#~ msgstr "附表单任务的执行？"
+
+#~ msgid "Schedule Cron Style Task Execution?"
+#~ msgstr "附表玉米风格执行任务？"
+
+#~ msgid "Upload Image"
+#~ msgstr "上传图片"
+
+#~ msgid "Image All Computers"
+#~ msgstr "所有计算机图像"
+
+#~ msgid "No Host are members of this group"
+#~ msgstr "没有主机是这个小组的成员"
+
+#~ msgid "Are you sure you wish to image these machines using multicast?"
+#~ msgstr "你确定要使用这些机器图像组播？"
+
+#~ msgid "Image All Computers using multicast"
+#~ msgstr "图像中的所有计算机使用多播"
+
+#~ msgid ""
+#~ "Unable to multicast to this group of computers because they all do not "
+#~ "have the same image definition!"
+#~ msgstr "无法组播这一组计算机，因为他们都没有相同的图像清晰度！"
+
+#~ msgid "Are you sure you wish to wake up these machines?"
+#~ msgstr "你确定要了这些机器唤醒？"
+
+#~ msgid ""
+#~ "Are you sure you wish to wipe these machines? By wiping these machines "
+#~ "you will be destorying all data present on the hard disk."
+#~ msgstr ""
+#~ "你确定要消灭这些机器？这些机器擦拭你将超越龙神的所有数据在硬盘上存在。"
+
+#~ msgid "Wipe computer(s)"
+#~ msgstr "擦除电脑"
+
+#~ msgid "Are you sure you wish to debug these machines?"
+#~ msgstr "你确定要调试这些机器？"
+
+#~ msgid "Debug computer(s)"
+#~ msgstr "调试计算机"
+
+#~ msgid "Are you sure you wish to run memtest86+ on these machines?"
+#~ msgstr "你确定要在这些机器上运行 memtest86 +？"
+
+#~ msgid "Run memtest86+"
+#~ msgstr "运行memtest86 +有关"
+
+#~ msgid "Are you sure you wish to run testdisk on these machines?"
+#~ msgstr "你确定要运行在这些机器 testdisk？"
+
+#~ msgid "Run testdisk"
+#~ msgstr "运行testdisk"
+
+#~ msgid "Are you sure you wish to run file recovery on these machines?"
+#~ msgstr "你肯定你想在这些计算机上运行的文件恢复？"
+
+#~ msgid "Run File Recovery"
+#~ msgstr "文件恢复运行"
+
+#~ msgid "Are you sure you wish to reset the password on these machines?"
+#~ msgstr "你确定要重置这些机器上的密码？"
+
+#~ msgid "Reset Password"
+#~ msgstr "重设密码"
+
+#~ msgid "Are you sure you wish to run Disk Surface Test on these machines?"
+#~ msgstr "你肯定你想这些机器上运行磁盘表面测试？"
+
+#~ msgid "Run Surface Test"
+#~ msgstr "表面测试运行"
+
+#~ msgid "Are you sure you wish to deploy all linked snapins these machines?"
+#~ msgstr "你确定要部署所有链接的单元模组这些机器？"
+
+#~ msgid "Are you sure you wish to image these machines (without snapins)?"
+#~ msgstr "你肯定你想项没有管理单元，以图片的这些机器？"
+
+#~ msgid ""
+#~ "Which snapin would you like to deployed to the machines listed below?"
+#~ msgstr "在哪一个单元，你想部署到下面列出的机器？"
+
+#~ msgid "Deploy Snapin"
+#~ msgstr "在部署管理单元"
+
+#~ msgid "Are you sure you wish to update/take an inventory of these machines?"
+#~ msgstr "你确定要更新/采取的这些机器存货？"
+
+#~ msgid "Run Inventory"
+#~ msgstr "运行清单"
+
+#~ msgid "The task has been scheduled for "
+#~ msgstr "任务已定于"
+
+#~ msgid ""
+#~ "You can not select a cron style schedule and a single schedule at the "
+#~ "same time."
+#~ msgstr "你不能选择一个cron风格的时间表，以及在同一时间单时间表。"
+
+#~ msgid "The cron task has been scheduled!"
+#~ msgstr "的cron任务已定！"
+
+#~ msgid "None of the machines were able to be queued!"
+#~ msgstr "该机器没有能够进行排队！"
+
+#~ msgid "Failed to activate multicast session!"
+#~ msgstr "无法启动组播会议！"
+
+#~ msgid "Unable to determine a valid multicast port number."
+#~ msgstr "无法确定一个有效的多播端口号。"
+
+#~ msgid "Unable to create multicast package."
+#~ msgstr "无法创建多播包。"
+
+#~ msgid "Wake up packet sent to "
+#~ msgstr "唤醒数据包发送到"
+
+#~ msgid " computer(s)."
+#~ msgstr "计算机"
+
+#~ msgid "None of the machines were prepared for debug mode!"
+#~ msgstr "该机器没有任何人愿意为调试模式！"
+
+#~ msgid "None of the machines were prepared for memtest mode!"
+#~ msgstr "该机器没有任何人愿意为 memtest模式！"
+
+#~ msgid "None of the machines were prepared for testdisk!"
+#~ msgstr "该机器没有任何人愿意为 testdisk！"
+
+#~ msgid "None of the machines were prepared for file recovery!"
+#~ msgstr "该机器没有任何人愿意为文件恢复！"
+
+#~ msgid "Invalid account to reset."
+#~ msgstr "无效的帐户，以重置。"
+
+#~ msgid "None of the machines were prepared for password reset!"
+#~ msgstr "该机器没有任何人愿意为密码重置！"
+
+#~ msgid "None of the machines were prepared for surface test!"
+#~ msgstr "在机器表面没有准备测试！"
+
+#~ msgid "None of the machines were queued to receive snapins!"
+#~ msgstr "该机器无一排队领取单元插件！"
+
+#~ msgid "Deploy failed, make sure snapin is linked with host."
+#~ msgstr "部署失败，确保管理单元与主机相连。"
+
+#~ msgid "None of the snapins were able to be queued!"
+#~ msgstr "管理单元插件无一能够进行排队！"
+
+#~ msgid "None of the machines were prepared for inventory!"
+#~ msgstr "该机器没有准备存货！"
+
+#~ msgid "Member of Active Task"
+#~ msgstr "会员活动任务"
+
+#~ msgid "No hosts found"
+#~ msgstr "没有找到主人"
+
+#~ msgid "Scheduled Task removed!"
+#~ msgstr "计划任务删除！"
+
+#~ msgid "Scheduled Task deleted"
+#~ msgstr "删除计划任务"
+
+#~ msgid "All Scheduled Tasks"
+#~ msgstr "所有预定任务"
+
+#~ msgid "Run time"
+#~ msgstr "运行时间"
+
+#~ msgid "Group/Host Name"
+#~ msgstr "集团/主机名"
+
+#~ msgid "No scheduled Tasks found"
+#~ msgstr "没有找到计划任务"
+
+#~ msgid "Task Search"
+#~ msgstr "搜索任务"
+
+#~ msgid "User Added"
+#~ msgstr "用户新增"
+
+#~ msgid "Failed to add user."
+#~ msgstr "无法添加用户。"
+
+#~ msgid "Failed to add user"
+#~ msgstr "无法添加用户"
+
+#~ msgid "Error adding user"
+#~ msgstr "错误添加用户"
+
+#~ msgid "Invalid Password!"
+#~ msgstr "无效的密码！"
+
+#~ msgid "Confirm User Removal"
+#~ msgstr "确认用户删除"
+
+#~ msgid "Yes, delete this user"
+#~ msgstr "是的，删除该用户"
+
+#~ msgid "User Removal Complete"
+#~ msgstr "用户完全去除"
+
+#~ msgid "User has been deleted"
+#~ msgstr "用户已被删除"
+
+#~ msgid "Edit User Information"
+#~ msgstr "编辑用户信息"
+
+#~ msgid "Username and password have been updated!"
+#~ msgstr "用户名和密码被更新！"
+
+#~ msgid "Failed to update user."
+#~ msgstr "无法更新的用户。"
+
+#~ msgid "Another user exists with this username."
+#~ msgstr "另一位用户存在此用户名。"
+
+#~ msgid "Are you sure you wish to remove this user?"
+#~ msgstr "您确定要删除这个横幅？"
+
+#~ msgid "User Menu"
+#~ msgstr "用户菜单"
+
+#~ msgid "All Current Users"
+#~ msgstr "所有当前用户"
+
+#~ msgid "Modify"
+#~ msgstr "修改"
+
+#~ msgid "Host OS ID"
+#~ msgstr "主机操作系统的身份证"
+
+#~ msgid "Host OS Name"
+#~ msgstr "主机操作系统的名称"
+
+#~ msgid "AD"
+#~ msgstr "AD"
+
+#~ msgid "AD user"
+#~ msgstr "AD用户"
+
+#~ msgid "AD Pass"
+#~ msgstr "AD 密码"
+
+#~ msgid "Printer Level"
+#~ msgstr "打印机水平"
+
+#~ msgid "Kernel Args"
+#~ msgstr "内核指定参数"
+
+#~ msgid "Reporting Complete!"
+#~ msgstr "报告完成！"
+
+#~ msgid "FOG Unicast Imaging Log"
+#~ msgstr "成像测井 FOG 单播"
+
+#~ msgid "FOG Unicast Imaging Log - Select Date Range"
+#~ msgstr "单播成像测井 FOG - 选择日期范围"
+
+#~ msgid "Iventory create date"
+#~ msgstr "库存创建日期"
+
+#~ msgid "System Man"
+#~ msgstr "System Man"
+
+#~ msgid "MB Man"
+#~ msgstr "MB Man"
+
+#~ msgid "MB Ver"
+#~ msgstr "MB的版本"
+
+#~ msgid "CPU Man"
+#~ msgstr "CPU Man"
+
+#~ msgid "Chassis Man"
+#~ msgstr "Chassis Man"
+
+#~ msgid "HostIP"
+#~ msgstr "主机IP"
+
+#~ msgid "HostDescription"
+#~ msgstr "主机简介"
+
+#~ msgid "FOG User Login History Summary - Select User"
+#~ msgstr "FOG 用户登录的历史述评 - 选择用户"
+
+#~ msgid "No Results found!"
+#~ msgstr "没有找到结果！"
+
+#~ msgid "Search for User"
+#~ msgstr "搜索用户"
+
+#~ msgid "Failed (2)"
+#~ msgstr "失败（2）"
+
+#~ msgid "Done, but without imaging"
+#~ msgstr "这样做，但没有影像"
+
+#~ msgid "Done, but without imaging!"
+#~ msgstr "这样做，但没有影像！"
+
+#~ msgid "Failed (3)"
+#~ msgstr "失败（3）"
+
+#~ msgid "FAILED (1)"
+#~ msgstr "失败（1）"
+
+#~ msgid "FAILED (0)"
+#~ msgstr "失败（0）"
+
+#~ msgid "FAILED"
+#~ msgstr "失败"
+
+#~ msgid "Exists"
+#~ msgstr "存在"
+
+#~ msgid "Unsafe Hostname"
+#~ msgstr "不安全的主机名"
+
+#~ msgid "Unable to connect to database, host not imported!"
+#~ msgstr "无法连接到数据库，主机不进口！"
+
+#~ msgid "Invalid MAC Address format!"
+#~ msgstr "无效的MAC地址格式！"
+
+#~ msgid "Invalid MAC address (3)"
+#~ msgstr "无效的MAC地址（3）"
+
+#~ msgid "Invalid MAC address (2)"
+#~ msgstr "无效的MAC地址（2）"
+
+#~ msgid "Invalid MAC address (1)"
+#~ msgstr "无效的MAC地址（1）"
+
+#~ msgid "Invalid MAC address (0)"
+#~ msgstr "无效的MAC地址（0）"
+
+#~ msgid "Invalid MAC address format!"
+#~ msgstr "无效的MAC地址格式！"
+
+#~ msgid "Failed: Unable to determine virus information"
+#~ msgstr "失败：无法确定病毒的信息"
+
+#~ msgid "Failed: No file path"
+#~ msgstr "失败：没有文件路径"
+
+#~ msgid "Failed: Invalid piece count"
+#~ msgstr "失败：无效的件数"
+
+#~ msgid "Invalid number of tasks returned!"
+#~ msgstr "无效的若干任务回来了！"
+
+#~ msgid "Unable to find a valid storage node, based on the job id."
+#~ msgstr "无法找到一个有效的存储节点，根据职位的id。"
+
+#~ msgid ""
+#~ "Unable to find a valid task ID or host ID based on the clients mac "
+#~ "address of"
+#~ msgstr "无法找到一个有效的任务ID或主机ID根据客户MAC地址"
+
+#~ msgid "Database error: "
+#~ msgstr "数据库错误："
+
+#~ msgid "Unable to produce a directory listing,"
+#~ msgstr "无法产生一个目录列表，"
+
+#~ msgid "database error."
+#~ msgstr "数据库错误。"
+
+#~ msgid "Failed to remove old inventory"
+#~ msgstr "无法移除旧的库存"
+
+#~ msgid " Unable to connect to database, host not imported!"
+#~ msgstr "无法连接到数据库，主机不进口！"
+
+#~ msgid " Invalid MAC Address format!"
+#~ msgstr "无效的MAC地址格式！"
+
+#~ msgid " Invalid MAC address (3)"
+#~ msgstr "无效的MAC地址（3）"
+
+#~ msgid " Invalid MAC address (2)"
+#~ msgstr "无效的MAC地址（2）"
+
+#~ msgid " Invalid MAC address (1)"
+#~ msgstr "无效的MAC地址（1）"
+
+#~ msgid " Invalid MAC address (0)"
+#~ msgstr "无效的MAC地址（0）"
+
+#~ msgid "Host Not found."
+#~ msgstr "找不到主机。"
+
+#~ msgid "Host already exists in FOG database!"
+#~ msgstr "主机已经存在于光纤 FOG 数据库！"
+
+#~ msgid "Error attempting to start imaging process"
+#~ msgstr "错误试图启动成像过程"
+
+#~ msgid "Error: Checkin Failed."
+#~ msgstr "错误：签入失败。"
+
+#~ msgid ""
+#~ "Unable to locate host in database, please ensure that mac address is "
+#~ "correct."
+#~ msgstr "在数据库中找不到主机，请确保 MAC地址是正确的。"
+
+#~ msgid "Image ID must be numeric"
+#~ msgstr "图像ID必须是数字"
+
+#~ msgid "FTP connection to TFTP Server has failed!"
+#~ msgstr "FTP连接到TFTP服务器失败！"
+
+#~ msgid "FTP connection to Storage Server has failed!"
+#~ msgstr "FTP连接到存储服务器已经失败！"
+
+#~ msgid "Error: Checkout failed!"
+#~ msgstr "错误：结帐失败！"
+
+#~ msgid "Invalid number of device nodes returned!"
+#~ msgstr "无效的设备节点数目回来了！"
+
+#~ msgid "Unable to find a valid task ID based on the clients mac address of"
+#~ msgstr "无法找到一个有效的任务ID根据客户MAC地址"
+
+#~ msgid "Invalid MAC or FTP Address"
+#~ msgstr "无效的MAC地址或FTP"
+
+#~ msgid "Error: Checkout Failed."
+#~ msgstr "错误：结帐失败。"
+
+#~ msgid ""
+#~ "Unable to locate job in database, please ensure that mac address is "
+#~ "correct."
+#~ msgstr "在数据库中无法找到工作，请确保 MAC地址是正确的。"
+
+#~ msgid "Error: Unable to remove TFTP file"
+#~ msgstr "错误：无法删除使用TFTP文件"
+
+#~ msgid "No Storage servers are in this cluster!"
+#~ msgstr "没有存储在服务器这一组！"
+
+#~ msgid "Unable to locate a valid job ID number."
+#~ msgstr "无法找到一个有效的工作编号。"
+
+#~ msgid "invalid entry count"
+#~ msgstr "无效的条目数"
+
+#~ msgid "Host not found!"
+#~ msgstr "找不到主机！"
+
+#~ msgid "Mobile"
+#~ msgstr "手机"
+
+#~ msgid "Tag 1"
+#~ msgstr "标签1"
+
+#~ msgid "Tag 2"
+#~ msgstr "标签12"
+
+#~ msgid "No Results Found"
+#~ msgstr "找不到结果"
+
+#~ msgid "Search for Host"
+#~ msgstr "搜索主机"
+
+#~ msgid "Tasks Menu"
+#~ msgstr "任务菜单"
+
+#~ msgid "Unable to delete PXE file."
+#~ msgstr "无法删除PXE的文件。"
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157

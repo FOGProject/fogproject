@@ -1,5 +1,0 @@
-obj\Release\ResolveAssemblyReference.cache
-bin\Release\MODDebug.dll
-bin\Release\AbstractFOGService.dll
-bin\Release\IniReaderObj.dll
-obj\Release\MODDebug.dll

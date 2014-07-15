@@ -1,6 +1,10 @@
 #
 # Automatically generated file; DO NOT EDIT.
+<<<<<<< HEAD
 # Linux/i386 3.15.2 Kernel Configuration
+=======
+# Linux/i386 3.15.5 Kernel Configuration
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 #
 # CONFIG_64BIT is not set
 CONFIG_X86_32=y
@@ -1125,7 +1129,14 @@ CONFIG_NET_VENDOR_DEC=y
 CONFIG_NET_TULIP=y
 CONFIG_DE2104X=y
 CONFIG_DE2104X_DSL=0
+<<<<<<< HEAD
 # CONFIG_TULIP is not set
+=======
+CONFIG_TULIP=y
+CONFIG_TULIP_MWI=y
+CONFIG_TULIP_MMIO=y
+# CONFIG_TULIP_NAPI is not set
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 CONFIG_DE4X5=y
 CONFIG_WINBOND_840=y
 CONFIG_DM9102=y
@@ -1829,9 +1840,15 @@ CONFIG_LPC_SCH=y
 # Frame buffer Devices
 #
 CONFIG_FB=y
+<<<<<<< HEAD
 # CONFIG_FIRMWARE_EDID is not set
 # CONFIG_FB_DDC is not set
 # CONFIG_FB_BOOT_VESA_SUPPORT is not set
+=======
+CONFIG_FIRMWARE_EDID=y
+# CONFIG_FB_DDC is not set
+CONFIG_FB_BOOT_VESA_SUPPORT=y
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 CONFIG_FB_CFB_FILLRECT=y
 CONFIG_FB_CFB_COPYAREA=y
 CONFIG_FB_CFB_IMAGEBLIT=y
@@ -1857,7 +1874,11 @@ CONFIG_FB_CFB_IMAGEBLIT=y
 # CONFIG_FB_ASILIANT is not set
 # CONFIG_FB_IMSTT is not set
 # CONFIG_FB_VGA16 is not set
+<<<<<<< HEAD
 # CONFIG_FB_VESA is not set
+=======
+CONFIG_FB_VESA=y
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 CONFIG_FB_EFI=y
 # CONFIG_FB_N411 is not set
 # CONFIG_FB_HGA is not set

@@ -172,6 +172,10 @@ class HostManagementPage extends FOGPage
 			_('Host Name') => '<input type="text" name="host" value="${host_name}" maxlength="15" class="hostname-input" />*',
 			_('Primary MAC') => '<input type="text" id="mac" name="mac" value="${host_mac}" />* <span id="priMaker></span><span class="icon icon-add add-mac hand" title="'._('Add Mac').'"></span><span class="mac-manufactor"></span>',
 			_('Host Description') => '<textarea name="description" rows="8" cols="40">${host_desc}</textarea>',
+<<<<<<< HEAD
+=======
+			_('Host Product Key') => '<input id="productKey" type="text" name="key" value="${host_key}" />',
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			_('Host Image') => '${host_image}',
 			($LocPluginInst ? _('Host Location') : '') => ($LocPluginInst ? '${host_locs}' : ''),
 			_('Host Kernel') => '<input type="text" name="kern" value="${host_kern}" />',
@@ -200,6 +204,10 @@ class HostManagementPage extends FOGPage
 				'host_kern' => $_REQUEST['kern'],
 				'host_args' => $_REQUEST['args'],
 				'host_devs' => $_REQUEST['dev'],
+<<<<<<< HEAD
+=======
+				'host_key' => $_REQUEST['key'],
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 				'host_locs' => ($LocPluginInst ? $this->FOGCore->getClass('LocationManager')->buildSelectBox($_REQUEST['location']) : ''),
 			);
 		}
@@ -213,7 +221,12 @@ class HostManagementPage extends FOGPage
 		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
 		foreach ((array)$OUs AS $OU)
 			$OUOptions[] = $OU;
+<<<<<<< HEAD
 		if ($OUOptions)
+=======
+		$OUOptions = array_filter($OUOptions);
+		if (count($OUOptions) > 1)
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		{
 			$OUs = array_unique((array)$OUOptions);
 			$optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
@@ -222,7 +235,14 @@ class HostManagementPage extends FOGPage
 				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
 				$optionOU[] = '<option value="'.$opt.'"'.($_REQUEST['ou'] == $opt ? ' selected="selected"' : (preg_match('#;#i',$OU) ? ' selected="selected"' : '')).'>'.$opt.'</option>';
 			}
+<<<<<<< HEAD
 		}
+=======
+			$OUOptions = '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>';
+		}
+		else
+			$OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" value="${ad_ou}" autocomplete="off" />';
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		foreach ((array)$fieldsad AS $field => $input)
 		{
 			$this->data[] = array(
@@ -282,7 +302,12 @@ class HostManagementPage extends FOGPage
 				'ADDomain'	=> $_POST['domainname'],
 				'ADOU'		=> $_POST['ou'],
 				'ADUser'	=> $_POST['domainuser'],
+<<<<<<< HEAD
 				'ADPass'	=> $_POST['domainpassword']
+=======
+				'ADPass'	=> $_POST['domainpassword'],
+				'productKey' => base64_encode($_POST['key']),
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			));
 			$Host->addModule($ModuleIDs);
 			if ($LocPluginInst && $LocPluginInst->isValid())
@@ -392,6 +417,10 @@ class HostManagementPage extends FOGPage
 			'<span id="additionalMACsRow">'._('Additional MACs').'</span>' => '<span id="additionalMACsCell">'.$addMACs.'</span>',
 			($Host->get('pendingMACs') ? _('Pending MACs') : null) => ($Host->get('pendingMACs') ? $pending : null),
 			_('Host Description') => '<textarea name="description" rows="8" cols="40">${host_desc}</textarea>',
+<<<<<<< HEAD
+=======
+			_('Host Product Key') => '<input id="productKey" type="text" name="key" value="${host_key}" />',
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			_('Host Image') => '${host_image}',
 			($LocPluginInst ? _('Host Location') : '') => ($LocPluginInst ? '${host_locs}' : ''),
 			_('Host Kernel') => '<input type="text" name="kern" value="${host_kern}" />',
@@ -418,6 +447,10 @@ class HostManagementPage extends FOGPage
 				'host_kern' => $Host->get('kernel'),
 				'host_args' => $Host->get('kernelArgs'),
 				'host_devs' => $Host->get('kernelDevice'),
+<<<<<<< HEAD
+=======
+				'host_key' => base64_decode($Host->get('productKey')),
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			);
 		}
 		// Hook
@@ -564,7 +597,12 @@ class HostManagementPage extends FOGPage
 		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
 		foreach ((array)$OUs AS $OU)
 			$OUOptions[] = $OU;
+<<<<<<< HEAD
 		if ($OUOptions)
+=======
+		$OUOptions = array_filter($OUOptions);
+		if (count($OUOptions) > 1)
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		{
 			$OUs = array_unique((array)$OUOptions);
 			$optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
@@ -573,7 +611,14 @@ class HostManagementPage extends FOGPage
 				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
 				$optionOU[] = '<option value="'.$opt.'"'.($Host->get('ADOU') == $opt ? ' selected="selected"' : (preg_match('#;#i',$OU) ? ' selected="selected"' : '')).'>'.$opt.'</option>';
 			}
+<<<<<<< HEAD
 		}
+=======
+			$OUOptions = '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>';
+		}
+		else
+			$OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" value="${ad_ou}" autocomplete="off" />';
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
@@ -581,7 +626,12 @@ class HostManagementPage extends FOGPage
 				'input' => $input,
 				'domainon' => ($Host->get('useAD') == '1' ? 'checked="checked"' : ''),
 				'host_dom' => $Host->get('ADDomain'),
+<<<<<<< HEAD
 				'host_ou' => '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>',
+=======
+				'host_ou' => $OUOptions,
+				'ad_ou' => $Host->get('ADOU'),
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 				'host_aduser' => $Host->get('ADUser'),
 				'host_adpass' => $Host->get('ADPass'),
 			);
@@ -1089,7 +1139,12 @@ class HostManagementPage extends FOGPage
 							->set('imageID',	$_POST['image'])
 							->set('kernel',		$_POST['kern'])
 							->set('kernelArgs',	$_POST['args'])
+<<<<<<< HEAD
 							->set('kernelDevice',	$_POST['dev']);
+=======
+							->set('kernelDevice',	$_POST['dev'])
+							->set('productKey', base64_encode($_POST['key']));
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 					// Add Additional MAC Addresses
 					foreach((array)$_POST['additionalMACs'] AS $MAC)
 					{

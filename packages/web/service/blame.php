@@ -11,7 +11,11 @@ function getAllBlamedNodes($taskid,$hostid)
 		if ($DateTime->format('Y-m-d H:i:s') >= $DateInterval->format('Y-m-d H:i:s'))
 		{
 			$node = $NodeFailure->get('id');
+<<<<<<< HEAD
 			if (!in_array($node,$nodeRet))
+=======
+			if (!in_array($node,(array)$nodeRet))
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 				$nodeRet[] = $node;
 		}
 		else
@@ -23,8 +27,12 @@ try
 {
 	// Get the MAC
 	$MACAddress = new MACAddress($_REQUEST['mac']);
+<<<<<<< HEAD
 	if (!$MACAddress->isValid())
 		throw new Exception(_('Invalid MAC address'));
+=======
+	if (!$MACAddress->isValid()) throw new Exception($foglang['InvalidMAC']);
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	// Get the host
 	$Host = $MACAddress->getHost();
 	if (!$Host->isValid())

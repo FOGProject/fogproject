@@ -9,6 +9,7 @@ class Image extends FOGController
 	
 	// Name -> Database field name
 	public $databaseFields = array(
+<<<<<<< HEAD
 		'id'		=> 'imageID',
 		'name'		=> 'imageName',
 		'description'	=> 'imageDesc',
@@ -23,6 +24,23 @@ class Image extends FOGController
 		'size'		=> 'imageSize', 
 		'deployed'	=> 'imageLastDeploy',
 		'format'        => 'imageFormat',
+=======
+		'id' => 'imageID',
+		'name' => 'imageName',
+		'description' => 'imageDesc',
+		'path' => 'imagePath',
+		'createdTime' => 'imageDateTime',
+		'createdBy' => 'imageCreateBy',
+		'building' => 'imageBuilding',
+		'size' => 'imageSize',
+		'imageTypeID' => 'imageTypeID',
+		'storageGroupID' => 'imageNFSGroupID',
+		'osID' => 'imageOSID',
+		'size' => 'imageSize', 
+		'deployed' => 'imageLastDeploy',
+		'format' => 'imageFormat',
+		'magnet' => 'imageMagnetUri',
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	);
 
 	// Additional Fields

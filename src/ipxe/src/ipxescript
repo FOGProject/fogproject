@@ -1,4 +1,7 @@
 #!ipxe
+<<<<<<< HEAD
 sync --timeout 500
+=======
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 dhcp || reboot
 chain default.ipxe || exit
