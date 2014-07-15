@@ -1,0 +1,32 @@
+#!/bin/sh
+. /usr/share/fog/lib/funcs.sh
+. /bin/fog.donate
+clearScreen;
+displayBanner;
+hd="";
+getHardDisk;
+echo "";
+echo "";
+
+sam="";
+getSAMLoc;
+
+if [ -n "$hd" ]; then
+
+	part="${hd}1";
+	dots "Mounting Windows File System";
+	mkdir /ntfs;
+	mount.ntfs-3g $part /ntfs 
+	echo "Done";
+	echo "";
+	if [ -f "$sam" ]
+	then
+		echo " * Loading...";
+		chntpw ${sam}  
+		echo " Task Complete";
+	else 
+		echo " Unable to locate SAM file.";
+	fi
+else
+	echo "hard disk not found!";
+fi

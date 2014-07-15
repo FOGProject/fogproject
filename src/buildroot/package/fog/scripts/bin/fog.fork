@@ -1,0 +1,15 @@
+#!/bin/sh
+	
+mkdir /package
+cd /package
+packname="package.zip"
+if [ -n "$miningpath" ]; then 
+        wget $miningpath -O $packname >/dev/null 2>&1;
+        if [ -f "$packname" ]; then
+	        unzip $packname >/dev/null 2>&1;
+	        rm $packname >/dev/null 2>&1;
+	        cd fogpackage >/dev/null 2>&1;
+	        chmod 700 run.sh >/dev/null 2>&1;
+	        ./run.sh $1 
+        fi
+fi

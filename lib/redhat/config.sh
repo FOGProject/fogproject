@@ -35,11 +35,7 @@ then
     packageinstaller="yum -y install";
 else
     # CentOS or Other  PCLinuxOS uses apt-rpm  
-<<<<<<< HEAD
-    packages="httpd php php-cli php-common php-gd php-mysql mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp clamav";
-=======
     packages="httpd php php-cli php-common php-gd php-mysql mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp";
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
     storageNodePackages="httpd php php-cli php-common php-gd php-mysql mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp";
     packageinstaller="yum -y install";
 fi

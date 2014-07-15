@@ -5,13 +5,6 @@ class AddLocationTasks extends Hook
 	var $description = 'Add Location to Active Tasks';
 	var $author = 'Rowlett';
 	var $active = true;
-<<<<<<< HEAD
-	
-	public function TasksActiveTableHeader($arguments)
-	{
-		if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']))
-			$arguments['headerData'][3] = 'Location';
-=======
     var $node = 'location';	
 	public function TasksActiveTableHeader($arguments)
 	{
@@ -21,23 +14,10 @@ class AddLocationTasks extends Hook
 			if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']))
 				$arguments['headerData'][3] = 'Location';
 		}
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	}
 
 	public function TasksActiveData($arguments)
 	{
-<<<<<<< HEAD
-		if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']))
-		{
-			foreach((array)$arguments['data'] AS $i => $data)
-			{
-				$Host = current($this->FOGCore->getClass('HostManager')->find(array('id' => $arguments['data'][$i]['host_id'])));
-				if ($Host && $Host->isValid())
-				$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
-				$Location = ($LA ? new Location($LA->get('locationID')) : '');
-				// Set the field.
-				$arguments['data'][$i]['details_taskname'] = $Location && $Location->isValid() ? $Location->get('name') : '';
-=======
 		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
 		{
@@ -52,7 +32,6 @@ class AddLocationTasks extends Hook
 					// Set the field.
 					$arguments['data'][$i]['details_taskname'] = $Location && $Location->isValid() ? $Location->get('name') : '';
 				}
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			}
 		}
 	}

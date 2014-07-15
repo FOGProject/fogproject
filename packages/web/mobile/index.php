@@ -5,23 +5,14 @@ require_once('../commons/base.inc.php');
 if (IS_INCLUDED !== true) die($foglang['NoLoad']);
 // User session data
 $currentUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
-<<<<<<< HEAD
-$MainMenu = new Mainmenu($currentUser);
-=======
 $MainMenu = new Mainmenu();
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 // Process Login
 $FOGCore->getClass('ProcessLogin')->processMobileLogin();
 // Login form + logout
 if($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn())
 {
-<<<<<<< HEAD
-	// Hook
-	$HookManager->processEvent('LOGOUT', array('user' => &$currentUser));
-=======
 	@session_write_close();
 	@session_regenerate_id(true);
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	// Logout
 	if(method_exists($currentUser, 'logout'))
 		$currentUser->logout();
@@ -40,10 +31,6 @@ if ($node != 'logout')
 $sectionTitle = $FOGPageManager->getFOGPageName();
 // Page Title - should be set after page has been rendered
 $pageTitle = $FOGPageManager->getFOGPageTitle();
-<<<<<<< HEAD
-$HookManager->processEvent('CONTENT_DISPLAY',array('content' => &$content,'sectionTitle' => &$sectionTitle,'pageTitle' => &$pageTitle));
-=======
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
@@ -57,12 +44,8 @@ print "\n<body>";
 print "\n\t".'<div id="mainContainer">';
 print "\n\t\t".'<div id="header"></div>';
 print "\n\t\t".'<div class="mainContent">';
-<<<<<<< HEAD
-print $MainMenu->mainMenu();
-=======
 if ($currentUser && $currentUser->isLoggedIn())
 	$MainMenu->mainMenu();
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 if ($FOGPageManager->isFOGPageTitleEnabled())
 	print "\n\t\t\t\t<h2>".$FOGPageManager->getFOGPageTitle().'</h2>';
 print "\n\t\t\t".'<div id="mobile_content">';

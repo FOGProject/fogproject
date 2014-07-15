@@ -50,18 +50,9 @@ elif [ "$mode" == "clamav" ]; then
 elif [ "$mode" == "autoreg" ]; then
 	run="/bin/fog.auto.reg";
 	after=$afterActionTerm;
-<<<<<<< HEAD
-elif [ "$mode" == "delreg" ]; then
-	run="/bin/fog.auto.del";
-	after=$afterActionTerm;
-elif [ "$mode" == "manreg" ]; then
-	run="/bin/fog.man.reg";
-	after=$afterActionTerm;		
-=======
 elif [ "$mode" == "manreg" ]; then
 	run="/bin/fog.man.reg";
 	after=$afterActionTerm;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 elif [ "$mode" == "capone" ]; then
 	run="/bin/fog.capone";
 	after=$afterActionTerm;

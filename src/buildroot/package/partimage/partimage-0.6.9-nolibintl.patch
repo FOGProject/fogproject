@@ -1,0 +1,28 @@
+diff -pruN partimage-0.6.9/src/client/partimage.h partimage-0.6.9.new/src/client/partimage.h
+--- partimage-0.6.9/src/client/partimage.h	2010-07-25 10:30:31.000000000 -0500
++++ partimage-0.6.9.new/src/client/partimage.h	2010-12-02 10:40:36.938076907 -0600
+@@ -19,7 +19,9 @@
+ #define PARTIMAGE_H
+ 
+ #include <errno.h>
++#ifndef __UCLIBC__
+ #include <libintl.h> // intl translation
++#endif
+ #include <stdio.h>
+ #include <stdint.h>
+ #include <time.h>
+@@ -76,10 +78,12 @@ extern CInterface *g_interface;
+ extern bool g_bSigInt;
+ extern bool g_bSigKill;
+ 
+-#ifdef OS_LINUX
++#if defined OS_LINUX && !defined __UCLIBC__
+   #define i18n(X)	gettext(X)
+ #else
+-  #define i18n(X) (X)
++  #define i18n(X) (char*)(X)
++  #define bindtextdomain(X, Y)
++  #define textdomain(X)
+ #endif
+ 
+ #define my_min(a,b) ((a) < (b) ? (a) : (b))
