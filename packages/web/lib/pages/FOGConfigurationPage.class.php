@@ -173,6 +173,7 @@ class FOGConfigurationPage extends FOGPage
 		$fields = array(
 			_('No Menu') => '<input type="checkbox" name="nomenu" ${noMenu} value="1" /><span class="icon icon-help hand" title="Option sets if there will even be the presence of a menu to the client systems.  If there is not a task set, it boots to the first device, if there is a task, it performs that task."></span>',
 			_('Hide Menu') => '<input type="checkbox" name="hidemenu" ${checked} value="1" /><span class="icon icon-help hand" title="Option below sets the key sequence.  If none is specified, ESC is defaulted. Login with the FOG credentials and you will see the menu.  Otherwise it will just boot like normal."></span>',
+			_('Advanced Menu Login') => '<input type="checkbox" name="advmenulogin" ${advmenulogincheck} value="1" /><span class="icon icon-help hand" title="Option below enforces a Login system for the Advanced menu parameters.  If off no login will appear, if on, it will only allow login to the advanced system.."></span>',
 			_('Boot Key Sequence') => '${boot_keys}',
 			_('Menu Timeout (in seconds)').':*' => '<input type="text" name="timeout" value="${timeout}" id="timeout" />',
 			_('Exit to Hard Drive Type') => '<select name="bootTypeExit"><option value="sanboot" '.($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'sanboot' ? 'selected="selected"' : '').'>Sanboot style</option><option value="exit" '.($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'selected="selected"' : '').'>Exit style</option><option value="grub" '.($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'grub' ? 'selected="selected"' : '').'>Grub style</option></select>',
@@ -189,6 +190,8 @@ class FOGConfigurationPage extends FOGPage
 				'boot_keys' => $this->FOGCore->getClass('KeySequenceManager')->buildSelectBox($this->FOGCore->getSetting('FOG_KEY_SEQUENCE')),
 				'timeout' => $this->FOGCore->getSetting('FOG_PXE_MENU_TIMEOUT'),
 				'adv' => $this->FOGCore->getSetting('FOG_PXE_ADVANCED'),
+				'advmenulogin' => $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN'),
+				'advmenulogincheck' => $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN') ? 'checked="checked"' : '',
 				'noMenu' => ($this->FOGCore->getSetting('FOG_NO_MENU') ? 'checked="checked"' : ''),
 			);
 		}
@@ -462,6 +465,7 @@ class FOGConfigurationPage extends FOGPage
 			'FOG_MINING_ENABLE',
 			'FOG_MINING_FULL_RUN_ON_WEEKEND',
 			'FOG_ALWAYS_LOGGED_IN',
+			'FOG_ADVANCED_MENU_LOGIN',
 		);
 		// Set title
 		$this->title = _("FOG System Settings");
