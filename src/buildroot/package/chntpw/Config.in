@@ -1,0 +1,5 @@
+config BR2_PACKAGE_CHNTPW
+	bool "CHNTPW - Offline NT Password Editor"
+	select BR2_PACKAGE_OPENSSL
+	help
+	  NT Password reset utility.

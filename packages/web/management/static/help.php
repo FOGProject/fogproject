@@ -1,10 +1,6 @@
 <?php
-<<<<<<< HEAD
-session_start();
-=======
 @session_set_cookie_params(0);
 @session_start();
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 (!isset($_SESSION['locale']) ? $_SESSION['locale'] = 'en_US' : null);
 putenv("LC_ALL=".$_SESSION['locale']);
 setlocale(LC_ALL, $_SESSION['locale']);
@@ -26,8 +22,5 @@ print "\n\t\t</p>";
 print "\n\t</div>";
 print "\n</body>";
 print "\n</html>";
-<<<<<<< HEAD
-=======
 @session_write_close();
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 ob_end_flush();

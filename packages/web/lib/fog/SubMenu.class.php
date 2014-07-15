@@ -2,10 +2,6 @@
 class SubMenu extends FOGBase
 {
 	private $node, $id, $name, $object, $title, $FOGSubMenu, $subMenu;
-<<<<<<< HEAD
-	
-=======
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	public function __construct()
 	{
 		parent::__construct();
@@ -40,17 +36,11 @@ class SubMenu extends FOGBase
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Image']);
 			$this->object = new Image($_GET['id']);
-<<<<<<< HEAD
-			$this->title = array($this->foglang['Images'] => $this->object->get('name'),
-								_('Last Uploaded') => stripslashes($this->object->get('deployed')),
-								_('Deploy Method') => ($this->object->get('format') == 1 ? 'Partimage' : ($this->object->get('format') == 0 ? 'Partclone' : 'N/A')),
-=======
 			$imageType = $this->object->get('imageTypeID') ? new ImageType($this->object->get('imageTypeID')) : null;
 			$this->title = array($this->foglang['Images'] => $this->object->get('name'),
 								_('Last Uploaded') => stripslashes($this->object->get('deployed')),
 								_('Deploy Method') => ($this->object->get('format') == 1 ? 'Partimage' : ($this->object->get('format') == 0 ? 'Partclone' : 'N/A')),
 								_('Image Type') => ($imageType && $imageType->isValid() ? $imageType->get('name') : _('Not Available')),
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			);
 		}
 		else if (($this->node == 'printer' || $this->node == 'print') && $_GET['id'])
@@ -362,11 +352,7 @@ class SubMenu extends FOGBase
 	public function buildMenu()
 	{
 		$this->buildMenuLinks();
-<<<<<<< HEAD
-		if ($this->FOGUser != null && $this->FOGUser->isLoggedIn())
-=======
 		if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn())
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			$this->buildMenuStruct();
 	}
 }

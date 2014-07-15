@@ -56,11 +56,7 @@ fogutilsdir="${fogprogramdir}/utils";
 fogutilsdirsrc="../packages/utils";
 
 # what version are we working with?
-<<<<<<< HEAD
-version="1.1.2";
-=======
 version="1.2.0";
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 
 # what is the schema version
 schemaversion="23";

@@ -367,9 +367,6 @@ namespace FOG
                                         String strOU = arData[3];
                                         String strU = arData[4];
                                         String strP = arData[5];
-<<<<<<< HEAD
-
-=======
 										String strKey = arData[6];
 										if (strKey != null)
 										{
@@ -390,7 +387,6 @@ namespace FOG
 												scriptProc.Close();
 											}
 										}
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
                                         if (strUseAD != null)
                                         {
                                             strUseAD = strUseAD.Trim();

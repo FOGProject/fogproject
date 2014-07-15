@@ -1,0 +1,5 @@
+obj\Release\ResolveAssemblyReference.cache
+bin\Release\NamedPipes.dll
+bin\Release\AbstractFOGService.dll
+bin\Release\IniReaderObj.dll
+obj\Release\NamedPipes.dll

@@ -1,11 +1,6 @@
 #!/bin/sh
-<<<<<<< HEAD
-. /usr/share/fog/lib/funcs.sh
-. /bin/fog.donate
-=======
 . /usr/share/fog/lib/funcs.sh;
 . /bin/fog.donate;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 for arg in `cat /proc/cmdline`; do
     case "$arg" in
 	initsh)
@@ -17,12 +12,7 @@ for arg in `cat /proc/cmdline`; do
 done
 lookAtMe()
 {
-<<<<<<< HEAD
-	while true
-	do
-=======
 	while true; do
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		clear;
 		echo "";
 		echo " #############################################################################";
@@ -46,30 +36,16 @@ lookAtMe()
 		echo "";
 		sleep 5;
 		strwhite="";
-<<<<<<< HEAD
-		for i in $(seq 0 99);
-		do
-			for z in $(seq 0 99);
-			do
-=======
 		for i in $(seq 0 99); do
 			for z in $(seq 0 99); do
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 				strwhite="${strwhite}#";
 			done
 		done
 		echo $strwhite;
 		sleep 1;
 		strblack="";
-<<<<<<< HEAD
-		for i in $(seq 0 99);
-		do
-			for z in $(seq 0 99);
-			do
-=======
 		for i in $(seq 0 99); do
 			for z in $(seq 0 99); do
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 				strblack="${strblack} ";
 			done
 		done
@@ -84,18 +60,6 @@ lookAtMe()
 export capone="1";
 clear;
 displayBanner;
-<<<<<<< HEAD
-setupDNS ${dns}
-echo " * Loading Capone...";	
-echo
-dots "Looking up DMI field";	
-dmi="";
-while [ "$dmi" = "" ]; do
-	dmi=`wget -O - "http://${web}service/capone.php?action=dmi" 2>/dev/null`
-	sleep 2;
-done	
-echo "Done";	
-=======
 setupDNS ${dns};
 echo " * Loading Capone...";	
 echo;
@@ -106,25 +70,16 @@ while [ "$dmi" = "" ]; do
 	sleep 2;
 done	
 echo "Done";
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 dmivalue=`dmidecode -s "${dmi}"`;
 echo "";
 echo " * Using Key Value: ${dmivalue}";
 echo "";
 sleep 1;
-<<<<<<< HEAD
-dmi64=`echo $dmivalue | base64`
-dots "Looking for images";	
-img="";
-while [ "$img" = "" ]; do
-	img=`wget -O - "http://${web}service/capone.php?action=imagelookup&key=${dmi64}" 2>/dev/null`
-=======
 dmi64=`echo $dmivalue | base64`;
 dots "Looking for images";
 img="";
 while [ "$img" = "" ]; do
 	img=`wget -O - "http://${web}service/capone.php?action=imagelookup&key=${dmi64}" 2>/dev/null`;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	sleep 2;
 done	
 echo "Done";
@@ -134,17 +89,9 @@ IFS="
 cnt=0;
 linedecode="";
 echo "";
-<<<<<<< HEAD
-for line in $img
-do		
-	linedecode=`echo "$line" | base64 -d `
-	if [ "$linedecode" = "null" ]
-	then
-=======
 for line in $img; do
 	linedecode=`echo "$line" | base64 -d `;
 	if [ "$linedecode" = "null" ]; then
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		lookAtMe "No image definition was found for $dmivalue";
 	fi
 	cnt=`expr $cnt + 1`;
@@ -156,47 +103,20 @@ for line in $img; do
 	sleep 1;
 done
 echo "";
-<<<<<<< HEAD
-if [ "$cnt" = "1" ]
-then
-=======
 if [ "$cnt" = "1" ]; then
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	img=`echo $linedecode | awk -F"|" '{ print $1 }'`;
 	osid=`echo $linedecode | awk -F"|" '{ print $2 }'`;
 	imgType=`echo $linedecode | awk -F"|" '{ print $3 }'`;
 	determineOS $osid;
-<<<<<<< HEAD
-elif [ "$cnt" = "0" ]
-then
-	lookAtMe "No image definition was found for $dmivalue";
-else
-	imgchoice="";
-	while [ "$imgchoice" = "" ]
-	do
-=======
 elif [ "$cnt" = "0" ]; then
 	lookAtMe "No image definition was found for $dmivalue";
 else
 	imgchoice="";
 	while [ "$imgchoice" = "" ]; do
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		echo -n " Multiple images found, please select an image #: ";
 		read imgchoice;
 	done
 	cnt=0;
-<<<<<<< HEAD
-	for line in $img
-	do		
-		linedecode=`echo "$line" | base64 -d`
-		cnt=`expr $cnt + 1`;
-		if [ "$cnt" = "$imgchoice" ]
-		then
-			img=`echo $linedecode | awk -F"|" '{ print $1 }'`;
-			osid=`echo $linedecode | awk -F"|" '{ print $2 }'`;
-			imgType=`echo $linedecode | awk -F"|" '{ print $3 }'`;
-			determineOS $osid;				
-=======
 	for line in $img; do		
 		linedecode=`echo "$line" | base64 -d`
 		cnt=`expr $cnt + 1`;
@@ -205,7 +125,6 @@ else
 			osid=`echo $linedecode | awk -F"|" '{ print $2 }'`;
 			imgType=`echo $linedecode | awk -F"|" '{ print $3 }'`;
 			determineOS $osid;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			break;
 		fi
 	done
@@ -213,19 +132,11 @@ fi
 IFS=$oIFS;
 echo "";
 dots "Setting up environment to deploy image";
-<<<<<<< HEAD
-export type=down 
-=======
 export type="down";
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 export mac="00:00:00:00:00:00";					# Not important for Capone
 export img;
 export osid;
 export imgType;
 sleep 2;
 clear;
-<<<<<<< HEAD
-fog
-=======
 fog;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157

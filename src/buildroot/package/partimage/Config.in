@@ -1,0 +1,14 @@
+config BR2_PACKAGE_PARTIMAGE
+	bool "partimage"
+	select BR2_PACKAGE_NTFS_3G_NTFSPROGS
+    select BR2_PACKAGE_E2FSPROGS
+	select BR2_PACKAGE_READLINE
+	select BR2_PACKAGE_UTIL_LINUX
+	select BR2_PACKAGE_UTIL_LINUX_LIBUUID
+	help
+	  partimage, the GNU partition resizing program
+
+	  http://www.partimage.org/Main_Page
+
+comment "partimage requires a toolchain with LARGEFILE+WCHAR support"
+        depends on !(BR2_LARGEFILE && BR2_USE_WCHAR)

@@ -1,18 +1,4 @@
 #!/bin/sh
-<<<<<<< HEAD
-
-REG_LOCAL_MACHINE_XP="/ntfs/WINDOWS/system32/config/system"
-REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
-REG_HOSTNAME_KEY1_XP="\ControlSet001\Services\Tcpip\Parameters\NV Hostname"
-REG_HOSTNAME_KEY2_XP="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
-REG_HOSTNAME_KEY1_7="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
-REG_HOSTNAME_KEY2_7="\ControlSet001\Control\ComputerName\ComputerName\ComputerName"
-REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
-
-#If a sub shell gets involked and we lose kernel vars this will reimport them
-$(for var in $(cat /proc/cmdline); do echo export $var | grep =; done)
-
-=======
 . /usr/share/fog/lib/partition-funcs.sh
 REG_LOCAL_MACHINE_XP="/ntfs/WINDOWS/system32/config/system"
 REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
@@ -29,7 +15,6 @@ REG_HOSTNAME_KEY5_7="\ControlSet001\services\Tcpip\Parameters\Hostname"
 REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
 #If a sub shell gets involked and we lose kernel vars this will reimport them
 $(for var in $(cat /proc/cmdline); do echo export $var | grep =; done)
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 dots() 
 {
     max=45
@@ -46,20 +31,11 @@ dots()
         fi
     fi
 }
-<<<<<<< HEAD
-
-# $1 is the drive
-enableWriteCache() 
-{
-        if [ -n "$1" ]; then
-                dots "Checking write caching status on HDD";
-=======
 # $1 is the drive
 enableWriteCache() 
 {
 	if [ -n "$1" ]; then
 		dots "Checking write caching status on HDD";
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		wcache=$(hdparm -i $1 2>/dev/null|sed '/WriteCache=/!d; s/^.*WriteCache=//; s/ .*$//');
 		if [ "$wcache" == "enabled" ]; then
 			echo "OK";
@@ -69,38 +45,6 @@ enableWriteCache()
 		else
 			echo "Unknown status $wcache";
 		fi
-<<<<<<< HEAD
-        fi
-}
-
-# $1 is the partition
-expandPartition() 
-{
-    if [ -n "$1" ]; then
-        dots "Resizing ntfs volume ($part)";
-	ntfsresize $1 -f -b -P &>/dev/null << EOFNTFSRESTORE
-Y
-EOFNTFSRESTORE
-	echo "Done";   
-
-	resetFlag $1
-    fi
-}
-
-# $1 is the part
-resetFlag() 
-{
-        if [ -n "$1" ]; then
-                dots "Clearing ntfs flag";	
-	        fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
-	        if [ "$fstype" == "ntfs" ]; then
-		        ntfsfix -b -d $1 &>/dev/null
-	        fi
-	        echo "Done"; 
-	fi
-}
-
-=======
 	fi
 }
 # $1 is the partition
@@ -349,7 +293,6 @@ countExtfs()
 	fi
 	echo $count;
 }
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 
 setupDNS()
 {
@@ -362,14 +305,10 @@ writeImage()
 {
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-<<<<<<< HEAD
-		partimage restore $2 $1 -f3 -b 2>/tmp/status.fog
-=======
 		mkfifo /tmp/pigz1;
 		cat $1 > /tmp/pigz1 &
 		gunzip -d -c < /tmp/pigz1 | partimage restore $2 stdin -f3 -b 2>/tmp/status.fog;
 		rm /tmp/pigz1;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	else 
 		# partclone
 		mkfifo /tmp/pigz1;
@@ -384,11 +323,7 @@ writeImageMultiCast()
 {
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-<<<<<<< HEAD
-		udp-receiver --nokbd --portbase ${port} --mcast-rdv-address ${storageip} 2>/dev/null | gunzip -d -c | partimage -f3 -b restore $1 stdin 2>/tmp/status.fog;
-=======
 		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partimage -f3 -b restore $hd stdin 2>/tmp/status.fog;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	else 
 		# partclone
 		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;
@@ -397,12 +332,7 @@ writeImageMultiCast()
 
 changeHostname()
 {
-<<<<<<< HEAD
-	if [ "$hostearly" == "1" ]
-	then
-=======
 	if [ "$hostearly" == "1" ]; then
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		dots "Changing hostname";
 		mkdir /ntfs &>/dev/null
 		ntfs-3g -o force,rw $part /ntfs &> /tmp/ntfs-mount-output
@@ -413,37 +343,28 @@ changeHostname()
 			regfile=$REG_LOCAL_MACHINE_7
 			key1=$REG_HOSTNAME_KEY1_7
 			key2=$REG_HOSTNAME_KEY2_7
-<<<<<<< HEAD
-=======
 			key3=$REG_HOSTNAME_KEY3_7
 			key4=$REG_HOSTNAME_KEY4_7
 			key5=$REG_HOSTNAME_KEY5_7
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		elif [ "$osid" = "1" ];	then
 			regfile=$REG_LOCAL_MACHINE_XP
 			key1=$REG_HOSTNAME_KEY1_XP
 			key2=$REG_HOSTNAME_KEY2_XP
-<<<<<<< HEAD
-=======
 			key3=$REG_HOSTNAME_KEY3_XP
 			key4=$REG_HOSTNAME_KEY4_XP
 			key5=$REG_HOSTNAME_KEY5_XP
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		fi
 		reged -e $regfile &>/dev/null <<EOFREG
 ed $key1
 $hostname
 ed $key2
 $hostname
-<<<<<<< HEAD
-=======
 ed $key3
 $hostname
 ed $key4
 $hostname
 ed $key5
 $hostname
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 q
 y
 EOFREG
@@ -456,11 +377,7 @@ fixWin7boot()
 {
 	dots "Backing up and replacing BCD";
 	mkdir /bcdstore &>/dev/null;
-<<<<<<< HEAD
-	ntfs-3g -o force,rw $part /bcdstore &> /tmp/bcdstore-mount-output;
-=======
 	ntfs-3g -o force,rw $1 /bcdstore &> /tmp/bcdstore-mount-output;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	mv /bcdstore/Boot/BCD /bcdstore/Boot/BCD.bak;
 	cp /usr/share/fog/BCD /bcdstore/Boot/BCD;
 	umount /bcdstore;
@@ -470,12 +387,7 @@ fixWin7boot()
 clearMountedDevices()
 {
 	mkdir /ntfs &>/dev/null
-<<<<<<< HEAD
-	if [ "$osid" = "5" ] || [ "$osid" = "6" ] || [ "$osid" = "7" ]
-	then
-=======
 	if [ "$osid" = "5" ] || [ "$osid" = "6" ] || [ "$osid" = "7" ]; then
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		dots "Clearing mounted devices";
 		ntfs-3g -o force,rw $win7sys /ntfs
 		reged -e "$REG_LOCAL_MACHINE_7" &>/dev/null  <<EOFMOUNT
@@ -488,8 +400,6 @@ EOFMOUNT
 		umount /ntfs
 	fi
 }
-<<<<<<< HEAD
-=======
 # $1 is the device name of the windows system partition
 removePageFile()
 {
@@ -520,7 +430,6 @@ removePageFile()
 		fi
 	fi
 }
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 
 doInventory()
 {
@@ -586,27 +495,6 @@ determineOS()
 			mbrfile="";
 		elif [ "$1" = "4" ]; then
 			osname="Windows (Other)";
-<<<<<<< HEAD
-			mbrfile="";	
-		elif [ "$1" = "5" ]; then
-			osname="Windows 7";
-			mbrfile="/usr/share/fog/mbr/win7.mbr";	
-			defaultpart2start="105906176B";
-		elif [ "$1" = "6" ]; then
-			osname="Windows 8";
-			mbrfile="/usr/share/fog/mbr/win8.mbr";				
-			defaultpart2start="368050176B"
-		elif [ "$1" = "7" ]; then
-			osname="Windows 8.1";
-			mbrfile="/usr/share/fog/mbr/win8.mbr";				
-			defaultpart2start="368050176B"
-		elif [ "$1" = "50" ]; then
-			osname="Linux";
-			mbrfile="";								
-		elif [ "$1" = "99" ]; then
-			osname="Other OS";
-			mbrfile="";			
-=======
 			mbrfile="";
 		elif [ "$1" = "5" ]; then
 			osname="Windows 7";
@@ -626,7 +514,6 @@ determineOS()
 		elif [ "$1" = "99" ]; then
 			osname="Other OS";
 			mbrfile="";
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		else
 			handleError " * Invalid operating system id ($1)!";
 		fi
@@ -638,12 +525,7 @@ determineOS()
 clearScreen()
 {
 	if [ "$mode" != "debug" ]; then
-<<<<<<< HEAD
-		for i in $(seq 0 99);
-		do
-=======
 		for i in $(seq 0 99); do
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			echo "";
 		done
 	fi
@@ -651,22 +533,6 @@ clearScreen()
 
 sec2String()
 {
-<<<<<<< HEAD
-	if [ $1 -gt 60 ]
-	then
-		if [ $1 -gt 3600 ]
-		then
-			if [ $1 -gt 216000 ]
-			then
-				val=$(expr $1 "/" 216000)
-				echo -n "$val days";
-			else
-				val=$(expr $1 "/" 3600)
-				echo -n "$val hours";
-			fi
-		else
-			val=$(expr $1 "/" 60)
-=======
 	if [ $1 -gt 60 ]; then
 		if [ $1 -gt 3600 ]; then
 			if [ $1 -gt 216000 ]; then
@@ -678,7 +544,6 @@ sec2String()
 			fi
 		else
 			val=$(expr $1 "/" 60);
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			echo -n "$val min";
 		fi
 	else
@@ -689,12 +554,7 @@ sec2String()
 getSAMLoc()
 {
 	poss="/ntfs/WINDOWS/system32/config/SAM /ntfs/Windows/System32/config/SAM";
-<<<<<<< HEAD
-	for pth in $poss;
-	do
-=======
 	for pth in $poss; do
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		if [ -f $pth ]; then
 			sam=$pth;
 			return 0;
@@ -705,52 +565,11 @@ getSAMLoc()
 
 getHardDisk()
 {
-<<<<<<< HEAD
-	if [ -n "${fdrive}" ]
-	then
-=======
 	if [ -n "${fdrive}" ]; then
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		hd="${fdrive}";
 		return 0;
 	else
 		hd="";
-<<<<<<< HEAD
-		for i in `fogpartinfo --list-devices 2>/dev/null`
-		do
-			hd="$i";
-			return 0;
-		done;
-		# Lets check and see if the partition shows up in /proc/partitions		
-		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf;
-		do		
-			strData=`cat /proc/partitions | grep $i 2>/dev/null`
-			if [ -n "$strData" ]
-			then
-				hd="/dev/$i"
-				return 0;
-			fi 
-		done;		
-		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf;
-		do		
-			strData=`head -1 /dev/$i 2>/dev/null`
-			if [ -n "$strData" ]
-			then
-				hd="/dev/$i"
-				return 0;
-			fi 
-		done;	
-		# Failed, probably because there is no partition on the device
-		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf;
-		do		
-			strData=`fdisk -l | grep /dev/$i 2>/dev/null`
-			if [ -n "$strData" ]
-			then
-				hd="/dev/$i"
-				return 0;
-			fi 
-		done;	
-=======
 		for i in `fogpartinfo --list-devices 2>/dev/null`; do
 			hd="$i";
 			return 0;
@@ -778,7 +597,6 @@ getHardDisk()
 				return 0;
 			fi 
 		done
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	fi
 	return 1;
 }
@@ -813,11 +631,7 @@ displayBanner()
 	echo "  |                      #                     ..:;###..                     |";
 	echo "  |                                                                          |";
 	echo "  |                       Free Computer Imaging Solution                     |";
-<<<<<<< HEAD
-	echo "  |                               Version 1.1.2                              |";
-=======
 	echo "  |                               Version 1.2.0                              |";
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	echo "  |                                                                          |";
 	echo "  +--------------------------------------------------------------------------+";
 	echo "  | Created by:                                                              |";
@@ -839,10 +653,6 @@ handleError()
 	echo " #                     An error has been detected!                           #";
 	echo " #                                                                           #";	
 	echo " #############################################################################";
-<<<<<<< HEAD
-#	sleep 3;
-=======
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	echo "";
 	echo "";
 	echo -e " $1";
@@ -857,12 +667,6 @@ handleError()
 	exit 0;
 }
 
-<<<<<<< HEAD
-# $1 is the drive
-runPartprobe()
-{
-	partprobe $1 &> /dev/null
-=======
 handleWarning()
 {
     echo "";
@@ -888,17 +692,12 @@ handleWarning()
 runPartprobe()
 {
 	partprobe $1 &> /dev/null;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 }
 
 debugCommand()
 {
 	if [ "$mode" == "debug" ]; then
-<<<<<<< HEAD
-		echo $1 >> /tmp/cmdlist
-=======
 		echo $1 >> /tmp/cmdlist;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	fi
 }
 
@@ -911,8 +710,6 @@ debugCommand()
 #    will append 000 001 002 automatically
 uploadFormat()
 {
-<<<<<<< HEAD
-=======
 	if [ ! -n "$1" ]; then
 		echo "Missing Cores";
 		return;
@@ -923,7 +720,6 @@ uploadFormat()
 		echo "Missing file name to store";
 		return;
 	fi
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	if [ "$imgFormat" == "2" ]; then
 		pigz -p $1 $PIGZ_COMP < $2 | split -a 3 -d -b 200m - ${3}. &
 	else
@@ -962,11 +758,7 @@ saveGRUB()
 		awk -F, '{print $1;}' | \
 		grep start= | \
 		awk -F= 'BEGIN{start=1000000000;}{if($2 > 0 && $2 < start){start=$2;}}END{printf("%d\n", start);}'`;
-<<<<<<< HEAD
-	local count=$((first-1));
-=======
 	local count=$first;
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	dd if="$disk" of="$imagePath/d${disk_number}.mbr" count="${count}" bs=512 &>/dev/null;
 	touch "$imagePath/d${disk_number}.has_grub";
 }
@@ -1004,9 +796,5 @@ restoreGRUB()
 	local imagePath="$3";
 	local tmpMBR="${imagePath}/d${disk_number}.mbr";
 	local count=`du -B 512 "${tmpMBR}" | awk '{print $1;}'`;
-<<<<<<< HEAD
-	count=$((count-1));
-=======
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	dd if="${tmpMBR}" of="${disk}" bs=512 count="${count}" &>/dev/null;
 }

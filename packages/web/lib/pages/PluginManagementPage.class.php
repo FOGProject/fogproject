@@ -350,10 +350,7 @@ class PluginManagementPage extends FOGPage
 		@session_write_close();
 		@session_regenerate_id(true);
 		$_SESSION = array();
-<<<<<<< HEAD
-=======
 		@session_set_cookie_params(0);
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		@session_start();
 		$this->FOGCore->setMessage('Plugin updated!');
 		$this->FOGCore->redirect($this->formAction);
@@ -377,10 +374,7 @@ class PluginManagementPage extends FOGPage
 		@session_write_close();
 		@session_regenerate_id(true);
 		$_SESSION = array();
-<<<<<<< HEAD
-=======
 		@session_set_cookie_params(0);
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		@session_start();
 	}
 }

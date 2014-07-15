@@ -18,12 +18,8 @@ class FOGPageManager extends FOGBase
 	{
 		// FOGBase Constructor
 		parent::__construct();
-<<<<<<< HEAD
-	
-=======
 		if (!$this->FOGUser)
 			$this->FOGUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		// Save class & method values into class - used many times through out
 		$this->classValue = ($GLOBALS[$this->classVariable] ? preg_replace('#[^\w]#', '_', urldecode($GLOBALS[$this->classVariable])) : (preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'homes' : 'home'));
 		$this->methodValue = preg_replace('#[^\w]#', '_', urldecode($GLOBALS[$this->methodVariable]));	// No default value as we want to detect an empty string for 'list' or 'search' default page
@@ -67,12 +63,7 @@ class FOGPageManager extends FOGBase
 	// Call FOGPage->method based on $this->classValue and $this->methodValue
 	public function render()
 	{
-<<<<<<< HEAD
-		global $currentUser;
-		if ($currentUser && $currentUser->isValid() && $currentUser->isLoggedIn())
-=======
 		if ($_REQUEST['node'] == 'client' || ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn()))
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		{
 			$this->loadPageClasses();
 			try
@@ -119,24 +110,6 @@ class FOGPageManager extends FOGBase
 		if ($this->isLoaded('PageClasses'))
 			return;
 		// This variable is required as each class file uses it
-<<<<<<< HEAD
-		global $Init,$PluginNames;
-		foreach($Init->PagePaths as $path)
-		{
-			$iterator = new DirectoryIterator($path);
-			foreach ($iterator as $fileInfo)
-			{
-				$PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : '';
-				$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $PluginName,'state' => 1, 'installed' => 1)));
-				if ($Plugin)
-					$className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
-				else if (!preg_match('#plugins#i',$path))
-					$className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
-				if ($className)
-				{
-					$class = new $className();
-					$this->register($class);
-=======
 		global $Init;
 		foreach($Init->PagePaths as $path)
 		{
@@ -156,7 +129,6 @@ class FOGPageManager extends FOGBase
 						$class = new $className();
 						$this->register($class);
 					}
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 				}
 			}
 		}

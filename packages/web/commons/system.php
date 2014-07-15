@@ -1,9 +1,5 @@
 <?php
 /**
-<<<<<<< HEAD
-* \class System
-=======
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 * Setups of the system.
 */
 class System
@@ -30,13 +26,8 @@ class System
 		else
 			date_default_timezone_set('UTC');
 		define('IS_INCLUDED', true);
-<<<<<<< HEAD
-		define('FOG_VERSION', '1978');
-		define('FOG_SCHEMA', 107);
-=======
-		define('FOG_VERSION', '2060');
+		define('FOG_VERSION', '2061');
 		define('FOG_SCHEMA', 112);
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		define('FOG_SVN_REVISION', '$Revision$');
 		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');
 		define('PHP_VERSION_REQUIRED', '5.3.0');

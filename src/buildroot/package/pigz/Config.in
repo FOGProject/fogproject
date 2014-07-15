@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PIGZ
+	bool "PIGZ Parallel Gzip"
+	select BR2_PACKAGE_ZLIB
+	help
+	  See http://www.zlib.net/pigz/

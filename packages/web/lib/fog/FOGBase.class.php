@@ -154,8 +154,6 @@ abstract class FOGBase
 	{
 		return (substr($str,strlen($str)-strlen($sub)) === $sub);
 	}
-<<<<<<< HEAD
-=======
 	public function getFTPByteSize($StorageNode,$file)
 	{
 		try
@@ -212,7 +210,6 @@ abstract class FOGBase
 			$Size = sprintf('%3.2f YiB',$size/$ybyte);
 		return $Size;
 	}
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	/*
 	* Inserts a new key/value before the key in the array.
 	*

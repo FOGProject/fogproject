@@ -243,33 +243,6 @@ class HookManager extends FOGBase
 	}
 	public function load()
 	{
-<<<<<<< HEAD
-		global $Init,$PluginNames;
-		foreach($Init->HookPaths AS $hookDirectory)
-		{
-
-			$hookIterator = new DirectoryIterator($hookDirectory);
-			foreach ($hookIterator AS $fileInfo)
-			{
-				$file = !$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-9) == '.hook.php' ? file($fileInfo->getPathname()) : null;
-				$key = '$active';
-				$PluginName = preg_match('#plugins#i',$hookDirectory) ? basename(substr($hookDirectory,0,-6)) : null;
-				$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $PluginName,'installed' => 1)));
-				if ($Plugin)
-					$className = (substr($fileInfo->getFilename(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
-				else if ($file && !preg_match('#plugins#',$fileInfo->getPathname()))
-				{
-					foreach($file AS $lineNumber => $line)
-					{
-						if (strpos($line,$key) !== false)
-							break;
-					}
-					if(preg_match('#true#i',$file[$lineNumber]))
-						$className = (substr($fileInfo->getFileName(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
-				}
-				if ($className)
-					$class = new $className();
-=======
 		global $Init;
 		foreach($Init->HookPaths AS $hookDirectory)
 		{
@@ -297,7 +270,6 @@ class HookManager extends FOGBase
 					if ($className)
 						$class = new $className();
 				}
->>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			}
 		}
 	}
