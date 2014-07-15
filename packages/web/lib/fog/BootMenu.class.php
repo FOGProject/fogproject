@@ -117,6 +117,7 @@ class BootMenu extends FOGBase
 			'fog.local' => 'Boot from hard disk',
 			'fog.memtest' => 'Run Memtest86+',
 			'fog.reginput' => 'Perform Full Host Registration and Inventory',
+			'fog.keyreg' => 'Update Product Key',
 			'fog.reg' => 'Quick Registration and Inventory',
 			'fog.quickimage' => 'Quick Image',
 			'fog.quickdel' => 'Quick Host Deletion',
@@ -145,6 +146,8 @@ class BootMenu extends FOGBase
 			$this->verifyCreds();
 		else if ($_REQUEST['delconf'])
 			$this->delHost();
+		else if ($_REQUEST['key'])
+			$this->keyset();
 		else if (!$Host || !$Host->isValid())
 			$this->printDefault();
 		else
@@ -265,6 +268,37 @@ class BootMenu extends FOGBase
 		print "chain -ar $this->booturl/ipxe/boot.php##params";
 	}
 	/**
+	* keyreg()
+	* If you're trying to change the key, request what the key is.
+	* @return void
+	*/
+	public function keyreg()
+	{
+		print "#!ipxe\n";
+		print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
+		print "echo -n Please enter the product key>\n";
+		print "read key\n";
+		print "params\n";
+		print "param mac0 \${net0/mac}\n";
+		print "param arch \${arch}\n";
+		print "param key \${key}\n";
+		print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+		print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+		print ":bootme\n";
+		print "chain -ar $this->booturl/ipxe/boot.php##params";
+	}
+	public function keyset()
+	{
+		$this->Host->set('productKey',base64_encode($_REQUEST['key']));
+		if ($this->Host->save())
+		{
+			print "#!ipxe\n";
+			print "echo Successfully changed key\n";
+			print "sleep 3\n";
+			$this->chainBoot();
+		}
+	}
+	/**
 	* debugAccess()
 	* Set's up for debug menu as requested.
 	* @return void
@@ -289,6 +323,8 @@ class BootMenu extends FOGBase
 		{
 			if ($_REQUEST['delhost'])
 				$this->delConf();
+			else if ($_REQUEST['keyreg'])
+				$this->keyreg();
 			else if ($_REQUEST['qihost'])
 				$this->setTasking();
 			else if ($_REQUEST['menuaccess'])
@@ -558,6 +594,23 @@ class BootMenu extends FOGBase
 			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
 			print "goto MENU\n";
 		}
+		else if ($option == 'fog.keyreg')
+		{
+			print ":$option\n";
+			print "login\n";
+			print "params\n";
+			print "param mac0 \${net0/mac}\n";
+			print "param arch \${arch}\n";
+			print "param username \${username}\n";
+			print "param password \${password}\n";
+			print "param keyreg 1\n";
+			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+			print ":bootme\n";
+			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
+			print "goto MENU\n";
+
+		}
 		else if ($option == 'fog.advanced')
 		{
 			print ":$option\n";
@@ -625,7 +678,7 @@ class BootMenu extends FOGBase
 			{
 				if (!$this->Host || !$this->Host->isValid())
 				{
-					if ($option != 'fog.quickdel' && $option != 'fog.quickimage' && ( $showDebug || $option != 'fog.debug' )  )
+					if ($option != 'fog.quickdel' && $option != 'fog.quickimage' && ( $showDebug || $option != 'fog.debug' ) && $option != 'fog.keyreg')
 						$this->menuItem($option, $desc);
 				}
 				else 
@@ -660,7 +713,7 @@ class BootMenu extends FOGBase
 						$this->menuOpt($option, "mode=onlydebug");
 					else if ($option == 'fog.capone')
 						$this->menuOpt($option, "mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path");
-					else if ($option == 'fog.local' || $option == 'fog.memtest' || $option == 'fog.advanced' || $option == 'fog.quickdel' || $option == 'fog.quickimage')
+					else if ($option == 'fog.local' || $option == 'fog.memtest' || $option == 'fog.advanced' || $option == 'fog.quickdel' || $option == 'fog.quickimage' || 'fog.keyreg')
 						$this->menuOpt($option, true);
 				}
 			}
