@@ -21,7 +21,10 @@ class ProcessLogin extends FOGBase
 			if ($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') != $lang)
 				$this->FOGCore->setSetting('FOG_DEFAULT_LOCALE',substr($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE'),0,2));
 			if ($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') == $lang)
+			{
 				$data = array($lang,$val);
+				return $data;
+			}
 			else
 				$data = array('en','English');
 		}
