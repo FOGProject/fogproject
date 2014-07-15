@@ -522,20 +522,8 @@ class FOGConfigurationPage extends FOGPage
 					$type = '<input type="checkbox" name="${service_id}" value="1" '.($Service->get('value') ? 'checked="checked"' : '').' />';
 				else if ($Service->get('name') == 'FOG_DEFAULT_LOCALE')
 				{
-					foreach((array)$GLOBALS['foglang']['Language'] AS $lang => $humanreadable)
-					{
-						if ($lang == 'en')
-							$lang = 'en_US.UTF-8';
-						else if ($lang == 'zh')
-							$lang = 'zh_CN.UTF-8';
-						else if ($lang == 'it')
-							$lang = 'it_IT.UTF-8';
-						else if ($lang == 'fr')
-							$lang = 'fr_FR.UTF-8';
-						else if ($lang == 'es')
-							$lang = 'es_ES.UTF-8';
-						$options2[] = '<option value="'.$lang.'" '.($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') == $lang ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
-					}
+					foreach((array)$this->foglang['Language'] AS $lang => $humanreadable)
+						$options2[] = '<option value="'.$lang.'" '.($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') == $lang || $this->FOGCore->getSetting('FOG_DEFAULT_LOCAL') == $this->foglang['Language'][$lang] ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
 					$type = "\n\t\t\t".'<select name="${service_id}" autocomplete="off" style="width: 220px">'."\n\t\t\t\t".implode("\n",$options2)."\n\t\t\t".'</select>';
 				}
 				else if ($Service->get('name') == 'FOG_QUICKREG_IMG_ID')
