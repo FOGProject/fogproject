@@ -71,11 +71,19 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t</ul>";
 		print "\n\t\t\t<h3>"._('Imaging over the last 30 days').'</h3>';
 		print "\n\t\t\t".'<div id="graph-30day" class="graph"></div>';
+<<<<<<< HEAD
 		print "\n\t\t\t".'<h3 id="graph-bandwidth-title">'._('Bandwidth').'- <span>'._('Transmit').'</span><!-- (<span>2 Minutes</span>)--></h3>';
 		print "\n\t\t\t".'<div id="graph-bandwidth-filters">';
 		print "\n\t\t\t".'<div>';
 		print "\n\t\t\t".'<a href="#" id="graph-bandwidth-filters-transmit" class="l active">'._('Transmit').'</a>';
 		print "\n\t\t\t".'<a href="#" id="graph-bandwidth-filters-receive" class="l">'._('Receive').'</a>';
+=======
+		print "\n\t\t\t".'<h3 id="graph-bandwidth-title">'.$this->foglang['Bandwidth'].'- <span>'.$this->foglang['Transmit'].'</span><!-- (<span>2 Minutes</span>)--></h3>';
+		print "\n\t\t\t".'<div id="graph-bandwidth-filters">';
+		print "\n\t\t\t".'<div>';
+		print "\n\t\t\t".'<a href="#" id="graph-bandwidth-filters-transmit" class="l active">'.$this->foglang['Transmit'].'</a>';
+		print "\n\t\t\t".'<a href="#" id="graph-bandwidth-filters-receive" class="l">'.$this->foglang['Receive'].'</a>';
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		print "\n\t\t\t".'</div>';
 		print "\n\t\t\t".'<div class="spacer"></div>';
 		print "\n\t\t\t<!--";

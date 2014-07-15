@@ -12,12 +12,20 @@ try
 	$MACAddress = new MACAddress($mac);
 	$Host = $HostManager->getHostByMacAddresses($mac);
 	if (!$MACAddress->isValid())
+<<<<<<< HEAD
 		throw new Exception(_('Invalid MAC Address'));
+=======
+		throw new Exception($foglang['InvalidMAC']);
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	// Set safe and simple mac for hostname if needed.
 	$macsimple = str_replace(':','',$mac);
 	// Make sure it's a unique name.
 	if($_REQUEST['advanced'] == '1')
 	{
+<<<<<<< HEAD
+=======
+		$productKey = trim($_REQUEST['productKey']);
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		$username = base64_decode(trim($_REQUEST['username']));
 		// trim the hostname (no spaces left or right of the name)
 		$host=trim(base64_decode($_REQUEST['host']));
@@ -77,6 +85,10 @@ try
 			'ADOU' => $strADOU,
 			'ADUser' => $strADUser,
 			'ADPass' => $strADPass,
+<<<<<<< HEAD
+=======
+			'productKey' => $productKey,
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			'createdTime' => date("Y-m-d H:i:s"),
 			'createdBy' => 'FOGREG',
 		));

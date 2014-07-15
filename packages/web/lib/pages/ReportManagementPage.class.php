@@ -141,6 +141,10 @@ class ReportManagementPage extends FOGPage
 		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
 		// Header Data
 		$this->headerData = array(
+<<<<<<< HEAD
+=======
+			_('Engineer'),
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			_('Host'),
 			_('Start'),
 			_('End'),
@@ -151,9 +155,16 @@ class ReportManagementPage extends FOGPage
 		);
 		// Templates
 		$this->templates = array(
+<<<<<<< HEAD
 			'${host_name}',
 			'${start_date}',
 			'${end_date}',
+=======
+			'${createdBy}',
+			'${host_name}',
+			'<small>${start_date}<br/>${start_time}</small>',
+			'<small>${end_date}<br/>${end_time}</small>',
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			'${duration}',
 			'${image_name}',
 			'${type}',

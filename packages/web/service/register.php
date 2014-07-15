@@ -6,8 +6,12 @@ try
 	if ($_REQUEST['version'] != 2)
 		throw new Exception('#!er:Invalid Version Number, please update this module.');
 	$MACs = HostManager::parseMacList($_REQUEST['mac']);
+<<<<<<< HEAD
 	if (!$MACs)
 		throw new Exception('#!er:Invalid MAC');
+=======
+	if (!$MACs) throw new Exception('#!im');
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 	// The total number of pending macs that can be used.
 	$maxPending = $FOGCore->getSetting('FOG_QUICKREG_MAX_PENDING_MACS');
 	// The ignore list.  Comma Separated.

@@ -32,9 +32,13 @@ class ImageManagementPage extends FOGPage
 		parent::__construct($name);
 		// Header row
 		$this->headerData = array(
+<<<<<<< HEAD
 			_('Image Name'),
 			_('Storage Group'),
 			_('O/S'),
+=======
+			_('Image Name') .'<br /><small>'._('Storage Group').': '._('O/S').'</small><br /><small>'._('Image Type').'</small>',
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			_('Image Size: ON CLIENT'),
 			_('Image Size: ON SERVER'),
 			_('Uploaded'),
@@ -42,9 +46,13 @@ class ImageManagementPage extends FOGPage
 		);
 		// Row templates
 		$this->templates = array(
+<<<<<<< HEAD
 			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name}</a>',
 			'${storageGroup}',
 			'${os}',
+=======
+			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name}</a><br /><small>${storageGroup}:${os}</small><br /><small>${image_type}</small>',
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			'${size}',
 			'${serv_size}',
 			'${deployed}',
@@ -52,6 +60,7 @@ class ImageManagementPage extends FOGPage
 		);
 		// Row attributes
 		$this->attributes = array(
+<<<<<<< HEAD
 			array(),
 			array('width' => 50, 'class' => 'c'),
 			array(),
@@ -59,6 +68,13 @@ class ImageManagementPage extends FOGPage
 			array('width' => 50, 'class' => 'c'),
 			array('width' => 50, 'class' => 'c'),
 			array('class' => 'c', 'width' => '50'),
+=======
+			array('width' => 50, 'class' => 'l'),
+			array('width' => 50, 'class' => 'c'),
+			array('width' => 50, 'class' => 'c'),
+			array('width' => 50, 'class' => 'c'),
+			array('width' => 50, 'class' => 'c'),
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		);
 	}
 	// Pages
@@ -74,6 +90,7 @@ class ImageManagementPage extends FOGPage
 		// Row data
 		foreach ((array)$Images AS $Image)
 		{
+<<<<<<< HEAD
 			$kbyte = 1024;
 			$mbyte = $kbyte * $kbyte;
 			$gbyte = $mbyte * $kbyte;
@@ -106,6 +123,12 @@ class ImageManagementPage extends FOGPage
 				else if ($imgsize >= $ybyte)
 					$imageSize = sprintf('%3.2f YiB',$imgsize/$ybyte);
 			}
+=======
+			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
+			$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
+			$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
+			$imageType = $Image->get('imageTypeID') ? new ImageType($Image->get('imageTypeID')) : null;
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			$this->data[] = array(
 				'id'		=> $Image->get('id'),
 				'name'		=> $Image->get('name'),
@@ -116,7 +139,12 @@ class ImageManagementPage extends FOGPage
 				'os'		=> $Image->getOS()->get('name'),
 				'deployed' => checkdate($this->FOGCore->formatTime($Image->get('deployed'),'m'),$this->FOGCore->formatTime($Image->get('deployed'),'d'),$this->FOGCore->formatTime($Image->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
+<<<<<<< HEAD
 				'serv_size' => sprintf('%.2f %s',shell_exec("ls -l ".$Image->getStorageGroup()->getMasterStorageNode()->get('path').'/'.$Image->get('path')." | awk '{SUM += \$5} END {print SUM/1024/1024/1024}'"),'GiB'),
+=======
+				'serv_size' => $servSize,
+				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			);
 		}
 		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
@@ -151,6 +179,7 @@ class ImageManagementPage extends FOGPage
 		// Find data -> Push data
 		foreach ((array)$this->FOGCore->getClass('ImageManager')->find(array('name' => $keyword)) AS $Image)
 		{
+<<<<<<< HEAD
 			$kbyte = 1024;
 			$mbyte = $kbyte * $kbyte;
 			$gbyte = $mbyte * $kbyte;
@@ -183,6 +212,12 @@ class ImageManagementPage extends FOGPage
 				if ($imgsize >= $ybyte)
 					$imageSize = sprintf('%3.2f YB',$imgsize/$ybyte);
 			}
+=======
+			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
+			$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
+			$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
+			$imageType = $Image->get('imageTypeID') ? new ImageType($Image->get('imageTypeID')) : null;
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			$this->data[] = array(
 				'id'		=> $Image->get('id'),
 				'name'		=> $Image->get('name'),
@@ -193,7 +228,12 @@ class ImageManagementPage extends FOGPage
 				'os'		=> $Image->getOS()->get('name'),
 				'deployed' => checkdate($this->FOGCore->formatTime($Image->get('deployed'),'m'),$this->FOGCore->formatTime($Image->get('deployed'),'d'),$this->FOGCore->formatTime($Image->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
+<<<<<<< HEAD
 				'serv_size' => sprintf('%.2f %s',shell_exec("ls -l ".$Image->getStorageGroup()->getMasterStorageNode()->get('path').'/'.$Image->get('path')." | awk '{SUM += \$5} END {print SUM/1024/1024/1024}'"),'GiB'),
+=======
+				'serv_size' => $servSize,
+				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			);
 		}
 		// Hook
@@ -343,6 +383,10 @@ class ImageManagementPage extends FOGPage
 			$this->FOGCore->getSetting('FOG_FORMAT_FLAG_IN_GUI') ? _('Image Manager') : '' => $this->FOGCore->getSetting('FOG_FORMAT_FLAG_IN_GUI') ? '<select name="imagemanage"><option value="1" ${is_legacy}>'._('PartImage').'</option><option value="0" ${is_modern}>'._('PartClone').'</option></select>' : '',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" /><!--<span class="icon icon-help" title="TODO!"></span>-->',
 		);
+<<<<<<< HEAD
+=======
+		$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
@@ -352,7 +396,11 @@ class ImageManagementPage extends FOGPage
 				'image_desc' => $Image->get('description'),
 				'storage_groups' => $this->FOGCore->getClass('StorageGroupManager')->buildSelectBox($Image->get('storageGroupID')),
 				'operating_systems' => $this->FOGCore->getClass('OSManager')->buildSelectBox($Image->get('osID')),
+<<<<<<< HEAD
 				'image_path' => current($this->FOGCore->getClass('StorageNodeManager')->find(array('storageGroupID' => $Image->getStorageGroup()->get('id'),'isEnabled' => 1)))->get('path').'/&nbsp;',
+=======
+				'image_path' => $StorageNode && $StorageNode->isValid() ? $StorageNode->get('path').'/&nbsp;' : 'No nodes available.',
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 				'image_file' => $Image->get('path'),
 				'image_types' => $this->FOGCore->getClass('ImageTypeManager')->buildSelectBox($Image->get('imageTypeID'),'','id'),
 				'is_legacy' => $Image->get('format') == 1 ? 'selected="selected"' : '',

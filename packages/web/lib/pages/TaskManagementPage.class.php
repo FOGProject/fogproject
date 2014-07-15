@@ -654,6 +654,10 @@ class TaskManagementPage extends FOGPage
 			_('Name:'),
 			_('Is Group'),
 			_('Task Name'),
+<<<<<<< HEAD
+=======
+			_('Task Type'),
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			_('Start Time'),
 			_('Active/Type'),
 			_('Kill'),
@@ -663,6 +667,10 @@ class TaskManagementPage extends FOGPage
 			'<a href="?node=${hostgroup}&sub=edit&id=${id}" title="Edit ${hostgroupname}">${hostgroupname}</a>',
 			'${groupbased}<form method="post" action="?node=tasks&sub=scheduled">',
 			'${details_taskname}',
+<<<<<<< HEAD
+=======
+			'${task_type}',
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			'<small>${time}</small>',
 			'${active}/${type}',
 			'<input type="checkbox" name="rmid" id="r${schedtaskid}" class="delid" value="${schedtaskid}" onclick="this.form.submit()" /><label for="r${schedtaskid}">'._('Delete').'</label></form>',
@@ -672,6 +680,10 @@ class TaskManagementPage extends FOGPage
 			array('width' => 120, 'class' => 'l'),
 			array(),
 			array('width' => 110, 'class' => 'l'),
+<<<<<<< HEAD
+=======
+			array('class' => 'c', 'width' => 80),
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			array('width' => 70, 'class' => 'c'),
 			array('width' => 100, 'class' => 'c', 'style' => 'padding-right: 10px'),
 			array('class' => 'c'),
@@ -692,6 +704,10 @@ class TaskManagementPage extends FOGPage
 				'active' => $task->get('isActive') ? 'Yes' : 'No',
 				'type' => $task->get('type') == 'C' ? 'Cron' : 'Delayed',
 				'schedtaskid' => $task->get('id'),
+<<<<<<< HEAD
+=======
+				'task_type' => $taskType,
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			);
 		}
 		// Hook

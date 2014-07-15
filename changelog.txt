@@ -1,4 +1,54 @@
+<<<<<<< HEAD
 Version 1.X.X
+=======
+Version 1.2.0
+-------------
+* Fix GUI not loading if no nodes are in storage group.
+* Fix FOGPageManager loading plugin class files properly.
+* Fix foglang variable to be loaded before init so entire FOG system has
+access to them.
+* Fix multicast tasks to close through FOGMulticastManager rather than
+Post_Stage3.php
+* Fix configureNFS line to only update exports if it's not an update.
+* Fix installer/upgrader to use values stored in .fogsettings if set.
+Post_Stage3.php
+* Fix client page so you don't have to be logged in to view it.
+* Fix hwinfo and client node= links to operate properly.
+* Add ftp file size checking.  All sizes are done through ftp now.
+* Add size of byte filtering to get pretty size.
+* Add $this->FOGUser to FOGPageManager and Hook to check if its set. This is
+needed because FOGBase is loaded before FOGUser is actually established.
+* Add postdownloadscripts to allow custom init scripts to be run after imaged.
+* Add Windows 8/8.1 ability to image with resizable. BCD works with them too.
+* Add SnapinJob to Host class.
+* Add libtorrent and rtorrent to inits.
+* Add beginning stages to allow split file images.
+* Add hostname to kernel args as default.  Use hostearly variable sent if
+HOSTNAME_EARLY is enabled and check against this to change hostname.
+* Add ability for resizable image with Linux.  Thanks Curtis
+* Add ability for resizable Multiboot systems, assuming Windows Parts are at
+the start of the hard-drive. Thanks Curtis
+* Add cabextract and libmspack to inits and source code for buildroot.
+* Add product key changer to FOG.  NEEDS: client installer recompile.
+* Update plugin hooks with system to check if they are enabled or not to
+display their relevant menu/submenu items or other actions.
+* Update ipxe/undionly tftp files to latest available.
+* Update pigz operations to their own function in init.xz files and in
+/usr/share/fog/lib/funcs.sh
+* Remove IMAGE_TRUST_CMD from ipxe/undionly to hopefully remove console
+issues.
+* Remove htmldoc/clamav from fedora/centos installer.  Reinserted after adding
+Mageia support.
+* Remove hooking from Mobile pages as it's already a limited section.
+* Schema update to remove ssh client setting stuff and move FOG_SNAPINDIR to
+FOG Snapin - Service category.
+* Refine session closing/opening/regenerating data on GUI side.
+* Refine service files particularly for snapins.
+* Redirect users to index.php if they attempt to go to a node that doesn't
+have a relevant class to work with.
+
+Version 1.1.2
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 -------------
 
 * Fix client updater so hash is returned properly.

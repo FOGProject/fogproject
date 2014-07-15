@@ -74,12 +74,20 @@ if [ -n "$hd" ]; then
 	
 		host="";
 		ip="";
+<<<<<<< HEAD
+=======
+		productKey="";
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		imageid="";
 		primaryuser="";
 		other1="";
 		other2="";
 		blImage="";
 		blDoAddGroup="";
+<<<<<<< HEAD
+=======
+		keyEnter="";
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		blDoAD="";
 		echo
 		echo -n "    Enter the hostname of this computer: ";
@@ -214,6 +222,30 @@ if [ -n "$hd" ]; then
 					;;
 			esac			
 		fi
+<<<<<<< HEAD
+=======
+		if [ "$keyEnter" = "" ]; then
+			echo
+			echo -n "    Would you like to enter a product key to activate this host with? (y/N) ";
+			read keyask;
+			keyEnter="0";
+			case "$keyask" in
+				Y | y | yes | yEs | yES | Yes | YeS | YES )
+					while [ "$key" == "" ]; do
+						echo
+						echo -n "    Enter the product key for this computer: ";
+						read productKey;
+						echo
+					done
+					productKey=`echo $productKey | base64`;
+				;;
+				[nN]*)
+					;;
+				*)
+					;;
+			esac
+		fi
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 		if [ "$blDoAD" = "" ]
 		then
 			echo
@@ -292,7 +324,11 @@ if [ -n "$hd" ]; then
 		res="";
 		while [ "${res}" = "" ]
 		do
+<<<<<<< HEAD
 			res=`wget -O - --post-data="mac=$mac&advanced=1&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$locationid&username=$user64&groupid=$group64" "http://${web}service/auto.register.php" 2>/dev/null`
+=======
+			res=`wget -O - --post-data="mac=$mac&advanced=1&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$locationid&username=$user64&groupid=$group64&productKey=$productKey" "http://${web}service/auto.register.php" 2>/dev/null`
+>>>>>>> 5e6f2ff5445db9f6ab2678bfad76acfcacc85157
 			echo "${res}";			
 			sleep 2;
 		done;
