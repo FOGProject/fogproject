@@ -215,7 +215,7 @@ class FOGConfigurationPage extends FOGPage
 				throw new Exception(_("Invalid Timeout Value."));
 			else
 				$timeout = trim($_POST['timeout']);
-			if ($this->FOGCore->setSetting('FOG_PXE_MENU_HIDDEN',$_REQUEST['hidemenu']) && $this->FOGCore->setSetting('FOG_PXE_MENU_TIMEOUT',$timeout) && $this->FOGCore->setSetting('FOG_PXE_ADVANCED',$_REQUEST['adv']) && $this->FOGCore->setSetting('FOG_KEY_SEQUENCE',$_REQUEST['keysequence']) && $this->FOGCore->setSetting('FOG_NO_MENU',$_REQUEST['nomenu']) && $this->FOGCore->setSetting('FOG_BOOT_EXIT_TYPE',$_REQUEST['bootTypeExit']))
+			if ($this->FOGCore->setSetting('FOG_PXE_MENU_HIDDEN',$_REQUEST['hidemenu']) && $this->FOGCore->setSetting('FOG_PXE_MENU_TIMEOUT',$timeout) && $this->FOGCore->setSetting('FOG_PXE_ADVANCED',$_REQUEST['adv']) && $this->FOGCore->setSetting('FOG_KEY_SEQUENCE',$_REQUEST['keysequence']) && $this->FOGCore->setSetting('FOG_NO_MENU',$_REQUEST['nomenu']) && $this->FOGCore->setSetting('FOG_BOOT_EXIT_TYPE',$_REQUEST['bootTypeExit']) && $this->FOGCore->setSetting('FOG_ADVANCED_MENU_LOGIN',$_REQUEST['advmenulogin']))
 				throw new Exception("PXE Menu has been updated!");
 			else
 				throw new Exception("PXE Menu update failed!");
