@@ -27,6 +27,7 @@ HOSTNAME_EARLY is enabled and check against this to change hostname.
 the start of the hard-drive. Thanks Curtis
 * Add cabextract and libmspack to inits and source code for buildroot.
 * Add product key changer to FOG.  NEEDS: client installer recompile.
+* Add the ability to have "login" entries on items of the advanced menu.
 * Update plugin hooks with system to check if they are enabled or not to
 display their relevant menu/submenu items or other actions.
 * Update ipxe/undionly tftp files to latest available.
