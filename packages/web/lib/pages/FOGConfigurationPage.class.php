@@ -54,7 +54,10 @@ class FOGConfigurationPage extends FOGPage
 	{
 		// Set title
 		$this->title = _('FOG License Information');
-		print "\n\t\t\t<pre>".file_get_contents('./other/gpl-3.0.txt').'</pre>';
+		if (file_exists('./languages/'.$_SESSION['locale'].'/gpl-3.0.txt'))
+			print "\n\t\t\t<pre>".file_get_contents('./languages/'.$_SESSION['locale'].'/gpl-3.0.txt').'</pre>';
+		else
+			print "\n\t\t\t<pre>".file_get_contents('./other/gpl-3.0.txt').'</pre>';
 	}
     // Kernel Sub pointing to properly
 	/** kernel()
