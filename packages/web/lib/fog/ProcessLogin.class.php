@@ -48,7 +48,8 @@ class ProcessLogin extends FOGBase
 			case 'de_DE.UTF-8':
 				return $this->foglang['Language']['de'];
 			default :
-				return $this->foglang['Language'][$this->defaultLang()[0]]; 
+				$lang = $this->defaultLang();
+				return $this->foglang['Language'][$lang[0]]; 
 		}
 	}
 
@@ -75,7 +76,8 @@ class ProcessLogin extends FOGBase
 				$_POST['ulang']	= 'de_DE.UTF-8';
 				break;
 			default :
-				$_POST['ulang'] = $this->defaultLang()[1];
+				$lang = $this->defaultLang();
+				$_POST['ulang'] = $lang[1];
 				break;
 		}
 	}
