@@ -249,6 +249,7 @@ class GroupManagementPage extends FOGPage
 		}
 		$imageIDMult = (is_array($imageID) ? array_unique($imageID) : $imageID);
 		$groupKeyMult = (is_array($groupKey) ? array_unique($groupKey) : $groupKey);
+		$groupKeyMult = array_filter($groupKeyMult);
 		if (count($imageIDMult) == 1)
 			$imageMatchID = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
 		// For the location plugin.  If all have the same location, setup the selection to let people know.
@@ -307,7 +308,7 @@ class GroupManagementPage extends FOGPage
 				'group_kern' => $Group->get('kernel'),
 				'group_args' => $Group->get('kernelArgs'),
 				'group_devs' => $Group->get('kernelDev'),
-				'group_key' => count($groupKeyMult) == 1 ? $groupKeyMult : '',
+				'group_key' => count($groupKeyMult) == 1 ? $groupKeyMult[0] : '',
 			);
 		}
 		// Hook
