@@ -1,26 +1,24 @@
-# French translations for fr_FR.UTF package
-# Traductions françaises du paquet fr_FR.UTF.
-# Copyright (C) 2013 THE fr_FR.UTF'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the fr_FR.UTF package.
-# root <thomas@mastacontrola.com>, 2013.
+# French translations for PACKAGE package
+# Traductions fran�aises du paquet PACKAGE.
+# Copyright (C) 2014 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# root <root@mastaweb.mastacontrola.com>, 2014.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: FOG\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-07-13 00:17-0400\n"
-"PO-Revision-Date: 2014-07-14 16:02+0100\n"
-"Last-Translator: \n"
-"Language-Team: X23 <x23piracy@hotmail.com>\n"
-"Language: fr\n"
+"PO-Revision-Date: 2014-07-16 13:38-0400\n"
+"Last-Translator: root <root@mastaweb.mastacontrola.com>\n"
+"Language-Team: French\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 1.6.6\n"
 
 msgid " Enabled?"
-msgstr "Activé"
+msgstr ""
 
 msgid " after task completion"
 msgstr ""
@@ -34,7 +32,7 @@ msgid ""
 msgstr ""
 
 msgid " mac addresses updated!"
-msgstr " adresses MAC mise à jour!"
+msgstr ""
 
 msgid " or "
 msgstr ""
@@ -55,7 +53,7 @@ msgstr ""
 
 #, php-format
 msgid "%s Manager"
-msgstr "Gestionnaire %s"
+msgstr ""
 
 #, php-format
 msgid "%s Menu"
@@ -65,19 +63,19 @@ msgid "(To be released only by XXXXXXXXX)"
 msgstr ""
 
 msgid "1 Hour"
-msgstr "1 Heure"
+msgstr ""
 
 msgid "10 Minutes"
-msgstr "10 Minutes"
+msgstr ""
 
 msgid "2 Minutes"
-msgstr "2 Minutes"
+msgstr ""
 
 msgid "30 Day Imaging History"
 msgstr ""
 
 msgid "30 Minutes"
-msgstr "30 Minutes"
+msgstr ""
 
 msgid "<!-- "
 msgstr ""
@@ -86,7 +84,7 @@ msgid "?"
 msgstr ""
 
 msgid "A host with this MAC already exists with Hostname: "
-msgstr "Un hôte avec l'adresse MAC existe déjà."
+msgstr ""
 
 msgid "A task already exists for this Host at this cron schedule"
 msgstr ""
@@ -95,7 +93,7 @@ msgid "A task already exists for this Host at this scheduled date & time"
 msgstr ""
 
 msgid "AD Domain"
-msgstr "Nom de domaine"
+msgstr ""
 
 msgid "AD Join"
 msgstr ""
@@ -104,7 +102,7 @@ msgid "AD OU"
 msgstr ""
 
 msgid "About FOG Reports"
-msgstr "À propos de rapport de FOG"
+msgstr ""
 
 msgid "Accepted"
 msgstr ""
@@ -113,7 +111,7 @@ msgid "Access Control"
 msgstr ""
 
 msgid "Action"
-msgstr "d'Action"
+msgstr ""
 
 msgid "Actions"
 msgstr ""
@@ -122,19 +120,19 @@ msgid "Activate Plugins"
 msgstr ""
 
 msgid "Active"
-msgstr "d'Action"
+msgstr ""
 
 msgid "Active Directory"
-msgstr "Active Directory"
+msgstr ""
 
 msgid "Active Multi-cast Tasks"
 msgstr ""
 
 msgid "Active Multicast Tasks"
-msgstr "Tâches de multidiffusion actifs"
+msgstr ""
 
 msgid "Active Snapin Tasks"
-msgstr "Snap-ins actifs"
+msgstr ""
 
 msgid "Active Tasks"
 msgstr ""
@@ -143,97 +141,97 @@ msgid "Active/Type"
 msgstr ""
 
 msgid "Add"
-msgstr "Ajouter"
+msgstr ""
 
 msgid "Add Association"
-msgstr "Actions Avancées"
+msgstr ""
 
 msgid "Add Directory"
-msgstr "Ajouter le répertoire"
+msgstr ""
 
 msgid "Add Event"
-msgstr "Ajouter un événement"
+msgstr ""
 
 msgid "Add Event (24 Hour Format):"
-msgstr "Ajouter un événement (format 24 heures):"
+msgstr ""
 
 msgid "Add Host(s) to Group"
-msgstr "Ajouter un groupe de stockage"
+msgstr ""
 
 msgid "Add Image to DMI Associations"
-msgstr "Image Description"
+msgstr ""
 
 msgid "Add Image to Host(s)"
 msgstr ""
 
 msgid "Add MAC"
-msgstr "Ajouter MAC"
+msgstr ""
 
 msgid "Add Mac"
-msgstr "Ajouter MAC"
+msgstr ""
 
 msgid "Add New Snapin"
-msgstr "Ajouter un nouveau composant logiciel enfichable"
+msgstr ""
 
 msgid "Add New Storage Group"
-msgstr "Ajouter nouveau groupe de stockage"
+msgstr ""
 
 msgid "Add New Storage Node"
-msgstr "Ajouter un nouveau nœud de stockage"
+msgstr ""
 
 msgid "Add Only"
-msgstr "Ajouter Seulement"
+msgstr ""
 
 msgid "Add Printer"
 msgstr ""
 
 msgid "Add Protected User"
-msgstr "Ajouter protégé utilisateur"
+msgstr ""
 
 msgid "Add Snapin"
-msgstr "Ajouter Snapin"
+msgstr ""
 
 msgid "Add Snapin to all hosts in"
-msgstr "Retirer Snapin à tous les hôtes dans "
+msgstr ""
 
 msgid "Add Snapin(s)"
-msgstr "Ajouter Snapin"
+msgstr ""
 
 msgid "Add Storage Group"
-msgstr "Ajouter un groupe de stockage"
+msgstr ""
 
 msgid "Add Storage Node"
-msgstr "Ajouter des nœuds de stockage"
+msgstr ""
 
 msgid "Add User"
-msgstr "Ajouter un utilisateur:"
+msgstr ""
 
 msgid "Add and Remove"
-msgstr "Ajouter et supprimer des"
+msgstr ""
 
 msgid "Add hosts to group"
-msgstr "Ajouter un groupe de stockage"
+msgstr ""
 
 msgid "Add new host definition"
-msgstr "Ajouter une nouvelle définition de l'hôte"
+msgstr ""
 
 msgid "Add new image definition"
-msgstr "Ajouter une nouvelle définition de l'image"
+msgstr ""
 
 msgid "Add new printer"
-msgstr "Ajouter une nouvelle imprimante"
+msgstr ""
 
 msgid "Add new printer to all hosts in this group."
 msgstr ""
 
 msgid "Add new user account"
-msgstr "Ajouter un nouveau compte d'utilisateur"
+msgstr ""
 
 msgid "Add to Group(s)"
-msgstr "Ajouter un groupe de stockage"
+msgstr ""
 
 msgid "Add to Snapin(s)"
-msgstr "Ajouter Snapin"
+msgstr ""
 
 msgid "Add to group"
 msgstr ""
@@ -242,43 +240,43 @@ msgid "Additional MACs"
 msgstr ""
 
 msgid "Advanced"
-msgstr "Avancé"
+msgstr ""
 
 msgid "Advanced Actions"
-msgstr "Actions Avancées"
+msgstr ""
 
 msgid "Advanced Settings"
-msgstr "Paramètres Avancés"
+msgstr ""
 
 msgid "All"
 msgstr ""
 
 msgid "All Groups"
-msgstr "Tous les Groupes"
+msgstr ""
 
 msgid "All Hosts"
-msgstr "Tous les Hôtes"
+msgstr ""
 
 msgid "All Images"
-msgstr "Toutes les Images"
+msgstr ""
 
 msgid "All Pending MACs approved."
 msgstr ""
 
 msgid "All Snap-ins"
-msgstr "Tous les composants logiciels enfichables"
+msgstr ""
 
 msgid "All Storage Groups"
-msgstr "Tous les groupes de stockage"
+msgstr ""
 
 msgid "All Storage Nodes"
-msgstr "Tous les nœuds de stockage"
+msgstr ""
 
 msgid "All Tasks"
-msgstr "Tous les utilisateurs"
+msgstr ""
 
 msgid "All Users"
-msgstr "Tous les utilisateurs"
+msgstr ""
 
 msgid "All Virus' cleared"
 msgstr ""
@@ -296,7 +294,7 @@ msgid "Approve All Pending MACs for all hosts?"
 msgstr ""
 
 msgid "Are you sure you wish to deploy these machines?"
-msgstr "Etes-vous sûr de vouloir déployer ces machines?"
+msgstr ""
 
 msgid "Are you sure you wish to install/update the FOG database?"
 msgstr ""
@@ -305,10 +303,10 @@ msgid "Auto"
 msgstr ""
 
 msgid "Auto Log Out Settings"
-msgstr "Auto Déconnexion Paramètres"
+msgstr ""
 
 msgid "Auto Log Out Time (in minutes)"
-msgstr "Auto Déconnexion Temps (en minutes)"
+msgstr ""
 
 msgid "Auto generated fog nfs group"
 msgstr ""
@@ -326,7 +324,7 @@ msgid "BIOS Version"
 msgstr ""
 
 msgid "Bandwidth"
-msgstr "Bande passante"
+msgstr ""
 
 msgid "Barcode Numbers"
 msgstr ""
@@ -335,7 +333,7 @@ msgid "Basic Tasks"
 msgstr ""
 
 msgid "Blank for default"
-msgstr "(Vide par défaut)"
+msgstr ""
 
 msgid "Boot Key Sequence"
 msgstr ""
@@ -392,7 +390,7 @@ msgid "City / State / Zip"
 msgstr ""
 
 msgid "Clear"
-msgstr "Clair"
+msgstr ""
 
 msgid "Click"
 msgstr ""
@@ -401,28 +399,28 @@ msgid "Click the button to download the hosts table backup."
 msgstr ""
 
 msgid "Click the button to export the database."
-msgstr "Cliquez sur le bouton pour exporter la base de données."
+msgstr ""
 
 msgid "Client"
-msgstr "Clients Max"
+msgstr ""
 
 msgid "Client Service"
-msgstr "FOG service client de mise à jour"
+msgstr ""
 
 msgid "Client Updater"
-msgstr "Mise à jour du client"
+msgstr ""
 
 msgid "Client module update deleted!"
-msgstr "Mise à jour du module Client supprimé: "
+msgstr ""
 
 msgid "Complete"
-msgstr "Compléter"
+msgstr ""
 
 msgid "Computer Information"
 msgstr ""
 
 msgid "Configuration"
-msgstr "Configuration de FOG"
+msgstr ""
 
 msgid "Configuration Save"
 msgstr ""
@@ -439,26 +437,26 @@ msgid ""
 msgstr ""
 
 msgid "Create"
-msgstr "Créer un utilisateur"
+msgstr ""
 
 msgid "Create "
-msgstr "Créer un utilisateur"
+msgstr ""
 
 msgid "Create Date"
-msgstr "Créer un utilisateur"
+msgstr ""
 
 #, php-format
 msgid "Create New %s"
-msgstr "Créer un %s"
+msgstr ""
 
 msgid "Create Report"
 msgstr ""
 
 msgid "Create Time"
-msgstr "Créer un utilisateur"
+msgstr ""
 
 msgid "Create User"
-msgstr "Créer un utilisateur"
+msgstr ""
 
 msgid "Create new group"
 msgstr ""
@@ -467,7 +465,7 @@ msgid "Created by FOG Reg on"
 msgstr ""
 
 msgid "Cron Schedule:"
-msgstr "Cron Horaire:"
+msgstr ""
 
 msgid "Cron-style Deployment"
 msgstr ""
@@ -476,10 +474,10 @@ msgid "Current Image to DMI Associations"
 msgstr ""
 
 msgid "Current Protected User Accounts"
-msgstr "Comptes d'utilisateurs protégées actuelles"
+msgstr ""
 
 msgid "Current Records: "
-msgstr "Enregistrements Courants: "
+msgstr ""
 
 msgid "DMI Field"
 msgstr ""
@@ -491,7 +489,7 @@ msgid "DMI Result"
 msgstr ""
 
 msgid "Database Added!"
-msgstr "Base de données Ajoutés!"
+msgstr ""
 
 msgid "Database Error"
 msgstr ""
@@ -500,7 +498,7 @@ msgid "Database Schema Installer / Updater"
 msgstr ""
 
 msgid "Date"
-msgstr "Date"
+msgstr ""
 
 msgid "Date of Checkout"
 msgstr ""
@@ -512,37 +510,37 @@ msgid "Day of Week value is not valid"
 msgstr ""
 
 msgid "Default"
-msgstr "Par défaut"
+msgstr ""
 
 msgid "Default Height"
-msgstr "Hauteur par défaut:"
+msgstr ""
 
 msgid "Default Refresh Rate"
 msgstr ""
 
 msgid "Default Setting"
-msgstr "Réglage par défaut"
+msgstr ""
 
 msgid "Default Width"
-msgstr "Largeur par défaut:"
+msgstr ""
 
 msgid "Default log out time (in minutes): "
-msgstr "Par défaut déconnecter le temps (en minutes): "
+msgstr ""
 
 msgid "Delayed Deployment"
 msgstr ""
 
 msgid "Delete"
-msgstr "Effacer"
+msgstr ""
 
 msgid "Delete Current Records"
-msgstr "Supprimer Enregistrements Courants"
+msgstr ""
 
 msgid "Delete all hosts within the group as well?"
 msgstr ""
 
 msgid "Deleted"
-msgstr "Effacer"
+msgstr ""
 
 msgid "Deploy"
 msgstr ""
@@ -554,52 +552,52 @@ msgid "Deploy Method"
 msgstr ""
 
 msgid "Deploy Task"
-msgstr "Déployer Tâche"
+msgstr ""
 
 msgid "Deployed"
-msgstr "Déployer Tâche"
+msgstr ""
 
 msgid "Description"
-msgstr "Description"
+msgstr ""
 
 msgid "Deutsch"
 msgstr ""
 
 msgid "Directories Cleaned"
-msgstr "Annuaires nettoyés"
+msgstr ""
 
 msgid "Directory"
-msgstr "Ajouter le répertoire"
+msgstr ""
 
 msgid "Directory Cleaner"
-msgstr "Répertoire Propre"
+msgstr ""
 
 msgid "Directory Path"
-msgstr "Chemin de répertoire"
+msgstr ""
 
 msgid "Directory already exists."
-msgstr "Nom d'utilisateur existe déjà"
+msgstr ""
 
 msgid "Disk Information"
-msgstr "Informations sur le disque"
+msgstr ""
 
 msgid "Display"
-msgstr "Gestionnaire d'affichage"
+msgstr ""
 
 msgid "Domain Name"
-msgstr "Nom de domaine"
+msgstr ""
 
 msgid "Domain OU"
-msgstr "Nom de domaine"
+msgstr ""
 
 msgid "Domain Password"
-msgstr "Domaine Mot de passe"
+msgstr ""
 
 msgid "Domain Username"
-msgstr "Nom d'utilisateur de domaine"
+msgstr ""
 
 msgid "Domain name"
-msgstr "Nom de domaine"
+msgstr ""
 
 msgid "Done"
 msgstr ""
@@ -639,31 +637,31 @@ msgid "Duration"
 msgstr ""
 
 msgid "Edit"
-msgstr "Modifier"
+msgstr ""
 
 msgid "Edit Group"
-msgstr "Modifier groupe:"
+msgstr ""
 
 msgid "Edit Host"
 msgstr ""
 
 msgid "Edit User"
-msgstr "Modifier l'utilisateur"
+msgstr ""
 
 msgid "Edit host definition"
-msgstr "Modifier la définition de l'hôte"
+msgstr ""
 
 msgid "Edit image definition"
-msgstr "Modifier la définition de l'image"
+msgstr ""
 
 msgid "Edit/Remove"
-msgstr "Modifier/Supprimer"
+msgstr ""
 
 msgid "Enabled"
-msgstr "Activé"
+msgstr ""
 
 msgid "End"
-msgstr "Activé"
+msgstr ""
 
 msgid "End Date"
 msgstr ""
@@ -675,7 +673,7 @@ msgid "Engineer"
 msgstr ""
 
 msgid "English"
-msgstr "Anglais"
+msgstr ""
 
 msgid "Enter a hostname to search for"
 msgstr ""
@@ -693,7 +691,7 @@ msgid "Error contacting server"
 msgstr ""
 
 msgid "Error multiple hosts returned for list of mac addresses!"
-msgstr "Erreur plusieurs hôtes retournés pour la liste des adresses mac!"
+msgstr ""
 
 msgid "Error: Failed to install new kernel!"
 msgstr ""
@@ -702,7 +700,7 @@ msgid "Error: Is an image associated with the computer?"
 msgstr ""
 
 msgid "Error: Unable to connect to tftp server."
-msgstr "Impossible de se connecter au serveur"
+msgstr ""
 
 msgid "Errors"
 msgstr ""
@@ -720,7 +718,7 @@ msgid "Export"
 msgstr ""
 
 msgid "Export Configuration"
-msgstr "Configuration de FOG"
+msgstr ""
 
 msgid "Export Hosts"
 msgstr ""
@@ -735,13 +733,13 @@ msgid "FOG :: Mobile Manager :: Version"
 msgstr ""
 
 msgid "FOG Client Installer"
-msgstr "FOG service client de mise à jour"
+msgstr ""
 
 msgid "FOG Client Service"
-msgstr "FOG service client de mise à jour"
+msgstr ""
 
 msgid "FOG Client Service Updater"
-msgstr "FOG service client de mise à jour"
+msgstr ""
 
 msgid "FOG Crypt"
 msgstr ""
@@ -765,19 +763,19 @@ msgid "FOG Imaging Log - Select Date Range"
 msgstr ""
 
 msgid "FOG License Information"
-msgstr "FOG Informations sur la licence"
+msgstr ""
 
 msgid "FOG Mobile Login"
 msgstr ""
 
 msgid "FOG PXE Boot Menu Configuration"
-msgstr "Configuration du menu FOG démarrage PXE"
+msgstr ""
 
 msgid "FOG Prep"
 msgstr ""
 
 msgid "FOG Service Configuration Information"
-msgstr "Service de FOG informations de configuration"
+msgstr ""
 
 msgid "FOG Settings"
 msgstr ""
@@ -792,10 +790,10 @@ msgid "FOG Sourceforge Page"
 msgstr ""
 
 msgid "FOG System Settings"
-msgstr "Paramètres système FOG"
+msgstr ""
 
 msgid "FOG User Login History Summary"
-msgstr "Hôte Connexion Histoire"
+msgstr ""
 
 msgid "FOG User Login History Summary - Search"
 msgstr ""
@@ -804,7 +802,7 @@ msgid "FOG User Login History Summary - Select Date Range"
 msgstr ""
 
 msgid "FOG Version Information"
-msgstr "FOG Informations de version"
+msgstr ""
 
 msgid "FOG Virus Summary"
 msgstr ""
@@ -814,9 +812,6 @@ msgid ""
 "FOG system.  To view a report, select an item from the menu on the left-hand "
 "side of this page."
 msgstr ""
-"Les rapports de BROUILLARD existent pour vous donner des informations sur ce "
-"qui se passe avec votreSystème de FOG. Pour afficher un rapport, "
-"sélectionnez un élément dans le menu sur la main gauchecôté de cette page."
 
 msgid "FOG session invalid"
 msgstr ""
@@ -837,58 +832,58 @@ msgid "Failed to create deploy task"
 msgstr ""
 
 msgid "Failed to create deployment tasks for the following Hosts"
-msgstr "Impossible de créer des tâches de déploiement pour les hôtes suivants"
+msgstr ""
 
 msgid "Failed to create image task."
-msgstr "Joindre le domaine après tâche d'image"
+msgstr ""
 
 msgid "Failed to create inventory for this host!"
-msgstr "Il n'existe pas de données d'inventaire pour cet hôte."
+msgstr ""
 
 msgid "Failed to create new Group"
 msgstr ""
 
 msgid "Failed to create task."
-msgstr "Impossible de se connecter au serveur"
+msgstr ""
 
 msgid "Failed to delete file!"
-msgstr "Impossible de supprimer le fichier!"
+msgstr ""
 
 msgid "Failed to destroy Group"
-msgstr "Impossible de détruire utilisateur"
+msgstr ""
 
 msgid "Failed to destroy Location"
-msgstr "Impossible de détruire Snapin"
+msgstr ""
 
 msgid "Failed to destroy Object"
-msgstr "Impossible de détruire l'objet"
+msgstr ""
 
 msgid "Failed to destroy Printer"
 msgstr ""
 
 msgid "Failed to destroy Snapin"
-msgstr "Impossible de détruire Snapin"
+msgstr ""
 
 msgid "Failed to destroy Storage Node"
-msgstr "Impossible de détruire le nœud de stockage"
+msgstr ""
 
 msgid "Failed to destroy User"
-msgstr "Impossible de détruire utilisateur"
+msgstr ""
 
 msgid "Failed to install Plugin!"
-msgstr "Impossible de détruire Snapin"
+msgstr ""
 
 msgid "Failed to save new Host!"
-msgstr "Impossible de détruire hôte"
+msgstr ""
 
 msgid "Failed to update Task"
 msgstr ""
 
 msgid "Failed to update inventory for this host!"
-msgstr "Il n'existe pas de données d'inventaire pour cet hôte."
+msgstr ""
 
 msgid "File"
-msgstr "Dossier"
+msgstr ""
 
 msgid "File Import successful!"
 msgstr ""
@@ -897,7 +892,7 @@ msgid "File System Information"
 msgstr ""
 
 msgid "File:"
-msgstr "Fichier:"
+msgstr ""
 
 msgid "Force"
 msgstr ""
@@ -918,55 +913,55 @@ msgid "Full Inventory Export"
 msgstr ""
 
 msgid "General"
-msgstr "Général"
+msgstr ""
 
 msgid "General Information"
 msgstr ""
 
 msgid "Graph Enabled"
-msgstr "Graphique Activé"
+msgstr ""
 
 msgid "Graphical"
-msgstr "Graphique"
+msgstr ""
 
 msgid "Green FOG"
-msgstr "FOG vert"
+msgstr ""
 
 msgid "Group"
-msgstr "Group"
+msgstr ""
 
 msgid "Group Description"
-msgstr "Description du Groupe"
+msgstr ""
 
 msgid "Group Kernel"
-msgstr "Groupe Kernel"
+msgstr ""
 
 msgid "Group Kernel Arguments"
-msgstr "Arguments Groupe Kernel"
+msgstr ""
 
 msgid "Group Location"
-msgstr "Description du Groupe"
+msgstr ""
 
 msgid "Group Name"
-msgstr "Nom du Groupe"
+msgstr ""
 
 msgid "Group Primary Disk"
-msgstr "Groupe Primaire Disque"
+msgstr ""
 
 msgid "Group Relationships"
-msgstr "Rapports de groupe"
+msgstr ""
 
 msgid "Group Screen Resolution"
 msgstr ""
 
 msgid "Group Tasks"
-msgstr "Tâches de groupe"
+msgstr ""
 
 msgid "Group added"
-msgstr "Groupe ajoutée"
+msgstr ""
 
 msgid "Group deleted"
-msgstr "Groupe supprimés"
+msgstr ""
 
 msgid "Group is Invalid"
 msgstr ""
@@ -975,7 +970,7 @@ msgid "Groups"
 msgstr ""
 
 msgid "HD Device"
-msgstr "Service"
+msgstr ""
 
 msgid "HD Firmware"
 msgstr ""
@@ -999,10 +994,10 @@ msgid "Hello FOG Client"
 msgstr ""
 
 msgid "Hide Menu"
-msgstr "Masquer le menu"
+msgstr ""
 
 msgid "Home"
-msgstr "Maison"
+msgstr ""
 
 msgid "Home Address"
 msgstr ""
@@ -1011,31 +1006,31 @@ msgid "Home Phone"
 msgstr ""
 
 msgid "Host"
-msgstr "Hôte"
+msgstr ""
 
 msgid "Host Created"
-msgstr "Hôte Ajoutée"
+msgstr ""
 
 msgid "Host Desc"
 msgstr ""
 
 msgid "Host Description"
-msgstr "Description de l'hôte"
+msgstr ""
 
 msgid "Host Hardware Inventory"
-msgstr "Accueillir l'inventaire matériel"
+msgstr ""
 
 msgid "Host ID"
 msgstr ""
 
 msgid "Host Image"
-msgstr "Hôte Image"
+msgstr ""
 
 msgid "Host Kernel"
-msgstr "Hôte Noyau"
+msgstr ""
 
 msgid "Host Kernel Arguments"
-msgstr "Hôte Arguments du noyau"
+msgstr ""
 
 msgid "Host List"
 msgstr ""
@@ -1044,61 +1039,61 @@ msgid "Host Listing Export"
 msgstr ""
 
 msgid "Host Location"
-msgstr "Description de l'hôte"
+msgstr ""
 
 msgid "Host Login History"
-msgstr "Hôte Connexion Histoire"
+msgstr ""
 
 msgid "Host MAC"
 msgstr ""
 
 msgid "Host Name"
-msgstr "Nom de l'hôte"
+msgstr ""
 
 msgid "Host Pending MAC"
 msgstr ""
 
 msgid "Host Primary Disk"
-msgstr "Hôte disque primaire"
+msgstr ""
 
 msgid "Host Primary MAC"
-msgstr "MAC primaire"
+msgstr ""
 
 msgid "Host Printer Configuration"
-msgstr "Hôte configuration de l'imprimante"
+msgstr ""
 
 msgid "Host Registration"
 msgstr ""
 
 msgid "Host Screen Resolution"
-msgstr "Résolution de l'écran d'accueil"
+msgstr ""
 
 msgid "Host Search"
 msgstr ""
 
 msgid "Host Tasks"
-msgstr "Tâches d'accueil"
+msgstr ""
 
 msgid "Host added"
-msgstr "Hôte Ajoutée"
+msgstr ""
 
 msgid "Host name"
-msgstr "Nom d'hôte"
+msgstr ""
 
 msgid "Host/User name"
-msgstr "Nom d'utilisateur"
+msgstr ""
 
 msgid "Hostname"
-msgstr "Nom d'hôte"
+msgstr ""
 
 msgid "Hostname Changer"
-msgstr "Changer le nom d'hôte"
+msgstr ""
 
 msgid "Hostname already exists"
-msgstr "Nom d'hôte existe déjà"
+msgstr ""
 
 msgid "Hostname is required"
-msgstr "Nom de l'hôte est nécessaire"
+msgstr ""
 
 msgid "Hostname or IP address of the TFTP Server."
 msgstr ""
@@ -1113,10 +1108,10 @@ msgid "Hosts below do not belong to a group"
 msgstr ""
 
 msgid "Hosts do not have Uniformed Image assignments"
-msgstr "Hôtes n'ont pas uniforme missions de l'image"
+msgstr ""
 
 msgid "Hosts in Task"
-msgstr "Les hôtes de tâche"
+msgstr ""
 
 msgid "Hour value is not valid"
 msgstr ""
@@ -1130,10 +1125,10 @@ msgid "ID"
 msgstr ""
 
 msgid "IP"
-msgstr "IP"
+msgstr ""
 
 msgid "IP Address"
-msgstr "Adresse IP"
+msgstr ""
 
 msgid ""
 "If you would like to backup your FOG database you can do so my using MySql "
@@ -1143,7 +1138,7 @@ msgid ""
 msgstr ""
 
 msgid "Image"
-msgstr "Image"
+msgstr ""
 
 msgid "Image Association"
 msgstr ""
@@ -1152,25 +1147,25 @@ msgid "Image Association for"
 msgstr ""
 
 msgid "Image Definition"
-msgstr "Image Description"
+msgstr ""
 
 msgid "Image Desc"
 msgstr ""
 
 msgid "Image Description"
-msgstr "Image Description"
+msgstr ""
 
 msgid "Image ID"
 msgstr ""
 
 msgid "Image Manager"
-msgstr "Gestion des images"
+msgstr ""
 
 msgid "Image Name"
-msgstr "Nom de l'image"
+msgstr ""
 
 msgid "Image Path"
-msgstr "Image Chemin"
+msgstr ""
 
 msgid "Image Size: ON CLIENT"
 msgstr ""
@@ -1179,31 +1174,31 @@ msgid "Image Size: ON SERVER"
 msgstr ""
 
 msgid "Image Type"
-msgstr "Type d'image"
+msgstr ""
 
 msgid "Image created"
-msgstr "Image créée"
+msgstr ""
 
 msgid "Image deleted"
-msgstr "Image Supprimée"
+msgstr ""
 
 msgid "Image updated"
-msgstr "Image mise à jour"
+msgstr ""
 
 msgid "Images"
-msgstr "Image"
+msgstr ""
 
 msgid "Imaging Log"
 msgstr ""
 
 msgid "Imaging over the last 30 days"
-msgstr "Imagerie au cours des 30 derniers jours"
+msgstr ""
 
 msgid "Import"
-msgstr "Rapports"
+msgstr ""
 
 msgid "Import Configuration"
-msgstr "Configuration de FOG"
+msgstr ""
 
 msgid "Import Host Results"
 msgstr ""
@@ -1215,7 +1210,7 @@ msgid "Import a previous backup file."
 msgstr ""
 
 msgid "Information"
-msgstr "Informations sur le disque"
+msgstr ""
 
 msgid "Install/Upgrade Now"
 msgstr ""
@@ -1227,7 +1222,7 @@ msgid "Instant Deployment"
 msgstr ""
 
 msgid "Interface"
-msgstr "Interface"
+msgstr ""
 
 msgid "Invalid Group ID"
 msgstr ""
@@ -1236,34 +1231,34 @@ msgid "Invalid Host"
 msgstr ""
 
 msgid "Invalid Login"
-msgstr "Mot de passe incorrect"
+msgstr ""
 
 msgid "Invalid MAC Address"
 msgstr ""
 
 msgid "Invalid MAC Address!"
-msgstr "Adresse IP"
+msgstr ""
 
 msgid "Invalid Server Information!"
 msgstr ""
 
 msgid "Invalid Storage Group"
-msgstr "Ajouter un groupe de stockage"
+msgstr ""
 
 msgid "Invalid StorageGroup"
 msgstr ""
 
 msgid "Invalid Timeout Value."
-msgstr "Invalid valeur de timeout."
+msgstr ""
 
 msgid "Invalid host"
-msgstr "Invalid ID hôte."
+msgstr ""
 
 msgid "Invalid hostname"
 msgstr ""
 
 msgid "Invalid image"
-msgstr "Mot de passe incorrect"
+msgstr ""
 
 msgid "Invalid number of cells"
 msgstr ""
@@ -1281,28 +1276,28 @@ msgid "Inventory ID"
 msgstr ""
 
 msgid "Is Enabled"
-msgstr "Est Activé"
+msgstr ""
 
 msgid "Is Graph Enabled"
-msgstr "Graphique est Activé"
+msgstr ""
 
 msgid "Is Group"
 msgstr ""
 
 msgid "Is Master Node"
-msgstr "Nœud principal est"
+msgstr ""
 
 msgid "Italiano"
-msgstr "Italien"
+msgstr ""
 
 msgid "Job Create Date"
-msgstr "Créer un utilisateur"
+msgstr ""
 
 msgid "Job Create Time"
-msgstr "Créer un utilisateur"
+msgstr ""
 
 msgid "Join Domain after image task"
-msgstr "Joindre le domaine après tâche d'image"
+msgstr ""
 
 msgid "Kernel"
 msgstr ""
@@ -1342,7 +1337,7 @@ msgid "List all Groups"
 msgstr ""
 
 msgid "Load Average"
-msgstr "Charge Moyenne"
+msgstr ""
 
 msgid "Load MAC Vendors"
 msgstr ""
@@ -1354,13 +1349,13 @@ msgid "Location"
 msgstr ""
 
 msgid "Location Management"
-msgstr "Gestion D'accueil"
+msgstr ""
 
 msgid "Location Name"
-msgstr "Nom Snapin"
+msgstr ""
 
 msgid "Location deleted"
-msgstr "Enclenchez supprimé"
+msgstr ""
 
 msgid ""
 "Location of kernel file on the PXE server, this should point to the kernel "
@@ -1377,40 +1372,40 @@ msgid "Location/Deployed"
 msgstr ""
 
 msgid "Locations"
-msgstr "d'Action"
+msgstr ""
 
 msgid "Log Viewer"
 msgstr ""
 
 msgid "Login"
-msgstr "Connexion"
+msgstr ""
 
 msgid "Login History"
 msgstr ""
 
 msgid "Logout"
-msgstr "Déconnexion"
+msgstr ""
 
 msgid "MAC"
-msgstr "MAC"
+msgstr ""
 
 msgid "MAC Address List"
 msgstr ""
 
 msgid "MAC Address Manufacturer Listing"
-msgstr "MAC annonce Adresse du fabricant"
+msgstr ""
 
 msgid "MAC Address is not valid"
-msgstr "Adresse MAC n'est pas valide."
+msgstr ""
 
 msgid "MAC Address is required"
-msgstr "Adresse MAC est nécessaire"
+msgstr ""
 
 msgid "MAC Format is invalid"
-msgstr "Adresse MAC n'est pas valide."
+msgstr ""
 
 msgid "MAC address listing source: "
-msgstr "MAC adresse de listage source de"
+msgstr ""
 
 msgid "MB Asset"
 msgstr ""
@@ -1419,13 +1414,13 @@ msgid "MB Manufacturer"
 msgstr ""
 
 msgid "MB Name"
-msgstr "Nom"
+msgstr ""
 
 msgid "MB Serial"
 msgstr ""
 
 msgid "MB Version"
-msgstr "Version:"
+msgstr ""
 
 msgid "MB/s"
 msgstr ""
@@ -1437,31 +1432,31 @@ msgid "Make sure your database username and password are correct."
 msgstr ""
 
 msgid "Management"
-msgstr "Gestion D'accueil"
+msgstr ""
 
 msgid "Management Login"
 msgstr ""
 
 msgid "Management Password"
-msgstr "gestion Mot de passe"
+msgstr ""
 
 msgid "Management Username"
-msgstr "Gestion Nom d'utilisateur"
+msgstr ""
 
 msgid "Master Node"
-msgstr "Noeud Maître"
+msgstr ""
 
 msgid "Max Clients"
-msgstr "Clients Max"
+msgstr ""
 
 msgid "Max Size"
 msgstr ""
 
 msgid "Max Size:"
-msgstr "Max Taille: "
+msgstr ""
 
 msgid "Members"
-msgstr "Membres"
+msgstr ""
 
 msgid "Membership"
 msgstr ""
@@ -1470,37 +1465,37 @@ msgid "Memory"
 msgstr ""
 
 msgid "Menu Timeout (in seconds)"
-msgstr "Menu Timeout (en secondes)"
+msgstr ""
 
 msgid "Minute value is not valid"
 msgstr ""
 
 msgid "Mobile/Quick Image Access Only?"
-msgstr "Mobile Accès rapide / Image Seulement?"
+msgstr ""
 
 msgid "Mode"
-msgstr "Mode"
+msgstr ""
 
 msgid "Model"
 msgstr ""
 
 msgid "Modify AD information for"
-msgstr "Modifiez les informations de AD pour"
+msgstr ""
 
 msgid "Modify Group"
-msgstr "Modifier Groupe"
+msgstr ""
 
 msgid "Modify Membership for"
-msgstr "Retirez membre?"
+msgstr ""
 
 msgid "Module MD5"
-msgstr "Module de MD5"
+msgstr ""
 
 msgid "Module Name"
-msgstr "Nom du module"
+msgstr ""
 
 msgid "Module Type"
-msgstr "Type de module"
+msgstr ""
 
 msgid "Month value is not valid"
 msgstr ""
@@ -1527,7 +1522,7 @@ msgid "Multicast"
 msgstr ""
 
 msgid "Must be encrypted"
-msgstr "(Doit être chiffré)"
+msgstr ""
 
 msgid "N/A"
 msgstr ""
@@ -1539,10 +1534,10 @@ msgid "NOT"
 msgstr ""
 
 msgid "Name"
-msgstr "Nom"
+msgstr ""
 
 msgid "Name:"
-msgstr "Nom"
+msgstr ""
 
 msgid "Network Information"
 msgstr ""
@@ -1554,7 +1549,7 @@ msgid "New"
 msgstr ""
 
 msgid "New Group"
-msgstr "Nouveau Groupe"
+msgstr ""
 
 msgid "New Hook Item"
 msgstr ""
@@ -1563,25 +1558,25 @@ msgid "New Hook Item 2"
 msgstr ""
 
 msgid "New Host"
-msgstr "Nouvel hôte"
+msgstr ""
 
 msgid "New Image"
-msgstr "Nouvelle Image"
+msgstr ""
 
 msgid "New Kernel name:"
-msgstr "Nom nouveau noyau:"
+msgstr ""
 
 msgid "New Password"
-msgstr "Nouveau mot de passe"
+msgstr ""
 
 msgid "New Password (confirm)"
-msgstr "Nouveau mot de passe (confirmation)"
+msgstr ""
 
 msgid "New Search"
 msgstr ""
 
 msgid "New User"
-msgstr "Nouvel utilisateur"
+msgstr ""
 
 msgid "No"
 msgstr ""
@@ -1605,10 +1600,10 @@ msgid "No Menu"
 msgstr ""
 
 msgid "No Printer Management"
-msgstr "Pas de gestion de l'imprimante"
+msgstr ""
 
 msgid "No image assigned for this host."
-msgstr "Afficher des tâches avancées pour cet hôte."
+msgstr ""
 
 msgid "No image specified"
 msgstr ""
@@ -1617,13 +1612,13 @@ msgid "No results found"
 msgstr ""
 
 msgid "No snapins Associated."
-msgstr "Snapin créé"
+msgstr ""
 
 msgid "No user history data found!"
 msgstr ""
 
 msgid "Node"
-msgstr "Nom du nœud"
+msgstr ""
 
 msgid "Not Available"
 msgstr ""
@@ -1635,10 +1630,10 @@ msgid "Notes / Miscellaneous / Included Items"
 msgstr ""
 
 msgid "Number of lines:"
-msgstr "Nombre de lignes:"
+msgstr ""
 
 msgid "O/S"
-msgstr "O/S"
+msgstr ""
 
 msgid "OR"
 msgstr ""
@@ -1653,13 +1648,13 @@ msgid "On Dashboard"
 msgstr ""
 
 msgid "Open Source Computer Cloning Solution"
-msgstr "Ouvrir Clonage Ordinateur Solution Source"
+msgstr ""
 
 msgid "Operating System"
-msgstr "Système d'exploitation"
+msgstr ""
 
 msgid "Organizational Unit"
-msgstr "Unité organisationnelle"
+msgstr ""
 
 msgid "Other Tag #1"
 msgstr ""
@@ -1692,19 +1687,19 @@ msgid "PartClone"
 msgstr ""
 
 msgid "PartImage"
-msgstr "Image"
+msgstr ""
 
 msgid "Password"
 msgstr ""
 
 msgid "Password is invalid"
-msgstr "Mot de passe est invalide"
+msgstr ""
 
 msgid "Password used to access the tftp server via ftp."
 msgstr ""
 
 msgid "Path"
-msgstr "Chemin"
+msgstr ""
 
 msgid "Pending MAC Export"
 msgstr ""
@@ -1716,11 +1711,11 @@ msgid "Personal Information"
 msgstr ""
 
 msgid "Please confirm you want to delete"
-msgstr "S'il vous plaît confirmer que vous souhaitez supprimer"
+msgstr ""
 
 msgid ""
 "Please confirm you want to delete the following hosts from the FOG Database."
-msgstr "S'il vous plaît confirmer que vous souhaitez supprimer"
+msgstr ""
 
 msgid "Please select an option"
 msgstr ""
@@ -1732,7 +1727,7 @@ msgid "Plugin"
 msgstr ""
 
 msgid "Plugin Description"
-msgstr "Description"
+msgstr ""
 
 msgid "Plugin Installation"
 msgstr ""
@@ -1750,7 +1745,7 @@ msgid "Primary Group"
 msgstr ""
 
 msgid "Primary MAC"
-msgstr "MAC primaire"
+msgstr ""
 
 msgid "Primary User"
 msgstr ""
@@ -1762,10 +1757,10 @@ msgid "Printer"
 msgstr ""
 
 msgid "Printer Alias"
-msgstr "Imprimante Alias"
+msgstr ""
 
 msgid "Printer INF File"
-msgstr "Imprimante Type"
+msgstr ""
 
 msgid "Printer IP (optional)"
 msgstr ""
@@ -1777,7 +1772,7 @@ msgid "Printer Port"
 msgstr ""
 
 msgid "Printer Type"
-msgstr "Imprimante Type"
+msgstr ""
 
 msgid "Printer created"
 msgstr ""
@@ -1801,7 +1796,7 @@ msgid "Quarantine"
 msgstr ""
 
 msgid "Queued"
-msgstr "File d'attente"
+msgstr ""
 
 msgid "Quick Image Menu"
 msgstr ""
@@ -1810,7 +1805,7 @@ msgid "RX"
 msgstr ""
 
 msgid "Reboot"
-msgstr "Redémarrer"
+msgstr ""
 
 msgid "Reboot after deploy"
 msgstr ""
@@ -1819,7 +1814,7 @@ msgid "Reboot after install"
 msgstr ""
 
 msgid "Receive"
-msgstr "Recevoir"
+msgstr ""
 
 msgid "Refresh"
 msgstr ""
@@ -1828,31 +1823,31 @@ msgid "Releasing Staff Initials"
 msgstr ""
 
 msgid "Remove"
-msgstr "Supprimer"
+msgstr ""
 
 msgid "Remove Association"
-msgstr "Retirer Snapin"
+msgstr ""
 
 msgid "Remove Image?"
-msgstr "Retirez membre?"
+msgstr ""
 
 msgid "Remove MAC"
-msgstr "Supprimer"
+msgstr ""
 
 msgid "Remove Membership?"
-msgstr "Retirez membre?"
+msgstr ""
 
 msgid "Remove Snapin"
-msgstr "Retirer Snapin"
+msgstr ""
 
 msgid "Remove Snapin to all hosts in"
-msgstr "Retirer Snapin à tous les hôtes dans "
+msgstr ""
 
 msgid "Remove printer from all hosts in this group."
 msgstr ""
 
 msgid "Removed"
-msgstr "Supprimer"
+msgstr ""
 
 msgid "Replay from journal: real insert time"
 msgstr ""
@@ -1861,7 +1856,7 @@ msgid "Report"
 msgstr ""
 
 msgid "Reports"
-msgstr "Rapports"
+msgstr ""
 
 msgid "Required database field is empty"
 msgstr ""
@@ -1882,7 +1877,7 @@ msgid "Rx"
 msgstr ""
 
 msgid "Save Changes"
-msgstr "Enregistrer les modifications"
+msgstr ""
 
 msgid "Save PXE MENU"
 msgstr ""
@@ -1897,7 +1892,7 @@ msgid "Schedule "
 msgstr ""
 
 msgid "Schedule <u>Shutdown</u> after task completion"
-msgstr "Annexe <u>arrêt</u> après l'achèvement des tâches"
+msgstr ""
 
 msgid "Scheduled Tasks"
 msgstr ""
@@ -1907,22 +1902,22 @@ msgid "Scheduled date is in the past. Date: %s"
 msgstr ""
 
 msgid "Scheduled to start at:"
-msgstr "Prévu pour commencer à"
+msgstr ""
 
 msgid "Scheduled to start at: "
 msgstr ""
 
 msgid "Screen Height (in pixels)"
-msgstr "Taille de l'écran (en pixels)"
+msgstr ""
 
 msgid "Screen Refresh Rate (in Hz)"
-msgstr "Ecran fréquence de rafraîchissement (en Hz)"
+msgstr ""
 
 msgid "Screen Width (in pixels)"
-msgstr "Largeur de l'écran (en pixels)"
+msgstr ""
 
 msgid "Search"
-msgstr "Recherche"
+msgstr ""
 
 msgid "Search for Entries"
 msgstr ""
@@ -1934,10 +1929,10 @@ msgid "Select Management Level for all Hosts in this group"
 msgstr ""
 
 msgid "Select Management Level for this Host"
-msgstr "Choisir le niveau de gestion pour cette Host"
+msgstr ""
 
 msgid "Select One"
-msgstr "Sélectionnez un"
+msgstr ""
 
 msgid "Select Start Date"
 msgstr ""
@@ -1952,28 +1947,28 @@ msgid "Server Shell"
 msgstr ""
 
 msgid "Service"
-msgstr "Service"
+msgstr ""
 
 msgid "Service Configuration"
-msgstr "Configuration du service"
+msgstr ""
 
 msgid "Service Start"
-msgstr "Démarrer le service"
+msgstr ""
 
 msgid "Service Status"
-msgstr "État des services"
+msgstr ""
 
 msgid "Service Stop"
-msgstr "Démarrer le service"
+msgstr ""
 
 msgid "Session timeout"
 msgstr ""
 
 msgid "Settings"
-msgstr "Paramètres Avancés"
+msgstr ""
 
 msgid "Shut Down"
-msgstr "Arrêter"
+msgstr ""
 
 msgid "Shutdown"
 msgstr ""
@@ -1982,7 +1977,7 @@ msgid "Shutdown after deploy"
 msgstr ""
 
 msgid "Shutdown/Reboot Schedule"
-msgstr "Shutdown / Redémarrage annexe"
+msgstr ""
 
 msgid "Signed"
 msgstr ""
@@ -1994,7 +1989,7 @@ msgid ""
 msgstr ""
 
 msgid "Snapin"
-msgstr "Snapin"
+msgstr ""
 
 msgid "Snapin Args"
 msgstr ""
@@ -2003,13 +1998,13 @@ msgid "Snapin Arguments"
 msgstr ""
 
 msgid "Snapin Client"
-msgstr "Snapin Client"
+msgstr ""
 
 msgid "Snapin Creation Date"
-msgstr "Snapin créé"
+msgstr ""
 
 msgid "Snapin Creation Time"
-msgstr "Snapin créé"
+msgstr ""
 
 msgid "Snapin Description"
 msgstr ""
@@ -2018,7 +2013,7 @@ msgid "Snapin File"
 msgstr ""
 
 msgid "Snapin File (exists)"
-msgstr "Snapin Client"
+msgstr ""
 
 msgid "Snapin ID"
 msgstr ""
@@ -2027,13 +2022,13 @@ msgid "Snapin Log"
 msgstr ""
 
 msgid "Snapin Name"
-msgstr "Nom Snapin"
+msgstr ""
 
 msgid "Snapin Return Code"
 msgstr ""
 
 msgid "Snapin Return Detail"
-msgstr "Snapin Client"
+msgstr ""
 
 msgid "Snapin Run With"
 msgstr ""
@@ -2048,19 +2043,19 @@ msgid "Snapin State"
 msgstr ""
 
 msgid "Snapin created"
-msgstr "Snapin créé"
+msgstr ""
 
 msgid "Snapin deleted"
-msgstr "Enclenchez supprimé"
+msgstr ""
 
 msgid "Snapin is already setup for tasking."
 msgstr ""
 
 msgid "Snapin updated"
-msgstr "Snapin jour"
+msgstr ""
 
 msgid "Snapins"
-msgstr "Snapins"
+msgstr ""
 
 msgid "Start"
 msgstr ""
@@ -2075,7 +2070,7 @@ msgid "Started By:"
 msgstr ""
 
 msgid "Starting process..."
-msgstr "Processus de Démarrage..."
+msgstr ""
 
 msgid "State"
 msgstr ""
@@ -2084,73 +2079,73 @@ msgid "Status"
 msgstr ""
 
 msgid "Storage"
-msgstr "Stockage"
+msgstr ""
 
 msgid "Storage Group"
-msgstr "Groupe de Stockage"
+msgstr ""
 
 msgid "Storage Group Description"
-msgstr "Groupe Stockage Description"
+msgstr ""
 
 msgid "Storage Group Name"
-msgstr "Nom du groupe de stockage"
+msgstr ""
 
 msgid "Storage Group Name is required"
-msgstr "Nom du Groupe Stockage est nécessaire"
+msgstr ""
 
 msgid "Storage Group already exists"
-msgstr "Groupe de stockage existe déjà"
+msgstr ""
 
 msgid "Storage Group created"
-msgstr "Groupe de stockage créé"
+msgstr ""
 
 msgid "Storage Group deleted"
-msgstr "Groupe de stockage supprimé"
+msgstr ""
 
 msgid "Storage Group updated"
-msgstr "Groupe de stockage de mise à jour"
+msgstr ""
 
 msgid "Storage Node"
-msgstr "Noeud de stockage"
+msgstr ""
 
 msgid "Storage Node Description"
-msgstr "Description du nœud de stockage"
+msgstr ""
 
 msgid "Storage Node IP Address is required"
-msgstr "Adresse nœud de stockage IP est nécessaire"
+msgstr ""
 
 msgid "Storage Node Interface is required"
-msgstr "Stockage Management Interface Node est nécessaire"
+msgstr ""
 
 msgid "Storage Node Management Password is required"
-msgstr "Mot de passe nœud de stockage de gestion est nécessaire"
+msgstr ""
 
 msgid "Storage Node Management Username is required"
-msgstr "Noeud de stockage de gestion Nom d'utilisateur est nécessaire"
+msgstr ""
 
 msgid "Storage Node Max Clients is required"
-msgstr "Les clients nœud de stockage Max est nécessaire"
+msgstr ""
 
 msgid "Storage Node Name"
-msgstr "Nom du nœud de stockage"
+msgstr ""
 
 msgid "Storage Node Name is required"
-msgstr "Noeud de stockage Le nom est obligatoire"
+msgstr ""
 
 msgid "Storage Node already exists"
-msgstr "Nœud de stockage existe déjà"
+msgstr ""
 
 msgid "Storage Node created"
-msgstr "Noeud de stockage créé"
+msgstr ""
 
 msgid "Storage Node deleted"
-msgstr "Noeud de stockage supprimé"
+msgstr ""
 
 msgid "Storage Node updated"
-msgstr "Noeud de stockage mis à jour"
+msgstr ""
 
 msgid "Storage Node: "
-msgstr "Noeud de stockage"
+msgstr ""
 
 msgid "Successful Hosts"
 msgstr ""
@@ -2160,16 +2155,16 @@ msgstr ""
 
 #, php-format
 msgid "Successfully created tasks for deployment to the following Hosts"
-msgstr "Tâches avec succès créé pour le déploiement des armées suivantes"
+msgstr ""
 
 msgid "System Activity"
-msgstr "L'activité du système"
+msgstr ""
 
 msgid "System Manufacturer"
 msgstr ""
 
 msgid "System Overview"
-msgstr "Présentation du Système"
+msgstr ""
 
 msgid "System Product"
 msgstr ""
@@ -2190,13 +2185,13 @@ msgid "TFTP From Node"
 msgstr ""
 
 msgid "TFTP Server"
-msgstr "Serveur TFTP"
+msgstr ""
 
 msgid "TX"
 msgstr ""
 
 msgid "Task"
-msgstr "Tâche"
+msgstr ""
 
 msgid "Task Checkin Date"
 msgstr ""
@@ -2211,7 +2206,7 @@ msgid "Task Name"
 msgstr ""
 
 msgid "Task Reboot"
-msgstr "Groupe de Redémarrer"
+msgstr ""
 
 msgid "Task Started"
 msgstr ""
@@ -2232,7 +2227,7 @@ msgid "Terms and Conditions"
 msgstr ""
 
 msgid "Text"
-msgstr "Texte"
+msgstr ""
 
 msgid "The Storage Group's associated Storage Node is not valid"
 msgstr ""
@@ -2244,27 +2239,19 @@ msgid ""
 "The selection box below will add the selected snapins to your host "
 "automatically."
 msgstr ""
-"La boîte de sélection ci-dessous ajouter votre hôte à un groupe "
-"automatiquement."
 
 msgid ""
 "The selection box below will add this image to the selected hosts "
 "automatically."
 msgstr ""
-"La boîte de sélection ci-dessous ajouter votre hôte à un groupe "
-"automatiquement."
 
 msgid ""
 "The selection box below will add this snapin to the selected hosts "
 "automatically."
 msgstr ""
-"La boîte de sélection ci-dessous ajouter votre hôte à un groupe "
-"automatiquement."
 
 msgid "The selection box below will add your host to a group automatically."
 msgstr ""
-"La boîte de sélection ci-dessous ajouter votre hôte à un groupe "
-"automatiquement."
 
 msgid "The settings defines where the fog boot file system image is located."
 msgstr ""
@@ -2280,13 +2267,13 @@ msgid ""
 msgstr ""
 
 msgid "There are no groups on this server."
-msgstr "Il n'y a pas de groupes associés."
+msgstr ""
 
 msgid "There are no images on this server."
-msgstr "Il n'y a pas les hôtes associés."
+msgstr ""
 
 msgid "There are no locations on this server."
-msgstr "Il n'y a pas les hôtes associés."
+msgstr ""
 
 msgid "There are open slots, but I am waiting for"
 msgstr ""
@@ -2311,10 +2298,6 @@ msgid ""
 "operates.  Please be very careful changing any of the following settings, as "
 "they can cause issues that are difficult to troubleshoot."
 msgstr ""
-"Cette section vous permet de personnaliser ou de modifier la façon dont "
-"FOGfonctionne. S'il vous plaît être très prudent de changer l'un des "
-"paramètres suivants, commeils peuvent causer des problèmes difficiles à "
-"résoudre."
 
 msgid ""
 "This section allows you to import known mac address makers into the FOG "
@@ -2338,19 +2321,11 @@ msgid ""
 "client will download the module and use it on the next time the service is "
 "started."
 msgstr ""
-"Cette section vous permet de mettre à jour les modules et les fichiers de "
-"configuration qui s'exécutent surles ordinateurs clients. Les clients "
-"checkin avec le serveur de temps àle temps de voir si un nouveau module est "
-"publié. Si un nouveau module est publié leclient va télécharger le module et "
-"l'utiliser sur la prochaine fois que le service esta commencé."
 
 msgid ""
 "This section allows you to upload user defined reports that may not be part "
 "of the base FOG package.  The report files should end in .php"
 msgstr ""
-"Cette section vous permet de télécharger des rapports définis par "
-"l'utilisateur qui ne peuvent pas faire partiede l'ensemble de FOG de base. "
-"Les fichiers de rapport devraient se terminer par. php."
 
 msgid ""
 "This section of the FOG management portal allows you to configure how the "
@@ -2360,13 +2335,6 @@ msgid ""
 "see the Servicesection.  To get started editing global settings, please "
 "select an item from the left hand menu."
 msgstr ""
-"Cette section du portail de gestion de FOG vous permet de configurer la "
-"façon dont leFonctions de service de FOG sur les ordinateurs clients. Les "
-"paramètres de cette sectionont tendance à être les paramètres globaux cet "
-"effet tous les hôtes. Si vous cherchez àconfigurer les paramètres d'un "
-"module de service qui est spécifique à un hôte, s'il vous plaîtvoir le "
-"Servicesection. Pour commencer l'édition des paramètres globaux, s'il vous "
-"plaîtsélectionner un élément du menu de gauche."
 
 msgid ""
 "This setting allows you to add additional kernel arguments to the client "
@@ -2633,13 +2601,13 @@ msgid "This setting defines the proxy ip address to use."
 msgstr ""
 
 msgid "This setting defines the proxy password to use."
-msgstr "Ce paramètre définit le temps d'auto déconnexion cet hôte."
+msgstr ""
 
 msgid "This setting defines the proxy port address to use."
 msgstr ""
 
 msgid "This setting defines the proxy username to use."
-msgstr "Ce paramètre définit le temps d'auto déconnexion cet hôte."
+msgstr ""
 
 msgid ""
 "This setting defines the starting port number used in multicast "
@@ -2685,10 +2653,10 @@ msgid ""
 msgstr ""
 
 msgid "Time"
-msgstr "Temps"
+msgstr ""
 
 msgid "Time already exists."
-msgstr "Nom d'utilisateur existe déjà"
+msgstr ""
 
 msgid "To setup download task, you must first upload an image"
 msgstr ""
@@ -2700,7 +2668,7 @@ msgid "Total Disk Space"
 msgstr ""
 
 msgid "Total Members"
-msgstr "Total des membres"
+msgstr ""
 
 msgid "Total Memory"
 msgstr ""
@@ -2709,7 +2677,7 @@ msgid "Total Rows"
 msgstr ""
 
 msgid "Transmit"
-msgstr "Transmettre"
+msgstr ""
 
 msgid "Tx"
 msgstr ""
@@ -2733,22 +2701,22 @@ msgid "Undefined host to ping"
 msgstr ""
 
 msgid "Unknown"
-msgstr "Inconnu"
+msgstr ""
 
 msgid "Unofficial Kernels"
 msgstr ""
 
 msgid "Update"
-msgstr "Mettre à jour"
+msgstr ""
 
 msgid "Update Current Listing"
-msgstr "Mettre à jour votre actuelle"
+msgstr ""
 
 msgid "Update Defaults"
-msgstr "Mettre à jour les valeurs par défaut"
+msgstr ""
 
 msgid "Update Hosts"
-msgstr "Mettre à jour les valeurs par défaut"
+msgstr ""
 
 msgid "Update Images"
 msgstr ""
@@ -2757,7 +2725,7 @@ msgid "Update Printer"
 msgstr ""
 
 msgid "Update Settings"
-msgstr "Mise à jour Snapins"
+msgstr ""
 
 msgid "Update not required, your database schema is up to date!"
 msgstr ""
@@ -2775,25 +2743,25 @@ msgid "Upload CSV"
 msgstr ""
 
 msgid "Upload FOG Reports"
-msgstr "Téléchargez Rapports FOG"
+msgstr ""
 
 msgid "Upload File"
-msgstr "Télécharger le fichier"
+msgstr ""
 
 msgid "Upload Reports"
-msgstr "Téléchargez Rapports FOG"
+msgstr ""
 
 msgid "Upload a FOG report"
-msgstr "Envoyez un rapport de FOG"
+msgstr ""
 
 msgid "Upload a new client module/configuration file"
-msgstr "Télécharger un nouveau fichier / module de configuration du client"
+msgstr ""
 
 msgid "Uploaded"
-msgstr "Télécharger le fichier"
+msgstr ""
 
 msgid "Uptime"
-msgstr "Temps de Disponibilité"
+msgstr ""
 
 msgid ""
 "Use extreme caution with this setting!  This setting, if used incorrectly "
@@ -2803,12 +2771,6 @@ msgid ""
 "on it, and set it to master, it will distribute its store, which is empty, "
 "to all hosts in the group"
 msgstr ""
-"Faites très attention avec ce réglage! Ce paramètre, s'il est mal "
-"utilisépourrait effacer toutes vos images stockées sur l'ensemble du "
-"stockage actuelnœuds. L''Est nœud principal est' paramètre définit le nœud "
-"qui est le distributeur des images. Si vous ajoutez un nœud anonyme, ce qui "
-"signifie un nœud qui n'a pas d'imagesà ce sujet, et le mettre à maîtriser, "
-"il distribuera son magasin, qui est vide,à tous les hôtes du groupe"
 
 msgid "Used Disk Space"
 msgstr ""
@@ -2817,73 +2779,73 @@ msgid "Used Memory"
 msgstr ""
 
 msgid "User"
-msgstr "Utilisateur"
+msgstr ""
 
 msgid "User Cleanup"
-msgstr "Nettoyage de l'utilisateur"
+msgstr ""
 
 msgid "User Login Hist"
 msgstr ""
 
 msgid "User Name"
-msgstr "Nom d'utilisateur"
+msgstr ""
 
 msgid "User Password"
-msgstr "Utilisateur Mot de passe"
+msgstr ""
 
 msgid "User Password (confirm)"
-msgstr "Utilisateur Mot de passe (confirmation)"
+msgstr ""
 
 msgid "User Tracker"
-msgstr "Tracker utilisateur"
+msgstr ""
 
 msgid "User already exists."
-msgstr "Nom d'utilisateur existe déjà"
+msgstr ""
 
 msgid "User created"
-msgstr "Utilisateur créé"
+msgstr ""
 
 msgid "User deleted"
-msgstr "Utilisateur supprimé"
+msgstr ""
 
 msgid "User updated"
-msgstr "Utilisateur mise à jour"
+msgstr ""
 
 msgid "Username"
-msgstr "Nom d'utilisateur"
+msgstr ""
 
 msgid "Username already exists"
-msgstr "Nom d'utilisateur existe déjà"
+msgstr ""
 
 msgid "Username used to access the tftp server via ftp."
 msgstr ""
 
 msgid "Users"
-msgstr "Utilisateur"
+msgstr ""
 
 msgid "Version"
 msgstr ""
 
 msgid "Version: "
-msgstr "Version:"
+msgstr ""
 
 msgid "View History for"
-msgstr "Afficher l'historique pour"
+msgstr ""
 
 msgid "View advanced tasks for this group."
 msgstr ""
 
 msgid "View advanced tasks for this host."
-msgstr "Afficher des tâches avancées pour cet hôte."
+msgstr ""
 
 msgid "Virus History"
-msgstr "Histoire de Virus"
+msgstr ""
 
 msgid "Virus Name"
-msgstr "Nom du Virus"
+msgstr ""
 
 msgid "Virus cleared"
-msgstr "Nom du Virus"
+msgstr ""
 
 msgid "Waiting for a slot"
 msgstr ""
@@ -2899,7 +2861,7 @@ msgid ""
 msgstr ""
 
 msgid "Web Server"
-msgstr "Serveur Web"
+msgstr ""
 
 msgid ""
 "Welcome to FOG - Mobile Edition!  This light weight interface for FOG allows "
@@ -2937,7 +2899,7 @@ msgid "Yes"
 msgstr ""
 
 msgid "You must have at least one Storage Group"
-msgstr "Vous devez avoir au moins un groupe de stockage"
+msgstr ""
 
 msgid "You need to assign an image to the host"
 msgstr ""
@@ -2971,16 +2933,16 @@ msgid "[sub-unit here]"
 msgstr ""
 
 msgid "clear all history"
-msgstr "effacer toute l'histoire"
+msgstr ""
 
 msgid "deleted"
-msgstr "supprimé"
+msgstr ""
 
 msgid "file data too"
 msgstr ""
 
 msgid "for Group"
-msgstr "Groupe d'"
+msgstr ""
 
 msgid "here"
 msgstr ""
@@ -3005,416 +2967,3 @@ msgstr ""
 
 msgid "中国的"
 msgstr ""
-
-#~ msgid "Server returned"
-#~ msgstr "Serveur renvoyé"
-
-#~ msgid "Username is null"
-#~ msgstr "Nom d'utilisateur est nulle"
-
-#~ msgid "Hostname is null"
-#~ msgstr "Nom d'hôte est nul"
-
-#~ msgid "Query Failed"
-#~ msgstr "Échec de la requête"
-
-#~ msgid "database connection is null."
-#~ msgstr "connexion de base de données est nulle."
-
-#~ msgid "SQL query is null"
-#~ msgstr "Requête SQL est nulle"
-
-#~ msgid "Result set is null."
-#~ msgstr "Le jeu de résultats est nul."
-
-#~ msgid "Schema is required to connect to server."
-#~ msgstr "Schéma est nécessaire pour se connecter au serveur."
-
-#~ msgid "Begin not implemented!"
-#~ msgstr "Commencez pas mis en œuvre!"
-
-#~ msgid "Rollback not implemented!"
-#~ msgstr "Rollback pas mis en œuvre!"
-
-#~ msgid "executeUpdate not implemented!"
-#~ msgstr "executeUpdate pas mis en œuvre!"
-
-#~ msgid "Query Failed: parse error"
-#~ msgstr "Échec de la requête: erreur d'analyse"
-
-#~ msgid "Are you sure you wish to remove the user"
-#~ msgstr "Etes-vous sûr de vouloir supprimer l'utilisateur"
-
-#~ msgid ""
-#~ "This setting defines the screen horizontal resolution to be used with "
-#~ "this host.  Leaving this field blank will force this host to use the "
-#~ "global default setting"
-#~ msgstr ""
-#~ "Ce paramètre définit la résolution horizontale de l'écran pour être "
-#~ "utilisé avec cethôte. Laisser ce champ vide forcera cet hôte d'utiliser "
-#~ "l'économie mondialeréglage par défaut"
-
-#~ msgid ""
-#~ "This setting defines the screen vertical resolution to be used with this "
-#~ "host.  Leaving this field blank will force this host to use the global "
-#~ "default setting"
-#~ msgstr ""
-#~ "Ce paramètre définit la résolution verticale de l'écran pour être utilisé "
-#~ "avec cethôte. Laisser ce champ vide forcera cet hôte d'utiliser "
-#~ "l'économie mondialeréglage par défaut"
-
-#~ msgid ""
-#~ "This setting defines the screen refresh rate to be used with this host.  "
-#~ "Leaving this field blank will force this host to use the global default "
-#~ "setting"
-#~ msgstr ""
-#~ "Ce paramètre définit le taux de rafraîchissement de l'écran pour être "
-#~ "utilisé avec cet hôte.Laisser ce champ vide forcera cet hôte d'utiliser "
-#~ "la valeur par défaut globaleréglage"
-
-#~ msgid "Schedule <u>Instant Deployment</u>"
-#~ msgstr "Annexe <u>instantanée déploiement</u>"
-
-#~ msgid "Schedule <u>Delayed Deployment</u>"
-#~ msgstr "Annexe <u>différé déploiement</u>"
-
-#~ msgid "Schedule <u>Cron-style Deployment</u>"
-#~ msgstr "Annexe <u>Cron-style déploiement</u>"
-
-#~ msgid "Boot Menu Builder"
-#~ msgstr "Botte constructeur de menu"
-
-#~ msgid "Boot Menu Type:"
-#~ msgstr "Type de du menu de démarrage:"
-
-#~ msgid "Master Password is null."
-#~ msgstr "Mot de passe principal est nulle."
-
-#~ msgid "No modules found."
-#~ msgstr "Pas Modules trouvés"
-
-#~ msgid "Client update module uploaded: "
-#~ msgstr "Module de mise à jour du client téléchargé: "
-
-#~ msgid "FOG :: Database error!"
-#~ msgstr "FOG :: erreur de base de données!"
-
-#~ msgid "FOG Server Shell Access"
-#~ msgstr "Accès FOG Server Management Shell"
-
-#~ msgid "Use your backup file to import your old database."
-#~ msgstr ""
-#~ "Utilisez votre fichier de sauvegarde à importer votre ancienne base de "
-#~ "données."
-
-#~ msgid "Auto Log Out"
-#~ msgstr "Déconnexion automatique"
-
-#~ msgid ""
-#~ "The Auto Log Out service module will log a user out of a workstation "
-#~ "after x minutes of inactivity."
-#~ msgstr ""
-#~ "Le module de service Log Out Auto identifier un utilisateur sur un poste "
-#~ "de travail après xminutes d'inactivité."
-
-#~ msgid "Auto Log Out Enabled?"
-#~ msgstr "Déconnexion automatique activé?"
-
-#~ msgid ""
-#~ "This setting will globally enable or disable the auto log out service "
-#~ "module.  If you disable the module, it will be disabled for all clients, "
-#~ "regardless of the Service specific setting."
-#~ msgstr ""
-#~ "Ce paramètre sera globalement activer ou désactiver le journal de "
-#~ "l'automobile sur le servicemodule. Si vous désactivez le module, il sera "
-#~ "désactivé pour tous les clients,quel que soit le réglage spécifique de "
-#~ "service."
-
-#~ msgid "Client updater will keep your FOG client up to date."
-#~ msgstr "Mise à jour du client permet de garder votre client de FOG à jour."
-
-#~ msgid "Client Update Enabled?"
-#~ msgstr "Mise à jour du client activé?"
-
-#~ msgid ""
-#~ "This setting will globally enable or disable the client updater service "
-#~ "module.  If you disable the module, it will be disabled for all clients, "
-#~ "regardless of the Service specific setting."
-#~ msgstr ""
-#~ "Ce paramètre sera globalement activer ou désactiver le service de mise à "
-#~ "jour du clientmodule. Si vous désactivez le module, il sera désactivé "
-#~ "pour tous les clients,quel que soit le réglage spécifique de service."
-
-#~ msgid ""
-#~ "This setting will globally enable or disable the directory cleaner "
-#~ "service module.  If you disable the module, it will be disabled for all "
-#~ "clients, regardless of the Service specific setting."
-#~ msgstr ""
-#~ "Le module de la Cleaner nettoie tous les fichiers et répertoiresun "
-#~ "répertoire parent lors de la fermeture de session. Ce module peut être "
-#~ "utile si vous avez unapplication qui utilise le cache que vous ne voulez "
-#~ "pas de persister entre les utilisateurs."
-
-#~ msgid "No Entries Found."
-#~ msgstr "Rien na été trouvé."
-
-#~ msgid ""
-#~ "The Display Manager service module will reset a computers display to a "
-#~ "fixed setting such as 1024 x 768 on user log in."
-#~ msgstr ""
-#~ "Le module de service du gestionnaire d'affichage pour réinitialiser un "
-#~ "affichage d'ordinateurs à un fixetelles que la mise en 1024 x 768 sur le "
-#~ "journal de l'utilisateur po"
-
-#~ msgid "Display Manager Enabled?"
-#~ msgstr "Gestionnaire d'affichage activé?"
-
-#~ msgid ""
-#~ "This setting will globally enable or disable the display manager service "
-#~ "module.  If you disable the module, it will be disabled for all clients, "
-#~ "regardless of the Service specific setting."
-#~ msgstr ""
-#~ "Ce paramètre sera globalement activer ou désactiver le service de "
-#~ "gestionnaire d'affichagemodule. Si vous désactivez le module, il sera "
-#~ "désactivé pour tous les clients,quel que soit le réglage spécifique de "
-#~ "service."
-
-#~ msgid "Default Refresh Rate:"
-#~ msgstr "Taux de défaut Actualiser:"
-
-#~ msgid ""
-#~ "Green FOG is a service module that will shutdown / restart the client "
-#~ "computers at a set time."
-#~ msgstr ""
-#~ "Green FOG est un module de service qui l'arrêt / redémarrage du "
-#~ "clientordinateurs à un moment de jeu."
-
-#~ msgid ""
-#~ "This setting will globally enable or disable the Green FOG service "
-#~ "module.  If you disable the module, it will be disabled for all clients, "
-#~ "regardless of the Service specific setting."
-#~ msgstr ""
-#~ "Ce paramètre sera globalement activer ou désactiver le vert module de "
-#~ "service de FOG.Si vous désactivez le module, il sera désactivé pour tous "
-#~ "les clients, quel que soitdu réglage spécifique de service."
-
-#~ msgid "Configure Hostname Changer Service Module"
-#~ msgstr "Configurez le nom d'hôte Changer module de service"
-
-#~ msgid ""
-#~ "The hostname changer is a service module that rename the client's "
-#~ "hostname after imaging.  This service also handles Microsoft Active "
-#~ "Directory integration."
-#~ msgstr ""
-#~ "Le changeur de nom d'hôte est un module de service que renommer le nom "
-#~ "d'hôte du clientaprès l'imagerie. Ce service gère également Microsoft "
-#~ "Active Directoryintégration."
-
-#~ msgid "Hostname Changer Enabled?"
-#~ msgstr "Changer le nom d'hôte activé?"
-
-#~ msgid ""
-#~ "This setting will globally enable or disable the hostname changer service "
-#~ "module.  If you disable the module, it will be disabled for all clients, "
-#~ "regardless of the Service specific setting."
-#~ msgstr ""
-#~ "Ce paramètre sera globalement activer ou désactiver le service de "
-#~ "changement d'hôtemodule. Si vous désactivez le module, il sera désactivé "
-#~ "pour tous les clients,quel que soit le réglage spécifique de service."
-
-#~ msgid "Service Registration"
-#~ msgstr "Enregistrement des services"
-
-#~ msgid "Configure Service registration Service Module"
-#~ msgstr "Configurer le module de service d'enregistrement de services"
-
-#~ msgid ""
-#~ "Service registration is a service module that will register unknown fog "
-#~ "clients with the fog server."
-#~ msgstr ""
-#~ "Enregistrement service est un module de service qui enregistrera "
-#~ "brouillard inconnuclients avec le serveur de brouillard."
-
-#~ msgid "Service Register Enabled?"
-#~ msgstr "Service du registre activé?"
-
-#~ msgid ""
-#~ "This setting will globally enable or disable the Service register service "
-#~ "module.  If you disable the module, it will be disabled for all clients, "
-#~ "regardless of the Service specific setting."
-#~ msgstr ""
-#~ "Ce paramètre sera globalement activer ou désactiver le service de "
-#~ "registre de servicemodule. Si vous désactivez le module, il sera "
-#~ "désactivé pour tous les clients, quel que soit le réglage spécifique de "
-#~ "service."
-
-#~ msgid "Printer Manager"
-#~ msgstr "Gestionnaire d'imprimantes"
-
-#~ msgid ""
-#~ "Printer Manager is a service module that will install, remove, and set "
-#~ "the default printer on clients."
-#~ msgstr ""
-#~ "Gestionnaire d'imprimantes est un module de service qui va installer, "
-#~ "supprimer et définir leimprimante par défaut sur les clients."
-
-#~ msgid "Printer Manager Enabled?"
-#~ msgstr "Gestionnaire d'imprimantes Activé?"
-
-#~ msgid ""
-#~ "This setting will globally enable or disable the printer manager service "
-#~ "module.  If you disable the module, it will be disabled for all clients, "
-#~ "regardless of the Service specific setting."
-#~ msgstr ""
-#~ "Ce paramètre sera globalement activer ou désactiver le service de gestion "
-#~ "de l'imprimantemodule. Si vous désactivez le module, il sera désactivé "
-#~ "pour tous les clients, quel que soit le réglage spécifique de service."
-
-#~ msgid ""
-#~ "The Snapin Service module is used to install snapin files to the client "
-#~ "computers."
-#~ msgstr ""
-#~ "Le module de service Snapin est utilisé pour installer les fichiers "
-#~ "composant logiciel enfichable pour le clientordinateurs."
-
-#~ msgid "Snapin Client Enabled?"
-#~ msgstr "Snapin Client Activé?"
-
-#~ msgid ""
-#~ "This setting will globally enable or disable the snapin service module.  "
-#~ "If you disable the module, it will be disabled for all clients, "
-#~ "regardless of the Service specific setting."
-#~ msgstr ""
-#~ "Ce paramètre sera globalement activer ou désactiver le module de service "
-#~ "de composant logiciel enfichable. Sivous désactivez le module, il sera "
-#~ "désactivé pour tous les clients, quel que soit, le réglage spécifique de "
-#~ "service."
-
-#~ msgid ""
-#~ "The task reboot service will periodically query the fog service to "
-#~ "determine is a the client has a task associated with it.  If it does and "
-#~ "no user is logged in, the host will restart."
-#~ msgstr ""
-#~ "Le service tâche de redémarrage périodiquement interroger le service de "
-#~ "brouillard à déterminerest un client a une tâche qui lui est associée. Si "
-#~ "c'est le cas, et pas d'utilisateur estconnecté, l'hôte va redémarrer."
-
-#~ msgid "Task Reboot Enabled?"
-#~ msgstr "Groupe Redémarrer activé?"
-
-#~ msgid ""
-#~ "This setting will globally enable or disable the task reboot service "
-#~ "module.  If you disable the module, it will be disabled for all clients, "
-#~ "regardless of the Service specific setting."
-#~ msgstr ""
-#~ "Ce paramètre sera globalement activer ou désactiver le service tâche de "
-#~ "redémarragemodule. Si vous désactivez le module, il sera désactivé pour "
-#~ "tous les clients, quel que soit le réglage spécifique de service."
-
-#~ msgid ""
-#~ "The User Cleanup module will clean out \"stale\" user account left over "
-#~ "from services such as dynamic local user."
-#~ msgstr ""
-#~ "Le module de nettoyage de l'utilisateur nettoiera \" vicié \"compte "
-#~ "d'utilisateur à gauche au-dessus dedes services tels que l'utilisateur "
-#~ "local dynamique."
-
-#~ msgid "User Cleanup Enabled?"
-#~ msgstr "Nettoyage de l'utilisateur activé?"
-
-#~ msgid ""
-#~ "This setting will globally enable or disable the user cleanup module."
-#~ msgstr ""
-#~ "Ce paramètre sera globalement activer ou désactiver le module utilisateur "
-#~ "de nettoyage."
-
-#~ msgid "Username:"
-#~ msgstr "Nom d'utilisateur:"
-
-#~ msgid ""
-#~ "The user tracker module will watch for local login/logoff and log them to "
-#~ "the fog database."
-#~ msgstr ""
-#~ "Le module utilisateur de tracker regarder pour la connexion locale / "
-#~ "fermeture de session et les connecter àla base de données de FOG."
-
-#~ msgid "User Tracker Enabled?"
-#~ msgstr "Tracker utilisateur activé?"
-
-#~ msgid ""
-#~ "This setting will globally enable or disable the user tracker service "
-#~ "module.  If you disable the module, it will be disabled for all clients, "
-#~ "regardless of the Servicespecific setting."
-#~ msgstr ""
-#~ "Ce paramètre sera globalement activer ou désactiver le service "
-#~ "utilisateur trackermodule. Si vous désactivez le module, il sera "
-#~ "désactivé pour tous les clients, quel que soit le réglage Servicespecific."
-
-#~ msgid "Additional MACs:"
-#~ msgstr "MAC supplémentaires:"
-
-#~ msgid "Add new snapin package"
-#~ msgstr "Ajouter un nouveau paquet de composant logiciel enfichable"
-
-#~ msgid "Select/Deselect All"
-#~ msgstr "Sélectionner/Désélectionner tous"
-
-#~ msgid "No Virus Information Reported for this host."
-#~ msgstr "No Virus Information rapportée sur cet hôte."
-
-#~ msgid "Task Management"
-#~ msgstr "Gestion des Tâches"
-
-#~ msgid "User Management"
-#~ msgstr "Gestion des utilisateurs"
-
-#~ msgid "Group Management"
-#~ msgstr "Direction du Groupe"
-
-#~ msgid "Storage Management"
-#~ msgstr "Gestion du Stockage"
-
-#~ msgid "Snap-in Management"
-#~ msgstr "Gestion Snapin"
-
-#~ msgid "Printer Management"
-#~ msgstr "Gestion des Imprimantes"
-
-#~ msgid "Plugin Management"
-#~ msgstr "Gestion des Plugins"
-
-#~ msgid "In progress"
-#~ msgstr "En cours"
-
-#~ msgid "unknown"
-#~ msgstr "inconnu"
-
-#~ msgid "Error looking up service status for host!"
-#~ msgstr "Erreur regardant l'état du service pour l'hôte!"
-
-#~ msgid "Database connection is null."
-#~ msgstr "Connexion de base de données est nulle."
-
-#~ msgid "Host ID is null."
-#~ msgstr "ID d'hôte est nul."
-
-#~ msgid "Host is null."
-#~ msgstr "Hôte est nul."
-
-#~ msgid "Chinese"
-#~ msgstr "Chinois"
-
-#~ msgid "Spanish"
-#~ msgstr "Espagnol"
-
-#~ msgid "French"
-#~ msgstr "Français"
-
-#~ msgid "German"
-#~ msgstr "Allemand"
-
-#~ msgid "Storage Group Menu"
-#~ msgstr "Menu groupe de stockage"
-
-#~ msgid "Storage Node Menu"
-#~ msgstr "Nœud de stockage Menu"

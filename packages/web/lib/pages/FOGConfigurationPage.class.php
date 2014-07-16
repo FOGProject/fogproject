@@ -54,7 +54,10 @@ class FOGConfigurationPage extends FOGPage
 	{
 		// Set title
 		$this->title = _('FOG License Information');
-		print "\n\t\t\t<pre>".file_get_contents('./other/gpl-3.0.txt').'</pre>';
+		if (file_exists('./languages/'.$_SESSION['locale'].'/gpl-3.0.txt'))
+			print "\n\t\t\t<pre>".file_get_contents('./languages/'.$_SESSION['locale'].'/gpl-3.0.txt').'</pre>';
+		else
+			print "\n\t\t\t<pre>".file_get_contents('./other/gpl-3.0.txt').'</pre>';
 	}
     // Kernel Sub pointing to properly
 	/** kernel()
@@ -173,6 +176,7 @@ class FOGConfigurationPage extends FOGPage
 		$fields = array(
 			_('No Menu') => '<input type="checkbox" name="nomenu" ${noMenu} value="1" /><span class="icon icon-help hand" title="Option sets if there will even be the presence of a menu to the client systems.  If there is not a task set, it boots to the first device, if there is a task, it performs that task."></span>',
 			_('Hide Menu') => '<input type="checkbox" name="hidemenu" ${checked} value="1" /><span class="icon icon-help hand" title="Option below sets the key sequence.  If none is specified, ESC is defaulted. Login with the FOG credentials and you will see the menu.  Otherwise it will just boot like normal."></span>',
+			_('Advanced Menu Login') => '<input type="checkbox" name="advmenulogin" ${advmenulogincheck} value="1" /><span class="icon icon-help hand" title="Option below enforces a Login system for the Advanced menu parameters.  If off no login will appear, if on, it will only allow login to the advanced system.."></span>',
 			_('Boot Key Sequence') => '${boot_keys}',
 			_('Menu Timeout (in seconds)').':*' => '<input type="text" name="timeout" value="${timeout}" id="timeout" />',
 			_('Exit to Hard Drive Type') => '<select name="bootTypeExit"><option value="sanboot" '.($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'sanboot' ? 'selected="selected"' : '').'>Sanboot style</option><option value="exit" '.($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'selected="selected"' : '').'>Exit style</option><option value="grub" '.($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'grub' ? 'selected="selected"' : '').'>Grub style</option></select>',
@@ -189,6 +193,8 @@ class FOGConfigurationPage extends FOGPage
 				'boot_keys' => $this->FOGCore->getClass('KeySequenceManager')->buildSelectBox($this->FOGCore->getSetting('FOG_KEY_SEQUENCE')),
 				'timeout' => $this->FOGCore->getSetting('FOG_PXE_MENU_TIMEOUT'),
 				'adv' => $this->FOGCore->getSetting('FOG_PXE_ADVANCED'),
+				'advmenulogin' => $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN'),
+				'advmenulogincheck' => $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN') ? 'checked="checked"' : '',
 				'noMenu' => ($this->FOGCore->getSetting('FOG_NO_MENU') ? 'checked="checked"' : ''),
 			);
 		}
@@ -212,7 +218,7 @@ class FOGConfigurationPage extends FOGPage
 				throw new Exception(_("Invalid Timeout Value."));
 			else
 				$timeout = trim($_POST['timeout']);
-			if ($this->FOGCore->setSetting('FOG_PXE_MENU_HIDDEN',$_REQUEST['hidemenu']) && $this->FOGCore->setSetting('FOG_PXE_MENU_TIMEOUT',$timeout) && $this->FOGCore->setSetting('FOG_PXE_ADVANCED',$_REQUEST['adv']) && $this->FOGCore->setSetting('FOG_KEY_SEQUENCE',$_REQUEST['keysequence']) && $this->FOGCore->setSetting('FOG_NO_MENU',$_REQUEST['nomenu']) && $this->FOGCore->setSetting('FOG_BOOT_EXIT_TYPE',$_REQUEST['bootTypeExit']))
+			if ($this->FOGCore->setSetting('FOG_PXE_MENU_HIDDEN',$_REQUEST['hidemenu']) && $this->FOGCore->setSetting('FOG_PXE_MENU_TIMEOUT',$timeout) && $this->FOGCore->setSetting('FOG_PXE_ADVANCED',$_REQUEST['adv']) && $this->FOGCore->setSetting('FOG_KEY_SEQUENCE',$_REQUEST['keysequence']) && $this->FOGCore->setSetting('FOG_NO_MENU',$_REQUEST['nomenu']) && $this->FOGCore->setSetting('FOG_BOOT_EXIT_TYPE',$_REQUEST['bootTypeExit']) && $this->FOGCore->setSetting('FOG_ADVANCED_MENU_LOGIN',$_REQUEST['advmenulogin']))
 				throw new Exception("PXE Menu has been updated!");
 			else
 				throw new Exception("PXE Menu update failed!");
@@ -462,6 +468,7 @@ class FOGConfigurationPage extends FOGPage
 			'FOG_MINING_ENABLE',
 			'FOG_MINING_FULL_RUN_ON_WEEKEND',
 			'FOG_ALWAYS_LOGGED_IN',
+			'FOG_ADVANCED_MENU_LOGIN',
 		);
 		// Set title
 		$this->title = _("FOG System Settings");
@@ -518,20 +525,8 @@ class FOGConfigurationPage extends FOGPage
 					$type = '<input type="checkbox" name="${service_id}" value="1" '.($Service->get('value') ? 'checked="checked"' : '').' />';
 				else if ($Service->get('name') == 'FOG_DEFAULT_LOCALE')
 				{
-					foreach((array)$GLOBALS['foglang']['Language'] AS $lang => $humanreadable)
-					{
-						if ($lang == 'en')
-							$lang = 'en_US.UTF-8';
-						else if ($lang == 'zh')
-							$lang = 'zh_CN.UTF-8';
-						else if ($lang == 'it')
-							$lang = 'it_IT.UTF-8';
-						else if ($lang == 'fr')
-							$lang = 'fr_FR.UTF-8';
-						else if ($lang == 'es')
-							$lang = 'es_ES.UTF-8';
-						$options2[] = '<option value="'.$lang.'" '.($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') == $lang ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
-					}
+					foreach((array)$this->foglang['Language'] AS $lang => $humanreadable)
+						$options2[] = '<option value="'.$lang.'" '.($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') == $lang || $this->FOGCore->getSetting('FOG_DEFAULT_LOCAL') == $this->foglang['Language'][$lang] ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
 					$type = "\n\t\t\t".'<select name="${service_id}" autocomplete="off" style="width: 220px">'."\n\t\t\t\t".implode("\n",$options2)."\n\t\t\t".'</select>';
 				}
 				else if ($Service->get('name') == 'FOG_QUICKREG_IMG_ID')

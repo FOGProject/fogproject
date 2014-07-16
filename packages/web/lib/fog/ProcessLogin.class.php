@@ -14,6 +14,23 @@ class ProcessLogin extends FOGBase
 			$this->langMenu .= "\n\t\t\t\t\t\t".'<option value="'.$lang.'" '.($this->transLang() == $lang ? 'selected="selected"' : '').'>'.$lang.'</option>';
 	}
 
+	private function defaultLang()
+	{
+		foreach($this->foglang['Language'] AS $lang => $val)
+		{
+			if ($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') != $lang)
+				$this->FOGCore->setSetting('FOG_DEFAULT_LOCALE',substr($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE'),0,2));
+			if ($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') == $lang)
+			{
+				$data = array($lang,$val);
+				return $data;
+			}
+			else
+				$data = array('en','English');
+		}
+		return $data;
+	}
+
 	private function transLang()
 	{
 		switch($_SESSION['locale'])
@@ -31,7 +48,8 @@ class ProcessLogin extends FOGBase
 			case 'de_DE.UTF-8':
 				return $this->foglang['Language']['de'];
 			default :
-				return $this->foglang['Language']['en'];
+				$lang = $this->defaultLang();
+				return $this->foglang['Language'][$lang[0]]; 
 		}
 	}
 
@@ -58,7 +76,8 @@ class ProcessLogin extends FOGBase
 				$_POST['ulang']	= 'de_DE.UTF-8';
 				break;
 			default :
-				$_POST['ulang'] = 'en_US.UTF-8';
+				$lang = $this->defaultLang();
+				$_POST['ulang'] = $lang[1];
 				break;
 		}
 	}

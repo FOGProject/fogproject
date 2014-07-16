@@ -19,7 +19,8 @@ try
 	print '#ADOU='.$Host->get('ADOU')."\n";
 	print '#ADUser='.$Host->get('ADDomain').'\\'.$Host->get('ADUser')."\n";
 	print '#ADPass='.$Host->get('ADPass');
-	print '#Key='.base64_decode($Host->get('productKey'));
+	if (trim(base64_decode($Host->get('productKey'))))
+		print "\n#Key=".base64_decode($Host->get('productKey'));
 	// Just inform the user (probably not needed and probably won't display.)
 	if (!$Host->get('useAD'))
 		throw new Exception("#!er: Join domain disabled on this host.\n");
