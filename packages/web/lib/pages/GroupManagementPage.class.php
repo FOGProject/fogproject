@@ -241,8 +241,11 @@ class GroupManagementPage extends FOGPage
 		// If all hosts have the same image setup up the selection.
 		foreach ((array)$Group->get('hosts') AS $Host)
 		{
-			$imageID[] = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
-			$groupKey[] = $Host && $Host->isValid() ? base64_decode($Host->get('productKey')) : '';
+			if ($Host && $Host->isValid())
+			{
+				$imageID[] = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
+				$groupKey[] = $Host && $Host->isValid() ? base64_decode($Host->get('productKey')) : '';
+			}
 		}
 		$imageIDMult = (is_array($imageID) ? array_unique($imageID) : $imageID);
 		$groupKeyMult = (is_array($groupKey) ? array_unique($groupKey) : $groupKey);
@@ -781,7 +784,10 @@ class GroupManagementPage extends FOGPage
 					if ($_POST['updatehosts'])
 					{
 						foreach((array)$Group->get('hosts') AS $Host)
-							$Host->set('imageID',$_POST[$Host->get('name').'_'.$Host->get('id')])->save();
+						{
+							if ($Host && $Host->isValid())
+								$Host->set('imageID',$_POST[$Host->get('name').'_'.$Host->get('id')])->save();
+						}
 					}
 					if($_POST['host'])
 						$Group->addHost($_POST['host']);
@@ -984,7 +990,10 @@ class GroupManagementPage extends FOGPage
 			if ($_REQUEST['delHostConfirm'] == '1')
 			{
 				foreach((array)$Group->get('hosts') AS $Host)
-					$Host->destroy();
+				{
+					if ($Host->isValid())
+						$Host->destroy();
+				}
 			}
 			// Remove hosts first.
 			if (isset($_REQUEST['massDelHosts']))
@@ -1007,11 +1016,14 @@ class GroupManagementPage extends FOGPage
 				);
 				foreach((array)$Group->get('hosts') AS $Host)
 				{
-					$this->data[] = array(
-						'host_name' => $Host->get('name'),
-						'host_mac' => $Host->get('mac'),
-						'host_deployed' => $Host->get('deployed'),
-					);
+					if ($Host && $Host->isValid())
+					{
+						$this->data[] = array(
+							'host_name' => $Host->get('name'),
+							'host_mac' => $Host->get('mac'),
+							'host_deployed' => $Host->get('deployed'),
+						);
+					}
 				}
 				print "\n\t\t\t".'<p>'._('Please confirm you want to delete the following hosts from the FOG Database.').'</p>';
 				print "\n\t\t\t".'<form method="post" action="?node=group&sub=delete&id='.$Group->get('id').'" class="c">';
@@ -1152,10 +1164,13 @@ class GroupManagementPage extends FOGPage
 				throw new Exception(_('Hosts do not have Uniformed Image assignments'));
 			foreach((array)$Group->get('hosts') AS $Host)
 			{
-				if (in_array($taskTypeID,$imagingTasks) && !$Host->get('imageID'))
-					throw new Exception(_('You need to assign an image to the host'));
-				if (!$Host->checkIfExist($taskTypeID))
-					throw new Exception(_('To setup download task, you must first upload an image'));
+				if ($Host && $Host->isValid())
+				{
+					if (in_array($taskTypeID,$imagingTasks) && !$Host->get('imageID'))
+						throw new Exception(_('You need to assign an image to the host'));
+					if (!$Host->checkIfExist($taskTypeID))
+						throw new Exception(_('To setup download task, you must first upload an image'));
+				}
 			}
 			if ($taskTypeID == '11' && !trim($_REQUEST['account']))
 				throw new Exception(_('To setup password reset request, you must specify a user'));
@@ -1180,7 +1195,10 @@ class GroupManagementPage extends FOGPage
 					if ($ScheduledTask->save())
 					{
 						foreach((array)$Group->get('hosts') AS $Host)
-							$success[] = sprintf('<li>%s &ndash; %s</li>', $Host->get('name'), $Host->getImage()->get('name'));
+						{
+							if ($Host && $Host->isValid())
+								$success[] = sprintf('<li>%s &ndash; %s</li>', $Host->get('name'), $Host->getImage()->get('name'));
+						}
 					}
 				}
 				else if ($this->REQUEST['scheduleType'] == 'cron')
@@ -1203,15 +1221,21 @@ class GroupManagementPage extends FOGPage
 					if ($ScheduledTask->save())
 					{
 						foreach((array)$Group->get('hosts') AS $Host)
-							$success[] = sprintf('<li>%s &ndash; %s</li>', $Host->get('name'), $Host->getImage()->get('name'));
+						{
+							if ($Host && $Host->isValid())
+								$success[] = sprintf('<li>%s &ndash; %s</li>', $Host->get('name'), $Host->getImage()->get('name'));
+						}
 					}
 				}
 				else
 				{
 					foreach ((array)$Group->get('hosts') AS $Host)
 					{
-						if($Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, true, $_SESSION['FOG_USERNAME'], trim($_REQUEST['account'])))
-							$success[] = sprintf('<li>%s &ndash; %s</li>', $Host->get('name'), $Host->getImage()->get('name'));
+						if ($Host && $Host->isValid())
+						{
+							if($Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, true, $_SESSION['FOG_USERNAME'], trim($_REQUEST['account'])))
+								$success[] = sprintf('<li>%s &ndash; %s</li>', $Host->get('name'), $Host->getImage()->get('name'));
+						}
 					}
 				}
 			}
