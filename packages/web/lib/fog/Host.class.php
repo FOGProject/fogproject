@@ -920,7 +920,7 @@ class Host extends FOGController
 				}
 			}
 			// Snapin deploy/cancel after deploy
-			if (!$isUpload && $deploySnapins && $taskTypeID != '12' && $taskTypeID != '13' && $taskTypeID != '17')
+			if (!$isUpload && $deploySnapins && $imageTypes && $taskTypeID != '17')
 			{
 				// Remove any exists snapin tasks
 				$SnapinJobs = $this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id')));
