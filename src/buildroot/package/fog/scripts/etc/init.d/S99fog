@@ -24,8 +24,7 @@ if [ "$shutdown" = "1" ]
 then
 	afterActionTerm="poweroff";
 fi
-
-
+export afterActionTerm="$afterActionTerm";
 if [ "$mode" == "debug" ]; then
 	run="/bin/fog.debug";
 	after="";
