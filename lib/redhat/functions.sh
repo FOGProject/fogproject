@@ -534,6 +534,11 @@ installPackages()
 			rpm -q $x >/dev/null 2>&1;
 			if [ "$?" != "0" ]
 			then
+				x="mariadb-galera-server";
+			fi
+			rpm -q $x >/dev/null 2>&1;
+			if [ "$?" != "0" ]
+			then
 				x="mysql-server";
 			fi
 		fi
@@ -581,6 +586,11 @@ confirmPackageInstallation()
 			if [ "$?" != "0" ]
 			then
 				x="mariadb-server";
+			fi
+			rpm -q $x >/dev/null 2>&1;
+			if [ "$?" != "0" ]
+			then
+				x="mariadb-galera-server";
 			fi
 		fi
 		if [ $x == "php-mysql" ]
