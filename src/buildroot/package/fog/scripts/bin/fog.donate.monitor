@@ -11,3 +11,4 @@ echo
 echo $isok
 echo 
 sleep 10
+$afterActionTerm;
