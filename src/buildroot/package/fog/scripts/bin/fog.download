@@ -62,6 +62,7 @@ if [ -f "/images/.mntcheck" ]; then
 					echo "Skipped";
 				else
 					dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
+					parted -s $hd u kB mktable msdos &>/dev/null;
 					dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
 					echo "Done";
 				fi
@@ -106,15 +107,14 @@ if [ -f "/images/.mntcheck" ]; then
 				echo "Skipped";
 			else
 				dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
+				parted -s $hd u kB mktable msdos &>/dev/null;
 				dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
 				echo "Done";
 			fi
 			debugPause;
 			dots "Preparing Hard Disks (Stage 2)";
-			fdisk $hd >/dev/null << EOFPT
-d
-w
-EOFPT
+			parted -s $hd u kB rm 1 &>/dev/null;
+			runPartprobe $hd;
 			echo "Done";
 			dots "Preparing hard Disks (Stage 3)";
 			parted -s $hd u kB mkpart primary ntfs 63s $layPartSize &>/dev/null;
@@ -127,6 +127,7 @@ EOFPT
 				echo "Skipped";
 			else
 				dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
+				parted -s $hd u kB mktable msdos &>/dev/null;
 				dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
 				echo "Done";
 			fi
@@ -146,7 +147,7 @@ EOFPT
 		elif [ "$osid" == "50" ]; then
 			dots "Erasing current MBR/GPT Tables";
 			sgdisk -Z $hd >/dev/null;
-			runPartprobe;
+			runPartprobe $hd;
 			echo "Done";
 			debugPause;
 			tmpMBR="$imagePath/d1.mbr";
