@@ -2,7 +2,7 @@
 . /usr/share/fog/lib/funcs.sh;
 . /bin/fog.donate;
 . /bin/fog.checkin;
-layPartSize="100%";
+layPartSize="99%";
 imagePath="/images/$img";
 win7imgroot="$imagePath";
 fog.statusreporter $mac $web &
