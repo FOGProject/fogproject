@@ -236,7 +236,7 @@ class HostManagementPage extends FOGPage
 				'input' => $input,
 				'ad_dom' => ($_REQUEST['domain'] == 'on' ? 'checked="checked"' : ''),
 				'ad_name' => $_REQUEST['domainname'],
-				'ad_ou' => '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>',
+				'ad_ou' => $OUOptions,
 				'ad_user' => $_REQUEST['domainuser'],
 				'ad_pass' => $_REQUEST['domainpassword'],
 			);

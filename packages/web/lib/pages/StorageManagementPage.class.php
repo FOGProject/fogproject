@@ -253,7 +253,7 @@ class StorageManagementPage extends FOGPage
 			_('Interface') => '<input type="text" name="interface" value="${node_interface}" autocomplete="off"/>',
 			_('Is Enabled') => '<input type="checkbox" name="isEnabled" value="1" ${isenabled}/>',
 			_('Is Graph Enabled').'<br /><small>('._('On Dashboard').')'  => '<input type="checkbox" name="isGraphEnabled" value="1" ${graphenabled} />',
-			_('Management Username') => '<input type="text" name="user" value="${node_user}" />*',
+			_('Management Username') => '<input type="text" name="user" value="${node_user}" autocomplete="off" />*',
 			_('Management Password') => '<input type="password" name="pass" value="${node_pass}" autocomplete="off" />*',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" />',
 		);

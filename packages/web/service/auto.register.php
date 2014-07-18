@@ -18,7 +18,8 @@ try
 	// Make sure it's a unique name.
 	if($_REQUEST['advanced'] == '1')
 	{
-		$productKey = trim($_REQUEST['productKey']);
+		if (base64_decode($_REQUEST['productKey'],true))
+			$productKey = trim($_REQUEST['productKey']);
 		$username = base64_decode(trim($_REQUEST['username']));
 		// trim the hostname (no spaces left or right of the name)
 		$host=trim(base64_decode($_REQUEST['host']));

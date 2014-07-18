@@ -11,6 +11,10 @@ Post_Stage3.php
 Post_Stage3.php
 * Fix client page so you don't have to be logged in to view it.
 * Fix hwinfo and client node= links to operate properly.
+* Fix installer to check for msyql-galera-server as is used for mysql-server
+in CentOS 7.0
+* Fix donate tasking completetion elements so systems reboot/shutdown as
+needed when the time is met.
 * Add ftp file size checking.  All sizes are done through ftp now.
 * Add size of byte filtering to get pretty size.
 * Add $this->FOGUser to FOGPageManager and Hook to check if its set. This is
@@ -27,6 +31,7 @@ HOSTNAME_EARLY is enabled and check against this to change hostname.
 the start of the hard-drive. Thanks Curtis
 * Add cabextract and libmspack to inits and source code for buildroot.
 * Add product key changer to FOG.  NEEDS: client installer recompile.
+* Add the ability to have "login" entries on items of the advanced menu.
 * Update plugin hooks with system to check if they are enabled or not to
 display their relevant menu/submenu items or other actions.
 * Update ipxe/undionly tftp files to latest available.
