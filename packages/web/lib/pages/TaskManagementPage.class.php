@@ -244,7 +244,7 @@ class TaskManagementPage extends FOGPage
 		$taskName = 'Quick Deploy';
 		try
 		{
-			$Host->createImagePackage($taskTypeID, $taskName, false, false, $enableSnapins);
+			$Host->createImagePackage($taskTypeID, $taskName, false, false, $enableSnapins, false, $this->FOGUser->get('name'));
 			$this->FOGCore->setMessage('Successfully created tasking!');
 			$this->FOGCore->redirect('?node=tasks&sub=active');
 		}
@@ -356,7 +356,7 @@ class TaskManagementPage extends FOGPage
 		foreach ((array)$Groups AS $Group)
 		{
 			$deployLink = '<a href="?node=tasks&sub=groupdeploy&type=1&id='.$Group->get('id').'"><span class="icon icon-download" title="Download"></span></a>';
-			$multicastLink = '<a href="?node=tasks&sub=groupdeploy&type=8&id='.$Group->get('id').'"><span class="icon icon-multicast" title="Upload Multicast"></span></a>';
+			$multicastLink = '<a href="?node=tasks&sub=groupdeploy&type=8&id='.$Group->get('id').'"><span class="icon icon-multicast" title="Multicast"></span></a>';
 			$advancedLink = '<a href="?node=tasks&sub=groupadvanced&id='.$Group->get('id').'"><span class="icon icon-advanced" title="Advanced Deployment"></span></a>';
 			$this->data[] = array(
 				'id'			=>	$Group->get('id'),
@@ -378,10 +378,10 @@ class TaskManagementPage extends FOGPage
 		$taskTypeID = $this->REQUEST['type'];
 		$snapin = '-1';
 		$enableShutdown = false;
-		$enableSnapins = ($_REQUEST['type'] == 1 ? true : false);
+		$enableSnapins = ($_REQUEST['type'] == 17 ? false : -1);
 		$taskName = ($taskTypeID == 8 ? 'Multicast Group Quick Deploy' : 'Group Quick Deploy');
 		foreach ((array)$Group->get('hosts') AS $Host)
-			$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, false, $enableSnapins, true);
+			$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, false, $enableSnapins, true, $this->FOGUser->get('name'));
 		$this->FOGCore->setMessage('Successfully created Group tasking!');
 		$this->FOGCore->redirect('?node=tasks&sub=active');
 	}
@@ -483,8 +483,7 @@ class TaskManagementPage extends FOGPage
 				$MS = new MulticastSessions($MSA->get('msID'));
 				$MS->set('clients', $MS->get('clients')-1)->save();
 				if ($MS->get('clients') <= 0)
-					$MS->destroy();
-				$MSA->destroy();
+					$MS->set('completetime',date('Y-m-d H:i:s'))->set('stateID', 5)->save();
 			}
 			$Task->cancel();
 		}
@@ -515,10 +514,9 @@ class TaskManagementPage extends FOGPage
 			foreach((array)$MSAs AS $MSA)
 			{
 				$Task = new Task($MSA->get('taskID'));
-				$MSA->destroy();
 				$Task->cancel();
 			}
-			$MulticastTask->destroy();
+			$MulticastTask->set('completetime',date('Y-m-d H:i:s'))->set('stateID',5)->save();
 		}
 		catch (Exception $e){}
 	}
@@ -656,6 +654,7 @@ class TaskManagementPage extends FOGPage
 			_('Name:'),
 			_('Is Group'),
 			_('Task Name'),
+			_('Task Type'),
 			_('Start Time'),
 			_('Active/Type'),
 			_('Kill'),
@@ -665,6 +664,7 @@ class TaskManagementPage extends FOGPage
 			'<a href="?node=${hostgroup}&sub=edit&id=${id}" title="Edit ${hostgroupname}">${hostgroupname}</a>',
 			'${groupbased}<form method="post" action="?node=tasks&sub=scheduled">',
 			'${details_taskname}',
+			'${task_type}',
 			'<small>${time}</small>',
 			'${active}/${type}',
 			'<input type="checkbox" name="rmid" id="r${schedtaskid}" class="delid" value="${schedtaskid}" onclick="this.form.submit()" /><label for="r${schedtaskid}">'._('Delete').'</label></form>',
@@ -674,6 +674,7 @@ class TaskManagementPage extends FOGPage
 			array('width' => 120, 'class' => 'l'),
 			array(),
 			array('width' => 110, 'class' => 'l'),
+			array('class' => 'c', 'width' => 80),
 			array('width' => 70, 'class' => 'c'),
 			array('width' => 100, 'class' => 'c', 'style' => 'padding-right: 10px'),
 			array('class' => 'c'),
@@ -694,6 +695,7 @@ class TaskManagementPage extends FOGPage
 				'active' => $task->get('isActive') ? 'Yes' : 'No',
 				'type' => $task->get('type') == 'C' ? 'Cron' : 'Delayed',
 				'schedtaskid' => $task->get('id'),
+				'task_type' => $taskType,
 			);
 		}
 		// Hook

@@ -192,7 +192,7 @@ abstract class FOGManagerController extends FOGBase
 	/** exists($name, $id = 0)
 		Finds if the item already exists in the database.
 	*/
-	function exists($name, $id = 0)
+	public function exists($name, $id = 0)
 	{
 		$this->DB->query("SELECT COUNT(%s) AS total FROM `%s` WHERE `%s` = '%s' AND `%s` <> '%s'", 
 			array(	

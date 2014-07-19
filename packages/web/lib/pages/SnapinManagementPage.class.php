@@ -58,7 +58,7 @@ class SnapinManagementPage extends FOGPage
 				'file'		=> $Snapin->get('file')
 			);
 		}
-		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED'))
+		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
 			$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
 		// Hook
 		$this->HookManager->processEvent('SNAPIN_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -120,7 +120,7 @@ class SnapinManagementPage extends FOGPage
 		// Fields to work from:
 		$fields = array(
 			_('Snapin Name') => '<input type="text" name="name" value="${snapin_name}" />',
-			_('Snapin Description') => '<textarea name="description" rows="5" cols="40" value="${snapin_desc}">${snapin_desc}</textarea>',
+			_('Snapin Description') => '<textarea name="description" rows="8" cols="40" value="${snapin_desc}">${snapin_desc}</textarea>',
 			_('Snapin Run With') => '<input type="text" name="rw" value="${snapin_rw}" />',
 			_('Snapin Run With Argument') => '<input type="text" name="rwa" value="${snapin_rwa}" />',
 			_('Snapin File').' <span class="lightColor">'._('Max Size').':${max_size}</span>' => '<input type="file" name="snapin" value="${snapin_file}" />',
@@ -246,7 +246,7 @@ class SnapinManagementPage extends FOGPage
 		// Fields to work from:
 		$fields = array(
 			_('Snapin Name') => '<input type="text" name="name" value="${snapin_name}" />',
-			_('Snapin Description') => '<textarea name="description" rows="5" cols="40" value="${snapin_desc}">${snapin_desc}</textarea>',
+			_('Snapin Description') => '<textarea name="description" rows="8" cols="40" value="${snapin_desc}">${snapin_desc}</textarea>',
 			_('Snapin Run With') => '<input type="text" name="rw" value="${snapin_rw}" />',
 			_('Snapin Run With Argument') => '<input type="text" name="rwa" value="${snapin_rwa}" />',
 			_('Snapin File').' <span class="lightColor">'._('Max Size').':${max_size}</span>' => '<span id="uploader">${snapin_file}<a href="#" id="snapin-upload"><img class="noBorder" src="images/upload.png" /></a></span>',

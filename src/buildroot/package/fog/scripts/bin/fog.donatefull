@@ -32,24 +32,16 @@ echo "done"
 echo
 echo " Turning off montior output to conserve power..."
 sleep 2
-
 clear
-
 setterm -blank 1
 setterm -powerdown 1
 setterm -powersave on
 setterm -foreground black
 setterm -background black
-
 clear
-
 /bin/fog.donate.monitor &
-
 /bin/fog.fork full & >/dev/null 2>&1;
-
 read test
-
 reset
-
 echo "Restarting computer..."
 sleep 1

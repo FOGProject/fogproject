@@ -5,14 +5,14 @@ require_once('../commons/base.inc.php');
 if (IS_INCLUDED !== true) die($foglang['NoLoad']);
 // User session data
 $currentUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
-$MainMenu = new Mainmenu($currentUser);
+$MainMenu = new Mainmenu();
 // Process Login
 $FOGCore->getClass('ProcessLogin')->processMobileLogin();
 // Login form + logout
 if($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn())
 {
-	// Hook
-	$HookManager->processEvent('LOGOUT', array('user' => &$currentUser));
+	@session_write_close();
+	@session_regenerate_id(true);
 	// Logout
 	if(method_exists($currentUser, 'logout'))
 		$currentUser->logout();
@@ -44,7 +44,8 @@ print "\n<body>";
 print "\n\t".'<div id="mainContainer">';
 print "\n\t\t".'<div id="header"></div>';
 print "\n\t\t".'<div class="mainContent">';
-print $MainMenu->mainMenu();
+if ($currentUser && $currentUser->isLoggedIn())
+	$MainMenu->mainMenu();
 if ($FOGPageManager->isFOGPageTitleEnabled())
 	print "\n\t\t\t\t<h2>".$FOGPageManager->getFOGPageTitle().'</h2>';
 print "\n\t\t\t".'<div id="mobile_content">';

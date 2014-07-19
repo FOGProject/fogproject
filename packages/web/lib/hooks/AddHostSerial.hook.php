@@ -33,6 +33,7 @@ class AddHostSerial extends Hook
 		}
 	}
 }
+$AddHostSerial = new AddHostSerial();
 // Register hooks with HookManager on desired events
-$HookManager->register('HOST_DATA', array(new AddHostSerial(), 'HostData'));
-$HookManager->register('HOST_HEADER_DATA', array(new AddHostSerial(), 'HostTableHeader'));
+$HookManager->register('HOST_DATA', array($AddHostSerial, 'HostData'));
+$HookManager->register('HOST_HEADER_DATA', array($AddHostSerial, 'HostTableHeader'));

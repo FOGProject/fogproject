@@ -80,7 +80,7 @@ class PrinterManagementPage extends FOGPage
 				'ip'		=> $Printer->get('ip')
 			);
 		}
-		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED'))
+		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
 			$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
 		// Hook
 		$this->HookManager->processEvent('PRINTER_DATA', array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
@@ -353,7 +353,7 @@ class PrinterManagementPage extends FOGPage
 				_('Printer IP (optional)') => '<input type="text" name="ip" value="${printer_ip}" />',
 			);
 		}
-		$fields['<input type="hidden" name="printertype" value="'.$_GET['printertype'].'" />'] = '<input type="hidden" name="add" value="1" /><input type="submit" value="'._('Update Printer').'" />';
+		$fields['<input type="hidden" name="printertype" value="'.$_GET['printertype'].'" />'] = '<input type="hidden" name="update" value="1" /><input type="submit" value="'._('Update Printer').'" />';
 		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
@@ -362,7 +362,7 @@ class PrinterManagementPage extends FOGPage
 				'printer_name' => addslashes($Printer->get('name')),
 				'printer_port' => $Printer->get('port'),
 				'printer_model' => $Printer->get('model'),
-				'printer_inf' => $Printer->get('file'),
+				'printer_inf' => addslashes($Printer->get('file')),
 				'printer_ip' => $Printer->get('ip'),
 			);
 		}

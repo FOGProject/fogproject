@@ -1,4 +1,4 @@
-#
+n#
 #  FOG is a computer imaging solution.
 #  Copyright (C) 2007  Chuck Syperski & Jian Zhang
 #
@@ -81,13 +81,13 @@ configureNFS()
 {
 	echo -n "  * Setting up and starting NFS Server..."; 
 	
-	echo "/images                        *(ro,sync,no_wdelay,insecure_locks,no_root_squash,insecure,fsid=1)
-/images/dev                    *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=2)" > "$nfsconfig";
+	echo "/images *(ro,sync,no_wdelay,insecure_locks,no_root_squash,insecure,fsid=1,${nfsexportsopts})
+/images/dev *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=2,${nfsexportsopts})" > "$nfsconfig";
 	chkconfig rpcbind on;
 	service rpcbind restart >/dev/null 2>&1;
-	chkconfig nfs on;
-	service nfs restart >/dev/null 2>&1;
-	service nfs status  >/dev/null 2>&1;
+	chkconfig ${nfsservice} on;
+	service ${nfsservice} restart >/dev/null 2>&1;
+	service ${nfsservice} status  >/dev/null 2>&1;
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
@@ -148,8 +148,11 @@ configureDefaultiPXEfile()
 	echo "#!ipxe
 cpuid --ext 29 && set arch x86_64 || set arch i386
 params
-param mac \${net0/mac}
+param mac0 \${net0/mac}
 param arch \${arch}
+isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
+isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme
+:bootme
 chain http://${ipaddress}/fog/service/ipxe/boot.php##params
 " > "${tftpdirdst}/default.ipxe";
 }
@@ -187,7 +190,7 @@ service tftp
 	wait			= yes
 	user			= root
 	server			= /usr/sbin/in.tftpd
-	server_args		= -s /tftpboot
+	server_args		= -s ${tftpdirdst}
 	disable			= no
 	per_source		= 11
 	cps			= 100 2
@@ -229,10 +232,32 @@ configureDHCP()
 	echo "# DHCP Server Configuration file.
 # see /usr/share/doc/dhcp*/dhcpd.conf.sample
 # This file was created by FOG
+
+# Definition of PXE-specific options
+# Code 1: Multicast IP address of bootfile
+# Code 2: UDP port that client should monitor for MTFTP responses
+# Code 3: UDP port that MTFTP servers are using to listen for MTFTP requests
+# Code 4: Number of seconds a client must listen for activity before trying
+#         to start a new MTFTP transfer
+# Code 5: Number of seconds a client must listen before trying to restart
+#         a MTFTP transfer
+
+option space PXE;
+option PXE.mtftp-ip    code 1 = ip-address;
+option PXE.mtftp-cport code 2 = unsigned integer 16;
+option PXE.mtftp-sport code 3 = unsigned integer 16;
+option PXE.mtftp-tmout code 4 = unsigned integer 8;
+option PXE.mtftp-delay code 5 = unsigned integer 8;
+option arch code 93 = unsigned integer 16; # RFC4578
+
 use-host-decl-names on;
 ddns-update-style interim;
 ignore client-updates;
 next-server ${ipaddress};
+
+# Specify subnet of ether device you do NOT want serviced.  For systems with
+# two or more ethernet devices. 
+# subnet 136.165.0.0 netmask 255.255.0.0 { }
 
 subnet ${network} netmask 255.255.255.0 {
         option subnet-mask              255.255.255.0;
@@ -268,28 +293,55 @@ configureMinHttpd()
 
 configureHttpd()
 {
-	echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
-	read dummy
-	echo "";
-	case "$dummy" in
-		[nN]*)
-		while [ $dbpass != $PASSWORD1 ]; do
+	if [ "$installtype" == N -a "$fogupdateloaded" != 1 ]; then
+		echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
+		read dummy
+		echo "";
+		case "$dummy" in
+			[nN]*)
 			echo -n "  * Please enter your mysql password: "
 			read -s PASSWORD1
 			echo "";
 			echo -n "  * Please re-enter your mysql password: "
 			read -s PASSWORD2
 			echo "";
-			if [ $PASSWORD1 = $PASSWORD2 ]; then
+			if [ "$PASSWORD1" != "" ] && [ "$PASSWORD2" == $PASSWORD1 ]; then
 				dbpass=$PASSWORD1;
+			else
+				dppass="";
+				while [ "$PASSWORD1" != "" ] && [ "$dbpass" != "$PASSWORD1" ]; do
+					echo -n "  * Please enter your mysql password: "
+					read -s PASSWORD1
+					echo "";
+					echo -n "  * Please re-enter your mysql password: "
+					read -s PASSWORD2
+					echo "";
+					if [ "$PASSWORD1" != "" ] && [ "$PASSWORD2" == $PASSWORD1 ]; then
+						dbpass=$PASSWORD1;
+					fi
+				done
 			fi
-			done
-		;;
-		[yY]*)
-		;;
-		*)
-		;;
-	esac
+			if [ "$snmysqlpass" != "$dbpass" ]; then
+				snmysqlpass=$dbpass;
+			fi
+			;;
+			[yY]*)
+			;;
+			*)
+			;;
+		esac
+	fi
+	if [ "$installtype" == "S" -o "$fogupdateloaded" == 1 ]; then
+		if [ "$snmysqlhost" != "" ] && [ "$snmysqlhost" != "$dbhost" ]; then
+			dbhost=$snmysqlhost;
+		fi
+		if [ "$snmysqlhost" == "" ]; then
+			dbhost="localhost";
+		fi
+	fi
+	if [ "$snmysqluser" != "" ] && [ "$snmysqluser" != "$dbuser" ]; then
+		dbuser=$snmysqluser;
+	fi
 	echo -n "  * Setting up and starting Apache Web Server...";
 	chkconfig httpd on;
 	service httpd restart >/dev/null 2>&1
@@ -341,7 +393,7 @@ class Config
 		define('DATABASE_HOST',		'${dbhost}');
 		define('DATABASE_NAME',		'fog');
 		define('DATABASE_USERNAME',		'${dbuser}');
-		define('DATABASE_PASSWORD',		'${dbpass}');
+		define('DATABASE_PASSWORD',		'${snmysqlpass}');
 	}
 	/**
 	* svc_setting()
@@ -417,7 +469,7 @@ class Config
 		define('FOG_UPLOADIGNOREPAGEHIBER',true);
 		define('FOG_DONATE_MINING', \"${donate}\");
 	}
-}" > "${webdirdest}/commons/config.php";
+}" > "${webdirdest}/lib/fog/Config.class.php";
 		
 		
 		chown -R ${apacheuser}:${apacheuser} "$webdirdest"
@@ -482,6 +534,11 @@ installPackages()
 			rpm -q $x >/dev/null 2>&1;
 			if [ "$?" != "0" ]
 			then
+				x="mariadb-galera-server";
+			fi
+			rpm -q $x >/dev/null 2>&1;
+			if [ "$?" != "0" ]
+			then
 				x="mysql-server";
 			fi
 		fi
@@ -502,7 +559,7 @@ installPackages()
 		if [ "$?" != "0" ]
 		then
 			echo  "  * Installing package: $x";
-			yum -y install $x 1>/dev/null;
+			${packageinstaller} $x 1>/dev/null;
 		else
 			echo  "  * Skipping package: $x (Already installed)";
 		fi
@@ -529,6 +586,11 @@ confirmPackageInstallation()
 			if [ "$?" != "0" ]
 			then
 				x="mariadb-server";
+			fi
+			rpm -q $x >/dev/null 2>&1;
+			if [ "$?" != "0" ]
+			then
+				x="mariadb-galera-server";
 			fi
 		fi
 		if [ $x == "php-mysql" ]

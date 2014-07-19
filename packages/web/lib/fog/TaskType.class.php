@@ -18,16 +18,15 @@ class TaskType extends FOGController
 		'isAdvanced'		=> 'ttIsAdvanced',
 		'access'		=> 'ttIsAccess'		// both, host or group
 	);
-	
 	// Custom functions
 	public function isUpload()
 	{
-		return preg_match('#type=(2|12|13|16|up)#i', $this->get('kernelArgs'));
+		return preg_match('#type=(2|16|up)#i', $this->get('kernelArgs'));
 	}
 	
 	public function isDownload()
 	{
-		return preg_match('#type=(1|[3-11]|14-15|[17-22]|down)#i', $this->get('kernelArgs'));
+		return preg_match('#type=(1|8|15|17|down)#i', $this->get('kernelArgs'));
 	}
 	
 	public function isMulticast()

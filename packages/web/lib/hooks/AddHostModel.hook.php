@@ -6,7 +6,7 @@ class AddHostModel extends Hook
 	var $description = 'Adds host model to the host lists';
 	var $author = 'Rowlett/TomElliott';
 	var $active = false;
-	function HostData($arguments)
+	public function HostData($arguments)
 	{
 		if ($_REQUEST['node'] == 'host')
 		{
@@ -24,7 +24,7 @@ class AddHostModel extends Hook
 			}
 		}
 	}
-	function HostTableHeader($arguments)
+	public function HostTableHeader($arguments)
 	{
 		if ($_REQUEST['node'] == 'host')
 		{
@@ -33,6 +33,7 @@ class AddHostModel extends Hook
 		}
 	}
 }
+$AddHostModel = new AddHostModel();
 // Register hooks with HookManager on desired events
-$HookManager->register('HOST_DATA', array(new AddHostModel(), 'HostData'));
-$HookManager->register('HOST_HEADER_DATA', array(new AddHostModel(), 'HostTableHeader'));
+$HookManager->register('HOST_DATA', array($AddHostModel, 'HostData'));
+$HookManager->register('HOST_HEADER_DATA', array($AddHostModel, 'HostTableHeader'));

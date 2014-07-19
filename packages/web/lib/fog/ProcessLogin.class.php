@@ -1,24 +1,34 @@
 <?php
-
-class ProcessLogin
+class ProcessLogin extends FOGBase
 {
-	private $FOGCore, $HookManager, $foglang;
 	private $username, $password, $currentUser;
 	private $mobileMenu, $mainMenu, $langMenu;
-
-	function __construct()
+	public function __construct()
 	{
-		$this->FOGCore = $GLOBALS['FOGCore'];
-		$this->HookManager = $this->FOGCore->getClass('HookManager');
-		$this->username = trim($_POST['uname']);
-		$this->password = trim($_POST['upass']);
-		$this->foglang = $GLOBALS['foglang'];
+		parent::__construct();
 	}
 	
 	private function getLanguages()
 	{
 		foreach($this->foglang['Language'] AS $lang)
 			$this->langMenu .= "\n\t\t\t\t\t\t".'<option value="'.$lang.'" '.($this->transLang() == $lang ? 'selected="selected"' : '').'>'.$lang.'</option>';
+	}
+
+	private function defaultLang()
+	{
+		foreach($this->foglang['Language'] AS $lang => $val)
+		{
+			if ($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') != $lang)
+				$this->FOGCore->setSetting('FOG_DEFAULT_LOCALE',substr($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE'),0,2));
+			if ($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') == $lang)
+			{
+				$data = array($lang,$val);
+				return $data;
+			}
+			else
+				$data = array('en','English');
+		}
+		return $data;
 	}
 
 	private function transLang()
@@ -35,8 +45,11 @@ class ProcessLogin
 				return $this->foglang['Language']['fr'];
 			case 'zh_CN.UTF-8':
 				return $this->foglang['Language']['zh'];
+			case 'de_DE.UTF-8':
+				return $this->foglang['Language']['de'];
 			default :
-				return $this->foglang['Language']['en'];
+				$lang = $this->defaultLang();
+				return $this->foglang['Language'][$lang[0]]; 
 		}
 	}
 
@@ -47,20 +60,24 @@ class ProcessLogin
 			case _('English'):
 				$_POST['ulang'] = 'en_US.UTF-8';
 				break;
-			case _('French'):
+			case _('Français'):
 				$_POST['ulang'] = 'fr_FR.UTF-8';
 				break;
-			case _('Italian'):
+			case _('Italiano'):
 				$_POST['ulang'] = 'it_IT.UTF-8';
 				break;
-			case _('Chinese'):
+			case _('中国的'):
 				$_POST['ulang'] = 'zh_CN.UTF-8';
 				break;
-			case _('Spanish'):
+			case _('Español'):
 				$_POST['ulang'] = 'es_ES.UTF-8';
 				break;
+			case _('Deutsch'):
+				$_POST['ulang']	= 'de_DE.UTF-8';
+				break;
 			default :
-				$_POST['ulang'] = 'en_US.UTF-8';
+				$lang = $this->defaultLang();
+				$_POST['ulang'] = $lang[1];
 				break;
 		}
 	}
@@ -80,16 +97,22 @@ class ProcessLogin
 
 	private function setCurUser($tmpUser)
 	{
+		// reset session on login success
+		@session_write_close();
+		@session_regenerate_id(true);
+		$_SESSION = array();
+		@session_set_cookie_params(0);
+		@session_start();
 		$currentUser = $tmpUser;
 		$currentUser->set('authTime', time());
 		$currentUser->set('authIP',$_SERVER['REMOTE_ADDR']);
-		// Hook
-		$this->HookManager->processEvent('LoginSuccess', array('user' => &$currentUser, 'username' => $this->username, 'password' => &$this->password));
-		// Set session
 		$_SESSION['FOG_USER'] = serialize($currentUser);
 		$_SESSION['FOG_USERNAME'] = $currentUser->get('name');
 		$this->setRedirMode();
 		$this->currentUser = $currentUser;
+		// Hook
+		if (!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
+			$this->HookManager->processEvent('LoginSuccess', array('user' => &$currentUser, 'username' => $this->username, 'password' => &$this->password));
 	}
 
 	private function setRedirMode()
@@ -97,43 +120,43 @@ class ProcessLogin
 		$redirect = array_merge($_GET, $_POST);
 		unset($redirect['upass'],$redirect['uname'],$redirect['ulang']);
 		if (in_array($redirect['node'], array('login','logout')))
-			unset ($redirect['node']);
+			unset($redirect['node']);
 		foreach ($redirect AS $key => $value)
-		{
 			$redirectData[] = $key.'='.$value;
-		}
 		$this->FOGCore->redirect($_SERVER['PHP_SELF'].($redirectData ? '?' . implode('&',(array)$redirectData) : ''));
 	}
 
-	public function loginFail()
+	public function loginFail($string)
 	{
 		// Hook
-		$this->HookManager->processEvent('LoginFail', array('username' => &$this->username, 'password' => &$this->password));
-		$this->FOGCore->setMessage(_('Invalid Login'));
+		if (!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
+			$this->HookManager->processEvent('LoginFail', array('username' => &$this->username, 'password' => &$this->password));
+		$this->FOGCore->setMessage($string);
 	}
-
 
 	public function processMainLogin()
 	{
 		$this->setLang();
 		if(isset($_POST['uname']) && isset($_POST['upass']))
 		{
+			$this->username = trim($_POST['uname']);
+			$this->password = trim($_POST['upass']);
 			// Hook
 			$this->HookManager->processEvent('Login', array('username' => &$this->username, 'password' => &$this->password));
-
 			$tmpUser = $this->FOGCore->attemptLogin($this->username, $this->password);
-			if ($tmpUser != null)
+			try
 			{
+				if (!$tmpUser)
+					throw new Exception(_('Invalid Login'));
 				if ($tmpUser->isValid() && $tmpUser->get('type') == 0 && $tmpUser->get('type') != 1)
 					$this->setCurUser($tmpUser);
 				else if ($tmpUser->get('type') == 0)
-				{
-					$this->setCurUser($tmpUser);
-					$this->FOGCore->redirect(WEB_ROOT.'/mobile/');
-				}
+					throw new Exception(_('Not allowed here!'));
 			}
-			else
-				$this->loginFail();
+			catch (Exception $e)
+			{
+				$this->loginFail($e->getMessage());
+			}
 		}
 	}
 
@@ -142,14 +165,20 @@ class ProcessLogin
 		$this->setLang();
 		if (isset($_POST['uname']) && isset($_POST['upass']))
 		{
-			// Hook
-			$this->HookManager->processEvent('Login', array('username' => &$this->username, 'password' =>&$this->password));
-
+			$this->username = trim($_POST['uname']);
+			$this->password = trim($_POST['upass']);
 			$tmpUser = $this->FOGCore->attemptLogin($this->username, $this->password);
-			if ($tmpUser != null && $tmpUser->isValid() && $tmpUser->get('type') == 0 || $tmpUser->get('type') == 1)
-				$this->setCurUser($tmpUser);
-			else
-				$this->loginFail();
+			try
+			{
+				if (!$tmpUser)
+					throw new Exception(_('Invalid Login'));
+				if ($tmpUser->isValid())
+					$this->setCurUser($tmpUser);
+			}
+			catch (Exception $e)
+			{
+				$this->loginFail($e->getMessage());
+			}
 		}
 	}
 
@@ -175,7 +204,7 @@ class ProcessLogin
 		print "\n\t\t\t".'<div id="header" class="login">';
 		print "\n\t\t\t\t".'<div id="logo">';
 		print "\n\t\t\t\t\t".'<h1><img src="images/fog-logo.png" alt="logo" /><sup>'.FOG_VERSION.'</sup></h1>';
-		print "\n\t\t\t\t\t".'<h2>'.$foglang['Slogan'].'</h2>';
+		print "\n\t\t\t\t\t".'<h2>'.$this->foglang['Slogan'].'</h2>';
 		print "\n\t\t\t\t</div>";
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t<!-- Content -->";
@@ -215,6 +244,7 @@ class ProcessLogin
 		print "\n\t".'<script type="text/javascript" src="js/fog.login.js"></script>';
 		print "\n</body>";
 		print "\n</html>";
+		session_write_close();
 		ob_end_flush();
 	}
 
@@ -231,7 +261,7 @@ class ProcessLogin
 		print "\n\t\t\t\t\t".'<p><input type="submit" value="'._('Login').'" /></p>';
 		print "\n\t\t\t\t</form>";
 		print "\n\t\t\t</div></center>";
+		session_write_close();
 		ob_end_flush();
 	}
 }
-

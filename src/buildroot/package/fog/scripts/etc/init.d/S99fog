@@ -24,8 +24,7 @@ if [ "$shutdown" = "1" ]
 then
 	afterActionTerm="poweroff";
 fi
-
-
+export afterActionTerm="$afterActionTerm";
 if [ "$mode" == "debug" ]; then
 	run="/bin/fog.debug";
 	after="";
@@ -50,12 +49,9 @@ elif [ "$mode" == "clamav" ]; then
 elif [ "$mode" == "autoreg" ]; then
 	run="/bin/fog.auto.reg";
 	after=$afterActionTerm;
-elif [ "$mode" == "delreg" ]; then
-	run="/bin/fog.auto.del";
-	after=$afterActionTerm;
 elif [ "$mode" == "manreg" ]; then
 	run="/bin/fog.man.reg";
-	after=$afterActionTerm;		
+	after=$afterActionTerm;
 elif [ "$mode" == "capone" ]; then
 	run="/bin/fog.capone";
 	after=$afterActionTerm;

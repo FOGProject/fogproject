@@ -14,5 +14,9 @@ class SnapinManager extends FOGManagerController
 					sFilePath LIKE "%${keyword}%" OR
 					hostID LIKE "%${keyword}%" OR
 					hostName LIKE "%${keyword}%" OR
-					hostDesc LIKE "%${keyword}%"';
+					hostDesc LIKE "%${keyword}%"
+				GROUP BY
+					sName
+				ORDER BY
+					sName';
 }

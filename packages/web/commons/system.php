@@ -1,6 +1,5 @@
 <?php
 /**
-* \class System
 * Setups of the system.
 */
 class System
@@ -22,11 +21,13 @@ class System
 	*/
 	private static function default_values()
 	{
-		if (!ini_get('date.timezone'))
+		if (ini_get('date.timezone'))
 			date_default_timezone_set(date_default_timezone_get());
+		else
+			date_default_timezone_set('UTC');
 		define('IS_INCLUDED', true);
-		define('FOG_VERSION', '1.1.0');
-		define('FOG_SCHEMA', 102);
+		define('FOG_VERSION', '2090');
+		define('FOG_SCHEMA', 113);
 		define('FOG_SVN_REVISION', '$Revision$');
 		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');
 		define('PHP_VERSION_REQUIRED', '5.3.0');

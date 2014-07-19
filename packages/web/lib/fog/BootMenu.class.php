@@ -9,6 +9,7 @@
 * @param $kernel sets the kernel information.
 * @param $initrd sets the init information.
 * @param $booturl sets the bootup url info.
+* @param $memdisk sets the memdisk info
 * @param $memtest sets the memtest info
 * @param $Host is the host set.  Can be null.
 * @param $pxemenu builds the default pxemenu as array().
@@ -30,7 +31,7 @@
 class BootMenu extends FOGBase
 {
 	// Variables
-	private $Host,$pxemenu,$kernel,$initrd,$booturl,$memtest,$web,$defaultChoice,$bootexittype;
+	private $Host,$pxemenu,$kernel,$initrd,$booturl,$memdisk,$memtest,$web,$defaultChoice,$bootexittype;
 	private $storage, $shutdown, $path;
 	private $hiddenmenu, $timeout, $KS;
 	public $debug;
@@ -45,27 +46,66 @@ class BootMenu extends FOGBase
 	{
 		parent::__construct();
 		// Setups of the basic construct for the menu system.
-		$this->bootexittype = $this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'exit' : 'sanboot --no-describe --drive 0x80';
 		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'isMaster' => 1)));
 		$webserver = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_WEB_HOST'));
-		$webroot = $this->FOGCore->getSetting('FOG_WEB_ROOT');
+		$webroot = '/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/';
 		$this->web = "${webserver}${webroot}";
+		$this->bootexittype = ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'exit' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'sanboot' ? 'sanboot --no-describe --drive 0x80' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'grub' ? 'chain -ar http://'.rtrim($this->web,'/').'/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"' : 'exit')));
 		$ramsize = $this->FOGCore->getSetting('FOG_KERNEL_RAMDISK_SIZE');
 		$dns = $this->FOGCore->getSetting('FOG_PXE_IMAGE_DNSADDRESS');
 		$keymap = $this->FOGCore->getSetting('FOG_KEYMAP');
 		$timeout = $this->FOGCore->getSetting('FOG_PXE_MENU_TIMEOUT') * 1000;
 		$this->timeout = $timeout;
-		if ($Host && $Host->isValid() && $Host->get('kernel'))
-			$bzImage = $Host->get('kernel');
-		else if ($_REQUEST['arch'] != 'x86_64')
-			$bzImage = $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_32');
-		else
-			$bzImage = $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL');
+		$memdisk = 'memdisk';
 		$memtest = $this->FOGCore->getSetting('FOG_MEMTEST_KERNEL');
 		if ($_REQUEST['arch'] != 'x86_64')
+		{
+			$bzImage = $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_32');
 			$imagefile = $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32');
+		}
 		else
+		{
+			$bzImage = $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL');
 			$imagefile = $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE');
+		}
+		if ($Host && $Host->isValid())
+		{
+			$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
+			if ($LA)
+				$Location = new Location($LA->get('locationID'));
+			if ($Location && $Location->isValid())
+			{
+				$StorageNode = $Location->get('tftp') && $Location->get('storageNodeID') ? new StorageNode($Location->get('storageNodeID')) : $this->FOGCore->getClass('StorageGroup',$Location->get('storageGroupID'))->getOptimalStorageNode();
+				if ($Location->get('tftp'))
+				{
+					$memdisk = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/memdisk';
+					$memtest = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_MEMTEST_KERNEL');
+					if ($Host->get('kernel') && $_REQUEST['arch'] != 'x86_64')
+					{
+						$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$Host->get('kernel');
+						$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32');
+					}
+					else if ($Host->get('kernel') && $_REQUEST['arch'] == 'x86_64')
+					{
+						$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$Host->get('kernel');
+						$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE');
+					}
+					else if ($_REQUEST['arch'] != 'x86_64')
+					{
+						$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_32');
+						$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32');
+					}
+					else
+					{
+						$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL');
+						$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE');
+					}
+				}
+
+			}
+			else if ($Host->get('kernel'))
+				$bzImage = $Host->get('kernel');
+		}
 		$keySequence = $this->FOGCore->getSetting('FOG_KEY_SEQUENCE');
 		if ($keySequence)
 			$this->KS = new KeySequence($keySequence);
@@ -77,13 +117,14 @@ class BootMenu extends FOGBase
 			'fog.local' => 'Boot from hard disk',
 			'fog.memtest' => 'Run Memtest86+',
 			'fog.reginput' => 'Perform Full Host Registration and Inventory',
+			'fog.keyreg' => 'Update Product Key',
 			'fog.reg' => 'Quick Registration and Inventory',
 			'fog.quickimage' => 'Quick Image',
 			'fog.quickdel' => 'Quick Host Deletion',
 			'fog.sysinfo' => 'Client System Information (Compatibility)',
 			'fog.debug' => 'Debug Mode',
 		);
-		$CaponePlugInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'capone','installed' => 1)));
+		$CaponePlugInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'capone','state' => 1,'installed' => 1)));
 		$DMISet = $CaponePlugInst ? $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_DMI') : false;
 		if ($CaponePlugInst && $DMISet)
 			$this->pxemenu['fog.capone'] = 'Capone Deploy';
@@ -96,6 +137,7 @@ class BootMenu extends FOGBase
 		$Advanced = $this->FOGCore->getSetting('FOG_PXE_ADVANCED');
 		if ($Advanced)
 			$this->pxemenu['fog.advanced'] = 'Advanced Menu';
+		$this->memdisk = "kernel $memdisk";
 		$this->memtest = "initrd $memtest";
 		$this->kernel = "kernel $bzImage root=/dev/ram0 rw ramdisk_size=$ramsize ip=dhcp dns=$dns keymap=$keymap web=${webserver}${webroot} consoleblank=0";
 		$this->initrd = "imgfetch $imagefile\n";
@@ -104,6 +146,8 @@ class BootMenu extends FOGBase
 			$this->verifyCreds();
 		else if ($_REQUEST['delconf'])
 			$this->delHost();
+		else if ($_REQUEST['key'])
+			$this->keyset();
 		else if (!$Host || !$Host->isValid())
 			$this->printDefault();
 		else
@@ -131,11 +175,14 @@ class BootMenu extends FOGBase
     		print "#!ipxe\n";
 			print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
 			print "params\n";
-			print "param mac \${net0/mac}\n";
+			print "param mac0 \${net0/mac}\n";
 			print "param arch \${arch}\n";
 			print "param menuAccess 1\n";
 			print "param debug ".($debug ? "1\n" : "0\n");
-	    	print "chain $this->booturl/ipxe/boot.php##params\n";
+			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+			print ":bootme\n";
+	    	print "chain -ar $this->booturl/ipxe/boot.php##params\n";
 	    } 
 	    else
 	    {
@@ -143,13 +190,16 @@ class BootMenu extends FOGBase
 			print ":menuAccess\n";
 			print "login\n";
 			print "params\n";
-			print "param mac \${net0/mac}\n";
+			print "param mac0 \${net0/mac}\n";
 			print "param arch \${arch}\n";
 			print "param username \${username}\n";
 			print "param password \${password}\n";
 			print "param menuaccess 1\n";
 			print "param debug ".($debug ? "1\n" : "0\n");
-			print "chain $this->booturl/ipxe/boot.php##params\n";
+			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+			print ":bootme\n";
+			print "chain -ar $this->booturl/ipxe/boot.php##params\n";
 	    }
 	}
 	/**
@@ -209,10 +259,56 @@ class BootMenu extends FOGBase
 		print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
 		print "prompt --key y Would you like to delete this host? (y/N): &&\n";
 		print "params\n";
-		print "param mac \${net0/mac}\n";
+		print "param mac0 \${net0/mac}\n";
 		print "param arch \${arch}\n";
 		print "param delconf 1\n";
-		print "chain $this->booturl/ipxe/boot.php##params";
+		print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+		print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+		print ":bootme\n";
+		print "chain -ar $this->booturl/ipxe/boot.php##params";
+	}
+	/**
+	* keyreg()
+	* If you're trying to change the key, request what the key is.
+	* @return void
+	*/
+	public function keyreg()
+	{
+		print "#!ipxe\n";
+		print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
+		print "echo -n Please enter the product key>\n";
+		print "read key\n";
+		print "params\n";
+		print "param mac0 \${net0/mac}\n";
+		print "param arch \${arch}\n";
+		print "param key \${key}\n";
+		print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+		print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+		print ":bootme\n";
+		print "chain -ar $this->booturl/ipxe/boot.php##params";
+	}
+	/**
+	*/
+	public function keyset()
+	{
+		$this->Host->set('productKey',base64_encode($_REQUEST['key']));
+		if ($this->Host->save())
+		{
+			print "#!ipxe\n";
+			print "echo Successfully changed key\n";
+			print "sleep 3\n";
+			$this->chainBoot();
+		}
+	}
+	/**
+	* advLogin()
+	* If advanced login is set this just passes when verifyCreds is correct
+	* @return void
+	*/
+	public function advLogin()
+	{
+		print "#!ipxe\n";
+		print "chain -ar $this->booturl/ipxe/advanced.php\n";
 	}
 	/**
 	* debugAccess()
@@ -237,8 +333,12 @@ class BootMenu extends FOGBase
 	{
 		if ($this->FOGCore->attemptLogin($_REQUEST['username'],$_REQUEST['password']))
 		{
+			if ($this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN') && $_REQUEST['advLog'])
+				$this->advLogin();
 			if ($_REQUEST['delhost'])
 				$this->delConf();
+			else if ($_REQUEST['keyreg'])
+				$this->keyreg();
 			else if ($_REQUEST['qihost'])
 				$this->setTasking();
 			else if ($_REQUEST['menuaccess'])
@@ -302,6 +402,7 @@ class BootMenu extends FOGBase
 		else
 		{
 			$TaskType = new TaskType($Task->get('typeID'));
+			$imagingTasks = array(1,2,8,15,16,17);
 			$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $this->Host->get('id'))));
 			if ($LA)
 				$Location = new Location($LA->get('locationID'));
@@ -309,18 +410,20 @@ class BootMenu extends FOGBase
 				$StorageGroup = new StorageGroup($Location->get('storageGroupID'));
 			else
 				$StorageGroup = $Image->getStorageGroup();
-			if ($TaskType->isUpload() || (!$Location || !$Location->get('storageNodeID')))
+			if (!$Location || !$Location->get('storageNodeID'))
 				$StorageNode = $StorageGroup->getOptimalStorageNode();
 			else
 				$StorageNode = new StorageNode($Location->get('storageNodeID'));
+			if ($TaskType->isUpload() || $TaskType->isMulticast())
+				$StorageNode = $StorageGroup->getMasterStorageNode();
 			$mac = $_REQUEST['mac'];
 			$osid = $Image->get('osID');
-			$storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : ''));
-			$storageip = $StorageNode->get('ip');
-			$img = $Image->get('path');
-			$imgLegacy = $Image->get('legacy');
-			$imgType = $Image->getImageType()->get('type');
-			$imgid = $Image->get('id');
+			$storage = in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null;
+			$storageip = in_array($TaskType->get('id'),$imagingTasks) ? $StorageNode->get('ip') : null;
+			$img = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('path') : null;
+			$imgFormat = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('format') : null;
+			$imgType = in_array($TaskType->get('id'),$imagingTasks) ? $Image->getImageType()->get('type') : null;
+			$imgid = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('id') : null;
 			$ftp = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_TFTP_HOST'));
 			$chkdsk = $this->FOGCore->getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
 			$PIGZ_COMP = $this->FOGCore->getSetting('FOG_PIGZ_COMP');
@@ -339,31 +442,70 @@ class BootMenu extends FOGBase
 				"loglevel=4",
 				"consoleblank=0",
 				"irqpoll",
-				"chkdsk=$chkdsk",
-				"img=$img",
-				"imgType=$imgType",
-				"imgid=$imgid",
-				"imgLegacy=$imgLegacy",
-				"PIGZ_COMP=-$PIGZ_COMP",
+				"hostname=".$this->Host->get('name'),
+				array(
+					'value' => "chkdsk=$chkdsk",
+					'active' => in_array($TaskType->get('id'),$imagingTasks),
+				),
+				array(
+					'value' => "img=$img",
+					'active' => in_array($TaskType->get('id'),$imagingTasks),
+				),
+				array(
+					'value' => "imgType=$imgType",
+					'active' => in_array($TaskType->get('id'),$imagingTasks),
+				),
+				array(
+					'value' => "imgid=$imgid",
+					'active' => in_array($TaskType->get('id'),$imagingTasks),
+				),
+				array(
+					'value' => "imgFormat=$imgFormat",
+					'active' => in_array($TaskType->get('id'),$imagingTasks),
+				),
+				array(
+					'value' => "PIGZ_COMP=-$PIGZ_COMP",
+					'active' => in_array($TaskType->get('id'),$imagingTasks),
+				),
 				array(
 					'value' => 'shutdown=1',
 					'active' => $Task->get('shutdown'),
+				),
+				array(
+					'value' => 'adon=1',
+					'active' => $this->Host->get('useAD'),
+				),
+				array(
+					'value' => 'addomain='.$this->Host->get('ADDomain'),
+					'active' => $this->Host->get('useAD'),
+				),
+				array(
+					'value' => 'adou='.$this->Host->get('ADOU'),
+					'active' => $this->Host->get('useAD'),
+				),
+				array(
+					'value' => 'aduser='.$this->Host->get('ADUser'),
+					'active' => $this->Host->get('useAD'),
+				),
+				array(
+					'value' => 'adpass='.$this->Host->get('ADPass'),
+					'active' => $this->Host->get('useAD'),
 				),
 				array(
 					'value' => 'fdrive='.$this->Host->get('kernelDevice'),
 					'active' => $this->Host->get('kernelDevice'),
 				),
 				array(
-					'value' => 'hostname='.$this->Host->get('name'),
-					'active' => $this->FOGCore->getSetting('FOG_CHANGE_HOSTNAME_EARLY'),
+					'value' => 'hostearly=1',
+					'active' => $this->FOGCore->getSetting('FOG_CHANGE_HOSTNAME_EARLY') && in_array($TaskType->get('id'),$imagingTasks) ? true : false,
 				),
 				array(
 					'value' => 'pct='.(is_numeric($this->FOGCore->getSetting('FOG_UPLOADRESIZEPCT')) && $this->FOGCore->getSetting('FOG_UPLOADRESIZEPCT') >= 5 && $this->FOGCore->getSetting('FOG_UPLOADRESIZEPCT') < 100 ? $this->FOGCore->getSetting('FOG_UPLOADRESIZEPCT') : '5'),
-					'active' => $TaskType->isUpload(),
+					'active' => $TaskType->isUpload() && in_array($TaskType->get('id'),$imagingTasks) ? true : false,
 				),
 				array(
 					'value' => 'ignorepg='.($this->FOGCore->getSetting('FOG_UPLOADIGNOREPAGEHIBER') ? 1 : 0),
-					'active' => $TaskType->isUpload(),
+					'active' => $TaskType->isUpload() && in_array($TaskType->get('id'),$imagingTasks) ? true : false,
 				),
 				array(
 					'value' => 'port='.($TaskType->isMulticast() ? $MulticastSession->get('port') : null),
@@ -394,7 +536,7 @@ class BootMenu extends FOGBase
 			else if ($Task->get('typeID') == 4)
 			{
 				print "#!ipxe\n";
-				print "kernel memdisk iso raw\n";
+				print "$this->memdisk iso raw\n";
 				print "$this->memtest\n";
 				print "boot";
 			}
@@ -430,7 +572,7 @@ class BootMenu extends FOGBase
 		else if ($option == 'fog.memtest')
 		{
 			print ":$option\n";
-			print "kernel memdisk iso raw\n";
+			print "$this->memdisk iso raw\n";
 			print "$this->memtest\n";
 			print "boot || goto MENU\n";
 		}
@@ -439,12 +581,15 @@ class BootMenu extends FOGBase
 			print ":$option\n";
 			print "login\n";
 			print "params\n";
-			print "param mac \${net0/mac}\n";
+			print "param mac0 \${net0/mac}\n";
 			print "param arch \${arch}\n";
 			print "param username \${username}\n";
 			print "param password \${password}\n";
 			print "param qihost 1\n";
-			print "chain $this->booturl/ipxe/boot.php##params ||\n";
+			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+			print ":bootme\n";
+			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
 			print "goto MENU\n";
 		}
 		else if ($option == 'fog.quickdel')
@@ -452,30 +597,69 @@ class BootMenu extends FOGBase
 			print ":$option\n";
 			print "login\n";
 			print "params\n";
-			print "param mac \${net0/mac}\n";
+			print "param mac0 \${net0/mac}\n";
 			print "param arch \${arch}\n";
 			print "param username \${username}\n";
 			print "param password \${password}\n";
 			print "param delhost 1\n";
-			print "chain $this->booturl/ipxe/boot.php##params ||\n";
+			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+			print ":bootme\n";
+			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
 			print "goto MENU\n";
+		}
+		else if ($option == 'fog.keyreg')
+		{
+			print ":$option\n";
+			print "login\n";
+			print "params\n";
+			print "param mac0 \${net0/mac}\n";
+			print "param arch \${arch}\n";
+			print "param username \${username}\n";
+			print "param password \${password}\n";
+			print "param keyreg 1\n";
+			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+			print ":bootme\n";
+			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
+			print "goto MENU\n";
+
 		}
 		else if ($option == 'fog.advanced')
 		{
 			print ":$option\n";
-			print "chain $this->booturl/ipxe/advanced.php || goto MENU\n";
+			if ($this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN'))
+			{
+				print "login\n";
+				print "params\n";
+				print "param mac0 \${net0/mac}\n";
+				print "param arch \${arch}\n";
+				print "param username \${username}\n";
+				print "param password \${password}\n";
+				print "param advLog  1\n";
+				print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+				print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+				print ":bootme\n";
+				print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
+				print "goto MENU\n";
+			}
+			else
+				print "chain -ar $this->booturl/ipxe/advanced.php || goto MENU\n";
 		}
 		else if ($option == 'fog.debug') 
 		{
 			print ":$option\n";
 			print "login\n";
 			print "params\n";
-			print "param mac \${net0/mac}\n";
+			print "param mac0 \${net0/mac}\n";
 			print "param arch \${arch}\n";
 			print "param username \${username}\n";
 			print "param password \${password}\n";
 			print "param debugAccess 1\n";
-			print "chain $this->booturl/ipxe/boot.php##params ||\n";
+			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+			print ":bootme\n";
+			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
 		}
 		else
 		{
@@ -524,7 +708,7 @@ class BootMenu extends FOGBase
 			{
 				if (!$this->Host || !$this->Host->isValid())
 				{
-					if ($option != 'fog.quickdel' && $option != 'fog.quickimage' && ( $showDebug || $option != 'fog.debug' )  )
+					if ($option != 'fog.quickdel' && $option != 'fog.quickimage' && ( $showDebug || $option != 'fog.debug' ) && $option != 'fog.keyreg')
 						$this->menuItem($option, $desc);
 				}
 				else 
@@ -559,7 +743,7 @@ class BootMenu extends FOGBase
 						$this->menuOpt($option, "mode=onlydebug");
 					else if ($option == 'fog.capone')
 						$this->menuOpt($option, "mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path");
-					else if ($option == 'fog.local' || $option == 'fog.memtest' || $option == 'fog.advanced' || $option == 'fog.quickdel' || $option == 'fog.quickimage')
+					else if ($option == 'fog.local' || $option == 'fog.memtest' || $option == 'fog.advanced' || $option == 'fog.quickdel' || $option == 'fog.quickimage' || 'fog.keyreg')
 						$this->menuOpt($option, true);
 				}
 			}

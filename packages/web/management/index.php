@@ -5,13 +5,13 @@ require('../commons/base.inc.php');
 if (IS_INCLUDED !== true) die($foglang['NoLoad']);
 // User session data
 $currentUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
-$MainMenu = new Mainmenu($currentUser);
-$SubMenu = new SubMenu($currentUser);
 // Process Login
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 // Login form + logout
 if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
 {
+	@session_write_close();
+	@session_regenerate_id(true);
 	// Hook
 	$HookManager->processEvent('LOGOUT', array('user' => &$currentUser));
 	// Logout
@@ -34,6 +34,9 @@ $content = $FOGPageManager->render();
 $sectionTitle = $FOGPageManager->getFOGPageName();
 // Page Title - should be set after page has been rendered
 $pageTitle = $FOGPageManager->getFOGPageTitle();
+$MainMenu = new Mainmenu();
+$SubMenu = new SubMenu();
+$HookManager->processEvent('CONTENT_DISPLAY',array('content' => &$content,'sectionTitle' => &$sectionTitle,'pageTitle' => &$pageTitle));
 if ($FOGCore->isAJAXRequest())
 {
 	print $content; 
@@ -67,7 +70,8 @@ print "\n\t\t\t".'<h1><a href="'.$_SERVER['PHP_SELF'].'"><img src="images/fog-lo
 print "\n\t\t\t".'<h2>'.$foglang['Slogan'].'</h2>';
 print "\n\t\t".'</div>';
 print "\n\t\t".'<div id="menu">';
-$MainMenu->mainMenu();
+if ($currentUser && $currentUser->isLoggedIn())
+	$MainMenu->mainMenu();
 print "\n\t\t</div>";
 print "\n\t</div>";
 print "\n\t<!-- Content -->";
@@ -129,4 +133,5 @@ if ($isHomepage)
 $HookManager->processEvent('JAVASCRIPT');
 print "\n</body>";
 print "\n</html>";
+session_write_close();
 ob_end_flush();

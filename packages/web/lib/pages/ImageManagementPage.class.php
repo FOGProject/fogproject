@@ -32,9 +32,7 @@ class ImageManagementPage extends FOGPage
 		parent::__construct($name);
 		// Header row
 		$this->headerData = array(
-			_('Image Name'),
-			_('Storage Group'),
-			_('O/S'),
+			_('Image Name') .'<br /><small>'._('Storage Group').': '._('O/S').'</small><br /><small>'._('Image Type').'</small>',
 			_('Image Size: ON CLIENT'),
 			_('Image Size: ON SERVER'),
 			_('Uploaded'),
@@ -42,9 +40,7 @@ class ImageManagementPage extends FOGPage
 		);
 		// Row templates
 		$this->templates = array(
-			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name}</a>',
-			'${storageGroup}',
-			'${os}',
+			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name}</a><br /><small>${storageGroup}:${os}</small><br /><small>${image_type}</small>',
 			'${size}',
 			'${serv_size}',
 			'${deployed}',
@@ -52,13 +48,11 @@ class ImageManagementPage extends FOGPage
 		);
 		// Row attributes
 		$this->attributes = array(
-			array(),
-			array('width' => 50, 'class' => 'c'),
-			array(),
+			array('width' => 50, 'class' => 'l'),
 			array('width' => 50, 'class' => 'c'),
 			array('width' => 50, 'class' => 'c'),
 			array('width' => 50, 'class' => 'c'),
-			array('class' => 'c', 'width' => '50'),
+			array('width' => 50, 'class' => 'c'),
 		);
 	}
 	// Pages
@@ -74,52 +68,25 @@ class ImageManagementPage extends FOGPage
 		// Row data
 		foreach ((array)$Images AS $Image)
 		{
-			$kbyte = 1024;
-			$mbyte = $kbyte * $kbyte;
-			$gbyte = $mbyte * $kbyte;
-			$tbyte = $gbyte * $kbyte;
-			$pbyte = $tbyte * $kbyte;
-			$ebyte = $pbyte * $kbyte;
-			$zbyte = $ebyte * $kbyte;
-			$ybyte = $zbyte * $kbyte;
-			$imgsize = (double)$Image->get('size');
-			if (!$imgsize)
-				$imageSize = sprintf('No size available.');
-			else
-			{
-				if ($imgsize < $kbyte)
-					$imageSize = sprintf('%3.2f iB',$imgsize);
-				else if ($imgsize >= $kbyte && $imgsize < $mbyte)
-					$imageSize = sprintf('%3.2f KiB',$imgsize/$kbyte);
-				else if ($imgsize >= $mbyte && $imgsize < $gbyte)
-					$imageSize = sprintf('%3.2f MiB',$imgsize/$mbyte);
-				else if ($imgsize >= $gbyte && $imgsize < $tbyte)
-					$imageSize = sprintf('%3.2f GiB',$imgsize/$gbyte);
-				else if ($imgsize >= $tbyte && $imgsize < $pbyte)
-					$imageSize = sprintf('%3.2f TiB',$imgsize/$tbyte);
-				else if ($imgsize >= $pbyte && $imgsize < $ebyte)
-					$imageSize = sprintf('%3.2f PiB',$imgsize/$pbyte);
-				else if ($imgsize >= $ebyte && $imgsize < $zbyte)
-					$imageSize = sprintf('%3.2f EiB',$imgsize/$ebyte);
-				else if ($imgsize >= $zbyte && $imgsize < $ybyte)
-					$imageSize = sprintf('%3.2f ZiB',$imgsize/$zbyte);
-				else if ($imgsize >= $ybyte)
-					$imageSize = sprintf('%3.2f YiB',$imgsize/$ybyte);
-			}
+			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
+			$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
+			$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
+			$imageType = $Image->get('imageTypeID') ? new ImageType($Image->get('imageTypeID')) : null;
 			$this->data[] = array(
 				'id'		=> $Image->get('id'),
 				'name'		=> $Image->get('name'),
 				'description'	=> $Image->get('description'),
 				'storageGroup'	=> $Image->getStorageGroup()->get('name'),
-				'storageGroupID'=> $Image->get('storageGroupID'),
+				'storageGroupID'=> $Image->getStorageGroup()->get('id'),
 				'osID'		=> $Image->get('osID'),
 				'os'		=> $Image->getOS()->get('name'),
 				'deployed' => checkdate($this->FOGCore->formatTime($Image->get('deployed'),'m'),$this->FOGCore->formatTime($Image->get('deployed'),'d'),$this->FOGCore->formatTime($Image->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
-				'serv_size' => sprintf('%.2f %s',shell_exec("ls -l ".$Image->getStorageGroup()->getOptimalStorageNode()->get('path').'/'.$Image->get('path')." | awk '{SUM += \$5} END {print SUM/1024/1024/1024}'"),'GiB'),
+				'serv_size' => $servSize,
+				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
 			);
 		}
-		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED'))
+		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
 			$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
 		// Hook
 		$this->HookManager->processEvent('IMAGE_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -151,49 +118,22 @@ class ImageManagementPage extends FOGPage
 		// Find data -> Push data
 		foreach ((array)$this->FOGCore->getClass('ImageManager')->find(array('name' => $keyword)) AS $Image)
 		{
-			$kbyte = 1024;
-			$mbyte = $kbyte * $kbyte;
-			$gbyte = $mbyte * $kbyte;
-			$tbyte = $gbyte * $kbyte;
-			$pbyte = $tbyte * $kbyte;
-			$ebyte = $pbyte * $kbyte;
-			$zbyte = $ebyte * $kbyte;
-			$ybyte = $zbyte * $kbyte;
-			$imgsize = (double)$Image->get('size');
-			if (!$imgsize)
-				$imageSize = sprintf('No size available.');
-			else
-			{
-				if ($imgsize < $kbyte)
-					$imageSize = sprintf('%3.2f B',$imgsize);
-				if ($imgsize >= $kbyte)
-					$imageSize = sprintf('%3.2f KB',$imgsize/$kbyte);
-				if ($imgsize >= $mbyte)
-					$imageSize = sprintf('%3.2f MB',$imgsize/$mbyte);
-				if ($imgsize >= $gbyte)
-					$imageSize = sprintf('%3.2f GB',$imgsize/$gbyte);
-				if ($imgsize >= $tbyte)
-					$imageSize = sprintf('%3.2f TB',$imgsize/$tbyte);
-				if ($imgsize >= $pbyte)
-					$imageSize = sprintf('%3.2f PB',$imgsize/$pbyte);
-				if ($imgsize >= $ebyte)
-					$imageSize = sprintf('%3.2f EB',$imgsize/$ebyte);
-				if ($imgsize >= $zbyte)
-					$imageSize = sprintf('%3.2f ZB',$imgsize/$zbyte);
-				if ($imgsize >= $ybyte)
-					$imageSize = sprintf('%3.2f YB',$imgsize/$ybyte);
-			}
+			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
+			$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
+			$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
+			$imageType = $Image->get('imageTypeID') ? new ImageType($Image->get('imageTypeID')) : null;
 			$this->data[] = array(
 				'id'		=> $Image->get('id'),
 				'name'		=> $Image->get('name'),
 				'description'	=> $Image->get('description'),
 				'storageGroup'	=> $Image->getStorageGroup()->get('name'),
-				'storageGroupID'=> $Image->get('storageGroupID'),
+				'storageGroupID'=> $Image->getStorageGroup()->get('id'),
 				'osID'		=> $Image->get('osID'),
 				'os'		=> $Image->getOS()->get('name'),
 				'deployed' => checkdate($this->FOGCore->formatTime($Image->get('deployed'),'m'),$this->FOGCore->formatTime($Image->get('deployed'),'d'),$this->FOGCore->formatTime($Image->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
-				'serv_size' => sprintf('%.2f %s',shell_exec("ls -l ".$Image->getStorageGroup()->getOptimalStorageNode()->get('path').'/'.$Image->get('path')." | awk '{SUM += \$5} END {print SUM/1024/1024/1024}'"),'GiB'),
+				'serv_size' => $servSize,
+				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
 			);
 		}
 		// Hook
@@ -219,7 +159,7 @@ class ImageManagementPage extends FOGPage
 		);
 		$fields = array(
 			_('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="${image_name}" />',
-			_('Image Description') => '<textarea name="description" rows="5" cols="40">${image_desc}</textarea>',
+			_('Image Description') => '<textarea name="description" rows="8" cols="40">${image_desc}</textarea>',
 			_('Storage Group') => '${storage_groups}',
 			_('Operating System') => '${operating_systems}',
 			_('Image Path') => '${image_path}<input type="text" name="file" id="iFile" value="${image_file}" />',
@@ -266,8 +206,8 @@ class ImageManagementPage extends FOGPage
 				throw new Exception('An image already exists with this name!');
 			if (empty($_REQUEST['file']))
 				throw new Exception('An image file name is required!');
-			if ($_REQUEST['file'] == 'dev')
-				throw new Exception('Image file name cannot be dev!');
+			if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev')
+				throw new Exception('Please choose a different name, this one is reserved for FOG.');
 			if (empty($_REQUEST['storagegroup']))
 				throw new Exception('A Storage Group is required!');
 			if (empty($_REQUEST['os']))
@@ -335,14 +275,15 @@ class ImageManagementPage extends FOGPage
 		// Set the fields and inputs.
 		$fields = array(
 			_('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="${image_name}" />',
-			_('Image Description') => '<textarea name="description" rows="5" cols="40">${image_desc}</textarea>',
+			_('Image Description') => '<textarea name="description" rows="8" cols="40">${image_desc}</textarea>',
 			_('Storage Group') => '${storage_groups}',
 			_('Operating System') => '${operating_systems}',
 			_('Image Path') => '${image_path}<input type="text" name="file" id="iFile" value="${image_file}" />',
 			_('Image Type') => '${image_types}',
-			$this->FOGCore->getSetting('FOG_LEGACY_FLAG_IN_GUI') ? _('Image Manager') : '' => $this->FOGCore->getSetting('FOG_LEGACY_FLAG_IN_GUI') ? '<select name="imagemanage"><option value="1" ${is_legacy}>'._('PartImage').'</option><option value="0" ${is_modern}>'._('PartClone').'</option></select>' : '',
+			$this->FOGCore->getSetting('FOG_FORMAT_FLAG_IN_GUI') ? _('Image Manager') : '' => $this->FOGCore->getSetting('FOG_FORMAT_FLAG_IN_GUI') ? '<select name="imagemanage"><option value="1" ${is_legacy}>'._('PartImage').'</option><option value="0" ${is_modern}>'._('PartClone').'</option></select>' : '',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" /><!--<span class="icon icon-help" title="TODO!"></span>-->',
 		);
+		$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
 		foreach ((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
@@ -352,11 +293,11 @@ class ImageManagementPage extends FOGPage
 				'image_desc' => $Image->get('description'),
 				'storage_groups' => $this->FOGCore->getClass('StorageGroupManager')->buildSelectBox($Image->get('storageGroupID')),
 				'operating_systems' => $this->FOGCore->getClass('OSManager')->buildSelectBox($Image->get('osID')),
-				'image_path' => current($this->FOGCore->getClass('StorageNodeManager')->find(array('storageGroupID' => $Image->get('storageGroupID'),'isMaster' => 1,'isEnabled' => 1)))->get('path').'/&nbsp;',
+				'image_path' => $StorageNode && $StorageNode->isValid() ? $StorageNode->get('path').'/&nbsp;' : 'No nodes available.',
 				'image_file' => $Image->get('path'),
 				'image_types' => $this->FOGCore->getClass('ImageTypeManager')->buildSelectBox($Image->get('imageTypeID'),'','id'),
-				'is_legacy' => $Image->get('legacy') ? 'selected="selected"' : '',
-				'is_modern' => !$Image->get('legacy') ? 'selected="selected"' : '',
+				'is_legacy' => $Image->get('format') == 1 ? 'selected="selected"' : '',
+				'is_modern' => $Image->get('format') == 0 ? 'selected="selected"' : '',
 			);
 		}
 		// Hook
@@ -432,6 +373,8 @@ class ImageManagementPage extends FOGPage
 						throw new Exception('An image name is required!');
 					if ($Image->get('name') != $_POST['name'] && $this->FOGCore->getClass('ImageManager')->exists($_POST['name'], $Image->get('id')))
 						throw new Exception('An image already exists with this name!');
+					if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev')
+						throw new Exception('Please choose a different name, this one is reserved for FOG.');
 					if (empty($_POST['file']))
 						throw new Exception('An image file name is required!');
 					if (empty($_POST['storagegroup']))
@@ -447,7 +390,7 @@ class ImageManagementPage extends FOGPage
 						->set('osID',		$_POST['os'])
 						->set('path',		$_POST['file'])
 						->set('imageTypeID',	$_POST['imagetype'])
-						->set('legacy',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $Image->get('legacy') );
+						->set('format',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $Image->get('format') );
 				break;
 				case 'image-host';
 					if ($_POST['host'])

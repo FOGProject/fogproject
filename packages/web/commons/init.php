@@ -40,7 +40,6 @@ class Initiator
 	public function __construct()
 	{
 		self::init_system();
-		self::init_config();
 		$this->plugPaths = array_filter(glob(BASEPATH . '/lib/plugins/*'), 'is_dir');
 		foreach($this->plugPaths AS $plugPath)
 		{
@@ -79,15 +78,6 @@ class Initiator
 		include('system.php');
 		new System();
 	}
-	/** init_config()
-	* Load the configuration.
-	* @return void
-	*/
-	private static function init_config()
-	{
-		include(BASEPATH.'/commons/config.php');
-		new Config();
-	}
 	/** startInit()
 	* Starts the initiation of the environment.
 	* sanitizes global information.
@@ -100,8 +90,9 @@ class Initiator
 		set_time_limit(0);
 		@error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
 		@header('Cache-Control: no-cache');
-		session_cache_limiter('no-cache');
-		session_start();
+		@session_cache_limiter('no-cache');
+		@session_set_cookie_params(0);
+		@session_start();
 		@set_magic_quotes_runtime(0);
 		self::verCheck();
 		self::extCheck();
@@ -208,17 +199,16 @@ class Initiator
 // Initialize everything.
 $Init = new Initiator();
 $Init::startInit();
+$Config = new Config();
 // Core
 $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
-foreach($Init->plugPaths AS $path)
-	$PluginNames[] = basename($path);
 // HookManager
 $HookManager = new HookManager();
 $HookManager->load();
-// FOGPageManager Loading
+// FOGPageManager
 $FOGPageManager = new FOGPageManager();
 $Init::endInit();

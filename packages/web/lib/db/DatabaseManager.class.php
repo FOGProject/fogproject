@@ -2,7 +2,7 @@
 /**	Class Name: DatabaseManager
 	Class controls the connection to the database.
 */
-class DatabaseManager
+class DatabaseManager extends FOGBase
 {
 	public $type, $host, $user, $pass, $database;
 	public $DB;
@@ -14,6 +14,7 @@ class DatabaseManager
 	{
 		try
 		{
+			parent::__construct();
 			if (!$type)
 				throw new Exception('Type not set');
 			if (!$host)
@@ -32,7 +33,7 @@ class DatabaseManager
 		catch (Exception $e)
 		{
 			$this->valid = false;
-			FOGCore::error('Failed: %s->%s(): Error: %s', array(get_class($this), __FUNCTION__, $e->getMessage()));
+			$this->FOGCore->error('Failed: %s->%s(): Error: %s', array(get_class($this), __FUNCTION__, $e->getMessage()));
 		}
 		
 		return false;
@@ -64,15 +65,15 @@ class DatabaseManager
 						$this->DB = $db;			
 					break;								
 				default:
-					throw new Exception(sprintf('Unknown database type. Check that DATABASE_TYPE is being set in "%s/commons/config.php"', rtrim($_SERVER['DOCUMENT_ROOT'], '/') . dirname($_SERVER['PHP_SELF'])));
+					throw new Exception(sprintf('Unknown database type. Check that DATABASE_TYPE is being set in "%s/lib/fog/Config.class.php"', rtrim($_SERVER['DOCUMENT_ROOT'], '/') . dirname($_SERVER['PHP_SELF'])));
 			}
 			// Database Schema version check
 			if ($this->getVersion() < FOG_SCHEMA && !preg_match('#schemaupdater#i', $_SERVER['PHP_SELF']))
-				$GLOBALS['FOGCore']->redirect('../commons/schemaupdater/index.php?redir=1');
+				$this->FOGCore->redirect('../commons/schemaupdater/index.php?redir=1');
 		}
 		catch (Exception $e)
 		{
-			FOGCore::error('Failed: %s->%s(): Error: %s', array(get_class($this), __FUNCTION__, $e->getMessage()));
+			$this->FOGCore->error('Failed: %s->%s(): Error: %s', array(get_class($this), __FUNCTION__, $e->getMessage()));
 		}
 		return $this;
 	}
@@ -105,7 +106,7 @@ class DatabaseManager
 		}
 		catch (Exception $e)
 		{
-			FOGCore::error('Failed: %s->%s(): Error: %s', array(get_class($this), __FUNCTION__, $e->getMessage()));
+			$this->FOGCore->error('Failed: %s->%s(): Error: %s', array(get_class($this), __FUNCTION__, $e->getMessage()));
 		}
 		return false;
 	}

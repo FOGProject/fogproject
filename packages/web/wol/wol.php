@@ -10,6 +10,6 @@ try
 		$wol->send();
 	}
 	else
-		throw new Exception(_('Invalid MAC Address!'));
+		throw new Exception($foglang['InvalidMAC']);
 }
 catch (Exception $e){print $e->getMessage();}

@@ -1339,6 +1339,64 @@ $databaseSchema[] = array(
     "INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	values('FOG_QUICKREG_GROUP_ASSOC','Allows a group to be assigned during quick registration. Default is no group assigned.','0','FOG Quick Registration')",
 );
+// 103
+$databaseSchema[] = array(
+	"INSERT INTO `" . DATABASE_NAME . "`.`os` (`osID`, `osName`, `osDescription`) VALUES ('7', 'Windows 8.1', '')",
+);
+// 104
+$databaseSchema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME . "`.`inventory`
+		ADD COLUMN `iDeleteDate` datetime  NOT NULL AFTER `iCreateDate`",
+);
+// 105
+$databaseSchema[] = array(
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_ALWAYS_LOGGED_IN','This setting allows user to be signed in all the time or not. A value of 0 disables it.','0','Login Settings')",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_INACTIVITY_TIMEOUT','This setting allows user to be signed in all the time or not. Between 1 and 24 by hours.','1','Login Settings')",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_REGENERATE_TIMEOUT','This setting allows user to be signed in all the time or not. Between 0.25 and 24 by hours.','0.5','Login Settings')",
+);
+// 106
+$databaseSchema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME . "`.images CHANGE imageLegacy imageFormat char",
+	"UPDATE `" . DATABASE_NAME ."`.globalSettings SET settingKey='FOG_FORMAT_FLAG_IN_GUI' WHERE settingKey='FOG_LEGACY_FLAG_IN_GUI'",
+);
+// 107
+$databaseSchema[] = array(
+	"DELETE FROM `" . DATABASE_NAME . "`.globalSettings WHERE settingCategory='SSH Client'",
+	"UPDATE `" . DATABASE_NAME ."`.globalSettings SET settingCategory='FOG Service - Snapins' WHERE settingKey='FOG_SNAPINDIR'",
+);
+// 108
+$databaseSchema[] = array(
+	"UPDATE `" . DATABASE_NAME ."`.globalSettings SET settingDesc='"._("This setting defines if the fog printer manager should be globally active.  (Valid values are 0 or 1)")."' WHERE settingKey='FOG_SERVICE_PRINTERMANAGER_ENABLED'",
+);
+// 109
+$databaseSchema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME . "`.`images`
+		ADD COLUMN `imageMagnetUri` longtext  NOT NULL AFTER `imagePath`",
+);
+// 110
+$databaseSchema[] = array(
+	"UPDATE `" . DATABASE_NAME ."`.taskTypes SET ttKernelArgs='type=down' WHERE ttID='17'",
+);
+// 111
+// Changes Single Partition (NTFS Only, resizable) to Single Disk - resizable for less confusion
+// Especially now that Linux resizable is there.
+// Of note, linux resizable must be linux, windows resizable must be windows, multi-boot can be either for OS.
+$databaseSchema[] = array(
+	"UPDATE `". DATABASE_NAME ."`.`imageTypes` SET `imageTypeName` = 'Single Disk - Resizable' WHERE `imageTypes`.`imageTypeName` = 'Single Disk (NTFS Only, Resizable)'",
+);
+// 112
+$databaseSchema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME . "`.`hosts`
+		ADD COLUMN `hostProductKey` varchar(50) NOT NULL AFTER `hostADPass`",
+);
+// 113
+$databaseSchema[] = array(
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_ADVANCED_MENU_LOGIN','This setting enforces a login parameter to get into the advanced menu.','0','FOG Boot Settings')",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
@@ -1366,7 +1424,7 @@ if ( $_REQUEST["confirm"] == "yes" )
 	if ($DatabaseManager && $DB)
 	{
 		$currentSchema = $DatabaseManager->getVersion();
-		if ( $FOG_SCHEMA != $currentSchema )
+		if ($FOG_SCHEMA != $currentSchema)
 		{
 			// Blackout - 1:05 PM 12/01/2012
 			// Get applicable schema updates by slicing array at $currentSchema
@@ -1385,14 +1443,15 @@ if ( $_REQUEST["confirm"] == "yes" )
 							$errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Function Error:</b> <pre>%s</pre></p><p><b>Function:</b> <pre>%s</pre></p>', "$version - $i", $result, print_r($update, 1));
 					}
 					// Update is SQL
-					else if (! $DB->query($update)->queryResult())
+					else if (!$DB->query($update)->queryResult())
 						$errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i", $DB->sqlerror(), $update);
 				}
-				// Update schema version
-				$DB->query("UPDATE `%s`.`schemaVersion` set vValue = '%s'", array(DATABASE_NAME, $version));
 			}
-			// BUG: Must reconnect to get right version. BUG is in getVersion()
-			if ($FOG_SCHEMA == $DatabaseManager->connect()->getVersion())
+			$DB->connect();
+			$newSchema = current($FOGCore->getClass('SchemaManager')->find());
+			if ($newSchema && $newSchema->isValid())
+				$newSchema->set('version',$version);
+			if ($newSchema && $newSchema->save() && $FOG_SCHEMA == $newSchema->get('version'))
 			{
 				print "\n\t\t\t<p>"._('Update/Install Successful!').'</p>';
 				print "\n\t\t\t<p>"._('Click').' <a href="../../management">'._('here').'</a> '._('to login.').'</p>';

@@ -9,20 +9,21 @@ class Image extends FOGController
 	
 	// Name -> Database field name
 	public $databaseFields = array(
-		'id'		=> 'imageID',
-		'name'		=> 'imageName',
-		'description'	=> 'imageDesc',
-		'path'		=> 'imagePath',
-		'createdTime'	=> 'imageDateTime',
-		'createdBy'	=> 'imageCreateBy',
-		'building'	=> 'imageBuilding',
-		'size'		=> 'imageSize',
-		'imageTypeID'	=> 'imageTypeID',
-		'storageGroupID'=> 'imageNFSGroupID',
-		'osID'		=> 'imageOSID',
-		'size'		=> 'imageSize', 
-		'deployed'	=> 'imageLastDeploy',
-		'legacy'        => 'imageLegacy',
+		'id' => 'imageID',
+		'name' => 'imageName',
+		'description' => 'imageDesc',
+		'path' => 'imagePath',
+		'createdTime' => 'imageDateTime',
+		'createdBy' => 'imageCreateBy',
+		'building' => 'imageBuilding',
+		'size' => 'imageSize',
+		'imageTypeID' => 'imageTypeID',
+		'storageGroupID' => 'imageNFSGroupID',
+		'osID' => 'imageOSID',
+		'size' => 'imageSize', 
+		'deployed' => 'imageLastDeploy',
+		'format' => 'imageFormat',
+		'magnet' => 'imageMagnetUri',
 	);
 
 	// Additional Fields
@@ -161,7 +162,7 @@ class Image extends FOGController
 			$ftphost = $SN->get('ip');
 			$ftpuser = $SN->get('user');
 			$ftppass = $SN->get('pass');
-			$ftproot = rtrim($SN->get('path'),'/').'/'.$this->get('name');
+			$ftproot = rtrim($SN->get('path'),'/').'/'.$this->get('path');
 		}
 		$ftp->set('host',$ftphost)
 			->set('username',$ftpuser)

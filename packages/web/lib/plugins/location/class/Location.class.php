@@ -14,6 +14,7 @@ class Location extends FOGController
 		'createdTime' => 'lCreatedTime',
 		'storageGroupID'		=> 'lStorageGroupID',
 		'storageNodeID' => 'lStorageNodeID',
+		'tftp' => 'lTftpEnabled',
 	);
 
 	public $databaseFieldsRequired = array(

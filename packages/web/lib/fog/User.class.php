@@ -4,8 +4,7 @@
 class User extends FOGController
 {
 	// Variables
-	public $inactivitySessionTimeout = 1;			// In hours
-	public $regenerateSessionTimeout = 0.5;		// In hours
+	public $inactivitySessionTimeout,$regenerateSessionTimeout;
 
 	// Table
 	public $databaseTable = 'users';
@@ -52,11 +51,13 @@ class User extends FOGController
 	
 	public function isLoggedIn()
 	{
+		$this->inactivitySessionTimeout = $this->FOGCore->getSetting('FOG_INACTIVITY_TIMEOUT');
+		$this->regenerateSessionTimeout = $this->FOGCore->getSetting('FOG_REGENERATE_TIMEOUT');
 		// Has IP Address has changed
 		if (!$_SERVER['REMOTE_ADDR'] || $this->get('authIP') != $_SERVER['REMOTE_ADDR'])
 			return false;
 		// Has session expired due to inactivity
-		if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > ($this->inactivitySessionTimeout * 60 * 60)))
+		if (!$this->FOGCore->getSetting('FOG_ALWAYS_LOGGED_IN') && isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] >= ($this->inactivitySessionTimeout * 60 * 60)))
 		{
 			// Logout
 			$this->logout();
@@ -72,19 +73,28 @@ class User extends FOGController
 			$_SESSION['CREATED'] = time();
 		else if (!headers_sent() && time() - $_SESSION['CREATED'] > ($this->regenerateSessionTimeout * 60 * 60))
 		{
-			// Regenerate session ID
-			session_regenerate_id(true);
+			// reset session
+			@session_write_close();
+			@session_set_cookie_params(0);
+			@session_start();
+			@session_regenerate_id(true);
 			$_SESSION['CREATED'] = time();
 		}
 		// Logged in
-		return true;
+		$_SESSION['FOG_USER'] = serialize($this);
+		$_SESSION['FOG_USERNAME'] = $this->get('name');
+		return $this;
 	}
 	public function logout()
 	{
 		// Destroy session
-		@session_destroy();
+		@session_write_close();
+		@session_set_cookie_params(0);
+		@session_start();
+		@session_regenerate_id(true);
 		@session_unset();
-		
-		$_SESSION = array();
+		@session_destroy();
+		$_SESSION=array();
+		$this->FOGCore->redirect('index.php');
 	}
 }

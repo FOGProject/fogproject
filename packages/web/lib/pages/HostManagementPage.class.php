@@ -48,7 +48,7 @@ class HostManagementPage extends FOGPage
 			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			($LocPluginInst ? '${location}<br/><small>${deployed}</small>' : '<small>${deployed}</small>'),
-			'<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${host_id}"><span class="icon icon-download" title="Download"></span></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${host_id}"><span class="icon icon-upload" title="Upload"></span></a> <a href="?node=host&sub=deploy&type=8&id=${host_id}"><span class="icon icon-deploy" title="Deploy"></span></a>',
+			'<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${host_id}"><span class="icon icon-download" title="Download"></span></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${host_id}"><span class="icon icon-upload" title="Upload"></span></a> <a href="?node=host&sub=deploy&type=8&id=${host_id}"><span class="icon icon-multicast" title="Multi-cast"></span></a> <a href="?node=host&sub=edit&id=${host_id}#host-tasks"><span class="icon icon-deploy" title="Deploy"></span></a>',
 			'<a href="?node=host&sub=edit&id=${host_id}"><span class="icon icon-edit" title="Edit"></span></a> <a href="?node=host&sub=delete&id=${host_id}"><span class="icon icon-delete" title="Delete"></span></a>',
 			'${image_name}',
 		);
@@ -92,7 +92,7 @@ class HostManagementPage extends FOGPage
 				);
 			}
 		}
-		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED'))
+		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
 			$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
 		// Hook
 		$this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -171,7 +171,8 @@ class HostManagementPage extends FOGPage
 		$fields = array(
 			_('Host Name') => '<input type="text" name="host" value="${host_name}" maxlength="15" class="hostname-input" />*',
 			_('Primary MAC') => '<input type="text" id="mac" name="mac" value="${host_mac}" />* <span id="priMaker></span><span class="icon icon-add add-mac hand" title="'._('Add Mac').'"></span><span class="mac-manufactor"></span>',
-			_('Host Description') => '<textarea name="description" rows="5" cols="40">${host_desc}</textarea>',
+			_('Host Description') => '<textarea name="description" rows="8" cols="40">${host_desc}</textarea>',
+			_('Host Product Key') => '<input id="productKey" type="text" name="key" value="${host_key}" />',
 			_('Host Image') => '${host_image}',
 			($LocPluginInst ? _('Host Location') : '') => ($LocPluginInst ? '${host_locs}' : ''),
 			_('Host Kernel') => '<input type="text" name="kern" value="${host_kern}" />',
@@ -181,7 +182,7 @@ class HostManagementPage extends FOGPage
 		$fieldsad = array(
 			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain"${ad_dom}value="on" />',
 			_('Domain Name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="${ad_name}" autocomplete="off" />',
-			_('Domain OU') => '<input id="adOU" class="smaller" type="text" name="ou" value="${ad_ou}" autocomplete="off" />',
+			_('Domain OU') => '${ad_ou}',
 			_('Domain Username') => '<input id="adUsername" class="smaller" type="text" name="domainuser" value="${ad_user}" autocomplete="off" />',
 			_('Domain Password').'<br/>'._('Must be encrypted') => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${ad_pass}" autocomplete="off" />',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" />'
@@ -200,16 +201,34 @@ class HostManagementPage extends FOGPage
 				'host_kern' => $_REQUEST['kern'],
 				'host_args' => $_REQUEST['args'],
 				'host_devs' => $_REQUEST['dev'],
+				'host_key' => $_REQUEST['key'],
 				'host_locs' => ($LocPluginInst ? $this->FOGCore->getClass('LocationManager')->buildSelectBox($_REQUEST['location']) : ''),
 			);
 		}
 		// Hook
-		$this->HookManager->processEvent('HOST_ADD_GEN', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		$this->HookManager->processEvent('HOST_ADD_GEN', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes, 'fields' => &$fields));
 		// Output
 		$this->render();
 		// unset for use later.
 		unset ($this->data);
 		print "\n\t\t\t<h2>"._('Active Directory').'</h2>';
+		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
+		foreach ((array)$OUs AS $OU)
+			$OUOptions[] = $OU;
+		$OUOptions = array_filter($OUOptions);
+		if (count($OUOptions) > 1)
+		{
+			$OUs = array_unique((array)$OUOptions);
+			$optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
+			foreach ($OUs AS $OU)
+			{
+				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
+				$optionOU[] = '<option value="'.$opt.'"'.($_REQUEST['ou'] == $opt ? ' selected="selected"' : (preg_match('#;#i',$OU) ? ' selected="selected"' : '')).'>'.$opt.'</option>';
+			}
+			$OUOptions = '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>';
+		}
+		else
+			$OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" value="${ad_ou}" autocomplete="off" />';
 		foreach ((array)$fieldsad AS $field => $input)
 		{
 			$this->data[] = array(
@@ -217,7 +236,7 @@ class HostManagementPage extends FOGPage
 				'input' => $input,
 				'ad_dom' => ($_REQUEST['domain'] == 'on' ? 'checked="checked"' : ''),
 				'ad_name' => $_REQUEST['domainname'],
-				'ad_ou' => $_REQUEST['ou'],
+				'ad_ou' => $OUOptions,
 				'ad_user' => $_REQUEST['domainuser'],
 				'ad_pass' => $_REQUEST['domainpassword'],
 			);
@@ -243,13 +262,19 @@ class HostManagementPage extends FOGPage
 				throw new Exception(_('Hostname is required'));
 			if (empty($_POST['mac']))
 				throw new Exception(_('MAC Address is required'));
+			$MAC = new MACAddress($_POST['mac']);
+			if (!$MAC || !$MAC->isValid())
+				throw new Exception(_('MAC Format is invalid'));
 			// Check if host exists with MAC Address.
-			$Host = $this->FOGCore->getClass('HostManager')->getHostByMacAddresses($_POST['mac']);
+			$Host = $this->FOGCore->getClass('HostManager')->getHostByMacAddresses($MAC);
 			if ($Host && $Host->isValid())
 				throw new Exception(_('A host with this MAC already exists with Hostname: ').$Host->get('name'));
 			if ($this->FOGCore->getClass('HostManager')->exists($_POST['host']))
 				throw new Exception(_('Hostname already exists'));
 			$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
+			// Get all the service id's so they can be enabled.
+			foreach($this->FOGCore->getClass('ModuleManager')->find() AS $Module)
+				$ModuleIDs[] = $Module->get('id');
 			// Define new Image object with data provided
 			$Host = new Host(array(
 				'name'		=> $_POST['host'],
@@ -263,8 +288,10 @@ class HostManagementPage extends FOGPage
 				'ADDomain'	=> $_POST['domainname'],
 				'ADOU'		=> $_POST['ou'],
 				'ADUser'	=> $_POST['domainuser'],
-				'ADPass'	=> $_POST['domainpassword']
+				'ADPass'	=> $_POST['domainpassword'],
+				'productKey' => base64_encode($_POST['key']),
 			));
+			$Host->addModule($ModuleIDs);
 			if ($LocPluginInst && $LocPluginInst->isValid())
 			{
 				$LA = new LocationAssociation(array(
@@ -330,9 +357,18 @@ class HostManagementPage extends FOGPage
 		);
 		if ($_REQUEST['confirmMac'])
 		{
-			$MAC = new PendingMAC($_REQUEST['confirmMac']);
-			$Host->addPendtoAdd($MAC);
-			$this->FOGCore->setMessage('MAC: '.$MAC->get('pending').' Approved!');
+			try
+			{
+				$MAC = new MACAddress($_REQUEST['confirmMac']);
+				if (!$MAC->isValid())
+					throw new Exception(_('Invalid MAC Address'));
+				$Host->addPendtoAdd($MAC);
+				$this->FOGCore->setMessage('MAC: '.$MAC.' Approved!');
+			}
+			catch (Exception $e)
+			{
+				$this->FOGCore->setMessage($e->getMessage());
+			}
 			$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
 		}
 		if ($_REQUEST['approveAll'] == 1)
@@ -348,12 +384,12 @@ class HostManagementPage extends FOGPage
 		foreach((array)$Host->get('additionalMACs') AS $MAC)
 		{
 			if ($MAC && $MAC->isValid())
-				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC->get('mac').'" /><input type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC->get('id').'" name="additionalMACsRM[]" value="'.$MAC->get('id').'" title="'._('Remove MAC').'"/><label for="rm'.$MAC->get('id').'" class="icon icon-remove remove-mac hand"></label><span class="mac-manufactor"></span></div>';
+				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" /><input type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" title="'._('Remove MAC').'"/><label for="rm'.$MAC.'" class="icon icon-remove remove-mac hand"></label><span class="mac-manufactor"></span></div>';
 		}
 		foreach ((array)$Host->get('pendingMACs') AS $MAC)
 		{
 			if ($MAC && $MAC->isValid())
-				$pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC->get('pending').'" /><a href="${link}&confirmMac='.$MAC->get('id').'"><span class="icon icon-tick"></span></a><span class="mac-manufactor"></span></div>';
+				$pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC.'" /><a href="${link}&confirmMac='.$MAC.'"><span class="icon icon-tick"></span></a><span class="mac-manufactor"></span></div>';
 		}
 		if ($pending != null && $pending != '')
 			$pending .= '<div>'._('Approve All MACs?').'<a href="${link}&approveAll=1"><span class="icon icon-tick"></span></a></div>';
@@ -362,7 +398,8 @@ class HostManagementPage extends FOGPage
 			_('Primary MAC') => '<input type="text" name="mac" id="mac" value="${host_mac}" />*<span id="priMaker"></span><span class="icon icon-add add-mac hand" title="'._('Add MAC').'"></span><span class="mac-manufactor"></span>',
 			'<span id="additionalMACsRow">'._('Additional MACs').'</span>' => '<span id="additionalMACsCell">'.$addMACs.'</span>',
 			($Host->get('pendingMACs') ? _('Pending MACs') : null) => ($Host->get('pendingMACs') ? $pending : null),
-			_('Host Description') => '<textarea name="description" rows="5" cols="40">${host_desc}</textarea>',
+			_('Host Description') => '<textarea name="description" rows="8" cols="40">${host_desc}</textarea>',
+			_('Host Product Key') => '<input id="productKey" type="text" name="key" value="${host_key}" />',
 			_('Host Image') => '${host_image}',
 			($LocPluginInst ? _('Host Location') : '') => ($LocPluginInst ? '${host_locs}' : ''),
 			_('Host Kernel') => '<input type="text" name="kern" value="${host_kern}" />',
@@ -389,6 +426,7 @@ class HostManagementPage extends FOGPage
 				'host_kern' => $Host->get('kernel'),
 				'host_args' => $Host->get('kernelArgs'),
 				'host_devs' => $Host->get('kernelDevice'),
+				'host_key' => base64_decode($Host->get('productKey')),
 			);
 		}
 		// Hook
@@ -524,7 +562,7 @@ class HostManagementPage extends FOGPage
 		$fields = array(
 			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain"${domainon} />',
 			_('Domain name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="${host_dom}" autocomplete="off" />',
-			_('Organizational Unit').'<br /><span class="lightColor">('._('Blank for default').')</span>' => '<input id="adOU" class="smaller" type="text" name="ou" value="${host_ou}" autocomplete="off" />',
+			_('Organizational Unit').'<br /><span class="lightColor">('._('Blank for default').')</span>' => '${host_ou}',
 			_('Domain Username') => '<input id="adUsername" class="smaller" type="text" name="domainuser" value="${host_aduser}" autocomplete="off" />',
 			_('Domain Password').'<br />('._('Must be encrypted').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${host_adpass}" autocomplete="off" />',
 			'<input type="hidden" name="updatead" value="1" />' => '<input type="submit" value="'._('Update').'" />',
@@ -532,6 +570,23 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<div id="host-active-directory" class="organic-tabs-hidden">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-active-directory">';
 		print "\n\t\t\t<h2>"._('Active Directory').'</h2>';
+		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
+		foreach ((array)$OUs AS $OU)
+			$OUOptions[] = $OU;
+		$OUOptions = array_filter($OUOptions);
+		if (count($OUOptions) > 1)
+		{
+			$OUs = array_unique((array)$OUOptions);
+			$optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
+			foreach ($OUs AS $OU)
+			{
+				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
+				$optionOU[] = '<option value="'.$opt.'"'.($Host->get('ADOU') == $opt ? ' selected="selected"' : (preg_match('#;#i',$OU) ? ' selected="selected"' : '')).'>'.$opt.'</option>';
+			}
+			$OUOptions = '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>';
+		}
+		else
+			$OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" value="${ad_ou}" autocomplete="off" />';
 		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
@@ -539,11 +594,13 @@ class HostManagementPage extends FOGPage
 				'input' => $input,
 				'domainon' => ($Host->get('useAD') == '1' ? 'checked="checked"' : ''),
 				'host_dom' => $Host->get('ADDomain'),
-				'host_ou' => $Host->get('ADOU'),
+				'host_ou' => $OUOptions,
+				'ad_ou' => $Host->get('ADOU'),
 				'host_aduser' => $Host->get('ADUser'),
 				'host_adpass' => $Host->get('ADPass'),
 			);
 		}
+
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_AD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
@@ -942,11 +999,12 @@ class HostManagementPage extends FOGPage
 			'${user_time}',
 			'${user_desc}',
 		);
-		$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id')));
-		foreach((array)$UserLogins AS $UserLogin)
-			$DatesOld[] = date('Y-m-d',strtotime($UserLogin->get('datetime')));
-		if (is_array($DatesOld))
-			$Dates = array_unique($DatesOld);
+		foreach((array)$Host->get('users') AS $UserLogin)
+		{
+			if ($UserLogin && $UserLogin->isValid())
+				$Dates[] = $UserLogin->get('date');
+		}
+		$Dates = array_unique((array)$Dates);
 		if ($Dates)
 		{
 			rsort($Dates);
@@ -955,16 +1013,16 @@ class HostManagementPage extends FOGPage
 			{
 				if ($_REQUEST['dte'] == '')
 					$_REQUEST['dte'] = $Date;
-				$optionDate .= '<option value="'.$Date.'" '.($Date == $_GET['dte'] ? 'selected="selected"' : '').'>'.$Date.'</option>';
+				$optionDate[] = '<option value="'.$Date.'" '.($Date == $_REQUEST['dte'] ? 'selected="selected"' : '').'>'.$Date.'</option>';
 			}
-			print "\n\t\t\t".'<select name="dte" size="1" onchange="document.getElementById(\'dte\').submit()">'.$optionDate.'</select>';
+			print "\n\t\t\t".'<select name="dte" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select>';
 			print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><img src="images/go.png" class="noBorder" /></a></p>';
-			$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => $_GET['dte']),'AND','datetime');
+			$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => ($_GET['dte'] ? $_GET['dte'] : date('Y-m-d'))),'AND','datetime');
 			$_SESSION['fog_logins'] = array();
 			$cnt = 0;
-			foreach ((array)$UserLogins AS $UserLogin)
+			foreach ((array)$Host->get('users') AS $UserLogin)
 			{
-				if ($UserLogin && $UserLogin->isValid())
+				if ($UserLogin->isValid() && $UserLogin->get('date') == $_REQUEST['dte'])
 				{
 					$this->data[] = array(
 						'action' => ($UserLogin->get('action') == 1 ? _('Login') : ($UserLogin->get('action') == 0 ? _('Logout') : ($UserLogin->get('action') == 99 ? _('Service Start') : _('Service Stop')))),
@@ -1045,7 +1103,8 @@ class HostManagementPage extends FOGPage
 							->set('imageID',	$_POST['image'])
 							->set('kernel',		$_POST['kern'])
 							->set('kernelArgs',	$_POST['args'])
-							->set('kernelDevice',	$_POST['dev']);
+							->set('kernelDevice',	$_POST['dev'])
+							->set('productKey', base64_encode($_POST['key']));
 					// Add Additional MAC Addresses
 					foreach((array)$_POST['additionalMACs'] AS $MAC)
 					{
@@ -1058,7 +1117,7 @@ class HostManagementPage extends FOGPage
 					{
 						foreach((array)$_POST['additionalMACsRM'] AS $MAC)
 						{
-							$DelMAC = new MACAddressAssociation($MAC);
+							$DelMAC = new MACAddress($MAC);
 							$Host->removeAddMAC($DelMAC);
 						}
 					}
@@ -1218,7 +1277,7 @@ class HostManagementPage extends FOGPage
 		// Title
 		$this->title = 'Remove: '.$Host->get('name');
 		// Hook
-		$this->HookManager->processEvent('HOST_ADD', array('Host' => &$Host));
+		$this->HookManager->processEvent('HOST_DEL', array('Host' => &$Host));
 		print "\n\t\t\t".'<p class="c">'._('Please confirm you want to delete').' <b>'.$Host->get('name').'</b></p>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" class="c">';
 		print "\n\t\t\t".'<input type="submit" value="'.$this->title.'" />';
@@ -1232,7 +1291,7 @@ class HostManagementPage extends FOGPage
 		// Find
 		$Host = new Host($this->REQUEST['id']);
 		// Hook
-		$this->HookManager->processEvent('HOST_ADD_POST', array('Host' => &$Host));
+		$this->HookManager->processEvent('HOST_DEL_POST', array('Host' => &$Host));
 		// POST
 		try
 		{
@@ -1318,7 +1377,7 @@ class HostManagementPage extends FOGPage
 				if (preg_match('#ie#', $data[0]))
 					continue;
 				$totalRows++;
-				if ( count( $data ) < 6 && count( $data ) >= 2 )
+				if ( count( $data ) < 7 && count( $data ) >= 2 )
 				{
 					try
 					{
@@ -1338,7 +1397,23 @@ class HostManagementPage extends FOGPage
 						));
 						
 						if ($Host->save())
+						{
+							$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
+							if ($LocPluginInst && $LocPluginInst->isValid())
+							{
+								$LA = new LocationAssociation(array(
+									'locationID' => $data[5],
+									'hostID' => $Host->get('id'),
+								));
+							}
+							else
+								$LA = '';
+							if($LA)
+							{
+								$LA->save();
+							}
 							$numSuccess++;
+						}
 						else
 							$numFailed++;
 					}
@@ -1537,10 +1612,11 @@ class HostManagementPage extends FOGPage
 		$enableDebug = ($this->REQUEST['debug'] == 'true' ? true : false);
 		$scheduledDeployTime = strtotime($this->REQUEST['scheduleSingleTime']);
 		$taskName = ($taskTypeID == '12' ? 'All Snapins Deploy' : ($taskTypeID == '13' ? 'Single Snapin Deploy' : ''));
+		$imagingTasks = array(1,2,8,15,16,17);
 		// Deploy
 		try
 		{
-			if (!$Host->get('imageID'))
+			if (in_array($taskTypeID,$imagingTasks) && !$Host->get('imageID'))
 				throw new Exception(_('You need to assign an image to the host'));
 			if (!$Host->checkIfExist($taskTypeID))
 				throw new Exception(_('To setup download task, you must first upload an image'));

@@ -1,7 +1,7 @@
 <?php
 /**	Class Name: LocationManagementPage
     FOGPage lives in: {fogwebdir}/lib/fog
-    Lives in: {fogwebdir}/lib/pages
+    Lives in: {fogwebdir}/lib/plugins/location/pages
 
 	Description: This is an extension of the FOGPage Class
     This class controls locations you want FOG to associate
@@ -31,17 +31,20 @@ class LocationManagementPage extends FOGPage
 			'Location Name',
 			'Storage Group',
 			'Storage Node',
+			'TFTP Server',
 		);
 		// Row templates
 		$this->templates = array(
 			'<a href="?node=location&sub=edit&id=${id}" title="Edit">${name}</a>',
 			'${storageGroup}',
 			'${storageNode}',
+			'${tftp}',
 		);
 		$this->attributes = array(
-			array('class' => 'l', 'width' => 50),
-			array('class' => 'l', 'width' => 50),
-			array('class' => 'r', 'width' => 50),
+			array('class' => 'l'),
+			array('class' => 'l'),
+			array('class' => 'c'),
+			array('class' => 'r'),
 		);
 	}
 	// Pages
@@ -60,11 +63,13 @@ class LocationManagementPage extends FOGPage
 				'name'  => $Location->get('name'),
 				'storageNode' => ($Location->get('storageNodeID') ? $this->FOGCore->getClass('StorageNode',$Location->get('storageNodeID'))->get('name') : 'Not Set'),
 				'storageGroup' => $StorageGroup->get('name'),
+				'tftp' => $Location->get('tftp') ? _('Yes') : _('No'),
 			);
 		}
 		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED'))
 			$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
 		// Hook
+		$this->HookManager->event[] = 'LOCATION_DATA';
 		$this->HookManager->processEvent('LOCATION_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
@@ -77,6 +82,7 @@ class LocationManagementPage extends FOGPage
 		// Set search form
 		$this->searchFormURL = $_SERVER['PHP_SELF'].'?node=location&sub=search';
 		// Hook
+		$this->HookManager->event[] = 'LOCATION_SEARCH';
 		$this->HookManager->processEvent('LOCATION_SEARCH');
 		// Output
 		$this->render();
@@ -101,9 +107,11 @@ class LocationManagementPage extends FOGPage
 				'name'		=> $Location->get('name'),
 				'storageGroup'	=> $this->FOGCore->getClass('StorageGroup',$Location->get('storageGroupID'))->get ('name'),
 				'storageNode' => $Location->get('storageNodeID') ? $this->FOGCore->getClass('StorageNode',$Location->get('storageNodeID'))->get('name') : 'Not Set',
+				'tftp' => $Location->get('tftp') ? 'Yes' : 'No',
 			);
 		}
 		// Hook
+		$this->HookManager->event[] = 'LOCATION_DATA';
 		$this->HookManager->processEvent('LOCATION_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
@@ -127,6 +135,7 @@ class LocationManagementPage extends FOGPage
 			_('Location Name') => '<input class="smaller" type="text" name="name" />',
 			_('Storage Group') => $this->FOGCore->getClass('StorageGroupManager')->buildSelectBox(),
 			_('Storage Node') => $this->FOGCore->getClass('StorageNodeManager')->buildSelectBox(),
+			_('TFTP From Node') => '<input type="checkbox" name="tftp" value="on" />',
 			'<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
 		);
 		print '<form method="post" action="'.$this->formAction.'">';
@@ -138,6 +147,7 @@ class LocationManagementPage extends FOGPage
 			);
 		}
 		// Hook
+		$this->HookManager->event[] = 'LOCATION_ADD';
 		$this->HookManager->processEvent('LOCATION_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
@@ -158,6 +168,7 @@ class LocationManagementPage extends FOGPage
 				'name' => trim($_REQUEST['name']),
 				'storageGroupID' => $_REQUEST['storagegroup'],
 				'storageNodeID' => $_REQUEST['storagenode'],
+				'tftp' => $_REQUEST['tftp'],
 			));
 			if ($_REQUEST['storagenode'] && $Location->get('storageGroupID') != $this->FOGCore->getClass('StorageNode',$_REQUEST['storagenode'])->get('storageGroupID'))
 				$Location->set('storageGroupID', $this->FOGCore->getClass('StorageNode',$_REQUEST['storagenode'])->get('storageGroupID'));
@@ -196,6 +207,7 @@ class LocationManagementPage extends FOGPage
 			_('Location Name') => '<input class="smaller" type="text" name="name" value="${location_name}" />',
 			_('Storage Group') => '${storage_groups}',
 			_('Storage Node') => '${storage_nodes}',
+			$Location->get('storageNodeID') ? _('TFTP From Node') : '' => $Location->get('storageNodeID') ? '<input type="checkbox" name="tftp" value="on" ${checked} />' : '',
 			'<input type="hidden" name="update" value="1" />' => '<input type="submit" class="smaller" value="'._('Update').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&id='.$Location->get('id').'">';
@@ -207,9 +219,11 @@ class LocationManagementPage extends FOGPage
 				'location_name' => $Location->get('name'),
 				'storage_groups' => $this->FOGCore->getClass('StorageGroupManager')->buildSelectBox($Location->get('storageGroupID')),
 				'storage_nodes' => $this->FOGCore->getClass('StorageNodeManager')->buildSelectBox($Location->get('storageNodeID')),
+				'checked' => $Location->get('tftp') ? 'checked="checked"' : '',
 			);
 		}
 		// Hook
+		$this->HookManager->event[] = 'LOCATION_EDIT';
 		$this->HookManager->processEvent('LOCATION_EDIT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
@@ -219,6 +233,7 @@ class LocationManagementPage extends FOGPage
 	{
 		$Location = new Location($_REQUEST['id']);
 		$LocationMan = new LocationManager();
+		$this->HookManager->event[] = 'LOCATION_EDIT_POST';
 		$this->HookManager->processEvent('LOCATION_EDIT_POST', array('Location'=> &$Location));
 		try
 		{
@@ -231,7 +246,8 @@ class LocationManagementPage extends FOGPage
 					$Location->set('name', $_REQUEST['name'])
 							 ->set('storageGroupID', $_REQUEST['storagegroup']);
 				}
-				$Location->set('storageNodeID', $_REQUEST['storagenode']);
+				$Location->set('storageNodeID', $_REQUEST['storagenode'])
+						 ->set('tftp', $_REQUEST['tftp']);
 				if ($Location->save())
 				{
 					$this->FOGCore->setMessage('Location Updated');
@@ -276,6 +292,7 @@ class LocationManagementPage extends FOGPage
 		}
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" class="c">';
 		// Hook
+		$this->HookManager->event[] = 'LOCATION_DELETE';
 		$this->HookManager->processEvent('LOCATION_DELETE', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
@@ -286,6 +303,7 @@ class LocationManagementPage extends FOGPage
 		// Find
 		$Location = new Location($_REQUEST['id']);
 		// Hook
+		$this->HookManager->event[] = 'LOCATION_DELETE_POST';
 		$this->HookManager->processEvent('LOCATION_DELETE_POST', array('Location' => &$Location));
 		// POST
 		try
@@ -296,6 +314,7 @@ class LocationManagementPage extends FOGPage
 			if (!$Location->destroy())
 				throw new Exception(_('Failed to destroy Location'));
 			// Hook
+			$this->HookManager->event[] = 'LOCATION_DELETE_SUCCESS';
 			$this->HookManager->processEvent('LOCATION_DELETE_SUCCESS', array('Location' => &$Location));
 			// Log History event
 			$this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Location deleted'), $Location->get('id'), $Location->get('name')));
@@ -307,6 +326,7 @@ class LocationManagementPage extends FOGPage
 		catch (Exception $e)
 		{
 			// Hook
+			$this->HookManager->event[] = 'LOCATION_DELETE_FAIL';
 			$this->HookManager->processEvent('LOCATION_DELETE_FAIL', array('Location' => &$Location));
 			// Log History event
 			$this->FOGCore->logHistory(sprintf('%s %s: ID: %s, Name: %s', _('Location'), _('deleted'), $Location->get('id'), $Location->get('name')));

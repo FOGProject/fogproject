@@ -11,126 +11,196 @@ class HookManager extends FOGBase
 	public $logLevel = 0;
 	private $data;
 	public $events = array(
-		// Global
-		'CSS',
-		'JavaScript',
-		'MainMenuData',				// data => array
-		'SubMenuData',				// FOGSubMenu => FOGSubMenu Object
-		//'MessageBox',				// data => string
-		// Host Management
-		// List / Search
+		// FOG Configuration Hooks
+		'PXE_BOOT_MENU',
+		'CLIENT_UPDATE',
+		'IMPORT',
+		'IMPORT_POST',
+		// Group Hooks
+		'GROUP_DATA',
+		'GROUP_SEARCH',
+		'GROUP_ADD',
+		'GROUP_ADD_POST',
+		'GROUP_ADD_SUCCESS',
+		'GROUP_ADD_FAIL',
+		'GROUP_DATA_GEN',
+		'GROUP_DATA_TASKS',
+		'GROUP_DATA_ADV',
+		'GROUP_MEMBERSHIP',
+		'GROUP_IMAGE',
+		'GROUP_SNAP_ADD',
+		'GROUP_SNAP_DEL',
+		'GROUP_MODULES',
+		'GROUP_DISPLAY',
+		'GROUP_ALO',
+		'GROUP_AD',
+		'GROUP_EDIT_POST',
+		'GROUP_EDIT_SUCCESS',
+		'GROUP_EDIT_FAIL',
+		'GROUP_DELETE',
+		'GROUP_DELETE_POST',
+		'GROUP_DELETE_HOST_FORM',
+		'GROUP_DELETE_SUCCESS',
+		'GROUP_DELETE_FAIL',
+		'GROUP_DEPLOY',
+		// Host Hook Events
 		'HOST_DATA',
 		'HOST_HEADER_DATA',
 		'HOST_ADD_GEN',
 		'HOST_ADD_AD',
-		// Edit
-		'HostEditUpdate',			// host => Host Object
-		'HostEditUpdateSuccess',		// host => Host Object
-		'HostEditUpdateFail',			// host => Host Object
-		'HostEditConfirmMACUpdate',		// host => Host Object
-		'HostEditConfirmMACUpdateSuccess',	// host => Host Object, mac = MACAddress Object
-		'HostEditConfirmMACUpdateFail',		// host => Host Object, mac = MACAddress Object
-		'HostEditADUpdate',
-		'HostEditADUpdateSuccess',
-		'HostEditADUpdateFail',
-		'HostEditAddSnapinUpdate',
-		'HostEditAddSnapinUpdateSuccess',
-		'HostEditAddSnapinUpdateFail',
-		'HostEditRemoveSnapinUpdate',
-		'HostEditRemoveSnapinUpdateSuccess',
-		'HostEditRemoveSnapinUpdateFail',
-		// Group Management
-		'GROUP_DATA',	// Index/Search Group
-		'GROUP_ADD',    // Adding a Group
-		'GROUP_ADD_SUCCESS', // Success add Group
-		'GROUP_ADD_FAIL', // Fail add Group
-		'GROUP_DATA_GEN', // Group Edit General Field
-		'GROUP_DATA_TAKS', // Group Tasks
-		'GROUP_DATA_ADV', // Group Advanced Tasks
-		'GROUP_MEMBERSHIP', // Group Membership
-		'GROUP_IMAGE', // Group Image
-		'GROUP_SNAP_ADD', // Group Snap-add
-		'GROUP_SNAP_DEL', // Group Snap-del
-		'GROUP_MODULES', // Group Service Modules
-		'GROUP_DISPLAY', // Group Service Display settings
-		'GROUP_ALO', // Group Service ALO settings
-		// Image Management
-		'IMAGE_DATA', // Index/Search Image
-		'IMAGE_ADD', // Adding an Image
-		'IMAGE_ADD_POST', // Add Post data
-		'IMAGE_EDIT', // Editing an Image
-		'IMAGE_EDIT_POST', // Edit Post data
-		// Storage Node Management
-		// All Storage Nodes
-		'StorageGroupTableHeader',
-		'StorageGroupData',
-		'StorageGroupAfterTable',
-		// All Storage Groups
-		'StorageNodeTableHeader',
-		'StorageNodeData',
-		'StorageNodeAfterTable',
-		// Snapin Management
-		'SnapinTableHeader',
-		'SnapinData',
-		'SnapinAfterTable',
-		// Printer Management
-		'PrinterTableHeader',
-		'PrinterData',
-		'PrinterAfterTable',
-		// Task Management
-		// Active Tasks
-		'TasksActiveTableHeader',
-		'TasksActiveData',
-		'TasksActiveAfterTable',
-		'TasksActiveRemove',
-		'TasksActiveRemoveSuccess',
-		'TasksActiveRemoveFail',
-		'TasksActiveForce',
-		'TasksActiveForceSuccess',
-		'TasksActiveForceFail',
-		// Search
-		'TaskData',
-		'TasksSearchTableHeader',
-		// List Hosts
-		'TasksListHostTableHeader',
-		'TasksListHostData',
-		'TasksListHostAfterTable',
-		// List Group
-		'TasksListGroupTableHeader',
+		'HOST_ADD_POST',
+		'HOST_ADD_SUCCESS',
+		'HOST_ADD_FAIL',
+		'HOST_EDIT_GEN',
+		'HOST_EDIT_GROUP',
+		'HOST_EDIT_TASKS',
+		'HOST_EDIT_ADV',
+		'HOST_EDIT_AD',
+		'HOST_EDIT_PRINTER',
+		'HOST_EDIT_SNAPIN',
+		'HOST_EDIT_SERVICE',
+		'HOST_EDIT_DISPSERV',
+		'HOST_EDIT_ALO',
+		'HOST_INVENTORY',
+		'HOST_VIRUS',
+		'HOST_USER_LOGIN',
+		'HOST_EDIT_POST',
+		'HOST_EDIT_SUCCESS',
+		'HOST_EDIT_FAIL',
+		'HOST_DEL',
+		'HOST_DEL_POST',
+		'HOST_DELETE_SUCCESS',
+		'HOST_DELETE_FAIL',
+		'HOST_IMPORT',
+		'HOST_EXPORT',
+		// Host Mobile Hooks
+		'HOST_MOBILE_SEARCH',
+		'HOST_MOBILE_DATA',
+		// Image Hooks
+		'IMAGE_DATA',
+		'IMAGE_ADD',
+		'IMAGE_ADD_POST',
+		'IMAGE_ADD_SUCCESS',
+		'IMAGE_ADD_FAIL',
+		'IMAGE_EDIT',
+		'IMAGE_EDIT_HOST',
+		'IMAGE_EDIT_POST',
+		'IMAGE_UPDATE_SUCCESS',
+		'IMAGE_UPDATE_FAIL',
+		'IMAGE_DELETE',
+		'IMAGE_DELETE_POST',
+		'IMAGE_DELETE_SUCCESS',
+		'IMAGE_DELETE_FAIL',
+		// Plugin Hooks
+		'PLUGIN_DATA', // TODO: Actually name the hooks something else.
+		// Printer Hooks
+		'PRINTER_DATA',
+		'PRINTER_SEARCH',
+		'PRINTER_ADD',
+		'PRINTER_ADD_POST',
+		'PRINTER_ADD_SUCCESS',
+		'PRINTER_ADD_FAIL',
+		'PRINTER_EDIT',
+		'PRINTER_EDIT_POST',
+		'PRINTER_UPDATE_SUCCESS',
+		'PRINTER_UPDATE_FAIL',
+		'PRINTER_DELETE',
+		'PRINTER_DELETE_POST',
+		'PRINTER_DELETE_SUCCESS',
+		'PRINTER_DELETE_FAIL',
+		// Report Page Hooks TODO
+		// ServerInfo Hooks
+		'SERVER_INFO_DISP',
+		// Service Page Hooks TODO
+		'SERVICE_EDIT_POST',
+		'SERVICE_EDIT_SUCCESS',
+		'SERVICE_EDIT_FAIL',
+		// Snapin Page Hooks
+		'SNAPIN_DATA',
+		'SNAPIN_SEARCH',
+		'SNAPIN_ADD',
+		'SNAPIN_ADD_POST',
+		'SNAPIN_ADD_SUCCESS',
+		'SNAPIN_ADD_FAIL',
+		'SNAPIN_EDIT',
+		'SNAPIN_EDIT_HOST',
+		'SNAPIN_EDIT_POST',
+		'SNAPIN_UPDATE_SUCCESS',
+		'SNAPIN_UPDATE_FAIL',
+		'SNAPIN_DELETE',
+		'SNAPIN_DELETE_POST',
+		'SNAPIN_DELETE_SUCCESS',
+		'SNAPIN_DELETE_FAIL',
+		// Storage Page Hooks
+		'STORAGE_NODE_DATA',
+		'STORAGE_NODE_ADD',
+		'STORAGE_NODE_ADD_POST',
+		'STORAGE_NODE_ADD_SUCCESS',
+		'STORAGE_NODE_ADD_FAIL',
+		'STORAGE_NODE_EDIT',
+		'STORAGE_NODE_EDIT_POST',
+		'STORAGE_NODE_EDIT_SUCCESS',
+		'STORAGE_NODE_EDIT_FAIL',
+		'STORAGE_NODE_DELETE',
+		'STORAGE_NODE_DELETE_POST',
+		'STORAGE_NODE_DELETE_SUCCESS',
+		'STORAGE_NODE_DELETE_FAIL',
+		'STORAGE_GROUP_DATA',
+		'STORAGE_GROUP_ADD',
+		'STORAGE_GROUP_ADD_POST',
+		'STORAGE_GROUP_ADD_POST_SUCCESS',
+		'STORAGE_GROUP_ADD_POST_FAIL',
+		'STORAGE_GROUP_EDIT',
+		'STORAGE_GROUP_EDIT_POST',
+		'STORAGE_GROUP_EDIT_POST_SUCCESS',
+		'STORAGE_GROUP_EDIT_POST_FAIL',
+		'STORAGE_GROUP_DELETE',
+		'STORAGE_GROUP_DELETE_POST',
+		'STORAGE_GROUP_DELETE_POST_SUCCESS',
+		'STORAGE_GROUP_DELETE_POST_FAIL',
+		// Task Page Hooks
+		'TASK_DATA',
 		'TasksListGroupData',
-		'TasksListGroupAfterTable',
-		// Scheduled Tasks
-		'TasksScheduledTableHeader',
-		'TasksScheduledData',
-		'TasksScheduledAfterTable',
-		'TasksScheduledRemove',
-		'TasksScheduledRemoveSuccess',
-		'TasksScheduledRemoveFail',
-		// Active Multicast Tasks
-		'TasksActiveMulticastTableHeader',
-		'TasksActiveMulticastData',
-		'TasksActiveMulticastAfterTable',
-		// Active Snapins
-		'TasksActiveSnapinsTableHeader',
-		'TasksActiveSnapinsData',
-		'TasksActiveSnapinsAfterTable',
-		'TasksActiveSnapinsRemove',			// id => snapinID, hostID => hostID
-		'TasksActiveSnapinsRemoveSuccess',		// id => snapinID, hostID => hostID
-		'TasksActiveSnapinsRemoveFail',			// id => snapinID, hostID => hostID
-		// User Management
+		'TASK_FORCE',
+		'TASK_CANCEL',
+		'TaskActiveMulticastData',
+		'TaskActiveSnapinsData',
+		'TaskScheduleData',
+		'TaskScheduledRemove',
+		'TaskScheduledRemoveSuccess',
+		'TaskScheduledRemoveFail',
+		// Task Mobile Page Hooks TODO
+		// User Page Hooks
 		'USER_DATA',
-		'USER_ADD_SUCCESS',				// User Object
-		'USER_ADD_FAIL',				// User Object
-		'USER_DELETE_SUCCESS',				// User Object
-		'USER_DELETE_FAIL',				// User Object
-		'USER_UPDATE_SUCCESS',				// User Object
-		'USER_UPDATE_FAIL',				// User Object
-		// Login
-		'Login',					// username => string, password => string
-		'LoginSuccess',					// username => string, password => string, user => User Object
-		'LoginFail',					// username => string, password => string
-		// Logout
-		'Logout',
+		'USER_SEARCH',
+		'USER_ADD',
+		'USER_ADD_POST',
+		'USER_ADD_SUCCESS',
+		'USER_ADD_FAIL',
+		'USER_EDIT',
+		'USER_EDIT_POST',
+		'USER_UPDATE_SUCCESS',
+		'USER_UPDATE_FAIL',
+		'USER_DELETE',
+		'USER_DELETE_POST',
+		'USER_DELETE_SUCCESS',
+		'USER_DELETE_FAIL',
+		// FOGCore getMessages Hook
+		'MessageBox',
+		// Mainmenu Data Hook
+		'MAIN_MENU_DATA',
+		// Submenu data Hook
+		'SUB_MENULINK_DATA',
+		// ProcessLogin Login Hooks
+		'LoginSuccess',
+		'LoginFail',
+		'Login',
+		// Main Index page Hooks
+		'LOGOUT',
+		'CONTENT_DISPLAY',
+		'CSS',
+		'SubMenuData',
+		'JAVASCRIPT',
 	);
 	public function register($event, $function)
 	{
@@ -144,13 +214,13 @@ class HookManager extends FOGBase
 				throw new Exception('Invalid event');
 			if (!($function[0] instanceof Hook))
 				throw new Exception('Not a valid hook class');
-			$this->log(sprintf('Registering Hook: Event: %s, Function: %s', $event, print_r($function, 1)));
+			$this->log(sprintf('Registering Hook: Event: %s, Function: %s', $event, $function[1]));
 			$this->data[$event][] = $function;
 			return true;
 		}
 		catch (Exception $e)
 		{
-			$this->log(sprintf('Could not register Hook: Error: %s, Event: %s, Function: %s', $e->getMessage(), $event, print_r($function, 1)));
+			$this->log(sprintf('Could not register Hook: Error: %s, Event: %s, Function: %s', $e->getMessage(), $event, $function[1]));
 		}
 		return false;
 	}
@@ -173,37 +243,34 @@ class HookManager extends FOGBase
 	}
 	public function load()
 	{
-		global $Init,$PluginNames;
+		global $Init;
 		foreach($Init->HookPaths AS $hookDirectory)
 		{
-
-			$hookIterator = new DirectoryIterator($hookDirectory);
-			foreach ($hookIterator AS $fileInfo)
+			if (file_exists($hookDirectory))
 			{
-				$file = $fileInfo->isFile() && substr($fileInfo->getFilename(),-9) == '.hook.php' ? file($fileInfo->getPathname()) : null;
-				$key = '$active';
-				if ($file)
+				$hookIterator = new DirectoryIterator($hookDirectory);
+				foreach ($hookIterator AS $fileInfo)
 				{
-					foreach($file AS $lineNumber => $line)
+					$file = !$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-9) == '.hook.php' ? file($fileInfo->getPathname()) : null;
+					$PluginName = preg_match('#plugins#i',$hookDirectory) ? basename(substr($hookDirectory,0,-6)) : null;
+					$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $PluginName,'installed' => 1)));
+					if ($Plugin)
+						$className = (substr($fileInfo->getFilename(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
+					else if ($file && !preg_match('#plugins#',$fileInfo->getPathname()))
 					{
-						if (strpos($line,$key) !== false)
-							break;
+						$key = '$active';
+						foreach($file AS $lineNumber => $line)
+						{
+							if (strpos($line,$key) !== false)
+								break;
+						}
+						if(preg_match('#true#i',$file[$lineNumber]))
+							$className = (substr($fileInfo->getFileName(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
 					}
-					if(preg_match('#true#i',$file[$lineNumber]))
-						$className = (!$fileInfo->isDot() && substr($fileInfo->getFileName(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
-				}
-				foreach($PluginNames AS $PluginName)
-				{
-					if (preg_match('#plugins#i',$fileInfo->getPathname()) && preg_match('#'.$PluginName.'#i',$fileInfo->getPathname()))
-					{
-						$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $PluginName,'installed' => 1,'state' => 1)));
-						if (!$Plugin)
-							$className = null;
-					}
+					if ($className)
+						$class = new $className();
 				}
 			}
-			if ($className)
-				$class = new $className();
 		}
 	}
 	private function log($txt, $level = 1)
@@ -211,7 +278,7 @@ class HookManager extends FOGBase
 		if (!$this->isAJAXRequest() && $this->logLevel >= $level)
 			printf('[%s] %s%s', date("d-m-Y H:i:s"), trim(preg_replace(array("#\r#", "#\n#", "#\s+#", "# ,#"), array("", " ", " ", ","), $txt)), "<br />\n");
 	}
-	function isAJAXRequest()
+	public function isAJAXRequest()
 	{
 		return (strtolower(@$_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' ? true : false);
 	}

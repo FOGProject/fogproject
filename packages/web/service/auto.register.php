@@ -5,7 +5,6 @@ try
 	// Set the services so all id's can be enabled.
 	foreach($FOGCore->getClass('ModuleManager')->find() AS $Module)
 		$ids[] = $Module->get('id');
-	$groupid[] = base64_decode($_REQUEST['groupid']);
 	$HostManager = new HostManager();
 	$ifconfig = explode('HWaddr',base64_decode($_REQUEST['mac']));
 	$mac = strtolower(trim($ifconfig[1]));
@@ -13,12 +12,14 @@ try
 	$MACAddress = new MACAddress($mac);
 	$Host = $HostManager->getHostByMacAddresses($mac);
 	if (!$MACAddress->isValid())
-		throw new Exception(_('Invalid MAC Address'));
+		throw new Exception($foglang['InvalidMAC']);
 	// Set safe and simple mac for hostname if needed.
 	$macsimple = str_replace(':','',$mac);
 	// Make sure it's a unique name.
 	if($_REQUEST['advanced'] == '1')
 	{
+		if (base64_decode($_REQUEST['productKey'],true))
+			$productKey = trim($_REQUEST['productKey']);
 		$username = base64_decode(trim($_REQUEST['username']));
 		// trim the hostname (no spaces left or right of the name)
 		$host=trim(base64_decode($_REQUEST['host']));
@@ -29,8 +30,9 @@ try
 		// Set ip if filled out.
 		$ip=trim(base64_decode($_REQUEST["ip"]));
 		// Set the image ID, if there is one.
-		$imageid=trim(base64_decode($_REQUEST["imageid"]));
-		($imageid != null && is_numeric($imageid) && $imageid > 0 ? $realimageid = $imageid : $realimageid = '');
+		$imageid = trim(base64_decode($_REQUEST['imageid']));
+		$Image = ($imageid && is_numeric($imageid) && $imageid > 0 ? new Image($imageid) : new Image(array('id' => 0)));
+		$realimageid = ($Image && $Image->isValid() ? $Image->get('id') : '0');
 		$locationid=trim(base64_decode($_REQUEST['location']));
 		($locationid != null && is_numeric($locationid) && $locationid > 0 ? $reallocid = $locationid : $locationid = '');
 		// Filled out?
@@ -42,9 +44,27 @@ try
 		// If it's to join to AD, set the values.
 		if($_REQUEST['doad'] == '1')
 		{
+			$OUs = explode('|',$FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
+			foreach ((array)$OUs AS $OU)
+				$OUOptions[] = $OU;
+			if ($OUOptions)
+			{
+				$OUs = array_unique((array)$OUOptions);
+				foreach ($OUs AS $OU)
+				{
+					$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : '';
+					$optionOU = $opt ? $opt : '';
+					if ($optionOU)
+						break;
+					else
+						continue;
+				}
+				if (!$optionOU)
+					$optionOU = $OUs[0];
+			}
 			$strDoAD="1";
 			$strADDomain = $FOGCore->getSetting( "FOG_AD_DEFAULT_DOMAINNAME");
-			$strADOU = $FOGCore->getSetting( "FOG_AD_DEFAULT_OU");
+			$strADOU = $optionOU;
 			$strADUser = $FOGCore->getSetting( "FOG_AD_DEFAULT_USER");
 			$strADPass = $FOGCore->getSetting( "FOG_AD_DEFAULT_PASSWORD");
 		}
@@ -59,17 +79,17 @@ try
 			'ADOU' => $strADOU,
 			'ADUser' => $strADUser,
 			'ADPass' => $strADPass,
+			'productKey' => $productKey,
 			'createdTime' => date("Y-m-d H:i:s"),
 			'createdBy' => 'FOGREG',
 		));
 		$Host->addModule($ids);
+		$groupid = trim(base64_decode($_REQUEST['groupid']));
+		$Group = ($groupid && is_numeric($groupid) && $groupid > 0 ? new Group($groupid) : new Group(array('id' => 0)));
 		if ($Host->save())
 		{
-			$GroupAssoc = new GroupAssociation(array(
-				'groupID' => base64_decode($_REQUEST['groupid']),
-				'hostID' => $Host->get('id'),
-			));
-			$GroupAssoc->save();
+			$Host = new Host($Host->get('id'));
+			$Group && $Group->isValid() ? $Host->addGroup((array)$Group->get('id'))->save() : null;
 			$LocPlugInst = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
 			if ($LocPlugInst)
 			{
@@ -124,17 +144,18 @@ try
 	else
 	{
 		// Get the autoreg group id:
-		$groupid[] = $FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC');
+		$groupid = trim($FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC'));
+		$Group = ($groupid && is_numeric($groupid) && $groupid > 0 ? new Group($groupid) : new Group(array('id' => 0)));
 		// Quick Registration
-		if ($FOGCore->getSetting('FOG_QUICKREG_AUTOPOP') == '1')
+		if ($FOGCore->getSetting('FOG_QUICKREG_AUTOPOP'))
 		{
 			// Get the image id if autopop is set.
-			$Image = new Image($FOGCore->getSetting('FOG_QUICKREG_IMG_ID'));
-			$realimageid = ($Image && $Image->isValid() ? $Image->get('id') : '');
+			$Image = ($FOGCore->getSetting('FOG_QUICKREG_IMG_ID') ? new Image($FOGCore->getSetting('FOG_QUICKREG_IMG_ID')) : new Image(array('id' => 0)));
+			$realimageid = ($Image->isValid() ? $Image->get('id') : '');
 			// get the name to use
 			$autoregSysName = $FOGCore->getSetting('FOG_QUICKREG_SYS_NAME');
 			// get the increment to use
-			$autoregSysNumber = $FOGCore->getSetting('FOG_QUICKREG_SYS_NUMBER');
+			$autoregSysNumber = (int)$FOGCore->getSetting('FOG_QUICKREG_SYS_NUMBER');
 			// pad as and where necessary.
 			$paddingLen = substr_count($autoregSysName,'*');
 			$paddingString = null;
@@ -144,11 +165,12 @@ try
 				$paddedInsert = str_pad($autoregSysNumber, $paddingLen, '0',STR_PAD_LEFT);
 				// Coolest part: if the MAC is designated to be the name
 				// Set it, otherwise use the predefined values.
-				(strtoupper($autoregSysName) == 'MAC' ? $realhost = $macsimple : $realhost = str_replace($paddingString,$paddedInsert,$autoregSysName));
+				$realhost = (strtoupper($autoregSysName) == 'MAC' ? $macsimple : str_replace($paddingString,$paddedInsert,$autoregSysName));
+				// Increment the Quickreg System number
+				$FOGCore->setSetting('FOG_QUICKREG_SYS_NUMBER',($autoregSysNumber + 1));
 			}
 			else
-				// Same as above.
-				(strtoupper($autoregSysName) == 'MAC' ? $realhost = $macsimple : $realhost = $autoregSysName);
+				$realhost = (strtoupper($autoregSysName) == 'MAC' ? $macsimple : $autoregSysName);
 			// As long as the host doesn't exist, create it.
 			if (!$Host || !$Host->isValid())
 			{
@@ -165,22 +187,15 @@ try
 			if ($Host->save())
 			{
 				$Host = new Host($Host->get('id'));
-				$Host->addGroup($groupid)->save();
-				// Increment the Quickreg System Number if needed.
-				(strtoupper($autoregSysName == 'MAC' ? null : $FOGCore->setSetting('FOG_QUICKREG_SYS_NUMBER',($autoregSysNumber+1))));
-				if ($Host->getImageMemberFromHostID())
+				$Group && $Group->isValid() ? $Host->addGroup($groupid)->save() : null;
+				// If the image is valid and get's the member from the host
+				// create the tasking, otherwise just register!.
+				if ($Image->isValid() && $Host->getImageMemberFromHostID())
 				{
-					$tmp;
-					// As long as the image id is valid create image package.
-					if ($realimageid > 0)
-					{
-						if ($Host->createImagePackage(1,'AutoRegTask'))
-							print _('Done, with imaging!');
-						else
-							print _('Done, but without imaging!');
-					}
+					if ($Host->createImagePackage(1,'AutoRegTask'))
+						print _('Done, with imaging!');
 					else
-						print _('Done, but without imaging!');
+						print _('Done, but unable to create task!');
 				}
 				else
 					print _('Done!');

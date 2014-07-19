@@ -10,24 +10,25 @@ try
 	// Error checking
 	// NOTE: Most of these validity checks should never fail as checks are made during Task creation - better safe than sorry!
 	// MAC Address
-	$MACAddress = new MACAddress($_REQUEST['mac']);
-	if (!$MACAddress->isValid())
-		throw new Exception(_('Invalid MAC address'));
-	// Host for MAC Address
-	$Host = $MACAddress->getHost();
+	$HostManager = new HostManager();
+	$MACs = HostManager::parseMacList($_REQUEST['mac']);
+	if (!$MACs) throw new Exception($foglang['InvalidMAC']);
+	// Get the Host
+	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid())
 		throw new Exception(_('Invalid Host'));
 	// Task for Host
 	$Task = current($Host->get('task'));
 	if (!$Task->isValid())
 		throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'), $MACAddress));
+	$TaskType = new TaskType($Task->get('typeID'));
 	// Get the storage group
 	$StorageGroup = $Task->getStorageGroup();
-	if (!$StorageGroup->isValid())
+	if ($TaskType->isUpload() && !$StorageGroup->isValid())
 		throw new Exception(_('Invalid Storage Group'));
 	// Get the storage node.
 	$StorageNodes = $StorageGroup->getStorageNodes();
-	if (!$StorageNodes)
+	if ($TaskType->isUpload() && !$StorageNodes)
 		throw new Exception(_('Could not find a Storage Node. Is there one enabled within this Storage Group?'));
 	// Image Name store for logging the image task later.
 	$Image = new Image($Host->get('imageID'));
@@ -66,8 +67,8 @@ try
 		}
 	}
 	// If image is currently legacy, set as not legacy.
-	if ($Image->get('legacy'))
-		$Image->set('legacy',0)->save();
+	if ($Image->get('format') == 1)
+		$Image->set('format',0)->save();
 	// Complete the Task.
 	$Task->set('stateID','4');
 	if (!$Task->save())

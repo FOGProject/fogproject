@@ -136,8 +136,11 @@ configureDefaultiPXEfile()
     echo "#!ipxe
 cpuid --ext 29 && set arch x86_64 || set arch i386
 params
-param mac \${net0/mac}
+param mac0 \${net0/mac}
 param arch \${arch}
+isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
+isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme
+:bootme
 chain http://${ipaddress}/fog/service/ipxe/boot.php##params
 " > "${tftpdirdst}/default.ipxe";
 }
@@ -297,28 +300,55 @@ configureMinHttpd()
 
 configureHttpd()
 {
-	echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
-	read dummy
-	echo "";
-	case "$dummy" in
-		[nN]*)
-		while [ $dbpass != $PASSWORD1 ]; do
+	if [ "$installtype" == N -a "$fogupdateloaded" != 1 ]; then
+		echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
+		read dummy;
+		echo "";
+		case "$dummy" in
+			[nN]*)
 			echo -n "  * Please enter your mysql password: "
 			read -s PASSWORD1
 			echo "";
 			echo -n "  * Please re-enter your mysql password: "
 			read -s PASSWORD2
 			echo "";
-			if [ $PASSWORD1 = $PASSWORD2 ]; then
+			if [ "$PASSWORD1" != "" ] && [ "$PASSWORD2" == $PASSWORD1 ]; then
 				dbpass=$PASSWORD1;
+			else
+				dppass="";
+				while [ "$PASSWORD1" != "" ] && [ "$dbpass" != "$PASSWORD1" ]; do
+					echo -n "  * Please enter your mysql password: "
+					read -s PASSWORD1
+					echo "";
+					echo -n "  * Please re-enter your mysql password: "
+					read -s PASSWORD2
+					echo "";
+					if [ "$PASSWORD1" != "" ] && [ "$PASSWORD2" == $PASSWORD1 ]; then
+						dbpass=$PASSWORD1;
+					fi
+				done
 			fi
-			done
-		;;
-		[yY]*)
-		;;
-		*)
-		;;
-	esac
+			if [ "$snmysqlpass" != "$dbpass" ]; then
+				snmysqlpass=$dbpass;
+			fi
+			;;
+			[yY]*)
+			;;
+			*)
+			;;
+		esac
+	fi
+	if [ "$installtype" == "S" -o "$fogupdateloaded" == 1 ]; then
+		if [ "$snmysqlhost" != "" ] && [ "$snmysqlhost" != "$dbhost" ]; then
+			dbhost=$snmysqlhost;
+		fi
+		if [ "$snmysqlhost" == "" ]; then
+			dbhost="localhost";
+		fi
+	fi
+	if [ "$snmysqluser" != "" ] && [ "$snmysqluser" != "$dbuser" ]; then
+		dbuser=$snmysqluser;
+	fi
 	echo -n "  * Setting up and starting Apache Web Server...";
 	sysv-rc-conf apache2 on;
 	mv /etc/apache2/mods-available/php5* /etc/apache2/mods-enabled/  >/dev/null 2>&1
@@ -369,7 +399,7 @@ class Config
 		define('DATABASE_HOST',		'${dbhost}');
 		define('DATABASE_NAME',		'fog');
 		define('DATABASE_USERNAME',		'${dbuser}');
-		define('DATABASE_PASSWORD',		'${dbpass}');
+		define('DATABASE_PASSWORD',		'${snmysqlpass}');
 	}
 	/**
 	* svc_setting()
@@ -445,7 +475,7 @@ class Config
 		define('FOG_UPLOADIGNOREPAGEHIBER',true);
 		define('FOG_DONATE_MINING', \"${donate}\");
 	}
-}" > "${webdirdest}/commons/config.php";
+}" > "${webdirdest}/lib/fog/Config.class.php";
 		
 		chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 		
@@ -479,6 +509,7 @@ configureMySql()
 	echo -n "  * Setting up and starting MySql...";
 	sysv-rc-conf mysql on >/dev/null 2>&1;
 	service mysql stop >/dev/null 2>&1;
+	sleep 10;
 	service mysql start >/dev/null 2>&1;
 	if [ "$?" != "0" ]
 	then

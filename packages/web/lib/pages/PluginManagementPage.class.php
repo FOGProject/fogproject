@@ -154,13 +154,13 @@ class PluginManagementPage extends FOGPage
 			'attributes' => &$this->attributes));
 		// Output
 		$this->render();
-		if(!empty($_REQUEST['run']))
+		if ($_REQUEST['run'])
 		{
 			$runner = $Plugin->getRunInclude($_REQUEST['run']);
-			if($runner != null && $_REQUEST['sub'] == 'installed' && !$Plugin->isInstalled())
-				$this->run();
-			if ($Plugin->isInstalled() && file_exists($runner))
+			if (file_exists($runner) && $Plugin->isInstalled())
 				require_once($runner);
+			else
+				$this->run();
 		}
 	}
 	public function run()
@@ -346,6 +346,12 @@ class PluginManagementPage extends FOGPage
 			$Capone = new Capone($_REQUEST['kill']);
 			$Capone->destroy();
 		}
+		// reset session
+		@session_write_close();
+		@session_regenerate_id(true);
+		$_SESSION = array();
+		@session_set_cookie_params(0);
+		@session_start();
 		$this->FOGCore->setMessage('Plugin updated!');
 		$this->FOGCore->redirect($this->formAction);
 	}
@@ -364,5 +370,11 @@ class PluginManagementPage extends FOGPage
 				}
 			}
 		}
+		// reset session
+		@session_write_close();
+		@session_regenerate_id(true);
+		$_SESSION = array();
+		@session_set_cookie_params(0);
+		@session_start();
 	}
 }

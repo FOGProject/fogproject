@@ -367,7 +367,26 @@ namespace FOG
                                         String strOU = arData[3];
                                         String strU = arData[4];
                                         String strP = arData[5];
-
+										String strKey = arData[6];
+										if (strKey != null)
+										{
+											strKey = strKey.Trim();
+											if (strKey.StartsWith("#Key="))
+											{
+												strKey = strKey.Replace("#Key=", "");
+												Process scriptProc = new Process();
+												scriptProc.StartInfo.FileName = @"cscript";
+												scriptProc.StartInfo.Arguments =@"//B //Nologo c:\windows\system32\slmgr.vbs /ipk " + strKey;
+												scriptProc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+												scriptProc.Start();
+												scriptProc.WaitForExit();
+												scriptProc.Close();
+												scriptProc.StartInfo.Arguments =@"//B //Nologo c:\windows\system32\slmgr.vbs /ato";
+												scriptProc.Start();
+												scriptProc.WaitForExit();
+												scriptProc.Close();
+											}
+										}
                                         if (strUseAD != null)
                                         {
                                             strUseAD = strUseAD.Trim();

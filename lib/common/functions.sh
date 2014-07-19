@@ -172,7 +172,7 @@ displayOSChoices()
 		else
 			echo "  What version of Linux would you like to run the installation for?"
 			echo "";
-			echo "          1) Redhat Based Linux (Redhat, CentOS)";
+			echo "          1) Redhat Based Linux (Redhat, CentOS, Mageia)";
 			echo "          2) Debian Based Linux (Debian, Ubuntu, Kubuntu, Edubuntu)";		
 			echo "";
 			echo -n "  Choice: [${strSuggestedOS}]";
@@ -265,42 +265,42 @@ sendInstallationNotice()
 
 configureUsers()
 {
-	echo -n "  * Setting up fog user";
-	snmysqlpass=`date | md5sum | cut -d" " -f1`;
-	password="${snmysqlpass:0:6}";
-	snmysqlpass="${password}";
-	if [ "$installtype" = "S" ]
-	then
-		# save everyone wrist injuries
-		storageftpuser=${username};
-		storageftppass=${password};
-
-	fi
-	
-	if [ $password != "" ]
-	then
-		useradd -s "/bin/bash" -d "/home/${username}" ${username} >/dev/null 2>&1;
-		if [ "$?" = "0" ] 
+	getent passwd $username > /dev/null;
+	if [ $? != 0 ] || [ "$doupdate" != "1" ]; then
+		echo -n "  * Setting up fog user";
+		password=`date | md5sum | cut -d" " -f1`;
+		password=${password:0:6}
+		if [ "$installtype" = "S" ]
 		then
-			passwd ${username} >/dev/null 2>&1 << EOF
+			# save everyone wrist injuries
+			storageftpuser=${username};
+			storageftppass=${password};
+		fi
+		
+		if [ $password != "" ]
+		then
+			useradd -s "/bin/bash" -d "/home/${username}" ${username} >/dev/null 2>&1;
+			if [ "$?" = "0" ] 
+			then
+				passwd ${username} >/dev/null 2>&1 << EOF
 ${password}
 ${password}
 EOF
-			mkdir "/home/${username}" >/dev/null 2>&1;
-			chown -R ${username} "/home/${username}" >/dev/null 2>&1;
-			echo "...OK";
-		else
-			if [ -f "${webdirdest}/commons/config.php" ]
-			then
-				password=`cat ${webdirdest}/commons/config.php | grep TFTP_FTP_PASSWORD | cut -d"," -f2 | cut -d"\"" -f2`;
+				mkdir "/home/${username}" >/dev/null 2>&1;
+				chown -R ${username} "/home/${username}" >/dev/null 2>&1;
+				echo "...OK";
+			else
+				if [ -f "${webdirdest}/lib/fog/Config.class.php" ]
+				then
+					password=`cat ${webdirdest}/lib/fog/Config.class.php | grep TFTP_FTP_PASSWORD | cut -d"," -f2 | cut -d"\"" -f2`;
+				fi
+				echo "...Exists";
+				bluseralreadyexists="1";
 			fi
-			echo "...Exists";
-			bluseralreadyexists="1";
+		else
+			echo "...Failed!";
+			exit 1;
 		fi
-		
-	else
-		echo "...Failed!";
-		exit 1;
 	fi
 }
 
@@ -315,7 +315,17 @@ configureStorage()
 		touch "$storage/.mntcheck";
 		chmod -R 777 "$storage"
 	fi
-
+	if [ ! -d "$storage/postdownloadscripts" ]; then
+		mkdir "$storage/postdownloadscripts";
+		if [ ! -f "$storage/postdownloadscripts/fog.postdownload" ]; then
+			echo "#!/bin/sh
+## This file serves as a starting point to call your custom postimaging scripts.
+## <SCRIPTNAME> should be changed to the script you're planning to use.
+## Syntax of post download scripts are
+#. \${postdownpath}<SCRIPTNAME>" > "$storage/postdownloadscripts/fog.postdownload";
+		fi
+		chmod -R 777 "$storage";
+	fi
 	if [ ! -d "$storageupload" ]
 	then
 		mkdir "$storageupload";

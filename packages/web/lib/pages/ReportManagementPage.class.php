@@ -141,6 +141,7 @@ class ReportManagementPage extends FOGPage
 		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
 		// Header Data
 		$this->headerData = array(
+			_('Engineer'),
 			_('Host'),
 			_('Start'),
 			_('End'),
@@ -151,9 +152,10 @@ class ReportManagementPage extends FOGPage
 		);
 		// Templates
 		$this->templates = array(
+			'${createdBy}',
 			'${host_name}',
-			'${start_date}',
-			'${end_date}',
+			'<small>${start_date}<br/>${start_time}</small>',
+			'<small>${end_date}<br/>${end_time}</small>',
 			'${duration}',
 			'${image_name}',
 			'${type}',
@@ -478,12 +480,28 @@ class ReportManagementPage extends FOGPage
 	*/
 	public function pend_mac()
 	{
+		// Get all the pending mac hosts.
+		$Hosts = $this->FOGCore->getClass('HostManager')->getAllHostsWithPendingMacs();
+		// Approves All Pending MACs for all hosts.
+		if ($_REQUEST['aprvall'] == 1)
+		{
+			$Hosts = $this->FOGCore->getClass('HostManager')->getAllHostsWithPendingMacs();
+			foreach((array)$Hosts AS $Host)
+			{
+				$MACs= $this->FOGCore->getClass('HostManager')->getPendingMacAddressesForHost($Host);
+				foreach((array)$MACs AS $MAC)
+					$Host->addPendtoAdd($MAC);
+				$Host->save();
+			}
+			$this->FOGCore->setMessage(_('All Pending MACs approved.'));
+			$this->FOGCore->redirect('?node=report&sub=pend-mac');
+		}
 		// Setup Report Maker for this object.
 		$ReportMaker = new ReportMaker();
 		// Set Title
 		$this->title = _('Pending MAC Export');
 		// This gets the download links for which type of file you want.
-		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
+		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a><br /><a href="?node=report&sub=pend-mac&aprvall=1">'._('Approve All Pending MACs for all hosts?').'</a></h2>';
 		// CSV Header
 		$csvHead = array(
 			_('Host ID'),
@@ -510,7 +528,6 @@ class ReportManagementPage extends FOGPage
 			array(),
 			array(),
 		);
-		$Hosts = $this->FOGCore->getClass('HostManager')->getAllHostsWithPendingMacs();
 		foreach((array)$Hosts AS $Host)
 		{
 			$MACs = $this->FOGCore->getClass('HostManager')->getPendingMacAddressesForHost($Host);

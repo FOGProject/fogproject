@@ -22,6 +22,7 @@ class Host extends FOGController
 		'ADOU'		=> 'hostADOU',
 		'ADUser'	=> 'hostADUser',
 		'ADPass'	=> 'hostADPass',
+		'productKey' => 'hostProductKey',
 		'printerLevel'	=> 'hostPrinterLevel',
 		'kernel'	=> 'hostKernel',
 		'kernelArgs'	=> 'hostKernelArgs',
@@ -38,6 +39,8 @@ class Host extends FOGController
 		'modules',
 		'inventory',
 		'task',
+		'snapinjob',
+		'users',
 	);
 	// Required database fields
 	public $databaseFieldsRequired = array(
@@ -57,10 +60,7 @@ class Host extends FOGController
 	// Snapins
 	public function getImage()
 	{
-		if ($this->get('imageID') == '0')
-			return new Image(array('id' => '0'));
-		else
-			return new Image($this->get('imageID'));
+		return new Image($this->get('imageID'));
 	}
 	public function getOS()
 	{
@@ -68,7 +68,7 @@ class Host extends FOGController
 	}
 	public function getMACAddress()
 	{
-		return $this->get('mac');
+		return new MACAddress($this->get('mac'));
 	}
 	public function updateInventory($user,$other1,$other2)
 	{
@@ -142,6 +142,19 @@ class Host extends FOGController
 			throw new Exception(sprintf('%s: %s (%s)', _('No Active Snapin Jobs found for Host'), $this->get('name'), $this->get('mac')));
 		return $SnapinJob;
 	}
+	private function loadSnapinJob()
+	{
+		if (!$this->isLoaded('snapinjob'))
+		{
+			if ($this->get('id'))
+			{
+				$SnapinJobs = $this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(-1,0,1)));
+				foreach ($SnapinJobs AS $SnapinJob)
+					$this->add('snapinjob', new SnapinJob($SnapinJob->get('id')));
+			}
+		}
+		return $this;
+	}
 	private function loadAdditional()
 	{
 		if (!$this->isLoaded('additionalMACs'))
@@ -150,7 +163,7 @@ class Host extends FOGController
 			{
 				$AdditionalMACs = $this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id')));
 				foreach($AdditionalMACs AS $MAC)
-					$this->add('additionalMACs', $MAC);
+					$this->add('additionalMACs', new MACAddress($MAC->get('mac')));
 			}
 		}
 		return $this;
@@ -176,7 +189,7 @@ class Host extends FOGController
 			{
 				$PendingMACs = $this->FOGCore->getClass('PendingMACManager')->find(array('hostID' => $this->get('id')));
 				foreach ($PendingMACs AS $MAC)
-					$this->add('pendingMACs', $MAC);
+					$this->add('pendingMACs', new MACAddress($MAC->get('pending')));
 			}
 		}
 		return $this;
@@ -248,6 +261,19 @@ class Host extends FOGController
 		}
 		return $this;
 	}
+	private function loadUsers()
+	{
+		if (!$this->isLoaded('users'))
+		{
+			if ($this->get('id'))
+			{
+				$Users = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $this->get('id')));
+				foreach($Users AS $User)
+					$this->add('users', $User);
+			}
+		}
+		return $this;
+	}
 	// Overrides
 	public function get($key = '')
 	{
@@ -257,6 +283,8 @@ class Host extends FOGController
 			$this->loadAdditional();
 		else if ($this->key($key) == 'snapins')
 			$this->loadSnapins();
+		else if ($this->key($key) == 'snapinjob')
+			$this->loadSnapinJob();
 		else if ($this->key($key) == 'optimalStorageNode' && !$this->isLoaded('optimalStorageNode'))
 			$this->set($key, $this->getImage()->getStorageGroup()->getOptimalStorageNode());
 		else if ($this->key($key) == 'modules')
@@ -267,6 +295,8 @@ class Host extends FOGController
 			$this->loadGroups();
 		else if ($this->key($key) == 'task')
 			$this->loadTask();
+		else if ($this->key($key) == 'users')
+			$this->loadUsers();
 		else if ($this->key($key) == 'pendingMACs')
 			$this->loadPending();
 		return parent::get($key);
@@ -274,22 +304,8 @@ class Host extends FOGController
 	public function set($key, $value)
 	{
 		// MAC Address
-		if ($this->key($key) == 'mac' && !($value instanceof MACAddress))
+		if (($this->key($key) == 'mac' || $this->key($key) == 'additionalMACs' || $this->key($key) == 'pendingMACs') && !($value instanceof MACAddress))
 			$value = new MACAddress($value);
-		// Additional MAC Addresses
-		if ($this->key($key) == 'additionalMACs')
-		{
-			foreach ((array)$value AS $MAC)
-				$newValue[] = ($MAC instanceof MACAddressAssociation ? $MAC : new MACAddressAssociation($MAC));
-			$value = (array)$newValue;
-		}
-		// Pending MAC Addresses
-		if ($this->key($key) == 'pendingMACs')
-		{
-			foreach ((array)$value AS $MAC)
-				$newValue[] = ($MAC instanceof PendingMAC ? $MAC : new PendingMAC($MAC));
-			$value = (array)$newValue;
-		}
 		// Printers
 		else if ($this->key($key) == 'printers')
 		{
@@ -304,6 +320,14 @@ class Host extends FOGController
 			$this->loadSnapins();
 			foreach ((array)$value AS $snapin)
 				$newValue[] = ($snapin instanceof Snapin ? $snapin : new Snapin($snapin));
+			$value = (array)$newValue;
+		}
+		// SnapinJob
+		else if ($this->key($key) == 'snapinjob')
+		{
+			$this->loadSnapinJob();
+			foreach ((array)$value AS $snapinjob)
+				$newValue[] = ($snapinjob instanceof SnapinJob ? $snapinjob : new SnapinJob($snapinjob));
 			$value = (array)$newValue;
 		}
 		// Modules
@@ -338,22 +362,30 @@ class Host extends FOGController
 				$newValue[] = ($task instanceof Task ? $task : new Task($task));
 			$value[] = (array)$newValue;
 		}
+		// Users
+		else if ($this->key($key) == 'users')
+		{
+			$this->loadUsers();
+			foreach ((array)$value AS $user)
+				$newValue[] = ($user instanceof UserTracking ? $user : new UserTracking($user));
+			$value = (array)$newValue;
+		}
 		// Set
 		return parent::set($key, $value);
 	}
 	public function add($key, $value)
 	{
 		// Additional MAC Addresses
-		if ($this->key($key) == 'additionalMACs' && !($value instanceof MACAddressAssociation))
+		if ($this->key($key) == 'additionalMACs' && !($value instanceof MACAddress))
 		{
 			$this->loadAdditional();
-			$value = new MACAddressAssociation($value);
+			$value = new MACAddress($value);
 		}
 		// Pending MAC Addresses
-		else if ($this->key($key) == 'pendingMACs' && !($value instanceof PendingMAC))
+		else if ($this->key($key) == 'pendingMACs' && !($value instanceof MACAddress))
 		{
 			$this->loadPending();
-			$value = new PendingMAC($value);
+			$value = new MACAddress($value);
 		}
 		// Printers
 		else if ($this->key($key) == 'printers' && !($value instanceof Printer))
@@ -366,6 +398,12 @@ class Host extends FOGController
 		{
 			$this->loadSnapins();
 			$value = new Snapin($value);
+		}
+		// SnapinJob
+		else if ($this->key($key) == 'snapinjob' && !($value instanceof SnapinJob))
+		{
+			$this->loadSnapinJob();
+			$value = new SnapinJob($value);
 		}
 		// Modules
 		else if ($this->key($key) == 'modules' && !($value instanceof Module))
@@ -391,6 +429,12 @@ class Host extends FOGController
 			$this->loadTask();
 			$value = new Task($value);
 		}
+		// Users
+		else if ($this->key($key) == 'users' && !($value instanceof UserTracking))
+		{
+			$this->loadUsers();
+			$value = new UserTracking($value);
+		}
 		// Add
 		return parent::add($key, $value);
 	}
@@ -402,6 +446,9 @@ class Host extends FOGController
 		// Snapins
 		else if ($this->key($key) == 'snapins')
 			$this->loadSnapins();
+		// SnapinJob
+		else if ($this->key($key) == 'snapinjob')
+			$this->loadSnapinJob();
 		// Modules
 		else if ($this->key($key) == 'modules')
 			$this->loadModules();
@@ -420,6 +467,9 @@ class Host extends FOGController
 		// Additional MAC Addresses
 		else if ($this->key($key) == 'additionalMACs')
 			$this->loadAdditional();
+		// Users
+		else if ($this->key($key) == 'users')
+			$this->loadUsers();
 		// Remove
 		return parent::remove($key, $object);
 	}
@@ -435,11 +485,11 @@ class Host extends FOGController
 			// Add new Additional MAC Addresses
 			foreach ((array)$this->get('additionalMACs') AS $MAC)
 			{
-				if ($MAC && $MAC->isValid())
+				if (($MAC instanceof MACAddress) && $MAC->isValid())
 				{
 					$NewMAC = new MACAddressAssociation(array(
 						'hostID' => $this->get('id'),
-						'mac' => $MAC->get('mac'),
+						'mac' => $MAC,
 					));
 					$NewMAC->save();
 				}
@@ -453,11 +503,14 @@ class Host extends FOGController
 			// Add new Pending MAC Addresses
 			foreach ((array)$this->get('pendingMACs') AS $MAC)
 			{
-				$NewMAC = new PendingMAC(array(
-					'hostID' => $this->get('id'),
-					'pending' => $MAC->get('pending'),
-				));
-				$NewMAC->save();
+				if (($MAC instanceof MACAddress) && $MAC->isValid())
+				{
+					$NewMAC = new PendingMAC(array(
+						'hostID' => $this->get('id'),
+						'pending' => $MAC,
+					));
+					$NewMAC->save();
+				}
 			}
 		}
 		// Printers
@@ -534,6 +587,28 @@ class Host extends FOGController
 						'groupID' => $Group->get('id'),
 					));
 					$NewGroup->save();
+				}
+			}
+		}
+		// Users
+		else if ($this->isLoaded('users'))
+		{
+			// Remove old rows
+			$this->FOGCore->getClass('UserTrackingManager')->destroy(array('hostID' => $this->get('id')));
+			// Create Assoc
+			foreach ((array)$this->get('users') AS $User)
+			{
+				if (($User instanceof UserTracking) && $User->isValid())
+				{
+					$NewUser = new GroupAssociation(array(
+						'hostID' => $this->get('id'),
+						'username' => $User->get('username'),
+						'action' => $User->get('action'),
+						'datetime' => $User->get('datetime'),
+						'description' => $User->get('description'),
+						'date' => $User->get('date'),
+					));
+					$NewUser->save();
 				}
 			}
 		}
@@ -616,6 +691,8 @@ class Host extends FOGController
 			$LocPlugInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
 			// TaskType: Variables
 			$TaskType = new TaskType($taskTypeID);
+			// Imaging types.
+			$imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17)) ? true : false;
 			$isUpload = $TaskType->isUpload();
 			// Image: Variables
 			$Image = $this->getImage();
@@ -649,8 +726,8 @@ class Host extends FOGController
 					'isForced'	=> 0,
 					'stateID'	=> 1,
 					'typeID'	=> $taskTypeID,
-					'NFSGroupID'	=> ($LocPlugInst ? $StorageGroup->get('id') : $Image->getStorageGroup()->get('id')),
-					'NFSMemberID'	=> ($LocPlugInst ? $StorageGroup->getOptimalStorageNode()->get('id') : $Image->getStorageGroup()->getOptimalStorageNode()->get('id')),
+					'NFSGroupID' => $imagingTypes ? ($LocPlugInst ? $StorageGroup->get('id') : $Image->getStorageGroup()->get('id')) : false,
+					'NFSMemberID'	=> $imagingTypes ? ($LocPlugInst ? $StorageGroup->getOptimalStorageNode()->get('id') : ($this->get('imageID') ? $Image->getStorageGroup()->getOptimalStorageNode()->get('id') : $StorageGroup->getOptimalStorageNode()->get('id'))) : false,
 					'shutdown' => $shutdown,
 				));
 				if ($Task->save())
@@ -672,13 +749,13 @@ class Host extends FOGController
 				// Task: Create Task Object
 				$Task = new Task(array(
 					'name'		=> $taskName,
-					'createdBy'	=> ($this->FOGUser ? $this->FOGUser : ($username ? $username : '')),
+					'createdBy'	=> ($this->FOGUser ? $this->FOGUser : ($username ? $username : 'nobody')),
 					'hostID'	=> $this->get('id'),
 					'isForced'	=> 0,
 					'stateID'	=> 1,
 					'typeID'	=> $taskTypeID, 
-					'NFSGroupID' 	=> $StorageGroup->get('id'),
-					'NFSMemberID'	=> $StorageGroup->getOptimalStorageNode()->get('id'),
+					'NFSGroupID' 	=> $imagingTypes ? $StorageGroup->get('id') : false,
+					'NFSMemberID'	=> $imagingTypes ? $StorageGroup->getOptimalStorageNode()->get('id') : false,
 					'shutdown' => $shutdown,
 					'passreset' => $passreset,	
 				));
@@ -763,14 +840,14 @@ class Host extends FOGController
 			if (!$TaskType->isValid())
 				throw new Exception('Task Type is not valid');
 			// Image: Error checking
-			if (!$Image->isValid())
+			if ($imagingTypes && !$Image->isValid())
 				throw new Exception('Image is not valid');
-			if (!$Image->getStorageGroup()->isValid())
+			if ($imagingTypes && !$Image->getStorageGroup()->isValid())
 				throw new Exception('The Image\'s associated Storage Group is not valid');
 			// Storage Node: Error Checking
-			if (!$StorageNode || !($StorageNode instanceof StorageNode))
+			if ($imagingTypes && (!$StorageNode || !($StorageNode instanceof StorageNode)))
 				throw new Exception( _('Could not find a Storage Node. Is there one enabled within this Storage Group?') );
-			if (!$StorageNode->isValid())
+			if ($imagingTypes && !$StorageNode->isValid())
 				throw new Exception(_('The Storage Group\'s associated Storage Node is not valid'));
 			// Variables
 			$mac = $this->getMACAddress()->getMACWithColon();
@@ -782,8 +859,8 @@ class Host extends FOGController
 				'isForced'	=> '0',
 				'stateID'	=> '1',
 				'typeID'	=> $taskTypeID, 
-				'NFSGroupID' 	=> ($Location ? $StorageGroup->get('id') : $Image->getStorageGroup()->get('id')),
-				'NFSMemberID'	=> ($Location ? $StorageGroup->getOptimalStorageNode()->get('id') : $Image->getStorageGroup()->getOptimalStorageNode()->get('id')),
+				'NFSGroupID' 	=> $imagingTypes ? ($Location ? $StorageGroup->get('id') : $Image->getStorageGroup()->get('id')) : false,
+				'NFSMemberID'	=> $imagingTypes ? ($Location ? $StorageGroup->getOptimalStorageNode()->get('id') : $Image->getStorageGroup()->getOptimalStorageNode()->get('id')) : false,
 				'shutdown' => $shutdown,
 				'passreset' => $passreset,
 			));
@@ -793,7 +870,7 @@ class Host extends FOGController
 			// If task is multicast perform the following.
 			if ($TaskType->isMulticast())
 			{
-				$MultiSessAssoc = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('image' => $this->getImage()->get('id'))));
+				$MultiSessAssoc = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('image' => $this->getImage()->get('id'),'stateID' => 0)));
 				// If no Associations, create new job and association.
 				if (!$MultiSessAssoc || !$isGroupTask)	
 				{
@@ -843,7 +920,7 @@ class Host extends FOGController
 				}
 			}
 			// Snapin deploy/cancel after deploy
-			if (!$isUpload && $deploySnapins && $taskTypeID != '12' && $taskTypeID != '13')
+			if (!$isUpload && $deploySnapins && $imagingTypes && $taskTypeID != '17')
 			{
 				// Remove any exists snapin tasks
 				$SnapinJobs = $this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id')));
@@ -854,23 +931,28 @@ class Host extends FOGController
 						$SnapinTask->destroy();
 					$SnapinJob->destroy();
 				}
-				// now do a clean snapin deploy
-				$SnapinJob = new SnapinJob(array(
-					'hostID' => $this->get('id'),
-					'createTime' => date('Y-m-d H:i:s'),
-				));
-				if ($SnapinJob->save())
+				// Check if there's any snapins assigned to the host.
+				$SnapinAssoc = $this->FOGCore->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')));
+				if ($this->FOGCore->getClass('SnapinAssociationmanager')->count(array('hostID' => $this->get('id'))) > 0)
 				{
-					$SnapinAssoc = $this->FOGCore->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')));
-					foreach ($SnapinAssoc AS $SA)
+					// now do a clean snapin deploy
+					$SnapinJob = new SnapinJob(array(
+						'hostID' => $this->get('id'),
+						'createTime' => date('Y-m-d H:i:s'),
+					));
+					if ($SnapinJob->save())
 					{
-						$Snapin = new Snapin($SA->get('snapinID'));
-						$SnapinTask = new SnapinTask(array(
-							'jobID' => $SnapinJob->get('id'),
-							'stateID' => -1,
-							'snapinID' => $Snapin->get('id'),
-						));
-						$SnapinTask->save();
+						$SnapinAssoc = $this->FOGCore->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')));
+						foreach ($SnapinAssoc AS $SA)
+						{
+							$Snapin = new Snapin($SA->get('snapinID'));
+							$SnapinTask = new SnapinTask(array(
+								'jobID' => $SnapinJob->get('id'),
+								'stateID' => -1,
+								'snapinID' => $Snapin->get('id'),
+							));
+							$SnapinTask->save();
+						}
 					}
 				}
 			}
@@ -952,9 +1034,9 @@ class Host extends FOGController
 		}
 		catch (Exception $e)
 		{
-			FOGCore::error(sprintf('%s():xError: %s', __FUNCTION__, $e->getMessage()));
-			exit;
+			$this->FOGCore->error(sprintf('%s():xError: %s', __FUNCTION__, $e->getMessage()));
 		}
+		return false;
 	}
 	public function clearAVRecordsForHost()
 	{
@@ -1063,14 +1145,14 @@ class Host extends FOGController
 	{
 		$NewMACAdd = new MACAddressAssociation(array(
 			'hostID' => $this->get('id'),
-			'mac' => $MAC->get('pending'),
+			'mac' => $MAC,
 		));
 		$NewMACAdd->save();
-		$this->FOGCore->getClass('PendingMACManager')->destroy(array('hostID' => $this->get('id'),'pending' => $MAC->get('pending')));
+		$this->FOGCore->getClass('PendingMACManager')->destroy(array('hostID' => $this->get('id'),'pending' => $MAC));
 	}
 	public function removeAddMAC($removeArray)
 	{
-		$removeArray->destroy();
+		$this->FOGCore->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'mac' => $removeArray));
 		$this->remove('additionalMACs', $removeArray);
 		// Return
 		return $this;
@@ -1085,7 +1167,7 @@ class Host extends FOGController
 	}
 	public function removePendMAC($removeArray)
 	{
-		$removeArray->destroy();
+		$this->FOGCore->getClass('PendingMACManager')->destroy(array('hostID' => $this->get('id'),'pending' => $removeArray));
 		$this->remove('pendingMACs', $removeArray);
 		// Return
 		return $this;
@@ -1170,6 +1252,9 @@ class Host extends FOGController
 		$this->FOGCore->getClass('PendingMACManager')->destroy(array('hostID' => $this->get('id')));
 		// Remove Additional MAC Associations
 		$this->FOGCore->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id')));
+		// Update inventory to know when it was deleted
+		if ($this->get('inventory'))
+			current($this->get('inventory'))->set('deleteDate',date('Y-m-d H:i:s'))->save();
 		// Return
 		return parent::destroy($field);
 	}
