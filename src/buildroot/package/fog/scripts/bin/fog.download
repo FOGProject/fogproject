@@ -2,7 +2,7 @@
 . /usr/share/fog/lib/funcs.sh;
 . /bin/fog.donate;
 . /bin/fog.checkin;
-layPartSize="99%";
+layPartSize="-1s";
 imagePath="/images/$img";
 win7imgroot="$imagePath";
 fog.statusreporter $mac $web &
@@ -62,7 +62,7 @@ if [ -f "/images/.mntcheck" ]; then
 					echo "Skipped";
 				else
 					dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
-					parted -s $hd u kB mktable msdos &>/dev/null;
+					parted -s $hd mktable msdos &>/dev/null;
 					dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
 					echo "Done";
 				fi
@@ -72,21 +72,21 @@ if [ -f "/images/.mntcheck" ]; then
 				fi
 				if [ "$win7partcnt" == "1" ]; then
 					dots "Preparing Hard Disks (Stage 2)";
-					parted -s $hd u kB rm 1 &>/dev/null;
+					parted -s $hd rm 1 &>/dev/null;
 					echo "Done";
 					dots "Preparing Hard Disks (Stage 3)";
 					if [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
-						parted -s $hd u kB mkpart primary ntfs 63s $layPartSize &>/dev/null;
+						parted -s $hd -a opt mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
 					else
-						parted -s $hd -a opt u kB mkpart primary ntfs 2048s $layPartSize &>/dev/null;
+						parted -s $hd -a opt mkpart primary ntfs 2048s -- $layPartSize &>/dev/null;
 					fi
-					parted -s $hd u kB set 1 boot on &>/dev/null;
+					parted -s $hd set 1 boot on &>/dev/null;
 				elif [ "$win7partcnt" == "2" ]; then
 					dots "Preparing Hard Disks (Stage 2)";
-					parted -s $hd u kB rm 2 &>/dev/null;
+					parted -s $hd rm 2 &>/dev/null;
 					echo "Done";
 					dots "Preparing Hard Disks (Stage 3)";
-					parted -s $hd -a opt u kB mkpart primary ntfs $defaultpart2start $layPartSize &>/dev/null;
+					parted -s $hd -a opt mkpart primary ntfs $defaultpart2start -- $layPartSize &>/dev/null;
 				elif [ "$win7partcnt" == "3" ]; then
 					dots "Preparing Hard Disks (Stage 2)";
 					sgdisk --zap-all $hd 2>&1 >/dev/null;
@@ -107,18 +107,18 @@ if [ -f "/images/.mntcheck" ]; then
 				echo "Skipped";
 			else
 				dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
-				parted -s $hd u kB mktable msdos &>/dev/null;
+				parted -s $hd mktable msdos &>/dev/null;
 				dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
 				echo "Done";
 			fi
 			debugPause;
 			dots "Preparing Hard Disks (Stage 2)";
-			parted -s $hd u kB rm 1 &>/dev/null;
+			parted -s $hd rm 1 &>/dev/null;
 			runPartprobe $hd;
 			echo "Done";
 			dots "Preparing hard Disks (Stage 3)";
-			parted -s $hd u kB mkpart primary ntfs 63s $layPartSize &>/dev/null;
-			parted -s $hd u kB set 1 boot on &>/dev/null;
+			parted -s $hd -a opt mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
+			parted -s $hd set 1 boot on &>/dev/null;
 			echo "Done";
 			debugPause;
 		elif [ "$osid" == "2" ]; then
@@ -127,17 +127,17 @@ if [ -f "/images/.mntcheck" ]; then
 				echo "Skipped";
 			else
 				dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
-				parted -s $hd u kB mktable msdos &>/dev/null;
+				parted -s $hd mktable msdos &>/dev/null;
 				dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
 				echo "Done";
 			fi
 			debugPause;
 			dots "Preparing Hard Disks (Stage 2)";
-			parted -s $hd u kB rm 2 &>/dev/null;
+			parted -s $hd rm 2 &>/dev/null;
 			runPartprobe $hd;
 			echo "Done";
 			dots "Preparing Hard Disks (Stage 3)";
-			parted -s $hd u kB mkpart primary ntfs $defaultpart2start $layPartSize &>/dev/null;
+			parted -s $hd -a opt mkpart primary ntfs $defaultpart2start -- $layPartSize &>/dev/null;
 			echo "Done";
 			correctVistaMBR $hd;
 			debugPause;
