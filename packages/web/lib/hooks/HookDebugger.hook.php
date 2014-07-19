@@ -19,7 +19,7 @@ class HookDebugger extends Hook
 	var $logToBrowser = true;
 	public function run($arguments)
 	{
-		$this->log(print_r($arguments,1));
+		$this->log(print_r($arguments['event'],1));
 	}
 }
 $HookDebugger = new HookDebugger();
