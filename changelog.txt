@@ -15,6 +15,9 @@ Post_Stage3.php
 in CentOS 7.0
 * Fix donate tasking completetion elements so systems reboot/shutdown as
 needed when the time is met.
+* Fix 100% usage of the disk in resizable images.  Percentages should not be
+used and should never have been used to getin with.  It now uses the -1s
+method to specify to the end of the disk.
 * Add ftp file size checking.  All sizes are done through ftp now.
 * Add size of byte filtering to get pretty size.
 * Add $this->FOGUser to FOGPageManager and Hook to check if its set. This is
