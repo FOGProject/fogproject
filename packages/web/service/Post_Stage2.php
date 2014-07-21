@@ -47,7 +47,7 @@ try
 			// Set the src based on the image and node path.
 			$src = $StorageNode->get('path').'/dev/'.$macftp;
 			// XP only, typically, had one part so only need the file part.
-			if ($_REQUEST['osid'] == '1' && $_REQUEST['imgtype'] == 'n')
+			if (($_REQUEST['osid'] == '1' || $_REQUEST['osid'] == '2') && $_REQUEST['imgtype'] == 'n')
 				$src = $StorageNode->get('path').'/dev/'.$macftp.'/'.$macftp.'.000';
 			// Where is it going?
 			$dest = $StorageNode->get('path').'/'.$_REQUEST['to'];
@@ -60,7 +60,7 @@ try
 			// Try to delete the file.  Doesn't hurt anything if it doesn't delete anything.
 			$ftp->delete($dest);
 			if ($ftp->rename($dest,$src)||$ftp->put($dest,$src))
-				($_REQUEST['osid'] == '1' ? $ftp->delete($StorageNode->get('path').'/dev/'.$macftp) : null);
+				($_REQUEST['osid'] == '1' || $_REQUEST['osid'] == '2' ? $ftp->delete($StorageNode->get('path').'/dev/'.$macftp) : null);
 			else
 				throw new Exception(_('Move/rename failed.'));
 			$ftp->close();
