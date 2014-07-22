@@ -70,7 +70,8 @@ try
 	if ($Image->get('format') == 1)
 		$Image->set('format',0)->save();
 	// Complete the Task.
-	$Task->set('stateID','4');
+	if (!in_array($TaskType->get('id'),array(12,13)))
+		$Task->set('stateID','4');
 	if (!$Task->save())
 		throw new Exception(_('Failed to update Task'));
 	// Log it

@@ -15,7 +15,8 @@ try
 	$Task = current($Host->get('task'));
 	if (!$Task->isValid())
 		throw new Exception(sprintf('%s: %s (%s)',_('No Active Task found for Host'),$Host->get('name'),$MACAddress));
-	$Task->set('stateID',4);
+	if (!in_array($TaskType->get('id'),array(12,13)))
+		$Task->set('stateID',4);
 	if ($Task->save())
 	{
 		// Task Logging.
