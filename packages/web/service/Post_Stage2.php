@@ -18,7 +18,12 @@ try
 	if (!$Host->isValid())
 		throw new Exception(_('Invalid Host'));
 	// Task for Host
-	$Task = current($Host->get('task'));
+	$Tasks = $Host->get('task');
+	foreach($Tasks AS $Task)
+	{
+		if ($Task->isValid() && !in_array($Task->get('typeID'),array(4,12,13)))
+			break;
+	}
 	if (!$Task->isValid())
 		throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'), $MACAddress));
 	$TaskType = new TaskType($Task->get('typeID'));
@@ -70,8 +75,7 @@ try
 	if ($Image->get('format') == 1)
 		$Image->set('format',0)->save();
 	// Complete the Task.
-	if (!in_array($TaskType->get('id'),array(12,13)))
-		$Task->set('stateID','4');
+	$Task->set('stateID','4');
 	if (!$Task->save())
 		throw new Exception(_('Failed to update Task'));
 	// Log it

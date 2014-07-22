@@ -14,7 +14,12 @@ try
 		throw new Exception( _('Invalid Host') );
 	$Host->getImage()->set('size','0')->save();
 	// Task for Host
-	$Task = current($Host->get('task'));
+	$Tasks = $Host->get('task');
+	foreach($Tasks AS $Task)
+	{
+		if ($Task->isValid() && !in_array($Task->get('typeID'),array(4,12,13)))
+			break;
+	}
 	if (!$Task->isValid())
 		throw new Exception( sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'), $MACAddress) );
 	// Check-in Host
@@ -32,8 +37,11 @@ try
 	// Forced to start
 	if ($Task->get('isForced'))
 	{
-		if (!$Task->set('stateID', '3' )->save())
-			throw new Exception(_('Forced Task: Failed to update Task'));
+		if (!in_array($Task->get('typeID'),array(12,13)))
+		{
+			if (!$Task->set('stateID', '3' )->save())
+				throw new Exception(_('Forced Task: Failed to update Task'));
+		}
 	}
 	// Queue checks
 	$totalSlots = $StorageGroup->getTotalSupportedClients();
