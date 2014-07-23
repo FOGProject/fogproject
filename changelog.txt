@@ -3,6 +3,8 @@ Version 1.2.X
 * Fix bug where snapintasks if generated after main tasking and before that
 tasking is created, get closed and not properly closing the actual deployed
 task.
+* Add installer files from David Fear to fog to allow FOG Installation on
+Arch Linux.
 
 Version 1.2.0
 -------------

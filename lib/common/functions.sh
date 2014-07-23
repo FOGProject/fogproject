@@ -173,7 +173,8 @@ displayOSChoices()
 			echo "  What version of Linux would you like to run the installation for?"
 			echo "";
 			echo "          1) Redhat Based Linux (Redhat, CentOS, Mageia)";
-			echo "          2) Debian Based Linux (Debian, Ubuntu, Kubuntu, Edubuntu)";		
+			echo "          2) Debian Based Linux (Debian, Ubuntu, Kubuntu, Edubuntu)";
+			echo "			3) Arch Linux";
 			echo "";
 			echo -n "  Choice: [${strSuggestedOS}]";
 			read osid;
@@ -209,7 +210,13 @@ doOSSpecificIncludes()
 		    	. ../lib/ubuntu/functions.sh
 			. ../lib/ubuntu/config.sh
 			echo "";
-			;;				
+			;;
+		"3")
+			echo "  Starting Arch Installation.";
+			osname="Arch";
+			. ../lib/arch/functions.sh
+			. ../lib/arch/config.sh
+			echo "";
 		*)
 			echo "  Sorry, answer not recognized."
 			echo "";
