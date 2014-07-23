@@ -35,6 +35,13 @@ then
 		strSuggestedOS="2";
 	fi
 
+	#tmpOS=`cat /etc/*release* /etc/issue 2> /dev/null | grep -Ei "Ubuntu|Debian"`;
+	#if [ "$tmpOS" != "" ]
+	if [ "`echo $linuxReleaseName | grep -Ei "Arch"`" != "" ]
+	then
+		strSuggestedOS="3";
+	fi
+
 	## IP Address
 	strSuggestedIPaddress=`ifconfig | grep "inet addr:" | head -n 1  | cut -d':' -f2 | cut -d' ' -f1`;
 	if [ -z "$strSuggestedIPaddress" ]
