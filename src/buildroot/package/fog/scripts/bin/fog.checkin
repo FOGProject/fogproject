@@ -41,6 +41,7 @@ if [ "$mc" == "yes" ]; then
 else
 	method="NFS";
 fi
+debugPause;
 fdisk -l &> /tmp/fdisk-before;
 echo "";
 dots "Checking Operating System"
@@ -70,6 +71,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 		invres=`wget -O - --post-data="$poststring" "http://${web}service/inventory.php" 2>/dev/null`;
 		echo "$invres";
 	done
+	debugPause;
 	dots "Checking In";
 	while [ "$blGo" == "0" ]; do
 		if [ "$capone" != "1" ]; then
@@ -87,6 +89,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 					waittime=$(expr $waittime "+" 5);
 				done
 				echo "Done";
+				debugPause;
 				directive="${queueinfo:3}";
 				if [ ! "$directive" = "GO" ]; then
 					tmpStorageIp=`echo $queueinfo|cut -d'@' -f2 2>/dev/null`;
@@ -102,6 +105,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 					fi
 					dots "Using Storage Node"
 					echo "$nfsServerName"
+					debugPause;
 				fi
 			else
 				queueinfo=`wget -q -O - "http://${web}service/mc_checkin.php?mac=$mac&type=$type" 2>/dev/null`;
@@ -146,6 +150,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 				echo "Done";
 				blGo="1";
 			fi
+			debugPause;
 		fi
 	done
 else
