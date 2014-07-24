@@ -217,6 +217,7 @@ doOSSpecificIncludes()
 			. ../lib/arch/functions.sh
 			. ../lib/arch/config.sh
 			echo "";
+			;;
 		*)
 			echo "  Sorry, answer not recognized."
 			echo "";
