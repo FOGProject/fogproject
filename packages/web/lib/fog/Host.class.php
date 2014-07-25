@@ -53,9 +53,9 @@ class Host extends FOGController
 		'imageID'	=> 'Image'
 	);
 
-	public function __construct()
+	public function __construct($data)
 	{
-		parent::__construct();
+		parent::__construct($data);
 		$this->set('mac',new MACAddress($this->get('mac')));
 	}
 	// Custom functons
