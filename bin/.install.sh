@@ -265,7 +265,7 @@ do
 			        installInitScript;
 			        installFOGServices;
 			        configureFOGService;	
-			        sendInstallationNotice;
+			        #sendInstallationNotice;
 			        writeUpdateFile;
 			        
 			        # Removed because this puts a file in the /tftpboot directory
@@ -324,7 +324,7 @@ do
 			    installFOGServices;
 			    configureFOGService;
 			    installUtils;
-			    sendInstallationNotice;
+			    #sendInstallationNotice;
 			    writeUpdateFile;
 			    echo "";
 		
