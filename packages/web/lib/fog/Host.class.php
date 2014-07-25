@@ -52,6 +52,12 @@ class Host extends FOGController
 	public $databaseFieldClassRelationships = array(
 		'imageID'	=> 'Image'
 	);
+
+	public function __construct($data)
+	{
+		parent::__construct($data);
+		$this->set('mac',new MACAddress($this->get('mac')));
+	}
 	// Custom functons
 	public function isHostnameSafe()
 	{

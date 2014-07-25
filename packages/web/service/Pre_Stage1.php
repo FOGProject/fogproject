@@ -37,6 +37,7 @@ try
 	// Forced to start
 	if ($Task->get('isForced'))
 	{
+		$winner = $StorageGroup->getOptimalStorageNode();
 		if (!in_array($Task->get('typeID'),array(12,13)))
 		{
 			if (!$Task->set('stateID', '3' )->save())
@@ -56,9 +57,6 @@ try
 	    // At this point we know there are open slots, but are we next in line for that slot (or has the next is line timed out?)
 	    if ($groupOpenSlots <= $inFrontOfMe)
 		    throw new Exception(sprintf('%s %s %s', _('There are open slots, but I am waiting for'), $inFrontOfMe, _('PCs in front of me.')));
-    }
-	if ($imagingTasks)
-	{
 		// Determine the best Storage Node to use - based off amount of clients connected
 		$messageArray = array();
 		$winner = null;
@@ -78,16 +76,16 @@ try
 				    $messageArray[] = sprintf("%s '%s' (%s) %s", _('Storage Node'), $StorageNode->get('name'), $StorageNode->get('ip'), _('is open, but has recently failed for this Host'));
 			}
 		}
-		// Failed to find a Storage Node - this should only occur if all Storage Nodes in this Storage Group have failed
-		if (!isset($winner) || !$winner->isValid())
-		{
-			// Print failed node messages if we are unable to find a valid node
-			if (count($messageArray))
-				print implode(PHP_EOL, $messageArray) . PHP_EOL;
-			throw new Exception(_("Unable to find a suitable Storage Node for transfer!"));
-		}
-		$Task->set('NFSMemberID', $winner->get('id'));
 	}
+	// Failed to find a Storage Node - this should only occur if all Storage Nodes in this Storage Group have failed
+	if (!isset($winner) || !$winner->isValid())
+	{
+		// Print failed node messages if we are unable to find a valid node
+		if (count($messageArray))
+			print implode(PHP_EOL, $messageArray) . PHP_EOL;
+		throw new Exception(_("Unable to find a suitable Storage Node for transfer!"));
+	}
+	$Task->set('NFSMemberID', $winner->get('id'));
 	// All tests passed! Almost there!
 	$Task->set('stateID', '3');
 	// Update Task State ID -> Update Storage Node ID -> Save
