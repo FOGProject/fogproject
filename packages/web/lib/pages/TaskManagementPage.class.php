@@ -87,7 +87,7 @@ class TaskManagementPage extends FOGPage
 				'details_taskforce'	=> ($Task->get('isForced') ? sprintf('<span class="icon icon-forced" title="%s"></span>', _('Task forced to start')) : ($Task->get('typeID') < 3 && $Task->get('stateID') < 3 ? sprintf('<a href="?node=tasks&sub=force-task&id=%s"><span class="icon icon-force" title="%s"></span></a>', $Task->get('id'),_('Force task to start')) : '&nbsp;')),
 				'host_id'	=> $Task->get('hostID'),
 				'host_name'	=> $Host ? $Host->get('name') : '',
-				'host_mac'	=> $Host ? $Host->get('mac') : '',
+				'host_mac'	=> $Host ? $Host->get('mac')->__toString() : '',
 				'icon_state'	=> strtolower(str_replace(' ', '', $Task->getTaskStateText())),
 				'icon_type'	=> strtolower(preg_replace(array('#[[:space:]]+#', '#[^\w-]#', '#\d+#', '#-{2,}#'), array('-', '', '', '-'), $Task->getTaskTypeText())),
 			);
@@ -133,7 +133,7 @@ class TaskManagementPage extends FOGPage
 					'details_taskforce'	=> ($Task->get('isForced') ? sprintf('<span class="icon icon-forced" title="%s"></span>', _('Task forced to start')) : ($Task->get('typeID') < 3 && $Task->get('stateID') < 3 ? sprintf('<a href="?node=tasks&sub=force-task&id=%s"><span class="icon icon-force" title="%s"></span></a>', $Task->get('id'),_('Force task to start')) : '&nbsp;')),
 					'host_id'	=> $Task->get('hostID'),
 					'host_name'	=> $Host ? $Host->get('name') : '',
-					'host_mac'	=> $Host ? $Host->get('mac') : '',
+					'host_mac'	=> $Host ? $Host->get('mac')->__toString() : '',
 					'icon_state'	=> strtolower(str_replace(' ', '', $Task->getTaskStateText())),
 					'icon_type'	=> strtolower(preg_replace(array('#[[:space:]]+#', '#[^\w-]#', '#\d+#', '#-{2,}#'), array('-', '', '', '-'), $Task->getTaskTypeText())),
 				);
@@ -174,7 +174,7 @@ class TaskManagementPage extends FOGPage
 				'details_taskforce'	=> ($Task->get('isForced') ? sprintf('<span class="icon icon-forced" title="%s"></span>', _('Task forced to start')) : ($Task->get('typeID') < 3 && $Task->get('stateID') < 3 ? sprintf('<a href="?node=tasks&sub=force-task&id=%s"><span class="icon icon-force" title="%s"></span></a>', $Task->get('id'),_('Force task to start')) : '&nbsp;')),
 				'host_id'	=> $Task->get('hostID'),
 				'host_name'	=> $Host ? $Host->get('name') : '',
-				'host_mac'	=> $Host ? $Host->get('mac') : '',
+				'host_mac'	=> $Host ? $Host->get('mac')->__toString() : '',
 				'icon_state'	=> strtolower(str_replace(' ', '', $Task->getTaskStateText())),
 				'icon_type'	=> strtolower(preg_replace(array('#[[:space:]]+#', '#[^\w-]#', '#\d+#', '#-{2,}#'), array('-', '', '', '-'), $Task->getTaskTypeText())),
 			);
@@ -416,7 +416,7 @@ class TaskManagementPage extends FOGPage
 				'details_taskforce'	=> ($Task->get('isForced') ? sprintf('<span class="icon icon-forced" title="%s"></span>', _('Task forced to start')) : ($Task->get('typeID') < 3 && $Task->get('stateID') < 3 ? sprintf('<a href="?node=tasks&sub=force-task&id=%s"><span class="icon icon-force" title="%s"></span></a>', $Task->get('id'),_('Force task to start')) : '&nbsp;')),
 				'host_id'	=> $Task->get('hostID'),
 				'host_name'	=> $Task->getHost()->get('name'),
-				'host_mac'	=> $Task->getHost()->get('mac'),
+				'host_mac'	=> $Task->getHost()->get('mac')->__toString(),
 				'icon_state'	=> strtolower(str_replace(' ', '', $Task->getTaskStateText())),
 				'icon_type'	=> strtolower(preg_replace(array('#[[:space:]]+#', '#[^\w-]#', '#\d+#', '#-{2,}#'), array('-', '', '', '-'), $Task->getTaskTypeText())),
 			);

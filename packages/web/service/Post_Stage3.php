@@ -17,9 +17,8 @@ try
 			break;
 	}
 	if (!$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)',_('No Active Task found for Host'), $Host->get('name'),$MACAddress));
-	$TaskType = new TaskType($Task->get('typeID'));
 	// Set the task to state 4
-	if (!in_array($TaskType->get('id'),array(12,13)))
+	if (!in_array($Task->get('typeID'),array(12,13)))
 		$Task->set('stateID',4);
 	// Log it
 	$ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
