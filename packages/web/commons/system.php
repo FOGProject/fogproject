@@ -26,10 +26,10 @@ class System
 		else
 			date_default_timezone_set('UTC');
 		define('IS_INCLUDED', true);
-		define('FOG_VERSION', '2107');
+		define('FOG_VERSION', '2108');
 		define('FOG_SCHEMA', 113);
-		define('FOG_SVN_REVISION', '$Revision: 2107 $');
-		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate: 2014-07-25 13:00:09 -0400 (Fri, 25 Jul 2014) $');
+		define('FOG_SVN_REVISION', '$Revision$');
+		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');
 		define('PHP_VERSION_REQUIRED', '5.3.0');
 		define('PHP_COMPATIBLE', version_compare(PHP_VERSION, PHP_VERSION_REQUIRED, '>='));
 		define('BASEPATH', self::DetermineBasePath());
