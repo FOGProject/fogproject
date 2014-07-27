@@ -344,10 +344,16 @@ configureHttpd()
 		dbuser=$snmysqluser;
 	fi
 	echo -n "  * Setting up and starting Apache Web Server...";
-	systemctl enable httpd;
-	systemctl httpd restart >/dev/null 2>&1
+  echo '<FilesMatch \.php$>
+    SetHandler "proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://localhost/"
+</FilesMatch>
+<IfModule dir_module>
+    DirectoryIndex index.php index.html
+</IfModule>' > /etc/httpd/conf/httpd.conf
+	systemctl enable httpd php-fpm;
+	systemctl restart httpd php-fpm >/dev/null 2>&1
 	sleep 2;
-	systemctl httpd status >/dev/null 2>&1;
+	systemctl status httpd php-fpm >/dev/null 2>&1;
 	ret=$?;
 	if [ "$ret" != "0" ]
 	then
@@ -488,8 +494,8 @@ configureMySql()
 {
 	echo -n "  * Setting up and starting MySQL...";
 	systemctl enable mysqld;
-	systemctl mysqld restart >/dev/null 2>&1;
-	systemctl mysqld status >/dev/null 2>&1;
+	systemctl restart mysqld >/dev/null 2>&1;
+	systemctl status mysqld >/dev/null 2>&1;
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
