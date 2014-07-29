@@ -223,7 +223,7 @@ if [ -n "$hd" ]; then
 			keyEnter="0";
 			case "$keyask" in
 				Y | y | yes | yEs | yES | Yes | YeS | YES )
-					while [ "$key" == "" ]; do
+					while [ "$productKey" == "" ]; do
 						echo
 						echo -n "    Enter the product key for this computer: ";
 						read productKey;
