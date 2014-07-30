@@ -642,7 +642,7 @@ class TaskManagementPage extends FOGPage
 			// Destroy the individual task.
 			$SnapinTask->destroy();
 			// Redirect to the current page.
-			$this->FOGCore->redirect($this->formAction);
+			$this->FOGCore->redirect("?node=".$this->node."&sub=active-snapins");
 		}
 	}
 	public function scheduled()
