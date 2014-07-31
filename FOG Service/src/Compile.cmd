@@ -163,7 +163,7 @@ set csFile=%~dp0FOG_HostNameChanger\MOD_HostNameChanger.cs
 >>"%scriptFile%"	echo Do While Not csFile.AtEndofStream
 >>"%scriptFile%"	echo 	line = csFile.ReadLine
 >>"%scriptFile%"	echo 	If InStr^(line, "private const String PASSKEY"^) Then
->>"%scriptFile%"	echo 			line = "        private const String PASSKEY = """ ^& %passKey% ^& """"
+>>"%scriptFile%"	echo 			line = "        private const String PASSKEY = """ ^& %passKey% ^& """;"
 >>"%scriptFile%"	echo 	End If
 >>"%scriptFile%"	echo 	csTempFile.WriteLine line
 >>"%scriptFile%"	echo Loop
@@ -172,10 +172,11 @@ set csFile=%~dp0FOG_HostNameChanger\MOD_HostNameChanger.cs
 >>"%scriptFile%"	echo objFSO.DeleteFile^("%csFile%"^)
 >>"%scriptFile%"	echo objFSO.MoveFile "%csFile%" ^& ".tmp", "%csFile%"
 
-<nul set /p=Updating pass key...
+<nul set /p=Updating passkey...
 cscript //nologo "%scriptFile%" > nul 2>&1
 call:checkErrors
 
+echo(
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Generate build files
 <nul set /p=Generating build folder...
@@ -231,7 +232,7 @@ call:checkErrors
 echo(
 echo Removing build files
 cd "%~dp0"
-<nul set /p= ---^> Build Directory...
+<nul set /p= ---^> Build directory...
 rmdir /S /Q "%~dp0build" > nul
 IF EXIST "%~dp0build\NUL" (
    <nul set /p=Failed
@@ -242,24 +243,16 @@ IF EXIST "%~dp0build\NUL" (
 <nul set /p=Success
 echo(
 
-<nul set /p= ---^> Pass Key Updater...
-del "%scriptFile%" > nul
-IF EXIST "%scriptFile%" (
-	<nul set /p=Failed
-	echo(
-	pause
-	exit /b
-)
-<nul set /p=Success
-echo(
+<nul set /p= ---^> Passkey updater...
+del "%scriptFile%" > nul 2>&1
+call:checkErrors
 
-
-<nul set /p= ---^> Installer Script...
+<nul set /p= ---^> Installer script...
 del "%~dp0FOG_Service_Installer.nsi" > nul 2>&1
 call:checkErrors
 
 echo(
-IF EXIST %~dp0Setup.exe (
+IF EXIST "%~dp0Setup.exe" (
 	echo Installer located at "%~dp0Setup.exe"
 )
 echo(

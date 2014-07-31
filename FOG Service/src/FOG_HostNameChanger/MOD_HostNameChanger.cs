@@ -136,7 +136,7 @@ namespace FOG
          * encrypt the passwords!
          */
 
-        private const String PASSKEY = "FOG-OpenSource-Imaging"
+        private const String PASSKEY = "FOG-OpenSource-Imaging";
 
 
         /*    / \
