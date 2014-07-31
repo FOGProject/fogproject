@@ -11,7 +11,7 @@ using IniReaderObj;
 using System.IO;
 using System.Diagnostics;
 
-namespace FOG 
+namespace FOG
 {
     public class HostNameChanger : AbstractFOGService
     {
@@ -132,7 +132,7 @@ namespace FOG
 
         /*
          * Below is the PASSKEY you should change if you want to make your FOG installion more secure!
-         * Just remember to change the PASSKEY in the config file of the application that you use to 
+         * Just remember to change the PASSKEY in the config file of the application that you use to
          * encrypt the passwords!
          */
 
@@ -145,7 +145,7 @@ namespace FOG
          *     |
          *     |
          *     |
-         * 
+         *
          */
 
         private const int SW_HIDE = 0;
@@ -157,7 +157,7 @@ namespace FOG
         private const int SW_SHOWDEFAULT = 10;
 
         private int intStatus;
-        
+
         private String strURLPath;
         private String strURLModuleStatus;
         private String strDomain;
@@ -359,7 +359,7 @@ namespace FOG
                                 String strHostResults = arData[0];
                                 if (strHostResults.StartsWith("#!OK=", true, null))
                                 {
-                                    if (arData.Length == 6)
+                                    if (arData.Length == 5 || arData.Length == 6)
                                     {
                                         strHostName = strHostResults.Remove(0, 5);
                                         String strUseAD = arData[1];
@@ -367,26 +367,30 @@ namespace FOG
                                         String strOU = arData[3];
                                         String strU = arData[4];
                                         String strP = arData[5];
-										String strKey = arData[6];
-										if (strKey != null)
-										{
-											strKey = strKey.Trim();
-											if (strKey.StartsWith("#Key="))
+
+                                        if(arData.Length == 6) {
+	                                        String strKey = arData[6];
+											if (strKey != null)
 											{
-												strKey = strKey.Replace("#Key=", "");
-												Process scriptProc = new Process();
-												scriptProc.StartInfo.FileName = @"cscript";
-												scriptProc.StartInfo.Arguments =@"//B //Nologo c:\windows\system32\slmgr.vbs /ipk " + strKey;
-												scriptProc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-												scriptProc.Start();
-												scriptProc.WaitForExit();
-												scriptProc.Close();
-												scriptProc.StartInfo.Arguments =@"//B //Nologo c:\windows\system32\slmgr.vbs /ato";
-												scriptProc.Start();
-												scriptProc.WaitForExit();
-												scriptProc.Close();
+												strKey = strKey.Trim();
+												if (strKey.StartsWith("#Key="))
+												{
+													strKey = strKey.Replace("#Key=", "");
+													Process scriptProc = new Process();
+													scriptProc.StartInfo.FileName = @"cscript";
+													scriptProc.StartInfo.Arguments =@"//B //Nologo c:\windows\system32\slmgr.vbs /ipk " + strKey;
+													scriptProc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+													scriptProc.Start();
+													scriptProc.WaitForExit();
+													scriptProc.Close();
+													scriptProc.StartInfo.Arguments =@"//B //Nologo c:\windows\system32\slmgr.vbs /ato";
+													scriptProc.Start();
+													scriptProc.WaitForExit();
+													scriptProc.Close();
+												}
 											}
-										}
+                                        }
+
                                         if (strUseAD != null)
                                         {
                                             strUseAD = strUseAD.Trim();
@@ -514,7 +518,7 @@ namespace FOG
                                     }
                                 }
                                 doDefaultMode(strHostName);
-                                
+
                             }
                             else
                             {
@@ -528,7 +532,7 @@ namespace FOG
                                     try
                                     {
                                         int result = NetJoinDomain(null, strDomain, strO, strUser, strPass, (JoinOptions.NETSETUP_JOIN_DOMAIN | JoinOptions.NETSETUP_ACCT_CREATE));
-                                        
+
 					                    if (result == 2224)
 					                    {
 						                    log(MOD_NAME, "Existing computer account found....");
