@@ -11,7 +11,7 @@ using IniReaderObj;
 using System.IO;
 using System.Diagnostics;
 
-namespace FOG 
+namespace FOG
 {
     public class HostNameChanger : AbstractFOGService
     {
@@ -132,11 +132,11 @@ namespace FOG
 
         /*
          * Below is the PASSKEY you should change if you want to make your FOG installion more secure!
-         * Just remember to change the PASSKEY in the config file of the application that you use to 
+         * Just remember to change the PASSKEY in the config file of the application that you use to
          * encrypt the passwords!
          */
 
-        private const String PASSKEY = "FOG-OpenSource-Imaging";
+        private const String PASSKEY = "FOG-OpenSource-Imaging"
 
 
         /*    / \
@@ -145,7 +145,7 @@ namespace FOG
          *     |
          *     |
          *     |
-         * 
+         *
          */
 
         private const int SW_HIDE = 0;
@@ -157,7 +157,7 @@ namespace FOG
         private const int SW_SHOWDEFAULT = 10;
 
         private int intStatus;
-        
+
         private String strURLPath;
         private String strURLModuleStatus;
         private String strDomain;
@@ -367,7 +367,7 @@ namespace FOG
                                         String strOU = arData[3];
                                         String strU = arData[4];
                                         String strP = arData[5];
-										
+
                                         if(arData.Length == 6) {
 	                                        String strKey = arData[6];
 											if (strKey != null)
@@ -390,7 +390,7 @@ namespace FOG
 												}
 											}
                                         }
-                                        
+
                                         if (strUseAD != null)
                                         {
                                             strUseAD = strUseAD.Trim();
@@ -518,7 +518,7 @@ namespace FOG
                                     }
                                 }
                                 doDefaultMode(strHostName);
-                                
+
                             }
                             else
                             {
@@ -532,7 +532,7 @@ namespace FOG
                                     try
                                     {
                                         int result = NetJoinDomain(null, strDomain, strO, strUser, strPass, (JoinOptions.NETSETUP_JOIN_DOMAIN | JoinOptions.NETSETUP_ACCT_CREATE));
-                                        
+
 					                    if (result == 2224)
 					                    {
 						                    log(MOD_NAME, "Existing computer account found....");

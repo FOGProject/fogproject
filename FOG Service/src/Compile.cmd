@@ -24,20 +24,21 @@ setlocal enabledelayedexpansion
 ::Configuration
 set ver=1.0
 set defaultFrameworkVersion=v3.5
+set defaultPassKey="FOG-OpenSource-Imaging"
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Header output
-echo(                                         
-echo        ..#######:.    ..,#,..     .::##::.   
-echo   .:######          .:####:......#..      
-echo   ...##...        ...##,##::::.##...       
-echo      ,#          ...##.....##:::##     ..::  
-echo      ##    .::###,,##.   . ##.::#.:######::. 
-echo   ...##:::###::....#. ..  .#...#. #...#:::.  
-echo   ..:####:..    ..##......##::##  ..  #      
-echo       #  .      ...##:,##:::#: ... ##..    
-echo      .#  .       .:####::::.##:::#:..     
-echo       #                     ..:###..        
-echo( 
+echo(
+echo        ..#######:.    ..,#,..     .::##::.
+echo   .:######          .:####:......#..
+echo   ...##...        ...##,##::::.##...
+echo      ,#          ...##.....##:::##     ..::
+echo      ##    .::###,,##.   . ##.::#.:######::.
+echo   ...##:::###::....#. ..  .#...#. #...#:::.
+echo   ..:####:..    ..##......##::##  ..  #
+echo       #  .      ...##:,##:::#: ... ##..
+echo      .#  .       .:####::::.##:::#:..
+echo       #                     ..:###..
+echo(
 echo   ###########################################
 echo   #     FOG                                 #
 echo   #     Free Computer Imaging Solution      #
@@ -45,11 +46,11 @@ echo   #                                         #
 echo   #     http://www.fogproject.org/          #
 echo   #                                         #
 echo   #     Developers:                         #
-echo   #         Chuck Syperski                  #	
+echo   #         Chuck Syperski                  #
 echo   #         Jian Zhang                      #
 echo   #         Peter Gilchrist                 #
-echo   #         Tom Elliott                     #		
-echo   #     GNU GPL Version 3                   #		
+echo   #         Tom Elliott                     #
+echo   #     GNU GPL Version 3                   #
 echo   ###########################################
 echo(
 
@@ -61,22 +62,45 @@ echo(
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Handle command line parameters
-::TODO: crypto key:  -key=XXXXX
+::pass key:        -passkey=XXXXX
 ::framework version: -framework=vX.X
-::Usage = Compile.cmd -framework=v3.5
+::Usage = Compile.cmd -framework=v3.5 -key=""
 ::The first "parameter" is the switch and the second is its value
 
+::Framework switch
 IF "%1" == "/framework"  (
 	set "version=%2"
 	set frameworkVersion=!version!
 ) ELSE IF "%1" == "-framework"  (
 	set "version=%2"
 	set frameworkVersion=!version!
-) ELSE (
+) ELSE IF "%3" == "/framework"  (
+	set "version=%4"
+	set frameworkVersion=!version!
+) ELSE IF "%3" == "-framework"  (
+	set "version=%4"
+	set frameworkVersion=!version!
+)ELSE (
 	set frameworkVersion=%defaultFrameworkVersion%
 )
 
-
+::passKey switch
+IF "%1" == "/ "  (
+	set "tmpKey=%2"
+	set passKey="!tmpKey!"
+) ELSE IF "%1" == "-passkey"  (
+	set "tmpKey=%2"
+	set passKey="!tmpKey!"
+) ELSE IF "%3" == "/passkey"  (
+	set tmpKey=%4
+	set passKey="!tmpKey!"
+) ELSE IF "%3" == "-passkey"  (
+	set tmpKey=%4
+	set passKey="!tmpKey!"
+) ELSE (
+	set passKey=%defaultPassKey%
+)
+echo %passKey%
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Set the working directory to the script's location
@@ -128,6 +152,31 @@ echo(
 echo(
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+::Update crypto key
+set scriptFile=%~dp0updatePassKey.vbs
+set csFile=%~dp0FOG_HostNameChanger\MOD_HostNameChanger.cs
+>"%scriptFile%"	echo Const readMode=1
+>>"%scriptFile%"	echo Const writeMode=2
+>>"%scriptFile%"	echo Set objFSO = CreateObject^("Scripting.FileSystemObject"^)
+>>"%scriptFile%"	echo Set csFile = objFSO.OpenTextFile^("%csFile%", readMode, True^)
+>>"%scriptFile%"	echo Set csTempFile= objFSO.OpenTextFile^("%csFile%" ^& ".tmp", writeMode, True^)
+>>"%scriptFile%"	echo Do While Not csFile.AtEndofStream
+>>"%scriptFile%"	echo 	line = csFile.ReadLine
+>>"%scriptFile%"	echo 	If InStr^(line, "private const String PASSKEY"^) Then
+>>"%scriptFile%"	echo 			line = "        private const String PASSKEY = """ ^& %passKey% ^& """"
+>>"%scriptFile%"	echo 	End If
+>>"%scriptFile%"	echo 	csTempFile.WriteLine line
+>>"%scriptFile%"	echo Loop
+>>"%scriptFile%"	echo csFile.Close
+>>"%scriptFile%"	echo csTempFile.Close
+>>"%scriptFile%"	echo objFSO.DeleteFile^("%csFile%"^)
+>>"%scriptFile%"	echo objFSO.MoveFile "%csFile%" ^& ".tmp", "%csFile%"
+
+<nul set /p=Updating pass key...
+cscript //nologo "%scriptFile%" > nul 2>&1
+call:checkErrors
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Generate build files
 <nul set /p=Generating build folder...
 rmdir /S /Q "%~dp0build" > nul 2>&1
@@ -149,7 +198,7 @@ for /R %%a in (*.sln) do (
 	"%windir%\Microsoft.NET\Framework\%frameworkVersion%\msbuild" "!Name!" /p:Platform="Any CPU" /property:OutputPath="%~dp0build" > nul
 	call:checkErrors
 )
-cd "%~dp0" 
+cd "%~dp0"
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Copy extra files
@@ -177,7 +226,7 @@ START /B /wait makensis FOG_Service_Installer.nsi > nul
 call:checkErrors
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-::Remove build files	
+::Remove build files
 :cleanBuildFiles
 echo(
 echo Removing build files
@@ -192,6 +241,18 @@ IF EXIST "%~dp0build\NUL" (
 )
 <nul set /p=Success
 echo(
+
+<nul set /p= ---^> Pass Key Updater...
+del "%scriptFile%" > nul
+IF EXIST "%scriptFile%" (
+	<nul set /p=Failed
+	echo(
+	pause
+	exit /b
+)
+<nul set /p=Success
+echo(
+
 
 <nul set /p= ---^> Installer Script...
 del "%~dp0FOG_Service_Installer.nsi" > nul 2>&1

@@ -14,6 +14,7 @@ Before using Compile.cmd ensure you have:
 =============Usage============
 *To compile a new installer run Compile.cmd (elevated privileges are NOT required)
 *You can pass the /framework= parameter to specify a build target (using a - instead of / works), make sure to include a v before version number (e.g. /framework=v3.5)
+*You can pass the /passkey= parameter to specify th passphrase when encrypting. (using a - instead of / works), if this switch is not specified, the default pass key "FOG-OpenSource-Imaging" is used
 ==============================
 
 ======Installer Switches======
