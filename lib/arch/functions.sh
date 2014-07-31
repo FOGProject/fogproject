@@ -83,8 +83,6 @@ configureNFS()
 	
 	echo "/images *(ro,sync,no_wdelay,insecure_locks,no_root_squash,insecure,fsid=1,${nfsexportsopts})
 /images/dev *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=2,${nfsexportsopts})" > "$nfsconfig";
-	systemctl enable rpcbind;
-	systemctl restart rpcbind >/dev/null 2>&1;
 	systemctl enable ${nfsservice};
 	systemctl restart ${nfsservice} >/dev/null 2>&1;
 	systemctl status ${nfsservice}  >/dev/null 2>&1;
@@ -349,7 +347,8 @@ configureHttpd()
 </FilesMatch>
 <IfModule dir_module>
     DirectoryIndex index.php index.html
-</IfModule>' > /etc/httpd/conf/httpd.conf
+</IfModule>' >> /etc/httpd/conf/httpd.conf
+  sed -i 's/;extension=mysqli.so/extension=mysqli.so/g' /etc/php/php.ini
 	systemctl enable httpd php-fpm;
 	systemctl restart httpd php-fpm >/dev/null 2>&1
 	sleep 2;
@@ -493,7 +492,6 @@ class Config
 configureMySql()
 {
 	echo -n "  * Setting up and starting MySQL...";
-	sed -i 's/;extension=mysqli.so/extension=mysqli.so/g' /etc/php.php.ini
 	systemctl enable mysqld;
 	systemctl restart mysqld >/dev/null 2>&1;
 	systemctl status mysqld >/dev/null 2>&1;
@@ -509,7 +507,7 @@ configureMySql()
 installPackages()
 {
 	echo "  * Preparing pacman";
-	pacman -Syu >/dev/null 2>&1;
+	pacman -Syu --noconfirm >/dev/null 2>&1;
 	sleep 1;
 
 	if [ "$installlang" = "1" ]
