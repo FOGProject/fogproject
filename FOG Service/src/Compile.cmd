@@ -146,7 +146,7 @@ for /R %%a in (*.sln) do (
 
 	<nul set /p= ---^> Building !Name!...
 	cd "!Folder!"
-	"%windir%\Microsoft.NET\Framework\%frameworkVersion%\msbuild" "!Name!" /property:OutputPath="%~dp0build" > nul
+	"%windir%\Microsoft.NET\Framework\%frameworkVersion%\msbuild" "!Name!" /p:Platform="Any CPU" /property:OutputPath="%~dp0build" > nul
 	call:checkErrors
 )
 cd "%~dp0" 
