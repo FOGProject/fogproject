@@ -62,9 +62,8 @@ echo(
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Handle command line parameters
-::pass key:        -passkey=XXXXX
-::framework version: -framework=vX.X
-::Usage = Compile.cmd -framework=v3.5 -key=""
+::passkey:            -passkey=XXXXX
+::framework version:  -framework=vX.X
 ::The first "parameter" is the switch and the second is its value
 
 ::Framework switch
@@ -84,8 +83,8 @@ IF "%1" == "/framework"  (
 	set frameworkVersion=%defaultFrameworkVersion%
 )
 
-::passKey switch
-IF "%1" == "/ "  (
+::Passkey switch
+IF "%1" == "/passkey"  (
 	set "tmpKey=%2"
 	set passKey="!tmpKey!"
 ) ELSE IF "%1" == "-passkey"  (
