@@ -119,7 +119,7 @@ echo(
 IF NOT EXIST "%windir%\Microsoft.NET\Framework\%frameworkVersion%\msbuild.exe" (
    <nul set /p=Failed
    echo(
-   echo ERROR: Could not find .Net Framework %frameworkVersion% on your machine, either install this version or update frameworkVersion in this script
+   echo ERROR: Could not find .Net Framework %frameworkVersion% on your machine, either install this version or specify a different version with the /framework= switch
    pause
    exit /b
 )
