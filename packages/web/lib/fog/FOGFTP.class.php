@@ -97,11 +97,14 @@ class FOGFTP extends FOGGetSet
 		$size = 0;
 		if (@ftp_size($this->link,$pathfile) == -1)
 		{
-			$filelist = @ftp_nlist($this->link,$pathfile);
+			$filelist = @ftp_rawlist($this->link,$pathfile);
 			if ($filelist)
 			{
 				foreach($filelist AS $file)
-					$size += @ftp_size($this->link,$file);
+				{
+					$fileinfo = preg_split('#\s+#',$file,null,PREG_SPLIT_NO_EMPTY);
+					$size += $fileinfo[4];
+				}
 			}
 		}
 		else

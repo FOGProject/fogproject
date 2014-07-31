@@ -160,3 +160,4 @@ $foglang['Language']['es']			= _('Español');
 $foglang['Language']['fr']			= _('Français');
 $foglang['Language']['de']			= _('Deutsch');
 $foglang['Language']['it']			= _('Italiano');
+$foglang['Language']['pt']			= _('Português');
