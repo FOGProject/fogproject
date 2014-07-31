@@ -1371,6 +1371,9 @@ class HostManagementPage extends FOGPage
 				throw new Exception('Could not find tmp filename');
 			$numSuccess = $numFailed = $numAlreadyExist = 0;
 			$handle = fopen($_FILES["file"]["tmp_name"], "r");
+			// Get all the service id's so they can be enabled.
+			foreach($this->FOGCore->getClass('ModuleManager')->find() AS $Module)
+				$ModuleIDs[] = $Module->get('id');
 			while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) 
 			{
 				// Ignore header data if left in CSV
@@ -1395,7 +1398,7 @@ class HostManagementPage extends FOGPage
 							'createdBy'	=> $this->FOGUser->get('name'),
 							'mac'		=> $data[0]
 						));
-						
+						$Host->addModule($ModuleIDs);
 						if ($Host->save())
 						{
 							$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
