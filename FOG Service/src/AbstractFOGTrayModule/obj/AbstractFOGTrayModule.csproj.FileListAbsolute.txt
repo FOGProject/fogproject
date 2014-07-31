@@ -1,0 +1,17 @@
+D:\FOG\trunk\FOG Service\src\AbstractFOGTrayModule\AbstractFOGTrayModule\bin\Debug\AbstractFOGTrayModule.dll
+D:\FOG\trunk\FOG Service\src\AbstractFOGTrayModule\AbstractFOGTrayModule\obj\Debug\ResolveAssemblyReference.cache
+D:\FOG\trunk\FOG Service\src\AbstractFOGTrayModule\AbstractFOGTrayModule\obj\Debug\AbstractFOGTrayModule.dll
+D:\FOG\trunk\FOG Service\src\AbstractFOGTrayModule\bin\Debug\AbstractFOGTrayModule.dll
+D:\FOG\trunk\FOG Service\src\AbstractFOGTrayModule\obj\Debug\ResolveAssemblyReference.cache
+D:\FOG\trunk\FOG Service\src\AbstractFOGTrayModule\obj\Debug\AbstractFOGTrayModule.dll
+D:\FOG\trunk\FOG Service\src\build\AbstractFOGTrayModule.dll
+C:\Users\FinancedHydra\Desktop\src\build\AbstractFOGTrayModule.dll
+C:\Users\FinancedHydra\Desktop\src\AbstractFOGTrayModule\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\FinancedHydra\Desktop\src\AbstractFOGTrayModule\obj\Debug\AbstractFOGTrayModule.dll
+C:\Users\FinancedHydra\Desktop\src\AbstractFOGTrayModule\bin\Debug\AbstractFOGTrayModule.dll
+C:\Users\FinancedHydra\Desktop\src\AbstractFOGTrayModule_2\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\FinancedHydra\Desktop\src\AbstractFOGTrayModule_2\obj\Debug\AbstractFOGTrayModule.dll
+C:\Users\FinancedHydra\Desktop\src\AbstractFOGTrayModule_2\bin\Debug\AbstractFOGTrayModule.dll
+D:\fog\FOG Service\src\build\AbstractFOGTrayModule.dll
+D:\fog\FOG Service\src\AbstractFOGTrayModule\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOG Service\src\AbstractFOGTrayModule\obj\Debug\AbstractFOGTrayModule.dll
