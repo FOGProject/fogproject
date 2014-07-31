@@ -38,18 +38,6 @@ namespace FOG
                 Boolean blFound = !isConfigured();
                 if (blFound)
                     loadServiceInfo();
-                
-                if (!blFound)
-                {
-                    MessageBox.Show("It appears that the FOG service has already been configured");
-                    this.Close();
-                }
-                
-            }
-            else
-            {
-                MessageBox.Show("Fatal Error:\nUnable to locate coniguration file for FOG Service!");
-                this.Close();
             }
             parseArgs(args);
         }
