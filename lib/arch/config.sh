@@ -18,16 +18,17 @@
 # Arch Config Settings
 
 # pacman packages to install 
-packages="apache php-apache php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc htmldoc perl perl-crypt-passwdmd5 lftp clamav";
-storageNodePackages="apache php-apache php mariadb nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp";
-packageinstaller="pacman -Sy";
+#packages="apache php-apache php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc htmldoc perl perl-crypt-passwdmd5 lftp clamav";
+packages="apache php-fpm php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc perl perl-crypt-passwdmd5 lftp clamav";
+storageNodePackages="apache php-fpm php mariadb nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp";
+packageinstaller="pacman -Sy --noconfirm";
 langPackages="iso-codes";
 dhcpname="dhcp";
 nfsservice="nfs-server";
 
 # where do the init scripts go?
-initdpath="/usr/lib/systemd/system/";
-initdsrc="../packages/systemd/arch";
+initdpath="/usr/lib/systemd/system";
+initdsrc="../packages/systemd";
 initdMCfullname="FOGMulticastManager.service";
 initdIRfullname="FOGImageReplicator.service";
 initdSDfullname="FOGScheduler.service";
@@ -49,10 +50,10 @@ dhcpconfigother="/etc/dhcp/dhcpd.conf";
 tftpdirdst="/srv/tftp"
 
 # where is the tftpd config file?
-tftpconfig="usr/lib/systemd/system/tftpd.service";
+tftpconfig="/usr/lib/systemd/system/tftpd.service";
 
 # where is the ftp server config file?
-ftpconfig="etc/xinetd.d/vsftpd"
+ftpconfig="/etc/xinetd.d/vsftpd"
 
 # where is the nfs exports file?
 nfsconfig="/etc/exports";

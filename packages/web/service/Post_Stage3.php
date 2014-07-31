@@ -33,7 +33,7 @@ try
 	if (!$Task->save()) throw new Exception('Failed to update task.');
 	print '##';
 	// If it's a multicast job, decrement the client count, though not fully needed.
-	if ($TaskType->isMulticast())
+	if ($Task->get('typeID') == 8)
 	{
 		$MyMulticastTask = current($FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))));
 		if ($MyMulticastTask && $MyMulticastTask->isValid())
