@@ -31,11 +31,11 @@
     <AspNetConfiguration>$(Configuration)</AspNetConfiguration>
   </PropertyGroup>
   <PropertyGroup>
-    <SolutionDir>C:\Users\FinancedHydra\Desktop\src\FOG_HostNameChanger\</SolutionDir>
+    <SolutionDir>D:\fog\FOG Service\src\FOG_HostNameChanger\</SolutionDir>
     <SolutionExt>.sln</SolutionExt>
     <SolutionFileName>HostNameChange.sln</SolutionFileName>
     <SolutionName>HostNameChange</SolutionName>
-    <SolutionPath>C:\Users\FinancedHydra\Desktop\src\FOG_HostNameChanger\HostNameChange.sln</SolutionPath>
+    <SolutionPath>D:\fog\FOG Service\src\FOG_HostNameChanger\HostNameChange.sln</SolutionPath>
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworkVersion Condition="'$(TargetFrameworkVersion)' == '' and '$(MSBuildToolsVersion)' == '2.0'">v2.0</TargetFrameworkVersion>

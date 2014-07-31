@@ -68,9 +68,14 @@ namespace FOG
                     	if (arg.ToLower().CompareTo("/s") == 0) { //Silent mode
 	                        headless = true;
 	                    } else if (arg.StartsWith("/ip=", StringComparison.CurrentCultureIgnoreCase)) { 
-	                    	strIPAddress = arg.Replace("/ip=","");
+                    		arg = arg.Replace("/ip=","");
+                    		arg = arg.Replace("-ip=",""); 
+                    		strIPAddress = arg;
 	                    } else if (arg.StartsWith("/pf=", StringComparison.CurrentCultureIgnoreCase)) { //Set installation dir
-	                    	strInstallLocation = arg.Replace("/pf=","");
+                    		arg = arg.Replace("/pf=","");
+                    		arg = arg.Replace("-pf=",""); 	                    	
+                    		strInstallLocation = arg;
+	                    	
 	                        if (strInstallLocation != null && strInstallLocation.Length > 0) {
 	                            strInstallLocation = strInstallLocation.Replace("\"", "");
 	                            if (strInstallLocation.EndsWith("\\"))
@@ -78,9 +83,11 @@ namespace FOG
 	                        }
                     	} else {
                     		if(alModules != null) {
+                    			arg = arg.Replace("/","");
+                    			arg = arg.Replace("-","");
 	                    		foreach(SubClassMenuItem component in alModules) {
-                    				if(arg.Contains(component.getFileName().ToLower())) {
-                    					if(arg.ToLower().Contains("false")) //no point in handling true because each component is enabled by default
+                    				if(arg.StartsWith(component.getFileName().ToLower())) {
+                    					if(arg.ToLower().EndsWith("false")) //no point in handling true because each component is enabled by default
 	                    					component.setActive(false);
 	                    			}
 	                    		}

@@ -22,9 +22,8 @@ setlocal enabledelayedexpansion
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Configuration
-set frameworkVersion=v3.5
-set ver=0.8
-
+set ver=1.0
+set defaultFrameworkVersion=v3.5
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Header output
 echo(                                         
@@ -62,6 +61,21 @@ echo(
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Handle command line parameters
+::TODO: crypto key:  -key=XXXXX
+::framework version: -framework=vX.X
+::Usage = Compile.cmd -framework=v3.5
+::The first "parameter" is the switch and the second is its value
+
+IF "%1" == "/framework"  (
+	set "version=%2"
+	set frameworkVersion=!version!
+) ELSE IF "%1" == "-framework"  (
+	set "version=%2"
+	set frameworkVersion=!version!
+) ELSE (
+	set frameworkVersion=%defaultFrameworkVersion%
+)
+
 
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -202,4 +216,5 @@ if errorlevel 1 (
 echo(
 
 :eof
+setlocal disabledelayedexpansion
 exit /b
