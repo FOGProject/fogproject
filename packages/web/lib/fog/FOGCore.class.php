@@ -207,15 +207,17 @@ class FOGCore extends FOGBase
 	*/
 	public function fetchURL($URL)
 	{
-		if ($this->DB && $GLOBALS['FOGCore']->getSetting('FOG_PROXY_IP'))
+		if ($this->DB && $this->getSetting('FOG_PROXY_IP'))
 		{
-			$Proxy = $GLOBALS['FOGCore']->getSetting('FOG_PROXY_IP') . ':' . $GLOBALS['FOGCore']->getSetting('FOG_PROXY_PORT');
+			foreach($this->getClass('StorageNodeManager')->find() AS $StorageNode)
+				$IPs[] = $StorageNode->get('ip');
+			$IPs = array_filter(array_unique($IPs));
+			if (!preg_match('#('.implode('|',$IPs).')#i',$URL))
+				$Proxy = $this->getSetting('FOG_PROXY_IP') . ':' . $this->getSetting('FOG_PROXY_PORT');
 		}
-		
 		$userAgent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.6.12) Gecko/20110319 Firefox/4.0.1 ( .NET CLR 3.5.30729; .NET4.0E)';
 		$timeout = 10;
 		$maxRedirects = 20;
-		
 		$contextOptions = array(
 					'ssl'	=> array(
 							'allow_self_signed' => true
@@ -231,7 +233,6 @@ class FOGCore extends FOGBase
 									)
 							)
 					);
-
 		// Proxy
 		if ($Proxy)
 		{
@@ -251,7 +252,7 @@ class FOGCore extends FOGBase
 			return false;
 	}
 
-	/** resolvHostname($host)
+	/** resolveHostname($host)
 		Returns the hostname.  Useful for Hostname dns translating for the server (e.g. fogserver instead of 127.0.0.1) in the address
 		bar.
 	*/

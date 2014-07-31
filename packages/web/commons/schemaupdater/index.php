@@ -1397,6 +1397,10 @@ $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	 values('FOG_ADVANCED_MENU_LOGIN','This setting enforces a login parameter to get into the advanced menu.','0','FOG Boot Settings')",
 );
+// 114
+$databaseSchema[] = array(
+	"INSERT INTO `" . DATABASE_NAME . "`.`os` (`osID`, `osName`, `osDescription`) VALUES ('8', 'Apple Mac OS', '')",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";

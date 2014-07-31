@@ -217,10 +217,7 @@ doOSSpecificIncludes()
 			. ../lib/arch/functions.sh
 			. ../lib/arch/config.sh
 			echo "";
-<<<<<<< HEAD
 			;;
-=======
->>>>>>> Add, thanks to David Fear, support for Arch installation.  Not tested by me in anyway but a work in progress can be assumed.
 		*)
 			echo "  Sorry, answer not recognized."
 			echo "";
