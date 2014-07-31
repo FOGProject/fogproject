@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FOGTray_Printer", "FOGTray_Printer\FOGTray_Printer.csproj", "{6F8D0F64-1A4B-491D-B2BE-3D1B1479235D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FOGTray_Printer", "FOGTray_Printer.csproj", "{6F8D0F64-1A4B-491D-B2BE-3D1B1479235D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

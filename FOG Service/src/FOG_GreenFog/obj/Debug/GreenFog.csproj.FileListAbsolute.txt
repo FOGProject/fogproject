@@ -1,0 +1,12 @@
+D:\FOG\trunk\FOG Service\src\FOG_GreenFog\bin\Release\GreenFog.dll
+D:\FOG\trunk\FOG Service\src\FOG_GreenFog\bin\Release\AbstractFOGService.dll
+D:\FOG\trunk\FOG Service\src\FOG_GreenFog\bin\Release\IniReaderObj.dll
+D:\FOG\trunk\FOG Service\src\FOG_GreenFog\obj\Debug\ResolveAssemblyReference.cache
+D:\FOG\trunk\FOG Service\src\FOG_GreenFog\obj\Debug\GreenFog.dll
+D:\FOG\trunk\FOG Service\src\build\GreenFog.dll
+C:\Users\FinancedHydra\Desktop\src\build\GreenFog.dll
+C:\Users\FinancedHydra\Desktop\src\FOG_GreenFog\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\FinancedHydra\Desktop\src\FOG_GreenFog\obj\Debug\GreenFog.dll
+D:\fog\FOG Service\src\build\GreenFog.dll
+D:\fog\FOG Service\src\FOG_GreenFog\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOG Service\src\FOG_GreenFog\obj\Debug\GreenFog.dll
