@@ -57,7 +57,6 @@ echo       #  .      ...##:,##:::#: ... ##..
 echo      .#  .       .:####::::.##:::#:..     
 echo       #                     ..:###..        
 echo( 
->>>>>>> Add functional compile script and new installer script
 echo   ###########################################
 echo   #     FOG                                 #
 echo   #     Free Computer Imaging Solution      #
@@ -65,7 +64,6 @@ echo   #                                         #
 echo   #     http://www.fogproject.org/          #
 echo   #                                         #
 echo   #     Developers:                         #
-<<<<<<< HEAD
 echo   #         Chuck Syperski                  #
 echo   #         Jian Zhang                      #
 echo   #         Peter Gilchrist                 #
@@ -77,23 +75,19 @@ echo   #         Jian Zhang                      #
 echo   #         Peter Gilchrist                 #
 echo   #         Tom Elliott                     #		
 echo   #     GNU GPL Version 3                   #		
->>>>>>> Add functional compile script and new installer script
 echo   ###########################################
 echo(
 
 
 echo(
 echo ============FOG Service Compiler============
-<<<<<<< HEAD
 echo ===============Version %ver%================
 =======
 echo =================Version %ver%================
->>>>>>> Add functional compile script and new installer script
 echo(
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Handle command line parameters
-<<<<<<< HEAD
 ::passkey:            -passkey=XXXXX
 ::framework version:  -framework=vX.X
 ::The first "parameter" is the switch and the second is its value
@@ -133,8 +127,6 @@ IF "%1" == "/passkey"  (
 )
 echo %passKey%
 =======
-
->>>>>>> Add functional compile script and new installer script
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Set the working directory to the script's location
@@ -177,11 +169,9 @@ echo(
 IF NOT EXIST "%windir%\Microsoft.NET\Framework\%frameworkVersion%\msbuild.exe" (
    <nul set /p=Failed
    echo(
-<<<<<<< HEAD
    echo ERROR: Could not find .Net Framework %frameworkVersion% on your machine, either install this version or specify a different version with the /framework= switch
 =======
    echo ERROR: Could not find .Net Framework %frameworkVersion% on your machine, either install this version or update frameworkVersion in this script
->>>>>>> Add functional compile script and new installer script
    pause
    exit /b
 )
@@ -190,7 +180,6 @@ echo(
 echo(
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-<<<<<<< HEAD
 ::Update crypto key
 set scriptFile=%~dp0updatePassKey.vbs
 set csFile=%~dp0FOG_HostNameChanger\MOD_HostNameChanger.cs
@@ -226,12 +215,10 @@ echo(
 echo(
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 =======
->>>>>>> Add functional compile script and new installer script
 ::Generate build files
 <nul set /p=Generating build folder...
 rmdir /S /Q "%~dp0build" > nul 2>&1
 mkdir "%~dp0build" > nul 2>&1
-<<<<<<< HEAD
 if errorlevel 1 (
 	<nul set /p=Failed
 	echo(
@@ -243,10 +230,7 @@ if errorlevel 1 (
 echo(
 =======
 call:checkErrors
->>>>>>> Add functional compile script and new installer script
-
 del "%~dp0Setup.exe" > nul 2>&1
-
 echo(
 echo Building Files (.Net Framework %frameworkVersion%)
 for /R %%a in (*.sln) do (
@@ -257,7 +241,6 @@ for /R %%a in (*.sln) do (
 
 	<nul set /p= ---^> Building !Name!...
 	cd "!Folder!"
-<<<<<<< HEAD
 	"%windir%\Microsoft.NET\Framework\%frameworkVersion%\msbuild" "!Name!" /p:Platform="Any CPU" /property:OutputPath="%~dp0build" > nul
 	if errorlevel 1 (
 		<nul set /p=Failed
@@ -275,14 +258,12 @@ cd "%~dp0"
 	call:checkErrors
 )
 cd "%~dp0" 
->>>>>>> Add functional compile script and new installer script
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Copy extra files
 echo(
 <nul set /p=Transfering include files...
 xcopy "%~dp0\include" "%~dp0build" /e /v /y  > nul 2>&1
-<<<<<<< HEAD
 if errorlevel 1 (
 	<nul set /p=Failed
 	echo(
@@ -294,13 +275,11 @@ if errorlevel 1 (
 echo(
 =======
 call:checkErrors
->>>>>>> Add functional compile script and new installer script
 
 <nul set /p=Transfering license...
 cd ..
 cd ..
 copy license.txt "%~dp0build" > nul
-<<<<<<< HEAD
 if errorlevel 1 (
 	<nul set /p=Failed
 	echo(
@@ -312,12 +291,10 @@ if errorlevel 1 (
 echo(
 =======
 call:checkErrors
->>>>>>> Add functional compile script and new installer script
 cd "%~dp0"
 
 <nul set /p=Transfering installer script...
 copy "FOG Service Installer\FOG_Service_Installer.nsi" "%~dp0FOG_Service_Installer.nsi" > nul
-<<<<<<< HEAD
 if errorlevel 1 (
 	<nul set /p=Failed
 	echo(
@@ -329,14 +306,11 @@ if errorlevel 1 (
 echo(
 =======
 call:checkErrors
->>>>>>> Add functional compile script and new installer script
-
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Build installer
 echo(
 <nul set /p=Building installer...
 START /B /wait makensis FOG_Service_Installer.nsi > nul
-<<<<<<< HEAD
 if errorlevel 1 (
 	<nul set /p=Failed
 	echo(
@@ -359,11 +333,9 @@ call:checkErrors
 echo(
 echo Removing build files
 cd "%~dp0"
-<<<<<<< HEAD
 <nul set /p= ---^> Build directory...
 =======
 <nul set /p= ---^> Build Directory...
->>>>>>> Add functional compile script and new installer script
 rmdir /S /Q "%~dp0build" > nul
 IF EXIST "%~dp0build\NUL" (
    <nul set /p=Failed
@@ -374,7 +346,6 @@ IF EXIST "%~dp0build\NUL" (
 <nul set /p=Success
 echo(
 
-<<<<<<< HEAD
 <nul set /p= ---^> Passkey updater...
 del "%scriptFile%" > nul 2>&1
 call:checkErrors
@@ -382,7 +353,6 @@ call:checkErrors
 <nul set /p= ---^> Installer script...
 =======
 <nul set /p= ---^> Installer Script...
->>>>>>> Add functional compile script and new installer script
 del "%~dp0FOG_Service_Installer.nsi" > nul 2>&1
 call:checkErrors
 
@@ -397,17 +367,13 @@ IF EXIST "%~dp0Setup.exe" (
 IF EXIST %~dp0Setup.exe (
 	echo Installer located at "%~dp0Setup.exe"
 )
->>>>>>> Add functional compile script and new installer script
 echo(
 echo ========================Finished========================
 echo(
 pause
 goto:eof
-
-<<<<<<< HEAD
 ::This function can only be used when a failure does not result in an halt
 =======
->>>>>>> Add functional compile script and new installer script
 :checkErrors
 if errorlevel 1 (
 	<nul set /p=Failed
@@ -417,9 +383,7 @@ if errorlevel 1 (
 echo(
 
 :eof
-<<<<<<< HEAD
 setlocal disabledelayedexpansion
 exit /b
 =======
 exit /b
->>>>>>> Add functional compile script and new installer script
