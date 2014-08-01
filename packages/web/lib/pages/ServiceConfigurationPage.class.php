@@ -54,6 +54,9 @@ class ServiceConfigurationPage extends FOGPage
 	// Pages
 	public function index()
 	{
+		print "\n\t\t\t<h2>"._('FOG Client Download').'</h2>';
+		print "\n\t\t\t<p>"._('Use the following link to go to the Client page to download the FOG Client, FOG Prep, and FOG Crypt Information.').'</p>';
+		print "\n\t\t\t".'<a href="?node=client">'._('Click Here').'</a>';
 		print "\n\t\t\t<h2>"._('FOG Service Configuration Information').'</h2>';
 		print "\n\t\t\t<p>"._('This section of the FOG management portal allows you to configure how the FOG service functions on client computers.  The settings in this section tend to be global settings that effect all hosts.  If you are looking to configure settings for a service module that is specific to a host, please see the Servicesection.  To get started editing global settings, please select an item from the left hand menu.').'</p>';
 	}
