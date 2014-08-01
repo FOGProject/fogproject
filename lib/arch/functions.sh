@@ -493,6 +493,7 @@ class Config
 configureMySql()
 {
 	echo -n "  * Setting up and starting MySQL...";
+	sed -i 's/;extension=mysqli.so/extension=mysqli.so/g' /etc/php.php.ini
 	systemctl enable mysqld;
 	systemctl restart mysqld >/dev/null 2>&1;
 	systemctl status mysqld >/dev/null 2>&1;
