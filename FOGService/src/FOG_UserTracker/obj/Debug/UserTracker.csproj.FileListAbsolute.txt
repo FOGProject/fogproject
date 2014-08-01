@@ -8,3 +8,6 @@ C:\Users\FinancedHydra\Desktop\src\FOG_UserTracker\obj\Debug\UserTracker.dll
 D:\fog\FOG Service\src\build\UserTracker.dll
 D:\fog\FOG Service\src\FOG_UserTracker\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOG Service\src\FOG_UserTracker\obj\Debug\UserTracker.dll
+D:\fog\FOGService\src\build\UserTracker.dll
+D:\fog\FOGService\src\FOG_UserTracker\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOG_UserTracker\obj\Debug\UserTracker.dll

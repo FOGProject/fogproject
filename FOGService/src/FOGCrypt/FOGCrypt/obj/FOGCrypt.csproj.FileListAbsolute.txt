@@ -16,3 +16,8 @@ D:\fog\FOG Service\src\build\FOGCrypt.pdb
 D:\fog\FOG Service\src\FOGCrypt\FOGCrypt\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOG Service\src\FOGCrypt\FOGCrypt\obj\Debug\FOGCrypt.exe
 D:\fog\FOG Service\src\FOGCrypt\FOGCrypt\obj\Debug\FOGCrypt.pdb
+D:\fog\FOGService\src\build\FOGCrypt.exe
+D:\fog\FOGService\src\build\FOGCrypt.pdb
+D:\fog\FOGService\src\FOGCrypt\FOGCrypt\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOGCrypt\FOGCrypt\obj\Debug\FOGCrypt.exe
+D:\fog\FOGService\src\FOGCrypt\FOGCrypt\obj\Debug\FOGCrypt.pdb
