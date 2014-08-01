@@ -1,0 +1,10 @@
+C:\Users\admin\Desktop\src\FOG_SnapinClient\bin\Release\SnapinClient.dll
+C:\Users\admin\Desktop\src\FOG_SnapinClient\bin\Release\AbstractFOGService.dll
+C:\Users\admin\Desktop\src\FOG_SnapinClient\bin\Release\IniReaderObj.dll
+C:\Users\admin\Desktop\src\FOG_SnapinClient\obj\Release\ResolveAssemblyReference.cache
+C:\Users\admin\Desktop\src\FOG_SnapinClient\obj\Release\SnapinClient.dll
+C:\wamp\www\fog-sf\FOG Service\src\FOG_SnapinClient\bin\Release\SnapinClient.dll
+C:\wamp\www\fog-sf\FOG Service\src\FOG_SnapinClient\bin\Release\AbstractFOGService.dll
+C:\wamp\www\fog-sf\FOG Service\src\FOG_SnapinClient\bin\Release\IniReaderObj.dll
+C:\wamp\www\fog-sf\FOG Service\src\FOG_SnapinClient\obj\Release\SnapinClient.csprojResolveAssemblyReference.cache
+C:\wamp\www\fog-sf\FOG Service\src\FOG_SnapinClient\obj\Release\SnapinClient.dll
