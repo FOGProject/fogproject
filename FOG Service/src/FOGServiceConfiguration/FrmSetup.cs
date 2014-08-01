@@ -38,21 +38,6 @@ namespace FOG
                 Boolean blFound = !isConfigured();
                 if (blFound)
                     loadServiceInfo();
-<<<<<<< HEAD:FOG Service/src/FOGServiceConfiguration/FrmSetup.cs
-=======
-                
-                if (!blFound)
-                {
-                    MessageBox.Show("It appears that the FOG service has already been configured");
-                    this.Close();
-                }
-                
-            }
-            else
-            {
-                MessageBox.Show("Fatal Error:\nUnable to locate coniguration file for FOG Service!");
-                this.Close();
->>>>>>> Add functional compile script and new installer script:FOG Service/src/FOGServiceConfiguration/FrmSetup.cs
             }
             parseArgs(args);
         }
@@ -71,7 +56,6 @@ namespace FOG
                     	if (arg.ToLower().CompareTo("/s") == 0) { //Silent mode
 	                        headless = true;
 	                    } else if (arg.StartsWith("/ip=", StringComparison.CurrentCultureIgnoreCase)) { 
-<<<<<<< HEAD:FOG Service/src/FOGServiceConfiguration/FrmSetup.cs
                     		arg = arg.Replace("/ip=","");
                     		arg = arg.Replace("-ip=",""); 
                     		strIPAddress = arg;
@@ -80,11 +64,6 @@ namespace FOG
                     		arg = arg.Replace("-pf=",""); 	                    	
                     		strInstallLocation = arg;
 	                    	
-=======
-	                    	strIPAddress = arg.Replace("/ip=","");
-	                    } else if (arg.StartsWith("/pf=", StringComparison.CurrentCultureIgnoreCase)) { //Set installation dir
-	                    	strInstallLocation = arg.Replace("/pf=","");
->>>>>>> Add functional compile script and new installer script:FOG Service/src/FOGServiceConfiguration/FrmSetup.cs
 	                        if (strInstallLocation != null && strInstallLocation.Length > 0) {
 	                            strInstallLocation = strInstallLocation.Replace("\"", "");
 	                            if (strInstallLocation.EndsWith("\\"))
@@ -92,17 +71,11 @@ namespace FOG
 	                        }
                     	} else {
                     		if(alModules != null) {
-<<<<<<< HEAD:FOG Service/src/FOGServiceConfiguration/FrmSetup.cs
                     			arg = arg.Replace("/","");
                     			arg = arg.Replace("-","");
 	                    		foreach(SubClassMenuItem component in alModules) {
                     				if(arg.StartsWith(component.getFileName().ToLower())) {
                     					if(arg.ToLower().EndsWith("false")) //no point in handling true because each component is enabled by default
-=======
-	                    		foreach(SubClassMenuItem component in alModules) {
-                    				if(arg.Contains(component.getFileName().ToLower())) {
-                    					if(arg.ToLower().Contains("false")) //no point in handling true because each component is enabled by default
->>>>>>> Add functional compile script and new installer script:FOG Service/src/FOGServiceConfiguration/FrmSetup.cs
 	                    					component.setActive(false);
 	                    			}
 	                    		}
