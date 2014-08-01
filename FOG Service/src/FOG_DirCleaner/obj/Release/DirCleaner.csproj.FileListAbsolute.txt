@@ -1,5 +1,0 @@
-C:\Users\admin\Desktop\src\FOG_DirCleaner\bin\Release\DirCleaner.dll
-C:\Users\admin\Desktop\src\FOG_DirCleaner\bin\Release\AbstractFOGService.dll
-C:\Users\admin\Desktop\src\FOG_DirCleaner\bin\Release\IniReaderObj.dll
-C:\Users\admin\Desktop\src\FOG_DirCleaner\obj\Release\ResolveAssemblyReference.cache
-C:\Users\admin\Desktop\src\FOG_DirCleaner\obj\Release\DirCleaner.dll

@@ -1,6 +1,0 @@
-obj\Debug\ResolveAssemblyReference.cache
-bin\Debug\FOGCrypt.exe
-bin\Debug\FOGCrypt.pdb
-bin\Debug\IniReaderObj.dll
-obj\Debug\FOGCrypt.exe
-obj\Debug\FOGCrypt.pdb
