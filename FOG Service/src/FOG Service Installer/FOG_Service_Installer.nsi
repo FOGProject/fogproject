@@ -153,7 +153,7 @@ Section -MainProgram
 ${INSTALL_TYPE}
 SetOverwrite ifnewer
 SetOutPath "$INSTDIR"
-SimpleSC::InstallService "FOG Service" "FOGService" "16" "2" "$INSTDIR\FOGService.exe" "" "" ""
+SimpleSC::InstallService "FOGService" "FOGService" "16" "2" "$INSTDIR\FOGService.exe" "" "" ""
 File /r "build\*"
 
 ExecWait "$INSTDIR\FOGServiceConfig.exe $parameters"
