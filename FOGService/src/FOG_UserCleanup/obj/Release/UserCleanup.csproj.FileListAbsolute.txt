@@ -1,0 +1,5 @@
+C:\Users\admin\Desktop\src\FOG_UserCleanup\bin\Release\UserCleanup.dll
+C:\Users\admin\Desktop\src\FOG_UserCleanup\bin\Release\AbstractFOGService.dll
+C:\Users\admin\Desktop\src\FOG_UserCleanup\bin\Release\IniReaderObj.dll
+C:\Users\admin\Desktop\src\FOG_UserCleanup\obj\Release\ResolveAssemblyReference.cache
+C:\Users\admin\Desktop\src\FOG_UserCleanup\obj\Release\UserCleanup.dll
