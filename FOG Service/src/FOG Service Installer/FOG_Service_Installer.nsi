@@ -202,6 +202,7 @@ SectionEnd
 
 Section Uninstall
 ${INSTALL_TYPE}
+SimpleSC::RemoveService "FOG Service"
 SimpleSC::RemoveService "FOGService"
 
 #Delete all files except the etc folder and its content
