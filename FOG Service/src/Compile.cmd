@@ -39,24 +39,6 @@ echo       #  .      ...##:,##:::#: ... ##..
 echo      .#  .       .:####::::.##:::#:..
 echo       #                     ..:###..
 echo(
-=======
-set frameworkVersion=v3.5
-set ver=0.8
-
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-::Header output
-echo(                                         
-echo        ..#######:.    ..,#,..     .::##::.   
-echo   .:######          .:####:......#..      
-echo   ...##...        ...##,##::::.##...       
-echo      ,#          ...##.....##:::##     ..::  
-echo      ##    .::###,,##.   . ##.::#.:######::. 
-echo   ...##:::###::....#. ..  .#...#. #...#:::.  
-echo   ..:####:..    ..##......##::##  ..  #      
-echo       #  .      ...##:,##:::#: ... ##..    
-echo      .#  .       .:####::::.##:::#:..     
-echo       #                     ..:###..        
-echo( 
 echo   ###########################################
 echo   #     FOG                                 #
 echo   #     Free Computer Imaging Solution      #
@@ -69,12 +51,6 @@ echo   #         Jian Zhang                      #
 echo   #         Peter Gilchrist                 #
 echo   #         Tom Elliott                     #
 echo   #     GNU GPL Version 3                   #
-=======
-echo   #         Chuck Syperski                  #	
-echo   #         Jian Zhang                      #
-echo   #         Peter Gilchrist                 #
-echo   #         Tom Elliott                     #		
-echo   #     GNU GPL Version 3                   #		
 echo   ###########################################
 echo(
 
@@ -82,8 +58,6 @@ echo(
 echo(
 echo ============FOG Service Compiler============
 echo ===============Version %ver%================
-=======
-echo =================Version %ver%================
 echo(
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -126,7 +100,6 @@ IF "%1" == "/passkey"  (
 	set passKey=%defaultPassKey%
 )
 echo %passKey%
-=======
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Set the working directory to the script's location
@@ -170,8 +143,6 @@ IF NOT EXIST "%windir%\Microsoft.NET\Framework\%frameworkVersion%\msbuild.exe" (
    <nul set /p=Failed
    echo(
    echo ERROR: Could not find .Net Framework %frameworkVersion% on your machine, either install this version or specify a different version with the /framework= switch
-=======
-   echo ERROR: Could not find .Net Framework %frameworkVersion% on your machine, either install this version or update frameworkVersion in this script
    pause
    exit /b
 )
@@ -214,7 +185,6 @@ echo(
 
 echo(
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-=======
 ::Generate build files
 <nul set /p=Generating build folder...
 rmdir /S /Q "%~dp0build" > nul 2>&1
@@ -228,9 +198,9 @@ if errorlevel 1 (
 	<nul set /p=Success
 )
 echo(
-=======
-call:checkErrors
+
 del "%~dp0Setup.exe" > nul 2>&1
+
 echo(
 echo Building Files (.Net Framework %frameworkVersion%)
 for /R %%a in (*.sln) do (
@@ -253,11 +223,6 @@ for /R %%a in (*.sln) do (
 	echo(
 )
 cd "%~dp0"
-=======
-	"%windir%\Microsoft.NET\Framework\%frameworkVersion%\msbuild" "!Name!" /property:OutputPath="%~dp0build" > nul
-	call:checkErrors
-)
-cd "%~dp0" 
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Copy extra files
@@ -273,8 +238,6 @@ if errorlevel 1 (
 	<nul set /p=Success
 )
 echo(
-=======
-call:checkErrors
 
 <nul set /p=Transfering license...
 cd ..
@@ -289,8 +252,6 @@ if errorlevel 1 (
 	<nul set /p=Success
 )
 echo(
-=======
-call:checkErrors
 cd "%~dp0"
 
 <nul set /p=Transfering installer script...
@@ -304,8 +265,7 @@ if errorlevel 1 (
 	<nul set /p=Success
 )
 echo(
-=======
-call:checkErrors
+
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Build installer
 echo(
@@ -323,19 +283,11 @@ echo(
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Remove build files
-=======
-call:checkErrors
-
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-::Remove build files	
->>>>>>> Add functional compile script and new installer script
 :cleanBuildFiles
 echo(
 echo Removing build files
 cd "%~dp0"
 <nul set /p= ---^> Build directory...
-=======
-<nul set /p= ---^> Build Directory...
 rmdir /S /Q "%~dp0build" > nul
 IF EXIST "%~dp0build\NUL" (
    <nul set /p=Failed
@@ -351,29 +303,22 @@ del "%scriptFile%" > nul 2>&1
 call:checkErrors
 
 <nul set /p= ---^> Installer script...
-=======
-<nul set /p= ---^> Installer Script...
 del "%~dp0FOG_Service_Installer.nsi" > nul 2>&1
 call:checkErrors
 
 echo(
-<<<<<<< HEAD
 IF EXIST "%~dp0Setup.exe" (
 	echo Installer located at "%~dp0Setup.exe"
 )
 
 :finish
-=======
-IF EXIST %~dp0Setup.exe (
-	echo Installer located at "%~dp0Setup.exe"
-)
 echo(
 echo ========================Finished========================
 echo(
 pause
 goto:eof
+
 ::This function can only be used when a failure does not result in an halt
-=======
 :checkErrors
 if errorlevel 1 (
 	<nul set /p=Failed
@@ -384,6 +329,4 @@ echo(
 
 :eof
 setlocal disabledelayedexpansion
-exit /b
-=======
 exit /b

@@ -31,19 +31,11 @@
     <AspNetConfiguration>$(Configuration)</AspNetConfiguration>
   </PropertyGroup>
   <PropertyGroup>
-<<<<<<< HEAD
     <SolutionDir>D:\fog\FOG Service\src\FOG_HostNameChanger\</SolutionDir>
     <SolutionExt>.sln</SolutionExt>
     <SolutionFileName>HostNameChange.sln</SolutionFileName>
     <SolutionName>HostNameChange</SolutionName>
     <SolutionPath>D:\fog\FOG Service\src\FOG_HostNameChanger\HostNameChange.sln</SolutionPath>
-=======
-    <SolutionDir>C:\Users\FinancedHydra\Desktop\src\FOG_HostNameChanger\</SolutionDir>
-    <SolutionExt>.sln</SolutionExt>
-    <SolutionFileName>HostNameChange.sln</SolutionFileName>
-    <SolutionName>HostNameChange</SolutionName>
-    <SolutionPath>C:\Users\FinancedHydra\Desktop\src\FOG_HostNameChanger\HostNameChange.sln</SolutionPath>
->>>>>>> Add functional compile script and new installer script
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworkVersion Condition="'$(TargetFrameworkVersion)' == '' and '$(MSBuildToolsVersion)' == '2.0'">v2.0</TargetFrameworkVersion>
