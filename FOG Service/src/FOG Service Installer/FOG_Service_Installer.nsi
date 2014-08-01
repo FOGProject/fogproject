@@ -6,7 +6,11 @@
 !define COMP_NAME "FOG"
 !define WEB_SITE "http://fogproject.org/"
 !define VERSION "00.00.00.20"
+<<<<<<< HEAD
 !define COPYRIGHT "FOG © 2007-2014"
+=======
+!define COPYRIGHT "FOG © 2014"
+>>>>>>> Add functional compile script and new installer script
 !define DESCRIPTION "Application"
 !define LICENSE_TXT "build\license.txt"
 !define INSTALLER_NAME "Setup.exe"
@@ -132,6 +136,7 @@ Var trayIcon
 Var parameters
 ######################################################################
 
+<<<<<<< HEAD
 Section "FOG Tray Icon" TRAY
 	ReadEnvStr $R0 AllUsersProfile
 	CreateShortCut "$R0\Start Menu\Programs\Startup\FOGTray.lnk" "$INSTDIR\FOGTray.exe" "" ""
@@ -147,6 +152,11 @@ Function .onInit
 	!insertmacro ReverseSection  ${TRAY}
   ${EndIf}  
   
+=======
+Function .onInit
+  ${GetParameters} $parameters
+  ${GetOptions} $parameters "/tray" $trayIcon
+>>>>>>> Add functional compile script and new installer script
 FunctionEnd
 
 Section -MainProgram
@@ -155,11 +165,22 @@ SetOverwrite ifnewer
 SetOutPath "$INSTDIR"
 SimpleSC::InstallService "FOG Service" "FOGService" "16" "2" "$INSTDIR\FOGService.exe" "" "" ""
 File /r "build\*"
+<<<<<<< HEAD
+=======
+ReadEnvStr $R0 AllUsersProfile
+>>>>>>> Add functional compile script and new installer script
 
 ExecWait "$INSTDIR\FOGServiceConfig.exe $parameters"
 
 SectionEnd
 
+<<<<<<< HEAD
+=======
+Section "FOG Tray Icon" TRAY
+	CreateShortCut "$R0\Start Menu\Programs\Startup\FOGTray.lnk" "$INSTDIR\FOGTray.exe" "" ""
+SectionEnd
+
+>>>>>>> Add functional compile script and new installer script
 ######################################################################
 
 Section -Icons_Reg
