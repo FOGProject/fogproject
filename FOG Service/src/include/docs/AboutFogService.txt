@@ -1,0 +1,46 @@
+FOG Service
+-----------
+
+The FOG Service is, like the rest of FOG, released under GNU GPL 3. So, please feel free to modify, or add modules to it to fit you needs.
+
+Getting Started
+---------------
+
+In the current versions of the FOG Service, you need to modify the etc/config.ini file before you can start the service.  Currently, the only thing that needs to be changed in this file is the IP address of the FOG web serving node.  
+
+Change 
+
+ipaddress=x.x.x.x
+
+to the IP address or hostname of your FOG server.
+
+We hope in the future to make all configuration of the FOG service graphical.  
+
+Troubleshooting
+---------------
+
+If at any time you feel the FOG service isn't performing the way in which you believe it should be performing, don't panic.  The first thing to do is check out (on the client PC) the log file which by default is stored in c:\fog.log.
+
+If still the log file doesn't help, then post the contents of the log file along with a description of the problem you are experiencing to the FOG forum at:
+
+http://sourceforge.net/forum/?group_id=201099
+
+Sub Service Details
+-------------------
+
+* FOG Hostname Changer Module (HostnameChange.dll)
+
+This module runs only once on service start.  On start it checks the FOG server to find out what the hostname of the client computer should be by looking it up by MAC address.  If the hostname of the client PC is different from what the server thinks its hostname should be FOG will change the hostname and reboot the computer without and warning.
+
+As stated this sub service only runs on service start, so in most cases that is before the user logs in which means in 99% percent of the cases this will not disturb the user experience.  
+
+* FOG Host Registration Module (HostRegister.dll)
+
+This module also runs only once on service start.  On start it checks the FOG server to find out if the hosts current MAC address is registered with the FOG server.  If the MAC address isn't registered it will attempt to register it with the FOG server.  
+
+If the client computer has more than one NIC, the FOG Service will only register the first NIC it sees, if that is not the "correct" NIC/MAC, then you will need to manually add the host to FOG.
+
+
+
+
+

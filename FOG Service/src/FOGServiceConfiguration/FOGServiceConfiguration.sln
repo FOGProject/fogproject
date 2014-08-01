@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FOGSetup", "WindowsApplication1\FOGSetup.csproj", "{274901DF-8930-48CD-A923-3EF2718A2516}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FOGSetup", "FOGSetup.csproj", "{274901DF-8930-48CD-A923-3EF2718A2516}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
