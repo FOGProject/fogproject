@@ -22,7 +22,6 @@ setlocal enabledelayedexpansion
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Configuration
-<<<<<<< HEAD
 set ver=1.0.1
 set defaultFrameworkVersion=v3.5
 set defaultPassKey="FOG-OpenSource-Imaging"
