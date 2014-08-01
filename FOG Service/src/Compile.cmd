@@ -22,7 +22,7 @@ setlocal enabledelayedexpansion
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Configuration
-set ver=1.0
+set ver=1.0.1
 set defaultFrameworkVersion=v3.5
 set defaultPassKey="FOG-OpenSource-Imaging"
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -57,7 +57,7 @@ echo(
 
 echo(
 echo ============FOG Service Compiler============
-echo =================Version %ver%================
+echo ===============Version %ver%================
 echo(
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -173,7 +173,15 @@ set csFile=%~dp0FOG_HostNameChanger\MOD_HostNameChanger.cs
 
 <nul set /p=Updating passkey...
 cscript //nologo "%scriptFile%" > nul 2>&1
-call:checkErrors
+if errorlevel 1 (
+	<nul set /p=Failed
+	echo(
+	call:cleanBuildFiles
+	exit /b
+) else (
+	<nul set /p=Success
+)
+echo(
 
 echo(
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -181,7 +189,15 @@ echo(
 <nul set /p=Generating build folder...
 rmdir /S /Q "%~dp0build" > nul 2>&1
 mkdir "%~dp0build" > nul 2>&1
-call:checkErrors
+if errorlevel 1 (
+	<nul set /p=Failed
+	echo(
+	call:cleanBuildFiles
+	exit /b
+) else (
+	<nul set /p=Success
+)
+echo(
 
 del "%~dp0Setup.exe" > nul 2>&1
 
@@ -196,7 +212,15 @@ for /R %%a in (*.sln) do (
 	<nul set /p= ---^> Building !Name!...
 	cd "!Folder!"
 	"%windir%\Microsoft.NET\Framework\%frameworkVersion%\msbuild" "!Name!" /p:Platform="Any CPU" /property:OutputPath="%~dp0build" > nul
-	call:checkErrors
+	if errorlevel 1 (
+		<nul set /p=Failed
+		echo(
+		call:cleanBuildFiles
+		exit /b
+	) else (
+		<nul set /p=Success
+	)
+	echo(
 )
 cd "%~dp0"
 
@@ -205,25 +229,57 @@ cd "%~dp0"
 echo(
 <nul set /p=Transfering include files...
 xcopy "%~dp0\include" "%~dp0build" /e /v /y  > nul 2>&1
-call:checkErrors
+if errorlevel 1 (
+	<nul set /p=Failed
+	echo(
+	call:cleanBuildFiles
+	exit /b
+) else (
+	<nul set /p=Success
+)
+echo(
 
 <nul set /p=Transfering license...
 cd ..
 cd ..
 copy license.txt "%~dp0build" > nul
-call:checkErrors
+if errorlevel 1 (
+	<nul set /p=Failed
+	echo(
+	call:cleanBuildFiles
+	exit /b
+) else (
+	<nul set /p=Success
+)
+echo(
 cd "%~dp0"
 
 <nul set /p=Transfering installer script...
 copy "FOG Service Installer\FOG_Service_Installer.nsi" "%~dp0FOG_Service_Installer.nsi" > nul
-call:checkErrors
+if errorlevel 1 (
+	<nul set /p=Failed
+	echo(
+	call:cleanBuildFiles
+	exit /b
+) else (
+	<nul set /p=Success
+)
+echo(
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Build installer
 echo(
 <nul set /p=Building installer...
 START /B /wait makensis FOG_Service_Installer.nsi > nul
-call:checkErrors
+if errorlevel 1 (
+	<nul set /p=Failed
+	echo(
+	call:cleanBuildFiles
+	exit /b
+) else (
+	<nul set /p=Success
+)
+echo(
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Remove build files
@@ -254,12 +310,15 @@ echo(
 IF EXIST "%~dp0Setup.exe" (
 	echo Installer located at "%~dp0Setup.exe"
 )
+
+:finish
 echo(
 echo ========================Finished========================
 echo(
 pause
 goto:eof
 
+::This function can only be used when a failure does not result in an halt
 :checkErrors
 if errorlevel 1 (
 	<nul set /p=Failed
