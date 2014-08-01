@@ -10,3 +10,6 @@ C:\Users\FinancedHydra\Desktop\src\FOG_DirCleaner\obj\Debug\DirCleaner.dll
 D:\fog\FOG Service\src\build\DirCleaner.dll
 D:\fog\FOG Service\src\FOG_DirCleaner\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOG Service\src\FOG_DirCleaner\obj\Debug\DirCleaner.dll
+D:\fog\FOGService\src\build\DirCleaner.dll
+D:\fog\FOGService\src\FOG_DirCleaner\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOG_DirCleaner\obj\Debug\DirCleaner.dll

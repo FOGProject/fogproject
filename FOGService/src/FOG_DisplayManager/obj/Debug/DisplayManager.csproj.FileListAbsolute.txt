@@ -10,3 +10,6 @@ C:\Users\FinancedHydra\Desktop\src\FOG_DisplayManager\obj\Debug\DisplayManager.d
 D:\fog\FOG Service\src\build\DisplayManager.dll
 D:\fog\FOG Service\src\FOG_DisplayManager\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOG Service\src\FOG_DisplayManager\obj\Debug\DisplayManager.dll
+D:\fog\FOGService\src\build\DisplayManager.dll
+D:\fog\FOGService\src\FOG_DisplayManager\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOG_DisplayManager\obj\Debug\DisplayManager.dll

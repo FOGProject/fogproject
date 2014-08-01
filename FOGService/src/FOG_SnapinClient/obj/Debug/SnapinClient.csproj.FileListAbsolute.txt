@@ -8,3 +8,6 @@ C:\Users\FinancedHydra\Desktop\src\FOG_SnapinClient\obj\Debug\ResolveAssemblyRef
 D:\fog\FOG Service\src\build\SnapinClient.dll
 D:\fog\FOG Service\src\FOG_SnapinClient\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOG Service\src\FOG_SnapinClient\obj\Debug\SnapinClient.dll
+D:\fog\FOGService\src\build\SnapinClient.dll
+D:\fog\FOGService\src\FOG_SnapinClient\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOG_SnapinClient\obj\Debug\SnapinClient.dll
