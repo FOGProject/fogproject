@@ -139,7 +139,7 @@ class BootMenu extends FOGBase
 			$this->pxemenu['fog.advanced'] = 'Advanced Menu';
 		$this->memdisk = "kernel $memdisk";
 		$this->memtest = "initrd $memtest";
-		$this->kernel = "kernel $bzImage root=/dev/ram0 rw ramdisk_size=$ramsize ip=dhcp dns=$dns keymap=$keymap web=${webserver}${webroot} consoleblank=0";
+		$this->kernel = "kernel $bzImage initrd=$imagefile root=/dev/ram0 rw ramdisk_size=$ramsize ip=dhcp dns=$dns keymap=$keymap web=${webserver}${webroot} consoleblank=0";
 		$this->initrd = "imgfetch $imagefile\n";
 		$this->defaultChoice = "choose --default fog.local --timeout $timeout target && goto \${target}\n";
 		if ($_REQUEST['username'] && $_REQUEST['password'])

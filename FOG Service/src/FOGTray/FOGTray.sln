@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FOGTray", "FOGTray\FOGTray.csproj", "{B4B728B1-D32E-4A1B-A031-E9F49C838222}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FOGTray", "FOGTray.csproj", "{B4B728B1-D32E-4A1B-A031-E9F49C838222}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
