@@ -1,5 +1,0 @@
-C:\Users\admin\Desktop\src\FOG_TaskReboot\bin\Release\TaskReboot.dll
-C:\Users\admin\Desktop\src\FOG_TaskReboot\bin\Release\AbstractFOGService.dll
-C:\Users\admin\Desktop\src\FOG_TaskReboot\bin\Release\IniReaderObj.dll
-C:\Users\admin\Desktop\src\FOG_TaskReboot\obj\Release\ResolveAssemblyReference.cache
-C:\Users\admin\Desktop\src\FOG_TaskReboot\obj\Release\TaskReboot.dll
