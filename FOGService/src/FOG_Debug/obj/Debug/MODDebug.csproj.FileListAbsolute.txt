@@ -8,3 +8,6 @@ C:\Users\FinancedHydra\Desktop\src\FOG_Debug\obj\Debug\ResolveAssemblyReference.
 D:\fog\FOG Service\src\build\MODDebug.dll
 D:\fog\FOG Service\src\FOG_Debug\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOG Service\src\FOG_Debug\obj\Debug\MODDebug.dll
+D:\fog\FOGService\src\build\MODDebug.dll
+D:\fog\FOGService\src\FOG_Debug\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOG_Debug\obj\Debug\MODDebug.dll

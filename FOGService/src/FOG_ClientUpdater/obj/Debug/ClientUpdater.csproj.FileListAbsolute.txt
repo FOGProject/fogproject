@@ -10,3 +10,6 @@ C:\Users\FinancedHydra\Desktop\src\FOG_ClientUpdater\obj\Debug\ClientUpdater.dll
 D:\fog\FOG Service\src\build\ClientUpdater.dll
 D:\fog\FOG Service\src\FOG_ClientUpdater\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOG Service\src\FOG_ClientUpdater\obj\Debug\ClientUpdater.dll
+D:\fog\FOGService\src\build\ClientUpdater.dll
+D:\fog\FOGService\src\FOG_ClientUpdater\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOG_ClientUpdater\obj\Debug\ClientUpdater.dll

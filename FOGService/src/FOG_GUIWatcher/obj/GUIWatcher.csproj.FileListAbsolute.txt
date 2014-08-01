@@ -10,3 +10,6 @@ C:\Users\FinancedHydra\Desktop\src\FOG_GUIWatcher\obj\Debug\GUIWatcher.dll
 D:\fog\FOG Service\src\build\GUIWatcher.dll
 D:\fog\FOG Service\src\FOG_GUIWatcher\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOG Service\src\FOG_GUIWatcher\obj\Debug\GUIWatcher.dll
+D:\fog\FOGService\src\build\GUIWatcher.dll
+D:\fog\FOGService\src\FOG_GUIWatcher\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOG_GUIWatcher\obj\Debug\GUIWatcher.dll

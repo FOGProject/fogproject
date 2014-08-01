@@ -10,3 +10,6 @@ C:\Users\FinancedHydra\Desktop\src\FOG_TaskReboot\obj\Debug\TaskReboot.dll
 D:\fog\FOG Service\src\build\TaskReboot.dll
 D:\fog\FOG Service\src\FOG_TaskReboot\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOG Service\src\FOG_TaskReboot\obj\Debug\TaskReboot.dll
+D:\fog\FOGService\src\build\TaskReboot.dll
+D:\fog\FOGService\src\FOG_TaskReboot\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOG_TaskReboot\obj\Debug\TaskReboot.dll

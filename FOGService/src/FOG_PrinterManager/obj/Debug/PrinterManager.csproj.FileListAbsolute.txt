@@ -10,3 +10,6 @@ C:\Users\FinancedHydra\Desktop\src\FOG_PrinterManager\obj\Debug\PrinterManager.d
 D:\fog\FOG Service\src\build\PrinterManager.dll
 D:\fog\FOG Service\src\FOG_PrinterManager\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOG Service\src\FOG_PrinterManager\obj\Debug\PrinterManager.dll
+D:\fog\FOGService\src\build\PrinterManager.dll
+D:\fog\FOGService\src\FOG_PrinterManager\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOG_PrinterManager\obj\Debug\PrinterManager.dll

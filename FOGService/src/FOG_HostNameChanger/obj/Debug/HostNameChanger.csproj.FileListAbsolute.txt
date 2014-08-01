@@ -11,3 +11,6 @@ C:\Users\FinancedHydra\Desktop\src\FOG_HostNameChanger\obj\Debug\HostnameChange.
 D:\fog\FOG Service\src\build\HostnameChange.dll
 D:\fog\FOG Service\src\FOG_HostNameChanger\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOG Service\src\FOG_HostNameChanger\obj\Debug\HostnameChange.dll
+D:\fog\FOGService\src\build\HostnameChange.dll
+D:\fog\FOGService\src\FOG_HostNameChanger\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOG_HostNameChanger\obj\Debug\HostnameChange.dll

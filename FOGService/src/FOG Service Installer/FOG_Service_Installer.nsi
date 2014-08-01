@@ -153,7 +153,11 @@ Section -MainProgram
 ${INSTALL_TYPE}
 SetOverwrite ifnewer
 SetOutPath "$INSTDIR"
+
+#Remove legacy FOG Service if present
+ExecWait "msiexec.exe /uninstall {91C5D423-B6AB-4EAB-8F17-2BB3AE162CA1} /quiet"
 SimpleSC::RemoveService "FOG Service"
+
 SimpleSC::InstallService "FOG Service" "FOGService" "16" "2" "$INSTDIR\FOGService.exe" "" "" ""
 File /r "build\*"
 
