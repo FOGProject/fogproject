@@ -1,0 +1,18 @@
+D:\FOG\trunk\FOG Service\src\FOGCrypt\FOGCrypt\bin\Debug\FOGCrypt.exe
+D:\FOG\trunk\FOG Service\src\FOGCrypt\FOGCrypt\bin\Debug\FOGCrypt.pdb
+D:\FOG\trunk\FOG Service\src\FOGCrypt\FOGCrypt\bin\Debug\IniReaderObj.dll
+D:\FOG\trunk\FOG Service\src\FOGCrypt\FOGCrypt\obj\Debug\ResolveAssemblyReference.cache
+D:\FOG\trunk\FOG Service\src\FOGCrypt\FOGCrypt\obj\Debug\FOGCrypt.exe
+D:\FOG\trunk\FOG Service\src\FOGCrypt\FOGCrypt\obj\Debug\FOGCrypt.pdb
+D:\FOG\trunk\FOG Service\src\build\FOGCrypt.exe
+D:\FOG\trunk\FOG Service\src\build\FOGCrypt.pdb
+C:\Users\FinancedHydra\Desktop\src\build\FOGCrypt.exe
+C:\Users\FinancedHydra\Desktop\src\build\FOGCrypt.pdb
+C:\Users\FinancedHydra\Desktop\src\FOGCrypt\FOGCrypt\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\FinancedHydra\Desktop\src\FOGCrypt\FOGCrypt\obj\Debug\FOGCrypt.exe
+C:\Users\FinancedHydra\Desktop\src\FOGCrypt\FOGCrypt\obj\Debug\FOGCrypt.pdb
+D:\fog\FOG Service\src\build\FOGCrypt.exe
+D:\fog\FOG Service\src\build\FOGCrypt.pdb
+D:\fog\FOG Service\src\FOGCrypt\FOGCrypt\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOG Service\src\FOGCrypt\FOGCrypt\obj\Debug\FOGCrypt.exe
+D:\fog\FOG Service\src\FOGCrypt\FOGCrypt\obj\Debug\FOGCrypt.pdb

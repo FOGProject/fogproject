@@ -1,0 +1,13 @@
+D:\FOG\trunk\FOG Service\OutputDirectory\modules\HostnameChange.dll
+D:\FOG\trunk\FOG Service\src\FOG_HostNameChanger\obj\Debug\ResolveAssemblyReference.cache
+D:\FOG\trunk\FOG Service\src\FOG_HostNameChanger\obj\Debug\HostnameChange.dll
+D:\FOG\trunk\FOG Service\src\FOG_HostNameChanger\bin\Release\HostnameChange.dll
+D:\FOG\trunk\FOG Service\src\FOG_HostNameChanger\bin\Release\AbstractFOGService.dll
+D:\FOG\trunk\FOG Service\src\FOG_HostNameChanger\bin\Release\IniReaderObj.dll
+D:\FOG\trunk\FOG Service\src\build\HostnameChange.dll
+C:\Users\FinancedHydra\Desktop\src\build\HostnameChange.dll
+C:\Users\FinancedHydra\Desktop\src\FOG_HostNameChanger\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\FinancedHydra\Desktop\src\FOG_HostNameChanger\obj\Debug\HostnameChange.dll
+D:\fog\FOG Service\src\build\HostnameChange.dll
+D:\fog\FOG Service\src\FOG_HostNameChanger\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOG Service\src\FOG_HostNameChanger\obj\Debug\HostnameChange.dll
