@@ -10,3 +10,6 @@ C:\Users\FinancedHydra\Desktop\src\FOG_GreenFog\obj\Debug\GreenFog.dll
 D:\fog\FOG Service\src\build\GreenFog.dll
 D:\fog\FOG Service\src\FOG_GreenFog\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOG Service\src\FOG_GreenFog\obj\Debug\GreenFog.dll
+D:\fog\FOGService\src\build\GreenFog.dll
+D:\fog\FOGService\src\FOG_GreenFog\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOG_GreenFog\obj\Debug\GreenFog.dll

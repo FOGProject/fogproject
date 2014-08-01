@@ -15,3 +15,6 @@ C:\Users\FinancedHydra\Desktop\src\AbstractFOGTrayModule_2\bin\Debug\AbstractFOG
 D:\fog\FOG Service\src\build\AbstractFOGTrayModule.dll
 D:\fog\FOG Service\src\AbstractFOGTrayModule\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOG Service\src\AbstractFOGTrayModule\obj\Debug\AbstractFOGTrayModule.dll
+D:\fog\FOGService\src\build\AbstractFOGTrayModule.dll
+D:\fog\FOGService\src\AbstractFOGTrayModule\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\AbstractFOGTrayModule\obj\Debug\AbstractFOGTrayModule.dll
