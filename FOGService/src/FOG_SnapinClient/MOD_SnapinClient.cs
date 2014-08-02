@@ -394,7 +394,7 @@ namespace FOG
                                                                 {
                                                                     args = " " + strRunWithArgs + " ";
                                                                 }
-                                                                p.StartInfo.FileName = strRunWith;
+                                                                p.StartInfo.FileName = Environment.ExpandEnvironmentVariables(strRunWith);
 
                                                                 p.StartInfo.Arguments = args + " \"" + strLocalPath + "\" " + strArgs;
                                                             }
