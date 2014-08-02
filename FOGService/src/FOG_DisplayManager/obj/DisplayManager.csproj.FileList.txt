@@ -1,0 +1,5 @@
+bin\Release\DisplayManager.dll
+bin\Release\AbstractFOGService.dll
+bin\Release\IniReaderObj.dll
+obj\Release\ResolveAssemblyReference.cache
+obj\Release\DisplayManager.dll

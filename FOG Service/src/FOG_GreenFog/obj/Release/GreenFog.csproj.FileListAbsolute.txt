@@ -1,5 +1,0 @@
-C:\Users\admin\Desktop\src\FOG_GreenFog\bin\Release\GreenFog.dll
-C:\Users\admin\Desktop\src\FOG_GreenFog\bin\Release\AbstractFOGService.dll
-C:\Users\admin\Desktop\src\FOG_GreenFog\bin\Release\IniReaderObj.dll
-C:\Users\admin\Desktop\src\FOG_GreenFog\obj\Release\ResolveAssemblyReference.cache
-C:\Users\admin\Desktop\src\FOG_GreenFog\obj\Release\GreenFog.dll
