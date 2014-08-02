@@ -1,0 +1,7 @@
+obj\Debug\ResolveAssemblyReference.cache
+bin\Release\GUIWatcher.dll
+bin\Release\AbstractFOGService.dll
+bin\Release\IniReaderObj.dll
+obj\Debug\GUIWatcher.dll
+obj\Release\ResolveAssemblyReference.cache
+obj\Release\GUIWatcher.dll

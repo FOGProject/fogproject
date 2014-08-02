@@ -1,0 +1,39 @@
+D:\FOG\trunk\FOG Service\src\FOGTray\FOGTray\obj\Debug\ResolveAssemblyReference.cache
+D:\FOG\trunk\FOG Service\src\FOGTray\FOGTray\obj\Debug\FOGTray.frmMain.resources
+D:\FOG\trunk\FOG Service\src\FOGTray\FOGTray\obj\Debug\FOGTray.Properties.Resources.resources
+D:\FOG\trunk\FOG Service\src\FOGTray\FOGTray\obj\Debug\FOGTray.csproj.GenerateResource.Cache
+D:\FOG\trunk\FOG Service\src\FOGTray\FOGTray\obj\Debug\FOGTray.exe
+D:\FOG\trunk\FOG Service\src\FOGTray\obj\Debug\ResolveAssemblyReference.cache
+D:\FOG\trunk\FOG Service\src\FOGTray\obj\Debug\FOGTray.frmMain.resources
+D:\FOG\trunk\FOG Service\src\FOGTray\obj\Debug\FOGTray.Properties.Resources.resources
+D:\FOG\trunk\FOG Service\src\FOGTray\obj\Debug\FOGTray.csproj.GenerateResource.Cache
+D:\FOG\trunk\FOG Service\src\FOGTray\obj\Debug\FOGTray.exe
+D:\FOG\trunk\FOG Service\src\build\FOGTray.exe
+D:\FOG\trunk\FOG Service\src\build\FOGTray.pdb
+D:\FOG\trunk\FOG Service\src\FOGTray\obj\Debug\FOGTray.pdb
+C:\Users\FinancedHydra\Desktop\src\build\FOGTray.exe
+C:\Users\FinancedHydra\Desktop\src\build\FOGTray.pdb
+C:\Users\FinancedHydra\Desktop\src\FOGTray\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\FinancedHydra\Desktop\src\FOGTray\obj\Debug\FOGTray.frmMain.resources
+C:\Users\FinancedHydra\Desktop\src\FOGTray\obj\Debug\FOGTray.Properties.Resources.resources
+C:\Users\FinancedHydra\Desktop\src\FOGTray\obj\Debug\FOGTray.csproj.GenerateResource.Cache
+C:\Users\FinancedHydra\Desktop\src\FOGTray\obj\Debug\FOGTray.exe
+C:\Users\FinancedHydra\Desktop\src\FOGTray\obj\Debug\FOGTray.pdb
+C:\Users\FinancedHydra\Desktop\src\FOGTray\bin\Debug\FOGTray.exe
+C:\Users\FinancedHydra\Desktop\src\FOGTray\bin\Debug\FOGTray.pdb
+D:\fog\FOG Service\src\build\FOGTray.exe
+D:\fog\FOG Service\src\build\FOGTray.pdb
+D:\fog\FOG Service\src\FOGTray\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOG Service\src\FOGTray\obj\Debug\FOGTray.frmMain.resources
+D:\fog\FOG Service\src\FOGTray\obj\Debug\FOGTray.Properties.Resources.resources
+D:\fog\FOG Service\src\FOGTray\obj\Debug\FOGTray.csproj.GenerateResource.Cache
+D:\fog\FOG Service\src\FOGTray\obj\Debug\FOGTray.exe
+D:\fog\FOG Service\src\FOGTray\obj\Debug\FOGTray.pdb
+D:\fog\FOGService\src\build\FOGTray.exe
+D:\fog\FOGService\src\build\FOGTray.pdb
+D:\fog\FOGService\src\FOGTray\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOGTray\obj\Debug\FOGTray.frmMain.resources
+D:\fog\FOGService\src\FOGTray\obj\Debug\FOGTray.Properties.Resources.resources
+D:\fog\FOGService\src\FOGTray\obj\Debug\FOGTray.csproj.GenerateResource.Cache
+D:\fog\FOGService\src\FOGTray\obj\Debug\FOGTray.exe
+D:\fog\FOGService\src\FOGTray\obj\Debug\FOGTray.pdb

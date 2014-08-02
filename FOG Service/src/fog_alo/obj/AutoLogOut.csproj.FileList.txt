@@ -1,8 +1,0 @@
-bin\Release\AutoLogOut.dll
-bin\Release\AbstractFOGService.dll
-bin\Release\IniReaderObj.dll
-obj\Release\ResolveAssemblyReference.cache
-obj\Release\FOG.ALOForm.resources
-obj\Release\FOG.Properties.Resources.resources
-obj\Release\AutoLogOut.csproj.GenerateResource.Cache
-obj\Release\AutoLogOut.dll
