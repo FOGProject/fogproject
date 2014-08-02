@@ -3,7 +3,7 @@ require('../commons/base.inc.php');
 try
 {
 	$HostManager = new HostManager();
-	$MACs = HostManager::parseMacList($_REQUEST['mac']);
+	$MACs = HostManager::parseMacList(base64_decode($_REQUEST['mac']));
 	if (!$MACs)
 		throw new Exception('#!im');
 	// Get the Host
