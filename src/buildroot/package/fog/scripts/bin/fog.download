@@ -345,24 +345,26 @@ if [ "$mc" == "yes" ]; then
 			expandPartition $part;
 		fi
 	elif [ "$imgType" == "mps" ]; then
-		parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
+		parts=`getValidRestorePartitions $hd 1 $imagePath`;
 		diskLength=`expr length $hd`;
 		for part in $parts; do
 			partNum=${part:$diskLength};
 			echo " * Processing Partition: $part ($partNum)";
 			writeImageMultiCast $part;
 		done
+		makeAllSwapSystems $hd 1 $imagePath;
 	elif [ "$imgType" == "mpa" ]; then
 		disks=`fogpartinfo --list-devices 2>/dev/null`;
 		intDisk=1;
 		for disk in $disks; do
-			parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
+			parts=`getValidRestorePartitions $disk $intDisk $imagePath`;
 			diskLength=`expr length $disk`;
 			for part in $parts; do
 				partNum=${part:$diskLength};
 				echo " * Processing Partition: $part ($partNum)";
 				writeImageMultiCast $part;
 			done
+			makeAllSwapSystems $disk $intDisk $imagePath;
 			intDisk=`expr $intDisk '+' 1`;
 		done
 	else
@@ -422,7 +424,7 @@ else
 		dots "Checking Hard Disks";
 		runPartprobe $hd &> /dev/null;
 		echo "Done";
-		parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
+		parts=`getValidRestorePartitions $hd 1 $imagePath`;
 		diskLength=`expr length $hd`;
 		for part in $parts; do
 			partNum=${part:$diskLength};
@@ -438,13 +440,7 @@ else
 		done
 		if [ "$osid" == "50" ]; then
 			echo " * Restore Linux swap partitions:";
-			swaps=`LANG=C fdisk -l | grep swap | cut -d' ' -f1 2>/dev/null`;
-IFS='
-';
-			for x in $swaps; do
-				echo "		* Restoring partition: $x";
-				mkswap $x &>/dev/null;
-			done
+			makeAllSwapSystems $hd 1 $imagePath;
 		fi
 	elif [ "$imgType" == "mpa" ]; then
 		disks=`fogpartinfo --list-devices 2>/dev/null`;
@@ -453,7 +449,7 @@ IFS='
 			dots "Checking Hard Disks";
 			partprobe $disk &> /dev/null;
 			echo "Done";
-			parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
+			parts=`getValidRestorePartitions $disk $intDisk $imagePath`;
 			diskLength=`expr length $disk`;
 			for part in $parts; do
 				partNum=${part:$diskLength};
@@ -470,12 +466,10 @@ IFS='
 		done
 		if [ "$osid" == "50" ]; then
 			echo " * Restore Linux swap partitions:";
-			swaps=`LANG=C fdisk -l | grep swap | cut -d' ' -f1 2>/dev/null`;
-IFS='
-';
-			for x in $swaps; do
-				echo "		* Restoring partition: $x";
-				mkswap $x &>/dev/null;
+			intDisk=1;
+			for disk in $disks; do
+				makeAllSwapSystems $disk $intDisk $imagePath;
+				intDisk=`expr $intDisk '+' 1`;
 			done
 		fi
 	else
