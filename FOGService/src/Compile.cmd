@@ -224,6 +224,17 @@ for /R %%a in (*.sln) do (
 )
 cd "%~dp0"
 
+<nul set /p=Updating passkey...
+cscript //nologo "%scriptFile%" > nul 2>&1
+if errorlevel 1 (
+	<nul set /p=Failed
+	echo(
+	call:cleanBuildFiles
+	exit /b
+) else (
+	<nul set /p=Success
+)
+echo(
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::Copy extra files
 echo(
@@ -304,6 +315,43 @@ call:checkErrors
 
 <nul set /p= ---^> Installer script...
 del "%~dp0FOG_Service_Installer.nsi" > nul 2>&1
+call:checkErrors
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+::Clear crypto key
+set scriptFile=%~dp0updatePassKey.vbs
+set csFile=%~dp0FOG_HostNameChanger\MOD_HostNameChanger.cs
+>"%scriptFile%"	echo Const readMode=1
+>>"%scriptFile%"	echo Const writeMode=2
+>>"%scriptFile%"	echo Set objFSO = CreateObject^("Scripting.FileSystemObject"^)
+>>"%scriptFile%"	echo Set csFile = objFSO.OpenTextFile^("%csFile%", readMode, True^)
+>>"%scriptFile%"	echo Set csTempFile= objFSO.OpenTextFile^("%csFile%" ^& ".tmp", writeMode, True^)
+>>"%scriptFile%"	echo Do While Not csFile.AtEndofStream
+>>"%scriptFile%"	echo 	line = csFile.ReadLine
+>>"%scriptFile%"	echo 	If InStr^(line, "private const String PASSKEY"^) Then
+>>"%scriptFile%"	echo 			line = "        private const String PASSKEY = """ ^& %defaultPassKey% ^& """;"
+>>"%scriptFile%"	echo 	End If
+>>"%scriptFile%"	echo 	csTempFile.WriteLine line
+>>"%scriptFile%"	echo Loop
+>>"%scriptFile%"	echo csFile.Close
+>>"%scriptFile%"	echo csTempFile.Close
+>>"%scriptFile%"	echo objFSO.DeleteFile^("%csFile%"^)
+>>"%scriptFile%"	echo objFSO.MoveFile "%csFile%" ^& ".tmp", "%csFile%"
+
+<nul set /p= ---^> Clearing passkey...
+cscript //nologo "%scriptFile%" > nul 2>&1
+if errorlevel 1 (
+	<nul set /p=Failed
+	echo(
+	call:cleanBuildFiles
+	exit /b
+) else (
+	<nul set /p=Success
+)
+echo(
+
+<nul set /p= ---^> Passkey cleaner...
+del "%scriptFile%" > nul 2>&1
 call:checkErrors
 
 echo(
