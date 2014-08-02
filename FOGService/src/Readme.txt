@@ -3,6 +3,8 @@
 *Don't require NSIS to be in the PATH variable
 ==============================
 
+
+
 =========Initial Setup========
 Before using Compile.cmd ensure you have:
 *NSIS v2.46 installed (http://nsis.sourceforge.net/Download 32 or 64 bit)
