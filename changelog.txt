@@ -5,6 +5,7 @@ tasking is created, get closed and not properly closing the actual deployed
 task.
 * Fix proxy information to NOT proxy storage node internalized Storage Node
 information.
+* Just working towards better implementation between svn and git.
 * Add installer files from David Fear to fog to allow FOG Installation on
 Arch Linux.
 
