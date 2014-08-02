@@ -330,6 +330,46 @@ writeImageMultiCast()
 	fi
 }
 
+# $1 = DriveName  (e.g. /dev/sdb)
+# $2 = DriveNumber  (e.g. 1)
+# $3 = ImagePath  (e.g. /net/foo)
+getValidRestorePartitions() 
+{
+	local drive="$1";
+	local driveNum="$2";
+	local imagePath="$3";
+	local valid_parts="";
+	local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
+	local diskLength=`expr length $drive`;
+	local part="";
+	local partNum="";
+	local imgpart="";
+	for part in $parts; do
+		partNum=${part:$diskLength};
+		imgpart="$imagePath/d${driveNum}p${partNum}.img*";
+		if [ -f $imgpart ]; then
+			valid_parts="$valid_parts $part";
+		fi
+	done
+	echo $valid_parts;
+}
+
+# $1 = DriveName  (e.g. /dev/sdb)
+# $2 = DriveNumber  (e.g. 1)
+# $3 = ImagePath  (e.g. /net/foo)
+makeAllSwapSystems() 
+{
+	local drive="$1";
+	local driveNum="$2";
+	local imagePath="$3";
+	local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
+	local part="";
+	
+	for part in $parts; do
+		makeSwapSystem "${imagePath}/d${driveNum}.original.swapuuids" "$part";
+	done
+}
+
 changeHostname()
 {
 	if [ "$hostearly" == "1" ]; then
