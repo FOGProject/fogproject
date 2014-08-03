@@ -43,7 +43,7 @@ namespace FOG
 				if(logFile.Exists)
 					logFile.Delete();
 			} catch(Exception ex) {
-				log("LOG Handler", "Failed to delete log file: " + ex.Message);
+				log("Log Handler", "Failed to delete log file: " + ex.Message);
 			}
 		}
 	}
