@@ -95,10 +95,12 @@ namespace FOG
 		}
 		
 		public void shutdown(String comment, int seconds) {
+			this.shutdownPending = true;
 			createShutdownCommand("/s /c \"" + comment + "\" /t " + seconds + "/d " + ShutdownReason.MajorApplication);
 		}
 		
 		public void restart(String comment, int seconds) {
+			this.shutdownPending = true;
 			createShutdownCommand("/r /c \"" + comment + "\" /t " + seconds + "/d " + ShutdownReason.MajorApplication);
 		}		
 		
@@ -112,6 +114,11 @@ namespace FOG
 		
 		public void lockWorkStation() {
 			LockWorkStation();
+		}
+		
+		public void abortShutdown() {
+			this.shutdownPending = false;
+			createShutdownCommand("/a");
 		}
 		
 	}
