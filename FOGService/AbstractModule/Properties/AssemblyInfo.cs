@@ -9,12 +9,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("AbstractService")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("AbstractModule")]
+[assembly: AssemblyDescription("Base module")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("FOG")]
-[assembly: AssemblyProduct("AbstractService")]
-[assembly: AssemblyCopyright("Copyright 2014 FOG")]
+[assembly: AssemblyProduct("FOG:AbstractService")]
+[assembly: AssemblyCopyright("Copyright 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

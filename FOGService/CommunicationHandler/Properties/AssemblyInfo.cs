@@ -9,11 +9,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("UserHandler")]
-[assembly: AssemblyDescription("Handle users")]
+[assembly: AssemblyTitle("CommunicationHandler")]
+[assembly: AssemblyDescription("Handle all communication with the FOG Server")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("FOG")]
-[assembly: AssemblyProduct("FOG:UserHandler")]
+[assembly: AssemblyProduct("FOG:CommunicationHandler")]
 [assembly: AssemblyCopyright("Copyright 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
