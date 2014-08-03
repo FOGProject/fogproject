@@ -1,0 +1,5 @@
+D:\fog\FOGService\bin\Debug\ShutdownHandler.dll
+D:\fog\FOGService\bin\Debug\ShutdownHandler.pdb
+D:\fog\FOGService\ShutdownHandler\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\ShutdownHandler\obj\Debug\ShutdownHandler.dll
+D:\fog\FOGService\ShutdownHandler\obj\Debug\ShutdownHandler.pdb
