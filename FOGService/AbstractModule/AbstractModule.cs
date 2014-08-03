@@ -12,15 +12,20 @@ namespace FOG
 		private String moduleName;
 		private String moduleDescription;
 		
+		//These 3 handlers should be used by almost all modules, so make the loaded by default
 		private ConfigHandler configHandler;
-		private LogHandler loghandler;
+		private LogHandler logHandler;
+		private CommunicationHandler communicationHandler;
 		
-		public AbstractModule(ConfigHandler configHandler, LogHandler logHandler) {
+		public AbstractModule(ConfigHandler configHandler, 
+		                      LogHandler logHandler,
+		                      CommunicationHandler communicationHandler) {
 			this.moduleName = "";
 			this.moduleDescription = "";
 			
 			this.configHandler = configHandler;
-			this.loghandler = logHandler;
+			this.logHandler = logHandler;
+			this.communicationHandler = communicationHandler;
 		}
 		
 		
@@ -33,10 +38,6 @@ namespace FOG
 		
 		public String getDescription() {
 			return this.moduleDescription;
-		}
-		
-		public void notify(String title, String message) {
-			
 		}
 		
 	}

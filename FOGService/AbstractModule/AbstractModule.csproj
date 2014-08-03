@@ -58,6 +58,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommunicationHandler\CommunicationHandler.csproj">
+      <Project>{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}</Project>
+      <Name>CommunicationHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ConfigHandler\ConfigHandler.csproj">
       <Project>{138A0BA4-2BAA-4C89-89C7-9B0F30F51624}</Project>
       <Name>ConfigHandler</Name>
