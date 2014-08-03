@@ -64,13 +64,13 @@
     <Compile Include="FOGService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AbstractService\AbstractService.csproj">
-      <Project>{DA390DC8-3502-42B2-8220-D52B2A64E4B7}</Project>
-      <Name>AbstractService</Name>
-    </ProjectReference>
+    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <ProjectReference Include="..\AbstractModule\AbstractModule.csproj">
+      <Project>{DA390DC8-3502-42B2-8220-D52B2A64E4B7}</Project>
+      <Name>AbstractModule</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
