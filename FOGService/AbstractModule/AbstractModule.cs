@@ -9,14 +9,31 @@ namespace FOG
 	/// </summary>
 	public abstract class AbstractModule {
 		
+		private String moduleName;
+		private String moduleDescription;
 		
-		public AbstractModule() {
+		private ConfigHandler configHandler;
+		private LogHandler loghandler;
+		
+		public AbstractModule(ConfigHandler configHandler, LogHandler logHandler) {
+			this.moduleName = "";
+			this.moduleDescription = "";
 			
+			this.configHandler = configHandler;
+			this.loghandler = logHandler;
 		}
 		
 		
 		public abstract void start();
 		public abstract void stop();
+		
+		public String getName() {
+			return this.moduleName;
+		}
+		
+		public String getDescription() {
+			return this.moduleDescription;
+		}
 		
 		
 		public Boolean isUserLoggedIn() {
@@ -26,11 +43,6 @@ namespace FOG
 		
 		public List<String> getUsersLoggedIn() {
 			return new List<String>();
-		}
-		
-		
-		public void log(String moduleName, String message) {
-			
 		}
 		
 		public void notify(String title, String message) {
@@ -47,18 +59,6 @@ namespace FOG
 		
 		public Boolean isShuttingDown() {
 			return false;
-		}
-		
-		public String getSetting(String settingID) {
-			return "";
-		}
-		
-		public String getName() {
-			return "";
-		}
-		
-		public String getDescription() {
-			return "";
 		}
 		
 	}
