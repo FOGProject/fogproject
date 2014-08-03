@@ -2,18 +2,16 @@
 using System;
 using System.ServiceProcess;
 
-namespace FOGService
+namespace FOG
 {
     static class Program
     {
         /// <summary>
-        /// The main entry point for the application.
+        /// Start the FOG Service
         /// </summary>
         static void Main()
         {
-            ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[] { new Service() };
-            ServiceBase.Run(ServicesToRun);
+            ServiceBase.Run(new FOGService());
         }
     }
 }
