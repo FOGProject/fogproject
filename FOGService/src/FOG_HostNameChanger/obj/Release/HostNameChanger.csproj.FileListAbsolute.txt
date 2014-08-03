@@ -1,5 +1,0 @@
-C:\Users\admin\Desktop\src\FOG_HostNameChanger\bin\Release\HostnameChange.dll
-C:\Users\admin\Desktop\src\FOG_HostNameChanger\bin\Release\AbstractFOGService.dll
-C:\Users\admin\Desktop\src\FOG_HostNameChanger\bin\Release\IniReaderObj.dll
-C:\Users\admin\Desktop\src\FOG_HostNameChanger\obj\Release\ResolveAssemblyReference.cache
-C:\Users\admin\Desktop\src\FOG_HostNameChanger\obj\Release\HostnameChange.dll
