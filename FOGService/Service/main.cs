@@ -4,13 +4,11 @@ using System.ServiceProcess;
 
 namespace FOG
 {
-    static class Program
-    {
+    static class Program {
         /// <summary>
         /// Start the FOG Service
         /// </summary>
-        static void Main()
-        {
+        static void Main() {
             ServiceBase.Run(new FOGService());
         }
     }
