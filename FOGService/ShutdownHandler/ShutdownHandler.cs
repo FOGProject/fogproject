@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
+using FOG;
+
 namespace FOG
 {
 	/// <summary>
@@ -13,9 +15,11 @@ namespace FOG
 	public class ShutdownHandler {
 
 		private Boolean shutdownPending;
-		
-		public ShutdownHandler() {
+		private LogHandler logHandler;
+
+		public ShutdownHandler(LogHandler logHandler) {
 			this.shutdownPending = false;
+			this.logHandler = logHandler;
 		}
 		
 		[DllImport("user32")]
@@ -96,27 +100,44 @@ namespace FOG
 		
 		public void shutdown(String comment, int seconds) {
 			this.shutdownPending = true;
+			
+			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+			               "Attemping to shutdown computer in " + seconds.ToString() + " seconds");
+			
 			createShutdownCommand("/s /c \"" + comment + "\" /t " + seconds + "/d " + ShutdownReason.MajorApplication);
 		}
 		
 		public void restart(String comment, int seconds) {
 			this.shutdownPending = true;
+			
+			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+			              "Attemping to restart computer in " + seconds.ToString() + " seconds");
+			
 			createShutdownCommand("/r /c \"" + comment + "\" /t " + seconds + "/d " + ShutdownReason.MajorApplication);
 		}		
 		
 		public void logOffUser(String comment, int seconds) {
+			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+			              "Attemping to log off user in " + seconds.ToString() + " seconds");
+			
 			createShutdownCommand("/l /c \"" + comment + "\" /t " + seconds);
 		}
 		
 		public void hibernate(String comment, int seconds) {
+			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+			              "Attemping to hibernate computer");
 			createShutdownCommand("/h" );
 		}
 		
 		public void lockWorkStation() {
+			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+			              "Attemping to lock computer");			
 			LockWorkStation();
 		}
 		
 		public void abortShutdown() {
+			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+			              "Attemping to abort shutdown");			
 			this.shutdownPending = false;
 			createShutdownCommand("/a");
 		}
