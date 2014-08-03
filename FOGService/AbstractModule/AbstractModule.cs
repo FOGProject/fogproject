@@ -35,30 +35,8 @@ namespace FOG
 			return this.moduleDescription;
 		}
 		
-		
-		public Boolean isUserLoggedIn() {
-			return getUsersLoggedIn().Count > 0;
-		}
-		
-		
-		public List<String> getUsersLoggedIn() {
-			return new List<String>();
-		}
-		
 		public void notify(String title, String message) {
 			
-		}
-		
-		public Dictionary<String,String> contactFOG(String postFix) {
-			return new Dictionary<String,String>();
-		}
-		
-		public void shutdown(Boolean restart) {
-			
-		}
-		
-		public Boolean isShuttingDown() {
-			return false;
 		}
 		
 	}
