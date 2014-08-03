@@ -29,7 +29,6 @@ namespace FOG
 			this.returnMessages.Add("#!nh", "Module is diabled on the host");
 			this.returnMessages.Add("#!um", "Unknown module ID");
 			this.returnMessages.Add("#!er", "General Error");
-			this.returnMessages.Add("#!er", "General Error");
 			
 		}
 		
