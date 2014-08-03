@@ -2,6 +2,7 @@
 using System.IO;
 using System.Management;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Net;
 using System.Runtime.InteropServices;
@@ -9,7 +10,7 @@ using System.Diagnostics;
 using IniReaderObj;
 using System.Net.NetworkInformation;
 
-namespace AbstractService
+namespace FOG
 {
 	/// <summary>
 	/// Provide basic methods to FOG Serverice modules
@@ -22,10 +23,7 @@ namespace AbstractService
 		public const int STATUS_TASKCOMPLETE = 2;
 		public const int STATUS_FAILED = -1;
 		
-		[DllImport("user32.dll")]
-		private static extern bool SetForegroundWindow(IntPtr hWnd);
-		[DllImport("user32.dll")]
-		private static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+		//Import DLL methods
 		[DllImport("user32.dll")]
 		private static extern bool IsIconic(IntPtr hWnd);
 		[DllImport("user32.dll", ExactSpelling = true, SetLastError = true)]
@@ -108,67 +106,51 @@ namespace AbstractService
 		internal const int TOKEN_QUERY = 0x00000008;
 		internal const int TOKEN_ADJUST_PRIVILEGES = 0x00000020;
 		internal const string SE_SHUTDOWN_NAME = "SeShutdownPrivilege";
-
-		private const int SW_HIDE = 0;
-		private const int SW_SHOWNORMAL = 1;
-		private const int SW_SHOWMINIMIZED = 2;
-		private const int SW_SHOWMAXIMIZED = 3;
-		private const int SW_SHOWNOACTIVATE = 4;
-		private const int SW_RESTORE = 9;
-		private const int SW_SHOWDEFAULT = 10;
 		
-				protected IniReader ini;
+		
+		protected IniReader ini;
 		private String strLogPath = @".\fog.log";
 		private long maxLogSize = 0;
+		private Boolean notificationsEnabled = false;
 
-		private static ArrayList alMessages;
+		private static List<Notification> notifications;
 
-		public abstract void mStart();
+		public abstract void start();
 
-		public abstract Boolean mStop();
+		public abstract Boolean stop();
 
-		public abstract int mGetStatus();
+		public abstract int getStatus();
 
-		public abstract String mGetDescription();
+		public abstract String getDescription();
 
-		public void pushMessage(String strMessage)
+		public abstract String getName();
+
+		public void pushMessage(String title, String msg)
 		{
-			// Only allow visual messages if the ini
-			// says its OK.
+			// Only allow visual messages if the ini  says it is OK
 
-			Boolean addMessage = false;
-			if (ini != null)
-			{
-				if (ini.isFileOk())
-				{
-					if (ini.readSetting("fog_service", "guienabled") == "1")
-						addMessage = true;
-				}
-			}
+			
+			if (notifications == null)
+				notifications = new List<Notification>();
 
-			if (alMessages == null)
-				alMessages = new ArrayList();
-
-			if (addMessage)
-			{
-				// Only allow 10 messages in queue
-				// This prevents the queue from backing up if the
-				// GUIWatcher Fails or gets deleted
-				if ( alMessages.Count < 11 )
-					alMessages.Add(strMessage);
-			}
+			// Only allow 10 messages in queue
+			// This prevents the queue from backing up
+			if (notifications.Count < 11  && notificationsEnabled)
+				notifications.Add(new Notification(title, msg));
 		}
+	
+
 
 		public Boolean hasMessages()
 		{
-			return (alMessages != null && alMessages.Count > 0);
+			return (notifications != null && notifications.Count > 0);
 		}
 
-		public void setINIReader(IniReader i)
+		public void setINIReader(IniReader ini)
 		{
-			this.ini = i;
-			strLogPath = ini.readSetting("fog_service", "logfile");
-			String strMaxSize = ini.readSetting("fog_service", "maxlogsize");
+			this.ini = ini;
+			strLogPath = this.ini.readSetting("fog_service", "logfile");
+			String strMaxSize = this.ini.readSetting("fog_service", "maxlogsize");
 			long output;
 			if (long.TryParse(strMaxSize, out output))
 			{
@@ -176,33 +158,28 @@ namespace AbstractService
 				{
 					maxLogSize = long.Parse(strMaxSize);
 				}
-				catch (Exception)
-				{ }
+				catch (Exception) { }
 			}
+			if (ini.readSetting("fog_service", "notificationsEnabled") == "1")
+				notificationsEnabled = true;
 		}
 
-		public void log(String moduleName, String strlog)
+		public void log(String moduleName, String logFilePath)
 		{
-			StreamWriter objReader;
-			try
-			{
-				if (maxLogSize > 0 && strLogPath != null && strLogPath.Length > 0)
+			StreamWriter logWriter;
+			try {
+				if (maxLogSize > 0 && logFilePath != null)
 				{
-					FileInfo f = new FileInfo(strLogPath);
-					if (f.Exists && f.Length > maxLogSize)
-					{
-						f.Delete();
-					}
+					FileInfo logFile = new FileInfo(logFilePath);
+					if (logFile.Exists && logFile.Length > maxLogSize)
+						logFile.Delete();
 
-					objReader = new StreamWriter(strLogPath, true);
-					objReader.WriteLine(" " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " " + moduleName + " " + strlog);
-					objReader.Close();
+					logWriter = new StreamWriter(logFilePath, true);
+					logWriter.WriteLine(" " + DateTime.Now.ToShortDateString() + " " + 
+					                    DateTime.Now.ToShortTimeString() + " " + moduleName + " " + logFilePath);
+					logWriter.Close();
 				}
-			}
-			catch
-			{
-
-			}			
+			} catch { }			
 		}
 
 		public String getDateTime()
@@ -249,54 +226,54 @@ namespace AbstractService
 			
 		}
 
-		public void unmanagedExitWindows(ExitWindows flag)
+		private Boolean unmanagedExitWindows(ExitWindows flag)
 		{
-
-			bool blOK;
+			
 			TokPriv1Luid tp;
 			IntPtr hproc = GetCurrentProcess();
 			IntPtr htok = IntPtr.Zero;
-			blOK = OpenProcessToken(hproc, TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, ref htok);
+			
+			OpenProcessToken(hproc, TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, ref htok);
+			
 			tp.Count = 1;
 			tp.Luid = 0;
 			tp.Attr = SE_PRIVILEGE_ENABLED;
-			blOK = LookupPrivilegeValue(null, SE_SHUTDOWN_NAME, ref tp.Luid);
-			blOK = AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero);
-			blOK = ExitWindowsEx(flag, ShutdownReason.MinorOther);
-		
+			
+			LookupPrivilegeValue(null, SE_SHUTDOWN_NAME, ref tp.Luid);
+			AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero);
+			
+			return ExitWindowsEx(flag, ShutdownReason.MinorOther);
 		}
 
 		public void shutdownComputer()
 		{
-			
 			ManagementClass W32_OS = new ManagementClass("Win32_OperatingSystem");
 			ManagementBaseObject inParams, outParams;
-			int result;
 			W32_OS.Scope.Options.EnablePrivileges = true;
-			Boolean blActionAttempted = false;
-			foreach (ManagementObject obj in W32_OS.GetInstances())
-			{
-				blActionAttempted = true;
+			Boolean shutdownAttempted = false;
+			int shutdownResult = 0;
+			
+			//Attempt to perform a managed shutdown
+			foreach (ManagementObject obj in W32_OS.GetInstances()) {
+				shutdownAttempted = true;
 				inParams = obj.GetMethodParameters("Win32Shutdown");
 				inParams["Flags"] = ShutDown.ForcedShutdown;
 				inParams["Reserved"] = 0;
 				outParams = obj.InvokeMethod("Win32Shutdown", inParams, null);
-				result = Convert.ToInt32(outParams["returnValue"]);
-				if (result != 0)
-				{
-					log("FOG Service", "Mananged shutdown method failed, attempting unmanaged api call.");
-					unmanagedExitWindows(ExitWindows.ShutDown | ExitWindows.Force);
-				}
+				shutdownResult = Convert.ToInt32(outParams["returnValue"]);
 			}
 
-			if (!blActionAttempted)
-				unmanagedExitWindows(ExitWindows.ShutDown | ExitWindows.Force);
+			//If a managed shutdown fails, try and perform an unmanaged one
+			if (!shutdownAttempted || shutdownResult == 0) {
+				log(getName(), "Mananged shutdown method failed, attempting unmanaged api call.");
+				if(!unmanagedExitWindows(ExitWindows.ShutDown | ExitWindows.Force));
+					log(getName(), "Unmanaged shutdown method failed");
+			}
 		}
 
 		public Boolean isLoggedIn()
 		{
-			String[] uname = getAllUsers();
-			return (uname != null && uname.Length > 0 );
+			return getAllUsers().Count > 0;
 		}
 
 		public String getHostName()
@@ -304,79 +281,57 @@ namespace AbstractService
 			return System.Environment.MachineName;
 		}
 
-		public ArrayList getIPAddress()
+		public String getIPAddress()
 		{
-			ArrayList arIPs = new ArrayList();
-			try
-			{
-				String strHost = null;
-				strHost = Dns.GetHostName();
+			String ipAddress = "";
+			try {
+				String hostName = Dns.GetHostName();
 
-				IPHostEntry ip = Dns.GetHostEntry(strHost);
-				IPAddress[] ipAddys = ip.AddressList;
+				IPHostEntry ip = Dns.GetHostEntry(hostName);
 
-				if (ipAddys.Length > 0)
-					arIPs.Add(ipAddys[0].ToString());
+				if (ip.AddressList.Length > 0)
+					ipAddress = ip.AddressList[0].ToString();
+			} catch (Exception ex) {
+				log(getName(), "Error getting ip addresses: " + ex.Message);
 			}
-			catch
-			{ }
-			return arIPs;
+			return ipAddress;
 		}
 
-		public ArrayList getMacAddress()
+		public List<String> getMacAddress()
 		{
-            // Variables
-            ArrayList alMacs = new ArrayList();
-			
-			try
-			{
-				// Get all network interaces
+            List<String> macs = new List<String>();
+			try {
 				NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
 				
-				// Iterate all network interaces
-				foreach (NetworkInterface adapter in adapters)
-				{
-					// Get IP Properties
+				foreach (NetworkInterface adapter in adapters) {
 					IPInterfaceProperties properties = adapter.GetIPProperties();
-					
-					// Push MAC address into array
-					alMacs.Add( adapter.GetPhysicalAddress().ToString() );
+					macs.Add( adapter.GetPhysicalAddress().ToString() );
 				}
-			}
-			catch (Exception e)
-			{
-				log("FOG Service", e.Message);
+				
+			} catch (Exception ex) {
+				log(getName(), "Error getting MAC addresses: " + ex.Message);
 			}
 			
-			return alMacs;
+			return macs;
 		}
 
-		public String[] getAllUsers()
+		public List<String> getAllUsers()
 		{
-			ArrayList alUsers = new ArrayList();
-			try
-			{
+			List<String> users = new List<String>();
+			try {
+				ManagementObjectSearcher searcher = new ManagementObjectSearcher("root\\CIMV2", 
+				                                                                 "SELECT * FROM Win32_ComputerSystem");
 
-				try
+				foreach (ManagementObject queryObj in searcher.Get())
 				{
-					ManagementObjectSearcher searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_ComputerSystem");
-
-					foreach (ManagementObject queryObj in searcher.Get())
-					{
-						alUsers.Add( queryObj["UserName"].ToString() );
-					}
+					users.Add( queryObj["UserName"].ToString() );
 				}
-				catch
-				{
-					return null;
-				}
-
+				
+			} catch (Exception ex) {
+				log(getName(), "Error geetting all users: " + ex.Message);
 			}
-			catch
-			{
-				return null;
-			}
-			return (String[])(alUsers.ToArray(typeof(String)));
+			
+			return users;
 		}
 		
 	}
