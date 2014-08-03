@@ -1,0 +1,5 @@
+D:\fog\FOGService\ConfigHandler\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\bin\Debug\ConfigHandler.dll
+D:\fog\FOGService\bin\Debug\ConfigHandler.pdb
+D:\fog\FOGService\ConfigHandler\obj\Debug\ConfigHandler.dll
+D:\fog\FOGService\ConfigHandler\obj\Debug\ConfigHandler.pdb

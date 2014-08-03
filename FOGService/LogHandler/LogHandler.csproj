@@ -1,16 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
-    <ProjectGuid>{DA390DC8-3502-42B2-8220-D52B2A64E4B7}</ProjectGuid>
+    <ProjectGuid>{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
     <RootNamespace>FOG</RootNamespace>
-    <AssemblyName>AbstractModule</AssemblyName>
+    <AssemblyName>LogHandler</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <NoWin32Manifest>False</NoWin32Manifest>
+    <SignAssembly>False</SignAssembly>
+    <DelaySign>False</DelaySign>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
@@ -53,19 +56,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbstractModule.cs" />
-    <Compile Include="Notification.cs" />
+    <Compile Include="LogHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ConfigHandler\ConfigHandler.csproj">
-      <Project>{138A0BA4-2BAA-4C89-89C7-9B0F30F51624}</Project>
-      <Name>ConfigHandler</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LogHandler\LogHandler.csproj">
-      <Project>{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}</Project>
-      <Name>LogHandler</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
