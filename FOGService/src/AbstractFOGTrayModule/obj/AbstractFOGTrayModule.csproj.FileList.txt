@@ -1,6 +1,0 @@
-obj\Release\ResolveAssemblyReference.cache
-obj\Debug\ResolveAssemblyReference.cache
-bin\Release\AbstractFOGTrayModule.dll
-bin\Release\AbstractFOGTrayModule.pdb
-obj\Release\AbstractFOGTrayModule.dll
-obj\Release\AbstractFOGTrayModule.pdb

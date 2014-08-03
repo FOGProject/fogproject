@@ -1,7 +1,0 @@
-obj\Debug\ResolveAssemblyReference.cache
-bin\Release\SnapinClient.dll
-bin\Release\AbstractFOGService.dll
-bin\Release\IniReaderObj.dll
-obj\Debug\SnapinClient.dll
-obj\Release\ResolveAssemblyReference.cache
-obj\Release\SnapinClient.dll
