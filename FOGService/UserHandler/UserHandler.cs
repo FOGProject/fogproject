@@ -10,6 +10,12 @@ namespace FOG
 	/// </summary>
 	public class UserHandler
 	{
+		private LogHandler logHandler;
+		
+		public UserHandler(LogHandler logHandler) {
+			this.logHandler = logHandler;
+		}
+		
 		public Boolean isUserLoggedIn(LogHandler logHandler) {
 			return getUsersLoggedIn(logHandler).Count > 0;
 		}
@@ -25,7 +31,8 @@ namespace FOG
 				}
 				
 			} catch (Exception ex) {
-				logHandler.log("User Handler", "Error geetting all users: " + ex.Message);
+				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+			              "Error geetting all users: " + ex.Message);
 			}
 			
 			return users;
