@@ -30,6 +30,18 @@ namespace FOG
 			return parseResponse(this.webClient.DownloadString(this.serverAddress + postfix));
 		}
 		
+		public Boolean contact(String postfix) {
+			try {
+				this.webClient.DownloadString(this.serverAddress + postfix);
+				return true;
+				
+			} catch (Exception ex) {
+				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				              "Error contacting FOG: " + ex.Message);
+			}
+			return false;
+		}
+		
 		private Response parseResponse(String rawResponse) {
 			
 			String[] data = rawResponse.Split('\n'); //Split the response at every new line
@@ -65,8 +77,14 @@ namespace FOG
 		
 		public Boolean downloadFile(String postfix, String fileName) {
 			try {
+				if(!Directory.Exists(Path.GetDirectoryName(fileName))) {
+					Directory.CreateDirectory(Path.GetDirectoryName(fileName));
+				}
+				
 				this.webClient.DownloadFile(this.serverAddress + postfix, fileName);
-				return true;
+				
+				if(File.Exists(fileName))
+					return true;
 			} catch (Exception ex) {
 				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 				               "Failed to download: " + this.serverAddress + postfix);

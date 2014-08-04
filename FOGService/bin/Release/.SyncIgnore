@@ -1,0 +1,13 @@
+# .SyncIgnore is a UTF-8 encoded .txt file that helps you specify single files, paths and rules 
+# for ignoring during the synchronization job. It supports "?" and "*" wildcard symbols.
+#
+#
+# OS generated files #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+desktop.ini
+Thumbs.db

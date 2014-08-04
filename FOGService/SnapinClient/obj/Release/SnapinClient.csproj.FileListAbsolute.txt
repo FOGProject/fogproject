@@ -1,0 +1,3 @@
+D:\fog\FOGService\SnapinClient\obj\Release\ResolveAssemblyReference.cache
+D:\fog\FOGService\bin\Release\SnapinClient.dll
+D:\fog\FOGService\SnapinClient\obj\Release\SnapinClient.dll
