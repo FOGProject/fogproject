@@ -61,10 +61,6 @@
       <Project>{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}</Project>
       <Name>CommunicationHandler</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ConfigHandler\ConfigHandler.csproj">
-      <Project>{138A0BA4-2BAA-4C89-89C7-9B0F30F51624}</Project>
-      <Name>ConfigHandler</Name>
-    </ProjectReference>
     <ProjectReference Include="..\LogHandler\LogHandler.csproj">
       <Project>{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}</Project>
       <Name>LogHandler</Name>

@@ -45,9 +45,6 @@
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IniReaderObj">
-      <HintPath>..\IniReaderObj.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -70,10 +67,6 @@
     <ProjectReference Include="..\AbstractModule\AbstractModule.csproj">
       <Project>{DA390DC8-3502-42B2-8220-D52B2A64E4B7}</Project>
       <Name>AbstractModule</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ConfigHandler\ConfigHandler.csproj">
-      <Project>{138A0BA4-2BAA-4C89-89C7-9B0F30F51624}</Project>
-      <Name>ConfigHandler</Name>
     </ProjectReference>
     <ProjectReference Include="..\LogHandler\LogHandler.csproj">
       <Project>{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}</Project>
