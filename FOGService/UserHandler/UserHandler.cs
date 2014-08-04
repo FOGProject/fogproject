@@ -16,11 +16,11 @@ namespace FOG
 			this.logHandler = logHandler;
 		}
 		
-		public Boolean isUserLoggedIn(LogHandler logHandler) {
-			return getUsersLoggedIn(logHandler).Count > 0;
+		public Boolean isUserLoggedIn() {
+			return getUsersLoggedIn().Count > 0;
 		}
 		
-		public List<String> getUsersLoggedIn(LogHandler logHandler) {
+		public List<String> getUsersLoggedIn() {
 			List<String> users = new List<String>();
 			try {
 				ManagementObjectSearcher searcher = new ManagementObjectSearcher("root\\CIMV2", 
