@@ -25,6 +25,8 @@ namespace FOG
 			this.returnMessages.Add("#!ok", "Success");
 			this.returnMessages.Add("#!db", "Database error");
 			this.returnMessages.Add("#!im", "Invalid MAC address format");
+			this.returnMessages.Add("#!ih", "Invalid host");		
+			this.returnMessages.Add("#!it", "Invalid task");				
 			this.returnMessages.Add("#!ng", "Module is disabled globablly on the FOG Server");
 			this.returnMessages.Add("#!nh", "Module is diabled on the host");
 			this.returnMessages.Add("#!um", "Unknown module ID");
