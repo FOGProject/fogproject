@@ -57,6 +57,7 @@ namespace FOG
 		private void initializeModules() {
 			this.modules = new List<AbstractModule>();
 			this.modules.Add(new TaskReboot(communicationHandler, logHandler, notificationHandler, shutdownHander, userHandler));
+			this.modules.Add(new SnapinClient(communicationHandler, logHandler, notificationHandler, shutdownHander, userHandler));
 		}
 
 		//Loop through all modules and attempt to start them
