@@ -20,10 +20,12 @@ namespace FOG
 	/// Coordinate all FOG modules
 	/// </summary>
 	public partial class FOGService  : ServiceBase {
+		//Define variables
 		private Thread threadManager;
 		private List<AbstractModule> modules;
-		private List<Thread> moduleThreads;
+		private List<Thread> moduleThreads; //TODO remove this variable if it is never used
 		
+		//Define handlers
 		private CommunicationHandler communicationHandler;
 		private LogHandler logHandler;
 		private NotificationHandler notificationHandler;
@@ -31,6 +33,7 @@ namespace FOG
 		private UserHandler userHandler;
         
 		public FOGService() {
+			//Initialize everything
 			initializeHandlers();
 			initializeModules();
 			this.threadManager = new Thread(new ThreadStart(startModules));
@@ -39,13 +42,13 @@ namespace FOG
 		protected override void OnStart(string[] args) {
 			this.threadManager.Priority = ThreadPriority.Normal;
 			this.threadManager.IsBackground = true;
-			this.threadManager.Name = "FOG Service";
+			this.threadManager.Name = "FOG Service"; //TODO change this to FOGService (need old format for current testing system)
 			this.threadManager.Start();
         }
 		
 		private void initializeHandlers() {
-			this.logHandler = new LogHandler(@"\fog.log", 102400);
-			this.communicationHandler = new CommunicationHandler(logHandler, "http://10.0.7.1");
+			this.logHandler = new LogHandler(@"\fog.log", 102400); //TODO make theses come from the registry
+			this.communicationHandler = new CommunicationHandler(logHandler, "http://10.0.7.1"); //TODO make this come from the registry
 			this.notificationHandler = new NotificationHandler();
 			this.shutdownHander = new ShutdownHandler(logHandler);
 			this.userHandler = new UserHandler(logHandler);
@@ -53,10 +56,10 @@ namespace FOG
 		
 		private void initializeModules() {
 			this.modules = new List<AbstractModule>();
-			this.modules.Add(new TaskReboot(communicationHandler, logHandler, notificationHandler, 
-			                                shutdownHander, userHandler));
+			this.modules.Add(new TaskReboot(communicationHandler, logHandler, notificationHandler, shutdownHander, userHandler));
 		}
 
+		//Loop through all modules and attempt to start them
 		private void startModules() {
 			foreach(AbstractModule module in modules) {
 				try {
@@ -73,6 +76,7 @@ namespace FOG
 			}
 		}
 		
+		//Loop through all modules and attempt to stop them
 		protected override void OnStop() {
 			foreach(AbstractModule module in modules) {
 				try {
