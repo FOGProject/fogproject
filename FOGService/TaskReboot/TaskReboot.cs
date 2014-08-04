@@ -29,7 +29,7 @@ namespace FOG
 				                                                                       "&moduleid=" + getName().ToLower());
 				
 				//Shutdown if a task is avaible and the user is logged out or it is forced
-				if(!taskResponse.wasError() && (!userHandler.isUserLoggedIn(logHandler) || taskResponse.getField("#force").Equals("1") )) {
+				if(!taskResponse.wasError() && (!userHandler.isUserLoggedIn() || taskResponse.getField("#force").Equals("1") )) {
 					shutdownHander.restart(getName(), 25);
 				}
 			}
