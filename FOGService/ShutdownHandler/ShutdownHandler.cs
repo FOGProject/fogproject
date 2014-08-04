@@ -14,6 +14,7 @@ namespace FOG
 	/// </summary>
 	public class ShutdownHandler {
 
+		//Define variables
 		private Boolean shutdownPending;
 		private LogHandler logHandler;
 
@@ -22,9 +23,11 @@ namespace FOG
 			this.logHandler = logHandler;
 		}
 		
+		//Load the ability to lock the computer from the native user32 dll
 		[DllImport("user32")]
 		private static extern void LockWorkStation();
 		
+		//List all possible shutdown types
 		public enum ShutDownType {
 			LogOff = 0,
 			Shutdown = 1,
@@ -36,6 +39,8 @@ namespace FOG
 			ForcedPowerOff = 12
 		}
 		
+		//List reasons for why the shutdown was called
+		//TODO shorten this list to just what is needed, no point in defining everything
 		[Flags]
 		internal enum ShutdownReason : uint {
 			MajorApplication = 0x00040000,
@@ -78,6 +83,7 @@ namespace FOG
 			FlagPlanned = 0x80000000
 		}
 		
+		//List options on how to exit windows
 		[Flags]
 		public enum ExitWindows : uint
 		{
@@ -90,12 +96,10 @@ namespace FOG
 			ForceIfHung = 0x10,
 		}
 		
+		public Boolean isShutdownPending() { return shutdownPending; }
+		
 		private void createShutdownCommand(String parameters) {
 			Process.Start("shutdown", parameters);
-		}
-		
-		public Boolean isShutdownPending() {
-			return shutdownPending;
 		}
 		
 		public void shutdown(String comment, int seconds) {

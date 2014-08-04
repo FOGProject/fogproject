@@ -7,6 +7,7 @@ namespace FOG
 	/// Store neccesary notification information
 	/// </summary>
 	public class Notification {
+		//Define variables
 		private String title;
 		private String message;
 		private int duration;
@@ -17,16 +18,10 @@ namespace FOG
 			this.duration = duration;
 		}
 		
-		public String getTitle() {
-			return this.title;
-		}
+		public String getTitle() { return this.title; }
 		
-		public String getMessage() {
-			return this.message;
-		}
+		public String getMessage() { return this.message; }
 		
-		public int getDuration() {
-			return duration;
-		}
+		public int getDuration() { return duration; }
 	}
 }

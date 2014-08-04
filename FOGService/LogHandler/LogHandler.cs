@@ -10,6 +10,7 @@ namespace FOG
 	/// </summary>
 	public class LogHandler
 	{
+		//Define variables
 		private String filePath;
 		private long maxLogSize;
 		
