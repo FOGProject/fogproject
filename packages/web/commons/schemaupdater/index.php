@@ -1401,6 +1401,11 @@ $databaseSchema[] = array(
 $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME . "`.`os` (`osID`, `osName`, `osDescription`) VALUES ('8', 'Apple Mac OS', '')",
 );
+// 115
+$databaseSchema[] = array(
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_TASK_FORCE_REBOOT','This setting enables or disables the Force reboot of tasks.  This only affects if users are logged in. If users are logged in, the host will not reboot if this is disabled.','0','FOG Service - Task Reboot')",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";

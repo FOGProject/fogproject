@@ -469,6 +469,7 @@ class FOGConfigurationPage extends FOGPage
 			'FOG_MINING_FULL_RUN_ON_WEEKEND',
 			'FOG_ALWAYS_LOGGED_IN',
 			'FOG_ADVANCED_MENU_LOGIN',
+			'FOG_TASK_FORCE_REBOOT',
 		);
 		// Set title
 		$this->title = _("FOG System Settings");
