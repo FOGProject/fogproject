@@ -36,6 +36,7 @@ namespace FOG
 			//Initialize everything
 			initializeHandlers();
 			initializeModules();
+			this.moduleThreads = new List<Thread>();
 			this.threadManager = new Thread(new ThreadStart(startModules));
 		}
 		
@@ -72,7 +73,9 @@ namespace FOG
 					moduleThreads.Add(moduleThread);
 				} catch (Exception ex) {
 					logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
-					               "Failed to start " + module.getName() + ", ERROR: " + ex.Message);
+					               "Failed to start " + module.getName());
+					logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+					               "ERROR: " + ex.Message);
 				}
 			}
 		}

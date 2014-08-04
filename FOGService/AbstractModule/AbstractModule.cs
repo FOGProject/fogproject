@@ -40,7 +40,7 @@ namespace FOG
 			setName("Generic Module");
 			setDescription("Generic Description");
 			setStatus(Status.Stopped);
-			setDefaultSleepDuration(320);
+			setDefaultSleepDuration(60);
 			setSleepDuration(getDefaultSleepDuration());
 			setIsActiveURL("/fog/service/servicemodule-active.php");
 

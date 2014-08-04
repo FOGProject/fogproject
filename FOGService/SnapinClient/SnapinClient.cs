@@ -19,8 +19,9 @@ namespace FOG {
 		}
 		
 		protected override void doWork() {
+			logHandler.log(getName(), "----------------------------------");
+			logHandler.log(getName(), "Running...");
 			if(isEnabled()) {
-			
 				//Get task info
 				Response taskResponse = communicationHandler.getResponse("/fog/service/snapins.checkin.php.php?mac=" +
 				                                                         communicationHandler.getMacAddresses());
@@ -57,6 +58,8 @@ namespace FOG {
 					                             "&exitcode=" + exitCode);
 					
 				}
+			} else {
+				logHandler.log(getName(), "Disabled on server");
 			}
 			
 		}

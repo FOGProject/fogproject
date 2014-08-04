@@ -21,8 +21,10 @@ namespace FOG
 		}
 		
 		protected override void doWork() {
-			if(isEnabled()) {
+			logHandler.log(getName(), "----------------------------------");
+			logHandler.log(getName(), "Running...");
 			
+			if(isEnabled()) {
 				//Get task info
 				Response taskResponse = communicationHandler.getResponse("/fog/service/jobs.php?mac=" +
 				                                                         communicationHandler.getMacAddresses());
@@ -31,6 +33,8 @@ namespace FOG
 				if(!taskResponse.wasError() && (!userHandler.isUserLoggedIn() || taskResponse.getField("#force").Equals("1") )) {
 					shutdownHander.restart(getName(), 30);
 				}
+			} else {
+				logHandler.log(getName(), "Disabled on server");
 			}
 			
 		}
