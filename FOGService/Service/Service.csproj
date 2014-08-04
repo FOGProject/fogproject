@@ -68,9 +68,25 @@
       <Project>{DA390DC8-3502-42B2-8220-D52B2A64E4B7}</Project>
       <Name>AbstractModule</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CommunicationHandler\CommunicationHandler.csproj">
+      <Project>{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}</Project>
+      <Name>CommunicationHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LogHandler\LogHandler.csproj">
       <Project>{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}</Project>
       <Name>LogHandler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NotificationHandler\NotificationHandler.csproj">
+      <Project>{717A8C0E-32F9-498C-BC51-FC03D0009248}</Project>
+      <Name>NotificationHandler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ShutdownHandler\ShutdownHandler.csproj">
+      <Project>{D0C42FA3-B494-4FA7-92CB-50D7C2E05383}</Project>
+      <Name>ShutdownHandler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UserHandler\UserHandler.csproj">
+      <Project>{1759DEAE-2585-4324-9F85-338BE0F755BF}</Project>
+      <Name>UserHandler</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
