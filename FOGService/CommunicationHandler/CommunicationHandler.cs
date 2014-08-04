@@ -30,6 +30,7 @@ namespace FOG
 			this.returnMessages.Add("#!it", "Invalid task");				
 			this.returnMessages.Add("#!ng", "Module is disabled globablly on the FOG Server");
 			this.returnMessages.Add("#!nh", "Module is diabled on the host");
+			this.returnMessages.Add("#!ns", "No Snapin Tasks found for this host");
 			this.returnMessages.Add("#!um", "Unknown module ID");
 			this.returnMessages.Add("#!er", "General Error");
 			
