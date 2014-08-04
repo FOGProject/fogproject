@@ -21,9 +21,10 @@ namespace FOG
 		public void log(String moduleName, String message) {
 			StreamWriter logWriter;
 			FileInfo logFile = new FileInfo(this.filePath);
+			
 					
 			//Delete the log file if it excedes the max log size
-			if (logFile.Length > maxLogSize)
+			if (logFile.Exists && logFile.Length > maxLogSize)
 				cleanLog();
 			
 			try {
@@ -40,8 +41,7 @@ namespace FOG
 		private void cleanLog() {
 			try {
 				FileInfo logFile = new FileInfo(this.filePath);
-				if(logFile.Exists)
-					logFile.Delete();
+				logFile.Delete();
 			} catch(Exception ex) {
 				log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 				    "Failed to delete log file: " + ex.Message);
