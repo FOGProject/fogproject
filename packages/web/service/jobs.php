@@ -17,7 +17,7 @@ try
 		throw new Exception('#nj');
 	else
 	{
-		print '#!ok';
+		print "#!ok\n";
 		print '#force='.$FOGCore->getSetting('FOG_TASK_FORCE_REBOOT');
 	}
 }
