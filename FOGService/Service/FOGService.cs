@@ -29,7 +29,6 @@ namespace FOG
 		private NotificationHandler notificationHandler;
 		private ShutdownHandler shutdownHander;
 		private UserHandler userHandler;
-		//Create an instance of each handler so all modules share the same one
         
 		public FOGService() {
 			initializeHandlers();
@@ -40,19 +39,22 @@ namespace FOG
 		protected override void OnStart(string[] args) {
 			this.threadManager.Priority = ThreadPriority.Normal;
 			this.threadManager.IsBackground = true;
-			this.threadManager.Name = "FOGService";
+			this.threadManager.Name = "FOG Service";
 			this.threadManager.Start();
         }
 		
 		private void initializeHandlers() {
-			this.logHandler = new LogHandler(@".\fog.log", 102400);
-			this.communicationHandler = new CommunicationHandler(logHandler, "IP_ADDRESS");
+			this.logHandler = new LogHandler(@"\fog.log", 102400);
+			this.communicationHandler = new CommunicationHandler(logHandler, "http://10.0.7.1");
 			this.notificationHandler = new NotificationHandler();
 			this.shutdownHander = new ShutdownHandler(logHandler);
 			this.userHandler = new UserHandler(logHandler);
 		}
 		
 		private void initializeModules() {
+			this.modules = new List<AbstractModule>();
+			this.modules.Add(new TaskReboot(communicationHandler, logHandler, notificationHandler, 
+			                                shutdownHander, userHandler));
 		}
 
 		private void startModules() {
@@ -64,10 +66,9 @@ namespace FOG
 					moduleThread.Start();
 					
 					moduleThreads.Add(moduleThread);
-					
 				} catch (Exception ex) {
 					logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
-					               "Failed to stop " + module.getName() + ", ERROR: " + ex.Message);
+					               "Failed to start " + module.getName() + ", ERROR: " + ex.Message);
 				}
 			}
 		}

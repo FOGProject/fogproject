@@ -11,21 +11,35 @@ namespace FOG
 		
 		private String moduleName;
 		private String moduleDescription;
+		private Status status;
+		private String checkIfEnabledURL;
+		private int defaultSleepDuration;
+		private int sleepDuration;
 		
-		private CommunicationHandler communicationHandler;
-		private LogHandler logHandler;
-		private NotificationHandler notificationHandler;
-		private ShutdownHandler shutdownHander;
-		private UserHandler userHandler;
+		protected CommunicationHandler communicationHandler;
+		protected LogHandler logHandler;
+		protected NotificationHandler notificationHandler;
+		protected ShutdownHandler shutdownHander;
+		protected UserHandler userHandler;
 		
-		public AbstractModule(CommunicationHandler communicationHandler,
+		public enum Status {
+			Running = 1,
+			Stopped = 0
+		}
+		
+		protected AbstractModule(CommunicationHandler communicationHandler,
 		                      LogHandler logHandler,
 		                      NotificationHandler notificationHandler,
 		                      ShutdownHandler shutdownHander,
-		                      UserHandler userHandler ) {
+		                      UserHandler userHandler) {
+			
 			this.moduleName = "";
 			this.moduleDescription = "";
-			
+			this.status = Status.Stopped;
+			this.defaultSleepDuration = 320;
+			this.sleepDuration = this.defaultSleepDuration;
+			this.checkIfEnabledURL = "/fog/service/servicemodule-active.php";
+
 			this.communicationHandler = communicationHandler;
 			this.logHandler = logHandler;
 			this.notificationHandler = notificationHandler;
@@ -33,9 +47,37 @@ namespace FOG
 			this.userHandler = userHandler;
 		}
 		
+		protected abstract void doWork();
 		
-		public abstract void start();
-		public abstract void stop();
+		public virtual void start() {
+			logHandler.log(getName(), "Starting...");
+			setStatus(Status.Running);
+			
+			while(getStatus().Equals(Status.Running)) {
+				doWork();
+			
+				logHandler.log(getName(), "Sleeping for " + this.sleepDuration.ToString() + " seconds");
+				System.Threading.Thread.Sleep(getSleepDuration() * 1000);
+			}
+		}
+		
+		public virtual void stop() {
+			logHandler.log(getName(), "Stopping...");
+			setStatus(Status.Stopped);
+		}
+
+		
+		protected void setName(String name) {
+			this.moduleName = name;
+		}
+
+		protected void setDescription(String description) {
+			this.moduleDescription = description;
+		}
+		
+		protected void setStatus(Status status) {
+			this.status = status;
+		}
 		
 		public String getName() {
 			return this.moduleName;
@@ -43,6 +85,42 @@ namespace FOG
 		
 		public String getDescription() {
 			return this.moduleDescription;
+		}
+		
+		public Status getStatus() {
+			return this.status;
+		}
+		
+		public int getDefaultSleepDuration() {
+			return this.defaultSleepDuration;
+		}
+	
+		public int getSleepDuration() {
+			return this.sleepDuration;
+		}
+		
+		protected void setSleepDuration(int sleepDuration) {
+			this.sleepDuration = sleepDuration;
+		}	
+		
+		public Boolean isEnabled() {
+			
+			Response moduleActiveResponse = communicationHandler.getResponse(checkIfEnabledURL + "?mac=" + communicationHandler.getMacAddresses() +
+			                                 								"&moduleid=" + getName().ToLower());
+			
+			//Update the sleep duration between cycles
+			if(!moduleActiveResponse.getField("#sleep").Equals("")) {
+				try {
+					setSleepDuration(int.Parse(moduleActiveResponse.getField("#sleep")));
+				} catch {
+					logHandler.log(getName(), "Could not parse how long to sleep, using default value");
+					setSleepDuration(getDefaultSleepDuration());
+				}
+			} else {
+				setSleepDuration(getDefaultSleepDuration());
+			}
+			
+			return !moduleActiveResponse.wasError();
 		}
 		
 	}

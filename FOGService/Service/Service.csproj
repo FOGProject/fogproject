@@ -84,6 +84,10 @@
       <Project>{D0C42FA3-B494-4FA7-92CB-50D7C2E05383}</Project>
       <Name>ShutdownHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TaskReboot\TaskReboot.csproj">
+      <Project>{5E709B72-0C8B-45B7-AC5C-413F6CDA6679}</Project>
+      <Name>TaskReboot</Name>
+    </ProjectReference>
     <ProjectReference Include="..\UserHandler\UserHandler.csproj">
       <Project>{1759DEAE-2585-4324-9F85-338BE0F755BF}</Project>
       <Name>UserHandler</Name>
