@@ -10,16 +10,19 @@ namespace FOG
 	/// </summary>
 	public class UserHandler
 	{
+		//Define variables
 		private LogHandler logHandler;
 		
 		public UserHandler(LogHandler logHandler) {
 			this.logHandler = logHandler;
 		}
 		
+		//Check if a user is loggin in, do this by getting a list of all users, and check if the list has any elements
 		public Boolean isUserLoggedIn() {
 			return getUsersLoggedIn().Count > 0;
 		}
 		
+		//Get al ist of all users logged in
 		public List<String> getUsersLoggedIn() {
 			List<String> users = new List<String>();
 			try {

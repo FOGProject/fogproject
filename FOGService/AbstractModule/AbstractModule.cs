@@ -97,8 +97,8 @@ namespace FOG
 		public Boolean isEnabled() {
 			
 			Response moduleActiveResponse = communicationHandler.getResponse(getIsActiveURL() + "?mac=" + communicationHandler.getMacAddresses() +
-			                                 								"&moduleid=" + getName().ToLower());
-			
+			                                								"&moduleid=" + getName().ToLower());
+
 			//Update the sleep duration between cycles
 			if(!moduleActiveResponse.getField("#sleep").Equals("")) {
 				try {
