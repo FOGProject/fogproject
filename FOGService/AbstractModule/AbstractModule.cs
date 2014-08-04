@@ -12,16 +12,25 @@ namespace FOG
 		private String moduleName;
 		private String moduleDescription;
 		
-		private LogHandler logHandler;
 		private CommunicationHandler communicationHandler;
+		private LogHandler logHandler;
+		private NotificationHandler notificationHandler;
+		private ShutdownHandler shutdownHander;
+		private UserHandler userHandler;
 		
-		public AbstractModule(LogHandler logHandler,
-		                      CommunicationHandler communicationHandler) {
+		public AbstractModule(CommunicationHandler communicationHandler,
+		                      LogHandler logHandler,
+		                      NotificationHandler notificationHandler,
+		                      ShutdownHandler shutdownHander,
+		                      UserHandler userHandler ) {
 			this.moduleName = "";
 			this.moduleDescription = "";
 			
-			this.logHandler = logHandler;
 			this.communicationHandler = communicationHandler;
+			this.logHandler = logHandler;
+			this.notificationHandler = notificationHandler;
+			this.shutdownHander = shutdownHander;
+			this.userHandler = userHandler;
 		}
 		
 		
