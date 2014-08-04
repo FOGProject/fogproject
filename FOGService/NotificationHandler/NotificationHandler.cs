@@ -9,6 +9,7 @@ namespace FOG
 	/// </summary>
 	public class NotificationHandler
 	{
+		//Define variable
 		private List<Notification> notifications;
 		
 		public NotificationHandler() {
