@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.IO;
+using System.Net.NetworkInformation;
 
 namespace FOG
 {
@@ -78,6 +79,36 @@ namespace FOG
 			}
 			
 			return parsedData;
+		}
+		
+		public String getIPAdress() {
+			String hostName = System.Net.Dns.GetHostName();
+			
+			IPHostEntry ipEntry = System.Net.Dns.GetHostEntry(hostName);
+			
+			IPAddress[] address = ipEntry.AddressList;
+			if(address.Length > 0)
+				return address[0].ToString();
+			return "";
+		}
+		
+		public List<String> getMacAddress()
+		{
+            List<String> macs = new List<String>();
+			try {
+				NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+				
+				foreach (NetworkInterface adapter in adapters) {
+					IPInterfaceProperties properties = adapter.GetIPProperties();
+					macs.Add( adapter.GetPhysicalAddress().ToString() );
+				}
+				
+			} catch (Exception ex) {
+				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+            	               "Error getting MAC addresses: " + ex.Message);
+			}
+			
+			return macs;
 		}
 	}
 }
