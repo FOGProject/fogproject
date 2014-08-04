@@ -1,0 +1,3 @@
+D:\fog\FOGService\bin\Release\CommunicationHandler.dll
+D:\fog\FOGService\CommunicationHandler\obj\Release\ResolveAssemblyReference.cache
+D:\fog\FOGService\CommunicationHandler\obj\Release\CommunicationHandler.dll
