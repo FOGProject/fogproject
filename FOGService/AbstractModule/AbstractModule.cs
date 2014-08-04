@@ -56,7 +56,7 @@ namespace FOG
 			while(getStatus().Equals(Status.Running)) {
 				doWork();
 			
-				logHandler.log(getName(), "Sleeping for " + this.sleepDuration.ToString() + " seconds");
+				logHandler.log(getName(), "Sleeping for " + getSleepDuration().ToString() + " seconds");
 				System.Threading.Thread.Sleep(getSleepDuration() * 1000);
 			}
 		}
