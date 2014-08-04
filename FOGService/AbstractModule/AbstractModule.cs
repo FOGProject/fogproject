@@ -81,7 +81,7 @@ namespace FOG
 		public String getDescription() { return this.moduleDescription; }
 		protected void setDescription(String description) { this.moduleDescription = description; }
 		
-		public Status getStatus() {	return this.status; }
+		public Status getStatus() { return this.status; }
 		protected void setStatus(Status status) { this.status = status; }
 		
 		public int getDefaultSleepDuration() { return this.defaultSleepDuration; }

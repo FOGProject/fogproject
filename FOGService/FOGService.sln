@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationHandler", "Noti
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskReboot", "TaskReboot\TaskReboot.csproj", "{5E709B72-0C8B-45B7-AC5C-413F6CDA6679}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnapinClient", "SnapinClient\SnapinClient.csproj", "{3532F76F-7A3B-474E-8CB1-58867E584510}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,5 +58,9 @@ Global
 		{5E709B72-0C8B-45B7-AC5C-413F6CDA6679}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5E709B72-0C8B-45B7-AC5C-413F6CDA6679}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5E709B72-0C8B-45B7-AC5C-413F6CDA6679}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3532F76F-7A3B-474E-8CB1-58867E584510}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3532F76F-7A3B-474E-8CB1-58867E584510}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3532F76F-7A3B-474E-8CB1-58867E584510}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3532F76F-7A3B-474E-8CB1-58867E584510}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 EndGlobal
