@@ -27,7 +27,17 @@ namespace FOG
 		}
 		
 		public Response getResponse(String postfix) {
-			return parseResponse(this.webClient.DownloadString(this.serverAddress + postfix));
+			try {
+				return parseResponse(this.webClient.DownloadString(this.serverAddress + postfix));
+			} catch (Exception ex) {
+				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+				               "Error contacting FOG");
+				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				               "     URL: " + serverAddress + postfix);					
+				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				               "     ERROR: " + ex.Message);				
+				return new Response();
+			}
 		}
 		
 		public Boolean contact(String postfix) {
@@ -37,7 +47,11 @@ namespace FOG
 				
 			} catch (Exception ex) {
 				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
-				              "Error contacting FOG: " + ex.Message);
+				               "Error contacting FOG");
+				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				               "     URL: " + serverAddress + postfix);				
+				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				               "     ERROR: " + ex.Message);
 			}
 			return false;
 		}
