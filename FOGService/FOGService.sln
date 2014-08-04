@@ -6,8 +6,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstractModule", "AbstractModule\AbstractModule.csproj", "{DA390DC8-3502-42B2-8220-D52B2A64E4B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigHandler", "ConfigHandler\ConfigHandler.csproj", "{138A0BA4-2BAA-4C89-89C7-9B0F30F51624}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogHandler", "LogHandler\LogHandler.csproj", "{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShutdownHandler", "ShutdownHandler\ShutdownHandler.csproj", "{D0C42FA3-B494-4FA7-92CB-50D7C2E05383}"
@@ -32,10 +30,6 @@ Global
 		{DA390DC8-3502-42B2-8220-D52B2A64E4B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DA390DC8-3502-42B2-8220-D52B2A64E4B7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DA390DC8-3502-42B2-8220-D52B2A64E4B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{138A0BA4-2BAA-4C89-89C7-9B0F30F51624}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{138A0BA4-2BAA-4C89-89C7-9B0F30F51624}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{138A0BA4-2BAA-4C89-89C7-9B0F30F51624}.Release|Any CPU.Build.0 = Release|Any CPU
-		{138A0BA4-2BAA-4C89-89C7-9B0F30F51624}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}.Release|Any CPU.Build.0 = Release|Any CPU
