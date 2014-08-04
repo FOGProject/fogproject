@@ -24,6 +24,8 @@ namespace FOG
 		private Thread threadManager;
 		private List<AbstractModule> modules;
 		private List<Thread> threads;
+		
+		//Create an instance of each handler so all modules share the same one
         
 		public FOGService()
 		{
