@@ -18,7 +18,7 @@ try
 	$ID = max($IDs);
 	foreach($SnapinJobs AS $SnapinJob)
 		!$SnapinJob->get('id') == $ID && $SnapinJob->isValid() ? $SnapinJob->set('stateID', 2)->save() : null;
-	$SnapinJob = new SnapinJob($ID);
+	$SnapinJob = $ID > 0 ? new SnapinJob($ID) : null;
 	//Get the snapin job.  There should be tasks if the Job is still viable.
 	if (!$SnapinJob || !$SnapinJob->isValid()) throw new Exception('#!ns');
 
