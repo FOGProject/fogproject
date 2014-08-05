@@ -8,7 +8,8 @@ if ($_REQUEST['id'])
 	{
 		try
 		{
-			$URL = 'http://'.$StorageNode->get('ip').SPACE_DEFAULT_WEBROOT.'status/freespace.php?idnew='.$StorageNode->get('id');
+			$webroot = $FOGCore->getSetting('FOG_WEB_ROOT') ? '/'.trim($FOGCore->getSetting('FOG_WEB_ROOT'),'/').'/' : '/';
+			$URL = 'http://'.$StorageNode->get('ip').$webroot.'status/freespace.php?idnew='.$StorageNode->get('id');
 			if ($Response = $FOGCore->fetchURL($URL))
 			{
 				// Backwards compatibility for old versions of FOG
