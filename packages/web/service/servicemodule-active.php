@@ -2,6 +2,8 @@
 require('../commons/base.inc.php');
 try
 {
+	if ($_REQUEST['sleeptime'])
+		throw new Exception("#!ok\n#sleep=".$FOGCore->getSetting('FOG_SERVICE_CHECKIN_TIME'));
 	$HostManager = new HostManager();
 	$MACs = HostManager::parseMacList($_REQUEST['mac']);
 	if (!$MACs)
@@ -15,8 +17,6 @@ try
 	// get the module id
 	if (empty($_REQUEST['moduleid']) || !$moduleID || !$moduleID->isValid())
 		throw new Exception('#!um');
-	if ($_REQUEST['sleeptime'])
-		print "#!ok\n#sleep=".$FOGCore->getSetting('FOG_SERVICE_CHECKIN_TIME');
 	// Associate the moduleid param with the global name.
 	$moduleName = array(
 		'dircleanup' => $FOGCore->getSetting('FOG_SERVICE_DIRECTORYCLEANER_ENABLED'),
