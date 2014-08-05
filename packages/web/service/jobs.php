@@ -14,7 +14,7 @@ try
 	$Task = current($Host->get('task'));
 	// If there is no task, or it's of snapin deploy type, don't reboot.
 	if (!$Task->isValid() || ($Task->get('typeID') == 12 || $Task->get('typeID') == 13))
-		throw new Exception('#nj');
+		throw new Exception('#!nj');
 	else
 	{
 		print "#!ok\n";
