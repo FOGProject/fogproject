@@ -8,23 +8,22 @@ namespace FOG
 	/// </summary>
 	public class TaskReboot : AbstractModule
 	{
+		private CommunicationHandler communicationHandler;
+		private ShutdownHandler shutdownHander;	
+		private UserHandler userHandler;
 		
-		public TaskReboot(CommunicationHandler communicationHandler,
-		                      LogHandler logHandler,
-		                      NotificationHandler notificationHandler,
-		                      ShutdownHandler shutdownHander,
-		                      UserHandler userHandler) : base(communicationHandler, logHandler,
-			     												notificationHandler, shutdownHander,
-			    												userHandler){
+		public TaskReboot(LogHandler logHandler) : base(logHandler){
+			this.communicationHandler = new CommunicationHandler(logHandler);
+			this.shutdownHander = new ShutdownHandler(logHandler);
+			this.userHandler = new UserHandler(logHandler);
+			
 			setName("TaskReboot");
 			setDescription("Reboot if a task is scheduled");
 		}
 		
 		protected override void doWork() {
-			logHandler.log(getName(), "----------------------------------");
-			logHandler.log(getName(), "Running...");
 			
-			if(isEnabled()) {
+			if(isEnabled(communicationHandler)) {
 				//Get task info
 				Response taskResponse = communicationHandler.getResponse("/fog/service/jobs.php?mac=" +
 				                                                         communicationHandler.getMacAddresses());
