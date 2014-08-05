@@ -39,6 +39,44 @@ namespace FOG
 			} 
 		}
 		
+		public void newLine() {
+			StreamWriter logWriter;
+			FileInfo logFile = new FileInfo(this.filePath);
+			
+					
+			//Delete the log file if it excedes the max log size
+			if (logFile.Exists && logFile.Length > maxLogSize)
+				cleanLog();
+			
+			try {
+				//Write message to log file
+				logWriter = new StreamWriter(this.filePath, true);
+				logWriter.WriteLine("");
+				logWriter.Close();
+			} catch {
+				//If logging fails then nothing can really be done to silently notify the user
+			} 			
+		}
+		
+		public void divider() {
+			StreamWriter logWriter;
+			FileInfo logFile = new FileInfo(this.filePath);
+			
+					
+			//Delete the log file if it excedes the max log size
+			if (logFile.Exists && logFile.Length > maxLogSize)
+				cleanLog();
+			
+			try {
+				//Write message to log file
+				logWriter = new StreamWriter(this.filePath, true);
+				logWriter.WriteLine("---------------------------------------------------------------");
+				logWriter.Close();
+			} catch {
+				//If logging fails then nothing can really be done to silently notify the user
+			} 			
+		}
+				
 		private void cleanLog() {
 			try {
 				FileInfo logFile = new FileInfo(this.filePath);
