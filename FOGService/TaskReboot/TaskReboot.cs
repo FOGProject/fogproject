@@ -8,14 +8,11 @@ namespace FOG
 	/// </summary>
 	public class TaskReboot : AbstractModule
 	{
-		private CommunicationHandler communicationHandler;
-		private ShutdownHandler shutdownHander;	
-		private UserHandler userHandler;
 		
-		public TaskReboot(LogHandler logHandler) : base(logHandler){
-			this.communicationHandler = new CommunicationHandler(logHandler);
-			this.shutdownHander = new ShutdownHandler(logHandler);
-			this.userHandler = new UserHandler(logHandler);
+		public TaskReboot(LogHandler logHandler, NotificationHandler notificationHandler, ShutdownHandler shutdownHandler, 
+		                         CommunicationHandler communicationHandler, UserHandler userHandler):base(logHandler, 
+		                                                                         notificationHandler, shutdownHandler,
+		                                                                         communicationHandler, userHandler){
 			
 			setName("TaskReboot");
 			setDescription("Reboot if a task is scheduled");
@@ -23,17 +20,17 @@ namespace FOG
 		
 		protected override void doWork() {
 			
-			if(isEnabled(communicationHandler)) {
+			if(isEnabled()) {
 				//Get task info
-				Response taskResponse = communicationHandler.getResponse("/fog/service/jobs.php?mac=" +
+				Response taskResponse = this.communicationHandler.getResponse("/fog/service/jobs.php?mac=" +
 				                                                         communicationHandler.getMacAddresses());
 				
 				//Shutdown if a task is avaible and the user is logged out or it is forced
 				if(!taskResponse.wasError() && (!userHandler.isUserLoggedIn() || taskResponse.getField("#force").Equals("1") )) {
-					shutdownHander.restart(getName(), 30);
+					this.shutdownHandler.restart(getName(), 30);
 				}
 			} else {
-				logHandler.log(getName(), "Disabled on server");
+				this.logHandler.log(getName(), "Disabled on server");
 			}
 			
 		}
