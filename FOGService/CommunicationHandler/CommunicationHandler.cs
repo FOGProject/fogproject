@@ -11,85 +11,88 @@ namespace FOG
 	/// <summary>
 	/// Handle all communication with the FOG Server
 	/// </summary>
-	public class CommunicationHandler
+	public static class CommunicationHandler
 	{
 		//Define variables
-		private String serverAddress;
-		private WebClient webClient;
-		private LogHandler logHandler;
-		private String successCode;
-		private Dictionary<String, String> returnMessages;
-
-		public CommunicationHandler(LogHandler logHandler, String serverAddress) {
-			this.serverAddress = serverAddress;
-			this.webClient = new WebClient();
-			this.logHandler = logHandler;
+		private static String serverAddress = "fog-server";
+		private static String successCode = "#!ok";
+		private static Dictionary<String, String> returnMessages = loadReturnMessages();
 			
-			this.successCode = "#!ok";
+		private static Dictionary<String, String> loadReturnMessages() {
 			
-			this.returnMessages = new Dictionary<String, String>();
-			this.returnMessages.Add(this.successCode, "Success");			
-			this.returnMessages.Add("#!db", "Database error");
-			this.returnMessages.Add("#!im", "Invalid MAC address format");
-			this.returnMessages.Add("#!ih", "Invalid host");		
-			this.returnMessages.Add("#!it", "Invalid task");				
-			this.returnMessages.Add("#!ng", "Module is disabled globablly on the FOG Server");
-			this.returnMessages.Add("#!nh", "Module is diabled on the host");
-			this.returnMessages.Add("#!um", "Unknown module ID");
-			this.returnMessages.Add("#!ns", "No snapins");		
-			this.returnMessages.Add("#!nj", "No jobs");		
-			this.returnMessages.Add("#!er", "General Error");			
-
+			Dictionary<String, String> messages = new Dictionary<String, String>();
+			
+			messages.Add(successCode, "Success");
+			messages.Add("#!db", "Database error");
+			messages.Add("#!im", "Invalid MAC address format");
+			messages.Add("#!ih", "Invalid host");		
+			messages.Add("#!it", "Invalid task");				
+			messages.Add("#!ng", "Module is disabled globablly on the FOG Server");
+			messages.Add("#!nh", "Module is diabled on the host");
+			messages.Add("#!um", "Unknown module ID");
+			messages.Add("#!ns", "No snapins");		
+			messages.Add("#!nj", "No jobs");		
+			messages.Add("#!er", "General Error");
+			
+			return messages;
 		}
+
+		public static void setServerAddress(String address) { serverAddress = address; }
+		public static String getServerAddress() { return serverAddress; }		
 		
-		public Response getResponse(String postfix) {
-			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
-			               "URL: " + this.serverAddress + postfix );
+		
+		public static Response getResponse(String postfix) {
+			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+			               "URL: " + getServerAddress() + postfix );
+			
+			WebClient webClient = new WebClient();
 			try {				
-				String response = this.webClient.DownloadString(this.serverAddress + postfix);
+				String response = webClient.DownloadString(getServerAddress() + postfix);
 
 				Boolean messageFound = false;
 				foreach(String returnMessage in returnMessages.Keys) {
 					if(response.StartsWith(returnMessage)) {
 						messageFound=true;
-						logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+						LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 					              	"Response: " + returnMessages[returnMessage]);
 					}					
 				}
 				
 				if(!messageFound) {
-						logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+						LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 						               "Unknown Response: " + response.Replace("\n", ""));					
 				}
 
 				                               	               
 				return parseResponse(response);
 			} catch (Exception ex) {
-				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 				               "Error contacting FOG");			
-				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 				               "     ERROR: " + ex.Message);				
 			}
 			return new Response();
 		}
 		
-		public Boolean contact(String postfix) {
-			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
-				               "URL: " + serverAddress + postfix);				
+		public static Boolean contact(String postfix) {
+			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+			               "URL: " + getServerAddress() + postfix);
+			WebClient webClient = new WebClient();
+			
 			try {
-				this.webClient.DownloadString(this.serverAddress + postfix);
+				webClient.DownloadString(getServerAddress() + postfix);
 				return true;
 				
 			} catch (Exception ex) {
-				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 				               "Error contacting FOG");		
-				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 				               "ERROR: " + ex.Message);
 			}
 			return false;
 		}
 		
-		private Response parseResponse(String rawResponse) {
+		private static Response parseResponse(String rawResponse) {
 			
 			String[] data = rawResponse.Split('\n'); //Split the response at every new line
 			
@@ -111,36 +114,37 @@ namespace FOG
 				
 				response.setData(parsedData);
 			} catch (Exception ex) {
-				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 				               "Error parsing response");
-				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 				               "ERROR: " + ex.Message);				
 			}
 			return response;
 		}
 		
-		public Boolean downloadFile(String postfix, String fileName) {
-			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+		public static Boolean downloadFile(String postfix, String fileName) {
+			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 				               "URL: " + serverAddress + postfix);				
+			WebClient webClient = new WebClient();
 			try {
 				if(!Directory.Exists(Path.GetDirectoryName(fileName))) {
 					Directory.CreateDirectory(Path.GetDirectoryName(fileName));
 				}
 				
-				this.webClient.DownloadFile(this.serverAddress + postfix, fileName);
+				webClient.DownloadFile(getServerAddress() + postfix, fileName);
 				
 				if(File.Exists(fileName))
 					return true;
 			} catch (Exception ex) {
-				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 				               "Error downloading file");
-				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 				               "ERROR: " + ex.Message);				
 			}
 			return false;
 		}
 		
-		public String getIPAdress() {
+		public static String getIPAdress() {
 			String hostName = System.Net.Dns.GetHostName();
 			
 			IPHostEntry ipEntry = System.Net.Dns.GetHostEntry(hostName);
@@ -152,7 +156,7 @@ namespace FOG
 			return "";
 		}
 		
-		public String getMacAddresses() {
+		public static String getMacAddresses() {
             String macs = "";
 			try {
 				NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
@@ -166,7 +170,7 @@ namespace FOG
 				macs = macs.Substring(1); // Remove the first |
 				
 			} catch (Exception ex) {
-				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
             	               "Error getting MAC addresses: " + ex.Message);
 			}
 			
