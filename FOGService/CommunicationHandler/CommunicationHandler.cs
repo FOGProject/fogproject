@@ -43,10 +43,9 @@ namespace FOG
 		}
 		
 		public Response getResponse(String postfix) {
-			try {
-				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
-				               "URL: " + this.serverAddress + postfix );				
-				
+			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+			               "URL: " + this.serverAddress + postfix );
+			try {				
 				String response = this.webClient.DownloadString(this.serverAddress + postfix);
 
 				Boolean messageFound = false;
@@ -67,27 +66,25 @@ namespace FOG
 				return parseResponse(response);
 			} catch (Exception ex) {
 				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
-				               "Error contacting FOG");
-				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
-				               "     URL: " + serverAddress + postfix);					
+				               "Error contacting FOG");			
 				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 				               "     ERROR: " + ex.Message);				
-				return new Response();
 			}
+			return new Response();
 		}
 		
 		public Boolean contact(String postfix) {
+			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				               "URL: " + serverAddress + postfix);				
 			try {
 				this.webClient.DownloadString(this.serverAddress + postfix);
 				return true;
 				
 			} catch (Exception ex) {
 				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
-				               "Error contacting FOG");
+				               "Error contacting FOG");		
 				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
-				               "     URL: " + serverAddress + postfix);				
-				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
-				               "     ERROR: " + ex.Message);
+				               "ERROR: " + ex.Message);
 			}
 			return false;
 		}
@@ -115,12 +112,16 @@ namespace FOG
 				response.setData(parsedData);
 			} catch (Exception ex) {
 				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
-				               "Error parsing response: " + ex.Message);
+				               "Error parsing response");
+				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				               "ERROR: " + ex.Message);				
 			}
 			return response;
 		}
 		
 		public Boolean downloadFile(String postfix, String fileName) {
+			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				               "URL: " + serverAddress + postfix);				
 			try {
 				if(!Directory.Exists(Path.GetDirectoryName(fileName))) {
 					Directory.CreateDirectory(Path.GetDirectoryName(fileName));
@@ -132,9 +133,9 @@ namespace FOG
 					return true;
 			} catch (Exception ex) {
 				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
-				               "Failed to download: " + this.serverAddress + postfix);
+				               "Error downloading file");
 				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
-				               "Error: " + ex.Message);				
+				               "ERROR: " + ex.Message);				
 			}
 			return false;
 		}

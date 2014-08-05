@@ -1,3 +1,0 @@
-D:\fog\FOGService\EncryptionHandler\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\bin\Release\EncryptionHandler.dll
-D:\fog\FOGService\EncryptionHandler\obj\Release\EncryptionHandler.dll
