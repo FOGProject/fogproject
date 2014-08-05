@@ -31,24 +31,10 @@ namespace FOG
 			Running = 1,
 			Stopped = 0
 		}
-				
-		//Define handlers
-		private LogHandler logHandler;
-		private NotificationHandler notificationHandler;
-		private ShutdownHandler shutdownHandler;
-		private CommunicationHandler communicationHandler;
-		private UserHandler userHandler;
-		private EncryptionHandler encryptionHandler;
-
 		
 		public FOGService() {
 			//Initialize everything
-			this.logHandler = new LogHandler(@"\fog.log", 502400);
-			this.notificationHandler = new NotificationHandler();
-			this.shutdownHandler = new ShutdownHandler(logHandler);
-			this.communicationHandler = new CommunicationHandler(logHandler, "http://10.0.7.1");
-			this.userHandler = new UserHandler(logHandler);
-			this.encryptionHandler = new EncryptionHandler(logHandler);
+			CommunicationHandler.setServerAddress("http://10.0.7.1");
 			
 			initializeModules();
 			this.threadManager = new Thread(new ThreadStart(serviceLooper));
@@ -65,10 +51,8 @@ namespace FOG
 		
 		private void initializeModules() {
 			this.modules = new List<AbstractModule>();
-			this.modules.Add(new TaskReboot(this.logHandler, this.notificationHandler, this.shutdownHandler, 
-			                                this.communicationHandler, this.userHandler, this.encryptionHandler));
-			this.modules.Add(new SnapinClient(this.logHandler, this.notificationHandler, this.shutdownHandler, 
-			                                  this.communicationHandler, this.userHandler, this.encryptionHandler));
+			this.modules.Add(new TaskReboot());
+			this.modules.Add(new SnapinClient());
 		}
 
 
@@ -79,38 +63,38 @@ namespace FOG
 		//Run each service
 		private void serviceLooper() {
 			//Only run the service if there wasn't a stop or shutdown request
-			while (status.Equals(Status.Running) && !this.shutdownHandler.isShutdownPending()) {
+			while (status.Equals(Status.Running) && !ShutdownHandler.isShutdownPending()) {
 				foreach(AbstractModule module in modules) {
-					if(this.shutdownHandler.isShutdownPending())
+					if(ShutdownHandler.isShutdownPending())
 						break;
-					this.logHandler.newLine();
-					this.logHandler.newLine();
-					this.logHandler.divider();
+					LogHandler.newLine();
+					LogHandler.newLine();
+					LogHandler.divider();
 					try {
 						module.start();
 						
 					} catch (Exception ex) {
-						this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+						LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 						               "Failed to start " + module.getName());
-						this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+						LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 						               "ERROR: " + ex.Message);
 					}
-					this.logHandler.divider();
-					this.logHandler.newLine();
+					LogHandler.divider();
+					LogHandler.newLine();
 				}
 				
 				int sleepTime = getSleepTime();
-				this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 				               "Sleeping for " + sleepTime.ToString() + " seconds");
 				System.Threading.Thread.Sleep(sleepTime * 1000);
 			}
 		}
 		
 		private int getSleepTime() {
-			this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 				               "Getting sleep duration...");
 			
-			Response sleepResponse = this.communicationHandler.getResponse("/fog/service/servicemodule-active.php?sleeptime=1");
+			Response sleepResponse = CommunicationHandler.getResponse("/fog/service/servicemodule-active.php?sleeptime=1");
 			//Default time
 			try {
 				if(!sleepResponse.wasError() && !sleepResponse.getField("#sleep").Equals("")) {
@@ -119,12 +103,12 @@ namespace FOG
 						return sleepTime;
 				}
 			} catch (Exception ex) {
-				this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 			 	                    "Failed to parse sleep time");
-				this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 			 	                    "ERROR: " + ex.Message);				
 			}
-			this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 			 	                    "Using default sleep time");	
 			return sleepDefaultTime;			
 		}
