@@ -10,9 +10,9 @@ namespace FOG
 	{
 		
 		public TaskReboot(LogHandler logHandler, NotificationHandler notificationHandler, ShutdownHandler shutdownHandler, 
-		                         CommunicationHandler communicationHandler, UserHandler userHandler):base(logHandler, 
-		                                                                         notificationHandler, shutdownHandler,
-		                                                                         communicationHandler, userHandler){
+		                         CommunicationHandler communicationHandler, UserHandler userHandler, 
+		                         EncryptionHandler encryptionHandler):base(logHandler,notificationHandler, shutdownHandler,
+		                                          communicationHandler, userHandler, encryptionHandler){
 			
 			setName("TaskReboot");
 			setDescription("Reboot if a task is scheduled");
