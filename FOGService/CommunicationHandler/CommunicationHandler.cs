@@ -20,8 +20,8 @@ namespace FOG
 		private String successCode;
 		private Dictionary<String, String> returnMessages;
 
-		public CommunicationHandler(LogHandler logHandler) {
-			this.serverAddress = "http://10.0.7.1";
+		public CommunicationHandler(LogHandler logHandler, String serverAddress) {
+			this.serverAddress = serverAddress;
 			this.webClient = new WebClient();
 			this.logHandler = logHandler;
 			

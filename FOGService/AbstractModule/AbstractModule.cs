@@ -13,22 +13,28 @@ namespace FOG
 		private String moduleName;
 		private String moduleDescription;
 		private String isActiveURL;
-		private int defaultSleepDuration;
-		private int sleepDuration;
 		
-		//Define the handler
+		//Define the handlers
 		protected LogHandler logHandler;
+		protected NotificationHandler notificationHandler;
+		protected ShutdownHandler shutdownHandler;
+		protected CommunicationHandler communicationHandler;
+		protected UserHandler userHandler;
 		
-		protected AbstractModule(LogHandler logHandler) {
+		
+		protected AbstractModule(LogHandler logHandler, NotificationHandler notificationHandler, ShutdownHandler shutdownHandler, 
+		                         CommunicationHandler communicationHandler, UserHandler userHandler) {
 			
 			//Define variables
 			setName("Generic Module");
 			setDescription("Generic Description");
-			setDefaultSleepDuration(60);
-			setSleepDuration(getDefaultSleepDuration());
 			setIsActiveURL("/fog/service/servicemodule-active.php");
 
 			this.logHandler = logHandler;
+			this.notificationHandler = notificationHandler;
+			this.shutdownHandler = shutdownHandler;
+			this.communicationHandler = communicationHandler;
+			this.userHandler = userHandler;
 		}
 		
 		protected abstract void doWork();
@@ -36,7 +42,7 @@ namespace FOG
 		
 		//Default start method
 		public virtual void start() {
-			logHandler.log(getName(), "Running...");
+			this.logHandler.log(getName(), "Running...");
 			doWork();
 		}
 
@@ -47,35 +53,16 @@ namespace FOG
 		
 		public String getDescription() { return this.moduleDescription; }
 		protected void setDescription(String description) { this.moduleDescription = description; }
-		
-		
-		public int getDefaultSleepDuration() { return this.defaultSleepDuration; }
-		protected void setDefaultSleepDuration(int defaultSleepDuration) { this.defaultSleepDuration = defaultSleepDuration; }	
 	
-		public int getSleepDuration() { return this.sleepDuration; }
-		protected void setSleepDuration(int sleepDuration) { this.sleepDuration = sleepDuration; }
-
 		public String getIsActiveURL() { return this.isActiveURL; }
 		protected void setIsActiveURL(String isActiveURL) { this.isActiveURL = isActiveURL; }
 		
 		//Check if the module is enabled, also set the sleep duration
-		public Boolean isEnabled(CommunicationHandler communicationHandler) {
+		public Boolean isEnabled() {
 			
-			Response moduleActiveResponse = communicationHandler.getResponse(getIsActiveURL() + "?mac=" + communicationHandler.getMacAddresses() +
+			Response moduleActiveResponse = this.communicationHandler.getResponse(getIsActiveURL() + "?mac=" + 
+			                                                                      this.communicationHandler.getMacAddresses() +
 			                                								"&moduleid=" + getName().ToLower());
-
-			//Update the sleep duration between cycles
-			if(!moduleActiveResponse.getField("#sleep").Equals("")) {
-				try {
-					setSleepDuration(int.Parse(moduleActiveResponse.getField("#sleep")));
-				} catch {
-					logHandler.log(getName(), "Could not parse how long to sleep, using default value");
-					setSleepDuration(getDefaultSleepDuration());
-				}
-			} else {
-				setSleepDuration(getDefaultSleepDuration());
-			}
-			
 			return !moduleActiveResponse.wasError();
 		}
 		

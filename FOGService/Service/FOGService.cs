@@ -22,9 +22,9 @@ namespace FOG
 	public partial class FOGService  : ServiceBase {
 		//Define variables
 		private Thread threadManager;
-		private int sleepTime = 60;
 		private List<AbstractModule> modules;
 		private Status status;
+		private int sleepDefaultTime = 60;
 		
 		//Module status -- used for stopping/starting
 		public enum Status {
@@ -35,12 +35,19 @@ namespace FOG
 		//Define handlers
 		private LogHandler logHandler;
 		private NotificationHandler notificationHandler;
-        
-		//service/servicemodule-active.php?sleeptime=1
+		private ShutdownHandler shutdownHandler;
+		private CommunicationHandler communicationHandler;
+		private UserHandler userHandler;
+
 		
 		public FOGService() {
 			//Initialize everything
 			this.logHandler = new LogHandler(@"\fog.log", 502400);
+			this.notificationHandler = new NotificationHandler();
+			this.shutdownHandler = new ShutdownHandler(logHandler);
+			this.communicationHandler = new CommunicationHandler(logHandler, "http://10.0.7.1");
+			this.userHandler = new UserHandler(logHandler);
+			
 			initializeModules();
 			this.threadManager = new Thread(new ThreadStart(serviceLooper));
 			this.status = Status.Stopped;
@@ -56,8 +63,10 @@ namespace FOG
 		
 		private void initializeModules() {
 			this.modules = new List<AbstractModule>();
-			this.modules.Add(new TaskReboot(logHandler));
-			this.modules.Add(new SnapinClient(logHandler));
+			this.modules.Add(new TaskReboot(this.logHandler, this.notificationHandler, this.shutdownHandler, 
+			                                this.communicationHandler, this.userHandler));
+			this.modules.Add(new SnapinClient(this.logHandler, this.notificationHandler, this.shutdownHandler, 
+			                                  this.communicationHandler, this.userHandler));
 		}
 
 
@@ -65,28 +74,57 @@ namespace FOG
 			this.status = Status.Stopped;
 		}
 		
+		//Run each service
 		private void serviceLooper() {
-			while (status.Equals(Status.Running)) {
+			//Only run the service if there wasn't a stop or shutdown request
+			while (status.Equals(Status.Running) && !this.shutdownHandler.isShutdownPending()) {
 				foreach(AbstractModule module in modules) {
-					logHandler.newLine();
-					logHandler.newLine();
-					logHandler.divider();
+					if(this.shutdownHandler.isShutdownPending())
+						break;
+					this.logHandler.newLine();
+					this.logHandler.newLine();
+					this.logHandler.divider();
 					try {
 						module.start();
 						
 					} catch (Exception ex) {
-						logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+						this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 						               "Failed to start " + module.getName());
-						logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+						this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 						               "ERROR: " + ex.Message);
 					}
-					logHandler.divider();
-					logHandler.newLine();
+					this.logHandler.divider();
+					this.logHandler.newLine();
 				}
-				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+				
+				int sleepTime = getSleepTime();
+				this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 				               "Sleeping for " + sleepTime.ToString() + " seconds");
 				System.Threading.Thread.Sleep(sleepTime * 1000);
 			}
+		}
+		
+		private int getSleepTime() {
+			this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+				               "Getting sleep duration...");
+			
+			Response sleepResponse = this.communicationHandler.getResponse("/fog/service/servicemodule-active.php?sleeptime=1");
+			//Default time
+			try {
+				if(!sleepResponse.wasError() && !sleepResponse.getField("#sleep").Equals("")) {
+					int sleepTime = int.Parse(sleepResponse.getField("#sleep"));
+					if(sleepTime >= sleepDefaultTime) 
+						return sleepTime;
+				}
+			} catch (Exception ex) {
+				this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+			 	                    "Failed to parse sleep time");
+				this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+			 	                    "ERROR: " + ex.Message);				
+			}
+			this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+			 	                    "Using default sleep time");	
+			return sleepDefaultTime;			
 		}
 
 	}
