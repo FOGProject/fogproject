@@ -2,38 +2,33 @@
 using System;
 using System.Collections.Generic;
 
-namespace FOG
-{
+namespace FOG {
 	/// <summary>
 	/// Handle all notifications
 	/// </summary>
-	public class NotificationHandler
+	public static class NotificationHandler
 	{
 		//Define variable
-		private List<Notification> notifications;
+		private static List<Notification> notifications = new List<Notification>();
 		
-		public NotificationHandler() {
-			this.notifications = new List<Notification>();
+		public static void createNotification(Notification notification) {
+			getNotifications().Add(notification);
 		}
 		
-		public void createNotification(Notification notification) {
-			this.notifications.Add(notification);
+		public static List<Notification> getNotifications() {
+			return notifications;
 		}
 		
-		public List<Notification> getNotifications() {
-			return this.notifications;
+		public static void clearNotifications() {
+			getNotifications().Clear();
 		}
 		
-		public void clearNotifications() {
-			this.notifications.Clear();
+		public static void removeNotification(Notification notification) {
+			getNotifications().Remove(notification);
 		}
 		
-		public void removeNotification(Notification notification) {
-			this.notifications.Remove(notification);
-		}
-		
-		public void removeNotification(int index) {
-			this.notifications.RemoveAt(index);
+		public static void removeNotification(int index) {
+			getNotifications().RemoveAt(index);
 		}
 		
 		

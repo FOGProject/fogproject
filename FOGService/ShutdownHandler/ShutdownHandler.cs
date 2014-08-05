@@ -6,22 +6,15 @@ using System.Runtime.InteropServices;
 
 using FOG;
 
-namespace FOG
-{
+namespace FOG {
 	/// <summary>
 	/// Handle all shutdown requests
 	/// The windows shutdown command is used instead of the win32 api because it notifies the user prior
 	/// </summary>
-	public class ShutdownHandler {
+	public static class ShutdownHandler {
 
 		//Define variables
-		private Boolean shutdownPending;
-		private LogHandler logHandler;
-
-		public ShutdownHandler(LogHandler logHandler) {
-			this.shutdownPending = false;
-			this.logHandler = logHandler;
-		}
+		private static Boolean shutdownPending = false;
 		
 		//Load the ability to lock the computer from the native user32 dll
 		[DllImport("user32")]
@@ -52,43 +45,46 @@ namespace FOG
 			ForceIfHung = 0x10,
 		}
 		
-		public Boolean isShutdownPending() { return shutdownPending; }
+		public static Boolean isShutdownPending() { return shutdownPending; }
 		
-		private void createShutdownCommand(String parameters) {
-			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+		private static void createShutdownCommand(String parameters) {
+			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 			               "Creating shutdown request");
-			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 			               "Parameters: " + parameters);
 
 			Process.Start("shutdown", parameters);
 		}
 		
-		public void shutdown(String comment, int seconds) {
-			this.shutdownPending = true;
+		public static void shutdown(String comment, int seconds) {
+			setShutdownPending(true);
 			createShutdownCommand("/s /c \"" + comment + "\" /t " + seconds);
 		}
 		
-		public void restart(String comment, int seconds) {
-			this.shutdownPending = true;
+		public static void restart(String comment, int seconds) {
+			setShutdownPending(true);
 			createShutdownCommand("/r /c \"" + comment + "\" /t " + seconds);
 		}		
 		
-		public void logOffUser(String comment, int seconds) {
+		public static void logOffUser(String comment, int seconds) {
 			createShutdownCommand("/l /c \"" + comment + "\" /t " + seconds);
 		}
 		
-		public void hibernate(String comment, int seconds) {
+		public static void hibernate(String comment, int seconds) {
 			createShutdownCommand("/h" );
 		}
 		
-		public void lockWorkStation() {			
+		public static void lockWorkStation() {			
 			LockWorkStation();
 		}
 		
-		public void abortShutdown() {		
-			this.shutdownPending = false;
+		public static void abortShutdown() {		
+			setShutdownPending(false);
 			createShutdownCommand("/a");
 		}
 		
+		private static void setShutdownPending(Boolean sPending) {
+			shutdownPending = sPending;
+		}
 	}
 }
