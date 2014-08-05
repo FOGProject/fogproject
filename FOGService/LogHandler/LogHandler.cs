@@ -19,7 +19,6 @@ namespace FOG
 		public static void setMaxLogSize(long mLogSize) { maxLogSize = mLogSize; }	
 		public static long getMaxLogSize() { return maxLogSize; }
 		
-		
 		public static void log(String moduleName, String message) {
 			StreamWriter logWriter;
 			
