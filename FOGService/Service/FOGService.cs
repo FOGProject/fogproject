@@ -38,6 +38,7 @@ namespace FOG
 		private ShutdownHandler shutdownHandler;
 		private CommunicationHandler communicationHandler;
 		private UserHandler userHandler;
+		private EncryptionHandler encryptionHandler;
 
 		
 		public FOGService() {
@@ -47,6 +48,7 @@ namespace FOG
 			this.shutdownHandler = new ShutdownHandler(logHandler);
 			this.communicationHandler = new CommunicationHandler(logHandler, "http://10.0.7.1");
 			this.userHandler = new UserHandler(logHandler);
+			this.encryptionHandler = new EncryptionHandler(logHandler);
 			
 			initializeModules();
 			this.threadManager = new Thread(new ThreadStart(serviceLooper));
@@ -64,9 +66,9 @@ namespace FOG
 		private void initializeModules() {
 			this.modules = new List<AbstractModule>();
 			this.modules.Add(new TaskReboot(this.logHandler, this.notificationHandler, this.shutdownHandler, 
-			                                this.communicationHandler, this.userHandler));
+			                                this.communicationHandler, this.userHandler, this.encryptionHandler));
 			this.modules.Add(new SnapinClient(this.logHandler, this.notificationHandler, this.shutdownHandler, 
-			                                  this.communicationHandler, this.userHandler));
+			                                  this.communicationHandler, this.userHandler, this.encryptionHandler));
 		}
 
 

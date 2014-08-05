@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskReboot", "TaskReboot\Ta
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnapinClient", "SnapinClient\SnapinClient.csproj", "{3532F76F-7A3B-474E-8CB1-58867E584510}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EncryptionHandler", "EncryptionHandler\EncryptionHandler.csproj", "{052A6197-798E-428B-99F9-7ABF12280798}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,5 +64,9 @@ Global
 		{3532F76F-7A3B-474E-8CB1-58867E584510}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3532F76F-7A3B-474E-8CB1-58867E584510}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3532F76F-7A3B-474E-8CB1-58867E584510}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{052A6197-798E-428B-99F9-7ABF12280798}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{052A6197-798E-428B-99F9-7ABF12280798}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{052A6197-798E-428B-99F9-7ABF12280798}.Release|Any CPU.Build.0 = Release|Any CPU
+		{052A6197-798E-428B-99F9-7ABF12280798}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 EndGlobal

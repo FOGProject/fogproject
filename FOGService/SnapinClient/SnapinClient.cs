@@ -9,9 +9,9 @@ namespace FOG {
 	public class SnapinClient : AbstractModule {
 		
 		public SnapinClient(LogHandler logHandler, NotificationHandler notificationHandler, ShutdownHandler shutdownHandler, 
-		                         CommunicationHandler communicationHandler, UserHandler userHandler):base(logHandler, 
-		                                                                         notificationHandler, shutdownHandler,
-		                                                                         communicationHandler, userHandler){
+		                         CommunicationHandler communicationHandler, UserHandler userHandler, 
+		                         EncryptionHandler encryptionHandler):base(logHandler,notificationHandler, shutdownHandler,
+		                                          communicationHandler, userHandler, encryptionHandler){
 			
 			setName("SnapinClient");
 			setDescription("Installs snapins on client computers");
