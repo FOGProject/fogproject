@@ -35,7 +35,6 @@ namespace FOG
 		public FOGService() {
 			//Initialize everything
 			CommunicationHandler.setServerAddress("http://10.0.7.1");
-			
 			initializeModules();
 			this.threadManager = new Thread(new ThreadStart(serviceLooper));
 			this.status = Status.Stopped;
