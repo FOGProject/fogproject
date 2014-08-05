@@ -10,7 +10,7 @@ namespace FOG
 {
 	/// <summary>
 	/// Handle all shutdown requests
-	/// The windows shutdown command is used over the win32 api because it notifies the user prior
+	/// The windows shutdown command is used instead of the win32 api because it notifies the user prior
 	/// </summary>
 	public class ShutdownHandler {
 
@@ -59,18 +59,17 @@ namespace FOG
 			               "Creating shutdown request");
 			logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 			               "Parameters: " + parameters);
+
 			Process.Start("shutdown", parameters);
 		}
 		
 		public void shutdown(String comment, int seconds) {
 			this.shutdownPending = true;
-			
 			createShutdownCommand("/s /c \"" + comment + "\" /t " + seconds);
 		}
 		
 		public void restart(String comment, int seconds) {
 			this.shutdownPending = true;
-			
 			createShutdownCommand("/r /c \"" + comment + "\" /t " + seconds);
 		}		
 		
