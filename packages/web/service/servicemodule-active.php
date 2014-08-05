@@ -25,7 +25,6 @@ try
 		'autologout' => $FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_ENABLED'),
 		'greenfog' => $FOGCore->getSetting('FOG_SERVICE_GREENFOG_ENABLED'),
 		'hostnamechanger' => $FOGCore->getSetting('FOG_SERVICE_HOSTNAMECHANGER_ENABLED'),
-		'snapin' => $FOGCore->getSetting('FOG_SERVICE_SNAPIN_ENABLED'),
 		'snapinclient' => $FOGCore->getSetting('FOG_SERVICE_SNAPIN_ENABLED'),
 		'clientupdater' => $FOGCore->getSetting('FOG_SERVICE_CLIENTUPDATER_ENABLED'),
 		'hostregister' => $FOGCore->getSetting('FOG_SERVICE_HOSTREGISTER_ENABLED'),
