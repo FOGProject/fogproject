@@ -7,23 +7,21 @@ namespace FOG {
 	/// Installs snapins on client computers
 	/// </summary>
 	public class SnapinClient : AbstractModule {
-		public SnapinClient(CommunicationHandler communicationHandler,
-		                      LogHandler logHandler,
-		                      NotificationHandler notificationHandler,
-		                      ShutdownHandler shutdownHander,
-		                      UserHandler userHandler) : base(communicationHandler, logHandler,
-			     												notificationHandler, shutdownHander,
-			    												userHandler){
-			setName("Snapin");
+		private CommunicationHandler communicationHandler;
+		private ShutdownHandler shutdownHander;
+		
+		public SnapinClient(LogHandler logHandler) : base(logHandler){
+			this.communicationHandler = new CommunicationHandler(logHandler);
+			this.shutdownHander = new ShutdownHandler(logHandler);
+			setName("SnapinClient");
 			setDescription("Installs snapins on client computers");
 		}
 		
 		protected override void doWork() {
-			logHandler.log(getName(), "----------------------------------");
-			logHandler.log(getName(), "Running...");
-			if(isEnabled()) {
+
+			if(isEnabled(communicationHandler)) {
 				//Get task info
-				Response taskResponse = communicationHandler.getResponse("/fog/service/snapins.checkin.php.php?mac=" +
+				Response taskResponse = communicationHandler.getResponse("/fog/service/snapins.checkin.php?mac=" +
 				                                                         communicationHandler.getMacAddresses());
 				
 				//Download the snapin file if there was a response and run it
@@ -33,11 +31,12 @@ namespace FOG {
 					logHandler.log(getName(), "    RunWith: " + taskResponse.getField("SNAPINRUNWITH"));
 					logHandler.log(getName(), "    RunWithArgs: " + taskResponse.getField("SNAPINRUNWITHARGS"));
 					logHandler.log(getName(), "    Name: " + taskResponse.getField("SNAPINNAME"));
+					logHandler.log(getName(), "    File: " + taskResponse.getField("SNAPINFILENAME"));					
 					logHandler.log(getName(), "    Created: " + taskResponse.getField("JOBCREATION"));
 					logHandler.log(getName(), "    Args: " + taskResponse.getField("SNAPINARGS"));
 					logHandler.log(getName(), "    Reboot: " + taskResponse.getField("SNAPINBOUNCE"));
 					
-					String snapinFilePath = AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + taskResponse.getField("SNAPINNAME");
+					String snapinFilePath = AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + taskResponse.getField("SNAPINFILENAME");
 					
 					Boolean downloaded = communicationHandler.downloadFile("/fog/service/snapins.file.php?mac=" +  
 					                                                       communicationHandler.getMacAddresses() + 
@@ -46,16 +45,24 @@ namespace FOG {
 					String exitCode = "-1";
 					if(downloaded) {
 						exitCode = startSnapin(taskResponse, snapinFilePath);
-						
-						if (taskResponse.getField("SNAPINBOUNCE").Equals("1")) {
-								shutdownHander.restart("Snapin requested shutdown", 30);
-						}
-					}
-					
-					communicationHandler.contact("/fog/service/snapins.checkin.php.php?mac=" +
+						communicationHandler.contact("/fog/service/snapins.checkin.php?mac=" +
 					                             communicationHandler.getMacAddresses() +
 					                             "&taskid=" + taskResponse.getField("JOBTASKID") +
 					                             "&exitcode=" + exitCode);
+						
+						if (taskResponse.getField("SNAPINBOUNCE").Equals("1")) {
+								shutdownHander.restart("Snapin requested shutdown", 30);
+						} else {
+							doWork();
+						}
+					} else {
+						communicationHandler.contact("/fog/service/snapins.checkin.php?mac=" +
+					                             communicationHandler.getMacAddresses() +
+					                             "&taskid=" + taskResponse.getField("JOBTASKID") +
+					                             "&exitcode=" + exitCode);
+					}
+					
+
 					
 				}
 			} else {
