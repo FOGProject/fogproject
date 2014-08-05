@@ -16,7 +16,7 @@ try
 	if (empty($_REQUEST['moduleid']) || !$moduleID || !$moduleID->isValid())
 		throw new Exception('#!um');
 	if ($_REQUEST['sleeptime'])
-		print '#sleep='.$FOGCore->getSetting('FOG_SERVICE_CHECKIN_TIME');
+		print "#!ok\n#sleep=".$FOGCore->getSetting('FOG_SERVICE_CHECKIN_TIME');
 	// Associate the moduleid param with the global name.
 	$moduleName = array(
 		'dircleanup' => $FOGCore->getSetting('FOG_SERVICE_DIRECTORYCLEANER_ENABLED'),
