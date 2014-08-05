@@ -52,7 +52,7 @@ namespace FOG {
 						
 						if (taskResponse.getField("SNAPINBOUNCE").Equals("1")) {
 								this.shutdownHandler.restart("Snapin requested shutdown", 30);
-						} else {
+						} else if(!shutdownHandler.isShutdownPending()) {
 							doWork();
 						}
 					} else {
