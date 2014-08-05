@@ -8,17 +8,17 @@ namespace FOG {
 	/// <summary>
 	/// FOGCrypt encryption method
 	/// </summary>
-	public class FOGCrypt {
+	public static class FOGCrypt {
 				
-		public String decrypt(String toDecode, String passPhrase) {
+		public static String decrypt(String toDecode, String passPhrase) {
 			return UnicodeEncoding.ASCII.GetString(decrypt(hexToBytes(toDecode), passPhrase));
 		}
 		
-		public String encrypt(String toEncode, String passPhrase) {
+		public static String encrypt(String toEncode, String passPhrase) {
 			return bytesToHex(encrypt(UnicodeEncoding.ASCII.GetBytes(toEncode), passPhrase));
 		}
 		
-		private String bytesToHex(Byte[] bytes) {
+		private static String bytesToHex(Byte[] bytes) {
 			StringBuilder stringBuilder = new StringBuilder(bytes.Length * 2);
 			foreach (byte convertedByte in bytes) {
 				stringBuilder.AppendFormat("{0:x2}", convertedByte);
@@ -26,7 +26,7 @@ namespace FOG {
 			return stringBuilder.ToString();
 		}
 	
-		private byte[] hexToBytes(String hex) {
+		private static byte[] hexToBytes(String hex) {
 			int intChars = hex.Length;
 			byte[] bytes = new byte[intChars / 2];
 			
@@ -38,7 +38,7 @@ namespace FOG {
 		}
 	
 	
-		private byte[] encrypt(byte[] clearData, byte[] Key, byte[] IV){
+		private static byte[] encrypt(byte[] clearData, byte[] Key, byte[] IV){
 			MemoryStream ms = new MemoryStream();
 			Rijndael alg = Rijndael.Create();
 			alg.Key = Key;
@@ -54,7 +54,7 @@ namespace FOG {
 			return encryptedData;
 		}
 	
-		private byte[] encrypt(byte[] clearData, string password){
+		private static byte[] encrypt(byte[] clearData, string password){
 			PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
 			
 			return encrypt(clearData, pdb.GetBytes(32), pdb.GetBytes(16));
@@ -62,7 +62,7 @@ namespace FOG {
 	
 	
 	
-		private byte[] decrypt(byte[] cipherData, byte[] Key, byte[] IV) {
+		private static byte[] decrypt(byte[] cipherData, byte[] Key, byte[] IV) {
 			MemoryStream ms = new MemoryStream();
 			Rijndael alg = Rijndael.Create();
 	
@@ -79,7 +79,7 @@ namespace FOG {
 			return decryptedData;
 		}
 	
-		private byte[] decrypt(byte[] cipherData, string password) {
+		private static byte[] decrypt(byte[] cipherData, string password) {
 			PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
 			
 			return decrypt(cipherData, pdb.GetBytes(32), pdb.GetBytes(16));
