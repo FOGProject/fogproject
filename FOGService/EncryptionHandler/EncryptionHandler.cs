@@ -11,9 +11,11 @@ namespace FOG {
 		
 		//Define handler
 		LogHandler logHandler;
+		FOGCrypt fogCrypt;
 		
 		public EncryptionHandler(LogHandler logHandler) {
 			this.logHandler = logHandler;
+			this.fogCrypt = new FOGCrypt();
 		}
 		
 		public String encodeBase64(String toEncode) {
@@ -39,6 +41,36 @@ namespace FOG {
 				this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 				                    "ERROR: " + ex.Message);				
 			}
+			return "";
+		}
+		
+		public String decodeFOGCrypt(String toDecode, String passPhrase) {
+			this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ":FOGCrypt",
+				                   "Decoding...");
+			try {
+				return this.fogCrypt.decrypt(toDecode, passPhrase);
+			} catch (Exception ex) {
+				this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ":FOGCrypt",
+				                   "Error decoding");
+				this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ":FOGCrypt",
+				                    "ERROR: " + ex.Message);
+				
+			}
+			return "";
+		}
+		
+		public String encodeFOGCrypt(String toEncode, String passPhrase) {
+			this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ":FOGCrypt",
+				                   "Encoding...");
+			try {
+				return this.fogCrypt.encrypt(toEncode, passPhrase);
+			} catch (Exception ex) {
+				this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ":FOGCrypt",
+				                   "Error encoding");
+				this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ":FOGCrypt",
+				                    "ERROR: " + ex.Message);
+				
+			}	
 			return "";
 		}
 		
