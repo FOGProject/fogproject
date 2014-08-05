@@ -20,10 +20,11 @@ namespace FOG
 		protected ShutdownHandler shutdownHandler;
 		protected CommunicationHandler communicationHandler;
 		protected UserHandler userHandler;
+		protected EncryptionHandler encryptionHandler;
 		
 		
 		protected AbstractModule(LogHandler logHandler, NotificationHandler notificationHandler, ShutdownHandler shutdownHandler, 
-		                         CommunicationHandler communicationHandler, UserHandler userHandler) {
+		                         CommunicationHandler communicationHandler, UserHandler userHandler, EncryptionHandler encryptionHandler) {
 			
 			//Define variables
 			setName("Generic Module");
@@ -35,6 +36,7 @@ namespace FOG
 			this.shutdownHandler = shutdownHandler;
 			this.communicationHandler = communicationHandler;
 			this.userHandler = userHandler;
+			this.encryptionHandler = encryptionHandler;
 		}
 		
 		protected abstract void doWork();
