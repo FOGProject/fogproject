@@ -15,6 +15,8 @@ try
 	// get the module id
 	if (empty($_REQUEST['moduleid']) || !$moduleID || !$moduleID->isValid())
 		throw new Exception('#!um');
+	if ($_REQUEST['sleeptime'])
+		print '#sleep='.$FOGCore->getSetting('FOG_SERVICE_CHECKIN_TIME');
 	// Associate the moduleid param with the global name.
 	$moduleName = array(
 		'dircleanup' => $FOGCore->getSetting('FOG_SERVICE_DIRECTORYCLEANER_ENABLED'),
@@ -24,6 +26,7 @@ try
 		'greenfog' => $FOGCore->getSetting('FOG_SERVICE_GREENFOG_ENABLED'),
 		'hostnamechanger' => $FOGCore->getSetting('FOG_SERVICE_HOSTNAMECHANGER_ENABLED'),
 		'snapin' => $FOGCore->getSetting('FOG_SERVICE_SNAPIN_ENABLED'),
+		'snapinclient' => $FOGCore->getSetting('FOG_SERVICE_SNAPIN_ENABLED'),
 		'clientupdater' => $FOGCore->getSetting('FOG_SERVICE_CLIENTUPDATER_ENABLED'),
 		'hostregister' => $FOGCore->getSetting('FOG_SERVICE_HOSTREGISTER_ENABLED'),
 		'printermanager' => $FOGCore->getSetting('FOG_SERVICE_PRINTERMANAGER_ENABLED'),
