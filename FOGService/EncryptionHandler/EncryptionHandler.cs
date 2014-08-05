@@ -35,7 +35,7 @@ namespace FOG {
 				return Encoding.ASCII.GetString(bytes);
 			} catch (Exception ex) {
 				this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
-				                    "Error encoding base64");
+				                    "Error decoding base64");
 				this.logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 				                    "ERROR: " + ex.Message);				
 			}
