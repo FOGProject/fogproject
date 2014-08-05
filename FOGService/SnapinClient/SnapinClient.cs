@@ -7,34 +7,34 @@ namespace FOG {
 	/// Installs snapins on client computers
 	/// </summary>
 	public class SnapinClient : AbstractModule {
-		private CommunicationHandler communicationHandler;
-		private ShutdownHandler shutdownHander;
 		
-		public SnapinClient(LogHandler logHandler) : base(logHandler){
-			this.communicationHandler = new CommunicationHandler(logHandler);
-			this.shutdownHander = new ShutdownHandler(logHandler);
+		public SnapinClient(LogHandler logHandler, NotificationHandler notificationHandler, ShutdownHandler shutdownHandler, 
+		                         CommunicationHandler communicationHandler, UserHandler userHandler):base(logHandler, 
+		                                                                         notificationHandler, shutdownHandler,
+		                                                                         communicationHandler, userHandler){
+			
 			setName("SnapinClient");
 			setDescription("Installs snapins on client computers");
 		}
 		
 		protected override void doWork() {
 
-			if(isEnabled(communicationHandler)) {
+			if(isEnabled()) {
 				//Get task info
-				Response taskResponse = communicationHandler.getResponse("/fog/service/snapins.checkin.php?mac=" +
+				Response taskResponse = this.communicationHandler.getResponse("/fog/service/snapins.checkin.php?mac=" +
 				                                                         communicationHandler.getMacAddresses());
 				
 				//Download the snapin file if there was a response and run it
 				if(!taskResponse.wasError()) {
-					logHandler.log(getName(), "Snapin Found:");
-					logHandler.log(getName(), "    ID: " + taskResponse.getField("JOBTASKID"));
-					logHandler.log(getName(), "    RunWith: " + taskResponse.getField("SNAPINRUNWITH"));
-					logHandler.log(getName(), "    RunWithArgs: " + taskResponse.getField("SNAPINRUNWITHARGS"));
-					logHandler.log(getName(), "    Name: " + taskResponse.getField("SNAPINNAME"));
-					logHandler.log(getName(), "    File: " + taskResponse.getField("SNAPINFILENAME"));					
-					logHandler.log(getName(), "    Created: " + taskResponse.getField("JOBCREATION"));
-					logHandler.log(getName(), "    Args: " + taskResponse.getField("SNAPINARGS"));
-					logHandler.log(getName(), "    Reboot: " + taskResponse.getField("SNAPINBOUNCE"));
+					this.logHandler.log(getName(), "Snapin Found:");
+					this.logHandler.log(getName(), "    ID: " + taskResponse.getField("JOBTASKID"));
+					this.logHandler.log(getName(), "    RunWith: " + taskResponse.getField("SNAPINRUNWITH"));
+					this.logHandler.log(getName(), "    RunWithArgs: " + taskResponse.getField("SNAPINRUNWITHARGS"));
+					this.logHandler.log(getName(), "    Name: " + taskResponse.getField("SNAPINNAME"));
+					this.logHandler.log(getName(), "    File: " + taskResponse.getField("SNAPINFILENAME"));					
+					this.logHandler.log(getName(), "    Created: " + taskResponse.getField("JOBCREATION"));
+					this.logHandler.log(getName(), "    Args: " + taskResponse.getField("SNAPINARGS"));
+					this.logHandler.log(getName(), "    Reboot: " + taskResponse.getField("SNAPINBOUNCE"));
 					
 					String snapinFilePath = AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + taskResponse.getField("SNAPINFILENAME");
 					
@@ -51,7 +51,7 @@ namespace FOG {
 					                             "&exitcode=" + exitCode);
 						
 						if (taskResponse.getField("SNAPINBOUNCE").Equals("1")) {
-								shutdownHander.restart("Snapin requested shutdown", 30);
+								this.shutdownHandler.restart("Snapin requested shutdown", 30);
 						} else {
 							doWork();
 						}
@@ -62,11 +62,9 @@ namespace FOG {
 					                             "&exitcode=" + exitCode);
 					}
 					
-
-					
 				}
 			} else {
-				logHandler.log(getName(), "Disabled on server");
+				this.logHandler.log(getName(), "Disabled on server");
 			}
 			
 		}
