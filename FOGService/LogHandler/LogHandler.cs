@@ -11,7 +11,7 @@ namespace FOG
 	public static class LogHandler
 	{
 		//Define variables
-		private static String filePath = @"./fog.log";
+		private static String filePath = @"\fog.log";
 		private static long maxLogSize = 502400;
 
 		public static void setFilePath(String fPath) { filePath = fPath; }		
