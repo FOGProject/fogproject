@@ -18,17 +18,53 @@ namespace FOG
 		private WebClient webClient;
 		private LogHandler logHandler;
 		private String successCode;
+		private Dictionary<String, String> returnMessages;
 
-		public CommunicationHandler(LogHandler logHandler, String serverAddress) {
-			this.serverAddress = serverAddress;
+		public CommunicationHandler(LogHandler logHandler) {
+			this.serverAddress = "http://10.0.7.1";
 			this.webClient = new WebClient();
 			this.logHandler = logHandler;
+			
 			this.successCode = "#!ok";
+			
+			this.returnMessages = new Dictionary<String, String>();
+			this.returnMessages.Add(this.successCode, "Success");			
+			this.returnMessages.Add("#!db", "Database error");
+			this.returnMessages.Add("#!im", "Invalid MAC address format");
+			this.returnMessages.Add("#!ih", "Invalid host");		
+			this.returnMessages.Add("#!it", "Invalid task");				
+			this.returnMessages.Add("#!ng", "Module is disabled globablly on the FOG Server");
+			this.returnMessages.Add("#!nh", "Module is diabled on the host");
+			this.returnMessages.Add("#!um", "Unknown module ID");
+			this.returnMessages.Add("#!ns", "No snapins");		
+			this.returnMessages.Add("#!nj", "No jobs");		
+			this.returnMessages.Add("#!er", "General Error");			
+
 		}
 		
 		public Response getResponse(String postfix) {
 			try {
-				return parseResponse(this.webClient.DownloadString(this.serverAddress + postfix));
+				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+				               "URL: " + this.serverAddress + postfix );				
+				
+				String response = this.webClient.DownloadString(this.serverAddress + postfix);
+
+				Boolean messageFound = false;
+				foreach(String returnMessage in returnMessages.Keys) {
+					if(response.StartsWith(returnMessage)) {
+						messageFound=true;
+						logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+					              	"Response: " + returnMessages[returnMessage]);
+					}					
+				}
+				
+				if(!messageFound) {
+						logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+						               "Unknown Response: " + response.Replace("\n", ""));					
+				}
+
+				                               	               
+				return parseResponse(response);
 			} catch (Exception ex) {
 				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 				               "Error contacting FOG");
@@ -66,16 +102,11 @@ namespace FOG
 			try {
 				//Get and set the error boolean
 				String returnCode = data[0];
-				response.setError(returnCode.Equals(successCode));
+				response.setError(!returnCode.Trim().StartsWith(successCode));
 				
 				//Loop through each line returned and if it contains an '=' add it to the dictionary
 				foreach(String element in data) {
 					if(element.Contains("=")) {
-						logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
-						               element.Substring(0, element.IndexOf("=")).Trim() + " = " +
-						               element.Substring(element.IndexOf("=")+1).Trim());
-						               
-						//Temporary debugging code
 						parsedData.Add(element.Substring(0, element.IndexOf("=")).Trim(),
 						               element.Substring(element.IndexOf("=")+1).Trim());
 					}
@@ -129,6 +160,7 @@ namespace FOG
 					//Get the mac address for the adapter and add it to the String 'macs', adding ':' as needed
 					IPInterfaceProperties properties = adapter.GetIPProperties();
 					macs = macs + "|" + string.Join (":", (from z in adapter.GetPhysicalAddress().GetAddressBytes() select z.ToString ("X2")).ToArray());
+					
 				}
 				macs = macs.Substring(1); // Remove the first |
 				

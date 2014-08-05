@@ -22,73 +22,70 @@ namespace FOG
 	public partial class FOGService  : ServiceBase {
 		//Define variables
 		private Thread threadManager;
+		private int sleepTime = 60;
 		private List<AbstractModule> modules;
-		private List<Thread> moduleThreads; //TODO remove this variable if it is never used
+		private Status status;
 		
+		//Module status -- used for stopping/starting
+		public enum Status {
+			Running = 1,
+			Stopped = 0
+		}
+				
 		//Define handlers
-		private CommunicationHandler communicationHandler;
 		private LogHandler logHandler;
 		private NotificationHandler notificationHandler;
-		private ShutdownHandler shutdownHander;
-		private UserHandler userHandler;
         
+		//service/servicemodule-active.php?sleeptime=1
+		
 		public FOGService() {
 			//Initialize everything
-			initializeHandlers();
+			this.logHandler = new LogHandler(@"\fog.log", 502400);
 			initializeModules();
-			this.moduleThreads = new List<Thread>();
-			this.threadManager = new Thread(new ThreadStart(startModules));
+			this.threadManager = new Thread(new ThreadStart(serviceLooper));
+			this.status = Status.Stopped;
 		}
 		
 		protected override void OnStart(string[] args) {
+			this.status = Status.Running;
 			this.threadManager.Priority = ThreadPriority.Normal;
 			this.threadManager.IsBackground = true;
 			this.threadManager.Name = "FOG Service"; //TODO change this to FOGService (need old format for current testing system)
 			this.threadManager.Start();
         }
 		
-		private void initializeHandlers() {
-			this.logHandler = new LogHandler(@"\fog.log", 102400); //TODO make theses come from the registry
-			this.communicationHandler = new CommunicationHandler(logHandler, "http://10.0.7.1"); //TODO make this come from the registry
-			this.notificationHandler = new NotificationHandler();
-			this.shutdownHander = new ShutdownHandler(logHandler);
-			this.userHandler = new UserHandler(logHandler);
-		}
-		
 		private void initializeModules() {
 			this.modules = new List<AbstractModule>();
-			this.modules.Add(new TaskReboot(communicationHandler, logHandler, notificationHandler, shutdownHander, userHandler));
-			this.modules.Add(new SnapinClient(communicationHandler, logHandler, notificationHandler, shutdownHander, userHandler));
+			this.modules.Add(new TaskReboot(logHandler));
+			this.modules.Add(new SnapinClient(logHandler));
 		}
 
-		//Loop through all modules and attempt to start them
-		private void startModules() {
-			foreach(AbstractModule module in modules) {
-				try {
-					Thread moduleThread = new Thread(module.start);
-					moduleThread.Priority = ThreadPriority.AboveNormal;
-					moduleThread.IsBackground = true;
-					moduleThread.Start();
-					
-					moduleThreads.Add(moduleThread);
-				} catch (Exception ex) {
-					logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
-					               "Failed to start " + module.getName());
-					logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
-					               "ERROR: " + ex.Message);
-				}
-			}
+
+		protected override void OnStop() {
+			this.status = Status.Stopped;
 		}
 		
-		//Loop through all modules and attempt to stop them
-		protected override void OnStop() {
-			foreach(AbstractModule module in modules) {
-				try {
-					module.stop();
-				} catch (Exception ex) {
-					logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
-					               "Failed to stop " + module.getName() + ", ERROR: " + ex.Message);
+		private void serviceLooper() {
+			while (status.Equals(Status.Running)) {
+				foreach(AbstractModule module in modules) {
+					logHandler.newLine();
+					logHandler.newLine();
+					logHandler.divider();
+					try {
+						module.start();
+						
+					} catch (Exception ex) {
+						logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+						               "Failed to start " + module.getName());
+						logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+						               "ERROR: " + ex.Message);
+					}
+					logHandler.divider();
+					logHandler.newLine();
 				}
+				logHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
+				               "Sleeping for " + sleepTime.ToString() + " seconds");
+				System.Threading.Thread.Sleep(sleepTime * 1000);
 			}
 		}
 
