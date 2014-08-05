@@ -1410,6 +1410,7 @@ $databaseSchema[] = array(
 $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	 values('FOG_SERVICE_CHECKIN_TIME','This setting returns the client service checkin times to the server.','60','FOG Service')",
+	 "UPDATE `". DATABASE_NAME ."`.modules SET short_name='snapinclient' WHERE short_name='snapin'",
 );
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
