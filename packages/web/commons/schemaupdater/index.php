@@ -1412,6 +1412,13 @@ $databaseSchema[] = array(
 	 values('FOG_SERVICE_CHECKIN_TIME','This setting returns the client service checkin times to the server.','60','FOG Service')",
 	 "UPDATE `". DATABASE_NAME ."`.modules SET short_name='snapinclient' WHERE short_name='snapin'",
 );
+// 117
+$databaseSchema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME . "`.`multicastSessions`
+		ADD COLUMN `msSessionPass` longtext  NOT NULL AFTER `msStartDateTime`",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_UDPCAST_MAXWAIT','This setting sets the max time to wait for other clients before starting the session in minutes.','1','Multicast Settings')",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
