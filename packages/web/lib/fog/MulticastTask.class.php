@@ -8,13 +8,14 @@ class MulticastTask extends FOGBase
 		$arTasks = array();
 		foreach($FOGCore->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3))) AS $MultiSess)
 		{
+			$count = $FOGCore->getClass('MulticastSessionsAssociationManager')->count(array('msID' => $MultiSess->get('id')));
 			$Image = new Image($MultiSess->get('image'));
 			$Tasks[] = new self(
 				$MultiSess->get('id'), 
 				$MultiSess->get('name'),
 				$MultiSess->get('port'),$root.'/'.$MultiSess->get('logpath'),
 				$FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),
-				count($FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $MultiSess->get('id')))),
+				$count > 0 ? $count : $FOGCore->getClass('HostManager')->count(),
 				$MultiSess->get('isDD'),
 				$Image->get('osID')
 			);
@@ -62,7 +63,7 @@ class MulticastTask extends FOGBase
 		$waitTemp = $this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT');
 		$count = '';
 		$countTemp = $this->getClientCount();
-		$count = sprintf(' --min-receivers %d',($countTemp > 0 ? $countTemp : $this->FOGCore->getClass('HostManager')count()));
+		$count = sprintf(' --min-receivers %d',($countTemp > 0 ? $countTemp : $this->FOGCore->getClass('HostManager')->count()));
 		if ($waitTemp)
 			$wait = sprintf(' --max-wait %d',$waitTemp);
 		if (($this->getOSID() == 5 || $this->getOSID() == 6 || $this->getOSID() == 7) && $this->getImageType() == 1)
