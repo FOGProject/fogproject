@@ -44,7 +44,7 @@ namespace FOG
 			this.status = Status.Running;
 			this.threadManager.Priority = ThreadPriority.Normal;
 			this.threadManager.IsBackground = true;
-			this.threadManager.Name = "FOG Service"; //TODO change this to FOGService (need old format for current testing system)
+			this.threadManager.Name = "FOGService";
 			this.threadManager.Start();
         }
 		
