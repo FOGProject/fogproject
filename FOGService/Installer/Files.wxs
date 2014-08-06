@@ -16,6 +16,7 @@
 						<File Id="PipeServer" Name="PipeServer.dll" Source="..\bin\PipeServer.dll"/>
 						<File Id="ShutdownHandler" Name="ShutdownHandler.dll" Source="..\bin\ShutdownHandler.dll"/>
 						<File Id="SnapinClient" Name="SnapinClient.dll" Source="..\bin\SnapinClient.dll"/>
+						<File Id="Tray" Name="Tray.exe" Source="..\bin\Tray.exe"/>
 						<File Id="TaskReboot" Name="TaskReboot.dll" Source="..\bin\TaskReboot.dll"/>
 						<File Id="UserHandler" Name="UserHandler.dll" Source="..\bin\UserHandler.dll"/>
 						
