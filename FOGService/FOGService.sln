@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 # SharpDevelop 4.4
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{5C3289AB-B65D-42F8-BFD0-21C61619729A}"
 EndProject
@@ -23,6 +23,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EncryptionHandler", "EncryptionHandler\EncryptionHandler.csproj", "{052A6197-798E-428B-99F9-7ABF12280798}"
 EndProject
 Project("{CFEE4113-1246-4D54-95CB-156813CB8593}") = "Installer", "Installer\Installer.wixproj", "{33A322B7-956D-47F4-812B-D13BA35DCCCE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipeServer", "PipeServer\PipeServer.csproj", "{DF7C1145-E90C-486B-ACEC-543B42CF083F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipeClient", "PipeClient\PipeClient.csproj", "{8F3F2E0B-F261-4F9C-A592-2062D8A3C2BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -74,5 +78,13 @@ Global
 		{33A322B7-956D-47F4-812B-D13BA35DCCCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{33A322B7-956D-47F4-812B-D13BA35DCCCE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{33A322B7-956D-47F4-812B-D13BA35DCCCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF7C1145-E90C-486B-ACEC-543B42CF083F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF7C1145-E90C-486B-ACEC-543B42CF083F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF7C1145-E90C-486B-ACEC-543B42CF083F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF7C1145-E90C-486B-ACEC-543B42CF083F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F3F2E0B-F261-4F9C-A592-2062D8A3C2BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F3F2E0B-F261-4F9C-A592-2062D8A3C2BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F3F2E0B-F261-4F9C-A592-2062D8A3C2BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F3F2E0B-F261-4F9C-A592-2062D8A3C2BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 EndGlobal
