@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+<Project ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
     <ProjectGuid>{33A322B7-956D-47F4-812B-D13BA35DCCCE}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -12,6 +12,9 @@
     <SupressIces>ICE45</SupressIces>
     <WixVariables>WixUILicenseRtf=license.rtf</WixVariables>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -57,6 +60,14 @@
       <Project>{717A8C0E-32F9-498C-BC51-FC03D0009248}</Project>
       <Name>NotificationHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PipeClient\PipeClient.csproj">
+      <Project>{8F3F2E0B-F261-4F9C-A592-2062D8A3C2BD}</Project>
+      <Name>PipeClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PipeServer\PipeServer.csproj">
+      <Project>{DF7C1145-E90C-486B-ACEC-543B42CF083F}</Project>
+      <Name>PipeServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Service\Service.csproj">
       <Project>{5C3289AB-B65D-42F8-BFD0-21C61619729A}</Project>
       <Name>Service</Name>
@@ -77,6 +88,14 @@
       <Project>{1759DEAE-2585-4324-9F85-338BE0F755BF}</Project>
       <Name>UserHandler</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
 </Project>
