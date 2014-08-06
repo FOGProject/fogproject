@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("PipeClient")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("FOG")]
 [assembly: AssemblyProduct("PipeClient")]
 [assembly: AssemblyCopyright("Copyright 2014")]
 [assembly: AssemblyTrademark("")]

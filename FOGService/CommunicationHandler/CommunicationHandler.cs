@@ -69,7 +69,7 @@ namespace FOG
 				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 				               "Error contacting FOG");			
 				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
-				               "     ERROR: " + ex.Message);				
+				               "ERROR: " + ex.Message);				
 			}
 			return new Response();
 		}
