@@ -548,6 +548,9 @@ determineOS()
 			osname="Windows 8.1";
 			mbrfile="/usr/share/fog/mbr/win8.mbr";
 			defaultpart2start="368050176B";
+		elif [ "$1" = "8" ]; then
+			osname="Apple Mac OS";
+			mbrfile="";
 		elif [ "$1" = "50" ]; then
 			osname="Linux";
 			mbrfile="";

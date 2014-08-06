@@ -59,8 +59,9 @@ class MulticastTask extends FOGBase
 			$interface = sprintf('--interface %s',$this->getInterface());
 		$cmd = null;
 		$wait = '';
-		if (UDPSENDER_MAXWAIT != null)
-			$wait = sprintf('--max-wait %d',UDPSENDER_MAXWAIT);
+		$waitTemp = $this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT');
+		if ($waitTemp)
+			$wait = sprintf('--max-wait %d',$waitTemp);
 		if (($this->getOSID() == 5 || $this->getOSID() == 6 || $this->getOSID() == 7) && $this->getImageType() == 1)
 		{
 			// Only Windows 7 and 8
@@ -219,7 +220,7 @@ class MulticastTask extends FOGBase
 			$Task->set('stateID','5')->save();
 		}
 		$MultiSess = new MulticastSessions($this->intID);
-		$MultiSess->set('stateID','5')->save();
+		$MultiSess->set('name',null)->set('stateID','5')->save();
 		return true;
 	}
 
