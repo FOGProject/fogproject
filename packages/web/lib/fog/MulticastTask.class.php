@@ -65,7 +65,7 @@ class MulticastTask extends FOGBase
 		$countTemp = $this->getClientCount();
 		$count = sprintf(' --min-receivers %d',($countTemp > 0 ? $countTemp : $this->FOGCore->getClass('HostManager')->count()));
 		if ($waitTemp)
-			$wait = sprintf(' --max-wait %d',$waitTemp);
+			$wait = sprintf(' --max-wait %d',($waitTemp > 0 ? $countTemp * 60 : 60));
 		if (($this->getOSID() == 5 || $this->getOSID() == 6 || $this->getOSID() == 7) && $this->getImageType() == 1)
 		{
 			// Only Windows 7 and 8

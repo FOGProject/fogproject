@@ -327,7 +327,7 @@ class BootMenu extends FOGBase
 		print "#!ipxe\n";
 		print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
 		print "echo -n Please enter the session name to join>\n";
-		print "read sessname";
+		print "read sessname\n";
 		print "params\n";
 		print "param mac0 \${net0/mac}\n";
 		print "param arch \${arch}\n";
