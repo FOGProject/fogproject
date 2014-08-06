@@ -149,8 +149,6 @@ class BootMenu extends FOGBase
 			$this->delHost();
 		else if ($_REQUEST['key'])
 			$this->keyset();
-		else if ($_REQUEST['sessionjoin'])
-			$this->sessjoin();
 		else if ($_REQUEST['sessname'])
 			$this->sesscheck();
 		else if (!$Host || !$Host->isValid())
@@ -299,8 +297,8 @@ class BootMenu extends FOGBase
 	*/
 	public function sesscheck()
 	{
-		$sesscount = $this->FOGCore->getClass('MulticastSessionsManager')->count(array('name' => $_REQUEST['sessname']));
-		if ($sesscount <= 0)
+		$sesscount = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('name' => $_REQUEST['sessname'])));
+		if (!$sesscount || !$sesscount->isValid())
 		{
 			print "#!ipxe\n";
 			print "echo no session found with that name.\n";
@@ -316,7 +314,7 @@ class BootMenu extends FOGBase
 			print "chain -ar $this->booturl/ipxe/boot.php##params";
 		}
 		else
-			$this->multijoin();
+			$this->multijoin($sesscount->get('id'));
 	}
 
 	/**
@@ -344,10 +342,11 @@ class BootMenu extends FOGBase
 	* Joins the host to an already generated multicast session
 	* @return void
 	*/
-	public function multijoin()
+	public function multijoin($msid)
 	{
+		$MultiSess = new MulticastSessions($msid);
 		// Create the host task
-		if($this->Host->createImagePackage(8,'Multicast Join',false,false,true,false,'FOGJOIN'))
+		if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,'FOGJOIN'))
 			$this->chainBoot(false, true);
 	}
 	/**
@@ -404,6 +403,8 @@ class BootMenu extends FOGBase
 				$this->keyreg();
 			else if ($_REQUEST['qihost'])
 				$this->setTasking();
+			else if ($_REQUEST['sessionjoin'])
+				$this->sessjoin();
 			else if ($_REQUEST['menuaccess'])
 			{
 				unset($this->hiddenmenu);
