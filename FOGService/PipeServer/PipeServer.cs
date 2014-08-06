@@ -60,7 +60,7 @@ namespace FOG {
 		}
 		
 		private void listenForClients() {
-			while(isRunning()) {
+			while(true) {
 				SafeFileHandle clientHandle = CreateNamedPipe(this.pipeName, DUPLEX | FILE_FLAG_OVERLAPPED, 0, 255, BUFFER_SIZE, BUFFER_SIZE, 0, IntPtr.Zero);
 				
 				//Failed to create a named pipe
@@ -92,7 +92,7 @@ namespace FOG {
 			byte[] buffer = new byte[BUFFER_SIZE];
 			ASCIIEncoding encoder = new ASCIIEncoding();
 			
-			while (isRunning()) {
+			while (true) {
 				int bytesRead = 0;
 				try {
 					bytesRead = client.getFileStream().Read(buffer, 0, BUFFER_SIZE);

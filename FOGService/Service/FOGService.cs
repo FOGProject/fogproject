@@ -26,6 +26,8 @@ namespace FOG
 		private Status status;
 		private int sleepDefaultTime = 60;
 		
+		private PipeServer pipeServer;
+		
 		//Module status -- used for stopping/starting
 		public enum Status {
 			Running = 1,
@@ -34,14 +36,27 @@ namespace FOG
 		
 		public FOGService() {
 			//Initialize everything
-			CommunicationHandler.setServerAddress("http://10.0.7.1");
+			//CommunicationHandler.setServerAddress("http://10.0.7.1");
+			CommunicationHandler.setServerAddress("http://192.168.4.111");
 			initializeModules();
 			this.threadManager = new Thread(new ThreadStart(serviceLooper));
 			this.status = Status.Stopped;
+			this.pipeServer = new PipeServer(@"\\.\pipe\FOG_PIPE5");
+			this.pipeServer.messageReceived += new PipeServer.messageReceivedHandler(pipeServer_MessageReceived);
+			this.pipeServer.start();
+			Thread.Sleep(2000);
+			this.pipeServer.sendMessage("Heeeey there!");
+			NotificationHandler.createNotification(new Notification("Test", "Terer", 60));
 		}
 		
+		private void pipeServer_MessageReceived(Client client, String message) {
+			LogHandler.log("PipeServer", "Message recieved");
+			LogHandler.log("PipeServer",message);
+		}
+
 		protected override void OnStart(string[] args) {
 			this.status = Status.Running;
+			
 			this.threadManager.Priority = ThreadPriority.Normal;
 			this.threadManager.IsBackground = true;
 			this.threadManager.Name = "FOGService";

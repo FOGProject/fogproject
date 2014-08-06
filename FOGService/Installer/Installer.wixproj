@@ -64,6 +64,10 @@
       <Project>{8F3F2E0B-F261-4F9C-A592-2062D8A3C2BD}</Project>
       <Name>PipeClient</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PipeClient\PipeClient.csproj">
+      <Project>{8F3F2E0B-F261-4F9C-A592-2062D8A3C2BD}</Project>
+      <Name>PipeClient</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PipeServer\PipeServer.csproj">
       <Project>{DF7C1145-E90C-486B-ACEC-543B42CF083F}</Project>
       <Name>PipeServer</Name>
