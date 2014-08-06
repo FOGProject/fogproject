@@ -56,12 +56,15 @@ class MulticastTask extends FOGBase
 	{
 		$interface = "";
 		if ($this->getInterface() != null && strlen($this->getInterface()) > 0)
-			$interface = sprintf('--interface %s',$this->getInterface());
+			$interface = sprintf(' --interface %s',$this->getInterface());
 		$cmd = null;
 		$wait = '';
 		$waitTemp = $this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT');
+		$count = '';
+		$countTemp = $this->getClientCount();
+		$count = sprintf(' --min-receivers %d',($countTemp > 0 ? $countTemp : $this->FOGCore->getClass('HostManager')count()));
 		if ($waitTemp)
-			$wait = sprintf('--max-wait %d',$waitTemp);
+			$wait = sprintf(' --max-wait %d',$waitTemp);
 		if (($this->getOSID() == 5 || $this->getOSID() == 6 || $this->getOSID() == 7) && $this->getImageType() == 1)
 		{
 			// Only Windows 7 and 8
@@ -90,11 +93,11 @@ class MulticastTask extends FOGBase
 			if ($strRec && $strSys)
 			{
 				// two parts
-				$cmd = 'cat '.$strRec.'|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
-				$cmd .= 'cat '.$strSys.'|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
+				$cmd = 'cat '.$strRec.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
+				$cmd .= 'cat '.$strSys.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
 			}
 			else if (!$strRec && $strSys)
-				$cmd = 'cat '.$strSys.'|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
+				$cmd = 'cat '.$strSys.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().' '.$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
 		}
 		else if ($this->getImageType() == 1 || $this->getImageType() == 2)
 		{
@@ -119,11 +122,11 @@ class MulticastTask extends FOGBase
 				foreach ($filelist AS $file)
 				{
 					$path = rtrim($this->getImagePath(),'/').'/'.$file;
-					$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
+					$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
 				}
 			}
 			else
-				$cmd = 'cat '.rtrim($this->getImagePath(),'/').'|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
+				$cmd = 'cat '.rtrim($this->getImagePath(),'/').'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
 		}
 		else if ($this->getImageType() == 3)
 		{
@@ -151,7 +154,7 @@ class MulticastTask extends FOGBase
 				foreach ($filelist AS $file)
 				{
 					$path = rtrim($this->getImagePath(),'/').'/'.$file;
-					$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
+					$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
 				}
 			}
 		}
@@ -176,7 +179,7 @@ class MulticastTask extends FOGBase
 				foreach ($filelist AS $file)
 				{
 					$path = rtrim($this->getImagePath(),'/').'/'.$file;
-					$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.' --min-receivers '.$this->getClientCount().' --portbase '.$this->getPortBase().' '.$interface.' '.$wait.' --full-duplex --ttl 32 --nokbd;';
+					$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
 				}
 			}
 		}
