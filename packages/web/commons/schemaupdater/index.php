@@ -1414,8 +1414,6 @@ $databaseSchema[] = array(
 );
 // 117
 $databaseSchema[] = array(
-	"ALTER TABLE `" . DATABASE_NAME . "`.`multicastSessions`
-		ADD COLUMN `msSessionPass` longtext  NOT NULL AFTER `msStartDateTime`",
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	 values('FOG_UDPCAST_MAXWAIT','This setting sets the max time to wait for other clients before starting the session in minutes.','10','Multicast Settings')",
 );
