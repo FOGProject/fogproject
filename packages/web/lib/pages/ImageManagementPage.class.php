@@ -529,7 +529,6 @@ class ImageManagementPage extends FOGPage
 		$fields = array(
 			_('Session Name') => '<input type="text" name="name" id="iName" autocomplete="off" value="" />',
 			_('Client Count') => '<input type="text" name="count" id="iCount" autocomplete="off" />',
-			_('Session Password') => '<input type="password" name="pass" id="iPass" autocomplete="off" />',
 			_('Timeout') => '<input type="text" name="timeout" id="iTimeout" autocomplete="off" />',
 			_('Select Image') => '${select_image}',
 			'<input type="hidden" name="start" value="1" />' => '<input type="submit" value="'._('Start').'" /><!--span class="icon icon-help" title="TODO!"></span>-->',
@@ -543,7 +542,6 @@ class ImageManagementPage extends FOGPage
 				'input' => $input,
 				'session_name' => $_REQUEST['name'],
 				'client_count' => $_REQUEST['count'],
-				'session_password' => $_REQUEST['pass'],
 				'session_timeout' => $_REQUEST['timeout'],
 				'select_image' => $this->FOGCore->getClass('ImageManager')->buildSelectBox($_REQUEST['image'],'','id'),
 			);
@@ -632,7 +630,6 @@ class ImageManagementPage extends FOGPage
 				'clients' => $_REQUEST['count'],
 				'isDD' => $Image->get('imageTypeID'),
 				'starttime' => date('Y-m-d H:i:s'),
-				'sessionPwd' => $_REQUEST['pass'],
 				'interface' => $StorageNode->get('interface'),
 				'logpath' => $Image->get('path'),
 			));
