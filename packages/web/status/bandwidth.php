@@ -38,9 +38,9 @@ if ($_REQUEST['dev'])
 		list($intCurRx, $intCurTx) = getData($dev);
 		if (is_numeric( $intCurRx ) && is_numeric($intLastRx))
 		{
-			// Calculate speed in Kilobytes per second
-			$rx = ceil(($intCurRx - $intLastRx) / SLEEPSEC / 1024);
-			$tx = ceil(($intCurTx - $intLastTx) / SLEEPSEC / 1024);
+			// Calculate speed in Megabits per second
+			$rx = ceil(($intCurRx - $intLastRx) / SLEEPSEC / 1000);
+			$tx = ceil(($intCurTx - $intLastTx) / SLEEPSEC / 1000);
 			// Sometimes we get negative numbers - no idea why
 			$Data = array(
 				'rx' => ($rx > 0 ? $rx : 0),

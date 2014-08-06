@@ -103,10 +103,20 @@ $(function()
 		// Prevent default action
 		return false;
 	});
+
+	setInterval(function()
+	{
+		UpdateDiskUsage();
+	}, 300000);
+	setInterval(function()
+	{
+		UpdateClientCount();
+	}, 200);
 	
 	// Bandwidth Graph - start thread
 	setTimeout(function()
 	{
+		UpdateClientCount();
 		UpdateBandwidth();
 	}, (200));
 
@@ -150,8 +160,8 @@ $(function()
 	// Diskusage Graph - Node select - Hook select box to load new data via AJAX
 	$('#diskusage-selector select').change(function()
 	{
-		UpdateDiskUsage();
 		UpdateClientCount();
+		UpdateDiskUsage();
 		return false;
 	});
 	
