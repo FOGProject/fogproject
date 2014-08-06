@@ -67,6 +67,8 @@ namespace FOG {
 		}
 		
 		private String startSnapin(Response taskResponse, String snapinPath) {
+			NotificationHandler.createNotification(new Notification(taskResponse.getField("SNAPINNAME"), getName() +
+			                                                        " is installing " + taskResponse.getField("SNAPINNAME"), 60));
 			Process proccess = new Process();
 			proccess.StartInfo.CreateNoWindow = true;
 			proccess.StartInfo.UseShellExecute = false;
@@ -96,7 +98,8 @@ namespace FOG {
 				proccess.WaitForExit();
 				LogHandler.log(getName(), "Snapin finished");
 				LogHandler.log(getName(), "Return Code: " + proccess.ExitCode.ToString());
-			
+				NotificationHandler.createNotification(new Notification("Finished " + taskResponse.getField("SNAPINNAME"), 
+				                                                        taskResponse.getField("SNAPINNAME") + " finished installing" , 60));
 				return proccess.ExitCode.ToString();
 			} catch (Exception ex) {
 				LogHandler.log(getName(), "Error starting snapin");
