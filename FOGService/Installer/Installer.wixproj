@@ -1,61 +1,40 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
-    <ProjectGuid>{3532F76F-7A3B-474E-8CB1-58867E584510}</ProjectGuid>
+    <ProjectGuid>{33A322B7-956D-47F4-812B-D13BA35DCCCE}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputType>Library</OutputType>
-    <RootNamespace>FOG</RootNamespace>
-    <AssemblyName>SnapinClient</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <NoWin32Manifest>False</NoWin32Manifest>
-    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
-    <NoStdLib>False</NoStdLib>
-    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
-    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <WarningLevel>4</WarningLevel>
+    <OutputType>Package</OutputType>
+    <RootNamespace>Installer</RootNamespace>
+    <OutputName>Installer</OutputName>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+    <SupressIces>ICE45</SupressIces>
+    <WixVariables>WixUILicenseRtf=license.rtf</WixVariables>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <BaseAddress>4194304</BaseAddress>
-    <RegisterForComInterop>False</RegisterForComInterop>
-    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <FileAlignment>4096</FileAlignment>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>..\bin\</OutputPath>
     <DebugSymbols>True</DebugSymbols>
     <DebugType>Full</DebugType>
     <Optimize>False</Optimize>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>..\bin\</OutputPath>
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
     <Optimize>True</Optimize>
-    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
-    <DefineConstants>TRACE</DefineConstants>
-    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+    <StartAction>Project</StartAction>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
+    <WixExtension Include="WixUIExtension.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SnapinClient.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Files.wxs" />
+    <Compile Include="Setup.wxs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AbstractModule\AbstractModule.csproj">
@@ -78,9 +57,17 @@
       <Project>{717A8C0E-32F9-498C-BC51-FC03D0009248}</Project>
       <Name>NotificationHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Service\Service.csproj">
+      <Project>{5C3289AB-B65D-42F8-BFD0-21C61619729A}</Project>
+      <Name>Service</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ShutdownHandler\ShutdownHandler.csproj">
       <Project>{D0C42FA3-B494-4FA7-92CB-50D7C2E05383}</Project>
       <Name>ShutdownHandler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SnapinClient\SnapinClient.csproj">
+      <Project>{3532F76F-7A3B-474E-8CB1-58867E584510}</Project>
+      <Name>SnapinClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\TaskReboot\TaskReboot.csproj">
       <Project>{5E709B72-0C8B-45B7-AC5C-413F6CDA6679}</Project>
@@ -91,5 +78,5 @@
       <Name>UserHandler</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(WixTargetsPath)" />
 </Project>

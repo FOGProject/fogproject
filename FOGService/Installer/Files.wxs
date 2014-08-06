@@ -1,0 +1,35 @@
+﻿<?xml version="1.0"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Fragment>
+		<DirectoryRef Id="TARGETDIR">
+			<Directory Id="ProgramFilesFolder" Name="PFiles">
+				<Directory Id="INSTALLDIR" Name="FOG">
+					<Component Id="StandardComponent" Guid="6B3603AE-3C03-4322-AA6F-6BA7B2417304" DiskId="1">
+						<File Id="FOGService" Name="FOGService.exe" Source="..\bin\FOGService.exe"/>
+						<File Id="LicenseFile" Name="license.rtf" Source="license.rtf"/>
+						<File Id="AbstractModule" Name="AbstractModule.dll" Source="..\bin\AbstractModule.dll"/>
+						<File Id="CommunicationHandler" Name="CommunicationHandler.dll" Source="..\bin\CommunicationHandler.dll"/>
+						<File Id="EncryptionHandler" Name="EncryptionHandler.dll" Source="..\bin\EncryptionHandler.dll"/>
+						<File Id="LogHandler" Name="LogHandler.dll" Source="..\bin\LogHandler.dll"/>
+						<File Id="NotificationHandler" Name="NotificationHandler.dll" Source="..\bin\NotificationHandler.dll"/>
+						<File Id="ShutdownHandler" Name="ShutdownHandler.dll" Source="..\bin\ShutdownHandler.dll"/>
+						<File Id="SnapinClient" Name="SnapinClient.dll" Source="..\bin\SnapinClient.dll"/>
+						<File Id="TaskReboot" Name="TaskReboot.dll" Source="..\bin\TaskReboot.dll"/>
+						<File Id="UserHandler" Name="UserHandler.dll" Source="..\bin\UserHandler.dll"/>
+
+						<ServiceInstall
+							Id="ServiceInstaller" 
+							Type="ownProcess"
+							Name="FOGService"
+							DisplayName="FOGService"
+							Description="Perform tasks for the FOG Server"
+							Start="auto"
+							ErrorControl="normal"><ServiceDependency Id="SENS" /> <ServiceDependency Id="COMSysApp" />
+						</ServiceInstall>
+      					<ServiceControl Id="ConfigureService" Stop="both" Remove="uninstall" Name="FOGService" Wait="yes" />
+					</Component>
+				</Directory>
+			</Directory>
+		</DirectoryRef>
+	</Fragment>
+</Wix>
