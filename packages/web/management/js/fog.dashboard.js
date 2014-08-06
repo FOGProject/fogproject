@@ -57,7 +57,8 @@ $(function()
 		{
 			'lines':
 			{
-				'show': true
+				'show': true,
+				'fill': 0.25,
 			}
 		},
 		'legend':
