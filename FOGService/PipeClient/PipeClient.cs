@@ -66,7 +66,7 @@ namespace FOG {
 			byte[] readBuffer = new byte[BUFFER_SIZE];
 			ASCIIEncoding encoder = new ASCIIEncoding();
 			
-			while (this.running) {
+			while (true) {
 				int bytesRead = 0;
 				
 				try { 
