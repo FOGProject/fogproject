@@ -16,10 +16,7 @@ try
 	if (!$Task->isValid() || ($Task->get('typeID') == 12 || $Task->get('typeID') == 13))
 		throw new Exception('#!nj');
 	else
-	{
 		print "#!ok\n";
-		print '#force='.$FOGCore->getSetting('FOG_TASK_FORCE_REBOOT');
-	}
 }
 catch (Exception $e)
 {
