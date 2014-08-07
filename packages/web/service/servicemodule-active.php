@@ -22,7 +22,7 @@ try
 		else if ($_REQUEST['moduleid'] == 'snapinclient')
 			$_REQUEST['moduleid'] = 'snapin';
 		$moduleID = current($FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['moduleid'])));
-		if (!$moduleID || $moduleID->isValid())
+		if (!$moduleID || !$moduleID->isValid())
 			throw new Exception('#!um');
 	}
 	// Associate the moduleid param with the global name.
