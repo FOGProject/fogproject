@@ -269,10 +269,11 @@ function UpdateBandwidth()
 	var NodeID = GraphDiskUsageNode.val();
 	$.ajax(
 	{
-		'url':		'../status/bandwidth.php',
+		'url':		'../management/index.php?node=home',
 		'cache':	false,
 		'type':		'GET',
-		'data':		{ 'id': NodeID },
+		'data':		{ 'sub': 'bandwidth',
+					  'nodeid': NodeID },
 		'dataType':	'json',
 		'success':	function(data)
 		{
