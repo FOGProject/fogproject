@@ -224,7 +224,7 @@ class MulticastTask extends FOGBase
 			$Task->set('stateID','5')->save();
 		}
 		$MultiSess = new MulticastSessions($this->intID);
-		$MultiSess->set('name',null)->set('stateID','5')->save();
+		$MultiSess->set('name',null)->set('name','')->set('stateID','5')->save();
 		return true;
 	}
 
