@@ -98,10 +98,46 @@ class DashboardPage extends FOGPage
 			$ImagingLogs = $this->FOGCore->getClass('ImagingLogManager')->count(array('start' => $keyword, 'type' => array('up','down')));
 			$Graph30dayData[] = '["'.($Date->getTimestamp()*1000).'", '.$ImagingLogs.']';
 		}
-		print "\n\t\t\t".'<div class="fog-variable" id="ActivityActive"></div>';
-		print "\n\t\t\t".'<div class="fog-variable" id="ActivityQueued"></div>';
-		print "\n\t\t\t".'<div class="fog-variable" id="ActivitySlots"></div>';
+		
+		$ActivityActive = 0;
+       	$ActivityQueued = 0;
+  		$ActivitySlots = 0;
+  		$ActivityTotalClients = 0;
+		foreach( $this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1)) AS $StorageNode ) {
+		    if ( $StorageNode && $StorageNode->isValid() ) {
+           		$ActivityActive += $StorageNode->getUsedSlotCount();
+	        	$ActivityQueued += $StorageNode->getQueuedSlotCount();
+	        	$ActivityTotalClients += $StorageNode->get('maxClients');
+
+    		}
+		}
+   		$ActivitySlots = $ActivityTotalClients -  $ActivityActive - $ActivityQueued;		    		
+   		
+		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isMaster' => 1, 'isEnabled' => 1)));
+
+		print "\n\t\t\t".'<div class="fog-variable" id="ActivityActive">'.$ActivityActive.'</div>';
+		print "\n\t\t\t".'<div class="fog-variable" id="ActivityQueued">'.$ActivityQueued.'</div>';
+		print "\n\t\t\t".'<div class="fog-variable" id="ActivitySlots">'.($ActivitySlots < 0 ? 0 : $ActivitySlots).'</div>';
 		print "\n\t\t\t<!-- Variables -->";
 		print "\n\t\t\t".'<div class="fog-variable" id="Graph30dayData">['.implode(', ', (array)$Graph30dayData).']</div>';
+	}
+	/** bandwidth()
+		Display's the bandwidth bar on the dashboard page.
+	*/
+	public function bandwidth()
+	{
+		// Loop each storage node -> grab stats
+		$StorageNode = new StorageNode($_REQUEST['nodeid']);
+		$URL = sprintf('http://%s/%s?dev=%s', rtrim($StorageNode->get('ip'), '/'), ltrim($this->FOGCore->getSetting("FOG_NFS_BANDWIDTHPATH"), '/'), $StorageNode->get('interface'));
+		// Fetch bandwidth stats from remote server
+		if ($fetchedData = $this->FOGCore->fetchURL($URL))
+		{
+			// Legacy client
+			if (preg_match('/(.*)##(.*)/U', $fetchedData, $match))
+				$data = array('rx' => $match[1], 'tx' => $match[2]);
+			else
+				$data = json_decode($fetchedData, true);
+		}
+		print json_encode((array)$data);
 	}
 }
