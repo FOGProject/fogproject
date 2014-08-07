@@ -19,7 +19,7 @@ function getData($interface)
 define("PROCNETDEV", "/proc/net/dev");
 define("SLEEPSEC", 1);
 $Data = array();
-if ($_REQUEST['id'] && is_numeric($_REQUEST['id']) && $_REQUEST['id'] > 0)
+if ($_REQUEST['id'] && is_numeric($_REQUEST['id']) && $_REQUEST['id'] > 0 && !$_REQUEST['dev'])
 {
 	$StorageNode = new StorageNode($_REQUEST['id']);
 	$URL = sprintf('http://%s/%s?dev=%s',rtrim($StorageNode->get('ip'),'/'),ltrim($FOGCore->getSetting('FOG_NFS_BANDWIDTHPATH'),'/'),$StorageNode->get('interface'));
