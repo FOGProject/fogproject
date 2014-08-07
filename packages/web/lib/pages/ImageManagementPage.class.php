@@ -640,14 +640,13 @@ class ImageManagementPage extends FOGPage
 			while ($randomnumber == $MulticastSession->get('port'))
 				$randomnumber = mt_rand(24576,32766)*2;
 			$this->FOGCore->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
-			$this->FOGCore->setMessage(_('Multicast session created').'<br />'.$MulticastSession->get('name').' has been successfully started on port '.$MulticastSession->get('port'));
-			$this->FOGCore->redirect('?node='.$this->node.'&sub=multicast');
+			$this->FOGCore->setMessage(_('Multicast session created').'<br />'.$MulticastSession->get('name').' has been started on port '.$MulticastSession->get('port'));
 		}
 		catch (Exception $e)
 		{
 			$this->FOGCore->setMessage($e->getMessage());
-			$this->FOGCore->redirect('?node='.$this->node.'&sub=multicast');
 		}
+		$this->FOGCore->redirect('?node='.$this->node.'&sub=multicast');
 	}
 	public function stop()
 	{
