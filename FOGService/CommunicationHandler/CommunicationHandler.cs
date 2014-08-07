@@ -42,6 +42,8 @@ namespace FOG
 		
 		
 		public static Response getResponse(String postfix) {
+			postfix = postfix + "&newService=1"; //ID the service as the new one
+			
 			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 			               "URL: " + getServerAddress() + postfix );
 			

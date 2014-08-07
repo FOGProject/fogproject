@@ -22,6 +22,7 @@ namespace FOG
 	public partial class FOGService  : ServiceBase {
 		//Define variables
 		private Thread threadManager;
+		private Thread pipeThread;
 		private List<AbstractModule> modules;
 		private Status status;
 		private int sleepDefaultTime = 60;
@@ -36,17 +37,32 @@ namespace FOG
 		
 		public FOGService() {
 			//Initialize everything
-			//CommunicationHandler.setServerAddress("http://10.0.7.1");
-			CommunicationHandler.setServerAddress("http://192.168.4.111");
+			CommunicationHandler.setServerAddress("http://10.0.7.1");
+			//CommunicationHandler.setServerAddress("http://192.168.4.111");
 			initializeModules();
 			this.threadManager = new Thread(new ThreadStart(serviceLooper));
 			this.status = Status.Stopped;
-			this.pipeServer = new PipeServer(@"\\.\pipe\FOG_PIPE5");
-			this.pipeServer.messageReceived += new PipeServer.messageReceivedHandler(pipeServer_MessageReceived);
-			this.pipeServer.start();
-			Thread.Sleep(2000);
-			this.pipeServer.sendMessage("Heeeey there!");
+			this.pipeThread = new Thread(new ThreadStart(pipeHandler));
+			this.pipeServer = new PipeServer("fog_pipe");
+			this.pipeServer.MessageReceived += new PipeServer.MessageReceivedHandler(pipeServer_MessageReceived);
 			NotificationHandler.createNotification(new Notification("Test", "Terer", 60));
+		}
+		
+		private void pipeHandler() {
+			while (true) {
+				if(!this.pipeServer.isRunning())
+					this.pipeServer.start();
+				
+				if(NotificationHandler.getNotifications().Count > 0) {
+					List<Notification> notifications = NotificationHandler.getNotifications();
+					
+					//foreach(Notification notification in notifications) {
+						//this.pipeServer.sendMessage(notification.getTitle() + "---||---" + notification.getMessage() + "---||---" + notification.getDuration());
+						//NotificationHandler.removeNotification(notification);
+					//}
+				}
+			}
+
 		}
 		
 		private void pipeServer_MessageReceived(Client client, String message) {
@@ -56,6 +72,9 @@ namespace FOG
 
 		protected override void OnStart(string[] args) {
 			this.status = Status.Running;
+			
+			this.pipeThread.Priority = ThreadPriority.Normal;
+			this.pipeThread.Start();
 			
 			this.threadManager.Priority = ThreadPriority.Normal;
 			this.threadManager.IsBackground = true;
@@ -108,7 +127,7 @@ namespace FOG
 			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 				               "Getting sleep duration...");
 			
-			Response sleepResponse = CommunicationHandler.getResponse("/fog/service/servicemodule-active.php?sleeptime=1");
+			Response sleepResponse = CommunicationHandler.getResponse("/fog/service/servicemodule-active.php?blankVar=0");
 			//Default time
 			try {
 				if(!sleepResponse.wasError() && !sleepResponse.getField("#sleep").Equals("")) {
