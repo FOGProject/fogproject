@@ -14,7 +14,6 @@ class MulticastSessions extends FOGController
 		'clients'			=> 'msClients',
 		'interface'			=> 'msInterface',
 		'starttime'			=> 'msStartDateTime',
-		'sessionPwd'		=> 'msSessionPass',
 		'percent'			=> 'msPercent',
 		'stateID'			=> 'msState',
 		'completetime'		=> 'msCompleteDateTime',
