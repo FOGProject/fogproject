@@ -346,7 +346,7 @@ class BootMenu extends FOGBase
 	{
 		$MultiSess = new MulticastSessions($msid);
 		// Create the host task
-		if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,'FOGJOIN'))
+		if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,$_REQUEST['username']))
 			$this->chainBoot(false, true);
 	}
 	/**
