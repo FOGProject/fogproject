@@ -11,121 +11,168 @@ namespace FOG {
 	/// <summary>
 	/// Inter-proccess communication server
 	/// </summary>
-	public class PipeServer {
-		//Import kernel32 for safe file handling
+	public class PipeServer
+	{
 		[DllImport("kernel32.dll", SetLastError = true)]
-		public static extern SafeFileHandle CreateNamedPipe(
-			String pipeName,
-			uint dwOpenMode,
-			uint dwPipeMode,
-			uint nMaxInstances,
-			uint nOutBufferSize,
-			uint nInBufferSize,
-			uint nDefaultTimeOut,
-			IntPtr lpSecurityAttributes);
-		
+		public static extern SafeFileHandle CreateNamedPipe(String pipeName, uint dwOpenMode, uint dwPipeMode, uint nMaxInstances, uint nOutBufferSize, uint nInBufferSize, uint nDefaultTimeOut, IntPtr lpSecurityAttributes);
+	
 		[DllImport("kernel32.dll", SetLastError = true)]
-		public static extern int ConnectNamedPipe(
-			SafeFileHandle hNamedPipe,
-			IntPtr lpOverlapped);
-		
-		private const uint DUPLEX = (0x00000003);
-		private const uint FILE_FLAG_OVERLAPPED = (0x40000000);
-		private const int BUFFER_SIZE = 4096;
-		
-		public delegate void messageReceivedHandler(Client client, String message);
-		public event messageReceivedHandler messageReceived;
-		
-		private String pipeName;
-		private Thread listenThread;	
-		private Boolean running;
-		private List<Client> clients;
-		
-		public PipeServer(String pipeName) {
-			this.clients = new List<Client>();
-			this.pipeName = pipeName;
-			this.listenThread = new Thread(new ThreadStart(listenForClients));
-			this.running = false;
+		public static extern int ConnectNamedPipe(SafeFileHandle hNamedPipe, IntPtr lpOverlapped);
+	
+		[DllImport("Advapi32.dll", SetLastError = true)]
+		public static extern bool InitializeSecurityDescriptor(out SECURITY_DESCRIPTOR sd, int dwRevision);
+	
+		[DllImport("Advapi32.dll", SetLastError = true)]
+		public static extern bool SetSecurityDescriptorDacl(ref SECURITY_DESCRIPTOR sd, bool bDaclPresent, IntPtr Dacl, bool bDaclDefaulted);
+	
+		[StructLayout(LayoutKind.Sequential)]
+		public struct SECURITY_ATTRIBUTES
+		{
+			public int nLength;
+			public IntPtr lpSecurityDescriptor;
+			public bool bInheritHandle;
 		}
-		
-		public Boolean isRunning() { return this.running; }
-		
-		public void start() {
-			this.running = true;
-			this.listenThread.Start();
+	
+		[StructLayout(LayoutKind.Sequential)]
+		public struct SECURITY_DESCRIPTOR
+		{
+			private byte Revision;
+			private byte Sbz1;
+			private ushort Control;
+			private IntPtr Owner;
+			private IntPtr Group;
+			private IntPtr Sacl;
+			private IntPtr Dacl;
 		}
-		
-		public void stop() {
-			this.running = false;
+	
+		public const uint DUPLEX = (0x00000003);
+		public const uint FILE_FLAG_OVERLAPPED = (0x40000000);
+	
+		public delegate void MessageReceivedHandler(Client client, string message);
+	
+		public event MessageReceivedHandler MessageReceived;
+		public const int BUFFER_SIZE = 4096;
+	
+		String strPipeName;
+		Thread listenThread;
+		Boolean blRunning;
+		List<Client> clients;
+	
+		public PipeServer(String pipeName)
+		{
+			blRunning = false;
+			strPipeName = pipeName;
+			clients = new List<Client>();
 		}
-		
-		private void listenForClients() {
-			while(true) {
-				SafeFileHandle clientHandle = CreateNamedPipe(this.pipeName, DUPLEX | FILE_FLAG_OVERLAPPED, 0, 255, BUFFER_SIZE, BUFFER_SIZE, 0, IntPtr.Zero);
-				
-				//Failed to create a named pipe
-				if(clientHandle.IsInvalid)
-					return;
-				
-				int success = ConnectNamedPipe(clientHandle, IntPtr.Zero);
-				
-				//Could not connect to the client
-				if(success == 0)
-					return;
-				
-				Client client = new Client();
-				client.setFileHandle(clientHandle);
-				
-				lock(clients)
-					this.clients.Add(client);
-				
-				Thread readThread = new Thread(new ParameterizedThreadStart(readMessage));
-				readThread.Start(client);
-				                                              
+	
+		public void start()
+		{
+			listenThread = new Thread(new ThreadStart(listenForClients));
+			listenThread.IsBackground = true;
+			listenThread.Start();
+			blRunning = true;
+		}
+	
+		private void listenForClients()
+		{
+			// Do the security stuff to allow any user to connect.
+			// This was fixed in version 0.16 to allow users in the group
+			// "users" to interact with the backend service.
+			Boolean blSecOk = false;
+	
+			IntPtr ptrSec = IntPtr.Zero;
+			SECURITY_ATTRIBUTES secAttrib = new SECURITY_ATTRIBUTES();
+			SECURITY_DESCRIPTOR secDesc;
+	
+			if (InitializeSecurityDescriptor(out secDesc, 1))
+			{
+				if (SetSecurityDescriptorDacl(ref secDesc, true, IntPtr.Zero, false))
+				{
+					secAttrib.lpSecurityDescriptor = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SECURITY_DESCRIPTOR)));
+					Marshal.StructureToPtr(secDesc, secAttrib.lpSecurityDescriptor, false);
+					secAttrib.bInheritHandle = false;
+					secAttrib.nLength = Marshal.SizeOf(typeof(SECURITY_ATTRIBUTES));
+					ptrSec = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SECURITY_ATTRIBUTES)));
+					Marshal.StructureToPtr(secAttrib, ptrSec, false);
+					blSecOk = true;
+				}
+			}
+	
+			if (blSecOk)
+			{
+				while (true)
+				{
+					SafeFileHandle clientHandle = CreateNamedPipe(@"\\.\pipe\" + strPipeName, DUPLEX | FILE_FLAG_OVERLAPPED, 0, 255, BUFFER_SIZE, BUFFER_SIZE, 0, ptrSec);
+	
+					if (clientHandle.IsInvalid)
+						return;
+	
+					int success = ConnectNamedPipe(clientHandle, IntPtr.Zero);
+	
+					if (success == 0)
+						return;
+	
+					Client client = new Client();
+					client.setFileHandle(clientHandle);
+	
+					lock (clients)
+						this.clients.Add(client);
+	
+					Thread readThread = new Thread(new ParameterizedThreadStart(read));
+					readThread.IsBackground = true;
+					readThread.Start(client);
+				}
 			}
 		}
-		
-		private void readMessage(Object clientObject) {
-			Client client = (Client)clientObject;
-			
+	
+		private void read(object objClient)
+		{
+			Client client = (Client)objClient;
 			client.setFileStream(new FileStream(client.getSafeFileHandle(), FileAccess.ReadWrite, BUFFER_SIZE, true));
+	
 			byte[] buffer = new byte[BUFFER_SIZE];
 			ASCIIEncoding encoder = new ASCIIEncoding();
-			
-			while (true) {
-				int bytesRead = 0;
-				try {
-					bytesRead = client.getFileStream().Read(buffer, 0, BUFFER_SIZE);
-				} catch {
-					break;
+	
+			while (true)
+			{
+				int bRead = 0;
+	
+				try
+				{
+					bRead = client.getFileStream().Read(buffer, 0, BUFFER_SIZE);
 				}
-				
-				if(bytesRead == 0)
+				catch { }
+	
+				if (bRead == 0)
 					break;
-				
-				if(this.messageReceived != null)
-					this.messageReceived(client, encoder.GetString(buffer, 0, bytesRead));
+	
+				if (MessageReceived != null)
+					MessageReceived(client, encoder.GetString(buffer, 0, bRead));
 			}
-			
+	
 			client.getFileStream().Close();
-			client.getSafeFileHandle().Close();
-			
-			lock(this.clients)
-				this.clients.Remove(client);
+			client.getFileStream().Close();
+			lock (clients)
+				clients.Remove(client);
 		}
-		
-		public void sendMessage(String message) {
-			lock (this.clients) {
+	
+		public void sendMessage(String msg)
+		{
+			lock (this.clients)
+			{
 				ASCIIEncoding encoder = new ASCIIEncoding();
-				byte[] messageBuffer = encoder.GetBytes(message);
-				foreach (Client client in this.clients) {
-					if(client.getFileStream() != null) {
-						client.getFileStream().Write(messageBuffer, 0, messageBuffer.Length);
-						client.getFileStream().Flush();
-					}
+				byte[] mBuf = encoder.GetBytes(msg);
+				foreach (Client c in clients)
+				{
+					c.getFileStream().Write(mBuf, 0, mBuf.Length);
+					c.getFileStream().Flush();
 				}
 			}
 		}
+	
+		public Boolean isRunning() { return blRunning; }
+	
+		public String getPipeName() { return strPipeName; }
 	}
 	
 	
