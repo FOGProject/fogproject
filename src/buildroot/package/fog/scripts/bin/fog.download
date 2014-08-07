@@ -379,16 +379,24 @@ else
 		if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 			if [ "$win7partcnt" == "1" ]; then
 				writeImage "$imagePath/sys.img.*" $win7sys;
+				debugPause;
 				fixWin7boot $win7sys;
+				debugPause;
 			elif [ "$win7partcnt" == "2" ]; then
 				writeImage "$imagePath/rec.img.*" $win7rec;
+				debugPause;
 				fixWin7boot $win7rec;
+				debugPause;
 				writeImage "$imagePath/sys.img.*" $win7sys;
 				part=$win7sys;
+				debugPause;
 			elif [ "$win7partcnt" == "3" ]; then
 				writeImage "$imagePath/rec1.img.*" ${hd}1;
+				debugPause;
 				writeImage "$imagePath/rec3.img.*" ${hd}2;
+				debugPause;
 				writeImage "$imagePath/sys.img.*" $win7sys;
+				debugPause;
 			fi
 			expandPartition $win7sys;
 			debugPause;
@@ -411,13 +419,16 @@ else
 					makeSwapSystem "${imagePath}/d1.original.swapuuids" "$part";
 				else
 					writeImage "$imgpart" $part;
+					debugPause;
 					restoreEBR $part;
 					expandPartition $part;
 				fi
 			done
 		else
 			writeImage $imagePath $part;
+			debugPause;
 			expandPartition $part;
+			debugPause;
 		fi
 		debugPause;
 	elif [ "$imgType" == "mps" ]; then
@@ -435,12 +446,14 @@ else
 				echo " * Partition File Missing: $imgpart";
 			else
 				writeImage "$imgpart" $part;
+				debugPause;
 			fi
 			resetFlag $part;
 		done
 		if [ "$osid" == "50" ]; then
 			echo " * Restore Linux swap partitions:";
 			makeAllSwapSystems $hd 1 $imagePath;
+			debugPause;
 		fi
 	elif [ "$imgType" == "mpa" ]; then
 		disks=`fogpartinfo --list-devices 2>/dev/null`;
@@ -449,6 +462,7 @@ else
 			dots "Checking Hard Disks";
 			partprobe $disk &> /dev/null;
 			echo "Done";
+			debugPause;
 			parts=`getValidRestorePartitions $disk $intDisk $imagePath`;
 			diskLength=`expr length $disk`;
 			for part in $parts; do
@@ -459,6 +473,7 @@ else
 					echo " * Partition File Missing: $imgpart";
 				else
 					writeImage "$imgpart" $part;
+					debugPause;
 				fi
 				resetFlag $part;
 			done
@@ -470,10 +485,12 @@ else
 			for disk in $disks; do
 				makeAllSwapSystems $disk $intDisk $imagePath;
 				intDisk=`expr $intDisk '+' 1`;
+				debugPause;
 			done
 		fi
 	else
 		writeImage "$imagePath/$img" $hd;
+		debugPause;
 	fi
 	debugPause;
 fi
