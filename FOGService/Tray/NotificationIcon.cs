@@ -6,9 +6,10 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace FOG
-{
+namespace FOG {
 	public sealed class NotificationIcon {
+		
+		//Define variables
 		private NotifyIcon notifyIcon;
 		private ContextMenu notificationMenu;
 		private PipeClient pipeClient;
@@ -28,11 +29,13 @@ namespace FOG
 			this.notification = new Notification();
 			this.isNotificationReady = false;
 			
+			// Setup the pipe client
 			this.pipeClient = new PipeClient("fog_pipe");
 			this.pipeClient.MessageReceived += new PipeClient.MessageReceivedHandler(pipeClient_MessageReceived);
-			this.pipeClient.Connect();
+			this.pipeClient.connect();
 		}
 		
+		//Called when a message is recieved from the pipe server
 		private void pipeClient_MessageReceived(String message) {
 			
 			if(message.Contains("TLE:")) {
