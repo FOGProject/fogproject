@@ -26,36 +26,36 @@ namespace FOG {
 	
 		private const int BUFFER_SIZE = 4096;
 	
-		private Boolean blConnected;
-		private string strPipeName;
+		private Boolean connected;
+		private string pipeName;
 		private FileStream stream;
 		private SafeFileHandle handle;
 		private Thread readThread;
 	
-		public PipeClient(String pipe) {
-			blConnected = false;
-			strPipeName = pipe;
+		public PipeClient(String pipeName) {
+			this.connected = false;
+			this.pipeName = pipeName;
 		}
 	
-		public Boolean isConnected() { return blConnected; }
+		public Boolean isConnected() { return this.connected; }
 	
-		public String getPipeName() { return strPipeName; }
+		public String getPipeName() { return this.pipeName; }
 	
 		public Boolean Connect() {
 			try {
-				handle = CreateFile(@"\\.\pipe\" + strPipeName, GENERIC_READ | GENERIC_WRITE, 0, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, IntPtr.Zero);
+				this.handle = CreateFile(@"\\.\pipe\" + this.pipeName, GENERIC_READ | GENERIC_WRITE, 0, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, IntPtr.Zero);
 	
-				if (handle == null) return false;
+				if (this.handle == null) return false;
 	
-				if (handle.IsInvalid) {
-					blConnected = false;
+				if (this.handle.IsInvalid) {
+					this.connected = false;
 					return false;
 				}
 	
-				blConnected = true;
+				this.connected = true;
 	
-				readThread = new Thread(new ThreadStart(readFromPipe));
-				readThread.Start();
+				this.readThread = new Thread(new ThreadStart(readFromPipe));
+				this.readThread.Start();
 				return true;
 			} catch  {
 				return false;
@@ -64,36 +64,36 @@ namespace FOG {
 	
 		public void kill() {
 			try {
-				if (stream != null) 
-					stream.Close();
+				if (this.stream != null) 
+					this.stream.Close();
 	
-				if (handle != null)
-					handle.Close();
+				if (this.handle != null)
+					this.handle.Close();
 	
-				readThread.Abort();
+				this.readThread.Abort();
 			} catch { }
 		}
 	
 		public void readFromPipe() {
-			stream = new FileStream(handle, FileAccess.ReadWrite, BUFFER_SIZE, true);
+			this.stream = new FileStream(handle, FileAccess.ReadWrite, BUFFER_SIZE, true);
 			byte[] readBuffer = new byte[BUFFER_SIZE];
 	
 			ASCIIEncoding encoder = new ASCIIEncoding();
 			while (true) {
-				int bRead = 0;
+				int bytesRead = 0;
 	
 				try {
-					bRead = stream.Read(readBuffer, 0, BUFFER_SIZE);
+					bytesRead = stream.Read(readBuffer, 0, BUFFER_SIZE);
 				} catch {
 					break;
 				}
 	
-				if (bRead == 0) break;
+				if (bytesRead == 0) break;
 	
-				if (MessageReceived != null) MessageReceived(encoder.GetString(readBuffer, 0, bRead));
+				if (MessageReceived != null) MessageReceived(encoder.GetString(readBuffer, 0, bytesRead));
 			}
-			stream.Close();
-			handle.Close();
+			this.stream.Close();
+			this.handle.Close();
 		}
 	
 		public void sendMessage(String message) {
@@ -101,8 +101,8 @@ namespace FOG {
 				ASCIIEncoding encoder = new ASCIIEncoding();
 				byte[] messageBuffer = encoder.GetBytes(message);
 	
-				stream.Write(messageBuffer, 0, messageBuffer.Length);
-				stream.Flush();
+				this.stream.Write(messageBuffer, 0, messageBuffer.Length);
+				this.stream.Flush();
 			} catch {
 			}
 		}

@@ -1,0 +1,14 @@
+..\bin\AbstractModule.dll
+..\bin\CommunicationHandler.dll
+..\bin\EncryptionHandler.dll
+..\bin\FOGService.exe
+license.rtf
+..\bin\LogHandler.dll
+..\bin\NotificationHandler.dll
+..\bin\PipeClient.dll
+..\bin\PipeServer.dll
+..\bin\ShutdownHandler.dll
+..\bin\SnapinClient.dll
+..\bin\TaskReboot.dll
+..\bin\Tray.exe
+..\bin\UserHandler.dll

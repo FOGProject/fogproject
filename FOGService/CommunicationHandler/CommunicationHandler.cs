@@ -6,22 +6,21 @@ using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 
-namespace FOG
-{
+namespace FOG {
 	/// <summary>
 	/// Handle all communication with the FOG Server
 	/// </summary>
-	public static class CommunicationHandler
-	{
+	public static class CommunicationHandler {
 		//Define variables
 		private static String serverAddress = "fog-server";
-		private static String successCode = "#!ok";
+		private const String successCode = "#!ok";
 		private static Dictionary<String, String> returnMessages = loadReturnMessages();
+		private const String PASSKEY = "7NFJUuQTYLZIoea32DsP9V6f0tbWnzMy";
 			
+		//Define all return codes
 		private static Dictionary<String, String> loadReturnMessages() {
 			
 			Dictionary<String, String> messages = new Dictionary<String, String>();
-			
 			messages.Add(successCode, "Success");
 			messages.Add("#!db", "Database error");
 			messages.Add("#!im", "Invalid MAC address format");
@@ -37,12 +36,19 @@ namespace FOG
 			return messages;
 		}
 
+		//Getters and setters
 		public static void setServerAddress(String address) { serverAddress = address; }
 		public static String getServerAddress() { return serverAddress; }		
 		
 		
+		//Return the response form an address
 		public static Response getResponse(String postfix) {
-			postfix = postfix + "&newService=1"; //ID the service as the new one
+			//ID the service as the new one
+			if(postfix.Contains("?")) {
+				postfix = postfix + "&newService=1";
+			} else {
+				postfix = postfix + "?newService=1";
+			}
 			
 			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
 			               "URL: " + getServerAddress() + postfix );
@@ -94,10 +100,22 @@ namespace FOG
 			return false;
 		}
 		
+		private static String decryptData(String rawResponse) {
+			if(rawResponse.Length > 16) {
+				return EncryptionHandler.decodeAES(rawResponse.Substring(16), PASSKEY, rawResponse.Substring(0,16));
+			}
+			return "";
+		}
+		
 		private static Response parseResponse(String rawResponse) {
 			
+			//Check if the data is encrypted, if so decrypt it
+			int returnCodePos = rawResponse.IndexOf("\n");
+			String encryptFlag = "#en=";
+			if(rawResponse.Substring(returnCodePos+2).StartsWith(encryptFlag)) {
+				rawResponse = rawResponse.Substring(returnCodePos+2) + decryptData(rawResponse.Substring(returnCodePos+2+encryptFlag.Length));
+			}
 			String[] data = rawResponse.Split('\n'); //Split the response at every new line
-			
 			Dictionary<String, String> parsedData = new Dictionary<String, String>();
 			Response response = new Response();
 			
