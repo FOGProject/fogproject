@@ -454,6 +454,9 @@ else
 			echo " * Restore Linux swap partitions:";
 			makeAllSwapSystems $hd 1 $imagePath;
 			debugPause;
+		else
+			echo " * No swap partitions to restore:";
+			debugPause;
 		fi
 	elif [ "$imgType" == "mpa" ]; then
 		disks=`fogpartinfo --list-devices 2>/dev/null`;

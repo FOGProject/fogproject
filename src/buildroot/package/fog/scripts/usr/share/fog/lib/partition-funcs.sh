@@ -86,7 +86,7 @@ makeSwapSystem() {
 	local option="";
 	local disk=`echo $2 | sed -r 's/[0-9]+$//g'`;
 	local part_type="0";
-	local hasgpt=`hasGPT`;
+	local hasgpt=`hasGPT $disk`;
 	if [ "$hasgpt" == "1" ]; then
 		# don't have a good way to test, as ubuntu installer
 		# doesn't set the GPT partition type correctly.
