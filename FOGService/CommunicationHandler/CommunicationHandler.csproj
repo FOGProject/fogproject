@@ -62,6 +62,10 @@
     <Compile Include="Response.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EncryptionHandler\EncryptionHandler.csproj">
+      <Project>{052A6197-798E-428B-99F9-7ABF12280798}</Project>
+      <Name>EncryptionHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LogHandler\LogHandler.csproj">
       <Project>{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}</Project>
       <Name>LogHandler</Name>

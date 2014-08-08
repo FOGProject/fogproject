@@ -22,10 +22,7 @@ namespace FOG
 			setDescription("Generic Description");
 			setIsActiveURL("/fog/service/servicemodule-active.php");
 		}
-		
-		protected abstract void doWork();
-		
-		
+
 		//Default start method
 		public virtual void start() {
 			LogHandler.log(getName(), "Running...");
