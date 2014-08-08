@@ -1,3 +1,0 @@
-D:\fog\FOGService\bin\PipeServer.dll
-D:\fog\FOGService\PipeServer\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\PipeServer\obj\Release\PipeServer.dll

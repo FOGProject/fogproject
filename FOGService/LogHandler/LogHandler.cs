@@ -13,56 +13,34 @@ namespace FOG
 		//Define variables
 		private static String filePath = @"\fog.log";
 		private static long maxLogSize = 502400;
+		private const String LOG_NAME = "LogHandler";
 
 		public static void setFilePath(String fPath) { filePath = fPath; }		
 		public static String getFilePath() { return filePath; }
 		public static void setMaxLogSize(long mLogSize) { maxLogSize = mLogSize; }	
 		public static long getMaxLogSize() { return maxLogSize; }
 		
+		//Log a message
 		public static void log(String moduleName, String message) {
-			StreamWriter logWriter;
-			
-			try {
-				FileInfo logFile = new FileInfo(getFilePath());
-
-				//Delete the log file if it excedes the max log size
-				if (logFile.Exists && logFile.Length > getMaxLogSize())
-					cleanLog();
-				
-				//Write message to log file
-				logWriter = new StreamWriter(getFilePath(), true);
-				logWriter.WriteLine(" " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + 
-				                    " " + moduleName + " " + message);
-				logWriter.Close();
-			} catch {
-				//If logging fails then nothing can really be done to silently notify the user
-			} 
+			writeLine(" " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + 
+			          " " + moduleName + " " + message);
 		}
 		
+		//Make a new line in the log file
 		public static void newLine() {
-			StreamWriter logWriter;
-			FileInfo logFile = new FileInfo(getFilePath());
-			
-					
-			//Delete the log file if it excedes the max log size
-			if (logFile.Exists && logFile.Length > maxLogSize)
-				cleanLog();
-			
-			try {
-				//Write message to log file
-				logWriter = new StreamWriter(getFilePath(), true);
-				logWriter.WriteLine("");
-				logWriter.Close();
-			} catch {
-				//If logging fails then nothing can really be done to silently notify the user
-			} 			
+			writeLine("");
 		}
 		
+		//Make a divider in the log file
 		public static void divider() {
+			writeLine("---------------------------------------------------------------");		
+		}
+		
+		//Write a string to a line, other classes should not call this function directly for formatting purposes
+		private static void writeLine(String line) {
 			StreamWriter logWriter;
 			FileInfo logFile = new FileInfo(getFilePath());
 			
-					
 			//Delete the log file if it excedes the max log size
 			if (logFile.Exists && logFile.Length > maxLogSize)
 				cleanLog();
@@ -70,20 +48,20 @@ namespace FOG
 			try {
 				//Write message to log file
 				logWriter = new StreamWriter(getFilePath(), true);
-				logWriter.WriteLine("---------------------------------------------------------------");
+				logWriter.WriteLine(line);
 				logWriter.Close();
 			} catch {
 				//If logging fails then nothing can really be done to silently notify the user
-			} 			
+			} 					
 		}
-				
+		
+		//Delete the log file and create a new one
 		private static void cleanLog() {
 			try {
 				FileInfo logFile = new FileInfo(getFilePath());
 				logFile.Delete();
 			} catch(Exception ex) {
-				log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
-				    "Failed to delete log file: " + ex.Message);
+				log(LOG_NAME, "Failed to delete log file: " + ex.Message);
 			}
 		}
 	}
