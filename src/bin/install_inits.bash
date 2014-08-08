@@ -28,6 +28,4 @@ fi
 cp ${initdir}/init.xz ${installdir}/init.xz
 cp ${initdir}/init_32.xz ${installdir}/init_32.xz
 
-ls -l ${installdir}
-
 exit 0
