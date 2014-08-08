@@ -848,13 +848,25 @@ class GroupManagementPage extends FOGPage
 				case 'group-active-directory';
 					foreach ((array)$Group->get('hosts') AS $Host)
 					{
+						if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['domainpassword'])
+						{
+							if (strlen($_REQUEST['domainpassword']) == 40)
+								$decrypt = $this->FOGCore->aesdecrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+							else
+								$decrypt = $_REQUEST['domainpassword'];
+							$password = addslashes($this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY')));
+							if (!$_REQUEST['domainpassword'])
+								$password = '';
+						}
+						else
+							$password = $_REQUEST['domainpassword'];
 						if ($Host && $Host->isValid())
 						{
 							$Host->set('useAD', ($this->REQUEST['domain'] == "on" ? '1' : '0'))
 								 ->set('ADDomain', $this->REQUEST['domainname'])
 								 ->set('ADOU', $this->REQUEST['ou'])
 								 ->set('ADUser', $this->REQUEST['domainuser'])
-								 ->set('ADPass', $this->REQUEST['domainpass']);
+								 ->set('ADPass', $password);
 							$Host->save();
 						}
 					}

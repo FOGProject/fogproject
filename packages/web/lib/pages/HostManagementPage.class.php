@@ -275,6 +275,18 @@ class HostManagementPage extends FOGPage
 			// Get all the service id's so they can be enabled.
 			foreach($this->FOGCore->getClass('ModuleManager')->find() AS $Module)
 				$ModuleIDs[] = $Module->get('id');
+			if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['domainpassword'])
+			{
+				if (strlen($_REQUEST['domainpassword']) == 40)
+					$decrypt = $this->FOGCore->aesdecrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+				else
+					$decrypt = $_REQUEST['domainpassword'];
+				$password = addslashes($this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY')));
+				if (!$_REQUEST['domainpassword'])
+					$password = '';
+			}
+			else
+				$password = $_REQUEST['domainpassword'];
 			// Define new Image object with data provided
 			$Host = new Host(array(
 				'name'		=> $_POST['host'],
@@ -288,7 +300,7 @@ class HostManagementPage extends FOGPage
 				'ADDomain'	=> $_POST['domainname'],
 				'ADOU'		=> $_POST['ou'],
 				'ADUser'	=> $_POST['domainuser'],
-				'ADPass'	=> $_POST['domainpassword'],
+				'ADPass'	=> $password,
 				'productKey' => base64_encode($_POST['key']),
 			));
 			$Host->addModule($ModuleIDs);
@@ -1144,11 +1156,23 @@ class HostManagementPage extends FOGPage
 						$Host->removeGroup($_POST['groupdel']);
 				break;
 				case 'host-active-directory';
+					if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['domainpassword'])
+					{
+						if (strlen($_REQUEST['domainpassword']) == 40)
+							$decrypt = $this->FOGCore->aesdecrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+						else
+							$decrypt = $_REQUEST['domainpassword'];
+						$password = addslashes($this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY')));
+						if (!$_REQUEST['domainpassword'])
+							$password = '';
+					}
+					else
+						$password = $_REQUEST['domainpassword'];
 					$Host	->set('useAD',		($_POST["domain"] == "on" ? '1' : '0'))
 							->set('ADDomain',	$_POST['domainname'])
 							->set('ADOU',		$_POST['ou'])
 							->set('ADUser',		$_POST['domainuser'])
-							->set('ADPass',		$_POST['domainpassword']);
+							->set('ADPass',		$password);
 				break;
 				case 'host-printers';
 					$PrinterManager = $this->FOGCore->getClass('PrinterAssociationManager');
