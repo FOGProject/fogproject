@@ -1,7 +1,9 @@
 ﻿
 using System;
+using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace FOG {
 	/// <summary>
@@ -35,35 +37,26 @@ namespace FOG {
 			return "";
 		}
 		
-		public static String decodeFOGCrypt(String toDecode, String passPhrase) {
-			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ":FOGCrypt",
-				                   "Decoding...");
-			try {
-				return FOGCrypt.decrypt(toDecode, passPhrase);
-			} catch (Exception ex) {
-				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ":FOGCrypt",
-				                   "Error decoding");
-				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ":FOGCrypt",
-				                    "ERROR: " + ex.Message);
-				
-			}
-			return "";
-		}
+		public static String decodeAES(String toDecode, String passPhrase, String ivString) {
+		    byte[] key = Encoding.UTF8.GetBytes(passPhrase);
+		    byte[] iv  = Encoding.UTF8.GetBytes(ivString);
 		
-		public static String encodeFOGCrypt(String toEncode, String passPhrase) {
-			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ":FOGCrypt",
-				                   "Encoding...");
-			try {
-				return FOGCrypt.encrypt(toEncode, passPhrase);
-			} catch (Exception ex) {
-				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ":FOGCrypt",
-				                   "Error encoding");
-				LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ":FOGCrypt",
-				                    "ERROR: " + ex.Message);
-				
-			}	
+		    try {
+		        using (var rijndaelManaged = new RijndaelManaged {Key = key, IV = iv, Mode = CipherMode.CBC, Padding = PaddingMode.Zeros})
+		        	
+		        using (var memoryStream = 
+		               new MemoryStream(Convert.FromBase64String(toDecode)))
+		        using (var cryptoStream = new CryptoStream(memoryStream, rijndaelManaged.CreateDecryptor(key, iv), CryptoStreamMode.Read)) {
+		            return new StreamReader(cryptoStream).ReadToEnd();
+		        }
+		    } catch (Exception ex) {
+		        LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+		    	               "Error decoding AES");
+		        LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name,
+		    	               "ERROR: " + ex.Message);		    	
+		    }
 			return "";
-		}
+		}	
 		
 	}
 }

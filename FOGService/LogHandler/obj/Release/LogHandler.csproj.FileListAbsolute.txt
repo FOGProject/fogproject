@@ -1,0 +1,3 @@
+D:\fog\FOGService\bin\LogHandler.dll
+D:\fog\FOGService\LogHandler\obj\Release\ResolveAssemblyReference.cache
+D:\fog\FOGService\LogHandler\obj\Release\LogHandler.dll

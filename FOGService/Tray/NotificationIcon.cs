@@ -8,17 +8,15 @@ using System.Windows.Forms;
 
 namespace FOG
 {
-	public sealed class NotificationIcon
-	{
+	public sealed class NotificationIcon {
 		private NotifyIcon notifyIcon;
 		private ContextMenu notificationMenu;
 		private PipeClient pipeClient;
-		private List<Notification> notifications;
-		private String splitter;
+		private Notification notification;
+		private Boolean isNotificationReady;
 		
 		#region Initialize icon and menu
-		public NotificationIcon()
-		{
+		public NotificationIcon() {
 			notifyIcon = new NotifyIcon();
 			notificationMenu = new ContextMenu(InitializeMenu());
 			
@@ -27,8 +25,8 @@ namespace FOG
 			notifyIcon.Icon = (Icon)resources.GetObject("icon");
 			notifyIcon.ContextMenu = notificationMenu;
 			
-			this.notifications = new List<Notification>();
-			this.splitter = "---||---";
+			this.notification = new Notification();
+			this.isNotificationReady = false;
 			
 			this.pipeClient = new PipeClient("fog_pipe");
 			this.pipeClient.MessageReceived += new PipeClient.MessageReceivedHandler(pipeClient_MessageReceived);
@@ -37,38 +35,30 @@ namespace FOG
 		
 		private void pipeClient_MessageReceived(String message) {
 			
-			String title = "";
-			String msg = "";
-			int duration = 10;
-			
-			if(message.Contains(this.splitter)) {
-				int titleSplitIndex = message.IndexOf(this.splitter);
-				title = message.Substring(0,titleSplitIndex);
-				
-				if(message.Length > titleSplitIndex+this.splitter.Length && 
-				   message.Substring(titleSplitIndex+this.splitter.Length).Contains(this.splitter)) {
-						
-						int messageSplitIndex = message.LastIndexOf(this.splitter);
-						msg = message.Substring(titleSplitIndex+this.splitter.Length, messageSplitIndex);
-						
-						if(message.Length > messageSplitIndex+this.splitter.Length) {
-							String strDuration = message.Substring(messageSplitIndex+this.splitter.Length);
-							duration = int.Parse(strDuration);
-						}
-				}
-
+			if(message.Contains("TLE:")) {
+				message = message.Substring(4);
+				this.notification.setTitle(message);
+			} else if(message.Contains("MSG:")) {
+				message = message.Substring(4);
+				this.notification.setMessage(message);
+			} else if(message.Contains("DUR:")) {
+				message = message.Substring(4);
+				try {
+					this.notification.setDuration(int.Parse(message));
+				} catch {}
+				this.isNotificationReady = true;
 			}
 			
-			Notification notification = new Notification(title, msg, duration);
-			
-			
-			this.notifyIcon.BalloonTipTitle = notification.getTitle();
-			this.notifyIcon.BalloonTipText = notification.getMessage();
-			this.notifyIcon.ShowBalloonTip(notification.getDuration());
+			if(this.isNotificationReady) {
+				this.notifyIcon.BalloonTipTitle = this.notification.getTitle();
+				this.notifyIcon.BalloonTipText = this.notification.getMessage();
+				this.notifyIcon.ShowBalloonTip(this.notification.getDuration());
+				this.isNotificationReady = false;
+				this.notification = new Notification();
+			}
 		}
 		
-		private MenuItem[] InitializeMenu()
-		{
+		private MenuItem[] InitializeMenu() {
 			MenuItem[] menu = new MenuItem[] {
 				new MenuItem("Restart Module Cycle", menuRestartModuleCycleClick),
 				new MenuItem("About", menuAboutClick),
@@ -82,8 +72,7 @@ namespace FOG
 		/// <summary>Program entry point.</summary>
 		/// <param name="args">Command Line Arguments</param>
 		[STAThread]
-		public static void Main(string[] args)
-		{
+		public static void Main(string[] args) {
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			
@@ -110,18 +99,17 @@ namespace FOG
 				pipeClient.sendMessage("Rebooting cycle...");
 		}
 			
-		private void menuAboutClick(object sender, EventArgs e)
-		{
-			MessageBox.Show("About This Application");
+		private void menuAboutClick(object sender, EventArgs e) {
+			Process.Start("http://fogproject.org/?q=node/1");
 		}
 		
-		private void menuExitClick(object sender, EventArgs e)
-		{
+		private void menuExitClick(object sender, EventArgs e) {
+			if(pipeClient.isConnected())
+				pipeClient.kill();
 			Application.Exit();
 		}
 		
-		private void IconDoubleClick(object sender, EventArgs e)
-		{
+		private void IconDoubleClick(object sender, EventArgs e) {
 		}
 		#endregion
 	}

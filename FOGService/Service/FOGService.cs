@@ -45,22 +45,26 @@ namespace FOG
 			this.pipeThread = new Thread(new ThreadStart(pipeHandler));
 			this.pipeServer = new PipeServer("fog_pipe");
 			this.pipeServer.MessageReceived += new PipeServer.MessageReceivedHandler(pipeServer_MessageReceived);
-			NotificationHandler.createNotification(new Notification("Test", "Terer", 60));
+			NotificationHandler.createNotification(new Notification("Test", "Tester", 20));
 		}
 		
 		private void pipeHandler() {
 			while (true) {
-				if(!this.pipeServer.isRunning())
+				if(!this.pipeServer.isRunning()) 
 					this.pipeServer.start();
 				
+				int duration = 1;
+				
 				if(NotificationHandler.getNotifications().Count > 0) {
-					List<Notification> notifications = NotificationHandler.getNotifications();
-					
-					//foreach(Notification notification in notifications) {
-						//this.pipeServer.sendMessage(notification.getTitle() + "---||---" + notification.getMessage() + "---||---" + notification.getDuration());
-						//NotificationHandler.removeNotification(notification);
-					//}
-				}
+					this.pipeServer.sendMessage("TLE:" + NotificationHandler.getNotifications()[0].getTitle());
+					Thread.Sleep(750);
+					this.pipeServer.sendMessage("MSG:" + NotificationHandler.getNotifications()[0].getMessage());
+					Thread.Sleep(750);
+					duration = NotificationHandler.getNotifications()[0].getDuration();
+					this.pipeServer.sendMessage("DUR:" + NotificationHandler.getNotifications()[0].getDuration().ToString());
+					NotificationHandler.removeNotification(0);
+				} 
+				Thread.Sleep((duration+1) * 1000);
 			}
 
 		}
@@ -127,7 +131,7 @@ namespace FOG
 			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
 				               "Getting sleep duration...");
 			
-			Response sleepResponse = CommunicationHandler.getResponse("/fog/service/servicemodule-active.php?blankVar=0");
+			Response sleepResponse = CommunicationHandler.getResponse("/fog/service/servicemodule-active.php");
 			//Default time
 			try {
 				if(!sleepResponse.wasError() && !sleepResponse.getField("#sleep").Equals("")) {
