@@ -1,2 +1,9 @@
 D:\fog\FOGService\Installer\bin\Release\Installer.msi
 D:\fog\FOGService\Installer\bin\Release\Installer.wixpdb
+D:\fog\FOGService\bin\Installer.msi
+D:\fog\FOGService\bin\Installer.wixpdb
+obj\Release\Files.wixobj
+obj\Release\Setup.wixobj
+obj\Release\Installer.wixproj.BindContentsFileListnull.txt
+obj\Release\Installer.wixproj.BindOutputsFileListnull.txt
+obj\Release\Installer.wixproj.BindBuiltOutputsFileListnull.txt
