@@ -10,7 +10,12 @@ namespace FOG {
 	{
 		//Define variable
 		private static List<Notification> notifications = new List<Notification>();
+		private static String companyName = "FOG";
+				
 		
+		public static void setCompanyName(String name) {companyName = name; }
+		public static String getCompanyName() { return companyName; }		
+				
 		public static void createNotification(Notification notification) { getNotifications().Add(notification); }
 		public static List<Notification> getNotifications() { return notifications; }
 		public static void clearNotifications() { getNotifications().Clear(); }

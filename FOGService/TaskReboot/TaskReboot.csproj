@@ -70,6 +70,10 @@
       <Project>{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}</Project>
       <Name>LogHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NotificationHandler\NotificationHandler.csproj">
+      <Project>{717A8C0E-32F9-498C-BC51-FC03D0009248}</Project>
+      <Name>NotificationHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ShutdownHandler\ShutdownHandler.csproj">
       <Project>{D0C42FA3-B494-4FA7-92CB-50D7C2E05383}</Project>
       <Name>ShutdownHandler</Name>
