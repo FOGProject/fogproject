@@ -450,7 +450,7 @@ else
 			fi
 			resetFlag $part;
 		done
-		if [ "$osid" == "50" ]; then
+		if [ "$osid" == "50" -o "$osid" == "8" ]; then
 			echo " * Restore Linux swap partitions:";
 			makeAllSwapSystems $hd 1 $imagePath;
 			debugPause;
@@ -527,4 +527,11 @@ fi
 echo "";
 echo " * Task is completed, computer will now restart.";
 echo "";
+debugPause;
+# Local Variables:
+# indent-tabs-mode: t
+# sh-basic-offset: 4
+# sh-indentation: 4
+# tab-width: 4
+# End:
 
