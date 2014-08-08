@@ -1417,6 +1417,19 @@ $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	 values('FOG_UDPCAST_MAXWAIT','This setting sets the max time to wait for other clients before starting the session in minutes.','10','Multicast Settings')",
 );
+// 118
+$databaseSchema[] = array(
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_AES_ENCRYPT','This setting turns on or off the FOG Client on the client machine to send the data encrypted with AES.  If you select this and you do not have the new FOG Client installed on your system, the old client will be broken.  This will only be relevant if you have the FOG_NEW_CLIENT enabled as well.','0','FOG Service')",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_NEW_CLIENT','This setting turns on or off the new client. If this is selected, and the clients do not have the new client installed, things should still work unless you also check the FOG_AES_ENCRYPT box.','0','FOG Service')",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_CLIENT_MAXSIZE','This setting specifies the MAX size of the fog.log before it rolls over. It will only work for new clients.','204800000','FOG Service')",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_AES_PASS_ENCRYPT_KEY','This setting just stores the AES Encryption Key. It will only work for new clients.  This is the key used for encrypting all traffic back and forth between the client and server','7NFJUuQTYLZIoea32DsP9V6f0tbWnzMy','FOG Service')",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_AES_ADPASS_ENCRYPT_KEY','This setting just stores the AES Encryption ADPass encryption key. It will only work for new clients.  This is the key used for encrypting ADPass in AES format. If FOG_NEW_CLIENT is selected, to set the ADPass you simply type the plain text password and click update.  It will automatically encrypt and store the encrypted password in the database for you.','jPlUQRw5vLsrz8I1TuZdWDSiMFqXHtcm','FOG Service')",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";

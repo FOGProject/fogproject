@@ -274,4 +274,32 @@ abstract class FOGBase
 		}
 		return false;
 	}
+	/*
+	* Generates a random string based on the length you pass.
+	*
+	* @param $length
+	*   The length of the returned value you want.
+	* @return
+	*   The string randomized.
+	*/
+	public function randomString($length)
+	{
+		$chars = array_merge(range('a','z'),range('A','Z'),range(0,9));
+		shuffle($chars);
+		return implode(array_slice($chars,0,$length));
+	}
+	public function aesencrypt($data,$key,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
+	{
+		$iv_size = mcrypt_get_iv_size($enctype,$mode);
+		$iv = $this->randomString($iv_size);
+		$cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
+		return $iv.base64_encode($cipher);
+	}
+	public function aesdecrypt($encdata,$key,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
+	{
+		$iv_size = mcrypt_get_iv_size($enctype,$mode);
+		$iv = substr($encdata,0,$iv_size);
+		$decipher = mcrypt_decrypt($enctype,$key,base64_decode(substr($encdata,$iv_size)),$mode,$iv);
+		return $decipher;
+	}
 }
