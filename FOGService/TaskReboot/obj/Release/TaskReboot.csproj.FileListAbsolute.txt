@@ -1,3 +1,0 @@
-D:\fog\FOGService\bin\TaskReboot.dll
-D:\fog\FOGService\TaskReboot\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\TaskReboot\obj\Release\TaskReboot.dll

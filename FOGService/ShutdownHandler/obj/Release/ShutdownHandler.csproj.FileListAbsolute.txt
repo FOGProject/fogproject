@@ -1,3 +1,0 @@
-D:\fog\FOGService\bin\ShutdownHandler.dll
-D:\fog\FOGService\ShutdownHandler\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\ShutdownHandler\obj\Release\ShutdownHandler.dll
