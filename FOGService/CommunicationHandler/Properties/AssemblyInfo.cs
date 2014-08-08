@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CommunicationHandler")]
-[assembly: AssemblyDescription("Handle all communication with the FOG Server")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("FOG")]
 [assembly: AssemblyProduct("FOG:CommunicationHandler")]

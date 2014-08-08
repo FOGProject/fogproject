@@ -16,10 +16,7 @@ namespace FOG
 			this.safeFileHandle = safeFileHandle;
 			this.fileStream = fileStream;
 		}
-		
-		public Client() {
-			
-		}
+		public Client() { }
 		
 		public SafeFileHandle getSafeFileHandle() { return this.safeFileHandle; }
 		public void setFileHandle(SafeFileHandle safeFilHandle) { this.safeFileHandle = safeFilHandle; }

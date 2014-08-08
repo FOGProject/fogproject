@@ -1,3 +1,0 @@
-D:\fog\FOGService\bin\NotificationHandler.dll
-D:\fog\FOGService\NotificationHandler\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\NotificationHandler\obj\Release\NotificationHandler.dll
