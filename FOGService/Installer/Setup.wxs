@@ -3,7 +3,7 @@
 	<Product Id="*"
 		Name="FOG Service"
 		Language="1033"
-		Version="0.2.7"
+		Version="0.3.3"
 		UpgradeCode="1CCFDEAF-53E9-43AC-AE18-F9F86CEFA4EA"
 		Manufacturer="FOG">
 		<Package Description="A client for the FOG server"
@@ -18,7 +18,7 @@
 				
 		<Upgrade Id="1CCFDEAF-53E9-43AC-AE18-F9F86CEFA4EA">
 			<UpgradeVersion OnlyDetect="yes" Minimum="0.0.0" Property="NEWERVERSIONDETECTED" IncludeMinimum="no" />
-			<UpgradeVersion OnlyDetect="no" Minimum="0.0.0" Maximum="0.2.6" Property="OLDERVERSIONBEINGUPGRADED" 
+			<UpgradeVersion OnlyDetect="no" Minimum="0.0.0" Maximum="0.3.2" Property="OLDERVERSIONBEINGUPGRADED" 
 			                IncludeMinimum="no" IncludeMaximum="yes" />
 		</Upgrade>
 		
