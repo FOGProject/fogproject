@@ -12,6 +12,8 @@ namespace FOG {
 	/// Inter-proccess communication server
 	/// </summary>
 	public class PipeServer {
+		
+		//Import DLL functions
 		[DllImport("kernel32.dll", SetLastError = true)]
 		public static extern SafeFileHandle CreateNamedPipe(String pipeName, uint dwOpenMode, uint dwPipeMode, uint nMaxInstances, uint nOutBufferSize, uint nInBufferSize, uint nDefaultTimeOut, IntPtr lpSecurityAttributes);
 	
@@ -24,6 +26,7 @@ namespace FOG {
 		[DllImport("Advapi32.dll", SetLastError = true)]
 		public static extern bool SetSecurityDescriptorDacl(ref SECURITY_DESCRIPTOR sd, bool bDaclPresent, IntPtr Dacl, bool bDaclDefaulted);
 	
+		//Define variables
 		[StructLayout(LayoutKind.Sequential)]
 		public struct SECURITY_ATTRIBUTES {
 			public int nLength;
@@ -60,7 +63,11 @@ namespace FOG {
 			this.pipeName = pipeName;
 			clients = new List<Client>();
 		}
+		
+		public Boolean isRunning() { return this.running; }
+		public String getPipeName() { return this.pipeName; }
 	
+		//start the pipe server
 		public void start() {
 			this.listenThread = new Thread(new ThreadStart(listenForClients));
 			this.listenThread.IsBackground = true;
@@ -68,12 +75,37 @@ namespace FOG {
 			this.running = true;
 		}
 	
+		//Wait for a client to try and connect
 		private void listenForClients() {
-			// Do the security stuff to allow any user to connect.
-			// This was fixed in version 0.16 to allow users in the group
-			// "users" to interact with the backend service.
-			Boolean security = false;
+			IntPtr ptrSec = createSecurity();
 	
+			while (true) {
+				SafeFileHandle clientHandle = CreateNamedPipe(@"\\.\pipe\" + this.pipeName, DUPLEX | FILE_FLAG_OVERLAPPED, 
+				                                              0, 255, BUFFER_SIZE, BUFFER_SIZE, 0, ptrSec);
+	
+				if (clientHandle.IsInvalid)
+					return;
+	
+				int success = ConnectNamedPipe(clientHandle, IntPtr.Zero);
+	
+				if (success == 0)
+					return;
+	
+				Client client = new Client();
+				client.setFileHandle(clientHandle);
+	
+				lock (this.clients)
+					this.clients.Add(client);
+	
+				Thread readThread = new Thread(new ParameterizedThreadStart(read));
+				readThread.IsBackground = true;
+				readThread.Start(client);
+			}
+		}
+		
+		//Change the security settings of the pipe so the SYSTEM ACCOUNT can interact with user accounts
+		private IntPtr createSecurity() {
+			
 			IntPtr ptrSec = IntPtr.Zero;
 			SECURITY_ATTRIBUTES securityAttribute = new SECURITY_ATTRIBUTES();
 			SECURITY_DESCRIPTOR securityDescription;
@@ -86,35 +118,12 @@ namespace FOG {
 					securityAttribute.nLength = Marshal.SizeOf(typeof(SECURITY_ATTRIBUTES));
 					ptrSec = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SECURITY_ATTRIBUTES)));
 					Marshal.StructureToPtr(securityAttribute, ptrSec, false);
-					security = true;
 				}
 			}
-	
-			if (security) {
-				while (true) {
-					SafeFileHandle clientHandle = CreateNamedPipe(@"\\.\pipe\" + this.pipeName, DUPLEX | FILE_FLAG_OVERLAPPED, 0, 255, BUFFER_SIZE, BUFFER_SIZE, 0, ptrSec);
-	
-					if (clientHandle.IsInvalid)
-						return;
-	
-					int success = ConnectNamedPipe(clientHandle, IntPtr.Zero);
-	
-					if (success == 0)
-						return;
-	
-					Client client = new Client();
-					client.setFileHandle(clientHandle);
-	
-					lock (this.clients)
-						this.clients.Add(client);
-	
-					Thread readThread = new Thread(new ParameterizedThreadStart(read));
-					readThread.IsBackground = true;
-					readThread.Start(client);
-				}
-			}
+			return ptrSec;
 		}
 	
+		//Read a message sent over the pipe
 		private void read(object objClient) {
 			Client client = (Client)objClient;
 			client.setFileStream(new FileStream(client.getSafeFileHandle(), FileAccess.ReadWrite, BUFFER_SIZE, true));
@@ -143,21 +152,17 @@ namespace FOG {
 				this.clients.Remove(client);
 		}
 	
+		//Send a message across the pipe
 		public void sendMessage(String msg) {
 			lock (this.clients) {
 				ASCIIEncoding encoder = new ASCIIEncoding();
 				byte[] mBuf = encoder.GetBytes(msg);
+				
 				foreach (Client client in this.clients) {
 					client.getFileStream().Write(mBuf, 0, mBuf.Length);
 					client.getFileStream().Flush();
 				}
 			}
 		}
-	
-		public Boolean isRunning() { return this.running; }
-	
-		public String getPipeName() { return this.pipeName; }
 	}
-	
-	
 }

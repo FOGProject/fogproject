@@ -15,6 +15,7 @@ namespace FOG {
 
 		//Define variables
 		private static Boolean shutdownPending = false;
+		private const String LOG_NAME = "ShutdownHandler";
 		
 		//Load the ability to lock the computer from the native user32 dll
 		[DllImport("user32")]
@@ -45,13 +46,12 @@ namespace FOG {
 			ForceIfHung = 0x10,
 		}
 		
+		//Check if a shutdown was requested
 		public static Boolean isShutdownPending() { return shutdownPending; }
 		
 		private static void createShutdownCommand(String parameters) {
-			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
-			               "Creating shutdown request");
-			LogHandler.log(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, 
-			               "Parameters: " + parameters);
+			LogHandler.log(LOG_NAME, "Creating shutdown request");
+			LogHandler.log(LOG_NAME, "Parameters: " + parameters);
 
 			Process.Start("shutdown", parameters);
 		}
