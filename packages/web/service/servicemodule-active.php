@@ -3,7 +3,7 @@ require('../commons/base.inc.php');
 try
 {
 	if ($_REQUEST['newService'])
-		throw new Exception("#!ok\n#sleep=".$FOGCore->getSetting('FOG_SERVICE_CHECKIN_TIME')."\n#force=".$FOGCore->getSetting('FOG_TASK_FORCE_REBOOT'));
+		throw new Exception("#!ok\n#sleep=".$FOGCore->getSetting('FOG_SERVICE_CHECKIN_TIME')."\n#force=".$FOGCore->getSetting('FOG_TASK_FORCE_REBOOT')."\n#maxsize=".$FOGCore->getSetting('FOG_CLIENT_MAXSIZE'));
 	$HostManager = new HostManager();
 	$MACs = HostManager::parseMacList($_REQUEST['mac']);
 	if (!$MACs)
@@ -49,9 +49,13 @@ try
 		if ($Module && $Module->isValid())
 			$activeIDs[] = $Module->get('id');
 	}
-	print (in_array($moduleID->get('id'),(array)$activeIDs) ? '#!ok' : '#!nh')."\n";
+	$Datatosend = (in_array($moduleID->get('id'),(array)$activeIDs) ? '#!ok' : '#!nh')."\n";
 }
 catch(Exception $e)
 {
-	print $e->getMessage();
+	$Datatosend = $e->getMessage();
 }
+if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+	print "#!ok\n#en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+else
+	print $Datatosend;

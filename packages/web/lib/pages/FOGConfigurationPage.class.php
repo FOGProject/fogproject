@@ -470,6 +470,8 @@ class FOGConfigurationPage extends FOGPage
 			'FOG_ALWAYS_LOGGED_IN',
 			'FOG_ADVANCED_MENU_LOGIN',
 			'FOG_TASK_FORCE_REBOOT',
+			'FOG_NEW_CLIENT',
+			'FOG_AES_ENCRYPT',
 		);
 		// Set title
 		$this->title = _("FOG System Settings");
@@ -584,6 +586,17 @@ class FOGConfigurationPage extends FOGPage
 				$Service->set('value',-1)->save();
 			else if ($Service->get('name') == 'FOG_USER_VALIDPASSCHARS')
 				$Service->set('value',addslashes($_REQUEST[$key]))->save();
+			else if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $Service->get('name') == 'FOG_AD_DEFAULT_PASSWORD')
+			{
+				if ($_REQUEST[$key] && strlen($_REQUEST[$key]) == 40)
+					$decrypt = $this->FOGCore->aesdecrypt($_REQUEST[$key],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+				else
+					$decrypt = $_REQUEST[$key];
+				if ($_REQUEST[$key])
+					$Service->set('value',addslashes($this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'))))->save();
+				else
+					$Service->set('value','')->save();
+			}
 			else
 				$Service->set('value',$_REQUEST[$key])->save();
 		}
