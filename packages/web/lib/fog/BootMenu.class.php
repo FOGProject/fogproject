@@ -120,6 +120,7 @@ class BootMenu extends FOGBase
 			'fog.keyreg' => 'Update Product Key',
 			'fog.reg' => 'Quick Registration and Inventory',
 			'fog.quickimage' => 'Quick Image',
+			'fog.multijoin' => 'Join Multicast Session',
 			'fog.quickdel' => 'Quick Host Deletion',
 			'fog.sysinfo' => 'Client System Information (Compatibility)',
 			'fog.debug' => 'Debug Mode',
@@ -148,6 +149,8 @@ class BootMenu extends FOGBase
 			$this->delHost();
 		else if ($_REQUEST['key'])
 			$this->keyset();
+		else if ($_REQUEST['sessname'])
+			$this->sesscheck();
 		else if (!$Host || !$Host->isValid())
 			$this->printDefault();
 		else
@@ -288,6 +291,65 @@ class BootMenu extends FOGBase
 		print "chain -ar $this->booturl/ipxe/boot.php##params";
 	}
 	/**
+	* sesscheck()
+	* Verifys the name
+	* @return void
+	*/
+	public function sesscheck()
+	{
+		$sesscount = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('name' => $_REQUEST['sessname'])));
+		if (!$sesscount || !$sesscount->isValid())
+		{
+			print "#!ipxe\n";
+			print "echo no session found with that name.\n";
+			print "sleep 3\n";
+			print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
+			print "params\n";
+			print "param mac0 \${net0/mac}\n";
+			print "param arch \${arch}\n";
+			print "param sessionjoin 1\n";
+			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+			print ":bootme\n";
+			print "chain -ar $this->booturl/ipxe/boot.php##params";
+		}
+		else
+			$this->multijoin($sesscount->get('id'));
+	}
+
+	/**
+	* sessjoin()
+	* Gets the relevant information and passes when verified.
+	* @return void
+	*/
+	public function sessjoin()
+	{
+		print "#!ipxe\n";
+		print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
+		print "echo -n Please enter the session name to join>\n";
+		print "read sessname\n";
+		print "params\n";
+		print "param mac0 \${net0/mac}\n";
+		print "param arch \${arch}\n";
+		print "param sessname \${sessname}\n";
+		print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+		print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+		print ":bootme\n";
+		print "chain -ar $this->booturl/ipxe/boot.php##params";
+	}
+	/**
+	* multijoin()
+	* Joins the host to an already generated multicast session
+	* @return void
+	*/
+	public function multijoin($msid)
+	{
+		$MultiSess = new MulticastSessions($msid);
+		// Create the host task
+		if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,$_REQUEST['username']))
+			$this->chainBoot(false, true);
+	}
+	/**
 	*/
 	public function keyset()
 	{
@@ -341,6 +403,8 @@ class BootMenu extends FOGBase
 				$this->keyreg();
 			else if ($_REQUEST['qihost'])
 				$this->setTasking();
+			else if ($_REQUEST['sessionjoin'])
+				$this->sessjoin();
 			else if ($_REQUEST['menuaccess'])
 			{
 				unset($this->hiddenmenu);
@@ -664,6 +728,22 @@ class BootMenu extends FOGBase
 			print ":bootme\n";
 			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
 		}
+		else if ($option == 'fog.multijoin')
+		{
+			print ":$option\n";
+			print "login\n";
+			print "params\n";
+			print "param mac0 \${net0/mac}\n";
+			print "param mac0 \${net0/mac}\n";
+			print "param arch \${arch}\n";
+			print "param username \${username}\n";
+			print "param password \${password}\n";
+			print "param sessionjoin 1\n";
+			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
+			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
+			print ":bootme\n";
+			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
+		}
 		else
 		{
 			print ":$option\n";
@@ -711,7 +791,7 @@ class BootMenu extends FOGBase
 			{
 				if (!$this->Host || !$this->Host->isValid())
 				{
-					if ($option != 'fog.quickdel' && $option != 'fog.quickimage' && ( $showDebug || $option != 'fog.debug' ) && $option != 'fog.keyreg')
+					if ($option != 'fog.quickdel' && $option != 'fog.quickimage' && ( $showDebug || $option != 'fog.debug' ) && $option != 'fog.keyreg' && $option != 'fog.multijoin')
 						$this->menuItem($option, $desc);
 				}
 				else 
@@ -746,7 +826,7 @@ class BootMenu extends FOGBase
 						$this->menuOpt($option, "mode=onlydebug");
 					else if ($option == 'fog.capone')
 						$this->menuOpt($option, "mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path");
-					else if ($option == 'fog.local' || $option == 'fog.memtest' || $option == 'fog.advanced' || $option == 'fog.quickdel' || $option == 'fog.quickimage' || 'fog.keyreg')
+					else if ($option == 'fog.local' || $option == 'fog.memtest' || $option == 'fog.advanced' || $option == 'fog.quickdel' || $option == 'fog.quickimage' || $option == 'fog.keyreg' || $option == 'fog.multijoin')
 						$this->menuOpt($option, true);
 				}
 			}
@@ -761,4 +841,3 @@ class BootMenu extends FOGBase
 /* c-basic-offset: 4 */
 /* tab-width: 4 */
 /* End: */
-
