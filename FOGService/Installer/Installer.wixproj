@@ -52,6 +52,10 @@
       <Project>{052A6197-798E-428B-99F9-7ABF12280798}</Project>
       <Name>EncryptionHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\HostnameChanger\HostnameChanger.csproj">
+      <Project>{B0C35B47-7A8A-466F-9D83-FA9384536929}</Project>
+      <Name>HostnameChanger</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LogHandler\LogHandler.csproj">
       <Project>{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}</Project>
       <Name>LogHandler</Name>

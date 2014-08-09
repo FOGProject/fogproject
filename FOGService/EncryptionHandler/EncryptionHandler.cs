@@ -38,9 +38,9 @@ namespace FOG {
 		}
 		
 		//Decode AES256
-		public static String decodeAES(String toDecode, String passPhrase, String ivString) {
+		private static String decodeAES(String toDecode, String passKey, String ivString) {
 		    //Conver the initialization vector and key into a byte array
-			byte[] key = Encoding.UTF8.GetBytes(passPhrase);
+			byte[] key = Encoding.UTF8.GetBytes(passKey);
 		    byte[] iv  = Encoding.UTF8.GetBytes(ivString);
 		
 		    try {
@@ -56,7 +56,19 @@ namespace FOG {
 		        LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);		    	
 		    }
 			return "";
-		}	
+		}
+		
+		public static String decodeAESResponse(String response, String passKey) {
+			LogHandler.log(LOG_NAME, "Attempting to decrypt response");
+			//The first set of 15 characters is the initialization vector, the rest is the encrypted message
+			if(response.Length > 16) {
+				return EncryptionHandler.decodeAES(response.Substring(16), passKey, response.Substring(0,16));
+			} else {
+				LogHandler.log(LOG_NAME, "Unable to decrypt active directory password");
+				LogHandler.log(LOG_NAME, "ERROR: Encrypted data is corrupt");
+			}
+			return "";
+		}		
 		
 	}
 }

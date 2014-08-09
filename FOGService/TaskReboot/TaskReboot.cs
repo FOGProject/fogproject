@@ -20,12 +20,14 @@ namespace FOG {
 			Response taskResponse = CommunicationHandler.getResponse("/fog/service/jobs.php?mac=" + CommunicationHandler.getMacAddresses());
 				
 			//Shutdown if a task is avaible and the user is logged out or it is forced
-			if(!taskResponse.wasError() && (!UserHandler.isUserLoggedIn() || taskResponse.getField("#force").Equals("1") )) {
-				ShutdownHandler.restart(getName(), 30);
-			} else {
-				if(!this.notifiedUser) {
+			if(!taskResponse.wasError()) {
+				LogHandler.log(getName(), "Attempting to restart computer for task");
+				if(!UserHandler.isUserLoggedIn() || taskResponse.getField("#force").Equals("1") ) {
+					ShutdownHandler.restart(getName(), 30);
+				} else if(!taskResponse.wasError() && !this.notifiedUser) {
+					LogHandler.log(getName(), "User is currently logged in, will try again later");
 					NotificationHandler.createNotification(new Notification("Please log off", NotificationHandler.getCompanyName() + 
-					                                                        " is attemping to service your computer, please log off at the soonest available time", 
+					                                                        " is attemping to service your computer, please log off at the soonest available time",
 					                                                        60));
 					this.notifiedUser = true;
 				}
