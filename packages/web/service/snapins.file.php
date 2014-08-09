@@ -34,10 +34,14 @@ try
 		// Update the snapin task information.
 		$SnapinTask->set('stateID',1)->set('return',-1)->set('details','Pending...');
 		// Save and return!
-		if ($SnapinTask->save()) print "#!ok";
+		if ($SnapinTask->save()) $Datatosend = "#!ok";
 	}
 }
 catch (Exception $e)
 {
-	print $e->getMessage();
+	$Datatosend = $e->getMessage();
 }
+if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+	print "#!ok\n#en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+else
+	print ($FOGCore->getSetting('FOG_NEW_CLIENT') ? "#!ok\n" : '').$Datatosend;
