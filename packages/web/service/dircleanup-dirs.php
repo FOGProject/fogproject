@@ -5,7 +5,7 @@ if ($FOGCore->getSetting('FOG_NEW_CLIENT') || $FOGCore->getSetting('FOG_AES_ENCR
 else
 	$Datatosend = '';
 foreach($FOGCore->getClass('DirCleanerManager')->find() AS $Dir)
-	$Datatosend .= base64_encode($Dir->get('path'))."\n";
+	$Datatosend .= ($_REQUEST['newService'] ? $Dir->get('path') : base64_encode($Dir->get('path')))."\n";
 if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
 	print "#!ok\n#en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else

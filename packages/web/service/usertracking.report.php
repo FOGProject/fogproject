@@ -1,21 +1,21 @@
 <?php
 require('../commons/base.inc.php');
 $HostManager = new HostManager();
-$MACs = HostManager::parseMacList(base64_decode($_REQUEST['mac']));
+$MACs = HostManager::parseMacList(($_REQUEST['newService'] ? $_REQUEST['mac'] : base64_decode($_REQUEST['mac'])));
 if (!$MACs)
 	throw new Exception('#!im');
 // Get the Host
 $Host = $HostManager->getHostByMacAddresses($MACs);
 if (!$Host->isValid())
 	throw new Exception('#!nf');
-$action = strtolower(base64_decode($_REQUEST['action']));
-$user = explode(chr(92),strtolower(base64_decode($_REQUEST['user'])));
+$action = strtolower(($_REQUEST['newService'] ? $_REQUEST['action'] : base64_decode($_REQUEST['action'])));
+$user = explode(chr(92),strtolower(($_REQUEST['newService'] ? $_REQUEST['user'] : base64_decode($_REQUEST['user']))));
 if ($user == null)
 	throw new Exception('#!us');
 if (count($user) == 2)
 	$user = $user[1];
 $date = new Date(time());
-$tmpDate = base64_decode($_REQUEST['date']);
+$tmpDate = ($_REQUEST['newService'] ? $_REQUEST['date'] : base64_decode($_REQUEST['date']));
 if ($tmpDate != null && strlen($tmpDate) > 0)
 {
 	$date = new Date(strtotime($tmpDate));

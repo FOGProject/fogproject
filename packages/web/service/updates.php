@@ -23,7 +23,7 @@ try
 		else if ( $_REQUEST['action'] == 'list' )
 		{
 			foreach($FOGCore->getClass('ClientUpdaterManager')->find() AS $ClientUpdate)
-				$Datatosend = base64_encode($ClientUpdate->get('name'))."\n";
+				$Datatosend = ($_REQUEST['newService'] ? '#filename='.$ClientUpdate->get('name') : base64_encode($ClientUpdate->get('name')))."\n";
 		}
 		else
 			throw new Exception('#!er');		

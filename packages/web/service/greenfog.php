@@ -4,7 +4,7 @@ try
 {
 	$GF = $FOGCore->getClass('GreenFogManager')->find();
 	foreach($GF AS $gf)
-		$Datatosend = base64_encode($gf->get('hour').'@'.$gf->get('min').'@'.$gf->get('action'))."\n";
+		$Datatosend = ($_REQUEST['newService'] ? $gf->get('hour').'@'.$gf->get('min').'@'.$gf->get('action') : base64_encode($gf->get('hour').'@'.$gf->get('min').'@'.$gf->get('action')))."\n";
 }
 catch (Exception $e)
 {
