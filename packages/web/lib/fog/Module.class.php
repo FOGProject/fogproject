@@ -9,7 +9,8 @@ class Module extends FOGController
 		'id'		=> 'id',
 		'name'		=> 'name',
 		'shortName'	=> 'short_name',
-		'description'	=> 'description'
+		'description'	=> 'description',
+		'isDefault' => 'default',
 	);
 	
 	// Overrides
