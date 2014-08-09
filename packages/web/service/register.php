@@ -39,15 +39,19 @@ try
 		if (!in_array($MAC,(array)$mac1))
 		{
 			if ($Host->addPendMAC($MAC))
-				print "#!ok\n";
+				$Datatosend = "#!ok\n";
 			else
 				throw new Exception('#!er: Error adding MAC');
 		}
 		else
-			print "#!ig\n";
+			$Datatosend .= "#!ig\n";
 	}
 }
 catch (Exception $e)
 {
-	print $e->getMessage();
+	$Datatosend = $e->getMessage();
 }
+if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+	print "#!ok\n#en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+else
+	print ($FOGCore->getSetting('FOG_NEW_CLIENT') ? "#!ok\n" : '').$Datatosend;
