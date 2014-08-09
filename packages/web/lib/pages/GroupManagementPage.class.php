@@ -558,7 +558,7 @@ class GroupManagementPage extends FOGPage
 				}
 			}
 			$this->data[] = array(
-				'input' => '<input type="checkbox" class="checkboxes" name="${mod_shname}" value="${mod_id}" ${checked} />',
+				'input' => '<input type="checkbox" '.($Module->get('isDefault') ? 'class="checkboxes"' : '').' name="${mod_shname}" value="${mod_id}" ${checked} '.(!$Module->get('isDefault') ? 'disabled="disabled"' : '').' />',
 				'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
 				'checked' => ($i == $Group->getHostCount() ? 'checked="checked"' : ''),
 				'mod_name' => $Module->get('name'),
