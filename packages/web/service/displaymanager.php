@@ -18,7 +18,7 @@ try
 	$r = $HostDisplay ? $HostDisplay->get('refresh') : $FOGCore->getSetting('FOG_SERVICE_DISPLAYMANaGER_R');
 	$string = $x.'x'.$y.'x'.$r;
 	// Send it.
-	$Datatosend = base64_encode($string);
+	$Datatosend = $_REQUEST['newService'] ? $string : base64_encode($string);
 }
 catch(Exception $e)
 {
