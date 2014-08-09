@@ -741,12 +741,12 @@ class HostManagementPage extends FOGPage
 				{
 					if ($ModHost && $ModHost->isValid())
 					{
-						if ($ModHost->get('id') == $Module->get('id'))
+						if ($ModHost->get('id') == $Module->get('id') && $Module->get('isDefault'))
 							$ModOns[] = $ModHost->get('id');
 					}
 				}
 				$this->data[] = array(
-					'input' => '<input type="checkbox" class="checkboxes" name="${mod_shname}" value="${mod_id}" ${checked} />',
+					'input' => '<input type="checkbox" '.($Module->get('isDefault') ? 'class="checkboxes"' : '').' name="${mod_shname}" value="${mod_id}" ${checked} '.(!$Module->get('isDefault') ? 'disabled="disabled"' : '').' />',
 					'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
 					'checked' => ($ModOns ? 'checked="checked"' : ''),
            	     	'mod_name' => $Module->get('name'),

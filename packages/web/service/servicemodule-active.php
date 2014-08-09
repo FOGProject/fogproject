@@ -46,7 +46,7 @@ try
 		throw new Exception('#!ng');
 	foreach((array)$Host->get('modules') AS $Module)
 	{
-		if ($Module && $Module->isValid())
+		if ($Module && $Module->isValid() && $Module->get('isDefault'))
 			$activeIDs[] = $Module->get('id');
 	}
 	$Datatosend = (in_array($moduleID->get('id'),(array)$activeIDs) ? '#!ok' : '#!nh')."\n";

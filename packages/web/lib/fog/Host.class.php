@@ -567,14 +567,32 @@ class Host extends FOGController
 			// Create assoc
 			foreach ((array)$this->get('modules') AS $Module)
 			{
+				$moduleName = array(
+					'autologout' => 'FOG_SERVICE_AUTOLOGOFF_ENABLED',
+					'clientupdater' => 'FOG_SERVICE_CLIENTUPDATER_ENABLED',
+					'dircleanup' => 'FOG_SERVICE_DIRECTORYCLEANER_ENABLED',
+					'displaymanager' => 'FOG_SERVICE_DISPLAYMANAGER_ENABLED',
+					'greenfog' => 'FOG_SERVICE_GREENFOG_ENABLED',
+					'hostregister' => 'FOG_SERVICE_HOSTREGISTER_ENABLED',
+					'hostnamechanger' => 'FOG_SERVICE_HOSTNAMECHANGER_ENABLED',
+					'printermanager' => 'FOG_SERVICE_PRINTERMANAGER_ENABLED',
+					'snapin' => 'FOG_SERVICE_SNAPIN_ENABLED',
+					'snapinclient' => 'FOG_SERVICE_SNAPIN_ENABLED',
+					'taskreboot' => 'FOG_SERVICE_TASKREBOOT_ENABLED',
+					'usercleanup' => 'FOG_SERVICE_USERCLEANUP_ENABLED',
+					'usertracker' => 'FOG_SERVICE_USERTRACKER_ENABLED',
+				);
 				if (($Module instanceof Module) && $Module->isValid())
 				{
-					$ModuleInsert = new ModuleAssociation(array(
-						'hostID' => $this->get('id'),
-						'moduleID' => $Module->get('id'),
-						'state' => 1,
-					));
-					$ModuleInsert->save();
+					if ($Module->get('isDefault') && $this->FOGCore->getSetting($moduleName[$Module->get('shortName')]))
+					{
+						$ModuleInsert = new ModuleAssociation(array(
+							'hostID' => $this->get('id'),
+							'moduleID' => $Module->get('id'),
+							'state' => 1,
+						));
+						$ModuleInsert->save();
+					}
 				}
 			}
 		}
