@@ -588,14 +588,17 @@ class FOGConfigurationPage extends FOGPage
 				$Service->set('value',addslashes($_REQUEST[$key]))->save();
 			else if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $Service->get('name') == 'FOG_AD_DEFAULT_PASSWORD')
 			{
-				if ($_REQUEST[$key] && strlen($_REQUEST[$key]) == 40)
+				if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST[$key])
+				{
 					$decrypt = $this->FOGCore->aesdecrypt($_REQUEST[$key],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+					if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))
+						$password = $decrypt;
+					else
+						$password = $_REQUEST[$key];
+				}
 				else
-					$decrypt = $_REQUEST[$key];
-				if ($_REQUEST[$key])
-					$Service->set('value',addslashes($this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'))))->save();
-				else
-					$Service->set('value','')->save();
+					$password = $_REQUEST[$key];
+				$Service->set('value',$this->FOGCore->aesencrypt($password,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY')))->save();
 			}
 			else
 				$Service->set('value',$_REQUEST[$key])->save();

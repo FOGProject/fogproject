@@ -16,9 +16,13 @@ try
 	if (!$Task->isValid() || ($Task->get('typeID') == 12 || $Task->get('typeID') == 13))
 		throw new Exception('#!nj');
 	else
-		print "#!ok\n";
+		$Datatosend = "#!ok\n";
 }
 catch (Exception $e)
 {
-	print $e->getMessage();
+	$Datatosend = $e->getMessage();
 }
+if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+	print "#!ok\n#en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+else
+	print ($FOGCore->getSetting('FOG_NEW_CLIENT') ? "#!ok\n" : '').$Datatosend;
