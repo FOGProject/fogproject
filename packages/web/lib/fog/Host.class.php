@@ -877,28 +877,22 @@ class Host extends FOGController
 			if ($TaskType->isMulticast())
 			{
 				$MultiSessAssoc = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('image' => $this->getImage()->get('id'),'stateID' => 0)));
-				$MulticastSessName = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('name' => $taskName)));
 				// If no Associations, create new job and association.
-				if (!$MultiSessAssoc || !$isGroupTask)
+				if (!$MultiSessAssoc || !$isGroupTask)	
 				{
-					if (!$MulticastSessName && !$MulticastSessName->isValid())
-					{
-						// Create New Multicast Session Job
-						$MulticastSession = new MulticastSessions(array(
-							'name' => $taskName,
-							'port' => $this->FOGCore->getSetting('FOG_UDPCAST_STARTINGPORT'),
-							'logpath' => $this->getImage()->get('path'),
-							'image' => $this->getImage()->get('id'),
-							'interface' => $StorageNode->get('interface'),
-							'stateID' => '0',
-							'starttime' => date('Y-m-d H:i:s'),
-							'percent' => '0',
-							'isDD' => $this->getImage()->get('imageTypeID'),
-							'NFSGroupID' => $StorageNode->get('storageGroupID'),
-						));
-					}
-					else
-						$MulticastSession = $MulticastSessName;
+					// Create New Multicast Session Job
+					$MulticastSession = new MulticastSessions(array(
+						'name' => $taskName,
+						'port' => $this->FOGCore->getSetting('FOG_UDPCAST_STARTINGPORT'),
+						'logpath' => $this->getImage()->get('path'),
+						'image' => $this->getImage()->get('id'),
+						'interface' => $StorageNode->get('interface'),
+						'stateID' => '0',
+						'starttime' => date('Y-m-d H:i:s'),
+						'percent' => '0',
+						'isDD' => $this->getImage()->get('imageTypeID'),
+						'NFSGroupID' => $StorageNode->get('storageGroupID'),
+					));
 					if ($MulticastSession->save())
 					{
 						// Sets a new port number so you can create multiple Multicast Tasks.
