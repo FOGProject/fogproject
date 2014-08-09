@@ -192,7 +192,6 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Images']);
 			$this->subMenu[$this->node]['add'] = sprintf($this->foglang['CreateNew'],$this->foglang['Image']);
-			$this->subMenu[$this->node]['multicast'] = sprintf($this->foglang['Multicast'].' %s',$this->foglang['Image']);
 			if ($_REQUEST['id'])
 			{
 				$this->subMenu[$this->node]['id'][$linkformat.'#image-gen'] = $this->foglang['General'];
