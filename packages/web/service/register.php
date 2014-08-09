@@ -3,7 +3,7 @@ require_once('../commons/base.inc.php');
 try
 {
 	$HostManager = new HostManager();
-	if ($_REQUEST['version'] != 2)
+	if (!$_REQUEST['newService'] && $_REQUEST['version'] != 2)
 		throw new Exception('#!er:Invalid Version Number, please update this module.');
 	$MACs = HostManager::parseMacList($_REQUEST['mac']);
 	if (!$MACs) throw new Exception('#!im');
