@@ -9,6 +9,7 @@
 						<File Id="LicenseFile" Name="license.rtf" Source="license.rtf"/>
 						<File Id="AbstractModule" Name="AbstractModule.dll" Source="..\bin\AbstractModule.dll"/>
 						<File Id="CommunicationHandler" Name="CommunicationHandler.dll" Source="..\bin\CommunicationHandler.dll"/>
+						<File Id="HostnameChanger" Name="HostnameChanger.dll" Source="..\bin\HostnameChanger.dll"/>						
 						<File Id="EncryptionHandler" Name="EncryptionHandler.dll" Source="..\bin\EncryptionHandler.dll"/>
 						<File Id="LogHandler" Name="LogHandler.dll" Source="..\bin\LogHandler.dll"/>
 						<File Id="NotificationHandler" Name="NotificationHandler.dll" Source="..\bin\NotificationHandler.dll"/>
