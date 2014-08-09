@@ -18,22 +18,22 @@ namespace FOG {
 		private const String LOG_NAME = "CommunicationHandler";
 
 		private const String PASSKEY = "7NFJUuQTYLZIoea32DsP9V6f0tbWnzMy";
-		  //Change this to match your passkey for all traffic
-		  ////////////////////////////////////////////////////////////
-	   	 //	     .           .           .           .	           	 //
-	   	 //	   .:;:.       .:;:.       .:;:.       .:;:.           	 //
-	   	 //	 .:;;;;;:.   .:;;;;;:.   .:;;;;;:.   .:;;;;;:.         	 //
-	   	 //	   ;;;;;       ;;;;;       ;;;;;       ;;;;;           	 //
-	   	 //	   ;;;;;       ;;;;;       ;;;;;       ;;;;;           	 //
-	   	 //	   ;;;;;       ;;;;;       ;;;;;       ;;;;;           	 //
-	   	 //	   ;;;;;       ;;;;;       ;;;;;       ;;;;;           	 //
-	   	 //	   ;:;;;       ;:;;;       ;:;;;       ;:;;;           	 //
-	   	 //	   : ;;;       : ;;;       : ;;;       : ;;;           	 //
-	   	 //	     ;:;         ;:;         ;:;         ;:;           	 //
-	   	 //	   . :.;       . :.;       . :.;       . :.;           	 //
-	   	 //	     . :         . :         . :         . :           	 //
-	   	 //	   .   .       .   .       .   .       .   .           	 //
-	      ////////////////////////////////////////////////////////////
+		//Change this to match your passkey for all traffic
+		//////////////////////////////////////////////////////////////
+		//	     .           .           .           .	           	 //
+		//	   .:;:.       .:;:.       .:;:.       .:;:.           	 //
+		//	 .:;;;;;:.   .:;;;;;:.   .:;;;;;:.   .:;;;;;:.         	 //
+		//	   ;;;;;       ;;;;;       ;;;;;       ;;;;;           	 //
+		//	   ;;;;;       ;;;;;       ;;;;;       ;;;;;           	 //
+		//	   ;;;;;       ;;;;;       ;;;;;       ;;;;;           	 //
+		//	   ;;;;;       ;;;;;       ;;;;;       ;;;;;           	 //
+		//	   ;:;;;       ;:;;;       ;:;;;       ;:;;;           	 //
+		//	   : ;;;       : ;;;       : ;;;       : ;;;           	 //
+		//	     ;:;         ;:;         ;:;         ;:;           	 //
+		//	   . :.;       . :.;       . :.;       . :.;           	 //
+		//	     . :         . :         . :         . :           	 //
+		//	   .   .       .   .       .   .       .   .           	 //
+		//////////////////////////////////////////////////////////////
 
 
 		//Define all return codes
@@ -113,15 +113,6 @@ namespace FOG {
 			return false;
 		}
 
-		//Decrypt the data recieved
-		private static String decryptData(String rawResponse) {
-			//The first set of 15 characters is the initialization vector, the rest is the encrypted message 
-			if(rawResponse.Length > 16) {
-				return EncryptionHandler.decodeAES(rawResponse.Substring(16), PASSKEY, rawResponse.Substring(0,16));
-			}
-			return "";
-		}
-
 		//Parse the recieved data
 		private static Response parseResponse(String rawResponse) {
 
@@ -129,7 +120,8 @@ namespace FOG {
 			int returnCodePos = rawResponse.IndexOf("\n");
 			String encryptFlag = "#en=";
 			if(rawResponse.Substring(returnCodePos+2).StartsWith(encryptFlag)) {
-				rawResponse = rawResponse.Substring(returnCodePos+2) + decryptData(rawResponse.Substring(returnCodePos+2+encryptFlag.Length));
+				rawResponse = rawResponse.Substring(returnCodePos+2) + 
+					EncryptionHandler.decodeAESResponse(rawResponse.Substring(returnCodePos+2+encryptFlag.Length), PASSKEY);
 			}
 
 
@@ -140,7 +132,7 @@ namespace FOG {
 			try {
 				//Get and set the error boolean
 				String returnCode = data[0];
-				response.setError(!returnCode.Trim().StartsWith(successCode));
+				response.setError(!returnCode.ToLower().Trim().StartsWith(successCode));
 
 				//Loop through each line returned and if it contains an '=' add it to the dictionary
 				foreach(String element in data) {
