@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tray", "Tray\Tray.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostnameChanger", "HostnameChanger\HostnameChanger.csproj", "{B0C35B47-7A8A-466F-9D83-FA9384536929}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoLogOut", "AutoLogOut\AutoLogOut.csproj", "{B39DF5F9-A914-45AC-9F01-37B12A5591DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -98,5 +100,9 @@ Global
 		{B0C35B47-7A8A-466F-9D83-FA9384536929}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B0C35B47-7A8A-466F-9D83-FA9384536929}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B0C35B47-7A8A-466F-9D83-FA9384536929}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B39DF5F9-A914-45AC-9F01-37B12A5591DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B39DF5F9-A914-45AC-9F01-37B12A5591DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B39DF5F9-A914-45AC-9F01-37B12A5591DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B39DF5F9-A914-45AC-9F01-37B12A5591DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 EndGlobal
