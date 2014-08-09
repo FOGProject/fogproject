@@ -265,7 +265,7 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node][$servicelink.'#hostregister'] = $this->foglang['HostRegistration'];
 			$this->subMenu[$this->node][$servicelink.'#hostnamechanger'] = $this->foglang['HostnameChanger'];
 			$this->subMenu[$this->node][$servicelink.'#printermanager'] = sprintf($this->foglang['SelManager'],$this->foglang['Printer']);
-			$this->subMenu[$this->node][$servicelink.'#snapin'] = $this->foglang['SnapinClient'];
+			$this->subMenu[$this->node][$servicelink.'#snapinclient'] = $this->foglang['SnapinClient'];
 			$this->subMenu[$this->node][$servicelink.'#taskreboot'] = $this->foglang['TaskReboot'];
 			$this->subMenu[$this->node][$servicelink.'#usercleanup'] = $this->foglang['UserCleanup'];
 			$this->subMenu[$this->node][$servicelink.'#usertracker'] = $this->foglang['UserTracker'];
