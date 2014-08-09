@@ -13,19 +13,20 @@ try
 	if (!$Host->isHostnameSafe())
 		throw new Exception('#!ih');
 	// Send the information.
-	print '#!ok='.$Host->get('name')."\n";
-	print '#AD='.$Host->get('useAD')."\n";
-	print '#ADDom='.$Host->get('ADDomain')."\n";
-	print '#ADOU='.$Host->get('ADOU')."\n";
-	print '#ADUser='.$Host->get('ADDomain').'\\'.$Host->get('ADUser')."\n";
-	print '#ADPass='.$Host->get('ADPass');
+	$Datatosend = !$_REQUEST['newService'] ? '#!ok='.$Host->get('name')."\n" : "#!ok\n#hostname=".$Host->get('name')."\n";
+	$Datatosend .= '#AD='.$Host->get('useAD')."\n";
+	$Datatosend .= '#ADDom='.$Host->get('ADDomain')."\n";
+	$Datatosend .= '#ADOU='.$Host->get('ADOU')."\n";
+	$Datatosend .= '#ADUser='.$Host->get('ADDomain').'\\'.$Host->get('ADUser')."\n";
+	$Datatosend .= '#ADPass='.$Host->get('ADPass');
 	if (trim(base64_decode($Host->get('productKey'))))
-		print "\n#Key=".base64_decode($Host->get('productKey'));
-	// Just inform the user (probably not needed and probably won't display.)
-	if (!$Host->get('useAD'))
-		throw new Exception("#!er: Join domain disabled on this host.\n");
+		$Datatosend .= "\n#Key=".base64_decode($Host->get('productKey'));
 }
 catch (Exception $e)
 {
-	print $e->getMessage();
+	$Datatosend = $e->getMessage();
 }
+if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+	print "#!ok\n#en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+else
+	print ($FOGCore->getSetting('FOG_NEW_CLIENT') ? "#!ok\n" : '').$Datatosend;
