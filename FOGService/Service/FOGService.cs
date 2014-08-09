@@ -99,6 +99,7 @@ namespace FOG
 		private void initializeModules() {
 			this.modules = new List<AbstractModule>();
 			this.modules.Add(new TaskReboot());
+			this.modules.Add(new HostnameChanger());
 			this.modules.Add(new SnapinClient());
 		}
 		
