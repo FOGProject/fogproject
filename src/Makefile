@@ -1,5 +1,6 @@
 all:
-	@echo run \"make update-scripts\" to rebuild the init files with the latest scripts
+	@echo This make file is for developers.
+	@echo run \"make update-scripts\" to put the latest scripts into the existing init files
 	@echo run \"make install-inits\" to copy the inits to /var/www/fog/...
 #	@echo run \"make inits\" to rebuild the init files
 
