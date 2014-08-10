@@ -49,7 +49,8 @@ namespace FOG {
 			messages.Add("#!nh", "Module is diabled on the host");
 			messages.Add("#!um", "Unknown module ID");
 			messages.Add("#!ns", "No snapins");		
-			messages.Add("#!nj", "No jobs");		
+			messages.Add("#!nj", "No jobs");	
+			messages.Add("#!time", "Invalid time");	
 			messages.Add("#!er", "General Error");
 
 			return messages;
@@ -74,7 +75,7 @@ namespace FOG {
 			WebClient webClient = new WebClient();
 			try {
 				String response = webClient.DownloadString(getServerAddress() + postfix);
-
+				response = decrypt(response);
 				//See if the return code is known
 				Boolean messageFound = false;
 				foreach(String returnMessage in returnMessages.Keys) {
@@ -94,6 +95,22 @@ namespace FOG {
 				LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);				
 			}
 			return new Response();
+		}
+		
+		private static String decrypt(String response) {
+			String encryptedFlag = "#!en=";
+			
+			LogHandler.log(LOG_NAME, "Attempting to decrypt response");
+			
+			if(response.StartsWith(encryptedFlag)) {
+				String decryptedResponse = response.Substring(encryptedFlag.Length);
+				LogHandler.log(LOG_NAME, "Encrypted data: " + decryptedResponse);
+				return EncryptionHandler.decodeAESResponse(decryptedResponse, PASSKEY);
+				
+			} else {
+				LogHandler.log(LOG_NAME, "Data is not encrypted");
+			}
+			return response;
 		}
 
 		//Contact FOG at a url, used for submitting data
@@ -115,16 +132,6 @@ namespace FOG {
 
 		//Parse the recieved data
 		private static Response parseResponse(String rawResponse) {
-
-			//Check if the data is encrypted, if so decrypt it
-			int returnCodePos = rawResponse.IndexOf("\n");
-			String encryptFlag = "#en=";
-			if(rawResponse.Substring(returnCodePos+2).StartsWith(encryptFlag)) {
-				rawResponse = rawResponse.Substring(returnCodePos+2) + 
-					EncryptionHandler.decodeAESResponse(rawResponse.Substring(returnCodePos+2+encryptFlag.Length), PASSKEY);
-			}
-
-
 			String[] data = rawResponse.Split('\n'); //Split the response at every new line
 			Dictionary<String, String> parsedData = new Dictionary<String, String>();
 			Response response = new Response();

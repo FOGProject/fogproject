@@ -8,6 +8,7 @@
 						<File Id="FOGService" Name="FOGService.exe" Source="..\bin\FOGService.exe"/>
 						<File Id="LicenseFile" Name="license.rtf" Source="license.rtf"/>
 						<File Id="AbstractModule" Name="AbstractModule.dll" Source="..\bin\AbstractModule.dll"/>
+						<File Id="AutoLogOut" Name="AutoLogOut.dll" Source="..\bin\AutoLogOut.dll"/>
 						<File Id="CommunicationHandler" Name="CommunicationHandler.dll" Source="..\bin\CommunicationHandler.dll"/>
 						<File Id="HostnameChanger" Name="HostnameChanger.dll" Source="..\bin\HostnameChanger.dll"/>						
 						<File Id="EncryptionHandler" Name="EncryptionHandler.dll" Source="..\bin\EncryptionHandler.dll"/>
