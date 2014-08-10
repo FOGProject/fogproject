@@ -480,7 +480,10 @@ class BootMenu extends FOGBase
 				$StorageNode = new StorageNode($Location->get('storageNodeID'));
 			if ($TaskType->isUpload() || $TaskType->isMulticast())
 				$StorageNode = $StorageGroup->getMasterStorageNode();
-			$mac = $_REQUEST['mac'];
+			if ($this->Host && $this->Host->isValid())
+				$mac = $this->Host->get('mac');
+			else
+				$mac = $_REQUEST['mac'];
 			$osid = $Image->get('osID');
 			$storage = in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null;
 			$storageip = in_array($TaskType->get('id'),$imagingTasks) ? $StorageNode->get('ip') : null;
@@ -833,3 +836,8 @@ class BootMenu extends FOGBase
 			$this->chainBoot();
 	}
 }
+/* Local Variables: */
+/* indent-tabs-mode: t */
+/* c-basic-offset: 4 */
+/* tab-width: 4 */
+/* End: */
