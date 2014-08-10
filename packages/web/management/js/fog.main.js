@@ -9,6 +9,32 @@
 // JQuery autoloader
 $(function()
 {
+	// The below elements just performs the randomization techniques.
+	$('#FOG_AES_PASS_ENCRYPT_KEY_button').click(function() {
+		$.ajax({
+			'type': 'GET',
+			'url': 'ajax/random.php',
+			'cache': false,
+			'dataType': 'json',
+			'success': function(data)
+			{
+				$('#FOG_AES_PASS_ENCRYPT_KEY_text').val(data['key']);
+			}
+		});
+	});
+	$('#FOG_AES_ADPASS_ENCRYPT_KEY_button').click(function() {
+		$.ajax({
+			'type': 'GET',
+			'url': 'ajax/random.php',
+			'cache': false,
+			'dataType': 'json',
+			'success': function(data)
+			{
+				$('#FOG_AES_ADPASS_ENCRYPT_KEY_text').val(data['key']);
+			}
+		});
+	});
+	// Assign DOM elements
 	if (typeof($("#pigz").slider) == typeof(Function)) {
 		$("#pigz").slider({
 			min: 0,
