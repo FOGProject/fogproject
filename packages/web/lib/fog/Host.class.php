@@ -899,7 +899,7 @@ class Host extends FOGController
 				// If no Associations, create new job and association.
 				if (!$MultiSessAssoc || !$isGroupTask)
 				{
-					if (!$MulticastSessName && !$MulticastSessName->isValid())
+					if (!$MulticastSessName || !$MulticastSessName->isValid())
 					{
 						// Create New Multicast Session Job
 						$MulticastSession = new MulticastSessions(array(
