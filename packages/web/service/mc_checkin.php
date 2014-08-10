@@ -2,9 +2,6 @@
 require('../commons/base.inc.php');
 try
 {
-	// Error checking
-	// NOTE: Most of these validity checks should never fail as checks are made during Task creation - better safe than sorry!
-	// MAC Address
 	$HostManager = new HostManager();
 	$MACs = HostManager::parseMacList($_REQUEST['mac']);
 	if (!$MACs) throw new Exception($foglang['InvalidMAC']);
