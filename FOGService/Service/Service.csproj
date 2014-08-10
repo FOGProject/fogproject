@@ -72,6 +72,10 @@
       <Project>{DA390DC8-3502-42B2-8220-D52B2A64E4B7}</Project>
       <Name>AbstractModule</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AutoLogOut\AutoLogOut.csproj">
+      <Project>{B39DF5F9-A914-45AC-9F01-37B12A5591DC}</Project>
+      <Name>AutoLogOut</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CommunicationHandler\CommunicationHandler.csproj">
       <Project>{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}</Project>
       <Name>CommunicationHandler</Name>

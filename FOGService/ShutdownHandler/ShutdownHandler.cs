@@ -66,8 +66,8 @@ namespace FOG {
 			createShutdownCommand("/r /c \"" + comment + "\" /t " + seconds);
 		}		
 		
-		public static void logOffUser(String comment, int seconds) {
-			createShutdownCommand("/l /c \"" + comment + "\" /t " + seconds);
+		public static void logOffUser() {
+			createShutdownCommand("/l");
 		}
 		
 		public static void hibernate(String comment, int seconds) {
