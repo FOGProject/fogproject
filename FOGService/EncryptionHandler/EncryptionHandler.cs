@@ -60,11 +60,15 @@ namespace FOG {
 		
 		public static String decodeAESResponse(String response, String passKey) {
 			LogHandler.log(LOG_NAME, "Attempting to decrypt response");
+			response = response.Trim();
 			//The first set of 15 characters is the initialization vector, the rest is the encrypted message
 			if(response.Length > 16) {
-				return EncryptionHandler.decodeAES(response.Substring(16), passKey, response.Substring(0,16));
+				LogHandler.log(LOG_NAME, "Encrypted Data:\"" + response.Substring(16) + "\"");
+				LogHandler.log(LOG_NAME, "Passkey:\"" + passKey + "\"");
+				LogHandler.log(LOG_NAME, "Initialization Vector:\"" + response.Substring(0,16) + "\"");
+				return EncryptionHandler.decodeAES(response.Substring(16), passKey, response.Substring(0,16)).Trim();
 			} else {
-				LogHandler.log(LOG_NAME, "Unable to decrypt active directory password");
+				LogHandler.log(LOG_NAME, "Unable to decrypt response");
 				LogHandler.log(LOG_NAME, "ERROR: Encrypted data is corrupt");
 			}
 			return "";

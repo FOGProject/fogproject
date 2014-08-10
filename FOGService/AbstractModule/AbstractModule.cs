@@ -18,7 +18,7 @@ namespace FOG
 			//Define variables
 			setName("Generic Module");
 			setDescription("Generic Description");
-			setIsActiveURL("/fog/service/servicemodule-active.php");
+			setIsActiveURL("/service/servicemodule-active.php");
 		}
 
 		//Default start method
