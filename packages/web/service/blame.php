@@ -21,11 +21,13 @@ function getAllBlamedNodes($taskid,$hostid)
 }
 try
 {
-	// Get the MAC
-	$MACAddress = new MACAddress($_REQUEST['mac']);
-	if (!$MACAddress->isValid()) throw new Exception($foglang['InvalidMAC']);
-	// Get the host
-	$Host = $MACAddress->getHost();
+	// Error checking
+	//MAC Address
+	$HostManager = new HostManager();
+	$MACs = HostManager::parseMacList($_REQUEST['mac']);
+	if (!$MACs) throw new Exception($foglang['InvalidMAC']);
+	// Get the Host
+	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid())
 		throw new Exception(_('Invalid host'));
 	//Get the task
