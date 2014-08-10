@@ -849,3 +849,9 @@ debugPause()
 		read -p "$*";
 	fi
 }
+# Local Variables:
+# indent-tabs-mode: t
+# sh-basic-offset: 4
+# sh-indentation: 4
+# tab-width: 4
+# End:
