@@ -852,9 +852,9 @@ class GroupManagementPage extends FOGPage
 						{
 							$decrypt = $this->FOGCore->aesdecrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
 							if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))
-								$password = $decrypt;
+								$password = $this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
 							else
-								$password = $_REQUEST['domainpassword'];
+								$password = $this->FOGCore->aesencrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
 						}
 						else
 							$password = $_REQUEST['domainpassword'];
