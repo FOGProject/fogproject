@@ -38,7 +38,7 @@ namespace FOG
 		
 		public FOGService() {
 			//Initialize everything
-			CommunicationHandler.setServerAddress("http://10.0.7.1");
+			CommunicationHandler.setServerAddress("https://fog.mastacontrola.com");
 
 			initializeModules();
 			this.threadManager = new Thread(new ThreadStart(serviceLooper));
@@ -141,11 +141,37 @@ namespace FOG
 			}
 		}
 		
+		//Get the max log size
+		private int getLOGSize() {
+			LogHandler.log(LOG_NAME, "Getting sleep duration...");
+			
+			Response sleepResponse = CommunicationHandler.getResponse("/service/servicemodule-active.php");
+			
+			try {
+				if(!sleepResponse.wasError() && !sleepResponse.getField("#sleep").Equals("")) {
+					int sleepTime = int.Parse(sleepResponse.getField("#sleep"));
+					if(sleepTime >= this.sleepDefaultTime) {
+						return sleepTime;
+					} else {
+						LogHandler.log(LOG_NAME, "Sleep time set on the server is below the minimum of " + this.sleepDefaultTime.ToString());
+					}
+				}
+			} catch (Exception ex) {
+				LogHandler.log(LOG_NAME,"Failed to parse sleep time");
+				LogHandler.log(LOG_NAME,"ERROR: " + ex.Message);				
+			}
+			
+			LogHandler.log(LOG_NAME,"Using default sleep time");	
+			
+			return this.sleepDefaultTime;			
+		}
+		
+		
 		//Get the time to sleep from the FOG server, if it cannot it will use the default time
 		private int getSleepTime() {
 			LogHandler.log(LOG_NAME, "Getting sleep duration...");
 			
-			Response sleepResponse = CommunicationHandler.getResponse("/fog/service/servicemodule-active.php");
+			Response sleepResponse = CommunicationHandler.getResponse("/service/servicemodule-active.php");
 			
 			try {
 				if(!sleepResponse.wasError() && !sleepResponse.getField("#sleep").Equals("")) {

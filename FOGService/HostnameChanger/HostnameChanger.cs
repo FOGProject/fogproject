@@ -79,7 +79,7 @@ namespace FOG {
 		
 		protected override void doWork() {
 			//Get task info
-			Response taskResponse = CommunicationHandler.getResponse("/fog/service/hostname.php?mac=" + CommunicationHandler.getMacAddresses() + 
+			Response taskResponse = CommunicationHandler.getResponse("/service/hostname.php?mac=" + CommunicationHandler.getMacAddresses() + 
 			                                                         "&moduleid=" + getName().ToLower());
 			
 			if(!taskResponse.wasError()) {
@@ -93,30 +93,32 @@ namespace FOG {
 		
 		//Rename the computer and remove it from active directory
 		private void renameComputer(Response taskResponse) {
-			if(!taskResponse.getField("#Hostname").Equals("")) {
-				if(System.Environment.MachineName.ToLower().Equals(taskResponse.getField("#Hostname").ToLower())) {
+			if(!taskResponse.getField("#hostname").Equals("")) {
+				if(!System.Environment.MachineName.ToLower().Equals(taskResponse.getField("#hostname").ToLower())) {
 				
-					LogHandler.log(getName(), "Attempting to rename host to " + taskResponse.getField("#Hostname"));
+					LogHandler.log(getName(), "Attempting to rename host to " + taskResponse.getField("#hostname"));
 					if(!UserHandler.isUserLoggedIn() || taskResponse.getField("#force").Equals("1")) {
 					
 						//First unjoin it from active directory
 			      		unRegisterComputer(taskResponse);		
 		
+			      		LogHandler.log(getName(), "Updating registry");
 						RegistryKey regKey;
 			
 						regKey = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\Tcpip\Parameters", true);
-						regKey.SetValue("NV Hostname", taskResponse.getField("#Hostname"));
+						regKey.SetValue("NV Hostname", taskResponse.getField("#hostname"));
 						regKey = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\ComputerName\ActiveComputerName", true);
-						regKey.SetValue("ComputerName", taskResponse.getField("#Hostname"));
+						regKey.SetValue("ComputerName", taskResponse.getField("#hostname"));
 						regKey = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName", true);
-						regKey.SetValue("ComputerName", taskResponse.getField("#Hostname"));	
-		
+						regKey.SetValue("ComputerName", taskResponse.getField("#hostname"));	
+						
+						ShutdownHandler.restart(NotificationHandler.getCompanyName() + " needs to rename your computer", 10);
 					} else if(!this.notifiedUser) {
 						LogHandler.log(getName(), "User is currently logged in, will try again later");
 						//Notify the user they should log off if it is not forced
 						NotificationHandler.createNotification(new Notification("Please log off", NotificationHandler.getCompanyName() +
 					                                                        " is attemping to service your computer, please log off at the soonest available time",
-					                                                        60));
+					                                                        120));
 						
 						this.notifiedUser = true;
 					}
@@ -134,7 +136,8 @@ namespace FOG {
 				if(!taskResponse.getField("#ADDom").Equals("") && !taskResponse.getField("#ADUser").Equals("") && 
 				   !taskResponse.getField("#ADPass").Equals("")) {
 				
-					String userPassword = EncryptionHandler.decodeAESResponse(taskResponse.getField("ADPass"), PASSKEY);
+					String userPassword = EncryptionHandler.decodeAESResponse(taskResponse.getField("#ADPass"), PASSKEY);
+					LogHandler.log(getName(), "Decrypted AD Pass: " + userPassword);
 					int returnCode = NetJoinDomain(null, taskResponse.getField("#ADDom"), taskResponse.getField("#ADOU"), 
 					                               taskResponse.getField("#ADUser"), userPassword, 
 					                               (JoinOptions.NETSETUP_JOIN_DOMAIN | JoinOptions.NETSETUP_ACCT_CREATE));
