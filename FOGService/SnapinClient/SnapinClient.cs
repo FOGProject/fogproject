@@ -15,7 +15,7 @@ namespace FOG {
 		
 		protected override void doWork() {
 			//Get task info
-			Response taskResponse = CommunicationHandler.getResponse("/fog/service/snapins.checkin.php?mac=" +
+			Response taskResponse = CommunicationHandler.getResponse("/service/snapins.checkin.php?mac=" +
 			                                                         CommunicationHandler.getMacAddresses());
 			
 			
@@ -33,7 +33,7 @@ namespace FOG {
 				
 				String snapinFilePath = AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + taskResponse.getField("SNAPINFILENAME");
 				
-				Boolean downloaded = CommunicationHandler.downloadFile("/fog/service/snapins.file.php?mac=" +  
+				Boolean downloaded = CommunicationHandler.downloadFile("/service/snapins.file.php?mac=" +  
 				                                                       CommunicationHandler.getMacAddresses() + 
 				                                                       "&taskid=" + taskResponse.getField("JOBTASKID"),
 				                                                       snapinFilePath);
@@ -43,7 +43,7 @@ namespace FOG {
 				if(downloaded) {
 					exitCode = startSnapin(taskResponse, snapinFilePath);
 					
-					CommunicationHandler.contact("/fog/service/snapins.checkin.php?mac=" +
+					CommunicationHandler.contact("/service/snapins.checkin.php?mac=" +
 				                             CommunicationHandler.getMacAddresses() +
 				                             "&taskid=" + taskResponse.getField("JOBTASKID") +
 				                             "&exitcode=" + exitCode);
@@ -56,7 +56,7 @@ namespace FOG {
 					}
 				} else {
 					
-					CommunicationHandler.contact("/fog/service/snapins.checkin.php?mac=" +
+					CommunicationHandler.contact("/service/snapins.checkin.php?mac=" +
 				                             CommunicationHandler.getMacAddresses() +
 				                             "&taskid=" + taskResponse.getField("JOBTASKID") +
 				                             "&exitcode=" + exitCode);

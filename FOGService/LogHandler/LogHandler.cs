@@ -12,13 +12,15 @@ namespace FOG
 	{
 		//Define variables
 		private static String filePath = @"\fog.log";
-		private static long maxLogSize = 502400;
+		private static long maxLogSizeDefault = 502400;
+		private static long maxLogSize = maxLogSizeDefault;
 		private const String LOG_NAME = "LogHandler";
 
 		public static void setFilePath(String fPath) { filePath = fPath; }		
 		public static String getFilePath() { return filePath; }
 		public static void setMaxLogSize(long mLogSize) { maxLogSize = mLogSize; }	
 		public static long getMaxLogSize() { return maxLogSize; }
+		public static void defaultMaxLogSize() { maxLogSize = maxLogSizeDefault; }
 		
 		//Log a message
 		public static void log(String moduleName, String message) {
