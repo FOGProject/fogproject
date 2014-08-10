@@ -509,7 +509,15 @@ class FOGConfigurationPage extends FOGPage
 				else if ($Service->get('name') == 'FOG_REGENERATE_TIMEOUT')
 					$type = '<div id="regen" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValRegen" maxsize="5" style="width: 25px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
 				else if (preg_match('#(pass|PASS)#i',$Service->get('name')) && !preg_match('#(VALID|MIN)#i',$Service->get('name')))
-					$type = '<input type="password" name="${service_id}" value="${service_value}" autocomplete="off" />';
+				{
+					if ($Service->get('name') == 'FOG_AES_PASS_ENCRYPT_KEY' || $Service->get('name') == 'FOG_AES_ADPASS_ENCRYPT_KEY')
+					{
+						$type = '<input id="'.$Service->get('name').'_text" type="password" name="${service_id}" value="${service_value}" autocomplete="off" readonly="true" maxlength="50" />';
+						$type .= '<br/><small><input type="button" value="Randomize Above Key" id="'.$Service->get('name').'_button" title="You will have to recompile the client if you change this key.'.($Service->get('name') == 'FOG_AES_ADPASS_ENCRYPT_KEY' ? ' You will also o need to reset the password for all hosts and the FOG_AD_DEFAULT_PASSWORD field.' : '').'" /></small>';
+					}
+					else
+						$type = '<input type="password" name="${service_id}" value="${service_value}" autocomplete="off" />';
+				}
 				else if ($Service->get('name') == 'FOG_VIEW_DEFAULT_SCREEN')
 				{
 					foreach(array('SEARCH','LIST') AS $viewop)
