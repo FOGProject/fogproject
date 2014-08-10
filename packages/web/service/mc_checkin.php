@@ -2,14 +2,16 @@
 require('../commons/base.inc.php');
 try
 {
-	// Get the MAC
-	$MACAddress = new MACAddress($_REQUEST['mac']);
-	if (!$MACAddress->isValid())
-		throw new Exception(_('#!im'));
-	// Get the host
-	$Host = $MACAddress->getHost();
+	// Error checking
+	// NOTE: Most of these validity checks should never fail as checks are made during Task creation - better safe than sorry!
+	// MAC Address
+	$HostManager = new HostManager();
+	$MACs = HostManager::parseMacList($_REQUEST['mac']);
+	if (!$MACs) throw new Exception($foglang['InvalidMAC']);
+	// Get the Host
+	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid())
-		throw new Exception(_('#!ih'));
+		throw new Exception( _('Invalid Host') );
 	// Get the task
 	$Task = current($Host->get('task'));
 	if (!$Task->isValid())
