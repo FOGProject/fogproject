@@ -101,6 +101,7 @@ namespace FOG
 			this.modules.Add(new TaskReboot());
 			this.modules.Add(new HostnameChanger());
 			this.modules.Add(new SnapinClient());
+			this.modules.Add(new AutoLogOut());
 		}
 		
 		//Called when the service stops
