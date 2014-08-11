@@ -49,7 +49,7 @@ namespace FOG {
 		        using (var memoryStream = 
 		               new MemoryStream(Convert.FromBase64String(toDecode)))
 		        using (var cryptoStream = new CryptoStream(memoryStream, rijndaelManaged.CreateDecryptor(key, iv), CryptoStreamMode.Read)) {
-		            return new StreamReader(cryptoStream).ReadToEnd();
+		        	return new StreamReader(cryptoStream).ReadToEnd().Replace("\0", String.Empty).Trim();
 		        }
 		    } catch (Exception ex) {
 		        LogHandler.log(LOG_NAME, "Error decoding AES");
@@ -60,7 +60,6 @@ namespace FOG {
 		
 		public static String decodeAESResponse(String response, String passKey) {
 			LogHandler.log(LOG_NAME, "Attempting to decrypt response");
-			response = response.Trim();
 			//The first set of 15 characters is the initialization vector, the rest is the encrypted message
 			if(response.Length > 16) {
 				LogHandler.log(LOG_NAME, "Encrypted Data:\"" + response.Substring(16) + "\"");
