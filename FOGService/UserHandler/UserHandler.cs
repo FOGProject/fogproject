@@ -59,7 +59,7 @@ namespace FOG {
 				idleTime = envTicks - lastInputTick;
 			}
 			
-			return (int)idleTime / 1000;
+			return (int)idleTime/1000;
 		}
 	}
 }
