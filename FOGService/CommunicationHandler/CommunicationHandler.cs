@@ -82,6 +82,7 @@ namespace FOG {
 					if(response.StartsWith(returnMessage)) {
 						messageFound=true;
 						LogHandler.log(LOG_NAME, "Response: " + returnMessages[returnMessage]);
+						break;
 					}					
 				}
 
@@ -159,8 +160,7 @@ namespace FOG {
 
 		//Download a file
 		public static Boolean downloadFile(String postfix, String fileName) {
-			LogHandler.log(LOG_NAME,
-				               "URL: " + serverAddress + postfix);				
+			LogHandler.log(LOG_NAME, "URL: " + serverAddress + postfix);				
 			WebClient webClient = new WebClient();
 			try {
 				//Create the directory that the file will go in if it doesn't already exist
