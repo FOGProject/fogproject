@@ -137,7 +137,7 @@ namespace FOG {
 				   !taskResponse.getField("#ADPass").Equals("")) {
 				
 					String userPassword = EncryptionHandler.decodeAESResponse(taskResponse.getField("#ADPass"), PASSKEY);
-					LogHandler.log(getName(), "Decrypted AD Pass: " + userPassword);
+
 					int returnCode = NetJoinDomain(null, taskResponse.getField("#ADDom"), taskResponse.getField("#ADOU"), 
 					                               taskResponse.getField("#ADUser"), userPassword, 
 					                               (JoinOptions.NETSETUP_JOIN_DOMAIN | JoinOptions.NETSETUP_ACCT_CREATE));

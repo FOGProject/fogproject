@@ -100,6 +100,10 @@
       <Project>{DF7C1145-E90C-486B-ACEC-543B42CF083F}</Project>
       <Name>PipeServer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RegistryHandler\RegistryHandler.csproj">
+      <Project>{7BA48875-2930-4A9B-9216-255FCA1E86BE}</Project>
+      <Name>RegistryHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ShutdownHandler\ShutdownHandler.csproj">
       <Project>{D0C42FA3-B494-4FA7-92CB-50D7C2E05383}</Project>
       <Name>ShutdownHandler</Name>

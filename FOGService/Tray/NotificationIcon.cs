@@ -12,12 +12,26 @@ namespace FOG {
 		//Define variables
 		private NotifyIcon notifyIcon;
 		private ContextMenu notificationMenu;
-		private PipeClient pipeClient;
+		private PipeClient systemNotificationPipe;
+		private PipeClient userNotificationPipe;
+		
 		private Notification notification;
 		private Boolean isNotificationReady;
 		
 		#region Initialize icon and menu
 		public NotificationIcon() {
+			
+			// Setup the pipe client
+
+			
+			this.userNotificationPipe = new PipeClient("fog_pipe_user_" +  UserHandler.getCurrentUser());
+			this.userNotificationPipe.MessageReceived += new PipeClient.MessageReceivedHandler(pipeNotificationClient_MessageReceived);
+			this.userNotificationPipe.connect();				
+			
+			this.systemNotificationPipe = new PipeClient("fog_pipe");
+			this.systemNotificationPipe.MessageReceived += new PipeClient.MessageReceivedHandler(pipeNotificationClient_MessageReceived);
+			this.systemNotificationPipe.connect();	
+			
 			notifyIcon = new NotifyIcon();
 			notificationMenu = new ContextMenu(InitializeMenu());
 			
@@ -28,23 +42,18 @@ namespace FOG {
 			
 			this.notification = new Notification();
 			this.isNotificationReady = false;
-			
-			// Setup the pipe client
-			this.pipeClient = new PipeClient("fog_pipe");
-			this.pipeClient.MessageReceived += new PipeClient.MessageReceivedHandler(pipeClient_MessageReceived);
-			this.pipeClient.connect();
 		}
 		
 		//Called when a message is recieved from the pipe server
-		private void pipeClient_MessageReceived(String message) {
+		private void pipeNotificationClient_MessageReceived(String message) {
 			
-			if(message.Contains("TLE:")) {
+			if(message.StartsWith("TLE:")) {
 				message = message.Substring(4);
 				this.notification.setTitle(message);
-			} else if(message.Contains("MSG:")) {
+			} else if(message.StartsWith("MSG:")) {
 				message = message.Substring(4);
 				this.notification.setMessage(message);
-			} else if(message.Contains("DUR:")) {
+			} else if(message.StartsWith("DUR:")) {
 				message = message.Substring(4);
 				try {
 					this.notification.setDuration(int.Parse(message));
@@ -78,6 +87,7 @@ namespace FOG {
 		public static void Main(string[] args) {
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
+
 			
 			bool isFirstInstance;
 			// Please use a unique name for the mutex to prevent conflicts with other programs
@@ -98,8 +108,10 @@ namespace FOG {
 		#region Event Handlers
 		
 		private void menuRestartModuleCycleClick(object sender, EventArgs e) {
-			if(pipeClient.isConnected())
-				pipeClient.sendMessage("Rebooting cycle...");
+			if(this.systemNotificationPipe.isConnected())
+				this.systemNotificationPipe.sendMessage("Rebooting cycle...");
+			if(this.userNotificationPipe.isConnected())
+				this.userNotificationPipe.sendMessage("Rebooting cycle...");			
 		}
 			
 		private void menuAboutClick(object sender, EventArgs e) {
@@ -107,8 +119,10 @@ namespace FOG {
 		}
 		
 		private void menuExitClick(object sender, EventArgs e) {
-			if(pipeClient.isConnected())
-				pipeClient.kill();
+			if(this.systemNotificationPipe.isConnected())
+				this.systemNotificationPipe.kill();
+			if(this.userNotificationPipe.isConnected())
+				this.userNotificationPipe.kill();			
 			Application.Exit();
 		}
 		

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Win32;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
-using System.ServiceProcess;
 using System.Threading;
 using System.Configuration;
 using System.IO;
@@ -11,68 +11,83 @@ using System.Collections;
 using System.Reflection;
 using System.Net;
 
-using FOG;
-
-namespace FOG{
+namespace FOG {
+	
 	/// <summary>
-	/// Coordinate all system wide FOG modules
-	/// </summary>
-	public partial class FOGService  : ServiceBase {
-		//Define variables
-		private Thread threadManager;
-		private Thread notificationPipeThread;
+	/// Coordinate all user specific FOG modules
+	/// </summary>	
+
+	class FOGUserService {
 		
-		private List<AbstractModule> modules;
-		private Status status;
-		private int sleepDefaultTime = 60;
-		private PipeServer notificationPipe;
+		//Define variables		
+		private static Thread threadManager;
+		private static List<AbstractModule> modules;
+		private static Thread notificationPipeThread;	
+		private static PipeServer notificationPipe;		
+		private const String LOG_NAME = "UserService";
+		private static int sleepDefaultTime = 60;		
+		private static Status status;		
 		
-		private const String LOG_NAME = "Service";
-		
-		//Module status -- used for stopping/starting
-		public enum Status {
-			Broken = 2,
-			Running = 1,
-			Stopped = 0
-		}
-		
-		public FOGService() {
+		public static void Main(string[] args) {
 			//Initialize everything
+			LogHandler.setFilePath(Environment.ExpandEnvironmentVariables("%userprofile%") + @"\fog_user.log");
+			LogHandler.log(LOG_NAME, "Initializing");
 			if(RegistryHandler.getSystemSetting("Server") != null && RegistryHandler.getSystemSetting("WebRoot") != null && 
 			   RegistryHandler.getSystemSetting("Tray") != null && RegistryHandler.getSystemSetting("HTTPS") != null) {
 				
 				CommunicationHandler.setServerAddress(RegistryHandler.getSystemSetting("HTTPS"), 
 				                                      RegistryHandler.getSystemSetting("Server"), 
 				                                      RegistryHandler.getSystemSetting("WebRoot"));
-
+	
 				initializeModules();
-				this.threadManager = new Thread(new ThreadStart(serviceLooper));
-				this.status = Status.Stopped;
+				threadManager = new Thread(new ThreadStart(serviceLooper));
+				status = Status.Stopped;
 				
 				//Setup the piper server
-				this.notificationPipeThread = new Thread(new ThreadStart(notificationPipeHandler));
-				this.notificationPipe = new PipeServer("fog_pipe");
-				this.notificationPipe.MessageReceived += new PipeServer.MessageReceivedHandler(notificationPipeServer_MessageReceived);
+				notificationPipeThread = new Thread(new ThreadStart(notificationPipeHandler));
+				notificationPipe = new PipeServer("fog_pipe_user_" +  UserHandler.getCurrentUser());
+				notificationPipe.MessageReceived += new PipeServer.MessageReceivedHandler(notificationPipeServer_MessageReceived);			
+			
+				
+				status = Status.Running;
+				
+				//Start the pipe server
+				notificationPipeThread.Priority = ThreadPriority.Normal;
+				notificationPipeThread.Start();
+			
+				
+				//Start the main thread that handles all modules
+				threadManager.Priority = ThreadPriority.Normal;
+				threadManager.IsBackground = true;
+				threadManager.Start();
+				if(RegistryHandler.getSystemSetting("Tray").Trim().Equals("1")) {
+					startTray();
+				}
 			} else {
-				//this.status = Status.Broken;
 				LogHandler.log(LOG_NAME, "Regisitry keys are not set");
 			}
 		}
+
+		//Module status -- used for stopping/starting
+		public enum Status {
+			Running = 1,
+			Stopped = 0
+		}
 		
 		//This is run by the pipe thread, it will send out notifications to the tray
-		private void notificationPipeHandler() {
+		private static void notificationPipeHandler() {
 			while (true) {
-				if(!this.notificationPipe.isRunning()) 
-					this.notificationPipe.start();			
+				if(!notificationPipe.isRunning()) 
+					notificationPipe.start();			
 				
 				
 				if(NotificationHandler.getNotifications().Count > 0) {
 					//Split up the notification into 3 messages: Title, Message, and Duration
-					this.notificationPipe.sendMessage("TLE:" + NotificationHandler.getNotifications()[0].getTitle());
+					notificationPipe.sendMessage("TLE:" + NotificationHandler.getNotifications()[0].getTitle());
 					Thread.Sleep(750);
-					this.notificationPipe.sendMessage("MSG:" + NotificationHandler.getNotifications()[0].getMessage());
+					notificationPipe.sendMessage("MSG:" + NotificationHandler.getNotifications()[0].getMessage());
 					Thread.Sleep(750);
-					this.notificationPipe.sendMessage("DUR:" + NotificationHandler.getNotifications()[0].getDuration().ToString());
+					notificationPipe.sendMessage("DUR:" + NotificationHandler.getNotifications()[0].getDuration().ToString());
 					NotificationHandler.removeNotification(0);
 				} 
 				
@@ -82,46 +97,20 @@ namespace FOG{
 		}
 		
 		//Handle recieving a message
-		private void notificationPipeServer_MessageReceived(Client client, String message) {
+		private static void notificationPipeServer_MessageReceived(Client client, String message) {
 			LogHandler.log("PipeServer", "Message recieved");
 			LogHandler.log("PipeServer",message);
 		}	
-
-		//Called when the service starts
-		protected override void OnStart(string[] args) {
-			if(!this.status.Equals(Status.Broken)) {
-				this.status = Status.Running;
-				
-				//Start the pipe server
-				this.notificationPipeThread.Priority = ThreadPriority.Normal;
-				this.notificationPipeThread.Start();
-			
-				
-				//Start the main thread that handles all modules
-				this.threadManager.Priority = ThreadPriority.Normal;
-				this.threadManager.IsBackground = true;
-				this.threadManager.Name = "FOGService";
-				this.threadManager.Start();
-			}
-        }
 		
 		//Load all of the modules
-		private void initializeModules() {
-			this.modules = new List<AbstractModule>();
-			this.modules.Add(new TaskReboot());
-			this.modules.Add(new HostnameChanger());
-			this.modules.Add(new SnapinClient());
+		private static void initializeModules() {
+			modules = new List<AbstractModule>();
+			modules.Add(new AutoLogOut());
 			
-		}
-		
-		//Called when the service stops
-		protected override void OnStop() {
-			if(!this.status.Equals(Status.Broken))
-				this.status = Status.Stopped;
 		}
 		
 		//Run each service
-		private void serviceLooper() {
+		private static void serviceLooper() {
 			//Only run the service if there wasn't a stop or shutdown request
 			while (status.Equals(Status.Running) && !ShutdownHandler.isShutdownPending()) {
 				foreach(AbstractModule module in modules) {
@@ -154,7 +143,7 @@ namespace FOG{
 		
 		
 		//Get the time to sleep from the FOG server, if it cannot it will use the default time
-		private int getSleepTime() {
+		private static int getSleepTime() {
 			LogHandler.log(LOG_NAME, "Getting sleep duration...");
 			
 			Response sleepResponse = CommunicationHandler.getResponse("/service/servicemodule-active.php");
@@ -162,10 +151,10 @@ namespace FOG{
 			try {
 				if(!sleepResponse.wasError() && !sleepResponse.getField("#sleep").Equals("")) {
 					int sleepTime = int.Parse(sleepResponse.getField("#sleep"));
-					if(sleepTime >= this.sleepDefaultTime) {
+					if(sleepTime >= sleepDefaultTime) {
 						return sleepTime;
 					} else {
-						LogHandler.log(LOG_NAME, "Sleep time set on the server is below the minimum of " + this.sleepDefaultTime.ToString());
+						LogHandler.log(LOG_NAME, "Sleep time set on the server is below the minimum of " + sleepDefaultTime.ToString());
 					}
 				}
 			} catch (Exception ex) {
@@ -175,7 +164,14 @@ namespace FOG{
 			
 			LogHandler.log(LOG_NAME,"Using default sleep time");	
 			
-			return this.sleepDefaultTime;			
+			return sleepDefaultTime;			
+		}
+		
+		private static void startTray() {
+			Process process = new Process();
+			process.StartInfo.UseShellExecute = false;
+			process.StartInfo.FileName = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\Tray.exe";
+			process.Start();
 		}
 
 	}

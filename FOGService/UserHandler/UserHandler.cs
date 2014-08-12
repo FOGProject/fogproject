@@ -25,6 +25,10 @@ namespace FOG {
 			return getUsersLoggedIn().Count > 0;
 		}
 		
+		public static String getCurrentUser() {
+			return System.Security.Principal.WindowsIdentity.GetCurrent().Name;;
+		}
+		
 		//Get a list of all users logged in
 		public static List<String> getUsersLoggedIn() {
 			List<String> users = new List<String>();
@@ -61,5 +65,6 @@ namespace FOG {
 			
 			return (int)idleTime/1000;
 		}
+
 	}
 }

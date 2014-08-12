@@ -1,56 +1,48 @@
 ﻿<?xml version="1.0"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*"
-		Name="FOG Service"
-		Language="1033"
-		Version="0.4.5"
-		UpgradeCode="1CCFDEAF-53E9-43AC-AE18-F9F86CEFA4EA"
-		Manufacturer="FOG">
-		<Package Description="A client for the FOG server"
-			Comments="A client for the FOG server"
-			InstallerVersion="200"
-			Compressed="yes"/>
-		<!--
-			Source media for the installation. 
- 			Specifies a single cab file to be embedded in the installer's .msi. 
-		-->
-		<Media Id="1" Cabinet="contents.cab" EmbedCab="yes" CompressionLevel="high"/>
-				
+	<Product Id="*" Name="FOG Service" Language="1033" Version="0.7.3" UpgradeCode="1CCFDEAF-53E9-43AC-AE18-F9F86CEFA4EA" Manufacturer="FOG">
+		
+		<Package Description="FOG Service" Comments= "A client for the FOG project" InstallerVersion="200" Compressed="yes" InstallScope="perMachine"/>
+        
+		<!-- Remove old versions -->
 		<Upgrade Id="1CCFDEAF-53E9-43AC-AE18-F9F86CEFA4EA">
-			<UpgradeVersion OnlyDetect="yes" Minimum="0.0.0" Property="NEWERVERSIONDETECTED" IncludeMinimum="no" />
-			<UpgradeVersion OnlyDetect="no" Minimum="0.0.0" Maximum="0.4.4" Property="OLDERVERSIONBEINGUPGRADED" 
-			                IncludeMinimum="no" IncludeMaximum="yes" />
-		</Upgrade>
+            <UpgradeVersion OnlyDetect="yes" Minimum="0.0.0" Property="NEWERVERSIONDETECTED" IncludeMinimum="no" />
+            <UpgradeVersion OnlyDetect="no" Minimum="0.0.0" Maximum="0.7.2" Property="OLDERVERSIONBEINGUPGRADED" IncludeMinimum="no" IncludeMaximum="yes" MigrateFeatures="yes" />
+        </Upgrade>
+        <InstallExecuteSequence>
+            <RemoveExistingProducts Before="InstallInitialize" />
+        </InstallExecuteSequence>
 		
-		<InstallExecuteSequence>
-			<RemoveExistingProducts Before="InstallInitialize" />
-			
-		</InstallExecuteSequence>
+	
+		<!-- Setup the UI -->
+		<WixVariable Id="WixUILicenseRtf" Value="license.rtf" />
+		<Icon Id="icon.ico" SourceFile="icon.ico" />
+		<Property Id="ARPPRODUCTICON" Value="icon.ico" />
+		<Property Id="WIXUI_INSTALLDIR">INSTALLDIR</Property>
+		<Property Id="USETRAY" Value="1"/>
+		<Property Id="WEBROOT" Value="/fog"/>
+		<Property Id="WEBADDRESS" Value="fog-server"/>
+		<Property Id="HTTPS" Value="0"/>
 		
-		<!-- Installation directory and files are defined in Files.wxs -->
-		<Directory Id="TARGETDIR" Name="SourceDir"/>
+		<UIRef Id="DialogStructure"/>
+		
+		<!-- Configure what to install -->
+	    <Media Id="1" Cabinet="contents.cab" EmbedCab="yes" CompressionLevel="high" />		
+		<Directory Id="TARGETDIR" Name="SourceDir">
+		</Directory>
+		
 		
 		<Feature Id="Complete"
 		         Title="FOG Service"
 		         Description="A client for the FOG server"
 		         Level="1">
 		         <ComponentRef Id="StandardComponent"/>
+				 <ComponentRef Id="ServerRegistry"/>
+				 <ComponentRef Id="TrayRegistry"/>
+				 <ComponentRef Id="WebRootRegistry"/>
+		 		 <ComponentRef Id="HttpsRegistry"/>
+				 <ComponentRef Id="FOGUserServiceShortcutComponenet" />
 		</Feature>
-		
-
-		<!-- 
-			Using the Wix UI library
- 
-			WixUI_InstallDir does not allow the user to choose 
-			features but adds a dialog to let the user choose a 
-			directory where the product will be installed
-		-->
-		<WixVariable Id="WixUIBannerBmp" Value="banner.png"/>
-
-		<Icon Id="icon.ico" SourceFile="icon.ico"/>
-		<Property Id="ARPPRODUCTICON" Value="icon.ico" />
-		
-		<Property Id="WIXUI_INSTALLDIR">INSTALLDIR</Property>
-		<UIRef Id="WixUI_InstallDir"/>
+	
 	</Product>
 </Wix>
