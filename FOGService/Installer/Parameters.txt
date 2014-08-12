@@ -1,0 +1,5 @@
+msiexec /i FOGService.msi /quiet USETRAY="1" WEBADDRESS="https://fog.mastacontrolla.com" DEFAULTWEBROOT=""
+
+USETRAY="1"|""
+WEBADDRESS="x.x.x.x"
+DEFAULTWEBROOT="1"|""
