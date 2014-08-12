@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="72DF58BC-587E-4C44-939E-0021B0EA592A" Name="FOG Service" Language="1033" Version="0.5.6" Manufacturer="FOG" UpgradeCode="1CCFDEAF-53E9-43AC-AE18-F9F86CEFA4EA">
+        <Package Description="FOG Service" Comments="FOG Service" InstallerVersion="200" Compressed="yes" />
+        <Media Id="1" Cabinet="simple.cab" EmbedCab="yes" />
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFilesFolder" Name="PFiles" />
+        </Directory>
+        <Feature Id="DefaultFeature" Title="Main Feature" Level="1">
+        </Feature>
+        <UI>
+            <Dialog Id="Configure" Width="370" Height="270">
+                <Control Type="CheckBox" Id="Tray" Width="104" Height="17" X="11" Y="124">
+                    <Text>Start FOG Tray on login</Text>
+                </Control>
+                <Control Type="Edit" Id="ServerIP" Width="208" Height="15" X="90" Y="86">
+                </Control>
+                <Control Type="Text" Id="IPLabel" Width="75" Height="17" X="11" Y="86">
+                    <Text>FOG Server Adress</Text>
+                </Control>
+            </Dialog>
+        </UI>
+        <UIRef Id="WixUI_Minimal" />
+        <PropertyRef Id="NETFRAMEWORK30" />
+        <Condition Message="This application requires .NET Framework 3.0">Installed OR NETFRAMEWORK30</Condition>
+    </Product>
+    <Product Id="*" Name="FOG Service" Language="1033" Version="0.5.1" UpgradeCode="1CCFDEAF-53E9-43AC-AE18-F9F86CEFA4EA" Manufacturer="FOG">
+        <Package Description="A client for the FOG server" Comments="A client for the FOG server" InstallerVersion="200" Compressed="yes" />
+        <!--
+			Source media for the installation. 
+ 			Specifies a single cab file to be embedded in the installer's .msi. 
+		-->
+        <Media Id="1" Cabinet="contents.cab" EmbedCab="yes" CompressionLevel="high" />
+        <Upgrade Id="1CCFDEAF-53E9-43AC-AE18-F9F86CEFA4EA">
+            <UpgradeVersion OnlyDetect="yes" Minimum="0.0.0" Property="NEWERVERSIONDETECTED" IncludeMinimum="no" />
+            <UpgradeVersion OnlyDetect="no" Minimum="0.0.0" Maximum="0.5.0" Property="OLDERVERSIONBEINGUPGRADED" IncludeMinimum="no" IncludeMaximum="yes" MigrateFeatures="yes" />
+        </Upgrade>
+        <InstallExecuteSequence>
+            <RemoveExistingProducts Before="InstallInitialize" />
+        </InstallExecuteSequence>
+        <!-- Installation directory and files are defined in Files.wxs -->
+        <Directory Id="TARGETDIR" Name="SourceDir" />
+        <Feature Id="Complete" Title="FOG Service" Description="A client for the FOG server" Level="1">
+            <ComponentRef Id="StandardComponent" />
+            <ComponentRef Id="ServerRegistry" />
+            <ComponentRef Id="TrayRegistry" />
+        </Feature>
+        <!-- 
+			Using the Wix UI library
+ 
+			WixUI_InstallDir does not allow the user to choose 
+			features but adds a dialog to let the user choose a 
+			directory where the product will be installed
+		-->
+        <WixVariable Id="WixUIBannerBmp" Value="banner.png" />
+        <Icon Id="icon.ico" SourceFile="icon.ico" />
+        <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+        <Property Id="WIXUI_INSTALLDIR">INSTALLDIR</Property>
+        <UIRef Id="WixUI_InstallDir" />
+    </Product>
+</Wix>
