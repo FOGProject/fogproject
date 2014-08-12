@@ -1,15 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
-    <ProjectGuid>{3E31CCE4-D06A-4F02-A3E8-981B9033CA32}</ProjectGuid>
+    <ProjectGuid>{7BA48875-2930-4A9B-9216-255FCA1E86BE}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>FOG</RootNamespace>
-    <AssemblyName>Tray</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <AssemblyName>RegistryHandler</AssemblyName>
+    <TargetFrameworkVersion>v3.0</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <NoWin32Manifest>False</NoWin32Manifest>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
@@ -17,10 +15,10 @@
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <WarningLevel>4</WarningLevel>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <BaseAddress>4194304</BaseAddress>
     <RegisterForComInterop>False</RegisterForComInterop>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
@@ -46,45 +44,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NotificationIcon.cs" />
+    <Compile Include="RegistryHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="NotificationIcon.resx">
-      <DependentUpon>NotificationIcon.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NotificationHandler\NotificationHandler.csproj">
-      <Project>{717A8C0E-32F9-498C-BC51-FC03D0009248}</Project>
-      <Name>NotificationHandler</Name>
+    <ProjectReference Include="..\LogHandler\LogHandler.csproj">
+      <Project>{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}</Project>
+      <Name>LogHandler</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PipeClient\PipeClient.csproj">
-      <Project>{8F3F2E0B-F261-4F9C-A592-2062D8A3C2BD}</Project>
-      <Name>PipeClient</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\UserHandler\UserHandler.csproj">
-      <Project>{1759DEAE-2585-4324-9F85-338BE0F755BF}</Project>
-      <Name>UserHandler</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
