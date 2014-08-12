@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 # SharpDevelop 4.4
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{5C3289AB-B65D-42F8-BFD0-21C61619729A}"
 EndProject
@@ -22,8 +22,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnapinClient", "SnapinClien
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EncryptionHandler", "EncryptionHandler\EncryptionHandler.csproj", "{052A6197-798E-428B-99F9-7ABF12280798}"
 EndProject
-Project("{CFEE4113-1246-4D54-95CB-156813CB8593}") = "Installer", "Installer\Installer.wixproj", "{33A322B7-956D-47F4-812B-D13BA35DCCCE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipeServer", "PipeServer\PipeServer.csproj", "{DF7C1145-E90C-486B-ACEC-543B42CF083F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipeClient", "PipeClient\PipeClient.csproj", "{8F3F2E0B-F261-4F9C-A592-2062D8A3C2BD}"
@@ -33,6 +31,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostnameChanger", "HostnameChanger\HostnameChanger.csproj", "{B0C35B47-7A8A-466F-9D83-FA9384536929}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoLogOut", "AutoLogOut\AutoLogOut.csproj", "{B39DF5F9-A914-45AC-9F01-37B12A5591DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService", "UserService\UserService.csproj", "{9F4E9573-031F-405C-A8A3-8BFE4F35B14D}"
+EndProject
+Project("{CFEE4113-1246-4D54-95CB-156813CB8593}") = "Installer", "Installer\Installer.wixproj", "{E54A6E6A-2E1F-4270-A641-BD3C0E1F16EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegistryHandler", "RegistryHandler\RegistryHandler.csproj", "{7BA48875-2930-4A9B-9216-255FCA1E86BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,10 +84,6 @@ Global
 		{052A6197-798E-428B-99F9-7ABF12280798}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{052A6197-798E-428B-99F9-7ABF12280798}.Release|Any CPU.Build.0 = Release|Any CPU
 		{052A6197-798E-428B-99F9-7ABF12280798}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{33A322B7-956D-47F4-812B-D13BA35DCCCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{33A322B7-956D-47F4-812B-D13BA35DCCCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{33A322B7-956D-47F4-812B-D13BA35DCCCE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{33A322B7-956D-47F4-812B-D13BA35DCCCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF7C1145-E90C-486B-ACEC-543B42CF083F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF7C1145-E90C-486B-ACEC-543B42CF083F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DF7C1145-E90C-486B-ACEC-543B42CF083F}.Release|Any CPU.Build.0 = Release|Any CPU
@@ -104,5 +104,17 @@ Global
 		{B39DF5F9-A914-45AC-9F01-37B12A5591DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B39DF5F9-A914-45AC-9F01-37B12A5591DC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B39DF5F9-A914-45AC-9F01-37B12A5591DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F4E9573-031F-405C-A8A3-8BFE4F35B14D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F4E9573-031F-405C-A8A3-8BFE4F35B14D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F4E9573-031F-405C-A8A3-8BFE4F35B14D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F4E9573-031F-405C-A8A3-8BFE4F35B14D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E54A6E6A-2E1F-4270-A641-BD3C0E1F16EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E54A6E6A-2E1F-4270-A641-BD3C0E1F16EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E54A6E6A-2E1F-4270-A641-BD3C0E1F16EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E54A6E6A-2E1F-4270-A641-BD3C0E1F16EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BA48875-2930-4A9B-9216-255FCA1E86BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BA48875-2930-4A9B-9216-255FCA1E86BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BA48875-2930-4A9B-9216-255FCA1E86BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BA48875-2930-4A9B-9216-255FCA1E86BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -58,6 +58,16 @@ namespace FOG {
 
 		//Getters and setters
 		public static void setServerAddress(String address) { serverAddress = address; }
+		public static void setServerAddress(String HTTPS, String address, String webRoot) { 
+			if(HTTPS.Equals("1")) {
+				serverAddress = "https://";
+			} else {
+				serverAddress = "http://";
+			}
+			serverAddress = serverAddress  + address + webRoot;
+		}
+		
+		
 		public static String getServerAddress() { return serverAddress; }		
 
 
@@ -101,11 +111,8 @@ namespace FOG {
 		private static String decrypt(String response) {
 			String encryptedFlag = "#!en=";
 			
-			LogHandler.log(LOG_NAME, "Attempting to decrypt response");
-			
 			if(response.StartsWith(encryptedFlag)) {
 				String decryptedResponse = response.Substring(encryptedFlag.Length);
-				LogHandler.log(LOG_NAME, "Encrypted data: " + decryptedResponse);
 				return EncryptionHandler.decodeAESResponse(decryptedResponse, PASSKEY);
 				
 			} else {

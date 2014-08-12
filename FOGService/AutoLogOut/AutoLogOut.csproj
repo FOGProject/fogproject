@@ -69,6 +69,14 @@
       <Project>{717A8C0E-32F9-498C-BC51-FC03D0009248}</Project>
       <Name>NotificationHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PipeServer\PipeServer.csproj">
+      <Project>{DF7C1145-E90C-486B-ACEC-543B42CF083F}</Project>
+      <Name>PipeServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ShutdownHandler\ShutdownHandler.csproj">
+      <Project>{D0C42FA3-B494-4FA7-92CB-50D7C2E05383}</Project>
+      <Name>ShutdownHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ShutdownHandler\ShutdownHandler.csproj">
       <Project>{D0C42FA3-B494-4FA7-92CB-50D7C2E05383}</Project>
       <Name>ShutdownHandler</Name>
