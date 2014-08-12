@@ -328,6 +328,7 @@ EOFRESTOREPART
 						uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
 						partclone.$fstype -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
 						mv $imgpart.000 $imgpart 2>/dev/null;
+						debugPause
 						clear;
 						echo " * Image uploaded";
 					else
@@ -386,6 +387,7 @@ EOFRESTOREPART
 							uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
 							partclone.$fstype -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
 							mv $imgpart.000 $imgpart;
+							debugPause
 							clear;
 							echo " * Image uploaded";
 						else
