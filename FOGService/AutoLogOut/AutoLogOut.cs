@@ -24,17 +24,15 @@ namespace FOG {
 				if(!taskResponse.wasError()) {
 					int timeOut = getTimeOut(taskResponse);
 					if(timeOut > 0) {
-						LogHandler.log(getName(), "Time set to " + timeOut.ToString());
-						
+						LogHandler.log(getName(), "Time set to " + timeOut.ToString() + " seconds");
+						LogHandler.log(getName(), "Inactive for " +  UserHandler.getUserInactivityTime().ToString() + " seconds");
 						if(UserHandler.getUserInactivityTime() >= timeOut) {
-
-							NotificationHandler.createNotification(new Notification("Stupid rebooter", "Hey, you. Ya, you get to work, you've been slackin for " + UserHandler.getUserInactivityTime(), 5));
-							//NotificationHandler.createNotification(new Notification("You are about to be logged off",
-							//                                                        "Due to inactivity you will be logged off if you remain inactive", 20));
+							NotificationHandler.createNotification(new Notification("You are about to be logged off",
+							                                                        "Due to inactivity you will be logged off if you remain inactive", 20));
 							//Wait 20 seconds and check if the user is no longer inactive
 							Thread.Sleep(20000);
 							if(UserHandler.getUserInactivityTime() >= timeOut)
-								ShutdownHandler.restart("Logging off all users due to inactivity", 0);
+								ShutdownHandler.logOffUser();
 						}
 					}
 					

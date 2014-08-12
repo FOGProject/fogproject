@@ -1,2 +1,2 @@
-D:\fog\FOGService\Installer\bin\Release\Installer.msi
-D:\fog\FOGService\Installer\bin\Release\Installer.wixpdb
+D:\fog\FOGService\FOGService.msi
+D:\fog\FOGService\FOGService.wixpdb
