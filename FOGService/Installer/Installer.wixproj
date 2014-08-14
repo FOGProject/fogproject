@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+<Project ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
     <ProjectGuid>{E54A6E6A-2E1F-4270-A641-BD3C0E1F16EB}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -9,6 +9,8 @@
     <OutputName>FOGService</OutputName>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+    <TargetFrameworkProfile />
+    <TargetFrameworkVersion>v3.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -41,6 +43,10 @@
       <Project>{B39DF5F9-A914-45AC-9F01-37B12A5591DC}</Project>
       <Name>AutoLogOut</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ClientUpdater\ClientUpdater.csproj">
+      <Project>{40D0B176-6E1D-4D08-8150-F75D33F7AD4A}</Project>
+      <Name>ClientUpdater</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CommunicationHandler\CommunicationHandler.csproj">
       <Project>{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}</Project>
       <Name>CommunicationHandler</Name>
@@ -61,17 +67,53 @@
       <Project>{717A8C0E-32F9-498C-BC51-FC03D0009248}</Project>
       <Name>NotificationHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NotificationHandler\NotificationHandler.csproj">
+      <Project>{717A8C0E-32F9-498C-BC51-FC03D0009248}</Project>
+      <Name>NotificationHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PipeClient\PipeClient.csproj">
       <Project>{8F3F2E0B-F261-4F9C-A592-2062D8A3C2BD}</Project>
       <Name>PipeClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PipeServer\PipeServer.csproj">
+      <Project>{DF7C1145-E90C-486B-ACEC-543B42CF083F}</Project>
+      <Name>PipeServer</Name>
     </ProjectReference>
     <ProjectReference Include="..\RegistryHandler\RegistryHandler.csproj">
       <Project>{7BA48875-2930-4A9B-9216-255FCA1E86BE}</Project>
       <Name>RegistryHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RestartService\RestartService.csproj">
+      <Project>{16BB08D1-B8E7-4304-8795-3C06E529CFF3}</Project>
+      <Name>RestartService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Service\Service.csproj">
       <Project>{5C3289AB-B65D-42F8-BFD0-21C61619729A}</Project>
       <Name>Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ShutdownHandler\ShutdownHandler.csproj">
+      <Project>{D0C42FA3-B494-4FA7-92CB-50D7C2E05383}</Project>
+      <Name>ShutdownHandler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SnapinClient\SnapinClient.csproj">
+      <Project>{3532F76F-7A3B-474E-8CB1-58867E584510}</Project>
+      <Name>SnapinClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TaskReboot\TaskReboot.csproj">
+      <Project>{5E709B72-0C8B-45B7-AC5C-413F6CDA6679}</Project>
+      <Name>TaskReboot</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tray\Tray.csproj">
+      <Project>{3E31CCE4-D06A-4F02-A3E8-981B9033CA32}</Project>
+      <Name>Tray</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UserHandler\UserHandler.csproj">
+      <Project>{1759DEAE-2585-4324-9F85-338BE0F755BF}</Project>
+      <Name>UserHandler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UserService\UserService.csproj">
+      <Project>{9F4E9573-031F-405C-A8A3-8BFE4F35B14D}</Project>
+      <Name>UserService</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

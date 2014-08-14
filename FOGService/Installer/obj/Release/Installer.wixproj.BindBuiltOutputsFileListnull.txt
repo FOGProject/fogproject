@@ -1,0 +1,2 @@
+D:\fog\FOGService\bin\FOGService.msi
+D:\fog\FOGService\bin\FOGService.wixpdb

@@ -170,7 +170,7 @@ namespace FOG {
 		private static void startTray() {
 			Process process = new Process();
 			process.StartInfo.UseShellExecute = false;
-			process.StartInfo.FileName = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\Tray.exe";
+			process.StartInfo.FileName = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\FOGTray.exe";
 			process.Start();
 		}
 

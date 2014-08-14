@@ -44,14 +44,16 @@ namespace FOG {
 			messages.Add("#!db", "Database error");
 			messages.Add("#!im", "Invalid MAC address format");
 			messages.Add("#!ih", "Invalid host");		
+			messages.Add("#!ih", "Invalid login");					
 			messages.Add("#!it", "Invalid task");				
-			messages.Add("#!ng", "Module is disabled globablly on the FOG Server");
+			messages.Add("#!ng", "Module is disabled globally on the FOG server");
 			messages.Add("#!nh", "Module is diabled on the host");
 			messages.Add("#!um", "Unknown module ID");
 			messages.Add("#!ns", "No snapins");		
 			messages.Add("#!nj", "No jobs");	
+			messages.Add("#!nf", "No updates");				
 			messages.Add("#!time", "Invalid time");	
-			messages.Add("#!er", "General Error");
+			messages.Add("#!er", "General error");
 
 			return messages;
 		}
@@ -174,7 +176,6 @@ namespace FOG {
 				if(!Directory.Exists(Path.GetDirectoryName(fileName))) {
 					Directory.CreateDirectory(Path.GetDirectoryName(fileName));
 				}
-
 				webClient.DownloadFile(getServerAddress() + postfix, fileName);
 
 				if(File.Exists(fileName))
