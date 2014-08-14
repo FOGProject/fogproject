@@ -1,0 +1,5 @@
+D:\fog\FOGService\bin\PipeClient.dll
+D:\fog\FOGService\bin\PipeClient.pdb
+D:\fog\FOGService\PipeClient\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\PipeClient\obj\Debug\PipeClient.dll
+D:\fog\FOGService\PipeClient\obj\Debug\PipeClient.pdb
