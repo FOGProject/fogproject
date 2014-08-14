@@ -63,6 +63,10 @@
       <Project>{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}</Project>
       <Name>LogHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RestartService\RestartService.csproj">
+      <Project>{16BB08D1-B8E7-4304-8795-3C06E529CFF3}</Project>
+      <Name>RestartService</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

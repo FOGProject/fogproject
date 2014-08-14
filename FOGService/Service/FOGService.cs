@@ -108,6 +108,7 @@ namespace FOG{
 		//Load all of the modules
 		private void initializeModules() {
 			this.modules = new List<AbstractModule>();
+			this.modules.Add(new ClientUpdater());
 			this.modules.Add(new TaskReboot());
 			this.modules.Add(new HostnameChanger());
 			this.modules.Add(new SnapinClient());
@@ -125,7 +126,7 @@ namespace FOG{
 			//Only run the service if there wasn't a stop or shutdown request
 			while (status.Equals(Status.Running) && !ShutdownHandler.isShutdownPending()) {
 				foreach(AbstractModule module in modules) {
-					if(ShutdownHandler.isShutdownPending())
+					if(ShutdownHandler.isShutdownPending() )
 						break;
 					
 					//Log file formatting
@@ -143,6 +144,7 @@ namespace FOG{
 					//Log file formatting
 					LogHandler.divider();
 					LogHandler.newLine();
+					
 				}
 					
 				//Once all modules have been run, sleep for the set time

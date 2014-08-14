@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.IO;
 using System.Diagnostics;
 
 namespace FOG {
@@ -42,6 +43,8 @@ namespace FOG {
 				//If the file downloaded successfully then run the snapin and report to FOG what the exit code was
 				if(downloaded) {
 					exitCode = startSnapin(taskResponse, snapinFilePath);
+					if(File.Exists(snapinFilePath))
+						File.Delete(snapinFilePath);
 					
 					CommunicationHandler.contact("/service/snapins.checkin.php?mac=" +
 				                             CommunicationHandler.getMacAddresses() +
