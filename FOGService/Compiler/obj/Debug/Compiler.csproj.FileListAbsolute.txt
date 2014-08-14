@@ -1,0 +1,7 @@
+D:\fog\FOGService\bin\FOGServiceCompiler.exe
+D:\fog\FOGService\Compiler\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\Compiler\obj\Debug\Compiler.MainForm.resources
+D:\fog\FOGService\Compiler\obj\Debug\Compiler.csproj.GenerateResource.Cache
+D:\fog\FOGService\Compiler\obj\Debug\FOGServiceCompiler.exe
+D:\fog\FOGService\Compiler\obj\Debug\FOGServiceCompiler.pdb
+D:\fog\FOGService\bin\FOGServiceCompiler.pdb
