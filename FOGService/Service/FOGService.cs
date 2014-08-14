@@ -38,12 +38,7 @@ namespace FOG{
 		
 		public FOGService() {
 			//Initialize everything
-			if(RegistryHandler.getSystemSetting("Server") != null && RegistryHandler.getSystemSetting("WebRoot") != null && 
-			   RegistryHandler.getSystemSetting("Tray") != null && RegistryHandler.getSystemSetting("HTTPS") != null) {
-				
-				CommunicationHandler.setServerAddress(RegistryHandler.getSystemSetting("HTTPS"), 
-				                                      RegistryHandler.getSystemSetting("Server"), 
-				                                      RegistryHandler.getSystemSetting("WebRoot"));
+			if(CommunicationHandler.getAndSetServerAddress()) {
 
 				initializeModules();
 				this.threadManager = new Thread(new ThreadStart(serviceLooper));
@@ -53,9 +48,6 @@ namespace FOG{
 				this.notificationPipeThread = new Thread(new ThreadStart(notificationPipeHandler));
 				this.notificationPipe = new PipeServer("fog_pipe");
 				this.notificationPipe.MessageReceived += new PipeServer.MessageReceivedHandler(notificationPipeServer_MessageReceived);
-			} else {
-				//this.status = Status.Broken;
-				LogHandler.log(LOG_NAME, "Regisitry keys are not set");
 			}
 		}
 		

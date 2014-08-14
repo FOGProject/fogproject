@@ -16,7 +16,6 @@ namespace FOG {
 	/// <summary>
 	/// Coordinate all user specific FOG modules
 	/// </summary>	
-
 	class FOGUserService {
 		
 		//Define variables		
@@ -30,14 +29,11 @@ namespace FOG {
 		
 		public static void Main(string[] args) {
 			//Initialize everything
+			AppDomain.CurrentDomain.ProcessExit += new EventHandler (OnProcessExit);
+			
 			LogHandler.setFilePath(Environment.ExpandEnvironmentVariables("%userprofile%") + @"\fog_user.log");
 			LogHandler.log(LOG_NAME, "Initializing");
-			if(RegistryHandler.getSystemSetting("Server") != null && RegistryHandler.getSystemSetting("WebRoot") != null && 
-			   RegistryHandler.getSystemSetting("Tray") != null && RegistryHandler.getSystemSetting("HTTPS") != null) {
-				
-				CommunicationHandler.setServerAddress(RegistryHandler.getSystemSetting("HTTPS"), 
-				                                      RegistryHandler.getSystemSetting("Server"), 
-				                                      RegistryHandler.getSystemSetting("WebRoot"));
+			if(CommunicationHandler.getAndSetServerAddress()) {
 	
 				initializeModules();
 				threadManager = new Thread(new ThreadStart(serviceLooper));
@@ -63,8 +59,6 @@ namespace FOG {
 				if(RegistryHandler.getSystemSetting("Tray").Trim().Equals("1")) {
 					startTray();
 				}
-			} else {
-				LogHandler.log(LOG_NAME, "Regisitry keys are not set");
 			}
 		}
 
@@ -172,6 +166,10 @@ namespace FOG {
 			process.StartInfo.UseShellExecute = false;
 			process.StartInfo.FileName = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\FOGTray.exe";
 			process.Start();
+		}
+		
+		static void OnProcessExit(object sender, EventArgs e) {
+			
 		}
 
 	}

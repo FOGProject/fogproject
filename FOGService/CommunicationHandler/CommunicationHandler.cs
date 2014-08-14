@@ -69,6 +69,19 @@ namespace FOG {
 			serverAddress = serverAddress  + address + webRoot;
 		}
 		
+		public static Boolean getAndSetServerAddress() {
+			if(RegistryHandler.getSystemSetting("Server") != null && RegistryHandler.getSystemSetting("WebRoot") != null && 
+			   RegistryHandler.getSystemSetting("Tray") != null && RegistryHandler.getSystemSetting("HTTPS") != null) {
+				
+				CommunicationHandler.setServerAddress(RegistryHandler.getSystemSetting("HTTPS"), 
+				                                      RegistryHandler.getSystemSetting("Server"), 
+				                                      RegistryHandler.getSystemSetting("WebRoot"));
+				return true;
+			}
+			LogHandler.log(LOG_NAME, "Regisitry keys are not set");
+			return false;
+		}
+		
 		
 		public static String getServerAddress() { return serverAddress; }		
 
