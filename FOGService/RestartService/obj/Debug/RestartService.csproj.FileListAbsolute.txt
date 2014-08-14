@@ -1,0 +1,5 @@
+D:\fog\FOGService\bin\RestartFOGService.exe
+D:\fog\FOGService\bin\RestartFOGService.pdb
+D:\fog\FOGService\RestartService\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\RestartService\obj\Debug\RestartFOGService.exe
+D:\fog\FOGService\RestartService\obj\Debug\RestartFOGService.pdb
