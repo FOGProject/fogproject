@@ -68,6 +68,20 @@ namespace FOG {
 				LogHandler.log(LOG_NAME, "ERROR: Encrypted data is corrupt");
 			}
 			return "";
+		}	
+		
+		public static  String generateMD5Hash(String file) {
+			if (File.Exists(file)) {
+				StringBuilder sBuilder = new StringBuilder();
+				MD5 md5 = new MD5CryptoServiceProvider();
+				byte[] bytes = File.ReadAllBytes(file);
+				byte[] result = md5.ComputeHash(bytes);
+				foreach(int hashInt in result) {
+					sBuilder.Append(hashInt.ToString("x2"));
+				}
+				return sBuilder.ToString();
+			}
+			return "";
 		}		
 		
 	}
