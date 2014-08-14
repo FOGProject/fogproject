@@ -4,7 +4,14 @@ try
 {
 	if (isset($_REQUEST['action']))
 	{
-		if ($_REQUEST['action'] == 'ask' && isset($_REQUEST['file']))
+		if ($_REQUEST['action'] == 'ask' && isset($_REQUEST['file']) && $_REQUEST['newService'])
+		{
+			print "#!ok"."\n";
+			foreach($FOGCore->getClass('ClientUpdaterManager')->find(array('name' => base64_decode($_REQUEST['file']))) AS $ClientUpdate) {
+				print "md5=".$ClientUpdate->get('md5');
+			}
+		}
+		else if ($_REQUEST['action'] == 'ask' && isset($_REQUEST['file']))
 		{
 			foreach($FOGCore->getClass('ClientUpdaterManager')->find(array('name' => base64_decode($_REQUEST['file']))) AS $ClientUpdate)
 				print $ClientUpdate->get('md5');
@@ -20,10 +27,18 @@ try
 				print $ClientUpdate->get('file');
 			}
 		}
-		else if ( $_REQUEST['action'] == 'list' )
+		else if ( $_REQUEST['action'] == 'list'  && $_REQUEST['newService'])
 		{
+			print "#!ok"."\n";
+			$updateIndex = 0;
+			foreach($FOGCore->getClass('ClientUpdaterManager')->find() AS $ClientUpdate) {
+				print "update{$updateIndex}=".base64_encode($ClientUpdate->get('name'))."\n";
+				$updateIndex++;
+			}
+			
+		} else if ($_REQUEST['action'] == 'list') {
 			foreach($FOGCore->getClass('ClientUpdaterManager')->find() AS $ClientUpdate)
-				print base64_encode($ClientUpdate->get('name'))."\n";
+					print base64_encode($ClientUpdate->get('name'))."\n";	
 		}
 		else
 			throw new Exception('#!er');		

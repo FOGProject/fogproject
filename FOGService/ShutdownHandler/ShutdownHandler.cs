@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -85,6 +86,16 @@ namespace FOG {
 		
 		private static void setShutdownPending(Boolean sPending) {
 			shutdownPending = sPending;
+		}
+		
+		//Treat this like a shutdown request because it should halt the service
+		public static void restartService() {
+			LogHandler.log(LOG_NAME, "Restarting service");
+			setShutdownPending(true);
+			Process process = new Process();
+			process.StartInfo.UseShellExecute = false;
+			process.StartInfo.FileName = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\RestartFOGService.exe";
+			process.Start();
 		}
 	}
 }
