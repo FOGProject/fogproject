@@ -91,7 +91,9 @@ makeSwapSystem() {
 		# don't have a good way to test, as ubuntu installer
 		# doesn't set the GPT partition type correctly.
 		# so, only format as swap if uuid exists.
-		uuid=`egrep "^$2" "$1" | awk '{print $2;}'`;
+		if [ -e "$1" ]; then
+			uuid=`egrep "^$2" "$1" | awk '{print $2;}'`;
+		fi
 		if [ -n "$uuid" ]; then
 			part_type="82";
 		fi

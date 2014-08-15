@@ -490,6 +490,7 @@ class BootMenu extends FOGBase
 			$img = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('path') : null;
 			$imgFormat = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('format') : null;
 			$imgType = in_array($TaskType->get('id'),$imagingTasks) ? $Image->getImageType()->get('type') : null;
+			$imgPartitionType = in_array($TaskType->get('id'),$imagingTasks) ? $Image->getImagePartitionType()->get('type') : null;
 			$imgid = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('id') : null;
 			$ftp = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_TFTP_HOST'));
 			$chkdsk = $this->FOGCore->getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
@@ -520,6 +521,10 @@ class BootMenu extends FOGBase
 				),
 				array(
 					'value' => "imgType=$imgType",
+					'active' => in_array($TaskType->get('id'),$imagingTasks),
+				),
+				array(
+					'value' => "imgPartitionType=$imgPartitionType",
 					'active' => in_array($TaskType->get('id'),$imagingTasks),
 				),
 				array(
