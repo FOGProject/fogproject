@@ -1435,6 +1435,34 @@ $databaseSchema[] = array(
 	"ALTER TABLE `" . DATABASE_NAME . "`.`modules`
 		ADD COLUMN `default` INT DEFAULT 1 NOT NULL AFTER `description`",
 );
+// 120
+$databaseSchema[] = array(
+	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME . "`.`imagePartitionTypes` (
+	  `imagePartitionTypeID` mediumint(9) NOT NULL auto_increment,
+	  `imagePartitionTypeName` varchar(100) NOT NULL,
+	  `imagePartitionTypeValue` varchar(10) NOT NULL,
+	  PRIMARY KEY  (`imagePartitionTypeID`)
+	) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;",
+	"INSERT INTO `" . DATABASE_NAME . "`.`imagePartitionTypes` (`imagePartitionTypeID`, `imagePartitionTypeName`, `imagePartitionTypeValue`) VALUES
+	(1, 'Everything', 'all'),
+	(2, 'Partition Table and MBR only', 'mbr'),
+	(3, 'Partition 1 only', '1'),
+	(4, 'Partition 2 only', '2'),
+	(5, 'Partition 3 only', '3'),
+	(6, 'Partition 4 only', '4'),
+	(7, 'Partition 5 only', '5'),
+	(8, 'Partition 6 only', '6'),
+	(9, 'Partition 7 only', '7'),
+	(10, 'Partition 8 only', '8'),
+	(11, 'Partition 9 only', '9'),
+	(12, 'Partition 10 only', '10');",
+);
+// 121
+$databaseSchema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME . "`.`images`
+		ADD COLUMN `imagePartitionTypeID` mediumint(9) NOT NULL AFTER `imageTypeID`",
+	"UPDATE `". DATABASE_NAME ."`.images SET imagePartitionTypeID='1'",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";

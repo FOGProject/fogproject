@@ -38,6 +38,8 @@ echo "mbrfile=${mbrfile}";
 echo "type=${type}";
 echo "storage=${storage}";
 echo "img=${img}";
+echo "imgType=${imgType}";
+echo "imgPartitionType=${imgPartitionType}";
 getHardDisk;
 echo "hd=${hd}";
 part=$hd'1';
