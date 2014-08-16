@@ -895,28 +895,34 @@ class Host extends FOGController
 			if ($TaskType->isMulticast())
 			{
 				$MultiSessAssoc = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('image' => $this->getImage()->get('id'),'stateID' => 0)));
-				$MulticastSessName = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('name' => $taskName)));
-				// If no Associations, create new job and association.
-				if (!$MultiSessAssoc || !$isGroupTask)
+				$MultiSessName = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('name' => $taskName)));
+				$set_assoc = 0;
+				if ($MultiSessName && $MultiSessName->isValid())
 				{
-					if (!$MulticastSessName || !$MulticastSessName->isValid())
-					{
-						// Create New Multicast Session Job
-						$MulticastSession = new MulticastSessions(array(
-							'name' => $taskName,
-							'port' => $this->FOGCore->getSetting('FOG_UDPCAST_STARTINGPORT'),
-							'logpath' => $this->getImage()->get('path'),
-							'image' => $this->getImage()->get('id'),
-							'interface' => $StorageNode->get('interface'),
-							'stateID' => '0',
-							'starttime' => date('Y-m-d H:i:s'),
-							'percent' => '0',
-							'isDD' => $this->getImage()->get('imageTypeID'),
-							'NFSGroupID' => $StorageNode->get('storageGroupID'),
-						));
-					}
-					else
-						$MulticastSession = $MulticastSessName;
+					$MulticastSession = $MultiSessName;
+					$set_assoc = 1;
+				}
+				else if ($MultiSessAssoc && $MultiSessAssoc->isValid() &&
+						 $MultiSessName && $MultiSessName->isValid())
+				{
+					$MulticastSession = $MultiSessAssoc;
+					$set_assoc = 1;
+				}
+				else
+				{
+					// Create New Multicast Session Job
+					$MulticastSession = new MulticastSessions(array(
+						'name' => $taskName,
+						'port' => $this->FOGCore->getSetting('FOG_UDPCAST_STARTINGPORT'),
+						'logpath' => $this->getImage()->get('path'),
+						'image' => $this->getImage()->get('id'),
+						'interface' => $StorageNode->get('interface'),
+						'stateID' => '0',
+						'starttime' => date('Y-m-d H:i:s'),
+						'percent' => '0',
+						'isDD' => $this->getImage()->get('imageTypeID'),
+						'NFSGroupID' => $StorageNode->get('storageGroupID'),
+					));
 					if ($MulticastSession->save())
 					{
 						// Sets a new port number so you can create multiple Multicast Tasks.
@@ -926,28 +932,22 @@ class Host extends FOGController
 							$randomnumber = mt_rand(24576,32766)*2;
 						}
 						$this->FOGCore->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
-						// Create the Association.
-						$MulticastSessionAssoc = new MulticastSessionsAssociation(array(
-							'msID' => $MulticastSession->get('id'),
-							'tID' => $Task->get('id'),
-						));
-						$MulticastSessionAssoc->save();
+						$set_assoc = 1;
 					}
 				}
-				// Otherwise find the associations and link them as necessary.
-				else
+				if ($set_assoc)
 				{
-					$MulticastSession = $MultiSessAssoc;
 					// If the image id's are the same, link the tasks, TODO:
 					// Means of kill current task created to start new task
 					// with new associations.
+					// Create the Association.
 					$MulticastSessionAssoc = new MulticastSessionsAssociation(array(
-						'msID' => $MultiSessAssoc->get('id'),
+						'msID' => $MulticastSession->get('id'),
 						'taskID' => $Task->get('id'),
 					));
 					$MulticastSessionAssoc->save();
-					$MulticastSession->set('stateID',1);
 				}
+
 			}
 			// Snapin deploy/cancel after deploy
 			if (!$isUpload && $deploySnapins && $imagingTypes && $taskTypeID != '17')
@@ -1289,3 +1289,8 @@ class Host extends FOGController
 		return parent::destroy($field);
 	}
 }
+/* Local Variables: */
+/* indent-tabs-mode: t */
+/* c-basic-offset: 4 */
+/* tab-width: 4 */
+/* End: */
