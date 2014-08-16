@@ -299,9 +299,7 @@ EOFRESTOREPART
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				diskLength=`expr length $hd`;
 				for part in $parts; do
-<<<<<<< HEAD
 					savePartition "$part" "1" "$imagePath" "$diskLength" "$cores" "$imgPartitionType"
-=======
 					mkfifo /tmp/pigz1;
 					partNum=${part:$diskLength};
 					echo " * Processing Partition: $part ($partNum)";
@@ -322,7 +320,6 @@ EOFRESTOREPART
 						saveSwapUUID "${imagePath}/d1.original.swapuuids" "$part"; 
 					fi
 					rm /tmp/pigz1;
->>>>>>> svn
 				done
 				echo " * Task complete!";
 				debugPause
@@ -347,9 +344,7 @@ EOFRESTOREPART
 					parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
 					diskLength=`expr length $disk`;
 					for part in $parts; do
-<<<<<<< HEAD
 						savePartition "$part" "$intDisk" "$imagePath" "$diskLength" "$cores" "$imgPartitionType"
-=======
 						mkfifo /tmp/pigz1;
 						partNum=${part:diskLength};
 						echo " * Processing Partition: $part ($partNum)";
@@ -369,7 +364,6 @@ EOFRESTOREPART
 							saveSwapUUID "${imagePath}/d${intDisk}.original.swapuuids" "$part"; 
 						fi
 						rm /tmp/pigz1;
->>>>>>> svn
 					done
 					debugPause
 				else
