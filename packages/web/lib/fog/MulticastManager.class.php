@@ -85,7 +85,7 @@ class MulticastManager extends FOGBase
 				$allTasks = MulticastTask::getAllMulticastTasks($myroot);
 				$this->FOGCore->out(sprintf(" | %s task(s) found",count($allTasks)),MULTICASTDEVICEOUTPUT);
     
-    			$RMTasks = $this->getMCTasksNotInDB($KnownTasks,$allTasks);
+				$RMTasks = $this->getMCTasksNotInDB($KnownTasks,$allTasks);
 				$jobcancelled = false;
 				if (count($RMTasks))
 				{
@@ -229,3 +229,8 @@ class MulticastManager extends FOGBase
 		$this->serviceLoop();
 	}
 }
+/* Local Variables: */
+/* indent-tabs-mode: t */
+/* c-basic-offset: 4 */
+/* tab-width: 4 */
+/* End: */

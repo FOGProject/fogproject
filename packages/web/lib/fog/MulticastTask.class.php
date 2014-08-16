@@ -13,7 +13,8 @@ class MulticastTask extends FOGBase
 			$Tasks[] = new self(
 				$MultiSess->get('id'), 
 				$MultiSess->get('name'),
-				$MultiSess->get('port'),$root.'/'.$MultiSess->get('logpath'),
+				$MultiSess->get('port'),
+				$root.'/'.$MultiSess->get('logpath'),
 				$FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),
 				($count > 0 ? $count : ($MultiSess->get('clients') > 0 ? $MultiSess->get('clients') : $FOGCore->getClass('HostManager')->count())),
 				$MultiSess->get('isDD'),
@@ -261,3 +262,8 @@ class MulticastTask extends FOGBase
 		return -1;
 	}
 }
+/* Local Variables: */
+/* indent-tabs-mode: t */
+/* c-basic-offset: 4 */
+/* tab-width: 4 */
+/* End: */
