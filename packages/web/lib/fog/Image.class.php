@@ -162,7 +162,7 @@ class Image extends FOGController
 	*/
 	public function deleteImageFile()
 	{
-		$ftp = $GLOBALS['FOGFTP'];
+		$ftp = $this->FOGFTP;
 		$SN = $this->getStorageGroup()->getMasterStorageNode();
 		$SNME = ($SN && $SN->get('isEnabled') == '1' ? true : false);
 		if ($SNME)
