@@ -77,7 +77,7 @@ class FOGCore extends FOGBase
 		foreach ((array)$_SESSION['FOG_MESSAGES'] AS $message)
 		{
 			// Hook
-			$GLOBALS['HookManager']->processEvent('MessageBox', array('data' => &$message));
+			$this->HookManager->processEvent('MessageBox', array('data' => &$message));
 			// Message Box
 			printf('<div class="fog-message-box">%s</div>%s', $message, "\n");
 		}
@@ -108,11 +108,7 @@ class FOGCore extends FOGBase
 	public function searchManager($manager = 'Host', $keyword = '*')
 	{
 		$manager = ucwords(strtolower($manager)) . 'Manager';
-		
-		//$Manager = new $manager();
-		// TODO: Replace this when all Manager classes no longer need the database connection passed
-		$Manager = new $manager( $GLOBALS['conn'] );
-		
+		$Manager = new $manager();
 		return $Manager->search($keyword);
 	}
 	
