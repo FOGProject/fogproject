@@ -244,7 +244,6 @@ class ProcessLogin extends FOGBase
 		print "\n\t".'<script type="text/javascript" src="js/fog.login.js"></script>';
 		print "\n</body>";
 		print "\n</html>";
-		session_write_close();
 		ob_end_flush();
 	}
 
@@ -261,7 +260,6 @@ class ProcessLogin extends FOGBase
 		print "\n\t\t\t\t\t".'<p><input type="submit" value="'._('Login').'" /></p>';
 		print "\n\t\t\t\t</form>";
 		print "\n\t\t\t</div></center>";
-		session_write_close();
 		ob_end_flush();
 	}
 }
