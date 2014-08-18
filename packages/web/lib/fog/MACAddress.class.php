@@ -44,14 +44,8 @@ class MACAddress extends FOGBase
 		}
 		catch (Exception $e)
 		{
-			/*
 			if ($this->debug)
-			{
-				$GLOBALS['FOGCore']->debug('Invalid MAC Address: MAC: %s', $MAC);
-			}
-			*/
-			
-			//throw new Exception(sprintf('Invalid MAC Address: %s', $MAC));
+				$this->FOGCore->debug('Invalid MAC Address: MAC: %s', $MAC);
 		}
 		
 		return $this;
