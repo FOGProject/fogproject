@@ -22,5 +22,4 @@ print "\n\t\t</p>";
 print "\n\t</div>";
 print "\n</body>";
 print "\n</html>";
-@session_write_close();
 ob_end_flush();

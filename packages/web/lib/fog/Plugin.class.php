@@ -28,7 +28,7 @@ class Plugin extends FOGController
 			if(md5(trim($Plugin->getName())) == trim($hash))
 			{
 				$_SESSION['fogactiveplugin']=serialize($Plugin);
-				return $Plugin->getEntryPoint();
+				//return $Plugin->getEntryPoint();
 			}
 		}
 		return null;

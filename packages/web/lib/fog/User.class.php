@@ -74,7 +74,6 @@ class User extends FOGController
 		else if (!headers_sent() && time() - $_SESSION['CREATED'] > ($this->regenerateSessionTimeout * 60 * 60))
 		{
 			// reset session
-			@session_write_close();
 			@session_set_cookie_params(0);
 			@session_regenerate_id(true);
 			$_SESSION['CREATED'] = time();
