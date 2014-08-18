@@ -643,13 +643,13 @@ class FOGConfigurationPage extends FOGPage
 		if ( $_POST["n"] != null && is_numeric($_POST["n"]) )
 			$n = $_POST["n"];
 		$t = trim($_POST["logtype"]);
-		$logfile = $GLOBALS['FOGCore']->getSetting( "FOG_UTIL_BASE" ) . "/log/multicast.log";
+		$logfile = $this->FOGCore->getSetting( "FOG_UTIL_BASE" ) . "/log/multicast.log";
 		if ( $t == "Multicast" )
-			$logfile = $GLOBALS['FOGCore']->getSetting( "FOG_UTIL_BASE" ) . "/log/multicast.log";
+			$logfile = $this->FOGCore->getSetting( "FOG_UTIL_BASE" ) . "/log/multicast.log";
 		else if ( $t == "Scheduler" )
-			$logfile = $GLOBALS['FOGCore']->getSetting( "FOG_UTIL_BASE" ) . "/log/fogscheduler.log";
+			$logfile = $this->FOGCore->getSetting( "FOG_UTIL_BASE" ) . "/log/fogscheduler.log";
 		else if ( $t == "Replicator" )
-			$logfile = $GLOBALS['FOGCore']->getSetting( "FOG_UTIL_BASE" ) . "/log/fogreplicator.log";				
+			$logfile = $this->FOGCore->getSetting( "FOG_UTIL_BASE" ) . "/log/fogreplicator.log";				
 		system("tail -n $n \"$logfile\"");
 		print "\n\t\t\t\t</pre>";
 		print "\n\t\t\t</div>";
