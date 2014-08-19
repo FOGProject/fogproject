@@ -77,7 +77,7 @@ class FOGCore extends FOGBase
 		foreach ((array)$_SESSION['FOG_MESSAGES'] AS $message)
 		{
 			// Hook
-			$this->HookManager->processEvent('MessageBox', array('data' => &$message));
+			$GLOBALS['HookManager']->processEvent('MessageBox', array('data' => &$message));
 			// Message Box
 			printf('<div class="fog-message-box">%s</div>%s', $message, "\n");
 		}
