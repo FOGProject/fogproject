@@ -75,7 +75,7 @@ try
 	if ($Image->get('format') == 1)
 		$Image->set('format',0)->save();
 	// Complete the Task.
-	$Task->set('stateID','4');
+	$Task->set('stateID','4')->set('pct','100')->set('percent','100');
 	if (!$Task->save())
 		throw new Exception(_('Failed to update Task'));
 	// Log it
