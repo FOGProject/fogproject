@@ -992,9 +992,9 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<h2>"._('Host Login History').'</h2>';
 		print "\n\t\t\t".'<form id="dte" method="post" action="'.$this->formAction.'&tab=host-login-history">';
 		$this->headerData = array(
+			_('Time'),
 			_('Action'),
 			_('Username'),
-			_('Time'),
 			_('Description')
 		);
 		$this->attributes = array(
@@ -1004,9 +1004,9 @@ class HostManagementPage extends FOGPage
 			array(),
 		);
 		$this->templates = array(
+			'${user_time}',
 			'${action}',
 			'${user_name}',
-			'${user_time}',
 			'${user_desc}',
 		);
 		foreach((array)$Host->get('users') AS $UserLogin)

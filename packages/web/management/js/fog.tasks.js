@@ -85,7 +85,10 @@ function ActiveTasksUpdate()
 					}
 					//response['data'][i]['percentText'].remove();
 					// Replace variable data
-					row += '<td colspan="7">' + '<tr id="progress-${host_id}" class="${class}"><td colspan="7" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percent}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr></td>';
+					if (response['data'][i]['percent'] > 0 && response['data'][i]['percent'] < 100)
+					{
+						row += '<td colspan="7">' + '<tr id="progress-${host_id}" class="${class}"><td colspan="7" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percentText}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr></td>';
+					}
 					for (var k in response['data'][i])
 					{
 						row = row.replace(new RegExp('\\$\\{' + k + '\\}', 'g'), response['data'][i][k]);
