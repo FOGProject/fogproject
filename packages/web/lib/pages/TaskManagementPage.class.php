@@ -46,7 +46,7 @@ class TaskManagementPage extends FOGPage
 		);
 		// Row attributes
 		$this->attributes = array(
-			array('width' => 65, 'class' => 'l', 'id' => 'host-${id}'),
+			array('width' => 65, 'class' => 'l', 'id' => 'host-${host_id}'),
 			array('width' => 120, 'class' => 'l'),
 			array(),
 			array('width' => 110, 'class' => 'l'),
