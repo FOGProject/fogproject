@@ -1176,6 +1176,14 @@ class GroupManagementPage extends FOGPage
 			foreach((array)$Group->get('hosts') AS $Host)
 			{
 				if ($Host && $Host->isValid())
+					$Tasks[] = current($Host->get('task'));
+			}
+			$Tasks = array_filter($Tasks);
+			if ($Tasks)
+				throw new Exception(_('One or more hosts are currently in a task'));
+			foreach((array)$Group->get('hosts') AS $Host)
+			{
+				if ($Host && $Host->isValid())
 				{
 					if (in_array($taskTypeID,$imagingTasks) && !$Host->get('imageID'))
 						throw new Exception(_('You need to assign an image to the host'));
