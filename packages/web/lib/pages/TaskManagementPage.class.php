@@ -380,10 +380,26 @@ class TaskManagementPage extends FOGPage
 		$enableShutdown = false;
 		$enableSnapins = ($_REQUEST['type'] == 17 ? false : -1);
 		$taskName = ($taskTypeID == 8 ? 'Multicast Group Quick Deploy' : 'Group Quick Deploy');
-		foreach ((array)$Group->get('hosts') AS $Host)
-			$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, false, $enableSnapins, true, $this->FOGUser->get('name'));
-		$this->FOGCore->setMessage('Successfully created Group tasking!');
-		$this->FOGCore->redirect('?node=tasks&sub=active');
+		try
+		{
+			foreach((array)$Group->get('hosts') AS $Host)
+			{
+				if ($Host && $Host->isValid())
+					$Tasks[] = current($Host->get('task'));
+			}
+			$Tasks = array_filter($Tasks);
+			if ($Tasks)
+				throw new Exception(_('One or more hosts are currently in a task'));
+			foreach ((array)$Group->get('hosts') AS $Host)
+				$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, false, $enableSnapins, true, $this->FOGUser->get('name'));
+			$this->FOGCore->setMessage('Successfully created Group tasking!');
+			$this->FOGCore->redirect('?node=tasks&sub=active');
+		}
+		catch (Exception $e)
+		{
+			$this->FOGCore->setMessage($e->getMessage());
+			$this->FOGCore->redirect('?node=tasks&sub=listgroups');
+		}
 	}
 	// Active Tasks
 	public function active()
