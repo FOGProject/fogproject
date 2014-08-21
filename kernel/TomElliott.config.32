@@ -685,7 +685,7 @@ CONFIG_STANDALONE=y
 CONFIG_PREVENT_FIRMWARE_BUILD=y
 CONFIG_FW_LOADER=y
 CONFIG_FIRMWARE_IN_KERNEL=y
-CONFIG_EXTRA_FIRMWARE="bnx2/bnx2-mips-09-6.2.1b.fw rtl_nic/rtl8168e-2.fw rtl_nic/rtl8106e-2.fw rtl_nic/rtl8106e-1.fw tigon/tg357766.bin rtl_nic/rtl8168e-3.fw"
+CONFIG_EXTRA_FIRMWARE="bnx2/bnx2-mips-09-6.2.1b.fw bnx2/bnx2-mips-06-6.2.3.fw rtl_nic/rtl8168e-2.fw rtl_nic/rtl8106e-2.fw rtl_nic/rtl8106e-1.fw tigon/tg357766.bin rtl_nic/rtl8168e-3.fw"
 CONFIG_EXTRA_FIRMWARE_DIR="linux-firmware"
 CONFIG_FW_LOADER_USER_HELPER=y
 # CONFIG_DEBUG_DRIVER is not set
