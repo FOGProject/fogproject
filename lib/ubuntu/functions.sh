@@ -31,7 +31,10 @@ installInitScript()
 	chmod 755 ${initdpath}/${initdIRfullname}
 	sysv-rc-conf ${initdIRfullname} on >/dev/null 2>&1;		
 	chmod 755 ${initdpath}/${initdSDfullname}
-	sysv-rc-conf ${initdSDfullname} on >/dev/null 2>&1;	
+	sysv-rc-conf ${initdSDfullname} on >/dev/null 2>&1;
+	insserv -d ${initdpath}/${initdMCfullname} >/dev/null 2>&1;
+	insserv -d ${initdpath}/${initdIRfullname} >/dev/null 2>&1;
+	insserv -d ${initdpath}/${initdSDfullname} >/dev/null 2>&1;
 	echo "OK";	
 }
 
