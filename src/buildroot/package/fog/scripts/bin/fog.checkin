@@ -1,5 +1,11 @@
 #!/bin/sh
 . /usr/share/fog/lib/funcs.sh
+
+
+
+
+
+
 RUN_CHKDSK="";
 HOSTNAME_EARLY="0";
 OS_ID_WIN7="5";
@@ -38,6 +44,8 @@ if [ "$hostearly" == "1" ]; then
 fi
 if [ "$mc" == "yes" ]; then
 	method="UDPCAST";
+elif [ "$mc" == "bt" ]; then
+	method="Torrent-Casting";
 else
 	method="NFS";
 fi
@@ -61,6 +69,34 @@ if [ "$type" == "up" ]; then
 	mkdir /images 2>/dev/null;
 	mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images;
 	echo "Done";
+	debugPause;
+elif [ "$type" == "down" ] && [ "$mc" == "bt" ]; then
+	queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
+	blPass=`echo $queueinfo|grep "##"`;
+
+	waittime=0;
+	while [ ! -n "$blPass" ]; do
+		echo -n "		* $queueinfo (";
+
+		sec2String $waittime;
+		echo ")"
+
+		queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
+		blPass=`echo $queueinfo | grep "##"`;
+		sleep 5;
+		waittime=$(expr $waittime "+" 5);
+	done
+
+	echo "Done";
+	dots "Using image"
+	# download $img.torrent file
+	wget -q -O /tmp/$img.torrent http://${web}/service/torrent.php?torrent=$img;
+	ctorrent /tmp/$img.torrent -x > /tmp/filelist.txt;
+	torrentDownloadSize=`cat /tmp/filelist.txt|grep "Total:*"|awk '{print $2}'`;
+	echo "$img";
+	dots "Size of image to download"
+	echo "$torrentDownloadSize MB";
+	debugPause;
 elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 	mac64=`ifconfig | grep HWaddr | head -n1 | base64`;
 	dots "Attempting to send inventory";
