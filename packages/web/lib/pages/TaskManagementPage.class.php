@@ -46,7 +46,7 @@ class TaskManagementPage extends FOGPage
 		);
 		// Row attributes
 		$this->attributes = array(
-			array('width' => 65, 'class' => 'l', 'id' => 'host-${id}'),
+			array('width' => 65, 'class' => 'l', 'id' => 'host-${host_id}'),
 			array('width' => 120, 'class' => 'l'),
 			array(),
 			array('width' => 110, 'class' => 'l'),
@@ -79,7 +79,7 @@ class TaskManagementPage extends FOGPage
 				'width' => 600 * ($Task->get('percent')/100),
 				'elapsed' => $Task->get('timeElapsed'),
 				'remains' => $Task->get('timeRemaining'),
-				'percent' => $Task->get('percent'),
+				'percent' => $Task->get('pct'),
 				'copied' => $Task->get('dataCopied'),
 				'total' => $Task->get('dataTotal'),
 				'bpm' => $Task->get('bpm'),
@@ -125,7 +125,7 @@ class TaskManagementPage extends FOGPage
 					'width' => 600 * ($Task->get('percent')/100),
 					'elapsed' => $Task->get('timeElapsed'),
 					'remains' => $Task->get('timeRemaining'),
-					'percent' => $Task->get('percent'),
+					'percent' => $Task->get('pct'),
 					'copied' => $Task->get('dataCopied'),
 					'total' => $Task->get('dataTotal'),
 					'bpm' => $Task->get('bpm'),
@@ -166,7 +166,7 @@ class TaskManagementPage extends FOGPage
 				'width' => 600 * ($Task->get('percent')/100),
 				'elapsed' => $Task->get('timeElapsed'),
 				'remains' => $Task->get('timeRemaining'),
-				'percent' => $Task->get('percent'),
+				'percent' => $Task->get('pct'),
 				'copied' => $Task->get('dataCopied'),
 				'total' => $Task->get('dataTotal'),
 				'bpm' => $Task->get('bpm'),
@@ -379,11 +379,47 @@ class TaskManagementPage extends FOGPage
 		$snapin = '-1';
 		$enableShutdown = false;
 		$enableSnapins = ($_REQUEST['type'] == 17 ? false : -1);
+		$enableDebug = (in_array($_REQUEST['type'],array(3,15,16)) ? true : false);
 		$taskName = ($taskTypeID == 8 ? 'Multicast Group Quick Deploy' : 'Group Quick Deploy');
-		foreach ((array)$Group->get('hosts') AS $Host)
-			$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, false, $enableSnapins, true, $this->FOGUser->get('name'));
-		$this->FOGCore->setMessage('Successfully created Group tasking!');
-		$this->FOGCore->redirect('?node=tasks&sub=active');
+		try
+		{
+			foreach((array)$Group->get('hosts') AS $Host)
+			{
+				$Tasks = false;
+				if ($Host && $Host->isValid())
+				{
+					foreach($Host->get('task') AS $Tasking)
+					{
+						if ($Tasking && $Tasking->isValid())
+						{
+							$Tasks = true;
+							break;
+						}
+					}
+				}
+			}
+			if ($Tasks)
+				throw new Exception(_('One or more hosts are currently in a task'));
+			foreach((array)$Group->get('hosts') AS $Host)
+			{
+				if ($Host && $Host->isValid())
+				{
+					if (in_array($taskTypeID,$imagingTasks) && !$Host->get('imageID'))
+						throw new Exception(_('You need to assign an image to all of the hosts'));
+					if (!$Host->checkIfExist($taskTypeID))
+						throw new Exception(_('To setup download task, you must first upload an image'));
+				}
+			}
+			foreach ((array)$Group->get('hosts') AS $Host)
+				$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, true, $this->FOGUser->get('name'));
+			$this->FOGCore->setMessage('Successfully created Group tasking!');
+			$this->FOGCore->redirect('?node=tasks&sub=active');
+		}
+		catch (Exception $e)
+		{
+			$this->FOGCore->setMessage($e->getMessage());
+			$this->FOGCore->redirect('?node=tasks&sub=listgroups');
+		}
 	}
 	// Active Tasks
 	public function active()
@@ -408,7 +444,7 @@ class TaskManagementPage extends FOGPage
 				'width' => 600 * ($Task->get('percent')/100),
 				'elapsed' => $Task->get('timeElapsed'),
 				'remains' => $Task->get('timeRemaining'),
-				'percent' => $Task->get('percent'),
+				'percent' => $Task->get('pct'),
 				'copied' => $Task->get('dataCopied'),
 				'total' => $Task->get('dataTotal'),
 				'bpm' => $Task->get('bpm'),

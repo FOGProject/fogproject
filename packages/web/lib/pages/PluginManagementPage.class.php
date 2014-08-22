@@ -346,12 +346,6 @@ class PluginManagementPage extends FOGPage
 			$Capone = new Capone($_REQUEST['kill']);
 			$Capone->destroy();
 		}
-		// reset session
-		@session_write_close();
-		@session_regenerate_id(true);
-		$_SESSION = array();
-		@session_set_cookie_params(0);
-		@session_start();
 		$this->FOGCore->setMessage('Plugin updated!');
 		$this->FOGCore->redirect($this->formAction);
 	}
@@ -370,11 +364,5 @@ class PluginManagementPage extends FOGPage
 				}
 			}
 		}
-		// reset session
-		@session_write_close();
-		@session_regenerate_id(true);
-		$_SESSION = array();
-		@session_set_cookie_params(0);
-		@session_start();
 	}
 }
