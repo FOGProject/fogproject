@@ -13,7 +13,8 @@ class MulticastTask extends FOGBase
 			$Tasks[] = new self(
 				$MultiSess->get('id'), 
 				$MultiSess->get('name'),
-				$MultiSess->get('port'),$root.'/'.$MultiSess->get('logpath'),
+				$MultiSess->get('port'),
+				$root.'/'.$MultiSess->get('logpath'),
 				$FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),
 				($count > 0 ? $count : ($MultiSess->get('clients') > 0 ? $MultiSess->get('clients') : $FOGCore->getClass('HostManager')->count())),
 				$MultiSess->get('isDD'),
@@ -65,7 +66,7 @@ class MulticastTask extends FOGBase
 		$countTemp = $this->getClientCount();
 		$count = sprintf(' --min-receivers %d',($countTemp > 0 ? $countTemp : $this->FOGCore->getClass('HostManager')->count()));
 		if ($waitTemp)
-			$wait = sprintf(' --max-wait %d',($waitTemp > 0 ? $countTemp * 60 : 60));
+			$wait = sprintf(' --max-wait %d',($waitTemp > 0 ? $waitTemp * 60 : 60));
 		if (($this->getOSID() == 5 || $this->getOSID() == 6 || $this->getOSID() == 7) && $this->getImageType() == 1)
 		{
 			// Only Windows 7 and 8
@@ -261,3 +262,8 @@ class MulticastTask extends FOGBase
 		return -1;
 	}
 }
+/* Local Variables: */
+/* indent-tabs-mode: t */
+/* c-basic-offset: 4 */
+/* tab-width: 4 */
+/* End: */

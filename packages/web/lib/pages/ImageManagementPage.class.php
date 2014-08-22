@@ -32,7 +32,7 @@ class ImageManagementPage extends FOGPage
 		parent::__construct($name);
 		// Header row
 		$this->headerData = array(
-			_('Image Name') .'<br /><small>'._('Storage Group').': '._('O/S').'</small><br /><small>'._('Image Type').'</small>',
+			_('Image Name') .'<br /><small>'._('Storage Group').': '._('O/S').'</small><br /><small>'._('Image Type').'</small><br /><small>'._('Partition').'</small>',
 			_('Image Size: ON CLIENT'),
 			_('Image Size: ON SERVER'),
 			_('Uploaded'),
@@ -40,7 +40,7 @@ class ImageManagementPage extends FOGPage
 		);
 		// Row templates
 		$this->templates = array(
-			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name}</a><br /><small>${storageGroup}:${os}</small><br /><small>${image_type}</small>',
+			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name}</a><br /><small>${storageGroup}:${os}</small><br /><small>${image_type}</small><br /><small>${image_partition_type}</small>',
 			'${size}',
 			'${serv_size}',
 			'${deployed}',
@@ -72,6 +72,7 @@ class ImageManagementPage extends FOGPage
 			$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
 			$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
 			$imageType = $Image->get('imageTypeID') ? new ImageType($Image->get('imageTypeID')) : null;
+			$imagePartitionType = $Image->get('imagePartitionTypeID') ? new ImagePartitionType($Image->get('imagePartitionTypeID')) : null;
 			$this->data[] = array(
 				'id'		=> $Image->get('id'),
 				'name'		=> $Image->get('name'),
@@ -84,6 +85,7 @@ class ImageManagementPage extends FOGPage
 				'size'		=> $imageSize,
 				'serv_size' => $servSize,
 				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
+				'image_partition_type' => $imagePartitionType && $imagePartitionType->isValid() ? $imagePartitionType->get('name') : '',
 			);
 		}
 		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
@@ -122,6 +124,7 @@ class ImageManagementPage extends FOGPage
 			$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
 			$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
 			$imageType = $Image->get('imageTypeID') ? new ImageType($Image->get('imageTypeID')) : null;
+			$imagePartitionType = $Image->get('imagePartitionTypeID') ? new ImagePartitionType($Image->get('imagePartitionTypeID')) : null;
 			$this->data[] = array(
 				'id'		=> $Image->get('id'),
 				'name'		=> $Image->get('name'),
@@ -134,6 +137,7 @@ class ImageManagementPage extends FOGPage
 				'size'		=> $imageSize,
 				'serv_size' => $servSize,
 				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
+				'image_partition_type' => $imagePartitionType && $imagePartitionType->isValid() ? $imagePartitionType->get('name') : '',
 			);
 		}
 		// Hook
@@ -164,6 +168,7 @@ class ImageManagementPage extends FOGPage
 			_('Operating System') => '${operating_systems}',
 			_('Image Path') => '${image_path}<input type="text" name="file" id="iFile" value="${image_file}" />',
 			_('Image Type') => '${image_types}',
+			_('Partition') => '${image_partition_types}',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" /><!--<span class="icon icon-help" title="TODO!"></span>-->',
 		);
 		print "\n\t\t\t<h2>"._('Add new image definition').'</h2>';
@@ -180,6 +185,7 @@ class ImageManagementPage extends FOGPage
 				'image_path' => current($this->FOGCore->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1)))->get('path').'/&nbsp;',
 				'image_file' => $_REQUEST['file'],
 				'image_types' => $this->FOGCore->getClass('ImageTypeManager')->buildSelectBox($_REQUEST['imagetype'],'','id'),
+				'image_partition_types' => $this->FOGCore->getClass('ImagePartitionTypeManager')->buildSelectBox($_REQUEST['imagepartitiontype'],'','id'),
 			);
 		}
 		// Hook
@@ -214,6 +220,8 @@ class ImageManagementPage extends FOGPage
 				throw new Exception('An Operating System is required!');
 			if (empty($_REQUEST['imagetype']) || !is_numeric($_REQUEST['imagetype']))
 				throw new Exception('An image type is required!');
+			if (empty($_REQUEST['imagepartitiontype']) || !is_numeric($_REQUEST['imagepartitiontype']))
+				throw new Exception('An image partition type is required!');
 			// Create new Object
 			$Image = new Image(array(
 				'name'		=> $_REQUEST['name'],
@@ -221,7 +229,8 @@ class ImageManagementPage extends FOGPage
 				'storageGroupID'=> $_REQUEST['storagegroup'],
 				'osID'		=> $_REQUEST['os'],
 				'path'		=> $_REQUEST['file'],
-				'imageTypeID'	=> $_REQUEST['imagetype']
+				'imageTypeID'	=> $_REQUEST['imagetype'],
+				'imagePartitionTypeID'	=> $_REQUEST['imagepartitiontype']
 			));
 			// Save
 			if ($Image->save())
@@ -280,6 +289,7 @@ class ImageManagementPage extends FOGPage
 			_('Operating System') => '${operating_systems}',
 			_('Image Path') => '${image_path}<input type="text" name="file" id="iFile" value="${image_file}" />',
 			_('Image Type') => '${image_types}',
+			_('Partition') => '${image_partition_types}',
 			$this->FOGCore->getSetting('FOG_FORMAT_FLAG_IN_GUI') ? _('Image Manager') : '' => $this->FOGCore->getSetting('FOG_FORMAT_FLAG_IN_GUI') ? '<select name="imagemanage"><option value="1" ${is_legacy}>'._('PartImage').'</option><option value="0" ${is_modern}>'._('PartClone').'</option></select>' : '',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" /><!--<span class="icon icon-help" title="TODO!"></span>-->',
 		);
@@ -296,6 +306,7 @@ class ImageManagementPage extends FOGPage
 				'image_path' => $StorageNode && $StorageNode->isValid() ? $StorageNode->get('path').'/&nbsp;' : 'No nodes available.',
 				'image_file' => $Image->get('path'),
 				'image_types' => $this->FOGCore->getClass('ImageTypeManager')->buildSelectBox($Image->get('imageTypeID'),'','id'),
+				'image_partition_types' => $this->FOGCore->getClass('ImagePartitionTypeManager')->buildSelectBox($Image->get('imagePartitionTypeID'),'','id'),
 				'is_legacy' => $Image->get('format') == 1 ? 'selected="selected"' : '',
 				'is_modern' => $Image->get('format') == 0 ? 'selected="selected"' : '',
 			);
@@ -383,6 +394,8 @@ class ImageManagementPage extends FOGPage
 						throw new Exception('An Operating System is required!');
 					if (empty($_POST['imagetype']) && $_POST['imagetype'] != '0')
 						throw new Exception('An image type is required!');
+					if (empty($_POST['imagepartitiontype']) && $_POST['imagepartitiontype'] != '0')
+						throw new Exception('An image partition type is required!');
 					// Update Object
 					$Image	->set('name',		$_POST['name'])
 						->set('description',	$_POST['description'])
@@ -390,6 +403,7 @@ class ImageManagementPage extends FOGPage
 						->set('osID',		$_POST['os'])
 						->set('path',		$_POST['file'])
 						->set('imageTypeID',	$_POST['imagetype'])
+						->set('imagePartitionTypeID',	$_POST['imagepartitiontype'])
 						->set('format',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $Image->get('format') );
 				break;
 				case 'image-host';
@@ -664,3 +678,8 @@ class ImageManagementPage extends FOGPage
 		}
 	}
 }
+/* Local Variables: */
+/* indent-tabs-mode: t */
+/* c-basic-offset: 4 */
+/* tab-width: 4 */
+/* End: */

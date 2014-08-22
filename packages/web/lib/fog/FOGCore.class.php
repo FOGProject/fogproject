@@ -108,11 +108,7 @@ class FOGCore extends FOGBase
 	public function searchManager($manager = 'Host', $keyword = '*')
 	{
 		$manager = ucwords(strtolower($manager)) . 'Manager';
-		
-		//$Manager = new $manager();
-		// TODO: Replace this when all Manager classes no longer need the database connection passed
-		$Manager = new $manager( $GLOBALS['conn'] );
-		
+		$Manager = new $manager();
 		return $Manager->search($keyword);
 	}
 	
@@ -321,6 +317,37 @@ class FOGCore extends FOGBase
 		$uptime = (count($uptime) > 1 ? $uptime[0] . ', ' . $uptime[1] : 'uptime not found');
 		
 		return array('uptime' => $uptime, 'load' => $load);
+	}
+	/** clear_screen($outputdevice)
+		Clears the screen for information.
+	*/
+	public function clear_screen($outputdevice)
+	{
+		$this->out(chr(27)."[2J".chr(27)."[;H",$outputdevice);
+	}
+	/** wait_interface_ready($interface,$outputdevice)
+		Waits for the network interface to be ready so services operate.
+	*/
+	public function wait_interface_ready($interface,$outputdevice)
+	{
+		while (true)
+		{
+			$retarr = array();
+			exec('netstat -inN',$retarr);
+			array_shift($retarr);
+			array_shift($retarr);
+			foreach($retarr AS $line)
+			{
+				$t = substr($line,0,strpos($line,' '));
+				if ($t == $interface)
+				{
+					$this->out('Interface now ready..',$outputdevice);
+					break 2;
+				}
+			}
+			$this->out('Interface not ready, waiting..',$outputdevice);
+			sleep(10);
+		}
 	}
 	// The below functions are from the FOG Service Scripts Data writing and checking.
 	/** out($sting, $device, $blLog=false,$blNewLine=true)

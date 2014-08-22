@@ -15,7 +15,7 @@ try
 	$level = $Host->get('printerLevel');
 	if (empty($level) || $level == 0 || $level > 2)
 		$level = 0;
-	print base64_encode('#!mg='.$level)."\n";
+	$Datatosendlevel = $level;
 	if ($level > 0)
 	{
 		// Get all the printers set for this host.
@@ -28,15 +28,23 @@ try
 		{
 			// Send the printer based on the type.
 			if ($Printer->get('type') == 'Network')
-				print base64_encode('|||'.$Printer->get('name').'||'.($Host->getDefault($Printer->get('id'))?'1':'0'))."\n";
+				$Datatosendprint = '|||'.$Printer->get('name').'||'.($Host->getDefault($Printer->get('id'))?'1':'0');
 			else if ($Printer->get('type') == 'iPrint')
-				print base64_encode($Printer->get('port').'|||'.$Printer->get('name').'||'.($Host->getDefault($Printer->get('id'))?'1':'0'))."\n";
+				$Datatosendprint = $Printer->get('port').'|||'.$Printer->get('name').'||'.($Host->getDefault($Printer->get('id'))?'1':'0');
 			else
-				print base64_encode($Printer->get('port').'|'.$Printer->get('file').'|'.$Printer->get('model').'|'.$Printer->get('name').'|'.$Printer->get('ip').'|'.($Host->getDefault($Printer->get('id'))?'1':'0'))."\n";
+				$Datatosendprint = $Printer->get('port').'|'.$Printer->get('file').'|'.$Printer->get('model').'|'.$Printer->get('name').'|'.$Printer->get('ip').'|'.($Host->getDefault($Printer->get('id'))?'1':'0');
 		}
 	}
 }
 catch(Exception $e)
 {
-	print base64_encode('#!er:'.$e->getMessage());
+	$Datatosenderror = '#!er:'.$e->getMessage();
 }
+if ($Datatosenderror)
+	$Datatosend = $Datatosenderror;
+else
+	$Datatosend = ($_REQUEST['newService'] ? "#!ok\n" : '').'#!mg='.($_REQUEST['newService'] ? $Datatosendlevel."\n".$Datatosendprint : base64_encode($Datatosendlevel)."\n".base64_encode($Datatosendprint));
+if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+else
+	print $Datatosend;

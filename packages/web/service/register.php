@@ -3,7 +3,7 @@ require_once('../commons/base.inc.php');
 try
 {
 	$HostManager = new HostManager();
-	if ($_REQUEST['version'] != 2)
+	if (!$_REQUEST['newService'] && $_REQUEST['version'] != 2)
 		throw new Exception('#!er:Invalid Version Number, please update this module.');
 	$MACs = HostManager::parseMacList($_REQUEST['mac']);
 	if (!$MACs) throw new Exception('#!im');
@@ -39,15 +39,19 @@ try
 		if (!in_array($MAC,(array)$mac1))
 		{
 			if ($Host->addPendMAC($MAC))
-				print "#!ok\n";
+				$Datatosend = "#!ok\n";
 			else
 				throw new Exception('#!er: Error adding MAC');
 		}
 		else
-			print "#!ig\n";
+			$Datatosend .= "#!ig\n";
 	}
 }
 catch (Exception $e)
 {
-	print $e->getMessage();
+	$Datatosend = $e->getMessage();
 }
+if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+else
+	print $Datatosend;
