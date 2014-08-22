@@ -4,7 +4,9 @@
 	require_once( dirname(realpath(__FILE__)) . "/../etc/config.php" );
 	require_once( WEBROOT . "/commons/base.inc.php" );
 	$MM = new MulticastManager();
-	$FOGCore->out($FOGCore->getBanner(), MULTICASTDEVICEOUTPUT);
+	$FOGCore->clear_screen(MULTICASTDEVICEOUTPUT);
+	$FOGCore->out($FOGCore->getBanner(),MULTICASTDEVICEOUTPUT);
+	$FOGCore->wait_interface_ready($FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),MULTICASTDEVICEOUTPUT);
 	if( ! file_exists( UDPSENDERPATH ) )
 	{
 		$MM->outall(sprintf(" * Unable to locate udp-sender!."));
