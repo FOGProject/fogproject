@@ -3,6 +3,9 @@
 @error_reporting( 0 );
 require_once( dirname(realpath(__FILE__)) . "/../etc/config.php" );
 require_once( WEBROOT . "/commons/base.inc.php" );
+$FOGCore->clear_screen(REPLICATORDEVICEOUTPUT);
+$FOGCore->out($FOGCore->getBanner(),REPLICATORDEVICEOUTPUT);
+$FOGCore->wait_interface_ready($FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),REPLICATORDEVICEOUTPUT);
 $IR = new ImageReplicator();
 $IR->serviceStart();
 while( true )
