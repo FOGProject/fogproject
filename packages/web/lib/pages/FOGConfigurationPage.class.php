@@ -509,7 +509,15 @@ class FOGConfigurationPage extends FOGPage
 				else if ($Service->get('name') == 'FOG_REGENERATE_TIMEOUT')
 					$type = '<div id="regen" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValRegen" maxsize="5" style="width: 25px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
 				else if (preg_match('#(pass|PASS)#i',$Service->get('name')) && !preg_match('#(VALID|MIN)#i',$Service->get('name')))
-					$type = '<input type="password" name="${service_id}" value="${service_value}" autocomplete="off" />';
+				{
+					if ($Service->get('name') == 'FOG_AES_PASS_ENCRYPT_KEY' || $Service->get('name') == 'FOG_AES_ADPASS_ENCRYPT_KEY')
+					{
+						$type = '<input id="'.$Service->get('name').'_text" type="password" name="${service_id}" value="${service_value}" autocomplete="off" readonly="true" maxlength="50" />';
+						$type .= '<br/><small><input type="button" value="Randomize Above Key" id="'.$Service->get('name').'_button" title="You will have to recompile the client if you change this key.'.($Service->get('name') == 'FOG_AES_ADPASS_ENCRYPT_KEY' ? ' You will also o need to reset the password for all hosts and the FOG_AD_DEFAULT_PASSWORD field.' : '').'" /></small>';
+					}
+					else
+						$type = '<input type="password" name="${service_id}" value="${service_value}" autocomplete="off" />';
+				}
 				else if ($Service->get('name') == 'FOG_VIEW_DEFAULT_SCREEN')
 				{
 					foreach(array('SEARCH','LIST') AS $viewop)
@@ -588,14 +596,17 @@ class FOGConfigurationPage extends FOGPage
 				$Service->set('value',addslashes($_REQUEST[$key]))->save();
 			else if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $Service->get('name') == 'FOG_AD_DEFAULT_PASSWORD')
 			{
-				if ($_REQUEST[$key] && strlen($_REQUEST[$key]) == 40)
+				if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST[$key])
+				{
 					$decrypt = $this->FOGCore->aesdecrypt($_REQUEST[$key],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+					if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))
+						$password = $decrypt;
+					else
+						$password = $_REQUEST[$key];
+				}
 				else
-					$decrypt = $_REQUEST[$key];
-				if ($_REQUEST[$key])
-					$Service->set('value',addslashes($this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'))))->save();
-				else
-					$Service->set('value','')->save();
+					$password = $_REQUEST[$key];
+				$Service->set('value',$this->FOGCore->aesencrypt($password,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY')))->save();
 			}
 			else
 				$Service->set('value',$_REQUEST[$key])->save();
@@ -632,13 +643,13 @@ class FOGConfigurationPage extends FOGPage
 		if ( $_POST["n"] != null && is_numeric($_POST["n"]) )
 			$n = $_POST["n"];
 		$t = trim($_POST["logtype"]);
-		$logfile = $GLOBALS['FOGCore']->getSetting( "FOG_UTIL_BASE" ) . "/log/multicast.log";
+		$logfile = $this->FOGCore->getSetting( "FOG_UTIL_BASE" ) . "/log/multicast.log";
 		if ( $t == "Multicast" )
-			$logfile = $GLOBALS['FOGCore']->getSetting( "FOG_UTIL_BASE" ) . "/log/multicast.log";
+			$logfile = $this->FOGCore->getSetting( "FOG_UTIL_BASE" ) . "/log/multicast.log";
 		else if ( $t == "Scheduler" )
-			$logfile = $GLOBALS['FOGCore']->getSetting( "FOG_UTIL_BASE" ) . "/log/fogscheduler.log";
+			$logfile = $this->FOGCore->getSetting( "FOG_UTIL_BASE" ) . "/log/fogscheduler.log";
 		else if ( $t == "Replicator" )
-			$logfile = $GLOBALS['FOGCore']->getSetting( "FOG_UTIL_BASE" ) . "/log/fogreplicator.log";				
+			$logfile = $this->FOGCore->getSetting( "FOG_UTIL_BASE" ) . "/log/fogreplicator.log";				
 		system("tail -n $n \"$logfile\"");
 		print "\n\t\t\t\t</pre>";
 		print "\n\t\t\t</div>";

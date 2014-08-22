@@ -1,6 +1,7 @@
 <?php
 /** Gives access to the FOGCore variables. */
-$FOGCore = $GLOBALS['FOGCore'];
+require('../commons/base.inc.php');
+//$FOGCore = $GLOBALS['FOGCore'];
 /** Get's the active plugin set during load up. */
 $plugin = unserialize($_SESSION["fogactiveplugin"]);
 /** If it can't get anything from it, fail out. */

@@ -558,7 +558,7 @@ class GroupManagementPage extends FOGPage
 				}
 			}
 			$this->data[] = array(
-				'input' => '<input type="checkbox" class="checkboxes" name="${mod_shname}" value="${mod_id}" ${checked} />',
+				'input' => '<input type="checkbox" '.($Module->get('isDefault') ? 'class="checkboxes"' : '').' name="${mod_shname}" value="${mod_id}" ${checked} '.(!$Module->get('isDefault') ? 'disabled="disabled"' : '').' />',
 				'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
 				'checked' => ($i == $Group->getHostCount() ? 'checked="checked"' : ''),
 				'mod_name' => $Module->get('name'),
@@ -850,13 +850,11 @@ class GroupManagementPage extends FOGPage
 					{
 						if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['domainpassword'])
 						{
-							if (strlen($_REQUEST['domainpassword']) == 40)
-								$decrypt = $this->FOGCore->aesdecrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+							$decrypt = $this->FOGCore->aesdecrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+							if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))
+								$password = $this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
 							else
-								$decrypt = $_REQUEST['domainpassword'];
-							$password = addslashes($this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY')));
-							if (!$_REQUEST['domainpassword'])
-								$password = '';
+								$password = $this->FOGCore->aesencrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
 						}
 						else
 							$password = $_REQUEST['domainpassword'];
@@ -1175,6 +1173,23 @@ class GroupManagementPage extends FOGPage
 			// Error checking
 			if ($TaskType->isMulticast() && !$Group->doMembersHaveUniformImages())
 				throw new Exception(_('Hosts do not have Uniformed Image assignments'));
+			foreach((array)$Group->get('hosts') AS $Host)
+			{
+				$Tasks = false;
+				if ($Host && $Host->isValid())
+				{
+					foreach($Host->get('task') AS $Tasking)
+					{
+						if ($Tasking && $Tasking->isValid())
+						{
+							$Tasks = true;
+							break;
+						}
+					}
+				}
+			}
+			if ($Tasks)
+				throw new Exception(_('One or more hosts are currently in a task'));
 			foreach((array)$Group->get('hosts') AS $Host)
 			{
 				if ($Host && $Host->isValid())

@@ -277,13 +277,11 @@ class HostManagementPage extends FOGPage
 				$ModuleIDs[] = $Module->get('id');
 			if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['domainpassword'])
 			{
-				if (strlen($_REQUEST['domainpassword']) == 40)
-					$decrypt = $this->FOGCore->aesdecrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+				$decrypt = $this->FOGCore->aesdecrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+				if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))
+					$password = $this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
 				else
-					$decrypt = $_REQUEST['domainpassword'];
-				$password = addslashes($this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY')));
-				if (!$_REQUEST['domainpassword'])
-					$password = '';
+					$password = $this->FOGCore->aesencrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
 			}
 			else
 				$password = $_REQUEST['domainpassword'];
@@ -743,12 +741,12 @@ class HostManagementPage extends FOGPage
 				{
 					if ($ModHost && $ModHost->isValid())
 					{
-						if ($ModHost->get('id') == $Module->get('id'))
+						if ($ModHost->get('id') == $Module->get('id') && $Module->get('isDefault'))
 							$ModOns[] = $ModHost->get('id');
 					}
 				}
 				$this->data[] = array(
-					'input' => '<input type="checkbox" class="checkboxes" name="${mod_shname}" value="${mod_id}" ${checked} />',
+					'input' => '<input type="checkbox" '.($Module->get('isDefault') ? 'class="checkboxes"' : '').' name="${mod_shname}" value="${mod_id}" ${checked} '.(!$Module->get('isDefault') ? 'disabled="disabled"' : '').' />',
 					'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
 					'checked' => ($ModOns ? 'checked="checked"' : ''),
            	     	'mod_name' => $Module->get('name'),
@@ -994,9 +992,9 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<h2>"._('Host Login History').'</h2>';
 		print "\n\t\t\t".'<form id="dte" method="post" action="'.$this->formAction.'&tab=host-login-history">';
 		$this->headerData = array(
+			_('Time'),
 			_('Action'),
 			_('Username'),
-			_('Time'),
 			_('Description')
 		);
 		$this->attributes = array(
@@ -1006,9 +1004,9 @@ class HostManagementPage extends FOGPage
 			array(),
 		);
 		$this->templates = array(
+			'${user_time}',
 			'${action}',
 			'${user_name}',
-			'${user_time}',
 			'${user_desc}',
 		);
 		foreach((array)$Host->get('users') AS $UserLogin)
@@ -1158,13 +1156,11 @@ class HostManagementPage extends FOGPage
 				case 'host-active-directory';
 					if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['domainpassword'])
 					{
-						if (strlen($_REQUEST['domainpassword']) == 40)
-							$decrypt = $this->FOGCore->aesdecrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+						$decrypt = $this->FOGCore->aesdecrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+						if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))
+							$password = $this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
 						else
-							$decrypt = $_REQUEST['domainpassword'];
-						$password = addslashes($this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY')));
-						if (!$_REQUEST['domainpassword'])
-							$password = '';
+							$password = $this->FOGCore->aesencrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
 					}
 					else
 						$password = $_REQUEST['domainpassword'];

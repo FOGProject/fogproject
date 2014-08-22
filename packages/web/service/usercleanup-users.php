@@ -1,13 +1,10 @@
 <?php
 require('../commons/base.inc.php');
-try
-{
-	print "#!start\n";
-	foreach ($FOGCore->getClass('UserCleanupManager')->find() AS $User)
-		print base64_encode($User->get('name'))."\n";
-	print "#!end\n";
-}
-catch (Exception $e)
-{
-	print $e->getMessage();
-}
+$Datatosend = "#!start\n";
+foreach ($FOGCore->getClass('UserCleanupManager')->find() AS $User)
+	$Datatosend .= ($_REQUEST['newService'] ? '#userdel='.$User->get('name') : base64_encode($User->get('name')))."\n";
+$Datatosend .= "#!end\n";
+if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+else
+	print $Datatosend;

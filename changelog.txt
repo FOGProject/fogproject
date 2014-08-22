@@ -5,9 +5,15 @@ tasking is created, get closed and not properly closing the actual deployed
 task.
 * Fix proxy information to NOT proxy storage node internalized Storage Node
 information.
+* Fix multicast issues for all relevant systems. Thank you Curtis.
 * Just working towards better implementation between svn and git.
 * Add installer files from David Fear to fog to allow FOG Installation on
 Arch Linux.
+* Add partition imaging selection options into GUI and fog to operate within.
+* Add ipxe support for Apple EFI and better generalized EFI support.  Special
+thanks to Michael Brown, the iPXE team, and Curtis Larsen for taking the time
+to debug and correct and make this work.
+* Add support for Apple Mac OS support in our systems.
 
 Version 1.2.0
 -------------

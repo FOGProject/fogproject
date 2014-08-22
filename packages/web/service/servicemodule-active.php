@@ -46,7 +46,7 @@ try
 		throw new Exception('#!ng');
 	foreach((array)$Host->get('modules') AS $Module)
 	{
-		if ($Module && $Module->isValid())
+		if ($Module && $Module->isValid() && $Module->get('isDefault'))
 			$activeIDs[] = $Module->get('id');
 	}
 	$Datatosend = (in_array($moduleID->get('id'),(array)$activeIDs) ? '#!ok' : '#!nh')."\n";
@@ -56,6 +56,6 @@ catch(Exception $e)
 	$Datatosend = $e->getMessage();
 }
 if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
-	print "#!ok\n#en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
 	print $Datatosend;

@@ -113,36 +113,42 @@ class BootMenu extends FOGBase
 			$this->hiddenmenu = $this->FOGCore->getSetting('FOG_PXE_MENU_HIDDEN');
 		$this->booturl = "http://${webserver}${webroot}service";
 		$this->Host = $Host;
-		$this->pxemenu = array(
-			'fog.local' => 'Boot from hard disk',
-			'fog.memtest' => 'Run Memtest86+',
-			'fog.reginput' => 'Perform Full Host Registration and Inventory',
-			'fog.keyreg' => 'Update Product Key',
-			'fog.reg' => 'Quick Registration and Inventory',
-			'fog.quickimage' => 'Quick Image',
-			'fog.multijoin' => 'Join Multicast Session',
-			'fog.quickdel' => 'Quick Host Deletion',
-			'fog.sysinfo' => 'Client System Information (Compatibility)',
-			'fog.debug' => 'Debug Mode',
-		);
 		$CaponePlugInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'capone','state' => 1,'installed' => 1)));
 		$DMISet = $CaponePlugInst ? $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_DMI') : false;
-		if ($CaponePlugInst && $DMISet)
-			$this->pxemenu['fog.capone'] = 'Capone Deploy';
 		if ($CaponePlugInst)
 		{
 			$this->storage = $StorageNode->get('ip');
 			$this->path = $StorageNode->get('path');
 			$this->shutdown = $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN');
 		}
-		$Advanced = $this->FOGCore->getSetting('FOG_PXE_ADVANCED');
-		if ($Advanced)
-			$this->pxemenu['fog.advanced'] = 'Advanced Menu';
+		if ($CaponePlugInst && $DMISet)
+		{
+			// Check for fog.capone if the pxe menu entry exists.
+			$PXEMenuItem = current($this->FOGCore->getClass('PXEMenuOptionsManager')->find(array('name' => 'fog.capone')));
+			// If it does exist, generate the updated arguments for each call.
+			if ($PXEMenuItem && $PXEMenuItem->isValid())
+				$PXEMenuItem->set('args',"mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path");
+			// If it does not exist, create the menu entry.
+			else
+			{
+				$PXEMenuItem = new PXEMenuOptions(array(
+					'name' => 'fog.capone',
+					'description' => 'Capone Deploy',
+					'args' => "mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path",
+					'params' => null,
+					'default' => '0',
+					'regMenu' => '2',
+				));
+			}
+			$PXEMenuItem->save();
+		}
 		$this->memdisk = "kernel $memdisk";
 		$this->memtest = "initrd $memtest";
 		$this->kernel = "kernel $bzImage initrd=$imagefile root=/dev/ram0 rw ramdisk_size=$ramsize ip=dhcp dns=$dns keymap=$keymap web=${webserver}${webroot} consoleblank=0";
 		$this->initrd = "imgfetch $imagefile\n";
-		$this->defaultChoice = "choose --default fog.local --timeout $timeout target && goto \${target}\n";
+		// Set the default line based on all the menu entries and only the one with the default set.
+		$defMenuItem = current($this->FOGCore->getClass('PXEMenuOptionsManager')->find(array('default' => 1)));
+		$this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local')." --timeout $timeout target && goto \${target}\n";
 		if ($_REQUEST['username'] && $_REQUEST['password'])
 			$this->verifyCreds();
 		else if ($_REQUEST['delconf'])
@@ -480,13 +486,17 @@ class BootMenu extends FOGBase
 				$StorageNode = new StorageNode($Location->get('storageNodeID'));
 			if ($TaskType->isUpload() || $TaskType->isMulticast())
 				$StorageNode = $StorageGroup->getMasterStorageNode();
-			$mac = $_REQUEST['mac'];
+			if ($this->Host && $this->Host->isValid())
+				$mac = $this->Host->get('mac');
+			else
+				$mac = $_REQUEST['mac'];
 			$osid = $Image->get('osID');
 			$storage = in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null;
 			$storageip = in_array($TaskType->get('id'),$imagingTasks) ? $StorageNode->get('ip') : null;
 			$img = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('path') : null;
 			$imgFormat = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('format') : null;
 			$imgType = in_array($TaskType->get('id'),$imagingTasks) ? $Image->getImageType()->get('type') : null;
+			$imgPartitionType = in_array($TaskType->get('id'),$imagingTasks) ? $Image->getImagePartitionType()->get('type') : null;
 			$imgid = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('id') : null;
 			$ftp = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_TFTP_HOST'));
 			$chkdsk = $this->FOGCore->getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
@@ -517,6 +527,10 @@ class BootMenu extends FOGBase
 				),
 				array(
 					'value' => "imgType=$imgType",
+					'active' => in_array($TaskType->get('id'),$imagingTasks),
+				),
+				array(
+					'value' => "imgPartitionType=$imgPartitionType",
 					'active' => in_array($TaskType->get('id'),$imagingTasks),
 				),
 				array(
@@ -617,7 +631,7 @@ class BootMenu extends FOGBase
 	*/
 	private function menuItem($option, $desc)
 	{
-		print "item $option $desc\n";
+		print "item ".$option->get('name')." ".$option->get('description')."\n";
 	}
 	/**
 	* menuOpt()
@@ -628,118 +642,27 @@ class BootMenu extends FOGBase
 	*/
 	private function menuOpt($option,$type)
 	{
-		if ($option == 'fog.local')
+		if ($option->get('id') == 1)
 		{
-			print ":$option\n";
+			print ":".$option->get('name')."\n";
 			print "$this->bootexittype || goto MENU\n";
 		}
-		else if ($option == 'fog.memtest')
+		else if ($option->get('id') == 2)
 		{
-			print ":$option\n";
+			print ":".$option->get('name')."\n";
 			print "$this->memdisk iso raw\n";
 			print "$this->memtest\n";
 			print "boot || goto MENU\n";
 		}
-		else if ($option == 'fog.quickimage')
+		else if ($option->get('id') == 11)
 		{
-			print ":$option\n";
-			print "login\n";
-			print "params\n";
-			print "param mac0 \${net0/mac}\n";
-			print "param arch \${arch}\n";
-			print "param username \${username}\n";
-			print "param password \${password}\n";
-			print "param qihost 1\n";
-			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
-			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
-			print ":bootme\n";
-			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
-			print "goto MENU\n";
+			print ":".$option->get('name')."\n";
+			print "chain -ar $this->booturl/ipxe/advanced.php || goto MENU\n";
 		}
-		else if ($option == 'fog.quickdel')
+		else if ($option->get('params'))
 		{
-			print ":$option\n";
-			print "login\n";
-			print "params\n";
-			print "param mac0 \${net0/mac}\n";
-			print "param arch \${arch}\n";
-			print "param username \${username}\n";
-			print "param password \${password}\n";
-			print "param delhost 1\n";
-			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
-			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
-			print ":bootme\n";
-			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
-			print "goto MENU\n";
-		}
-		else if ($option == 'fog.keyreg')
-		{
-			print ":$option\n";
-			print "login\n";
-			print "params\n";
-			print "param mac0 \${net0/mac}\n";
-			print "param arch \${arch}\n";
-			print "param username \${username}\n";
-			print "param password \${password}\n";
-			print "param keyreg 1\n";
-			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
-			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
-			print ":bootme\n";
-			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
-			print "goto MENU\n";
-
-		}
-		else if ($option == 'fog.advanced')
-		{
-			print ":$option\n";
-			if ($this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN'))
-			{
-				print "login\n";
-				print "params\n";
-				print "param mac0 \${net0/mac}\n";
-				print "param arch \${arch}\n";
-				print "param username \${username}\n";
-				print "param password \${password}\n";
-				print "param advLog  1\n";
-				print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
-				print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
-				print ":bootme\n";
-				print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
-				print "goto MENU\n";
-			}
-			else
-				print "chain -ar $this->booturl/ipxe/advanced.php || goto MENU\n";
-		}
-		else if ($option == 'fog.debug') 
-		{
-			print ":$option\n";
-			print "login\n";
-			print "params\n";
-			print "param mac0 \${net0/mac}\n";
-			print "param arch \${arch}\n";
-			print "param username \${username}\n";
-			print "param password \${password}\n";
-			print "param debugAccess 1\n";
-			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
-			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
-			print ":bootme\n";
-			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
-		}
-		else if ($option == 'fog.multijoin')
-		{
-			print ":$option\n";
-			print "login\n";
-			print "params\n";
-			print "param mac0 \${net0/mac}\n";
-			print "param mac0 \${net0/mac}\n";
-			print "param arch \${arch}\n";
-			print "param username \${username}\n";
-			print "param password \${password}\n";
-			print "param sessionjoin 1\n";
-			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
-			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
-			print ":bootme\n";
-			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
+			print ':'.$option->get('name')."\n";
+			print $option->get('params')."\n";
 		}
 		else
 		{
@@ -757,6 +680,7 @@ class BootMenu extends FOGBase
 	*/
 	public function printDefault()
 	{
+		$Menus = $this->FOGCore->getClass('PXEMenuOptionsManager')->find('','','id');
 		print "#!ipxe\n";
 		print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
 		print "colour --rgb 0xff6600 2\n";
@@ -784,52 +708,78 @@ class BootMenu extends FOGBase
 				print "item --gap Host is NOT registered!\n";
 				print "item --gap -- -------------------------------------\n";
 			}
-			foreach($this->pxemenu AS $option => $desc)
+			$Advanced = $this->FOGCore->getSetting('FOG_PXE_ADVANCED');
+			$AdvLogin = $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN');
+			foreach($Menus AS $Menu)
 			{
 				if (!$this->Host || !$this->Host->isValid())
 				{
-					if ($option != 'fog.quickdel' && $option != 'fog.quickimage' && ( $showDebug || $option != 'fog.debug' ) && $option != 'fog.keyreg' && $option != 'fog.multijoin')
-						$this->menuItem($option, $desc);
+					if ($Advanced)
+					{
+						if (in_array($Menu->get('regMenu'),array(0,2,($AdvLogin ? 5 : 4))))
+							$this->menuItem($Menu, $desc);
+					}
+					else
+					{
+						if (in_array($Menu->get('regMenu'),array(0,2)))
+							$this->menuItem($Menu, $desc);
+					}
 				}
 				else 
 				{
-					if ($option != 'fog.reg' && $option != 'fog.reginput' && ( $showDebug || $option != 'fog.debug' ))
-						$this->menuItem($option, $desc);
+					if ($Advanced)
+					{
+						if (in_array($Menu->get('regMenu'),array(1,2,($AdvLogin ? 5 : 4))))
+							$this->menuItem($Menu, $desc);
+					}
+					else
+					{
+						if (in_array($Menu->get('regMenu'),array(1,2)))
+							$this->menuItem($Menu, $desc);
+					}
 				}
 			}
 			print "$this->defaultChoice";
-			foreach($this->pxemenu AS $option => $desc)
+			foreach($Menus AS $Menu)
 			{
 				if (!$this->Host || !$this->Host->isValid())
 				{
-					if ($option == 'fog.reg')
-						$this->menuOpt($option, "mode=autoreg");
-					else if ($option == 'fog.reginput')
-						$this->menuOpt($option, "mode=manreg");
-					else if ($option == 'fog.sysinfo')
-						$this->menuOpt($option, "mode=sysinfo");
-					else if ($option == 'fog.debug' && $showDebug)
-							$this->menuOpt($option, "mode=onlydebug");
-					else if ($option == 'fog.capone')
-						$this->menuOpt($option, "mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path");
-					else if ($option == 'fog.local' || $option == 'fog.memtest' || $option == 'fog.advanced')
-						$this->menuOpt($option, true);
+					if ($Advanced)
+					{
+						if (in_array($Menu->get('regMenu'),array(0,2,($AdvLogin ? 5 : 4))))
+							$Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
+					}
+					else
+					{
+						if (in_array($Menu->get('regMenu'),array(0,2)))
+							$Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
+					}
 				}
 				else
 				{
-					if ($option == 'fog.sysinfo')
-						$this->menuOpt($option, "mode=sysinfo");
-					else if ($option == 'fog.debug' && $showDebug)
-						$this->menuOpt($option, "mode=onlydebug");
-					else if ($option == 'fog.capone')
-						$this->menuOpt($option, "mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path");
-					else if ($option == 'fog.local' || $option == 'fog.memtest' || $option == 'fog.advanced' || $option == 'fog.quickdel' || $option == 'fog.quickimage' || $option == 'fog.keyreg' || $option == 'fog.multijoin')
-						$this->menuOpt($option, true);
+					if ($Advanced)
+					{
+						if (in_array($Menu->get('regMenu'),array(1,2,($AdvLogin ? 5 : 4))))
+							$Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
+					}
+					else
+					{
+						if (in_array($Menu->get('regMenu'),array(1,2)))
+							$Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
+					}
 				}
 			}
+			print ":bootme\n";
+			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
+			print "goto MENU\n";
 			print "autoboot";
 		}
 		else
 			$this->chainBoot();
 	}
 }
+/* Local Variables: */
+/* indent-tabs-mode: t */
+/* c-basic-offset: 4 */
+/* tab-width: 4 */
+/* End: */

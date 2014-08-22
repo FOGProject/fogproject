@@ -62,12 +62,16 @@ try
 					"SNAPINRUNWITH=".$Snapin->get('runWith')."\n",
 					"SNAPINRUNWITHARGS=".$Snapin->get('runWithArgs'),
 				);
-				print implode($goodSnapin);
+				$Datatosend = implode($goodSnapin);
 			}
 		}
 	}
 }
 catch(Exception $e)
 {
-	print $e->getMessage();	
+	$Datatosend = $e->getMessage();	
 }
+if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+else
+	print $Datatosend;
