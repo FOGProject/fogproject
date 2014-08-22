@@ -88,20 +88,15 @@ elif [ "$type" == "down" ] && [ "$mc" == "bt" ]; then
 	done
 
 	echo "Done";
-	dots "Using Torrent-Casting"
-	
-	#torrent-casting values to get
-	## download data torrent decoded from torrent file
-	##wget -q -O /tmp/filelist.txt http://${web}/service/torrent.php?img=$img;
-	wget -q -O /tmp/filelist.txt http://${web}/dev/filelist.txt;
-	## size on server
-	torrentServerSize=`cat /tmp/filelist.txt|grep "<serverSize>.*</serverSize>"|awk '{print $2}'`;
-	## download $img.torrent file
-	##wget -q -O /tmp/$img.torrent http://${web}/service/torrent.php?torrent=$img;
+	dots "Using image"
+	# download $img.torrent file
+	#wget -q -O /tmp/$img.torrent http://${web}/service/torrent.php?torrent=$img;
 	wget -q -O /tmp/$img.torrent http://${web}/dev/$img.torrent;
-	echo "image $img";
+	ctorrent /tmp/$img.torrent -x > /tmp/filelist.txt;
+	torrentDownloadSize=`cat /tmp/filelist.txt|grep "Total:*"|awk '{print $2}'`;
+	echo "$img";
 	dots "Size of image to download"
-	echo "$torrentServerSize";
+	echo "$torrentDownloadSize MB";
 	debugPause;
 elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 	mac64=`ifconfig | grep HWaddr | head -n1 | base64`;
