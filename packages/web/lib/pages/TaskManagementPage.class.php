@@ -379,19 +379,39 @@ class TaskManagementPage extends FOGPage
 		$snapin = '-1';
 		$enableShutdown = false;
 		$enableSnapins = ($_REQUEST['type'] == 17 ? false : -1);
+		$enableDebug = (in_array($_REQUEST['type'],array(3,15,16)) ? true : false);
 		$taskName = ($taskTypeID == 8 ? 'Multicast Group Quick Deploy' : 'Group Quick Deploy');
 		try
 		{
 			foreach((array)$Group->get('hosts') AS $Host)
 			{
+				$Tasks = false;
 				if ($Host && $Host->isValid())
-					$Tasks[] = current($Host->get('task'));
+				{
+					foreach($Host->get('task') AS $Tasking)
+					{
+						if ($Tasking && $Tasking->isValid())
+						{
+							$Tasks = true;
+							break;
+						}
+					}
+				}
 			}
-			$Tasks = array_filter($Tasks);
 			if ($Tasks)
 				throw new Exception(_('One or more hosts are currently in a task'));
+			foreach((array)$Group->get('hosts') AS $Host)
+			{
+				if ($Host && $Host->isValid())
+				{
+					if (in_array($taskTypeID,$imagingTasks) && !$Host->get('imageID'))
+						throw new Exception(_('You need to assign an image to all of the hosts'));
+					if (!$Host->checkIfExist($taskTypeID))
+						throw new Exception(_('To setup download task, you must first upload an image'));
+				}
+			}
 			foreach ((array)$Group->get('hosts') AS $Host)
-				$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, false, $enableSnapins, true, $this->FOGUser->get('name'));
+				$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, true, $this->FOGUser->get('name'));
 			$this->FOGCore->setMessage('Successfully created Group tasking!');
 			$this->FOGCore->redirect('?node=tasks&sub=active');
 		}

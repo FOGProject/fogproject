@@ -1175,10 +1175,19 @@ class GroupManagementPage extends FOGPage
 				throw new Exception(_('Hosts do not have Uniformed Image assignments'));
 			foreach((array)$Group->get('hosts') AS $Host)
 			{
+				$Tasks = false;
 				if ($Host && $Host->isValid())
-					$Tasks[] = current($Host->get('task'));
+				{
+					foreach($Host->get('task') AS $Tasking)
+					{
+						if ($Tasking && $Tasking->isValid())
+						{
+							$Tasks = true;
+							break;
+						}
+					}
+				}
 			}
-			$Tasks = array_filter($Tasks);
 			if ($Tasks)
 				throw new Exception(_('One or more hosts are currently in a task'));
 			foreach((array)$Group->get('hosts') AS $Host)
