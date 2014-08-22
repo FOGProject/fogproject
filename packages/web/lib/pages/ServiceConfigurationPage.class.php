@@ -76,6 +76,7 @@ class ServiceConfigurationPage extends FOGPage
 			'hostnamechanger' => 'FOG_SERVICE_HOSTNAMECHANGER_ENABLED',
 			'printermanager' => 'FOG_SERVICE_PRINTERMANAGER_ENABLED',
 			'snapin' => 'FOG_SERVICE_SNAPIN_ENABLED',
+			'snapinclient' => 'FOG_SERVICE_SNAPIN_ENABLED',
 			'taskreboot' => 'FOG_SERVICE_TASKREBOOT_ENABLED',
 			'usercleanup' => 'FOG_SERVICE_USERCLEANUP_ENABLED',
 			'usertracker' => 'FOG_SERVICE_USERTRACKER_ENABLED',
@@ -96,17 +97,23 @@ class ServiceConfigurationPage extends FOGPage
 			);
 			$fields = array(
 				_($Module->get('name').' Enabled?') => '<input type="checkbox" name="en"${checked} />',
+				($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? _($Module->get('name').' Enabled as default?') : null) => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? '<input type="checkbox" name="defen"${is_on} />' : null),
 			);
+			$fields = array_filter($fields);
 			foreach((array)$fields AS $field => $input)
 			{
 				$Service = current($this->FOGCore->getClass('ServiceManager')->find(array('name' => $moduleName[$Module->get('shortName')])));
-				$this->data[] = array(
-					'field' => $field,
-					'input' => $input,
-					'checked' => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? ' value="on" checked="checked"' : ''),
-					'span' => '<span class="icon icon-help hand" title="${module_desc}"></span>',
-					'module_desc' => $Service->get('description'),
-				);
+				if ($Service && $Service->isValid())
+				{
+					$this->data[] = array(
+						'field' => $field,
+						'input' => $input,
+						'checked' => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? ' value="on" checked="checked"' : ''),
+						($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? 'is_on' : null) => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? ($Module->get('isDefault') ? ' value="on" checked="checked"' : null) : null),
+						'span' => '<span class="icon icon-help hand" title="${module_desc}"></span>',
+						'module_desc' => $Service->get('description'),
+					);
+				}
 			}
 			$this->data[] = array(
 				'field' => '<input type="hidden" name="name" value="${mod_name}" />',
@@ -306,6 +313,13 @@ class ServiceConfigurationPage extends FOGPage
 		$this->HookManager->processEvent('SERVICE_EDIT_POST', array('Host' => &$Service));
 		//Store value of Common Values
 		$onoff = ($_REQUEST['en'] == 'on' ? 1 : 0);
+		//Gets the default enabling status.
+		$defen = ($_REQUEST['defen'] == 'on' ? 1 : 0);
+		//Fins the relevant module.
+		$Module = current($this->FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['tab'])));
+		// If the module is found and valid, it saves the default status.
+		if ($Module && $Module->isValid())
+			$Module->set('isDefault',$defen)->save();
 		// POST
 		try
 		{

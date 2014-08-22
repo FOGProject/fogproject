@@ -18,9 +18,13 @@ try
 	$r = $HostDisplay ? $HostDisplay->get('refresh') : $FOGCore->getSetting('FOG_SERVICE_DISPLAYMANaGER_R');
 	$string = $x.'x'.$y.'x'.$r;
 	// Send it.
-	print base64_encode($string);
+	$Datatosend = $_REQUEST['newService'] ? $string : base64_encode($string);
 }
 catch(Exception $e)
 {
-	print $e->getMessage();
+	$Datatosend = $e->getMessage();
 }
+if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+else
+	print $Datatosend;

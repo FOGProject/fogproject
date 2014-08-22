@@ -286,35 +286,20 @@ EOFRESTOREPART
 				done
 			fi
 		elif [ "$imgType" == "mps" ]; then
-			gptormbr=`gdisk -l $hd | grep 'GPT:' | awk '{$1=""; print $0}' | sed 's/^ //'`;
-			if [ "$gptormbr" == "not present" -a "$osid" == "50" ]; then
+			hasgpt=`hasGPT $hd`;
+			if [ "$hasgpt" == "0" -a "$osid" == "50" ]; then
 				have_extended_partition=`sfdisk -l $hd 2>/dev/null | egrep "^${hd}.*  (Extended|W95 Ext'd \(LBA\))$" | wc -l`;
 			else
 				have_extended_partition="0";
 			fi
+
 			if [ -d "$imagePath" ]; then
-				makeSwapUUIDFile "${imagePath}/d1.original.swapuuids";
-				if [ "$gptormbr" == "not present" -a "$osid" == "50" ]; then
-					dots "Saving MBR and GRUB";
-					saveGRUB "$hd" "1" "${imagePath}";
-					if [ "$have_extended_partition" == "1" ]; then
-						sfdisk -d $hd 2>/dev/null >${imagePath}/d1.partitions;
-					fi
-				elif [ "$gptormbr" == "not present" ]; then
-					dots "Saving MBR";
-					dd if=$hd of=$imagePath/d1.mbr count=1 bs=512 &>/dev/null;
-					if [ "$have_extended_partition" == "1" ]; then
-						sfdisk -d $hd 2>/dev/null >${imagePath}/d1.partitions;
-					fi
-				else
-					dots "Saving Partition Tables";
-					sgdisk -b $imagePath/d1.mbr $hd 2>&1 >/dev/null;
-				fi
-				echo "Done";
+				savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$hasgpt" "$have_extended_partition" "$imgPartitionType"
 				debugPause
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				diskLength=`expr length $hd`;
 				for part in $parts; do
+					savePartition "$part" "1" "$imagePath" "$diskLength" "$cores" "$imgPartitionType"
 					mkfifo /tmp/pigz1;
 					partNum=${part:$diskLength};
 					echo " * Processing Partition: $part ($partNum)";
@@ -327,6 +312,7 @@ EOFRESTOREPART
 						uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
 						partclone.$fstype -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
 						mv $imgpart.000 $imgpart 2>/dev/null;
+						debugPause
 						clear;
 						echo " * Image uploaded";
 					else
@@ -345,35 +331,20 @@ EOFRESTOREPART
 			intDisk=1;
 			for disk in $disks; do
 				echo " * Processing Hard Disk: $disk";
-				gptormbr=`gdisk -l $disk | grep 'GPT:' | awk '{$1=""; print $0}' | sed 's/^ //'`;
-				if [ "$gptormbr" == "not present" -a "$osid" == "50" ]; then
+				hasgpt=`hasGPT $disk`;
+				if [ "$hasgpt" == "0" -a "$osid" == "50" ]; then
 					have_extended_partition=`sfdisk -l $disk 2>/dev/null | egrep "^${disk}.*  (Extended|W95 Ext'd \(LBA\))$" | wc -l`;
 				else
 					have_extended_partition="0";
 				fi
+
 				if [ -d "$imagePath" ]; then
-					makeSwapUUIDFile "${imagePath}/d${intDisk}.original.swapuuids";
-					if [ "$gptormbr" == "not present" -a "$osid" == "50" -a "$intDisk" == "1" ]; then
-						dots "Saving MBR and GRUB";
-						saveGRUB "${disk}" "${intDisk}" "${imagePath}";
-						if [ "$have_extended_partition" == "1" ]; then
-							sfdisk -d $disk 2>/dev/null >${imagePath}/d${intDisk}.partitions;
-						fi
-					elif [ "$gptormbr" == "not present" ]; then
-						dots "Saving MBR";
-						dd if=$disk of=$imagePath/d${intDisk}.mbr count=1 bs=512 &>/dev/null;
-						if [ "$have_extended_partition" == "1" ]; then
-							sfdisk -d $disk 2>/dev/null >${imagePath}/d${intDisk}.partitions;
-						fi
-					else
-						dots "Saving Partition Tables";
-						sgdisk -b $imagePath/d${intDisk}.mbr $hd 2>&1 >/dev/null;
-					fi
-					echo "Done";
+					savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$hasgpt" "$have_extended_partition" "$imgPartitionType"
 					debugPause
 					parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
 					diskLength=`expr length $disk`;
 					for part in $parts; do
+						savePartition "$part" "$intDisk" "$imagePath" "$diskLength" "$cores" "$imgPartitionType"
 						mkfifo /tmp/pigz1;
 						partNum=${part:diskLength};
 						echo " * Processing Partition: $part ($partNum)";
@@ -385,6 +356,7 @@ EOFRESTOREPART
 							uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
 							partclone.$fstype -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
 							mv $imgpart.000 $imgpart;
+							debugPause
 							clear;
 							echo " * Image uploaded";
 						else
@@ -425,3 +397,9 @@ EOFRESTOREPART
 else
 	handleError "Fatal Error: Failed to mount NFS Volume.";
 fi
+# Local Variables:
+# indent-tabs-mode: t
+# sh-basic-offset: 4
+# sh-indentation: 4
+# tab-width: 4
+# End:

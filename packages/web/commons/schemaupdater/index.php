@@ -1430,6 +1430,119 @@ $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	 values('FOG_AES_ADPASS_ENCRYPT_KEY','This setting just stores the AES Encryption ADPass encryption key. It will only work for new clients.  This is the key used for encrypting ADPass in AES format. If FOG_NEW_CLIENT is selected, to set the ADPass you simply type the plain text password and click update.  It will automatically encrypt and store the encrypted password in the database for you.','jPlUQRw5vLsrz8I1TuZdWDSiMFqXHtcm','FOG Service')",
 );
+// 119
+$databaseSchema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME . "`.`modules`
+		ADD COLUMN `default` INT DEFAULT 1 NOT NULL AFTER `description`",
+);
+// 120
+$databaseSchema[] = array(
+	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME . "`.`imagePartitionTypes` (
+	  `imagePartitionTypeID` mediumint(9) NOT NULL auto_increment,
+	  `imagePartitionTypeName` varchar(100) NOT NULL,
+	  `imagePartitionTypeValue` varchar(10) NOT NULL,
+	  PRIMARY KEY  (`imagePartitionTypeID`)
+	) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;",
+	"INSERT INTO `" . DATABASE_NAME . "`.`imagePartitionTypes` (`imagePartitionTypeID`, `imagePartitionTypeName`, `imagePartitionTypeValue`) VALUES
+	(1, 'Everything', 'all'),
+	(2, 'Partition Table and MBR only', 'mbr'),
+	(3, 'Partition 1 only', '1'),
+	(4, 'Partition 2 only', '2'),
+	(5, 'Partition 3 only', '3'),
+	(6, 'Partition 4 only', '4'),
+	(7, 'Partition 5 only', '5'),
+	(8, 'Partition 6 only', '6'),
+	(9, 'Partition 7 only', '7'),
+	(10, 'Partition 8 only', '8'),
+	(11, 'Partition 9 only', '9'),
+	(12, 'Partition 10 only', '10');",
+);
+// 121
+$databaseSchema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME . "`.`images`
+		ADD COLUMN `imagePartitionTypeID` mediumint(9) NOT NULL AFTER `imageTypeID`",
+	"UPDATE `". DATABASE_NAME ."`.images SET imagePartitionTypeID='1'",
+);
+// 122
+$databaseSchema[] = array(
+	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME ."`.`pxeMenu` (
+	  `pxeID` mediumint(9) NOT NULL auto_increment,
+	  `pxeName` varchar(100) NOT NULL,
+	  `pxeDesc` longtext  NOT NULL,
+	  `pxeParams` longtext NOT NULL,
+	  `pxeRegOnly` INT DEFAULT 0 NOT NULL,
+	  `pxeArgs` varchar(250) NULL,
+	  `pxeDefault` INT DEFAULT 0 NOT NULL,
+	  PRIMARY KEY  (`pxeID`)
+	) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;",
+	"INSERT INTO `" . DATABASE_NAME ."`.`pxeMenu` (`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) VALUES
+	(1, 'fog.local', 'Boot from hard disk', '1','2',NULL),
+	(2, 'fog.memtest', 'Run Memtest86+', '0','2',NULL),
+	(3, 'fog.reginput', 'Perform Full Host Registration and Inventory','0','0','mode=manreg'),
+	(4, 'fog.keyreg', 'Update Product Key', '0','1',NULL),
+	(5, 'fog.reg', 'Quick Registration and Inventory', '0','0','mode=autoreg'),
+	(6, 'fog.quickimage', 'Quick Image', '0', '1',NULL),
+	(7, 'fog.multijoin', 'Join Multicast Session', '0','1',NULL),
+	(8, 'fog.quickdel', 'Quick Host Deletion','0','1',NULL),
+	(9, 'fog.sysinfo', 'Client System Information (Compatibility)','0','2','mode=sysinfo'),
+	(10, 'fog.debug', 'Debug Mode','0','3','mode=onlydebug'),
+	(11, 'fog.advanced', 'Advanced Menu','0','4',NULL),
+	(12, 'fog.advancedlogin', 'Advanced Menu','0','5',NULL);",
+	"UPDATE `". DATABASE_NAME ."`.`pxeMenu` SET `pxeParams`='login
+params
+param mac0 \${net0/mac}
+param arch \${arch}
+param username \${username}
+param password \${password}
+param qihost 1
+isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
+isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.quickimage';",
+	"UPDATE `". DATABASE_NAME ."`.`pxeMenu` SET `pxeParams`='login
+params
+param mac0 \${net0/mac}
+param arch \${arch}
+param username \${username}
+param password \${password}
+param delhost 1
+isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
+isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.quickdel';",
+	"UPDATE `". DATABASE_NAME ."`.`pxeMenu` SET `pxeParams`='login
+params
+param mac0 \${net0/mac}
+param arch \${arch}
+param username \${username}
+param password \${password}
+param keyreg 1
+isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
+isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.keyreg';",
+	"UPDATE `". DATABASE_NAME ."`.`pxeMenu` SET `pxeParams`='login
+params
+param mac0 \${net0/mac}
+param arch \${arch}
+param username \${username}
+param password \${password}
+param debugAccess 1
+isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
+isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.debug';",
+	"UPDATE `". DATABASE_NAME ."`.`pxeMenu` SET `pxeParams`='login
+params
+param mac0 \${net0/mac}
+param arch \${arch}
+param username \${username}
+param password \${password}
+param sessionJoin 1
+isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
+isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.multijoin';",
+	"UPDATE `". DATABASE_NAME ."`.`pxeMenu` SET `pxeParams`='login
+params
+param mac0 \${net0/mac}
+param arch \${arch}
+param username \${username}
+param password \${password}
+param advLog 1
+isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
+isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.advancedlogin';",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";

@@ -18,6 +18,7 @@ class Image extends FOGController
 		'building' => 'imageBuilding',
 		'size' => 'imageSize',
 		'imageTypeID' => 'imageTypeID',
+		'imagePartitionTypeID' => 'imagePartitionTypeID',
 		'storageGroupID' => 'imageNFSGroupID',
 		'osID' => 'imageOSID',
 		'size' => 'imageSize', 
@@ -148,13 +149,20 @@ class Image extends FOGController
 	{
 		return new ImageType($this->get('imageTypeID'));
 	}
+	/** getImagePartitionType()
+		Gets the relevant ImagePartitionType class object for the image.
+	*/
+	public function getImagePartitionType()
+	{
+		return new ImagePartitionType($this->get('imagePartitionTypeID'));
+	}
 	/** deleteImageFile()
 		This function just deletes the image file via FTP.
 		Only used if the user checks the Add File? checkbox.
 	*/
 	public function deleteImageFile()
 	{
-		$ftp = $GLOBALS['FOGFTP'];
+		$ftp = $this->FOGFTP;
 		$SN = $this->getStorageGroup()->getMasterStorageNode();
 		$SNME = ($SN && $SN->get('isEnabled') == '1' ? true : false);
 		if ($SNME)
@@ -173,3 +181,8 @@ class Image extends FOGController
 		return true;
 	}
 }
+/* Local Variables: */
+/* indent-tabs-mode: t */
+/* c-basic-offset: 4 */
+/* tab-width: 4 */
+/* End: */
