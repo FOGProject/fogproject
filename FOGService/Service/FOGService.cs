@@ -103,6 +103,7 @@ namespace FOG{
 			this.modules.Add(new ClientUpdater());
 			this.modules.Add(new TaskReboot());
 			this.modules.Add(new HostnameChanger());
+			this.modules.Add(new DisplayManager());
 			this.modules.Add(new SnapinClient());
 			
 		}
