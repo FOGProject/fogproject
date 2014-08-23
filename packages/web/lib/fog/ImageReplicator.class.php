@@ -1,17 +1,20 @@
 <?php
 class ImageReplicator extends FOGBase
 {
-	function outall($string)
+	var $dev = REPLICATORDEVICEOUTPUT;
+	var $log = REPLICATORLOGPATH;
+	var $zzz = REPLICATORSLEEPTIME;
+	public function outall($string)
 	{
-		$this->FOGCore->out($string,REPLICATORDEVICEOUTPUT);
-		$this->FOGCore->wlog($string,REPLICATORLOGPATH);
+		$this->FOGCore->out($string,$this->dev);
+		$this->FOGCore->wlog($string,$this->log);
 	}
 	public function serviceStart()
 	{
-		$this->FOGCore->out($this->FOGCore->getBanner(),REPLICATORDEVICEOUTPUT);
+		$this->FOGCore->out($this->FOGCore->getBanner(),$this->dev);
 		$this->outall(" * Starting FOG Image Replicator Service");
 		sleep(5);
-		$this->outall(sprintf(" * Checking for new tasks every %s seconds.",REPLICATORSLEEPTIME));
+		$this->outall(sprintf(" * Checking for new tasks every %s seconds.",$this->zzz));
 		$this->outall(sprintf(" * Starting service loop."));
 	}
 	private function commonOutput()
@@ -21,7 +24,7 @@ class ImageReplicator extends FOGBase
 		{
 		if ($StorageNode)
 		{
-			$this->FOGCore->out(' * I am the group manager.',REPLICATORDEVICEOUTPUT);
+			$this->FOGCore->out(' * I am the group manager.',$this->dev;
 			$this->FOGCore->wlog(' * I am the group manager.','/opt/fog/log/groupmanager.log');
 			$this->outall(" * Starting Image Replication.");
 			$this->outall(sprintf(" * We are group ID: #%s",$StorageNode->get('storageGroupID')));
@@ -64,7 +67,7 @@ class ImageReplicator extends FOGBase
 		}
 		else
 		{
-			$this->FOGCore->out(" * I don't appear to be the group manager, I will check back later.",REPLICATORDEVICEOUTPUT);
+			$this->FOGCore->out(" * I don't appear to be the group manager, I will check back later.",$this->dev);
 			$this->FOGCore->wlog(" * I don't appear to be the group manager, I will check back later.",'/opt/fog/log/groupmanager.log');
 		}
 		}
@@ -75,11 +78,11 @@ class ImageReplicator extends FOGBase
 	}
 	public function serviceRun()
 	{
-		$this->FOGCore->out(' ',REPLICATORDEVICEOUTPUT);
-		$this->FOGCore->out(' +---------------------------------------------------------',REPLICATORDEVICEOUTPUT);
-		$this->FOGCore->out(' * Checking if I am the group manager.',REPLICATORDEVICEOUTPUT);
+		$this->FOGCore->out(' ',$this->dev);
+		$this->FOGCore->out(' +---------------------------------------------------------',$this->dev);
+		$this->FOGCore->out(' * Checking if I am the group manager.',$this->dev);
 		$this->FOGCore->wlog(' * Checking if I am the group manager.','/opt/fog/log/groupmanager.log');
 		$this->commonOutput();
-		$this->FOGCore->out(' +---------------------------------------------------------',REPLICATORDEVICEOUTPUT);
+		$this->FOGCore->out(' +---------------------------------------------------------',$this->dev);
 	}
 }
