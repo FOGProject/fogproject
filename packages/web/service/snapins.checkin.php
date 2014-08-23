@@ -71,7 +71,7 @@ catch(Exception $e)
 {
 	$Datatosend = $e->getMessage();	
 }
-if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
 	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
 	print $Datatosend;
