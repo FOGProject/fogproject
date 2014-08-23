@@ -145,10 +145,10 @@ class BootMenu extends FOGBase
 		$this->memdisk = "kernel $memdisk";
 		$this->memtest = "initrd $memtest";
 		$this->kernel = "kernel $bzImage initrd=$imagefile root=/dev/ram0 rw ramdisk_size=$ramsize ip=dhcp dns=$dns keymap=$keymap web=${webserver}${webroot} consoleblank=0";
-		$this->initrd = "imgfetch $imagefile\n";
+		$this->initrd = "imgfetch $imagefile";
 		// Set the default line based on all the menu entries and only the one with the default set.
 		$defMenuItem = current($this->FOGCore->getClass('PXEMenuOptionsManager')->find(array('default' => 1)));
-		$this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local')." --timeout $timeout target && goto \${target}\n";
+		$this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local')." --timeout $timeout target && goto \${target}";
 		if ($_REQUEST['username'] && $_REQUEST['password'])
 			$this->verifyCreds();
 		else if ($_REQUEST['delconf'])
@@ -173,48 +173,54 @@ class BootMenu extends FOGBase
 	* This is needed for quick image.
 	* @param $debug set to false but if true enables access.
 	* @param $shortCircuit set to false, but if true enables display.
-	* @return void
+	* @return $Send sends the data to be printed.
 	*/
-	private function chainBoot($debug=false, $shortCircuit=false)
+	private function chainBoot($debug=false, $shortCircuit=false,$Send = false)
 	{
 	    // csyperski: added hiddenMenu check; without it entering
 		// any string for username and password would show the menu, even if it was hidden
 	    if (!$this->hiddenmenu || $shortCircuit)
 		{
-    		print "#!ipxe\n";
-			print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
-			print "params\n";
-			print "param mac0 \${net0/mac}\n";
-			print "param arch \${arch}\n";
-			print "param menuAccess 1\n";
-			print "param debug ".($debug ? "1\n" : "0\n");
-			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
-			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
-			print ":bootme\n";
-	    	print "chain -ar $this->booturl/ipxe/boot.php##params\n";
+    		$Send = array(
+				"#!ipxe",
+				"cpuid --ext 29 && set arch x86_64 || set arch i386",
+				"params",
+				"param mac0 \${net0/mac}",
+				"param arch \${arch}",
+				"param menuAccess 1",
+				"param debug ".($debug ? 1 : 0),
+				"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
+				"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
+				":bootme",
+	    		"chain -ar $this->booturl/ipxe/boot.php##params",
+			);
 	    } 
 	    else
 	    {
-	        print "prompt --key ".($this->KS && $this->KS->isValid() ? $this->KS->get('ascii') : '0x1b')." --timeout $this->timeout Booting... (Press ".($this->KS && $this->KS->isValid() ?  $this->KS->get('name') : 'Escape')." to access the menu) && goto menuAccess || $this->bootexittype\n";
-			print ":menuAccess\n";
-			print "login\n";
-			print "params\n";
-			print "param mac0 \${net0/mac}\n";
-			print "param arch \${arch}\n";
-			print "param username \${username}\n";
-			print "param password \${password}\n";
-			print "param menuaccess 1\n";
-			print "param debug ".($debug ? "1\n" : "0\n");
-			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
-			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
-			print ":bootme\n";
-			print "chain -ar $this->booturl/ipxe/boot.php##params\n";
+	        $Send = array(
+				"#!ipxe",
+				"prompt --key ".($this->KS && $this->KS->isValid() ? $this->KS->get('ascii') : '0x1b')." --timeout $this->timeout Booting... (Press ".($this->KS && $this->KS->isValid() ?  $this->KS->get('name') : 'Escape')." to access the menu) && goto menuAccess || $this->bootexittype",
+				":menuAccess",
+				"login",
+				"params",
+				"param mac0 \${net0/mac}",
+				"param arch \${arch}",
+				"param username \${username}",
+				"param password \${password}",
+				"param menuaccess 1",
+				"param debug ".($debug ? 1 : 0),
+				"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
+				"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
+				":bootme",
+				"chain -ar $this->booturl/ipxe/boot.php##params",
+			);
 	    }
+		$this->parseMe($Send);
 	}
 	/**
 	* delHost()
 	* Deletes the host from the system.
-	* If it failes will return that it failed.
+	* If it fails will return that it failed.
 	* Each interval sends back to chainBoot()
 	* @return void
 	*/
@@ -222,18 +228,21 @@ class BootMenu extends FOGBase
 	{
 		if($this->Host->destroy())
 		{
-			print "#!ipxe\n";
-			print "echo Host deleted successfully\n";
-			print "sleep 3\n";
-			$this->chainBoot();
+			$Send = array(
+				"#!ipxe",
+				"echo Host deleted successfully",
+				"sleep 3"
+			);
 		}
 		else
 		{
-			print "#!ipxe\n";
-			print "echo Failed to destroy Host!\n";
-			print "sleep 3\n";
-			$this->chainBoot();
+			$Send = array(
+				"#!ipxe",
+				"echo Failed to destroy Host!",
+				"sleep 3",
+			);
 		}
+		$this->parseMe($Send,true);
 	}
 	/**
 	* printTasking()
@@ -252,10 +261,13 @@ class BootMenu extends FOGBase
                 $kernelArgs[] = (is_array($arg) ? $arg['value'] : $arg);
         }   
         $kernelArgs = array_unique($kernelArgs);
-		print "#!ipxe\n";
-        print "$this->kernel loglevel=4 ".implode(' ',(array)$kernelArgs)."\n";
-        print "$this->initrd";
-        print "boot";
+		$Send = array(
+			"#!ipxe",
+        	"$this->kernel loglevel=4 ".implode(' ',(array)$kernelArgs),
+        	"$this->initrd",
+        	"boot",
+		);
+		$this->parseMe($Send);
 	}
 	/**
 	* delConf()
@@ -264,17 +276,20 @@ class BootMenu extends FOGBase
 	*/
 	public function delConf()
 	{
-		print "#!ipxe\n";
-		print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
-		print "prompt --key y Would you like to delete this host? (y/N): &&\n";
-		print "params\n";
-		print "param mac0 \${net0/mac}\n";
-		print "param arch \${arch}\n";
-		print "param delconf 1\n";
-		print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
-		print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
-		print ":bootme\n";
-		print "chain -ar $this->booturl/ipxe/boot.php##params";
+		$Send = array(
+			"#!ipxe",
+			"cpuid --ext 29 && set arch x86_64 || set arch i386",
+			"prompt --key y Would you like to delete this host? (y/N): &&",
+			"params",
+			"param mac0 \${net0/mac}",
+			"param arch \${arch}",
+			"param delconf 1",
+			"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
+			"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
+			":bootme",
+			"chain -ar $this->booturl/ipxe/boot.php##params",
+		);
+		$this->parseMe($Send);
 	}
 	/**
 	* keyreg()
@@ -283,18 +298,21 @@ class BootMenu extends FOGBase
 	*/
 	public function keyreg()
 	{
-		print "#!ipxe\n";
-		print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
-		print "echo -n Please enter the product key>\n";
-		print "read key\n";
-		print "params\n";
-		print "param mac0 \${net0/mac}\n";
-		print "param arch \${arch}\n";
-		print "param key \${key}\n";
-		print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
-		print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
-		print ":bootme\n";
-		print "chain -ar $this->booturl/ipxe/boot.php##params";
+		$Send = array(
+			"#!ipxe",
+			"cpuid --ext 29 && set arch x86_64 || set arch i386",
+			"echo -n Please enter the product key>",
+			"read key",
+			"params",
+			"param mac0 \${net0/mac}",
+			"param arch \${arch}",
+			"param key \${key}",
+			"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
+			"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
+			":bootme",
+			"chain -ar $this->booturl/ipxe/boot.php##params",
+		);
+		$this->parseMe($Send);
 	}
 	/**
 	* sesscheck()
@@ -306,18 +324,20 @@ class BootMenu extends FOGBase
 		$sesscount = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('name' => $_REQUEST['sessname'])));
 		if (!$sesscount || !$sesscount->isValid())
 		{
-			print "#!ipxe\n";
-			print "echo no session found with that name.\n";
-			print "sleep 3\n";
-			print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
-			print "params\n";
-			print "param mac0 \${net0/mac}\n";
-			print "param arch \${arch}\n";
-			print "param sessionjoin 1\n";
-			print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
-			print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
-			print ":bootme\n";
-			print "chain -ar $this->booturl/ipxe/boot.php##params";
+			$Send = array(
+				"#!ipxe",
+				"echo no session found with that name.",
+				"sleep 3",
+				"cpuid --ext 29 && set arch x86_64 || set arch i386",
+				"params",
+				"param mac0 \${net0/mac}",
+				"param arch \${arch}",
+				"param sessionjoin 1",
+				"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
+				"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
+				":bootme",
+				"chain -ar $this->booturl/ipxe/boot.php##params",
+			);
 		}
 		else
 			$this->multijoin($sesscount->get('id'));
@@ -330,18 +350,21 @@ class BootMenu extends FOGBase
 	*/
 	public function sessjoin()
 	{
-		print "#!ipxe\n";
-		print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
-		print "echo -n Please enter the session name to join>\n";
-		print "read sessname\n";
-		print "params\n";
-		print "param mac0 \${net0/mac}\n";
-		print "param arch \${arch}\n";
-		print "param sessname \${sessname}\n";
-		print "isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\n";
-		print "isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n";
-		print ":bootme\n";
-		print "chain -ar $this->booturl/ipxe/boot.php##params";
+		$Send = array(
+			"#!ipxe",
+			"cpuid --ext 29 && set arch x86_64 || set arch i386",
+			"echo -n Please enter the session name to join>",
+			"read sessname",
+			"params",
+			"param mac0 \${net0/mac}",
+			"param arch \${arch}",
+			"param sessname \${sessname}",
+			"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
+			"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
+			":bootme",
+			"chain -ar $this->booturl/ipxe/boot.php##params",
+		);
+		$this->parseMe($Send);
 	}
 	/**
 	* multijoin()
@@ -353,20 +376,38 @@ class BootMenu extends FOGBase
 		$MultiSess = new MulticastSessions($msid);
 		// Create the host task
 		if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,$_REQUEST['username']))
-			$this->chainBoot(false, true);
+			$this->parseMe(false,true);
 	}
 	/**
+	* keyset()
+	* Set's the product key using the ipxe menu.
+	* @return void
 	*/
 	public function keyset()
 	{
 		$this->Host->set('productKey',base64_encode($_REQUEST['key']));
 		if ($this->Host->save())
 		{
-			print "#!ipxe\n";
-			print "echo Successfully changed key\n";
-			print "sleep 3\n";
-			$this->chainBoot();
+			$Send = array(
+				"#!ipxe",
+				"echo Successfully changed key",
+				"sleep 3",
+			);
+			$this->parseMe($Send,true);
 		}
+	}
+	/**
+	* parseMe($Send,$chainBoot)
+	* @param $Send defaults to null, the data to be sent.
+	* @param $chainBoot, defaults to false.  If passed, sends to chainboot function.
+	* @return void
+	*/
+	private function parseMe($Send='',$chainBoot=false)
+	{
+		foreach($Send AS $ipxe => $val)
+			print implode("\n",$val)."\n";
+		if ($chainBoot)
+			$this->chainBoot(false,true);
 	}
 	/**
 	* advLogin()
@@ -375,8 +416,11 @@ class BootMenu extends FOGBase
 	*/
 	public function advLogin()
 	{
-		print "#!ipxe\n";
-		print "chain -ar $this->booturl/ipxe/advanced.php\n";
+		$Send = array(
+			"#!ipxe",
+			"chain -ar $this->booturl/ipxe/advanced.php",
+		);
+		$this->parseMe($Send);
 	}
 	/**
 	* debugAccess()
@@ -385,10 +429,13 @@ class BootMenu extends FOGBase
 	*/
 	private function debugAccess()
 	{
-		print "#!ipxe\n";
-		print "$this->kernel mode=onlydebug\n";
-		print "$this->initrd";
-		print "boot\n";
+		$Send = array(
+			"#!ipxe",
+			"$this->kernel mode=onlydebug",
+			"$this->initrd",
+			"boot",
+		);
+		$this->parseMe($Send);
 	}
 	/**
 	* verifyCreds()
@@ -425,10 +472,12 @@ class BootMenu extends FOGBase
 		}
 		else
 		{
-			print "#!ipxe\n";
-			print "echo Invalid login!\n";
-			print "sleep 3\n";
-			$this->chainBoot();
+			$Send = array(
+				"#!ipxe",
+				"echo Invalid login!",
+				"sleep 3",
+			);
+			$this->parseMe($Send,true);
 		}
 	}
 	/**
@@ -613,10 +662,13 @@ class BootMenu extends FOGBase
 				$this->printDefault();
 			else if ($Task->get('typeID') == 4)
 			{
-				print "#!ipxe\n";
-				print "$this->memdisk iso raw\n";
-				print "$this->memtest\n";
-				print "boot";
+				$Send = array(
+					"#!ipxe",
+					"$this->memdisk iso raw",
+					"$this->memtest",
+					"boot",
+				);
+				$this->parseMe($Send);
 			}
 			else
 				$this->printTasking($kernelArgsArray);
@@ -627,50 +679,61 @@ class BootMenu extends FOGBase
 	* @param $option the menu option
 	* @param $desc the description of the menu item.
 	* Prints the menu items.
-	* @return void
+	* @return the string as passed.
 	*/
 	private function menuItem($option, $desc)
 	{
-		print "item ".$option->get('name')." ".$option->get('description')."\n";
+		return array("item ".$option->get('name')." ".$option->get('description'));
 	}
 	/**
 	* menuOpt()
 	* Prints the actual menu related items for booting.
 	* @param $option the related menu option
-	* @param $type the type of menu information.
-	* @return void
+	* @param $type the type of menu information
+	* @return $Send sends the data for the menu item.
 	*/
 	private function menuOpt($option,$type)
 	{
 		if ($option->get('id') == 1)
 		{
-			print ":".$option->get('name')."\n";
-			print "$this->bootexittype || goto MENU\n";
+			$Send = array(
+				":".$option->get('name'),
+				"$this->bootexittype || goto MENU",
+			);
 		}
 		else if ($option->get('id') == 2)
 		{
-			print ":".$option->get('name')."\n";
-			print "$this->memdisk iso raw\n";
-			print "$this->memtest\n";
-			print "boot || goto MENU\n";
+			$Send = array(
+				":".$option->get('name'),
+				"$this->memdisk iso raw",
+				"$this->memtest",
+				"boot || goto MENU",
+			);
 		}
 		else if ($option->get('id') == 11)
 		{
-			print ":".$option->get('name')."\n";
-			print "chain -ar $this->booturl/ipxe/advanced.php || goto MENU\n";
+			$Send = array(
+				":".$option->get('name'),
+				"chain -ar $this->booturl/ipxe/advanced.php || goto MENU",
+			);
 		}
 		else if ($option->get('params'))
 		{
-			print ':'.$option->get('name')."\n";
-			print $option->get('params')."\n";
+			$Send = array(
+				':'.$option->get('name'),
+				$option->get('params'),
+			);
 		}
 		else
 		{
-			print ":$option\n";
-			print "$this->kernel loglevel=4 $type\n";
-			print "$this->initrd";
-			print "boot || goto MENU\n";
+			$Send = array(
+				":$option",
+				"$this->kernel loglevel=4 $type",
+				"$this->initrd",
+				"boot || goto MENU",
+			);
 		}
+		return $Send;
 	}
 	/**
 	* printDefault()
@@ -680,99 +743,58 @@ class BootMenu extends FOGBase
 	*/
 	public function printDefault()
 	{
+		// Gets all the database menu items.
 		$Menus = $this->FOGCore->getClass('PXEMenuOptionsManager')->find('','','id');
-		print "#!ipxe\n";
-		print "cpuid --ext 29 && set arch x86_64 || set arch i386\n";
-		print "colour --rgb 0xff6600 2\n";
-		print "cpair --foreground 7 --background 2 2\n";
-		print "console --picture $this->booturl/ipxe/bg.png --left 100 --right 80\n";
+		$IPXE['head'] = array(
+			"#!ipxe",
+			"cpuid --ext 29 && set arch x86_64 || set arch i386",
+			"goto get_console",
+			":console_set",
+			"colour --rgb 0xff6600 2",
+			"cpair --foreground 7 --background 2 2",
+			"goto MENU",
+			":alt_console",
+			"cpair --background 0 1 && cpair --background 1 2",
+			"goto MENU",
+			":get_console",
+			"console --picture $this->booturl/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console",
+		);
 		if (!$this->hiddenmenu)
 		{
 		    $showDebug = $_REQUEST["debug"] === "1";
-			print ":MENU\n";
-			print "menu\n";
-			// Checks if the host is registered or not.
-			// Displays the Host name if it is, otherwise
-			// Tells the user it's not registered.
-			if ($this->Host && $this->Host->isValid())
-			{
-				print "colour --rgb 0x00ff00 0\n";
-				print "cpair --foreground 0 3\n";
-				print "item --gap Host is registered as ".$this->Host->get('name')."\n";
-				print "item --gap -- -------------------------------------\n";
-			}
-			else
-			{
-				print "colour --rgb 0xff0000 0\n";
-				print "cpair --foreground 0 3\n";
-				print "item --gap Host is NOT registered!\n";
-				print "item --gap -- -------------------------------------\n";
-			}
+			$IPXE['menustart'] = array(
+				":MENU",
+				"menu",
+				"colour --rgb ".($this->Host && $this->Host->isValid() ? "0x00ff00" : "0xff0000")." 0",
+				"cpair --foreground 0 3",
+				"item --gap Host is ".($this->Host && $this->Host->isValid() ? "registered as ".$this->Host->get('name') : "NOT registered!"),
+				"item --gap -- -------------------------------------",
+			);
 			$Advanced = $this->FOGCore->getSetting('FOG_PXE_ADVANCED');
 			$AdvLogin = $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN');
+			$ArrayOfStuff = array(($this->Host && $this->Host->isValid() ? 1 : 0),2);
+			if ($Advanced)
+				array_push($ArrayOfStuff,($AdvLogin ? 5 : 4));
 			foreach($Menus AS $Menu)
 			{
-				if (!$this->Host || !$this->Host->isValid())
-				{
-					if ($Advanced)
-					{
-						if (in_array($Menu->get('regMenu'),array(0,2,($AdvLogin ? 5 : 4))))
-							$this->menuItem($Menu, $desc);
-					}
-					else
-					{
-						if (in_array($Menu->get('regMenu'),array(0,2)))
-							$this->menuItem($Menu, $desc);
-					}
-				}
-				else 
-				{
-					if ($Advanced)
-					{
-						if (in_array($Menu->get('regMenu'),array(1,2,($AdvLogin ? 5 : 4))))
-							$this->menuItem($Menu, $desc);
-					}
-					else
-					{
-						if (in_array($Menu->get('regMenu'),array(1,2)))
-							$this->menuItem($Menu, $desc);
-					}
-				}
+				if (in_array($Menu->get('regMenu'),$ArrayOfStuff))
+					$IPXE['menuitem'.$Menu->get('id')] = $this->menuItem($Menu, $desc);
 			}
-			print "$this->defaultChoice";
+			$IPXE[] = array(
+				"$this->defaultChoice",
+			);
 			foreach($Menus AS $Menu)
 			{
-				if (!$this->Host || !$this->Host->isValid())
-				{
-					if ($Advanced)
-					{
-						if (in_array($Menu->get('regMenu'),array(0,2,($AdvLogin ? 5 : 4))))
-							$Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
-					}
-					else
-					{
-						if (in_array($Menu->get('regMenu'),array(0,2)))
-							$Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
-					}
-				}
-				else
-				{
-					if ($Advanced)
-					{
-						if (in_array($Menu->get('regMenu'),array(1,2,($AdvLogin ? 5 : 4))))
-							$Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
-					}
-					else
-					{
-						if (in_array($Menu->get('regMenu'),array(1,2)))
-							$Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
-					}
-				}
+				if (in_array($Menu->get('regMenu'),$ArrayOfStuff))
+					$IPXE['menuchoice'.$Menu->get('id')] = $Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
 			}
-			print ":bootme\n";
-			print "chain -ar $this->booturl/ipxe/boot.php##params ||\n";
-			print "goto MENU\n";
-			print "autoboot";
+			$IPXE[] = array(
+				":bootme",
+				"chain -ar $this->booturl/ipxe/boot.php##params ||",
+				"goto MENU",
+				"autoboot",
+			);
+			$this->parseMe($IPXE);
 		}
 		else
 			$this->chainBoot();
