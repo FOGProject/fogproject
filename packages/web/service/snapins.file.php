@@ -12,7 +12,7 @@ try
 	$Task = current($Host->get('task'));
 	// Work on the current Snapin Task.
 	$SnapinTask = new SnapinTask($_REQUEST['taskid']);
-	if (!$SnapinTask->isValid()) throw new Exception('#!er: Something went wrong with getting the snapin.');
+	if (!$SnapinTask->isValid()) throw new Exception('#!ns');
 	//Get the snapin to work off of.
 	$Snapin = new Snapin($SnapinTask->get('snapinID'));
 	// Assign the file for sending.
@@ -41,7 +41,7 @@ catch (Exception $e)
 {
 	$Datatosend = $e->getMessage();
 }
-if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
 	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
 	print $Datatosend;
