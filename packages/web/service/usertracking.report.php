@@ -24,7 +24,7 @@ try
 		$date = new Date(strtotime($tmpDate));
 		$desc = _('Replay from journal: real insert time').' '.$date->toString("M j, Y g:i:s a");
 	}
-	$actionText = ($_REQUEST['action'] == 'login' ? 1 : ($_REQUEST['logout'] ? 0 : 99));
+	$actionText = ($_REQUEST['action'] == 'login' ? 1 : ($_REQUEST['action'] == 'logout' ? 0 : 99));
 	$user = $_REQUEST['action'] == 'start' ? '' : $user;
 	$UserTracking = new UserTracking(array(
 		'hostID'	=> $Host->get('id'),
