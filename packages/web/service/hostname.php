@@ -12,7 +12,7 @@ try
 		throw new Exception('#!nf');
 	if (!$Host->isHostnameSafe())
 		throw new Exception('#!ih');
-	if ($Host->get('ADPass') && $_REQUEST['newService'])
+	if ($Host->get('ADPass') && $_REQUEST['newService'] && $FOGCore->getSetting('FOG_NEW_CLIENT'))
 	{
 		$decrypt = $FOGCore->aesdecrypt($Host->get('ADPass'),$FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
 		if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true))
@@ -22,7 +22,7 @@ try
 		$Host->set('ADPass',trim($password))->save();
 	}
 	// Send the information.
-	$Datatosend = !$_REQUEST['newService'] ? '#!ok='.$Host->get('name')."\n" : "#!ok\n#hostname=".$Host->get('name')."\n";
+	$Datatosend = $FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n#hostname=".$Host->get('name')."\n" : '#!ok='.$Host->get('name')."\n";
 	$Datatosend .= '#AD='.$Host->get('useAD')."\n";
 	$Datatosend .= '#ADDom='.$Host->get('ADDomain')."\n";
 	$Datatosend .= '#ADOU='.$Host->get('ADOU')."\n";
@@ -35,7 +35,7 @@ catch (Exception $e)
 {
 	$Datatosend = $e->getMessage();
 }
-if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
 	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
 	print $Datatosend;
