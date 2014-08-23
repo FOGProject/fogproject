@@ -173,15 +173,15 @@ class BootMenu extends FOGBase
 	* This is needed for quick image.
 	* @param $debug set to false but if true enables access.
 	* @param $shortCircuit set to false, but if true enables display.
-	* @return $Send sends the data to be printed.
+	* @return void
 	*/
-	private function chainBoot($debug=false, $shortCircuit=false,$Send = false)
+	private function chainBoot($debug=false, $shortCircuit=false)
 	{
 	    // csyperski: added hiddenMenu check; without it entering
 		// any string for username and password would show the menu, even if it was hidden
 	    if (!$this->hiddenmenu || $shortCircuit)
 		{
-    		$Send = array(
+    		$Send[] = array(
 				"#!ipxe",
 				"cpuid --ext 29 && set arch x86_64 || set arch i386",
 				"params",
@@ -197,7 +197,7 @@ class BootMenu extends FOGBase
 	    } 
 	    else
 	    {
-	        $Send = array(
+	        $Send[] = array(
 				"#!ipxe",
 				"prompt --key ".($this->KS && $this->KS->isValid() ? $this->KS->get('ascii') : '0x1b')." --timeout $this->timeout Booting... (Press ".($this->KS && $this->KS->isValid() ?  $this->KS->get('name') : 'Escape')." to access the menu) && goto menuAccess || $this->bootexittype",
 				":menuAccess",
@@ -228,7 +228,7 @@ class BootMenu extends FOGBase
 	{
 		if($this->Host->destroy())
 		{
-			$Send = array(
+			$Send[] = array(
 				"#!ipxe",
 				"echo Host deleted successfully",
 				"sleep 3"
@@ -236,13 +236,14 @@ class BootMenu extends FOGBase
 		}
 		else
 		{
-			$Send = array(
+			$Send[] = array(
 				"#!ipxe",
 				"echo Failed to destroy Host!",
 				"sleep 3",
 			);
 		}
-		$this->parseMe($Send,true);
+		$this->parseMe($Send);
+		$this->chainBoot();
 	}
 	/**
 	* printTasking()
@@ -261,7 +262,7 @@ class BootMenu extends FOGBase
                 $kernelArgs[] = (is_array($arg) ? $arg['value'] : $arg);
         }   
         $kernelArgs = array_unique($kernelArgs);
-		$Send = array(
+		$Send[] = array(
 			"#!ipxe",
         	"$this->kernel loglevel=4 ".implode(' ',(array)$kernelArgs),
         	"$this->initrd",
@@ -276,7 +277,7 @@ class BootMenu extends FOGBase
 	*/
 	public function delConf()
 	{
-		$Send = array(
+		$Send[] = array(
 			"#!ipxe",
 			"cpuid --ext 29 && set arch x86_64 || set arch i386",
 			"prompt --key y Would you like to delete this host? (y/N): &&",
@@ -298,7 +299,7 @@ class BootMenu extends FOGBase
 	*/
 	public function keyreg()
 	{
-		$Send = array(
+		$Send[] = array(
 			"#!ipxe",
 			"cpuid --ext 29 && set arch x86_64 || set arch i386",
 			"echo -n Please enter the product key>",
@@ -324,7 +325,7 @@ class BootMenu extends FOGBase
 		$sesscount = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('name' => $_REQUEST['sessname'])));
 		if (!$sesscount || !$sesscount->isValid())
 		{
-			$Send = array(
+			$Send[] = array(
 				"#!ipxe",
 				"echo no session found with that name.",
 				"sleep 3",
@@ -350,7 +351,7 @@ class BootMenu extends FOGBase
 	*/
 	public function sessjoin()
 	{
-		$Send = array(
+		$Send[] = array(
 			"#!ipxe",
 			"cpuid --ext 29 && set arch x86_64 || set arch i386",
 			"echo -n Please enter the session name to join>",
@@ -376,7 +377,7 @@ class BootMenu extends FOGBase
 		$MultiSess = new MulticastSessions($msid);
 		// Create the host task
 		if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,$_REQUEST['username']))
-			$this->parseMe(false,true);
+			$this->chainBoot(false,true);
 	}
 	/**
 	* keyset()
@@ -388,26 +389,24 @@ class BootMenu extends FOGBase
 		$this->Host->set('productKey',base64_encode($_REQUEST['key']));
 		if ($this->Host->save())
 		{
-			$Send = array(
+			$Send[] = array(
 				"#!ipxe",
 				"echo Successfully changed key",
 				"sleep 3",
 			);
-			$this->parseMe($Send,true);
+			$this->parseMe($Send);
+			$this->chainBoot();
 		}
 	}
 	/**
-	* parseMe($Send,$chainBoot)
-	* @param $Send defaults to null, the data to be sent.
-	* @param $chainBoot, defaults to false.  If passed, sends to chainboot function.
+	* parseMe($Send)
+	* @param $Send the data to be sent.
 	* @return void
 	*/
-	private function parseMe($Send='',$chainBoot=false)
+	private function parseMe($Send)
 	{
 		foreach($Send AS $ipxe => $val)
 			print implode("\n",$val)."\n";
-		if ($chainBoot)
-			$this->chainBoot(false,true);
 	}
 	/**
 	* advLogin()
@@ -416,7 +415,7 @@ class BootMenu extends FOGBase
 	*/
 	public function advLogin()
 	{
-		$Send = array(
+		$Send[] = array(
 			"#!ipxe",
 			"chain -ar $this->booturl/ipxe/advanced.php",
 		);
@@ -429,7 +428,7 @@ class BootMenu extends FOGBase
 	*/
 	private function debugAccess()
 	{
-		$Send = array(
+		$Send[] = array(
 			"#!ipxe",
 			"$this->kernel mode=onlydebug",
 			"$this->initrd",
@@ -472,12 +471,13 @@ class BootMenu extends FOGBase
 		}
 		else
 		{
-			$Send = array(
+			$Send[] = array(
 				"#!ipxe",
 				"echo Invalid login!",
 				"sleep 3",
 			);
-			$this->parseMe($Send,true);
+			$this->parseMe($Send);
+			$this->chainBoot();
 		}
 	}
 	/**
@@ -497,8 +497,11 @@ class BootMenu extends FOGBase
 	*/
 	public function noMenu()
 	{
-		print "#!ipxe\n";
-		print "$this->bootexittype\n";
+		$Send[] = array(
+			"#!ipxe",
+			"$this->bootexittype",
+		);
+		$this->parseMe($Send);
 	}
 	/**
 	* getTasking()
@@ -662,7 +665,7 @@ class BootMenu extends FOGBase
 				$this->printDefault();
 			else if ($Task->get('typeID') == 4)
 			{
-				$Send = array(
+				$Send[] = array(
 					"#!ipxe",
 					"$this->memdisk iso raw",
 					"$this->memtest",
