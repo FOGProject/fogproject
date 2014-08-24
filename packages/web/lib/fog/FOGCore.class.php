@@ -409,7 +409,7 @@ class FOGCore extends FOGBase
 	/** getBanner()
 		Prints the FOG banner
 	*/
-	function getBanner()
+	public function getBanner()
 	{
 		$str  = "        ___           ___           ___      \n";
 		$str .= "       /\  \         /\  \         /\  \     \n";
@@ -435,5 +435,18 @@ class FOGCore extends FOGBase
 		$str .= "  ###########################################\n";
 		$str .= "\n";
 		return $str;
-	}	
+	}
+
+	/** hex2bin($hex)
+	* @param $hex
+	* Function simple takes the data and transforms it into hexadecimal.
+	* @return the hex coded data.
+	*/
+	public function hex2bin($hex)
+	{
+		$r = '';
+		for ($i = 0; $i < strlen($hex); $i += 2)
+			$r .= chr(hexdec($hex{$i}.$hex{($i+1)}));
+		return $r;
+	}
 }
