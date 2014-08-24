@@ -64,7 +64,7 @@ class ServerInfo extends FOGPage
                     else
                     { 
 						if ( $section == 0 )
-							$arGeneral[] = $line;												
+							$arGeneral[] = $line;
 						else if ( $section == 1 )
 							$arFS[] = $line;
 						else if ( $section == 2 )
@@ -76,32 +76,8 @@ class ServerInfo extends FOGPage
 					$arNicParts = explode( "$$", $arNIC[$i] );
 					if (count($arNicParts) == 5) 
 					{
-						$kb = 1024;
-						$mb = 1024* $kb;
-						$gb = $mb * $kb;
-						$tb = $gb * $kb;
-						$pb = $tb * $kb;
-						$eb = $pb * $kb;
-						$zb = $eb * $kb;
-						$yb = $zb * $kb;
-						if ($arNicParts[1] >= $yb){$NICTransSized[] = round($arNicParts[1]/$yb,2).' YiB';}
-						else if ($arNicParts[1] >= $zb && $arNicParts[1] < $yb){$NICTransSized[] = round($arNicParts[1]/$zb,2).' ZiB';}
-						else if ($arNicParts[1] >= $eb && $arNicParts[1] < $zb){$NICTransSized[] = round($arNicParts[1]/$eb,2).' EiB';}
-						else if ($arNicParts[1] >= $pb && $arNicParts[1] < $eb){$NICTransSized[] = round($arNicParts[1]/$pb,2).' PiB';}
-						else if ($arNicParts[1] >= $tb && $arNicParts[1] < $pb){$NICTransSized[] = round($arNicParts[1]/$tb,2).' TiB';}
-						else if ($arNicParts[1] >= $gb && $arNicParts[1] < $tb){$NICTransSized[] = round($arNicParts[1]/$gb,2).' GiB';}
-						else if ($arNicParts[1] >= $mb && $arNicParts[1] < $gb){$NICTransSized[] = round($arNicParts[1]/$mb,2).' MiB';}
-						else if ($arNicParts[1] >= $kb && $arNicParts[1] < $mb){$NICTransSized[] = round($arNicParts[1]/$kb,2).' KiB';}
-						else if ($arNicParts[1] < $kb){$NICTranSized .= round($arNicParts[1],2).' iB';}
-						if ($arNicParts[2] >= $yb){$NICRecSized[] = round($arNicParts[2]/$yb,2).' YiB';}
-						else if ($arNicParts[2] >= $zb && $arNicParts[2] < $yb){$NICRecSized[] = round($arNicParts[2]/$zb,2).' ZiB';}
-						else if ($arNicParts[2] >= $eb && $arNicParts[2] < $zb){$NICRecSized[] = round($arNicParts[2]/$eb,2).' EiB';}
-						else if ($arNicParts[2] >= $pb && $arNicParts[2] < $eb){$NICRecSized[] = round($arNicParts[2]/$pb,2).' PiB';}
-						else if ($arNicParts[2] >= $tb && $arNicParts[2] < $pb){$NICRecSized[] = round($arNicParts[2]/$tb,2).' TiB';}
-						else if ($arNicParts[2] >= $gb && $arNicParts[2] < $tb){$NICRecSized[] = round($arNicParts[2]/$gb,2).' GiB';}
-						else if ($arNicParts[2] >= $mb && $arNicParts[2] < $gb){$NICRecSized[] = round($arNicParts[2]/$mb,2).' MiB';}
-						else if ($arNicParts[2] >= $kb && $arNicParts[2] < $mb){$NICRecSized[] = round($arNicParts[2]/$kb,2).' KiB';}
-						else if ($arNicParts[2] < $kb){$NICRecSized[] = round($arNicParts[2],2).' iB';}
+						$NICTransSized[] = $this->formatByteSize($arNicParts[1]);
+						$NICRecSized[] = $this->formatByteSize($arNicParts[2]);
 						$NICErrInfo[] = $arNicParts[3];
 						$NICDropInfo[] = $arNicParts[4];
 						$NICTrans[] = $arNicParts[0].' '._('TX');

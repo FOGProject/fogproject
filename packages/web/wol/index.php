@@ -1,2 +1,2 @@
 <?php
-header('Location: ../../management/index.php');
+header('Location: ../management/index.php');
