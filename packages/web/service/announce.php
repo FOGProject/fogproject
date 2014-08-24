@@ -160,7 +160,7 @@ function track($list, $c=0, $i=0) {
 	foreach($list as $d) { //Runs for each client
 		$pid = '';
 		if (!isset($_GET['no_peer_id'])) { //Send out peer_ids in the reply
-			$real_id = hex2bin($d[2]);
+			$real_id = $FOGCore->hex2bin($d[2]);
 			$pid = '7:peer id'.strlen($real_id).':'.$real_id;
 		}
 		$p .= 'd2:ip'.strlen($d[0]).':'.$d[0].$pid.'4:porti'.$d[1].'ee';
@@ -186,11 +186,4 @@ function valdata($g, $fixed_size=false) {
 	}
 }
 
-function hex2bin($hex) {
-	$r = '';
-	for ($i=0; $i < strlen($hex); $i+=2) {
-		$r .= chr(hexdec($hex{$i}.$hex{($i+1)}));
-	}
-	return $r;
-}
 ?>
