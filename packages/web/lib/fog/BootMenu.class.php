@@ -456,7 +456,7 @@ class BootMenu extends FOGBase
 				$this->keyreg();
 			else if ($_REQUEST['qihost'])
 				$this->setTasking();
-			else if ($_REQUEST['sessionjoin'])
+			else if ($_REQUEST['sessionJoin'])
 				$this->sessjoin();
 			else if ($_REQUEST['menuaccess'])
 			{
