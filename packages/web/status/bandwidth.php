@@ -20,7 +20,7 @@ define("PROCNETDEV", "/proc/net/dev");
 define("SLEEPSEC", 1);
 $Data = array();
 if (!file_exists(PROCNETDEV) || !is_readable(PROCNETDEV))
-	$Data['error'] = (file_exists(PROCNETDEV) ? PROCNETDEV . ' is not readable' : PROCNETDEV . ' doesnt not exist');
+	$Data['error'] = (file_exists(PROCNETDEV) ? PROCNETDEV . ' is not readable' : PROCNETDEV . ' does not exist');
 else
 {
 	$dev = ($_REQUEST['dev'] ? trim($_REQUEST['dev']) : (defined('NFS_ETH_MONITOR') ? NFS_ETH_MONITOR : 'eth0'));
