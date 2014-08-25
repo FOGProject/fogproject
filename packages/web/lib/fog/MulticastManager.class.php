@@ -1,10 +1,13 @@
 <?php
 class MulticastManager extends FOGBase
 {
+	var $dev = MULTICASTDEVICEOUTPUT;
+	var $log = MULTICASTLOGPATH;
+	var $zzz = MULTICASTSLEEPTIME;
 	public function outall($string)
 	{
-		$this->FOGCore->out($string,MULTICASTDEVICEOUTPUT);
-		$this->FOGCore->wlog($string,MULTICASTLOGPATH);
+		$this->FOGCore->out($string,$this->dev);
+		$this->FOGCore->wlog($string,$this->log);
 	}
 	public function isMCTaskNew($KnownTasks, $id)
 	{
@@ -66,10 +69,10 @@ class MulticastManager extends FOGBase
 	}
 	public function serviceStart()
 	{
-		$this->FOGCore->out($this->FOGCore->getBanner(),MULTICASTDEVICEOUTPUT);
+		$this->FOGCore->out($this->FOGCore->getBanner(),$this->log);
 		$this->outall(sprintf(" * Starting FOG Multicast Manager Service"));
 		sleep(5);
-		$this->outall(sprintf(" * Checking for new tasks every %s seconds.",MULTICASTSLEEPTIME));
+		$this->outall(sprintf(" * Checking for new tasks every %s seconds.",$this->zzz));
 		$this->outall(sprintf(" * Starting service loop."));
 	}
 	private function serviceLoop()
@@ -83,7 +86,7 @@ class MulticastManager extends FOGBase
 					throw new Exception(sprintf(" | StorageNode Not found on this system."));
 				$myroot = $StorageNode->get('path');
 				$allTasks = MulticastTask::getAllMulticastTasks($myroot);
-				$this->FOGCore->out(sprintf(" | %s task(s) found",count($allTasks)),MULTICASTDEVICEOUTPUT);
+				$this->FOGCore->out(sprintf(" | %s task(s) found",count($allTasks)),$this->dev);
     
 				$RMTasks = $this->getMCTasksNotInDB($KnownTasks,$allTasks);
 				$jobcancelled = false;
@@ -218,14 +221,14 @@ class MulticastManager extends FOGBase
 			{
 				$this->outall($e->getMessage());
 			}
-			$this->FOGCore->out(sprintf(" +---------------------------------------------------------"), MULTICASTDEVICEOUTPUT );
+			$this->FOGCore->out(sprintf(" +---------------------------------------------------------"), $this->dev );
 			sleep(MULTICASTSLEEPTIME);
 		}
 	}
 	public function serviceRun()
 	{
-		$this->FOGCore->out(sprintf(' '),REPLICATORDEVICEOUTPUT);
-		$this->FOGCore->out(sprintf(' +---------------------------------------------------------'),REPLICATORDEVICEOUTPUT);
+		$this->FOGCore->out(sprintf(' '),$this->dev);
+		$this->FOGCore->out(sprintf(' +---------------------------------------------------------'),$this->dev);
 		$this->serviceLoop();
 	}
 }
