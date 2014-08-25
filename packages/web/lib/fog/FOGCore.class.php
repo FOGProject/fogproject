@@ -444,10 +444,19 @@ class FOGCore extends FOGBase
 	*/
 	public function hex2bin($hex)
 	{
-		$r = '';
-		for ($i = 0; $i < strlen($hex); $i += 2)
-			$r .= chr(hexdec($hex{$i}.$hex{($i+1)}));
-		return $r;
+		$n = strlen($hex);
+		$i = 0;
+		while ($i<$n)
+		{
+			$a = substr($hexstr,$i,2);
+			$c = pack("H*",$a);
+			if ($i == 0)
+				$sbin = $c;
+			else
+				$sbin .= $c;
+			$i += 2;
+		}
+		return $sbin;
 	}
 	/** getHWInfo()
 	* Returns the hardware information for hwinfo link on dashboard.
