@@ -75,10 +75,10 @@ $DB->query('INSERT INTO `peer` (`hash`, `user_agent`, `ip_address`, `key`, `port
 	. "', INET_ATON('" . $DB->sanitize($_SERVER['REMOTE_ADDR']) . "'), '" . $DB->sanitize(sha1($_GET['key'])) . "', " . intval($_GET['port']) . ") "
 	. 'ON DUPLICATE KEY UPDATE `user_agent` = VALUES(`user_agent`), `ip_address` = VALUES(`ip_address`), `port` = VALUES(`port`), `id` = LAST_INSERT_ID(`peer`.`id`)') 
 	or die(track('Cannot update peer: '.$DB->sqlerror()));
-$pk_peer = mysql_insert_id();
+$pk_peer = $DB->insert_id();
 
 $DB->query("INSERT INTO `torrent` (`hash`) VALUES ('" . $DB->sanitize(bin2hex($_GET['info_hash'])) . "') "
- 	. "ON DUPLICATE KEY UPDATE `id` = LAST_INSERT_ID(`id`)") or die(track('Cannot update torrent' . mysql_error())); // ON DUPLICATE KEY UPDATE is just to make mysql_insert_id work
+ 	. "ON DUPLICATE KEY UPDATE `id` = LAST_INSERT_ID(`id`)") or die(track('Cannot update torrent' . $DB->sqlerror())); // ON DUPLICATE KEY UPDATE is just to make mysql_insert_id work
 $pk_torrent = $DB->insert_id();
 
 //User agent is required
@@ -153,6 +153,7 @@ die(track($reply, $seeders[0], $leechers[0]));
 //You may go ahead and enter custom keys in the dictionary in
 //this function if you'd like.
 function track($list, $c=0, $i=0) {
+	global $FOGCore;
 	if (is_string($list)) { //Did we get a string? Return an error to the client
 		return 'd14:failure reason'.strlen($list).':'.$list.'e';
 	}
