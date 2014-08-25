@@ -117,7 +117,7 @@ if (isset($_GET['numwant']) && ctype_digit($_GET['numwant']) && $_GET['numwant']
 	$numwant = (int)$_GET['numwant'];
 }
 
-$q = $DB->query('SELECT INET_NTOA(peer.ip_address), peer.port, peer.hash '
+$DB->query('SELECT INET_NTOA(peer.ip_address) AS ip, peer.port, peer.hash AS id '
 	. 'FROM peer_torrent '
 	. 'JOIN peer ON peer.id = peer_torrent.peer_id '
 	. 'WHERE peer_torrent.torrent_id = ' . $pk_torrent . ' AND peer_torrent.stopped = FALSE '
@@ -128,11 +128,11 @@ $q = $DB->query('SELECT INET_NTOA(peer.ip_address), peer.port, peer.hash '
 
 $reply = array(); //To be encoded and sent to the client
 
-while ($r = $DB->fetch()->get()) { //Runs for every client with the same infohash
-	$reply[] = array($r[0], $r[1], $r[2]); //ip, port, peerid
+while ($r = $DB->fetch()->get()){
+	$reply[] = array($r['ip'], $r['port'], $r['id']); //ip, port, peerid
 }
 
-$q = $DB->query('SELECT IFNULL(SUM(peer_torrent.left > 0), 0) AS leech, IFNULL(SUM(peer_torrent.left = 0), 0) AS seed '
+$DB->query('SELECT IFNULL(SUM(peer_torrent.left > 0), 0) AS leech, IFNULL(SUM(peer_torrent.left = 0), 0) AS seed '
 	. 'FROM peer_torrent '
 	. 'WHERE peer_torrent.torrent_id = ' . $pk_torrent . ' AND `peer_torrent`.`stopped` = FALSE '
 	. 'AND peer_torrent.last_updated >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL ' . (__INTERVAL + __TIMEOUT) . ' SECOND) '
@@ -143,8 +143,8 @@ $leechers = 0;
 
 if ($r = $DB->fetch()->get())
 {
-	$seeders = $r[1];
-	$leechers = $r[0];
+	$seeders = $r['seed'];
+	$leechers = $r['leech'];
 }
 
 die(track($reply, $seeders[0], $leechers[0]));
