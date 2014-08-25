@@ -4,13 +4,8 @@ try
 {
 	$torrentFile = ($_REQUEST['torrent'].'.torrent');
 	// Assign the file for sending.
-<<<<<<< HEAD
 	if (file_exists(rtrim($FOGCore->getSetting('FOG_TORRENTDIR'),'/').'/'.$torrentFile))
 		$torrentFile = (rtrim($FOGCore->getSetting('FOG_TORRENTDIR'),'/').'/'.$torrentFile);
-=======
-	if (file_exists(rtrim($FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.$torrentFile))
-		$torrentFile = (rtrim($FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.$torrentFile);
->>>>>>> torrent-casting
 	// If it exists and is readable send it!
 	if (file_exists($torrentFile) && is_readable($torrentFile))
 	{
