@@ -1543,6 +1543,38 @@ param advLog 1
 isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
 isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.advancedlogin';",
 );
+// 123
+$databaseSchema[] = array(
+	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME ."`.`peer` (
+	  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	  `hash` char(40) NOT NULL COMMENT 'peer_id',
+	  `user_agent` varchar(80) DEFAULT NULL,
+	  `ip_address` int(10) unsigned NOT NULL COMMENT 'ip',
+	  `key` char(40) NOT NULL COMMENT 'key',
+	  `port` smallint(5) unsigned NOT NULL COMMENT 'port',
+	  PRIMARY KEY (`id`),
+	  UNIQUE KEY `hash_key` (`hash`,`key`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
+	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME ."`.`peer_torrent` (
+	  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	  `peer_id` int(10) unsigned NOT NULL,
+	  `torrent_id` int(10) unsigned NOT NULL,
+	  `uploaded` bigint(20) unsigned DEFAULT NULL COMMENT 'uploaded',
+	  `downloaded` bigint(20) unsigned DEFAULT NULL COMMENT 'downloaded',
+	  `left` bigint(20) unsigned DEFAULT NULL COMMENT 'left',
+	  `last_updated` datetime NOT NULL,
+	  `stopped` tinyint(1) NOT NULL DEFAULT '0',
+	  PRIMARY KEY (`id`),
+	  UNIQUE KEY `peer_torrent` (`peer_id`,`torrent_id`),
+	  KEY `update_torrent` (`torrent_id`,`stopped`,`last_updated`,`left`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
+	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME ."`.`torrent` (
+	  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+	  `hash` char(40) NOT NULL COMMENT 'info_hash',
+	  PRIMARY KEY (`id`),
+	  UNIQUE KEY `hash` (`hash`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";

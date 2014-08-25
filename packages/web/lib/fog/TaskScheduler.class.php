@@ -124,7 +124,7 @@ class TaskScheduler extends FOGBase
 
 	public function serviceRun()
 	{
-		$this->FOGCore->out(' ',REPLICATORDEVICEOUTPUT);
+		$this->FOGCore->out(' ',$this->dev);
 		$this->FOGCore->out(' +---------------------------------------------------------',$this->dev);
 		$this->commonOutput();
 		$this->FOGCore->out(' +---------------------------------------------------------',$this->dev);

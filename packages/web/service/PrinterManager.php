@@ -43,8 +43,8 @@ catch(Exception $e)
 if ($Datatosenderror)
 	$Datatosend = $Datatosenderror;
 else
-	$Datatosend = ($_REQUEST['newService'] ? "#!ok\n" : '').'#!mg='.($_REQUEST['newService'] ? $Datatosendlevel."\n".$Datatosendprint : base64_encode($Datatosendlevel)."\n".base64_encode($Datatosendprint));
-if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+	$Datatosend = ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n" : '').'#!mg='.($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $Datatosendlevel."\n".$Datatosendprint : base64_encode($Datatosendlevel)."\n".base64_encode($Datatosendprint));
+if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
 	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
 	print $Datatosend;
