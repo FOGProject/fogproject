@@ -38,6 +38,7 @@ namespace FOG {
 		}
 		
 		//Decode AES256
+		//TODO: Remove hotfix of trimming null bytes and change the crypt reader to read the proper length
 		private static String decodeAES(String toDecode, String passKey, String ivString) {
 		    //Conver the initialization vector and key into a byte array
 			byte[] key = Encoding.UTF8.GetBytes(passKey);
@@ -49,6 +50,7 @@ namespace FOG {
 		        using (var memoryStream = 
 		               new MemoryStream(Convert.FromBase64String(toDecode)))
 		        using (var cryptoStream = new CryptoStream(memoryStream, rijndaelManaged.CreateDecryptor(key, iv), CryptoStreamMode.Read)) {
+		        	//Return the crypto stream, but trim null bytes due to reading too far
 		        	return new StreamReader(cryptoStream).ReadToEnd().Replace("\0", String.Empty).Trim();
 		        }
 		    } catch (Exception ex) {
@@ -58,6 +60,7 @@ namespace FOG {
 			return "";
 		}
 		
+		//Decode an AES256 encrypted response
 		public static String decodeAESResponse(String response, String passKey) {
 			LogHandler.log(LOG_NAME, "Attempting to decrypt response");
 			//The first set of 15 characters is the initialization vector, the rest is the encrypted message
@@ -70,6 +73,7 @@ namespace FOG {
 			return "";
 		}	
 		
+		//Generate the md5 hash of a file
 		public static  String generateMD5Hash(String file) {
 			if (File.Exists(file)) {
 				StringBuilder sBuilder = new StringBuilder();
