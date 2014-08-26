@@ -405,7 +405,7 @@ class BootMenu extends FOGBase
 	*/
 	private function parseMe($Send)
 	{
-		$this->HookManager('IPXE_EDIT',array('ipxe' => &$Send));
+		$this->HookManager->processEvent('IPXE_EDIT',array('ipxe' => &$Send));
 		foreach($Send AS $ipxe => $val)
 			print implode("\n",$val)."\n";
 	}
