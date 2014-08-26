@@ -326,7 +326,7 @@ pre { white-space: pre-wrap; }
 .default:checked + label {background:url('../images/yes.png') no-repeat;height: 100%; width: 100%;display:inline-block;padding: 0 0 0 0px;}
 .delid {display: none;}
 .delid + label {background:url('../images/kill.png') no-repeat;height: 101%; width: 100%;display:inline-block;padding: 0 0 0 15px;}
-.delid:checked + label {background:url('.../images/kill.png') no-repeat;height: 100%; width: 100%;display:inline-block;padding: 0 0 0 15px;}
+.delid:checked + label {background:url('../images/kill.png') no-repeat;height: 100%; width: 100%;display:inline-block;padding: 0 0 0 15px;}
 .delvid {display: none;}
 
 #additionalMACsRow { display: none; }
