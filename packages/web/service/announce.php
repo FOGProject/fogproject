@@ -47,9 +47,10 @@ if (!$Peer || !$Peer->isValid())
 }
 else
 {
-	$Peer->set('agent',substr($_SERVER['HTTP_USER_AGENT'],0,80))
-	     ->set('ip',$Peer->get('ip'))
-		 ->set('port',$Peer->get('port'));
+	$Peer->set('hash',bin2hex($_REQUEST['peer_id']))
+		 ->set('agent',substr($_SERVER['HTTP_USER_AGENT'],0,80))
+		 ->set('ip',ip2long($_SERVER['REMOTE_ADDR']))
+		 ->set('port',intval($_REQUEST['port']));
 }
 $Peer->save();
 $pk_peer = $Peer->get('id');
@@ -73,21 +74,21 @@ $PeerTorrent = current($FOGCore->getClass('PeerTorrentManager')->find(array('pee
 if (!$PeerTorrent || !$PeerTorrent->isValid())
 {
 	$PeerTorrent = new PeerTorrent(array(
-		'peerID' => $Peer->get('id'),
-		'torrentID' => $Torrent->get('id'),
-		'uploaded' => intval($_REQUEST['uploaded']),
-		'downloaded' => intval($_REQUEST['downloaded']),
-		'left' => intval($_REQUEST['left']),
+		'peerID' => $pk_peer,
+		'torrentID' => $pk_torrent,
+		'uploaded' => $uploaded,
+		'downloaded' => $downloaded,
+		'left' => $left,
 		'lastUpdated' => gmdate('Y-m-d H:i:s'),
 		'stopped' => 0,
 	));
 }
 else
 {
-	$PeerTorrent->set('uploaded', intval($PeerTorrent->get('uploaded')))
-				->set('downloaded', intval($PeerTorrent->get('downloaded')))
-				->set('left', intval($PeerTorrent->get('left')))
-				->set('lastUpdated', $PeerTorrent->get('lastUpdated'));
+	$PeerTorrent->set('uploaded', $uploaded)
+				->set('downloaded', $downloaded)
+				->set('left', $left)
+				->set('lastUpdated', gmdate('Y-m-d H:i:s'));
 }
 $PeerTorrent->save();
 $pk_peer_torrent = $PeerTorrent->get('id');
