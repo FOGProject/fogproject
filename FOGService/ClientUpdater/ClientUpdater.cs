@@ -20,7 +20,6 @@ namespace FOG
 			this.updatePending = false;
 		}
 		
-		
 		protected override void doWork() {
 			//Get task info
 			Response updateResponse = CommunicationHandler.getResponse("/service/updates.php?action=list");	
@@ -43,40 +42,8 @@ namespace FOG
 							
 							LogHandler.log(getName(), "Remote file is newer, attempting to update");
 							
-							//Download the new file
-							if(!updateFileResponse.getField("#updatefile").Equals("")) {
-								
-								try {
-									
-									if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile))
-										File.Delete(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile);
-									
-									File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile, EncryptionHandler.decodeBase64(updateFileResponse.getField("#updatefile")));
-									
-									
-									//Try and move the file, if it fails try again for a few times
-									for(int i=0; i < 5; i++) {
-										try {
-											File.Move(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile, 
-											          AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile);
-											this.updatePending = true;		
-											LogHandler.log(getName(), "Successfully updated " + updateFile);
-											break;
-										} catch (Exception ex) {
-											LogHandler.log(getName(), "Unable to replace " + updateFile);
-											LogHandler.log(getName(), "ERROR: " + ex.Message);
-										}
-										if(i < 4) {
-											LogHandler.log(getName(), "Will attempt to update again in 2 seconds");
-											Thread.Sleep(2000);
-										}
-									}
-								} catch (Exception ex) {
-									LogHandler.log(getName(), "Unable to create update file");
-									LogHandler.log(getName(), "ERROR: " + ex.Message);
-								}
-
-						   	}
+							if(generateUpdateFile(updateFileResponse));
+								applyUpdateFile(updateFile);
 						} else {
 							LogHandler.log(getName(), "Remote file is the same as this local copy");
 						}
@@ -88,6 +55,60 @@ namespace FOG
 			}
 		}
 		
+		//Generate the update file from the parsed response
+		private Boolean generateUpdateFile(Response updateFileResponse) {
+			//Download the new file
+			if(!updateFileResponse.getField("#updatefile").Equals("")) {
+				
+				try {
+					
+					if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile))
+						File.Delete(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile);
+					
+					File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile, EncryptionHandler.decodeBase64(updateFileResponse.getField("#updatefile")));
+					
+					return true;
+				} catch (Exception ex) {
+					LogHandler.log(getName(), "Unable to generate update file");
+					LogHandler.log(getName(), "ERROR: " + ex.Message);
+				}
+
+			}
+			return false;
+		}
+		
+		//Apply the downloaded update
+		private void applyUpdateFile(String updateFile) {
+			if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile)) {
+				try { 
+					//Try and move the file, if it fails try again for a few times
+					for(int i=0; i < 5; i++) {
+						try {
+							File.Move(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile, 
+							          AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile);
+							this.updatePending = true;		
+							LogHandler.log(getName(), "Successfully updated " + updateFile);
+							break;
+						} catch (Exception ex) {
+							LogHandler.log(getName(), "Unable to replace " + updateFile);
+							LogHandler.log(getName(), "ERROR: " + ex.Message);
+						}
+						if(i < 4) {
+							LogHandler.log(getName(), "Will attempt to update again in 2 seconds");
+							Thread.Sleep(2000);
+						}
+					}
+				} catch (Exception ex) {
+					LogHandler.log(getName(), "Unable to apply update file");
+					LogHandlerlog(getName(), "ERROR: " + ex.Message);
+				}
+			} else {
+				LogHandler.log(getName(), "Unable to locate downloaded update file");
+			}
+		}
+		
+		
+		//Get a list of update file's names
 		private List<String> getUpdateFiles(Response updateResponse) {
 			List<String> updates = new List<String>();
 
