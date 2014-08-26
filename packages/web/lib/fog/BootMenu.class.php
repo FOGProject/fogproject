@@ -782,7 +782,7 @@ class BootMenu extends FOGBase
 			foreach($Menus AS $Menu)
 			{
 				if (in_array($Menu->get('regMenu'),$ArrayOfStuff))
-					$IPXE['menuitem'.$Menu->get('id')] = $this->menuItem($Menu, $desc);
+					$Send['item-'.$Menu->get('name')] = $this->menuItem($Menu, $desc);
 			}
 			$Send['default'] = array(
 				"$this->defaultChoice",
@@ -790,7 +790,7 @@ class BootMenu extends FOGBase
 			foreach($Menus AS $Menu)
 			{
 				if (in_array($Menu->get('regMenu'),$ArrayOfStuff))
-					$Send[$Menu->get('name')] = $Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
+					$Send['choice-'.$Menu->get('name')] = $Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
 			}
 			$Send['bootme'] = array(
 				":bootme",
