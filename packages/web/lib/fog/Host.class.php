@@ -716,7 +716,7 @@ class Host extends FOGController
 			// TaskType: Variables
 			$TaskType = new TaskType($taskTypeID);
 			// Imaging types.
-			$imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17)) ? true : false;
+			$imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17,24)) ? true : false;
 			$isUpload = $TaskType->isUpload();
 			// Image: Variables
 			$Image = $this->getImage();
@@ -770,6 +770,11 @@ class Host extends FOGController
 			// Snapin deploy/cancel only if task type is of snapin deployment type.
 			if (!$isUpload && $deploySnapins && ($taskTypeID == '12' || $taskTypeID == '13'))
 			{
+				$count = 0;
+				foreach((array)$this->get('snapins') AS $SnapinInHost)
+					$SnapinInHost && $SnapinInHost->isValid() ? $count++ : null;
+				if ($count <= 0)
+					throw new Exception(_('There are no snapins associated with this host'));
 				// Task: Create Task Object
 				$Task = new Task(array(
 					'name'		=> $taskName,
@@ -785,7 +790,7 @@ class Host extends FOGController
 				));
 				$SnapinJobs = current($this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(0,1))));
 				if ($SnapinJobs && $SnapinJobs->isValid() && $deploySnapins == -1)
-					throw new Exception('Snapins Are already deployed to this host.');
+					throw new Exception(_('Snapins Are already deployed to this host'));
 				else
 				{
 					// Create Snapin Job.  Only one job, but will do multiple SnapinTasks.
@@ -952,18 +957,18 @@ class Host extends FOGController
 			// Snapin deploy/cancel after deploy
 			if (!$isUpload && $deploySnapins && $imagingTypes && $taskTypeID != '17')
 			{
+				$count = 0;
+				foreach((array)$this->get('snapins') AS $SnapinInHost)
+					$SnapinInHost && $SnapinInHost->isValid() ? $count++ : null;
 				// Remove any exists snapin tasks
 				$SnapinJobs = $this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id')));
 				foreach ($SnapinJobs AS $SnapinJob)
 				{
-					$SnapinTasks = $this->FOGCore->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id')));
-					foreach ($SnapinTasks AS $SnapinTask)
-						$SnapinTask->destroy();
+					$this->FOGCore->getClass('SnapinTaskManager')->destroy(array('jobID' => $SnapinJob->get('id')));
 					$SnapinJob->destroy();
 				}
 				// Check if there's any snapins assigned to the host.
-				$SnapinAssoc = $this->FOGCore->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')));
-				if ($this->FOGCore->getClass('SnapinAssociationmanager')->count(array('hostID' => $this->get('id'))) > 0)
+				if ($count > 0)
 				{
 					// now do a clean snapin deploy
 					$SnapinJob = new SnapinJob(array(
@@ -972,16 +977,18 @@ class Host extends FOGController
 					));
 					if ($SnapinJob->save())
 					{
-						$SnapinAssoc = $this->FOGCore->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')));
-						foreach ($SnapinAssoc AS $SA)
+						foreach ($this->get('snapins') AS $SA)
 						{
-							$Snapin = new Snapin($SA->get('snapinID'));
-							$SnapinTask = new SnapinTask(array(
-								'jobID' => $SnapinJob->get('id'),
-								'stateID' => -1,
-								'snapinID' => $Snapin->get('id'),
-							));
-							$SnapinTask->save();
+							if ($SA && $SA->isValid())
+							{
+								$Snapin = new Snapin($SA->get('snapinID'));
+								$SnapinTask = new SnapinTask(array(
+									'jobID' => $SnapinJob->get('id'),
+									'stateID' => -1,
+									'snapinID' => $Snapin->get('id'),
+								));
+								$SnapinTask->save();
+							}
 						}
 					}
 				}

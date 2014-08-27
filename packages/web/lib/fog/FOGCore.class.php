@@ -506,4 +506,45 @@ class FOGCore extends FOGBase
 		$data['end'] = '@@end';
 		return $data;
 	}
+	/**
+	* track($list, $c = 0, $i = 0)
+	* @param $list the data to bencode.
+	* @param $c completed jobs (seeders)
+	* @param $i incompleted jobs (leechers)
+	* @return void
+	* Will "return" but through throw/catch statement.
+	*/
+	public function track($list, $c = 0, $i = 0)
+	{
+		if (is_string($list))
+			return 'd14:failure reason'.strlen($list).':'.$list.'e';
+		$p = '';
+		foreach((array)$list AS $d)
+		{
+			$peer_id = '';
+			if (!$_REQUEST['no_peer_id'])
+				$peer_id = '7:peer id'.strlen($this->hex2bin($d[2])).':'.$this->hex2bin($d[2]);
+			$p .= 'd2:ip'.strlen($d[0]).':'.$d[0].$peer_id.'4:porti'.$d[1].'ee';
+		}
+		return 'd8:intervali'.$this->getSetting('FOG_TORRENT_INTERVAL').'e12:min intervali'.$this->getSetting('FOG_TORRENT_INTERVAL_MIN').'e8:completei'.$c.'e10:incompletei'.$i.'e5:peersl'.$p.'ee';
+	}
+	/**
+	* valdata($g,$fixed_size=false)
+	* Function simply checks if the required data is met and valid
+	* Could use for other functions possibly too.
+	* @param $g the request/get/post info to validate.
+	* @return void
+	* Sends info back to track.
+	*/
+	public function valdata($g,$fixed_size=false)
+	{
+		if (!$_REQUEST[$g])
+			die($this->track('Invalid request, missing data'));
+		if (!is_string($_REQUEST[$g]))
+			die($this->track('Invalid request, unkown data type'));
+		if ($fixed_size && strlen($_REQUEST[$g]) != 20)
+			die($this->track('Invalid request, length on fixed argument not correct'));
+		if (strlen($_REQUEST[$g]) > 80)
+			die($this->track('Request too long'));
+	}
 }

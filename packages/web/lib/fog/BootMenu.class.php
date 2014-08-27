@@ -405,7 +405,7 @@ class BootMenu extends FOGBase
 	*/
 	private function parseMe($Send)
 	{
-		$this->HookManager('IPXE_EDIT',array('ipxe' => &$Send));
+		$this->HookManager->processEvent('IPXE_EDIT',array('ipxe' => &$Send));
 		foreach($Send AS $ipxe => $val)
 			print implode("\n",$val)."\n";
 	}
@@ -525,7 +525,7 @@ class BootMenu extends FOGBase
 		else
 		{
 			$TaskType = new TaskType($Task->get('typeID'));
-			$imagingTasks = array(1,2,8,15,16,17);
+			$imagingTasks = array(1,2,8,15,16,17,24);
 			$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $this->Host->get('id'))));
 			if ($LA)
 				$Location = new Location($LA->get('locationID'));
@@ -782,7 +782,7 @@ class BootMenu extends FOGBase
 			foreach($Menus AS $Menu)
 			{
 				if (in_array($Menu->get('regMenu'),$ArrayOfStuff))
-					$IPXE['menuitem'.$Menu->get('id')] = $this->menuItem($Menu, $desc);
+					$Send['item-'.$Menu->get('name')] = $this->menuItem($Menu, $desc);
 			}
 			$Send['default'] = array(
 				"$this->defaultChoice",
@@ -790,7 +790,7 @@ class BootMenu extends FOGBase
 			foreach($Menus AS $Menu)
 			{
 				if (in_array($Menu->get('regMenu'),$ArrayOfStuff))
-					$Send[$Menu->get('name')] = $Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
+					$Send['choice-'.$Menu->get('name')] = $Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
 			}
 			$Send['bootme'] = array(
 				":bootme",
