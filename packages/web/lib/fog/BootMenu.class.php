@@ -525,7 +525,7 @@ class BootMenu extends FOGBase
 		else
 		{
 			$TaskType = new TaskType($Task->get('typeID'));
-			$imagingTasks = array(1,2,8,15,16,17);
+			$imagingTasks = array(1,2,8,15,16,17,24);
 			$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $this->Host->get('id'))));
 			if ($LA)
 				$Location = new Location($LA->get('locationID'));
