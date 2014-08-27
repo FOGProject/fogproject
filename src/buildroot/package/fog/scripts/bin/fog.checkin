@@ -1,11 +1,5 @@
 #!/bin/sh
 . /usr/share/fog/lib/funcs.sh
-
-
-
-
-
-
 RUN_CHKDSK="";
 HOSTNAME_EARLY="0";
 OS_ID_WIN7="5";
@@ -111,7 +105,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 	dots "Checking In";
 	while [ "$blGo" == "0" ]; do
 		if [ "$capone" != "1" ]; then
-			if [ "$mc" != "yes" ]; then
+			if [ "$mc" != "yes" -o "$mc" != "bt" ]; then
 				queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
 				blPass=`echo $queueinfo|grep "##"`;
 				waittime=0;
