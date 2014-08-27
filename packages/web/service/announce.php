@@ -1,36 +1,21 @@
-<?php
+n<?php
 require('../commons/base.inc.php');
- /*************************
- ** Configuration start **
- *************************/
-//Peer announce interval (Seconds)
-define('__INTERVAL', 1800);
-//Time out if peer is this late to re-announce (Seconds)
-define('__TIMEOUT', 120);
-//Minimum announce interval (Seconds)
-//Most clients obey this, but not all
-define('__INTERVAL_MIN', 60);
-// By default, never encode more than this number of peers in a single request
-define('__MAX_PPR', 20);
- /***********************
- ** Configuration end **
- ***********************/
 //Use the correct content-type
 header("Content-type: Text/Plain");
 //Inputs that are needed, do not continue without these
-valdata('peer_id', true);
-valdata('port');
-valdata('info_hash', true);
+$FOGCore->valdata('peer_id', true);
+$FOGCore->valdata('port');
+$FOGCore->valdata('info_hash', true);
 //Make sure we have something to use as a key
 !$_REQUEST['key'] ? $_REQUEST['key'] : '';
 $downloaded = $_REQUEST['downloaded'] ? intval($_REQUEST['downloaded']) : 0;
 $uploaded = $_REQUEST['uploaded'] ? intval($_REQUEST['uploaded']) : 0;
 $left = $_REQUEST['left'] ? intval($_REQUEST['left']) : 0;
 //Validate key as well
-valdata('key');
+$FOGCore->valdata('key');
 //Do we have a valid client port?
 if (!ctype_digit($_REQUEST['port']) || $_REQUEST['port'] < 1 || $_REQUEST['port'] > 65535)
-	die(track('Invalid client port'));
+	$FOGCore->track('Invalid client port'));
 //Hack to get comatibility with trackon
 if ($_REQUEST['port'] == 999 && substr($_REQUEST['peer_id'], 0, 10) == '-TO0001-XX')
 	die("d8:completei0e10:incompletei0e8:intervali600e12:min intervali60e5:peersld2:ip12:72.14.194.184:port3:999ed2:ip11:72.14.194.14:port3:999ed2:ip12:72.14.194.654:port3:999eee");
@@ -98,13 +83,13 @@ if ($_REQUEST['event'] && $_REQUEST['event'] === 'stopped')
 {
 	$PeerTorrent->set('stopped',1)->save();
 	//The RFC says its OK to return an empty string when stopping a torrent however some clients will whine about it so we return an empty dictionary
-	die(track(array(),0,0));
+	$FOGCore->track(array(),0,0));
 }
 
-$numwant = __MAX_PPR; //Can be modified by client
+$numwant = $FOGCore->get('FOG_TORRENT_PPR'); //Can be modified by client
 
 //Set number of peers to return
-if ($_REQUEST['numwant'] && ctype_digit($_REQUEST['numwant']) && $_REQUEST['numwant'] <= __MAX_PPR && $_REQUEST['numwant'] >= 0)
+if ($_REQUEST['numwant'] && ctype_digit($_REQUEST['numwant']) && $_REQUEST['numwant'] <= $FOGCore->getSetting('FOG_TORRENT_PPR') && $_REQUEST['numwant'] >= 0)
 	$numwant = (int)$_REQUEST['numwant'];
 
 foreach($FOGCore->getClass('PeerTorrentManager')->find() AS $PeerTorrentNew)
@@ -121,15 +106,12 @@ $leechers = 0;
 foreach($FOGCore->getClass('PeerTorrentManager')->find() AS $PeerTorrentNew)
 {
 	$Peer = new Peer($PeerTorrentNew->get('peerID'));
-	$interval = new DateTime('+'.__INTERVAL+__TIMEOUT.' seconds',new DateTimeZone('GMT'));
+	$interval = new DateTime('+'.$FOGCore->getSetting('FOG_TORRENT_INTERVAL') + $FOGCore->getSetting('FOG_TORRENT_TIMEOUT').' seconds',new DateTimeZone('GMT'));
 	if ($PeerTorrentNew->get('torrentID') == $Torrent->get('id') && !$PeerTorrentNew->get('stopped') && strtotime($PeerTorrentNew->get('lastUpdated')) <= strtotime($interval->format('Y-m-d H:i:s')))
 		($PeerTorrentNew->get('left') > 0 ? $leechers++ : ($PeerTorrentNew->get('left') == 0 ? $seeders++ : null));
 }
-die(track($reply, $seeders, $leechers));
-//Bencoding function, returns a bencoded dictionary
-//You may go ahead and enter custom keys in the dictionary in
-//this function if you'd like.
-function track($list, $c=0, $i=0) {
+$FOGCore->track($reply, $seeders, $leechers));
+/*function track($list, $c=0, $i=0) {
 	global $FOGCore;
 	if (is_string($list)) { //Did we get a string? Return an error to the client
 		return 'd14:failure reason'.strlen($list).':'.$list.'e';
@@ -146,9 +128,9 @@ function track($list, $c=0, $i=0) {
 	//Add some other paramters in the dictionary and merge with peer list
 	$r = 'd8:intervali'.__INTERVAL.'e12:min intervali'.__INTERVAL_MIN.'e8:completei'.$c.'e10:incompletei'.$i.'e5:peersl'.$p.'ee';
 	return $r;
-}
+}*/
 //Do some input validation
-function valdata($g, $fixed_size=false) {
+/*function valdata($g, $fixed_size=false) {
 	if (!isset($_REQUEST[$g])) {
 		die(track('Invalid request, missing data'));
 	}
@@ -161,4 +143,4 @@ function valdata($g, $fixed_size=false) {
 	if (strlen($_REQUEST[$g]) > 80) { //128 chars should really be enough
 		die(track('Request too long'));
 	}
-}
+}*/
