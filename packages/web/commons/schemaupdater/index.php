@@ -1575,6 +1575,21 @@ $databaseSchema[] = array(
 	  UNIQUE KEY `hash` (`hash`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
 );
+// 124
+$databaseSchema[] = array(
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_TORRENT_INTERVAL','This setting defines the interval between updates for the tracker. This value should be numeric and is defaulted to 1800 seconds.  The value here is in seconds as well.','1800','FOG Torrent')",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_TORRENT_TIMEOUT','This setting defines the grace period between update interval and the client in case something went wrong. Default value is 120.  Value is in seconds.','120','FOG Torrent')",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_TORRENT_INTERVAL_MIN','This setting defines the minimum interval value.  If FOG_TORRENT_INTERVAL is less than this number, it will default to this value for the interval plus the timeout. Default value is 60 seconds.  Again, this is in seconds.','60','FOG Torrent')",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_TORRENT_PPR','This setting defines the maximum number of hosts to encode.  Default value is 20.','20','FOG Torrent')",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_TORRENTDIR','This setting defines the location for the torrents to transfer over to the client for torrent cast.','/opt/fog/torrents/','FOG Torrent')",
+    "INSERT INTO `" . DATABASE_NAME . "`.`taskTypes` (`ttID`, `ttName`, `ttDescription`, `ttIcon`, `ttKernel`, `ttKernelArgs`, `ttType`, `ttIsAdvanced`, `ttIsAccess`) VALUES
+	(24, 'Torrent-Cast', 'This task will run a download task that will be used to download the image from the peer(s).', 'torrent.png', '', 'mc=bt', 'fog', '1', 'both')",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
