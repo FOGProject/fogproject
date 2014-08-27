@@ -516,24 +516,17 @@ class FOGCore extends FOGBase
 	*/
 	public function track($list, $c = 0, $i = 0)
 	{
-		try
+		if (is_string($list))
+			return 'd14:failure reason'.strlen($list).':'.$list.'e';
+		$p = '';
+		foreach((array)$list AS $d)
 		{
-			if (is_string($list))
-				throw new Exception('d14:failure reason'.strlen($list).':'.$list.'e');
-			$p = '';
-			foreach($list AS $d)
-			{
-				$peer_id = '';
-				if (!$_REQUEST['no_peer_id'])
-					$peer_id = '7:peer id'.strlen($this->hex2bin($d[2])).':'.$this->hex2bin($d[2]);
-				$p .= 'd2:ip'.strlen($d[0]).':'.$d[0].$peer_id.'4:porti'.$d[1].'ee';
-			}
-			throw new Exception('d8:intervali'.$FOGCore->getSetting('FOG_TORRENT_INTERVAL').'e12:min intervali'.$FOGCore->getSetting('FOG_TORRENT_INTERVAL_MIN').'e8:completei'.$c.'e10:incompletei'.$i.'e5:peersl'.$p.'ee');
+			$peer_id = '';
+			if (!$_REQUEST['no_peer_id'])
+				$peer_id = '7:peer id'.strlen($this->hex2bin($d[2])).':'.$this->hex2bin($d[2]);
+			$p .= 'd2:ip'.strlen($d[0]).':'.$d[0].$peer_id.'4:porti'.$d[1].'ee';
 		}
-		catch (Exception $e)
-		{
-			print $e->getMessage();
-		}
+		return 'd8:intervali'.$this->getSetting('FOG_TORRENT_INTERVAL').'e12:min intervali'.$this->getSetting('FOG_TORRENT_INTERVAL_MIN').'e8:completei'.$c.'e10:incompletei'.$i.'e5:peersl'.$p.'ee';
 	}
 	/**
 	* valdata($g,$fixed_size=false)
@@ -546,12 +539,12 @@ class FOGCore extends FOGBase
 	public function valdata($g,$fixed_size=false)
 	{
 		if (!$_REQUEST[$g])
-			$this->track('Invalid request, missing data');
+			die($this->track('Invalid request, missing data'));
 		if (!is_string($_REQUEST[$g]))
-			$this->track('Invalid request, unkown data type');
+			die($this->track('Invalid request, unkown data type'));
 		if ($fixed_size && strlen($_REQUEST[$g]) != 20)
-			$this->track('Invalid request, length on fixed argument not correct');
+			die($this->track('Invalid request, length on fixed argument not correct'));
 		if (strlen($_REQUEST[$g]) > 80)
-			$this->track('Request too long');
+			die($this->track('Request too long'));
 	}
 }
