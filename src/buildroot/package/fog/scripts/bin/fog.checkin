@@ -65,17 +65,15 @@ if [ "$type" == "up" ]; then
 	echo "Done";
 	debugPause;
 elif [ "$type" == "down" ] && [ "$mc" == "bt" ]; then
-	queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
+	queueinfo=`wget -q -O - "http://${web}service/mc_checkin.php?mac=$mac&type=$type" 2>/dev/null`;
 	blPass=`echo $queueinfo|grep "##"`;
 
 	waittime=0;
 	while [ ! -n "$blPass" ]; do
 		echo -n "		* $queueinfo (";
-
-		sec2String $waittime;
+		sec2String $waittime
 		echo ")"
-
-		queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
+		queueinfo=`wget -q -O - "http://${web}service/mc_checkin.php?mac=$mac&type=$type" 2>/dev/null`;
 		blPass=`echo $queueinfo | grep "##"`;
 		sleep 5;
 		waittime=$(expr $waittime "+" 5);
@@ -105,7 +103,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 	dots "Checking In";
 	while [ "$blGo" == "0" ]; do
 		if [ "$capone" != "1" ]; then
-			if [ "$mc" != "yes" -o "$mc" != "bt" ]; then
+			if [ "$mc" != "yes" ]; then
 				queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
 				blPass=`echo $queueinfo|grep "##"`;
 				waittime=0;
