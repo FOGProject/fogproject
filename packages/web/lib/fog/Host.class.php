@@ -716,7 +716,7 @@ class Host extends FOGController
 			// TaskType: Variables
 			$TaskType = new TaskType($taskTypeID);
 			// Imaging types.
-			$imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17)) ? true : false;
+			$imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17,24)) ? true : false;
 			$isUpload = $TaskType->isUpload();
 			// Image: Variables
 			$Image = $this->getImage();
