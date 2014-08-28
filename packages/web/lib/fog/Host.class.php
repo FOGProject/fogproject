@@ -977,11 +977,10 @@ class Host extends FOGController
 					));
 					if ($SnapinJob->save())
 					{
-						foreach ($this->get('snapins') AS $SA)
+						foreach ($this->get('snapins') AS $Snapin)
 						{
-							if ($SA && $SA->isValid())
+							if ($SnapinInHost && $SnapinInHost->isValid())
 							{
-								$Snapin = new Snapin($SA->get('snapinID'));
 								$SnapinTask = new SnapinTask(array(
 									'jobID' => $SnapinJob->get('id'),
 									'stateID' => -1,
