@@ -39,7 +39,7 @@ try
 			$MultiSess->set('stateID',1);
 	}
 	// Save the info.
-	if ($Task->save() && $MultiSess->save())
+	if ($Task->save() && ($Task->get('typeID') == 8 ? $MultiSess->save() : true))
 	{
 		$il = new ImagingLog(array(
 			'hostID' => $Host->get('id'),
