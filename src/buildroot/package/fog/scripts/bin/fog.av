@@ -32,7 +32,7 @@ if [ -n "$hd" ]; then
 		cd /usr/share/clamav/;
 		echo "Done";
 		dots "Updating ClamAV";
-		wget -r -nd --no-parent -l 1 "http://${web}av/clamav/" >/dev/null 2>&1;
+		wget -r -nd --no-parent -l 1 "http://${web}/av/clamav/" >/dev/null 2>&1;
 		echo "Done";
 		dots "Creating working directory";
 		mkdir /ntfs/fog >/dev/null 2>&1;
