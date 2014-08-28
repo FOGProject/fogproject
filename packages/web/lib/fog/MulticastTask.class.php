@@ -87,7 +87,7 @@ class MulticastTask extends FOGBase
 								$strSys=rtrim($this->getImagePath(),'/').'/sys.img.*';
 						}
 					}
-					sort($filelist);
+					natsort($filelist);
 					closedir($handle);
 				}
 			}
@@ -118,7 +118,7 @@ class MulticastTask extends FOGBase
 								$filelist[] = $file;
 						}
 					}
-					sort($filelist);
+					natsort($filelist);
 					closedir($handle);
 				}
 				foreach ($filelist AS $file)
@@ -149,7 +149,7 @@ class MulticastTask extends FOGBase
 								$filelist[] = $file;
 						}
 					}
-					sort($filelist);
+					natsort($filelist);
 					closedir($handle);
 				}
 				$cmd = '';
@@ -174,7 +174,7 @@ class MulticastTask extends FOGBase
 						if ($file != '.' && $file != '..')
 								$filelist[] = $file;
 					}
-					sort($filelist);
+					natsort($filelist);
 					closedir($handle);
 				}
 				$cmd = '';
