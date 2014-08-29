@@ -84,8 +84,9 @@ configureNFS()
 {
 	echo -n "  * Setting up and starting NFS Server..."; 
 	
-	echo "/images                        *(ro,sync,no_wdelay,insecure_locks,no_root_squash,insecure,fsid=1)
-/images/dev                    *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=2)" > "${nfsconfig}";
+	echo "${storageLocation}                        *(ro,sync,no_wdelay,insecure_locks,no_root_squash,insecure,fsid=1)
+${storageLocation}/dev                    *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=2)
+/opt/fog/clamav							  *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=3)" > "${nfsconfig}";
 	
 	sysv-rc-conf nfs-kernel-server on >/dev/null 2>&1;
 	/etc/init.d/nfs-kernel-server stop >/dev/null 2>&1;
@@ -593,22 +594,14 @@ confirmPackageInstallation()
 setupFreshClam()
 {
 	echo  -n "  * Configuring Fresh Clam...";
-
-	if [ ! -d "${freshwebroot}" ]
-	then
-		mkdir "${freshwebroot}"
-		ln -s "${freshdb}" "${freshwebroot}"
-		chown -R ${apacheuser} "${freshwebroot}"
+	if [ ! -d "/opt/fog/clamav" ]; then
+		cp -r ../packages/clamav /opt/fog/
+		chmod -R 777 /opt/fog/clamav
 	fi
-
-	sysv-rc-conf clamav-freshclam on >/dev/null 2>&1;
-	/etc/init.d/clamav-freshclam stop >/dev/null 2>&1;
-	/etc/init.d/clamav-freshclam start >/dev/null 2>&1;
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;	
-	else
+	if [ -d "/opt/fog/clamav" ]; then
 		echo "OK";
+	else
+		echo "Failed!";
+		exit 1;
 	fi
 }

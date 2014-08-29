@@ -18,8 +18,8 @@
 # Arch Config Settings
 
 # pacman packages to install 
-#packages="apache php-apache php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc htmldoc perl perl-crypt-passwdmd5 lftp clamav";
-packages="apache php-fpm php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc perl perl-crypt-passwdmd5 lftp clamav";
+#packages="apache php-apache php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc htmldoc perl perl-crypt-passwdmd5 lftp";
+packages="apache php-fpm php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc perl perl-crypt-passwdmd5 lftp";
 storageNodePackages="apache php-fpm php mariadb nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp";
 packageinstaller="pacman -Sy --noconfirm";
 langPackages="iso-codes";
@@ -60,12 +60,3 @@ nfsconfig="/etc/exports";
 
 # where do snapins go?
 snapindir="/opt/fog/snapins";
-
-#where is freshclam's config file
-freshdb="/var/lib/clamav/";
-#freshdb="/var/clamav/";
-freshwebroot="${webdirdest}/av/";
-freshconf="/etc/clamav/freshclam.conf";
-#freshcron="/etc/sysconfig/freshclam"
-freshcron="/usr/bin/freshclam"
-

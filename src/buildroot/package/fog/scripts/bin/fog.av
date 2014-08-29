@@ -1,6 +1,7 @@
 #!/bin/sh
 . /usr/share/fog/lib/funcs.sh;
 . /bin/fog.donate;
+. /bin/fog.checkin;
 clearScreen;
 displayBanner;
 hd="";
@@ -18,22 +19,25 @@ if [ -n "$hd" ]; then
 		done
 		part=${hd}${win7partcnt};
 	fi
+	dots "Updating clamav";
+	freshclam &>/dev/null;
+	if [ "$?" == "0" ]; then
+		echo "Done";
+	else
+		echo "Failed";
+	fi
 	dots "Using disk device";
 	echo $hd;
+	debugPause;
 	dots "Scanning partition";
 	echo $part;
+	debugPause;
 	dots "Mounting device";
 	mkdir /ntfs;
 	mount.ntfs-3g $part /ntfs;
 	if [ "$?" = "0" ]; then
 		echo "Done";
-		dots "Creating ram disk";
-		mount -t tmpfs none /usr/share/clamav/ -o size=100m;
-		cd /usr/share/clamav/;
-		echo "Done";
-		dots "Updating ClamAV";
-		wget -r -nd --no-parent -l 1 "http://${web}/av/clamav/" >/dev/null 2>&1;
-		echo "Done";
+		debugPause;
 		dots "Creating working directory";
 		mkdir /ntfs/fog >/dev/null 2>&1;
 		mkdir /ntfs/fog/tmp >/dev/null 2>&1;
@@ -42,6 +46,7 @@ if [ -n "$hd" ]; then
 		rm /ntfs/fog/log/log.txt >/dev/null 2>&1;
 		touch /ntfs/fog/log/log.txt 2>&1;
 		echo "Done";
+		debugPause;
 		action="";
 		modename="";
 		if [ "$avmode" = "s" ]; then
@@ -53,12 +58,15 @@ if [ -n "$hd" ]; then
 		else
 			handleError "Unable to determine scanning mode!";
 		fi
+		debugPause;
 		dots "Clam AV Mode";
 		echo ${modename};
+		debugPause;
 		echo "";
 		dots "Starting AV scan";
-		echo -n "   ";
+		echo -n "    ";
 		clamscan -V;
+		debugPause;
 		sleep 4;
 		cd /ntfs;
 		echo "";
@@ -73,14 +81,15 @@ if [ -n "$hd" ]; then
 				echo "   Clam AV Failed...";
 				echo "   	This may be due to a problem with the virus database files.";
 				echo "   	Trying to download virus database files from the web...";
-				echo; 
-				rm -f /usr/share/clamav/*;
-				freshclam;
+				echo;
+				debugPause;
+				umount /opt/fog/clamav;
 				clamscan -r --tempdir=/ntfs/fog/tmp $action --log=/ntfs/fog/log/log.txt --no-summary --exclude-dir=/ntfs/fog/*;
 			fi
 		fi
 		echo "";
 		echo "   Scan complete, processing log file...";
+		debugPause;
 		output=`cat /ntfs/fog/log/log.txt | grep FOUND`;
 		IFS="
 "
@@ -95,6 +104,7 @@ if [ -n "$hd" ]; then
 			echo "";
 			cat /dev/null > /tmp/avstat;
 		done
+		debugPause;
 	else
 		handleError "Unable to mount $part";
 	fi	
@@ -114,7 +124,7 @@ if [ -n "$hd" ]; then
 	done  
 	echo "";
 	echo " * Database updated!";
-	echo "";	
+	echo "";
 	echo " Task Complete";
 else
 	echo "hard disk not found!";
