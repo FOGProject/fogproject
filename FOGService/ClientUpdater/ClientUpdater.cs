@@ -42,7 +42,7 @@ namespace FOG
 							
 							LogHandler.log(getName(), "Remote file is newer, attempting to update");
 							
-							if(generateUpdateFile(updateFileResponse));
+							if(generateUpdateFile(updateFileResponse, updateFile))
 								applyUpdateFile(updateFile);
 						} else {
 							LogHandler.log(getName(), "Remote file is the same as this local copy");
@@ -56,7 +56,7 @@ namespace FOG
 		}
 		
 		//Generate the update file from the parsed response
-		private Boolean generateUpdateFile(Response updateFileResponse) {
+		private Boolean generateUpdateFile(Response updateFileResponse, String updateFile) {
 			//Download the new file
 			if(!updateFileResponse.getField("#updatefile").Equals("")) {
 				
@@ -100,7 +100,7 @@ namespace FOG
 					}
 				} catch (Exception ex) {
 					LogHandler.log(getName(), "Unable to apply update file");
-					LogHandlerlog(getName(), "ERROR: " + ex.Message);
+					LogHandler.log(getName(), "ERROR: " + ex.Message);
 				}
 			} else {
 				LogHandler.log(getName(), "Unable to locate downloaded update file");
