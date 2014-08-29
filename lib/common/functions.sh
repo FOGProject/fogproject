@@ -373,6 +373,7 @@ snmysqlpass=\"$snmysqlpass\";
 snmysqlhost=\"$snmysqlhost\";
 installlang=\"$installlang\";
 donate=\"$donate\";
+storageLocation=\"$storageLocation\";
 fogupdateloaded=\"1\"" > "$fogprogramdir/.fogsettings";
 
 }

@@ -1,0 +1,11 @@
+prefix=/opt/fog/clamav
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib64
+includedir=${prefix}/include
+
+Name: libclamav
+Description: A GPL virus scanner
+Version: 0.98.4
+Libs: -L${libdir} -lclamav  -lz
+Cflags: -I${includedir} -g -O2 -fno-strict-aliasing -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
+

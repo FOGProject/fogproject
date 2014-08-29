@@ -1,0 +1,690 @@
+.TH "clamd.conf" "5" "December 4, 2013" "ClamAV 0.98.4" "Clam AntiVirus"
+.SH "NAME"
+.LP 
+\fBclamd.conf\fR \- Configuration file for Clam AntiVirus Daemon
+.SH "DESCRIPTION"
+.LP 
+clamd.conf configures the Clam AntiVirus daemon, clamd(8).
+.SH "FILE FORMAT"
+The file consists of comments and options with arguments. Each line which starts with a hash (\fB#\fR) symbol is ignored by the parser. Options and arguments are case sensitive and of the form \fBOption Argument\fR. The arguments are of the following types:
+.TP 
+\fBBOOL\fR
+Boolean value (yes/no or true/false or 1/0).
+.TP 
+\fBSTRING\fR
+String without blank characters.
+.TP 
+\fBSIZE\fR
+Size in bytes. You can use 'M' or 'm' modifiers for megabytes and 'K' or 'k' for kilobytes. To specify the size in bytes just don't use modifiers.
+.TP 
+\fBNUMBER\fR
+Unsigned integer.
+.SH "DIRECTIVES"
+.LP 
+When some option is not used (commented out or not included in the configuration file at all) clamd takes a default action.
+.TP 
+\fBExample\fR
+If this option is set clamd will not run.
+.TP 
+\fBLogFile STRING\fR
+Save all reports to a log file.
+.br 
+Default: disabled
+.TP 
+\fBLogFileUnlock BOOL\fR
+By default the log file is locked for writing and only a single daemon process can write to it. This option disables the lock.
+.br 
+Default: no
+.TP 
+\fBLogFileMaxSize SIZE\fR
+Maximum size of the log file.
+.br
+Value of 0 disables the limit.
+.br 
+Default: 1048576
+.TP 
+\fBLogTime BOOL\fR
+Log time for each message.
+.br 
+Default: no
+.TP 
+\fBLogClean BOOL\fR
+Log all clean files.
+.br
+Useful in debugging but drastically increases the log size.
+.br 
+Default: no
+.TP 
+\fBLogSyslog BOOL\fR
+Use the system logger (can work together with LogFile).
+.br 
+Default: no
+.TP 
+\fBLogFacility STRING\fR
+Type of syslog messages
+.br
+Please refer to 'man syslog' for facility names.
+.br 
+Default: LOG_LOCAL6
+.TP 
+\fBLogVerbose BOOL\fR
+Enable verbose logging.
+.br 
+Default: no
+.TP
+\fBLogRotate BOOL\fR
+Rotate log file. Requires LogFileMaxSize option set prior to this option.
+.br
+Default: no
+.TP 
+\fBExtendedDetectionInfo BOOL\fR
+Log additional information about the infected file, such as its size and hash, together with the virus name.
+.br 
+Default: no
+.TP 
+\fBPidFile STRING\fR
+Save the process identifier of a listening daemon (main thread) to a specified file.
+.br 
+Default: disabled
+.TP 
+\fBTemporaryDirectory STRING\fR
+This option allows you to change the default temporary directory.
+.br 
+Default: system specific (usually /tmp or /var/tmp).
+.TP 
+\fBDatabaseDirectory STRING\fR
+This option allows you to change the default database directory. If you enable it, please make sure it points to the same directory in both clamd and freshclam.
+.br
+Default: defined at configuration (/usr/local/share/clamav)
+.TP 
+\fBOfficialDatabaseOnly BOOL\fR
+Only load the official signatures published by the ClamAV project.
+.br 
+Default: no
+.TP 
+\fBLocalSocket STRING\fR
+Path to a local (Unix) socket the daemon will listen on.
+.br 
+Default: disabled
+.TP
+\fBLocalSocketGroup STRING\fR
+Sets the group ownership on the unix socket.
+.br
+Default: the primary group of the user running clamd
+.TP
+\fBLocalSocketMode STRING\fR
+Sets the permissions on the unix socket to the specified mode.
+.br
+Default: socket is world readable and writable
+.TP 
+\fBFixStaleSocket BOOL\fR
+Remove stale socket after unclean shutdown.
+.br 
+Default: yes
+.TP 
+\fBTCPSocket NUMBER\fR
+TCP port number the daemon will listen on.
+.br 
+Default: disabled
+.TP 
+\fBTCPAddr STRING\fR
+By default clamd binds to INADDR_ANY.
+.br
+This option allows you to restrict the TCP address and provide some degree of protection from the outside world. This option can be specified multiple times in order to listen on multiple IPs. IPv6 is now supported.
+.br 
+Default: disabled
+.TP 
+\fBMaxConnectionQueueLength NUMBER\fR
+Maximum length the queue of pending connections may grow to.
+.br 
+Default: 200
+.TP
+\fBStreamMaxLength SIZE\fR
+Close the STREAM session when the data size limit is exceeded.
+.br
+The value should match your MTA's limit for the maximum attachment size.
+.br
+Default: 25M
+.TP
+\fBStreamMinPort NUMBER\fR
+The STREAM command uses an FTP-like protocol.
+.br
+This option sets the lower boundary for the port range.
+.br
+Default: 1024
+.TP
+\fBStreamMaxPort NUMBER\fR
+This option sets the upper boundary for the port range.
+.br
+Default: 2048
+.TP 
+\fBMaxThreads NUMBER\fR
+Maximum number of threads running at the same time.
+.br 
+Default: 10
+.TP 
+\fBReadTimeout NUMBER\fR
+This option specifies the time (in seconds) after which clamd should
+timeout if a client doesn't provide any data.
+.br 
+Default: 120
+.TP
+\fBCommandReadTimeout NUMBER\fR
+This option specifies the time (in seconds) after which clamd should
+timeout if a client doesn't provide any initial command after connecting.
+Note: the timeout for subsequents commands, and/or data chunks is specified by
+ReadTimeout.
+.br
+Default: 5
+.TP
+\fBSendBufTimeout NUMBER\fR
+This option specifies how long to wait (in milliseconds) if the send buffer is full.
+Keep this value low to prevent clamd hanging.
+.br
+Default: 500
+.TP
+\fBMaxQueue NUMBER\fR
+Maximum number of queued items (including those being processed by MaxThreads threads).
+It is recommended to have this value at least twice MaxThreads if possible.
+.br
+\fBWARNING: you shouldn't increase this too much to avoid running out of file descriptors,
+the following condition should hold:
+MaxThreads*MaxRecursion + MaxQueue - MaxThreads + 6 < RLIMIT_NOFILE.\fR
+RLIMIT_NOFILE is the maximum number of open file descriptors (usually 1024), set
+by \fBulimit \-n\fR.
+.br
+Default: 100
+.TP 
+\fBIdleTimeout NUMBER\fR
+This option specifies how long (in seconds) the process should wait
+for a new job.
+.br 
+Default: 30
+.TP
+\fBExcludePath REGEX\fR
+Don't scan files and directories matching REGEX. This directive can be used multiple times.
+.br
+Default: disabled
+.TP 
+\fBMaxDirectoryRecursion NUMBER\fR
+Maximum depth directories are scanned at.
+.br 
+Default: 15
+.TP 
+\fBFollowDirectorySymlinks BOOL\fR
+Follow directory symlinks.
+.br 
+Default: no
+.TP 
+\fBCrossFilesystems BOOL\fR
+Scan files and directories on other filesystems.
+.br 
+Default: yes
+.TP 
+\fBFollowFileSymlinks BOOL\fR
+Follow regular file symlinks.
+.br 
+Default: no
+.TP 
+\fBSelfCheck NUMBER\fR
+This option specifies the time intervals (in seconds) in which clamd
+should perform a database check.
+.br 
+Default: 600
+.TP 
+\fBVirusEvent COMMAND\fR
+Execute a command when a virus is found. In the command string %v will be
+replaced with the virus name. Additionally, two environment variables will
+be defined: $CLAM_VIRUSEVENT_FILENAME and $CLAM_VIRUSEVENT_VIRUSNAME.
+\fR
+.br 
+Default: disabled
+.TP 
+\fBExitOnOOM BOOL\fR
+Stop daemon when libclamav reports out of memory condition.
+.br 
+Default: no
+.TP 
+\fBAllowAllMatchScan BOOL\fR
+Permit use of the ALLMATCHSCAN command.
+.br
+Default: yes
+.TP 
+\fBForeground BOOL\fR
+Don't fork into background.
+.br 
+Default: no
+.TP 
+\fBDebug BOOL\fR
+Enable debug messages from libclamav.
+.br
+Default: no
+.TP 
+\fBLeaveTemporaryFiles BOOL\fR
+Do not remove temporary files (for debugging purpose).
+.br 
+Default: no
+.TP
+\fBUser STRING\fR
+Run the daemon as a specified user (the process must be started by root).
+.br
+Default: disabled
+.TP
+\fBAllowSupplementaryGroups BOOL\fR
+Initialize a supplementary group access (the process must be started by root).
+.br
+Default: no
+.TP
+\fBBytecode BOOL\fR
+With this option enabled ClamAV will load bytecode from the database. It is highly recommended you keep this option turned on, otherwise you may miss detections for many new viruses.
+.br
+Default: yes
+.TP 
+\fBBytecodeSecurity STRING\fR
+Set bytecode security level. 
+.RS
+.PD 0
+.HP 4
+Possible values:
+.br
+\fBTrustSigned\fR \- trust bytecode loaded from signed .c[lv]d files and insert runtime safety checks for bytecode loaded from other sources, 
+.br
+\fBParanoid\fR \- don't trust any bytecode, insert runtime checks for all. 
+.RE
+.RS
+Recommended: \fBTrustSigned\fR, because bytecode in .cvd files already has these checks.
+.br 
+Default: TrustSigned
+.PD 1
+.RE
+.TP 
+\fBBytecodeTimeout NUMBER\fR
+Set bytecode timeout in milliseconds.
+.br
+Default: 5000
+.TP 
+\fBBytecodeUnsigned BOOL\fR
+Allow loading bytecode from outside digitally signed .c[lv]d files.
+.br
+Default: no
+.TP
+\fBBytecodeMode STRING\fR
+Set bytecode execution mode.
+.RS
+.PD 0
+.HP 4
+Possible values:
+.br
+\fBAuto\fR \- automatically choose JIT if possible, fallback to interpreter
+.br
+\fBForceJIT\fR \- always choose JIT, fail if not possible
+.br
+\fBForceIntepreter\fR \- always choose interpreter
+.br
+\fBTest\fR \- run with both JIT and interpreter and compare results. Make all failures fatal.
+.RE
+.RS
+Default: Auto
+.PD 1
+.RE
+.TP 
+\fBDetectPUA BOOL\fR
+Detect Possibly Unwanted Applications.
+.br 
+Default: No
+.TP
+\fBExcludePUA CATEGORY\fR
+Exclude a specific PUA category. This directive can be used multiple times. See http://www.clamav.net/support/pua for the complete list of PUA categories.
+.br
+Default: disabled
+.TP
+\fBIncludePUA CATEGORY\fR
+Only include a specific PUA category. This directive can be used multiple times. See http://www.clamav.net/support/pua for the complete list of PUA categories.
+.br
+Default: disabled
+.TP 
+\fBAlgorithmicDetection BOOL\fR
+In some cases (eg. complex malware, exploits in graphic files, and others), ClamAV uses special algorithms to provide accurate detection. This option controls the algorithmic detection.
+.br 
+Default: yes
+.TP 
+\fBScanPE BOOL\fR
+PE stands for Portable Executable \- it's an executable file format used in all 32 and 64\-bit versions of Windows operating systems. This option allows ClamAV to perform a deeper analysis of executable files and it's also required for decompression of popular executable packers such as UPX.  
+.br
+If you turn off this option, the original files will still be scanned, but without additional processing.
+.br 
+Default: yes
+.TP 
+\fBScanELF BOOL\fR
+Executable and Linking Format is a standard format for UN*X executables. This option allows you to control the scanning of ELF files. 
+.br
+If you turn off this option, the original files will still be scanned, but without additional processing.
+.br 
+Default: yes
+.TP 
+\fBDetectBrokenExecutables BOOL\fR
+With this option clamd will try to detect broken executables (both PE and ELF) and mark them as Broken.Executable.
+.br 
+Default: no
+.TP 
+\fBScanMail BOOL\fR
+Enable scanning of mail files. 
+.br
+If you turn off this option, the original files will still be scanned, but without parsing individual messages/attachments.
+.br 
+Default: yes
+.TP
+\fBScanPartialMessages BOOL\fR
+Scan RFC1341 messages split over many emails. You will need to periodically clean up $TemporaryDirectory/clamav-partial directory. \fBWARNING: This option may open your system to a DoS attack. Never use it on loaded servers.\fR
+.br
+Default: no
+.TP
+\fBMailMaxRecursion (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted. See \fBMaxRecursion\fR.
+.TP 
+\fBPhishingSignatures BOOL\fR
+With this option enabled ClamAV will try to detect phishing attempts by using signatures.
+.br 
+Default: yes
+.TP
+\fBPhishingScanURLs BOOL\fR
+Scan URLs found in mails for phishing attempts using heuristics. This will classify "Possibly Unwanted" phishing emails as Phishing.Heuristics.Email.*
+.br
+Default: yes
+.TP
+\fBPhishingAlwaysBlockCloak BOOL\fR
+Always block cloaked URLs, even if URL isn't in database. This can lead to false positives.
+.br
+Default: no
+.TP
+\fBPhishingAlwaysBlockSSLMismatch BOOL\fR
+Always block SSL mismatches in URLs, even if the URL isn't in the database. This can lead to false positives.
+.br
+Default: no
+.TP
+\fBPartitionIntersection BOOL\fR
+Detect partition intersections in raw disk images using heuristics.
+.br
+Default: no
+.TP
+\fBHeuristicScanPrecedence BOOL\fR
+Allow heuristic match to take precedence. When enabled, if a heuristic scan (such as phishingScan) detects a possible virus/phishing it will stop scanning immediately. Recommended, saves CPU scan-time. When disabled, virus/phishing detected by heuristic scans will be reported only at the end of a scan. If an archive contains both a heuristically detected virus/phishing, and a real malware, the real malware will be reported. Keep this disabled if you intend to handle "*.Heuristics.*" viruses  differently from "real" malware. If a non-heuristically-detected virus (signature-based) is found first, the scan is interrupted immediately, regardless of this config option.
+.br
+Default: no
+.TP
+\fBStructuredDataDetection BOOL\fR
+Enable the DLP module.
+.br 
+Default: no
+.TP
+\fBStructuredMinCreditCardCount NUMBER\fR
+This option sets the lowest number of Credit Card numbers found in a file to generate a detect.
+.br 
+Default: 3
+.TP
+\fBStructuredMinSSNCount NUMBER\fR
+This option sets the lowest number of Social Security Numbers found in a file to generate a detect.
+.br 
+Default: 3
+.TP
+\fBStructuredSSNFormatNormal BOOL\fR
+With this option enabled the DLP module will search for valid SSNs formatted as xxx-yy-zzzz.
+.br 
+Default: Yes
+.TP
+\fBStructuredSSNFormatStripped BOOL\fR
+With this option enabled the DLP module will search for valid SSNs formatted as xxxyyzzzz.
+.br 
+Default: No
+.TP
+\fBScanHTML BOOL\fR
+Perform HTML/JavaScript/ScriptEncoder normalisation and decryption.
+.br
+If you turn off this option, the original files will still be scanned, but without additional processing.
+.br
+Default: yes
+.TP
+\fBScanOLE2 BOOL\fR
+This option enables scanning of OLE2 files, such as Microsoft Office documents and .msi files. 
+.br
+If you turn off this option, the original files will still be scanned, but without additional processing.
+.br 
+Default: yes
+.TP 
+\fBOLE2BlockMacros BOOL\fR
+With this option enabled OLE2 files with VBA macros, which were not detected by signatures will be marked as "Heuristics.OLE2.ContainsMacros".
+.br 
+Default: no
+.TP 
+\fBScanPDF BOOL\fR
+This option enables scanning within PDF files.
+.br
+If you turn off this option, the original files will still be scanned, but without additional processing.
+.br 
+Default: yes
+.TP 
+\fBScanSWF BOOL\fR
+This option enables scanning within SWF files.
+.br
+If you turn off this option, the original files will still be scanned, but without decoding and additional processing.
+.br 
+Default: yes
+.TP
+\fBScanArchive BOOL\fR
+Scan within archives and compressed files.
+.br
+If you turn off this option, the original files will still be scanned, but without unpacking and additional processing.
+.br 
+Default: yes
+.TP
+\fBArchiveBlockEncrypted BOOL\fR
+Mark encrypted archives as viruses (Encrypted.Zip, Encrypted.RAR).
+.br
+Default: no
+.TP
+\fBForceToDisk\fR
+This option causes memory or nested map scans to dump the content to disk.
+.br
+If you turn on this option, more data is written to disk and is available when the leave-temps option is enabled at the cost of more disk writes.
+.br
+Default: no
+.TP 
+\fBArchiveMaxFileSize (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted. See \fBMaxFileSize\fR and \fBMaxScanSize\fR.
+.TP 
+\fBArchiveMaxRecursion (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted. See \fBMaxRecursion\fR.
+.TP 
+\fBArchiveMaxFiles (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted. See \fBMaxFiles\fR.
+.TP 
+\fBArchiveMaxCompressionRatio (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted.
+.TP 
+\fBArchiveBlockMax (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted.
+.TP 
+\fBArchiveLimitMemoryUsage (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted.
+.br 
+Default: no
+.TP 
+\fBMaxScanSize SIZE\fR
+Sets the maximum amount of data to be scanned for each input file. Archives and other containers are recursively extracted and scanned up to this value. The size of an archive plus the sum of the sizes of all files within archive count toward the scan size. For example, a 1M uncompressed archive containing a single 1M inner file counts as 2M toward the max scan size. \fBWarning: disabling this limit or setting it too high may result in severe damage to the system.\fR
+.br 
+Default: 100M
+.TP 
+\fBMaxFileSize SIZE\fR
+Files larger than this limit won't be scanned. Affects the input file itself as well as files contained inside it (when the input file is an archive, a document or some other kind of container). \fBWarning: disabling this limit or setting it too high may result in severe damage to the system.\fR
+.br 
+Default: 25M
+.TP 
+\fBMaxRecursion NUMBER\fR
+Nested archives are scanned recursively, e.g. if a Zip archive contains a RAR file, all files within it will also be scanned. This options specifies how deeply the process should be continued. \fBWarning: setting this limit too high may result in severe damage to the system.\fR
+.br 
+Default: 16
+.TP 
+\fBMaxFiles NUMBER\fR
+Number of files to be scanned within an archive, a document, or any other kind of container. \fBWarning: disabling this limit or setting it too high may result in severe damage to the system.\fR
+.br 
+Default: 10000
+.TP
+\fBMaxEmbeddedPE SIZE\fR
+This option sets the maximum size of a file to check for embedded PE.
+.br
+Files larger than this value will skip the additional analysis step.
+.br
+Negative values are not allowed.
+.br
+Default: 10M
+.TP
+\fBMaxHTMLNormalize SIZE\fR
+This option sets the maximum size of a HTML file to normalize.
+.br
+HTML files larger than this value will not be normalized or scanned.
+.br
+Negative values are not allowed.
+.br
+Default: 10M
+.TP
+\fBMaxHTMLNoTags SIZE\fR
+This option sets the maximum size of a normalized HTML file to scan.
+.br
+HTML files larger than this value after normalization will not be scanned.
+.br
+Negative values are not allowed.
+.br
+Default: 2M
+.TP
+\fBMaxScriptNormalize SIZE\fR
+This option sets the maximum size of a script file to normalize.
+.br
+Script content larger than this value will not be normalized or scanned.
+.br
+Negative values are not allowed.
+.br
+Default: 5M
+.TP
+\fBMaxZipTypeRcg SIZE\fR
+This option sets the maximum size of a ZIP file to reanalyze type recognition.
+.br
+ZIP files larger than this value will skip the step to potentially reanalyze as PE.
+.br
+Negative values are not allowed.
+.br
+WARNING: setting this limit too high may result in severe damage or impact performance.
+.br
+Default: 1M
+.TP 
+\fBMaxPartitions SIZE\fR
+This option sets the maximum number of partitions of a raw disk image to be scanned.
+.br
+Raw disk images with more partitions than this value will have up to the value partitions scanned.
+.br
+Negative values are not allowed.
+.br
+WARNING: setting this limit too high may result in severe damage or impact performance.
+.br
+Default: 50
+.TP 
+\fBMaxIconsPE SIZE\fR
+This option sets the maximum number of icons within a PE to be scanned.
+.br
+PE files with more icons than this value will have up to the value number icons scanned.
+.br
+Negative values are not allowed.
+.br
+WARNING: setting this limit too high may result in severe damage or impact performance.
+.br
+Default: 100
+.TP
+\fBClamukoScanOnAccess (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted. See \fBScanOnAccess\fR.
+.TP 
+\fBClamukoScannerCount (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted.
+.TP 
+\fBClamukoScanOnOpen (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted.
+.TP 
+\fBClamukoScanOnClose (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted.
+.TP 
+\fBClamukoScanOnExec (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted.
+.TP 
+\fBClamukoIncludePath (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted. See \fBOnAccessIncludePath\fR.
+.TP 
+\fBClamukoExcludePath (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted. See \fBOnAccessExcludePath\fR.
+.TP
+\fBClamukoExcludeUID (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted. See \fBOnAccessExcludeUID\fR.
+.TP 
+\fBClamukoMaxFileSize (OBSOLETE)\fR
+\fBWARNING:\fR This option is no longer accepted. See \fBOnAccessMaxFileSize\fR.
+.TP
+\fBScanOnAccess BOOL\fR
+This option enables on-access scanning (Linux only)
+.br
+Default: disabled
+.TP
+\fBOnAccessIncludePath STRING\fR
+This option specifies a directory (including all files and directories inside it), which should be scanned on access. This option can be used multiple times.
+.br
+Default: disabled
+.TP
+\fBOnAccessExcludePath STRING\fR
+This option allows excluding directories from on-access scanning. It can be used multiple times.
+.br
+Default: disabled
+.TP
+\fBOnAccessExcludeUID NUMBER\fR
+With this option you can whitelist specific UIDs. Processes with these UIDs will be able to access all files.
+.br
+This option can be used multiple times (one per line).
+.br
+Default: disabled
+.TP
+\fBOnAccessMaxFileSize SIZE\fR
+Files larger than this value will not be scanned in on access.
+.br
+Default: 5M
+.TP
+\fBDisableCertCheck BOOL\fR
+Disable authenticode certificate chain verification in PE files.
+.br
+Default: no
+.TP
+\fBStatsEnabled BOOL\fR
+Enable submission of statistical data
+.br
+Default: no
+.TP
+\fBStatsHostID STRING\fR
+HostID in the form of an UUID to use when submitting statistical information.
+.br
+Default: auto
+.TP
+\fBStatsPEDisabled BOOL\fR
+Disable submission of PE section statistical data.
+.br
+Default: no
+.TP
+\fBStatsTimeout NUMBER\fR
+Timeout in seconds to timeout communication with the stats server.
+.br
+Default: 10
+.SH "NOTES"
+.LP 
+All options expressing a size are limited to max 4GB. Values in excess will be resetted to the maximum.
+.SH "FILES"
+.LP 
+/opt/fog/clamav/etc/clamd.conf
+.SH "AUTHORS"
+.LP 
+Tomasz Kojm <tkojm@clamav.net>, Kevin Lin <klin@sourcefire.com>
+.SH "SEE ALSO"
+.LP 
+clamd(8), clamdscan(1), clamav-milter(8), freshclam(1), freshclam.conf(5)

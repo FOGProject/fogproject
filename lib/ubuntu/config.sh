@@ -21,7 +21,7 @@
 # Ubuntu Config Settings
 
 # apt-get packages to install
-packages="apache2 php5 php5-json php5-gd php5-cli php5-mysql php5-curl mysql-server mysql-client isc-dhcp-server tftpd-hpa tftp-hpa nfs-kernel-server vsftpd net-tools wget xinetd  sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 htmldoc lftp openssh-server php-gettext clamav-freshclam";
+packages="apache2 php5 php5-json php5-gd php5-cli php5-mysql php5-curl mysql-server mysql-client isc-dhcp-server tftpd-hpa tftp-hpa nfs-kernel-server vsftpd net-tools wget xinetd  sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 htmldoc lftp openssh-server php-gettext";
 storageNodePackages="apache2 php5 php5-json php5-cli php5-mysql php5-curl mysql-client nfs-kernel-server vsftpd net-tools wget xinetd sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 lftp php-gettext";
 langPackages="language-pack-it language-pack-en language-pack-es language-pack-zh-hans";
 dhcpname="isc-dhcp-server";
@@ -63,8 +63,3 @@ nfsconfig="/etc/exports";
 
 # where do snapins go?
 snapindir="/opt/fog/snapins";
-
-#where is freshclam's config file
-freshinit="/etc/init.d/clamav-freshclam";
-freshdb="/var/lib/clamav/";
-freshwebroot="${webdirdest}/av/";

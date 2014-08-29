@@ -851,7 +851,7 @@ restoreGRUB()
 
 debugPause()
 {
-	if [ "$mode" == "debug" ]; then
+	if [ "$mode" == "debug" -o "$debug" == "yes" ]; then
 		echo 'Press [Enter] key to continue.';
 		read -p "$*";
 	fi
