@@ -5,7 +5,7 @@
 
 
 # Comment or remove the line below.
-#Example
+Example
 
 # Path to the database directory.
 # WARNING: It must match clamd.conf's directive!
