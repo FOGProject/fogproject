@@ -1,0 +1,36 @@
+.TH "clamav\-milter" "8" "Feb 25, 2009" "ClamAV 0.98.4" "Clam AntiVirus"
+.SH "NAME"
+.LP
+clamav\-milter \- milter compatible mail scanner
+.SH "SYNOPSIS"
+.LP
+clamav\-milter [options]
+.SH "DESCRIPTION"
+.LP
+Clamav\-milter is a filter for \fBsendmail(1)\fR mail server.
+It uses a mail scanning engine built into \fBclamd(8)\fR.
+.LP
+Clamav\-milter can use load balancing and fault tolerant techniques to connect
+to more than one clamd(8) server and seamlessly hot\-swap to even the load
+between different machines and to keep scanning for viruses even when a server
+goes down.
+.SH "OPTIONS"
+.LP
+.TP
+\fB\-h, \-\-help\fR
+Output help information and exit.
+.TP 
+\fB\-V, \-\-version\fR
+Print the version number and exit.
+.TP 
+\fB\-c FILE, \-\-config\-file=FILE\fR
+Read configuration from FILE.
+.SH "FILES"
+.LP 
+/opt/fog/clamav/etc/clamav-milter.conf
+.SH "AUTHOR"
+.LP 
+aCaB <acab@clamav.net>
+.SH "SEE ALSO"
+.LP
+sendmail(8), clamav-milter.conf(5), clamd(8), clamd.conf(5)

@@ -81,8 +81,9 @@ configureNFS()
 {
 	echo -n "  * Setting up and starting NFS Server..."; 
 	
-	echo "/images *(ro,sync,no_wdelay,insecure_locks,no_root_squash,insecure,fsid=1,${nfsexportsopts})
-/images/dev *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=2,${nfsexportsopts})" > "$nfsconfig";
+	echo "${storageLocation}                        *(ro,sync,no_wdelay,insecure_locks,no_root_squash,insecure,fsid=1)
+${storageLocation}/dev                    *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=2)
+/opt/fog/clamav							  *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=3)" > "${nfsconfig}";
 	chkconfig rpcbind on;
 	service rpcbind restart >/dev/null 2>&1;
 	chkconfig ${nfsservice} on;
@@ -615,5 +616,14 @@ confirmPackageInstallation()
 setupFreshClam()
 {
 	echo  -n "  * Configuring Fresh Clam...";
-	echo "Skipped (See wiki for installation instructions)";
+	if [ ! -d "/opt/fog/clamav" ]; then
+		cp -r ../packages/clamav /opt/fog/
+		chmod -R 777 /opt/fog/clamav
+	fi
+	if [ -d "/opt/fog/clamav" ]; then
+		echo "OK";
+	else
+		echo "Failed!";
+		exit 1;
+	fi
 }

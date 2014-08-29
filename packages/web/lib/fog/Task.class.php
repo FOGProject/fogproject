@@ -30,6 +30,7 @@ class Task extends FOGController
 		'NFSLastMemberID'	=> 'taskLastMemberID',
 		'shutdown'			=> 'taskShutdown',
 		'passreset'			=> 'taskPassreset',
+		'isDebug'			=> 'taskIsDebug',
 	);
 	// Required database fields
 	public $databaseFieldsRequired = array(

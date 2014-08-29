@@ -91,14 +91,17 @@ try
 	// Update Task State ID -> Update Storage Node ID -> Save
 	if (!$Task->save())
 		throw new Exception(_('Failed to update Task'));
-	// Success!
-	$il = new ImagingLog(array(
-		'hostID' => $Host->get('id'),
-		'start' => date('Y-m-d H:i:s'),
-		'image' => $Host->getImage()->get('name'),
-		'type' => $_REQUEST['type'],
-	));
-	$il->save();
+	if ($imagingTasks)
+	{
+		// Success!
+		$il = new ImagingLog(array(
+			'hostID' => $Host->get('id'),
+			'start' => date('Y-m-d H:i:s'),
+			'image' => $Host->getImage()->get('name'),
+			'type' => $_REQUEST['type'],
+		));
+		$il->save();
+	}
 	// Task Logging.
 	$TaskLog = new TaskLog(array(
 		'taskID' => $Task->get('id'),
