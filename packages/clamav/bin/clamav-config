@@ -4,7 +4,7 @@
 prefix=/opt/fog/clamav
 exec_prefix=${prefix}
 includedir=${prefix}/include
-libdir=${exec_prefix}/lib64
+libdir=${exec_prefix}/lib
 
 usage()
 {
@@ -55,11 +55,11 @@ while test $# -gt 0; do
 	;;
 
     --cflags)
-       	echo -I${prefix}/include -g -O2 -fno-strict-aliasing -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
+       	echo -I${prefix}/include -g -O2 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
        	;;
 
     --libs)
-       	echo -L${exec_prefix}/lib64  -lz
+       	echo -L${exec_prefix}/lib  -lz
        	;;
 
     *)

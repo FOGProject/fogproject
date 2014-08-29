@@ -253,9 +253,9 @@ BR2_INIT_BUSYBOX=y
 #
 # BR2_INIT_NONE is not set
 # BR2_ROOTFS_DEVICE_CREATION_STATIC is not set
-# BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_DEVTMPFS is not set
+BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_DEVTMPFS=y
 # BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_MDEV is not set
-BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y
+# BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV is not set
 BR2_ROOTFS_DEVICE_TABLE="system/device_table.txt"
 # BR2_ROOTFS_SKELETON_DEFAULT is not set
 BR2_ROOTFS_SKELETON_CUSTOM=y
@@ -415,8 +415,9 @@ BR2_PACKAGE_KEXEC_ZLIB=y
 # BR2_PACKAGE_DIFFUTILS is not set
 # BR2_PACKAGE_FINDUTILS is not set
 # BR2_PACKAGE_FLEX is not set
-BR2_PACKAGE_GAWK=y
-# BR2_PACKAGE_GETTEXT is not set
+# BR2_PACKAGE_GAWK is not set
+BR2_PACKAGE_GETTEXT=y
+# BR2_PACKAGE_GETTEXT_TOOLS is not set
 # BR2_PACKAGE_GIT is not set
 # BR2_PACKAGE_GPERF is not set
 # BR2_PACKAGE_GREP is not set
@@ -531,7 +532,10 @@ BR2_PACKAGE_NTFS_3G_NTFSPROGS=y
 # BR2_PACKAGE_QT is not set
 BR2_PACKAGE_QT5_JSCORE_AVAILABLE=y
 # BR2_PACKAGE_QT5 is not set
-# BR2_PACKAGE_WESTON is not set
+
+#
+# weston needs udev and a toolchain w/ threads, headers >= 3.0
+#
 # BR2_PACKAGE_XORG7 is not set
 
 #
@@ -576,9 +580,10 @@ BR2_PACKAGE_DMIDECODE=y
 # BR2_PACKAGE_DVBSNOOP is not set
 # BR2_PACKAGE_DTV_SCAN_TABLES is not set
 # BR2_PACKAGE_EEPROG is not set
-BR2_PACKAGE_EUDEV=y
-BR2_PACKAGE_PROVIDES_UDEV="eudev"
-# BR2_PACKAGE_EUDEV_RULES_GEN is not set
+
+#
+# eudev needs eudev /dev management
+#
 # BR2_PACKAGE_EVEMU is not set
 # BR2_PACKAGE_EVTEST is not set
 # BR2_PACKAGE_FAN_CTRL is not set
@@ -610,9 +615,7 @@ BR2_PACKAGE_KBD=y
 # BR2_PACKAGE_LM_SENSORS is not set
 # BR2_PACKAGE_LSHW is not set
 # BR2_PACKAGE_LSUIO is not set
-BR2_PACKAGE_LVM2=y
-BR2_PACKAGE_LVM2_STANDARD_INSTALL=y
-# BR2_PACKAGE_LVM2_APP_LIBRARY is not set
+# BR2_PACKAGE_LVM2 is not set
 # BR2_PACKAGE_MDADM is not set
 # BR2_PACKAGE_MEDIA_CTL is not set
 # BR2_PACKAGE_MEMTESTER is not set
@@ -642,11 +645,16 @@ BR2_PACKAGE_SDPARM=y
 # BR2_PACKAGE_TI_UIM is not set
 # BR2_PACKAGE_TI_UTILS is not set
 # BR2_PACKAGE_UBOOT_TOOLS is not set
-BR2_PACKAGE_HAS_UDEV=y
-# BR2_PACKAGE_UDISKS is not set
+
+#
+# udisks needs udev /dev management
+#
 # BR2_PACKAGE_USB_MODESWITCH is not set
 # BR2_PACKAGE_USB_MODESWITCH_DATA is not set
-# BR2_PACKAGE_USBMOUNT is not set
+
+#
+# usbmount requires udev to be enabled
+#
 # BR2_PACKAGE_USBUTILS is not set
 # BR2_PACKAGE_W_SCAN is not set
 # BR2_PACKAGE_WIPE is not set
@@ -809,14 +817,20 @@ BR2_PACKAGE_WEBKIT_ARCH_SUPPORTS=y
 # BR2_PACKAGE_GNU_EFI is not set
 # BR2_PACKAGE_LCDAPI is not set
 # BR2_PACKAGE_LIBAIO is not set
-# BR2_PACKAGE_LIBATASMART is not set
+
+#
+# libatasmart requires udev to be enabled
+#
 # BR2_PACKAGE_LIBCEC is not set
 # BR2_PACKAGE_LIBFREEFARE is not set
 # BR2_PACKAGE_LIBFTDI is not set
 # BR2_PACKAGE_LIBHID is not set
 # BR2_PACKAGE_LIBIQRF is not set
 # BR2_PACKAGE_LIBLLCP is not set
-# BR2_PACKAGE_LIBMBIM is not set
+
+#
+# libmbim needs udev /dev management and a toolchain w/ wchar, threads
+#
 # BR2_PACKAGE_LIBNFC is not set
 # BR2_PACKAGE_LIBQMI is not set
 # BR2_PACKAGE_LIBRAW1394 is not set
@@ -853,10 +867,10 @@ BR2_PACKAGE_WEBKIT_ARCH_SUPPORTS=y
 # BR2_PACKAGE_EZXML is not set
 BR2_PACKAGE_JANSSON=y
 # BR2_PACKAGE_JSON_C is not set
-# BR2_PACKAGE_JSON_GLIB is not set
+BR2_PACKAGE_JSON_GLIB=y
 # BR2_PACKAGE_LIBJSON is not set
 # BR2_PACKAGE_LIBROXML is not set
-# BR2_PACKAGE_LIBXML2 is not set
+BR2_PACKAGE_LIBXML2=y
 # BR2_PACKAGE_LIBXMLPP is not set
 # BR2_PACKAGE_LIBXMLRPC is not set
 # BR2_PACKAGE_LIBXSLT is not set
@@ -990,9 +1004,9 @@ BR2_PACKAGE_LIBATOMIC_ARCH_SUPPORTS=y
 # BR2_PACKAGE_LIBEV is not set
 # BR2_PACKAGE_LIBEVDEV is not set
 # BR2_PACKAGE_LIBEVENT is not set
-# BR2_PACKAGE_LIBFFI is not set
+BR2_PACKAGE_LIBFFI=y
 # BR2_PACKAGE_LIBGC is not set
-# BR2_PACKAGE_LIBGLIB2 is not set
+BR2_PACKAGE_LIBGLIB2=y
 # BR2_PACKAGE_LIBICAL is not set
 BR2_PACKAGE_LIBNSPR_ARCH_SUPPORT=y
 # BR2_PACKAGE_LIBNSPR is not set
@@ -1039,7 +1053,7 @@ BR2_PACKAGE_LIBSIGC=y
 # BR2_PACKAGE_LIBENCA is not set
 # BR2_PACKAGE_LIBESTR is not set
 # BR2_PACKAGE_LIBFRIBIDI is not set
-# BR2_PACKAGE_LIBICONV is not set
+BR2_PACKAGE_LIBICONV=y
 # BR2_PACKAGE_LINENOISE is not set
 BR2_PACKAGE_NCURSES=y
 BR2_PACKAGE_NCURSES_TARGET_PANEL=y
@@ -1138,7 +1152,10 @@ BR2_PACKAGE_ETHTOOL=y
 # BR2_PACKAGE_MACCHANGER is not set
 # BR2_PACKAGE_MII_DIAG is not set
 # BR2_PACKAGE_MINIDLNA is not set
-# BR2_PACKAGE_MODEM_MANAGER is not set
+
+#
+# modemmanager needs udev /dev management and a toolchain w/ largefile, wchar, threads, IPv6
+#
 # BR2_PACKAGE_MONGOOSE is not set
 # BR2_PACKAGE_MROUTED is not set
 # BR2_PACKAGE_MTR is not set
@@ -1151,7 +1168,10 @@ BR2_PACKAGE_ETHTOOL=y
 # BR2_PACKAGE_NETSNMP is not set
 # BR2_PACKAGE_NETSTAT_NAT is not set
 # BR2_PACKAGE_NET_TOOLS is not set
-# BR2_PACKAGE_NETWORK_MANAGER is not set
+
+#
+# NetworkManager needs udev /dev management and a toolchain w/ IPv6, largefile, wchar, threads
+#
 # BR2_PACKAGE_NFACCT is not set
 # BR2_PACKAGE_NFTABLES is not set
 # BR2_PACKAGE_NGIRCD is not set
@@ -1283,8 +1303,7 @@ BR2_PACKAGE_COREUTILS=y
 # BR2_PACKAGE_HTOP is not set
 # BR2_PACKAGE_IPRUTILS is not set
 # BR2_PACKAGE_KEYUTILS is not set
-BR2_PACKAGE_KMOD=y
-BR2_PACKAGE_KMOD_TOOLS=y
+# BR2_PACKAGE_KMOD is not set
 # BR2_PACKAGE_LXC is not set
 # BR2_PACKAGE_MONIT is not set
 # BR2_PACKAGE_NCDU is not set
