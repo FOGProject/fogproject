@@ -55,39 +55,36 @@ dots "Send method"
 echo $method
 blGo="0";
 nfsServerName="";
+if [ "$mode" == "clamav" ]; then
+	dots "Checking In";
+	queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&avmode=$avmode" 2>/dev/null`;
+	echo "Done";
+	debugPause;
+	dots "Mounting Clamav";
+	if [ ! -d "/opt/fog/clamav" ]; then
+		mkdir -p /opt/fog/clamav 2>/dev/null;
+	fi
+	mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $clamav /opt/fog/clamav;
+	echo "Done";
+	debugPause;
+	dots "Adding clamav to path";
+	if [ -d "/opt/fog/clamav/bin" ] && [ -d "/opt/fog/clamav/sbin" ]; then
+		export PATH=$PATH:/opt/fog/clamav/bin:/opt/fog/clamav/sbin 2>/dev/null;
+	else
+		handleError "Cannot find clamav binaries to run task.";
+	fi
+	echo "Done";
+	debugPause;
+fi
 if [ "$type" == "up" ]; then
 	dots "Checking In"
 	queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
 	echo "Done";
+	debugPause;
 	dots "Mounting File System"
 	mkdir /images 2>/dev/null;
 	mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images;
 	echo "Done";
-	debugPause;
-elif [ "$type" == "down" ] && [ "$mc" == "bt" ]; then
-	queueinfo=`wget -q -O - "http://${web}service/mc_checkin.php?mac=$mac&type=$type" 2>/dev/null`;
-	blPass=`echo $queueinfo|grep "##"`;
-
-	waittime=0;
-	while [ ! -n "$blPass" ]; do
-		echo -n "		* $queueinfo (";
-		sec2String $waittime
-		echo ")"
-		queueinfo=`wget -q -O - "http://${web}service/mc_checkin.php?mac=$mac&type=$type" 2>/dev/null`;
-		blPass=`echo $queueinfo | grep "##"`;
-		sleep 5;
-		waittime=$(expr $waittime "+" 5);
-	done
-
-	echo "Done";
-	dots "Using image"
-	# download $img.torrent file
-	wget -q -O /tmp/$img.torrent http://${web}/service/torrent.php?torrent=$img;
-	ctorrent /tmp/$img.torrent -x > /tmp/filelist.txt;
-	torrentDownloadSize=`cat /tmp/filelist.txt|grep "Total:*"|awk '{print $2}'`;
-	echo "$img";
-	dots "Size of image to download"
-	echo "$torrentDownloadSize MB";
 	debugPause;
 elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 	mac64=`ifconfig | grep HWaddr | head -n1 | base64`;
@@ -103,7 +100,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 	dots "Checking In";
 	while [ "$blGo" == "0" ]; do
 		if [ "$capone" != "1" ]; then
-			if [ "$mc" != "yes" ]; then
+			if [ "$mc" != "yes" -a "$mc" != "bt" ]; then
 				queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
 				blPass=`echo $queueinfo|grep "##"`;
 				waittime=0;
@@ -149,6 +146,17 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 					sleep 5;
 					waittime=$(expr $waittime "+" 5);
 				done
+				if [ "$mc" == "bt" ]; then
+					dots "Using image"
+					# download $img.torrent file
+					wget -q -O /tmp/$img.torrent http://${web}/service/torrent.php?torrent=$img;
+					ctorrent /tmp/$img.torrent -x > /tmp/filelist.txt;
+					torrentDownloadSize=`cat /tmp/filelist.txt|grep "Total:*"|awk '{print $2}'`;
+					echo "$img";
+					dots "Size of image to download"
+					echo "$torrentDownloadSize MB";
+					debugPause;
+				fi
 			fi
 			dots "Mounting File System";
 			mkdir /images $debugstring 2>/dev/null;
