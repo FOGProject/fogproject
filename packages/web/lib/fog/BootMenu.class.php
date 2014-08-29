@@ -664,7 +664,7 @@ class BootMenu extends FOGBase
 					'active' => $this->FOGCore->getSetting('FOG_MINING_ENABLE'),
 				),
 				array(
-					'value' => 'debug=yes',
+					'value' => 'isdebug=yes',
 					'active' => $Task->get('isDebug'),
 				),
 				$TaskType->get('kernelArgs'),

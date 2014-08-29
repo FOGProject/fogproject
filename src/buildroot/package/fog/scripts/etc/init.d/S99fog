@@ -25,7 +25,7 @@ then
 	afterActionTerm="poweroff";
 fi
 export afterActionTerm="$afterActionTerm";
-if [ "$mode" == "debug" ] || [ "$debug" == "yes" ]; then
+if [ -n "$isdebug" -o "$mode" == "debug" ]; then
 	run="/bin/fog.debug";
 	after="";
 elif [ "$mode" == "onlydebug" ]; then
