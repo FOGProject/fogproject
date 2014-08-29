@@ -24,11 +24,12 @@ namespace FOG {
 			}
 			return "";
 		}
+
 		
 		//Decode a string from base64
 		public static String decodeBase64(String toDecode) {
 			try {
-				Byte[] bytes = Convert.FromBase64String(toDecode);
+				Byte[] bytes = Converyt.FromBase64String(toDecode);
 				return Encoding.ASCII.GetString(bytes);
 			} catch (Exception ex) {
 				LogHandler.log(LOG_NAME, "Error decoding base64");
@@ -37,24 +38,53 @@ namespace FOG {
 			return "";
 		}
 		
+		//Encode a given string using AES256
+		private static String encodeAES(String toEncode, String passKey, String ivString) {
+			byte[] iv = Encoding.UTF8.GetBytes(ivString);
+			byte[] key = Encoding.UTF8.GetBytes(passKey);
+			
+			
+			try {
+				RijndaelManaged rijadaelManaged = new RijndaelManaged();
+				rijadaelManaged.Key = key;
+				rijadaelManaged.IV = iv;
+				rijadaelManaged.Mode = CipherMode.CBC;
+				rijadaelManaged.Padding = PaddingMode.Zeros;
+				
+				MemoryStream memoryStream = new MemoryStream(toEncode);
+				CryptoStream cryptoStream = new CryptoStream(memoryStream, rijadaelManaged.CreateEncryptor(key, iv), CryptoStreamMode.Write);
+				
+				return new StreamReader(cryptoStream).ReadToEnd().Replace("\0", String.Empty.Trim());
+				
+			} catch (Exception ex) {
+				LogHandler.log(LOG_NAME, "Error encoding to AES");
+				LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);
+			}
+		}
+		
 		//Decode AES256
 		//TODO: Remove hotfix of trimming null bytes and change the crypt reader to read the proper length
 		private static String decodeAES(String toDecode, String passKey, String ivString) {
-		    //Conver the initialization vector and key into a byte array
+		    //Convert the initialization vector and key into a byte array
 			byte[] key = Encoding.UTF8.GetBytes(passKey);
 		    byte[] iv  = Encoding.UTF8.GetBytes(ivString);
 		
 		    try {
-		        using (var rijndaelManaged = new RijndaelManaged {Key = key, IV = iv, Mode = CipherMode.CBC, Padding = PaddingMode.Zeros})
-		        	
-		        using (var memoryStream = 
-		               new MemoryStream(Convert.FromBase64String(toDecode)))
-		        using (var cryptoStream = new CryptoStream(memoryStream, rijndaelManaged.CreateDecryptor(key, iv), CryptoStreamMode.Read)) {
-		        	//Return the crypto stream, but trim null bytes due to reading too far
-		        	return new StreamReader(cryptoStream).ReadToEnd().Replace("\0", String.Empty).Trim();
-		        }
+		        RijndaelManaged rijndaelManaged = new RijndaelManaged();
+		        rijndaelManaged.Key = key;
+		        rijndaelManaged.IV = iv;
+		        rijndaelManaged.Mode = CipherMode.CBC;
+		        rijndaelManaged.Padding = PaddingMode.Zeros;
+		        
+		        MemoryStream memoryStream = new MemoryStream(Convert.FromBase64String(toDecode));
+		        CryptoStream cryptoStream = new CryptoStream(memoryStream, rijndaelManaged.CreateDecryptor(key, iv), CryptoStreamMode.Read);
+		        
+		        //Return the  stream, but trim null bytes due to reading too far
+		        return new StreamReader(cryptoStream).ReadToEnd().Replace("\0", String.Empty).Trim();
+		        
+		        
 		    } catch (Exception ex) {
-		        LogHandler.log(LOG_NAME, "Error decoding AES");
+		        LogHandler.log(LOG_NAME, "Error decoding from AES");
 		        LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);		    	
 		    }
 			return "";
@@ -71,7 +101,9 @@ namespace FOG {
 				LogHandler.log(LOG_NAME, "ERROR: Encrypted data is corrupt");
 			}
 			return "";
-		}	
+		}
+		
+		
 		
 		//Generate the md5 hash of a file
 		public static  String generateMD5Hash(String file) {

@@ -9,11 +9,13 @@ namespace FOG {
 	/// Change the resolution of the display
 	/// </summary>
 	public class DisplayManager : AbstractModule {
-
+		private DisplayChanger display;
+		
 			
 		public DisplayManager() : base() {
 			setName("DisplayManager");
-			setDescription("hange the resolution of the display");			
+			setDescription("hange the resolution of the display");	
+			this.display = new DisplayChanger();
 		}
 		
 		protected override void doWork() {
@@ -30,13 +32,22 @@ namespace FOG {
 			}
 		}
 		
-		private void getResolution() {
-			Rectangle resolution = Screen.PrimaryScreen.GetBounds;
-		}
-		
 		//Change the resolution of the screen
-		private Boolean changeResolution(int width, int height, int refresh) {
-			return false;
+		private void changeResolution(int width, int height, int refresh) {
+			if(!(width.Equals(Screen.PrimaryScreen.Bounds.Width) && height.Equals(Screen.PrimaryScreen.Bounds.Height))) {
+				LogHandler.log(getName(), "Current Resolution: " + Screen.PrimaryScreen.Bounds.Width.ToString() + " x " + Screen.PrimaryScreen.Bounds.Height.ToString()).
+				LogHandler.log(getName(), "Attempting to change resoltution");
+				
+				if(display.changeDisplaySettings(width, height, refresh, 0)) {
+					LogHandler.log(getName(), "Success");
+				} else {
+					LogHandler.log(getName(), "Unable to change resolution");
+					LogHandler.log(getName(), "ERROR: " + "unkown");
+				}
+				
+			} else {
+				LogHandler.log(getName(), "Current resolution is already set correctly");
+			}
 		}
 		
 	}

@@ -48,6 +48,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DisplayChanger.cs" />
+    <Compile Include="UnmanagedWin32.cs" />
     <Compile Include="DisplayManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
