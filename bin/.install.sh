@@ -254,11 +254,11 @@ do
 				if [ ! -n "$storageLocation" ]; then
 					echo "";
 					echo -n "     What is the storage location for your images directory? (/images) ";
-					read $storageLocation;
+					read storageLocation;
 					if [ "$storageLocation" == "" ]; then
-					   	$storageLocation = "/images";
+					   	storageLocation="/images";
 					else
-						$storageLocation = `echo $storageLocation | sed 's=/[^/]*$==;s/\.$//'`;
+						storageLocation=`echo $storageLocation | sed 's=/[^/]*$==;s/\.$//'`;
 					fi
 				fi
 	           if [ "$installtype" = "S" ]
