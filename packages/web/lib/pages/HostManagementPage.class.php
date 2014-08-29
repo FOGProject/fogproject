@@ -1577,6 +1577,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<p><input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">'._('Schedule').' <u>'._('Shutdown').'</u>'._(' after task completion').'</label></p>';
 		if (!$TaskType->isDebug() && $TaskType->get('id') != 11)
 		{
+			print "\n\t\t\t".'<input type="checkbox" name="isDebugTask" id="isDebugTask" placeholder="isDebug" autocomplete="off" /> Schedule task as a debug task?';
 			print "\n\t\t\t".'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked="checked" /><label for="scheduleInstant">'._('Schedule ').' <u>'._('Instant Deployment').'</u></label></p>';
 			print "\n\t\t\t".'<p><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off" /><label for="scheduleSingle">'._('Schedule ').' <u>'._('Delayed Deployment').'</u></label></p>';
 			print "\n\t\t\t".'<p class="hidden" id="singleOptions"><input type="text" name="scheduleSingleTime" id="scheduleSingleTime" autocomplete="off" /></p>';
@@ -1632,7 +1633,7 @@ class HostManagementPage extends FOGPage
 		$snapin = ($_REQUEST['snapin'] ? $_REQUEST['snapin'] : -1);
 		$enableShutdown = ($this->REQUEST['shutdown'] == '1' ? true : false);
 		$enableSnapins = ($taskTypeID != '17' ? $snapin : '');
-		$enableDebug = ($this->REQUEST['debug'] == 'true' ? true : false);
+		$enableDebug = ($this->REQUEST['debug'] == 'true' || $_REQUEST['isDebugTask'] ? true : false);
 		$scheduledDeployTime = strtotime($this->REQUEST['scheduleSingleTime']);
 		$taskName = ($taskTypeID == '12' ? 'All Snapins Deploy' : ($taskTypeID == '13' ? 'Single Snapin Deploy' : ''));
 		$imagingTasks = array(1,2,8,15,16,17);

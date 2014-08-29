@@ -55,10 +55,32 @@ dots "Send method"
 echo $method
 blGo="0";
 nfsServerName="";
+if [ "$mode" == "clamav" ]; then
+	dots "Checking In";
+	queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&avmode=$avmode" 2>/dev/null`;
+	echo "Done";
+	debugPause;
+	dots "Mounting Clamav";
+	if [ ! -d "/opt/fog/clamav" ]; then
+		mkdir -p /opt/fog/clamav 2>/dev/null;
+	fi
+	mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $clamav /opt/fog/clamav;
+	echo "Done";
+	debugPause;
+	dots "Adding clamav to path";
+	if [ -d "/opt/fog/clamav/bin" ] && [ -d "/opt/fog/clamav/sbin" ]; then
+		export PATH=$PATH:/opt/fog/clamav/bin:/opt/fog/clamav/sbin 2>/dev/null;
+	else
+		handleError "Cannot find clamav binaries to run task.";
+	fi
+	echo "Done";
+	debugPause;
+fi
 if [ "$type" == "up" ]; then
 	dots "Checking In"
 	queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
 	echo "Done";
+	debugPause;
 	dots "Mounting File System"
 	mkdir /images 2>/dev/null;
 	mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images;

@@ -708,7 +708,7 @@ class Host extends FOGController
 	}
 
 	// Should be called: createDeployTask
-	function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '')
+	public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '')
 	{
 		try
 		{
@@ -753,6 +753,7 @@ class Host extends FOGController
 					'NFSGroupID' => $imagingTypes ? ($LocPlugInst ? $StorageGroup->get('id') : $Image->getStorageGroup()->get('id')) : false,
 					'NFSMemberID'	=> $imagingTypes ? ($LocPlugInst ? $StorageGroup->getOptimalStorageNode()->get('id') : ($this->get('imageID') ? $Image->getStorageGroup()->getOptimalStorageNode()->get('id') : $StorageGroup->getOptimalStorageNode()->get('id'))) : false,
 					'shutdown' => $shutdown,
+					'isDebug' => intval($debug),
 				));
 				if ($Task->save())
 				{
@@ -787,6 +788,7 @@ class Host extends FOGController
 					'NFSMemberID'	=> $imagingTypes ? $StorageGroup->getOptimalStorageNode()->get('id') : false,
 					'shutdown' => $shutdown,
 					'passreset' => $passreset,	
+					'isDebug' => intval($debug),
 				));
 				$SnapinJobs = current($this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(0,1))));
 				if ($SnapinJobs && $SnapinJobs->isValid() && $deploySnapins == -1)
@@ -892,6 +894,7 @@ class Host extends FOGController
 				'NFSMemberID'	=> $imagingTypes ? ($Location ? $StorageGroup->getOptimalStorageNode()->get('id') : $Image->getStorageGroup()->getOptimalStorageNode()->get('id')) : false,
 				'shutdown' => $shutdown,
 				'passreset' => $passreset,
+				'isDebug' => intval($debug),
 			));
 			// Task: Save to database
 			if (!$Task->save())
