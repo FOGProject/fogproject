@@ -1594,6 +1594,11 @@ $databaseSchema[] = array(
 $databaseSchema[] = array(
 	"UPDATE `" . DATABASE_NAME ."`.`taskTypes` SET ttKernelArgs='mc=bt type=down' WHERE ttID='24';",
 );
+// 126
+$databaseSchema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME . "`.`tasks`
+		ADD COLUMN `taskIsDebug` mediumint(9) NOT NULL AFTER `taskStateID`",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";

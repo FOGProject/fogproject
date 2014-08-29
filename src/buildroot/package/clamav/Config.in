@@ -1,5 +1,0 @@
-config BR2_PACKAGE_CLAMAV
-	bool "ClamAV"
-	select BR2_PACKAGE_ZLIB
-	help
-	  See http://www.clamav.net

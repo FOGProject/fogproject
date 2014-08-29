@@ -23,7 +23,7 @@
 if [ "$linuxReleaseName" == "Mageia" ];
 then
     # Mageia 
-    packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core php-mysql dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp clamav";
+    packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core php-mysql dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp";
     storageNodePackages="apache apache-mod_php php-cli php-gettext mariadb mariadb-core mariadb-common mariadb-common-core php-mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp";
     packageinstaller="urpmi --auto";
 
@@ -78,14 +78,6 @@ nfsconfig="/etc/exports";
 
 # where do snapins go?
 snapindir="/opt/fog/snapins";
-
-#where is freshclam's config file
-#freshdb="/var/lib/clamav/";
-freshdb="/var/clamav/";
-freshwebroot="${webdirdest}/av/";
-freshconf="/etc/freshclam.conf";
-#freshcron="/etc/sysconfig/freshclam"
-freshcron="/usr/bin/freshclam"
 
 # Distribution specific changes
 if [ "$linuxReleaseName" == "Mageia" ];

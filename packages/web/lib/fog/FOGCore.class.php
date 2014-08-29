@@ -538,13 +538,20 @@ class FOGCore extends FOGBase
 	*/
 	public function valdata($g,$fixed_size=false)
 	{
-		if (!$_REQUEST[$g])
-			die($this->track('Invalid request, missing data'));
-		if (!is_string($_REQUEST[$g]))
-			die($this->track('Invalid request, unkown data type'));
-		if ($fixed_size && strlen($_REQUEST[$g]) != 20)
-			die($this->track('Invalid request, length on fixed argument not correct'));
-		if (strlen($_REQUEST[$g]) > 80)
-			die($this->track('Request too long'));
+		try
+		{
+			if (!$_REQUEST[$g])
+				throw new Exception($this->track('Invalid request, missing data'));
+			if (!is_string($_REQUEST[$g]))
+				throw new Exception($this->track('Invalid request, unkown data type'));
+			if ($fixed_size && strlen($_REQUEST[$g]) != 20)
+				throw new Exception($this->track('Invalid request, length on fixed argument not correct'));
+			if (strlen($_REQUEST[$g]) > 80)
+				throw new Exception($this->track('Request too long'));
+		}
+		catch (Exception $e)
+		{
+			die($e->getMessage());
+		}
 	}
 }
