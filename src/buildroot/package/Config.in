@@ -1,6 +1,5 @@
 menu "Packages for FOG"
 source "package/chntpw/Config.in"
-source "package/clamav/Config.in"
 source "package/efibootmgr/Config.in"
 source "package/fog/Config.in"
 source "package/partimage/Config.in"
