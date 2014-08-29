@@ -545,6 +545,7 @@ class BootMenu extends FOGBase
 				$mac = $_REQUEST['mac'];
 			$osid = $Image->get('osID');
 			$storage = in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null;
+			$clamav = in_array($TaskType->get('id'),array(21,22)) ? sprintf('%s:%s',trim($StorageNode->get('ip')),'/opt/fog/clamav') : null;
 			$storageip = in_array($TaskType->get('id'),$imagingTasks) ? $StorageNode->get('ip') : null;
 			$img = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('path') : null;
 			$imgFormat = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('format') : null;
@@ -570,6 +571,10 @@ class BootMenu extends FOGBase
 				"consoleblank=0",
 				"irqpoll",
 				"hostname=".$this->Host->get('name'),
+				array(
+					'value' => "clamav=$clamav",
+					'active' => in_array($TaskType->get('id'),array(21,22)),
+				),
 				array(
 					'value' => "chkdsk=$chkdsk",
 					'active' => in_array($TaskType->get('id'),$imagingTasks),
@@ -657,6 +662,10 @@ class BootMenu extends FOGBase
 				array(
 					'value' => 'miningpath=' . $this->FOGCore->getSetting('FOG_MINING_PACKAGE_PATH'),
 					'active' => $this->FOGCore->getSetting('FOG_MINING_ENABLE'),
+				),
+				array(
+					'value' => 'debug=yes',
+					'active' => $Task->get('isDebug'),
 				),
 				$TaskType->get('kernelArgs'),
 				$this->FOGCore->getSetting('FOG_KERNEL_ARGS'),
