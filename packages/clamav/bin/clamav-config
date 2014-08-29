@@ -59,7 +59,7 @@ while test $# -gt 0; do
        	;;
 
     --libs)
-       	echo -L${exec_prefix}/lib  -lz
+       	echo -L${exec_prefix}/lib  -lz -lbz2
        	;;
 
     *)
