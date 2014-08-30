@@ -229,6 +229,84 @@ class FOGConfigurationPage extends FOGPage
 			$this->FOGCore->redirect($this->formAction);
 		}
 	}
+	public function customize_edit()
+	{
+		$this->title = $this->foglang['PXEMenuCustomization'];
+		print "\n\t\t\t<p>"._('This item allows you to edit all of the PXE Menu items as you see fit.  Mind you, iPXE syntax is very finicky when it comes to edits.  If you need help understanding what items are needed, please see the forums.  You can also look at ipxe.org for syntactic usage and methods.  Some of the items here are bound to limitations.  Documentation will follow when enough time is provided.').'</p>';
+		print "\n\t\t\t\t".'<div id="tab-container-1">';
+		$this->templates = array(
+			'${field}',
+			'${input}',
+		);
+		foreach($this->FOGCore->getClass('PXEMenuOptionsManager')->find('','','id') AS $Menu)
+		{
+			$divTab = preg_replace('/[[:space:]]/','_',preg_replace('/\./','_',preg_replace('/:/','_',$Menu->get('name'))));
+			print "\n\t\t\t\t\t\t".'<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$Menu->get('name').'</h3></a>';
+			print "\n\t\t\t".'<div id="'.$divTab.'">';
+			print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+			$fields = array(
+				_('Menu Item:') => '<input type="text" name="menu_item" value="${menu_item}" id="menu_item" />',
+				_('Description:') => '<textarea cols="40" rows="2" name="menu_description">${menu_description}</textarea>',
+				_('Parameters:') => '<textarea cols="40" rows="8" name="menu_params">${menu_params}</textarea>',
+				_('Boot Options:') => '<input type="text" name="menu_options" id="menu_options" value="${menu_options}" />',
+				_('Default Item:') => '<input type="checkbox" name="menu_default" value="1" ${menu_default}/>',
+				_('Menu Show with:') => '${menu_regmenu}',
+				'<input type="hidden" name="menu_id" value="${menu_id}" />' => '<input type="submit" value="'.$this->foglang['Submit'].'" />',
+			);
+			foreach($fields AS $field => $input)
+			{
+				$this->data[] = array(
+					'field' => $field,
+					'input' => $input,
+					'menu_id' => $Menu->get('id'),
+					'menu_item' => $Menu->get('name'),
+					'menu_description' => $Menu->get('description'),
+					'menu_params' => $Menu->get('params'),
+					'menu_default' => ($Menu->get('default') ? 'checked="checked"' : ''),
+					'menu_regmenu' => $Menu->regSelect(),
+					'menu_options' => $Menu->get('args'),
+				);
+			}
+			// Hook
+			$this->HookManager->processEvent('BOOT_ITEMS', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes, 'headerData' => &$this->headerData));
+			// Output
+			$this->render();
+			print "</form>";
+			print "\n\t\t\t".'</div>';
+			// Reset for use again.
+			unset($this->data);
+		}
+		print "\n\t\t\t\t".'</div>';
+	}
+	public function customize_edit_post()
+	{
+		$Menu = new PXEMenuOptions($_REQUEST['menu_id']);
+		$Menu->set('name',$_REQUEST['menu_item'])
+			 ->set('description',$_REQUEST['menu_description'])
+			 ->set('params',$_REQUEST['menu_params'])
+			 ->set('regMenu',$_REQUEST['menu_regmenu'])
+			 ->set('args',$_REQUEST['menu_options']);
+		// Set all other menus that are default to non-default value.
+		foreach($this->FOGCore->getClass('PXEMenuOptionsManager')->find('','','id') AS $MenusRemoveDefault)
+			$MenusRemoveDefault->set('default',0)->save();
+		$Menu->set('default',$_REQUEST['menu_default']);
+		if ($Menu->save())
+			$this->FOGCore->setMessage($Menu->get('name').' '._('successfully updated').'!');
+		// Ensure there's only one default value.
+		$countDefault = $this->FOGCore->getClass('PXEMenuOptionsManager')->count(array('default' => 1));
+		// If there's no defaults, set the first id (local disk) to default.
+		if ($countDefault == 0 || $countDefault > 1)
+			$this->FOGCore->getClass('PXEMenuOPtions',1)->set('default',1)->save();
+		$this->FOGCore->redirect($this->formAction);
+	}
+	public function new_menu()
+	{
+		$this->index();
+	}
+	public function new_menu_post()
+	{
+		$this->index();
+	}
 	// Client Updater
 	/** client_updater()
 		You update the client files through here.
