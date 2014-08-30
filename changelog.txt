@@ -1,4 +1,4 @@
-Version 1.2.X
+Version 1.3.X
 -------------
 * Fix bug where snapintasks if generated after main tasking and before that
 tasking is created, get closed and not properly closing the actual deployed
@@ -6,7 +6,10 @@ task.
 * Fix proxy information to NOT proxy storage node internalized Storage Node
 information.
 * Fix multicast issues for all relevant systems. Thank you Curtis.
-* Just working towards better implementation between svn and git.
+* Fix snapins operate only if the host has snapins.
+* Move clamav off of server to static binaries.  Bumps size of installer
+folder from 80MB to 277MB.  However clamav is not loaded in the initrd file
+and this same clamav can operate on the fog server.
 * Add installer files from David Fear to fog to allow FOG Installation on
 Arch Linux.
 * Add partition imaging selection options into GUI and fog to operate within.
@@ -14,6 +17,11 @@ Arch Linux.
 thanks to Michael Brown, the iPXE team, and Curtis Larsen for taking the time
 to debug and correct and make this work.
 * Add support for Apple Mac OS support in our systems.
+* Add initial support for torrent casting.  Only works for resizable.
+* Adjust bootmenu to store to variables.  This can then allow hooks to
+interact with the boot menu setup for customizations as needed.
+* Adjust the menu items to go into database to allow adding own custom
+options that stay even if updated.
 
 Version 1.2.0
 -------------
