@@ -218,6 +218,8 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['license'] = $this->foglang['License'];
 			$this->subMenu[$this->node]['kernel-update'] = $this->foglang['KernelUpdate'];
 			$this->subMenu[$this->node]['pxemenu'] = $this->foglang['PXEBootMenu'];
+			$this->subMenu[$this->node]['new-menu'] = $this->foglang['NewMenu'];
+			$this->subMenu[$this->node]['customize-edit'] = $this->foglang['PXEConfiguration'];
 			$this->subMenu[$this->node]['client-updater'] = $this->foglang['ClientUpdater'];
 			$this->subMenu[$this->node]['mac-list'] = $this->foglang['MACAddrList'];
 			$this->subMenu[$this->node]['settings'] = $this->foglang['FOGSettings'];
