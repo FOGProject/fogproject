@@ -71,5 +71,6 @@ else
 	run="/bin/fog";
 	after=$afterActionTerm;
 fi
+ethtool -K eth0 tso off gso off
 $run;
 $after;
