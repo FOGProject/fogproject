@@ -23,6 +23,7 @@ namespace FOG {
 		private static List<AbstractModule> modules;
 		private static Thread notificationPipeThread;	
 		private static PipeServer notificationPipe;		
+		private static PipeClient servicePipe;
 		private const String LOG_NAME = "UserService";
 		private static int sleepDefaultTime = 60;		
 		private static Status status;		
@@ -39,17 +40,21 @@ namespace FOG {
 				threadManager = new Thread(new ThreadStart(serviceLooper));
 				status = Status.Stopped;
 				
-				//Setup the piper server
+				//Setup the notification pipe server
 				notificationPipeThread = new Thread(new ThreadStart(notificationPipeHandler));
-				notificationPipe = new PipeServer("fog_pipe_user_" +  UserHandler.getCurrentUser());
-				notificationPipe.MessageReceived += new PipeServer.MessageReceivedHandler(notificationPipeServer_MessageReceived);			
+				notificationPipe = new PipeServer("fog_pipe_notification_user_" +  UserHandler.getCurrentUser());
+				notificationPipe.MessageReceived += new PipeServer.MessageReceivedHandler(pipeServer_MessageReceived);			
 			
+				
+				//Setup the service pipe client
+				servicePipe = new PipeClient("fog_pipe_service");
+				servicePipe.MessageReceived += new PipeClient.MessageReceivedHandler(pipeClient_MessageReceived);
 				
 				status = Status.Running;
 				
-				//Start the pipe server
-				notificationPipeThread.Priority = ThreadPriority.Normal;
-				notificationPipeThread.Start();
+				
+				//Start the service pipe client
+				servicePipe.connect();
 			
 				
 				//Start the main thread that handles all modules
@@ -91,10 +96,21 @@ namespace FOG {
 		}
 		
 		//Handle recieving a message
-		private static void notificationPipeServer_MessageReceived(Client client, String message) {
-			LogHandler.log("PipeServer", "Message recieved");
-			LogHandler.log("PipeServer",message);
+		private static void pipeServer_MessageReceived(Client client, String message) {
+			LogHandler.log(LOG_NAME, "Message recieved from tray");
+			LogHandler.log(LOG_NAME, "MSG:" + message);
 		}	
+		
+		//Handle recieving a message
+		private static void pipeClient_MessageReceived(String message) {
+			LogHandler.log(LOG_NAME, "Message recieved from service");
+			LogHandler.log(LOG_NAME, "MSG: " + message);
+			
+			if(message.Equals("UPD")) {
+				ShutdownHandler.spawnUpdateWaiter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, System.Reflection.Assembly.GetExecutingAssembly().Location));
+			}
+		}			
+		
 		
 		//Load all of the modules
 		private static void initializeModules() {
@@ -106,9 +122,9 @@ namespace FOG {
 		//Run each service
 		private static void serviceLooper() {
 			//Only run the service if there wasn't a stop or shutdown request
-			while (status.Equals(Status.Running) && !ShutdownHandler.isShutdownPending()) {
+			while (status.Equals(Status.Running) && !ShutdownHandler.isShutdownPending() && !ShutdownHandler.isUpdatePending()) {
 				foreach(AbstractModule module in modules) {
-					if(ShutdownHandler.isShutdownPending())
+					if(ShutdownHandler.isShutdownPending() || ShutdownHandler.isUpdatePending())
 						break;
 					
 					//Log file formatting
