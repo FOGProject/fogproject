@@ -111,6 +111,14 @@
       <Project>{3E31CCE4-D06A-4F02-A3E8-981B9033CA32}</Project>
       <Name>Tray</Name>
     </ProjectReference>
+    <ProjectReference Include="..\UpdateHelper\UpdateHelper.csproj">
+      <Project>{788E1733-937F-415C-A6E9-46A43BB0B019}</Project>
+      <Name>UpdateHelper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UpdateWaiter\UpdateWaiter.csproj">
+      <Project>{C7113642-59C8-41C0-BF64-2F29BAE45910}</Project>
+      <Name>UpdateWaiter</Name>
+    </ProjectReference>
     <ProjectReference Include="..\UserHandler\UserHandler.csproj">
       <Project>{1759DEAE-2585-4324-9F85-338BE0F755BF}</Project>
       <Name>UserHandler</Name>

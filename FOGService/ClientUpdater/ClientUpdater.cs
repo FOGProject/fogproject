@@ -44,14 +44,14 @@ namespace FOG
 							LogHandler.log(getName(), "Remote file is newer, attempting to update");
 							
 							if(generateUpdateFile(askResponse.getField("#md5"), updateFile))
-								applyUpdateFile(updateFile);
+								prepUpdate(updateFile);
 						} else {
 							LogHandler.log(getName(), "Remote file is the same as this local copy");
 						}
 					}
 				}
 				if(updatePending) {
-					ShutdownHandler.restartService();
+					ShutdownHandler.scheduleUpdate();
 				}
 			}
 		}
@@ -69,7 +69,7 @@ namespace FOG
 					
 					//Create the directory that the file will go in if it doesn't already exist
 					if(!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + @"tmp\")) {
-						Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" MulticastNotSupportedException );
+						Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + @"tmp\");
 					}
 					
 					if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile))
@@ -86,7 +86,7 @@ namespace FOG
 						LogHandler.log(getName(), "Failure");
 						LogHandler.log(getName(), "SVR: " + md5);
 						LogHandler.log(getName(), "DWD: " + EncryptionHandler.generateMD5Hash(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile));
-						//File.Delete(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile);
+						File.Delete(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile);
 					}
 				} catch (Exception ex) {
 					LogHandler.log(getName(), "Unable to generate update file");
@@ -97,24 +97,24 @@ namespace FOG
 			return false;
 		}
 		
-		//Apply the downloaded update
-		private void applyUpdateFile(String updateFile) {
+		//Prepare the downloaded update
+		private void prepUpdate(String updateFile) {
 			if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile)) {
 				try { 
 					//Try and move the file, if it fails try again for a few times
 					for(int i=0; i < 5; i++) {
 						try {
 							//Delete old version
-							if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile))
-								File.Delete(AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile);
+							if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile + ".update"))
+								File.Delete(AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile + ".update");
 							
 							File.Move(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile,
-							          AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile);
+							          AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile  + ".update");
 							this.updatePending = true;		
-							LogHandler.log(getName(), "Successfully updated " + updateFile);
+							LogHandler.log(getName(), "Successfully prepped " + updateFile + " for updating");
 							break;
 						} catch (Exception ex) {
-							LogHandler.log(getName(), "Unable to replace " + updateFile);
+							LogHandler.log(getName(), "Unable to prepare " + updateFile);
 							LogHandler.log(getName(), "ERROR: " + ex.Message);
 						}
 						if(i < 4) {

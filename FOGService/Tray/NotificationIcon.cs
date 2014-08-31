@@ -14,6 +14,7 @@ namespace FOG {
 		private ContextMenu notificationMenu;
 		private PipeClient systemNotificationPipe;
 		private PipeClient userNotificationPipe;
+		private PipeClient servicePipe;
 		
 		private Notification notification;
 		private Boolean isNotificationReady;
@@ -24,13 +25,19 @@ namespace FOG {
 			// Setup the pipe client
 
 			
-			this.userNotificationPipe = new PipeClient("fog_pipe_user_" +  UserHandler.getCurrentUser());
+			this.userNotificationPipe = new PipeClient("fog_pipe_notification_user_" +  UserHandler.getCurrentUser());
 			this.userNotificationPipe.MessageReceived += new PipeClient.MessageReceivedHandler(pipeNotificationClient_MessageReceived);
 			this.userNotificationPipe.connect();				
 			
-			this.systemNotificationPipe = new PipeClient("fog_pipe");
+			this.systemNotificationPipe = new PipeClient("fog_pipe_notification");
 			this.systemNotificationPipe.MessageReceived += new PipeClient.MessageReceivedHandler(pipeNotificationClient_MessageReceived);
 			this.systemNotificationPipe.connect();	
+			
+			this.servicePipe = new PipeClient("fog_pipe_service");
+			this.servicePipe.MessageReceived += new PipeClient.MessageReceivedHandler(pipeNotificationClient_MessageReceived);
+			this.servicePipe.connect();				
+			
+			
 			
 			notifyIcon = new NotifyIcon();
 			notificationMenu = new ContextMenu(InitializeMenu());
@@ -59,6 +66,8 @@ namespace FOG {
 					this.notification.setDuration(int.Parse(message));
 				} catch {}
 				this.isNotificationReady = true;
+			} else if(message.Equals("UPD")) {
+				Application.Exit();
 			}
 			
 			if(this.isNotificationReady) {
