@@ -21,6 +21,7 @@ namespace FOG
 		}
 		
 		protected override void doWork() {
+			this.updatePending = false;
 			//Get task info
 			Response updateResponse = CommunicationHandler.getResponse("/service/updates.php?action=list");	
 			if(!updateResponse.wasError()) {
@@ -29,12 +30,12 @@ namespace FOG
 				//Loop through each update file and compare its hash to the local copy
 				foreach(String updateFile in updates) {
 					LogHandler.log(getName(), "Possible update for " + updateFile + " found");
-					Response updateFileResponse = CommunicationHandler.getResponse("/service/updates.php?action=ask&file=" + 
+					Response askResponse = CommunicationHandler.getResponse("/service/updates.php?action=ask&file=" + 
 					                                                         EncryptionHandler.encodeBase64(updateFile));
 					
 					//Check if the response is correct
-					if(!updateFileResponse.wasError() && !updateFileResponse.getField("#md5").Equals("")) {
-						String updateFileHash = updateFileResponse.getField("#md5");;
+					if(!askResponse.wasError() && !askResponse.getField("#md5").Equals("")) {
+						String updateFileHash = askResponse.getField("#md5");;
 						
 						//Check if the MD5 hashes are note equal
 						if(!EncryptionHandler.generateMD5Hash(AppDomain.CurrentDomain.BaseDirectory 
@@ -42,7 +43,7 @@ namespace FOG
 							
 							LogHandler.log(getName(), "Remote file is newer, attempting to update");
 							
-							if(generateUpdateFile(updateFileResponse, updateFile))
+							if(generateUpdateFile(askResponse.getField("#md5"), updateFile))
 								applyUpdateFile(updateFile);
 						} else {
 							LogHandler.log(getName(), "Remote file is the same as this local copy");
@@ -56,18 +57,37 @@ namespace FOG
 		}
 		
 		//Generate the update file from the parsed response
-		private Boolean generateUpdateFile(Response updateFileResponse, String updateFile) {
+		private Boolean generateUpdateFile(String md5, String updateFile) {
+			LogHandler.log(getName(), "Downloading update file");
 			//Download the new file
+			Response updateFileResponse = CommunicationHandler.getResponse("/service/updates.php?action=get&file=" + 
+			                                                               EncryptionHandler.encodeBase64(updateFile));
+					                                                         
 			if(!updateFileResponse.getField("#updatefile").Equals("")) {
 				
 				try {
 					
+					//Create the directory that the file will go in if it doesn't already exist
+					if(!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + @"tmp\")) {
+						Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" MulticastNotSupportedException );
+					}
+					
 					if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile))
 						File.Delete(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile);
 					
-					File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile, EncryptionHandler.decodeBase64(updateFileResponse.getField("#updatefile")));
+					File.WriteAllBytes(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile, EncryptionHandler.StringToByteArray(updateFileResponse.getField("#updatefile")));
+					LogHandler.log(getName(), "Success");
+					LogHandler.log(getName(), "Verifying MD5 hash");
 					
-					return true;
+					if(EncryptionHandler.generateMD5Hash(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile).Equals(md5)) {
+						LogHandler.log(getName(), "Success");
+						return true;
+					} else {
+						LogHandler.log(getName(), "Failure");
+						LogHandler.log(getName(), "SVR: " + md5);
+						LogHandler.log(getName(), "DWD: " + EncryptionHandler.generateMD5Hash(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile));
+						//File.Delete(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile);
+					}
 				} catch (Exception ex) {
 					LogHandler.log(getName(), "Unable to generate update file");
 					LogHandler.log(getName(), "ERROR: " + ex.Message);
@@ -84,7 +104,11 @@ namespace FOG
 					//Try and move the file, if it fails try again for a few times
 					for(int i=0; i < 5; i++) {
 						try {
-							File.Move(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile, 
+							//Delete old version
+							if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile))
+								File.Delete(AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile);
+							
+							File.Move(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile,
 							          AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile);
 							this.updatePending = true;		
 							LogHandler.log(getName(), "Successfully updated " + updateFile);

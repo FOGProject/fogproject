@@ -23,11 +23,15 @@ namespace FOG {
 			Response taskResponse = CommunicationHandler.getResponse("/service/displaymanager.php?mac=" + CommunicationHandler.getMacAddresses());
 			
 			if(!taskResponse.wasError()) {
-				if(!taskResponse.getField("#x").Equals("") && !taskResponse.getField("#y").Equals("") && !taskResponse.getField("#r").Equals("")) {
-					changeResolution(taskResponse.getField("#x"), taskResponse.getField("#y"), taskResponse.getField("#r"));
-				} else {
+
+				try {
+					int x = int.Parse(taskResponse.getField("#x"));
+					int y = int.Parse(taskResponse.getField("#y"));
+					int r = int.Parse(taskResponse.getField("#r"));
+					changeResolution(x, y, r);
+				} catch (Exception ex) {
 					LogHandler.log(getName(), "ERROR");
-					LogHandler.log(getName(), "Not all values set: " + "x=" + taskResponse.getField("#x") + " y=" + taskResponse.getField("#y") + " r=" + taskResponse.getField("#r"));
+					LogHandler.log(getName(), ex.Message);
 				}
 			}
 		}
@@ -35,7 +39,7 @@ namespace FOG {
 		//Change the resolution of the screen
 		private void changeResolution(int width, int height, int refresh) {
 			if(!(width.Equals(Screen.PrimaryScreen.Bounds.Width) && height.Equals(Screen.PrimaryScreen.Bounds.Height))) {
-				LogHandler.log(getName(), "Current Resolution: " + Screen.PrimaryScreen.Bounds.Width.ToString() + " x " + Screen.PrimaryScreen.Bounds.Height.ToString()).
+				LogHandler.log(getName(), "Current Resolution: " + Screen.PrimaryScreen.Bounds.Width.ToString() + " x " + Screen.PrimaryScreen.Bounds.Height.ToString());
 				LogHandler.log(getName(), "Attempting to change resoltution");
 				
 				if(display.changeDisplaySettings(width, height, refresh, 0)) {
