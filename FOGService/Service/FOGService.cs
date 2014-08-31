@@ -26,6 +26,7 @@ namespace FOG{
 		private Status status;
 		private int sleepDefaultTime = 60;
 		private PipeServer notificationPipe;
+		private PipeServer userServicePipe;
 		
 		private const String LOG_NAME = "Service";
 		
@@ -44,10 +45,13 @@ namespace FOG{
 				this.threadManager = new Thread(new ThreadStart(serviceLooper));
 				this.status = Status.Stopped;
 				
-				//Setup the piper server
+				//Setup the notification pipe server
 				this.notificationPipeThread = new Thread(new ThreadStart(notificationPipeHandler));
-				this.notificationPipe = new PipeServer("fog_pipe");
+				this.notificationPipe = new PipeServer("fog_pipe_notification");
 				this.notificationPipe.MessageReceived += new PipeServer.MessageReceivedHandler(notificationPipeServer_MessageReceived);
+				
+				//Setup the user-service pipe server, this is only Server -- > Client communication so no need to setup listeners
+				this.userServicePipe = new PipeServer("fog_pipe_service");
 			}
 		}
 		
@@ -71,11 +75,12 @@ namespace FOG{
 				Thread.Sleep(3000);
 			}
 
-		}
+		}		
+		
 		
 		//Handle recieving a message
 		private void notificationPipeServer_MessageReceived(Client client, String message) {
-			LogHandler.log("PipeServer", "Message recieved");
+			LogHandler.log("PipeServer", "Notification message recieved");
 			LogHandler.log("PipeServer",message);
 		}	
 
@@ -117,9 +122,9 @@ namespace FOG{
 		//Run each service
 		private void serviceLooper() {
 			//Only run the service if there wasn't a stop or shutdown request
-			while (status.Equals(Status.Running) && !ShutdownHandler.isShutdownPending()) {
+			while (status.Equals(Status.Running) && !ShutdownHandler.isShutdownPending() && !ShutdownHandler.isUpdatePending()) {
 				foreach(AbstractModule module in modules) {
-					if(ShutdownHandler.isShutdownPending() )
+					if(ShutdownHandler.isShutdownPending() || ShutdownHandler.isUpdatePending())
 						break;
 					
 					//Log file formatting
@@ -145,6 +150,56 @@ namespace FOG{
 				LogHandler.log(LOG_NAME, "Sleeping for " + sleepTime.ToString() + " seconds");
 				Thread.Sleep(sleepTime * 1000);
 			}
+			
+			if(ShutdownHandler.isUpdatePending()) {
+				try {
+					
+					//Create updating.info which will warn any sub-processes currently starting that they should stop
+					File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"\updating.info"), "");
+					//Give time for any sub-processes that may be in the middle of initializing and missed the updating.info file so they can recieve the update pipe notice
+					Thread.Sleep(1000);
+					
+					//Notify all FOG sub processes that an update is about to occu
+					userServicePipe.sendMessage("UPD");
+					notificationPipe.sendMessage("UPD");
+					
+					//Kill any FOG sub processes still running after the notification
+					killFOGSubProcesses();
+					
+					//Spawn the UpdateWaiter
+					ShutdownHandler.spawnUpdateWaiter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, System.Reflection.Assembly.GetExecutingAssembly().Location));
+					
+					//Launch the updater
+					LogHandler.log(LOG_NAME, "Spawning update helper");
+			
+					Process process = new Process();
+					process.StartInfo.UseShellExecute = false;
+					process.StartInfo.FileName = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\FOGUpdateHelper.exe";
+					process.Start();	
+					
+				} catch (Exception ex) {
+					LogHandler.log(LOG_NAME, "Unable to perform update");
+					LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);
+				}
+				
+				
+			}
+		}
+		
+		//Kill all FOG sub proccesses
+		private void killFOGSubProcesses() {
+			//If the User Service is still running, wait 120 seconds and kill it
+			if( Process.GetProcessesByName("FOGUserService").Length > 0) {
+				Thread.Sleep(120 * 1000);
+				foreach(Process process in Process.GetProcessesByName("FOGUserService")) {
+					process.Kill();
+				}
+			}
+					
+			//Kill all trays
+			foreach(Process process in Process.GetProcessesByName("FOGTray")) {
+				process.Kill();
+			}	
 		}
 		
 		
