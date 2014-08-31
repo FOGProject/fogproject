@@ -98,9 +98,7 @@ namespace FOG {
 							if (intTest != UnmanagedWin32.DISP_CHANGE_FAILED) {
 								
 								intTest = UnmanagedWin32.ChangeDisplaySettings(ref dmset, UnmanagedWin32.CDS_UPDATEREGISTRY);
-								if (intTest == UnmanagedWin32.DISP_CHANGE_SUCCESSFUL)
-									return true;
-								else if (intTest == UnmanagedWin32.DISP_CHANGE_RESTART)
+								if (intTest.Equals(UnmanagedWin32.DISP_CHANGE_SUCCESSFUL) || intTest.Equals(UnmanagedWin32.DISP_CHANGE_RESTART))
 									return true;
 							}
 							
