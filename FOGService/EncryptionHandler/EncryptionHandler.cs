@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Linq;
 
 namespace FOG {
 	/// <summary>
@@ -29,7 +30,7 @@ namespace FOG {
 		//Decode a string from base64
 		public static String decodeBase64(String toDecode) {
 			try {
-				Byte[] bytes = Converyt.FromBase64String(toDecode);
+				Byte[] bytes = Convert.FromBase64String(toDecode);
 				return Encoding.ASCII.GetString(bytes);
 			} catch (Exception ex) {
 				LogHandler.log(LOG_NAME, "Error decoding base64");
@@ -39,28 +40,28 @@ namespace FOG {
 		}
 		
 		//Encode a given string using AES256
-		private static String encodeAES(String toEncode, String passKey, String ivString) {
-			byte[] iv = Encoding.UTF8.GetBytes(ivString);
-			byte[] key = Encoding.UTF8.GetBytes(passKey);
-			
-			
-			try {
-				RijndaelManaged rijadaelManaged = new RijndaelManaged();
-				rijadaelManaged.Key = key;
-				rijadaelManaged.IV = iv;
-				rijadaelManaged.Mode = CipherMode.CBC;
-				rijadaelManaged.Padding = PaddingMode.Zeros;
-				
-				MemoryStream memoryStream = new MemoryStream(toEncode);
-				CryptoStream cryptoStream = new CryptoStream(memoryStream, rijadaelManaged.CreateEncryptor(key, iv), CryptoStreamMode.Write);
-				
-				return new StreamReader(cryptoStream).ReadToEnd().Replace("\0", String.Empty.Trim());
-				
-			} catch (Exception ex) {
-				LogHandler.log(LOG_NAME, "Error encoding to AES");
-				LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);
-			}
-		}
+//		private static String encodeAES(String toEncode, String passKey, String ivString) {
+//			byte[] iv = Encoding.UTF8.GetBytes(ivString);
+//			byte[] key = Encoding.UTF8.GetBytes(passKey);
+//			
+//			
+//			try {
+//				RijndaelManaged rijadaelManaged = new RijndaelManaged();
+//				rijadaelManaged.Key = key;
+//				rijadaelManaged.IV = iv;
+//				rijadaelManaged.Mode = CipherMode.CBC;
+//				rijadaelManaged.Padding = PaddingMode.Zeros;
+//				
+//				MemoryStream memoryStream = new MemoryStream(toEncode);
+//				CryptoStream cryptoStream = new CryptoStream(memoryStream, rijadaelManaged.CreateEncryptor(key, iv), CryptoStreamMode.Write);
+//				
+//				return new StreamReader(cryptoStream).ReadToEnd().Replace("\0", String.Empty.Trim());
+//				
+//			} catch (Exception ex) {
+//				LogHandler.log(LOG_NAME, "Error encoding to AES");
+//				LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);
+//			}
+//		}
 		
 		//Decode AES256
 		//TODO: Remove hotfix of trimming null bytes and change the crypt reader to read the proper length
@@ -118,6 +119,13 @@ namespace FOG {
 				return sBuilder.ToString();
 			}
 			return "";
+		}	
+
+		public static byte[] StringToByteArray(string hex) {
+		    return Enumerable.Range(0, hex.Length)
+		                     .Where(x => x % 2 == 0)
+		                     .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+		                     .ToArray();
 		}		
 		
 	}
