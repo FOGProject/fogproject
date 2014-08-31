@@ -16,6 +16,7 @@ namespace FOG {
 
 		//Define variables
 		private static Boolean shutdownPending = false;
+		private static Boolean updatePending = false;
 		private const String LOG_NAME = "ShutdownHandler";
 		
 		//Load the ability to lock the computer from the native user32 dll
@@ -96,6 +97,25 @@ namespace FOG {
 			process.StartInfo.UseShellExecute = false;
 			process.StartInfo.FileName = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\RestartFOGService.exe";
 			process.Start();
+		}
+		
+		public static void scheduleUpdate() {
+			updatePending = true;
+		}
+
+		public static Boolean isUpdatePending() {
+			return updatePending;
+		}
+		
+		//Spawn an UpdateWaiter with the fileName parameter
+		public static void spawnUpdateWaiter(String fileName) {
+			LogHandler.log(LOG_NAME, "Spawning update waiter");
+			
+			Process process = new Process();
+			process.StartInfo.UseShellExecute = false;
+			process.StartInfo.FileName = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\FOGUpdateWaiter.exe";
+			process.StartInfo.Arguments = fileName;
+			process.Start();			
 		}
 	}
 }

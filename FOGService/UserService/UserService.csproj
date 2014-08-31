@@ -72,6 +72,10 @@
       <Project>{717A8C0E-32F9-498C-BC51-FC03D0009248}</Project>
       <Name>NotificationHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PipeClient\PipeClient.csproj">
+      <Project>{8F3F2E0B-F261-4F9C-A592-2062D8A3C2BD}</Project>
+      <Name>PipeClient</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PipeServer\PipeServer.csproj">
       <Project>{DF7C1145-E90C-486B-ACEC-543B42CF083F}</Project>
       <Name>PipeServer</Name>
@@ -87,6 +91,10 @@
     <ProjectReference Include="..\Tray\Tray.csproj">
       <Project>{3E31CCE4-D06A-4F02-A3E8-981B9033CA32}</Project>
       <Name>Tray</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UpdateWaiter\UpdateWaiter.csproj">
+      <Project>{C7113642-59C8-41C0-BF64-2F29BAE45910}</Project>
+      <Name>UpdateWaiter</Name>
     </ProjectReference>
     <ProjectReference Include="..\UserHandler\UserHandler.csproj">
       <Project>{1759DEAE-2585-4324-9F85-338BE0F755BF}</Project>
