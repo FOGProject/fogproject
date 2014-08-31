@@ -22,6 +22,16 @@ to debug and correct and make this work.
 interact with the boot menu setup for customizations as needed.
 * Adjust the menu items to go into database to allow adding own custom
 options that stay even if updated.
+* Add ability to customize iPXE Menu items besides our main defaults. May
+think about allowing editing but for now well just try the adding custom
+entries.  The first twelve items are only editable to be adjusted by default
+item or what menu they display in.
+* Inject the Boot Items into HookManager by means of array push.  This should
+allow the items to be edited using variables for each menu item as a hook to
+the event of: BOOT_ITEMS_<titlename>  Replacing titlename to stuff like:
+fog_local or fog_advanced.  The period is replaced with an _ to ensure
+compatibility.
+* Change names of PXE Menu stuff to iPXE stuff.
 
 Version 1.2.0
 -------------
