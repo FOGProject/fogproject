@@ -244,11 +244,12 @@ class FOGConfigurationPage extends FOGPage
 			print "\n\t\t\t\t\t\t".'<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$Menu->get('name').'</h3></a>';
 			print "\n\t\t\t".'<div id="'.$divTab.'">';
 			print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+			$menuid = in_array($Menu->get('id'),array(1,2,3,4,5,6,7,8,9,10,11,12));
 			$fields = array(
-				_('Menu Item:') => '<input type="text" name="menu_item" value="${menu_item}" id="menu_item" />',
-				_('Description:') => '<textarea cols="40" rows="2" name="menu_description">${menu_description}</textarea>',
-				_('Parameters:') => '<textarea cols="40" rows="8" name="menu_params">${menu_params}</textarea>',
-				_('Boot Options:') => '<input type="text" name="menu_options" id="menu_options" value="${menu_options}" />',
+				_('Menu Item:') => '<input type="text" name="menu_item" value="${menu_item}" id="menu_item" ${disabled}/>',
+				_('Description:') => '<textarea cols="40" rows="2" name="menu_description" ${disabled}>${menu_description}</textarea>',
+				_('Parameters:') => '<textarea cols="40" rows="8" name="menu_params"${disabled}>${menu_params}</textarea>',
+				_('Boot Options:') => '<input type="text" name="menu_options" id="menu_options" value="${menu_options}" ${disabled}/>',
 				_('Default Item:') => '<input type="checkbox" name="menu_default" value="1" ${menu_default}/>',
 				_('Menu Show with:') => '${menu_regmenu}',
 				'<input type="hidden" name="menu_id" value="${menu_id}" />' => '<input type="submit" value="'.$this->foglang['Submit'].'" />',
@@ -265,13 +266,21 @@ class FOGConfigurationPage extends FOGPage
 					'menu_default' => ($Menu->get('default') ? 'checked="checked"' : ''),
 					'menu_regmenu' => $Menu->regSelect(),
 					'menu_options' => $Menu->get('args'),
+					'disabled' => $menuid ? 'disabled="disabled"' : '',
 				);
 			}
+			array_push($this->HookManager->events,'BOOT_ITEMS_'.$divTab);
 			// Hook
-			$this->HookManager->processEvent('BOOT_ITEMS', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes, 'headerData' => &$this->headerData));
+			$this->HookManager->processEvent('BOOT_ITEMS_'.$divTab, array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes, 'headerData' => &$this->headerData));
 			// Output
 			$this->render();
 			print "</form>";
+			if (!$menuid)
+			{
+				print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+				print "\n\t\t\t".'<input type="hidden" name="rmid" value="'.$Menu->get('id').'" /><input type="submit" value="'.$this->foglang['Delete'].' '.$Menu->get('name').' Menu Entry" />';
+				print "\n\t\t\t".'</form>';
+			}
 			print "\n\t\t\t".'</div>';
 			// Reset for use again.
 			unset($this->data);
@@ -280,32 +289,107 @@ class FOGConfigurationPage extends FOGPage
 	}
 	public function customize_edit_post()
 	{
-		$Menu = new PXEMenuOptions($_REQUEST['menu_id']);
-		$Menu->set('name',$_REQUEST['menu_item'])
-			 ->set('description',$_REQUEST['menu_description'])
-			 ->set('params',$_REQUEST['menu_params'])
-			 ->set('regMenu',$_REQUEST['menu_regmenu'])
-			 ->set('args',$_REQUEST['menu_options']);
-		// Set all other menus that are default to non-default value.
-		foreach($this->FOGCore->getClass('PXEMenuOptionsManager')->find('','','id') AS $MenusRemoveDefault)
-			$MenusRemoveDefault->set('default',0)->save();
-		$Menu->set('default',$_REQUEST['menu_default']);
-		if ($Menu->save())
-			$this->FOGCore->setMessage($Menu->get('name').' '._('successfully updated').'!');
-		// Ensure there's only one default value.
-		$countDefault = $this->FOGCore->getClass('PXEMenuOptionsManager')->count(array('default' => 1));
-		// If there's no defaults, set the first id (local disk) to default.
-		if ($countDefault == 0 || $countDefault > 1)
-			$this->FOGCore->getClass('PXEMenuOPtions',1)->set('default',1)->save();
+		if ($_REQUEST['menu_id'])
+		{
+			$Menu = new PXEMenuOptions($_REQUEST['menu_id']);
+			$Menu->set('name',$_REQUEST['menu_item'])
+				 ->set('description',$_REQUEST['menu_description'])
+				 ->set('params',$_REQUEST['menu_params'])
+				 ->set('regMenu',$_REQUEST['menu_regmenu'])
+				 ->set('args',$_REQUEST['menu_options']);
+			// Set all other menus that are default to non-default value.
+			foreach($this->FOGCore->getClass('PXEMenuOptionsManager')->find('','','id') AS $MenusRemoveDefault)
+				$MenusRemoveDefault->set('default',0)->save();
+			$Menu->set('default',$_REQUEST['menu_default']);
+			if ($Menu->save())
+				$this->FOGCore->setMessage($Menu->get('name').' '._('successfully updated').'!');
+			// Ensure there's only one default value.
+			$countDefault = $this->FOGCore->getClass('PXEMenuOptionsManager')->count(array('default' => 1));
+			// If there's no defaults, set the first id (local disk) to default.
+			if ($countDefault == 0 || $countDefault > 1)
+				$this->FOGCore->getClass('PXEMenuOptions',1)->set('default',1)->save();
+		}
+		if ($_REQUEST['rmid'])
+		{
+			$Menu = new PXEMenuOptions($_REQUEST['rmid']);
+			$menuname = $Menu->get('name');
+			if($Menu->destroy())
+				$this->FOGCore->setMessage($menuname.' '._('successfully removed').'!');
+			$countDefault = $this->FOGCore->getClass('PXEMenuOptionsManager')->count(array('default' => 1));
+			// If the one removed was the default, it's now gone, reset.
+			if ($countDefault == 0 || $countDefault > 1)
+				$this->FOGCore->getClass('PXEMenuOptions',1)->set('default',1)->save();
+		}
 		$this->FOGCore->redirect($this->formAction);
 	}
 	public function new_menu()
 	{
-		$this->index();
+		$this->title = _('Create New iPXE Menu Entry');
+		$this->templates = array(
+			'${field}',
+			'${input}',
+		);
+		print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+		$fields = array(
+			_('Menu Item:') => '<input type="text" name="menu_item" value="${menu_item}" id="menu_item" />',
+			_('Description:') => '<textarea cols="40" rows="2" name="menu_description">${menu_description}</textarea>',
+			_('Parameters:') => '<textarea cols="40" rows="8" name="menu_params">${menu_params}</textarea>',
+			_('Boot Options:') => '<input type="text" name="menu_options" id="menu_options" value="${menu_options}" />',
+			_('Default Item:') => '<input type="checkbox" name="menu_default" value="1" ${menu_default}/>',
+			_('Menu Show with:') => '${menu_regmenu}',
+			'&nbsp;' => '<input type="submit" value="'.$this->foglang['Add'].' New Menu" />',
+		);
+		foreach($fields AS $field => $input)
+		{
+			$this->data[] = array(
+				'field' => $field,
+				'input' => $input,
+				'menu_item' => $_REQUEST['menu_item'],
+				'menu_description' => $_REQUEST['menu_description'],
+				'menu_params' => $_REQUEST['menu_params'],
+				'menu_default' => $_REQUEST['menu_default'] ? 'checked="checked"' : '',
+				'menu_regmenu' => $this->FOGCore->getClass('PXEMenuOptionsManager')->regSelect($_REQUEST['menu_regmenu']),
+				'menu_options' => $_REQUEST['menu_options'],
+			);
+		}
+		// Hook
+		$this->HookManager->processEvent('BOOT_ITEMS_ADD', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes, 'headerData' => &$this->headerData));
+		// Output
+		$this->render();
+		print "</form>";
 	}
 	public function new_menu_post()
 	{
-		$this->index();
+		try
+		{
+			// Error checking
+			// At the least, you should have an item and a description.
+			if (!$_REQUEST['menu_item'])
+				throw new Exception(_('Menu Item or title cannot be blank'));
+			if (!$_REQUEST['menu_description'])
+				throw new Exception(_('A description needs to be set'));
+			$Menu = new PXEMenuOptions(array(
+				'name' => $_REQUEST['menu_item'],
+				'description' => $_REQUEST['menu_description'],
+				'params' => $_REQUEST['menu_params'],
+				'regMenu' => $_REQUEST['menu_regmenu'],
+				'args' => $_REQUEST['menu_options'],
+			));
+			if ($Menu->save())
+				$this->FOGCore->setMessage($Menu->get('name').' '._('successfully added, you may now add another'));
+			// Set all other menus that are default to non-default value.
+			if ($_REQUEST['menu_default'])
+			{
+				foreach($this->FOGCore->getClass('PXEMenuOptionsManager')->find('','','id') AS $MenusRemoveDefault)
+					$MenusRemoveDefault->set('default',0)->save();
+				$Menu->set('default',1)->save();
+			}
+		}
+		catch (Exception $e)
+		{
+			$this->FOGCore->setMessage($e->getMessage());
+		}
+		$this->FOGCore->redirect($this->formAction);
 	}
 	// Client Updater
 	/** client_updater()
