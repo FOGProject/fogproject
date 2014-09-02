@@ -300,29 +300,9 @@ EOFRESTOREPART
 				diskLength=`expr length $hd`;
 				for part in $parts; do
 					savePartition "$part" "1" "$imagePath" "$diskLength" "$cores" "$imgPartitionType"
-					mkfifo /tmp/pigz1;
-					partNum=${part:$diskLength};
-					echo " * Processing Partition: $part ($partNum)";
-					fstype=`fsTypeSetting $part`;
-					if [ "$fstype" != "swap" ]; then
-						echo -n " * Using partclone.";
-						echo $fstype;
-						sleep 5;
-						imgpart="$imagePath/d1p${partNum}.img";
-						uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
-						partclone.$fstype -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
-						mv $imgpart.000 $imgpart 2>/dev/null;
-						debugPause
-						clear;
-						echo " * Image uploaded";
-					else
-						echo " * Not uploading swap partition";
-						saveSwapUUID "${imagePath}/d1.original.swapuuids" "$part"; 
-					fi
-					rm /tmp/pigz1;
+					debugPause;
 				done
 				echo " * Task complete!";
-				debugPause
 			else
 				handleError "Unable to create $imagePath";
 			fi
@@ -345,27 +325,8 @@ EOFRESTOREPART
 					diskLength=`expr length $disk`;
 					for part in $parts; do
 						savePartition "$part" "$intDisk" "$imagePath" "$diskLength" "$cores" "$imgPartitionType"
-						mkfifo /tmp/pigz1;
-						partNum=${part:diskLength};
-						echo " * Processing Partition: $part ($partNum)";
-						fstype=`fsTypeSetting $part`;
-						if [ "$fstype" != "swap" ]; then
-							echo -n " * Using partclone.";
-							echo $fstype;
-							imgpart="$imagePath/d${intDisk}p${partNum}.img";
-							uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
-							partclone.$fstype -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
-							mv $imgpart.000 $imgpart;
-							debugPause
-							clear;
-							echo " * Image uploaded";
-						else
-							echo " * Not uploading swap partition";
-							saveSwapUUID "${imagePath}/d${intDisk}.original.swapuuids" "$part"; 
-						fi
-						rm /tmp/pigz1;
+						debugPause
 					done
-					debugPause
 				else
 					handleError "Unable to create $imagePath";
 				fi
