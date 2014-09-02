@@ -5,7 +5,7 @@
 
 
 # Comment or remove the line below.
-Example
+#Example
 
 # Uncomment this option to enable logging.
 # LogFile must be writable for the user running daemon.
@@ -193,6 +193,7 @@ Example
 # Run as another user (clamd must be started by root for this option to work)
 # Default: don't drop privileges
 #User clamav
+User root
 
 # Initialize supplementary group access (clamd must be started by root).
 # Default: no

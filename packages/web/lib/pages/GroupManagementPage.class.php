@@ -684,7 +684,7 @@ class GroupManagementPage extends FOGPage
 			_('Domain name') => '<input id="adDomain" type="text" name="domainname" autocomplete="off" />',
 			_('Organizational Unit') => $OUOptions,
 			_('Domain Username') => '<input id="adUsername" type="text" name="domainuser" autocomplete="off" />',
-			_('Domain Password') => '<input id="adPassword" type="password" name="domainpass" autocomplete="off" /><span class="lightColor">('._('Must be encrypted').')</span>',
+			_('Domain Password') => '<input id="adPassword" type="password" name="domainpassword" autocomplete="off" /><span class="lightColor">('._('Must be encrypted').')</span>',
 			'<input type="hidden" name="updatead" value="1" />' => '<input type="submit" value="'._('Update').'" />',
 		);
 		foreach ((array)$fields AS $field => $input)

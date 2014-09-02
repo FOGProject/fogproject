@@ -47,6 +47,7 @@ class BootMenu extends FOGBase
 		parent::__construct();
 		// Setups of the basic construct for the menu system.
 		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'isMaster' => 1)));
+		// Sets up the default values stored in the server. Lines 51 - 64
 		$webserver = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_WEB_HOST'));
 		$webroot = '/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/';
 		$this->web = "${webserver}${webroot}";
@@ -58,69 +59,55 @@ class BootMenu extends FOGBase
 		$this->timeout = $timeout;
 		$memdisk = 'memdisk';
 		$memtest = $this->FOGCore->getSetting('FOG_MEMTEST_KERNEL');
-		if ($_REQUEST['arch'] != 'x86_64')
-		{
-			$bzImage = $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_32');
-			$imagefile = $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32');
-		}
-		else
-		{
-			$bzImage = $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL');
-			$imagefile = $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE');
-		}
+		// Default bzImage and imagefile based on arch received.
+		$bzImage = ($_REQUEST['arch'] == 'x86_64' ? $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL') : $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_32'));
+		$imagefile = ($_REQUEST['arch'] == 'x86_64' ? $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE') : $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32'));
+		// Adjust file info if host is valid.
 		if ($Host && $Host->isValid())
 		{
+			// If the host kernel param is set, use that kernel to boot the host.
+			($Host->get('kernel') ? $bzImage = $Host->get('kernel') : null);
+			// Check location association of the host.
 			$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
 			if ($LA)
 				$Location = new Location($LA->get('locationID'));
+			// If the location is valid and set, use the information to build the menu.
 			if ($Location && $Location->isValid())
 			{
+				// If location tftp method is used, get the files from the location the host is assigned to.  Otherwise get the best node for the host to work from.
 				$StorageNode = $Location->get('tftp') && $Location->get('storageNodeID') ? new StorageNode($Location->get('storageNodeID')) : $this->FOGCore->getClass('StorageGroup',$Location->get('storageGroupID'))->getOptimalStorageNode();
+				// If tftp is set, the storage node and download params are set.
 				if ($Location->get('tftp'))
 				{
 					$memdisk = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/memdisk';
 					$memtest = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_MEMTEST_KERNEL');
-					if ($Host->get('kernel') && $_REQUEST['arch'] != 'x86_64')
-					{
-						$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$Host->get('kernel');
-						$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32');
-					}
-					else if ($Host->get('kernel') && $_REQUEST['arch'] == 'x86_64')
-					{
-						$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$Host->get('kernel');
-						$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE');
-					}
-					else if ($_REQUEST['arch'] != 'x86_64')
-					{
-						$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_32');
-						$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32');
-					}
-					else
-					{
-						$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL');
-						$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE');
-					}
+					$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.($Host->get('kernel') ? $Host->get('kernel') : ($_REQUEST['arch'] == 'x86_64' ? $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE') : $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32')));
+					$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.($_REQUEST['arch'] == 'x86_64' ? $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE') : $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32'));
 				}
-
 			}
-			else if ($Host->get('kernel'))
-				$bzImage = $Host->get('kernel');
 		}
+		// Sets the key sequence.  Only used if the hidden menu option is selected.
 		$keySequence = $this->FOGCore->getSetting('FOG_KEY_SEQUENCE');
 		if ($keySequence)
 			$this->KS = new KeySequence($keySequence);
+		// menu Access sets if the menu is displayed.  Menu access is a url get variable if a user has specified hidden menu it will override if menuAccess is set.
 		if (!$_REQUEST['menuAccess'])
 			$this->hiddenmenu = $this->FOGCore->getSetting('FOG_PXE_MENU_HIDDEN');
+		// Generate the URL to boot from.
 		$this->booturl = "http://${webserver}${webroot}service";
+		// Store the host call into class global.
 		$this->Host = $Host;
+		// Capone menu setup.
 		$CaponePlugInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'capone','state' => 1,'installed' => 1)));
 		$DMISet = $CaponePlugInst ? $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_DMI') : false;
+		// If it is installed store the needed elements into variables.
 		if ($CaponePlugInst)
 		{
 			$this->storage = $StorageNode->get('ip');
 			$this->path = $StorageNode->get('path');
 			$this->shutdown = $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN');
 		}
+		// Create menu item if not exists and Capone is installed as well as the DMI is specified.
 		if ($CaponePlugInst && $DMISet)
 		{
 			// Check for fog.capone if the pxe menu entry exists.
@@ -142,6 +129,7 @@ class BootMenu extends FOGBase
 			}
 			$PXEMenuItem->save();
 		}
+		// Specify the default calls.
 		$this->memdisk = "kernel $memdisk";
 		$this->memtest = "initrd $memtest";
 		$this->kernel = "kernel $bzImage initrd=$imagefile root=/dev/ram0 rw ramdisk_size=$ramsize ip=dhcp dns=$dns keymap=$keymap web=${webserver}${webroot} consoleblank=0";
@@ -664,7 +652,7 @@ class BootMenu extends FOGBase
 					'active' => $this->FOGCore->getSetting('FOG_MINING_ENABLE'),
 				),
 				array(
-					'value' => 'debug=yes',
+					'value' => 'isdebug=yes',
 					'active' => $Task->get('isDebug'),
 				),
 				$TaskType->get('kernelArgs'),
