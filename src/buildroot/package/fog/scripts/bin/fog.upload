@@ -303,7 +303,6 @@ EOFRESTOREPART
 					debugPause;
 				done
 				echo " * Task complete!";
-				debugPause
 			else
 				handleError "Unable to create $imagePath";
 			fi
