@@ -325,12 +325,14 @@ EOFRESTOREPART
 					diskLength=`expr length $disk`;
 					for part in $parts; do
 						savePartition "$part" "$intDisk" "$imagePath" "$diskLength" "$cores" "$imgPartitionType"
-						debugPause
+						debugPause;
 					done
 				else
 					handleError "Unable to create $imagePath";
 				fi
+				echo " * Disk $disk copmlete!";
 				intDisk=`expr $intDisk '+' 1`;
+				debugPause;
 			done
 		else
 			imgpart="$imagePath/$img";
