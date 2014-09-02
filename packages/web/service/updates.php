@@ -16,7 +16,7 @@ try
 		foreach($FOGCore->getClass('ClientUpdaterManager')->find(array('name' => base64_decode($_REQUEST['file']))) AS $ClientUpdate)
 		{
 			if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'])
-				$Datatosend = "#!ok\n#filename=".basename($ClientUpdate->get('name'))."\n#updatefile=".base64_encode($ClientUpdate->get('file'));
+				$Datatosend = "#!ok\n#filename=".basename($ClientUpdate->get('name'))."\n#updatefile=".bin2hex($ClientUpdate->get('file'));
 			else
 			{
 				header("Cache-control: must-revalidate, post-check=0, pre-check=0");
@@ -32,10 +32,12 @@ try
 		$updateIndex = 0;
 		foreach($FOGCore->getClass('ClientUpdaterManager')->find() AS $ClientUpdate)
 		{
-			$Datatosend = $FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n#update{$updateIndex}=".base64_encode($ClientUpdate->get('name'))."\n" : base64_encode($ClientUpdate->get('name'));
+			$Data[] = $FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#update{$updateIndex}=".base64_encode($ClientUpdate->get('name'))."\n" : base64_encode($ClientUpdate->get('name'));
 			$updateIndex++;
 		}
 	}
+	if ($Data)
+		$Datatosend = $FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n".implode("\n",$Data) : implode("\n",$Data);
 }
 catch (Exception $e)
 {
