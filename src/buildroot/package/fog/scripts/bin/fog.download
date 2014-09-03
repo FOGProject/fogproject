@@ -443,12 +443,10 @@ else
 			done
 			debugPause;
 		else
-			writeImage $imagePath $part;
+			writeImage "$imagePath/sys.img.*" $part;
 			debugPause;
 			expandPartition $part;
-
 		fi
-
 	elif [ "$imgType" == "mps" ]; then
 		dots "Checking Hard Disks";
 		runPartprobe $hd &> /dev/null;
@@ -539,4 +537,3 @@ debugPause;
 # sh-indentation: 4
 # tab-width: 4
 # End:
-
