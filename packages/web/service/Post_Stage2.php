@@ -52,8 +52,8 @@ try
 			// Set the src based on the image and node path.
 			$src = $StorageNode->get('path').'/dev/'.$macftp;
 			// XP only, typically, had one part so only need the file part.
-			if (($_REQUEST['osid'] == '1' || $_REQUEST['osid'] == '2') && $_REQUEST['imgtype'] == 'n')
-				$src = $StorageNode->get('path').'/dev/'.$macftp.'/'.$macftp.'.000';
+			//if (($_REQUEST['osid'] == '1' || $_REQUEST['osid'] == '2') && $_REQUEST['imgtype'] == 'n')
+			//	$src = $StorageNode->get('path').'/dev/'.$macftp.'/'.$macftp.'.000';
 			// Where is it going?
 			$dest = $StorageNode->get('path').'/'.$_REQUEST['to'];
 			//Attempt transfer of image file to Storage Node
