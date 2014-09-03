@@ -7,9 +7,17 @@ task.
 information.
 * Fix multicast issues for all relevant systems. Thank you Curtis.
 * Fix snapins operate only if the host has snapins.
+* Fix size display of images on server to display proper sizes through the use
+of rawlist.
 * Move clamav off of server to static binaries.  Bumps size of installer
 folder from 80MB to 277MB.  However clamav is not loaded in the initrd file
 and this same clamav can operate on the fog server.
+* Have Vista and XP images follow the same format as Windows 7 and higher
+images (e.g. /images/<imagepath>/sys.img.000) for resizable.  WARNING:
+Possibly will break older images of the same type.  Meaning to fix:
+find the image file (usually in the format: /images/<imagefilepath> as a file
+on the disk within the /images folder.  mkdir /images/<imagepath>; mv
+/images/<imagefilepath> /images/<imagepath>/sys.img.000
 * Add installer files from David Fear to fog to allow FOG Installation on
 Arch Linux.
 * Add partition imaging selection options into GUI and fog to operate within.
