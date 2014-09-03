@@ -330,7 +330,7 @@ EOFRESTOREPART
 				else
 					handleError "Unable to create $imagePath";
 				fi
-				echo " * Disk $disk copmlete!";
+				echo " * Disk $disk complete!";
 				intDisk=`expr $intDisk '+' 1`;
 				debugPause;
 			done
