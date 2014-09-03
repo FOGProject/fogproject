@@ -212,7 +212,7 @@ if [ -f "/images/.mntcheck" ]; then
 						cd /;
 					fi
 				else
-					uploadFormat "$cores" "/tmp/pigz1" "$imagePath/$macWinSafe";
+					uploadFormat "$cores" "/tmp/pigz1" "$imagePath/sys.img";
 					partclone.ntfs -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
 				fi
 				chmod -R 777 $imagePath;
