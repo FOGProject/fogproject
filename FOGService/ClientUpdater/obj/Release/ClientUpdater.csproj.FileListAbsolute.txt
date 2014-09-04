@@ -1,0 +1,3 @@
+D:\fog\FOGService\bin\ClientUpdater.dll
+D:\fog\FOGService\ClientUpdater\obj\Release\ResolveAssemblyReference.cache
+D:\fog\FOGService\ClientUpdater\obj\Release\ClientUpdater.dll

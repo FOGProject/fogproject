@@ -22,7 +22,6 @@
 						<File Id="ShutdownHandler" Name="ShutdownHandler.dll" Source="..\bin\ShutdownHandler.dll"/>
 						<File Id="SnapinClient" Name="SnapinClient.dll" Source="..\bin\SnapinClient.dll"/>
 						<File Id="FOGTray" Name="FOGTray.exe" Source="..\bin\FOGTray.exe"/>
-						<File Id="RestartFOGService" Name="RestartFOGService.exe" Source="..\bin\RestartFOGService.exe"/>
 						<File Id="TaskReboot" Name="TaskReboot.dll" Source="..\bin\TaskReboot.dll"/>
 						<File Id="UserHandler" Name="UserHandler.dll" Source="..\bin\UserHandler.dll"/>
 						<File Id="FOGUpdateHelper" Name="FOGUpdateHelper.exe" Source="..\bin\FOGUpdateHelper.exe"/>

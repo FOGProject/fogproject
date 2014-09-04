@@ -87,10 +87,6 @@
       <Project>{7BA48875-2930-4A9B-9216-255FCA1E86BE}</Project>
       <Name>RegistryHandler</Name>
     </ProjectReference>
-    <ProjectReference Include="..\RestartService\RestartService.csproj">
-      <Project>{16BB08D1-B8E7-4304-8795-3C06E529CFF3}</Project>
-      <Name>RestartService</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Service\Service.csproj">
       <Project>{5C3289AB-B65D-42F8-BFD0-21C61619729A}</Project>
       <Name>Service</Name>

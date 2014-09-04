@@ -52,6 +52,9 @@ namespace FOG{
 				
 				//Setup the user-service pipe server, this is only Server -- > Client communication so no need to setup listeners
 				this.userServicePipe = new PipeServer("fog_pipe_service");
+				
+				//Unschedule any old updates
+				ShutdownHandler.unScheduleUpdate();
 			}
 		}
 		
@@ -99,6 +102,9 @@ namespace FOG{
 				this.threadManager.IsBackground = true;
 				this.threadManager.Name = "FOGService";
 				this.threadManager.Start();
+				
+				//Unschedule any old updates
+				ShutdownHandler.unScheduleUpdate();
 			}
         }
 		
@@ -145,17 +151,20 @@ namespace FOG{
 					
 				}
 					
-				//Once all modules have been run, sleep for the set time
-				int sleepTime = getSleepTime();
-				LogHandler.log(LOG_NAME, "Sleeping for " + sleepTime.ToString() + " seconds");
-				Thread.Sleep(sleepTime * 1000);
+				
+				if(!ShutdownHandler.isShutdownPending() && !ShutdownHandler.isUpdatePending()) {
+					//Once all modules have been run, sleep for the set time
+					int sleepTime = getSleepTime();
+					LogHandler.log(LOG_NAME, "Sleeping for " + sleepTime.ToString() + " seconds");
+					Thread.Sleep(sleepTime * 1000);
+				}
 			}
 			
 			if(ShutdownHandler.isUpdatePending()) {
 				try {
 					
 					//Create updating.info which will warn any sub-processes currently starting that they should stop
-					File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"\updating.info"), "");
+					File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + @"\updating.info", "");
 					//Give time for any sub-processes that may be in the middle of initializing and missed the updating.info file so they can recieve the update pipe notice
 					Thread.Sleep(1000);
 					
@@ -166,17 +175,15 @@ namespace FOG{
 					//Kill any FOG sub processes still running after the notification
 					killFOGSubProcesses();
 					
-					//Spawn the UpdateWaiter
-					ShutdownHandler.spawnUpdateWaiter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, System.Reflection.Assembly.GetExecutingAssembly().Location));
-					
 					//Launch the updater
 					LogHandler.log(LOG_NAME, "Spawning update helper");
 			
 					Process process = new Process();
 					process.StartInfo.UseShellExecute = false;
 					process.StartInfo.FileName = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\FOGUpdateHelper.exe";
-					process.Start();	
+					process.Start();
 					
+
 				} catch (Exception ex) {
 					LogHandler.log(LOG_NAME, "Unable to perform update");
 					LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);

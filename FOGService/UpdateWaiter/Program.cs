@@ -12,11 +12,7 @@ namespace FOG {
 			//Check if an parameter was passed
 			if(args.Length > 0) {
 				//Wait for all update files to be applied
-				while(updateFilesPresent()) { }
-				
-				//Wait 5 seconds to ensure the update process is complete
-				Thread.Sleep(5 * 1000);
-				
+				while(updateFilePresent()) { }				
 				//Spawn the process that originally called this program
 				if(File.Exists(args[0]))
 					spawnParentProgram(args[0]);
@@ -24,13 +20,15 @@ namespace FOG {
 			
 		}
 		
-		private static Boolean updateFilesPresent() {
+		private static Boolean updateFilePresent() {
+			fileFound = false;
 			foreach(String fileName in Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory)) {
-				if(fileName.EndsWith(".update"))
-					return true;
+				if(fileName.EndsWith("updating.info")) 
+					fileFound =  true;
 			}
+			Thread.Sleep(10 * 1000);
 			
-			return false;
+			return fileFound;
 		}
 		
 		private static void spawnParentProgram(String fileName) {

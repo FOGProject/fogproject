@@ -107,6 +107,10 @@ namespace FOG {
 			return updatePending;
 		}
 		
+		public static void unScheduleUpdate() {
+			updatePending = false;
+		}
+		
 		//Spawn an UpdateWaiter with the fileName parameter
 		public static void spawnUpdateWaiter(String fileName) {
 			LogHandler.log(LOG_NAME, "Spawning update waiter");
@@ -114,7 +118,7 @@ namespace FOG {
 			Process process = new Process();
 			process.StartInfo.UseShellExecute = false;
 			process.StartInfo.FileName = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\FOGUpdateWaiter.exe";
-			process.StartInfo.Arguments = fileName;
+			process.StartInfo.Arguments = "\"" + fileName + "\"";
 			process.Start();			
 		}
 	}
