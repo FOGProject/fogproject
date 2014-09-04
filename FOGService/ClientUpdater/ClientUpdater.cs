@@ -18,6 +18,7 @@ namespace FOG
 			setName("ClientUpdater");
 			setDescription("Update the FOG Service");
 			this.updatePending = false;
+			
 		}
 		
 		protected override void doWork() {
@@ -44,7 +45,7 @@ namespace FOG
 							LogHandler.log(getName(), "Remote file is newer, attempting to update");
 							
 							if(generateUpdateFile(askResponse.getField("#md5"), updateFile))
-								prepUpdate(updateFile);
+								prepareUpdaste(updateFile);
 						} else {
 							LogHandler.log(getName(), "Remote file is the same as this local copy");
 						}
@@ -98,32 +99,27 @@ namespace FOG
 		}
 		
 		//Prepare the downloaded update
-		private void prepUpdate(String updateFile) {
+		private void prepareUpdaste(String updateFile) {
 			if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile)) {
-				try { 
-					//Try and move the file, if it fails try again for a few times
-					for(int i=0; i < 5; i++) {
-						try {
-							//Delete old version
-							if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile + ".update"))
-								File.Delete(AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile + ".update");
 							
-							File.Move(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile,
-							          AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile  + ".update");
-							this.updatePending = true;		
-							LogHandler.log(getName(), "Successfully prepped " + updateFile + " for updating");
-							break;
-						} catch (Exception ex) {
-							LogHandler.log(getName(), "Unable to prepare " + updateFile);
-							LogHandler.log(getName(), "ERROR: " + ex.Message);
-						}
-						if(i < 4) {
-							LogHandler.log(getName(), "Will attempt to update again in 2 seconds");
-							Thread.Sleep(2000);
-						}
+				try {
+					try {
+						if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile))
+							File.Delete(AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile);
+						
+						File.Move(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile, AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile);
+						LogHandler.log(getName(), "Successfully applied " + updateFile + ", no service restart needed for this update");   
+					} catch (Exception) {
+						if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile + ".update"))
+							File.Delete(AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile + ".update");
+							
+						File.Move(AppDomain.CurrentDomain.BaseDirectory + @"tmp\" + updateFile, AppDomain.CurrentDomain.BaseDirectory + @"\" + updateFile + ".update");
+						this.updatePending = true;
+						LogHandler.log(getName(), "Successfully prepared " + updateFile + " for updating, a service restart is required for this update");		
 					}
+						
 				} catch (Exception ex) {
-					LogHandler.log(getName(), "Unable to apply update file");
+					LogHandler.log(getName(), "Unable to prepare " + updateFile);
 					LogHandler.log(getName(), "ERROR: " + ex.Message);
 				}
 			} else {
