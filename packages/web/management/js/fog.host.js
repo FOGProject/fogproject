@@ -15,6 +15,9 @@ $(function()
 	$('.toggle-checkbox').click(function() {
 		$('input.toggle-host:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
 	});
+	$('.toggle-checkboxgroup').click(function() {
+		$('input.toggle-group:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+	});
 	//Action Box, had to remove action-box id search as it seems broken.
 	$('#action-box').submit(function() {
 		var checked = $('input.toggle-host:checked');
