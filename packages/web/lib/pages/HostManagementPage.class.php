@@ -444,18 +444,55 @@ class HostManagementPage extends FOGPage
 		$this->render();
 		print '</form>';
 		print "\n\t\t\t</div>";
-		foreach((array)$Host->get('groups') AS $Group)
-			$GroupIDs[] = $Group && $Group->isValid() ? $Group->get('id') : '';
-		$GroupStuff = $this->FOGCore->getClass('GroupManager')->buildSelectBox('','group[]" multiple="multiple','name',$GroupIDs);
+		unset($this->data);
 		print "\n\t\t\t<!-- Group Relationships -->";
 		print "\n\t\t\t".'<div id="host-grouprel" class="organic-tabs-hidden">';
 		print "\n\t\t\t<h2>"._('Group Relationships').'</h2>';
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-grouprel">';
-		if ($GroupStuff)
+		// Get all group id's the host belongs to.
+		foreach((array)$Host->get('groups') AS $Group)
+			$GroupIDs[] = $Group && $Group->isValid() ? $Group->get('id') : '';
+		// Get Groups that are not associated with this host.
+		foreach($this->FOGCore->getClass('GroupManager')->find() AS $Group)
 		{
-			print "\n\t\t\t<p>"._('The selection box below will add your host to a group automatically.').'</p>';
-			print "\n\t\t\t<p><center>$GroupStuff";
-			print "\n\t\t\t".'<input type="submit" value="'._('Add to Group(s)').'" /></center></p>';
+			if (!in_array($Group->get('id'),(array)$GroupIDs))
+				$Groups[] = $Group;
+		}
+		// Create the Header:
+		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkboxgroup" class="toggle-checkboxgroup" />',
+			_('Name'),
+			_('Members'),
+		);
+		// Create the template:
+		$this->templates = array(
+			'<input type="checkbox" name="group[]" value="${group_id}" class="toggle-group" />',
+			sprintf('<a href="?node=group&sub=edit&id=${group_id}" title="Edit">${group_name}</a>'),
+			'${group_count}',
+		);
+		// Create the attributes:
+		$this->attributes = array(
+			array('width' => 20, 'class' => 'l'),
+			array('width' => 90, 'class' => 'l'),
+			array('width' => 40, 'class' => 'c'),
+		);
+		foreach((array)$Groups AS $Group)
+		{
+			if ($Group && $Group->isValid())
+			{
+				$this->data[] = array(
+					'group_id' => $Group->get('id'),
+					'group_name' => $Group->get('name'),
+					'group_count' => $Group->getHostCount(),
+				);
+			}
+		}
+		if (count($this->data) > 0)
+		{
+			$this->HookManager->processEvent('HOST_GROUP_JOIN',array('headerData' => &$this->headerData,'templates' => &$this->templates,'attributes' => &$this->attributes,'data' => &$this->data));
+			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-grouprel">';
+			$this->render();
+			print '<center><input type="submit" value="'._('Add to Group(s)').'" /></center>';
+			print "\n\t\t\t</form>";
 		}
 		unset($this->data);
 		$this->headerData = array(
@@ -487,6 +524,7 @@ class HostManagementPage extends FOGPage
 		}
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_GROUP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-grouprel">';
 		$this->render();
 		unset($this->data,$this->headerData);
 		print '</form>';
@@ -1149,7 +1187,10 @@ class HostManagementPage extends FOGPage
 				break;
 				case 'host-grouprel';
 					if($_POST['group'])
-						$Host->addGroup($_POST['group']);
+					{
+						foreach($_POST['group'] AS $i => $groupid)
+							$Host->addGroup($groupid);
+					}
 					if(isset($_POST['groupdel']))
 						$Host->removeGroup($_POST['groupdel']);
 				break;
