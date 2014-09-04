@@ -235,7 +235,7 @@ class GroupManagementPage extends FOGPage
 	public function edit()
 	{
 		// Find
-		$Group = new Group($_REQUEST['id']);	
+		$Group = new Group($_REQUEST['id']);
 		// If location is installed.
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// If all hosts have the same image setup up the selection.
@@ -378,53 +378,133 @@ class GroupManagementPage extends FOGPage
 		$this->HookManager->processEvent('GROUP_DATA_ADV', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
-		$GAs = $this->FOGCore->getClass('GroupAssociationManager')->find(array('groupID' => $Group->get('id')));
-		$AllGAs = $this->FOGCore->getClass('GroupAssociationManager')->find();
-		foreach((array)$AllGAs AS $GAAll)
-		{
-			$MyCurGroup = new Group($GAAll->get('groupID'));
-			if ($MyCurGroup->isValid())
-				$AllHostIDs[] = $GAAll->get('hostID');
-		}
-		$AllHostIDs = array_unique((array)$AllHostIDs);
-		foreach((array)$GAs AS $GA)
-			$HostIDs[] = $GA->get('hostID');
-		$HostStuff = $this->FOGCore->getClass('HostManager')->buildSelectBox('','host[]" multiple="','name',$HostIDs);
 		// Unset for later use.
 		unset ($this->data);
 		print '</div>';
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t</form>";
 		print "\n\t\t\t<!-- Membership -->";
+		// Hopeful implementation of all groups to add to group system in similar means to how host page does from list/search functions.
 		print "\n\t\t\t".'<div id="group-membership">';
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
-		// These methods below will get all Hosts without a Group Association at all.
-		$AllHostsInGeneral = $this->FOGCore->getClass('HostManager')->find();
-		foreach($AllHostsInGeneral AS $HostGroupStuff)
+		// Create the Header data:
+		$this->headerData = array(
+			'',
+			'<input type="checkbox" name="toggle-checkboxgroup1" class="toggle-checkbox1" checked="checked" />',
+			($_SESSION['FOGPingActive'] ? '' : null),
+			_('Host Name'),
+			_('Image'),
+		);
+		// Create the template data:
+		$this->templates = array(
+			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host1" checked="checked" />',
+			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
+			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+			'${image_name}',
+		);
+		// Create the attributes to build the table info:
+		$this->attributes = array(
+			array('width' => 22, 'id' => 'host-${host_name}'),
+			array('class' => 'c', 'width' => 16),
+			($_SESSION['FOGPingActive'] ? array('width' => 20) : ''),
+			array(),
+			array(),
+		);
+		// Get All Hosts not a part of this group.
+		foreach($this->FOGCore->getClass('GroupAssociationManager')->find() AS $GroupAssoc)
 		{
-			if (!in_array($HostGroupStuff->get('id'),(array)$AllHostIDs))
-				$GroupOption[] = '<option value="'.$HostGroupStuff->get('id').'">'.$HostGroupStuff->get('name').' - ('.$HostGroupStuff->get('id').')</option>';
+			if ($GroupAssoc && $GroupAssoc->isValid() && $GroupAssoc->get('groupID') != $Group->get('id'))
+				$HostNotInGroup[] = new Host($GroupAssoc->get('hostID'));
 		}
-		if ($HostStuff)
+		// Get All Host ID's that are, in general, a part of a group.
+		foreach($this->FOGCore->getClass('GroupAssociationManager')->find() AS $GroupAssoc)
 		{
+			if ($GroupAssoc && $GroupAssoc->isValid())
+				$HostInAnyGroupIDs[] = $GroupAssoc->get('hostID');
+		}
+		// Get all Hosts that are not a part of any group
+		foreach($this->FOGCore->getClass('HostManager')->find() AS $AllHost)
+		{
+			if ($AllHost && $AllHost->isValid() && !in_array($AllHost->get('id'),$HostInAnyGroupIDs))
+			{
+				$HostNotInGroup[] = $AllHost;
+				$HostNotInAnyGroup[] = $AllHost;
+			}
+		}
+		// All hosts not in this group.
+		foreach((array)$HostNotInGroup AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				$this->data[] = array(
+					'host_id' => $Host->get('id'),
+					'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+					'host_name' => $Host->get('name'),
+					'host_mac' => $Host->get('mac')->__toString(),
+					'host_desc' => $Host->get('description'),
+					'image_name' => $Host->getImage()->get('name'),
+				);
+			}
+		}
+		$GroupDataExists = false;
+		if (count($this->data) > 0)
+		{
+			$GroupDataExists = true;
+			$this->HookManager->processEvent('HOST_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 			print "\n\t\t\t".'<h2>'._('Modify Membership for').' '.$Group->get('name').'</h2>';
 			print "\n\t\t\t".'<p><center>'._('Add hosts to group').' '.$Group->get('name').':</center></p>';
-			print "\n\t\t\t".'<p><center>'.$HostStuff.'</center></p>';
+			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
+			$this->render();
 		}
-		if ($GroupOption)
+		unset($this->data);
+		// Create the Header data:
+		$this->headerData = array(
+			'',
+			'<input type="checkbox" name="toggle-checkboxgroup2" class="toggle-checkbox2" checked="checked" />',
+			($_SESSION['FOGPingActive'] ? '' : null),
+			_('Host Name'),
+			_('Image'),
+		);
+		// Create the template data:
+		$this->templates = array(
+			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host2" checked="checked" />',
+			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
+			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+			'${image_name}',
+		);
+		// All hosts not in any group.
+		foreach((array)$HostNotInAnyGroup AS $Host)
 		{
+			if ($Host && $Host->isValid())
+			{
+				$this->data[] = array(
+					'host_id' => $Host->get('id'),
+					'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+					'host_name' => $Host->get('name'),
+					'host_mac' => $Host->get('mac')->__toString(),
+					'host_desc' => $Host->get('description'),
+					'image_name' => $Host->getImage()->get('name'),
+				);
+			}
+		}
+		if (count($this->data) > 0)
+		{
+			$GroupDataExists = true;
+			$this->HookManager->processEvent('HOST_NOT_IN_ANY',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 			print "\n\t\t\t"._('Check here to see hosts not within a group').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" />';
 			print "\n\t\t\t".'<center><div id="hostNoGroup">';
 			print "\n\t\t\t".'<p><center>'._('Hosts below do not belong to a group').'</center></p>';
-			print "\n\t\t\t".'<select name="host[]" multiple="" autocomplete="off">'."\n\t\t\t".'<option value=""> - '._('Please select an option').' - </option>'.implode("\n\t\t\t\t",(array)$GroupOption)."\n\t\t\t</select>";
-			print "\n\t\t\t".'</div></center>';
+			print "\n\t\t\t".'<p><center>'._('Add hosts to group').' '.$Group->get('name').':</center></p>';
+			$this->render();
+			print "\n\t\t\t</div>";
 		}
-		if ($HostStuff || $GroupOption)
+		if ($GroupDataExists)
 		{
-			print "\n\t\t\t".'<center><input type="submit" value="'._('Add Host(s) to Group').'" /></center>';
+			print '<center><input type="submit" value="'._('Add Host(s) to Group').'" /></center>';
 			print "\n\t\t\t</form>";
-			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
 		}
+		unset($this->data);
 		$this->headerData = array(
             _('Hostname'),
             ('Deployed'),
@@ -456,6 +536,7 @@ class GroupManagementPage extends FOGPage
 				);
 			}
 		}
+		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
 		// Hook
 		$this->HookManager->processEvent('GROUP_MEMBERSHIP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
@@ -731,6 +812,9 @@ class GroupManagementPage extends FOGPage
 	{
 		// Find
 		$Group = new Group($_REQUEST['id']);
+		// Hosts to edit, unique.
+		if ($_REQUEST['host'])
+			$HostIDs = array_unique($_REQUEST['host']);
 		// Hook
 		$this->HookManager->processEvent('GROUP_EDIT_POST', array('Group' => &$Group));
 		// Group Edit 
@@ -790,8 +874,11 @@ class GroupManagementPage extends FOGPage
 								$Host->set('imageID',$_POST[$Host->get('name').'_'.$Host->get('id')])->save();
 						}
 					}
-					if($_POST['host'])
-						$Group->addHost($_POST['host']);
+					if($HostIDs)
+					{
+						foreach((array)$HostIDs AS $HostID)
+							$Group->addHost($HostID);
+					}
 					if(isset($_POST['member']))
 						$Group->removeHost($_POST['member']);
 				break;
@@ -877,9 +964,9 @@ class GroupManagementPage extends FOGPage
 						if ($Host && $Host->isValid())
 						{
 							$Host->set('printerLevel', $_REQUEST['level']);
-							if (!empty($_POST['prntadd']))
+							if ($_REQUEST['prntadd'])
 								$Host->addPrinter($_REQUEST['prntadd']);
-							if (!empty($_POST['prntdel']))
+							if ($_REQUEST['prntdel'])
 								$Host->removePrinter($_REQUEST['prntdel']);
 							$Host->save();
 						}
