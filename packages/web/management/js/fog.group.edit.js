@@ -10,6 +10,13 @@ $(function()
 {
 	// Just hide the group info
 	$('#hostNoGroup').hide();
+	// Checkbox toggles
+	$('.toggle-checkbox1').click(function() {
+		$('input.toggle-host1:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+	});
+	$('.toggle-checkbox2').click(function() {
+		$('input.toggle-host2:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+	});
 	// Bind to AD Settings checkbox
 	$('#adEnabled').change(function() {
 		
