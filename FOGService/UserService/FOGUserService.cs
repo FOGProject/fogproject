@@ -61,6 +61,9 @@ namespace FOG {
 				threadManager.Priority = ThreadPriority.Normal;
 				threadManager.IsBackground = true;
 				threadManager.Start();
+				if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\updating.info"))
+					Environment.Exit(0);
+
 				if(RegistryHandler.getSystemSetting("Tray").Trim().Equals("1")) {
 					startTray();
 				}
@@ -107,7 +110,8 @@ namespace FOG {
 			LogHandler.log(LOG_NAME, "MSG: " + message);
 			
 			if(message.Equals("UPD")) {
-				ShutdownHandler.spawnUpdateWaiter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, System.Reflection.Assembly.GetExecutingAssembly().Location));
+				ShutdownHandler.spawnUpdateWaiter(System.Reflection.Assembly.GetExecutingAssembly().Location);
+				Environment.Exit(0);
 			}
 		}			
 		

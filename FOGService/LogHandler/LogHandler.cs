@@ -42,10 +42,10 @@ namespace FOG
 		private static void writeLine(String line) {
 			StreamWriter logWriter;
 			FileInfo logFile = new FileInfo(getFilePath());
-			
+
 			//Delete the log file if it excedes the max log size
 			if (logFile.Exists && logFile.Length > maxLogSize)
-				cleanLog();
+				cleanLog(logFile);
 			
 			try {
 				//Write message to log file
@@ -58,9 +58,8 @@ namespace FOG
 		}
 		
 		//Delete the log file and create a new one
-		private static void cleanLog() {
+		private static void cleanLog(FileInfo logFile) {
 			try {
-				FileInfo logFile = new FileInfo(getFilePath());
 				logFile.Delete();
 			} catch(Exception ex) {
 				log(LOG_NAME, "Failed to delete log file: " + ex.Message);
