@@ -450,11 +450,14 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<h2>"._('Group Relationships').'</h2>';
 		// Get all group id's the host belongs to.
 		foreach((array)$Host->get('groups') AS $Group)
-			$GroupIDs[] = $Group && $Group->isValid() ? $Group->get('id') : '';
+		{
+			if ($Group && $Group->isValid())
+				$GroupIDs[] = $Group->get('id');
+		}
 		// Get Groups that are not associated with this host.
 		foreach($this->FOGCore->getClass('GroupManager')->find() AS $Group)
 		{
-			if (!in_array($Group->get('id'),(array)$GroupIDs))
+			if ($Group && $Group->isValid() && !in_array($Group->get('id'),(array)$GroupIDs))
 				$Groups[] = $Group;
 		}
 		// Create the Header:
@@ -471,7 +474,7 @@ class HostManagementPage extends FOGPage
 		);
 		// Create the attributes:
 		$this->attributes = array(
-			array('width' => 20, 'class' => 'l'),
+			array('width' => 16,'class' => 'c'),
 			array('width' => 90, 'class' => 'l'),
 			array('width' => 40, 'class' => 'c'),
 		);
@@ -707,18 +710,59 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<input type="submit" value="Update" />';
 		print "\n\t\t\t</form>";
 		print "\n\t\t\t</div>";
-		foreach((array)$Host->get('snapins') AS $Snapin)
-			$SnapinIDs[] = $Snapin && $Snapin->isValid() ? $Snapin->get('id') : '';
-		$SnapinStuff = $this->FOGCore->getClass('SnapinManager')->buildSelectBox('','snapin[]" multiple="multiple','',$SnapinIDs);
 		print "\n\t\t\t<!-- Snapins -->";
 		print "\n\t\t\t".'<div id="host-snapins" class="organic-tabs-hidden">';
 		print "\n\t\t\t<h2>"._('Snapins').'</h2>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-snapins">';
-		if ($SnapinStuff)
+		// Get all Snapin IDs Associated to host
+		foreach((array)$Host->get('snapins') AS $Snapin)
 		{
-			print "\n\t\t\t<p>"._('The selection box below will add the selected snapins to your host automatically.').'</p>';
-			print "\n\t\t\t<p><center>$SnapinStuff";
-			print "\n\t\t\t".'<input type="submit" value="'._('Add Snapin(s)').'" /></center></p>';
+			if ($Snapin && $Snapin->isValid())
+				$SnapinIDs[] = $Snapin && $Snapin->isValid();
+		}
+		// Get all Snapin's Not associated with this host.
+		foreach($this->FOGCore->getClass('SnapinManager')->find() AS $Snapin)
+		{
+			if ($Snapin && $Snapin->isValid() && !in_array($Snapin->get('id'),$SnapinIDs))
+				$Snapins[] = $Snapin;
+		}
+		// Create the header:
+		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkboxsnapin" class="toggle-checkboxsnapin" />',
+			_('Snapin Name'),
+			_('Created'),
+		);
+		// Create the template:
+		$this->templates = array(
+			'<input type="checkbox" name="snapin[]" value="${snapin_id}" class="toggle-snapin" />',
+			sprintf('<a href="?node=%s&sub=edit&id=${snapin_id}" title="%s">${snapin_name}</a>',$this->node,_('Edit')),
+			'${snapin_created}',
+		);
+		// Create the attributes:
+		$this->attributes = array(
+			array('width' => 16, 'class' => 'c'),
+			array('width' => 90,'class' => 'l'),
+			array('width' => 20, 'class' => 'r'),
+		);
+		foreach($Snapins AS $Snapin)
+		{
+			if ($Snapin && $Snapin->isValid())
+			{
+				$this->data[] = array(
+					'snapin_id' => $Snapin->get('id'),
+					'snapin_name' => $Snapin->get('name'),
+					'snapin_created' => $Snapin->get('createdTime'),
+				);
+			}
+		}
+		if (count($this->data) > 0)
+		{
+			$this->HookManager->processEvent('HOST_SNAPIN_JOIN',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+			$this->render();
+			print "\n\t\t\t".'<center><input type="submit" value="'._('Add Snapin(s)').'" /></center>';
+			print "\n\t\t\t</form>";
+			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-snapins">';
+			unset($this->data);
 		}
 		$this->headerData = array(
 			_('Snapin Name'),
@@ -746,7 +790,7 @@ class HostManagementPage extends FOGPage
 		$this->HookManager->processEvent('HOST_EDIT_SNAPIN', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
-		print "\n\t\t\t</form>";
+		print "</form>";
 		print "\n\t\t\t</div>";
 		// Reset for next tab
 		unset($this->data, $this->headerData);
