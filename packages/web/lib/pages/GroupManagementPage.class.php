@@ -389,7 +389,7 @@ class GroupManagementPage extends FOGPage
 		// Create the Header data:
 		$this->headerData = array(
 			'',
-			'<input type="checkbox" name="toggle-checkboxgroup1" class="toggle-checkbox1" checked="checked" />',
+			'<input type="checkbox" name="toggle-checkboxgroup1" class="toggle-checkbox1" />',
 			($_SESSION['FOGPingActive'] ? '' : null),
 			_('Host Name'),
 			_('Image'),
@@ -397,7 +397,7 @@ class GroupManagementPage extends FOGPage
 		// Create the template data:
 		$this->templates = array(
 			'<span class="icon icon-help hand" title="${host_desc}"></span>',
-			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host1" checked="checked" />',
+			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host1" />',
 			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'${image_name}',
@@ -460,7 +460,7 @@ class GroupManagementPage extends FOGPage
 		// Create the Header data:
 		$this->headerData = array(
 			'',
-			'<input type="checkbox" name="toggle-checkboxgroup2" class="toggle-checkbox2" checked="checked" />',
+			'<input type="checkbox" name="toggle-checkboxgroup2" class="toggle-checkbox2" />',
 			($_SESSION['FOGPingActive'] ? '' : null),
 			_('Host Name'),
 			_('Image'),
@@ -468,7 +468,7 @@ class GroupManagementPage extends FOGPage
 		// Create the template data:
 		$this->templates = array(
 			'<span class="icon icon-help hand" title="${host_desc}"></span>',
-			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host2" checked="checked" />',
+			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host2" />',
 			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'${image_name}',
