@@ -450,7 +450,7 @@ class GroupManagementPage extends FOGPage
 		if (count($this->data) > 0)
 		{
 			$GroupDataExists = true;
-			$this->HookManager->processEvent('HOST_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+			$this->HookManager->processEvent('GROUP_HOST_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 			print "\n\t\t\t".'<h2>'._('Modify Membership for').' '.$Group->get('name').'</h2>';
 			print "\n\t\t\t".'<p><center>'._('Add hosts to group').' '.$Group->get('name').':</center></p>';
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
@@ -491,7 +491,7 @@ class GroupManagementPage extends FOGPage
 		if (count($this->data) > 0)
 		{
 			$GroupDataExists = true;
-			$this->HookManager->processEvent('HOST_NOT_IN_ANY',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+			$this->HookManager->processEvent('GROUP_HOST_NOT_IN_ANY',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 			print "\n\t\t\t"._('Check here to see hosts not within a group').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" />';
 			print "\n\t\t\t".'<center><div id="hostNoGroup">';
 			print "\n\t\t\t".'<p><center>'._('Hosts below do not belong to a group').'</center></p>';
@@ -573,14 +573,38 @@ class GroupManagementPage extends FOGPage
 		print "\n\t\t\t".'<div id="group-snap-add">';
 		print "\n\t\t\t<h2>"._('Add Snapin to all hosts in').': '.$Group->get('name').'</h2>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-snap-add">';
-		$this->data[] = array(
-			'field' => $this->FOGCore->getClass('SnapinManager')->buildSelectBox().'</select>',
-			'input' => '<input type="hidden" name="gsnapinadd" value="1" /><input type="submit" value="'._('Add Snapin').'" />',
+		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkboxsnapin" class="toggle-checkboxsnapin" />',
+			_('Snapin Name'),
+			_('Created'),
 		);
+		$this->templates = array(
+			'<input type="checkbox" name="snapin[]" value="${snapin_id}" class="toggle-snapin" />',
+			'<a href="?node=snapin&sub=edit&id=${snapin_id}" title="'._('Edit').'">${snapin_name}</a>',
+			'${snapin_created}',
+		);
+		$this->attributes = array(
+			array('width' => 16, 'class' => 'c'),
+			array('width' => 90, 'class' => 'l'),
+			array('width' => 20, 'class' => 'r'),
+		);
+		// Get all snapins.
+		foreach($this->FOGCore->getClass('SnapinManager')->find() AS $Snapin)
+		{
+			if ($Snapin && $Snapin->isValid())
+			{
+				$this->data[] = array(
+					'snapin_id' => $Snapin->get('id'),
+					'snapin_name' => $Snapin->get('name'),
+					'snapin_created' => $Snapin->get('createdTime'),
+				);
+			}
+		}
 		// Hook
 		$this->HookManager->processEvent('GROUP_SNAP_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
+		print "\n\t\t\t".'<center><input type="submit" value="'._('Add Snapin(s)').'" /></center>';
 		unset($this->data);
 		print '</form>';
 		print "\n\t\t\t</div>";
@@ -588,14 +612,38 @@ class GroupManagementPage extends FOGPage
 		print "\n\t\t\t".'<div id="group-snap-del">';
 		print "\n\t\t\t<h2>"._('Remove Snapin to all hosts in').': '.$Group->get('name').'</h2>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-snap-del">';
-		$this->data[] = array(
-			'field' => $this->FOGCore->getClass('SnapinManager')->buildSelectBox().'</select>',
-			'input' => '<input type="hidden" name="gsnapindel" value="1" /><input type="submit" value="'._('Remove Snapin').'" />',
+		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkboxsnapinrm" class="toggle-checkboxsnapinrm" />',
+			_('Snapin Name'),
+			_('Created'),
 		);
+		$this->templates = array(
+			'<input type="checkbox" name="snapin[]" value="${snapin_id}" class="toggle-snapinrm" />',
+			'<a href="?node=snapin&sub=edit&id=${snapin_id}" title="'._('Edit').'">${snapin_name}</a>',
+			'${snapin_created}',
+		);
+		$this->attributes = array(
+			array('width' => 16, 'class' => 'c'),
+			array('width' => 90, 'class' => 'l'),
+			array('width' => 20, 'class' => 'r'),
+		);
+		// Get all snapins.
+		foreach($this->FOGCore->getClass('SnapinManager')->find() AS $Snapin)
+		{
+			if ($Snapin && $Snapin->isValid())
+			{
+				$this->data[] = array(
+					'snapin_id' => $Snapin->get('id'),
+					'snapin_name' => $Snapin->get('name'),
+					'snapin_created' => $Snapin->get('createdTime'),
+				);
+			}
+		}
 		// Hook
 		$this->HookManager->processEvent('GROUP_SNAP_DEL', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
+		print "\n\t\t\t".'<center><input type="submit" value="'._('Remove Snapin(s)').'" /></center>';
 		unset($this->data);
 		print '</form>';
 		print "\n\t\t\t</div>";
@@ -978,29 +1026,23 @@ class GroupManagementPage extends FOGPage
 				break;
 				// Snapin Add
 				case 'group-snap-add';
-					// Error Checking
-					if (empty($_POST['snapin']))
-						throw new Exception('Select a Snapin');
-					else
+					foreach((array)$Group->get('hosts') AS $Host)
 					{
-						foreach ((array)$Group->get('hosts') AS $Host)
+						foreach((array)$_POST['snapin'] AS $i => $snapid)
 						{
 							if ($Host && $Host->isValid())
-								$Host->addSnapin($_REQUEST['snapin'])->save();
+								$Host->addSnapin($snapid)->save();
 						}
 					}
 				break;
 				// Snapin Del
 				case 'group-snap-del';
-					// Error Checking
-					if (empty($_POST['snapin']))
-						throw new Exception('Select a Snapin');
-					else
+					foreach((array)$Group->get('hosts') AS $Host)
 					{
-						foreach ((array)$Group->get('hosts') AS $Host)
+						foreach((array)$_POST['snapin'] AS $i => $snapid)
 						{
 							if ($Host && $Host->isValid())
-								$Host->removeSnapin($_REQUEST['snapin'])->save();
+								$Host->removeSnapin($snapid)->save();
 						}
 					}
 				break;
