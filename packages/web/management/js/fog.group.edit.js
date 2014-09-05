@@ -17,6 +17,12 @@ $(function()
 	$('.toggle-checkbox2').click(function() {
 		$('input.toggle-host2:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
 	});
+	$('.toggle-checkboxprint').click(function() {
+		$('input.toggle-print:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+	});
+	$('.toggle-checkboxprintrm').click(function() {
+		$('input.toggle-printrm:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+	});
 	// Bind to AD Settings checkbox
 	$('#adEnabled').change(function() {
 		
