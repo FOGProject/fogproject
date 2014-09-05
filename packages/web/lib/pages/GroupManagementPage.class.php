@@ -792,13 +792,86 @@ class GroupManagementPage extends FOGPage
 		print "\n\t\t\t\t".'<input type="radio" name="level" value="2" />'._('Add and Remove').'<br/>';
 		print "\n\t\t\t</p>";
 		print "\n\t\t\t".'<div class="hostgroup">';
-		print "\n\t\t\t<h2>"._('Add new printer to all hosts in this group.').'</h2>';
-		print $this->FOGCore->getClass('PrinterManager')->buildSelectBox(null,"prntadd");
-		//print "\n\t\t\t</select>";
+		// Create Header for printers
+		$this->headerData = array(
+			//prntadd
+			'<input type="checkbox" name="toggle-checkboxprint" class="toggle-checkboxprint" />',
+			_('Default'),
+			_('Printer Name'),
+			_('Configuration'),
+		);
+		// Create Template for Printers:
+		$this->templates = array(
+			'<input type="checkbox" name="prntadd[]" value="${printer_id}" class="toggle-print" />',
+			'<input class="default" type="checkbox" name="default" id="printer${printer_id}" value="${printer_id}" /><label for="printer${printer_id}"></label>',
+			'<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
+			'${printer_type}',
+		);
+		$this->attributes = array(
+			array('width' => 16, 'class' => 'c'),
+			array('width' => 20),
+			array('width' => 50, 'class' => 'l'),
+			array('width' => 50, 'class' => 'r'),
+		);
+		foreach($this->FOGCore->getClass('PrinterManager')->find() AS $Printer)
+		{
+			if ($Printer && $Printer->isValid())
+			{
+				$this->data[] = array(
+					'printer_id' => $Printer->get('id'),
+					'printer_name' => addslashes($Printer->get('name')),
+					'printer_type' => $Printer->get('config'),
+				);
+			}
+		}
+		if (count($this->data) > 0)
+		{
+			print "\n\t\t\t<h2>"._('Add new printer(s) to all hosts in this group.').'</h2>';
+			$this->HookManager->processEvent('GROUP_ADD_PRINTER',array('data' => &$this->data,'templates' => &$this->templates,'headerData' => &$this->headerData,'attributes' => &$this->attributes));
+			$this->render();
+			unset($this->data);
+		}
+		else
+			print "\n\t\t\t<h2>"._('There are no printers to assign.').'</h2>';
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t".'<div class="hostgroup">';
-		print "\n\t\t\t<h2>"._('Remove printer from all hosts in this group.').'</h2>';
-		print $this->FOGCore->getClass('PrinterManager')->buildSelectBox(null,"prntdel");
+		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkboxprint" class="toggle-checkboxprintrm" />',
+			_('Printer Name'),
+			_('Configuration'),
+		);
+		// Create Template for Printers:
+		$this->templates = array(
+			'<input type="checkbox" name="prntdel[]" value="${printer_id}" class="toggle-printrm" />',
+			'${printer_name}',
+			'${printer_type}',
+		);
+		$this->attributes = array(
+			array('width' => 16, 'class' => 'c'),
+			array('width' => 50, 'class' => 'l'),
+			array('width' => 50, 'class' => 'r'),
+		);
+		foreach($this->FOGCore->getClass('PrinterManager')->find() AS $Printer)
+		{
+			if ($Printer && $Printer->isValid())
+			{
+				$this->data[] = array(
+					'printer_id' => $Printer->get('id'),
+					'printer_name' => addslashes($Printer->get('name')),
+					'printer_type' => $Printer->get('config'),
+				);
+			}
+		}
+		if (count($this->data) > 0)
+		{
+
+			print "\n\t\t\t<h2>"._('Remove printer from all hosts in this group.').'</h2>';
+			$this->HookManager->processEvent('GROUP_REM_PRINTER',array('data' => &$this->data,'templates' => &$this->templates, 'headerData' => &$this->headerData, 'attributes' => &$this->attributes));
+			$this->render();
+			unset($this->data);
+		}
+		else
+			print "\n\t\t\t<h2>"._('There are no printers to assign.').'</h2>';
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t".'<input type="hidden" name="update" value="1" /><input type="submit" value="'._('Update').'" />';
 		print "\n\t\t\t</form>";
@@ -964,11 +1037,13 @@ class GroupManagementPage extends FOGPage
 						if ($Host && $Host->isValid())
 						{
 							$Host->set('printerLevel', $_REQUEST['level']);
-							if ($_REQUEST['prntadd'])
-								$Host->addPrinter($_REQUEST['prntadd']);
-							if ($_REQUEST['prntdel'])
-								$Host->removePrinter($_REQUEST['prntdel']);
+							foreach((array)$_REQUEST['prntadd'] AS $i => $PrintAdd)
+								$Host->addPrinter($PrintAdd);
+							foreach((array)$_REQUEST['prntdel'] AS $i => $PrintDel)
+								$Host->removePrinter($PrintDel);
 							$Host->save();
+							if (isset($_REQUEST['default']))
+								$Host->updateDefault($_REQUEST['default']);
 						}
 					}
 				break;

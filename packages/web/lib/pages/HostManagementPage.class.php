@@ -735,7 +735,7 @@ class HostManagementPage extends FOGPage
 		// Create the template:
 		$this->templates = array(
 			'<input type="checkbox" name="snapin[]" value="${snapin_id}" class="toggle-snapin" />',
-			sprintf('<a href="?node=%s&sub=edit&id=${snapin_id}" title="%s">${snapin_name}</a>',$this->node,_('Edit')),
+			sprintf('<a href="?node=%s&sub=edit&id=${snapin_id}" title="%s">${snapin_name}</a>','snapin',_('Edit')),
 			'${snapin_created}',
 		);
 		// Create the attributes:
