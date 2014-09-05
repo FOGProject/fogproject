@@ -23,6 +23,12 @@ $(function()
 	$('.toggle-checkboxprintrm').click(function() {
 		$('input.toggle-printrm:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
 	});
+	$('.toggle-checkboxsnapin').click(function() {
+		$('input.toggle-snapin:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+	});
+	$('.toggle-checkboxsnapinrm').click(function() {
+		$('input.toggle-snapinrm:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+	});
 	// Bind to AD Settings checkbox
 	$('#adEnabled').change(function() {
 		
