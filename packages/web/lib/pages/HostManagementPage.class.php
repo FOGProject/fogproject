@@ -723,7 +723,7 @@ class HostManagementPage extends FOGPage
 		// Get all Snapin's Not associated with this host.
 		foreach($this->FOGCore->getClass('SnapinManager')->find() AS $Snapin)
 		{
-			if ($Snapin && $Snapin->isValid() && !in_array($Snapin->get('id'),$SnapinIDs))
+			if ($Snapin && $Snapin->isValid() && !in_array($Snapin->get('id'),(array)$SnapinIDs))
 				$Snapins[] = $Snapin;
 		}
 		// Create the header:
@@ -741,10 +741,10 @@ class HostManagementPage extends FOGPage
 		// Create the attributes:
 		$this->attributes = array(
 			array('width' => 16, 'class' => 'c'),
-			array('width' => 90,'class' => 'l'),
+			array('width' => 90, 'class' => 'l'),
 			array('width' => 20, 'class' => 'r'),
 		);
-		foreach($Snapins AS $Snapin)
+		foreach((array)$Snapins AS $Snapin)
 		{
 			if ($Snapin && $Snapin->isValid())
 			{
