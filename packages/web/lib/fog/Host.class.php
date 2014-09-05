@@ -1151,9 +1151,21 @@ class Host extends FOGController
 	}
 	public function addPrinter($addArray)
 	{
+		// Check for existing.
+		foreach((array)$this->get('printers') AS $Printer)
+		{
+			if ($Printer && $Printer->isValid())
+				$PrinterIDs[] = $Printer->get('id');
+		}
+		$PrinterIDs = array_unique($PrinterIDs);
 		// Add
 		foreach ((array)$addArray AS $item)
-			$this->add('printers', $item);
+		{
+			if (!is_object($item) && !in_array($item,$PrinterIDs))
+				$this->add('printers', $item);
+			else if (is_object($item) && $item->isValid() && !in_array($item->get('id'),$PrinterIDs))
+				$this->add('printers', $item);
+		}
 		// Return
 		return $this;
 	}
