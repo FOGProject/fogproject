@@ -112,7 +112,10 @@ if [ -f "/images/.mntcheck" ]; then
 			echo $fixed_size_partitions > "${imagePath}/d1.fixed_size_partitions";
 			# Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
 			#  Remove pagefile and hibernate file
-			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
+			if [ "$osid" == "1" -o "$osid" == "2" ]; then
+				removePageFile $part
+				debugPause
+			elif [ "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
 				removePageFile $win7sys
 				debugPause
 			fi
