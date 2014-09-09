@@ -853,6 +853,9 @@ restoreGRUB()
 	local imagePath="$3";
 	local tmpMBR="${imagePath}/d${disk_number}.mbr";
 	local count=`du -B 512 "${tmpMBR}" | awk '{print $1;}'`;
+	if [ "$count" == "8" ]; then
+		local count=1;
+	fi
 	dd if="${tmpMBR}" of="${disk}" bs=512 count="${count}" &>/dev/null;
 }
 
