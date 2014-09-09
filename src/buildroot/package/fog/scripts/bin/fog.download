@@ -51,7 +51,7 @@ if [ "$imgType" == "n" ]; then
 	win7rec="";
 	win7sys="";
 	debugPause;
-	if [ -f "$win7imgroot/sys.img.000" ] || grep -q "sys.img.000" /tmp/filelist.txt &>/dev/null || [ "$mc" == "yes" ] ; then
+	if [ -f "$win7imgroot/sys.img.000" ] || grep -q "sys.img.000" /tmp/filelist.txt &>/dev/null ; then
 		if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
 			dots "Windows Boot Partition Exists";
 			if [ -f "$win7imgroot/rec.img.000" ] || grep -q "rec.img.000" /tmp/filelist.txt &>/dev/null ; then
