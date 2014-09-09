@@ -25,6 +25,7 @@ class Image extends FOGController
 		'deployed' => 'imageLastDeploy',
 		'format' => 'imageFormat',
 		'magnet' => 'imageMagnetUri',
+		'protected' => 'imageProtect',
 	);
 
 	// Additional Fields
@@ -162,23 +163,23 @@ class Image extends FOGController
 	*/
 	public function deleteImageFile()
 	{
+		if ($this->get('protected'))
+			throw new Exception(_('Image is protected and cannot be deleted'));
 		$ftp = $this->FOGFTP;
 		$SN = $this->getStorageGroup()->getMasterStorageNode();
 		$SNME = ($SN && $SN->get('isEnabled') == '1' ? true : false);
-		if ($SNME)
-		{
-			$ftphost = $SN->get('ip');
-			$ftpuser = $SN->get('user');
-			$ftppass = $SN->get('pass');
-			$ftproot = rtrim($SN->get('path'),'/').'/'.$this->get('path');
-		}
+		if (!$SNME)
+			throw new Exception(_('No master nodes are enabled to delete this image'));
+		$ftphost = $SN->get('ip');
+		$ftpuser = $SN->get('user');
+		$ftppass = $SN->get('pass');
+		$ftproot = rtrim($SN->get('path'),'/').'/'.$this->get('path');
 		$ftp->set('host',$ftphost)
 			->set('username',$ftpuser)
 			->set('password',$ftppass)
 			->connect();
 		if(!$ftp->delete($ftproot))
-			return false;
-		return true;
+			throw new Exception(_('Failed to delete file'));
 	}
 }
 /* Local Variables: */
