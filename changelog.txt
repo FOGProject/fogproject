@@ -18,6 +18,9 @@ Possibly will break older images of the same type.  Meaning to fix:
 find the image file (usually in the format: /images/<imagefilepath> as a file
 on the disk within the /images folder.  mkdir /images/<imagepath>; mv
 /images/<imagefilepath> /images/<imagepath>/sys.img.000
+* Change resizable images to all use the same principle of Linux resizable.
+This should allow OEM built systems to be imaged even with resizable.
+* Add protection flag to image files.
 * Add installer files from David Fear to fog to allow FOG Installation on
 Arch Linux.
 * Add partition imaging selection options into GUI and fog to operate within.
