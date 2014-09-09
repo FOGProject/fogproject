@@ -39,6 +39,7 @@ echo "type=${type}";
 echo "storage=${storage}";
 echo "img=${img}";
 echo "imgType=${imgType}";
+echo "imgFormat=${imgFormat}";
 echo "imgPartitionType=${imgPartitionType}";
 getHardDisk;
 echo "hd=${hd}";
