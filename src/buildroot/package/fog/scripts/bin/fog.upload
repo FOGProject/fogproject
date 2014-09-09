@@ -101,8 +101,13 @@ if [ -f "/images/.mntcheck" ]; then
 					win7sys=${hd}3;
 					part=${hd}3;
 					fixed_size_partitions="${fixed_size_partitions}:${hd}1:${hd}2";
-				elif [ "$win7partcnt" -gt 3 ]; then
-					handleError "More than 3 ntfs partitions found, not valid for this image type.";
+				elif [ "$win7partcnt" == "4" ] && [ $(parted -m $hd print | grep $hd | cut -d: -f6) == "gpt" ]; then
+					win7rec="gpt";
+					win7sys=${hd}4;
+					part=${hd}4;
+					fixed_size_partitions="${fixed_size_partitions}:${hd}1:${hd}2:${hd}3";
+				elif [ "$win7partcnt" -gt 4 ]; then
+					handleError "More than 4 ntfs partitions found, not valid for this image type.";
 				fi
 				clearMountedDevices;
 			fi
@@ -113,12 +118,19 @@ if [ -f "/images/.mntcheck" ]; then
 			# Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
 			#  Remove pagefile and hibernate file
 			if [ "$osid" == "1" -o "$osid" == "2" ]; then
+<<<<<<< HEAD
 				removePageFile $part
 				debugPause
 			elif [ "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
 				removePageFile $win7sys
 				debugPause
+=======
+				removePageFile $part;
+			elif [ "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" ]; then
+				removePageFile $win7sys;
+>>>>>>> svn
 			fi
+			debugPause
 			# Windows 2000/XP:
 			#  Make sure XP has the partition at the correct location
 			if [ "$osid" == "1" ]; then
@@ -145,23 +157,12 @@ if [ -f "/images/.mntcheck" ]; then
 			#  Save MBR
 			#  Shrink filesystem and partition with system on it.
 			#  Save partition table with shrunken partitions for use on download
-			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" ]; then
-				dots "Backing up MBR";
-				if [ "$win7rec" == "gpt" ]; then
-					sgdisk -b /gpt.bak $hd 2>&1 >/dev/null;
-				else
-					dd if=$hd of=/mbr.backup count=1 bs=512 &>/dev/null;
-				fi
-				echo "Done";
-				shrinkPartition $part "${imagePath}/d1.original.fstypes";
-				debugPause
-			fi
 			# Linux:
 			#  Detect partition table type
 			#  Save MBR
 			#  Attempt to shrink all filesystems and partitions, except swap, extended.
 			#  Save partition table with shrunken partitions for use on download
-			if [ "$osid" == "50" ]; then
+			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "3" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
 				gptormbr=`gdisk -l $hd | grep 'GPT:' | awk '{$1=""; print $0}' | sed 's/^ //'`;
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				for part in $parts; do
@@ -181,66 +182,21 @@ if [ -f "/images/.mntcheck" ]; then
 			# Windows 2000/XP, Vista, 7, 8, 8.1:
 			#  Actually clone the partitions now
 			#  Restore the MBR
-			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" ]; then
-				dots "Checking Hard Disks";
-				runPartprobe;
-				echo "Done";
-				debugPause
-				resetFlag $part
-				mkfifo /tmp/pigz1;
-				mkfifo /tmp/pigz2;
-				mkfifo /tmp/pigz3;
-				echo "";
-				echo " * Now FOG will attempt to upload the image using Partclone.";
-				echo "";
-				if [ "$imgFormat" -gt 2 ]; then
-					handleError "Invalid image format."
-				fi
-				if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
-					if [ "$win7partcnt" == "1" ]; then
-						echo " * Processing a Windows 7 System with 1 partition.";
-						uploadFormat "$cores" "/tmp/pigz1" "$imagePath/sys.img";
-						partclone.ntfs -c -s $win7sys -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
-					elif [ "$win7partcnt" == "2" ]; then
-						echo " * Processing a Windows 7 System with 2 partitions.";
-						uploadFormat "$cores" "/tmp/pigz1" "$imagePath/rec.img";
-						partclone.ntfs -c -s $win7rec -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
-						uploadFormat "$cores" "/tmp/pigz2" "$imagePath/sys.img";
-						partclone.ntfs -c -s $win7sys -O /tmp/pigz2 -N -f 1 2>/tmp/status.fog;
-					fi
-					if [ "$imgFormat" == "2" ]; then
-						echo " * Calculating Checksums";
-						cd $imagePath;
-						md5sum *.img* | cat >> $imagePath/filelist.txt;
-						cd /;
-					fi
-				else
-					uploadFormat "$cores" "/tmp/pigz1" "$imagePath/sys.img";
-					partclone.ntfs -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
-				fi
-				chmod -R 777 $imagePath;
-				rm /tmp/pigz1;
-				rm /tmp/pigz2;
-				rm /tmp/pigz3;
-				clear;
-				dots "Restoring MBR";
-				if [ "$win7partcnt" == "3" ] && [ "$win7rec" == "gpt" ]; then
-					sgdisk -g -l /gpt.bak $hd 2>&1 >/dev/null;
-				else
-					dd if=/mbr.backup of=$hd &>/dev/null;
-					fdisk $hd &>/dev/null << EOFRESTOREPART
-w
-EOFRESTOREPART
-				fi
-				echo "Done";
-				debugPause
-				if [ "$osid" == "2" ]; then
-					correctVistaMBR $hd;
-				fi
 			# Linux:
 			#  Actually clone the partitions now
 			#  Restore the MBR
-			elif [ "$osid" == "50" ]; then
+			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
+				dots "Checking Hard Disks";
+				runPartprobe $hd;
+				echo "Done";
+				debugPause;
+				if [ "$osid" != "50" ]; then
+					resetFlag $part;
+				fi
+				debugPause;
+				echo "";
+				echo " * Now FOG will attempt to upload the image using Partclone.";
+				echo "";
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				diskLength=`expr length $hd`;
 				for part in $parts; do
@@ -262,6 +218,7 @@ EOFRESTOREPART
 						saveSwapUUID "${imagePath}/d1.original.swapuuids" "$part"; 
 					fi
 					rm /tmp/pigz1;
+					debugPause;
 				done
 				dots "Restoring MBR";
 				applySfdiskPartitions "${hd}" "${imagePath}/d1.original.partitions";
@@ -270,19 +227,19 @@ w
 EOFRESTOREPART
 				runPartprobe $hd;
 				echo "Done";
-				debugPause
+				debugPause;
+				if [ "$osid" == "2" ]; then
+					correctVistaMBR $hd;
+				fi
+				debugPause;
 			fi
 			#  
 			#  expand the file systems in the restored partitions
 			#  
 			# Windows 7, 8, 8.1:
-			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
-			        expandPartition $win7sys
 			# Windows 2000/XP, Vista:
-			elif [ "$osid" == "1" -o "$osid" == "2" ]; then
-			        expandPartition $part
 			# Linux:
-			elif [ "$osid" == "50" ]; then
+			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				for part in $parts; do
 					expandPartition $part;
@@ -295,7 +252,6 @@ EOFRESTOREPART
 			else
 				have_extended_partition="0";
 			fi
-
 			if [ -d "$imagePath" ]; then
 				savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$hasgpt" "$have_extended_partition" "$imgPartitionType"
 				debugPause
@@ -320,7 +276,6 @@ EOFRESTOREPART
 				else
 					have_extended_partition="0";
 				fi
-
 				if [ -d "$imagePath" ]; then
 					savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$hasgpt" "$have_extended_partition" "$imgPartitionType"
 					parts=`fogpartinfo --list-parts $disk 2>/dev/null`;

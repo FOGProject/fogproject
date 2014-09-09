@@ -810,9 +810,14 @@ saveGRUB()
 		awk -F, '{print $1;}' | \
 		grep start= | \
 		awk -F= 'BEGIN{start=1000000000;}{if($2 > 0 && $2 < start){start=$2;}}END{printf("%d\n", start);}'`;
-	local count=$first;
+	local has_grub=`dd if=$1 bs=512 count=1 2>&1 | grep GRUB`
+	if [ "$has_grub" != "" ]; then
+		local count=$first;
+		touch "$imagePath/d${disk_number}.has_grub";
+	else
+		local count=1;
+	fi
 	dd if="$disk" of="$imagePath/d${disk_number}.mbr" count="${count}" bs=512 &>/dev/null;
-	touch "$imagePath/d${disk_number}.has_grub";
 }
 
 # Checks for the existence of the grub embedding area in the image directory.
