@@ -22,7 +22,7 @@ try
 	//Get the snapin job. There should be tasks if the Job is still viable.
 	if (!$SnapinJob || !$SnapinJob->isValid()) throw new Exception('#!ns');
 	// Work on the current Snapin Task.
-	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id'),'stateID' => array(-1,0,1))));
+	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id'),'stateID' => array(-1,0,1)),'','name'));
 	if ($SnapinTask && $SnapinTask->isValid())
 	{
 		// Get the information (the Snapin itself)
