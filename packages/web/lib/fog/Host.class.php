@@ -943,7 +943,7 @@ class Host extends FOGController
 						$set_assoc = 1;
 					}
 				}
-				if (!$set_assoc)
+				if ($set_assoc)
 				{
 					// If the image id's are the same, link the tasks, TODO:
 					// Means of kill current task created to start new task
