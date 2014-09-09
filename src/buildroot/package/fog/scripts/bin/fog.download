@@ -50,170 +50,136 @@ if [ "$imgType" == "n" ]; then
 	win7partcnt="0";
 	win7rec="";
 	win7sys="";
-	if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
-		dots "Windows Boot Partition Exists";
-		if [ -f "$win7imgroot/rec.img.000" ] ||  grep -q "rec.img.000" /tmp/filelist.txt ; then
-			echo "Yes";
-			win7partcnt="2";
-			win7rec="${hd}1";
-			win7sys="${hd}2";
-			part=$win7sys;
-			downloadPartition="${hd}3";
-			partCount="2";
-			downloadPartitionCount="3";
-		elif [ -f "$win7imgroot/gpt.bak" ] ||  grep -q "gpt.bak" /tmp/filelist.txt ; then
-			win7partcnt="3";
-			win7rec="gpt";
-			win7sys="${hd}3";
-			part=$win7sys;
-			downloadPartition="${hd}4";
-			partCount="3";
-			downloadPartitionCount="4";
-		else
-			echo "No";
-			win7partcnt="1";
-			win7sys="${hd}1";
-			downloadPartition="${hd}2";
-			partCount="1";
-			downloadPartitionCount="2";
-		fi
-		debugPause;
-		if [ -f "$win7imgroot/sys.img.000" ] || grep -q "sys.img.000" /tmp/filelist.txt || [ "$mc" == "yes" ] ; then
-			dots "Preparing Hard Disks (Stage 1)";
-			if [ "$nombr" == "1" ]; then
-				echo "Skipped";
+	debugPause;
+	if [ -f "$win7imgroot/sys.img.000" ] || grep -q "sys.img.000" /tmp/filelist.txt &>/dev/null || [ "$mc" == "yes" ] ; then
+		if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
+			dots "Windows Boot Partition Exists";
+			if [ -f "$win7imgroot/rec.img.000" ] || grep -q "rec.img.000" /tmp/filelist.txt &>/dev/null ; then
+				echo "Yes";
+				win7partcnt="2";
+				win7rec="${hd}1";
+				win7sys="${hd}2";
+				part=$win7sys;
+				downloadPartition="${hd}3";
+				partCount="2";
+				downloadPartitionCount="3";
+			elif [ -f "$win7imgroot/gpt.bak" ] || grep -q "gpt.bak" /tmp/filelist.txt &>/dev/null ; then
+				win7partcnt="3";
+				win7rec="gpt";
+				win7sys="${hd}3";
+				part=$win7sys;
+				downloadPartition="${hd}4";
+				partCount="3";
+				downloadPartitionCount="4";
 			else
-				dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
-				parted -s $hd mktable msdos &>/dev/null;
-				dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
+				echo "No";
+				win7partcnt="1";
+				win7sys="${hd}1";
+				downloadPartition="${hd}2";
+				partCount="1";
+				downloadPartitionCount="2";
+			fi
+		fi
+		dots "Preparing Hard Disks (Stage 1)";
+		if [ "$nombr" == "1" ]; then
+			echo "Skipped";
+		else
+			dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
+			parted -s $hd mktable msdos &>/dev/null;
+			dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
+			echo "Done";
+		fi
+		diskSize=`parted -s $hd u kB print | grep "Disk" | grep -v "Flags" | sed 's/Disk \/dev\/[a-zA-Z0-9]*: //' | sed 's/kB//'`;
+		if [ $diskSize -gt 2199023256 ]; then
+			layPartSize="2tB";
+		fi
+		if [ "$mc" == "bt" ]; then
+			if [ "$win7partcnt" == "1" ]; then
+				dots "Preparing Hard Disks (Stage 2)";
+				parted -s $hd rm 1 &>/dev/null;
 				echo "Done";
-			fi
-			diskSize=`parted -s $hd u kB print | grep "Disk" | grep -v "Flags" | sed 's/Disk \/dev\/[a-zA-Z0-9]*: //' | sed 's/kB//'`;
-			if [ $diskSize -gt 2199023256 ]; then
-				layPartSize="2tB";
-			fi
-			if [ "$mc" == "bt" ]; then
-				if [ "$win7partcnt" == "1" ]; then
-					dots "Preparing Hard Disks (Stage 2)";
-					parted -s $hd rm 1 &>/dev/null;
-					echo "Done";
-					dots "Preparing Hard Disks (Stage 3)";
-					if [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
-						parted -s $hd -a opt mkpart primary ntfs 63s -- $downloadPartitionStart &>/dev/null;
-						parted -s $hd -a opt mkpart primary ext2 -- $downloadPartitionStart $layPartSize &>/dev/null;
-					else
-						parted -s $hd -a opt mkpart primary ntfs 2048s -- $downloadPartitionStart &>/dev/null;
-						parted -s $hd -a opt mkpart primary ext2 -- $downloadPartitionStart $layPartSize &>/dev/null;
-					fi
-					parted -s $hd set 1 boot on &>/dev/null;
-				elif [ "$win7partcnt" == "2" ]; then
-					dots "Preparing Hard Disks (Stage 2)";
-					parted -s $hd rm 2 &>/dev/null;
-					echo "Done";
-					dots "Preparing Hard Disks (Stage 3)";
-					parted -s $hd -a opt mkpart primary ntfs -- $defaultpart2start $downloadPartitionStart &>/dev/null;
+				dots "Preparing Hard Disks (Stage 3)";
+			if [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
+					parted -s $hd -a opt mkpart primary ntfs 63s -- $downloadPartitionStart &>/dev/null;
 					parted -s $hd -a opt mkpart primary ext2 -- $downloadPartitionStart $layPartSize &>/dev/null;
-				elif [ "$win7partcnt" == "3" ]; then
-					handleError "I have no idea what to do with this partition structure, bail out";
-					exit 1;
+				else
+					parted -s $hd -a opt mkpart primary ntfs 2048s -- $downloadPartitionStart &>/dev/null;
+					parted -s $hd -a opt mkpart primary ext2 -- $downloadPartitionStart $layPartSize &>/dev/null;
 				fi
+				parted -s $hd set 1 boot on &>/dev/null;
+			elif [ "$win7partcnt" == "2" ]; then
+				dots "Preparing Hard Disks (Stage 2)";
+				parted -s $hd rm 2 &>/dev/null;
 				echo "Done";
-				debugPause;
-				mkdir /download;
-				echo "creating download partition using $downloadPartition";
-				mkfs.ext2 $downloadPartition;
-				#mount downloadPartition
-				mount -t ext2 $downloadPartition /download;
-				mkdir /download/session;
-				echo "Done";
-				debugPause;
-				#start ctorrent, on download complete, proceed
-				dots "Downloading image file by bittorrent";
-				cd /download;
-				ctorrent /tmp/${img}.torrent -dd -X "touch finished";
-				while [ ! -f "finished" ]; do
-					sleep 2;
-				done;
-				cd ..;
-				echo "Done";
-				debugPause;
-			else
-				if [ "$win7partcnt" == "1" ]; then
-					dots "Preparing Hard Disks (Stage 2)";
-					parted -s $hd rm 1 &>/dev/null;
-					echo "Done";
-					dots "Preparing Hard Disks (Stage 3)";
-					if [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
-						parted -s $hd -a opt mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
-					else
-						parted -s $hd -a opt mkpart primary ntfs 2048s -- $layPartSize &>/dev/null;
-					fi
-					parted -s $hd set 1 boot on &>/dev/null;
-				elif [ "$win7partcnt" == "2" ]; then
-					dots "Preparing Hard Disks (Stage 2)";
-					parted -s $hd rm 2 &>/dev/null;
-					echo "Done";
-					dots "Preparing Hard Disks (Stage 3)";
-					parted -s $hd -a opt mkpart primary ntfs $defaultpart2start -- $layPartSize &>/dev/null;
-				elif [ "$win7partcnt" == "3" ]; then
-					dots "Preparing Hard Disks (Stage 2)";
-					sgdisk --zap-all $hd 2>&1 >/dev/null;
-					runPartprobe $hdyy;
-					sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
-					echo "Done";
-					dots "Preparing Hard Disks (Stage 3)";
-					sgdisk -x 3:$(sgdisk -E $hd) $hd &>/dev/null;
-				fi
-				echo "Done";
-				debugPause;
+				dots "Preparing Hard Disks (Stage 3)";
+				parted -s $hd -a opt mkpart primary ntfs -- $defaultpart2start $downloadPartitionStart &>/dev/null;
+				parted -s $hd -a opt mkpart primary ext2 -- $downloadPartitionStart $layPartSize &>/dev/null;
+			elif [ "$win7partcnt" == "3" ]; then
+				handleError "I have no idea what to do with this partition structure, bail out";
+				exit 1;
 			fi
-		else
-			handleError "Unable to locate image file for Windows 7/8! (sys.img.000)";
-		fi
-	elif [ "$osid" == "1" ]; then
-		dots "Preparing Hard Disks (Stage 1)";
-		if [ "$nombr" == "1" ]; then
-			echo "Skipped";
-		else
-			dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
-			parted -s $hd mktable msdos &>/dev/null;
-			dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
 			echo "Done";
-		fi
-		debugPause;
-		dots "Preparing Hard Disks (Stage 2)";
-		parted -s $hd rm 1 &>/dev/null;
-		runPartprobe $hd;
-		echo "Done";
-		dots "Preparing hard Disks (Stage 3)";
-		parted -s $hd -a opt mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
-		parted -s $hd set 1 boot on &>/dev/null;
-		echo "Done";
-		debugPause;
-	elif [ "$osid" == "2" ]; then
-		dots "Preparing Hard Disks (Stage 1)";
-		if [ "$nombr" == "1" ]; then
-			echo "Skipped";
-		else
-			dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
-			parted -s $hd mktable msdos &>/dev/null;
-			dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
+			debugPause;
+			mkdir /download;
+			echo "creating download partition using $downloadPartition";
+			mkfs.ext2 $downloadPartition;
+			#mount downloadPartition
+			mount -t ext2 $downloadPartition /download;
+			mkdir /download/session;
 			echo "Done";
+			debugPause;
+			#start ctorrent, on download complete, proceed
+			dots "Downloading image file by bittorrent";
+			cd /download;
+			ctorrent /tmp/${img}.torrent -dd -X "touch finished";
+			while [ ! -f "finished" ]; do
+				sleep 2;
+			done;
+			cd ..;
+			echo "Done";
+			debugPause;
+		else
+			if [ "$win7partcnt" == "1" ]; then
+				dots "Preparing Hard Disks (Stage 2)";
+				parted -s $hd rm 1 &>/dev/null;
+				echo "Done";
+				dots "Preparing Hard Disks (Stage 3)";
+				if [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
+					parted -s $hd -a opt mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
+				else
+					parted -s $hd -a opt mkpart primary ntfs 2048s -- $layPartSize &>/dev/null;
+				fi
+				parted -s $hd set 1 boot on &>/dev/null;
+			elif [ "$win7partcnt" == "2" ]; then
+				dots "Preparing Hard Disks (Stage 2)";
+				parted -s $hd rm 2 &>/dev/null;
+				echo "Done";
+				dots "Preparing Hard Disks (Stage 3)";
+				parted -s $hd -a opt mkpart primary ntfs $defaultpart2start -- $layPartSize &>/dev/null;
+			elif [ "$win7partcnt" == "3" ]; then
+				dots "Preparing Hard Disks (Stage 2)";
+				sgdisk --zap-all $hd 2>&1 >/dev/null;
+				runPartprobe $hdyy;
+				sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
+				echo "Done";
+				dots "Preparing Hard Disks (Stage 3)";
+				sgdisk -x 3:$(sgdisk -E $hd) $hd &>/dev/null;
+			elif [ "$win7partcnt" == "4" ]; then
+				dots "Preparing Hard Disks (Stage 2)";
+				sgdisk --zap-all $hd 2>&1 >/dev/null;
+				runPartprobe $hdyy;
+				sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
+				echo "Done";
+				dots "Preparing Hard Disks (Stage 3)";
+				sgdisk -x 4:$(sgdisk -E $hd) $hd &>/dev/null;
+			fi
+			echo "Done";
+			debugPause;
 		fi
-		debugPause;
-		dots "Preparing Hard Disks (Stage 2)";
-		parted -s $hd rm 2 &>/dev/null;
-		runPartprobe $hd;
-		echo "Done";
-		dots "Preparing Hard Disks (Stage 3)";
-		parted -s $hd -a opt mkpart primary ntfs $defaultpart2start -- $layPartSize &>/dev/null;
-		echo "Done";
-		correctVistaMBR $hd;
-		debugPause;
 	# Linux:
 	#  restore MBR/GRUB
 	#  resize original partition table to current disk, and apply it
-	elif [ "$osid" == "50" ]; then
+	elif [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
 		dots "Erasing current MBR/GPT Tables";
 		sgdisk -Z $hd >/dev/null;
 		runPartprobe $hd;
@@ -286,7 +252,7 @@ if [ "$mc" == "yes" ]; then
 	# process.
 	sleep 10
 	if [ "$imgType" == "n" ]; then
-		if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
+		if [ -f "$win7imgroot/sys.img.000" ] && [ "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" ]; then
 			if [ "$win7partcnt" == "1" ]; then
 				writeImageMultiCast $win7sys;
 				fixWin7boot $win7sys;
@@ -305,7 +271,7 @@ if [ "$mc" == "yes" ]; then
 		#  clone filesystem
 		#  restore EBR so that the extended and logical partitions are not corrupted
 		#  expand the partitions
-		elif [ "$osid" == "50" ]; then
+		elif [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
 			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 			diskLength=`expr length $hd`;
 			for part in $parts; do
@@ -369,7 +335,7 @@ else
 		runPartprobe;
 		echo "Done";
 		debugPause;
-		if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
+		if [ -f "$win7imgroot/sys.img.000" ] && [ "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" ]; then
 			if [ "$win7partcnt" == "1" ]; then
 				writeImage "$imagePath/sys.img.*" $win7sys;
 				debugPause;
@@ -422,7 +388,7 @@ else
 		#  clone filesystem
 		#  restore EBR so that the extended and logical partitions are not corrupted
 		#  expand the partitions
-		elif [ "$osid" == "50" ]; then
+		elif [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
 			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 			diskLength=`expr length $hd`;
 			for part in $parts; do
