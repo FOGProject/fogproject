@@ -74,24 +74,45 @@ class MulticastTask extends FOGBase
 			$strSys = null;
 			if (is_dir($this->getImagePath()))
 			{
-				$filelist = array();
-				if ($handle = opendir($this->getImagePath()))
+				if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000') || file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
 				{
-					while (false !== ($file = readdir($handle)))
+					$filelist = array();
+					if ($handle = opendir($this->getImagePath()))
 					{
-						if ($file != '.' && $file != '..')
+						while (false !== ($file = readdir($handle)))
 						{
-							if ($file == 'rec.img.000')
-								$strRec=rtrim($this->getImagePath(),'/').'/rec.img.*';
-							if ($file == 'sys.img.000')
-								$strSys=rtrim($this->getImagePath(),'/').'/sys.img.*';
+							if ($file != '.' && $file != '..')
+							{
+								if ($file == 'rec.img.000')
+									$strRec=rtrim($this->getImagePath(),'/').'/rec.img.*';
+								if ($file == 'sys.img.000')
+									$strSys=rtrim($this->getImagePath(),'/').'/sys.img.*';
+							}
 						}
+						natsort($filelist);
+						closedir($handle);
 					}
-					natsort($filelist);
-					closedir($handle);
+				}
+				else
+				{
+					$filelist = array();
+					if ($handle = opendir($this->getImagePath()))
+					{
+						while (false!==($file=readdir($handle)))
+						{
+							if ($file != '.' && $file != '..')
+							{
+								$ext = '';
+								sscanf($file,'d1p%d.%s',$part,$ext);
+								if ($ext == 'img')
+									$filelist[] = $file;
+							}
+						}
+						natsort($filelist);
+						closedir($handle);
+					}
 				}
 			}
-
 			if ($strRec && $strSys)
 			{
 				// two parts
@@ -100,6 +121,14 @@ class MulticastTask extends FOGBase
 			}
 			else if (!$strRec && $strSys)
 				$cmd = 'cat '.$strSys.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().' '.$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
+			else if (!$strRec && !$strSys)
+			{
+				foreach ($filelist AS $file)
+				{
+					$path = rtrim($this->getImagePath(),'/').'/'.$file;
+					$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
+				}
+			}
 		}
 		else if ($this->getImageType() == 1 || $this->getImageType() == 2)
 		{
