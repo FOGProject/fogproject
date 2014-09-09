@@ -1376,6 +1376,14 @@ class GroupManagementPage extends FOGPage
 		try
 		{
 			// Error checking
+			if ($TaskType->isUpload())
+			{
+				foreach ($Group->get('hosts') AS $Host)
+				{
+					if ($Host && $Host->isValid() && $Host->getImage()->isValid() && $Host->getImage()->get('protected'))
+						$error[] = sprintf('%s: %s %s: %s %s',_('Hostname'),$Host->get('name'),_('Image'),$Host->getImage()->get('name'),_('is protected'));
+				}
+			}
 			if ($TaskType->isMulticast() && !$Group->doMembersHaveUniformImages())
 				throw new Exception(_('Hosts do not have Uniformed Image assignments'));
 			foreach((array)$Group->get('hosts') AS $Host)

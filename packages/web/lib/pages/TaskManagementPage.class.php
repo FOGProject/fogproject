@@ -238,12 +238,15 @@ class TaskManagementPage extends FOGPage
 	{
 		$Host = new Host($this->REQUEST['id']);
 		$taskTypeID = $this->REQUEST['type'];
+		$TaskType = new TaskType($_REQUEST['type']);
 		$snapin = '-1';
 		$enableShutdown = false;
 		$enableSnapins = ($_REQUEST['type'] == 17 ? false : -1);
 		$taskName = 'Quick Deploy';
 		try
 		{
+			if ($TaskType->isUpload() && $Host->getImage()->isValid() && $Host->getImage()->get('protected'))
+				throw new Exception(sprintf('%s: %s %s: %s %s',_('Hostname'),$Host->get('name'),_('Image'),$Host->getImage()->get('name'),_('is protected')));
 			$Host->createImagePackage($taskTypeID, $taskName, false, false, $enableSnapins, false, $this->FOGUser->get('name'));
 			$this->FOGCore->setMessage('Successfully created tasking!');
 			$this->FOGCore->redirect('?node=tasks&sub=active');
@@ -376,6 +379,7 @@ class TaskManagementPage extends FOGPage
 	{
 		$Group = new Group($this->REQUEST['id']);
 		$taskTypeID = $this->REQUEST['type'];
+		$TaskType = new TaskType($_REQUEST['type']);
 		$snapin = '-1';
 		$enableShutdown = false;
 		$enableSnapins = ($_REQUEST['type'] == 17 ? false : -1);
