@@ -1725,6 +1725,8 @@ class HostManagementPage extends FOGPage
 		// Deploy
 		try
 		{
+			if ($TaskType->isUpload() && $Host->getImage()->get('protected'))
+				throw new Exception(_('Image is protected, upload tasks cannot be started'));
 			if (in_array($taskTypeID,$imagingTasks) && !$Host->get('imageID'))
 				throw new Exception(_('You need to assign an image to the host'));
 			if (!$Host->checkIfExist($taskTypeID))
