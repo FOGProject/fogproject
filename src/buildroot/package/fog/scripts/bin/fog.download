@@ -262,219 +262,90 @@ elif [ "$imgType" == "mpa" ]; then
 		handleError "Unable to locate image store.";
 	fi
 fi
-# This performs all the Multicast Imaging Tasks.
 if [ "$mc" == "yes" ]; then
 	# we need an artificial pause to allow the server to spin up the upd-cast
 	# process.
 	sleep 10
-	if [ "$imgType" == "n" ]; then
-		if [ -f "$win7imgroot/sys.img.000" ] && [ "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" ]; then
-			if [ "$win7partcnt" == "1" ]; then
-				writeImageMultiCast $win7sys;
-				fixWin7boot $win7sys;
-			elif [ "$win7partcnt" == "2" ]; then
-				writeImageMultiCast $win7rec;
-				fixWin7boot $win7rec;
-				writeImageMultiCast $win7sys;
-			elif [ "$win7partcnt" == "3" ]; then
-				writeImageMultiCast ${hd}1;
-				writeImageMultiCast ${hd}2;
-				writeImageMultiCast $win7sys;
-			fi
-			expandPartition $win7sys;
-		elif [ -f "/images/$img" -o -d "/images/$img" ] && [ "$osid" == "1" -o "$osid" == "2" ]; then
-			writeImageMulticast $part;
-			expandPartition $part;
-		# Linux:
-		#  save EBR so that the extended and logical partitions are not corrupted
-		#  clone filesystem
-		#  restore EBR so that the extended and logical partitions are not corrupted
-		#  expand the partitions
-		elif [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
-			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
-			diskLength=`expr length $hd`;
-			for part in $parts; do
-				saveEBR $part;
-				partNum=${part:$diskLength};
-				echo " * Processing Partition: $part ($partNum)";
-				imgpart="$imagePath/d1p${partNum}.img*";
-				sleep 2;
-				if [ ! -f $imgpart ]; then
-					echo " * Partition File Missing: $imgpart";
-					makeSwapSystem "${imagePath}/d1.original.swapuuids" "$part";
-				else
-					writeImageMultiCast $part;
-					restoreEBR $part;
-					expandPartition $part;
-				fi
-			done
+fi
+if [ "$imgType" == "n" ]; then
+	runPartprobe $hd;
+	if [ -f "$win7imgroot/sys.img.000" ] && [ "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" ]; then
+		if [ "$win7partcnt" == "1" ]; then
+			restorePartition $win7sys;
+			fixWin7boot $win7sys;
+		elif [ "$win7partcnt" == "2" ]; then
+			restorePartition $win7rec;
+			fixWin7boot $win7rec;
+			restorePartition $win7sys;
+		elif [ "$win7partcnt" == "3" ]; then
+			restorePartition ${hd}1;
+			restorePartition ${hd}2;
+			restorePartition $win7sys;
 		fi
-	elif [ "$imgType" == "mps" ]; then
-		parts=`getValidRestorePartitions $hd 1 $imagePath`;
+		expandPartition $win7sys;
+	elif [ -f "/images/$img" -o -d "/images/$img" ] && [ "$osid" == "1" -o "$osid" == "2" ]; then
+		restorePartition $part;
+		expandPartition $part;
+	# Linux:
+	#  save EBR so that the extended and logical partitions are not corrupted
+	#  clone filesystem
+	#  restore EBR so that the extended and logical partitions are not corrupted
+	#  expand the partitions
+	elif [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
+		parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 		diskLength=`expr length $hd`;
+		runPartprobe $hd;
+		for part in $parts; do
+			saveEBR $part;
+			partNum=${part:$diskLength};
+			imgpart="$imagePath/d1p${partNum}.img*";
+			sleep 2;
+			if [ ! -f $imgpart ]; then
+				echo " * Partition File Missing: $imgpart";
+				makeSwapSystem "${imagePath}/d1.original.swapuuids" "$part";
+			else
+				restorePartition $part;
+				restoreEBR $part;
+				expandPartition $part;
+			fi
+		done
+	fi
+elif [ "$imgType" == "mps" ]; then
+	parts=`getValidRestorePartitions $hd 1 $imagePath`;
+	diskLength=`expr length $hd`;
+	runPartprobe $hd;
+	for part in $parts; do
+		partNum=${part:$diskLength};
+		if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
+			restorePartition "$part" "1" "$imagePath" "$diskLength" "$imgPartitionType";
+		else
+			dots "Skipping partition $partNum";
+			echo "Done";
+		fi
+	done
+	makeAllSwapSystems $hd 1 $imagePath "$imgPartitionType";
+elif [ "$imgType" == "mpa" ]; then
+	disks=`fogpartinfo --list-devices 2>/dev/null`;
+	intDisk=1;
+	for disk in $disks; do
+		parts=`getValidRestorePartitions $disk $intDisk $imagePath`;
+		diskLength=`expr length $disk`;
+		runPartprobe $disk;
 		for part in $parts; do
 			partNum=${part:$diskLength};
 			if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
 				echo " * Processing Partition: $part ($partNum)";
-				writeImageMultiCast $part;
+				restorePartition "$part" "$intDisk" "$imagePath" "$diskLength" "$imgPartitionType";
 			else
 				dots "Skipping partition $partNum";
 				echo "Done";
 			fi
 		done
-		makeAllSwapSystems $hd 1 $imagePath "$imgPartitionType";
-	elif [ "$imgType" == "mpa" ]; then
-		disks=`fogpartinfo --list-devices 2>/dev/null`;
-		intDisk=1;
-		for disk in $disks; do
-			parts=`getValidRestorePartitions $disk $intDisk $imagePath`;
-			diskLength=`expr length $disk`;
-			for part in $parts; do
-				partNum=${part:$diskLength};
-				if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
-					echo " * Processing Partition: $part ($partNum)";
-					writeImageMultiCast $part;
-				else
-					dots "Skipping partition $partNum";
-					echo "Done";
-				fi
-			done
-			makeAllSwapSystems $disk $intDisk $imagePath "$imgPartitionType";
-			intDisk=`expr $intDisk '+' 1`;
+		makeAllSwapSystems $disk $intDisk $imagePath "$imgPartitionType";
+		intDisk=`expr $intDisk '+' 1`;
 		done
-	else
-		writeImageMultiCast $hd;
-	fi
 else
-	if [ "$imgType" == "n" ]; then
-		dots "Checking Hard Disks";
-		runPartprobe;
-		echo "Done";
-		debugPause;
-		if [ -f "$win7imgroot/sys.img.000" ] && [ "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" ]; then
-			if [ "$win7partcnt" == "1" ]; then
-				writeImage "$imagePath/sys.img.*" $win7sys;
-				debugPause;
-				fixWin7boot $win7sys;
-				debugPause;
-			elif [ "$win7partcnt" == "2" ]; then
-				writeImage "$imagePath/rec.img.*" $win7rec;
-				debugPause;
-				fixWin7boot $win7rec;
-				debugPause;
-				writeImage "$imagePath/sys.img.*" $win7sys;
-				part=$win7sys;
-				debugPause;
-			elif [ "$win7partcnt" == "3" ]; then
-				writeImage "$imagePath/rec1.img.*" ${hd}1;
-				debugPause;
-				writeImage "$imagePath/rec3.img.*" ${hd}2;
-				debugPause;
-				writeImage "$imagePath/sys.img.*" $win7sys;
-				debugPause;
-			fi
-			if [ "$mc" == "bt" ]; then
-				#stop rtorrent. unmount and remove downloadPartition here
-				killall ctorrent;
-				sleep 5;
-				umount /download;
-				parted -s $hd rm $downloadPartitionCount;
-				parted -s $hd rm $partCount;
-				dots "Correcting partition sizes";
-				if [ "$win7partcnt" == "1" ]; then
-					if [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
-						parted -s $hd -a opt mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
-					else
-						parted -s $hd -a opt mkpart primary ntfs 2048s -- $layPartSize &>/dev/null;
-					fi
-					parted -s $hd set 1 boot on &>/dev/null;
-				elif [ "$win7partcnt" == "2" ]; then
-					parted -s $hd -a opt mkpart primary ntfs $defaultpart2start -- $layPartSize &>/dev/null;
-				elif [ "$win7partcnt" == "3" ]; then
-					dots "How did i even get here?";
-					echo "Done";
-				fi
-				echo "Done";
-				debugPause;
-			fi
-			expandPartition $win7sys;
-			debugPause;
-		elif [ -f "/images/$img" -o -d "/images/$img" -a -f "$imagePath" ] && [ "$osid" == "1" -o "$osid" == "2" ]; then
-			writeImage "$imagePath*" $part;
-			debugPause;
-			expandPartition $part;
-		# Linux:
-		#  save EBR so that the extended and logical partitions are not corrupted
-		#  clone filesystem
-		#  restore EBR so that the extended and logical partitions are not corrupted
-		#  expand the partitions
-		elif [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
-			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
-			diskLength=`expr length $hd`;
-			for part in $parts; do
-				saveEBR $part;
-				partNum=${part:$diskLength};
-				echo " * Processing Partition: $part ($partNum)";
-				imgpart="$imagePath/d1p${partNum}.img*";
-				sleep 2;
-				if [ ! -f $imgpart ]; then
-					echo " * Partition File Missing: $imgpart";
-					makeSwapSystem "${imagePath}/d1.original.swapuuids" "$part";
-				else
-					writeImage "$imgpart" $part;
-					debugPause;
-					restoreEBR $part;
-					expandPartition $part;
-				fi
-			done
-			debugPause;
-		fi
-	elif [ "$imgType" == "mps" ]; then
-		dots "Checking Hard Disks";
-		runPartprobe $hd &> /dev/null;
-		echo "Done";
-		parts=`getValidRestorePartitions $hd 1 $imagePath`;
-		diskLength=`expr length $hd`;
-		for part in $parts; do
-			restorePartition "$part" "1" "$imagePath" "$diskLength" "$imgPartitionType"
-		done
-		if [ "$osid" == "50" -o "$osid" == "8" ]; then
-			echo " * Restore Linux swap partitions:";
-			makeAllSwapSystems $hd 1 $imagePath "$imgPartitionType";
-			debugPause;
-		else
-			echo " * No swap partitions to restore:";
-			debugPause;
-		fi
-	elif [ "$imgType" == "mpa" ]; then
-		disks=`fogpartinfo --list-devices 2>/dev/null`;
-		intDisk=1;
-		for disk in $disks; do
-			dots "Checking Hard Disks";
-			partprobe $disk &> /dev/null;
-			echo "Done";
-			debugPause;
-			parts=`getValidRestorePartitions $disk $intDisk $imagePath`;
-			diskLength=`expr length $disk`;
-			for part in $parts; do
-				restorePartition "$part" "$intDisk" "$imagePath" "$diskLength" "$imgPartitionType"
-			done
-			intDisk=`expr $intDisk '+' 1`;
-		done
-		if [ "$osid" == "50" -o "$osid" == "8" ]; then
-			echo " * Restore Linux swap partitions:";
-			intDisk=1;
-			for disk in $disks; do
-				makeAllSwapSystems $disk $intDisk $imagePath "$imgPartitionType";
-				intDisk=`expr $intDisk '+' 1`;
-				debugPause;
-			done
-		fi
-	else
-		writeImage "$imagePath/$img" $hd;
-
-	fi
-
+	restorePartition $hd;
 fi
 if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "mbr" ]; then
 	if [ "$gptcheck" == "yes" ]; then

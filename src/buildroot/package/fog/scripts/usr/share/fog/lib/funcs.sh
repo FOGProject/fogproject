@@ -921,10 +921,7 @@ restorePartitionTablesAndBootLoaders()
 	local has_GRUB="";
 	local mbrsize="";
 	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "mbr" ]; then
-		dots "Erasing current MBR/GPT Tables";
-		sgdisk -Z $disk >/dev/null;
-		runPartprobe;
-		echo "Done";
+		clearPartitionTables $disk;
 		debugPause;
 		tmpMBR="$imagePath/d${intDisk}.mbr";
 		has_GRUB=`hasGRUB "${disk}" "${intDisk}" "${imagePath}"`;
@@ -1011,17 +1008,40 @@ savePartition()
 
 restorePartition()
 {
-	local part="$1";
-	local intDisk="$2";
-	local imagePath="$3";
-	local diskLength="$4";
-	local imgPartitionType="$5";
+	if [ -z "$1" ]; then
+		handleError "No partition sent to process";
+	else
+		local part="$1";
+	fi
+	if [ -z "$2" ]; then
+		local intDisk="1";
+	else
+		local intDisk="$2";
+	fi
+	if [ -z "$3" ]; then
+		local imagePath=$imagePath;
+	else
+		local imagePath="$3";
+	fi
+	if [ -z "$4" ]; then
+		local diskLength="`expr length $hd`";
+	else
+		local diskLength="$4";
+	fi
+	if [ -z "$5" ]; then
+		local imgPartitionType="$imgPartitionType";
+	else
+		local imgPartitionType="$5";
+	fi
 	local partNum="";
 	local imgpart="";
-	
 	partNum=${part:$diskLength};
-	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
-		echo " * Processing Partition: $part ($partNum)";
+	echo " * Processing Partition: $part ($partNum)";
+	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ] && [ "$mc" == "yes" ]; then
+		writeImageMultiCast $part
+		debugPause;
+		resetFlag $part;
+	elif [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
 		imgpart="${imagePath}/d${intDisk}p${partNum}.img*";
 		sleep 2;
 		if [ ! -f $imgpart ]; then
