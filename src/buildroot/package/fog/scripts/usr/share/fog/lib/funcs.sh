@@ -901,6 +901,15 @@ savePartitionTablesAndBootLoaders()
 	echo "Done";
 }
 
+clearPartitionTables()
+{
+	local disk="$1";
+	dots "Erasing current MBR/GPT Tables";
+	sgdisk -Z $disk >/dev/null;
+	runPartprobe $disk;
+	echo "Done";
+}
+
 restorePartitionTablesAndBootLoaders()
 {
 	local disk="$1";
@@ -911,15 +920,12 @@ restorePartitionTablesAndBootLoaders()
 	local tmpMBR="";
 	local has_GRUB="";
 	local mbrsize="";
-	
 	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "mbr" ]; then
-
 		dots "Erasing current MBR/GPT Tables";
 		sgdisk -Z $disk >/dev/null;
 		runPartprobe;
 		echo "Done";
 		debugPause;
-		
 		tmpMBR="$imagePath/d${intDisk}.mbr";
 		has_GRUB=`hasGRUB "${disk}" "${intDisk}" "${imagePath}"`;
 		mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
