@@ -176,14 +176,30 @@ if [ "$imgType" == "n" ]; then
 			echo "Done";
 			debugPause;
 		fi
+	elif [ "$osid" == "1" -o "$osid" == "2" ]; then
+		clearPartitionTables $hd;
+		debugPause;
+		if [ -f "$imagePath" ] || [ -d "$imagePath" ]; then
+			if [ -d "$imagePath" ]; then
+				imagePath="$imagePath/$img";
+			fi
+			dots "Preparing Hard Disks (Stage 2)";
+			parted -s $hd rm 1 &>/dev/null;
+			runPartprobe $hd;
+			echo "Done";
+			debugPause;
+			dots "Preparing hard Disks (Stage 3)";
+			parted -s $hd -a opt mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
+			parted -s $hd set 1 boot on &>/dev/null;
+			runPartprobe $hd
+			echo "Done";
+			debugPause;
+		fi
 	# Linux:
 	#  restore MBR/GRUB
 	#  resize original partition table to current disk, and apply it
 	elif [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
-		dots "Erasing current MBR/GPT Tables";
-		sgdisk -Z $hd >/dev/null;
-		runPartprobe $hd;
-		echo "Done";
+		clearPartitionTables $hd;
 		debugPause;
 		tmpMBR="$imagePath/d1.mbr";
 		has_GRUB=`hasGRUB "${hd}" "1" "${imagePath}"`;
@@ -266,6 +282,9 @@ if [ "$mc" == "yes" ]; then
 				writeImageMultiCast $win7sys;
 			fi
 			expandPartition $win7sys;
+		elif [ -f "/images/$img" -o -d "/images/$img" ] && [ "$osid" == "1" -o "$osid" == "2" ]; then
+			writeImageMulticast $part;
+			expandPartition $part;
 		# Linux:
 		#  save EBR so that the extended and logical partitions are not corrupted
 		#  clone filesystem
@@ -289,9 +308,6 @@ if [ "$mc" == "yes" ]; then
 					expandPartition $part;
 				fi
 			done
-		else
-			writeImageMultiCast $part;
-			expandPartition $part;
 		fi
 	elif [ "$imgType" == "mps" ]; then
 		parts=`getValidRestorePartitions $hd 1 $imagePath`;
@@ -383,6 +399,10 @@ else
 			fi
 			expandPartition $win7sys;
 			debugPause;
+		elif [ -f "/images/$img" -o -d "/images/$img" -a -f "$imagePath" ] && [ "$osid" == "1" -o "$osid" == "2" ]; then
+			writeImage "$imagePath*" $part;
+			debugPause;
+			expandPartition $part;
 		# Linux:
 		#  save EBR so that the extended and logical partitions are not corrupted
 		#  clone filesystem
@@ -408,10 +428,6 @@ else
 				fi
 			done
 			debugPause;
-		else
-			writeImage "$imagePath/sys.img.*" $part;
-			debugPause;
-			expandPartition $part;
 		fi
 	elif [ "$imgType" == "mps" ]; then
 		dots "Checking Hard Disks";
