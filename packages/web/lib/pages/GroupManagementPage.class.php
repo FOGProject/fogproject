@@ -1302,6 +1302,7 @@ class GroupManagementPage extends FOGPage
 		{
 			print "\n\t\t\t".'<input type="checkbox" name="isDebugTask" id="isDebugTask" placeholder="isDebug" autocomplete="off" /> Schedule task as a debug task?';
 			print "\n\t\t\t".'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked="checked" /><label for="scheduleInstant">'._('Schedule ').' <u>'._('Instant Deployment').'</u></label></p>';
+			print "\n\t\t\t".'<div id="hideFromDebug">';
 			print "\n\t\t\t".'<p><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off" /><label for="scheduleSingle">'._('Schedule ').' <u>'._('Delayed Deployment').'</u></label></p>';
 			print "\n\t\t\t".'<p class="hidden" id="singleOptions"><input type="text" name="scheduleSingleTime" id="scheduleSingleTime" autocomplete="off" /></p>';
 			print "\n\t\t\t".'<p><input type="radio" name="scheduleType" id="scheduleCron" value="cron" autocomplete="off"> <label for="scheduleCron">'._('Schedule ').' <u>'._('Cron-style Deployment').'</u></label></p>';
@@ -1312,6 +1313,7 @@ class GroupManagementPage extends FOGPage
 			print "\n\t\t\t".'<input type="text" name="scheduleCronMonth" id="scheduleCronMonth" placeholder="month" autocomplete="off" />';
 			print "\n\t\t\t".'<input type="text" name="scheduleCronDOW" id="scheduleCronDOW" placeholder="dow" autocomplete="off" />';
 			print "\n\t\t\t</p>";
+			print "\n\t\t\t".'</div>';
 		}
 		if ($TaskType->get('id') == 11)
 		{

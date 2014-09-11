@@ -1042,7 +1042,11 @@ restorePartition()
 		debugPause;
 		resetFlag $part;
 	elif [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
-		imgpart="${imagePath}/d${intDisk}p${partNum}.img*";
+		if [ -f "$imagePath" ]; then
+			imgpart="$imagePath";
+		else
+			imgpart="${imagePath}/d${intDisk}p${partNum}.img*";
+		fi
 		sleep 2;
 		if [ ! -f $imgpart ]; then
 			echo " * Partition File Missing: $imgpart";
