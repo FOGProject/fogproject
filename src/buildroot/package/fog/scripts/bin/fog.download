@@ -181,19 +181,23 @@ if [ "$imgType" == "n" ]; then
 		debugPause;
 		if [ -f "$imagePath" ] || [ -d "$imagePath" ]; then
 			if [ -d "$imagePath" ]; then
-				imagePath="$imagePath/$img";
+				if [ -f "$imagePath/$img" ]; then
+					imagePath="$imagePath/$img";
+				fi
 			fi
-			dots "Preparing Hard Disks (Stage 2)";
-			parted -s $hd rm 1 &>/dev/null;
-			runPartprobe $hd;
-			echo "Done";
-			debugPause;
-			dots "Preparing hard Disks (Stage 3)";
-			parted -s $hd -a opt mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
-			parted -s $hd set 1 boot on &>/dev/null;
-			runPartprobe $hd
-			echo "Done";
-			debugPause;
+			if [ -f "$imagePath" ]; then
+				dots "Preparing Hard Disks (Stage 2)";
+				parted -s $hd rm 1 &>/dev/null;
+				runPartprobe $hd;
+				echo "Done";
+				debugPause;
+				dots "Preparing hard Disks (Stage 3)";
+				parted -s $hd -a opt mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
+				parted -s $hd set 1 boot on &>/dev/null;
+				runPartprobe $hd
+				echo "Done";
+				debugPause;
+			fi
 		fi
 	# Linux:
 	#  restore MBR/GRUB
@@ -283,7 +287,7 @@ if [ "$imgType" == "n" ]; then
 			restorePartition $win7sys;
 		fi
 		expandPartition $win7sys;
-	elif [ -f "/images/$img" -o -d "/images/$img" ] && [ "$osid" == "1" -o "$osid" == "2" ]; then
+	elif [ -f "$imagePath" ] && [ "$osid" == "1" -o "$osid" == "2" ]; then
 		restorePartition $part;
 		expandPartition $part;
 	# Linux:
