@@ -1662,11 +1662,11 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<p><input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">'._('Schedule').' <u>'._('Shutdown').'</u>'._(' after task completion').'</label></p>';
 		if (!$TaskType->isDebug() && $TaskType->get('id') != 11)
 		{
-			print "\n\t\t\t".'<input type="checkbox" name="isDebugTask" id="isDebugTask" placeholder="isDebug" autocomplete="off" /> Schedule task as a debug task?';
+			print "\n\t\t\t".'<p><input type="checkbox" name="isDebugTask" id="isDebugTask" autocomplete="off" /><label for="isDebugTask">'._('Schedule task as a debug task?').'</label></p>';
 			print "\n\t\t\t".'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked="checked" /><label for="scheduleInstant">'._('Schedule ').' <u>'._('Instant Deployment').'</u></label></p>';
-			print "\n\t\t\t".'<p><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off" /><label for="scheduleSingle">'._('Schedule ').' <u>'._('Delayed Deployment').'</u></label></p>';
+			print "\n\t\t\t".'<p class="hideFromDebug"><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off" /><label for="scheduleSingle">'._('Schedule ').' <u>'._('Delayed Deployment').'</u></label></p>';
 			print "\n\t\t\t".'<p class="hidden" id="singleOptions"><input type="text" name="scheduleSingleTime" id="scheduleSingleTime" autocomplete="off" /></p>';
-			print "\n\t\t\t".'<p><input type="radio" name="scheduleType" id="scheduleCron" value="cron" autocomplete="off"> <label for="scheduleCron">'._('Schedule ').' <u>'._('Cron-style Deployment').'</u></label></p>';
+			print "\n\t\t\t".'<p class="hideFromDebug"><input type="radio" name="scheduleType" id="scheduleCron" value="cron" autocomplete="off"> <label for="scheduleCron">'._('Schedule ').' <u>'._('Cron-style Deployment').'</u></label></p>';
 			print "\n\t\t\t".'<p class="hidden" id="cronOptions">';
 			print "\n\t\t\t".'<input type="text" name="scheduleCronMin" id="scheduleCronMin" placeholder="min" autocomplete="off" />';
 			print "\n\t\t\t".'<input type="text" name="scheduleCronHour" id="scheduleCronHour" placeholder="hour" autocomplete="off" />';
