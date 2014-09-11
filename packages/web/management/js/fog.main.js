@@ -9,6 +9,32 @@
 // JQuery autoloader
 $(function()
 {
+	$('#scheduleSingle').click(function() {
+		if ($(this).attr('checked')) {
+			$('#scheduleSingleTime').show();
+		}
+		else {
+			$('#scheduleSingleTime').val('');
+		}
+	});
+	$('#isDebugTask').click(function() {
+		if ($(this).attr('checked')) {
+			$('#scheduleInstant').attr('checked',true);
+			$('#scheduleSingleTime').val('');
+			$('#scheduleCronMin').val('');
+			$('#scheduleCronHour').val('');
+			$('#scheduleCronDOM').val('');
+			$('#scheduleCronMonth').val('');
+			$('#scheduleCronDOW').val('');
+			$('#singleOptions').hide();
+			$('#cronOptions').hide();
+			$('.hideFromDebug').hide();
+		}
+		else
+		{
+			$('.hideFromDebug').show();
+		}
+	});
 	// The below elements just performs the randomization techniques.
 	$('#FOG_AES_PASS_ENCRYPT_KEY_button').click(function() {
 		$.ajax({
