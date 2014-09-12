@@ -119,6 +119,9 @@ namespace FOG {
 			process.StartInfo.UseShellExecute = false;
 			process.StartInfo.FileName = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\FOGUpdateWaiter.exe";
 			process.StartInfo.Arguments = "\"" + fileName + "\"";
+			
+			LogHandler.log(LOG_NAME, "Update Waiter args");
+			LogHandler.log(LOG_NAME, process.StartInfo.FileName + " " + process.StartInfo.Arguments);
 			process.Start();			
 		}
 	}
