@@ -89,18 +89,20 @@ if [ "$imgType" == "n" ]; then
 			dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
 			echo "Done";
 		fi
+		debugPause;
 		diskSize=`parted -s $hd u kB print | grep "Disk" | grep -v "Flags" | sed 's/Disk \/dev\/[a-zA-Z0-9]*: //' | sed 's/kB//'`;
 		if [ $diskSize -gt 2199023256 ]; then
 			layPartSize="2tB";
 		fi
 		if [ "$mc" == "bt" ]; then
 			if [ "$win7partcnt" == "1" ]; then
+				clearPartitionTables $hd;
 				dots "Preparing Hard Disks (Stage 2)";
 				parted -s $hd rm 1 &>/dev/null;
 				echo "Done";
 				dots "Preparing Hard Disks (Stage 3)";
 			if [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
-					parted -s $hd -a opt mkpart primary ntfs 63s -- $downloadPartitionStart &>/dev/null;
+					parted -s $hd mkpart primary ntfs 63s -- $downloadPartitionStart &>/dev/null;
 					parted -s $hd -a opt mkpart primary ext2 -- $downloadPartitionStart $layPartSize &>/dev/null;
 				else
 					parted -s $hd -a opt mkpart primary ntfs 2048s -- $downloadPartitionStart &>/dev/null;
@@ -140,12 +142,10 @@ if [ "$imgType" == "n" ]; then
 			debugPause;
 		else
 			if [ "$win7partcnt" == "1" ]; then
-				dots "Preparing Hard Disks (Stage 2)";
-				parted -s $hd rm 1 &>/dev/null;
-				echo "Done";
+				clearPartitionTables $hd;
 				dots "Preparing Hard Disks (Stage 3)";
 				if [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
-					parted -s $hd -a opt mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
+					parted -s $hd mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
 				else
 					parted -s $hd -a opt mkpart primary ntfs 2048s -- $layPartSize &>/dev/null;
 				fi
@@ -154,14 +154,16 @@ if [ "$imgType" == "n" ]; then
 				dots "Preparing Hard Disks (Stage 2)";
 				parted -s $hd rm 2 &>/dev/null;
 				echo "Done";
+				debugPause;
 				dots "Preparing Hard Disks (Stage 3)";
 				parted -s $hd -a opt mkpart primary ntfs $defaultpart2start -- $layPartSize &>/dev/null;
 			elif [ "$win7partcnt" == "3" ]; then
 				dots "Preparing Hard Disks (Stage 2)";
 				sgdisk --zap-all $hd 2>&1 >/dev/null;
-				runPartprobe $hdyy;
+				runPartprobe $hd;
 				sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
 				echo "Done";
+				debugPause;
 				dots "Preparing Hard Disks (Stage 3)";
 				sgdisk -x 3:$(sgdisk -E $hd) $hd &>/dev/null;
 			elif [ "$win7partcnt" == "4" ]; then
@@ -170,6 +172,7 @@ if [ "$imgType" == "n" ]; then
 				runPartprobe $hdyy;
 				sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
 				echo "Done";
+				debugPause;
 				dots "Preparing Hard Disks (Stage 3)";
 				sgdisk -x 4:$(sgdisk -E $hd) $hd &>/dev/null;
 			fi
@@ -181,7 +184,6 @@ if [ "$imgType" == "n" ]; then
 			imagePath="$imagePath/$img";
 		fi
 		clearPartitionTables $hd;
-		debugPause;
 		dots "Preparing Hard Disks (Stage 2)";
 		parted -s $hd rm 1 &>/dev/null;
 		runPartprobe $hd;
