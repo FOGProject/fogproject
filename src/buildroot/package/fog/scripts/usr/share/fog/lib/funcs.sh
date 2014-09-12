@@ -60,6 +60,7 @@ expandPartition()
 		if [ "$is_fixed" == "1" ]; then
 			dots "Not expanding ($1) fixed size";
 			echo "Done";
+			debugPause;
 			return;
 		fi
 	fi
@@ -80,6 +81,7 @@ EOFNTFSRESTORE
 		dots "Not expanding ($1 $fstype)";
 	fi
 	echo "Done";
+	debugPause;
 	if [ "$do_reset_flag" == "1" ]; then
 		resetFlag $1;
 	fi
@@ -143,6 +145,7 @@ shrinkPartition()
 		if [ "$is_fixed" == "1" ]; then
 			dots "Not shrinking ($1) fixed size";
 			echo "Done";
+			debugPause;
 			return;
 		fi
 	fi
@@ -167,6 +170,7 @@ EOFNTFS`
 		too_big=`echo $tmpSuc | grep "bigger than the device size"`;
 		ok_size=`echo $tmpSuc | grep "volume size is already OK"`;
 		echo "Done";
+		debugPause;
 		if [ -n "$too_big" ]; then
 			echo " * Not resizing filesystem $1 (part too small)";
 			do_resizefs=0;
@@ -190,6 +194,7 @@ EOFNTFS`
 y
 FORCEY
 			echo "Done";
+			debugPause;
 			resetFlag $1;
 		fi
 		if [ "$do_resizepart" == "1" ]; then
@@ -223,6 +228,7 @@ FORCEY
 		dots "Checking $fstype volume ($1)";
 		e2fsck -fp $1 &>/dev/null;
 		echo "Done";
+		debugPause;
 		extminsizenum=`resize2fs -P $1 2>/dev/null | awk -F': ' '{print $2}'`;
 		block_size=`dumpe2fs -h $1 2>/dev/null | grep "^Block size:" | awk '{print $3}'`;
 		size=`expr $extminsizenum '*' $block_size`;
@@ -233,9 +239,11 @@ FORCEY
 		dots "Shrinking $fstype volume ($1)";
 		resize2fs $1 -M &>/dev/null;
 		echo "Done";
+		debugPause;
 		dots "Shrinking $1 partition";
 		resizePartition "$1" "$sizeextresize"
 		echo "Done";
+		debugPause;
 		runPartprobe $hd;
 		dots "Resizing $fstype volume ($1)";
 		resize2fs $1 &>/dev/null;
@@ -244,6 +252,7 @@ FORCEY
 		dots "Not shrinking ($1 $fstype)";
 	fi
 	echo "Done";
+	debugPause;
 }
 # $1 is the part
 resetFlag() 
@@ -254,6 +263,7 @@ resetFlag()
 			dots "Clearing ntfs flag";
 			ntfsfix -b -d $1 &>/dev/null;
 			echo "Done";
+			debugPause;
 		fi
 	fi
 }
@@ -417,6 +427,7 @@ y
 EOFREG
 		umount /ntfs &> /dev/null
 		echo "Done";
+		debugPause;
 	fi
 }
 
@@ -429,6 +440,7 @@ fixWin7boot()
 	cp /usr/share/fog/BCD /bcdstore/Boot/BCD;
 	umount /bcdstore;
 	echo "Done";
+	debugPause;
 }
 
 clearMountedDevices()
@@ -443,7 +455,8 @@ delallv
 q
 y
 EOFMOUNT
-		echo "Done";		
+		echo "Done";
+		debugPause;
 		umount /ntfs
 	fi
 }
@@ -464,15 +477,19 @@ removePageFile()
 			ntfs-3g -o force,rw $part /ntfs;
 			if [ "$?" == "0" ]; then
 				echo "Done";
+				debugPause;
 				dots "Removing page file";
 				rm -f "/ntfs/pagefile.sys";
 				echo "Done";
+				debugPause;
 				dots "Removing hibernate file";
 				rm -f "/ntfs/hiberfil.sys";
 				echo "Done";
+				debugPause;
 				umount /ntfs;
 			else
 				echo "Failed";
+				debugPause;
 			fi
 		fi
 	fi
@@ -663,6 +680,7 @@ correctVistaMBR()
 	rm /tmp.mbr.fix.txt &>/dev/null
 	dd if=/mbr.mbr of=$1 count=1 bs=512 &>/dev/null
 	echo "Done";
+	debugPause;
 }
 
 displayBanner()
@@ -899,6 +917,7 @@ savePartitionTablesAndBootLoaders()
 		dots "Skipping partition tables and MBR";
 	fi
 	echo "Done";
+	debugPause;
 }
 
 clearPartitionTables()
@@ -908,6 +927,12 @@ clearPartitionTables()
 	sgdisk -Z $disk >/dev/null;
 	runPartprobe $disk;
 	echo "Done";
+	debugPause;
+	dots "Creating disk with new label";
+	parted -s $disk mklabel msdos;
+	runPartprobe $disk;
+	echo "Done";
+	debugPause;
 }
 
 restorePartitionTablesAndBootLoaders()
@@ -936,10 +961,12 @@ restorePartitionTablesAndBootLoaders()
 				restoreGRUB "${disk}" "${intDisk}" "${imagePath}";
 				if [ -e "${imagePath}/d${intDisk}.partitions" ]; then
 					echo "Done";
+					debugPause;
 					dots "Extended partitions";
 					sfdisk $disk < ${imagePath}/d${intDisk}.partitions &>/dev/null;
 				else
 					echo "Done";
+					debugPause;
 					dots "No extended partitions";
 				fi
 			else
@@ -947,10 +974,12 @@ restorePartitionTablesAndBootLoaders()
 				dd if=$tmpMBR of=$disk bs=512 count=1 &>/dev/null;
 				if [ -e "${imagePath}/d${intDisk}.partitions" ]; then
 					echo "Done";
+					debugPause;
 					dots "Extended partitions";
 					sfdisk $disk < ${imagePath}/d${intDisk}.partitions &>/dev/null;
 				else
 					echo "Done";
+					debugPause;
 					dots "No extended partitions";
 				fi
 			fi
@@ -964,6 +993,7 @@ restorePartitionTablesAndBootLoaders()
 	else
 		dots "Skipping partition tables and MBR";
 		echo "Done";
+		debugPause;
 	fi
 }
 
@@ -1003,6 +1033,7 @@ savePartition()
 	else
 		dots "Skipping partition $partNum";
 		echo "Done";
+		debugPause;
 	fi
 }
 
@@ -1058,6 +1089,7 @@ restorePartition()
 	else
 		dots "Skipping partition $partNum";
 		echo "Done";
+		debugPause;
 	fi
 }
 	
