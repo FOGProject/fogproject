@@ -8,7 +8,7 @@ namespace FOG {
 	class Program {
 		
 		public static void Main(string[] args) {
-			
+			//Update Line
 			//Check if an parameter was passed
 			if(args.Length > 0) {
 				//Wait for all update files to be applied
@@ -21,7 +21,7 @@ namespace FOG {
 		}
 		
 		private static Boolean updateFilePresent() {
-			fileFound = false;
+			Boolean fileFound = false;
 			foreach(String fileName in Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory)) {
 				if(fileName.EndsWith("updating.info")) 
 					fileFound =  true;

@@ -1,3 +1,0 @@
-D:\fog\FOGService\UpdateHelper\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\bin\FOGUpdateHelper.exe
-D:\fog\FOGService\UpdateHelper\obj\Release\FOGUpdateHelper.exe

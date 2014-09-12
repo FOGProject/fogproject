@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="main.cs" />
     <Compile Include="FOGService.cs" />
+    <Compile Include="UpdateHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

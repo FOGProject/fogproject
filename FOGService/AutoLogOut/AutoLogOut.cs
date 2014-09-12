@@ -11,7 +11,7 @@ namespace FOG {
 
 		private int minimumTime;
 		public AutoLogOut():base() {
-			setName("AutoLogOut");
+			setName("AutoLogOut ----new----");
 			setDescription("Automatically log out the user if they are inactive");
 			this.minimumTime = 300;
 		}

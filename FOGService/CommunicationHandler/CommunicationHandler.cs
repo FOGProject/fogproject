@@ -15,7 +15,7 @@ namespace FOG {
 		private static Dictionary<String, String> returnMessages = loadReturnMessages();
 
 		private const String successCode = "#!ok";
-		private const String LOG_NAME = "CommunicationHandler";
+		private const String LOG_NAME = "CommunicationHandler ----new----";
 
 		private const String PASSKEY = "7NFJUuQTYLZIoea32DsP9V6f0tbWnzMy";
 		//Change this to match your passkey for all traffic
