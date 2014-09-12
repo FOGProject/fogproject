@@ -18,7 +18,7 @@ namespace FOG {
 			public uint dwTime;
 		}
 		
-		private const String LOG_NAME = "UserHandler ----new----";
+		private const String LOG_NAME = "UserHandler";
 
 		//Check if a user is loggin in, do this by getting a list of all users, and check if the list has any elements
 		public static Boolean isUserLoggedIn() {

@@ -28,7 +28,7 @@ namespace FOG{
 		private PipeServer notificationPipe;
 		private PipeServer servicePipe;
 		
-		private const String LOG_NAME = "Service ----new----";
+		private const String LOG_NAME = "Service";
 		
 		//Module status -- used for stopping/starting
 		public enum Status {

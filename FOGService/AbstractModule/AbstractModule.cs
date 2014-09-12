@@ -23,7 +23,7 @@ namespace FOG
 
 		//Default start method
 		public virtual void start() {
-			LogHandler.log(getName(), "Running... ----new----");
+			LogHandler.log(getName(), "Running...");
 			if(isEnabled()) {
 				doWork();
 			} else {
