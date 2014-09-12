@@ -10,7 +10,7 @@ namespace FOG {
 	public class SnapinClient : AbstractModule {
 		
 		public SnapinClient():base(){
-			setName("SnapinClient");
+			setName("SnapinClient ----new----");
 			setDescription("Installs snapins on client computers");
 		}
 		

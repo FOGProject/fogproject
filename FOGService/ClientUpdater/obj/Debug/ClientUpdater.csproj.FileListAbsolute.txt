@@ -1,0 +1,5 @@
+D:\fog\FOGService\bin\ClientUpdater.dll
+D:\fog\FOGService\bin\ClientUpdater.pdb
+D:\fog\FOGService\ClientUpdater\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\ClientUpdater\obj\Debug\ClientUpdater.dll
+D:\fog\FOGService\ClientUpdater\obj\Debug\ClientUpdater.pdb

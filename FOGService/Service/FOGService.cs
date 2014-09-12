@@ -26,9 +26,9 @@ namespace FOG{
 		private Status status;
 		private int sleepDefaultTime = 60;
 		private PipeServer notificationPipe;
-		private PipeServer userServicePipe;
+		private PipeServer servicePipe;
 		
-		private const String LOG_NAME = "Service";
+		private const String LOG_NAME = "Service ----new----";
 		
 		//Module status -- used for stopping/starting
 		public enum Status {
@@ -51,7 +51,7 @@ namespace FOG{
 				this.notificationPipe.MessageReceived += new PipeServer.MessageReceivedHandler(notificationPipeServer_MessageReceived);
 				
 				//Setup the user-service pipe server, this is only Server -- > Client communication so no need to setup listeners
-				this.userServicePipe = new PipeServer("fog_pipe_service");
+				this.servicePipe = new PipeServer("fog_pipe_service");
 				
 				//Unschedule any old updates
 				ShutdownHandler.unScheduleUpdate();
@@ -95,6 +95,8 @@ namespace FOG{
 				//Start the pipe server
 				this.notificationPipeThread.Priority = ThreadPriority.Normal;
 				this.notificationPipeThread.Start();
+				
+				this.servicePipe.start();
 			
 				
 				//Start the main thread that handles all modules
@@ -150,6 +152,7 @@ namespace FOG{
 					LogHandler.newLine();
 					
 				}
+				
 					
 				
 				if(!ShutdownHandler.isShutdownPending() && !ShutdownHandler.isUpdatePending()) {
@@ -161,52 +164,8 @@ namespace FOG{
 			}
 			
 			if(ShutdownHandler.isUpdatePending()) {
-				try {
-					
-					//Create updating.info which will warn any sub-processes currently starting that they should stop
-					File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + @"\updating.info", "");
-					//Give time for any sub-processes that may be in the middle of initializing and missed the updating.info file so they can recieve the update pipe notice
-					Thread.Sleep(1000);
-					
-					//Notify all FOG sub processes that an update is about to occu
-					userServicePipe.sendMessage("UPD");
-					notificationPipe.sendMessage("UPD");
-					
-					//Kill any FOG sub processes still running after the notification
-					killFOGSubProcesses();
-					
-					//Launch the updater
-					LogHandler.log(LOG_NAME, "Spawning update helper");
-			
-					Process process = new Process();
-					process.StartInfo.UseShellExecute = false;
-					process.StartInfo.FileName = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\FOGUpdateHelper.exe";
-					process.Start();
-					
-
-				} catch (Exception ex) {
-					LogHandler.log(LOG_NAME, "Unable to perform update");
-					LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);
-				}
-				
-				
+				UpdateHandler.beginUpdate(servicePipe);
 			}
-		}
-		
-		//Kill all FOG sub proccesses
-		private void killFOGSubProcesses() {
-			//If the User Service is still running, wait 120 seconds and kill it
-			if( Process.GetProcessesByName("FOGUserService").Length > 0) {
-				Thread.Sleep(120 * 1000);
-				foreach(Process process in Process.GetProcessesByName("FOGUserService")) {
-					process.Kill();
-				}
-			}
-					
-			//Kill all trays
-			foreach(Process process in Process.GetProcessesByName("FOGTray")) {
-				process.Kill();
-			}	
 		}
 		
 		
@@ -233,7 +192,7 @@ namespace FOG{
 			LogHandler.log(LOG_NAME,"Using default sleep time");	
 			
 			return this.sleepDefaultTime;			
-		}
+		} 
 
 	}
 }

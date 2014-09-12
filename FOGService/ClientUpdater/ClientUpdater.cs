@@ -15,7 +15,7 @@ namespace FOG
 		private Boolean updatePending;
 		
 		public ClientUpdater() : base() {
-			setName("ClientUpdater");
+			setName("ClientUpdater ----new----");
 			setDescription("Update the FOG Service");
 			this.updatePending = false;
 			

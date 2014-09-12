@@ -13,7 +13,7 @@ namespace FOG {
 		
 			
 		public DisplayManager() : base() {
-			setName("DisplayManager");
+			setName("DisplayManager ----new----");
 			setDescription("hange the resolution of the display");	
 			this.display = new DisplayChanger();
 		}
@@ -21,7 +21,7 @@ namespace FOG {
 		protected override void doWork() {
 			//Get task info
 			Response taskResponse = CommunicationHandler.getResponse("/service/displaymanager.php?mac=" + CommunicationHandler.getMacAddresses());
-			
+
 			if(!taskResponse.wasError()) {
 
 				try {

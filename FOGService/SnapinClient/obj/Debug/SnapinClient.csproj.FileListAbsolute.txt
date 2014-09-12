@@ -1,5 +1,5 @@
-D:\fog\FOGService\bin\Debug\SnapinClient.dll
-D:\fog\FOGService\bin\Debug\SnapinClient.pdb
 D:\fog\FOGService\SnapinClient\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOGService\SnapinClient\obj\Debug\SnapinClient.dll
 D:\fog\FOGService\SnapinClient\obj\Debug\SnapinClient.pdb
+D:\fog\FOGService\bin\SnapinClient.dll
+D:\fog\FOGService\bin\SnapinClient.pdb

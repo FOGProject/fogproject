@@ -10,7 +10,7 @@ namespace FOG {
 		
 		public static void Main(string[] args) {
 			ServiceController service = new ServiceController("fogservice");
-			
+			//Update Line
 			//Stop the service
 			service.Stop();
 			service.WaitForStatus(ServiceControllerStatus.Stopped);
