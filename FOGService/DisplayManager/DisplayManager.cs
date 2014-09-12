@@ -13,7 +13,7 @@ namespace FOG {
 		
 			
 		public DisplayManager() : base() {
-			setName("DisplayManager ----new----");
+			setName("DisplayManager");
 			setDescription("hange the resolution of the display");	
 			this.display = new DisplayChanger();
 		}

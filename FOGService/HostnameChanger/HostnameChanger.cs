@@ -60,7 +60,7 @@ namespace FOG {
 		//////////////////////////////////////////////////////////////
     
 		public HostnameChanger():base() {
-			setName("HostnameChanger ----new----");
+			setName("HostnameChanger");
 			setDescription("Rename a host, register with AD, and activate the windows key");		
 			
 			setADErrors();

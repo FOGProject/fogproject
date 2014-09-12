@@ -14,7 +14,7 @@ namespace FOG
 		private static String filePath = @"\fog.log";
 		private static long maxLogSizeDefault = 502400;
 		private static long maxLogSize = maxLogSizeDefault;
-		private const String LOG_NAME = "LogHandler ----new----";
+		private const String LOG_NAME = "LogHandler";
 
 		public static void setFilePath(String fPath) { filePath = fPath; }		
 		public static String getFilePath() { return filePath; }
