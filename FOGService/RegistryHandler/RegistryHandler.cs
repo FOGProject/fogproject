@@ -9,7 +9,7 @@ namespace FOG {
 	/// </summary>
 	public static class RegistryHandler {
 
-		private const String LOG_NAME = "RegistryHandler";
+		private const String LOG_NAME = "RegistryHandler ----new----";
 		
 		public static String getSystemSetting(String name) {
 			if(getRegisitryValue(@"Software\Wow6432Node\FOG\", "Server") != null) {

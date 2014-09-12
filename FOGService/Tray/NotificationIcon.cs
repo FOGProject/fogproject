@@ -49,7 +49,7 @@ namespace FOG {
 			
 			this.notification = new Notification();
 			this.isNotificationReady = false;
-		}
+		} 
 		
 		//Called when a message is recieved from the pipe server
 		private void pipeNotificationClient_MessageReceived(String message) {

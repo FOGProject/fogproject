@@ -1,3 +1,7 @@
 D:\fog\FOGService\Tray\obj\Debug\ResolveAssemblyReference.cache
 D:\fog\FOGService\Tray\obj\Debug\FOG.NotificationIcon.resources
 D:\fog\FOGService\Tray\obj\Debug\Tray.csproj.GenerateResource.Cache
+D:\fog\FOGService\bin\FOGTray.exe
+D:\fog\FOGService\bin\FOGTray.pdb
+D:\fog\FOGService\Tray\obj\Debug\FOGTray.exe
+D:\fog\FOGService\Tray\obj\Debug\FOGTray.pdb

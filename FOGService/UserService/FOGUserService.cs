@@ -24,11 +24,12 @@ namespace FOG {
 		private static Thread notificationPipeThread;	
 		private static PipeServer notificationPipe;		
 		private static PipeClient servicePipe;
-		private const String LOG_NAME = "UserService";
+		private const String LOG_NAME = "UserService ----new----";
 		private static int sleepDefaultTime = 60;		
-		private static Status status;		
+		private static Status status;
 		
-		public static void Main(string[] args) {
+		
+		public static void Main(string[] args) { 
 			//Initialize everything
 			AppDomain.CurrentDomain.ProcessExit += new EventHandler (OnProcessExit);
 			
@@ -44,25 +45,30 @@ namespace FOG {
 				notificationPipeThread = new Thread(new ThreadStart(notificationPipeHandler));
 				notificationPipe = new PipeServer("fog_pipe_notification_user_" +  UserHandler.getCurrentUser());
 				notificationPipe.MessageReceived += new PipeServer.MessageReceivedHandler(pipeServer_MessageReceived);			
-			
+				notificationPipe.start();
 				
 				//Setup the service pipe client
 				servicePipe = new PipeClient("fog_pipe_service");
 				servicePipe.MessageReceived += new PipeClient.MessageReceivedHandler(pipeClient_MessageReceived);
+				servicePipe.connect();
+				
 				
 				status = Status.Running;
 				
 				
-				//Start the service pipe client
-				servicePipe.connect();
-			
+
+				
+				if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\updating.info")) {
+					LogHandler.log(LOG_NAME, "Update.info found, exiting program");
+					ShutdownHandler.spawnUpdateWaiter(System.Reflection.Assembly.GetExecutingAssembly().Location);
+					Environment.Exit(0);
+				}
+				
 				
 				//Start the main thread that handles all modules
 				threadManager.Priority = ThreadPriority.Normal;
-				threadManager.IsBackground = true;
+				threadManager.IsBackground = false;
 				threadManager.Start();
-				if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\updating.info"))
-					Environment.Exit(0);
 
 				if(RegistryHandler.getSystemSetting("Tray").Trim().Equals("1")) {
 					startTray();
@@ -111,7 +117,7 @@ namespace FOG {
 			
 			if(message.Equals("UPD")) {
 				ShutdownHandler.spawnUpdateWaiter(System.Reflection.Assembly.GetExecutingAssembly().Location);
-				Environment.Exit(0);
+				ShutdownHandler.scheduleUpdate();
 			}
 		}			
 		
@@ -148,6 +154,8 @@ namespace FOG {
 					LogHandler.newLine();
 				}
 					
+				if(ShutdownHandler.isShutdownPending() || ShutdownHandler.isUpdatePending())
+					break;				
 				//Once all modules have been run, sleep for the set time
 				int sleepTime = getSleepTime();
 				LogHandler.log(LOG_NAME, "Sleeping for " + sleepTime.ToString() + " seconds");
