@@ -10,7 +10,7 @@ namespace FOG {
 		private Boolean notifiedUser; //This variable is used to detect if the user has been told their is a pending shutdown
 		
 		public TaskReboot():base(){
-			setName("TaskReboot ----new----");
+			setName("TaskReboot");
 			setDescription("Reboot if a task is scheduled");
 			this.notifiedUser = false;
 		}

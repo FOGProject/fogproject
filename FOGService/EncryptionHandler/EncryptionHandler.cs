@@ -12,7 +12,7 @@ namespace FOG {
 	/// </summary>
 	public static class EncryptionHandler {
 		
-		private const String LOG_NAME = "EncryptionHandler ----new----";
+		private const String LOG_NAME = "EncryptionHandler";
 		
 		//Encode a string to base64
 		public static String encodeBase64(String toEncode) {
