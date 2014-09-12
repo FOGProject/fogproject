@@ -24,7 +24,7 @@ namespace FOG {
 		private static Thread notificationPipeThread;	
 		private static PipeServer notificationPipe;		
 		private static PipeClient servicePipe;
-		private const String LOG_NAME = "UserService ----new----";
+		private const String LOG_NAME = "UserService";
 		private static int sleepDefaultTime = 60;		
 		private static Status status;
 		
