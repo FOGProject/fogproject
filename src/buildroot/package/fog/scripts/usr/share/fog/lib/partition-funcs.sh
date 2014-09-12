@@ -189,6 +189,13 @@ fillDiskWithPartitions() {
 #
 processSfdisk()
 {
+	if [ "$osid" == "1" -o "$osid" == "2" ]; then
+		local chunksize="512";
+		local minstart="63";
+	else
+		local chunksize="2048";
+		local minstart="2048";
+	fi
 	local data="$1";
 	cat $data | awk -F, '\
 function display_output(partition_names, partitions,	 part_device) { \
@@ -420,8 +427,8 @@ BEGIN{ \
   unit = ""; \
   partitions[0] = ""; \
   partition_names[0] = ""; \
-  CHUNK_SIZE = 2048; \
-  MIN_START = 2048; \
+  CHUNK_SIZE = '$chunksize'; \
+  MIN_START = '$minstart'; \
 } \
 $1 ~ /^unit:/{ \
   n = split($1, fields, " "); \
