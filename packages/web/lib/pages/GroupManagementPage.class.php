@@ -185,17 +185,17 @@ class GroupManagementPage extends FOGPage
 		try
 		{
 			// Error checking
-			if (empty($_POST['name']))
+			if (empty($_REQUEST['name']))
 				throw new Exception('Group Name is required');
-			if ($this->FOGCore->getClass('GroupManager')->exists($_POST['name']))
+			if ($this->FOGCore->getClass('GroupManager')->exists($_REQUEST['name']))
 				throw new Exception('Group Name already exists');
 			// Define new Image object with data provided
 			$Group = new Group(array(
-				'name'		=> $_POST['name'],
-				'description'	=> $_POST['description'],
-				'kernel'	=> $_POST['kern'],
-				'kernelArgs'	=> $_POST['args'],
-				'kernelDevice'	=> $_POST['dev']
+				'name'		=> $_REQUEST['name'],
+				'description'	=> $_REQUEST['description'],
+				'kernel'	=> $_REQUEST['kern'],
+				'kernelArgs'	=> $_REQUEST['args'],
+				'kernelDevice'	=> $_REQUEST['dev']
 			));
 			// Save to database
 			if ($Group->save())
@@ -217,7 +217,7 @@ class GroupManagementPage extends FOGPage
 			// Hook
 			$this->HookManager->processEvent('GROUP_ADD_FAIL', array('Group' => &$Group));
 			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s', _('Group'), $_POST['name'], $e->getMessage()));
+			$this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s', _('Group'), $_REQUEST['name'], $e->getMessage()));
 			// Set session message
 			$this->FOGCore->setMessage($e->getMessage());
 			// Redirect to new entry
@@ -397,7 +397,7 @@ class GroupManagementPage extends FOGPage
 		// Create the template data:
 		$this->templates = array(
 			'<span class="icon icon-help hand" title="${host_desc}"></span>',
-			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host1" />',
+			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
 			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'${image_name}',
@@ -410,25 +410,29 @@ class GroupManagementPage extends FOGPage
 			array(),
 			array(),
 		);
-		// Get All Hosts not a part of this group.
-		foreach($this->FOGCore->getClass('GroupAssociationManager')->find() AS $GroupAssoc)
+		// Get the Hosts in this group
+		foreach($Group->get('hosts') AS $Host)
 		{
-			if ($GroupAssoc && $GroupAssoc->isValid() && $GroupAssoc->get('groupID') != $Group->get('id'))
-				$HostNotInGroup[] = new Host($GroupAssoc->get('hostID'));
+			if ($Host && $Host->isValid())
+				$HostsInMe[] = $Host->get('id');
 		}
-		// Get All Host ID's that are, in general, a part of a group.
+		// Get All Host ID's that are associated to a group
 		foreach($this->FOGCore->getClass('GroupAssociationManager')->find() AS $GroupAssoc)
 		{
 			if ($GroupAssoc && $GroupAssoc->isValid())
 				$HostInAnyGroupIDs[] = $GroupAssoc->get('hostID');
 		}
-		// Get all Hosts that are not a part of any group
-		foreach($this->FOGCore->getClass('HostManager')->find() AS $AllHost)
+		// Make the values unique as a host can be a part of many groups.
+		$HostInAnyGroupIDs = array_unique((array)$HostInAnyGroupIDs);
+		// Set the values
+		foreach($this->FOGCore->getClass('HostManager')->find() AS $Host)
 		{
-			if ($AllHost && $AllHost->isValid() && !in_array($AllHost->get('id'),$HostInAnyGroupIDs))
+			if ($Host && $Host->isValid())
 			{
-				$HostNotInGroup[] = $AllHost;
-				$HostNotInAnyGroup[] = $AllHost;
+				if (!in_array($Host->get('id'),$HostInAnyGroupIDs))
+					$HostNotInAnyGroup[] = $Host;
+				if (!in_array($Host->get('id'),$HostsInMe))
+					$HostNotInGroup[] = $Host;
 			}
 		}
 		// All hosts not in this group.
@@ -443,6 +447,7 @@ class GroupManagementPage extends FOGPage
 					'host_mac' => $Host->get('mac')->__toString(),
 					'host_desc' => $Host->get('description'),
 					'image_name' => $Host->getImage()->get('name'),
+					'check_num' => '1'
 				);
 			}
 		}
@@ -451,27 +456,23 @@ class GroupManagementPage extends FOGPage
 		{
 			$GroupDataExists = true;
 			$this->HookManager->processEvent('GROUP_HOST_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-			print "\n\t\t\t".'<h2>'._('Modify Membership for').' '.$Group->get('name').'</h2>';
-			print "\n\t\t\t".'<p><center>'._('Add hosts to group').' '.$Group->get('name').':</center></p>';
+			print "\n\t\t\t<center>"._('Check here to see hosts not in this group').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" />';
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
+			print "\n\t\t\t".'<div id="hostNotInMe">';
+			print "\n\t\t\t".'<h2>'._('Modify Membership for').' '.$Group->get('name').'</h2>';
+			print "\n\t\t\t".'<p>'._('Add hosts to group').' '.$Group->get('name').'</p>';
 			$this->render();
+			print "</div>";
 		}
+		// Reset the data for the next value
 		unset($this->data);
-		// Create the Header data:
+		// Create the Header data
 		$this->headerData = array(
 			'',
 			'<input type="checkbox" name="toggle-checkboxgroup2" class="toggle-checkbox2" />',
 			($_SESSION['FOGPingActive'] ? '' : null),
 			_('Host Name'),
 			_('Image'),
-		);
-		// Create the template data:
-		$this->templates = array(
-			'<span class="icon icon-help hand" title="${host_desc}"></span>',
-			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host2" />',
-			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
-			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-			'${image_name}',
 		);
 		// All hosts not in any group.
 		foreach((array)$HostNotInAnyGroup AS $Host)
@@ -485,6 +486,7 @@ class GroupManagementPage extends FOGPage
 					'host_mac' => $Host->get('mac')->__toString(),
 					'host_desc' => $Host->get('description'),
 					'image_name' => $Host->getImage()->get('name'),
+					'check_num' => '2'
 				);
 			}
 		}
@@ -493,16 +495,16 @@ class GroupManagementPage extends FOGPage
 			$GroupDataExists = true;
 			$this->HookManager->processEvent('GROUP_HOST_NOT_IN_ANY',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 			print "\n\t\t\t"._('Check here to see hosts not within a group').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" />';
-			print "\n\t\t\t".'<center><div id="hostNoGroup">';
-			print "\n\t\t\t".'<p><center>'._('Hosts below do not belong to a group').'</center></p>';
-			print "\n\t\t\t".'<p><center>'._('Add hosts to group').' '.$Group->get('name').':</center></p>';
+			print "\n\t\t\t".'<div id="hostNoGroup">';
+			print "\n\t\t\t".'<p>'._('Hosts below do not belong to a group').'</p>';
+			print "\n\t\t\t".'<p>'._('Add hosts to group').' '.$Group->get('name').'</p>';
 			$this->render();
 			print "\n\t\t\t</div>";
 		}
 		if ($GroupDataExists)
 		{
-			print '<center><input type="submit" value="'._('Add Host(s) to Group').'" /></center>';
-			print "\n\t\t\t</form>";
+			print '</br><input type="submit" value="'._('Add Host(s) to Group').'" />';
+			print "\n\t\t\t</form></center>";
 		}
 		unset($this->data);
 		$this->headerData = array(
@@ -644,7 +646,7 @@ class GroupManagementPage extends FOGPage
 		// Output
 		$this->render();
 		print "\n\t\t\t".'<center><input type="submit" value="'._('Remove Snapin(s)').'" /></center>';
-		unset($this->data);
+		unset($this->headerData,$this->data);
 		print '</form>';
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t<!-- Service Settings -->";
@@ -735,6 +737,7 @@ class GroupManagementPage extends FOGPage
 			);
 		}
 		$this->data[] = array(
+			'field' => '',
 			'input' => '<input type="hidden" name="updatedisplay" value="1" />',
 			'span' => '<input type="submit" value="'._('Update').'" />',
 		);
@@ -933,9 +936,6 @@ class GroupManagementPage extends FOGPage
 	{
 		// Find
 		$Group = new Group($_REQUEST['id']);
-		// Hosts to edit, unique.
-		if ($_REQUEST['host'])
-			$HostIDs = array_unique($_REQUEST['host']);
 		// Hook
 		$this->HookManager->processEvent('GROUP_EDIT_POST', array('Group' => &$Group));
 		// Group Edit 
@@ -946,24 +946,24 @@ class GroupManagementPage extends FOGPage
 				// Group Main Edit
 				case 'group-general';
 					// Error checking
-					if (empty($_POST['name']))
+					if (empty($_REQUEST['name']))
 						throw new Exception('Group Name is required');
 					else
 					{
 						// Define new Image object with data provided
-						$Group	->set('name',		$_POST['name'])
-								->set('description',	$_POST['description'])
-								->set('kernel',		$_POST['kern'])
-								->set('kernelArgs',	$_POST['args'])
-								->set('kernelDevice',	$_POST['dev']);
+						$Group	->set('name',		$_REQUEST['name'])
+								->set('description',	$_REQUEST['description'])
+								->set('kernel',		$_REQUEST['kern'])
+								->set('kernelArgs',	$_REQUEST['args'])
+								->set('kernelDevice',	$_REQUEST['dev']);
 								foreach((array)$Group->get('hosts') AS $Host)
 								{
 									if ($Host && $Host->isValid())
 									{
-										$Host->set('kernel',		$_POST['kern'])
-											 ->set('kernelArgs',	$_POST['args'])
-											 ->set('kernelDevice',	$_POST['dev'])
-											 ->set('productKey', $_POST['key'])
+										$Host->set('kernel',		$_REQUEST['kern'])
+											 ->set('kernelArgs',	$_REQUEST['args'])
+											 ->set('kernelDevice',	$_REQUEST['dev'])
+											 ->set('productKey', $_REQUEST['key'])
 											 ->save();
 									}
 								}
@@ -987,26 +987,27 @@ class GroupManagementPage extends FOGPage
 				break;
 				// Group membership
 				case 'group-membership';
-					if ($_POST['updatehosts'])
+					if ($_REQUEST['host'])
+					{
+						if (is_array($_REQUEST['host']))
+							$_REQUEST['host'] = array_unique($_REQUEST['host']);
+						$Group->addHost($_REQUEST['host']);
+					}
+					if ($_REQUEST['updatehosts'])
 					{
 						foreach((array)$Group->get('hosts') AS $Host)
 						{
 							if ($Host && $Host->isValid())
-								$Host->set('imageID',$_POST[$Host->get('name').'_'.$Host->get('id')])->save();
+								$Host->set('imageID',$_REQUEST[$Host->get('name').'_'.$Host->get('id')])->save();
 						}
 					}
-					if($HostIDs)
-					{
-						foreach((array)$HostIDs AS $HostID)
-							$Group->addHost($HostID);
-					}
-					if(isset($_POST['member']))
-						$Group->removeHost($_POST['member']);
+					if(isset($_REQUEST['member']))
+						$Group->removeHost($_REQUEST['member']);
 				break;
 				// Image Association
 				case 'group-image';
 					// Error Checking
-					if (empty($_POST['image']))
+					if (empty($_REQUEST['image']))
 						throw new Exception('Select an Image');
 					else
 					{
@@ -1028,22 +1029,16 @@ class GroupManagementPage extends FOGPage
 				case 'group-snap-add';
 					foreach((array)$Group->get('hosts') AS $Host)
 					{
-						foreach((array)$_POST['snapin'] AS $i => $snapid)
-						{
-							if ($Host && $Host->isValid())
-								$Host->addSnapin($snapid)->save();
-						}
+						if ($Host && $Host->isValid())
+							$Host->addSnapin($_REQUEST['snapin'])->save();
 					}
 				break;
 				// Snapin Del
 				case 'group-snap-del';
 					foreach((array)$Group->get('hosts') AS $Host)
 					{
-						foreach((array)$_POST['snapin'] AS $i => $snapid)
-						{
-							if ($Host && $Host->isValid())
-								$Host->removeSnapin($snapid)->save();
-						}
+						if ($Host && $Host->isValid())
+							$Host->removeSnapin($_REQUEST['snapin'])->save();
 					}
 				break;
 				// Active Directory
@@ -1079,10 +1074,8 @@ class GroupManagementPage extends FOGPage
 						if ($Host && $Host->isValid())
 						{
 							$Host->set('printerLevel', $_REQUEST['level']);
-							foreach((array)$_REQUEST['prntadd'] AS $i => $PrintAdd)
-								$Host->addPrinter($PrintAdd);
-							foreach((array)$_REQUEST['prntdel'] AS $i => $PrintDel)
-								$Host->removePrinter($PrintDel);
+							$Host->addPrinter($_REQUEST['prntadd']);
+							$Host->removePrinter($_REQUEST['prntdel']);
 							$Host->save();
 							if (isset($_REQUEST['default']))
 								$Host->updateDefault($_REQUEST['default']);
@@ -1097,25 +1090,25 @@ class GroupManagementPage extends FOGPage
                     // they'll delete from the database.
                     $ServiceModules = $this->FOGCore->getClass('ModuleManager')->find('','','id');
                     foreach((array)$ServiceModules AS $ServiceModule)
-						$ServiceSetting[$ServiceModule->get('id')] = $_POST[$ServiceModule->get('shortName')];
+						$ServiceSetting[$ServiceModule->get('id')] = $_REQUEST[$ServiceModule->get('shortName')];
                     // The values below set the display Width, Height, and Refresh.  If they're not set by you, they'll
                     // be set to the default values within the system.
-                    $x =(is_numeric($_POST['x']) ? $_POST['x'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
-                    $y =(is_numeric($_POST['y']) ? $_POST['y'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
-                    $r =(is_numeric($_POST['r']) ? $_POST['r'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
-                    $tme = (is_numeric($_POST['tme']) ? $_POST['tme'] : $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
+                    $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
+                    $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
+                    $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
+                    $tme = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
 					foreach((array)$Group->get('hosts') AS $Host)
 					{
 						if ($Host && $Host->isValid())
 						{
-							if($_POST['updatestatus'] == '1')
+							if($_REQUEST['updatestatus'] == '1')
 							{
 								foreach((array)$ServiceSetting AS $id => $onoff)
 									$onoff ? $Host->addModule($id) : $Host->removeModule($id);
 							}
-							if ($_POST['updatedisplay'] == '1')
+							if ($_REQUEST['updatedisplay'] == '1')
 								$Host->setDisp($x,$y,$r);
-							if ($_POST['updatealo'] == '1')
+							if ($_REQUEST['updatealo'] == '1')
 								$Host->setAlo($tme);
 							$Host->save();
 						}
@@ -1142,7 +1135,7 @@ class GroupManagementPage extends FOGPage
 			// Hook
 			$this->HookManager->processEvent('GROUP_EDIT_FAIL', array('Group' => &$Group));
 			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Group'), $_POST['name'], $e->getMessage()));
+			$this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Group'), $_REQUEST['name'], $e->getMessage()));
 			// Set session message
 			$this->FOGCore->setMessage($e->getMessage());
 			// Redirect
