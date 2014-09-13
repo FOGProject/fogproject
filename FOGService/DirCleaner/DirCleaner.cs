@@ -36,7 +36,7 @@ namespace FOG {
 			
 		}	
 
-		//Get a list of update file's names
+		//Get a list of directories
 		private List<String> getDirectories(Response dirResponse) {
 			List<String> dirs = new List<String>();
 
