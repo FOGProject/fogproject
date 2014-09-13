@@ -252,7 +252,7 @@ class ImageManagementPage extends FOGPage
 			// Hook
 			$this->HookManager->processEvent('IMAGE_ADD_FAIL', array('Image' => &$Image));
 			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s', _('Image'), $_POST['name'], $e->getMessage()));
+			$this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s', _('Image'), $_REQUEST['name'], $e->getMessage()));
 			// Set session message
 			$this->FOGCore->setMessage($e->getMessage());
 			// Redirect to new entry
@@ -382,38 +382,38 @@ class ImageManagementPage extends FOGPage
 			{
 				case 'image-gen';
 					// Error checking
-					if (empty($_POST['name']))
+					if (empty($_REQUEST['name']))
 						throw new Exception('An image name is required!');
-					if ($Image->get('name') != $_POST['name'] && $this->FOGCore->getClass('ImageManager')->exists($_POST['name'], $Image->get('id')))
+					if ($Image->get('name') != $_REQUEST['name'] && $this->FOGCore->getClass('ImageManager')->exists($_REQUEST['name'], $Image->get('id')))
 						throw new Exception('An image already exists with this name!');
 					if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev')
 						throw new Exception('Please choose a different name, this one is reserved for FOG.');
-					if (empty($_POST['file']))
+					if (empty($_REQUEST['file']))
 						throw new Exception('An image file name is required!');
-					if (empty($_POST['storagegroup']))
+					if (empty($_REQUEST['storagegroup']))
 						throw new Exception('A Storage Group is required!');
-					if (empty($_POST['os']))
+					if (empty($_REQUEST['os']))
 						throw new Exception('An Operating System is required!');
-					if (empty($_POST['imagetype']) && $_POST['imagetype'] != '0')
+					if (empty($_REQUEST['imagetype']) && $_REQUEST['imagetype'] != '0')
 						throw new Exception('An image type is required!');
-					if (empty($_POST['imagepartitiontype']) && $_POST['imagepartitiontype'] != '0')
+					if (empty($_REQUEST['imagepartitiontype']) && $_REQUEST['imagepartitiontype'] != '0')
 						throw new Exception('An image partition type is required!');
 					// Update Object
-					$Image	->set('name',		$_POST['name'])
-						->set('description',	$_POST['description'])
-						->set('storageGroupID',	$_POST['storagegroup'])
-						->set('osID',		$_POST['os'])
-						->set('path',		$_POST['file'])
-						->set('imageTypeID',	$_POST['imagetype'])
-						->set('imagePartitionTypeID',	$_POST['imagepartitiontype'])
+					$Image	->set('name',		$_REQUEST['name'])
+						->set('description',	$_REQUEST['description'])
+						->set('storageGroupID',	$_REQUEST['storagegroup'])
+						->set('osID',		$_REQUEST['os'])
+						->set('path',		$_REQUEST['file'])
+						->set('imageTypeID',	$_REQUEST['imagetype'])
+						->set('imagePartitionTypeID',	$_REQUEST['imagepartitiontype'])
 						->set('format',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $Image->get('format') )
 						->set('protected', $_REQUEST['protected_image']);
 				break;
 				case 'image-host';
-					if ($_POST['host'])
-						$Image->addHost($_POST['host']);
-					if ($_POST['hostdel'])
-						$Image->removeHost($_POST['hostdel']);
+					if ($_REQUEST['host'])
+						$Image->addHost($_REQUEST['host']);
+					if ($_REQUEST['hostdel'])
+						$Image->removeHost($_REQUEST['hostdel']);
 				break;
 			}
 			// Save
@@ -436,7 +436,7 @@ class ImageManagementPage extends FOGPage
 			// Hook
 			$this->HookManager->processEvent('IMAGE_UPDATE_FAIL', array('Image' => &$Image));
 			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Image'), $_POST['name'], $e->getMessage()));
+			$this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Image'), $_REQUEST['name'], $e->getMessage()));
 			// Set session message
 			$this->FOGCore->setMessage($e->getMessage());
 			// Redirect
@@ -501,7 +501,7 @@ class ImageManagementPage extends FOGPage
 			if ($Image->get('protected'))
 				throw new Exception(_('Image is protected, removal not allowed'));
 			// Error checking
-			if ($_POST['andFile'] == '1')
+			if ($_REQUEST['andFile'] == '1')
 				$Image->deleteImageFile();
 			if (!$Image->destroy())
 				throw new Exception(_('Failed to destroy Object'));

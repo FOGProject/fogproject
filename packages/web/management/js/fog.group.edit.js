@@ -65,15 +65,13 @@ $(function()
 		}
 	});
 	// Show hide based on checked state.
-	$('#hostNoShow').change(function() {
-		if ($(this).attr('checked'))
-		{
-			$('#hostNoGroup').show();
-		}
-		else
-		{
-			$('#hostNoGroup').hide();
-		}
+	$('#hostNotInMe').hide();
+	$('#hostNoGroup').hide();
+	$('#hostMeShow').click(function() {
+		$('#hostNotInMe').toggle();
+	});
+	$('#hostNoShow').click(function() {
+		$('#hostNoGroup').toggle();
 	});
 	
 	// Host Tasks - show advanced tasks on click

@@ -139,15 +139,15 @@ class UserManagementPage extends FOGPage
 			// UserManager
 			$UserManager = $this->FOGCore->getClass('UserManager');
 			// Error checking
-			if ($UserManager->exists($_POST['name']))
+			if ($UserManager->exists($_REQUEST['name']))
 				throw new Exception(_('Username already exists'));
-			if (!$UserManager->isPasswordValid($_POST['password'], $_POST['password_confirm']))
+			if (!$UserManager->isPasswordValid($_REQUEST['password'], $_REQUEST['password_confirm']))
 				throw new Exception(_('Password is invalid'));
 			// Create new Object
 			$User = new User(array(
-				'name'		=> $_POST['name'],
-				'type'		=> (isset($_POST['isGuest']) ? true : '0'),
-				'password'	=> $_POST['password'],
+				'name'		=> $_REQUEST['name'],
+				'type'		=> (isset($_REQUEST['isGuest']) ? true : '0'),
+				'password'	=> $_REQUEST['password'],
 				'createdBy'	=> $_SESSION['FOG_USERNAME']
 			));
 			// Save
@@ -170,7 +170,7 @@ class UserManagementPage extends FOGPage
 			// Hook
 			$this->HookManager->processEvent('USER_ADD_FAIL', array('User' => &$User));
 			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s', _('User'), $_POST['name'], $e->getMessage()));
+			$this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s', _('User'), $_REQUEST['name'], $e->getMessage()));
 			// Set session message
 			$this->FOGCore->setMessage($e->getMessage());
 			// Redirect to new entry
@@ -224,19 +224,19 @@ class UserManagementPage extends FOGPage
 			// UserManager
 			$UserManager = $this->FOGCore->getClass('UserManager');
 			// Error checking
-			if ($UserManager->exists($_POST['name'], $User->get('id')))
+			if ($UserManager->exists($_REQUEST['name'], $User->get('id')))
 				throw new Exception(_('Username already exists'));
-			if ($_POST['password'] && $_POST['password_confirm'])
+			if ($_REQUEST['password'] && $_REQUEST['password_confirm'])
 			{
-				if (!$UserManager->isPasswordValid($_POST['password'], $_POST['password_confirm']))
+				if (!$UserManager->isPasswordValid($_REQUEST['password'], $_REQUEST['password_confirm']))
 					throw new Exception(_('Password is invalid'));
 			}
 			// Update User Object
-			$User->set('name', $_POST['name'])
-				 ->set('type', ($_POST['isGuest'] == 'on' ? '1' : '0'));
+			$User->set('name', $_REQUEST['name'])
+				 ->set('type', ($_REQUEST['isGuest'] == 'on' ? '1' : '0'));
 			// Set new password if password was passed
-			if ($_POST['password'] && $_POST['password_confirm'])
-				$User->set('password',	$_POST['password']);
+			if ($_REQUEST['password'] && $_REQUEST['password_confirm'])
+				$User->set('password',	$_REQUEST['password']);
 			// Save
 			if ($User->save())
 			{
@@ -257,7 +257,7 @@ class UserManagementPage extends FOGPage
 			// Hook
 			$this->HookManager->processEvent('USER_UPDATE_FAIL', array('User' => &$User));
 			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('User'), $_POST['name'], $e->getMessage()));
+			$this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('User'), $_REQUEST['name'], $e->getMessage()));
 			// Set session message
 			$this->FOGCore->setMessage($e->getMessage());
 			// Redirect to new entry

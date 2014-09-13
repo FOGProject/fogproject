@@ -100,4 +100,24 @@ $(function()
 	
 		event.preventDefault();
 	});
+
+	// Show hide based on checked state.
+	$('#hostGroupShow').is(':checked') ? $('#hostGroupDisplay').show() : $('#hostGroupDisplay').hide();
+	$('#printerNotInHost').is(':checked') ? $('#printerNotInHost').show() : $('#printerNotInHost').hide();
+	$('#SnapinNotInHost').is(':checked') ? $('#snapinNotInHost').show() : $('#snapinNotInHost').hide();
+	$('#hostGroupShow').click(function() { 
+		$('#hostGroupDisplay').toggle();
+	});
+	$('#hostPrinterShow').click(function() {
+		$('#printerNotInHost').toggle();
+	});
+	$('#hostSnapinShow').click(function() {
+		$('#snapinNotInHost').toggle();
+	});
+	$('.toggle-checkboxprint').click(function() {
+		$('input.toggle-print:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+	});
+	$('.toggle-checkboxsnapin').click(function() {
+		$('input.toggle-snapin:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+	});
 });
