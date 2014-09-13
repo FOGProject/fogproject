@@ -1,11 +1,11 @@
 <?php
 require('../commons/base.inc.php');
-if ($FOGCore->getSetting('FOG_NEW_CLIENT') || $FOGCore->getSetting('FOG_AES_ENCRYPT'))
-	$Datatosend = "#!ok\n";
-else
-	$Datatosend = '';
+$index = 0;
 foreach($FOGCore->getClass('DirCleanerManager')->find() AS $Dir)
-	$Datatosend .= ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $Dir->get('path') : base64_encode($Dir->get('path')))."\n";
+{
+	$Datatosend .= ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? ($index == 0 ? "#!ok\n" : '')."#dir_$index=".base64_encode($Dir->get('path'))."\n" : base64_encode($Dir->get('path')))."\n";
+	$index++;
+}
 if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
 	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
