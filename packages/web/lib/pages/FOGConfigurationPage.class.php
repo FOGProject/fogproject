@@ -127,7 +127,7 @@ class FOGConfigurationPage extends FOGPage
 		else if ( $_REQUEST["install"] == "1"  )
 		{
 			$_SESSION["allow_ajax_kdl"] = true;
-			$_SESSION["dest-kernel-file"] = trim($_POST["dstName"]);
+			$_SESSION["dest-kernel-file"] = trim($_REQUEST["dstName"]);
 			$_SESSION["tmp-kernel-file"] = rtrim(sys_get_temp_dir(), '/') . '/' . basename( $_SESSION["dest-kernel-file"] );
 			$_SESSION["dl-kernel-file"] = base64_decode($_REQUEST["file"]);
 			if (file_exists($_SESSION["tmp-kernel-file"]))
@@ -212,12 +212,12 @@ class FOGConfigurationPage extends FOGPage
 	{
 		try
 		{
-			$timeout = trim($_POST['timeout']);
+			$timeout = trim($_REQUEST['timeout']);
 			$timeout = (!empty($timeout) && is_numeric($timeout) && $timeout >= 0 ? true : false);
 			if (!$timeout)
 				throw new Exception(_("Invalid Timeout Value."));
 			else
-				$timeout = trim($_POST['timeout']);
+				$timeout = trim($_REQUEST['timeout']);
 			if ($this->FOGCore->setSetting('FOG_PXE_MENU_HIDDEN',$_REQUEST['hidemenu']) && $this->FOGCore->setSetting('FOG_PXE_MENU_TIMEOUT',$timeout) && $this->FOGCore->setSetting('FOG_PXE_ADVANCED',$_REQUEST['adv']) && $this->FOGCore->setSetting('FOG_KEY_SEQUENCE',$_REQUEST['keysequence']) && $this->FOGCore->setSetting('FOG_NO_MENU',$_REQUEST['nomenu']) && $this->FOGCore->setSetting('FOG_BOOT_EXIT_TYPE',$_REQUEST['bootTypeExit']) && $this->FOGCore->setSetting('FOG_ADVANCED_MENU_LOGIN',$_REQUEST['advmenulogin']))
 				throw new Exception("PXE Menu has been updated!");
 			else
@@ -547,7 +547,7 @@ class FOGConfigurationPage extends FOGPage
 	*/
 	public function mac_list_post()
 	{
-		if ( $_GET["update"] == "1" )
+		if ( $_REQUEST["update"] == "1" )
 		{
 			$f = "./other/oui.txt";
 			exec('rm -rf '.BASEPATH.'/management/other/oui.txt');
@@ -585,7 +585,7 @@ class FOGConfigurationPage extends FOGPage
 			else
 				print (_("Unable to locate file: $f"));
 		}
-		else if ($_GET["clear"] == "1")
+		else if ($_REQUEST["clear"] == "1")
 			$this->FOGCore->clearMACLookupTable();
 	}
 	// FOG System Settings
@@ -790,11 +790,11 @@ class FOGConfigurationPage extends FOGPage
 
 		print "\n\t\t\t<p>"._('File:');
 		foreach (array('Multicast','Scheduler','Replicator') AS $value)
-			$options3[] = "\n\t\t\t\t".'<option '.($value == $_POST['logtype'] ? 'selected="selected"' : '').' value="'.$value.'">'.$value.'</option>';
+			$options3[] = "\n\t\t\t\t".'<option '.($value == $_REQUEST['logtype'] ? 'selected="selected"' : '').' value="'.$value.'">'.$value.'</option>';
 		print "\n\t\t\t".'<select name="logtype">'.implode("\n\t\t\t\t",$options3)."\n\t\t\t".'</select>';
 		print "\n\t\t\t"._('Number of lines:');
 		foreach (array(20, 50, 100, 200, 400, 500, 1000) AS $value)
-			$options4[] = '<option '.($value == $_POST['n'] ? 'selected="selected"' : '').' value="'.$value.'">'.$value.'</option>';
+			$options4[] = '<option '.($value == $_REQUEST['n'] ? 'selected="selected"' : '').' value="'.$value.'">'.$value.'</option>';
 		print "\n\t\t\t".'<select name="n">'.implode("\n\t\t\t\t",$options4)."\n\t\t\t".'</select>';
 		print "\n\t\t\t".'<input type="submit" value="'._('Refresh').'" />';
 		print "\n\t\t\t</p>";
@@ -802,9 +802,9 @@ class FOGConfigurationPage extends FOGPage
 		print "\n\t\t\t".'<div class="sub l">';
 		print "\n\t\t\t\t<pre>";
 		$n = 20;
-		if ( $_POST["n"] != null && is_numeric($_POST["n"]) )
-			$n = $_POST["n"];
-		$t = trim($_POST["logtype"]);
+		if ( $_REQUEST["n"] != null && is_numeric($_REQUEST["n"]) )
+			$n = $_REQUEST["n"];
+		$t = trim($_REQUEST["logtype"]);
 		$logfile = $this->FOGCore->getSetting( "FOG_UTIL_BASE" ) . "/log/multicast.log";
 		if ( $t == "Multicast" )
 			$logfile = $this->FOGCore->getSetting( "FOG_UTIL_BASE" ) . "/log/multicast.log";
