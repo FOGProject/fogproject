@@ -89,9 +89,9 @@ class PluginManagementPage extends FOGPage
 		// Output
 		$this->render();
 		// Activate plugin if it's not already!
-		if (!empty($_GET['activate'])&&$_GET['sub'] == 'activate')
+		if (!empty($_REQUEST['activate'])&&$_REQUEST['sub'] == 'activate')
 		{
-			$Plugin->activatePlugin($_GET['activate']);
+			$Plugin->activatePlugin($_REQUEST['activate']);
 			$this->FOGCore->setMessage('Successfully added Plugin!');
 			$this->FOGCore->redirect('?node=plugin&sub=activate');
 		}

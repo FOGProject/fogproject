@@ -660,10 +660,10 @@ class TaskManagementPage extends FOGPage
 	}
 	public function active_snapins_post()
 	{
-		if(isset($_POST['rmid']))
+		if(isset($_REQUEST['rmid']))
 		{
 			// Get the snapin task.
-			$SnapinTask = new SnapinTask($_POST['rmid']);
+			$SnapinTask = new SnapinTask($_REQUEST['rmid']);
 			// Get the job associated with the task.
 			$SnapinJob = new SnapinJob($SnapinTask->get('jobID'));
 			// Get the referenced host.
@@ -745,7 +745,7 @@ class TaskManagementPage extends FOGPage
 	}
 	public function scheduled_post()
 	{
-		if(isset($_POST['rmid']))
+		if(isset($_REQUEST['rmid']))
 		{
 			$this->HookManager->processEvent('TaskScheduledRemove');
 			$Task = new ScheduledTask($_REQUEST['rmid']);
