@@ -89,10 +89,6 @@
       <Project>{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}</Project>
       <Name>CommunicationHandler</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DisplayManager\DisplayManager.csproj">
-      <Project>{952FBDDC-89B2-476C-88A3-A39E6748B612}</Project>
-      <Name>DisplayManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\HostnameChanger\HostnameChanger.csproj">
       <Project>{B0C35B47-7A8A-466F-9D83-FA9384536929}</Project>
       <Name>HostnameChanger</Name>
