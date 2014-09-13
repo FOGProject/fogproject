@@ -11,7 +11,8 @@
 						<File Id="AutoLogOut" Name="AutoLogOut.dll" Source="..\bin\AutoLogOut.dll"/>
 						<File Id="ClientUpdater" Name="ClientUpdater.dll" Source="..\bin\ClientUpdater.dll"/>						
 						<File Id="CommunicationHandler" Name="CommunicationHandler.dll" Source="..\bin\CommunicationHandler.dll"/>
-						<File Id="DisplayManager" Name="DisplayManager.dll" Source="..\bin\DisplayManager.dll"/>						
+						<File Id="DirCleaner" Name="DirCleaner.dll" Source="..\bin\DirCleaner.dll"/>
+						<File Id="DisplayManager" Name="DisplayManager.dll" Source="..\bin\DisplayManager.dll"/>
 						<File Id="HostnameChanger" Name="HostnameChanger.dll" Source="..\bin\HostnameChanger.dll"/>		
 						<File Id="HostRegister" Name="HostRegister.dll" Source="..\bin\HostRegister.dll"/>		
 						<File Id="EncryptionHandler" Name="EncryptionHandler.dll" Source="..\bin\EncryptionHandler.dll"/>

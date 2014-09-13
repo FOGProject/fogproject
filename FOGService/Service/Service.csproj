@@ -89,6 +89,10 @@
       <Project>{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}</Project>
       <Name>CommunicationHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DirCleaner\DirCleaner.csproj">
+      <Project>{DCB0754B-930E-460C-B3E4-A35F3B992C70}</Project>
+      <Name>DirCleaner</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HostnameChanger\HostnameChanger.csproj">
       <Project>{B0C35B47-7A8A-466F-9D83-FA9384536929}</Project>
       <Name>HostnameChanger</Name>
