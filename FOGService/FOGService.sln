@@ -52,6 +52,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunicationHandler", "Com
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirCleaner", "DirCleaner\DirCleaner.csproj", "{DCB0754B-930E-460C-B3E4-A35F3B992C70}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserCleanup", "UserCleanup\UserCleanup.csproj", "{9BC2248C-9A29-4936-859D-CF263E53A00F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -158,5 +160,9 @@ Global
 		{DCB0754B-930E-460C-B3E4-A35F3B992C70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DCB0754B-930E-460C-B3E4-A35F3B992C70}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DCB0754B-930E-460C-B3E4-A35F3B992C70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BC2248C-9A29-4936-859D-CF263E53A00F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BC2248C-9A29-4936-859D-CF263E53A00F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BC2248C-9A29-4936-859D-CF263E53A00F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BC2248C-9A29-4936-859D-CF263E53A00F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 EndGlobal
