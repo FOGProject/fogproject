@@ -18,7 +18,7 @@ namespace FOG {
 		protected override void doWork() {
 			//Get task info
 			Response taskResponse = CommunicationHandler.getResponse("/service/jobs.php?mac=" + CommunicationHandler.getMacAddresses());
-				
+
 			//Shutdown if a task is avaible and the user is logged out or it is forced
 			if(!taskResponse.wasError()) {
 				LogHandler.log(getName(), "Attempting to restart computer for task");
