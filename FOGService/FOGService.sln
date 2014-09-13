@@ -12,8 +12,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShutdownHandler", "Shutdown
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserHandler", "UserHandler\UserHandler.csproj", "{1759DEAE-2585-4324-9F85-338BE0F755BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunicationHandler", "CommunicationHandler\CommunicationHandler.csproj", "{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationHandler", "NotificationHandler\NotificationHandler.csproj", "{717A8C0E-32F9-498C-BC51-FC03D0009248}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskReboot", "TaskReboot\TaskReboot.csproj", "{5E709B72-0C8B-45B7-AC5C-413F6CDA6679}"
@@ -48,6 +46,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateWaiter", "UpdateWaite
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateHelper", "UpdateHelper\UpdateHelper.csproj", "{788E1733-937F-415C-A6E9-46A43BB0B019}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostRegister", "HostRegister\HostRegister.csproj", "{F5C3DD62-B25E-4DD4-B159-7B2640D01AD1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunicationHandler", "CommunicationHandler\CommunicationHandler.csproj", "{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,10 +76,6 @@ Global
 		{1759DEAE-2585-4324-9F85-338BE0F755BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1759DEAE-2585-4324-9F85-338BE0F755BF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1759DEAE-2585-4324-9F85-338BE0F755BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{717A8C0E-32F9-498C-BC51-FC03D0009248}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{717A8C0E-32F9-498C-BC51-FC03D0009248}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{717A8C0E-32F9-498C-BC51-FC03D0009248}.Release|Any CPU.Build.0 = Release|Any CPU
@@ -146,5 +144,13 @@ Global
 		{788E1733-937F-415C-A6E9-46A43BB0B019}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{788E1733-937F-415C-A6E9-46A43BB0B019}.Release|Any CPU.Build.0 = Release|Any CPU
 		{788E1733-937F-415C-A6E9-46A43BB0B019}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5C3DD62-B25E-4DD4-B159-7B2640D01AD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5C3DD62-B25E-4DD4-B159-7B2640D01AD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5C3DD62-B25E-4DD4-B159-7B2640D01AD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5C3DD62-B25E-4DD4-B159-7B2640D01AD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 EndGlobal
