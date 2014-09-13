@@ -166,7 +166,7 @@ class SnapinManagementPage extends FOGPage
 				throw new Exception('Please enter a name to give this Snapin!');
 			if ($SnapinManager->exists($snapinName))
 				throw new Exception('Snapin already exists');
-			if ($_POST['snapin'] != null || $_FILES['snapin']['name'] != null)
+			if ($_REQUEST['snapin'] != null || $_FILES['snapin']['name'] != null)
 			{
 				$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
 				if(!file_exists($this->FOGCore->getSetting('FOG_SNAPINDIR')))
@@ -185,12 +185,12 @@ class SnapinManagementPage extends FOGPage
 				'name'			=> $snapinName,
 				'description'	=> $_REQUEST['description'],
 				'file'			=> ($_REQUEST['snapinfileexist'] ? $_REQUEST['snapinfileexist'] : $_FILES['snapin']['name']),
-				'args'			=> $_POST['args'],
+				'args'			=> $_REQUEST['args'],
 				'createdTime'	=> date('Y-m-d H:i:s'),
 				'createdBy' 	=> $_SESSION['FOG_USERNAME'],
-				'reboot'		=> (isset($_POST['reboot']) ? 1 : 0 ),
-				'runWith'		=> $_POST['rw'],
-				'runWithArgs'	=> $_POST['rwa']
+				'reboot'		=> (isset($_REQUEST['reboot']) ? 1 : 0 ),
+				'runWith'		=> $_REQUEST['rw'],
+				'runWithArgs'	=> $_REQUEST['rwa']
 			));
 			// Save
 			if ($Snapin->save())
@@ -213,7 +213,7 @@ class SnapinManagementPage extends FOGPage
 			// Hook
 			$this->HookManager->processEvent('SNAPIN_ADD_FAIL', array('Snapin' => &$Snapin));
 			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s', _('Storage'), $_POST['name'], $e->getMessage()));
+			$this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s', _('Storage'), $_REQUEST['name'], $e->getMessage()));
 			// Set session message
 			$this->FOGCore->setMessage($e->getMessage());
 			// Redirect to new entry
@@ -346,7 +346,7 @@ class SnapinManagementPage extends FOGPage
 					// SnapinManager
 					$SnapinManager = $this->FOGCore->getClass('SnapinManager');
 					// Error checking
-					if ($_POST['snapin'] != null || $_FILES['snapin']['name'] != null)
+					if ($_REQUEST['snapin'] != null || $_FILES['snapin']['name'] != null)
 					{
 						$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
 						if(!file_exists($this->FOGCore->getSetting('FOG_SNAPINDIR')))
@@ -358,22 +358,22 @@ class SnapinManagementPage extends FOGPage
 						else if (!move_uploaded_file($_FILES['snapin']['tmp_name'],$uploadfile))
 							throw new Exception('Failed to add snapin, file upload failed.');
 					}
-					if ($_POST['name'] != $Snapin->get('name') && $SnapinManager->exists($_POST['name'], $Snapin->get('id')))
+					if ($_REQUEST['name'] != $Snapin->get('name') && $SnapinManager->exists($_REQUEST['name'], $Snapin->get('id')))
 						throw new Exception('Snapin already exists');
 					// Update Object
-					$Snapin ->set('name',			$_POST['name'])
-							->set('description',	$_POST['description'])
+					$Snapin ->set('name',			$_REQUEST['name'])
+							->set('description',	$_REQUEST['description'])
 							->set('file',($_REQUEST['snapinfileexist'] ? $_REQUEST['snapinfileexist'] : ($_FILES['snapin']['name'] ? $_FILES['snapin']['name'] : $Snapin->get('file'))))
-							->set('args',			$_POST['args'])
-							->set('reboot',			(isset($_POST['reboot']) ? 1 : 0 ))
-							->set('runWith',		$_POST['rw'])
-							->set('runWithArgs',	$_POST['rwa']);
+							->set('args',			$_REQUEST['args'])
+							->set('reboot',			(isset($_REQUEST['reboot']) ? 1 : 0 ))
+							->set('runWith',		$_REQUEST['rw'])
+							->set('runWithArgs',	$_REQUEST['rwa']);
 				break;
 				case 'snap-host';
-					if ($_POST['host'])
-						$Snapin->addHost($_POST['host']);
-					if ($_POST['hostdel'])
-						$Snapin->removeHost($_POST['hostdel']);
+					if ($_REQUEST['host'])
+						$Snapin->addHost($_REQUEST['host']);
+					if ($_REQUEST['hostdel'])
+						$Snapin->removeHost($_REQUEST['hostdel']);
 				break;
 			}
 			// Save
@@ -396,7 +396,7 @@ class SnapinManagementPage extends FOGPage
 			// Hook
 			$this->HookManager->processEvent('SNAPIN_UPDATE_FAIL', array('Snapin' => &$Snapin));
 			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Snapin'), $_POST['name'], $e->getMessage()));
+			$this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Snapin'), $_REQUEST['name'], $e->getMessage()));
 			// Set session message
 			$this->FOGCore->setMessage($e->getMessage());
 			// Redirect to new entry
