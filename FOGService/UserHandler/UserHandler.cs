@@ -48,6 +48,20 @@ namespace FOG {
 			return users;
 		}
 		
+		//Return local users
+		public static List<String> getUsers() {
+			List<String> users = new List<String>();
+			
+			SelectQuery query = new SelectQuery("Win32_UserAccount");
+			ManagementObjectSearcher searcher = new ManagementObjectSearcher(query);
+            
+			foreach (ManagementObject envVar in searcher.Get()) {
+				users.Add(envVar["Name"].ToString());
+			}
+			
+			return users;
+		}
+		
 		//Return how long the logged in user is inactive for in seconds
 		public static int getUserInactivityTime() {
 			uint idleTime = 0;
