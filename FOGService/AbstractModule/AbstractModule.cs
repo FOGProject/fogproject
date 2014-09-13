@@ -12,13 +12,19 @@ namespace FOG
 		private String moduleName;
 		private String moduleDescription;
 		private String isActiveURL;
+		private Scope scope;
 
+		public enum Scope {
+			User,
+			System
+		}
 
 		protected AbstractModule() {
 			//Define variables
 			setName("Generic Module");
 			setDescription("Generic Description");
 			setIsActiveURL("/service/servicemodule-active.php");
+			setScope(Scope.System);
 		}
 
 		//Default start method
@@ -43,6 +49,9 @@ namespace FOG
 
 		public String getIsActiveURL() { return this.isActiveURL; }
 		protected void setIsActiveURL(String isActiveURL) { this.isActiveURL = isActiveURL; }
+		
+		public Scope getScope() { return this.scope; }
+		public void setScope(Scope scope) { this.scope = scope; }
 
 		//Check if the module is enabled, also set the sleep duration
 		public Boolean isEnabled() {

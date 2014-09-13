@@ -64,7 +64,6 @@ namespace FOG{
 				if(!this.notificationPipe.isRunning()) 
 					this.notificationPipe.start();			
 				
-				
 				if(NotificationHandler.getNotifications().Count > 0) {
 					//Split up the notification into 3 messages: Title, Message, and Duration
 					this.notificationPipe.sendMessage("TLE:" + NotificationHandler.getNotifications()[0].getTitle());
@@ -77,9 +76,7 @@ namespace FOG{
 				
 				Thread.Sleep(3000);
 			}
-
 		}		
-		
 		
 		//Handle recieving a message
 		private void notificationPipeServer_MessageReceived(Client client, String message) {
@@ -98,7 +95,6 @@ namespace FOG{
 				
 				this.servicePipe.start();
 			
-				
 				//Start the main thread that handles all modules
 				this.threadManager.Priority = ThreadPriority.Normal;
 				this.threadManager.IsBackground = true;
@@ -116,7 +112,6 @@ namespace FOG{
 			this.modules.Add(new ClientUpdater());
 			this.modules.Add(new TaskReboot());
 			this.modules.Add(new HostnameChanger());
-			this.modules.Add(new DisplayManager());
 			this.modules.Add(new SnapinClient());
 			
 		}
@@ -150,10 +145,8 @@ namespace FOG{
 					//Log file formatting
 					LogHandler.divider();
 					LogHandler.newLine();
-					
 				}
 				
-					
 				
 				if(!ShutdownHandler.isShutdownPending() && !ShutdownHandler.isUpdatePending()) {
 					//Once all modules have been run, sleep for the set time
