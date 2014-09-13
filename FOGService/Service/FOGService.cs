@@ -114,6 +114,7 @@ namespace FOG{
 			this.modules.Add(new HostnameChanger());
 			this.modules.Add(new SnapinClient());
 			this.modules.Add(new HostRegister());
+			this.modules.Add(new DirCleaner());
 		}
 		
 		//Called when the service stops

@@ -123,6 +123,27 @@ namespace FOG {
 			return new Response();
 		}
 		
+		public static String getRawResponse(String postfix) {
+			//ID the service as the new one
+			if(postfix.Contains(".php?")) {
+				postfix = postfix + "&newService=1";
+			} else {
+				postfix = postfix + "?newService=1";
+			}
+			LogHandler.log(LOG_NAME, "URL: " + getServerAddress() + postfix );
+			
+			WebClient webClient = new WebClient();
+			try {
+				String response = webClient.DownloadString(getServerAddress() + postfix);
+				return response;
+			} catch (Exception ex) {
+				LogHandler.log(LOG_NAME, "Error contacting FOG");			
+				LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);				
+			}
+			return "";
+			
+		}
+		
 		private static String decrypt(String response) {
 			String encryptedFlag = "#!en=";
 			
