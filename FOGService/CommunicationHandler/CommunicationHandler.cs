@@ -223,6 +223,7 @@ namespace FOG {
 				foreach (NetworkInterface adapter in adapters) {
 					//Get the mac address for the adapter and add it to the String 'macs', adding ':' as needed
 					IPInterfaceProperties properties = adapter.GetIPProperties();
+
 					macs = macs + "|" + string.Join (":", (from z in adapter.GetPhysicalAddress().GetAddressBytes() select z.ToString ("X2")).ToArray());
 				}
 				
