@@ -64,6 +64,10 @@
       <Project>{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}</Project>
       <Name>CommunicationHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DisplayManager\DisplayManager.csproj">
+      <Project>{952FBDDC-89B2-476C-88A3-A39E6748B612}</Project>
+      <Name>DisplayManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LogHandler\LogHandler.csproj">
       <Project>{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}</Project>
       <Name>LogHandler</Name>
