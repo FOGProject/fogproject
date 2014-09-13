@@ -126,6 +126,7 @@ namespace FOG {
 		private static void initializeModules() {
 			modules = new List<AbstractModule>();
 			modules.Add(new AutoLogOut());
+			modules.Add(new DisplayManager());			
 			
 		}
 		
