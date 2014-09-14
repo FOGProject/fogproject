@@ -24,7 +24,7 @@ class ImageReplicator extends FOGBase
 		{
 		if ($StorageNode)
 		{
-			$this->FOGCore->out(' * I am the group manager.',$this->dev;
+			$this->FOGCore->out(' * I am the group manager.',$this->dev);
 			$this->FOGCore->wlog(' * I am the group manager.','/opt/fog/log/groupmanager.log');
 			$this->outall(" * Starting Image Replication.");
 			$this->outall(sprintf(" * We are group ID: #%s",$StorageNode->get('storageGroupID')));
