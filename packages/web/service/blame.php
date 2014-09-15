@@ -2,12 +2,12 @@
 require('../commons/base.inc.php');
 function getAllBlamedNodes($taskid,$hostid)
 {
-	$NodeFailures = $GLOBALS['FOGCore']->getClass('NodeFailureManager')->find(array('taskID' => $taskid,'hostID' => $hostid));
-	$TimeZone = new DateTimeZone((!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone')));
-	$DateInterval = new DateTime('-5 minutes',$TimeZone);
+	global $FOGCore;
+	$NodeFailures = $FOGCore->getClass('NodeFailureManager')->find(array('taskID' => $taskid,'hostID' => $hostid));
+	$DateInterval = new DateTime('-5 minutes',$FOGCore->TimeZone);
 	foreach($NodeFailures AS $NodeFailure)
 	{
-		$DateTime = new DateTime($NodeFailure->get('failureTime'),$TimeZone);
+		$DateTime = new DateTime($NodeFailure->get('failureTime'),$FOGCore->TimeZone);
 		if ($DateTime->format('Y-m-d H:i:s') >= $DateInterval->format('Y-m-d H:i:s'))
 		{
 			$node = $NodeFailure->get('id');

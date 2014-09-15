@@ -799,7 +799,7 @@ class Host extends FOGController
 					$SnapinJob = new SnapinJob(array(
 						'hostID' => $this->get('id'),
 						'stateID' => 0,
-						'createTime' => date('Y-m-d H:i:s'),
+						'createTime' => $this->formatTime('now','Y-m-d H:i:s'),
 					));
 					// Create Snapin Tasking
 					if ($SnapinJob->save())
@@ -926,7 +926,7 @@ class Host extends FOGController
 						'image' => $this->getImage()->get('id'),
 						'interface' => $StorageNode->get('interface'),
 						'stateID' => '0',
-						'starttime' => date('Y-m-d H:i:s'),
+						'starttime' => $this->formatTime('now','Y-m-d H:i:s'),
 						'percent' => '0',
 						'isDD' => $this->getImage()->get('imageTypeID'),
 						'NFSGroupID' => $StorageNode->get('storageGroupID'),
@@ -976,7 +976,7 @@ class Host extends FOGController
 					// now do a clean snapin deploy
 					$SnapinJob = new SnapinJob(array(
 						'hostID' => $this->get('id'),
-						'createTime' => date('Y-m-d H:i:s'),
+						'createTime' => $this->formatTime('now','Y-m-d H:i:s'),
 					));
 					if ($SnapinJob->save())
 					{
@@ -1023,7 +1023,7 @@ class Host extends FOGController
 			);
 			// Error checking
 			if ($scheduledDeployTime < time())
-				throw new Exception(sprintf(_('Scheduled date is in the past. Date: %s'), date('Y/d/m H:i', $scheduledDeployTime)));
+				throw new Exception(sprintf(_('Scheduled date is in the past. Date: %s'),$this->formatTime($scheduledDeployTime,'Y/d/m H:i')));
 			if ($this->FOGCore->getClass('ScheduledTaskManager')->count($findWhere))
 				throw new Exception(_('A task already exists for this Host at this scheduled date & time'));
 			// TaskType: Variables
@@ -1305,7 +1305,7 @@ class Host extends FOGController
 		$this->FOGCore->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id')));
 		// Update inventory to know when it was deleted
 		if ($this->get('inventory'))
-			current($this->get('inventory'))->set('deleteDate',date('Y-m-d H:i:s'))->save();
+			current($this->get('inventory'))->set('deleteDate',$this->formatTime('now','Y-m-d H:i:s'))->save();
 		// Return
 		return parent::destroy($field);
 	}

@@ -63,7 +63,7 @@ class Task extends FOGController
 			'NFSGroupID' => $this->get('NFSGroupID'),
 		));
 		$count = 0;
-		$curTime = strtotime(date('Y-m-d H:i:s'));
+		$curTime = strtotime($this->formatTime('now','Y-m-d H:i:s'));
 		foreach($Tasks AS $Task)
 		{
 			if ($this->get('id') > $Task->get('id'))
@@ -84,7 +84,7 @@ class Task extends FOGController
 	{
 		// Check in time: Convert Unix time to MySQL datetime
 		if ($this->key($key) == 'checkInTime' && is_numeric($value) && strlen($value) == 10)
-			$value = date('Y-m-d H:i:s', $value);
+			$value = $this->formatTime($value,'Y-m-d H:i:s');
 		// Return
 		return parent::set($key, $value);
 	}

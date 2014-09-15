@@ -183,6 +183,8 @@ class SubMenu extends FOGBase
 				$this->subMenu[$this->node]['id'][$linkformat.'#host-hardware-inventory'] = $this->foglang['Inventory'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#host-virus-history'] = $this->foglang['VirusHistory'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#host-login-history'] = $this->foglang['LoginHistory'];
+				$this->subMenu[$this->node]['id'][$linkformat.'#host-image-history'] = $this->foglang['ImageHistory'];
+				$this->subMenu[$this->node]['id'][$linkformat.'#host-snapin-history'] = $this->foglang['SnapinHistory'];
 				$this->subMenu[$this->node]['id'][$delformat] = $this->foglang['Delete'];
 			}
 		}
