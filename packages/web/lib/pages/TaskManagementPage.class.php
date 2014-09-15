@@ -70,7 +70,7 @@ class TaskManagementPage extends FOGPage
 				'startedby' => $Task->get('createdBy'),
 				'id'	=> $Task->get('id'),
 				'name'	=> $Task->get('name'),
-				'time'	=> date('Y-m-d H:i:s',strtotime($Task->get('createdTime'))),
+				'time'	=> $this->formatTime($Task->get('createdTime'),'Y-m-d H:i:s'),
 				'state'	=> $Task->getTaskStateText(),
 				'forced'	=> ($Task->get('isForced') ? '1' : '0'),
 				'type'	=> $Task->getTaskTypeText(),
@@ -116,7 +116,7 @@ class TaskManagementPage extends FOGPage
 					'startedby' => $Task->get('createdBy'),
 					'id'	=> $Task->get('id'),
 					'name'	=> $Task->get('name'),
-					'time'	=> date('Y-m-d H:i:s',strtotime($Task->get('createdTime'))),
+					'time'	=> $this->formatTime($Task->get('createdTime'),'Y-m-d H:i:s'),
 					'state'	=> $Task->getTaskStateText(),
 					'forced'	=> ($Task->get('isForced') ? '1' : '0'),
 					'type'	=> $Task->getTaskTypeText(),
@@ -157,7 +157,7 @@ class TaskManagementPage extends FOGPage
 				'startedby' => $Task->get('createdBy'),
 				'id'	=> $Task->get('id'),
 				'name'	=> $Task->get('name'),
-				'time'	=> date('Y-m-d H:i:s',strtotime($Task->get('createdTime'))),
+				'time'	=> $this->formatTime($Task->get('createdTime'),'Y-m-d H:i:s'),
 				'state'	=> $Task->getTaskStateText(),
 				'forced'	=> ($Task->get('isForced') ? '1' : '0'),
 				'type'	=> $Task->getTaskTypeText(),
@@ -439,7 +439,7 @@ class TaskManagementPage extends FOGPage
 				'startedby' => $Task->get('createdBy'),
 				'id'	=> $Task->get('id'),
 				'name'	=> $Task->get('name'),
-				'time'	=> date('Y-m-d H:i:s',strtotime($Task->get('createdTime'))),
+				'time'	=> $this->formatTime($Task->get('createdTime'),'Y-m-d H:i:s'),
 				'state'	=> $Task->getTaskStateText(),
 				'forced'	=> ($Task->get('isForced') ? '1' : '0'),
 				'type'	=> $Task->getTaskTypeText(),
@@ -523,7 +523,7 @@ class TaskManagementPage extends FOGPage
 				$MS = new MulticastSessions($MSA->get('msID'));
 				$MS->set('clients', $MS->get('clients')-1)->save();
 				if ($MS->get('clients') <= 0)
-					$MS->set('completetime',date('Y-m-d H:i:s'))->set('stateID', 5)->save();
+					$MS->set('completetime',$this->formatTime('now','Y-m-d H:i:s'))->set('stateID', 5)->save();
 			}
 			$Task->cancel();
 		}
@@ -556,7 +556,7 @@ class TaskManagementPage extends FOGPage
 				$Task = new Task($MSA->get('taskID'));
 				$Task->cancel();
 			}
-			$MulticastTask->set('completetime',date('Y-m-d H:i:s'))->set('stateID',5)->save();
+			$MulticastTask->set('completetime',$this->formatTime('now','Y-m-d H:i:s'))->set('stateID',5)->save();
 		}
 		catch (Exception $e){}
 	}
