@@ -83,7 +83,7 @@ class HostManagementPage extends FOGPage
 				$Location = ($LA ? new Location($LA->get('locationID')) : '');
 				$this->data[] = array(
 					'host_id'	=> $Host->get('id'),
-					'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
 					'host_name'	=> $Host->get('name'),
 					'host_mac'	=> $Host->get('mac')->__toString(),
 					'host_desc'  => $Host->get('description'),
@@ -133,7 +133,7 @@ class HostManagementPage extends FOGPage
 				$Location = ($LA ? new Location($LA->get('locationID')) : '');
 				$this->data[] = array(
 					'host_id'	=> $Host->get('id'),
-					'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
 					'host_name'	=> $Host->get('name'),
 					'host_mac'	=> $Host->get('mac')->__toString(),
 					'host_desc'  => $Host->get('description'),
@@ -689,7 +689,7 @@ class HostManagementPage extends FOGPage
 		}
 		foreach($this->FOGCore->getClass('PrinterManager')->find() AS $Printer)
 		{
-			if ($Printer && $Printer->isValid() && !in_array($Printer->get('id'),$PrinterIDs))
+			if ($Printer && $Printer->isValid() && !in_array($Printer->get('id'),(array)$PrinterIDs))
 			{
 				$this->data[] = array(
 					'printer_id' => $Printer->get('id'),
@@ -1157,7 +1157,7 @@ class HostManagementPage extends FOGPage
 			}
 			print "\n\t\t\t".'<select name="dte" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select>';
 			print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><img src="images/go.png" class="noBorder" /></a></p>';
-			$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => ($_REQUEST['dte'] ? $_REQUEST['dte'] : date('Y-m-d'))),'AND','datetime');
+			$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => ($_REQUEST['dte'] ? $_REQUEST['dte'] : $this->formatTime('now','Y-m-d'))),'AND','datetime');
 			$_SESSION['fog_logins'] = array();
 			$cnt = 0;
 			foreach ((array)$Host->get('users') AS $UserLogin)
@@ -1167,10 +1167,10 @@ class HostManagementPage extends FOGPage
 					$this->data[] = array(
 						'action' => ($UserLogin->get('action') == 1 ? _('Login') : ($UserLogin->get('action') == 0 ? _('Logout') : ($UserLogin->get('action') == 99 ? _('Service Start') : _('Service Stop')))),
 						'user_name' => $UserLogin->get('username'),
-						'user_time' => date('H:i:s',strtotime($UserLogin->get('datetime'))),
+						'user_time' => $this->formatTime($UserLogin->get('datetime')),
 						'user_desc' => $UserLogin->get('description'),
 					);
-					$loginTime = new DateTime($UserLogin->get('datetime'));
+					$loginTime = $this->nice_Date($UserLogin->get('datetime'));
 					$arAllUsers[] = ($UserLogin->get('username') != 'Array' ? $UserLogin->get('username') : '');
 					if ($UserLogin->get('action') == 1 || $UserLogin->get('action') == 99)
 					{
@@ -1202,6 +1202,94 @@ class HostManagementPage extends FOGPage
 			print '<p><img src="phpimages/hostloginhistory.phpgraph.php" /></p>';
 		print "\n\t\t\t</form>";
 		print "\n\t\t\t</div>";
+		print "\n\t\t\t".'<div id="host-image-history" class="organic-tabs-hidden">';
+		print "\n\t\t\t<h2>"._('Host Imaging History').'</h2>';
+		// Header Data for host image history
+		$this->headerData = array(
+			_('Start Time'),
+			_('End Time'),
+			_('Duration'),
+			_('Image Name'),
+			_('Imaging Type'),
+		);
+		// Templates for the host image history
+		$this->templates = array(
+			'${start_time}',
+			'${end_time}',
+			'${duration}',
+			'${image_name}',
+			'${image_type}',
+		);
+		// Attributes
+		$this->attributes = array(
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+		);
+		$ImagingLogs = $this->FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
+		foreach ((array)$ImagingLogs AS $ImageLog)
+		{
+			if ($ImageLog && $ImageLog->isValid())
+			{
+				$Start = $ImageLog->get('start');
+				$End = $ImageLog->get('finish');
+				$this->data[] = array(
+					'start_time' => $this->formatTime($Start),
+					'end_time' => $this->formatTime($Start),
+					'duration' => $this->diff($Start,$End),
+					'image_name' => $ImageLog->get('image'),
+					'image_type' => $ImageLog->get('type'),
+				);
+			}
+		}
+		// Hook
+		$this->HookManager->processEvent('HOST_IMAGE_HIST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		// Output
+		$this->render();
+		unset($this->data);
+		print "\n\t\t\t".'</div>';
+		print "\n\t\t\t".'<div id="host-snapin-history">';
+		$this->headerData = array(
+			_('Snapin Name'),
+			_('Start Time'),
+			_('Complete'),
+			_('Duration'),
+			_('Return Code'),
+		);
+		$this->templates = array(
+			'${snapin_name}',
+			'${snapin_start}',
+			'${snapin_end}',
+			'${snapin_duration}',
+			'${snapin_return}',
+		);
+		$SnapinJobs = $this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $Host->get('id')));
+		foreach($SnapinJobs AS $SnapinJob)
+			$SnapinTasks[] = $this->FOGCore->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id')));
+		foreach((array)$SnapinTasks AS $SnapinTask1)
+		{
+			foreach($SnapinTask1 AS $SnapinTask)
+			{
+				if ($SnapinTask && $SnapinTask->isValid())
+				{
+					$Snapin = new Snapin($SnapinTask->get('snapinID'));
+					$this->data[] = array(
+						'snapin_name' => $Snapin && $Snapin->isValid() ? $Snapin->get('name') : _('Snapin No longer exists'),
+						'snapin_start' => $this->formatTime($SnapinTask->get('checkin')),
+						'snapin_end' => $this->formatTime($SnapinTask->get('complete')),
+						'snapin_duration' => $this->diff($SnapinTask->get('checkin'),$SnapinTask->get('complete')),
+						'snapin_return' => $SnapinTask->get('return'),
+					);
+				}
+			}
+		}
+		// Hook
+		$this->HookManager->processEvent('HOST_SNAPIN_HIST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		// Output
+		$this->render();
+		print "\n\t\t\t".'</div>';
 		print "\n\t\t\t</div>";
 	}
 	/** edit_post()

@@ -96,7 +96,7 @@ class FOGCore extends FOGBase
 		$History = new History(array(
 			'info' => $string,
 			'createdBy' => $uname,
-			'createdTime' => date('Y-m-d H:i:s'),
+			'createdTime' => $this->formatTime('now','Y-m-d H:i:s'),
 			'ip' => $_SERVER[REMOTE_ADDR],
 		));
 		$History->save();
@@ -274,31 +274,6 @@ class FOGCore extends FOGBase
 		$this->fetchURL(sprintf('http://%s%s?wakeonlan=%s', $this->getSetting('FOG_WOL_HOST'), $this->getSetting('FOG_WOL_PATH'), ($mac instanceof MACAddress ? $mac->getMACWithColon() : $mac)));
 	}
 	
-	/** formatTime($time, $format = '')
-		format's time information.  If format is blank,
-		formats based on current date to date sent.  Otherwise
-		returns the information back based on the format requested.
-	*/
-	public function formatTime($time, $format = '')
-	{
-		// Convert to unix date if not already
-		if (!is_numeric($time))
-			$time = strtotime($time);
-		// Forced format
-		if ($format)
-			return date($format, $time);
-		// Today
-		if (date('d-m-Y', $time) == date('d-m-Y'))
-			return 'Today, ' . date('g:ia', $time);
-		// Yesterday
-		elseif (date('d-m-Y', $time) == date('d-m-Y', strtotime('-1 day')))
-			return 'Yesterday, ' . date('g:i a', $time);
-		// Short date
-		elseif (date('m-Y', $time) == date('m-Y'))
-			return date('jS, g:ia', $time);
-		// Long date
-		return date('m-d-Y g:ia', $time);
-	}
 	
 	// Blackout - 2:40 PM 25/05/2011
 	/** SystemUptime()
@@ -365,7 +340,7 @@ class FOGCore extends FOGBase
 	*/
 	public function getDateTime()
 	{
-		return date('m-d-y g:i:s a');
+		return $this->formatTime('now','m-d-y g:i:s a');
 	}
 	/** wlog($string, $path)
 		Writes to the log file and clears if needed.
