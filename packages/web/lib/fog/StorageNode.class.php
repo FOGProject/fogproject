@@ -44,15 +44,14 @@ class StorageNode extends FOGController
 	}
 	function getNodeFailure($Host)
 	{
-		$TimeZone = new DateTimeZone((!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone')));
-		$DateInterval = new DateTime('-5 minutes',$TimeZone);
+		$DateInterval = new DateTime('-5 minutes',$this->TimeZone);
 		$NodeFailures = $this->FOGCore->getClass('NodeFailureManager')->find(array(
 			'storageNodeID'	=> $this->get('id'), 
 			'hostID'	=> $this->DB->sanitize($Host instanceof Host ? $Host->get('id') : $Host),
 		));
 		foreach($NodeFailures AS $NodeFailure)
 		{
-			$DateTime = new DateTime($NodeFailure->get('failureTime'),$TimeZone);
+			$DateTime = new DateTime($NodeFailure->get('failureTime'),$this->TimeZone);
 			if ($DateTime->format('Y-m-d H:i:s') >= $DateInterval->format('Y-m-d H:i:s'))
 				return $NodeFailure;
 		}

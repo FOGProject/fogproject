@@ -206,7 +206,7 @@ class MulticastManager extends FOGBase
 								}
 								else
 								{
-									$curSession->set('clients',0)->set('completetime',date('Y-m-d H:i:s'))->set('name','')->set('stateID',4)->save();
+									$curSession->set('clients',0)->set('completetime',$this->formatTime('now','Y-m-d H:i:s'))->set('name','')->set('stateID',4)->save();
 									$KnownTasks = $this->removeFromKnownList($KnownTasks,$runningTask->getID());
 									$this->outall(sprintf(" | Task (%s) %s has been cleaned as complete.",$runningTask->getID(),$runningTask->getName()));
 								}
