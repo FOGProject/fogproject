@@ -24,8 +24,13 @@ try
 		throw new Exception( sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'), $MACAddress) );
 	// Check-in Host
 	if ($Task->get('stateID') == 1)
+<<<<<<< HEAD
 		$Task->set('stateID', '2')->set('checkInTime', time())->save();
 	$imagingTasks = in_array($Task->get('typeID'),array(1,2,8,15,16,17,24));
+=======
+		$Task->set('stateID', '2')->set('checkInTime', $FOGCore->formatTime('now','Y-m-d H:i:s'))->save();
+	$imagingTasks = in_array($Task->get('typeID'),array(1,2,8,15,16,17));
+>>>>>>> svn
 	// Storage Group
 	$StorageGroup = $Task->getStorageGroup();
 	if ($imagingTasks && !$StorageGroup->isValid())
