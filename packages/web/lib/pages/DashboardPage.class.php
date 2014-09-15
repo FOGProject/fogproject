@@ -88,8 +88,9 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t-->";
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t".'<div id="graph-bandwidth" class="graph"></div>';
-		$DateTimeStart = new DateTime(date('Y-m-d',strtotime('-30 days')), (!ini_get('date.timezone') ? new DateTimeZone('GMT') : new DateTimeZone(ini_get('date.timezone'))));
-		$DateTimeEnd = new DateTime(date('Y-m-d'), (!ini_get('date.timezone') ? new DateTimeZone('GMT') : new DateTimeZone(ini_get('date.timezone'))));
+		$DateTimeStart = $this->nice_date();
+		$DateTimeStart = $DateTimeStart->modify('-30 days');
+		$DateTimeEnd = $this->nice_date();
 		$DateTimeEnd = $DateTimeEnd->modify('+1 day');
 		$DatePeriod = new DatePeriod($DateTimeStart, new DateInterval('P1D'), $DateTimeEnd);
 		foreach($DatePeriod AS $Date)

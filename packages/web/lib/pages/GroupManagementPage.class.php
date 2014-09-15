@@ -442,7 +442,7 @@ class GroupManagementPage extends FOGPage
 			{
 				$this->data[] = array(
 					'host_id' => $Host->get('id'),
-					'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
 					'host_name' => $Host->get('name'),
 					'host_mac' => $Host->get('mac')->__toString(),
 					'host_desc' => $Host->get('description'),
@@ -481,7 +481,7 @@ class GroupManagementPage extends FOGPage
 			{
 				$this->data[] = array(
 					'host_id' => $Host->get('id'),
-					'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
 					'host_name' => $Host->get('name'),
 					'host_mac' => $Host->get('mac')->__toString(),
 					'host_desc' => $Host->get('description'),
@@ -531,7 +531,7 @@ class GroupManagementPage extends FOGPage
 			{
 				$this->data[] = array(
                     'host_id'   => $Host->get('id'),
-                    'deployed' => checkdate($this->FOGCore->formatTime($Host->get('deployed'),'m'),$this->FOGCore->formatTime($Host->get('deployed'),'d'),$this->FOGCore->formatTime($Host->get('deployed'),'Y')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+                    'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
                     'host_name' => $Host->get('name'),
                     'host_mac'  => $Host->get('mac')->__toString(),
                     'image_name' => $this->FOGCore->getClass('ImageManager')->buildSelectBox($Host->getImage()->get('id'),$Host->get('name').'_'.$Host->get('id')),
