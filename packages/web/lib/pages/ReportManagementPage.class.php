@@ -85,13 +85,12 @@ class ReportManagementPage extends FOGPage
 		);
 		// Get the dates to use!
 		$ImagingLogs = $this->FOGCore->getClass('ImagingLogManager')->find();
-		$TimeZone = new DateTimeZone(!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone'));
 		foreach ((array)$ImagingLogs AS $ImagingLog)
 		{
-			$DateStart = new DateTime($ImagingLog->get('start'),$TimeZone);
-			$DateEnd = new DateTime($ImagingLog->get('finish'),$TimeZone);
-			$checkStart = checkdate($DateStart->format('m'),$DateStart->format('d'),$DateStart->format('Y'));
-			$checkEnd = checkdate($DateEnd->format('m'),$DateEnd->format('d'),$DateEnd->format('Y'));
+			$DateStart = $this->nice_date($ImagingLog->get('start'));
+			$DateEnd = $this->nice_date($ImagingLog->get('finish'));
+			$checkStart = $this->validDate($DateStart);
+			$checkEnd = $this->validDate($DateEnd);
 			if ($checkStart && $checkEnd)
 			{
 				$datesold[] = $DateStart->format('Y-m-d');
@@ -190,13 +189,11 @@ class ReportManagementPage extends FOGPage
 		foreach((array)$csvHead AS $csvHeader)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
-		// Set time zone so DateTime works if none is set.
-		$TimeZone = new DateTimeZone((!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone')));
 		$ImagingLogs = $this->FOGCore->getClass('ImagingLogManager')->find();
 		foreach((array)$ImagingLogs AS $ImagingLog)
 		{
-			$start = new DateTime($ImagingLog->get('start'),$TimeZone);
-			$end = new DateTime($ImagingLog->get('finish'),$TimeZone);
+			$start = $this->nice_date($ImagingLog->get('start'));
+			$end = $this->nice_date($ImagingLog->get('finish'));
 			// Find the host if it still exists.
 			$Host = current($this->FOGCore->getClass('HostManager')->find(array('id' => $ImagingLog->get('hostID'))));
 			// Find the task matching the start time and the hostID.
@@ -205,13 +202,11 @@ class ReportManagementPage extends FOGPage
 			$Image = current($this->FOGCore->getClass('ImageManager')->find(array('name' => $ImagingLog->get('image'))));
 			if(($start->format('Y-m-d') >= $date1 && $start->format('Y-m-d') <= $date2) || ($end->format('Y-m-d') >= $date1 && $end->format('Y-m-d') <= $date2) && ($start->format('H:i:s') < $end->format('H:i:s')))
 			{
-				// Get the duration (time difference between start and end)
-				$interval = $start->diff($end);
 				// Verify if the dates are valid
-				$checkStart = checkdate($start->format('m'),$start->format('d'),$start->format('Y'));
-				$checkEnd = checkdate($end->format('m'),$end->format('d'),$end->format('Y'));
+				$checkStart = $this->validDate($Date);
+				$checkEnd = $this->validDate($Date);
 				// Store the difference
-				$diff = $interval->format('%H:%I:%S');
+				$diff = $this->diff($start,$end);
 				$createdBy = ($Task && $Task->isValid() ? $Task->get('createdBy') : $this->FOGUser->get('name'));
 				$hostName = ($Host && $Host->isValid() ? $Host->get('name') : '');
 				$hostId = ($Host && $Host->isValid() ? $Host->get('id') : $ImagingLog->get('hostID'));
@@ -827,7 +822,7 @@ class ReportManagementPage extends FOGPage
 		if (base64_decode($_REQUEST['userID']) && $_REQUEST['hostID'])
 			$UserSearchDates = $this->FOGCore->getClass('UserTrackingManager')->find(array('username' => base64_decode($_REQUEST['userID']),'hostID' => $_REQUEST['hostID']));
 		foreach((array)$UserSearchDates AS $User)
-			$Dates[] = date('Y-m-d',strtotime($User->get('datetime')));
+			$Dates[] = $this->nice_date($User->get('datetime'))->format('Y-m-d');
 		if ($Dates)
 		{
 			$Dates = array_unique($Dates);
@@ -866,7 +861,6 @@ class ReportManagementPage extends FOGPage
 		// Setup Report Maker for this object.
 		$ReportMaker = new ReportMaker();
 		// Setup Time zone
-		$Timezone = (!ini_get('date.timezone') ? new DateTimeZone('GMT') : new DateTimeZone(ini_get('date.timezone')));
 		// Set Title
 		$this->title = _('FOG User Login History Summary');
 		// Header data
@@ -915,7 +909,7 @@ class ReportManagementPage extends FOGPage
 		$UserTrackers = $this->FOGCore->getClass('UserTrackingManager')->find(array('username' => base64_decode($_REQUEST['userID']),'hostID' => $_REQUEST['hostID'] ? $_REQUEST['hostID'] : '%'));
 		foreach((array)$UserTrackers AS $User)
 		{
-			$date = new DateTime($User->get('datetime'),$Timezone);
+			$date = $this->nice_date($User->get('datetime'));
 			if ($date->format('Y-m-d') >= $date1 && $date->format('Y-m-d') <= $date2)
 			{
 				$logintext = ($User->get('action') == 1 ? 'Login' : ($User->get('action') == 0 ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
@@ -960,8 +954,8 @@ class ReportManagementPage extends FOGPage
 		$SnapinLogs = $this->FOGCore->getClass('SnapinTaskManager')->find();
 		foreach ((array)$SnapinLogs AS $SnapinLog)
 		{
-			$datesold[] = date('Y-m-d',strtotime($SnapinLog->get('checkin')));
-			$datesnew[] = date('Y-m-d',strtotime($SnapinLog->get('complete')));
+			$datesold[] = $this->nice_date($SnapinLog->get('checkin'))->format('Y-m-d');
+			$datesnew[] = $this->nice_date($SnapinLog->get('complete'))->format('Y-m-d');
 		}
 		$Dates = array_merge($datesold,$datesnew);
 		if ($Dates)
@@ -1061,14 +1055,12 @@ class ReportManagementPage extends FOGPage
 		foreach((array)$csvHead AS $csvHeader)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
-		// Set time zone so DateTime works if none is set.
-		$TimeZone = new DateTimeZone((!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone')));
 		// Find all snapin tasks
 		$SnapinTasks = $this->FOGCore->getClass('SnapinTaskManager')->find();
 		foreach((array)$SnapinTasks AS $SnapinTask)
 		{
-			$SnapinCheckin1 = new DateTime($SnapinTask->get('checkin'),$TimeZone);
-			$SnapinCheckin2 = new DateTime($SnapinTask->get('complete'),$TimeZone);
+			$SnapinCheckin1 = $this->nice_date($SnapinTask->get('checkin'));
+			$SnapinCheckin2 = $this->nice_date($SnapinTask->get('complete'));
 			// Get the Task based on create date thru complete date
 			if (($SnapinCheckin1->format('Y-m-d') >= $date1 && $SnapinCheckin1->format('Y-m-d') <= $date2) || ($SnapinCheckin2->format('Y-m-d') >= $date1 && $SnapinCheckin2->format('Y-m-d') <= $date2))
 			{
@@ -1091,10 +1083,10 @@ class ReportManagementPage extends FOGPage
 				$snapinState = $SnapinTask->get('stateID');
 				$snapinReturn = $SnapinTask->get('return');
 				$snapinDetail = $SnapinTask->get('detail');
-				$snapinCreateDate = $Snapin->isValid() ? date('Y-m-d',strtotime($Snapin->get('createdTime'))) : '';
-				$snapinCreateTime = $Snapin->isValid() ? date('H:i:s',strtotime($Snapin->get('createdTime'))) : '';
-				$jobCreateDate = date('Y-m-d',strtotime($SnapinJob->get('createTime')));
-				$jobCreateTime = date('H:i:s',strtotime($SnapinJob->get('createTime')));
+				$snapinCreateDate = $Snapin->isValid() ? $this->formatTime($Snapin->get('createdTime'),'Y-m-d') : '';
+				$snapinCreateTime = $Snapin->isValid() ? $this->formatTime($Snapin->get('createdTime'),'H:i:s') : '';
+				$jobCreateDate = $this->formatTime($SnapinJob->get('createTime'),'Y-m-d');
+				$jobCreateTime = $this->formatTime($SnapinJob->get('createTime'),'H:i:s');
 				$TaskCheckinDate = $SnapinCheckin1->format('Y-m-d');
 				$TaskCheckinTime = $SnapinCheckin2->format('H:i:s');
 				$this->data[] = array(
@@ -1195,7 +1187,7 @@ class ReportManagementPage extends FOGPage
 		// Get the current Inventory based on what was selected.
 		$Inventory = new Inventory($_REQUEST['user']);
 		// Title Information
-		$ReportMaker->appendHTML("<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " . date("D M j G:i:s T Y") . "\" -->" );
+		$ReportMaker->appendHTML("<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " . $this->formatTime('now',"D M j G:i:s T Y") . "\" -->" );
 		$ReportMaker->appendHTML("<center><h2>"._("[YOUR ORGANIZATION HERE]")."</h2></center>" );
 		$ReportMaker->appendHTML("<center><h3>"._("[sub-unit here]")."</h3></center>" );
 		$ReportMaker->appendHTML("<center><h2><u>"._("PC Check-Out Agreement")."</u></h2></center>" );
@@ -1221,7 +1213,7 @@ class ReportManagementPage extends FOGPage
 		$ReportMaker->appendHTML( "<br />" );
 		$ReportMaker->appendHTML( "<h4><b>"._("Signed").": </b>X _____________________________  "._("Date").": _________/_________/20_______</h4>" );
 		$ReportMaker->appendHTML( _("<!-- "._("NEW PAGE")." -->") );
-		$ReportMaker->appendHTML( "<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " . date("D M j G:i:s T Y") . "\" -->" );
+		$ReportMaker->appendHTML( "<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " .$this->formatTime('now',"D M j G:i:s T Y") . "\" -->" );
 		$ReportMaker->appendHTML( "<center><h3>"._("Terms and Conditions")."</h3></center>" );
 		$ReportMaker->appendHTML( "<hr />" );
 		$ReportMaker->appendHTML( "<h4>"._("Your terms and conditions here")."</h4>" );

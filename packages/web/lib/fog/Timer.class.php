@@ -32,7 +32,7 @@ class Timer
 	public function getSingleRunTime() {return $this->lngSingle;}
 	public function toString()
 	{
-		return ($this->blSingle ? date("r",$this->lngSingle) : 'Crontab: '.$this->strMin.' '.$this->strHour.' '.$this->strDOM.' '.$this->strMonth.' '.$this->strDOW);
+		return ($this->blSingle ? $this->formatTime($this->lngSingle,'r') : 'Crontab: '.$this->strMin.' '.$this->strHour.' '.$this->strDOM.' '.$this->strMonth.' '.$this->strDOW);
 	}
 	public function setDebug( $blDebug )
 	{
@@ -47,15 +47,15 @@ class Timer
 		{ 
 			try
 			{
-				if (!$this->passesTime($this->strMin,date('i'),60))
+				if (!$this->passesTime($this->strMin,$this->formatTime('now','i'),60))
 					throw new Exception("Failed Minute");
-				if (!$this->passesTime($this->strHour,date('H'),24))
+				if (!$this->passesTime($this->strHour,$this->formatTime('now','H'),24))
 					throw new Exception("Failed Hour");
-				if (!$this->passesTime($this->strDOM,date('j'),32))
+				if (!$this->passesTime($this->strDOM,$this->formatTime('now','j'),32))
 					throw new Exception("Failed DOM");
-				if (!$this->passesTime($this->strMonth,date('n'),12))
+				if (!$this->passesTime($this->strMonth,$this->formatTime('now','n'),12))
 					throw new Exception("Failed Month");
-				if (!$this->passesTime($this->strDOW,date('N'),8))
+				if (!$this->passesTime($this->strDOW,$this->formatTime('now','N'),8))
 					throw new Exception("Failed DOW");
 				$this->d("All Times Pass\nTask should run.");
 				return true;

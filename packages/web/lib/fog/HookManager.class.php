@@ -69,6 +69,8 @@ class HookManager extends FOGBase
 		'HOST_EDIT_ALO',
 		'HOST_INVENTORY',
 		'HOST_VIRUS',
+		'HOST_IMAGE_HIST',
+		'HOST_SNAPIN_HIST',
 		'HOST_USER_LOGIN',
 		'HOST_EDIT_POST',
 		'HOST_EDIT_SUCCESS',
@@ -282,7 +284,7 @@ class HookManager extends FOGBase
 	private function log($txt, $level = 1)
 	{
 		if (!$this->isAJAXRequest() && $this->logLevel >= $level)
-			printf('[%s] %s%s', date("d-m-Y H:i:s"), trim(preg_replace(array("#\r#", "#\n#", "#\s+#", "# ,#"), array("", " ", " ", ","), $txt)), "<br />\n");
+			printf('[%s] %s%s', $this->formatTime('now',"d-m-Y H:i:s"), trim(preg_replace(array("#\r#", "#\n#", "#\s+#", "# ,#"), array("", " ", " ", ","), $txt)), "<br />\n");
 	}
 	public function isAJAXRequest()
 	{

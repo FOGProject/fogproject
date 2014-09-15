@@ -57,6 +57,8 @@ abstract class FOGBase
 		$this->HookManager = $GLOBALS['HookManager'];
 		// Language Setup
 		$this->foglang = $GLOBALS['foglang'];
+		// Default TimeZone to use for date fields
+		$this->TimeZone = new DateTimeZone((!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone')));
 	}
 	/** fatalError($txt, $data = array())
 		Fatal error in the case something went wrong.
@@ -301,6 +303,87 @@ abstract class FOGBase
 		$iv = substr($encdata,0,$iv_size);
 		$decipher = mcrypt_decrypt($enctype,$key,base64_decode(substr($encdata,$iv_size)),$mode,$iv);
 		return $decipher;
+	}
+	/**
+	* diff($start,$end)
+	* Simply a function to return the difference of time between the start and end.
+	* @param $start Translate the sent start time to DateTime format for easy differentials.
+	* @param $end Translate the sent end time to Datetime format for easy differentials.
+	* @return $interval->format('%H:%I:%S') returns the datetime in number of hours, minutes, and seconds it took to perform the task.
+	*/
+	public function diff($start,$end)
+	{
+		if (!$start instanceof DateTime)
+			$start = $this->nice_date($start);
+		if (!$end instanceof DateTime)
+			$end = $this->nice_date($end);
+		$Duration = $start->diff($end);
+		return $Duration->format('%H:%I:%S');
+	}
+	/**
+	* nice_date($Date)
+	* Simply returns the date in DateTime Class format for easier use.
+	* @param $Date the non-nice Date Sent.
+	* @return $NiceDate returns the DateTime class for the current date.
+	*/
+	public function nice_date($Date = 'now',$utc = false)
+	{
+		$NiceDate = new DateTime($Date,$this->TimeZone);
+		if ($utc)
+			$NiceDate = new DateTime($Date,new DateTimeZone('UTC'));
+		return $NiceDate;
+	}
+	/**
+	* validDate($Date)
+	* Simply returns if the date is valid or not
+	* @param $Date the date, nice or not nice
+	* @return return whether Date/Time is valid or not
+	*/
+	public function validDate($Date)
+	{
+		if (!$Date instanceof DateTime)
+			$Date = $this->nice_Date($Date);
+		return DateTime::createFromFormat('m/d/Y',$Date->format('m/d/Y'));
+	}
+	/** formatTime($time, $format = '')
+		format's time information.  If format is blank,
+		formats based on current date to date sent.  Otherwise
+		returns the information back based on the format requested.
+	*/
+	public function formatTime($time, $format = '', $utc = false)
+	{
+		if (!$time instanceof DateTime)
+			$time = $this->nice_date($time,$utc);
+		$CurrTime = $this->nice_date('now',$utc);
+		$TimeVal = $time->diff($CurrTime)->days;
+		$Days = true;
+		if ($TimeVal >= 30)
+		{
+			$TimeVal = $time->diff($CurrTime)->format('%m');
+			$Days = false;
+		}
+		// Forced format
+		if ($format)
+			$RetDate = $time->format($format);
+		if ($Days)
+		{
+			// Today
+			if ($Days && $TimeVal < 1)
+				$RetDate = 'Today, ' . $time->format('g:ia');
+			// Yesterday
+			elseif ($Days && $TimeVal == 1)
+				$RetDate = 'Yesterday, ' . $time->format('g:ia');
+			elseif ($Days && $TimeVal >= 2 && $TimeVal < 30)
+				$RetDate = $TimeVal.' days ago.';
+		}
+		else
+		{
+			if ($TimeVal >= 1 && $TimeVal < 12)
+				$RetDate = $TimeVal.' '.($TimeVal  == 1 ? 'month' : 'months').' ago';
+			else
+				$RetDate = $time->format('Y-m-d H:i:s');
+		}
+		return $RetDate;
 	}
 }
 /* Local Variables: */

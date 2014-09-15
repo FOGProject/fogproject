@@ -120,7 +120,7 @@ class Announce extends FOGBase
 				'downloaded' => $this->downloaded,
 				'uploaded' => $this->uploaded,
 				'left' => $this->left,
-				'lastUpdated' => gmdate('Y-m-d H:i:s'),
+				'lastUpdated' => $this->nice_date('now',true)->format('Y-m-d H:i:s'),
 				'stopped' => 0,
 			));
 		}
@@ -129,7 +129,7 @@ class Announce extends FOGBase
 			$PeerTorrent->set('downloaded',$this->downloaded)
 						->set('uploaded',$this->uploaded)
 						->set('left',$this->left)
-						->set('lastUpdated',gmdate('Y-m-d H:i:s'));
+						->set('lastUpdated',$this->nice_date('now',true)->format('Y-m-d H:i:s'));
 		}
 		$PeerTorrent->save();
 		return $PeerTorrent;
@@ -166,7 +166,7 @@ class Announce extends FOGBase
 			foreach($this->FOGCore->getClass('PeerTorrentManager')->find() AS $PeerTorrentNew)
 			{
 				$PeerNew = new Peer($PeerTorrentNew->get('peerID'));
-				$interval = new DateTime('+'.$this->FOGCore->getSetting('FOG_TORRENT_INTERVAL') + $this->FOGCore->getSetting('FOG_TORRENT_TIMEOUT').' seconds',new DateTimeZone('GMT'));
+				$interval = new DateTime('+'.$this->FOGCore->getSetting('FOG_TORRENT_INTERVAL') + $this->FOGCore->getSetting('FOG_TORRENT_TIMEOUT').' seconds',$this->TimeZone);
 				if ($PeerTorrentNew->get('torrentID') == $this->torrent->get('id') && !$PeerTorrentNew->get('stopped') && strtotime($PeerTorrentNew->get('lastUpdated')) <= strtotime($interval->format('Y-m-d H:i:s')) && $PeerNew->isValid() && $PeerNew->get('id') != $this->peer->get('id'))
 					$reply[] = array(long2ip($PeerNew->get('ip')),$PeerNew->get('port'),$PeerNew->get('hash'));
 				if ($PeerTorrentNew->get('torrentID') == $this->torrent->get('id') && !$PeerTorrentNew->get('stopped') && strtotime($PeerTorrentNew->get('lastUpdated')) <= strtotime($interval->format('Y-m-d H:i:s')))
