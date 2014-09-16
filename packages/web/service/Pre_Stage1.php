@@ -96,7 +96,7 @@ try
 		// Success!
 		$il = new ImagingLog(array(
 			'hostID' => $Host->get('id'),
-			'start' => date('Y-m-d H:i:s'),
+			'start' => $FOGCore->formatTime('Y-m-d H:i:s'),
 			'image' => $Host->getImage()->get('name'),
 			'type' => $_REQUEST['type'],
 		));

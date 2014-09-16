@@ -603,7 +603,7 @@ class ImageManagementPage extends FOGPage
 					'mc_count' => $MulticastSession->get('clients'),
 					'image_name' => $Image->get('name'),
 					'os' => $Image->getOS(),
-					'mc_start' => date('Y-m-d H:i:s',strtotime($MulticastSession->get('starttime'))),
+					'mc_start' => $this->formatTime($MulticastSession->get('starttime'),'Y-m-d H:i:s'),
 					'mc_percent' => $MulticastSession->get('percent'),
 					'mc_state' => $TaskState->get('name'),
 					'mc_id' => $MulticastSession->get('id'),
@@ -645,7 +645,7 @@ class ImageManagementPage extends FOGPage
 				'stateID' => 1,
 				'clients' => $_REQUEST['count'],
 				'isDD' => $Image->get('imageTypeID'),
-				'starttime' => date('Y-m-d H:i:s'),
+				'starttime' => $this->formatTime('now','Y-m-d H:i:s'),
 				'interface' => $StorageNode->get('interface'),
 				'logpath' => $Image->get('path'),
 			));
