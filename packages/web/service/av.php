@@ -19,7 +19,7 @@ try
 		'name' => trim($vInfo[0]),
 		'hostMAC' => strtolower($Host->get('mac')),
 		'file' => $string[0],
-		'date' => date('Y-m-d H:i:s'),
+		'date' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
 		'mode' => $_REQUEST['mode']
 	));
 	if ($Virus->save())

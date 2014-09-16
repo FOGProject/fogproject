@@ -17,12 +17,12 @@ try
 		throw new Exception('#!us');
 	if (count($user) == 2)
 		$user = $user[1];
-	$date = new Date(time());
+	$date = $FOGCore->nice_date();
 	$tmpDate = ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $_REQUEST['date'] : base64_decode($_REQUEST['date']));
 	if ($tmpDate != null && strlen($tmpDate) > 0)
 	{
-		$date = new Date(strtotime($tmpDate));
-		$desc = _('Replay from journal: real insert time').' '.$date->toString("M j, Y g:i:s a");
+		$date = $FOGCore->nice_date($tmpDate);
+		$desc = _('Replay from journal: real insert time').' '.$date->format("M j, Y g:i:s a");
 	}
 	$actionText = ($_REQUEST['action'] == 'login' ? 1 : ($_REQUEST['action'] == 'logout' ? 0 : 99));
 	$user = $_REQUEST['action'] == 'start' ? '' : $user;
@@ -30,9 +30,9 @@ try
 		'hostID'	=> $Host->get('id'),
 		'username'	=> $user,
 		'action'	=> $actionText,
-		'datetime'	=> date('Y-m-d H:i:s',$date->toTimestamp()),
+		'datetime'	=> $FOGCore->formatTime($date->getTimestamp(),'Y-m-d H:i:s'),
 		'description' => $desc,
-		'date' => date('Y-m-d', $date->toTimestamp()),
+		'date' => $FOGCore->formatTime($date->getTimestamp(),'Y-m-d'),
 	));
 	if ($UserTracking->save())
 		$Datatosend = '#!ok';
