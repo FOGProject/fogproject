@@ -773,7 +773,8 @@ class BootMenu extends FOGBase
 			);
 			$Advanced = $this->FOGCore->getSetting('FOG_PXE_ADVANCED');
 			$AdvLogin = $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN');
-			$ArrayOfStuff = array(($this->Host && $this->Host->isValid() ? 1 : 0),2);
+			$ArrayOfStuff = array(($this->Host && $this->Host->isValid() ? 1 : 0),2,($showDebug ? 3 : ''));
+			$ArrayOfStuff = array_filter($ArrayOfStuff);
 			if ($Advanced)
 				array_push($ArrayOfStuff,($AdvLogin ? 5 : 4));
 			foreach($Menus AS $Menu)
