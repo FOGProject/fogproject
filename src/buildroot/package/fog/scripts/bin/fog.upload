@@ -118,9 +118,17 @@ if [ -f "/images/.mntcheck" ]; then
 			# Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
 			#  Remove pagefile and hibernate file
 			if [ "$osid" == "1" -o "$osid" == "2" ]; then
+<<<<<<< HEAD
+				removePageFile $part
+				debugPause
+			elif [ "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
+				removePageFile $win7sys
+				debugPause
+=======
 				removePageFile $part;
 			elif [ "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" ]; then
 				removePageFile $win7sys;
+>>>>>>> svn
 			fi
 			debugPause
 			# Windows 2000/XP:
@@ -270,7 +278,6 @@ EOFRESTOREPART
 				fi
 				if [ -d "$imagePath" ]; then
 					savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$hasgpt" "$have_extended_partition" "$imgPartitionType"
-					debugPause
 					parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
 					diskLength=`expr length $disk`;
 					for part in $parts; do
