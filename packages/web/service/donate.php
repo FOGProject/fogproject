@@ -6,7 +6,7 @@ try
 	{
 		$abortHour = $FOGCore->getSetting('FOG_MINING_FULL_RESTART_HOUR');
 		$ignoreWeekends = $FOGCore->getSetting('FOG_MINING_FULL_RUN_ON_WEEKEND' );
-		$date = new DateTime();
+		$date = $FOGCore->nice_date();
 		if  ($ignoreWeekends == "1" && $date->format("N") > 5)
 			print "#!OK";
 		else

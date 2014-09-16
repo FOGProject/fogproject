@@ -22,7 +22,7 @@ try
 	if ($Task->get('stateID') == 1)
 	{
 		// Check In Task for Host
-		$Task->set('stateID',2)->set('checkInTime',date('Y-m-d H:i:s'))->save();
+		$Task->set('stateID',2)->set('checkInTime', $FOGCore->nice_date()->format('Y-m-d H:i:s'))->save();
 		// If the state is queued, meaning the client has checked in increment clients
 		$Task->get('typeID') == 8 ?	$MultiSess->set('clients', $MultiSess->get('clients')+1)->save() : null;
 	}
@@ -43,7 +43,7 @@ try
 	{
 		$il = new ImagingLog(array(
 			'hostID' => $Host->get('id'),
-			'start' => date('Y-m-d H:i:s'),
+			'start' => $FOGCore->nice_date()->format('Y-m-d H:i:s'),
 			'image' => $Host->getImage()->get('name'),
 			'type' => $_REQUEST['type'],
 		));
