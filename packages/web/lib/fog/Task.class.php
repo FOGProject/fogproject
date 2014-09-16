@@ -63,12 +63,13 @@ class Task extends FOGController
 			'NFSGroupID' => $this->get('NFSGroupID'),
 		));
 		$count = 0;
-		$curTime = strtotime($this->formatTime('now','Y-m-d H:i:s'));
+		$curTime = strtotime($this->nice_date()->format('Y-m-d H:i:s'));
 		foreach($Tasks AS $Task)
 		{
 			if ($this->get('id') > $Task->get('id'))
 			{
-				if ($curTime - strtotime($Task->get('checkInTime')) < $this->FOGCore->getSetting('FOG_CHECKIN_TIMEOUT'))
+				$tasktime = $this->nice_date($Task->get('checkInTime'));
+				if (($curTime->getTimestamp() - $tasktime->getTimestamp()) < $this->FOGCore->getSetting('FOG_CHECKIN_TIMEOUT'))
 					$count++;
 			}
 		}
@@ -84,7 +85,7 @@ class Task extends FOGController
 	{
 		// Check in time: Convert Unix time to MySQL datetime
 		if ($this->key($key) == 'checkInTime' && is_numeric($value) && strlen($value) == 10)
-			$value = $this->formatTime($value,'Y-m-d H:i:s');
+			$value = $this->nice_date($value)->format('Y-m-d H:i:s');
 		// Return
 		return parent::set($key, $value);
 	}
