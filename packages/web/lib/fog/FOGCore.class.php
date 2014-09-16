@@ -96,7 +96,7 @@ class FOGCore extends FOGBase
 		$History = new History(array(
 			'info' => $string,
 			'createdBy' => $uname,
-			'createdTime' => $this->formatTime('now','Y-m-d H:i:s'),
+			'createdTime' => $this->nice_date()->format('Y-m-d H:i:s'),
 			'ip' => $_SERVER[REMOTE_ADDR],
 		));
 		$History->save();
@@ -340,7 +340,7 @@ class FOGCore extends FOGBase
 	*/
 	public function getDateTime()
 	{
-		return $this->formatTime('now','m-d-y g:i:s a');
+		return $this->nice_date()->format('m-d-y g:i:s a');
 	}
 	/** wlog($string, $path)
 		Writes to the log file and clears if needed.
