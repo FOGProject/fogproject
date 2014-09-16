@@ -26,7 +26,7 @@ try
 	$Datatosend .= '#AD='.$Host->get('useAD')."\n";
 	$Datatosend .= '#ADDom='.$Host->get('ADDomain')."\n";
 	$Datatosend .= '#ADOU='.$Host->get('ADOU')."\n";
-	$Datatosend .= '#ADUser='.$Host->get('ADDomain').'\\'.$Host->get('ADUser')."\n";
+	$Datatosend .= '#ADUser='.($Host->get('useAD') ? (strpos($Host->get('ADUser'),'\\') || strpos($Host->get('ADUser'),'@') ? $Host->get('ADUser') : $Host->get('ADDomain').'\\'.$Host->get('ADUser')) : '')."\n";
 	$Datatosend .= '#ADPass='.$Host->get('ADPass');
 	if (trim(base64_decode($Host->get('productKey'))))
 		$Datatosend .= "\n#Key=".base64_decode($Host->get('productKey'));
