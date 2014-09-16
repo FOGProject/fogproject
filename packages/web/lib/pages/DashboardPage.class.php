@@ -88,34 +88,28 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t-->";
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t".'<div id="graph-bandwidth" class="graph"></div>';
-		$DateTimeStart = $this->nice_date();
-		$DateTimeStart = $DateTimeStart->modify('-30 days');
-		$DateTimeEnd = $this->nice_date();
-		$DateTimeEnd = $DateTimeEnd->modify('+1 day');
-		$DatePeriod = new DatePeriod($DateTimeStart, new DateInterval('P1D'), $DateTimeEnd);
+		$DatePeriod = new DatePeriod($this->nice_date()->modify('-29 days'), new DateInterval('P1D'), $this->nice_date()->modify('+1 day'));
 		foreach($DatePeriod AS $Date)
 		{
 			$keyword = '%'.$Date->format('Y-m-d').'%';
 			$ImagingLogs = $this->FOGCore->getClass('ImagingLogManager')->count(array('start' => $keyword, 'type' => array('up','down')));
-			$Graph30dayData[] = '["'.($Date->getTimestamp()*1000).'", '.$ImagingLogs.']';
+			$Graph30dayData[] = '["'.(1000*$Date->getTimestamp()).'", '.$ImagingLogs.']';
 		}
-		
 		$ActivityActive = 0;
        	$ActivityQueued = 0;
   		$ActivitySlots = 0;
   		$ActivityTotalClients = 0;
-		foreach( $this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1)) AS $StorageNode ) {
-		    if ( $StorageNode && $StorageNode->isValid() ) {
+		foreach($this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1)) AS $StorageNode)
+		{
+		    if ($StorageNode && $StorageNode->isValid())
+			{
            		$ActivityActive += $StorageNode->getUsedSlotCount();
 	        	$ActivityQueued += $StorageNode->getQueuedSlotCount();
 	        	$ActivityTotalClients += $StorageNode->get('maxClients');
-
     		}
 		}
    		$ActivitySlots = $ActivityTotalClients -  $ActivityActive - $ActivityQueued;		    		
-   		
 		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isMaster' => 1, 'isEnabled' => 1)));
-
 		print "\n\t\t\t".'<div class="fog-variable" id="ActivityActive">'.$ActivityActive.'</div>';
 		print "\n\t\t\t".'<div class="fog-variable" id="ActivityQueued">'.$ActivityQueued.'</div>';
 		print "\n\t\t\t".'<div class="fog-variable" id="ActivitySlots">'.($ActivitySlots < 0 ? 0 : $ActivitySlots).'</div>';
