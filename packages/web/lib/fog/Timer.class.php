@@ -47,15 +47,16 @@ class Timer
 		{ 
 			try
 			{
-				if (!$this->passesTime($this->strMin,$this->formatTime('now','i'),60))
+				$curdate = $this->nice_date();
+				if (!$this->passesTime($this->strMin,$curdate->format('i'),60))
 					throw new Exception("Failed Minute");
-				if (!$this->passesTime($this->strHour,$this->formatTime('now','H'),24))
+				if (!$this->passesTime($this->strHour,$curdate->format('H'),24))
 					throw new Exception("Failed Hour");
-				if (!$this->passesTime($this->strDOM,$this->formatTime('now','j'),32))
+				if (!$this->passesTime($this->strDOM,$curdate->format('j'),32))
 					throw new Exception("Failed DOM");
-				if (!$this->passesTime($this->strMonth,$this->formatTime('now','n'),12))
+				if (!$this->passesTime($this->strMonth,$curdate->format('n'),12))
 					throw new Exception("Failed Month");
-				if (!$this->passesTime($this->strDOW,$this->formatTime('now','N'),8))
+				if (!$this->passesTime($this->strDOW,$curdate->format('N'),8))
 					throw new Exception("Failed DOW");
 				$this->d("All Times Pass\nTask should run.");
 				return true;
@@ -70,22 +71,22 @@ class Timer
 	
 	private function splitOnCommas( $s )
 	{
-		return explode(  ",", $s);
+		return explode(",", $s);
 	}
 	
 	private function splitOnDash( $s )
 	{
-		return explode( "-", $s );
+		return explode("-", $s );
 	}
 	
 	private function splitOnSlash( $s )
 	{
-		return explode( "/", $s );
+		return explode("/", $s );
 	}
 	
 	private function containsDash( $s )
 	{
-		return strpos( $s  ,  "-" ) !== false;
+		return strpos($s, "-") !== false;
 	}
 	
 	private function containsSlash( $s )
@@ -123,8 +124,11 @@ class Timer
 					$arValues[] = $curPiece;
 			}
 		}
-		for($i = 0;$i < count($arValues);$i++)
-			if (trim($curTime) == $arValues[$i]) return true;
+		foreach((array)$arValues AS $Value)
+		{
+			if (trim($curTime) == $Value)
+				return true;
+		}
 		if ( $this->debug )
 			print_r( $arValues );
 		return false;
