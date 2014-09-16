@@ -1416,7 +1416,7 @@ class GroupManagementPage extends FOGPage
 				if ($this->REQUEST['scheduleType'] == 'single')
 				{
 					if ($scheduledDeployTime < time())
-						throw new Exception(sprintf(_('Scheduled date is in the past. Date: %s'), date('Y/d/m H:i', $scheduledDeployTime)));
+						throw new Exception(sprintf(_('Scheduled date is in the past. Date: %s'), $this->formatTime($scheduledDeployTime, 'Y/d/m H:i')));
 					$ScheduledTask = new ScheduledTask(array(
 						'taskType' => $taskTypeID,
 						'name' => $taskName,
