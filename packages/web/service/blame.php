@@ -4,10 +4,10 @@ function getAllBlamedNodes($taskid,$hostid)
 {
 	global $FOGCore;
 	$NodeFailures = $FOGCore->getClass('NodeFailureManager')->find(array('taskID' => $taskid,'hostID' => $hostid));
-	$DateInterval = new DateTime('-5 minutes',$FOGCore->TimeZone);
+	$DateInterval = $FOGCore->nice_date()->modify('-5 minutes');
 	foreach($NodeFailures AS $NodeFailure)
 	{
-		$DateTime = new DateTime($NodeFailure->get('failureTime'),$FOGCore->TimeZone);
+		$DateTime = $FOGCore->nice_date($NodeFailure->get('failureTime'));
 		if ($DateTime->format('Y-m-d H:i:s') >= $DateInterval->format('Y-m-d H:i:s'))
 		{
 			$node = $NodeFailure->get('id');
@@ -56,7 +56,7 @@ try
 				'taskID' => $Task->get('id'),
 				'hostID' => $Host->get('id'),
 				'groupID' => $Task->get('NFSGroupID'),
-				'failureTime' => date('Y-m-d H:i:s'),
+				'failureTime' => $FOGCore->nice_date()->format('Y-m-d H:i:s'),
 			));
 			if ($NodeFailure->save())
 				$Task->set('stateID','1');

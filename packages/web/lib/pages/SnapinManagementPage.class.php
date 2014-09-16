@@ -186,7 +186,7 @@ class SnapinManagementPage extends FOGPage
 				'description'	=> $_REQUEST['description'],
 				'file'			=> ($_REQUEST['snapinfileexist'] ? $_REQUEST['snapinfileexist'] : $_FILES['snapin']['name']),
 				'args'			=> $_REQUEST['args'],
-				'createdTime'	=> date('Y-m-d H:i:s'),
+				'createdTime'	=> $this->formatTime('now','Y-m-d H:i:s'),
 				'createdBy' 	=> $_SESSION['FOG_USERNAME'],
 				'reboot'		=> (isset($_REQUEST['reboot']) ? 1 : 0 ),
 				'runWith'		=> $_REQUEST['rw'],
