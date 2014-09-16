@@ -26,13 +26,8 @@ class System
 		else
 			date_default_timezone_set('UTC');
 		define('IS_INCLUDED', true);
-<<<<<<< HEAD
-		define('FOG_VERSION', '2290');
+		define('FOG_VERSION', '2291');
 		define('FOG_SCHEMA', 127);
-=======
-		define('FOG_VERSION', '2115');
-		define('FOG_SCHEMA', 114);
->>>>>>> Merge branch 'master' of github.com:mastacontrola/fogproject
 		define('FOG_SVN_REVISION', '$Revision$');
 		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');
 		define('PHP_VERSION_REQUIRED', '5.3.0');
