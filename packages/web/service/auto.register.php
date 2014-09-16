@@ -26,7 +26,7 @@ try
 		// If it's filled out and is safe, set that as hostname, otherwise set it as mac.
 		($host != null && strlen($host) > 0 && $HostManager->isSafeHostName($host) ? $realhost = $host : $realhost = $macsimple);
 		// Set the description
-		$desc = _("Created by FOG Reg on")." " . date("F j, Y, g:i a");
+		$desc = _("Created by FOG Reg on")." " . $FOGCore->formatTime('now',"F j, Y, g:i a");
 		// Set ip if filled out.
 		$ip=trim(base64_decode($_REQUEST["ip"]));
 		// Set the image ID, if there is one.
@@ -80,7 +80,7 @@ try
 			'ADUser' => $strADUser,
 			'ADPass' => $strADPass,
 			'productKey' => $productKey,
-			'createdTime' => date("Y-m-d H:i:s"),
+			'createdTime' => $FOGCore->formatTime('now',"Y-m-d H:i:s"),
 			'createdBy' => 'FOGREG',
 		));
 		$Host->addModule($ids);
@@ -133,7 +133,7 @@ try
 					'primaryUser' => $primaryuser,
 					'other1' => $other1,
 					'other2' => $other2,
-					'createdTime' => date('Y-m-d H:i:s')
+					'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
 				));
 				$Inventory->save();
 			}
@@ -179,7 +179,7 @@ try
 					'description' => sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')),
 					'mac' => $mac,
 					'imageID' => $realimageid,
-					'createdTime' => date('Y-m-d H:i:s'),
+					'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
 					'createdBy' => 'FOGREG'
 				));
 				$Host->addModule($ids);
@@ -213,7 +213,7 @@ try
 					'name' => $realhost,
 					'description' => sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')),
 					'mac' => $mac,
-					'createdTime' => date('Y-m-d H:i:s'),
+					'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
 					'createdBy' => 'FOGREG',
 				));
 				$Host->set('modules',$ids);
