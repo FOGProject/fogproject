@@ -64,13 +64,7 @@ namespace FOG {
 			ManagementObjectSearcher monitorSearcher = new ManagementObjectSearcher("SELECT * FROM Win32_DesktopMonitor");
 			
 			foreach (ManagementObject monitor in monitorSearcher.Get()) {
-				//String MonitorName = monitor["Name"].ToString();
-				//String MonitorId = monitor["DeviceId"].ToString();
-				foreach( PropertyData prop in monitor.Properties) {
-					LogHandler.log(getName(), prop.Name + " = " + prop.Value);
-				}
 				displays.Add(monitor["Name"].ToString());
-				
 			}
 			return displays;
 		}
