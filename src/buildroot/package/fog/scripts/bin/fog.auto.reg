@@ -5,7 +5,7 @@ clear;
 displayBanner;
 hd="";
 getHardDisk;
-setupDNS ${dns};
+#setupDNS ${dns};
 sysman="";
 sysman64="";
 sysproduct="";

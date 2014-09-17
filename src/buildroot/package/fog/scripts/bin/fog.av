@@ -6,7 +6,7 @@ clearScreen;
 displayBanner;
 hd="";
 getHardDisk;
-setupDNS ${dns};
+#setupDNS ${dns};
 echo "";
 echo "";
 if [ -n "$hd" ]; then

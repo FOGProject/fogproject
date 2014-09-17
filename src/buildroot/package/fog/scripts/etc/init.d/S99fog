@@ -10,7 +10,7 @@
 #               Modified for RHS Linux by Damien Neil
 #               Modified for FOG by Chuck Syperski
 #
-#/usr/sbin/dhcpcd
+/usr/sbin/dhcpcd -b eth0
 if [ -n "$keymap" ]
 then
 	loadkeys $keymap;
