@@ -304,10 +304,10 @@ countExtfs()
 	echo $count;
 }
 
-setupDNS()
-{
-	echo "nameserver $1" > /etc/resolv.conf
-}
+#setupDNS()
+#{
+#	echo "nameserver $1" > /etc/resolv.conf
+#}
 
 # $1 = Source File
 # $2 = Target

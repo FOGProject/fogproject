@@ -4,7 +4,7 @@
 clearScreen;
 displayBanner;
 
-setupDNS ${dns}
+#setupDNS ${dns}
 
 echo "";
 echo "";

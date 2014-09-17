@@ -8,7 +8,7 @@ clearScreen;
 
 displayBanner;
 
-setupDNS ${dns}
+#setupDNS ${dns}
 
 echo " You have entered into FOG debug";
 echo " mode.  Below is a list of common";
