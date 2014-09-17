@@ -39,11 +39,12 @@ namespace FOG {
 			return this.devMode;
 		}
 		
-		public void changeResolution(int width, int height, int refresh) {
+		public void changeResolution(String device, int width, int height, int refresh) {
 			if(settingsLoaded()) {
 				this.devMode.dmPelsWidth = width;
 				this.devMode.dmPelsHeight = height;
 				this.devMode.dmDisplayFrequency = refresh;
+				this.devMode.dmDeviceName = device;
 				
 				//Test changing the resolution first
 				LogHandler.log(LOG_NAME, "Testing resolution to ensure it works");

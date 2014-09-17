@@ -1,7 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
+using System.Management;
 
 
 namespace FOG {
@@ -30,7 +30,10 @@ namespace FOG {
 						int x = int.Parse(taskResponse.getField("#x"));
 						int y = int.Parse(taskResponse.getField("#y"));
 						int r = int.Parse(taskResponse.getField("#r"));
-						changeResolution(x, y, r);
+						if(getDisplays().Count > 0)
+							changeResolution(getDisplays()[0], x, y, r);
+						else
+							changeResolution("", x, y, r);
 					} catch (Exception ex) {
 						LogHandler.log(getName(), "ERROR");
 						LogHandler.log(getName(), ex.Message);
@@ -42,18 +45,36 @@ namespace FOG {
 		}
 		
 		//Change the resolution of the screen
-		private void changeResolution(int width, int height, int refresh) {
+		private void changeResolution(String device, int width, int height, int refresh) {
 			if(!(width.Equals(display.getSettings().dmPelsWidth) && height.Equals(display.getSettings().dmPelsHeight) && refresh.Equals(display.getSettings().dmDisplayFrequency))) {
 				LogHandler.log(getName(), "Current Resolution: " + display.getSettings().dmPelsWidth.ToString() + " x " + 
 				               display.getSettings().dmPelsHeight.ToString() + " " + display.getSettings().dmDisplayFrequency + "hz");
 				LogHandler.log(getName(), "Attempting to change resoltution to " + width.ToString() + " x " + height.ToString() + " " + refresh.ToString() + "hz");
+				LogHandler.log(getName(), "Display name: " + device);
 				
-				display.changeResolution(width, height, refresh);
+				display.changeResolution(device, width, height, refresh);
 				
 			} else {
 				LogHandler.log(getName(), "Current resolution is already set correctly");
 			}
 		}
+		
+		private List<String> getDisplays() {
+			List<String> displays = new List<String>();			
+			ManagementObjectSearcher monitorSearcher = new ManagementObjectSearcher("SELECT * FROM Win32_DesktopMonitor");
+			
+			foreach (ManagementObject monitor in monitorSearcher.Get()) {
+				//String MonitorName = monitor["Name"].ToString();
+				//String MonitorId = monitor["DeviceId"].ToString();
+				foreach( PropertyData prop in monitor.Properties) {
+					LogHandler.log(getName(), prop.Name + " = " + prop.Value);
+				}
+				displays.Add(monitor["Name"].ToString());
+				
+			}
+			return displays;
+		}
+		
 		
 	}
 }
