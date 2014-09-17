@@ -60,7 +60,7 @@ lookAtMe()
 export capone="1";
 clear;
 displayBanner;
-setupDNS ${dns};
+#setupDNS ${dns};
 echo " * Loading Capone...";	
 echo;
 dots "Looking up DMI field";	

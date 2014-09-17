@@ -3,7 +3,7 @@
 . /bin/fog.donate
 clearScreen;
 displayBanner;
-setupDNS ${dns}
+#setupDNS ${dns}
 hd="";
 getHardDisk;
 echo "";
