@@ -26,6 +26,7 @@
 						<File Id="FOGTray" Name="FOGTray.exe" Source="..\bin\FOGTray.exe"/>
 						<File Id="TaskReboot" Name="TaskReboot.dll" Source="..\bin\TaskReboot.dll"/>
 						<File Id="UserHandler" Name="UserHandler.dll" Source="..\bin\UserHandler.dll"/>
+						<File Id="UserCleanup" Name="UserCleanup.dll" Source="..\bin\UserCleanup.dll"/>
 						<File Id="FOGUpdateHelper" Name="FOGUpdateHelper.exe" Source="..\bin\FOGUpdateHelper.exe"/>
 						<File Id="FOGUpdateWaiter" Name="FOGUpdateWaiter.exe" Source="..\bin\FOGUpdateWaiter.exe"/>
 						<File Id="FOGUserService" Name="FOGUserService.exe" Source="..\bin\FOGUserService.exe"/>

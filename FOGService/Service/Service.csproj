@@ -93,6 +93,10 @@
       <Project>{DCB0754B-930E-460C-B3E4-A35F3B992C70}</Project>
       <Name>DirCleaner</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DisplayManager\DisplayManager.csproj">
+      <Project>{952FBDDC-89B2-476C-88A3-A39E6748B612}</Project>
+      <Name>DisplayManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HostnameChanger\HostnameChanger.csproj">
       <Project>{B0C35B47-7A8A-466F-9D83-FA9384536929}</Project>
       <Name>HostnameChanger</Name>
@@ -136,6 +140,10 @@
     <ProjectReference Include="..\UpdateWaiter\UpdateWaiter.csproj">
       <Project>{C7113642-59C8-41C0-BF64-2F29BAE45910}</Project>
       <Name>UpdateWaiter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UserCleanup\UserCleanup.csproj">
+      <Project>{9BC2248C-9A29-4936-859D-CF263E53A00F}</Project>
+      <Name>UserCleanup</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
