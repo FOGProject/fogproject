@@ -17,7 +17,7 @@ clearScreen;
 
 displayBanner;
 
-setupDNS ${dns}
+#setupDNS ${dns}
 
 mac=`ifconfig | grep HWaddr | head -n1 `;
 mac=`echo $mac | sed -e "s/ //g"`
