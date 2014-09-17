@@ -42,11 +42,12 @@ namespace FOG {
 				}
 				
 			} catch (Exception ex) {
-				LogHandler.log(LOG_NAME, "Error geetting all users: " + ex.Message);
+				LogHandler.log(LOG_NAME, "Error getting all users: " + ex.Message);
 			}
 			
 			return users;
 		}
+
 		
 		//Return local users
 		public static List<String> getUsers() {
