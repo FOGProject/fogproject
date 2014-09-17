@@ -166,7 +166,7 @@ class Announce extends FOGBase
 			foreach($this->FOGCore->getClass('PeerTorrentManager')->find() AS $PeerTorrentNew)
 			{
 				$PeerNew = new Peer($PeerTorrentNew->get('peerID'));
-				$interval = new DateTime('+'.$this->FOGCore->getSetting('FOG_TORRENT_INTERVAL') + $this->FOGCore->getSetting('FOG_TORRENT_TIMEOUT').' seconds',$this->TimeZone);
+				$interval = $this->nice_date('+'.$this->FOGCore->getSetting('FOG_TORRENT_INTERVAL')+$this->FOGCore->getSetting('FOG_TORRENT_TIMEOUT').' seconds');
 				if ($PeerTorrentNew->get('torrentID') == $this->torrent->get('id') && !$PeerTorrentNew->get('stopped') && strtotime($PeerTorrentNew->get('lastUpdated')) <= strtotime($interval->format('Y-m-d H:i:s')) && $PeerNew->isValid() && $PeerNew->get('id') != $this->peer->get('id'))
 					$reply[] = array(long2ip($PeerNew->get('ip')),$PeerNew->get('port'),$PeerNew->get('hash'));
 				if ($PeerTorrentNew->get('torrentID') == $this->torrent->get('id') && !$PeerTorrentNew->get('stopped') && strtotime($PeerTorrentNew->get('lastUpdated')) <= strtotime($interval->format('Y-m-d H:i:s')))
