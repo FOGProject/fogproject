@@ -775,7 +775,7 @@ class BootMenu extends FOGBase
 			$AdvLogin = $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN');
 			$ArrayOfStuff = array(($this->Host && $this->Host->isValid() ? 1 : 0),2);
 			if ($showDebug)
-				array_push($ArrayofStuff,3);
+				array_push($ArrayOfStuff,3);
 			if ($Advanced)
 				array_push($ArrayOfStuff,($AdvLogin ? 5 : 4));
 			foreach($Menus AS $Menu)
@@ -800,7 +800,7 @@ class BootMenu extends FOGBase
 			$this->parseMe($Send);
 		}
 		else
-			$this->chainBoot();
+			$this->chainBoot(true);
 	}
 }
 /* Local Variables: */
