@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.DirectoryServices;
 
@@ -24,8 +25,10 @@ namespace FOG {
 				
 				if(protectedUsers.Count > 0) {
 					foreach(String user in UserHandler.getUsers()) {
-						if(!protectedUsers.Contains(user) && !UserHandler.getUsersLoggedIn().Contains(user)) {
+						if(!protectedUsers.Contains(user, StringComparer.OrdinalIgnoreCase) && !UserHandler.getUsersLoggedIn().Contains(user, StringComparer.OrdinalIgnoreCase)) {
 							deleteUser(user);
+						} else {
+							LogHandler.log(getName(), user + " is either logged in or protected, skipping");
 						}
 					}
 				}
