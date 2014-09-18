@@ -132,7 +132,7 @@ class BootMenu extends FOGBase
 		// Specify the default calls.
 		$this->memdisk = "kernel $memdisk";
 		$this->memtest = "initrd $memtest";
-		$this->kernel = "kernel $bzImage initrd=$imagefile root=/dev/ram0 rw ramdisk_size=$ramsize ip=dhcp dns=$dns keymap=$keymap web=${webserver}${webroot} consoleblank=0";
+		$this->kernel = "kernel $bzImage initrd=$imagefile root=/dev/ram0 rw ramdisk_size=$ramsize keymap=$keymap web=${webserver}${webroot} consoleblank=0";
 		$this->initrd = "imgfetch $imagefile";
 		// Set the default line based on all the menu entries and only the one with the default set.
 		$defMenuItem = current($this->FOGCore->getClass('PXEMenuOptionsManager')->find(array('default' => 1)));
