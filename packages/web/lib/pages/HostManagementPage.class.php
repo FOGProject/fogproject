@@ -764,7 +764,7 @@ class HostManagementPage extends FOGPage
 		foreach((array)$Host->get('snapins') AS $Snapin)
 		{
 			if ($Snapin && $Snapin->isValid())
-				$SnapinIDs[] = $Snapin && $Snapin->isValid();
+				$SnapinIDs[] = $Snapin->get('id');
 		}
 		// Get all Snapin's Not associated with this host.
 		foreach($this->FOGCore->getClass('SnapinManager')->find() AS $Snapin)
