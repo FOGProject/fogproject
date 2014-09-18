@@ -13,6 +13,40 @@ namespace FOG {
 		[DllImport("user32.dll")]
 		static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
 		
+		[DllImport("Wtsapi32.dll")]
+	    private static extern bool WTSQuerySessionInformation(IntPtr hServer, int sessionId, WtsInfoClass wtsInfoClass, out System.IntPtr ppBuffer, out int pBytesReturned);
+	    
+	    [DllImport("Wtsapi32.dll")]
+	    private static extern void WTSFreeMemory(IntPtr pointer);
+	    
+		enum WtsInfoClass {
+		     WTSInitialProgram,
+		     WTSApplicationName,
+		     WTSWorkingDirectory,
+		     WTSOEMId,
+		     WTSSessionId,
+		     WTSUserName,
+		     WTSWinStationName,
+		     WTSDomainName,
+		     WTSConnectState,
+		     WTSClientBuildNumber,
+		     WTSClientName,
+		     WTSClientDirectory,
+		     WTSClientProductId,
+		     WTSClientHardwareId,
+		     WTSClientAddress,
+		     WTSClientDisplay,
+		     WTSClientProtocolType,
+		     WTSIdleTime,
+		     WTSLogonTime,
+		     WTSIncomingBytes,
+		     WTSOutgoingBytes,
+		     WTSIncomingFrames,
+		     WTSOutgoingFrames,
+		     WTSClientInfo,
+		     WTSSessionInfo
+		};
+    
 		internal struct LASTINPUTINFO {
 			public uint cbSize;
 			public uint dwTime;
@@ -27,25 +61,6 @@ namespace FOG {
 		
 		public static String getCurrentUser() {
 			return System.Security.Principal.WindowsIdentity.GetCurrent().Name;;
-		}
-		
-		//Get a list of all users logged in
-		public static List<String> getUsersLoggedIn() {
-			List<String> users = new List<String>();
-			
-			try {
-				ManagementObjectSearcher searcher = new ManagementObjectSearcher("root\\CIMV2", 
-				                                                                 "SELECT * FROM Win32_ComputerSystem");
-
-				foreach (ManagementObject queryObj in searcher.Get()) {
-					users.Add( queryObj["UserName"].ToString() );
-				}
-				
-			} catch (Exception ex) {
-				LogHandler.log(LOG_NAME, "Error getting all users: " + ex.Message);
-			}
-			
-			return users;
 		}
 
 		
@@ -79,6 +94,58 @@ namespace FOG {
 			}
 			
 			return (int)idleTime/1000;
+		}	
+		
+		//Get a list of all users logged in
+		public static List<String> getUsersLoggedIn() {
+			List<String> users = new List<String>();
+			List<int> sids = getSIDs();
+			
+			foreach(int sid in sids) {
+				users.Add(getUserNameFromSID(sid, false));
+			}
+			
+			return users;
+		}	
+		
+		//Get all session IDs from running processes
+		public static List<int> getSIDs() {
+			List<int> sids = new List<int>();
+			String[] properties = new[] {"SessionId"};
+			
+			SelectQuery query = new SelectQuery("Win32_Process", "", properties); //SessionId
+			ManagementObjectSearcher searcher = new ManagementObjectSearcher(query);
+            
+			foreach (ManagementObject envVar in searcher.Get()) {
+				try {
+					if(!sids.Contains(int.Parse(envVar["SessionId"].ToString()))) {
+						sids.Add(int.Parse(envVar["SessionId"].ToString()));
+					}
+				} catch (Exception ex) {
+					LogHandler.log(LOG_NAME, "Unable to parse SID");
+					LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);
+				}
+			}	
+			return sids;			
+		}
+		
+		//Convert a session ID to a username
+		//https://stackoverflow.com/questions/19487541/get-windows-user-name-from-sessionid
+		public static string getUserNameFromSID(int sessionId, bool prependDomain) {
+			IntPtr buffer;
+			int strLen;
+			string username = "SYSTEM";
+			if (WTSQuerySessionInformation(IntPtr.Zero, sessionId, WtsInfoClass.WTSUserName, out buffer, out strLen) && strLen > 1) {
+				username = Marshal.PtrToStringAnsi(buffer);
+				WTSFreeMemory(buffer);
+				if (prependDomain) {
+					if (WTSQuerySessionInformation(IntPtr.Zero, sessionId, WtsInfoClass.WTSDomainName, out buffer, out strLen) && strLen > 1) {
+						username = Marshal.PtrToStringAnsi(buffer) + "\\" + username;
+						WTSFreeMemory(buffer);
+					}
+				}
+			}
+			return username;
 		}
 
 	}
