@@ -180,6 +180,7 @@ class HostManagementPage extends FOGPage
 			_('Host Primary Disk') => '<input type="text" name="dev" value="${host_devs}" />',
 		);
 		$fieldsad = array(
+			'<input style="display:none" type="text" name="fakeusernameremembered"/>' => '<input style="display:none" type="password" name="fakepasswordremembered"/>',
 			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain"${ad_dom}value="on" />',
 			_('Domain Name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="${ad_name}" autocomplete="off" />',
 			_('Domain OU') => '${ad_oufield}',
@@ -615,6 +616,7 @@ class HostManagementPage extends FOGPage
 			'${input}',
 		);
 		$fields = array(
+			'<input style="display:none" type="text" name="fakeusernameremembered"/>' => '<input style="display:none" type="password" name="fakepasswordremembered"/>',
 			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain"${domainon} />',
 			_('Domain name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="${host_dom}" autocomplete="off" />',
 			_('Organizational Unit').'<br /><span class="lightColor">('._('Blank for default').')</span>' => '${host_ou}',
