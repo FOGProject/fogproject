@@ -20,6 +20,9 @@ on the disk within the /images folder.  mkdir /images/<imagepath>; mv
 /images/<imagefilepath> /images/<imagepath>/sys.img.000
 * Change resizable images to all use the same principle of Linux resizable.
 This should allow OEM built systems to be imaged even with resizable.
+* Init's are now truly native with dns pulling.
+* Added to inits to check for has_usb_nic flag which simply tells the system
+to wait for the user to unplug and replug their usb nics.
 * Add protection flag to image files.
 * Add installer files from David Fear to fog to allow FOG Installation on
 Arch Linux.
