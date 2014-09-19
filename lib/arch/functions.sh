@@ -366,6 +366,10 @@ configureHttpd()
 		if [ -d "$webdirdest" ]; then
 			mv "$webdirdest" "${webdirdest}.prev";
 		fi
+		if [ -d "${webdirdest}.prev" ]; then
+			echo -n "  * Copying back any custom hook files.";
+			cp -rf $webdirdest.prev/lib/hooks/* $webdirdest/lib/hooks/;
+		fi
 		mkdir "$webdirdest";
 		cp -Rf $webdirsrc/* $webdirdest/
 		
