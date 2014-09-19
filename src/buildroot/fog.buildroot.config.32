@@ -306,7 +306,7 @@ BR2_PACKAGE_LIBMSPACK=y
 # Target packages
 #
 BR2_PACKAGE_BUSYBOX=y
-BR2_PACKAGE_BUSYBOX_CONFIG="package/busybox/busybox-1.22.x.config"
+BR2_PACKAGE_BUSYBOX_CONFIG="package/busybox/busybox.config"
 BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
 # BR2_PACKAGE_BUSYBOX_WATCHDOG is not set
 
