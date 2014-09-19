@@ -23,10 +23,10 @@ then
 fi
 run="";
 after="";
-afterActionTerm="/usr/sbin/dhcpcd -k eth0; reboot -f";
+afterActionTerm="reboot -f";
 if [ "$shutdown" = "1" ]
 then
-	afterActionTerm="/usr/sbin/dhcpcd -k eth0;	poweroff";
+	afterActionTerm="poweroff";
 fi
 export afterActionTerm="$afterActionTerm";
 if [ -n "$isdebug" -o "$mode" == "debug" ]; then
@@ -77,4 +77,5 @@ else
 fi
 ethtool -K eth0 tso off gso off
 $run;
+dhcpcd -k eth0
 $after;
