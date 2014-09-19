@@ -31,7 +31,9 @@ echo "Below is a variable dump from FOG";
 osname="";
 mbrfile="";
 hd="";
-determineOS $osid;
+if [ -n "$osid" ]; then
+	determineOS $osid;
+fi
 echo "osid=${osid}";
 echo "osname=${osname}";
 echo "mbrfile=${mbrfile}";
