@@ -23,6 +23,10 @@ This should allow OEM built systems to be imaged even with resizable.
 * Init's are now truly native with dns pulling.
 * Added to inits to check for has_usb_nic flag which simply tells the system
 to wait for the user to unplug and replug their usb nics.
+* Trying to see if bind/unbind to all usb devices will work in much the same
+as the above to make no requirement of the has_usb_nic parameter.
+* Update init.xz/init_32.xz to 2014.08 and update kernel infos to 3.16.1
+within the inits
 * Add protection flag to image files.
 * Add installer files from David Fear to fog to allow FOG Installation on
 Arch Linux.
