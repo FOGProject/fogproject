@@ -348,12 +348,8 @@ configureHttpd()
 </FilesMatch>
 <IfModule dir_module>
     DirectoryIndex index.php index.html
-<<<<<<< HEAD
 </IfModule>' >> /etc/httpd/conf/httpd.conf
   sed -i 's/;extension=mysqli.so/extension=mysqli.so/g' /etc/php/php.ini
-=======
-</IfModule>' > /etc/httpd/conf/httpd.conf
->>>>>>> Merge branch 'master' of github.com:mastacontrola/fogproject
 	systemctl enable httpd php-fpm;
 	systemctl restart httpd php-fpm >/dev/null 2>&1
 	sleep 2;
