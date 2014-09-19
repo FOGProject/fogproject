@@ -10,13 +10,26 @@
 #               Modified for RHS Linux by Damien Neil
 #               Modified for FOG by Chuck Syperski
 #
+for xhci in /sys/bus/pci/drivers/?hci_hcd ; do
+  if ! cd $xhci ; then
+    echo Weird error. Failed to change directory to $xhci
+    exit 1
+  fi
+  echo Resetting devices from $xhci...
+  for i in ????:??:??.? ; do
+    echo -n "$i" > unbind
+    echo -n "$i" > bind
+  done
+done
 if [ -n "$has_usb_nic" ]; then
 	/bin/echo 'Please unplug your device and replug it into the usb port';
 	/bin/echo -n 'Please press the enter key to connect [Enter]';
 	read;
 	/bin/echo 'Sleeping for 5 seconds to allow USB to sync back with system';
 fi
-/usr/sbin/dhcpcd -b eth0
+/usr/sbin/dhcpcd -4b eth0
+/bin/echo 'Sleeping for 10 seconds to ensure an IP is received';
+sleep 10;
 if [ -n "$keymap" ]
 then
 	loadkeys $keymap;
@@ -77,5 +90,4 @@ else
 fi
 ethtool -K eth0 tso off gso off
 $run;
-dhcpcd -k eth0
 $after;
