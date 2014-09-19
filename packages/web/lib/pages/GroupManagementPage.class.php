@@ -812,6 +812,7 @@ class GroupManagementPage extends FOGPage
 			'${input}',
 		);
 		$fields = array(
+			'<input style="display:none" type="text" name="fakeusernameremembered"/>' => '<input style="display:none" type="password" name="fakepasswordremembered"/>',
 			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain" value="on"'.($_REQUEST['domain'] == 'on' ? ' selected="selected"' : '').' />',
 			_('Domain name') => '<input id="adDomain" type="text" name="domainname" autocomplete="off" />',
 			_('Organizational Unit') => $OUOptions,
