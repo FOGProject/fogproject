@@ -49,6 +49,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Management" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
@@ -56,6 +57,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UserData.cs" />
     <Compile Include="UserHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -63,6 +65,10 @@
     <ProjectReference Include="..\LogHandler\LogHandler.csproj">
       <Project>{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}</Project>
       <Name>LogHandler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RegistryHandler\RegistryHandler.csproj">
+      <Project>{7BA48875-2930-4A9B-9216-255FCA1E86BE}</Project>
+      <Name>RegistryHandler</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

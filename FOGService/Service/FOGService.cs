@@ -163,8 +163,7 @@ namespace FOG{
 				UpdateHandler.beginUpdate(servicePipe);
 			}
 		}
-		
-		
+
 		//Get the time to sleep from the FOG server, if it cannot it will use the default time
 		private int getSleepTime() {
 			LogHandler.log(LOG_NAME, "Getting sleep duration...");

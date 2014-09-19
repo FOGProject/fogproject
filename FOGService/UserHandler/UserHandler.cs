@@ -1,8 +1,10 @@
 ﻿
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Management;
+using System.DirectoryServices;
 
 namespace FOG {
 	/// <summary>
@@ -60,19 +62,20 @@ namespace FOG {
 		}
 		
 		public static String getCurrentUser() {
-			return System.Security.Principal.WindowsIdentity.GetCurrent().Name;;
+			return System.Security.Principal.WindowsIdentity.GetCurrent().Name;
 		}
 
 		
 		//Return local users
-		public static List<String> getUsers() {
-			List<String> users = new List<String>();
+		public static List<UserData> getAllUserData() {
+			List<UserData> users = new List<UserData>();
 			
 			SelectQuery query = new SelectQuery("Win32_UserAccount");
 			ManagementObjectSearcher searcher = new ManagementObjectSearcher(query);
             
 			foreach (ManagementObject envVar in searcher.Get()) {
-				users.Add(envVar["Name"].ToString());
+				UserData userData = new UserData(envVar["Name"].ToString(), envVar["SID"].ToString());
+				users.Add(userData);
 			}
 			
 			return users;
@@ -99,18 +102,18 @@ namespace FOG {
 		//Get a list of all users logged in
 		public static List<String> getUsersLoggedIn() {
 			List<String> users = new List<String>();
-			List<int> sids = getSIDs();
+			List<int> sessionIds = getSessionIds();
 			
-			foreach(int sid in sids) {
-				users.Add(getUserNameFromSID(sid, false));
+			foreach(int sessionId in sessionIds) {
+				users.Add(getUserNameFromSessionId(sessionId, false));
 			}
 			
 			return users;
 		}	
 		
-		//Get all session IDs from running processes
-		public static List<int> getSIDs() {
-			List<int> sids = new List<int>();
+		//Get all session Ids from running processes
+		public static List<int> getSessionIds() {
+			List<int> sessionIds = new List<int>();
 			String[] properties = new[] {"SessionId"};
 			
 			SelectQuery query = new SelectQuery("Win32_Process", "", properties); //SessionId
@@ -118,20 +121,20 @@ namespace FOG {
             
 			foreach (ManagementObject envVar in searcher.Get()) {
 				try {
-					if(!sids.Contains(int.Parse(envVar["SessionId"].ToString()))) {
-						sids.Add(int.Parse(envVar["SessionId"].ToString()));
+					if(!sessionIds.Contains(int.Parse(envVar["SessionId"].ToString()))) {
+						sessionIds.Add(int.Parse(envVar["SessionId"].ToString()));
 					}
 				} catch (Exception ex) {
-					LogHandler.log(LOG_NAME, "Unable to parse SID");
+					LogHandler.log(LOG_NAME, "Unable to parse Session Id");
 					LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);
 				}
 			}	
-			return sids;			
+			return sessionIds;			
 		}
 		
 		//Convert a session ID to a username
 		//https://stackoverflow.com/questions/19487541/get-windows-user-name-from-sessionid
-		public static string getUserNameFromSID(int sessionId, bool prependDomain) {
+		public static String getUserNameFromSessionId(int sessionId, bool prependDomain) {
 			IntPtr buffer;
 			int strLen;
 			string username = "SYSTEM";
@@ -147,6 +150,62 @@ namespace FOG {
 			}
 			return username;
 		}
-
+		
+		public static String getUserProfilePath(String sid) {
+			return RegistryHandler.getRegisitryValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\" + sid + @"\", "ProfileImagePath");
+		}		
+		
+		//Completely purge a user from windows
+		public static Boolean purgeUser(UserData user, Boolean deleteData) {
+			if(deleteData) {
+				if(unregisterUser(user.getName())) {
+					if(removeUserProfile(user.getSID())) {
+						return cleanUserRegistryEntries(user.getSID());
+					}
+				}
+				return false;
+			} else {
+				return unregisterUser(user.getName());
+			}
+		}
+		
+		//Unregister a user from windows
+		public static Boolean unregisterUser(String user) {
+			LogHandler.log(LOG_NAME, "Attempting to unregister " + user);
+			try {
+				DirectoryEntry userDir = new DirectoryEntry("WinNT://" + Environment.MachineName + ",computer");
+				DirectoryEntry userToDelete = userDir.Children.Find(user);
+				
+				userDir.Children.Remove(userToDelete);
+				return true;
+				
+			} catch (Exception ex) {
+				LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);
+			}
+			return false;			
+		}
+		
+		//Delete user profile
+		public static Boolean removeUserProfile(String sid) {
+			LogHandler.log(LOG_NAME, "Attempting to remove user profile with SID:  " + sid);
+			
+			try {
+				String path = getUserProfilePath(sid);
+			
+				if(path != null) {
+						Directory.Delete(path, true);
+						return true;
+				}
+			} catch (Exception ex) {
+				LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);
+			}
+			return false;
+		}
+		
+		//Clean all registry entries of a user
+		public static Boolean cleanUserRegistryEntries(String sid) {
+			LogHandler.log(LOG_NAME, "Attempting to clean registry for user with SID:  " + sid);
+			return RegistryHandler.deleteFolder(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\" + sid + @"\");
+		}
 	}
 }
