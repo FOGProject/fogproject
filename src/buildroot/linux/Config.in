@@ -21,7 +21,7 @@ choice
 	prompt "Kernel version"
 
 config BR2_LINUX_KERNEL_LATEST_VERSION
-	bool "3.13.5"
+	bool "3.16.1"
 
 config BR2_LINUX_KERNEL_SAME_AS_HEADERS
 	bool "Same as toolchain kernel headers"
@@ -104,7 +104,7 @@ config BR2_LINUX_KERNEL_CUSTOM_LOCAL_PATH
 
 config BR2_LINUX_KERNEL_VERSION
 	string
-	default "3.13.5" if BR2_LINUX_KERNEL_LATEST_VERSION
+	default "3.16.1" if BR2_LINUX_KERNEL_LATEST_VERSION
 	default BR2_DEFAULT_KERNEL_HEADERS if BR2_LINUX_KERNEL_SAME_AS_HEADERS
 	default BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE \
 		if BR2_LINUX_KERNEL_CUSTOM_VERSION
@@ -167,7 +167,8 @@ choice
 
 config BR2_LINUX_KERNEL_UIMAGE
 	bool "uImage"
-	depends on BR2_arm || BR2_armeb || BR2_bfin || BR2_powerpc || BR2_avr32 || BR2_sh || BR2_sh64
+	depends on BR2_arc || BR2_arm || BR2_armeb || BR2_bfin || \
+		   BR2_powerpc || BR2_avr32 || BR2_sh || BR2_sh64
 	select BR2_LINUX_KERNEL_UBOOT_IMAGE
 
 config BR2_LINUX_KERNEL_APPENDED_UIMAGE
@@ -183,7 +184,8 @@ config BR2_LINUX_KERNEL_BZIMAGE
 
 config BR2_LINUX_KERNEL_ZIMAGE
 	bool "zImage"
-	depends on BR2_arm || BR2_armeb || BR2_powerpc || BR2_sparc || \
+	depends on BR2_arm || BR2_armeb || BR2_powerpc || \
+		   BR2_powerpc64 || BR2_powerpc64le || BR2_sparc || \
 		   BR2_sh || BR2_sh64 || BR2_xtensa
 
 config BR2_LINUX_KERNEL_APPENDED_ZIMAGE
@@ -210,8 +212,6 @@ config BR2_LINUX_KERNEL_LINUX_BIN
 	bool "linux.bin"
 	depends on BR2_microblaze
 	select BR2_LINUX_KERNEL_UBOOT_IMAGE
-	select BR2_LINUX_KERNEL_DTS_SUPPORT
-	select BR2_LINUX_KERNEL_DTB_IS_SELF_BUILT
 
 config BR2_LINUX_KERNEL_VMLINUX_BIN
 	bool "vmlinux.bin"
@@ -243,6 +243,16 @@ config BR2_LINUX_KERNEL_IMAGE_TARGET_NAME
 	help
 	  Specify the kernel make target to build the kernel that you
 	  need.
+
+config BR2_LINUX_KERNEL_IMAGE_NAME
+	string "Kernel image name"
+	depends on BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM
+	help
+	  The filename of the kernel image, if it is different from the
+	  make target (above). Only Xtensa uses a filename different from
+	  the make target. Defaults to BR2_LINUX_KERNEL_IMAGE_TARGET_NAME.
+
+	  If unsure, leave it empty.
 
 config BR2_LINUX_KERNEL_UIMAGE_LOADADDR
 	string "load address (for 3.7+ multi-platform image)"
@@ -313,10 +323,12 @@ config BR2_LINUX_KERNEL_INTREE_DTS_NAME
 	  dts files to build, separated by spaces.
 
 config BR2_LINUX_KERNEL_CUSTOM_DTS_PATH
-	string "Device Tree Source file path"
+	string "Device Tree Source file paths"
 	depends on BR2_LINUX_KERNEL_USE_CUSTOM_DTS
 	help
-	  Path to the device tree source file
+	  Path to the device tree source files. You can
+	  provide a list of dts paths to copy and build,
+	  separated by spaces.
 
 endif
 
