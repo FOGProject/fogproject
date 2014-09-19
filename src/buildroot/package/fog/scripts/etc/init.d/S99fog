@@ -10,6 +10,12 @@
 #               Modified for RHS Linux by Damien Neil
 #               Modified for FOG by Chuck Syperski
 #
+if [ -n "$has_usb_nic" ]; then
+	/bin/echo 'Please unplug your device and replug it into the usb port';
+	/bin/echo -n 'Please press the enter key to connect [Enter]';
+	read;
+	/bin/echo 'Sleeping for 5 seconds to allow USB to sync back with system';
+fi
 /usr/sbin/dhcpcd -b eth0
 if [ -n "$keymap" ]
 then
