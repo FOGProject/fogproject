@@ -2,7 +2,6 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.DirectoryServices;
 
 namespace FOG {
 	/// <summary>
@@ -24,31 +23,16 @@ namespace FOG {
 				List<String> protectedUsers = getProtectedUsers(usersResponse);
 				
 				if(protectedUsers.Count > 0) {
-					foreach(String user in UserHandler.getUsers()) {
-						if(!protectedUsers.Contains(user, StringComparer.OrdinalIgnoreCase) && !UserHandler.getUsersLoggedIn().Contains(user, StringComparer.OrdinalIgnoreCase)) {
-							deleteUser(user);
+					foreach(UserData user in UserHandler.getAllUserData()) {
+						if(!protectedUsers.Contains(user.getName(), StringComparer.OrdinalIgnoreCase) && !UserHandler.getUsersLoggedIn().Contains(user.getName(), StringComparer.OrdinalIgnoreCase)) {
+							UserHandler.purgeUser(user, true);
 						} else {
-							LogHandler.log(getName(), user + " is either logged in or protected, skipping");
+							LogHandler.log(getName(), user.getName() + " is either logged in or protected, skipping");
 						}
 					}
 				}
 			}
 			
-		}
-		
-		//Delete the specified user
-		private void deleteUser(String user) {
-			LogHandler.log(getName(), "Attempting to delete " + user);
-			try {
-				DirectoryEntry userDir = new DirectoryEntry("WinNT://" + Environment.MachineName + ",computer");
-				DirectoryEntry userToDelete = userDir.Children.Find(user);
-				
-				userDir.Children.Remove(userToDelete);
-				LogHandler.log(getName(), "Success");
-				
-			} catch (Exception ex) {
-				LogHandler.log(getName(), "ERROR" + ex.Message);
-			}
 		}
 		
 		//Get a list of protected users
