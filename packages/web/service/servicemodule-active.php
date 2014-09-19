@@ -2,7 +2,7 @@
 require('../commons/base.inc.php');
 try
 {
-	if ($_REQUEST['newService'])
+	if (!$_REQUEST['moduleid'] && $_REQUEST['newService'])
 		throw new Exception("#!ok\n#sleep=".$FOGCore->getSetting('FOG_SERVICE_CHECKIN_TIME')."\n#force=".$FOGCore->getSetting('FOG_TASK_FORCE_REBOOT')."\n#maxsize=".$FOGCore->getSetting('FOG_CLIENT_MAXSIZE'));
 	$HostManager = new HostManager();
 	$MACs = HostManager::parseMacList($_REQUEST['mac']);

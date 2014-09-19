@@ -68,13 +68,11 @@ class Daemon
 		while (true)
 		{
 			$retarr = array();
-			exec("ifconfig {$this->interface}",$retarr);
+			exec("ifconfig $this->interface|  grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d':' -f 2 | cut -d' ' -f1",$retarr);
                         foreach ($retarr as $line)
                         {
-                                $line = strstr($line,'inet addr:');
                                 if ($line !== false)
                                 {
-                                        $line = substr(explode(" ",$line)[1],5);
                                         $this->out("Interface now ready, with IPAddr $line\n");
                                         break 2;
                                 }
