@@ -63,7 +63,7 @@ class Task extends FOGController
 			'NFSGroupID' => $this->get('NFSGroupID'),
 		));
 		$count = 0;
-		$curTime = strtotime($this->nice_date()->format('Y-m-d H:i:s'));
+		$curTime = $this->nice_date();
 		foreach($Tasks AS $Task)
 		{
 			if ($this->get('id') > $Task->get('id'))

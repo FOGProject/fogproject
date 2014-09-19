@@ -61,12 +61,15 @@ class BootMenu extends FOGBase
 		$memtest = $this->FOGCore->getSetting('FOG_MEMTEST_KERNEL');
 		// Default bzImage and imagefile based on arch received.
 		$bzImage = ($_REQUEST['arch'] == 'x86_64' ? $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL') : $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_32'));
+		$kernel = $bzImage;
 		$imagefile = ($_REQUEST['arch'] == 'x86_64' ? $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE') : $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32'));
+		$initrd = $imagefile;
 		// Adjust file info if host is valid.
 		if ($Host && $Host->isValid())
 		{
 			// If the host kernel param is set, use that kernel to boot the host.
 			($Host->get('kernel') ? $bzImage = $Host->get('kernel') : null);
+			$kernel = $bzImage;
 			// Check location association of the host.
 			$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
 			if ($LA)
@@ -81,8 +84,8 @@ class BootMenu extends FOGBase
 				{
 					$memdisk = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/memdisk';
 					$memtest = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_MEMTEST_KERNEL');
-					$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.($Host->get('kernel') ? $Host->get('kernel') : ($_REQUEST['arch'] == 'x86_64' ? $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE') : $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32')));
-					$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.($_REQUEST['arch'] == 'x86_64' ? $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE') : $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32'));
+					$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$bzImage;
+					$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$initrd;
 				}
 			}
 		}
@@ -132,7 +135,7 @@ class BootMenu extends FOGBase
 		// Specify the default calls.
 		$this->memdisk = "kernel $memdisk";
 		$this->memtest = "initrd $memtest";
-		$this->kernel = "kernel $bzImage initrd=$imagefile root=/dev/ram0 rw ramdisk_size=$ramsize ip=dhcp dns=$dns keymap=$keymap web=${webserver}${webroot} consoleblank=0";
+		$this->kernel = "kernel $bzImage initrd=$initrd root=/dev/ram0 rw ramdisk_size=$ramsize keymap=$keymap web=${webserver}${webroot} consoleblank=0";
 		$this->initrd = "imgfetch $imagefile";
 		// Set the default line based on all the menu entries and only the one with the default set.
 		$defMenuItem = current($this->FOGCore->getClass('PXEMenuOptionsManager')->find(array('default' => 1)));
@@ -774,6 +777,8 @@ class BootMenu extends FOGBase
 			$Advanced = $this->FOGCore->getSetting('FOG_PXE_ADVANCED');
 			$AdvLogin = $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN');
 			$ArrayOfStuff = array(($this->Host && $this->Host->isValid() ? 1 : 0),2);
+			if ($showDebug)
+				array_push($ArrayOfStuff,3);
 			if ($Advanced)
 				array_push($ArrayOfStuff,($AdvLogin ? 5 : 4));
 			foreach($Menus AS $Menu)
@@ -798,7 +803,7 @@ class BootMenu extends FOGBase
 			$this->parseMe($Send);
 		}
 		else
-			$this->chainBoot();
+			$this->chainBoot(true);
 	}
 }
 /* Local Variables: */

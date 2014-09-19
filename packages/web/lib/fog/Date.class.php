@@ -7,23 +7,23 @@ class Date extends FOGBase
 {
 	private $time;
 	// Overrides
-	function __construct( $longUnixTime ) 
+	public function __construct( $longUnixTime ) 
 	{
 		// FOGBase Constructor
 		parent::__construct();
 		// Set time
 		$this->time = $longUnixTime;
 	}
-	function __toString()
+	public function __toString()
 	{
 		return (string)$this->toFormatted();
 	}
 	// Custom
-	function toTimestamp()
+	public function toTimestamp()
 	{
 		return $this->time;
 	}
-	function toFormatted()
+	public function toFormatted()
 	{
 		return (string)$this->FOGCore->formatTime($this->time);
 	}

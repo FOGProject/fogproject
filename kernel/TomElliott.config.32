@@ -1,10 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-<<<<<<< HEAD
-# Linux/i386 3.16.2 Kernel Configuration
-=======
-# Linux/i386 3.15.7 Kernel Configuration
->>>>>>> Merge branch 'master' of github.com:mastacontrola/fogproject
+# Linux/i386 3.16.3 Kernel Configuration
 #
 # CONFIG_64BIT is not set
 CONFIG_X86_32=y
@@ -1820,10 +1816,6 @@ CONFIG_LPC_SCH=y
 # CONFIG_MFD_SM501 is not set
 # CONFIG_MFD_SMSC is not set
 # CONFIG_ABX500_CORE is not set
-<<<<<<< HEAD
-=======
-# CONFIG_MFD_STMPE is not set
->>>>>>> Merge branch 'master' of github.com:mastacontrola/fogproject
 CONFIG_MFD_SYSCON=y
 # CONFIG_MFD_TI_AM335X_TSCADC is not set
 # CONFIG_MFD_LP3943 is not set
