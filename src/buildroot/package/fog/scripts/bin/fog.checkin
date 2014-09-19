@@ -18,7 +18,7 @@ for arg in `cat /proc/cmdline`; do
 done
 clear;
 displayBanner;
-setupDNS $dns;
+#setupDNS $dns;
 osname="";
 mbrfile="";
 determineOS $osid;

@@ -182,7 +182,7 @@ class HostManagementPage extends FOGPage
 		$fieldsad = array(
 			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain"${ad_dom}value="on" />',
 			_('Domain Name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="${ad_name}" autocomplete="off" />',
-			_('Domain OU') => '${ad_ou}',
+			_('Domain OU') => '${ad_oufield}',
 			_('Domain Username') => '<input id="adUsername" class="smaller" type="text" name="domainuser" value="${ad_user}" autocomplete="off" />',
 			_('Domain Password').'<br/>'._('Must be encrypted') => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${ad_pass}" autocomplete="off" />',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" />'
@@ -236,9 +236,10 @@ class HostManagementPage extends FOGPage
 				'input' => $input,
 				'ad_dom' => ($_REQUEST['domain'] == 'on' ? 'checked="checked"' : ''),
 				'ad_name' => $_REQUEST['domainname'],
-				'ad_ou' => $OUOptions,
+				'ad_oufield' => $OUOptions,
 				'ad_user' => $_REQUEST['domainuser'],
 				'ad_pass' => $_REQUEST['domainpassword'],
+				'ad_ou' => $_REQUEST['ad_ou'],
 			);
 		}
 		// Hook
@@ -763,7 +764,7 @@ class HostManagementPage extends FOGPage
 		foreach((array)$Host->get('snapins') AS $Snapin)
 		{
 			if ($Snapin && $Snapin->isValid())
-				$SnapinIDs[] = $Snapin && $Snapin->isValid();
+				$SnapinIDs[] = $Snapin->get('id');
 		}
 		// Get all Snapin's Not associated with this host.
 		foreach($this->FOGCore->getClass('SnapinManager')->find() AS $Snapin)
@@ -1157,7 +1158,7 @@ class HostManagementPage extends FOGPage
 			}
 			print "\n\t\t\t".'<select name="dte" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select>';
 			print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><img src="images/go.png" class="noBorder" /></a></p>';
-			$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => ($_REQUEST['dte'] ? $_REQUEST['dte'] : $this->formatTime('now','Y-m-d'))),'AND','datetime');
+			$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => ($_REQUEST['dte'] ? $_REQUEST['dte'] : $this->nice_date()->format('Y-m-d'))),'AND','datetime');
 			$_SESSION['fog_logins'] = array();
 			$cnt = 0;
 			foreach ((array)$Host->get('users') AS $UserLogin)

@@ -58,7 +58,7 @@ abstract class FOGBase
 		// Language Setup
 		$this->foglang = $GLOBALS['foglang'];
 		// Default TimeZone to use for date fields
-		$this->TimeZone = new DateTimeZone((!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone')));
+		$this->TimeZone = (!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone'));
 	}
 	/** fatalError($txt, $data = array())
 		Fatal error in the case something went wrong.
@@ -328,9 +328,7 @@ abstract class FOGBase
 	*/
 	public function nice_date($Date = 'now',$utc = false)
 	{
-		$NiceDate = new DateTime($Date,$this->TimeZone);
-		if ($utc)
-			$NiceDate = new DateTime($Date,new DateTimeZone('UTC'));
+		$NiceDate = (!$utc ? new DateTime($Date,new DateTimeZone($this->TimeZone)) : new DateTime($Date,new DateTimeZone('GMT')));
 		return $NiceDate;
 	}
 	/**

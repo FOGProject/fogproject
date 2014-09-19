@@ -5,7 +5,7 @@
 clearScreen;
 displayBanner;
 
-setupDNS $dns;
+#setuDNS $dns;
 
 echo 
 echo " Thanks for donating to the FOG Project!"
