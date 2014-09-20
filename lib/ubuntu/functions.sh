@@ -493,6 +493,12 @@ class Config
 			echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/index.php";
 		fi
 		echo "OK";
+		if [ -d "${webdirdest}.prev" ]; then
+			echo "  * Copying back any custom hook files.";
+			cp -Rf $webdirdest.prev/lib/hooks $webdirdest/lib/;
+			echo "  * Copying back any custom report files.";
+			cp -Rf $webdirdest.prev/management/reports $webdirdest/management/;
+		fi
 	fi
 }
 
