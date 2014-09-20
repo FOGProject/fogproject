@@ -427,7 +427,7 @@ class GroupManagementPage extends FOGPage
 		// Set the values
 		foreach($this->FOGCore->getClass('HostManager')->find() AS $Host)
 		{
-			if ($Host && $Host->isValid())
+			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{
 				if (!in_array($Host->get('id'),$HostInAnyGroupIDs))
 					$HostNotInAnyGroup[] = $Host;
@@ -438,7 +438,7 @@ class GroupManagementPage extends FOGPage
 		// All hosts not in this group.
 		foreach((array)$HostNotInGroup AS $Host)
 		{
-			if ($Host && $Host->isValid())
+			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{
 				$this->data[] = array(
 					'host_id' => $Host->get('id'),
@@ -1401,7 +1401,7 @@ class GroupManagementPage extends FOGPage
 				throw new Exception(_('One or more hosts are currently in a task'));
 			foreach((array)$Group->get('hosts') AS $Host)
 			{
-				if ($Host && $Host->isValid())
+				if ($Host && $Host->isValid() && !$Host->get('pending'))
 				{
 					if (in_array($taskTypeID,$imagingTasks) && !$Host->get('imageID'))
 						throw new Exception(_('You need to assign an image to the host'));
@@ -1433,7 +1433,7 @@ class GroupManagementPage extends FOGPage
 					{
 						foreach((array)$Group->get('hosts') AS $Host)
 						{
-							if ($Host && $Host->isValid())
+							if ($Host && $Host->isValid() && !$Host->get('pending'))
 								$success[] = sprintf('<li>%s &ndash; %s</li>', $Host->get('name'), $Host->getImage()->get('name'));
 						}
 					}
