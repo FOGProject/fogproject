@@ -370,9 +370,9 @@ configureHttpd()
 		cp -Rf $webdirsrc/* $webdirdest/
 		if [ -d "${webdirdest}.prev" ]; then
 			echo "  * Copying back any custom hook files.";
-			cp -rf $webdirdest.prev/lib/hooks/* $webdirdest/lib/hooks/;
+			cp -Rf $webdirdest.prev/lib/hooks $webdirdest/lib/;
 			echo "  * Copying back any custom report files.";
-			cp -rf $webdirdest.prev/management/reports/* $webdirdest/management/reports/;
+			cp -Rf $webdirdest.prev/management/reports $webdirdest/management/;
 		fi
 		
 		echo "<?php
