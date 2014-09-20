@@ -169,13 +169,17 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Hosts']);
 			$this->subMenu[$this->node]['add'] = sprintf($this->foglang['CreateNew'],$this->foglang['Host']);
+			if ($this->FOGCore->getClass('HostManager')->count(array('pending' => 1)) > 0)
+				$this->subMenu[$this->node]['pending'] = $this->foglang['Pending'];
 			$this->subMenu[$this->node]['export'] = _('Export Hosts');
 			$this->subMenu[$this->node]['import'] = _('Import Hosts');
 			if($_REQUEST['id'])
 			{
+				$Host = new Host($_REQUEST['id']);
 				$this->subMenu[$this->node]['id'][$linkformat.'#host-general'] = $this->foglang['General'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#host-grouprel'] = $this->foglang['Groups'];
-				$this->subMenu[$this->node]['id'][$linkformat.'#host-tasks'] = $this->foglang['BasicTasks'];
+				if ($Host && $Host->isValid() && !$Host->get('pending'))
+					$this->subMenu[$this->node]['id'][$linkformat.'#host-tasks'] = $this->foglang['BasicTasks'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#host-active-directory'] = $this->foglang['AD'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#host-printers'] = $this->foglang['Printers'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#host-snapins'] = $this->foglang['Snapins'];

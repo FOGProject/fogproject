@@ -156,6 +156,7 @@ $foglang['PXEConfiguration']		= _('iPXE Menu Configuration');
 $foglang['PXEMenuCustomization']	= _('iPXE Menu Customization');
 $foglang['NewMenu']					= _('iPXE New Menu Entry');
 $foglang['Submit']					= _('Save Changes');
+$foglang['Pending']					= _('Pending Hosts');
 // Language menu options.
 $foglang['Language']['zh']			= _('中国的');
 $foglang['Language']['en']			= _('English');

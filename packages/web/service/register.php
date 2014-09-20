@@ -13,8 +13,24 @@ try
 	$ignoreList = explode(',', $FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'));
 	// Get the actual host (if it is registered)
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if(!$Host)
-		throw new Exception('#!er:Invalid Host');
+	if(!$Host || !$Host->isValid())
+	{
+		if (!$_REQUEST['hostname'])
+			throw new Exception('#!er:Invalid Host');
+		else
+		{
+			$Host = new Host(array(
+				'name' => $_REQUEST['hostname'],
+				'description' => 'Pending Registration created by FOG_CLIENT',
+				'mac' => (preg_match('#|#i',$_REQUEST['mac']) ? explode('|',$_REQUEST['mac'])[0] : $_REQUEST['mac']),
+				'pending' => 1,
+			));
+			foreach($FOGCore->getClass('ModuleManager')->find() AS $Module)
+				$ModuleIDs[] = $Module->get('id');
+			$Host->addModule($ModuleIDs);
+			$Host->save();
+		}
+	}
 	// Check if count is okay.
 	if (count($MACs) > $maxPending + 1)
 		throw new Exception('#!er:Too many MACs');
