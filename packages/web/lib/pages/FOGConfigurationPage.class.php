@@ -244,7 +244,7 @@ class FOGConfigurationPage extends FOGPage
 			print "\n\t\t\t\t\t\t".'<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$Menu->get('name').'</h3></a>';
 			print "\n\t\t\t".'<div id="'.$divTab.'">';
 			print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-			$menuid = in_array($Menu->get('id'),array(1,2,3,4,5,6,7,8,9,10,11,12));
+			$menuid = in_array($Menu->get('id'),array(1,2,3,4,5,6,7,8,9,10,11,12,13));
 			$fields = array(
 				_('Menu Item:') => '<input type="text" name="menu_item" value="${menu_item}" id="menu_item" ${disabled}/>',
 				_('Description:') => '<textarea cols="40" rows="2" name="menu_description" ${disabled}>${menu_description}</textarea>',
