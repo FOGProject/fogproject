@@ -169,6 +169,8 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Hosts']);
 			$this->subMenu[$this->node]['add'] = sprintf($this->foglang['CreateNew'],$this->foglang['Host']);
+			if ($this->FOGCore->getClass('HostManager')->count(array('pending' => 1)) > 0)
+				$this->subMenu[$this->node]['pending'] = $this->foglang['Pending'];
 			$this->subMenu[$this->node]['export'] = _('Export Hosts');
 			$this->subMenu[$this->node]['import'] = _('Import Hosts');
 			if($_REQUEST['id'])

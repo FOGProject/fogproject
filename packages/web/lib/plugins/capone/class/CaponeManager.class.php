@@ -53,9 +53,11 @@ class CaponeManager extends FOGManagerController
     }
 	public function uninstall()
 	{
-		if( !$this->DB->query("DROP TABLE capone"))
+		if (!$this->DB->query("DROP TABLE capone"))
 			return false;
 		if (!$this->FOGCore->getClass('ServiceManager')->destroy(array('name' => 'FOG_PLUGIN_CAPON_%')))
+			return false;
+		if (!$this->FOGCore->getClass('PXEMenuOptionsManager')->destroy(array('name' => 'fog.capone')))
 			return false;
 		return true;
 	}
