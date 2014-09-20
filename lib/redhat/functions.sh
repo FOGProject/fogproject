@@ -360,14 +360,14 @@ configureHttpd()
 		if [ -d "$webdirdest" ]; then
 			mv "$webdirdest" "${webdirdest}.prev";
 		fi
-		if [ -d "${webdirdest}.prev" ]; then
-			echo -n "  * Copying back any custom hook files.";
-			cp -rf $webdirdest.prev/lib/hooks/* $webdirdest/lib/hooks/;
-			echo -n "  * Copying back any custom report files.";
-			cp -rf $webdirdest.prev/management/reports/* $webdirdest/management/reports/;
-		fi
 		mkdir "$webdirdest";
 		cp -Rf $webdirsrc/* $webdirdest/
+		if [ -d "${webdirdest}.prev" ]; then
+			echo "  * Copying back any custom hook files.";
+			cp -rf $webdirdest.prev/lib/hooks/* $webdirdest/lib/hooks/;
+			echo "  * Copying back any custom report files.";
+			cp -rf $webdirdest.prev/management/reports/* $webdirdest/management/reports/;
+		fi
 		
 		echo "<?php
 /**
