@@ -17,6 +17,8 @@ try
 	// get the module id
 	if (empty($_REQUEST['moduleid']) || !$moduleID || !$moduleID->isValid())
 	{
+		if ($_REQUEST['moduleid'] == 'dircleaner')
+			$_REQUEST['moduleid'] = 'dircleanup';
 		if ($_REQUEST['moduleid'] == 'snapin')
 			$_REQUEST['moduleid'] = 'snapinclient';
 		else if ($_REQUEST['moduleid'] == 'snapinclient')

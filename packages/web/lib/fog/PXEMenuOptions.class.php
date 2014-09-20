@@ -26,6 +26,7 @@ class PXEMenuOptions extends FOGController
 			3 => _('Debug Options'),
 			4 => _('Advanced Options'),
 			5 => _('Advanced Login Required'),
+			6 => _('Pending Registered Hosts'),
 		);
 		return $regVals;
 	}

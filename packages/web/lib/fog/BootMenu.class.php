@@ -148,6 +148,8 @@ class BootMenu extends FOGBase
 			$this->keyset();
 		else if ($_REQUEST['sessname'])
 			$this->sesscheck();
+		else if ($_REQUEST['aprvconf'])
+			$this->approveHost();
 		else if (!$Host || !$Host->isValid())
 			$this->printDefault();
 		else
@@ -236,6 +238,28 @@ class BootMenu extends FOGBase
 		$this->parseMe($Send);
 		$this->chainBoot();
 	}
+	private function approveHost()
+	{
+		if ($this->Host->set('pending',null)->save())
+		{
+			$Send['approvesuccess'] = array(
+				"#!ipxe",
+				"echo Host approved successfully",
+				"sleep 3"
+			);
+			$this->Host->createImagePackage(10,'Inventory',false,false,false,false,$_REQUEST['username']);
+		}
+		else
+		{
+			$Send['approvefail'] = array(
+				"#!ipxe",
+				"echo Host approval failed",
+				"sleep 3"
+			);
+		}
+		$this->parseMe($Send);
+		$this->chainBoot();
+	}
 	/**
 	* printTasking()
 	* Sends the Tasking file.  In PXE this is equivalent to the creation
@@ -276,6 +300,28 @@ class BootMenu extends FOGBase
 			"param mac0 \${net0/mac}",
 			"param arch \${arch}",
 			"param delconf 1",
+			"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
+			"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
+			":bootme",
+			"chain -ar $this->booturl/ipxe/boot.php##params",
+		);
+		$this->parseMe($Send);
+	}
+	/**
+	* aprvConf()
+	* If you're trying to approve the host, request confirmation.
+	* @return void
+	*/
+	public function aprvConf()
+	{
+		$Send['aprvconfirm'] = array(
+			"#!ipxe",
+			"cpuid --ext 29 && set arch x86_64 || set arch i386",
+			"prompt --key y Would you like to approve this host? (y/N): &&",
+			"params",
+			"param mac0 \${net0/mac}",
+			"param arch \${arch}",
+			"param aprvconf 1",
 			"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
 			"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
 			":bootme",
@@ -449,6 +495,8 @@ class BootMenu extends FOGBase
 				$this->setTasking();
 			else if ($_REQUEST['sessionJoin'])
 				$this->sessjoin();
+			else if ($_REQUEST['approveHost'])
+				$this->aprvConf();
 			else if ($_REQUEST['menuaccess'])
 			{
 				unset($this->hiddenmenu);
@@ -771,12 +819,12 @@ class BootMenu extends FOGBase
 				"menu",
 				"colour --rgb ".($this->Host && $this->Host->isValid() ? "0x00ff00" : "0xff0000")." 0",
 				"cpair --foreground 0 3",
-				"item --gap Host is ".($this->Host && $this->Host->isValid() ? "registered as ".$this->Host->get('name') : "NOT registered!"),
+				"item --gap Host is ".($this->Host && $this->Host->isValid() ? ($this->Host->get('pending') ? 'pending ' : '')."registered as ".$this->Host->get('name') : "NOT registered!"),
 				"item --gap -- -------------------------------------",
 			);
 			$Advanced = $this->FOGCore->getSetting('FOG_PXE_ADVANCED');
 			$AdvLogin = $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN');
-			$ArrayOfStuff = array(($this->Host && $this->Host->isValid() ? 1 : 0),2);
+			$ArrayOfStuff = array(($this->Host && $this->Host->isValid() ? ($this->Host->get('pending') ? 6 : 1) : 0),2);
 			if ($showDebug)
 				array_push($ArrayOfStuff,3);
 			if ($Advanced)

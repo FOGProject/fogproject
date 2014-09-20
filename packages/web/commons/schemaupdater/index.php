@@ -1604,6 +1604,25 @@ $databaseSchema[] = array(
 	"ALTER TABLE `" . DATABASE_NAME . "`.`images`
 		ADD COLUMN `imageProtect` mediumint(9) NOT NULL AFTER `imagePath`",
 );
+// 128
+$databaseSchema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME . "`.`hosts`
+		ADD COLUMN `hostPending` mediumint(9) NULL",
+);
+// 129
+$databaseSchema[] = array(
+	"INSERT INTO `" . DATABASE_NAME ."`.`pxeMenu` (`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) VALUES
+	(13, 'fog.approvehost', 'Approve This Host','0','6',NULL);",
+	"UPDATE `". DATABASE_NAME ."`.`pxeMenu` SET `pxeParams`='login
+params
+param mac0 \${net0/mac}
+param arch \${arch}
+param username \${username}
+param password \${password}
+param approveHost 1
+isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
+isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.approvehost';",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
