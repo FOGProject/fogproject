@@ -638,67 +638,70 @@ class HostManagementPage extends FOGPage
 			'<a href="?node=${node}&sub=${sub}&id=${host_id}${task_type}"><img src="images/${task_icon}" /><br />${task_name}</a>',
 			'${task_desc}',
 		);
-		print "\n\t\t\t<!-- Basic Tasks -->";
-		print "\n\t\t\t".'<div id="host-tasks" class="organic-tabs-hidden">';
-		print "\n\t\t\t<h2>"._('Host Tasks').'</h2>';
-		// Find TaskTypes
-		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'host'), 'isAdvanced' => '0'), 'AND', 'id');
-		// Iterate -> Print
-		foreach ((array)$TaskTypes AS $TaskType)
+		if (!$Host->get('pending'))
 		{
-			if ($TaskType && $TaskType->isValid())
+			print "\n\t\t\t<!-- Basic Tasks -->";
+			print "\n\t\t\t".'<div id="host-tasks" class="organic-tabs-hidden">';
+			print "\n\t\t\t<h2>"._('Host Tasks').'</h2>';
+			// Find TaskTypes
+			$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'host'), 'isAdvanced' => '0'), 'AND', 'id');
+			// Iterate -> Print
+			foreach ((array)$TaskTypes AS $TaskType)
 			{
-				$this->data[] = array(
-					'node' => $this->node,
-					'sub' => 'deploy',
-					'host_id' => $Host->get('id'),
-					'task_type' => '&type='.$TaskType->get('id'),
-					'task_icon' => $TaskType->get('icon'),
-					'task_name' => $TaskType->get('name'),
-					'task_desc' => $TaskType->get('description'),
-				);
+				if ($TaskType && $TaskType->isValid())
+				{
+					$this->data[] = array(
+						'node' => $this->node,
+						'sub' => 'deploy',
+						'host_id' => $Host->get('id'),
+						'task_type' => '&type='.$TaskType->get('id'),
+						'task_icon' => $TaskType->get('icon'),
+						'task_name' => $TaskType->get('name'),
+						'task_desc' => $TaskType->get('description'),
+					);
+				}
 			}
-		}
-		$this->data[] = array(
-			'node' => $this->node,
-			'sub' => 'edit',
-			'host_id' => $Host->get('id'),
-			'task_type' => '#host-tasks" class="advanced-tasks-link',
-			'task_icon' => 'host-advanced.png',
-			'task_name' => _('Advanced'),
-			'task_desc' => _('View advanced tasks for this host.'),
-		);
-		// Hook
-		$this->HookManager->processEvent('HOST_EDIT_TASKS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-		// Output
-		$this->render();
-		unset ($this->data);
-		print '<div id="advanced-tasks" class="hidden">';
-		print "\n\t\t\t<h2>"._('Advanced Actions').'</h2>';
-		// Find TaskTypes
-		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'host'), 'isAdvanced' => '1'), 'AND', 'id');
-		// Iterate -> Print
-		foreach ((array)$TaskTypes AS $TaskType)
-		{
-			if ($TaskType && $TaskType->isValid())
+			$this->data[] = array(
+				'node' => $this->node,
+				'sub' => 'edit',
+				'host_id' => $Host->get('id'),
+				'task_type' => '#host-tasks" class="advanced-tasks-link',
+				'task_icon' => 'host-advanced.png',
+				'task_name' => _('Advanced'),
+				'task_desc' => _('View advanced tasks for this host.'),
+			);
+			// Hook
+			$this->HookManager->processEvent('HOST_EDIT_TASKS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+			// Output
+			$this->render();
+			unset ($this->data);
+			print '<div id="advanced-tasks" class="hidden">';
+			print "\n\t\t\t<h2>"._('Advanced Actions').'</h2>';
+			// Find TaskTypes
+			$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'host'), 'isAdvanced' => '1'), 'AND', 'id');
+			// Iterate -> Print
+			foreach ((array)$TaskTypes AS $TaskType)
 			{
-				$this->data[] = array(
-					'node' => $this->node,
-					'sub' => 'deploy',
-					'host_id' => $Host->get('id'),
-					'task_type' => '&type='.$TaskType->get('id'),
-					'task_icon' => $TaskType->get('icon'),
-					'task_name' => $TaskType->get('name'),
-					'task_desc' => $TaskType->get('description'),
-				);
+				if ($TaskType && $TaskType->isValid())
+				{
+					$this->data[] = array(
+						'node' => $this->node,
+						'sub' => 'deploy',
+						'host_id' => $Host->get('id'),
+						'task_type' => '&type='.$TaskType->get('id'),
+						'task_icon' => $TaskType->get('icon'),
+						'task_name' => $TaskType->get('name'),
+						'task_desc' => $TaskType->get('description'),
+					);
+				}
 			}
+			// Hook
+			$this->HookManager->processEvent('HOST_EDIT_ADV', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+			$this->render();
+			unset($this->data);
+			print '</div>';
+			print "\n\t\t\t</div>";
 		}
-		// Hook
-		$this->HookManager->processEvent('HOST_EDIT_ADV', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-		$this->render();
-		unset($this->data);
-		print '</div>';
-		print "\n\t\t\t</div>";
 		print "\n\t\t\t<!-- Active Directory -->";
 		$this->attributes = array(
 			array(),
