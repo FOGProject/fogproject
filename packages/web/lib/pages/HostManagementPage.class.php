@@ -77,7 +77,7 @@ class HostManagementPage extends FOGPage
 		// Find data -> Push data
 		foreach ($this->FOGCore->getClass('HostManager')->find('','','name') AS $Host)
 		{
-			if ($Host && $Host->isValid())
+			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{
 				$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
 				$Location = ($LA ? new Location($LA->get('locationID')) : '');
@@ -127,7 +127,7 @@ class HostManagementPage extends FOGPage
 		// Find data -> Push data
 		foreach($this->FOGCore->getClass('HostManager')->search($keyword) AS $Host)
 		{
-			if ($Host && $Host->isValid())
+			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{
 				$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
 				$Location = ($LA ? new Location($LA->get('locationID')) : '');
@@ -147,6 +147,88 @@ class HostManagementPage extends FOGPage
 		$this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData' => &$this->headerData));
 		// Output
 		$this->render();
+	}
+	/** pending()
+		Display's pending hosts from the host register.  This is where it will show hosts that are pending and can be approved en-mass.
+	*/
+	public function pending()
+	{
+		$this->title = _('Pending Host List');
+		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+		$this->headerData = array(
+			'',
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkbox" checked="checked" />',
+			($_SESSION['FOGPingActive'] ? '' : null),
+			_('Host Name'),
+			_('Edit/Remove'),
+		);
+		// Row templates
+		$this->templates = array(
+			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host" checked="checked" />',
+			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
+			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+			'<a href="?node=host&sub=edit&id=${host_id}"><span class="icon icon-edit" title="Edit"></span></a> <a href="?node=host&sub=delete&id=${host_id}"><span class="icon icon-delete" title="Delete"></span></a>',
+		);
+		// Row attributes
+		$this->attributes = array(
+			array('width' => 22, 'id' => 'host-${host_name}'),
+			array('class' => 'c','width' => 16),
+			($_SESSION['FOGPingActive'] ? array('width' => 20) : ''),
+			array(),
+			array('width' => 80, 'class' => 'c'),
+			array('width' => 50, 'class' => 'r'),
+		);
+		foreach($this->FOGCore->getClass('HostManager')->find() AS $Host)
+		{
+			if ($Host && $Host->isValid() && $Host->get('pending'))
+			{
+				$this->data[] = array(
+					'host_id'	=> $Host->get('id'),
+					'host_name' => $Host->get('name'),
+					'host_mac' => $Host->get('mac')->__toString(),
+					'host_desc' => $Host->get('description'),
+				);
+			}
+		}
+		// Hook
+		$this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		$this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData' => &$this->headerData));
+		// Output
+		$this->render();
+		print '<center><input type="submit" value="'._('Approve selected Hosts').'"/></center>';
+		print "\n\t\t\t</form>";
+	}
+	/** pending_post()
+		Actually approve the hosts as they are selected.
+	*/
+	public function pending_post()
+	{
+		if ($_REQUEST['host'])
+		{
+			$countOfHosts = count($_REQUEST['host']);
+			$countApproved = 0;
+			foreach ($_REQUEST['host'] AS $HostID)
+			{
+				$Host = new Host($HostID);
+				if ($Host && $Host->isValid())
+				{
+					$Host->set('pending',null);
+					if ($Host->save())
+						$countApproved++;
+				} 
+			}
+			if ($countApproved == $countOfHosts)
+			{
+				$this->FOGCore->setMessage(_('All hosts approved successfully'));
+				$this->FOGCore->redirect('?node='.$_REQUEST['node']);
+			}
+			if ($countApproved != $countOfHosts)
+			{
+				$this->FOGCore->setMessage($countApproved.' '._('of').' '.$countOfHosts.' '._('approved successfully'));
+				$this->FOGCore->redirect($this->formAction);
+			}
+		}
 	}
 	/** add()
 		Add's a new host.
@@ -358,6 +440,17 @@ class HostManagementPage extends FOGPage
 		$Location = ($LA ? new Location($LA->get('locationID')) : '');
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', 'Edit', $Host->get('name'));
+		if ($_REQUEST['approveHost'])
+		{
+			$Host->set('pending',null);
+			if ($Host->save())
+				$this->FOGCore->setMessage(_('Host approved'));
+			else
+				$this->FOGCore->setMessage(_('Host approval failed.'));
+			$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
+		}
+		if ($Host->get('pending'))
+			print '<h2><a href="'.$this->formAction.'&approveHost=1">'._('Approve this host?').'</a></h2>';
 		unset($this->headerData);
 		$this->attributes = array(
 			array(),
@@ -545,67 +638,70 @@ class HostManagementPage extends FOGPage
 			'<a href="?node=${node}&sub=${sub}&id=${host_id}${task_type}"><img src="images/${task_icon}" /><br />${task_name}</a>',
 			'${task_desc}',
 		);
-		print "\n\t\t\t<!-- Basic Tasks -->";
-		print "\n\t\t\t".'<div id="host-tasks" class="organic-tabs-hidden">';
-		print "\n\t\t\t<h2>"._('Host Tasks').'</h2>';
-		// Find TaskTypes
-		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'host'), 'isAdvanced' => '0'), 'AND', 'id');
-		// Iterate -> Print
-		foreach ((array)$TaskTypes AS $TaskType)
+		if (!$Host->get('pending'))
 		{
-			if ($TaskType && $TaskType->isValid())
+			print "\n\t\t\t<!-- Basic Tasks -->";
+			print "\n\t\t\t".'<div id="host-tasks" class="organic-tabs-hidden">';
+			print "\n\t\t\t<h2>"._('Host Tasks').'</h2>';
+			// Find TaskTypes
+			$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'host'), 'isAdvanced' => '0'), 'AND', 'id');
+			// Iterate -> Print
+			foreach ((array)$TaskTypes AS $TaskType)
 			{
-				$this->data[] = array(
-					'node' => $this->node,
-					'sub' => 'deploy',
-					'host_id' => $Host->get('id'),
-					'task_type' => '&type='.$TaskType->get('id'),
-					'task_icon' => $TaskType->get('icon'),
-					'task_name' => $TaskType->get('name'),
-					'task_desc' => $TaskType->get('description'),
-				);
+				if ($TaskType && $TaskType->isValid())
+				{
+					$this->data[] = array(
+						'node' => $this->node,
+						'sub' => 'deploy',
+						'host_id' => $Host->get('id'),
+						'task_type' => '&type='.$TaskType->get('id'),
+						'task_icon' => $TaskType->get('icon'),
+						'task_name' => $TaskType->get('name'),
+						'task_desc' => $TaskType->get('description'),
+					);
+				}
 			}
-		}
-		$this->data[] = array(
-			'node' => $this->node,
-			'sub' => 'edit',
-			'host_id' => $Host->get('id'),
-			'task_type' => '#host-tasks" class="advanced-tasks-link',
-			'task_icon' => 'host-advanced.png',
-			'task_name' => _('Advanced'),
-			'task_desc' => _('View advanced tasks for this host.'),
-		);
-		// Hook
-		$this->HookManager->processEvent('HOST_EDIT_TASKS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-		// Output
-		$this->render();
-		unset ($this->data);
-		print '<div id="advanced-tasks" class="hidden">';
-		print "\n\t\t\t<h2>"._('Advanced Actions').'</h2>';
-		// Find TaskTypes
-		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'host'), 'isAdvanced' => '1'), 'AND', 'id');
-		// Iterate -> Print
-		foreach ((array)$TaskTypes AS $TaskType)
-		{
-			if ($TaskType && $TaskType->isValid())
+			$this->data[] = array(
+				'node' => $this->node,
+				'sub' => 'edit',
+				'host_id' => $Host->get('id'),
+				'task_type' => '#host-tasks" class="advanced-tasks-link',
+				'task_icon' => 'host-advanced.png',
+				'task_name' => _('Advanced'),
+				'task_desc' => _('View advanced tasks for this host.'),
+			);
+			// Hook
+			$this->HookManager->processEvent('HOST_EDIT_TASKS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+			// Output
+			$this->render();
+			unset ($this->data);
+			print '<div id="advanced-tasks" class="hidden">';
+			print "\n\t\t\t<h2>"._('Advanced Actions').'</h2>';
+			// Find TaskTypes
+			$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'host'), 'isAdvanced' => '1'), 'AND', 'id');
+			// Iterate -> Print
+			foreach ((array)$TaskTypes AS $TaskType)
 			{
-				$this->data[] = array(
-					'node' => $this->node,
-					'sub' => 'deploy',
-					'host_id' => $Host->get('id'),
-					'task_type' => '&type='.$TaskType->get('id'),
-					'task_icon' => $TaskType->get('icon'),
-					'task_name' => $TaskType->get('name'),
-					'task_desc' => $TaskType->get('description'),
-				);
+				if ($TaskType && $TaskType->isValid())
+				{
+					$this->data[] = array(
+						'node' => $this->node,
+						'sub' => 'deploy',
+						'host_id' => $Host->get('id'),
+						'task_type' => '&type='.$TaskType->get('id'),
+						'task_icon' => $TaskType->get('icon'),
+						'task_name' => $TaskType->get('name'),
+						'task_desc' => $TaskType->get('description'),
+					);
+				}
 			}
+			// Hook
+			$this->HookManager->processEvent('HOST_EDIT_ADV', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+			$this->render();
+			unset($this->data);
+			print '</div>';
+			print "\n\t\t\t</div>";
 		}
-		// Hook
-		$this->HookManager->processEvent('HOST_EDIT_ADV', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-		$this->render();
-		unset($this->data);
-		print '</div>';
-		print "\n\t\t\t</div>";
 		print "\n\t\t\t<!-- Active Directory -->";
 		$this->attributes = array(
 			array(),
