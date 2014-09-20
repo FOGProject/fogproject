@@ -36,7 +36,7 @@ class HostManager extends FOGManagerController
 					iOtherTag LIKE "%${keyword}%" OR
 					iOtherTag1 LIKE "%${keyword}%" OR
 					iSysman LIKE "%${keyword}%" OR
-					iSysproduct LIKE "%${keyword}%" 
+					iSysproduct LIKE "%${keyword}%" AND
 				GROUP BY
 					hostName
 				ORDER BY

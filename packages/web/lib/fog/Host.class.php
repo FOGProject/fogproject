@@ -26,7 +26,8 @@ class Host extends FOGController
 		'printerLevel'	=> 'hostPrinterLevel',
 		'kernel'	=> 'hostKernel',
 		'kernelArgs'	=> 'hostKernelArgs',
-		'kernelDevice'	=> 'hostDevice'
+		'kernelDevice'	=> 'hostDevice',
+		'pending' => 'hostPending',
 	);
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
