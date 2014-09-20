@@ -175,9 +175,11 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['import'] = _('Import Hosts');
 			if($_REQUEST['id'])
 			{
+				$Host = new Host($_REQUEST['id']);
 				$this->subMenu[$this->node]['id'][$linkformat.'#host-general'] = $this->foglang['General'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#host-grouprel'] = $this->foglang['Groups'];
-				$this->subMenu[$this->node]['id'][$linkformat.'#host-tasks'] = $this->foglang['BasicTasks'];
+				if ($Host && $Host->isValid() && !$Host->get('pending'))
+					$this->subMenu[$this->node]['id'][$linkformat.'#host-tasks'] = $this->foglang['BasicTasks'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#host-active-directory'] = $this->foglang['AD'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#host-printers'] = $this->foglang['Printers'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#host-snapins'] = $this->foglang['Snapins'];
