@@ -217,17 +217,20 @@ class TaskManagementPage extends FOGPage
 		$Hosts = $this->FOGCore->getClass('HostManager')->find();
 		foreach ((array)$Hosts AS $Host)
 		{
-			$imgUp = '<a href="?node=tasks&sub=hostdeploy&type=2&id='.$Host->get('id').'"><span class="icon icon-upload" title="Upload"></span></a>';
-			$imgDown = '<a href="?node=tasks&sub=hostdeploy&type=1&id='.$Host->get('id').'"><span class="icon icon-download" title="Download"></span></a>';
-			$imgAdvanced = '<a href="?node=tasks&sub=hostadvanced&id='.$Host->get('id').'#host-tasks"><span class="icon icon-advanced" title="Advanced Deployment"></span></a>';
-			$this->data[] = array(
-				'id'			=>	$Host->get('id'),
-				'host_name'		=>	$Host->get('name'),
-				'host_mac'			=>	$Host->get('mac'),
-				'uploadLink'	=>	$imgUp,
-				'deployLink'	=>	$imgDown,
-				'advancedLink'	=>	$imgAdvanced,
-			);
+			if ($Host && $Host->isValid() && !$Host->get('pending'))
+			{
+				$imgUp = '<a href="?node=tasks&sub=hostdeploy&type=2&id='.$Host->get('id').'"><span class="icon icon-upload" title="Upload"></span></a>';
+				$imgDown = '<a href="?node=tasks&sub=hostdeploy&type=1&id='.$Host->get('id').'"><span class="icon icon-download" title="Download"></span></a>';
+				$imgAdvanced = '<a href="?node=tasks&sub=hostadvanced&id='.$Host->get('id').'#host-tasks"><span class="icon icon-advanced" title="Advanced Deployment"></span></a>';
+				$this->data[] = array(
+					'id'			=>	$Host->get('id'),
+					'host_name'		=>	$Host->get('name'),
+					'host_mac'			=>	$Host->get('mac'),
+					'uploadLink'	=>	$imgUp,
+					'deployLink'	=>	$imgDown,
+					'advancedLink'	=>	$imgAdvanced,
+				);
+			}
 		}
 		// Hook
 		$this->HookManager->processEvent('HOST_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -415,7 +418,10 @@ class TaskManagementPage extends FOGPage
 				}
 			}
 			foreach ((array)$Group->get('hosts') AS $Host)
-				$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, true, $this->FOGUser->get('name'));
+			{
+				if ($Host && $Host->isValid() && !$Host->get('pending'))
+					$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, true, $this->FOGUser->get('name'));
+			}
 			$this->FOGCore->setMessage('Successfully created Group tasking!');
 			$this->FOGCore->redirect('?node=tasks&sub=active');
 		}
