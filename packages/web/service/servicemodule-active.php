@@ -10,8 +10,8 @@ try
 		throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host->isValid())
-		throw new Exception('#!er:No Host Found');
+	//if (!$Host->isValid())
+	//	throw new Exception('#!er:No Host Found');
 	// Get the true module ID for comparing what the host has.
 	$moduleID = current($FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['moduleid'])));
 	// get the module id
@@ -46,12 +46,22 @@ try
 	// If it's globally disabled, return that so the client doesn't keep trying it.
 	if (!$moduleName[$_REQUEST['moduleid']])
 		throw new Exception('#!ng');
-	foreach((array)$Host->get('modules') AS $Module)
+	if ($Host && $Host->isValid())
 	{
-		if ($Module && $Module->isValid() && $Module->get('isDefault'))
-			$activeIDs[] = $Module->get('id');
+		if (!$Host->get('pending'))
+		{
+			foreach((array)$Host->get('modules') AS $Module)
+			{
+				if ($Module && $Module->isValid() && $Module->get('isDefault'))
+					$activeIDs[] = $Module->get('id');
+			}
+			$Datatosend = (in_array($moduleID->get('id'),(array)$activeIDs) ? '#!ok' : '#!nh')."\n";
+		}
+		else if ($Host->get('pending'))
+			$Datatosend = ($_REQUEST['moduleid'] == 'hostregister' ? '#!ok' : '#!nh')."\n";
 	}
-	$Datatosend = (in_array($moduleID->get('id'),(array)$activeIDs) ? '#!ok' : '#!nh')."\n";
+	else
+		$Datatosend = ($_REQUEST['moduleid'] == 'hostregister' ? '#!ok' : '#!ih')."\n";
 }
 catch(Exception $e)
 {
