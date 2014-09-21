@@ -164,12 +164,12 @@ class Image extends FOGController
 	public function deleteImageFile()
 	{
 		if ($this->get('protected'))
-			throw new Exception(_('Image is protected and cannot be deleted'));
+			throw new Exception($this->foglang['ProtectedImage']);
 		$ftp = $this->FOGFTP;
 		$SN = $this->getStorageGroup()->getMasterStorageNode();
 		$SNME = ($SN && $SN->get('isEnabled') == '1' ? true : false);
 		if (!$SNME)
-			throw new Exception(_('No master nodes are enabled to delete this image'));
+			throw new Exception($this->foglang['NoMasterNode']);
 		$ftphost = $SN->get('ip');
 		$ftpuser = $SN->get('user');
 		$ftppass = $SN->get('pass');
@@ -179,7 +179,7 @@ class Image extends FOGController
 			->set('password',$ftppass)
 			->connect();
 		if(!$ftp->delete($ftproot))
-			throw new Exception(_('Failed to delete file'));
+			throw new Exception($this->foglang['FailedDeleteImage']);
 	}
 }
 /* Local Variables: */

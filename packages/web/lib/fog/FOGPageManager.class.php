@@ -31,11 +31,11 @@ class FOGPageManager extends FOGBase
 	}
 	public function getFOGPageName()
 	{
-		return _($this->getFOGPageClass()->name);
+		return $this->getFOGPageClass()->name;
 	}
 	public function getFOGPageTitle()
 	{
-		return _($this->getFOGPageClass()->title);
+		return $this->getFOGPageClass()->title;
 	}
 	public function isFOGPageTitleEnabled()
 	{
@@ -47,9 +47,9 @@ class FOGPageManager extends FOGBase
 		try
 		{
 			if (!$class)
-				throw new Exception('Invalid Class');
+				throw new Exception($this->foglang['InvalidClass']);
 			if (!($class instanceof FOGPage))
-				throw new Exception('Class is not extended from FOGPage!');
+				throw new Exception($this->foglang['NotExtended']);
 			// INFO
 			$this->info('Adding FOGPage: %s, Node: %s', array(get_class($class), $class->node));
 			$this->nodes[$class->node] = $class;
@@ -94,6 +94,7 @@ class FOGPageManager extends FOGBase
 				$this->arguments = (!empty($GLOBALS[$class->id]) ? array('id' => $GLOBALS[$class->id]) : array());
 				// Render result to variable - we do this so we can send HTTP Headers in a class method
 				ob_start();
+				(!$this->FOGCore->isPOSTRequest() ? $this->resetRequest() : $this->setRequest());
 				call_user_func(array($class, $method));
 				return ob_get_clean();
 			}

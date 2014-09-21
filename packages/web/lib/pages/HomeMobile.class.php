@@ -12,7 +12,7 @@
 */
 class HomeMobile extends FOGPage
 {
-	var $name = '';
+	var $name = 'Dashboard';
 	var $node = 'homes';
 	var $id = '';
 	// Menu Items
