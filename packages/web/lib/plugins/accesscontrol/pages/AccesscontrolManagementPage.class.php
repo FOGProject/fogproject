@@ -14,7 +14,7 @@
 class AccesscontrolManagementPage extends FOGPage
 {
 	// Base variables
-	var $name = 'Access Control Management';
+	var $name = 'Access Management';
 	var $node = 'accesscontrol';
 	var $id = 'id';
 	// Menu Items

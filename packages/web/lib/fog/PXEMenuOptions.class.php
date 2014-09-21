@@ -17,25 +17,4 @@ class PXEMenuOptions extends FOGController
 		'regMenu' => 'pxeRegOnly',
 		'args' => 'pxeArgs',
 	);
-	public function regText()
-	{
-		$regVals = array(
-			0 => _('Not Registered Hosts'),
-			1 => _('Registered Hosts'),
-			2 => _('All Hosts'),
-			3 => _('Debug Options'),
-			4 => _('Advanced Options'),
-			5 => _('Advanced Login Required'),
-			6 => _('Pending Registered Hosts'),
-		);
-		return $regVals;
-	}
-	public function regSelect()
-	{
-		$regVals = '<select name="menu_regmenu">';
-		foreach($this->regText() AS $num => $val)
-			$regMenuItems[] = '<option value="'.$num.'"'.($this->get('regMenu') == $num ? ' selected="selected"' : '').'>'.$val.'</option>';
-		$regVals .= implode("\n\t\t\t\t\t",$regMenuItems)."\n"."</select>";
-		return $regVals;
-	}
 }
