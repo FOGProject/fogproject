@@ -1,6 +1,6 @@
 <?php
 /**
-* \class Initiator
+* Initiator
 *
 * Initiates the FOG System.
 * @param $HookPaths The Hooks system paths to locate hooks.
@@ -196,9 +196,10 @@ class Initiator
 			(!class_exists($className) && file_exists($path.$className.'.hook.php') ? include($path.$className.'.hook.php') : null);
 	}
 }
-// Initialize everything.
+// Initialize everything
 $Init = new Initiator();
 $Init::startInit();
+// Get the configuration
 $Config = new Config();
 // Core
 $FOGFTP = new FOGFTP();

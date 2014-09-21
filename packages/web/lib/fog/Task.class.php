@@ -134,7 +134,7 @@ class Task extends FOGController
 	}
 	public function getTaskTypeText()
 	{
-		return (string)($this->getTaskType()->get('name') ? $this->getTaskType()->get('name') : _('Unknown'));
+		return (string)($this->getTaskType()->get('name') ? $this->getTaskType()->get('name') : $this->foglang['Unknown']);
 	}
 	public function getTaskState()
 	{
@@ -142,6 +142,6 @@ class Task extends FOGController
 	}
 	public function getTaskStateText()
 	{
-		return (string)($this->getTaskState()->get('name') ? $this->getTaskState()->get('name') : _('Unknown'));
+		return (string)($this->getTaskState()->get('name') ? $this->getTaskState()->get('name') : $this->foglang['Unknown']);
 	}
 }
