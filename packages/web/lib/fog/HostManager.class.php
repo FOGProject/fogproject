@@ -151,7 +151,7 @@ class HostManager extends FOGManagerController
 			else
 			{
 				if (($tmpHost && $tmpHost->isValid()) && ($hostReturn && $hostReturn->isValid()) && ($hostReturn->get('id') != $tmpHost->get('id')))
-					throw new Exception(_('Error multiple hosts returned for list of mac addresses!'));
+					throw new Exception($this->foglang['ErrorMultipleHosts']);
 			}
 		}
 		return ($hostReturn && $hostReturn->isValid() ? $hostReturn : new Host(array('id' => 0)));

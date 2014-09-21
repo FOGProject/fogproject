@@ -25,7 +25,7 @@ class SubMenu extends FOGBase
 								 $this->foglang['MAC']	=> stripslashes($this->object ? $this->object->get('mac') : ''),
 								 $this->foglang['Image'] => stripslashes($this->object->getImage()->get('name')),
 								 $this->foglang['OS']	=> stripslashes($this->object->getOS()->get('name')),
-								 _('Last Deployed') => stripslashes($this->object->get('deployed')),
+								 $this->foglang['LastDeployed'] => stripslashes($this->object->get('deployed')),
 			);
 			$GA = $this->FOGCore->getClass('GroupAssociationManager')->find(array('hostID' => $this->object->get('id')));
 			if ($GA[0])
@@ -38,9 +38,9 @@ class SubMenu extends FOGBase
 			$this->object = new Image($_GET['id']);
 			$imageType = $this->object->get('imageTypeID') ? new ImageType($this->object->get('imageTypeID')) : null;
 			$this->title = array($this->foglang['Images'] => $this->object->get('name'),
-								_('Last Uploaded') => stripslashes($this->object->get('deployed')),
-								_('Deploy Method') => ($this->object->get('format') == 1 ? 'Partimage' : ($this->object->get('format') == 0 ? 'Partclone' : 'N/A')),
-								_('Image Type') => ($imageType && $imageType->isValid() ? $imageType->get('name') : _('Not Available')),
+								$this->foglang['LastUploaded'] => stripslashes($this->object->get('deployed')),
+								$this->foglang['DeployMethod'] => ($this->object->get('format') == 1 ? 'Partimage' : ($this->object->get('format') == 0 ? 'Partclone' : 'N/A')),
+								$this->foglang['ImageType'] => ($imageType && $imageType->isValid() ? $imageType->get('name') : $this->foglang['NoAvail']),
 			);
 		}
 		else if (($this->node == 'printer' || $this->node == 'print') && $_GET['id'])
@@ -170,9 +170,9 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Hosts']);
 			$this->subMenu[$this->node]['add'] = sprintf($this->foglang['CreateNew'],$this->foglang['Host']);
 			if ($this->FOGCore->getClass('HostManager')->count(array('pending' => 1)) > 0)
-				$this->subMenu[$this->node]['pending'] = $this->foglang['Pending'];
-			$this->subMenu[$this->node]['export'] = _('Export Hosts');
-			$this->subMenu[$this->node]['import'] = _('Import Hosts');
+				$this->subMenu[$this->node]['pending'] = $this->foglang['PendingHosts'];
+			$this->subMenu[$this->node]['export'] = $this->foglang['ExportHost'];
+			$this->subMenu[$this->node]['import'] = $this->foglang['ImportHost'];
 			if($_REQUEST['id'])
 			{
 				$Host = new Host($_REQUEST['id']);
@@ -238,14 +238,14 @@ class SubMenu extends FOGBase
 		if ($this->node == 'report')
 		{
 			$this->subMenu[$this->node]['home'] = $this->foglang['Home'];
-			$this->subMenu[$this->node]['equip-loan'] = _('Equipment Loan');
-			$this->subMenu[$this->node]['host-list'] = _('Host List');
-			$this->subMenu[$this->node]['imaging-log'] = _('Imaging Log');
-			$this->subMenu[$this->node]['inventory'] = _('Inventory');
-			$this->subMenu[$this->node]['pend-mac'] = _('Pending MACs');
-			$this->subMenu[$this->node]['snapin-log'] = _('Snapin Log');
-			$this->subMenu[$this->node]['user-track'] = _('User Login Hist');
-			$this->subMenu[$this->node]['vir-hist'] = _('Virus History');
+			$this->subMenu[$this->node]['equip-loan'] = $this->foglang['EquipLoan'];
+			$this->subMenu[$this->node]['host-list'] = $this->foglang['HostList'];
+			$this->subMenu[$this->node]['imaging-log'] = $this->foglang['ImageLog'];
+			$this->subMenu[$this->node]['inventory'] = $this->foglang['Inventory'];
+			$this->subMenu[$this->node]['pend-mac'] = $this->foglang['PendingMACs'];
+			$this->subMenu[$this->node]['snapin-log'] = $this->foglang['SnapinLog'];
+			$this->subMenu[$this->node]['user-track'] = $this->foglang['LoginHistory'];
+			$this->subMenu[$this->node]['vir-hist'] = $this->foglang['VirusHistory'];
 			// Report link for the files contained within the reports directory.
 			$reportlink = $_SERVER['PHP_SELF'].'?node='.$this->node.'&sub=file&f=';
 			$dh = opendir($this->FOGCore->getSetting('FOG_REPORT_DIR'));
@@ -257,7 +257,7 @@ class SubMenu extends FOGBase
 						$this->subMenu[$this->node][$reportlink.base64_encode($f)] = substr($f,0,strlen($f) -4);
 				}
 			}
-			$this->subMenu[$this->node]['upload'] = _('Upload Reports');
+			$this->subMenu[$this->node]['upload'] = $this->foglang['UploadRprts'];
 		}
 		// Service Sub/Sub menu items.
 		if ($this->node == 'service')

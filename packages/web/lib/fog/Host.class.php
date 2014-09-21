@@ -146,7 +146,7 @@ class Host extends FOGController
 		// Find Active Snapin Task, there should never be more than one per host.
 		$SnapinJob = current($this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'))));
 		if (!$SnapinJob)
-			throw new Exception(sprintf('%s: %s (%s)', _('No Active Snapin Jobs found for Host'), $this->get('name'), $this->get('mac')));
+			throw new Exception(sprintf('%s: %s (%s)', $this->foglang['NoActSnapJobs'], $this->get('name'), $this->get('mac')));
 		return $SnapinJob;
 	}
 	private function loadSnapinJob()
@@ -766,7 +766,7 @@ class Host extends FOGController
 				else
 				{
 					$this->FOGCore->logHistory(sprintf('Task failed: Task ID: %s, Task Name: %s, Host ID: %s, HostName: %s, Host MAC: %s',$Task->get('id'),$Task->get('name'),$this->get('id'),$this->get('name'),$this->getMACAddress()));
-					throw new Exception(_('Failed to create task.'));
+					throw new Exception($this->foglang['FailedTask']);
 				}
 			}
 			// Snapin deploy/cancel only if task type is of snapin deployment type.
@@ -776,7 +776,7 @@ class Host extends FOGController
 				foreach((array)$this->get('snapins') AS $SnapinInHost)
 					$SnapinInHost && $SnapinInHost->isValid() ? $count++ : null;
 				if ($count <= 0)
-					throw new Exception(_('There are no snapins associated with this host'));
+					throw new Exception($this->foglang['SnapNoAssoc']);
 				// Task: Create Task Object
 				$Task = new Task(array(
 					'name'		=> $taskName,
@@ -793,7 +793,7 @@ class Host extends FOGController
 				));
 				$SnapinJobs = current($this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(0,1))));
 				if ($SnapinJobs && $SnapinJobs->isValid() && $deploySnapins == -1)
-					throw new Exception(_('Snapins Are already deployed to this host'));
+					throw new Exception($this->foglang['SnapDeploy']);
 				else
 				{
 					// Create Snapin Job.  Only one job, but will do multiple SnapinTasks.
@@ -848,7 +848,7 @@ class Host extends FOGController
 								$ST->save();
 							}
 							else
-								throw new Exception(_('Snapin is already setup for tasking.'));
+								throw new Exception($this->foglang['SnapDeploy']);
 						}
 					}
 				}
@@ -860,27 +860,27 @@ class Host extends FOGController
 				else
 				{
 					$this->FOGCore->logHistory(sprintf('Task failed: Task ID: %s, Task Name: %s, Host ID: %s, HostName: %s, Host MAC: %s',$Task->get('id'),$Task->get('name'),$this->get('id'),$this->get('name'),$this->getMACAddress()));
-					throw new Exception(_('Failed to create task.'));
+					throw new Exception($this->foglang['FailedTask']);
 				}
 			}
 			// Error checking
 			if ($taskTypeID != 12 && $taskTypeID != 13 && $this->getActiveTaskCount())
-				throw new Exception('Host is already a member of a active task');
+				throw new Exception($this->foglang['InTask']);
 			if (!$this->isValid())
-				throw new Exception('Host is not valid');
+				throw new Exception($this->foglang['HostNotValid']);
 			// TaskType: Error checking
 			if (!$TaskType->isValid())
-				throw new Exception('Task Type is not valid');
+				throw new Exception($this->foglang['TaskTypeNotValid']);
 			// Image: Error checking
 			if ($imagingTypes && !$Image->isValid())
-				throw new Exception('Image is not valid');
+				throw new Exception($this->foglang['ImageNotValid']);
 			if ($imagingTypes && !$Image->getStorageGroup()->isValid())
-				throw new Exception('The Image\'s associated Storage Group is not valid');
+				throw new Exception($this->foglang['ImageGroupNotValid']);
 			// Storage Node: Error Checking
 			if ($imagingTypes && (!$StorageNode || !($StorageNode instanceof StorageNode)))
-				throw new Exception( _('Could not find a Storage Node. Is there one enabled within this Storage Group?') );
+				throw new Exception($this->foglang['NoFoundSG']);
 			if ($imagingTypes && !$StorageNode->isValid())
-				throw new Exception(_('The Storage Group\'s associated Storage Node is not valid'));
+				throw new Exception($this->foglang['SGNotValid']);
 			// Variables
 			$mac = $this->getMACAddress()->getMACWithColon();
 			// Task: Create Task Object
@@ -899,7 +899,7 @@ class Host extends FOGController
 			));
 			// Task: Save to database
 			if (!$Task->save())
-				throw new Exception(_('Task creation failed'));
+				throw new Exception($this->foglang['FailedTask']);
 			// If task is multicast perform the following.
 			if ($TaskType->isMulticast())
 			{
@@ -1024,15 +1024,15 @@ class Host extends FOGController
 			);
 			// Error checking
 			if ($scheduledDeployTime < time())
-				throw new Exception(sprintf(_('Scheduled date is in the past. Date: %s'),$this->nice_date($scheduledDeployTime)->format('Y/d/m H:i')));
+				throw new Exception(sprintf($this->foglang['InPast'].$this->foglang['Date'].': %s',$this->nice_date($scheduledDeployTime)->format('Y/d/m H:i')));
 			if ($this->FOGCore->getClass('ScheduledTaskManager')->count($findWhere))
-				throw new Exception(_('A task already exists for this Host at this scheduled date & time'));
+				throw new Exception($this->foglang['TaskSchExists']);
 			// TaskType: Variables
 			$TaskType = new TaskType($taskTypeID);
 			$isUpload = $TaskType->isUpload();
 			// TaskType: Error checking
 			if (!$TaskType->isValid())
-				throw new Exception(_('Task Type is not valid'));
+				throw new Exception($this->foglang['TaskTypeNotValid']);
 			// Task: Merge $findWhere array with other Task data -> Create ScheduledTask Object
 			$Task = new ScheduledTask(array_merge($findWhere, array(
 				'name'		=> 'Scheduled Task',
@@ -1043,7 +1043,7 @@ class Host extends FOGController
 			)));
 			// Save
 			if (!$Task->save())
-				throw new Exception(_('Task creation failed'));
+				throw new Exception($this->foglang['FailedTask']);
 			// Log History event
 			$this->FOGCore->logHistory(sprintf('Scheduled Task Created: Task ID: %s, Task Name: %s, Host ID: %s, Host Name: %s, Host MAC: %s, Image ID: %s, Image Name: %s', $Task->get('id'), $Task->get('name'), $this->get('id'), $this->get('name'), $this->getMACAddress(), $this->getImage()->get('id'), $this->getImage()->get('name')));
 			// Return
@@ -1082,21 +1082,21 @@ class Host extends FOGController
 	{
 		$this->FOGCore->getClass('VirusManager')->destroy(array('hostMAC' => $this->getMACAddress()->getMACWithColon()));
 	}
-	function createCronScheduledPackage($taskTypeID, $taskName = '', $minute = 1, $hour = 23, $dayOfMonth = '*', $month = '*', $dayOfWeek = '*', $enableShutdown = false, $enableSnapins = true, $isGroupTask = false, $username = '')
+	public function createCronScheduledPackage($taskTypeID, $taskName = '', $minute = 1, $hour = 23, $dayOfMonth = '*', $month = '*', $dayOfWeek = '*', $enableShutdown = false, $enableSnapins = true, $isGroupTask = false, $username = '')
 	{
 		try
 		{
 			// Error checking
-			if ($minute != '*' && ($minute < 0 || $minute > 59))
-				throw new Exception(_('Minute value is not valid'));
-			if ($hour != '*' && ($hour < 0 || $hour > 23))
-				throw new Exception(_('Hour value is not valid'));
-			if ($dayOfMonth != '*' && ($dayOfMonth < 0 || $dayOfMonth > 31))
-				throw new Exception(_('Day of Month value is not valid'));
-			if ($month != '*' && ($month < 0 || $month > 12))
-				throw new Exception(_('Month value is not valid'));
-			if ($dayOfWeek != '*' && ($dayOfWeek < 0 || $dayOfWeek > 6))
-				throw new Exception(_('Day of Week value is not valid'));
+			if ($minute != '*' && !$this->validDate($minute,'i'))
+				throw new Exception($this->foglang['MinNotValid']);
+			if ($hour != '*' && !$this->validDate($hour,'H'))
+				throw new Exception($this->foglang['HourNotValid']);
+			if ($dayOfMonth != '*' && !$this->validDate($dayOfMonth,'d'))
+				throw new Exception($this->foglang['DOMNotValid']);
+			if ($month != '*' && !$this->validDate($month,'m'))
+				throw new Exception($this->foglang['MonthNotValid']);
+			if ($dayOfWeek != '*' && !$this->validDate($dayOfWeek,'N'))
+				throw new Exception($this->foglang['DOWNotValid']);
 			// Variables
 			$findWhere = array(
 				'isActive' 	=> '1',
@@ -1108,18 +1108,18 @@ class Host extends FOGController
 				'hour' 		=> $hour,
 				'dayOfMonth' 	=> $dayOfMonth,
 				'month' 	=> $month,
-				'dayOfWeek' 	=> $dayOfWeek,
+				'dayOfWeek' 	=> $dayOfWeek < 7 ? $dayOfWeek+1 : $dayOfWeek,
 				'other3' => $username,
 			);
 			// Error checking: Active Scheduled Task
 			if ($this->FOGCore->getClass('ScheduledTaskManager')->count($findWhere))
-				throw new Exception(_('A task already exists for this Host at this cron schedule'));
+				throw new Exception($this->foglang['TaskSchExists']);
 			// TaskType: Variables
 			$TaskType = new TaskType($taskTypeID);
 			$isUpload = $TaskType->isUpload();
 			// TaskType: Error checking
 			if (!$TaskType->isValid())
-				throw new Exception(_('Task Type is not valid'));
+				throw new Exception($this->foglang['TaskTypeNotValid']);
 			// Task: Merge $findWhere array with other Task data -> Create ScheduledTask Object
 			$Task = new ScheduledTask(array_merge($findWhere, array(
 				'name'		=> 'Scheduled Task',
@@ -1129,7 +1129,7 @@ class Host extends FOGController
 			)));
 			// Task: Save
 			if (!$Task->save())
-				throw new Exception(_('Task creation failed'));
+				throw new Exception($this->foglang['FailedTask']);
 			// Log History event
 			$this->FOGCore->logHistory(sprintf('Cron Task Created: Task ID: %s, Task Name: %s, Host ID: %s, Host Name: %s, Host MAC: %s, Image ID: %s, Image Name: %s', $Task->get('id'), $Task->get('name'), $this->get('id'), $this->get('name'), $this->getMACAddress(), $this->getImage()->get('id'), $this->getImage()->get('name')));
 			// Return

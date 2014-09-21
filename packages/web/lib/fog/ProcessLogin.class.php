@@ -55,39 +55,42 @@ class ProcessLogin extends FOGBase
 
 	private function specLang()
 	{
-		switch ($_POST['ulang'])
+		switch ($_REQUEST['ulang'])
 		{
-			case _('English'):
-				$_POST['ulang'] = 'en_US.UTF-8';
+			case $this->foglang['Language']['en']:
+				$_REQUEST['ulang'] = 'en_US.UTF-8';
 				break;
-			case _('Français'):
-				$_POST['ulang'] = 'fr_FR.UTF-8';
+			case $this->foglang['Language']['fr']:
+				$_REQUEST['ulang'] = 'fr_FR.UTF-8';
 				break;
-			case _('Italiano'):
-				$_POST['ulang'] = 'it_IT.UTF-8';
+			case $this->foglang['Language']['it']:
+				$_REQUEST['ulang'] = 'it_IT.UTF-8';
 				break;
-			case _('中国的'):
-				$_POST['ulang'] = 'zh_CN.UTF-8';
+			case $this->foglang['Language']['zh']:
+				$_REQUEST['ulang'] = 'zh_CN.UTF-8';
 				break;
-			case _('Español'):
-				$_POST['ulang'] = 'es_ES.UTF-8';
+			case $this->foglang['Language']['es']:
+				$_REQUEST['ulang'] = 'es_ES.UTF-8';
 				break;
-			case _('Deutsch'):
-				$_POST['ulang']	= 'de_DE.UTF-8';
+			case $this->foglang['Language']['de']:
+				$_REQUEST['ulang']	= 'de_DE.UTF-8';
+				break;
+			case $this->foglang['Language']['pt']:
+				$_REQUEST['ulang'] = 'pt_BR.UTF-8';
 				break;
 			default :
 				$lang = $this->defaultLang();
-				$_POST['ulang'] = $lang[1];
+				$_REQUEST['ulang'] = $lang[1];
 				break;
 		}
 	}
 
 	private function setLang()
 	{
-		if (isset($_POST['ulang']) && strlen(trim($_POST['ulang'])) > 0)
+		if ($_REQUEST['ulang'])
 		{
 			$this->specLang();
-			$_SESSION['locale'] = $_POST['ulang'];
+			$_SESSION['locale'] = $_REQUEST['ulang'];
 			putenv("LC_ALL=".$_SESSION['locale']);
 			setlocale(LC_ALL,$_SESSION['locale']);
 			bindtextdomain('messages','languages');
@@ -141,11 +144,11 @@ class ProcessLogin extends FOGBase
 			try
 			{
 				if (!$tmpUser)
-					throw new Exception(_('Invalid Login'));
+					throw new Exception($this->foglang['InvalidLogin']);
 				if ($tmpUser->isValid() && $tmpUser->get('type') == 0 && $tmpUser->get('type') != 1)
 					$this->setCurUser($tmpUser);
 				else if ($tmpUser->get('type') == 0)
-					throw new Exception(_('Not allowed here!'));
+					throw new Exception($this->foglang['NotAllowedHere']);
 			}
 			catch (Exception $e)
 			{
@@ -165,7 +168,7 @@ class ProcessLogin extends FOGBase
 			try
 			{
 				if (!$tmpUser)
-					throw new Exception(_('Invalid Login'));
+					throw new Exception($this->foglang['InvalidLogin']);
 				if ($tmpUser->isValid())
 					$this->setCurUser($tmpUser);
 			}
@@ -203,7 +206,7 @@ class ProcessLogin extends FOGBase
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t<!-- Content -->";
 		print "\n\t\t\t".'<div id="content" class="dashboard">';
-		print "\n\t\t\t\t<h1>"._('Management Login').'</h1>';
+		print "\n\t\t\t\t<h1>".$this->foglang['ManagementLogin'].'</h1>';
 		print "\n\t\t\t\t".'<div id="content-inner">';
 		print "\n\t\t\t\t\t".'<form method="post" action="?node=login" id="login-form">';
 		if ($_GET['node'] != 'logout')
@@ -211,19 +214,19 @@ class ProcessLogin extends FOGBase
 			foreach ($_GET AS $key => $value)
 				print "\n\t\t\t\t\t\t".'<input type ="hidden" name="'.$key.'" value="'.$value.'" />';
 		}
-		print "\n\t\t\t\t\t\t".'<label for="username">'._('Username').'</label>';
+		print "\n\t\t\t\t\t\t".'<label for="username">'.$this->foglang['Username'].'</label>';
 		print "\n\t\t\t\t\t\t".'<input type="text" class="input" name="uname" id="username" />';
-		print "\n\t\t\t\t\t\t".'<label for="password">'._('Password').'</label>';
+		print "\n\t\t\t\t\t\t".'<label for="password">'.$this->foglang['Password'].'</label>';
 		print "\n\t\t\t\t\t\t".'<input type="password" class="input" name="upass" id="password" />';
-		print "\n\t\t\t\t\t\t".'<label for="language">'._('Language').'</label>';
+		print "\n\t\t\t\t\t\t".'<label for="language">'.$this->foglang['LanguagePhrase'].'</label>';
 		$this->getLanguages();
 		print "\n\t\t\t\t\t\t".'<select name="ulang" id="language">'.$this->langMenu.'</select>';
 		print "\n\t\t\t\t\t\t".'<label for="login-form-submit"></label>';
-		print "\n\t\t\t\t\t\t".'<input type="submit" value="'._('Login').'" id="login-form-submit" />';
+		print "\n\t\t\t\t\t\t".'<input type="submit" value="'.$this->foglang['Login'].'" id="login-form-submit" />';
 		print "\n\t\t\t\t\t</form>";
 		print "\n\t\t\t\t\t".'<div id="login-form-info">';
-		print "\n\t\t\t\t\t\t<p>"._('Estimated FOG sites').': <b><span class="icon icon-loading"></span></b></p>';
-		print "\n\t\t\t\t\t\t<p>"._('Latest Version').': <b><span class="icon icon-loading"></span></b></p>';
+		print "\n\t\t\t\t\t\t<p>".$this->foglang['FOGSites'].': <b><span class="icon icon-loading"></span></b></p>';
+		print "\n\t\t\t\t\t\t<p>".$this->foglang['LatestVer'].': <b><span class="icon icon-loading"></span></b></p>';
 		print "\n\t\t\t\t\t</div>";
 		print "\n\t\t\t\t</div>";
 		print "\n\t\t\t</div>";
@@ -245,13 +248,13 @@ class ProcessLogin extends FOGBase
 	{
 		ob_start('ob_gzhandler');
 		print "\n\t\t\t".'<center><div class="login">';
-		print "\n\t\t\t\t".'<p class="loginTitle">'._('FOG Mobile Login').'</p>';
+		print "\n\t\t\t\t".'<p class="loginTitle">'.$this->foglang['FOGMobile'].'</p>';
 		print "\n\t\t\t\t".'<form method="post" action="?node=login">';
-		print "\n\t\t\t\t\t".'<div class="loginElement">'._('Username').':</div><div class="loginElement"><input type="text" class="login" name="uname" /></div>';
-		print "\n\t\t\t\t\t".'<div class="loginElement">'._('Password').':</div><div class="loginElement"><input type="password" class="login" name="upass" /></div>';
+		print "\n\t\t\t\t\t".'<div class="loginElement">'.$this->foglang['Username'].':</div><div class="loginElement"><input type="text" class="login" name="uname" /></div>';
+		print "\n\t\t\t\t\t".'<div class="loginElement">'.$this->foglang['Password'].':</div><div class="loginElement"><input type="password" class="login" name="upass" /></div>';
 		$this->getLanguages();
-		print "\n\t\t\t\t\t".'<div class="loginElement">'._('Language').':</div><div class="loginElement"><select class="login" name="ulang">'.$this->langMenu.'</select></div>';
-		print "\n\t\t\t\t\t".'<p><input type="submit" value="'._('Login').'" /></p>';
+		print "\n\t\t\t\t\t".'<div class="loginElement">'.$this->foglang['LanguagePhrase'].':</div><div class="loginElement"><select class="login" name="ulang">'.$this->langMenu.'</select></div>';
+		print "\n\t\t\t\t\t".'<p><input type="submit" value="'.$this->foglang['Login'].'" /></p>';
 		print "\n\t\t\t\t</form>";
 		print "\n\t\t\t</div></center>";
 		ob_end_flush();
