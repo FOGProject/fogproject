@@ -96,8 +96,8 @@ class ServiceConfigurationPage extends FOGPage
 				'${span}',
 			);
 			$fields = array(
-				_($Module->get('name').' Enabled?') => '<input type="checkbox" name="en"${checked} />',
-				($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? _($Module->get('name').' Enabled as default?') : null) => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? '<input type="checkbox" name="defen"${is_on} />' : null),
+				_($Module->get('name').' Enabled?') => '<input type="checkbox" name="en" value="on" ${checked} />',
+				($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? _($Module->get('name').' Enabled as default?') : null) => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? '<input type="checkbox" name="defen" value="on" ${is_on} />' : null),
 			);
 			$fields = array_filter($fields);
 			foreach((array)$fields AS $field => $input)
@@ -108,8 +108,8 @@ class ServiceConfigurationPage extends FOGPage
 					$this->data[] = array(
 						'field' => $field,
 						'input' => $input,
-						'checked' => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? ' value="on" checked="checked"' : ''),
-						($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? 'is_on' : null) => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? ($Module->get('isDefault') ? ' value="on" checked="checked"' : null) : null),
+						'checked' => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? 'checked="checked"' : ''),
+						($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? 'is_on' : null) => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? ($Module->get('isDefault') ? 'checked="checked"' : null) : null),
 						'span' => '<span class="icon icon-help hand" title="${module_desc}"></span>',
 						'module_desc' => $Service->get('description'),
 					);
@@ -315,16 +315,18 @@ class ServiceConfigurationPage extends FOGPage
 		$onoff = ($_REQUEST['en'] == 'on' ? 1 : 0);
 		//Gets the default enabling status.
 		$defen = ($_REQUEST['defen'] == 'on' ? 1 : 0);
-		//Fins the relevant module.
-		$Module = current($this->FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['tab'])));
-		// If the module is found and valid, it saves the default status.
-		if ($Module && $Module->isValid())
-			$Module->set('isDefault',$defen)->save();
 		// POST
 		try
 		{
 			if ($_REQUEST['updatestatus'] == 1)
+			{
 				$Service->set('value',$onoff);
+				// Finds the relevant module
+				$Module = current($this->FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['tab'])));
+				// If the module is found and valid, it saves the default status.
+				if ($Module && $Module->isValid())
+					$Module->set('isDefault',$defen)->save();
+			}
 			switch ($this->REQUEST['tab'])
 			{
 				case 'autologout';
