@@ -58,7 +58,7 @@ abstract class FOGBase
 		// Language Setup
 		$this->foglang = $GLOBALS['foglang'];
 		// Default TimeZone to use for date fields
-		$this->TimeZone = (!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone'));
+		$this->TimeZone = (ini_get('date.timezone') ? ini_get('date.timezone') : 'GMT');
 	}
 	/** fatalError($txt, $data = array())
 		Fatal error in the case something went wrong.
@@ -352,36 +352,24 @@ abstract class FOGBase
 	{
 		if (!$time instanceof DateTime)
 			$time = $this->nice_date($time,$utc);
-		$CurrTime = $this->nice_date('now',$utc);
-		$TimeVal = $time->diff($CurrTime)->days;
-		$Days = true;
-		if ($TimeVal >= 30)
-		{
-			$TimeVal = $time->diff($CurrTime)->format('%m');
-			$Days = false;
-		}
 		// Forced format
 		if ($format)
 			$RetDate = $time->format($format);
-		if ($Days)
-		{
-			// Today
-			if ($Days && $TimeVal < 1)
-				$RetDate = 'Today, ' . $time->format('g:ia');
-			// Yesterday
-			elseif ($Days && $TimeVal == 1)
-				$RetDate = 'Yesterday, ' . $time->format('g:ia');
-			elseif ($Days && $TimeVal >= 2 && $TimeVal < 30)
-				$RetDate = $TimeVal.' days ago.';
-		}
-		else
-		{
-			if ($TimeVal >= 1 && $TimeVal < 12)
-				$RetDate = $TimeVal.' '.($TimeVal  == 1 ? 'month' : 'months').' ago';
-			else
-				$RetDate = $time->format('Y-m-d H:i:s');
-		}
-		return $RetDate;
+		$CurrTime = $this->nice_date('now',$utc);
+		$TimeVal = $time->diff($CurrTime);
+		if ($TimeVal->y)
+			$RetDate = $TimeVal->y.' year'.($TimeVal->y != 1 ? 's' : '');
+		else if ($TimeVal->m)
+			$RetDate = $TimeVal->m.' month'.($TimeVal->m != 1 ? 's' : '');
+		else if ($TimeVal->d)
+			$RetDate = $TimeVal->d.' day'.($TimeVal->d != 1 ? 's' : '');
+		else if ($TimeVal->h)
+			$RetDate = $TimeVal->h.' hour'.($TimeVal->h != 1 ? 's' : '');
+		else if ($TimeVal->i)
+			$RetDate = $TimeVal->i.' minute'.($TimeVal->i != 1 ? 's' : '');
+		else if ($TimeVal->s)
+			$RetDate = $TimeVal->s.' second'.($Timeval->s != 1 ? 's' : '');
+		return $RetDate.' ago';
 	}
 }
 /* Local Variables: */
