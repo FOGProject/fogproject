@@ -339,11 +339,13 @@ abstract class FOGBase
 	*/
 	public function validDate($Date,$format = '')
 	{
-		if (!$format)
-			$format = 'm/d/Y';
 		if ($format == 'N')
 			return ($Date instanceof DateTime ? ($Date->format('N') >= 0 && $Date->format('N') <= 7) : $Date >= 0 && $Date <= 7);
-		return DateTime::createFromFormat($format,($Date instanceof DateTime ? $Date->format($format) : $Date));
+		if (!$Date instanceof DateTime)
+			$Date = $this->nice_date($Date);
+		if (!$format)
+			$format = 'm/d/Y';
+		return DateTime::createFromFormat($format,$Date->format($format));
 	}
 	/** formatTime($time, $format = '')
 		format's time information.  If format is blank,

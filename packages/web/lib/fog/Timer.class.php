@@ -32,7 +32,7 @@ class Timer
 	public function getSingleRunTime() {return $this->lngSingle;}
 	public function toString()
 	{
-		return ($this->blSingle ? $this->formatTime($this->lngSingle,'r') : 'Crontab: '.$this->strMin.' '.$this->strHour.' '.$this->strDOM.' '.$this->strMonth.' '.$this->strDOW);
+		return ($this->blSingle ? $this->nice_date($this->lngSingle)->format('r') : 'Crontab: '.$this->strMin.' '.$this->strHour.' '.$this->strDOM.' '.$this->strMonth.' '.$this->strDOW);
 	}
 	public function setDebug( $blDebug )
 	{
