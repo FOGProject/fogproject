@@ -117,6 +117,6 @@ class MACAddress extends FOGBase
 		}
 		
 		// Failure
-		throw new Exception(sprintf('%s: %s', _('No Host found for MAC Address'), $this->getMACWithColon()));
+		throw new Exception(sprintf('%s: %s', $this->foglang['NoHostFound'], $this->getMACWithColon()));
 	}
 }
