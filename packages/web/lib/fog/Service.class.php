@@ -19,7 +19,7 @@ class Service extends FOGController
 	public function addDir($dir)
 	{
 		if ($this->FOGCore->getClass('DirCleanerManager')->count(array('path' => addslashes($dir))) > 0)
-			throw new Exception(_('Directory already exists.'));
+			throw new Exception($this->foglang['n/a']);
 		$NewDir = new DirCleaner(array(
 			'path' => $dir,
 		));
@@ -45,7 +45,7 @@ class Service extends FOGController
 	public function setGreenFog($h,$m,$t)
 	{
 		if ($this->FOGCore->getClass('GreenFogManager')->count(array('hour' => $h,'min' => $m)) > 0)
-			throw new Exception(_('Time already exists.'));
+			throw new Exception($this->foglang['TimeExists']);
 		else
 		{
 			$NewGreenFog = new GreenFog(array(
@@ -65,7 +65,7 @@ class Service extends FOGController
 	public function addUser($user)
 	{
 		if ($this->FOGCore->getClass('UserCleanupManager')->count(array('name' => $user)) > 0)
-			throw new Exception(_('User already exists.'));
+			throw new Exception($this->foglang['UserExists']);
 		$this->FOGCore->getClass('UserCleanup',array('name' => $user))->save();
 	}
 	//Remove Cleanup user

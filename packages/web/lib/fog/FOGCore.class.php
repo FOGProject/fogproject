@@ -151,7 +151,7 @@ class FOGCore extends FOGBase
 	public function getMACManufacturer($macprefix)
 	{
 		$OUI = current($this->getClass('OUIManager')->find(array('prefix' => $macprefix)));
-		return ($OUI && $OUI->isValid() ? $OUI->get('name') : _('n/a'));
+		return ($OUI && $OUI->isValid() ? $OUI->get('name') : $this->foglang['n/a']);
 	}
 	
 	/** addUpdateMACLookupTable($macprefix,$strMan)

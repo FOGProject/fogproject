@@ -71,7 +71,7 @@ class HostManagementPage extends FOGPage
 	public function index()
 	{
 		// Set title
-		$this->title = _('All Hosts');
+		$this->title = $this->foglang['AllHosts'];
 		// Get location if enabled:
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// Find data -> Push data

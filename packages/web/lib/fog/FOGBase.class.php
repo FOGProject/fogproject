@@ -337,11 +337,13 @@ abstract class FOGBase
 	* @param $Date the date, nice or not nice
 	* @return return whether Date/Time is valid or not
 	*/
-	public function validDate($Date)
+	public function validDate($Date,$format = '')
 	{
-		if (!$Date instanceof DateTime)
-			$Date = $this->nice_Date($Date);
-		return DateTime::createFromFormat('m/d/Y',$Date->format('m/d/Y'));
+		if (!$format)
+			$format = 'm/d/Y';
+		if ($format == 'N')
+			return ($Date instanceof DateTime ? ($Date->format('N') >= 0 && $Date->format('N') <= 7) : $Date >= 0 && $Date <= 7);
+		return DateTime::createFromFormat($format,($Date instanceof DateTime ? $Date->format($format) : $Date));
 	}
 	/** formatTime($time, $format = '')
 		format's time information.  If format is blank,
@@ -370,6 +372,25 @@ abstract class FOGBase
 		else if ($TimeVal->s)
 			$RetDate = $TimeVal->s.' second'.($Timeval->s != 1 ? 's' : '');
 		return $RetDate.' ago';
+	}
+	/** resetRequest()
+	* Simply resets the request so data, even if invalid, will populate form.
+	*/
+	public function resetRequest()
+	{
+		if ($_SESSION['post_request_vals'])
+		{
+			$_REQUEST = $_SESSION['post_request_vals'];
+			unset($_SESSION['post_request_vals']);
+		}
+	}
+	/** setRequest()
+	* Simply sets the session Request variables as a session variable
+	*/
+	public function setRequest()
+	{
+		if (!$_SESSION['post_request_vals'] && $this->FOGCore->isPOSTRequest())
+			$_SESSION['post_request_vals'] = $_REQUEST;
 	}
 }
 /* Local Variables: */

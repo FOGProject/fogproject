@@ -51,7 +51,7 @@ abstract class FOGPage extends FOGBase
 		if (!empty($name))
 			$this->name = $name;
 		// Set title
-		$this->title = _($this->name);
+		$this->title = $this->foglang[$this->name];
 		// Make these key's accessible in $this->request
 		$this->request = $this->REQUEST = $this->DB->sanitize($_REQUEST);
 		$this->REQUEST['id'] = $_REQUEST[$this->id];
@@ -110,11 +110,11 @@ abstract class FOGPage extends FOGBase
 				// HTML output
 				if ($this->searchFormURL)
 				{
-					$result[] = sprintf('%s<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" '.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'name="host-search"' : '').'/> <input id="%s-search-submit" class="search-submit" type="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'submit' : 'button').'" value="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? _('Search') : '').'" /></form>',
+					$result[] = sprintf('%s<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" '.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'name="host-search"' : '').'/> <input id="%s-search-submit" class="search-submit" type="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'submit' : 'button').'" value="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? $this->foglang['Search'] : '').'" /></form>',
 						"\n\t\t\t",
 						$this->searchFormURL,
 						(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),	// TODO: Store this in class as variable
-						sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), _('Search')),
+						sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), $this->foglang['Search']),
 						(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)	// TODO: Store this in class as variable
 					);
 				}
@@ -154,7 +154,7 @@ abstract class FOGPage extends FOGBase
 					// No data found
 					$result[] = sprintf('<tr><td colspan="%s" class="no-active-tasks">%s</td></tr>',
 						count($this->templates),
-						($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : _('No results found'))
+						($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : $this->foglang['NoResults'])
 					);
 				}
 				// Table close
