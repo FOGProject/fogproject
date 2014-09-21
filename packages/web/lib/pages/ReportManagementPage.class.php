@@ -1187,7 +1187,7 @@ class ReportManagementPage extends FOGPage
 		// Get the current Inventory based on what was selected.
 		$Inventory = new Inventory($_REQUEST['user']);
 		// Title Information
-		$ReportMaker->appendHTML("<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " . $this->formatTime('now',"D M j G:i:s T Y") . "\" -->" );
+		$ReportMaker->appendHTML("<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " . $this->nice_date()->format("D M j G:i:s T Y") . "\" -->" );
 		$ReportMaker->appendHTML("<center><h2>"._("[YOUR ORGANIZATION HERE]")."</h2></center>" );
 		$ReportMaker->appendHTML("<center><h3>"._("[sub-unit here]")."</h3></center>" );
 		$ReportMaker->appendHTML("<center><h2><u>"._("PC Check-Out Agreement")."</u></h2></center>" );
@@ -1213,7 +1213,7 @@ class ReportManagementPage extends FOGPage
 		$ReportMaker->appendHTML( "<br />" );
 		$ReportMaker->appendHTML( "<h4><b>"._("Signed").": </b>X _____________________________  "._("Date").": _________/_________/20_______</h4>" );
 		$ReportMaker->appendHTML( _("<!-- "._("NEW PAGE")." -->") );
-		$ReportMaker->appendHTML( "<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " .$this->formatTime('now',"D M j G:i:s T Y") . "\" -->" );
+		$ReportMaker->appendHTML( "<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " .$this->nice_date()->format("D M j G:i:s T Y") . "\" -->" );
 		$ReportMaker->appendHTML( "<center><h3>"._("Terms and Conditions")."</h3></center>" );
 		$ReportMaker->appendHTML( "<hr />" );
 		$ReportMaker->appendHTML( "<h4>"._("Your terms and conditions here")."</h4>" );
