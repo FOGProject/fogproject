@@ -24,11 +24,10 @@ namespace FOG {
 				foreach(String dir in getDirectories(dirResponse)) {
 					
 					try {
-						LogHandler.log(getName(), "Attempting to delete " + Environment.ExpandEnvironmentVariables(dir));
+						LogHandler.log(getName(), "Deleting " + Environment.ExpandEnvironmentVariables(dir));
 						Directory.Delete(Environment.ExpandEnvironmentVariables(dir),true);
 						
 					} catch (Exception ex) {
-						LogHandler.log(getName(), "Failure");
 						LogHandler.log(getName(), "ERROR: " + ex.Message);
 					}
 				}

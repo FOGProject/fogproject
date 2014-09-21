@@ -32,8 +32,6 @@ namespace FOG
 			LogHandler.log(getName(), "Running...");
 			if(isEnabled()) {
 				doWork();
-			} else {
-				LogHandler.log(getName(), "Module is disabled");
 			}
 		}
 		

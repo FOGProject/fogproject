@@ -24,7 +24,6 @@ namespace FOG {
 		
 		public Boolean updateSettings() {
 			if(User_32.EnumDisplaySettings(null, User_32.ENUM_CURRENT_SETTINGS, ref this.devMode) !=0) {
-				LogHandler.log(LOG_NAME, "Successfully loaded display settings");
 				return true;
 			}			
 			LogHandler.log(LOG_NAME, "Unable to load display settings");
@@ -47,15 +46,13 @@ namespace FOG {
 				this.devMode.dmDeviceName = device;
 				
 				//Test changing the resolution first
-				LogHandler.log(LOG_NAME, "Testing resolution to ensure it works");
+				LogHandler.log(LOG_NAME, "Testing resolution to ensure it is compatible");
 				int changeStatus = User_32.ChangeDisplaySettings(ref this.devMode, User_32.CDS_TEST);
 				
 				if(changeStatus.Equals(User_32.DISP_CHANGE_FAILED)) {
 					LogHandler.log(LOG_NAME, "Failed");
 				} else {
-					LogHandler.log(LOG_NAME, "Success");
-					
-					LogHandler.log(LOG_NAME, "Attemting to change resolution");
+					LogHandler.log(LOG_NAME, "Changing resolution");
 					changeStatus = User_32.ChangeDisplaySettings(ref this.devMode, User_32.CDS_UPDATEREGISTRY);
 					
 					if(changeStatus.Equals(User_32.DISP_CHANGE_SUCCESSFUL)) {

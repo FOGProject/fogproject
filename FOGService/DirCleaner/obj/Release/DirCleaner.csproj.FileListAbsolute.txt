@@ -1,0 +1,3 @@
+D:\fog\bin\DirCleaner.dll
+D:\fog\FOGService\DirCleaner\obj\Release\ResolveAssemblyReference.cache
+D:\fog\FOGService\DirCleaner\obj\Release\DirCleaner.dll
