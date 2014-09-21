@@ -96,7 +96,7 @@ namespace FOG {
 			if(!taskResponse.getField("#hostname").Equals("")) {
 				if(!System.Environment.MachineName.ToLower().Equals(taskResponse.getField("#hostname").ToLower())) {
 				
-					LogHandler.log(getName(), "Attempting to rename host to " + taskResponse.getField("#hostname"));
+					LogHandler.log(getName(), "Renaming host to " + taskResponse.getField("#hostname"));
 					if(!UserHandler.isUserLoggedIn() || taskResponse.getField("#force").Equals("1")) {
 					
 						//First unjoin it from active directory
@@ -132,7 +132,7 @@ namespace FOG {
 		//Add a host to active directory
 		private void registerComputer(Response taskResponse) {
 			if(taskResponse.getField("#AD").Equals("1")) { 
-				LogHandler.log(getName(), "Attempting to add host to active directory");
+				LogHandler.log(getName(), "Adding host to active directory");
 				if(!taskResponse.getField("#ADDom").Equals("") && !taskResponse.getField("#ADUser").Equals("") && 
 				   !taskResponse.getField("#ADPass").Equals("")) {
 				
@@ -167,7 +167,7 @@ namespace FOG {
 		
 		//Remove the host from active directory
 		private void unRegisterComputer(Response taskResponse) {
-			LogHandler.log(getName(), "Attempting to remove host from active directory");
+			LogHandler.log(getName(), "Removing host from active directory");
 			if(!taskResponse.getField("#ADUser").Equals("") && !taskResponse.getField("#ADPass").Equals("")) {
 				
 				String userPassword = EncryptionHandler.decodeAESResponse(taskResponse.getField("#ADPass"), PASSKEY);
@@ -190,7 +190,7 @@ namespace FOG {
 		//Active a computer with a product key
 		private void activateComputer(Response taskResponse) {
 			if(taskResponse.getData().ContainsKey("#Key")) {
-				LogHandler.log(getName(), "Attempting to active host");
+				LogHandler.log(getName(), "Activing host with product key");
 				
 				//The standard windows key is 29 characters long -- 5 sections of 5 characters with 4 dashes (5*5+4)
 				if(taskResponse.getField("#Key").Length == 29) {

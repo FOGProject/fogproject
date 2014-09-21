@@ -13,7 +13,7 @@ namespace FOG {
 		}
 	
 		protected override void doWork() {
-			LogHandler.log(getName(), "Sending computer info to FOG");
+			LogHandler.log(getName(), "Sending host information to FOG");
 			CommunicationHandler.contact("/service/register.php?mac=" + CommunicationHandler.getMacAddresses() + "&hostname=" + Dns.GetHostName());
 			
 		}

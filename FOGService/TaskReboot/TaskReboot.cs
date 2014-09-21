@@ -21,7 +21,7 @@ namespace FOG {
 
 			//Shutdown if a task is avaible and the user is logged out or it is forced
 			if(!taskResponse.wasError()) {
-				LogHandler.log(getName(), "Attempting to restart computer for task");
+				LogHandler.log(getName(), "Restarting computer for task");
 				if(!UserHandler.isUserLoggedIn() || taskResponse.getField("#force").Equals("1") ) {
 					ShutdownHandler.restart(getName(), 30);
 				} else if(!taskResponse.wasError() && !this.notifiedUser) {
