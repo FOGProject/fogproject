@@ -14,8 +14,8 @@ print "\n\t\t".'<link rel="stylesheet" type="text/css" href="./css/static.css" /
 print "\n\t</head>";
 print "\n<body>";
 print "\n\t".'<div class="main">';
-print "\n\t\t<h3>"._('FOG General Help').'</h3>';
-print "\n\t\t<h5>"._('Description').'</h5>';
+print "\n\t\t<h3>".$foglang['GenHelp'].'</h3>';
+print "\n\t\t<h5>".$foglang['Desc'].'</h5>';
 print "\n\t\t<p>";
 print "\n\t\t\t".base64_decode($_REQUEST['data']);
 print "\n\t\t</p>";

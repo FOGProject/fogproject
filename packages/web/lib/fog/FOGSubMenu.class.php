@@ -58,10 +58,10 @@ class FOGSubMenu
 		// No ifVariable to check, this must be a main menu item
 		if (!$ifVariable)
 		{
-			if (is_array($this->items[$node][_('Main Menu')]))
-				$this->items[$node][_('Main Menu')] = array_merge($this->items[$node][_('Main Menu')], $items);
+			if (is_array($this->items[$node][$this->foglang['MainMenu']]))
+				$this->items[$node][$this->foglang['MainMenu']] = array_merge($this->items[$node][$this->foglang['MainMenu']], $items);
 			else
-				$this->items[$node][_('Main Menu')] = $items;
+				$this->items[$node][$this->foglang['MainMenu']] = $items;
 		}
 		// ifVariable passed to be checked, if it is set then add to menu
 		elseif (isset($GLOBALS[$ifVariable]))
@@ -101,7 +101,7 @@ class FOGSubMenu
 				
 				$output .= "<h2>" . $this->fixTitle($title) . "</h2>\n\t\t<ul>\n";
 				foreach ($data AS $label => $link)
-					$output .= "\t\t\t" . '<li><a href="' . (!$this->isExternalLink($link) ? $_SERVER['PHP_SELF'] . "?node=$node" . ($link != '' ? '&sub=' : '') . ($GLOBALS['sub'] && $title != _('Main Menu') ? ($this->defaultSubs[$node] ? $this->defaultSubs[$node] : $GLOBALS['sub']) . "&tab=" : '') . $link : $link) . '">' . $label . '</a></li>' . "\n";
+					$output .= "\t\t\t" . '<li><a href="' . (!$this->isExternalLink($link) ? $_SERVER['PHP_SELF'] . "?node=$node" . ($link != '' ? '&sub=' : '') . ($GLOBALS['sub'] && $title != $this->foglang['MainMenu'] ? ($this->defaultSubs[$node] ? $this->defaultSubs[$node] : $GLOBALS['sub']) . "&tab=" : '') . $link : $link) . '">' . $label . '</a></li>' . "\n";
 				$output .= "\t\t</ul>\n";
 				// HACK: Add div around submenu items for tabs
 				// Blackout - 8:24 AM 30/11/2011

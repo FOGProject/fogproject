@@ -13,7 +13,7 @@
 class ClientManagementPage extends FOGPage
 {
 	// Base variables
-	var $name = 'Client Managment';
+	var $name = 'Client Management';
 	var $node = 'client';
 	var $id = 'id';
 	// Menu Items

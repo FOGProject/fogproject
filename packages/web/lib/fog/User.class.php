@@ -62,7 +62,7 @@ class User extends FOGController
 			// Logout
 			$this->logout();
 			// Set Message -> Redirect to invoke login page
-			$this->FOGCore->setMessage(_('Session timeout'));//->redirect();
+			$this->FOGCore->setMessage($this->foglang['SessionTimeout']);//->redirect();
 			// Logged out
 			return false;
 		}
