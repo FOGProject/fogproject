@@ -58,7 +58,7 @@ try
 			$Datatosend = (in_array($moduleID->get('id'),(array)$activeIDs) ? '#!ok' : '#!nh')."\n";
 		}
 		else if ($Host->get('pending'))
-			$Datatosend = ($_REQUEST['moduleid'] == 'hostregister' ? '#!ok' : '#!nh')."\n";
+			$Datatosend = ($_REQUEST['moduleid'] == 'hostregister' ? '#!ok' : '#!ih')."\n";
 	}
 	else
 		$Datatosend = ($_REQUEST['moduleid'] == 'hostregister' ? '#!ok' : '#!ih')."\n";
