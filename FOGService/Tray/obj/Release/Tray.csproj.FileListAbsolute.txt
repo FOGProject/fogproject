@@ -1,0 +1,5 @@
+D:\fog\FOGService\bin\FOGTray.exe
+D:\fog\FOGService\Tray\obj\Release\ResolveAssemblyReference.cache
+D:\fog\FOGService\Tray\obj\Release\FOG.NotificationIcon.resources
+D:\fog\FOGService\Tray\obj\Release\Tray.csproj.GenerateResource.Cache
+D:\fog\FOGService\Tray\obj\Release\FOGTray.exe

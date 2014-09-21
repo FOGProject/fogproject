@@ -93,7 +93,6 @@ namespace FOG {
 		
 		//Decode an AES256 encrypted response
 		public static String decodeAESResponse(String response, String passKey) {
-			LogHandler.log(LOG_NAME, "Attempting to decrypt response");
 			//The first set of 15 characters is the initialization vector, the rest is the encrypted message
 			if(response.Length > 16) {
 				return EncryptionHandler.decodeAES(response.Substring(16), passKey, response.Substring(0,16)).Trim();

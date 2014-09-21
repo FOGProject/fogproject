@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Management;
 using System.DirectoryServices;
+using System.Security.Principal;
+using System.Security.AccessControl;
+using System.Diagnostics;
 
 namespace FOG {
 	/// <summary>
@@ -20,7 +23,7 @@ namespace FOG {
 	    
 	    [DllImport("Wtsapi32.dll")]
 	    private static extern void WTSFreeMemory(IntPtr pointer);
-	    
+
 		enum WtsInfoClass {
 		     WTSInitialProgram,
 		     WTSApplicationName,
@@ -152,11 +155,12 @@ namespace FOG {
 		}
 		
 		public static String getUserProfilePath(String sid) {
-			return RegistryHandler.getRegisitryValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\" + sid + @"\", "ProfileImagePath");
+			return RegistryHandler.getRegisitryValue(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\" + sid + @"\", "ProfileImagePath");
 		}		
 		
 		//Completely purge a user from windows
 		public static Boolean purgeUser(UserData user, Boolean deleteData) {
+			LogHandler.log(LOG_NAME, "Purging " + user.getName() + " from system");
 			if(deleteData) {
 				if(unregisterUser(user.getName())) {
 					if(removeUserProfile(user.getSID())) {
@@ -168,10 +172,10 @@ namespace FOG {
 				return unregisterUser(user.getName());
 			}
 		}
+	
 		
 		//Unregister a user from windows
 		public static Boolean unregisterUser(String user) {
-			LogHandler.log(LOG_NAME, "Attempting to unregister " + user);
 			try {
 				DirectoryEntry userDir = new DirectoryEntry("WinNT://" + Environment.MachineName + ",computer");
 				DirectoryEntry userToDelete = userDir.Children.Find(user);
@@ -180,6 +184,7 @@ namespace FOG {
 				return true;
 				
 			} catch (Exception ex) {
+				LogHandler.log(LOG_NAME, "Unable to unregister user");
 				LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);
 			}
 			return false;			
@@ -187,16 +192,19 @@ namespace FOG {
 		
 		//Delete user profile
 		public static Boolean removeUserProfile(String sid) {
-			LogHandler.log(LOG_NAME, "Attempting to remove user profile with SID:  " + sid);
 			
 			try {
 				String path = getUserProfilePath(sid);
-			
+				LogHandler.log(LOG_NAME, "User path: " + path);
 				if(path != null) {
-						Directory.Delete(path, true);
-						return true;
+					takeOwnership(path);
+					resetRights(path);
+					removeWriteProtection(path);
+					Directory.Delete(path, true);
+					return true;
 				}
 			} catch (Exception ex) {
+				LogHandler.log(LOG_NAME, "Unable to remove user data");
 				LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);
 			}
 			return false;
@@ -204,8 +212,39 @@ namespace FOG {
 		
 		//Clean all registry entries of a user
 		public static Boolean cleanUserRegistryEntries(String sid) {
-			LogHandler.log(LOG_NAME, "Attempting to clean registry for user with SID:  " + sid);
 			return RegistryHandler.deleteFolder(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\" + sid + @"\");
 		}
+		
+		public static void takeOwnership(String path) {
+
+			using (new ProcessPrivileges.PrivilegeEnabler(Process.GetCurrentProcess(), ProcessPrivileges.Privilege.TakeOwnership)){
+			    DirectoryInfo directoryInfo = new DirectoryInfo(path);
+			    DirectorySecurity directorySecurity = directoryInfo.GetAccessControl();
+			    directorySecurity.SetOwner(WindowsIdentity.GetCurrent().User);
+			    Directory.SetAccessControl(path, directorySecurity);    
+			}
+
+		}
+		
+		private static DirectorySecurity RemoveExplicitSecurity(DirectorySecurity directorySecurity) {
+			AuthorizationRuleCollection rules = directorySecurity.GetAccessRules(true, false, typeof(System.Security.Principal.NTAccount));
+			foreach (FileSystemAccessRule rule in rules)
+				directorySecurity.RemoveAccessRule(rule);
+			return directorySecurity;
+		}
+		
+		public static void resetRights(String path) {
+			DirectoryInfo directoryInfo = new DirectoryInfo(path);
+			DirectorySecurity directorySecurity = directoryInfo.GetAccessControl();
+			directorySecurity = RemoveExplicitSecurity(directorySecurity);
+			Directory.SetAccessControl(path, directorySecurity);
+		}
+		
+		public static void removeWriteProtection(String path) {
+			 DirectoryInfo directoryInfo = new DirectoryInfo(path);
+			 directoryInfo.Attributes &= ~FileAttributes.ReadOnly;
+		}		
+		
+
 	}
 }

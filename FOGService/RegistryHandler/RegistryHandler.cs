@@ -23,7 +23,6 @@ namespace FOG {
 		}
 		
 		public static String getRegisitryValue(String keyPath, String keyName) {
-			LogHandler.log(LOG_NAME, "Attempting to get " + keyPath + keyName);
 			try {
 				RegistryKey key = Registry.LocalMachine.OpenSubKey(keyPath);
 	            if (key != null) {
@@ -33,14 +32,13 @@ namespace FOG {
 	                }
 	            }	
 			} catch (Exception ex) {
-				LogHandler.log(LOG_NAME, "Error getting registry key");
+				LogHandler.log(LOG_NAME, "Error retrieving " + keyPath + keyName);
 				LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);
 			}
 			return null;
 		}
 		
 		public static Boolean deleteFolder(String path) {
-			LogHandler.log(LOG_NAME, "Attempting to delete " + path);
 			try {
 				RegistryKey key = Registry.LocalMachine.OpenSubKey(path, true);
 				if (key != null) {
@@ -48,7 +46,7 @@ namespace FOG {
 					return true;
 				}
 			} catch (Exception ex) {
-				LogHandler.log(LOG_NAME, "Error while trying to remove folder");
+				LogHandler.log(LOG_NAME, "Error while trying to remove " + path);
 				LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);
 			}
 			

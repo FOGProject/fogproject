@@ -1,0 +1,3 @@
+D:\fog\FOGService\bin\UserCleanup.dll
+D:\fog\FOGService\UserCleanup\obj\Release\ResolveAssemblyReference.cache
+D:\fog\FOGService\UserCleanup\obj\Release\UserCleanup.dll
