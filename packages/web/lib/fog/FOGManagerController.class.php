@@ -186,7 +186,7 @@ abstract class FOGManagerController extends FOGBase
 			if (!in_array($Object->get('id'),(array)$filter))
 				$listArray[] = '<option value="'.$Object->get('id').'"'.($matchID == $Object->get('id') ? ' selected="selected"' : '' ).'>'.$Object->get('name').' - ('.$Object->get('id').')</option>';
 		}
-		return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',$elementName,'- '._('Please select an option').' -',implode("\n",$listArray)) : false);
+		return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',$elementName,'- '.$this->foglang['PleaseSelect'].' -',implode("\n",$listArray)) : false);
 	}
 	// TODO: Read DB fields from child class
 	/** exists($name, $id = 0)

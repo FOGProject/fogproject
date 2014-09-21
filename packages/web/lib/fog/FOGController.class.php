@@ -329,7 +329,7 @@ abstract class FOGController extends FOGBase
 			foreach ($this->databaseFieldsRequired AS $field)
 			{
 				if (!$this->get($field))
-					throw new Exception(_('Required database field is empty'));
+					throw new Exception($foglang['RequiredDB']);
 			}
 			if ($this->get('id') || $this->get('name'))
 				return true;
