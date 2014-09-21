@@ -47,7 +47,7 @@ namespace FOG {
 			messages.Add("#!il", "Invalid login");					
 			messages.Add("#!it", "Invalid task");				
 			messages.Add("#!ng", "Module is disabled globally on the FOG server");
-			messages.Add("#!nh", "Module is diabled on the host");
+			messages.Add("#!nh", "Module is disabled on the host");
 			messages.Add("#!um", "Unknown module ID");
 			messages.Add("#!ns", "No snapins");		
 			messages.Add("#!nj", "No jobs");	
@@ -117,7 +117,7 @@ namespace FOG {
            
 				return parseResponse(response);
 			} catch (Exception ex) {
-				LogHandler.log(LOG_NAME, "Error contacting FOG");			
+				LogHandler.log(LOG_NAME, "Error contacting FOG server");			
 				LogHandler.log(LOG_NAME, "ERROR: " + ex.Message);				
 			}
 			return new Response();
@@ -159,9 +159,15 @@ namespace FOG {
 
 		//Contact FOG at a url, used for submitting data
 		public static Boolean contact(String postfix) {
+			//ID the service as the new one
+			if(postfix.Contains(".php?")) {
+				postfix = postfix + "&newService=1";
+			} else {
+				postfix = postfix + "?newService=1";
+			}			
 			LogHandler.log(LOG_NAME,
 			               "URL: " + getServerAddress() + postfix);
-			WebClient webClient = new WebClient();
+			WebClient webClient = new WebClient();			
 
 			try {
 				webClient.DownloadString(getServerAddress() + postfix);
