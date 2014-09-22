@@ -455,6 +455,9 @@ class ImageManagementPage extends FOGPage
 		array_push($this->headerData,_('Remove Image'));
 		array_push($this->templates,'<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}">'.$this->foglang['Delete']);
 		array_push($this->attributes,array());
+		array_splice($this->headerData,1,1);
+		array_splice($this->templates,1,1);
+		array_splice($this->attributes,1,1);
 		foreach((array)$Image->get('hosts') AS $Host)
 		{
 			if ($Host && $Host->isValid())
