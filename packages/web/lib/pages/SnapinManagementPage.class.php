@@ -283,52 +283,166 @@ class SnapinManagementPage extends FOGPage
 		print '</form>';
 		print "\n\t\t\t</div>";
 		unset($this->data);
-        $this->headerData = array(
-            _('Host Name'),
-            _('MAC'),
-            _('Remove Membership?'),
-        );       
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-        );       
-        $this->templates = array(
-            '<a href="?node=host&sub=edit&id=${host_id}" title="'._('Edit Host').':${host_name}">${host_name}</a>',
-            '${host_mac}',
-            '<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}">'._('Delete').'</label>',        
-        );
+		// Get hosts with this snapin assigned
         foreach((array)$Snapin->get('hosts') AS $Host)
-            $HostIDs[] = $Host && $Host->isValid() ? $Host->get('id') : '';
-        $HostStuff = $this->FOGCore->getClass('HostManager')->buildSelectBox('','host[]" multiple="multiple','',$HostIDs);
+		{
+			if ($Host && $Host->isValid())
+				$HostsWithMe[] = $Host->get('id');
+		}
+		// Get all Host IDs with any snapin assigned
+		foreach($this->FOGCore->getClass('SnapinAssociationManager')->find() AS $SnapAssoc)
+		{
+			if ($SnapAssoc && $SnapAssoc->isValid())
+			{
+				$SnapinMe = new Snapin($SnapAssoc->get('snapinID'));
+				$Host = new Host($SnapAssoc->get('hostID'));
+				if ($SnapinMe && $SnapinMe->isValid() && $Host && $Host->isValid())
+					$HostWithSnapin[] = $Host->get('id');
+			}
+		}
+		$HostWithSnapin = array_unique($HostWithSnapin);
+		$HostMan = new HostManager();
+		// Set the values
+		foreach($HostMan->find() AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				if (!in_array($Host->get('id'),(array)$HostWithSnapin))
+					$HostNotWithSnapin[] = $Host;
+				if (!in_array($Host->get('id'),(array)$HostsWithMe))
+					$HostNotWithMe[] = $Host;
+			}
+		}
 		print "\n\t\t\t\t".'<!-- Hosts Memberships -->';
 		print "\n\t\t\t\t".'<div id="snap-host">';
-        print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=snap-host">';
-        if ($HostStuff)
-        {    
-            print "\n\t\t\t<p>"._('The selection box below will add this snapin to the selected hosts automatically.').'</p>';
-            print "\n\t\t\t<p><center>$HostStuff";
-            print "\n\t\t\t".'<input type="submit" value="'._('Add to Snapin(s)').'" /></center></p>';
-        }        
-        unset($this->data);
-        // Find Host Relationships
-        $Hosts = $Snapin->get('hosts');
-        foreach((array)$Hosts AS $Host)
-        {    
-            if ($Host && $Host->isValid())
-            {    
-                $this->data[] = array(
-                    'host_id' => $Host->get('id'),
-                    'host_name' => $Host->get('name'),
-                    'host_mac' => $Host->get('mac'),
-                );       
-            }
-        }
+		// Create the header data:
+		$this->headerData = array(
+			'',
+			'<input type="checkbox" name="toggle-checkboxsnapin1" class="toggle-checkbox1" />',
+			($_SESSION['FOGPingActive'] ? '' : null),
+			_('Host Name'),
+			_('Last Deployed'),
+			_('Registered'),
+		);
+		// Create the template data:
+		$this->templates = array(
+			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
+			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
+			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+			'${deployed}',
+			'${host_reg}',
+		);
+		// Create the attributes data:
+		$this->attributes = array(
+			array('width' => 22, 'id' => 'host-${host_name}'),
+			array('class' => 'c', 'width' => 16),
+			($_SESSION['FOGPingActive'] ? array('width' => 20) : ''),
+			array(),
+			array(),
+			array(),
+		);
+		// All hosts not with this snapin
+		foreach((array)$HostNotWithMe AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				$this->data[] = array(
+					'host_id' => $Host->get('id'),
+					'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : 'No Data',
+					'host_name' => $Host->get('name'),
+					'host_mac' => $Host->get('mac')->__toString(),
+					'host_desc' => $Host->get('description'),
+					'check_num' => '1',
+					'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+				);
+			}
+		}
+		$SnapinDataExists = false;
+		if (count($this->data) > 0)
+		{
+			$SnapinDataExists = true;
+			$this->HookManager->processEvent('SNAPIN_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+			print "\n\t\t\t<center>"._('Check here to see hosts not assigned with this snapin').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" />';
+			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=snap-host">';
+			print "\n\t\t\t".'<div id="hostNotInMe">';
+			print "\n\t\t\t".'<h2>'._('Modify snapin association for').' '.$Snapin->get('name').'</h2>';
+			print "\n\t\t\t".'<p>'._('Add hosts to snapin').' '.$Snapin->get('name').'</p>';
+			$this->render();
+			print "</div>";
+		}
+		// Reset the data for the next value
+		unset($this->data);
+		// Recreate the header to allow checkboxsnapin2
+		$this->headerData = array(
+			'',
+			'<input type="checkbox" name="toggle-checkboxsnapin2" class="toggle-checkbox2" />',
+			($_SESSION['FOGPingActive'] ? '' : null),
+			_('Host Name'),
+			_('Last Deployed'),
+			_('Registered'),
+		);
+		// All hosts without a snapin
+		foreach((array)$HostNotWithSnapin AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				$this->data[] = array(
+					'host_id' => $Host->get('id'),
+					'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : 'No Data',
+					'host_name' => $Host->get('name'),
+					'host_mac' => $Host->get('mac')->__toString(),
+					'host_desc' => $Host->get('description'),
+					'check_num' => '2',
+					'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+				);
+			}
+		}
+		if (count($this->data) > 0)
+		{
+			$SnapinDataExists = true;
+			$this->HookManager->processEvent('SNAPIN_HOST_NOT_IN_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+			print "\n\t\t\t<center>"._('Check here to see hosts not assigned with any snapin').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostNoShow" />';
+			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=snap-host">';
+			print "\n\t\t\t".'<div id="hostNoSnapin">';
+			print "\n\t\t\t".'<p>'._('Hosts below have no snapin association').'</p>';
+			print "\n\t\t\t".'<p>'._('Add hosts to snapin').' '.$Snapin->get('name').'</p>';
+			$this->render();
+			print "</div>";
+		}
+		if ($SnapinDataExists)
+		{
+			print '</br><input type="submit" value="'._('Add Snapin to Host(s)').'" />';
+			print "\n\t\t\t</form></center>";
+		}
+		unset($this->data);
+		array_push($this->headerData,_('Remove Snapin'));
+        array_push($this->templates,'<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}">'._('Delete').'</label>');
+		array_push($this->attributes,array());
+		array_splice($this->headerData,1,1);
+		array_splice($this->templates,1,1);
+		array_splice($this->attributes,1,1);
+		foreach((array)$Snapin->get('hosts') AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				$this->data[] = array(
+					'host_id' => $Host->get('id'),
+					'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : '',
+					'host_name' => $Host->get('name'),
+					'host_mac' => $Host->get('mac')->__toString(),
+					'host_desc' => $Host->get('description'),
+					'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+				);
+			}
+		}
         // Hook
         $this->HookManager->processEvent('SNAPIN_EDIT_HOST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-        $this->render();
+		// Output
+        print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=snap-host">';
+		$this->render();
 		print '</form>';
-		print "\n\t\t\t\t".'</div>';
+		print "\n\t\t\t\t</div>";
 		print "\n\t\t\t".'</div>';
 	}
 	public function edit_post()
