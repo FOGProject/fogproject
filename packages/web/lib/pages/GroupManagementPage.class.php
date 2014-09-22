@@ -509,7 +509,7 @@ class GroupManagementPage extends FOGPage
 		unset($this->data);
 		$this->headerData = array(
             _('Hostname'),
-            ('Deployed'),
+            _('Deployed'),
             _('Remove'),
             _('Image'),
 		);

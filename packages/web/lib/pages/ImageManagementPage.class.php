@@ -325,42 +325,154 @@ class ImageManagementPage extends FOGPage
 		print "\n\t\t\t\t</div>";
 		// Reset for next tab
 		unset($this->data);
-		$this->headerData = array(
-			_('Host Name'),
-			_('MAC'),
-			_('Remove Image?'),
-		);
-		$this->templates = array(
-			'<a href="?node=host&sub=edit&id=${host_id}" title="'._('Edit Host').':${host_name}">${host_name}</a>',
-			'${host_mac}',
-			'<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}">'._('Delete').'</label>',
-		);
+		print "\n\t\t\t\t<!-- Hosts with Assigned Image -->";
+		$HostMan = new HostManager();
+		// Get hosts with this image assigned
 		foreach((array)$Image->get('hosts') AS $Host)
-			$HostIDs[] = $Host && $Host->isValid() ? $Host->get('id') : '';
-		$HostStuff = $this->FOGCore->getClass('HostManager')->buildSelectBox('','host[]" multiple="multiple','',$HostIDs);
+		{
+			if ($Host && $Host->isValid())
+				$HostsWithMe[] = $Host->get('id');
+		}
+		// Get all Host IDs with an image assigned
+		foreach($HostMan->find() AS $Host)
+		{
+			if ($Host && $Host->isValid() && $Host->getImage()->isValid())
+				$HostWithAnyImage[] = $Host->get('id');
+		}
+		// Set the values
+		foreach($HostMan->find() AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				if (!in_array($Host->get('id'),$HostWithAnyImage))
+					$HostNotWithImage[] = $Host;
+				if (!in_array($Host->get('id'),$HostsWithMe))
+					$HostNotWithMe[] = $Host;
+			}
+		}
+		print "\n\t\t\t\t".'<div id="image-host">';
+		// Create the header data:
+		$this->headerData = array(
+			'',
+			'<input type="checkbox" name="toggle-checkboximage1" class="toggle-checkbox1" />',
+			($_SESSION['FOGPingActive'] ? '' : null),
+			_('Host Name'),
+			_('Last Deployed'),
+			_('Registered'),
+		);
+		// Create the template data:
+		$this->templates = array(
+			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
+			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
+			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+			'${deployed}',
+			'${host_reg}',
+		);
+		// Create the attributes data:
+		$this->attributes = array(
+			array('width' => 22, 'id' => 'host-${host_name}'),
+			array('class' => 'c', 'width' => 16),
+			($_SESSION['FOGPingActive'] ? array('width' => 20) : ''),
+			array(),
+			array(),
+			array(),
+		);
+		// All hosts not with this set as the image
+		foreach((array)$HostNotWithMe AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				$this->data[] = array(
+					'host_id' => $Host->get('id'),
+					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+					'host_name' => $Host->get('name'),
+					'host_mac' => $Host->get('mac')->__toString(),
+					'host_desc' => $Host->get('description'),
+					'check_num' => '1',
+					'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+				);
+			}
+		}
+		$ImageDataExists = false;
+		if (count($this->data) > 0)
+		{
+			$ImageDataExists = true;
+			$this->HookManager->processEvent('IMAGE_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+			print "\n\t\t\t<center>"._('Check here to see hosts not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" />';
+			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-host">';
+			print "\n\t\t\t".'<div id="hostNotInMe">';
+			print "\n\t\t\t".'<h2>'._('Modify image association for').' '.$Image->get('name').'</h2>';
+			print "\n\t\t\t".'<p>'._('Add hosts to image').' '.$Image->get('name').'</p>';
+			$this->render();
+			print "</div>";
+		}
+		// Reset the data for the next value
+		unset($this->data);
+		// Create the header data:
+		$this->headerData = array(
+			'',
+			'<input type="checkbox" name="toggle-checkboximage2" class="toggle-checkbox2" />',
+			($_SESSION['FOGPingActive'] ? '' : null),
+			_('Host Name'),
+			_('Last Deployed'),
+			_('Registered'),
+		);
+		// All hosts without an image
+		foreach((array)$HostNotWithImage AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				$this->data[] = array(
+					'host_id' => $Host->get('id'),
+					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+					'host_name' => $Host->get('name'),
+					'host_mac' => $Host->get('mac')->__toString(),
+					'host_desc' => $Host->get('description'),
+					'check_num' => '2',
+					'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+				);
+			}
+		}
+		if (count($this->data) > 0)
+		{
+			$ImageDataExists = true;
+			$this->HookManager->processEvent('IMAGE_HOST_NOT_WITH_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+			print "\n\t\t\t"._('Check here to see hosts not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" />';
+			print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-host">';
+			print "\n\t\t\t".'<div id="hostNoImage">';
+			print "\n\t\t\t".'<p>'._('Hosts below have no image association').'</p>';
+			print "\n\t\t\t".'<p>'._('Assign hosts with image').' '.$Image->get('name').'</p>';
+			$this->render();
+			print "\n\t\t\t</div>";
+		}
+		if ($ImageDataExists)
+		{
+			print '</br><input type="submit" value="'._('Add Image to Host(s)').'" />';
+			print "\n\t\t\t</form></center>";
+		}
+		unset($this->data);
+		array_push($this->headerData,_('Remove Image'));
+		array_push($this->templates,'<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}">'.$this->foglang['Delete']);
+		array_push($this->attributes,array());
 		foreach((array)$Image->get('hosts') AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
 				$this->data[] = array(
 					'host_id' => $Host->get('id'),
+					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
 					'host_name' => $Host->get('name'),
-					'host_mac' => $Host->get('mac'),
+					'host_mac' => $Host->get('mac')->__toString(),
+					'host_desc' => $Host->get('description'),
+					'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
 				);
 			}
 		}
 		// Hook
 		$this->HookManager->processEvent('IMAGE_EDIT_HOST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
-		print "\n\t\t\t\t<!-- Hosts with Assigned Image -->";
-		print "\n\t\t\t\t".'<div id="image-host">';
 		print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-host">';
-		if ($HostStuff)
-		{
-			print "\n\t\t\t<p>"._('The selection box below will add this image to the selected hosts automatically.').'</p>';
-			print "\n\t\t\t<p><center>$HostStuff";
-			print "\n\t\t\t".'<input type="submit" value="'._('Add Image to Host(s)').'" /></center></p>';
-		}
 		$this->render();
 		print '</form>';
 		print "\n\t\t\t\t</div>";
