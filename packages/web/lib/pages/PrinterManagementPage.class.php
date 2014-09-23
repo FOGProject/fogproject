@@ -472,7 +472,7 @@ class PrinterManagementPage extends FOGPage
 			_('Registered'),
 		);
 		// All hosts not with any printer
-		foreach((array)$HostNotWithMe AS $Host)
+		foreach((array)$HostNotWithPrinter AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
