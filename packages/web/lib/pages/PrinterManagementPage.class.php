@@ -505,9 +505,9 @@ class PrinterManagementPage extends FOGPage
 			print "\n\t\t\t</form></center>";
 		}
 		unset($this->data);
-		array_push($this->headerData,_('Remove Printer'));
-		array_push($this->templates,'<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}">'.$this->foglang['Delete']);
-		array_push($this->attributes,array());
+		array_push($this->headerData,_('Is Default'),_('Remove Printer'));
+		array_push($this->templates,'<input class="default" onclick="this.form.submit()" type="checkbox" name="default" id="host_printer${host_id}"${is_default} value="1" /><label for="host_printer${host_id}"></label><input type="hidden" name="hostid" value="${host_id}" />','<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}">'.$this->foglang['Delete']);
+		array_push($this->attributes,array(),array());
 		array_splice($this->headerData,1,1);
 		array_splice($this->templates,1,1);
 		array_splice($this->attributes,1,1);
@@ -522,6 +522,8 @@ class PrinterManagementPage extends FOGPage
 					'host_mac' => $Host->get('mac')->__toString(),
 					'host_desc' => $Host->get('description'),
 					'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+					'is_default' => $Host->getDefault($Printer->get('id')) ? 'checked="checked"' : '',
+
 				);
 			}
 		}
@@ -596,10 +598,9 @@ class PrinterManagementPage extends FOGPage
 						throw new Exception(_('Printer name already exists, please choose another'));
 				break;
 				case 'printer-host';
-					if ($_REQUEST['host'])
-						$Printer->addHost($_REQUEST['host']);
-					if ($_REQUEST['hostdel'])
-						$Printer->removeHost($_REQUEST['hostdel']);
+					$Printer->addHost($_REQUEST['host']);
+					$Printer->updateDefault($_REQUEST['hostid'],$_REQUEST['default']);
+					$Printer->removeHost($_REQUEST['hostdel']);
 				break;
 			}
 			// Save
