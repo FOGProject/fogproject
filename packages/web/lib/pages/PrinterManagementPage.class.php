@@ -390,7 +390,7 @@ class PrinterManagementPage extends FOGPage
 		foreach($this->FOGCore->getClass('PrinterAssociationManager')->find() AS $PrinterAssoc)
 		{
 			if ($PrinterAssoc && $PrinterAssoc->isValid())
-				$HostsWithPrinter[] = $Host->get('id');
+				$HostsWithPrinter[] = $PrinterAssoc->get('hostID');
 		}
 		// Set the values
 		foreach($HostMan->find() AS $Host)
