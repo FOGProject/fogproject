@@ -599,9 +599,9 @@ class ReportManagementPage extends FOGPage
 		$Viruses = $this->FOGCore->getClass('VirusManager')->find();
 		foreach((array)$Viruses AS $Virus)
 		{
-			$Host = current($this->FOGCore->getClass('HostManager')->search($Virus->get('hostMAC')));
+			$Host = $Host->getHostByMacAddresses($Virus->get('hostMAC'));
 			$this->data[] = array(
-				'host_name' => $Host ? $Host->get('name') : '',
+				'host_name' => $Host && $Host->isValid() ? $Host->get('name') : '',
 				'vir_id' => $Virus->get('id'),
 				'vir_name' => $Virus->get('name'),
 				'vir_file' => $Virus->get('file'),
