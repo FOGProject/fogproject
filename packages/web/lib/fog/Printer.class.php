@@ -92,6 +92,7 @@ class Printer extends FOGController
 			// Remove all old entries.
 			$this->FOGCore->getClass('PrinterAssociationManager')->destroy(array('printerID' => $this->get('id')));
 			// Create new Assocs
+			$i = 0;
 			foreach((array)$this->get('hosts') AS $Host)
 			{
 				if (($Host instanceof Host) && $Host->isValid())
@@ -99,9 +100,11 @@ class Printer extends FOGController
 					$NewPrinter = new PrinterAssociation(array(
 						'printerID' => $this->get('id'),
 						'hostID' => $Host->get('id'),
+						'isDefault' => ($i === 0 ? '1' : '0'),
 					));
 					$NewPrinter->save();
 				}
+				$i++;
 			}
 		}
 		return $this;
@@ -123,5 +126,16 @@ class Printer extends FOGController
 			$this->remove('hosts', ($remove instanceof Host ? $remove : new Host((int)$remove)));
 		// Return
 		return $this;
+	}
+
+	public function updateDefault($hostid,$onoff)
+	{
+		$PrinterAssoc = $this->FOGCore->getClass('PrinterAssociationManager')->find(array('hostID' => $hostid));
+		foreach($PrinterAssoc AS $PrinterSet)
+		{
+			$PrinterSet->set('isDefault',0)->save();
+			if ($PrinterSet->get('printerID') == $this->get('id'))
+				$PrinterSet->set('isDefault',$onoff)->save();
+		}
 	}
 }
