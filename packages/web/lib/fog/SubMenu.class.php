@@ -214,7 +214,8 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['add'] = sprintf($this->foglang['CreateNew'],$this->foglang['Printer']);
 			if ($_REQUEST['id'])
 			{
-				$this->subMenu[$this->node]['id'][$linkformat] = $this->foglang['General'];
+				$this->subMenu[$this->node]['id'][$linkformat.'#printer-gen'] = $this->foglang['General'];
+				$this->subMenu[$this->node]['id'][$linkformat.'#printer-host'] = $this->foglang['Hosts'];
 				$this->subMenu[$this->node]['id'][$delformat] = $this->foglang['Delete'];
 			}
 		}
