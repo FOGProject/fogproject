@@ -114,8 +114,54 @@ class GroupManagementPage extends FOGPage
 	{
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
+		// Get All Groups with matching keyword
+		$GroupMan = $this->FOGCore->getClass('GroupManager')->find(array('name' => $keyword,'description' => $keyword,'id' => $keyword),'OR');
+		foreach($GroupMan AS $Group)
+		{
+			if ($Group && $Group->isValid())
+				$Groups[] = $Group;
+		}
+		// Get all groups with matching keyword of hostname value
+		// Can search for hostname, host description, mac, additional macs, pending macs, and inventory values of a host.
+		$HostMan = $this->FOGCore->getClass('HostManager')->find(array('name' => $keyword,'mac' => $keyword,'description' => $keyword),'OR');
+		foreach($HostMan AS $Host)
+		{
+			if ($Host && $Host->isValid() && !$Host->get('pending'))
+				$Hosts[] = $Host;
+		}
+		$AdditionMacMan = $this->FOGCore->getClass('MACAddressAssociationManager')->find(array('mac' => $keyword,'description' => $keyword),'OR');
+		foreach($AdditionMacMan AS $HostAdd)
+		{
+			if ($HostAdd && $HostAdd->isValid())
+				$Hosts[] = new Host($HostAdd->get('hostID'));
+		}
+		$PendingMac = $this->FOGCore->getClass('PendingMACManager')->find(array('pending' => $keyword));
+		foreach($PendingMac AS $PendMAC)
+		{
+			if ($PendMAC && $PendMAC->isValid())
+				$Hosts[] = new Host($PendMAC->get('hostID'));
+		}
+		$InventoryMan = $this->FOGCore->getClass('InventoryManager')->find(array('sysserial' => $keyword,'caseserial' => $keyword,'mbserial' => $keyword,'primaryUser' => $keyword,'other1' => $keyword,'other2' => $keyword,'sysman' => $keyword,'sysproduct' => $keyword),'OR');
+		foreach($InventoryMan AS $Inventory)
+		{
+			if ($Inventory && $Inventory->isValid())
+				$Hosts[] = new Host($Inventory->get('hostID'));
+		}
+		$Hosts = array_unique($Hosts);
+		foreach($Hosts AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				foreach($this->FOGCore->getClass('GroupAssociationManager')->find(array('hostID' => $Host->get('id'))) AS $GroupAssoc)
+				{
+					if ($GroupAssoc && $GroupAssoc->isValid())
+						$Groups[] = new Group($GroupAssoc->get('groupID'));
+				}
+			}
+		}
+		$Groups = array_unique((array)$Groups);
 		// Find data -> Push data
-		foreach((array)$this->FOGCore->getClass('GroupManager')->search($keyword) AS $Group)
+		foreach((array)$Groups AS $Group)
 		{
 			$this->data[] = array(
 				'id'		=> $Group->get('id'),
