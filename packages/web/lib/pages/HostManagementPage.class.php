@@ -124,8 +124,8 @@ class HostManagementPage extends FOGPage
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
-		$HostMan = $this->FOGCore->getClass('HostManager')->find(array('name' => $keyword,'mac' => $keyword,'id' => $keyword,'description' => $keyword,'ip' => $keyword),'OR');
 		// Get All hosts class for matching keyword
+		$HostMan = $this->FOGCore->getClass('HostManager')->find(array('name' => $keyword,'mac' => $keyword,'id' => $keyword,'description' => $keyword,'ip' => $keyword),'OR');
 		foreach($HostMan AS $Host)
 		{
 			if ($Host && $Host->isValid() && !$Host->get('pending'))
