@@ -102,15 +102,73 @@ class HostMobile extends FOGPage
 
 	public function search_post()
 	{
-		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $_REQUEST['host-search']) . '%');
-		foreach((array)$this->FOGCore->getClass('HostManager')->search($keyword) AS $Host)
+		// Variables
+		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['host-search']) . '%');
+		// Get All hosts class for matching keyword
+		$HostMan = $this->FOGCore->getClass('HostManager')->find(array('name' => $keyword,'mac' => $keyword,'id' => $keyword,'description' => $keyword,'ip' => $keyword),'OR');
+		foreach($HostMan AS $Host)
 		{
-			$this->data[] = array(
-				'host_id' => $Host->get('id'),
-				'host_name' => $Host->get('name'),
-				'host_mac' => $Host->get('mac'),
-				'node' => $this->node
-			);
+			if ($Host && $Host->isValid() && !$Host->get('pending'))
+				$Hosts[] = $Host;
+		}
+		// Get all hosts with matching keyword for additional mac
+		$AdditionMacMan = $this->FOGCore->getClass('MACAddressAssociationManager')->find(array('mac' => $keyword,'description' => $keyword),'OR');
+		foreach($AdditionMacMan AS $HostAdd)
+		{
+			if ($HostAdd && $HostAdd->isValid())
+				$Hosts[] = new Host($HostAdd->get('hostID'));
+		}
+		// Get all hosts with matching keyword for pending mac
+		$PendingMac = $this->FOGCore->getClass('PendingMACManager')->find(array('pending' => $keyword));
+		foreach($PendingMac AS $PendMAC)
+		{
+			if ($PendMAC && $PendMAC->isValid())
+				$Hosts[] = new Host($PendMAC->get('hostID'));
+		}
+		// Get all hosts with matching keyword for the host inventory 
+		$InventoryMan = $this->FOGCore->getClass('InventoryManager')->find(array('sysserial' => $keyword,'caseserial' => $keyword,'mbserial' => $keyword,'primaryUser' => $keyword,'other1' => $keyword,'other2' => $keyword,'sysman' => $keyword,'sysproduct' => $keyword),'OR');
+		foreach($InventoryMan AS $Inventory)
+		{
+			if ($Inventory && $Inventory->isValid())
+				$Hosts[] = new Host($Inventory->get('hostID'));
+		}
+		// Get all hosts with matching keyword for the group name searching
+		$GroupMan = $this->FOGCore->getClass('GroupManager')->find(array('name' => $keyword,'description' => $keyword),'OR');
+		foreach($GroupMan AS $Group)
+		{
+			if ($Group && $Group->isValid())
+			{
+				foreach($this->FOGCore->getClass('GroupAssociationManager')->find(array('groupID' => $Group->get('id'))) AS $GroupAssoc)
+				{
+					if ($GroupAssoc && $GroupAssoc->isValid())
+						$Hosts[] = new Host($GroupAssoc->get('hostID'));
+				}
+			}
+		}
+		$ImageMan = $this->FOGCore->getClass('ImageManager')->find(array('name' => $keyword,'description' => $keyword),'OR');
+		foreach($ImageMan AS $Image)
+		{
+			if ($Image && $Image->isValid())
+			{
+				foreach($this->FOGCore->getClass('HostManager')->find(array('imageID' => $Image->get('id'))) AS $Host)
+				{
+					if ($Host && $Host->isValid())
+						$Hosts[] = $Host;
+				}
+			}
+		}
+		$Hosts = array_unique($Hosts);
+		foreach((array)$Hosts AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				$this->data[] = array(
+					'host_id' => $Host->get('id'),
+					'host_name' => $Host->get('name'),
+					'host_mac' => $Host->get('mac'),
+					'node' => $this->node
+				);
+			}
 		}
 		// Ouput
 		$this->render();
