@@ -10,17 +10,19 @@
 #               Modified for RHS Linux by Damien Neil
 #               Modified for FOG by Chuck Syperski
 #
-for xhci in /sys/bus/pci/drivers/?hci_hcd ; do
-  if ! cd $xhci ; then
-    echo Weird error. Failed to change directory to $xhci
-    exit 1
-  fi
-  echo Resetting devices from $xhci...
-  for i in ????:??:??.? ; do
-    echo -n "$i" > unbind
-    echo -n "$i" > bind
-  done
-done
+#for xhci in /sys/bus/pci/drivers/?hci_hcd ; do
+#  if ! cd $xhci ; then
+#    echo Weird error. Failed to change directory to $xhci
+#    exit 1
+#  fi
+#  echo Resetting devices from $xhci...
+#  for i in ????:??:??.? ; do
+#    echo -n "$i" > unbind
+#	echo 'Sleeping for 3 seconds to allow the USB to disconnect properly before re-enabling';
+#	sleep 3;
+#    echo -n "$i" > bind
+#  done
+#done
 if [ -n "$has_usb_nic" ]; then
 	/bin/echo 'Please unplug your device and replug it into the usb port';
 	/bin/echo -n 'Please press the enter key to connect [Enter]';
