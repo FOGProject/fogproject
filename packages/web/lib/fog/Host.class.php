@@ -904,7 +904,7 @@ class Host extends FOGController
 			if ($TaskType->isMulticast())
 			{
 				$MultiSessAssoc = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('image' => $this->getImage()->get('id'),'stateID' => 0)));
-				$MultiSessName = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('name' => $taskName)));
+				$MultiSessName = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('name' => $taskName,'stateID' => 0)));
 				$set_assoc = 0;
 				if ($MultiSessName && $MultiSessName->isValid())
 				{
