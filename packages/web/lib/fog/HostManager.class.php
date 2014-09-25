@@ -4,43 +4,6 @@
 */
 class HostManager extends FOGManagerController
 {
-	// Search query
-	public $searchQuery = 'SELECT hosts.* FROM hosts
-				LEFT OUTER JOIN
-					(SELECT * FROM hostMAC WHERE hmMAC LIKE "%${keyword}%") hostMAC
-					ON (hmHostID=hostID)
-				LEFT OUTER JOIN
-					inventory
-					ON (iHostID=hostID)
-				LEFT OUTER JOIN
-					(SELECT * FROM groups INNER JOIN groupMembers ON (gmGroupID=groupID) WHERE groupName LIKE "%${keyword}%" OR groupDesc LIKE "%${keyword}%") groupMembers
-					ON (gmHostID=hostID)
-				LEFT OUTER JOIN
-					images
-					ON (hostImage=imageID)
-				WHERE 
-					hostID LIKE "%${keyword}%" OR
-					hostName LIKE "%${keyword}%" OR 
-					hostDesc LIKE "%${keyword}%" OR
-					hostIP LIKE "%${keyword}%" OR
-					hostMAC LIKE "%${keyword}%" OR
-					groupID LIKE "%${keyword}%" OR
-					groupName LIKE "%${keyword}%" OR
-					groupDesc LIKE "%${keyword}%" OR
-					imageName LIKE "%${keyword}%" OR
-					imageDesc LIKE "%${keyword}%" OR
-					iSysserial LIKE "%${keyword}%" OR
-					iCaseserial LIKE "%${keyword}%" OR
-					iMbserial LIKE "%${keyword}%" OR
-					iPrimaryUser LIKE "%${keyword}%" OR
-					iOtherTag LIKE "%${keyword}%" OR
-					iOtherTag1 LIKE "%${keyword}%" OR
-					iSysman LIKE "%${keyword}%" OR
-					iSysproduct LIKE "%${keyword}%"
-				GROUP BY
-					hostName
-				ORDER BY
-					hostName ASC';
 	// Custom functions
 	public static function parseMacList( $stringlist )
 	{
