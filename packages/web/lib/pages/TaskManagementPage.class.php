@@ -148,8 +148,9 @@ class TaskManagementPage extends FOGPage
 	{
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
+		$Tasks = new TaskManager();
 		// Find data -> Push data
-		foreach ((array)$this->FOGCore->getClass('TaskManager')->search($keyword) AS $Task)
+		foreach ($Tasks->search($keyword,'Task') AS $Task)
 		{
 			$Host = current($this->FOGCore->getClass('HostManager')->find(array('id' => $Task->get('hostID'))));
 			$this->data[] = array(
