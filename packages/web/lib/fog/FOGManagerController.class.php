@@ -281,6 +281,15 @@ abstract class FOGManagerController extends FOGBase
 					}
 				}
 			}
+			if ($classSearch == 'User')
+			{
+				$UserMan = $this->FOGCore->getClass('UserManager')->find(array('name' => $keyword));
+				foreach($UserMan AS $User)
+				{
+					if ($User && $User->isValid())
+						$Data[] = $User;
+				}
+			}
 			$Data = array_unique($Data);
 			return (array)$Data;
 		}
