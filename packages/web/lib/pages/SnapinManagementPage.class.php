@@ -80,8 +80,9 @@ class SnapinManagementPage extends FOGPage
 	{
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
+		$Snapins = new SnapinManager();
 		// Find data -> Push data
-		foreach ((array)$this->FOGCore->getClass('SnapinManager')->search($keyword) AS $Snapin)
+		foreach ($Snapins->search($keyword,'Snapin') AS $Snapin)
 		{
 			$this->data[] = array(
 				'id'		=> $Snapin->get('id'),
