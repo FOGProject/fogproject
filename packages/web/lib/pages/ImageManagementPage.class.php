@@ -118,7 +118,6 @@ class ImageManagementPage extends FOGPage
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Get All images based on the keyword
-		$ImageMan = $this->FOGCore->getClass('ImageManager')->find(array('name' => $keyword,'description' => $keyword,'id' => $keyword),'OR');
 		$Images = new ImageManager();
 		// Find data -> Push data
 		foreach ($Images->search($keyword,'Image') AS $Image)
