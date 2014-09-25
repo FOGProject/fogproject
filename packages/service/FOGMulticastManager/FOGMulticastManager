@@ -2,19 +2,16 @@
 <?php
 	@error_reporting(0);
 	require_once( dirname(realpath(__FILE__)) . "/../etc/config.php" );
-
-	require_once( WEBROOT . "/lib/fog/Daemon.class.php");
+	// Safe to construct FOGBase/FOGCore
+	require_once( WEBROOT . "/commons/base.inc.php" );
 	$Daemon = new Daemon('MULTICAST','FOG_UDPCAST_INTERFACE');
 	$Daemon->clear_screen();
 	$Daemon->out($Daemon->getBanner());
 	$Daemon->wait_db_ready();
-	// Safe to construct FOGBase/FOGCore
-	require_once( WEBROOT . "/commons/base.inc.php" );
 	$Daemon->wait_interface_ready();
-	unset($Daemon);	
-
+	unset($Daemon);
 	$MM = new MulticastManager();
-	if( ! file_exists( UDPSENDERPATH ) )
+	if(!file_exists(UDPSENDERPATH))
 	{
 		$MM->outall(sprintf(" * Unable to locate udp-sender!."));
 		exit;
@@ -22,4 +19,3 @@
 	$MM->serviceStart();
 	$MM->serviceRun();
 	$MM->outall(sprintf(" * Service has ended."));
-?>
