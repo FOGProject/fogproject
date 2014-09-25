@@ -2,24 +2,20 @@
 <?php
 	@error_reporting(0);
 	require_once( dirname(realpath(__FILE__)) . "/../etc/config.php" );
-
-        require_once( WEBROOT . "/lib/fog/Daemon.class.php");
-        $Daemon = new Daemon('REPLICATOR','FOG_NFS_ETH_MONITOR');
-        $Daemon->clear_screen();
-        $Daemon->out($Daemon->getBanner());
-        $Daemon->wait_db_ready();
-        // Safe to construct FOGBase/FOGCore
-        require_once( WEBROOT . "/commons/base.inc.php" );
-        $Daemon->wait_interface_ready();
-        unset($Daemon);
-
+	// Safe to construct FOGBase/FOGCore
+	require_once( WEBROOT . "/commons/base.inc.php" );
+	$Daemon = new Daemon('REPLICATOR','FOG_NFS_ETH_MONITOR');
+	$Daemon->clear_screen();
+	$Daemon->out($Daemon->getBanner());
+	$Daemon->wait_db_ready();
+	$Daemon->wait_interface_ready();
+	unset($Daemon);
 	$IR = new ImageReplicator();
 	$IR->serviceStart();
-	while( true )
+	while(true)
 	{
 		$IR = new ImageReplicator();
 		$IR->serviceRun();
 		sleep(REPLICATORSLEEPTIME);
 	}
 	$IR->outall(sprintf(" * Service has ended."));
-?>
