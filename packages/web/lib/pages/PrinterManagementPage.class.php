@@ -102,17 +102,9 @@ class PrinterManagementPage extends FOGPage
 	{
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
-		$where = array(
-			'id'		=> $keyword,
-			'name'		=> $keyword,
-			'config'	=> $keyword,
-			'model'		=> $keyword,
-			'port'		=> $keyword,
-			'file'		=> $keyword,
-			'ip'		=> $keyword
-		);
+		$Printers = new PrinterManager();
 		// Find data -> Push data
-		foreach ((array)$this->FOGCore->getClass('PrinterManager')->find($where, 'OR') AS $Printer)
+		foreach ($Printers->search($keyword,'Printer') AS $Printer)
 		{
 			$this->data[] = array(
 				'id'		=> $Printer->get('id'),
