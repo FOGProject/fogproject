@@ -1,10 +1,8 @@
 <?php
 class UserManager extends FOGManagerController
 {
-	// Search query
-	public $searchQuery = 'SELECT * FROM users WHERE uName LIKE "%${keyword}%"';
 	// Custom function
-	function isPasswordValid($password, $passwordConfirm)
+	public function isPasswordValid($password, $passwordConfirm)
 	{
 		try
 		{

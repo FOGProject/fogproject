@@ -79,11 +79,9 @@ class UserManagementPage extends FOGPage
 	{
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
-		$findWhere = array(
-			'name'		=> $keyword
-		);
+		$Users = new UserManager();
 		// Find data -> Push data
-		foreach ((array)$this->FOGCore->getClass('UserManager')->find($findWhere, 'OR') AS $User)
+		foreach ($Users->search($keyword,'User') AS $User)
 		{
 			$this->data[] = array(
 				'id'	=> $User->get('id'),
