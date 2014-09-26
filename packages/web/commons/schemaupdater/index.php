@@ -1604,8 +1604,6 @@ $databaseSchema[] = array(
 	"ALTER TABLE `" . DATABASE_NAME . "`.`images`
 		ADD COLUMN `imageProtect` mediumint(9) NOT NULL AFTER `imagePath`",
 );
-<<<<<<< HEAD
-<<<<<<< HEAD
 // 128
 $databaseSchema[] = array(
 	"ALTER TABLE `" . DATABASE_NAME . "`.`hosts`
@@ -1625,10 +1623,6 @@ param approveHost 1
 isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
 isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.approvehost';",
 );
-=======
->>>>>>> 
-=======
->>>>>>> 
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";

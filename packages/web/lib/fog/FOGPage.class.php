@@ -228,4 +228,119 @@ abstract class FOGPage extends FOGBase
 		// Return result
 		return "\n\t\t\t\t\t\t" . implode("\n\t\t\t\t\t\t", $result) . "\n\t\t\t\t\t";
 	}
+
+	public function deploy()
+	{
+		if (in_array($_REQUEST['node'],array('host','hosts')))
+		{
+			$Data = new Host($_REQUEST['id']);
+			$ClassType = 'Host';
+		}
+		if (in_array($_REQUEST['node'],array('group','groups')))
+		{
+			$Data = new Group($_REQUEST['id']);
+			$ClassType = 'Group';
+		}
+		$TaskType = new TaskType(($_REQUEST['type'] ? $_REQUEST['type'] : 1));
+		// Title
+		$this->title = sprintf('%s %s %s %s',_('Create'),$TaskType->get('name'),_('task for'),$ClassType);
+		// Deploy
+		printf('%s%s%s%s',"\n\t\t\t",'<p class="c"><b>',_('Are you sure you wish to deploy task to these machines'),'</b></p>');
+		printf('%s<form method="post" action="%s" id="deploy-container">',"\n\t\t\t",$this->formAction);
+		printf("\n\t\t\t%s",'<div class="confirm-message">');
+		if ($TaskType->get('id') == 13)
+		{
+			printf('<center>%s<p>%s</p>',"\n\t\t\t",_('Please select the snapin you want to deploy'));
+			if ($ClassType == 'Host')
+			{
+				foreach((array)$Data->get('snapins') AS $Snapin)
+				{
+					if ($Snapin && $Snapin->isValid())
+						$optionSnapin[] = sprintf('<option value="%s">%s - (%s)</option>',$Snapin->get('id'),$Snapin->get('name'),$Snapin->get('id'));
+				}
+				if ($optionSnapin)
+					printf('%s<select name="snapin">%s</select></center>',"\n\t\t\t",implode("\n\t\t\t\t",$optionSnapin));
+				else
+					printf('%s</center>',_('No snapins associated'));
+			}
+			if ($ClassType == 'Group')
+				printf($this->FOGCore->getClass('SnapinManager')->buildSelectBox().'</center>');
+		}
+		printf("\n\t\t\t%s",'<div class="advanced-settings">');
+		printf("\n\t\t\t<h2>%s</h2>",_('Advanced Settings'));
+		printf("\n\t\t\t<p>%s%s <u>%s</u> %s%s",'<input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">',_('Schedule'),_('Shutdown'),_('after task completion'),'</label></p>');
+		if (!$TaskType->isDebug() && $TaskType->get('id') != 11)
+		{
+			printf("\n\t\t\t%s%s%s",'<p><input type="checkbox" name="isDebugTask" id="isDebugTask" autocomplete="off" /><label for="isDebugTask">',_('Schedule task as a debug task'),'</label></p>');
+			printf("\n\t\t\t%s%s %s%s%s",'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked="checked" /><label for="scheduleInstant">',_('Schedule '),'<u>',_('Instant Deployment'),'</u></label></p>');
+			printf("\n\t\t\t%s%s %s%s%s",'<p class="hideFromDebug"><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off" /><label for="scheduleSingle">',_('Schedule '),'<u>',_('Delayed Deployment'),'</u></label></p>');
+			printf("\n\t\t\t%s",'<p class="hidden" id="singleOptions"><input type="text" nme="scheduleSingleTime" id="scheduleSingleTime" autocomplete="off" /></p>');
+			printf("\n\t\t\t%s%s %s%s%s",'<p class="hideFromDebug"><input type="radio" name="scheduleType" id="scheduleCron" value="cron" autocomplete="off"><label for="scheduleCron">',_('Schedule'),'<u>',_('Cron-style Deployment'),'</u></label></p>');
+			printf("\n\t\t\t%s",'<p class="hidden" id="cronOptions">');
+			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronMin" id="scheduleCronMin" placeholder="min" autocomplete="off" />');
+			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronHour" id="scheduleCronHour" placeholder="hour" autocomplete="off" />');
+			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronDOM" id="scheduleCronDOM" placeholder="dom" autocomplete="off" />');
+			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronMonth" id="scheduleCronMonth" placeholder="month" autocomplete="off" />');
+			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronDOW" id="scheduleCronDOW" placeholder="dow" autocomplete="off" /></p>');
+		}
+		if ($TaskType->get('id') == 11)
+		{
+			printf("\n\t\t\t<p>%s</p>",_('Which account would you like to reset the pasword for'));
+			printf("\n\t\t\t%s",'<input type="text" name="account" value="Administrator" />');
+		}
+		printf("\n\t\t\t</div>");
+		printf("\n\t\t\t</div>");
+		printf("\n\t\t\t<h2>%s</h2>",_('Hosts in Task'));
+		unset($this->headerData);
+		$this->attributes = array(
+			array(),
+			array(),
+			array(),
+		);
+		$this->templates = array(
+			'<a href="${host_link}" title="${host_title}">${host_name}</a>',
+			'${host_mac}',
+			'<a href="${image_link}" title="${image_title}">${image_name}</a>',
+		);
+		if ($Data instanceof Host)
+		{
+			$this->data[] = array(
+				'host_link' => $_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
+				'image_link' => $_SERVER['PHP_SELF'].'?node=images&sub=edit&id=${image_id}',
+				'host_id' => $Data->get('id'),
+				'image_id' => $Data->getImage()->get('id'),
+				'host_name' => $Data->get('name'),
+				'host_mac' => $Data->get('mac'),
+				'image_name' => $Data->getImage()->get('name'),
+				'host_title' => _('Edit Host'),
+				'image_title' => _('Edit Image'),
+			);
+		}
+		if ($Data instanceof Group)
+		{
+			foreach($Data->get('hosts') AS $Host)
+			{
+				if ($Host && $Host->isValid())
+				{
+					$this->data[] = array(
+						'host_link' => $_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
+						'image_link' => $_SERVER['PHP_SELF'].'?node=images&sub=edit&id=${image_id}',
+						'host_id' => $Host->get('id'),
+						'image_id' => $Host->getImage()->get('id'),
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac'),
+						'image_name' => $Host->getImage()->get('name'),
+						'host_title' => _('Edit Host'),
+						'image_title' => _('Edit Image'),
+					);
+				}
+			}
+		}
+		// Hook
+		$this->HookManager->processEvent(strtoupper($ClassType.'_DEPLOY'),array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+		// Output
+		$this->render();
+		printf('%s%s%s','<p class="c"><input type="submit" value="',$this->title,'" /></p>');
+		printf("\n\t\t\t</form>");
+	}
 }
