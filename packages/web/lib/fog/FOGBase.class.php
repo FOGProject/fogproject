@@ -58,7 +58,11 @@ abstract class FOGBase
 		// Language Setup
 		$this->foglang = $GLOBALS['foglang'];
 		// Default TimeZone to use for date fields
+<<<<<<< HEAD
 		$this->TimeZone = (ini_get('date.timezone') ? ini_get('date.timezone') : 'GMT');
+=======
+		$this->TimeZone = (!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone'));
+>>>>>>> 
 	}
 	/** fatalError($txt, $data = array())
 		Fatal error in the case something went wrong.
