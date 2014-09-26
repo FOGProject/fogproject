@@ -24,8 +24,13 @@ class System
 		(ini_get('date.timezone') ? date_default_timezone_set(ini_get('date.timezone')) : date_default_timezone_set('UTC'));
 		define('IS_INCLUDED', true);
 <<<<<<< HEAD
+<<<<<<< HEAD
 		define('FOG_VERSION', '2336');
 		define('FOG_SCHEMA', 129);
+=======
+		define('FOG_VERSION', '2306');
+		define('FOG_SCHEMA', 127);
+>>>>>>> 
 =======
 		define('FOG_VERSION', '2306');
 		define('FOG_SCHEMA', 127);

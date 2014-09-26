@@ -59,7 +59,11 @@ abstract class FOGBase
 		$this->foglang = $GLOBALS['foglang'];
 		// Default TimeZone to use for date fields
 <<<<<<< HEAD
+<<<<<<< HEAD
 		$this->TimeZone = (ini_get('date.timezone') ? ini_get('date.timezone') : 'GMT');
+=======
+		$this->TimeZone = (!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone'));
+>>>>>>> 
 =======
 		$this->TimeZone = (!ini_get('date.timezone') ? 'GMT' : ini_get('date.timezone'));
 >>>>>>> 
