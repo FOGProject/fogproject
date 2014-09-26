@@ -11,6 +11,7 @@
 #               Modified for FOG by Chuck Syperski
 #
 <<<<<<< HEAD
+<<<<<<< HEAD
 #for xhci in /sys/bus/pci/drivers/?hci_hcd ; do
 #  if ! cd $xhci ; then
 #    echo Weird error. Failed to change directory to $xhci
@@ -26,6 +27,8 @@
 #done
 =======
 >>>>>>> 
+=======
+>>>>>>> 
 if [ -n "$has_usb_nic" ]; then
 	/bin/echo 'Please unplug your device and replug it into the usb port';
 	/bin/echo -n 'Please press the enter key to connect [Enter]';
@@ -33,9 +36,13 @@ if [ -n "$has_usb_nic" ]; then
 	/bin/echo 'Sleeping for 5 seconds to allow USB to sync back with system';
 fi
 <<<<<<< HEAD
+<<<<<<< HEAD
 /usr/sbin/dhcpcd -4b eth0
 /bin/echo 'Sleeping for 10 seconds to ensure an IP is received';
 sleep 10;
+=======
+/usr/sbin/dhcpcd -b eth0
+>>>>>>> 
 =======
 /usr/sbin/dhcpcd -b eth0
 >>>>>>> 
@@ -46,7 +53,11 @@ fi
 run="";
 after="";
 <<<<<<< HEAD
+<<<<<<< HEAD
 afterActionTerm="reboot -f";
+=======
+afterActionTerm="/usr/sbin/dhcpcd -k eth0; reboot -f";
+>>>>>>> 
 =======
 afterActionTerm="/usr/sbin/dhcpcd -k eth0; reboot -f";
 >>>>>>> 

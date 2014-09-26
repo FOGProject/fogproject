@@ -828,6 +828,9 @@ class BootMenu extends FOGBase
 			$ArrayOfStuff = array(($this->Host && $this->Host->isValid() ? ($this->Host->get('pending') ? 6 : 1) : 0),2);
 =======
 			$ArrayOfStuff = array(($this->Host && $this->Host->isValid() ? 1 : 0),2);
+<<<<<<< HEAD
+>>>>>>> 
+=======
 >>>>>>> 
 			if ($showDebug)
 				array_push($ArrayOfStuff,3);
