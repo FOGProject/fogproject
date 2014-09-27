@@ -448,7 +448,7 @@ abstract class FOGPage extends FOGBase
 							'isGroupTask' => $Data instanceof Group,
 							'type' => 'S',
 							'scheduleTime' => $scheduleDeployTime->getTimestamp(),
-							'other3' => $_SESSION['FOG_USERNAME'],
+							'other3' => $this->FOGUser->get('name'),
 						));
 					}
 					else if ($_REQUEST['scheduleType'] == 'cron')
@@ -461,7 +461,7 @@ abstract class FOGPage extends FOGBase
 							'other2' => $enableSnapins,
 							'isGroupTask' => $Data instanceof Group,
 							'type' => 'C',
-							'other3' => $_SESSION['FOG_USERNAME'],
+							'other3' => $this->FOGUser->get('name'),
 							'minute' => $_REQUEST['scheduleCronMin'],
 							'hour' => $_REQUEST['scheduleCronHour'],
 							'dayOfMonth' => $_REQUEST['scheduleCronDOM'],
