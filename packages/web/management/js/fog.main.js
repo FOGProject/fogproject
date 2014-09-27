@@ -556,15 +556,35 @@ function DeployStuff() {
 	});
 }
 function checkField(field, min, max) {
-	if (field.indexOf('-') > -1) {
+	if (field.indexOf('/') > -1) {
+		var startVal = field.substring(0,field.indexOf('/'));
+		var endVal = field.substring(field.indexOf('/') + 1);
+		if (startVal.indexOf('*') != -1) {
+			if (!(checkIntValue(endVal,min,max,true))) {
+				return false;
+			}
+			return true;
+		} else {
+			if (!(checkIntValue(startVal,min,max,true) && checkIntValue(endVal,min,max,true))) {
+				return false;
+			}
+			try {
+				var startVal = parseInt(startVal,10);
+				var endVal = parseInt(endVal,10);
+				return endVal > startVal;
+			} catch (e) {
+				return false;
+			}
+		}
+	} else if (field.indexOf('-') > -1) {
 		var startVal = field.substring(0,field.indexOf('-'));
 		var endVal = field.substring(field.indexOf('-') + 1);
 		if (!(checkIntValue(startVal,min,max,true) && checkIntValue(endVal,min,max,true))) {
 			return false;
 		}
 		try {
-			var startVal = parseInt(strValue,10);
-			var endVal = parseInt(endValue,10);
+			var startVal = parseInt(startVal,10);
+			var endVal = parseInt(endVal,10);
 			return endVal > startVal;
 		} catch (e) {
 			return false;
@@ -576,7 +596,7 @@ function checkField(field, min, max) {
 	} else if (field.indexOf('*') != -1) {
 		return true;
 	} else {
-		return checkIntValue(field,min,max);
+		return checkIntValue(field,min,max,true);
 	}
 }
 function checkListField(value,min,max) {
