@@ -231,16 +231,8 @@ abstract class FOGPage extends FOGBase
 
 	public function deploy()
 	{
-		if (in_array($_REQUEST['node'],array('host','hosts')))
-		{
-			$Data = new Host($_REQUEST['id']);
-			$ClassType = 'Host';
-		}
-		if (in_array($_REQUEST['node'],array('group','groups')))
-		{
-			$Data = new Group($_REQUEST['id']);
-			$ClassType = 'Group';
-		}
+		$ClassType = ucfirst($this->node);
+		$Data = new $ClassType($_REQUEST['id']);
 		$TaskType = new TaskType(($_REQUEST['type'] ? $_REQUEST['type'] : 1));
 		// Title
 		$this->title = sprintf('%s %s %s %s',_('Create'),$TaskType->get('name'),_('task for'),$ClassType);
@@ -251,7 +243,7 @@ abstract class FOGPage extends FOGBase
 		if ($TaskType->get('id') == 13)
 		{
 			printf('<center>%s<p>%s</p>',"\n\t\t\t",_('Please select the snapin you want to deploy'));
-			if ($ClassType == 'Host')
+			if ($Data instanceof Host)
 			{
 				foreach((array)$Data->get('snapins') AS $Snapin)
 				{
@@ -263,7 +255,7 @@ abstract class FOGPage extends FOGBase
 				else
 					printf('%s</center>',_('No snapins associated'));
 			}
-			if ($ClassType == 'Group')
+			if ($Data instanceof Group)
 				printf($this->FOGCore->getClass('SnapinManager')->buildSelectBox().'</center>');
 		}
 		printf("\n\t\t\t%s",'<div class="advanced-settings">');
@@ -348,16 +340,8 @@ abstract class FOGPage extends FOGBase
 	*/
 	public function deploy_post()
 	{
-		if (in_array($_REQUEST['node'],array('host','hosts')))
-		{
-			$Data = new Host($_REQUEST['id']);
-			$ClassType = 'Host';
-		}
-		if (in_array($_REQUEST['node'],array('group','groups')))
-		{
-			$Data = new Group($_REQUEST['id']);
-			$ClassType = 'Group';
-		}
+		$ClassType = ucfirst($this->node);
+		$Data = new $ClassType($_REQUEST['id']);
 		$TaskType = new TaskType($_REQUEST['type']);
 		$Snapin = $_REQUEST['snapin'] ? new Snapin($_REQUEST['snapin']) : -1;
 		$enableShutdown = $_REQUEST['shutdown'] ? true : false;
@@ -511,5 +495,150 @@ abstract class FOGPage extends FOGBase
 				(count($success) ? sprintf('<ul>%s</ul>',implode('',$success)) : '')
 			);
 		}
+	}
+	/**
+	* basictasksOptions
+	*/
+	public function basictasksOptions()
+	{
+		$ClassType = ucfirst($this->node);
+		$Data = new $ClassType($_REQUEST['id']);
+		unset($this->headerData);
+		$this->templates = array(
+			'<a href="?node=${node}&sub=${sub}&id=${'.$this->node.'_id}${task_type}"><img src="images/${task_icon}" /><br/>${task_name}</a>',
+			'${task_desc}',
+		);
+		$this->attributes = array(
+			array('class' => 'l'),
+			array('style' => 'padding-left: 20px'),
+		);
+		printf("\n\t\t\t<!-- Basic Tasks -->");
+		printf("\n\t\t\t%s",'<div id="'.$this->node.'-tasks" class="organic-tabs-hidden">');
+		printf("\n\t\t\t<h2>%s</h2>",_($ClassType.' Tasks'));
+		// Find TaskTypes
+		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 0), 'AND', 'id');
+		// Iterate -> Print
+		foreach((array)$TaskTypes AS $TaskType)
+		{
+			if ($TaskType && $TaskType->isValid())
+			{
+				$this->data[] = array(
+					'node' => $this->node,
+					'sub' => 'deploy',
+					$this->node.'_id' => $Data->get('id'),
+					'task_type' => '&type='.$TaskType->get('id'),
+					'task_icon' => $TaskType->get('icon'),
+					'task_name' => $TaskType->get('name'),
+					'task_desc' => $TaskType->get('description'),
+				);
+			}
+		}
+		$this->data[] = array(
+			'node' => $this->node,
+			'sub' => 'edit',
+			$this->node.'_id' => $Data->get('id'),
+			'task_type' => '#'.$this->node.'-tasks" class="advanced-tasks-link',
+			'task_icon' => 'host-advanced.png',
+			'task_name' => _('Advanced'),
+			'task_desc' => _('View advanced tasks for this').' '._($this->node),
+		);
+		// Hook
+		$this->HookManager->processEvent(strtoupper($ClassType).'_DATA_TASKS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' &$this->attributes));
+		// Output
+		$this->render();
+		unset($this->data);
+		printf("\n\t\t\t%s",'<div id="advanced-tasks" class="hidden">');
+		printf("\n\t\t\t<h2>%s</h2>",_('Advanced Actions'));
+		// Find TaskTypes
+		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 1), 'AND', 'id');
+		// Iterate -> Print
+		foreach((array)$TaskTypes AS $TaskType)
+		{
+			if ($TaskType && $TaskType->isValid())
+			{
+				$this->data[] = array(
+					'node' => $this->node,
+					'sub' => 'deploy',
+					$this->node.'_id' => $Data->get('id'),
+					'task_type' => '&type='.$TaskType->get('id'),
+					'task_icon' => $TaskType->get('icon'),
+					'task_name' => $TaskType->get('name'),
+					'task_desc' => $TaskType->get('description'),
+				);
+			}
+		}
+		// Hook
+		$this->HookManager->processEvent(strtoupper($this->node).'_DATA_ADV', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' &$this->attributes));
+		// Output
+		$this->render();
+		printf('</div>');
+		printf("\n\t\t\t</div>");
+		unset($this->data);
+	}
+	/**
+	* adFieldsToDisplay()
+	*/
+	public function adFieldsToDisplay()
+	{
+		$ClassType = ucfirst($this->node);
+		$Data = new $ClassType($_REQUEST['id']);
+		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
+		foreach((array)$OUs AS $OU)
+			$OUOptions[] = $OU;
+		$OUOPtions = array_filter($OUOptions);
+		if (count($OUOptions) > 1)
+		{
+			$OUs = array_unique((array)$OUOptions);
+			$optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
+			foreach($OUs AS $OU)
+			{
+				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
+				$optionOU[] = '<option value="'.$opt.'" '.($Data instanceof Host && $Data->isValid() && $Data->get('ADOU') == $opt ? 'selected="selected"' : (preg_match('#;#i',$OU) ? 'selected="selected"' : '')).'>'.$opt.'</option>';
+			}
+			$OUOptions = '<select id="adOU" class="smaller" name="ou">'.implode("\n\t\t\t",$optionOU)."\n\t\t\t".'</select>';
+		}
+		else
+			$OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" value="${ad_ou}" autocomplete="off" />';
+		printf("\n\t\t\t<!-- Active Directory -->");
+		$this->templates = array(
+			'${field}',
+			'${input}',
+		);
+		$this->attributes = array(
+			array(),
+			array(),
+		);
+		$fields = array(
+			'<input style="display:none" type="text" name="fakeusernameremembered"/>' => '<input style="display:none" type="password" name="fakepasswordremembered"/>',
+			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain"${domainon} />',
+			_('Domain name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="${host_dom}" autocomplete="off" />',
+			_('Organizational Unit').'<br /><span class="lightColor">('._('Blank for default').')</span>' => '${host_ou}',
+			_('Domain Username') => '<input id="adUsername" class="smaller" type="text"name="domainuser" value="${host_aduser}" autocomplete="off" />',
+			_('Domain Password').'<br />('._('Must be encrypted').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${host_adpass}" autocomplete="off" />',
+			'<input type="hidden" name="updatead" value="1" />' => '<input type="submit"value="'._('Update').'" />',
+		);
+		printf("\n\t\t\t%s",'<div id="'.$this->node.'-active-directory" class="organic-tabs-hidden">');
+		printf("\n\t\t\t%s",'<form method="post" action="'.$this->formAction.'&tab='.$this->node.'-active-directory">');
+		printf("\n\t\t\t<h2>%s</h2>",_('Active Directory'));
+		foreach((array)$fields AS $field => $input)
+		{
+			$this->data[] = array(
+				'field' => $field,
+				'input' => $input,
+				'domainon' => $Data instanceof Host && $Data->get('useAD') ? 'checked="checked"' : '',
+				'host_dom' => $Data instanceof Host ? $Data->get('ADDomain') : $_REQUEST['domainname'],
+				'host_ou' => $OUOptions,
+				'ad_ou' => $Data instanceof Host ? $Data->get('ADOU') : $_REQUEST['ou'],
+				'host_aduser' => $Data instanceof Host ? $Data->get('ADUser') : $_REQUEST['domainuser'],
+				'host_adpass' => $Data instanceof Host ? $Data->get('ADPass') : $_REQUEST['domainpassword'],
+			);
+		}
+		// Hook
+		$this->HookManager->processEvent(strtoupper($ClassType).'_EDIT_AD', array('headerData' => &$this->headerData,'data' => &$this->data,'attributes' => &$this->attributes,'templates' => &$this->templates));
+		// Output
+		$this->render();
+		unset($this->data);
+		printf('</form>');
+		printf('</div>');
 	}
 }

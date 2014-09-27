@@ -35,7 +35,7 @@ class HookManager extends FOGBase
 		'GROUP_MODULES',
 		'GROUP_DISPLAY',
 		'GROUP_ALO',
-		'GROUP_AD',
+		'GROUP_EDIT_AD',
 		'GROUP_ADD_PRINTER',
 		'GROUP_REM_PRINTER',
 		'GROUP_EDIT_POST',

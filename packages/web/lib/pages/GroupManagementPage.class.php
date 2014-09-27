@@ -317,73 +317,9 @@ class GroupManagementPage extends FOGPage
 		// Output
 		$this->render();
 		unset ($this->data);
-		print "\n\t\t\t</div>";
-		print "\n\t\t\t<!-- Basic Tasks -->";
-		$this->attributes = array(
-			array('class' => 'l'),
-			array('style' => 'padding-left: 20px'),
-		);
-		$this->templates = array(
-			'<a href="?node=${node}&sub=${sub}&id=${group_id}${task_type}"><img src="images/${task_icon}" /><br/>${task_name}</a>',
-			'${task_desc}',
-		);
-		print "\n\t\t\t".'<div id="group-tasks">';
-		print "\n\t\t\t<h2>"._('Group Tasks').'</h2>';
-		// Find TaskTypes
-		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'group'), 'isAdvanced' => '0'), 'AND', 'id');
-		// Iterate -> Print
-		foreach ((array)$TaskTypes AS $TaskType)
-		{
-			$this->data[] = array(
-				'node' => $this->node,
-				'sub' => 'deploy',
-				'group_id' => $Group->get('id'),
-				'task_type' => '&type='.$TaskType->get('id'),
-				'task_icon' => $TaskType->get('icon'),
-				'task_name' => $TaskType->get('name'),
-				'task_desc' => $TaskType->get('description'),
-			);
-		}
-		$this->data[] = array(
-			'node' => $this->node,
-			'sub' => 'edit',
-			'group_id' => $Group->get('id'),
-			'task_type' => '#group-tasks" class="advanced-tasks-link',
-			'task_icon' => 'host-advanced.png',
-			'task_name' => _('Advanced'),
-			'task_desc' => _('View advanced tasks for this group.'),
-		);
-		// Hook
-		$this->HookManager->processEvent('GROUP_DATA_TASKS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-		// Output
-		$this->render();
-		unset ($this->data);
-		print "\n\t\t\t".'<div id="advanced-tasks" class="hidden">';
-		print "\n\t\t\t".'<h2>'._('Advanced Actions').'</h2>';
-		// Find TaskTypes
-		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both', 'group'), 'isAdvanced' => '1'), 'AND', 'id');
-		// Iterate -> Print
-		foreach ((array)$TaskTypes AS $TaskType)
-		{
-			$this->data[] = array(
-				'node' => $this->node,
-				'sub' => 'deploy',
-				'group_id' => $Group->get('id'),
-				'task_type' => '&type='.$TaskType->get('id'),
-				'task_icon' => $TaskType->get('icon'),
-				'task_name' => $TaskType->get('name'),
-				'task_desc' => $TaskType->get('description'),
-			);
-		}
-		// Hook
-		$this->HookManager->processEvent('GROUP_DATA_ADV', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-		// Output
-		$this->render();
-		// Unset for later use.
-		unset ($this->data);
-		print '</div>';
-		print "\n\t\t\t</div>";
+		print "</div>";
 		print "\n\t\t\t</form>";
+		$this->basictasksOptions();
 		print "\n\t\t\t<!-- Membership -->";
 		// Hopeful implementation of all groups to add to group system in similar means to how host page does from list/search functions.
 		print "\n\t\t\t".'<div id="group-membership">';
@@ -783,58 +719,7 @@ class GroupManagementPage extends FOGPage
 		print '</fieldset>';
 		print "\n\t\t\t</form>";
 		print "\n\t\t\t</div>";
-		print "\n\t\t\t<!-- Active Directory -->";
-		print "\n\t\t\t".'<div id="group-active-directory">';
-		print "\n\t\t\t<h2>"._('Modify AD information for').': '.$Group->get('name').'</h2>';
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-active-directory">';
-		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
-		foreach ((array)$OUs AS $OU)
-			$OUOptions[] = $OU;
-		$OUOptions = array_filter($OUOptions);
-		if (count($OUOptions) > 1)
-		{
-			$OUs = array_unique((array)$OUOptions);
-			$optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
-			foreach ($OUs AS $OU)
-			{
-				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
-				$optionOU[] = '<option value="'.$opt.'"'.(preg_match('#;#i',$OU) ? ' selected="selected"' : '').'>'.$opt.'</option>';
-            }    
-			$OUOptions = '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>';
-		}
-		else
-			$OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" autocomplete="off" />';
-		$this->attributes = array(
-			array(),
-			array(),
-		);
-		$this->templates = array(
-			'${field}',
-			'${input}',
-		);
-		$fields = array(
-			'<input style="display:none" type="text" name="fakeusernameremembered"/>' => '<input style="display:none" type="password" name="fakepasswordremembered"/>',
-			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain" value="on"'.($_REQUEST['domain'] == 'on' ? ' selected="selected"' : '').' />',
-			_('Domain name') => '<input id="adDomain" type="text" name="domainname" autocomplete="off" />',
-			_('Organizational Unit') => $OUOptions,
-			_('Domain Username') => '<input id="adUsername" type="text" name="domainuser" autocomplete="off" />',
-			_('Domain Password') => '<input id="adPassword" type="password" name="domainpassword" autocomplete="off" /><span class="lightColor">('._('Must be encrypted').')</span>',
-			'<input type="hidden" name="updatead" value="1" />' => '<input type="submit" value="'._('Update').'" />',
-		);
-		foreach ((array)$fields AS $field => $input)
-		{
-			$this->data[] = array(
-				'field' => $field,
-				'input' => $input,
-			);
-		}
-		// Hook
-		$this->HookManager->processEvent('GROUP_AD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-		// Output
-		$this->render();
-		unset($this->data);
-		print '</form>';
-		print "\n\t\t\t</div>";
+		$this->adFieldsToDisplay();
 		print "\n\t\t\t<!-- Printers -->";
 		print "\n\t\t\t".'<div id="group-printers">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-printers">';
