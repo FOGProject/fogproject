@@ -1,14 +1,12 @@
 <?php
-
-class Timer
+class Timer extends FOGBase
 {
-	public $debug;
 	private $blSingle;
 	private $strMin, $strHour, $strDOM, $strMonth, $strDOW;
 	private $lngSingle;
-
-	public function __construct( $minute, $hour=null, $dom=null, $month=null, $dow=null )
+	public function __construct($minute,$hour=null,$dom=null,$month=null,$dow=null)
 	{
+		parent::__construct();
 		if ( $minute != null && $hour == null && $dom == null && $month == null && $dow == null )
 		{
 			// Single task based on timestamp
@@ -69,29 +67,29 @@ class Timer
 		return false;
 	}
 	
-	private function splitOnCommas( $s )
+	private function splitOnCommas($s)
 	{
-		return explode(",", $s);
+		return explode(",",$s);
 	}
 	
-	private function splitOnDash( $s )
+	private function splitOnDash($s)
 	{
-		return explode("-", $s );
+		return explode("-",$s);
 	}
 	
-	private function splitOnSlash( $s )
+	private function splitOnSlash($s)
 	{
-		return explode("/", $s );
+		return explode("/",$s);
+	}
+
+	private function containsDash($s)
+	{
+		return strpos($s,"-") !== false;
 	}
 	
-	private function containsDash( $s )
+	private function containsSlash($s)
 	{
-		return strpos($s, "-") !== false;
-	}
-	
-	private function containsSlash( $s )
-	{
-		return strpos( $s, "/" ) !== false;
+		return strpos($s,"/") !== false;
 	}
 	
 	private function passesTime($time,$curTime,$routine)
@@ -102,20 +100,29 @@ class Timer
 		foreach ($arCommas AS $arComma)
 		{
 			$curPiece = trim($arComma);
-			($this->containsDash($curPiece) ? $arDashes = $this->splitOnDash($curPiece) : ($this->containsSlash($curPiece) ? $arSlash = $this->splitOnSlash($curPiece) : null));
-			if (count($arDashes) == 2 && is_numeric(trim($arDashes[0])) && is_numeric(trim($arDashes[1])))
+			if ($this->containsDash($curPiece))
+				$arDashes = $this->splitOnDash($curPiece);
+			if ($this->containsSlash($curPiece))
+				$arSlashes = $this->splitOnSlash($curPiece);
+			if (count($arDashes) == 2)
 			{
-				for( $t = trim($arDashes[0]); $t <= trim($arDashes[1]); $t++ )
-					$arValues[] = $t;
-			}
-			if (count($arSlash) == 2 && trim($arSlash[0]) == "*" && is_numeric(trim($arSlash[1])))
-			{
-				$divisor = trim($arSlash[1]);
-				// Min: 00 - 59, Hour: 00 - 24, DOM: 1 - 31, Month: 1 - 12, DOW: 1-7 (1 = Monday ..... 7 = Sunday)
-				for ($i = 0;$i < $routine;$i++)
+				if (is_numeric(trim($arDashes[0])) && is_numeric(trim($arDashes[1])))
 				{
-					if ($i % $divisor == 0)
-						$arValues[] = $i;
+					for ($t = trim($arDashes[0]); $t <= trim($arDashes[1]); $t++)
+						$arValues[] = $t;
+				}
+			}
+			if (count($arSlash) == 2)
+			{
+				// Min: 00 - 59, Hour: 00 - 24, DOM: 1 - 31, Month: 1 - 12, DOW: 1-7 (1 = Monday ..... 7 = Sunday)
+				if (trim($arSlash[0]) == "*" && is_numeric(trim($arSlash[1])))
+				{
+					$divisor = trim($arSlash[1]);
+					for ($i = 0;$i < $routine;$i++)
+					{
+						if ($i % $divisor == 0)
+							$arValues[] = $i;
+					}
 				}
 			}
 			else
@@ -129,14 +136,14 @@ class Timer
 			if (trim($curTime) == $Value)
 				return true;
 		}
-		if ( $this->debug )
-			print_r( $arValues );
+		if ($this->debug)
+			print_r($arValues);
 		return false;
 	}
 	
-	private function d( $s )
+	private function d($s)
 	{
-		if ( $this->debug )
-			echo ( $s . "\n" );
+		if ($this->debug)
+			echo ($s."\n");
 	}
 }

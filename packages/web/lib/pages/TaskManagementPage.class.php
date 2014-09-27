@@ -728,22 +728,25 @@ class TaskManagementPage extends FOGPage
 		);
 		foreach ((array)$this->FOGCore->getClass('ScheduledTaskManager')->find() AS $task)
 		{
-			$taskType = $task->getTaskType();
-			$taskTime = ($task->get('type') == 'C' ? $task->get('minute').' '.$task->get('hour').' '.$task->get('dayOfMonth').' '.$task->get('month').' '.$task->get('dayOfWeek') : $task->get('scheduleTime'));
-			$hostGroupName = ($task->isGroupBased() ? $task->getGroup() : $task->getHost());
-			$this->data[] = array(
-				'columnkill' => '${details_taskforce} <a href="?node=tasks&sub=cancel-task&id=${id}"><span class="icon icon-kill" title="' . _('Cancel Task') . '"></span></a>',
-				'hostgroup' => $task->isGroupBased() ? 'group' : 'host',
-				'hostgroupname' => $hostGroupName,
-				'id' => $hostGroupName->get('id'),
-				'groupbased' => $task->isGroupBased() ? _('Yes') : _('No'),
-				'details_taskname' => $task->get('name'),
-				'time' => $task->get('type') != 'C' ? $this->FOGCore->formatTime($taskTime) : $taskTime,
-				'active' => $task->get('isActive') ? 'Yes' : 'No',
-				'type' => $task->get('type') == 'C' ? 'Cron' : 'Delayed',
-				'schedtaskid' => $task->get('id'),
-				'task_type' => $taskType,
-			);
+			if ($task && $task->isValid())
+			{
+				$taskType = $task->getTaskType();
+				$taskTime = ($task->get('type') == 'C' ? $task->get('minute').' '.$task->get('hour').' '.$task->get('dayOfMonth').' '.$task->get('month').' '.$task->get('dayOfWeek') : DateTime::createFromFormat('U',$task->get('scheduleTime')));
+				$hostGroupName = ($task->isGroupBased() ? $task->getGroup() : $task->getHost());
+				$this->data[] = array(
+					'columnkill' => '${details_taskforce} <a href="?node=tasks&sub=cancel-task&id=${id}"><span class="icon icon-kill" title="' . _('Cancel Task') . '"></span></a>',
+					'hostgroup' => $task->isGroupBased() ? 'group' : 'host',
+					'hostgroupname' => $hostGroupName,
+					'id' => $hostGroupName->get('id'),
+					'groupbased' => $task->isGroupBased() ? _('Yes') : _('No'),
+					'details_taskname' => $task->get('name'),
+					'time' => $task->get('type') != 'C' ? $this->formatTime($taskTime) : $taskTime,
+					'active' => $task->get('isActive') ? 'Yes' : 'No',
+					'type' => $task->get('type') == 'C' ? 'Cron' : 'Delayed',
+					'schedtaskid' => $task->get('id'),
+					'task_type' => $taskType,
+				);
+			}
 		}
 		// Hook
 		$this->HookManager->processEvent('TaskScheduledData', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));

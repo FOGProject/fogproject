@@ -1846,66 +1846,6 @@ class HostManagementPage extends FOGPage
 		$this->render();
 		print "</form>";
 	}
-	/** deploy_post()
-		Actually deploy's the tasking.
-	*/
-	public function deploy_post()
-	{
-		// Find
-		$Host = new Host($this->REQUEST['id']);	
-		// Title
-		$this->title = _("Deploy Image to Host");
-		// Variables
-		$taskTypeID = $this->REQUEST['type'];
-		$TaskType = new TaskType($taskTypeID);
-		$snapin = ($_REQUEST['snapin'] ? $_REQUEST['snapin'] : -1);
-		$enableShutdown = ($this->REQUEST['shutdown'] == '1' ? true : false);
-		$enableSnapins = ($taskTypeID != '17' ? $snapin : '');
-		$enableDebug = ($this->REQUEST['debug'] == 'true' || $_REQUEST['isDebugTask'] ? true : false);
-		$scheduledDeployTime = strtotime($this->REQUEST['scheduleSingleTime']);
-		$taskName = ($taskTypeID == '12' ? 'All Snapins Deploy' : ($taskTypeID == '13' ? 'Single Snapin Deploy' : ''));
-		$imagingTasks = array(1,2,8,15,16,17);
-		// Deploy
-		try
-		{
-			if (in_array($taskTypeID,$imagingTasks) && !$Host->get('imageID'))
-				throw new Exception(_('You need to assign an image to the host'));
-			if ($TaskType->isUpload() && $Host->getImage()->get('protected'))
-				throw new Exception(_('Image is protected, upload tasks cannot be started'));
-			if (!$Host->checkIfExist($taskTypeID))
-				throw new Exception(_('To setup download task, you must first upload an image'));
-			if ($taskTypeID == '11' && !trim($_REQUEST['account']))
-				throw new Exception(_('To setup password reset request, you must specify a user'));
-			if ($this->REQUEST['scheduleType'] == 'single')
-			{
-				// Scheduled Deployment
-				// NOTE: Function will throw an exception if it fails
-				$Host->createSingleRunScheduledPackage($taskTypeID, $taskName, $scheduledDeployTime, $enableShutdown, $enableSnapins, $this->FOGUser->get('name'),trim($_REQUEST['account']));
-				// Success
-				printf('%s',sprintf('<div class="task-start-ok"><p>%s task created for <u>%s</u> with image <u>%s</u></p><p>%s%s</p></div>',$TaskType->get('name'),$Host->get('name'),$Host->getImage()->get('name'),_('Scheduled to start at: '),$_REQUEST['scheduleSingleTime']));
-			}
-			else if ($this->REQUEST['scheduleType'] == 'cron')
-			{
-				// Cron Deployment
-				// NOTE: Function will throw an exception if it fails
-				$Host->createCronScheduledPackage($taskTypeID, $taskName, $this->REQUEST['scheduleCronMin'], $this->REQUEST['scheduleCronHour'], $this->REQUEST['scheduleCronDOM'], $this->REQUEST['scheduleCronMonth'], $this->REQUEST['scheduleCronDOW'], $enableShutdown, $enableSnapins,$this->FOGUser->get('name'));
-				// Success
-				printf('%s',sprintf('<div class="task-start-ok"><p>%s task created for <u>%s</u> with image <u>%s</u></p><p>%s%s</p></div>',$TaskType->get('name'),$Host->get('name'),$Host->getImage()->get('name'),_('Cron Schedule:'),implode(' ', array($_REQUEST['scheduleCronMin'],$_REQUEST['scheduleCronHour'],$_REQUEST['scheduleCronDOM'],$_REQUEST['scheduleCronMonth'],$_REQUEST['scheduleCronDOW']))));
-			}
-			else
-			{
-				// Instant Deployment
-				// NOTE: Function will throw an exception if it fails
-				$Host->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, false,$this->FOGUser->get('name'),$_REQUEST['account']);
-				// Success
-				printf('%s',sprintf('<div class="task-start-ok"><p>%s task created for <u>%s</u> with image <u>%s</u></p></div>',$TaskType->get('name'),$Host->get('name'),$Host->getImage()->get('name')));
-			}
-		}
-		catch (Exception $e)
-		{
-			printf('%s',sprintf('<div class="task-start-failed"><p>%s task failed to create for <u>%s</u> with image <u>%s</u></p><p>%s</p></div>',$TaskType->get('name'),$Host->get('name'),$Host->getImage()->get('name'),$e->getMessage()));
-		}
-	}
 	// Overrides
 	/** render()
 		Overrides the FOGCore render method.
