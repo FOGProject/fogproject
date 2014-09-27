@@ -360,7 +360,10 @@ abstract class FOGBase
 		if ($format)
 			$RetDate = $time->format($format);
 		$CurrTime = $this->nice_date('now',$utc);
-		$TimeVal = $time->diff($CurrTime);
+		if ($time < $CurrTime)
+			$TimeVal = $time->diff($CurrTime);
+		if ($time > $CurrTime)
+			$TimeVal = $CurrTime->diff($time);
 		if ($TimeVal->y)
 			$RetDate = $TimeVal->y.' year'.($TimeVal->y != 1 ? 's' : '');
 		else if ($TimeVal->m)
@@ -373,7 +376,11 @@ abstract class FOGBase
 			$RetDate = $TimeVal->i.' minute'.($TimeVal->i != 1 ? 's' : '');
 		else if ($TimeVal->s)
 			$RetDate = $TimeVal->s.' second'.($Timeval->s != 1 ? 's' : '');
-		return $RetDate.' ago';
+		if ($time < $CurrTime)
+			$RetDate .= ' ago';
+		if ($time > $CurrTime)
+			$RetDate .= ' from now';
+		return $RetDate;
 	}
 	/** resetRequest()
 	* Simply resets the request so data, even if invalid, will populate form.
