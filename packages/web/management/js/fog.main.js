@@ -473,27 +473,27 @@ function DeployStuff() {
 				var $dow = $('#scheduleCronDOW');
 				
 				// Basic checks
-				if ($min.val() != '*' && ($min.val() == '' || parseInt($min.val(), 10) != $min.val() || $min.val() > 59 || $min.val() < 0))
+				if (!checkMinutesField($min.val()))
 				{
 					result = false;
 					$min.addClass('error');
 				}
-				if ($hour.val() != '*' && ($hour.val() == '' || parseInt($hour.val(), 10) != $hour.val() || $hour.val() > 23 || $hour.val() < 0))
+				if (!checkHoursField($hour.val()))
 				{
 					result = false;
 					$hour.addClass('error');
 				}
-				if ($dom.val() != '*' && ($dom.val() == '' || parseInt($dom.val(), 10) != $dom.val() || $dom.val() > 31 || $dom.val() < 1))
+				if (!checkDOMField($dom.val()))
 				{
 					result = false;
 					$dom.addClass('error');
 				}
-				if ($month.val() != '*' && ($month.val() == '' || parseInt($month.val(), 10) != $month.val() || $month.val() > 12 || $month.val() < 1))
+				if (!checkMonthField($month.val()))
 				{
 					result = false;
 					$month.addClass('error');
 				}
-				if ($dow.val() != '*' && ($dow.val() == '' || parseInt($dow.val(), 10) != $dow.val() || $dow.val() > 6 || $dow.val() < 0))
+				if (!checkDOWField($dow.val()))
 				{
 					result = false;
 					$dow.addClass('error');
@@ -554,4 +554,92 @@ function DeployStuff() {
 			$('.hideFromDebug').show();
 		}
 	});
+}
+function checkField(field, min, max) {
+	if (field.indexOf('-') > -1) {
+		var startVal = field.substring(0,field.indexOf('-'));
+		var endVal = field.substring(field.indexOf('-') + 1);
+		if (!(checkIntValue(startVal,min,max,true) && checkIntValue(endVal,min,max,true))) {
+			return false;
+		}
+		try {
+			var startVal = parseInt(strValue,10);
+			var endVal = parseInt(endValue,10);
+			return endVal > startVal;
+		} catch (e) {
+			return false;
+		}
+	} else if (field.indexOf(',') > -1) {
+		return checkListField(field,min,max);
+	} else if (field.indexOf('/') > -1) {
+		return checkListField(field,min,max);
+	} else if (field.indexOf('*') != -1) {
+		return true;
+	} else {
+		return checkIntValue(field,min,max);
+	}
+}
+function checkListField(value,min,max) {
+	var st = value.split(',');
+	var values = new Array(st.length);
+	for (var j = 0; j < st.length; j++) {
+		values[j] = st[j];
+	}
+	var previousValue = -1;
+	for (var i = 0;i < values.length; i++) {
+		var currentValue = values[i];
+		if (!checkIntValue(currentValue,min,max,true)) {
+			return false;
+		}
+		try {
+			var val=parseInt(currentValue,10);
+			if (val <= previousValue) {
+				return false;
+			} else {
+				previousValue = val;
+			}
+		} catch(e) {
+		}
+	}
+	return true;
+}
+function checkIntValue(value,min,max,checkExtremity) {
+	try {
+		var val = parseInt(value,10);
+		if (value == val) {
+			if (checkExtremity) {
+				if (val < min || val > max) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	} catch (e) {
+		return false;
+	}
+}
+function checkMinutesField(minutes) {
+	return checkField(minutes,0,59);
+}
+function checkHoursField(hours) {
+	return checkField(hours,0,23);
+}
+function checkDOMField(DOM) {
+	return checkField(DOM,1,31);
+}
+function checkMonthField(month) {
+	return checkField(month,1,12);
+}
+function checkDOWField(DOW) {
+	return checkField(DOW,1,7);
+}
+function checkIncrementalField(value,min,max) {
+	var start = value.substring(0,value.indexOf('/'));
+	var increment = value.substring(value.indexOf('/') + 1);
+	if (!('*' == start)) {
+		return checkIntValue(start,min,max,true) && checkIntValue(increment,min,max,false);
+	} else {
+		return checkIntValue(increment,min,max,true);
+	}
 }
