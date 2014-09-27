@@ -591,14 +591,11 @@ function checkListField(value,min,max) {
 		if (!checkIntValue(currentValue,min,max,true)) {
 			return false;
 		}
-		try {
-			var val=parseInt(currentValue,10);
-			if (val <= previousValue) {
-				return false;
-			} else {
-				previousValue = val;
-			}
-		} catch(e) {
+		var val=parseInt(currentValue,10);
+		if (val <= previousValue) {
+			return false;
+		} else {
+			previousValue = val;
 		}
 	}
 	return true;

@@ -30,13 +30,14 @@ class Timer extends FOGBase
 	public function getSingleRunTime() {return $this->lngSingle;}
 	public function toString()
 	{
-		return ($this->blSingle ? $this->nice_date($this->lngSingle)->format('r') : 'Crontab: '.$this->strMin.' '.$this->strHour.' '.$this->strDOM.' '.$this->strMonth.' '.$this->strDOW);
+		$runTime = DateTime::createFromFormat('U',$this->lngSingle);
+		return ($this->blSingle ? $runTime->format('r') : 'Crontab: '.$this->strMin.' '.$this->strHour.' '.$this->strDOM.' '.$this->strMonth.' '.$this->strDOW);
 	}
-	public function setDebug( $blDebug )
+	public function setDebug($blDebug)
 	{
 		$this->debug = $blDebug;
 	}
-	private function shouldSingleRun() {return (time() >= $this->lngSingle ? true : false);}
+	private function shouldSingleRun() {return ($this->nice_date() >= $this->nice_date()->setTimestamp($this->lngSingle));}
 	public function shouldRunNow()
 	{
 		if ($this->blSingle)
