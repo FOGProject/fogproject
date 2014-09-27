@@ -731,7 +731,11 @@ class TaskManagementPage extends FOGPage
 			if ($task && $task->isValid())
 			{
 				$taskType = $task->getTaskType();
-				$taskTime = ($task->get('type') == 'C' ? $task->get('minute').' '.$task->get('hour').' '.$task->get('dayOfMonth').' '.$task->get('month').' '.$task->get('dayOfWeek') : DateTime::createFromFormat('U',$task->get('scheduleTime')));
+				if ($task->get('type') == 'C')
+					$taskTime = FOGCron::parse($task->get('minute').' '.$task->get('hour').' '.$task->get('dayOfMonth').' '.$task->get('month').' '.$task->get('dayOfWeek'));
+				else
+					$taskTime = $task->get('scheduleTime');
+				$taskTime = $this->formatTime($this->nice_date()->setTimestamp($taskTime));
 				$hostGroupName = ($task->isGroupBased() ? $task->getGroup() : $task->getHost());
 				$this->data[] = array(
 					'columnkill' => '${details_taskforce} <a href="?node=tasks&sub=cancel-task&id=${id}"><span class="icon icon-kill" title="' . _('Cancel Task') . '"></span></a>',
@@ -740,7 +744,7 @@ class TaskManagementPage extends FOGPage
 					'id' => $hostGroupName->get('id'),
 					'groupbased' => $task->isGroupBased() ? _('Yes') : _('No'),
 					'details_taskname' => $task->get('name'),
-					'time' => $task->get('type') != 'C' ? $this->formatTime($taskTime) : $taskTime,
+					'time' => $taskTime,
 					'active' => $task->get('isActive') ? 'Yes' : 'No',
 					'type' => $task->get('type') == 'C' ? 'Cron' : 'Delayed',
 					'schedtaskid' => $task->get('id'),
