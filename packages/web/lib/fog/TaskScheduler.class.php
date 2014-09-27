@@ -78,7 +78,7 @@ class TaskScheduler extends FOGBase
 								$this->outall(sprintf("\t\t - Group %s",$Group->get('name')));
 								foreach((array)$Group->get('hosts') AS $Host)
 								{
-									$Host->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$deploySnapin,'FOG_SCHED');
+									$Host->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$deploySnapin,true,$Task->get('other3'));
 									$this->outall(sprintf("\t\t - Task Started for host %s!",$Host->get('name')));
 								}
 								if ($Timer->isSingleRun())
@@ -96,7 +96,7 @@ class TaskScheduler extends FOGBase
 						{
 							$this->outall("\t\t - Is a host based task.");
 							$Host = $Task->getHost();
-							$Host->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$deploySnapin,'FOG_SCHED');
+							$Host->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$deploySnapin,false,$Task->get('other3'));
 							$this->outall(sprintf("\t\t - Task Started for host %s!",$Host->get('name')));
 							if ($Timer->isSingleRun())
 							{
