@@ -360,10 +360,7 @@ abstract class FOGBase
 		if ($format)
 			$RetDate = $time->format($format);
 		$CurrTime = $this->nice_date('now',$utc);
-		if ($time < $CurrTime)
-			$TimeVal = $time->diff($CurrTime);
-		if ($time > $CurrTime)
-			$TimeVal = $CurrTime->diff($time);
+		$TimeVal = $CurrTime->diff($time);
 		if ($TimeVal->y)
 			$RetDate = $TimeVal->y.' year'.($TimeVal->y != 1 ? 's' : '');
 		else if ($TimeVal->m)
