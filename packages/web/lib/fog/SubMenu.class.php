@@ -5,7 +5,7 @@ class SubMenu extends FOGBase
 	public function __construct()
 	{
 		parent::__construct();
-		$this->node = $_REQUEST['node'];
+		$this->node = $_GET['node'];
 		$this->FOGSubMenu = new FOGSubMenu();
 		if ($this->node == 'group' && $_GET['id'])
 		{
