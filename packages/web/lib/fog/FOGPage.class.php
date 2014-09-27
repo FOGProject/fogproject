@@ -274,7 +274,7 @@ abstract class FOGPage extends FOGBase
 			printf("\n\t\t\t%s%s%s",'<p><input type="checkbox" name="isDebugTask" id="isDebugTask" autocomplete="off" /><label for="isDebugTask">',_('Schedule task as a debug task'),'</label></p>');
 			printf("\n\t\t\t%s%s %s%s%s",'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked="checked" /><label for="scheduleInstant">',_('Schedule '),'<u>',_('Instant Deployment'),'</u></label></p>');
 			printf("\n\t\t\t%s%s %s%s%s",'<p class="hideFromDebug"><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off" /><label for="scheduleSingle">',_('Schedule '),'<u>',_('Delayed Deployment'),'</u></label></p>');
-			printf("\n\t\t\t%s",'<p class="hidden" id="singleOptions"><input type="text" nme="scheduleSingleTime" id="scheduleSingleTime" autocomplete="off" /></p>');
+			printf("\n\t\t\t%s",'<p class="hidden" id="singleOptions"><input type="text" name="scheduleSingleTime" id="scheduleSingleTime" autocomplete="off" /></p>');
 			printf("\n\t\t\t%s%s %s%s%s",'<p class="hideFromDebug"><input type="radio" name="scheduleType" id="scheduleCron" value="cron" autocomplete="off"><label for="scheduleCron">',_('Schedule'),'<u>',_('Cron-style Deployment'),'</u></label></p>');
 			printf("\n\t\t\t%s",'<p class="hidden" id="cronOptions">');
 			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronMin" id="scheduleCronMin" placeholder="min" autocomplete="off" />');
@@ -342,5 +342,174 @@ abstract class FOGPage extends FOGBase
 		$this->render();
 		printf('%s%s%s','<p class="c"><input type="submit" value="',$this->title,'" /></p>');
 		printf("\n\t\t\t</form>");
+	}
+	/** deploy_post()
+	* Make the deployment actually happen.
+	*/
+	public function deploy_post()
+	{
+		if (in_array($_REQUEST['node'],array('host','hosts')))
+		{
+			$Data = new Host($_REQUEST['id']);
+			$ClassType = 'Host';
+		}
+		if (in_array($_REQUEST['node'],array('group','groups')))
+		{
+			$Data = new Group($_REQUEST['id']);
+			$ClassType = 'Group';
+		}
+		$TaskType = new TaskType($_REQUEST['type']);
+		$Snapin = $_REQUEST['snapin'] ? new Snapin($_REQUEST['snapin']) : -1;
+		$enableShutdown = $_REQUEST['shutdown'] ? true : false;
+		$enableSnapins = $TaskType->get('id') != '17' ? ($Snapin instanceof Snapin && $Snapin->isValid() ? $Snapin->get('id') : $Snapin) : false;
+		$enableDebug = $_REQUEST['debug'] == 'true' || $_REQUEST['isDebugTask'] ? true : false;
+		$scheduleDeployTime = $this->nice_date($_REQUEST['scheduleSingleTime']);
+		$imagingTasks = array(1,2,8,15,16,17,24);
+		try
+		{
+			if (!$TaskType || !$TaskType->isValid())
+				throw new Exception(_('Task type is not valid'));
+			$taskName = $TaskType->get('name').' Task';
+			if ($Data->isValid() && in_array($TaskType->get('id'),$imagingTasks))
+			{
+				// Error Checking
+				if ($Data instanceof Host)
+				{
+					if(!$Data->getImage() || !$Data->getImage()->isValid())
+						throw new Exception(_('You need to assign an image to the host'));
+					if ($TaskType->isUpload() && $Data->getImage()->get('protected'))
+						throw new Exception(_('You cannot upload to this image as it is currently protected'));
+					if (!$Data->checkIfExist($TaskType->get('id')))
+						throw new Exception(_('You must first upload an image to create a download task'));
+				}
+				else if ($Data instanceof Group)
+				{
+					if ($TaskType->isMulticast() && !$Group->doMembersHaveUniformImages())
+						throw new Exception(_('Hosts do not contain the same image assignments'));
+					unset($NoImage,$ImageExists,$Tasks);
+					foreach((array)$Data->get('hosts') AS $Host)
+					{
+						if ($Host && $Host->isValid() && !$Host->get('pending'))
+							$NoImage[] = !$Host->getImage() || !$Host->getImage()->isValid();
+					}
+					if (in_array(true,$NoImage))
+						throw new Exception(_('One or more hosts do not have an image set'));
+					foreach((array)$Data->get('hosts') AS $Host)
+					{
+						if ($Host && $Host->isValid() && !$Host->get('pending'))
+							$ImageExists[] = !$Host->checkIfExist($TaskType->get('id'));
+					}
+					if (in_array(true,$ImageExists))
+						throw new Exception(_('One or more hosts have an image that does not exist'));
+					foreach((array)$Data->get('hosts') AS $Host)
+					{
+						if ($Host && $Host->isValid())
+						{
+							foreach((array)$Host->get('task') AS $Task)
+								$Tasks[] = $Task && $Task->isValid();
+						}
+					}
+					if (in_array(true,$Tasks))
+						throw new Exception(_('One or more hosts are currently in a task'));
+				}
+				if ($TaskType->get('id') == 11 && !trim($_REQUEST['account']))
+					throw New Exception(_('Password reset requires a user account to reset'));
+				try
+				{
+					if (!in_array($_REQUEST['scheduleType'],array('single','cron')))
+					{
+						if ($Data instanceof Group)
+						{
+							foreach((array)$Data->get('hosts') AS $Host)
+							{
+								if ($Host && $Host->isValid() && !$Host->get('pending'))
+								{
+									if ($Host->createImagePackage($TaskType->get('id'),$taskName,$enableShutdown,$enableDebug,$enableSnapins,$Data instanceof Group,$_SESSION['FOG_USERNAME'],trim($_REQUEST['account'])))
+										$success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
+								}
+							}
+						}
+						else if ($Data instanceof Host)
+						{
+							if ($Data->createImagePackage($TaskType->get('id'),$taskName,$enableShutdown,$enableDebug,$enableSnapins,$Data instanceof Group,$_SESSION['FOG_USERNAME'],trim($_REQUEST['account'])))
+								$success[] = sprintf('<li>%s &ndash; %s</li>',$Data->get('name'),$Data->getImage()->get('name'));
+						}
+					}
+					else if ($_REQUEST['scheduleType'] == 'single')
+					{
+						if ($scheduleDeployTime < $this->nice_date())
+							throw new Exception(sprintf('%s<br>%s: %s',_('Scheduled date is in the past'),_('Date'),$scheduleDeployTime->format('Y/d/m H:i')));
+						$ScheduledTask = new ScheduledTask(array(
+							'taskType' => $TaskType->get('id'),
+							'name' => $taskName,
+							'hostID' => $Data->get('id'),
+							'shutdown' => $enableShutdown,
+							'other2' => $enableSnapins,
+							'isGroupTask' => $Data instanceof Group,
+							'type' => 'S',
+							'scheduleTime' => $scheduleDeployTime->getTimestamp(),
+							'other3' => $_SESSION['FOG_USERNAME'],
+						));
+					}
+					else if ($_REQUEST['scheduleType'] == 'cron')
+					{
+						$ScheduledTask = new ScheduledTask(array(
+							'taskType' => $TaskType->get('id'),
+							'name' => $taskName,
+							'hostID' => $Data->get('id'),
+							'shutdown' => $enableShutdown,
+							'other2' => $enableSnapins,
+							'isGroupTask' => $Data instanceof Group,
+							'type' => 'C',
+							'other3' => $_SESSION['FOG_USERNAME'],
+							'minute' => $_REQUEST['scheduleCronMin'],
+							'hour' => $_REQUEST['scheduleCronHour'],
+							'dayOfMonth' => $_REQUEST['scheduleCronDOM'],
+							'month' => $_REQUEST['scheduleCronMonth'],
+							'dayOfWeek' => $_REQUEST['scheduleCronDOW'],
+						));
+					}
+					if ($ScheduledTask && $ScheduledTask->save())
+					{
+						if ($Data instanceof Group)
+						{
+							foreach((array)$Data->get('hosts') AS $Host)
+							{
+								if ($Host && $Host->isValid() && !$Host->get('pending'))
+									$success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
+							}
+						}
+						else if ($Data instanceof Host)
+						{
+							if ($Data && $Data->isValid() && !$Data->get('pending'))
+								$success[] = sprintf('<li>%s &ndash; %s</li>',$Data->get('name'),$Data->getImage()->get('name'));
+						}
+					}
+				}
+				catch (Exception $e)
+				{
+					$error[] = sprintf('%s: %s',($Data instanceof Group ? $Host->get('name') : $Data->get('name')),$e->getMessage());
+				}
+			}
+			// Failure
+			if (count($error))
+				throw new Exception('<ul><li>'.implode('</li><li>',$error).'</li></ul>');
+		}
+		catch (Exception $e)
+		{
+			// Failure
+			printf('<div class="task-start-failed"><p>%s</p><p>%s</p></div>',_('Failed to create deployment tasking for the following hosts'),$e->getMessage());
+		}
+		
+		// Success
+		if (count($success))
+		{
+			printf('<div class="task-start-ok"><p>%s</p><p>%s%s%s</p></div>',
+				sprintf(_('Successfully created tasks for deployment to the following Hosts'),($Data instanceof Group ? $Host->getImage()->get('name') : $Data->getImage()->get('name'))),
+				($_REQUEST['scheduleType'] == 'cron' ? sprintf('%s: %s',_('Cron Schedule'),implode(' ',array($_REQUEST['scheduleCronMin'],$_REQUEST['scheduleCronHour'],$_REQUEST['scheduleCronDOM'],$_REQUEST['scheduleCronMonth'],$_REQUEST['scheduleCronDOW']))) : ''),
+				($_REQUEST['scheduleType'] == 'single' ? sprintf('%s: %s',_('Scheduled to start at'),$scheduleDeployTime->format('Y/m/d H:i')) : ''),
+				(count($success) ? sprintf('<ul>%s</ul>',implode('',$success)) : '')
+			);
+		}
 	}
 }
