@@ -44,11 +44,9 @@ class FOGCron extends FOGGetSet
 			$step = empty($vvv[1]) ? 1 : $vvv[1];
 			$vvvv = explode('-',$vvv[0]);
 			$_min = count($vvvv) == 2 ? $vvvv[0] : ($vvv[0] == '*' ? $min : $vvv[0]);
-			$_max = count($vvvv) == 2 ? $vvvv[1] : ($vvv[0] == '*' ? $max : $vvv[1]);
+			$_max = count($vvvv) == 2 ? $vvvv[1] : ($vvv[0] == '*' ? $max : $vvv[0]);
 			for ($i = $_min; $i <= $_max; $i += $step)
-			{
 				$result[$i] = intval($i);
-			}
 		}
 		ksort($result);
 		return $result;
