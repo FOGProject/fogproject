@@ -557,84 +557,45 @@ function DeployStuff() {
 	});
 }
 function checkField(field, min, max) {
-	if (field.indexOf('/') > -1) {
-		var startVal = field.substring(0,field.indexOf('/'));
-		var endVal = field.substring(field.indexOf('/') + 1);
-		if (startVal.indexOf('*') != -1) {
-			if (!(checkIntValue(endVal,min,max,true))) {
-				return false;
-			}
-			return true;
-		} else {
-			if (!(checkIntValue(startVal,min,max,true) && checkIntValue(endVal,min,max,true))) {
-				return false;
-			}
-			try {
-				var startVal = parseInt(startVal,10);
-				var endVal = parseInt(endVal,10);
-				return endVal > startVal;
-			} catch (e) {
+	// Trim the values to ensure we have valid data.
+	field = field.trim();
+	// If the format is not in # or * or */# or #-#/# fail.
+	if (field === '' || field === undefined || field === null || !field.match(/^((\*(\/[0-9]+)?)|[0-9\-\,\/]+)/)) {
+		return false;
+	}
+	// Split the field on commas.
+	var v = field.split(',');
+	// Loop through all of them.
+	$.each(v,function(key,vv) {
+		// Split the values on slash
+		vvv = vv.split('/');
+		// Set the step pattern
+		step = (vvv[1] === '' || vvv[1] === undefined || vvv[1] === null ? 1 : vvv[1]);
+		// Split the values on dash
+		vvvv = vvv[0].split('-');
+		// Set the new min and max values.
+		_min = vvvv.length == 2 ? vvvv[0] : (vvv[0] == '*' ? min : vvv[0]);
+		_max = vvvv.length == 2 ? vvvv[1] : (vvv[0] == '*' ? max : vvv[0]);
+		result = true;
+		if (!checkIntValue(step,min,max,true)) {
+			result = false;
+		} else if (!checkIntValue(_min,min,max,true)) {
+			result = false;
+		} else if (!checkIntValue(_max,min,max,true)) {
+			result = false;
+		}
+	});
+	return result;
+}
+function checkIntValue(value,min,max,extremity) {
+	var val = parseInt(value,10);
+	if (value == val) {
+		if (extremity) {
+			if (val < min || val > max) {
 				return false;
 			}
 		}
-	} else if (field.indexOf('-') > -1) {
-		var startVal = field.substring(0,field.indexOf('-'));
-		var endVal = field.substring(field.indexOf('-') + 1);
-		if (!(checkIntValue(startVal,min,max,true) && checkIntValue(endVal,min,max,true))) {
-			return false;
-		}
-		try {
-			var startVal = parseInt(startVal,10);
-			var endVal = parseInt(endVal,10);
-			return endVal > startVal;
-		} catch (e) {
-			return false;
-		}
-	} else if (field.indexOf(',') > -1) {
-		return checkListField(field,min,max);
-	} else if (field.indexOf('/') > -1) {
-		return checkListField(field,min,max);
-	} else if (field.indexOf('*') != -1) {
 		return true;
-	} else {
-		return checkIntValue(field,min,max,true);
-	}
-}
-function checkListField(value,min,max) {
-	var st = value.split(',');
-	var values = new Array(st.length);
-	for (var j = 0; j < st.length; j++) {
-		values[j] = st[j];
-	}
-	var previousValue = -1;
-	for (var i = 0;i < values.length; i++) {
-		var currentValue = values[i];
-		if (!checkIntValue(currentValue,min,max,true)) {
-			return false;
-		}
-		var val=parseInt(currentValue,10);
-		if (val <= previousValue) {
-			return false;
-		} else {
-			previousValue = val;
-		}
-	}
-	return true;
-}
-function checkIntValue(value,min,max,checkExtremity) {
-	try {
-		var val = parseInt(value,10);
-		if (value == val) {
-			if (checkExtremity) {
-				if (val < min || val > max) {
-					return false;
-				}
-			}
-			return true;
-		}
-		return false;
-	} catch (e) {
-		return false;
 	}
 }
 function checkMinutesField(minutes) {
@@ -651,13 +612,4 @@ function checkMonthField(month) {
 }
 function checkDOWField(DOW) {
 	return checkField(DOW,1,7);
-}
-function checkIncrementalField(value,min,max) {
-	var start = value.substring(0,value.indexOf('/'));
-	var increment = value.substring(value.indexOf('/') + 1);
-	if (!('*' == start)) {
-		return checkIntValue(start,min,max,true) && checkIntValue(increment,min,max,false);
-	} else {
-		return checkIntValue(increment,min,max,true);
-	}
 }
