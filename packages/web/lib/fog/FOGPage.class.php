@@ -260,15 +260,15 @@ abstract class FOGPage extends FOGBase
 		}
 		printf("\n\t\t\t%s",'<div class="advanced-settings">');
 		printf("\n\t\t\t<h2>%s</h2>",_('Advanced Settings'));
-		printf("\n\t\t\t<p>%s%s <u>%s</u> %s%s",'<input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">',_('Schedule'),_('Shutdown'),_('after task completion'),'</label></p>');
+		printf("\n\t\t\t%s%s%s <u>%s</u> %s%s",'<p class="hideFromDebug">','<input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">',_('Schedule'),_('Shutdown'),_('after task completion'),'</label></p>');
 		if (!$TaskType->isDebug() && $TaskType->get('id') != 11)
 		{
 			printf("\n\t\t\t%s%s%s",'<p><input type="checkbox" name="isDebugTask" id="isDebugTask" autocomplete="off" /><label for="isDebugTask">',_('Schedule task as a debug task'),'</label></p>');
 			printf("\n\t\t\t%s%s %s%s%s",'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked="checked" /><label for="scheduleInstant">',_('Schedule '),'<u>',_('Instant Deployment'),'</u></label></p>');
 			printf("\n\t\t\t%s%s %s%s%s",'<p class="hideFromDebug"><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off" /><label for="scheduleSingle">',_('Schedule '),'<u>',_('Delayed Deployment'),'</u></label></p>');
-			printf("\n\t\t\t%s",'<p class="hidden" id="singleOptions"><input type="text" name="scheduleSingleTime" id="scheduleSingleTime" autocomplete="off" /></p>');
+			printf("\n\t\t\t%s",'<p class="hidden hideFromDebug" id="singleOptions"><input type="text" name="scheduleSingleTime" id="scheduleSingleTime" autocomplete="off" /></p>');
 			printf("\n\t\t\t%s%s %s%s%s",'<p class="hideFromDebug"><input type="radio" name="scheduleType" id="scheduleCron" value="cron" autocomplete="off"><label for="scheduleCron">',_('Schedule'),'<u>',_('Cron-style Deployment'),'</u></label></p>');
-			printf("\n\t\t\t%s",'<p class="hidden" id="cronOptions">');
+			printf("\n\t\t\t%s",'<p class="hidden hideFromDebug" id="cronOptions">');
 			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronMin" id="scheduleCronMin" placeholder="min" autocomplete="off" />');
 			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronHour" id="scheduleCronHour" placeholder="hour" autocomplete="off" />');
 			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronDOM" id="scheduleCronDOM" placeholder="dom" autocomplete="off" />');
