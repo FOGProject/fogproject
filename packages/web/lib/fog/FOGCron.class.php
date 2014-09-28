@@ -6,7 +6,7 @@ class FOGCron extends FOGGetSet
 		try{
 			if (!preg_match('/^((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)$/i',trim($Cron)))
 				throw new Exception("Invalid cron string: ".$Cron);
-			if ($TimeStampe && !is_numeric($TimeStamp))
+			if ($TimeStamp && !is_numeric($TimeStamp))
 				throw new Exception("Invalid timestamp passed: ".$TimeStamp);
 			$Cron = preg_split("/[\s]+/i",trim($Cron));
 			$Start = empty($TimeStamp) ? time() : $TimeStamp;
@@ -21,8 +21,8 @@ class FOGCron extends FOGGetSet
 			{
 				$dom = in_array(intval(date('j',$Start+$i)),$date['dom']);
 				$month = in_array(intval(date('n',$Start+$i)),$date['month']);
-				$dow = in_array(intval(date('w',$Start+$i)),$date['dow']);
-				$hours = in_array(intval(date('G',$Start+$i)),$date['hours']);
+				$dow = in_array(intval(date('N',$Start+$i)),$date['dow']);
+				$hours = in_array(intval(date('H',$Start+$i)),$date['hours']);
 				$minutes = in_array(intval(date('i',$Start+$i)),$date['minutes']);
 				if ($dom && $month && $dow && $hours && $minutes)
 					return $Start+$i;
