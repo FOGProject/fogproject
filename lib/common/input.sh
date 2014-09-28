@@ -35,7 +35,7 @@ then
 		strSuggestedOS="2";
 	fi
 
-	#tmpOS=`cat /etc/*release* /etc/issue 2> /dev/null | grep -Ei "Ubuntu|Debian"`;
+	#tmpOS=`cat /etc/*release* /etc/issue 2> /dev/null | grep -Ei "Arch"`;
 	#if [ "$tmpOS" != "" ]
 	if [ "`echo $linuxReleaseName | grep -Ei "Arch"`" != "" ]
 	then
@@ -43,26 +43,41 @@ then
 	fi
 
 	## IP Address
-	strSuggestedIPaddress=`ifconfig | grep "inet addr:" | head -n 1  | cut -d':' -f2 | cut -d' ' -f1`;
+  if [ "`echo $linuxReleaseName | grep -Ei "Arch"`" != "" ]
+	then
+    strSuggestedIPaddress=`ip -f inet -o addr show | cut -d\  -f 7 | cut -d/ -f 1 | head -n2 | tail -n1`;
+  else
+    strSuggestedIPaddress=`ifconfig | grep "inet addr:" | head -n 1  | cut -d':' -f2 | cut -d' ' -f1`;
+  fi
 	if [ -z "$strSuggestedIPaddress" ]
 	then
 		strSuggestedIPaddress=`ifconfig | grep "inet" | head -n 1  | awk '{print $2}'`;
 	fi
 	
 	## Interface
-	strSuggestedInterface=`ifconfig | grep "Link encap:" | head -n 1 | cut -d' ' -f1`;
+  if [ "`echo $linuxReleaseName | grep -Ei "Arch"`" != "" ]
+	then
+    strSuggestedInterface=`ip -f inet -o addr show | cut -d' ' -f 2 | head -n2 | tail -n1`;
+  else
+	  strSuggestedInterface=`ifconfig | grep "Link encap:" | head -n 1 | cut -d' ' -f1`;
+  fi
 	if [ -z "$strSuggestedInterface" ]
 	then
 		strSuggestedInterface=`ifconfig | grep "RUNNING" | head -n 1 | cut -d':' -f1`;
 	fi
 	
 	## Route
-	strSuggestedRoute=`route -n | grep "^.*UG.*${strSuggestedInterface}$"  | head -n 1`;
-	if [ -z "$strSuggestedRoute" ]
+  if [ "`echo $linuxReleaseName | grep -Ei "Arch"`" != "" ]
 	then
-		strSuggestedRoute=`route -n | grep "^.*U.*${strSuggestedInterface}$"  | head -n 1`;
-	fi
-	strSuggestedRoute=`echo ${strSuggestedRoute:16:16} | tr -d [:blank:]`;
+    strSuggestedRoute=`ip route | head -n1 | cut -d' ' -f3`;
+  else
+	  strSuggestedRoute=`route -n | grep "^.*UG.*${strSuggestedInterface}$"  | head -n 1`;
+	  if [ -z "$strSuggestedRoute" ]
+	  then
+		  strSuggestedRoute=`route -n | grep "^.*U.*${strSuggestedInterface}$"  | head -n 1`;
+	  fi
+	  strSuggestedRoute=`echo ${strSuggestedRoute:16:16} | tr -d [:blank:]`;
+  fi
 	
 	## DNS
 	strSuggestedDNS="";
