@@ -438,17 +438,28 @@ function clearIf( ele, value )
 }
 
 function DeployStuff() {
+	$('#isDebugTask').click(function() {
+		if ($(this).attr('checked')) {
+			$('#scheduleInstant').attr('checked',true);
+			$('.hideFromDebug').slideUp('fast');
+		}
+		else
+		{
+			$('.hideFromDebug').slideDown('fast');
+			$('.hidden').hide();
+		}
+	});
 	// Bind radio buttons for 'Single' and 'Cron' scheduled task
 	$('input[name="scheduleType"]').click(function()
 	{
 		var $this = $(this);
 		var $content = $this.parents('p').parent().find('p').eq($this.parent().index());
 		
-		if ($this.is(':checked'))
+		if ($this.is(':checked') && !$('#isDebugTask').is(':checked'))
 		{
 			$content.slideDown('fast').siblings('.hidden').slideUp('fast');
 		}
-		else
+		else if (!$('#isDebugTask').is(':chedked'))
 		{
 			$content.slideDown('fast');
 			$('.calendar').remove();
@@ -542,16 +553,6 @@ function DeployStuff() {
 				
 				dayClickRemoveCalendar();
 			});
-		}
-	});
-	$('#isDebugTask').click(function() {
-		if ($(this).attr('checked')) {
-			$('#scheduleInstant').attr('checked',true);
-			$('.hideFromDebug').hide();
-		}
-		else
-		{
-			$('.hideFromDebug').show();
 		}
 	});
 }
