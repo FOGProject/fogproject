@@ -32,8 +32,15 @@ stop () {
 }
 
 restart() {
-	stop
-	start
+	echo -n $"Restarting $prog: "
+	killproc $DAEMONKILL
+	RETVAL=$?
+	[ $RETVAL = 0 ] && rm -f /var/lock/subsys/fogmcman
+	daemon $DAEMONSTART
+	RETVAL=$?
+	echo
+	[ $RETVAL = 0 ] && touch /var/lock/subsys/fogmcman
+	return $RETVAL
 }
 
 case $1 in
