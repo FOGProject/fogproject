@@ -2,7 +2,7 @@
 class Timer extends FOGBase
 {
 	private $blSingle;
-	private $strMin, $strHour, $strDOM, $strMonth, $strDOW, $cron;
+	private $cron;
 	private $lngSingle;
 	public function __construct($minute,$hour=null,$dom=null,$month=null,$dow=null)
 	{
