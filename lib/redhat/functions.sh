@@ -44,8 +44,8 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 ?>" > ${servicedst}/etc/config.php;
 
 	echo -n "  * Starting FOG Multicast Management Server..."; 
-	service ${initdMCfullname} restart >/dev/null 2>&1;
-	service ${initdMCfullname} status  >/dev/null 2>&1;
+	nohup service ${initdMCfullname} restart >/dev/null 2>&1;
+	nohup service ${initdMCfullname} status  >/dev/null 2>&1;
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
@@ -55,8 +55,8 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 	fi
 	
 	echo -n "  * Starting FOG Image Replicator Server..."; 
-	service ${initdIRfullname} restart >/dev/null 2>&1;
-	service ${initdIRfullname} status  >/dev/null 2>&1;
+	nohup service ${initdIRfullname} restart >/dev/null 2>&1;
+	nohup service ${initdIRfullname} status  >/dev/null 2>&1;
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
@@ -66,8 +66,8 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 	fi	
 	
 	echo -n "  * Starting FOG Task Scheduler Server..."; 
-	${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
-	${initdpath}/${initdSDfullname} start >/dev/null 2>&1;
+	nohup service ${initdSDfullname} stop >/dev/null 2>&1;
+	nohup service ${initdSDfullname} start >/dev/null 2>&1;
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
