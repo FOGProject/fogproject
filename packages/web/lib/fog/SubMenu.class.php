@@ -5,22 +5,22 @@ class SubMenu extends FOGBase
 	public function __construct()
 	{
 		parent::__construct();
-		$this->node = $_GET['node'];
+		$this->node = $_REQUEST['node'];
 		$this->FOGSubMenu = new FOGSubMenu();
-		if ($this->node == 'group' && $_GET['id'])
+		if ($this->node == 'group' && $_REQUEST['id'])
 		{
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Group']);
-			$this->object = new Group($_GET['id']);
+			$this->object = new Group($_REQUEST['id']);
 			$this->title = array($this->foglang['Group'] => $this->object->get('name'),
 								 $this->foglang['Members'] => count($this->object->get('hosts')),
 			);
 		}
-		else if ($this->node == 'host' && $_GET['id'])
+		else if ($this->node == 'host' && $_REQUEST['id'])
 		{
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Host']);
-			$this->object = new Host($_GET['id']);
+			$this->object = new Host($_REQUEST['id']);
 			$this->title = array($this->foglang['Host'] => $this->object->get('name'),
 								 $this->foglang['MAC']	=> stripslashes($this->object ? $this->object->get('mac') : ''),
 								 $this->foglang['Image'] => stripslashes($this->object->getImage()->get('name')),
@@ -31,11 +31,11 @@ class SubMenu extends FOGBase
 			if ($GA[0])
 				$this->title[$this->foglang['PrimaryGroup']] = $this->FOGCore->getClass('Group',$GA[0]->get('groupID'))->get('name');
 		}
-		else if ($this->node == 'images' && $_GET['id'])
+		else if ($this->node == 'images' && $_REQUEST['id'])
 		{
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Image']);
-			$this->object = new Image($_GET['id']);
+			$this->object = new Image($_REQUEST['id']);
 			$imageType = $this->object->get('imageTypeID') ? new ImageType($this->object->get('imageTypeID')) : null;
 			$this->title = array($this->foglang['Images'] => $this->object->get('name'),
 								$this->foglang['LastUploaded'] => stripslashes($this->object->get('deployed')),
@@ -43,62 +43,62 @@ class SubMenu extends FOGBase
 								$this->foglang['ImageType'] => ($imageType && $imageType->isValid() ? $imageType->get('name') : $this->foglang['NoAvail']),
 			);
 		}
-		else if (($this->node == 'printer' || $this->node == 'print') && $_GET['id'])
+		else if (($this->node == 'printer' || $this->node == 'print') && $_REQUEST['id'])
 		{
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Printer']);
-			$this->object = new Printer($_GET['id']);
+			$this->object = new Printer($_REQUEST['id']);
 			$this->title = array($this->foglang['Printer'] => $this->object->get('name'),
 								 $this->foglang['Type'] => $this->object->get('config')
 			);
 			$this->object->get('model') ? $this->title[$this->foglang['Model']] = $this->object->get('model') : null;
 		}
-		else if (($this->node == 'snapin' || $this->node == 'snap') && $_GET['id'])
+		else if (($this->node == 'snapin' || $this->node == 'snap') && $_REQUEST['id'])
 		{
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Snapin']);
-			$this->object = new Snapin($_GET['id']);
+			$this->object = new Snapin($_REQUEST['id']);
 			$this->title = array($this->foglang['Snapin'] => $this->object->get('name'),
 								 $this->foglang['File'] => $this->object->get('file')
 			);
 		}
-		else if ($this->node == 'storage' && $_GET['sub'] == 'edit' && $_GET['id'])
+		else if ($this->node == 'storage' && $_REQUEST['sub'] == 'edit' && $_REQUEST['id'])
 		{
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Storage']);
-			$this->object = new StorageNode($_GET['id']);
+			$this->object = new StorageNode($_REQUEST['id']);
 			$this->title = array($this->foglang['Storage'].' '.$this->foglang['Node'] => $this->object->get('name'),
 								 $this->foglang['Path'] => $this->object->get('path')
 			);
 		}
-		else if ($this->node == 'storage' && $_GET['sub'] == 'edit-storage-group' && $_GET['id'])
+		else if ($this->node == 'storage' && $_REQUEST['sub'] == 'edit-storage-group' && $_REQUEST['id'])
 		{
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Storage']);
-			$this->object = new StorageGroup($_GET['id']);
+			$this->object = new StorageGroup($_REQUEST['id']);
 			$this->title = array($this->foglang['Storage'].' '.$this->foglang['Group'] => $this->object->get('name'));
 		}
-		else if ($this->node == 'users' && $_GET['id'])
+		else if ($this->node == 'users' && $_REQUEST['id'])
 		{
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['User']);
-			$this->object = new User($_GET['id']);
+			$this->object = new User($_REQUEST['id']);
 			$this->title = array($this->foglang['User'] => $this->object->get('name'));
 		}
-		else if ($this->node == 'location' && $_GET['id'])
+		else if ($this->node == 'location' && $_REQUEST['id'])
 		{
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Location']);
-			$this->object = new Location($_GET['id']);
+			$this->object = new Location($_REQUEST['id']);
 			$this->title = array($this->foglang['Location'] => $this->object->get('name'),
 							     $this->foglang['Storage'].' '.$this->foglang['Group'] => 
 								 		$this->FOGCore->getClass('StorageGroup',$this->object->get('storageGroupID'))->get('name')
 			);
 		}
-		else if ($this->node == 'hwinfo' && $_GET['id'])
+		else if ($this->node == 'hwinfo' && $_REQUEST['id'])
 		{
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Home']);
-			$this->object = new StorageNode($_GET['id']);
+			$this->object = new StorageNode($_REQUEST['id']);
 			$this->title = array($this->foglang['Storage'].' '.$this->foglang['Node'] => $this->object->get('name'),
 								 'IP' => $this->object->get('ip'),
 								 $this->foglang['Path'] => $this->object->get('path')
@@ -285,7 +285,7 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Snapins']);
 			$this->subMenu[$this->node]['add'] = sprintf($this->foglang['CreateNew'],$this->foglang['Snapin']);
-			if ($_GET['id'])
+			if ($_REQUEST['id'])
 			{
 				$this->subMenu[$this->node]['id'][$linkformat.'#snap-gen'] = $this->foglang['General'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#snap-host'] = $this->foglang['Host'];

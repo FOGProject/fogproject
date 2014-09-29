@@ -359,24 +359,44 @@ abstract class FOGBase
 		// Forced format
 		if ($format)
 			$RetDate = $time->format($format);
+
+		$weeks = array(
+			'curweek' => array(2,3,4,5,6,-2,-3,-4,-5,-6),
+			'1week' => array(7,8,9,10,11,12,13,-7,-8,-9,-10,-11,-12,-13),
+			'2weeks' => array(14,15,16,17,18,19,20,-14,-15,-16,-17,-18,-19,-20),
+			'3weeks' => array(21,22,23,24,25,26,27,-21,-22,-23,-24,-25,-26,-27),
+			'4weeks' => array(28,29,30,31,-28,-29,-30,-31),
+		);
 		$CurrTime = $this->nice_date('now',$utc);
 		$TimeVal = $CurrTime->diff($time);
-		if ($TimeVal->y)
-			$RetDate = $TimeVal->y.' year'.($TimeVal->y != 1 ? 's' : '');
-		else if ($TimeVal->m)
-			$RetDate = $TimeVal->m.' month'.($TimeVal->m != 1 ? 's' : '');
-		else if ($TimeVal->d)
-			$RetDate = $TimeVal->d.' day'.($TimeVal->d != 1 ? 's' : '');
-		else if ($TimeVal->h)
-			$RetDate = $TimeVal->h.' hour'.($TimeVal->h != 1 ? 's' : '');
-		else if ($TimeVal->i)
-			$RetDate = $TimeVal->i.' minute'.($TimeVal->i != 1 ? 's' : '');
-		else if ($TimeVal->s)
-			$RetDate = $TimeVal->s.' second'.($Timeval->s != 1 ? 's' : '');
-		if ($time < $CurrTime)
-			$RetDate .= ' ago';
-		if ($time > $CurrTime)
-			$RetDate .= ' from now';
+		if (!($TimeVal->y > 1 || $TimeVal->m > 1))
+		{
+			if ($time->format('Y-m-d') == $CurrTime->format('Y-m-d'))
+				$RetDate = ($time > $CurrTime ? _('Runs') : _('Ran')).' '._('today, at ').$time->format('g:ia');
+			else if (in_array(($time->format('d') - $CurrTime->format('d')),array(1,-1)))
+				$RetDate = ($time > $CurrTime ? _('Tomorrow at ') : _('Yesterday at ')).$time->format('g:ia');
+			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['curweek']))
+				$RetDate = ($time > $CurrTime ? _('This') : _('Last')).' '.$time->format('l')._(' at ').$time->format('g:ia');
+			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['1week']))
+				$RetDate = ($time > $CurrTime ? _('Next week') : _('Last week')).' '.$time->format('l')._(' at ').$time->format('g:ia');
+			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['2weeks']))
+				$RetDate = ($time > $CurrTime ? _('2 weeks from now') : _('2 weeks ago'));
+			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['3weeks']))
+				$RetDate = ($time > $CurrTime ? _('3 weeks from now') : _('3 weeks ago'));
+			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['4weeks']))
+				$RetDate = ($time > $CurrTime ? _('4 weeks from now') : _('4 weeks ago'));
+		}
+		else
+		{
+			if ($TimeVal->y)
+				$RetDate = $TimeVal->y.' year'.($TimeVal->y != 1 ? 's' : '');
+			else if ($TimeVal->m)
+				$RetDate = $TimeVal->m.' month'.($TimeVal->m != 1 ? 's' : '');
+			if ($time < $CurrTime)
+				$RetDate .= ' ago';
+			if ($time > $CurrTime)
+				$RetDate .= ' from now';
+		}
 		return $RetDate;
 	}
 	/** resetRequest()
@@ -384,11 +404,13 @@ abstract class FOGBase
 	*/
 	public function resetRequest()
 	{
-		if ($_SESSION['post_request_vals'])
-		{
-			$_REQUEST = $_SESSION['post_request_vals'];
-			unset($_SESSION['post_request_vals']);
-		}
+		$_REQUESTVARS = $_REQUEST;
+		unset($_REQUEST);
+		foreach($_SESSION['post_request_vals'] AS $key => $val)
+			$_REQUEST[$key] = $val;
+		foreach($_REQUESTVARS AS $key => $val)
+			$_REQUEST[$key] = $val;
+		unset($_SESSION['post_request_vals'], $_REQUESTVARS);
 	}
 	/** setRequest()
 	* Simply sets the session Request variables as a session variable
