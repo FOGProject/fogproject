@@ -11,11 +11,7 @@ class MACAddressAssociation extends FOGController
 		'id'		=> 'hmID',
 		'hostID'	=> 'hmHostID',
 		'mac'		=> 'hmMAC',
-		'description'	=> 'hmDesc',
-		'pending' => 'hmPending',
-		'primary' => 'hmPrimary',
-		'clientIgnore' => 'hmIgnoreClient',
-		'imageIgnore' => 'hmIgnoreImaging',
+		'description'	=> 'hmDesc'
 	);
 	
 	// Overrides
@@ -29,7 +25,7 @@ class MACAddressAssociation extends FOGController
 	// Custom
 	public function getHost()
 	{
-		return new Host($this->get('hostID'));
+		return new Host( $this->get('hostID') );
 	}
 	
 	public function getMACAddress()

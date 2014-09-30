@@ -75,7 +75,7 @@ class HostManagementPage extends FOGPage
 		// Get location if enabled:
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// Find data -> Push data
-		foreach ($this->FOGCore->getClass('HostManager')->find() AS $Host)
+		foreach ($this->FOGCore->getClass('HostManager')->find('','','name') AS $Host)
 		{
 			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{
