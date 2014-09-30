@@ -11,7 +11,11 @@ class MACAddressAssociation extends FOGController
 		'id'		=> 'hmID',
 		'hostID'	=> 'hmHostID',
 		'mac'		=> 'hmMAC',
-		'description'	=> 'hmDesc'
+		'description'	=> 'hmDesc',
+	//	'pending' => 'hmPending',
+	//	'primary' => 'hmPrimary',
+	//	'clientIgnore' => 'hmClientIgnore',
+	//	'imageIgnore' => 'hmImageIgnore',
 	);
 	
 	// Overrides
