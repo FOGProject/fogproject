@@ -406,9 +406,9 @@ abstract class FOGBase
 	{
 		$_REQUESTVARS = $_REQUEST;
 		unset($_REQUEST);
-		foreach((array)$_SESSION['post_request_vals'] AS $key => $val)
+		foreach($_SESSION['post_request_vals'] AS $key => $val)
 			$_REQUEST[$key] = $val;
-		foreach((array)$_REQUESTVARS AS $key => $val)
+		foreach($_REQUESTVARS AS $key => $val)
 			$_REQUEST[$key] = $val;
 		unset($_SESSION['post_request_vals'], $_REQUESTVARS);
 	}
