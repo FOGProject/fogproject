@@ -5,11 +5,11 @@
 class HostManager extends FOGManagerController
 {
 	// Custom functions
-	public static function parseMacList( $stringlist )
+	public static function parseMacList($stringlist)
 	{
-		if ( $stringlist != null && strlen( $stringlist ) > 0 )
+		if ($stringlist != null && strlen($stringlist) > 0 )
 		{
-			$arParts = explode("|",$stringlist );
+			$arParts = explode("|",$stringlist);
 			$arMacs = array();
 			for( $i = 0; $i < count( $arParts ); $i++ )
 			{

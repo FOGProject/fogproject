@@ -16,7 +16,6 @@ class Host extends FOGController
 		'createdTime'	=> 'hostCreateDate',
 		'deployed'	=> 'hostLastDeploy',
 		'createdBy'	=> 'hostCreateBy',
-		'mac'		=> 'hostMAC',
 		'useAD'		=> 'hostUseAD',
 		'ADDomain'	=> 'hostADDomain',
 		'ADOU'		=> 'hostADOU',
@@ -31,6 +30,7 @@ class Host extends FOGController
 	);
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
+		'mac',
 		'additionalMACs',
 		'pendingMACs',
 		'groups',
@@ -47,18 +47,12 @@ class Host extends FOGController
 	public $databaseFieldsRequired = array(
 		'id',
 		'name',
-		'mac'
 	);
 	// Database field to Class relationships
 	public $databaseFieldClassRelationships = array(
 		'imageID'	=> 'Image'
 	);
 
-	public function __construct($data)
-	{
-		parent::__construct($data);
-		$this->set('mac',new MACAddress($this->get('mac')));
-	}
 	// Custom functons
 	public function isHostnameSafe()
 	{
@@ -75,7 +69,7 @@ class Host extends FOGController
 	}
 	public function getMACAddress()
 	{
-		return new MACAddress($this->get('mac'));
+		return $this->set('mac',new MACAddress($this->get('mac')));
 	}
 	public function updateInventory($user,$other1,$other2)
 	{
@@ -164,13 +158,38 @@ class Host extends FOGController
 	}
 	private function loadAdditional()
 	{
-		if (!$this->isLoaded('additionalMACs'))
+		if (!$this->isLoaded('mac'))
 		{
 			if ($this->get('id'))
 			{
-				$AdditionalMACs = $this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id')));
+				foreach($this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1)) AS $MAC)
+				{
+					if ($MAC && $MAC->isValid())
+						$this->set('mac',new MACAddress($MAC->get('mac')));
+				}
+			}
+		}
+		else if (!$this->isLoaded('additionalMACs'))
+		{
+			if ($this->get('id'))
+			{
+				$AdditionalMACs = $this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 0, 'pending' => 0));
 				foreach($AdditionalMACs AS $MAC)
-					$this->add('additionalMACs', new MACAddress($MAC->get('mac')));
+				{
+					if ($MAC && $MAC->isValid())
+						$this->add('additionalMACs', new MACAddress($MAC->get('mac')));
+				}
+			}
+		}
+		else if (!$this->isLoaded('pendingMACs'))
+		{
+			if ($this->get('id'))
+			{
+				foreach($this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 0, 'pending' => 1)) AS $MAC)
+				{
+					if ($MAC && $MAC->isValid())
+						$this->add('pendingMACs', new MACAddress($MAC->get('mac')));
+				}
 			}
 		}
 		return $this;
@@ -184,19 +203,6 @@ class Host extends FOGController
 				$Printers = $this->FOGCore->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id')));
 				foreach($Printers AS $Printer)
 					$this->add('printers',new Printer($Printer->get('printerID')));
-			}
-		}
-		return $this;
-	}
-	private function loadPending()
-	{
-		if (!$this->isLoaded('pendingMACs'))
-		{
-			if ($this->get('id'))
-			{
-				$PendingMACs = $this->FOGCore->getClass('PendingMACManager')->find(array('hostID' => $this->get('id')));
-				foreach ($PendingMACs AS $MAC)
-					$this->add('pendingMACs', new MACAddress($MAC->get('pending')));
 			}
 		}
 		return $this;
@@ -286,7 +292,7 @@ class Host extends FOGController
 	{
 		if ($this->key($key) == 'printers')
 			$this->loadPrinters();
-		else if ($this->key($key) == 'additionalMACs')
+		else if ($this->key($key) == 'additionalMACs' || $this->key($key) == 'mac' || $this->key($key) == 'pendingMACs')
 			$this->loadAdditional();
 		else if ($this->key($key) == 'snapins')
 			$this->loadSnapins();
@@ -304,8 +310,6 @@ class Host extends FOGController
 			$this->loadTask();
 		else if ($this->key($key) == 'users')
 			$this->loadUsers();
-		else if ($this->key($key) == 'pendingMACs')
-			$this->loadPending();
 		return parent::get($key);
 	}
 	public function set($key, $value)
@@ -383,15 +387,9 @@ class Host extends FOGController
 	public function add($key, $value)
 	{
 		// Additional MAC Addresses
-		if ($this->key($key) == 'additionalMACs' && !($value instanceof MACAddress))
+		if (($this->key($key) == 'additionalMACs' || $this->key($key) == 'pendingMACs' || $this->key($key) == 'mac') && !($value instanceof MACAddress))
 		{
 			$this->loadAdditional();
-			$value = new MACAddress($value);
-		}
-		// Pending MAC Addresses
-		else if ($this->key($key) == 'pendingMACs' && !($value instanceof MACAddress))
-		{
-			$this->loadPending();
 			$value = new MACAddress($value);
 		}
 		// Printers
@@ -468,11 +466,8 @@ class Host extends FOGController
 		// Groups
 		else if ($this->key($key) == 'groups')
 			$this->loadGroups();
-		// Pending MAC Addresses
-		else if ($this->key($key) == 'pendingMACs')
-			$this->loadPending();
 		// Additional MAC Addresses
-		else if ($this->key($key) == 'additionalMACs')
+		else if ($this->key($key) == 'additionalMACs' || $this->key($key) == 'pendingMACs' || $this->key($key) == 'mac')
 			$this->loadAdditional();
 		// Users
 		else if ($this->key($key) == 'users')
@@ -484,11 +479,30 @@ class Host extends FOGController
 	{
 		// Save
 		parent::save();
+		// Primary MAC Address
+		if ($this->isLoaded('mac'))
+		{
+			// Remove existing Primary MAC Address
+			$this->FOGCore->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 1));
+			// Re-add the existing primary MAC Address
+			if (($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid())
+			{
+				$NewMAC = new MACAddressAssociation(array(
+					'hostID' => $this->get('id'),
+					'mac' => $this->get('mac'),
+					'pending' => 0,
+					'primary' => 1,
+					'clientIgnore' => 0,
+					'imageIgnore' => 0,
+				));
+				$NewMAC->save();
+			}
+		}
 		// Additional MAC Addresses
-		if ($this->isLoaded('additionalMACs'))
+		else if ($this->isLoaded('additionalMACs'))
 		{
 			// Remove existing Additional MAC Addresses
-			$this->FOGCore->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id')));
+			$this->FOGCore->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'pending' => 0, 'primary' => 0));
 			// Add new Additional MAC Addresses
 			foreach ((array)$this->get('additionalMACs') AS $MAC)
 			{
@@ -497,6 +511,10 @@ class Host extends FOGController
 					$NewMAC = new MACAddressAssociation(array(
 						'hostID' => $this->get('id'),
 						'mac' => $MAC,
+						'pending' => 0,
+						'primary' => 0,
+						'clientIgnore' => 0,
+						'imageIgnore' => 0,
 					));
 					$NewMAC->save();
 				}
@@ -506,15 +524,19 @@ class Host extends FOGController
 		else if ($this->isLoaded('pendingMACs'))
 		{
 			// Remove Existing Pending MAC Addresses
-			$this->FOGCore->getClass('PendingMACManager')->destroy(array('hostID' => $this->get('id')));
+			$this->FOGCore->getClass('PendingMACManager')->destroy(array('hostID' => $this->get('id'),'pending' => 1,'primary' => 0));
 			// Add new Pending MAC Addresses
 			foreach ((array)$this->get('pendingMACs') AS $MAC)
 			{
 				if (($MAC instanceof MACAddress) && $MAC->isValid())
 				{
-					$NewMAC = new PendingMAC(array(
+					$NewMAC = new MACAddressAssociation(array(
 						'hostID' => $this->get('id'),
-						'pending' => $MAC,
+						'mac' => $MAC,
+						'pending' => 1,
+						'primary' => 0,
+						'clientIgnore' => 0,
+						'imageIgnore' => 0,
 					));
 					$NewMAC->save();
 				}
@@ -642,7 +664,7 @@ class Host extends FOGController
 	}
 	public function isValid()
 	{
-		return (($this->get('id') != '' || $this->get('name') != '') && $this->getMACAddress() != '' ? true : false);
+		return ($this->get('id') && $this->get('name') && $this->getMACAddress());
 	}
 	// Custom functions
 	public function getActiveTaskCount()
@@ -1178,6 +1200,23 @@ class Host extends FOGController
 		// Return
 		return $this;
 	}
+	public function addPriMAC($MAC)
+	{
+		// Add
+		if (is_array($MAC))
+			throw new Exception(_('Cannot have more than one primary MAC Address'));
+		$NewMACAdd = new MACAddressAssociation(array(
+			'hostID' => $this->get('id'),
+			'mac' => $MAC,
+			'pending' => 0,
+			'primary' => 1,
+			'clientIgnore' => 0,
+			'imageIgnore' => 0,
+		));
+		$NewMACAdd->save();
+		$this->set('mac',$NewMACAdd->get('mac'));
+		return $this;
+	}
 	public function addAddMAC($addArray)
 	{
 		// Add
@@ -1186,6 +1225,10 @@ class Host extends FOGController
 			$NewMACAdd = new MACAddressAssociation(array(
 				'hostID' => $this->get('id'),
 				'mac' => $item,
+				'pending' => 0,
+				'primary' => 0,
+				'clientIgnore' => 0,
+				'imageIgnore' => 0,
 			));
 			$NewMACAdd->save();
 			$this->add('additionalMACs',$NewMACAdd);
@@ -1195,12 +1238,11 @@ class Host extends FOGController
 	}
 	public function addPendtoAdd($MAC)
 	{
-		$NewMACAdd = new MACAddressAssociation(array(
-			'hostID' => $this->get('id'),
-			'mac' => $MAC,
-		));
-		$NewMACAdd->save();
-		$this->FOGCore->getClass('PendingMACManager')->destroy(array('hostID' => $this->get('id'),'pending' => $MAC));
+		foreach((array)$this->FOGCore->getClass('MACAddressAssociationManager')->find(array('mac' => $MAC,'pending' => 1)) AS $PendToAdd)
+		{
+			if ($PendToAdd && $PendToAdd->isvalid())
+				$PendToAdd->set('pending',0)->save();
+		}
 	}
 	public function removeAddMAC($removeArray)
 	{
@@ -1211,18 +1253,15 @@ class Host extends FOGController
 	}
 	public function addPendMAC($MAC)
 	{
-		$NewMACAdd = new PendingMAC(array(
+		$NewMACAdd = new MACAddressAssociation(array(
 			'hostID' => $this->get('id'),
-			'pending' => $MAC,
+			'mac' => $MAC,
+			'pending' => 1,
+			'primary' => 0,
+			'clientIgnore' => 0,
+			'imageIgnore' => 0,
 		));
 		return ($NewMACAdd->save());
-	}
-	public function removePendMAC($removeArray)
-	{
-		$this->FOGCore->getClass('PendingMACManager')->destroy(array('hostID' => $this->get('id'),'pending' => $removeArray));
-		$this->remove('pendingMACs', $removeArray);
-		// Return
-		return $this;
 	}
 	// Snapin Management
 	public function getSnapins()
