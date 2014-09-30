@@ -58,7 +58,7 @@ abstract class FOGManagerController extends FOGBase
 			// Get all hosts with matching keyword of hostname value
 			// If the class to search is not Host use the below for searching.
 			if ($classSearch != 'Host')
-				$HostMan = $this->FOGCore->getClass('HostManager')->find(array('name' => $keyword,'description' => $keyword,'ip' => $keyword),'OR');
+				$HostMan = $this->FOGCore->getClass('HostManager')->find(array('name' => $keyword,'mac' => $keyword,'description' => $keyword,'ip' => $keyword),'OR');
 			// If the class to search is Host use the below for searching.
 			if ($classSearch == 'Host')
 				$HostMan = $this->FOGCore->getClass('HostManager')->find($findWhere,'OR');
@@ -72,6 +72,12 @@ abstract class FOGManagerController extends FOGBase
 			{
 				if ($HostAdd && $HostAdd->isValid())
 					$Hosts[] = new Host($HostAdd->get('hostID'));
+			}
+			$PendingMac = $this->FOGCore->getClass('PendingMACManager')->find(array('pending' => $keyword));
+			foreach($PendingMac AS $PendMAC)
+			{
+				if ($PendMAC && $PendMAC->isValid())
+					$Hosts[] = new Host($PendMAC->get('hostID'));
 			}
 			$InventoryMan = $this->FOGCore->getClass('InventoryManager')->find(array('sysserial' => $keyword,'caseserial' => $keyword,'mbserial' => $keyword,'primaryUser' => $keyword,'other1' => $keyword,'other2' => $keyword,'sysman' => $keyword,'sysproduct' => $keyword),'OR');
 			foreach($InventoryMan AS $Inventory)
@@ -129,7 +135,7 @@ abstract class FOGManagerController extends FOGBase
 						}
 					}
 				}
-				$Data = array_unique((array)$Hosts);
+				$Data = array_unique($Hosts);
 			}
 			// Only used in the future for other class files.
 			$Hosts = array_unique((array)$Hosts);
@@ -284,7 +290,7 @@ abstract class FOGManagerController extends FOGBase
 						$Data[] = $User;
 				}
 			}
-			$Data = array_unique((array)$Data);
+			$Data = array_unique($Data);
 			return (array)$Data;
 		}
 		catch (Exception $e)
@@ -323,7 +329,7 @@ abstract class FOGManagerController extends FOGBase
 			$this->DB->query("SELECT * FROM `%s`%s ORDER BY `%s` %s", array(
 				$this->databaseTable,
 				(count($whereArray) ? ' WHERE ' . implode(' ' . $whereOperator . ' ', $whereArray) : ''),
-				$this->databaseFields[$orderBy],
+				($this->databaseFields[$orderBy] ? $this->databaseFields[$orderBy] : $this->databaseFields['id']),
 				$sort
 			));
 			while ($row = $this->DB->fetch()->get())
