@@ -1623,17 +1623,6 @@ param approveHost 1
 isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
 isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.approvehost';",
 );
-// 130
-$databaseSchema[] = array(
-	"ALTER TABLE `" . DATABASE_NAME ."`.`hostMAC` ADD COLUMN `hmPrimary` INT DEFAULT 0 NOT NULL",
-	"ALTER TABLE `" . DATABASE_NAME ."`.`hostMAC` ADD COLUMN `hmPending` INT DEFAULT 0 NOT NULL",
-	"ALTER TABLE `" . DATABASE_NAME ."`.`hostMAC` ADD COLUMN `hmIgnoreClient` INT DEFAULT 0 NOT NULL",
-	"ALTER TABLE `" . DATABASE_NAME ."`.`hostMAC` ADD COLUMN `hmIgnoreImaging` INT DEFAULT 0 NOT NULL",
-	"INSERT INTO `" . DATABASE_NAME ."`.`hostMAC` (`hmHostID`,`hmMAC`,`hmIgnoreClient`,`hmIgnoreImaging`,`hmPending`,`hmPrimary`) (SELECT `hostID`,`hostMAC`,'0','0','0','1' FROM `".DATABASE_NAME."`.`hosts` WHERE `hostMAC` IS NOT NULL)",
-	"INSERT INTO `" . DATABASE_NAME ."`.`hostMAC` (`hmMAC`,`hmHostID`,`hmPending`) (SELECT `pmAddress`,`pmHostID`,'1' FROM pendingMACS)",
-	"ALTER TABLE `" . DATABASE_NAME ."`.`hosts` DROP COLUMN `hostMAC`",
-	"DROP TABLE `" . DATABASE_NAME ."`.`pendingMACS`",
-);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
