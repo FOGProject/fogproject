@@ -14,8 +14,8 @@ class MACAddressAssociation extends FOGController
 		'description'	=> 'hmDesc',
 		'pending' => 'hmPending',
 		'primary' => 'hmPrimary',
-		'clientIgnore' => 'hmClientIgnore',
-		'imageIgnore' => 'hmImageIgnore',
+		'clientIgnore' => 'hmIgnoreClient',
+		'imageIgnore' => 'hmIgnoreImaging',
 	);
 	
 	// Custom

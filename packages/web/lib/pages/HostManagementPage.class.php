@@ -374,7 +374,6 @@ class HostManagementPage extends FOGPage
 			$Host = new Host(array(
 				'name'		=> $_REQUEST['host'],
 				'description'	=> $_REQUEST['description'],
-				'mac'		=> new MACAddress($_REQUEST['mac']),
 				'imageID'	=> $_REQUEST['image'],
 				'kernel'	=> $_REQUEST['kern'],
 				'kernelArgs'	=> $_REQUEST['args'],
@@ -386,6 +385,7 @@ class HostManagementPage extends FOGPage
 				'ADPass'	=> $password,
 				'productKey' => base64_encode($_REQUEST['key']),
 			));
+			$Host->addPriMAC(new MACAddress($_REQUEST['mac']));
 			$Host->addModule($ModuleIDs);
 			if ($LocPluginInst && $LocPluginInst->isValid())
 			{
@@ -469,7 +469,8 @@ class HostManagementPage extends FOGPage
 				if (!$MAC->isValid())
 					throw new Exception(_('Invalid MAC Address'));
 				$Host->addPendtoAdd($MAC);
-				$this->FOGCore->setMessage('MAC: '.$MAC.' Approved!');
+				if ($Host->save())
+					$this->FOGCore->setMessage('MAC: '.$MAC.' Approved!');
 			}
 			catch (Exception $e)
 			{
@@ -484,8 +485,11 @@ class HostManagementPage extends FOGPage
 				if ($MAC && $MAC->isValid())
 					$Host->addPendtoAdd($MAC);
 			}
-			$this->FOGCore->setMessage('All Pending MACs approved.');
-			$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
+			if ($Host->save())
+			{
+				$this->FOGCore->setMessage('All Pending MACs approved.');
+				$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
+			}
 		}
 		foreach((array)$Host->get('additionalMACs') AS $MAC)
 		{
@@ -1299,7 +1303,6 @@ class HostManagementPage extends FOGPage
 					// Define new Image object with data provided
 					$Host	->set('name',		$_REQUEST['host'])
 							->set('description',	$_REQUEST['description'])
-							->set('mac',		$mac)
 							->set('imageID',	$_REQUEST['image'])
 							->set('kernel',		$_REQUEST['kern'])
 							->set('kernelArgs',	$_REQUEST['args'])
@@ -1313,6 +1316,7 @@ class HostManagementPage extends FOGPage
 						if (!$PriMAC && (!$AddMAC || !$AddMAC->isValid()))
 							$AddToAdditional[] = $MAC;
 					}
+					$Host->addPriMAC($mac);
 					$Host->addAddMAC($AddToAdditional);
 					if(isset($_REQUEST['additionalMACsRM']))
 					{
@@ -1595,8 +1599,8 @@ class HostManagementPage extends FOGPage
 							'imageID'	=> $data[4],
 							'createdTime'	=> time(),
 							'createdBy'	=> $this->FOGUser->get('name'),
-							'mac'		=> $data[0]
 						));
+						$Host->addPriMAC($data[0]);
 						$Host->addModule($ModuleIDs);
 						if ($Host->save())
 						{
