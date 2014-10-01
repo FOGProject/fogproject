@@ -73,12 +73,6 @@ abstract class FOGManagerController extends FOGBase
 				if ($HostAdd && $HostAdd->isValid())
 					$Hosts[] = new Host($HostAdd->get('hostID'));
 			}
-			$PendingMac = $this->FOGCore->getClass('PendingMACManager')->find(array('pending' => $keyword));
-			foreach($PendingMac AS $PendMAC)
-			{
-				if ($PendMAC && $PendMAC->isValid())
-					$Hosts[] = new Host($PendMAC->get('hostID'));
-			}
 			$InventoryMan = $this->FOGCore->getClass('InventoryManager')->find(array('sysserial' => $keyword,'caseserial' => $keyword,'mbserial' => $keyword,'primaryUser' => $keyword,'other1' => $keyword,'other2' => $keyword,'sysman' => $keyword,'sysproduct' => $keyword),'OR');
 			foreach($InventoryMan AS $Inventory)
 			{
@@ -402,7 +396,7 @@ abstract class FOGManagerController extends FOGBase
 	/** buildSelectBox($matchID = '',$elementName = '',$orderBy = 'name')
 		Builds a select box for the class values found.
 	*/
-	function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '')
+	public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '')
 	{
 		$matchID = ($_REQUEST['node'] == 'images' ? ($matchID === '0' ? '1' : $matchID) : $matchID);
 		if (empty($elementName))

@@ -72,7 +72,6 @@ try
 		$Host = new Host(array(
 			'name' => $realhost,
 			'description' => sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')),
-			'mac' => $mac,
 			'imageID' => $realimageid,
 			'useAD' => $strDoAD,
 			'ADDomain' => $strADDomain,
@@ -83,6 +82,7 @@ try
 			'createdTime' => $FOGCore->formatTime('now',"Y-m-d H:i:s"),
 			'createdBy' => 'FOGREG',
 		));
+		$Host->addPriMAC($mac);
 		$Host->addModule($ids);
 		$groupid = trim(base64_decode($_REQUEST['groupid']));
 		$Group = ($groupid && is_numeric($groupid) && $groupid > 0 ? new Group($groupid) : new Group(array('id' => 0)));
@@ -177,11 +177,11 @@ try
 				$Host = new Host(array(
 					'name' => $realhost,
 					'description' => sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')),
-					'mac' => $mac,
 					'imageID' => $realimageid,
 					'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
 					'createdBy' => 'FOGREG'
 				));
+				$Host->addPriMAC($mac);
 				$Host->addModule($ids);
 			}
 			if ($Host->save())

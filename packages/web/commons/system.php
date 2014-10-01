@@ -23,8 +23,8 @@ class System
 	{
 		(ini_get('date.timezone') ? date_default_timezone_set(ini_get('date.timezone')) : date_default_timezone_set('UTC'));
 		define('IS_INCLUDED', true);
-		define('FOG_VERSION', '2357');
-		define('FOG_SCHEMA', 129);
+		define('FOG_VERSION', '2358');
+		define('FOG_SCHEMA', 130);
 		define('FOG_SVN_REVISION', '$Revision$');
 		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');
 		define('PHP_VERSION_REQUIRED', '5.3.0');
