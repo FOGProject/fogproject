@@ -11,16 +11,12 @@ class MACAddressAssociation extends FOGController
 		'id'		=> 'hmID',
 		'hostID'	=> 'hmHostID',
 		'mac'		=> 'hmMAC',
-		'description'	=> 'hmDesc'
+		'description'	=> 'hmDesc',
+		'pending' => 'hmPending',
+		'primary' => 'hmPrimary',
+		'clientIgnore' => 'hmClientIgnore',
+		'imageIgnore' => 'hmImageIgnore',
 	);
-	
-	// Overrides
-	public function set($key, $value)
-	{
-		if ($this->key($key) == 'mac' && !($value instanceof MACAddress))
-			$value = new MACAddress($value);
-		return parent::set($key, $value);
-	}
 	
 	// Custom
 	public function getHost()
