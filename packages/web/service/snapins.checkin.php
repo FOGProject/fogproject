@@ -9,7 +9,7 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid()) throw new Exception('#!ih');
 	// Only worry about if the Task is queued, in line, or in progress (for reporting reasons).
-	$Task = current($Host->get('task'));
+	$Task = $Host->get('task');
 	// If the task is Valid and is not of type 12 or 13 report that it's waiting for other tasks.
 	if ($Task && $Task->isValid() && $Task->get('typeID') != 12 && $Task->get('typeID') != 13) throw new Exception('#!it');
 	//If there's more than one SnapinJob for the same host remove others as they shouldn't exist anyway. Only use the most recent.

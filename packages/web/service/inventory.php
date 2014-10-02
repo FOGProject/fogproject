@@ -12,7 +12,7 @@ try
 	// If it doesn't exist, it creates new inventory record.
 	$Host = $MACAddress->getHost();
 	if ($Host->isValid())
-		$Inventory = current($FOGCore->getClass('InventoryManager')->find(array('hostID' => $Host->get('id'))));
+		$Inventory = $Host->get('inventory');
 	$sysman=trim(base64_decode($_REQUEST['sysman']));
 	$sysproduct=trim(base64_decode($_REQUEST["sysproduct"]));
 	$sysversion=trim(base64_decode($_REQUEST["sysversion"]));
@@ -49,7 +49,7 @@ try
 	$casever=trim(base64_decode($_REQUEST["casever"]));
 	$caseserial=trim(base64_decode($_REQUEST["caseserial"]));
 	$casesasset=trim(base64_decode($_REQUEST["casesasset"]));						
-	if (!$Inventory)
+	if (!$Inventory->isValid())
 	{
 			$Inventory = new Inventory(array(
 						'hostID' => $Host->get('id'),

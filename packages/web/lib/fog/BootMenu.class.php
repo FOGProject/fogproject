@@ -553,7 +553,7 @@ class BootMenu extends FOGBase
 	public function getTasking()
 	{
 		$Image = $this->Host->getImage();
-		$Task = current($this->Host->get('task'));
+		$Task = $this->Host->get('task');
 		if (!$Task->isValid())
 		{
 			if ($this->FOGCore->getSetting('FOG_NO_MENU'))

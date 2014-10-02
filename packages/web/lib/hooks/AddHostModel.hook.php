@@ -14,7 +14,7 @@ class AddHostModel extends Hook
 			{
 				$Host = current($this->FOGCore->getClass('HostManager')->find(array('name' => $data['host_name'])));
 				if ($Host && $Host->isValid())
-					$Inventory = current($this->FOGCore->getClass('InventoryManager')->find(array('hostID' => $Host->get('id'))));
+					$Inventory = $Host->get('inventory');
 				// Add column template into 'templates' array
 				$arguments['templates'][5] = '${model}';
 				// Set the field.

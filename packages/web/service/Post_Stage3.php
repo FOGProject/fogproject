@@ -10,12 +10,7 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid()) throw new Exception(_('Invalid host'));
 	// Task for Host
-	$Tasks = $Host->get('task');
-	foreach($Tasks AS $Task)
-	{
-		if ($Task->isValid() && !in_array($Task->get('typeID'),array(4,12,13)))
-			break;
-	}
+	$Task = $Host->get('task');
 	if (!$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)',_('No Active Task found for Host'), $Host->get('name'),$MACAddress));
 	// Set the task to state 4
 	if (!in_array($Task->get('typeID'),array(12,13)))
