@@ -49,7 +49,7 @@ try
 	$casever=trim(base64_decode($_REQUEST["casever"]));
 	$caseserial=trim(base64_decode($_REQUEST["caseserial"]));
 	$casesasset=trim(base64_decode($_REQUEST["casesasset"]));						
-	if (!$Inventory->isValid())
+	if (!$Inventory || !$Inventory->isValid())
 	{
 			$Inventory = new Inventory(array(
 						'hostID' => $Host->get('id'),
