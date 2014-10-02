@@ -29,8 +29,13 @@ try
 			foreach($FOGCore->getClass('ModuleManager')->find() AS $Module)
 				$ModuleIDs[] = $Module->get('id');
 			$Host->addModule($ModuleIDs);
-			if($Host->save())
-				$Host->addPriMAC((preg_match('#|#i',$_REQUEST['mac']) ? explode('|',$_REQUEST['mac'])[0] : $_REQUEST['mac']));
+			{
+				$PriMAC = ((preg_match('#|#i',$_REQUEST['mac']) ? explode('|',$_REQUEST['mac']) : $_REQUEST['mac']));
+				if (is_array($PriMAC))
+					$PriMAC = $PriMAC[0];
+				if($Host->save())
+					$Host->addPriMAC($PriMAC);
+			}
 		}
 	}
 	// Check if count is okay.

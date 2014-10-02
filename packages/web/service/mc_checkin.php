@@ -51,7 +51,7 @@ try
 		$TaskLog = new TaskLog(array(
 			'taskID' => $Task->get('id'),
 			'taskStateID' => $Task->get('stateID'),
-			'createTime' => $Task->get('createTime'),
+			'createdTime' => $Task->get('createdTime'),
 			'createdBy' => $Task->get('createdBy'),
 		));
 		$TaskLog->save();

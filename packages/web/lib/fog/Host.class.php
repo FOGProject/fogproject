@@ -764,7 +764,7 @@ class Host extends FOGController
 					$SnapinJob = new SnapinJob(array(
 						'hostID' => $this->get('id'),
 						'stateID' => 0,
-						'createTime' => $this->nice_date()->format('Y-m-d H:i:s'),
+						'createdTime' => $this->nice_date()->format('Y-m-d H:i:s'),
 					));
 					// Create Snapin Tasking
 					if ($SnapinJob->save())
@@ -941,7 +941,7 @@ class Host extends FOGController
 					// now do a clean snapin deploy
 					$SnapinJob = new SnapinJob(array(
 						'hostID' => $this->get('id'),
-						'createTime' => $this->nice_date()->format('Y-m-d H:i:s'),
+						'createdTime' => $this->nice_date()->format('Y-m-d H:i:s'),
 					));
 					if ($SnapinJob->save())
 					{
