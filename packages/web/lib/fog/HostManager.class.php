@@ -25,99 +25,18 @@ class HostManager extends FOGManagerController
 		}
 		return null;
 	}
-	public function addMACToPendingForHost($host,$mac)
-	{
-		// make sure it doesn't exist in the pending table
-		$macs = $this->getPendingMacAddressesForHost( $host );
-		if ($macs)
-		{
-			foreach($macs AS $MAC)
-			{
-				if (!is_object($mac))
-					$mac = new MACAddress($mac);
-				if (!is_object($MAC))
-					$MAC = new MACAddress($MAC);
-				if ($mac->getMACWithColon() == $MAC->getMACWithColon())
-					return false;
-			}
-		}
-		$PendingMAC = new PendingMAC(array(
-			'pending' => $mac,
-			'hostID' => $host->get('id'),
-		));
-		return $PendingMAC->save();
-	}
-	public function deletePendingMacAddressForHost($host,$mac)
-	{
-		$PendingMAC = current($this->FOGCore->getClass('PendingMACManager')->find(array('pending' => $mac,'hostID' => $host->get('id'))));
-		return $PendingMAC->destroy();
-	}
-	public function getAllHostsWithPendingMacs()
-	{
-		$PendingMACs = $this->FOGCore->getClass('PendingMACManager')->find();
-		foreach($PendingMACs AS $PendingMAC)
-			$HostIDs[] = $PendingMAC->get('hostID');
-		if ($HostIDs)
-		{
-			$HostIDs = array_unique($HostIDs);
-			foreach($HostIDs AS $HostID)
-				$Hosts[] = new Host($HostID);
-			return $Hosts;
-		}
-		return null;
-	}
-	public function getPendingMacAddressesForHost($Host)
-	{
-		$PendingMACs = $this->FOGCore->getClass('PendingMACManager')->find(array('hostID' => $Host->get('id')));
-		if ($PendingMACs)
-		{
-			foreach($PendingMACs AS $PendingMAC)
-			{
-				$MAC = new MACAddress($PendingMAC->get('pending'));
-				if ($MAC->isValid())
-					$MACs[] = $MAC;
-			}
-			return $MACs;
-		}
-		return null;
-	}
-	public function getHostByMacAddress($mac,$primaryOnly = false)
-	{
-		$Host = current($this->FOGCore->getClass('HostManager')->find(array('mac' => $mac)));
-		$HostMAC = current($this->FOGCore->getClass('MACAddressAssociationManager')->find(array('mac' => $mac)));
-		if ($primaryOnly || ($Host && $Host->isValid()))
-			return $Host;
-		else
-			return ($HostMAC && $HostMAC->isValid() ? new Host($HostMAC->get('hostID')) : new Host(array('id' => -1)));
-	}
-	public function doesHostExistWithMac( $mac, $ignoringHostId=-1 )
-	{
-		$host = $this->getHostByMacAddress( $mac );
-		if ( !$host->isValid() )
-			return false;
-		else
-		{	
-			if ( $ignoringHostId == -1 )
-				return true;
-			else
-				return  $host->get('id') != $ignoringHostId;
-		} 
-	}
 	public function getHostByMacAddresses($MACs)
 	{
-		$hostReturn = null;
-		foreach((array)$MACs as $MAC)
+		foreach((array)$this->FOGCore->getClass('MACAddressAssociationManager')->find(array('mac' => $MACs)) AS $MAC)
 		{
-			$tmpHost = $this->getHostByMacAddress($MAC);
-			if ($hostReturn == null && $tmpHost && $tmpHost->isValid())
-				$hostReturn = $tmpHost;
-			else
-			{
-				if (($tmpHost && $tmpHost->isValid()) && ($hostReturn && $hostReturn->isValid()) && ($hostReturn->get('id') != $tmpHost->get('id')))
-					throw new Exception($this->foglang['ErrorMultipleHosts']);
-			}
+			if ($MAC && $MAC->isValid())
+				$HostIDs[] = $MAC->get('hostID');
 		}
-		return ($hostReturn && $hostReturn->isValid() ? $hostReturn : new Host(array('id' => 0)));
+		$HostIDs = array_unique($HostIDs);
+		if (count($HostIDs) > 1)
+			throw new Exception($this->foglang['ErrorMultipleHosts']);
+		$Host = new Host(implode($HostIDs));
+		return $Host;
 	}
 	/** isSafeHostName($hsotname)
 		Checks that the hostname is safe as in string length and characters.

@@ -483,7 +483,7 @@ class ReportManagementPage extends FOGPage
 			$Hosts = $this->FOGCore->getClass('HostManager')->getAllHostsWithPendingMacs();
 			foreach((array)$Hosts AS $Host)
 			{
-				$MACs= $this->FOGCore->getClass('HostManager')->getPendingMacAddressesForHost($Host);
+				$MACs = $Host->get('pendingMACs');
 				foreach((array)$MACs AS $MAC)
 					$Host->addPendtoAdd($MAC);
 				$Host->save();
@@ -525,7 +525,7 @@ class ReportManagementPage extends FOGPage
 		);
 		foreach((array)$Hosts AS $Host)
 		{
-			$MACs = $this->FOGCore->getClass('HostManager')->getPendingMacAddressesForHost($Host);
+			$MACs = $Host->get('pendingMACs');
 			foreach((array)$MACs AS $MAC)
 			{
 				$this->data[] = array(
