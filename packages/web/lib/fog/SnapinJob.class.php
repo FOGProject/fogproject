@@ -10,6 +10,6 @@ class SnapinJob extends FOGController
 		'id'		=> 'sjID',
 		'hostID'	=> 'sjHostID',
 		'stateID'	=> 'sjStateID',
-		'createTime' => 'sjCreateTime',
+		'createdTime' => 'sjCreateTime',
 	);
 }

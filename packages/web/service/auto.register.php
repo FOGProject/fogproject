@@ -82,13 +82,13 @@ try
 			'createdTime' => $FOGCore->formatTime('now',"Y-m-d H:i:s"),
 			'createdBy' => 'FOGREG',
 		));
-		$Host->addPriMAC($mac);
 		$Host->addModule($ids);
 		$groupid = trim(base64_decode($_REQUEST['groupid']));
 		$Group = ($groupid && is_numeric($groupid) && $groupid > 0 ? new Group($groupid) : new Group(array('id' => 0)));
 		if ($Host->save())
 		{
 			$Host = new Host($Host->get('id'));
+			$Host->addPriMAC($mac);
 			$Group && $Group->isValid() ? $Host->addGroup((array)$Group->get('id'))->save() : null;
 			$LocPlugInst = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
 			if ($LocPlugInst)
@@ -119,7 +119,7 @@ try
 				print _('Done!');
 			// If inventory for this host already exists, update the values, otherwise create new inventory record.
 			$Inventory = $Host->get('inventory');
-			if ($Inventory->isValid())
+			if ($Inventory && $Inventory->isValid())
 			{
 				$Inventory->set('primaryUser',$primaryuser)
 						  ->set('other1',$other1)
@@ -181,12 +181,12 @@ try
 					'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
 					'createdBy' => 'FOGREG'
 				));
-				$Host->addPriMAC($mac);
 				$Host->addModule($ids);
 			}
 			if ($Host->save())
 			{
 				$Host = new Host($Host->get('id'));
+				$Host->addPriMAC($mac);
 				$Group && $Group->isValid() ? $Host->addGroup($groupid)->save() : null;
 				// If the image is valid and get's the member from the host
 				// create the tasking, otherwise just register!.
@@ -212,13 +212,16 @@ try
 				$Host = new Host(array(
 					'name' => $realhost,
 					'description' => sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')),
-					'mac' => $mac,
 					'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
 					'createdBy' => 'FOGREG',
 				));
 				$Host->set('modules',$ids);
 				if ($Host->save())
+				{
+					$Host = new Host($Host->get('id'));
+					$Host->addPriMAC($mac);
 					print _('Done');
+				}
 				else
 					throw new Exception(_('Failed to save new Host!'));
 			}
