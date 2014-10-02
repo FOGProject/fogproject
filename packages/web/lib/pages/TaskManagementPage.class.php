@@ -393,21 +393,9 @@ class TaskManagementPage extends FOGPage
 		{
 			foreach((array)$Group->get('hosts') AS $Host)
 			{
-				$Tasks = false;
-				if ($Host && $Host->isValid())
-				{
-					foreach($Host->get('task') AS $Tasking)
-					{
-						if ($Tasking && $Tasking->isValid())
-						{
-							$Tasks = true;
-							break;
-						}
-					}
-				}
+				if ($Host && $Host->isValid() && $Host->get('task') && $Host->get('task')->isValid())
+					throw new Exception(_('One or more hosts are currently in a task'));
 			}
-			if ($Tasks)
-				throw new Exception(_('One or more hosts are currently in a task'));
 			foreach((array)$Group->get('hosts') AS $Host)
 			{
 				if ($Host && $Host->isValid())

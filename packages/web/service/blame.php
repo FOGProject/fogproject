@@ -31,7 +31,7 @@ try
 	if (!$Host->isValid())
 		throw new Exception(_('Invalid host'));
 	//Get the task
-	$Task = current($Host->get('task'));
+	$Task = $Host->get('task');
 	if (!$Task->isValid())
 		throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'),$MACAddress));
 	$imagingTasks = in_array($Task->get('typeID'),array(1,2,8,15,16,17));

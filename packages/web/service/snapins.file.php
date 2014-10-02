@@ -9,7 +9,7 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid()) throw new Exception('#!ih');
 	// Try and get the task.
-	$Task = current($Host->get('task'));
+	$Task = $Host->get('task');
 	// Work on the current Snapin Task.
 	$SnapinTask = new SnapinTask($_REQUEST['taskid']);
 	if (!$SnapinTask->isValid()) throw new Exception('#!ns');

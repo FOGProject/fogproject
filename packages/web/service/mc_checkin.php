@@ -10,7 +10,7 @@ try
 	if (!$Host->isValid())
 		throw new Exception( _('Invalid Host') );
 	// Get the task
-	$Task = current($Host->get('task'));
+	$Task = $Host->get('task');
 	if (!$Task->isValid())
 		throw new Exception( sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'), $MACAddress) );
 	if ($Task->get('typeID') == 8)
