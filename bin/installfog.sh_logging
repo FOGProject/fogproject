@@ -1,0 +1,3 @@
+#!/bin/sh
+
+script /var/log/foginstall.log -c 'sh ./.install.sh'
