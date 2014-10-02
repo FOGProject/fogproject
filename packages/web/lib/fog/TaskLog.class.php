@@ -12,7 +12,7 @@ class TaskLog extends FOGController
 		'taskID'	=> 'taskID',
 		'taskStateID'	=> 'taskStateID',
 		'ip'		=> 'ip',
-		'createTime'	=> 'createTime',
+		'createdTime'	=> 'createTime',
 		'createdBy'	=> 'createdBy'
 	);
 	

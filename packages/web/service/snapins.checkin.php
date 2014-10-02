@@ -54,7 +54,7 @@ try
 				$goodSnapin = array(
 					"#!ok\n",
 					"JOBTASKID=".$SnapinTask->get('id')."\n",
-					"JOBCREATION=".$SnapinJob->get('createTime')."\n",
+					"JOBCREATION=".$SnapinJob->get('createdTime')."\n",
 					"SNAPINNAME=".$Snapin->get('name')."\n",
 					"SNAPINARGS=".$Snapin->get('args')."\n",
 					"SNAPINBOUNCE=".$Snapin->get('reboot')."\n",
