@@ -10,7 +10,7 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid())
 		throw new Exception('#!nf');
-	if (!$Host->isHostnameSafe())
+	if (!HostManager::isHostnameSafe($Host->get('name')))
 		throw new Exception('#!ih');
 	if ($Host->get('ADPass') && $_REQUEST['newService'] && $FOGCore->getSetting('FOG_NEW_CLIENT'))
 	{

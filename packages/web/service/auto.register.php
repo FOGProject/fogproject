@@ -118,8 +118,8 @@ try
 			else
 				print _('Done!');
 			// If inventory for this host already exists, update the values, otherwise create new inventory record.
-			$Inventory = current($FOGCore->getClass('InventoryManager')->find(array('hostID' => $Host->get('id'))));
-			if ($Inventory)
+			$Inventory = $Host->get('inventory');
+			if ($Inventory->isValid())
 			{
 				$Inventory->set('primaryUser',$primaryuser)
 						  ->set('other1',$other1)

@@ -390,7 +390,7 @@ abstract class FOGPage extends FOGBase
 						if ($Host && $Host->isValid())
 						{
 							foreach((array)$Host->get('task') AS $Task)
-								$Tasks[] = $Task && $Task->isValid();
+								$Tasks[] = $Host->get('task')->isValid();
 						}
 					}
 					if (in_array(true,$Tasks))

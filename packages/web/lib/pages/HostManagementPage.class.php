@@ -433,7 +433,7 @@ class HostManagementPage extends FOGPage
 		// Find
 		$Host = new Host($this->REQUEST['id']);
 		// Inventory find for host.
-		$Inventory = $Host->get('inventory') ? current($Host->get('inventory')) : new Inventory(array('id' => '0'));
+		$Inventory = $Host->get('inventory');
 		// Get the associated Groups.
 		// Location Find for host.
 		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
@@ -1276,7 +1276,7 @@ class HostManagementPage extends FOGPage
 		// Find
 		$Host = new Host($this->REQUEST['id']);
 		$HostManager = $this->FOGCore->getClass('HostManager');
-		$Inventory = current($this->FOGCore->getClass('InventoryManager')->find(array('hostID' => $Host->get('id'))));
+		$Inventory = $Host->get('inventory');
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_POST', array('Host' => &$Host));
 		// POST
@@ -1294,7 +1294,7 @@ class HostManagementPage extends FOGPage
 					// Variables
 					$mac = new MACAddress($_REQUEST['mac']);
 					// Task variable.
-					$Task = current($Host->get('task'));
+					$Task = $Host->get('task');
 					// Error checking
 					if (!$mac->isValid())
 						throw new Exception(_('MAC Address is not valid'));
