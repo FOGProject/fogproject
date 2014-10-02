@@ -32,10 +32,10 @@ class HostManager extends FOGManagerController
 			if ($MAC && $MAC->isValid())
 				$HostIDs[] = $MAC->get('hostID');
 		}
-		$HostIDs = array_unique($HostIDs);
+		$HostIDs = array_unique((array)$HostIDs);
 		if (count($HostIDs) > 1)
 			throw new Exception($this->foglang['ErrorMultipleHosts']);
-		$Host = new Host(implode($HostIDs));
+		$Host = new Host(implode((array)$HostIDs));
 		return $Host;
 	}
 	/** isSafeHostName($hsotname)
