@@ -476,11 +476,10 @@ class ReportManagementPage extends FOGPage
 	public function pend_mac()
 	{
 		// Get all the pending mac hosts.
-		$Hosts = $this->FOGCore->getClass('HostManager')->getAllHostsWithPendingMacs();
+		$Hosts = $this->FOGCore->getClass('HostManager')->find();
 		// Approves All Pending MACs for all hosts.
 		if ($_REQUEST['aprvall'] == 1)
 		{
-			$Hosts = $this->FOGCore->getClass('HostManager')->getAllHostsWithPendingMacs();
 			foreach((array)$Hosts AS $Host)
 			{
 				$MACs = $Host->get('pendingMACs');
