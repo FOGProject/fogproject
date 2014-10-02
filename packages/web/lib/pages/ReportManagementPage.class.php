@@ -1085,8 +1085,8 @@ class ReportManagementPage extends FOGPage
 				$snapinDetail = $SnapinTask->get('detail');
 				$snapinCreateDate = $Snapin->isValid() ? $this->formatTime($Snapin->get('createdTime'),'Y-m-d') : '';
 				$snapinCreateTime = $Snapin->isValid() ? $this->formatTime($Snapin->get('createdTime'),'H:i:s') : '';
-				$jobCreateDate = $this->formatTime($SnapinJob->get('createTime'),'Y-m-d');
-				$jobCreateTime = $this->formatTime($SnapinJob->get('createTime'),'H:i:s');
+				$jobCreateDate = $this->formatTime($SnapinJob->get('createdTime'),'Y-m-d');
+				$jobCreateTime = $this->formatTime($SnapinJob->get('createdTime'),'H:i:s');
 				$TaskCheckinDate = $SnapinCheckin1->format('Y-m-d');
 				$TaskCheckinTime = $SnapinCheckin2->format('H:i:s');
 				$this->data[] = array(
