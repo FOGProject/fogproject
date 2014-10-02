@@ -13,22 +13,24 @@ try
 	$ignoreList = explode(',', $FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'));
 	// Get the actual host (if it is registered)
 	$Host = $HostManager->getHostByMacAddresses($MACs);
+	$HostPend = false;
 	if(!$Host || !$Host->isValid())
 	{
 		if (!$_REQUEST['hostname'])
 			throw new Exception('#!er:Invalid Host');
 		else
 		{
+			$HostPend = true;
 			$Host = new Host(array(
 				'name' => $_REQUEST['hostname'],
 				'description' => 'Pending Registration created by FOG_CLIENT',
-				'mac' => (preg_match('#|#i',$_REQUEST['mac']) ? explode('|',$_REQUEST['mac'])[0] : $_REQUEST['mac']),
 				'pending' => 1,
 			));
 			foreach($FOGCore->getClass('ModuleManager')->find() AS $Module)
 				$ModuleIDs[] = $Module->get('id');
 			$Host->addModule($ModuleIDs);
-			$Host->save();
+			if($Host->save())
+				$Host->addPriMAC((preg_match('#|#i',$_REQUEST['mac']) ? explode('|',$_REQUEST['mac'])[0] : $_REQUEST['mac']));
 		}
 	}
 	// Check if count is okay.
@@ -60,7 +62,7 @@ try
 				throw new Exception('#!er: Error adding MAC');
 		}
 		else
-			$Datatosend .= "#!ig\n";
+			($HostPend && $mac1[0] == $Host->get('mac') ? $Datatosend.="#!ok\n" : $Datatosend .= "#!ig\n");
 	}
 }
 catch (Exception $e)

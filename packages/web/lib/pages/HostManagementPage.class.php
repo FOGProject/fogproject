@@ -1588,7 +1588,7 @@ class HostManagementPage extends FOGPage
 					try
 					{
 						// Error checking
-						if ($this->FOGCore->getClass('HostManager')->doesHostExistWithMac(new MACAddress($data[0])))
+						if ($this->FOGCore->getClass('HostManager')->getHostByMacAddresses($data[0]))
 							throw new Exception('A Host with this MAC Address already exists');
 						if($this->FOGCore->getClass('HostManager')->exists($data[1]))
 							throw new Exception('A host with this name already exists');
