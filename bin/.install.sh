@@ -257,8 +257,6 @@ do
 					read storageLocation;
 					if [ "$storageLocation" == "" ]; then
 					   	storageLocation="/images";
-					else
-						storageLocation=`echo $storageLocation | sed 's=/[^/]*$==;s/\.$//'`;
 					fi
 				fi
 	           if [ "$installtype" = "S" ]
