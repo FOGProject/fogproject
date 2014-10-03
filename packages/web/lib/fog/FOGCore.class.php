@@ -25,16 +25,6 @@ class FOGCore extends FOGBase
 		return null;
 	}
 
-	/** cleanOldUnrunScheduledTasks()
-		Cleans out old scheduled delayed tasks.
-	*/
-	private function cleanOldUnrunScheduledTasks()
-	{
-		$ScheduledTasks = $this->getClass('ScheduledTaskManager')->find(array('type' => 'S', 'scheduleTime' => strtotime(180)),'AND');
-		foreach($ScheduledTasks AS $ScheduledTask)
-			$ScheduledTask->set('isActive', 0)->save();
-	}
-	
 	/** stopScheduledTask($task)
 		Stops the scheduled task.
 	*/
@@ -100,16 +90,6 @@ class FOGCore extends FOGBase
 			'ip' => $_SERVER[REMOTE_ADDR],
 		));
 		$History->save();
-	}
-	
-	/** searchManager($manager = 'Host', $keyword = '*')
-		Searchs items using the Manager of the associated class.  If nothing is chosen searches all hosts.
-	*/
-	public function searchManager($manager = 'Host', $keyword = '*')
-	{
-		$manager = ucwords(strtolower($manager)) . 'Manager';
-		$Manager = new $manager();
-		return $Manager->search($keyword);
 	}
 	
 	/** getSetting($key)
@@ -182,9 +162,8 @@ class FOGCore extends FOGBase
 	*/
 	public function clearMACLookupTable()
 	{
-		if ($this->getClass('OUIManager')->destroy())
-			return true;
-		return false;
+		$this->DB->query("TRUNCATE TABLE ".OUI::databaseTable);
+		return (!$this->DB->fetch()->get());
 	}
 	
 	/** getMACLookupCount()

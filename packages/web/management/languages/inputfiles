@@ -136,7 +136,6 @@
 /var/www/fog/lib/fog/ClientUpdaterManager.class.php
 /var/www/fog/lib/fog/GroupAssociationManager.class.php
 /var/www/fog/lib/fog/TaskScheduler.class.php
-/var/www/fog/lib/fog/PendingMACManager.class.php
 /var/www/fog/lib/fog/TaskTypeManager.class.php
 /var/www/fog/lib/fog/ModuleAssociation.class.php
 /var/www/fog/lib/fog/InventoryManager.class.php
