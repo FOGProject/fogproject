@@ -83,8 +83,13 @@ if [ "$type" == "up" ]; then
 	debugPause;
 	dots "Mounting File System"
 	mkdir /images 2>/dev/null;
-	mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images;
-	echo "Done";
+	mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $storage /images &> /dev/null;
+	if [ "$?" == 0 ]; then
+		echo "Done";
+	else
+		echo "Failed";
+		handleError "Unable to mount NFS";
+	fi
 	debugPause;
 elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 	mac64=`ifconfig | grep HWaddr | head -n1 | base64`;
