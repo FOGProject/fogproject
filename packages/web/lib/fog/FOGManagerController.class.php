@@ -326,12 +326,10 @@ abstract class FOGManagerController extends FOGBase
 				($this->databaseFields[$orderBy] ? $this->databaseFields[$orderBy] : $this->databaseFields['id']),
 				$sort
 			));
-			$r = new ReflectionClass($this->childClass);
 			while ($row = $this->DB->fetch()->get())
 			{
-				$args = func_get_args();
-				array_shift($args);
-				$data[] = (count($args) ? $r->newInstanceArgs($args) :$r->newInstance($row));
+				$r = new ReflectionClass($this->childClass);
+				$data[] = $r->newInstance($row);
 			}
 			// Return
 			return (array)$data;
