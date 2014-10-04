@@ -35,7 +35,7 @@ class Plugin extends FOGController
 	}
 	public function getActivePlugs()
 	{
-		$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->getName())));
+		$Plugin = current($this->getClass('PluginManager')->find(array('name' => $this->getName())));
 		$this->blIsActive = ($Plugin && $Plugin->isValid() ? ($Plugin->get('state') == 1 ? 1 : 0) : 0);
 		$this->blIsInstalled = ($Plugin && $Plugin->isValid() ? ($Plugin->get('installed') == 1 ? 1 : 0) : 0);
 	}
@@ -77,7 +77,7 @@ class Plugin extends FOGController
 		{
 			if(md5(trim($Plugin->getName())) == trim($plugincode))
 			{
-				$ME = $this->FOGCore->getClass('PluginManager')->find(array('name' => $Plugin->getName()));
+				$ME = $this->getClass('PluginManager')->find(array('name' => $Plugin->getName()));
 				if (count($ME) > 0)
 				{
 					$blActive = false;

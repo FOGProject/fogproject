@@ -8,7 +8,7 @@ class AddLocationMenuItem extends Hook
 	var $node = 'location';
 	public function MenuData($arguments)
 	{
-		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
 			$arguments['main'] = $this->array_insert_after('storage',$arguments['main'],$this->node,_('Location Management'));
 	}

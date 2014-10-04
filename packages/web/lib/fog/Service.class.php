@@ -18,7 +18,7 @@ class Service extends FOGController
 	//Add a directory to be cleaned
 	public function addDir($dir)
 	{
-		if ($this->FOGCore->getClass('DirCleanerManager')->count(array('path' => addslashes($dir))) > 0)
+		if ($this->getClass('DirCleanerManager')->count(array('path' => addslashes($dir))) > 0)
 			throw new Exception($this->foglang['n/a']);
 		$NewDir = new DirCleaner(array(
 			'path' => $dir,
@@ -28,7 +28,7 @@ class Service extends FOGController
 	//Remove a directory from being cleaned
 	public function remDir($dir)
 	{
-		$this->FOGCore->getClass('DirCleanerManager')->destroy(array('id' => $dir));
+		$this->getClass('DirCleanerManager')->destroy(array('id' => $dir));
 	}
 	//Set the display information.
 	public function setDisplay($x,$y,$r)
@@ -44,7 +44,7 @@ class Service extends FOGController
 	//Set green fog
 	public function setGreenFog($h,$m,$t)
 	{
-		if ($this->FOGCore->getClass('GreenFogManager')->count(array('hour' => $h,'min' => $m)) > 0)
+		if ($this->getClass('GreenFogManager')->count(array('hour' => $h,'min' => $m)) > 0)
 			throw new Exception($this->foglang['TimeExists']);
 		else
 		{
@@ -59,14 +59,14 @@ class Service extends FOGController
 	//Remove GreenFog event
 	public function remGF($gf)
 	{
-		$this->FOGCore->getClass('GreenFogManager')->destroy(array('id' => $gf));
+		$this->getClass('GreenFogManager')->destroy(array('id' => $gf));
 	}
 	//Add Users for cleanup
 	public function addUser($user)
 	{
-		if ($this->FOGCore->getClass('UserCleanupManager')->count(array('name' => $user)) > 0)
+		if ($this->getClass('UserCleanupManager')->count(array('name' => $user)) > 0)
 			throw new Exception($this->foglang['UserExists']);
-		$this->FOGCore->getClass('UserCleanup',array('name' => $user))->save();
+		$this->getClass('UserCleanup',array('name' => $user))->save();
 	}
 	//Remove Cleanup user
 	public function remUser($id)

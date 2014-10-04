@@ -57,7 +57,7 @@ class Task extends FOGController
 	}
 	public function getInFrontOfHostCount()
 	{
-		$Tasks = $this->FOGCore->getClass('TaskManager')->find(array(
+		$Tasks = $this->getClass('TaskManager')->find(array(
 			'stateID' => array(1,2),
 			'typeID' => array(1,15,17),
 			'NFSGroupID' => $this->get('NFSGroupID'),
@@ -92,11 +92,11 @@ class Task extends FOGController
 	public function destroy($field = 'id')
 	{
 	    $Host = new Host($this->get('hostID'));
-		$SnapinJobs = $this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $Host->get('id')));
+		$SnapinJobs = $this->getClass('SnapinJobManager')->find(array('hostID' => $Host->get('id')));
 		if($SnapinJobs)
 		{
 			foreach($SnapinJobs AS $SnapinJob)
-				$SnapinTasks[]= $this->FOGCore->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id'),'stateID' => array(0,1)));
+				$SnapinTasks[]= $this->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id'),'stateID' => array(0,1)));
 		}
 		// cancel's all the snapin tasks for that host.
 		if ($SnapinTasks)

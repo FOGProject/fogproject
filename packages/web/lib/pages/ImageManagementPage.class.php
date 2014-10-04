@@ -64,7 +64,7 @@ class ImageManagementPage extends FOGPage
 		// Set title
 		$this->title = _('All Images');
 		// Find data
-		$Images = $this->FOGCore->getClass('ImageManager')->find();
+		$Images = $this->getClass('ImageManager')->find();
 		// Row data
 		foreach ((array)$Images AS $Image)
 		{
@@ -182,12 +182,12 @@ class ImageManagementPage extends FOGPage
 				'input' => $input,
 				'image_name' => $_REQUEST['name'],
 				'image_desc' => $_REQUEST['description'],
-				'storage_groups' => $this->FOGCore->getClass('StorageGroupManager')->buildSelectBox(current($this->FOGCore->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1)))->get('storageGroupID')),
-				'operating_systems' => $this->FOGCore->getClass('OSManager')->buildSelectBox($_REQUEST['os']),
-				'image_path' => current($this->FOGCore->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1)))->get('path').'/&nbsp;',
+				'storage_groups' => $this->getClass('StorageGroupManager')->buildSelectBox(current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1)))->get('storageGroupID')),
+				'operating_systems' => $this->getClass('OSManager')->buildSelectBox($_REQUEST['os']),
+				'image_path' => current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1)))->get('path').'/&nbsp;',
 				'image_file' => $_REQUEST['file'],
-				'image_types' => $this->FOGCore->getClass('ImageTypeManager')->buildSelectBox($_REQUEST['imagetype'],'','id'),
-				'image_partition_types' => $this->FOGCore->getClass('ImagePartitionTypeManager')->buildSelectBox($_REQUEST['imagepartitiontype'],'','id'),
+				'image_types' => $this->getClass('ImageTypeManager')->buildSelectBox($_REQUEST['imagetype'],'','id'),
+				'image_partition_types' => $this->getClass('ImagePartitionTypeManager')->buildSelectBox($_REQUEST['imagepartitiontype'],'','id'),
 			);
 		}
 		// Hook
@@ -210,7 +210,7 @@ class ImageManagementPage extends FOGPage
 			// Error checking
 			if (empty($_REQUEST['name']))
 				throw new Exception('An image name is required!');
-			if ($this->FOGCore->getClass('ImageManager')->exists($_REQUEST['name']))
+			if ($this->getClass('ImageManager')->exists($_REQUEST['name']))
 				throw new Exception('An image already exists with this name!');
 			if (empty($_REQUEST['file']))
 				throw new Exception('An image file name is required!');
@@ -304,12 +304,12 @@ class ImageManagementPage extends FOGPage
 				'input' => $input,
 				'image_name' => $Image->get('name'),
 				'image_desc' => $Image->get('description'),
-				'storage_groups' => $this->FOGCore->getClass('StorageGroupManager')->buildSelectBox($Image->get('storageGroupID')),
-				'operating_systems' => $this->FOGCore->getClass('OSManager')->buildSelectBox($Image->get('osID')),
+				'storage_groups' => $this->getClass('StorageGroupManager')->buildSelectBox($Image->get('storageGroupID')),
+				'operating_systems' => $this->getClass('OSManager')->buildSelectBox($Image->get('osID')),
 				'image_path' => $StorageNode && $StorageNode->isValid() ? $StorageNode->get('path').'/&nbsp;' : 'No nodes available.',
 				'image_file' => $Image->get('path'),
-				'image_types' => $this->FOGCore->getClass('ImageTypeManager')->buildSelectBox($Image->get('imageTypeID'),'','id'),
-				'image_partition_types' => $this->FOGCore->getClass('ImagePartitionTypeManager')->buildSelectBox($Image->get('imagePartitionTypeID'),'','id'),
+				'image_types' => $this->getClass('ImageTypeManager')->buildSelectBox($Image->get('imageTypeID'),'','id'),
+				'image_partition_types' => $this->getClass('ImagePartitionTypeManager')->buildSelectBox($Image->get('imagePartitionTypeID'),'','id'),
 				'is_legacy' => $Image->get('format') == 1 ? 'selected="selected"' : '',
 				'is_modern' => $Image->get('format') == 0 ? 'selected="selected"' : '',
 				'image_protected' => $Image->get('protected') == 1 ? 'checked="checked"' : '',
@@ -501,7 +501,7 @@ class ImageManagementPage extends FOGPage
 					// Error checking
 					if (empty($_REQUEST['name']))
 						throw new Exception('An image name is required!');
-					if ($Image->get('name') != $_REQUEST['name'] && $this->FOGCore->getClass('ImageManager')->exists($_REQUEST['name'], $Image->get('id')))
+					if ($Image->get('name') != $_REQUEST['name'] && $this->getClass('ImageManager')->exists($_REQUEST['name'], $Image->get('id')))
 						throw new Exception('An image already exists with this name!');
 					if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev')
 						throw new Exception('Please choose a different name, this one is reserved for FOG.');
@@ -676,7 +676,7 @@ class ImageManagementPage extends FOGPage
 				'session_name' => $_REQUEST['name'],
 				'client_count' => $_REQUEST['count'],
 				'session_timeout' => $_REQUEST['timeout'],
-				'select_image' => $this->FOGCore->getClass('ImageManager')->buildSelectBox($_REQUEST['image'],'','id'),
+				'select_image' => $this->getClass('ImageManager')->buildSelectBox($_REQUEST['image'],'','id'),
 			);
 		}
 		// Hook
@@ -708,7 +708,7 @@ class ImageManagementPage extends FOGPage
 			'${mc_state}',
 			'<a href="?node='.$this->node.'&sub=stop&mcid=${mc_id}" title="Remove"><img src="./images/kill.png" alt="Kill"/></a>',
 		);
-		$MulticastSessions = $this->FOGCore->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3)));
+		$MulticastSessions = $this->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3)));
 		foreach($MulticastSessions AS $MulticastSession)
 		{
 			if ($MulticastSession && $MulticastSession->isValid())
@@ -742,13 +742,13 @@ class ImageManagementPage extends FOGPage
 				throw new Exception(_('Please input a session name'));
 			if (!$_REQUEST['image'])
 				throw new Exception(_('Please choose an image'));
-			if ($this->FOGCore->getClass('MulticastSessionsManager')->exists(trim($_REQUEST['name'])))
+			if ($this->getClass('MulticastSessionsManager')->exists(trim($_REQUEST['name'])))
 				throw new Exception(_('Session with that name already exists'));
-			if ($this->FOGCore->getClass('HostManager')->exists(trim($_REQUEST['name'])))
+			if ($this->getClass('HostManager')->exists(trim($_REQUEST['name'])))
 				throw new Exception(_('Session name cannot be the same as an existing hostname'));
 			if (is_numeric($_REQUEST['timeout']) && $_REQUEST['timeout'] > 0)
 				$this->FOGCore->setSetting('FOG_UDPCAST_MAXWAIT',$_REQUEST['timeout']);
-			$countmc = $this->FOGCore->getClass('MulticastSessionsManager')->count(array('stateID' => array(0,1,2,3)));
+			$countmc = $this->getClass('MulticastSessionsManager')->count(array('stateID' => array(0,1,2,3)));
 			$countmctot = $this->FOGCore->getSetting('FOG_MULTICAST_MAX_SESSIONS');
 			$Image = new Image($_REQUEST['image']);
 			$StorageGroup = new StorageGroup($Image->get('storageGroupID'));
@@ -786,7 +786,7 @@ class ImageManagementPage extends FOGPage
 		if (is_numeric($_REQUEST['mcid']) && $_REQUEST['mcid'] > 0)
 		{
 			$MulticastSession = new MulticastSessions($_REQUEST['mcid']);
-			foreach((array)$this->FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msid' => $MulticastSession->get('id'))) AS $MulticastAssoc)
+			foreach((array)$this->getClass('MulticastSessionsAssociationManager')->find(array('msid' => $MulticastSession->get('id'))) AS $MulticastAssoc)
 			{
 				$Task = new Task($MulticastAssoc->get('taskID'));
 				$Task->cancel();

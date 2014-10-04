@@ -19,7 +19,7 @@ class ImageReplicator extends FOGBase
 	}
 	private function commonOutput()
 	{
-		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1, 'ip' => $this->FOGCore->getIPAddress())));
+		$StorageNode = current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1, 'ip' => $this->FOGCore->getIPAddress())));
 		try
 		{
 		if ($StorageNode)
@@ -29,7 +29,7 @@ class ImageReplicator extends FOGBase
 			$this->outall(" * Starting Image Replication.");
 			$this->outall(sprintf(" * We are group ID: #%s",$StorageNode->get('storageGroupID')));
 			$this->outall(sprintf(" * We have node ID: #%s",$StorageNode->get('id')));
-			$StorageNodes = $this->FOGCore->getClass('StorageNodeManager')->find(array('storageGroupID' => $StorageNode->get('storageGroupID')));
+			$StorageNodes = $this->getClass('StorageNodeManager')->find(array('storageGroupID' => $StorageNode->get('storageGroupID')));
 			foreach($StorageNodes AS $OtherNode)
 			{
 				if ($OtherNode->get('id') != $StorageNode->get('id') && $OtherNode->get('isEnabled'))

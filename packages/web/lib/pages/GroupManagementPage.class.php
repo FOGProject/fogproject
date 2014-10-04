@@ -72,7 +72,7 @@ class GroupManagementPage extends FOGPage
 		// Set title
 		$this->title = _('All Groups');
 		// Find data
-		$Groups = $this->FOGCore->getClass('GroupManager')->find();
+		$Groups = $this->getClass('GroupManager')->find();
 		// Row data
 		foreach ((array)$Groups AS $Group)
 		{
@@ -188,7 +188,7 @@ class GroupManagementPage extends FOGPage
 			// Error checking
 			if (empty($_REQUEST['name']))
 				throw new Exception('Group Name is required');
-			if ($this->FOGCore->getClass('GroupManager')->exists($_REQUEST['name']))
+			if ($this->getClass('GroupManager')->exists($_REQUEST['name']))
 				throw new Exception('Group Name already exists');
 			// Define new Image object with data provided
 			$Group = new Group(array(
@@ -238,7 +238,7 @@ class GroupManagementPage extends FOGPage
 		// Find
 		$Group = new Group($_REQUEST['id']);
 		// If location is installed.
-		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
+		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// If all hosts have the same image setup up the selection.
 		foreach ((array)$Group->get('hosts') AS $Host)
 		{
@@ -261,7 +261,7 @@ class GroupManagementPage extends FOGPage
 			{
 				if ($Host && $Host->isValid())
 				{
-					$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
+					$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
 					$LA ? $locationID[] = $LA->get('locationID') : null;
 				}
 			}
@@ -287,7 +287,7 @@ class GroupManagementPage extends FOGPage
 			_('Group Name') => '<input type="text" name="name" value="${group_name}" />',
 			_('Group Description') => '<textarea name="description" rows="8" cols="40">${group_desc}</textarea>',
 			_('Group Product Key') => '<input id="productKey" type="text" name="key" value="${group_key}" />',
-			($LocPluginInst ? _('Group Location') : null) => ($LocPluginInst ? $this->FOGCore->getClass('LocationManager')->buildSelectBox($locationMatchID) : null),
+			($LocPluginInst ? _('Group Location') : null) => ($LocPluginInst ? $this->getClass('LocationManager')->buildSelectBox($locationMatchID) : null),
 			_('Group Kernel') => '<input type="text" name="kern" value="${group_kern}" />',
 			_('Group Kernel Arguments') => '<input type="text" name="args" value="${group_args}" />',
 			_('Group Primary Disk') => '<input type="text" name="dev" value="${group_devs}" />',
@@ -354,7 +354,7 @@ class GroupManagementPage extends FOGPage
 				$HostsInMe[] = $Host->get('id');
 		}
 		// Get All Host ID's that are associated to a group
-		foreach($this->FOGCore->getClass('GroupAssociationManager')->find() AS $GroupAssoc)
+		foreach($this->getClass('GroupAssociationManager')->find() AS $GroupAssoc)
 		{
 			if ($GroupAssoc && $GroupAssoc->isValid())
 				$HostInAnyGroupIDs[] = $GroupAssoc->get('hostID');
@@ -362,7 +362,7 @@ class GroupManagementPage extends FOGPage
 		// Make the values unique as a host can be a part of many groups.
 		$HostInAnyGroupIDs = array_unique((array)$HostInAnyGroupIDs);
 		// Set the values
-		foreach($this->FOGCore->getClass('HostManager')->find() AS $Host)
+		foreach($this->getClass('HostManager')->find() AS $Host)
 		{
 			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{
@@ -471,7 +471,7 @@ class GroupManagementPage extends FOGPage
                     'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
                     'host_name' => $Host->get('name'),
                     'host_mac'  => $Host->get('mac')->__toString(),
-                    'image_name' => $this->FOGCore->getClass('ImageManager')->buildSelectBox($Host->getImage()->get('id'),$Host->get('name').'_'.$Host->get('id')),
+                    'image_name' => $this->getClass('ImageManager')->buildSelectBox($Host->getImage()->get('id'),$Host->get('name').'_'.$Host->get('id')),
 				);
 			}
 		}
@@ -498,7 +498,7 @@ class GroupManagementPage extends FOGPage
 			'${input}',
 		);
 		$this->data[] = array(
-			'field' => $this->FOGCore->getClass('ImageManager')->buildSelectBox($imageMatchID).'</select>',
+			'field' => $this->getClass('ImageManager')->buildSelectBox($imageMatchID).'</select>',
 			'input' => '<input type="submit" value="'._('Update Images').'" />',
 		);
 		// Hook
@@ -528,7 +528,7 @@ class GroupManagementPage extends FOGPage
 			array('width' => 20, 'class' => 'r'),
 		);
 		// Get all snapins.
-		foreach($this->FOGCore->getClass('SnapinManager')->find() AS $Snapin)
+		foreach($this->getClass('SnapinManager')->find() AS $Snapin)
 		{
 			if ($Snapin && $Snapin->isValid())
 			{
@@ -567,7 +567,7 @@ class GroupManagementPage extends FOGPage
 			array('width' => 20, 'class' => 'r'),
 		);
 		// Get all snapins.
-		foreach($this->FOGCore->getClass('SnapinManager')->find() AS $Snapin)
+		foreach($this->getClass('SnapinManager')->find() AS $Snapin)
 		{
 			if ($Snapin && $Snapin->isValid())
 			{
@@ -607,7 +607,7 @@ class GroupManagementPage extends FOGPage
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-service">';
 		print "\n\t\t\t<fieldset>";
 		print "\n\t\t\t<legend>"._('General')."</legend>";
-        foreach ((array)$this->FOGCore->getClass('ModuleManager')->find() AS $Module)
+        foreach ((array)$this->getClass('ModuleManager')->find() AS $Module)
         {
 			$i = 0;
 			foreach((array)$Group->get('hosts') AS $Host)
@@ -661,7 +661,7 @@ class GroupManagementPage extends FOGPage
 			'${input}',
 			'${span}',
 		);
-		$Services = $this->FOGCore->getClass('ServiceManager')->find(array('name' => array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR','id');
+		$Services = $this->getClass('ServiceManager')->find(array('name' => array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR','id');
 		foreach((array)$Services AS $Service)
 		{
 			$this->data[] = array(
@@ -698,7 +698,7 @@ class GroupManagementPage extends FOGPage
 			'${input}',
 			'${desc}',
 		);
-		$Service = current($this->FOGCore->getClass('ServiceManager')->find(array('name' => 'FOG_SERVICE_AUTOLOGOFF_MIN')));
+		$Service = current($this->getClass('ServiceManager')->find(array('name' => 'FOG_SERVICE_AUTOLOGOFF_MIN')));
 		$this->data[] = array(
 			'field' => _('Auto Log Out Time (in minutes)'),
 			'input' => '<input type="text" name="tme" value="${value}" />',
@@ -751,7 +751,7 @@ class GroupManagementPage extends FOGPage
 			array('width' => 50, 'class' => 'l'),
 			array('width' => 50, 'class' => 'r'),
 		);
-		foreach($this->FOGCore->getClass('PrinterManager')->find() AS $Printer)
+		foreach($this->getClass('PrinterManager')->find() AS $Printer)
 		{
 			if ($Printer && $Printer->isValid())
 			{
@@ -789,7 +789,7 @@ class GroupManagementPage extends FOGPage
 			array('width' => 50, 'class' => 'l'),
 			array('width' => 50, 'class' => 'r'),
 		);
-		foreach($this->FOGCore->getClass('PrinterManager')->find() AS $Printer)
+		foreach($this->getClass('PrinterManager')->find() AS $Printer)
 		{
 			if ($Printer && $Printer->isValid())
 			{
@@ -861,7 +861,7 @@ class GroupManagementPage extends FOGPage
 							if ($Host && $Host->isValid())
 							{
 								// Remove all associations
-								$this->FOGCore->getClass('LocationAssociationManager')->destroy(array('hostID' => $Host->get('id')));
+								$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $Host->get('id')));
 								// Create new association
 								$LA = new LocationAssociation(array(
 									'locationID' => $Location->get('id'),
@@ -902,7 +902,7 @@ class GroupManagementPage extends FOGPage
 						{
 							if ($Host && $Host->isValid())
 							{
-								$Task = current($this->FOGCore->getClass('TaskManager')->find(array('hostID' => $Host->get('id'),'stateID' => array(1,2,3))));
+								$Task = current($this->getClass('TaskManager')->find(array('hostID' => $Host->get('id'),'stateID' => array(1,2,3))));
 								if ($Task && $Task->isValid() && !$_REQUEST['image'])
 									throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
 								else
@@ -975,7 +975,7 @@ class GroupManagementPage extends FOGPage
                     // If they're enabled when you click update, they'll send the call
                     // with the Module's ID to insert into the db.  If they're disabled
                     // they'll delete from the database.
-                    $ServiceModules = $this->FOGCore->getClass('ModuleManager')->find('','','id');
+                    $ServiceModules = $this->getClass('ModuleManager')->find('','','id');
                     foreach((array)$ServiceModules AS $ServiceModule)
 						$ServiceSetting[$ServiceModule->get('id')] = $_REQUEST[$ServiceModule->get('shortName')];
                     // The values below set the display Width, Height, and Refresh.  If they're not set by you, they'll
@@ -1132,7 +1132,7 @@ class GroupManagementPage extends FOGPage
 			else
 			{
 				// Remove Group associations
-				$this->FOGCore->getClass('GroupAssociationManager')->destroy(array('groupID' => $Group->get('id')));
+				$this->getClass('GroupAssociationManager')->destroy(array('groupID' => $Group->get('id')));
 				// Remove Group
 				if (!$Group->destroy())
 					throw new Exception(_('Failed to destroy Group'));

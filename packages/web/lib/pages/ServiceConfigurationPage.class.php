@@ -81,7 +81,7 @@ class ServiceConfigurationPage extends FOGPage
 			'usercleanup' => 'FOG_SERVICE_USERCLEANUP_ENABLED',
 			'usertracker' => 'FOG_SERVICE_USERTRACKER_ENABLED',
 		);
-		$Modules = $this->FOGCore->getClass('ModuleManager')->find();
+		$Modules = $this->getClass('ModuleManager')->find();
 		foreach ((array)$Modules AS $Module)
 		{
 			unset($this->data,$this->headerData,$this->attributes,$this->templates);
@@ -102,7 +102,7 @@ class ServiceConfigurationPage extends FOGPage
 			$fields = array_filter($fields);
 			foreach((array)$fields AS $field => $input)
 			{
-				$Service = current($this->FOGCore->getClass('ServiceManager')->find(array('name' => $moduleName[$Module->get('shortName')])));
+				$Service = current($this->getClass('ServiceManager')->find(array('name' => $moduleName[$Module->get('shortName')])));
 				if ($Service && $Service->isValid())
 				{
 					$this->data[] = array(
@@ -143,7 +143,7 @@ class ServiceConfigurationPage extends FOGPage
 			else if ($Module->get('shortName') == 'clientupdater')
 			{
 				unset($this->data,$this->headerData,$this->attributes,$this->templates);
-				$this->FOGCore->getClass('FOGConfigurationPage')->client_updater();
+				$this->getClass('FOGConfigurationPage')->client_updater();
 			}
 			else if ($Module->get('shortName') == 'dircleanup')
 			{
@@ -165,7 +165,7 @@ class ServiceConfigurationPage extends FOGPage
 				print "\n\t\t\t<p>"._('Directory Path').': <input type="text" name="adddir" /></p>';
 				print "\n\t\t\t".'<p><input type="hidden" name="name" value="'.$moduleName[$Module->get('shortName')].'" /><input type="submit" value="'._('Add Directory').'" /></p>';
 				print "\n\t\t\t<h2>"._('Directories Cleaned').'</h2>';
-				$dirs = $this->FOGCore->getClass('DirCleanerManager')->find();
+				$dirs = $this->getClass('DirCleanerManager')->find();
 				foreach ((array)$dirs AS $DirCleaner)
 				{
 					$this->data[] = array(
@@ -235,7 +235,7 @@ class ServiceConfigurationPage extends FOGPage
 				print "\n\t\t\t".'<form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'">';
 				print "\n\t\t\t<p>"._('Add Event (24 Hour Format):').'<input class="short" type="text" name="h" maxlength="2" value="HH" onFocus="this.value=\'\'" />:<input class="short" type="text" name="m" maxlength="2" value="MM" onFocus="this.value=\'\'" /><select name="style" size="1"><option value="">'._('Select One').'</option><option value="s">'._('Shut Down').'</option><option value="r">'._('Reboot').'</option></select></p>';
 				print "\n\t\t\t".'<p><input type="hidden" name="name" value="'.$moduleName[$Module->get('shortName')].'" /><input type="hidden" name="addevent" value="1" /><input type="submit" value="'._('Add Event').'" /></p>';
-				$greenfogs = $this->FOGCore->getClass('GreenFogManager')->find();
+				$greenfogs = $this->getClass('GreenFogManager')->find();
 				foreach((array)$greenfogs AS $GreenFog)
 				{
 					$this->data[] = array(
@@ -290,7 +290,7 @@ class ServiceConfigurationPage extends FOGPage
 					'${input}',
 				);
 				print "\n\t\t\t<h2>"._('Current Protected User Accounts').'</h2>';
-				$UCs = $this->FOGCore->getClass('UserCleanupManager')->find();
+				$UCs = $this->getClass('UserCleanupManager')->find();
 				foreach ((array)$UCs AS $UserCleanup)
 				{
 					$this->data[] = array(
@@ -308,7 +308,7 @@ class ServiceConfigurationPage extends FOGPage
 	}
 	public function edit_post()
 	{
-		$Service = current($this->FOGCore->getClass('ServiceManager')->find(array('name' => $_REQUEST['name'])));
+		$Service = current($this->getClass('ServiceManager')->find(array('name' => $_REQUEST['name'])));
 		// Hook
 		$this->HookManager->processEvent('SERVICE_EDIT_POST', array('Host' => &$Service));
 		//Store value of Common Values
@@ -322,7 +322,7 @@ class ServiceConfigurationPage extends FOGPage
 			{
 				$Service->set('value',$onoff);
 				// Finds the relevant module
-				$Module = current($this->FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['tab'])));
+				$Module = current($this->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['tab'])));
 				// If the module is found and valid, it saves the default status.
 				if ($Module && $Module->isValid())
 					$Module->set('isDefault',$defen)->save();
@@ -362,7 +362,7 @@ class ServiceConfigurationPage extends FOGPage
 						$Service->remUser($_REQUEST['delid']);
 				break;
 				case 'clientupdater';
-					$this->FOGCore->getClass('FOGConfigurationPage')->client_updater_post();
+					$this->getClass('FOGConfigurationPage')->client_updater_post();
 				break;
 			}
 			// Save to database

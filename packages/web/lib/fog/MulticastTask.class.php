@@ -64,7 +64,7 @@ class MulticastTask extends FOGBase
 		$waitTemp = $this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT');
 		$count = '';
 		$countTemp = $this->getClientCount();
-		$count = sprintf(' --min-receivers %d',($countTemp > 0 ? $countTemp : $this->FOGCore->getClass('HostManager')->count()));
+		$count = sprintf(' --min-receivers %d',($countTemp > 0 ? $countTemp : $this->getClass('HostManager')->count()));
 		if ($waitTemp)
 			$wait = sprintf(' --max-wait %d',($waitTemp > 0 ? $waitTemp * 60 : 60));
 		if (($this->getOSID() == 5 || $this->getOSID() == 6 || $this->getOSID() == 7) && $this->getImageType() == 1)
@@ -248,7 +248,7 @@ class MulticastTask extends FOGBase
     	@proc_close($this->procRef);
 		$this->procRef=null;
 		@unlink($this->getUDPCastLogFile());
-		foreach($this->FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $this->intID)) AS $MultiSessAssoc)
+		foreach($this->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $this->intID)) AS $MultiSessAssoc)
 		{
 			$Task = new Task($MultiSessAssoc->get('taskID'));
 			$Task->set('stateID','5')->save();
@@ -260,7 +260,7 @@ class MulticastTask extends FOGBase
 
 	public function updateStats()
 	{
-		foreach($this->FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msid' => $this->intID)) AS $MultiSessAssoc)
+		foreach($this->getClass('MulticastSessionsAssociationManager')->find(array('msid' => $this->intID)) AS $MultiSessAssoc)
 		{
 			$Task = new Task($MultiSessAssoc->get('taskID'));
 			if ($Task && $Task->isValid())
