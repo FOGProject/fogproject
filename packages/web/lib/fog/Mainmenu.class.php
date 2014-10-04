@@ -26,7 +26,7 @@ class Mainmenu extends FOGBase
 	}
 	private function mainSetting()
 	{
-		$location = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location', 'installed' => 1)));
+		$location = current($this->getClass('PluginManager')->find(array('name' => 'location', 'installed' => 1)));
 		$plugin = $this->FOGCore->getSetting('FOG_PLUGINSYS_ENABLED');
 		$this->main = array(
 			'home' => $this->foglang['Home'],

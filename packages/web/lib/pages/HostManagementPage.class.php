@@ -29,7 +29,7 @@ class HostManagementPage extends FOGPage
 	{
 		// Call parent constructor
 		parent::__construct($name);
-		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
+		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// Header row
 		$this->headerData = array(
 			'',
@@ -73,13 +73,13 @@ class HostManagementPage extends FOGPage
 		// Set title
 		$this->title = $this->foglang['AllHosts'];
 		// Get location if enabled:
-		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
+		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// Find data -> Push data
-		foreach ($this->FOGCore->getClass('HostManager')->find() AS $Host)
+		foreach ($this->getClass('HostManager')->find() AS $Host)
 		{
 			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{
-				$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
+				$LA = ($LocPluginInst ? current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
 				$Location = ($LA ? new Location($LA->get('locationID')) : '');
 				$this->data[] = array(
 					'host_id'	=> $Host->get('id'),
@@ -121,7 +121,7 @@ class HostManagementPage extends FOGPage
 	*/
 	public function search_post()
 	{
-		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
+		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Find data -> Push data
@@ -130,7 +130,7 @@ class HostManagementPage extends FOGPage
 		{
 			if ($Host && $Host->isValid())
 			{
-				$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
+				$LA = ($LocPluginInst ? current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
 				$Location = ($LA ? new Location($LA->get('locationID')) : '');
 				$this->data[] = array(
 					'host_id'	=> $Host->get('id'),
@@ -180,7 +180,7 @@ class HostManagementPage extends FOGPage
 			array('width' => 80, 'class' => 'c'),
 			array('width' => 50, 'class' => 'r'),
 		);
-		foreach($this->FOGCore->getClass('HostManager')->find(array('pending' => 1)) AS $Host)
+		foreach($this->getClass('HostManager')->find(array('pending' => 1)) AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
@@ -236,7 +236,7 @@ class HostManagementPage extends FOGPage
 	*/
 	public function add()
 	{
-		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
+		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// Set title
 		$this->title = _('New Host');
 		// Header template
@@ -281,12 +281,12 @@ class HostManagementPage extends FOGPage
 				'host_name' => $_REQUEST['host'],
 				'host_mac' => $_REQUEST['mac'],
 				'host_desc' => $_REQUEST['description'],
-				'host_image' => $this->FOGCore->getClass('ImageManager')->buildSelectBox($_REQUEST['image'],'','id'),
+				'host_image' => $this->getClass('ImageManager')->buildSelectBox($_REQUEST['image'],'','id'),
 				'host_kern' => $_REQUEST['kern'],
 				'host_args' => $_REQUEST['args'],
 				'host_devs' => $_REQUEST['dev'],
 				'host_key' => $_REQUEST['key'],
-				'host_locs' => ($LocPluginInst ? $this->FOGCore->getClass('LocationManager')->buildSelectBox($_REQUEST['location']) : ''),
+				'host_locs' => ($LocPluginInst ? $this->getClass('LocationManager')->buildSelectBox($_REQUEST['location']) : ''),
 			);
 		}
 		// Hook
@@ -351,14 +351,14 @@ class HostManagementPage extends FOGPage
 			if (!$MAC || !$MAC->isValid())
 				throw new Exception(_('MAC Format is invalid'));
 			// Check if host exists with MAC Address.
-			$Host = $this->FOGCore->getClass('HostManager')->getHostByMacAddresses($MAC);
+			$Host = $this->getClass('HostManager')->getHostByMacAddresses($MAC);
 			if ($Host && $Host->isValid())
 				throw new Exception(_('A host with this MAC already exists with Hostname: ').$Host->get('name'));
-			if ($this->FOGCore->getClass('HostManager')->exists($_REQUEST['host']))
+			if ($this->getClass('HostManager')->exists($_REQUEST['host']))
 				throw new Exception(_('Hostname already exists'));
-			$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
+			$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 			// Get all the service id's so they can be enabled.
-			foreach($this->FOGCore->getClass('ModuleManager')->find() AS $Module)
+			foreach($this->getClass('ModuleManager')->find() AS $Module)
 				$ModuleIDs[] = $Module->get('id');
 			if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['domainpassword'])
 			{
@@ -436,8 +436,8 @@ class HostManagementPage extends FOGPage
 		$Inventory = $Host->get('inventory');
 		// Get the associated Groups.
 		// Location Find for host.
-		$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
-		$LA = ($LocPluginInst ? current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
+		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
+		$LA = ($LocPluginInst ? current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
 		$Location = ($LA ? new Location($LA->get('locationID')) : '');
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', 'Edit', $Host->get('name'));
@@ -531,8 +531,8 @@ class HostManagementPage extends FOGPage
 				'host_mac' => $Host->get('mac'),
 				'link' => $this->formAction,
 				'host_desc' => $Host->get('description'),
-				'host_image' => $this->FOGCore->getClass('ImageManager')->buildSelectBox($Host->get('imageID')),
-				'host_locs' => ($LocPluginInst ? $this->FOGCore->getClass('LocationManager')->buildSelectBox($LA && $LA->isValid() ? $LA->get('locationID') : '') : ''),
+				'host_image' => $this->getClass('ImageManager')->buildSelectBox($Host->get('imageID')),
+				'host_locs' => ($LocPluginInst ? $this->getClass('LocationManager')->buildSelectBox($LA && $LA->isValid() ? $LA->get('locationID') : '') : ''),
 				'host_kern' => $Host->get('kernel'),
 				'host_args' => $Host->get('kernelArgs'),
 				'host_devs' => $Host->get('kernelDevice'),
@@ -555,7 +555,7 @@ class HostManagementPage extends FOGPage
 				$GroupIDs[] = $Group->get('id');
 		}
 		// Get Groups that are not associated with this host.
-		foreach($this->FOGCore->getClass('GroupManager')->find() AS $Group)
+		foreach($this->getClass('GroupManager')->find() AS $Group)
 		{
 			if ($Group && $Group->isValid() && !in_array($Group->get('id'),(array)$GroupIDs))
 				$Groups[] = $Group;
@@ -663,7 +663,7 @@ class HostManagementPage extends FOGPage
 			if ($Printer && $Printer->isValid())
 				$PrinterIDs[] = $Printer->get('id');
 		}
-		foreach($this->FOGCore->getClass('PrinterManager')->find() AS $Printer)
+		foreach($this->getClass('PrinterManager')->find() AS $Printer)
 		{
 			if ($Printer && $Printer->isValid() && !in_array($Printer->get('id'),(array)$PrinterIDs))
 			{
@@ -742,7 +742,7 @@ class HostManagementPage extends FOGPage
 				$SnapinIDs[] = $Snapin->get('id');
 		}
 		// Get all Snapin's Not associated with this host.
-		foreach($this->FOGCore->getClass('SnapinManager')->find() AS $Snapin)
+		foreach($this->getClass('SnapinManager')->find() AS $Snapin)
 		{
 			if ($Snapin && $Snapin->isValid() && !in_array($Snapin->get('id'),(array)$SnapinIDs))
 				$Snapins[] = $Snapin;
@@ -839,7 +839,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<h2>"._('Service Configuration').'</h2>';
 		print "\n\t\t\t<fieldset>";
 		print "\n\t\t\t<legend>"._('General').'</legend>';
-		foreach ((array)$this->FOGCore->getClass('ModuleManager')->find() AS $Module)
+		foreach ((array)$this->getClass('ModuleManager')->find() AS $Module)
 		{
 			if ($Module && $Module->isValid())
 			{
@@ -889,7 +889,7 @@ class HostManagementPage extends FOGPage
 			'${input}',
 			'${span}',
 		);
-		$Services = $this->FOGCore->getClass('ServiceManager')->find(array('name' => array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')), 'OR', 'id');
+		$Services = $this->getClass('ServiceManager')->find(array('name' => array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')), 'OR', 'id');
 		foreach((array)$Services AS $Service)
 		{
 			if ($Service && $Service->isValid())
@@ -930,7 +930,7 @@ class HostManagementPage extends FOGPage
 			'${input}',
 			'${desc}',
 		);
-		$Service = current($this->FOGCore->getClass('ServiceManager')->find(array('name' => 'FOG_SERVICE_AUTOLOGOFF_MIN')));
+		$Service = current($this->getClass('ServiceManager')->find(array('name' => 'FOG_SERVICE_AUTOLOGOFF_MIN')));
 		$this->data[] = array(
 			'field' => _('Auto Log Out Time (in minutes)'),
 			'input' => '<input type="text" name="tme" value="${value}" />',
@@ -1071,7 +1071,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-virus-history">';
 		print "\n\t\t\t".'<h2>'._('Virus History').'</h2>';
 		print "\n\t\t\t".'<h2><a href="#"><input type="checkbox" class="delvid" id="all" name="delvid" value="all" onclick="this.form.submit()" /><label for="all">('._('clear all history').')</label></a></h2>';
-		$Viruses = $this->FOGCore->getClass('VirusManager')->find(array('hostMAC' => $Host->get('mac')));
+		$Viruses = $this->getClass('VirusManager')->find(array('hostMAC' => $Host->get('mac')));
 		foreach((array)$Viruses AS $Virus)
 		{
 			if ($Virus && $Virus->isValid())
@@ -1133,7 +1133,7 @@ class HostManagementPage extends FOGPage
 			}
 			print "\n\t\t\t".'<select name="dte" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select>';
 			print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><img src="images/go.png" class="noBorder" /></a></p>';
-			$UserLogins = $this->FOGCore->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => ($_REQUEST['dte'] ? $_REQUEST['dte'] : $this->nice_date()->format('Y-m-d'))),'AND','datetime');
+			$UserLogins = $this->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => ($_REQUEST['dte'] ? $_REQUEST['dte'] : $this->nice_date()->format('Y-m-d'))),'AND','datetime');
 			$_SESSION['fog_logins'] = array();
 			$cnt = 0;
 			foreach ((array)$Host->get('users') AS $UserLogin)
@@ -1204,7 +1204,7 @@ class HostManagementPage extends FOGPage
 			array(),
 			array(),
 		);
-		$ImagingLogs = $this->FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
+		$ImagingLogs = $this->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
 		foreach ((array)$ImagingLogs AS $ImageLog)
 		{
 			if ($ImageLog && $ImageLog->isValid())
@@ -1241,9 +1241,9 @@ class HostManagementPage extends FOGPage
 			'${snapin_duration}',
 			'${snapin_return}',
 		);
-		$SnapinJobs = $this->FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $Host->get('id')));
+		$SnapinJobs = $this->getClass('SnapinJobManager')->find(array('hostID' => $Host->get('id')));
 		foreach($SnapinJobs AS $SnapinJob)
-			$SnapinTasks[] = $this->FOGCore->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id')));
+			$SnapinTasks[] = $this->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id')));
 		foreach((array)$SnapinTasks AS $SnapinTask1)
 		{
 			foreach($SnapinTask1 AS $SnapinTask)
@@ -1275,7 +1275,7 @@ class HostManagementPage extends FOGPage
 	{
 		// Find
 		$Host = new Host($this->REQUEST['id']);
-		$HostManager = $this->FOGCore->getClass('HostManager');
+		$HostManager = $this->getClass('HostManager');
 		$Inventory = $Host->get('inventory');
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_POST', array('Host' => &$Host));
@@ -1312,7 +1312,7 @@ class HostManagementPage extends FOGPage
 					foreach((array)$_REQUEST['additionalMACs'] AS $MAC)
 					{
 						$PriMAC = ($Host->get('mac') == $MAC ? true : false);
-						$AddMAC = current($this->FOGCore->getClass('MACAddressAssociationManager')->find(array('hostID' => $Host->get('id'),'mac' => $MAC)));
+						$AddMAC = current($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $Host->get('id'),'mac' => $MAC)));
 						if (!$PriMAC && (!$AddMAC || !$AddMAC->isValid()))
 							$AddToAdditional[] = $MAC;
 					}
@@ -1327,7 +1327,7 @@ class HostManagementPage extends FOGPage
 						}
 					}
 					// Only one association per host.
-					$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
+					$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
 					if ((!$LA || !$LA->isValid()) && $_REQUEST['location'])
 					{
 						$Location = new Location($_REQUEST['location']);
@@ -1365,7 +1365,7 @@ class HostManagementPage extends FOGPage
 							->set('ADPass',		$password);
 				break;
 				case 'host-printers';
-					$PrinterManager = $this->FOGCore->getClass('PrinterAssociationManager');
+					$PrinterManager = $this->getClass('PrinterAssociationManager');
 					// Set printer level for Host
 					if (isset($_REQUEST['level']))
 						$Host->set('printerLevel',$_REQUEST['level']);
@@ -1392,7 +1392,7 @@ class HostManagementPage extends FOGPage
 					// If they're enabled when you click update, they'll send the call
 					// with the Module's ID to insert into the db.  If they're disabled
 					// they'll delete from the database.
-					$ServiceModules = $this->FOGCore->getClass('ModuleManager')->find('','','id');
+					$ServiceModules = $this->getClass('ModuleManager')->find('','','id');
 					foreach((array)$ServiceModules AS $ServiceModule)
 						$ServiceSetting[$ServiceModule->get('id')] = $_REQUEST[$ServiceModule->get('shortName')];
 					// The values below set the display Width, Height, and Refresh.  If they're not set by you, they'll
@@ -1575,7 +1575,7 @@ class HostManagementPage extends FOGPage
 			$numSuccess = $numFailed = $numAlreadyExist = 0;
 			$handle = fopen($_FILES["file"]["tmp_name"], "r");
 			// Get all the service id's so they can be enabled.
-			foreach($this->FOGCore->getClass('ModuleManager')->find() AS $Module)
+			foreach($this->getClass('ModuleManager')->find() AS $Module)
 				$ModuleIDs[] = $Module->get('id');
 			while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) 
 			{
@@ -1588,9 +1588,9 @@ class HostManagementPage extends FOGPage
 					try
 					{
 						// Error checking
-						if ($this->FOGCore->getClass('HostManager')->getHostByMacAddresses($data[0]))
+						if ($this->getClass('HostManager')->getHostByMacAddresses($data[0]))
 							throw new Exception('A Host with this MAC Address already exists');
-						if($this->FOGCore->getClass('HostManager')->exists($data[1]))
+						if($this->getClass('HostManager')->exists($data[1]))
 							throw new Exception('A host with this name already exists');
 						$Host = new Host(array(
 							'name'		=> $data[1],
@@ -1604,7 +1604,7 @@ class HostManagementPage extends FOGPage
 						$Host->addModule($ModuleIDs);
 						if ($Host->save())
 						{
-							$LocPluginInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
+							$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 							if ($LocPluginInst && $LocPluginInst->isValid())
 							{
 								$LA = new LocationAssociation(array(
@@ -1694,7 +1694,7 @@ class HostManagementPage extends FOGPage
 			_('Click the button to download the hosts table backup.') => '<input type="submit" value="'._('Export').'" />',
 		);
 		$report = new ReportMaker();
-		$Hosts = $this->FOGCore->getClass('HostManager')->find();
+		$Hosts = $this->getClass('HostManager')->find();
 		foreach((array)$Hosts AS $Host)
 		{
 			if ($Host && $Host->isValid())
@@ -1739,7 +1739,7 @@ class HostManagementPage extends FOGPage
 			print "\n\t\t\t".'<input type="hidden" name="hostIDArray" id="hostIDArray" value="" autocomplete="off" />';
 			print "\n\t\t\t".'<p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p>';
 			print "\n\t\t\t".'<p class="c">'._('OR').'</p>';
-			print "\n\t\t\t".'<p><label for="group">'._('Add to group').'</label>'.$this->FOGCore->getClass('GroupManager')->buildSelectBox().'</p>';
+			print "\n\t\t\t".'<p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p>';
 			print "\n\t\t\t".'<p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p>';
 			print "\n\t\t\t</form>";
 		}
@@ -1760,7 +1760,7 @@ class HostManagementPage extends FOGPage
 			// New group
 			if (!empty($this->REQUEST['group_new']))
 			{
-				if (!$Group = current($this->FOGCore->getClass('GroupManager')->find(array('name' => $this->REQUEST['group_new']))))
+				if (!$Group = current($this->getClass('GroupManager')->find(array('name' => $this->REQUEST['group_new']))))
 				{
 					$Group = new Group(array('name' => $this->REQUEST['group_new']));
 					if (!$Group->save())
@@ -1770,7 +1770,7 @@ class HostManagementPage extends FOGPage
 			else
 			// Existing group
 			{
-				if (!$Group = current($this->FOGCore->getClass('GroupManager')->find(array('id' => $this->REQUEST['group']))))
+				if (!$Group = current($this->getClass('GroupManager')->find(array('id' => $this->REQUEST['group']))))
 					throw new Exception( _('Invalid Group ID') );
 			}
 			// Valid

@@ -105,13 +105,13 @@ class MACAddress extends FOGBase
 	{
 		// Host
 		// Find MAC on Host record -> Return Host
-		foreach ($this->FOGCore->getClass('HostManager')->find(array('mac' => $this->getMACWithColon())) AS $Host)
+		foreach ($this->getClass('HostManager')->find(array('mac' => $this->getMACWithColon())) AS $Host)
 		{
 			return $Host;
 		}
 		
 		// Search for MAC Address Assocations
-		foreach ($this->FOGCore->getClass('MACAddressAssociationManager')->find(array('mac' => $this->getMACWithColon())) AS $MACAddressAssociation)
+		foreach ($this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->getMACWithColon())) AS $MACAddressAssociation)
 		{
 			return $MACAddressAssociation->getHost();
 		}

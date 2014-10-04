@@ -55,9 +55,9 @@ class CaponeManager extends FOGManagerController
 	{
 		if (!$this->DB->query("DROP TABLE capone"))
 			return false;
-		if (!$this->FOGCore->getClass('ServiceManager')->destroy(array('name' => 'FOG_PLUGIN_CAPON_%')))
+		if (!$this->getClass('ServiceManager')->destroy(array('name' => 'FOG_PLUGIN_CAPON_%')))
 			return false;
-		if (!$this->FOGCore->getClass('PXEMenuOptionsManager')->destroy(array('name' => 'fog.capone')))
+		if (!$this->getClass('PXEMenuOptionsManager')->destroy(array('name' => 'fog.capone')))
 			return false;
 		return true;
 	}

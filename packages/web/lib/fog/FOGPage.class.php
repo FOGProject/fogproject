@@ -256,7 +256,7 @@ abstract class FOGPage extends FOGBase
 					printf('%s</center>',_('No snapins associated'));
 			}
 			if ($Data instanceof Group)
-				printf($this->FOGCore->getClass('SnapinManager')->buildSelectBox().'</center>');
+				printf($this->getClass('SnapinManager')->buildSelectBox().'</center>');
 		}
 		printf("\n\t\t\t%s",'<div class="advanced-settings">');
 		printf("\n\t\t\t<h2>%s</h2>",_('Advanced Settings'));
@@ -516,7 +516,7 @@ abstract class FOGPage extends FOGBase
 		printf("\n\t\t\t%s",'<div id="'.$this->node.'-tasks" class="organic-tabs-hidden">');
 		printf("\n\t\t\t<h2>%s</h2>",_($ClassType.' Tasks'));
 		// Find TaskTypes
-		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 0), 'AND', 'id');
+		$TaskTypes = $this->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 0), 'AND', 'id');
 		// Iterate -> Print
 		foreach((array)$TaskTypes AS $TaskType)
 		{
@@ -550,7 +550,7 @@ abstract class FOGPage extends FOGBase
 		printf("\n\t\t\t%s",'<div id="advanced-tasks" class="hidden">');
 		printf("\n\t\t\t<h2>%s</h2>",_('Advanced Actions'));
 		// Find TaskTypes
-		$TaskTypes = $this->FOGCore->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 1), 'AND', 'id');
+		$TaskTypes = $this->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 1), 'AND', 'id');
 		// Iterate -> Print
 		foreach((array)$TaskTypes AS $TaskType)
 		{

@@ -47,7 +47,7 @@ class SnapinManagementPage extends FOGPage
 		// Set title
 		$this->title = _('All Snap-ins');
 		// Find data
-		$Snapins = $this->FOGCore->getClass('SnapinManager')->find();
+		$Snapins = $this->getClass('SnapinManager')->find();
 		// Row data
 		foreach ((array)$Snapins AS $Snapin)
 		{
@@ -160,7 +160,7 @@ class SnapinManagementPage extends FOGPage
 		try
 		{
 			// SnapinManager
-			$SnapinManager = $this->FOGCore->getClass('SnapinManager');
+			$SnapinManager = $this->getClass('SnapinManager');
 			// Error checking
 			$snapinName = trim($_REQUEST['name']);
 			if (!$snapinName)
@@ -291,7 +291,7 @@ class SnapinManagementPage extends FOGPage
 				$HostsWithMe[] = $Host->get('id');
 		}
 		// Get all Host IDs with any snapin assigned
-		foreach($this->FOGCore->getClass('SnapinAssociationManager')->find() AS $SnapAssoc)
+		foreach($this->getClass('SnapinAssociationManager')->find() AS $SnapAssoc)
 		{
 			if ($SnapAssoc && $SnapAssoc->isValid())
 			{
@@ -459,7 +459,7 @@ class SnapinManagementPage extends FOGPage
 			{
 				case 'snap-gen';
 					// SnapinManager
-					$SnapinManager = $this->FOGCore->getClass('SnapinManager');
+					$SnapinManager = $this->getClass('SnapinManager');
 					// Error checking
 					if ($_REQUEST['snapin'] != null || $_FILES['snapin']['name'] != null)
 					{
@@ -566,7 +566,7 @@ class SnapinManagementPage extends FOGPage
 			if (!$Snapin->destroy())
 				throw new Exception(_('Failed to destroy Snapin'));
 			// Remove associations
-			$this->FOGCore->getClass('SnapinAssociationManager')->destroy(array('snapinID' => $Snapin->get('id')));
+			$this->getClass('SnapinAssociationManager')->destroy(array('snapinID' => $Snapin->get('id')));
 			// Hook
 			$this->HookManager->processEvent('SNAPIN_DELETE_SUCCESS', array('Snapin' => &$Snapin));
 			// Log History event
