@@ -1,2 +1,2 @@
 #!/bin/sh
-./.install.sh | tee /var/log/foginstall.log
+./.install.sh 2>&1 | tee /var/log/foginstall.log
