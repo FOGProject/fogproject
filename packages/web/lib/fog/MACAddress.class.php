@@ -8,7 +8,6 @@ class MACAddress extends FOGBase
 	public function __construct($MAC)
 	{
 		$this->setMAC($MAC);
-		
 		return parent::__construct();
 	}
 	
@@ -17,29 +16,18 @@ class MACAddress extends FOGBase
 		try
 		{
 			$MAC = trim($MAC);
-		
 			if ($MAC instanceof MACAddress)
-			{
 				$MAC = $MAC->__toString();
-			}
 			elseif (strlen($MAC) == 12)
 			{
 				for ($i = 0; $i < 12; $i = $i + 2)
-				{
 					$newMAC[] = $MAC{$i} . $MAC{$i + 1};
-				}
-				
 				$MAC = implode(':', $newMAC);
 			}
 			elseif (strlen($MAC) == 17)
-			{
 				$MAC = str_replace('-', ':', $MAC);
-			}
 			else
-			{
 				throw new Exception('');
-			}
-			
 			$this->MAC = $MAC;
 		}
 		catch (Exception $e)
@@ -47,76 +35,21 @@ class MACAddress extends FOGBase
 			if ($this->debug)
 				$this->FOGCore->debug('Invalid MAC Address: MAC: %s', $MAC);
 		}
-		
 		return $this;
-	}
-	
-	public function getMAC() 
-	{ 
-		return $this->getMACWithColon();
-	}
-	
-	public function getMACWithColon() 
-	{ 
-		return str_replace('-', ':', strtolower($this->MAC));
-	}
-	
-	public function getMACWithDash() 
-	{ 
-		return str_replace(':', '-', strtolower($this->MAC));
-	}
-	
-	public function getMACImageReady()
-	{
-		return '01-' . strtolower($this->getMACWithDash());
-	}
-	
-	public function getMACPXEPrefix()
-	{
-		return '01-' . strtolower($this->getMACWithDash());
 	}
 	
 	public function getMACPrefix()
 	{
-		return substr($this->getMACWithDash(), 0, 8);
+		return substr(str_replace(':','-',strtolower($this->MAC)), 0, 8);
 	}
 
 	public function __toString()
 	{
-		return $this->getMACWithColon();
+		return str_replace('-',':',strtolower($this->MAC));
 	}
 	
 	public function isValid()
 	{
-		return ($this->getMACWithColon() != '' ? preg_match('#^([0-9a-fA-F][0-9a-fA-F][:-]){5}([0-9a-fA-F][0-9a-fA-F])$#', $this->getMACWithColon()) : false);
-	}
-	
-	public function startsWith($txt)
-	{
-		return (preg_match('#^' . str_replace('-', ':', $txt) . '#i', $this->__toString()) ? true : false);
-	}
-	
-	public function contains($txt)
-	{
-		return (preg_match('#' . str_replace('-', ':', $txt) . '#i', $this->__toString()) ? true : false);
-	}
-	
-	public function getHost()
-	{
-		// Host
-		// Find MAC on Host record -> Return Host
-		foreach ($this->getClass('HostManager')->find(array('mac' => $this->getMACWithColon())) AS $Host)
-		{
-			return $Host;
-		}
-		
-		// Search for MAC Address Assocations
-		foreach ($this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->getMACWithColon())) AS $MACAddressAssociation)
-		{
-			return $MACAddressAssociation->getHost();
-		}
-		
-		// Failure
-		throw new Exception(sprintf('%s: %s', $this->foglang['NoHostFound'], $this->getMACWithColon()));
+		return ($this->__toString() != '' ? preg_match('#^([0-9a-fA-F][0-9a-fA-F][:-]){5}([0-9a-fA-F][0-9a-fA-F])$#', $this->__toString()) : false);
 	}
 }

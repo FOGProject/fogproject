@@ -846,7 +846,7 @@ class Host extends FOGController
 			if ($imagingTypes && !$StorageNode->isValid())
 				throw new Exception($this->foglang['SGNotValid']);
 			// Variables
-			$mac = $this->getMACAddress()->getMACWithColon();
+			$mac = $this->getMACAddress()->__toString();
 			// Task: Create Task Object
 			$Task = new Task(array(
 				'name'		=> $taskName,
@@ -997,7 +997,7 @@ class Host extends FOGController
 	}
 	public function clearAVRecordsForHost()
 	{
-		$this->getClass('VirusManager')->destroy(array('hostMAC' => $this->getMACAddress()->getMACWithColon()));
+		$this->getClass('VirusManager')->destroy(array('hostMAC' => $this->getMACAddress()->__toString()));
 	}
 	public function wakeOnLAN()
 	{

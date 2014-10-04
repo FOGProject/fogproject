@@ -2,15 +2,16 @@
 require('../commons/base.inc.php');
 try
 {
+	$HostManager = new HostManager();
 	//Get MAC to get Host from mac address.
 	$ifconfig = explode('HWaddr',base64_decode(trim($_REQUEST['mac'])));
 	$mac = strtolower(trim($ifconfig[1]));
-	$MACAddress = new MACAddress($mac);
-	if (!$MACAddress->isValid())
+	$MACs = HostManager::parseMacList($MACs);
+	if (!$MACs)
 		throw new Exception($foglang['InvalidMAC']);
 	// Set the Host variable to find host record for update.
 	// If it doesn't exist, it creates new inventory record.
-	$Host = $MACAddress->getHost();
+	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if ($Host->isValid())
 		$Inventory = $Host->get('inventory');
 	$sysman=trim(base64_decode($_REQUEST['sysman']));

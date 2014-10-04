@@ -6,7 +6,7 @@ try
 	$MACAddress = new MACAddress($_REQUEST['wakeonlan']);
 	if ($MACAddress->isValid())
 	{
-		$wol = new WakeOnLan($MACAddress->getMACWithColon());
+		$wol = new WakeOnLan($MACAddress->__toString());
 		$wol->send();
 	}
 	else
