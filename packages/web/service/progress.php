@@ -8,12 +8,12 @@
 require('../commons/base.inc.php');
 try
 {
-	// Get the mac
-	$MACAddress = new MACAddress($_REQUEST['mac']);
-	if (!$MACAddress->isValid())
+	$HostManager = new HostManager();
+	// Get the MAC
+	$MACs = HostManager::parseMacList($_REQUEST['mac']);
+	if (!$MACs)
 		throw new Exception($foglang['InvalidMAC']);
-	// get the host
-	$Host = $MACAddress->getHost();
+	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid())
 		throw new Exception(_('Invalid host'));
 	// get the image (for image size)
