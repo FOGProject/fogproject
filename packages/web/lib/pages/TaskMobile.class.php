@@ -55,7 +55,7 @@ class TaskMobile extends FOGPage
 
 	public function index()
 	{
-		foreach((array)$this->FOGCore->getClass('TaskManager')->find(array('stateID' => array(1,2,3))) AS $Task)
+		foreach((array)$this->getClass('TaskManager')->find(array('stateID' => array(1,2,3))) AS $Task)
 		{
 			$Host = new Host($Task->get('hostID'));
 			$this->data[] = array(

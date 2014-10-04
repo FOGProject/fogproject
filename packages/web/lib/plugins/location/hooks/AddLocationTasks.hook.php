@@ -8,7 +8,7 @@ class AddLocationTasks extends Hook
     var $node = 'location';	
 	public function TasksActiveTableHeader($arguments)
 	{
-		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
 		{
 			if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']))
@@ -18,16 +18,16 @@ class AddLocationTasks extends Hook
 
 	public function TasksActiveData($arguments)
 	{
-		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
 		{
 			if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']))
 			{
 				foreach((array)$arguments['data'] AS $i => $data)
 				{
-					$Host = current($this->FOGCore->getClass('HostManager')->find(array('id' => $arguments['data'][$i]['host_id'])));
+					$Host = current($this->getClass('HostManager')->find(array('id' => $arguments['data'][$i]['host_id'])));
 					if ($Host && $Host->isValid())
-					$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
+					$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
 					$Location = ($LA ? new Location($LA->get('locationID')) : '');
 					// Set the field.
 					$arguments['data'][$i]['details_taskname'] = $Location && $Location->isValid() ? $Location->get('name') : '';

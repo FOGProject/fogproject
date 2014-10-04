@@ -27,7 +27,7 @@ class HostManager extends FOGManagerController
 	}
 	public function getHostByMacAddresses($MACs)
 	{
-		foreach((array)$this->FOGCore->getClass('MACAddressAssociationManager')->find(array('mac' => $MACs)) AS $MAC)
+		foreach((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MACs)) AS $MAC)
 		{
 			if ($MAC && $MAC->isValid())
 				$HostIDs[] = $MAC->get('hostID');

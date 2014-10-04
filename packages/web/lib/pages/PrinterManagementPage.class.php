@@ -66,7 +66,7 @@ class PrinterManagementPage extends FOGPage
 		// Set title
 		$this->title = _('Search');
 		// Find data
-		$Printers = $this->FOGCore->getClass('PrinterManager')->find();
+		$Printers = $this->getClass('PrinterManager')->find();
 		// Row data
 		foreach ((array)$Printers AS $Printer)
 		{
@@ -213,7 +213,7 @@ class PrinterManagementPage extends FOGPage
 			try
 			{
 				// PrinterManager
-				$PrinterManager = $this->FOGCore->getClass('PrinterManager');
+				$PrinterManager = $this->getClass('PrinterManager');
 				// Error checking
 				if($_REQUEST['printertype'] == "Local")
 				{
@@ -379,7 +379,7 @@ class PrinterManagementPage extends FOGPage
 				$HostsWithMe[] = $Host->get('id');
 		}
 		// Get all Host IDs with a printer assigned
-		foreach($this->FOGCore->getClass('PrinterAssociationManager')->find() AS $PrinterAssoc)
+		foreach($this->getClass('PrinterAssociationManager')->find() AS $PrinterAssoc)
 		{
 			if ($PrinterAssoc && $PrinterAssoc->isValid())
 				$HostsWithPrinter[] = $PrinterAssoc->get('hostID');

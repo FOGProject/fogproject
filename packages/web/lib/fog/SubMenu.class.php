@@ -27,9 +27,9 @@ class SubMenu extends FOGBase
 								 $this->foglang['OS']	=> stripslashes($this->object->getOS()->get('name')),
 								 $this->foglang['LastDeployed'] => stripslashes($this->object->get('deployed')),
 			);
-			$GA = $this->FOGCore->getClass('GroupAssociationManager')->find(array('hostID' => $this->object->get('id')));
+			$GA = $this->getClass('GroupAssociationManager')->find(array('hostID' => $this->object->get('id')));
 			if ($GA[0])
-				$this->title[$this->foglang['PrimaryGroup']] = $this->FOGCore->getClass('Group',$GA[0]->get('groupID'))->get('name');
+				$this->title[$this->foglang['PrimaryGroup']] = $this->getClass('Group',$GA[0]->get('groupID'))->get('name');
 		}
 		else if ($this->node == 'images' && $_REQUEST['id'])
 		{
@@ -92,7 +92,7 @@ class SubMenu extends FOGBase
 			$this->object = new Location($_REQUEST['id']);
 			$this->title = array($this->foglang['Location'] => $this->object->get('name'),
 							     $this->foglang['Storage'].' '.$this->foglang['Group'] => 
-								 		$this->FOGCore->getClass('StorageGroup',$this->object->get('storageGroupID'))->get('name')
+								 		$this->getClass('StorageGroup',$this->object->get('storageGroupID'))->get('name')
 			);
 		}
 		else if ($this->node == 'hwinfo' && $_REQUEST['id'])
@@ -169,7 +169,7 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Hosts']);
 			$this->subMenu[$this->node]['add'] = sprintf($this->foglang['CreateNew'],$this->foglang['Host']);
-			if ($this->FOGCore->getClass('HostManager')->count(array('pending' => 1)) > 0)
+			if ($this->getClass('HostManager')->count(array('pending' => 1)) > 0)
 				$this->subMenu[$this->node]['pending'] = $this->foglang['PendingHosts'];
 			$this->subMenu[$this->node]['export'] = $this->foglang['ExportHost'];
 			$this->subMenu[$this->node]['import'] = $this->foglang['ImportHost'];

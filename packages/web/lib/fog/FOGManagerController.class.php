@@ -58,22 +58,22 @@ abstract class FOGManagerController extends FOGBase
 			// Get all hosts with matching keyword of hostname value
 			// If the class to search is not Host use the below for searching.
 			if ($classSearch != 'Host')
-				$HostMan = $this->FOGCore->getClass('HostManager')->find(array('name' => $keyword,'mac' => $keyword,'description' => $keyword,'ip' => $keyword),'OR');
+				$HostMan = $this->getClass('HostManager')->find(array('name' => $keyword,'mac' => $keyword,'description' => $keyword,'ip' => $keyword),'OR');
 			// If the class to search is Host use the below for searching.
 			if ($classSearch == 'Host')
-				$HostMan = $this->FOGCore->getClass('HostManager')->find($findWhere,'OR');
+				$HostMan = $this->getClass('HostManager')->find($findWhere,'OR');
 			foreach($HostMan AS $Host)
 			{
 				if ($Host && $Host->isValid() && !$Host->get('pending'))
 					$Hosts[] = $Host;
 			}
-			$AdditionMacMan = $this->FOGCore->getClass('MACAddressAssociationManager')->find(array('mac' => $keyword,'description' => $keyword),'OR');
+			$AdditionMacMan = $this->getClass('MACAddressAssociationManager')->find(array('mac' => $keyword,'description' => $keyword),'OR');
 			foreach($AdditionMacMan AS $HostAdd)
 			{
 				if ($HostAdd && $HostAdd->isValid())
 					$Hosts[] = new Host($HostAdd->get('hostID'));
 			}
-			$InventoryMan = $this->FOGCore->getClass('InventoryManager')->find(array('sysserial' => $keyword,'caseserial' => $keyword,'mbserial' => $keyword,'primaryUser' => $keyword,'other1' => $keyword,'other2' => $keyword,'sysman' => $keyword,'sysproduct' => $keyword),'OR');
+			$InventoryMan = $this->getClass('InventoryManager')->find(array('sysserial' => $keyword,'caseserial' => $keyword,'mbserial' => $keyword,'primaryUser' => $keyword,'other1' => $keyword,'other2' => $keyword,'sysman' => $keyword,'sysproduct' => $keyword),'OR');
 			foreach($InventoryMan AS $Inventory)
 			{
 				if ($Inventory && $Inventory->isValid())
@@ -81,48 +81,48 @@ abstract class FOGManagerController extends FOGBase
 			}
 			if ($classSearch == 'Host')
 			{
-				$GroupMan = $this->FOGCore->getClass('GroupManager')->find(array('name' => $keyword,'description' => $keyword),'OR');
+				$GroupMan = $this->getClass('GroupManager')->find(array('name' => $keyword,'description' => $keyword),'OR');
 				foreach($GroupMan AS $Group)
 				{
 					if ($Group && $Group->isValid())
 					{
-						foreach($this->FOGCore->getClass('GroupAssociationManager')->find(array('groupID' => $Group->get('id'))) AS $GroupAssoc)
+						foreach($this->getClass('GroupAssociationManager')->find(array('groupID' => $Group->get('id'))) AS $GroupAssoc)
 						{
 							if ($GroupAssoc && $GroupAssoc->isValid())
 								$Hosts[] = new Host($GroupAssoc->get('hostID'));
 						}
 					}
 				}
-				$ImageMan = $this->FOGCore->getClass('ImageManager')->find(array('name' => $keyword,'description' => $keyword),'OR');
+				$ImageMan = $this->getClass('ImageManager')->find(array('name' => $keyword,'description' => $keyword),'OR');
 				foreach($ImageMan AS $Image)
 				{
 					if ($Image && $Image->isValid())
 					{
-						foreach($this->FOGCore->getClass('HostManager')->find(array('imageID' => $Image->get('id'))) AS $Host)
+						foreach($this->getClass('HostManager')->find(array('imageID' => $Image->get('id'))) AS $Host)
 						{
 							if ($Host && $Host->isValid())
 								$Hosts[] = $Host;
 						}
 					}
 				}
-				$SnapinMan = $this->FOGCore->getClass('SnapinManager')->find(array('name' => $keyword,'description' => $keyword,'file' => $keyword),'OR');
+				$SnapinMan = $this->getClass('SnapinManager')->find(array('name' => $keyword,'description' => $keyword,'file' => $keyword),'OR');
 				foreach($SnapinMan AS $Snapin)
 				{
 					if ($Snapin && $Snapin->isValid())
 					{
-						foreach($this->FOGCore->getClass('SnapinAssociationManager')->find(array('snapinID' => $Snapin->get('id'))) AS $SnapinAssoc)
+						foreach($this->getClass('SnapinAssociationManager')->find(array('snapinID' => $Snapin->get('id'))) AS $SnapinAssoc)
 						{
 							if ($SnapinAssoc && $SnapinAssoc->isValid())
 								$Hosts[] = new Host($SnapinAssoc->get('hostID'));
 						}
 					}
 				}
-				$PrinterMan = $this->FOGCore->getClass('PrinterManager')->find(array('name' => $keyword));
+				$PrinterMan = $this->getClass('PrinterManager')->find(array('name' => $keyword));
 				foreach($PrinterMan AS $Printer)
 				{
 					if ($Printer && $Printer->isValid())
 					{
-						foreach($this->FOGCore->getClass('PrinterAssociationManager')->find(array('printerID' => $Printer->get('id'))) AS $PrinterAssoc)
+						foreach($this->getClass('PrinterAssociationManager')->find(array('printerID' => $Printer->get('id'))) AS $PrinterAssoc)
 						{
 							if ($PrinterAssoc && $PrinterAssoc->isValid())
 								$Hosts[] = new Host($PrinterAssoc->get('hostID'));
@@ -135,7 +135,7 @@ abstract class FOGManagerController extends FOGBase
 			$Hosts = array_unique((array)$Hosts);
 			if ($classSearch == 'Group')
 			{
-				$GroupMan = $this->FOGCore->getClass('GroupManager')->find($findWhere,'OR');
+				$GroupMan = $this->getClass('GroupManager')->find($findWhere,'OR');
 				foreach($GroupMan AS $Group)
 				{
 					if ($Group && $Group->isValid())
@@ -145,7 +145,7 @@ abstract class FOGManagerController extends FOGBase
 				{
 					if ($Host && $Host->isValid())
 					{
-						foreach($this->FOGCore->getClass('GroupAssociationManager')->find(array('hostID' => $Host->get('id'))) AS $GroupAssoc)
+						foreach($this->getClass('GroupAssociationManager')->find(array('hostID' => $Host->get('id'))) AS $GroupAssoc)
 						{
 							if ($GroupAssoc && $GroupAssoc->isValid())
 								$Data[] = new Group($GroupAssoc->get('groupID'));
@@ -155,7 +155,7 @@ abstract class FOGManagerController extends FOGBase
 			}
 			if ($classSearch == 'Image')
 			{
-				$ImageMan = $this->FOGCore->getClass('ImageManager')->find($findWhere,'OR');
+				$ImageMan = $this->getClass('ImageManager')->find($findWhere,'OR');
 				foreach($ImageMan AS $Image)
 				{
 					if ($Image && $Image->isValid())
@@ -169,7 +169,7 @@ abstract class FOGManagerController extends FOGBase
 			}
 			if ($classSearch == 'Snapin')
 			{
-				$SnapinMan = $this->FOGCore->getClass('SnapinManager')->find($findWhere,'OR');
+				$SnapinMan = $this->getClass('SnapinManager')->find($findWhere,'OR');
 				foreach($SnapinMan AS $Snapin)
 				{
 					if ($Snapin && $Snapin->isValid())
@@ -179,7 +179,7 @@ abstract class FOGManagerController extends FOGBase
 				{
 					if ($Host && $Host->isValid())
 					{
-						foreach($this->FOGCore->getClass('SnapinAssociationManager')->find(array('hostID' => $Host->get('id'))) AS $SnapinAssoc)
+						foreach($this->getClass('SnapinAssociationManager')->find(array('hostID' => $Host->get('id'))) AS $SnapinAssoc)
 						{
 							if ($SnapinAssoc && $SnapinAssoc->isValid())
 								$Data[] = new Snapin($SnapinAssoc->get('snapinID'));
@@ -189,7 +189,7 @@ abstract class FOGManagerController extends FOGBase
 			}
 			if ($classSearch == 'Printer')
 			{
-				$PrinterMan = $this->FOGCore->getClass('PrinterManager')->find($findWhere,'OR');
+				$PrinterMan = $this->getClass('PrinterManager')->find($findWhere,'OR');
 				foreach($PrinterMan AS $Printer)
 				{
 					if ($Printer && $Printer->isValid())
@@ -199,7 +199,7 @@ abstract class FOGManagerController extends FOGBase
 				{
 					if ($Host && $Host->isValid())
 					{
-						foreach($this->FOGCore->getClass('PrinterAssociationManager')->find(array('hostID' => $Host->get('id'))) AS $PrinterAssoc)
+						foreach($this->getClass('PrinterAssociationManager')->find(array('hostID' => $Host->get('id'))) AS $PrinterAssoc)
 						{
 							if ($PrinterAssoc && $PrinterAssoc->isValid())
 								$Data[] = new Printer($PrinterAssoc->get('printerID'));
@@ -209,7 +209,7 @@ abstract class FOGManagerController extends FOGBase
 			}
 			if ($classSearch == 'Task')
 			{
-				$TaskMan = $this->FOGCore->getClass('TaskManager')->find($findWhere,'OR');
+				$TaskMan = $this->getClass('TaskManager')->find($findWhere,'OR');
 				foreach($TaskMan AS $Task)
 				{
 					if ($Task && $Task->isValid())
@@ -219,43 +219,43 @@ abstract class FOGManagerController extends FOGBase
 				{
 					if ($Host && $Host->isValid())
 					{
-						foreach($this->FOGCore->getClass('TaskManager')->find(array('hostID' => $Host->get('id'))) AS $Task)
+						foreach($this->getClass('TaskManager')->find(array('hostID' => $Host->get('id'))) AS $Task)
 						{
 							if ($Task && $Task->isValid())
 								$Data[] = $Task;
 						}
 					}
 				}
-				$TaskStateMan = $this->FOGCore->getClass('TaskStateManager')->find(array('name' => $keyword));
+				$TaskStateMan = $this->getClass('TaskStateManager')->find(array('name' => $keyword));
 				foreach($TaskStateMan AS $TaskState)
 				{
 					if ($TaskState && $TaskState->isValid())
 					{
-						foreach($this->FOGCore->getClass('TaskManager')->find(array('stateID' => $TaskState->get('id'))) AS $Task)
+						foreach($this->getClass('TaskManager')->find(array('stateID' => $TaskState->get('id'))) AS $Task)
 						{
 							if ($Task && $Task->isValid())
 								$Data[] = $Task;
 						}
 					}
 				}
-				$TaskTypeMan = $this->FOGCore->getClass('TaskTypeManager')->find(array('name' => $keyword));
+				$TaskTypeMan = $this->getClass('TaskTypeManager')->find(array('name' => $keyword));
 				foreach($TaskTypeMan AS $TaskType)
 				{
 					if ($TaskType && $TaskType->isValid())
 					{
-						foreach($this->FOGCore->getClass('TaskManager')->find(array('typeID' => $TaskType->get('id'))) AS $Task)
+						foreach($this->getClass('TaskManager')->find(array('typeID' => $TaskType->get('id'))) AS $Task)
 						{
 							if ($Task && $Task->isValid())
 								$Data[] = $Task;
 						}
 					}
 				}
-				$ImageMan = $this->FOGCore->getClass('ImageManager')->find(array('name' => $keyword));
+				$ImageMan = $this->getClass('ImageManager')->find(array('name' => $keyword));
 				foreach($ImageMan AS $Image)
 				{
 					if ($Image && $Image->isValid())
 					{
-						foreach($this->FOGCore->getClass('HostManager')->find(array('imageID' => $Image->get('id'))) AS $Host)
+						foreach($this->getClass('HostManager')->find(array('imageID' => $Image->get('id'))) AS $Host)
 						{
 							if ($Host && $Host->isValid())
 								$Hosts[] = $Host;
@@ -265,7 +265,7 @@ abstract class FOGManagerController extends FOGBase
 						{
 							if ($Host && $Host->isValid())
 							{			
-								foreach($this->FOGCore->getClass('TaskManager')->find(array('hostID' => $Host->get('id'))) AS $Task)
+								foreach($this->getClass('TaskManager')->find(array('hostID' => $Host->get('id'))) AS $Task)
 								{
 									if ($Task && $Task->isValid())
 										$Data[] = $Task;
@@ -277,7 +277,7 @@ abstract class FOGManagerController extends FOGBase
 			}
 			if ($classSearch == 'User')
 			{
-				$UserMan = $this->FOGCore->getClass('UserManager')->find(array('name' => $keyword));
+				$UserMan = $this->getClass('UserManager')->find(array('name' => $keyword));
 				foreach($UserMan AS $User)
 				{
 					if ($User && $User->isValid())
@@ -326,10 +326,12 @@ abstract class FOGManagerController extends FOGBase
 				($this->databaseFields[$orderBy] ? $this->databaseFields[$orderBy] : $this->databaseFields['id']),
 				$sort
 			));
+			$r = new ReflectionClass($this->childClass);
 			while ($row = $this->DB->fetch()->get())
 			{
-				//$data[] = $row;
-				$data[] = new $this->childClass($row);
+				$args = func_get_args();
+				array_shift($args);
+				$data[] = (count($args) ? $r->newInstanceArgs($args) :$r->newInstance($row));
 			}
 			// Return
 			return (array)$data;

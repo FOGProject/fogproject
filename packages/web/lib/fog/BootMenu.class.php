@@ -46,7 +46,7 @@ class BootMenu extends FOGBase
 	{
 		parent::__construct();
 		// Setups of the basic construct for the menu system.
-		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'isMaster' => 1)));
+		$StorageNode = current($this->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'isMaster' => 1)));
 		// Sets up the default values stored in the server. Lines 51 - 64
 		$webserver = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_WEB_HOST'));
 		$webroot = '/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/';
@@ -71,14 +71,14 @@ class BootMenu extends FOGBase
 			($Host->get('kernel') ? $bzImage = $Host->get('kernel') : null);
 			$kernel = $bzImage;
 			// Check location association of the host.
-			$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
+			$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
 			if ($LA)
 				$Location = new Location($LA->get('locationID'));
 			// If the location is valid and set, use the information to build the menu.
 			if ($Location && $Location->isValid())
 			{
 				// If location tftp method is used, get the files from the location the host is assigned to.  Otherwise get the best node for the host to work from.
-				$StorageNode = $Location->get('tftp') && $Location->get('storageNodeID') ? new StorageNode($Location->get('storageNodeID')) : $this->FOGCore->getClass('StorageGroup',$Location->get('storageGroupID'))->getOptimalStorageNode();
+				$StorageNode = $Location->get('tftp') && $Location->get('storageNodeID') ? new StorageNode($Location->get('storageNodeID')) : $this->getClass('StorageGroup',$Location->get('storageGroupID'))->getOptimalStorageNode();
 				// If tftp is set, the storage node and download params are set.
 				if ($Location->get('tftp'))
 				{
@@ -101,7 +101,7 @@ class BootMenu extends FOGBase
 		// Store the host call into class global.
 		$this->Host = $Host;
 		// Capone menu setup.
-		$CaponePlugInst = current($this->FOGCore->getClass('PluginManager')->find(array('name' => 'capone','state' => 1,'installed' => 1)));
+		$CaponePlugInst = current($this->getClass('PluginManager')->find(array('name' => 'capone','state' => 1,'installed' => 1)));
 		$DMISet = $CaponePlugInst ? $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_DMI') : false;
 		// If it is installed store the needed elements into variables.
 		if ($CaponePlugInst)
@@ -114,7 +114,7 @@ class BootMenu extends FOGBase
 		if ($CaponePlugInst && $DMISet)
 		{
 			// Check for fog.capone if the pxe menu entry exists.
-			$PXEMenuItem = current($this->FOGCore->getClass('PXEMenuOptionsManager')->find(array('name' => 'fog.capone')));
+			$PXEMenuItem = current($this->getClass('PXEMenuOptionsManager')->find(array('name' => 'fog.capone')));
 			// If it does exist, generate the updated arguments for each call.
 			if ($PXEMenuItem && $PXEMenuItem->isValid())
 				$PXEMenuItem->set('args',"mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path");
@@ -138,7 +138,7 @@ class BootMenu extends FOGBase
 		$this->kernel = "kernel $bzImage initrd=$initrd root=/dev/ram0 rw ramdisk_size=$ramsize keymap=$keymap web=${webserver}${webroot} consoleblank=0";
 		$this->initrd = "imgfetch $imagefile";
 		// Set the default line based on all the menu entries and only the one with the default set.
-		$defMenuItem = current($this->FOGCore->getClass('PXEMenuOptionsManager')->find(array('default' => 1)));
+		$defMenuItem = current($this->getClass('PXEMenuOptionsManager')->find(array('default' => 1)));
 		$this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local')." --timeout $timeout target && goto \${target}";
 		if ($_REQUEST['username'] && $_REQUEST['password'])
 			$this->verifyCreds();
@@ -359,7 +359,7 @@ class BootMenu extends FOGBase
 	*/
 	public function sesscheck()
 	{
-		$sesscount = current($this->FOGCore->getClass('MulticastSessionsManager')->find(array('name' => $_REQUEST['sessname'])));
+		$sesscount = current($this->getClass('MulticastSessionsManager')->find(array('name' => $_REQUEST['sessname'])));
 		if (!$sesscount || !$sesscount->isValid())
 		{
 			$Send['checksession'] = array(
@@ -565,7 +565,7 @@ class BootMenu extends FOGBase
 		{
 			$TaskType = new TaskType($Task->get('typeID'));
 			$imagingTasks = array(1,2,8,15,16,17,24);
-			$LA = current($this->FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $this->Host->get('id'))));
+			$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $this->Host->get('id'))));
 			if ($LA)
 				$Location = new Location($LA->get('locationID'));
 			if ($Location && $Location->isValid())
@@ -596,7 +596,7 @@ class BootMenu extends FOGBase
 			$PIGZ_COMP = $this->FOGCore->getSetting('FOG_PIGZ_COMP');
 			if ($TaskType->isMulticast())
 			{
-				$MulticastSessionAssoc = current($this->FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))));
+				$MulticastSessionAssoc = current($this->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))));
 				$MulticastSession = new MulticastSessions($MulticastSessionAssoc->get('msID'));
 			}
 			$kernelArgsArray = array(
@@ -796,7 +796,7 @@ class BootMenu extends FOGBase
 	public function printDefault()
 	{
 		// Gets all the database menu items.
-		$Menus = $this->FOGCore->getClass('PXEMenuOptionsManager')->find('','','id');
+		$Menus = $this->getClass('PXEMenuOptionsManager')->find('','','id');
 		$Send['head'] = array(
 			"#!ipxe",
 			"cpuid --ext 29 && set arch x86_64 || set arch i386",

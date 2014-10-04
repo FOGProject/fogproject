@@ -53,7 +53,7 @@ class LocationManagementPage extends FOGPage
 		// Set title
 		$this->title = _('Search');
 		// Find data
-		$Locations = $this->FOGCore->getClass('LocationManager')->find();
+		$Locations = $this->getClass('LocationManager')->find();
 		// Row data
 		foreach ((array)$Locations AS $Location)
 		{
@@ -61,7 +61,7 @@ class LocationManagementPage extends FOGPage
 			$this->data[] = array(
 				'id'	=> $Location->get('id'),
 				'name'  => $Location->get('name'),
-				'storageNode' => ($Location->get('storageNodeID') ? $this->FOGCore->getClass('StorageNode',$Location->get('storageNodeID'))->get('name') : 'Not Set'),
+				'storageNode' => ($Location->get('storageNodeID') ? $this->getClass('StorageNode',$Location->get('storageNodeID'))->get('name') : 'Not Set'),
 				'storageGroup' => $StorageGroup->get('name'),
 				'tftp' => $Location->get('tftp') ? _('Yes') : _('No'),
 			);
@@ -100,13 +100,13 @@ class LocationManagementPage extends FOGPage
 			'storageGroupID' => $keyword,
 		);
 		// Find data -> Push data
-		foreach ((array)$this->FOGCore->getClass('LocationManager')->find($where,'OR') AS $Location)
+		foreach ((array)$this->getClass('LocationManager')->find($where,'OR') AS $Location)
 		{
 			$this->data[] = array(
 				'id'		=> $Location->get('id'),
 				'name'		=> $Location->get('name'),
-				'storageGroup'	=> $this->FOGCore->getClass('StorageGroup',$Location->get('storageGroupID'))->get ('name'),
-				'storageNode' => $Location->get('storageNodeID') ? $this->FOGCore->getClass('StorageNode',$Location->get('storageNodeID'))->get('name') : 'Not Set',
+				'storageGroup'	=> $this->getClass('StorageGroup',$Location->get('storageGroupID'))->get ('name'),
+				'storageNode' => $Location->get('storageNodeID') ? $this->getClass('StorageNode',$Location->get('storageNodeID'))->get('name') : 'Not Set',
 				'tftp' => $Location->get('tftp') ? 'Yes' : 'No',
 			);
 		}
@@ -133,8 +133,8 @@ class LocationManagementPage extends FOGPage
 		);
 		$fields = array(
 			_('Location Name') => '<input class="smaller" type="text" name="name" />',
-			_('Storage Group') => $this->FOGCore->getClass('StorageGroupManager')->buildSelectBox(),
-			_('Storage Node') => $this->FOGCore->getClass('StorageNodeManager')->buildSelectBox(),
+			_('Storage Group') => $this->getClass('StorageGroupManager')->buildSelectBox(),
+			_('Storage Node') => $this->getClass('StorageNodeManager')->buildSelectBox(),
 			_('TFTP From Node') => '<input type="checkbox" name="tftp" value="on" />',
 			'<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
 		);
@@ -158,7 +158,7 @@ class LocationManagementPage extends FOGPage
 		try
 		{
 			$name = trim($_REQUEST['name']);
-			if ($this->FOGCore->getClass('LocationManager')->exists(trim($_REQUEST['name'])))
+			if ($this->getClass('LocationManager')->exists(trim($_REQUEST['name'])))
 				throw new Exception('Location already Exists, please try again.');
 			if (!$name)
 				throw new Exception('Please enter a name for this location.');
@@ -170,8 +170,8 @@ class LocationManagementPage extends FOGPage
 				'storageNodeID' => $_REQUEST['storagenode'],
 				'tftp' => $_REQUEST['tftp'],
 			));
-			if ($_REQUEST['storagenode'] && $Location->get('storageGroupID') != $this->FOGCore->getClass('StorageNode',$_REQUEST['storagenode'])->get('storageGroupID'))
-				$Location->set('storageGroupID', $this->FOGCore->getClass('StorageNode',$_REQUEST['storagenode'])->get('storageGroupID'));
+			if ($_REQUEST['storagenode'] && $Location->get('storageGroupID') != $this->getClass('StorageNode',$_REQUEST['storagenode'])->get('storageGroupID'))
+				$Location->set('storageGroupID', $this->getClass('StorageNode',$_REQUEST['storagenode'])->get('storageGroupID'));
 			if ($Location->save())
 			{
 				$this->FOGCore->setMessage('Location Added, editing!');
@@ -217,8 +217,8 @@ class LocationManagementPage extends FOGPage
 				'field' => $field,
 				'input' => $input,
 				'location_name' => $Location->get('name'),
-				'storage_groups' => $this->FOGCore->getClass('StorageGroupManager')->buildSelectBox($Location->get('storageGroupID')),
-				'storage_nodes' => $this->FOGCore->getClass('StorageNodeManager')->buildSelectBox($Location->get('storageNodeID')),
+				'storage_groups' => $this->getClass('StorageGroupManager')->buildSelectBox($Location->get('storageGroupID')),
+				'storage_nodes' => $this->getClass('StorageNodeManager')->buildSelectBox($Location->get('storageNodeID')),
 				'checked' => $Location->get('tftp') ? 'checked="checked"' : '',
 			);
 		}
@@ -309,7 +309,7 @@ class LocationManagementPage extends FOGPage
 		try
 		{
 			// Remove Location Associations
-			$this->FOGCore->getClass('LocationAssociationManager')->destroy(array('locationID' => $Location->get('id')));
+			$this->getClass('LocationAssociationManager')->destroy(array('locationID' => $Location->get('id')));
 			// Remove Location
 			if (!$Location->destroy())
 				throw new Exception(_('Failed to destroy Location'));

@@ -15,7 +15,7 @@ class StorageGroup extends FOGController
 	// Custom functions: Storage Group
 	public function getStorageNodes()
 	{
-		return (array)$this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => '1', 'storageGroupID' => $this->get('id')));
+		return (array)$this->getClass('StorageNodeManager')->find(array('isEnabled' => '1', 'storageGroupID' => $this->get('id')));
 	}
 	public function getTotalSupportedClients()
 	{
@@ -51,7 +51,7 @@ class StorageGroup extends FOGController
 	}
 	public function getUsedSlotCount()
 	{
-		return $this->FOGCore->getClass('TaskManager')->count(array(
+		return $this->getClass('TaskManager')->count(array(
 			'stateID'	=> 3,
 			'typeID'	=> array(1,15,17), // Only download tasks are Used! Uploads/Multicast can be as many as needed.
 			'NFSGroupID'	=> $this->get('id'),
@@ -59,7 +59,7 @@ class StorageGroup extends FOGController
 	}
 	public function getQueuedSlotCount()
 	{
-		return $this->FOGCore->getClass('TaskManager')->count(array(
+		return $this->getClass('TaskManager')->count(array(
 			'stateID' => array(1,2),
 			'typeID' => array(1,2,8,15,16,17), // Just so we can see what's queued we get all tasks (Upload/Download/Multicast).
 			'NFSGroupID' => $this->get('id'),
