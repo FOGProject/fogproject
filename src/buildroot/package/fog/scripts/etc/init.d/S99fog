@@ -29,9 +29,6 @@ if [ -n "$has_usb_nic" ]; then
 	read;
 	/bin/echo 'Sleeping for 5 seconds to allow USB to sync back with system';
 fi
-/usr/sbin/dhcpcd -4b eth0
-/bin/echo 'Sleeping for 10 seconds to ensure an IP is received';
-sleep 10;
 if [ -n "$keymap" ]
 then
 	loadkeys $keymap;
