@@ -227,7 +227,7 @@ class ServiceConfigurationPage extends FOGPage
 					array(),
 				);
 				$this->templates = array(
-					'${gf_hour}:${gf_min}',
+					'${gf_time}',
 					'${gf_action}',
 					'<input type="checkbox" id="gfrem${gf_id}" class="delid" name="delid" onclick="this.form.submit()" value="${gf_id}" /><label for="gfrem${gf_id}">'._('Delete').'</label>',
 				);
@@ -238,12 +238,15 @@ class ServiceConfigurationPage extends FOGPage
 				$greenfogs = $this->getClass('GreenFogManager')->find();
 				foreach((array)$greenfogs AS $GreenFog)
 				{
-					$this->data[] = array(
-						'gf_hour' => $GreenFog->get('hour'),
-						'gf_min' => $GreenFog->get('min'),
-						'gf_action' => ($GreenFog->get('action') == 'r' ? 'Reboot' : ($GreenFog->get('action') == 's' ? _('Shutdown') : _('N/A'))),
-						'gf_id' => $GreenFog->get('id'),
-					);
+					if ($GreenFog && $GreenFog->isValid())
+					{
+						$gftime = $this->nice_date($GreenFog->get('hour').':'.$GreenFog->get('min'))->format('H:i');
+						$this->data[] = array(
+							'gf_time' => $gftime,
+							'gf_action' => ($GreenFog->get('action') == 'r' ? 'Reboot' : ($GreenFog->get('action') == 's' ? _('Shutdown') : _('N/A'))),
+							'gf_id' => $GreenFog->get('id'),
+						);
+					}
 				}
 				// Hook
 				// $this->HookManager->processEvent()
