@@ -1,8 +1,6 @@
 <?php
 // Require FOG Base
 require('../commons/base.inc.php');
-// Config load check
-if (IS_INCLUDED !== true) die($foglang['NoLoad']);
 // User session data
 $currentUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
 // Process Login
