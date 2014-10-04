@@ -58,7 +58,7 @@ abstract class FOGManagerController extends FOGBase
 			// Get all hosts with matching keyword of hostname value
 			// If the class to search is not Host use the below for searching.
 			if ($classSearch != 'Host')
-				$HostMan = $this->getClass('HostManager')->find(array('name' => $keyword,'mac' => $keyword,'description' => $keyword,'ip' => $keyword),'OR');
+				$HostMan = $this->getClass('HostManager')->find(array('name' => $keyword,'description' => $keyword,'ip' => $keyword),'OR');
 			// If the class to search is Host use the below for searching.
 			if ($classSearch == 'Host')
 				$HostMan = $this->getClass('HostManager')->find($findWhere,'OR');
