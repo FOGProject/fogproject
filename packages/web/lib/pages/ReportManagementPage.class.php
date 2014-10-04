@@ -484,8 +484,11 @@ class ReportManagementPage extends FOGPage
 			{
 				$MACs = $Host->get('pendingMACs');
 				foreach((array)$MACs AS $MAC)
-					$Host->addPendtoAdd($MAC);
-				$Host->save();
+				{
+					if ($MAC && $MAC->isValid())
+						$Host->addPendtoAdd($MAC);
+					$Host->save();
+				}
 			}
 			$this->FOGCore->setMessage(_('All Pending MACs approved.'));
 			$this->FOGCore->redirect('?node=report&sub=pend-mac');
@@ -527,17 +530,20 @@ class ReportManagementPage extends FOGPage
 			$MACs = $Host->get('pendingMACs');
 			foreach((array)$MACs AS $MAC)
 			{
-				$this->data[] = array(
-					'host_name' => $Host->get('name'),
-					'host_mac' => $Host->get('mac'),
-					'host_pend' => $MAC,
-				);
-				$ReportMaker->addCSVCell($Host->get('id'));
-				$ReportMaker->addCSVCell($Host->get('name'));
-				$ReportMaker->addCSVCell($Host->get('mac'));
-				$ReportMaker->addCSVCell($Host->get('description'));
-				$ReportMaker->addCSVCell($MAC);
-				$ReportMaker->endCSVLine();
+				if ($MAC && $MAC->isValid())
+				{
+					$this->data[] = array(
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac'),
+						'host_pend' => $MAC,
+					);
+					$ReportMaker->addCSVCell($Host->get('id'));
+					$ReportMaker->addCSVCell($Host->get('name'));
+					$ReportMaker->addCSVCell($Host->get('mac'));
+					$ReportMaker->addCSVCell($Host->get('description'));
+					$ReportMaker->addCSVCell($MAC);
+					$ReportMaker->endCSVLine();
+				}
 			}
 		}
 		// This is for the pdf.
