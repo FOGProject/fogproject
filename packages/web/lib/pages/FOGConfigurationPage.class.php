@@ -190,7 +190,7 @@ class FOGConfigurationPage extends FOGPage
 				'field' => $field,
 				'input' => $input,
 				'checked' => ($this->FOGCore->getSetting('FOG_PXE_MENU_HIDDEN') ? 'checked="checked"' : ''),
-				'boot_keys' => $this->FOGCore->getClass('KeySequenceManager')->buildSelectBox($this->FOGCore->getSetting('FOG_KEY_SEQUENCE')),
+				'boot_keys' => $this->getClass('KeySequenceManager')->buildSelectBox($this->FOGCore->getSetting('FOG_KEY_SEQUENCE')),
 				'timeout' => $this->FOGCore->getSetting('FOG_PXE_MENU_TIMEOUT'),
 				'adv' => $this->FOGCore->getSetting('FOG_PXE_ADVANCED'),
 				'advmenulogin' => $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN'),
@@ -238,7 +238,7 @@ class FOGConfigurationPage extends FOGPage
 			'${field}',
 			'${input}',
 		);
-		foreach($this->FOGCore->getClass('PXEMenuOptionsManager')->find('','','id') AS $Menu)
+		foreach($this->getClass('PXEMenuOptionsManager')->find('','','id') AS $Menu)
 		{
 			$divTab = preg_replace('/[[:space:]]/','_',preg_replace('/\./','_',preg_replace('/:/','_',$Menu->get('name'))));
 			print "\n\t\t\t\t\t\t".'<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$Menu->get('name').'</h3></a>';
@@ -264,7 +264,7 @@ class FOGConfigurationPage extends FOGPage
 					'menu_description' => $Menu->get('description'),
 					'menu_params' => $Menu->get('params'),
 					'menu_default' => ($Menu->get('default') ? 'checked="checked"' : ''),
-					'menu_regmenu' => $this->FOGCore->getClass('PXEMenuOptionsManager')->regSelect($Menu->get('regMenu')),
+					'menu_regmenu' => $this->getClass('PXEMenuOptionsManager')->regSelect($Menu->get('regMenu')),
 					'menu_options' => $Menu->get('args'),
 					'disabled' => $menuid ? 'disabled="disabled"' : '',
 				);
@@ -298,16 +298,16 @@ class FOGConfigurationPage extends FOGPage
 				 ->set('regMenu',$_REQUEST['menu_regmenu'])
 				 ->set('args',$_REQUEST['menu_options']);
 			// Set all other menus that are default to non-default value.
-			foreach($this->FOGCore->getClass('PXEMenuOptionsManager')->find('','','id') AS $MenusRemoveDefault)
+			foreach($this->getClass('PXEMenuOptionsManager')->find('','','id') AS $MenusRemoveDefault)
 				$MenusRemoveDefault->set('default',0)->save();
 			$Menu->set('default',$_REQUEST['menu_default']);
 			if ($Menu->save())
 				$this->FOGCore->setMessage($Menu->get('name').' '._('successfully updated').'!');
 			// Ensure there's only one default value.
-			$countDefault = $this->FOGCore->getClass('PXEMenuOptionsManager')->count(array('default' => 1));
+			$countDefault = $this->getClass('PXEMenuOptionsManager')->count(array('default' => 1));
 			// If there's no defaults, set the first id (local disk) to default.
 			if ($countDefault == 0 || $countDefault > 1)
-				$this->FOGCore->getClass('PXEMenuOptions',1)->set('default',1)->save();
+				$this->getClass('PXEMenuOptions',1)->set('default',1)->save();
 		}
 		if ($_REQUEST['rmid'])
 		{
@@ -315,10 +315,10 @@ class FOGConfigurationPage extends FOGPage
 			$menuname = $Menu->get('name');
 			if($Menu->destroy())
 				$this->FOGCore->setMessage($menuname.' '._('successfully removed').'!');
-			$countDefault = $this->FOGCore->getClass('PXEMenuOptionsManager')->count(array('default' => 1));
+			$countDefault = $this->getClass('PXEMenuOptionsManager')->count(array('default' => 1));
 			// If the one removed was the default, it's now gone, reset.
 			if ($countDefault == 0 || $countDefault > 1)
-				$this->FOGCore->getClass('PXEMenuOptions',1)->set('default',1)->save();
+				$this->getClass('PXEMenuOptions',1)->set('default',1)->save();
 		}
 		$this->FOGCore->redirect($this->formAction);
 	}
@@ -348,7 +348,7 @@ class FOGConfigurationPage extends FOGPage
 				'menu_description' => $_REQUEST['menu_description'],
 				'menu_params' => $_REQUEST['menu_params'],
 				'menu_default' => $_REQUEST['menu_default'] ? 'checked="checked"' : '',
-				'menu_regmenu' => $this->FOGCore->getClass('PXEMenuOptionsManager')->regSelect($_REQUEST['menu_regmenu']),
+				'menu_regmenu' => $this->getClass('PXEMenuOptionsManager')->regSelect($_REQUEST['menu_regmenu']),
 				'menu_options' => $_REQUEST['menu_options'],
 			);
 		}
@@ -380,7 +380,7 @@ class FOGConfigurationPage extends FOGPage
 			// Set all other menus that are default to non-default value.
 			if ($_REQUEST['menu_default'])
 			{
-				foreach($this->FOGCore->getClass('PXEMenuOptionsManager')->find('','','id') AS $MenusRemoveDefault)
+				foreach($this->getClass('PXEMenuOptionsManager')->find('','','id') AS $MenusRemoveDefault)
 					$MenusRemoveDefault->set('default',0)->save();
 				$Menu->set('default',1)->save();
 			}
@@ -423,7 +423,7 @@ class FOGConfigurationPage extends FOGPage
 		print "\n\t\t\t".'<div class="hostgroup">';
 		print _("This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.");
 		print "\n\t\t\t</div>";
-		$ClientUpdates = $this->FOGCore->getClass('ClientUpdaterManager')->find('','name');
+		$ClientUpdates = $this->getClass('ClientUpdaterManager')->find('','name');
 		foreach ((array)$ClientUpdates AS $ClientUpdate)
 		{
 			$this->data[] = array(
@@ -476,7 +476,7 @@ class FOGConfigurationPage extends FOGPage
 	*/
 	public function client_updater_post()
 	{
-		$Service = current($this->FOGCore->getClass('ServiceManager')->find(array('name' => $_REQUEST['name'])));
+		$Service = current($this->getClass('ServiceManager')->find(array('name' => $_REQUEST['name'])));
 		if ($_REQUEST['en'])
 			$Service && $Service->isValid() ? $Service->set('value',$_REQUEST['en'])->save() : null;
 		if ($_REQUEST['delcu'])
@@ -491,7 +491,7 @@ class FOGConfigurationPage extends FOGPage
 			{
 				if (file_exists($_FILES['module']['tmp_name'][$index]))
 				{
-					$ClientUpdater = current($this->FOGCore->getClass('ClientUpdaterManager')->find(array('name' => $_FILES['module']['name'][$index])));
+					$ClientUpdater = current($this->getClass('ClientUpdaterManager')->find(array('name' => $_FILES['module']['name'][$index])));
 					if(file_get_contents($_FILES['module']['tmp_name'][$index]))
 					{
 						if ($ClientUpdater)
@@ -654,14 +654,14 @@ class FOGConfigurationPage extends FOGPage
 			'${input_type}',
 			'${span}',
 		);
-		$ServiceCats = $this->FOGCore->getClass('ServiceManager')->getSettingCats();
+		$ServiceCats = $this->getClass('ServiceManager')->getSettingCats();
 		foreach ((array)$ServiceCats AS $ServiceCAT)
 		{
 			
 			$divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',$ServiceCAT));
 			print "\n\t\t\t\t\t\t".'<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$ServiceCAT.'</h3></a>';
 			print "\n\t\t\t".'<div id="'.$divTab.'">';
-			$ServMan = $this->FOGCore->getClass('ServiceManager')->find(array('category' => $ServiceCAT),'AND','id');
+			$ServMan = $this->getClass('ServiceManager')->find(array('category' => $ServiceCAT),'AND','id');
 			foreach ((array)$ServMan AS $Service)
 			{
 				if ($Service->get('name') == 'FOG_PIGZ_COMP')
@@ -703,11 +703,11 @@ class FOGConfigurationPage extends FOGPage
 					$type = "\n\t\t\t".'<select name="${service_id}" autocomplete="off" style="width: 220px">'."\n\t\t\t\t".implode("\n",$options2)."\n\t\t\t".'</select>';
 				}
 				else if ($Service->get('name') == 'FOG_QUICKREG_IMG_ID')
-					$type = $this->FOGCore->getClass('ImageManager')->buildSelectBox($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID'),$Service->get('id'));
+					$type = $this->getClass('ImageManager')->buildSelectBox($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID'),$Service->get('id'));
 				else if ($Service->get('name') == 'FOG_QUICKREG_GROUP_ASSOC')
-					$type = $this->FOGCore->getClass('GroupManager')->buildSelectBox($this->FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC'),$Service->get('id'));
+					$type = $this->getClass('GroupManager')->buildSelectBox($this->FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC'),$Service->get('id'));
 				else if ($Service->get('name') == 'FOG_KEY_SEQUENCE')
-					$type = $this->FOGCore->getClass('KeySequenceManager')->buildSelectBox($this->FOGCore->getSetting('FOG_KEY_SEQUENCE'),$Service->get('id'));
+					$type = $this->getClass('KeySequenceManager')->buildSelectBox($this->FOGCore->getSetting('FOG_KEY_SEQUENCE'),$Service->get('id'));
 				else if ($Service->get('name') == 'FOG_QUICKREG_OS_ID')
 				{
 					if ($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID') > 0)
@@ -746,7 +746,7 @@ class FOGConfigurationPage extends FOGPage
 	*/
 	public function settings_post()
 	{
-		$ServiceMan = $this->FOGCore->getClass('ServiceManager')->find();
+		$ServiceMan = $this->getClass('ServiceManager')->find();
 		foreach ((array)$ServiceMan AS $Service)
 			$key[] = $Service->get('id');
 		foreach ((array)$key AS $key)

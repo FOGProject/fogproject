@@ -81,7 +81,7 @@ class MulticastManager extends FOGBase
 		{
 			try
 			{
-				$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1,'ip' => $this->FOGCore->getIPAddress())));
+				$StorageNode = current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1,'ip' => $this->FOGCore->getIPAddress())));
 				if (!$StorageNode || !$StorageNode->isValid())
 					throw new Exception(sprintf(" | StorageNode Not found on this system."));
 				$myroot = $StorageNode->get('path');
@@ -96,7 +96,7 @@ class MulticastManager extends FOGBase
 					foreach((array)$RMTasks AS $RMTask)
 					{
 						$this->outall(sprintf(" | Cleaning Task (%s) %s",$RMTask->getID(),$RMTask->getName()));
-						$Assocs = $this->FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $RMTask->getID()));
+						$Assocs = $this->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $RMTask->getID()));
 						$curSession = new MulticastSessions($RMTask->getID());
 						foreach($Assocs AS $Assoc)
 						{
@@ -115,13 +115,13 @@ class MulticastManager extends FOGBase
 							$RMTask->killTask();
 							$KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
 							$this->outall(sprintf(" | Task (%s) %s has been cleaned as cancelled.",$RMTask->getID(),$RMTask->getName()));
-							$this->FOGCore->getClass('MulticastSessionsAssociationManager')->destroy(array('msID' => $RMTask->getID()));
+							$this->getClass('MulticastSessionsAssociationManager')->destroy(array('msID' => $RMTask->getID()));
 						}
 						else
 						{
 							$KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
 							$this->outall(sprintf(" | Task (%s) %s has been cleaned as complete.",$RMTask->getID(),$RMTask->getName()));
-							$this->FOGCore->getClass('MulticastSessionsAssociationManager')->destroy(array('msID' => $RMTask->getID()));
+							$this->getClass('MulticastSessionsAssociationManager')->destroy(array('msID' => $RMTask->getID()));
 						}
 					}
 				}
@@ -173,7 +173,7 @@ class MulticastManager extends FOGBase
 						{
 							$runningTask = $this->getMCExistingTask($KnownTasks, $curTask->getID());
 							$curSession = new MulticastSessions($runningTask->getID());
-							$Assocs = $this->FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $curSession->get('id')));
+							$Assocs = $this->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $curSession->get('id')));
 							foreach($Assocs AS $Assoc)
 							{
 								if ($Assoc && $Assoc->isValid())

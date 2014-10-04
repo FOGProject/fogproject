@@ -40,7 +40,7 @@ class Image extends FOGController
 		{
 			if ($this->get('id'))
 			{
-				$Hosts = $this->FOGCore->getClass('HostManager')->find(array('imageID' => $this->get('id')));
+				$Hosts = $this->getClass('HostManager')->find(array('imageID' => $this->get('id')));
 				foreach($Hosts AS $Host)
 					$this->add('hosts', $Host);
 			}
@@ -92,7 +92,7 @@ class Image extends FOGController
 		if ($this->isLoaded('hosts'))
 		{
 			// Unset all hosts
-			foreach($this->FOGCore->getClass('HostManager')->find(array('imageID' => $this->get('id'))) AS $Host)
+			foreach($this->getClass('HostManager')->find(array('imageID' => $this->get('id'))) AS $Host)
 			{
 				if(($Host instanceof Host) && $Host->isValid())
 					$Host->set('imageID', 0)->save();

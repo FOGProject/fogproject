@@ -62,7 +62,7 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t<li>";
 		print "\n\t\t\t<h4>"._('Disk Information').'</h4>';
 		print "\n\t\t\t".'<div id="diskusage-selector">';
-		foreach ((array)$this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1,'isGraphEnabled' => 1)) AS $StorageNode)
+		foreach ((array)$this->getClass('StorageNodeManager')->find(array('isEnabled' => 1,'isGraphEnabled' => 1)) AS $StorageNode)
 			$options[] = "\n\t\t\t".'<option value="'.$StorageNode->get('id').'">'.$StorageNode->get('name').($StorageNode->get('isMaster') == '1' ? ' *' : '').'</option>';
 		$options ? print "\n\t\t\t".'<select name="storagesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">'.implode("\n",$options).'</select>' : null;
 		print "\n\t\t\t</div>";
@@ -92,14 +92,14 @@ class DashboardPage extends FOGPage
 		foreach($DatePeriod AS $Date)
 		{
 			$keyword = '%'.$Date->format('Y-m-d').'%';
-			$ImagingLogs = $this->FOGCore->getClass('ImagingLogManager')->count(array('start' => $keyword, 'type' => array('up','down')));
+			$ImagingLogs = $this->getClass('ImagingLogManager')->count(array('start' => $keyword, 'type' => array('up','down')));
 			$Graph30dayData[] = '["'.(1000*$Date->getTimestamp()).'", '.$ImagingLogs.']';
 		}
 		$ActivityActive = 0;
        	$ActivityQueued = 0;
   		$ActivitySlots = 0;
   		$ActivityTotalClients = 0;
-		foreach($this->FOGCore->getClass('StorageNodeManager')->find(array('isEnabled' => 1)) AS $StorageNode)
+		foreach($this->getClass('StorageNodeManager')->find(array('isEnabled' => 1)) AS $StorageNode)
 		{
 		    if ($StorageNode && $StorageNode->isValid())
 			{
@@ -109,7 +109,7 @@ class DashboardPage extends FOGPage
     		}
 		}
    		$ActivitySlots = $ActivityTotalClients -  $ActivityActive - $ActivityQueued;		    		
-		$StorageNode = current($this->FOGCore->getClass('StorageNodeManager')->find(array('isMaster' => 1, 'isEnabled' => 1)));
+		$StorageNode = current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1, 'isEnabled' => 1)));
 		print "\n\t\t\t".'<div class="fog-variable" id="ActivityActive">'.$ActivityActive.'</div>';
 		print "\n\t\t\t".'<div class="fog-variable" id="ActivityQueued">'.$ActivityQueued.'</div>';
 		print "\n\t\t\t".'<div class="fog-variable" id="ActivitySlots">'.($ActivitySlots < 0 ? 0 : $ActivitySlots).'</div>';

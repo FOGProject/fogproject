@@ -21,10 +21,10 @@ class TaskScheduler extends FOGBase
 	{
 		try
 		{
-			$Tasks = $this->FOGCore->getClass('TaskManager')->find(array('stateID' => 1,'typeID' => array(1,15,17)));
+			$Tasks = $this->getClass('TaskManager')->find(array('stateID' => 1,'typeID' => array(1,15,17)));
 			if ($Tasks)
 			{
-				$this->outall(sprintf(" * %s active task(s) awaiting check-in sending WOL request(s).",$this->FOGCore->getClass('TaskManager')->count(array('stateID' => 1,'typeID' => array(1,15,17)))));
+				$this->outall(sprintf(" * %s active task(s) awaiting check-in sending WOL request(s).",$this->getClass('TaskManager')->count(array('stateID' => 1,'typeID' => array(1,15,17)))));
 				foreach($Tasks AS $Task)
 				{
 					$Host = new Host($Task->get('hostID'));
@@ -35,7 +35,7 @@ class TaskScheduler extends FOGBase
 			}
 			else
 				$this->outall(" * 0 active task(s) awaiting check-in.");
-			$Tasks = $this->FOGCore->getClass('ScheduledTaskManager')->find(array('isActive' => 1));
+			$Tasks = $this->getClass('ScheduledTaskManager')->find(array('isActive' => 1));
 			if ($Tasks)
 			{
 				$this->outall(sprintf(" * %s task(s) found.",count($Tasks)));

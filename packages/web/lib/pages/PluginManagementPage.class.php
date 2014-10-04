@@ -104,7 +104,7 @@ class PluginManagementPage extends FOGPage
 		// Find data
 		foreach ((array)$Plugins->getPlugins() AS $Plugin)
 		{
-			$PluginMan = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $Plugin->getName())));
+			$PluginMan = current($this->getClass('PluginManager')->find(array('name' => $Plugin->getName())));
 			if($Plugin->isActive() && !$Plugin->isInstalled())
 			{
 				$this->data[] = array(
@@ -133,7 +133,7 @@ class PluginManagementPage extends FOGPage
 		// Find data
 		foreach ((array)$Plugins->getPlugins() AS $Plugin)
 		{
-			$PluginMan = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $Plugin->getName())));
+			$PluginMan = current($this->getClass('PluginManager')->find(array('name' => $Plugin->getName())));
 			if($Plugin->isActive())
 			{
 				$this->data[] = array(
@@ -237,7 +237,7 @@ class PluginManagementPage extends FOGPage
 				unset($this->headerData,$this->data,$fields);
 				print "\n\t\t\t".'<p class="titleBottomLeft">'._('Add Image to DMI Associations').'</p>';
 				$fields = array(
-					_('Image Definition').':' => $this->FOGCore->getClass('ImageManager')->buildSelectBox(),
+					_('Image Definition').':' => $this->getClass('ImageManager')->buildSelectBox(),
 					_('DMI Result').':' => '<input type="text" name="key" />',
 					'<input type="hidden" name="addass" value="1" />' => '<input type="submit" style="margin-top: 7px;" value="'._('Add Association').'" />',
 				);
@@ -252,7 +252,7 @@ class PluginManagementPage extends FOGPage
 				$this->render();
 				print "</form>";
 				unset($this->headerData,$this->data,$fields);
-				$Capones = $this->FOGCore->getClass('CaponeManager')->find();
+				$Capones = $this->getClass('CaponeManager')->find();
 				print "\n\t\t\t".'<p class="titleBottomLeft">'._('Current Image to DMI Associations').'</p>';
 				$this->headerData = array(
 					_('Image Name'),
@@ -313,9 +313,9 @@ class PluginManagementPage extends FOGPage
 		$plugin = unserialize($_SESSION['fogactiveplugin']);
 		if ($_REQUEST['install'] == 1)
 		{
-			if($this->FOGCore->getClass(ucfirst($plugin->getName()).'Manager')->install($plugin->getName()))
+			if($this->getClass(ucfirst($plugin->getName()).'Manager')->install($plugin->getName()))
 			{
-				$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $plugin->getName())));
+				$Plugin = current($this->getClass('PluginManager')->find(array('name' => $plugin->getName())));
 				$Plugin->set('installed',1)
 					   ->set('version',1);
 				if ($Plugin->save())
@@ -336,7 +336,7 @@ class PluginManagementPage extends FOGPage
 		{
 			$Capone = new Capone(array(
 				'imageID' => $_REQUEST['image'],
-				'osID'	  => $this->FOGCore->getClass('Image',$_REQUEST['image'])->get('osID'),
+				'osID'	  => $this->getClass('Image',$_REQUEST['image'])->get('osID'),
 				'key'	  => $_REQUEST['key']
 			));
 			$Capone->save();
@@ -355,7 +355,7 @@ class PluginManagementPage extends FOGPage
 			$Plugin = new Plugin($_REQUEST['rmid']);
 		if ($Plugin)
 		{
-			if($this->FOGCore->getClass(ucfirst($Plugin->get('name')).'Manager')->uninstall())
+			if($this->getClass(ucfirst($Plugin->get('name')).'Manager')->uninstall())
 			{
 				if ($Plugin->destroy())
 				{

@@ -120,7 +120,7 @@ class FOGPageManager extends FOGBase
 				foreach ($iterator as $fileInfo)
 				{
 					$PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : '';
-					$Plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $PluginName,'state' => 1, 'installed' => 1)));
+					$Plugin = current($this->getClass('PluginManager')->find(array('name' => $PluginName,'state' => 1, 'installed' => 1)));
 					if ($Plugin)
 						$className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
 					else if (!preg_match('#plugins#i',$path))

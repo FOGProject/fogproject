@@ -59,7 +59,7 @@ class Announce extends FOGBase
 	*/
 	private function PeerGen()
 	{
-		$Peer = current($this->FOGCore->getClass('PeerManager')->find(array('hash' => bin2hex($_REQUEST['peer_id']))));
+		$Peer = current($this->getClass('PeerManager')->find(array('hash' => bin2hex($_REQUEST['peer_id']))));
 		if (!$Peer || !$Peer->isValid())
 		{
 			$Peer = new Peer(array(
@@ -89,7 +89,7 @@ class Announce extends FOGBase
 	*/
 	private function TorrentGen()
 	{
-		$Torrent = current($this->FOGCore->getClass('TorrentManager')->find(array('hash' => bin2hex($_REQUEST['info_hash']))));
+		$Torrent = current($this->getClass('TorrentManager')->find(array('hash' => bin2hex($_REQUEST['info_hash']))));
 		if (!$Torrent || !$Torrent->isValid())
 		{
 			$Torrent = new Torrent(array(
@@ -111,7 +111,7 @@ class Announce extends FOGBase
 	*/
 	private function PeerTorrentGen()
 	{
-		$PeerTorrent = current($this->FOGCore->getClass('PeerTorrentManager')->find(array('peerID' => $this->peer->get('id'))));
+		$PeerTorrent = current($this->getClass('PeerTorrentManager')->find(array('peerID' => $this->peer->get('id'))));
 		if (!$PeerTorrent || !$PeerTorrent->isValid())
 		{
 			$PeerTorrent = new PeerTorrent(array(
@@ -163,7 +163,7 @@ class Announce extends FOGBase
 		{
 			$seeders = 0;
 			$leechers = 0;
-			foreach($this->FOGCore->getClass('PeerTorrentManager')->find() AS $PeerTorrentNew)
+			foreach($this->getClass('PeerTorrentManager')->find() AS $PeerTorrentNew)
 			{
 				$PeerNew = new Peer($PeerTorrentNew->get('peerID'));
 				$interval = $this->nice_date('+'.$this->FOGCore->getSetting('FOG_TORRENT_INTERVAL')+$this->FOGCore->getSetting('FOG_TORRENT_TIMEOUT').' seconds');

@@ -47,7 +47,7 @@ class UserManagementPage extends FOGPage
 		// Set title
 		$this->title = _('All Users');
 		// Find data
-		$Users = $this->FOGCore->getClass('UserManager')->find();
+		$Users = $this->getClass('UserManager')->find();
 		// Row data
 		foreach ((array)$Users AS $User)
 		{
@@ -135,7 +135,7 @@ class UserManagementPage extends FOGPage
 		try
 		{
 			// UserManager
-			$UserManager = $this->FOGCore->getClass('UserManager');
+			$UserManager = $this->getClass('UserManager');
 			// Error checking
 			if ($UserManager->exists($_REQUEST['name']))
 				throw new Exception(_('Username already exists'));
@@ -220,7 +220,7 @@ class UserManagementPage extends FOGPage
 		try
 		{
 			// UserManager
-			$UserManager = $this->FOGCore->getClass('UserManager');
+			$UserManager = $this->getClass('UserManager');
 			// Error checking
 			if ($UserManager->exists($_REQUEST['name'], $User->get('id')))
 				throw new Exception(_('Username already exists'));

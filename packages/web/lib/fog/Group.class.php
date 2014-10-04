@@ -29,7 +29,7 @@ class Group extends FOGController
         {   
             if ($this->get('id'))
             {   
-                $GroupAssocs = $this->FOGCore->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')));
+                $GroupAssocs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')));
                 foreach($GroupAssocs AS $GroupAssoc)
                     $this->add('hosts', new Host($GroupAssoc->get('hostID')));
             }   
@@ -89,7 +89,7 @@ class Group extends FOGController
         if ($this->isLoaded('hosts'))
         {
             // Remove all old entries.
-            $this->FOGCore->getClass('GroupAssociationManager')->destroy(array('groupID' => $this->get('id')));
+            $this->getClass('GroupAssociationManager')->destroy(array('groupID' => $this->get('id')));
             // Create new Assocs
             foreach ((array)$this->get('hosts') AS $Host)
             {
