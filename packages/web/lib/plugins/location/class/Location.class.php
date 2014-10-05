@@ -21,4 +21,9 @@ class Location extends FOGController
 		'name',
 		'storageGroupID',
 	);
+	public function destroy($field = 'id')
+	{
+		$this->getClass('LocationAssociationManager')->find(array('locationID' => $this->get('id')));
+		return parent::destroy($field);
+	}
 }

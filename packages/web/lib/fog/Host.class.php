@@ -1136,6 +1136,9 @@ class Host extends FOGController
 		// Complete active tasks
 		if ($this->get('task')->isValid())
 			$this->get('task')->set('stateID',5)->save();
+		$LocPlugInst = current($this->getClass('PluginManager')->find(array('name' => 'location')));
+		if ($LocPlugInst)
+			$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $this->get('id')));
 		// Remove Group associations
 		$this->getClass('GroupAssociationManager')->destroy(array('hostID' => $this->get('id')));
 		// Remove Module associations
