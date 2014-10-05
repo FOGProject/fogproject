@@ -119,4 +119,16 @@ class Snapin extends FOGController
 		// Return
 		return $this;
 	}
+	public function destroy($field = 'id')
+	{
+		// Remove all associations
+		$this->getClass('SnapinAssociationManager')->destroy(array('snapinID' => $this->get('id')));
+		foreach($this->getClass('SnapinTaskManager')->find(array('snapinID' => $this->get('id'))) AS $SnapJob)
+		{
+			$this->getClass('SnapinJobManager')->destroy(array('jobID' => $SnapJob->get('jobID')));
+			$SnapJob->destroy();
+		}
+		// Return
+		return parent::destroy($field);
+	}
 }
