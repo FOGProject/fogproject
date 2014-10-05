@@ -12,21 +12,28 @@ class HookManager extends FOGBase
 	private $data;
 	public function __construct()
 	{
-		$dir = new RecursiveDirectoryIterator(BASEPATH,FilesystemIterator::SKIP_DOTS);
-		$Iterator = new RecursiveIteratorIterator($dir);
-		$regexp = '#processEvent\([\'\"](.*?)[\'\"]\,#';
-		foreach($Iterator AS $file)
-			preg_match_all($regexp,file_get_contents($file),$matches[]);
-		$matches = $this->array_filter_recursive($matches);
-		foreach($matches AS $match => $value)
+		global $Init;
+		$paths = array(BASEPATH.'/management');
+		$paths = array_merge((array)$paths,(array)$FOGPaths);
+		foreach($paths AS $path)
 		{
-			if ($matches[$match][1])
-				$matching[] = $matches[$match][1];
-		}
-		foreach($matching AS $ind => $arr)
-		{
-			foreach($arr AS $val)
-				$this->events[] = $val;
+			$dir = new RecursiveDirectoryIterator($path,FilesystemIterator::SKIP_DOTS);
+			$Iterator = new RecursiveIteratorIterator($dir);
+			$Iterator = new RegexIterator($Iterator,'/^.+\.php$/i',RecursiveRegexIterator::GET_MATCH);
+			$regexp = '#processEvent\([\'\"](.*?)[\'\"]\,#';
+			foreach($Iterator AS $file)
+				preg_match_all($regexp,file_get_contents($file[0]),$matches[]);
+			$matches = $this->array_filter_recursive($matches);
+			foreach($matches AS $match => $value)
+			{
+				if ($matches[$match][1])
+					$matching[] = $matches[$match][1];
+			}
+			foreach($matching AS $ind => $arr)
+			{
+				foreach($arr AS $val)
+					$this->events[] = $val;
+			}
 		}
 		$this->events = array_unique($this->events);
 		return parent::__construct();
