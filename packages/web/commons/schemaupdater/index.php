@@ -1629,7 +1629,7 @@ $databaseSchema[] = array(
 	"ALTER TABLE `" . DATABASE_NAME ."`.`hostMAC` ADD COLUMN `hmPending` INT DEFAULT 0 NOT NULL",
 	"ALTER TABLE `" . DATABASE_NAME ."`.`hostMAC` ADD COLUMN `hmIgnoreClient` INT DEFAULT 0 NOT NULL",
 	"ALTER TABLE `" . DATABASE_NAME ."`.`hostMAC` ADD COLUMN `hmIgnoreImaging` INT DEFAULT 0 NOT NULL",
-	"INSERT INTO `" . DATABASE_NAME ."`.`hostMAC` (`hmHostID`,`hmMAC`,`hmIgnoreClient`,`hmIgnoreImaging`,`hmPending`,`hmPrimary`) (SELECT `hostID`,`hostMAC`,'0','0','0','1' FROM `".DATABASE_NAME."`.`hosts` WHERE `hostMAC` IS NOT NULL)",
+	"INSERT INTO `" . DATABASE_NAME ."`.`hostMAC` (`hmHostID`,`hmMAC`,`hmIgnoreClient`,`hmIgnoreImaging`,`hmPending`,`hmPrimary`) (SELECT `hostID`,`hostMAC`,'0','0','0','1' FROM `".DATABASE_NAME."`.`hosts` WHERE `hosts`.`hostMAC` IS NOT NULL)",
 	"INSERT INTO `" . DATABASE_NAME ."`.`hostMAC` (`hmMAC`,`hmHostID`,`hmPending`) (SELECT `pmAddress`,`pmHostID`,'1' FROM pendingMACS)",
 	"ALTER TABLE `" . DATABASE_NAME ."`.`hosts` DROP COLUMN `hostMAC`",
 	"DROP TABLE `" . DATABASE_NAME ."`.`pendingMACS`",

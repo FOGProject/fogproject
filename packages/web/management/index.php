@@ -54,7 +54,7 @@ print "\n\t\t".'<!--<link rel="stylesheet" type="text/css" href="css/'.$FOGCore-
 print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/fog.css" />';
 print "\n\t\t".'<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />';
 // Hook
-$HookManager->processEvent('CSS');
+$HookManager->processEvent('CSS',array('CSS' => true);
 print "\n\t</head>";
 print "\n<body>";
 print "\n\t<!-- FOG Message Boxes -->";
@@ -85,8 +85,6 @@ if (!$isHomepage)
 	print "\n\t<!-- Menu -->";
 	print "\n\t\t".'<div id="sidebar">';
 	$SubMenu->buildMenu();
-	$FOGSubMenu = new FOGSubMenu();
-	//$HookManager->processEvent('SubMenuData', array('FOGSubMenu' => &$FOGSubMenu));
 	print "\n\t\t</div>";
 }
 print "\n\t</div>";
@@ -128,7 +126,7 @@ if ($isHomepage)
 		print "\n\t".'<script type="text/javascript" src="js/excanvas.js"></script>';
 }
 // Hook
-$HookManager->processEvent('JAVASCRIPT');
+$HookManager->processEvent('JAVASCRIPT',array('JAVASCRIPT' => true)));
 print "\n</body>";
 print "\n</html>";
 ob_end_flush();

@@ -415,6 +415,21 @@ abstract class FOGBase
 		if (!$_SESSION['post_request_vals'] && $this->FOGCore->isPOSTRequest())
 			$_SESSION['post_request_vals'] = $_REQUEST;
 	}
+	/** array_filter_recursive($input) 
+	* @param $input the input to filter
+	* clean up arrays recursively.
+	*/
+	public function array_filter_recursive($input)
+	{
+		foreach($input AS &$value)
+		{
+			if (is_array($value))
+				$value = $this->array_filter_recursive($value);
+		}
+		$input = array_filter($input);
+		$input = array_values($input);
+		return $input;
+	}
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */
