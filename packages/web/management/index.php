@@ -126,7 +126,7 @@ if ($isHomepage)
 		print "\n\t".'<script type="text/javascript" src="js/excanvas.js"></script>';
 }
 // Hook
-$HookManager->processEvent('JAVASCRIPT',array('JAVASCRIPT' => true)));
+$HookManager->processEvent('JAVASCRIPT',array('JAVASCRIPT' => true));
 print "\n</body>";
 print "\n</html>";
 ob_end_flush();
