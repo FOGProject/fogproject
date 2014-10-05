@@ -31,7 +31,7 @@ class SubMenu extends FOGBase
 			if ($GA[0])
 				$this->title[$this->foglang['PrimaryGroup']] = $this->getClass('Group',$GA[0]->get('groupID'))->get('name');
 		}
-		else if ($this->node == 'images' && $_REQUEST['id'])
+		else if ($this->node == 'image' && $_REQUEST['id'])
 		{
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Image']);
@@ -193,7 +193,7 @@ class SubMenu extends FOGBase
 			}
 		}
 		// Image Sub/Sub menu items.
-		if ($this->node == 'images')
+		if ($this->node == 'image')
 		{
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Images']);
