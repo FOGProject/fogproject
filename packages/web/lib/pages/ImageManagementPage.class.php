@@ -14,7 +14,7 @@ class ImageManagementPage extends FOGPage
 {
 	// Base variables
 	var $name = 'Image Management';
-	var $node = 'images';
+	var $node = 'image';
 	var $id = 'id';
 	// Menu Items
 	var $menu = array(
@@ -554,89 +554,6 @@ class ImageManagementPage extends FOGPage
 			$this->HookManager->processEvent('IMAGE_UPDATE_FAIL', array('Image' => &$Image));
 			// Log History event
 			$this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Image'), $_REQUEST['name'], $e->getMessage()));
-			// Set session message
-			$this->FOGCore->setMessage($e->getMessage());
-			// Redirect
-			$this->FOGCore->redirect($this->formAction);
-		}
-	}
-	/** delete()
-		Form to delete image object.
-	*/
-	public function delete()
-	{
-		// Find
-		$Image = new Image($this->request['id']);
-		// Title
-		$this->title = sprintf('%s: %s', _('Remove'), $Image->get('name'));
-		// Headerdata
-		unset($this->headerData);
-		// Attributes
-		$this->attributes = array(
-			array(),
-			array(),
-			array(),
-		);
-		// Templates
-		$this->templates = array(
-			'${field}',
-			'${check}',
-			'${input}',
-		);
-		$fields = array(
-			_('Please confirm you want to delete').' <b>'.$Image->get('name').'</b>' => '<input type="submit" value="${title}" />',
-		);
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" class="c">';
-		foreach((array)$fields AS $field => $input)
-		{
-			$this->data[] = array(
-				'field' => $field,
-				'input' => $input,
-				'check' => '<input type="checkbox" name="andFile" id="andFile" value="1"><label for="andFile">${file_data}?</label>',
-				'file_data' => _('file data too'),
-				'title' => $this->title,
-			);
-		}
-		// Hook
-		$this->HookManager->processEvent('IMAGE_DELETE', array('Image' => &$Image));
-		// Output
-		$this->render();
-		print '</form>';
-	}
-	/** delete_post()
-		Actually deletes the image object, and file if checked.
-	*/
-	public function delete_post()
-	{
-		// Find
-		$Image = new Image($this->request['id']);
-		// Hook
-		$this->HookManager->processEvent('IMAGE_DELETE_POST', array('Image' => &$Image));
-		// POST
-		try
-		{
-			if ($Image->get('protected'))
-				throw new Exception(_('Image is protected, removal not allowed'));
-			// Error checking
-			if ($_REQUEST['andFile'] == '1')
-				$Image->deleteImageFile();
-			if (!$Image->destroy())
-				throw new Exception(_('Failed to destroy Object'));
-			// Hook
-			$this->HookManager->processEvent('IMAGE_DELETE_SUCCESS', array('Image' => &$Image));
-			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Image deleted'), $Image->get('id'), $Image->get('name')));
-			// Set session message
-			$this->FOGCore->setMessage(sprintf('%s: %s', _('Image deleted'), $Image->get('name')));
-			// Redirect
-			$this->FOGCore->redirect(sprintf('?node=%s', $this->request['node']));
-		}
-		catch (Exception $e)
-		{
-			// Hook
-			$this->HookManager->processEvent('IMAGE_DELETE_FAIL', array('Image' => &$Image));
-			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s %s: ID: %s, Name: %s', _('Image'), _('deleted'), $Image->get('id'), $Image->get('name')));
 			// Set session message
 			$this->FOGCore->setMessage($e->getMessage());
 			// Redirect

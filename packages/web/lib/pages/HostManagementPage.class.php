@@ -1470,58 +1470,6 @@ class HostManagementPage extends FOGPage
 			$this->FOGCore->redirect('?node=host&sub=edit&id='.$Host->get('id').'#'.$this->REQUEST['tab']);
 		}
 	}
-	/** delete()
-		Prints the delete host form.
-	*/
-	public function delete()
-	{	
-		// Find
-		$Host = new Host($this->REQUEST['id']);
-		// Title
-		$this->title = 'Remove: '.$Host->get('name');
-		// Hook
-		$this->HookManager->processEvent('HOST_DEL', array('Host' => &$Host));
-		print "\n\t\t\t".'<p class="c">'._('Please confirm you want to delete').' <b>'.$Host->get('name').'</b></p>';
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" class="c">';
-		print "\n\t\t\t".'<input type="submit" value="'.$this->title.'" />';
-		print "\n\t\t\t</form>";
-	}
-	/** delete_post()
-		Actually deletes the host.
-	*/
-	public function delete_post()
-	{
-		// Find
-		$Host = new Host($this->REQUEST['id']);
-		// Hook
-		$this->HookManager->processEvent('HOST_DEL_POST', array('Host' => &$Host));
-		// POST
-		try
-		{
-			// Error checking
-			if (!$Host->destroy())
-				throw new Exception('Failed to destroy Host');
-			// Hook
-			$this->HookManager->processEvent('HOST_DELETE_SUCCESS', array('Host' => &$Host));
-			// Log History event
-			$this->FOGCore->logHistory('Host deleted: ID: '.$Host->get('id').', Name: '.$Host->get('name'));
-			// Set session message
-			$this->FOGCore->setMessage('Host deleted: '.$Host->get('name'));
-			// Redirect
-			$this->FOGCore->redirect('?node=host');
-		}
-		catch (Exception $e)
-		{
-			// Hook
-			$this->HookManager->processEvent('HOST_DELETE_FAIL', array('Host' => &$Host));
-			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s %s: ID: %s, Name: %s', _('Host'), _('deleted'), $Host->get('id'), $Host->get('name')));
-			// Set session message
-			$this->FOGCore->setMessage($e->getMessage());
-			// Redirect
-			$this->FOGCore->redirect($this->formAction);
-		}
-	}
 	/** import()
 		Import host form.
 	*/

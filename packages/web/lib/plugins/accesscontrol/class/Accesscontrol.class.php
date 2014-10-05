@@ -8,12 +8,14 @@
 class Accesscontrol extends FOGController
 {
 	// Table
-	public $databaseTable = 'example';
+	public $databaseTable = 'accessControls';
 	// Name -> Database field name
 	public $databaseFields = array(
-		'id'		=> 'eID',
-		'name'		=> 'eName',
-		'other'		=> 'eOther',
-		'hostID'	=> 'eHostID',
+		'id'		=> 'acID',
+		'name'		=> 'acName',
+		'description' => 'acDesc',
+		'other'		=> 'acOther',
+		'userID'	=> 'acUserID',
+		'groupID'	=> 'acGroupID',
 	);
 }

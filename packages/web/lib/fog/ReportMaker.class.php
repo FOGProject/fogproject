@@ -54,7 +54,7 @@ class ReportMaker
 		{
 			$filename="fog_backup.sql";
 			$path=BASEPATH.'/management/other/';
-			exec('mysqldump -u'.DATABASE_USERNAME.' -p\''.DATABASE_PASSWORD.'\' -h'.DATABASE_HOST.' '.DATABASE_NAME.' > '.$path.$filename);
+			exec('mysqldump --opt -u'.DATABASE_USERNAME.' -p"'.DATABASE_PASSWORD.'" -h'.DATABASE_HOST.' '.DATABASE_NAME.' > '.$path.$filename);
 			header('Content-Type: application/octet-stream');
 			header('Content-Disposition: attachment; filename=fog_backup.sql');
 			$backup = readfile($path.$filename);

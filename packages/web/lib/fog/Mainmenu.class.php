@@ -33,7 +33,7 @@ class Mainmenu extends FOGBase
 			'users' => $this->foglang['User Management'],
 			'host' => $this->foglang['Host Management'],
 			'group' => $this->foglang['Group Management'],
-			'images' => $this->foglang['Image Management'],
+			'image' => $this->foglang['Image Management'],
 			'storage' => $this->foglang['Storage Management'],
 			'snapin' => $this->foglang['Snapin Management'],
 			'printer' => $this->foglang['Printer Management'],

@@ -398,7 +398,7 @@ abstract class FOGManagerController extends FOGBase
 	*/
 	public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '')
 	{
-		$matchID = ($_REQUEST['node'] == 'images' ? ($matchID === '0' ? '1' : $matchID) : $matchID);
+		$matchID = ($_REQUEST['node'] == 'image' ? ($matchID === '0' ? '1' : $matchID) : $matchID);
 		if (empty($elementName))
 			$elementName = strtolower($this->childClass);
 		foreach($this->find('','',$orderBy) AS $Object)
