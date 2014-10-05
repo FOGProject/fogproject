@@ -138,4 +138,12 @@ class Printer extends FOGController
 				$PrinterSet->set('isDefault',$onoff)->save();
 		}
 	}
+
+	public function destroy($field = 'id')
+	{
+		// Remove all Host associations
+		$this->getClass('PrinterAssociationManager')->destroy(array('printerID' => $this->get('id')));
+		// Return
+		return parent::destroy($field);
+	}
 }
