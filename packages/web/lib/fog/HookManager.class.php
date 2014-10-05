@@ -14,7 +14,7 @@ class HookManager extends FOGBase
 	{
 		global $Init;
 		$paths = array(BASEPATH.'/management');
-		$paths = array_merge((array)$paths,(array)$FOGPaths);
+		$paths = array_merge((array)$paths,(array)$Init->PagePaths,(array)$Init->FOGPaths);
 		foreach($paths AS $path)
 		{
 			$dir = new RecursiveDirectoryIterator($path,FilesystemIterator::SKIP_DOTS);
