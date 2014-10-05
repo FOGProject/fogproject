@@ -233,7 +233,18 @@ class MulticastTask extends FOGBase
 		if($this->deathTime == null)
 			$this->deathTime = time();
 	}
-
+	
+	private static function killAll($pid,$sig)
+	{
+		exec("ps -ef|awk '\$3 == '$pid' {print \$2}'",$output,$ret);
+		if ($ret) return false;
+		while (list(,$t) = each($output))
+		{
+			if  ($t != $pid)
+				self::killAll($t,$sig);
+		}
+		@posix_kill($pid,$sig);
+	}
 	public function killTask()
 	{
 		foreach($this->arPipes AS $closeme)
@@ -242,7 +253,7 @@ class MulticastTask extends FOGBase
 		{
 			$pid = $this->getPID();
 			if ($pid)
-				@posix_kill($pid, SIGTERM);
+				self::killAll($pid, SIGTERM);
 			@proc_terminate($this->procRef, SIGTERM);
 		}
     	@proc_close($this->procRef);
