@@ -54,7 +54,7 @@ print "\n\t\t".'<!--<link rel="stylesheet" type="text/css" href="css/'.$FOGCore-
 print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/fog.css" />';
 print "\n\t\t".'<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />';
 // Hook
-$HookManager->processEvent('CSS',array('CSS' => true);
+$HookManager->processEvent('CSS',array('CSS' => true));
 print "\n\t</head>";
 print "\n<body>";
 print "\n\t<!-- FOG Message Boxes -->";
