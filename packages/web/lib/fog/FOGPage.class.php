@@ -298,7 +298,7 @@ abstract class FOGPage extends FOGBase
 		{
 			$this->data[] = array(
 				'host_link' => $_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
-				'image_link' => $_SERVER['PHP_SELF'].'?node=images&sub=edit&id=${image_id}',
+				'image_link' => $_SERVER['PHP_SELF'].'?node=image&sub=edit&id=${image_id}',
 				'host_id' => $Data->get('id'),
 				'image_id' => $Data->getImage()->get('id'),
 				'host_name' => $Data->get('name'),
@@ -316,7 +316,7 @@ abstract class FOGPage extends FOGBase
 				{
 					$this->data[] = array(
 						'host_link' => $_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
-						'image_link' => $_SERVER['PHP_SELF'].'?node=images&sub=edit&id=${image_id}',
+						'image_link' => $_SERVER['PHP_SELF'].'?node=image&sub=edit&id=${image_id}',
 						'host_id' => $Host->get('id'),
 						'image_id' => $Host->getImage()->get('id'),
 						'host_name' => $Host->get('name'),
@@ -640,5 +640,104 @@ abstract class FOGPage extends FOGBase
 		unset($this->data);
 		printf('</form>');
 		printf('</div>');
+	}
+
+	// Delete function, this should be more or less the same for all pages.
+	public function delete()
+	{
+		// Find
+		$ClassType = ucfirst($this->node);
+		$Data = new $ClassType($_REQUEST['id']);
+		// Title
+		$this->title = sprintf('%s: %s',_('Remove'),$Data->get('name'));
+		// Header Data
+		unset($this->headerData);
+		// Attributes
+		$this->attributes = array(
+			array(),
+			array(),
+		);
+		// Templates
+		$this->templates = array(
+			'${field}',
+			'${input}',
+		);
+		$fields = array(
+			sprintf('%s <b>%s</b>',_('Please confirm you want to delete'),addslashes($Data->get('name'))) => '&nbsp;',
+			($Data instanceof Group ? _('Delete all hosts within group') : null) => ($Data instanceof Group ? '<input type="checkbox" name="massDelHosts" value="1" />' : null),
+			($Data instanceof Image ? _('Delete file data') : null) => ($Data instanceof Image ? '<input type="checkbox" name="andFile" id="andFile" value="1" />' : null),
+			'&nbsp;' => '<input type="submit" value="${label}" />',
+		);
+		$fields = array_filter($fields);
+		foreach($fields AS $field => $input)
+		{
+			$this->data[] = array(
+				'field' => $field,
+				'input' => $input,
+				'label' => addslashes($this->title),
+			);
+		}
+		// Hook
+		$this->HookManager->processEvent(strtoupper($this->node).'_DEL', array($ClassType => &$Data));
+		printf('%s<form method="post" action="%s" class="c">',"\n\t\t\t",$this->formAction);
+		$this->render();
+		printf('</form>');
+	}
+	public function delete_post()
+	{
+		// Find
+		$ClassType = ucfirst($this->node);
+		$Data = new $ClassType($_REQUEST['id']);
+		// Hook
+		$this->HookManager->processEvent(strtoupper($this->node).'_DEL_POST', array($ClassType => &$Data));
+		// POST
+		try
+		{
+			if ($Data instanceof Group)
+			{
+				if ($_REQUEST['delHostConfirm'] == '1')
+				{
+					foreach((array)$Data->get('hosts') AS $Host)
+					{
+						if ($Host && $Host->isValid())
+							$Host->destroy();
+					}
+				}
+				// Remove hosts first
+				if (isset($_REQUEST['massDelHosts']))
+					$this->FOGCore->redirect('?node=group&sub=delete_hosts&id='.$Data->get('id'));
+			}
+			if ($Data instanceof Image)
+			{
+				if ($Data->get('protected'))
+					throw new Exception(_('Image is protected, removal not allowed'));
+				if (isset($_REQUEST['andFile']))
+					$Data->deleteImageFile();
+			}
+			// Error checking
+			if (!$Data->destroy())
+				throw new Exception(_('Failed to destroy'));
+			// Hook
+			$this->HookManager->processEvent(strtoupper($this->node).'_DELETE_SUCCESS', array($ClassType => &$Data));
+			// Log History event
+			$this->FOGCore->logHistory($ClassType.' deleted: ID: '.$Data->get('id').', Name:'.$Data->get('name'));
+			// Set session message
+			$this->FOGCore->setMessage($ClassType.' deleted: '.$Data->get('name'));
+			// Reset request
+			$this->resetRequest();
+			// Redirect
+			$this->FOGCore->redirect('?node='.$this->node);
+		}
+		catch (Exception $e)
+		{
+			// Hook
+			$this->HookManager->processEvent(strtoupper($this->node).'_DELETE_FAIL', array($ClassType => &$Data));
+			// Log History event
+			$this->FOGCore->logHistory(sprintf('%s %s: ID: %s, Name: %s',_($ClassType), _('delete failed'),$Data->get('id'),$Data->get('name')));
+			// Set session message
+			$this->FOGCore->setMessage($e->getMessage());
+			// Redirect
+			$this->FOGCore->redirect($this->formAction);
+		}
 	}
 }

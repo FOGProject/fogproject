@@ -15,7 +15,7 @@ class CaponeManager extends FOGManagerController
 	*/
 	public function install($name)
     {   
-        $sql = "CREATE TABLE fog.capone
+        $sql = "CREATE TABLE capone
         (cID INTEGER NOT NULL AUTO_INCREMENT,
         cImageID INTEGER NOT NULL,
         cOSID INTEGER NOT NULL,

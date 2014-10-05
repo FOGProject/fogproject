@@ -125,11 +125,18 @@ class Group extends FOGController
     }
 
 	// Custom Variables
-	function doMembersHaveUniformImages()
+	public function doMembersHaveUniformImages()
 	{
 		foreach ($this->get('hosts') AS $Host)
 			$images[] = $Host->get('imageID');
 		$images = array_unique($images);
 		return (count($images) == 1 ? true : false);
+	}
+	public function destroy($field = 'id')
+	{
+		// Remove All Host Associations
+		$this->getClass('GroupAssociationManager')->destroy(array('groupID' => $this->get('id')));
+		// Return
+		return parent::destroy($field);
 	}
 }
