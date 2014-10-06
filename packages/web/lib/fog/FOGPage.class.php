@@ -348,16 +348,16 @@ abstract class FOGPage extends FOGBase
 		$enableSnapins = $TaskType->get('id') != '17' ? ($Snapin instanceof Snapin && $Snapin->isValid() ? $Snapin->get('id') : $Snapin) : false;
 		$enableDebug = $_REQUEST['debug'] == 'true' || $_REQUEST['isDebugTask'] ? true : false;
 		$scheduleDeployTime = $this->nice_date($_REQUEST['scheduleSingleTime']);
-		$imagingTasks = array(1,2,8,15,16,17,24);
+		$imagingTasks = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
 		try
 		{
 			if (!$TaskType || !$TaskType->isValid())
 				throw new Exception(_('Task type is not valid'));
 			$taskName = $TaskType->get('name').' Task';
-			if ($Data->isValid() && in_array($TaskType->get('id'),$imagingTasks))
+			if ($Data && $Data->isValid())
 			{
 				// Error Checking
-				if ($Data instanceof Host)
+				if ($Data instanceof Host && $imagingTasks)
 				{
 					if(!$Data->getImage() || !$Data->getImage()->isValid())
 						throw new Exception(_('You need to assign an image to the host'));
@@ -366,7 +366,7 @@ abstract class FOGPage extends FOGBase
 					if (!$Data->checkIfExist($TaskType->get('id')))
 						throw new Exception(_('You must first upload an image to create a download task'));
 				}
-				else if ($Data instanceof Group)
+				else if ($Data instanceof Group && $imagingTasks)
 				{
 					if ($TaskType->isMulticast() && !$Group->doMembersHaveUniformImages())
 						throw new Exception(_('Hosts do not contain the same image assignments'));
@@ -390,7 +390,7 @@ abstract class FOGPage extends FOGBase
 						if ($Host && $Host->isValid())
 						{
 							foreach((array)$Host->get('task') AS $Task)
-								$Tasks[] = $Host->get('task')->isValid();
+								$Tasks[] = $Task && $Task->isValid();
 						}
 					}
 					if (in_array(true,$Tasks))
