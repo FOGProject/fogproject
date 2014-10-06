@@ -1139,6 +1139,12 @@ class Host extends FOGController
 		$LocPlugInst = current($this->getClass('PluginManager')->find(array('name' => 'location')));
 		if ($LocPlugInst)
 			$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $this->get('id')));
+		// Remove Snapinjob Associations
+		foreach($this->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'))) AS $SnapinJob)
+		{
+			if ($SnapinJob && $SnapinJob->isValid())
+				$SnapinJob->set('stateID',5)->save();
+		}
 		// Remove Group associations
 		$this->getClass('GroupAssociationManager')->destroy(array('hostID' => $this->get('id')));
 		// Remove Module associations
