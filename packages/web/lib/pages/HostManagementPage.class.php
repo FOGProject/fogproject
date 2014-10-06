@@ -385,7 +385,6 @@ class HostManagementPage extends FOGPage
 				'ADPass'	=> $password,
 				'productKey' => base64_encode($_REQUEST['key']),
 			));
-			$Host->addModule($ModuleIDs);
 			if ($LocPluginInst && $LocPluginInst->isValid())
 			{
 				$LA = new LocationAssociation(array(
@@ -398,6 +397,7 @@ class HostManagementPage extends FOGPage
 			// Save to database
 			if ($Host->save())
 			{
+				$Host->addModule($ModuleIDs);
 				$Host->addPriMAC(new MACAddress($_REQUEST['mac']));
 				if($LA)
 					$LA->save();
@@ -1548,10 +1548,10 @@ class HostManagementPage extends FOGPage
 							'createdTime'	=> time(),
 							'createdBy'	=> $this->FOGUser->get('name'),
 						));
-						$Host->addPriMAC($data[0]);
-						$Host->addModule($ModuleIDs);
 						if ($Host->save())
 						{
+							$Host->addModule($ModuleIDs);
+							$Host->addPriMAC($data[0]);
 							$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 							if ($LocPluginInst && $LocPluginInst->isValid())
 							{
