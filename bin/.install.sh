@@ -315,7 +315,6 @@ do
 					read -p "  Press [Enter] key when database is updated/installed.";
 				fi
 			    #restoreReports;
-			    setupFreshClam;
 			    configureStorage;
 	            configureNFS;
 			    configureDHCP;
@@ -330,6 +329,7 @@ do
 			    configureFOGService;
 			    #sendInstallationNotice;
 			    writeUpdateFile;
+			    setupFreshClam;
 			    echo "";
 		
 			    echo "  Setup complete!";
