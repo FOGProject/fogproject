@@ -635,17 +635,33 @@ class TaskManagementPage extends FOGPage
 		$SnapinTasks = $this->getClass('SnapinTaskManager')->find(array('stateID' => array(-1,0,1)));
 		foreach ((array)$SnapinTasks AS $SnapinTask)
 		{
-			$SnapinJobs = $this->getClass('SnapinJobManager')->find(array('id' => $SnapinTask->get('jobID')));
-			foreach ((array)$SnapinJobs AS $SnapinJob)
+			if ($SnapinTask && $SnapinTask->isValid())
 			{
-				$this->data[] = array(
-					'id'		=> $SnapinTask->get('id'),
-					'name'		=> $this->getClass('Snapin',$SnapinTask->get('snapinID'))->get('name'),
-					'hostID'	=> $this->getClass('Host',$SnapinJob->get('hostID'))->get('id'),
-					'host_name'	=> $this->getClass('Host',$SnapinJob->get('hostID'))->get('name'),
-					'startDate' => $SnapinTask->get('checkin'),
-					'state'		=> ($SnapinTask->get('stateID') == 0 ? 'Queued' : ($SnapinTask->get('stateID') == 1 ? 'In-Progress' : 'N/A')),
-				);
+				$SnapinJobs = $this->getClass('SnapinJobManager')->find(array('id' => $SnapinTask->get('jobID')));
+				foreach ((array)$SnapinJobs AS $SnapinJob)
+				{
+					if ($SnapinJob && $SnapinJob->isValid())
+					{
+						$Host = new Host($SnapinJob->get('hostID'));
+						if ($Host && $Host->isValid())
+						{
+							foreach($Host->get('snapins') AS $Snapin)
+							{
+								if ($Snapin && $Snapin->isValid() && $Snapin->get('id') == $SnapinTask->get('snapinID'))
+								{
+									$this->data[] = array(
+										'id'		=> $SnapinTask->get('id'),
+										'name'		=> $Snapin->get('name'),
+										'hostID'	=> $Host->get('id'),
+										'host_name'	=> $Host->get('name'),
+										'startDate' => $SnapinTask->get('checkin'),
+										'state'		=> ($SnapinTask->get('stateID') == 0 ? 'Queued' : ($SnapinTask->get('stateID') == 1 ? 'In-Progress' : 'N/A')),
+									);
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 		// Hook
