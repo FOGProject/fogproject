@@ -82,12 +82,11 @@ try
 			'createdTime' => $FOGCore->formatTime('now',"Y-m-d H:i:s"),
 			'createdBy' => 'FOGREG',
 		));
-		$Host->addModule($ids);
 		$groupid = trim(base64_decode($_REQUEST['groupid']));
 		$Group = ($groupid && is_numeric($groupid) && $groupid > 0 ? new Group($groupid) : new Group(array('id' => 0)));
 		if ($Host->save())
 		{
-			$Host = new Host($Host->get('id'));
+			$Host->addModule($ids);
 			$Host->addPriMAC($mac);
 			$Group && $Group->isValid() ? $Host->addGroup((array)$Group->get('id'))->save() : null;
 			$LocPlugInst = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
@@ -181,11 +180,10 @@ try
 					'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
 					'createdBy' => 'FOGREG'
 				));
-				$Host->addModule($ids);
 			}
 			if ($Host->save())
 			{
-				$Host = new Host($Host->get('id'));
+				$Host->addModule($ids);
 				$Host->addPriMAC($mac);
 				$Group && $Group->isValid() ? $Host->addGroup($groupid)->save() : null;
 				// If the image is valid and get's the member from the host
@@ -215,10 +213,9 @@ try
 					'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
 					'createdBy' => 'FOGREG',
 				));
-				$Host->set('modules',$ids);
 				if ($Host->save())
 				{
-					$Host = new Host($Host->get('id'));
+					$Host->addModule($ids);
 					$Host->addPriMAC($mac);
 					print _('Done');
 				}
