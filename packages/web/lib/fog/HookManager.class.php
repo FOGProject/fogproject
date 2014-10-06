@@ -10,34 +10,7 @@ class HookManager extends FOGBase
 {
 	public $logLevel = 0;
 	private $data;
-	public function __construct()
-	{
-		global $Init;
-		$paths = array(BASEPATH.'/management');
-		$paths = array_merge((array)$paths,(array)$Init->PagePaths,(array)$Init->FOGPaths);
-		foreach($paths AS $path)
-		{
-			$dir = new RecursiveDirectoryIterator($path,FilesystemIterator::SKIP_DOTS);
-			$Iterator = new RecursiveIteratorIterator($dir);
-			$Iterator = new RegexIterator($Iterator,'/^.+\.php$/i',RecursiveRegexIterator::GET_MATCH);
-			$regexp = '#processEvent\([\'\"](.*?)[\'\"]\,#';
-			foreach($Iterator AS $file)
-				preg_match_all($regexp,file_get_contents($file[0]),$matches[]);
-			$matches = $this->array_filter_recursive($matches);
-			foreach($matches AS $match => $value)
-			{
-				if ($matches[$match][1])
-					$matching[] = $matches[$match][1];
-			}
-			foreach($matching AS $ind => $arr)
-			{
-				foreach($arr AS $val)
-					$this->events[] = $val;
-			}
-		}
-		$this->events = array_unique($this->events);
-		return parent::__construct();
-	}
+	public $events;
 	public function register($event, $function)
 	{
 		try
@@ -60,6 +33,35 @@ class HookManager extends FOGBase
 		}
 		return false;
 	}
+	public function getEvents()
+	{
+		global $Init;
+		$paths = array(BASEPATH.'/management');
+		$paths = array_merge((array)$paths,(array)$Init->PagePaths,(array)$Init->FOGPaths);
+		foreach($paths AS $path)
+		{
+			$dir = new RecursiveDirectoryIterator($path,FilesystemIterator::SKIP_DOTS);
+			$Iterator = new RecursiveIteratorIterator($dir);
+			$Iterator = new RegexIterator($Iterator,'/^.+\.php$/i',RecursiveRegexIterator::GET_MATCH);
+			$regexp = '#processEvent\([\'\"](.*?)[\'\"]#';
+			foreach($Iterator AS $file)
+				preg_match_all($regexp,file_get_contents($file[0]),$matches[]);
+			$matches = $this->array_filter_recursive($matches);
+			foreach($matches AS $match => $value)
+			{
+				if ($matches[$match][1])
+					$matching[] = $matches[$match][1];
+			}
+			foreach($matching AS $ind => $arr)
+			{
+				foreach($arr AS $val)
+					$this->events[] = $val;
+			}
+		}
+		array_push($this->events,'HOST_DEL','HOST_DEL_POST','GROUP_DEL','GROUP_DEL_POST','IMAGE_DEL','IMAGE_DEL_POST','SNAPIN_DEL','SNAPIN_DEL_POST','PRINTER_DEL','PRINTER_DEL_POST','HOST_DEPLOY','GROUP_DEPLOY','HOST_DATA_TASKS','GROUP_DATA_TASKS','HOST_DATA_ADV','GROUP_DATA_ADV','HOST_EDIT_AD','GROUP_EDIT_AD');
+		$this->events = array_unique($this->events);
+		self::load();
+	}
 	public function processEvent($event, $arguments = array())
 	{
 		if ($this->data[$event])
@@ -77,9 +79,9 @@ class HookManager extends FOGBase
 			}
 		}
 	}
-	public function load()
+	private static function load()
 	{
-		global $Init;
+		global $Init,$FOGCore;
 		foreach($Init->HookPaths AS $hookDirectory)
 		{
 			if (file_exists($hookDirectory))
@@ -89,7 +91,7 @@ class HookManager extends FOGBase
 				{
 					$file = !$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-9) == '.hook.php' ? file($fileInfo->getPathname()) : null;
 					$PluginName = preg_match('#plugins#i',$hookDirectory) ? basename(substr($hookDirectory,0,-6)) : null;
-					$Plugin = current($this->getClass('PluginManager')->find(array('name' => $PluginName,'installed' => 1)));
+					$Plugin = current($FOGCore->getClass('PluginManager')->find(array('name' => $PluginName,'installed' => 1)));
 					if ($Plugin)
 						$className = (substr($fileInfo->getFilename(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
 					else if ($file && !preg_match('#plugins#',$fileInfo->getPathname()))
