@@ -385,7 +385,6 @@ class HostManagementPage extends FOGPage
 				'ADPass'	=> $password,
 				'productKey' => base64_encode($_REQUEST['key']),
 			));
-			$Host->addPriMAC(new MACAddress($_REQUEST['mac']));
 			$Host->addModule($ModuleIDs);
 			if ($LocPluginInst && $LocPluginInst->isValid())
 			{
@@ -399,6 +398,7 @@ class HostManagementPage extends FOGPage
 			// Save to database
 			if ($Host->save())
 			{
+				$Host->addPriMAC(new MACAddress($_REQUEST['mac']));
 				if($LA)
 					$LA->save();
 				// Hook
