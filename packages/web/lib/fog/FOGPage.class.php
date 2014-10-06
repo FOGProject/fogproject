@@ -400,7 +400,7 @@ abstract class FOGPage extends FOGBase
 					throw New Exception(_('Password reset requires a user account to reset'));
 				try
 				{
-					if (!in_array($_REQUEST['scheduleType'],array('single','cron')))
+					if ($_REQUEST['scheduleType'] == 'instant')
 					{
 						if ($Data instanceof Group)
 						{
