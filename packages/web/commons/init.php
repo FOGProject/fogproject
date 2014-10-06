@@ -209,7 +209,7 @@ $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
 // HookManager
 $HookManager = new HookManager();
-$HookManager->load();
+$HookManager->getEvents();
 // FOGPageManager
 $FOGPageManager = new FOGPageManager();
 $Init::endInit();
