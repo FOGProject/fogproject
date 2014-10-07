@@ -368,7 +368,7 @@ abstract class FOGPage extends FOGBase
 				}
 				else if ($Data instanceof Group && $imagingTasks)
 				{
-					if ($TaskType->isMulticast() && !$Group->doMembersHaveUniformImages())
+					if ($TaskType->isMulticast() && !$Data->doMembersHaveUniformImages())
 						throw new Exception(_('Hosts do not contain the same image assignments'));
 					unset($NoImage,$ImageExists,$Tasks);
 					foreach((array)$Data->get('hosts') AS $Host)
@@ -387,13 +387,10 @@ abstract class FOGPage extends FOGBase
 						throw new Exception(_('One or more hosts have an image that does not exist'));
 					foreach((array)$Data->get('hosts') AS $Host)
 					{
-						if ($Host && $Host->isValid())
-						{
-							foreach((array)$Host->get('task') AS $Task)
-								$Tasks[] = $Task && $Task->isValid();
-						}
+						if ($Host && $Host->isValid() && $Host->get('task') && $Host->get('task')->isValid())
+							$Tasks[] = $Host->get('task');
 					}
-					if (in_array(true,$Tasks))
+					if (count($Tasks) > 0)
 						throw new Exception(_('One or more hosts are currently in a task'));
 				}
 				if ($TaskType->get('id') == 11 && !trim($_REQUEST['account']))

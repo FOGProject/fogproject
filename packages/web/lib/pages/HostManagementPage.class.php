@@ -1283,7 +1283,7 @@ class HostManagementPage extends FOGPage
 		try
 		{
 			// Tabs
-			switch ($this->REQUEST['tab'])
+			switch ($_REQUEST['tab'])
 			{
 				case 'host-general';
 					// Error checking
@@ -1316,7 +1316,8 @@ class HostManagementPage extends FOGPage
 						if (!$PriMAC && (!$AddMAC || !$AddMAC->isValid()))
 							$AddToAdditional[] = $MAC;
 					}
-					$Host->addPriMAC($mac);
+					if ($Host->get('mac') != $mac->__toString())
+						$Host->addPriMAC($mac->__toString());
 					$Host->addAddMAC($AddToAdditional);
 					if(isset($_REQUEST['additionalMACsRM']))
 					{
