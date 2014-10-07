@@ -364,7 +364,7 @@ abstract class FOGBase
 		);
 		$CurrTime = $this->nice_date('now',$utc);
 		$TimeVal = $CurrTime->diff($time);
-		if (!($TimeVal->y > 1 || $TimeVal->m > 1))
+		if (!($TimeVal->y > 1 || $TimeVal->m >= 1))
 		{
 			if ($time->format('Y-m-d') == $CurrTime->format('Y-m-d'))
 				$RetDate = ($time > $CurrTime ? _('Runs') : _('Ran')).' '._('today, at ').$time->format('g:ia');
