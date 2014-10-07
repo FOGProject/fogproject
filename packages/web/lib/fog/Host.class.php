@@ -81,10 +81,14 @@ class Host extends FOGController
 		$PrinterAssoc = $this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id')));
 		foreach($PrinterAssoc AS $PrinterSet)
 		{
+			if ($PrinterSet && $PrinterSet->isValid())
+			{
 				$PrinterSet->set('isDefault', 0)->save();
-			if ($PrinterSet->get('printerID') == $printerid)	
-				$PrinterSet->set('isDefault', 1)->save();
+				if ($PrinterSet->get('printerID') == $printerid)
+					$PrinterSet->set('isDefault', 1)->save();
+			}
 		}
+		return $this;
 	}
 	public function getDispVals($key = '')
 	{
@@ -463,12 +467,12 @@ class Host extends FOGController
 		// Remove
 		return parent::remove($key, $object);
 	}
-	public function save()
+	public function save($key = '')
 	{
 		// Save
 		parent::save();
 		// Primary MAC Addresses
-		if ($this->isLoaded('mac'))
+		if ($key == 'primac' && $this->isLoaded('mac'))
 		{
 			// Remove Existing Primary MAC Addresses
 			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 1));
@@ -484,7 +488,7 @@ class Host extends FOGController
 			}
 		}
 		// Printers
-		if ($this->isLoaded('printers'))
+		else if ($key == 'printers' && $this->isLoaded('printers'))
 		{
 			// Remove old rows
 			$this->getClass('PrinterAssociationManager')->destroy(array('hostID' => $this->get('id')));
@@ -498,7 +502,7 @@ class Host extends FOGController
 					$NewPrinter = new PrinterAssociation(array(
 						'printerID' => $Printer->get('id'),
 						'hostID' => $this->get('id'),
-						'isDefault' => ($i === 0 ? '1' : '0'),
+						'isDefault' => ($i === 0 ? 1 : 0),
 					));
 					$NewPrinter->save();
 				}
@@ -506,7 +510,7 @@ class Host extends FOGController
 			}
 		}
 		// Snapins
-		if ($this->isLoaded('snapins'))
+		else if ($key = 'snapins' && $this->isLoaded('snapins'))
 		{
 			// Remove old rows
 			$this->getClass('SnapinAssociationManager')->destroy(array('hostID' => $this->get('id')));
@@ -524,7 +528,7 @@ class Host extends FOGController
 			}
 		}
 		// Modules
-		if ($this->isLoaded('modules'))
+		else if ($key = 'modules' && $this->isLoaded('modules'))
 		{
 			// Remove old rows
 			$this->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id')));
@@ -561,7 +565,7 @@ class Host extends FOGController
 			}
 		}
 		// Groups
-		if ($this->isLoaded('groups'))
+		else if ($key == 'groups' && $this->isLoaded('groups'))
 		{
 			// Remove old rows
 			$this->getClass('GroupAssociationManager')->destroy(array('hostID' => $this->get('id')));
@@ -579,7 +583,7 @@ class Host extends FOGController
 			}
 		}
 		// Users
-		if ($this->isLoaded('users'))
+		else if ($key == 'users' && $this->isLoaded('users'))
 		{
 			// Remove old rows
 			$this->getClass('UserTrackingManager')->destroy(array('hostID' => $this->get('id')));
