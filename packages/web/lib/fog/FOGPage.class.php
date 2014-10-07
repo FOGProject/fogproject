@@ -543,7 +543,7 @@ abstract class FOGPage extends FOGBase
 			'task_desc' => _('View advanced tasks for this').' '._($this->node),
 		);
 		// Hook
-		$this->HookManager->processEvent(strtoupper($ClassType).'_DATA_TASKS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' &$this->attributes));
+		$this->HookManager->processEvent(strtoupper($ClassType).'_EDIT_TASKS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' &$this->attributes));
 		// Output
 		$this->render();
 		unset($this->data);
