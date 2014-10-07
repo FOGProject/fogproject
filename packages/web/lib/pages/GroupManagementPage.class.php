@@ -535,7 +535,7 @@ class GroupManagementPage extends FOGPage
 				$this->data[] = array(
 					'snapin_id' => $Snapin->get('id'),
 					'snapin_name' => $Snapin->get('name'),
-					'snapin_created' => $Snapin->get('createdTime'),
+					'snapin_created' => $this->formatTime($Snapin->get('createdTime')),
 				);
 			}
 		}
