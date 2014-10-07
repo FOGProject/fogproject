@@ -1344,9 +1344,9 @@ class HostManagementPage extends FOGPage
 					}
 				break;
 				case 'host-grouprel';
-					$Host->addGroup($_REQUEST['group']);
+					$Host->addGroup($_REQUEST['group'])->save('groups');
 					if(isset($_REQUEST['groupdel']))
-						$Host->removeGroup($_REQUEST['groupdel']);
+						$Host->removeGroup($_REQUEST['groupdel'])->save('groups');
 				break;
 				case 'host-active-directory';
 					if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['domainpassword'])
@@ -1371,22 +1371,21 @@ class HostManagementPage extends FOGPage
 					if (isset($_REQUEST['level']))
 						$Host->set('printerLevel',$_REQUEST['level']);
 					// Add
-					$Host->addPrinter($_REQUEST['printer']);
+					$Host->addPrinter($_REQUEST['printer'])->save('printers');
 					// Set Default
-					if (!empty($this->REQUEST['default']))
-						$Host->updateDefault($this->REQUEST['default']);
-					if (empty($this->REQUEST['default']))
+					if (!empty($_REQUEST['default']))
+						$Host->updateDefault($_REQUEST['default']);
+					if (empty($_REQUEST['default']))
 						$Host->updateDefault('');
 					// Remove
-					if (!empty($_REQUEST['printerRemove']))
-						$Host->removePrinter($this->REQUEST['printerRemove']);
+					$Host->removePrinter($_REQUEST['printerRemove']);
 				break;
 				case 'host-snapins';
 					// Add
-					$Host->addSnapin($_REQUEST['snapin']);
+					$Host->addSnapin($_REQUEST['snapin'])->save('snapins');
 					// Remove
 					if (!empty($this->REQUEST['snapinRemove']))
-						$Host->removeSnapin($this->REQUEST['snapinRemove']);
+						$Host->removeSnapin($this->REQUEST['snapinRemove'])->save('snapins');
 				break;
 				case 'host-service';
 					// The values below are the checking of the service enabled/disabled.
@@ -1406,8 +1405,8 @@ class HostManagementPage extends FOGPage
 					{
 						foreach((array)$ServiceSetting AS $id => $onoff)
 							$onoff ? $modOn[] = $id : $modOff[] = $id;
-						$Host->addModule($modOn);
-						$Host->removeModule($modOff);
+						$Host->addModule($modOn)->save('modules');
+						$Host->removeModule($modOff)->save('modules');
 					}
 					if ($_REQUEST['updatedisplay'] == '1')
 						$Host->setDisp($x,$y,$r);
