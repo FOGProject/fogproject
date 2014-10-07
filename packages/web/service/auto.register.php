@@ -83,12 +83,26 @@ try
 			'createdBy' => 'FOGREG',
 		));
 		$groupid = trim(base64_decode($_REQUEST['groupid']));
-		$Group = ($groupid && is_numeric($groupid) && $groupid > 0 ? new Group($groupid) : new Group(array('id' => 0)));
+		$snapinid = trim(base64_decode($_REQUEST['snapinid']));
+		foreach((array)explode(',',$_REQUEST['groupid']) AS $GroupID)
+		{
+			$GroupTest = new Group($GroupID);
+			if ($GroupTest && $GroupTest->isValid())
+				$Group[] = $GroupTest;
+		}
+		foreach((array)explode(',',$_REQUEST['snapinid']) AS $SnapinID)
+		{
+			$SnapinTest = new Snapin($SnapinID);
+			if ($SnapinTest && $SnapinTest->isValid())
+				$Snapin[] = $SnapinTest;
+		}
 		if ($Host->save())
 		{
 			$Host->addModule($ids);
 			$Host->addPriMAC($mac);
-			$Group && $Group->isValid() ? $Host->addGroup((array)$Group->get('id'))->save() : null;
+			$Host->addGroup($Group);
+			$Host->addSnapin($Snapin);
+			$Host->save();
 			$LocPlugInst = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
 			if ($LocPlugInst)
 			{
@@ -144,7 +158,12 @@ try
 	{
 		// Get the autoreg group id:
 		$groupid = trim($FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC'));
-		$Group = ($groupid && is_numeric($groupid) && $groupid > 0 ? new Group($groupid) : new Group(array('id' => 0)));
+		foreach((array)explode(',',$_REQUEST['groupid']) AS $GroupID)
+		{
+			$GroupTest = new Group($GroupID);
+			if ($GroupTest && $GroupTest->isValid())
+				$Group[] = $GroupTest;
+		}
 		// Quick Registration
 		if ($FOGCore->getSetting('FOG_QUICKREG_AUTOPOP'))
 		{
@@ -185,7 +204,8 @@ try
 			{
 				$Host->addModule($ids);
 				$Host->addPriMAC($mac);
-				$Group && $Group->isValid() ? $Host->addGroup($groupid)->save() : null;
+				$Host->addGroup($Group);
+				$Host->save();
 				// If the image is valid and get's the member from the host
 				// create the tasking, otherwise just register!.
 				if ($Image->isValid() && $Host->getImageMemberFromHostID())
