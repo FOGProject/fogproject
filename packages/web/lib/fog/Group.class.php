@@ -124,6 +124,82 @@ class Group extends FOGController
         return $this;
     }
 
+	public function addImage($imageID)
+	{
+		$Image = ($imageID instanceof Image ? $imageID : new Image((int)$imageID));
+		foreach($this->get('hosts') AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				if ($Host->get('task') && $Host->get('task')->isValid())
+					throw new Exception(_('There is a host in a tasking'));
+				if (!$Image || !$Image->isValid())
+					throw new Exception(_('Image is not valid'));
+				else
+					$Host->set('imageID', $Image->get('id'));
+				$Host->save();
+			}
+		}
+	}
+
+	public function addSnapin($snapArray)
+	{
+		foreach($this->get('hosts') AS $Host)
+		{
+			if ($Host && $Host->isValid())
+				$Host->addSnapin($snapArray)->save('snapins');
+		}
+	}
+
+	public function removeSnapin($snapArray)
+	{
+		foreach($this->get('hosts') AS $Host)
+		{
+			if ($Host && $Host->isValid())
+				$Host->removeSnapin($snapArray)->save('snapins');
+		}
+	}
+
+	public function setAD($useAD, $domain, $ou, $user, $pass)
+	{
+		foreach($this->get('hosts') AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $pass)
+				{
+					$decrypt = $this->aesdecrypt($pass,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+					if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true))
+						$pass = $this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+					else
+						$pass = $this->FOGCore->aesencrypt($pass,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+				}
+				$Host->set('useAD',$useAD)
+					 ->set('ADDomain',$domain)
+					 ->set('ADOU',$ou)
+					 ->set('ADUser',$user)
+					 ->set('ADPass',$pass)
+					 ->save();
+			}
+		}
+	}
+
+	public function addPrinter($printAdd,$printDel,$default = 0,$level = 0)
+	{
+		foreach($this->get('hosts') AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				$Host->set('printerLevel',$level)
+					 ->addPrinter($printAdd)
+					 ->removePrinter($printDel)
+					 ->save('printers');
+				if ($default)
+					$Host->updateDefault($default);
+			}
+		}
+	}
+
 	// Custom Variables
 	public function doMembersHaveUniformImages()
 	{
