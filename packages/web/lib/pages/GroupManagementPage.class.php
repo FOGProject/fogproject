@@ -828,7 +828,7 @@ class GroupManagementPage extends FOGPage
 		// Group Edit 
 		try
 		{
-			switch($_REQUEST['tab'])
+			switch($this->REQUEST['tab'])
 			{
 				// Group Main Edit
 				case 'group-general';
@@ -894,31 +894,80 @@ class GroupManagementPage extends FOGPage
 				// Image Association
 				case 'group-image';
 					// Error Checking
-					if ($_REQUEST['image'])
+					if (empty($_REQUEST['image']))
 						throw new Exception('Select an Image');
 					else
-						$Group->addImage($_REQUEST['image']);
+					{
+						foreach ((array)$Group->get('hosts') AS $Host)
+						{
+							if ($Host && $Host->isValid())
+							{
+								$Task = current($this->getClass('TaskManager')->find(array('hostID' => $Host->get('id'),'stateID' => array(1,2,3))));
+								if ($Task && $Task->isValid() && !$_REQUEST['image'])
+									throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
+								else
+									$Host->set('imageID', $this->REQUEST['image']);
+								$Host->save();
+							}
+						}
+					}
 				break;
 				// Snapin Add
 				case 'group-snap-add';
-					$Group->addSnapin($_REQUEST['snapin']);
+					foreach((array)$Group->get('hosts') AS $Host)
+					{
+						if ($Host && $Host->isValid())
+							$Host->addSnapin($_REQUEST['snapin'])->save();
+					}
 				break;
 				// Snapin Del
 				case 'group-snap-del';
-					$Group->removeSnapin($_REQUEST['snapin']);
+					foreach((array)$Group->get('hosts') AS $Host)
+					{
+						if ($Host && $Host->isValid())
+							$Host->removeSnapin($_REQUEST['snapin'])->save();
+					}
 				break;
 				// Active Directory
 				case 'group-active-directory';
-					$useAD = ($_REQUEST['domain'] == 'on');
-					$domain = $_REQUEST['domainname'];
-					$ou = $_REQUEST['ou'];
-					$user = $_REQUEST['domainuser'];
-					$pass = $_REQUEST['domainpassword'];
-					$Group->setAD($useAD,$domain,$ou,$user,$pass);
+					foreach ((array)$Group->get('hosts') AS $Host)
+					{
+						if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['domainpassword'])
+						{
+							$decrypt = $this->FOGCore->aesdecrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+							if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))
+								$password = $this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+							else
+								$password = $this->FOGCore->aesencrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
+						}
+						else
+							$password = $_REQUEST['domainpassword'];
+						if ($Host && $Host->isValid())
+						{
+							$Host->set('useAD', ($this->REQUEST['domain'] == "on" ? '1' : '0'))
+								 ->set('ADDomain', $this->REQUEST['domainname'])
+								 ->set('ADOU', $this->REQUEST['ou'])
+								 ->set('ADUser', $this->REQUEST['domainuser'])
+								 ->set('ADPass', $password);
+							$Host->save();
+						}
+					}
 				break;
 				// Printer Add/Rem
 				case 'group-printers';
-					$Group->addPrinter($_REQUEST['prntadd'],$_REQUEST['prntdel'],$_REQUEST['default'],$_REQUEST['level']);
+					// Error Checking
+					foreach ((array)$Group->get('hosts') AS $Host)
+					{
+						if ($Host && $Host->isValid())
+						{
+							$Host->set('printerLevel', $_REQUEST['level']);
+							$Host->addPrinter($_REQUEST['prntadd']);
+							$Host->removePrinter($_REQUEST['prntdel']);
+							$Host->save();
+							if (isset($_REQUEST['default']))
+								$Host->updateDefault($_REQUEST['default']);
+						}
+					}
 				break;
 				// Update Services
 				case 'group-service';
@@ -942,7 +991,7 @@ class GroupManagementPage extends FOGPage
 							if($_REQUEST['updatestatus'] == '1')
 							{
 								foreach((array)$ServiceSetting AS $id => $onoff)
-									$onoff ? $Host->addModule($id)->save('modules') : $Host->removeModule($id)->save('modules');
+									$onoff ? $Host->addModule($id) : $Host->removeModule($id);
 							}
 							if ($_REQUEST['updatedisplay'] == '1')
 								$Host->setDisp($x,$y,$r);

@@ -82,26 +82,14 @@ try
 			'createdTime' => $FOGCore->formatTime('now',"Y-m-d H:i:s"),
 			'createdBy' => 'FOGREG',
 		));
-		$groupid = trim(base64_decode($_REQUEST['groupid']));
-		$snapinid = trim(base64_decode($_REQUEST['snapinid']));
-		foreach((array)explode(',',$_REQUEST['groupid']) AS $GroupID)
-		{
-			$GroupTest = new Group($GroupID);
-			if ($GroupTest && $GroupTest->isValid())
-				$Group[] = $GroupTest;
-		}
-		foreach((array)explode(',',$_REQUEST['snapinid']) AS $SnapinID)
-		{
-			$SnapinTest = new Snapin($SnapinID);
-			if ($SnapinTest && $SnapinTest->isValid())
-				$Snapin[] = $SnapinTest;
-		}
+		$groupid = explode(',',trim(base64_decode($_REQUEST['groupid'])));
+		$snapinid = explode(',',trim(base64_decode($_REQUEST['snapinid'])));
 		if ($Host->save())
 		{
 			$Host->addModule($ids);
 			$Host->addPriMAC($mac);
-			$Host->addGroup($Group);
-			$Host->addSnapin($Snapin);
+			$Host->addGroup($groupid);
+			$Host->addSnapin($snapinid);
 			$Host->save();
 			$LocPlugInst = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
 			if ($LocPlugInst)
@@ -157,13 +145,7 @@ try
 	else
 	{
 		// Get the autoreg group id:
-		$groupid = trim($FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC'));
-		foreach((array)explode(',',$_REQUEST['groupid']) AS $GroupID)
-		{
-			$GroupTest = new Group($GroupID);
-			if ($GroupTest && $GroupTest->isValid())
-				$Group[] = $GroupTest;
-		}
+		$groupid = explode(',',trim($FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC')));
 		// Quick Registration
 		if ($FOGCore->getSetting('FOG_QUICKREG_AUTOPOP'))
 		{
@@ -204,7 +186,7 @@ try
 			{
 				$Host->addModule($ids);
 				$Host->addPriMAC($mac);
-				$Host->addGroup($Group);
+				$Host->addGroup($groupid);
 				$Host->save();
 				// If the image is valid and get's the member from the host
 				// create the tasking, otherwise just register!.
