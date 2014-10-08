@@ -178,7 +178,7 @@ if [ -n "$hd" ]; then
 		then
 			echo
 			echo "    Would you like to add this host to a group or groups";
-			echo -n "\t\t(comma separated e.g. 1,2,3) (using default settings)? (y/N) ";
+			echo -n "         (comma separated e.g. 1,2,3) (using default settings)? (y/N) ";
 			read askme;
 			blDoAddGroup="0";
 			case "$askme" in
@@ -222,7 +222,7 @@ if [ -n "$hd" ]; then
 		then
 			echo
 			echo "    Would you like to add snapin or snapins to this host";
-			echo -n "\t\t(comma separated e.g. 1,2,3) (using default settings)? (y/N) ";
+			echo -n "         (comma separated e.g. 1,2,3) (using default settings)? (y/N) ";
 			read askme;
 			blDoAddSnapin="0";
 			case "$askme" in
