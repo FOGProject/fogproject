@@ -76,15 +76,16 @@ class Host extends FOGController
 		$PrinterMan = current($this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $printerid)));
 		return ($PrinterMan && $PrinterMan->isValid() ? $PrinterMan->get('isDefault') : false);
 	}
-	public function updateDefault($printerid)
+	public function updateDefault($printerid,$onoff)
 	{
 		$PrinterAssoc = $this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id')));
 		foreach($PrinterAssoc AS $PrinterSet)
 		{
-				$PrinterSet->set('isDefault', 0)->save();
-			if ($PrinterSet->get('printerID') == $printerid)	
-				$PrinterSet->set('isDefault', 1)->save();
+			$PrinterSet->set('isDefault',0)->save();
+			if ($PrinterSet->get('printerID') == $printerid)
+				$PrinterSet->set('isDefault',$onoff)->save();
 		}
+		return $this;
 	}
 	public function getDispVals($key = '')
 	{
@@ -486,6 +487,8 @@ class Host extends FOGController
 		// Printers
 		if ($this->isLoaded('printers'))
 		{
+			// Find the current default
+			$defPrint = current($this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'isDefault' => 1)));
 			// Remove old rows
 			$this->getClass('PrinterAssociationManager')->destroy(array('hostID' => $this->get('id')));
 			// Add Default Printer
@@ -498,7 +501,7 @@ class Host extends FOGController
 					$NewPrinter = new PrinterAssociation(array(
 						'printerID' => $Printer->get('id'),
 						'hostID' => $this->get('id'),
-						'isDefault' => ($i === 0 ? '1' : '0'),
+						'isDefault' => ($defPrint && $defPrint->isValid() ? $defPrint->get('id') : ($i === 0 ? '1' : '0')),
 					));
 					$NewPrinter->save();
 				}
@@ -1130,6 +1133,28 @@ class Host extends FOGController
 		// Return
 		return $this;
 	}
+	public function setAD($useAD,$domain,$ou,$user,$pass)
+	{
+		$key = $this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY');
+		if ($this->get('id'))
+		{
+			if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $pass)
+			{
+				$decrypt = $this->aesdecrypt($pass,$key);
+				if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true))
+					$pass = $this->FOGCore->aesencrypt($decrypt,$key);
+				else
+					$pass = $this->FOGCore->aesencrypt($pass,$key);
+			}
+			$this->set('useAD',$useAD)
+				 ->set('ADDomain',$domain)
+				 ->set('ADOU',$ou)
+				 ->set('ADUser',$user)
+				 ->set('ADPass',$pass);
+		}
+		return $this;
+	}
+
 	public function destroy($field = 'id')
 	{
 		// Complete active tasks

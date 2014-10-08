@@ -592,7 +592,7 @@ class HostManagementPage extends FOGPage
 		if (count($this->data) > 0)
 		{
 			$this->HookManager->processEvent('HOST_GROUP_JOIN',array('headerData' => &$this->headerData,'templates' => &$this->templates,'attributes' => &$this->attributes,'data' => &$this->data));
-			print "\n\t\t\t<center>"._('Check here to see groups this host is not associated with').'&nbsp;&nbsp;<input type="checkbox" name="hostGroupShow" id="hostGroupShow" /></center>';
+			print "\n\t\t\t<center>".'<label for="hostGroupShow">'._('Check here to see groups this host is not associated with').'&nbsp;&nbsp;<input type="checkbox" name="hostGroupShow" id="hostGroupShow" /></label></center>';
 			print "\n\t\t\t".'<center><div id="hostGroupDisplay">';
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-grouprel">';
 			$this->render();
@@ -676,7 +676,7 @@ class HostManagementPage extends FOGPage
 		}
 		if (count($this->data) > 0)
 		{
-			print "\n\t\t\t"._('Check here to see what printers can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostPrinterShow" id="hostPrinterShow" />';
+			print "\n\t\t\t<center>".'<label for="hostPrinterShow">'._('Check here to see what printers can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostPrinterShow" id="hostPrinterShow" /></label></center>';
 			print "\n\t\t\t".'<div id="printerNotInHost">';
 			print "\n\t\t\t<h2>"._('Add new printer(s) to this host').'</h2>';
 			$this->HookManager->processEvent('HOST_ADD_PRINTER', array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
@@ -698,7 +698,7 @@ class HostManagementPage extends FOGPage
 			array(),
 		);
 		$this->templates = array(
-			'<input class="default" type="checkbox" name="default" id="printer${printer_id}" value="${printer_id}"${is_default} /><label for="printer${printer_id}"></label>',
+			'<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}"${is_default} /><label for="printer${printer_id}"></label><input type="hidden" name="printerid[]" value="${printer_id}" />',
 			'<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
 			'${printer_type}',
 			'<input onclick="this.form.submit()" class="delid" type="checkbox" name="printerRemove[]" value="${printer_id}" id="rempr${printer_id}" /><label for="rempr${printer_id}">'._('Delete').'</label>',
@@ -778,7 +778,7 @@ class HostManagementPage extends FOGPage
 		}
 		if (count($this->data) > 0)
 		{
-			print "\n\t\t\t<center>"._('Check here to see what snapins can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostSnapinShow" id="hostSnapinShow" />';
+			print "\n\t\t\t<center>".'<label for="hostSnapinShow">'._('Check here to see what snapins can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostSnapinShow" id="hostSnapinShow" /></label>';
 			print "\n\t\t\t".'<div id="snapinNotInHost">';
 			$this->HookManager->processEvent('HOST_SNAPIN_JOIN',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
 			$this->render();
@@ -1349,21 +1349,12 @@ class HostManagementPage extends FOGPage
 						$Host->removeGroup($_REQUEST['groupdel']);
 				break;
 				case 'host-active-directory';
-					if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['domainpassword'])
-					{
-						$decrypt = $this->FOGCore->aesdecrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
-						if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))
-							$password = $this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
-						else
-							$password = $this->FOGCore->aesencrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
-					}
-					else
-						$password = $_REQUEST['domainpassword'];
-					$Host	->set('useAD',		($_REQUEST["domain"] == "on" ? '1' : '0'))
-							->set('ADDomain',	$_REQUEST['domainname'])
-							->set('ADOU',		$_REQUEST['ou'])
-							->set('ADUser',		$_REQUEST['domainuser'])
-							->set('ADPass',		$password);
+					$useAD = ($_REQUEST['domain'] == 'on');
+					$domain = $_REQUEST['domainname'];
+					$ou = $_REQUEST['ou'];
+					$user = $_REQUEST['domainuser'];
+					$pass = $_REQUEST['domainpassword'];
+					$Host->setAD($useAD,$domain,$ou,$user,$pass);
 				break;
 				case 'host-printers';
 					$PrinterManager = $this->getClass('PrinterAssociationManager');
@@ -1373,10 +1364,17 @@ class HostManagementPage extends FOGPage
 					// Add
 					$Host->addPrinter($_REQUEST['printer']);
 					// Set Default
-					if (!empty($this->REQUEST['default']))
-						$Host->updateDefault($this->REQUEST['default']);
-					if (empty($this->REQUEST['default']))
-						$Host->updateDefault('');
+					foreach($_REQUEST['printerid'] AS $printerid)
+					{
+						$Printer = new Printer($printerid);
+						if ($Printer && $Printer->isValid())
+						{
+							if ($Printer->get('id') == $_REQUEST['default'])
+								$Host->updateDefault($printerid,1);
+							else
+								$Host->updateDefault($Printer->get('id'),0);
+						}
+					}
 					// Remove
 					if (!empty($_REQUEST['printerRemove']))
 						$Host->removePrinter($this->REQUEST['printerRemove']);
