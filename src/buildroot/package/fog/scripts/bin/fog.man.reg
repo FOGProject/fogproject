@@ -81,6 +81,7 @@ if [ -n "$hd" ]; then
 		other2="";
 		blImage="";
 		blDoAddGroup="";
+		blDoAddSnapin="";
 		keyEnter="";
 		blDoAD="";
 		echo
@@ -176,7 +177,8 @@ if [ -n "$hd" ]; then
 		if [ "$blDoAddGroup" = "" ]
 		then
 			echo
-			echo -n "    Would you like to add this host to a group (using default settings)? (y/N) ";
+			echo "    Would you like to add this host to a group or groups";
+			echo -n "\t\t(comma separated e.g. 1,2,3) (using default settings)? (y/N) ";
 			read askme;
 			blDoAddGroup="0";
 			case "$askme" in
@@ -209,6 +211,50 @@ if [ -n "$hd" ]; then
 					done
 					group64=`echo $groupid | base64`;
 					blDoAddGroup="1";
+					;;
+				[nN]*)
+					;;
+				*)
+					;;
+			esac			
+		fi
+		if [ "$blDoAddSnapin" = "" ]
+		then
+			echo
+			echo "    Would you like to add snapin or snapins to this host";
+			echo -n "\t\t(comma separated e.g. 1,2,3) (using default settings)? (y/N) ";
+			read askme;
+			blDoAddSnapin="0";
+			case "$askme" in
+				Y | y | yes | yEs | yES | Yes | YeS | YES )
+					while [ "$snapinid" == "" ]; do		
+						echo
+						echo -n "    Enter the snapin ID for this system (? for listing): ";
+						read snapinid;
+						if [ "$snapinid" == "?" ]; then
+							clear;
+							res=`wget -O - "http://${web}service/snapinlisting.php" 2>/dev/null`;
+							i=0
+							OLDIFS=$IFS;
+							IFS='
+'	;
+							for line in $res; do
+								i=$((i+1));
+								echo $line;
+								if [ "$i" == "20" ]; then
+									echo -n "Press Enter to Proceed..."
+									read dummy;
+								clear;
+								i=0;
+								fi
+							done
+							IFS=$OLDIFS
+							echo
+							snapinid="";
+						fi
+					done
+					snapin64=`echo $snapinid | base64`;
+					blDoAddSnapin="1";
 					;;
 				[nN]*)
 					;;
@@ -315,7 +361,7 @@ if [ -n "$hd" ]; then
 		res="";
 		while [ "${res}" = "" ]
 		do
-			res=`wget -O - --post-data="mac=$mac&advanced=1&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$locationid&username=$user64&groupid=$group64&productKey=$productKey" "http://${web}service/auto.register.php" 2>/dev/null`
+			res=`wget -O - --post-data="mac=$mac&advanced=1&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$locationid&username=$user64&groupid=$group64&snapinid=$snapin64&productKey=$productKey" "http://${web}service/auto.register.php" 2>/dev/null`
 			echo "${res}";			
 			sleep 2;
 		done;
