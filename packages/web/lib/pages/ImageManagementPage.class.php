@@ -401,7 +401,7 @@ class ImageManagementPage extends FOGPage
 		{
 			$ImageDataExists = true;
 			$this->HookManager->processEvent('IMAGE_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-			print "\n\t\t\t<center>"._('Check here to see hosts not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" />';
+			print "\n\t\t\t<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label>';
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-host">';
 			print "\n\t\t\t".'<div id="hostNotInMe">';
 			print "\n\t\t\t".'<h2>'._('Modify image association for').' '.$Image->get('name').'</h2>';
@@ -440,7 +440,7 @@ class ImageManagementPage extends FOGPage
 		{
 			$ImageDataExists = true;
 			$this->HookManager->processEvent('IMAGE_HOST_NOT_WITH_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-			print "\n\t\t\t"._('Check here to see hosts not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" />';
+			print "\n\t\t\t".'<label for="hostNoShow">'._('Check here to see hosts not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" /></label>';
 			print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-host">';
 			print "\n\t\t\t".'<div id="hostNoImage">';
 			print "\n\t\t\t".'<p>'._('Hosts below have no image association').'</p>';

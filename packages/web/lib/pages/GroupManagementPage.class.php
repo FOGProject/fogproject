@@ -393,7 +393,7 @@ class GroupManagementPage extends FOGPage
 		{
 			$GroupDataExists = true;
 			$this->HookManager->processEvent('GROUP_HOST_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-			print "\n\t\t\t<center>"._('Check here to see hosts not in this group').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" />';
+			print "\n\t\t\t<center>".'<label for="hostMeShow">'._('Check here to see hosts not in this group').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label>';
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
 			print "\n\t\t\t".'<div id="hostNotInMe">';
 			print "\n\t\t\t".'<h2>'._('Modify Membership for').' '.$Group->get('name').'</h2>';
@@ -431,7 +431,7 @@ class GroupManagementPage extends FOGPage
 		{
 			$GroupDataExists = true;
 			$this->HookManager->processEvent('GROUP_HOST_NOT_IN_ANY',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-			print "\n\t\t\t"._('Check here to see hosts not within a group').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" />';
+			print "\n\t\t\t".'<label for="hostNoShow">'._('Check here to see hosts not within a group').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" /></label>';
 			print "\n\t\t\t".'<div id="hostNoGroup">';
 			print "\n\t\t\t".'<p>'._('Hosts below do not belong to a group').'</p>';
 			print "\n\t\t\t".'<p>'._('Add hosts to group').' '.$Group->get('name').'</p>';
@@ -741,7 +741,7 @@ class GroupManagementPage extends FOGPage
 		// Create Template for Printers:
 		$this->templates = array(
 			'<input type="checkbox" name="prntadd[]" value="${printer_id}" class="toggle-print" />',
-			'<input class="default" type="checkbox" name="default" id="printer${printer_id}" value="${printer_id}" /><label for="printer${printer_id}"></label>',
+			'<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}" /><label for="printer${printer_id}"></label><input type="hidden" name="printerid[]" />',
 			'<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
 			'${printer_type}',
 		);
@@ -828,7 +828,7 @@ class GroupManagementPage extends FOGPage
 		// Group Edit 
 		try
 		{
-			switch($this->REQUEST['tab'])
+			switch($_REQUEST['tab'])
 			{
 				// Group Main Edit
 				case 'group-general';
@@ -893,81 +893,29 @@ class GroupManagementPage extends FOGPage
 				break;
 				// Image Association
 				case 'group-image';
-					// Error Checking
-					if (empty($_REQUEST['image']))
-						throw new Exception('Select an Image');
-					else
-					{
-						foreach ((array)$Group->get('hosts') AS $Host)
-						{
-							if ($Host && $Host->isValid())
-							{
-								$Task = current($this->getClass('TaskManager')->find(array('hostID' => $Host->get('id'),'stateID' => array(1,2,3))));
-								if ($Task && $Task->isValid() && !$_REQUEST['image'])
-									throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
-								else
-									$Host->set('imageID', $this->REQUEST['image']);
-								$Host->save();
-							}
-						}
-					}
+					$Group->addImage($_REQUEST['image']);
 				break;
 				// Snapin Add
 				case 'group-snap-add';
-					foreach((array)$Group->get('hosts') AS $Host)
-					{
-						if ($Host && $Host->isValid())
-							$Host->addSnapin($_REQUEST['snapin'])->save();
-					}
+					$Group->addSnapin($_REQUEST['snapin']);
 				break;
 				// Snapin Del
 				case 'group-snap-del';
-					foreach((array)$Group->get('hosts') AS $Host)
-					{
-						if ($Host && $Host->isValid())
-							$Host->removeSnapin($_REQUEST['snapin'])->save();
-					}
+					$Group->removeSnapin($_REQUEST['snapin']);
 				break;
 				// Active Directory
 				case 'group-active-directory';
-					foreach ((array)$Group->get('hosts') AS $Host)
-					{
-						if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['domainpassword'])
-						{
-							$decrypt = $this->FOGCore->aesdecrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
-							if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))
-								$password = $this->FOGCore->aesencrypt($decrypt,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
-							else
-								$password = $this->FOGCore->aesencrypt($_REQUEST['domainpassword'],$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'));
-						}
-						else
-							$password = $_REQUEST['domainpassword'];
-						if ($Host && $Host->isValid())
-						{
-							$Host->set('useAD', ($this->REQUEST['domain'] == "on" ? '1' : '0'))
-								 ->set('ADDomain', $this->REQUEST['domainname'])
-								 ->set('ADOU', $this->REQUEST['ou'])
-								 ->set('ADUser', $this->REQUEST['domainuser'])
-								 ->set('ADPass', $password);
-							$Host->save();
-						}
-					}
+					$useAD = ($_REQUEST['domain'] == 'on');
+					$domain = $_REQUEST['domainname'];
+					$ou = $_REQUEST['ou'];
+					$user = $_REQUEST['domainuser'];
+					$pass = $_REQUEST['domainpassword'];
+					$Group->setAD($useAD,$domain,$ou,$user,$pass);
 				break;
 				// Printer Add/Rem
 				case 'group-printers';
-					// Error Checking
-					foreach ((array)$Group->get('hosts') AS $Host)
-					{
-						if ($Host && $Host->isValid())
-						{
-							$Host->set('printerLevel', $_REQUEST['level']);
-							$Host->addPrinter($_REQUEST['prntadd']);
-							$Host->removePrinter($_REQUEST['prntdel']);
-							$Host->save();
-							if (isset($_REQUEST['default']))
-								$Host->updateDefault($_REQUEST['default']);
-						}
-					}
+					$Group->addPrinter($_REQUEST['prntadd'],$_REQUEST['prntdel'],$_REQUEST['level']);
+					$Group->updateDefault($_REQUEST['printerid'],$_REQUEST['default']);
 				break;
 				// Update Services
 				case 'group-service';
@@ -991,7 +939,7 @@ class GroupManagementPage extends FOGPage
 							if($_REQUEST['updatestatus'] == '1')
 							{
 								foreach((array)$ServiceSetting AS $id => $onoff)
-									$onoff ? $Host->addModule($id) : $Host->removeModule($id);
+									$onoff ? $Host->addModule($id)->save('modules') : $Host->removeModule($id)->save('modules');
 							}
 							if ($_REQUEST['updatedisplay'] == '1')
 								$Host->setDisp($x,$y,$r);

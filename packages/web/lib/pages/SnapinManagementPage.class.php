@@ -364,7 +364,7 @@ class SnapinManagementPage extends FOGPage
 		{
 			$SnapinDataExists = true;
 			$this->HookManager->processEvent('SNAPIN_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-			print "\n\t\t\t<center>"._('Check here to see hosts not assigned with this snapin').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" />';
+			print "\n\t\t\t<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this snapin').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label>';
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=snap-host">';
 			print "\n\t\t\t".'<div id="hostNotInMe">';
 			print "\n\t\t\t".'<h2>'._('Modify snapin association for').' '.$Snapin->get('name').'</h2>';
@@ -403,7 +403,7 @@ class SnapinManagementPage extends FOGPage
 		{
 			$SnapinDataExists = true;
 			$this->HookManager->processEvent('SNAPIN_HOST_NOT_IN_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-			print "\n\t\t\t<center>"._('Check here to see hosts not assigned with any snapin').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostNoShow" />';
+			print "\n\t\t\t<center>".'<label for="hostNoShow">'._('Check here to see hosts not assigned with any snapin').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostNoShow" /></label>';
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=snap-host">';
 			print "\n\t\t\t".'<div id="hostNoSnapin">';
 			print "\n\t\t\t".'<p>'._('Hosts below have no snapin association').'</p>';
