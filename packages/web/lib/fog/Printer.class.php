@@ -130,13 +130,18 @@ class Printer extends FOGController
 
 	public function updateDefault($hostid,$onoff)
 	{
-		$PrinterAssoc = $this->getClass('PrinterAssociationManager')->find(array('hostID' => $hostid));
-		foreach($PrinterAssoc AS $PrinterSet)
+		foreach($hostid AS $id)
 		{
-			$PrinterSet->set('isDefault',0)->save();
-			if ($PrinterSet->get('printerID') == $this->get('id'))
-				$PrinterSet->set('isDefault',$onoff)->save();
+			$Host = new Host($id);
+			if ($Host && $Host->isValid())
+			{
+				if (in_array($Host->get('id'),$onoff))
+					$Host->updateDefault($this->get('id'),1);
+				if (!in_array($Host->get('id'),$onoff))
+					$Host->updateDefault($this->get('id'),0);
+			}
 		}
+		return $this;
 	}
 
 	public function destroy($field = 'id')

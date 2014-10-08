@@ -444,7 +444,7 @@ class PrinterManagementPage extends FOGPage
 		{
 			$PrinterDataExists = true;
 			$this->HookManager->processEvent('PRINTER_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-			print "\n\t\t\t<center>"._('Check here to see hosts not assigned with this printer').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" />';
+			print "\n\t\t\t<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this printer').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label>';
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=printer-host">';
 			print "\n\t\t\t".'<div id="hostNotInMe">';
 			print "\n\t\t\t".'<h2>'._('Modify printer association for').' '.$Printer->get('name').'</h2>';
@@ -483,7 +483,7 @@ class PrinterManagementPage extends FOGPage
 		{
 			$PrinterDataExists = true;
 			$this->HookManager->processEvent('PRINTER_HOST_NOT_WITH_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-			print "\n\t\t\t<center>"._('Check here to see hosts with no printers').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" />';
+			print "\n\t\t\t<center>".'<label for="hostNoShow">'._('Check here to see hosts with no printers').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" /></label>';
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=printer-host">';
 			print "\n\t\t\t".'<div id="hostNoPrinter">';
 			print "\n\t\t\t".'<p>'._('Hosts below have no printer associations').'</h2>';
@@ -498,7 +498,7 @@ class PrinterManagementPage extends FOGPage
 		}
 		unset($this->data);
 		array_push($this->headerData,_('Is Default'),_('Remove Printer'));
-		array_push($this->templates,'<input class="default" onclick="this.form.submit()" type="checkbox" name="default" id="host_printer${host_id}"${is_default} value="1" /><label for="host_printer${host_id}"></label><input type="hidden" name="hostid" value="${host_id}" />','<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}">'.$this->foglang['Delete']);
+		array_push($this->templates,'<input class="default" type="checkbox" name="default[]" id="host_printer${host_id}"${is_default} value="${host_id}" /><label for="host_printer${host_id}"></label><input type="hidden" value="${host_id}" name="hostid[]">','<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}">'.$this->foglang['Delete']);
 		array_push($this->attributes,array(),array());
 		array_splice($this->headerData,1,1);
 		array_splice($this->templates,1,1);
@@ -514,8 +514,8 @@ class PrinterManagementPage extends FOGPage
 					'host_mac' => $Host->get('mac')->__toString(),
 					'host_desc' => $Host->get('description'),
 					'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+					'printer_id' => $Printer->get('id'),
 					'is_default' => $Host->getDefault($Printer->get('id')) ? 'checked="checked"' : '',
-
 				);
 			}
 		}
@@ -524,6 +524,7 @@ class PrinterManagementPage extends FOGPage
 		// Output
 		print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=printer-host">';
 		$this->render();
+		print '<input type="submit" value="'._('Update defaults').'" />';
 		print '</form>';
 		print "\n\t\t\t\t</div>";
 		print "\n\t\t\t</div>";
@@ -604,8 +605,6 @@ class PrinterManagementPage extends FOGPage
 				$this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Printer updated'), $Printer->get('id'), $Printer->get('name')));
 				// Set session message
 				$this->FOGCore->setMessage('Printer updated!');
-				// Redirect for user
-				$this->FOGCore->redirect('?node=printer&sub=edit&id='.$Printer->get('id').'#'.$_REQUEST['tab']);
 			}
 			else
 				throw new Exception('Printer update failed!');
@@ -618,8 +617,8 @@ class PrinterManagementPage extends FOGPage
 			$this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Printer'), $_REQUEST['alias'], $e->getMessage()));
 			// Set session message
 			$this->FOGCore->setMessage($e->getMessage());			
-			// Redirect to new entry
-			$this->FOGCore->redirect($this->formAction);
 		}
+		// Redirect for user
+		$this->FOGCore->redirect('?node=printer&sub=edit&id='.$Printer->get('id').'#'.$_REQUEST['tab']);
 	}
 }
