@@ -1544,7 +1544,8 @@ class HostManagementPage extends FOGPage
 					try
 					{
 						// Error checking
-						if ($this->getClass('HostManager')->getHostByMacAddresses($data[0]))
+						$Host = $this->getClass('HostManager')->getHostByMacAddresses($data[0]);
+						if ($Host && $Host->isValid())
 							throw new Exception('A Host with this MAC Address already exists');
 						if($this->getClass('HostManager')->exists($data[1]))
 							throw new Exception('A host with this name already exists');
@@ -1553,7 +1554,7 @@ class HostManagementPage extends FOGPage
 							'description'	=> $data[3] . ' Uploaded by batch import on',
 							'ip'		=> $data[2],
 							'imageID'	=> $data[4],
-							'createdTime'	=> time(),
+							'createdTime'	=> $this->nice_date()->format('Y-m-d H:i:s'),
 							'createdBy'	=> $this->FOGUser->get('name'),
 						));
 						if ($Host->save())
