@@ -20,7 +20,7 @@ try
 	$date = $FOGCore->nice_date();
 	$tmpDate = ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $FOGCore->nice_date($_REQUEST['date']) : $FOGCore->nice_date(base64_decode($_REQUEST['date'])));
 	if ($tmpDate < $date)
-		$desc = _('Replay from journal: real insert time').' '.$date->format('M j, Y g:i:s a');
+		$desc = _('Replay from journal: real insert time').' '.$date->format('M j, Y g:i:s a').' Login time: '.$tmpDate->format('M j, Y g:i:s a');
 	$actionText = ($_REQUEST['action'] == 'login' ? 1 : ($_REQUEST['action'] == 'logout' ? 0 : 99));
 	$user = $_REQUEST['action'] == 'start' ? '' : $user;
 	$UserTracking = new UserTracking(array(
