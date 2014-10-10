@@ -474,6 +474,7 @@ class Host extends FOGController
 		// Primary MAC Addresses
 		if ($this->isLoaded('mac'))
 		{
+			$me = current($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1)));
 			// Remove Existing Primary MAC Addresses
 			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 1));
 			// Add new Pending MAC Addresses
@@ -483,6 +484,8 @@ class Host extends FOGController
 					'hostID' => $this->get('id'),
 					'mac' => $this->get('mac'),
 					'primary' => 1,
+					'clientIgnore' => $me->get('clientIgnore'),
+					'imageIgnore' => $me->get('imageIgnore'),
 				));
 				$NewMAC->save();
 			}
@@ -1120,6 +1123,43 @@ class Host extends FOGController
 		// Return
 		return $this;
 	}
+	public function ignore($imageIgnore,$clientIgnore)
+	{
+		$MyMACs[] = strtolower($this->get('mac')->__toString());
+		foreach($this->get('additionalMACs') AS $mac)
+		{
+			if ($mac && $mac->isValid())
+				$MyMACs[] = strtolower($mac->__toString());
+		}
+		$MyMACs = array_unique($MyMACs);
+		if ($imageIgnore)
+		{
+			$macs = $imageIgnore;
+			$imageIgnore = null;
+			foreach((array)$macs AS $mac)
+				$imageIgnore[] = strtolower($mac);
+		}
+		if ($clientIgnore)
+		{
+			$macs = $clientIgnore;
+			$clientIgnore = null;
+			foreach((array)$macs AS $mac)
+				$clientIgnore[] = strtolower($mac);
+		}
+		foreach((array)$MyMACs AS $mac)
+		{
+			$ignore = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $mac,'hostID' => $this->get('id'))));
+			if (in_array($mac,(array)$imageIgnore))
+				$ignore->set('imageIgnore',1)->save();
+			else
+				$ignore->set('imageIgnore',0)->save();
+			if (in_array($mac,(array)$clientIgnore))
+				$ignore->set('clientIgnore',1)->save();
+			else
+				$ignore->set('clientIgnore',0)->save();
+		}
+		return $this;
+	}
 	public function addGroup($addArray)
 	{
 		// Add
@@ -1135,6 +1175,20 @@ class Host extends FOGController
 			$this->remove('groups', ($remove instanceof Group ? $remove : new Group((int)$remove)));
 		// Return
 		return $this;
+	}
+	public function clientMacCheck($MAC = false)
+	{
+		if (!$MAC)
+			$MAC = $this->get('mac')->__toString();
+		$mac = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $MAC,'hostID' => $this->get('id'),'clientIgnore' => 1)));
+		return ($mac && $mac->isValid() ? 'checked="checked"' : '');
+	}
+	public function imageMacCheck($MAC = false)
+	{
+		if (!$MAC)
+			$MAC = $this->get('mac')->__toString();
+		$mac = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $MAC,'hostID' => $this->get('id'),'imageIgnore' => 1)));
+		return ($mac && $mac->isValid() ? 'checked="checked"' : '');
 	}
 	public function setAD($useAD,$domain,$ou,$user,$pass)
 	{
