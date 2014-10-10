@@ -51,6 +51,7 @@ namespace FOG {
 			messages.Add("#!um", "Unknown module ID");
 			messages.Add("#!ns", "No snapins");		
 			messages.Add("#!nj", "No jobs");	
+			messages.Add("#!na", "No actions");				
 			messages.Add("#!nf", "No updates");				
 			messages.Add("#!time", "Invalid time");	
 			messages.Add("#!er", "General error");
@@ -229,7 +230,7 @@ namespace FOG {
 
 
 		//Get the IP address of the host
-		public static String getIPAdress() {
+		public static String getIPAddress() {
 			String hostName = System.Net.Dns.GetHostName();
 			
 			IPHostEntry ipEntry = System.Net.Dns.GetHostEntry(hostName);
