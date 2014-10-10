@@ -1,3 +1,0 @@
-D:\fog\FOGService\bin\UserTracker.dll
-D:\fog\FOGService\UserTracker\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\UserTracker\obj\Release\UserTracker.dll

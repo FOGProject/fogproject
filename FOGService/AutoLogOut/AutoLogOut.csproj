@@ -18,6 +18,8 @@
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <WarningLevel>4</WarningLevel>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -78,10 +80,6 @@
     <ProjectReference Include="..\PipeServer\PipeServer.csproj">
       <Project>{DF7C1145-E90C-486B-ACEC-543B42CF083F}</Project>
       <Name>PipeServer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ShutdownHandler\ShutdownHandler.csproj">
-      <Project>{D0C42FA3-B494-4FA7-92CB-50D7C2E05383}</Project>
-      <Name>ShutdownHandler</Name>
     </ProjectReference>
     <ProjectReference Include="..\ShutdownHandler\ShutdownHandler.csproj">
       <Project>{D0C42FA3-B494-4FA7-92CB-50D7C2E05383}</Project>
