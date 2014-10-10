@@ -18,6 +18,8 @@
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <WarningLevel>4</WarningLevel>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -62,10 +64,6 @@
     <ProjectReference Include="..\LogHandler\LogHandler.csproj">
       <Project>{513D6FE3-D7A2-4DEE-9462-CEB2C781EE52}</Project>
       <Name>LogHandler</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\RestartService\RestartService.csproj">
-      <Project>{16BB08D1-B8E7-4304-8795-3C06E529CFF3}</Project>
-      <Name>RestartService</Name>
     </ProjectReference>
     <ProjectReference Include="..\UpdateWaiter\UpdateWaiter.csproj">
       <Project>{C7113642-59C8-41C0-BF64-2F29BAE45910}</Project>

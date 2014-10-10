@@ -19,6 +19,8 @@
     <WarningLevel>4</WarningLevel>
     <SignAssembly>False</SignAssembly>
     <DelaySign>False</DelaySign>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -80,10 +82,6 @@
     <ProjectReference Include="..\ClientUpdater\ClientUpdater.csproj">
       <Project>{40D0B176-6E1D-4D08-8150-F75D33F7AD4A}</Project>
       <Name>ClientUpdater</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CommunicationHandler\CommunicationHandler.csproj">
-      <Project>{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}</Project>
-      <Name>CommunicationHandler</Name>
     </ProjectReference>
     <ProjectReference Include="..\CommunicationHandler\CommunicationHandler.csproj">
       <Project>{5888C3CC-7B30-4A80-BDF4-3C269DC9DD40}</Project>
