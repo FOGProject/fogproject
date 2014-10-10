@@ -100,6 +100,8 @@ for line in $img; do
 	echo -n " OS: $osname";
 	echo -n " Image: ";
 	echo `echo $linedecode | awk -F"|" '{ print $1 }'`;
+	echo -n " Partition: ";
+	echo `echo $linedecode | awk -F"|" '{ print $4 }'`;
 	sleep 1;
 done
 echo "";
@@ -107,6 +109,7 @@ if [ "$cnt" = "1" ]; then
 	img=`echo $linedecode | awk -F"|" '{ print $1 }'`;
 	osid=`echo $linedecode | awk -F"|" '{ print $2 }'`;
 	imgType=`echo $linedecode | awk -F"|" '{ print $3 }'`;
+	imgPartitionType=`echo $linedecode | awk -F"|" '{ print $4 }'`;
 	determineOS $osid;
 elif [ "$cnt" = "0" ]; then
 	lookAtMe "No image definition was found for $dmivalue";
@@ -124,6 +127,7 @@ else
 			img=`echo $linedecode | awk -F"|" '{ print $1 }'`;
 			osid=`echo $linedecode | awk -F"|" '{ print $2 }'`;
 			imgType=`echo $linedecode | awk -F"|" '{ print $3 }'`;
+			imgPartitionType=`echo $linedecode | awk -F"|" '{ print $4 }'`;
 			determineOS $osid;
 			break;
 		fi
@@ -137,6 +141,7 @@ export mac="00:00:00:00:00:00";					# Not important for Capone
 export img;
 export osid;
 export imgType;
+export imgPartitionType;
 sleep 2;
 clear;
 fog;
