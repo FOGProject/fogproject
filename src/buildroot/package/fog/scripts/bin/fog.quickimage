@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #!/bin/sh
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.donate
@@ -73,3 +74,80 @@ echo ""
 echo "  * Task Complete, restarting";
 	
 sleep 10
+=======
+#!/bin/sh
+. /usr/share/fog/lib/funcs.sh
+. /bin/fog.donate
+clearScreen;
+displayBanner;
+
+#setupDNS ${dns}
+
+echo "";
+echo "";
+
+mac=`ifconfig | grep HWaddr | head -n1 | cut -d' ' -f 11`;
+
+dots "Starting Quick Image";
+hostinfo=`wget -O - --post-data="mac=${mac}" "http://${web}service/hostlookupbymac.php" 2>/dev/null`
+echo "Done";
+
+if [ "$hostinfo" == "#!db" ]; then
+	handleError "Database Error :: Unable to proceed!";
+elif [ "$hostinfo" == "#!ih" ]; then
+	handleError "Invalid Host Information.";
+elif [ "$hostinfo" == "#!nf" ]; then
+	handleError "Host not found.";	
+elif [ "$hostinfo" == "#!im" ]; then
+	handleError "Invalid MAC Address.";		
+fi
+echo "";
+echo "  Host Information";
+echo "  ================";
+echo -e "$hostinfo";
+
+
+ret="";
+retry="3";
+while [ "$ret" == "" ] && [ "$retry" != "0" ]; do
+	echo "";
+	echo "  Enter a valid FOG username and password.";
+	echo "";
+	echo -n "      Username: ";
+	read username;
+	echo "";
+	echo -n "      Password: ";
+	stty -echo
+	read password;
+	stty echo;
+	echo "";
+	echo "";
+	user64=`echo -e $username | tr -d '\012' | base64`;
+	pass64=`echo -e $password | tr -d '\012' | base64`;
+	tmp=`wget -O - --post-data="mac=${mac}&username=$user64&password=$pass64" "http://${web}service/hostlookupbymac.php" 2>/dev/null`
+	if [ "$tmp" == "#!ok" ]; then
+		ret="1";
+		echo "  * Imaging will start after a reboot.";
+	elif [ "$tmp" == "#!ip" ]; then
+		ret="";
+		echo "  * Error: problem with image package!";
+	elif [ "$tmp" == "#!ih" ]; then
+		ret="";
+		echo "  * Error: Invalid host id!";		
+	elif [ "$tmp" == "#!il" ]; then
+		ret="";
+		echo "  * Error: Invalid Login! ($retry remaining)";
+	else 
+		echo $tmp;				
+	fi
+	
+	retry=$(( $retry - 1 ));
+done
+
+
+echo "";
+echo ""
+echo "  * Task Complete, restarting";
+	
+sleep 10
+>>>>>>> dev-branch

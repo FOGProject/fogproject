@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #!/bin/sh
 . /usr/share/fog/lib/funcs.sh;
 . /bin/fog.donate;
@@ -140,3 +141,152 @@ export imgType;
 sleep 2;
 clear;
 fog;
+=======
+#!/bin/sh
+. /usr/share/fog/lib/funcs.sh;
+. /bin/fog.donate;
+for arg in `cat /proc/cmdline`; do
+    case "$arg" in
+	initsh)
+	    ash -i
+	    ;;
+	*)
+	    ;;
+    esac
+done
+lookAtMe()
+{
+	while true; do
+		clear;
+		echo "";
+		echo " #############################################################################";
+		echo " #                                                                           #";	
+		echo " #                     An error has been detected!                           #";
+		echo " #                                                                           #";	
+		echo " #############################################################################";
+		echo -n -e "\007";
+		echo -n -e "\007";
+		echo -n -e "\007";
+		echo "";
+		echo "";
+		echo -e " $1";
+		echo "";
+		echo "";
+		echo " #############################################################################";
+		echo " #                                                                           #";	
+		echo " #                     An error has been detected!                           #";
+		echo " #                                                                           #";	
+		echo " #############################################################################";	
+		echo "";
+		sleep 5;
+		strwhite="";
+		for i in $(seq 0 99); do
+			for z in $(seq 0 99); do
+				strwhite="${strwhite}#";
+			done
+		done
+		echo $strwhite;
+		sleep 1;
+		strblack="";
+		for i in $(seq 0 99); do
+			for z in $(seq 0 99); do
+				strblack="${strblack} ";
+			done
+		done
+		echo $strblack;
+		sleep 1;
+		echo $strwhite;
+		sleep 1;
+		echo $strblack;
+		sleep 1;
+	done
+}
+export capone="1";
+clear;
+displayBanner;
+#setupDNS ${dns};
+echo " * Loading Capone...";	
+echo;
+dots "Looking up DMI field";	
+dmi="";
+while [ "$dmi" = "" ]; do
+	dmi=`wget -O - "http://${web}service/capone.php?action=dmi" 2>/dev/null`;
+	sleep 2;
+done	
+echo "Done";
+dmivalue=`dmidecode -s "${dmi}"`;
+echo "";
+echo " * Using Key Value: ${dmivalue}";
+echo "";
+sleep 1;
+dmi64=`echo $dmivalue | base64`;
+dots "Looking for images";
+img="";
+while [ "$img" = "" ]; do
+	img=`wget -O - "http://${web}service/capone.php?action=imagelookup&key=${dmi64}" 2>/dev/null`;
+	sleep 2;
+done	
+echo "Done";
+oIFS=$IFS;
+IFS="
+";
+cnt=0;
+linedecode="";
+echo "";
+for line in $img; do
+	linedecode=`echo "$line" | base64 -d `;
+	if [ "$linedecode" = "null" ]; then
+		lookAtMe "No image definition was found for $dmivalue";
+	fi
+	cnt=`expr $cnt + 1`;
+	determineOS `echo $linedecode | awk -F"|" '{ print $2 }'`;	
+	echo -n " ID $cnt) ";
+	echo -n " OS: $osname";
+	echo -n " Image: ";
+	echo `echo $linedecode | awk -F"|" '{ print $1 }'`;
+	echo -n " Partition: ";
+	echo `echo $linedecode | awk -F"|" '{ print $4 }'`;
+	sleep 1;
+done
+echo "";
+if [ "$cnt" = "1" ]; then
+	img=`echo $linedecode | awk -F"|" '{ print $1 }'`;
+	osid=`echo $linedecode | awk -F"|" '{ print $2 }'`;
+	imgType=`echo $linedecode | awk -F"|" '{ print $3 }'`;
+	imgPartitionType=`echo $linedecode | awk -F"|" '{ print $4 }'`;
+	determineOS $osid;
+elif [ "$cnt" = "0" ]; then
+	lookAtMe "No image definition was found for $dmivalue";
+else
+	imgchoice="";
+	while [ "$imgchoice" = "" ]; do
+		echo -n " Multiple images found, please select an image #: ";
+		read imgchoice;
+	done
+	cnt=0;
+	for line in $img; do		
+		linedecode=`echo "$line" | base64 -d`
+		cnt=`expr $cnt + 1`;
+		if [ "$cnt" = "$imgchoice" ]; then
+			img=`echo $linedecode | awk -F"|" '{ print $1 }'`;
+			osid=`echo $linedecode | awk -F"|" '{ print $2 }'`;
+			imgType=`echo $linedecode | awk -F"|" '{ print $3 }'`;
+			imgPartitionType=`echo $linedecode | awk -F"|" '{ print $4 }'`;
+			determineOS $osid;
+			break;
+		fi
+	done
+fi
+IFS=$oIFS;
+echo "";
+dots "Setting up environment to deploy image";
+export type="down";
+export mac="00:00:00:00:00:00";					# Not important for Capone
+export img;
+export osid;
+export imgType;
+export imgPartitionType;
+sleep 2;
+clear;
+fog;
+>>>>>>> dev-branch

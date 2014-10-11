@@ -1,0 +1,8 @@
+config BR2_PACKAGE_DHCPCD
+	bool "dhcpcd"
+	# No support for AI_ADDRCONFIG
+	depends on !BR2_TOOLCHAIN_EXTERNAL_BLACKFIN_UCLINUX_2012R2
+	help
+	  An RFC2131 compliant DHCP client
+
+	  http://roy.marples.name/projects/dhcpcd/

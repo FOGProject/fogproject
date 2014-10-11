@@ -59,6 +59,8 @@ abstract class FOGController extends FOGBase
 			// Created By
 			if (array_key_exists('createdBy', $this->databaseFields) && !empty($_SESSION['FOG_USERNAME']))
 				$this->set('createdBy', $this->DB->sanitize($_SESSION['FOG_USERNAME']));
+			if (array_key_exists('createdTime', $this->databaseFields))
+				$this->set('createdTime', $this->nice_date()->format('Y-m-d H:i:s'));
 			// Add incoming data
 			if (is_array($data))
 			{
@@ -329,7 +331,7 @@ abstract class FOGController extends FOGBase
 			foreach ($this->databaseFieldsRequired AS $field)
 			{
 				if (!$this->get($field))
-					throw new Exception(_('Required database field is empty'));
+					throw new Exception($foglang['RequiredDB']);
 			}
 			if ($this->get('id') || $this->get('name'))
 				return true;
@@ -371,3 +373,8 @@ abstract class FOGController extends FOGBase
 		return ($this->get('name') ? $this->get('name') : sprintf('%s #%s', get_class($this), $this->get('id')));
 	}
 }
+/* Local Variables: */
+/* indent-tabs-mode: t */
+/* c-basic-offset: 4 */
+/* tab-width: 4 */
+/* End: */

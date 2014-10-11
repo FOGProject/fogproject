@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 class ImageManager extends FOGManagerController
 {
@@ -11,3 +12,9 @@ class ImageManager extends FOGManagerController
 								ORDER BY
 									imageName';
 }
+=======
+<?php
+class ImageManager extends FOGManagerController
+{
+}
+>>>>>>> dev-branch

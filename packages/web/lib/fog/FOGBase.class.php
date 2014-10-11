@@ -57,6 +57,8 @@ abstract class FOGBase
 		$this->HookManager = $GLOBALS['HookManager'];
 		// Language Setup
 		$this->foglang = $GLOBALS['foglang'];
+		// Default TimeZone to use for date fields
+		$this->TimeZone = (ini_get('date.timezone') ? ini_get('date.timezone') : 'GMT');
 	}
 	/** fatalError($txt, $data = array())
 		Fatal error in the case something went wrong.
@@ -137,15 +139,10 @@ abstract class FOGBase
 	*/
 	public function getClass($class)
 	{
+		$r = new ReflectionClass($class);
 		$args = func_get_args();
 		array_shift($args);
-		if (count($args))
-		{
-			$r = new ReflectionClass($class);
-			return $r->newInstanceArgs($args);
-		}
-		else
-			return new $class();
+		return (count($args) ? $r->newInstanceArgs($args) :$r->newInstance());
 	}
 	/** endsWith($str,$sub)
 		Returns true if the sub and str match the ending stuff.
@@ -274,4 +271,168 @@ abstract class FOGBase
 		}
 		return false;
 	}
+	/*
+	* Generates a random string based on the length you pass.
+	*
+	* @param $length
+	*   The length of the returned value you want.
+	* @return
+	*   The string randomized.
+	*/
+	public function randomString($length)
+	{
+		$chars = array_merge(range('a','z'),range('A','Z'),range(0,9));
+		shuffle($chars);
+		return implode(array_slice($chars,0,$length));
+	}
+	public function aesencrypt($data,$key,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
+	{
+		$iv_size = mcrypt_get_iv_size($enctype,$mode);
+		$iv = $this->randomString($iv_size);
+		$cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
+		return $iv.base64_encode($cipher);
+	}
+	public function aesdecrypt($encdata,$key,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
+	{
+		$iv_size = mcrypt_get_iv_size($enctype,$mode);
+		$iv = substr($encdata,0,$iv_size);
+		$decipher = mcrypt_decrypt($enctype,$key,base64_decode(substr($encdata,$iv_size)),$mode,$iv);
+		return $decipher;
+	}
+	/**
+	* diff($start,$end)
+	* Simply a function to return the difference of time between the start and end.
+	* @param $start Translate the sent start time to DateTime format for easy differentials.
+	* @param $end Translate the sent end time to Datetime format for easy differentials.
+	* @return $interval->format('%H:%I:%S') returns the datetime in number of hours, minutes, and seconds it took to perform the task.
+	*/
+	public function diff($start,$end)
+	{
+		if (!$start instanceof DateTime)
+			$start = $this->nice_date($start);
+		if (!$end instanceof DateTime)
+			$end = $this->nice_date($end);
+		$Duration = $start->diff($end);
+		return $Duration->format('%H:%I:%S');
+	}
+	/**
+	* nice_date($Date)
+	* Simply returns the date in DateTime Class format for easier use.
+	* @param $Date the non-nice Date Sent.
+	* @return $NiceDate returns the DateTime class for the current date.
+	*/
+	public function nice_date($Date = 'now',$utc = false)
+	{
+		$NiceDate = (!$utc ? new DateTime($Date,new DateTimeZone($this->TimeZone)) : new DateTime($Date,new DateTimeZone('GMT')));
+		return $NiceDate;
+	}
+	/**
+	* validDate($Date)
+	* Simply returns if the date is valid or not
+	* @param $Date the date, nice or not nice
+	* @return return whether Date/Time is valid or not
+	*/
+	public function validDate($Date,$format = '')
+	{
+		if ($format == 'N')
+			return ($Date instanceof DateTime ? ($Date->format('N') >= 0 && $Date->format('N') <= 7) : $Date >= 0 && $Date <= 7);
+		if (!$Date instanceof DateTime)
+			$Date = $this->nice_date($Date);
+		if (!$format)
+			$format = 'm/d/Y';
+		return DateTime::createFromFormat($format,$Date->format($format));
+	}
+	/** formatTime($time, $format = '')
+		format's time information.  If format is blank,
+		formats based on current date to date sent.  Otherwise
+		returns the information back based on the format requested.
+	*/
+	public function formatTime($time, $format = '', $utc = false)
+	{
+		if (!$time instanceof DateTime)
+			$time = $this->nice_date($time,$utc);
+		// Forced format
+		if ($format)
+			$RetDate = $time->format($format);
+
+		$weeks = array(
+			'curweek' => array(2,3,4,5,6,-2,-3,-4,-5,-6),
+			'1week' => array(7,8,9,10,11,12,13,-7,-8,-9,-10,-11,-12,-13),
+			'2weeks' => array(14,15,16,17,18,19,20,-14,-15,-16,-17,-18,-19,-20),
+			'3weeks' => array(21,22,23,24,25,26,27,-21,-22,-23,-24,-25,-26,-27),
+			'4weeks' => array(28,29,30,31,-28,-29,-30,-31),
+		);
+		$CurrTime = $this->nice_date('now',$utc);
+		$TimeVal = $CurrTime->diff($time);
+		if (!($TimeVal->y > 1 || $TimeVal->m >= 1))
+		{
+			if ($time->format('Y-m-d') == $CurrTime->format('Y-m-d'))
+				$RetDate = ($time > $CurrTime ? _('Runs') : _('Ran')).' '._('today, at ').$time->format('g:ia');
+			else if (in_array(($time->format('d') - $CurrTime->format('d')),array(1,-1)))
+				$RetDate = ($time > $CurrTime ? _('Tomorrow at ') : _('Yesterday at ')).$time->format('g:ia');
+			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['curweek']))
+				$RetDate = ($time > $CurrTime ? _('This') : _('Last')).' '.$time->format('l')._(' at ').$time->format('g:ia');
+			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['1week']))
+				$RetDate = ($time > $CurrTime ? _('Next week') : _('Last week')).' '.$time->format('l')._(' at ').$time->format('g:ia');
+			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['2weeks']))
+				$RetDate = ($time > $CurrTime ? _('2 weeks from now') : _('2 weeks ago'));
+			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['3weeks']))
+				$RetDate = ($time > $CurrTime ? _('3 weeks from now') : _('3 weeks ago'));
+			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['4weeks']))
+				$RetDate = ($time > $CurrTime ? _('4 weeks from now') : _('4 weeks ago'));
+		}
+		else
+		{
+			if ($TimeVal->y)
+				$RetDate = $TimeVal->y.' year'.($TimeVal->y != 1 ? 's' : '');
+			else if ($TimeVal->m)
+				$RetDate = $TimeVal->m.' month'.($TimeVal->m != 1 ? 's' : '');
+			if ($time < $CurrTime)
+				$RetDate .= ' ago';
+			if ($time > $CurrTime)
+				$RetDate .= ' from now';
+		}
+		return $RetDate;
+	}
+	/** resetRequest()
+	* Simply resets the request so data, even if invalid, will populate form.
+	*/
+	public function resetRequest()
+	{
+		$_REQUESTVARS = $_REQUEST;
+		unset($_REQUEST);
+		foreach((array)$_SESSION['post_request_vals'] AS $key => $val)
+			$_REQUEST[$key] = $val;
+		foreach((array)$_REQUESTVARS AS $key => $val)
+			$_REQUEST[$key] = $val;
+		unset($_SESSION['post_request_vals'], $_REQUESTVARS);
+	}
+	/** setRequest()
+	* Simply sets the session Request variables as a session variable
+	*/
+	public function setRequest()
+	{
+		if (!$_SESSION['post_request_vals'] && $this->FOGCore->isPOSTRequest())
+			$_SESSION['post_request_vals'] = $_REQUEST;
+	}
+	/** array_filter_recursive($input) 
+	* @param $input the input to filter
+	* clean up arrays recursively.
+	*/
+	public function array_filter_recursive($input)
+	{
+		foreach($input AS &$value)
+		{
+			if (is_array($value))
+				$value = $this->array_filter_recursive($value);
+		}
+		$input = array_filter($input);
+		$input = array_values($input);
+		return $input;
+	}
 }
+/* Local Variables: */
+/* indent-tabs-mode: t */
+/* c-basic-offset: 4 */
+/* tab-width: 4 */
+/* End: */
