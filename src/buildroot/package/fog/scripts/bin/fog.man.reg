@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #!/bin/sh
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.donate
@@ -401,3 +402,454 @@ else
 	echo "hard disk not found!";
 fi
 sleep 2
+=======
+#!/bin/sh
+. /usr/share/fog/lib/funcs.sh
+. /bin/fog.donate
+clearScreen;
+displayBanner;
+hd="";
+getHardDisk;
+
+#setupDNS ${dns}
+
+sysman="";
+sysman64="";
+sysproduct="";
+sysproduct64="";
+sysversion="";
+sysversion64="";
+sysserial="";
+systype="";
+biosversion="";
+biosvendor="";
+biosdate="";
+mbman="";
+mbproductname="";
+mbversion="";
+mbserial="";
+mbasset="";
+cpuman="";
+cpuversion="";
+cpucurrent="";
+cpumax="";
+mem="";
+hdinfo="";
+caseman="";
+casever="";
+caseserial="";
+casesasset="";
+sysserial64="";
+systype64="";
+biosversion64="";
+biosvendor64="";
+biosdate64="";
+mbman64="";
+mbproductname64="";
+mbversion64="";
+mbserial64="";
+mbasset64="";
+cpuman64="";
+cpuversion64="";
+cpucurrent64="";
+cpumax64="";
+mem64="";
+hdinfo64="";
+caseman64="";
+casever64="";
+caseserial64="";
+casesasset64="";
+
+
+echo "";
+echo "";
+if [ -n "$hd" ]; then
+	part=$hd'1';	
+	dots "Using disk device"
+	echo $hd
+	
+
+	echo " * Starting host registration...";
+	
+	mac=`ifconfig | grep HWaddr | head -n1 | base64`;
+	
+	exists=`wget -O - --post-data="mac=${mac}" "http://${web}service/man.hostexists.php" 2>/dev/null`
+	
+	if [ "$exists" = "#!ok" ]; then
+	
+		host="";
+		ip="";
+		productKey="";
+		imageid="";
+		primaryuser="";
+		other1="";
+		other2="";
+		blImage="";
+		blDoAddGroup="";
+		blDoAddSnapin="";
+		keyEnter="";
+		blDoAD="";
+		echo
+		echo -n "    Enter the hostname of this computer: ";
+		read host;
+		if [ ${#host} -gt 15 ]; then
+			host=${host:0:15}
+			echo "	Truncated to 15 characters: $host";
+		fi
+		host=`echo $host | base64`;
+		cd /tmp
+		wget -q -O /tmp/co.txt "http://${web}service/hostnameloop.php?host=$host" &>/dev/null
+		queueinfo=`cat co.txt`;
+		while [ "$queueinfo" != "#!ok" ]
+		do
+			echo "$queueinfo";
+			echo -n "	Enter another hostname for this computer: ";
+			read host;
+			if [ ${#host} -gt 15 ]; then
+				host=${host:0:15}
+				echo "	Truncated to 15 characters: $host";
+			fi
+			host=`echo $host | base64`;
+			rm co.txt
+			wget -q -O co.txt "http://${web}service/hostnameloop.php?host=$host" &>/dev/null
+			queueinfo=`cat co.txt`;
+		done
+		echo
+		
+		while [ "$imageid" = "" ]
+		do
+			echo
+			echo -n "    Enter the image ID for this computer (? for listing): ";
+			read imageid;	
+			if [ "$imageid" = "?" ]
+			then
+				clearScreen;
+				res=`wget -O - "http://${web}service/imagelisting.php" 2>/dev/null`
+				i=0
+				OLDIFS=$IFS;
+				IFS='
+';
+				for line in $res
+				do
+					i=$((i+1));
+					echo $line;
+					if [ "$i" = "20" ]
+					then
+						echo -n "Press Enter to Proceed..."
+						read dummy;
+						clearScreen
+						i=0;
+					fi
+				done
+				IFS=$OLDIFS
+				echo
+				imageid="";
+			else
+				imageid=`echo $imageid | base64`;
+			fi		
+		done
+
+		res=`wget -O - "http://${web}service/locationcheck.php" 2>/dev/null`;
+		if [ "$res" == "##" ]; then
+			while [ "$locationid" == "" ]; do		
+				echo
+				echo -n "    Enter the location ID for this system (? for listing): ";
+				read locationid;
+				if [ "$locationid" == "?" ]; then
+					clear;
+					res=`wget -O - "http://${web}service/locationlisting.php" 2>/dev/null`;
+					i=0
+					OLDIFS=$IFS;
+					IFS='
+'	;
+					for line in $res; do
+						i=$((i+1));
+						echo $line;
+						if [ "$i" == "20" ]; then
+							echo -n "Press Enter to Proceed..."
+							read dummy;
+						clear;
+						i=0;
+						fi
+					done
+					IFS=$OLDIFS
+					echo
+					locationid="";
+				fi
+			done
+			locationid=`echo $locationid | base64`;
+		fi
+		if [ "$blDoAddGroup" = "" ]
+		then
+			echo
+			echo "    Would you like to add this host to a group or groups";
+			echo -n "         (comma separated e.g. 1,2,3) (using default settings)? (y/N) ";
+			read askme;
+			blDoAddGroup="0";
+			case "$askme" in
+				Y | y | yes | yEs | yES | Yes | YeS | YES )
+					while [ "$groupid" == "" ]; do		
+						echo
+						echo -n "    Enter the group ID for this system (? for listing): ";
+						read groupid;
+						if [ "$groupid" == "?" ]; then
+							clear;
+							res=`wget -O - "http://${web}service/grouplisting.php" 2>/dev/null`;
+							i=0
+							OLDIFS=$IFS;
+							IFS='
+'	;
+							for line in $res; do
+								i=$((i+1));
+								echo $line;
+								if [ "$i" == "20" ]; then
+									echo -n "Press Enter to Proceed..."
+									read dummy;
+								clear;
+								i=0;
+								fi
+							done
+							IFS=$OLDIFS
+							echo
+							groupid="";
+						fi
+					done
+					group64=`echo $groupid | base64`;
+					blDoAddGroup="1";
+					;;
+				[nN]*)
+					;;
+				*)
+					;;
+			esac			
+		fi
+		if [ "$blDoAddSnapin" = "" ]
+		then
+			echo
+			echo "    Would you like to add snapin or snapins to this host";
+			echo -n "         (comma separated e.g. 1,2,3) (using default settings)? (y/N) ";
+			read askme;
+			blDoAddSnapin="0";
+			case "$askme" in
+				Y | y | yes | yEs | yES | Yes | YeS | YES )
+					while [ "$snapinid" == "" ]; do		
+						echo
+						echo -n "    Enter the snapin ID for this system (? for listing): ";
+						read snapinid;
+						if [ "$snapinid" == "?" ]; then
+							clear;
+							res=`wget -O - "http://${web}service/snapinlisting.php" 2>/dev/null`;
+							i=0
+							OLDIFS=$IFS;
+							IFS='
+'	;
+							for line in $res; do
+								i=$((i+1));
+								echo $line;
+								if [ "$i" == "20" ]; then
+									echo -n "Press Enter to Proceed..."
+									read dummy;
+								clear;
+								i=0;
+								fi
+							done
+							IFS=$OLDIFS
+							echo
+							snapinid="";
+						fi
+					done
+					snapin64=`echo $snapinid | base64`;
+					blDoAddSnapin="1";
+					;;
+				[nN]*)
+					;;
+				*)
+					;;
+			esac			
+		fi
+		if [ "$keyEnter" = "" ]; then
+			echo
+			echo -n "    Would you like to enter a product key to activate this host with? (y/N) ";
+			read keyask;
+			keyEnter="0";
+			case "$keyask" in
+				Y | y | yes | yEs | yES | Yes | YeS | YES )
+					while [ "$productKey" == "" ]; do
+						echo
+						echo -n "    Enter the product key for this computer: ";
+						read productKey;
+						echo
+					done
+					productKey=`echo $productKey | base64`;
+				;;
+				[nN]*)
+					;;
+				*)
+					;;
+			esac
+		fi
+		if [ "$blDoAD" = "" ]
+		then
+			echo
+			echo -n "    Would you like to add this host to AD (using default settings)? (y/N) ";
+			read tmpAd;
+			blDoAD="0";
+			case "$tmpAd" in
+				Y | yes | y | Yes | YES )
+					blDoAD="1";
+					;;
+				[nN]*)
+					;;
+				*)
+					;;
+			esac			
+		fi
+		echo
+		echo -n "    Enter the primary user for this computer: ";
+		read primaryuser;		
+		primaryuser=`echo $primaryuser | base64`;		
+		echo
+		echo -n "    Enter the other tag #1 for this computer: ";
+		read other1;	
+		other1=`echo $other1 | base64`;
+		echo
+		echo -n "    Enter the other tag #2 for this computer: ";
+		read other2;		
+		other2=`echo $other2 | base64`;
+		echo
+		echo "    If you entered all the required information, ";
+		echo -n "    Would you like to image this computer now? (y/N) ";
+		read blImage;		
+		realdoimage="0";
+		case "$blImage" in
+			Y | yes | y | Yes | YES )
+				tmp="";
+				echo
+				echo
+				ret="";
+				retry="3";
+				while [ "$ret" == "" ] && [ "$retry" != "0" ]; do
+					echo "";
+					echo "    Enter a valid FOG username and Password.";
+					echo "";
+					echo -n "        Username: ";
+					read username;
+					echo "";
+					echo -n "        Password: ";
+					stty -echo;
+					read password;
+					stty echo;
+					user64=`echo -e $username | tr -d '\012' | base64`;
+					pass64=`echo -e $password | tr -d '\012' | base64`;
+					tmp=`wget -O - --post-data="mac=${mac}&username=$user64&password=$pass64" "http://${web}service/checkcredentials.php" 2>/dev/null`;
+					if [ "$tmp" = "#!ok" ]; then
+						echo 
+						echo "    This host will reboot and imaging will start!";
+						echo
+						ret="1";
+						realdoimage="1";
+					fi
+					if [ "$tmp" == "#!il" ]; then
+						ret="";
+						echo "    * Error: Invalid Login! ($retry remaining)"
+					fi
+					retry=$(($retry - 1));
+				done
+				;;
+			[nN]*)
+				;;
+			*)
+				;;
+		esac
+		echo 
+		dots "Attempting to register host";
+		res="";
+		while [ "${res}" = "" ]
+		do
+			res=`wget -O - --post-data="mac=$mac&advanced=1&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$locationid&username=$user64&groupid=$group64&snapinid=$snapin64&productKey=$productKey" "http://${web}service/auto.register.php" 2>/dev/null`
+			echo "${res}";			
+			sleep 2;
+		done;
+	else
+		echo " * Unable to register host for the following reasons:";
+		echo "        ${exists}";
+		sleep 10;
+	fi
+	doInventory;
+	echo
+	echo
+	echo 	
+	echo " System Information";
+	echo " ------------------";
+	echo 
+	echo " * System Manufacturer: $sysman";
+	echo " * System Product Name: $sysproduct";
+	echo " * System Version: $sysversion";
+	echo " * System Serial Number: $sysserial";
+	echo " * Computer Form Factor: $systype";	
+	sleep 1;
+	echo 
+	echo " BIOS Information";
+	echo " ----------------";
+	echo 
+	echo " * BIOS Version: $biosversion";
+	echo " * BIOS Vendor: $biosvendor";
+	echo " * BIOS Date: $biosdate";
+	sleep 1
+	echo 	
+	echo " Motherboard Information";
+	echo " -----------------------";
+	echo 	
+	echo " * Motherboard Manufacturer: $mbman";
+	echo " * Motherboard Product Name: $mbproductname";	
+	echo " * Motherboard Product Version: $mbversion";
+	echo " * Motherboard Serial Number: $mbserial";	
+	echo " * Motherboard Asset Tag: $mbasset";		
+	sleep 1	
+	echo 
+	echo " CPU Information";
+	echo " ---------------";
+	echo 	
+	echo " * CPU Manufacturer: $cpuman";	
+	echo " * CPU Version: $cpuversion";		
+	echo " * CPU Current Speed: $cpucurrent";
+	echo " * CPU Max Speed: $cpumax";	
+	sleep 1		
+	echo 
+	echo " Memory Information";
+	echo " ------------------";
+	echo 	
+	echo " * Memory: $mem";
+	sleep 1	
+	echo 
+	echo " Hard Disk Information";
+	echo " ---------------------";
+	echo 		
+	echo " * Hard Disk: $hdinfo";
+	sleep 1	
+	echo 
+	echo " Case Information";
+	echo " ----------------";
+	echo 	
+	echo " * Case Manufacturer: $caseman";	
+	echo " * Case Version: $casever";
+	echo " * Case Serial Number: $caseserial";
+	echo " * Case Asset Number: $casesasset";
+	echo 
+	echo 
+	echo 
+	echo 
+	echo 		
+	poststring="mac=${mac}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}";
+	dots "Attempting to send inventory................";
+	res="";
+	while [ "$res" = "" ]; do
+		res=`wget -O - --post-data="${poststring}" "http://${web}service/inventory.php" 2>/dev/null`
+		echo "$res";
+		sleep 3;
+	done
+else
+	echo "hard disk not found!";
+fi
+sleep 2
+>>>>>>> dev-branch

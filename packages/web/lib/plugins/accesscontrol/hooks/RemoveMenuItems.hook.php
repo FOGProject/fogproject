@@ -21,7 +21,7 @@ class RemoveMenuItems extends Hook
 	}
 	public function MenuData($arguments)
 	{
-		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
 		{
 			foreach((array)$this->linksToFilter AS $link)
@@ -30,7 +30,7 @@ class RemoveMenuItems extends Hook
 	}
 	public function SubMenuData($arguments)
 	{
-		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
 		{
 			foreach($arguments['submenu'] AS $node => $link)
@@ -50,7 +50,7 @@ class RemoveMenuItems extends Hook
 	}
 	public function NotAllowed($arguments)
 	{
-		$plugin = current($this->FOGCore->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
 		{
 			if (in_array($_REQUEST['node'],(array)$this->linksToFilter))

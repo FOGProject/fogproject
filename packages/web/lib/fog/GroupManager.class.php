@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 /** \class GroupManager
 	Manager for the groups.
@@ -21,3 +22,12 @@ class GroupManager extends FOGManagerController
 						ORDER BY
 							groupName';
 }
+=======
+<?php
+/** \class GroupManager
+	Manager for the groups.
+*/
+class GroupManager extends FOGManagerController
+{
+}
+>>>>>>> dev-branch

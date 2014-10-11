@@ -1,0 +1,5 @@
+C:\Users\admin\Desktop\src\FOG_PrinterManager\bin\Release\PrinterManager.dll
+C:\Users\admin\Desktop\src\FOG_PrinterManager\bin\Release\AbstractFOGService.dll
+C:\Users\admin\Desktop\src\FOG_PrinterManager\bin\Release\IniReaderObj.dll
+C:\Users\admin\Desktop\src\FOG_PrinterManager\obj\Release\ResolveAssemblyReference.cache
+C:\Users\admin\Desktop\src\FOG_PrinterManager\obj\Release\PrinterManager.dll

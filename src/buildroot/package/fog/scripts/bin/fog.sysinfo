@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #!/bin/sh
 
 . /usr/share/fog/lib/funcs.sh
@@ -214,3 +215,221 @@ do
 done;
 
 
+=======
+#!/bin/sh
+
+. /usr/share/fog/lib/funcs.sh
+. /bin/fog.donate
+
+for arg in `cat /proc/cmdline`; do
+    case "$arg" in
+	initsh)
+	    ash -i
+	    ;;
+	*)
+	    ;;
+    esac
+done
+
+clearScreen;
+
+displayBanner;
+
+#setupDNS ${dns}
+
+mac=`ifconfig | grep HWaddr | head -n1 `;
+mac=`echo $mac | sed -e "s/ //g"`
+maclen=${#mac}
+offset=`expr $maclen - 17`
+mac=${mac:$offset:17}
+
+echo 
+echo
+echo "   System MAC Address: ${mac}";
+echo
+
+
+blreboot="0";
+
+while [ "$blreboot" = "0" ]
+do
+	
+	echo
+	echo "   1) Reboot"
+	echo "   2) IP Information"
+	echo "   3) Partition Information"
+	echo "   4) Check FOG Compatibility"
+	echo "   5) Ping a Host"
+	echo "   6) Display MAC Address"
+	echo "   7) Show DMI Information"
+	echo 
+
+	echo -n "   Please enter your choice: "
+	read choice;	
+
+	if [ "$choice" == "1" ]
+	then 
+		blreboot="1"
+	elif [ "$choice" == "2" ]
+	then
+		clearScreen
+		echo 
+		echo "   IP Information";
+		echo "   ==============";
+		echo
+		ifconfig
+		echo
+		cat /etc/resolv.conf
+		echo
+		echo "   Press enter to continue.";
+		read tmp
+	elif [ "$choice" == "3" ]
+	then
+		clearScreen
+		echo 
+		echo "   Partition Information";
+		echo "   =====================";
+		parted --list 2>/dev/null
+		echo
+		echo "   Press enter to continue.";
+		read tmp	
+	elif [ "$choice" == "4" ]
+	then
+		clearScreen
+		echo 
+		echo "   FOG Compatibility Test";
+		echo "   ======================";
+		
+		blDiskOk="0";
+		blNicOk="0";
+		tmpDisk=`parted --list | grep "Disk"`
+		
+		if [ "$tmpDisk" != "" ]
+		then
+			blDiskOk="1";
+		fi 
+		
+		tmpNic=`ifconfig | grep "HWaddr"`;
+		
+		if [ "$tmpNic" != "" ]
+		then
+			blNicOk="1";
+		fi 		
+		
+		echo 
+		echo
+		if [ "$blNicOk" = "1" ] && [ "$blDiskOk" = "1" ]
+		then
+			echo "   This computer appears to be compatible with FOG!";
+			echo 
+			echo "   Results"
+			echo "   =======";
+			echo 
+			echo -n "        Network........................"
+			echo "[ Pass ]"
+
+			echo -n "        Disk..........................."
+			echo "[ Pass ]"
+			echo
+			echo			
+		else
+			echo "   This computer is NOT compatible with FOG!";
+			echo 
+			echo "   Results"
+			echo "   =======";
+			echo 
+			echo -n "        Network........................"
+			if [ "$blNicOk" = "1" ]
+			then
+				echo "[ Pass ]"
+			else
+				echo "[ Fail ]"
+			fi
+			
+			echo -n "        Disk..........................."
+			if [ "$blDiskOk" = "1" ]
+			then
+				echo "[ Pass ]"
+			else
+				echo "[ Fail ]"
+			fi
+			echo 
+			echo "   Try using a newer kernel that may be compatible"
+			echo "   with this device."
+			echo ""
+			echo "   New kernels can be downloaded with the \"Kernel Updater\""
+			echo "   in the FOG management interface."
+			echo
+		fi
+		echo
+		echo	
+		echo "   Press enter to continue.";
+		read tmp	
+	elif [ "$choice" == "5" ]
+	then
+		clearScreen
+		echo 
+		echo "   Ping a Host";
+		echo "   ===========";
+		echo 
+		while [ "$phost" = "" ]
+		do
+			echo -n "   Enter a host to ping: [${dns}] "
+			read phost;
+			
+			if [ "$phost" = "" ] && [ -n ${dns} ]
+			then
+				phost=$dns;
+			fi
+		done
+		echo 
+		ping -c 4 $phost
+		phost="";
+		echo
+		echo "   Press enter to continue.";
+		read tmp
+	elif [ "$choice" == "6" ]
+	then
+		clearScreen
+		echo 
+		echo "   MAC Address";
+		echo "   ===========";
+		echo 
+		echo "   $mac";
+		echo
+		echo "   Press enter to continue.";
+		read tmp
+	elif [ "$choice" == "7" ]
+	then
+		clearScreen
+		
+		test="bios-vendor bios-version bios-release-date system-manufacturer system-product-name system-version system-serial-number system-uuid baseboard-manufacturer baseboard-product-name baseboard-version baseboard-serial-number baseboard-asset-tag chassis-manufacturer chassis-type chassis-version chassis-serial-number chassis-asset-tag processor-family processor-manufacturer processor-version processor-frequency" 
+		oIFS=$IFS;
+		IFS=' '
+		str="";
+		i=0;
+		for t in $test
+		do
+			str="DMI String: $t\n";
+			v=`dmidecode --string $t`
+			echo -e "$str   $v\n\n";
+			i=$((i+1));
+			if [ "$i" = "5" ]
+			then
+				echo -n "Press Enter to Proceed..."
+				read dummy;
+				i=0;
+			fi
+		done
+		IFS=$oIFS;
+		echo 
+		echo "   Press enter to continue.";
+		read tmp									
+	else
+		blreboot="1"
+	fi
+	clearScreen
+done;
+
+
+>>>>>>> dev-branch

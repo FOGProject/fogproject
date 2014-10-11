@@ -46,26 +46,246 @@ abstract class FOGManagerController extends FOGBase
 	/** search($keyword = '%') defaults the search
 		part to use the wildcard.
 	*/
-	public function search($keyword = '%')
+	public function search($keyword = '%',$classSearch = 'Host')
 	{
 		try
 		{
-			// Error checking
-			if (empty($this->searchQuery))
-				throw new Exception('No query defined');
+			$Data = null;
 			if (empty($keyword))
 				throw new Exception('No keyword passed');
-			// Build query
-			$keyword = preg_replace(array('#\*#', '#[[:space:]]#'), array('%', '%'), $this->DB->sanitize($keyword));
-			$query = preg_replace(array('#\$\{keyword\}#'), array($keyword), $this->searchQuery);
-			// Execute query -> Build new object -> Push into data array
-			$allSearchResults = $this->DB->query($query);
-			while ($searchResult = $this->DB->fetch()->get())
+			foreach($this->databaseFields AS $common => $dbField)
+				$findWhere[$common] = $keyword;
+			// Get all hosts with matching keyword of hostname value
+			// If the class to search is not Host use the below for searching.
+			if ($classSearch != 'Host')
+				$HostMan = $this->getClass('HostManager')->find(array('name' => $keyword,'description' => $keyword,'ip' => $keyword),'OR');
+			// If the class to search is Host use the below for searching.
+			if ($classSearch == 'Host')
+				$HostMan = $this->getClass('HostManager')->find($findWhere,'OR');
+			foreach($HostMan AS $Host)
 			{
-				$data[] = new $this->childClass($searchResult);
+				if ($Host && $Host->isValid() && !$Host->get('pending'))
+					$Hosts[] = $Host;
 			}
-			// Return
-			return (array)$data;
+			$AdditionMacMan = $this->getClass('MACAddressAssociationManager')->find(array('mac' => $keyword,'description' => $keyword),'OR');
+			foreach($AdditionMacMan AS $HostAdd)
+			{
+				if ($HostAdd && $HostAdd->isValid())
+					$Hosts[] = new Host($HostAdd->get('hostID'));
+			}
+			$InventoryMan = $this->getClass('InventoryManager')->find(array('sysserial' => $keyword,'caseserial' => $keyword,'mbserial' => $keyword,'primaryUser' => $keyword,'other1' => $keyword,'other2' => $keyword,'sysman' => $keyword,'sysproduct' => $keyword),'OR');
+			foreach($InventoryMan AS $Inventory)
+			{
+				if ($Inventory && $Inventory->isValid())
+					$Hosts[] = new Host($Inventory->get('hostID'));
+			}
+			if ($classSearch == 'Host')
+			{
+				$GroupMan = $this->getClass('GroupManager')->find(array('name' => $keyword,'description' => $keyword),'OR');
+				foreach($GroupMan AS $Group)
+				{
+					if ($Group && $Group->isValid())
+					{
+						foreach($this->getClass('GroupAssociationManager')->find(array('groupID' => $Group->get('id'))) AS $GroupAssoc)
+						{
+							if ($GroupAssoc && $GroupAssoc->isValid())
+								$Hosts[] = new Host($GroupAssoc->get('hostID'));
+						}
+					}
+				}
+				$ImageMan = $this->getClass('ImageManager')->find(array('name' => $keyword,'description' => $keyword),'OR');
+				foreach($ImageMan AS $Image)
+				{
+					if ($Image && $Image->isValid())
+					{
+						foreach($this->getClass('HostManager')->find(array('imageID' => $Image->get('id'))) AS $Host)
+						{
+							if ($Host && $Host->isValid())
+								$Hosts[] = $Host;
+						}
+					}
+				}
+				$SnapinMan = $this->getClass('SnapinManager')->find(array('name' => $keyword,'description' => $keyword,'file' => $keyword),'OR');
+				foreach($SnapinMan AS $Snapin)
+				{
+					if ($Snapin && $Snapin->isValid())
+					{
+						foreach($this->getClass('SnapinAssociationManager')->find(array('snapinID' => $Snapin->get('id'))) AS $SnapinAssoc)
+						{
+							if ($SnapinAssoc && $SnapinAssoc->isValid())
+								$Hosts[] = new Host($SnapinAssoc->get('hostID'));
+						}
+					}
+				}
+				$PrinterMan = $this->getClass('PrinterManager')->find(array('name' => $keyword));
+				foreach($PrinterMan AS $Printer)
+				{
+					if ($Printer && $Printer->isValid())
+					{
+						foreach($this->getClass('PrinterAssociationManager')->find(array('printerID' => $Printer->get('id'))) AS $PrinterAssoc)
+						{
+							if ($PrinterAssoc && $PrinterAssoc->isValid())
+								$Hosts[] = new Host($PrinterAssoc->get('hostID'));
+						}
+					}
+				}
+				$Data = array_unique($Hosts);
+			}
+			// Only used in the future for other class files.
+			$Hosts = array_unique((array)$Hosts);
+			if ($classSearch == 'Group')
+			{
+				$GroupMan = $this->getClass('GroupManager')->find($findWhere,'OR');
+				foreach($GroupMan AS $Group)
+				{
+					if ($Group && $Group->isValid())
+						$Data[] = $Group;
+				}
+				foreach($Hosts AS $Host)
+				{
+					if ($Host && $Host->isValid())
+					{
+						foreach($this->getClass('GroupAssociationManager')->find(array('hostID' => $Host->get('id'))) AS $GroupAssoc)
+						{
+							if ($GroupAssoc && $GroupAssoc->isValid())
+								$Data[] = new Group($GroupAssoc->get('groupID'));
+						}
+					}
+				}
+			}
+			if ($classSearch == 'Image')
+			{
+				$ImageMan = $this->getClass('ImageManager')->find($findWhere,'OR');
+				foreach($ImageMan AS $Image)
+				{
+					if ($Image && $Image->isValid())
+						$Data[] = $Image;
+				}
+				foreach($Hosts AS $Host)
+				{
+					if ($Hosts && $Host->isValid() && $Host->getImage() && $Host->getImage()->isValid())
+						$Data[] = $Host->getImage();
+				}
+			}
+			if ($classSearch == 'Snapin')
+			{
+				$SnapinMan = $this->getClass('SnapinManager')->find($findWhere,'OR');
+				foreach($SnapinMan AS $Snapin)
+				{
+					if ($Snapin && $Snapin->isValid())
+						$Data[] = $Snapin;
+				}
+				foreach($Hosts AS $Host)
+				{
+					if ($Host && $Host->isValid())
+					{
+						foreach($this->getClass('SnapinAssociationManager')->find(array('hostID' => $Host->get('id'))) AS $SnapinAssoc)
+						{
+							if ($SnapinAssoc && $SnapinAssoc->isValid())
+								$Data[] = new Snapin($SnapinAssoc->get('snapinID'));
+						}
+					}
+				}
+			}
+			if ($classSearch == 'Printer')
+			{
+				$PrinterMan = $this->getClass('PrinterManager')->find($findWhere,'OR');
+				foreach($PrinterMan AS $Printer)
+				{
+					if ($Printer && $Printer->isValid())
+						$Data[] = $Printer;
+				}
+				foreach($Hosts AS $Host)
+				{
+					if ($Host && $Host->isValid())
+					{
+						foreach($this->getClass('PrinterAssociationManager')->find(array('hostID' => $Host->get('id'))) AS $PrinterAssoc)
+						{
+							if ($PrinterAssoc && $PrinterAssoc->isValid())
+								$Data[] = new Printer($PrinterAssoc->get('printerID'));
+						}
+					}
+				}
+			}
+			if ($classSearch == 'Task')
+			{
+				$TaskMan = $this->getClass('TaskManager')->find($findWhere,'OR');
+				foreach($TaskMan AS $Task)
+				{
+					if ($Task && $Task->isValid())
+						$Data[] = $Task;
+				}
+				foreach($Hosts AS $Host)
+				{
+					if ($Host && $Host->isValid())
+					{
+						foreach($this->getClass('TaskManager')->find(array('hostID' => $Host->get('id'))) AS $Task)
+						{
+							if ($Task && $Task->isValid())
+								$Data[] = $Task;
+						}
+					}
+				}
+				$TaskStateMan = $this->getClass('TaskStateManager')->find(array('name' => $keyword));
+				foreach($TaskStateMan AS $TaskState)
+				{
+					if ($TaskState && $TaskState->isValid())
+					{
+						foreach($this->getClass('TaskManager')->find(array('stateID' => $TaskState->get('id'))) AS $Task)
+						{
+							if ($Task && $Task->isValid())
+								$Data[] = $Task;
+						}
+					}
+				}
+				$TaskTypeMan = $this->getClass('TaskTypeManager')->find(array('name' => $keyword));
+				foreach($TaskTypeMan AS $TaskType)
+				{
+					if ($TaskType && $TaskType->isValid())
+					{
+						foreach($this->getClass('TaskManager')->find(array('typeID' => $TaskType->get('id'))) AS $Task)
+						{
+							if ($Task && $Task->isValid())
+								$Data[] = $Task;
+						}
+					}
+				}
+				$ImageMan = $this->getClass('ImageManager')->find(array('name' => $keyword));
+				foreach($ImageMan AS $Image)
+				{
+					if ($Image && $Image->isValid())
+					{
+						foreach($this->getClass('HostManager')->find(array('imageID' => $Image->get('id'))) AS $Host)
+						{
+							if ($Host && $Host->isValid())
+								$Hosts[] = $Host;
+						}
+						$Hosts = array_unique($Hosts);
+						foreach($Hosts AS $Host)
+						{
+							if ($Host && $Host->isValid())
+							{			
+								foreach($this->getClass('TaskManager')->find(array('hostID' => $Host->get('id'))) AS $Task)
+								{
+									if ($Task && $Task->isValid())
+										$Data[] = $Task;
+								}
+							}
+						}
+					}
+				}
+			}
+			if ($classSearch == 'User')
+			{
+				$UserMan = $this->getClass('UserManager')->find(array('name' => $keyword));
+				foreach($UserMan AS $User)
+				{
+					if ($User && $User->isValid())
+						$Data[] = $User;
+				}
+			}
+			$Data = array_unique($Data);
+			return (array)$Data;
 		}
 		catch (Exception $e)
 		{
@@ -108,8 +328,8 @@ abstract class FOGManagerController extends FOGBase
 			));
 			while ($row = $this->DB->fetch()->get())
 			{
-				//$data[] = $row;
-				$data[] = new $this->childClass($row);
+				$r = new ReflectionClass($this->childClass);
+				$data[] = $r->newInstance($row);
 			}
 			// Return
 			return (array)$data;
@@ -176,9 +396,9 @@ abstract class FOGManagerController extends FOGBase
 	/** buildSelectBox($matchID = '',$elementName = '',$orderBy = 'name')
 		Builds a select box for the class values found.
 	*/
-	function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '')
+	public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '')
 	{
-		$matchID = ($_REQUEST['node'] == 'images' ? ($matchID === '0' ? '1' : $matchID) : $matchID);
+		$matchID = ($_REQUEST['node'] == 'image' ? ($matchID === '0' ? '1' : $matchID) : $matchID);
 		if (empty($elementName))
 			$elementName = strtolower($this->childClass);
 		foreach($this->find('','',$orderBy) AS $Object)
@@ -186,7 +406,7 @@ abstract class FOGManagerController extends FOGBase
 			if (!in_array($Object->get('id'),(array)$filter))
 				$listArray[] = '<option value="'.$Object->get('id').'"'.($matchID == $Object->get('id') ? ' selected="selected"' : '' ).'>'.$Object->get('name').' - ('.$Object->get('id').')</option>';
 		}
-		return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',$elementName,'- '._('Please select an option').' -',implode("\n",$listArray)) : false);
+		return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',$elementName,'- '.$this->foglang['PleaseSelect'].' -',implode("\n",$listArray)) : false);
 	}
 	// TODO: Read DB fields from child class
 	/** exists($name, $id = 0)
