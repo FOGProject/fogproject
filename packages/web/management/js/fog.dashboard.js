@@ -57,7 +57,8 @@ $(function()
 		{
 			'lines':
 			{
-				'show': true
+				'show': true,
+				'fill': 0.25,
 			}
 		},
 		'legend':
@@ -103,10 +104,20 @@ $(function()
 		// Prevent default action
 		return false;
 	});
+
+	setInterval(function()
+	{
+		UpdateDiskUsage();
+	}, 300000);
+	setInterval(function()
+	{
+		UpdateClientCount();
+	}, 200);
 	
 	// Bandwidth Graph - start thread
 	setTimeout(function()
 	{
+		UpdateClientCount();
 		UpdateBandwidth();
 	}, (200));
 
@@ -145,51 +156,18 @@ $(function()
 	
 	// Diskusage Graph - load default Storage Node on page load
 	UpdateDiskUsage();
+	UpdateClientCount();
 	
 	// Diskusage Graph - Node select - Hook select box to load new data via AJAX
 	$('#diskusage-selector select').change(function()
 	{
+		UpdateClientCount();
 		UpdateDiskUsage();
 		return false;
 	});
 	
-	// System Activity Graph
-	$.plot($('#graph-activity', '#content-inner'),
-	[
-		{ 'label': 'Active', 'data': parseInt(ActivityActive) },
-		{ 'label': 'Queued', 'data': parseInt(ActivityQueued) },
-		{ 'label': 'Free', 'data': parseInt(ActivitySlots) }
-	], {
-		'colors': [ '#CB4B4B','#7386AD', '#45A73C'],
-		'series':
-		{
-			'pie':
-			{
-				'show':		true,
-				'radius':	1,
-				'label':
-				{
-					'radius':	.75,
-					'formatter':	function(label, series)
-					{
-						return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
-					},
-					'background':	{ opacity: 0.5 }
-				}
-			}
-		},
-		'legend':
-		{
-			'show': 	true,
-			'align':	'left',
-			'labelColor':	'#666',
-			'labelFormatter':	function(label, series)
-			{
-				return '<div style="font-size:8pt;padding:2px">'+label+': '+series.datapoints.points[1]+'</div>';
-			}
-		}
-	});
-	
+
+
 	// Remove loading spinners
 	$('.graph').not(GraphDiskUsage).addClass('loaded');
 });
@@ -288,12 +266,14 @@ function UpdateDiskUsage()
 
 function UpdateBandwidth()
 {
+	var NodeID = GraphDiskUsageNode.val();
 	$.ajax(
 	{
-		'url':		'../status/bandwidth.php',
-		'data':		{ 'sub': 'bandwidth' },
+		'url':		'../management/index.php?node=home',
 		'cache':	false,
 		'type':		'GET',
+		'data':		{ 'sub': 'bandwidth',
+					  'nodeid': NodeID },
 		'dataType':	'json',
 		'success':	function(data)
 		{
@@ -308,6 +288,64 @@ function UpdateBandwidth()
 			{
 				UpdateBandwidth();
 			}, 20);
+		}
+	});
+}
+function UpdateClientCount()
+{
+	var NodeID = GraphDiskUsageNode.val();
+	$.ajax(
+	{
+		'url': '../status/clientcount.php',
+		'cache': false,
+		'type': 'GET',
+		'data': { 'id': NodeID },
+		'dataType': 'json',
+		'success': function(data)
+		{
+			// System Activity Graph
+			$.plot($('#graph-activity', '#content-inner'),
+			[
+				{ 'label': 'Active', 'data': parseInt(data['ActivityActive']) },
+				{ 'label': 'Queued', 'data': parseInt(data['ActivityQueued']) },
+				{ 'label': 'Free', 'data': parseInt(data['ActivitySlots']) }
+			], {
+				'colors': [ '#CB4B4B','#7386AD', '#45A73C'],
+				'series':
+				{
+					'pie':
+					{
+						'show':		true,
+						'radius':	1,
+						'label':
+						{
+							'radius':	.75,
+							'formatter':	function(label, series)
+							{
+								return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
+							},
+							'background':	{ opacity: 0.5 }
+						}
+					}
+				},
+				'legend':
+				{
+					'show': 	true,
+					'align':	'left',
+					'labelColor':	'#666',
+					'labelFormatter':	function(label, series)
+					{
+						return '<div style="font-size:8pt;padding:2px">'+label+': '+series.datapoints.points[1]+'</div>';
+					}
+				}
+			});
+			$('#ActivityActive').html(data['ActivityActive']);
+			$('#ActivityQueued').html(data['ActivityQueued']);
+			$('#ActivitySlots').html(data['ActivitySlots']);
+			// Catch failurs
+			if (data.length == 0) return;
+
+			// Update the client Count
 		}
 	});
 }

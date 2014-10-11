@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #!/bin/sh
 . /usr/share/fog/lib/funcs.sh;
 . /bin/fog.donate;
@@ -159,3 +160,166 @@ else
 	echo "hard disk not found!";
 fi
 sleep 3;
+=======
+#!/bin/sh
+. /usr/share/fog/lib/funcs.sh;
+. /bin/fog.donate;
+clear;
+displayBanner;
+hd="";
+getHardDisk;
+#setupDNS ${dns};
+sysman="";
+sysman64="";
+sysproduct="";
+sysproduct64="";
+sysversion="";
+sysversion64="";
+sysserial="";
+systype="";
+biosversion="";
+biosvendor="";
+biosdate="";
+mbman="";
+mbproductname="";
+mbversion="";
+mbserial="";
+mbasset="";
+cpuman="";
+cpuversion="";
+cpucurrent="";
+cpumax="";
+mem="";
+hdinfo="";
+caseman="";
+casever="";
+caseserial="";
+casesasset="";
+sysserial64="";
+systype64="";
+biosversion64="";
+biosvendor64="";
+biosdate64="";
+mbman64="";
+mbproductname64="";
+mbversion64="";
+mbserial64="";
+mbasset64="";
+cpuman64="";
+cpuversion64="";
+cpucurrent64="";
+cpumax64="";
+mem64="";
+hdinfo64="";
+caseman64="";
+casever64="";
+caseserial64="";
+casesasset64="";
+echo "";
+echo "";
+if [ -n "$hd" ]; then
+	echo " * Using disk device...........................$hd";
+	echo " * Starting host registration...";
+	mac_deployed="$mac";
+	mac=`ifconfig | grep HWaddr | head -n1 | base64`;
+	echo 
+	echo -n " * Attempting to register host.................";
+	res="";
+	while [ "$res" = "" ]; do
+		res=`wget -O - --post-data="mac=$mac" "http://${web}service/auto.register.php" 2>/dev/null`
+		echo "${res}";
+		sleep 2;
+	done
+	doInventory;
+	echo
+	echo
+	echo 	
+	echo " System Information";
+	echo " ------------------";
+	echo 
+	echo " * System Manufacturer: $sysman";
+	echo " * System Product Name: $sysproduct";
+	echo " * System Version: $sysversion";
+	echo " * System Serial Number: $sysserial";
+	echo " * Computer Form Factor: $systype";	
+	sleep 1;
+	echo 
+	echo " BIOS Information";
+	echo " ----------------";
+	echo 
+	echo " * BIOS Version: $biosversion";
+	echo " * BIOS Vendor: $biosvendor";
+	echo " * BIOS Date: $biosdate";
+	sleep 1;
+	echo
+	echo " Motherboard Information";
+	echo " -----------------------";
+	echo
+	echo " * Motherboard Manufacturer: $mbman";
+	echo " * Motherboard Product Name: $mbproductname";	
+	echo " * Motherboard Product Version: $mbversion";
+	echo " * Motherboard Serial Number: $mbserial";	
+	echo " * Motherboard Asset Tag: $mbasset";		
+	sleep 1;
+	echo 
+	echo " CPU Information";
+	echo " ---------------";
+	echo 	
+	echo " * CPU Manufacturer: $cpuman";	
+	echo " * CPU Version: $cpuversion";		
+	echo " * CPU Current Speed: $cpucurrent";
+	echo " * CPU Max Speed: $cpumax";	
+	sleep 1		
+	echo 
+	echo " Memory Information";
+	echo " ------------------";
+	echo 	
+	echo " * Memory: $mem";
+	sleep 1	
+	echo 
+	echo " Hard Disk Information";
+	echo " ---------------------";
+	echo 		
+	echo " * Hard Disk: $hdinfo";
+	sleep 1	
+	echo 
+	echo " Case Information";
+	echo " ----------------";
+	echo 	
+	echo " * Case Manufacturer: $caseman";	
+	echo " * Case Version: $casever";
+	echo " * Case Serial Number: $caseserial";
+	echo " * Case Asset Number: $casesasset";
+	echo 
+	echo 
+	echo 
+	echo 
+	echo 		
+	poststring="mac=${mac}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}";
+	res="";
+	while [ "$res" = "" ]; do
+		dots "Attempting to send inventory";
+		res=`wget -O - --post-data="${poststring}" "http://${web}service/inventory.php" 2>/dev/null`
+		echo "${res}";
+		sleep 2;	
+	done
+	if [ "$deployed" = "1" ]; then
+		res="";
+		echo "";
+		echo " * Updating Computer Database Status";
+		echo "";		
+		while [ "$res" != "##" ]
+		do
+			res=`wget -O - "http://${web}service/Post_Wipe.php?mac=$mac_deployed" 2>/dev/null`
+			if [ "$res" != "##" ]; then
+				echo " * ${res}";
+			fi
+			sleep 2;
+		done
+	fi
+	sleep 2;
+else
+	echo "hard disk not found!";
+fi
+sleep 3;
+>>>>>>> dev-branch
