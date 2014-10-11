@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 echo "@@general\n";
 echo trim(shell_exec("uname -r") . substr("\n", 0, -2)) . "\n";
@@ -73,3 +74,10 @@ foreach($arLines as $line)
 
 }
 echo "@@end";
+=======
+<?php
+require('../commons/base.inc.php');
+$data = $FOGCore->getHWInfo();
+foreach($data AS $d => $val)
+	print $val."\n";
+>>>>>>> dev-branch

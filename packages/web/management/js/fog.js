@@ -44,7 +44,6 @@ var Loader;
 // Main FOG JQuery Functions
 (function($)
 {
-	// Assign DOM elements
 	Content = $('#content');
 	Loader = $('#loader');
 

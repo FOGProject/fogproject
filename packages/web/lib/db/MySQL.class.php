@@ -31,7 +31,7 @@ class MySQL extends FOGBase
 		}
 		catch (Exception $e)
 		{
-			$GLOBALS['FOGCore']->error(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$this->FOGCore->error(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 	}
 	/** __destruct()
@@ -68,7 +68,7 @@ class MySQL extends FOGBase
 		}
 		catch (Exception $e)
 		{
-			$GLOBALS['FOGCore']->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$this->FOGCore->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 		return $this;
 	}
@@ -86,13 +86,13 @@ class MySQL extends FOGBase
 				$sql = vsprintf($sql, $data);
 			// Query
 			$this->query = $sql;
-			$this->queryResult = $this->link->query($this->query) or $GLOBALS['FOGCore']->debug($this->sqlerror(),$this->query);
+			$this->queryResult = $this->link->query($this->query) or $this->FOGCore->debug($this->sqlerror(),$this->query);
 			// INFO
-			$GLOBALS['FOGCore']->info($this->query);
+			$this->FOGCore->info($this->query);
 		}
 		catch (Exception $e)
 		{
-			$GLOBALS['FOGCore']->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$this->FOGCore->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 		return $this;
 	}
@@ -115,7 +115,7 @@ class MySQL extends FOGBase
 		}
 		catch (Exception $e)
 		{
-			$GLOBALS['FOGCore']->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$this->FOGCore->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 		return $this;
 	}
@@ -151,7 +151,7 @@ class MySQL extends FOGBase
 		}
 		catch (Exception $e)
 		{
-			$GLOBALS['FOGCore']->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$this->FOGCore->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 		return false;
 	}
@@ -168,7 +168,7 @@ class MySQL extends FOGBase
 		}
 		catch (Exception $e)
 		{
-			$GLOBALS['FOGCore']->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			$this->FOGCore->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 		return $this;
 	}
