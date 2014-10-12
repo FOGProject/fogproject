@@ -1,6 +1,0 @@
-D:\fog\FOGService\Service\obj\Debug\ResolveAssemblyReference.cache
-D:\fog\FOGService\Service\obj\Debug\FOGService.exe
-D:\fog\FOGService\Service\obj\Debug\FOGService.pdb
-D:\fog\FOGService\bin\FOGService.exe.config
-D:\fog\FOGService\bin\FOGService.exe
-D:\fog\FOGService\bin\FOGService.pdb

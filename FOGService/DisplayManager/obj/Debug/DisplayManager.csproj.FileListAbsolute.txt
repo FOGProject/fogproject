@@ -1,5 +1,0 @@
-D:\fog\bin\DisplayManager.dll
-D:\fog\bin\DisplayManager.pdb
-D:\fog\FOGService\DisplayManager\obj\Debug\ResolveAssemblyReference.cache
-D:\fog\FOGService\DisplayManager\obj\Debug\DisplayManager.dll
-D:\fog\FOGService\DisplayManager\obj\Debug\DisplayManager.pdb

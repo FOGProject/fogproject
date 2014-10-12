@@ -1,5 +1,0 @@
-D:\fog\FOGService\NotificationHandler\obj\Debug\ResolveAssemblyReference.cache
-D:\fog\FOGService\NotificationHandler\obj\Debug\NotificationHandler.dll
-D:\fog\FOGService\NotificationHandler\obj\Debug\NotificationHandler.pdb
-D:\fog\FOGService\bin\NotificationHandler.dll
-D:\fog\FOGService\bin\NotificationHandler.pdb

@@ -1,5 +1,0 @@
-D:\fog\FOGService\bin\AutoLogOut.dll
-D:\fog\FOGService\bin\AutoLogOut.pdb
-D:\fog\FOGService\AutoLogOut\obj\Debug\ResolveAssemblyReference.cache
-D:\fog\FOGService\AutoLogOut\obj\Debug\AutoLogOut.dll
-D:\fog\FOGService\AutoLogOut\obj\Debug\AutoLogOut.pdb
