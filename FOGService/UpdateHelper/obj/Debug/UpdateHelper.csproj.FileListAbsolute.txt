@@ -1,5 +1,0 @@
-D:\fog\FOGService\bin\FOGUpdateHelper.exe
-D:\fog\FOGService\bin\FOGUpdateHelper.pdb
-D:\fog\FOGService\UpdateHelper\obj\Debug\ResolveAssemblyReference.cache
-D:\fog\FOGService\UpdateHelper\obj\Debug\FOGUpdateHelper.exe
-D:\fog\FOGService\UpdateHelper\obj\Debug\FOGUpdateHelper.pdb

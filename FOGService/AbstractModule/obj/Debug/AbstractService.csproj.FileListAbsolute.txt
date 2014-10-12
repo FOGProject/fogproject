@@ -1,7 +1,0 @@
-D:\fog\FOGService\AbstractService\bin\Debug\AbstractService.dll
-D:\fog\FOGService\AbstractService\bin\Debug\AbstractService.pdb
-D:\fog\FOGService\AbstractService\obj\Debug\AbstractService.dll
-D:\fog\FOGService\AbstractService\obj\Debug\AbstractService.pdb
-D:\fog\FOGService\AbstractService\obj\Debug\ResolveAssemblyReference.cache
-D:\fog\FOGService\bin\Debug\AbstractService.dll
-D:\fog\FOGService\bin\Debug\AbstractService.pdb

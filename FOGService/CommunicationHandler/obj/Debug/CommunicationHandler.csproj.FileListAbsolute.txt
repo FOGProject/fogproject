@@ -1,5 +1,0 @@
-D:\fog\FOGService\CommunicationHandler\obj\Debug\ResolveAssemblyReference.cache
-D:\fog\FOGService\CommunicationHandler\obj\Debug\CommunicationHandler.dll
-D:\fog\FOGService\CommunicationHandler\obj\Debug\CommunicationHandler.pdb
-D:\fog\FOGService\bin\CommunicationHandler.dll
-D:\fog\FOGService\bin\CommunicationHandler.pdb

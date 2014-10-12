@@ -1,5 +1,0 @@
-D:\fog\FOGService\bin\PipeServer.dll
-D:\fog\FOGService\bin\PipeServer.pdb
-D:\fog\FOGService\PipeServer\obj\Debug\ResolveAssemblyReference.cache
-D:\fog\FOGService\PipeServer\obj\Debug\PipeServer.dll
-D:\fog\FOGService\PipeServer\obj\Debug\PipeServer.pdb

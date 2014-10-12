@@ -1,5 +1,0 @@
-D:\fog\FOGService\bin\HostnameChanger.dll
-D:\fog\FOGService\bin\HostnameChanger.pdb
-D:\fog\FOGService\HostnameChanger\obj\Debug\ResolveAssemblyReference.cache
-D:\fog\FOGService\HostnameChanger\obj\Debug\HostnameChanger.dll
-D:\fog\FOGService\HostnameChanger\obj\Debug\HostnameChanger.pdb
