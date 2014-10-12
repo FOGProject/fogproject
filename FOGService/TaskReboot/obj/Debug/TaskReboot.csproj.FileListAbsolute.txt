@@ -1,5 +1,0 @@
-D:\fog\FOGService\TaskReboot\obj\Debug\ResolveAssemblyReference.cache
-D:\fog\FOGService\TaskReboot\obj\Debug\TaskReboot.dll
-D:\fog\FOGService\TaskReboot\obj\Debug\TaskReboot.pdb
-D:\fog\FOGService\bin\TaskReboot.dll
-D:\fog\FOGService\bin\TaskReboot.pdb

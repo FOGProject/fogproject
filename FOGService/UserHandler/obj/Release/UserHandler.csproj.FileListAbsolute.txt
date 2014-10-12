@@ -1,3 +1,0 @@
-D:\fog\FOGService\UserHandler\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\bin\UserHandler.dll
-D:\fog\FOGService\UserHandler\obj\Release\UserHandler.dll

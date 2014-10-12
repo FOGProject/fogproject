@@ -1,5 +1,0 @@
-D:\fog\FOGService\EncryptionHandler\obj\Debug\ResolveAssemblyReference.cache
-D:\fog\FOGService\EncryptionHandler\obj\Debug\EncryptionHandler.dll
-D:\fog\FOGService\EncryptionHandler\obj\Debug\EncryptionHandler.pdb
-D:\fog\FOGService\bin\EncryptionHandler.dll
-D:\fog\FOGService\bin\EncryptionHandler.pdb

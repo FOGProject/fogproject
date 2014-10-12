@@ -1,3 +1,0 @@
-D:\fog\FOGService\bin\HostRegister.dll
-D:\fog\FOGService\HostRegister\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\HostRegister\obj\Release\HostRegister.dll

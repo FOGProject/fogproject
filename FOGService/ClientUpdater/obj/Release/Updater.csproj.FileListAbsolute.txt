@@ -1,3 +1,0 @@
-D:\fog\FOGService\bin\Updater.dll
-D:\fog\FOGService\Updater\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\Updater\obj\Release\Updater.dll

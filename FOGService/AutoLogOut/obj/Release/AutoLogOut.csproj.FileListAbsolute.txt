@@ -1,3 +1,0 @@
-D:\fog\FOGService\bin\AutoLogOut.dll
-D:\fog\FOGService\AutoLogOut\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\AutoLogOut\obj\Release\AutoLogOut.dll
