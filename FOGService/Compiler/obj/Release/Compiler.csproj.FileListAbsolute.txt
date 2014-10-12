@@ -1,6 +1,0 @@
-D:\fog\FOGService\Compiler\bin\Release\Compiler.exe
-D:\fog\FOGService\bin\FOGServiceCompiler.exe
-D:\fog\FOGService\Compiler\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\Compiler\obj\Release\Compiler.MainForm.resources
-D:\fog\FOGService\Compiler\obj\Release\Compiler.csproj.GenerateResource.Cache
-D:\fog\FOGService\Compiler\obj\Release\FOGServiceCompiler.exe

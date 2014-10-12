@@ -1,3 +1,0 @@
-D:\fog\FOGService\GreenFOG\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\bin\GreenFOG.dll
-D:\fog\FOGService\GreenFOG\obj\Release\GreenFOG.dll

@@ -1,5 +1,0 @@
-D:\fog\FOGService\LogHandler\obj\Debug\ResolveAssemblyReference.cache
-D:\fog\FOGService\LogHandler\obj\Debug\LogHandler.dll
-D:\fog\FOGService\LogHandler\obj\Debug\LogHandler.pdb
-D:\fog\FOGService\bin\LogHandler.dll
-D:\fog\FOGService\bin\LogHandler.pdb

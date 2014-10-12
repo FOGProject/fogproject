@@ -1,3 +1,0 @@
-D:\fog\FOGService\bin\HostnameChanger.dll
-D:\fog\FOGService\HostnameChanger\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\HostnameChanger\obj\Release\HostnameChanger.dll

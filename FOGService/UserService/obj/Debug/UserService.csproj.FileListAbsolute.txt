@@ -1,5 +1,0 @@
-D:\fog\FOGService\bin\FOGUserService.exe
-D:\fog\FOGService\bin\FOGUserService.pdb
-D:\fog\FOGService\UserService\obj\Debug\ResolveAssemblyReference.cache
-D:\fog\FOGService\UserService\obj\Debug\FOGUserService.exe
-D:\fog\FOGService\UserService\obj\Debug\FOGUserService.pdb
