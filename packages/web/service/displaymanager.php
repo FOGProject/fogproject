@@ -8,7 +8,7 @@ try
 		throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if(!$Host->isValid())
+	if(!$Host->isValid() || $Host->get('mac')->isClientIgnored())
 		throw new Exception('#!ih');
 	// Get the global values.
 	$HostDisplay = current($FOGCore->getClass('HostScreenSettingsManager')->find(array('hostID' => $Host->get('id'))));
