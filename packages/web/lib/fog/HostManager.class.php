@@ -29,8 +29,10 @@ class HostManager extends FOGManagerController
 	{
 		foreach((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MACs)) AS $MAC)
 		{
-			if ($MAC && $MAC->isValid())
-				$HostIDs[] = $MAC->get('hostID');
+			$MACHost = $MAC->get('hostID');
+			$MAC = new MACAddress($MAC->get('mac'));
+			if ($MAC && $MAC->isValid() && !$MAC->isClientIgnored())
+				$HostIDs[] = $MACHost;
 		}
 		$HostIDs = array_unique((array)$HostIDs);
 		if (count($HostIDs) > 1)
