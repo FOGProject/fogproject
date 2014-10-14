@@ -182,5 +182,29 @@ class MACAddress extends FOGBase
 	{
 		return ($this->__toString() != '' ? preg_match('#^([0-9a-fA-F][0-9a-fA-F][:-]){5}([0-9a-fA-F][0-9a-fA-F])$#', $this->__toString()) : false);
 	}
+
+	public function isPending()
+	{
+		$PendingMACs = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->MAC, 'pending' => 1)));
+		return ($PendingMACs && $PendingMACs instanceof MACAddressAssociation);
+	}
+
+	public function isClientIgnored()
+	{
+		$IgnoredMACs = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->MAC, 'clientIgnore' => 1)));
+		return ($IgnoredMACs && $IgnoredMACs instanceof MACAddressAssociation);
+	}
+
+	public function isPrimary()
+	{
+		$PrimaryMACs = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->MAC, 'primary' => 1)));
+		return ($PrimaryMACs && $PrimaryMACs instanceof MACAddressAssociation);
+	}
+
+	public function isImageIgnored()
+	{
+		$IgnoredMACs = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->MAC, 'imageIgnore' => 1)));
+		return ($IgnoredMACs && $IgnoredMACs instanceof MACAddressAssociation);
+	}
 }
 >>>>>>> dev-branch
