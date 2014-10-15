@@ -995,6 +995,16 @@ class BootMenu extends FOGBase
 		$this->parseMe($Send);
 		$this->chainBoot();
 	}
+	private function printImageIgnored()
+	{
+		$Send['ignored'] = array(
+			"#!ipxe",
+			"echo The MAC Address is set to be ignored for imaging tasks",
+			"sleep 15",
+		);
+		$this->parseMe($Send);
+		$this->noMenu();
+	}
 	private function approveHost()
 	{
 		if ($this->Host->set('pending',null)->save())
@@ -1320,6 +1330,8 @@ class BootMenu extends FOGBase
 		}
 		else
 		{
+			if ($this->Host->get('mac')->isImageIgnored())
+				$this->printImageIgnored();
 			$TaskType = new TaskType($Task->get('typeID'));
 			$imagingTasks = array(1,2,8,15,16,17,24);
 			$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $this->Host->get('id'))));

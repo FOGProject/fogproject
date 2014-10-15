@@ -77,7 +77,8 @@ try
 	if (!$MACs) throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host->isValid()) throw new Exception('#!ih');
+	if(!$Host->isValid() || $Host->get('mac')->isClientIgnored())
+		throw new Exception('#!ih');
 	// Only worry about if the Task is queued, in line, or in progress (for reporting reasons).
 	$Task = $Host->get('task');
 	// If the task is Valid and is not of type 12 or 13 report that it's waiting for other tasks.
