@@ -19,8 +19,6 @@ class HookManager extends FOGBase
 				throw new Exception('Function is invalid');
 			if (!method_exists($function[0], $function[1]))
 				throw new Exception('Function does not exist');
-			if (!in_array($event, $this->events))
-				throw new Exception('Invalid event');
 			if (!($function[0] instanceof Hook))
 				throw new Exception('Not a valid hook class');
 			$this->log(sprintf('Registering Hook: Event: %s, Function: %s', $event, $function[1]));
@@ -32,35 +30,6 @@ class HookManager extends FOGBase
 			$this->log(sprintf('Could not register Hook: Error: %s, Event: %s, Function: %s', $e->getMessage(), $event, $function[1]));
 		}
 		return false;
-	}
-	public function getEvents()
-	{
-		global $Init;
-		$paths = array(BASEPATH.'/management');
-		$paths = array_merge((array)$paths,(array)$Init->PagePaths,(array)$Init->FOGPaths);
-		foreach($paths AS $path)
-		{
-			$dir = new RecursiveDirectoryIterator($path,FilesystemIterator::SKIP_DOTS);
-			$Iterator = new RecursiveIteratorIterator($dir);
-			$Iterator = new RegexIterator($Iterator,'/^.+\.php$/i',RecursiveRegexIterator::GET_MATCH);
-			$regexp = '#processEvent\([\'\"](.*?)[\'\"]#';
-			foreach($Iterator AS $file)
-				preg_match_all($regexp,file_get_contents($file[0]),$matches[]);
-			$matches = $this->array_filter_recursive($matches);
-			foreach($matches AS $match => $value)
-			{
-				if ($matches[$match][1])
-					$matching[] = $matches[$match][1];
-			}
-			foreach($matching AS $ind => $arr)
-			{
-				foreach($arr AS $val)
-					$this->events[] = $val;
-			}
-		}
-		array_push($this->events,'HOST_DEL','HOST_DEL_POST','GROUP_DEL','GROUP_DEL_POST','IMAGE_DEL','IMAGE_DEL_POST','SNAPIN_DEL','SNAPIN_DEL_POST','PRINTER_DEL','PRINTER_DEL_POST','HOST_DEPLOY','GROUP_DEPLOY','HOST_EDIT_TASKS','GROUP_EDIT_TASKS','HOST_EDIT_ADV','GROUP_EDIT_ADV','HOST_EDIT_AD','GROUP_EDIT_AD');
-		$this->events = array_unique($this->events);
-		self::load();
 	}
 	public function processEvent($event, $arguments = array())
 	{
@@ -79,7 +48,7 @@ class HookManager extends FOGBase
 			}
 		}
 	}
-	private static function load()
+	public function load()
 	{
 		global $Init,$FOGCore;
 		foreach($Init->HookPaths AS $hookDirectory)
