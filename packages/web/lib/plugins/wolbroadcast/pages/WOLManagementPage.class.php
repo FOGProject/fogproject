@@ -1,5 +1,5 @@
 <?php
-/**	Class Name: LocationManagementPage
+/**	Class Name: WOLManagementPage
     FOGPage lives in: {fogwebdir}/lib/fog
     Lives in: {fogwebdir}/lib/plugins/location/pages
 
@@ -162,7 +162,7 @@ class WOLManagementPage extends FOGPage
 			if ($WOLBroadcast->save())
 			{
 				$this->FOGCore->setMessage('Broadcast Added, editing!');
-				$this->FOGCore->redirect('?node=wolbroadcst&sub=edit&id='.$WOLBroadcast->get('id'));
+				$this->FOGCore->redirect('?node=wolbroadcast&sub=edit&id='.$WOLBroadcast->get('id'));
 			}
 		}
 		catch (Exception $e)
@@ -214,7 +214,7 @@ class WOLManagementPage extends FOGPage
 	{
 		$WOLBroadcast = new Wolbroadcast($_REQUEST['id']);
 		$WOLBroadcastMan = new WolbroadcastManager();
-		$this->HookManager->processEvent('BROADCAST_EDIT_POST', array('Location'=> &$Location));
+		$this->HookManager->processEvent('BROADCAST_EDIT_POST', array('Broadcast'=> &$WOLBroadcast));
 		try
 		{
 			$name = trim($_REQUEST['name']);
@@ -289,13 +289,13 @@ class WOLManagementPage extends FOGPage
 		// POST
 		try
 		{
-			// Remove Location
+			// Remove Broadcast 
 			if (!$WOLBroadcast->destroy())
 				throw new Exception(_('Failed to destroy Broadcast'));
 			// Hook
-			$this->HookManager->processEvent('BROADCAST_DELETE_SUCCESS', array('Location' => &$WOLBroadcast));
+			$this->HookManager->processEvent('BROADCAST_DELETE_SUCCESS', array('Broadcast' => &$WOLBroadcast));
 			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Broadcast deleted'), $Location->get('id'), $Location->get('name')));
+			$this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Broadcast deleted'), $WOLBroadcast->get('id'), $WOLBroadcast->get('name')));
 			// Set session message
 			$this->FOGCore->setMessage(sprintf('%s: %s', _('Broadcast deleted'), $WOLBroadcast->get('name')));
 			// Redirect
