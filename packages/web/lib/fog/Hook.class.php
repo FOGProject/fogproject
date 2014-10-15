@@ -17,6 +17,7 @@ abstract class Hook extends FOGBase
 	public $logToFile = false;
 	public $logToBrowser = true;
 	public $FOGUser;
+	public $delformat;
 	public function __construct()
 	{
 		parent::__construct();
