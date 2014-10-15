@@ -45,7 +45,7 @@ class WOLManagementPage extends FOGPage
 	public function index()
 	{
 		// Set title
-		$this->title = _('Search');
+		$this->title = _('All Broadcasts');
 		// Find data
 		$Broadcasts = $this->getClass('WolbroadcastManager')->find();
 		// Row data
