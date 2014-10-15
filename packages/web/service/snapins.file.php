@@ -52,7 +52,8 @@ try
 	if (!$MACs) throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host->isValid()) throw new Exception('#!ih');
+	if(!$Host->isValid() || $Host->get('mac')->isClientIgnored())
+		throw new Exception('#!ih');
 	// Try and get the task.
 	$Task = $Host->get('task');
 	// Work on the current Snapin Task.

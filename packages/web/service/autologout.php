@@ -33,7 +33,7 @@ try
 		throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host->isValid())
+	if (!$Host->isValid() || $Host->get('mac')->isClientIgnored())
 		throw new Exception('#!ih');
 	// Poll the manager to see if it's set per host.
 	$HaloMan = current($FOGCore->getClass('HostAutoLogoutManager')->find(array('hostID' => $Host->get('id'))));

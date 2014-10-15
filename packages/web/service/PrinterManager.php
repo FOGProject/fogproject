@@ -52,7 +52,7 @@ try
 		throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host->isValid())
+	if(!$Host->isValid() || $Host->get('mac')->isClientIgnored())
 		throw new Exception('#ih');
 	// get and eval level
 	// ???? three separate levels of enabling/disabling ????
