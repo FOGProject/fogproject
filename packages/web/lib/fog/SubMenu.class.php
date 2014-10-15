@@ -464,6 +464,7 @@ class SubMenu extends FOGBase
 								 $this->foglang['Path'] => $this->object->get('path')
 			);
 		}
+		$this->HookManager->processEvent('SUB_MENULINK_NOTES',array('name' => &$this->name,'object' => &$this->object,'title' => &$this->title));
 	}
 	private function nodeAndID()
 	{
@@ -717,7 +718,7 @@ class SubMenu extends FOGBase
 		{
 			$this->subMenu[$this->node]['home&id='.$_REQUEST['id']] = $this->foglang['Home'];
 		}
-		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('submenu' => &$this->subMenu));
+		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('submenu' => &$this->subMenu,'id' => &$this->id));
 	}
 	public function buildMenu()
 	{
