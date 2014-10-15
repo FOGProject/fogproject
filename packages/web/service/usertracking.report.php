@@ -59,7 +59,7 @@ try
 		throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host->isValid())
+	if(!$Host->isValid() || $Host->get('mac')->isClientIgnored())
 		throw new Exception('#!nf');
 	if (!in_array(strtolower(($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $_REQUEST['action'] : base64_decode($_REQUEST['action']))),array('login','start','logout')))
 		throw new Exception('#!er: Postfix requires an action of login,logout, or start to operate');
