@@ -445,16 +445,6 @@ class SubMenu extends FOGBase
 			$this->object = new User($_REQUEST['id']);
 			$this->title = array($this->foglang['User'] => $this->object->get('name'));
 		}
-		else if ($this->node == 'location' && $_REQUEST['id'])
-		{
-			$this->id = 'id';
-			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Location']);
-			$this->object = new Location($_REQUEST['id']);
-			$this->title = array($this->foglang['Location'] => $this->object->get('name'),
-							     $this->foglang['Storage'].' '.$this->foglang['Group'] => 
-								 		$this->getClass('StorageGroup',$this->object->get('storageGroupID'))->get('name')
-			);
-		}
 		else if ($this->node == 'hwinfo' && $_REQUEST['id'])
 		{
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Home']);
@@ -688,18 +678,6 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Users']);
 			$this->subMenu[$this->node]['add'] = sprintf($this->foglang['CreateNew'],$this->foglang['User']);
-			if ($_REQUEST['id'])
-			{
-				$this->subMenu[$this->node]['id'][$linkformat] = $this->foglang['General'];
-				$this->subMenu[$this->node]['id'][$delformat] = $this->foglang['Delete'];
-			}
-		}
-		// Location Sub/Sub menu items.
-		if ($this->node == 'location' || $this->node == 'locations')
-		{
-			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
-			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Locations']);
-			$this->subMenu[$this->node]['add'] = sprintf($this->foglang['CreateNew'],$this->foglang['Location']);
 			if ($_REQUEST['id'])
 			{
 				$this->subMenu[$this->node]['id'][$linkformat] = $this->foglang['General'];
