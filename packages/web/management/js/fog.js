@@ -287,7 +287,7 @@ var Loader;
 	$.fn.fogTableInfo = function() {
 		// Add table header sorting information.
 		$('table:not(#search-content) > thead > tr > td').addClass('hand');
-		$('table:not(#search-content)').tablesorter({ sortList: [[0,0]] });
+		$('table:not(#search-content)').tablesorter();
 	}
 	
 	$.fn.fogPing = function(opts)
