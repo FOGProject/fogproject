@@ -13,7 +13,7 @@ var GraphDiskUsageNode;
 var GraphBandwidthDebug = false;
 var GraphBandwidth;
 var GraphBandwidthPlot;
-var GraphBandwidthData; 
+var GraphBandwidthData = new Array(); 
 
 var GraphBandwidthMaxDataPoints = 120;
 var GraphBandwidthFilterTransmit;
@@ -63,7 +63,9 @@ $(function()
 		},
 		'legend':
 		{
-			show: 		false,
+			show: 		true,
+			position: 'nw',
+			noColumns: 5,
 		}
 	});
 	
@@ -266,17 +268,16 @@ function UpdateDiskUsage()
 
 function UpdateBandwidth()
 {
-	var NodeID = GraphDiskUsageNode.val();
 	$.ajax(
 	{
 		'url':		'../management/index.php?node=home',
 		'cache':	false,
 		'type':		'GET',
-		'data':		{ 'sub': 'bandwidth',
-					  'nodeid': NodeID },
+		'data':		{ 'sub': 'bandwidth', },
 		'dataType':	'json',
-		'success':	function(data)
+		'success': function(data)
 		{
+			console.log(data);
 			// Catch failures
 			if (data.length == 0) return;
 
@@ -363,26 +364,36 @@ function UpdateBandwidthGraph(data)
 		// Convert to msec -> subtract local time zone offset -> get UTC time in msec
 		Now = new Date().getTime() - (d.getTimezoneOffset() * 60000);
 
-		if (typeof(GraphBandwidthData) == 'undefined')
+		for (i in data)
 		{
-			GraphBandwidthData = new Array();
-			GraphBandwidthData['tx'] = new Array();
-			GraphBandwidthData['rx'] = new Array();
-		}
+			if (typeof(GraphBandwidthData[i]) == 'undefined')
+			{
+				GraphBandwidthData[i] = new Array();
+				GraphBandwidthData[i]['tx'] = new Array();
+				GraphBandwidthData[i]['rx'] = new Array();
+			}
 
-
-		GraphBandwidthData['tx'].push([Now, Math.round(data['tx'] / 1024) ]);
-		GraphBandwidthData['rx'].push([Now, Math.round(data['rx'] / 1024) ]);
+			GraphBandwidthData[i]['tx'].push([Now, Math.round(data[i]['tx'] / 1024) ]);
+			GraphBandwidthData[i]['rx'].push([Now, Math.round(data[i]['rx'] / 1024) ]);
 		
-		if (GraphBandwidthData['tx'].length >= GraphBandwidthMaxDataPoints)			// Without time filter
-		{
-			GraphBandwidthData['tx'].shift();
-			GraphBandwidthData['rx'].shift();
+			if (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints)			// Without time filter
+			{
+				GraphBandwidthData[i]['tx'].shift();
+				GraphBandwidthData[i]['rx'].shift();
+			}
 		}
 	}
 
 	// Build graph data from GraphBandwidthData
-	GraphData = new Array({ 'label': 'default', 'data': (GraphBandwidthFilterTransmitActive ? GraphBandwidthData['tx'] : GraphBandwidthData['rx']) });
+	//GraphData = new Array({ 'label': 'default', 'data': (GraphBandwidthFilterTransmitActive ? GraphBandwidthData['tx'] : GraphBandwidthData['rx']) });
+	GraphData = new Array();
+	j = 0;
+	for (i in GraphBandwidthData)
+	{
+		// Without time filter
+		GraphData[j++] = { 'label': i, 'data': (GraphBandwidthFilterTransmitActive ? GraphBandwidthData[i]['tx'] : GraphBandwidthData[i]['rx']) };
+	}
+
 	
 	// Build graph with new data
 	GraphBandwidthPlot.setData(GraphData);
