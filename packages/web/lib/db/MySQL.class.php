@@ -59,8 +59,8 @@ class MySQL extends FOGBase
 	{
 		try
 		{
-			if ($this->link)
-				$this->close();
+		/*	if ($this->link)
+				$this->close();*/
 			if (!$this->link = new mysqli($this->host, $this->user, $this->pass))
 				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s', $this->host, $this->user, '[Protected]', $this->dbname));
 			if ($this->dbname)
