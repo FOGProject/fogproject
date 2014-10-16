@@ -18,6 +18,7 @@ try
 	}
 	// Resolve hostname
 	$ip = gethostbyname($ping);
+
 	// Did the hostname resolve correctly?
 	if ($ip == $ping)
 		throw new Exception(_('Unable to resolve hostname'));
