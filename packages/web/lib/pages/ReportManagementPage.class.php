@@ -1916,6 +1916,8 @@ class ReportManagementPage extends FOGPage
 			$HostNames[] = $Host->get('name');
 		foreach((array)$Users AS $User)
 			$UserNames[] = $User->get('username');
+		asort($UserNames);
+		asort($HostNames);
 		if($UserNames)
 		{
 			$UserNames = array_unique($UserNames);
@@ -1976,6 +1978,7 @@ class ReportManagementPage extends FOGPage
 			foreach((array)$HostSearch AS $Host)
 				$Hostnames[] = $Host->get('name');
 			$Hostnames = array_unique($Hostnames);
+			asort($Hostnames);
 			foreach((array)$Hostnames AS $Hostname)
 			{
 				$Host = current($this->getClass('HostManager')->find(array('name' => $Hostname)));
@@ -2000,6 +2003,8 @@ class ReportManagementPage extends FOGPage
 			}
 			$Usernames = array_unique($Usernames);
 			$HostIDs = array_unique($HostIDs);
+			asort($Usernames);
+			asort($HostIDs);
 			foreach((array)$Usernames AS $Username)
 			{
 				$Hosts = $this->getClass('HostManager')->find(array('id' => $HostIDs));
@@ -2024,6 +2029,8 @@ class ReportManagementPage extends FOGPage
 			}
 			$Usernames = array_unique($Usernames);
 			$HostIDs = array_unique($HostIDs);
+			asort($Usernames);
+			asort($HostIDs);
 			$Hosts = $this->getClass('HostManager')->find(array('id' => $HostIDs,'name' => $hostsearch));
 			foreach((array)$Hosts AS $Host)
 			{
