@@ -10,9 +10,9 @@ class SubMenuData extends Hook
 	{
 		if ($_REQUEST['node'] == $this->node)
 		{
-			$arguments['submenu'][$this->node]['http://www.google.com'] = 'Fernando Gietz Can click here now.';
+			$arguments['submenu'][$this->node]['http://www.google.com'] = 'Google';
 			if ($_REQUEST['id'])
-				$arguments['submenu'][$this->node]['id']['http://www.google.com'] = 'He can also click here now to go to google.';
+				$arguments['submenu'][$this->node]['id']['http://www.google.com'] = 'Google here';
 		}
 	}
 
@@ -22,8 +22,8 @@ class SubMenuData extends Hook
 		{
 			if ($_REQUEST['id'])
 			{
-				$arguments['title']['Fernando Gietz'] = _('Is Awesome');
-				$arguments['title']['Description Fern'] = $arguments['object']->get('description');
+				$arguments['title']['Example Bolded Header'] = _('Example data to insert');
+				$arguments['title']['Example Add Description'] = $arguments['object']->get('description');
 			}
 		}
 	}
