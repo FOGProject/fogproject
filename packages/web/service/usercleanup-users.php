@@ -5,7 +5,7 @@ if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'])
 	$index = 0;
 	foreach($FOGCore->getClass('UserCleanupManager')->find() AS $User)
 	{
-		$Datatosend .= ($index == 0 ? "#!ok\n" : '')."#user_$index=".$User->get('name')."\n";
+		$Datatosend .= ($index == 0 ? "#!ok\n" : '')."#user$index=".$User->get('name')."\n";
 		$index++;
 	}
 }
