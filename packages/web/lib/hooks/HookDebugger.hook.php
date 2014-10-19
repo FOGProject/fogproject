@@ -26,4 +26,4 @@ $HookDebugger = new HookDebugger();
 if (!$HookManager->events)
 	$HookManager->getEvents();
 foreach($HookManager->events AS $event)
-	($event != 'CONTENT_DISPLAY' ? $HookManager->register($event,array($HookDebugger,'run')) : null);
+	$HookManager->register($event,array($HookDebugger,'run'));
