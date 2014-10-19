@@ -171,7 +171,6 @@ $content = $FOGPageManager->render();
 $sectionTitle = $FOGPageManager->getFOGPageName();
 // Page Title - should be set after page has been rendered
 $pageTitle = $FOGPageManager->getFOGPageTitle();
-$HookManager->processEvent('CONTENT_DISPLAY',array('content' => &$content,'sectionTitle' => &$sectionTitle,'pageTitle' => &$pageTitle));
 if ($FOGCore->isAJAXRequest())
 {
 	print $content; 
@@ -217,6 +216,7 @@ print "\n\t\t<h1>".$sectionTitle.'</h1>';
 print "\n\t\t".'<div id="content-inner">';
 if ($FOGPageManager->isFOGPageTitleEnabled())
 	printf('%s<h2>%s</h2>',"\n\t\t\t\t",$FOGPageManager->getFOGPageTitle());
+$HookManager->processEvent('CONTENT_DISPLAY',array('content' => &$content,'sectionTitle' => &$sectionTitle,'pageTitle' => &$pageTitle));
 print $content."\n\t\t</div>\n";
 print "\n\t</div>";
 if (!$isHomepage) 
