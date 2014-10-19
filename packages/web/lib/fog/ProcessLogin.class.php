@@ -450,7 +450,6 @@ class ProcessLogin extends FOGBase
 
 	public function mainLoginForm()
 	{
-		ob_start('ob_gzhandler');
 		print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 		print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 		print "\n\t<head>";
@@ -515,7 +514,12 @@ class ProcessLogin extends FOGBase
 
 	public function mobileLoginForm()
 	{
-		ob_start('ob_gzhandler');
+		print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
+		print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
+		print "\n\t<head>";
+		print "\n\t\t".'<title>Login &gt; FOG &gt; Open Source Computer Cloning Solution</title>';
+		print "\n\t</head>";
+		print "\n<body>";
 		print "\n\t\t\t".'<center><div class="login">';
 		print "\n\t\t\t\t".'<p class="loginTitle">'.$this->foglang['FOGMobile'].'</p>';
 		print "\n\t\t\t\t".'<form method="post" action="?node=login">';
@@ -526,6 +530,8 @@ class ProcessLogin extends FOGBase
 		print "\n\t\t\t\t\t".'<p><input type="submit" value="'.$this->foglang['Login'].'" /></p>';
 		print "\n\t\t\t\t</form>";
 		print "\n\t\t\t</div></center>";
+		print "\n</body>";
+		print "\n</html>";
 		ob_end_flush();
 	}
 }

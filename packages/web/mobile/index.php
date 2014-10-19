@@ -62,7 +62,6 @@ print "\n</html>";
 require_once('../commons/base.inc.php');
 // User session data
 $currentUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
-$MainMenu = new Mainmenu();
 // Process Login
 $FOGCore->getClass('ProcessLogin')->processMobileLogin();
 // Login form + logout
@@ -102,7 +101,10 @@ print "\n\t".'<div id="mainContainer">';
 print "\n\t\t".'<div id="header"></div>';
 print "\n\t\t".'<div class="mainContent">';
 if ($currentUser && $currentUser->isLoggedIn())
+{
+	$MainMenu = new Mainmenu();
 	$MainMenu->mainMenu();
+}
 if ($FOGPageManager->isFOGPageTitleEnabled())
 	print "\n\t\t\t\t<h2>".$FOGPageManager->getFOGPageTitle().'</h2>';
 print "\n\t\t\t".'<div id="mobile_content">';
@@ -112,4 +114,8 @@ print "\n\t\t</div>";
 print "\n\t</div>";
 print "\n</body>";
 print "\n</html>";
+<<<<<<< HEAD
 >>>>>>> dev-branch
+=======
+ob_end_flush();
+>>>>>>> svn
