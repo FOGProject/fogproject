@@ -897,6 +897,26 @@ class BootMenu extends FOGBase
 		// Set the default line based on all the menu entries and only the one with the default set.
 		$defMenuItem = current($this->getClass('PXEMenuOptionsManager')->find(array('default' => 1)));
 		$this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local')." --timeout $timeout target && goto \${target}";
+		// Register the success of the boot to the database:
+		$iPXE = current($this->getClass('iPXEManager')->find(array('product' => $_REQUEST['product'],'manufacturer' => $_REQUEST['manufacturer'],'file' => $_REQUEST['filename'])));
+		if ($iPXE && $iPXE->isValid())
+		{
+			if ($iPXE->get('failure'))
+				$iPXE->set('failure',0);
+			if (!$iPXE->get('success'))
+				$iPXE->set('success',1);
+		}
+		else if (!$iPXE || !$iPXE->isValid())
+		{
+			$iPXE = new iPXE(array(
+				'product' => $_REQUEST['product'],
+				'manufacturer' => $_REQUEST['product'],
+				'mac' => $Host->get('mac'),
+				'success' => 1,
+				'file' => $_REQUEST['filename'],
+			));
+		}
+		$iPXE->save();
 		if ($_REQUEST['username'] && $_REQUEST['password'])
 			$this->verifyCreds();
 		else if ($_REQUEST['delconf'])
