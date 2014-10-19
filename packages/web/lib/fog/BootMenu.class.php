@@ -153,7 +153,7 @@ class BootMenu extends FOGBase
 		{
 			$iPXE = new iPXE(array(
 				'product' => $_REQUEST['product'],
-				'manufacturer' => $_REQUEST['product'],
+				'manufacturer' => $_REQUEST['manufacturer'],
 				'mac' => $Host->get('mac'),
 				'success' => 1,
 				'file' => $_REQUEST['filename'],
