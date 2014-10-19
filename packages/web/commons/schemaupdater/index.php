@@ -3134,6 +3134,21 @@ $databaseSchema[] = array(
 	"DROP TABLE `" . DATABASE_NAME ."`.`pendingMACS`",
 	"ALTER IGNORE TABLE `" .DATABASE_NAME ."`.`hostMAC` ADD UNIQUE INDEX `hmHostID` (`hmMAC`)",
 );
+// 131
+$databaseSchema[] = array(
+	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME . "`.`ipxeTable` (
+	  `ipxeID` mediumint(9) NOT NULL auto_increment,
+	  `ipxeProduct` longtext NOT NULL,
+	  `ipxeManufacturer` longtext NOT NULL,
+	  `ipxeFilename` longtext NOT NULL,
+	  `ipxeMAC` VARCHAR(17) NOT NULL,
+	  `ipxeSuccess` VARCHAR(2) NOT NULL,
+	  `ipxeFailure` VARCHAR(2) NOT NULL,
+	  PRIMARY KEY  (`ipxeID`)
+	) ENGINE=MyISAM;",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_DHCP_BOOTFILENAME','This setting just sets what is in use for the boot filename.  It is up to the admin to ensure this setting is correct for their database to be accurate.  Default setting is undionly.kpxe','undionly.kpxe','TFTP Server')",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
