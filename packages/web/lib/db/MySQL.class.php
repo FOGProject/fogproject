@@ -14,7 +14,7 @@ class MySQL extends FOGBase
 	/** __construct($host,$user,$pass,$db = '')
 		Constructs the connections to the database.
 	*/
-	function __construct($host, $user, $pass, $db = '')
+	public function __construct($host, $user, $pass, $db = '')
 	{
 		parent::__construct();
 		try
@@ -37,12 +37,15 @@ class MySQL extends FOGBase
 	/** __destruct()
 		Disconnect the connection.
 	*/
-	function __destruct()
+	public function __destruct()
 	{
 		if (!$this->link)
 			return;
 		else
-			$this->link = null;
+		{
+			$this->link->kill($this->link->thread_id);
+			$this->link->close();
+		}
 		return;
 	}
 	/** close()
@@ -59,8 +62,8 @@ class MySQL extends FOGBase
 	{
 		try
 		{
-		/*	if ($this->link)
-				$this->close();*/
+			//if ($this->link)
+			//	$this->close();
 			if (!$this->link = new mysqli($this->host, $this->user, $this->pass))
 				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s', $this->host, $this->user, '[Protected]', $this->dbname));
 			if ($this->dbname)
