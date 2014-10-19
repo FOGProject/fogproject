@@ -28,7 +28,7 @@ class DatabaseManager extends FOGBase
 			$this->user = $user;
 			$this->pass = $pass;
 			$this->database = $database;
-			$this->valid = true;
+			$this->valid = $this;
 		}
 		catch (Exception $e)
 		{
@@ -36,7 +36,7 @@ class DatabaseManager extends FOGBase
 			$this->FOGCore->error('Failed: %s->%s(): Error: %s', array(get_class($this), __FUNCTION__, $e->getMessage()));
 		}
 		
-		return false;
+		return $this->valid;
 	}
 	/** connect()
 		Connects the system to the database.
