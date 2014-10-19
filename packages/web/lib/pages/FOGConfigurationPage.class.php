@@ -1398,6 +1398,13 @@ class FOGConfigurationPage extends FOGPage
 					$type = "\n\t\t\t".'<select name="${service_id}" style="width: 220px" autocomplete="off">'."\n\t\t\t\t".implode("\n",$options)."\n\t\t\t".'</select>';
 					unset($options);
 				}
+				else if ($Service->get('name') == 'FOG_DHCP_BOOTFILENAME')
+				{
+					foreach(array('ipxe.pxe','ipxe.kpxe','ipxe.kkpxe','undionly.pxe','undionly.kpxe','undionly.kkpxe','ipxe.efi','snp.efi','snponly.efi') AS $viewop)
+						$options[] = '<option value="'.$viewop.'"'.($Service->get('value') == $viewop ? 'selected="selected"' : '').'>'.$viewop.'</option>';
+					$type = "\n\t\t\t".'<select name="${service_id}" style="width: 220px" autocomplete="off">'."\n\t\t\t\t".implode("\n",$options)."\n\t\t\t".'</select>';
+					unset($options);
+				}
 				else if (in_array($Service->get('name'),$ServiceNames))
 					$type = '<input type="checkbox" name="${service_id}" value="1" '.($Service->get('value') ? 'checked="checked"' : '').' />';
 				else if ($Service->get('name') == 'FOG_DEFAULT_LOCALE')
