@@ -32,15 +32,12 @@ $content = $FOGPageManager->render();
 $sectionTitle = $FOGPageManager->getFOGPageName();
 // Page Title - should be set after page has been rendered
 $pageTitle = $FOGPageManager->getFOGPageTitle();
-$MainMenu = new Mainmenu();
-$SubMenu = new SubMenu();
 $HookManager->processEvent('CONTENT_DISPLAY',array('content' => &$content,'sectionTitle' => &$sectionTitle,'pageTitle' => &$pageTitle));
 if ($FOGCore->isAJAXRequest())
 {
 	print $content; 
 	exit;
 }
-ob_start('ob_gzhandler');
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
@@ -69,7 +66,10 @@ print "\n\t\t\t".'<h2>'.$foglang['Slogan'].'</h2>';
 print "\n\t\t".'</div>';
 print "\n\t\t".'<div id="menu">';
 if ($currentUser && $currentUser->isLoggedIn())
+{
+	$MainMenu = new Mainmenu();
 	$MainMenu->mainMenu();
+}
 print "\n\t\t</div>";
 print "\n\t</div>";
 print "\n\t<!-- Content -->";
@@ -84,6 +84,7 @@ if (!$isHomepage)
 {
 	print "\n\t<!-- Menu -->";
 	print "\n\t\t".'<div id="sidebar">';
+	$SubMenu = new SubMenu();
 	$SubMenu->buildMenu();
 	print "\n\t\t</div>";
 }
