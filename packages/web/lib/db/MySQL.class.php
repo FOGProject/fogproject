@@ -41,11 +41,7 @@ class MySQL extends FOGBase
 	{
 		if (!$this->link)
 			return;
-		else
-		{
-			$this->link->kill($this->link->thread_id);
-			$this->link->close();
-		}
+		$this->link = null;
 		return;
 	}
 	/** close()
@@ -53,6 +49,11 @@ class MySQL extends FOGBase
 	*/
 	public function close()
 	{
+		if ($this->link)
+		{
+			$this->link->kill($this->link->thread_id);
+			$this->link->close();
+		}
 		$this->__destruct();
 	}
 	/** connect()
@@ -62,9 +63,12 @@ class MySQL extends FOGBase
 	{
 		try
 		{
-			//if ($this->link)
-			//	$this->close();
-			if (!$this->link = new mysqli($this->host, $this->user, $this->pass))
+		/*	if ($this->link)
+				$this->close();
+			else*/
+			if (!$this->link)
+				$this->link = new mysqli($this->host, $this->user, $this->pass);
+			if (!$this->link)
 				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s', $this->host, $this->user, '[Protected]', $this->dbname));
 			if ($this->dbname)
 				$this->select_db($this->dbname);
