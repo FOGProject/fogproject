@@ -905,6 +905,8 @@ class BootMenu extends FOGBase
 				$iPXE->set('failure',0);
 			if (!$iPXE->get('success'))
 				$iPXE->set('success',1);
+			if (!$iPXE->get('version'))
+				$iPXE->set('version',$_REQUEST['ipxever']);
 		}
 		else if (!$iPXE || !$iPXE->isValid())
 		{
@@ -914,6 +916,7 @@ class BootMenu extends FOGBase
 				'mac' => $Host->get('mac'),
 				'success' => 1,
 				'file' => $_REQUEST['filename'],
+				'version' => $_REQUEST['ipxever'],
 			));
 		}
 		$iPXE->save();
