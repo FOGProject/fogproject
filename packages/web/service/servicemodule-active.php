@@ -42,7 +42,7 @@ try
 		'usertracker' => $FOGCore->getSetting('FOG_SERVICE_USERTRACKER_ENABLED'),
 	);
 	// If it's globally disabled, return that so the client doesn't keep trying it.
-	if (!$moduleName[$_REQUEST['moduleid']])
+	if (!$moduleName[$moduleID->get('shortName')])
 		throw new Exception('#!ng');
 	if ($Host && $Host->isValid())
 	{
