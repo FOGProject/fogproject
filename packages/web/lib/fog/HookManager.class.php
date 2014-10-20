@@ -63,8 +63,6 @@ class HookManager extends FOGBase
 	}
 	public function processEvent($event, $arguments = array())
 	{
-		if (!in_array($event,$this->events))
-			array_push($this->events,$event);
 		if ($this->data[$event])
 		{
 			foreach ($this->data[$event] AS $function)
