@@ -796,6 +796,7 @@ param mac0 \${net0/mac}
 param arch \${arch}
 param product \${product}
 param manufacturer \${product}
+param ipxever \${version}
 param filename \${filename}
 isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
 isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme
