@@ -973,7 +973,6 @@ class FOGConfigurationPage extends FOGPage
 					'disabled' => $menuid ? 'disabled="disabled"' : '',
 				);
 			}
-			array_push($this->HookManager->events,'BOOT_ITEMS_'.$divTab);
 			// Hook
 			$this->HookManager->processEvent('BOOT_ITEMS_'.$divTab, array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes, 'headerData' => &$this->headerData));
 			// Output
@@ -1442,7 +1441,7 @@ class FOGConfigurationPage extends FOGPage
 				'input_type' => '<input type="submit" value="'._('Save Changes').'" />',
 			);
 			// Hook
-			$this->HookManager->processEvent('CLIENT_UPDATE_'.$ServiceCAT, array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+			$this->HookManager->processEvent('CLIENT_UPDATE_'.$divTab, array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 			// Output
 			$this->render();
 			print "\n\t\t\t\t\t</div>";
