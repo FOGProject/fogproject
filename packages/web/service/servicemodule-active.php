@@ -15,15 +15,13 @@ try
 	// Get the true module ID for comparing what the host has.
 	$moduleID = current($FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['moduleid'])));
 	// get the module id
-	if (empty($_REQUEST['moduleid']) || !$moduleID || !$moduleID->isValid())
+	if (!$moduleID || !$moduleID->isValid())
 	{
-		if ($_REQUEST['moduleid'] == 'dircleaner')
-			$_REQUEST['moduleid'] = 'dircleanup';
-		if ($_REQUEST['moduleid'] == 'snapin')
-			$_REQUEST['moduleid'] = 'snapinclient';
-		else if ($_REQUEST['moduleid'] == 'snapinclient')
-			$_REQUEST['moduleid'] = 'snapin';
-		$moduleID = current($FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['moduleid'])));
+		if ($_REQUEST['moduleid'] == 'dircleaner' || $_REQUEST['moduleid'] == 'dircleanup')
+			$_REQUEST['moduleid'] = array('dircleaner','dircleanup');
+		if ($_REQUEST['moduleid'] == 'snapin' || $_REQUEST['moduleid'] == 'snapinclient')
+			$_REQUEST['moduleid'] = array('snapin','snapinclient');
+		$moduleID = current($FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['moduleid']),'OR'));
 		if (!$moduleID || !$moduleID->isValid())
 			throw new Exception('#!um');
 	}
