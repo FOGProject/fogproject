@@ -781,7 +781,7 @@ class Host extends FOGController
 						if ($deploySnapins == -1)
 						{
 							$SnapinAssoc = $this->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')));
-							foreach ($SnapinAssoc AS $SA)
+							foreach ((array)$SnapinAssoc AS $SA)
 							{
 								$SnapinTask = current($this->getClass('SnapinTaskManager')->find(array('snapinID' => $SA->get('snapinID'), 'stateID' => array(-1,0,1))));
 								if ($SnapinTask && $SnapinTask->isValid())
@@ -938,7 +938,7 @@ class Host extends FOGController
 					$SnapinInHost && $SnapinInHost->isValid() ? $count++ : null;
 				// Remove any exists snapin tasks
 				$SnapinJobs = $this->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id')));
-				foreach ($SnapinJobs AS $SnapinJob)
+				foreach ((array)$SnapinJobs AS $SnapinJob)
 				{
 					$this->getClass('SnapinTaskManager')->destroy(array('jobID' => $SnapinJob->get('id')));
 					$SnapinJob->destroy();
@@ -953,7 +953,7 @@ class Host extends FOGController
 					));
 					if ($SnapinJob->save())
 					{
-						foreach ($this->get('snapins') AS $Snapin)
+						foreach ((array)$this->get('snapins') AS $Snapin)
 						{
 							if ($SnapinInHost && $SnapinInHost->isValid())
 							{
@@ -1126,7 +1126,7 @@ class Host extends FOGController
 	public function ignore($imageIgnore,$clientIgnore)
 	{
 		$MyMACs[] = strtolower($this->get('mac')->__toString());
-		foreach($this->get('additionalMACs') AS $mac)
+		foreach((array)$this->get('additionalMACs') AS $mac)
 		{
 			if ($mac && $mac->isValid())
 				$MyMACs[] = strtolower($mac->__toString());
