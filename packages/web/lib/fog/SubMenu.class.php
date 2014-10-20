@@ -459,7 +459,7 @@ class SubMenu extends FOGBase
 	private function nodeAndID()
 	{
 		$this->nodeOnly();
-		foreach($this->subMenu[$this->node][$this->id] AS $link => $menu)
+		foreach((array)$this->subMenu[$this->node][$this->id] AS $link => $menu)
 		{
 			if ((string)$menu != 'Array')
 				$this->FOGSubMenu->addItems($this->node,array((string)$menu => (string)$link,),$this->id,$this->name);
@@ -467,7 +467,7 @@ class SubMenu extends FOGBase
 	}
 	private function nodeOnly()
 	{
-		foreach($this->subMenu[$this->node] AS $link => $menu)
+		foreach((array)$this->subMenu[$this->node] AS $link => $menu)
 		{
 			if ((string)$menu != 'Array')
 				$this->FOGSubMenu->addItems($this->node,array((string)$menu => (string)$link));
@@ -481,7 +481,7 @@ class SubMenu extends FOGBase
 			$this->nodeOnly();
 		if ($this->title)
 		{
-			foreach($this->title AS $title => $item)
+			foreach((array)$this->title AS $title => $item)
 			{
 				if((string)$title != 'Array')
 					$this->FOGSubMenu->addNotes($this->node,array((string)$title => (string)$item),$this->id,$this->name);
