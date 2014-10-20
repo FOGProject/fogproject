@@ -24,5 +24,6 @@ class iPXE extends FOGController
 		'success' => 'ipxeSuccess',
 		'failure' => 'ipxeFailure',
 		'file' => 'ipxeFilename',
+		'version' => 'ipxeVersion',
 	);
 }
