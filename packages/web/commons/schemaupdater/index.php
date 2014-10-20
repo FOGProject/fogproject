@@ -1650,6 +1650,10 @@ $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	 values('FOG_DHCP_BOOTFILENAME','This setting just sets what is in use for the boot filename.  It is up to the admin to ensure this setting is correct for their database to be accurate.  Default setting is undionly.kpxe','undionly.kpxe','TFTP Server')",
 );
+// 132
+$databaseSchema[] = array(
+	"ALTER TABLE `".DATABASE_NAME."`.`ipxeTable` ADD COLUMN `ipxeVersion` LONGTEXT NOT NULL",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
