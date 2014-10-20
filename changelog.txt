@@ -694,6 +694,8 @@ Version 1.3.X
 * Fix bug where snapintasks if generated after main tasking and before that
 tasking is created, get closed and not properly closing the actual deployed
 task.
+* Fix servicemodule-active so it properly supports the new names and the old
+names.
 * Fix proxy information to NOT proxy storage node internalized Storage Node
 information.
 * Fix multicast issues for all relevant systems. Thank you Curtis.
@@ -710,6 +712,7 @@ images.
 table.
 * Change resizable images to all use the same principle of Linux resizable.
 This should allow OEM built systems to be imaged even with resizable.
+* Change the version in inits banner to come from the GUI.
 * Init's are now truly native with dns pulling.
 * Added to inits to check for has_usb_nic flag which simply tells the system
 to wait for the user to unplug and replug their usb nics.
@@ -724,6 +727,8 @@ Arch Linux.
 * Add ipxe support for Apple EFI and better generalized EFI support.  Special
 thanks to Michael Brown, the iPXE team, and Curtis Larsen for taking the time
 to debug and correct and make this work.
+* Add ipxeTable element to read the ipxe file and information to let us get
+some kind of database of known working/troublesome systems.
 * Add support for Apple Mac OS support in our systems.
 * Add initial support for torrent casting.  Only works for resizable.
 * Adjust bootmenu to store to variables.  This can then allow hooks to
