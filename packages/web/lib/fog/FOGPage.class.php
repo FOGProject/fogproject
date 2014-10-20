@@ -275,6 +275,8 @@ abstract class FOGPage extends FOGBase
 			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronMonth" id="scheduleCronMonth" placeholder="month" autocomplete="off" />');
 			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronDOW" id="scheduleCronDOW" placeholder="dow" autocomplete="off" /></p>');
 		}
+		else if ($TaskType->isDebug())
+			printf("\n\t\t\t%s%s %s%s%s",'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked="checked" /><label for="scheduleInstant">',_('Schedule '),'<u>',_('Instant Deployment'),'</u></label></p>');
 		if ($TaskType->get('id') == 11)
 		{
 			printf("\n\t\t\t<p>%s</p>",_('Which account would you like to reset the pasword for'));
