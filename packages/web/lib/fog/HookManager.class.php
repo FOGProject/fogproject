@@ -56,6 +56,16 @@ class HookManager extends FOGBase
 					$this->events[] = $val;
 			}
 		}
+		foreach($this->getClass('ServiceManager')->getSettingCats() AS $CAT)
+		{
+			$divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',preg_replace('/\./','_',$CAT)));
+			array_push($this->events,'CLIENT_UPDATE_'.$divTab);
+		}
+		foreach($this->getClass('PXEMenuOptionsManager')->find() AS $Menu)
+		{
+			$divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',preg_replace('/\./','_',$Menu->get('name'))));
+			array_push($this->events,'BOOT_ITEMS_'.$divTab);
+		}
 		array_push($this->events,'HOST_DEL','HOST_DEL_POST','GROUP_DEL','GROUP_DEL_POST','IMAGE_DEL','IMAGE_DEL_POST','SNAPIN_DEL','SNAPIN_DEL_POST','PRINTER_DEL','PRINTER_DEL_POST','HOST_DEPLOY','GROUP_DEPLOY','HOST_EDIT_TASKS','GROUP_EDIT_TASKS','HOST_EDIT_ADV','GROUP_EDIT_ADV','HOST_EDIT_AD','GROUP_EDIT_AD');
 		$this->events = array_unique($this->events);
 		$this->events = array_values($this->events);
