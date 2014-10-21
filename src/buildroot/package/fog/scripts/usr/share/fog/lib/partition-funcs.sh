@@ -656,18 +656,18 @@ fillDiskWithPartitions() {
 #
 processSfdisk()
 {
+	local data="$1";
 	if [ "$osid" == "1" -o "$osid" == "2" ]; then
 		local chunksize="512";
 		local minstart="63";
 	else
-		local minstart=`cat $data  | grep start | awk -F, '{print $1;}' | awk -F: '{print $2}' | awk -F= '{print $2;}' | sort -n | head -1`;
+		local minstart=`cat $data  | grep start | awk -F, '{print $1}' | awk -F'start=' '{print $2}' | awk '{print $1}' |  head -1`;
 		if [ "$minstart" == "63" ]; then
 			local chunksize="512";
 		else
-			local chuncksize="2048";
+			local chunksize="2048";
 		fi
 	fi
-	local data="$1";
 	cat $data | awk -F, '\
 function display_output(partition_names, partitions,	 part_device) { \
 		printf("unit: %s\n\n", unit); \
