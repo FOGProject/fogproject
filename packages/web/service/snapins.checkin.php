@@ -77,7 +77,7 @@ try
 	if (!$MACs) throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if(!$Host->isValid() || $Host->get('mac')->isClientIgnored())
+	if(!$Host || !$Host->isValid())
 		throw new Exception('#!ih');
 	// Only worry about if the Task is queued, in line, or in progress (for reporting reasons).
 	$Task = $Host->get('task');
