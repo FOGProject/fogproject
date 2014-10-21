@@ -194,7 +194,7 @@ processSfdisk()
 		local chunksize="512";
 		local minstart="63";
 	else
-		local minstart=`cat $data  | grep start | awk -F, '{print $1}' | awk -F'start=' '{print $2}' | awk '{print $1}' |  head -1`;
+		local minstart=`cat $data  | grep start | awk -F, '{print $1}' | awk -F'start=' '{print $2}' | awk '{print $1}' | egrep -v 0$ | sort -n| head -1`;
 		if [ "$minstart" == "63" ]; then
 			local chunksize="512";
 		else
