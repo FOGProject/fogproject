@@ -207,9 +207,14 @@ class HostManager extends FOGManagerController
 			$MACHost = $MAC->get('hostID');
 			$HostTask = new Host($MACHost);
 			$MAC = new MACAddress($MAC->get('mac'));
-			if ($HostTask && $HostTask->isValid())
+			if ($HostTask && $HostTask->isValid() && $HostTask->get('task') && $HostTask->get('task')->isValid())
 			{
-				if ($MAC && $MAC->isValid())
+				if ($MAC && $MAC->isValid() && !$MAC->isImageIgnored())
+					$HostIDs[] = $MACHost;
+			}
+			if ($HostTask && $HostTask->isValid() && (!$HostTask->get('task') || !$HostTask->get('task')->isValid()))
+			{
+				if ($MAC && $MAC->isValid() && !$MAC->isClientIgnored())
 					$HostIDs[] = $MACHost;
 			}
 		}
