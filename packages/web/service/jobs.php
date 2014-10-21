@@ -8,7 +8,7 @@ try
 		throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if(!$Host->isValid() || $Host->get('mac')->isClientIgnored())
+	if(!$Host || !$Host->isValid())
 		throw new Exception('#!er:No Host Found');
 	// Find out about tasks in queue.
 	$Task = $Host->get('task');
