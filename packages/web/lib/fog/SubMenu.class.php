@@ -78,7 +78,7 @@ class SubMenu extends FOGBase
 			$this->object = new StorageGroup($_REQUEST['id']);
 			$this->title = array($this->foglang['Storage'].' '.$this->foglang['Group'] => $this->object->get('name'));
 		}
-		else if ($this->node == 'users' && $_REQUEST['id'])
+		else if ($this->node == 'user' && $_REQUEST['id'])
 		{
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['User']);
@@ -313,7 +313,7 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['scheduled'] = $this->foglang['ScheduledTasks'];
 		}
 		// User Sub/Sub menu items.
-		if ($this->node == 'users')
+		if ($this->node == 'user')
 		{
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Users']);
