@@ -654,11 +654,12 @@ class FOGConfigurationPage extends FOGPage
 			'${span}',
 		);
 		$ServiceCats = $this->getClass('ServiceManager')->getSettingCats();
+		print "\n\t\t\t\t\t\t".'<a href="#" class="trigger_expand"><h3>Expand</h3></a>';
 		foreach ((array)$ServiceCats AS $ServiceCAT)
 		{
 			
 			$divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',$ServiceCAT));
-			print "\n\t\t\t\t\t\t".'<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$ServiceCAT.'</h3></a>';
+			print "\n\t\t\t\t\t\t".'<a id="'.$divTab.'" class="expand_trigger" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$ServiceCAT.'</h3></a>';
 			print "\n\t\t\t".'<div id="'.$divTab.'">';
 			$ServMan = $this->getClass('ServiceManager')->find(array('category' => $ServiceCAT),'AND','id');
 			foreach ((array)$ServMan AS $Service)

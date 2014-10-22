@@ -39,6 +39,21 @@ $(function()
 			setCheck(e);
 		});
 	});
+	$('.trigger_expand').click(function() {
+		var all = $('.expand_trigger'),
+			active = all.filter('.active');
+
+			if (all.length && all.length === active.length) {
+				// All open; close them
+				all.removeClass('active').next().slideUp();
+				$('.trigger_expand').html('<a href="#" class="trigger_expand"><h3>Expand</h3></a>');
+			} else {
+				all.not('.active').addClass('active').next().slideDown();
+				$('.trigger_expand').html('<a href="#" class="trigger_expand"><h3>Collapse</h3></a>');
+			}
+
+			return false;
+	});
 
 	// The below elements just performs the randomization techniques.
 	$('#FOG_AES_PASS_ENCRYPT_KEY_button').click(function() {
