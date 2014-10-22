@@ -351,7 +351,7 @@ class UserManagementPage extends FOGPage
 {
 	// Base variables
 	var $name = 'User Management';
-	var $node = 'users';
+	var $node = 'user';
 	var $id = 'id';
 	// Menu Items
 	var $menu = array(
