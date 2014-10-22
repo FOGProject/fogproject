@@ -30,7 +30,7 @@ class Mainmenu extends FOGBase
 		$plugin = $this->FOGCore->getSetting('FOG_PLUGINSYS_ENABLED');
 		$this->main = array(
 			'home' => $this->foglang['Home'],
-			'users' => $this->foglang['User Management'],
+			'user' => $this->foglang['User Management'],
 			'host' => $this->foglang['Host Management'],
 			'group' => $this->foglang['Group Management'],
 			'image' => $this->foglang['Image Management'],
