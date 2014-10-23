@@ -10,7 +10,7 @@ class AddMenuNotesItems extends Hook
 	{
 		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
-			$arguments['main'] = $this->array_insert_after('users',$arguments['main'],$this->node,_('Access Control'));
+			$arguments['main'] = $this->array_insert_after('user',$arguments['main'],$this->node,_('Access Control'));
 	}
 	public function AddSubMenuData($arguments)
 	{
