@@ -53,6 +53,14 @@ try
 		// Get all the pending MACs
 		foreach((array)$Host->get('pendingMACs') AS $mac)
 			$mac1[] = $mac && $mac->isValid() ? strtolower($mac) : '';
+		// Get all the mac's in the list to ensure we don't register a pending mac to another host.
+		// Particularly where the mac exists on a host but is set to be ignored.
+		foreach((array)$FOGCore->getClass('MACAddressAssociationManager')->find() AS $MAC)
+		{
+			$MAC = strtolower($MAC);
+			if (!in_array($MAC,(array)$mac1))
+				$mac1[] = $MAC;
+		}
 		// Cycle the ignorelist if there is anything.
 		if ($ignoreList)
 		{
