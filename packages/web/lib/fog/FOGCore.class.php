@@ -162,7 +162,8 @@ class FOGCore extends FOGBase
 	*/
 	public function clearMACLookupTable()
 	{
-		$this->DB->query("TRUNCATE TABLE ".OUI::databaseTable);
+		$OUI = new OUI(array('id' => 0));
+		$this->DB->query("TRUNCATE TABLE ".$OUI->databaseTable);
 		return (!$this->DB->fetch()->get());
 	}
 	
