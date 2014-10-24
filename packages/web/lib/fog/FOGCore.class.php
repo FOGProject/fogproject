@@ -429,7 +429,6 @@ class FOGCore extends FOGBase
 	public function attemptLogin($username,$password)
 	{
 		$User = current($this->getClass('UserManager')->find(array('name' => $username, 'password' => md5($password))));
-		$this->getClass('HookManager')->processEvent('USER_LOGGING_IN',array('User' => &$User,'username' => &$username, 'password' => &$password));
 		return $User;
 	}
 
