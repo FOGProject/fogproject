@@ -12,6 +12,8 @@ class BootItem extends Hook
 	}
 	public function tweakmenu($arguments)
 	{
+		print_r($arguments);
+		exit;
 		// This is How the menu get's displayed:
 		// 'ipxe' 'head' key's followed by the item.
 		if ($arguments['ipxe']['head'])

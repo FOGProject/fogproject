@@ -475,9 +475,6 @@ class BootMenu extends FOGBase
 	*/
 	private function parseMe($Send)
 	{
-	private $Host,$pxemenu,$kernel,$initrd,$booturl,$memdisk,$memtest,$web,$defaultChoice,$bootexittype;
-	private $storage, $shutdown, $path;
-	private $hiddenmenu, $timeout, $KS;
 		$this->HookManager->processEvent('IPXE_EDIT',array('ipxe' => &$Send,'Host' => &$this->Host,'pxemenu' => &$this->pxemenu,'kernel' => &$this->kernel,'initrd' => &$this->initrd,'booturl' => &$this->booturl, 'memdisk' => &$this->memdisk,'memtest' => &$this->memtest, 'web' => &$this->web, 'defaultChoice' => &$this->defaultChoice, 'bootexittype' => &$this->bootexittype,'storage' => &$this->storage,'shutdown' => &$this->shutdown,'path' => &$this->path,'hiddenmenu' => &$this->hiddenmenu,'timeout' => &$this->timeout,'KS' => $this->ks));
 		foreach($Send AS $ipxe => $val)
 			print implode("\n",$val)."\n";
