@@ -27,7 +27,7 @@ class AddLocationSubMenuItems extends Hook
 		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1, 'state' => 1)));
 		if ($plugin && $plugin->isValid())
 		{
-			if ($_REQUEST['id'])
+			if ($_REQUEST['node'] == $this->node && $_REQUEST['id'])
 			{
 				$arguments['name'] = sprintf($this->foglang['SelMenu'],$this->foglang['Location']);
 				$arguments['object'] = new Location($_REQUEST['id']);
