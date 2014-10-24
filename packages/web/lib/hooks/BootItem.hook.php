@@ -12,8 +12,6 @@ class BootItem extends Hook
 	}
 	public function tweakmenu($arguments)
 	{
-		print_r($arguments);
-		exit;
 		// This is How the menu get's displayed:
 		// 'ipxe' 'head' key's followed by the item.
 		if ($arguments['ipxe']['head'])
@@ -29,6 +27,7 @@ class BootItem extends Hook
 			$arguments['ipxe']['head'][8] = 'cpair --background 0 1 && cpair --background 1 2';
 			$arguments['ipxe']['head'][9] = 'goto MENU';
 			$arguments['ipxe']['head'][10] = ':get_console';
+			$arguments['ipxe']['head'][11] = 'console --picture '.$arguments['booturl'].' --left 100 --right 80 --top 80 && goto console_set || goto alt_console';
 		}
 		// This is the start of the MENU information.
 		// 'ipxe' 'menustart' key's followed by the item
@@ -36,9 +35,17 @@ class BootItem extends Hook
 		{
 			$arguments['ipxe']['menustart'][0] = ':MENU';
 			$arguments['ipxe']['menustart'][1] = 'menu';
-			$arguments['ipxe']['menustart'][2] = 'colour --rgb 0x00ff00 0';
+			if ($arguments['Host'] && $arguments['Host']->isValid())
+			{
+				$arguments['ipxe']['menustart'][2] = 'colour --rgb 0x00ff00 0';
+				$arguments['ipxe']['menustart'][4] = 'item --gap Host is registered as '.$arguments['Host']->get('name');
+			}
+			else
+			{
+				$arguments['ipxe']['menustart'][2] = 'colour --rgb 0xff0000 0';
+				$arguments['ipxe']['menustart'][4] = 'item --gap Host is NOT registered!';
+			}
 			$arguments['ipxe']['menustart'][3] = 'cpair --foreground 0 3';
-			// 4th element should be left alone, though you could obtain the host info as needed.
 			$arguments['ipxe']['menustart'][5] = 'item --gap -- -------------------------------------';
 		}
 		// The next subset of informations is about the item labels.  This is pulled from the db so some common values may be like:
@@ -53,12 +60,12 @@ class BootItem extends Hook
 			if ($arguments['ipxe']['choice-'.$Menu->get('name')] && $Menu->get('name') == 'fog.local')
 			{
 				$arguments['ipxe']['choice-fog.local'][0] = ':fog.local';
-				$arguments['ipxe']['choice-fog.local'][1] = 'sanboot --no-describe --drive 0x80 || goto MENU';
+				$arguments['ipxe']['choice-fog.local'][1] = $arguments['bootexittype'] . ' || goto MENU';
 			}
 		}
 		// Default item is set to: 'ipxe' 'default'
 		if ($arguments['ipxe']['default'])
-			$arguments['ipxe']['default'][0] = 'choose --default fog.local --timeout 3000 target && goto ${target}';
+			$arguments['ipxe']['default'][0] = $arguments['defaultChoice'];
 	}
 }
 $BootItem = new BootItem();
