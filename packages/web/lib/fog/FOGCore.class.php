@@ -428,15 +428,9 @@ class FOGCore extends FOGBase
 	*/
 	public function attemptLogin($username,$password)
 	{
-		$Users = $this->getClass('UserManager')->find();
-		foreach ($Users AS $User)
-		{
-			$pass = md5($password);
-			$user = $username;
-			if ($User->get('name') == $user && $User->get('password') == $pass)
-				return $User;
-		}
-		return null;
+		$User = current($this->getClass('UserManager')->find(array('name' => $username, 'password' => md5($password))));
+		$this->getClass('HookManager')->processEvent('USER_LOGGING_IN',array('User' => &$User,'username' => &$username, 'password' => &$password));
+		return $User;
 	}
 
 	/** stopScheduledTask($task)
@@ -576,7 +570,8 @@ class FOGCore extends FOGBase
 	*/
 	public function clearMACLookupTable()
 	{
-		$this->DB->query("TRUNCATE TABLE ".OUI::databaseTable);
+		$OUI = new OUI(array('id' => 0));
+		$this->DB->query("TRUNCATE TABLE ".$OUI->databaseTable);
 		return (!$this->DB->fetch()->get());
 	}
 	
