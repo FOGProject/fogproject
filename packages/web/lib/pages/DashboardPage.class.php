@@ -88,9 +88,11 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t-->";
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t".'<div id="graph-bandwidth" class="graph"></div>';
-		$DatePeriod = new DatePeriod($this->nice_date()->modify('-29 days'), new DateInterval('P1D'), $this->nice_date()->modify('+1 day'));
+		for ($i = 0; $i < 30; $i++)
+			$DatePeriod[] = date('Y-m-d',strtotime('-'.$i.' days'));
 		foreach($DatePeriod AS $Date)
 		{
+			$Date = new DateTime($Date);
 			$keyword = '%'.$Date->format('Y-m-d').'%';
 			$ImagingLogs = $this->getClass('ImagingLogManager')->count(array('start' => $keyword, 'type' => array('up','down')));
 			$Graph30dayData[] = '["'.(1000*$Date->getTimestamp()).'", '.$ImagingLogs.']';
