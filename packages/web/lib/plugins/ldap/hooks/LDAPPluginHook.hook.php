@@ -33,7 +33,7 @@ class LDAPPluginHook extends Hook
 							));
 							if ($tmpUser->save())
 							{
-								$this->logHistory(sprintf('%s: ID: %s, Name: %s', _('User created'), $tmpUser->get('id'), $tmpUser->get('name')));
+								$this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('User created'), $tmpUser->get('id'), $tmpUser->get('name')));
 								$arguments['User'] = $tmpUser;
 							}
 							else
@@ -51,7 +51,7 @@ class LDAPPluginHook extends Hook
 						));
 						if ($tmpUser->save())
 						{
-							$this->logHistory(sprintf('%s: ID: %s, Name: %s', _('User created'), $tmpUser->get('id'), $tmpUser->get('name')));
+							$this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('User created'), $tmpUser->get('id'), $tmpUser->get('name')));
 							return $tmpUser;
 						}
 						else
