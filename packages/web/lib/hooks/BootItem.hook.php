@@ -16,7 +16,7 @@ class BootItem extends Hook
 		// 'ipxe' 'head' key's followed by the item.
 		if ($arguments['ipxe']['head'])
 		{
-			$arguments['ipxe']['head'][0] = '#!ipxe';
+			$arguments['ipxe']['head'][0] = '#!ipxeishereherherherher';
 			$arguments['ipxe']['head'][1] = 'cpuid --ext 29 && set arch x86_64 || set arch i386';
 			$arguments['ipxe']['head'][2] = 'goto get_console';
 			$arguments['ipxe']['head'][3] = ':console_set';
@@ -56,7 +56,7 @@ class BootItem extends Hook
 		}
 		// Default item is set to: 'ipxe' 'default'
 		if ($arguments['ipxe']['default'])
-			$arguments['ipxe']['default'] = 'choose --default fog.local --timeout 3000 target && goto ${target}';
+			$arguments['ipxe']['default'][0] = 'choose --default fog.local --timeout 3000 target && goto ${target}';
 	}
 }
 $BootItem = new BootItem();
