@@ -18,27 +18,11 @@ class LDAPPluginHook extends Hook
 			{
 				if ($LDAP->authLDAP($username,$password))
 				{
+					echo('We are in!!!');
 					$UserByName = current($this->getClass('UserManager')->find(array('name' => $username)));
-					if ($UserByName && $UserByName->isValid())
+					if ($UserByName)
 					{
-						if ($UserByName->get('type') == '1' || preg_match('#mobile#i',$_SERVER['PHP_SELF']))
-							$arguments['User'] = $UserByName;
-						else
-						{
-							$tmpUser = new User(array(
-									'name' => $username,
-									'type' => 1,
-									'password' => md5($password),
-									'createdBy' => 'fog',
-							));
-							if ($tmpUser->save())
-							{
-								$this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('User created'), $tmpUser->get('id'), $tmpUser->get('name')));
-								$arguments['User'] = $tmpUser;
-							}
-							else
-								throw new Exception('Database update failed');
-						}
+						$arguments['User'] = $UserByName;
 						break;
 					}
 					else if (!$User || !$User->isValid())
