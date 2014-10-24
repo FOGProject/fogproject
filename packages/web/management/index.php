@@ -164,7 +164,7 @@ $_SESSION['FOGPingActive'] = ($FOGCore->getSetting('FOG_HOST_LOOKUP') == '1' ? t
 // Allow AJAX Tasks
 $_SESSION['AllowAJAXTasks'] = true;
 // Are we on the Homeapge?
-$isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','client')) ? true : false);
+$isHomepage = (!$node || in_array($node, array('home', 'dashboard','client')) ? true : false);
 // Load Page Classes -> Render content based on incoming node variables
 $content = $FOGPageManager->render();
 // Section title
@@ -176,7 +176,7 @@ if ($FOGCore->isAJAXRequest())
 	print $content; 
 	exit;
 }
-if ($currentUser && $currentUser->isLoggedIn())
+if (($currentUser && $currentUser->isLoggedIn()) || $node == 'client')
 {
 	print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 	print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
