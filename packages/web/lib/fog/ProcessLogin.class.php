@@ -407,9 +407,9 @@ class ProcessLogin extends FOGBase
 		{
 			$this->username = trim($_POST['uname']);
 			$this->password = trim($_POST['upass']);
-			// Hook
-			$this->HookManager->processEvent('Login', array('username' => &$this->username, 'password' => &$this->password));
 			$tmpUser = $this->FOGCore->attemptLogin($this->username, $this->password);
+			// Hook
+			$this->HookManager->processEvent('USER_LOGGING_IN', array('User' => &$tmpUser,'username' => &$this->username, 'password' => &$this->password));
 			try
 			{
 				if (!$tmpUser)
