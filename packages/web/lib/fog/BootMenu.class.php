@@ -762,14 +762,12 @@ class BootMenu extends FOGBase
 * Serves to also generate the taskings on the fly.
 * Changes are automatically adjusted as needed.
 * @param $Host is the host set.  Can be null.
-* @param $pxemenu builds the default pxemenu as array().
 * @param $kernel sets the kernel information.
 * @param $initrd sets the init information.
 * @param $booturl sets the bootup url info.
 * @param $memdisk sets the memdisk info
 * @param $memtest sets the memtest info
 * @param $Host is the host set.  Can be null.
-* @param $pxemenu builds the default pxemenu as array().
 * @param $kernel sets the kernel information.
 * @param $initrd sets the init information.
 * @param $booturl sets the bootup url info.
@@ -788,7 +786,7 @@ class BootMenu extends FOGBase
 class BootMenu extends FOGBase
 {
 	// Variables
-	private $Host,$pxemenu,$kernel,$initrd,$booturl,$memdisk,$memtest,$web,$defaultChoice,$bootexittype;
+	private $Host,$kernel,$initrd,$booturl,$memdisk,$memtest,$web,$defaultChoice,$bootexittype;
 	private $storage, $shutdown, $path;
 	private $hiddenmenu, $timeout, $KS;
 	public $debug;
@@ -1232,7 +1230,7 @@ class BootMenu extends FOGBase
 	*/
 	private function parseMe($Send)
 	{
-		$this->HookManager->processEvent('IPXE_EDIT',array('ipxe' => &$Send,'Host' => &$this->Host,'pxemenu' => &$this->pxemenu,'kernel' => &$this->kernel,'initrd' => &$this->initrd,'booturl' => &$this->booturl, 'memdisk' => &$this->memdisk,'memtest' => &$this->memtest, 'web' => &$this->web, 'defaultChoice' => &$this->defaultChoice, 'bootexittype' => &$this->bootexittype,'storage' => &$this->storage,'shutdown' => &$this->shutdown,'path' => &$this->path,'hiddenmenu' => &$this->hiddenmenu,'timeout' => &$this->timeout,'KS' => $this->ks));
+		$this->HookManager->processEvent('IPXE_EDIT',array('ipxe' => &$Send,'Host' => &$this->Host,'kernel' => &$this->kernel,'initrd' => &$this->initrd,'booturl' => &$this->booturl, 'memdisk' => &$this->memdisk,'memtest' => &$this->memtest, 'web' => &$this->web, 'defaultChoice' => &$this->defaultChoice, 'bootexittype' => &$this->bootexittype,'storage' => &$this->storage,'shutdown' => &$this->shutdown,'path' => &$this->path,'timeout' => &$this->timeout,'KS' => $this->ks));
 		foreach($Send AS $ipxe => $val)
 			print implode("\n",$val)."\n";
 	}
