@@ -1932,6 +1932,10 @@ class Host extends FOGController
 			$StorageGroup = $Image->getStorageGroup();
 			$StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode());
 		}
+		if (!$StorageGroup || !$StorageGroup->isValid())
+			throw new Exception(_('No Storage Group found for this image'));
+		if (!$StorageNode || !$StorageNode->isValid())
+			throw new Exception(_('No Storage Node found for this image'));
 		if (in_array($TaskType->get('id'),array('1','8','15','17')) && in_array($Image->get('osID'), array('5', '6', '7')))
 		{
 			// FTP
