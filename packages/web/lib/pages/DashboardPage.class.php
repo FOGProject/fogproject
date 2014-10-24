@@ -125,7 +125,7 @@ class DashboardPage extends FOGPage
 	{
 		// Loop each storage node -> grab stats
 		$StorageNode = new StorageNode($_REQUEST['nodeid']);
-		foreach($this->getClass('StorageNodeManager')->find() AS $StorageNode)
+		foreach($this->getClass('StorageNodeManager')->find(array('isGraphEnabled' => 1)) AS $StorageNode)
 		{
 			$URL = sprintf('http://%s/%s?dev=%s', rtrim($StorageNode->get('ip'), '/'), ltrim($this->FOGCore->getSetting("FOG_NFS_BANDWIDTHPATH"), '/'), $StorageNode->get('interface'));
 			// Fetch bandwidth stats from remote server
