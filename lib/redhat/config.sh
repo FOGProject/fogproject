@@ -50,6 +50,7 @@ initdsrc="../packages/init.d/redhat";
 initdMCfullname="FOGMulticastManager";
 initdIRfullname="FOGImageReplicator";
 initdSDfullname="FOGScheduler";
+initdSRfullname="FOGSnapinReplicator";
 
 # where do the php files go?
 webdirdest="/var/www/html/fog";
