@@ -1,0 +1,21 @@
+#!/usr/bin/php -q
+<?php
+	@error_reporting(0);
+	require_once( dirname(realpath(__FILE__)) . "/../etc/config.php" );
+	// Safe to construct FOGBase/FOGCore
+	require_once( WEBROOT . "/commons/base.inc.php" );
+	$Daemon = new Daemon('SNAPINREP','FOG_NFS_ETH_MONITOR');
+	$Daemon->clear_screen();
+	$Daemon->out($Daemon->getBanner());
+	$Daemon->wait_db_ready();
+	$Daemon->wait_interface_ready();
+	unset($Daemon);
+	$SR = new SnapinReplicator();
+	$SR->serviceStart();
+	while(true)
+	{
+		$IR = new SnapinReplicator();
+		$IR->serviceRun();
+		sleep(SNAPINREPLICATORSLEEPTIME);
+	}
+	$IR->outall(sprintf(" * Service has ended."));

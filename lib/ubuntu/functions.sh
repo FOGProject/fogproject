@@ -24,6 +24,7 @@ installInitScript()
 	${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
 	${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
 	${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
+	${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
 	
 	cp -f ${initdsrc}/* ${initdpath}/
 	chmod 755 ${initdpath}/${initdMCfullname}
@@ -32,9 +33,12 @@ installInitScript()
 	sysv-rc-conf ${initdIRfullname} on >/dev/null 2>&1;		
 	chmod 755 ${initdpath}/${initdSDfullname}
 	sysv-rc-conf ${initdSDfullname} on >/dev/null 2>&1;
+	chmod 755 ${initdpath}/${initdSRfullname}
+	sysv-rc-conf ${initdSRfullname} on >/dev/null 2>&1;
 	insserv -d ${initdpath}/${initdMCfullname} >/dev/null 2>&1;
 	insserv -d ${initdpath}/${initdIRfullname} >/dev/null 2>&1;
 	insserv -d ${initdpath}/${initdSDfullname} >/dev/null 2>&1;
+	insserv -d ${initdpath}/${initdSRfullname} >/dev/null 2>&1;
 	echo "OK";	
 }
 
@@ -433,6 +437,9 @@ class Config
 		define( \"SCHEDULERLOGPATH\", \"/opt/fog/log/fogscheduler.log\" );
 		define( \"SCHEDULERDEVICEOUTPUT\", \"/dev/tty4\" );
 		define( \"SCHEDULERSLEEPTIME\", 60 );
+		define( \"SNAPINREPLOGPATH\", \"/opt/fog/log/fogsnapinrep.log\" );
+		define( \"SNAPINREPDEVICEOUTPUT\", \"/dev/tty5\" );
+		define( \"SNAPINREPSLEEPTIME\", 600 );
 	}
 	/**
 	* init_setting()
