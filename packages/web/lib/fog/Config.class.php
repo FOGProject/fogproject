@@ -56,6 +56,9 @@ class Config
 		define( "SCHEDULERDEVICEOUTPUT", "/dev/tty4" );
 		define( "SCHEDULERWEBROOT", "/data/mastaweb/var/www/fog" );
 		define( "SCHEDULERSLEEPTIME", 60 );
+		define( "SNAPINREPLOGPATH", "/opt/fog/log/fogsnapinrep.log" );
+		define( "SNAPINREPDEVICEOUTPUT", "/dev/tty5" );
+		define( "SNAPINREPSLEEPTIME", 600 );
 	}
 	/**
 	* init_setting()

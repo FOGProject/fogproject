@@ -32,6 +32,7 @@ initdsrc="../packages/systemd";
 initdMCfullname="FOGMulticastManager.service";
 initdIRfullname="FOGImageReplicator.service";
 initdSDfullname="FOGScheduler.service";
+initdSRfullname="FOGSnapinReplicator.service";
 
 # where do the php files go?
 webdirdest="/srv/http/fog";
