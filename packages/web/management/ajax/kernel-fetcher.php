@@ -5,7 +5,7 @@ if (!$_SESSION['AllowAJAXTasks'])
 	die('FOG Session Invalid');
 if ( $_SESSION["allow_ajax_kdl"] && $_SESSION["dest-kernel-file"] != null && $_SESSION["tmp-kernel-file"] != null && $_SESSION["dl-kernel-file"] != null )
 {
-	if ( $_POST["msg"] == "dl" )
+	if ( $_REQUEST["msg"] == "dl" )
 	{
 		// download kernel from sf
 		$blUseProxy = false;
@@ -43,7 +43,7 @@ if ( $_SESSION["allow_ajax_kdl"] && $_SESSION["dest-kernel-file"] != null && $_S
 		else
 			print "Error: Failed to open temp file.";
 	}
-	else if ( $_POST["msg"] == "tftp" )
+	else if ( $_REQUEST["msg"] == "tftp" )
 	{
 		$ftp = $GLOBALS['FOGFTP'];
 		$ftp->set('host',$FOGCore->getSetting('FOG_TFTP_HOST'))
