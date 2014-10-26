@@ -197,7 +197,6 @@ class Initiator
 	}
 }
 // Initialize everything
-ob_start('ob_gzhandler');
 $Init = new Initiator();
 $Init::startInit();
 // Get the configuration
