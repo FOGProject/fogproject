@@ -819,6 +819,7 @@ class StorageManagementPage extends FOGPage
 			$this->foglang['IsMasterNode'] => '<input type="checkbox" name="isMaster" value="1" />&nbsp;&nbsp;${span}',
 			$this->foglang['SG'] => '${node_group}',
 			$this->foglang['ImagePath'] => '<input type="text" name="path" value="${node_path}" autocomplete="off" />',
+			$this->foglang['SnapinPath'] => '<input type="text" name="snapinpath" value="${node_snapinpath}" autocomplete="off" />',
 			$this->foglang['Interface'] => '<input type="text" name="interface" value="${node_interface}" autocomplete="off" />',
 			$this->foglang['IsEnabled'] => '<input type="checkbox" name="isEnabled" checked="checked" value="1" />',
 			$this->foglang['IsGraphEnabled'].'<br /><small>('.$this->foglang['OnDash'].')'  => '<input type="checkbox" name="isGraphEnabled" checked="checked" value="1" />',
@@ -839,6 +840,7 @@ class StorageManagementPage extends FOGPage
 				'span' => '<span class="icon icon-help hand" title="'.$this->foglang['CautionPhrase'].'"></span>',
 				'node_group' => $this->getClass('StorageGroupManager')->buildSelectBox(1, 'storageGroupID'),
 				'node_path' => $_REQUEST['path'] ? $_REQUEST['path'] : '/images/',
+				'node_snapinpath' => $_REQUEST['snapinpath'] ? $_REQUEST['snapinpath'] : '/opt/fog/snapins/',
 				'node_interface' => $_REQUEST['interface'] ? $_REQUEST['interface'] : 'eth0',
 				'node_user' => $_REQUEST['user'],
 				'node_pass' => $_REQUEST['pass'],
@@ -881,6 +883,7 @@ class StorageManagementPage extends FOGPage
 				'isMaster'		=> ($_REQUEST['isMaster'] ? '1' : '0'),
 				'storageGroupID'	=> $_REQUEST['storageGroupID'],
 				'path'			=> $_REQUEST['path'],
+				'snapinpath'	=> $_REQUEST['snapinpath'],
 				'interface'		=> $_REQUEST['interface'],
 				'isGraphEnabled'	=> ($_REQUEST['isGraphEnabled'] ? '1' : '0'),
 				'isEnabled'		=> ($_REQUEST['isEnabled'] ? '1' : '0'),
@@ -950,6 +953,7 @@ class StorageManagementPage extends FOGPage
 			$this->foglang['IsMasterNode'] => '<input type="checkbox" name="isMaster" value="1" ${ismaster} autocomplete="off" />&nbsp;&nbsp;${span}',
 			$this->foglang['SG'] => '${node_group}',
 			$this->foglang['ImagePath'] => '<input type="text" name="path" value="${node_path}" autocomplete="off"/>',
+			$this->foglang['SnapinPath'] => '<input type="text" name="snapinpath" value="${node_snapinpath}" autocomplete="off"/>',
 			$this->foglang['Interface'] => '<input type="text" name="interface" value="${node_interface}" autocomplete="off"/>',
 			$this->foglang['IsEnabled'] => '<input type="checkbox" name="isEnabled" value="1" ${isenabled}/>',
 			$this->foglang['IsGraphEnabled'].'<br /><small>('.$this->foglang['OnDash'].')'  => '<input type="checkbox" name="isGraphEnabled" value="1" ${graphenabled} />',
@@ -973,6 +977,7 @@ class StorageManagementPage extends FOGPage
 				'span' => '<span class="icon icon-help hand" title="'.$this->foglang['CautionPhrase'].'"></span>',
 				'node_group' => $this->getClass('StorageGroupManager')->buildSelectBox($StorageNode->get('storageGroupID'), 'storageGroupID'),
 				'node_path' => $StorageNode->get('path'),
+				'node_snapinpath' => $StorageNode->get('snapinpath'),
 				'node_interface' => $StorageNode->get('interface'),
 				'node_user' => $StorageNode->get('user'),
 				'node_pass' => $StorageNode->get('pass'),
@@ -1016,6 +1021,7 @@ class StorageManagementPage extends FOGPage
 					->set('isMaster',	($_REQUEST['isMaster'] ? '1' : '0'))
 					->set('storageGroupID',	$_REQUEST['storageGroupID'])
 					->set('path',		$_REQUEST['path'])
+					->set('snapinpath',		$_REQUEST['snapinpath'])
 					->set('interface',	$_REQUEST['interface'])
 					->set('isGraphEnabled',	($_REQUEST['isGraphEnabled'] ? '1' : '0'))
 					->set('isEnabled',	($_REQUEST['isEnabled'] ? '1' : '0'))

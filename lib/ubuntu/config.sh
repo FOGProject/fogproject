@@ -105,6 +105,7 @@ initdsrc="../packages/init.d/ubuntu";
 initdMCfullname="FOGMulticastManager";
 initdIRfullname="FOGImageReplicator";
 initdSDfullname="FOGScheduler";
+initdSRfullname="FOGSnapinReplicator";
 
 # where do the php files go?
 apachehtmlroot="/var/www/html"
