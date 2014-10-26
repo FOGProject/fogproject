@@ -28,11 +28,13 @@ class SnapinManagementPage extends FOGPage
 		// Header row
 		$this->headerData = array(
 			_('Snapin Name'),
+			_('Storage Group'),
 			'',
 		);
 		// Row templates
 		$this->templates = array(
 			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, _('Edit')),
+			'${storage_group}',
 			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><span class="icon icon-edit"></span></a> <a href="?node=%s&sub=delete&%s=${id}" title="%s"><span class="icon icon-delete"></span></a>', $this->node, $this->id, _('Edit'), $this->node, $this->id, _('Delete'))
 		);
 		// Row attributes
@@ -51,12 +53,17 @@ class SnapinManagementPage extends FOGPage
 		// Row data
 		foreach ((array)$Snapins AS $Snapin)
 		{
-			$this->data[] = array(
-				'id'		=> $Snapin->get('id'),
-				'name'		=> $Snapin->get('name'),
-				'description'	=> $Snapin->get('description'),
-				'file'		=> $Snapin->get('file')
-			);
+			if ($Snapin && $Snapin->isValid())
+			{
+				$StorageGroup = new StorageGroup($Snapin->get('storageGroupID'));
+				$this->data[] = array(
+					'id'		=> $Snapin->get('id'),
+					'name'		=> $Snapin->get('name'),
+					'storage_group' => $StorageGroup && $StorageGroup->isValid() ? $StorageGroup->get('name') : '',
+					'description'	=> $Snapin->get('description'),
+					'file'		=> $Snapin->get('file')
+				);
+			}
 		}
 		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
 			$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
@@ -84,12 +91,17 @@ class SnapinManagementPage extends FOGPage
 		// Find data -> Push data
 		foreach ($Snapins->search($keyword,'Snapin') AS $Snapin)
 		{
-			$this->data[] = array(
-				'id'		=> $Snapin->get('id'),
-				'name'		=> $Snapin->get('name'),
-				'description'	=> $Snapin->get('description'),
-				'file'		=> $Snapin->get('file')
-			);
+			if ($Snapin && $Snapin->isValid())
+			{
+				$StorageGroup = new StorageGroup($Snapin->get('storageGroupID'));
+				$this->data[] = array(
+					'id'		=> $Snapin->get('id'),
+					'name'		=> $Snapin->get('name'),
+					'storage_group' => $StorageGroup && $StorageGroup->isValid() ? $StorageGroup->get('name') : '',
+					'description'	=> $Snapin->get('description'),
+					'file'		=> $Snapin->get('file')
+				);
+			}
 		}
 		// Hook
 		$this->HookManager->processEvent('SNAPIN_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -122,6 +134,7 @@ class SnapinManagementPage extends FOGPage
 		$fields = array(
 			_('Snapin Name') => '<input type="text" name="name" value="${snapin_name}" />',
 			_('Snapin Description') => '<textarea name="description" rows="8" cols="40" value="${snapin_desc}">${snapin_desc}</textarea>',
+			_('Snapin Storage Group') => $this->getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup']),
 			_('Snapin Run With') => '<input type="text" name="rw" value="${snapin_rw}" />',
 			_('Snapin Run With Argument') => '<input type="text" name="rwa" value="${snapin_rwa}" />',
 			_('Snapin File').' <span class="lightColor">'._('Max Size').':${max_size}</span>' => '<input type="file" name="snapin" value="${snapin_file}" />',
@@ -164,20 +177,47 @@ class SnapinManagementPage extends FOGPage
 			// Error checking
 			$snapinName = trim($_REQUEST['name']);
 			if (!$snapinName)
-				throw new Exception('Please enter a name to give this Snapin!');
+				throw new Exception(_('Please enter a name to give this Snapin'));
 			if ($SnapinManager->exists($snapinName))
-				throw new Exception('Snapin already exists');
-			if ($_REQUEST['snapin'] != null || $_FILES['snapin']['name'] != null)
+				throw new Exception(_('Snapin already exists'));
+			if (!$_REQUEST['storagegroup'])
+				throw new Exception(_('Please select a storage group for this snapin to reside in'));
+			if ($_REQUEST['snapin'] || $_FILES['snapin']['name'])
 			{
-				$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
-				if(!file_exists($this->FOGCore->getSetting('FOG_SNAPINDIR')))
-					throw new Exception('Failed to add snapin, unable to locate snapin directory.');
-				else if (!is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
-					throw new Exception('Failed to add snapin, snapin directory is not writeable.');
-				else if (file_exists($uploadfile))
-					throw new Exception('Failed to add snapin, file already exists.');
-				else if (!move_uploaded_file($_FILES['snapin']['tmp_name'],$uploadfile))
-					throw new Exception('Failed to add snapin, file upload failed.');
+				if (!$_REQUEST['storagegroup'])
+				{
+					$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
+					if(!file_exists($this->FOGCore->getSetting('FOG_SNAPINDIR')))
+						throw new Exception('Failed to add snapin, unable to locate snapin directory.');
+					else if (!is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
+						throw new Exception('Failed to add snapin, snapin directory is not writeable.');
+					else if (file_exists($uploadfile))
+						throw new Exception('Failed to add snapin, file already exists.');
+					else if (!move_uploaded_file($_FILES['snapin']['tmp_name'],$uploadfile))
+						throw new Exception('Failed to add snapin, file upload failed.');
+				}
+				else
+				{
+					// Will fail if the storage group is not assigned or found.
+					$StorageNode = $this->getClass('StorageGroup',$_REQUEST['storagegroup'])->getMasterStorageNode();
+					$src = $_FILES['snapin']['tmp_name'];
+					$dest = rtrim($StorageNode->get('snapinpath'),'/').'/'.$_FILES['snapin']['name'];
+					$this->FOGFTP->set('host',$StorageNode->get('ip'))
+						->set('username',$StorageNode->get('user'))
+						->set('password',$StorageNode->get('pass'));
+					if (!$this->FOGFTP->connect())
+						throw new Exception(_('Storage Node: '.$StorageNode->get('ip').' FTP Connection has failed!'));
+					if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath')))
+					{
+						if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath')))
+							throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
+					}
+					// Try to delete the file.
+					$this->FOGFTP->delete($dest);
+					if (!$this->FOGFTP->put($dest,$src))
+						throw new Exception(_('Failed to add snapin'));
+					$this->FOGFTP->close();
+				}
 			}
 			else if (empty($_REQUEST['snapinfileexist']))
 				throw new Exception('Failed to add snapin, no file was uploaded or selected for use');
@@ -191,7 +231,8 @@ class SnapinManagementPage extends FOGPage
 				'createdBy' 	=> $_SESSION['FOG_USERNAME'],
 				'reboot'		=> (isset($_REQUEST['reboot']) ? 1 : 0 ),
 				'runWith'		=> $_REQUEST['rw'],
-				'runWithArgs'	=> $_REQUEST['rwa']
+				'runWithArgs'	=> $_REQUEST['rwa'],
+				'storageGroupID' => $_REQUEST['storagegroup'],
 			));
 			// Save
 			if ($Snapin->save())
@@ -240,14 +281,28 @@ class SnapinManagementPage extends FOGPage
 			'${input}',
 		);
 		// See's what files are available and sorts them.
-		$files = array_diff(scandir($this->FOGCore->getSetting('FOG_SNAPINDIR')), array('..', '.'));
-		sort($files);
+		$dots = array('.','..');
+		if ($Snapin->get('storageGroupID'))
+		{
+			$StorageNode = $Snapin->getStorageGroup()->getMasterStorageNode();
+			$ftp = $this->FOGFTP;
+			$ftp->set('host',$StorageNode->get('ip'))
+				->set('username',$StorageNode->get('user'))
+				->set('password',$StorageNode->get('pass'))
+				->connect();
+			$files = array_diff((array)$ftp->nlist($StorageNode->get('snapinpath')),$dots);
+		}
+		else
+			$files = array_diff(scandir($this->FOGCore->getSetting('FOG_SNAPINDIR')), $dots);
+		if ($files && is_array($files))
+			sort($files);
 		foreach((array)$files AS $file)
 			$filesFound .= '<option value="'.basename($file).'" '.(basename($file) == basename($Snapin->get('file')) ? 'selected="selected"' : '').'>'. basename($file) .'</option>';
 		// Fields to work from:
 		$fields = array(
 			_('Snapin Name') => '<input type="text" name="name" value="${snapin_name}" />',
 			_('Snapin Description') => '<textarea name="description" rows="8" cols="40" value="${snapin_desc}">${snapin_desc}</textarea>',
+			_('Snapin Storage Group') => $this->getClass('StorageGroupManager')->buildSelectBox($Snapin->get('storageGroupID')),
 			_('Snapin Run With') => '<input type="text" name="rw" value="${snapin_rw}" />',
 			_('Snapin Run With Argument') => '<input type="text" name="rwa" value="${snapin_rwa}" />',
 			_('Snapin File').' <span class="lightColor">'._('Max Size').':${max_size}</span>' => '<span id="uploader">${snapin_file}<a href="#" id="snapin-upload"><img class="noBorder" src="images/upload.png" /></a></span>',
@@ -460,18 +515,42 @@ class SnapinManagementPage extends FOGPage
 				case 'snap-gen';
 					// SnapinManager
 					$SnapinManager = $this->getClass('SnapinManager');
+					if (!$_REQUEST['storagegroup'])
+						throw new Exception(_('Please select a group to place the Snapin on'));
 					// Error checking
-					if ($_REQUEST['snapin'] != null || $_FILES['snapin']['name'] != null)
+					if ($_REQUEST['snapin'] || $_FILES['snapin']['name'])
 					{
-						$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
-						if(!file_exists($this->FOGCore->getSetting('FOG_SNAPINDIR')))
-							throw new Exception('Failed to add snapin, unable to locate snapin directory.');
-						else if (!is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
-							throw new Exception('Failed to add snapin, snapin directory is not writeable.');
-						else if (file_exists($uploadfile))
-							throw new Exception('Failed to add snapin, file already exists.');
-						else if (!move_uploaded_file($_FILES['snapin']['tmp_name'],$uploadfile))
-							throw new Exception('Failed to add snapin, file upload failed.');
+						if (!$Snapin->get('storageGroupID'))
+						{
+							$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
+							if(!file_exists($this->FOGCore->getSetting('FOG_SNAPINDIR')))
+								throw new Exception('Failed to add snapin, unable to locate snapin directory.');
+							else if (!is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
+								throw new Exception('Failed to add snapin, snapin directory is not writeable.');
+							else if (file_exists($uploadfile))
+								throw new Exception('Failed to add snapin, file already exists.');
+							else if (!move_uploaded_file($_FILES['snapin']['tmp_name'],$uploadfile))
+								throw new Exception('Failed to add snapin, file upload failed.');
+						}
+						else
+						{
+							// Will fail if the storage group is not assigned or found.
+							$StorageNode = $Snapin->getStorageGroup()->getMasterStorageNode();
+							$src = $_FILES['snapin']['tmp_name'];
+							$dest = rtrim($StorageNode->get('snapinpath'),'/').'/'.$_FILES['snapin']['name'];
+							$this->FOGFTP->set('host',$StorageNode->get('ip'))
+								->set('username',$StorageNode->get('user'))
+								->set('password',$StorageNode->get('pass'));
+							if (!$this->FOGFTP->connect())
+								throw new Exception(_('Storage Node: '.$StorageNode->get('ip').' FTP Connection has failed!'));
+							if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath')))
+								throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
+							// Try to delete the file.
+							$this->FOGFTP->delete($dest);
+							if (!$this->FOGFTP->put($dest,$src))
+								throw new Exception(_('Failed to add snapin'));
+							$this->FOGFTP->close();
+						}
 					}
 					if ($_REQUEST['name'] != $Snapin->get('name') && $SnapinManager->exists($_REQUEST['name'], $Snapin->get('id')))
 						throw new Exception('Snapin already exists');
@@ -482,6 +561,7 @@ class SnapinManagementPage extends FOGPage
 							->set('args',			$_REQUEST['args'])
 							->set('reboot',			(isset($_REQUEST['reboot']) ? 1 : 0 ))
 							->set('runWith',		$_REQUEST['rw'])
+							->set('storageGroupID', $_REQUEST['storagegroup'])
 							->set('runWithArgs',	$_REQUEST['rwa']);
 				break;
 				case 'snap-host';

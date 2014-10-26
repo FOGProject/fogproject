@@ -131,7 +131,10 @@ class Image extends FOGController
 	*/
 	public function getStorageGroup()
 	{
-		return new StorageGroup($this->get('storageGroupID'));
+		$StorageGroup = new StorageGroup($this->get('storageGroupID'));
+		if (!$StorageGroup || !$StorageGroup->isValid())
+			throw new Exception(__class__.' '._('does not have a storage group assigned').'.');
+		return $StorageGroup;
 	}
 	/** getOS()
 		Gets the relevant OS Class object for the image.
@@ -157,11 +160,11 @@ class Image extends FOGController
 	{
 		return new ImagePartitionType($this->get('imagePartitionTypeID'));
 	}
-	/** deleteImageFile()
-		This function just deletes the image file via FTP.
+	/** deleteFile()
+		This function just deletes the file(s) via FTP.
 		Only used if the user checks the Add File? checkbox.
 	*/
-	public function deleteImageFile()
+	public function deleteFile()
 	{
 		if ($this->get('protected'))
 			throw new Exception($this->foglang['ProtectedImage']);
