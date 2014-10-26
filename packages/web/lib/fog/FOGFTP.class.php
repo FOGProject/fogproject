@@ -62,7 +62,7 @@ class FOGFTP extends FOGGetSet
 		return $this;
 	}
 	
-	public function put($remotePath, $localPath, $mode = FTP_ASCII)
+	public function put($remotePath, $localPath, $mode = FTP_BINARY)
 	{
 		// Put file
 		if (!@ftp_put($this->link, $remotePath, $localPath, $mode))
