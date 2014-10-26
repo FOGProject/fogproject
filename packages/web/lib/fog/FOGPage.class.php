@@ -664,7 +664,7 @@ abstract class FOGPage extends FOGBase
 		$fields = array(
 			sprintf('%s <b>%s</b>',_('Please confirm you want to delete'),addslashes($Data->get('name'))) => '&nbsp;',
 			($Data instanceof Group ? _('Delete all hosts within group') : null) => ($Data instanceof Group ? '<input type="checkbox" name="massDelHosts" value="1" />' : null),
-			($Data instanceof Image ? _('Delete file data') : null) => ($Data instanceof Image ? '<input type="checkbox" name="andFile" id="andFile" value="1" />' : null),
+			($Data instanceof Image || $Data instanceof Snapin ? _('Delete file data') : null) => ($Data instanceof Image || $Data instanceof Snapin ? '<input type="checkbox" name="andFile" id="andFile" value="1" />' : null),
 			'&nbsp;' => '<input type="submit" value="${label}" />',
 		);
 		$fields = array_filter($fields);
@@ -706,12 +706,12 @@ abstract class FOGPage extends FOGBase
 				if (isset($_REQUEST['massDelHosts']))
 					$this->FOGCore->redirect('?node=group&sub=delete_hosts&id='.$Data->get('id'));
 			}
-			if ($Data instanceof Image)
+			if ($Data instanceof Image || $Data instanceof Snapin)
 			{
-				if ($Data->get('protected'))
+				if ($Data instanceof Image && $Data->get('protected'))
 					throw new Exception(_('Image is protected, removal not allowed'));
 				if (isset($_REQUEST['andFile']))
-					$Data->deleteImageFile();
+					$Data->deleteFile();
 			}
 			// Error checking
 			if (!$Data->destroy())
