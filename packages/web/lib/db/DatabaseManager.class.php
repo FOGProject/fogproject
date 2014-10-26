@@ -10,33 +10,32 @@ class DatabaseManager extends FOGBase
 	/** __construct($type,$host,$user,$pass,$database)
 		Constructs the connection variables for connecting to the database.
 	*/
-	public function __construct($type = DATABASE_TYPE, $host = DATABASE_HOST, $user = DATABASE_USERNAME, $pass = DATABASE_PASSWORD, $database = DATABASE_NAME) 
+	public function __construct()
 	{
 		try
 		{
 			parent::__construct();
-			if (!$type)
+			if (!DATABASE_TYPE)
 				throw new Exception('Type not set');
-			if (!$host)
+			if (!DATABASE_HOST)
 				throw new Exception('Host not set');
-			if (!$user)
+			if (!DATABASE_USERNAME)
 				throw new Exception('User not set');
-			if (!$database)
+			if (!DATABASE_NAME)
 				throw new Exception('Database not set');
-			$this->type = $type;
-			$this->host = $host;
-			$this->user = $user;
-			$this->pass = $pass;
-			$this->database = $database;
-			$this->valid = $this;
+			$this->type = DATABASE_TYPE;
+			$this->host = DATABASE_HOST;
+			$this->user = DATABASE_USERNAME;
+			$this->pass = DATABASE_PASSWORD;
+			$this->database = DATABASE_NAME;
+			$this->valid = true;
 		}
 		catch (Exception $e)
 		{
 			$this->valid = false;
 			$this->FOGCore->error('Failed: %s->%s(): Error: %s', array(get_class($this), __FUNCTION__, $e->getMessage()));
 		}
-		
-		return $this->valid;
+		return $this->valid ? $this : $this->valid;
 	}
 	/** connect()
 		Connects the system to the database.
