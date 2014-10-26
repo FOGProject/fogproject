@@ -646,6 +646,7 @@ installInitScript()
 	service ${initdMCfullname} stop >/dev/null 2>&1;
 	service ${initdIRfullname} stop >/dev/null 2>&1;
 	service ${initdSDfullname} stop >/dev/null 2>&1;
+	service ${initdSRfullname} stop >/dev/null 2>&1;
 		
 	cp -f ${initdsrc}/* ${initdpath}/
 	chmod 755 ${initdpath}/${initdMCfullname}
@@ -654,6 +655,8 @@ installInitScript()
 	chkconfig ${initdIRfullname} on;	
 	chmod 755 ${initdpath}/${initdSDfullname}
 	chkconfig ${initdSDfullname} on;
+	chmod 755 ${initdpath}/${initdSRfullname}
+	chkconfig ${initdSRfullname} on;	
 	echo "OK";
 }
 
@@ -695,7 +698,18 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 		exit 1;	
 	else
 		echo "OK";
-	fi	
+	fi
+
+	echo -n "  * Starting FOG Snapin Replicator Server...";
+	nohup service ${initdSRfullname} stop >/dev/null 2>&1;
+	nohup service ${initdSRfullname} start >/dev/null 2>&1;
+	if [ "$?" != "0" ]
+	then
+		echo "Failed!";
+		exit 1;
+	else
+		echo "OK";
+	fi
 }
 
 configureNFS()
@@ -1045,6 +1059,9 @@ class Config
 		define( \"SCHEDULERLOGPATH\", \"/opt/fog/log/fogscheduler.log\" );
 		define( \"SCHEDULERDEVICEOUTPUT\", \"/dev/tty4\" );
 		define( \"SCHEDULERSLEEPTIME\", 60 );
+		define( \"SNAPINREPLOGPATH\", \"/opt/fog/log/fogsnapinrep.log\" );
+		define( \"SNAPINREPDEVICEOUTPUT\", \"/dev/tty5\" );
+		define( \"SNAPINREPSLEEPTIME\", 600 );
 	}
 	/**
 	* init_setting()
