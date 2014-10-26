@@ -373,6 +373,7 @@ $foglang['FOGMobile']				= _('FOG Mobile Login');
 $foglang['ProtectedImage']			= _('Image is protected and cannot be deleted');
 $foglang['NoMasterNode']			= _('No master nodes are enabled to delete this image');
 $foglang['FailedDeleteImage']		= _('Failed to delete image files');
+$foglang['FailedDelete']			= _('Failed to delete file');
 // PXEMenu Translates
 $foglang['NotRegHost']				= _('Not Registered Hosts');
 $foglang['RegHost']					= _('Registered Hosts');
