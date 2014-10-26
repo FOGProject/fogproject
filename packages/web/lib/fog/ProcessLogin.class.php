@@ -134,10 +134,10 @@ class ProcessLogin extends FOGBase
 	public function processMainLogin()
 	{
 		$this->setLang();
-		if(isset($_POST['uname']) && isset($_POST['upass']))
+		if(isset($_REQUEST['uname']) && isset($_REQUEST['upass']))
 		{
-			$this->username = trim($_POST['uname']);
-			$this->password = trim($_POST['upass']);
+			$this->username = trim($_REQUEST['uname']);
+			$this->password = trim($_REQUEST['upass']);
 			$tmpUser = $this->FOGCore->attemptLogin($this->username, $this->password);
 			// Hook
 			$this->HookManager->processEvent('USER_LOGGING_IN', array('User' => &$tmpUser,'username' => &$this->username, 'password' => &$this->password));
@@ -160,10 +160,10 @@ class ProcessLogin extends FOGBase
 	public function processMobileLogin()
 	{
 		$this->setLang();
-		if (isset($_POST['uname']) && isset($_POST['upass']))
+		if (isset($_REQUEST['uname']) && isset($_REQUEST['upass']))
 		{
-			$this->username = trim($_POST['uname']);
-			$this->password = trim($_POST['upass']);
+			$this->username = trim($_REQUEST['uname']);
+			$this->password = trim($_REQUEST['upass']);
 			$tmpUser = $this->FOGCore->attemptLogin($this->username, $this->password);
 			try
 			{

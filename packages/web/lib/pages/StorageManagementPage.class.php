@@ -527,7 +527,7 @@ class StorageManagementPage extends FOGPage
 				// Set session message
 				$this->FOGCore->setMessage($this->foglang['SGCreated']);
 				// Redirect to new entry
-				$this->FOGCore->redirect(sprintf('?node=%s&sub=edit-storage-group&%s=%s', $_POST['node'], $this->id, $StorageGroup->get('id')));
+				$this->FOGCore->redirect(sprintf('?node=%s&sub=edit-storage-group&%s=%s', $_REQUEST['node'], $this->id, $StorageGroup->get('id')));
 			}
 			else
 				throw new Exception($this->foglang['DBupfailed']);
