@@ -140,6 +140,7 @@ class Snapin extends FOGController
 		'createdTime'	=> 'sCreateDate',
 		'createdBy'	=> 'sCreator',
 		'reboot'	=> 'sReboot',
+		'storageGroupID' => 'snapinNFSGroupID',
 		'runWith'	=> 'sRunWith',
 		'runWithArgs'	=> 'sRunWithArgs',
 		'anon3'		=> 'sAnon3'
@@ -254,6 +255,35 @@ class Snapin extends FOGController
 		}
 		// Return
 		return parent::destroy($field);
+	}
+	public function getStorageGroup()
+	{
+		$StorageGroup = new StorageGroup($this->get('storageGroupID'));
+		if (!$StorageGroup || !$StorageGroup->isValid())
+			throw new Exception(__class__.' '._('does not have a storage group assigned').'.');
+		return $StorageGroup;
+	}
+	/** deleteFile()
+		This function just deletes the file(s) via FTP.
+		Only used if the user checks the Add File? checkbox.
+	*/
+	public function deleteFile()
+	{
+		$ftp = $this->FOGFTP;
+		$SN = $this->getStorageGroup()->getMasterStorageNode();
+		$SNME = ($SN && $SN->get('isEnabled') == '1' ? true : false);
+		if (!$SNME)
+			throw new Exception($this->foglang['NoMasterNode']);
+		$ftphost = $SN->get('ip');
+		$ftpuser = $SN->get('user');
+		$ftppass = $SN->get('pass');
+		$ftproot = rtrim($SN->get('snapinpath'),'/').'/'.$this->get('file');
+		$ftp->set('host',$ftphost)
+			->set('username',$ftpuser)
+			->set('password',$ftppass)
+			->connect();
+		if(!$ftp->delete($ftproot))
+			throw new Exception($this->foglang['FailedDelete']);
 	}
 }
 >>>>>>> dev-branch
