@@ -16,6 +16,6 @@
 	{
 		$IR = new SnapinReplicator();
 		$IR->serviceRun();
-		sleep(SNAPINREPLICATORSLEEPTIME);
+		sleep(SNAPINREPSLEEPTIME);
 	}
 	$IR->outall(sprintf(" * Service has ended."));
