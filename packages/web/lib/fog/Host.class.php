@@ -1914,7 +1914,7 @@ class Host extends FOGController
 		$StorageGroup = $Image->getStorageGroup();
 		$StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode());
 		if (!$isUpload)
-			$HookManager->processEvent('HOST_NEW_SETTINGS',array('Host' => &$this,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
+			$this->HookManager->processEvent('HOST_NEW_SETTINGS',array('Host' => &$this,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
 		if (!$StorageGroup || !$StorageGroup->isValid())
 			throw new Exception(_('No Storage Group found for this image'));
 		if (!$StorageNode || !$StorageNode->isValid())
