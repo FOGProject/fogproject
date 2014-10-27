@@ -1,16 +1,16 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides: FOGImageReplicator
+# Provides: FOGSnapinReplicator
 # Required-Start: $local_fs $remote_fs $network $syslog $network $inetd mysql
 # Required-Stop: $local_fs $remote_fs $network $syslog $network $inetd
 # Default-Start:
 # Default-Stop:
 # X-Interactive: true
-# Short-Description: Start/Stop FOGImageReplicator
+# Short-Description: Start/Stop FOGSnapinReplicator
 # Long-Description: Created by Chuck Syperski
-# Used to stop and start the FOGImageReplicator Service.
-# FOGImageReplicator enacts upon the FOG System to replicate
-# Images to nodes.  It only replicates if it is the master node.
+# Used to stop and start the FOGSnapinReplicator Service.
+# FOGSnapinReplicator enacts upon the FOG System to replicate
+# Snapins to nodes.  It only replicates if it is the master node.
 ### END INIT INFO
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/bin:/usr/sbin
