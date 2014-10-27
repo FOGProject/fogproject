@@ -57,4 +57,6 @@ $HookManager->register('SNAPIN_NODE', array($ChangeItems, 'StorageNodeSetting'))
 $HookManager->register('SNAPIN_GROUP', array($ChangeItems, 'StorageGroupSetting'));
 $HookManager->register('BOOT_ITEM_NEW_SETTINGS', array($ChangeItems,'BootItemSettings'));
 $HookManager->register('BOOT_TASK_NEW_SETTINGS', array($ChangeItems,'StorageGroupSetting'));
+$HookManager->register('HOST_NEW_SETTINGS', array($ChangeItems,'StorageNodeSetting'));
+$HookManager->register('HOST_NEW_SETTINGS', array($ChangeItems,'StorageGroupSetting'));
 $HookManager->register('BOOT_TASK_NEW_SETTINGS', array($ChangeItems,'StorageNodeSetting'));

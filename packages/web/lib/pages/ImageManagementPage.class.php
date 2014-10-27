@@ -1191,7 +1191,7 @@ class ImageManagementPage extends FOGPage
 				'name' => trim($_REQUEST['name']),
 				'port' => $this->FOGCore->getSetting('FOG_UDPCAST_STARTINGPORT'),
 				'image' => $Image->get('id'),
-				'stateID' => 1,
+				'stateID' => 0,
 				'clients' => $_REQUEST['count'],
 				'isDD' => $Image->get('imageTypeID'),
 				'starttime' => $this->formatTime('now','Y-m-d H:i:s'),

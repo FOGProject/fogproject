@@ -1018,7 +1018,7 @@ class BootMenu extends FOGBase
 				"echo Host approved successfully",
 				"sleep 3"
 			);
-			$this->Host->createImagePackage(10,'Inventory',false,false,false,false,$_REQUEST['username']);
+			$this->Host->createImagePackage(10,'Inventory',false,false,false,false,'ipxe');
 		}
 		else
 		{
@@ -1130,7 +1130,7 @@ class BootMenu extends FOGBase
 	*/
 	public function sesscheck()
 	{
-		$sesscount = current($this->getClass('MulticastSessionsManager')->find(array('name' => $_REQUEST['sessname'])));
+		$sesscount = current($this->getClass('MulticastSessionsManager')->find(array('name' => $_REQUEST['sessname'],'stateID' => 0)));
 		if (!$sesscount || !$sesscount->isValid())
 		{
 			$Send['checksession'] = array(
@@ -1141,7 +1141,7 @@ class BootMenu extends FOGBase
 				"params",
 				"param mac0 \${net0/mac}",
 				"param arch \${arch}",
-				"param sessionjoin 1",
+				"param sessionJoin 1",
 				"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
 				"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
 				":bootme",
@@ -1184,7 +1184,7 @@ class BootMenu extends FOGBase
 	{
 		$MultiSess = new MulticastSessions($msid);
 		// Create the host task
-		if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,$_REQUEST['username']))
+		if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,'ipxe'))
 			$this->chainBoot(false,true);
 	}
 	/**
@@ -1298,7 +1298,7 @@ class BootMenu extends FOGBase
 	*/
 	public function setTasking()
 	{
-		if($this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,$_REQUEST['username']))
+		if($this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,'ipxe'))
 			$this->chainBoot(false, true);
 	}
 	/**
