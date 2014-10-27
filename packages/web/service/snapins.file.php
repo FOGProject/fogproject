@@ -63,6 +63,8 @@ try
 	$Snapin = new Snapin($SnapinTask->get('snapinID'));
 	// Find the Storage Group
 	$StorageGroup = $Snapin->getStorageGroup();
+	// Allow plugins to enact against this. (e.g. location)
+	$HookManager->processEvent('SNAPIN_GROUP',array('Host' => &$Host,'StorageGroup' => &$StorageGroup))
 	// Assign the file for sending.
 	if (!$StorageGroup || !$StorageGroup->isValid())
 	{
@@ -75,7 +77,7 @@ try
 	{
 		$StorageNode = $StorageGroup->getMasterStorageNode();
 		// Allow plugins to enact against this. (e.g. location)
-		//$HookManager->processEvent('SNAPIN_NODE',array('StorageNode' => &$StorageNode));
+		$HookManager->processEvent('SNAPIN_NODE',array('Host' => &$Host,'StorageNode' => &$StorageNode));
 		if ($StorageNode && $StorageNode->isValid())
 			$SnapinFile = "ftp://".$StorageNode->get('user').":".$StorageNode->get('pass')."@".$StorageNode->get('ip').rtrim($StorageNode->get('snapinpath'),'/').'/'.$Snapin->get('file');
 	}
