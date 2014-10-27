@@ -68,24 +68,7 @@ class BootMenu extends FOGBase
 			// If the host kernel param is set, use that kernel to boot the host.
 			($Host->get('kernel') ? $bzImage = $Host->get('kernel') : null);
 			$kernel = $bzImage;
-			// Check location association of the host.
-			$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
-			if ($LA)
-				$Location = new Location($LA->get('locationID'));
-			// If the location is valid and set, use the information to build the menu.
-			if ($Location && $Location->isValid())
-			{
-				// If location tftp method is used, get the files from the location the host is assigned to.  Otherwise get the best node for the host to work from.
-				$StorageNode = $Location->get('tftp') && $Location->get('storageNodeID') ? new StorageNode($Location->get('storageNodeID')) : $this->getClass('StorageGroup',$Location->get('storageGroupID'))->getOptimalStorageNode();
-				// If tftp is set, the storage node and download params are set.
-				if ($Location->get('tftp'))
-				{
-					$memdisk = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/memdisk';
-					$memtest = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$this->FOGCore->getSetting('FOG_MEMTEST_KERNEL');
-					$bzImage = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$bzImage;
-					$imagefile = 'http://'.$StorageNode->get('ip').$webroot.'service/ipxe/'.$initrd;
-				}
-			}
+			$this->HookManager->processEvent('BOOT_ITEM_NEW_SETTINGS',array('Host' => &$Host,'StorageGroup' => &$StorageGroup,'StorageNode' => &$StorageNode,'memtest' => &$memtest,'memdisk' => &$memdisk,'bzImage' => &$bzImage,'initrd' => &$initrd,'webroot' => &$webroot,'imagefile' => &$imagefile));
 		}
 		// Sets the key sequence.  Only used if the hidden menu option is selected.
 		$keySequence = $this->FOGCore->getSetting('FOG_KEY_SEQUENCE');
@@ -598,17 +581,9 @@ class BootMenu extends FOGBase
 				$this->printImageIgnored();
 			$TaskType = new TaskType($Task->get('typeID'));
 			$imagingTasks = array(1,2,8,15,16,17,24);
-			$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $this->Host->get('id'))));
-			if ($LA)
-				$Location = new Location($LA->get('locationID'));
-			if ($Location && $Location->isValid())
-				$StorageGroup = new StorageGroup($Location->get('storageGroupID'));
-			else
-				$StorageGroup = $Image->getStorageGroup();
-			if (!$Location || !$Location->get('storageNodeID'))
-				$StorageNode = $StorageGroup->getOptimalStorageNode();
-			else
-				$StorageNode = new StorageNode($Location->get('storageNodeID'));
+			$StorageGroup = $Image->getStorageGroup();
+			$StorageNode = $StorageGroup->getOptimalStorageNode();
+			$this->HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$this->Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
 			if ($TaskType->isUpload() || $TaskType->isMulticast())
 				$StorageNode = $StorageGroup->getMasterStorageNode();
 			if ($this->Host && $this->Host->isValid())
