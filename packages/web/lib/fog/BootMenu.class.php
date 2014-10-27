@@ -1130,7 +1130,7 @@ class BootMenu extends FOGBase
 	*/
 	public function sesscheck()
 	{
-		$sesscount = current($this->getClass('MulticastSessionsManager')->find(array('name' => $_REQUEST['sessname'],'stateID' => 0)));
+		$sesscount = current($this->getClass('MulticastSessionsManager')->find(array('name' => $_REQUEST['sessname'],'stateID' => array(0,1))));
 		if (!$sesscount || !$sesscount->isValid())
 		{
 			$Send['checksession'] = array(
@@ -1183,9 +1183,12 @@ class BootMenu extends FOGBase
 	public function multijoin($msid)
 	{
 		$MultiSess = new MulticastSessions($msid);
-		// Create the host task
-		if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,'ipxe'))
-			$this->chainBoot(false,true);
+		if ($MultiSess && $MultiSess->isValid())
+		{
+			 // Create the host task
+			if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,'ipxe'))
+				$this->chainBoot(false,true);
+		}
 	}
 	/**
 	* keyset()
