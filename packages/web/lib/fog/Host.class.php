@@ -637,32 +637,15 @@ class Host extends FOGController
 	}
 	public function checkIfExist($taskTypeID)
 	{
-		$LocPlugInst = current($this->getClass('PluginManager')->find(array('name' => 'location')));
 		// TaskType: Variables
 		$TaskType = new TaskType($taskTypeID);
 		$isUpload = $TaskType->isUpload();
 		// Image: Variables
 		$Image = $this->getImage();
-		if ($LocPlugInst)
-		{
-			$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $this->get('id'))));
-			if ($LA)
-			{
-				$Location = new Location($LA->get('locationID'));
-				$StorageGroup = new StorageGroup($Location->get('storageGroupID'));
-				$StorageNode = ($isUpload ? $StorageGroup->getMasterStorageNode() : ($Location->get('storageNodeID') ? new StorageNode($Location->get('storageNodeID')) : $StorageGroup->getOptimalStorageNode()));
-			}
-			else
-			{
-				$StorageGroup = $Image->getStorageGroup();
-				$StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $Image->getStorageGroup()->getMasterStorageNode());
-			}
-		}
-		else
-		{
-			$StorageGroup = $Image->getStorageGroup();
-			$StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode());
-		}
+		$StorageGroup = $Image->getStorageGroup();
+		$StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode());
+		if (!$isUpload)
+			$HookManager->processEvent('HOST_NEW_SETTINGS',array('Host' => &$this,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
 		if (!$StorageGroup || !$StorageGroup->isValid())
 			throw new Exception(_('No Storage Group found for this image'));
 		if (!$StorageNode || !$StorageNode->isValid())
@@ -670,16 +653,15 @@ class Host extends FOGController
 		if (in_array($TaskType->get('id'),array('1','8','15','17')) && in_array($Image->get('osID'), array('5', '6', '7')))
 		{
 			// FTP
-			$ftp = $this->FOGFTP;
-			$ftp->set('username',$StorageNode->get('user'))
-				->set('password',$StorageNode->get('pass'))
-				->set('host',$StorageNode->get('ip'));
-			if ($ftp->connect())
+			$this->FOGFTP->set('username',$StorageNode->get('user'))
+				 ->set('password',$StorageNode->get('pass'))
+				 ->set('host',$StorageNode->get('ip'));
+			if ($this->FOGFTP->connect())
 			{
-				if(!$ftp->chdir(rtrim($StorageNode->get('path'),'/').'/'.$Image->get('path')))
+				if(!$this->FOGFTP->chdir(rtrim($StorageNode->get('path'),'/').'/'.$Image->get('path')))
 					return false;
 			}
-			$ftp->close();
+			$this->FOGFTP->close();
 		}
 		return true;
 	}
@@ -689,7 +671,6 @@ class Host extends FOGController
 	{
 		try
 		{
-			$LocPlugInst = current($this->getClass('PluginManager')->find(array('name' => 'location')));
 			// TaskType: Variables
 			$TaskType = new TaskType($taskTypeID);
 			// Imaging types.
@@ -697,26 +678,8 @@ class Host extends FOGController
 			$isUpload = $TaskType->isUpload();
 			// Image: Variables
 			$Image = $this->getImage();
-			if ($LocPlugInst)
-			{
-				$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $this->get('id'))));
-				if ($LA)
-				{
-					$Location = new Location($LA->get('locationID'));
-					$StorageGroup = new StorageGroup($Location->get('storageGroupID'));
-					$StorageNode = ($isUpload ? $StorageGroup->getMasterStorageNode() : ($Location->get('storageNodeID') ? new StorageNode($Location->get('storageNodeID')) : $StorageGroup->getOptimalStorageNode()));
-				}
-				else
-				{
-					$StorageGroup = $Image->getStorageGroup();
-					$StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $Image->getStorageGroup()->getMasterStorageNode());
-				}
-			}
-			else
-			{
-				$StorageGroup = $Image->getStorageGroup();
-				$StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode());
-			}
+			$StorageGroup = $Image->getStorageGroup();
+			$StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode());
 			// Task type wake on lan, deploy only this part.
 			if ($taskTypeID == '14')
 			{
@@ -867,8 +830,8 @@ class Host extends FOGController
 				'isForced'	=> '0',
 				'stateID'	=> '1',
 				'typeID'	=> $taskTypeID, 
-				'NFSGroupID' 	=> $imagingTypes ? ($Location ? $StorageGroup->get('id') : $Image->getStorageGroup()->get('id')) : false,
-				'NFSMemberID'	=> $imagingTypes ? ($Location ? $StorageGroup->getOptimalStorageNode()->get('id') : $Image->getStorageGroup()->getOptimalStorageNode()->get('id')) : false,
+				'NFSGroupID' 	=> $imagingTypes ? $StorageGroup->get('id') : false,
+				'NFSMemberID'	=> $imagingTypes ? $StorageGroup->getOptimalStorageNode()->get('id') : false,
 				'shutdown' => $shutdown,
 				'passreset' => $passreset,
 				'isDebug' => intval($debug),
@@ -879,20 +842,12 @@ class Host extends FOGController
 			// If task is multicast perform the following.
 			if ($TaskType->isMulticast())
 			{
-				$MultiSessAssoc = current($this->getClass('MulticastSessionsManager')->find(array('image' => $this->getImage()->get('id'),'stateID' => 0)));
-				$MultiSessName = current($this->getClass('MulticastSessionsManager')->find(array('name' => $taskName,'stateID' => 0)));
-				$set_assoc = 0;
-				if ($MultiSessName && $MultiSessName->isValid())
-				{
+				$MultiSessName = current($this->getClass('MulticastSessionsManager')->find(array('name' => $taskName)));
+				$MultiSessAssoc = current($this->getClass('MulticastSessionsManager')->find(array('image' => $this->getImage()->get('id'))));
+				if ($MultiSessName && $MultiSessName->isValid() && !$MultiSessName->get('stateID'))
 					$MulticastSession = $MultiSessName;
-					$set_assoc = 1;
-				}
-				else if ($MultiSessAssoc && $MultiSessAssoc->isValid() &&
-						 $MultiSessName && $MultiSessName->isValid())
-				{
+				else if ($MultiSessAssoc && $MultiSessAssoc->isValid() && !$MultiSessAssoc->get('stateID'))
 					$MulticastSession = $MultiSessAssoc;
-					$set_assoc = 1;
-				}
 				else
 				{
 					// Create New Multicast Session Job
@@ -902,37 +857,28 @@ class Host extends FOGController
 						'logpath' => $this->getImage()->get('path'),
 						'image' => $this->getImage()->get('id'),
 						'interface' => $StorageNode->get('interface'),
-						'stateID' => '0',
+						'stateID' => 0,
 						'starttime' => $this->nice_date()->format('Y-m-d H:i:s'),
-						'percent' => '0',
+						'percent' => 0,
 						'isDD' => $this->getImage()->get('imageTypeID'),
 						'NFSGroupID' => $StorageNode->get('storageGroupID'),
 					));
-					if ($MulticastSession->save())
-					{
-						// Sets a new port number so you can create multiple Multicast Tasks.
-						$randomnumber = mt_rand(24576,32766)*2;
-						while ($randomnumber == $MulticastSession->get('port'))
-						{
-							$randomnumber = mt_rand(24576,32766)*2;
-						}
-						$this->FOGCore->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
-						$set_assoc = 1;
-					}
 				}
-				if ($set_assoc)
+				if ($MulticastSession->save())
 				{
-					// If the image id's are the same, link the tasks, TODO:
-					// Means of kill current task created to start new task
-					// with new associations.
-					// Create the Association.
-					$MulticastSessionAssoc = new MulticastSessionsAssociation(array(
-						'msID' => $MulticastSession->get('id'),
-						'taskID' => $Task->get('id'),
-					));
-					$MulticastSessionAssoc->save();
+					// Sets a new port number so you can create multiple Multicast Tasks.
+					$randomnumber = mt_rand(24576,32766)*2;
+					while ($randomnumber == $MulticastSession->get('port'))
+						$randomnumber = mt_rand(24576,32766)*2;
+					$this->FOGCore->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
 				}
-
+				// If the image id's are the same, link the tasks, TODO:
+				// Create the Association.
+				$MulticastSessionAssoc = new MulticastSessionsAssociation(array(
+					'msID' => $MulticastSession->get('id'),
+					'taskID' => $Task->get('id'),
+				));
+				$MulticastSessionAssoc->save();
 			}
 			// Snapin deploy/cancel after deploy
 			if (!$isUpload && $deploySnapins && $imagingTypes && $taskTypeID != '17')
