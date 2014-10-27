@@ -10,7 +10,7 @@
 # Long-Description: Created by David Fear 
 # Used to stop and start the FOGSnapinReplicator Service.
 # FOGSnapinReplicator enacts upon the FOG System to replicate
-# Images to nodes.  It only replicates if it is the master node.
+# Snapins to nodes.  It only replicates if it is the master node.
 ### END INIT INFO
 
 [Unit]
