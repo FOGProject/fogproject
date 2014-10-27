@@ -579,7 +579,7 @@ class ImageManagementPage extends FOGPage
 		$fields = array(
 			_('Session Name') => '<input type="text" name="name" id="iName" autocomplete="off" value="" />',
 			_('Client Count') => '<input type="text" name="count" id="iCount" autocomplete="off" />',
-			_('Timeout') => '<input type="text" name="timeout" id="iTimeout" autocomplete="off" />',
+			_('Timeout') .'('._('minutes').')' => '<input type="text" name="timeout" id="iTimeout" autocomplete="off" />',
 			_('Select Image') => '${select_image}',
 			'<input type="hidden" name="start" value="1" />' => '<input type="submit" value="'._('Start').'" /><!--span class="icon icon-help" title="TODO!"></span>-->',
 		);
