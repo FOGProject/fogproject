@@ -2111,12 +2111,19 @@ class Host extends FOGController
 			// If task is multicast perform the following.
 			if ($TaskType->isMulticast())
 			{
-				$MultiSessName = current($this->getClass('MulticastSessionsManager')->find(array('name' => $taskName)));
-				$MultiSessAssoc = current($this->getClass('MulticastSessionsManager')->find(array('image' => $this->getImage()->get('id'))));
-				if ($MultiSessName && $MultiSessName->isValid() && !$MultiSessName->get('stateID'))
+				$assoc = false;
+				$MultiSessName = current($this->getClass('MulticastSessionsManager')->find(array('name' => $taskName,'stateID' => array(0,1))));
+				$MultiSessAssoc = current($this->getClass('MulticastSessionsManager')->find(array('image' => $this->getImage()->get('id'),'stateID' => 0)));
+				if ($MultiSessName && $MultiSessName->isValid())
+				{
 					$MulticastSession = $MultiSessName;
-				else if ($MultiSessAssoc && $MultiSessAssoc->isValid() && !$MultiSessAssoc->get('stateID'))
+					$assoc = true;
+				}
+				else if ($MultiSessAssoc && $MultiSessAssoc->isValid())
+				{
 					$MulticastSession = $MultiSessAssoc;
+					$assoc = true;
+				}
 				else
 				{
 					// Create New Multicast Session Job
@@ -2132,22 +2139,25 @@ class Host extends FOGController
 						'isDD' => $this->getImage()->get('imageTypeID'),
 						'NFSGroupID' => $StorageNode->get('storageGroupID'),
 					));
-				}
-				if ($MulticastSession->save())
-				{
-					// Sets a new port number so you can create multiple Multicast Tasks.
-					$randomnumber = mt_rand(24576,32766)*2;
-					while ($randomnumber == $MulticastSession->get('port'))
+					if ($MulticastSession->save())
+					{
+						// Sets a new port number so you can create multiple Multicast Tasks.
 						$randomnumber = mt_rand(24576,32766)*2;
-					$this->FOGCore->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
+						while ($randomnumber == $MulticastSession->get('port'))
+							$randomnumber = mt_rand(24576,32766)*2;
+						$this->FOGCore->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
+					}
+					$assoc = true;
 				}
-				// If the image id's are the same, link the tasks, TODO:
-				// Create the Association.
-				$MulticastSessionAssoc = new MulticastSessionsAssociation(array(
-					'msID' => $MulticastSession->get('id'),
-					'taskID' => $Task->get('id'),
-				));
-				$MulticastSessionAssoc->save();
+				if ($assoc)
+				{
+					// Create the Association.
+					$MulticastSessionAssoc = new MulticastSessionsAssociation(array(
+						'msID' => $MulticastSession->get('id'),
+						'taskID' => $Task->get('id'),
+					));
+					$MulticastSessionAssoc->save();
+				}
 			}
 			// Snapin deploy/cancel after deploy
 			if (!$isUpload && $deploySnapins && $imagingTypes && $taskTypeID != '17')
