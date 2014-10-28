@@ -1136,6 +1136,7 @@ class BootMenu extends FOGBase
 			$Send['checksession'] = array(
 				"#!ipxe",
 				"echo No session found with that name.",
+				"clear sessname",
 				"sleep 3",
 				"cpuid --ext 29 && set arch x86_64 || set arch i386",
 				"params",
@@ -1290,8 +1291,8 @@ class BootMenu extends FOGBase
 			$Send['invalidlogin'] = array(
 				"#!ipxe",
 				"echo Invalid login!",
-				"clear \${username}",
-				"clear \${password}",
+				"clear username",
+				"clear password",
 				"sleep 3",
 			);
 			$this->parseMe($Send);
