@@ -277,6 +277,8 @@ class MulticastTask extends FOGBase
 				$root.'/'.$MultiSess->get('logpath'),
 				$FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),
 				($count > 0 ? $count : ($MultiSess->get('clients') > 0 ? $MultiSess->get('clients') : $FOGCore->getClass('HostManager')->count())),
+				if ($count <= 0)
+					$MultiSess->set('clients',0)->save();
 				$MultiSess->get('isDD'),
 				$Image->get('osID')
 			);
