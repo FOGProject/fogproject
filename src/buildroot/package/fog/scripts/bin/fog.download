@@ -658,6 +658,7 @@ if [ "$imgType" == "n" ]; then
 		else
 			if [ "$win7partcnt" == "1" ]; then
 				clearPartitionTables $hd;
+				dots "Preparing Hard Disks (Stage 3)";
 				if [ -r "${imagePath}/d1.original.partitions" ]; then
 					dots "Expanding partition table to fill disk";
 					if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
@@ -667,10 +668,8 @@ if [ "$imgType" == "n" ]; then
 					fi
 					fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
 				elif [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
-					dots "Preparing Hard Disks (Stage 3)";
 					parted -s $hd mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
 				else
-					dots "Preparing Hard Disks (Stage 3)";
 					parted -s $hd -a opt mkpart primary ntfs 2048s -- $layPartSize &>/dev/null;
 				fi
 				parted -s $hd set 1 boot on &>/dev/null;
@@ -681,7 +680,6 @@ if [ "$imgType" == "n" ]; then
 				debugPause;
 				dots "Preparing Hard Disks (Stage 3)";
 				if [ -r "${imagePath}/d1.original.partitions" ]; then
-					dots "Expanding partition table to fill disk";
 					if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
 						fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
 					else
@@ -689,7 +687,6 @@ if [ "$imgType" == "n" ]; then
 					fi
 					fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
 				else
-					dots "Preparing Hard Disks (Stage 3)";
 					parted -s $hd -a opt mkpart primary ntfs $defaultpart2start -- $layPartSize &>/dev/null;
 				fi
 			elif [ "$win7partcnt" == "3" ]; then
