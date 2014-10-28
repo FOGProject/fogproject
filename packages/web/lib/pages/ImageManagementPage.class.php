@@ -593,7 +593,7 @@ class ImageManagementPage extends FOGPage
 				'session_name' => $_REQUEST['name'],
 				'client_count' => $_REQUEST['count'],
 				'session_timeout' => $_REQUEST['timeout'],
-				'select_image' => $this->getClass('ImageManager')->buildSelectBox($_REQUEST['image'],'','id'),
+				'select_image' => $this->getClass('ImageManager')->buildSelectBox($_REQUEST['image'],'','name'),
 			);
 		}
 		// Hook
