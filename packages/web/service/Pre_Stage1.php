@@ -206,12 +206,25 @@ try
 	if ($imagingTasks)
 	{
 		// Success!
-		$il = new ImagingLog(array(
-			'hostID' => $Host->get('id'),
-			'start' => $FOGCore->nice_date()->format('Y-m-d H:i:s'),
-			'image' => $Host->getImage()->get('name'),
-			'type' => $_REQUEST['type'],
-		));
+		if ($MultiSess && $MultiSess->isValid())
+			$Host->set('imageID',$MultiSess->get('image'));
+		// Log it
+		$ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id'),'type' => $_REQUEST['type'],'complete' => '0000-00-00 00:00:00'));
+		foreach($ImagingLogs AS $ImagingLog) $id[] = $ImagingLog->get('id');
+		if (!$id)
+		{
+			$il = new ImagingLog(array(
+				'hostID' => $Host->get('id'),
+				'start' => $FOGCore->nice_date()->format('Y-m-d H:i:s'),
+				'image' => $Host->getImage()->get('name'),
+				'type' => $_REQUEST['type'],
+			));
+		}
+		else
+		{
+			$il = new ImagingLog(max($id));
+			$il->set('start',$FOGCore->nice_date()->format('Y-m-d H:i:s');
+		}
 		$il->save();
 	}
 	// Task Logging.
