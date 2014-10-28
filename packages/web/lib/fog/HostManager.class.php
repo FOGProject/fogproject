@@ -39,7 +39,7 @@ class HostManager extends FOGManagerController
 			}
 			if ($HostTask && $HostTask->isValid() && (!$HostTask->get('task') || !$HostTask->get('task')->isValid()))
 			{
-				if ($MAC && $MAC->isValid() && !$MAC->isClientIgnored() && $MAC->isPending())
+				if ($MAC && $MAC->isValid() && !$MAC->isClientIgnored() && !$MAC->isPending())
 					$HostIDs[] = $MACHost;
 			}
 		}
