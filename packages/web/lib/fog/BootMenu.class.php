@@ -1147,6 +1147,7 @@ class BootMenu extends FOGBase
 				":bootme",
 				"chain -ar $this->booturl/ipxe/boot.php##params",
 			);
+			$this->parseMe($Send);
 		}
 		else
 			$this->multijoin($sesscount->get('id'));
@@ -1185,6 +1186,7 @@ class BootMenu extends FOGBase
 		$MultiSess = new MulticastSessions($msid);
 		if ($MultiSess && $MultiSess->isValid())
 		{
+			$this->Host->set('imageID',$MultiSess->get('image'));
 			 // Create the host task
 			if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,'ipxe'))
 				$this->chainBoot(false,true);
@@ -1326,7 +1328,6 @@ class BootMenu extends FOGBase
 	*/
 	public function getTasking()
 	{
-		$Image = $this->Host->getImage();
 		$Task = $this->Host->get('task');
 		if (!$Task->isValid())
 		{
@@ -1341,6 +1342,14 @@ class BootMenu extends FOGBase
 				$this->printImageIgnored();
 			$TaskType = new TaskType($Task->get('typeID'));
 			$imagingTasks = array(1,2,8,15,16,17,24);
+			if ($TaskType->isMulticast())
+			{
+				$MulticastSessionAssoc = current($this->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))));
+				$MulticastSession = new MulticastSessions($MulticastSessionAssoc->get('msID'));
+				if ($MulticastSession && $MulticastSession->isValid())
+					$this->Host->set('imageID',$MulticastSession->get('image'));
+			}
+			$Image = $this->Host->getImage();
 			$StorageGroup = $Image->getStorageGroup();
 			$StorageNode = $StorageGroup->getOptimalStorageNode();
 			$this->HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$this->Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
@@ -1362,11 +1371,6 @@ class BootMenu extends FOGBase
 			$ftp = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_TFTP_HOST'));
 			$chkdsk = $this->FOGCore->getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
 			$PIGZ_COMP = $this->FOGCore->getSetting('FOG_PIGZ_COMP');
-			if ($TaskType->isMulticast())
-			{
-				$MulticastSessionAssoc = current($this->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))));
-				$MulticastSession = new MulticastSessions($MulticastSessionAssoc->get('msID'));
-			}
 			$kernelArgsArray = array(
 				"mac=$mac",
 				"ftp=$ftp",
