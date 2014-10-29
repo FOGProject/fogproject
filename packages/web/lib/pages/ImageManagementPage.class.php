@@ -1108,7 +1108,7 @@ class ImageManagementPage extends FOGPage
 				'session_name' => $_REQUEST['name'],
 				'client_count' => $_REQUEST['count'],
 				'session_timeout' => $_REQUEST['timeout'],
-				'select_image' => $this->getClass('ImageManager')->buildSelectBox($_REQUEST['image'],'','id'),
+				'select_image' => $this->getClass('ImageManager')->buildSelectBox($_REQUEST['image'],'','name'),
 			);
 		}
 		// Hook
@@ -1149,7 +1149,7 @@ class ImageManagementPage extends FOGPage
 				$TaskState = new TaskState($MulticastSession->get('stateID'));
 				$this->data[] = array(
 					'mc_name' => $MulticastSession->get('name'),
-					'mc_count' => $MulticastSession->get('clients'),
+					'mc_count' => $MulticastSession->get('sessclients'),
 					'image_name' => $Image->get('name'),
 					'os' => $Image->getOS(),
 					'mc_start' => $this->formatTime($MulticastSession->get('starttime'),'Y-m-d H:i:s'),
@@ -1192,7 +1192,7 @@ class ImageManagementPage extends FOGPage
 				'port' => $this->FOGCore->getSetting('FOG_UDPCAST_STARTINGPORT'),
 				'image' => $Image->get('id'),
 				'stateID' => 0,
-				'clients' => $_REQUEST['count'],
+				'sessclients' => $_REQUEST['count'],
 				'isDD' => $Image->get('imageTypeID'),
 				'starttime' => $this->formatTime('now','Y-m-d H:i:s'),
 				'interface' => $StorageNode->get('interface'),
