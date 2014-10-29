@@ -8,18 +8,22 @@ class MulticastTask extends FOGBase
 		$arTasks = array();
 		foreach($FOGCore->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3))) AS $MultiSess)
 		{
-			$count = $FOGCore->getClass('MulticastSessionsAssociationManager')->count(array('msID' => $MultiSess->get('id')));
 			$Image = new Image($MultiSess->get('image'));
-			$Tasks[] = new self(
-				$MultiSess->get('id'), 
-				$MultiSess->get('name'),
-				$MultiSess->get('port'),
-				$root.'/'.$MultiSess->get('logpath'),
-				$FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),
-				($count > 0 ? $count : ($MultiSess->get('sessclients') > 0 ? $MultiSess->get('sessclients') : $FOGCore->getClass('HostManager')->count())),
-				$MultiSess->get('isDD'),
-				$Image->get('osID')
-			);
+			if ($Image->getStorageGroup()->getOptimalStorageNode()->get('ip') == $FOGCore->getIPAddress())
+			{
+				$count = $FOGCore->getClass('MulticastSessionsAssociationManager')->count(array('msID' => $MultiSess->get('id')));
+				$Image = new Image($MultiSess->get('image'));
+				$Tasks[] = new self(
+					$MultiSess->get('id'), 
+					$MultiSess->get('name'),
+					$MultiSess->get('port'),
+					$root.'/'.$MultiSess->get('logpath'),
+					$FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),
+					($count > 0 ? $count : ($MultiSess->get('sessclients') > 0 ? $MultiSess->get('sessclients') : $FOGCore->getClass('HostManager')->count())),
+					$MultiSess->get('isDD'),
+					$Image->get('osID')
+				);
+			}
 		}
 		return $Tasks;
 	}
