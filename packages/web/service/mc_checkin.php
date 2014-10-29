@@ -33,7 +33,7 @@ try
 	if ($Task->get('typeID') == 8)
 	{
 		// If client count is equal, place session task in-progress as it will likely start soon.
-		if ($MSAs == $MultiSess->get('clients'))
+		if ($MSAs == $MultiSess->get('clients')|| ($MultiSess->get('sessclients') > 0 && $MultiSess->get('clients') > 0))
 			$MultiSess->set('stateID',3);
 		else
 			$MultiSess->set('stateID',1);
@@ -58,7 +58,7 @@ try
 		else
 		{
 			$il = new ImagingLog(max($id));
-			$il->set('start',$FOGCore->nice_set()->format('Y-m-d H:i:s');
+			$il->set('start',$FOGCore->nice_set()->format('Y-m-d H:i:s'));
 		}
 		$il->save();
 		$TaskLog = new TaskLog(array(
