@@ -1,50 +1,3 @@
-<<<<<<< HEAD
-#!/bin/sh
-
-. /usr/share/fog/lib/funcs.sh
-
-. /bin/fog.donate
-
-clearScreen;
-
-displayBanner;
-
-setupDNS ${dns}
-
-echo " You have entered into FOG debug";
-echo " mode.  Below is a list of common";
-echo " commands you may wish to run";
-echo "";
-echo "fog";
-echo "    * This is the main script that";
-echo "      that is used to image a computer";
-echo "";
-echo "ifconfig";
-echo "    * This command will show you the";
-echo "       network interface on this machine.";
-echo "";
-echo "reboot";
-echo "    * This will restart the computer";
-sleep 5;
-echo "";
-echo "";
-echo "Below is a variable dump from FOG";
-osname="";
-mbrfile="";
-hd="";
-determineOS $osid;
-echo "osid=${osid}";
-echo "osname=${osname}";
-echo "mbrfile=${mbrfile}";
-echo "type=${type}";
-echo "storage=${storage}";
-echo "img=${img}";
-getHardDisk;
-echo "hd=${hd}";
-part=$hd'1';
-echo "part=${part}";
-sleep 5;
-=======
 #!/bin/sh
 
 . /usr/share/fog/lib/funcs.sh
@@ -95,4 +48,3 @@ echo "hd=${hd}";
 part=$hd'1';
 echo "part=${part}";
 sleep 5;
->>>>>>> dev-branch
