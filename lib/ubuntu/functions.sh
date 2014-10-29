@@ -557,14 +557,13 @@ installPackages()
 	
 	for x in $packages
 	do
-		dpkg -l $x >/dev/null 2>&1 | grep '^ii';
-		if [ "$?" != "!0" ]; then
+		dpkg -l $x 2>&1 | grep '^ii' &>/dev/null;
+		if [ "$?" != "0" ]; then
 			echo  "  * Installing package: $x";
 			apt-get -y -q install $x >/dev/null 2>&1;
 			if [ "$x" = "mysql-server" ]
 			then
 				strDummy="";
-	
 				echo "";
 				echo "     We are about to install MySQL Server on ";
 				echo "     this server, if MySQL isn't installed already";
@@ -597,7 +596,7 @@ confirmPackageInstallation()
 	for x in $packages
 	do
 		echo -n "  * Checking package: $x...";
-		dpkg -l $x >/dev/null 2>&1 | grep '^ii';
+		dpkg -l $x 2>&1 | grep '^ii' &>/dev/null;
 		if [ "$?" != "0" ]
 		then
 			echo "Failed!"
