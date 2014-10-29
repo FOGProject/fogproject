@@ -1,6 +1,0 @@
-config BR2_PACKAGE_DARKCOIN
-	bool "darkcoin"
-	select BR2_PACKAGE_LIBCURL
-	select BR2_PACKAGE_JANSSON
-	help
-	  darkcoin
