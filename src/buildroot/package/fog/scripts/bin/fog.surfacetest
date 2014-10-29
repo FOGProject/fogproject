@@ -1,55 +1,3 @@
-<<<<<<< HEAD
-#!/bin/sh
-. /usr/share/fog/lib/funcs.sh
-. /bin/fog.donate
-clearScreen;
-displayBanner;
-setupDNS ${dns}
-hd="";
-getHardDisk;
-echo "";
-echo "";
-if [ -n "$hd" ]; then
-	cd /tmp
-	queuinfo="";
-	wget -q -O /tmp/co.txt "http://${web}service/Pre_Stage1.php?mac=$mac" &>/dev/null
-	queueinfo=`cat co.txt`;
-	while [ "$queueinfo" != "##@GO" ]
-	do
-		echo "		* $queueinfo";
-		rm co.txt
-		wget -q -O co.txt "http://${web}service/Pre_Stage1.php?mac=$mac" &>/dev/null
-		queuinfo=`cat co.txt`;
-		sleep 5;
-	done
-	rm co.txt;
-	echo " Starting Disk Surface Test on ";
-	echo "      ${hd}";
-	echo "";
-	sleep 2;
-	badblocks -sv ${hd};
-	echo "";
-	queueinfo="";
-	cd /tmp			
-	wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-	queueinfo=`cat co.txt`;
-	while [ "$queueinfo" != "##" ]
-	do
-		echo "       * $queueinfo";
-		rm co.txt
-		wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-		queueinfo=`cat co.txt`;
-		sleep 5;
-	done  
-	echo "";
-	echo " * Database updated!";
-	echo "";	
-	echo " Task Complete";
-else
-	echo "hard disk not found!";
-fi
-sleep 3
-=======
 #!/bin/sh
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.donate
@@ -100,4 +48,3 @@ else
 	echo "hard disk not found!";
 fi
 sleep 3
->>>>>>> dev-branch

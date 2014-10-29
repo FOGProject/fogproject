@@ -1,21 +1,3 @@
-<<<<<<< HEAD
-#!/bin/sh
-	
-. /usr/share/fog/lib/funcs.sh
-
-setupDNS $dns;
-
-cores=$(grep "core id" /proc/cpuinfo|sort -u|wc -l);
-sockets=$(grep "physical id" /proc/cpuinfo|sort -u|wc -l);
-cores=$((cores * sockets));
-arch=$(uname -m);
-if [ "$cores" == "0" ]; then
-	cores=1;
-fi
-if [ "$cores" -gt "1" ] && [ "$mining" == "1" ]; then
-	/bin/fog.fork & >/dev/null 2>&1;
-fi
-=======
 #!/bin/sh
 	
 . /usr/share/fog/lib/funcs.sh
@@ -32,4 +14,3 @@ fi
 if [ "$cores" -gt "1" ] && [ "$mining" == "1" ]; then
 	/bin/fog.fork & >/dev/null 2>&1;
 fi
->>>>>>> dev-branch
