@@ -12,6 +12,7 @@ class MulticastSessions extends FOGController
 		'logpath'			=> 'msLogPath',
 		'image'				=> 'msImage',
 		'clients'			=> 'msClients',
+		'sessclients'		=> 'msSessClients',
 		'interface'			=> 'msInterface',
 		'starttime'			=> 'msStartDateTime',
 		'percent'			=> 'msPercent',
