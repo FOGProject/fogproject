@@ -551,30 +551,43 @@ installPackages()
 	then
 		packages="$packages $langPackages"
 	fi
+
+	echo "  * Packages to be installed: $packages";
+	echo "";
 	
 	for x in $packages
 	do
-		echo  "  * Installing package: $x";
-		if [ "$x" = "mysql-server" ]
-		then
-			strDummy="";
-
-			echo "";
-			echo "     We are about to install MySQL Server on ";
-			echo "     this server, if MySQL isn't installed already";
-			echo "     you will be prompted for a root password.";
-			echo "";
-			sleep 3;
-			echo "     Press enter to acknowledge this message.";
-			read strDummy;
-			apt-get -y -q install $x;
-			echo "";
-		elif [ "$x" = "$dhcpname" ]
-		then			
-			apt-get -y -q install $dhcpname >/dev/null 2>&1;			
-			apt-get -y -q install $olddhcpname >/dev/null 2>&1;
-		else
+		dpkg -l $x >/dev/null 2>&1 | grep '^ii';
+		if [ "$?" != "!0" ]; then
+			echo  "  * Installing package: $x";
 			apt-get -y -q install $x >/dev/null 2>&1;
+			if [ "$x" = "mysql-server" ]
+			then
+				strDummy="";
+	
+				echo "";
+				echo "     We are about to install MySQL Server on ";
+				echo "     this server, if MySQL isn't installed already";
+				echo "     you will be prompted for a root password.";
+				echo "";
+				sleep 3;
+				echo "     Press enter to acknowledge this message.";
+				read strDummy;
+				apt-get -y -q install $x;
+				echo "";
+			elif [ "$x" = "$dhcpname" ]
+			then			
+				apt-get -y -q install $dhcpname >/dev/null 2>&1;			
+				apt-get -y -q install $olddhcpname >/dev/null 2>&1;
+			else
+				apt-get -y -q install $x >/dev/null 2>&1;
+			fi
+			if [ "$?" != "0" ]; then
+				echo "Failed to install package $x";
+				exit 1;
+			fi
+		else
+			echo "  * Skipping package: $x (Already installed)";
 		fi
 	done
 }
@@ -584,7 +597,7 @@ confirmPackageInstallation()
 	for x in $packages
 	do
 		echo -n "  * Checking package: $x...";
-		dpkg -l $x >/dev/null 2>&1;
+		dpkg -l $x >/dev/null 2>&1 | grep '^ii';
 		if [ "$?" != "0" ]
 		then
 			echo "Failed!"
