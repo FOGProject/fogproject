@@ -223,7 +223,7 @@ try
 		else
 		{
 			$il = new ImagingLog(max($id));
-			$il->set('start',$FOGCore->nice_date()->format('Y-m-d H:i:s');
+			$il->set('start',$FOGCore->nice_date()->format('Y-m-d H:i:s'));
 		}
 		$il->save();
 	}
