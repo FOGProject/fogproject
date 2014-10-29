@@ -147,7 +147,7 @@ class Snapin extends FOGController
 	{
 		$ftp = $this->FOGFTP;
 		$SG = $this->getStorageGroup();
-		if ($SG && $SG->isValid()
+		if ($SG && $SG->isValid())
 		{
 			$SN = $this->getStorageGroup()->getMasterStorageNode();
 			$SNME = ($SN && $SN->get('isEnabled') == '1' ? true : false);
