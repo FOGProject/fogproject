@@ -15,7 +15,7 @@ try
 	$level = $Host->get('printerLevel');
 	if (empty($level) || $level == 0 || $level > 2)
 		$level = 0;
-	$Datatosendlevel = $level;
+	$Datatosendlevel = '#!mg='.$level;
 	if ($level > 0)
 	{
 		// Get all the printers set for this host.
@@ -43,7 +43,7 @@ catch(Exception $e)
 if ($Datatosenderror)
 	$Datatosend = $Datatosenderror;
 else
-	$Datatosend = ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n" : '').'#!mg='.($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $Datatosendlevel."\n".$Datatosendprint : base64_encode($Datatosendlevel)."\n".base64_encode($Datatosendprint));
+	$Datatosend = ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n" : '').($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $Datatosendlevel."\n".$Datatosendprint : base64_encode($Datatosendlevel)."\n".base64_encode($Datatosendprint));
 if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
 	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
