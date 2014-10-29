@@ -22,7 +22,7 @@ class System
 	private static function default_values()
 	{
 		(ini_get('date.timezone') ? date_default_timezone_set(ini_get('date.timezone')) : date_default_timezone_set('UTC'));
-		define('FOG_VERSION', '2498');
+		define('FOG_VERSION', '2499');
 		define('FOG_SCHEMA', 135);
 		define('FOG_SVN_REVISION', '$Revision: 2497 $');
 		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate: 2014-10-29 06:10:42 -0400 (Wed, 29 Oct 2014) $');
