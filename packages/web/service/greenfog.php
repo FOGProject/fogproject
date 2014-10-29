@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-<?php
-require_once('../commons/base.inc.php');
-try
-{
-	$GF = $FOGCore->getClass('GreenFogManager')->find();
-	foreach($GF AS $gf)
-		print base64_encode($gf->get('hour').'@'.$gf->get('min').'@'.$gf->get('action'))."\n";
-}
-catch (Exception $e)
-{
-	print $e->getMessage();
-}
-=======
 <?php
 require_once('../commons/base.inc.php');
 $index = 0;
@@ -24,4 +10,3 @@ if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
 	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
 	print $Datatosend;
->>>>>>> dev-branch
