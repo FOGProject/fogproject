@@ -835,6 +835,7 @@ class Host extends FOGController
 				'shutdown' => $shutdown,
 				'passreset' => $passreset,
 				'isDebug' => intval($debug),
+				'imageID' => $this->getImage()->get('id'),
 			));
 			// Task: Save to database
 			if (!$Task->save())
