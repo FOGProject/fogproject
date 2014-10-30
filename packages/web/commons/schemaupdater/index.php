@@ -1667,6 +1667,19 @@ $databaseSchema[] = array(
 $databaseSchema[] = array(
 	"ALTER TABLE `".DATABASE_NAME."`.`multicastSessions` ADD COLUMN `msSessClients` INT(11) NOT NULL AFTER msClients",
 );
+// 136
+$databaseSchema[] = array(
+	"ALTER TABLE `".DATABASE_NAME."`.`tasks` ADD COLUMN `taskImageID` INT(11) NOT NULL AFTER `taskHostID`",
+	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME . "`.`imageGroupAssoc` (
+	  `igaID` mediumint(9) NOT NULL auto_increment,
+	  `igaImageID` mediumint(9) NOT NULL,
+	  `igaStorageGroupID` mediumint(9) NOT NULL,
+	  PRIMARY KEY  (`igaID`)
+	) ENGINE=MyISAM;",
+	"INSERT INTO `" . DATABASE_NAME ."`.`imageGroupAssoc` (`igaImageID`,`igaStorageGroupID`) SELECT `imageID`,`imageNFSGroupID` FROM `".DATABASE_NAME."`.`images` WHERE `imageNFSGroupID` IS NOT NULL",
+	"ALTER TABLE `" . DATABASE_NAME ."`.`images` DROP COLUMN `imageNFSGroupID`",
+	"ALTER IGNORE TABLE `" .DATABASE_NAME ."`.`imageGroupAssoc` ADD UNIQUE INDEX `igaImageID` (`igaImageID`)",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
