@@ -558,6 +558,10 @@ installPackages()
 	for x in $packages
 	do
 		dpkg -l $x 2>&1 | grep '^ii' &>/dev/null;
+		if [ "$?" != "0" -a "$x" == "php5-json" ]; then
+			x="php5-common";
+			dpkg -l $x 2>&1 | grep '^ii' &>/dev/null;
+		fi
 		if [ "$?" != "0" ]; then
 			echo  "  * Installing package: $x";
 			apt-get -y -q install $x >/dev/null 2>&1;
@@ -600,7 +604,7 @@ confirmPackageInstallation()
 		if [ "$?" != "0" ]
 		then
 			if [ "$x" == "php5-json" ]; then
-				x = "php5-common";
+				x="php5-common";
 				dpkg -l $x 2>&1 | grep '^ii' &>/dev/null;
 				if [ "$?" != "0" ]; then
 					echo "Failed!";
