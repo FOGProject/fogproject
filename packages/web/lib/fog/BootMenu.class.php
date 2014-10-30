@@ -547,8 +547,10 @@ class BootMenu extends FOGBase
 	* If quick image tasking requested, this sets up the tasking.
 	* @return void
 	*/
-	public function setTasking()
+	public function setTasking($imgID = '')
 	{
+		if ($imgID)
+			$this->Host->set('imageID',$imgID);
 		if ($this->Host->getImage()->isValid())
 		{
 			if($this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,'ipxe'))
@@ -609,7 +611,7 @@ class BootMenu extends FOGBase
 				if ($MulticastSession && $MulticastSession->isValid())
 					$this->Host->set('imageID',$MulticastSession->get('image'));
 			}
-			$Image = $this->Host->getImage();
+			$Image = $Task->getImage();
 			$StorageGroup = $Image->getStorageGroup();
 			$StorageNode = $StorageGroup->getOptimalStorageNode();
 			$this->HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$this->Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
