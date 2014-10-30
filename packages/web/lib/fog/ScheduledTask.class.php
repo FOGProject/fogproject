@@ -28,7 +28,8 @@ class ScheduledTask extends FOGController
 		'other4'	=> 'stOther4',
 		'other5'	=> 'stOther5',
 		'scheduleTime'	=> 'stDateTime',
-		'isActive'	=> 'stActive'
+		'isActive'	=> 'stActive',
+		'imageID' => 'stImageID',
 	);
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
@@ -47,7 +48,7 @@ class ScheduledTask extends FOGController
 	}
 	public function getImage()
 	{
-		return $this->getHost()->getImage();
+		return new Image($this->get('imageID'));
 	}
 	public function getShutdownAfterTask()
 	{

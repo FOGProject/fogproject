@@ -12,7 +12,7 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid())
 		throw new Exception( _('Invalid Host') );
-	$Host->getImage()->set('size','0')->save();
+	$Task->getImage()->set('size','0')->save();
 	// Task for Host
 	$Task = $Host->get('task');
 	if (!$Task->isValid())
@@ -99,7 +99,7 @@ try
 			$il = new ImagingLog(array(
 				'hostID' => $Host->get('id'),
 				'start' => $FOGCore->nice_date()->format('Y-m-d H:i:s'),
-				'image' => $Host->getImage()->get('name'),
+				'image' => $Task->getImage()->get('name'),
 				'type' => $_REQUEST['type'],
 			));
 		}
