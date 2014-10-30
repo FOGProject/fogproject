@@ -549,8 +549,22 @@ class BootMenu extends FOGBase
 	*/
 	public function setTasking()
 	{
-		if($this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,'ipxe'))
-			$this->chainBoot(false, true);
+		if ($this->Host->getImage()->isValid())
+		{
+			if($this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,'ipxe'))
+				$this->chainBoot(false, true);
+		}
+		else
+		{
+			$Send['invalidimage'] = array(
+				'#!ipxe',
+				'echo Host has no image assigned to it',
+				'echo Please set one in the GUI',
+				'sleep 3',
+			);
+			$this->parseMe($Send);
+			$this->chainBoot();
+		}
 	}
 	/**
 	* noMenu()
