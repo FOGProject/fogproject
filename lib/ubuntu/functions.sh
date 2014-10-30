@@ -601,17 +601,13 @@ confirmPackageInstallation()
 	do
 		echo -n "  * Checking package: $x...";
 		dpkg -l $x 2>&1 | grep '^ii' &>/dev/null;
-		if [ "$?" != "0" ]
+		if [ "$?" != "0" -a "$x" == "php5-json" ]
 		then
-			if [ "$x" == "php5-json" ]; then
-				x="php5-common";
-				dpkg -l $x 2>&1 | grep '^ii' &>/dev/null;
-				if [ "$?" != "0" ]; then
-					echo "Failed!";
-				fi
-			else
-				echo "Failed!"
-			fi
+			x="php5-common";
+			dpkg -l $x 2>&1 | grep '^ii' &>/dev/null;
+		fi
+		if [ "$?" != "0" ]; then
+			echo "Failed!"
 			if [ "$x" = "$dhcpname" ]
 			then			
 				echo -n "  * Checking for legacy package: $olddhcpname";
