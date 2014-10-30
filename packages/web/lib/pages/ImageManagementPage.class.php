@@ -228,12 +228,13 @@ class ImageManagementPage extends FOGPage
 			$Image = new Image(array(
 				'name'		=> $_REQUEST['name'],
 				'description'	=> $_REQUEST['description'],
-				'storageGroupID'=> $_REQUEST['storagegroup'],
 				'osID'		=> $_REQUEST['os'],
 				'path'		=> $_REQUEST['file'],
 				'imageTypeID'	=> $_REQUEST['imagetype'],
 				'imagePartitionTypeID'	=> $_REQUEST['imagepartitiontype']
 			));
+			$Image->removeGroup($_REQUEST['storagegroup']);
+			$Image->addGroup($_REQUEST['storagegroup']);
 			// Save
 			if ($Image->save())
 			{
@@ -304,7 +305,7 @@ class ImageManagementPage extends FOGPage
 				'input' => $input,
 				'image_name' => $Image->get('name'),
 				'image_desc' => $Image->get('description'),
-				'storage_groups' => $this->getClass('StorageGroupManager')->buildSelectBox($Image->get('storageGroupID')),
+				'storage_groups' => $this->getClass('StorageGroupManager')->buildSelectBox($Image->getStorageGroup()->isValid() ? $Image->getStorageGroup()->get('id') : ''),
 				'operating_systems' => $this->getClass('OSManager')->buildSelectBox($Image->get('osID')),
 				'image_path' => $StorageNode && $StorageNode->isValid() ? $StorageNode->get('path').'/&nbsp;' : 'No nodes available.',
 				'image_file' => $Image->get('path'),
@@ -518,13 +519,14 @@ class ImageManagementPage extends FOGPage
 					// Update Object
 					$Image	->set('name',		$_REQUEST['name'])
 						->set('description',	$_REQUEST['description'])
-						->set('storageGroupID',	$_REQUEST['storagegroup'])
 						->set('osID',		$_REQUEST['os'])
 						->set('path',		$_REQUEST['file'])
 						->set('imageTypeID',	$_REQUEST['imagetype'])
 						->set('imagePartitionTypeID',	$_REQUEST['imagepartitiontype'])
 						->set('format',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $Image->get('format') )
 						->set('protected', $_REQUEST['protected_image']);
+						$Image->removeGroup($_REQUEST['storagegroup']);
+						$Image->addGroup($_REQUEST['storagegroup']);
 				break;
 				case 'image-host';
 					if ($_REQUEST['host'])
@@ -668,7 +670,7 @@ class ImageManagementPage extends FOGPage
 			$countmc = $this->getClass('MulticastSessionsManager')->count(array('stateID' => array(0,1,2,3)));
 			$countmctot = $this->FOGCore->getSetting('FOG_MULTICAST_MAX_SESSIONS');
 			$Image = new Image($_REQUEST['image']);
-			$StorageGroup = new StorageGroup($Image->get('storageGroupID'));
+			$StorageGroup = new StorageGroup($Image->getStorageGroup());
 			$StorageNode = $StorageGroup->getMasterStorageNode();
 			if ($countmc >= $countmctot)
 				throw new Exception(_('Please wait until a slot is open<br/>There are currently '.$countmc.' tasks in queue<br/>Your server only allows '.$countmctot));
