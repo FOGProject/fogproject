@@ -599,7 +599,15 @@ confirmPackageInstallation()
 		dpkg -l $x 2>&1 | grep '^ii' &>/dev/null;
 		if [ "$?" != "0" ]
 		then
-			echo "Failed!"
+			if [ "$x" == "php5-json" ]; then
+				x = "php5-common";
+				dpkg -l $x 2>&1 | grep '^ii' &>/dev/null;
+				if [ "$?" != "0" ]; then
+					echo "Failed!";
+				fi
+			else
+				echo "Failed!"
+			fi
 			if [ "$x" = "$dhcpname" ]
 			then			
 				echo -n "  * Checking for legacy package: $olddhcpname";
