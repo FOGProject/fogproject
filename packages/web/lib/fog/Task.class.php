@@ -31,6 +31,7 @@ class Task extends FOGController
 		'shutdown'			=> 'taskShutdown',
 		'passreset'			=> 'taskPassreset',
 		'isDebug'			=> 'taskIsDebug',
+		'imageID'			=> 'taskImageID',
 	);
 	// Required database fields
 	public $databaseFieldsRequired = array(
@@ -53,7 +54,7 @@ class Task extends FOGController
 	}
 	public function getImage()
 	{
-		return $this->getHost()->getImage();
+		return new Image($this->get('imageID'));
 	}
 	public function getInFrontOfHostCount()
 	{
