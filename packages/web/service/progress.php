@@ -16,14 +16,14 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid())
 		throw new Exception(_('Invalid host'));
-	// get the image (for image size)
-	$Image = $Host->getImage();
-	if (!$Image->isValid())
-		throw new Exception(_('Invalid image'));
 	// get the task
 	$Task = $Host->get('task');
 	if (!$Task->isValid())
 		throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'),$MACAddress));
+	// get the image (for image size)
+	$Image = $Task->getImage();
+	if (!$Image->isValid())
+		throw new Exception(_('Invalid image'));
 	// break apart the received data
 	$str = explode('@',base64_decode($_REQUEST['status']));
 	// The types that get progress info: Down (1), Up (2), MultiCast (8), Down Debug (15), Up Debug (16), Down No Snap (17)
