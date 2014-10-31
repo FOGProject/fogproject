@@ -195,6 +195,7 @@ class SubMenu extends FOGBase
 			{
 				$this->subMenu[$this->node]['id'][$linkformat.'#image-gen'] = $this->foglang['General'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#image-host'] = $this->foglang['Host'];
+				$this->subMenu[$this->node]['id'][$linkformat.'#image-storage'] = $this->foglang['Storage'].' '.$this->foglang['Group'];
 				$this->subMenu[$this->node]['id'][$delformat] = $this->foglang['Delete'];
 			}
 		}
