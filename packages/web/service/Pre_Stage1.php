@@ -12,12 +12,12 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid())
 		throw new Exception( _('Invalid Host') );
-	$Task->getImage()->set('size','0')->save();
-	// Task for Host
 	$Task = $Host->get('task');
 	if (!$Task->isValid())
 		throw new Exception( sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'), $MACAddress) );
 	// Check-in Host
+	$Task->getImage()->set('size','0')->save();
+	// Task for Host
 	if ($Task->get('stateID') == 1)
 		$Task->set('stateID', '2')->set('checkInTime', $FOGCore->nice_date()->format('Y-m-d H:i:s'))->save();
 	$imagingTasks = in_array($Task->get('typeID'),array(1,2,8,15,16,17));
