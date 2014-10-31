@@ -14,4 +14,18 @@ $(function() {
 	$('.toggle-checkbox2').click(function() {
 		$('input.toggle-host2:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
 	});
+	$('#groupNotInMe').hide();
+	$('#groupNoImage').hide();
+	$('#groupMeShow').click(function() {
+		$('#groupNotInMe').toggle();
+	});
+	$('#groupNoShow').click(function() {
+		$('#groupNoImage').toggle();
+	});
+	$('.toggle-checkbox1').click(function() {
+		$('input.toggle-group1:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+	});
+	$('.toggle-checkbox2').click(function() {
+		$('input.toggle-group2:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+	});
 });
