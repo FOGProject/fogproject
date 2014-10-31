@@ -233,11 +233,10 @@ class ImageManagementPage extends FOGPage
 				'imageTypeID'	=> $_REQUEST['imagetype'],
 				'imagePartitionTypeID'	=> $_REQUEST['imagepartitiontype']
 			));
-			$Image->removeGroup($_REQUEST['storagegroup']);
-			$Image->addGroup($_REQUEST['storagegroup']);
 			// Save
 			if ($Image->save())
 			{
+				$Image->addGroup($_REQUEST['storagegroup']);
 				// Hook
 				$this->HookManager->processEvent('IMAGE_ADD_SUCCESS', array('Image' => &$Image));
 				// Log History event
@@ -288,7 +287,6 @@ class ImageManagementPage extends FOGPage
 		$fields = array(
 			_('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="${image_name}" />',
 			_('Image Description') => '<textarea name="description" rows="8" cols="40">${image_desc}</textarea>',
-			_('Storage Group') => '${storage_groups}',
 			_('Operating System') => '${operating_systems}',
 			_('Image Path') => '${image_path}<input type="text" name="file" id="iFile" value="${image_file}" />',
 			_('Image Type') => '${image_types}',
@@ -305,7 +303,6 @@ class ImageManagementPage extends FOGPage
 				'input' => $input,
 				'image_name' => $Image->get('name'),
 				'image_desc' => $Image->get('description'),
-				'storage_groups' => $this->getClass('StorageGroupManager')->buildSelectBox($Image->getStorageGroup()->isValid() ? $Image->getStorageGroup()->get('id') : ''),
 				'operating_systems' => $this->getClass('OSManager')->buildSelectBox($Image->get('osID')),
 				'image_path' => $StorageNode && $StorageNode->isValid() ? $StorageNode->get('path').'/&nbsp;' : 'No nodes available.',
 				'image_file' => $Image->get('path'),
@@ -482,6 +479,134 @@ class ImageManagementPage extends FOGPage
 		$this->render();
 		print '</form>';
 		print "\n\t\t\t\t</div>";
+		unset($this->data);
+		print "\n\t\t\t\t<!-- Storage Groups with Assigned Image -->";
+		$IAMan = new ImageAssociationManager();
+		$SGMan = new StorageGroupManager();
+		// Get groups with this image assigned
+		foreach((array)$Image->get('storageGroups') AS $Group)
+		{
+			if ($Group && $Group->isValid())
+				$GroupsWithMe[] = $Group->get('id');
+		}
+		// Get all group IDs with an image assigned
+		foreach($IAMan->find() AS $Group)
+		{
+			if ($Group->getStorageGroup() && $Group->getStorageGroup()->isValid() && $Group->getImage()->isValid())
+				$GroupWithAnyImage[] = $Group->getStorageGroup()->get('id');
+		}
+		// Set the values
+		foreach($SGMan->find() AS $Group)
+		{
+			if ($Group && $Group->isValid())
+			{
+				if (!in_array($Group->get('id'),$GroupWithAnyImage))
+					$GroupNotWithImage[] = $Group;
+				if (!in_array($Group->get('id'),$GroupsWithMe))
+					$GroupNotWithMe[] = $Group;
+			}
+		}
+		print "\n\t\t\t\t".'<div id="image-storage">';
+		// Create the header data:
+		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkboxgroup1" class="toggle-checkbox1" />',
+			_('Storage Group Name'),
+		);
+		// Create the template data:
+		$this->templates = array(
+			'<input type="checkbox" name="storagegroup[]" value="${storageGroup_id}" class="toggle-group${check_num}" />',
+			'${storageGroup_name}',
+		);
+		// Create the attributes data:
+		$this->attributes = array(
+			array('class' => 'c', 'width' => 16),
+			array(),
+		);
+		// All groups not with this set as the image
+		foreach((array)$GroupNotWithMe AS $Group)
+		{
+			if ($Group && $Group->isValid())
+			{
+				$this->data[] = array(
+					'storageGroup_id' => $Group->get('id'),
+					'storageGroup_name' => $Group->get('name'),
+					'check_num' => 1,
+				);
+			}
+		}
+		$GroupDataExists = false;
+		if (count($this->data) > 0)
+		{
+			$GroupDataExists = true;
+			$this->HookManager->processEvent('IMAGE_GROUP_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+			print "\n\t\t\t<center>".'<label for="groupMeShow">'._('Check here to see groupss not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow" /></label>';
+			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-storage">';
+			print "\n\t\t\t".'<div id="groupNotInMe">';
+			print "\n\t\t\t".'<h2>'._('Modify group association for').' '.$Image->get('name').'</h2>';
+			print "\n\t\t\t".'<p>'._('Add image to groups').' '.$Image->get('name').'</p>';
+			$this->render();
+			print "</div>";
+		}
+		// Reset the data for the next value
+		unset($this->data);
+		// Create the header data:
+		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkboxgroup2" class="toggle-checkbox2" />',
+			_('Storage Group Name'),
+		);
+		// All groups without an image
+		foreach((array)$GroupNotWithImage AS $Group)
+		{
+			if ($Group && $Group->isValid())
+			{
+				$this->data[] = array(
+					'storageGroup_id' => $Group->get('id'),
+					'storageGroup_name' => $Group->get('name'),
+					'check_num' => '2',
+				);
+			}
+		}
+		if (count($this->data) > 0)
+		{
+			$GroupDataExists = true;
+			$this->HookManager->processEvent('IMAGE_GROUP_NOT_WITH_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+			print "\n\t\t\t".'<label for="groupNoShow">'._('Check here to see groups not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="groupNoShow" id="groupNoShow" /></label>';
+			print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-storage">';
+			print "\n\t\t\t".'<div id="groupNoImage">';
+			print "\n\t\t\t".'<p>'._('Groups below have no image association').'</p>';
+			print "\n\t\t\t".'<p>'._('Assign image to groups').' '.$Image->get('name').'</p>';
+			$this->render();
+			print "\n\t\t\t</div>";
+		}
+		if ($GroupDataExists)
+		{
+			print '</br><input type="submit" value="'._('Add Image to Group(s)').'" />';
+			print "\n\t\t\t</form></center>";
+		}
+		unset($this->data);
+		array_push($this->headerData,_('Remove Group'));
+		array_push($this->templates,'<input type="checkbox" class="delid" onclick="this.form.submit()" name="storagegroup-rm" id="sgdelmem${storageGroup_id}" value="${storageGroup_id}" /><label for="sgdelmem${storageGroup_id}">'.$this->foglang['Delete']);
+		array_push($this->attributes,array());
+		array_splice($this->headerData,0,1);
+		array_splice($this->templates,0,1);
+		array_splice($this->attributes,0,1);
+		foreach((array)$Image->get('storageGroups') AS $Group)
+		{
+			if ($Group && $Group->isValid())
+			{
+				$this->data[] = array(
+					'storageGroup_id' => $Group->get('id'),
+					'storageGroup_name' => $Group->get('name'),
+				);
+			}
+		}
+		// Hook
+		$this->HookManager->processEvent('IMAGE_EDIT_GROUP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		// Output
+		print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-storage">';
+		$this->render();
+		print '</form>';
+		print "\n\t\t\t\t</div>";
 		print "\n\t\t\t</div>";
 	}
 	/** edit_post()
@@ -508,8 +633,8 @@ class ImageManagementPage extends FOGPage
 						throw new Exception('Please choose a different name, this one is reserved for FOG.');
 					if (empty($_REQUEST['file']))
 						throw new Exception('An image file name is required!');
-					if (empty($_REQUEST['storagegroup']))
-						throw new Exception('A Storage Group is required!');
+				/*	if (empty($_REQUEST['storagegroup']))
+						throw new Exception('A Storage Group is required!'); */
 					if (empty($_REQUEST['os']))
 						throw new Exception('An Operating System is required!');
 					if (empty($_REQUEST['imagetype']) && $_REQUEST['imagetype'] != '0')
@@ -525,14 +650,17 @@ class ImageManagementPage extends FOGPage
 						->set('imagePartitionTypeID',	$_REQUEST['imagepartitiontype'])
 						->set('format',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $Image->get('format') )
 						->set('protected', $_REQUEST['protected_image']);
-						$Image->removeGroup($_REQUEST['storagegroup']);
-						$Image->addGroup($_REQUEST['storagegroup']);
 				break;
 				case 'image-host';
 					if ($_REQUEST['host'])
 						$Image->addHost($_REQUEST['host']);
 					if ($_REQUEST['hostdel'])
 						$Image->removeHost($_REQUEST['hostdel']);
+				break;
+				case 'image-storage';
+					$Image->addGroup($_REQUEST['storagegroup']);
+					if ($_REQUEST['storagegroup-rm'])
+						$Image->removeGroup($_REQUEST['storagegroup-rm']);
 				break;
 			}
 			// Save
