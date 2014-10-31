@@ -60,6 +60,9 @@ the event of: BOOT_ITEMS_<titlename>  Replacing titlename to stuff like:
 fog_local or fog_advanced.  The period is replaced with an _ to ensure
 compatibility.
 * Add example hook for BootItem information adjustments in a hook format.
+* Add imageid to task table.  Will be useful for quick, multicast join, etc.
+* Add imageGroupAssoc table to allow images to be assigned to multiple groups.
+This is useful to assign images across groups and have replicator handle them.
 * Move many of the location plugin in the core code to work from hooks
 directly purely from the plugin.
 * Add WOL broadcast address plugin.  This simply tells the fog server where to
