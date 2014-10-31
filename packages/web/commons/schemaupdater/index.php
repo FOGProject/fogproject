@@ -1684,6 +1684,10 @@ $databaseSchema[] = array(
 $databaseSchema[] = array(
 	"ALTER TABLE `".DATABASE_NAME."`.`scheduledTasks` ADD COLUMN `stImageID` INT(11) NOT NULL AFTER `stGroupHostID`",
 );
+// 138
+$databaseSchema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME ."`.`imageGroupAssoc` DROP INDEX `igaImageID`",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
