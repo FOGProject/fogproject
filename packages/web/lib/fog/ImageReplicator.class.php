@@ -56,7 +56,7 @@ class ImageReplicator extends FOGBase
 								$ip = $StorageNodeToSend->get('ip');
 								$remImage = rtrim($StorageNodeToSend->get('path'),'/').'/'.$Image->get('path');
 								$myImage = rtrim($StorageNode->get('path'),'/').'/'.$Image->get('path');
-								$this->outall(sprintf(" * Found image to transfer to %s group(s)",count($Images) - 1));
+								$this->outall(sprintf(" * Found image to transfer to %s group(s)",count($Image->get('storageGroups')) - 1));
 								$this->outall(sprintf(" | Image name: %s",$Image->get('name')));
 								$this->outall(sprintf(" * Syncing: %s",$StorageNodeToSend->get('name')));
 								$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30; mirror -R -vvv --exclude 'dev/' --delete $myImage $remImage; exit\" -u $username,$password $ip 2>&1","r");
