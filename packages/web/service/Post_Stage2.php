@@ -31,7 +31,7 @@ try
 	if ($TaskType->isUpload() && !$StorageNodes)
 		throw new Exception(_('Could not find a Storage Node. Is there one enabled within this Storage Group?'));
 	// Image Name store for logging the image task later.
-	$Image = new Image($Host->get('imageID'));
+	$Image = $Task->getImage();
 	$ImageName = $Image->get('name');
 	// Sets the class for ftp of files and deletion as necessary.
 	$ftp = $GLOBALS['FOGFTP'];
@@ -78,7 +78,6 @@ try
 	foreach($ImagingLogs AS $ImagingLog)
 		$id[] = $ImagingLog->get('id');
 	// Last Uploaded date of image.
-	$Image = $Host->getImage();
 	$Image->set('deployed',date('Y-m-d H:i:s'))->save();
 	// Log
 	$il = new ImagingLog(max($id));
