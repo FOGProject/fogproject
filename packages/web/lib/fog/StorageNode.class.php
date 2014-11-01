@@ -48,7 +48,7 @@ class StorageNode extends FOGController
 		$DateInterval = $this->nice_date('-5 minutes');
 		$NodeFailures = $this->getClass('NodeFailureManager')->find(array(
 			'storageNodeID'	=> $this->get('id'), 
-			'hostID'	=> $Host instanceof Host ? $Host->get('id') : $Host,
+			'hostID'	=> $this->DB->sanitize($Host instanceof Host ? $Host->get('id') : $Host),
 		));
 		foreach($NodeFailures AS $NodeFailure)
 		{

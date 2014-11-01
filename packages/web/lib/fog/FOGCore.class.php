@@ -75,7 +75,7 @@ class FOGCore extends FOGBase
 		global $conn, $currentUser;
 		$uname = "";
 		if ( $currentUser != null )
-			$uname = $currentUser->get('name');
+			$uname = $this->DB->sanitize($currentUser->get('name'));
 		$History = new History(array(
 			'info' => $string,
 			'createdBy' => $uname,
