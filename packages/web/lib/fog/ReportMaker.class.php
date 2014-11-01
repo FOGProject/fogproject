@@ -57,9 +57,8 @@ class ReportMaker
 			exec('mysqldump --opt -u'.DATABASE_USERNAME.' -p"'.DATABASE_PASSWORD.'" -h'.preg_replace('#p:#','',DATABASE_HOST).' '.DATABASE_NAME.' > '.$path.$filename);
 			header('Content-Type: application/octet-stream');
 			header('Content-Disposition: attachment; filename=fog_backup.sql');
-			$backup = readfile($path.$filename);
+			readfile($path.$filename);
 			exec('rm -rf '.$path.$filename);
-			print_r($backup);
 		}
 		else if ($intType === self::FOG_EXPORT_SQL )
 		{

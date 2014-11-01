@@ -93,7 +93,9 @@ class MySQL extends FOGBase
 				$sql = vsprintf($sql, $data);
 			// Query
 			$this->query = $sql;
-			$this->queryResult = $this->link->query($this->query) or $this->FOGCore->debug($this->sqlerror(),$this->query);
+			$this->queryResult = $this->link->prepare($this->query);
+			if ($this->queryResult->execute())
+				$this->queryResult = $this->queryResult->get_result();
 			// INFO
 			$this->FOGCore->info($this->query);
 		}
@@ -148,19 +150,22 @@ class MySQL extends FOGBase
 		try
 		{
 			// Result finished
-			if ($this->result === false)
-				return false;
+			if (preg_match('#delete from#i',$this->query) && $this->result === false)
+				$result = true;
+			else if ($this->result === false)
+				$result = false;
 			// Query failed
 			if ($this->queryResult === false)
-				return false;
+				$result = false;
 			// Return: 'field' if requested and field exists in results, otherwise the raw result
-			return ($field && array_key_exists($field, $this->result) ? $this->result[$field] : $this->result);
+			$result = ($field && array_key_exists($field, $this->result) ? $this->result[$field] : $this->result);
+
 		}
 		catch (Exception $e)
 		{
 			$this->FOGCore->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
-		return false;
+		return $result;
 	}
 	/** select_db($db)
 		Selects the sent database.
