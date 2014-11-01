@@ -1,5 +1,0 @@
-C:\Users\dev-win7\Desktop\src\FOG_SnapinClient\obj\Release\ResolveAssemblyReference.cache
-C:\Users\dev-win7\Desktop\src\FOG_SnapinClient\obj\Release\SnapinClient.dll
-C:\Users\dev-win7\Desktop\src\FOG_SnapinClient\bin\Release\SnapinClient.dll
-C:\Users\dev-win7\Desktop\src\FOG_SnapinClient\bin\Release\AbstractFOGService.dll
-C:\Users\dev-win7\Desktop\src\FOG_SnapinClient\bin\Release\IniReaderObj.dll
