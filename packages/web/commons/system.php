@@ -21,6 +21,7 @@ class System
 	*/
 	private static function default_values()
 	{
+<<<<<<< HEAD
 		(ini_get('date.timezone') ? date_default_timezone_set(ini_get('date.timezone')) : date_default_timezone_set('UTC'));
 <<<<<<< HEAD
 		define('FOG_VERSION', '2519');
@@ -29,6 +30,15 @@ class System
 		define('FOG_VERSION', '2501');
 		define('FOG_SCHEMA', 135);
 >>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
+=======
+		if (ini_get('date.timezone'))
+			date_default_timezone_set(date_default_timezone_get());
+		else
+			date_default_timezone_set('UTC');
+		define('IS_INCLUDED', true);
+		define('FOG_VERSION', '2107');
+		define('FOG_SCHEMA', 113);
+>>>>>>> Update undionly,ipxe files to latest get pull.
 		define('FOG_SVN_REVISION', '$Revision$');
 		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');
 		define('PHP_VERSION_REQUIRED', '5.3.0');
