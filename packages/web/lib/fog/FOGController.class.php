@@ -58,7 +58,7 @@ abstract class FOGController extends FOGBase
 			$this->databaseFieldsFlipped = array_flip($this->databaseFields);
 			// Created By
 			if (array_key_exists('createdBy', $this->databaseFields) && !empty($_SESSION['FOG_USERNAME']))
-				$this->set('createdBy', $this->DB->sanitize($_SESSION['FOG_USERNAME']));
+				$this->set('createdBy', $_SESSION['FOG_USERNAME']);
 			if (array_key_exists('createdTime', $this->databaseFields))
 				$this->set('createdTime', $this->nice_date()->format('Y-m-d H:i:s'));
 			// Add incoming data
@@ -73,7 +73,7 @@ abstract class FOGController extends FOGBase
 			{
 				if ($data === 0 || $data < 0)
 					throw new Exception(sprintf('No data passed, or less than zero, Value: %s', $data));
-				$this->set('id', $this->DB->sanitize($data))->load();
+				$this->set('id', $data)->load();
 			}
 			// Unknown data format
 			else
@@ -197,15 +197,15 @@ abstract class FOGController extends FOGBase
 			{
 				if ($this->get($name) != '')
 				{
-					$insertKeys[] = $this->DB->sanitize($fieldName);
-					$insertValues[] = $this->DB->sanitize($this->get($name));
+					$insertKeys[] = $fieldName;
+					$insertValues[] = $this->get($name);
 				}
 			}
 			// Build update field array using filtered data
 			foreach ($fieldsToUpdate AS $name => $fieldName)
-				$updateData[] = sprintf("`%s` = '%s'", $this->DB->sanitize($fieldName), $this->DB->sanitize($this->get($name)));
+				$updateData[] = sprintf("`%s` = '%s'", $fieldName, $this->get($name));
 			// Force ID to update so ID is returned on DUPLICATE UPDATE - No ID was returning when A) Nothing is inserted (already exists) or B) Nothing is updated (data has not changed)
-			$updateData[] = sprintf("`%s` = LAST_INSERT_ID(%s)", $this->DB->sanitize($this->databaseFields['id']), $this->DB->sanitize($this->databaseFields['id']));
+			$updateData[] = sprintf("`%s` = LAST_INSERT_ID(%s)", $this->databaseFields['id'], $this->databaseFields['id']);
 			// Insert & Update query all-in-one
 			$query = sprintf("INSERT INTO `%s` (`%s`) VALUES ('%s') ON DUPLICATE KEY UPDATE %s",
 				$this->databaseTable,
@@ -247,9 +247,9 @@ abstract class FOGController extends FOGBase
 			{
 				// Multiple values
 				foreach ($this->get($field) AS $fieldValue)
-					$fieldData[] = sprintf("`%s`='%s'", $this->DB->sanitize($this->databaseFields[$field]), $this->DB->sanitize($fieldValue));
+					$fieldData[] = sprintf("`%s`='%s'", $this->databaseFields[$field], $fieldValue);
 				$query = sprintf($this->loadQueryTemplateMultiple,
-					$this->DB->sanitize($this->databaseTable),
+					$this->databaseTable,
 					implode(' OR ', $fieldData)
 				);
 			}
@@ -257,9 +257,9 @@ abstract class FOGController extends FOGBase
 			{
 				// Single value
 				$query = sprintf($this->loadQueryTemplateSingle,
-					$this->DB->sanitize($this->databaseTable),
-					$this->DB->sanitize($this->databaseFields[$field]),
-					$this->DB->sanitize($this->get($field))
+					$this->databaseTable,
+					$this->databaseFields[$field],
+					$this->get($field)
 				);
 			}
 			// Did we find a row in the database?
@@ -293,12 +293,12 @@ abstract class FOGController extends FOGBase
 				throw new Exception(sprintf('Operation field not set: %s', strtoupper($field)));
 			// Query row data
 			$query = sprintf("DELETE FROM `%s` WHERE `%s`='%s'",
-				$this->DB->sanitize($this->databaseTable),
-				$this->DB->sanitize($this->databaseFields[$field]),
-				$this->DB->sanitize($this->get($field))
+				$this->databaseTable,
+				$this->databaseFields[$field],
+				$this->get($field)
 			);
 			// Did we find a row in the database?
-			if (!$queryData = $this->DB->query($query)->fetch()->get())
+			if (!$this->DB->query($query)->fetch())
 				throw new Exception('Failed to delete');
 			// Success
 			return true;
