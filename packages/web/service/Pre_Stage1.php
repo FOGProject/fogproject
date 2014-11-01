@@ -12,6 +12,11 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host->isValid())
 		throw new Exception( _('Invalid Host') );
+<<<<<<< HEAD
+=======
+	$Host->getImage()->set('size','0')->save();
+	// Task for Host
+>>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 	$Task = $Host->get('task');
 	if (!$Task->isValid())
 		throw new Exception( sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'), $MACAddress) );
@@ -99,7 +104,11 @@ try
 			$il = new ImagingLog(array(
 				'hostID' => $Host->get('id'),
 				'start' => $FOGCore->nice_date()->format('Y-m-d H:i:s'),
+<<<<<<< HEAD
 				'image' => $Task->getImage()->get('name'),
+=======
+				'image' => $Host->getImage()->get('name'),
+>>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 				'type' => $_REQUEST['type'],
 			));
 		}

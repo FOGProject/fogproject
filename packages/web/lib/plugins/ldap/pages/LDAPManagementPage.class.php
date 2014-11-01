@@ -211,7 +211,11 @@ class LDAPManagementPage extends FOGPage
 			_('LDAP Server Description') => '<input class="smaller" type="text" name="description" value="${ldap_description}" />',
 			_('LDAP Server Address') => '<input class="smaller" type="text" name="address" value="${ldap_address}" />',
 			_('DN') => '<input class="smaller" type="text" name="DN" value="${ldap_DN}" />',
+<<<<<<< HEAD
 			_('Server Port') => '<input class="smaller" type="text" name="port" value="${ldap_port}" />',
+=======
+			_('DN') => '<input class="smaller" type="text" name="port" value="${ldap_port}" />',
+>>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 			'<input type="hidden" name="update" value="1" />' => '<input type="submit" class="smaller" value="'._('Update').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&id='.$LDAP->get('id').'">';
