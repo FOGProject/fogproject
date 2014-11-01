@@ -53,7 +53,7 @@ abstract class FOGPage extends FOGBase
 		// Set title
 		$this->title = $this->foglang[$this->name];
 		// Make these key's accessible in $this->request
-		$this->request = $this->REQUEST = $_REQUEST;
+		$this->request = $this->REQUEST = $this->DB->sanitize($_REQUEST);
 		$this->REQUEST['id'] = $_REQUEST[$this->id];
 		$this->request['id'] = $_REQUEST[$this->id];
 		// Methods
