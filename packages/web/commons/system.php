@@ -36,9 +36,14 @@ class System
 		else
 			date_default_timezone_set('UTC');
 		define('IS_INCLUDED', true);
+<<<<<<< HEAD
 		define('FOG_VERSION', '2107');
 		define('FOG_SCHEMA', 113);
 >>>>>>> Update undionly,ipxe files to latest get pull.
+=======
+		define('FOG_VERSION', '2315');
+		define('FOG_SCHEMA', 129);
+>>>>>>> Make it so tasks and group page will only schedule tasks if hosts are not in pending state.  Also hide the deploy menu items if the host is pending.
 		define('FOG_SVN_REVISION', '$Revision$');
 		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');
 		define('PHP_VERSION_REQUIRED', '5.3.0');
