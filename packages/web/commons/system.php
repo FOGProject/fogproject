@@ -37,6 +37,9 @@ class System
 			date_default_timezone_set('UTC');
 		define('IS_INCLUDED', true);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Update undionly,ipxe files to latest get pull.
 		define('FOG_VERSION', '2107');
 		define('FOG_SCHEMA', 113);
 >>>>>>> Update undionly,ipxe files to latest get pull.
