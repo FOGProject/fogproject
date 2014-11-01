@@ -1,5 +1,0 @@
-C:\Users\dev-win7\Desktop\src\FOG_ClientUpdater\bin\Release\ClientUpdater.dll
-C:\Users\dev-win7\Desktop\src\FOG_ClientUpdater\bin\Release\AbstractFOGService.dll
-C:\Users\dev-win7\Desktop\src\FOG_ClientUpdater\bin\Release\IniReaderObj.dll
-C:\Users\dev-win7\Desktop\src\FOG_ClientUpdater\obj\Release\ResolveAssemblyReference.cache
-C:\Users\dev-win7\Desktop\src\FOG_ClientUpdater\obj\Release\ClientUpdater.dll
