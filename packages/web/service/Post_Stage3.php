@@ -26,6 +26,44 @@ try
 	$TaskLog = new TaskLog($Task);
 	$TaskLog->set('taskID',$Task->get('id'))->set('taskStateID',$Task->get('stateID'))->set('createdTime',$Task->get('createdTime'))->set('createdBy',$Task->get('createdBy'))->save();
 	if (!$Task->save()) throw new Exception('Failed to update task.');
+	////============================== Email Notification Start ==============================
+	if ($FOGCore->getSetting('FOG_EMAIL_ACTION'))
+	{
+		ini_set('sendmail_path',($FOGCore->getSetting('FOG_EMAIL_BINARY') ? ($FOGCore->getSetting('FOG_EMAIL_BINARY') : '/usr/sbin/sendmail -t -f noreply@fogserver.com -i')));
+		$Inventory = current($FOGCore->getClass('InventoryManager')->find(array('hostID' => $Host->get('id')))); //Get inventory Data
+		$LA = current($FOGCore->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))); //Get Location Data
+		$Location = ($LA ? new Location($LA->get('locationID')) : '');
+		if ($Inventory && $Inventory->isValid())
+		{
+			$SnapinJobs = $FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $Host->get('id'))); //Get Snapin(s) Used/Queued
+			foreach($SnapinJobs AS $SnapinJob)
+			{
+				$SnapinTasks = $FOGCore->getClass('SnapinTaskManager')->find(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id')));
+				foreach($SnapinTasks AS $SnapinTask)
+				{
+					$Snapin = new Snapin($SnapinTask->get('snapinID'));
+					$SnapinNames[] = $Snapin->get('name');
+				}
+			}
+			$snpusd = implode(', ',(array)$SnapinNames); //to list snapins as 1, 2, 3,  etc
+			$engineer = ucwords($Task->get('createdBy')); //ucwords purely aesthetics
+			$puser = ucwords($Inventory->get('primaryUser')); //ucwords purely aesthetics
+			$to = $FOGCore->getSetting('FOG_EMAIL_ADDRESS'); //Email address(es) to be used
+			//$Email - is just the context of the email put in variable saves repeating
+			$email = "Machine Details:-\n\nHostName: " .$Host->get('name'). "\nComputer Model: " .$Inventory->get('sysproduct'). "\nSerial Number: " .$Inventory->get('sysserial'). "\nMAC Address: " .$Host->get('mac'). "\n\nImage Used: " .$ImagingLog->get('image'). "\nSnapin Used: $snpusd\nImaged From: " .$Location->get('name'). "\n\nImaged By (Engineer): $engineer\nImaged For (User): $puser";
+			if (empty($Inventory->get('other1'))) //if there isn't an existing call number in the system
+			{
+				mail($to, $Host->get('name'). " - Image Task Completed", $email);
+			}
+			else
+			{
+				mail($to,"ISSUE=" .$Inventory->get('other1'). " PROJ=1", $email);
+				mail($to, $Host->get('name'). " - Image Task Completed", "$email \nImaged For (Call): " .$Inventory->get('other1'));
+				$Inventory->set('other1','')->save(); //clear call number otherwise if a new "existing" call exists later on down the line it'll just update original
+			}
+		}
+	}
+	////============================== Email Notification End	==============================
 	print '##';
 	// If it's a multicast job, decrement the client count, though not fully needed.
 	if ($Task->get('typeID') == 8)
