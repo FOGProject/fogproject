@@ -1688,6 +1688,17 @@ $databaseSchema[] = array(
 $databaseSchema[] = array(
 	"ALTER TABLE `" . DATABASE_NAME ."`.`imageGroupAssoc` DROP INDEX `igaImageID`",
 );
+// 139
+$databaseSchema[] = array(
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_MEMORY_LIMIT','Default setting is the memory limit set in php.ini.','128','General Settings')",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_EMAIL_ACTION','Enables email reports of image actions as they\'re completed.  Default setting is disabled.','0','FOG Email Settings')",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_EMAIL_ADDRESS','Email address(s) to send the reports to. Multiple emails just separate by comma (e.g. email1@domain.com,email2@domain2.com)','','FOG Email Settings')",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_EMAIL_BINARY','Path and arguments to the emailing binary php should use for the mail function. Default is \'/usr/sbin/sendmail -t -f noreply@fogserver.com -i\'','/usr/sbin/sendmail -t -f noreply@fogserver.com -i','FOG Email Settings')",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
