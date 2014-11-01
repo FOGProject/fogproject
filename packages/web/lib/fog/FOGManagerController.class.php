@@ -314,9 +314,9 @@ abstract class FOGManagerController extends FOGBase
 				foreach ($where AS $field => $value)
 				{
 					if (is_array($value))
-						$whereArray[] = sprintf("`%s` IN ('%s')", $this->key($field), implode("', '", $value));
+						$whereArray[] = sprintf("`%s` IN ('%s')", $this->DB->sanitize($this->key($field)), implode("', '", $value));
 					else
-						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : '='), $value);
+						$whereArray[] = sprintf("`%s` %s '%s'", $this->DB->sanitize($this->key($field)), (preg_match('#%#', $value) ? 'LIKE' : '='), $value);
 				}
 			}
 			// Select all
@@ -331,14 +331,14 @@ abstract class FOGManagerController extends FOGBase
 				$r = new ReflectionClass($this->childClass);
 				$data[] = $r->newInstance($row);
 			}
+			// Return
+			return (array)$data;
 		}
 		catch (Exception $e)
 		{
-			$data = false;
 			$this->debug('Find all failed! Error: %s', array($e->getMessage()));
 		}
-		// Return
-		return ($data ? (array)$data : $data);
+		return false;
 	}
 	/** count($where = array(),$whereOperator = 'AND')
 		Returns the count of the database.
@@ -361,9 +361,9 @@ abstract class FOGManagerController extends FOGBase
 				foreach ($where AS $field => $value)
 				{
 					if (is_array($value))
-						$whereArray[] = sprintf("`%s` IN ('%s')", $this->key($field), implode("', '", $value));
+						$whereArray[] = sprintf("`%s` IN ('%s')", $this->DB->sanitize($this->key($field)), implode("', '", $value));
 					else
-						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : '='), $value);
+						$whereArray[] = sprintf("`%s` %s '%s'", $this->DB->sanitize($this->key($field)), (preg_match('#%#', $value) ? 'LIKE' : '='), $value);
 				}
 			}
 			// Count result rows
