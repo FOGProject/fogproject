@@ -38,6 +38,9 @@ class System
 		define('IS_INCLUDED', true);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Update undionly,ipxe files to latest get pull.
 =======
 >>>>>>> Update undionly,ipxe files to latest get pull.
 		define('FOG_VERSION', '2107');
