@@ -1,0 +1,5 @@
+bin\Release\HostnameChange.dll
+bin\Release\AbstractFOGService.dll
+bin\Release\IniReaderObj.dll
+obj\Release\ResolveAssemblyReference.cache
+obj\Release\HostnameChange.dll

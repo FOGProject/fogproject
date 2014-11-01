@@ -1,0 +1,5 @@
+C:\Users\admin\Desktop\src\FOG_UserTracker\bin\Release\UserTracker.dll
+C:\Users\admin\Desktop\src\FOG_UserTracker\bin\Release\AbstractFOGService.dll
+C:\Users\admin\Desktop\src\FOG_UserTracker\bin\Release\IniReaderObj.dll
+C:\Users\admin\Desktop\src\FOG_UserTracker\obj\Release\ResolveAssemblyReference.cache
+C:\Users\admin\Desktop\src\FOG_UserTracker\obj\Release\UserTracker.dll
