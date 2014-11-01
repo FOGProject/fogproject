@@ -237,8 +237,6 @@ class GroupManagementPage extends FOGPage
 	{
 		// Find
 		$Group = new Group($_REQUEST['id']);
-		// If location is installed.
-		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// If all hosts have the same image setup up the selection.
 		foreach ((array)$Group->get('hosts') AS $Host)
 		{
@@ -253,22 +251,6 @@ class GroupManagementPage extends FOGPage
 		$groupKeyMult = array_filter($groupKeyMult);
 		if (count($imageIDMult) == 1)
 			$imageMatchID = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
-		// For the location plugin.  If all have the same location, setup the selection to let people know.
-		if ($LocPluginInst)
-		{
-			// To set the location similar to the rest of the groups.
-			foreach ((array)$Group->get('hosts') AS $Host)
-			{
-				if ($Host && $Host->isValid())
-				{
-					$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
-					$LA ? $locationID[] = $LA->get('locationID') : null;
-				}
-			}
-			$locationIDMult = (is_array($locationID) ? array_unique($locationID) : $locationID);
-			if (count($locationIDMult) == 1)
-				$locationMatchID = $LA && $LA->isValid() ? $LA->get('locationID') : null;
-		}
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', _('Edit'), $Group->get('name'));
 		// Headerdata
@@ -287,12 +269,12 @@ class GroupManagementPage extends FOGPage
 			_('Group Name') => '<input type="text" name="name" value="${group_name}" />',
 			_('Group Description') => '<textarea name="description" rows="8" cols="40">${group_desc}</textarea>',
 			_('Group Product Key') => '<input id="productKey" type="text" name="key" value="${group_key}" />',
-			($LocPluginInst ? _('Group Location') : null) => ($LocPluginInst ? $this->getClass('LocationManager')->buildSelectBox($locationMatchID) : null),
 			_('Group Kernel') => '<input type="text" name="kern" value="${group_kern}" />',
 			_('Group Kernel Arguments') => '<input type="text" name="args" value="${group_args}" />',
 			_('Group Primary Disk') => '<input type="text" name="dev" value="${group_devs}" />',
 			'<input type="hidden" name="updategroup" value="1" />' => '<input type="submit" value="'._('Update').'" />',
 		);
+		$this->HookManager->processEvent('GROUP_FIELDS',array('fields' => &$fields,'Group' => &$Group));
 		print "\n\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-general">';
 		print "\n\t\t\t".'<input type="hidden" name="'.$this->id.'" value="'.$_REQUEST['id'].'" />';
 		print "\n\t\t\t".'<div id="tab-container">';
@@ -843,31 +825,15 @@ class GroupManagementPage extends FOGPage
 								->set('kernel',		$_REQUEST['kern'])
 								->set('kernelArgs',	$_REQUEST['args'])
 								->set('kernelDevice',	$_REQUEST['dev']);
-								foreach((array)$Group->get('hosts') AS $Host)
-								{
-									if ($Host && $Host->isValid())
-									{
-										$Host->set('kernel',		$_REQUEST['kern'])
-											 ->set('kernelArgs',	$_REQUEST['args'])
-											 ->set('kernelDevice',	$_REQUEST['dev'])
-											 ->set('productKey', $_REQUEST['key'])
-											 ->save();
-									}
-								}
-						// Sets the location for the group.
-						$Location = new Location($_REQUEST['location']);
-						foreach ((array)$Group->get('hosts') AS $Host)
+						foreach((array)$Group->get('hosts') AS $Host)
 						{
 							if ($Host && $Host->isValid())
 							{
-								// Remove all associations
-								$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $Host->get('id')));
-								// Create new association
-								$LA = new LocationAssociation(array(
-									'locationID' => $Location->get('id'),
-									'hostID' => $Host->get('id'),
-								));
-								$LA->save();
+								$Host->set('kernel',		$_REQUEST['kern'])
+									 ->set('kernelArgs',	$_REQUEST['args'])
+									 ->set('kernelDevice',	$_REQUEST['dev'])
+									 ->set('productKey', $_REQUEST['key'])
+									 ->save();
 							}
 						}
 					}
@@ -954,7 +920,7 @@ class GroupManagementPage extends FOGPage
 			if ($Group->save())
 			{
 				// Hook
-				$this->HookManager->processEvent('GROUP_EDIT_SUCCESS', array('host' => &$Group));
+				$this->HookManager->processEvent('GROUP_EDIT_SUCCESS', array('Group' => &$Group));
 				// Log History event
 				$this->FOGCore->logHistory(sprintf('Group updated: ID: %s, Name: %s', $Group->get('id'), $Group->get('name')));
 				// Set session message
