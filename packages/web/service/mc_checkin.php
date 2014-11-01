@@ -51,7 +51,11 @@ try
 			$il = new ImagingLog(array(
 				'hostID' => $Host->get('id'),
 				'start' => $FOGCore->nice_date()->format('Y-m-d H:i:s'),
+<<<<<<< HEAD
 				'image' => $Task->getImage()->get('name'),
+=======
+				'image' => $Host->getImage()->get('name'),
+>>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 				'type' => $_REQUEST['type'],
 			));
 		}

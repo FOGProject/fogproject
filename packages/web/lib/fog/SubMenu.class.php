@@ -41,7 +41,10 @@ class SubMenu extends FOGBase
 								$this->foglang['LastUploaded'] => stripslashes($this->object->get('deployed')),
 								$this->foglang['DeployMethod'] => ($this->object->get('format') == 1 ? 'Partimage' : ($this->object->get('format') == 0 ? 'Partclone' : 'N/A')),
 								$this->foglang['ImageType'] => ($imageType && $imageType->isValid() ? $imageType->get('name') : $this->foglang['NoAvail']),
+<<<<<<< HEAD
 								_('Primary Storage Group') => $this->object->getStorageGroup(),
+=======
+>>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 			);
 		}
 		else if (($this->node == 'printer' || $this->node == 'print') && $_REQUEST['id'])
