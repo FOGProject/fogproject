@@ -1,0 +1,13 @@
+D:\FOG\trunk\FOG Service\OutputDirectory\modules\UserTracker.dll
+D:\FOG\trunk\FOG Service\src\FOG_UserTracker\obj\Debug\ResolveAssemblyReference.cache
+D:\FOG\trunk\FOG Service\src\FOG_UserTracker\obj\Debug\UserTracker.dll
+D:\FOG\trunk\FOG Service\src\build\UserTracker.dll
+C:\Users\FinancedHydra\Desktop\src\build\UserTracker.dll
+C:\Users\FinancedHydra\Desktop\src\FOG_UserTracker\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\FinancedHydra\Desktop\src\FOG_UserTracker\obj\Debug\UserTracker.dll
+D:\fog\FOG Service\src\build\UserTracker.dll
+D:\fog\FOG Service\src\FOG_UserTracker\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOG Service\src\FOG_UserTracker\obj\Debug\UserTracker.dll
+D:\fog\FOGService\src\build\UserTracker.dll
+D:\fog\FOGService\src\FOG_UserTracker\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOG_UserTracker\obj\Debug\UserTracker.dll
