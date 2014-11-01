@@ -48,7 +48,7 @@ class RemoveUpload extends Hook
 		}
 	}
 }
-// Init AddLocation Tasks
+// Init RemoveUpload Tasks
 $RemoveUpload = new RemoveUpload();
 // Register hooks
 $HookManager->register('HOST_DATA', array($RemoveUpload, 'UploadData'));
