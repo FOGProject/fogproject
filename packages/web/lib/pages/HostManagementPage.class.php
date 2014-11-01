@@ -29,14 +29,13 @@ class HostManagementPage extends FOGPage
 	{
 		// Call parent constructor
 		parent::__construct($name);
-		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// Header row
 		$this->headerData = array(
 			'',
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkbox" checked="checked" />',
 			($_SESSION['FOGPingActive'] ? '' : null),
 			_('Host Name'),
-			($LocPluginInst ? _('Location/Deployed') : _('Deployed')),
+			_('Deployed'),
 			_('Task'),
 			_('Edit/Remove'),
 			_('Image'),
@@ -47,7 +46,7 @@ class HostManagementPage extends FOGPage
 			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host" checked="checked" />',
 			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-			($LocPluginInst ? '${location}<br/><small>${deployed}</small>' : '<small>${deployed}</small>'),
+			'<small>${deployed}</small>',
 			'<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${host_id}"><span class="icon icon-download" title="Download"></span></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${host_id}"><span class="icon icon-upload" title="Upload"></span></a> <a href="?node=host&sub=deploy&type=8&id=${host_id}"><span class="icon icon-multicast" title="Multi-cast"></span></a> <a href="?node=host&sub=edit&id=${host_id}#host-tasks"><span class="icon icon-deploy" title="Deploy"></span></a>',
 			'<a href="?node=host&sub=edit&id=${host_id}"><span class="icon icon-edit" title="Edit"></span></a> <a href="?node=host&sub=delete&id=${host_id}"><span class="icon icon-delete" title="Delete"></span></a>',
 			'${image_name}',
@@ -72,15 +71,11 @@ class HostManagementPage extends FOGPage
 	{
 		// Set title
 		$this->title = $this->foglang['AllHosts'];
-		// Get location if enabled:
-		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// Find data -> Push data
 		foreach ($this->getClass('HostManager')->find() AS $Host)
 		{
 			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{
-				$LA = ($LocPluginInst ? current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
-				$Location = ($LA ? new Location($LA->get('locationID')) : '');
 				$this->data[] = array(
 					'host_id'	=> $Host->get('id'),
 					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
@@ -88,7 +83,6 @@ class HostManagementPage extends FOGPage
 					'host_mac'	=> $Host->get('mac')->__toString(),
 					'host_desc'  => $Host->get('description'),
 					'image_name' => $Host->getImage()->get('name'),
-					'location' => ($Location && $Location->isValid() ? $Location->get('name') : ''),
 				);
 			}
 		}
@@ -121,7 +115,6 @@ class HostManagementPage extends FOGPage
 	*/
 	public function search_post()
 	{
-		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Find data -> Push data
@@ -130,8 +123,6 @@ class HostManagementPage extends FOGPage
 		{
 			if ($Host && $Host->isValid())
 			{
-				$LA = ($LocPluginInst ? current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
-				$Location = ($LA ? new Location($LA->get('locationID')) : '');
 				$this->data[] = array(
 					'host_id'	=> $Host->get('id'),
 					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
@@ -139,7 +130,6 @@ class HostManagementPage extends FOGPage
 					'host_mac'	=> $Host->get('mac')->__toString(),
 					'host_desc'  => $Host->get('description'),
 					'image_name' => $Host->getImage()->get('name'),
-					'location' => ($Location && $Location->isValid() ? $Location->get('name') : ''),
 				);
 			}
 		}
@@ -236,9 +226,9 @@ class HostManagementPage extends FOGPage
 	*/
 	public function add()
 	{
-		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 		// Set title
 		$this->title = _('New Host');
+		unset($this->data);
 		// Header template
 		$this->headerData = '';
 		// Row templates
@@ -257,7 +247,6 @@ class HostManagementPage extends FOGPage
 			_('Host Description') => '<textarea name="description" rows="8" cols="40">${host_desc}</textarea>',
 			_('Host Product Key') => '<input id="productKey" type="text" name="key" value="${host_key}" />',
 			_('Host Image') => '${host_image}',
-			($LocPluginInst ? _('Host Location') : '') => ($LocPluginInst ? '${host_locs}' : ''),
 			_('Host Kernel') => '<input type="text" name="kern" value="${host_kern}" />',
 			_('Host Kernel Arguments') => '<input type="text" name="args" value="${host_args}" />',
 			_('Host Primary Disk') => '<input type="text" name="dev" value="${host_devs}" />',
@@ -273,7 +262,8 @@ class HostManagementPage extends FOGPage
 		);
 		print "\n\t\t\t<h2>"._('Add new host definition').'</h2>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-		foreach ((array)$fields AS $field => $input)
+		$this->HookManager->processEvent('HOST_FIELDS', array('fields' => &$fields));
+		foreach ($fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -286,11 +276,10 @@ class HostManagementPage extends FOGPage
 				'host_args' => $_REQUEST['args'],
 				'host_devs' => $_REQUEST['dev'],
 				'host_key' => $_REQUEST['key'],
-				'host_locs' => ($LocPluginInst ? $this->getClass('LocationManager')->buildSelectBox($_REQUEST['location']) : ''),
 			);
 		}
 		// Hook
-		$this->HookManager->processEvent('HOST_ADD_GEN', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes, 'fields' => &$fields));
+		$this->HookManager->processEvent('HOST_ADD_GEN', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes,'fields' => &$fields));
 		// Output
 		$this->render();
 		// unset for use later.
@@ -356,7 +345,6 @@ class HostManagementPage extends FOGPage
 				throw new Exception(_('A host with this MAC already exists with Hostname: ').$Host->get('name'));
 			if ($this->getClass('HostManager')->exists($_REQUEST['host']))
 				throw new Exception(_('Hostname already exists'));
-			$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
 			// Get all the service id's so they can be enabled.
 			foreach($this->getClass('ModuleManager')->find() AS $Module)
 				$ModuleIDs[] = $Module->get('id');
@@ -385,22 +373,11 @@ class HostManagementPage extends FOGPage
 				'ADPass'	=> $password,
 				'productKey' => base64_encode($_REQUEST['key']),
 			));
-			if ($LocPluginInst && $LocPluginInst->isValid())
-			{
-				$LA = new LocationAssociation(array(
-					'locationID' => $_REQUEST['location'],
-					'hostID' => $Host->get('id'),
-				));
-			}
-			else
-				$LA = '';
 			// Save to database
 			if ($Host->save())
 			{
 				$Host->addModule($ModuleIDs);
 				$Host->addPriMAC(new MACAddress($_REQUEST['mac']));
-				if($LA)
-					$LA->save();
 				// Hook
 				$this->HookManager->processEvent('HOST_ADD_SUCCESS', array('Host' => &$Host));
 				// Log History event
@@ -435,10 +412,6 @@ class HostManagementPage extends FOGPage
 		// Inventory find for host.
 		$Inventory = $Host->get('inventory');
 		// Get the associated Groups.
-		// Location Find for host.
-		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
-		$LA = ($LocPluginInst ? current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
-		$Location = ($LA ? new Location($LA->get('locationID')) : '');
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', 'Edit', $Host->get('name'));
 		if ($_REQUEST['approveHost'])
@@ -503,7 +476,7 @@ class HostManagementPage extends FOGPage
 		}
 		if ($pending != null && $pending != '')
 			$pending .= '<div>'._('Approve All MACs?').'<a href="${link}&approveAll=1"><span class="icon icon-tick"></span></a></div>';
-		$genFields = array(
+		$fields = array(
 			_('Host Name') => '<input type="text" name="host" value="${host_name}" maxlength="15" class="hostname-input" />*',
 			_('Primary MAC') => '<input type="text" name="mac" id="mac" value="${host_mac}" />*<span id="priMaker"></span><span class="icon icon-add add-mac hand" title="'._('Add MAC').'"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="${host_mac}" '.$Host->clientMacCheck().' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="${host_mac}" '.$Host->imageMacCheck().'/></span><br/><span class="mac-manufactor"></span>',
 			'<span id="additionalMACsRow">'._('Additional MACs').'</span>' => '<span id="additionalMACsCell">'.$addMACs.'</span>',
@@ -511,28 +484,28 @@ class HostManagementPage extends FOGPage
 			_('Host Description') => '<textarea name="description" rows="8" cols="40">${host_desc}</textarea>',
 			_('Host Product Key') => '<input id="productKey" type="text" name="key" value="${host_key}" />',
 			_('Host Image') => '${host_image}',
-			($LocPluginInst ? _('Host Location') : '') => ($LocPluginInst ? '${host_locs}' : ''),
 			_('Host Kernel') => '<input type="text" name="kern" value="${host_kern}" />',
 			_('Host Kernel Arguments') => '<input type="text" name="args" value="${host_args}" />',
 			_('Host Primary Disk') => '<input type="text" name="dev" value="${host_devs}" />',
 			'&nbsp' => '<input type="submit" value="'._('Update').'" />',
 		);
+		$this->HookManager->processEvent('HOST_FIELDS',array('fields' => &$fields));
 		print "\n\t\t\t".'<div id="tab-container">';
 		print "\n\t\t\t<!-- General -->";
 		print "\n\t\t\t".'<div id="host-general">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-general">';
 		print "\n\t\t\t<h2>"._('Edit host definition').'</h2>';
-		foreach((array)$genFields AS $field => $input)
+		foreach($fields AS $field => $input)
 		{
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
+				'host_id' => $Host->get('id'),
 				'host_name' => $Host->get('name'),
 				'host_mac' => $Host->get('mac'),
 				'link' => $this->formAction,
 				'host_desc' => $Host->get('description'),
 				'host_image' => $this->getClass('ImageManager')->buildSelectBox($Host->get('imageID')),
-				'host_locs' => ($LocPluginInst ? $this->getClass('LocationManager')->buildSelectBox($LA && $LA->isValid() ? $LA->get('locationID') : '') : ''),
 				'host_kern' => $Host->get('kernel'),
 				'host_args' => $Host->get('kernelArgs'),
 				'host_devs' => $Host->get('kernelDevice'),
@@ -1242,7 +1215,7 @@ class HostManagementPage extends FOGPage
 			'${snapin_return}',
 		);
 		$SnapinJobs = $this->getClass('SnapinJobManager')->find(array('hostID' => $Host->get('id')));
-		foreach($SnapinJobs AS $SnapinJob)
+		foreach((array)$SnapinJobs AS $SnapinJob)
 			$SnapinTasks[] = $this->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id')));
 		foreach((array)$SnapinTasks AS $SnapinTask1)
 		{
@@ -1335,21 +1308,6 @@ class HostManagementPage extends FOGPage
 							$DelMAC = new MACAddress($MAC);
 							$Host->removeAddMAC($DelMAC);
 						}
-					}
-					// Only one association per host.
-					$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
-					if ((!$LA || !$LA->isValid()) && $_REQUEST['location'])
-					{
-						$Location = new Location($_REQUEST['location']);
-						$LA = new LocationAssociation(array(
-							'locationID' => $Location->get('id'),
-							'hostID' => $Host->get('id'),
-						));
-					}
-					else if ($LA && $LA->isValid() && $_REQUEST['location']) 
-					{
-						if ($LA->get('locationID') != $_REQUEST['location'])
-							$LA->set('locationID', $_REQUEST['location']);
 					}
 				break;
 				case 'host-grouprel';
@@ -1455,7 +1413,7 @@ class HostManagementPage extends FOGPage
 				if ($LA)
 					$LA->save();
 				// Hook
-				$this->HookManager->processEvent('HOST_EDIT_SUCCESS', array('host' => &$Host));
+				$this->HookManager->processEvent('HOST_EDIT_SUCCESS', array('Host' => &$Host));
 				// Log History event
 				$this->FOGCore->logHistory('Host updated: ID: '.$Host->get('id').', Name: '.$Host->get('name').', Tab: '.$this->REQUEST['tab']);
 				// Set session message
@@ -1561,20 +1519,7 @@ class HostManagementPage extends FOGPage
 						{
 							$Host->addModule($ModuleIDs);
 							$Host->addPriMAC($data[0]);
-							$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
-							if ($LocPluginInst && $LocPluginInst->isValid())
-							{
-								$LA = new LocationAssociation(array(
-									'locationID' => $data[5],
-									'hostID' => $Host->get('id'),
-								));
-							}
-							else
-								$LA = '';
-							if($LA)
-							{
-								$LA->save();
-							}
+							$this->HookManager->processEvent('HOST_IMPORT',array('data' => &$data,'Host' => &$Host));
 							$numSuccess++;
 						}
 						else
@@ -1624,7 +1569,7 @@ class HostManagementPage extends FOGPage
 			);
 		} 
 		// Hook
-		$this->HookManager->processEvent('HOST_IMPORT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		$this->HookManager->processEvent('HOST_IMPORT_FIELDS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
 	}
@@ -1661,6 +1606,7 @@ class HostManagementPage extends FOGPage
 				$report->addCSVCell($Host->get('ip'));
 				$report->addCSVCell($Host->get('description'));
 				$report->addCSVCell($Host->get('imageID'));
+				$this->HookManager('HOST_EXPORT_REPORT',array('report' => &$report,'Host' => &$Host));
 				$report->endCSVLine();
 			}
 		}

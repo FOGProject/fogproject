@@ -882,7 +882,7 @@ class FOGConfigurationPage extends FOGPage
 					print "\n\t\t\t<h2>"._('File Import successful!').'</h2>';
 				else
 					throw new Exception('Could not upload file!');
-				exec('mysql -u' . DATABASE_USERNAME . ' -p' . DATABASE_PASSWORD . ' -h'.DATABASE_HOST.' '.DATABASE_NAME.' < '.$dbFileName);
+				exec('mysql -u' . DATABASE_USERNAME . ' -p' . DATABASE_PASSWORD . ' -h'.preg_replace('#p:#','',DATABASE_HOST).' '.DATABASE_NAME.' < '.$dbFileName);
 				print "\n\t\t\t<h2>"._('Database Added!').'</h2>';
 				exec('rm -rf '.$dbFileName);
 			}

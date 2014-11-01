@@ -13,14 +13,8 @@ try
 	$Task = $Host->get('task');
 	// If the task is Valid and is not of type 12 or 13 report that it's waiting for other tasks.
 	if ($Task && $Task->isValid() && $Task->get('typeID') != 12 && $Task->get('typeID') != 13) throw new Exception('#!it');
-	//If there's more than one SnapinJob for the same host remove others as they shouldn't exist anyway. Only use the most recent.
-	foreach((array)$Host->get('snapinjob') AS $SnapinJob)
-		$SnapinJob && $SnapinJob->isValid() ? $IDs[] = $SnapinJob->get('id') : null;
-	$IDs ? $ID = max((array)$IDs) : null;
-	foreach((array)$Host->get('snapinjob') AS $SnapinJob)
-		$SnapinJob && $SnapinJob->isValid() && $SnapinJob->get('id') != $ID ? $SnapinJob->set('stateID', 2)->save() : null;
-	$SnapinJob = $ID > 0 ? new SnapinJob($ID) : null;
 	//Get the snapin job. There should be tasks if the Job is still viable.
+	$SnapinJob = $Host->get('snapinjob');
 	if (!$SnapinJob || !$SnapinJob->isValid()) throw new Exception('#!ns');
 	// Work on the current Snapin Task.
 	$SnapinTask = current($FOGCore->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id'),'stateID' => array(-1,0,1)),'','name'));
