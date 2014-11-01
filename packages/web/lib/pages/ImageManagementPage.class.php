@@ -303,6 +303,10 @@ class ImageManagementPage extends FOGPage
 				'input' => $input,
 				'image_name' => $Image->get('name'),
 				'image_desc' => $Image->get('description'),
+<<<<<<< HEAD
+=======
+				'storage_groups' => $this->getClass('StorageGroupManager')->buildSelectBox($Image->get('storageGroupID')),
+>>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 				'operating_systems' => $this->getClass('OSManager')->buildSelectBox($Image->get('osID')),
 				'image_path' => $StorageNode && $StorageNode->isValid() ? $StorageNode->get('path').'/&nbsp;' : 'No nodes available.',
 				'image_file' => $Image->get('path'),
@@ -476,6 +480,7 @@ class ImageManagementPage extends FOGPage
 		$this->HookManager->processEvent('IMAGE_EDIT_HOST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-host">';
+<<<<<<< HEAD
 		$this->render();
 		print '</form>';
 		print "\n\t\t\t\t</div>";
@@ -604,6 +609,8 @@ class ImageManagementPage extends FOGPage
 		$this->HookManager->processEvent('IMAGE_EDIT_GROUP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-storage">';
+=======
+>>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 		$this->render();
 		print '</form>';
 		print "\n\t\t\t\t</div>";

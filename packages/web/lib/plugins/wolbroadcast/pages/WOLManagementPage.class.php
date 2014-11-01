@@ -1,12 +1,20 @@
 <?php
 /**	Class Name: WOLManagementPage
     FOGPage lives in: {fogwebdir}/lib/fog
+<<<<<<< HEAD
     Lives in: {fogwebdir}/lib/plugins/wolbroadcast/pages
 
 	Description: This is an extension of the FOGPage Class
     This class controls wol broadcast addresses you want 
 	FOG to associate with.  
 	It's only enabled if the plugin is installed.
+=======
+    Lives in: {fogwebdir}/lib/plugins/location/pages
+
+	Description: This is an extension of the FOGPage Class
+    This class controls locations you want FOG to associate
+	with.  It's only enabled if the plugin is installed.
+>>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
  
     Useful for:
     Setting up clients that may move from sight to sight.
@@ -85,7 +93,11 @@ class WOLManagementPage extends FOGPage
 	{
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
+<<<<<<< HEAD
 		// To assist with finding wol broadcasts.
+=======
+		// To assist with finding by storage group or location.
+>>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 		$where = array(
 		    'id'		=> $keyword,
 			'name'		=> $keyword,
