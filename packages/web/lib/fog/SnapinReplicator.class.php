@@ -35,6 +35,43 @@ class SnapinReplicator extends FOGBase
 					if ($OtherNode->get('id') != $StorageNode->get('id') && $OtherNode->get('isEnabled'))
 						$StorageNodeCount[] = $OtherNode;
 				}
+				// Try to get the snapins based on this group
+				$SnapinAssocs = $this->getClass('SnapinGroupAssociationManager')->find(array('storageGroupID' => $StorageNode->get('storageGroupID')));
+				foreach($SnapinAssocs AS $SnapinAssoc)
+				{
+					if ($SnapinAssoc && $SnapinAssoc->isValid())
+						$Snapins[] = $SnapinAssoc->getSnapin();
+				}
+				foreach($Snapins AS $Snapin)
+				{
+					foreach($Snapin->get('storageGroups') AS $GroupToSend)
+					{
+						if ($GroupToSend && $GroupToSend->isValid() && $GroupToSend->get('id') != $StorageNode->get('storageGroupID'))
+						{
+							$StorageNodeToSend = $GroupToSend->getMasterStorageNode();
+							if ($StorageNodeToSend && $StorageNodeToSend->isValid())
+							{
+								$username = $StorageNodeToSend->get('user');
+								$password = $StorageNodeToSend->get('pass');
+								$ip = $StorageNodeToSend->get('ip');
+								$remSnapin = rtrim($StorageNodeToSend->get('path'),'/').'/'.$Snapin->get('file');
+								$mySnapin = rtrim($StorageNode->get('path'),'/').'/'.$Snapin->get('file');
+								$this->outall(sprintf(" * Found snapin to transfer to %s group(s)",count($Snapin->get('storageGroups')) -1));
+								$this->outall(sprintf(" | Snapin name: %s",$Snapin->get('name')));
+								$this->outall(sprintf(" * Syncing: %s",$StorageNodeToSend->get('name')));
+								$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30; mirror -n --ignore-time -R -vvv --delete $mySnapin $remSnapin; exit\" -u $username,$password $ip 2>&1","r");
+								while(!feof($process) && $process != null)
+								{
+									$output = fgets($process,256);
+									$this->outall(sprintf(" * SubProcess -> %s",$output));
+								}
+								pclose($process);
+								$this->outall(sprintf(" * SubProcess -> Complete"));
+							}
+						}
+					}
+				}
+				$this->outall(sprintf(" * Checking nodes within my group."));
 				if (count($StorageNodeCount) > 0)
 				{
 					$this->outall(sprintf(" * Found: %s other member(s).",count($StorageNodeCount)));
