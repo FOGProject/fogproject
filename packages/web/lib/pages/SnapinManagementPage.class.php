@@ -643,7 +643,7 @@ class SnapinManagementPage extends FOGPage
 					// Error checking
 					if ($_REQUEST['snapin'] || $_FILES['snapin']['name'])
 					{
-						if (!$Snapin->get('storageGroupID'))
+						if (!$Snapin->getStorageGroup())
 						{
 							$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
 							if(!file_exists($this->FOGCore->getSetting('FOG_SNAPINDIR')))
