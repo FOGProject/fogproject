@@ -539,7 +539,7 @@ class ImageManagementPage extends FOGPage
 		{
 			$GroupDataExists = true;
 			$this->HookManager->processEvent('IMAGE_GROUP_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-			print "\n\t\t\t<center>".'<label for="groupMeShow">'._('Check here to see groupss not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow" /></label>';
+			print "\n\t\t\t<center>".'<label for="groupMeShow">'._('Check here to see groups not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow" /></label>';
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-storage">';
 			print "\n\t\t\t".'<div id="groupNotInMe">';
 			print "\n\t\t\t".'<h2>'._('Modify group association for').' '.$Image->get('name').'</h2>';
@@ -580,7 +580,7 @@ class ImageManagementPage extends FOGPage
 		}
 		if ($GroupDataExists)
 		{
-			print '</br><input type="submit" value="'._('Add Image to Group(s)').'" />';
+			print '<br/><input type="submit" value="'._('Add Image to Group(s)').'" />';
 			print "\n\t\t\t</form></center>";
 		}
 		unset($this->data);
