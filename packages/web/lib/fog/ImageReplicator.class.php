@@ -22,24 +22,7 @@ class ImageReplicator extends FOGBase
 		$StorageNode = current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1, 'ip' => $this->FOGCore->getIPAddress())));
 		try
 		{
-<<<<<<< HEAD
 			if ($StorageNode)
-=======
-		if ($StorageNode)
-		{
-			$this->FOGCore->out(' * I am the group manager.',$this->dev);
-			$this->FOGCore->wlog(' * I am the group manager.','/opt/fog/log/groupmanager.log');
-			$this->outall(" * Starting Image Replication.");
-			$this->outall(sprintf(" * We are group ID: #%s",$StorageNode->get('storageGroupID')));
-			$this->outall(sprintf(" * We have node ID: #%s",$StorageNode->get('id')));
-			$StorageNodes = $this->getClass('StorageNodeManager')->find(array('storageGroupID' => $StorageNode->get('storageGroupID')));
-			foreach($StorageNodes AS $OtherNode)
-			{
-				if ($OtherNode->get('id') != $StorageNode->get('id') && $OtherNode->get('isEnabled'))
-					$StorageNodeCount[] = $OtherNode;
-			}
-			if (count($StorageNodeCount) > 0)
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 			{
 				$this->FOGCore->out(' * I am the group manager.',$this->dev);
 				$this->FOGCore->wlog(' * I am the group manager.','/opt/fog/log/groupmanager.log');

@@ -124,6 +124,17 @@ class AddLocationHost extends Hook
 		if ($plugin && $plugin->isValid())
 			$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $arguments['Host']->get('id')));
 	}
+	public function HostEmailHook($arguments)
+	{
+		$plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
+		{
+			$LA = current((array)$this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id'))));
+			if ($LA && $LA->isValid())
+				$Location = new Location($LA->get('locationID'));
+			$arguments['email'] = $this->array_insert_after("\nSnapin Used: ",$arguments['email'],"\nImaged From (Location): ",($Location && $Location->isValid() ? $Location->get('name') : ''));
+		}
+	}
 }
 $AddLocationHost = new AddLocationHost();
 // Register hooks
@@ -137,3 +148,4 @@ $HookManager->register('HOST_EDIT_SUCCESS', array($AddLocationHost, 'HostAddLoca
 $HookManager->register('HOST_IMPORT', array($AddLocationHost, 'HostImport'));
 $HookManager->register('HOST_EXPORT_REPORT', array($AddLocationHost, 'HostExport'));
 $HookManager->register('DESTROY_HOST', array($AddLocationHost, 'HostDestroy'));
+$HookManager->register('EMAIL_ITEMS', array($AddLocationHost, 'HostEmailHook'));

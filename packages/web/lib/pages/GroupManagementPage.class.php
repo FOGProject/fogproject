@@ -237,11 +237,6 @@ class GroupManagementPage extends FOGPage
 	{
 		// Find
 		$Group = new Group($_REQUEST['id']);
-<<<<<<< HEAD
-=======
-		// If location is installed.
-		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 		// If all hosts have the same image setup up the selection.
 		foreach ((array)$Group->get('hosts') AS $Host)
 		{
@@ -256,25 +251,6 @@ class GroupManagementPage extends FOGPage
 		$groupKeyMult = array_filter($groupKeyMult);
 		if (count($imageIDMult) == 1)
 			$imageMatchID = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
-<<<<<<< HEAD
-=======
-		// For the location plugin.  If all have the same location, setup the selection to let people know.
-		if ($LocPluginInst)
-		{
-			// To set the location similar to the rest of the groups.
-			foreach ((array)$Group->get('hosts') AS $Host)
-			{
-				if ($Host && $Host->isValid())
-				{
-					$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
-					$LA ? $locationID[] = $LA->get('locationID') : null;
-				}
-			}
-			$locationIDMult = (is_array($locationID) ? array_unique($locationID) : $locationID);
-			if (count($locationIDMult) == 1)
-				$locationMatchID = $LA && $LA->isValid() ? $LA->get('locationID') : null;
-		}
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', _('Edit'), $Group->get('name'));
 		// Headerdata
@@ -293,10 +269,6 @@ class GroupManagementPage extends FOGPage
 			_('Group Name') => '<input type="text" name="name" value="${group_name}" />',
 			_('Group Description') => '<textarea name="description" rows="8" cols="40">${group_desc}</textarea>',
 			_('Group Product Key') => '<input id="productKey" type="text" name="key" value="${group_key}" />',
-<<<<<<< HEAD
-=======
-			($LocPluginInst ? _('Group Location') : null) => ($LocPluginInst ? $this->getClass('LocationManager')->buildSelectBox($locationMatchID) : null),
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 			_('Group Kernel') => '<input type="text" name="kern" value="${group_kern}" />',
 			_('Group Kernel Arguments') => '<input type="text" name="args" value="${group_args}" />',
 			_('Group Primary Disk') => '<input type="text" name="dev" value="${group_devs}" />',
@@ -857,22 +829,11 @@ class GroupManagementPage extends FOGPage
 						{
 							if ($Host && $Host->isValid())
 							{
-<<<<<<< HEAD
 								$Host->set('kernel',		$_REQUEST['kern'])
 									 ->set('kernelArgs',	$_REQUEST['args'])
 									 ->set('kernelDevice',	$_REQUEST['dev'])
 									 ->set('productKey', $_REQUEST['key'])
 									 ->save();
-=======
-								// Remove all associations
-								$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $Host->get('id')));
-								// Create new association
-								$LA = new LocationAssociation(array(
-									'locationID' => $Location->get('id'),
-									'hostID' => $Host->get('id'),
-								));
-								$LA->save();
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 							}
 						}
 					}
