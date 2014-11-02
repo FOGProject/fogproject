@@ -74,7 +74,7 @@ class AddLocationHost extends Hook
 		{
 			if ($_REQUEST['node'] == 'host')
 			{
-				if ($_REQUEST['location'] == 0)
+				if ($_REQUEST['tab'] == 'host-general' && !$_REQUEST['location'])
 					$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $arguments['Host']->get('id')));
 				$Location = new Location($_REQUEST['location']);
 				if ($Location && $Location->isValid())
