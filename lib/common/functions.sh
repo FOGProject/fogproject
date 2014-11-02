@@ -235,7 +235,7 @@ configureSnapins()
 	if [ -d "$snapindir" ]
 	then
 		chmod 755 $snapindir;
-		chown ${apacheuser} ${snapindir};
+		chown -R fog:${apacheuser} ${snapindir};
 		echo "...OK";	
 	else
 		echo "...Failed!";
