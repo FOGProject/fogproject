@@ -314,6 +314,7 @@ do
 					echo "";
 					read -p "  Press [Enter] key when database is updated/installed.";
 				fi
+				echo "";
 			    #restoreReports;
 			    configureStorage;
 	            configureNFS;
