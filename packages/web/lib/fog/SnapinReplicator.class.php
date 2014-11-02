@@ -74,15 +74,18 @@ class SnapinReplicator extends FOGBase
 								}
 							}
 						}
-						$this->outall(sprintf(" * Checking nodes within my group."));
-						if (count($StorageNodeCount) > 0)
+					}
+					$this->outall(sprintf(" * Checking nodes within my group."));
+					if (count($StorageNodeCount) > 0)
+					{
+						$this->outall(sprintf(" * Found: %s other member(s).",count($StorageNodeCount)));
+						$this->outall(sprintf(''));
+						$myRoot = rtrim($StorageNode->get('snapinpath'),'/');
+						$this->outall(sprintf(" * My root: %s",$myRoot));
+						$this->outall(sprintf(" * Starting Sync."));
+						foreach($StorageNodeCount AS $StorageNodeFTP)
 						{
-							$this->outall(sprintf(" * Found: %s other member(s).",count($StorageNodeCount)));
-							$this->outall(sprintf(''));
-							$myRoot = rtrim($StorageNode->get('snapinpath'),'/');
-							$this->outall(sprintf(" * My root: %s",$myRoot));
-							$this->outall(sprintf(" * Starting Sync."));
-							foreach($StorageNodeCount AS $StorageNodeFTP)
+							foreach($Snapins AS $Snapin)
 							{
 								if ($StorageNodeFTP->get('isEnabled'))
 								{
@@ -103,9 +106,9 @@ class SnapinReplicator extends FOGBase
 								}
 							}
 						}
-						else
-							$this->outall(sprintf(" * I am the only member, no need to copy anything!"));
 					}
+					else
+						$this->outall(sprintf(" * I am the only member, no need to copy anything!"));
 				}
 				else
 					$this->outall(sprintf(" * There are no snapins to replicate!"));
