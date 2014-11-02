@@ -42,6 +42,11 @@ class MySQL extends FOGBase
 		if (!$this->link)
 			return;
 		$this->link = null;
+		$this->result = null;
+		$this->queryResult->close();
+		$this->queryResult->free_result();
+		$this->queryResult->free();
+		$this->queryResult = null;
 		return;
 	}
 	/** close()
@@ -63,10 +68,9 @@ class MySQL extends FOGBase
 	{
 		try
 		{
-		/*	if ($this->link)
+			if ($this->link)
 				$this->close();
-			else*/
-			if (!$this->link)
+			else if (!$this->link)
 				$this->link = new mysqli($this->host, $this->user, $this->pass);
 			if (!$this->link)
 				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s', $this->host, $this->user, '[Protected]', $this->dbname));
@@ -93,7 +97,7 @@ class MySQL extends FOGBase
 				$sql = vsprintf($sql, $data);
 			// Query
 			$this->query = $sql;
-			$this->queryResult = $this->link->query($this->query) or $this->FOGCore->debug($this->sqlerror(),$this->query);
+			$this->queryResult = $this->link->query($this->query);
 			// INFO
 			$this->FOGCore->info($this->query);
 		}
