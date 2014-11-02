@@ -74,7 +74,10 @@ class SnapinReplicator extends FOGBase
 								}
 							}
 						}
-						$this->outall(sprintf(" * Checking nodes within my group."));
+					}
+					$this->outall(sprintf(" * Checking nodes within my group."));
+					foreach($Snapins AS $Snapin)
+					{
 						if (count($StorageNodeCount) > 0)
 						{
 							$this->outall(sprintf(" * Found: %s other member(s).",count($StorageNodeCount)));
