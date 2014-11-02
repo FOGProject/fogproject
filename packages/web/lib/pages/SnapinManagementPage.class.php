@@ -230,11 +230,11 @@ class SnapinManagementPage extends FOGPage
 				'reboot'		=> (isset($_REQUEST['reboot']) ? 1 : 0 ),
 				'runWith'		=> $_REQUEST['rw'],
 				'runWithArgs'	=> $_REQUEST['rwa'],
-				'storageGroupID' => $_REQUEST['storagegroup'],
 			));
 			// Save
 			if ($Snapin->save())
 			{
+				$Snapin->addGroup($_REQUEST['storagegroup'])->save();
 				// Hook
 				$this->HookManager->processEvent('SNAPIN_ADD_SUCCESS', array('Snapin' => &$Snapin));
 				// Log History event
@@ -640,8 +640,6 @@ class SnapinManagementPage extends FOGPage
 				case 'snap-gen';
 					// SnapinManager
 					$SnapinManager = $this->getClass('SnapinManager');
-					if (!$_REQUEST['storagegroup'])
-						throw new Exception(_('Please select a group to place the Snapin on'));
 					// Error checking
 					if ($_REQUEST['snapin'] || $_FILES['snapin']['name'])
 					{
