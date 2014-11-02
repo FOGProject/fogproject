@@ -53,7 +53,7 @@ try
 			$engineer = ucwords($Task->get('createdBy')); //ucwords purely aesthetics
 			$puser = ucwords($Inventory->get('primaryUser')); //ucwords purely aesthetics
 			$to = $FOGCore->getSetting('FOG_EMAIL_ADDRESS'); //Email address(es) to be used
-			$headers = 'From: noreply@${server-name}.com'."\r\n".
+			$headers = 'From: '.$FOGCore->getSetting('FOG_FROM_EMAIL')."\r\n".
 					   'X-Mailer: PHP/'.phpversion();
 			$headers = preg_replace('#\$\{server-name\}#',($StorageNode && $StorageNode->isValid() ? $StorageNode->get('name') : 'fogserver'),$headers);
 			//$Email - is just the context of the email put in variable saves repeating
