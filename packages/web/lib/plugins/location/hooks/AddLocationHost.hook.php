@@ -132,7 +132,7 @@ class AddLocationHost extends Hook
 			$LA = current((array)$this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id'))));
 			if ($LA && $LA->isValid())
 				$Location = new Location($LA->get('locationID'));
-			$arguments['email'] = $this->array_insert_after("\nSnapin Used: ",$arguments['emails'],"\nImaged From (Location): ",($Location && $Location->isValid() ? $Location->get('name') : ''));
+			$arguments['email'] = $this->array_insert_after("\nSnapin Used: ",$arguments['email'],"\nImaged From (Location): ",($Location && $Location->isValid() ? $Location->get('name') : ''));
 		}
 	}
 }
@@ -148,3 +148,4 @@ $HookManager->register('HOST_EDIT_SUCCESS', array($AddLocationHost, 'HostAddLoca
 $HookManager->register('HOST_IMPORT', array($AddLocationHost, 'HostImport'));
 $HookManager->register('HOST_EXPORT_REPORT', array($AddLocationHost, 'HostExport'));
 $HookManager->register('DESTROY_HOST', array($AddLocationHost, 'HostDestroy'));
+$HookManager->register('EMAIL_ITEMS', array($AddLocationHost, 'HostEmailHook'));
