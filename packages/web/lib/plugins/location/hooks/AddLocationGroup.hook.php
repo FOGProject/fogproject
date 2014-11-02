@@ -37,11 +37,11 @@ class AddLocationGroup extends Hook
 			{
 				foreach($arguments['Group']->get('hosts') AS $Host)
 				{
-					if ($_REQUEST['location'] == 0)
-						$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $Host->get('id')));
-					$Location = new Location($_REQUEST['location']);
 					if ($Host && $Host->isValid())
 					{
+						if ($_REQUEST['tab'] == 'group-general' && !$_REQUEST['location'])
+							$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $Host->get('id')));
+						$Location = new Location($_REQUEST['location']);
 						if ($Location && $Location->isValid())
 						{
 							$LA = current((array)$this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
