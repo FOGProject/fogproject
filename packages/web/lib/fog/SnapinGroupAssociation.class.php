@@ -2,7 +2,7 @@
 /** \class SnapinAssociation
 	Builds all the Snapin class attributes.  The way it pulls data from the database.
 */
-class SnapinAssociation extends FOGController
+class SnapinGroupAssociation extends FOGController
 {
 	// Table
 	public $databaseTable = 'snapinGroupAssoc';
