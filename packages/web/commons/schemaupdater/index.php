@@ -1701,6 +1701,19 @@ $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	 values('FOG_FROM_EMAIL','Email from address. Default is fogserver.  \$\{server-name\} is set to the node name.','noreply@\$\{server-name\}.com','FOG Email Settings')",
 );
+// 140
+$databaseSchema[] = array(
+	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME . "`.`snapinGroupAssoc` (
+	  `sgaID` mediumint(9) NOT NULL auto_increment,
+	  `sgaSnapinID` mediumint(9) NOT NULL,
+	  `sgaStorageGroupID` mediumint(9) NOT NULL,
+	  PRIMARY KEY  (`sgaID`)
+	) ENGINE=MyISAM;",
+	"INSERT INTO `" . DATABASE_NAME ."`.`snapinGroupAssoc` (`sgaSnapinID`,`sgaStorageGroupID`) SELECT `sID`,`snapinNFSGroupID` FROM `".DATABASE_NAME."`.`snapins` WHERE `snapinNFSGroupID` IS NOT NULL",
+	"ALTER TABLE `" . DATABASE_NAME ."`.`snapins` DROP COLUMN `snapinNFSGroupID`",
+	"ALTER IGNORE TABLE `" .DATABASE_NAME ."`.`snapinGroupAssoc` ADD UNIQUE INDEX `sgaSnapinID` (`sgaSnapinID`)",
+	"ALTER TABLE `" . DATABASE_NAME ."`.`snapinGroupAssoc` DROP INDEX `sgaSnapinID`",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
