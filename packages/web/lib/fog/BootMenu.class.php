@@ -549,7 +549,6 @@ class BootMenu extends FOGBase
 	*/
 	public function setTasking($imgID = '')
 	{
-<<<<<<< HEAD
 		if ($imgID)
 			$this->Host->set('imageID',$imgID);
 		if ($this->Host->getImage()->isValid())
@@ -568,10 +567,6 @@ class BootMenu extends FOGBase
 			$this->parseMe($Send);
 			$this->chainBoot();
 		}
-=======
-		if($this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,'ipxe'))
-			$this->chainBoot(false, true);
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 	}
 	/**
 	* noMenu()
@@ -616,11 +611,7 @@ class BootMenu extends FOGBase
 				if ($MulticastSession && $MulticastSession->isValid())
 					$this->Host->set('imageID',$MulticastSession->get('image'));
 			}
-<<<<<<< HEAD
 			$Image = $Task->getImage();
-=======
-			$Image = $this->Host->getImage();
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 			$StorageGroup = $Image->getStorageGroup();
 			$StorageNode = $StorageGroup->getOptimalStorageNode();
 			$this->HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$this->Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));

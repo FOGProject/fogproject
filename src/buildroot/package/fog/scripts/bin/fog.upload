@@ -270,6 +270,7 @@ EOFRESTOREPART
 				fi
 				if [ -d "$imagePath" ]; then
 					savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$hasgpt" "$have_extended_partition" "$imgPartitionType"
+					debugPause
 					parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
 					diskLength=`expr length $disk`;
 					for part in $parts; do

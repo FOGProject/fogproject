@@ -1,0 +1,22 @@
+H:\trunk\FOG Service\src\FOG Service\bin\Release\FOGService.exe
+H:\trunk\FOG Service\src\FOG Service\bin\Release\AbstractFOGService.dll
+H:\trunk\FOG Service\src\FOG Service\bin\Release\IniReaderObj.dll
+H:\trunk\FOG Service\src\FOG Service\bin\Release\System.Configuration.Install.dll
+H:\trunk\FOG Service\src\FOG Service\bin\Release\System.Management.dll
+H:\trunk\FOG Service\src\FOG Service\obj\Debug\ResolveAssemblyReference.cache
+H:\trunk\FOG Service\src\FOG Service\obj\Debug\FOGService.csproj.ResolveComReference.cache
+H:\trunk\FOG Service\src\FOG Service\obj\Debug\FOG.FogService.resources
+H:\trunk\FOG Service\src\FOG Service\obj\Debug\Dist88ServiceManager.ProjectInstaller.resources
+H:\trunk\FOG Service\src\FOG Service\obj\Debug\FOGService.csproj.GenerateResource.Cache
+H:\trunk\FOG Service\src\FOG Service\obj\Debug\FOGService.exe
+C:\Users\dev-win7\Desktop\src\FOG Service\bin\Release\FOGService.exe
+C:\Users\dev-win7\Desktop\src\FOG Service\bin\Release\AbstractFOGService.dll
+C:\Users\dev-win7\Desktop\src\FOG Service\bin\Release\IniReaderObj.dll
+C:\Users\dev-win7\Desktop\src\FOG Service\bin\Release\System.Configuration.Install.dll
+C:\Users\dev-win7\Desktop\src\FOG Service\bin\Release\System.Management.dll
+C:\Users\dev-win7\Desktop\src\FOG Service\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\dev-win7\Desktop\src\FOG Service\obj\Debug\FOGService.csproj.ResolveComReference.cache
+C:\Users\dev-win7\Desktop\src\FOG Service\obj\Debug\FOG.FogService.resources
+C:\Users\dev-win7\Desktop\src\FOG Service\obj\Debug\Dist88ServiceManager.ProjectInstaller.resources
+C:\Users\dev-win7\Desktop\src\FOG Service\obj\Debug\FOGService.csproj.GenerateResource.Cache
+C:\Users\dev-win7\Desktop\src\FOG Service\obj\Debug\FOGService.exe
