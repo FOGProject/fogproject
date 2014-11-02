@@ -34,7 +34,7 @@ try
 		// Allow plugins to enact against this. (e.g. location)
 		$HookManager->processEvent('SNAPIN_NODE',array('Host' => &$Host,'StorageNode' => &$StorageNode));
 		if ($StorageNode && $StorageNode->isValid())
-			$SnapinFile = "ftp://".$StorageNode->get('user').":".$StorageNode->get('pass')."@".$StorageNode->get('ip').rtrim($StorageNode->get('snapinpath'),'/').'/'.$Snapin->get('file');
+			$SnapinFile = "ftp://".$StorageNode->get('user').":".$StorageNode->get('pass')."@".$StorageNode->get('ip').'/'.ltrim(rtrim($StorageNode->get('snapinpath'),'/'),'/').'/'.$Snapin->get('file');
 	}
 	// If it exists and is readable send it!
 	if (file_exists($SnapinFile) && is_readable($SnapinFile))
