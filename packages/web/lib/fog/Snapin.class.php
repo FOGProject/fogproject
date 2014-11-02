@@ -25,6 +25,7 @@ class Snapin extends FOGController
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
 		'hosts',
+		'storageGroups',
 	);
 
 	// Overides
@@ -41,11 +42,26 @@ class Snapin extends FOGController
 		}
 		return $this;
 	}
+	private function loadGroups()
+	{
+		if (!$this->isLoaded('storageGroups'))
+		{
+			if ($this->get('id'))
+			{
+				$Groups = $this->getClass('SnapinGroupAssociationManager')->find(array('snapinID' => $this->get('id')));
+				foreach ($Groups AS $Group)
+					$this->add('storageGroups', $Group->getStorageGroup());
+			}
+		}
+		return $this;
+	}
 
 	public function get($key = '')
 	{
 		if ($this->key($key) == 'hosts')
 			$this->loadHosts();
+		if ($this->key($key) == 'storageGroups')
+			$this->loadGroups();
 		return parent::get($key);
 	}
 
@@ -55,6 +71,12 @@ class Snapin extends FOGController
 		{
 			foreach((array)$value AS $Host)
 				$newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
+			$value = (array)$newValue;
+		}
+		else if ($this->key($key) == 'storageGroups')
+		{
+			foreach((array)$value AS $Group)
+				$newValue[] = ($Group instanceof StorageGroup ? $Group : new Group($Group));
 			$value = (array)$newValue;
 		}
 		// Set
@@ -68,6 +90,11 @@ class Snapin extends FOGController
 			$this->loadHosts();
 			$value = new Host($value);
 		}
+		else if ($this->key($key) == 'storageGroups' && !($value instanceof StorageGroup)
+		{
+			$this->loadGroups();
+			$value = new StorageGroup($value);
+		}
 		// Add
 		return parent::add($key, $value);
 	}
@@ -76,6 +103,8 @@ class Snapin extends FOGController
 	{
 		if ($this->key($key) == 'hosts')
 			$this->loadHosts();
+		else if ($this->key($key) == 'storageGroups')
+			$this->loadGroups();
 		// Remove
 		return parent::remove($key, $object);
 	}
@@ -100,6 +129,23 @@ class Snapin extends FOGController
 				}
 			}
 		}
+		if ($this->isLoaded('storageGroups'))
+		{
+			// Remove old rows
+			$this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID' => $this->get('id')));
+			// Create Assoc
+			foreach((array)$this->get('storageGroups') AS $Group)
+			{
+				if (($Group instanceof StorageGroup) && $Group->isValid())
+				{
+					$NewGroup = new SnapinGroupAssociation(array(
+						'snapinID' => $this->get('id'),
+						'storageGroupID' => $Group->get('id'),
+					));
+					$NewGroup->save();
+				}
+			}
+		}
 		return $this;
 	}
 
@@ -111,7 +157,16 @@ class Snapin extends FOGController
 		// Return
 		return $this;
 	}
-	
+
+	public function addGroup($addArray)
+	{
+		// Add
+		foreach((array)$addArray AS $item)
+			$this->add('storageGroups',$item);
+		// Return
+		return $this;
+	}
+
 	public function removeHost($removeArray)
 	{
 		// Iterate array (or other as array)
@@ -120,6 +175,24 @@ class Snapin extends FOGController
 		// Return
 		return $this;
 	}
+
+	public function removeGroup($removeArray)
+	{
+		// Iterate array (or other as array)
+		foreach((array)$removeArray AS $remove)
+			$this->remove('storageGroups', ($remove instanceof StorageGroup ? $remove : new StorageGroup((int)$remove)));
+		// Return
+		return $this;
+	}
+
+	public function getStorageGroup()
+	{
+		$StorageGroup = current($this->get('storageGroups'));
+		if (!$StorageGroup || !$StorageGroup->isValid())
+			throw new Exception(__class__.' '._('does not have a storage group assigned').'.');
+		return $StorageGroup;
+	}
+
 	public function destroy($field = 'id')
 	{
 		// Remove all associations
@@ -129,6 +202,7 @@ class Snapin extends FOGController
 			$this->getClass('SnapinJobManager')->destroy(array('jobID' => $SnapJob->get('jobID')));
 			$SnapJob->destroy();
 		}
+		$this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID' => $this->get('id')));
 		// Return
 		return parent::destroy($field);
 	}
