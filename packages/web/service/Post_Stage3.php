@@ -46,13 +46,16 @@ try
 					}
 				}
 			}
-			$StorageNode = $FOGCore->getClass('StorageGroup',$Task->get('storageGroupID'))->getMasterStorageNode();
-			$emailbinary = ($FOGCore->getSetting('FOG_EMAIL_BINARY') ? preg_replace('#${server-name}#',($StorageNode && $StorageNode->isValid() ? $StorageNode->get('name') : 'fogserver'),$FOGCore->getSetting('FOG_EMAIL_BINARY')) : '/usr/sbin/sendmail -t -f noreply@fogserver.com -i');
+			$StorageNode = new StorageNode($Task->get('NFSMemberID'));
+			$emailbinary = ($FOGCore->getSetting('FOG_EMAIL_BINARY') ? preg_replace('#\$\{server-name\}#',($StorageNode && $StorageNode->isValid() ? $StorageNode->get('name') : 'fogserver'),$FOGCore->getSetting('FOG_EMAIL_BINARY')) : '/usr/sbin/sendmail -t -f noreply@fogserver.com -i');
 			ini_set('sendmail_path',$emailbinary);
 			$snpusd = implode(', ',(array)$SnapinNames); //to list snapins as 1, 2, 3,  etc
 			$engineer = ucwords($Task->get('createdBy')); //ucwords purely aesthetics
 			$puser = ucwords($Inventory->get('primaryUser')); //ucwords purely aesthetics
 			$to = $FOGCore->getSetting('FOG_EMAIL_ADDRESS'); //Email address(es) to be used
+			$headers = 'From: noreply@${server-name}.com'."\r\n".
+					   'X-Mailer: PHP/'.phpversion();
+			$headers = preg_replace('#\$\{server-name\}#',($StorageNode && $StorageNode->isValid() ? $StorageNode->get('name') : 'fogserver'),$headers);
 			//$Email - is just the context of the email put in variable saves repeating
 			$email = array(
 				"Machine Details:-\n" => '',
@@ -74,12 +77,12 @@ try
 			$email = $emailMe;
 			if (empty($Inventory->get('other1'))) //if there isn't an existing call number in the system
 			{
-				mail($to, $Host->get('name'). " - Image Task Completed", $email);
+				mail($to, $Host->get('name'). " - Image Task Completed", $email,$headers);
 			}
 			else
 			{
-				mail($to,"ISSUE=" .$Inventory->get('other1'). " PROJ=1", $email);
-				mail($to, $Host->get('name'). " - Image Task Completed", "$email \nImaged For (Call): " .$Inventory->get('other1'));
+				mail($to,"ISSUE=" .$Inventory->get('other1'). " PROJ=1", $email, $headers);
+				mail($to, $Host->get('name'). " - Image Task Completed", "$email \nImaged For (Call): " .$Inventory->get('other1'),$headers);
 				$Inventory->set('other1','')->save(); //clear call number otherwise if a new "existing" call exists later on down the line it'll just update original
 			}
 		}
