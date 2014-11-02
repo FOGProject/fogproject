@@ -37,36 +37,39 @@ class SnapinReplicator extends FOGBase
 				}
 				// Try to get the snapins based on this group
 				$SnapinAssocs = $this->getClass('SnapinGroupAssociationManager')->find(array('storageGroupID' => $StorageNode->get('storageGroupID')));
-				foreach($SnapinAssocs AS $SnapinAssoc)
+				if ($SnapinAssocs)
 				{
-					if ($SnapinAssoc && $SnapinAssoc->isValid())
-						$Snapins[] = $SnapinAssoc->getSnapin();
-				}
-				foreach($Snapins AS $Snapin)
-				{
-					foreach($Snapin->get('storageGroups') AS $GroupToSend)
+					foreach($SnapinAssocs AS $SnapinAssoc)
 					{
-						if ($GroupToSend && $GroupToSend->isValid() && $GroupToSend->get('id') != $StorageNode->get('storageGroupID'))
+						if ($SnapinAssoc && $SnapinAssoc->isValid())
+							$Snapins[] = $SnapinAssoc->getSnapin();
+					}
+					foreach($Snapins AS $Snapin)
+					{
+						foreach($Snapin->get('storageGroups') AS $GroupToSend)
 						{
-							$StorageNodeToSend = $GroupToSend->getMasterStorageNode();
-							if ($StorageNodeToSend && $StorageNodeToSend->isValid())
+							if ($GroupToSend && $GroupToSend->isValid() && $GroupToSend->get('id') != $StorageNode->get('storageGroupID'))
 							{
-								$username = $StorageNodeToSend->get('user');
-								$password = $StorageNodeToSend->get('pass');
-								$ip = $StorageNodeToSend->get('ip');
-								$remSnapin = rtrim($StorageNodeToSend->get('path'),'/').'/'.$Snapin->get('file');
-								$mySnapin = rtrim($StorageNode->get('path'),'/').'/'.$Snapin->get('file');
-								$this->outall(sprintf(" * Found snapin to transfer to %s group(s)",count($Snapin->get('storageGroups')) -1));
-								$this->outall(sprintf(" | Snapin name: %s",$Snapin->get('name')));
-								$this->outall(sprintf(" * Syncing: %s",$StorageNodeToSend->get('name')));
-								$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30; mirror -n --ignore-time -R -vvv --delete $mySnapin $remSnapin; exit\" -u $username,$password $ip 2>&1","r");
-								while(!feof($process) && $process != null)
+								$StorageNodeToSend = $GroupToSend->getMasterStorageNode();
+								if ($StorageNodeToSend && $StorageNodeToSend->isValid())
 								{
-									$output = fgets($process,256);
-									$this->outall(sprintf(" * SubProcess -> %s",$output));
+									$username = $StorageNodeToSend->get('user');
+									$password = $StorageNodeToSend->get('pass');
+									$ip = $StorageNodeToSend->get('ip');
+									$remSnapin = rtrim($StorageNodeToSend->get('path'),'/').'/'.$Snapin->get('file');
+									$mySnapin = rtrim($StorageNode->get('path'),'/').'/'.$Snapin->get('file');
+									$this->outall(sprintf(" * Found snapin to transfer to %s group(s)",count($Snapin->get('storageGroups')) -1));
+									$this->outall(sprintf(" | Snapin name: %s",$Snapin->get('name')));
+									$this->outall(sprintf(" * Syncing: %s",$StorageNodeToSend->get('name')));
+									$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30; mirror -n --ignore-time -R -vvv --delete $mySnapin $remSnapin; exit\" -u $username,$password $ip 2>&1","r");
+									while(!feof($process) && $process != null)
+									{
+										$output = fgets($process,256);
+										$this->outall(sprintf(" * SubProcess -> %s",$output));
+									}
+									pclose($process);
+									$this->outall(sprintf(" * SubProcess -> Complete"));
 								}
-								pclose($process);
-								$this->outall(sprintf(" * SubProcess -> Complete"));
 							}
 						}
 					}
