@@ -282,6 +282,7 @@ class SubMenu extends FOGBase
 			{
 				$this->subMenu[$this->node]['id'][$linkformat.'#snap-gen'] = $this->foglang['General'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#snap-host'] = $this->foglang['Host'];
+				$this->subMenu[$this->node]['id'][$linkformat.'#snap-storage'] = $this->foglang['Storage'].' '.$this->foglang['Group'];
 				$this->subMenu[$this->node]['id'][$delformat] = $this->foglang['Delete'];
 			}
 		}
