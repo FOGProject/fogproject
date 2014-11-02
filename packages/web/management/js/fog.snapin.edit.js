@@ -23,9 +23,9 @@ $(function() {
 		$('#groupNoSnapin').toggle();
 	});
 	$('.toggle-checkbox1').click(function() {
-		$('input.toggle-group1:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+		$('input.toggle-snapin1:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
 	});
 	$('.toggle-checkbox2').click(function() {
-		$('input.toggle-group2:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+		$('input.toggle-snapin2:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
 	});
 });
