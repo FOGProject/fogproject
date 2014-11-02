@@ -1,0 +1,46 @@
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\WindowsApplication1\bin\Debug\FOGServiceConfig.exe
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\WindowsApplication1\bin\Debug\FOGServiceConfig.pdb
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\WindowsApplication1\bin\Debug\AbstractFOGService.dll
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\WindowsApplication1\bin\Debug\IniReaderObj.dll
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\WindowsApplication1\obj\Debug\ResolveAssemblyReference.cache
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\WindowsApplication1\obj\Debug\FOG.FrmSetup.resources
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\WindowsApplication1\obj\Debug\FOG.Properties.Resources.resources
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\WindowsApplication1\obj\Debug\FOGSetup.csproj.GenerateResource.Cache
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\WindowsApplication1\obj\Debug\FOGServiceConfig.exe
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\WindowsApplication1\obj\Debug\FOGServiceConfig.pdb
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\bin\Debug\FOGServiceConfig.exe
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\bin\Debug\FOGServiceConfig.pdb
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\obj\Debug\ResolveAssemblyReference.cache
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\obj\Debug\FOG.FrmSetup.resources
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\obj\Debug\FOG.Properties.Resources.resources
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\obj\Debug\FOGSetup.csproj.GenerateResource.Cache
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\obj\Debug\FOGServiceConfig.exe
+D:\FOG\trunk\FOG Service\src\FOGServiceConfiguration\obj\Debug\FOGServiceConfig.pdb
+D:\FOG\trunk\FOG Service\src\build\FOGServiceConfig.exe
+D:\FOG\trunk\FOG Service\src\build\FOGServiceConfig.pdb
+C:\Users\FinancedHydra\Desktop\src\build\FOGServiceConfig.exe
+C:\Users\FinancedHydra\Desktop\src\build\FOGServiceConfig.pdb
+C:\Users\FinancedHydra\Desktop\src\FOGServiceConfiguration\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\FinancedHydra\Desktop\src\FOGServiceConfiguration\obj\Debug\FOG.FrmSetup.resources
+C:\Users\FinancedHydra\Desktop\src\FOGServiceConfiguration\obj\Debug\FOG.Properties.Resources.resources
+C:\Users\FinancedHydra\Desktop\src\FOGServiceConfiguration\obj\Debug\FOGSetup.csproj.GenerateResource.Cache
+C:\Users\FinancedHydra\Desktop\src\FOGServiceConfiguration\obj\Debug\FOGServiceConfig.exe
+C:\Users\FinancedHydra\Desktop\src\FOGServiceConfiguration\obj\Debug\FOGServiceConfig.pdb
+C:\Users\FinancedHydra\Desktop\src\FOGServiceConfiguration\bin\Debug\FOGServiceConfig.exe
+C:\Users\FinancedHydra\Desktop\src\FOGServiceConfiguration\bin\Debug\FOGServiceConfig.pdb
+D:\fog\FOG Service\src\build\FOGServiceConfig.exe
+D:\fog\FOG Service\src\build\FOGServiceConfig.pdb
+D:\fog\FOG Service\src\FOGServiceConfiguration\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOG Service\src\FOGServiceConfiguration\obj\Debug\FOG.FrmSetup.resources
+D:\fog\FOG Service\src\FOGServiceConfiguration\obj\Debug\FOG.Properties.Resources.resources
+D:\fog\FOG Service\src\FOGServiceConfiguration\obj\Debug\FOGSetup.csproj.GenerateResource.Cache
+D:\fog\FOG Service\src\FOGServiceConfiguration\obj\Debug\FOGServiceConfig.exe
+D:\fog\FOG Service\src\FOGServiceConfiguration\obj\Debug\FOGServiceConfig.pdb
+D:\fog\FOGService\src\build\FOGServiceConfig.exe
+D:\fog\FOGService\src\build\FOGServiceConfig.pdb
+D:\fog\FOGService\src\FOGServiceConfiguration\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOGServiceConfiguration\obj\Debug\FOG.FrmSetup.resources
+D:\fog\FOGService\src\FOGServiceConfiguration\obj\Debug\FOG.Properties.Resources.resources
+D:\fog\FOGService\src\FOGServiceConfiguration\obj\Debug\FOGSetup.csproj.GenerateResource.Cache
+D:\fog\FOGService\src\FOGServiceConfiguration\obj\Debug\FOGServiceConfig.exe
+D:\fog\FOGService\src\FOGServiceConfiguration\obj\Debug\FOGServiceConfig.pdb

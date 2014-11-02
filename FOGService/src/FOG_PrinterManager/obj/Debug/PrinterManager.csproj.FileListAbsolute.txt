@@ -1,0 +1,15 @@
+D:\FOG\trunk\FOG Service\src\FOG_PrinterManager\bin\Release\PrinterManager.dll
+D:\FOG\trunk\FOG Service\src\FOG_PrinterManager\bin\Release\AbstractFOGService.dll
+D:\FOG\trunk\FOG Service\src\FOG_PrinterManager\bin\Release\IniReaderObj.dll
+D:\FOG\trunk\FOG Service\src\FOG_PrinterManager\obj\Debug\ResolveAssemblyReference.cache
+D:\FOG\trunk\FOG Service\src\FOG_PrinterManager\obj\Debug\PrinterManager.dll
+D:\FOG\trunk\FOG Service\src\build\PrinterManager.dll
+C:\Users\FinancedHydra\Desktop\src\build\PrinterManager.dll
+C:\Users\FinancedHydra\Desktop\src\FOG_PrinterManager\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\FinancedHydra\Desktop\src\FOG_PrinterManager\obj\Debug\PrinterManager.dll
+D:\fog\FOG Service\src\build\PrinterManager.dll
+D:\fog\FOG Service\src\FOG_PrinterManager\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOG Service\src\FOG_PrinterManager\obj\Debug\PrinterManager.dll
+D:\fog\FOGService\src\build\PrinterManager.dll
+D:\fog\FOGService\src\FOG_PrinterManager\obj\Debug\ResolveAssemblyReference.cache
+D:\fog\FOGService\src\FOG_PrinterManager\obj\Debug\PrinterManager.dll

@@ -1,0 +1,7 @@
+C:\wamp\www\fog-sf\FOG Service\src\AbstractFogService\obj\Release\AbstractFOGService.csprojResolveAssemblyReference.cache
+C:\wamp\www\fog-sf\FOG Service\src\AbstractFogService\obj\Release\AbstractFOGService.csproj.ResolveComReference.cache
+C:\wamp\www\fog-sf\FOG Service\src\AbstractFogService\obj\Release\FOG.FrmUI.resources
+C:\wamp\www\fog-sf\FOG Service\src\AbstractFogService\obj\Release\FOG.Properties.Resources.resources
+C:\wamp\www\fog-sf\FOG Service\src\AbstractFogService\obj\Release\AbstractFOGService.csproj.GenerateResource.Cache
+C:\wamp\www\fog-sf\FOG Service\src\AbstractFogService\obj\Release\AbstractFOGService.dll
+C:\wamp\www\fog-sf\FOG Service\OutputDirectory\modules\AbstractFOGService.dll

@@ -633,6 +633,7 @@ class FOGConfigurationPage extends FOGPage
 			'FOG_TASK_FORCE_REBOOT',
 			'FOG_NEW_CLIENT',
 			'FOG_AES_ENCRYPT',
+			'FOG_EMAIL_ACTION',
 		);
 		// Set title
 		$this->title = _("FOG System Settings");
@@ -759,7 +760,9 @@ class FOGConfigurationPage extends FOGPage
 		foreach ((array)$key AS $key)
 		{
 			$Service = new Service($key);
-			if ($Service->get('name') == 'FOG_QUICKREG_IMG_ID' && empty($_REQUEST[$key]))
+			if ($Service->get('name') == 'FOG_MEMORY_LIMIT' && ($_REQUEST[$key] < 128 || !is_numeric($_REQUEST[$key])))
+				$Service->set('value',128)->save();
+			else if ($Service->get('name') == 'FOG_QUICKREG_IMG_ID' && empty($_REQUEST[$key]))
 				$Service->set('value',-1)->save();
 			else if ($Service->get('name') == 'FOG_USER_VALIDPASSCHARS')
 				$Service->set('value',addslashes($_REQUEST[$key]))->save();

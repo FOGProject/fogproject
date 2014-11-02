@@ -1,0 +1,5 @@
+C:\Users\dev-win7\Desktop\src\FOG_HostRegister\bin\Release\HostRegister.dll
+C:\Users\dev-win7\Desktop\src\FOG_HostRegister\bin\Release\AbstractFOGService.dll
+C:\Users\dev-win7\Desktop\src\FOG_HostRegister\bin\Release\IniReaderObj.dll
+C:\Users\dev-win7\Desktop\src\FOG_HostRegister\obj\Release\ResolveAssemblyReference.cache
+C:\Users\dev-win7\Desktop\src\FOG_HostRegister\obj\Release\HostRegister.dll

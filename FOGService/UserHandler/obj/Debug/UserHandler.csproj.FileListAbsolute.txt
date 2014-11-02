@@ -1,5 +1,0 @@
-D:\fog\FOGService\UserHandler\obj\Debug\ResolveAssemblyReference.cache
-D:\fog\FOGService\bin\Debug\UserHandler.dll
-D:\fog\FOGService\bin\Debug\UserHandler.pdb
-D:\fog\FOGService\UserHandler\obj\Debug\UserHandler.dll
-D:\fog\FOGService\UserHandler\obj\Debug\UserHandler.pdb

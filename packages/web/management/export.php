@@ -3,6 +3,7 @@ require_once('../commons/base.inc.php');
 if ( $_SESSION["foglastreport"] != null )
 {
 	$report = unserialize($_SESSION["foglastreport"]);
+	$report->setFileName($_REQUEST['filename']);
 	if ($_REQUEST["type"] == "csv")
 		$report->outputReport(ReportMaker::FOG_REPORT_CSV);
 	else if ( $_REQUEST["type"] == "pdf" )

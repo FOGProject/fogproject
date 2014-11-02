@@ -1,3 +1,0 @@
-D:\fog\FOGService\bin\Release\AbstractService.dll
-D:\fog\FOGService\AbstractService\obj\Release\ResolveAssemblyReference.cache
-D:\fog\FOGService\AbstractService\obj\Release\AbstractService.dll
