@@ -16,7 +16,6 @@ class Snapin extends FOGController
 		'createdTime'	=> 'sCreateDate',
 		'createdBy'	=> 'sCreator',
 		'reboot'	=> 'sReboot',
-		'storageGroupID' => 'snapinNFSGroupID',
 		'runWith'	=> 'sRunWith',
 		'runWithArgs'	=> 'sRunWithArgs',
 		'anon3'		=> 'sAnon3'
@@ -90,7 +89,7 @@ class Snapin extends FOGController
 			$this->loadHosts();
 			$value = new Host($value);
 		}
-		else if ($this->key($key) == 'storageGroups' && !($value instanceof StorageGroup)
+		else if ($this->key($key) == 'storageGroups' && !($value instanceof StorageGroup))
 		{
 			$this->loadGroups();
 			$value = new StorageGroup($value);
@@ -188,8 +187,8 @@ class Snapin extends FOGController
 	public function getStorageGroup()
 	{
 		$StorageGroup = current($this->get('storageGroups'));
-		if (!$StorageGroup || !$StorageGroup->isValid())
-			throw new Exception(__class__.' '._('does not have a storage group assigned').'.');
+		/*if (!$StorageGroup || !$StorageGroup->isValid())
+			throw new Exception(__class__.' '._('does not have a storage group assigned').'.');*/
 		return $StorageGroup;
 	}
 
@@ -205,13 +204,6 @@ class Snapin extends FOGController
 		$this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID' => $this->get('id')));
 		// Return
 		return parent::destroy($field);
-	}
-	public function getStorageGroup()
-	{
-		$StorageGroup = new StorageGroup($this->get('storageGroupID'));
-		/*if (!$StorageGroup || !$StorageGroup->isValid())
-			throw new Exception(__class__.' '._('does not have a storage group assigned').'.');*/
-		return $StorageGroup;
 	}
 	/** deleteFile()
 		This function just deletes the file(s) via FTP.
