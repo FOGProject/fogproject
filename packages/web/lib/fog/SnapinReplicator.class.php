@@ -46,6 +46,7 @@ class SnapinReplicator extends FOGBase
 					}
 					foreach($Snapins AS $Snapin)
 					{
+						$mySnapFile = $Snapin->get('file');
 						foreach($Snapin->get('storageGroups') AS $GroupToSend)
 						{
 							if ($GroupToSend && $GroupToSend->isValid() && $GroupToSend->get('id') != $StorageNode->get('storageGroupID'))
@@ -56,12 +57,12 @@ class SnapinReplicator extends FOGBase
 									$username = $StorageNodeToSend->get('user');
 									$password = $StorageNodeToSend->get('pass');
 									$ip = $StorageNodeToSend->get('ip');
-									$remSnapin = rtrim($StorageNodeToSend->get('path'),'/').'/'.$Snapin->get('file');
-									$mySnapin = rtrim($StorageNode->get('path'),'/').'/'.$Snapin->get('file');
+									$remSnapin = rtrim($StorageNodeToSend->get('snapinpath'),'/');
+									$mySnapin = rtrim($StorageNode->get('snapinpath'),'/');
 									$this->outall(sprintf(" * Found snapin to transfer to %s group(s)",count($Snapin->get('storageGroups')) -1));
 									$this->outall(sprintf(" | Snapin name: %s",$Snapin->get('name')));
 									$this->outall(sprintf(" * Syncing: %s",$StorageNodeToSend->get('name')));
-									$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30; mirror -n --ignore-time -R -vvv --delete $mySnapin $remSnapin; exit\" -u $username,$password $ip 2>&1","r");
+									$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30; mirror -i $mySnapFile -n --ignore-time -R -vvv --delete $mySnapin $remSnapin; exit\" -u $username,$password $ip 2>&1","r");
 									while(!feof($process) && $process != null)
 									{
 										$output = fgets($process,256);
@@ -72,38 +73,40 @@ class SnapinReplicator extends FOGBase
 								}
 							}
 						}
-					}
-				}
-				$this->outall(sprintf(" * Checking nodes within my group."));
-				if (count($StorageNodeCount) > 0)
-				{
-					$this->outall(sprintf(" * Found: %s other member(s).",count($StorageNodeCount)));
-					$this->outall(sprintf(''));
-					$myRoot = rtrim($StorageNode->get('snapinpath'),'/');
-					$this->outall(sprintf(" * My root: %s",$myRoot));
-					$this->outall(sprintf(" * Starting Sync."));
-					foreach($StorageNodeCount AS $StorageNodeFTP)
-					{
-						if ($StorageNodeFTP->get('isEnabled'))
+						$this->outall(sprintf(" * Checking nodes within my group."));
+						if (count($StorageNodeCount) > 0)
 						{
-							$username = $StorageNodeFTP->get('user');
-							$password = $StorageNodeFTP->get('pass');
-							$ip = $StorageNodeFTP->get('ip');
-							$remRoot = rtrim($StorageNodeFTP->get('snapinpath'),'/');
-							$this->outall(sprintf(" * Syncing: %s",$StorageNodeFTP->get('name')));
-							$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30; mirror -R -vvv --exclude 'dev/' --delete $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
-							while(!feof($process) && $process != null)
+							$this->outall(sprintf(" * Found: %s other member(s).",count($StorageNodeCount)));
+							$this->outall(sprintf(''));
+							$myRoot = rtrim($StorageNode->get('snapinpath'),'/');
+							$this->outall(sprintf(" * My root: %s",$myRoot));
+							$this->outall(sprintf(" * Starting Sync."));
+							foreach($StorageNodeCount AS $StorageNodeFTP)
 							{
-								$output = fgets($process,256);
-								$this->outall(sprintf(" * SubProcess -> %s",$output));
+								if ($StorageNodeFTP->get('isEnabled'))
+								{
+									$username = $StorageNodeFTP->get('user');
+									$password = $StorageNodeFTP->get('pass');
+									$ip = $StorageNodeFTP->get('ip');
+									$remRoot = rtrim($StorageNodeFTP->get('snapinpath'),'/');
+									$this->outall(sprintf(" * Syncing: %s",$StorageNodeFTP->get('name')));
+									$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30; mirror -i $mySnapFile -n --ignore-time -R -vvv --delete $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
+									while(!feof($process) && $process != null)
+									{
+										$output = fgets($process,256);
+										$this->outall(sprintf(" * SubProcess -> %s",$output));
+									}
+									pclose($process);
+									$this->outall(sprintf(" * SubProcess -> Complete"));
+								}
 							}
-							pclose($process);
-							$this->outall(sprintf(" * SubProcess -> Complete"));
 						}
+						else
+							$this->outall(sprintf(" * I am the only member, no need to copy anything!"));
 					}
 				}
 				else
-					$this->outall(sprintf(" * I am the only member, no need to copy anything!."));
+					$this->outall(sprintf(" * There are no snapins to replicate!"));
 			}
 		}
 		catch (Exception $e)
