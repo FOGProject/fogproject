@@ -82,6 +82,17 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 	else
 		echo "OK";
 	fi
+
+	echo -n "  * Starting FOG Snapin Replicator Server...";
+	${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
+	${initdpath}/${initdSRfullname} start >/dev/null 2>&1;
+	if [ "$?" != "0" ]
+	then
+		echo "Failed!";
+		exit 1;
+	else
+		echo "OK";
+	fi
 }
 
 configureNFS()
