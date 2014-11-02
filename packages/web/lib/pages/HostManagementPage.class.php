@@ -29,10 +29,6 @@ class HostManagementPage extends FOGPage
 	{
 		// Call parent constructor
 		parent::__construct($name);
-<<<<<<< HEAD
-=======
-		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 		// Header row
 		$this->headerData = array(
 			'',
@@ -75,21 +71,11 @@ class HostManagementPage extends FOGPage
 	{
 		// Set title
 		$this->title = $this->foglang['AllHosts'];
-<<<<<<< HEAD
-=======
-		// Get location if enabled:
-		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 		// Find data -> Push data
 		foreach ($this->getClass('HostManager')->find() AS $Host)
 		{
 			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{
-<<<<<<< HEAD
-=======
-				$LA = ($LocPluginInst ? current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
-				$Location = ($LA ? new Location($LA->get('locationID')) : '');
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 				$this->data[] = array(
 					'host_id'	=> $Host->get('id'),
 					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
@@ -129,10 +115,6 @@ class HostManagementPage extends FOGPage
 	*/
 	public function search_post()
 	{
-<<<<<<< HEAD
-=======
-		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Find data -> Push data
@@ -141,11 +123,6 @@ class HostManagementPage extends FOGPage
 		{
 			if ($Host && $Host->isValid())
 			{
-<<<<<<< HEAD
-=======
-				$LA = ($LocPluginInst ? current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
-				$Location = ($LA ? new Location($LA->get('locationID')) : '');
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 				$this->data[] = array(
 					'host_id'	=> $Host->get('id'),
 					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
@@ -249,10 +226,6 @@ class HostManagementPage extends FOGPage
 	*/
 	public function add()
 	{
-<<<<<<< HEAD
-=======
-		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 		// Set title
 		$this->title = _('New Host');
 		unset($this->data);
@@ -303,10 +276,6 @@ class HostManagementPage extends FOGPage
 				'host_args' => $_REQUEST['args'],
 				'host_devs' => $_REQUEST['dev'],
 				'host_key' => $_REQUEST['key'],
-<<<<<<< HEAD
-=======
-				'host_locs' => ($LocPluginInst ? $this->getClass('LocationManager')->buildSelectBox($_REQUEST['location']) : ''),
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 			);
 		}
 		// Hook
@@ -376,10 +345,6 @@ class HostManagementPage extends FOGPage
 				throw new Exception(_('A host with this MAC already exists with Hostname: ').$Host->get('name'));
 			if ($this->getClass('HostManager')->exists($_REQUEST['host']))
 				throw new Exception(_('Hostname already exists'));
-<<<<<<< HEAD
-=======
-			$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 			// Get all the service id's so they can be enabled.
 			foreach($this->getClass('ModuleManager')->find() AS $Module)
 				$ModuleIDs[] = $Module->get('id');
@@ -408,28 +373,11 @@ class HostManagementPage extends FOGPage
 				'ADPass'	=> $password,
 				'productKey' => base64_encode($_REQUEST['key']),
 			));
-<<<<<<< HEAD
-=======
-			if ($LocPluginInst && $LocPluginInst->isValid())
-			{
-				$LA = new LocationAssociation(array(
-					'locationID' => $_REQUEST['location'],
-					'hostID' => $Host->get('id'),
-				));
-			}
-			else
-				$LA = '';
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 			// Save to database
 			if ($Host->save())
 			{
 				$Host->addModule($ModuleIDs);
 				$Host->addPriMAC(new MACAddress($_REQUEST['mac']));
-<<<<<<< HEAD
-=======
-				if($LA)
-					$LA->save();
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 				// Hook
 				$this->HookManager->processEvent('HOST_ADD_SUCCESS', array('Host' => &$Host));
 				// Log History event
@@ -464,13 +412,6 @@ class HostManagementPage extends FOGPage
 		// Inventory find for host.
 		$Inventory = $Host->get('inventory');
 		// Get the associated Groups.
-<<<<<<< HEAD
-=======
-		// Location Find for host.
-		$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
-		$LA = ($LocPluginInst ? current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id')))) : '');
-		$Location = ($LA ? new Location($LA->get('locationID')) : '');
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', 'Edit', $Host->get('name'));
 		if ($_REQUEST['approveHost'])
@@ -565,10 +506,6 @@ class HostManagementPage extends FOGPage
 				'link' => $this->formAction,
 				'host_desc' => $Host->get('description'),
 				'host_image' => $this->getClass('ImageManager')->buildSelectBox($Host->get('imageID')),
-<<<<<<< HEAD
-=======
-				'host_locs' => ($LocPluginInst ? $this->getClass('LocationManager')->buildSelectBox($LA && $LA->isValid() ? $LA->get('locationID') : '') : ''),
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 				'host_kern' => $Host->get('kernel'),
 				'host_args' => $Host->get('kernelArgs'),
 				'host_devs' => $Host->get('kernelDevice'),
@@ -1278,11 +1215,7 @@ class HostManagementPage extends FOGPage
 			'${snapin_return}',
 		);
 		$SnapinJobs = $this->getClass('SnapinJobManager')->find(array('hostID' => $Host->get('id')));
-<<<<<<< HEAD
 		foreach((array)$SnapinJobs AS $SnapinJob)
-=======
-		foreach($SnapinJobs AS $SnapinJob)
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 			$SnapinTasks[] = $this->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id')));
 		foreach((array)$SnapinTasks AS $SnapinTask1)
 		{
@@ -1376,24 +1309,6 @@ class HostManagementPage extends FOGPage
 							$Host->removeAddMAC($DelMAC);
 						}
 					}
-<<<<<<< HEAD
-=======
-					// Only one association per host.
-					$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
-					if ((!$LA || !$LA->isValid()) && $_REQUEST['location'])
-					{
-						$Location = new Location($_REQUEST['location']);
-						$LA = new LocationAssociation(array(
-							'locationID' => $Location->get('id'),
-							'hostID' => $Host->get('id'),
-						));
-					}
-					else if ($LA && $LA->isValid() && $_REQUEST['location']) 
-					{
-						if ($LA->get('locationID') != $_REQUEST['location'])
-							$LA->set('locationID', $_REQUEST['location']);
-					}
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 				break;
 				case 'host-grouprel';
 					$Host->addGroup($_REQUEST['group']);
@@ -1604,24 +1519,7 @@ class HostManagementPage extends FOGPage
 						{
 							$Host->addModule($ModuleIDs);
 							$Host->addPriMAC($data[0]);
-<<<<<<< HEAD
 							$this->HookManager->processEvent('HOST_IMPORT',array('data' => &$data,'Host' => &$Host));
-=======
-							$LocPluginInst = current($this->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));
-							if ($LocPluginInst && $LocPluginInst->isValid())
-							{
-								$LA = new LocationAssociation(array(
-									'locationID' => $data[5],
-									'hostID' => $Host->get('id'),
-								));
-							}
-							else
-								$LA = '';
-							if($LA)
-							{
-								$LA->save();
-							}
->>>>>>> aed853f70135077458ea66a17444ce17f5c080f8
 							$numSuccess++;
 						}
 						else

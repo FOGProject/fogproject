@@ -1,0 +1,17 @@
+..\OutputDirectory\modules\HostnameChange.dll
+obj\Release\ResolveAssemblyReference.cache
+obj\Release\HostnameChange.dll
+bin\Debug\HostnameChange.dll
+bin\Debug\HostnameChange.pdb
+bin\Debug\AbstractFOGService.dll
+bin\Debug\IniReaderObj.dll
+bin\Debug\AbstractFOGService.pdb
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\HostnameChange.dll
+..\..\OutputDirectory\HostnameChange.dll
+..\..\OutputDirectory\HostnameChange.pdb
+..\..\OutputDirectory\modules\HostnameChange.dll
+S:\Programming\php\fog\0.02\Service\FOG Service\OutputDirectory\modules\HostnameChange.dll
+bin\Release\HostnameChange.dll
+bin\Release\AbstractFOGService.dll
+bin\Release\IniReaderObj.dll

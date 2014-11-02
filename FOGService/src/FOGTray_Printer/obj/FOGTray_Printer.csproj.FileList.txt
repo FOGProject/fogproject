@@ -1,0 +1,12 @@
+obj\Release\ResolveAssemblyReference.cache
+bin\Debug\FOGTray_Printer.dll
+bin\Debug\FOGTray_Printer.pdb
+bin\Debug\AbstractFOGTrayModule.dll
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\FOGTray_Printer.dll
+obj\Debug\FOGTray_Printer.pdb
+bin\Release\FOGTray_Printer.dll
+bin\Release\FOGTray_Printer.pdb
+bin\Release\AbstractFOGTrayModule.dll
+obj\Release\FOGTray_Printer.dll
+obj\Release\FOGTray_Printer.pdb

@@ -137,7 +137,7 @@ class ReportManagementPage extends FOGPage
 		// Set title
 		$this->title = _('FOG Imaging Log');
 		// This gets the download links for which type of file you want.
-		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
+		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv&filename=ImagingLog" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf&filename=ImagingLog" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
 		// Header Data
 		$this->headerData = array(
 			_('Engineer'),
@@ -249,7 +249,7 @@ class ReportManagementPage extends FOGPage
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
-		$this->render();
+		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** host_list()
@@ -262,7 +262,7 @@ class ReportManagementPage extends FOGPage
 		// Set Title
 		$this->title = _('Host Listing Export');
 		// This gets the download links for which type of file you want.
-		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
+		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv&filename=HostList" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf&filename=HostList" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
 		// CSV Header row:
 		$csvHead = array(
 			_('Host ID') => 'id',
@@ -334,7 +334,7 @@ class ReportManagementPage extends FOGPage
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
-		$this->render();
+		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** inventory()
@@ -347,7 +347,7 @@ class ReportManagementPage extends FOGPage
 		// Set Title
 		$this->title = _('Full Inventory Export');
 		// This gets the download links for which type of file you want.
-		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
+		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv&filename=InventoryReport" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf&filename=InventoryReport" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
 		$csvHead = array(
 			_('Host ID') => 'id',
 			_('Host name') => 'name',
@@ -467,7 +467,7 @@ class ReportManagementPage extends FOGPage
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
-		$this->render();
+		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** pend_mac()
@@ -498,7 +498,7 @@ class ReportManagementPage extends FOGPage
 		// Set Title
 		$this->title = _('Pending MAC Export');
 		// This gets the download links for which type of file you want.
-		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a><br /><a href="?node=report&sub=pend-mac&aprvall=1">'._('Approve All Pending MACs for all hosts?').'</a></h2>';
+		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv&filename=PendingMACsList" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf&filename=PendingMACsList" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a><br /><a href="?node=report&sub=pend-mac&aprvall=1">'._('Approve All Pending MACs for all hosts?').'</a></h2>';
 		// CSV Header
 		$csvHead = array(
 			_('Host ID'),
@@ -548,7 +548,7 @@ class ReportManagementPage extends FOGPage
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
-		$this->render();
+		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** vir_hist()
@@ -561,7 +561,7 @@ class ReportManagementPage extends FOGPage
 		// Set Title
 		$this->title = _('FOG Virus Summary');
 		// This gets the download links for which type of file you want.
-		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
+		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv&filename=VirusHistory" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf&filename=VirusHistory" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
 		print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'" />';
 		print "\n\t\t\t\t<h2>".'<a href="#"><input onclick="this.form.submit()" type="checkbox" class="delvid" name="delvall" id="delvid" value="all" /><label for="delvid">('._('clear all history').')</label></a></h2>';
 		print "\n\t\t\t\t".'</form>';
@@ -627,7 +627,7 @@ class ReportManagementPage extends FOGPage
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-		$this->render();
+		$ReportMaker->outputReport(0);
 		print '</form>';
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
@@ -908,7 +908,7 @@ class ReportManagementPage extends FOGPage
 		$ReportMaker->addCSVCell(_('Description'));
 		$ReportMaker->endCSVLine();
 		// This gets the download links for which type of file you want.
-		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
+		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv&filename=UserTrackingList" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf&filename=UserTrackingList" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
 		// Set dates and check order is proper
 		$date1 = $_REQUEST['date1'];
 		$date2 = $_REQUEST['date2'];
@@ -945,7 +945,7 @@ class ReportManagementPage extends FOGPage
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
-		$this->render();
+		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** snapin_log()
@@ -1013,7 +1013,7 @@ class ReportManagementPage extends FOGPage
 		// Set title
 		$this->title = _('FOG Snapin Log');
 		// This gets the download links for which type of file you want.
-		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
+		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv&filename=SnapinLog" alt="Export CSV" title="Export CSV" target="_blank"><img class="noBorder" src="images/csv.png" /></a> <a href="export.php?type=pdf&filename=SnapinLog" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
 		// Header Data
 		$this->headerData = array(
 			_('Snapin Name'),
@@ -1133,7 +1133,7 @@ class ReportManagementPage extends FOGPage
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
-		$this->render();
+		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** equip_loan()
@@ -1190,14 +1190,14 @@ class ReportManagementPage extends FOGPage
 	*/
 	public function equip_loan_post()
 	{
+		$Inventory = new Inventory($_REQUEST['user']);
 		// Set title
 		$this->title = _('FOG Equipment Loan Form');
 		// This gets the download links for which type of file you want.
-		print "\n\t\t\t\t<h2>".'<a href="export.php?type=pdf" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
+		print "\n\t\t\t\t<h2>".'<a href="export.php?type=pdf&filename='.$Inventory->get('primaryuser').'EquipmentLoanForm" alt="Export PDF" title="Export PDF" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
 		// Report Maker
 		$ReportMaker = new ReportMaker();
 		// Get the current Inventory based on what was selected.
-		$Inventory = new Inventory($_REQUEST['user']);
 		// Title Information
 		$ReportMaker->appendHTML("<!-- "._("FOOTER CENTER")." \"" . '$PAGE' . " "._("of")." " . '$PAGES' . " - "._("Printed").": " . $this->nice_date()->format("D M j G:i:s T Y") . "\" -->" );
 		$ReportMaker->appendHTML("<center><h2>"._("[YOUR ORGANIZATION HERE]")."</h2></center>" );

@@ -1,0 +1,5 @@
+C:\Users\admin\Desktop\src\FOG_DisplayManager\bin\Release\DisplayManager.dll
+C:\Users\admin\Desktop\src\FOG_DisplayManager\bin\Release\AbstractFOGService.dll
+C:\Users\admin\Desktop\src\FOG_DisplayManager\bin\Release\IniReaderObj.dll
+C:\Users\admin\Desktop\src\FOG_DisplayManager\obj\Release\ResolveAssemblyReference.cache
+C:\Users\admin\Desktop\src\FOG_DisplayManager\obj\Release\DisplayManager.dll
