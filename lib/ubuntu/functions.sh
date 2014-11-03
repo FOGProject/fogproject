@@ -568,13 +568,13 @@ installPackages()
 	
 	for x in $packages
 	do
-		dpkg -l $x >/dev/null 2>&1 | grep '^ii' >/dev/null;
+		dpkg -l $x >/dev/null;
 		if [ "$?" != "0" -a "$x" == "php5-json" ]; then
 			x="php5-common";
-			dpkg -l $x >/dev/null 2>&1 | grep '^ii' >/dev/null;
+			dpkg -l $x >/dev/null;
 			if [ "$?" != "0" ]; then
 				x="php5-json";
-				dpkg -l $x >/dev/null 2>&1 | grep '^ii' >/dev/null;
+				dpkg -l $x >/dev/null;
 			fi
 		fi
 		if [ "$?" != "0" ]; then
@@ -614,14 +614,14 @@ confirmPackageInstallation()
 	for x in $packages
 	do
 		echo -n "  * Checking package: $x...";
-		dpkg -l $x >/dev/null 2>&1 | grep '^ii' >/dev/null;
+		dpkg -l $x >/dev/null;
 		if [ "$?" != "0" -a "$x" == "php5-json" ]
 		then
 			x="php5-common";
-			dpkg -l $x >/dev/null 2>&1 | grep '^ii' >/dev/null;
+			dpkg -l $x >/dev/null;
 			if [ "$?" != "0" ]; then
 				x="php5-json";
-				dpkg -l $x >/dev/null 2>&1 | grep '^ii' >/dev/null;
+				dpkg -l $x >/dev/null;
 			fi
 		fi
 		if [ "$?" != "0" ]; then
