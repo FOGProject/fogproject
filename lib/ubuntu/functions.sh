@@ -568,16 +568,16 @@ installPackages()
 	
 	for x in $packages
 	do
-		dpkg -l $x >/dev/null;
-		if [ "$?" != "0" -a "$x" == "php5-json" ]; then
+		checkMe=`dpkg -l $x | grep '^ii'`;
+		if [ "$checkMe" == "" -a "$x" == "php5-json" ]; then
 			x="php5-common";
-			dpkg -l $x >/dev/null;
-			if [ "$?" != "0" ]; then
+			checkMe=`dpkg -l $x | grep '^ii'`;
+			if [ "$checkMe" == "" ]; then
 				x="php5-json";
-				dpkg -l $x >/dev/null;
+				checkme=`dpkg -l $x | grep '^ii'`;
 			fi
 		fi
-		if [ "$?" != "0" ]; then
+		if [ "$checkMe" == "" ]; then
 			echo  "  * Installing package: $x";
 			if [ "$x" = "mysql-server" ]
 			then
@@ -614,17 +614,17 @@ confirmPackageInstallation()
 	for x in $packages
 	do
 		echo -n "  * Checking package: $x...";
-		dpkg -l $x >/dev/null;
-		if [ "$?" != "0" -a "$x" == "php5-json" ]
+		checkMe=`dpkg -l $x | grep '^ii'`;
+		if [ "$checkMe" == "" -a "$x" == "php5-json" ]
 		then
 			x="php5-common";
-			dpkg -l $x >/dev/null;
-			if [ "$?" != "0" ]; then
+			checkMe=`dpkg -l $x | grep '^ii'`;
+			if [ "$checkMe" == "" ]; then
 				x="php5-json";
-				dpkg -l $x >/dev/null;
+				checkMe=`dpkg -l $x | grep '^ii'`;
 			fi
 		fi
-		if [ "$?" != "0" ]; then
+		if [ "$checkMe" == "" ]; then
 			echo "Failed!"
 			if [ "$x" = "$dhcpname" ]
 			then			
