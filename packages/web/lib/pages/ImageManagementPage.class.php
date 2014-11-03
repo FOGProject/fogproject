@@ -660,7 +660,12 @@ class ImageManagementPage extends FOGPage
 				case 'image-storage';
 					$Image->addGroup($_REQUEST['storagegroup']);
 					if ($_REQUEST['storagegroup-rm'])
-						$Image->removeGroup($_REQUEST['storagegroup-rm']);
+					{
+						if (count($Image->get('storageGroups')) > 1)
+							$Image->removeGroup($_REQUEST['storagegroup-rm']);
+						else
+							throw new Exception(_('Image must be assigned to one Storage Group'));
+					}
 				break;
 			}
 			// Save
