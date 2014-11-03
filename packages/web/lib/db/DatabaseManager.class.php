@@ -77,16 +77,6 @@ class DatabaseManager extends FOGBase
 		return $this;
 	}
 	
-	/** close()
-		Closes the database connection.
-	*/
-	public function close()
-	{
-		if ($this->DB)
-			$this->DB->close();
-		return $this;
-	}
-	
 	/** getVersion()
 		Gets the version stored in the database.  Sets
 		up for if there's a need to update or not.
