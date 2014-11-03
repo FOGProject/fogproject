@@ -236,7 +236,7 @@ class ImageManagementPage extends FOGPage
 			// Save
 			if ($Image->save())
 			{
-				$Image->addGroup($_REQUEST['storagegroup']);
+				$Image->addGroup($_REQUEST['storagegroup'])->save();
 				// Hook
 				$this->HookManager->processEvent('IMAGE_ADD_SUCCESS', array('Image' => &$Image));
 				// Log History event
