@@ -574,7 +574,6 @@ installPackages()
 			dpkg -l $x >/dev/null | grep '^ii' 2>&1;
 		elif [ "$?" != "0" ]; then
 			echo  "  * Installing package: $x";
-			apt-get -y -q install $x >/dev/null 2>&1;
 			if [ "$x" = "mysql-server" ]
 			then
 				strDummy="";
