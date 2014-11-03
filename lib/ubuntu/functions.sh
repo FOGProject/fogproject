@@ -572,6 +572,10 @@ installPackages()
 		if [ "$?" != "0" -a "$x" == "php5-json" ]; then
 			x="php5-common";
 			dpkg -l $x >/dev/null 2>&1 | grep '^ii' >/dev/null;
+			if [ "$?" != "0" ]; then
+				x="php5-json";
+				dpkg -l $x >/dev/null 2>&1 | grep '^ii' >/dev/null;
+			fi
 		elif [ "$?" != "0" ]; then
 			echo  "  * Installing package: $x";
 			if [ "$x" = "mysql-server" ]
@@ -614,8 +618,11 @@ confirmPackageInstallation()
 		then
 			x="php5-common";
 			dpkg -l $x >/dev/null 2>&1 | grep '^ii' >/dev/null;
-		fi
-		if [ "$?" != "0" ]; then
+			if [ "$?" != "0" ]; then
+				x="php5-json";
+				dpkg -l $x >/dev/null 2>&1 | grep '^ii' >/dev/null;
+			fi
+		elif [ "$?" != "0" ]; then
 			echo "Failed!"
 			if [ "$x" = "$dhcpname" ]
 			then			
