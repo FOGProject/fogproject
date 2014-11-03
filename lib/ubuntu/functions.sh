@@ -568,10 +568,10 @@ installPackages()
 	
 	for x in $packages
 	do
-		dpkg -l $x >/dev/null | grep '^ii' >/dev/null 2>&1;
+		dpkg -l $x >/dev/null 2>&1 | grep '^ii' >/dev/null;
 		if [ "$?" != "0" -a "$x" == "php5-json" ]; then
 			x="php5-common";
-			dpkg -l $x >/dev/null | grep '^ii' >/dev/null 2>&1;
+			dpkg -l $x >/dev/null 2>&1 | grep '^ii' >/dev/null;
 		elif [ "$?" != "0" ]; then
 			echo  "  * Installing package: $x";
 			if [ "$x" = "mysql-server" ]
@@ -609,18 +609,18 @@ confirmPackageInstallation()
 	for x in $packages
 	do
 		echo -n "  * Checking package: $x...";
-		dpkg -l $x >/dev/null | grep '^ii' >/dev/null 2>&1;
+		dpkg -l $x >/dev/null 2>&1 | grep '^ii' >/dev/null;
 		if [ "$?" != "0" -a "$x" == "php5-json" ]
 		then
 			x="php5-common";
-			dpkg -l $x >/dev/null | grep '^ii' >/dev/null 2>&1;
+			dpkg -l $x >/dev/null 2>&1 | grep '^ii' >/dev/null;
 		fi
 		if [ "$?" != "0" ]; then
 			echo "Failed!"
 			if [ "$x" = "$dhcpname" ]
 			then			
 				echo -n "  * Checking for legacy package: $olddhcpname";
-				dpkg -l $olddhcpname >/dev/null | grep '^ii' >/dev/null 2>&1;
+				dpkg -l $olddhcpname >/dev/null 2>&1 | grep '^ii' >/dev/null;
 				if [ "$?" != "0" ]
 				then
 					echo "Failed!"
