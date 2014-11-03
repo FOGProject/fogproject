@@ -50,11 +50,6 @@ class MySQL extends FOGBase
 	*/
 	public function close()
 	{
-		if ($this->link)
-		{
-			$this->link->kill($this->link->thread_id);
-			$this->link->close();
-		}
 		$this->__destruct();
 	}
 	/** connect()
