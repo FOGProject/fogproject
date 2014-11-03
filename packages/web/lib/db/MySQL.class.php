@@ -45,6 +45,13 @@ class MySQL extends FOGBase
 		$this->result = null;
 		return;
 	}
+	/** __wakeup()
+		Keep connection active
+	*/
+	public function __wakeup()
+	{
+		$this->connect();
+	}
 	/** close()
 		Close the connection.
 	*/
