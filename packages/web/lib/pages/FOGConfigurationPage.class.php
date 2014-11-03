@@ -176,6 +176,7 @@ class FOGConfigurationPage extends FOGPage
 		$fields = array(
 			_('No Menu') => '<input type="checkbox" name="nomenu" ${noMenu} value="1" /><span class="icon icon-help hand" title="Option sets if there will even be the presence of a menu to the client systems.  If there is not a task set, it boots to the first device, if there is a task, it performs that task."></span>',
 			_('Hide Menu') => '<input type="checkbox" name="hidemenu" ${checked} value="1" /><span class="icon icon-help hand" title="Option below sets the key sequence.  If none is specified, ESC is defaulted. Login with the FOG credentials and you will see the menu.  Otherwise it will just boot like normal."></span>',
+			_('Hide Menu Timeout') => '<input type="text" name="hidetimeout" value="${hidetimeout}" /><span class="icon icon-help hand" title="Option specifies the timeout value for the hidden menu system."></span>',
 			_('Advanced Menu Login') => '<input type="checkbox" name="advmenulogin" ${advmenulogincheck} value="1" /><span class="icon icon-help hand" title="Option below enforces a Login system for the Advanced menu parameters.  If off no login will appear, if on, it will only allow login to the advanced system.."></span>',
 			_('Boot Key Sequence') => '${boot_keys}',
 			_('Menu Timeout (in seconds)').':*' => '<input type="text" name="timeout" value="${timeout}" id="timeout" />',
@@ -196,6 +197,7 @@ class FOGConfigurationPage extends FOGPage
 				'advmenulogin' => $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN'),
 				'advmenulogincheck' => $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN') ? 'checked="checked"' : '',
 				'noMenu' => ($this->FOGCore->getSetting('FOG_NO_MENU') ? 'checked="checked"' : ''),
+				'hidetimeout' => $this->FOGCore->getSetting('FOG_PXE_HIDDENMENU_TIMEOUT'),
 			);
 		}
 		// Hook
@@ -218,7 +220,13 @@ class FOGConfigurationPage extends FOGPage
 				throw new Exception(_("Invalid Timeout Value."));
 			else
 				$timeout = trim($_REQUEST['timeout']);
-			if ($this->FOGCore->setSetting('FOG_PXE_MENU_HIDDEN',$_REQUEST['hidemenu']) && $this->FOGCore->setSetting('FOG_PXE_MENU_TIMEOUT',$timeout) && $this->FOGCore->setSetting('FOG_PXE_ADVANCED',$_REQUEST['adv']) && $this->FOGCore->setSetting('FOG_KEY_SEQUENCE',$_REQUEST['keysequence']) && $this->FOGCore->setSetting('FOG_NO_MENU',$_REQUEST['nomenu']) && $this->FOGCore->setSetting('FOG_BOOT_EXIT_TYPE',$_REQUEST['bootTypeExit']) && $this->FOGCore->setSetting('FOG_ADVANCED_MENU_LOGIN',$_REQUEST['advmenulogin']))
+			$hidetimeout = trim($_REQUEST['hidetimeout']);
+			$hidetimeout = (!empty($timeout) && is_numeric($hidetimeout) && $hidetimeout >= 0 ? true : false);
+			if (!$hidetimeout)
+				throw new Exception(_("Invalid Timeout Value."));
+			else
+				$hidetimeout = trim($_REQUEST['hidetimeout']);
+			if ($this->FOGCore->setSetting('FOG_PXE_MENU_HIDDEN',$_REQUEST['hidemenu']) && $this->FOGCore->setSetting('FOG_PXE_MENU_TIMEOUT',$timeout) && $this->FOGCore->setSetting('FOG_PXE_ADVANCED',$_REQUEST['adv']) && $this->FOGCore->setSetting('FOG_KEY_SEQUENCE',$_REQUEST['keysequence']) && $this->FOGCore->setSetting('FOG_NO_MENU',$_REQUEST['nomenu']) && $this->FOGCore->setSetting('FOG_BOOT_EXIT_TYPE',$_REQUEST['bootTypeExit']) && $this->FOGCore->setSetting('FOG_ADVANCED_MENU_LOGIN',$_REQUEST['advmenulogin']) && $this->FOGCore->setSetting('FOG_PXE_HIDDENMENU_TIMEOUT',$hidetimeout))
 				throw new Exception("PXE Menu has been updated!");
 			else
 				throw new Exception("PXE Menu update failed!");
