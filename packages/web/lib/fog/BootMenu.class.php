@@ -53,8 +53,6 @@ class BootMenu extends FOGBase
 		$ramsize = $this->FOGCore->getSetting('FOG_KERNEL_RAMDISK_SIZE');
 		$dns = $this->FOGCore->getSetting('FOG_PXE_IMAGE_DNSADDRESS');
 		$keymap = $this->FOGCore->getSetting('FOG_KEYMAP');
-		$timeout = $this->FOGCore->getSetting('FOG_PXE_MENU_TIMEOUT') * 1000;
-		$this->timeout = $timeout;
 		$memdisk = 'memdisk';
 		$memtest = $this->FOGCore->getSetting('FOG_MEMTEST_KERNEL');
 		// Default bzImage and imagefile based on arch received.
@@ -77,6 +75,11 @@ class BootMenu extends FOGBase
 		// menu Access sets if the menu is displayed.  Menu access is a url get variable if a user has specified hidden menu it will override if menuAccess is set.
 		if (!$_REQUEST['menuAccess'])
 			$this->hiddenmenu = $this->FOGCore->getSetting('FOG_PXE_MENU_HIDDEN');
+		if ($this->hiddenmenu)
+			$timeout = $this->FOGCore->getSetting('FOG_PXE_HIDDENMENU_TIMEOUT') * 1000;
+		else
+			$timeout = $this->FOGCore->getSetting('FOG_PXE_MENU_TIMEOUT') * 1000;
+		$this->timeout = $timeout;
 		// Generate the URL to boot from.
 		$this->booturl = "http://${webserver}${webroot}service";
 		// Store the host call into class global.
@@ -120,7 +123,7 @@ class BootMenu extends FOGBase
 		$this->initrd = "imgfetch $imagefile";
 		// Set the default line based on all the menu entries and only the one with the default set.
 		$defMenuItem = current($this->getClass('PXEMenuOptionsManager')->find(array('default' => 1)));
-		$this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local')." --timeout $timeout target && goto \${target}";
+		$this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local').(!$this->hiddenmenu ? " --timeout $timeout" : " --timeout 0")." target && goto \${target}";
 		// Register the success of the boot to the database:
 		$iPXE = current($this->getClass('iPXEManager')->find(array('product' => $_REQUEST['product'],'manufacturer' => $_REQUEST['manufacturer'],'file' => $_REQUEST['filename'])));
 		if ($iPXE && $iPXE->isValid())
