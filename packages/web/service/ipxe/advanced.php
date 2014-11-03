@@ -4,6 +4,8 @@ require_once('../../commons/base.inc.php');
 if ($_REQUEST['login'] == 1)
 {
 	print "#!ipxe\n";
+	print "clear username\n";
+	print "clear password\n";
 	print "login\n";
 	print "params\n";
 	print "param username \${username}\n";
@@ -22,8 +24,8 @@ if ($_REQUEST['username'])
 	else
 	{
 		print "#!ipxe\n";
-		print "clear \${username}\n";
-		print "clear \${password}\n";
+		print "clear username\n";
+		print "clear password\n";
 		unset($_REQUEST['username'],$_REQUEST['password']);
 		print "echo Invalid login!\n";
 		print "sleep 3\n";
