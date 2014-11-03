@@ -1714,6 +1714,11 @@ $databaseSchema[] = array(
 	"ALTER IGNORE TABLE `" .DATABASE_NAME ."`.`snapinGroupAssoc` ADD UNIQUE INDEX `sgaSnapinID` (`sgaSnapinID`)",
 	"ALTER TABLE `" . DATABASE_NAME ."`.`snapinGroupAssoc` DROP INDEX `sgaSnapinID`",
 );
+// 141
+$databaseSchema[] = array(
+	"INSERT INTO `" . DATABASE_NAME . "`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	values('FOG_PXE_HIDDENMENU_TIMEOUT', '"._("This setting defines the default value for the pxe hidden menu timeout.")."', '3', 'FOG Boot Settings')",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
