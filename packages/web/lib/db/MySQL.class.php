@@ -43,10 +43,6 @@ class MySQL extends FOGBase
 			return;
 		$this->link = null;
 		$this->result = null;
-		$this->queryResult->close();
-		$this->queryResult->free_result();
-		$this->queryResult->free();
-		$this->queryResult = null;
 		return;
 	}
 	/** close()
