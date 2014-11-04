@@ -467,7 +467,7 @@ class HostManagementPage extends FOGPage
 		foreach((array)$Host->get('additionalMACs') AS $MAC)
 		{
 			if ($MAC && $MAC->isValid())
-				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" /><span class="icon icon-hand" title="'._('Remove MAC').'"><input type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" /><label for="rm'.$MAC.'" class="icon icon-remove remove-mac hand"></label></span><span class="icon icon-hand" title="'._('Make Primary').'"><input type="radio" name="primaryMAC" value="'.$MAC.'" /></span><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$Host->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$Host->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span></div>';
+				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" /><span class="icon icon-hand" title="'._('Remove MAC').'"><input type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" /><label for="rm'.$MAC.'" class="icon icon-remove remove-mac hand">&nbsp;</label></span><span class="icon icon-hand" title="'._('Make Primary').'"><input type="radio" name="primaryMAC" value="'.$MAC.'" /></span><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$Host->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$Host->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span></div>';
 		}
 		foreach ((array)$Host->get('pendingMACs') AS $MAC)
 		{
@@ -587,7 +587,7 @@ class HostManagementPage extends FOGPage
 		$this->templates = array(
 			'<a href="?node=group&sub=edit&id=${group_id}" title="'._('Edit Group').':${group_name}">${group_name}</a>',
 			'${group_count}',
-			'<input type="checkbox" class="delid" onclick="this.form.submit()" name="groupdel" id="groupdelmem${group_id}" value="${group_id}" /><label for="groupdelmem${group_id}">'._('Delete').'</label>',
+			'<input type="checkbox" class="delid" onclick="this.form.submit()" name="groupdel" id="groupdelmem${group_id}" value="${group_id}" /><label for="groupdelmem${group_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
 		);
 		// Find Group Relationships
 		foreach((array)$Host->get('groups') AS $Group)
@@ -671,10 +671,10 @@ class HostManagementPage extends FOGPage
 			array(),
 		);
 		$this->templates = array(
-			'<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}"${is_default} /><label for="printer${printer_id}"></label><input type="hidden" name="printerid[]" value="${printer_id}" />',
+			'<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}"${is_default} /><label for="printer${printer_id}" class="icon icon-hand" title="'._('Default Printer Select').'">&nbsp;</label><input type="hidden" name="printerid[]" value="${printer_id}" />',
 			'<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
 			'${printer_type}',
-			'<input onclick="this.form.submit()" class="delid" type="checkbox" name="printerRemove[]" value="${printer_id}" id="rempr${printer_id}" /><label for="rempr${printer_id}">'._('Delete').'</label>',
+			'<input onclick="this.form.submit()" class="delid" type="checkbox" name="printerRemove[]" value="${printer_id}" id="rempr${printer_id}" /><label for="rempr${printer_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
 		);
 		print "\n\t\t\t<h2>"._('Host Printer Configuration').'</h2>';
 		print "\n\t\t\t<p>"._('Select Management Level for this Host').'</p>';
@@ -771,7 +771,7 @@ class HostManagementPage extends FOGPage
 		);
 		$this->templates = array(
 			'<a href="?node=snapin&sub=edit&id=${snap_id}">${snap_name}</a>',
-			'<input type="checkbox" name="snapinRemove[]" value="${snap_id}" class="delid" onclick="this.form.submit()" id="snap${snap_id}" /><label for="snap${snap_id}">Delete</label>',
+			'<input type="checkbox" name="snapinRemove[]" value="${snap_id}" class="delid" onclick="this.form.submit()" id="snap${snap_id}" /><label for="snap${snap_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
 		);
 		foreach ((array)$Host->get('snapins') AS $Snapin)
 		{
@@ -1038,7 +1038,7 @@ class HostManagementPage extends FOGPage
 			'${virus_file}',
 			'${virus_mode}',
 			'${virus_date}',
-			'<input type="checkbox" id="vir_del${virus_id}" class="delvid" name="delvid" onclick="this.form.submit()" value="${virus_id}" /><label for="${virus_id}" title="Delete ${virus_name}"><img src="images/deleteSmall.png" class="link" /></label>',
+			'<input type="checkbox" id="vir_del${virus_id}" class="delvid" name="delvid" onclick="this.form.submit()" value="${virus_id}" /><label for="${virus_id}" class="icon icon-hand" title="'._('Delete').' ${virus_name}"><img src="images/deleteSmall.png" class="link" />&nbsp;</label>',
 		);
 		print "\n\t\t\t".'<div id="host-virus-history" class="organic-tabs-hidden">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-virus-history">';

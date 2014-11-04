@@ -498,7 +498,7 @@ class PrinterManagementPage extends FOGPage
 		}
 		unset($this->data);
 		array_push($this->headerData,_('Is Default'),_('Remove Printer'));
-		array_push($this->templates,'<input class="default" type="checkbox" name="default[]" id="host_printer${host_id}"${is_default} value="${host_id}" /><label for="host_printer${host_id}"></label><input type="hidden" value="${host_id}" name="hostid[]">','<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}">'.$this->foglang['Delete']);
+		array_push($this->templates,'<input class="default" type="checkbox" name="default[]" id="host_printer${host_id}"${is_default} value="${host_id}" /><label for="host_printer${host_id}" class="icon icon-hand" title="'._('Default Printer Selection').'">&nbsp;</label><input type="hidden" value="${host_id}" name="hostid[]">','<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}" class="icon icon-hand" title="'.$this->foglang['Delete'].'">&nbsp;</label>');
 		array_push($this->attributes,array(),array());
 		array_splice($this->headerData,1,1);
 		array_splice($this->templates,1,1);
