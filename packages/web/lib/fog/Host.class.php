@@ -79,12 +79,16 @@ class Host extends FOGController
 	public function updateDefault($printerid,$onoff)
 	{
 		$PrinterAssoc = $this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id')));
+		// Set all to not default
 		foreach((array)$PrinterAssoc AS $PrinterSet)
 		{
-			$PrinterSet->set('isDefault',0)->save();
-			if ($PrinterSet->get('printerID') == $printerid)
-				$PrinterSet->set('isDefault',$onoff)->save();
+			if ($PrinterSet && $PrinterSet->isValid())
+				$PrinterSet->set('isDefault',0)->save();
 		}
+		// Set the current sent printer to it's on/off state.
+		$SetDefault = current((array)$this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $printerid)));
+		if ($SetDefault && $SetDefault->isValid())
+			$SetDefault->set('isDefault',$onoff)->save();
 		return $this;
 	}
 	public function getDispVals($key = '')
@@ -486,6 +490,9 @@ class Host extends FOGController
 		{
 			// Find the current default
 			$defPrint = current((array)$this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'isDefault' => 1)));
+			$totalPrinters = $this->getClass('PrinterAssociationManager')->count(array('hostID' => $this->get('id')));
+			// Remove all printers
+			$this->getClass('PrinterAssociationManager')->destroy(array('hostID' => $this->get('id')));
 			// Create assoc
 			$i = 0;
 			foreach ((array)$this->get('printers') AS $Printer)
@@ -498,7 +505,7 @@ class Host extends FOGController
 						$NewPrinter = new PrinterAssociation(array(
 							'printerID' => $Printer->get('id'),
 							'hostID' => $this->get('id'),
-							'isDefault' => ($defPrint && $defPrint->isValid() ? $defPrint->get('id') : ($i === 0 ? '1' : '0')),
+							'isDefault' => ($defPrint && $defPrint->isValid() && $defPrint->get('printerID') == $Printer->get('id') ? 1 : ($totalPrinters ? 0 : ($i === 0 ? 1 : 0))),
 						));
 						$NewPrinter->save();
 					}
