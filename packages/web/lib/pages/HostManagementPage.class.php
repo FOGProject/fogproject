@@ -1334,13 +1334,7 @@ class HostManagementPage extends FOGPage
 					foreach($_REQUEST['printerid'] AS $printerid)
 					{
 						$Printer = new Printer($printerid);
-						if ($Printer && $Printer->isValid())
-						{
-							if ($Printer->get('id') == $_REQUEST['default'])
-								$Host->updateDefault($printerid,1);
-							else
-								$Host->updateDefault($Printer->get('id'),0);
-						}
+						$Host->updateDefault($_REQUEST['default'],isset($_REQUEST['default']));
 					}
 					// Remove
 					if (!empty($_REQUEST['printerRemove']))
