@@ -9,7 +9,7 @@ class MySQL extends FOGBase
 	public $ROW_ASSOC = 1;	// MYSQL_ASSOC
 	public $ROW_NUM = 2;	// MYSQL_NUM
 	public $ROW_BOTH = 3;	// MYSQL_BOTH
-	public $debug = true;
+	public $debug = false;
 	public $info = false;
 	/** __construct($host,$user,$pass,$db = '')
 		Constructs the connections to the database.
