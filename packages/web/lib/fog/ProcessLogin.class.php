@@ -220,7 +220,7 @@ class ProcessLogin extends FOGBase
 		print "\n\t\t\t\t\t\t".'<label for="language">'.$this->foglang['LanguagePhrase'].'</label>';
 		$this->getLanguages();
 		print "\n\t\t\t\t\t\t".'<select name="ulang" id="language">'.$this->langMenu.'</select>';
-		print "\n\t\t\t\t\t\t".'<label for="login-form-submit"></label>';
+		print "\n\t\t\t\t\t\t".'<label for="login-form-submit">&nbsp;</label>';
 		print "\n\t\t\t\t\t\t".'<input type="submit" value="'.$this->foglang['Login'].'" id="login-form-submit" />';
 		print "\n\t\t\t\t\t</form>";
 		print "\n\t\t\t\t\t".'<div id="login-form-info">';

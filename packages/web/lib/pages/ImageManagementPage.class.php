@@ -453,7 +453,7 @@ class ImageManagementPage extends FOGPage
 		}
 		unset($this->data);
 		array_push($this->headerData,_('Remove Image'));
-		array_push($this->templates,'<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}">'.$this->foglang['Delete']);
+		array_push($this->templates,'<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}" class="icon icon-hand" title="'.$this->foglang['Delete'].'">&nbsp;</label>');
 		array_push($this->attributes,array());
 		array_splice($this->headerData,1,1);
 		array_splice($this->templates,1,1);
@@ -585,7 +585,7 @@ class ImageManagementPage extends FOGPage
 		}
 		unset($this->data);
 		array_push($this->headerData,_('Remove Group'));
-		array_push($this->templates,'<input type="checkbox" class="delid" onclick="this.form.submit()" name="storagegroup-rm" id="sgdelmem${storageGroup_id}" value="${storageGroup_id}" /><label for="sgdelmem${storageGroup_id}">'.$this->foglang['Delete']);
+		array_push($this->templates,'<input type="checkbox" class="delid" onclick="this.form.submit()" name="storagegroup-rm" id="sgdelmem${storageGroup_id}" value="${storageGroup_id}" /><label for="sgdelmem${storageGroup_id}" class="icon icon-hand" title="'.$this->foglang['Delete'].'">&nbsp;</label>');
 		array_push($this->attributes,array());
 		array_splice($this->headerData,0,1);
 		array_splice($this->templates,0,1);
