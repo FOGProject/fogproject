@@ -21,6 +21,7 @@ class System
 	*/
 	private static function default_values()
 	{
+<<<<<<< HEAD
 		(ini_get('date.timezone') ? date_default_timezone_set(ini_get('date.timezone')) : date_default_timezone_set('UTC'));
 		define('FOG_VERSION', '2564');
 		define('FOG_SCHEMA', 141);
