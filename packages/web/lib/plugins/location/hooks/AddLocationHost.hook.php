@@ -99,11 +99,14 @@ class AddLocationHost extends Hook
 		$plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
 		{
-			$LA = new LocationAssociation(array(
-				'locationID' => $arguments['data'][5],
-				'hostID' => $arguments['Host']->get('id'),
-			));
-			$LA->save();
+			if ($arguments['data'][5])
+			{
+				$LA = new LocationAssociation(array(
+					'locationID' => $arguments['data'][5],
+					'hostID' => $arguments['Host']->get('id'),
+				));
+				$LA->save();
+			}
 		}
 	}
 	public function HostExport($arguments)
