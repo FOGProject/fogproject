@@ -9,7 +9,7 @@ class MySQL extends FOGBase
 	public $ROW_ASSOC = 1;	// MYSQL_ASSOC
 	public $ROW_NUM = 2;	// MYSQL_NUM
 	public $ROW_BOTH = 3;	// MYSQL_BOTH
-	public $debug = true;
+	public $debug = false;
 	public $info = false;
 	/** __construct($host,$user,$pass,$db = '')
 		Constructs the connections to the database.
@@ -67,10 +67,13 @@ class MySQL extends FOGBase
 		try
 		{
 			$this->link = new mysqli($this->host, $this->user, $this->pass);
+			if ($this->link && $this->dbname)
+			{
+				$this->link->close();
+				$this->link = new mysqli($this->host, $this->user, $this->pass, $this->dbname);
+			}
 			if ($this->link->connect_error)
 				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s, Error: %s', $this->host, $this->user, '[Protected]', $this->dbname, $this->link->connect_error));
-			if ($this->dbname)
-				$this->select_db($this->dbname);
 		}
 		catch (Exception $e)
 		{
