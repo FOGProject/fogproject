@@ -486,21 +486,22 @@ class Host extends FOGController
 		{
 			// Find the current default
 			$defPrint = current((array)$this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'isDefault' => 1)));
-			// Remove old rows
-			$this->getClass('PrinterAssociationManager')->destroy(array('hostID' => $this->get('id')));
-			// Add Default Printer
 			// Create assoc
 			$i = 0;
 			foreach ((array)$this->get('printers') AS $Printer)
 			{
 				if(($Printer instanceof Printer) && $Printer->isValid())
 				{
-					$NewPrinter = new PrinterAssociation(array(
-						'printerID' => $Printer->get('id'),
-						'hostID' => $this->get('id'),
-						'isDefault' => ($defPrint && $defPrint->isValid() ? $defPrint->get('id') : ($i === 0 ? '1' : '0')),
-					));
-					$NewPrinter->save();
+					$PrinterAssoc = current((array)$this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'), 'printerID' => $Printer->get('id'))));
+					if (!$PrinterAssoc || !$PrinterAssoc->isValid())
+					{
+						$NewPrinter = new PrinterAssociation(array(
+							'printerID' => $Printer->get('id'),
+							'hostID' => $this->get('id'),
+							'isDefault' => ($defPrint && $defPrint->isValid() ? $defPrint->get('id') : ($i === 0 ? '1' : '0')),
+						));
+						$NewPrinter->save();
+					}
 				}
 				$i++;
 			}
