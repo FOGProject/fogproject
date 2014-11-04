@@ -35,6 +35,8 @@ $pageTitle = $FOGPageManager->getFOGPageTitle();
 if ($FOGCore->isAJAXRequest())
 {
 	print $content; 
+	// Free the results
+	$DB->queryResult()->free();
 	exit;
 }
 if (($currentUser && $currentUser->isLoggedIn()) || $node == 'client')
@@ -82,6 +84,8 @@ if (($currentUser && $currentUser->isLoggedIn()) || $node == 'client')
 		printf('%s<h2>%s</h2>',"\n\t\t\t\t",$FOGPageManager->getFOGPageTitle());
 	$HookManager->processEvent('CONTENT_DISPLAY',array('content' => &$content,'sectionTitle' => &$sectionTitle,'pageTitle' => &$pageTitle));
 	print $content."\n\t\t</div>\n";
+	// Free the results
+	$DB->queryResult()->free();
 	print "\n\t</div>";
 	if (!$isHomepage) 
 	{
