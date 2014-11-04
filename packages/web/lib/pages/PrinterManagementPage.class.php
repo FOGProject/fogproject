@@ -587,7 +587,7 @@ class PrinterManagementPage extends FOGPage
 							$Printer->set('name',$_REQUEST['alias'])
 									->set('config',$_REQUEST['printertype']);
 					}
-					if ($PrinterManager->exists($_REQUEST['alias']))
+					if ($Printer->get('name') != $_REQUEST['alias'] && $PrinterManager->exists($_REQUEST['alias']))
 						throw new Exception(_('Printer name already exists, please choose another'));
 				break;
 				case 'printer-host';
