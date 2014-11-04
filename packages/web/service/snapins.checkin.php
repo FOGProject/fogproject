@@ -26,7 +26,7 @@ try
 		if (strlen($_REQUEST['exitcode']) > 0 && is_numeric($_REQUEST['exitcode']))
 		{
 			// Place the task for records, but outside of recognizable as Complete or Done!
-			$SnapinTask->set('stateID','2')->set('return',$_REQUEST['exitcode'])->set('details',$_REQUEST['exitdesc'])->set('complete',date('Y-m-d H:i:s'));
+			$SnapinTask->set('stateID','2')->set('return',$_REQUEST['exitcode'])->set('details',$_REQUEST['exitdesc'])->set('complete',$FOGCore->nice_date()->format('Y-m-d H:i:s'));
 			if ($SnapinTask->save()) print "#!ok";
 			// If that was the last task, delete the job.
 			if ($FOGCore->getClass('SnapinTaskManager')->count(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id'))) < 1)
@@ -40,9 +40,9 @@ try
 		{
 			$SnapinJob->set('stateID',1)->save();
 			// If it's part of a task deployment update the task information.
-			if ($Task && $Task->isValid()) $Task->set('stateID',3)->set('checkInTime',date('Y-m-d H:i:s'))->save();
+			if ($Task && $Task->isValid()) $Task->set('stateID',3)->set('checkInTime',$FOGCore->nice_date()->formate('Y-m-d H:i:s'))->save();
 			//If not from above, update the Task information.
-			$SnapinTask->set('stateID',0)->set('checkin',date('Y-m-d H:i:s'));
+			$SnapinTask->set('stateID',0)->set('checkin',$FOGCore->nice_date()->format('Y-m-d H:i:s'));
 			// As long as things update, send the information.
 			if ($SnapinTask->save())
 			{
