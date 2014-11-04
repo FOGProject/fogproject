@@ -911,6 +911,7 @@ $databaseSchema[] = array(
 		{
 			$allImageID[$host['hostImage']] = $host['hostOS'];
 		}
+		$this->DB->queryResult()->free();
 		// Iterate imageID's -> Update Image setting new osID -> Save
 		foreach ((array)$allImageID AS $imageID => $osID)
 		{
