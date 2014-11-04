@@ -11,27 +11,36 @@ try
 	if (!$Host->isValid())
 		throw new Exception('#!ih');
 	// Get the Jobs if possible
-	$SnapinJobs = $FOGCore->getClass('SnapinJobManager')->find(array('hostID' => $Host->get('id')));
+	$SnapinJob = $Host->get('snapinjob');
+	// Get the Snapin Tasks if possible
+	$SnapinTasks = $FOGCore->getClass('SnapinTaskManager')->find(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id')));
 	// Cycle through all the host jobs that have awaiting snapin tasks.
-	if ($_REQUEST['getSnapnames'])
+	if ($SnapinJob && $SnapinJob->isValid())
 	{
-		foreach($SnapinJobs AS $SnapinJob)
+		if ($_REQUEST['getSnapnames'])
 		{
-			$SnapinTasks = $FOGCore->getClass('SnapinTaskManager')->find(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id')));
-			foreach($SnapinTasks AS $SnapinTask)
+			foreach((array)$SnapinTasks AS $SnapinTask)
 			{
 				$Snapin = new Snapin($SnapinTask->get('snapinID'));
 				$SnapinNames[] = $Snapin->get('name');
 			}
+			$Snapins = implode(' ',(array)$SnapinNames);
 		}
-		$Snapins = implode(' ',(array)$SnapinNames);
-	}
-	else
-	{
-		foreach($SnapinJobs AS $SnapinJob)
+		else if ($_REQUEST['getSnapargs'])
+		{
+			foreach((array)$SnapinTasks AS $SnapinTask)
+			{
+				$Snapin = new Snapin($SnapinTask->get('snapinID'));
+				$SnapinArgs[] = $Snapin->get('args');
+			}
+			$Snapins = implode(' '.(array)$SnapinArgs);
+		}
+		else
+		{
 			// Get the tasks of the job so long as they're active.
-			$SnapinTasks += $FOGCore->getClass('SnapinTaskManager')->count(array('stateID' => array(-1,0,1), 'jobID' => $SnapinJob->get('id')));
-		$Snapins = ($SnapinTasks ? 1 : 0);
+			$SnapinTasks = count($SnapinTasks)
+			$Snapins = ($SnapinTasks ? 1 : 0);
+		}
 	}
 	print $Snapins;
 }
