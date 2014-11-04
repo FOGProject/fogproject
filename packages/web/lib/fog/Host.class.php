@@ -286,7 +286,7 @@ class Host extends FOGController
 		{
 			if ($this->get('id'))
 			{
-				$Users = $this->getClass('UserTrackingManager')->find(array('hostID' => $this->get('id')));
+				$Users = $this->getClass('UserTrackingManager')->find(array('hostID' => $this->get('id')),'','datetime');
 				foreach((array)$Users AS $User)
 				{
 					if ($User && $User->isValid())
