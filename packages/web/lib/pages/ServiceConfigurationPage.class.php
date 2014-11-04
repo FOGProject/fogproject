@@ -158,7 +158,7 @@ class ServiceConfigurationPage extends FOGPage
 				);
 				$this->templates = array(
 					'${dir_path}',
-					'<input type="checkbox" id="rmdir${dir_id}" class="delid" name="delid" onclick="this.form.submit()" value="${dir_id}" /><label for="rmdir${dir_id}">'._('Delete').'</label>',
+					'<input type="checkbox" id="rmdir${dir_id}" class="delid" name="delid" onclick="this.form.submit()" value="${dir_id}" /><label for="rmdir${dir_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
 				);
 				print "\n\t\t\t<h2>"._('Add Directory').'</h2>';
 				print "\n\t\t\t".'<form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'">';
@@ -229,7 +229,7 @@ class ServiceConfigurationPage extends FOGPage
 				$this->templates = array(
 					'${gf_time}',
 					'${gf_action}',
-					'<input type="checkbox" id="gfrem${gf_id}" class="delid" name="delid" onclick="this.form.submit()" value="${gf_id}" /><label for="gfrem${gf_id}">'._('Delete').'</label>',
+					'<input type="checkbox" id="gfrem${gf_id}" class="delid" name="delid" onclick="this.form.submit()" value="${gf_id}" /><label for="gfrem${gf_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
 				);
 				print "\n\t\t\t<h2>"._('Shutdown/Reboot Schedule').'</h2>';
 				print "\n\t\t\t".'<form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'">';
@@ -298,7 +298,7 @@ class ServiceConfigurationPage extends FOGPage
 				{
 					$this->data[] = array(
 						'user_name' => $UserCleanup->get('name'),
-						'input' => $UserCleanup->get('id') < 7 ? null : '<input type="checkbox" id="rmuser${user_id}" class="delid" name="delid" onclick="this.form.submit()" value="${user_id}" /><label for="rmuser${user_id}">'._('Delete').'</label>',
+						'input' => $UserCleanup->get('id') < 7 ? null : '<input type="checkbox" id="rmuser${user_id}" class="delid" name="delid" onclick="this.form.submit()" value="${user_id}" /><label for="rmuser${user_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
 						'user_id' => $UserCleanup->get('id'),
 					);
 				}

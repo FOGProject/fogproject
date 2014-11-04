@@ -623,7 +623,7 @@ class TaskManagementPage extends FOGPage
 			'<form method="post" method="?node=tasks&sub=active-snapins">${name}',
 			'${startDate}',
 			'${state}',
-			'<input type="checkbox" id="${id}" class="delid" name="rmid" value="%id%" onclick="this.form.submit()" title="Kill Task" /><label for="${id}">'._('Delete').'</label></form>',
+			'<input type="checkbox" id="${id}" class="delid" name="rmid" value="%id%" onclick="this.form.submit()" title="Kill Task" /><label for="${id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label></form>',
 		);
 		$this->attributes = array(
 			array(),
@@ -718,7 +718,7 @@ class TaskManagementPage extends FOGPage
 			'${task_type}',
 			'<small>${time}</small>',
 			'${active}/${type}',
-			'<input type="checkbox" name="rmid" id="r${schedtaskid}" class="delid" value="${schedtaskid}" onclick="this.form.submit()" /><label for="r${schedtaskid}">'._('Delete').'</label></form>',
+			'<input type="checkbox" name="rmid" id="r${schedtaskid}" class="delid" value="${schedtaskid}" onclick="this.form.submit()" /><label for="r${schedtaskid}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label></form>',
 		);
 		// Row attributes
 		$this->attributes = array(

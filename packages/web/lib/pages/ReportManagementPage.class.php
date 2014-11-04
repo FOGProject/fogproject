@@ -587,7 +587,7 @@ class ReportManagementPage extends FOGPage
 			'${vir_file}',
 			'${vir_mode}',
 			'${vir_date}',
-			'<input type="checkbox" onclick="this.form.submit()" class="delvid" value="${vir_id}" id="vir${vir_id}" name="delvid" /><label for="vir${vir_id}" title="Delete ${vir_name}"><img src="images/deleteSmall.png" class="link" /></label>',
+			'<input type="checkbox" onclick="this.form.submit()" class="delvid" value="${vir_id}" id="vir${vir_id}" name="delvid" /><label for="vir${vir_id}" class="icon icon-hand" title="'._('Delete').' ${vir_name}"><img src="images/deleteSmall.png" class="link" /></label>',
 		);
 		$this->attributes = array(
 			array(),
