@@ -1468,7 +1468,7 @@ class HostManagementPage extends FOGPage
 			);
 		}
 		// Hook
-		$this->HookManager->processEvent('HOST_IMPORT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		$this->HookManager->processEvent('HOST_IMPORT_OUT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
 		print "</form>";
