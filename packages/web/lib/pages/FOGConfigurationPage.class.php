@@ -419,7 +419,7 @@ class FOGConfigurationPage extends FOGPage
 			'<form method="post" action="${action}"><input type="hidden" name="name" value="FOG_SERVICE_CLIENTUPDATER_ENABLED" />${name}',
 			'${module}',
 			'${type}',
-			'<input type="checkbox" onclick="this.form.submit()" name="delcu" class="delid" id="delcuid${client_id}" value="${client_id}" /><label for="delcuid${client_id}">Delete</label></form>',
+			'<input type="checkbox" onclick="this.form.submit()" name="delcu" class="delid" id="delcuid${client_id}" value="${client_id}" /><label for="delcuid${client_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label></form>',
 		);
 		$this->attributes = array(
 			array(),

@@ -441,7 +441,7 @@ class GroupManagementPage extends FOGPage
 		$this->templates = array(
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'<small>${deployed}</small>',
-			'<input type="checkbox" name="member" value="${host_id}" class="delid" onclick="this.form.submit()" id="memberdel${host_id}" /><label for="memberdel${host_id}">Delete</label>',
+			'<input type="checkbox" name="member" value="${host_id}" class="delid" onclick="this.form.submit()" id="memberdel${host_id}" /><label for="memberdel${host_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
 			'<small>${image_name}</small>',
 		);
 		foreach ((array)$Group->get('hosts') AS $Host)
@@ -723,7 +723,7 @@ class GroupManagementPage extends FOGPage
 		// Create Template for Printers:
 		$this->templates = array(
 			'<input type="checkbox" name="prntadd[]" value="${printer_id}" class="toggle-print" />',
-			'<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}" /><label for="printer${printer_id}"></label><input type="hidden" name="printerid[]" />',
+			'<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}" /><label for="printer${printer_id}" class="icon icon-hand" title="'._('Default Printer Selector').'">&nbsp;</label><input type="hidden" name="printerid[]" />',
 			'<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
 			'${printer_type}',
 		);
