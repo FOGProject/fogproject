@@ -9,6 +9,8 @@ abstract class FOGPage extends FOGBase
 {
 	// Name
 	public $name = '';
+	public $debug = false;
+	public $info = false;
 	// Node Variable
 	public $node = '';
 	// ID Variable - name of ID variable used in Page
