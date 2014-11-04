@@ -344,9 +344,9 @@ class ImageManagementPage extends FOGPage
 		{
 			if ($Host && $Host->isValid())
 			{
-				if (!in_array($Host->get('id'),$HostWithAnyImage))
+				if (!in_array($Host->get('id'),(array)$HostWithAnyImage))
 					$HostNotWithImage[] = $Host;
-				if (!in_array($Host->get('id'),$HostsWithMe))
+				if (!in_array($Host->get('id'),(array)$HostsWithMe))
 					$HostNotWithMe[] = $Host;
 			}
 		}
