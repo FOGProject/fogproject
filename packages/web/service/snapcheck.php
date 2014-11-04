@@ -33,7 +33,7 @@ try
 				$Snapin = new Snapin($SnapinTask->get('snapinID'));
 				$SnapinArgs[] = $Snapin->get('args');
 			}
-			$Snapins = implode(' '.(array)$SnapinArgs);
+			$Snapins = implode(' ',(array)$SnapinArgs);
 		}
 		else
 		{
