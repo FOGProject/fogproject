@@ -301,8 +301,6 @@ abstract class FOGController extends FOGBase
 			// Did we find a row in the database?
 			if (!$queryData = $this->DB->query($query)->fetch()->get())
 				throw new Exception('Failed to delete');
-			if (method_exists($this->DB->queryResult(),'free'))
-				$this->DB->queryResult()->free();
 			// Success
 			return true;
 		}
