@@ -118,7 +118,7 @@ class MySQL extends FOGBase
 			elseif ($this->queryResult === true)
 				$this->result = true;
 			else
-				$this->result = $this->queryResult->fetch_assoc();
+				$this->result = $this->queryResult->fetch_array($type);
 		}
 		catch (Exception $e)
 		{
