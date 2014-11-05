@@ -76,10 +76,8 @@ try
 				$emailMe .= $key.$val;
 			unset($email);
 			$email = $emailMe;
-			if (empty($Inventory->get('other1'))) //if there isn't an existing call number in the system
-			{
+			if (!$Inventory->get('other1')) //if there isn't an existing call number in the system
 				mail($to, $Host->get('name'). " - Image Task Completed", $email,$headers);
-			}
 			else
 			{
 				mail($to,"ISSUE=" .$Inventory->get('other1'). " PROJ=1", $email, $headers);
