@@ -331,8 +331,7 @@ abstract class FOGManagerController extends FOGBase
 				$r = new ReflectionClass($this->childClass);
 				$data[] = $r->newInstance($row);
 			}
-			if (method_exists($this->DB->queryResult(),'free'))
-				$this->DB->queryResult()->free();
+			$this->DB->queryResult()->free();
 			// Return
 			return (array)$data;
 		}
