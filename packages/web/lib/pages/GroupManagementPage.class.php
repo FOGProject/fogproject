@@ -248,7 +248,7 @@ class GroupManagementPage extends FOGPage
 		}
 		$imageIDMult = (is_array($imageID) ? array_unique($imageID) : $imageID);
 		$groupKeyMult = (is_array($groupKey) ? array_unique($groupKey) : $groupKey);
-		$groupKeyMult = array_filter($groupKeyMult);
+		$groupKeyMult = array_filter((array)$groupKeyMult);
 		if (count($imageIDMult) == 1)
 			$imageMatchID = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
 		// Title - set title for page title in window
