@@ -37,7 +37,8 @@ try
 							break;
 					}
 					$imgPartitionType = $Image->getImagePartitionType()->get('type');
-					$ret[] = base64_encode($Image->get('path').'|'.$OS->get('id').'|'.$imgType.'|'.$imgPartitionType);
+					$imgFormat = $Image->get('format');
+					$ret[] = base64_encode($Image->get('path').'|'.$OS->get('id').'|'.$imgType.'|'.$imgPartitionType.'|'.$imgFormat);
 				}
 			}
 			throw new Exception((count($ret) > 0 ? implode("\n",$ret) : base64_encode('null')));

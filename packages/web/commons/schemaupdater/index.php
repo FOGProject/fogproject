@@ -1720,6 +1720,11 @@ $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME . "`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	values('FOG_PXE_HIDDENMENU_TIMEOUT', '"._("This setting defines the default value for the pxe hidden menu timeout.")."', '3', 'FOG Boot Settings')",
 );
+// 142
+$databaseSchema[] = array(
+	"INSERT INTO `" . DATABASE_NAME . "`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	values('FOG_USED_TASKS', '"._("This setting defines tasks to consider \'Used\' in the task count.  Listing is comma separated, using the ID\'s of the tasks.")."', '1,15,17', 'General Settings')",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
