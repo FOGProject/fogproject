@@ -664,7 +664,7 @@ class Host extends FOGController
 	}
 
 	// Should be called: createDeployTask
-	public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '')
+	public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false)
 	{
 		try
 		{
@@ -843,7 +843,7 @@ class Host extends FOGController
 				$assoc = false;
 				$MultiSessName = current((array)$this->getClass('MulticastSessionsManager')->find(array('name' => $taskName,'stateID' => array(0,1,2,3))));
 				$MultiSessAssoc = current((array)$this->getClass('MulticastSessionsManager')->find(array('image' => $this->getImage()->get('id'),'stateID' => 0)));
-				if ($MultiSessName && $MultiSessName->isValid())
+				if ($sessionjoin && $MultiSessName && $MultiSessName->isValid())
 				{
 					$MulticastSession = $MultiSessName;
 					$assoc = true;
