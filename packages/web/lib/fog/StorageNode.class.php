@@ -66,9 +66,10 @@ class StorageNode extends FOGController
 	}
 	public function getUsedSlotCount()
 	{
+		$UsedTasks = explode(',',$this->FOGCore->getSetting('FOG_USED_TASKS'));
 		return $this->getClass('TaskManager')->count(array(
 			'stateID'	=> 3,
-			'typeID'	=> array(1,15,17),	// Just Download Tasks are "Used".
+			'typeID'	=> $UsedTasks,
 			'NFSMemberID'	=> $this->get('id')
 		));
 	}
