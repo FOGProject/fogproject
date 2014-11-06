@@ -435,7 +435,7 @@ class BootMenu extends FOGBase
 		{
 			$this->Host->set('imageID',$MultiSess->get('image'));
 			 // Create the host task
-			if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,'ipxe'))
+			if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,'ipxe','',true))
 				$this->chainBoot(false,true);
 		}
 	}
