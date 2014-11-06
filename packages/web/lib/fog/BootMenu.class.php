@@ -264,7 +264,7 @@ class BootMenu extends FOGBase
 				"echo Host approved successfully",
 				"sleep 3"
 			);
-			$this->Host->createImagePackage(10,'Inventory',false,false,false,false,'ipxe');
+			$this->Host->createImagePackage(10,'Inventory',false,false,false,false,$_REQUEST['username']);
 		}
 		else
 		{
@@ -435,7 +435,7 @@ class BootMenu extends FOGBase
 		{
 			$this->Host->set('imageID',$MultiSess->get('image'));
 			 // Create the host task
-			if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,'ipxe','',true))
+			if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,$_REQUEST['username'],'',true))
 				$this->chainBoot(false,true);
 		}
 	}
@@ -556,7 +556,7 @@ class BootMenu extends FOGBase
 			$this->Host->set('imageID',$imgID);
 		if ($this->Host->getImage()->isValid())
 		{
-			if($this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,'ipxe'))
+			if($this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,$_REQUEST['username']))
 				$this->chainBoot(false, true);
 		}
 		else
