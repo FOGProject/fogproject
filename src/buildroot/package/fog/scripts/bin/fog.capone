@@ -102,6 +102,15 @@ for line in $img; do
 	echo `echo $linedecode | awk -F"|" '{ print $1 }'`;
 	echo -n " Partition: ";
 	echo `echo $linedecode | awk -F"|" '{ print $4 }'`;
+	echo -n " Format : ";
+	imgFormat=`echo $linedecode | awk -F"|" '{ print $5 }'`;
+	if [ "$imgFormat" == 0 ]; then
+		echo "Partclone";
+	elif [ "$imgFormat" == 1 ]; then
+		echo "Partimage";
+	elif [ "$imgFormat" == 2 ]; then
+		echo "Partclone Split files";
+	fi
 	sleep 1;
 done
 echo "";
@@ -110,6 +119,7 @@ if [ "$cnt" = "1" ]; then
 	osid=`echo $linedecode | awk -F"|" '{ print $2 }'`;
 	imgType=`echo $linedecode | awk -F"|" '{ print $3 }'`;
 	imgPartitionType=`echo $linedecode | awk -F"|" '{ print $4 }'`;
+	imgFormat=`echo $linedecode | awk -F"|" '{ print $5 }'`;
 	determineOS $osid;
 elif [ "$cnt" = "0" ]; then
 	lookAtMe "No image definition was found for $dmivalue";
@@ -128,6 +138,7 @@ else
 			osid=`echo $linedecode | awk -F"|" '{ print $2 }'`;
 			imgType=`echo $linedecode | awk -F"|" '{ print $3 }'`;
 			imgPartitionType=`echo $linedecode | awk -F"|" '{ print $4 }'`;
+			imgFormat=`echo $linedecode | awk -F"|" '{ print $5 }'`;
 			determineOS $osid;
 			break;
 		fi
@@ -142,6 +153,7 @@ export img;
 export osid;
 export imgType;
 export imgPartitionType;
+export imgFormat;
 sleep 2;
 clear;
 fog;
