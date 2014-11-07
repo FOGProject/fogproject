@@ -27,45 +27,38 @@ try
 	if ($TaskType->isUpload() && !$StorageGroup->isValid())
 		throw new Exception(_('Invalid Storage Group'));
 	// Get the storage node.
-	$StorageNodes = $StorageGroup->getStorageNodes();
-	if ($TaskType->isUpload() && !$StorageNodes)
+	$StorageNode = $StorageGroup->getMasterStorageNode();
+	if ($TaskType->isUpload() && !$StorageNode)
 		throw new Exception(_('Could not find a Storage Node. Is there one enabled within this Storage Group?'));
 	// Image Name store for logging the image task later.
 	$Image = $Task->getImage();
 	$ImageName = $Image->get('name');
 	// Sets the class for ftp of files and deletion as necessary.
-	$ftp = $GLOBALS['FOGFTP'];
+	$ftp = $FOGFTP;
 	// Sets the mac address for tftp delete later.
 	$mactftp = strtolower(str_replace(':','-',$_REQUEST['mac']));
 	// Sets the mac address for ftp upload later.
 	$macftp = strtolower(str_replace(':','',$_REQUEST['mac']));
-	// Paths for use later.  Need to pass StorageNodes through loop to access functions.
-	foreach ($StorageNodes AS $StorageNode)
-	{
-		if ($StorageNode->get('isMaster'))
-		{
-			// Set the src based on the image and node path.
-			$src = $StorageNode->get('path').'/dev/'.$macftp;
-			// XP only, typically, had one part so only need the file part.
-			//if (($_REQUEST['osid'] == '1' || $_REQUEST['osid'] == '2') && $_REQUEST['imgtype'] == 'n')
-			//	$src = $StorageNode->get('path').'/dev/'.$macftp.'/'.$macftp.'.000';
-			// Where is it going?
-			$dest = $StorageNode->get('path').'/'.$_REQUEST['to'];
-			//Attempt transfer of image file to Storage Node
-			$ftp->set('host',$StorageNode->get('ip'))
-				->set('username',$StorageNode->get('user'))
-				->set('password',$StorageNode->get('pass'));
-			if (!$ftp->connect())
-				throw new Exception(_('Storage Node: '.$StorageNode->get('ip').' FTP Connection has failed!'));
-			// Try to delete the file.  Doesn't hurt anything if it doesn't delete anything.
-			$ftp->delete($dest);
-			if ($ftp->rename($dest,$src)||$ftp->put($dest,$src))
-				($_REQUEST['osid'] == '1' || $_REQUEST['osid'] == '2' ? $ftp->delete($StorageNode->get('path').'/dev/'.$macftp) : null);
-			else
-				throw new Exception(_('Move/rename failed.'));
-			$ftp->close();
-		}
-	}
+	// Set the src based on the image and node path.
+	$src = $StorageNode->get('path').'/dev/'.$macftp;
+	// XP only, typically, had one part so only need the file part.
+	//if (($_REQUEST['osid'] == '1' || $_REQUEST['osid'] == '2') && $_REQUEST['imgtype'] == 'n')
+	//	$src = $StorageNode->get('path').'/dev/'.$macftp.'/'.$macftp.'.000';
+	// Where is it going?
+	$dest = $StorageNode->get('path').'/'.$_REQUEST['to'];
+	//Attempt transfer of image file to Storage Node
+	$ftp->set('host',$StorageNode->get('ip'))
+		->set('username',$StorageNode->get('user'))
+		->set('password',$StorageNode->get('pass'));
+	if (!$ftp->connect())
+		throw new Exception(_('Storage Node: '.$StorageNode->get('ip').' FTP Connection has failed!'));
+	// Try to delete the file.  Doesn't hurt anything if it doesn't delete anything.
+	$ftp->delete($dest);
+	if ($ftp->rename($dest,$src)||$ftp->put($dest,$src))
+		($_REQUEST['osid'] == '1' || $_REQUEST['osid'] == '2' ? $ftp->delete($StorageNode->get('path').'/dev/'.$macftp) : null);
+	else
+		throw new Exception(_('Move/rename failed.'));
+	$ftp->close();
 	// If image is currently legacy, set as not legacy.
 	if ($Image->get('format') == 1)
 		$Image->set('format',0)->save();
