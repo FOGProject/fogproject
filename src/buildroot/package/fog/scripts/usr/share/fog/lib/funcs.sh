@@ -642,15 +642,15 @@ getHardDisk()
 			return 0;
 		done
 		# Lets check and see if the partition shows up in /proc/partitions		
-		strData=`cat /proc/partitions | grep $i 2>/dev/null`;
+		strData=`cat /proc/partitions | grep $hd 2>/dev/null`;
 		if [ -n "$strData" ]; then
 			return 0;
 		fi 
-		strData=`head -1 /dev/$i 2>/dev/null`;
+		strData=`head -1 /dev/$hd 2>/dev/null`;
 		if [ -n "$strData" ]; then
 			return 0;
 		fi 
-		strData=`fdisk -l | grep /dev/$i 2>/dev/null`;
+		strData=`fdisk -l | grep /dev/$hd 2>/dev/null`;
 		if [ -n "$strData" ]; then
 			hd="/dev/$i";
 			return 0;
