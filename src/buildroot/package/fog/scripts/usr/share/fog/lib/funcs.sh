@@ -642,28 +642,19 @@ getHardDisk()
 			return 0;
 		done
 		# Lets check and see if the partition shows up in /proc/partitions		
-		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf; do
-			strData=`cat /proc/partitions | grep $i 2>/dev/null`;
-			if [ -n "$strData" ]; then
-				hd="/dev/$i";
-				return 0;
-			fi 
-		done
-		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf; do		
-			strData=`head -1 /dev/$i 2>/dev/null`;
-			if [ -n "$strData" ]; then
-				hd="/dev/$i";
-				return 0;
-			fi 
-		done	
-		# Failed, probably because there is no partition on the device
-		for i in hda hdb hdc hdd hde hdf sda sdb sdc sdd sde sdf; do		
-			strData=`fdisk -l | grep /dev/$i 2>/dev/null`;
-			if [ -n "$strData" ]; then
-				hd="/dev/$i";
-				return 0;
-			fi 
-		done
+		strData=`cat /proc/partitions | grep $i 2>/dev/null`;
+		if [ -n "$strData" ]; then
+			return 0;
+		fi 
+		strData=`head -1 /dev/$i 2>/dev/null`;
+		if [ -n "$strData" ]; then
+			return 0;
+		fi 
+		strData=`fdisk -l | grep /dev/$i 2>/dev/null`;
+		if [ -n "$strData" ]; then
+			hd="/dev/$i";
+			return 0;
+		fi 
 	fi
 	return 1;
 }
