@@ -64,11 +64,11 @@ try
 				"\nSerial Number: " => $Inventory->get('sysserial'),
 				"\nMAC Address: " => $Host->get('mac')->__toString(),
 				"\n" => '',
-				"\nSnapin Used: " => $snpusd,
 				"\nImage Used: " => $ImagingLog->get('image'),
+				"\nSnapin Used: " => $snpusd,
 				"\n" => '',
 				"\nImaged By (Engineer): " => $engineer,
-				"\nImaged For (User): " => $puser,
+				($puser ? "\nImaged For (User): " : '' => $puser ? $puser : '',
 			);
 			$HookManager->processEvent('EMAIL_ITEMS',array('email' => &$email,'Host' => &$Host));
 			$emailMe = '';
