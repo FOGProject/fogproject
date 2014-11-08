@@ -17,18 +17,20 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 msgid " Enabled?"
-msgstr ""
+msgstr "&#21551;&#29992;&#65311;"
 
 msgid " after task completion"
-msgstr ""
+msgstr "&#20219;&#21153;&#23436;&#25104;&#21518;&#65292;"
 
 msgid " and select "
-msgstr ""
+msgstr "&#36873;&#25321;"
 
 msgid ""
 " include a header row, and make sure you resave the file as a CSV file and "
 "not XLS!"
 msgstr ""
+"&#21253;&#25324;&#26631;&#39064;&#34892;&#65292;&#24182;&#30830;&#20445;&#23558;&#25991;&#20214;&#21478;&#23384;&#20026;CSV&#25991;&#20214;&#65292;"
+"&#19981;XLS&#65281;"
 
 msgid " mac addresses updated!"
 msgstr ""
@@ -708,7 +710,7 @@ msgid "Español"
 msgstr ""
 
 msgid "Estimated FOG sites"
-msgstr ""
+msgstr "&#20272;&#35745;FOG&#32593;&#31449;"
 
 msgid "Exit to Hard Drive Type"
 msgstr ""
@@ -1311,7 +1313,7 @@ msgid "Kill"
 msgstr ""
 
 msgid "Language"
-msgstr ""
+msgstr "&#35821;&#35328;"
 
 msgid "Last Deployed"
 msgstr ""
@@ -1320,7 +1322,7 @@ msgid "Last Uploaded"
 msgstr ""
 
 msgid "Latest Version"
-msgstr ""
+msgstr "&#26368;&#26032;&#29256;&#26412;"
 
 msgid "License"
 msgstr ""
@@ -1689,7 +1691,7 @@ msgid "PartImage"
 msgstr ""
 
 msgid "Password"
-msgstr ""
+msgstr "&#23494;&#30721;"
 
 msgid "Password is invalid"
 msgstr ""
@@ -2811,7 +2813,7 @@ msgid "User updated"
 msgstr ""
 
 msgid "Username"
-msgstr ""
+msgstr "&#29992;&#25143;&#21517;"
 
 msgid "Username already exists"
 msgstr ""
