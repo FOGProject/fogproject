@@ -38,7 +38,7 @@ try
 		else
 		{
 			// Get the tasks of the job so long as they're active.
-			$SnapinTasks = count($SnapinTasks)
+			$SnapinTasks = count($SnapinTasks);
 			$Snapins = ($SnapinTasks ? 1 : 0);
 		}
 	}
