@@ -436,7 +436,7 @@ abstract class FOGBase
 	**/
 	public function byteconvert($kilobytes)
 	{
-		return (($kilobytes / 1024) * 8);
+		return (($kilobytes / 8) * 1024);
 	}
 }
 /* Local Variables: */
