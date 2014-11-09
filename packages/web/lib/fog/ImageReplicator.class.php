@@ -61,10 +61,10 @@ class ImageReplicator extends FOGBase
 								if ($limitmain > 0)
 								{
 									unset($limitsend)
-									$limit = "set net:connection-limit 1;set net:limit-total-rate $limitmain;";
+									$limit = "set net:limit-total-rate $limitmain;";
 								}
 								else if ($limitsend > 0)
-									$limit = "set net:connection-limit 1;set net:limit-rate $limitsend;";
+									$limit = "set net:limit-rate $limitsend;";
 								$this->outall(sprintf(" * Found image to transfer to %s group(s)",count($Image->get('storageGroups')) - 1));
 								$this->outall(sprintf(" | Image name: %s",$Image->get('name')));
 								$this->outall(sprintf(" * Syncing: %s",$StorageNodeToSend->get('name')));
@@ -106,10 +106,10 @@ class ImageReplicator extends FOGBase
 							if ($limitmain > 0)
 							{
 								unset($limitsend)
-								$limit = "set net:connection-limit 1;set net:limit-total-rate $limitmain;";
+								$limit = "set net:limit-total-rate $limitmain;";
 							}
 							else if ($limitsend > 0)
-								$limit = "set net:connection-limit 1;set net:limit-rate $limitsend;";
+								$limit = "set net:limit-rate $limitsend;";
 							$this->outall(sprintf(" * Syncing: %s",$StorageNode->get('name')));
 							$process[] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".$limit." mirror -n --ignore-time -R -vvv --exclude 'dev/' --delete $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
 						}
