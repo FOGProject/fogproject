@@ -1,11 +1,6 @@
 <?php
 @session_set_cookie_params(0);
 @session_start();
-(!isset($_SESSION['locale']) ? $_SESSION['locale'] = 'en_US' : null);
-putenv("LC_ALL=".$_SESSION['locale']);
-setlocale(LC_ALL, $_SESSION['locale']);
-bindtextdomain("messages", "../languages");
-textdomain("messages");
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
 print "\n<html>";
 print "\n\t<head>";

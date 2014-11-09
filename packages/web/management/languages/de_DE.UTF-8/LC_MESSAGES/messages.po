@@ -18,211 +18,215 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid " Enabled?"
-msgstr ""
+msgstr " Aktiviert?"
 
 msgid " after task completion"
-msgstr ""
+msgstr " nach aufgabenerledigung"
 
 msgid " and select "
-msgstr ""
+msgstr " und wählen sie"
 
 msgid ""
 " include a header row, and make sure you resave the file as a CSV file and "
 "not XLS!"
 msgstr ""
+" gehören eine Kopfzeile, und stellen Sie sicher, dass Sie die Datei als CSV-Datei speichern und"
+"nicht XLS!"
 
 msgid " mac addresses updated!"
-msgstr ""
+msgstr " MAC-Adressen aktualisiert!"
 
 msgid " or "
-msgstr ""
+msgstr " oder "
 
 msgid ""
 " to download a template file.  The only fields that are required are "
 "hostname and MAC address.  Do "
 msgstr ""
+" um eine vorlage-datei herunterladen. Die einzigen felder, die erforderlich sind, sind"
+"hostname und MAC-Adresse. Tun"
 
 msgid "# Computers Imaged"
-msgstr ""
+msgstr "# Computer Abgebildete"
 
 msgid "#!ih"
-msgstr ""
+msgstr "#!ih"
 
 msgid "#!im"
-msgstr ""
+msgstr "#!im"
 
 #, php-format
 msgid "%s Manager"
-msgstr ""
+msgstr "%s Manager"
 
 #, php-format
 msgid "%s Menu"
-msgstr ""
+msgstr "%s Menü"
 
 msgid "(To be released only by XXXXXXXXX)"
-msgstr ""
+msgstr "(Nur für die freigesetzt werden XXXXXXXXX)"
 
 msgid "1 Hour"
-msgstr ""
+msgstr "1 Stunde"
 
 msgid "10 Minutes"
-msgstr ""
+msgstr "10 Minutes"
 
 msgid "2 Minutes"
-msgstr ""
+msgstr "2 Minutes"
 
 msgid "30 Day Imaging History"
-msgstr ""
+msgstr "30 Tage Imaging Geschichte"
 
 msgid "30 Minutes"
-msgstr ""
+msgstr "30 Minutes"
 
 msgid "<!-- "
-msgstr ""
+msgstr "<!-- "
 
 msgid "?"
-msgstr ""
+msgstr "?"
 
 msgid "A host with this MAC already exists with Hostname: "
-msgstr ""
+msgstr "Ein Host mit dieser MAC existiert bereits mit Hostname:"
 
 msgid "A task already exists for this Host at this cron schedule"
-msgstr ""
+msgstr "Eine Aufgabe, für diesen Host an dieser chronologischen Zeitplan existiert bereits"
 
 msgid "A task already exists for this Host at this scheduled date & time"
-msgstr ""
+msgstr "Eine Aufgabe, für diesen Host an diesem geplanten Datum & Zeit existiert bereits"
 
 msgid "AD Domain"
-msgstr ""
+msgstr "AD-Domäne"
 
 msgid "AD Join"
-msgstr ""
+msgstr "AD Registriert"
 
 msgid "AD OU"
-msgstr ""
+msgstr "AD OU"
 
 msgid "About FOG Reports"
-msgstr ""
+msgstr "Über FOG Berichte"
 
 msgid "Accepted"
-msgstr ""
+msgstr "Akzeptiert"
 
 msgid "Access Control"
-msgstr ""
+msgstr "Access Control"
 
 msgid "Action"
-msgstr ""
+msgstr "Aktion"
 
 msgid "Actions"
-msgstr ""
+msgstr "Aktionen"
 
 msgid "Activate Plugins"
-msgstr ""
+msgstr "Aktivieren Plugins"
 
 msgid "Active"
-msgstr ""
+msgstr "Aktiv"
 
 msgid "Active Directory"
-msgstr ""
+msgstr "Active Directory"
 
 msgid "Active Multi-cast Tasks"
-msgstr ""
+msgstr "Aktiver Multi-cast Aufgaben"
 
 msgid "Active Multicast Tasks"
-msgstr ""
+msgstr "Aktive Multicast Aufgaben"
 
 msgid "Active Snapin Tasks"
-msgstr ""
+msgstr "Aktive Snapin Aufgaben"
 
 msgid "Active Tasks"
-msgstr ""
+msgstr "Aktive Aufgaben"
 
 msgid "Active/Type"
-msgstr ""
+msgstr "Aktiv/Typ"
 
 msgid "Add"
-msgstr ""
+msgstr "Hinzufügen"
 
 msgid "Add Association"
-msgstr ""
+msgstr "In Verband"
 
 msgid "Add Directory"
-msgstr ""
+msgstr "Verzeichnis Hinzufügen"
 
 msgid "Add Event"
-msgstr ""
+msgstr "Ereignis Hinzufügen"
 
 msgid "Add Event (24 Hour Format):"
-msgstr ""
+msgstr "Ereignis hinzufügen (24-Stunden-Format):"
 
 msgid "Add Host(s) to Group"
-msgstr ""
+msgstr "Add Host(s) zum Konzern"
 
 msgid "Add Image to DMI Associations"
-msgstr ""
+msgstr "Bild hinzufügen, um DMI Verbände"
 
 msgid "Add Image to Host(s)"
-msgstr ""
+msgstr "Bild hinzufügen, um Host(s)"
 
 msgid "Add MAC"
-msgstr ""
+msgstr "In MAC"
 
 msgid "Add Mac"
-msgstr ""
+msgstr "In MAC"
 
 msgid "Add New Snapin"
-msgstr ""
+msgstr "In New Snapin"
 
 msgid "Add New Storage Group"
-msgstr ""
+msgstr "In neuen Speichergruppe"
 
 msgid "Add New Storage Node"
-msgstr ""
+msgstr "In neuen Speicherknotennode"
 
 msgid "Add Only"
-msgstr ""
+msgstr "Nur hinzufügen"
 
 msgid "Add Printer"
-msgstr ""
+msgstr "Drucker hinzufügen"
 
 msgid "Add Protected User"
-msgstr ""
+msgstr "In geschützte Benutzer"
 
 msgid "Add Snapin"
-msgstr ""
+msgstr "In Snapin"
 
 msgid "Add Snapin to all hosts in"
-msgstr ""
+msgstr "In Snapin an alle Hosts in"
 
 msgid "Add Snapin(s)"
-msgstr ""
+msgstr "In Snapin(s)"
 
 msgid "Add Storage Group"
-msgstr ""
+msgstr "In Speichergruppe"
 
 msgid "Add Storage Node"
-msgstr ""
+msgstr "In neuen Speicherknotennode"
 
 msgid "Add User"
-msgstr ""
+msgstr "Benutzer hinzufügen"
 
 msgid "Add and Remove"
-msgstr ""
+msgstr "Hinzufügen und Entfernen"
 
 msgid "Add hosts to group"
-msgstr ""
+msgstr "In Hosts zu gruppieren"
 
 msgid "Add new host definition"
-msgstr ""
+msgstr "Hinzufügen neuer Host-Definition"
 
 msgid "Add new image definition"
-msgstr ""
+msgstr "In neue Image-Definition"
 
 msgid "Add new printer"
-msgstr ""
+msgstr "Hinzufügen neuer Drucker"
 
 msgid "Add new printer to all hosts in this group."
-msgstr ""
+msgstr "In neuen Drucker an alle Hosts in dieser Gruppe."
 
 msgid "Add new user account"
 msgstr ""
@@ -709,7 +713,7 @@ msgid "Español"
 msgstr ""
 
 msgid "Estimated FOG sites"
-msgstr ""
+msgstr "Geschätzte FOG Websites"
 
 msgid "Exit to Hard Drive Type"
 msgstr ""
@@ -1231,7 +1235,7 @@ msgid "Invalid Host"
 msgstr ""
 
 msgid "Invalid Login"
-msgstr ""
+msgstr "Ungültige Anmelde"
 
 msgid "Invalid MAC Address"
 msgstr ""
@@ -1321,7 +1325,7 @@ msgid "Last Uploaded"
 msgstr ""
 
 msgid "Latest Version"
-msgstr ""
+msgstr "Neueste Version"
 
 msgid "License"
 msgstr ""
@@ -1690,7 +1694,7 @@ msgid "PartImage"
 msgstr ""
 
 msgid "Password"
-msgstr ""
+msgstr "Kennwort"
 
 msgid "Password is invalid"
 msgstr ""
@@ -2812,7 +2816,7 @@ msgid "User updated"
 msgstr ""
 
 msgid "Username"
-msgstr ""
+msgstr "Benutzername"
 
 msgid "Username already exists"
 msgstr ""
