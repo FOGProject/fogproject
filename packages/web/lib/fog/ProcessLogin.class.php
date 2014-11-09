@@ -37,21 +37,29 @@ class ProcessLogin extends FOGBase
 		{
 			case 'en_US.UTF-8':
 				return $this->foglang['Language']['en'];
+			break;
 			case 'it_IT.UTF-8':
 				return $this->foglang['Language']['it'];
+			break;
 			case 'es_ES.UTF-8':
 				return $this->foglang['Language']['es'];
+			break;
 			case 'fr_FR.UTF-8':
 				return $this->foglang['Language']['fr'];
+			break;
 			case 'zh_CN.UTF-8':
 				return $this->foglang['Language']['zh'];
+			break;
 			case 'de_DE.UTF-8':
 				return $this->foglang['Language']['de'];
+			break;
 			case 'pt_BR.UTF-8':
 				return $this->foglang['Language']['pt'];
+			break;
 			default :
 				$lang = $this->defaultLang();
 				return $this->foglang['Language'][$lang[0]]; 
+			break;
 		}
 	}
 
