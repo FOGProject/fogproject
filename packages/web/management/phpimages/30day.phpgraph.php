@@ -1,12 +1,6 @@
 <?php
 session_start();
 require_once("../../commons/base.inc.php");
-if(!isset($_SESSION["locale"]))
-	$_SESSION['locale'] = "en_US";
-putenv("LC_ALL=".$_SESSION['locale']);
-setlocale(LC_ALL, $_SESSION['locale']);
-bindtextdomain("messages", "../languages");
-textdomain("messages");
 function getD($aLabel)
 {
 	return date("M j", strtotime( "-" .(30 -$aLabel) ." day"));	
