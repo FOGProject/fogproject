@@ -59,7 +59,7 @@ class SnapinReplicator extends FOGBase
 									$ip = $StorageNodeToSend->get('ip');
 									$remSnapin = rtrim($StorageNodeToSend->get('snapinpath'),'/');
 									$mySnapin = rtrim($StorageNode->get('snapinpath'),'/');
-									$limit = ($StorageNodeToSend->get('bandwidth') * 1000);
+									$limit = $this->byteconvert($StorageNodeToSend->get('bandwidth'));
 									$this->outall(sprintf(" * Found snapin to transfer to %s group(s)",count($Snapin->get('storageGroups')) -1));
 									$this->outall(sprintf(" | Snapin name: %s",$Snapin->get('name')));
 									$this->outall(sprintf(" * Syncing: %s",$StorageNodeToSend->get('name')));
@@ -94,7 +94,7 @@ class SnapinReplicator extends FOGBase
 									$password = $StorageNodeFTP->get('pass');
 									$ip = $StorageNodeFTP->get('ip');
 									$remRoot = rtrim($StorageNodeFTP->get('snapinpath'),'/');
-									$limit = ($StorageNodeFTP->get('bandwidth') * 1000);
+									$limit = $this->byteconvert($StorageNodeFTP->get('bandwidth'));
 									$this->outall(sprintf(" * Syncing: %s",$StorageNodeFTP->get('name')));
 									$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".($limit > 0 ? "set net:connection-limit 1;set net:limit-total-rate $limit;" : '')." mirror -i $mySnapFile -n --ignore-time -R -vvv --delete $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
 									while(!feof($process) && $process != null)
