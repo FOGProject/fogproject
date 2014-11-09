@@ -61,8 +61,8 @@ class SnapinReplicator extends FOGBase
 									$mySnapin = rtrim($StorageNode->get('snapinpath'),'/');
 									$limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
 									$limitsend = $this->byteconvert($StorageNodeToSend->get('bandwidth'));
-									if ($limitmain > 0)
-										$limit = "set net:limit-total-rate 0:$limitmain;";
+									//if ($limitmain > 0)
+									//	$limit = "set net:limit-total-rate 0:$limitmain;";
 									if ($limitsend > 0)
 										$limit .= "set net:limit-rate 0:$limitsend;";
 									$this->outall(sprintf(" * Found snapin to transfer to %s group(s)",count($Snapin->get('storageGroups')) -1));
@@ -106,8 +106,8 @@ class SnapinReplicator extends FOGBase
 									$remRoot = rtrim($StorageNodeFTP->get('snapinpath'),'/');
 									$limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
 									$limitsend = $this->byteconvert($StorageNodeFTP->get('bandwidth'));
-									if ($limitmain > 0)
-										$limit = "set net:limit-total-rate 0:$limitmain;";
+									//if ($limitmain > 0)
+									//	$limit = "set net:limit-total-rate 0:$limitmain;";
 									if ($limitsend > 0)
 										$limit .= "set net:limit-rate 0:$limitsend;";
 									$this->outall(sprintf(" * Syncing: %s",$StorageNodeFTP->get('name')));
