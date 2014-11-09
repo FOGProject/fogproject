@@ -76,7 +76,7 @@ class ImageReplicator extends FOGBase
 					{
 						while (!feof($proc) && $proc != null)
 						{
-							$output = fgets($process,256);
+							$output = fgets($proc,256);
 							if ($output)
 								$this->outall(sprintf(" * SubProcess->%s",$output));
 						}
