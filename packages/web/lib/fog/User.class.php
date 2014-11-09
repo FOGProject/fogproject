@@ -86,6 +86,7 @@ class User extends FOGController
 	public function logout()
 	{
 		// Destroy session
+		$locale = $_SESSION['locale'];
 		@session_write_close();
 		@session_set_cookie_params(0);
 		@session_start();
@@ -93,6 +94,7 @@ class User extends FOGController
 		@session_unset();
 		@session_destroy();
 		$_SESSION=array();
+		$_SESSION['locale'] = $locale;
 		$this->FOGCore->redirect('index.php');
 	}
 }

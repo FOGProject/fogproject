@@ -176,7 +176,7 @@ class StorageManagementPage extends FOGPage
 				throw new Exception($this->foglang['StorageUserRequired']);
 			if (empty($_REQUEST['pass']))
 				throw new Exception($this->foglang['StoragePassRequired']);
-			if ($_REQUEST['bandwidth'] && (!(is_numeric($_REQUEST['bandwidth']) && $_REQUEST['bandwidth'] > 0) || !is_numeric($_REQUEST)))
+			if (((is_numeric($_REQUEST['bandwidth']) && $_REQUEST['bandwidth'] <= 0) || !is_numeric($_REQUEST['bandwidth'])) && $_REQUEST['bandwidth'])
 				throw new Exception(_('Bandwidth should be numeric and greater than 0'));
 			// Create new Object
 			$StorageNode = new StorageNode(array(
@@ -320,7 +320,7 @@ class StorageManagementPage extends FOGPage
 				throw new Exception($this->foglang['StorageUserRequired']);
 			if (empty($_REQUEST['pass']))
 				throw new Exception($this->foglang['StoragePassRequired']);
-			if ($_REQUEST['bandwidth'] && (!(is_numeric($_REQUEST['bandwidth']) && $_REQUEST['bandwidth'] > 0) || !is_numeric($_REQUEST)))
+			if (((is_numeric($_REQUEST['bandwidth']) && $_REQUEST['bandwidth'] <= 0) || !is_numeric($_REQUEST['bandwidth'])) && $_REQUEST['bandwidth'])
 				throw new Exception(_('Bandwidth should be numeric and greater than 0'));
 			// Update Object
 			$StorageNode	->set('name',		$_REQUEST['name'])
