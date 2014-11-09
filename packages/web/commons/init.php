@@ -215,3 +215,4 @@ $HookManager->load();
 // FOGPageManager
 $FOGPageManager = new FOGPageManager();
 $Init::endInit();
+ob_start('ob_gzhandler');

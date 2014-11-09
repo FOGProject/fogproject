@@ -3,12 +3,6 @@ error_reporting( E_ALL );
 session_cache_limiter("no-cache");
 session_start();
 require_once('../../commons/base.inc.php');
-if(!isset($_SESSION["locale"]))
-	$_SESSION['locale'] = "en_US";
-putenv("LC_ALL=".$_SESSION['locale']);
-setlocale(LC_ALL, $_SESSION['locale']);
-bindtextdomain("messages", "../languages");
-textdomain("messages");
 require_once ("../lib/jpgraph/" . $FOGCore->getSetting("FOG_JPGRAPH_VERSION"). "/src/jpgraph.php");
 require_once ("../lib/jpgraph/" . $FOGCore->getSetting("FOG_JPGRAPH_VERSION"). "/src/jpgraph_line.php");
 $data1 = $_SESSION["rx"];
