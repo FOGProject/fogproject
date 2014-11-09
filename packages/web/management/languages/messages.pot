@@ -233,6 +233,9 @@ msgstr ""
 msgid "4 weeks ago"
 msgstr ""
 
+msgid "Bandwidth should be numeric and greater than 0"
+msgstr ""
+
 msgid "Force"
 msgstr ""
 
@@ -2626,6 +2629,12 @@ msgid "Groups"
 msgstr ""
 
 msgid "Bandwidth"
+msgstr ""
+
+msgid "Replication Bandwidth"
+msgstr ""
+
+msgid "This setting limits the bandwidth for replication between nodes.  It operates by getting the max upload setting of the node it's transmitting to. So if you are trying to transmit to remote node A and node A only has a 5Mbps and you want the speed limited to 1Mbps on that node, you set the bandwidth field on that node to 1000."
 msgstr ""
 
 msgid "Transmit"
