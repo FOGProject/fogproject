@@ -430,6 +430,14 @@ abstract class FOGBase
 		$input = array_values($input);
 		return $input;
 	}
+	/** byteconvert($kilobytes)
+	* @param $kilobytes
+	* @return $kilobytes
+	**/
+	public function byteconvert($kilobytes)
+	{
+		return (($kilobytes / 1024) * 8);
+	}
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */
