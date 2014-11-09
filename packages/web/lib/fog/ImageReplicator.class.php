@@ -60,7 +60,7 @@ class ImageReplicator extends FOGBase
 								$limitsend = $this->byteconvert($StorageNodeToSend->get('bandwidth'));
 								if ($limitmain > 0)
 								{
-									unset($limitsend)
+									unset($limitsend);
 									$limit = "set net:limit-total-rate $limitmain;";
 								}
 								else if ($limitsend > 0)
@@ -105,7 +105,7 @@ class ImageReplicator extends FOGBase
 							$limitsend = $this->byteconvert($StorageNodeFTP->get('bandwidth'));
 							if ($limitmain > 0)
 							{
-								unset($limitsend)
+								unset($limitsend);
 								$limit = "set net:limit-total-rate $limitmain;";
 							}
 							else if ($limitsend > 0)
