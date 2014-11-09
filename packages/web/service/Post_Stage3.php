@@ -68,7 +68,7 @@ try
 				"\nSnapin Used: " => $snpusd,
 				"\n" => '',
 				"\nImaged By (Engineer): " => $engineer,
-				($puser ? "\nImaged For (User): " : '' => $puser ? $puser : '',
+				($puser ? "\nImaged For (User): " : '' => $puser ? $puser : ''),
 			);
 			$HookManager->processEvent('EMAIL_ITEMS',array('email' => &$email,'Host' => &$Host));
 			$emailMe = '';
