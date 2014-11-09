@@ -56,11 +56,11 @@ class ImageReplicator extends FOGBase
 								$ip = $StorageNodeToSend->get('ip');
 								$remImage = rtrim($StorageNodeToSend->get('path'),'/').'/'.$Image->get('path');
 								$myImage = rtrim($StorageNode->get('path'),'/').'/'.$Image->get('path');
-								$limit = ($StorageNode->get('bandwidth') * 1000);
+								$limit = ($StorageNodeToSend->get('bandwidth') * 1000);
 								$this->outall(sprintf(" * Found image to transfer to %s group(s)",count($Image->get('storageGroups')) - 1));
 								$this->outall(sprintf(" | Image name: %s",$Image->get('name')));
 								$this->outall(sprintf(" * Syncing: %s",$StorageNodeToSend->get('name')));
-								$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".($limit > 0 ? "set net:connection-limit 1;set net:limit-total-rate 0:$limit;" : '')." mirror -n --ignore-time -R -vvv --exclude 'dev/' --delete $myImage $remImage; exit\" -u $username,$password $ip 2>&1","r");
+								$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".($limit > 0 ? "set net:connection-limit 1;set net:limit-total-rate $limit;" : '')." mirror -n --ignore-time -R -vvv --exclude 'dev/' --delete $myImage $remImage; exit\" -u $username,$password $ip 2>&1","r");
 								while(!feof($process) && $process != null)
 								{
 									$output = fgets($process,256);
@@ -89,9 +89,9 @@ class ImageReplicator extends FOGBase
 							$password = $StorageNodeFTP->get('pass');
 							$ip = $StorageNodeFTP->get('ip');
 							$remRoot = rtrim($StorageNodeFTP->get('path'),'/');
-							$limit = ($StorageNode->get('bandwidth') * 1000);
+							$limit = ($StorageNodeFTP->get('bandwidth') * 1000);
 							$this->outall(sprintf(" * Syncing: %s",$StorageNode->get('name')));
-							$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".($limit > 0 ? "set net:connection-limit 1;set net:limit-total-rate 0:$limit;" : '')." mirror -n --ignore-time -R -vvv --exclude 'dev/' --delete $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
+							$process = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".($limit > 0 ? "set net:connection-limit 1;set net:limit-total-rate $limit;" : '')." mirror -n --ignore-time -R -vvv --exclude 'dev/' --delete $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
 							while(!feof($process) && $process != null)
 							{
 								$output = fgets($process,256);
