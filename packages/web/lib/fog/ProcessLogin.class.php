@@ -1,7 +1,7 @@
 <?php
 class ProcessLogin extends FOGBase
 {
-	private $username, $password, $currentUser;
+	private $username, $password, $currentUser, $langSet;
 	private $mobileMenu, $mainMenu, $langMenu;
 	public function __construct()
 	{
@@ -47,6 +47,8 @@ class ProcessLogin extends FOGBase
 				return $this->foglang['Language']['zh'];
 			case 'de_DE.UTF-8':
 				return $this->foglang['Language']['de'];
+			case 'pt_BR.UTF-8':
+				return $this->foglang['Language']['pt'];
 			default :
 				$lang = $this->defaultLang();
 				return $this->foglang['Language'][$lang[0]]; 
@@ -92,10 +94,22 @@ class ProcessLogin extends FOGBase
 			$this->specLang();
 			$_SESSION['locale'] = $_REQUEST['ulang'];
 			putenv("LC_ALL=".$_SESSION['locale']);
-			setlocale(LC_ALL,$_SESSION['locale']);
+			$originalLocales = explode(';',setlocale(LC_ALL,0));
+			foreach($originalLocals AS $_SESSION['locale'])
+			{
+				if (strpos($_SESSION['locale'],'=') !== false)
+					list($category, $locale) = explode('=', $_SESSION['locale']);
+				else
+				{
+					$category = 'LC_ALL';
+					$locale = $_SESSION['locale'];
+				}
+				setlocale($category,$locale);
+			}
 			bindtextdomain('messages','languages');
 			textdomain('messages');
 		}
+		$this->langSet = true;
 	}
 
 	private function setCurUser($tmpUser)
@@ -133,7 +147,8 @@ class ProcessLogin extends FOGBase
 
 	public function processMainLogin()
 	{
-		$this->setLang();
+		if (!$this->langSet)
+			$this->setLang();
 		if(isset($_REQUEST['uname']) && isset($_REQUEST['upass']))
 		{
 			$this->username = trim($_REQUEST['uname']);
@@ -159,7 +174,8 @@ class ProcessLogin extends FOGBase
 
 	public function processMobileLogin()
 	{
-		$this->setLang();
+		if (!$this->langSet)
+			$this->setLang();
 		if (isset($_REQUEST['uname']) && isset($_REQUEST['upass']))
 		{
 			$this->username = trim($_REQUEST['uname']);
@@ -167,10 +183,9 @@ class ProcessLogin extends FOGBase
 			$tmpUser = $this->FOGCore->attemptLogin($this->username, $this->password);
 			try
 			{
-				if (!$tmpUser)
+				if (!$tmpUser || !$tmpUser->isValid())
 					throw new Exception($this->foglang['InvalidLogin']);
-				if ($tmpUser->isValid())
-					$this->setCurUser($tmpUser);
+				$this->setCurUser($tmpUser);
 			}
 			catch (Exception $e)
 			{
