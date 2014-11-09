@@ -23,7 +23,8 @@ class StorageNode extends FOGController
 		'user'		=> 'ngmUser',
 		'pass'		=> 'ngmPass',
 		'key'		=> 'ngmKey',
-		'interface'	=> 'ngmInterface'
+		'interface'	=> 'ngmInterface',
+		'bandwidth' => 'ngmBandwidthLimit',
 	);
 	// Required database fields
 	public $databaseFieldsRequired = array(
