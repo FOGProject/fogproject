@@ -87,29 +87,17 @@ class ProcessLogin extends FOGBase
 		}
 	}
 
-	private function setLang()
+	public function setLang()
 	{
 		if ($_REQUEST['ulang'])
 		{
 			$this->specLang();
 			$_SESSION['locale'] = $_REQUEST['ulang'];
 			putenv("LC_ALL=".$_SESSION['locale']);
-			$originalLocales = explode(';',setlocale(LC_ALL,0));
-			foreach($originalLocals AS $_SESSION['locale'])
-			{
-				if (strpos($_SESSION['locale'],'=') !== false)
-					list($category, $locale) = explode('=', $_SESSION['locale']);
-				else
-				{
-					$category = 'LC_ALL';
-					$locale = $_SESSION['locale'];
-				}
-				setlocale($category,$locale);
-			}
+			setlocale(LC_ALL,$_SESSION['locale']);
 			bindtextdomain('messages','languages');
 			textdomain('messages');
 		}
-		$this->langSet = true;
 	}
 
 	private function setCurUser($tmpUser)
@@ -139,6 +127,7 @@ class ProcessLogin extends FOGBase
 
 	public function loginFail($string)
 	{
+		$this->setLang();
 		// Hook
 		if (!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
 			$this->HookManager->processEvent('LoginFail', array('username' => &$this->username, 'password' => &$this->password));
@@ -147,8 +136,7 @@ class ProcessLogin extends FOGBase
 
 	public function processMainLogin()
 	{
-		if (!$this->langSet)
-			$this->setLang();
+		$this->setLang();
 		if(isset($_REQUEST['uname']) && isset($_REQUEST['upass']))
 		{
 			$this->username = trim($_REQUEST['uname']);
@@ -158,9 +146,9 @@ class ProcessLogin extends FOGBase
 			$this->HookManager->processEvent('USER_LOGGING_IN', array('User' => &$tmpUser,'username' => &$this->username, 'password' => &$this->password));
 			try
 			{
-				if (!$tmpUser)
+				if (!$tmpUser || !$tmpUser->isValid())
 					throw new Exception($this->foglang['InvalidLogin']);
-				if ($tmpUser->isValid() && $tmpUser->get('type') == 0 && $tmpUser->get('type') != 1)
+				if ($tmpUser->get('type') == 0 && $tmpUser->get('type') != 1)
 					$this->setCurUser($tmpUser);
 				else if ($tmpUser->get('type') == 0)
 					throw new Exception($this->foglang['NotAllowedHere']);
@@ -174,8 +162,7 @@ class ProcessLogin extends FOGBase
 
 	public function processMobileLogin()
 	{
-		if (!$this->langSet)
-			$this->setLang();
+		$this->setLang();
 		if (isset($_REQUEST['uname']) && isset($_REQUEST['upass']))
 		{
 			$this->username = trim($_REQUEST['uname']);
@@ -196,6 +183,7 @@ class ProcessLogin extends FOGBase
 
 	public function mainLoginForm()
 	{
+		$this->setLang();
 		print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 		print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 		print "\n\t<head>";
@@ -260,6 +248,7 @@ class ProcessLogin extends FOGBase
 
 	public function mobileLoginForm()
 	{
+		$this->setLang();
 		print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 		print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 		print "\n\t<head>";
