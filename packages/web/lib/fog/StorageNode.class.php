@@ -81,7 +81,7 @@ class StorageNode extends FOGController
 				$Multicast = current($this->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $MulticastTask->get('id'))));
 				if ($Multicast && $Multicast->isValid())
 				{
-					$MulticastJob = new MulticastSession($Multicast->get('jobID'));
+					$MulticastJob = new MulticastSessions($Multicast->get('jobID'));
 					if ($MulticastJob && $MulticastJob->isValid())
 						$MulticastJobID[] = $MulticastJob->get('id');
 				}
