@@ -83,9 +83,11 @@ class StorageNode extends FOGController
 				{
 					$MulticastJob = new MulticastSession($Multicast->get('jobID'));
 					if ($MulticastJob && $MulticastJob->isValid())
-						$countTasks++;
+						$MulticastJobID[] = $MulticastJob->get('id');
 				}
 			}
+			$MulticastJobID = array_unique($MulticastJobID);
+			$countTasks = count($MulticastJobID);
 			$UsedTasks = array_values($UsedTasks);
 		}
 		$countTasks += $this->getClass('TaskManager')->count(array(
