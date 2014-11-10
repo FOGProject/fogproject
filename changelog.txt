@@ -68,6 +68,10 @@ directly purely from the plugin.
 * Add WOL broadcast address plugin.  This simply tells the fog server where to
 send wol broadcasts and is useful in the case of vlans where you don't control
 your own network.
+* Add snapin/image replication to work group->group as well as the normal.
+* Add replication to allow multiple processes at the same time.
+* Add bandwidth limitations on replication.
+* Add capability to tell the system which tasks you want to take slots.
 * Change names of PXE Menu stuff to iPXE stuff.
 
 Version 1.2.0
