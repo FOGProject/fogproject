@@ -47,7 +47,7 @@ then
 	then
     strSuggestedIPaddress=`ip -f inet -o addr show | cut -d\  -f 7 | cut -d/ -f 1 | head -n2 | tail -n1`;
   else
-    strSuggestedIPaddress=`ifconfig | grep "inet addr:" | head -n 1  | cut -d':' -f2 | cut -d' ' -f1`;
+    strSuggestedIPaddress=`LC_ALL=POSIX ifconfig | grep "inet addr:" | head -n 1  | cut -d':' -f2 | cut -d' ' -f1`;
   fi
 	if [ -z "$strSuggestedIPaddress" ]
 	then
