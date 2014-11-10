@@ -71,7 +71,7 @@ class MySQL extends FOGBase
 			if ($this->link->connect_error)
 				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s, Error: %s', $this->host, $this->user, '[Protected]', $this->dbname, $this->link->connect_error));
 			if ($this->dbname)
-				$this->link->select_db($this->dbname);
+				$this->select_db($this->dbname);
 		}
 		catch (Exception $e)
 		{
