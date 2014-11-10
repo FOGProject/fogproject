@@ -355,7 +355,6 @@ class ImageManagementPage extends FOGPage
 		$this->headerData = array(
 			'',
 			'<input type="checkbox" name="toggle-checkboximage1" class="toggle-checkbox1" />',
-			($_SESSION['FOGPingActive'] ? '' : null),
 			_('Host Name'),
 			_('Last Deployed'),
 			_('Registered'),
@@ -364,7 +363,6 @@ class ImageManagementPage extends FOGPage
 		$this->templates = array(
 			'<span class="icon icon-help hand" title="${host_desc}"></span>',
 			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
-			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'${deployed}',
 			'${host_reg}',
@@ -373,7 +371,6 @@ class ImageManagementPage extends FOGPage
 		$this->attributes = array(
 			array('width' => 22, 'id' => 'host-${host_name}'),
 			array('class' => 'c', 'width' => 16),
-			($_SESSION['FOGPingActive'] ? array('width' => 20) : ''),
 			array(),
 			array(),
 			array(),
@@ -413,7 +410,6 @@ class ImageManagementPage extends FOGPage
 		$this->headerData = array(
 			'',
 			'<input type="checkbox" name="toggle-checkboximage2" class="toggle-checkbox2" />',
-			($_SESSION['FOGPingActive'] ? '' : null),
 			_('Host Name'),
 			_('Last Deployed'),
 			_('Registered'),
