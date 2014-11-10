@@ -267,18 +267,18 @@ then
 	while [ "${dodhcp}" = "" ]
 	do
 		echo 
-		echo -n "  Would you like to use the FOG server for DHCP service? [Y/n] "
+		echo -n "  Would you like to use the FOG server for DHCP service? [y/N] "
 		read dodhcp;
 		case "$dodhcp" in
 			Y | yes | y | Yes | YES )
 				bldhcp="1";
+				dodhcp="y";
 				;;
 			[nN]*)	
 				bldhcp="0";
 				;;
 			*)
-				bldhcp="1";
-				dodhcp="y";
+				bldhcp="0";
 				;;	
 		esac	
 	done
