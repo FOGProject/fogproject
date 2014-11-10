@@ -68,11 +68,32 @@ class StorageNode extends FOGController
 	public function getUsedSlotCount()
 	{
 		$UsedTasks = explode(',',$this->FOGCore->getSetting('FOG_USED_TASKS'));
-		return $this->getClass('TaskManager')->count(array(
-			'stateID'	=> 3,
-			'typeID'	=> $UsedTasks,
-			'NFSMemberID'	=> $this->get('id')
+		$countTasks = 0;
+		if (in_array(8,(array)$UsedTasks))
+		{
+			foreach($UsedTasks AS $ind => $val)
+			{
+				if ($val = 8)
+					unset($UsedTasks[$ind]);
+			}
+			foreach ($this->getClass('TaskManager')->find(array('stateID' => 3,'typeID' => 8)) AS $MulticastTask)
+			{
+				$Multicast = current($this->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $MulticastTask->get('id'))));
+				if ($Multicast && $Multicast->isValid())
+				{
+					$MulticastJob = new MulticastSession($Multicast->get('jobID'));
+					if ($MulticastJob && $MulticastJob->isValid())
+						$countTasks++;
+				}
+			}
+			$UsedTasks = array_values($UsedTasks);
+		}
+		$countTasks += $this->getClass('TaskManager')->count(array(
+			'stateID' => 3,
+			'typeID' => $UsedTasks,
+			'NFSMemberID' => $this->get('id'),
 		));
+		return $countTasks;
 	}
 	public function getQueuedSlotCount()
 	{
