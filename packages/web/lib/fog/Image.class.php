@@ -194,8 +194,15 @@ class Image extends FOGController
 	public function getStorageGroup()
 	{
 		$StorageGroup = current((array)$this->get('storageGroups'));
-		if (!$StorageGroup || !$StorageGroup->isValid())
-			throw new Exception(__class__.' '._('does not have a storage group assigned').'.');
+		try
+		{
+			if (!$StorageGroup || !$StorageGroup->isValid())
+				throw new Exception(__class__.' '._('does not have a storage group assigned').'.');
+		}
+		catch (Exception $e)
+		{
+			$this->FOGCore->setMessage($e->getMessage());
+		}
 		return $StorageGroup;
 	}
 	/** getOS()
