@@ -69,16 +69,22 @@ class ImageManagementPage extends FOGPage
 		foreach ((array)$Images AS $Image)
 		{
 			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
-			$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
-			$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
+			if ($Image->getStorageGroup() && $Image->getStorageGroup()->isValid())
+			{
+				$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
+				$StorageGroupName = $Image->getStorageGroup()->get('name');
+				$StorageGroupID = $Image->getStorageGroup()->get('id');
+			}
+			if ($StorageNode && $StorageNode->isValid())
+				$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
 			$imageType = $Image->get('imageTypeID') ? new ImageType($Image->get('imageTypeID')) : null;
 			$imagePartitionType = $Image->get('imagePartitionTypeID') ? new ImagePartitionType($Image->get('imagePartitionTypeID')) : null;
 			$this->data[] = array(
 				'id'		=> $Image->get('id'),
 				'name'		=> $Image->get('name'),
 				'description'	=> $Image->get('description'),
-				'storageGroup'	=> $Image->getStorageGroup()->get('name'),
-				'storageGroupID'=> $Image->getStorageGroup()->get('id'),
+				'storageGroup'	=> $StorageGroupName,
+				'storageGroupID'=> $StorageGroupID,
 				'osID'		=> $Image->get('osID'),
 				'os'		=> $Image->getOS()->get('name'),
 				'deployed' => $this->validDate($Image->get('deployed')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
@@ -123,16 +129,22 @@ class ImageManagementPage extends FOGPage
 		foreach ($Images->search($keyword,'Image') AS $Image)
 		{
 			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
-			$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
-			$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
+			if ($Image->getStorageGroup() && $Image->getStorageGroup()->isValid())
+			{
+				$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
+				$StorageGroupName = $Image->getStorageGroup()->get('name');
+				$StorageGroupID = $Image->getStorageGroup()->get('id');
+			}
+			if ($StorageNode && $StorageNode->isValid())
+				$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
 			$imageType = $Image->get('imageTypeID') ? new ImageType($Image->get('imageTypeID')) : null;
 			$imagePartitionType = $Image->get('imagePartitionTypeID') ? new ImagePartitionType($Image->get('imagePartitionTypeID')) : null;
 			$this->data[] = array(
 				'id'		=> $Image->get('id'),
 				'name'		=> $Image->get('name'),
 				'description'	=> $Image->get('description'),
-				'storageGroup'	=> $Image->getStorageGroup()->get('name'),
-				'storageGroupID'=> $Image->getStorageGroup()->get('id'),
+				'storageGroup'	=> $StorageGroupName,
+				'storageGroupID'=> $StorageGroupID,
 				'osID'		=> $Image->get('osID'),
 				'os'		=> $Image->getOS()->get('name'),
 				'deployed' => $this->validDate($Image->get('deployed')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
