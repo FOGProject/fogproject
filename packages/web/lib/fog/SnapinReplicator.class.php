@@ -61,7 +61,7 @@ class SnapinReplicator extends FOGBase
 						$SnapinAssocsToVerify = $this->getClass('SnapinGroupAssociationManager')->find(array('storageGroupID' => $GroupToSend->get('id')));
 						foreach($SnapinAssocsToVerify AS $SnapGroupAssoc)
 						{
-							if ($SnapGroupAssoc && $SnapinGroupAssoc->isValid())
+							if ($SnapGroupAssoc && $SnapGroupAssoc->isValid())
 								$SnapinsForMe[] = $SnapinGroupAssoc->getSnapin();
 						}
 						foreach((array)$SnapinsForMe AS $SnapinMe)
