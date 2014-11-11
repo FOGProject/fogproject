@@ -39,20 +39,31 @@ class SnapinReplicator extends FOGBase
 				$SnapinAssocs = $this->getClass('SnapinGroupAssociationManager')->find(array('storageGroupID' => $StorageNode->get('storageGroupID')));
 				// Make sure we have clean limit setting.
 				unset($limit);
-				// Only
+				// Only do tasks if snapin assocs exist.
 				if ($SnapinAssocs)
 				{
-					foreach($SnapinAssocs AS $SnapinAssoc)
+					// Loop through each of the assocs
+					// If valid, setup the snapins.
+					foreach((array)$SnapinAssocs AS $SnapinAssoc)
 					{
 						if ($SnapinAssoc && $SnapinAssoc->isValid())
-							$Snapin = $SnapinAssoc->getSnapin();
+							$Snapins[] = $SnapinAssoc->getSnapin();
+					}
+					// Loop each of the snapins.
+					foreach((array)$Snapins AS $Snapin)
+					{
+						// Only if the snapin is valid do the jobs as well.
 						if ($Snapin && $Snapin->isValid())
 						{
+							// Setup the file maker.
 							$mySnapFile = $Snapin->get('file');
+							// Loop all the groups of this snapin.
 							foreach((array)$Snapin->get('storageGroups') AS $GroupToSend)
 							{
+								// If the group is valid and not of the same groupid as this node has, then send the files.
 								if ($GroupToSend && $GroupToSend->isValid() && $GroupToSend->get('id') != $StorageNode->get('storageGroupID'))
 								{
+									// Get the master node to send to.
 									$StorageNodeToSend = $GroupToSend->getMasterStorageNode();
 									if ($StorageNodeToSend && $StorageNodeToSend->isValid())
 									{
