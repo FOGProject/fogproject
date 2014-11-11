@@ -62,7 +62,7 @@ class SnapinReplicator extends FOGBase
 						foreach($SnapinAssocsToVerify AS $SnapGroupAssoc)
 						{
 							if ($SnapGroupAssoc && $SnapGroupAssoc->isValid())
-								$SnapinsForMe[] = $SnapinGroupAssoc->getSnapin();
+								$SnapinsForMe[] = $SnapGroupAssoc->getSnapin();
 						}
 						foreach((array)$SnapinsForMe AS $SnapinMe)
 						{
