@@ -49,46 +49,32 @@ class SnapinReplicator extends FOGBase
 					{
 						if ($Snapin && $Snapin->isValid())
 						{
-							foreach((array)$Snapin->get('storageGroups') AS $StorageGroupSnap)
-								$StorageGroups[] = $StorageGroupSnap;
-						}
-					}
-					if ($StorageGroups)
-						$StorageGroups = array_unique($StorageGroups);
-					$StorageGroups = array_values($StorageGroups);
-					foreach((array)$StorageGroups AS $GroupToSend)
-					{
-						$SnapinAssocsToVerify = $this->getClass('SnapinGroupAssociationManager')->find(array('storageGroupID' => $GroupToSend->get('id')));
-						foreach($SnapinAssocsToVerify AS $SnapGroupAssoc)
-						{
-							if ($SnapGroupAssoc && $SnapGroupAssoc->isValid())
-								$SnapinsForMe[] = $SnapGroupAssoc->getSnapin();
-						}
-						foreach((array)$SnapinsForMe AS $SnapinMe)
-						{
-							if ($SnapinMe && $SnapinMe->isValid())
-								$mySnapFile[] = '-i '.$SnapinMe->get('file').' ';
-						}
-						if ($GroupToSend && $GroupToSend->isValid() && $GroupToSend->get('id') != $StorageNode->get('storageGroupID'))
-						{
-							$StorageNodeToSend = $GroupToSend->getMasterStorageNode();
-							if ($StorageNodeToSend && $StorageNodeToSend->isValid())
+							$mySnapFile = $Snapin->get('file')
+							foreach((array)$Snapin->get('storageGroups') AS $GroupToSend)
 							{
-								$username = $StorageNodeToSend->get('user');
-								$password = $StorageNodeToSend->get('pass');
-								$ip = $StorageNodeToSend->get('ip');
-								$remSnapin = rtrim($StorageNodeToSend->get('snapinpath'),'/');
-								$mySnapin = rtrim($StorageNode->get('snapinpath'),'/');
-								$limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
-								$limitsend = $this->byteconvert($StorageNodeToSend->get('bandwidth'));
-								if ($limitmain > 0)
-									$limit = "set net:limit-total-rate 0:$limitmain;";
-								if ($limitsend > 0)
-									$limit .= "set net:limit-rate 0:$limitsend;";
-								$this->outall(sprintf(" * Found snapin to transfer to %s group(s)",count($Snapin->get('storageGroups')) -1));
-								$this->outall(sprintf(" | Snapin name: %s",$Snapin->get('name')));
-								$this->outall(sprintf(" * Syncing: %s",$StorageNodeToSend->get('name')));
-								$process[] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".$limit." mirror ".implode($mySnapFile)." -n --ignore-time -R -vvv --delete-first $mySnapin $remSnapin; exit\" -u $username,$password $ip 2>&1","r");
+								if ($GroupToSend && $GroupToSend->isValid() && $GroupToSend->get('id') != $StorageNode->get('storageGroupID'))
+								{
+									$StorageNodeToSend = $GroupToSend->getMasterStorageNode();
+									if ($StorageNodeToSend && $StorageNodeToSend->isValid())
+									{
+										$username = $StorageNodeToSend->get('user');
+										$password = $StorageNodeToSend->get('pass');
+										$ip = $StorageNodeToSend->get('ip');
+										$remSnapin = rtrim($StorageNodeToSend->get('snapinpath'),'/');
+										$mySnapin = rtrim($StorageNode->get('snapinpath'),'/');
+										$limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
+										$limitsend = $this->byteconvert($StorageNodeToSend->get('bandwidth'));
+										if ($limitmain > 0)
+											$limit = "set net:limit-total-rate 0:$limitmain;";
+										if ($limitsend > 0)
+											$limit .= "set net:limit-rate 0:$limitsend;";
+										$this->outall(sprintf(" * Found snapin to transfer to %s group(s)",count($Snapin->get('storageGroups')) -1));
+										foreach($snapinNames AS $name)
+											$this->outall(sprintf(" | Snapin name: %s",$name));
+										$this->outall(sprintf(" * Syncing: %s",$StorageNodeToSend->get('name')));
+										$process[] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".$limit." mirror -i $mySnapFile -n --ignore-time -R -vvv --delete-first $mySnapin $remSnapin; exit\" -u $username,$password $ip 2>&1","r");
+									}
+								}
 							}
 						}
 					}
