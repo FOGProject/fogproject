@@ -51,7 +51,6 @@ class SnapinReplicator extends FOGBase
 						{
 							foreach((array)$Snapin->get('storageGroups') AS $StorageGroupSnap)
 								$StorageGroups[] = $StorageGroupSnap;
-							$mySnapFile[] = '-i '.$Snapin->get('file').' ';
 						}
 					}
 					if ($StorageGroups)
@@ -59,6 +58,17 @@ class SnapinReplicator extends FOGBase
 					$StorageGroups = array_values($StorageGroups);
 					foreach((array)$StorageGroups AS $GroupToSend)
 					{
+						$SnapinAssocsToVerify = $this->getClass('SnapinGroupAssociationManager')->find(array('storageGroupID' => $GroupToSend->get('id')));
+						foreach($SnapinAssocsToVerify AS $SnapGroupAssoc)
+						{
+							if ($SnapGroupAssoc && $SnapinGroupAssoc->isValid())
+								$SnapinsForMe[] = $SnapinGroupAssoc->getSnapin();
+						}
+						foreach((array)$SnapinsForMe AS $SnapinMe)
+						{
+							if ($SnapinMe && $SnapinMe->isValid())
+								$mySnapFile[] = '-i '.$SnapinMe->get('file').' ';
+						}
 						if ($GroupToSend && $GroupToSend->isValid() && $GroupToSend->get('id') != $StorageNode->get('storageGroupID'))
 						{
 							$StorageNodeToSend = $GroupToSend->getMasterStorageNode();
