@@ -108,7 +108,7 @@ class SnapinReplicator extends FOGBase
 						$this->outall(sprintf(" * My root: %s",$myRoot));
 						$this->outall(sprintf(" * Starting Sync."));
 						foreach($Snapins AS $Snapin)
-							$mySnapFile[] = '-i '.$Snapin->get('file') ' ';
+							$mySnapFile[] = '-i '.$Snapin->get('file').' ';
 						foreach($StorageNodeCount AS $StorageNodeFTP)
 						{
 							if ($StorageNodeFTP->get('isEnabled'))
