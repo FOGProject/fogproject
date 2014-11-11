@@ -40,7 +40,7 @@ try
 		{
 			$SnapinJob->set('stateID',1)->save();
 			// If it's part of a task deployment update the task information.
-			if ($Task && $Task->isValid()) $Task->set('stateID',3)->set('checkInTime',$FOGCore->nice_date()->formate('Y-m-d H:i:s'))->save();
+			if ($Task && $Task->isValid()) $Task->set('stateID',3)->set('checkInTime',$FOGCore->nice_date()->format('Y-m-d H:i:s'))->save();
 			//If not from above, update the Task information.
 			$SnapinTask->set('stateID',0)->set('checkin',$FOGCore->nice_date()->format('Y-m-d H:i:s'));
 			// As long as things update, send the information.

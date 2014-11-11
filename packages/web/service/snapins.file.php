@@ -17,7 +17,8 @@ try
 	//Get the snapin to work off of.
 	$Snapin = new Snapin($SnapinTask->get('snapinID'));
 	// Find the Storage Group
-	$StorageGroup = $Snapin->getStorageGroup();
+	if ($Snapin && $Snapin->getStorageGroup() && $Snapin->isValid() && $Snapin->getStorageGroup()->isValid())
+		$StorageGroup = $Snapin->getStorageGroup();
 	// Allow plugins to enact against this. (e.g. location)
 	$HookManager->processEvent('SNAPIN_GROUP',array('Host' => &$Host,'StorageGroup' => &$StorageGroup));
 	// Assign the file for sending.
@@ -39,6 +40,8 @@ try
 	// If it exists and is readable send it!
 	if (file_exists($SnapinFile) && is_readable($SnapinFile))
 	{
+		if (ob_get_level())
+			ob_end_clean();
 		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 		header("Content-Description: File Transfer");
 		header("Content-Type: application/octet-stream");
@@ -49,6 +52,7 @@ try
 		if ($Task && $Task->isValid()) $Task->set('stateID',3)->save();
 		// Update the snapin task information.
 		$SnapinTask->set('stateID',1)->set('return',-1)->set('details','Pending...')->save();
+		print $file;
 		exit;
 	}
 }
