@@ -45,7 +45,7 @@ class SnapinReplicator extends FOGBase
 					foreach($SnapinAssocs AS $SnapinAssoc)
 					{
 						if ($SnapinAssoc && $SnapinAssoc->isValid())
-							$Snapin[] = $SnapinAssoc->getSnapin();
+							$Snapin = $SnapinAssoc->getSnapin();
 						if ($Snapin && $Snapin->isValid())
 						{
 							$mySnapFile = $Snapin->get('file');
