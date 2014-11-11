@@ -37,16 +37,15 @@ class SnapinReplicator extends FOGBase
 				}
 				// Try to get the snapins based on this group
 				$SnapinAssocs = $this->getClass('SnapinGroupAssociationManager')->find(array('storageGroupID' => $StorageNode->get('storageGroupID')));
+				// Make sure we have clean limit setting.
 				unset($limit);
+				// Only
 				if ($SnapinAssocs)
 				{
 					foreach($SnapinAssocs AS $SnapinAssoc)
 					{
 						if ($SnapinAssoc && $SnapinAssoc->isValid())
-							$Snapins[] = $SnapinAssoc->getSnapin();
-					}
-					foreach($Snapins AS $Snapin)
-					{
+							$Snapin = $SnapinAssoc->getSnapin();
 						if ($Snapin && $Snapin->isValid())
 						{
 							$mySnapFile = $Snapin->get('file');
