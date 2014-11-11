@@ -46,7 +46,7 @@ class SnapinReplicator extends FOGBase
 							$Snapins[] = $SnapinAssoc->getSnapin();
 					}
 					foreach($Snapins AS $Snapin)
-						$mySnapFile = $Snapin->get('file');
+						$mySnapFile[] = $Snapin->get('file');
 					foreach((array)$Snapin->get('storageGroups') AS $GroupToSend)
 					{
 						if ($GroupToSend && $GroupToSend->isValid() && $GroupToSend->get('id') != $StorageNode->get('storageGroupID'))
