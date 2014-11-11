@@ -98,7 +98,7 @@ class SnapinReplicator extends FOGBase
 						pclose($proc);
 						$this->outall(sprintf(" * SubProcess -> Complete"));
 					}
-					unset($process,$limit);
+					unset($process,$limit,$mySnapFile);
 					$this->outall(sprintf(" * Checking nodes within my group."));
 					if (count($StorageNodeCount) > 0)
 					{
@@ -108,23 +108,25 @@ class SnapinReplicator extends FOGBase
 						$this->outall(sprintf(" * My root: %s",$myRoot));
 						$this->outall(sprintf(" * Starting Sync."));
 						foreach($Snapins AS $Snapin)
-							$mySnapFile[] = '-i '.$Snapin->get('file').' ';
-						foreach($StorageNodeCount AS $StorageNodeFTP)
 						{
-							if ($StorageNodeFTP->get('isEnabled'))
+							$mySnapFile = $Snapin->get('file');
+							foreach($StorageNodeCount AS $StorageNodeFTP)
 							{
-								$username = $StorageNodeFTP->get('user');
-								$password = $StorageNodeFTP->get('pass');
-								$ip = $StorageNodeFTP->get('ip');
-								$remRoot = rtrim($StorageNodeFTP->get('snapinpath'),'/');
-								$limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
-								$limitsend = $this->byteconvert($StorageNodeFTP->get('bandwidth'));
-								if ($limitmain > 0)
-									$limit = "set net:limit-total-rate 0:$limitmain;";
-								if ($limitsend > 0)
-									$limit .= "set net:limit-rate 0:$limitsend;";
-								$this->outall(sprintf(" * Syncing: %s",$StorageNodeFTP->get('name')));
-								$process[] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".$limit." mirror ".implode($mySnapFile)." -n --ignore-time -R -vvv --delete-first $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
+								if ($StorageNodeFTP->get('isEnabled'))
+								{
+									$username = $StorageNodeFTP->get('user');
+									$password = $StorageNodeFTP->get('pass');
+									$ip = $StorageNodeFTP->get('ip');
+									$remRoot = rtrim($StorageNodeFTP->get('snapinpath'),'/');
+									$limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
+									$limitsend = $this->byteconvert($StorageNodeFTP->get('bandwidth'));
+									if ($limitmain > 0)
+										$limit = "set net:limit-total-rate 0:$limitmain;";
+									if ($limitsend > 0)
+										$limit .= "set net:limit-rate 0:$limitsend;";
+									$this->outall(sprintf(" * Syncing: %s",$StorageNodeFTP->get('name')));
+									$process[] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".$limit." mirror -i $mySnapFile -n --ignore-time -R -vvv --delete-first $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
+								}
 							}
 						}
 						foreach((array)$process AS $proc)
