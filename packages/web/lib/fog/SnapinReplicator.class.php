@@ -46,8 +46,15 @@ class SnapinReplicator extends FOGBase
 							$Snapins[] = $SnapinAssoc->getSnapin();
 					}
 					foreach($Snapins AS $Snapin)
-						$mySnapFile[] = $Snapin->get('file');
-					foreach((array)$Snapin->get('storageGroups') AS $GroupToSend)
+					{
+						if ($Snapin && $Snapin->isValid())
+						{
+							foreach((array)$Snapin->get('storageGroups') AS $StorageGroupSnap)
+								$StorageGroups[] = $StorageGroupSnapin;
+							$mySnapFile[] = $Snapin->get('file');
+						}
+					}
+					foreach((array)$StorageGroups AS $GroupToSend)
 					{
 						if ($GroupToSend && $GroupToSend->isValid() && $GroupToSend->get('id') != $StorageNode->get('storageGroupID'))
 						{
@@ -68,7 +75,7 @@ class SnapinReplicator extends FOGBase
 								$this->outall(sprintf(" * Found snapin to transfer to %s group(s)",count($Snapin->get('storageGroups')) -1));
 								$this->outall(sprintf(" | Snapin name: %s",$Snapin->get('name')));
 								$this->outall(sprintf(" * Syncing: %s",$StorageNodeToSend->get('name')));
-								$process[] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".$limit." mirror ".implode('-i ',$mySnapFile)." -n --ignore-time -R -vvv --delete-first $mySnapin $remSnapin; exit\" -u $username,$password $ip 2>&1","r");
+								$process[] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".$limit." mirror -i ".implode('-i ',$mySnapFile)." -n --ignore-time -R -vvv --delete-first $mySnapin $remSnapin; exit\" -u $username,$password $ip 2>&1","r");
 							}
 						}
 					}
@@ -109,7 +116,7 @@ class SnapinReplicator extends FOGBase
 								if ($limitsend > 0)
 									$limit .= "set net:limit-rate 0:$limitsend;";
 								$this->outall(sprintf(" * Syncing: %s",$StorageNodeFTP->get('name')));
-								$process[] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".$limit." mirror ".implode('-i ',$mySnapFile)." -n --ignore-time -R -vvv --delete-first $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
+								$process[] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".$limit." mirror -i ".implode('-i ',$mySnapFile)." -n --ignore-time -R -vvv --delete-first $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
 							}
 						}
 						foreach((array)$process AS $proc)
