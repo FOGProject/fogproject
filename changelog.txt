@@ -72,6 +72,7 @@ your own network.
 * Add replication to allow multiple processes at the same time.
 * Add bandwidth limitations on replication.
 * Add capability to tell the system which tasks you want to take slots.
+* Add multicast session joining even with non-registered hosts.
 * Change names of PXE Menu stuff to iPXE stuff.
 
 Version 1.2.0
