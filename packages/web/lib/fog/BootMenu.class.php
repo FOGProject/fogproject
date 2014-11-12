@@ -433,10 +433,63 @@ class BootMenu extends FOGBase
 		$MultiSess = new MulticastSessions($msid);
 		if ($MultiSess && $MultiSess->isValid())
 		{
-			$this->Host->set('imageID',$MultiSess->get('image'));
-			 // Create the host task
-			if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,$_REQUEST['username'],'',true))
-				$this->chainBoot(false,true);
+			if ($this->Host && $this->Host->isValid())
+			{
+				$this->Host->set('imageID',$MultiSess->get('image'));
+				 // Create the host task
+				if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,$_REQUEST['username'],'',true))
+					$this->chainBoot(false,true);
+			}
+			else
+			{
+				$Image = $MultiSess->getImage();
+				$TaskType = new TaskType(8);
+				$StorageGroup = $Image->getStorageGroup();
+				$StorageNode = $StorageGroup->getOptimalStorageNode();
+				$osid = $Image->get('osID');
+				$storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),'');
+				$storageip = $StorageNode->get('ip');
+				$img = $Image->get('path');
+				$imgFormat = $Image->get('format');
+				$imgType = $Image->getImageType()->get('type');
+				$imgPartitionType = $Image->getImagePartitionType()->get('type');
+				$imgid = $Image->get('id');
+				$chkdsk = $this->FOGCore->getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
+				$ftp = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_TFTP_HOST'));
+				$port = $MultiSess->get('port');
+				$kernelArgsArray = array(
+					"mac=$mac",
+					"ftp=$ftp",
+					"storage=$storage",
+					"storageip=$storageip",
+					"web=$this->web",
+					"osid=$osid",
+					"loglevel=4",
+					"consoleblank=0",
+					"irqpoll",
+					"chkdsk=$chkdsk",
+					"img=$img",
+					"imgType=$imgType",
+					"imgPartitionType=$imgPartitionType",
+					"imgid=$imgid",
+					"imgFormat=$imgFormat",
+					"shutdown=0",
+					"port=$port",
+					"capone=1",
+					"mc=yes",
+					array(
+						'value' => 'mining=1',
+						'active' => $this->FOGCore->getSetting('FOG_MINING_ENABLE'),
+					),
+					array(
+						'value' => 'miningcores='.$this->FOGCore->getSetting('FOG_MINING_MAX_CORES'),
+						'active' => $this->FOGCore->getSetting('FOG_MINING_ENABLE'),
+					),
+					$TaskType->get('kernelArgs'),
+					$this->FOGCore->getSetting('FOG_KERNEL_ARGS'),
+				);
+				$this->printTasking($kernelArgsArray);
+			}
 		}
 	}
 	/**
