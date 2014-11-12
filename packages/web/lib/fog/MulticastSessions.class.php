@@ -24,4 +24,10 @@ class MulticastSessions extends FOGController
 		'anon4'				=> 'msAnon4',
 		'anon5'				=> 'msAnon5',
 	);
+
+	// Custom Functions
+	public function getImage()
+	{
+		return new Image($this->get('image'));
+	}
 }
