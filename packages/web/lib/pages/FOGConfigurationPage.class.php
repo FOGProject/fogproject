@@ -261,6 +261,7 @@ class FOGConfigurationPage extends FOGPage
 				_('Default Item:') => '<input type="checkbox" name="menu_default" value="1" ${menu_default}/>',
 				_('Menu Show with:') => '${menu_regmenu}',
 				'<input type="hidden" name="menu_id" value="${menu_id}" />' => '<input type="submit" value="'.$this->foglang['Submit'].'" />',
+				!$menuid ? '<input type="hidden" name="rmid" value="${menu_id}" />' : '' => !$menuid ? '<input type="submit" value="'.$this->foglang['Delete'].' ${menu_item}" />' : '',
 			);
 			foreach($fields AS $field => $input)
 			{
@@ -274,7 +275,7 @@ class FOGConfigurationPage extends FOGPage
 					'menu_default' => ($Menu->get('default') ? 'checked="checked"' : ''),
 					'menu_regmenu' => $this->getClass('PXEMenuOptionsManager')->regSelect($Menu->get('regMenu')),
 					'menu_options' => $Menu->get('args'),
-					'disabled' => $menuid ? 'disabled="disabled"' : '',
+					'disabled' => $menuid ? 'readonly="true"' : '',
 				);
 			}
 			// Hook
@@ -318,6 +319,8 @@ class FOGConfigurationPage extends FOGPage
 		}
 		if ($_REQUEST['rmid'])
 		{
+			print_r('Made it here');
+			exit;
 			$Menu = new PXEMenuOptions($_REQUEST['rmid']);
 			$menuname = $Menu->get('name');
 			if($Menu->destroy())
