@@ -23,7 +23,7 @@ class System
 	{
 <<<<<<< HEAD
 		(ini_get('date.timezone') ? date_default_timezone_set(ini_get('date.timezone')) : date_default_timezone_set('UTC'));
-		define('FOG_VERSION', '2640');
+		define('FOG_VERSION', '2641');
 		define('FOG_SCHEMA', 144);
 		define('FOG_SVN_REVISION', '$Revision$');
 		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');

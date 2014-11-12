@@ -66,8 +66,6 @@ class MySQL extends FOGBase
 	{
 		try
 		{
-			if ($this->link)
-				$this->close();
 			if (!$this->link)
 				$this->link = new mysqli($this->host, $this->user, $this->pass);
 			if ($this->link->connect_error)
