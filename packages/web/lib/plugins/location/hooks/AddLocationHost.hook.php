@@ -11,7 +11,7 @@ class AddLocationHost extends Hook
 		$plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
 		{
-			if ($_REQUEST['node'] == 'host')
+			if ($_REQUEST['node'] == 'host' && $_REQUEST['sub'] != 'pending')
 				$arguments['headerData'][4] = _('Location/Deployed');
 		}
 	}
@@ -21,7 +21,7 @@ class AddLocationHost extends Hook
 		$plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
 		{
-			if ($_REQUEST['node'] == 'host')
+			if ($_REQUEST['node'] == 'host' && $_REQUEST['sub'] != 'pending')
 			{
 				$arguments['templates'][4] = '${location}<br/><small>${deployed}</small>';
 				foreach($arguments['data'] AS $index => $vals)
