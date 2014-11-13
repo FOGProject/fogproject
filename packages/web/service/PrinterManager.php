@@ -19,15 +19,10 @@ try
 	if ($level > 0)
 	{
 		// Get all the printers set for this host.
-		$Printers = $FOGCore->getClass('PrinterAssociationManager')->find(array('hostID' => $Host->get('id')));
-		foreach ($Printers AS $Printer)
-		{
-			$Printers[] = new Printer($Printer->get('printerID'));
-		}
 		$index = 0;
-		foreach ($Printers AS $Printer)
+		foreach ($Host->get('printers') AS $Printer)
 		{
-			// Send the printer based on the type.
+			// need this part, to ensure printer only sends it's needed data, not all data set in printer.
 			if ($Printer->get('type') == 'Network')
 				$Datatosendprint[] = '|||'.$Printer->get('name').'||'.($Host->getDefault($Printer->get('id'))?'1':'0');
 			else if ($Printer->get('type') == 'iPrint')
@@ -37,7 +32,7 @@ try
 			if ($_REQUEST['newService'])
 				$Datatosendprinter[] = "#printer$index=".base64_encode($Datatosendprint[0]);
 			else
-				$Datatosendprinter[] = $Datatosendprint[0];
+				$Datatosendprinter[] = base64_encode($Datatosendprint[0]);
 			$index++;
 			unset($Datatosendprint);
 		}
@@ -51,7 +46,7 @@ catch(Exception $e)
 if ($Datatosenderror)
 	$Datatosend = $Datatosenderror;
 else
-	$Datatosend = ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n" : '').($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $Datatosendlevel."\n".$Datatosendprint : base64_encode($Datatosendlevel)."\n".base64_encode($Datatosendprint));
+	$Datatosend = ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n" : '').($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $Datatosendlevel."\n".$Datatosendprint : base64_encode($Datatosendlevel)."\n".$Datatosendprint);
 if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
 	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
