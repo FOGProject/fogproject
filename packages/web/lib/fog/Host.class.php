@@ -675,8 +675,11 @@ class Host extends FOGController
 			$isUpload = $TaskType->isUpload();
 			// Image: Variables
 			$Image = $this->getImage();
-			$StorageGroup = $Image->getStorageGroup();
-			$StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode());
+			if ($imagingTypes && $Image && $Image->isValid())
+			{
+				$StorageGroup = $Image->getStorageGroup();
+				$StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode());
+			}
 			// Task type wake on lan, deploy only this part.
 			if ($taskTypeID == '14')
 			{
@@ -693,7 +696,7 @@ class Host extends FOGController
 				if ($Task->save())
 				{
 					$this->wakeOnLAN();
-					$this->FOGCore->logHistory(sprintf('Task Created: Task ID: %s, Task Name: %s, Host ID: %s, Host Name: %s, Host MAC: %s', $Task->get('id'), $Task->get('name'), $this->get('id'), $this->get('name'), $this->getMACAddress());
+					$this->FOGCore->logHistory(sprintf('Task Created: Task ID: %s, Task Name: %s, Host ID: %s, Host Name: %s, Host MAC: %s', $Task->get('id'), $Task->get('name'), $this->get('id'), $this->get('name'), $this->getMACAddress()));
 					$Task->destroy();
 					return $Task;
 				}
@@ -719,11 +722,8 @@ class Host extends FOGController
 					'isForced'	=> 0,
 					'stateID'	=> 1,
 					'typeID'	=> $taskTypeID, 
-					'NFSGroupID' 	=> $imagingTypes ? $StorageGroup->get('id') : false,
-					'NFSMemberID'	=> $imagingTypes ? $StorageGroup->getOptimalStorageNode()->get('id') : false,
-					'shutdown' => $shutdown,
-					'passreset' => $passreset,	
-					'isDebug' => intval($debug),
+					'NFSGroupID' 	=> false,
+					'NFSMemberID'	=> false,
 				));
 				$SnapinJob = $this->get('snapinjob');
 				if ($SnapinJob && $SnapinJob->isValid() && $deploySnapins == -1)
@@ -788,7 +788,7 @@ class Host extends FOGController
 				}
 				if ($Task->save())
 				{
-					$this->FOGCore->logHistory(sprintf('Task Created: Task ID: %s, Task Name: %s, Host ID: %s, Host Name: %s, Host MAC: %s, Image ID: %s, Image Name: %s', $Task->get('id'), $Task->get('name'), $this->get('id'), $this->get('name'), $this->getMACAddress(), $this->getImage()->get('id'), $this->getImage()->get('name')));
+					$this->FOGCore->logHistory(sprintf('Task Created: Task ID: %s, Task Name: %s, Host ID: %s, Host Name: %s, Host MAC: %s', $Task->get('id'), $Task->get('name'), $this->get('id'), $this->get('name'), $this->getMACAddress()));
 					return $Task;
 				}
 				else
