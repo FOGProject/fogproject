@@ -303,10 +303,10 @@ $foglang['InvalidClass']			= _('Invalid Class');
 $foglang['NotExtended']				= _('Class is not extended from FOGPage');
 // Language menu options.
 $foglang['LanguagePhrase']			= _('Language');
-$foglang['Language']['zh']			= _('中国的');
-$foglang['Language']['en']			= _('English');
-$foglang['Language']['es']			= _('Español');
-$foglang['Language']['fr']			= _('Français');
-$foglang['Language']['de']			= _('Deutsch');
-$foglang['Language']['it']			= _('Italiano');
-$foglang['Language']['pt']			= _('Português');
+$foglang['Language']['zh']			= '中国的';
+$foglang['Language']['en']			= 'English';
+$foglang['Language']['es']			= 'Español';
+$foglang['Language']['fr']			= 'Français';
+$foglang['Language']['de']			= 'Deutsch';
+$foglang['Language']['it']			= 'Italiano';
+$foglang['Language']['pt']			= 'Português';
