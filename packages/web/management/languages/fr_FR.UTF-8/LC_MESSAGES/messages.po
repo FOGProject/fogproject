@@ -5,63 +5,56 @@
 # PinMaster <>, 2010.
 msgid ""
 msgstr ""
-"Project-Id-Version: FOG versione 0.29\n"
+"Project-Id-Version: FOG version 1.2.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2014-11-13 10:56+0100\n"
+"PO-Revision-Date: 2014-11-13 19:39+0100\n"
 "Last-Translator: Gilou <contact+dev@gilouweb.com>\n"
 "Language-Team: French FOG Team <french@fogproject.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 "X-Generator: Poedit 1.6.10\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-Bookmarks: 523,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 msgid "Socket Error"
 msgstr ""
 
-#, fuzzy
 msgid "Create"
-msgstr "Créé par"
+msgstr "Créer"
 
-#, fuzzy
 msgid "task for"
-msgstr "Tâches"
+msgstr "tâche pour"
 
-#, fuzzy
 msgid "Are you sure you wish to deploy task to these machines"
-msgstr "Etes vous sûr de vouloir déployer ces stations?"
+msgstr "Êtes vous sûr de vouloir déclencher un déploiement sur ces machines"
 
 msgid "Please select the snapin you want to deploy"
 msgstr ""
 
-#, fuzzy
 msgid "No snapins associated"
-msgstr "Aucun Snapin trouvé"
+msgstr "Aucun Snapin associé"
 
 msgid "Advanced Settings"
 msgstr "Paramètres avancés"
 
-#, fuzzy
 msgid "Schedule"
-msgstr "Tâches planifiées"
+msgstr "Planifier"
 
-#, fuzzy
 msgid "Shutdown"
 msgstr "Arrêt"
 
-#, fuzzy
 msgid "after task completion"
-msgstr "Arrêt de l'hôte après la finalisation de la tâche?"
+msgstr "après la fin de la tâche"
 
-#, fuzzy
 msgid "Schedule task as a debug task"
-msgstr "Tâhe planifiée supprimée"
+msgstr "Planifier le tâche comme tâche de debug"
 
-#, fuzzy
 msgid "Schedule "
-msgstr "Tâches planifiées"
+msgstr "Planifier "
 
 msgid "Instant Deployment"
 msgstr ""
@@ -72,25 +65,20 @@ msgstr ""
 msgid "Cron-style Deployment"
 msgstr ""
 
-#, fuzzy
 msgid "Which account would you like to reset the pasword for"
-msgstr "Quel compte souhaitez vous réinitialiser le mot de passe?"
+msgstr "Compte pour lequel vous souhaitez réinitialiser le mot de passe"
 
-#, fuzzy
 msgid "Hosts in Task"
-msgstr "Listing des hôtes"
+msgstr "Machines concernées par la tâche"
 
-#, fuzzy
 msgid "Edit Host"
-msgstr "Hôtes existant"
+msgstr "Modifier la machine"
 
-#, fuzzy
 msgid "Edit Image"
-msgstr "Image de l'hôte"
+msgstr "Modifier l'image"
 
-#, fuzzy
 msgid "Task type is not valid"
-msgstr "Le nom de la station est non valide."
+msgstr "Ce type de tâche n'est pas valide"
 
 msgid "You need to assign an image to the host"
 msgstr ""
@@ -113,9 +101,10 @@ msgstr ""
 msgid "One or more hosts are currently in a task"
 msgstr ""
 
-#, fuzzy
 msgid "Password reset requires a user account to reset"
-msgstr "Paquet de réinitialisation de mot de passe créé pour l'hôte"
+msgstr ""
+"La réinitialisation de mot de passe requière un compte utilisateur à "
+"réinitialiser"
 
 msgid "Scheduled date is in the past"
 msgstr ""
@@ -133,30 +122,26 @@ msgstr ""
 msgid "Cron Schedule"
 msgstr ""
 
-#, fuzzy
 msgid "Scheduled to start at"
-msgstr "Sélectionner la date de début"
+msgstr "Démarrage prévu à"
 
-#, fuzzy
 msgid " Tasks"
 msgstr "Tâches"
 
 msgid "Advanced"
 msgstr "Avancé"
 
-#, fuzzy
 msgid "View advanced tasks for this"
-msgstr "Visualisation des tâches avancées pour cet hôte."
+msgstr "Visualisation des tâches avancées pour cette machine"
 
 msgid "Advanced Actions"
 msgstr "Options avancées"
 
-#, fuzzy
 msgid "Please select an option"
-msgstr "S'il vous plaît sélectionner ou créer un nouveau groupe !"
+msgstr "Choisissez une option"
 
 msgid "Join Domain after image task"
-msgstr "Joindre au domaine après la tâche de descente d'image"
+msgstr "Joindre au domaine après la tâche de déploiement"
 
 msgid "Domain name"
 msgstr "Nom du Domaine"
@@ -164,7 +149,6 @@ msgstr "Nom du Domaine"
 msgid "Organizational Unit"
 msgstr "Unité d'Organisation (OU)"
 
-#, fuzzy
 msgid "Blank for default"
 msgstr "(Vide par défaut)"
 
@@ -174,12 +158,11 @@ msgstr "Nom d'utilisation du Domaine"
 msgid "Domain Password"
 msgstr "Mot de passe du Domaine"
 
-#, fuzzy
 msgid "Must be encrypted"
 msgstr "(doit être crypté)"
 
 msgid "Update"
-msgstr "Mise à jour"
+msgstr "Mettre à jour"
 
 msgid "Active Directory"
 msgstr "Active Directory"
@@ -190,9 +173,8 @@ msgstr "Supprimer"
 msgid "Please confirm you want to delete"
 msgstr ""
 
-#, fuzzy
 msgid "Delete all hosts within group"
-msgstr "Supprimer l'imprimante pour tous les hôtes de ce groupe."
+msgstr "Supprimer toutes les machines du groupe"
 
 msgid "Delete file data"
 msgstr ""
@@ -200,38 +182,32 @@ msgstr ""
 msgid "Image is protected, removal not allowed"
 msgstr ""
 
-#, fuzzy
 msgid "Failed to destroy"
-msgstr "Impossible d'ajouter l'utilisateur"
+msgstr "Impossible de détruire"
 
 msgid "delete failed"
 msgstr ""
 
-#, fuzzy
 msgid "Primary Storage Group"
-msgstr "Groupe de stockage"
+msgstr "Groupe de stockage primaire"
 
-#, fuzzy
 msgid "Select an image"
-msgstr "Sélectionner la date de fin"
+msgstr "Sélectionner une image"
 
 msgid "There is a host in a tasking"
 msgstr ""
 
-#, fuzzy
 msgid "Image is not valid"
-msgstr "Le nom de la station est non valide."
+msgstr "Le nom de l'image est incorrect"
 
 msgid "does not have a storage group assigned"
 msgstr ""
 
-#, fuzzy
 msgid "No Storage Group found for this image"
-msgstr "Aucun groupe de stockage trouvé !"
+msgstr "Aucun groupe de stockage n'a été trouvé pour cette image"
 
-#, fuzzy
 msgid "No Storage Node found for this image"
-msgstr "Aucun inventaire trouvé pour cet hôte"
+msgstr "Aucun nœud de stockage n'a été trouvé pour cette image"
 
 msgid "Runs"
 msgstr ""
@@ -257,9 +233,8 @@ msgstr ""
 msgid " at "
 msgstr ""
 
-#, fuzzy
 msgid "Next week"
-msgstr "Suivant"
+msgstr "Semaine prochaine"
 
 msgid "Last week"
 msgstr ""
@@ -298,27 +273,24 @@ msgid "Type"
 msgstr "Type"
 
 msgid "State"
-msgstr "Etat"
+msgstr "État"
 
 msgid "Kill"
 msgstr "Tuer"
 
-#, fuzzy
 msgid "FOG Client Installer"
-msgstr "Service \"Updater\" du client FOG"
+msgstr "Installeur du client FOG"
 
-#, fuzzy
 msgid "Client Service"
-msgstr "Service \"Updater\" du client FOG"
+msgstr "Service client FOG"
 
 msgid ""
 "Download the FOG client service. This service allows for advanced management "
 "of the PC, including hostname changing, etc..."
 msgstr ""
 
-#, fuzzy
 msgid "FOG Client Service"
-msgstr "Service \"Updater\" du client FOG"
+msgstr "Service du client FOG"
 
 msgid "FOG Prep"
 msgstr ""
@@ -347,7 +319,7 @@ msgid "Load Average"
 msgstr ""
 
 msgid "Uptime"
-msgstr "Durée de fonctionnent"
+msgstr "En route depuis"
 
 msgid "System Overview"
 msgstr "Aperçu du système"
@@ -390,7 +362,6 @@ msgstr ""
 msgid "FOG Service Configuration Information"
 msgstr "Information sur la configuration du service FOG"
 
-#, fuzzy
 msgid ""
 "This section of the FOG management portal allows you to configure how the "
 "FOG service functions on client computers.  The settings in this section "
@@ -402,14 +373,13 @@ msgstr ""
 "Cette section du portail du gestionnaire FOG vous permet de configurer les "
 "modules du service FOG sur les ordinateurs clients. Les paramètres de cette "
 "section sont des paramètres globaux et donc applicable à tous les hôtes. Si "
-"vous cherchez à configurer les paramètres d'un module spécifique à un hôte, "
-"s'il vous plaît reporter vous à la section de cet hôte. Pour commencer "
-"l'édition des paramètres globaux, vous devez sélectionner un des éléments du "
-"menu de gauche."
+"vous cherchez à configurer les paramètres d'un module spécifique à une "
+"machine, s'il vous plaît reportez-vous à la section correspondante de cette "
+"machine. Pour commencer l'édition des paramètres globaux, vous devez "
+"sélectionner un des éléments du menu de gauche."
 
-#, fuzzy
 msgid " Enabled?"
-msgstr "Activé"
+msgstr "Activé ?"
 
 msgid " Enabled as default?"
 msgstr ""
@@ -420,12 +390,11 @@ msgstr "Statut du service"
 msgid "Default Setting"
 msgstr "Valeur par défaut"
 
-#, fuzzy
 msgid "Default log out time (in minutes): "
-msgstr "Valeur par défaut de la durée de déconnexion (en minute)"
+msgstr "Durée par défaut avant déconnexion (en minutes) :"
 
 msgid "Update Defaults"
-msgstr "Mise à jour des valeurs par défaut"
+msgstr "Mettre à jour des valeurs par défaut"
 
 msgid "Path"
 msgstr "Chemin d'accès"
@@ -442,11 +411,9 @@ msgstr "Chemin d'accès du répertoire"
 msgid "Directories Cleaned"
 msgstr "Chemin d'accès des répertoires à purger"
 
-#, fuzzy
 msgid "Default Width"
 msgstr "Largeur par défaut"
 
-#, fuzzy
 msgid "Default Height"
 msgstr "Hauteur par défaut"
 
@@ -462,9 +429,8 @@ msgstr "Action"
 msgid "Shutdown/Reboot Schedule"
 msgstr "Horaire d'arrêt / redémarrage"
 
-#, fuzzy
 msgid "Add Event (24 Hour Format):"
-msgstr "Ajouter un évènement (Format 24h)"
+msgstr "Ajouter un événement (Format 24h)"
 
 msgid "Select One"
 msgstr "Choisissez-en un"
@@ -493,14 +459,12 @@ msgstr "Utilisateur"
 msgid "Current Protected User Accounts"
 msgstr "Liste des comptes utilisateurs protégés"
 
-#, fuzzy
 msgid "Service"
-msgstr "Services"
+msgstr "Service"
 
 msgid "Upload FOG Reports"
-msgstr "Soumettre un rapport à FOG"
+msgstr "Envoyer un rapport FOG"
 
-#, fuzzy
 msgid ""
 "This section allows you to upload user defined reports that may not be part "
 "of the base FOG package.  The report files should end in .php"
@@ -509,9 +473,8 @@ msgstr ""
 "partie du package de base de FOG. Le fichier de rapport doit avoir "
 "l'extension \".php\"."
 
-#, fuzzy
 msgid "Upload a FOG report"
-msgstr "Soumettre un rapport à FOG"
+msgstr "Envoyer un rapport FOG"
 
 msgid "Upload File"
 msgstr "Importer un fichier"
@@ -528,9 +491,8 @@ msgstr ""
 "passe avec votre système de FOG. Pour afficher un rapport, sélectionnez un "
 "élément dans le menu sur le côté gauche de cette page."
 
-#, fuzzy
 msgid "FOG Imaging Log - Select Date Range"
-msgstr "Historique des Snapins de FOG - Sélection de la période"
+msgstr "Historique des déploiements FOG - Sélection de la période"
 
 msgid "Select Start Date"
 msgstr "Sélectionner la date de début"
@@ -541,20 +503,17 @@ msgstr "Sélectionner la date de fin"
 msgid "Search for Entries"
 msgstr "Récherche des entrées"
 
-#, fuzzy
 msgid "FOG Imaging Log"
-msgstr "Historique des images"
+msgstr "Historique des déploiements FOG"
 
 msgid "Engineer"
 msgstr ""
 
-#, fuzzy
 msgid "Start"
 msgstr "Début"
 
-#, fuzzy
 msgid "End"
-msgstr "Activé"
+msgstr "Fin"
 
 msgid "Duration"
 msgstr "Durée"
@@ -566,16 +525,16 @@ msgid "Clear"
 msgstr "Nettoyer"
 
 msgid "Host ID"
-msgstr "ID de l'hôte"
+msgstr "ID de la machine"
 
 msgid "Host Name"
-msgstr "Nom de la station"
+msgstr "Nom de la machine"
 
 msgid "Host MAC"
-msgstr "Adresse MAC de l'hôte"
+msgstr "Adresse MAC de la machine"
 
 msgid "Host Desc"
-msgstr "Description de l'hôte"
+msgstr "Description de la machine"
 
 msgid "Image Name"
 msgstr "Nom de l'image"
@@ -584,10 +543,10 @@ msgid "Image Path"
 msgstr "Chemin d'accès de l'image"
 
 msgid "Start Date"
-msgstr "Date de début"
+msgstr "Date de démarrage"
 
 msgid "Start Time"
-msgstr "Début"
+msgstr "Heure de démarrage"
 
 msgid "End Date"
 msgstr "Date de fin"
@@ -595,9 +554,8 @@ msgstr "Date de fin"
 msgid "End Time"
 msgstr "Heure de fin"
 
-#, fuzzy
 msgid "Download/Upload"
-msgstr "Download"
+msgstr "Déploiement/Capture"
 
 msgid "Download"
 msgstr "Download"
@@ -608,9 +566,8 @@ msgstr "Envoyer"
 msgid "Host Listing Export"
 msgstr "Exportation de la liste des hôtes"
 
-#, fuzzy
 msgid "Host Created"
-msgstr "Date de création de l'hôte"
+msgstr "Date de création de la machine"
 
 msgid "Image ID"
 msgstr "ID de l'image"
@@ -628,7 +585,7 @@ msgid "AD Domain"
 msgstr "Domaine Active Directory"
 
 msgid "Kernel"
-msgstr "Kernel"
+msgstr "Noyau"
 
 msgid "HD Device"
 msgstr "Disque dur"
@@ -637,41 +594,37 @@ msgid "OS Name"
 msgstr "Nom de l'OS"
 
 msgid "Hostname"
-msgstr "Nom d'hôte (hostname)"
+msgstr "Nom de machine (hostname)"
 
-#, fuzzy
 msgid "Operating System"
 msgstr "Système d'Exploitation"
 
 msgid "Yes"
 msgstr ""
 
-#, fuzzy
 msgid "No"
-msgstr "Noeuds"
+msgstr "Non"
 
 msgid "Full Inventory Export"
-msgstr "Exportation de l'inventaire effectué"
+msgstr "Exportation de l'inventaire effectuée"
 
-#, fuzzy
 msgid "Host name"
 msgstr "Nom d'hôte (hostname)"
 
 msgid "Inventory ID"
 msgstr "ID de l'inventaire"
 
-#, fuzzy
 msgid "Inventory Desc"
-msgstr "ID de l'inventaire"
+msgstr "Description de l'inventaire"
 
 msgid "Primary User"
 msgstr "Utilisateur Principal"
 
 msgid "Other Tag 1"
-msgstr "Autre TAG 1"
+msgstr "Autre étiquette 1"
 
 msgid "Other Tag 2"
-msgstr "Autre TAG 2"
+msgstr "Autre étiquette 2"
 
 msgid "System Manufacturer"
 msgstr "Fabriquant du système"
@@ -697,17 +650,14 @@ msgstr "Fournisseur du BIOS"
 msgid "BIOS Date"
 msgstr "Date du BIOS"
 
-#, fuzzy
 msgid "MB Manufacturer"
-msgstr "Fabriquant du CPU"
+msgstr "Fabriquant de la CM"
 
-#, fuzzy
 msgid "MB Name"
-msgstr "Nom"
+msgstr "Nom de la CM"
 
-#, fuzzy
 msgid "MB Version"
-msgstr "Version"
+msgstr "Version de la CM"
 
 msgid "MB Serial"
 msgstr "Numéro de série de la CM"
@@ -751,9 +701,8 @@ msgstr "Numéro de série du chassis"
 msgid "Chassis Asset"
 msgstr "Chassis asset"
 
-#, fuzzy
 msgid "OS name"
-msgstr "Nom de la CM"
+msgstr "Nom de l'OS"
 
 msgid "All Pending MACs approved."
 msgstr ""
@@ -764,13 +713,11 @@ msgstr ""
 msgid "Approve All Pending MACs for all hosts?"
 msgstr ""
 
-#, fuzzy
 msgid "Host Primary MAC"
 msgstr "Adresse MAC principale"
 
-#, fuzzy
 msgid "Host Pending MAC"
-msgstr "Adresse MAC de l'hôte"
+msgstr "Adresse MAC en attente"
 
 msgid "FOG Virus Summary"
 msgstr "Résumé des virus de FOG"
@@ -796,9 +743,8 @@ msgstr "Rapport"
 msgid "All Virus' cleared"
 msgstr ""
 
-#, fuzzy
 msgid "Virus cleared"
-msgstr "Antivirus"
+msgstr "Virus effacé"
 
 msgid "FOG User Login History Summary - Search"
 msgstr "Historique des accès à FOG - Recherche"
@@ -806,9 +752,8 @@ msgstr "Historique des accès à FOG - Recherche"
 msgid "Enter a username to search for"
 msgstr "Saisir un nom d'utilisateur pour la recherche"
 
-#, fuzzy
 msgid "Enter a hostname to search for"
-msgstr "Saisir un nom d'utilisateur pour la recherche"
+msgstr "Saisir un nom à chercher"
 
 msgid "Search"
 msgstr "Recherche"
@@ -816,9 +761,8 @@ msgstr "Recherche"
 msgid "Results Found for user and/or hostname search"
 msgstr ""
 
-#, fuzzy
 msgid "Host/User name"
-msgstr "Nom d'utilisateur"
+msgstr "Machine/Nom d'utilisateur"
 
 msgid "FOG User Login History Summary - Select Date Range"
 msgstr "Historique des accès à FOG - Sélection de la période"
@@ -841,15 +785,12 @@ msgstr "Nom du Snapin"
 msgid "Return Code"
 msgstr "Code retourné"
 
-#, fuzzy
 msgid "Return Desc"
 msgstr "Description retournée"
 
-#, fuzzy
 msgid "Create Date"
 msgstr "Date de création"
 
-#, fuzzy
 msgid "Create Time"
 msgstr "Heure de création"
 
@@ -872,38 +813,31 @@ msgid "Snapin Run With Args"
 msgstr "Exécution du Snapin avec les arguments"
 
 msgid "Snapin State"
-msgstr "Etat du Snapin"
+msgstr "État du Snapin"
 
 msgid "Snapin Return Code"
-msgstr "Code retourné du Snapin"
+msgstr "Code de retour du Snapin"
 
-#, fuzzy
 msgid "Snapin Return Detail"
-msgstr "Description retourné du Snapin"
+msgstr "Détails renvoyés par le snapin"
 
-#, fuzzy
 msgid "Snapin Creation Date"
-msgstr "Date de création"
+msgstr "Date de création du snapin"
 
-#, fuzzy
 msgid "Snapin Creation Time"
-msgstr "Heure de création"
+msgstr "Heure de création du snapin"
 
-#, fuzzy
 msgid "Job Create Date"
-msgstr "Date de création de l'hôte"
+msgstr "Date de création de la tâche"
 
-#, fuzzy
 msgid "Job Create Time"
-msgstr "Heure de création"
+msgstr "Heure de création de la tâche"
 
-#, fuzzy
 msgid "Task Checkin Date"
-msgstr "Data d'arrivée"
+msgstr "Date d'enregistement de la tâche"
 
-#, fuzzy
 msgid "Task Checkin Time"
-msgstr "heure d'arrivée"
+msgstr "Heure d'enregistrement de la tâche"
 
 msgid "FOG Equipment Loan Form"
 msgstr "Formulaire d'inventaire de FOG"
@@ -930,7 +864,7 @@ msgid "[sub-unit here]"
 msgstr "[sous-unité ici]"
 
 msgid "PC Check-Out Agreement"
-msgstr "PC Check-Out Agreement"
+msgstr "Autorisation de sortie de matériel"
 
 msgid "Personal Information"
 msgstr "Information personnelle"
@@ -972,7 +906,7 @@ msgid "Notes / Miscellaneous / Included Items"
 msgstr "Notes / Divers / Articles inclus"
 
 msgid "Releasing Staff Initials"
-msgstr "Publication initiale du Staff"
+msgstr "Initiales de la personne acceptant la sortie"
 
 msgid "(To be released only by XXXXXXXXX)"
 msgstr "(Délivré seulement par XXXXXXXXX)"
@@ -1002,13 +936,11 @@ msgstr "Vos termes et conditions ici"
 msgid "X"
 msgstr "X"
 
-#, fuzzy
 msgid "Your form is ready."
-msgstr "Votre rapport est prêt !"
+msgstr "Votre formulaire est prêt !"
 
-#, fuzzy
 msgid "Started By:"
-msgstr "Créé par"
+msgstr "Lancée par :"
 
 msgid "Hostname<br><small>MAC</small>"
 msgstr ""
@@ -1016,17 +948,14 @@ msgstr ""
 msgid "Status"
 msgstr "Statut"
 
-#, fuzzy
 msgid "Actions"
-msgstr "Action"
+msgstr "Actions"
 
-#, fuzzy
 msgid "All Tasks"
-msgstr "Toutes les tâches actives"
+msgstr "Toutes les tâches"
 
-#, fuzzy
 msgid "Cancel Task"
-msgstr "Tâches de base"
+msgstr "Annuler la tâche"
 
 msgid "Task forced to start"
 msgstr ""
@@ -1034,27 +963,23 @@ msgstr ""
 msgid "Force task to start"
 msgstr ""
 
-#, fuzzy
 msgid "All Hosts"
-msgstr "Lister tous les hôtes"
+msgstr "Liste des machines"
 
 msgid "MAC"
 msgstr "Adresse MAC"
 
-#, fuzzy
 msgid "is protected"
-msgstr "Ajouts d'utilisateur à protéger"
+msgstr "est protégée"
 
-#, fuzzy
 msgid "Failed to create deploy task"
-msgstr "Impossible de créer l'hôte !"
+msgstr "Impossible de créer la tâche de déploiement"
 
-#, fuzzy
 msgid "List all Groups"
 msgstr "Liste des groupes"
 
 msgid "Members"
-msgstr "Mambres"
+msgstr "Membres"
 
 msgid "Deploy"
 msgstr "Déployer"
@@ -1071,19 +996,17 @@ msgstr ""
 msgid "Active Tasks"
 msgstr "Tâches actives"
 
-#, fuzzy
 msgid "Active Multi-cast Tasks"
 msgstr "Tâches Multicast Actives"
 
 msgid "Hosts"
-msgstr "Hôtes"
+msgstr "Machines"
 
 msgid "Snapin"
 msgstr "Snapin"
 
-#, fuzzy
 msgid "Name:"
-msgstr "Nom"
+msgstr "Nom :"
 
 msgid "Is Group"
 msgstr "Est un groupe"
@@ -1091,9 +1014,8 @@ msgstr "Est un groupe"
 msgid "Task Type"
 msgstr "Type de tâche"
 
-#, fuzzy
 msgid "Active/Type"
-msgstr "Tâches actives"
+msgstr "Actives/Type"
 
 msgid "Local Printer"
 msgstr "Imprimante Local"
@@ -1113,31 +1035,26 @@ msgstr "Port de l'imprimante"
 msgid "Printer Model"
 msgstr "Modèle de l'imprimante"
 
-#, fuzzy
 msgid "Printer INF File"
 msgstr "Fichier INF de l'imprimante"
 
-#, fuzzy
 msgid "Printer IP (optional)"
-msgstr "Adresse IP de l'imprimante (optionnelle)"
+msgstr "Adresse IP de l'imprimante (facultatif)"
 
 msgid "Add Printer"
 msgstr "Ajouter une imprimante"
 
-#, fuzzy
 msgid "Printer created"
-msgstr "Créé par l'utilisateur"
+msgstr "Imprimante ajoutée"
 
 msgid "Update Printer"
-msgstr "Mise à jour de l'imprimante"
+msgstr "Mettre à jour l'imprimante"
 
-#, fuzzy
 msgid "Last Deployed"
-msgstr "Déployer"
+msgstr "Dernier déploiement"
 
-#, fuzzy
 msgid "Registered"
-msgstr "Module \"Host Register\" activé?"
+msgstr "Enregistrées"
 
 msgid "Pending Approval"
 msgstr ""
@@ -1148,13 +1065,11 @@ msgstr ""
 msgid "Check here to see hosts not assigned with this printer"
 msgstr ""
 
-#, fuzzy
 msgid "Modify printer association for"
-msgstr "Modifier l'information de l'AD pour "
+msgstr "Changer l'association d'imprimante pour"
 
-#, fuzzy
 msgid "Add hosts to printer"
-msgstr "Ajouter une imprimante"
+msgstr "Ajouter les machines à l'imprimante"
 
 msgid "Check here to see hosts with no printers"
 msgstr ""
@@ -1162,33 +1077,26 @@ msgstr ""
 msgid "Hosts below have no printer associations"
 msgstr ""
 
-#, fuzzy
 msgid "Add hosts with printer"
-msgstr "Ajouter une nouvelle imprimante"
+msgstr "Ajouter les machines ayant une imprimante"
 
-#, fuzzy
 msgid "Add Printer to Host(s)"
 msgstr "Ajouter une imprimante"
 
-#, fuzzy
 msgid "Is Default"
-msgstr "Défaut"
+msgstr "est l'imprimante par défaut"
 
-#, fuzzy
 msgid "Remove Printer"
-msgstr "Imprimante Réseau"
+msgstr "Supprimer l'imprimante"
 
-#, fuzzy
 msgid "Default Printer Selection"
-msgstr "Supprimer la définition de l'imprimante"
+msgstr "Choix de l'imprimante par défaut"
 
-#, fuzzy
 msgid "Update defaults"
-msgstr "Mise à jour des valeurs par défaut"
+msgstr "Mettre à jour des valeurs par défaut"
 
-#, fuzzy
 msgid "You must specify the alias, port, model, and inf"
-msgstr "Vous devez spécifier un port, impossible de créer une imprimante !"
+msgstr "Vous devez indiquer un alias, un port, un modèle et un pilote"
 
 msgid "You must specify the alias and port"
 msgstr "Vous devez préciser l'alias et le port"
@@ -1199,33 +1107,26 @@ msgstr ""
 msgid "Printer name already exists, please choose another"
 msgstr ""
 
-#, fuzzy
 msgid "Printer updated"
-msgstr "utilisateur mis à jour"
+msgstr "Imprimante mise à jour"
 
-#, fuzzy
 msgid "Printer"
-msgstr "Imprimantes"
+msgstr "Imprimante"
 
-#, fuzzy
 msgid "Deployed"
-msgstr "Déployer"
+msgstr "Déployé"
 
-#, fuzzy
 msgid "Task"
 msgstr "Nom de la tâche"
 
-#, fuzzy
 msgid "Edit/Remove"
-msgstr "Supprimer"
+msgstr "Modifier/Supprimer"
 
-#, fuzzy
 msgid "Pending Host List"
-msgstr "Listing des hôtes"
+msgstr "Liste des machines en attente"
 
-#, fuzzy
 msgid "Approve selected Hosts"
-msgstr "Supprimer l'hôte"
+msgstr "Valider les machines sélectionnées"
 
 msgid "All hosts approved successfully"
 msgstr ""
@@ -1233,9 +1134,8 @@ msgstr ""
 msgid "approved successfully"
 msgstr ""
 
-#, fuzzy
 msgid "New Host"
-msgstr "Ajouter un nouvel hôte"
+msgstr "Nouvelle machine"
 
 msgid "Primary MAC"
 msgstr "Adresse MAC principale"
@@ -1244,69 +1144,58 @@ msgid "Add Mac"
 msgstr ""
 
 msgid "Host Description"
-msgstr "Description de l'hôte"
+msgstr "Description de la machine"
 
-#, fuzzy
 msgid "Host Product Key"
-msgstr "Produit"
+msgstr "Clé produit pour la machine"
 
 msgid "Host Image"
-msgstr "Image de l'hôte"
+msgstr "Image de la machine"
 
 msgid "Host Kernel"
-msgstr "Kernel de l'hôte"
+msgstr "Noyau de la machine"
 
 msgid "Host Kernel Arguments"
-msgstr "Arguments pour le kernel de l'hôte"
+msgstr "Arguments pour le noyau de la machine"
 
 msgid "Host Primary Disk"
-msgstr "Disque dur principal de l'hôte"
+msgstr "Disque dur principal de la machine"
 
-#, fuzzy
 msgid "Domain Name"
-msgstr "Nom du Domaine"
+msgstr "Nom du domaine"
 
-#, fuzzy
 msgid "Domain OU"
-msgstr "Nom du Domaine"
+msgstr "OU du domaine"
 
 msgid "Add"
 msgstr "Ajouter"
 
 msgid "Add new host definition"
-msgstr "Ajouter une nouvelle définition de l'hôte"
+msgstr "Ajouter une nouvelle définition de la machine"
 
-#, fuzzy
 msgid "Hostname is required"
-msgstr "Le nom de la station est vide"
+msgstr "Le nom de la machine doit être fourni"
 
-#, fuzzy
 msgid "MAC Address is required"
-msgstr "L'adresse MAC est non définie ou non valide."
+msgstr "L'adresse MAC est requise"
 
-#, fuzzy
 msgid "MAC Format is invalid"
-msgstr "L'adresse MAC est non valide."
+msgstr "Le format de l'adresse MAC est incorrect"
 
-#, fuzzy
 msgid "A host with this MAC already exists with Hostname: "
-msgstr "Un utilisateur avec ce nom existe déjà !"
+msgstr "Une machine existe déjà pour cette MAC :"
 
-#, fuzzy
 msgid "Hostname already exists"
-msgstr "L'utilisateur existe déjà !"
+msgstr "Le nom de machine existe déjà !"
 
-#, fuzzy
 msgid "Host added"
-msgstr "Echec lors de l'ajout de l'hôte"
+msgstr "Machine ajoutée"
 
-#, fuzzy
 msgid "Host approved"
-msgstr "Hôte supprimé !"
+msgstr "Machine autorisée"
 
-#, fuzzy
 msgid "Host approval failed."
-msgstr "Echec lors de l'ajout de l'hôte"
+msgstr "Échec lors de l'ajout de la machine"
 
 msgid "Approve this host?"
 msgstr ""
@@ -1314,13 +1203,11 @@ msgstr ""
 msgid "Invalid MAC Address"
 msgstr "Adresse MAC non valide"
 
-#, fuzzy
 msgid "Remove MAC"
-msgstr "Supprimer"
+msgstr "Supprimer l'adresse MAC"
 
-#, fuzzy
 msgid "Make Primary"
-msgstr "Adresse MAC principale"
+msgstr "Définir comme principale"
 
 msgid "Ignore MAC on Client"
 msgstr ""
@@ -1331,9 +1218,8 @@ msgstr ""
 msgid "Approve All MACs?"
 msgstr ""
 
-#, fuzzy
 msgid "Add MAC"
-msgstr "Adresses MAC supplémentaires"
+msgstr "Ajouter MAC"
 
 msgid "Additional MACs"
 msgstr "Adresses MAC supplémentaires"
@@ -1341,64 +1227,53 @@ msgstr "Adresses MAC supplémentaires"
 msgid "Pending MACs"
 msgstr ""
 
-#, fuzzy
 msgid "Edit host definition"
-msgstr "Ajouter une nouvelle définition de l'hôte"
+msgstr "Modifier la définition de la machine"
 
-#, fuzzy
 msgid "Group Relationships"
-msgstr "Résultats du groupe"
+msgstr "Relations de groupe"
 
 msgid "Check here to see groups this host is not associated with"
 msgstr ""
 
-#, fuzzy
 msgid "Add to Group(s)"
-msgstr "Ajouter au groupe"
+msgstr "Ajouter au(x) groupe(s)"
 
 msgid "Group Name"
 msgstr "Nom du groupe"
 
-#, fuzzy
 msgid "Total Members"
-msgstr "Mémoire totale"
+msgstr "Nombre total de membres"
 
-#, fuzzy
 msgid "Remove Membership?"
-msgstr "Membres"
+msgstr "Supprimer des membres ?"
 
-#, fuzzy
 msgid "Edit Group"
-msgstr "Liste des groupes"
+msgstr "Modifier le groupe"
 
-#, fuzzy
 msgid "Printer Name"
-msgstr "Printer Manager"
+msgstr "Nom de l'imprimante"
 
-#, fuzzy
 msgid "Configuration"
-msgstr "Configuration du module"
+msgstr "Configuration"
 
 msgid "Check here to see what printers can be added"
 msgstr ""
 
-#, fuzzy
 msgid "Add new printer(s) to this host"
-msgstr "Aucune imprimante liée à cet hôte."
+msgstr "Ajouter une(des) imprimante(s) pour cette machine"
 
 msgid "Default"
 msgstr "Défaut"
 
-#, fuzzy
 msgid "Printer Type"
 msgstr "Modèle de l'imprimante"
 
-#, fuzzy
 msgid "Default Printer Select"
-msgstr "Recherche d'imprimante"
+msgstr "Choix de l'imprimante par défaut"
 
 msgid "Host Printer Configuration"
-msgstr "Configuration de l'imprimante de l'hôte"
+msgstr "Configuration de l'imprimante de la machine"
 
 msgid "Select Management Level for this Host"
 msgstr "Sélectionner le niveau de gestion pour cet hôte"
@@ -1415,16 +1290,14 @@ msgstr "Ajouter et Supprimer"
 msgid "Snapins"
 msgstr "Snapins"
 
-#, fuzzy
 msgid "Created"
 msgstr "Créé par"
 
 msgid "Check here to see what snapins can be added"
 msgstr ""
 
-#, fuzzy
 msgid "Add Snapin(s)"
-msgstr "Ajouter des Snapins"
+msgstr "Ajouter un(des) Snapin(s)"
 
 msgid "Service Configuration"
 msgstr "Configuration du service"
@@ -1433,7 +1306,7 @@ msgid "General"
 msgstr "Général"
 
 msgid "Host Screen Resolution"
-msgstr "Résolution d'écran de l'hôte"
+msgstr "Résolution d'écran de la machine"
 
 msgid "Screen Width (in pixels)"
 msgstr "Largeur de l'écran (en pixel)"
@@ -1441,9 +1314,8 @@ msgstr "Largeur de l'écran (en pixel)"
 msgid "Screen Height (in pixels)"
 msgstr "Hauteur de l'écran (en pixel)"
 
-#, fuzzy
 msgid "Screen Refresh Rate (in Hz)"
-msgstr "Fréquence de rafraichissement de l'écran"
+msgstr "Fréquence de rafraîchissement de l'écran"
 
 msgid "Auto Log Out Settings"
 msgstr "Paramètre de déconnexion automatique (Auto Log Out)"
@@ -1452,10 +1324,10 @@ msgid "Auto Log Out Time (in minutes)"
 msgstr "Durée avant déconnexion automatique (en minute)"
 
 msgid "Other Tag #1"
-msgstr "Autre Information #1"
+msgstr "Autre étiquette #1"
 
 msgid "Other Tag #2"
-msgstr "Autre Information #2"
+msgstr "Autre étiquette #2"
 
 msgid "System Serial Number"
 msgstr "Numéro de Série du système"
@@ -1488,17 +1360,16 @@ msgid "Hard Disk Serial Number"
 msgstr "Numéro de série du disque dur"
 
 msgid "Host Hardware Inventory"
-msgstr "Inventaire Matériel de l'Hôte"
+msgstr "Inventaire Matériel de la machine"
 
 msgid "Virus History"
 msgstr "Historique des Virus"
 
 msgid "Host Login History"
-msgstr "Historique des connexions de l'hôte"
+msgstr "Historique des connexions à la machine"
 
-#, fuzzy
 msgid "View History for"
-msgstr "Historique des Virus"
+msgstr "Voir l'historique pour"
 
 msgid "Login"
 msgstr "Connexion"
@@ -1509,33 +1380,26 @@ msgstr "Déconnexion"
 msgid "Service Start"
 msgstr "Démarrer le service"
 
-#, fuzzy
 msgid "Service Stop"
-msgstr "Démarrer le service"
+msgstr "Arrêter le service"
 
-#, fuzzy
 msgid "No user history data found!"
-msgstr "Aucun utilisateur trouvé"
+msgstr "Aucune donnée historique trouvée pour l'utilisateur"
 
-#, fuzzy
 msgid "Host Imaging History"
-msgstr "Historique des connexions de l'hôte"
+msgstr "Historique des déploiements"
 
-#, fuzzy
 msgid "Imaging Type"
 msgstr "Type de l'image"
 
-#, fuzzy
 msgid "Complete"
 msgstr "Terminé"
 
-#, fuzzy
 msgid "Snapin No longer exists"
-msgstr "Résultat de la suppression du Snapin"
+msgstr "Le snapin n'existe plus"
 
-#, fuzzy
 msgid "MAC Address is not valid"
-msgstr "L'adresse MAC est non valide."
+msgstr "L'adresse MAC est non valide"
 
 msgid "CSV File"
 msgstr "Fichier CSV"
@@ -1543,13 +1407,12 @@ msgstr "Fichier CSV"
 msgid "Upload CSV"
 msgstr "Envoyer un fichier CSV"
 
-#, fuzzy
 msgid ""
 "This page allows you to upload a CSV file of hosts into FOG to ease "
 "migration.  Right click"
 msgstr ""
-"Cette page vous permet de télécharger un fichier CSV d'hôtes dans FOG pour "
-"faciliter la migration. Faites un clic droit"
+"Cette page vous permet d'envoyer un fichier CSV contenant des machines dans "
+"FOG pour faciliter la migration. Faites un clic droit"
 
 msgid "here"
 msgstr "ici"
@@ -1557,9 +1420,8 @@ msgstr "ici"
 msgid " and select "
 msgstr ""
 
-#, fuzzy
 msgid "Save target as..."
-msgstr "Sauvegarder les changements"
+msgstr "Sauvegarder la cible sous..."
 
 msgid " or "
 msgstr ""
@@ -1580,22 +1442,20 @@ msgstr ""
 msgid "Row"
 msgstr "Ligne"
 
-#, fuzzy
 msgid "Invalid number of cells"
-msgstr "Nombre de cellule non valide."
+msgstr "Nombre de cellule incorrect"
 
-#, fuzzy
 msgid "Import Host Results"
-msgstr "Résultats de l'hôte"
+msgstr "Résultats de l'import de machines"
 
 msgid "Total Rows"
 msgstr "Nombre total de lignes"
 
 msgid "Successful Hosts"
-msgstr "Hôtes réussis"
+msgstr "Machines importées avec succès"
 
 msgid "Failed Hosts"
-msgstr "Echec sur hôtes"
+msgstr "Machines en échec"
 
 msgid "Errors"
 msgstr "Erreurs"
@@ -1603,9 +1463,8 @@ msgstr "Erreurs"
 msgid "Click the button to download the hosts table backup."
 msgstr ""
 
-#, fuzzy
 msgid "Export"
-msgstr "Rapport"
+msgstr "Export"
 
 msgid "Create new group"
 msgstr "Créer un nouveau groupe"
@@ -1617,7 +1476,7 @@ msgid "Add to group"
 msgstr "Ajouter au groupe"
 
 msgid "Process Group Changes"
-msgstr "Opérations de changement de groupe"
+msgstr "Appliquer les changements de groupe"
 
 msgid "No Hosts were selected"
 msgstr ""
@@ -1625,34 +1484,29 @@ msgstr ""
 msgid "No Group selected and no new Group name entered"
 msgstr ""
 
-#, fuzzy
 msgid "Failed to create new Group"
-msgstr "Impossible de créer une imprimante !"
+msgstr "Impossible de créer le groupe"
 
-#, fuzzy
 msgid "Invalid Group ID"
-msgstr "L'ID du groupe NFS est non valide"
+msgstr "L'ID du groupe NFS est incorrecte"
 
-#, fuzzy
 msgid "Group is Invalid"
-msgstr "ID d'hôte non valide."
+msgstr "Ce groupe est incorrect"
 
 msgid "Successfully associated Hosts with the Group "
 msgstr ""
 
-#, fuzzy
 msgid "Failed to Associate Hosts with Group"
-msgstr "Impossible de supprimer l'hôte du groupe !"
+msgstr "Impossible d'intégrer les machines au groupe"
 
 msgid "FOG Version Information"
 msgstr "Information sur la version de FOG"
 
-#, fuzzy
 msgid "Version: "
-msgstr "Version"
+msgstr "Version :"
 
 msgid "FOG License Information"
-msgstr "Information de Licence FOG"
+msgstr "Information sur la licence de FOG"
 
 msgid ""
 "This section allows you to update the Linux kernel which is used to boot the "
@@ -1664,10 +1518,10 @@ msgid ""
 "hanging please be patient."
 msgstr ""
 "Cette section vous permet de mettre à jour le noyau (kernel) Linux qui est "
-"utilisé pour démarrer les ordinateurs clients. FOG utilise ce kernel pour "
-"charger les pilotes nécessaires au fonctionnement des ordinateurs clients. "
-"Si l'ordinateur client est incapable de démarrer, vous devriez mettre à jour "
-"le kernel par une version plus récente contenant les pilotes nécessaires. Ce "
+"utilisé pour démarrer les machines. FOG utilise ce kernel pour charger les "
+"pilotes nécessaires au fonctionnement des ordinateurs clients. Si "
+"l'ordinateur client est incapable de démarrer, vous devriez mettre à jour le "
+"kernel par une version plus récente contenant les pilotes nécessaires. Ce "
 "processus d'installation peut prendre quelques minutes en fonction de votre "
 "accès à internet et de la charge réseau."
 
@@ -1680,45 +1534,38 @@ msgstr ""
 msgid "Starting process..."
 msgstr "Démarrage du processus..."
 
-#, fuzzy
 msgid "New Kernel name:"
-msgstr "Mise à jour du kernel"
+msgstr "Nouveau nom pour le noyau :"
 
 msgid "FOG PXE Boot Menu Configuration"
 msgstr "Configuration du menu de boot PXE de FOG"
 
-#, fuzzy
 msgid "No Menu"
-msgstr "Menu Hôte"
+msgstr "Pas de menu"
 
-#, fuzzy
 msgid "Hide Menu"
-msgstr "Menu caché:"
+msgstr "Masquer le menu"
 
-#, fuzzy
 msgid "Hide Menu Timeout"
-msgstr "Menu caché:"
+msgstr "Durée d'affichage du menu masqué"
 
-#, fuzzy
 msgid "Advanced Menu Login"
-msgstr "Paramètres avancés"
+msgstr "Identification pour le menu avancé"
 
 msgid "Boot Key Sequence"
 msgstr ""
 
-#, fuzzy
 msgid "Menu Timeout (in seconds)"
 msgstr "Durée d'affichage du menu (en seconde): *"
 
 msgid "Exit to Hard Drive Type"
 msgstr ""
 
-#, fuzzy
 msgid "Save PXE MENU"
 msgstr "Sauvegarder le menu PXE"
 
 msgid "Invalid Timeout Value."
-msgstr "Valeur de Timeout est invalide."
+msgstr "Délai d'attente non valide"
 
 msgid ""
 "This item allows you to edit all of the PXE Menu items as you see fit.  Mind "
@@ -1732,31 +1579,26 @@ msgstr ""
 msgid "Menu Item:"
 msgstr ""
 
-#, fuzzy
 msgid "Description:"
-msgstr "Description"
+msgstr "Description :"
 
-#, fuzzy
 msgid "Parameters:"
-msgstr "Imprimantes"
+msgstr "Paramètres :"
 
 msgid "Boot Options:"
 msgstr ""
 
-#, fuzzy
 msgid "Default Item:"
-msgstr "Défaut"
+msgstr "Défaut :"
 
 msgid "Menu Show with:"
 msgstr ""
 
-#, fuzzy
 msgid "successfully updated"
-msgstr "utilisateur mis à jour"
+msgstr "mise à jour avec succès"
 
-#, fuzzy
 msgid "successfully removed"
-msgstr "Hôtes réussis"
+msgstr "supprimée avec succès"
 
 msgid "Create New iPXE Menu Entry"
 msgstr ""
@@ -1767,16 +1609,14 @@ msgstr ""
 msgid "A description needs to be set"
 msgstr ""
 
-#, fuzzy
 msgid "successfully added, you may now add another"
-msgstr "Hôte ajouté. Maintenant, vous pouvez en ajouter un autre."
+msgstr "ajoutée avec succès. Maintenant, vous pouvez en ajouter une autre."
 
 msgid "FOG Client Service Updater"
-msgstr "Service \"Updater\" du client FOG"
+msgstr "Service Mise à jour du client FOG"
 
-#, fuzzy
 msgid "Module Name"
-msgstr "Nom du noeud"
+msgstr "Nom du module"
 
 msgid "Module MD5"
 msgstr ""
@@ -1784,7 +1624,6 @@ msgstr ""
 msgid "Module Type"
 msgstr ""
 
-#, fuzzy
 msgid ""
 "This section allows you to update the modules and config files that run on "
 "the client computers.  The clients will checkin with the server from time to "
@@ -1798,17 +1637,14 @@ msgstr ""
 "module est publié. Si c'est le cas, le client va télécharger le module et "
 "l'utiliser après redémarrage du service."
 
-#, fuzzy
 msgid "Upload a new client module/configuration file"
 msgstr "Charger un nouveau module client / fichier de configuration"
 
-#, fuzzy
 msgid "Max Size:"
-msgstr "Taille maximum:"
+msgstr "Taille maximum :"
 
-#, fuzzy
 msgid "Client module update deleted!"
-msgstr "Module client de mise à jour supprimé:"
+msgstr "Suppression du module de mise à jour du client !"
 
 msgid "MAC Address Manufacturer Listing"
 msgstr "Liste d'adresses MAC des fabriquants"
@@ -1830,7 +1666,7 @@ msgid "Update Current Listing"
 msgstr "Mise à jour de la liste courante"
 
 msgid "MAC address listing source: "
-msgstr "Source de la liste d'adresse MAC:"
+msgstr "Source de la liste d'adresse MAC :"
 
 msgid " mac addresses updated!"
 msgstr " adresse MAC mise à jour !"
@@ -1847,123 +1683,102 @@ msgstr ""
 "fonctionne FOG. Soyez prudent en changeant les paramètres suivants car cela "
 "peut provoquer des comportements anormaux difficiles à diagnostiquer."
 
-#, fuzzy
 msgid "No image specified"
-msgstr "Aucune image trouvée"
+msgstr "Aucune image n'a été précisée"
 
 msgid "Save Changes"
 msgstr "Sauvegarder les changements"
 
-#, fuzzy
 msgid "File:"
-msgstr "Fichier: "
+msgstr "Fichier : "
 
-#, fuzzy
 msgid "Number of lines:"
-msgstr "Nombres de lignes:"
+msgstr "Nombres de lignes :"
 
 msgid "Refresh"
 msgstr "Rafraîchir"
 
-#, fuzzy
 msgid "Click the button to export the database."
-msgstr ""
-"Cliquer sur l'icone ci-dessous pour supprimer cette imprimante de la base de "
-"FOG."
+msgstr "Cliquer sur l'icône pour exporter la base de données"
 
 msgid "Import a previous backup file."
 msgstr ""
 
-#, fuzzy
 msgid "Import"
-msgstr "Rapport"
+msgstr "Importer"
 
 msgid "File Import successful!"
 msgstr ""
 
-#, fuzzy
 msgid "Database Added!"
-msgstr "Erreur dans le base de données"
+msgstr "Base de données créée !"
 
-#, fuzzy
 msgid "All Groups"
 msgstr "Liste des groupes"
 
-#, fuzzy
 msgid "New Group"
-msgstr "Groupe"
+msgstr "Nouveau groupe"
 
 msgid "Group Description"
 msgstr "Description du groupe"
 
 msgid "Group Kernel"
-msgstr "Groupe du kernel"
+msgstr "Noyau pour le groupe"
 
 msgid "Group Kernel Arguments"
-msgstr "Groupe d'arguments du kernel"
+msgstr "Paramètres noyau pour le groupe"
 
 msgid "Group Primary Disk"
-msgstr "Groupe de Disk Primaire"
+msgstr "Disque primaire pour le groupe"
 
-#, fuzzy
 msgid "Group added"
-msgstr "Nom du groupe"
+msgstr "Groupe ajouté"
 
 msgid "Group"
 msgstr "Groupe"
 
-#, fuzzy
 msgid "Group Product Key"
-msgstr "Groupe créé"
+msgstr "Clé produit pour le groupe"
 
 msgid "Modify Group"
-msgstr "Groupe modifié"
+msgstr "Modification du groupe"
 
-#, fuzzy
 msgid "Check here to see hosts not in this group"
-msgstr "Ajouter une nouvelle imprimante à tous les hôtes de ce groupe."
+msgstr "Cochez ici pour voir les machines qui ne sont pas dans ce groupe"
 
-#, fuzzy
 msgid "Modify Membership for"
-msgstr "Modification des membres pour "
+msgstr "Modification l'appartenance de "
 
-#, fuzzy
 msgid "Add hosts to group"
-msgstr "Ajouter au groupe"
+msgstr "Ajouter les machines au groupe"
 
-#, fuzzy
 msgid "Check here to see hosts not within a group"
-msgstr "Ajouter une nouvelle imprimante à tous les hôtes de ce groupe."
+msgstr ""
+"Cochez ici pour voir toutes les machines qui ne sont pas dans un groupe"
 
 msgid "Hosts below do not belong to a group"
 msgstr ""
 
-#, fuzzy
 msgid "Add Host(s) to Group"
-msgstr "Ajouter au groupe"
+msgstr "Ajouter la(les) machine(s) au groupe"
 
-#, fuzzy
 msgid "Update Hosts"
-msgstr "Upload d'hôtes"
+msgstr "Mettre les machines à jour"
 
-#, fuzzy
 msgid "Image Association for"
-msgstr "Chemin des images"
+msgstr "Association d'image pour"
 
 msgid "Update Images"
-msgstr "Mise à jour des images"
+msgstr "Mettre à jour les images"
 
-#, fuzzy
 msgid "Add Snapin to all hosts in"
 msgstr "Ajouter un Snapin à tous les hôtes dans "
 
-#, fuzzy
 msgid "Remove Snapin to all hosts in"
 msgstr "Supprimer un Snapin à tous les hôtes dans "
 
-#, fuzzy
 msgid "Remove Snapin(s)"
-msgstr "Supprimer des Snapins"
+msgstr "Supprimer le(s) snapin(s)"
 
 msgid "Group Screen Resolution"
 msgstr "Résolution d'écran du groupe"
@@ -1971,13 +1786,11 @@ msgstr "Résolution d'écran du groupe"
 msgid "Select Management Level for all Hosts in this group"
 msgstr "Sélectionner le niveau de gestion pour tous les hôtes dans ce groupe"
 
-#, fuzzy
 msgid "Default Printer Selector"
-msgstr "Supprimer la définition de l'imprimante"
+msgstr "Choix de l'imprimante par défaut"
 
-#, fuzzy
 msgid "Add new printer(s) to all hosts in this group."
-msgstr "Ajouter une nouvelle imprimante à tous les hôtes de ce groupe."
+msgstr "Ajouter une nouvelle imprimante à toutes les machines de ce groupe."
 
 msgid "There are no printers to assign."
 msgstr ""
@@ -1985,16 +1798,14 @@ msgstr ""
 msgid "Remove printer from all hosts in this group."
 msgstr "Supprimer l'imprimante pour tous les hôtes de ce groupe."
 
-#, fuzzy
 msgid "Delete Hosts"
-msgstr "Supprimer l'hôte"
+msgstr "Supprimer les machines"
 
 msgid "Confirm you really want to delete the following hosts"
 msgstr ""
 
-#, fuzzy
 msgid "Delete listed hosts"
-msgstr "Supprimer l'hôte"
+msgstr "Supprimer les machines listées"
 
 msgid "Storage Group"
 msgstr "Groupe de stockage"
@@ -2005,9 +1816,8 @@ msgstr ""
 msgid "Image Type"
 msgstr "Type de l'image"
 
-#, fuzzy
 msgid "Partition"
-msgstr "Attention"
+msgstr "Partition"
 
 msgid "Image Size: ON CLIENT"
 msgstr ""
@@ -2015,11 +1825,9 @@ msgstr ""
 msgid "Image Size: ON SERVER"
 msgstr ""
 
-#, fuzzy
 msgid "Uploaded"
-msgstr "Upload"
+msgstr "Envoyé"
 
-#, fuzzy
 msgid "All Images"
 msgstr "Liste des images"
 
@@ -2032,21 +1840,17 @@ msgstr "Description de l'image"
 msgid "Add new image definition"
 msgstr "Ajouter une nouvelle définition d'image"
 
-#, fuzzy
 msgid "Image created"
 msgstr "Image créée."
 
-#, fuzzy
 msgid "Protected"
-msgstr "Ajouts d'utilisateur à protéger"
+msgstr "Protégée"
 
-#, fuzzy
 msgid "Image Manager"
-msgstr "Gestione immagini"
+msgstr "Gestion des images"
 
-#, fuzzy
 msgid "PartImage"
-msgstr "Image"
+msgstr "PartImage"
 
 msgid "PartClone"
 msgstr ""
@@ -2057,9 +1861,8 @@ msgstr "Modifier la définition de l'image"
 msgid "Check here to see hosts not assigned with this image"
 msgstr ""
 
-#, fuzzy
 msgid "Modify image association for"
-msgstr "Modifier l'information de l'AD pour "
+msgstr "Modifier l'association d'image pour"
 
 msgid "Add hosts to image"
 msgstr ""
@@ -2073,13 +1876,11 @@ msgstr ""
 msgid "Assign hosts with image"
 msgstr ""
 
-#, fuzzy
 msgid "Add Image to Host(s)"
-msgstr "Image de l'Hôte"
+msgstr "Ajouter une image pour la(les) machine(s)"
 
-#, fuzzy
 msgid "Remove Image"
-msgstr "Supprimer"
+msgstr "Supprimer l'image"
 
 msgid "Storage Group Name"
 msgstr "Nom du groupe de stockage"
@@ -2087,13 +1888,11 @@ msgstr "Nom du groupe de stockage"
 msgid "Check here to see groups not assigned with this image"
 msgstr ""
 
-#, fuzzy
 msgid "Modify group association for"
-msgstr "Modifier l'information de l'AD pour "
+msgstr "Modifier l'association de groupe pour"
 
-#, fuzzy
 msgid "Add image to groups"
-msgstr "Ajouter au groupe"
+msgstr "Ajouter image aux groupes"
 
 msgid "Check here to see groups not with any image associated"
 msgstr ""
@@ -2101,51 +1900,41 @@ msgstr ""
 msgid "Groups below have no image association"
 msgstr ""
 
-#, fuzzy
 msgid "Assign image to groups"
-msgstr "Ajouté au groupe"
+msgstr "Affecter une image aux groupes"
 
-#, fuzzy
 msgid "Add Image to Group(s)"
-msgstr "Ajouter un groupe de stockage"
+msgstr "Ajouter l'image au(x) groupe(s)"
 
-#, fuzzy
 msgid "Remove Group"
 msgstr "Supprimer le groupe"
 
-#, fuzzy
 msgid "Image must be assigned to one Storage Group"
-msgstr "Impossible de mettre à jour le groupe de stockage"
+msgstr "L'image doit être assignée à un Groupe de Stockage"
 
 msgid "Image updated"
 msgstr "Image mise à jour"
 
-#, fuzzy
 msgid "Session Name"
-msgstr "Nom du Snapin"
+msgstr "Nom de la session"
 
-#, fuzzy
 msgid "Client Count"
-msgstr "Nombre de CPU"
+msgstr "Nombre de clients"
 
-#, fuzzy
 msgid "Timeout"
-msgstr "Durée"
+msgstr "Délai maximal"
 
 msgid "minutes"
 msgstr ""
 
-#, fuzzy
 msgid "Select Image"
-msgstr "Choisissez-en un"
+msgstr "Choisissez l'image"
 
-#, fuzzy
 msgid "Start Multicast Session"
-msgstr "Impossible d'activer la session du multicast !"
+msgstr "Démarrage de la session multicast"
 
-#, fuzzy
 msgid "Clients"
-msgstr "Client Maximum"
+msgstr "Clients"
 
 msgid "Percent"
 msgstr ""
@@ -2159,9 +1948,8 @@ msgstr ""
 msgid "Please choose an image"
 msgstr ""
 
-#, fuzzy
 msgid "Session with that name already exists"
-msgstr "Un utilisateur avec ce nom existe déjà !"
+msgstr "Une session existe déjà sous ce nom"
 
 msgid "Session name cannot be the same as an existing hostname"
 msgstr ""
@@ -2169,22 +1957,18 @@ msgstr ""
 msgid "Please wait until a slot is open<br/>There are currently "
 msgstr ""
 
-#, fuzzy
 msgid "Failed to create Session"
-msgstr "Impossible de créer l'hôte !"
+msgstr "Impossible de créer la session"
 
 msgid "Multicast session created"
 msgstr ""
 
-#, fuzzy
 msgid "Canceled task"
-msgstr "Tâches planifiées"
+msgstr "Tâches annulées"
 
-#, fuzzy
 msgid "Edit User"
-msgstr "Ajouter l'utilisateur"
+msgstr "Modifier l'utilisateur"
 
-#, fuzzy
 msgid "All Users"
 msgstr "Liste des utilisateurs"
 
@@ -2201,7 +1985,7 @@ msgid "User Password (confirm)"
 msgstr "Mot de passe de l'utilisateur (confirmation)"
 
 msgid "Mobile/Quick Image Access Only?"
-msgstr "Accès seulement pour Mobile/Descente d'image rapide?"
+msgstr "Accès seulement pour Mobile/Déploiement rapide d'image"
 
 msgid ""
 "Warning - if you tick this box, this user will not be able to log into this "
@@ -2214,20 +1998,17 @@ msgstr "Créer un utilisateur"
 msgid "Add new user account"
 msgstr "Ajouter un nouvel utilisateur"
 
-#, fuzzy
 msgid "Username already exists"
-msgstr "L'utilisateur existe déjà !"
+msgstr "Ce nom d'utilisateur existe déjà !"
 
-#, fuzzy
 msgid "Password is invalid"
-msgstr "L'adresse MAC est non valide."
+msgstr "Le mot de passe est incorrect"
 
 msgid "User created"
 msgstr "Créé par l'utilisateur"
 
-#, fuzzy
 msgid "New Password"
-msgstr "Mot de passe de l'utilisateur"
+msgstr "Nouveau mot de passe"
 
 msgid "New Password (confirm)"
 msgstr "Nouveau mot de passe (Confirmation)"
@@ -2237,9 +2018,8 @@ msgid ""
 "this FOG Management Console in the future."
 msgstr ""
 
-#, fuzzy
 msgid "User updated"
-msgstr "utilisateur mis à jour"
+msgstr "Utilisateur mis à jour"
 
 msgid "TX"
 msgstr "Envoi (TX)"
@@ -2248,7 +2028,7 @@ msgid "RX"
 msgstr "Réception (RX)"
 
 msgid "Dropped"
-msgstr "Dropped"
+msgstr "Perdus"
 
 msgid "General Information"
 msgstr "Information générale"
@@ -2268,7 +2048,6 @@ msgstr "Nombre de CPU"
 msgid "CPU Model"
 msgstr "Modèle de CPU"
 
-#, fuzzy
 msgid "CPU Cache"
 msgstr "Mémoire cache du CPU"
 
@@ -2293,9 +2072,8 @@ msgstr "Espace disque utilisé"
 msgid "Network Information"
 msgstr "Information de la carte réseau"
 
-#, fuzzy
 msgid "Information"
-msgstr "Information disque"
+msgstr "Information"
 
 msgid "Unable to pull server information!"
 msgstr "Impossible de récupérer les informations depuis le serveur !"
@@ -2313,48 +2091,41 @@ msgstr ""
 "Bienvenue dans FOG - Édition Mobile ! Cette interface légère pour FOG offre "
 "un accès via un mobile, et dispositifs de faible puissance."
 
-#, fuzzy
 msgid "All Snap-ins"
 msgstr "Tous les snapins"
 
-#, fuzzy
 msgid "Add New Snapin"
 msgstr "Nouveau Snapin"
 
-#, fuzzy
 msgid "Snapin Storage Group"
-msgstr "Groupe de stockage"
+msgstr "Groupe de stockage pour le snapin"
 
 msgid "Snapin Run With Argument"
-msgstr "Exécuter le Snapin avec l'argument"
+msgstr "Paramètres passés au snapin"
 
 msgid "Max Size"
 msgstr "Taille maximale"
 
-#, fuzzy
 msgid "Snapin File (exists)"
-msgstr "Chemin du fichier de Snapin"
+msgstr "Chemin du fichier de Snapin (existant)"
 
 msgid "Snapin Arguments"
-msgstr "Snapin arguments"
+msgstr "Paramètres du snapin"
 
 msgid "Reboot after install"
 msgstr "Redémarrer après installation"
 
-#, fuzzy
 msgid "Please enter a name to give this Snapin"
-msgstr "Saisir une critère de recherche."
+msgstr "Merci de saisir un nom pour ce snapin"
 
-#, fuzzy
 msgid "Snapin already exists"
-msgstr "Existe déjà"
+msgstr "Le snapin existe déjà"
 
 msgid "Please select a storage group for this snapin to reside in"
 msgstr ""
 
-#, fuzzy
 msgid "Storage Node: "
-msgstr "Noeud de stockage"
+msgstr "Nœud de stockage :"
 
 msgid "Failed to add snapin, unable to locate snapin directory."
 msgstr ""
@@ -2363,24 +2134,20 @@ msgstr ""
 msgid "Failed to add snapin"
 msgstr "Impossible d'ajouter le Snapin"
 
-#, fuzzy
 msgid "Snapin created"
-msgstr "Snapin mis à jour"
+msgstr "Snapin créé"
 
-#, fuzzy
 msgid "Storage"
 msgstr "Stockage"
 
 msgid "Check here to see hosts not assigned with this snapin"
 msgstr ""
 
-#, fuzzy
 msgid "Modify snapin association for"
-msgstr "Modifier l'information de l'AD pour "
+msgstr "Changer l'association du snapin pour"
 
-#, fuzzy
 msgid "Add hosts to snapin"
-msgstr "Ajouter un Snapin"
+msgstr "Ajouter les machines au snapin"
 
 msgid "Check here to see hosts not assigned with any snapin"
 msgstr ""
@@ -2388,9 +2155,8 @@ msgstr ""
 msgid "Hosts below have no snapin association"
 msgstr ""
 
-#, fuzzy
 msgid "Add Snapin to Host(s)"
-msgstr "Ajouter un Snapin à tous les hôtes dans "
+msgstr "Ajouter un Snapin aux machines"
 
 msgid "Remove Snapin"
 msgstr "Supprimer un Snapin"
@@ -2398,7 +2164,6 @@ msgstr "Supprimer un Snapin"
 msgid "Check here to see groups not assigned with this snapin"
 msgstr ""
 
-#, fuzzy
 msgid "Add snapin to groups"
 msgstr "Ajouter au groupe"
 
@@ -2411,67 +2176,53 @@ msgstr ""
 msgid "Assign snapin to groups"
 msgstr ""
 
-#, fuzzy
 msgid "Add Snapin to Group(s)"
-msgstr "Ajouter des Snapins"
+msgstr "Ajouter des Snapins aux groupes"
 
 msgid "Snapin updated"
 msgstr "Snapin mis à jour"
 
-#, fuzzy
 msgid "Plugin Name"
-msgstr "Plugins"
+msgstr "Nom du plugin"
 
-#, fuzzy
 msgid "Activate Plugins"
-msgstr "Plugin activé"
+msgstr "Activé le plugin"
 
-#, fuzzy
 msgid "Installed Plugins"
-msgstr "Plugin installé"
+msgstr "Plugins installés"
 
-#, fuzzy
 msgid "Plugin"
-msgstr "Plugins"
+msgstr "Plugin"
 
-#, fuzzy
 msgid "Plugin Description"
-msgstr "Description du Snapin"
+msgstr "Description du plugin"
 
-#, fuzzy
 msgid "Settings"
-msgstr "Paramètres FOG"
+msgstr "Paramètres"
 
-#, fuzzy
 msgid "Reboot after deploy"
-msgstr "Redémarrer après installation"
+msgstr "Redémarrer après déploiement"
 
-#, fuzzy
 msgid "Shutdown after deploy"
-msgstr "Arrêt de l'hôte après la finalisation de la tâche?"
+msgstr "Arrêt de la machine après déploiement"
 
 msgid "DMI Field"
 msgstr ""
 
-#, fuzzy
 msgid "Update Settings"
-msgstr "Paramètres avancés"
+msgstr "Mettre les paramètres à jour"
 
-#, fuzzy
 msgid "Add Image to DMI Associations"
-msgstr "Description de l'image"
+msgstr "Ajouter une image aux associations DMI"
 
-#, fuzzy
 msgid "Image Definition"
 msgstr "Description de l'image"
 
-#, fuzzy
 msgid "DMI Result"
-msgstr "Résultats de l'hôte"
+msgstr "Informations DMI"
 
-#, fuzzy
 msgid "Add Association"
-msgstr "Options avancées"
+msgstr "Ajouter une association"
 
 msgid "Current Image to DMI Associations"
 msgstr ""
@@ -2479,13 +2230,11 @@ msgstr ""
 msgid "DMI Key"
 msgstr ""
 
-#, fuzzy
 msgid "Remove Association"
-msgstr "Supprimer un Snapin"
+msgstr "Supprimer le lien"
 
-#, fuzzy
 msgid "Already installed!"
-msgstr "a été installé !"
+msgstr "a déjà été installé !"
 
 msgid "Plugin Installation"
 msgstr ""
@@ -2494,43 +2243,35 @@ msgid ""
 "This plugin is currently not installed, would you like to install it now?"
 msgstr ""
 
-#, fuzzy
 msgid "Plugin Installed!"
-msgstr "a été installé !"
+msgstr "Plugin installé !"
 
 msgid "Plugin Installation Failed!"
 msgstr ""
 
-#, fuzzy
 msgid "Failed to install Plugin!"
-msgstr "Erreur: Echec d'installation du nouveau kernel !"
+msgstr "Échec de l'installation du plugin !"
 
-#, fuzzy
 msgid "Location Name"
-msgstr "Localisation"
+msgstr "Nom de l'emplacement"
 
 msgid "TFTP From Node"
 msgstr ""
 
-#, fuzzy
 msgid "Location/Deployed"
-msgstr "Localisation"
+msgstr "Localisation/Déployé"
 
-#, fuzzy
 msgid "Host Location"
-msgstr "Localisation"
+msgstr "Emplacement de la machine"
 
-#, fuzzy
 msgid "Group Location"
-msgstr "Localisation"
+msgstr "Emplacement du groupe"
 
-#, fuzzy
 msgid "Location Management"
-msgstr "Gestione Snapin"
+msgstr "Gestion des emplacements"
 
-#, fuzzy
 msgid "User/Group"
-msgstr "Groupe"
+msgstr "Utilisateur/Groupe"
 
 msgid "All Access Controls"
 msgstr ""
@@ -2547,55 +2288,44 @@ msgstr ""
 msgid "LDAP Server Name"
 msgstr ""
 
-#, fuzzy
 msgid "LDAP Server Description"
-msgstr "Description du groupe de stockage"
+msgstr "Description du serveur LDAP"
 
-#, fuzzy
 msgid "LDAP Server Address"
-msgstr "Adresse IP"
+msgstr "Adresse du serveur LDAP"
 
 msgid "DN"
 msgstr ""
 
-#, fuzzy
 msgid "Server Port"
-msgstr "Port de l'imprimante"
+msgstr "Port du serveur"
 
-#, fuzzy
 msgid "Failed to destroy LDAP Server"
-msgstr "Impossible de se connecter au serveur"
+msgstr "Impossible de détruire le serveur LDAP"
 
-#, fuzzy
 msgid "LDAP Server deleted"
-msgstr "Le serveur a retourné"
+msgstr "Serveur LDAP supprimé"
 
-#, fuzzy
 msgid "LDAP Server"
-msgstr "Serveur TFTP"
+msgstr "Serveur LDAP"
 
-#, fuzzy
 msgid "deleted"
-msgstr "Supprimer"
+msgstr "supprimé"
 
-#, fuzzy
 msgid "LDAP Management"
-msgstr "Gestione utenti"
+msgstr "Gestion du serveur LDAP"
 
 msgid "All Broadcasts"
 msgstr ""
 
-#, fuzzy
 msgid "Broadcast Name"
-msgstr "Nom de la station"
+msgstr "Nom du broadcast"
 
-#, fuzzy
 msgid "Broadcast IP"
-msgstr "IP de l'hôte"
+msgstr "IP de broadcast"
 
-#, fuzzy
 msgid "Broadcast Address"
-msgstr "Adresse"
+msgstr "Adresse de broadcast"
 
 msgid "WOL Broadcast Management"
 msgstr "Gestion du broadcast WakeOnLan"
@@ -2618,20 +2348,17 @@ msgstr ""
 msgid "Example data to insert"
 msgstr ""
 
-#, fuzzy
 msgid "FOG session invalid"
-msgstr "L'adresse MAC est non valide."
+msgstr "Session FOG incorrecte"
 
 msgid "Undefined host to ping"
 msgstr ""
 
-#, fuzzy
 msgid "Invalid hostname"
-msgstr "Numéro du port non valide"
+msgstr "Nom de machine incorrect"
 
-#, fuzzy
 msgid "Unable to resolve hostname"
-msgstr "Impossible de supprimer l'hôte !"
+msgstr "Impossible de résoudre le nom de la machine"
 
 msgid "Unknown"
 msgstr "Inconnu"
@@ -2639,11 +2366,9 @@ msgstr "Inconnu"
 msgid "Load MAC Vendors"
 msgstr "Charger les adresses MAC des fabriquants"
 
-#, fuzzy
 msgid "Error: Failed to install new kernel!"
-msgstr "Erreur: Echec d'installation du nouveau kernel !"
+msgstr "Erreur: Échec d'installation du nouveau noyau !"
 
-#, fuzzy
 msgid "Error: Unable to connect to tftp server."
 msgstr "Erreur: Impossible de se connecter au serveur tftp."
 
@@ -2651,9 +2376,8 @@ msgid "This page can only be viewed via the FOG Management portal"
 msgstr ""
 "Cette page ne peut être visualisée que via le portail de gestion de FOG"
 
-#, fuzzy
 msgid "Error contacting server"
-msgstr "Erreur de communication avec le serveur."
+msgstr "Erreur de communication avec le serveur"
 
 msgid "Windows XP"
 msgstr "Windows XP"
@@ -2668,14 +2392,13 @@ msgid "Windows (other)"
 msgstr "Windows (autres versions)"
 
 msgid "Linux"
-msgstr "GNU/Linux"
+msgstr "Linux"
 
 msgid "Hostname or IP address of the TFTP Server."
 msgstr ""
 
-#, fuzzy
 msgid "Username used to access the tftp server via ftp."
-msgstr "Impossible de se connecter au serveur TFTP."
+msgstr "Nom d'utilisateur pour l'accès au TFTP via FTP."
 
 msgid "Password used to access the tftp server via ftp."
 msgstr ""
@@ -2704,17 +2427,12 @@ msgid ""
 "address on the FOG server before writing the config files."
 msgstr ""
 
-#, fuzzy
 msgid "The settings defines where the memtest boot image/kernel is located."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit où sont stockés l'image de boot et le noyau pour memtest"
 
-#, fuzzy
 msgid "The settings defines where the fog boot file system image is located."
-msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+msgstr "Ce paramètre définit le répertoire où se trouve l'image de boot de FOG"
 
 msgid ""
 "Since the fog boot image has an incomplete dhcp implementation, you can "
@@ -2722,127 +2440,106 @@ msgid ""
 "use this settings, you should turn <b>FOG_USE_SLOPPY_NAME_LOOKUPS</b> off."
 msgstr ""
 
-#, fuzzy
 msgid ""
 "This setting defines the hostname or ip address of the NFS server used with "
 "FOG."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit l'adresse IP ou le nom du serveur NFS à utiliser pour "
+"FOG"
 
-#, fuzzy
 msgid ""
 "This setting defines the username used to access files on the nfs server "
 "used with FOG."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit le nom d'utilisateur que FOG doit utiliser pour accéder "
+"aux fichiers sur le serveur NFS"
 
-#, fuzzy
 msgid ""
 "This setting defines the password used to access flies on the nfs server "
 "used with FOG."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit le mot de passe que FOG doit utiliser pour accéder aux "
+"fichiers sur le serveur NFS"
 
-#, fuzzy
 msgid ""
 "This setting defines the directory on the NFS server where images are "
 "stored.  "
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit le répertoire où sont stockées les images sur le "
+"serveur NFS"
 
 msgid ""
 "This setting defines the directory on the NFS server where images are "
 "uploaded too."
 msgstr ""
 
-#, fuzzy
 msgid ""
 "This setting defines the web page used to acquire the bandwidth used by the "
 "nfs server."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit la page utilisée pour récupérer la bande passante "
+"utilisée par le serveur NFS"
 
 msgid ""
 "This setting defines the amount of padding applied to a partition before "
 "attempting resize the ntfs volume and upload it."
 msgstr ""
 
-#, fuzzy
 msgid ""
 "This setting defines the hostname or ip address of the web server used with "
 "fog."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit l'adresse IP ou le nom du serveur Web à utiliser pour "
+"FOG"
 
-#, fuzzy
 msgid "This setting defines the path to the fog webserver\\'s root directory."
-msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+msgstr "Ce paramètre définit le chemin vers la racine du serveur Web de FOG"
 
 msgid ""
 "This setting defines the ip address of hostname for the server hosting the "
 "Wake-on-lan service."
 msgstr ""
 
-#, fuzzy
 msgid "This setting defines the path to the files performing the WOL tasks."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit le chemin vers le programme à appeler pour les tâches "
+"WOL"
 
-#, fuzzy
 msgid "This setting defines the network interface used in the WOL process."
-msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+msgstr "Ce paramètre définit l'interface  réseau à utiliser pour le WOL"
 
 msgid ""
 "This setting defines the location of the snapin files.  These files must be "
 "hosted on the web server."
 msgstr ""
 
-#, fuzzy
 msgid ""
 "This setting defines how many unicast tasks to allow to be active at one "
 "time."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit le nombre maximal de tâches unicast active simultanément"
 
 msgid ""
 "This setting defines the amount of time between client checks to determine "
 "if they are active clients."
 msgstr ""
 
-#, fuzzy
 msgid ""
 "This setting defines the minimum number of characters in a user\\'s password."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit la longueur minimale pour les mots de passe utilisateur"
 
-#, fuzzy
 msgid "This setting defines the valid characters used in a password."
-msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+msgstr "Ce paramètre définit les caractères autorisés dans un mot de passe"
 
 msgid ""
 "This setting defines which interface is monitored for traffic summaries."
 msgstr ""
 
-#, fuzzy
 msgid "This setting defines the interface used in multicast communications."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit l'interface réseau à utiliser pour les déploiements "
+"multicasts"
 
 msgid ""
 "This setting defines the starting port number used in multicast "
@@ -2857,17 +2554,15 @@ msgstr ""
 msgid "This setting defines "
 msgstr ""
 
-#, fuzzy
 msgid "This setting defines the location on the web server of the FOG reports."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit l'endroit sur le serveur Web où se trouvent les "
+"rapports FOG"
 
-#, fuzzy
 msgid "This setting defines what css style sheet and theme to use for FOG."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit quel feuille de style CSS et quel thème utiliser pour "
+"FOG"
 
 msgid ""
 "This setting defines if you would like to remove hibernate and swap files "
@@ -2936,11 +2631,10 @@ msgid ""
 "(such as http://freeghost.sf.net/images/image.jpg)"
 msgstr ""
 
-#, fuzzy
 msgid "This setting defines the keymap used on the client boot image."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit la disposition clavier utilisée sur l'image de boot du "
+"client FOG"
 
 msgid ""
 "This setting defines if the fog hostname changer should be globally active.  "
@@ -2987,13 +2681,12 @@ msgid ""
 "Directory domain name value."
 msgstr ""
 
-#, fuzzy
 msgid ""
 "This setting defines the default value to populate the host\\'s Active "
 "Directory OU value."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit la valeur par défaut pour l'OU contenant les machines "
+"dans Active Directory"
 
 msgid ""
 "This setting defines the default value to populate the host\\'s Active "
@@ -3005,23 +2698,14 @@ msgid ""
 "Directory password value.  This settings must be encrypted."
 msgstr ""
 
-#, fuzzy
 msgid "This setting defines the location of the fog utility directory."
-msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+msgstr "Ce paramètre définit le chemin vers les utilitaires FOG"
 
-#, fuzzy
 msgid "This setting defines if the fog plugin system should be enabled."
-msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+msgstr "Ce paramètre définit si le système de plugins FOG doit être activé."
 
-#, fuzzy
 msgid "This setting defines the base location of fog plugins."
-msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+msgstr "Ce paramètre définit l'emplacement de base des plugins FOG"
 
 msgid "Auto generated fog nfs group"
 msgstr ""
@@ -3029,33 +2713,25 @@ msgstr ""
 msgid "Auto generated fog nfs group member"
 msgstr ""
 
-#, fuzzy
 msgid ""
 "This setting defines the username the storage nodes should use to connect to "
 "the fog server."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit le nom d'utilisateur permettant aux nœuds de stockage "
+"de se connecter au serveur FOG"
 
-#, fuzzy
 msgid ""
 "This setting defines the password the storage nodes should use to connect to "
 "the fog server."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit le mot de passe permettant aux nœuds de stockage de se "
+"connecter au serveur FOG"
 
-#, fuzzy
 msgid "This setting defines the username used for the ssh client."
-msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+msgstr "Ce paramètre définit le nom d'utilisateur pour le client SSH"
 
-#, fuzzy
 msgid "This setting defines the port to use for the ssh client."
-msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+msgstr "Ce paramètre définit le port à utiliser pour le client SSH"
 
 msgid ""
 "This setting defines which page is displayed in each section, valid settings "
@@ -3068,30 +2744,22 @@ msgstr "Windows 7"
 msgid "Windows 8"
 msgstr "Windows 8"
 
-#, fuzzy
 msgid "This setting defines the default value for the pxe menu timeout."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit la valeur par défaut pour le délai d'affichage du menu "
+"PXE"
 
-#, fuzzy
 msgid "This setting defines the proxy ip address to use."
-msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+msgstr "Ce paramètre définit l'adresse IP du mandataire à utiliser"
 
-#, fuzzy
 msgid "This setting defines the proxy port address to use."
-msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+msgstr "Ce paramètre définit le port et l'adresse du mandataire à utiliser"
 
-#, fuzzy
 msgid ""
 "This setting defines the location of util base, which is typically /opt/fog/"
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit le chemin de base vers les outils FOG, normalement /opt/"
+"fog"
 
 msgid ""
 "This setting defines if you would like the FOG pxe menu hidden or displayed"
@@ -3118,17 +2786,12 @@ msgid ""
 "values are 0 or 1"
 msgstr ""
 
-#, fuzzy
 msgid "This setting defines the proxy username to use."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit le nom d'utilisateur à utiliser pour le mandataire"
 
-#, fuzzy
 msgid "This setting defines the proxy password to use."
-msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+msgstr "Ce paramètre définit le mot de passe à utiliser pour le mandataire"
 
 msgid ""
 "This setting sets the system to no menu, if there is no task set, it boots "
@@ -3140,11 +2803,10 @@ msgid ""
 "(Valid values are 0 or 1)"
 msgstr ""
 
-#, fuzzy
 msgid "This setting defines the default value for the pxe hidden menu timeout."
 msgstr ""
-"Ce paramètre définit la durée d'inactivité nécessaire pour une fermeture de "
-"session automatique sur l'hôte."
+"Ce paramètre définit la valeur par défaut pour le délai d'affichage du menu "
+"masqué de PXE"
 
 msgid ""
 "This setting defines tasks to consider \\'Used\\' in the task count.  "
@@ -3203,9 +2865,9 @@ msgid ""
 "home directory."
 msgstr ""
 
-#, fuzzy
 msgid "Are you sure you wish to install/update the FOG database?"
-msgstr "Etes-vous sûr de vouloir mettre à jour la liste des adresses MAC?"
+msgstr ""
+"Etes-vous sûr de vouloir installer/mettre à jour la base de données de FOG "
 
 msgid "Install/Upgrade Now"
 msgstr ""
@@ -3216,9 +2878,8 @@ msgid ""
 "is required."
 msgstr ""
 
-#, fuzzy
 msgid "Display"
-msgstr "Display Manager"
+msgstr "Affichage"
 
 msgid "Auto"
 msgstr ""
@@ -3229,41 +2890,35 @@ msgstr "Modèle"
 msgid "Inventory"
 msgstr "Inventaire"
 
-#, fuzzy
 msgid "Deleted"
-msgstr "Supprimer"
+msgstr "Supprimé"
 
 msgid "All"
 msgstr ""
 
-#, fuzzy
 msgid "Removed"
-msgstr "Supprimer"
+msgstr "Supprimé"
 
 msgid "Enabled"
 msgstr "Activé"
 
-#, fuzzy
 msgid "Management"
-msgstr "Gestione utenti"
+msgstr "Gestion"
 
-#, fuzzy
 msgid "Images"
-msgstr "Image"
+msgstr "Images"
 
 msgid "Node"
 msgstr "Noeuds"
 
-#, fuzzy
 msgid "Groups"
-msgstr "Groupe"
+msgstr "Groupes"
 
 msgid "Bandwidth"
 msgstr "Bande passante"
 
-#, fuzzy
 msgid "Replication Bandwidth"
-msgstr "Bande passante"
+msgstr "Bande passante de réplication"
 
 msgid ""
 "This setting limits the bandwidth for replication between nodes.  It "
@@ -3282,9 +2937,8 @@ msgstr ""
 msgid "New"
 msgstr ""
 
-#, fuzzy
 msgid "Users"
-msgstr "Utilisateur"
+msgstr "Utilisateurs"
 
 msgid "Version"
 msgstr "Version"
@@ -3295,9 +2949,8 @@ msgstr "Texte"
 msgid "Graphical"
 msgstr "Graphique"
 
-#, fuzzy
 msgid "Client"
-msgstr "Client Maximum"
+msgstr "Client"
 
 msgid "or"
 msgstr "ou"
@@ -3308,80 +2961,72 @@ msgstr "Erreur"
 msgid "Home"
 msgstr "Accueil"
 
-#, fuzzy
 msgid "Reports"
-msgstr "Rapport"
+msgstr "Rapports"
 
 msgid "Queued"
 msgstr "En file d'attente"
 
-#, fuzzy
 msgid "Active"
 msgstr "Tâches actives"
 
 msgid "Printers"
 msgstr "Imprimantes"
 
-#, fuzzy
 msgid "Directory"
-msgstr "Ajouter un répertoire"
+msgstr "Répertoire"
 
 msgid "Login History"
 msgstr "Historique des connexions"
 
-#, fuzzy
 msgid "Image History"
-msgstr "Image de l'Hôte"
+msgstr "Historique de déploiement"
 
-#, fuzzy
 msgid "Snapin History"
-msgstr "Historique des connexions"
+msgstr "Historique du snapin"
 
-#, fuzzy
 msgid "Locations"
-msgstr "Localisation"
+msgstr "Localisations"
 
 msgid "License"
 msgstr "Licence"
 
-#, fuzzy
 msgid "Kernel Update"
-msgstr "Mise à jour du kernel"
+msgstr "Mise à jour du noyau"
 
-#, fuzzy
 msgid "iPXE Boot Menu"
-msgstr "Menu du Boot PXE"
+msgstr "Menu du Boot iPXE"
 
 msgid "Client Updater"
 msgstr "Mise à jour du client"
 
 msgid "Hostname Changer"
-msgstr "Hostname Changer"
+msgstr "Renommage de machine"
 
 msgid "Host Registration"
-msgstr "Host Registration"
+msgstr "Enregistrement de machine"
 
 msgid "Snapin Client"
 msgstr "Snapin Client"
 
 msgid "Task Reboot"
-msgstr "Task Reboot"
+msgstr "Tâche de redémarrage"
 
 msgid "User Cleanup"
-msgstr "User Cleanup"
+msgstr "Nettoyage d'utilisateur"
 
 msgid "User Tracker"
 msgstr "Suivi des utilisateurs"
 
-#, fuzzy, php-format
+#, php-format
 msgid "%s Manager"
-msgstr "Display Manager"
+msgstr "Gestion de %s"
 
 msgid "Green FOG"
-msgstr "Green FOG"
+msgstr "Éco-FOG"
 
 msgid "Directory Cleaner"
-msgstr "Directory Cleaner"
+msgstr "Nettoyage des répertoires"
 
 msgid "MAC Address List"
 msgstr "List des adresses MAC"
@@ -3390,33 +3035,30 @@ msgid "FOG Settings"
 msgstr "Paramètres FOG"
 
 msgid "Server Shell"
-msgstr "Serveur Shell"
+msgstr "Shell serveur"
 
 msgid "Log Viewer"
 msgstr "Visualisation des Log"
 
-#, fuzzy
 msgid "Configuration Save"
-msgstr "Configuration du module"
+msgstr "Sauvegarde de la configuration"
 
-#, fuzzy
 msgid "FOG Sourceforge Page"
-msgstr "Page Sourceforge"
+msgstr "Page Sourceforge de FOG"
 
-#, fuzzy
 msgid "FOG Home Page"
-msgstr "Page d'Accueil"
+msgstr "Page d'accueil"
 
 msgid "New Search"
 msgstr "Nouvelle recherche"
 
-#, fuzzy, php-format
+#, php-format
 msgid "List All %s"
-msgstr "Lister tous les hôtes"
+msgstr "Liste des %s"
 
-#, fuzzy, php-format
+#, php-format
 msgid "Create New %s"
-msgstr "Créer un nouveau groupe"
+msgstr "Créer un nouveau %s"
 
 msgid "Basic Tasks"
 msgstr "Tâches de base"
@@ -3424,13 +3066,12 @@ msgstr "Tâches de base"
 msgid "Membership"
 msgstr "Membres"
 
-#, fuzzy
 msgid "Image Association"
-msgstr "Chemin des images"
+msgstr "Association d'image"
 
-#, fuzzy, php-format
+#, php-format
 msgid "%s Menu"
-msgstr "Menu Hôte"
+msgstr "Menu %s"
 
 msgid "Primary Group"
 msgstr "Groupe Principal"
@@ -3438,9 +3079,8 @@ msgstr "Groupe Principal"
 msgid "All Storage Nodes"
 msgstr "Toues les noeuds de stockage"
 
-#, fuzzy
 msgid "Add Storage Node"
-msgstr "Ajouter un noeud de stockage"
+msgstr "Ajouter un nœud de stockage"
 
 msgid "All Storage Groups"
 msgstr "Tous les groupes de stockages"
@@ -3451,36 +3091,29 @@ msgstr "Ajouter un groupe de stockage"
 msgid "Active Multicast Tasks"
 msgstr "Tâches Multicast Actives"
 
-#, fuzzy
 msgid "Active Snapin Tasks"
-msgstr "Snapins Actifs"
+msgstr "Tâches snapins actives"
 
 msgid "Scheduled Tasks"
 msgstr "Tâches planifiées"
 
-#, fuzzy
 msgid "Export Configuration"
-msgstr "Configuration du module"
+msgstr "Configuration de l'export"
 
-#, fuzzy
 msgid "Import Configuration"
-msgstr "Configuration du module"
+msgstr "Configuration de l'import"
 
-#, fuzzy
 msgid "Open Source Computer Cloning Solution"
-msgstr "FOG : Solution de clonage de PC"
+msgstr "FOG : Solution de capture et de déploiement d'image"
 
-#, fuzzy
 msgid "Invalid MAC Address!"
-msgstr "Adresse MAC non valide"
+msgstr "Adresse MAC incorrecte !"
 
-#, fuzzy
 msgid "iPXE Menu Configuration"
-msgstr "Configuration du menu de boot PXE de FOG"
+msgstr "Configuration du menu de boot iPXE de FOG"
 
-#, fuzzy
 msgid "iPXE Menu Customization"
-msgstr "Configuration du menu de boot PXE de FOG"
+msgstr "Configuration du menu de boot iPXE de FOG"
 
 msgid "iPXE New Menu Entry"
 msgstr ""
@@ -3488,16 +3121,15 @@ msgstr ""
 msgid "Required database field is empty"
 msgstr ""
 
-#, fuzzy
 msgid "No results found"
 msgstr "Aucun résultat trouvé."
 
-#, fuzzy, php-format
+#, php-format
 msgid "%s is required"
-msgstr "Un type d'image est requis !"
+msgstr "%s est obligatoire !"
 
 msgid "Host Management"
-msgstr "Gestione postazioni"
+msgstr "Gestion des machines"
 
 msgid "Storage Management"
 msgstr "Gestion du stockage"
@@ -3505,73 +3137,62 @@ msgstr "Gestion du stockage"
 msgid "Task Management"
 msgstr "Gestion des tâches"
 
-#, fuzzy
 msgid "Client Management"
-msgstr "Gestione stampanti"
+msgstr "Gestion du client FOG"
 
 msgid "Dashboard"
 msgstr ""
 
-#, fuzzy
 msgid "Report Management"
-msgstr "Gestione postazioni"
+msgstr "Gestion des rapports"
 
 msgid "Printer Management"
-msgstr "Gestione stampanti"
+msgstr "Gestion des imprimantes"
 
-#, fuzzy
 msgid "FOG Configuration"
-msgstr "Servizio di configurazione di FOG"
+msgstr "Configuration de FOG"
 
 msgid "Group Management"
-msgstr "Gestione gruppi"
+msgstr "Gestion des groupes"
 
 msgid "Image Management"
-msgstr "Gestione immagini"
+msgstr "Gestion des images"
 
 msgid "User Management"
 msgstr "Gestion des utilisateurs"
 
-#, fuzzy
 msgid "Hardware Information"
-msgstr "Information du serveur"
+msgstr "Informations matérielles"
 
 msgid "Snapin Management"
 msgstr "Gestione Snapin"
 
-#, fuzzy
 msgid "Plugin Management"
-msgstr "Gestione stampanti"
+msgstr "Gestion des plugins"
 
-#, fuzzy
 msgid "Access Control Management"
-msgstr "Pas de gestion d'imprimante"
+msgstr "Gestion des accès"
 
 msgid "FOG General Help"
 msgstr "Guide en ligne de FOG"
 
-#, fuzzy
 msgid "Pending Hosts"
-msgstr "Hôtes existant"
+msgstr "Machines en attente"
 
-#, fuzzy
 msgid "Last Uploaded"
-msgstr "Upload"
+msgstr "Dernière capture"
 
-#, fuzzy
 msgid "Deploy Method"
-msgstr "Déployer"
+msgstr "Méthode de déploiement"
 
 msgid "Not Available"
 msgstr ""
 
-#, fuzzy
 msgid "Export Hosts"
-msgstr "Hôtes existant"
+msgstr "Export des machines"
 
-#, fuzzy
 msgid "Import Hosts"
-msgstr "Upload d'hôtes"
+msgstr "Import de machines"
 
 msgid "Equipment Loan"
 msgstr "Inventaire"
@@ -3585,30 +3206,26 @@ msgstr "Historique des images"
 msgid "Snapin Log"
 msgstr "Historique des Snapins"
 
-#, fuzzy
 msgid "Upload Reports"
-msgstr "Création du rapport"
+msgstr "Envoi de rapports"
 
 msgid "Main Menu"
 msgstr "Menu Principal"
 
-#, fuzzy
 msgid "Invalid Login"
-msgstr "Nom d'utilisateur incorrect."
+msgstr "Nom d'utilisateur incorrect"
 
 msgid "Not allowed here"
 msgstr ""
 
-#, fuzzy
 msgid "Management Login"
 msgstr "Connexion au gestionnaire de FOG"
 
 msgid "Password"
 msgstr "Mot de passe"
 
-#, fuzzy
 msgid "Estimated FOG Sites"
-msgstr "Installation estimée de FOG"
+msgstr "Nombre d'installations de FOG estimées"
 
 msgid "Latest Version"
 msgstr "Dernière version"
@@ -3616,32 +3233,26 @@ msgstr "Dernière version"
 msgid "FOG Mobile Login"
 msgstr "Nom d'utilisateur pour FOG Mobile"
 
-#, fuzzy
 msgid "Image is protected and cannot be deleted"
-msgstr "Le fichier de l'image a été supprimé."
+msgstr "L'image est protégée et ne peut pas être supprimée"
 
 msgid "No master nodes are enabled to delete this image"
 msgstr ""
 
-#, fuzzy
 msgid "Failed to delete image files"
-msgstr "Impossible de supprimer le fichier de l'image."
+msgstr "Impossible de supprimer les fichiers associés à l'image."
 
-#, fuzzy
 msgid "Failed to delete file"
-msgstr "Impossible de supprimer le fichier de l'image."
+msgstr "Impossible de supprimer le fichier"
 
-#, fuzzy
 msgid "Not Registered Hosts"
-msgstr "Module \"Host Register\" activé?"
+msgstr "Machines non enregistrées"
 
-#, fuzzy
 msgid "Registered Hosts"
-msgstr "Echec sur hôtes"
+msgstr "Machines enregistrées"
 
-#, fuzzy
 msgid "Debug Options"
-msgstr "Options avancées"
+msgstr "Options de debug"
 
 msgid "Advanced Options"
 msgstr "Options avancées"
@@ -3655,33 +3266,26 @@ msgstr ""
 msgid "n/a"
 msgstr "n/a"
 
-#, fuzzy
 msgid "Directory Already Exists"
 msgstr "Le répertoire existe déjà."
 
-#, fuzzy
 msgid "Time Already Exists"
-msgstr "Existe déjà"
+msgstr "Cet horaire est déjà défini"
 
-#, fuzzy
 msgid "User Already Exists"
 msgstr "L'utilisateur existe déjà !"
 
-#, fuzzy
 msgid "No Active Snapin Jobs Found For Host"
-msgstr "Aucun Snapin actif trouvé"
+msgstr "Aucun déploiement de snapin n'a été trouvé pour cette machine"
 
-#, fuzzy
 msgid "Failed to create task"
-msgstr "Impossible de créer l'hôte !"
+msgstr "Impossible de créer la tâche"
 
-#, fuzzy
 msgid "Host is already a member of an active task"
-msgstr "L'hôte est déjà membre d'une tâche active !"
+msgstr "Une tâche active est déjà en cours pour la machine !"
 
-#, fuzzy
 msgid "Host is not valid"
-msgstr "ID d'hôte non valide."
+msgstr "Machine incorrecte"
 
 msgid "Task Type is not valid"
 msgstr ""
@@ -3689,13 +3293,11 @@ msgstr ""
 msgid "The image storage group assigned is not valid"
 msgstr ""
 
-#, fuzzy
 msgid "There are no snapins associated with this host"
-msgstr "Aucun Snapins liés à cet hôte."
+msgstr "Aucun Snapins lié à cette machine"
 
-#, fuzzy
 msgid "Snapins Are already deployed to this host"
-msgstr "Le snapin est déjà lié à l'hôte."
+msgstr "Les snapins ont déjà été déployés sur cette machine"
 
 msgid ""
 "Could not find a Storage Node  Is there one enabled within this Storage Group"
@@ -3710,27 +3312,24 @@ msgstr ""
 msgid "Minute value is not valid"
 msgstr ""
 
-#, fuzzy
 msgid "Hour value is not valid"
-msgstr "Le nom de la station est non valide."
+msgstr "Le champs heure est incorrect"
 
 msgid "Day of month value is not valid"
 msgstr ""
 
-#, fuzzy
 msgid "Month value is not valid"
-msgstr "Le nom de la station est non valide."
+msgstr "La valeur pour le champs mois n'est pas valide"
 
 msgid "Day of week value is not valid"
 msgstr ""
 
-#, fuzzy
 msgid "No Host found for MAC Address"
-msgstr "Aucune tâche a été trouvée pour cette adresse MAC"
+msgstr "Aucune machine ne correspond à cette adresse MAC"
 
-#, fuzzy
 msgid "Error multiple hosts returned for list of mac addresses"
-msgstr "Erreur multiple des hôtes retourné pour la liste d'adresse MAC !"
+msgstr ""
+"Erreur : plusieurs machines correspondent pour cette liste d'adresses MAC"
 
 msgid "Session timeout"
 msgstr ""
@@ -3739,26 +3338,22 @@ msgid "ID"
 msgstr "ID"
 
 msgid "Quick Image Menu"
-msgstr "Menu rapide d'image"
+msgstr "Menu de déploiement d'image"
 
-#, fuzzy
 msgid "Task Started"
 msgstr "Tâche démarrée !"
 
-#, fuzzy
 msgid "Error, Is an image associated with this host"
-msgstr "Erreur: Est-ce une image associé à l'ordinateur?"
+msgstr "Erreur : Est-ce qu'une image est bien associée à cette machine ?"
 
 msgid "Host Search"
 msgstr "Recherche d'hôte"
 
-#, fuzzy
 msgid "Graph Enabled"
-msgstr "Snapin activé?"
+msgstr "Représenté sur le graphe"
 
-#, fuzzy
 msgid "Master Node"
-msgstr "Est un noeud maître"
+msgstr "Est un nœud maître"
 
 msgid "Is Master Node"
 msgstr "Est un noeud maître"
@@ -3772,7 +3367,6 @@ msgstr "Description du noeud de stockage"
 msgid "Max Clients"
 msgstr "Client Maximum"
 
-#, fuzzy
 msgid "Snapin Path"
 msgstr "Chemin du fichier de Snapin"
 
@@ -3780,11 +3374,10 @@ msgid "Interface"
 msgstr ""
 
 msgid "Is Enabled"
-msgstr "Est activé?"
+msgstr "Est activé ?"
 
-#, fuzzy
 msgid "Is Graph Enabled"
-msgstr "Est activé?"
+msgstr "Présent dans le graphique"
 
 msgid "On Dashboard"
 msgstr ""
@@ -3795,7 +3388,6 @@ msgstr "Nom d'utilisateur de gestion"
 msgid "Management Password"
 msgstr "Mot de passe de gestion"
 
-#, fuzzy
 msgid ""
 "Use extreme caution with this setting! This setting, if used incorrectly "
 "could potentially wipe out all of your images stored on all current storage "
@@ -3804,69 +3396,56 @@ msgid ""
 "it, and set it to master, it will distribute its store, which is empty, to "
 "all nodes in the group"
 msgstr ""
-"Soyez extrêmement vigilant avec ce paramètre! Ce paramètre, s'il est "
-"utilisée de manière incorrecte pourrait effacer toutes vos images stockées "
+"Soyez extrêmement vigilant avec ce paramètre ! Ce paramètre, s'il est "
+"utilisé de manière incorrecte pourrait effacer toutes vos images stockées "
 "sur tous les nœuds de stockage actuel. Le paramètre \"Is Master Node\" "
-"définit quel noeud est le distributeur des images. Si vous ajoutez un noeud "
-"vide, cela signifie un noeud qui ne contient aucune image, et que vous le "
-"mettez en maître, il diffusera son magasin, qui est vide, à tous les hôtes "
+"définit quel nœud est le distributeur des images. Si vous ajoutez un nœud "
+"vide, cela signifie un nœud qui ne contient aucune image, et que vous le "
+"mettez en maître, il diffusera son magasin, qui est vide, à tous les nœuds "
 "dans le groupe."
 
-#, fuzzy
 msgid "Storage Node already exists"
-msgstr "Existe déjà"
+msgstr "Le nœud de stockage existe déjà"
 
-#, fuzzy
 msgid "Storage Node IP"
-msgstr "Noeud de stockage"
+msgstr "Adresse IP du nœud de stockage"
 
-#, fuzzy
 msgid "Storage Node Max Clients"
-msgstr "Menu du noeud de stockage"
+msgstr "Nombre de places sur le nœud de stockage"
 
-#, fuzzy
 msgid "Storage Node Interface"
-msgstr "Nom du noeud de stockage"
+msgstr "Interface réseau du nœud de stockage"
 
-#, fuzzy
 msgid "Storage Node Username"
-msgstr "Nom du noeud de stockage"
+msgstr "Nom d'utilisateur pour le nœud de stockage"
 
-#, fuzzy
 msgid "Storage Node Password"
-msgstr "Nom du noeud de stockage"
+msgstr "Mot de passe pour le nœud de stockage"
 
-#, fuzzy
 msgid "Storage Node Created"
-msgstr "Noeud de stockage créé."
+msgstr "Nœud de stockage créé."
 
-#, fuzzy
 msgid "Storage Node Updated"
-msgstr "Noeud de stockage mis à jour"
+msgstr "Nœud de stockage mis à jour"
 
 msgid "Database Update Failed"
 msgstr ""
 
-#, fuzzy
 msgid "Failed to destroy Storage Node"
-msgstr "Impossible de mettre à jour le noeud de stockage"
+msgstr "Impossible de détruire le nœud de stockage"
 
-#, fuzzy
 msgid "Storage Node deleted"
-msgstr "Groupe de stockage supprimé"
+msgstr "Nœud de stockage supprimé"
 
 msgid "Storage Group Description"
 msgstr "Description du groupe de stockage"
 
-#, fuzzy
 msgid "Storage Group Already Exists"
-msgstr "Groupe de stockage créé."
+msgstr "Le groupe de stockage existe déjà"
 
-#, fuzzy
 msgid "Storage Group Created"
 msgstr "Groupe de stockage créé."
 
-#, fuzzy
 msgid "Storage Group Updated"
 msgstr "Groupe de stockage mis à jour"
 
@@ -3876,13 +3455,11 @@ msgstr "Vous devez avoir au moins un groupe de stockage"
 msgid "Storage Group deleted"
 msgstr "Groupe de stockage supprimé"
 
-#, fuzzy
 msgid "Failed to destroy Storage Group"
-msgstr "Impossible de mettre à jour le groupe de stockage"
+msgstr "Impossible de détruire le groupe de stockage"
 
-#, fuzzy
 msgid "Invalid Class"
-msgstr "Adresse MAC non valide"
+msgstr "Classe incorrecte"
 
 msgid "Class is not extended from FOGPage"
 msgstr ""
@@ -3905,16 +3482,14 @@ msgstr ""
 msgid "Italiano"
 msgstr ""
 
-#, fuzzy
 msgid "Portugus"
-msgstr "Port"
+msgstr "Portuguais"
 
 msgid "FOG :: Mobile Manager :: Version"
 msgstr "FOG :: Gestion Mobile :: Version"
 
-#, fuzzy
 msgid "This Machine is already registered as"
-msgstr "L'hôte est déjà référencé"
+msgstr "Cette machine est déjà enregistrée en tant que"
 
 msgid "Replay from journal: real insert time"
 msgstr "Lecture du journal: intégration en temps réel"
@@ -3922,17 +3497,14 @@ msgstr "Lecture du journal: intégration en temps réel"
 msgid "There are no images on this server."
 msgstr ""
 
-#, fuzzy
 msgid "Invalid Host"
-msgstr "Adresse MAC non valide"
+msgstr "Machine incorrecte"
 
-#, fuzzy
 msgid "No Active Task found for Host"
-msgstr "Aucune tâche active trouvée"
+msgstr "Aucune tâche active trouvée pour la machine"
 
-#, fuzzy
 msgid "Invalid Storage Group"
-msgstr "Ajouter un groupe de stockage"
+msgstr "Groupe de stockage incorrect"
 
 msgid ""
 "Could not find a Storage Node. Is there one enabled within this Storage "
@@ -3942,9 +3514,8 @@ msgstr ""
 msgid "Move/rename failed."
 msgstr ""
 
-#, fuzzy
 msgid "Failed to update Task"
-msgstr "Impossible de mettre à jour l'hôte !"
+msgstr "Impossible de mettre à jour la tâche"
 
 msgid "There are no groups on this server."
 msgstr ""
@@ -3964,83 +3535,68 @@ msgstr ""
 msgid "Done"
 msgstr "Fait"
 
-#, fuzzy
 msgid "Failed to create inventory for this host!"
-msgstr "Impossible de créer l'hôte !"
+msgstr "Impossible de créer la machine !"
 
-#, fuzzy
 msgid "Failed to update inventory for this host!"
-msgstr "Impossible de mettre à jour l'hôte !"
+msgstr "Impossible de mettre à jour la machine !"
 
-#, fuzzy
 msgid "Invalid host"
-msgstr "Adresse MAC non valide"
+msgstr "Machine incorrecte"
 
 msgid "Created by FOG Reg on"
 msgstr "Créé par FOG Reg le"
 
 msgid "Done, with imaging!"
-msgstr "Fait, avec image !"
+msgstr "Fait, avec déploiement !"
 
-#, fuzzy
 msgid "Failed to create image task."
-msgstr "Impossible de localiser le fichier image."
+msgstr "Impossible de créer la tâche de déploiement"
 
-#, fuzzy
 msgid "No image assigned for this host."
-msgstr "Aucune imprimante liée à cet hôte."
+msgstr "Aucune image assignée à cette hôte."
 
-#, fuzzy
 msgid "Done!"
-msgstr "Fait"
+msgstr "Fini !"
 
-#, fuzzy
 msgid "Failed to save new Host!"
-msgstr "Impossible de créer l'hôte !"
+msgstr "Impossible de créer la machine !"
 
-#, fuzzy
 msgid "Done, but unable to create task!"
-msgstr "Impossible de démarrer la tâche"
+msgstr "Fini, mais impossible de créer la tâche !"
 
-#, fuzzy
 msgid "Already registered as"
-msgstr "L'hôte est déjà référencé"
+msgstr "La machine est déjà enregistrée en tant que"
 
-#, fuzzy
 msgid "Invalid image"
-msgstr "Préfixe de l'adresse MAC non valide"
+msgstr "Image incorrecte"
 
 msgid "Hello FOG Client"
 msgstr "Hello FOG Client"
 
-#, fuzzy
 msgid "Invalid StorageGroup"
-msgstr "Ajouter un groupe de stockage"
+msgstr "Groupe de stockage incorrect"
 
-#, fuzzy
 msgid "Forced Task: Failed to update Task"
-msgstr "Impossible de mettre à jour l'hôte !"
+msgstr "Tâche forcée : Impossible de mettre à jour la machine !"
 
 msgid "Waiting for a slot"
-msgstr "En attente de slot"
+msgstr "En attente d'une place"
 
 msgid "PCs are in front of me."
-msgstr "Les PC sont en face de moi."
+msgstr "machines sont devant moi dans la liste."
 
 msgid "There are open slots, but I am waiting for"
-msgstr "Il y a des slots ouverts, mais je suis en attente de"
+msgstr "Il y a des places disponibles, mais je suis en attente de"
 
-#, fuzzy
 msgid "PCs in front of me."
-msgstr "CPU en face de moi."
+msgstr "machines devant moi."
 
-#, fuzzy
 msgid "is open, but has recently failed for this Host"
-msgstr "est ouvert, mais a récemment échoué "
+msgstr "est ouvert, mais a récemment échoué pour cette machine"
 
-#, fuzzy
 msgid "Unable to find a suitable Storage Node for transfer!"
-msgstr "Impossible de déterminer le meilleur noeud pour le transfert !"
+msgstr "Impossible de trouver un nœud de stockage pour le transfert !"
 
 msgid "There are no locations on this server."
 msgstr ""
@@ -4156,7 +3712,7 @@ msgstr ""
 #~ msgstr "Image RAW (Secteur par secteur, DD, Lent)"
 
 #~ msgid "Snapin added to host."
-#~ msgstr "Snapin ajouté à l'hôte"
+#~ msgstr "Snapin ajouté à la machine"
 
 #~ msgid "Either the database connection, snapid ID, or host ID was null."
 #~ msgstr ""
@@ -4164,10 +3720,10 @@ msgstr ""
 #~ "non valide."
 
 #~ msgid "Snapin removed from host."
-#~ msgstr "Le snapin a été enlevé de l'hôte."
+#~ msgstr "Le snapin a été enlevé de la machine."
 
 #~ msgid "Snapin is not linked with this host."
-#~ msgstr "Le snapin ne peut être lié à l'hôte."
+#~ msgstr "Le snapin ne peut être lié à la machine."
 
 #~ msgid "Wipe"
 #~ msgstr "Effacement des données"
@@ -4203,7 +3759,7 @@ msgstr ""
 #~ msgstr "Créé par FOG le système de clonage"
 
 #~ msgid "Inventory package created for host"
-#~ msgstr "Inventaire créé pour l'hôte"
+#~ msgstr "Inventaire créé pour la machine"
 
 #~ msgid "This host is already a member of a task!"
 #~ msgstr "L'hôte est déjà membre d'une tâche !"
@@ -4215,13 +3771,13 @@ msgstr ""
 #~ msgstr "La base de données n'est pas valide"
 
 #~ msgid "Testdisk package created for host"
-#~ msgstr "Paquet Testdisk créé pour l'hôte"
+#~ msgstr "Paquet Testdisk créé pour la machine"
 
 #~ msgid "ClamAV package created for host"
-#~ msgstr "Paquet de l'antivirus ClamAV créé pour l'hôte"
+#~ msgstr "Paquet de l'antivirus ClamAV créé pour la machine"
 
 #~ msgid "Image upload package created for host"
-#~ msgstr "L'upload du paquet de l'image créé pour l'hôte"
+#~ msgstr "L'upload du paquet de l'image créé pour la machine"
 
 #~ msgid "Unable to determine valid settings for NFS Server."
 #~ msgstr ""
@@ -4236,17 +3792,17 @@ msgstr ""
 
 #~ msgid "Image assocation is null, please define an image for this host."
 #~ msgstr ""
-#~ "Il n'existe pas d'image associée pour l'hôte, s'il vous plait vérifier ce "
-#~ "paramètre."
+#~ "Il n'existe pas d'image associée pour la machine, s'il vous plait "
+#~ "vérifier ce paramètre."
 
 #~ msgid "memtest package created for host"
-#~ msgstr "Paquet Memtest créé pour l'hôte"
+#~ msgstr "Paquet Memtest créé pour la machine"
 
 #~ msgid "Host is already a member of a active task."
 #~ msgstr "L'hôte est déjà membre d'une tâche active !"
 
 #~ msgid "debug package created for host"
-#~ msgstr "Paquet Debug créé pour l'hôte"
+#~ msgstr "Paquet Debug créé pour la machine"
 
 #~ msgid "Unable to delete PXE file"
 #~ msgstr "Impossible d'effacer le fichier PXE"
@@ -4258,10 +3814,10 @@ msgstr ""
 #~ msgstr "Type d'OS non valide, veuillez spécifier un type d'OS à l'image."
 
 #~ msgid "Unsupported OS detected in host!"
-#~ msgstr "L'OS non pris en charge détecté sur l'hôte !"
+#~ msgstr "L'OS non pris en charge détecté sur la machine !"
 
 #~ msgid "Image push multicast package created for host"
-#~ msgstr "Paquet de descente d'image en multicast créé pour l'hôte"
+#~ msgstr "Paquet de descente d'image en multicast créé pour la machine"
 
 #~ msgid "Unable to locate master storage node."
 #~ msgstr "Impossible de trouver le noeud maitre de stockage."
@@ -4275,7 +3831,7 @@ msgstr ""
 #~ "de stockage."
 
 #~ msgid "Image push package created for host"
-#~ msgstr "Paquet de descente d'image créé pour l'hôte"
+#~ msgstr "Paquet de descente d'image créé pour la machine"
 
 #~ msgid "Username is null"
 #~ msgstr "Le nom d'utilisateur est vide"
@@ -4323,7 +3879,7 @@ msgstr ""
 #~ msgstr "OS alternatif"
 
 #~ msgid "Error looking up service status for host!"
-#~ msgstr "Erreur d'état du service pour l'hôte !"
+#~ msgstr "Erreur d'état du service pour la machine !"
 
 #~ msgid "MAC address object is null."
 #~ msgstr "L'objet \"adresse MAC\" est non valide."
@@ -4385,7 +3941,7 @@ msgstr ""
 #~ msgstr "min."
 
 #~ msgid "Waiting for host to check in..."
-#~ msgstr "En attente de l'hôte pour une vérification dans..."
+#~ msgstr "En attente de la machine pour une vérification dans..."
 
 #~ msgid "No matches found"
 #~ msgstr "Aucun résultat trouvé"
@@ -4447,7 +4003,8 @@ msgstr ""
 #~ msgstr "Téléchargement du fichier..."
 
 #~ msgid "Download Completed! Moving file to TFTP server..."
-#~ msgstr "Téléchargement fini ! Déplacement du fichier vers le serveur TFTP..."
+#~ msgstr ""
+#~ "Téléchargement fini ! Déplacement du fichier vers le serveur TFTP..."
 
 #~ msgid "Download Failed!"
 #~ msgstr "Le téléchargement a échoué !"
@@ -4468,7 +4025,7 @@ msgstr ""
 #~ msgstr "Visionneuse de journaux FOG"
 
 #~ msgid "Are you sure you wish to clear all mac address listings?"
-#~ msgstr "Etes-vous sûr de vouloir effacer la listes des adresses MAC?"
+#~ msgstr "Etes-vous sûr de vouloir effacer la listes des adresses MAC ?"
 
 #~ msgid ""
 #~ "This section allows you to customize the PXE Boot Menu Screen as well as "
@@ -4559,10 +4116,10 @@ msgstr ""
 #~ msgstr " étaient déjà liés."
 
 #~ msgid "updated image for host "
-#~ msgstr "image mise à jour de l'hôte "
+#~ msgstr "image mise à jour de la machine "
 
 #~ msgid "updated os for host "
-#~ msgstr "OS mis à jour de l'hôte"
+#~ msgstr "OS mis à jour de la machine"
 
 #~ msgid "hosts updated"
 #~ msgstr "mise à jour des hôtes"
@@ -4819,7 +4376,7 @@ msgstr ""
 #~ msgstr " les hôtes"
 
 #~ msgid "Invalid host ID Number."
-#~ msgstr "Le numéro d'ID de l'hôte est non valide."
+#~ msgstr "Le numéro d'ID de la machine est non valide."
 
 #~ msgid "Group Search"
 #~ msgstr "Recherche du groupe"
@@ -4837,7 +4394,7 @@ msgstr ""
 #~ msgstr "Impossible d'ajouter le nouvel hôte via le formulaire de gestion"
 
 #~ msgid "Host OS"
-#~ msgstr "OS de l'hôte"
+#~ msgstr "OS de la machine"
 
 #~ msgid "Unable to add MAC address"
 #~ msgstr "Impossible d'ajouter une adresse MAC"
@@ -4864,7 +4421,7 @@ msgstr ""
 #~ "Création d'une image de l'ordinateur client et sauvegarde sur le serveur."
 
 #~ msgid "Hostname Changer Enabled?"
-#~ msgstr "Changement du nom d'hôte (Hostname Changer) activé?"
+#~ msgstr "Changement du nom d'hôte (Hostname Changer) activé ?"
 
 #~ msgid ""
 #~ "This setting will enable or disable the hostname changer module on this "
@@ -4876,10 +4433,10 @@ msgstr ""
 #~ "désactivé, ce paramètre est ignoré."
 
 #~ msgid "Directory Cleaner Enabled?"
-#~ msgstr "Purge des dossiers (Directory Cleaner) activé?"
+#~ msgstr "Purge des dossiers (Directory Cleaner) activé ?"
 
 #~ msgid "User Cleanup Enabled?"
-#~ msgstr "Purge des utilisateurs (User Cleanup) activé?"
+#~ msgstr "Purge des utilisateurs (User Cleanup) activé ?"
 
 #~ msgid ""
 #~ "This setting will enable or disable the user cleaner service module on "
@@ -4896,7 +4453,7 @@ msgstr ""
 #~ "sont mis en oeuvre pour sur le poste de travail."
 
 #~ msgid "Display Manager Enabled?"
-#~ msgstr "Gestionnaire d'écran (Display Manager) activé??"
+#~ msgstr "Gestionnaire d'écran (Display Manager) activé? ?"
 
 #~ msgid ""
 #~ "This setting will enable or disable the display manager service module on "
@@ -4908,7 +4465,7 @@ msgstr ""
 #~ "paramètre est ignoré."
 
 #~ msgid "Auto Log Out Enabled?"
-#~ msgstr "Déconnexion automatique (Auto Log Out) activé?"
+#~ msgstr "Déconnexion automatique (Auto Log Out) activé ?"
 
 #~ msgid ""
 #~ "This setting will enable or disable the auto log out service module on "
@@ -4920,7 +4477,7 @@ msgstr ""
 #~ "paramètre est ignoré."
 
 #~ msgid "Green FOG Enabled?"
-#~ msgstr "Green FOG activé?"
+#~ msgstr "Green FOG activé ?"
 
 #~ msgid ""
 #~ "This setting will enable or disable the green fog service module on this "
@@ -4941,7 +4498,7 @@ msgstr ""
 #~ "paramètre est ignoré."
 
 #~ msgid "Client Updater Enabled?"
-#~ msgstr "Mise à jour du client (Client Updater) activé?"
+#~ msgstr "Mise à jour du client (Client Updater) activé ?"
 
 #~ msgid ""
 #~ "This setting will enable or disable the client updater service module on "
@@ -4953,7 +4510,7 @@ msgstr ""
 #~ "paramètre est ignoré."
 
 #~ msgid "Host Registration Enabled?"
-#~ msgstr "Inventaire de l'hôte (Host Registration) activé?"
+#~ msgstr "Inventaire de la machine (Host Registration) activé ?"
 
 #~ msgid ""
 #~ "This setting will enable or disable the host register service module on "
@@ -4965,7 +4522,7 @@ msgstr ""
 #~ "désactivé, ce paramètre est ignoré."
 
 #~ msgid "Printer Manager Enabled?"
-#~ msgstr "Gestionnaire d'imprimante (Printer Manager) activé?"
+#~ msgstr "Gestionnaire d'imprimante (Printer Manager) activé ?"
 
 #~ msgid ""
 #~ "This setting will enable or disable the printer manager service module on "
@@ -4977,7 +4534,7 @@ msgstr ""
 #~ "paramètre est ignoré."
 
 #~ msgid "Task Reboot Enabled?"
-#~ msgstr "Tâche de reboot (Task Reboot) activé?"
+#~ msgstr "Tâche de reboot (Task Reboot) activé ?"
 
 #~ msgid ""
 #~ "This setting will enable or disable the task reboot service module on "
@@ -4989,7 +4546,7 @@ msgstr ""
 #~ "paramètre est ignoré."
 
 #~ msgid "User Tracker Enabled?"
-#~ msgstr "Suivi des utilisateurs (User Tracker) activé?"
+#~ msgstr "Suivi des utilisateurs (User Tracker) activé ?"
 
 #~ msgid ""
 #~ "This setting will enable or disable the user tracker service module on "
@@ -5011,10 +4568,10 @@ msgstr ""
 #~ "Cliquez sur l'icône ci-dessous pour supprimer cet hôte de la base de FOG."
 
 #~ msgid "Removed host id #"
-#~ msgstr "Suppression de l'hôte ID #"
+#~ msgstr "Suppression de la machine ID #"
 
 #~ msgid "Failed to remove host. "
-#~ msgstr "Impossible de supprimer l'hôte."
+#~ msgstr "Impossible de supprimer la machine."
 
 #~ msgid "Unable to create new group, does it exist already?"
 #~ msgstr "Impossible de créer ce nouveau groupe, il existe déjà !"
@@ -5108,7 +4665,7 @@ msgstr ""
 #~ msgstr "Impossible de mettre à jour l'image"
 
 #~ msgid "Are you sure you would like to remove this image?"
-#~ msgstr "Etes vous sûr de vouloir supprimer cette image?"
+#~ msgstr "Etes vous sûr de vouloir supprimer cette image ?"
 
 #~ msgid "All Current Images"
 #~ msgstr "Toutes les images référencées"
@@ -5192,7 +4749,8 @@ msgstr ""
 #~ msgstr "Un champ requis est vide, impossible de créer une imprimante !"
 
 #~ msgid "You must specify a model, unable to create printer!"
-#~ msgstr "Vous devez spécifier un modèle, impossible de créer une imprimante !"
+#~ msgstr ""
+#~ "Vous devez spécifier un modèle, impossible de créer une imprimante !"
 
 #~ msgid "Add new printer definition"
 #~ msgstr "Ajout d'une nouvelle définition d'imprimante"
@@ -5284,7 +4842,7 @@ msgstr ""
 #~ msgstr "Ce module permet au client FOG d'être à jour.."
 
 #~ msgid "Client Update Enabled?"
-#~ msgstr "Module \"Client Update\" activé?"
+#~ msgstr "Module \"Client Update\" activé ?"
 
 #~ msgid ""
 #~ "This setting will globally enable or disable the client updater service "
@@ -5448,7 +5006,7 @@ msgstr ""
 #~ "d'installation sur les ordinateurs clients."
 
 #~ msgid "Snapin Client Enabled?"
-#~ msgstr "Module \"Snapin Client\" activé?"
+#~ msgstr "Module \"Snapin Client\" activé ?"
 
 #~ msgid ""
 #~ "This setting will globally enable or disable the snapin service module.  "
@@ -5470,7 +5028,7 @@ msgstr ""
 #~ msgstr ""
 #~ "Le module \"Task reboot\" interroge périodiquement le service FOG pour "
 #~ "déterminer si une tâche lui est affectée. Si c'est le cas et qu'aucun "
-#~ "utilisateur est connecté, l'hôte va redémarrer."
+#~ "utilisateur est connecté, la machine va redémarrer."
 
 #~ msgid ""
 #~ "This setting will globally enable or disable the task reboot service "
@@ -5599,7 +5157,7 @@ msgstr ""
 #~ msgstr "Exécuter le Snapin avec les arguments"
 
 #~ msgid "Are you sure you wish to remove this snapin?"
-#~ msgstr "Etes vous sûr de vouloir supprimer ce Snapin?"
+#~ msgstr "Etes vous sûr de vouloir supprimer ce Snapin ?"
 
 #~ msgid "All Current Snapins"
 #~ msgstr "Tous les Snapins"
@@ -5648,7 +5206,7 @@ msgstr ""
 #~ "images sur tous les autres noeuds dans ce groupe de stockage."
 
 #~ msgid "Are you sure you wish to do this?"
-#~ msgstr "Etes vous sûr de vouloir le faire?"
+#~ msgstr "Etes vous sûr de vouloir le faire ?"
 
 #~ msgid "Yes, make the node master."
 #~ msgstr "Oui, mettre le noeud en maître."
@@ -5675,7 +5233,7 @@ msgstr ""
 #~ msgstr "Modifier la définition du groupe de stockage"
 
 #~ msgid "Are you sure you would like to remove this Storage Group?"
-#~ msgstr "Etes vous sûr de vouloir supprimer ce groupe de stockage?"
+#~ msgstr "Etes vous sûr de vouloir supprimer ce groupe de stockage ?"
 
 #~ msgid "Confirm Storage Node Removal"
 #~ msgstr "Confirmation de la suppression du noeud de stockage"
@@ -5699,7 +5257,7 @@ msgstr ""
 #~ msgstr "Impossible de mettre à jour le noeud de stockage."
 
 #~ msgid "Are you sure you would like to remove this Storage Node?"
-#~ msgstr "Etes vous sûr de vouloir supprimer ce noeud de stockage?"
+#~ msgstr "Etes vous sûr de vouloir supprimer ce noeud de stockage ?"
 
 #~ msgid "Storage Group Menu"
 #~ msgstr "Menu du groupe de stockage"
@@ -5803,7 +5361,7 @@ msgstr ""
 #~ msgstr ""
 #~ "Déploiement sans Snapins permet à FOG de descendre l'image vers la "
 #~ "station de travail, mais une fois la tâche terminée tous snapins liés à "
-#~ "l'hôte ou au groupe ne sera pas envoyé."
+#~ "la machine ou au groupe ne sera pas envoyé."
 
 #~ msgid "Deploy Snapins"
 #~ msgstr "Déploiement des Snapins"
@@ -5812,8 +5370,9 @@ msgstr ""
 #~ "This option allows you to send all the snapins to host without imaging "
 #~ "the computer.  (Requires FOG Service to be installed on client)"
 #~ msgstr ""
-#~ "Cette option permet d'envoyer tous les Snapins à l'hôte sans descendre "
-#~ "une image. (Le service FOG est requis et doit être installé sur l'hôte)"
+#~ "Cette option permet d'envoyer tous les Snapins à la machine sans "
+#~ "descendre une image. (Le service FOG est requis et doit être installé sur "
+#~ "la machine)"
 
 #~ msgid "Deploy Single Snapin"
 #~ msgstr "Déploiement d'un Snapin"
@@ -5823,7 +5382,7 @@ msgstr ""
 #~ "Service to be installed on client)"
 #~ msgstr ""
 #~ "Cette option permet d'envoyer un snapin à un hôte. (Le service FOG est "
-#~ "requis et doit être installé sur l'hôte)"
+#~ "requis et doit être installé sur la machine)"
 
 #~ msgid "Memtest86+"
 #~ msgstr "Memtest86+"
@@ -5954,10 +5513,10 @@ msgstr ""
 #~ msgstr "Confirmation de la tâche"
 
 #~ msgid "Schedule Single Task Execution?"
-#~ msgstr "Planification unique de l'exécution de la tâche?"
+#~ msgstr "Planification unique de l'exécution de la tâche ?"
 
 #~ msgid "Schedule Cron Style Task Execution?"
-#~ msgstr "Planification avancée (style cron) de l'exécution de la tâche?"
+#~ msgstr "Planification avancée (style cron) de l'exécution de la tâche ?"
 
 #~ msgid "Upload Image"
 #~ msgstr "Envoie de l'image"
@@ -5984,7 +5543,7 @@ msgstr ""
 #~ "n'ont pas toutes la même image."
 
 #~ msgid "Are you sure you wish to wake up these machines?"
-#~ msgstr "Etes vous sûr de vouloir réveiller (Wake Up) ces stations?"
+#~ msgstr "Etes vous sûr de vouloir réveiller (Wake Up) ces stations ?"
 
 #~ msgid ""
 #~ "Are you sure you wish to wipe these machines? By wiping these machines "
@@ -5997,19 +5556,19 @@ msgstr ""
 #~ msgstr "Formatage de la (des) station(s)"
 
 #~ msgid "Are you sure you wish to debug these machines?"
-#~ msgstr "Etes vous sûr de vouloir exécuter le mode débug sur ces stations?"
+#~ msgstr "Etes vous sûr de vouloir exécuter le mode débug sur ces stations ?"
 
 #~ msgid "Debug computer(s)"
 #~ msgstr "Débug de la (des) station(s)"
 
 #~ msgid "Are you sure you wish to run memtest86+ on these machines?"
-#~ msgstr "Etes vous sûr de vouloir lancer Memtest86+ sur ces stations?"
+#~ msgstr "Etes vous sûr de vouloir lancer Memtest86+ sur ces stations ?"
 
 #~ msgid "Run memtest86+"
 #~ msgstr "Lancer Memtest86+"
 
 #~ msgid "Are you sure you wish to run testdisk on these machines?"
-#~ msgstr "Etes vous sûr de vouloir lancer TestDisk sur ces stations?"
+#~ msgstr "Etes vous sûr de vouloir lancer TestDisk sur ces stations ?"
 
 #~ msgid "Run testdisk"
 #~ msgstr "Lancer TestDisk"
@@ -6126,7 +5685,8 @@ msgstr ""
 #~ msgstr "Aucune de ces stations étaient en attente de réception de Snapins !"
 
 #~ msgid "Deploy failed, make sure snapin is linked with host."
-#~ msgstr "Echec de déploiement, assurez vous que le snapin soit lié à l'hôte."
+#~ msgstr ""
+#~ "Echec de déploiement, assurez vous que le snapin soit lié à la machine."
 
 #~ msgid "None of the snapins were able to be queued!"
 #~ msgstr "Aucun des Snapins n'ont pu être mis en fil d'attente !"
@@ -6201,7 +5761,7 @@ msgstr ""
 #~ msgstr "Un autre utilisateur existe avec le même nom."
 
 #~ msgid "Are you sure you wish to remove this user?"
-#~ msgstr "Etes vous sûr de vouloir supprimer cet utilisateur?"
+#~ msgstr "Etes vous sûr de vouloir supprimer cet utilisateur ?"
 
 #~ msgid "User Menu"
 #~ msgstr "Menu Utilisateur"
@@ -6231,10 +5791,10 @@ msgstr ""
 #~ msgstr "?"
 
 #~ msgid "Host OS ID"
-#~ msgstr "ID de l'OS de l'hôte"
+#~ msgstr "ID de l'OS de la machine"
 
 #~ msgid "Host OS Name"
-#~ msgstr "Nom de l'OS de l'hôte"
+#~ msgstr "Nom de l'OS de la machine"
 
 #~ msgid "AD"
 #~ msgstr "Active Directory"
@@ -6281,10 +5841,10 @@ msgstr ""
 #~ msgstr "Modèle du chassis"
 
 #~ msgid "HostIP"
-#~ msgstr "IP de l'hôte"
+#~ msgstr "IP de la machine"
 
 #~ msgid "HostDescription"
-#~ msgstr "Description de l'hôte"
+#~ msgstr "Description de la machine"
 
 #~ msgid "FOG User Login History Summary - Select User"
 #~ msgstr "Historique des accès à FOG - Sélection de l'utilisateur"
@@ -6320,12 +5880,12 @@ msgstr ""
 #~ msgstr "Existe déjà"
 
 #~ msgid "Unsafe Hostname"
-#~ msgstr "Nom de l'hôte risqué"
+#~ msgstr "Nom de la machine risqué"
 
 #~ msgid "Unable to connect to database, host not imported!"
 #~ msgstr ""
-#~ "Impossible de ce connecter à la base de données, l'hôte ne peut pas être "
-#~ "importé!"
+#~ "Impossible de ce connecter à la base de données, la machine ne peut pas "
+#~ "être importé!"
 
 #~ msgid "Invalid MAC Address format!"
 #~ msgstr "Format de l'adresse MAC non valide !"
@@ -6366,7 +5926,7 @@ msgstr ""
 #~ "Unable to find a valid task ID or host ID based on the clients mac "
 #~ "address of"
 #~ msgstr ""
-#~ "Impossible de trouver un ID valide de la tâche ou un ID de l'hôte en "
+#~ "Impossible de trouver un ID valide de la tâche ou un ID de la machine en "
 #~ "fonction des adresses MAC des clients pour"
 
 #~ msgid "Database error: "
@@ -6383,8 +5943,8 @@ msgstr ""
 
 #~ msgid " Unable to connect to database, host not imported!"
 #~ msgstr ""
-#~ " Impossible de ce connecter à la base de données, l'hôte ne peut pas être "
-#~ "importé!"
+#~ " Impossible de ce connecter à la base de données, la machine ne peut pas "
+#~ "être importé!"
 
 #~ msgid " Invalid MAC Address format!"
 #~ msgstr " Format de l'adresse MAC non valide !"
@@ -6417,7 +5977,7 @@ msgstr ""
 #~ "Unable to locate host in database, please ensure that mac address is "
 #~ "correct."
 #~ msgstr ""
-#~ "Impossible de trouver l'hôte dans la base, vérifier que l'adresse MAC "
+#~ "Impossible de trouver la machine dans la base, vérifier que l'adresse MAC "
 #~ "soit correct."
 
 #~ msgid "Image ID must be numeric"
@@ -6487,7 +6047,7 @@ msgstr ""
 #~ msgstr "Aucun résultat trouvé"
 
 #~ msgid "Search for Host"
-#~ msgstr "Recherche de l'hôte"
+#~ msgstr "Recherche de la machine"
 
 #~ msgid "Tasks Menu"
 #~ msgstr "Menu des tâches"
