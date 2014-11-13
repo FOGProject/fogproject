@@ -687,15 +687,13 @@ class Host extends FOGController
 					'isForced'	=> 0,
 					'stateID'	=> 1,
 					'typeID'	=> $taskTypeID,
-					'NFSGroupID' => $imagingTypes ? ($LocPlugInst ? $StorageGroup->get('id') : $Image->getStorageGroup()->get('id')) : false,
-					'NFSMemberID'	=> $imagingTypes ? ($LocPlugInst ? $StorageGroup->getOptimalStorageNode()->get('id') : ($this->get('imageID') ? $Image->getStorageGroup()->getOptimalStorageNode()->get('id') : $StorageGroup->getOptimalStorageNode()->get('id'))) : false,
-					'shutdown' => $shutdown,
-					'isDebug' => intval($debug),
+					'NFSGroupID' => false,
+					'NFSMemberID'	=> false,
 				));
 				if ($Task->save())
 				{
 					$this->wakeOnLAN();
-					$this->FOGCore->logHistory(sprintf('Task Created: Task ID: %s, Task Name: %s, Host ID: %s, Host Name: %s, Host MAC: %s, Image ID: %s, Image Name: %s', $Task->get('id'), $Task->get('name'), $this->get('id'), $this->get('name'), $this->getMACAddress(), $this->getImage()->get('id'), $this->getImage()->get('name')));
+					$this->FOGCore->logHistory(sprintf('Task Created: Task ID: %s, Task Name: %s, Host ID: %s, Host Name: %s, Host MAC: %s', $Task->get('id'), $Task->get('name'), $this->get('id'), $this->get('name'), $this->getMACAddress());
 					$Task->destroy();
 					return $Task;
 				}
