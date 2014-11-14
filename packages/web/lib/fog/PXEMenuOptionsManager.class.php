@@ -11,6 +11,7 @@ class PXEMenuOptionsManager extends FOGManagerController
 			4 => $this->foglang['AdvancedOpts'],
 			5 => $this->foglang['AdvancedLogOpts'],
 			6 => $this->foglang['PendRegHost'],
+			7 => $this->foglang['DoNotList'],
 		);
 		return $regVals;
 	}

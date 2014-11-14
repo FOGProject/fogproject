@@ -301,6 +301,7 @@ $foglang['SGDelSuccess']			= _('Storage Group deleted');
 $foglang['FailDelSG']				= _('Failed to destroy Storage Group');
 $foglang['InvalidClass']			= _('Invalid Class');
 $foglang['NotExtended']				= _('Class is not extended from FOGPage');
+$foglang['DoNotList']				= _('Do not list on menu');
 // Language menu options.
 $foglang['LanguagePhrase']			= _('Language');
 $foglang['Language']['zh']			= '中国的';
