@@ -423,6 +423,136 @@ class BootMenu extends FOGBase
 		);
 		$this->parseMe($Send);
 	}
+	/**falseTasking() only runs if hosts aren't registered
+	* @param $mc = false, only specified if the task is multicast.
+	* @param $Image = send the specified image, really only needed for non-multicast
+	* @return void
+	**/
+	public function falseTasking($mc = false,$Image = false)
+	{
+		$TaskType = new TaskType(2);
+		if ($mc)
+		{
+			$Image = $mc->getImage();
+			$TaskType = new TaskType(8);
+		}
+		$StorageGroup = $Image->getStorageGroup();
+		$StorageNode = $StorageGroup->getOptimalStorageNode();
+		$osid = $Image->get('osID');
+		$storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),'');
+		$storageip = $StorageNode->get('ip');
+		$img = $Image->get('path');
+		$imgFormat = $Image->get('format');
+		$imgType = $Image->getImageType()->get('type');
+		$imgPartitionType = $Image->getImagePartitionType()->get('type');
+		$imgid = $Image->get('id');
+		$chkdsk = $this->FOGCore->getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
+		$ftp = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_TFTP_HOST'));
+		$port = ($mc ? $mc->get('port') : null);
+		$miningcores = $this->FOGCore->getSetting('FOG_MINING_MAX_CORES');
+		$kernelArgsArray = array(
+			"mac=$mac",
+			"ftp=$ftp",
+			"storage=$storage",
+			"storageip=$storageip",
+			"web=$this->web",
+			"osid=$osid",
+			"loglevel=4",
+			"consoleblank=0",
+			"irqpoll",
+			"chkdsk=$chkdsk",
+			"img=$img",
+			"imgType=$imgType",
+			"imgPartitionType=$imgPartitionType",
+			"imgid=$imgid",
+			"imgFormat=$imgFormat",
+			"shutdown=0",
+			array(
+				'value' => "capone=1",
+				'active' => !$this->Host || !$this->Host->isValid(),
+			),
+			array(
+				'value' => "port=$port mc=yes",
+				'active' => $mc,
+			),
+			array(
+				'value' => "mining=1 miningcores=$miningcores",
+				'active' => $this->FOGCore->getSetting('FOG_MINING_ENABLE'),
+			),
+			$TaskType->get('kernelArgs'),
+			$this->FOGCore->getSetting('FOG_KERNEL_ARGS'),
+		);
+		$this->printTasking($kernelArgsArray);
+	}
+	public function printImageList()
+	{
+		$Send['ImageListing'] = array(
+			'#!ipxe',
+			'cpuid --ext 29 && set arch x86_64 || set arch i386',
+			'params',
+			'param mac0 ${net0/mac}',
+			'param arch ${arch}',
+			'param menuAccess 1',
+			'param debug 0',
+			'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
+			'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+			'menu',
+			':MENU',
+		);
+		$defItem = "choose target && goto \${target}";
+		$Images = $this->getClass('ImageManager')->find();
+		if (!$Images)
+		{
+			$Send['NoImages'] = array(
+				'#!ipxe',
+				'echo No Images on server found',
+				'sleep 3',
+			);
+			$this->parseMe($Send);
+			$this->chainBoot();
+		}
+		else
+		{
+			foreach($Images AS $Image)
+			{
+				// Only create menu items if the image is valid.
+				if ($Image && $Image->isValid())
+				{
+					array_push($Send['ImageListing'],"item ".$Image->get('path').' '.$Image->get('name'));
+					// If the host is valid and the image is set and valid, set the selected target.
+					if ($this->Host && $this->Host->isValid() && $this->Host->getImage() && $this->Host->getImage()->isValid() && $this->Host->getImage()->get('id') == $Image->get('id'))
+						$defItem = "choose --default ".$Image->get('path')." target && goto \${target}";
+				}
+			}
+			// Add the return to other menu
+			array_push($Send['ImageListing'],'item return Return to menu');
+			// Insert the choice of menu item.
+			array_push($Send['ImageListing'],$defItem);
+			foreach($Images AS $Image)
+			{
+				if ($Image && $Image->isValid())
+				{
+					$Send['pathofimage'.$Image->get('name')] = array(
+						':'.$Image->get('path'),
+						'set imageID '.$Image->get('id'),
+						'param imageID ${imageID}',
+						'param qihost 1',
+					);
+				}
+			}
+			$Send['returnmenu'] = array(
+				':return',
+				'chain -ar '.$this->booturl.'/ipxe/boot.php##params ||',
+				'goto MENU',
+			);
+			$Send['bootmefunc'] = array(
+				':bootme',
+				'chain -ar '.$this->booturl.'/ipxe/boot.php##params',
+				'goto MENU',
+			);
+			$this->parseMe($Send);
+		}
+	}
 	/**
 	* multijoin()
 	* Joins the host to an already generated multicast session
@@ -441,55 +571,7 @@ class BootMenu extends FOGBase
 					$this->chainBoot(false,true);
 			}
 			else
-			{
-				$Image = $MultiSess->getImage();
-				$TaskType = new TaskType(8);
-				$StorageGroup = $Image->getStorageGroup();
-				$StorageNode = $StorageGroup->getOptimalStorageNode();
-				$osid = $Image->get('osID');
-				$storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),'');
-				$storageip = $StorageNode->get('ip');
-				$img = $Image->get('path');
-				$imgFormat = $Image->get('format');
-				$imgType = $Image->getImageType()->get('type');
-				$imgPartitionType = $Image->getImagePartitionType()->get('type');
-				$imgid = $Image->get('id');
-				$chkdsk = $this->FOGCore->getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
-				$ftp = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_TFTP_HOST'));
-				$port = $MultiSess->get('port');
-				$kernelArgsArray = array(
-					"mac=$mac",
-					"ftp=$ftp",
-					"storage=$storage",
-					"storageip=$storageip",
-					"web=$this->web",
-					"osid=$osid",
-					"loglevel=4",
-					"consoleblank=0",
-					"irqpoll",
-					"chkdsk=$chkdsk",
-					"img=$img",
-					"imgType=$imgType",
-					"imgPartitionType=$imgPartitionType",
-					"imgid=$imgid",
-					"imgFormat=$imgFormat",
-					"shutdown=0",
-					"port=$port",
-					"capone=1",
-					"mc=yes",
-					array(
-						'value' => 'mining=1',
-						'active' => $this->FOGCore->getSetting('FOG_MINING_ENABLE'),
-					),
-					array(
-						'value' => 'miningcores='.$this->FOGCore->getSetting('FOG_MINING_MAX_CORES'),
-						'active' => $this->FOGCore->getSetting('FOG_MINING_ENABLE'),
-					),
-					$TaskType->get('kernelArgs'),
-					$this->FOGCore->getSetting('FOG_KERNEL_ARGS'),
-				);
-				$this->printTasking($kernelArgsArray);
-			}
+				$this->falseTasking($MultiSess);
 		}
 	}
 	/**
@@ -567,8 +649,10 @@ class BootMenu extends FOGBase
 				$this->delConf();
 			else if ($_REQUEST['keyreg'])
 				$this->keyreg();
-			else if ($_REQUEST['qihost'])
+			else if ($_REQUEST['qihost'] && !$_REQUEST['imageID'])
 				$this->setTasking();
+			else if ($_REQUEST['qihost'] && $_REQUEST['imageID'])
+				$this->setTasking($_REQUEST['imageID']);
 			else if ($_REQUEST['sessionJoin'])
 				$this->sessjoin();
 			else if ($_REQUEST['approveHost'])
@@ -605,23 +689,23 @@ class BootMenu extends FOGBase
 	*/
 	public function setTasking($imgID = '')
 	{
+		if (!$imgID)
+			$this->printImageList();
 		if ($imgID)
-			$this->Host->set('imageID',$imgID);
-		if ($this->Host->getImage()->isValid())
 		{
-			if($this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,$_REQUEST['username']))
-				$this->chainBoot(false, true);
-		}
-		else
-		{
-			$Send['invalidimage'] = array(
-				'#!ipxe',
-				'echo Host has no image assigned to it',
-				'echo Please set one in the GUI',
-				'sleep 3',
-			);
-			$this->parseMe($Send);
-			$this->chainBoot();
+			$Image = new Image($imgID);
+			if ($this->Host && $this->Host->isValid())
+			{
+				if ($imgID && $this->Host->getImage() && $this->Host->getImage()->isValid() && $imgID != $this->Host->getImage()->get('id'))
+					$this->Host->set('imageID',$imgID);
+				if ($this->Host->getImage()->isValid())
+				{
+					if($this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,$_REQUEST['username']))
+						$this->chainBoot(false, true);
+				}
+			}
+			else
+				$this->falseTasking('',$Image);
 		}
 	}
 	/**
