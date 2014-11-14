@@ -123,7 +123,7 @@ class BootMenu extends FOGBase
 		$this->initrd = "imgfetch $imagefile";
 		// Set the default line based on all the menu entries and only the one with the default set.
 		$defMenuItem = current($this->getClass('PXEMenuOptionsManager')->find(array('default' => 1)));
-		$this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local').(!$this->hiddenmenu ? " --timeout $timeout" : " --timeout 0")." target && goto \${target}";
+		$this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local').(!$this->hiddenmenu ? " --timeout $timeout" : " --timeout 0").' target && goto ${target}';
 		// Register the success of the boot to the database:
 		$iPXE = current($this->getClass('iPXEManager')->find(array('product' => $_REQUEST['product'],'manufacturer' => $_REQUEST['manufacturer'],'file' => $_REQUEST['filename'])));
 		if ($iPXE && $iPXE->isValid())
@@ -185,12 +185,12 @@ class BootMenu extends FOGBase
 				"#!ipxe",
 				"cpuid --ext 29 && set arch x86_64 || set arch i386",
 				"params",
-				"param mac0 \${net0/mac}",
-				"param arch \${arch}",
+				'param mac0 ${net0/mac}',
+				'param arch ${arch}',
 				"param menuAccess 1",
 				"param debug ".($debug ? 1 : 0),
-				"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
-				"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
+				'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
+				'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
 				":bootme",
 	    		"chain -ar $this->booturl/ipxe/boot.php##params",
 			);
@@ -203,14 +203,14 @@ class BootMenu extends FOGBase
 				":menuAccess",
 				"login",
 				"params",
-				"param mac0 \${net0/mac}",
-				"param arch \${arch}",
-				"param username \${username}",
-				"param password \${password}",
+				'param mac0 ${net0/mac}',
+				'param arch ${arch}',
+				'param username ${username}',
+				'param password ${password}',
 				"param menuaccess 1",
 				"param debug ".($debug ? 1 : 0),
-				"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
-				"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
+				'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
+				'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
 				":bootme",
 				"chain -ar $this->booturl/ipxe/boot.php##params",
 			);
@@ -314,11 +314,11 @@ class BootMenu extends FOGBase
 			"cpuid --ext 29 && set arch x86_64 || set arch i386",
 			"prompt --key y Would you like to delete this host? (y/N): &&",
 			"params",
-			"param mac0 \${net0/mac}",
-			"param arch \${arch}",
+			'param mac0 ${net0/mac}',
+			'param arch ${arch}',
 			"param delconf 1",
-			"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
-			"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
+			'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
+			'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
 			":bootme",
 			"chain -ar $this->booturl/ipxe/boot.php##params",
 		);
@@ -336,11 +336,11 @@ class BootMenu extends FOGBase
 			"cpuid --ext 29 && set arch x86_64 || set arch i386",
 			"prompt --key y Would you like to approve this host? (y/N): &&",
 			"params",
-			"param mac0 \${net0/mac}",
-			"param arch \${arch}",
+			'param mac0 ${net0/mac}',
+			'param arch ${arch}',
 			"param aprvconf 1",
-			"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
-			"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
+			'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
+			'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
 			":bootme",
 			"chain -ar $this->booturl/ipxe/boot.php##params",
 		);
@@ -359,11 +359,11 @@ class BootMenu extends FOGBase
 			"echo -n Please enter the product key>",
 			"read key",
 			"params",
-			"param mac0 \${net0/mac}",
-			"param arch \${arch}",
-			"param key \${key}",
-			"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
-			"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
+			'param mac0 ${net0/mac}',
+			'param arch ${arch}',
+			'param key ${key}',
+			'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
+			'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
 			":bootme",
 			"chain -ar $this->booturl/ipxe/boot.php##params",
 		);
@@ -386,11 +386,11 @@ class BootMenu extends FOGBase
 				"sleep 3",
 				"cpuid --ext 29 && set arch x86_64 || set arch i386",
 				"params",
-				"param mac0 \${net0/mac}",
-				"param arch \${arch}",
+				'param mac0 ${net0/mac}',
+				'param arch ${arch}',
 				"param sessionJoin 1",
-				"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
-				"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
+				'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
+				'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
 				":bootme",
 				"chain -ar $this->booturl/ipxe/boot.php##params",
 			);
@@ -413,11 +413,11 @@ class BootMenu extends FOGBase
 			"echo -n Please enter the session name to join>",
 			"read sessname",
 			"params",
-			"param mac0 \${net0/mac}",
-			"param arch \${arch}",
-			"param sessname \${sessname}",
-			"isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme",
-			"isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme",
+			'param mac0 ${net0/mac}',
+			'param arch ${arch}',
+			'param sessname ${sessname}',
+			'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
+			'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
 			":bootme",
 			"chain -ar $this->booturl/ipxe/boot.php##params",
 		);
@@ -430,7 +430,7 @@ class BootMenu extends FOGBase
 	**/
 	public function falseTasking($mc = false,$Image = false)
 	{
-		$TaskType = new TaskType(2);
+		$TaskType = new TaskType(1);
 		if ($mc)
 		{
 			$Image = $mc->getImage();
@@ -488,18 +488,11 @@ class BootMenu extends FOGBase
 	{
 		$Send['ImageListing'] = array(
 			'#!ipxe',
-			'cpuid --ext 29 && set arch x86_64 || set arch i386',
-			'params',
-			'param mac0 ${net0/mac}',
-			'param arch ${arch}',
-			'param menuAccess 1',
-			'param debug 0',
-			'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
-			'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-			'menu',
+			'goto MENU',
 			':MENU',
+			'menu',
 		);
-		$defItem = "choose target && goto \${target}";
+		$defItem = 'choose target && goto ${target}';
 		$Images = $this->getClass('ImageManager')->find();
 		if (!$Images)
 		{
@@ -521,7 +514,7 @@ class BootMenu extends FOGBase
 					array_push($Send['ImageListing'],"item ".$Image->get('path').' '.$Image->get('name'));
 					// If the host is valid and the image is set and valid, set the selected target.
 					if ($this->Host && $this->Host->isValid() && $this->Host->getImage() && $this->Host->getImage()->isValid() && $this->Host->getImage()->get('id') == $Image->get('id'))
-						$defItem = "choose --default ".$Image->get('path')." target && goto \${target}";
+						$defItem = 'choose --default '.$Image->get('path').' target && goto ${target}';
 				}
 			}
 			// Add the return to other menu
@@ -535,15 +528,25 @@ class BootMenu extends FOGBase
 					$Send['pathofimage'.$Image->get('name')] = array(
 						':'.$Image->get('path'),
 						'set imageID '.$Image->get('id'),
+						'params',
+						'param mac0 ${net0/mac}',
+						'param arch ${arch}',
 						'param imageID ${imageID}',
 						'param qihost 1',
+						'param username ${username}',
+						'param password ${password}',
+						'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
+						'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
 					);
 				}
 			}
 			$Send['returnmenu'] = array(
 				':return',
-				'chain -ar '.$this->booturl.'/ipxe/boot.php##params ||',
-				'goto MENU',
+				'params',
+				'param mac0 ${net0/mac}',
+				'param arch ${arch}',
+				'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
+				'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
 			);
 			$Send['bootmefunc'] = array(
 				':bootme',
@@ -700,12 +703,25 @@ class BootMenu extends FOGBase
 					$this->Host->set('imageID',$imgID);
 				if ($this->Host->getImage()->isValid())
 				{
-					if($this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,$_REQUEST['username']))
-						$this->chainBoot(false, true);
+					try
+					{
+						if($this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,$_REQUEST['username']))
+							$this->chainBoot(false, true);
+					}
+					catch (Exception $e)
+					{
+						$Send['fail'] = array(
+							'#!ipxe',
+							'echo '.$e->getMessage(),
+							'sleep 3',
+						);
+						$this->parseMe($Send);
+					}
 				}
 			}
 			else
 				$this->falseTasking('',$Image);
+			$this->chainBoot(false,true);
 		}
 	}
 	/**
