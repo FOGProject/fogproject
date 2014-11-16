@@ -21,9 +21,8 @@ class System
 	*/
 	private static function default_values()
 	{
-<<<<<<< HEAD
 		(ini_get('date.timezone') ? date_default_timezone_set(ini_get('date.timezone')) : date_default_timezone_set('UTC'));
-		define('FOG_VERSION', '2651');
+		define('FOG_VERSION', '2652');
 		define('FOG_SCHEMA', 146);
 		define('FOG_SVN_REVISION', '$Revision$');
 		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate$');
