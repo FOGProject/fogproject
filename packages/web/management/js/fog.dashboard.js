@@ -2,8 +2,8 @@
  * FOG Dashboard JS
  *	Author:		Blackout
  *	Created:	3:04 PM 20/04/2011
- *	Revision:	$Revision: 2429 $
- *	Last Update:	$LastChangedDate: 2014-10-16 09:11:03 -0400 (Thu, 16 Oct 2014) $
+ *	Revision:	$Revision$
+ *	Last Update:	$LastChangedDate$
  ***/
 
 var GraphDiskUsage;

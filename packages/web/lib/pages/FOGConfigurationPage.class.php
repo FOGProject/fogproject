@@ -319,8 +319,6 @@ class FOGConfigurationPage extends FOGPage
 		}
 		if ($_REQUEST['rmid'])
 		{
-			print_r('Made it here');
-			exit;
 			$Menu = new PXEMenuOptions($_REQUEST['rmid']);
 			$menuname = $Menu->get('name');
 			if($Menu->destroy())
