@@ -215,13 +215,13 @@ class FOGConfigurationPage extends FOGPage
 		try
 		{
 			$timeout = trim($_REQUEST['timeout']);
-			$timeout = (!empty($timeout) && is_numeric($timeout) && $timeout >= 0 ? true : false);
+			$timeout = (is_numeric($timeout) || intval($timeout) >= 0 ? true : false);
 			if (!$timeout)
 				throw new Exception(_("Invalid Timeout Value."));
 			else
 				$timeout = trim($_REQUEST['timeout']);
 			$hidetimeout = trim($_REQUEST['hidetimeout']);
-			$hidetimeout = (!empty($timeout) && is_numeric($hidetimeout) && $hidetimeout >= 0 ? true : false);
+			$hidetimeout = (is_numeric($hidetimeout) || intval($hidetimeout) >= 0 ? true : false);
 			if (!$hidetimeout)
 				throw new Exception(_("Invalid Timeout Value."));
 			else
