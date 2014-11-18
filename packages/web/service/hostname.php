@@ -35,6 +35,8 @@ catch (Exception $e)
 {
 	$Datatosend = $e->getMessage();
 }
+if ($Host && $Host->isValid() && $Host->get('pub_key') && $_REQUEST['newService'])
+	print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
 if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
 	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else

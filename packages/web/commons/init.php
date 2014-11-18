@@ -204,6 +204,8 @@ $Config = new Config();
 // Core
 $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
+// Generate the Server's Key Pairings
+$FOGCore->createKeyPair();
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;

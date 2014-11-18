@@ -27,6 +27,7 @@ class Host extends FOGController
 		'kernelArgs'	=> 'hostKernelArgs',
 		'kernelDevice'	=> 'hostDevice',
 		'pending' => 'hostPending',
+		'pub_key' => 'hostPubKey',
 	);
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(

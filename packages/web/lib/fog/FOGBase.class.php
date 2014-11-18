@@ -438,6 +438,56 @@ abstract class FOGBase
 	{
 		return (($kilobytes / 8) * 1024);
 	}
+	/** certEncrypt($data)
+	* @param $data the data to encrypt
+	* @return $encrypt returns the encrypted data
+	**/
+	public function certEncrypt($data,$Host)
+	{
+		// Get the public key of the recipient
+		$pub_key = openssl_pkey_get_public($Host->get('pub_key'));
+		$a_key = openssl_pkey_get_details($pub_key);
+		// Encrypt the data in small chunks and then combine and send it.
+		$chunkSize = ceil($a_key['bits'] / 8) - 11;
+		$output = '';
+		while ($data)
+		{
+			$chunk = substr($data,0,$chunkSize);
+			$data = substr($data,$chunkSize);
+			$encrypt = '';
+			if (!openssl_public_encrypt($chunk,$encrypt,$pub_key))
+				throw new Exception('Failed to encrypt data');
+			$output .= $encrypt;
+		}
+		openssl_free_key($pub_key);
+		return $output;
+	}
+	/** certDecrypt($data)
+	* @param $data the data to decrypt
+	* @return $output the decrypted data
+	**/
+	public function certDecrypt($data)
+	{
+		$path = BASEPATH.'/management/other/ssl/';
+		if (!$priv_key = openssl_pkey_get_private(file_get_contents($path.'srvprivate.key')))
+			throw new Exception('Private Key Failed');
+		$a_key = openssl_pkey_get_details($priv_key);
+		
+		// Decrypt the data in the small chunks
+		$chunkSize = ceil($a_key['bits'] / 8);
+		$output = '';
+		while ($data)
+		{
+			$chunk = substr($data, 0, $chunkSize);
+			$data = substr($data,$chunkSize);
+			$decrypt = '';
+			if (!openssl_private_decrypt($chunk,$decrypt,$priv_key))
+				throw new Exception('Failed to decrypt data');
+			$output .= $decrypt;
+		}
+		openssl_free_key($priv_key);
+		return $output;
+	}
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */

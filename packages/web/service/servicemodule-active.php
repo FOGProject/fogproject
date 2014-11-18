@@ -10,8 +10,10 @@ try
 		throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	//if (!$Host->isValid())
-	//	throw new Exception('#!er:No Host Found');
+	if ($Host && $Host->isValid() && $_REQUEST['pub_key'])
+		$pub_key = $FOGCore->aesdecrypt($_REQUEST['pub_key'],$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+	if ($pub_key)
+		$Host->set('pub_key',$pub_key)->save();
 	// Get the true module ID for comparing what the host has.
 	$moduleID = current($FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['moduleid'])));
 	// get the module id
@@ -65,7 +67,9 @@ catch(Exception $e)
 {
 	$Datatosend = $e->getMessage();
 }
-if ($FOGCore->getSetting('FOG_AES_ENCRYPT'))
+if ($Host && $Host->isvalid() && $Host->get('pub_key') && $_REQUEST['newService'])
+	print "#!en=".$FOGCore->certEncrypt($Datatosend,$Host);
+else if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
 	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
 	print $Datatosend;

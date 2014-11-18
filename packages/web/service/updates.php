@@ -2,6 +2,14 @@
 require('../commons/base.inc.php');
 try
 {
+	$HostManager = new HostManager();
+	$MACs = HostManager::parseMacList($_REQUEST['mac']);
+	if (!$MACs)
+		throw new Exception('#!im');
+	// Get the Host
+	$Host = $HostManager->getHostByMacAddresses($MACs);
+	if (!$Host || !$Host->isValid())
+		throw new Exception('#!ih');
 	if (!in_array($_REQUEST['action'],array('ask','get','list')))
 		throw new Exception('#!er: Needs action string of ask, get, or list');
 	if (in_array($_REQUEST['action'],array('ask','get')) && !$_REQUEST['file'])
@@ -43,6 +51,8 @@ catch (Exception $e)
 {
 	$Datatosend = $e->getMessage();
 }
+if ($Host && $Host->isValid() && $Host->get('pub_key') && $_REQUEST['newService'])
+	print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
 if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
 	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
