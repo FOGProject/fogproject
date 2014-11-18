@@ -502,4 +502,38 @@ class FOGCore extends FOGBase
 			die($e->getMessage());
 		}
 	}
+	/**
+	* createKeyPair($keybits, $keytype = OPENSSL_KEYTYPE_RSA)
+	* @param $keybits the bitsize of the key to be generated.
+	* @param $keytype the type of key to use.
+	* @return void
+	**/
+	public function createKeyPair($keybits = 2048,$keytype = OPENSSL_KEYTYPE_RSA)
+	{
+		$path = BASEPATH.'/management/other/ssl/';
+		if (!is_dir($path))
+			exec('mkdir '.$path);
+		if (!file_exists($path.'srvprivate.key'))
+		{
+			// Key settings as needed
+			$privateKey = openssl_pkey_new(array(
+				'private_key_bits' => $keybits,
+				'private_key_type' => $keytype,
+			));
+			// Save the private key to a file.
+			openssl_pkey_export_to_file($privateKey,$path.'srvprivate.key');
+			// Generate the public key for the private key.
+			$pub_key = openssl_pkey_get_details($privateKey);
+			// Save the public key in location
+			file_put_contents($path.'srvpublic.key',$pub_key['key']);
+			// Free the private key
+			openssl_free_key($privateKey);
+		}
+		if (!file_exists($path.'srvpublic.key'))
+		{
+			$pub_key = openssl_pkey_get_public(file_get_contents($path.'srvprivate.key'));
+			$pub_key = openssl_pkey_get_details($pub_key);
+			file_put_contents($path.'srvpublic.key',$pub_key['key']);
+		}
+	}
 }

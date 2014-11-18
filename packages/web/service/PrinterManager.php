@@ -47,6 +47,8 @@ if ($Datatosenderror)
 	$Datatosend = $Datatosenderror;
 else
 	$Datatosend = ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n" : '').($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $Datatosendlevel."\n".$Datatosendprint : base64_encode($Datatosendlevel)."\n".$Datatosendprint);
+if ($Host && $Host->isValid() && $Host->get('pub_key') && $_REQUEST['newService'])
+	print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
 if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
 	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
