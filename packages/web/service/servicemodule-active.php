@@ -4,6 +4,12 @@ try
 {
 	if (!$_REQUEST['moduleid'] && $_REQUEST['newService'])
 		throw new Exception("#!ok\n#sleep=".$FOGCore->getSetting('FOG_SERVICE_CHECKIN_TIME')."\n#force=".$FOGCore->getSetting('FOG_TASK_FORCE_REBOOT')."\n#maxsize=".$FOGCore->getSetting('FOG_CLIENT_MAXSIZE')."\n#promptTime=".$FOGCore->getSetting('FOG_GRACE_TIMEOUT'));
+	if ($_REQUEST['newService'] && $_REQUEST['get_srv_key'])
+	{
+		$output = file_get_contents(BASEPATH.'/management/other/ssl/srvpublic.key');
+		$output = base64_encode($output);
+		throw new Exception("#!ok\n#srv_pub_key=$output");
+	}
 	$HostManager = new HostManager();
 	$MACs = HostManager::parseMacList($_REQUEST['mac']);
 	if (!$MACs)
@@ -11,7 +17,7 @@ try
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if ($Host && $Host->isValid() && $_REQUEST['pub_key'])
-		$pub_key = $FOGCore->aesdecrypt($_REQUEST['pub_key'],$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+		$pub_key = $FOGCore->certDecrypt(base64_decode($_REQUEST['pub_key']));
 	if ($pub_key)
 		$Host->set('pub_key',$pub_key)->save();
 	// Get the true module ID for comparing what the host has.
@@ -67,8 +73,10 @@ catch(Exception $e)
 {
 	$Datatosend = $e->getMessage();
 }
-if ($Host && $Host->isvalid() && $Host->get('pub_key') && $_REQUEST['newService'])
-	print "#!en=".$FOGCore->certEncrypt($Datatosend,$Host);
+if ($_REQUEST['get_srv_key'])
+	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+else if ($Host && $Host->isvalid() && $Host->get('pub_key') && $_REQUEST['newService'])
+	print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
 else if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
 	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
