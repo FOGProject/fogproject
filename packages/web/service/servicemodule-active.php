@@ -17,9 +17,9 @@ try
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if ($Host && $Host->isValid() && $_REQUEST['pub_key'])
-		$pub_key = $FOGCore->certDecrypt(base64_decode($_REQUEST['pub_key']));
+		$pub_key = $FOGCore->certDecrypt($_REQUEST['pub_key']);
 	if ($pub_key)
-		$Host->set('pub_key',$pub_key)->save();
+		$Host->set('pub_key',base64_decode($pub_key))->save();
 	// Get the true module ID for comparing what the host has.
 	$moduleID = current($FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['moduleid'])));
 	// get the module id
