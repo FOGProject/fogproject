@@ -9,21 +9,37 @@
 var GraphDiskUsage;
 var GraphDiskUsageAJAX;
 var GraphDiskUsageNode;
-
+var JSONParseFunction;
+// Bandwidth Variable/Option settings.
 var GraphBandwidthDebug = false;
-var GraphBandwidth;
-var GraphBandwidthPlot;
-var GraphBandwidthData = new Array(); 
-
-var GraphBandwidthMaxDataPoints = 120;
-var GraphBandwidthFilterTransmit;
-var GraphBandwidthFilterTransmitActive;
-
 var GraphData = new Array();
 var SeriesData, Now, Delta, Offset;
-
-var JSONParseFunction;
-
+var GraphBandwidth = $('#graph-bandwidth', '#content-inner');
+var GraphBandwidthFilterTransmit = $('#graph-bandwidth-filters-transmit', '#graph-bandwidth-filters');
+var GraphBandwidthFilterTransmitActive = GraphBandwidthFilterTransmit.hasClass('active');
+var GraphBandwidthData = new Array();
+var GraphBandwidthdata = [];
+var GraphBandwidthMaxDataPoints = 120;
+var GraphBandwidthOpts = {
+	colors: ['#7386AD','#91a73c'],
+	xaxis: {
+		mode: 'time'
+	},
+	yaxis: {
+		min: 0,
+		tickFormatter: function (v) { return v+' Mbps';}
+	},
+	series: {
+		lines: {show: true}
+	},
+	legend: {
+		show: true,
+		position: 'nw',
+		noColumns: 5,
+		labelFormatter: function(label, series) { return label; }
+	},
+};
+var GraphBandwidthPlot = $.plot(GraphBandwidth, GraphBandwidthdata, GraphBandwidthOpts);
 
 $(function()
 {
@@ -33,57 +49,20 @@ $(function()
 	// Graph objects
 	GraphDiskUsage = $('#graph-diskusage', '#content-inner');
 	GraphDiskUsageNode = $('#diskusage-selector select', '#content-inner');
-	GraphBandwidth = $('#graph-bandwidth', '#content-inner');
-	GraphBandwidthFilterTransmit = $('#graph-bandwidth-filters-transmit', '#graph-bandwidth-filters');
-	GraphBandwidthFilterTransmitActive = GraphBandwidthFilterTransmit.hasClass('active');
 	
 	// Bandwidth Graph - init plot
-	GraphBandwidthPlot = $.plot(GraphBandwidth, [[0,0]],
-	{
-		'colors': ['#7386AD', '#91a73c'],
-		'xaxis':
-		{
-			'mode':		'time'
-		},
-		'yaxis':
-		{
-			'min':		'0',
-			'tickFormatter': function (v)
-			{
-				return v + ' MB/s';
-			}
-		},
-		'series':
-		{
-			'lines':
-			{
-				'show': true,
-				'fill': 0.25,
-			}
-		},
-		'legend':
-		{
-			show: 		true,
-			position: 'nw',
-			noColumns: 5,
-		}
-	});
+	GraphBandwidthPlot;
 	
 	// Bandwidth Graph - TX/RX Filter
 	$('#graph-bandwidth-filters-transmit, #graph-bandwidth-filters-receive', '#graph-bandwidth-filters').click(function()
 	{
 		// Blur -> add active class -> remove active class from old active item
 		$(this).blur().addClass('active').siblings('a').removeClass('active');
-		
 		// Update title
 		$('#graph-bandwidth-title > span').eq(0).html($(this).html());
-		
-		// Set variable
-		GraphBandwidthFilterTransmitActive = (GraphBandwidthFilterTransmit.hasClass('active') ? true : false)
-		
+		GraphBandwidthFilterTransmitActive = (GraphBandwidthFilterTransmit.hasClass('active') ? true : false);
 		// Update graph
-		UpdateBandwidthGraph();
-		
+		UpdateBandwidth();
 		// Prevent default action
 		return false;
 	});
@@ -93,37 +72,18 @@ $(function()
 	{
 		// Blur -> add active class -> remove active class from old active item
 		$(this).blur().addClass('active').siblings('a').removeClass('active');
-	
 		// Update title
 		$('#graph-bandwidth-title > span').eq(1).html($(this).html());
-
 		// Update max data points variable
 		GraphBandwidthMaxDataPoints = $(this).attr('rel');
-	
 		// Update graph
-		UpdateBandwidthGraph();
-
+		UpdateBandwidth();
 		// Prevent default action
 		return false;
 	});
-
-	setInterval(function()
-	{
-		UpdateDiskUsage();
-	}, 300000);
-	setInterval(function()
-	{
-		UpdateClientCount();
-	}, 200);
-	
-	// Bandwidth Graph - start thread
-	setTimeout(function()
-	{
-		UpdateClientCount();
-		UpdateBandwidth();
-	}, (200));
-
-	
+	setInterval(UpdateDiskUsage, 300000);
+	setInterval(UpdateClientCount, 1000);
+	setInterval(UpdateBandwidth, 1000);
 	// 30 Day History Graph
 	if (typeof(Graph30dayData) != 'undefined')
 	{
@@ -155,21 +115,13 @@ $(function()
 			}
 		});
 	}
-	
-	// Diskusage Graph - load default Storage Node on page load
 	UpdateDiskUsage();
-	UpdateClientCount();
-	
 	// Diskusage Graph - Node select - Hook select box to load new data via AJAX
 	$('#diskusage-selector select').change(function()
 	{
-		UpdateClientCount();
 		UpdateDiskUsage();
 		return false;
 	});
-	
-
-
 	// Remove loading spinners
 	$('.graph').not(GraphDiskUsage).addClass('loaded');
 });
@@ -182,26 +134,22 @@ function UpdateDiskUsage()
 	
 	GraphDiskUsageAJAX = $.ajax(
 	{
-		'url':		'../status/freespace.php',
-		'cache':	false,
-		'type':		'GET',
-		'data':		{ 'id': NodeID },
-		'dataType':	'json',
-		'beforeSend':	function()
-		{
+		url: '../status/freespace.php',
+		cache: false,
+		type: 'GET',
+		data: {
+			'id': NodeID
+		},
+		dataType: 'json',
+		beforeSend:	function() {
 			GraphDiskUsage.html('').removeClass('loaded').parents('a').attr('href', '?node=hwinfo&id=' + NodeID);
 		},
-		'success':	function(data)
-		{
-			GraphDiskUsage.addClass('loaded');
-			
-			if (data['error'] || (!data['free'] && !data['used']))
-			{
+		success: function(data) {
+			GraphDiskUsage.addClass('loaded');			
+			if (data['error'] || (!data['free'] && !data['used'])) {
 				// Error was returned/incomplete data - show error
 				GraphDiskUsage.html((data['error'] ? data['error'] : 'No error, but no data was return')).addClass('loaded');
-			}
-			else
-			{
+			} else {
 				// Everything was fine - build Disk Usage Graph
 				$.plot(GraphDiskUsage,
 				[
@@ -259,8 +207,7 @@ function UpdateDiskUsage()
 				});
 			}
 		},
-		'error':	function()
-		{
+		error:	function() {
 			GraphDiskUsage.addClass('loaded');
 		}
 	});
@@ -268,28 +215,15 @@ function UpdateDiskUsage()
 
 function UpdateBandwidth()
 {
+	UpdateBandwidthGraph();
 	$.ajax(
 	{
-		'url':		'../management/index.php?node=home',
-		'cache':	false,
-		'type':		'GET',
-		'data':		{ 'sub': 'bandwidth', },
-		'dataType':	'json',
-		'success': function(data)
-		{
-			console.log(data);
-			// Catch failures
-			if (data.length == 0) return;
-
-			// Call graph updater
-			UpdateBandwidthGraph(data);
-			
-			// Schedule another update
-			setTimeout(function()
-			{
-				UpdateBandwidth();
-			}, 20);
-		}
+		url: '../management/index.php?node=home',
+		cache: false,
+		type: 'GET',
+		data: {sub: 'bandwidth'},
+		dataType: 'json',
+		success: UpdateBandwidthGraph,
 	});
 }
 function UpdateClientCount()
@@ -297,13 +231,14 @@ function UpdateClientCount()
 	var NodeID = GraphDiskUsageNode.val();
 	$.ajax(
 	{
-		'url': '../status/clientcount.php',
-		'cache': false,
-		'type': 'GET',
-		'data': { 'id': NodeID },
-		'dataType': 'json',
-		'success': function(data)
-		{
+		url: '../status/clientcount.php',
+		cache: false,
+		type: 'GET',
+		data: {
+			'id': NodeID
+		},
+		dataType: 'json',
+		success: function(data) {
 			// System Activity Graph
 			$.plot($('#graph-activity', '#content-inner'),
 			[
@@ -345,25 +280,21 @@ function UpdateClientCount()
 			$('#ActivitySlots').html(data['ActivitySlots']);
 			// Catch failurs
 			if (data.length == 0) return;
-
-			// Update the client Count
 		}
 	});
+	setTimeout(UpdateClientCount,500);
 }
 
 function UpdateBandwidthGraph(data)
 {
 	if (GraphBandwidthDebug && window.console) console.profile();
-
 	// Parse new data coming in -> add to data array
 	if (typeof(data) != 'undefined')
 	{
 		// Create date object
 		var d = new Date();
-		
 		// Convert to msec -> subtract local time zone offset -> get UTC time in msec
 		Now = new Date().getTime() - (d.getTimezoneOffset() * 60000);
-
 		for (i in data)
 		{
 			if (typeof(GraphBandwidthData[i]) == 'undefined')
@@ -372,10 +303,8 @@ function UpdateBandwidthGraph(data)
 				GraphBandwidthData[i]['tx'] = new Array();
 				GraphBandwidthData[i]['rx'] = new Array();
 			}
-
-			GraphBandwidthData[i]['tx'].push([Now, Math.round(data[i]['tx'] / 1024) ]);
-			GraphBandwidthData[i]['rx'].push([Now, Math.round(data[i]['rx'] / 1024) ]);
-		
+			GraphBandwidthData[i]['tx'].push([Now, Math.round((data[i]['tx'] * 8) / 1000, 2) ]);
+			GraphBandwidthData[i]['rx'].push([Now, Math.round((data[i]['rx'] * 8) / 1000, 2) ]);
 			if (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints)			// Without time filter
 			{
 				GraphBandwidthData[i]['tx'].shift();
@@ -383,22 +312,18 @@ function UpdateBandwidthGraph(data)
 			}
 		}
 	}
-
 	// Build graph data from GraphBandwidthData
-	//GraphData = new Array({ 'label': 'default', 'data': (GraphBandwidthFilterTransmitActive ? GraphBandwidthData['tx'] : GraphBandwidthData['rx']) });
 	GraphData = new Array();
 	j = 0;
 	for (i in GraphBandwidthData)
 	{
 		// Without time filter
-		GraphData[j++] = { 'label': i, 'data': (GraphBandwidthFilterTransmitActive ? GraphBandwidthData[i]['tx'] : GraphBandwidthData[i]['rx']) };
+		GraphData[j++] = {label: i, data: (GraphBandwidthFilterTransmitActive ? GraphBandwidthData[i]['tx'] : GraphBandwidthData[i]['rx'])};
 	}
-
-	
+	setTimeout(UpdateBandwidth,500);
 	// Build graph with new data
-	GraphBandwidthPlot.setData(GraphData);
 	GraphBandwidthPlot.setupGrid();
+	GraphBandwidthPlot.setData(GraphData);
 	GraphBandwidthPlot.draw();
-	
 	if (GraphBandwidthDebug && window.console) console.profileEnd();
 }
