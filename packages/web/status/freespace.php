@@ -22,7 +22,7 @@ if ($_REQUEST['id'])
 				}
 			}
 			else
-				throw new Exception('Failed to connect to ' . $Node['ngmMemberName']);
+				throw new Exception('Failed to connect to ' . $StorageNode->get('name'));
 		}
 		catch (Exception $e)
 		{
