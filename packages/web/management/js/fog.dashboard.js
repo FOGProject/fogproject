@@ -103,17 +103,47 @@ var Graph30DayOpts = {
 		position: 'nw'
 	}
 };
+// Client Count variables
+var GraphClient = $('#graph-activity','#content-inner');
+var UpdateClientCountAJAX;
+var UpdateClientCountData = [[0,0]];
+var UpdateClientCountOpts = {
+	colors: ['#cb4b4b','#7386ad','#45a73c'],
+	series: {
+		pie: {
+			show: true,
+			radius: 1,
+			label: {
+				radius: .75,
+				formatter: function(label, series) {
+					return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
+				},
+				background: {opacity: 0.5}
+			}
+		},
+	},
+	legend: {
+		show: true,
+		align: 'left',
+		labelColor: '#666',
+		labelFormatter: function(label, series) {
+			return '<div style="font-size:8pt;padding:2px">'+label+': '+series.datapoints.points[1]+'</div>';
+		}
+	}
+};
 $(function()
 {
 	// Diskusage Graph - Node select - Hook select box to load new data via AJAX
 	GraphDiskUsageUpdate();
+	UpdateClientCount();
 	$('#diskusage-selector select').change(function()
 	{
 		GraphDiskUsageUpdate();
+		UpdateClientCount();
 		return false;
 	});
+	setInterval(GraphDiskUsageUpdate,120000);
 	// Client Count starter.
-	setInterval(UpdateClientCount,1000);
 	// Only start bandwidth once the page is fully loaded.
 	$(document).ready(function() {
 		// 30 Day History Graph
@@ -178,7 +208,6 @@ function GraphDiskUsageUpdate() {
 		success: function(data) {
 			if (data.length == 0) return;
 			GraphDiskUsagePlots(data);
-			setInterval(GraphDiskUsageUpdate,120000);
 		}
 	});
 }
@@ -206,6 +235,7 @@ function UpdateBandwidth()
 		data: {sub: 'bandwidth'},
 		dataType: 'json',
 		success: function(data) {
+			if (data.length == 0) return;
 			UpdateBandwidthGraph(data);
 			setTimeout(UpdateBandwidth,20);
 		}
@@ -249,61 +279,35 @@ function UpdateBandwidthGraph(data)
 	GraphBandwidthPlot = $.plot(GraphBandwidth,GraphData,GraphBandwidthOpts);
 }
 // Client Count Functions.
-function UpdateClientCount()
-{
+function UpdateClientCount() {
 	NodeID = GraphDiskUsageNode.val();
-	$.ajax(
-	{
+	if (UpdateClientCountAJAX) UpdateClientCountAJAX.abort();
+	UpdateClientCountAJAX = $.ajax({
 		url: '../status/clientcount.php',
 		cache: false,
 		type: 'GET',
 		data: {
-			'id': NodeID
+			id: NodeID
 		},
 		dataType: 'json',
 		success: function(data) {
-			// System Activity Graph
-			$.plot($('#graph-activity', '#content-inner'),
-			[
-				{ 'label': 'Active', 'data': parseInt(data['ActivityActive']) },
-				{ 'label': 'Queued', 'data': parseInt(data['ActivityQueued']) },
-				{ 'label': 'Free', 'data': parseInt(data['ActivitySlots']) }
-			], {
-				'colors': [ '#CB4B4B','#7386AD', '#45A73C'],
-				'series':
-				{
-					'pie':
-					{
-						'show':		true,
-						'radius':	1,
-						'label':
-						{
-							'radius':	.75,
-							'formatter':	function(label, series)
-							{
-								return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
-							},
-							'background':	{ opacity: 0.5 }
-						}
-					}
-				},
-				'legend':
-				{
-					'show': 	true,
-					'align':	'left',
-					'labelColor':	'#666',
-					'labelFormatter':	function(label, series)
-					{
-						return '<div style="font-size:8pt;padding:2px">'+label+': '+series.datapoints.points[1]+'</div>';
-					}
-				}
-			});
-			$('#ActivityActive').html(data['ActivityActive']);
-			$('#ActivityQueued').html(data['ActivityQueued']);
-			$('#ActivitySlots').html(data['ActivitySlots']);
-			// Catch failurs
 			if (data.length == 0) return;
-			setTimeout(UpdateClientCount,500);
+			UpdateClientCountPlot(data);
+			setTimeout(UpdateClientCount,20);
 		}
 	});
+}
+function UpdateClientCountPlot(data) {
+	UpdateClientCountData = [
+		{label:'Active',data:parseInt(data['ActivityActive'])},
+		{label:'Queued',data:parseInt(data['ActivityQueued'])},
+		{label:'Free',data:parseInt(data['ActivitySlots'])}
+	];
+	$.plot(GraphClient,UpdateClientCountData,UpdateClientCountOpts);
+	$('#ActivityActive').html(data['ActivityActive']);
+	$('#ActivityQueued').html(data['ActivityQueued']);
+	$('#ActivitySlots').html(data['ActivitySlots']);
+	// Catch failurs
+	if (data.length == 0) return;
+	setTimeout(UpdateClientCount,20);
 }
