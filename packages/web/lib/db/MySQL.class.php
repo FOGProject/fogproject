@@ -67,11 +67,9 @@ class MySQL extends FOGBase
 		try
 		{
 			if (!$this->link)
-				$this->link = new mysqli($this->host, $this->user, $this->pass);
+				$this->link = new mysqli($this->host, $this->user, $this->pass, $this->dbname);
 			if ($this->link->connect_error)
 				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s, Error: %s', $this->host, $this->user, '[Protected]', $this->dbname, $this->link->connect_error));
-			if ($this->dbname)
-				$this->select_db($this->dbname);
 		}
 		catch (Exception $e)
 		{
@@ -162,23 +160,6 @@ class MySQL extends FOGBase
 			$this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 		return $result;
-	}
-	/** select_db($db)
-		Selects the sent database.
-	*/
-	public function select_db($db)
-	{
-		try
-		{
-			if (!$this->link->select_db($db))
-				throw new Exception("$db");
-			$this->dbname = $db;
-		}
-		catch (Exception $e)
-		{
-			$this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
-		}
-		return $this;
 	}
 	/** sqlerror()
 		What was the error.
