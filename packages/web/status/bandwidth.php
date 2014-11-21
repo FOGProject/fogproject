@@ -1,5 +1,5 @@
 <?php
-function getData($interface,$type)
+function getData($interface)
 {
 	$rx1 = @file_get_contents("/sys/class/net/$interface/statistics/rx_bytes");
 	$tx1 = @file_get_contents("/sys/class/net/$interface/statistics/tx_bytes");
@@ -11,6 +11,6 @@ function getData($interface,$type)
 $dev = ($_REQUEST['dev'] ? trim($_REQUEST['dev']) : (defined('NFS_ETH_MONITOR') ? NFS_ETH_MONITOR : 'eth0'));
 header('Content-Type: text/event-stream');
 header('Cache-Control: no-cache');
-list($rx,$tx) = getData($dev,'rx');
+list($rx,$tx) = getData($dev);
 $Data = array('dev' => $dev,'rx' => $rx,'tx' => $tx);
 print json_encode($Data);
