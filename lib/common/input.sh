@@ -174,7 +174,8 @@ then
 	
 		case "$blRouter" in
 			Y | yes | y | Yes | YES )
-				echo -n "  What is the IP address to be used for the router on the DHCP server? [${strSuggestedRoute}]";		
+				echo "  What is the IP address to be used for the router on";
+				echo -n "      the DHCP server? [${strSuggestedRoute}]";		
 				read routeraddress;
 			
 				if [ "$routeraddress" = "" ]
@@ -204,7 +205,8 @@ then
 	while [ "${dnsaddress}" = "" ]
 	do
 		echo
-		echo -n "  Would you like to setup a DNS address for the DHCP server and client boot image? [Y/n] ";
+		echo "  Would you like to setup a DNS address for";
+		echo -n "      the DHCP server and client boot image? [Y/n] ";
 		read blDNS;
 	
 		if [ "$blDNS" = "" ]
@@ -214,7 +216,8 @@ then
 	
 		case "$blDNS" in
 			Y | yes | y | Yes | YES )
-				echo -n "  What is the IP address to be used for DNS on the DHCP server and client boot image? [${strSuggestedDNS}] ";		
+				echo "  What is the IP address to be used for DNS on";
+				echo -n "      the DHCP server and client boot image? [${strSuggestedDNS}] ";		
 				read dnsaddress;
 			
 				if [ "$dnsaddress" = "" ]
@@ -270,15 +273,16 @@ then
 		echo -n "  Would you like to use the FOG server for DHCP service? [y/N] "
 		read dodhcp;
 		case "$dodhcp" in
-			Y | yes | y | Yes | YES )
+			[yY]*)
 				bldhcp="1";
 				dodhcp="y";
 				;;
-			[nN]*)	
+			[nN]*)
 				bldhcp="0";
 				;;
 			*)
 				bldhcp="0";
+				dodhcp="n";
 				;;	
 		esac	
 	done
