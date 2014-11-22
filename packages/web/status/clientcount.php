@@ -11,7 +11,7 @@ if ($_REQUEST['id'] && is_numeric($_REQUEST['id']) && $_REQUEST['id'] > 0)
 
 			$ActivityActive += $SN->getUsedSlotCount();
 			$ActivityQueued += $SN->getQueuedSlotCount();
-			$ActivityTotalClients += $SN->get('maxClients');
+			$ActivityTotalClients += $SN->get('maxClients') - $SN->getUsedSlotCount();
 		}
 	}
 }
