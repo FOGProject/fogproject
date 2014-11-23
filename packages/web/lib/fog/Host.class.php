@@ -265,7 +265,10 @@ class Host extends FOGController
 			{
 				$Snapins = $this->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')));
 				foreach((array)$Snapins AS $Snapin)
-					$this->add('snapins',new Snapin($Snapin->get('snapinID')));
+				{
+					if ($Snapin->getSnapin() && $Snapin->getSnapin()->isValid())
+						$this->add('snapins',$Snapin->getSnapin());
+				}
 			}
 		}
 		return $this;
@@ -1054,7 +1057,7 @@ class Host extends FOGController
 		if ($limit > 0)
 		{
 			if (count($this->get('snapins')) == $limit)
-				throw new Exception(sprintf('%s %d %s',_('You are only allowed to assign'),$limit,_('snapin(s) per host')));
+				throw new Exception(sprintf('%s %d %s',_('You are only allowed to assign'),$limit,$limit == 1 ? _('snapin per host') : _('snapins per host')));
 		}
 		// Add
 		foreach ((array)$addArray AS $item)
