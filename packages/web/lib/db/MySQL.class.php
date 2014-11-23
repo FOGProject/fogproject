@@ -70,8 +70,13 @@ class MySQL extends FOGBase
 				$this->link = new mysqli($this->host, $this->user, $this->pass);
 			if ($this->link->connect_error)
 				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s, Error: %s', $this->host, $this->user, '[Protected]', $this->dbname, $this->link->connect_error));
-			if (!$this->link->select_db($this->dbname))
-				throw new Exception(sprintf('Cannot connect to database: %s',$this->dbname));
+			if ($this->link->query("USE $this->dbname;"))
+			{
+				$this->close();
+				$this->link = new mysqli($this->host,$this->user,$this->pass,$this->dbname);
+				if ($this->link->connect_error)
+					throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s, Error: %s', $this->host, $this->user, '[Protected]', $this->dbname, $this->link->connect_error));
+			}
 		}
 		catch (Exception $e)
 		{
