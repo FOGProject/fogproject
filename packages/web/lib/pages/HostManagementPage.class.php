@@ -1342,9 +1342,10 @@ class HostManagementPage extends FOGPage
 				break;
 				case 'host-snapins';
 					// Add
-					$Host->addSnapin($_REQUEST['snapin']);
+					if (!isset($_REQUEST['snapinRemove']))
+						$Host->addSnapin($_REQUEST['snapin']);
 					// Remove
-					if (!empty($this->REQUEST['snapinRemove']))
+					if (isset($_REQUEST['snapinRemove']))
 						$Host->removeSnapin($this->REQUEST['snapinRemove']);
 				break;
 				case 'host-service';

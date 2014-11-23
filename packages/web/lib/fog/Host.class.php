@@ -1053,10 +1053,12 @@ class Host extends FOGController
 	}
 	public function addSnapin($addArray)
 	{
+		$Snapins = $this->get('snapins');
+		$Snapins = array_filter($Snapins);
 		$limit = $this->FOGCore->getSetting('FOG_SNAPIN_LIMIT');
 		if ($limit > 0)
 		{
-			if (count($this->get('snapins')) >= $limit)
+			if (count($Snapins) >= $limit || count($addArray) > $limit)
 				throw new Exception(sprintf('%s %d %s',_('You are only allowed to assign'),$limit,$limit == 1 ? _('snapin per host') : _('snapins per host')));
 		}
 		// Add
