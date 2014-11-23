@@ -247,8 +247,8 @@ class ProcessLogin extends FOGBase
 		print "\n\t<!-- JavaScript -->";
 		print "\n\t".'<script type="text/javascript" src="js/jquery-latest.js"></script>';
 		print "\n\t".'<script type="text/javascript" src="js/jquery.progressbar.js"></script>';
-		print "\n\t".'<script type="text/javascript" src="js/fog.js"></script>';
-		print "\n\t".'<script type="text/javascript" src="js/fog.login.js"></script>';
+		print "\n\t".'<script type="text/javascript" src="js/fog/fog.js"></script>';
+		print "\n\t".'<script type="text/javascript" src="js/fog/fog.login.js"></script>';
 		print "\n</body>";
 		print "\n</html>";
 		ob_end_flush();
