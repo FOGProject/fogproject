@@ -89,7 +89,13 @@ try
 			$Host->addModule($ids);
 			$Host->addPriMAC($mac);
 			$Host->addGroup($groupid);
-			$Host->addSnapin($snapinid);
+			try
+			{
+				$Host->addSnapin($snapinid);
+			}
+			catch (Exception $e)
+			{
+			}
 			$Host->save();
 			$LocPlugInst = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
 			if ($LocPlugInst)
