@@ -1054,7 +1054,7 @@ class Host extends FOGController
 	public function addSnapin($addArray)
 	{
 		$Snapins = $this->get('snapins');
-		$Snapins = array_filter($Snapins);
+		$Snapins = array_filter((array)$Snapins);
 		$limit = $this->FOGCore->getSetting('FOG_SNAPIN_LIMIT');
 		if ($limit > 0)
 		{
