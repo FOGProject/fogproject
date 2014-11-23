@@ -41,16 +41,8 @@ class MySQL extends FOGBase
 	{
 		if (!$this->link)
 			return;
-		$this->link = null;
-		$this->result = null;
+		unset($this->link,$this->result);
 		return;
-	}
-	/** __wakeup()
-		Keep connection active
-	*/
-	public function __wakeup()
-	{
-		$this->connect();
 	}
 	/** close()
 		Close the connection.
@@ -70,13 +62,8 @@ class MySQL extends FOGBase
 				$this->link = new mysqli($this->host, $this->user, $this->pass);
 			if ($this->link->connect_error)
 				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s, Error: %s', $this->host, $this->user, '[Protected]', $this->dbname, $this->link->connect_error));
-			if ($this->link->query("USE $this->dbname;"))
-			{
-				$this->close();
-				$this->link = new mysqli($this->host,$this->user,$this->pass,$this->dbname);
-				if ($this->link->connect_error)
-					throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s, Error: %s', $this->host, $this->user, '[Protected]', $this->dbname, $this->link->connect_error));
-			}
+			if (!$this->link->select_db($this->dbname))
+				throw new Exception(_('Issue working with the current DB, maybe it has not been created yet'));
 		}
 		catch (Exception $e)
 		{
