@@ -78,14 +78,12 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t".'<a href="#" id="graph-bandwidth-filters-receive" class="l">'.$this->foglang['Receive'].'</a>';
 		print "\n\t\t\t".'</div>';
 		print "\n\t\t\t".'<div class="spacer"></div>';
-		print "\n\t\t\t<!--";
 		print "\n\t\t\t<div>";
 		print "\n\t\t\t".'<a href="#" rel="3600" class="r">'._('1 Hour').'</a>';
 		print "\n\t\t\t".'<a href="#" rel="1800" class="r">'._('30 Minutes').'</a>';
 		print "\n\t\t\t".'<a href="#" rel="600" class="r">'._('10 Minutes').'</a>';
 		print "\n\t\t\t".'<a href="#" rel="120" class="r active">'._('2 Minutes').'</a>';
 		print "\n\t\t\t</div>";
-		print "\n\t\t\t-->";
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t".'<div id="graph-bandwidth" class="graph"></div>';
 		for ($i = 0; $i < 30; $i++)

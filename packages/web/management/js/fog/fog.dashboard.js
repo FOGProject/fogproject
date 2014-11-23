@@ -104,7 +104,6 @@ var Graph30DayOpts = {
 };
 // Client Count variables
 var GraphClient = $('#graph-activity','#content-inner');
-var UpdateClientCountAJAX;
 var UpdateClientCountData = [[0,0]];
 var UpdateClientCountOpts = {
 	colors: ['#cb4b4b','#7386ad','#45a73c'],
@@ -181,6 +180,7 @@ $(function()
 	});
 	// Remove loading spinners
 	$('.graph').not(GraphDiskUsage,GraphBandwidth).addClass('loaded');
+	// Set the intervals.
 });
 // Disk Usage Functions
 function GraphDiskUsageUpdate() {
@@ -200,7 +200,7 @@ function GraphDiskUsageUpdate() {
 		success: function(data) {
 			if (data.length == 0) return;
 			GraphDiskUsagePlots(data);
-			setTimeout(GraphDiskUsageUpdate,120000);
+			setTimeout('GraphDiskUsageUpdate()',120000);
 		}
 	});
 }
@@ -219,8 +219,7 @@ function GraphDiskUsagePlots(data) {
 // Bandwidth Functions
 function UpdateBandwidth()
 {
-	if (GraphBandwidthAJAX) GraphBandwidthAJAX.abort();
-	GraphBandwidthAJAX = $.ajax(
+	$.ajax(
 	{
 		url: '../management/index.php?node=home',
 		cache: false,
@@ -230,6 +229,7 @@ function UpdateBandwidth()
 		success: function(data) {
 			if (data.length == 0) return;
 			UpdateBandwidthGraph(data);
+			setTimeout('UpdateBandwidth()',1000);
 		}
 	});
 }
@@ -241,57 +241,39 @@ function UpdateBandwidthGraph(data)
 		// Setup all the values we may need.
 		if (typeof(GraphBandwidthData[i]) == 'undefined') {
 			GraphBandwidthData[i] = new Array();
-			GraphBandwidthData[i]['tx_new'] = new Array();
-			GraphBandwidthData[i]['rx_new'] = new Array();
 			GraphBandwidthData[i]['tx_old'] = new Array();
 			GraphBandwidthData[i]['rx_old'] = new Array();
-			GraphBandwidthData[i]['tbps'] = new Array();
-			GraphBandwidthData[i]['rbps'] = new Array();
 			GraphBandwidthData[i]['tx'] = new Array();
 			GraphBandwidthData[i]['rx'] = new Array();
 		}
 		// If the old is set, setup the new, compare and set the tbps/rbps values.
-		if (GraphBandwidthData[i]['tx_old'].length > 0) {
-			GraphBandwidthData[i]['tx_new'].push([Math.round((data[i]['tx'] / 1024), 2)]);
-			GraphBandwidthData[i]['rx_new'].push([Math.round((data[i]['rx'] / 1024), 2)]);
-			GraphBandwidthData[i]['tbps'].push([GraphBandwidthData[i]['tx_new'] - GraphBandwidthData[i]['tx_old']]);
-			GraphBandwidthData[i]['rbps'].push([GraphBandwidthData[i]['rx_new'] - GraphBandwidthData[i]['rx_old']]);
+		if (GraphBandwidthData[i]['tx_old'].length == 1) {
+			GraphBandwidthData[i]['tx'].push([Now,Math.round((Math.round((data[i]['tx'] / 1024), 2) - GraphBandwidthData[i]['tx_old']) * 8 / 1000,2)]);
+			GraphBandwidthData[i]['rx'].push([Now,Math.round((Math.round((data[i]['rx'] / 1024), 2) - GraphBandwidthData[i]['rx_old']) * 8 / 1000,2)]);
 			// Reset the old and new values for the next iteration.
 			GraphBandwidthData[i]['tx_old'] = new Array();
 			GraphBandwidthData[i]['rx_old'] = new Array();
-			GraphBandwidthData[i]['tx_new'] = new Array();
-			GraphBandwidthData[i]['rx_new'] = new Array();
-		} else {
+		} else if (GraphBandwidthData[i]['tx_old'].length == 0) {
 			// Set the old values and wait one second.
 			GraphBandwidthData[i]['tx_old'].push([Math.round((data[i]['tx'] / 1024), 2)]);
 			GraphBandwidthData[i]['rx_old'].push([Math.round((data[i]['rx'] / 1024), 2)]);
 		}
-		if (GraphBandwidthData[i]['tbps'].length > 0) {
-			GraphBandwidthData[i]['tx'].push([Now, Math.round((GraphBandwidthData[i]['tbps'] * 8) / 1000,2)]);
-			GraphBandwidthData[i]['rx'].push([Now, Math.round((GraphBandwidthData[i]['rbps'] * 8) / 1000,2)]);
-			// Reset the tbps values
-			GraphBandwidthData[i]['tbps'] = new Array();
-			GraphBandwidthData[i]['rbps'] = new Array();
-			// Shift the points after their max is met.
-			if (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints) {
-				GraphBandwidthData[i]['tx'].shift();
-				GraphBandwidthData[i]['rx'].shift();
-			}
+		// If the rx/tx are at their max datapoints, shift off the last bit's of data.
+		while (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints) {
+			GraphBandwidthData[i]['tx'].shift();
+			GraphBandwidthData[i]['rx'].shift();
 		}
 	}
-	setTimeout(UpdateBandwidth,1000);
 	GraphData = new Array();
 	for (i in GraphBandwidthData) {
 		GraphData.push({label: i, data: (GraphBandwidthFilterTransmitActive ? GraphBandwidthData[i]['tx'] : GraphBandwidthData[i]['rx'])});
 	}
 	$.plot(GraphBandwidth,GraphData,GraphBandwidthOpts);
-	GraphBandwidth.addClass('loaded');
 }
 // Client Count Functions.
 function UpdateClientCount() {
 	NodeID = GraphDiskUsageNode.val();
-	if (UpdateClientCountAJAX) UpdateClientCountAJAX.abort();
-	UpdateClientCountAJAX = $.ajax({
+	$.ajax({
 		url: '../status/clientcount.php',
 		cache: false,
 		type: 'GET',
@@ -302,7 +284,7 @@ function UpdateClientCount() {
 		success: function(data) {
 			if (data.length == 0) return;
 			UpdateClientCountPlot(data);
-			setTimeout(UpdateClientCount(),1000);
+			setTimeout('UpdateClientCount()',1000);
 		}
 	});
 }
