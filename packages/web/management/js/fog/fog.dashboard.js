@@ -230,7 +230,6 @@ function UpdateBandwidth()
 		success: function(data) {
 			if (data.length == 0) return;
 			UpdateBandwidthGraph(data);
-			UpdateBandwidth();
 		}
 	});
 }
@@ -239,18 +238,48 @@ function UpdateBandwidthGraph(data)
 	var d = new Date();
 	Now = new Date().getTime() - (d.getTimezoneOffset() * 60000);
 	for (i in data) {
+		// Setup all the values we may need.
 		if (typeof(GraphBandwidthData[i]) == 'undefined') {
 			GraphBandwidthData[i] = new Array();
+			GraphBandwidthData[i]['tx_new'] = new Array();
+			GraphBandwidthData[i]['rx_new'] = new Array();
+			GraphBandwidthData[i]['tx_old'] = new Array();
+			GraphBandwidthData[i]['rx_old'] = new Array();
+			GraphBandwidthData[i]['tbps'] = new Array();
+			GraphBandwidthData[i]['rbps'] = new Array();
 			GraphBandwidthData[i]['tx'] = new Array();
 			GraphBandwidthData[i]['rx'] = new Array();
 		}
-		GraphBandwidthData[i]['tx'].push([Now, Math.round((data[i]['tx'] * 8) / 1000,2)]);
-		GraphBandwidthData[i]['rx'].push([Now, Math.round((data[i]['rx'] * 8) / 1000,2)]);
-		if (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints) {
-			GraphBandwidthData[i]['tx'].shift();
-			GraphBandwidthData[i]['rx'].shift();
+		// If the old is set, setup the new, compare and set the tbps/rbps values.
+		if (GraphBandwidthData[i]['tx_old'].length > 0) {
+			GraphBandwidthData[i]['tx_new'].push([Math.round((data[i]['tx'] / 1024), 2)]);
+			GraphBandwidthData[i]['rx_new'].push([Math.round((data[i]['rx'] / 1024), 2)]);
+			GraphBandwidthData[i]['tbps'].push([GraphBandwidthData[i]['tx_new'] - GraphBandwidthData[i]['tx_old']]);
+			GraphBandwidthData[i]['rbps'].push([GraphBandwidthData[i]['rx_new'] - GraphBandwidthData[i]['rx_old']]);
+			// Reset the old and new values for the next iteration.
+			GraphBandwidthData[i]['tx_old'] = new Array();
+			GraphBandwidthData[i]['rx_old'] = new Array();
+			GraphBandwidthData[i]['tx_new'] = new Array();
+			GraphBandwidthData[i]['rx_new'] = new Array();
+		} else {
+			// Set the old values and wait one second.
+			GraphBandwidthData[i]['tx_old'].push([Math.round((data[i]['tx'] / 1024), 2)]);
+			GraphBandwidthData[i]['rx_old'].push([Math.round((data[i]['rx'] / 1024), 2)]);
+		}
+		if (GraphBandwidthData[i]['tbps'].length > 0) {
+			GraphBandwidthData[i]['tx'].push([Now, Math.round((GraphBandwidthData[i]['tbps'] * 8) / 1000,2)]);
+			GraphBandwidthData[i]['rx'].push([Now, Math.round((GraphBandwidthData[i]['rbps'] * 8) / 1000,2)]);
+			// Reset the tbps values
+			GraphBandwidthData[i]['tbps'] = new Array();
+			GraphBandwidthData[i]['rbps'] = new Array();
+			// Shift the points after their max is met.
+			if (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints) {
+				GraphBandwidthData[i]['tx'].shift();
+				GraphBandwidthData[i]['rx'].shift();
+			}
 		}
 	}
+	setTimeout(UpdateBandwidth,1000);
 	GraphData = new Array();
 	for (i in GraphBandwidthData) {
 		GraphData.push({label: i, data: (GraphBandwidthFilterTransmitActive ? GraphBandwidthData[i]['tx'] : GraphBandwidthData[i]['rx'])});
