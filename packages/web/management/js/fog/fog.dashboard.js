@@ -47,7 +47,7 @@ var GraphDiskUsageOpts = {
 	}
 };
 // Bandwidth Variable/Option settings.
-var GraphData = [[0,0]];
+var GraphData = new Array();
 var GraphBandwidth = $('#graph-bandwidth', '#content-inner');
 var GraphBandwidthFilterTransmit = $('#graph-bandwidth-filters-transmit', '#graph-bandwidth-filters');
 var GraphBandwidthFilterTransmitActive = GraphBandwidthFilterTransmit.hasClass('active');
@@ -74,7 +74,6 @@ var GraphBandwidthOpts = {
 	},
 };
 var GraphBandwidthFilters = $('#graph-bandwidth-filters-transmit, #graph-bandwidth-filters-receive', '#graph-bandwidth-filters');
-var GraphBandwidthPlot = $.plot(GraphBandwidth,GraphData,GraphBandwidthOpts);
 var GraphBandwidthAJAX;
 // 30 Day Data
 var Graph30Day = $('#graph-30day', '#content-inner');
@@ -142,53 +141,46 @@ $(function()
 		UpdateClientCount();
 		return false;
 	});
-	setInterval(GraphDiskUsageUpdate,120000);
 	// Client Count starter.
 	// Only start bandwidth once the page is fully loaded.
-	$(document).ready(function() {
-		// 30 Day History Graph
-		if (typeof(Graph30dayData) != 'undefined') {
-			Graph30DayData = [
-				{label: 'Computers Imaged',data: JSONParseFunction(Graph30dayData)}
-			];
-		}
-		$.plot(Graph30Day,Graph30DayData,Graph30DayOpts);
-		// Init Bandwidth 
-		$.plot(GraphBandwidth,GraphData,GraphBandwidthOpts);
-		// Start counters
+	// 30 Day History Graph
+	if (typeof(Graph30dayData) != 'undefined') {
+		Graph30DayData = [
+			{label: 'Computers Imaged',data: JSONParseFunction(Graph30dayData)}
+		];
+	}
+	$.plot(Graph30Day,Graph30DayData,Graph30DayOpts);
+	// Start counters
+	UpdateBandwidth();
+	// Bandwidth Graph - TX/RX Filter
+	GraphBandwidthFilters.click(function()
+	{
+		// Blur -> add active class -> remove active class from old active item
+		$(this).blur().addClass('active').siblings('a').removeClass('active');
+		// Update title
+		$('#graph-bandwidth-title > span').eq(0).html($(this).html());
+		GraphBandwidthFilterTransmitActive = (GraphBandwidthFilterTransmit.hasClass('active') ? true : false);
+		// Update graph
 		UpdateBandwidth();
-		// Bandwidth Graph - TX/RX Filter
-		GraphBandwidthFilters.click(function()
-		{
-			// Blur -> add active class -> remove active class from old active item
-			$(this).blur().addClass('active').siblings('a').removeClass('active');
-			// Update title
-			$('#graph-bandwidth-title > span').eq(0).html($(this).html());
-			GraphBandwidthFilterTransmitActive = (GraphBandwidthFilterTransmit.hasClass('active') ? true : false);
-			// Update graph
-			UpdateClientCount();
-			UpdateBandwidth();
-			// Prevent default action
-			return false;
-		});
-		// Bandwidth Graph - Time Filter
-		$('#graph-bandwidth-filters div:eq(2) a').click(function()
-		{
-			// Blur -> add active class -> remove active class from old active item
-			$(this).blur().addClass('active').siblings('a').removeClass('active');
-			// Update title
-			$('#graph-bandwidth-title > span').eq(1).html($(this).html());
-			// Update max data points variable
-			GraphBandwidthMaxDataPoints = $(this).attr('rel');
-			// Update graph
-			UpdateClientCount();
-			UpdateBandwidth();
-			// Prevent default action
-			return false;
-		});
+		// Prevent default action
+		return false;
+	});
+	// Bandwidth Graph - Time Filter
+	$('#graph-bandwidth-filters div:eq(2) a').click(function()
+	{
+		// Blur -> add active class -> remove active class from old active item
+		$(this).blur().addClass('active').siblings('a').removeClass('active');
+		// Update title
+		$('#graph-bandwidth-title > span').eq(1).html($(this).html());
+		// Update max data points variable
+		GraphBandwidthMaxDataPoints = $(this).attr('rel');
+		// Update graph
+		UpdateBandwidth();
+		// Prevent default action
+		return false;
 	});
 	// Remove loading spinners
-	$('.graph').not(GraphDiskUsage).addClass('loaded');
+	$('.graph').not(GraphDiskUsage,GraphBandwidth).addClass('loaded');
 });
 // Disk Usage Functions
 function GraphDiskUsageUpdate() {
@@ -208,6 +200,7 @@ function GraphDiskUsageUpdate() {
 		success: function(data) {
 			if (data.length == 0) return;
 			GraphDiskUsagePlots(data);
+			setTimeout(GraphDiskUsageUpdate,120000);
 		}
 	});
 }
@@ -237,46 +230,33 @@ function UpdateBandwidth()
 		success: function(data) {
 			if (data.length == 0) return;
 			UpdateBandwidthGraph(data);
-			setTimeout(UpdateBandwidth,20);
+			UpdateBandwidth();
 		}
 	});
 }
 function UpdateBandwidthGraph(data)
 {
-	// Parse new data coming in -> add to data array
-	if (typeof(data) != 'undefined')
-	{
-		// Create date object
-		var d = new Date();
-		// Convert to msec -> subtract local time zone offset -> get UTC time in msec
-		Now = new Date().getTime() - (d.getTimezoneOffset() * 60000);
-		for (i in data)
-		{
-			if (typeof(GraphBandwidthData[i]) == 'undefined')
-			{
-				GraphBandwidthData[i] = new Array();
-				GraphBandwidthData[i]['tx'] = new Array();
-				GraphBandwidthData[i]['rx'] = new Array();
-			}
-			GraphBandwidthData[i]['tx'].push([Now, Math.round((data[i]['tx'] * 8) / 1000, 2) ]);
-			GraphBandwidthData[i]['rx'].push([Now, Math.round((data[i]['rx'] * 8) / 1000, 2) ]);
-			if (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints)			// Without time filter
-			{
-				GraphBandwidthData[i]['tx'].shift();
-				GraphBandwidthData[i]['rx'].shift();
-			}
+	var d = new Date();
+	Now = new Date().getTime() - (d.getTimezoneOffset() * 60000);
+	for (i in data) {
+		if (typeof(GraphBandwidthData[i]) == 'undefined') {
+			GraphBandwidthData[i] = new Array();
+			GraphBandwidthData[i]['tx'] = new Array();
+			GraphBandwidthData[i]['rx'] = new Array();
+		}
+		GraphBandwidthData[i]['tx'].push([Now, Math.round((data[i]['tx'] * 8) / 1000,2)]);
+		GraphBandwidthData[i]['rx'].push([Now, Math.round((data[i]['rx'] * 8) / 1000,2)]);
+		if (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints) {
+			GraphBandwidthData[i]['tx'].shift();
+			GraphBandwidthData[i]['rx'].shift();
 		}
 	}
-	// Build graph data from GraphBandwidthData
 	GraphData = new Array();
-	j = 0;
-	for (i in GraphBandwidthData)
-	{
-		// Without time filter
-		GraphData[j++] = {label: i, data: (GraphBandwidthFilterTransmitActive ? GraphBandwidthData[i]['tx'] : GraphBandwidthData[i]['rx'])};
+	for (i in GraphBandwidthData) {
+		GraphData.push({label: i, data: (GraphBandwidthFilterTransmitActive ? GraphBandwidthData[i]['tx'] : GraphBandwidthData[i]['rx'])});
 	}
-	// Build graph with new data
-	GraphBandwidthPlot = $.plot(GraphBandwidth,GraphData,GraphBandwidthOpts);
+	$.plot(GraphBandwidth,GraphData,GraphBandwidthOpts);
+	GraphBandwidth.addClass('loaded');
 }
 // Client Count Functions.
 function UpdateClientCount() {
@@ -293,7 +273,7 @@ function UpdateClientCount() {
 		success: function(data) {
 			if (data.length == 0) return;
 			UpdateClientCountPlot(data);
-			setTimeout(UpdateClientCount,20);
+			setTimeout(UpdateClientCount(),1000);
 		}
 	});
 }
@@ -307,7 +287,4 @@ function UpdateClientCountPlot(data) {
 	$('#ActivityActive').html(data['ActivityActive']);
 	$('#ActivityQueued').html(data['ActivityQueued']);
 	$('#ActivitySlots').html(data['ActivitySlots']);
-	// Catch failurs
-	if (data.length == 0) return;
-	setTimeout(UpdateClientCount,20);
 }

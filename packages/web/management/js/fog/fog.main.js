@@ -2,8 +2,8 @@
  * FOG Main JS
  *	Author:		Blackout
  *	Created:	10:51 AM 21/03/2011
- *	Revision:	$Revision$
- *	Last Update:	$LastChangedDate$
+ *	Revision:	$Revision: 2457 $
+ *	Last Update:	$LastChangedDate: 2014-10-22 10:22:08 -0400 (Wed, 22 Oct 2014) $
  ***/
 
 // JQuery autoloader

@@ -2,8 +2,8 @@
  * FOG Login JS
  *	Author:		Blackout
  *	Created:	2:58 PM 20/04/2011
- *	Revision:	$Revision$
- *	Last Update:	$LastChangedDate$
+ *	Revision:	$Revision: 817 $
+ *	Last Update:	$LastChangedDate: 2011-12-04 19:03:16 -0500 (Sun, 04 Dec 2011) $
  ***/
 
 $(function()

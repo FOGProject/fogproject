@@ -108,25 +108,26 @@ if (($currentUser && $currentUser->isLoggedIn()) || $node == 'client')
 	print "\n\t".'<script type="text/javascript" src="js/jquery.organicTabs.js"></script>';
 	print "\n\t".'<script type="text/javascript" src="js/jquery.placeholder.js"></script>';
 	print "\n\t".'<script type="text/javascript" src="js/jquery.disableSelection.js"></script>';
-	print "\n\t".'<script type="text/javascript" src="js/fog.js"></script>';
-	print "\n\t".'<script type="text/javascript" src="js/fog.main.js"></script>';
+	print "\n\t".'<script type="text/javascript" src="js/fog/fog.js"></script>';
+	print "\n\t".'<script type="text/javascript" src="js/fog/fog.main.js"></script>';
 	print "\n\t".'<script type="text/javascript" src="js/hideShowPassword.min.js"></script>';
 	print "\n\t".'<script type="text/javascript" src="js/jquery-ui.min.js"></script>';
 	// Auto find javascript based on $node and/or $sub
-	foreach (array("js/fog.{$node}.js", "js/fog.{$node}.{$sub}.js") AS $jsFilepath)
+	foreach (array("js/fog/fog.{$node}.js", "js/fog/fog.{$node}.{$sub}.js") AS $jsFilepath)
 	{
 		if (file_exists($jsFilepath))
 			printf('%s<script type="text/javascript" src="%s"></script>%s', "\n\t", $jsFilepath, "\n");
 	}
 	if ($isHomepage)
 	{
-		print "\n\t".'<script type="text/javascript" src="js/jquery.flot.js"></script>';
-		print "\n\t".'<script type="text/javascript" src="js/jquery.flot.pie.js"></script>';
-		print "\n\t".'<script type="text/javascript" src="js/fog.dashboard.js"></script>';
+		print "\n\t".'<script type="text/javascript" src="js/flot/jquery.flot.js"></script>';
+		print "\n\t".'<script type="text/javascript" src="js/flot/jquery.flot.time.js"></script>';
+		print "\n\t".'<script type="text/javascript" src="js/flot/jquery.flot.pie.js"></script>';
+		print "\n\t".'<script type="text/javascript" src="js/fog/fog.dashboard.js"></script>';
 		// Include 'excanvas' for HTML5 <canvas> support in IE 6/7/8/9...
 		// I hate IE soooo much, only Microsoft wouldnt fix their own broken software
 		if (preg_match('#MSIE [6|7|8|9|10|11]#', $_SERVER['HTTP_USER_AGENT']))
-			print "\n\t".'<script type="text/javascript" src="js/excanvas.js"></script>';
+			print "\n\t".'<script type="text/javascript" src="js/flot/excanvas.js"></script>';
 	}
 	// Hook
 	$HookManager->processEvent('JAVASCRIPT');

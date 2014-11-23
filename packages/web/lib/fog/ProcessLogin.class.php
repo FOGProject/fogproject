@@ -245,7 +245,7 @@ class ProcessLogin extends FOGBase
 		print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gilchrist &amp; Tom Elliott FOG Client/Prep link: <a href="?node=client">FOG Client/FOG Prep</a></div>';
 		$this->FOGCore->getMessages();
 		print "\n\t<!-- JavaScript -->";
-		print "\n\t".'<script type="text/javascript" src="js/jquery.js"></script>';
+		print "\n\t".'<script type="text/javascript" src="js/jquery-latest.js"></script>';
 		print "\n\t".'<script type="text/javascript" src="js/jquery.progressbar.js"></script>';
 		print "\n\t".'<script type="text/javascript" src="js/fog.js"></script>';
 		print "\n\t".'<script type="text/javascript" src="js/fog.login.js"></script>';
