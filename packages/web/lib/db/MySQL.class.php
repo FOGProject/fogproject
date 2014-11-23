@@ -62,6 +62,7 @@ class MySQL extends FOGBase
 				$this->link = new mysqli($this->host, $this->user, $this->pass);
 			if ($this->link->connect_error)
 				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s, Error: %s', $this->host, $this->user, '[Protected]', $this->dbname, $this->link->connect_error));
+			$this->link->set_charset('utf8');
 			if (!$this->link->select_db($this->dbname))
 				throw new Exception(_('Issue working with the current DB, maybe it has not been created yet'));
 		}
@@ -227,7 +228,7 @@ class MySQL extends FOGBase
 	*/
 	private function clean($data)
 	{
-		return $this->link->escape_string($data);
+		return $this->link->real_escape_string(strip_tags($data));
 	}
 	// For legacy $conn connections
 	/** getLink()
