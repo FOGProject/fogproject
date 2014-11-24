@@ -181,9 +181,9 @@ abstract class FOGBase
 	{
 		$units = array('%3.2f iB','%3.2f KiB','%3.2f MiB','%3.2f GiB','%3.2f TiB','%3.2f PiB','%3.2f EiB','%3.2f ZiB','%3.2f YiB');
 		for($i = 0; $size >= 1024 && $i < count($units) - 1; $i++)
-			$bytes /= 1024;
+			$size /= 1024;
 
-		return sprintf($units[$i],round($bytes,2));
+		return sprintf($units[$i],round($size,2));
 	}
 	/*
 	* Inserts a new key/value before the key in the array.
