@@ -195,7 +195,7 @@ function GraphDiskUsagePlots(data) {
 		return;
 	};
 	GraphDiskUsageData = [ 
-		{label: 'Free',data: parseInt(data['free']) + parseInt(data['used'])},
+		{label: 'Free',data: parseInt(data['free'])},
 		{label: 'Used',data: parseInt(data['used'])}
 	];
 	$.plot(GraphDiskUsage,GraphDiskUsageData,GraphDiskUsageOpts);
