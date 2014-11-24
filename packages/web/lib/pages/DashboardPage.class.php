@@ -122,7 +122,6 @@ class DashboardPage extends FOGPage
 	public function bandwidth()
 	{
 		// Loop each storage node -> grab stats
-		$StorageNode = new StorageNode($_REQUEST['nodeid']);
 		foreach($this->getClass('StorageNodeManager')->find(array('isGraphEnabled' => 1)) AS $StorageNode)
 		{
 			$URL = sprintf('http://%s/%s?dev=%s', rtrim($StorageNode->get('ip'), '/'), ltrim($this->FOGCore->getSetting("FOG_NFS_BANDWIDTHPATH"), '/'), $StorageNode->get('interface'));
@@ -137,5 +136,39 @@ class DashboardPage extends FOGPage
 			}
 		}
 		print json_encode((array)$data);
+	}
+	/** diskusage()
+		Display's the disk usage graph on the dashboard page.
+	*/
+	public function diskusage()
+	{
+		// // Get the node ID -> grab the ino:
+		$StorageNode = new StorageNode($_REQUEST['id']);
+		if ($StorageNode && $StorageNode->isValid() && $StorageNode->get('isGraphEnabled'))
+		{
+			try
+			{
+				$webroot = $this->FOGCore->getSetting('FOG_WEB_ROOT') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/').'/' : '/';
+				$URL = sprintf('http://%s%sstatus/freespace.php?path=%s',$StorageNode->get('ip'),$webroot,base64_encode($StorageNode->get('path')));
+				if ($Response = $this->FOGCore->fetchURL($URL))
+				{
+					// Legacy client
+					if (preg_match('#(.*)@(.*)#', $Response, $match))
+						$Data = array('free' => $match[1], 'used' => $match[2]);
+					else
+					{
+						$Response = json_decode($Response, true);
+						$Data = array('free' => $Response['free'], 'used' => $Response['used']);
+					}
+				}
+				else
+					throw new Exception('Failed to connect to '.$StorageNode->get('name'));
+			}
+			catch (Exception $e)
+			{
+				$Data['error'] = $e->getMessage();
+			}
+		}
+		print json_encode((array)$Data);
 	}
 }
