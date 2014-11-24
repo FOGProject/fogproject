@@ -179,33 +179,11 @@ abstract class FOGBase
 	*/
 	public function formatByteSize($size)
 	{
-		$kbyte = 1024;
-		$mbyte = $kbyte * $kbyte;
-		$gbyte = $mbyte * $kbyte;
-		$tbyte = $gbyte * $kbyte;
-		$pbyte = $tbyte * $kbyte;
-		$ebyte = $pbyte * $kbyte;
-		$zbyte = $ebyte * $kbyte;
-		$ybyte = $zbyte * $kbyte;
-		if ($size < $kbyte)
-			$Size = sprintf('%3.2f iB',$size);
-		if ($size >= $kbyte)
-			$Size = sprintf('%3.2f KiB',$size/$kbyte);
-		if ($size >= $mbyte)
-			$Size = sprintf('%3.2f MiB',$size/$mbyte);
-		if ($size >= $gbyte)
-			$Size = sprintf('%3.2f GiB',$size/$gbyte);
-		if ($size >= $tbyte)
-			$Size = sprintf('%3.2f TiB',$size/$tbyte);
-		if ($size >= $pbyte)
-			$Size = sprintf('%3.2f PiB',$size/$pbyte);
-		if ($size >= $ebyte)
-			$Size = sprintf('%3.2f EiB',$size/$ebyte);
-		if ($size >= $zbyte)
-			$Size = sprintf('%3.2f ZiB',$size/$zbyte);
-		if ($size >= $ybyte)
-			$Size = sprintf('%3.2f YiB',$size/$ybyte);
-		return $Size;
+		$units = array('%3.2f iB','%3.2f KiB','%3.2f MiB','%3.2f GiB','%3.2f TiB','%3.2f PiB','%3.2f EiB','%3.2f ZiB','%3.2f YiB');
+		for($i = 0; $size >= 1024 && $i < count($units) - 1; $i++)
+			$bytes /= 1024;
+
+		return sprintf($units[$i],round($bytes,2));
 	}
 	/*
 	* Inserts a new key/value before the key in the array.

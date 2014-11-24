@@ -34,27 +34,20 @@ else
 {
 	$StorageNode = ($_REQUEST['idnew'] ? new StorageNode($_REQUEST['idnew']) : null);
 	if (!$StorageNode || !$StorageNode->isValid())
-		$t = shell_exec("df ".SPACE_DEFAULT_STORAGE."| grep -vE \"^Filesystem|shm\"");
+	{
+		$free = disk_free_space(SPACE_DEFAULT_STORAGE);
+		$used = disk_total_space(SPACE_DEFAULT_STORAGE) - $free;
+	}
 	else
-		$t = shell_exec("df ".$StorageNode->get('path')."| grep -vE \"^Filesystem|shm\"");
+	{
+		$free = disk_free_space($StorageNode->get('path'));
+		$used = disk_total_space($StorageNode->get('path')) - $free;
+	}
 	if ($StorageNode->get('isGraphEnabled'))
 	{
-		$l = explode("\n", $t);
-		$hdtotal = 0;
-		$hdused = 0;
-		foreach ($l as $n)
-		{
-			if (preg_match("/(\d+) +(\d+) +(\d+) +\d+%/", $n, $matches))
-			{
-				if (is_numeric($matches[3]))
-					$hdtotal += $matches[3];
-			}
-			if ( is_numeric( $matches[2] ) )
-				$hdused += $matches[2];
-		}
-		$freegb=$hdtotal;
-		$usedgb=$hdused;
-		$Data = array('free' => $freegb, 'used' => $usedgb);
+		$freegb=$free;
+		$usedgb=$used;
+		$Data = array('free' => $free, 'used' => $usedgb);
 	}
 }
 print json_encode($Data);
