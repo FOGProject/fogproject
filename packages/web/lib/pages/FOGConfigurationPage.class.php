@@ -549,7 +549,7 @@ class FOGConfigurationPage extends FOGPage
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t<div>";
 		print "\n\t\t\t\t<p>"._('Current Records: ').$this->FOGCore->getMACLookupCount().'</p>';
-		print "\n\t\t\t\t<p>".'<input type="button" id="delete" title="'._('Delete MACs').'" value="'._('Delete Current Records').'" onclick="clearMacs()" /><input style="margin-left: 20px" type="button" id="update" title="'._('Update MACs').'" value="'._('Update Current Listing').'" onclick="updateMacs()" /></p>';
+		print "\n\t\t\t\t<p>".'<div id="delete"></div><div id="update"></div><input class="macButtons" type="button" title="'._('Delete MACs').'" value="'._('Delete Current Records').'" onclick="clearMacs()" /><input class="macButtons" style="margin-left: 20px" type="button" title="'._('Update MACs').'" value="'._('Update Current Listing').'" onclick="updateMacs()" /></p>';
 		
 		print "\n\t\t\t\t<p>"._('MAC address listing source: ').'<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p>';
 		print "\n\t\t\t</div>";

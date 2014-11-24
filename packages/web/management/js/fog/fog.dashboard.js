@@ -217,10 +217,8 @@ function GraphDiskUsagePlots(data) {
 	GraphDiskUsage.addClass('loaded');
 }
 // Bandwidth Functions
-function UpdateBandwidth()
-{
-	$.ajax(
-	{
+function UpdateBandwidth() {
+	$.ajax({
 		url: '../management/index.php?node=home',
 		cache: false,
 		type: 'GET',
@@ -233,8 +231,7 @@ function UpdateBandwidth()
 		}
 	});
 }
-function UpdateBandwidthGraph(data)
-{
+function UpdateBandwidthGraph(data) {
 	var d = new Date();
 	Now = new Date().getTime() - (d.getTimezoneOffset() * 60000);
 	for (i in data) {

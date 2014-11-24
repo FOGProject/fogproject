@@ -349,3 +349,6 @@ pre { white-space: pre-wrap; }
 .task-action a { display: block; }
 
 tbody td.small { font-size: 10px; }
+.ui-dialog-titlebar-close {
+	visibility: hidden;
+}
