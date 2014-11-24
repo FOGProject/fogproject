@@ -94,6 +94,7 @@ class FOGConfigurationPage extends FOGPage
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 		print "\n\t\t\t".'<select name="kernelsel" onchange="this.form.submit()">';
 		print "\n\t\t\t".'<option value="pk"'.($type == 'pk' ? ' selected="selected"' : '').'>'._('Published Kernels').'</option>';
+		print "\n\t\t\t".'<option value="ok"'.($type == 'ok' ? ' selected="selected"' : '').'>'._('Old Published Kernels').'</option>';
 		print "\n\t\t\t".'<option value="uk"'.($type == 'uk' ? ' selected="selected"' : '').'>'._('Unofficial Kernels').'</option>';
 		print "\n\t\t\t</select>";
 		print "\n\t\t\t</form>";
@@ -112,15 +113,19 @@ class FOGConfigurationPage extends FOGPage
 			{
 				case 'pk':
 					$this->kernelselForm('pk');
-					print $this->FOGCore->FetchURL("http://freeghost.sourceforge.net/kernelupdates/index.php?version=" . FOG_VERSION);
+					print $this->FOGCore->FetchURL("http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version=" . FOG_VERSION);
 					break;
 				case 'uk':
 					$this->kernelselForm('uk');
 					print $this->FOGCore->FetchURL("http://mastacontrola.com/fogboot/kernel/index.php?version=" . FOG_VERSION);
 					break;
+				case 'ok':
+					$this->kernelselForm('ok');
+					print $this->FOGCore->FetchURL("http://freeghost.sourceforge.net/kernelupdates/index.php?version=".FOG_VERSION);
+					break;
 				default:
 					$this->kernelselForm('pk');
-					print $this->FOGCore->FetchURL("http://freeghost.sourceforge.net/kernelupdates/index.php?version=" . FOG_VERSION);
+					print $this->FOGCore->FetchURL("http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version=" . FOG_VERSION);
 					break;
 			}
 		}
@@ -140,7 +145,7 @@ class FOGConfigurationPage extends FOGPage
 		else
 		{
 			print "\n\t\t\t".'<form method="post" action="?node='.$_REQUEST['node'].'&sub=kernel&install=1&file='.$_REQUEST['file'].'">';
-			print "\n\t\t\t<p>"._('New Kernel name:').'<input class="smaller" type="text" name="dstName" value="bzImage" /></p>';
+			print "\n\t\t\t<p>"._('New Kernel name:').'<input class="smaller" type="text" name="dstName" value="'.($_REQUEST['arch'] == 64 || !$_REQUEST['arch'] ? 'bzImage' : 'bzImage32').'" /></p>';
 			print "\n\t\t\t".'<p><input class="smaller" type="submit" value="Next" /></p>';
 			print "\n\t\t\t</form>";
 		}
