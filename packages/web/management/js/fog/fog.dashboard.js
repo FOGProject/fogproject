@@ -8,6 +8,7 @@ var GraphDiskUsageData = [
 	{label: 'Free',data:0},
 	{label: 'Used',data:0}
 ];
+var bytes, units;
 var GraphDiskUsageOpts = {
 	colors: ['#45a73c','#cb4b4b'],
 	series: {
@@ -22,27 +23,11 @@ var GraphDiskUsageOpts = {
 		position: 'se',
 		labelColor: '#666',
 		labelFormatter: function(label, series) {
-			var kb = 1;
-			var mb = kb * 1024;
-			var gb = mb * mb;
-			var tb = gb * mb;
-			var pb = tb * mb;
-			var eb = pb * mb;
-			var stringReturn;
-			if (series.data[0][1] >= eb) {
-				stringReturn = (Math.round(series.data[0][1]/eb*100)/100).toFixed(2)+' EiB';
-			} else if (series.data[0][1] >= pb && series.data[0][1] < eb) {
-				stringReturn = (Math.round(series.data[0][1]/pb*100)/100).toFixed(2)+' PiB';
-			} else if (series.data[0][1] >= tb && series.data[0][1] < pb) {
-				stringReturn = (Math.round(series.data[0][1]/tb*100)/100).toFixed(2)+' TiB';
-			} else if (series.data[0][1] >= gb && series.data[0][1] < tb) {
-				stringReturn = (Math.round(series.data[0][1]/gb*100)/100).toFixed(2)+' GiB';
-			} else if (series.data[0][1] >= mb && series.data[0][1] < gb) {
-				stringReturn = (Math.round(series.data[0][1]/mb*100)/100).toFixed(2)+' MiB';
-			} else if (series.data[0][1] < mb) {
-				stringReturn = (Math.round(series.data[0][1]*100)/100).toFixed(2)+' KiB';
+			units = [' iB',' KiB',' MiB',' GiB',' TiB',' PiB',' EiB',' ZiB',' YiB'];
+			for (i =0; series.data[0][1] >= 1024 && i < units.length -1; i++) {
+				series.data[0][1] /= 1024;
 			}
-			return '<div style="font-size:8pt;padding:2px;margin-top:16px;">'+label+': '+Math.round(series.percent)+'% <br />'+stringReturn+'</div>';
+			return '<div style="font-size:8pt;padding2px;margin-top:16px;">'+label+': '+Math.round(series.percent)+'% <br />'+series.data[0][1].toFixed(2)+units[i]+'</div>';
 		}
 	}
 };
