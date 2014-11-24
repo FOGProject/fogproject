@@ -130,24 +130,13 @@ class FOGCore extends FOGBase
 	/** addUpdateMACLookupTable($macprefix,$strMan)
 		Updates/add's MAC Manufacturers
 	*/
-	public function addUpdateMACLookupTable($macprefix,$strMan)
+	public function addUpdateMACLookupTable($macprefix)
 	{
-		$OUI = current($this->getClass('OUIManager')->find(array('prefix' => $macprefix)));
-		if ($OUI)
-		{
-			$OUI->set('prefix',$macprefix)
-				->set('name',$strMan);
-			return $OUI->save();
-		}
-		else
-		{
-			$OUI = new OUI(array(
-				'prefix' => $macprefix,
-				'name' => $strMan,
-			));
-			return $OUI->save();
-		}
-		return false;
+		$this->clearMACLookupTable();
+		foreach($macprefix AS $macpre => $maker)
+			$macArray[] = "('".$this->DB->sanitize($macpre)."','".$this->DB->sanitize($maker)."')";
+		$sql = "INSERT INTO `oui` (`ouiMACPrefix`,`ouiMan`) VALUES ".implode((array)$macArray,',');
+		return $this->DB->query($sql);
 	}
 	
 	/** clearMACLookupTable()

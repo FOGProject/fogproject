@@ -539,13 +539,13 @@ class FOGConfigurationPage extends FOGPage
 		// Set title
 		$this->title = _("MAC Address Manufacturer Listing");
         // Allow the updating and deleting of the mac-lists.
-        $this->mac_list_post();
 		print "\n\t\t\t".'<div class="hostgroup">';
 		print "\n\t\t\t\t"._('This section allows you to import known mac address makers into the FOG database for easier identification.');
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t<div>";
 		print "\n\t\t\t\t<p>"._('Current Records: ').$this->FOGCore->getMACLookupCount().'</p>';
-		print "\n\t\t\t\t<p>".'<input type="button" id="delete" value="'._('Delete Current Records').'" onclick="clearMacs()" /><input style="margin-left: 20px" type="button" id="update" value="'._('Update Current Listing').'" onclick="updateMacs()" /></p>';
+		print "\n\t\t\t\t<p>".'<input type="button" id="delete" title="'._('Delete MACs').'" value="'._('Delete Current Records').'" onclick="clearMacs()" /><input style="margin-left: 20px" type="button" id="update" title="'._('Update MACs').'" value="'._('Update Current Listing').'" onclick="updateMacs()" /></p>';
+		
 		print "\n\t\t\t\t<p>"._('MAC address listing source: ').'<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p>';
 		print "\n\t\t\t</div>";
 	}
@@ -555,12 +555,12 @@ class FOGConfigurationPage extends FOGPage
 	*/
 	public function mac_list_post()
 	{
-		if ( $_REQUEST["update"] == "1" )
+		if ($_REQUEST['update'])
 		{
-			$f = "./other/oui.txt";
-			exec('rm -rf '.BASEPATH.'/management/other/oui.txt');
-			exec('wget -P '.BASEPATH.'/management/other/ http://standards.ieee.org/develop/regauth/oui/oui.txt');
-			if ( file_exists($f) )
+			$f = "/tmp/oui.txt";
+			exec("rm -rf $f");
+			exec("wget -O $f  http://standards.ieee.org/develop/regauth/oui/oui.txt");
+			if (file_exists($f))
 			{
 				$handle = fopen($f, "r");
 				$start = 18;
@@ -568,33 +568,30 @@ class FOGConfigurationPage extends FOGPage
 				while (!feof($handle)) 
 				{
 					$line = trim(fgets($handle));
-					if ( preg_match( "#^([0-9a-fA-F][0-9a-fA-F][:-]){2}([0-9a-fA-F][0-9a-fA-F]).*$#", $line ) )
+					if (preg_match("#^([0-9a-fA-F][0-9a-fA-F][:-]){2}([0-9a-fA-F][0-9a-fA-F]).*$#", $line ) )
 					{
-						$macprefix = substr( $line, 0, 8 );					
-						$maker = substr( $line, $start, strlen( $line ) - $start );
-						try
+						$macprefix = substr($line,0,8);
+						$maker = substr($line,$start,strlen($line)-$start);
+						if (strlen($macprefix) == 8 && strlen($maker) > 0)
 						{
-							if ( strlen(trim( $macprefix ) ) == 8 && strlen($maker) > 0 )
-							{
-								if ( $this->FOGCore->addUpdateMACLookupTable( $macprefix, $maker ) )
-									$imported++;
-							}
+							$mac = trim($macprefix);
+							$mak = trim($maker);
+							$macsandmakers[$mac] = $mak;
+							$imported++;
 						}
-						catch ( Exception $e )
-						{
-							print ($e->getMessage()."<br />");
-						}
-						
 					}
 				}
 				fclose($handle);
+				$this->FOGCore->addUpdateMACLookupTable($macsandmakers);
 				$this->FOGCore->setMessage($imported._(' mac addresses updated!'));
 			}
 			else
 				print (_("Unable to locate file: $f"));
 		}
-		else if ($_REQUEST["clear"] == "1")
+		else if ($_REQUEST['clear'])
 			$this->FOGCore->clearMACLookupTable();
+		$this->resetRequest();
+		$this->FOGCore->redirect('?node=about&sub=mac-list');
 	}
 	// FOG System Settings
 	/** settings()
