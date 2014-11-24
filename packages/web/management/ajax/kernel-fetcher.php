@@ -67,7 +67,8 @@ if ($_SESSION['allow_ajax_kdl'] && $_SESSION['dest-kernel-file'] && $_SESSION['t
 				$orig = rtrim($FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/').'/'.$destfile;
 				$backupfile = $backuppath.$destfile.date("Ymd")."_".date("His");
 				$FOGFTP->mkdir($backuppath);
-				if ($FOGFTP->rename($backupfile,$orig) || $FOGFTP->put($orig,$tmpfile,FTP_BINARY))
+				$FOGFTP->rename($backupfile,$orig);
+				if ($FOGFTP->put($orig,$tmpfile,FTP_BINARY))
 				{	
 					@unlink($tmpfile);
 					print '##OK##';
