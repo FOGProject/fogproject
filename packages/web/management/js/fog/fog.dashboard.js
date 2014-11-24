@@ -172,10 +172,11 @@ function GraphDiskUsageUpdate() {
 	if (GraphDiskUsageAJAX) GraphDiskUsageAJAX.abort();
 	NodeID = GraphDiskUsageNode.val();
 	GraphDiskUsageAJAX = $.ajax({
-		url: '../status/freespace.php',
+		url: '../management/index.php?node=home',
 		cache: false,
 		type: 'GET',
 		data: {
+			sub: 'diskusage',
 			id:NodeID
 		},
 		dataType: 'json',
