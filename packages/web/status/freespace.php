@@ -14,7 +14,7 @@ foreach($l AS $n)
 	if (is_numeric($matches[2]))
 		$hdused += $matches[2];
 }
-$free = $hdtotal - $hdused;
+$free = $hdtotal;
 $used = $hdused;
 $Data = array('free' => $free, 'used' => $used);
 print json_encode($Data);
