@@ -1601,7 +1601,7 @@ class HostManagementPage extends FOGPage
 				$report->addCSVCell($Host->get('ip'));
 				$report->addCSVCell($Host->get('description'));
 				$report->addCSVCell($Host->get('imageID'));
-				$this->HookManager('HOST_EXPORT_REPORT',array('report' => &$report,'Host' => &$Host));
+				$this->HookManager->processEvent('HOST_EXPORT_REPORT',array('report' => &$report,'Host' => &$Host));
 				$report->endCSVLine();
 			}
 		}
