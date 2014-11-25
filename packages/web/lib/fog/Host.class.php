@@ -1165,11 +1165,13 @@ class Host extends FOGController
 		{
 			if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $pass)
 			{
-				$decrypt = $this->aesdecrypt($pass,$key);
+				$encdat = substr($pass,0,-32);
+				$enckey = substr($pass,-32);
+				$decrypt = $this->aesdecrypt($encdat,$enckey);
 				if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true))
-					$pass = $this->FOGCore->aesencrypt($decrypt,$key);
+					$pass = $this->FOGCore->aesencrypt($decrypt,$key).$key;
 				else
-					$pass = $this->FOGCore->aesencrypt($pass,$key);
+					$pass = $this->FOGCore->aesencrypt($pass,$key).$key;
 			}
 			$this->set('useAD',$useAD)
 				 ->set('ADDomain',$domain)
