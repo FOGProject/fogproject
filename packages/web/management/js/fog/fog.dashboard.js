@@ -144,8 +144,6 @@ $(function()
 		// Update title
 		$('#graph-bandwidth-title > span').eq(0).html($(this).html());
 		GraphBandwidthFilterTransmitActive = (GraphBandwidthFilterTransmit.hasClass('active') ? true : false);
-		// Update graph
-		UpdateBandwidth();
 		// Prevent default action
 		return false;
 	});
@@ -158,14 +156,11 @@ $(function()
 		$('#graph-bandwidth-title > span').eq(1).html($(this).html());
 		// Update max data points variable
 		GraphBandwidthMaxDataPoints = $(this).attr('rel');
-		// Update graph
-		UpdateBandwidth();
 		// Prevent default action
 		return false;
 	});
 	// Remove loading spinners
 	$('.graph').not(GraphDiskUsage,GraphBandwidth).addClass('loaded');
-	// Set the intervals.
 });
 // Disk Usage Functions
 function GraphDiskUsageUpdate() {
@@ -184,9 +179,11 @@ function GraphDiskUsageUpdate() {
 			GraphDiskUsage.html('').removeClass('loaded').parents('a').attr('href','?node=hwinfo&id='+NodeID);
 		},
 		success: function(data) {
-			setTimeout('GraphDiskUsageUpdate()',120000);
-			GraphDiskUsagePlots(data);
 			if (data.length == 0) return;
+			GraphDiskUsagePlots(data);
+		},
+		complete: function() {
+			setTimeout(GraphDiskUsageUpdate,120000);
 		}
 	});
 }
@@ -211,9 +208,11 @@ function UpdateBandwidth() {
 		data: {sub: 'bandwidth'},
 		dataType: 'json',
 		success: function(data) {
-			setTimeout('UpdateBandwidth()',1000);
 			if (data.length == 0) return;
 			UpdateBandwidthGraph(data);
+		},
+		complete: function() {
+			setTimeout(UpdateBandwidth,1000);
 		}
 	});
 }
@@ -242,9 +241,11 @@ function UpdateBandwidthGraph(data) {
 			GraphBandwidthData[i]['rx_old'].push([Math.round((data[i]['rx'] / 1024), 2)]);
 		}
 		// If the rx/tx are at their max datapoints, shift off the last bit's of data.
-		while (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints) {
-			GraphBandwidthData[i]['tx'].shift();
-			GraphBandwidthData[i]['rx'].shift();
+		if (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints) {
+			while (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints) {
+				GraphBandwidthData[i]['tx'].shift();
+				GraphBandwidthData[i]['rx'].shift();
+			}
 		}
 	}
 	GraphData = new Array();
@@ -265,9 +266,11 @@ function UpdateClientCount() {
 		},
 		dataType: 'json',
 		success: function(data) {
-			setTimeout('UpdateClientCount()',1000);
 			if (data.length == 0) return;
 			UpdateClientCountPlot(data);
+		},
+		complete: function() {
+			setTimeout(UpdateClientCount,1000);
 		}
 	});
 }
