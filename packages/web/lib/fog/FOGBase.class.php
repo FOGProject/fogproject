@@ -438,7 +438,7 @@ abstract class FOGBase
 			$output .= $encrypt;
 		}
 		openssl_free_key($pub_key);
-		return $output;
+		return base64_encode($output);
 	}
 	/** certDecrypt($data)
 	* @param $data the data to decrypt
@@ -446,6 +446,7 @@ abstract class FOGBase
 	**/
 	public function certDecrypt($data)
 	{
+		$data = base64_decode($data);
 		$path = BASEPATH.'/management/other/ssl/';
 		if (!$priv_key = openssl_pkey_get_private(file_get_contents($path.'srvprivate.key')))
 			throw new Exception('Private Key Failed');
