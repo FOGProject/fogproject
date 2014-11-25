@@ -78,7 +78,7 @@ class FOGConfigurationPage extends FOGPage
 	public function kernel_update()
 	{
 		$this->kernelselForm('pk');
-		print $this->FOGCore->FetchURL('http://freeghost.sourceforge.net/kernelupdates/index.php?version='.FOG_VERSION);
+		print $this->FOGCore->FetchURL('http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version='.FOG_VERSION);
 	}
 	/** kernelselForm($type)
 		Gives the user the option to select between:
