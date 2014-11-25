@@ -49,7 +49,8 @@ var GraphBandwidthOpts = {
 		tickFormatter: function (v) { return v+' Mbps';}
 	},
 	series: {
-		lines: {show: true}
+		lines: {show: true},
+		shadowSize: 0,
 	},
 	legend: {
 		show: true,
@@ -178,10 +179,7 @@ function GraphDiskUsageUpdate() {
 		beforeSend: function() {
 			GraphDiskUsage.html('').removeClass('loaded').parents('a').attr('href','?node=hwinfo&id='+NodeID);
 		},
-		success: function(data) {
-			if (data.length == 0) return;
-			GraphDiskUsagePlots(data);
-		},
+		success: GraphDiskUsagePlots,
 		complete: function() {
 			setTimeout(GraphDiskUsageUpdate,120000);
 		}
@@ -207,12 +205,9 @@ function UpdateBandwidth() {
 		type: 'GET',
 		data: {sub: 'bandwidth'},
 		dataType: 'json',
-		success: function(data) {
-			if (data.length == 0) return;
-			UpdateBandwidthGraph(data);
-		},
+		success: UpdateBandwidthGraph,
 		complete: function() {
-			setTimeout(UpdateBandwidth,1000);
+			setTimeout(UpdateBandwidth,200);
 		}
 	});
 }
@@ -230,6 +225,11 @@ function UpdateBandwidthGraph(data) {
 		}
 		// If the old is set, setup the new, compare and set the tbps/rbps values.
 		if (GraphBandwidthData[i]['tx_old'].length == 1) {
+			// Shift off the end of the array until the total number of points match up.
+			while (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints) {
+				GraphBandwidthData[i]['tx'].shift();
+				GraphBandwidthData[i]['rx'].shift();
+			}
 			GraphBandwidthData[i]['tx'].push([Now,Math.round((Math.round((data[i]['tx'] / 1024), 2) - GraphBandwidthData[i]['tx_old']) * 8 / 1000,2)]);
 			GraphBandwidthData[i]['rx'].push([Now,Math.round((Math.round((data[i]['rx'] / 1024), 2) - GraphBandwidthData[i]['rx_old']) * 8 / 1000,2)]);
 			// Reset the old and new values for the next iteration.
@@ -239,13 +239,6 @@ function UpdateBandwidthGraph(data) {
 			// Set the old values and wait one second.
 			GraphBandwidthData[i]['tx_old'].push([Math.round((data[i]['tx'] / 1024), 2)]);
 			GraphBandwidthData[i]['rx_old'].push([Math.round((data[i]['rx'] / 1024), 2)]);
-		}
-		// If the rx/tx are at their max datapoints, shift off the last bit's of data.
-		if (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints) {
-			while (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints) {
-				GraphBandwidthData[i]['tx'].shift();
-				GraphBandwidthData[i]['rx'].shift();
-			}
 		}
 	}
 	GraphData = new Array();
