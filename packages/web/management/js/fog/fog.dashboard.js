@@ -184,9 +184,9 @@ function GraphDiskUsageUpdate() {
 			GraphDiskUsage.html('').removeClass('loaded').parents('a').attr('href','?node=hwinfo&id='+NodeID);
 		},
 		success: function(data) {
-			if (data.length == 0) return;
-			GraphDiskUsagePlots(data);
 			setTimeout('GraphDiskUsageUpdate()',120000);
+			GraphDiskUsagePlots(data);
+			if (data.length == 0) return;
 		}
 	});
 }
@@ -211,9 +211,9 @@ function UpdateBandwidth() {
 		data: {sub: 'bandwidth'},
 		dataType: 'json',
 		success: function(data) {
+			setTimeout('UpdateBandwidth()',1000);
 			if (data.length == 0) return;
 			UpdateBandwidthGraph(data);
-			setTimeout('UpdateBandwidth()',1000);
 		}
 	});
 }
@@ -265,9 +265,9 @@ function UpdateClientCount() {
 		},
 		dataType: 'json',
 		success: function(data) {
+			setTimeout('UpdateClientCount()',1000);
 			if (data.length == 0) return;
 			UpdateClientCountPlot(data);
-			setTimeout('UpdateClientCount()',1000);
 		}
 	});
 }
