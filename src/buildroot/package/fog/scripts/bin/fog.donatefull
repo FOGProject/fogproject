@@ -41,7 +41,7 @@ setterm -background black
 clear
 /bin/fog.donate.monitor &
 /bin/fog.fork full & >/dev/null 2>&1;
-read test
+read -p "Press any key to continue... " -n1 -s test
 reset
 echo "Restarting computer..."
 sleep 1
