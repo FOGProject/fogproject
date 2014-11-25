@@ -183,6 +183,7 @@ class ImageManagementPage extends FOGPage
 			_('Image Path') => '${image_path}<input type="text" name="file" id="iFile" value="${image_file}" />',
 			_('Image Type') => '${image_types}',
 			_('Partition') => '${image_partition_types}',
+			_('Compression') => '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="${image_comp}" />',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" /><!--<span class="icon icon-help" title="TODO!"></span>-->',
 		);
 		print "\n\t\t\t<h2>"._('Add new image definition').'</h2>';
@@ -200,6 +201,7 @@ class ImageManagementPage extends FOGPage
 				'image_file' => $_REQUEST['file'],
 				'image_types' => $this->getClass('ImageTypeManager')->buildSelectBox($_REQUEST['imagetype'],'','id'),
 				'image_partition_types' => $this->getClass('ImagePartitionTypeManager')->buildSelectBox($_REQUEST['imagepartitiontype'],'','id'),
+				'image_comp' => $_REQUEST['compress'],
 			);
 		}
 		// Hook
@@ -243,7 +245,8 @@ class ImageManagementPage extends FOGPage
 				'osID'		=> $_REQUEST['os'],
 				'path'		=> $_REQUEST['file'],
 				'imageTypeID'	=> $_REQUEST['imagetype'],
-				'imagePartitionTypeID'	=> $_REQUEST['imagepartitiontype']
+				'imagePartitionTypeID'	=> $_REQUEST['imagepartitiontype'],
+				'compress' => $_REQUEST['compress'],
 			));
 			// Save
 			if ($Image->save())
@@ -304,6 +307,7 @@ class ImageManagementPage extends FOGPage
 			_('Image Type') => '${image_types}',
 			_('Partition') => '${image_partition_types}',
 			_('Protected') => '<input type="checkbox" name="protected_image" value="1" ${image_protected} />',
+			_('Compression') => '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="${image_comp}" />',
 			$this->FOGCore->getSetting('FOG_FORMAT_FLAG_IN_GUI') ? _('Image Manager') : '' => $this->FOGCore->getSetting('FOG_FORMAT_FLAG_IN_GUI') ? '<select name="imagemanage"><option value="1" ${is_legacy}>'._('PartImage').'</option><option value="0" ${is_modern}>'._('PartClone').'</option></select>' : '',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" /><!--<span class="icon icon-help" title="TODO!"></span>-->',
 		);
@@ -323,6 +327,7 @@ class ImageManagementPage extends FOGPage
 				'is_legacy' => $Image->get('format') == 1 ? 'selected="selected"' : '',
 				'is_modern' => $Image->get('format') == 0 ? 'selected="selected"' : '',
 				'image_protected' => $Image->get('protected') == 1 ? 'checked="checked"' : '',
+				'image_comp' => $Image->get('compress') ? $Image->get('compress') : $this->FOGCore->getSetting('FOG_PIGZ_COMP'),
 			);
 		}
 		// Hook
@@ -657,7 +662,8 @@ class ImageManagementPage extends FOGPage
 						->set('imageTypeID',	$_REQUEST['imagetype'])
 						->set('imagePartitionTypeID',	$_REQUEST['imagepartitiontype'])
 						->set('format',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $Image->get('format') )
-						->set('protected', $_REQUEST['protected_image']);
+						->set('protected', $_REQUEST['protected_image'])
+						->set('compress', $_REQUEST['compress']);
 				break;
 				case 'image-host';
 					if ($_REQUEST['host'])

@@ -1751,6 +1751,10 @@ $databaseSchema[] = array(
 	"INSERT INTO `" . DATABASE_NAME . "`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	values('FOG_SNAPIN_LIMIT', '"._("This setting defines the maximum snapins allowed to be assigned to a host.  Value of 0 means unlimted.")."', '0', 'General Settings')",
 );
+// 149
+$databaseSchema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME ."`.`images` ADD COLUMN `imageCompress` INT(11)",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";

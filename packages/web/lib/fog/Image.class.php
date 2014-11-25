@@ -25,6 +25,7 @@ class Image extends FOGController
 		'format' => 'imageFormat',
 		'magnet' => 'imageMagnetUri',
 		'protected' => 'imageProtect',
+		'compress' => 'imageCompress',
 	);
 
 	// Additional Fields
