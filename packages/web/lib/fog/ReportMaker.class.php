@@ -1,49 +1,31 @@
 <?php
-class ReportMaker
+class ReportMaker extends FOGBase
 {
-	private $strHTML, $strCSV, $filename;
-	private $blFirstCell;
+	private $strHTML, $strCSV, $strLine, $filename;
 	const FOG_REPORT_HTML = 0;
 	const FOG_REPORT_CSV = 1;
 	const FOG_REPORT_PDF = 2;
 	const FOG_BACKUP_SQL = 3;
 	const FOG_EXPORT_SQL = 4;
 	const FOG_EXPORT_HOST = 5;
-	function __construct()
+	public function appendHTML($html){$this->strHTML[] = $html;}
+	public function addCSVCell($item){$this->strCSV[] = trim($item);}
+	public function endCSVLine()
 	{
-		$this->strHTML = "";
-		$this->strCSV = "";
-		$this->blFirstCell = true;
+		$this->strLine[] = implode($this->strCSV,',');
+		unset($this->strCSV);
 	}
-	function appendHTML( $html ) { $this->strHTML .= $html . "\n"; }
-	function addCSVCell( $item ) 
-	{ 
-		$append = "";
-		if ( ! $this->blFirstCell )
-			$append = ",";
-		else 
-			$this->blFirstCell = false;
-		$this->strCSV .= $append . "\"".trim($item)."\""; 
-	}
-	function endCSVLine()
+	public function setFileName($filename){$this->filename = $filename;}
+	public function outputReport($intType)
 	{
-		$this->strCSV .= "\n"; 
-		$this->blFirstCell = true;
-	}
-	function setFileName($filename)
-	{
-		$this->filename = $filename;
-	}
-	function outputReport($intType)
-	{
-		if ( $intType === self::FOG_REPORT_HTML )
-			print $this->strHTML;
+		if ($intType === self::FOG_REPORT_HTML)
+			print implode($this->strHTML,"\n");
 		else if ( $intType === self::FOG_REPORT_CSV )
 		{
 			ob_end_clean();
 			header('Content-Type: application/octet-stream');
-			header('Content-Disposition: attachment; filename="'.$this->filename.'.csv"');	
-			print $this->strCSV;	
+			header('Content-Disposition: attachment; filename="'.$this->filename.'.csv"');
+			print implode($this->strLine,"\n");
 		}
 		else if ( $intType === self::FOG_REPORT_PDF )
 		{
@@ -51,7 +33,7 @@ class ReportMaker
 			header('Content-Type: application/octet-stream');
 			header('Content-Disposition: attachment; filename="'.$this->filename.'.pdf"');
 			$proc = proc_open("htmldoc --links --header . --linkstyle plain --numbered --size letter --no-localfiles -t pdf14 --quiet --jpeg --webpage --size letter --left 0.25in --right 0.25in --top 0.25in --bottom 0.25in --header ... --footer ... -", array(0 => array("pipe", "r"), 1 => array("pipe", "w")), $pipes);
-			fwrite($pipes[0], '<html><body>' . $this->strHTML . "</body></html>" );
+			fwrite($pipes[0], '<html><body>'.implode($this->strHTML,"\n")."</body></html>" );
 			fclose($pipes[0]);
 			fpassthru($pipes[1]);
 			$status = proc_close($proc);
@@ -82,7 +64,7 @@ class ReportMaker
 			ob_end_clean();
 			header('Content-Type: application/octet-stream');
 			header("Content-Disposition: attachment; filename=host_export.csv");	
-			print $this->strCSV;	
+			print implode($this->strLine,"\n");
 		}
 	}
 }
