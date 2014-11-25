@@ -46,10 +46,10 @@ $(function()
 			if (all.length && all.length === active.length) {
 				// All open; close them
 				all.removeClass('active').next().slideUp();
-				$('.trigger_expand').html('<a href="#" class="trigger_expand"><h3>Expand</h3></a>');
+				$('.trigger_expand').html('<a href="#" class="trigger_expand"><h3>Expand All</h3></a>');
 			} else {
 				all.not('.active').addClass('active').next().slideDown();
-				$('.trigger_expand').html('<a href="#" class="trigger_expand"><h3>Collapse</h3></a>');
+				$('.trigger_expand').html('<a href="#" class="trigger_expand"><h3>Collapse All</h3></a>');
 			}
 
 			return false;

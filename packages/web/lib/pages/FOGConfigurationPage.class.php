@@ -666,7 +666,7 @@ class FOGConfigurationPage extends FOGPage
 			'${span}',
 		);
 		$ServiceCats = $this->getClass('ServiceManager')->getSettingCats();
-		print "\n\t\t\t\t\t\t".'<a href="#" class="trigger_expand"><h3>Expand</h3></a>';
+		print "\n\t\t\t\t\t\t".'<a href="#" class="trigger_expand"><h3>Expand All</h3></a>';
 		foreach ((array)$ServiceCats AS $ServiceCAT)
 		{
 			
