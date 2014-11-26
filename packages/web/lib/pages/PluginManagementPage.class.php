@@ -104,7 +104,7 @@ class PluginManagementPage extends FOGPage
 		// Find data
 		foreach ((array)$Plugins->getPlugins() AS $Plugin)
 		{
-			$PluginMan = current($this->getClass('PluginManager')->find(array('name' => $Plugin->getName())));
+			$PluginMan = current($this->getClass('PluginManager')->find(array('name' => $Plugin->getName(),'state' => 0, 'installed' => 1)));
 			if($Plugin->isActive() && !$Plugin->isInstalled())
 			{
 				$this->data[] = array(
@@ -133,8 +133,8 @@ class PluginManagementPage extends FOGPage
 		// Find data
 		foreach ((array)$Plugins->getPlugins() AS $Plugin)
 		{
-			$PluginMan = current($this->getClass('PluginManager')->find(array('name' => $Plugin->getName())));
-			if($Plugin->isActive())
+			$PluginMan = current($this->getClass('PluginManager')->find(array('name' => $Plugin->getName(),'state' => 1,'installed' => 1)));
+			if($Plugin->isActive() && $Plugin->isInstalled())
 			{
 				$this->data[] = array(
 					'name' => $Plugin->getName(),
