@@ -2,7 +2,5 @@
 auto lo
 iface lo inet loopback
 auto eth0
-mtu 9000
 iface eth0 inet dhcp
 udhcpc_opts -t 100 -T 20
-post-up /sbin/ifconfig eth0 mtu 9000

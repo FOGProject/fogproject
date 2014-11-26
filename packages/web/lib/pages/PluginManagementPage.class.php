@@ -104,13 +104,13 @@ class PluginManagementPage extends FOGPage
 		// Find data
 		foreach ((array)$Plugins->getPlugins() AS $Plugin)
 		{
-			$PluginMan = current($this->getClass('PluginManager')->find(array('name' => $Plugin->getName(),'state' => 0, 'installed' => 1)));
-			if($Plugin->isActive() && !$Plugin->isInstalled())
+			$PluginMan = current($this->getClass('PluginManager')->find(array('name' => $Plugin->getName())));
+			if(($Plugin->isActive() && !$Plugin->isInstalled() && !$_REQUEST['plug_name']) || ($_REQUEST['plug_name'] && $_REQUEST['plug_name'] == $Plugin->getName()))
 			{
 				$this->data[] = array(
 					'name' => $Plugin->getName(),
 					'type' => 'install',
-					'encname' => md5($Plugin->getName()),
+					'encname' => md5($Plugin->getName()).'&plug_name='.$Plugin->getName(),
 					'location' => $Plugin->getPath(),
 					'desc' => $Plugin->getDesc(),
 					'icon' => $Plugin->getIcon(),
@@ -125,6 +125,14 @@ class PluginManagementPage extends FOGPage
 			'attributes' => &$this->attributes));
 		// Output
 		$this->render();
+		if ($_REQUEST['run'])
+		{
+			$runner = $Plugin->getRunInclude($_REQUEST['run']);
+			if (file_exists($runner) && $Plugin->isInstalled())
+				require_once($runner);
+			else
+				$this->run();
+		}
 	}
 	public function installed()
 	{
@@ -133,7 +141,7 @@ class PluginManagementPage extends FOGPage
 		// Find data
 		foreach ((array)$Plugins->getPlugins() AS $Plugin)
 		{
-			$PluginMan = current($this->getClass('PluginManager')->find(array('name' => $Plugin->getName(),'state' => 1,'installed' => 1)));
+			$PluginMan = current($this->getClass('PluginManager')->find(array('name' => $Plugin->getName())));
 			if($Plugin->isActive() && $Plugin->isInstalled())
 			{
 				$this->data[] = array(
@@ -308,6 +316,10 @@ class PluginManagementPage extends FOGPage
 			$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&run='.$_REQUEST['run']);
 		}
 	}
+	public function install_post()
+	{
+		$this->installed_post();
+	}
 	public function installed_post()
 	{
 		$plugin = unserialize($_SESSION['fogactiveplugin']);
@@ -325,6 +337,8 @@ class PluginManagementPage extends FOGPage
 			}
 			else
 				$this->FOGCore->setMessage(_('Failed to install Plugin!'));
+			if ($_REQUEST['sub'] == 'install')
+				$_REQUEST['sub'] = 'installed';
 			$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&run='.$_REQUEST['run']);
 		}
 		if ($_REQUEST['basics'])
@@ -360,7 +374,7 @@ class PluginManagementPage extends FOGPage
 				if ($Plugin->destroy())
 				{
 					$this->FOGCore->setMessage('Plugin Removed');
-					$this->FOGCore->redirect('?node=plugin&sub=installed');
+					$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub=activate');
 				}
 			}
 		}
