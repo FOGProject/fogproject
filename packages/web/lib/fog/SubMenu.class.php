@@ -331,8 +331,9 @@ class SubMenu extends FOGBase
 		if ($this->node == 'plugin')
 		{
 			$this->subMenu[$this->node]['home'] = $this->foglang['Home'];
-			$this->subMenu[$this->node]['installed'] = $this->foglang['InstalledPlugins'];
 			$this->subMenu[$this->node]['activate'] = $this->foglang['ActivatePlugins'];
+			$this->subMenu[$this->node]['install'] = $this->foglang['InstallPlugins'];
+			$this->subMenu[$this->node]['installed'] = $this->foglang['InstalledPlugins'];
 		}
 		// ServerInfo Sub/Sub menu items.
 		if ($this->node == 'hwinfo')

@@ -149,6 +149,7 @@ $foglang['ActiveMCTasks']  			= _('Active Multicast Tasks');
 $foglang['ActiveSnapins']  			= _('Active Snapin Tasks');
 $foglang['ScheduledTasks'] 			= _('Scheduled Tasks');
 $foglang['InstalledPlugins']		= _('Installed Plugins');
+$foglang['InstallPlugins']			= _('Install Plugins');
 $foglang['ActivatePlugins']			= _('Activate Plugins');
 $foglang['ExportConfig']			= _('Export Configuration');
 $foglang['ImportConfig']			= _('Import Configuration');
