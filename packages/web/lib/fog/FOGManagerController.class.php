@@ -129,10 +129,10 @@ abstract class FOGManagerController extends FOGBase
 						}
 					}
 				}
-				$Data = array_unique($Hosts);
+				$Data = array_unique($Hosts,SORT_REGULAR);
 			}
 			// Only used in the future for other class files.
-			$Hosts = array_unique((array)$Hosts);
+			$Hosts = array_unique((array)$Hosts,SORT_REGULAR);
 			if ($classSearch == 'Group')
 			{
 				$GroupMan = $this->getClass('GroupManager')->find($findWhere,'OR');
@@ -260,7 +260,7 @@ abstract class FOGManagerController extends FOGBase
 							if ($Host && $Host->isValid())
 								$Hosts[] = $Host;
 						}
-						$Hosts = array_unique($Hosts);
+						$Hosts = array_unique($Hosts,SORT_REGULAR);
 						foreach($Hosts AS $Host)
 						{
 							if ($Host && $Host->isValid())
@@ -284,7 +284,7 @@ abstract class FOGManagerController extends FOGBase
 						$Data[] = $User;
 				}
 			}
-			$Data = array_unique($Data);
+			$Data = array_unique($Data,SORT_REGULAR);
 			return (array)$Data;
 		}
 		catch (Exception $e)
