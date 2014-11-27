@@ -330,8 +330,7 @@ abstract class FOGBase
 			$time = $this->nice_date($time,$utc);
 		// Forced format
 		if ($format)
-			$RetDate = $time->format($format);
-
+			return $time->format($format);
 		$weeks = array(
 			'curweek' => array(2,3,4,5,6,-2,-3,-4,-5,-6),
 			'1week' => array(7,8,9,10,11,12,13,-7,-8,-9,-10,-11,-12,-13),

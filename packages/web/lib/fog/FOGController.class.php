@@ -268,8 +268,6 @@ abstract class FOGController extends FOGBase
 			// Loop returned rows -> Set new data
 			foreach ($queryData AS $key => $value)
 				$this->set($this->key($key), (string)$value);
-			if (method_exists($this->DB->queryResult(),'free'))
-				$this->DB->queryResult()->free();
 			// Success
 			return true;
 		}
