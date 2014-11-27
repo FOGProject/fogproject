@@ -170,6 +170,7 @@ class ReportManagementPage extends FOGPage
 			$date1 = $_REQUEST['date2'];
 			$date2 = $_REQUEST['date1'];
 		}
+		$date2 = date('Y-m-d',strtotime($date2.'+1 day'));
 		// This is just for the header in the CSV:
 		$csvHead = array(
 			_('Engineer'),
@@ -189,7 +190,7 @@ class ReportManagementPage extends FOGPage
 		foreach((array)$csvHead AS $csvHeader)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
-		$ImagingLogs = $this->getClass('ImagingLogManager')->find();
+		$ImagingLogs = $this->getClass('ImagingLogManager')->find(array('start' => '','finish' => ''),'OR','','',"BETWEEN '$date1' AND '$date2'");
 		foreach((array)$ImagingLogs AS $ImagingLog)
 		{
 			$start = $this->nice_date($ImagingLog->get('start'));
@@ -200,51 +201,48 @@ class ReportManagementPage extends FOGPage
 			$Task = current($this->getClass('TaskManager')->find(array('checkInTime' => $ImagingLog->get('start'), 'hostID' => $ImagingLog->get('hostID'))));
 			// Find the image if it still exists.
 			$Image = current($this->getClass('ImageManager')->find(array('name' => $ImagingLog->get('image'))));
-			if(($start->format('Y-m-d') >= $date1 && $start->format('Y-m-d') <= $date2) || ($end->format('Y-m-d') >= $date1 && $end->format('Y-m-d') <= $date2) && ($start->format('H:i:s') < $end->format('H:i:s')))
+			// Verify if the dates are valid
+			$checkStart = $this->validDate($start);
+			$checkEnd = $this->validDate($end);
+			// Store the difference
+			$diff = $this->diff($start,$end);
+			$createdBy = ($Task && $Task->isValid() ? $Task->get('createdBy') : $this->FOGUser->get('name'));
+			$hostName = ($Host && $Host->isValid() ? $Host->get('name') : '');
+			$hostId = ($Host && $Host->isValid() ? $Host->get('id') : $ImagingLog->get('hostID'));
+			$hostMac = ($Host && $Host->isValid() ? $Host->get('mac') : '');
+			$hostDesc = ($Host && $Host->isValid() ? $Host->get('description') : '');
+			$imgName = ($Image && $Image->isValid() ? $Image->get('name') : $ImagingLog->get('image'));
+			$imgPath = ($Image && $Image->isValid() ? $Image->get('path') : '');
+			$imgType = ($ImagingLog->get('type') == 'down' ? _('Download') : _('Upload'));
+			// For the html report (PDF)
+			if ($checkStart && $checkEnd)
 			{
-				// Verify if the dates are valid
-				$checkStart = $this->validDate($Date);
-				$checkEnd = $this->validDate($Date);
-				// Store the difference
-				$diff = $this->diff($start,$end);
-				$createdBy = ($Task && $Task->isValid() ? $Task->get('createdBy') : $this->FOGUser->get('name'));
-				$hostName = ($Host && $Host->isValid() ? $Host->get('name') : '');
-				$hostId = ($Host && $Host->isValid() ? $Host->get('id') : $ImagingLog->get('hostID'));
-				$hostMac = ($Host && $Host->isValid() ? $Host->get('mac') : '');
-				$hostDesc = ($Host && $Host->isValid() ? $Host->get('description') : '');
-				$imgName = ($Image && $Image->isValid() ? $Image->get('name') : $ImagingLog->get('image'));
-				$imgPath = ($Image && $Image->isValid() ? $Image->get('path') : '');
-				$imgType = ($ImagingLog->get('type') == 'down' ? _('Download') : _('Upload'));
-				// For the html report (PDF)
-				if ($checkStart && $checkEnd)
-				{
-					$this->data[] = array(
-						'createdBy' => $createdBy,
-						'host_name' => $hostName,
-						'start_date' => $start->format('Y-m-d'),
-						'start_time' => $start->format('H:i:s'),
-						'end_date' => $end->format('Y-m-d'),
-						'end_time' => $end->format('H:i:s'),
-						'duration' => $diff,
-						'image_name' => $ImagingLog->get('image'),
-						'type' => $imgType,
-					);
-					// For the CSV
-					$ReportMaker->addCSVCell($createdBy);
-					$ReportMaker->addCSVCell($hostId);
-					$ReportMaker->addCSVCell($hostName);
-					$ReportMaker->addCSVCell($hostMac);
-					$ReportMaker->addCSVCell($hostDesc);
-					$ReportMaker->addCSVCell($imgName);
-					$ReportMaker->addCSVCell($imgPath);
-					$ReportMaker->addCSVCell($start->format('Y-m-d'));
-					$ReportMaker->addCSVCell($start->format('H:i:s'));
-					$ReportMaker->addCSVCell($end->format('Y-m-d'));
-					$ReportMaker->addCSVCell($end->format('H:i:s'));
-					$ReportMaker->addCSVCell($diff);
-					$ReportMaker->addCSVCell($imgType);
-					$ReportMaker->endCSVLine();
-				}
+				$this->data[] = array(
+					'createdBy' => $createdBy,
+					'host_name' => $hostName,
+					'start_date' => $start->format('Y-m-d'),
+					'start_time' => $start->format('H:i:s'),
+					'end_date' => $end->format('Y-m-d'),
+					'end_time' => $end->format('H:i:s'),
+					'duration' => $diff,
+					'image_name' => $ImagingLog->get('image'),
+					'type' => $imgType,
+				);
+				// For the CSV
+				$ReportMaker->addCSVCell($createdBy);
+				$ReportMaker->addCSVCell($hostId);
+				$ReportMaker->addCSVCell($hostName);
+				$ReportMaker->addCSVCell($hostMac);
+				$ReportMaker->addCSVCell($hostDesc);
+				$ReportMaker->addCSVCell($imgName);
+				$ReportMaker->addCSVCell($imgPath);
+				$ReportMaker->addCSVCell($start->format('Y-m-d'));
+				$ReportMaker->addCSVCell($start->format('H:i:s'));
+				$ReportMaker->addCSVCell($end->format('Y-m-d'));
+				$ReportMaker->addCSVCell($end->format('H:i:s'));
+				$ReportMaker->addCSVCell($diff);
+				$ReportMaker->addCSVCell($imgType);
+				$ReportMaker->endCSVLine();
 			}
 		}
 		// This is for the pdf.
@@ -917,13 +915,36 @@ class ReportManagementPage extends FOGPage
 			$date1 = $_REQUEST['date2'];
 			$date2 = $_REQUEST['date1'];
 		}
+		$date2 = date('Y-m-d',strtotime($date2.'+1 day'));
 		// Get all the User Trackers Based on info found.
-		$UserTrackers = $this->getClass('UserTrackingManager')->find(array('username' => base64_decode($_REQUEST['userID']),'hostID' => $_REQUEST['hostID'] ? $_REQUEST['hostID'] : '%'));
+		$UserTrackers = $this->getClass('UserTrackingManager')->find(array('datetime' => ''),'','','',"BETWEEN '$date1' AND '$date2'");
+		//$UserTrackers = $this->getClass('UserTrackingManager')->find(array('username' => base64_decode($_REQUEST['userID']),'hostID' => $_REQUEST['hostID'] ? $_REQUEST['hostID'] : '%','datetime'));
 		foreach((array)$UserTrackers AS $User)
 		{
-			$date = $this->nice_date($User->get('datetime'));
-			if ($date->format('Y-m-d') >= $date1 && $date->format('Y-m-d') <= $date2)
+			if ($_REQUEST['hostID'] && $User->get('hostID') == $_REQUEST['hostID'])
 			{
+				$date = $this->nice_date($User->get('datetime'));
+				$logintext = ($User->get('action') == 1 ? 'Login' : ($User->get('action') == 0 ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
+				$Host = current($this->getClass('HostManager')->find(array('id' => $User->get('hostID'))));
+				$this->data[] = array(
+					'action' => $logintext,
+					'username' => $User->get('username'),
+					'hostname' => $Host && $Host->isValid() ? $Host->get('name') : '',
+					'time' => $this->FOGCore->formatTime($User->get('datetime')),
+					'desc' => $User->get('description'),
+				);
+				$ReportMaker->addCSVCell($logintext);
+				$ReportMaker->addCSVCell($User->get('username'));
+				$ReportMaker->addCSVCell($Host && $Host->isValid() ? $Host->get('name') : '');
+				$ReportMaker->addCSVCell($Host && $Host->isValid() ? $Host->get('mac') : '');
+				$ReportMaker->addCSVCell($Host && $Host->isValid() ? $Host->get('description') : '');
+				$ReportMaker->addCSVCell($this->FOGCore->formatTime($User->get('datetime')));
+				$ReportMaker->addCSVCell($User->get('description'));
+				$ReportMaker->endCSVLine();
+			}
+			else if (!$_REQUEST['hostID'])
+			{
+				$date = $this->nice_date($User->get('datetime'));
 				$logintext = ($User->get('action') == 1 ? 'Login' : ($User->get('action') == 0 ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
 				$Host = current($this->getClass('HostManager')->find(array('id' => $User->get('hostID'))));
 				$this->data[] = array(
@@ -1042,6 +1063,7 @@ class ReportManagementPage extends FOGPage
 			$date1 = $_REQUEST['date2'];
 			$date2 = $_REQUEST['date1'];
 		}
+		$date2 = date('Y-m-d',strtotime($date2.'+1 day'));
 		// This is just for the header in the CSV:
 		$csvHead = array(
 			_('Host ID'),
@@ -1068,68 +1090,65 @@ class ReportManagementPage extends FOGPage
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
 		// Find all snapin tasks
-		$SnapinTasks = $this->getClass('SnapinTaskManager')->find();
+		$SnapinTasks = $this->getClass('SnapinTaskManager')->find(array('checkin' => '','complete' => ''),'OR','','',"BETWEEN '$date1' AND '$date2'");
 		foreach((array)$SnapinTasks AS $SnapinTask)
 		{
 			$SnapinCheckin1 = $this->nice_date($SnapinTask->get('checkin'));
 			$SnapinCheckin2 = $this->nice_date($SnapinTask->get('complete'));
 			// Get the Task based on create date thru complete date
-			if (($SnapinCheckin1->format('Y-m-d') >= $date1 && $SnapinCheckin1->format('Y-m-d') <= $date2) || ($SnapinCheckin2->format('Y-m-d') >= $date1 && $SnapinCheckin2->format('Y-m-d') <= $date2))
-			{
-				// Get the snapin
-				$Snapin = new Snapin($SnapinTask->get('snapinID'));
-				// Get the Job
-				$SnapinJob = new SnapinJob($SnapinTask->get('jobID'));
-				// Get the Host
-				$Host = new Host($SnapinJob->get('hostID'));
-				$hostID = $SnapinJob->get('hostID');
-				$hostName = $Host->isValid() ? $Host->get('name') : '';
-				$hostMac = $Host->isValid() ? $Host->get('mac') : '';
-				$snapinID = $SnapinTask->get('snapinID');
-				$snapinName = $Snapin->isValid() ? $Snapin->get('name') : '';
-				$snapinDesc = $Snapin->isValid() ? $Snapin->get('description') : '';
-				$snapinFile = $Snapin->isValid() ? $Snapin->get('file') : '';
-				$snapinArgs = $Snapin->isValid() ? $Snapin->get('args') : '';
-				$snapinRw = $Snapin->isValid() ? $Snapin->get('runWith') : '';
-				$snapinRwa = $Snapin->isValid() ? $Snapin->get('runWithArgs') : '';
-				$snapinState = $SnapinTask->get('stateID');
-				$snapinReturn = $SnapinTask->get('return');
-				$snapinDetail = $SnapinTask->get('detail');
-				$snapinCreateDate = $Snapin->isValid() ? $this->formatTime($Snapin->get('createdTime'),'Y-m-d') : '';
-				$snapinCreateTime = $Snapin->isValid() ? $this->formatTime($Snapin->get('createdTime'),'H:i:s') : '';
-				$jobCreateDate = $this->formatTime($SnapinJob->get('createdTime'),'Y-m-d');
-				$jobCreateTime = $this->formatTime($SnapinJob->get('createdTime'),'H:i:s');
-				$TaskCheckinDate = $SnapinCheckin1->format('Y-m-d');
-				$TaskCheckinTime = $SnapinCheckin2->format('H:i:s');
-				$this->data[] = array(
-					'snap_name' => $snapinName,
-					'snap_state' => $snapinState,
-					'snap_return' => $snapinReturn,
-					'snap_detail' => $snapinDetail,
-					'snap_create' => $snapinCreateDate,
-					'snap_time' => $snapinCreateTime,
-				);
-				$ReportMaker->addCSVCell($hostID);
-				$ReportMaker->addCSVCell($hostName);
-				$ReportMaker->addCSVCell($HostMac);
-				$ReportMaker->addCSVCell($snapinID);
-				$ReportMaker->addCSVCell($snapinName);
-				$ReportMaker->addCSVCell($snapinDesc);
-				$ReportMaker->addCSVCell($snapinFile);
-				$ReportMaker->addCSVCell($snapinArgs);
-				$ReportMaker->addCSVCell($snapinRw);
-				$ReportMaker->addCSVCell($snapinRwa);
-				$ReportMaker->addCSVCell($snapinState);
-				$ReportMaker->addCSVCell($snapinReturn);
-				$ReportMaker->addCSVCell($snapinDetail);
-				$ReportMaker->addCSVCell($snapinCreateDate);
-				$ReportMaker->addCSVCell($snapinCreateTime);
-				$ReportMaker->addCSVCell($jobCreateDate);
-				$ReportMaker->addCSVCell($jobCreateTime);
-				$ReportMaker->addCSVCell($TaskCheckinDate);
-				$ReportMaker->addCSVCell($TaskCheckinTime);
-				$ReportMaker->endCSVLine();
-			}
+			// Get the snapin
+			$Snapin = new Snapin($SnapinTask->get('snapinID'));
+			// Get the Job
+			$SnapinJob = new SnapinJob($SnapinTask->get('jobID'));
+			// Get the Host
+			$Host = new Host($SnapinJob->get('hostID'));
+			$hostID = $SnapinJob->get('hostID');
+			$hostName = $Host->isValid() ? $Host->get('name') : '';
+			$hostMac = $Host->isValid() ? $Host->get('mac') : '';
+			$snapinID = $SnapinTask->get('snapinID');
+			$snapinName = $Snapin->isValid() ? $Snapin->get('name') : '';
+			$snapinDesc = $Snapin->isValid() ? $Snapin->get('description') : '';
+			$snapinFile = $Snapin->isValid() ? $Snapin->get('file') : '';
+			$snapinArgs = $Snapin->isValid() ? $Snapin->get('args') : '';
+			$snapinRw = $Snapin->isValid() ? $Snapin->get('runWith') : '';
+			$snapinRwa = $Snapin->isValid() ? $Snapin->get('runWithArgs') : '';
+			$snapinState = $SnapinTask->get('stateID');
+			$snapinReturn = $SnapinTask->get('return');
+			$snapinDetail = $SnapinTask->get('detail');
+			$snapinCreateDate = $Snapin->isValid() ? $this->formatTime($Snapin->get('createdTime'),'Y-m-d') : '';
+			$snapinCreateTime = $Snapin->isValid() ? $this->formatTime($Snapin->get('createdTime'),'H:i:s') : '';
+			$jobCreateDate = $this->formatTime($SnapinJob->get('createdTime'),'Y-m-d');
+			$jobCreateTime = $this->formatTime($SnapinJob->get('createdTime'),'H:i:s');
+			$TaskCheckinDate = $SnapinCheckin1->format('Y-m-d');
+			$TaskCheckinTime = $SnapinCheckin2->format('H:i:s');
+			$this->data[] = array(
+				'snap_name' => $snapinName,
+				'snap_state' => $snapinState,
+				'snap_return' => $snapinReturn,
+				'snap_detail' => $snapinDetail,
+				'snap_create' => $snapinCreateDate,
+				'snap_time' => $snapinCreateTime,
+			);
+			$ReportMaker->addCSVCell($hostID);
+			$ReportMaker->addCSVCell($hostName);
+			$ReportMaker->addCSVCell($HostMac);
+			$ReportMaker->addCSVCell($snapinID);
+			$ReportMaker->addCSVCell($snapinName);
+			$ReportMaker->addCSVCell($snapinDesc);
+			$ReportMaker->addCSVCell($snapinFile);
+			$ReportMaker->addCSVCell($snapinArgs);
+			$ReportMaker->addCSVCell($snapinRw);
+			$ReportMaker->addCSVCell($snapinRwa);
+			$ReportMaker->addCSVCell($snapinState);
+			$ReportMaker->addCSVCell($snapinReturn);
+			$ReportMaker->addCSVCell($snapinDetail);
+			$ReportMaker->addCSVCell($snapinCreateDate);
+			$ReportMaker->addCSVCell($snapinCreateTime);
+			$ReportMaker->addCSVCell($jobCreateDate);
+			$ReportMaker->addCSVCell($jobCreateTime);
+			$ReportMaker->addCSVCell($TaskCheckinDate);
+			$ReportMaker->addCSVCell($TaskCheckinTime);
+			$ReportMaker->endCSVLine();
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());

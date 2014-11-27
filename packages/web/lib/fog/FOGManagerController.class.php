@@ -296,7 +296,7 @@ abstract class FOGManagerController extends FOGBase
 	/** find($where = array(),$whereOperator = 'AND',$orderBy = 'name',$sort = 'ASC')
 		Pulls the information from the database into the resepective class file.
 	*/
-	public function find($where = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC')
+	public function find($where = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC',$compare = '=')
 	{
 		try
 		{
@@ -314,9 +314,9 @@ abstract class FOGManagerController extends FOGBase
 				foreach ($where AS $field => $value)
 				{
 					if (is_array($value))
-						$whereArray[] = sprintf("`%s` IN ('%s')", $this->DB->sanitize($this->key($field)), implode("', '", $value));
+						$whereArray[] = sprintf("`%s` IN ('%s')", $this->key($field), implode("', '", $value));
 					else
-						$whereArray[] = sprintf("`%s` %s '%s'", $this->DB->sanitize($this->key($field)), (preg_match('#%#', $value) ? 'LIKE' : '='), $value);
+						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
 				}
 			}
 			// Select all
@@ -331,8 +331,6 @@ abstract class FOGManagerController extends FOGBase
 				$r = new ReflectionClass($this->childClass);
 				$data[] = $r->newInstance($row);
 			}
-			if (method_exists($this->DB->queryResult(),'free'))
-				$this->DB->queryResult()->free();
 			// Return
 			return (array)$data;
 		}
@@ -345,7 +343,7 @@ abstract class FOGManagerController extends FOGBase
 	/** count($where = array(),$whereOperator = 'AND')
 		Returns the count of the database.
 	*/
-	public function count($where = array(), $whereOperator = 'AND')
+	public function count($where = array(), $whereOperator = 'AND', $compare = '=')
 	{
 		try
 		{
@@ -363,9 +361,9 @@ abstract class FOGManagerController extends FOGBase
 				foreach ($where AS $field => $value)
 				{
 					if (is_array($value))
-						$whereArray[] = sprintf("`%s` IN ('%s')", $this->DB->sanitize($this->key($field)), implode("', '", $value));
+						$whereArray[] = sprintf("`%s` IN ('%s')", $this->key($field), implode("', '", $value));
 					else
-						$whereArray[] = sprintf("`%s` %s '%s'", $this->DB->sanitize($this->key($field)), (preg_match('#%#', $value) ? 'LIKE' : '='), $value);
+						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
 				}
 			}
 			// Count result rows
