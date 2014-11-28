@@ -917,52 +917,32 @@ class ReportManagementPage extends FOGPage
 		}
 		$date2 = date('Y-m-d',strtotime($date2.'+1 day'));
 		// Get all the User Trackers Based on info found.
-		$UserTrackers = $this->getClass('UserTrackingManager')->find(array('datetime' => ''),'','','',"BETWEEN '$date1' AND '$date2'");
-		//$UserTrackers = $this->getClass('UserTrackingManager')->find(array('username' => base64_decode($_REQUEST['userID']),'hostID' => $_REQUEST['hostID'] ? $_REQUEST['hostID'] : '%','datetime'));
+		$UserTracker = new UserTracking();
+		$UserToSearch = base64_decode($_REQUEST['userID']);
+		$compare = "BETWEEN '$date1' AND '$date2' AND ".$UserTracker->databaseFields['username'].(preg_match('#%#',$UserToSearch) ? " LIKE '$UserToSearch'" : "='$UserToSearch'");
+		if ($_REQUEST['hostID'])
+			$compare .= ' AND '.$UserTracker->databaseFields['hostID']."='".$_REQUEST['hostID']."'";;
+		$UserTrackers = $this->getClass('UserTrackingManager')->find(array('datetime' => ''),'','','',$compare);
 		foreach((array)$UserTrackers AS $User)
 		{
-			if ($_REQUEST['hostID'] && $User->get('hostID') == $_REQUEST['hostID'])
-			{
-				$date = $this->nice_date($User->get('datetime'));
-				$logintext = ($User->get('action') == 1 ? 'Login' : ($User->get('action') == 0 ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
-				$Host = current($this->getClass('HostManager')->find(array('id' => $User->get('hostID'))));
-				$this->data[] = array(
-					'action' => $logintext,
-					'username' => $User->get('username'),
-					'hostname' => $Host && $Host->isValid() ? $Host->get('name') : '',
-					'time' => $this->FOGCore->formatTime($User->get('datetime')),
-					'desc' => $User->get('description'),
-				);
-				$ReportMaker->addCSVCell($logintext);
-				$ReportMaker->addCSVCell($User->get('username'));
-				$ReportMaker->addCSVCell($Host && $Host->isValid() ? $Host->get('name') : '');
-				$ReportMaker->addCSVCell($Host && $Host->isValid() ? $Host->get('mac') : '');
-				$ReportMaker->addCSVCell($Host && $Host->isValid() ? $Host->get('description') : '');
-				$ReportMaker->addCSVCell($this->FOGCore->formatTime($User->get('datetime')));
-				$ReportMaker->addCSVCell($User->get('description'));
-				$ReportMaker->endCSVLine();
-			}
-			else if (!$_REQUEST['hostID'])
-			{
-				$date = $this->nice_date($User->get('datetime'));
-				$logintext = ($User->get('action') == 1 ? 'Login' : ($User->get('action') == 0 ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
-				$Host = current($this->getClass('HostManager')->find(array('id' => $User->get('hostID'))));
-				$this->data[] = array(
-					'action' => $logintext,
-					'username' => $User->get('username'),
-					'hostname' => $Host && $Host->isValid() ? $Host->get('name') : '',
-					'time' => $this->FOGCore->formatTime($User->get('datetime')),
-					'desc' => $User->get('description'),
-				);
-				$ReportMaker->addCSVCell($logintext);
-				$ReportMaker->addCSVCell($User->get('username'));
-				$ReportMaker->addCSVCell($Host && $Host->isValid() ? $Host->get('name') : '');
-				$ReportMaker->addCSVCell($Host && $Host->isValid() ? $Host->get('mac') : '');
-				$ReportMaker->addCSVCell($Host && $Host->isValid() ? $Host->get('description') : '');
-				$ReportMaker->addCSVCell($this->FOGCore->formatTime($User->get('datetime')));
-				$ReportMaker->addCSVCell($User->get('description'));
-				$ReportMaker->endCSVLine();
-			}
+			$date = $this->nice_date($User->get('datetime'));
+			$logintext = ($User->get('action') == 1 ? 'Login' : ($User->get('action') == 0 ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
+			$Host = current($this->getClass('HostManager')->find(array('id' => $User->get('hostID'))));
+			$this->data[] = array(
+				'action' => $logintext,
+				'username' => $User->get('username'),
+				'hostname' => $Host && $Host->isValid() ? $Host->get('name') : '',
+				'time' => $this->FOGCore->formatTime($User->get('datetime')),
+				'desc' => $User->get('description'),
+			);
+			$ReportMaker->addCSVCell($logintext);
+			$ReportMaker->addCSVCell($User->get('username'));
+			$ReportMaker->addCSVCell($Host && $Host->isValid() ? $Host->get('name') : '');
+			$ReportMaker->addCSVCell($Host && $Host->isValid() ? $Host->get('mac') : '');
+			$ReportMaker->addCSVCell($Host && $Host->isValid() ? $Host->get('description') : '');
+			$ReportMaker->addCSVCell($this->FOGCore->formatTime($User->get('datetime')));
+			$ReportMaker->addCSVCell($User->get('description'));
+			$ReportMaker->endCSVLine();
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
