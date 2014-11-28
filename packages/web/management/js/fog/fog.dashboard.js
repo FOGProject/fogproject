@@ -207,7 +207,7 @@ function UpdateBandwidth() {
 		dataType: 'json',
 		success: UpdateBandwidthGraph,
 		complete: function() {
-			setTimeout(UpdateBandwidth,200);
+			setTimeout(UpdateBandwidth,1000);
 		}
 	});
 }
@@ -241,7 +241,7 @@ function UpdateBandwidthGraph(data) {
 			GraphBandwidthData[i]['rx_old'].push([Math.round((data[i]['rx'] / 1024), 2)]);
 		}
 	}
-	GraphData = new Array();
+	GraphData = [[Now,0]];
 	for (i in GraphBandwidthData) {
 		GraphData.push({label: i, data: (GraphBandwidthFilterTransmitActive ? GraphBandwidthData[i]['tx'] : GraphBandwidthData[i]['rx'])});
 	}
