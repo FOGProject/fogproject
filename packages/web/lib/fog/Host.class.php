@@ -294,10 +294,10 @@ class Host extends FOGController
 		{
 			if ($this->get('id'))
 			{
-				$Users = $this->getClass('UserTrackingManager')->find(array('hostID' => $this->get('id')),'','datetime');
+				$Users = $this->getClass('UserTrackingManager')->find(array('hostID' => $this->get('id'),'action' => array(null,1)));
 				foreach((array)$Users AS $User)
 				{
-					if ($User && $User->isValid())
+					if ($User && $User->isValid() && $User->get('username') != 'Array')
 						$this->add('users', $User);
 				}
 			}
@@ -309,27 +309,27 @@ class Host extends FOGController
 	{
 		if ($this->key($key) == 'printers')
 			$this->loadPrinters();
-		else if ($this->key($key) == 'additionalMACs')
+		if ($this->key($key) == 'additionalMACs')
 			$this->loadAdditional();
-		else if ($this->key($key) == 'pendingMACs')
+		if ($this->key($key) == 'pendingMACs')
 			$this->loadPending();
-		else if ($this->key($key) == 'mac')
+		if ($this->key($key) == 'mac')
 			$this->loadPrimary();
-		else if ($this->key($key) == 'snapins')
+		if ($this->key($key) == 'snapins')
 			$this->loadSnapins();
-		else if ($this->key($key) == 'snapinjob')
+		if ($this->key($key) == 'snapinjob')
 			$this->loadSnapinJob();
-		else if ($this->key($key) == 'optimalStorageNode' && !$this->isLoaded('optimalStorageNode'))
+		if ($this->key($key) == 'optimalStorageNode' && !$this->isLoaded('optimalStorageNode'))
 			$this->set($key, $this->getImage()->getStorageGroup()->getOptimalStorageNode());
-		else if ($this->key($key) == 'modules')
+		if ($this->key($key) == 'modules')
 			$this->loadModules();
-		else if ($this->key($key) == 'inventory')
+		if ($this->key($key) == 'inventory')
 			$this->loadInventory();
-		else if ($this->key($key) == 'groups')
+		if ($this->key($key) == 'groups')
 			$this->loadGroups();
-		else if ($this->key($key) == 'task')
+		if ($this->key($key) == 'task')
 			$this->loadTask();
-		else if ($this->key($key) == 'users')
+		if ($this->key($key) == 'users')
 			$this->loadUsers();
 		return parent::get($key);
 	}
@@ -339,7 +339,7 @@ class Host extends FOGController
 		if (($this->key($key) == 'mac') && !($value instanceof MACAddress))
 			$value = new MACAddress($value);
 		// Printers
-		else if ($this->key($key) == 'printers')
+		if ($this->key($key) == 'printers')
 		{
 			$this->loadPrinters();
 			foreach ((array)$value AS $printer)
@@ -347,7 +347,7 @@ class Host extends FOGController
 			$value = (array)$newValue;
 		}
 		// Snapins
-		else if ($this->key($key) == 'snapins')
+		if ($this->key($key) == 'snapins')
 		{
 			$this->loadSnapins();
 			foreach ((array)$value AS $snapin)
@@ -355,10 +355,10 @@ class Host extends FOGController
 			$value = (array)$newValue;
 		}
 		// SnapinJob
-		else if ($this->key($key) == 'snapinjob' && !($value instanceof SnapinJob))
+		if ($this->key($key) == 'snapinjob' && !($value instanceof SnapinJob))
 			$value = new SnapinJob($value);
 		// Modules
-		else if ($this->key($key) == 'modules')
+		if ($this->key($key) == 'modules')
 		{
 			$this->loadModules();
 			foreach((array)$value AS $module)
@@ -366,10 +366,10 @@ class Host extends FOGController
 			$value = (array)$newValue;
 		}
 		// Inventory
-		else if (($this->key($key) == 'inventory') && !($value instanceof Inventory))
+		if (($this->key($key) == 'inventory') && !($value instanceof Inventory))
 			$value = new Inventory($value);
 		// Groups
-		else if ($this->key($key) == 'groups')
+		if ($this->key($key) == 'groups')
 		{
 			$this->loadGroups();
 			foreach ((array)$value AS $group)
@@ -377,10 +377,10 @@ class Host extends FOGController
 			$value = (array)$newValue;
 		}
 		// Task
-		else if (($this->key($key) == 'task') && !($value instanceof Task))
+		if (($this->key($key) == 'task') && !($value instanceof Task))
 			$value = new Task($value);
 		// Users
-		else if ($this->key($key) == 'users')
+		if ($this->key($key) == 'users')
 		{
 			$this->loadUsers();
 			foreach ((array)$value AS $user)
@@ -399,43 +399,43 @@ class Host extends FOGController
 			$value = new MACAddress($value);
 		}
 		// Pending MAC Addresses
-		else if ($this->key($key) == 'pendingMACs' && !($value instanceof MACAddress))
+		if ($this->key($key) == 'pendingMACs' && !($value instanceof MACAddress))
 		{
 			$this->loadPending();
 			$value = new MACAddress($value);
 		}
 		// Printers
-		else if ($this->key($key) == 'printers' && !($value instanceof Printer))
+		if ($this->key($key) == 'printers' && !($value instanceof Printer))
 		{
 			$this->loadPrinters();
 			$value = new Printer($value);
 		}
 		// Snapins
-		else if ($this->key($key) == 'snapins' && !($value instanceof Snapin))
+		if ($this->key($key) == 'snapins' && !($value instanceof Snapin))
 		{
 			$this->loadSnapins();
 			$value = new Snapin($value);
 		}
 		// Modules
-		else if ($this->key($key) == 'modules' && !($value instanceof Module))
+		if ($this->key($key) == 'modules' && !($value instanceof Module))
 		{
 			$this->loadModules();
 			$value = new Module($value);
 		}
 		// Inventory
-		else if ($this->key($key) == 'inventory' && !($value instanceof Inventory))
+		if ($this->key($key) == 'inventory' && !($value instanceof Inventory))
 		{
 			$this->loadInventory();
 			$value = new Inventory($value);
 		}
 		// Groups
-		else if ($this->key($key) == 'groups' && !($value instanceof Group))
+		if ($this->key($key) == 'groups' && !($value instanceof Group))
 		{
 			$this->loadGroups();
 			$value = new Group($value);
 		}
 		// Users
-		else if ($this->key($key) == 'users' && !($value instanceof UserTracking))
+		if ($this->key($key) == 'users' && !($value instanceof UserTracking))
 		{
 			$this->loadUsers();
 			$value = new UserTracking($value);
@@ -449,19 +449,19 @@ class Host extends FOGController
 		if ($this->key($key) == 'printers')
 			$this->loadPrinters();
 		// Snapins
-		else if ($this->key($key) == 'snapins')
+		if ($this->key($key) == 'snapins')
 			$this->loadSnapins();
 		// SnapinJob
-		else if ($this->key($key) == 'snapinjob')
+		if ($this->key($key) == 'snapinjob')
 			$this->loadSnapinJob();
 		// Modules
-		else if ($this->key($key) == 'modules')
+		if ($this->key($key) == 'modules')
 			$this->loadModules();
 		// Groups
-		else if ($this->key($key) == 'groups')
+		if ($this->key($key) == 'groups')
 			$this->loadGroups();
 		// Users
-		else if ($this->key($key) == 'users')
+		if ($this->key($key) == 'users')
 			$this->loadUsers();
 		// Remove
 		return parent::remove($key, $object);
