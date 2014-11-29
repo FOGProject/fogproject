@@ -1106,37 +1106,35 @@ class HostManagementPage extends FOGPage
 					$_REQUEST['dte'] = $Date;
 				$optionDate[] = '<option value="'.$Date.'" '.($Date == $_REQUEST['dte'] ? 'selected="selected"' : '').'>'.$Date.'</option>';
 			}
-			print "\n\t\t\t".'<select name="dte" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select>';
+			print "\n\t\t\t".'<select name="dte" id="loghist-date" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select>';
 			print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><img src="images/go.png" class="noBorder" /></a></p>';
-			$UserLogins = $this->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'date' => ($_REQUEST['dte'] ? $_REQUEST['dte'] : $this->nice_date()->format('Y-m-d'))),'AND','datetime');
-			$_SESSION['fog_logins'] = array();
 			$cnt = 0;
+			$_SESSION['fog_logins'] = array();
 			foreach ((array)$Host->get('users') AS $UserLogin)
 			{
-				if ($UserLogin->isValid() && $UserLogin->get('date') == $_REQUEST['dte'])
+				if ($UserLogin && $UserLogin->isValid() && $UserLogin->get('date') == $_REQUEST['dte'])
 				{
 					$this->data[] = array(
-						'action' => ($UserLogin->get('action') == 1 ? _('Login') : ($UserLogin->get('action') == 0 ? _('Logout') : ($UserLogin->get('action') == 99 ? _('Service Start') : _('Service Stop')))),
+						'action' => ($UserLogin->get('action') == 1 ? _('Login') : ($UserLogin->get('action') == 0 ? _('Logout') : '')),
 						'user_name' => $UserLogin->get('username'),
 						'user_time' => $this->formatTime($UserLogin->get('datetime')),
 						'user_desc' => $UserLogin->get('description'),
 					);
-					$loginTime = $this->nice_Date($UserLogin->get('datetime'));
-					$arAllUsers[] = ($UserLogin->get('username') != 'Array' ? $UserLogin->get('username') : '');
-					if ($UserLogin->get('action') == 1 || $UserLogin->get('action') == 99)
+					if ($UserLogin->get('action') == 1)
 					{
-						$tmpUserLogin = new UserLoginEntry($UserLogin->get('username'));
-						$tmpUserLogin->setLogInTime($UserLogin->get('datetime'));
-						$tmpUserLogin->setClean(true);
+						$User = new UserLoginEntry($UserLogin->get('username'));
+						$User->setLogInTime($UserLogin->get('datetime'));
+						$User->setClean(true);
 					}
-					else if ($UserLogin->get('action') == 0)
+					else if ($UserLogin->get('action') == 0 || $UserLogin->get('action') == null)
 					{
-						if ($tmpUserLogin instanceof UserLoginEntry)
+						if ($User && $User instanceof UserLoginEntry)
 						{
-							$tmpUserLogin->setLogOutTime($UserLogin->get('datetime'));
-							$_SESSION['fog_logins'][] = serialize($tmpUserLogin);
-							$tmpUserLogin = '';
+							$User->setLogOutTime($UserLogin->get('datetime'));
+							$_SESSION['fog_logins'][] = serialize($User);
 						}
+						else
+							unset($User);
 					}
 				}
 			}
@@ -1149,8 +1147,7 @@ class HostManagementPage extends FOGPage
 			print "\n\t\t\t<p>"._('No user history data found!').'</p>';
 		// Reset for next tab
 		unset($this->data,$this->headerData);
-		if(count($_SESSION["fog_logins"])>0)
-			print '<p><img src="phpimages/hostloginhistory.phpgraph.php" /></p>';
+		print '<div id="login-history" style="width:575px;height:200px" /></div>';
 		print "\n\t\t\t</form>";
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t".'<div id="host-image-history" class="organic-tabs-hidden">';
@@ -1690,5 +1687,30 @@ class HostManagementPage extends FOGPage
 		{
 			printf('<div class="task-start-failed"><p>%s</p><p>%s</p></div>', _('Failed to Associate Hosts with Group'), $e->getMessage());
 		}
+	}
+	public function hostlogins()
+	{
+		$cnt = 0;
+		$first = true;
+		foreach($_SESSION['fog_logins'] AS $Login)
+		{
+			$Login = unserialize($Login);
+			if ($Login)
+			{
+				if ($first)
+					$first = false;
+				else
+				{
+					if ($last != $Login->getUser())
+						$cnt++;
+				}
+			}
+			$MainDate = $this->nice_date($_REQUEST['dte'])->getTimestamp();
+			$MainDate_1 = $this->nice_date($_REQUEST['dte']);
+			$MainDate_1->modify('+1 day');
+			$MainDate_1 = $MainDate_1->getTimestamp();
+			$Data[] = array('user' => $Login->getUser(),'min' => $MainDate,'max' => $MainDate_1,'login' => $this->nice_date($Login->getLogInTime())->getTimestamp(),'logout' => $this->nice_date($Login->getLogOutTime())->getTimestamp());
+		}
+		print json_encode($Data);
 	}
 }

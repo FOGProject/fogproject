@@ -112,6 +112,11 @@ if (($currentUser && $currentUser->isLoggedIn()) || $node == 'client')
 	print "\n\t".'<script type="text/javascript" src="js/fog/fog.main.js"></script>';
 	print "\n\t".'<script type="text/javascript" src="js/hideShowPassword.min.js"></script>';
 	print "\n\t".'<script type="text/javascript" src="js/jquery-ui.min.js"></script>';
+	print "\n\t".'<script type="text/javascript" src="js/flot/jquery.flot.js"></script>';
+	print "\n\t".'<script type="text/javascript" src="js/flot/jquery.flot.time.js"></script>';
+	print "\n\t".'<script type="text/javascript" src="js/flot/jquery.flot.pie.js"></script>';
+	print "\n\t".'<script type="text/javascript" src="js/flot/jquery.flot.JUMlib.js"></script>';
+	print "\n\t".'<script type="text/javascript" src="js/flot/jquery.flot.gantt.js"></script>';
 	// Auto find javascript based on $node and/or $sub
 	foreach (array("js/fog/fog.{$node}.js", "js/fog/fog.{$node}.{$sub}.js") AS $jsFilepath)
 	{
@@ -120,9 +125,6 @@ if (($currentUser && $currentUser->isLoggedIn()) || $node == 'client')
 	}
 	if ($isHomepage)
 	{
-		print "\n\t".'<script type="text/javascript" src="js/flot/jquery.flot.js"></script>';
-		print "\n\t".'<script type="text/javascript" src="js/flot/jquery.flot.time.js"></script>';
-		print "\n\t".'<script type="text/javascript" src="js/flot/jquery.flot.pie.js"></script>';
 		print "\n\t".'<script type="text/javascript" src="js/fog/fog.dashboard.js"></script>';
 		// Include 'excanvas' for HTML5 <canvas> support in IE 6/7/8/9...
 		// I hate IE soooo much, only Microsoft wouldnt fix their own broken software

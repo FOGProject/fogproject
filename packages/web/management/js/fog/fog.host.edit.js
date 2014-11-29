@@ -5,9 +5,101 @@
  *	Revision:	$Revision$
  *	Last Update:	$LastChangedDate$
  ***/
-
+var $_GET = getQueryParams(document.location.search);
+function getQueryParams(qs) {
+	qs = qs.split("+").join(" ");
+	var params = {},
+		tokens,
+		re = /[?&]?([^=]+)=([^&]*)/g
+	while (tokens = re.exec(qs)) {
+		params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+	}
+	return params;
+}
+var LoginHistory = $('#login-history');
+var LoginHistoryDate = $('#loghist-date');
+var LoginHistoryData = new Array();
+var Labels = new Array();
+var LabelData = new Array();
+var LoginData = new Array();
+var LoginDateMin = new Array();
+var LoginDateMax = new Array();
+function UpdateLoginGraph()
+{	
+	$.ajax({
+		url: location.href.replace('edit','hostlogins'),
+		cache: false,
+		type: 'GET',
+		data: {
+			dte: LoginHistoryDate.val()
+		},
+		dataType: 'json',
+		success: UpdateLoginGraphPlot
+	});
+}
+function UpdateLoginGraphPlot(data) {
+	// If nothing is available, nothing is returned
+	if (data == null) return;
+	// Initiate counter
+	j =0;
+	// Loop through the data
+	for (i in data) {
+		// Set the time intervals as they're only used for this iteration.
+		LoginTime = new Date(data[i]['login']*1000).getTime();
+		LogoutTime = new Date(data[i]['logout']*1000).getTime();
+		LoginDateMin = new Date(data[i]['min']*1000);
+		LoginDateMax = new Date(data[i]['max']*1000);
+		LoginDateMin = new Date(LoginDateMin.getTime() - LoginDateMin.getTimezoneOffset() * 60000);
+		LoginDateMax = new Date(LoginDateMax.getTime() - LoginDateMax.getTimezoneOffset() * 60000);
+		// Prepare the new items as necessary
+		if (typeof(Labels) == 'undefined') {
+			Labels = new Array();
+			LabelData[i] = new Array();
+			LoginData[i] = new Array();
+		}
+		// Does data exist for this item, if so place the data on the same line.
+		if ($.inArray(data[i]['user'],Labels) > -1) {
+			LoginData[i] = [LoginTime,$.inArray(data[i]['user'],Labels)+1,LogoutTime,data[i]['user']];
+		// Otherwise create a new entry
+		} else {
+			Labels.push(data[i]['user']);
+			LabelData[i] = [j+1,data[i]['user']];
+			LoginData[i] = [LoginTime,++j,LogoutTime,data[i]['user']];
+		}
+	}
+	LoginHistoryData = [{label: 'Logged In Time',data:LoginData}];
+	var LoginHistoryOpts = {
+		colors: ['rgb(0,120,0)'],
+		series: {
+			gantt: {
+				active:true,
+				show:true,
+				barHeight:.2
+			}
+		},
+		xaxis: {
+			min: LoginDateMin,
+			max: LoginDateMax,
+			mode: 'time'
+		},
+		yaxis: {
+			min: 0,
+			max: LabelData.length + 1,
+			ticks: LabelData,
+		},
+		grid: {
+			hoverable: true,
+			clickable: true,
+		},
+		legend: {
+			position: "nw"
+		}
+	};
+	$.plot(LoginHistory, LoginHistoryData, LoginHistoryOpts);
+}
 $(function()
 {
+	UpdateLoginGraph();
 	// Bind to AD Settings checkbox
 	$('#adEnabled').change(function() {
 		

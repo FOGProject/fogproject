@@ -8,16 +8,7 @@
 // TODO: Merge this with $.fn.fogAjaxSearch()
 var ActiveTasksContainer;
 var ActiveTasksLastCount;
-// Auto loader
-$(function() {
-	// Show Task Container if we have items
-	ActiveTasksContainer = $('#active-tasks');
-	if (ActiveTasksContainer.find('tbody > tr').size() > 0) ActiveTasksContainer.show();
-	// Hook buttons
-	ActiveTasksButtonHook();
-	// Update timer
-	ActiveTasksUpdateTimerStart();
-});
+var $_GET = getQueryParams(document.location.search);
 function getQueryParams(qs) {
 	qs = qs.split("+").join(" ");
 	var params = {},
@@ -28,8 +19,17 @@ function getQueryParams(qs) {
 	}
 	return params;
 }
+// Auto loader
+$(function() {
+	// Show Task Container if we have items
+	ActiveTasksContainer = $('#active-tasks');
+	if (ActiveTasksContainer.find('tbody > tr').size() > 0) ActiveTasksContainer.show();
+	// Hook buttons
+	ActiveTasksButtonHook();
+	// Update timer
+	ActiveTasksUpdateTimerStart();
+});
 function ActiveTasksUpdateTimerStart() {
-	var $_GET = getQueryParams(document.location.search);
 	var Subs = ['search','listhosts','listgroups','active-multicast','active-snapins','scheduled'];
 	if ($.inArray($_GET['sub'],Subs) == -1) {
 		ActiveTasksUpdateTimer = setTimeout(function() {
