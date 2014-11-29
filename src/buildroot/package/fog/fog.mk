@@ -39,15 +39,16 @@ clamavfix:
 	rm -rf $(TARGET_DIR)/usr/share/clamav
 	mkdir $(TARGET_DIR)/usr/share/clamav
 
-fogpartclone:
-	cp package/fog/$(FOG_PARTCLONE_ARCH)/partclone.* $(TARGET_DIR)/usr/sbin/
+#fogpartclone:
+#	cp package/fog/$(FOG_PARTCLONE_ARCH)/partclone.* $(TARGET_DIR)/usr/sbin/
 
 usbreset:
 	rm -f $(TARGET_DIR)/usr/sbin/usbreset
 	$(CC) $(FOG_DIR)/usbreset.c -o $(FOG_DIR)/usbreset
 	$(INSTALL) -D -m 0755 $(FOG_DIR)/usbreset $(TARGET_DIR)/usr/sbin/usbreset
 
-fog: parted $(TARGET_DIR)/bin/fogmbrfix $(TARGET_DIR)/bin/fogpartinfo fogscripts inittabfix clamavfix fogpartclone usbreset
+fog: parted $(TARGET_DIR)/bin/fogmbrfix $(TARGET_DIR)/bin/fogpartinfo fogscripts inittabfix clamavfix usbreset
+#fogpartclone
 
 fog-clean:
 	-$(MAKE) -C $(FOG_DIR) clean
