@@ -1,6 +1,7 @@
 ################################################################################
 #
 # partclone
+# ln -s /usr/include/ncursesw $(@D)/../../staging/usr/include/ && \
 #
 ################################################################################
 
@@ -13,7 +14,6 @@ PARTCLONE_DEPENDENCIES = attr e2fsprogs libgcrypt lzo xz zlib xfsprogs ncurses h
 PARTCLONE_CONF_OPT = --enable-static --enable-xfs --enable-btrfs --enable-ntfs --enable-extfs --enable-fat --enable-hfsp --enable-static --enable-ncursesw
 
 define PARTCLONE_LINK_LIBRARIES_TOOL
-	ln -s /usr/include/ncursesw $(@D)/../../staging/usr/include/ && \
 	ln -s /usr/include/xfs $(@D)/../../staging/usr/include/ && \
 	ln -s /usr/lib/libxfs* $(@D)/../../staging/usr/lib/
 endef
