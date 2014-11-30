@@ -86,7 +86,7 @@ class MySQL extends FOGBase
 				$sql = vsprintf($sql, $data);
 			// Query
 			$this->query = $sql;
-			if (!$this->queryResult = $this->link->query($this->query,($_REQUEST['node'] == 'report' ? MYSQLI_USE_RESULT : MYSQLI_STORE_RESULT)))
+			if (!$this->queryResult = $this->link->query($this->query))
 				throw new Exception(_('An error in running a query has been found Error: ').$this->link->error);
 			if ($this->num_rows)
 				$this->link->free();

@@ -418,49 +418,52 @@ class ReportManagementPage extends FOGPage
 		// Loop through each of the hosts.
 		foreach((array)$Hosts AS $Host)
 		{
-			// Find the image information
-			if ($Host->get('imageID'))
-				$Image = $Host->getImage();
-			// Find the os information if image is set.
-			if ($Image && $Image->isValid() && $Image->getOS())
-				$OS = $Image->getOS();
-			// Find the current inventory for this host
-			$Inventory = current($this->getClass('InventoryManager')->find(array('hostID' => $Host->get('id'))));
-			// If found print data
-			if($Inventory)
+			if ($Host && $Host->isValid())
 			{
-				$this->data[] = array(
-					'host_name' => $Host->get('name'),
-					'host_mac' => $Host->get('mac'),
-					'os_name' => $OS && $OS->isValid()  ? $OS->get('name') : '',
-					'memory' => $Inventory->getMem(),
-					'sysprod' => $Inventory->get('sysproduct'),
-					'sysser' => $Inventory->get('sysserial'),
-				);
-				foreach((array)$csvHead AS $head => $classGet)
+				// Find the image information
+				if ($Host->get('imageID'))
+					$Image = $Host->getImage();
+				// Find the os information if image is set.
+				if ($Image && $Image->isValid() && $Image->getOS())
+					$OS = $Image->getOS();
+				// Find the current inventory for this host
+				$Inventory = $Host->get('inventory');
+				// If found print data
+				if($Inventory)
 				{
-					if ($head == _('Host ID'))
-						$ReportMaker->addCSVCell($Host->get('id'));
-					else if ($head == _('Host name'))
-						$ReportMaker->addCSVCell($Host->get('name'));
-					else if ($head == _('Host MAC'))
-						$ReportMaker->addCSVCell($Host->get('mac'));
-					else if ($head == _('Host Desc'))
-						$ReportMaker->addCSVCell($Host->get('description'));
-					else if ($head == _('Image ID'))
-						$ReportMaker->addCSVCell($Image && $Image->isValid() ? $Image->get('id') : '');
-					else if ($head == _('Image Name'))
-						$ReportMaker->addCSVCell($Image && $Image->isValid() ? $Image->get('name') : '');
-					else if ($head == _('Image Desc'))
-						$ReportMaker->addCSVCell($Image && $Image->isValid() ? $Image->get('description') : '');
-					else if ($head == _('OS Name'))
-						$ReportMaker->addCSVCell($OS && $OS->isValid() ? $OS->get('name') : '');
-					else if ($head == _('Memory'))
-						$ReportMaker->addCSVCell($Inventory->getMem());
-					else
-						$ReportMaker->addCSVCell($Inventory->get($classGet));
+					$this->data[] = array(
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac'),
+						'os_name' => $OS && $OS->isValid()  ? $OS->get('name') : '',
+						'memory' => $Inventory->getMem(),
+						'sysprod' => $Inventory->get('sysproduct'),
+						'sysser' => $Inventory->get('sysserial'),
+					);
+					foreach((array)$csvHead AS $head => $classGet)
+					{
+						if ($head == _('Host ID'))
+							$ReportMaker->addCSVCell($Host->get('id'));
+						else if ($head == _('Host name'))
+							$ReportMaker->addCSVCell($Host->get('name'));
+						else if ($head == _('Host MAC'))
+							$ReportMaker->addCSVCell($Host->get('mac'));
+						else if ($head == _('Host Desc'))
+							$ReportMaker->addCSVCell($Host->get('description'));
+						else if ($head == _('Image ID'))
+							$ReportMaker->addCSVCell($Image && $Image->isValid() ? $Image->get('id') : '');
+						else if ($head == _('Image Name'))
+							$ReportMaker->addCSVCell($Image && $Image->isValid() ? $Image->get('name') : '');
+						else if ($head == _('Image Desc'))
+							$ReportMaker->addCSVCell($Image && $Image->isValid() ? $Image->get('description') : '');
+						else if ($head == _('OS Name'))
+							$ReportMaker->addCSVCell($OS && $OS->isValid() ? $OS->get('name') : '');
+						else if ($head == _('Memory'))
+							$ReportMaker->addCSVCell($Inventory->getMem());
+						else
+							$ReportMaker->addCSVCell($Inventory->get($classGet));
+					}
+					$ReportMaker->endCSVLine();
 				}
-				$ReportMaker->endCSVLine();
 			}
 		}
 		// This is for the pdf.
