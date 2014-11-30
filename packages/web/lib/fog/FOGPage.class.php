@@ -124,7 +124,7 @@ abstract class FOGPage extends FOGBase
 				$result[] = sprintf('%s<table width="%s" cellpadding="0" cellspacing="0" border="0"%s>%s<thead>%s<tr class="header">%s</tr>%s</thead>%s<tbody>%s',
 					"\n\n\t\t\t",
 					'100%',
-					($this->searchFormURL ? ' id="search-content"' : ($this->node == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']) ? ' id="active-tasks"' : '')),
+					($this->searchFormURL ? ' id="search-content"' : ''),
 					"\n\t\t\t\t",
 					"\n\t\t\t\t\t",
 					$this->buildHeaderRow(),
