@@ -8,8 +8,8 @@ class HostUsers extends FOGBase
 	}
 	private function makeReport()
 	{
-		print '<h2>'._('FOG Hosts and Users Login').'<a href="export.php?type=csv&filename=HostsandUsers" target="_blank"><img class="noBorder" src="images/csv.png" /></a><a href="export.php?type=pdf&filename=HostsandUsers" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
-		$Hosts = $this->getClass('HostManager')->find();
+		print '<h2>'._('FOG Hosts and Users Login').'<a href="export.php?type=csv" target="_blank"><img class="noBorder" src="images/csv.png" /></a><a href="export.php?type=pdf" target="_blank"><img class="noBorder" src="images/pdf.png" /></a></h2>';
+		$Hosts = $this->FOGCore->getClass('HostManager')->find('','','','','','name');
 		$report = new ReportMaker();
 		$report->appendHTML('<table cellpadding="0" cellspacing="0" border="0" width="100%">');
 		$report->appendHTML('<tr bgcolor="#BDBDBD"><td><b>Hostname</b></td><td><b>MAC</b></td><td><b>Registered</b></td></tr>');
