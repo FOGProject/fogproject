@@ -271,10 +271,13 @@ var Loader;
 			// If we found the Hostname
 			if (hostname) {
 				element.data('fog-ping', $.ajax({
-					type: 'GET',
+					url: '../management/index.php',
 					cache: false,
-					url: 'ajax/host.ping.php',
-					data: {'ping': hostname},
+					type: 'GET',
+					data: {
+						sub: 'getPing',
+						ping: hostname
+					},
 					dataType: 'text',
 					beforeSend: function() {
 						element.addClass('icon').addClass('icon-loading');

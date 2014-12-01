@@ -9,6 +9,28 @@
 // JQuery autoloader
 $(function()
 {
+	// Bind to AD Settings checkbox
+	$('#adEnabled').change(function() {
+		if ($(this).attr('checked')) {
+			if ($('#adDomain').val() == '' && $('#adUsername').val() == '' &&  $('#adPassword').val() == '') {
+				$.ajax({
+					url: '../management/index.php',
+					cache: false,
+					type: 'GET',
+					data: {sub: 'adInfo'},
+					dataType: 'json',
+					success: function(data) {
+						$('#adDomain').val(data['domainname']);
+						$('#adUsername').val(data['domainuser']);
+						$('#adPassword').val(data['domainpass']);
+						if ($('#adOU').is('input:text') && $('#adOU').val() == '') {
+							$('#adOU').val(data['ou']);
+						}
+					}
+				});
+			}
+		}
+	});
 	var allRadios = $('.default');
 	var radioChecked;
 	var setCurrent = function(e) {
@@ -58,24 +80,24 @@ $(function()
 	// The below elements just performs the randomization techniques.
 	$('#FOG_AES_PASS_ENCRYPT_KEY_button').click(function() {
 		$.ajax({
-			'type': 'GET',
-			'url': 'ajax/random.php',
-			'cache': false,
-			'dataType': 'json',
-			'success': function(data)
-			{
+			type: 'GET',
+			url: '../management/index.php',
+			cache: false,
+			data: {sub: 'random'},
+			dataType: 'json',
+			success: function(data){
 				$('#FOG_AES_PASS_ENCRYPT_KEY_text').val(data['key']);
 			}
 		});
 	});
 	$('#FOG_AES_ADPASS_ENCRYPT_KEY_button').click(function() {
 		$.ajax({
-			'type': 'GET',
-			'url': 'ajax/random.php',
-			'cache': false,
-			'dataType': 'json',
-			'success': function(data)
-			{
+			type: 'GET',
+			url: '../management/index.php',
+			cache: false,
+			data: {sub: 'random'},
+			dataType: 'json',
+			success: function(data){
 				$('#FOG_AES_ADPASS_ENCRYPT_KEY_text').val(data['key']);
 			}
 		});

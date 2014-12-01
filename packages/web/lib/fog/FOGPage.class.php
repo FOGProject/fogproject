@@ -642,7 +642,179 @@ abstract class FOGPage extends FOGBase
 		printf('</form>');
 		printf('</div>');
 	}
-
+	/** adInfo() Returns AD Information to host/group
+	 * @return void
+	**/
+	public function adInfo()
+	{
+		$Data = array(
+			'domainname' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_DOMAINNAME'),
+			'ou' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'),
+			'domainuser' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_USER'),
+			'domainpass' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD'),
+		);
+		if ($this->FOGCore->isAJAXRequest())
+			print json_encode($Data);
+	}
+	/** getPing() Performs the ping stuff.
+	 * @return void
+	**/
+	public function getPing()
+	{
+		try
+		{
+			$ping = $_REQUEST['ping'];
+			if (!$_SESSION['AllowAJAXTasks'])
+				throw new Exception(_('FOG Session Invalid'));
+			if (!$ping || $ping == 'undefined')
+				throw new Exception(_('Undefined host to ping'));
+			if (!HostManager::isHostnameSafe($ping))
+				throw new Exception(_('Invalid Hostname'));
+			if (is_numeric($ping)) {
+				$Host = Host($ping);
+				$ping = $Host->get('name');
+			}
+			// Resolve Hostname
+			$ip = gethostbyname($ping);
+			if ($ip == $ping)
+				throw new Exception(_('Unable to resolve hostname'));
+			$result = $this->FOGCore->getClass('Ping',$ip)->execute();
+			if ($result !== true)
+				throw new Exception($result);
+			$SendMe = true;
+		}
+		catch (Exception $e)
+		{
+			$SendMe = $e->getMessage();
+		}
+		if ($this->FOGCore->isAJAXRequest())
+			print $SendMe;
+	}
+	public function kernelfetch()
+	{
+		try
+		{
+			if (!$_SESSION['AllowAJAXTasks'])
+				throw new Exception(_('FOG Session Invalid'));
+			if ($_SESSION['allow_ajax_kdl'] && $_SESSION['dest-kernel-file'] && $_SESSION['tmp-kernel-file'] && $_SESSION['dl-kernel-file'])
+			{
+				if ($_REQUEST['msg'] == 'dl')
+				{
+					$blUseProxy = false;
+					$proxyip = trim($this->FOGCore->getSetting('FOG_PROXY_IP'));
+					$proxyport = $this->FOGCore->getSetting('FOG_PROXY_PORT');
+					$proxyuser = $this->FOGCore->getSetting('FOG_PROXY_USERNAME');
+					$proxypass = $this->FOGCore->getSetting('FOG_PROXY_PASSWORD');
+					$proxy = ($proxyip ? $proxyip.':'.$proxyport : false);
+					$proxyauth = ($proxyuser ? $proxyuser.':'.$proxypass : false);
+					if ($proxy)
+						$blUseProxy = true;
+					if ($proxyauth)
+						$blUseProxyAuth = true;
+					$ch = curl_init();
+					curl_setopt($ch, CURLOPT_TIMEOUT, 700);
+					if ($blUseProxy)
+						curl_setopt($ch, CURLOPT_PROXY, $proxy);
+					if ($blUseProxyAuth)
+						curl_setopt($ch, CURLOPT_PROXYUSERPWD,$proxyauth);
+					curl_setopt($ch, CURLOPT_URL, $_SESSION['dl-kernel-file']);
+					curl_setopt($ch, CURLOPT_HEADER, false);
+					curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+					$fp = fopen($_SESSION['tmp-kernel-file'], 'wb');
+					if (!$fp)
+						throw new Exception(_('Error: Failed to open temp file'));
+					curl_setopt($ch, CURLOPT_FILE, $fp);
+					curl_exec($ch);
+					curl_close($ch);
+					fclose($fp);
+					if (!file_exists($_SESSION['tmp-kernel-file']))
+						throw new Exception(_('Error: Failed to download kernel'));
+					if (!filesize($_SESSION['tmp-kernel-file']) >  1048576)
+						throw new Exception(_('Error: Download Failed: filesize').' - '.filesize($_SESSION['tmp-kernel-file']));
+					$SendME = "##OK##";
+				}
+				else if ($_REQUEST['msg'] == 'tftp')
+				{
+					$destfile = $_SESSION['dest-kernel-file'];
+					$tmpfile = $_SESSION['tmp-kernel-file'];
+					unset($_SESSION['dest-kernel-file'],$_SESSION['tmp-kernel-file'],$_SESSION['dl-kernel-file']);
+					$this->FOGFTP->set('host',$this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_TFTP_HOST')))
+								 ->set('username',trim($this->FOGCore->getSetting('FOG_TFTP_FTP_USERNAME')))
+								 ->set('password',trim($this->FOGCore->getSetting('FOG_TFTP_FTP_PASSWORD')));
+					if (!$this->FOGFTP->connect())
+						throw new Exception(_('Error: Unable to connect to tftp server'));
+					$orig = rtrim($this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/');
+					$backuppath = $orig.'/backup/';
+					$orig .= '/'.$destfile;
+					$backupfile = $backuppath.$destfile.$this->formatTime('','Ymd_His');
+					$this->FOGFTP->mkdir($backuppath);
+					$this->FOGFTP->rename($backupfile,$orig);
+					if (!$this->FOGFTP->put($orig,$tmpfile,FTP_BINARY))
+						throw new Exception(_('Error: Failed to install new kernel'));
+					@unlink($tmpfile);
+					$SendME = "##OK##";
+				}
+			}
+		}
+		catch (Exception $e)
+		{
+			print $e->getMessage();
+		}
+		$this->FOGFTP->close();
+		print $SendME;
+	}
+	public function loginInfo()
+	{
+		$fetchDataInfo = array(
+			'sites' => 'http://www.fogproject.org/globalusers/',
+			'version' => 'http://freeghost.sourceforge.net/version/version.php',
+		);
+		foreach((array)$fetchDataInfo AS $key => $url)
+		{
+			if ($fetchedData = $this->FOGCore->fetchURL($url))
+				$data[$key] = $fetchedData;
+			else
+				$data['error-'.$key] = _('Error contacting server');
+		}
+		print json_encode($data);
+	}
+	public function random()
+	{
+		try
+		{
+			if (!$_SESSION['AllowAJAXTasks'])
+				throw new Exception(_('FOG Session Invalid'));
+			$Data = array('key' => $this->FOGCore->randomString(32));
+		}
+		catch (Exception $e)
+		{
+			$Data = $e->getMessage();
+		}
+		if ($this->FOGCore->isAJAXRequest())
+			print json_encode($Data);
+	}
+	public function getmacman()
+	{
+		try
+		{
+			if (!$_SESSION['AllowAJAXTasks'])
+				throw new Exception(_('FOG Session Invalid'));
+			$prefix = $_REQUEST['prefix'];
+			if (!$prefix && strlen($prefix) >= 8)
+				throw new Exception(_('Unknown'));
+			if (!$this->FOGCore->getMACLookupCount() > 0)
+				throw new Exception('<a href="?node=about&sub=mac-list">'._('Load MAC Vendors').'</a>');
+			$MAC = new MACAddress($prefix);
+			if ($MAC && $MAC->isValid())
+				$Data = '<small>'.($mac == 'n/a' ? _('Unknown') : $this->FOGCore->getMACManufacturer($MAC->getMACPrefix())).'</small>';
+		}
+		catch (Exception $e)
+		{
+			$Data = $e->getMessage();
+		}
+		print $Data;
+	}
 	// Delete function, this should be more or less the same for all pages.
 	public function delete()
 	{
