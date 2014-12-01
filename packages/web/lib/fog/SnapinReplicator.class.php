@@ -19,7 +19,7 @@ class SnapinReplicator extends FOGBase
 	}
 	private function commonOutput()
 	{
-		$StorageNode = current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1,'ip' => array(gethostbyaddr($this->FOGCore->getIPAddress()),$this->FOGCore->getIPAddress()))));
+		$StorageNode = current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1,'ip' => $this->FOGCore->getIPAddress())));
 		try
 		{
 			if ($StorageNode)
