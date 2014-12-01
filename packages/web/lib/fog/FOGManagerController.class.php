@@ -283,7 +283,7 @@ abstract class FOGManagerController extends FOGBase
 	/** find($where = array(),$whereOperator = 'AND',$orderBy = 'name',$sort = 'ASC')
 		Pulls the information from the database into the resepective class file.
 	*/
-	public function find($where = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC',$compare = '=')
+	public function find($where = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC',$compare = '=',$groupby = false)
 	{
 		try
 		{
@@ -307,9 +307,10 @@ abstract class FOGManagerController extends FOGBase
 				}
 			}
 			// Select all
-			$this->DB->query("SELECT * FROM `%s`%s ORDER BY `%s` %s", array(
+			$this->DB->query("SELECT * FROM `%s`%s%s ORDER BY `%s` %s", array(
 				$this->databaseTable,
 				(count($whereArray) ? ' WHERE ' . implode(' ' . $whereOperator . ' ', $whereArray) : ''),
+				($groupby ? ' GROUP BY '.$this->databaseFields[$groupby] : ''),
 				($this->databaseFields[$orderBy] ? $this->databaseFields[$orderBy] : $this->databaseFields['id']),
 				$sort
 			));
