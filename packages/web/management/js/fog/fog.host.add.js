@@ -9,54 +9,14 @@
 var MACLookupTimer;
 var MACLookupTimeout = 1000;
 
-$(function()
-{
-	$('#adEnabled').change(function() {
-		if ( $(this).attr('checked') )
-		{
-			if ($('#adDomain').val() == '' && $('#adUsername').val() == '' && $('#adPassword').val() == '')
-			{
-				$.ajax({
-					'type':		'GET',
-					'url':		'ajax/host.adsettings.php',
-					'cache':	false,
-					'dataType':	'json',
-					'success':	function(data)
-					{
-						$('#adDomain').val(data['domainname']);
-						$('#adUsername').val(data['domainuser']);
-						$('#adPassword').val(data['domainpass']);
-					}
-				});
-			}
-			if ($('#adOU').is('input:text') && $('#adOU').val() == '')
-			{
-				$.ajax({
-					'type': 'GET',
-					'url': 'ajax/host.adsettings.php',
-					'cache': false,
-					'dataType': 'json',
-					'success': function(data)
-					{
-						$('#adOU').val(data['ou']);
-					}
-				});
-			}
-		}
-	});
-
-	MACUpdate = function()
-	{
+$(function() {
+	MACUpdate = function() {
 		var $this = $(this);
-		
 		$this.val($this.val().replace(/-/g, ':').toUpperCase());
-		
 		if (MACLookupTimer) clearTimeout(MACLookupTimer);
-		MACLookupTimer = setTimeout(function()
-		{
-			$('#priMaker').load('./ajax/mac-getman.php?prefix=' + $this.val());
+		MACLookupTimer = setTimeout(function() {
+			$('#primaker').load('../management/index.php?sub=getmacman&prefix=' + mac);
 		}, MACLookupTimeout);
 	};
-	
 	$('#mac').keyup(MACUpdate).blur(MACUpdate);
 });

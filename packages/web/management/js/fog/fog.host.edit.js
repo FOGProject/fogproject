@@ -97,45 +97,8 @@ function UpdateLoginGraphPlot(data) {
 	};
 	$.plot(LoginHistory, LoginHistoryData, LoginHistoryOpts);
 }
-$(function()
-{
+$(function() {
 	UpdateLoginGraph();
-	// Bind to AD Settings checkbox
-	$('#adEnabled').change(function() {
-		
-		if ( $(this).attr('checked') )
-		{
-			if ( $('#adDomain').val() == '' && $('#adUsername').val() == '' &&  $('#adPassword').val() == '')
-			{
-				$.ajax({
-					'type':		'GET',
-					'url':		'ajax/host.adsettings.php',
-					'cache':	false,
-					'dataType':	'json',
-					'success':	function(data)
-					{	
-						$('#adDomain').val(data['domainname']);
-						$('#adUsername').val(data['domainuser']);
-						$('#adPassword').val(data['domainpass']);
-					}
-				});
-			}
-			if ($('#adOU').is('input:text') && $('#adOU').val() == '')
-			{
-				$.ajax({
-					'type': 'GET',
-					'url': 'ajax/host.adsettings.php',
-					'cache': false,
-					'dataType': 'json',
-					'success': function(data)
-					{
-						$('#adOU').val(data['ou']);
-					}
-				});
-			}
-		}
-	});
-
 	// Uncheck default printer boxes.
 	$('input:checkbox[name="default"]').click(function() {
 		var ischecked = $(this).attr('checked');
@@ -149,7 +112,7 @@ $(function()
 		var $this = $(this);
 		var input = $this.parent().find('input');
 		var mac = (input.size() ? input.val() : $this.parent().find('.mac').html());
-		$this.load('./ajax/mac-getman.php?prefix=' + mac);
+		$this.load('../management/index.php?sub=getmacman&prefix=' + mac);
 	});
 	
 	// Remove MAC Buttons

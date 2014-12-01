@@ -4,17 +4,15 @@
 $(function()
 {
 	$("#currentdlstate").html( 'Downloading file...' );
-	$.post('./ajax/kernel-fetcher.php', { msg: "dl" }, dlComplete, "text");
+	$.post('../management/index.php?sub=kernelfetch',{msg: "dl"}, dlComplete, "text");
 });
 				
 function dlComplete(data, textStatus) 
 {
-	if ( textStatus == "success" )
-	{
-		if ( data == "##OK##" )
-		{
+	if (textStatus == "success") {
+		if ( data == "##OK##" ) {
 			$("#currentdlstate").html( 'Download Completed! Moving file to TFTP server...' );
-			$.post('./ajax/kernel-fetcher.php', { msg: "tftp" }, mvComplete, "text");
+			$.post('../management/index.php?sub=kernelfetch',{msg: "tftp"}, mvComplete, "text");
 		}
 		else
 		{
