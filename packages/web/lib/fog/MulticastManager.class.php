@@ -81,7 +81,7 @@ class MulticastManager extends FOGBase
 		{
 			try
 			{
-				$StorageNode = current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1,'ip' => array(gethostbyaddr($this->FOGCore->getIPAddress()),$this->FOGCore->getIPAddress()))));
+				$StorageNode = current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1,'ip' => $this->FOGCore->getIPAddress())));
 				if (!$StorageNode || !$StorageNode->isValid())
 					throw new Exception(sprintf(" | StorageNode Not found on this system."));
 				$myroot = $StorageNode->get('path');

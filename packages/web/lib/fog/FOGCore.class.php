@@ -339,8 +339,10 @@ class FOGCore extends FOGBase
 			{
 				if (($bIp = ip2long($IP)) !== false)
 					$output[] = $IP;
+					$output[] = gethostbyaddr($IP);
 			}
 		}
+		$output = array_values(array_unique((array)$output));
 		return $output;
 	}
 	/** getBanner()
