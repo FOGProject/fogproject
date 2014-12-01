@@ -34,7 +34,8 @@ class HostUsers extends FOGBase
 				$report->addCSVCell('Time');
 				$report->endCSVLine();
 				$cnt1 = 0;
-				foreach ($Host->get('users') AS $User)
+				$Users = $this->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'action' => array(null,1)),'AND','datetime','DESC','=','username');
+				foreach ($Users AS $User)
 				{
 					$bg1 = ($cnt1++ % 2 == 0 ? "#E7E7E7" : '');
 					$logintext = ($User->get('action') == 1 ? 'Login' : (!$User->get('action') ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
