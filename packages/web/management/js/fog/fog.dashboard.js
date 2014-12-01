@@ -241,7 +241,7 @@ function UpdateBandwidthGraph(data) {
 			GraphBandwidthData[i]['rx_old'].push([Math.round((data[i]['rx'] / 1024), 2)]);
 		}
 	}
-	GraphData = [[Now,0]];
+	GraphData = new Array();
 	for (i in GraphBandwidthData) {
 		GraphData.push({label: i, data: (GraphBandwidthFilterTransmitActive ? GraphBandwidthData[i]['tx'] : GraphBandwidthData[i]['rx'])});
 	}
