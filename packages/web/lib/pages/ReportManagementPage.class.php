@@ -677,8 +677,8 @@ class ReportManagementPage extends FOGPage
 			_('Enter a hostname to search for') => '${host_sel}',
 			'&nbsp;' => '<input type="submit" value="'._('Search').'" />',
 		);
-		$Users = $this->getClass('UserTrackingManager')->find();
-		$Hosts = $this->getClass('HostManager')->find();
+		$Users = $this->getClass('UserTrackingManager')->find('','','','','','username');
+		$Hosts = $this->getClass('HostManager')->find('','','','','','name');
 		foreach((array)$Hosts AS $Host)
 			$HostNames[] = $Host->get('name');
 		foreach((array)$Users AS $User)
