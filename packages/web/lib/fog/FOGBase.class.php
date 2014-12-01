@@ -324,7 +324,7 @@ abstract class FOGBase
 		formats based on current date to date sent.  Otherwise
 		returns the information back based on the format requested.
 	*/
-	public function formatTime($time, $format = '', $utc = false)
+	public function formatTime($time, $format = false, $utc = false)
 	{
 		if (!$time instanceof DateTime)
 			$time = $this->nice_date($time,$utc);
@@ -332,6 +332,7 @@ abstract class FOGBase
 		if ($format)
 			return $time->format($format);
 		$weeks = array(
+			'oneday' => array(1,-1),
 			'curweek' => array(2,3,4,5,6,-2,-3,-4,-5,-6),
 			'1week' => array(7,8,9,10,11,12,13,-7,-8,-9,-10,-11,-12,-13),
 			'2weeks' => array(14,15,16,17,18,19,20,-14,-15,-16,-17,-18,-19,-20),
@@ -339,35 +340,46 @@ abstract class FOGBase
 			'4weeks' => array(28,29,30,31,-28,-29,-30,-31),
 		);
 		$CurrTime = $this->nice_date('now',$utc);
-		$TimeVal = $CurrTime->diff($time);
-		if (!($TimeVal->y > 1 || $TimeVal->m >= 1))
+		if ($time < $CurrTime)
+			$TimeVal = $CurrTime->diff($time);
+		if ($time > $CurrTime)
+			$TimeVal = $time->diff($CurrTime);
+		$Datediff = $TimeVal->d;
+		$NoAfter = false;
+		if ($TimeVal->y)
+			$RetDate = $TimeVal->y.' year'.($TimeVal->y != 1 ? 's' : '');
+		else if ($TimeVal->m)
+			$RetDate = $TimeVal->m.' month'.($TimeVal->m != 1 ? 's' : '');
+		else if ($time->format('Y-m-d') == $CurrTime->format('Y-m-d') || !$Datediff)
 		{
-			if ($time->format('Y-m-d') == $CurrTime->format('Y-m-d'))
-				$RetDate = ($time > $CurrTime ? _('Runs') : _('Ran')).' '._('today, at ').$time->format('g:ia');
-			else if (in_array(($time->format('d') - $CurrTime->format('d')),array(1,-1)))
-				$RetDate = ($time > $CurrTime ? _('Tomorrow at ') : _('Yesterday at ')).$time->format('g:ia');
-			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['curweek']))
-				$RetDate = ($time > $CurrTime ? _('This') : _('Last')).' '.$time->format('l')._(' at ').$time->format('g:ia');
-			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['1week']))
-				$RetDate = ($time > $CurrTime ? _('Next week') : _('Last week')).' '.$time->format('l')._(' at ').$time->format('g:ia');
-			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['2weeks']))
-				$RetDate = ($time > $CurrTime ? _('2 weeks from now') : _('2 weeks ago'));
-			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['3weeks']))
-				$RetDate = ($time > $CurrTime ? _('3 weeks from now') : _('3 weeks ago'));
-			else if (in_array(($time->format('d') - $CurrTime->format('d')),$weeks['4weeks']))
-				$RetDate = ($time > $CurrTime ? _('4 weeks from now') : _('4 weeks ago'));
+			$RetDate = ($time > $CurrTime ? _('Runs') : _('Ran')).' '._('today, at ').$time->format('g:ia');
+			$NoAfter = true;
 		}
-		else
+		else if (in_array($Datediff,$weeks['oneday']))
 		{
-			if ($TimeVal->y)
-				$RetDate = $TimeVal->y.' year'.($TimeVal->y != 1 ? 's' : '');
-			else if ($TimeVal->m)
-				$RetDate = $TimeVal->m.' month'.($TimeVal->m != 1 ? 's' : '');
-			if ($time < $CurrTime)
-				$RetDate .= ' ago';
-			if ($time > $CurrTime)
-				$RetDate .= ' from now';
+			$RetDate = ($time > $CurrTime ? _('Tomorrow at ') : _('Yesterday at ')).$time->format('g:ia');
+			$NoAfter = true;
 		}
+		else if (in_array($Datediff,$weeks['curweek']))
+		{
+			$RetDate = ($time > $CurrTime ? _('This') : _('Last')).' '.$time->format('l')._(' at ').$time->format('g:ia');
+			$NoAfter = true;
+		}
+		else if (in_array($Datediff,$weeks['1week']))
+		{
+			$RetDate = ($time > $CurrTime ? _('Next week') : _('Last week')).' '.$time->format('l')._(' at ').$time->format('g:ia');
+			$NoAfter = true;
+		}
+		else if (in_array($Datediff,$weeks['2weeks']))
+			$RetDate = ($time > $CurrTime ? _('2 weeks from now') : _('2 weeks ago'));
+		else if (in_array($Datediff,$weeks['3weeks']))
+			$RetDate = ($time > $CurrTime ? _('3 weeks from now') : _('3 weeks ago'));
+		else if (in_array($Datediff,$weeks['4weeks']))
+			$RetDate = ($time > $CurrTime ? _('4 weeks from now') : _('4 weeks ago'));
+		if ($time < $CurrTime && !$NoAfter)
+			$RetDate .= ' ago';
+		if ($time > $CurrTime && !$NoAfter)
+			$RetDate .= ' from now';
 		return $RetDate;
 	}
 	/** resetRequest()

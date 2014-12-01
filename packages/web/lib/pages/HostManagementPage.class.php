@@ -1154,24 +1154,18 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<h2>"._('Host Imaging History').'</h2>';
 		// Header Data for host image history
 		$this->headerData = array(
-			_('Start Time'),
-			_('End Time'),
-			_('Duration'),
 			_('Image Name'),
 			_('Imaging Type'),
+			'<small>'._('Start - End').'</small><br />'._('Duration'),
 		);
 		// Templates for the host image history
 		$this->templates = array(
-			'${start_time}',
-			'${end_time}',
-			'${duration}',
 			'${image_name}',
 			'${image_type}',
+			'<small>${start_time} - ${end_time}</small><br />${duration}',
 		);
 		// Attributes
 		$this->attributes = array(
-			array(),
-			array(),
 			array(),
 			array(),
 			array(),
@@ -1185,7 +1179,7 @@ class HostManagementPage extends FOGPage
 				$End = $ImageLog->get('finish');
 				$this->data[] = array(
 					'start_time' => $this->formatTime($Start),
-					'end_time' => $this->formatTime($Start),
+					'end_time' => $this->formatTime($End),
 					'duration' => $this->diff($Start,$End),
 					'image_name' => $ImageLog->get('image'),
 					'image_type' => $ImageLog->get('type'),
