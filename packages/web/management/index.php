@@ -99,8 +99,6 @@ if (($currentUser && $currentUser->isLoggedIn()) || $node == 'client')
 	print "\n\t<!-- JavaScript -->";
 	print "\n\t".'<script type="text/javascript" src="js/jquery-latest.js"></script>';
 	print "\n\t".'<script type="text/javascript" src="js/jquery-migrate-1.2.1.min.js"></script>';
-	print "\n\t".'<script type="text/javascript" src="js/calendar/jquery.dynDateTime.js"></script>';
-	print "\n\t".'<script type="text/javascript" src="js/calendar/calendar-en.js"></script>';
 	print "\n\t".'<script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>';
 	print "\n\t".'<script type="text/javascript" src="js/jquery.tipsy.js"></script>';
 	print "\n\t".'<script type="text/javascript" src="js/jquery.progressbar.js"></script>';
@@ -117,6 +115,7 @@ if (($currentUser && $currentUser->isLoggedIn()) || $node == 'client')
 	print "\n\t".'<script type="text/javascript" src="js/flot/jquery.flot.pie.js"></script>';
 	print "\n\t".'<script type="text/javascript" src="js/flot/jquery.flot.JUMlib.js"></script>';
 	print "\n\t".'<script type="text/javascript" src="js/flot/jquery.flot.gantt.js"></script>';
+	print "\n\t".'<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>';
 	// Auto find javascript based on $node and/or $sub
 	foreach (array("js/fog/fog.{$node}.js", "js/fog/fog.{$node}.{$sub}.js") AS $jsFilepath)
 	{

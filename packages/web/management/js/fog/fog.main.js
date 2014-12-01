@@ -195,17 +195,9 @@ $(function()
 	// Disable text selection in <label> elements
 	$('label').disableSelection();
 	
-	// LEGACY - Task Confirm Date/time picker
-	$('#scheduleSingleTime').dynDateTime({
-		'showsTime':	true,
-		'ifFormat':	'%Y/%m/%d %H:%M',
-		'daFormat':	'%l;%M %p, %e %m,  %Y',
-		'align':	'TL',
-		'electric':	false,
-		'timeFormat':	24,
-		'singleClick':	false,
-		'displayArea':	'.siblings(".dtcDisplayArea")',
-		'button':	'.next()'
+	$('#scheduleSingleTime').datetimepicker({
+		dateFormat: 'yy/mm/dd',
+		timeFormat: 'HH:mm'
 	});
 
 	// Snapin uploader for existing snapins
