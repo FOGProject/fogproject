@@ -168,7 +168,7 @@ class FOGCore extends FOGBase
 		if ($this->DB && $this->getSetting('FOG_PROXY_IP'))
 		{
 			foreach($this->getClass('StorageNodeManager')->find() AS $StorageNode)
-				$IPs[] = $StorageNode->get('ip');
+				$IPs[] = $this->resolveHostname($StorageNode->get('ip'));
 			$IPs = array_filter(array_unique($IPs));
 			if (!preg_match('#('.implode('|',$IPs).')#i',$URL))
 				$Proxy = $this->getSetting('FOG_PROXY_IP') . ':' . $this->getSetting('FOG_PROXY_PORT');

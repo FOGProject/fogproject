@@ -124,7 +124,7 @@ class DashboardPage extends FOGPage
 		// Loop each storage node -> grab stats
 		foreach($this->getClass('StorageNodeManager')->find(array('isGraphEnabled' => 1)) AS $StorageNode)
 		{
-			$URL = sprintf('http://%s/%s?dev=%s', rtrim($StorageNode->get('ip'), '/'), ltrim($this->FOGCore->getSetting("FOG_NFS_BANDWIDTHPATH"), '/'), $StorageNode->get('interface'));
+			$URL = sprintf('http://%s/%s?dev=%s', $this->FOGCore->resolveHostname($StorageNode->get('ip')), ltrim($this->FOGCore->getSetting("FOG_NFS_BANDWIDTHPATH"), '/'), $StorageNode->get('interface'));
 			// Fetch bandwidth stats from remote server
 			if ($fetchedData = $this->FOGCore->fetchURL($URL))
 			{
@@ -149,7 +149,7 @@ class DashboardPage extends FOGPage
 			try
 			{
 				$webroot = $this->FOGCore->getSetting('FOG_WEB_ROOT') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/').'/' : '/';
-				$URL = sprintf('http://%s%sstatus/freespace.php?path=%s',$StorageNode->get('ip'),$webroot,base64_encode($StorageNode->get('path')));
+				$URL = sprintf('http://%s%sstatus/freespace.php?path=%s',$this->FOGCore->resolveHostname($StorageNode->get('ip')),$webroot,base64_encode($StorageNode->get('path')));
 				if ($Response = $this->FOGCore->fetchURL($URL))
 				{
 					// Legacy client

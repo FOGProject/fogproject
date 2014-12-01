@@ -656,7 +656,7 @@ class Host extends FOGController
 			// FTP
 			$this->FOGFTP->set('username',$StorageNode->get('user'))
 				 ->set('password',$StorageNode->get('pass'))
-				 ->set('host',$StorageNode->get('ip'));
+				 ->set('host',$this->FOGCore->resolveHostname($StorageNode->get('ip')));
 			if ($this->FOGFTP->connect())
 			{
 				if(!$this->FOGFTP->chdir(rtrim($StorageNode->get('path'),'/').'/'.$Image->get('path')))

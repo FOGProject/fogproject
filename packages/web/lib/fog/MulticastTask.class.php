@@ -9,7 +9,7 @@ class MulticastTask extends FOGBase
 		foreach($FOGCore->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3))) AS $MultiSess)
 		{
 			$Image = new Image($MultiSess->get('image'));
-			if (in_array($Image->getStorageGroup()->getOptimalStorageNode()->get('ip'),$FOGCore->getIPAddress()))
+			if (in_array($FOGCore->resolveHostname($Image->getStorageGroup()->getOptimalStorageNode()->get('ip')),$FOGCore->getIPAddress()))
 			{
 				$count = $FOGCore->getClass('MulticastSessionsAssociationManager')->count(array('msID' => $MultiSess->get('id')));
 				$Image = new Image($MultiSess->get('image'));

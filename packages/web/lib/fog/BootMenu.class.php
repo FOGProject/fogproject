@@ -90,7 +90,7 @@ class BootMenu extends FOGBase
 		// If it is installed store the needed elements into variables.
 		if ($CaponePlugInst)
 		{
-			$this->storage = $StorageNode->get('ip');
+			$this->storage = $this->FOGCore->resolveHostname($StorageNode->get('ip'));
 			$this->path = $StorageNode->get('path');
 			$this->shutdown = $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN');
 		}
@@ -439,8 +439,8 @@ class BootMenu extends FOGBase
 		$StorageGroup = $Image->getStorageGroup();
 		$StorageNode = $StorageGroup->getOptimalStorageNode();
 		$osid = $Image->get('osID');
-		$storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),'');
-		$storageip = $StorageNode->get('ip');
+		$storage = sprintf('%s:/%s/%s',$this->FOGCore->resolveHostname(trim($StorageNode->get('ip'))),trim($StorageNode->get('path'),'/'),'');
+		$storageip = $this->FOGCore->resolveHostname($StorageNode->get('ip'));
 		$img = $Image->get('path');
 		$imgFormat = $Image->get('format');
 		$imgType = $Image->getImageType()->get('type');
@@ -778,9 +778,9 @@ class BootMenu extends FOGBase
 			else
 				$mac = $_REQUEST['mac'];
 			$osid = $Image->get('osID');
-			$storage = in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null;
-			$clamav = in_array($TaskType->get('id'),array(21,22)) ? sprintf('%s:%s',trim($StorageNode->get('ip')),'/opt/fog/clamav') : null;
-			$storageip = in_array($TaskType->get('id'),$imagingTasks) ? $StorageNode->get('ip') : null;
+			$storage = in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',$this->FOGCore->resolveHostname(trim($StorageNode->get('ip'))),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null;
+			$clamav = in_array($TaskType->get('id'),array(21,22)) ? sprintf('%s:%s',$this->FOGCore->resolveHostname(trim($StorageNode->get('ip'))),'/opt/fog/clamav') : null;
+			$storageip = in_array($TaskType->get('id'),$imagingTasks) ? $this->FOGCore->resolveHostname($StorageNode->get('ip')) : null;
 			$img = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('path') : null;
 			$imgFormat = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('format') : null;
 			$imgType = in_array($TaskType->get('id'),$imagingTasks) ? $Image->getImageType()->get('type') : null;
