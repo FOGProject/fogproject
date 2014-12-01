@@ -40,9 +40,11 @@ class ServerInfo extends FOGPage
 			'${field}',
 			'${input}',
 		);
-        if ($StorageNode != null)
+        if ($StorageNode)
 		{
-            if ($ret = $this->FOGCore->fetchURL('http://' . $StorageNode->get('ip') . '/fog/status/hw.php'))
+			$webroot = $this->FOGCore->getSetting('FOG_WEB_ROOT') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/').'/' : '/';
+			$URL = sprintf('http://%s%sstatus/hw.php',$this->FOGCore->resolveHostname($StorageNode->get('ip')),$webroot);
+            if ($ret = $this->FOGCore->fetchURL($URL))
 			{
 				$arRet = explode( "\n", $ret );
 				$section = 0; //general
@@ -91,7 +93,7 @@ class ServerInfo extends FOGPage
 					$fields = array(
 						'<b>'._('General Information') => '&nbsp;',
 						_('Storage Node') => $StorageNode->get('name'),
-						_('IP') => $StorageNode->get('ip'),
+						_('IP') => $this->FOGCore->resolveHostname($StorageNode->get('ip')),
 						_('Kernel') => $arGeneral[0],
 						_('Hostname') => $arGeneral[1],
 						_('Uptime') => $arGeneral[2],

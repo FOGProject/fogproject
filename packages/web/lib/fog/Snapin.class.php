@@ -219,7 +219,7 @@ class Snapin extends FOGController
 			$SNME = ($SN && $SN->get('isEnabled') == '1' ? true : false);
 			if (!$SNME)
 				throw new Exception($this->foglang['NoMasterNode']);
-			$ftphost = $SN->get('ip');
+			$ftphost = $this->FOGCore->resolveHostname($SN->get('ip'));
 			$ftpuser = $SN->get('user');
 			$ftppass = $SN->get('pass');
 			$ftproot = rtrim($SN->get('snapinpath'),'/').'/'.$this->get('file');

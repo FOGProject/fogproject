@@ -19,7 +19,7 @@ class SnapinReplicator extends FOGBase
 	}
 	private function commonOutput()
 	{
-		$StorageNode = current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1, 'ip' => $this->FOGCore->getIPAddress())));
+		$StorageNode = current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1,'ip' => array(gethostbyaddr($this->FOGCore->getIPAddress()),$this->FOGCore->getIPAddress()))));
 		try
 		{
 			if ($StorageNode)
@@ -69,7 +69,7 @@ class SnapinReplicator extends FOGBase
 									{
 										$username = $StorageNodeToSend->get('user');
 										$password = $StorageNodeToSend->get('pass');
-										$ip = $StorageNodeToSend->get('ip');
+										$ip = $this->FOGCore->resolveHostname($StorageNodeToSend->get('ip'));
 										$remSnapin = rtrim($StorageNodeToSend->get('snapinpath'),'/');
 										$mySnapin = rtrim($StorageNode->get('snapinpath'),'/');
 										$limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
@@ -116,7 +116,7 @@ class SnapinReplicator extends FOGBase
 								{
 									$username = $StorageNodeFTP->get('user');
 									$password = $StorageNodeFTP->get('pass');
-									$ip = $StorageNodeFTP->get('ip');
+									$ip = $this->FOGCore->resolveHostname($StorageNodeFTP->get('ip'));
 									$remRoot = rtrim($StorageNodeFTP->get('snapinpath'),'/');
 									$limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
 									$limitsend = $this->byteconvert($StorageNodeFTP->get('bandwidth'));

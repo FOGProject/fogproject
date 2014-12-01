@@ -68,7 +68,7 @@ try
    	                	$winner = $StorageNode;
 			    }
 			    else
-				    $messageArray[] = sprintf("%s '%s' (%s) %s", _('Storage Node'), $StorageNode->get('name'), $StorageNode->get('ip'), _('is open, but has recently failed for this Host'));
+				    $messageArray[] = sprintf("%s '%s' (%s) %s", _('Storage Node'), $StorageNode->get('name'), $FOGCore->resolveHostname($StorageNode->get('ip')), _('is open, but has recently failed for this Host'));
 			}
 		}
 	}

@@ -36,7 +36,7 @@ class ChangeItems extends Hook
 			{
 				if ($LA->isTFTP())
 				{
-					$ip = $LA->getStorageNode()->get('ip');
+					$ip = $this->FOGCore->resolveHostname($LA->getStorageNode()->get('ip'));
 					$webroot = $arguments['webroot'];
 					$memtest = $arguments['memtest'];
 					$memdisk = $arguments['memdisk'];

@@ -19,7 +19,7 @@ class ImageReplicator extends FOGBase
 	}
 	private function commonOutput()
 	{
-		$StorageNode = current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1, 'ip' => $this->FOGCore->getIPAddress())));
+		$StorageNode = current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1,'ip' => array(gethostbyaddr($this->FOGCore->getIPAddress()),$this->FOGCore->getIPAddress()))));
 		try
 		{
 			if ($StorageNode)
@@ -54,7 +54,7 @@ class ImageReplicator extends FOGBase
 							{
 								$username = $StorageNodeToSend->get('user');
 								$password = $StorageNodeToSend->get('pass');
-								$ip = $StorageNodeToSend->get('ip');
+								$ip = $this->FOGCore->resolveHostname($StorageNodeToSend->get('ip'));
 								$remImage = rtrim($StorageNodeToSend->get('path'),'/').'/'.$Image->get('path');
 								$myImage = rtrim($StorageNode->get('path'),'/').'/'.$Image->get('path');
 								$limitmain = $this->byteconvert($StorageNode->get('bandwidth'));

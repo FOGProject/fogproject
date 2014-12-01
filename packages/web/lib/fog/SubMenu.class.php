@@ -91,7 +91,7 @@ class SubMenu extends FOGBase
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Home']);
 			$this->object = new StorageNode($_REQUEST['id']);
 			$this->title = array($this->foglang['Storage'].' '.$this->foglang['Node'] => $this->object->get('name'),
-								 'IP' => $this->object->get('ip'),
+								 'IP' => $this->FOGCore->resolveHostname($this->object->get('ip')),
 								 $this->foglang['Path'] => $this->object->get('path')
 			);
 		}

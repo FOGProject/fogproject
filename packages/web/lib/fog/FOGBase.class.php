@@ -159,7 +159,7 @@ abstract class FOGBase
 				throw new Exception('No Storage Node');
 			$this->FOGFTP->set('username',$StorageNode->get('user'))
 						 ->set('password',$StorageNode->get('pass'))
-						 ->set('host',$StorageNode->get('ip'));
+						 ->set('host',$this->FOGCore->resolveHostname($StorageNode->get('ip')));
 			if (!$this->FOGFTP->connect())
 				throw new Exception("Can't connect to node.");
 			$size = $this->formatByteSize((double)$this->FOGFTP->size($file));
