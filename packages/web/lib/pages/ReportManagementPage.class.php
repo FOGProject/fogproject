@@ -84,7 +84,7 @@ class ReportManagementPage extends FOGPage
 			'${input}',
 		);
 		// Get the dates to use!
-		$ImagingLogs = $this->getClass('ImagingLogManager')->find('','','','','=','date');
+		$ImagingLogs = $this->getClass('ImagingLogManager')->find('','','','','=',array('start','finish'));
 		foreach ((array)$ImagingLogs AS $ImagingLog)
 		{
 			$DateStart = $this->nice_date($ImagingLog->get('start'));
