@@ -306,11 +306,28 @@ abstract class FOGManagerController extends FOGBase
 						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
 				}
 			}
+			$groupArray = '';
+			if (is_array($groupby))
+			{
+				$first = true;
+				foreach((array)$groupby AS $item)
+				{
+					if ($first)
+					{
+						$groupArray .= sprintf("`%s`",$this->databaseFields[$item]);
+						$first = false;
+					}
+					else
+						$groupArray .= sprintf(",`%s`",$this->databaseFields[$item]);
+				}
+			}
+			else
+				$groupArray = sprintf("`%s`",$this->databaseFields[$groupby]);
 			// Select all
 			$this->DB->query("SELECT * FROM `%s`%s%s ORDER BY `%s` %s", array(
 				$this->databaseTable,
 				(count($whereArray) ? ' WHERE ' . implode(' ' . $whereOperator . ' ', $whereArray) : ''),
-				($groupby ? ' GROUP BY '.$this->databaseFields[$groupby] : ''),
+				($groupby ? ' GROUP BY '.$groupArray : ''),
 				($this->databaseFields[$orderBy] ? $this->databaseFields[$orderBy] : $this->databaseFields['id']),
 				$sort
 			));
