@@ -2,7 +2,7 @@
 // Require FOG Base
 require('../commons/base.inc.php');
 // User session data
-$currentUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
+$currentUser = $FOGCore->FOGUser = $FOGPageManager->FOGUser = $HookManager->FOGUser = ($_SESSION['FOG_USER'] ? unserialize($_SESSION['FOG_USER']) : null);
 // Process Login
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 // Login form + logout

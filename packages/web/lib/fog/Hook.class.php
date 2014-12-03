@@ -16,13 +16,10 @@ abstract class Hook extends FOGBase
 	public $logLevel = 0;
 	public $logToFile = false;
 	public $logToBrowser = true;
-	public $FOGUser;
 	public $delformat;
 	public function __construct()
 	{
 		parent::__construct();
-		if (!$this->FOGUser)
-			$this->FOGUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
 	}
 	public function run($arguments)
 	{

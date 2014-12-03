@@ -47,8 +47,6 @@ abstract class FOGPage extends FOGBase
 	{
 		// FOGBase contstructor
 		parent::__construct();
-		if (!$this->FOGUser)
-			$this->FOGUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
 		// Set name
 		if (!empty($name))
 			$this->name = $name;
