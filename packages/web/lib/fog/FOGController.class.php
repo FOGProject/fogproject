@@ -23,6 +23,8 @@ abstract class FOGController extends FOGBase
 		'createdBy',
 		'createdTime'
 	);
+    /** Sets the Variables to use later on. **/
+    public $FOGCore, $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang;
 	// Allow setting / getting of these additional fields
 	/** set or get additional fields. */
 	public $additionalFields = array();

@@ -2,6 +2,8 @@
 class SubMenu extends FOGBase
 {
 	private $node, $id, $name, $object, $title, $FOGSubMenu, $subMenu;
+    /** Sets the Variables to use later on. **/
+    public $FOGCore, $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang;
 	public function __construct()
 	{
 		parent::__construct();

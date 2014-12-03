@@ -13,17 +13,8 @@ abstract class FOGBase
 	/** Prepares the information if you should want more info. */
 	public $info = false;
 	// Class variables
-	/** Sets the $this->FOGCore/$FOGCore calls in other classes. */
-	public $FOGCore;
-	/** Set the $this->DB/$DB calls in other files. */
-	public $DB;
-	/** Sets the $this->HookManager/$HookManager calls in other files. */
-	public $HookManager;
-	/** Sets the $this->FOGUser/$FOGUser calls in other files. */
-	public $FOGUser;
-	//Language Variable
-	/** Sets the language variable for other files. */
-	public $foglang; 
+	/** Sets the Variables to use later on. **/
+	public $FOGCore, $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang;
 	// LEGACY
 	/** Legacy calls for $db/$conn */
 	public $db;
@@ -55,6 +46,7 @@ abstract class FOGBase
 		$this->DB = $GLOBALS['DB'];
 		$this->FOGUser = $GLOBALS['currentUser'];
 		$this->HookManager = $GLOBALS['HookManager'];
+		$this->FOGPageManager = $GLOBALS['FOGPageManager'];
 		// Language Setup
 		$this->foglang = $GLOBALS['foglang'];
 		// Default TimeZone to use for date fields

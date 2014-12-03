@@ -24,6 +24,8 @@ abstract class FOGPage extends FOGBase
 	// TODO: Finish
 	public $subMenu = array(
 	);
+    /** Sets the Variables to use later on. **/
+    public $FOGCore, $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang;
 	// Variables
 	// Page title
 	public $titleEnabled = true;
