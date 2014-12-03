@@ -11,6 +11,8 @@ class HookManager extends FOGBase
 	public $logLevel = 0;
 	private $data;
 	public $events;
+    /** Sets the Variables to use later on. **/
+    public $FOGCore, $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang;
 	public function register($event, $function)
 	{
 		try

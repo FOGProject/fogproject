@@ -2,6 +2,8 @@
 class Mainmenu extends FOGBase
 {
 	public $main;
+    /** Sets the Variables to use later on. **/
+    public $FOGCore, $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang;
 	public function __construct()
 	{
 		parent::__construct();

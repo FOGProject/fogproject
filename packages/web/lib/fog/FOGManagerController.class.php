@@ -24,6 +24,8 @@ abstract class FOGManagerController extends FOGBase
 	protected $databaseFields;
 	/** The database to class relationships. */
 	protected $databaseFieldClassRelationships;
+    /** Sets the Variables to use later on. **/
+    public $FOGCore, $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang;
 	// Construct
 	/** __construct()
 		Different constructor from FOG Base
