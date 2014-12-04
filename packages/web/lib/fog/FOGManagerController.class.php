@@ -285,17 +285,28 @@ abstract class FOGManagerController extends FOGBase
 	/** find($where = array(),$whereOperator = 'AND',$orderBy = 'name',$sort = 'ASC')
 		Pulls the information from the database into the resepective class file.
 	*/
-	public function find($where = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC',$compare = '=',$groupby = false)
+	public function find($where = '', $whereOperator = '', $orderBy = '', $sort = '',$compare = '',$groupby = '')
 	{
 		try
 		{
 			// Fail safe defaults
-			if (empty($where))
+			if (!$where)
 				$where = array();
-			if (empty($whereOperator))
+			if (!$whereOperator)
 				$whereOperator = 'AND';
+			if (!$compare)
+				$compare = '=';
+			if (!$orderBy)
+			{
+				if ($this->databaseFields['name'])
+					$orderBy = 'name';
+				else
+					$orderBy = 'id';
+			}
+			if (!$sort)
+				$sort = 'ASC';
 			// Error checking
-			if (empty($this->databaseTable))
+			if (!$this->databaseTable)
 				throw new Exception('No database table defined');
 			// Create Where Array
 			if (count($where))
@@ -308,31 +319,34 @@ abstract class FOGManagerController extends FOGBase
 						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
 				}
 			}
-			$groupArray = '';
-			if (is_array($groupby))
+			foreach((array)$groupby AS $item)
+				$groupArray[] = '`'.$this->databaseFields[$item].'`';
+			foreach((array)$orderBy AS $item)
 			{
-				$first = true;
-				foreach((array)$groupby AS $item)
-				{
-					if ($first)
-					{
-						$groupArray .= sprintf("`%s`",$this->databaseFields[$item]);
-						$first = false;
-					}
-					else
-						$groupArray .= sprintf(",`%s`",$this->databaseFields[$item]);
-				}
+				if ($this->databaseFields[$item])
+					$orderArray[] = '`'.$this->databaseFields[$item].'`';
+			}
+			// Select all
+			if (!$groupby)
+			{
+				$this->DB->query("SELECT * FROM `%s`%s%s %s", array(
+					$this->databaseTable,
+					(count($whereArray) ? ' WHERE ' . implode(' ' . $whereOperator . ' ', $whereArray) : ''),
+					" ORDER BY ".rtrim(implode((array)$orderArray,','),','),
+					$sort
+				));
 			}
 			else
-				$groupArray = sprintf("`%s`",$this->databaseFields[$groupby]);
-			// Select all
-			$this->DB->query("SELECT * FROM `%s`%s%s ORDER BY `%s` %s", array(
-				$this->databaseTable,
-				(count($whereArray) ? ' WHERE ' . implode(' ' . $whereOperator . ' ', $whereArray) : ''),
-				($groupby ? ' GROUP BY '.$groupArray : ''),
-				($this->databaseFields[$orderBy] ? $this->databaseFields[$orderBy] : $this->databaseFields['id']),
-				$sort
-			));
+			{
+				$this->DB->query("SELECT * FROM (SELECT * FROM `%s`%s%s %s) AS tmp%s%s", array(
+					$this->databaseTable,
+					(count($whereArray) ? ' WHERE ' . implode(' ' . $whereOperator . ' ', $whereArray) : ''),
+					" ORDER BY ".rtrim(implode((array)$orderArray,','),','),
+					$sort,
+					" GROUP BY ".rtrim(implode((array)$groupArray,','),','),
+					" ORDER BY ".rtrim(implode((array)$orderArray,','),',')
+				));
+			}
 			while ($row = $this->DB->fetch()->get())
 			{
 				$r = new ReflectionClass($this->childClass);
@@ -350,15 +364,17 @@ abstract class FOGManagerController extends FOGBase
 	/** count($where = array(),$whereOperator = 'AND')
 		Returns the count of the database.
 	*/
-	public function count($where = array(), $whereOperator = 'AND', $compare = '=')
+	public function count($where = array(), $whereOperator = '', $compare = '')
 	{
 		try
 		{
 			// Fail safe defaults
-			if (empty($where))
+			if (!$where)
 				$where = array();
-			if (empty($whereOperator))
+			if (!$whereOperator)
 				$whereOperator = 'AND';
+			if (!$compare)
+				$compare = '=';
 			// Error checking
 			if (empty($this->databaseTable))
 				throw new Exception('No database table defined');

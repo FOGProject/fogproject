@@ -43,14 +43,13 @@ function UpdateLoginGraphPlot(data) {
 	// Initiate counter
 	j =0;
 	// Loop through the data
+	TimezoneOffset = new Date().getTimezoneOffset() * 60000;
 	for (i in data) {
 		// Set the time intervals as they're only used for this iteration.
-		LoginTime = new Date(data[i]['login']*1000).getTime();
-		LogoutTime = new Date(data[i]['logout']*1000).getTime();
-		LoginDateMin = new Date(data[i]['min']*1000);
-		LoginDateMax = new Date(data[i]['max']*1000);
-		LoginDateMin = new Date(LoginDateMin.getTime() - LoginDateMin.getTimezoneOffset() * 60000);
-		LoginDateMax = new Date(LoginDateMax.getTime() - LoginDateMax.getTimezoneOffset() * 60000);
+		LoginTime = data[i]['login']*1000 - TimezoneOffset;
+		LogoutTime = data[i]['logout']*1000 - TimezoneOffset;
+		LoginDateMin = data[i]['min']*1000 - TimezoneOffset;
+		LoginDateMax = data[i]['max']*1000 - TimezoneOffset;
 		// Prepare the new items as necessary
 		if (typeof(Labels) == 'undefined') {
 			Labels = new Array();

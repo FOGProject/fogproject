@@ -1108,34 +1108,18 @@ class HostManagementPage extends FOGPage
 			}
 			print "\n\t\t\t".'<select name="dte" id="loghist-date" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select>';
 			print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><img src="images/go.png" class="noBorder" /></a></p>';
-			$cnt = 0;
 			$_SESSION['fog_logins'] = array();
 			foreach ((array)$Host->get('users') AS $UserLogin)
 			{
 				if ($UserLogin && $UserLogin->isValid() && $UserLogin->get('date') == $_REQUEST['dte'])
 				{
+					$_SESSION['fog_logins'][] = serialize($UserLogin);
 					$this->data[] = array(
 						'action' => ($UserLogin->get('action') == 1 ? _('Login') : ($UserLogin->get('action') == 0 ? _('Logout') : '')),
 						'user_name' => $UserLogin->get('username'),
-						'user_time' => $this->formatTime($UserLogin->get('datetime')),
+						'user_time' => $UserLogin->get('datetime'),
 						'user_desc' => $UserLogin->get('description'),
 					);
-					if ($UserLogin->get('action') == 1)
-					{
-						$User = new UserLoginEntry($UserLogin->get('username'));
-						$User->setLogInTime($UserLogin->get('datetime'));
-						$User->setClean(true);
-					}
-					else if ($UserLogin->get('action') == 0 || $UserLogin->get('action') == null)
-					{
-						if ($User && $User instanceof UserLoginEntry)
-						{
-							$User->setLogOutTime($UserLogin->get('datetime'));
-							$_SESSION['fog_logins'][] = serialize($User);
-						}
-						else
-							unset($User);
-					}
 				}
 			}
 			// Hook
@@ -1684,26 +1668,21 @@ class HostManagementPage extends FOGPage
 	}
 	public function hostlogins()
 	{
-		$cnt = 0;
-		$first = true;
+		$MainDate = $this->nice_date($_REQUEST['dte'])->getTimestamp();
+		$MainDate_1 = $this->nice_date($_REQUEST['dte']);
+		$MainDate_1->modify('+1 day');
+		$MainDate_1 = $MainDate_1->getTimestamp();
 		foreach($_SESSION['fog_logins'] AS $Login)
 		{
 			$Login = unserialize($Login);
-			if ($Login)
+			if ($Login->get('action'))
+				$login = $this->nice_date($Login->get('datetime'))->format('U');
+			else
 			{
-				if ($first)
-					$first = false;
-				else
-				{
-					if ($last != $Login->getUser())
-						$cnt++;
-				}
+				$logout = $this->nice_date($Login->get('datetime'))->format('U');
+				if ($login && $logout)
+					$Data[] = array('user' => $Login->get('username'),'min' => $MainDate,'max' => $MainDate_1,'login' => $login,'logout' => $logout);
 			}
-			$MainDate = $this->nice_date($_REQUEST['dte'])->getTimestamp();
-			$MainDate_1 = $this->nice_date($_REQUEST['dte']);
-			$MainDate_1->modify('+1 day');
-			$MainDate_1 = $MainDate_1->getTimestamp();
-			$Data[] = array('user' => $Login->getUser(),'min' => $MainDate,'max' => $MainDate_1,'login' => $this->nice_date($Login->getLogInTime())->getTimestamp(),'logout' => $this->nice_date($Login->getLogOutTime())->getTimestamp());
 		}
 		print json_encode($Data);
 	}
