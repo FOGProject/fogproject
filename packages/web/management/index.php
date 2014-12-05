@@ -134,5 +134,5 @@ if (($currentUser && $currentUser->isLoggedIn()) || $node == 'client')
 	$HookManager->processEvent('JAVASCRIPT');
 	print "\n</body>";
 	print "\n</html>";
-	print ob_get_clean();
+	ob_end_flush();
 }

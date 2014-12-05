@@ -1108,12 +1108,10 @@ class HostManagementPage extends FOGPage
 			}
 			print "\n\t\t\t".'<select name="dte" id="loghist-date" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select>';
 			print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><img src="images/go.png" class="noBorder" /></a></p>';
-			$_SESSION['fog_logins'] = array();
 			foreach ((array)$Host->get('users') AS $UserLogin)
 			{
 				if ($UserLogin && $UserLogin->isValid() && $UserLogin->get('date') == $_REQUEST['dte'])
 				{
-					$_SESSION['fog_logins'][] = serialize($UserLogin);
 					$this->data[] = array(
 						'action' => ($UserLogin->get('action') == 1 ? _('Login') : ($UserLogin->get('action') == 0 ? _('Logout') : '')),
 						'user_name' => $UserLogin->get('username'),
@@ -1131,7 +1129,7 @@ class HostManagementPage extends FOGPage
 			print "\n\t\t\t<p>"._('No user history data found!').'</p>';
 		// Reset for next tab
 		unset($this->data,$this->headerData);
-		print '<div id="login-history" style="width:575px;height:200px" /></div>';
+		print '<div id="login-history" style="width:575px;height:200px;" /></div>';
 		print "\n\t\t\t</form>";
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t".'<div id="host-image-history" class="organic-tabs-hidden">';
@@ -1669,21 +1667,26 @@ class HostManagementPage extends FOGPage
 	public function hostlogins()
 	{
 		$MainDate = $this->nice_date($_REQUEST['dte'])->getTimestamp();
-		$MainDate_1 = $this->nice_date($_REQUEST['dte']);
-		$MainDate_1->modify('+1 day');
-		$MainDate_1 = $MainDate_1->getTimestamp();
-		foreach($_SESSION['fog_logins'] AS $Login)
+		$MainDate_1 = $this->nice_date($_REQUEST['dte'])->modify('+1 day')->getTimestamp();
+		$Users = $this->getClass('UserTrackingManager')->find(array('hostID' => $_REQUEST['id'],'date' => $_REQUEST['dte'],'action' => array(null,0,1)),'','date','DESC');
+		foreach($Users AS $Login)
 		{
-			$Login = unserialize($Login);
-			if ($Login->get('action'))
-				$login = $this->nice_date($Login->get('datetime'))->format('U');
-			else
+			if ($Login && $Login->isValid() && $Login->get('username') != 'Array')
 			{
-				$logout = $this->nice_date($Login->get('datetime'))->format('U');
-				if ($login && $logout)
-					$Data[] = array('user' => $Login->get('username'),'min' => $MainDate,'max' => $MainDate_1,'login' => $login,'logout' => $logout);
+				$time = $this->nice_date($Login->get('datetime'))->format('U');
+				if (!$Data[$Login->get('username')])
+					$Data[$Login->get('username')] = array('user' => $Login->get('username'),'min' => $MainDate,'max' => $MainDate_1);
+				if ($Login->get('action'))
+					$Data[$Login->get('username')]['login'] = $time;
+				if (array_key_exists('login',$Data[$Login->get('username')]) && !$Login->get('action'))
+					$Data[$Login->get('username')]['logout'] = $time;
+				if (array_key_exists('login',$Data[$Login->get('username')]) && array_key_exists('logout',$Data[$Login->get('username')]))
+				{
+					$data[] = $Data[$Login->get('username')];
+					unset($Data[$Login->get('username')]);
+				}
 			}
 		}
-		print json_encode($Data);
+		print json_encode($data);
 	}
 }
