@@ -25,8 +25,8 @@ class Page extends FOGBase {
 				'js/flot/jquery.flot.js',
 				'js/flot/jquery.flot.time.js',
 				'js/flot/jquery.flot.pie.js',
-				'js/jquery.flot.JUMlib.js',
-				'js/jquery.flot.gantt.js',
+				'js/flot/jquery.flot.JUMlib.js',
+				'js/flot/jquery.flot.gantt.js',
 				'js/jquery-ui-timepicker-addon.js',
 				'js/hideShowPassword.min.js',
 			);
