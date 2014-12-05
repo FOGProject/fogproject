@@ -6,7 +6,7 @@ class Page extends FOGBase {
 		$this->addCSS('css/jquery-ui.css');
 		$this->addCSS('css/jquery.organicTabs.css');
 		$this->addCSS('css/fog.css');
-		$this->isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','client')));
+		$this->isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','client','logout','login')));
 		if ($this->FOGUser && $this->FOGUser->isLoggedIn())
 		{
 			$files = array(
