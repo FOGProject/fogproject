@@ -35,20 +35,23 @@ class ImageManagementPage extends FOGPage
 			_('Image Name') .'<br /><small>'._('Storage Group').': '._('O/S').'</small><br /><small>'._('Image Type').'</small><br /><small>'._('Partition').'</small>',
 			_('Image Size: ON CLIENT'),
 			_('Image Size: ON SERVER'),
+			_('Type').'Partclone/PartImage',
 			_('Uploaded'),
-			'',
+			_('Edit/Remove'),
 		);
 		// Row templates
 		$this->templates = array(
 			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name} - ${id}</a><br /><small>${storageGroup}:${os}</small><br /><small>${image_type}</small><br /><small>${image_partition_type}</small>',
 			'${size}',
 			'${serv_size}',
+			'${type}',
 			'${deployed}',
 			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').'"><span class="icon icon-edit"></span></a> <a href="?node='.$this->node.'&sub=delete&'.$this->id.'=${id}" title="'._('Delete').'"><span class="icon icon-delete"></span></a>',
 		);
 		// Row attributes
 		$this->attributes = array(
 			array('width' => 50, 'class' => 'l'),
+			array('width' => 50, 'class' => 'c'),
 			array('width' => 50, 'class' => 'c'),
 			array('width' => 50, 'class' => 'c'),
 			array('width' => 50, 'class' => 'c'),
@@ -92,6 +95,7 @@ class ImageManagementPage extends FOGPage
 				'serv_size' => $servSize,
 				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
 				'image_partition_type' => $imagePartitionType && $imagePartitionType->isValid() ? $imagePartitionType->get('name') : '',
+				'type' => $Image->get('type') ? 'Partimage' : 'Partclone',
 			);
 		}
 		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
@@ -152,6 +156,7 @@ class ImageManagementPage extends FOGPage
 				'serv_size' => $servSize,
 				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
 				'image_partition_type' => $imagePartitionType && $imagePartitionType->isValid() ? $imagePartitionType->get('name') : '',
+				'type' => $Image->get('type') ? 'Partimage' : 'Partclone',
 			);
 		}
 		// Hook
