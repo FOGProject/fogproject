@@ -55,14 +55,14 @@ class FOGCore extends FOGBase
 	*/
 	public function getMessages()
 	{
-		print "\n\t<!-- FOG Variables -->";
-		
+		print "<!-- FOG Variables -->\n";
+		$cnt = 0;	
 		foreach ((array)$_SESSION['FOG_MESSAGES'] AS $message)
 		{
 			// Hook
 			$GLOBALS['HookManager']->processEvent('MessageBox', array('data' => &$message));
 			// Message Box
-			printf('<div class="fog-message-box">%s</div>%s', $message, "\n");
+			print ($cnt++ > 0 ? "\t\t" : '').'<div class="fog-message-box">'.$message."</div>\n";
 		}
 		unset($_SESSION['FOG_MESSAGES']);
 	}

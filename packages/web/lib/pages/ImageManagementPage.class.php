@@ -35,7 +35,7 @@ class ImageManagementPage extends FOGPage
 			_('Image Name') .'<br /><small>'._('Storage Group').': '._('O/S').'</small><br /><small>'._('Image Type').'</small><br /><small>'._('Partition').'</small>',
 			_('Image Size: ON CLIENT'),
 			_('Image Size: ON SERVER'),
-			_('Type').'Partclone/PartImage',
+			_('Format'),
 			_('Uploaded'),
 			_('Edit/Remove'),
 		);

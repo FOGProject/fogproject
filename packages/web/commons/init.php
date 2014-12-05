@@ -197,24 +197,31 @@ class Initiator
 	}
 }
 // Initialize everything
-$Init = new Initiator();
+if (!$Init)
+	$Init = new Initiator();
 $Init::startInit();
 // Get the configuration
-$Config = new Config();
+if (!$Config)
+	$Config = new Config();
 // Core
-$FOGFTP = new FOGFTP();
-$FOGCore = new FOGCore();
+if (!$FOGFTP)
+	$FOGFTP = new FOGFTP();
+if (!$FOGCore)
+	$FOGCore = new FOGCore();
 // Generate the Server's Key Pairings
 $FOGCore->createKeyPair();
 // Database Load initiator
-$DatabaseManager = new DatabaseManager();
-$DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
+if (!$DatabaseManager)
+	$DatabaseManager = new DatabaseManager();
+if (!$DB)
+	$DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
 // Set the memory limits
 ini_set('memory_limit',is_numeric($FOGCore->getSetting('FOG_MEMORY_LIMIT')) && $FOGCore->getSetting('FOG_MEMORY_LIMIT') >= 128 ? $FOGCore->getSetting('FOG_MEMORY_LIMIT').'M' : ini_get('memory_limit'));
 // HookManager
-$HookManager = new HookManager();
+if (!$HookManager)
+	$HookManager = new HookManager();
 $HookManager->load();
 // FOGPageManager
-$FOGPageManager = new FOGPageManager();
+if (!$FOGPageManager)
+	$FOGPageManager = new FOGPageManager();
 $Init::endInit();
-ob_start('ob_gzhandler');

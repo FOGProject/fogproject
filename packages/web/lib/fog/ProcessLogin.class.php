@@ -192,32 +192,6 @@ class ProcessLogin extends FOGBase
 	public function mainLoginForm()
 	{
 		$this->setLang();
-		print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
-		print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
-		print "\n\t<head>";
-		print "\n\t\t".'<title>Login &gt; FOG &gt; Open Source Computer Cloning Solution</title>';
-		print "\n\t\t".'<meta http-equiv="content-type" content="text/html; charset=utf-8" />';
-		print "\n\t\t".'<meta http-equiv="x-ua-compatible" content="IE=8" />';
-		print "\n\t\t<!-- Stylesheets -->";
-		print "\n\t\t".'<link rel="stylesheet" type="text/css" media="all" href="css/calendar/calendar-win2k-1.css" />';
-		print "\n\t\t".'<link rel="stylesheet" type="text/css" href="css/fog.css" />';
-		print "\n\t</head>";
-		print "\n<body>";
-		print "\n\t<!-- FOG Message Boxes -->";
-		print "\n\t".'<div id="loader-wrapper"><div id="loader"><div id="progress"></div></div></div>';
-		print "\n\t\t<!-- Main -->";
-		print "\n\t\t".'<div id="wrapper">';
-		print "\n\t\t\t<!-- Header -->";
-		print "\n\t\t\t".'<div id="header" class="login">';
-		print "\n\t\t\t\t".'<div id="logo">';
-		print "\n\t\t\t\t\t".'<h1><img src="images/fog-logo.png" alt="logo" /><sup>'.FOG_VERSION.'</sup></h1>';
-		print "\n\t\t\t\t\t".'<h2>'.$this->foglang['Slogan'].'</h2>';
-		print "\n\t\t\t\t</div>";
-		print "\n\t\t\t</div>";
-		print "\n\t\t\t<!-- Content -->";
-		print "\n\t\t\t".'<div id="content" class="dashboard">';
-		print "\n\t\t\t\t<h1>".$this->foglang['ManagementLogin'].'</h1>';
-		print "\n\t\t\t\t".'<div id="content-inner">';
 		print "\n\t\t\t\t\t".'<form method="post" action="?node=login" id="login-form">';
 		if ($_GET['node'] != 'logout')
 		{
@@ -238,20 +212,6 @@ class ProcessLogin extends FOGBase
 		print "\n\t\t\t\t\t\t<p>".$this->foglang['FOGSites'].': <b><span class="icon icon-loading"></span></b></p>';
 		print "\n\t\t\t\t\t\t<p>".$this->foglang['LatestVer'].': <b><span class="icon icon-loading"></span></b></p>';
 		print "\n\t\t\t\t\t</div>";
-		print "\n\t\t\t\t</div>";
-		print "\n\t\t\t</div>";
-		print "\n\t\t</div>";
-		print "\n\t\t<!-- Footer -->";
-		print "\n\t".'<div id="footer">FOG Project: Chuck Syperski, Jian Zhang, Peter Gilchrist &amp; Tom Elliott FOG Client/Prep link: <a href="?node=client">FOG Client/FOG Prep</a></div>';
-		$this->FOGCore->getMessages();
-		print "\n\t<!-- JavaScript -->";
-		print "\n\t".'<script type="text/javascript" src="js/jquery-latest.js"></script>';
-		print "\n\t".'<script type="text/javascript" src="js/jquery.progressbar.js"></script>';
-		print "\n\t".'<script type="text/javascript" src="js/fog/fog.js"></script>';
-		print "\n\t".'<script type="text/javascript" src="js/fog/fog.login.js"></script>';
-		print "\n</body>";
-		print "\n</html>";
-		ob_end_flush();
 	}
 
 	public function mobileLoginForm()
