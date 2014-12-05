@@ -12,10 +12,10 @@ class Mainmenu extends FOGBase
 	{
 		if(!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
 		{
-			$menuItem[] = sprintf("%s%s","\n\t\t\t","<ul>");
+			$menuItem[] = '<ul>';
 			foreach($this->main AS $link => $title)
-				$menuItem[] = sprintf("%s%s","\n\t\t\t\t",'<li><a href="?node='.$link.'" title="'.$title.'"><img src="images/icon-'.$link.'.png" alt="'.$title.'" /></a></li>');
-			$menuItem[] = sprintf("%s%s","\n\t\t\t","</ul>");
+				$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t\t",'<li><a href="?node='.$link.'" title="'.$title.'"><img src="images/icon-'.$link.'.png" alt="'.$title.'" /></a></li>');
+			$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t","</ul>\n");
 		}
 		else
 		{
@@ -82,6 +82,6 @@ class Mainmenu extends FOGBase
 		{
 			$this->FOGCore->redirect('?node=logout');
 		}
-		print $this->manageData();
+		return $this->manageData();
 	}
 }

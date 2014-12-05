@@ -130,7 +130,7 @@ class SubMenu extends FOGBase
 					$this->FOGSubMenu->addNotes($this->node,array((string)$title => (string)$item),$this->id,$this->name);
 			}
 		}
-		print $this->FOGSubMenu->get($this->node);
+		return $this->FOGSubMenu->get($this->node);
 	}
 	private function buildMenuLinks()
 	{
@@ -348,6 +348,6 @@ class SubMenu extends FOGBase
 	{
 		$this->buildMenuLinks();
 		if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn())
-			$this->buildMenuStruct();
+			return $this->buildMenuStruct();
 	}
 }
