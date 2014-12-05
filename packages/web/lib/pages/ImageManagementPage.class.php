@@ -95,7 +95,7 @@ class ImageManagementPage extends FOGPage
 				'serv_size' => $servSize,
 				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
 				'image_partition_type' => $imagePartitionType && $imagePartitionType->isValid() ? $imagePartitionType->get('name') : '',
-				'type' => $Image->get('type') ? 'Partimage' : 'Partclone',
+				'type' => $Image->get('format') ? 'Partimage' : 'Partclone',
 			);
 		}
 		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
@@ -156,7 +156,7 @@ class ImageManagementPage extends FOGPage
 				'serv_size' => $servSize,
 				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
 				'image_partition_type' => $imagePartitionType && $imagePartitionType->isValid() ? $imagePartitionType->get('name') : '',
-				'type' => $Image->get('type') ? 'Partimage' : 'Partclone',
+				'type' => $Image->get('format') ? 'Partimage' : 'Partclone',
 			);
 		}
 		// Hook
