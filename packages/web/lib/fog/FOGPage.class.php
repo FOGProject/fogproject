@@ -63,6 +63,8 @@ abstract class FOGPage extends FOGBase
 		$this->ajax = $this->FOGCore->isAJAXRequest();
 		// Default form target
 		$this->formAction = sprintf('%s?%s', $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
+		if (!$this->FOGUser)
+			$this->FOGUser = $GLOBALS['currentUser'];
 	}
 	// Default index page
 	public function index()
@@ -121,10 +123,10 @@ abstract class FOGPage extends FOGBase
 					);
 				}
 				// Table -> Header Row
-				$result[] = sprintf('%s<table width="%s" cellpadding="0" cellspacing="0" border="0"%s>%s<thead>%s<tr class="header">%s</tr>%s</thead>%s<tbody>%s',
+				$result[] = sprintf('%s<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s">%s<thead>%s<tr class="header">%s</tr>%s</thead>%s<tbody>%s',
 					"\n\n\t\t\t",
 					'100%',
-					($this->searchFormURL ? ' id="search-content"' : ''),
+					($this->searchFormURL ? 'search-content' : 'active-tasks'),
 					"\n\t\t\t\t",
 					"\n\t\t\t\t\t",
 					$this->buildHeaderRow(),

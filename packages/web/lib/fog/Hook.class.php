@@ -22,6 +22,8 @@ abstract class Hook extends FOGBase
 	public function __construct()
 	{
 		parent::__construct();
+		if (!$this->FOGUser)
+			$this->FOGUser = $GLOBALS['currentUser'];
 	}
 	public function run($arguments)
 	{

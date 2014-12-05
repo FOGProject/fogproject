@@ -21,6 +21,8 @@ class FOGPageManager extends FOGBase
 		// Save class & method values into class - used many times through out
 		$this->classValue = ($GLOBALS[$this->classVariable] ? preg_replace('#[^\w]#', '_', urldecode($GLOBALS[$this->classVariable])) : (preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'homes' : 'home'));
 		$this->methodValue = preg_replace('#[^\w]#', '_', urldecode($GLOBALS[$this->methodVariable]));	// No default value as we want to detect an empty string for 'list' or 'search' default page
+		if (!$this->FOGUser)
+			$this->FOGUser = $GLOBALS['currentUser'];
 	}
 	// Util functions - easy access to class & child class data
 	public function getFOGPageClass()
