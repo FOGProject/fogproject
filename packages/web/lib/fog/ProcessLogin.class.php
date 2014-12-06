@@ -11,7 +11,7 @@ class ProcessLogin extends FOGBase
 	private function getLanguages()
 	{
 		foreach($this->foglang['Language'] AS $lang)
-			$this->langMenu .= "\n\t\t\t\t\t\t".'<option value="'.$lang.'" '.($this->transLang() == $lang ? 'selected="selected"' : '').'>'.$lang.'</option>';
+			$this->langMenu .= "\t\t\t\t\t\t\t\t".'<option value="'.$lang.'" '.($this->transLang() == $lang ? 'selected="selected"' : '').'>'.$lang.'</option>'."\n";
 	}
 
 	private function defaultLang()
@@ -217,15 +217,21 @@ class ProcessLogin extends FOGBase
 	public function mobileLoginForm()
 	{
 		$this->setLang();
-		print '<center><div class="login">';
-		print "\n\t".'<p class="loginTitle">'.$this->foglang['FOGMobile'].'</p>';
-		print "\n\t\t\t\t".'<form method="post" action="?node=login">';
-		print "\n\t\t\t\t\t".'<div class="loginElement">'.$this->foglang['Username'].':</div><div class="loginElement"><input type="text" class="login" name="uname" /></div>';
-		print "\n\t\t\t\t\t".'<div class="loginElement">'.$this->foglang['Password'].':</div><div class="loginElement"><input type="password" class="login" name="upass" /></div>';
+		print "\t<center>\n";
+		print "\t\t\t".'<div class="login">'."\n";
+		print "\t\t\t\t".'<p class="loginTitle">'.$this->foglang['FOGMobile']."</p>\n";
+		print "\t\t\t\t\t".'<form method="post" action="?node=login">'."\n";
+		print "\t\t\t\t\t\t".'<div class="loginElement">'.$this->foglang['Username'].':</div><div class="loginElement"><input type="text" class="login" name="uname" /></div>'."\n";
+		print "\t\t\t\t\t\t".'<div class="loginElement">'.$this->foglang['Password'].':</div><div class="loginElement"><input type="password" class="login" name="upass" /></div>'."\n";
 		$this->getLanguages();
-		print "\n\t\t\t\t\t".'<div class="loginElement">'.$this->foglang['LanguagePhrase'].':</div><div class="loginElement"><select class="login" name="ulang">'.$this->langMenu.'</select></div>';
-		print "\n\t\t\t\t\t".'<p><input type="submit" value="'.$this->foglang['Login'].'" /></p>';
-		print "\n\t\t\t\t</form>";
-		print "\n\t\t\t</div></center>";
+		print "\t\t\t\t\t\t".'<div class="loginElement">'.$this->foglang['LanguagePhrase'].':</div><div class="loginElement">'."\n";
+		print "\t\t\t\t\t\t\t".'<select class="login" name="ulang">'."\n";
+		print $this->langMenu;
+		print "\t\t\t\t\t\t\t</select>\n";
+		print "\t\t\t\t\t\t</div>\n";
+		print "\t\t\t\t\t\t".'<p><input type="submit" value="'.$this->foglang['Login'].'" /></p>'."\n";
+		print "\t\t\t\t\t</form>\n";
+		print "\t\t\t\t</div>\n";
+		print "\t\t\t</center>\n";
 	}
 }

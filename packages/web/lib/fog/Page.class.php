@@ -11,7 +11,10 @@ class Page extends FOGBase {
 
 		}
 		else
+		{
 			$this->addCSS('css/main.css');
+			$this->media = ' media="only screen and (max-device-width: 320px)"';
+		}
 		$this->isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','client','logout','login')));
 		if ($this->FOGUser && $this->FOGUser->isLoggedIn())
 		{
