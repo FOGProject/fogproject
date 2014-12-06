@@ -49,6 +49,8 @@ abstract class FOGPage extends FOGBase
 	{
 		// FOGBase contstructor
 		parent::__construct();
+		if (!$this->FOGUser)
+			$this->FOGUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
 		// Set name
 		if (!empty($name))
 			$this->name = $name;
@@ -63,8 +65,6 @@ abstract class FOGPage extends FOGBase
 		$this->ajax = $this->FOGCore->isAJAXRequest();
 		// Default form target
 		$this->formAction = sprintf('%s?%s', $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
-		if (!$this->FOGUser)
-			$this->FOGUser = $GLOBALS['currentUser'];
 	}
 	// Default index page
 	public function index()
