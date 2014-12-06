@@ -1,9 +1,7 @@
 <?php
 require_once('../commons/base.inc.php');
-if (is_null($currentUser) || !($currentUser instanceof User))
-	$currentUser = $FOGCore->FOGUser = $FOGPageManager->FOGUser = $HookManager->FOGUser = ($_SESSION['FOG_USER'] ? unserialize($_SESSION['FOG_USER']) : null);
-if (is_null($Page) || ($Page instanceof Page))
-	$Page = new Page();
+$currentUser = $FOGCore->FOGUser = $FOGPageManager->FOGUser = $HookManager->FOGUser = ($_SESSION['FOG_USER'] ? unserialize($_SESSION['FOG_USER']) : null);
+$Page = new Page();
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
 {
@@ -15,7 +13,7 @@ if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_e
 	if (method_exists($currentUser, 'logout'))
 		$currentUser->logout();
 	// Unset session variables
-	unset($currentUser, $_SESSION['FOG_USERNAME'], $_SESSION['FOG_USER'], $_SESSION['AllowAJAXTasks'], $MainMenu);
+	unset($currentUser, $_SESSION['FOG_USERNAME'], $_SESSION['FOG_USER'], $_SESSION['AllowAJAXTasks']);
 	// Show login form
 	$Page->setTitle($foglang['Login']);
 	$Page->setSecTitle($foglang['ManagementLogin']);
@@ -24,8 +22,7 @@ if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_e
 	$Page->endBody();
 	$Page->render();
 }
-if (is_null($FOGPageManager) || !($FOGPageManager instanceof FOGPageManager))
-	$FOGPageManager = new FOGPageManager();
+$FOGPageManager = new FOGPageManager();
 $_SESSION['FOGPingActive'] = ($FOGCore->getSetting('FOG_HOST_LOOKUP') == '1' ? true : false);
 $_SESSION['AllowAJAXTasks'] = true;
 $content = $FOGPageManager->render();

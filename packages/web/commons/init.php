@@ -197,28 +197,21 @@ class Initiator
 	}
 }
 // Initialize everything
-if (is_null($Init) || !($Init instanceof Initiator))
-	$Init = new Initiator();
+$Init = new Initiator();
 $Init::startInit();
 // Get the configuration
-if (is_null($Config) || !($Config instanceof Config))
-	$Config = new Config();
+$Config = new Config();
 // Core
-if (is_null($FOGFTP) || !($FOGFTP instanceof FOGFTP))
-	$FOGFTP = new FOGFTP();
-if (is_null($FOGCore) || !($FOGCore instanceof FOGCore))
-	$FOGCore = new FOGCore();
+$FOGFTP = new FOGFTP();
+$FOGCore = new FOGCore();
 // Generate the Server's Key Pairings
 $FOGCore->createKeyPair();
 // Database Load initiator
-if (is_null($DatabaseManager) || !($DatabaseManager instanceof DatabaseManager))
-	$DatabaseManager = new DatabaseManager();
-if (is_null($DB) || !($DB instanceof MySQL))
-	$DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
+$DatabaseManager = new DatabaseManager();
+$DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
 // Set the memory limits
 ini_set('memory_limit',is_numeric($FOGCore->getSetting('FOG_MEMORY_LIMIT')) && $FOGCore->getSetting('FOG_MEMORY_LIMIT') >= 128 ? $FOGCore->getSetting('FOG_MEMORY_LIMIT').'M' : ini_get('memory_limit'));
 // HookManager
-if (is_null($HookManager) || !($HookManager instanceof HookManager))
-	$HookManager = new HookManager();
+$HookManager = new HookManager();
 $HookManager->load();
 $Init::endInit();
