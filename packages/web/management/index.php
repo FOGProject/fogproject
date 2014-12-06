@@ -1,8 +1,8 @@
 <?php
 require_once('../commons/base.inc.php');
-if (!$currentUser)
+if (is_null($currentUser) || !($currentUser instanceof User))
 	$currentUser = $FOGCore->FOGUser = $FOGPageManager->FOGUser = $HookManager->FOGUser = ($_SESSION['FOG_USER'] ? unserialize($_SESSION['FOG_USER']) : null);
-if (!$Page)
+if (is_null($Page) || ($Page instanceof Page))
 	$Page = new Page();
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
@@ -23,8 +23,9 @@ if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_e
 	$FOGCore->getClass('ProcessLogin')->mainLoginForm();
 	$Page->endBody();
 	$Page->render();
-	exit;
 }
+if (is_null($FOGPageManager) || !($FOGPageManager instanceof FOGPageManager))
+	$FOGPageManager = new FOGPageManager();
 $_SESSION['FOGPingActive'] = ($FOGCore->getSetting('FOG_HOST_LOOKUP') == '1' ? true : false);
 $_SESSION['AllowAJAXTasks'] = true;
 $content = $FOGPageManager->render();
@@ -41,4 +42,3 @@ $Page->startBody();
 print $content;
 $Page->endBody();
 $Page->render();
-exit;
