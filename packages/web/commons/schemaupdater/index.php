@@ -1759,6 +1759,17 @@ $databaseSchema[] = array(
 $databaseSchema[] = array(
 	"DELETE FROM `". DATABASE_NAME ."`.`globalSettings` WHERE `settingKey`='FOG_JPGRAPH_VERSION'",
 );
+// 151
+$databaseSchema[] = array(
+	"ALTER TABLE `".DATABASE_NAME."`.`torrent` ENGINE=MyISAM",
+	"ALTER TABLE `".DATABASE_NAME."`.`taskTypes` ENGINE=MyISAM",
+	"ALTER TABLE `".DATABASE_NAME."`.`taskStates` ENGINE=MyISAM",
+	"ALTER TABLE `".DATABASE_NAME."`.`peer_torrent` ENGINE=MyISAM",
+	"ALTER TABLE `".DATABASE_NAME."`.`taskLog` ENGINE=MyISAM",
+	"ALTER TABLE `".DATABASE_NAME."`.`peer` ENGINE=MyISAM",
+	"ALTER TABLE `".DATABASE_NAME."`.`os` ENGINE=MyISAM",
+	"ALTER TABLE `".DATABASE_NAME."`.`modules` ENGINE=MyISAM",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";

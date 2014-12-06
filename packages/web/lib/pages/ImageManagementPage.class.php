@@ -678,7 +678,7 @@ class ImageManagementPage extends FOGPage
 				break;
 				case 'image-storage';
 					$Image->addGroup($_REQUEST['storagegroup']);
-					if ($_REQUEST['storagegroup-rm'])
+					if (isset($_REQUEST['storagegroup-rm']))
 					{
 						if (count($Image->get('storageGroups')) > 1)
 							$Image->removeGroup($_REQUEST['storagegroup-rm']);
