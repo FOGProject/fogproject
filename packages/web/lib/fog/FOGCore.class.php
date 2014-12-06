@@ -216,7 +216,11 @@ class FOGCore extends FOGBase
 	*/
 	public function resolveHostname($host)
 	{
-		return ($this->getSetting('FOG_USE_SLOPPY_NAME_LOOKUPS') ? gethostbyname($host) : $host);
+		if (filter_var($host,FILTER_VALIDATE_IP))
+			$ip = $host;
+		else
+			$ip = gethostbyname($host);
+		return $ip;
 	}
 	
 	/** makeTempFilePath()
