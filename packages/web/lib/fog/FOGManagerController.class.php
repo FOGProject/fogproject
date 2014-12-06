@@ -24,8 +24,6 @@ abstract class FOGManagerController extends FOGBase
 	protected $databaseFields;
 	/** The database to class relationships. */
 	protected $databaseFieldClassRelationships;
-    /** Sets the Variables to use later on. **/
-    public $FOGCore, $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang;
 	// Construct
 	/** __construct()
 		Different constructor from FOG Base
@@ -131,10 +129,10 @@ abstract class FOGManagerController extends FOGBase
 						}
 					}
 				}
-				$Data = array_unique((array)$Hosts);
+				$Data = array_unique((array)$Hosts,SORT_REGULAR);
 			}
 			// Only used in the future for other class files.
-			$Hosts = array_unique((array)$Hosts);
+			$Hosts = array_unique((array)$Hosts,SORT_REGULAR);
 			if ($classSearch == 'Group')
 			{
 				$GroupMan = $this->getClass('GroupManager')->find($findWhere,'OR');
@@ -247,7 +245,7 @@ abstract class FOGManagerController extends FOGBase
 							if ($Host && $Host->isValid())
 								$HostImages[] = $Host;
 						}
-						$HostImages = array_unique((array)$HostImages);
+						$HostImages = array_unique((array)$HostImages,SORT_REGULAR);
 						foreach((array)$HostImages AS $Host)
 						{
 							if ($Host && $Host->isValid())
@@ -273,7 +271,7 @@ abstract class FOGManagerController extends FOGBase
 						$Data[] = $User;
 				}
 			}
-			$Data = $classSearch == 'Task' ? array_unique((array)$Data,SORT_REGULAR) : array_unique((array)$Data);
+			$Data = array_unique((array)$Data,SORT_REGULAR);
 			return (array)$Data;
 		}
 		catch (Exception $e)
@@ -285,28 +283,19 @@ abstract class FOGManagerController extends FOGBase
 	/** find($where = array(),$whereOperator = 'AND',$orderBy = 'name',$sort = 'ASC')
 		Pulls the information from the database into the resepective class file.
 	*/
-	public function find($where = '', $whereOperator = '', $orderBy = '', $sort = '',$compare = '',$groupby = '')
+	public function find($where = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC',$compare = '=',$groupby = false)
 	{
 		try
 		{
-			// Fail safe defaults
-			if (!$where)
-				$where = array();
-			if (!$whereOperator)
-				$whereOperator = 'AND';
-			if (!$compare)
+			if (empty($compare))
 				$compare = '=';
-			if (!$orderBy)
-			{
-				if ($this->databaseFields['name'])
-					$orderBy = 'name';
-				else
-					$orderBy = 'id';
-			}
-			if (!$sort)
-				$sort = 'ASC';
+			// Fail safe defaults
+			if (empty($where))
+				$where = array();
+			if (empty($whereOperator))
+				$whereOperator = 'AND';
 			// Error checking
-			if (!$this->databaseTable)
+			if (empty($this->databaseTable))
 				throw new Exception('No database table defined');
 			// Create Where Array
 			if (count($where))
@@ -319,34 +308,31 @@ abstract class FOGManagerController extends FOGBase
 						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
 				}
 			}
-			foreach((array)$groupby AS $item)
-				$groupArray[] = '`'.$this->databaseFields[$item].'`';
-			foreach((array)$orderBy AS $item)
+			$groupArray = '';
+			if (is_array($groupby))
 			{
-				if ($this->databaseFields[$item])
-					$orderArray[] = '`'.$this->databaseFields[$item].'`';
-			}
-			// Select all
-			if (!$groupby)
-			{
-				$this->DB->query("SELECT * FROM `%s`%s%s %s", array(
-					$this->databaseTable,
-					(count($whereArray) ? ' WHERE ' . implode(' ' . $whereOperator . ' ', $whereArray) : ''),
-					" ORDER BY ".rtrim(implode((array)$orderArray,','),','),
-					$sort
-				));
+				$first = true;
+				foreach((array)$groupby AS $item)
+				{
+					if ($first)
+					{
+						$groupArray .= sprintf("`%s`",$this->databaseFields[$item]);
+						$first = false;
+					}
+					else
+						$groupArray .= sprintf(",`%s`",$this->databaseFields[$item]);
+				}
 			}
 			else
-			{
-				$this->DB->query("SELECT * FROM (SELECT * FROM `%s`%s%s %s) AS tmp%s%s", array(
-					$this->databaseTable,
-					(count($whereArray) ? ' WHERE ' . implode(' ' . $whereOperator . ' ', $whereArray) : ''),
-					" ORDER BY ".rtrim(implode((array)$orderArray,','),','),
-					$sort,
-					" GROUP BY ".rtrim(implode((array)$groupArray,','),','),
-					" ORDER BY ".rtrim(implode((array)$orderArray,','),',')
-				));
-			}
+				$groupArray = sprintf("`%s`",$this->databaseFields[$groupby]);
+			// Select all
+			$this->DB->query("SELECT * FROM `%s`%s%s ORDER BY `%s` %s", array(
+				$this->databaseTable,
+				(count($whereArray) ? ' WHERE ' . implode(' ' . $whereOperator . ' ', $whereArray) : ''),
+				($groupby ? ' GROUP BY '.$groupArray : ''),
+				($this->databaseFields[$orderBy] ? $this->databaseFields[$orderBy] : $this->databaseFields['id']),
+				$sort
+			));
 			while ($row = $this->DB->fetch()->get())
 			{
 				$r = new ReflectionClass($this->childClass);
@@ -364,17 +350,15 @@ abstract class FOGManagerController extends FOGBase
 	/** count($where = array(),$whereOperator = 'AND')
 		Returns the count of the database.
 	*/
-	public function count($where = array(), $whereOperator = '', $compare = '')
+	public function count($where = array(), $whereOperator = 'AND', $compare = '=')
 	{
 		try
 		{
 			// Fail safe defaults
-			if (!$where)
+			if (empty($where))
 				$where = array();
-			if (!$whereOperator)
+			if (empty($whereOperator))
 				$whereOperator = 'AND';
-			if (!$compare)
-				$compare = '=';
 			// Error checking
 			if (empty($this->databaseTable))
 				throw new Exception('No database table defined');
