@@ -1,16 +1,28 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+		<?php if (!preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) { ?><meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 		<meta http-equiv="content-type" content="text/json; charset=utf-8" />
-		<title><?php $this->pageTitle ? print "$this->pageTitle &gt; $this->sectionTitle &gt; FOG &gt; {$this->foglang['Slogan']}" : "$this->sectionTitle &gt; FOG &gt; {$this->foglang['Slogan']}" ?></title>
+		<title><?php $this->pageTitle ? print "$this->pageTitle &gt; $this->sectionTitle &gt; FOG &gt; {$this->foglang['Slogan']}" : "$this->sectionTitle &gt; FOG &gt; {$this->foglang['Slogan']}" ?></title><?php } else { ?><meta name="viewport" content="width=320px" />
+		<meta name="viewport" content="initial-scale=1.0" />
+		<title><?php print 'FOG :: '._('Mobile Manager').' :: '._('Version').' '.FOG_VERSION ?></title><?php } ?>
 		<?php $cnt=0; $this->HookManager->processEvent('CSS',array('stylesheets' => &$this->stylesheets)); foreach($this->stylesheets AS $stylesheet) {
-			print ($cnt++ > 0 ? "\t\t" : '').'<link href="'.$stylesheet.'" rel="stylesheet" type="text/css" />'."\n";
+			print ($cnt++ > 0 ? "\t\t" : '').'<link'.$this->media.' href="'.$stylesheet.'" rel="stylesheet" type="text/css" />'."\n";
 		} ?>
 		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
 	</head>
 	<body>
-		<!-- FOG Message Boxes -->
+	<?php if (preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) { if ($this->FOGUser && $this->FOGUser->isLoggedIn()) { ?>
+		<div id="mainContainer">
+			<div id="header"></div>
+			<div class="mainContent">
+				<?php print $this->menu;
+					$this->pageTitle ? "<h2>$this->pageTitle</h2>" : null;?>
+					<div id="mobile_content">
+						<?php print $this->body ?>
+					</div>
+			</div>
+		</div><?php } else print $this->body; } else { ?><!-- FOG Message Boxes -->
 		<div id="loader-wrapper"><div id="loader"><div id="progress"></div></div></div>
 		<!-- Main -->
 		<div id="wrapper">
@@ -50,6 +62,6 @@
 		<!-- Javascript -->
 		<?php $cnt=0; $this->HookManager->processEvent('JAVASCRIPT',array('javascripts' => &$this->javascripts)); foreach($this->javascripts AS $javascript) {
 			print ($cnt++ > 0 ? "\t\t" : '').'<script src="'.$javascript.'" language="javascript" type="text/javascript" defer="defer"></script>'."\n";
-		} ?>
+		} } ?>
 	</body>
 </html>

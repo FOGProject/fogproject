@@ -1,13 +1,24 @@
 <?php
 class Page extends FOGBase {
-	private $pageTitle,$sectionTitle,$stylesheets=array(),$javascripts=array(),$body,$isHomepage, $menu, $submenu;
+	private $pageTitle,$sectionTitle,$stylesheets=array(),$javascripts=array(),$body,$isHomepage, $menu, $submenu, $media;
 	public function __construct() {
 		parent::__construct();
-		$this->addCSS('css/jquery-ui.css');
-		$this->addCSS('css/jquery.organicTabs.css');
-		$this->addCSS('css/fog.css');
+		if (!preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
+		{
+			$this->addCSS('css/jquery-ui.css');
+			$this->addCSS('css/jquery.organicTabs.css');
+			$this->addCSS('css/fog.css');
+
+		}
+		else
+			$this->addCSS('css/main.css');
 		$this->isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','client','logout','login')));
 		if ($this->FOGUser && $this->FOGUser->isLoggedIn())
+		{
+			$this->menu = $this->getClass('Mainmenu')->mainMenu();
+			$this->submenu = $this->getClass('SubMenu')->buildMenu();
+		}
+		if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
 		{
 			$files = array(
 				'js/jquery-latest.js',
@@ -41,10 +52,8 @@ class Page extends FOGBase {
 				if (preg_match('#MSIE [6|7|8|9|10|11]#',$_SERVER['HTTP_USER_AGENT']))
 					array_push($files,'js/flot/excanvas.js');
 			}
-			$this->menu = $this->getClass('Mainmenu')->mainMenu();
-			$this->submenu = $this->getClass('SubMenu')->buildMenu();
 		}
-		else
+		else if (!preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
 		{
 			$files = array(
 				'js/jquery-latest.js',
@@ -53,7 +62,7 @@ class Page extends FOGBase {
 				'js/fog/fog.login.js',
 			);
 		}
-		foreach($files AS $path)
+		foreach((array)$files AS $path)
 		{
 			if (file_exists($path))
 				$this->addJavascript($path);
@@ -77,7 +86,11 @@ class Page extends FOGBase {
 	public function endBody() {
 		$this->body = ob_get_clean();
 	}
-	public function render($path = 'other/index.php') {
+	public function render($path = '') {
+		if (!$path && preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
+			$path = '../management/other/index.php';
+		else
+			$path = 'other/index.php';
 		ob_start();
 		include_once($path);
 		print ob_get_clean();

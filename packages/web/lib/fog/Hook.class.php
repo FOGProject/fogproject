@@ -23,7 +23,7 @@ abstract class Hook extends FOGBase
 	{
 		parent::__construct();
 		if (!$this->FOGUser)
-			$this->FOGUser = $GLOBALS['currentUser'];
+			$this->FOGUser = ($_SESSION['FOG_USER'] ? unserialize($_SESSION['FOG_USER']) : null);
 	}
 	public function run($arguments)
 	{
