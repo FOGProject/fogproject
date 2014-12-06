@@ -44,7 +44,7 @@ class HomeMobile extends FOGPage
 	*/
 	public function index()
 	{
-		print "\n\t\t\t".'<h1>'._('Welcome to FOG Mobile').'</h1>';
+		print "\t<h1>"._('Welcome to FOG Mobile')."</h1>";
 		$this->data[] = array(
 			'page_desc' => _("Welcome to FOG - Mobile Edition!  This light weight interface for FOG allows for access via mobile, low power devices."),
 		);

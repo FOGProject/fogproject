@@ -114,8 +114,8 @@ abstract class FOGPage extends FOGBase
 				// HTML output
 				if ($this->searchFormURL)
 				{
-					$result[] = sprintf('%s<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" '.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'name="host-search"' : '').'/> <input id="%s-search-submit" class="search-submit" type="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'submit' : 'button').'" value="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? $this->foglang['Search'] : '').'" /></form>',
-						"\n\t\t\t",
+					$result[] = sprintf('%s<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" '.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'name="host-search"' : '').'/> <input id="%s-search-submit" class="search-submit" type="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'submit' : 'button').'" value="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? $this->foglang['Search'] : '').'" /></form>'."\n",
+						"\t\t\t\t",
 						$this->searchFormURL,
 						(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),	// TODO: Store this in class as variable
 						sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), $this->foglang['Search']),
@@ -123,17 +123,15 @@ abstract class FOGPage extends FOGBase
 					);
 				}
 				// Table -> Header Row
-				$result[] = sprintf('%s<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s">%s<thead>%s<tr class="header">%s</tr>%s</thead>%s<tbody>%s',
-					"\n\n\t\t\t",
+				$result[] = sprintf('%s<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s">%s<thead>%s<tr class="header">%s</tr>%s</thead>%s<tbody>',
+					"\n\t\t\t\t\t",
 					'100%',
 					($this->searchFormURL ? 'search-content' : 'active-tasks'),
-					"\n\t\t\t\t",
-					"\n\t\t\t\t\t",
+					"\n\t\t\t\t\t\t",
+					"\n\t\t\t\t\t\t\t",
 					$this->buildHeaderRow(),
-					"\n\t\t\t\t",
-					"\n\t\t\t\t",
-					"\n\t\t\t\t\t",
-					"\n\t\t\t"
+					"\n\t\t\t\t\t\t",
+					"\n\t\t\t\t\t\t"
 				);
 				// Rows
 				if (count($this->data))
@@ -141,12 +139,12 @@ abstract class FOGPage extends FOGBase
 					// Data found
 					foreach ($this->data AS $rowData)
 					{
-						$result[] = sprintf('<tr id="%s-%s" class="%s">%s</tr>%s',
+						$result[] = sprintf('%s<tr id="%s-%s" class="%s">%s</tr>',
+							"\t\t\t\t\t\t\t",
 							(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
 							$rowData['id'],
 							(++$i % 2 ? 'alt1' : ((!$_REQUEST['sub'] && $this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN') == 'list') || in_array($_REQUEST['sub'],array('list','search')) ? 'alt2' : '')),
-							$this->buildRow($rowData),
-							"\n\t\t\t\t\t"
+							$this->buildRow($rowData)
 						);
 					}
 					// Set message
@@ -162,7 +160,7 @@ abstract class FOGPage extends FOGBase
 					);
 				}
 				// Table close
-				$result[] = sprintf('%s</tbody>%s</table>%s', "\n\t\t\t\t", "\n\t\t\t", "\n\n\t\t\t");
+				$result[] = sprintf('%s</tbody>%s</table>%s', "\t\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t");
 			}
 			// Return output
 			return implode("\n",$result);
@@ -191,7 +189,7 @@ abstract class FOGPage extends FOGBase
 				unset($attributes);
 			}
 			// Return result
-			return "\n\t\t\t\t\t\t" . implode("\n\t\t\t\t\t\t", $result) . "\n\t\t\t\t\t";
+			return "\n\t\t\t\t\t" . implode("\n\t\t\t\t\t", $result) . "\n\t\t\t\t";
 		}
 	}
 	public function buildRow($data)
@@ -230,7 +228,7 @@ abstract class FOGPage extends FOGBase
 			unset($attributes, $dataFind, $dataReplace);
 		}
 		// Return result
-		return "\n\t\t\t\t\t\t" . implode("\n\t\t\t\t\t\t", $result) . "\n\t\t\t\t\t";
+		return "\n\t\t\t\t\t\t\t\t" . implode("\n\t\t\t\t\t\t\t\t", $result) . "\n\t\t\t\t\t\t\t";
 	}
 
 	public function deploy()

@@ -19,10 +19,10 @@ class Mainmenu extends FOGBase
 		}
 		else
 		{
-			$menuItem[] = sprintf("%s%s","\n\t\t\t",'<div id="menuBar">');
+			$menuItem[] = sprintf("%s%s","\n\t\t\t\t",'<div id="menuBar">');
 			foreach($this->main AS $link => $title)
-				$menuItem[] = sprintf("%s%s","\n\t\t\t\t",'<a href="?node='.$link.($link != 'logout' ? 's' : '').'"><img class="'.$link.'" src="images/icon-'.$link.'.png" alt="'.$title.'" /></a>');
-			$menuItem[] = sprintf("%s%s","\n\t\t\t","</div>");
+				$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t",'<a href="?node='.$link.($link != 'logout' ? 's' : '').'"><img class="'.$link.'" src="images/icon-'.$link.'.png" alt="'.$title.'" /></a>');
+			$menuItem[] = sprintf("%s%s","\n\t\t\t\t","</div>");
 		}
 		return implode($menuItem);
 	}
