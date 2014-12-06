@@ -1770,6 +1770,11 @@ $databaseSchema[] = array(
 	"ALTER TABLE `".DATABASE_NAME."`.`os` ENGINE=MyISAM",
 	"ALTER TABLE `".DATABASE_NAME."`.`modules` ENGINE=MyISAM",
 );
+// 152
+$databaseSchema[] = array(
+	"ALTER TABLE `".DATABASE_NAME."`.`imageGroupAssoc` ADD UNIQUE(`igaImageID`,`igaStorageGroupID`)",
+	"ALTER TABLE `".DATABASE_NAME."`.`snapinGroupAssoc` ADD UNIQUE(`sgaSnapinID`,`sgaStorageGroupID`)",
+);
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print "\n".'<html xmlns="http://www.w3.org/1999/xhtml">';
 print "\n\t<head>";
