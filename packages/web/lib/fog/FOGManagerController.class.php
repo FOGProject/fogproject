@@ -283,7 +283,7 @@ abstract class FOGManagerController extends FOGBase
 	/** find($where = array(),$whereOperator = 'AND',$orderBy = 'name',$sort = 'ASC')
 		Pulls the information from the database into the resepective class file.
 	*/
-	public function find($where = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC',$compare = '=',$groupby = false)
+	public function find($where = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC',$compare = '=',$groupBy = false)
 	{
 		try
 		{
@@ -294,6 +294,15 @@ abstract class FOGManagerController extends FOGBase
 				$where = array();
 			if (empty($whereOperator))
 				$whereOperator = 'AND';
+			if (empty($orderBy))
+			{
+				if ($this->databaseFields['name'])
+					$orderBy = 'name';
+				else
+					$orderBy = 'id';
+			}
+			else if (!$this->databaseFields[$orderBy])
+				$orderBy = 'id';
 			// Error checking
 			if (empty($this->databaseTable))
 				throw new Exception('No database table defined');
@@ -308,31 +317,41 @@ abstract class FOGManagerController extends FOGBase
 						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
 				}
 			}
-			$groupArray = '';
-			if (is_array($groupby))
+			foreach((array)$orderBy AS $item)
 			{
-				$first = true;
-				foreach((array)$groupby AS $item)
-				{
-					if ($first)
-					{
-						$groupArray .= sprintf("`%s`",$this->databaseFields[$item]);
-						$first = false;
-					}
-					else
-						$groupArray .= sprintf(",`%s`",$this->databaseFields[$item]);
-				}
+				if ($this->databaseFields[$item])
+					$orderArray[] = sprintf("`%s`",$this->databaseFields[$item]);
+			}
+			foreach((array)$groupBy AS $item)
+			{
+				if ($this->databaseFields[$item])
+					$groupArray[] = sprintf("`%s`",$this->databaseFields[$item]);
+			}
+			if ($groupBy)
+			{
+				$sql = "SELECT * FROM (SELECT * FROM `%s` %s %s %s) AS tmp %s %s %s";
+				$fieldValues = array(
+					$this->databaseTable,
+					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
+					'ORDER BY '.trim(implode($orderArray,','),','),
+					$sort,
+					'GROUP BY '.trim(implode($groupArray,','),','),
+					'ORDER BY '.trim(implode($orderArray,','),','),
+					$sort
+				);
 			}
 			else
-				$groupArray = sprintf("`%s`",$this->databaseFields[$groupby]);
+			{
+				$sql = "SELECT * FROM `%s` %s %s %s";
+				$fieldValues = array(
+					$this->databaseTable,
+					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
+					'ORDER BY '.trim(implode($orderArray,','),','),
+					$sort
+				);
+			}
 			// Select all
-			$this->DB->query("SELECT * FROM `%s`%s%s ORDER BY `%s` %s", array(
-				$this->databaseTable,
-				(count($whereArray) ? ' WHERE ' . implode(' ' . $whereOperator . ' ', $whereArray) : ''),
-				($groupby ? ' GROUP BY '.$groupArray : ''),
-				($this->databaseFields[$orderBy] ? $this->databaseFields[$orderBy] : $this->databaseFields['id']),
-				$sort
-			));
+			$this->DB->query($sql,$fieldValues);
 			while ($row = $this->DB->fetch()->get())
 			{
 				$r = new ReflectionClass($this->childClass);
