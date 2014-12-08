@@ -73,14 +73,14 @@ try
 		}
 	}
 	// Failed to find a Storage Node - this should only occur if all Storage Nodes in this Storage Group have failed
-	if (!isset($winner) || !$winner->isValid())
+	if ($imagingTasks && (!isset($winner) || !$winner->isValid()))
 	{
 		// Print failed node messages if we are unable to find a valid node
 		if (count($messageArray))
 			print implode(PHP_EOL, $messageArray) . PHP_EOL;
 		throw new Exception(_("Unable to find a suitable Storage Node for transfer!"));
+		$Task->set('NFSMemberID', $winner->get('id'));
 	}
-	$Task->set('NFSMemberID', $winner->get('id'));
 	// All tests passed! Almost there!
 	$Task->set('stateID', '3');
 	// Update Task State ID -> Update Storage Node ID -> Save
