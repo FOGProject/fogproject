@@ -184,6 +184,10 @@ configureTFTPandPXE()
 	chown -R ${username} "${webdirdest}/service/ipxe";
 	find "${tftpdirdst}" -type d -exec chmod 755 {} \;
 	find "${tftpdirdst}" ! -type d -exec chmod 644 {} \;
+	wget -O "${webdirdest}/service/ipxe/bzImage" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage"
+	wget -O "${webdirdest}/service/ipxe/bzImage32" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage32"
+	wget -O "${webdirdest}/service/ipxe/init.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init.xz"
+	wget -O "${webdirdest}/service/ipxe/init_32.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init_32.xz"
 	configureDefaultiPXEfile;
 	if [ -f "$tftpconfig" ]
 	then
