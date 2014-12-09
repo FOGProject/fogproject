@@ -390,10 +390,6 @@ configureHttpd()
 		fi
 		mkdir "$webdirdest";
 		cp -Rf $webdirsrc/* $webdirdest/
-		wget -O "${webdirdest}/service/ipxe/bzImage" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage" >/dev/null 2>&1
-		wget -O "${webdirdest}/service/ipxe/bzImage32" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage32" >/dev/null 2>&1
-		wget -O "${webdirdest}/service/ipxe/init.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init.xz" >/dev/null 2>&1
-		wget -O "${webdirdest}/service/ipxe/init_32.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init_32.xz" >/dev/null 2>&1
 		echo "<?php
 /**
 * Class Name: Config
@@ -505,14 +501,17 @@ class Config
 		define('FOG_DONATE_MINING', \"${donate}\");
 	}
 }" > "${webdirdest}/lib/fog/Config.class.php";
-		
+		echo "OK";
+		echo -n "Downloading kernels and inits...";
+		wget -O "${webdirdest}/service/ipxe/bzImage" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage" >/dev/null 2>&1
+		wget -O "${webdirdest}/service/ipxe/bzImage32" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage32" >/dev/null 2>&1
+		wget -O "${webdirdest}/service/ipxe/init.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init.xz" >/dev/null 2>&1
+		wget -O "${webdirdest}/service/ipxe/init_32.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init_32.xz" >/dev/null 2>&1
 		chown -R ${apacheuser}:${apacheuser} "$webdirdest"
-		
 		if [ -d "$apachehtmlroot" ]; then
 		    # check if there is a html directory in the /var/www directory
     		# if so, then we need to create a link in there for the fog web files
     		[ ! -h ${apachehtmlroot}/fog ] && ln -s ${webdirdest} ${apachehtmlroot}/fog
-
 			echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/html/index.php";
 		else 
 			echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/index.php";
