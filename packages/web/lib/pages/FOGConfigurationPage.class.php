@@ -265,8 +265,8 @@ class FOGConfigurationPage extends FOGPage
 				_('Boot Options:') => '<input type="text" name="menu_options" id="menu_options" value="${menu_options}" ${disabled}/>',
 				_('Default Item:') => '<input type="checkbox" name="menu_default" value="1" ${menu_default}/>',
 				_('Menu Show with:') => '${menu_regmenu}',
-				'<input type="hidden" name="menu_id" value="${menu_id}" />' => '<input type="submit" value="'.$this->foglang['Submit'].'" />',
-				!$menuid ? '<input type="hidden" name="rmid" value="${menu_id}" />' : '' => !$menuid ? '<input type="submit" value="'.$this->foglang['Delete'].' ${menu_item}" />' : '',
+				'<input type="hidden" name="menu_id" value="${menu_id}" />' => '<input type="submit" name="saveform" value="'.$this->foglang['Submit'].'" />',
+				!$menuid ? '<input type="hidden" name="rmid" value="${menu_id}" />' : '' => !$menuid ? '<input type="submit" name="delform" value="'.$this->foglang['Delete'].' ${menu_item}" />' : '',
 			);
 			foreach($fields AS $field => $input)
 			{
@@ -302,7 +302,7 @@ class FOGConfigurationPage extends FOGPage
 	}
 	public function customize_edit_post()
 	{
-		if ($_REQUEST['menu_id'])
+		if (isset($_REQUEST['saveform']) && $_REQUEST['menu_id'])
 		{
 			$Menu = new PXEMenuOptions($_REQUEST['menu_id']);
 			$Menu->set('name',$_REQUEST['menu_item'])
@@ -322,7 +322,7 @@ class FOGConfigurationPage extends FOGPage
 			if ($countDefault == 0 || $countDefault > 1)
 				$this->getClass('PXEMenuOptions',1)->set('default',1)->save();
 		}
-		if ($_REQUEST['rmid'])
+		if (isset($_REQUEST['delform']) && $_REQUEST['rmid'])
 		{
 			$Menu = new PXEMenuOptions($_REQUEST['rmid']);
 			$menuname = $Menu->get('name');
