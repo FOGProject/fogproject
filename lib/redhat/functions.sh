@@ -495,15 +495,18 @@ class Config
 		define('FOG_DONATE_MINING', \"${donate}\");
 	}
 }" > "${webdirdest}/lib/fog/Config.class.php";
-		
-		
+		echo "OK";
+		echo -n "Downloading kernels and inits...";
+		wget -O "${webdirdest}/service/ipxe/bzImage" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage" >/dev/null 2>&1
+		wget -O "${webdirdest}/service/ipxe/bzImage32" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage32" >/dev/null 2>&1
+		wget -O "${webdirdest}/service/ipxe/init.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init.xz" >/dev/null 2>&1
+		wget -O "${webdirdest}/service/ipxe/init_32.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init_32.xz" >/dev/null 2>&1
 		chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 		
 		if [ ! -f "$webredirect" ]
 		then
 			echo "<?php header('Location: ./fog/index.php');?>" > $webredirect;
 		fi
-		
 		echo "OK";
 		if [ -d "${webdirdest}.prev" ]; then
 			echo "  * Copying back any custom hook files.";
