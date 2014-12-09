@@ -502,7 +502,7 @@ class Config
 	}
 }" > "${webdirdest}/lib/fog/Config.class.php";
 		echo "OK";
-		echo -n "Downloading kernels and inits...";
+		echo -n "  * Downloading kernels and inits...";
 		wget -O "${webdirdest}/service/ipxe/bzImage" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage" >/dev/null 2>&1
 		wget -O "${webdirdest}/service/ipxe/bzImage32" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage32" >/dev/null 2>&1
 		wget -O "${webdirdest}/service/ipxe/init.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init.xz" >/dev/null 2>&1
