@@ -63,5 +63,7 @@ class ClientManagementPage extends FOGPage
 		print "\n\t\t\t\t\t\t\t\t\t\t\t"._('FOG Crypt');
 		print "\n\t\t\t\t\t\t\t\t\t\t</a>";
 		print "\n\t\t\t\t\t\t\t\t\t</div>";
+		print "\n\t\t\t\t\t\t\t\t</li>";
+		print "\n\t\t\t\t\t\t\t</ul>";
 	}
 }
