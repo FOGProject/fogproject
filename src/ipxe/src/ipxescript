@@ -1,3 +1,3 @@
 #!ipxe
-dhcp || reboot
+ifopen || dhcp || reboot
 chain default.ipxe || exit
