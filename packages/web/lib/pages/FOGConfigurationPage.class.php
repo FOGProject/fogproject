@@ -288,12 +288,6 @@ class FOGConfigurationPage extends FOGPage
 			// Output
 			$this->render();
 			print "</form>";
-			if (!$menuid)
-			{
-				print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-				print "\n\t\t\t".'<input type="hidden" name="rmid" value="'.$Menu->get('id').'" /><input type="submit" value="'.$this->foglang['Delete'].' '.$Menu->get('name').' Menu Entry" />';
-				print "\n\t\t\t".'</form>';
-			}
 			print "\n\t\t\t".'</div>';
 			// Reset for use again.
 			unset($this->data);
