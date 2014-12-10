@@ -206,7 +206,7 @@ class ImageManagementPage extends FOGPage
 				'image_file' => $_REQUEST['file'],
 				'image_types' => $this->getClass('ImageTypeManager')->buildSelectBox($_REQUEST['imagetype'],'','id'),
 				'image_partition_types' => $this->getClass('ImagePartitionTypeManager')->buildSelectBox($_REQUEST['imagepartitiontype'],'','id'),
-				'image_comp' => $_REQUEST['compress'],
+				'image_comp' => isset($_REQUEST['compress']) ? $_REQUEST['compress'] : $this->FOGCore->getSetting('FOG_PIGZ_COMP'),
 			);
 		}
 		// Hook
