@@ -767,8 +767,8 @@ abstract class FOGPage extends FOGBase
 	public function loginInfo()
 	{
 		$fetchDataInfo = array(
-			'sites' => 'http://www.fogproject.org/globalusers/',
-			'version' => 'http://freeghost.sourceforge.net/version/version.php',
+			'sites' => 'http://fogproject.org/globalusers/',
+			'version' => 'http://fogproject.org/version/version.php',
 		);
 		foreach((array)$fetchDataInfo AS $key => $url)
 		{

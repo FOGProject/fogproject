@@ -44,7 +44,7 @@ class FOGConfigurationPage extends FOGPage
 		// Set title
 		$this->title = _('FOG Version Information');
 		print "\n\t\t\t<p>"._('Version: ').FOG_VERSION.'</p>';
-		print "\n\t\t\t".'<p><div class="sub">'.$this->FOGCore->FetchURL("http://freeghost.sourceforge.net/version/index.php?version=".FOG_VERSION).'</div></p>';
+		print "\n\t\t\t".'<p><div class="sub">'.$this->FOGCore->FetchURL("http://fogproject.org/version/index.php?version=".FOG_VERSION).'</div></p>';
 	}
 	// Licence
 	/** license()
