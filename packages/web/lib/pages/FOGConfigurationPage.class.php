@@ -716,7 +716,7 @@ class FOGConfigurationPage extends FOGPage
 					$type = "\n\t\t\t".'<select name="${service_id}" autocomplete="off" style="width: 220px">'."\n\t\t\t\t".implode("\n",$options2)."\n\t\t\t".'</select>';
 				}
 				else if ($Service->get('name') == 'FOG_QUICKREG_IMG_ID')
-					$type = $this->getClass('ImageManager')->buildSelectBox($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID'),$Service->get('id'));
+					$type = $this->getClass('ImageManager')->buildSelectBox($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID'),$Service->get('id').'" id="${service_name}');
 				else if ($Service->get('name') == 'FOG_QUICKREG_GROUP_ASSOC')
 					$type = $this->getClass('GroupManager')->buildSelectBox($this->FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC'),$Service->get('id'));
 				else if ($Service->get('name') == 'FOG_KEY_SEQUENCE')
@@ -725,13 +725,13 @@ class FOGConfigurationPage extends FOGPage
 				{
 					if ($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID') > 0)
 						$Image = new Image($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID'));
-					$type = '<p>'.($Image && $Image->isValid() ? $Image->getOS()->get('name') : _('No image specified')).'</p>';
+					$type = '<p id="${service_name}">'.($Image && $Image->isValid() ? $Image->getOS()->get('name') : _('No image specified')).'</p>';
 				}
 				else
-					$type = '<input type="text" name="${service_id}" value="${service_value}" autocomplete="off" />';
+					$type = '<input id="${service_name}" type="text" name="${service_id}" value="${service_value}" autocomplete="off" />';
 				$this->data[] = array(
-					'service_name' => $Service->get('name'),
 					'input_type' => (count(explode(chr(10),$Service->get('value'))) <= 1 ? $type : '<textarea name="${service_id}">${service_value}</textarea>'),
+					'service_name' => $Service->get('name'),
 					'span' => '<span class="icon icon-help hand" title="${service_desc}"></span>',
 					'service_id' => $Service->get('id'),
 					'service_value' => $Service->get('value'),
@@ -752,6 +752,11 @@ class FOGConfigurationPage extends FOGPage
 		}
 		print "\n\t\t\t\t\t</div>";
 		print "\n\t\t\t\t</form>";
+	}
+	public function getOSID()
+	{
+		$Image = new Image($_REQUEST['image_id']);
+		print json_encode($Image && $Image->isValid() ? $Image->getOS()->get('name') : _('No image specified'));
 	}
 	// FOG System Settings: POST
 	/** settings_post()
