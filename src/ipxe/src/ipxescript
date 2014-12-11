@@ -3,6 +3,10 @@ ifclose
 ifopen && goto bootme || goto netstart
 :netstart
 dhcp && goto bootme || reboot
+:setserv
+echo -n Please enter tftp server: && read next-server && goto netboot
 :bootme
+isset ${next-server} && goto netboot || goto setserv
+:netboot
 chain tftp://${next-server}/default.ipxe || exit
 autoboot
