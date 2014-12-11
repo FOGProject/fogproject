@@ -629,38 +629,42 @@ getSAMLoc()
 	done
 	return 0;
 }
-
-getHardDisk()
-{
+# $1 is the partition to search for.
+getPartitionCount() {
+	echo `cat /proc/partitions | awk '$4 ~ /'$1'/ {print $4}' | wc -l`;
+}
+getHardDisk() {
 	if [ -n "${fdrive}" ]; then
 		hd="${fdrive}";
 		return 0;
 	else
-		hd="";
-		for i in `fogpartinfo --list-devices 2>/dev/null`; do
+		for i in `cat /proc/partitions | awk '$3 > 0 {print $4}' | grep -vE '[1-9].*$'`; do
 			hd="$i";
+			partcount=`getPartitionCount $hd`;
+			if [ ! $partcount -gt 1 ]; then
+				fdisk $hd &>/dev/null << EOF
+n
+p
+1
+
+
+w
+EOF
+			fi
+			partcount=`getPartitionCount $hd`;
+			if [ ! $partcount -gt 1 ]; then
+				handleError "Failed to initiliaze disk";
+			fi
+			hd="/dev/$hd";
 			return 0;
-		done
-		# Lets check and see if the partition shows up in /proc/partitions		
-		strData=`cat /proc/partitions | grep $hd 2>/dev/null`;
-		if [ -n "$strData" ]; then
-			return 0;
-		fi 
-		strData=`head -1 /dev/$hd 2>/dev/null`;
-		if [ -n "$strData" ]; then
-			return 0;
-		fi 
-		strData=`fdisk -l | grep /dev/$hd 2>/dev/null`;
-		if [ -n "$strData" ]; then
-			hd="/dev/$i";
-			return 0;
-		fi 
+		done;
+		if [ -z "$i" ]; then
+			handleError "Cannot find HDD on system";
+		fi
 	fi
 	return 1;
 }
-
-correctVistaMBR()
-{
+correctVistaMBR() {
 	dots "Correcting Vista MBR";
 	dd if=$1 of=/tmp.mbr count=1 bs=512 &>/dev/null
 	xxd /tmp.mbr /tmp.mbr.txt &>/dev/null
