@@ -22,6 +22,8 @@ assumed start sectors were starting at 2048.  Hopefully this is all good now.
 * Move clamav off of server to static binaries.  Bumps size of installer
 folder from 80MB to 277MB.  However clamav is not loaded in the initrd file
 and this same clamav can operate on the fog server.
+* Move kernels and inits out of SVN and download during installer.
+* Init's should initialize any disk now.
 * All resizable images will now upload with a common means of d1px.img rather
 than sys.img.000 or imagename as a file.
 * Make compatibility checks to allow older named images to still download.
@@ -35,6 +37,8 @@ This should allow OEM built systems to be imaged even with resizable.
 to wait for the user to unplug and replug their usb nics.
 * Update init.xz/init_32.xz to 2014.08 and update kernel infos to 3.16.1
 within the inits
+* Add jquery script to allow quickreg_img_id to dynamically update the os for
+the selected image.
 * Add protection flag to image files.
 * Add installer files from David Fear to fog to allow FOG Installation on
 Arch Linux.
