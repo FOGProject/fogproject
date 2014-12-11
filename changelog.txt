@@ -35,7 +35,7 @@ This should allow OEM built systems to be imaged even with resizable.
 * Init's are now truly native with dns pulling.
 * Added to inits to check for has_usb_nic flag which simply tells the system
 to wait for the user to unplug and replug their usb nics.
-* Update init.xz/init_32.xz to 2014.08 and update kernel infos to 3.16.1
+* Update init.xz/init_32.xz to 2014.11 and update kernel infos to 3.16.1
 within the inits
 * Add jquery script to allow quickreg_img_id to dynamically update the os for
 the selected image.
