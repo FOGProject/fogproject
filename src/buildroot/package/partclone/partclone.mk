@@ -10,7 +10,7 @@ PARTCLONE_SITE = http://sourceforge.net/projects/partclone/files/testing/src/
 PARTCLONE_INSTALL_STAGING = YES
 PARTCLONE_AUTORECONF = YES
 PARTCLONE_DEPENDENCIES = attr e2fsprogs libgcrypt lzo xz zlib xfsprogs ncurses host-pkgconf
-PARTCLONE_CONF_OPT = --enable-static --enable-xfs --enable-btrfs --enable-ntfs --enable-extfs --enable-fat --enable-hfsp --enable-static --enable-ncursesw
+PARTCLONE_CONF_OPTS = --enable-static --enable-xfs --enable-btrfs --enable-ntfs --enable-extfs --enable-fat --enable-hfsp --enable-static --enable-ncursesw
 
 define PARTCLONE_LINK_LIBRARIES_TOOL
 	rm -rf $(@D)/../../staging/usr/include/xfs
