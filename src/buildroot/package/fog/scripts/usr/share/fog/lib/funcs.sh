@@ -638,11 +638,11 @@ getHardDisk() {
 		hd="${fdrive}";
 		return 0;
 	else
-		for i in `cat /proc/partitions | awk '$3 > 0 {print $4}' | grep -vE '[1-9].*$'`; do
+		for i in `cat /proc/partitions | awk '$3 > 0 {print $4}'`; do
 			hd="$i";
 			partcount=`getPartitionCount $hd`;
 			if [ ! $partcount -gt 1 ]; then
-				fdisk $hd &>/dev/null << EOF
+				fdisk /dev/$hd &>/dev/null << EOF
 n
 p
 1
