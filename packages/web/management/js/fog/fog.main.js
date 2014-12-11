@@ -9,6 +9,20 @@
 // JQuery autoloader
 $(function()
 {
+	$('#FOG_QUICKREG_IMG_ID').change(function() {
+		$.ajax({
+			url: '?node=about',
+			cache: false,
+			type: 'POST',
+			data: {
+				sub: 'getOSID',
+				image_id: $(this).val()
+			},
+			success: function(data) {
+				$('#FOG_QUICKREG_OS_ID').html(data.replace(/\"/g,""));
+			}
+		});
+	});
 	// Bind to AD Settings checkbox
 	$('#adEnabled').change(function() {
 		if ($(this).attr('checked')) {
