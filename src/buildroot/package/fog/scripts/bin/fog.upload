@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 . /usr/share/fog/lib/funcs.sh;
 . /bin/fog.checkin;
 echo " * Preparing to send image file to server.";

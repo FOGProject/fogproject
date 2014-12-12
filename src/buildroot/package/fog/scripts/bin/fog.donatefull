@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 	
 . /usr/share/fog/lib/funcs.sh
 
