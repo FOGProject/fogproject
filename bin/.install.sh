@@ -330,7 +330,7 @@ do
 			    configureFOGService;
 			    #sendInstallationNotice;
 			    writeUpdateFile;
-			    setupFreshClam;
+			    #setupFreshClam;
 			    echo "";
 		
 			    echo "  Setup complete!";
