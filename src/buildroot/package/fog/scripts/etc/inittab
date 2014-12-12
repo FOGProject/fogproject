@@ -21,7 +21,7 @@ null::sysinit:/bin/mount -a
 null::sysinit:/bin/hostname -F /etc/hostname
 # now run any rc scripts
 ::sysinit:/etc/init.d/rcS
-tty0::respawn:-/bin/sh
+tty0::respawn:-/bin/bash
 # Put a getty on the serial port
 #ttyS0::respawn:/sbin/getty -L ttyS0 115200 vt100 # GENERIC_SERIAL
 

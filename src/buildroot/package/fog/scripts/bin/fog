@@ -7,4 +7,4 @@ elif [ "$type" == "up" ]; then
 else
 	handleError " Fatal Error: Unknown request type :: Null";
 fi
-fdisk -l &> /tmp/fdisk-after;
+#fdisk -l &> /tmp/fdisk-after;

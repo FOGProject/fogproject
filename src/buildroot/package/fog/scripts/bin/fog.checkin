@@ -44,7 +44,7 @@ else
 	method="NFS";
 fi
 debugPause;
-fdisk -l &> /tmp/fdisk-before;
+#fdisk -l &> /tmp/fdisk-before;
 echo "";
 dots "Checking Operating System"
 echo $osname;
