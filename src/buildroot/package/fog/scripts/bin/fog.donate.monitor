@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 	
 isok=`wget -q -O - "http://${web}service/donate.php" 2>/dev/null`;
 while [ "$isok" == "#!OK" ]; do

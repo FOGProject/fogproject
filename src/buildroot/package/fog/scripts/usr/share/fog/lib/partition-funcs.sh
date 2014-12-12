@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # These functions are for dealing with resizing of partitions.

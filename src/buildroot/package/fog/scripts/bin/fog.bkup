@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Make this dynamic from fog. PIGZ_COMP="-9";
 RUN_CHKDSK="";
