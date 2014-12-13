@@ -989,6 +989,9 @@ class BootMenu extends FOGBase
 		$Menus = $this->getClass('PXEMenuOptionsManager')->find('','','id');
 		$Send['head'] = array(
 			"#!ipxe",
+			'set fog-ip '.$this->FOGCore->getSetting('FOG_WEB_HOST'),
+			'set fog-webroot '.basename($this->FOGCore->getSetting('FOG_WEB_ROOT')),
+			'set boot-url http://${fog-ip}/${fog-webroot}',
 			"cpuid --ext 29 && set arch x86_64 || set arch i386",
 			"goto get_console",
 			":console_set",
