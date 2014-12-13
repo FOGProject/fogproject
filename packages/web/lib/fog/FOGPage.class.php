@@ -856,6 +856,53 @@ abstract class FOGPage extends FOGBase
 		$this->render();
 		printf('</form>');
 	}
+
+	public function configure()
+	{
+		$Datatosend = "#!ok\n#sleep={$this->FOGCore->getSetting(FOG_SERVICE_CHECKIN_TIME)}\n#force={$this->FOGCore->getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={$this->FOGCore->getSetting(FOG_CLIENT_MAX_SIZE)}\n#promptTime={$this->FOGCore->getSetting(FOG_GRACE_TIMEOUT)}#srvkey=";
+		print $Datatosend;
+		exit;
+	}
+
+	public function authorize()
+	{
+		try
+		{
+			if ($_REQUEST['get_srv_key'])
+			{
+				$srv_key = file_get_contents(BASEPATH.'/management/other/ssl/srvpublic.key');
+				throw new Exception($srv_key);
+			}
+			$HostMan = new HostManager();
+			$MACs = HostManager::parseMacList($_REQUEST['mac']);
+			if (!$MACs)
+				throw new Exception('#!im');
+			$Host = $HostMan->getHostByMacAddresses($MACs);
+			if (!$Host || !$Host->isValid())
+				throw new Exception('#!ih');
+			if ($_REQUEST['pub_key'])
+				$pub_key = $this->certDecrypt($_REQUEST['pub_key']);
+			if ($pub_key)
+				$Host->set('pub_key',$pub_key)->save();
+			if (!$Host->get('pub_key'))
+				throw new Exception('#!ihc');
+		}
+		catch (Exception $e)
+		{
+			if (!in_array($e->getMessage(),array('#!im','#!ih','#!ihc'),true))
+				$Datatosend = $e->getMessage();
+			else
+				$Datatosend['error'] = $e->getMessage();
+		}
+		if ($_REQUEST['get_srv_key'])
+			print "#!en=".$this->aesencrypt($Datatosend,$this->FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
+		else if ($Datatosend['error'])
+			print $Datatosend['error'];
+		else
+			print '#!enkey='.$this->certEncrypt($Datatosend,$Host);
+		exit;
+
+	}
 	public function delete_post()
 	{
 		// Find

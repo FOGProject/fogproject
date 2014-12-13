@@ -2,24 +2,16 @@
 require('../commons/base.inc.php');
 try
 {
-	if (!$_REQUEST['moduleid'] && $_REQUEST['newService'])
-		throw new Exception("#!ok\n#sleep=".$FOGCore->getSetting('FOG_SERVICE_CHECKIN_TIME')."\n#force=".$FOGCore->getSetting('FOG_TASK_FORCE_REBOOT')."\n#maxsize=".$FOGCore->getSetting('FOG_CLIENT_MAXSIZE')."\n#promptTime=".$FOGCore->getSetting('FOG_GRACE_TIMEOUT'));
-	if ($_REQUEST['newService'] && $_REQUEST['get_srv_key'])
-	{
-		$output = file_get_contents(BASEPATH.'/management/other/ssl/srvpublic.key');
-		$output = base64_encode($output);
-		throw new Exception("#!ok\n#srv_pub_key=$output");
-	}
 	$HostManager = new HostManager();
 	$MACs = HostManager::parseMacList($_REQUEST['mac']);
 	if (!$MACs)
 		throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if ($Host && $Host->isValid() && $_REQUEST['pub_key'])
-		$pub_key = $FOGCore->certDecrypt($_REQUEST['pub_key']);
-	if ($pub_key)
-		$Host->set('pub_key',$pub_key)->save();
+	if ((!$Host && !$Host->isValid()) || ($Host->get('pending') && $_REQUEST['moduleid'] != 'hostregister'))
+		throw new Exception('#!ih');
+	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
+		throw new Exception('#!ihc');
 	// Get the true module ID for comparing what the host has.
 	$moduleID = current($FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['moduleid'])));
 	// get the module id
@@ -52,32 +44,19 @@ try
 	// If it's globally disabled, return that so the client doesn't keep trying it.
 	if (!$moduleName[$moduleID->get('shortName')])
 		throw new Exception('#!ng');
-	if ($Host && $Host->isValid())
+	foreach((array)$Host->get('modules') AS $Module)
 	{
-		if (!$Host->get('pending'))
-		{
-			foreach((array)$Host->get('modules') AS $Module)
-			{
-				if ($Module && $Module->isValid() && $Module->get('isDefault'))
-					$activeIDs[] = $Module->get('id');
-			}
-			$Datatosend = (in_array($moduleID->get('id'),(array)$activeIDs) ? '#!ok' : '#!nh')."\n";
-		}
-		else if ($Host->get('pending'))
-			$Datatosend = ($_REQUEST['moduleid'] == 'hostregister' ? '#!ok' : '#!ih')."\n";
+		if ($Module && $Module->isValid() && $Module->get('isDefault'))
+			$activeIDs[] = $Module->get('id');
 	}
-	else
-		$Datatosend = ($_REQUEST['moduleid'] == 'hostregister' ? '#!ok' : '#!ih')."\n";
+	$Datatosend = (in_array($moduleID->get('id'),(array)$activeIDs) ? '#!ok' : '#!nh')."\n";
 }
 catch(Exception $e)
 {
-	$Datatosend = $e->getMessage();
+	print $e->getMessage();
+	exit;
 }
-if ($_REQUEST['get_srv_key'])
-	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
-else if ($Host && $Host->isvalid() && $Host->get('pub_key') && $_REQUEST['newService'])
+if ($_REQUEST['newService'])
 	print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-else if ($_REQUEST['newService'] && $FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
-	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
 	print $Datatosend;

@@ -8,8 +8,10 @@ try
 		throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host || !$Host->isValid())
+	if (!$Host || !$Host->isValid() || $Host->get('pending'))
 		throw new Exception('#!ih');
+	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
+		throw new Exception('#!ihc');
 	$index = 0;
 	foreach($FOGCore->getClass('DirCleanerManager')->find() AS $Dir)
 	{
@@ -19,11 +21,10 @@ try
 }
 catch (Exception $e)
 {
-	$Datatosend = $e->getMessage();
+	print $e->getMessage();
+	exit;
 }
-if ($Host && $Host->isValid() && $Host->get('pub_key') && $_REQUEST['newService'])
+if ($_REQUEST['newService'])
 	print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-else if ($_REQUEST['newService'] && $FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
-	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
 	print $Datatosend;
