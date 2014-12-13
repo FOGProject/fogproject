@@ -143,18 +143,6 @@ $(function() {
 		$('#additionalMACsRow').show();
 	}
 	
-	// Host Tasks - show advanced tasks on click
-	$('.advanced-tasks-link').click(function(event)
-	{
-		$(this).parents('tr').toggle('slow', function()
-		{
-			$('#advanced-tasks').toggle('slow');
-		});
-		$(this).parents('tr').toggle('fast');
-	
-		event.preventDefault();
-	});
-
 	// Show hide based on checked state.
 	$('#hostGroupShow').is(':checked') ? $('#hostGroupDisplay').show() : $('#hostGroupDisplay').hide();
 	$('#printerNotInHost').is(':checked') ? $('#printerNotInHost').show() : $('#printerNotInHost').hide();
