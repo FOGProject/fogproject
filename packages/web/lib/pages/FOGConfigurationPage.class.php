@@ -383,7 +383,7 @@ class FOGConfigurationPage extends FOGPage
 				'args' => $_REQUEST['menu_options'],
 			));
 			if ($Menu->save())
-				$this->FOGCore->setMessage($Menu->get('name').' '._('successfully added, you may now add another'));
+				$this->FOGCore->setMessage($Menu->get('name').' '._('successfully added, editing now'));
 			// Set all other menus that are default to non-default value.
 			if ($_REQUEST['menu_default'])
 			{
@@ -396,7 +396,7 @@ class FOGConfigurationPage extends FOGPage
 		{
 			$this->FOGCore->setMessage($e->getMessage());
 		}
-		$this->FOGCore->redirect($this->formAction);
+		$this->FOGCore->redirect("?node={$this->node}&sub=customize-edit#{$Menu->get(name)}");
 	}
 	// Client Updater
 	/** client_updater()
