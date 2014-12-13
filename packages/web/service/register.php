@@ -14,31 +14,33 @@ try
 	// Get the actual host (if it is registered)
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	$HostPend = false;
-	if(!$Host || !$Host->isValid())
+	if($_REQUEST['newService'] && (!$Host || !$Host->isValid()) && !$Host->get('pending'))
 	{
-		if (!$_REQUEST['hostname'])
-			throw new Exception('#!er:Invalid Host');
-		else
+		if (!$_REQUEST['hostname'] || HostManager::isHostnameSafe($_REQUEST['hostname']))
+			throw new Exception('#!ih');
+		$HostPend = true;
+		$Host = new Host(array(
+			'name' => $_REQUEST['hostname'],
+			'description' => 'Pending Registration created by FOG_CLIENT',
+			'pending' => 1,
+			'pub_key' => $FOGCore->certDecrypt($_REQUEST['pub_key']),
+		));
+		foreach($FOGCore->getClass('ModuleManager')->find() AS $Module)
+			$ModuleIDs[] = $Module->get('id');
+		if ($Host->save())
 		{
-			$HostPend = true;
-			$Host = new Host(array(
-				'name' => $_REQUEST['hostname'],
-				'description' => 'Pending Registration created by FOG_CLIENT',
-				'pending' => 1,
-			));
-			foreach($FOGCore->getClass('ModuleManager')->find() AS $Module)
-				$ModuleIDs[] = $Module->get('id');
-			if ($Host->save())
-			{
-				$Host->addModule($ModuleIDs);
-				$PriMAC = ((preg_match('#|#i',$_REQUEST['mac']) ? explode('|',$_REQUEST['mac']) : $_REQUEST['mac']));
-				if (is_array($PriMAC))
-					$PriMAC = $PriMAC[0];
-				if($Host->save())
-					$Host->addPriMAC($PriMAC);
-			}
+			$Host->addModule($ModuleIDs);
+			$PriMAC = ((preg_match('#|#i',$_REQUEST['mac']) ? explode('|',$_REQUEST['mac']) : $_REQUEST['mac']));
+			if (is_array($PriMAC))
+				$PriMAC = $PriMAC[0];
+			if($Host->save())
+				$Host->addPriMAC($PriMAC);
 		}
 	}
+	else if (!$Host || !$Host->isValid() || $Host->get('pending'))
+		throw new Exception('#!ih');
+	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
+		throw new Exception('#!ihc');
 	// Check if count is okay.
 	if (count($MACs) > $maxPending + 1)
 		throw new Exception('#!er:Too many MACs');
@@ -81,11 +83,10 @@ try
 }
 catch (Exception $e)
 {
-	$Datatosend = $e->getMessage();
+	print $e->getMessage();
+	exit;
 }
-if ($Host && $Host->isValid() && $Host->get('pub_key') && $_REQUEST['newService'])
+if ($_REQUEST['newService'])
 	print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-else if ($_REQUEST['newService'] && $FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
-	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
 else
 	print $Datatosend;

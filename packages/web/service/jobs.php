@@ -8,23 +8,17 @@ try
 		throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if(!$Host || !$Host->isValid())
-		throw new Exception('#!er:No Host Found');
+	if (!$Host || !$Host->isValid() || $Host->get('pending'))
+		throw new Exception('#!ih');
 	// Find out about tasks in queue.
 	$Task = $Host->get('task');
 	// If there is no task, or it's of snapin deploy type, don't reboot.
 	if (!$Task->isValid() || ($Task->get('typeID') == 12 || $Task->get('typeID') == 13))
 		throw new Exception('#!nj');
 	else
-		$Datatosend = "#!ok";
+		throw new Exception('#!ok');
 }
 catch (Exception $e)
 {
-	$Datatosend = $e->getMessage();
+	print $e->getMessage();
 }
-if ($Host && $Host->isValid() && $Host->get('pub_key') && $_REQUEST['newService'])
-	print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-else if ($_REQUEST['newService'] && $FOGCore->getSetting('FOG_NEW_CLIENT') && $FOGCore->getSetting('FOG_AES_ENCRYPT'))
-	print "#!en=".$FOGCore->aesencrypt($Datatosend,$FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
-else
-	print $Datatosend;

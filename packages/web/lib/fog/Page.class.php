@@ -15,7 +15,7 @@ class Page extends FOGBase {
 			$this->addCSS('css/main.css');
 			$this->media = ' media="only screen and (max-device-width: 320px)"';
 		}
-		$this->isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','client','logout','login')) || !$this->FOGUser || !$this->FOGUser->isLoggedIn());
+		$this->isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','client','logout','login')) || in_array($_REQUEST['sub'],array('configure','authorize')) || !$this->FOGUser || !$this->FOGUser->isLoggedIn());
 		if ($this->FOGUser && $this->FOGUser->isLoggedIn())
 		{
 			$this->menu = $this->getClass('Mainmenu')->mainMenu();
