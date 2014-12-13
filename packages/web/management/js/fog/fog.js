@@ -51,14 +51,13 @@ var Loader;
 		if (this.length == 0) return this;
 		// Default Options
 		var Defaults = {
-			'URL': 'ajax/host.search.php',
-			'Container': '#search-content',
-			'SearchDelay': 500,
-			'SearchMinLength': 1,
-			'Template': function(data, i) {
-				return '<tr><td>' + data['host_name'] + '</td></tr>';
-			},
-			'CallbackSearchSuccess': function() {}
+			URL: 'ajax/host.search.php',
+			Container: '#search-content',
+			SearchDelay: 500,
+			SearchMinLength: 1,
+			Template: function(data, i) {
+				return '<tr><td>'+data['host_name']+'</td></tr>';
+			}
 		};
 		// Variables
 		var SearchAJAX = null;
@@ -227,9 +226,9 @@ var Loader;
 		if (typeof(FOGPingActive) != 'undefined' && FOGPingActive != 1) return this;
 		// Default Options
 		var Defaults = {
-			'Threads':	4,
-			'Delay':	PingDelay,
-			'UpdateStatus':	true
+			Threads:	4,
+			Delay:	PingDelay,
+			UpdateStatus:	true
 		};
 		// Variables
 		var Options = $.extend({}, Defaults, opts || {});
@@ -273,7 +272,7 @@ var Loader;
 				element.data('fog-ping', $.ajax({
 					url: '../management/index.php',
 					cache: false,
-					type: 'GET',
+					type: 'POST',
 					data: {
 						sub: 'getPing',
 						ping: hostname
@@ -299,7 +298,7 @@ var Loader;
 							element.attr('title', data).addClass('icon-ping-error');
 						}
 						// Tooltip
-						element.tipsy({'gravity':'s'});
+						element.tipsy({gravity:'s'});
 						var ListCount = List.length;
 						// Start another Ping if there are still elements to process
 						if (ListCount) {
@@ -353,10 +352,10 @@ var Loader;
 	$.fn.fogStatusUpdate = function(txt, opts) {
 		// Defaults
 		var Defaults = {
-			'AutoHide':	0,
-			'Class':	'',
-			'Raw':		false,
-			'Progress':	null
+			AutoHide: 0,
+			Class: '',
+			Raw: false,
+			Progress: null
 		};
 		// Build Options
 		var Options = $.extend({}, Defaults, opts || {});
@@ -395,7 +394,7 @@ var Loader;
 		if (this.length == 0) return this;
 		// Default Options
 		var Defaults = {
-			'Debug':	false
+			Debug: false
 		};
 		// Variables
 		var Options = $.extend({}, Defaults, opts || {});

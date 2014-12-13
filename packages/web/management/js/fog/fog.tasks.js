@@ -42,15 +42,12 @@ function ActiveTasksUpdateTimerStart() {
 function ActiveTasksUpdate() {
 	if (ActiveTasksAJAX) return;
 	ActiveTasksAJAX = $.ajax({
-		type: 'GET',
+		type: 'POST',
 		url: '?node=tasks',
 		cache: false,
 		dataType: 'json',
 		beforeSend:	function() {
-			if (ActiveTasksLastCount)
-				Loader.fogStatusUpdate(_L['ACTIVE_TASKS_FOUND'].replace(/%1/, ActiveTasksLastCount).replace(/%2/, (ActiveTasksLastCount == 1 ? '' : 's')), { 'Class': 'loading' });
-			else
-				Loader.fogStatusUpdate(_L['ACTIVE_TASKS_LOADING'], { 'Class': 'loading' });
+			ActiveTasksLastCount ? Loader.fogStatusUpdate(_L['ACTIVE_TASKS_FOUND'].replace(/%1/, ActiveTasksLastCount).replace(/%2/, (ActiveTasksLastCount == 1 ? '' : 's')), { 'Class': 'loading' }) : Loader.fogStatusUpdate(_L['ACTIVE_TASKS_LOADING'],{Class: 'loading'});
 		},
 		success: function(response)	{
 			// Loader
@@ -78,7 +75,6 @@ function ActiveTasksUpdate() {
 						// Add
 						row += "<td" + (attributes.length ? ' ' + attributes.join(' ') : '') + ">" + response['templates'][j] + "</td>";
 					}
-					//response['data'][i]['percentText'].remove();
 					// Replace variable data
 					if (response['data'][i]['percent'] > 0 && response['data'][i]['percent'] < 100) {
 						row += '<td colspan="7">' + '<tr id="progress-${host_id}" class="${class}"><td colspan="7" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percentText}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr></td>';
@@ -107,9 +103,9 @@ function ActiveTasksUpdate() {
 				ActiveTasksContainer.show();
 				// Ping hosts
 				$('.ping').fogPing().removeClass('.ping');
-			}
-			else
+			} else {
 				ActiveTasksTableCheck();
+			}
 			// Schedule another update
 			ActiveTasksUpdateTimerStart();
 		},
@@ -126,21 +122,20 @@ function ActiveTasksUpdate() {
 function ActiveTasksButtonHook() {
 	// Hook: Click: Kill Button - Legacy GET call still works if AJAX fails
 	$('.icon-kill').parent().unbind('click').click(function() {
-		var $this = $(this);
-		var ID = $this.parents('tr').attr('id').replace(/^host-/, '');
+		var ID = $(this).parents('tr').attr('id').replace(/^host-/, '');
 		var ProgressBar = $('#progress-' + ID, ActiveTasksContainer);
 		ActiveTasksRequests[ActiveTasksRequests.length] = $.ajax({
-			type: 'GET',
-			url: $this.attr('href'),
+			type: 'POST',
+			url: $(this).attr('href'),
 			beforeSend: function() {
 				// Loader
-				$this.find('span').removeClass().addClass('icon icon-loading');
+				$(this).find('span').removeClass().addClass('icon icon-loading');
 				// Unhook this button - multiple clicks now do nothing
-				$this.unbind('click').click(function() { return false; });
+				$(this).unbind('click').click(function() { return false; });
 			},
 			success: function(data) {
 				// Fade row out
-				$this.parents('tr').fadeOut('fast', function() {
+				$(this).parents('tr').fadeOut('fast', function() {
 					// Remove tr element
 					$(this).remove();
 					// Remove progress bar
@@ -165,19 +160,18 @@ function ActiveTasksButtonHook() {
 	});
 	// Hook: Click: Force Button - Legacy GET call still works if AJAX fails
 	$('.icon-force').parent().unbind('click').click(function() {
-		var $this = $(this);
 		ActiveTasksRequests[ActiveTasksRequests.length] = $.ajax({
-			type: 'GET',
-			url: $this.attr('href'),
+			type: 'POST',
+			url: $(this).attr('href'),
 			beforeSend: function() {
 				// Loader
-				$this.find('span').removeClass().addClass('icon icon-loading');
+				$(this).find('span').removeClass().addClass('icon icon-loading');
 				// Unhook this button - multiple clicks now do nothing
-				$this.unbind('click').click(function() { return false; });
+				$(this).unbind('click').click(function() {return false;});
 			},
 			success: function(data) {
 				// Indicate job has been forced
-				$this.find('span').removeClass().addClass('icon icon-forced');
+				$(this).find('span').removeClass().addClass('icon icon-forced');
 				// Remove this request from our AJAX request tracking
 				ActiveTasksRequests.splice(0, 1);
 			},

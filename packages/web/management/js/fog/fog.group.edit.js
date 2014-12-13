@@ -1,13 +1,4 @@
-/****************************************************
- * FOG Group Management - Edit - JavaScript
- *	Author:		Blackout
- *	Created:	10:26 AM 1/01/2012
- *	Revision:	$Revision$
- *	Last Update:	$LastChangedDate$
- ***/
-
-$(function()
-{
+$(function() {
 	// Just hide the group info
 	$('#hostNoGroup').hide();
 	// Checkbox toggles
@@ -37,17 +28,5 @@ $(function()
 	});
 	$('#hostNoShow').click(function() {
 		$('#hostNoGroup').toggle();
-	});
-	
-	// Host Tasks - show advanced tasks on click
-	$('.advanced-tasks-link').click(function()
-	{
-		$(this).parents('tr').toggle('fast', function()
-		{
-			$('#advanced-tasks').toggle('slow');
-		});
-		$(this).parents('tr').toggle('fast');
-		
-		//event.preventDefault();
 	});
 });

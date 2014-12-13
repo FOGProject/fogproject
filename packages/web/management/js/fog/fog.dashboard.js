@@ -74,6 +74,7 @@ var Graph30DayOpts = {
 			return '<div style="width: 35px; text-align: right; padding-right: 7px;">'+v+'</div>';
 		},
 		min: 0,
+		minTickSize: 1,
 	},
 	series: {
 		lines: {
@@ -115,13 +116,11 @@ var UpdateClientCountOpts = {
 		}
 	}
 };
-$(function()
-{
+$(function() {
 	// Diskusage Graph - Node select - Hook select box to load new data via AJAX
 	GraphDiskUsageUpdate();
 	UpdateClientCount();
-	$('#diskusage-selector select').change(function()
-	{
+	$('#diskusage-selector select').change(function() {
 		GraphDiskUsageUpdate();
 		UpdateClientCount();
 		return false;
@@ -138,8 +137,7 @@ $(function()
 	// Start counters
 	UpdateBandwidth();
 	// Bandwidth Graph - TX/RX Filter
-	GraphBandwidthFilters.click(function()
-	{
+	GraphBandwidthFilters.click(function() {
 		// Blur -> add active class -> remove active class from old active item
 		$(this).blur().addClass('active').siblings('a').removeClass('active');
 		// Update title
@@ -149,8 +147,7 @@ $(function()
 		return false;
 	});
 	// Bandwidth Graph - Time Filter
-	$('#graph-bandwidth-filters div:eq(2) a').click(function()
-	{
+	$('#graph-bandwidth-filters div:eq(2) a').click(function() {
 		// Blur -> add active class -> remove active class from old active item
 		$(this).blur().addClass('active').siblings('a').removeClass('active');
 		// Update title
@@ -168,9 +165,9 @@ function GraphDiskUsageUpdate() {
 	if (GraphDiskUsageAJAX) GraphDiskUsageAJAX.abort();
 	NodeID = GraphDiskUsageNode.val();
 	GraphDiskUsageAJAX = $.ajax({
-		url: '../management/index.php?node=home',
+		url: '?node=home',
 		cache: false,
-		type: 'GET',
+		type: 'POST',
 		data: {
 			sub: 'diskusage',
 			id:NodeID
@@ -200,9 +197,9 @@ function GraphDiskUsagePlots(data) {
 // Bandwidth Functions
 function UpdateBandwidth() {
 	$.ajax({
-		url: '../management/index.php?node=home',
+		url: '?node=home',
 		cache: false,
-		type: 'GET',
+		type: 'POST',
 		data: {sub: 'bandwidth'},
 		dataType: 'json',
 		success: UpdateBandwidthGraph,
@@ -253,7 +250,7 @@ function UpdateClientCount() {
 	$.ajax({
 		url: '../status/clientcount.php',
 		cache: false,
-		type: 'GET',
+		type: 'POST',
 		data: {
 			id: NodeID
 		},
