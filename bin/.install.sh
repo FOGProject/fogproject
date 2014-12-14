@@ -331,7 +331,7 @@ do
 			    #sendInstallationNotice;
 			    writeUpdateFile;
 			    #setupFreshClam;
-				linkOptFogdir;
+				linkOptFogDir;
 			    echo "";
 			    echo "  Setup complete!";
 			    echo "";
