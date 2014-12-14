@@ -2,23 +2,26 @@
 require('../commons/base.inc.php');
 try
 {
-	$HostManager = new HostManager();
-	$MACs = HostManager::parseMacList($_REQUEST['mac']);
-	if (!$MACs)
-		throw new Exception('#!im');
-	// Get the Host
-	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host || !$Host->isValid() || $Host->get('pending'))
-		throw new Exception('#!ih');
-	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-		throw new Exception('#!ihc');
-	if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'])
+	if ($_REQUEST['newService'])
 	{
-		$index = 0;
-		foreach($FOGCore->getClass('UserCleanupManager')->find() AS $User)
+		$HostManager = new HostManager();
+		$MACs = HostManager::parseMacList($_REQUEST['mac']);
+		if (!$MACs)
+			throw new Exception('#!im');
+		// Get the Host
+		$Host = $HostManager->getHostByMacAddresses($MACs);
+		if (!$Host || !$Host->isValid() || $Host->get('pending'))
+			throw new Exception('#!ih');
+		if ($_REQUEST['newService'] && !$Host->get('pub_key'))
+			throw new Exception('#!ihc');
+		if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'])
 		{
-			$Datatosend .= ($index == 0 ? "#!ok\n" : '')."#user$index=".$User->get('name')."\n";
-			$index++;
+			$index = 0;
+			foreach($FOGCore->getClass('UserCleanupManager')->find() AS $User)
+			{
+				$Datatosend .= ($index == 0 ? "#!ok\n" : '')."#user$index=".$User->get('name')."\n";
+				$index++;
+			}
 		}
 	}
 	else
@@ -26,7 +29,7 @@ try
 		$Datatosend = "#!start\n";
 		foreach ($FOGCore->getClass('UserCleanupManager')->find() AS $User)
 			$Datatosend .= base64_encode($User->get('name'))."\n";
-		$Datatosend .= "#!end\n";
+		$Datatosend .= "#!end";
 	}
 }
 catch (Exception $e)

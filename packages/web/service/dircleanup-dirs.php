@@ -2,16 +2,19 @@
 require('../commons/base.inc.php');
 try
 {
-	$HostManager = new HostManager();
-	$MACs = HostManager::parseMacList($_REQUEST['mac']);
-	if (!$MACs)
-		throw new Exception('#!im');
-	// Get the Host
-	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host || !$Host->isValid() || $Host->get('pending'))
-		throw new Exception('#!ih');
-	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-		throw new Exception('#!ihc');
+	if ($_REQUEST['newService'])
+	{
+		$HostManager = new HostManager();
+		$MACs = HostManager::parseMacList($_REQUEST['mac']);
+		if (!$MACs)
+			throw new Exception('#!im');
+		// Get the Host
+		$Host = $HostManager->getHostByMacAddresses($MACs);
+		if (!$Host || !$Host->isValid() || $Host->get('pending'))
+			throw new Exception('#!ih');
+		if ($_REQUEST['newService'] && !$Host->get('pub_key'))
+			throw new Exception('#!ihc');
+	}
 	$index = 0;
 	foreach($FOGCore->getClass('DirCleanerManager')->find() AS $Dir)
 	{
