@@ -331,8 +331,8 @@ do
 			    #sendInstallationNotice;
 			    writeUpdateFile;
 			    #setupFreshClam;
+				linkOptFogdir;
 			    echo "";
-		
 			    echo "  Setup complete!";
 			    echo "";
 			    echo "  You can now login to the FOG Management Portal using";
