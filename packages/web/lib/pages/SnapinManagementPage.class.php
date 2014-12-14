@@ -280,18 +280,31 @@ class SnapinManagementPage extends FOGPage
 		);
 		// See's what files are available and sorts them.
 		$dots = array('.','..');
-		if ($Snapin->get('storageGroupID'))
+		if ($Snapin->get('storageGroups'))
 		{
-			$StorageNode = $Snapin->getStorageGroup()->getMasterStorageNode();
-			$ftp = $this->FOGFTP;
-			$ftp->set('host',$this->FOGCore->resolveHostname($StorageNode->get('ip')))
-				->set('username',$StorageNode->get('user'))
-				->set('password',$StorageNode->get('pass'))
-				->connect();
-			$files = array_diff((array)$ftp->nlist($StorageNode->get('snapinpath')),$dots);
+			foreach((array)$Snapin->get('storageGroups') AS $StorageGroup)
+			{
+				$StorageNode = $StorageGroup->getMasterStorageNode();
+				if ($StorageNode && $StorageNode->isValid())
+				{
+					$this->FOGFTP->set('host',$StorageNode->get('ip'))
+								 ->set('username',$StorageNode->get('user'))
+								 ->set('password',$StorageNode->get('pass'))
+								 ->connect();
+					$filelist[] = (array)$this->FOGFTP->nlist($StorageNode->get('snapinpath'));
+				}
+			}
+			$filelist = array_unique((array)$filelist);
+			foreach($filelist AS $ind => $file)
+			{
+				foreach($file AS $item)
+					$files[] = basename($item);
+			}
+			unset($filelist);
 		}
 		else
 			$files = array_diff(scandir($this->FOGCore->getSetting('FOG_SNAPINDIR')), $dots);
+		$files = array_unique($files);
 		if ($files && is_array($files))
 			sort($files);
 		foreach((array)$files AS $file)
