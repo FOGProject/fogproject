@@ -43,7 +43,7 @@ function ActiveTasksUpdate() {
 	if (ActiveTasksAJAX) return;
 	ActiveTasksAJAX = $.ajax({
 		type: 'POST',
-		url: '?node=tasks',
+		url: '?node=tasks&sub=active',
 		cache: false,
 		dataType: 'json',
 		beforeSend:	function() {
