@@ -820,38 +820,37 @@ class FOGConfigurationPage extends FOGPage
 	*/
 	public function log()
 	{
+		$apacheerrlog = (file_exists('/var/log/httpd/error_log') ? '/var/log/httpd/error_log' : (file_exists('/var/log/apache2/error.log') ? '/var/log/apache2/error.log' : false));
+		$apacheacclog = (file_exists('/var/log/httpd/access_log') ? '/var/log/httpd/access_log' : (file_exists('/var/log/apache2/access.log') ? '/var/log/apache2/access.log' : false));
+		$multicastlog = (file_exists('/var/log/fog/multicast.log') ? '/var/log/fog/multicast.log' : false);
+		$schedulerlog = (file_exists('/var/log/fog/fogscheduler.log') ? '/var/log/fog/fogscheduler.log' : false);
+		$imgrepliclog = (file_exists('/var/log/fog/fogreplicator.log') ? '/var/log/fog/fogreplicator.log' : false);
+		$snapinreplog = (file_exists('/var/log/fog/fogsnapinrep.log') ? '/var/log/fog/fogsnapinrep.log' : false);
+		$files = array(
+			$multicastlog ? 'Multicast' : null => $multicastlog ? $multicastlog : null,
+			$schedulerlog ? 'Scheduler' : null => $schedulerlog ? $schedulerlog : null,
+			$imgrepliclog ? 'Image Replicator' : null => $imgrepliclog ? $imgrepliclog : null,
+			$snapinreplog ? 'Snapin Replicator' : null => $snapinreplog ? $snapinreplog : null,
+			$apacheerrlog ? 'Apache Error Log' : null  => $apacheerrlog ? $apacheerrlog : null,
+			$apacheacclog ? 'Apache Access Log' : null  => $apacheacclog ? $apacheacclog : null,
+		);
+		$files = array_filter((array)$files);
 		// Set title
-		$this->title = "FOG Log Viewer";
+		$this->title = _('FOG Log Viewer');
 		print "\n\t\t\t<p>";
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 
 		print "\n\t\t\t<p>"._('File:');
-		foreach (array('Multicast','Scheduler','Replicator') AS $value)
-			$options3[] = "\n\t\t\t\t".'<option '.($value == $_REQUEST['logtype'] ? 'selected="selected"' : '').' value="'.$value.'">'.$value.'</option>';
-		print "\n\t\t\t".'<select name="logtype">'.implode("\n\t\t\t\t",$options3)."\n\t\t\t".'</select>';
+		foreach ($files AS $value => $file)
+			$options3[] = "\n\t\t\t\t".'<option '.($value == $_REQUEST['logtype'] ? 'selected="selected"' : '').' value="'.$file.'">'.$value.'</option>';
+		print "\n\t\t\t".'<select name="logtype" id="logToView">'.implode("\n\t\t\t\t",$options3)."\n\t\t\t".'</select>';
 		print "\n\t\t\t"._('Number of lines:');
 		foreach (array(20, 50, 100, 200, 400, 500, 1000) AS $value)
 			$options4[] = '<option '.($value == $_REQUEST['n'] ? 'selected="selected"' : '').' value="'.$value.'">'.$value.'</option>';
-		print "\n\t\t\t".'<select name="n">'.implode("\n\t\t\t\t",$options4)."\n\t\t\t".'</select>';
-		print "\n\t\t\t".'<input type="submit" value="'._('Refresh').'" />';
+		print "\n\t\t\t".'<select name="n" id="linesToView">'.implode("\n\t\t\t\t",$options4)."\n\t\t\t".'</select>';
 		print "\n\t\t\t</p>";
 		print "\n\t\t\t</form>";
-		print "\n\t\t\t".'<div class="sub l">';
-		print "\n\t\t\t\t<pre>";
-		$n = 20;
-		if ( $_REQUEST["n"] != null && is_numeric($_REQUEST["n"]) )
-			$n = $_REQUEST["n"];
-		$t = trim($_REQUEST["logtype"]);
-		$logfile = $this->FOGCore->getSetting( "FOG_UTIL_BASE" ) . "/log/multicast.log";
-		if ( $t == "Multicast" )
-			$logfile = $this->FOGCore->getSetting( "FOG_UTIL_BASE" ) . "/log/multicast.log";
-		else if ( $t == "Scheduler" )
-			$logfile = $this->FOGCore->getSetting( "FOG_UTIL_BASE" ) . "/log/fogscheduler.log";
-		else if ( $t == "Replicator" )
-			$logfile = $this->FOGCore->getSetting( "FOG_UTIL_BASE" ) . "/log/fogreplicator.log";				
-		system("tail -n $n \"$logfile\"");
-		print "\n\t\t\t\t</pre>";
-		print "\n\t\t\t</div>";
+		print "\n\t\t\t".'<div id="logsGoHere">&nbsp;</div>';
 		print "\n\t\t\t</p>";
 	}
 	/** config()
