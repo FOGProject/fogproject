@@ -504,7 +504,7 @@ class Config
 		echo "OK";
 		echo -n "  * Changing permissions on apache log files...";
 		chmod +rx /var/log/apache2;
-		chmod +rx /var/log/apache2/{access,error}_log;
+		chmod +rx /var/log/apache2/{access,error}.log;
 		echo "OK";
 		echo -n "  * Downloading kernels and inits...";
 		wget -O "${webdirdest}/service/ipxe/bzImage" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage" >/dev/null 2>&1
