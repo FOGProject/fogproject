@@ -106,7 +106,7 @@ class ImageReplicator extends FOGBase
 								$limit = "set net:limit-total-rate 0:$limitmain;";
 							if ($limitsend > 0)
 								$limit .= "set net:limit-rate 0:$limitsend;";
-							$this->outall(sprintf(" * Syncing: %s",$StorageNode->get('name')));
+							$this->outall(sprintf(" * Syncing: %s",$StorageNodeFTP->get('name')));
 							$process[] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 1;set net:timeout 30;".$limit." mirror -n --ignore-time -R -vvv --exclude 'dev/' --delete $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
 						}
 					}
