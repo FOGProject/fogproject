@@ -4,7 +4,7 @@ $(function() {
 	LogToView = $('#logToView').val();
 	LinesToView = $('#linesToView').val();
 	LogGetData();
-	$('#logToView').change(function() {
+	$('#logToView, #linesToView').change(function() {
 		LogToView = $('#logToView').val();
 		LinesToView = $('#linesToView').val();
 		LogGetData();
