@@ -314,12 +314,12 @@ EOF
 
 linkOptFogDir()
 {
-	if [ ! -f "/var/log/fog" ]; then
+	if [ ! -L "/var/log/fog" ]; then
 		echo -n "  * Linking /opt/fog/log to /var/log/fog...";
 		ln -s "/opt/fog/log" "/var/log/fog";
 		echo "OK";
 	fi
-	if [ ! -f "/etc/fog" ]; then
+	if [ ! -L "/etc/fog" ]; then
 		echo -n "  * Linking /opt/fog/service/etc to /etc/fog...";
 		ln -s "/opt/fog/service/etc" "/etc/fog";
 		echo "OK";
