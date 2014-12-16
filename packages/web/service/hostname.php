@@ -24,7 +24,7 @@ try
 		$Host->set('ADPass',trim($password))->save();
 	}
 	// Make system wait ten seconds before sending data
-	sleep 10;
+	sleep(10);
 	// Send the information.
 	$Datatosend = $FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\nhostname=".$Host->get('name')."\n" : '#!ok='.$Host->get('name')."\n";
 	$Datatosend .= '#AD='.$Host->get('useAD')."\n";
