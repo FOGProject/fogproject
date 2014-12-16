@@ -41,13 +41,13 @@ try
 		$Datatosendprint = implode("\n",(array)$Datatosendprinter);
 	}
 	$Datatosend = ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n" : '').($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $Datatosendlevel."\n".$Datatosendprint : base64_encode($Datatosendlevel)."\n".$Datatosendprint);
+	if ($_REQUEST['newService'])
+		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
+	else
+		print $Datatosend;
 }
 catch(Exception $e)
 {
 	print $e->getMessage();
 	exit;
 }
-if ($_REQUEST['newService'])
-	print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-else
-	print $Datatosend;

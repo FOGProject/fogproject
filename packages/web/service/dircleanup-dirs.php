@@ -21,13 +21,13 @@ try
 		$Datatosend .= ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? ($index == 0 ? "#!ok\n" : '')."#dir$index=".base64_encode($Dir->get('path'))."\n" : base64_encode($Dir->get('path')))."\n";
 		$index++;
 	}
+	if ($_REQUEST['newService'])
+		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
+	else
+		print $Datatosend;
 }
 catch (Exception $e)
 {
 	print $e->getMessage();
 	exit;
 }
-if ($_REQUEST['newService'])
-	print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-else
-	print $Datatosend;

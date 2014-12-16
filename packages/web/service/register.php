@@ -80,13 +80,13 @@ try
 		else
 			($HostPend && $mac1[0] == $Host->get('mac') ? $Datatosend.="#!ok\n" : $Datatosend .= "#!ig\n");
 	}
+	if ($_REQUEST['newService'])
+		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
+	else
+		print $Datatosend;
 }
 catch (Exception $e)
 {
 	print $e->getMessage();
 	exit;
 }
-if ($_REQUEST['newService'])
-	print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-else
-	print $Datatosend;

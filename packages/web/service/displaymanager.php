@@ -19,13 +19,13 @@ try
 	$y = $HostDisplay ? $HostDisplay->get('height') : $FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y');
 	$r = $HostDisplay ? $HostDisplay->get('refresh') : $FOGCore->getSetting('FOG_SERVICE_DISPLAYMANaGER_R');
 	$Datatosend = $FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n#x=$x\n#y=$y\n#r=$r" : base64_encode($x.'x'.$y.'x'.$r);
+	if ($_REQUEST['newService'])
+		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
+	else
+		print $Datatosend;
 }
 catch(Exception $e)
 {
 	print $e->getMessage();
 	exit;
 }
-if ($_REQUEST['newService'])
-	print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-else
-	print $Datatosend;

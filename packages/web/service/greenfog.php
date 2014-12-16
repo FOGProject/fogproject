@@ -18,13 +18,13 @@ try
 		$Datatosend .= ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? ($index == 0 ? "#!ok\n" : '')."#task$index=".$gf->get('hour').'@'.$gf->get('min').'@'.$gf->get('action') : base64_encode($gf->get('hour').'@'.$gf->get('min').'@'.$gf->get('action')))."\n";
 		$index++;
 	}
+	if ($_REQUEST['newService'])
+		print "#!enkey=".$FOGCore->certEncrypt($Datasend,$Host);
+	else
+		print $Datatosend;
 }
 catch (Exception $e)
 {
 	print $e->getMessage();
 	exit;
 }
-if ($_REQUEST['newService'])
-	print "#!enkey=".$FOGCore->certEncrypt($Datasend,$Host);
-else
-	print $Datatosend;

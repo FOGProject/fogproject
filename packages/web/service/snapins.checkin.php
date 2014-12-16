@@ -63,13 +63,13 @@ try
 			}
 		}
 	}
+	if ($_REQUEST['newService'])
+		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
+	else
+		print $Datatosend;
 }
 catch(Exception $e)
 {
 	print $e->getMessage();
 	exit;
 }
-if ($_REQUEST['newService'])
-	print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-else
-	print $Datatosend;

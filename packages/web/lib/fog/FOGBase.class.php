@@ -425,7 +425,10 @@ abstract class FOGBase
 	public function certEncrypt($data,$Host)
 	{
 		// Get the public key of the recipient
-		$pub_key = openssl_pkey_get_public($Host->get('pub_key'));
+		if (!$Host || !$Host->isValid())
+			throw new Exception('#!ih');
+		if (!$pub_key = openssl_pkey_get_public($Host->get('pub_key')))
+			throw new Exception('#!ihc');
 		$a_key = openssl_pkey_get_details($pub_key);
 		// Encrypt the data in small chunks and then combine and send it.
 		$chunkSize = ceil($a_key['bits'] / 8) - 11;
