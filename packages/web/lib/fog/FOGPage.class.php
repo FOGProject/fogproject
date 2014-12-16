@@ -871,7 +871,7 @@ abstract class FOGPage extends FOGBase
 			if ($_REQUEST['get_srv_key'])
 			{
 				$srv_key = file_get_contents(BASEPATH.'/management/other/ssl/srvpublic.key');
-				throw new Exception($srv_key);
+				throw new Exception('#!en='.$this->aesencrypt($srv_key,$this->FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY')));
 			}
 			$HostMan = new HostManager();
 			$MACs = HostManager::parseMacList($_REQUEST['mac']);
@@ -886,20 +886,12 @@ abstract class FOGPage extends FOGBase
 			$Host->set('pub_key',$pub_key)->save();
 			if (!$Host->get('pub_key'))
 				throw new Exception('#!ihc');
+			print '#!enkey='.$this->certEncrypt($Datatosend,$Host);
 		}
 		catch (Exception $e)
 		{
-			if (!in_array($e->getMessage(),array('#!im','#!ih','#!ihc'),true))
-				$Datatosend = $e->getMessage();
-			else
-				$Datatosend['error'] = $e->getMessage();
+				print  $e->getMessage();
 		}
-		if ($_REQUEST['get_srv_key'])
-			print "#!en=".$this->aesencrypt($Datatosend,$this->FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY'));
-		else if ($Datatosend['error'])
-			print $Datatosend['error'];
-		else
-			print '#!enkey='.$this->certEncrypt($Datatosend,$Host);
 		exit;
 
 	}
