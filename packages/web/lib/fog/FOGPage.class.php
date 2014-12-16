@@ -881,9 +881,9 @@ abstract class FOGPage extends FOGBase
 			if (!$Host || !$Host->isValid())
 				throw new Exception('#!ih');
 			if ($_REQUEST['pub_key'])
-				$pub_key = $this->certDecrypt($_REQUEST['pub_key']);
-			if ($pub_key)
-				$Host->set('pub_key',$pub_key)->save();
+			if (!$pub_key = openssl_pkey_get_public($this->certDecrypt($_REQUEST['pub_key'])))
+				throw new Exception('#!ihc');
+			$Host->set('pub_key',$pub_key)->save();
 			if (!$Host->get('pub_key'))
 				throw new Exception('#!ihc');
 		}
