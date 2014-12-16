@@ -18,13 +18,13 @@ try
 	$HaloMan ? $time = $HaloMan->get('time') : $time = $FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN');
 	// Send it.
 	throw new Exception(($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] && $time >= 5 ? "#!ok\n#time=".($time * 60) : ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] && $time < 5 ? "#!time\n" : base64_encode($time))));
+	if ($_REQUEST['newService'])
+		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
+	else
+		print $Datatosend;
 }
 catch(Exception $e)
 {
 	print $e->getMessage();
 	exit;
 }
-if ($_REQUEST['newService'])
-	print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-else
-	print $Datatosend;
