@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 #
 # rc.single     This file is executed by init when it goes into runlevel

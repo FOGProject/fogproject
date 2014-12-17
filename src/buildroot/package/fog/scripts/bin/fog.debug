@@ -45,6 +45,6 @@ echo "imgFormat=${imgFormat}";
 echo "imgPartitionType=${imgPartitionType}";
 getHardDisk;
 echo "hd=${hd}";
-part=$hd'1';
+part=$hd"1";
 echo "part=${part}";
 sleep 5;
