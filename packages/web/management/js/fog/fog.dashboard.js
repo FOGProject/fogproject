@@ -196,11 +196,14 @@ function GraphDiskUsagePlots(data) {
 }
 // Bandwidth Functions
 function UpdateBandwidth() {
+	NodeID = GraphDiskUsageNode.val();
 	$.ajax({
 		url: '?node=home',
 		cache: false,
 		type: 'POST',
-		data: {sub: 'bandwidth'},
+		data: {
+			sub: 'bandwidth',
+		},
 		dataType: 'json',
 		success: UpdateBandwidthGraph,
 		complete: function() {
