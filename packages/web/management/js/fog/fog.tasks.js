@@ -156,7 +156,7 @@ function ActiveTasksButtonHook() {
 			}
 		});
 		// Stop default event
-		return false;
+		//return false;
 	});
 	// Hook: Click: Force Button - Legacy GET call still works if AJAX fails
 	$('.icon-force').parent().unbind('click').click(function() {
