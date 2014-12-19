@@ -256,10 +256,13 @@ abstract class FOGBase
 	}
 	public function aesencrypt($data,$key,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
 	{
+		if (!$pub_key = openssl_pkey_get_public($data))
+			throw new Exception('#!ihc');
+		$a_key = openssl_pkey_get_details($pub_key);
 		$iv_size = mcrypt_get_iv_size($enctype,$mode);
 		$iv = $this->randomString($iv_size);
 		$cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
-		return $iv.base64_encode($cipher);
+		return $a_key['bits'].'|'.$iv.base64_encode($cipher);
 	}
 	public function aesdecrypt($encdata,$key,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
 	{
@@ -427,7 +430,7 @@ abstract class FOGBase
 		// Get the public key of the recipient
 		if (!$Host || !$Host->isValid())
 			throw new Exception('#!ih');
-		if (!$pub_key = openssl_pkey_get_public($Host))
+		if (!$pub_key = openssl_pkey_get_public($Host->get('pub_key')))
 			throw new Exception('#!ihc');
 		$a_key = openssl_pkey_get_details($pub_key);
 		// Encrypt the data in small chunks and then combine and send it.
@@ -443,7 +446,7 @@ abstract class FOGBase
 			$output .= $encrypt;
 		}
 		openssl_free_key($pub_key);
-		return $a_key['bits'].'|'.base64_encode($output);
+		return base64_encode($output);
 	}
 	/** certDecrypt($data)
 	* @param $data the data to decrypt
