@@ -871,7 +871,8 @@ abstract class FOGPage extends FOGBase
 			if ($_REQUEST['get_srv_key'])
 			{
 				$srv_key = file_get_contents(BASEPATH.'/management/other/ssl/srvpublic.key');
-				throw new Exception('#!en='.$this->aesencrypt($srv_key,$this->FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY')));
+				$encdata = explode('|',$this->aesencrypt($srv_key,$this->FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY')));
+				throw new Exception('#!en='.$encdata[1]."\n#keySize=".$encdata[0]));
 			}
 			$HostMan = new HostManager();
 			$MACs = HostManager::parseMacList($_REQUEST['mac']);
