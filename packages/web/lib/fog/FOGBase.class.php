@@ -427,7 +427,7 @@ abstract class FOGBase
 		// Get the public key of the recipient
 		if (!$Host || !$Host->isValid())
 			throw new Exception('#!ih');
-		if (!$pub_key = openssl_pkey_get_public($Host->get('pub_key')))
+		if (!$pub_key = openssl_pkey_get_public($Host))
 			throw new Exception('#!ihc');
 		$a_key = openssl_pkey_get_details($pub_key);
 		// Encrypt the data in small chunks and then combine and send it.
@@ -443,7 +443,7 @@ abstract class FOGBase
 			$output .= $encrypt;
 		}
 		openssl_free_key($pub_key);
-		return base64_encode($output);
+		return $a_key['bits'].'|'.base64_encode($output);
 	}
 	/** certDecrypt($data)
 	* @param $data the data to decrypt
