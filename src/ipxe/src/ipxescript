@@ -4,7 +4,7 @@ ifopen && goto bootme || goto netstart
 :netstart
 dhcp && goto bootme || reboot
 :setserv
-echo -n Please enter tftp server: && read next-server && goto netboot
+echo -n Please enter tftp server: && read next-server && goto bootme
 :bootme
 isset ${next-server} && goto netboot || goto setserv
 :netboot
