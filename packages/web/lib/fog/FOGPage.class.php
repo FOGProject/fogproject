@@ -859,7 +859,7 @@ abstract class FOGPage extends FOGBase
 
 	public function configure()
 	{
-		$Datatosend = "#!ok\n#sleep={$this->FOGCore->getSetting(FOG_SERVICE_CHECKIN_TIME)}\n#force={$this->FOGCore->getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={$this->FOGCore->getSetting(FOG_CLIENT_MAX_SIZE)}\n#promptTime={$this->FOGCore->getSetting(FOG_GRACE_TIMEOUT)}#srvkey=";
+		$Datatosend = "#!ok\n#sleep={$this->FOGCore->getSetting(FOG_SERVICE_CHECKIN_TIME)}\n#force={$this->FOGCore->getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={$this->FOGCore->getSetting(FOG_CLIENT_MAX_SIZE)}\n#promptTime={$this->FOGCore->getSetting(FOG_GRACE_TIMEOUT)}";
 		print $Datatosend;
 		exit;
 	}
@@ -871,8 +871,7 @@ abstract class FOGPage extends FOGBase
 			if ($_REQUEST['get_srv_key'])
 			{
 				$srv_key = file_get_contents(BASEPATH.'/management/other/ssl/srvpublic.key');
-				$encdata = explode('|',$this->aesencrypt($srv_key,$this->FOGCore->getSetting('FOG_AES_PASS_ENCRYPT_KEY')));
-				throw new Exception('#!en='.$encdata[1]."\n#keySize=".$encdata[0]);
+				throw new Exception(base64_encode($srv_key));
 			}
 			$HostMan = new HostManager();
 			$MACs = HostManager::parseMacList($_REQUEST['mac']);
@@ -881,13 +880,12 @@ abstract class FOGPage extends FOGBase
 			$Host = $HostMan->getHostByMacAddresses($MACs);
 			if (!$Host || !$Host->isValid())
 				throw new Exception('#!ih');
-			if ($_REQUEST['pub_key'])
-			if (!$pub_key = openssl_pkey_get_public($this->certDecrypt($_REQUEST['pub_key'])))
+			if (!$pub_key = $this->certDecrypt($_REQUEST['sym_key']))
 				throw new Exception('#!ihc');
 			$Host->set('pub_key',$pub_key)->save();
 			if (!$Host->get('pub_key'))
 				throw new Exception('#!ihc');
-			print '#!enkey='.$this->certEncrypt($Datatosend,$Host);
+			print '#!en='.$this->certEncrypt('#!ok',$Host);
 		}
 		catch (Exception $e)
 		{

@@ -326,6 +326,15 @@ linkOptFogDir()
 	fi
 }
 
+removeOldSSL()
+{
+	if [ -d "/var/www/fogsslkeypair" ]; then
+		echo -n "  * Remove old private key...";
+		rm -rf "/var/www/fogsslkeypair"
+		echo "OK";
+	fi
+}
+
 configureStorage()
 {
 	echo -n "  * Setting up storage";

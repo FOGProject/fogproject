@@ -505,7 +505,7 @@ class FOGCore extends FOGBase
 	**/
 	public function createKeyPair($keybits = 2048,$keytype = OPENSSL_KEYTYPE_RSA)
 	{
-		$path = BASEPATH.'/management/other/ssl/';
+		$path = '/var/www/fogsslkeypair/';
 		if (!is_dir($path))
 			exec('mkdir '.$path);
 		if (!file_exists($path.'srvprivate.key'))
