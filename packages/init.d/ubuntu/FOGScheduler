@@ -1,7 +1,7 @@
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides: FOGScheduler
-# Required-Start: $local_fs $remote_fs $network $syslog $network $inetd mysql
+# Required-Start: $local_fs $remote_fs $network $syslog $network $inetd $apache2 $mysql
 # Required-Stop: $local_fs $remote_fs $network $syslog $network $inetd
 # Default-Start:
 # Default-Stop:
