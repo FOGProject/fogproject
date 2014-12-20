@@ -459,13 +459,16 @@ abstract class FOGBase
 	* @param $data the data to decrypt
 	* @return $output the decrypted data
 	**/
-	public function certDecrypt($data,$padding = false)
+	public function certDecrypt($data,$padding = true)
 	{
 		if ($padding)
 			$padding = OPENSSL_PKCS1_PADDING;
 		else
 			$padding = OPENSSL_NO_PADDING;
-		$data = base64_decode($data);
+		if (function_exists('hex2bin'))
+			$data = hex2bin($data);
+		else
+			$data = $this->FOGCore->hex2bin($data);
 		$path = '/var/www/fogsslkeypair/';
 		if (!$priv_key = openssl_pkey_get_private(file_get_contents($path.'srvprivate.key')))
 			throw new Exception('Private Key Failed');
