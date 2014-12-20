@@ -495,7 +495,7 @@ class Config
 		echo -n "  * Changing permissions on apache log files...";
 		chmod +rx /var/log/httpd;
 		chmod +rx /var/log/httpd/{access,error}_log;
-		chmod -R ${apacheuser}:${apacheuser} /var/www;
+		chown -R ${apacheuser}:${apacheuser} /var/www;
 		echo "OK";
 		echo -n "  * Downloading kernels and inits...";
 		wget -O "${webdirdest}/service/ipxe/bzImage" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage" >/dev/null 2>&1
