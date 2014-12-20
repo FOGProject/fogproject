@@ -35,7 +35,8 @@ try
 		'date' => $date->format('Y-m-d'),
 	));
 	if ($UserTracking->save())
-		$Datatosend = '#!ok';
+		throw new Exception('#!ok');
+	//	$Datatosend = '#!ok';
 	if ($_REQUEST['newService'])
 		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
 	else
