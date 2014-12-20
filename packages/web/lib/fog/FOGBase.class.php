@@ -256,13 +256,16 @@ abstract class FOGBase
 	}
 	public function aesencrypt($data,$key,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
 	{
-		if (!$pub_key = openssl_pkey_get_public($data))
+
+		// Below is if we ever figure out how to use asymmetric keys
+		/*if (!$pub_key = openssl_pkey_get_public($data))
 			throw new Exception('#!ihc');
-		$a_key = openssl_pkey_get_details($pub_key);
+		$a_key = openssl_pkey_get_details($pub_key);*/
 		$iv_size = mcrypt_get_iv_size($enctype,$mode);
 		$iv = $this->randomString($iv_size);
 		$cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
-		return $a_key['bits'].'|'.$iv.base64_encode($cipher);
+		return $iv.base64_encode($cipher);
+		// return $a_key['bits'].'|'.$iv.base64_encode($cipher);
 	}
 	public function aesdecrypt($encdata,$key,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
 	{
@@ -430,6 +433,10 @@ abstract class FOGBase
 		// Get the public key of the recipient
 		if (!$Host || !$Host->isValid())
 			throw new Exception('#!ih');
+		if (!$Host->get('pub_key'))
+			throw new Exception('#!ihc');
+		return $this->aesencrypt($data,$Host->get('pub_key'));
+		// Below is if we ever figure out an asymmetric system.
 		if (!$pub_key = openssl_pkey_get_public($Host->get('pub_key')))
 			throw new Exception('#!ihc');
 		$a_key = openssl_pkey_get_details($pub_key);
@@ -452,14 +459,17 @@ abstract class FOGBase
 	* @param $data the data to decrypt
 	* @return $output the decrypted data
 	**/
-	public function certDecrypt($data)
+	public function certDecrypt($data,$padding = false)
 	{
+		if ($padding)
+			$padding = OPENSSL_PKCS1_PADDING;
+		else
+			$padding = OPENSSL_NO_PADDING;
 		$data = base64_decode($data);
-		$path = BASEPATH.'/management/other/ssl/';
+		$path = '/var/www/fogsslkeypair/';
 		if (!$priv_key = openssl_pkey_get_private(file_get_contents($path.'srvprivate.key')))
 			throw new Exception('Private Key Failed');
 		$a_key = openssl_pkey_get_details($priv_key);
-		
 		// Decrypt the data in the small chunks
 		$chunkSize = ceil($a_key['bits'] / 8);
 		$output = '';
@@ -468,7 +478,7 @@ abstract class FOGBase
 			$chunk = substr($data, 0, $chunkSize);
 			$data = substr($data,$chunkSize);
 			$decrypt = '';
-			if (!openssl_private_decrypt($chunk,$decrypt,$priv_key))
+			if (!openssl_private_decrypt($chunk,$decrypt,$priv_key,$padding))
 				throw new Exception('Failed to decrypt data');
 			$output .= $decrypt;
 		}

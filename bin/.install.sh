@@ -332,6 +332,7 @@ do
 			    writeUpdateFile;
 			    #setupFreshClam;
 				linkOptFogDir;
+				removeOldSSL;
 			    echo "";
 			    echo "  Setup complete!";
 			    echo "";
