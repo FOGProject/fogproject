@@ -368,7 +368,7 @@ namespace FOG
                                         String strU = arData[4];
                                         String strP = arData[5];
 
-                                        if(arData.Length == 6) {
+                                        if(arData.Length == 7) {
 	                                        String strKey = arData[6];
 											if (strKey != null)
 											{
