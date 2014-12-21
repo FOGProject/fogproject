@@ -359,7 +359,7 @@ namespace FOG
                                 String strHostResults = arData[0];
                                 if (strHostResults.StartsWith("#!OK=", true, null))
                                 {
-                                    if (arData.Length == 5 || arData.Length == 6)
+                                    if (arData.Length == 6 || arData.Length == 7)
                                     {
                                         strHostName = strHostResults.Remove(0, 5);
                                         String strUseAD = arData[1];
