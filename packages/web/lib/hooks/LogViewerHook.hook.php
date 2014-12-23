@@ -7,13 +7,15 @@
  * chmod -R 755 <foldername>
  * list translates in ls -l to:
  * drwxr-xr-x
+ * Also the file will need to be readable by everybody:
+ * chmod +r <filename>
  */
 class LogViewerHook extends Hook
 {
 	var $name = 'LogViewerHook';
 	var $description = 'Allows adding/removing log viewer files to the system';
 	var $author = 'Tom Elliott/Lee Rowlett';
-	var $active = false;
+	var $active = true;
 	public function LogViewerAdd($arguments)
 	{
 		foreach($arguments['files'] AS $name => $filearray)
@@ -21,6 +23,10 @@ class LogViewerHook extends Hook
 			$ftpstart = $arguments['ftpstart'][$name];
 			$logfile = "/var/log/syslog";
 			$shortdesc = "System Log";
+			if (file_exists($ftpstart.$logfile))
+				$arguments['files'][$name][$shortdesc] = $ftpstart.$logfile;
+			else
+				$logfile = "/var/log/messages";
 			if (file_exists($ftpstart.$logfile))
 				$arguments['files'][$name][$shortdesc] = $ftpstart.$logfile;
 		}
