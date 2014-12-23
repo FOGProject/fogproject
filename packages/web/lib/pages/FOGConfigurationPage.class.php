@@ -830,12 +830,14 @@ class FOGConfigurationPage extends FOGPage
 					$user = $StorageNode->get('user');
 					$pass = $StorageNode->get('pass');
 					$host = $this->FOGCore->resolveHostname($StorageNode->get('ip'));
-					$apacheerrlog = (file_exists("ftp://$user:$pass@$host/var/log/httpd/error_log") ? "ftp://$user:$pass@$host/var/log/httpd/error_log" : (file_exists("ftp://$user:$pass@$host/var/log/apache2/error.log") ? "ftp://$user:$pass@$host/var/log/apache2/error.log" : false));
-					$apacheacclog = (file_exists("ftp://$user:$pass@$host/var/log/httpd/access_log") ? "ftp://$user:$pass@$host/var/log/httpd/access_log" : (file_exists("ftp://$user:$pass@$host/var/log/apache2/access.log") ? "ftp://$user:$pass@$host/var/log/apache2/access.log" : false));
-					$multicastlog = (file_exists("ftp://$user:$pass@$host/var/log/fog/multicast.log") ? "ftp://$user:$pass@$host/var/log/fog/multicast.log" : false);
-					$schedulerlog = (file_exists("ftp://$user:$pass@$host/var/log/fog/fogscheduler.log") ? "ftp://$user:$pass@$host/var/log/fog/fogscheduler.log" : false);
-					$imgrepliclog = (file_exists("ftp://$user:$pass@$host/var/log/fog/fogreplicator.log") ? "ftp://$user:$pass@$host/var/log/fog/fogreplicator.log" : false);
-					$snapinreplog = (file_exists("ftp://$user:$pass@$host/var/log/fog/fogsnapinrep.log") ? "ftp://$user:$pass@$host/var/log/fog/fogsnapinrep.log" : false);
+					$ftpstarter[$StorageNode->get('name')] = "ftp://$user:$pass@$host";
+					$ftpstart = $ftpstarter[$StorageNode->get('name')];
+					$apacheerrlog = (file_exists("$ftpstart/var/log/httpd/error_log") ? "$ftpstart/var/log/httpd/error_log" : (file_exists("$ftpstart/var/log/apache2/error.log") ? "$ftpstart/var/log/apache2/error.log" : false));
+					$apacheacclog = (file_exists("$ftpstart/var/log/httpd/access_log") ? "$ftpstart/var/log/httpd/access_log" : (file_exists("$ftpstart/var/log/apache2/access.log") ? "$ftpstart/var/log/apache2/access.log" : false));
+					$multicastlog = (file_exists("$ftpstart/var/log/fog/multicast.log") ? "$ftpstart/var/log/fog/multicast.log" : false);
+					$schedulerlog = (file_exists("$ftpstart/var/log/fog/fogscheduler.log") ? "$ftpstart/var/log/fog/fogscheduler.log" : false);
+					$imgrepliclog = (file_exists("$ftpstart/var/log/fog/fogreplicator.log") ? "$ftpstart/var/log/fog/fogreplicator.log" : false);
+					$snapinreplog = (file_exists("$ftpstart/var/log/fog/fogsnapinrep.log") ? "$ftpstart/var/log/fog/fogsnapinrep.log" : false);
 					$files[$StorageNode->get('name')] = array(
 						$multicastlog ? 'Multicast' : null => $multicastlog ? $multicastlog : null,
 						$schedulerlog ? 'Scheduler' : null => $schedulerlog ? $schedulerlog : null,
@@ -845,17 +847,21 @@ class FOGConfigurationPage extends FOGPage
 						$apacheacclog ? 'Apache Access Log' : null  => $apacheacclog ? $apacheacclog : null,
 					);
 					$files[$StorageNode->get('name')] = array_filter((array)$files[$StorageNode->get('name')]);
-					$first = true;
-					foreach($files[$StorageNode->get('name')] AS $value => $file)
-					{
-						if ($first)
-						{
-							$options3[] = "\n\t\t\t\t".'<option disabled="disabled"> ------- '.$StorageNode->get('name').' ------- </option>';
-							$first = false;
-						}
-						$options3[] = "\n\t\t\t\t".'<option '.($value == $_REQUEST['logtype'] ? 'selected="selected"' : '').' value="'.$file.'">'.$value.'</option>';
-					}
 				}
+			}
+		}
+		$this->HookManager->processEvent('LOG_VIEWER_HOOK',array('files' => &$files,'ftpstart' => &$ftpstarter));
+		foreach((array)$files AS $nodename => $filearray)
+		{
+			$first = true;
+			foreach((array)$filearray AS $value => $file)
+			{
+				if ($first)
+				{
+					$options3[] = "\n\t\t\t\t".'<option disabled="disabled"> ------- '.$nodename.' ------- </option>';
+					$first = false;
+				}
+				$options3[] = "\n\t\t\t\t".'<option '.($value == $_REQUEST['logtype'] ? 'selected="selected"' : '').' value="'.$file.'">'.$value.'</option>';
 			}
 		}
 		// Set title
