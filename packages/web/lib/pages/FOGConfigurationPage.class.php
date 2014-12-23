@@ -820,29 +820,50 @@ class FOGConfigurationPage extends FOGPage
 	*/
 	public function log()
 	{
-		$apacheerrlog = (file_exists('/var/log/httpd/error_log') ? '/var/log/httpd/error_log' : (file_exists('/var/log/apache2/error.log') ? '/var/log/apache2/error.log' : false));
-		$apacheacclog = (file_exists('/var/log/httpd/access_log') ? '/var/log/httpd/access_log' : (file_exists('/var/log/apache2/access.log') ? '/var/log/apache2/access.log' : false));
-		$multicastlog = (file_exists('/var/log/fog/multicast.log') ? '/var/log/fog/multicast.log' : false);
-		$schedulerlog = (file_exists('/var/log/fog/fogscheduler.log') ? '/var/log/fog/fogscheduler.log' : false);
-		$imgrepliclog = (file_exists('/var/log/fog/fogreplicator.log') ? '/var/log/fog/fogreplicator.log' : false);
-		$snapinreplog = (file_exists('/var/log/fog/fogsnapinrep.log') ? '/var/log/fog/fogsnapinrep.log' : false);
-		$files = array(
-			$multicastlog ? 'Multicast' : null => $multicastlog ? $multicastlog : null,
-			$schedulerlog ? 'Scheduler' : null => $schedulerlog ? $schedulerlog : null,
-			$imgrepliclog ? 'Image Replicator' : null => $imgrepliclog ? $imgrepliclog : null,
-			$snapinreplog ? 'Snapin Replicator' : null => $snapinreplog ? $snapinreplog : null,
-			$apacheerrlog ? 'Apache Error Log' : null  => $apacheerrlog ? $apacheerrlog : null,
-			$apacheacclog ? 'Apache Access Log' : null  => $apacheacclog ? $apacheacclog : null,
-		);
-		$files = array_filter((array)$files);
+		foreach($this->getClass('StorageGroupManager')->find() AS $StorageGroup)
+		{
+			if ($StorageGroup && $StorageGroup->isValid())
+			{
+				$StorageNode = $StorageGroup->getMasterStorageNode();
+				if ($StorageNode && $StorageNode->isValid())
+				{
+					$user = $StorageNode->get('user');
+					$pass = $StorageNode->get('pass');
+					$host = $this->FOGCore->resolveHostname($StorageNode->get('ip'));
+					$apacheerrlog = (file_exists("ftp://$user:$pass@$host/var/log/httpd/error_log") ? "ftp://$user:$pass@$host/var/log/httpd/error_log" : (file_exists("ftp://$user:$pass@$host/var/log/apache2/error.log") ? "ftp://$user:$pass@$host/var/log/apache2/error.log" : false));
+					$apacheacclog = (file_exists("ftp://$user:$pass@$host/var/log/httpd/access_log") ? "ftp://$user:$pass@$host/var/log/httpd/access_log" : (file_exists("ftp://$user:$pass@$host/var/log/apache2/access.log") ? "ftp://$user:$pass@$host/var/log/apache2/access.log" : false));
+					$multicastlog = (file_exists("ftp://$user:$pass@$host/var/log/fog/multicast.log") ? "ftp://$user:$pass@$host/var/log/fog/multicast.log" : false);
+					$schedulerlog = (file_exists("ftp://$user:$pass@$host/var/log/fog/fogscheduler.log") ? "ftp://$user:$pass@$host/var/log/fog/fogscheduler.log" : false);
+					$imgrepliclog = (file_exists("ftp://$user:$pass@$host/var/log/fog/fogreplicator.log") ? "ftp://$user:$pass@$host/var/log/fog/fogreplicator.log" : false);
+					$snapinreplog = (file_exists("ftp://$user:$pass@$host/var/log/fog/fogsnapinrep.log") ? "ftp://$user:$pass@$host/var/log/fog/fogsnapinrep.log" : false);
+					$files[$StorageNode->get('name')] = array(
+						$multicastlog ? 'Multicast' : null => $multicastlog ? $multicastlog : null,
+						$schedulerlog ? 'Scheduler' : null => $schedulerlog ? $schedulerlog : null,
+						$imgrepliclog ? 'Image Replicator' : null => $imgrepliclog ? $imgrepliclog : null,
+						$snapinreplog ? 'Snapin Replicator' : null => $snapinreplog ? $snapinreplog : null,
+						$apacheerrlog ? 'Apache Error Log' : null  => $apacheerrlog ? $apacheerrlog : null,
+						$apacheacclog ? 'Apache Access Log' : null  => $apacheacclog ? $apacheacclog : null,
+					);
+					$files[$StorageNode->get('name')] = array_filter((array)$files[$StorageNode->get('name')]);
+					$first = true;
+					foreach($files[$StorageNode->get('name')] AS $value => $file)
+					{
+						if ($first)
+						{
+							$options3[] = "\n\t\t\t\t".'<option disabled="disabled"> ------- '.$StorageNode->get('name').' ------- </option>';
+							$first = false;
+						}
+						$options3[] = "\n\t\t\t\t".'<option '.($value == $_REQUEST['logtype'] ? 'selected="selected"' : '').' value="'.$file.'">'.$value.'</option>';
+					}
+				}
+			}
+		}
 		// Set title
 		$this->title = _('FOG Log Viewer');
 		print "\n\t\t\t<p>";
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 
 		print "\n\t\t\t<p>"._('File:');
-		foreach ($files AS $value => $file)
-			$options3[] = "\n\t\t\t\t".'<option '.($value == $_REQUEST['logtype'] ? 'selected="selected"' : '').' value="'.$file.'">'.$value.'</option>';
 		print "\n\t\t\t".'<select name="logtype" id="logToView">'.implode("\n\t\t\t\t",$options3)."\n\t\t\t".'</select>';
 		print "\n\t\t\t"._('Number of lines:');
 		foreach (array(20, 50, 100, 200, 400, 500, 1000) AS $value)

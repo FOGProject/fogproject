@@ -22,7 +22,7 @@ function LogGetData() {
 		},
 		dataType: 'json',
 		success: displayLog,
-		complete: setTimeout(LogGetData,1000)
+		complete: setTimeout(LogGetData,10000)
 	});
 }
 function displayLog(data) {
