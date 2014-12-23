@@ -15,7 +15,7 @@ class LogViewerHook extends Hook
 	var $name = 'LogViewerHook';
 	var $description = 'Allows adding/removing log viewer files to the system';
 	var $author = 'Tom Elliott/Lee Rowlett';
-	var $active = true;
+	var $active = false;
 	public function LogViewerAdd($arguments)
 	{
 		foreach($arguments['files'] AS $name => $filearray)
