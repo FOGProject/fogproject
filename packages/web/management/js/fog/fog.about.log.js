@@ -1,10 +1,28 @@
 var LogToView;
 var LinesToView;
+var LogTimer
 $(function() {
 	LogToView = $('#logToView').val();
 	LinesToView = $('#linesToView').val();
+	$('#logpause').val('Pause');
 	LogGetData();
+	$('#logpause').click(function(e) {
+		e.preventDefault();
+		if ($(this).hasClass('active')) {
+			$(this).removeClass('active');
+			$(this).val('Pause');
+			LogGetData();
+		} else {
+			$(this).addClass('active');
+			$(this).val('Continue');
+			clearTimeout(LogTimer);
+		}
+	});
 	$('#logToView, #linesToView').change(function() {
+		if ($('#logpause').val() == 'Continue') {
+			$('#logpause').removeClass('active');
+			$('#logpause').val('Pause');
+		}
 		LogToView = $('#logToView').val();
 		LinesToView = $('#linesToView').val();
 		LogGetData();
@@ -22,7 +40,9 @@ function LogGetData() {
 		},
 		dataType: 'json',
 		success: displayLog,
-		complete: setTimeout(LogGetData,10000)
+		complete: function() {
+			LogTimer = setTimeout(LogGetData,10000);
+		}
 	});
 }
 function displayLog(data) {

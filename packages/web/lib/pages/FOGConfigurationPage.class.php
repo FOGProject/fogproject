@@ -875,6 +875,7 @@ class FOGConfigurationPage extends FOGPage
 		foreach (array(20, 50, 100, 200, 400, 500, 1000) AS $value)
 			$options4[] = '<option '.($value == $_REQUEST['n'] ? 'selected="selected"' : '').' value="'.$value.'">'.$value.'</option>';
 		print "\n\t\t\t".'<select name="n" id="linesToView">'.implode("\n\t\t\t\t",$options4)."\n\t\t\t".'</select>';
+		print "\n\t\t\t<center>".'<input type="button" id="logpause" /></center>';
 		print "\n\t\t\t</p>";
 		print "\n\t\t\t</form>";
 		print "\n\t\t\t".'<div id="logsGoHere">&nbsp;</div>';
