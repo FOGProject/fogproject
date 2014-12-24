@@ -7,6 +7,8 @@
  * chmod -R 755 <foldername>
  * list translates in ls -l to:
  * drwxr-xr-x
+ * Also the file will need to be readable by everybody:
+ * chmod +r <filename>
  */
 class LogViewerHook extends Hook
 {
@@ -21,6 +23,10 @@ class LogViewerHook extends Hook
 			$ftpstart = $arguments['ftpstart'][$name];
 			$logfile = "/var/log/syslog";
 			$shortdesc = "System Log";
+			if (file_exists($ftpstart.$logfile))
+				$arguments['files'][$name][$shortdesc] = $ftpstart.$logfile;
+			else
+				$logfile = "/var/log/messages";
 			if (file_exists($ftpstart.$logfile))
 				$arguments['files'][$name][$shortdesc] = $ftpstart.$logfile;
 		}
