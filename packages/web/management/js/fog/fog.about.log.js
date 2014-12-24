@@ -15,35 +15,34 @@ $(function() {
 		} else {
 			$(this).addClass('active');
 			$(this).val('Continue');
-			clearTimeout(LogTimer);
 		}
 	});
-	$('#logToView, #linesToView').change(function() {
-		if ($('#logpause').val() == 'Continue') {
-			$('#logpause').removeClass('active');
-			$('#logpause').val('Pause');
-		}
+	$('#logToView, #linesToView').change(function(e) {
+		e.preventDefault();
 		LogToView = $('#logToView').val();
 		LinesToView = $('#linesToView').val();
+		$('#logpause').val('Pause');
+		if ($('#logpause').hasClass('active')) $('#logpause').removeClass('active');
 		LogGetData();
-		return false;
 	});
 });
 function LogGetData() {
-	$.ajax({
-		url: '../status/logtoview.php',
-		cache: false,
-		type: 'POST',
-		data: {
-			file: LogToView,
-			lines: LinesToView,
-		},
-		dataType: 'json',
-		success: displayLog,
-		complete: function() {
-			LogTimer = setTimeout(LogGetData,10000);
-		}
-	});
+	if (! $('#logpause').hasClass('active')) {
+		$.ajax({
+			url: '../status/logtoview.php',
+			cache: false,
+			type: 'POST',
+			data: {
+				file: LogToView,
+				lines: LinesToView,
+			},
+			dataType: 'json',
+			success: displayLog,
+			complete: function() {
+				LogTimer = setTimeout(LogGetData,10000);
+			}
+		});
+	}
 }
 function displayLog(data) {
 	$('#logsGoHere').html('<pre>'+data+'</pre>');
