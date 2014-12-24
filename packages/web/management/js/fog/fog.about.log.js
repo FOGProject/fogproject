@@ -19,6 +19,10 @@ $(function() {
 		}
 	});
 	$('#logToView, #linesToView').change(function() {
+		if ($('#logpause').val() == 'Continue') {
+			$('#logpause').removeClass('active');
+			$('#logpause').val('Pause');
+		}
 		LogToView = $('#logToView').val();
 		LinesToView = $('#linesToView').val();
 		LogGetData();
