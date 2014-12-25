@@ -332,11 +332,11 @@ class FOGCore extends FOGBase
 	*/
 	public function getIPAddress()
 	{
-		$arR = null;
-		$retVal = null;
 		$output = array();
-		exec("/sbin/ifconfig | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d':' -f 2 | cut -d' ' -f1", $arR, $retVal);
-		foreach ($arR AS $IP)
+		exec("/sbin/ifconfig | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d':' -f 2 | cut -d' ' -f1", $IPs, $retVal);
+		if (!$IPs)
+			exec("/sbin/ip addr | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d/ -f1 | awk '{print $2}'", $IPs, $retVal);
+		foreach ($IPs AS $IP)
 		{
 			$IP = trim($IP);
 			if ($IP != "127.0.0.1")
