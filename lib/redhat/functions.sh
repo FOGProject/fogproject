@@ -94,15 +94,22 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 configureNFS()
 {
 	echo -n "  * Setting up and starting NFS Server..."; 
-	
+	RHVER=`rpm -qa | grep release | xargs rpm -q --queryformat '%{VERSION}' | cut -c -1`;
 	echo "${storageLocation}                        *(ro,sync,no_wdelay,insecure_locks,no_root_squash,insecure,fsid=1)
 ${storageLocation}/dev                    *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=2)
 /opt/fog/clamav							  *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=3)" > "${nfsconfig}";
-	chkconfig rpcbind on;
-	service rpcbind restart >/dev/null 2>&1;
-	chkconfig ${nfsservice} on;
-	service ${nfsservice} restart >/dev/null 2>&1;
-	service ${nfsservice} status  >/dev/null 2>&1;
+	if [ "$RHVER" == "7" ]; then
+		systemctl enable rpcbind >/dev/null 2>&1;
+		systemctl enable nfs-server.service 2>&1;
+		systemctl restart rpcbind >/dev/null 2>&1;
+		systemctl restart nfs-server.service 2>&1;
+	else
+		chkconfig rpcbind on;
+		service rpcbind restart >/dev/null 2>&1;
+		chkconfig ${nfsservice} on;
+		service ${nfsservice} restart >/dev/null 2>&1;
+		service ${nfsservice} status  >/dev/null 2>&1;
+	fi
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
@@ -145,9 +152,15 @@ pam_service_name=vsftpd
 userlist_enable=NO
 tcp_wrappers=YES" > "$ftpconfig";
 
-	chkconfig vsftpd on;
-	service vsftpd restart >/dev/null 2>&1;
-	service vsftpd status  >/dev/null 2>&1;
+	RHVER=`rpm -qa | grep release | xargs rpm -q --queryformat '%{VERSION}' | cut -c -1`;
+	if [ "$RHVER" == "7" ]; then
+		systemctl enable vsftpd.service >/dev/null 2>&1;
+		systemctl restart vsftpd.service >/dev/null 2>&1;
+	else
+		chkconfig vsftpd on;
+		service vsftpd restart >/dev/null 2>&1;
+		service vsftpd status  >/dev/null 2>&1;
+	fi
 	if [ "$?" != "0" ] 
 	then
 		echo "Failed!";
@@ -521,9 +534,15 @@ class Config
 configureMySql()
 {
 	echo -n "  * Setting up and starting MySQL...";
-	chkconfig mysqld on;
-	service mysqld restart >/dev/null 2>&1;
-	service mysqld status >/dev/null 2>&1;
+	RHVER=`rpm -qa | grep release | xargs rpm -q --queryformat '%{VERSION}' | cut -c -1`;
+	if [ "$RHVER" == "7" ]; then
+		systemctl enable mariadb.service >/dev/null 2>&1;
+		systemctl restart mariadb.service >/dev/null 2>&1;
+	else
+		chkconfig mysqld on;
+		service mysqld restart >/dev/null 2>&1;
+		service mysqld status >/dev/null 2>&1;
+	fi
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
