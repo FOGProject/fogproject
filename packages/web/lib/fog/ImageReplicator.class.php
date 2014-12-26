@@ -66,20 +66,21 @@ class ImageReplicator extends FOGBase
 								$this->outall(sprintf(" * Found image to transfer to %s group(s)",count($Image->get('storageGroups')) - 1));
 								$this->outall(sprintf(" | Image name: %s",$Image->get('name')));
 								$this->outall(sprintf(" * Syncing: %s",$StorageNodeToSend->get('name')));
-								$process[] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 10;set net:timeout 30;".$limit." mirror -n --ignore-time -R -vvv --exclude 'dev/' --delete $myImage $remImage; exit\" -u $username,$password $ip 2>&1","r");
+								$process[$StorageNodeToSend->get('name')] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 10;set net:timeout 30;".$limit." mirror -n --ignore-time -R -vvv --exclude 'dev/' --delete $myImage $remImage; exit\" -u $username,$password $ip 2>&1","r");
 							}
 						}
 					}
-					foreach ((array)$process AS $proc)
+					foreach ((array)$process AS $nodename => $proc)
 					{
+						stream_set_blocking($proc,false);
 						while (!feof($proc) && $proc != null)
 						{
 							$output = fgets($proc,256);
 							if ($output)
-								$this->outall(sprintf(" * SubProcess->%s",$output));
+								$this->outall(sprintf(" * SubProcess -> %s on %s",$output,$nodename));
 						}
 						pclose($proc);
-						$this->outall(sprintf(" * SubProcess -> Complete"));
+						$this->outall(sprintf(" * SubProcess -> Complete on %s",$nodename));
 					}
 					unset($process);
 				}
@@ -119,7 +120,7 @@ class ImageReplicator extends FOGBase
 								$this->outall(sprintf(" * SubProcess -> %s on %s",$output,$nodename));
 						}
 						pclose($proc);
-						$this->outall(sprintf(" * SubProcess -> Complete"));
+						$this->outall(sprintf(" * SubProcess -> Complete on %s",$nodename));
 					}
 					unset($process);
 				}
