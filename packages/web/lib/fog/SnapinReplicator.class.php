@@ -80,7 +80,7 @@ class SnapinReplicator extends FOGBase
 											$limit .= "set net:limit-rate 0:$limitsend;";
 										$this->outall(sprintf(" * Found snapin to transfer to %s group(s)",count($Snapin->get('storageGroups')) -1));
 										$this->outall(sprintf(" | Snapin name: %s",$Snapin->get('name')));
-										$process[$StorageNodeToSend->get('name')] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 10;set net:timeout 30;".$limit." mirror -i $mySnapFile -n --ignore-time -R -vvv --delete-first $mySnapin $remSnapin; exit\" -u $username,$password $ip 2>&1","r");
+										$process[$StorageNodeToSend->get('name')] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 10;set net:timeout 30;".$limit." mirror -i $mySnapFile -n --ignore-time -R -vvv --delete-first --reverse $mySnapin $remSnapin; exit\" -u $username,$password $ip 2>&1","r");
 									}
 								}
 							}
@@ -93,10 +93,10 @@ class SnapinReplicator extends FOGBase
 						{
 							$output = fgets($proc,256);
 							if ($output)
-								$this->outall(sprintf(" * SubProcess -> %s on %s",$output,$nodename));
+								$this->outall(sprintf(" * %s - SubProcess -> %s",$nodename,$output));
 						}
 						pclose($proc);
-						$this->outall(sprintf(" * SubProcess -> Complete on %s",$nodename));
+						$this->outall(sprintf(" * %s - SubProcess -> Complete",$nodename));
 					}
 					unset($process,$limit,$mySnapFile);
 					$this->outall(sprintf(" * Checking nodes within my group."));
@@ -124,7 +124,7 @@ class SnapinReplicator extends FOGBase
 										$limit = "set net:limit-total-rate 0:$limitmain;";
 									if ($limitsend > 0)
 										$limit .= "set net:limit-rate 0:$limitsend;";
-									$process[$StorageNodeFTP->get('name')] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 10;set net:timeout 30;".$limit." mirror -i $mySnapFile -n --ignore-time -R -vvv --delete-first $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
+									$process[$StorageNodeFTP->get('name')] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 10;set net:timeout 30;".$limit." mirror -i $mySnapFile -n --ignore-time -R -vvv --delete-first --reverse $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
 								}
 							}
 						}
@@ -135,10 +135,10 @@ class SnapinReplicator extends FOGBase
 							{
 								$output = fgets($proc,256);
 								if ($output)
-									$this->outall(sprintf(" * SubProcess -> %s on %s",$output,$nodename));
+									$this->outall(sprintf(" * %s - SubProcess -> %s",$nodename,$output));
 							}
 							pclose($proc);
-							$this->outall(sprintf(" * SubProcess -> Complete on %s",$nodename));
+							$this->outall(sprintf(" * %s - SubProcess -> Complete",$nodename));
 						}
 					}
 					else
