@@ -93,10 +93,10 @@ class SnapinReplicator extends FOGBase
 						{
 							$output = fgets($proc,256);
 							if ($output)
-								$this->outall(sprintf(" * SubProcess -> %s on %s",$output,$nodename));
+								$this->outall(sprintf(" * %s - SubProcess -> %s",$nodename,$output));
 						}
 						pclose($proc);
-						$this->outall(sprintf(" * SubProcess -> Complete on %s",$nodename));
+						$this->outall(sprintf(" * %s - SubProcess -> Complete",$nodename));
 					}
 					unset($process,$limit,$mySnapFile);
 					$this->outall(sprintf(" * Checking nodes within my group."));
@@ -135,10 +135,10 @@ class SnapinReplicator extends FOGBase
 							{
 								$output = fgets($proc,256);
 								if ($output)
-									$this->outall(sprintf(" * SubProcess -> %s on %s",$output,$nodename));
+									$this->outall(sprintf(" * %s - SubProcess -> %s",$nodename,$output));
 							}
 							pclose($proc);
-							$this->outall(sprintf(" * SubProcess -> Complete on %s",$nodename));
+							$this->outall(sprintf(" * %s - SubProcess -> Complete",$nodename));
 						}
 					}
 					else
