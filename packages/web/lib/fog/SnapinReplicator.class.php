@@ -80,23 +80,23 @@ class SnapinReplicator extends FOGBase
 											$limit .= "set net:limit-rate 0:$limitsend;";
 										$this->outall(sprintf(" * Found snapin to transfer to %s group(s)",count($Snapin->get('storageGroups')) -1));
 										$this->outall(sprintf(" | Snapin name: %s",$Snapin->get('name')));
-										$this->outall(sprintf(" * Syncing: %s",$StorageNodeToSend->get('name')));
-										$process[] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 10;set net:timeout 30;".$limit." mirror -i $mySnapFile -n --ignore-time -R -vvv --delete-first $mySnapin $remSnapin; exit\" -u $username,$password $ip 2>&1","r");
+										$process[$StorageNodeToSend->get('name')] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 10;set net:timeout 30;".$limit." mirror -i $mySnapFile -n --ignore-time -R -vvv --delete-first $mySnapin $remSnapin; exit\" -u $username,$password $ip 2>&1","r");
 									}
 								}
 							}
 						}
 					}
-					foreach((array)$process AS $proc)
+					foreach((array)$process AS $nodename => $proc)
 					{
+						stream_set_blocking($proc,false);
 						while(!feof($proc) && $proc != null)
 						{
 							$output = fgets($proc,256);
 							if ($output)
-								$this->outall(sprintf(" * SubProcess -> %s",$output));
+								$this->outall(sprintf(" * SubProcess -> %s on %s",$output,$nodename));
 						}
 						pclose($proc);
-						$this->outall(sprintf(" * SubProcess -> Complete"));
+						$this->outall(sprintf(" * SubProcess -> Complete on %s",$nodename));
 					}
 					unset($process,$limit,$mySnapFile);
 					$this->outall(sprintf(" * Checking nodes within my group."));
@@ -124,21 +124,21 @@ class SnapinReplicator extends FOGBase
 										$limit = "set net:limit-total-rate 0:$limitmain;";
 									if ($limitsend > 0)
 										$limit .= "set net:limit-rate 0:$limitsend;";
-									$this->outall(sprintf(" * Syncing: %s",$StorageNodeFTP->get('name')));
-									$process[] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 10;set net:timeout 30;".$limit." mirror -i $mySnapFile -n --ignore-time -R -vvv --delete-first $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
+									$process[$StorageNodeFTP->get('name')] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 10;set net:timeout 30;".$limit." mirror -i $mySnapFile -n --ignore-time -R -vvv --delete-first $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
 								}
 							}
 						}
-						foreach((array)$process AS $proc)
+						foreach((array)$process AS $nodename => $proc)
 						{
+							stream_set_blocking($proc,false);
 							while(!feof($proc) && $proc != null)
 							{
 								$output = fgets($proc,256);
 								if ($output)
-									$this->outall(sprintf(" * SubProcess -> %s",$output));
+									$this->outall(sprintf(" * SubProcess -> %s on %s",$output,$nodename));
 							}
 							pclose($proc);
-							$this->outall(sprintf(" * SubProcess -> Complete"));
+							$this->outall(sprintf(" * SubProcess -> Complete on %s",$nodename));
 						}
 					}
 					else
