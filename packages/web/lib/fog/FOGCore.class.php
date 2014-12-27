@@ -503,7 +503,7 @@ class FOGCore extends FOGBase
 	* @param $keytype the type of key to use.
 	* @return void
 	**/
-	public function createKeyPair($keybits = 2048,$keytype = OPENSSL_KEYTYPE_RSA)
+	public function createKeyPair($keybits = 4096,$keytype = OPENSSL_KEYTYPE_RSA)
 	{
 		$pub_path = BASEPATH.'/management/other/ssl/';
 		$priv_path = '/'.trim($this->getSetting('FOG_SNAPINDIR'),'/').'/ssl/';
