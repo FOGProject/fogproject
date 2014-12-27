@@ -204,11 +204,11 @@ $Config = new Config();
 // Core
 $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
-// Generate the Server's Key Pairings
-$FOGCore->createKeyPair();
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
+// Generate the Server's Key Pairings
+$FOGCore->createKeyPair();
 // Set the memory limits
 ini_set('memory_limit',is_numeric($FOGCore->getSetting('FOG_MEMORY_LIMIT')) && $FOGCore->getSetting('FOG_MEMORY_LIMIT') >= 128 ? $FOGCore->getSetting('FOG_MEMORY_LIMIT').'M' : ini_get('memory_limit'));
 // HookManager
