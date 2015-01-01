@@ -63,7 +63,7 @@ class FOGPageManager extends FOGBase
 	// Call FOGPage->method based on $this->classValue and $this->methodValue
 	public function render()
 	{
-		if ($_REQUEST['node'] == 'client' || in_array($_REQUEST['sub'],array('configure','authorize')) || ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn()))
+		if (in_array($_REQUEST['node'],array('client','schemaupdater')) || in_array($_REQUEST['sub'],array('configure','authorize')) || ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn()))
 		{
 			$this->loadPageClasses();
 			try
