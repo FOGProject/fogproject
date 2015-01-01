@@ -3,7 +3,7 @@ require_once('../commons/base.inc.php');
 $currentUser = $FOGCore->FOGUser = $HookManager->FOGUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
 $Page = new Page();
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
-if ($node != 'client' && !in_array($sub,array('configure','authorize')) && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
+if (!in_array($node,array('schemaupdater','client')) && !in_array($sub,array('configure','authorize')) && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
 {
 	@session_write_close();
 	@session_regenerate_id(true);
