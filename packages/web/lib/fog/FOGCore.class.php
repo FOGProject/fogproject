@@ -99,7 +99,10 @@ class FOGCore extends FOGBase
 	*/
 	public function setSetting($key, $value)
 	{
-		return current($this->getClass('ServiceManager')->find(array('name' => $key)))->set('value', $value)->save();
+		$ServMan = current($this->getClass('ServiceManager')->find(array('name' => $key)));
+		if ($ServMan && $ServMan->isValid())
+			return $ServMan->set('value',$value)->save();
+		return false;
 	}
 	
 	/** isAJAXRequest()
@@ -507,6 +510,8 @@ class FOGCore extends FOGBase
 	{
 		$pub_path = BASEPATH.'/management/other/ssl/';
 		$priv_path = '/'.trim($this->getSetting('FOG_SNAPINDIR'),'/').'/ssl/';
+		if (!trim($this->getSetting('FOG_SNAPINDIR')))
+			$priv_path = '/opt/fog/snapins/ssl/';
 		if (!is_dir($priv_path))
 			exec('mkdir '.$priv_path);
 		if (!is_dir($pub_path))
