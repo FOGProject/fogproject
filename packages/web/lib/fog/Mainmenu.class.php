@@ -51,6 +51,7 @@ class Mainmenu extends FOGBase
 			$links[] = $link;
 		$links[] = 'hwinfo';
 		$links[] = 'client';
+		$links[] = 'schemaupdater';
 		if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links))
 			$this->FOGCore->redirect('index.php');
 	}
