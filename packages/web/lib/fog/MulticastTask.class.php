@@ -71,30 +71,77 @@ class MulticastTask extends FOGBase
 		$count = sprintf(' --min-receivers %d',($countTemp > 0 ? $countTemp : $this->getClass('HostManager')->count()));
 		if ($waitTemp)
 			$wait = sprintf(' --max-wait %d',($waitTemp > 0 ? $waitTemp * 60 : 60));
-		$filelist = array();
-		if ($this->getImageType() == 4)
+		if (($this->getOSID() == 5 || $this->getOSID() == 6 || $this->getOSID() == 7) && $this->getImageType() == 1)
 		{
+			// Only Windows 7 and 8
+			$strRec = null;
+			$strSys = null;
 			if (is_dir($this->getImagePath()))
 			{
-				if($handle = opendir($this->getImagePath()))
+				if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000') || file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
 				{
-					while (false !== ($file = readdir($handle)))
+					$filelist = array();
+					if ($handle = opendir($this->getImagePath()))
 					{
-						if ($file != '.' && $file != '..')
-								$filelist[] = $file;
+						while (false !== ($file = readdir($handle)))
+						{
+							if ($file != '.' && $file != '..')
+							{
+								if ($file == 'rec.img.000')
+									$strRec=rtrim($this->getImagePath(),'/').'/rec.img.*';
+								if ($file == 'sys.img.000')
+									$strSys=rtrim($this->getImagePath(),'/').'/sys.img.*';
+							}
+						}
+						natsort($filelist);
+						closedir($handle);
 					}
-					natsort($filelist);
-					closedir($handle);
+				}
+				else
+				{
+					$filelist = array();
+					if ($handle = opendir($this->getImagePath()))
+					{
+						while (false!==($file=readdir($handle)))
+						{
+							if ($file != '.' && $file != '..')
+							{
+								$ext = '';
+								sscanf($file,'d1p%d.%s',$part,$ext);
+								if ($ext == 'img')
+									$filelist[] = $file;
+							}
+						}
+						natsort($filelist);
+						closedir($handle);
+					}
+				}
+			}
+			if ($strRec && $strSys)
+			{
+				// two parts
+				$cmd = 'cat '.$strRec.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
+				$cmd .= 'cat '.$strSys.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
+			}
+			else if (!$strRec && $strSys)
+				$cmd = 'cat '.$strSys.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().' '.$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
+			else if (!$strRec && !$strSys)
+			{
+				foreach ($filelist AS $file)
+				{
+					$path = rtrim($this->getImagePath(),'/').'/'.$file;
+					$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
 				}
 			}
 		}
-		else
+		else if ($this->getImageType() == 1 || $this->getImageType() == 2)
 		{
 			if (is_dir($this->getImagePath()))
 			{
+				$filelist = array();
 				if ($handle = opendir($this->getImagePath()))
 				{
-					while (false !== ($file = readdir($handle)))
+					while (false!==($file=readdir($handle)))
 					{
 						if ($file != '.' && $file != '..')
 						{
@@ -107,43 +154,69 @@ class MulticastTask extends FOGBase
 					natsort($filelist);
 					closedir($handle);
 				}
+				foreach ($filelist AS $file)
+				{
+					$path = rtrim($this->getImagePath(),'/').'/'.$file;
+					$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
+				}
 			}
+			else
+				$cmd = 'cat '.rtrim($this->getImagePath(),'/').'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
 		}
-		if (($this->getOSID() == 5 || $this->getOSID() == 6 || $this->getOSID() == 7) && $this->getImageType() == 1)
+		else if ($this->getImageType() == 3)
 		{
-			$first = true;
+			$device = 1;
+			$part = 0;
 			if (is_dir($this->getImagePath()))
 			{
-				if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000') || file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
+				$filelist = array();
+				if($handle = opendir($this->getImagePath()))
 				{
-					$filelist = array();
-					if ($handle = opendir($this->getImagePath()))
+					while (false !== ($file = readdir($handle)))
 					{
-						while (false !== ($file = readdir($handle)))
+						if ($file != '.' && $file != '..')
 						{
-							if ($file != '.' && $file != '..')
-							{
-								if ($first)
-								{
-									unset($filelist);
-									$first = false;
-								}
-								if ($file == 'rec.img.000')
-									$filelist[] = rtrim($this->getImagePath(),'/').'/rec.img.*';
-								if ($file == 'sys.img.000')
-									$filelist[] = rtrim($this->getImagePath(),'/').'/sys.img.*';
-							}
+							$ext = '';
+							sscanf($file,'d%dp%d.%s',$device,$part,$ext);
+							if ($ext == 'img')
+								$filelist[] = $file;
 						}
-						closedir($handle);
 					}
+					natsort($filelist);
+					closedir($handle);
+				}
+				$cmd = '';
+				foreach ($filelist AS $file)
+				{
+					$path = rtrim($this->getImagePath(),'/').'/'.$file;
+					$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
 				}
 			}
 		}
-		$cmd = '';
-		foreach ($filelist AS $file)
+		else if ($this->getImageType() == 4)
 		{
-			$path = rtrim($this->getImagePath(),'/').'/'.$file;
-			$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
+			$device = 1;
+			$part = 0;
+			if (is_dir($this->getImagePath()))
+			{
+				$filelist = array();
+				if($handle = opendir($this->getImagePath()))
+				{
+					while (false !== ($file = readdir($handle)))
+					{
+						if ($file != '.' && $file != '..')
+								$filelist[] = $file;
+					}
+					natsort($filelist);
+					closedir($handle);
+				}
+				$cmd = '';
+				foreach ($filelist AS $file)
+				{
+					$path = rtrim($this->getImagePath(),'/').'/'.$file;
+					$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
+				}
+			}
 		}
 		return $cmd;
 	}
