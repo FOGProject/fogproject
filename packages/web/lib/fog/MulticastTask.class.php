@@ -72,7 +72,7 @@ class MulticastTask extends FOGBase
 		if ($waitTemp)
 			$wait = sprintf(' --max-wait %d',($waitTemp > 0 ? $waitTemp * 60 : 60));
 		unset($filelist);
-		if ($this->getImageType() == 4 || ($this->getImageType() == 1 && in_array($this->getOSID(),array(1,2))))
+		if ($this->getImageType() == 4)
 		{
 			if (is_dir($this->getImagePath()))
 			{
@@ -86,6 +86,21 @@ class MulticastTask extends FOGBase
 					closedir($handle);
 				}
 			}
+		}
+		else if ($this->getImageType() == 1 && in_array($this->getOSID(),array(1,2)))
+		{
+			if (is_dir($this->getImagePath()))
+			{
+				if ($handle = opendir($this->getImagePath()))
+				{
+					while (false !== ($file = readdir($handle)))
+					{
+						if ($file != '.' && $file != '..')
+							$filelist[] = $file;
+					}
+					closedir($handle);
+				}
+			}
 			else if (is_file($this->getImagePath()))
 				$filelist[] = $this->getImagePath();
 		}
@@ -93,7 +108,7 @@ class MulticastTask extends FOGBase
 		{
 			$device = 1;
 			$part = 0;
-			if ($this->getImageType() == 2)
+			if (in_array($this->getImageType(),array(1,2)))
 				$filename = 'd1p%d.%s';
 			if ($this->getImageType() == 3)
 				$filename = 'd%d%d.%s';
@@ -106,10 +121,10 @@ class MulticastTask extends FOGBase
 						if ($file != '.' && $file != '..')
 						{
 							$ext = '';
-							if (in_array($this->getImageType(),array(1,2)))
-								sscanf($file,$filename,$part,$ext);
 							if ($this->getImageType() == 3)
 								sscanf($file,$filename,$device,$part,$ext);
+							else
+								sscanf($file,$filename,$part,$ext);
 							if ($ext == 'img')
 								$filelist[] = $file;
 						}
@@ -125,20 +140,10 @@ class MulticastTask extends FOGBase
 				if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000') || file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
 				{
 					unset($filelist);
-					if ($handle = opendir($this->getImagePath()))
-					{
-						while (false !== ($file = readdir($handle)))
-						{
-							if ($file != '.' && $file != '..')
-							{
-								if ($file == 'rec.img.000')
-									$filelist[] = rtrim($this->getImagePath(),'/').'/rec.img.*';
-								if ($file == 'sys.img.000')
-									$filelist[] = rtrim($this->getImagePath(),'/').'/sys.img.*';
-							}
-						}
-						closedir($handle);
-					}
+					if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000'))
+						$filelist[] = 'rec.img.*';
+					if (file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
+						$filelist[] = 'sys.img.*';
 				}
 			}
 		}
@@ -147,7 +152,7 @@ class MulticastTask extends FOGBase
 		foreach ($filelist AS $file)
 		{
 			$path = rtrim($this->getImagePath(),'/').'/'.$file;
-			$cmd .= 'cat '.$path.'|'.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
+			$cmd .= 'cat '.$path.' | '.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
 		}
 		return $cmd;
 	}
