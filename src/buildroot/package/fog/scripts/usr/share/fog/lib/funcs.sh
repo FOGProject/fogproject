@@ -313,31 +313,31 @@ countExtfs()
 # $2 = Target
 writeImage() 
 {
+	mkfifo /tmp/pigz1;
+	cat $1 > /tmp/pigz1 &
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-		mkfifo /tmp/pigz1;
-		cat $1 > /tmp/pigz1 &
 		gunzip -d -c < /tmp/pigz1 | partimage restore $2 stdin -f3 -b 2>/tmp/status.fog;
-		rm /tmp/pigz1;
 	else 
 		# partclone
-		mkfifo /tmp/pigz1;
-		cat $1 > /tmp/pigz1 &
 		gunzip -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
-		rm /tmp/pigz1;
 	fi
+	rm /tmp/pigz1;
 }
 
 # $1 = Target
 writeImageMultiCast() 
 {
+	mkfifo /tmp/pigz1;
+	udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null > /tmp/pigz1 &
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partimage -f3 -b restore $hd stdin 2>/tmp/status.fog;
+		gunzip -d -c < /tmp/pigz1 | partimage restore $hd stdin -f3 -b 2>/tmp/status.fog;
 	else 
 		# partclone
-		udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null | gunzip -d -c | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;
+		gunzip -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;
 	fi
+	rm /tmp/pigz1
 }
 
 # $1 = DriveName  (e.g. /dev/sdb)
