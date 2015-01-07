@@ -171,4 +171,30 @@ class DashboardPage extends FOGPage
 		}
 		print json_encode((array)$Data);
 	}
+	/** clientCount()
+		Display's the current client count on the activity graph
+	*/
+	public function clientcount()
+	{
+		$ActivityActive = $ActivityQueued = $ActivityTotalClients = 0;
+		$StorageNode = new StorageNode($_REQUEST['id']);
+		if ($StorageNode && $StorageNode->isValid())
+		{
+			foreach($this->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'storageGroupID' => $StorageNode->get('storageGroupID'))) AS $SN)
+			{
+				if ($SN && $SN->isValid())
+				{
+					$ActivityActive += $SN->getUsedSlotCount();
+					$ActivityQueued += $SN->getQueuedSlotCount();
+					$ActivityTotalClients += $SN->get('maxClients') - $SN->getUsedSlotCount();
+				}
+			}
+		}
+		$data = array(
+			'ActivityActive' => $ActivityActive,
+			'ActivityQueued' => $ActivityQueued,
+			'ActivitySlots' => $ActivityTotalClients,
+		);
+		print json_encode($data);
+	}
 }
