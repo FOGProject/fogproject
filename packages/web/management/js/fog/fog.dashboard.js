@@ -251,10 +251,11 @@ function UpdateBandwidthGraph(data) {
 function UpdateClientCount() {
 	NodeID = GraphDiskUsageNode.val();
 	$.ajax({
-		url: '../status/clientcount.php',
+		url: '?node=home',
 		cache: false,
 		type: 'POST',
 		data: {
+			sub: 'clientcount',
 			id: NodeID
 		},
 		dataType: 'json',
