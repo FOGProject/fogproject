@@ -32,7 +32,7 @@ class HostManagementPage extends FOGPage
 		// Header row
 		$this->headerData = array(
 			'',
-			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkbox" checked="checked" />',
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			($_SESSION['FOGPingActive'] ? '' : null),
 			_('Host Name'),
 			_('Deployed'),
@@ -43,7 +43,7 @@ class HostManagementPage extends FOGPage
 		// Row templates
 		$this->templates = array(
 			'<span class="icon icon-help hand" title="${host_desc}"></span>',
-			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host" checked="checked" />',
+			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-action" checked/>',
 			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'<small>${deployed}</small>',

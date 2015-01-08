@@ -35,7 +35,6 @@ class ClientManagementPage extends FOGPage
 		print "\n\t\t\t\t\t\t\t".'<li>';
 		print "\n\t\t\t\t\t\t\t\t".'<h4>'._('Client Service').'</h4>';
 		print "\n\t\t\t\t\t\t\t\t".'<div>';
-
 		print "\n\t\t\t\t\t\t\t\t\t"._('Download the FOG client service. This service allows for advanced management of the PC, including hostname changing, etc...');
 		print "\n\t\t\t\t\t\t\t\t\t".'<br /><br />';
 		print "\n\t\t\t\t\t\t\t\t\t".'<a href="http://'.$this->FOGCore->getSetting('FOG_WEB_HOST').'/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/client/FogService.zip">';
