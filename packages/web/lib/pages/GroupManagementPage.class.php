@@ -37,6 +37,7 @@ class GroupManagementPage extends FOGPage
 		parent::__construct($name);
 		// Header row
 		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			_('Name'),
 			//_('Description'),
 			_('Members'),
@@ -45,6 +46,7 @@ class GroupManagementPage extends FOGPage
 		);
 		// Row templates
 		$this->templates = array(
+			'<input type="checkbox" name="group[]" value="${group_id}" class="toggle-action" checked/>',
 			sprintf('<a href="?node=group&sub=edit&%s=${id}" title="Edit">${name}</a>', $this->id),
 			//'${description}',
 			'${count}',
@@ -53,6 +55,7 @@ class GroupManagementPage extends FOGPage
 		);
 		// Row attributes
 		$this->attributes = array(
+			array('width' => 16, 'class' => 'c'),
 			array(),
 			//array('width' => 150),
 			array('width' => 40, 'class' => 'c'),
