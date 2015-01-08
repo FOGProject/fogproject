@@ -30,29 +30,33 @@ class ImageManagementPage extends FOGPage
 	{
 		// Call parent constructor
 		parent::__construct($name);
+		$SizeServer = $this->FOGCore->getSetting('FOG_FTP_IMAGE_SIZE');
 		// Header row
 		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			_('Image Name') .'<br /><small>'._('Storage Group').': '._('O/S').'</small><br /><small>'._('Image Type').'</small><br /><small>'._('Partition').'</small>',
 			_('Image Size: ON CLIENT'),
-			_('Image Size: ON SERVER'),
+			$SizeServer ? _('Image Size: ON SERVER') : null,
 			_('Format'),
 			_('Uploaded'),
 			_('Edit/Remove'),
 		);
 		// Row templates
 		$this->templates = array(
+			'<input type="checkbox" name="image[]" value="${id}" class="toggle-action" checked/>',
 			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name} - ${id}</a><br /><small>${storageGroup}:${os}</small><br /><small>${image_type}</small><br /><small>${image_partition_type}</small>',
 			'${size}',
-			'${serv_size}',
+			$SizeServer ? '${serv_size}' : null,
 			'${type}',
 			'${deployed}',
 			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').'"><span class="icon icon-edit"></span></a> <a href="?node='.$this->node.'&sub=delete&'.$this->id.'=${id}" title="'._('Delete').'"><span class="icon icon-delete"></span></a>',
 		);
 		// Row attributes
 		$this->attributes = array(
+			array('width' => 16, 'class' => 'c'),
 			array('width' => 50, 'class' => 'l'),
 			array('width' => 50, 'class' => 'c'),
-			array('width' => 50, 'class' => 'c'),
+			$SizeServer ? array('width' => 50, 'class' => 'c') : null,
 			array('width' => 50, 'class' => 'c'),
 			array('width' => 50, 'class' => 'c'),
 			array('width' => 50, 'class' => 'c'),
@@ -68,6 +72,7 @@ class ImageManagementPage extends FOGPage
 		$this->title = _('All Images');
 		// Find data
 		$Images = $this->getClass('ImageManager')->find();
+		$SizeServer = $this->FOGCore->getSetting('FOG_FTP_IMAGE_SIZE');
 		// Row data
 		foreach ((array)$Images AS $Image)
 		{
@@ -78,7 +83,7 @@ class ImageManagementPage extends FOGPage
 				$StorageGroupName = $Image->getStorageGroup()->get('name');
 				$StorageGroupID = $Image->getStorageGroup()->get('id');
 			}
-			if ($StorageNode && $StorageNode->isValid())
+			if ($StorageNode && $StorageNode->isValid() && $SizeServer)
 				$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
 			$imageType = $Image->get('imageTypeID') ? new ImageType($Image->get('imageTypeID')) : null;
 			$imagePartitionType = $Image->get('imagePartitionTypeID') ? new ImagePartitionType($Image->get('imagePartitionTypeID')) : null;
@@ -92,7 +97,7 @@ class ImageManagementPage extends FOGPage
 				'os'		=> $Image->getOS()->get('name'),
 				'deployed' => $this->validDate($Image->get('deployed')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
-				'serv_size' => $servSize,
+				$SizeServer ? 'serv_size' : null => $SizeServer ? $servSize : null,
 				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
 				'image_partition_type' => $imagePartitionType && $imagePartitionType->isValid() ? $imagePartitionType->get('name') : '',
 				'type' => $Image->get('format') ? 'Partimage' : 'Partclone',
@@ -102,6 +107,10 @@ class ImageManagementPage extends FOGPage
 			$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
 		// Hook
 		$this->HookManager->processEvent('IMAGE_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		$this->headerData = array_filter((array)$this->headerData);
+		$this->templates = array_filter((array)$this->templates);
+		$this->attributes = array_filter((array)$this->attributes);
+		$this->data = array_filter((array)$this->data);
 		// Output
 		$this->render();
 	}
@@ -129,6 +138,7 @@ class ImageManagementPage extends FOGPage
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Get All images based on the keyword
 		$Images = new ImageManager();
+		$SizeServer = $this->FOGCore->getSetting('FOG_FTP_IMAGE_SIZE');
 		// Find data -> Push data
 		foreach ($Images->search($keyword,'Image') AS $Image)
 		{
@@ -139,7 +149,7 @@ class ImageManagementPage extends FOGPage
 				$StorageGroupName = $Image->getStorageGroup()->get('name');
 				$StorageGroupID = $Image->getStorageGroup()->get('id');
 			}
-			if ($StorageNode && $StorageNode->isValid())
+			if ($StorageNode && $StorageNode->isValid() && $SizeServer)
 				$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
 			$imageType = $Image->get('imageTypeID') ? new ImageType($Image->get('imageTypeID')) : null;
 			$imagePartitionType = $Image->get('imagePartitionTypeID') ? new ImagePartitionType($Image->get('imagePartitionTypeID')) : null;
@@ -153,7 +163,7 @@ class ImageManagementPage extends FOGPage
 				'os'		=> $Image->getOS()->get('name'),
 				'deployed' => $this->validDate($Image->get('deployed')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
-				'serv_size' => $servSize,
+				$SizeServer ? 'serv_size' : null => $SizeServer ? $servSize : null,
 				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
 				'image_partition_type' => $imagePartitionType && $imagePartitionType->isValid() ? $imagePartitionType->get('name') : '',
 				'type' => $Image->get('format') ? 'Partimage' : 'Partclone',
@@ -161,6 +171,10 @@ class ImageManagementPage extends FOGPage
 		}
 		// Hook
 		$this->HookManager->processEvent('IMAGE_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		$this->headerData = array_filter((array)$this->headerData);
+		$this->templates = array_filter((array)$this->templates);
+		$this->attributes = array_filter((array)$this->attributes);
+		$this->data = array_filter((array)$this->data);
 		// Output
 		$this->render();
 	}
