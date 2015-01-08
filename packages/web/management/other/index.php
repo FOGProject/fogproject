@@ -58,7 +58,7 @@
 		<div class="fog-variable" id="FOGPingActive"><?php intval($_SESSION['FOGPingActive']) ?></div>
 		<!-- Javascript -->
 		<?php $cnt=0; $this->HookManager->processEvent('JAVASCRIPT',array('javascripts' => &$this->javascripts)); foreach($this->javascripts AS $javascript) {
-			print ($cnt++ > 0 ? "\t\t" : '').'<script src="'.$javascript.'" language="javascript" type="text/javascript" defer="defer"></script>'."\n";
+			print ($cnt++ > 0 ? "\t\t" : '').'<script src="'.$javascript.'" language="javascript" type="text/javascript" defer></script>'."\n";
 		} } ?>
 	</body>
 </html>

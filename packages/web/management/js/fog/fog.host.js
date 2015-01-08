@@ -1,12 +1,9 @@
 $(function() {
+	checkboxToggleSearchListPages();
 	// Host ping
 	$('.host-ping').fogPing({Delay: 0,UpdateStatus: 0}).removeClass('host-ping');
-	// Checkbox toggle
-	$('.toggle-checkbox').click(function() {
-		$('input.toggle-host:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
-	});
 	$('.toggle-checkboxgroup').click(function() {
-		$('input.toggle-group:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+		$('input.toggle-group[type="checkbox"]').prop('checked', $(this).is(':checked'));
 	});
 	//i Action Box, had to remove action-box id search as it seems broken.
 	$('#action-box').submit(function() {
