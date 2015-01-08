@@ -1772,3 +1772,7 @@ $this->schema[] = array(
 	"ALTER TABLE `".DATABASE_NAME."`.`imageGroupAssoc` ADD UNIQUE(`igaImageID`,`igaStorageGroupID`)",
 	"ALTER TABLE `".DATABASE_NAME."`.`snapinGroupAssoc` ADD UNIQUE(`sgaSnapinID`,`sgaStorageGroupID`)",
 );
+// 153
+$this->schema[] = array(
+	"INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey,settingDesc,settingValue,settingCategory) VALUES ('FOG_FTP_IMAGE_SIZE', '"._('This setting defines the global enabling of image on server size.  Checkbox on or off is the enabling element.  Default is off.')."','0','General Settings')",
+);

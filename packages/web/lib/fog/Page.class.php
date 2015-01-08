@@ -33,8 +33,6 @@ class Page extends FOGBase {
 				'js/jquery.organicTabs.js',
 				'js/jquery.placeholder.js',
 				'js/jquery.disableSelection.js',
-				'js/fog/fog.js',
-				'js/fog/fog.main.js',
 				'js/jquery-ui.min.js',
 				'js/flot/jquery.flot.js',
 				'js/flot/jquery.flot.time.js',
@@ -43,6 +41,8 @@ class Page extends FOGBase {
 				'js/flot/jquery.flot.gantt.js',
 				'js/jquery-ui-timepicker-addon.js',
 				'js/hideShowPassword.min.js',
+				'js/fog/fog.js',
+				'js/fog/fog.main.js',
 			);
 			foreach(array("js/fog/fog.{$_REQUEST['node']}.js","js/fog/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js") AS $jsFilepath)
 			{

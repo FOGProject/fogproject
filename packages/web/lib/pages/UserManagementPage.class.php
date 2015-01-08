@@ -27,16 +27,19 @@ class UserManagementPage extends FOGPage
 		parent::__construct($name);
 		// Header row
 		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked="checked" />',
 			_('Username'),
 			_('Edit')
 		);
 		// Row templates
 		$this->templates = array(
+			'<input type="checkbox" name="user[]" value="${id}" class="toggle-action" checked="checked" />',
 			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, _('Edit User')),
 			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><span class="icon icon-edit"></span></a>', $this->node, $this->id, _('Edit User'))
 		);
 		// Row attributes
 		$this->attributes = array(
+			array('class' => 'c', 'width' => '16'),
 			array(),
 			array('class' => 'c', 'width' => '55'),
 		);

@@ -365,3 +365,9 @@ function checkMonthField(month) {
 function checkDOWField(DOW) {
 	return checkField(DOW,1,7);
 }
+function checkboxToggleSearchListPages() {
+	// Checkbox toggle
+	$('.toggle-checkboxAction').click(function() {
+		$('input.toggle-action[type="checkbox"]').prop('checked', $(this).is(':checked'));
+	});
+}
