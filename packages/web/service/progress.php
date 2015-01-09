@@ -5,7 +5,7 @@
   * Will add reference to add partclone to end of file so
   * it can poll between Partimage and Partclone.
   */
-require_once($_SERVER['DOCUMENT_ROOT'].'/commons/base.inc.php');
+require_once('../commons/base.inc.php');
 try
 {
 	$HostManager = new HostManager();
