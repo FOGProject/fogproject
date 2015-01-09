@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'].'/commons/base.inc.php');
+require_once('../commons/base.inc.php');
 try
 {
 	$Plugin = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location','installed' => 1)));

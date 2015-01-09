@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'].'/commons/base.inc.php');
+require_once('../commons/base.inc.php');
 try
 {
 	// Just list all the images available.
