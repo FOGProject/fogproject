@@ -1,5 +1,5 @@
 <?php
-require_once('../commons/base.inc.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/commons/base.inc.php');
 try
 {
 	if ($FOGCore->getSetting('FOG_MINING_ENABLE') == "1" )

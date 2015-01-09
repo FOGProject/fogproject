@@ -1,3 +1,3 @@
 <?php
-require('../commons/base.inc.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/commons/base.inc.php');
 $Announce = new Announce();
