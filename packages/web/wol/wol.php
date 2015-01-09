@@ -1,6 +1,6 @@
 <?php
 // Require FOG Base
-require('../commons/base.inc.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/commons/base.inc.php');
 try
 {
 	$MACAddress = new MACAddress($_REQUEST['wakeonlan']);

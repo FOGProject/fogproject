@@ -1,5 +1,5 @@
 <?php
-require('../commons/base.inc.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/commons/base.inc.php');
 try
 {
 	// Set the services so all id's can be enabled.

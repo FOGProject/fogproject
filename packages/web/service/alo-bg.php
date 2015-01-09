@@ -1,5 +1,5 @@
 <?php
-require('../commons/base.inc.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/commons/base.inc.php');
 try
 {
 	if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'])
