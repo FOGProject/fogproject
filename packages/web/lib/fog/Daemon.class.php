@@ -18,7 +18,7 @@ class Daemon
 	$interfaceSettingName = string: name of the constant to get appropriate interface from. Constant isn't available until config has been constructed.
 	*/
 	public function __construct($DaemonName,$interfaceSettingName) {
-		require_once( WEBROOT . "/lib/fog/Config.class.php" );
+		require_once(WEBROOT."/lib/fog/Config.class.php" );
 		$this->config = new Config();
 		$this->TTY = constant(strtoupper($DaemonName).'DEVICEOUTPUT');
 		$this->DaemonName = ucfirst(strtolower($DaemonName));
