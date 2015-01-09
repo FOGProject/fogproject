@@ -4,7 +4,7 @@
 // Triggered:	After image upload
 // Actions:	Moves uploaded image to final location via FTP
 //
-require('../commons/base.inc.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/commons/base.inc.php');
 try
 {
 	// Error checking
