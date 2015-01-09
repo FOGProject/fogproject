@@ -172,7 +172,7 @@ class Initiator
 	private function FOGLoader($className) 
 	{
 		foreach($this->FOGPaths AS $path)
-			(!class_exists($className) && file_exists($path.$className.'.class.php') ? include($path.$className.'.class.php') : null);
+			(!class_exists($className) && file_exists($path.$className.'.class.php') ? include_once($path.$className.'.class.php') : null);
 	}
 	/** FOGPages($className)
 	* Loads the page files as they're needed.
@@ -182,7 +182,7 @@ class Initiator
 	private function FOGPages($className)
 	{
 		foreach($this->PagePaths as $path)
-			(!class_exists($className) && file_exists($path.$className.'.class.php') ? require_once($path.$className.'.class.php') : null);
+			(!class_exists($className) && file_exists($path.$className.'.class.php') ? include_once($path.$className.'.class.php') : null);
 	}
 	/** FOGHooks($className)
 	* Loads the hook files as they're needed.
@@ -193,7 +193,7 @@ class Initiator
 	{
 		global $HookManager;
 		foreach($this->HookPaths AS $path)
-			(!class_exists($className) && file_exists($path.$className.'.hook.php') ? include($path.$className.'.hook.php') : null);
+			(!class_exists($className) && file_exists($path.$className.'.hook.php') ? include_once($path.$className.'.hook.php') : null);
 	}
 }
 // Initialize everything
