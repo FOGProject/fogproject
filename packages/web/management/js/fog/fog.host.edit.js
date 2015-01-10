@@ -5,17 +5,6 @@
  *	Revision:	$Revision$
  *	Last Update:	$LastChangedDate$
  ***/
-var $_GET = getQueryParams(document.location.search);
-function getQueryParams(qs) {
-	qs = qs.split("+").join(" ");
-	var params = {},
-		tokens,
-		re = /[?&]?([^=]+)=([^&]*)/g
-	while (tokens = re.exec(qs)) {
-		params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
-	}
-	return params;
-}
 var LoginHistory = $('#login-history');
 var LoginHistoryDate = $('#loghist-date');
 var LoginHistoryData = new Array();
