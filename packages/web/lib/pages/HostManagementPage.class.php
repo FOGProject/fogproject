@@ -1615,6 +1615,11 @@ class HostManagementPage extends FOGPage
 			print "\n\t\t\t".'<p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p>';
 			print "\n\t\t\t".'<p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p>';
 			print "\n\t\t\t</form>";
+			print "\n\t\t\t".'<div id="action-boxdel">';
+			print "\n\t\t\t\t".'<form method="post" action="'.sprintf('?node=%s&sub=deletemulti').'">';
+			print "\n\t\t\t\t\t".'<p>THIS IS A TEST</p>';
+			print "\n\t\t\t\t</form>";
+			print "\n\t\t\t</div>";
 		}
 	}
 	/** save_group()
