@@ -40,11 +40,32 @@ var ActiveTasksAJAX = null;
 // DOM Elements used frequently
 var Content;
 var Loader;
+var $_GET = getQueryParams(document.location.search);
+function getQueryParams(qs) {
+	qs = qs.split("+").join(" ");
+	var params = {},
+		tokens,
+		re = /[?&]?([^=]+)=([^&]*)/g
+	while (tokens = re.exec(qs)) {
+		params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+	}
+	return params;
+}
+// Auto loader
 
 // Main FOG JQuery Functions
 (function($) {
 	Content = $('#content');
 	Loader = $('#loader');
+	var ActionBox = $('#action-box');
+	var ActionBoxDel = $('#action-boxdel');
+	if ($_GET['sub'] == 'list') {
+		ActionBox.show();
+		ActionBoxDel.show();
+	} else {
+		ActionBox.hide();
+		ActionBoxDel.hide();
+	}
 	// Custom FOG JQuery functions
 	$.fn.fogAjaxSearch = function(opts) {
 		// If no elements were found before this was called
@@ -65,7 +86,6 @@ var Loader;
 		var SearchLastQuery;
 		var Options = $.extend({}, Defaults, opts || {});
 		var Container = $(Options.Container);
-		var ActionBox = $('#action-box');
 		// Check if containers exist
 		if (!Container.length) {
 			alert('No Container element found: ' + Options.Container);
@@ -75,9 +95,11 @@ var Loader;
 		if ($('tbody > tr', Container).filter('.no-active-tasks').size() > 0) {
 			Container.show();
 			ActionBox.show();
+			ActionBoxDel.show();
 		} else {
 			Container.hide();
 			ActionBox.hide();
+			ActionBoxDel.hide();
 		}
 		// Iterate each element
 		return this.each(function() {
@@ -187,6 +209,7 @@ var Loader;
 							// Show results
 							Container.show();
 							ActionBox.show();
+							ActionBoxDel.show();
 							// Ping hosts
 							$('.ping', Container).fogPing();
 							// Callback
@@ -195,6 +218,7 @@ var Loader;
 							// No results - hide content boxes, show nice message
 							Container.hide();
 							ActionBox.hide();	
+							ActionBoxDel.hide();	
 							// Show nice error
 							Loader.fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/, '0').replace(/%2/, 's'), { 'Class': 'error' });
 						}
@@ -204,6 +228,7 @@ var Loader;
 						// Error - hide content boxes, show nice message
 						Container.hide();
 						ActionBox.hide();
+						ActionBoxDel.hide();
 						// Show nice error
 						Loader.fogStatusUpdate(_L['ERROR_SEARCHING'] + (errorThrown != '' ? ': ' + (errorThrown == 'Not Found' ? 'URL Not Found' : errorThrown) : ''), { 'Class': 'error' });
 						// Reset
@@ -417,5 +442,4 @@ var Loader;
 	jQuery.fn.isIE8 = function() {
 		return $.browser.msie && parseInt($.browser.version, 10) <= 8;
 	}
-	$('#action-box').show();
 })(jQuery);
