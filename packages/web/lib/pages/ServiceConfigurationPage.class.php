@@ -108,8 +108,8 @@ class ServiceConfigurationPage extends FOGPage
 					$this->data[] = array(
 						'field' => $field,
 						'input' => $input,
-						'checked' => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? 'checked="checked"' : ''),
-						($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? 'is_on' : null) => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? ($Module->get('isDefault') ? 'checked="checked"' : null) : null),
+						'checked' => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? 'checked' : ''),
+						($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? 'is_on' : null) => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? ($Module->get('isDefault') ? 'checked' : null) : null),
 						'span' => '<span class="icon icon-help hand" title="${module_desc}"></span>',
 						'module_desc' => $Service->get('description'),
 					);
