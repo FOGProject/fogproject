@@ -609,7 +609,7 @@ class GroupManagementPage extends FOGPage
 			$this->data[] = array(
 				'input' => '<input type="checkbox" '.($Module->get('isDefault') ? 'class="checkboxes"' : '').' name="${mod_shname}" value="${mod_id}" ${checked} '.(!$Module->get('isDefault') ? 'disabled="disabled"' : '').' />',
 				'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
-				'checked' => ($i == $Group->getHostCount() ? 'checked="checked"' : ''),
+				'checked' => ($i == $Group->getHostCount() ? 'checked' : ''),
 				'mod_name' => $Module->get('name'),
 				'mod_shname' => $Module->get('shortName'),
 				'mod_id' => $Module->get('id'),
@@ -981,5 +981,30 @@ class GroupManagementPage extends FOGPage
 		$this->render();
 		printf('<input type="hidden" name="delHostConfirm" value="1" /><input type="submit" value="%s" />',_('Delete listed hosts'));
 		printf('</form>');
+	}
+	// Overrides
+	/** render()
+		Overrides the FOGCore render method.
+		Prints the group box data below the host list/search information.
+	*/
+	public function render()
+	{
+		// Render
+		parent::render();
+
+		// Add action-box
+		if ((!$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
+		{
+			$this->additional = array(
+				"\n\t\t\t".'<div class="c" id="action-boxdel">',
+				"\n\t\t\t<p>"._('Delete all selected items').'</p>',
+				"\n\t\t\t\t".'<form method="post" action="'.sprintf('?node=%s&sub=deletemulti').'">',
+				"\n\t\t\t\t\t".'<input type="submit" value="'._('Delete all selected hosts').'?"/>',
+				"\n\t\t\t\t</form>",
+				"\n\t\t\t</div>",
+			);
+		}
+		if ($this->additional)
+			print implode("\n\t\t\t",(array)$this->additional);
 	}
 }

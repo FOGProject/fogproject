@@ -31,6 +31,7 @@ class PrinterManagementPage extends FOGPage
 		parent::__construct($name);
 		// Header row
 		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			'Printer Name',
 			'Printer Type',
 			'Model',
@@ -41,6 +42,7 @@ class PrinterManagementPage extends FOGPage
 		);
 		// Row templates
 		$this->templates = array(
+			'<input type="checkbox" name="printer[]" value="${id}" class="toggle-action" checked/>',
 			'<a href="?node=printer&sub=edit&id=${id}" title="Edit">${name}</a>',
 			'${config}',
 			'${model}',
@@ -51,6 +53,7 @@ class PrinterManagementPage extends FOGPage
 		);	
 		// Row attributes
 		$this->attributes = array(
+			array('class' => 'c', 'width' => 16),
 			array(),
 			array(),
 			array(),
@@ -511,7 +514,7 @@ class PrinterManagementPage extends FOGPage
 					'host_desc' => $Host->get('description'),
 					'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
 					'printer_id' => $Printer->get('id'),
-					'is_default' => $Host->getDefault($Printer->get('id')) ? 'checked="checked"' : '',
+					'is_default' => $Host->getDefault($Printer->get('id')) ? 'checked' : '',
 				);
 			}
 		}
@@ -616,5 +619,30 @@ class PrinterManagementPage extends FOGPage
 		}
 		// Redirect for user
 		$this->FOGCore->redirect('?node=printer&sub=edit&id='.$Printer->get('id').'#'.$_REQUEST['tab']);
+	}
+	// Overrides
+	/** render()
+		Overrides the FOGCore render method.
+		Prints the group box data below the host list/search information.
+	*/
+	public function render()
+	{
+		// Render
+		parent::render();
+
+		// Add action-box
+		if ((!$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
+		{
+			$this->additional = array(
+				"\n\t\t\t".'<div class="c" id="action-boxdel">',
+				"\n\t\t\t<p>"._('Delete all selected items').'</p>',
+				"\n\t\t\t\t".'<form method="post" action="'.sprintf('?node=%s&sub=deletemulti').'">',
+				"\n\t\t\t\t\t".'<input type="submit" value="'._('Delete all selected hosts').'?"/>',
+				"\n\t\t\t\t</form>",
+				"\n\t\t\t</div>",
+			);
+		}
+		if ($this->additional)
+			print implode("\n\t\t\t",(array)$this->additional);
 	}
 }
