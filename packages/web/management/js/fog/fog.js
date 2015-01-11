@@ -59,7 +59,7 @@ function getQueryParams(qs) {
 	Loader = $('#loader');
 	var ActionBox = $('#action-box');
 	var ActionBoxDel = $('#action-boxdel');
-	if ($_GET['sub'] == 'list') {
+	if (!$_GET['sub'] || $_GET['sub'] == 'list') {
 		ActionBox.show();
 		ActionBoxDel.show();
 	} else {

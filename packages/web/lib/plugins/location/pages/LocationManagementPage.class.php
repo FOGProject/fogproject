@@ -219,7 +219,7 @@ class LocationManagementPage extends FOGPage
 				'location_name' => $Location->get('name'),
 				'storage_groups' => $this->getClass('StorageGroupManager')->buildSelectBox($Location->get('storageGroupID')),
 				'storage_nodes' => $this->getClass('StorageNodeManager')->buildSelectBox($Location->get('storageNodeID')),
-				'checked' => $Location->get('tftp') ? 'checked="checked"' : '',
+				'checked' => $Location->get('tftp') ? 'checked' : '',
 			);
 		}
 		// Hook
