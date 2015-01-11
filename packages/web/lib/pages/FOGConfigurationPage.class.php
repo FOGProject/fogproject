@@ -195,13 +195,13 @@ class FOGConfigurationPage extends FOGPage
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
-				'checked' => ($this->FOGCore->getSetting('FOG_PXE_MENU_HIDDEN') ? 'checked="checked"' : ''),
+				'checked' => ($this->FOGCore->getSetting('FOG_PXE_MENU_HIDDEN') ? 'checked' : ''),
 				'boot_keys' => $this->getClass('KeySequenceManager')->buildSelectBox($this->FOGCore->getSetting('FOG_KEY_SEQUENCE')),
 				'timeout' => $this->FOGCore->getSetting('FOG_PXE_MENU_TIMEOUT'),
 				'adv' => $this->FOGCore->getSetting('FOG_PXE_ADVANCED'),
 				'advmenulogin' => $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN'),
-				'advmenulogincheck' => $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN') ? 'checked="checked"' : '',
-				'noMenu' => ($this->FOGCore->getSetting('FOG_NO_MENU') ? 'checked="checked"' : ''),
+				'advmenulogincheck' => $this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN') ? 'checked' : '',
+				'noMenu' => ($this->FOGCore->getSetting('FOG_NO_MENU') ? 'checked' : ''),
 				'hidetimeout' => $this->FOGCore->getSetting('FOG_PXE_HIDDENMENU_TIMEOUT'),
 			);
 		}
@@ -277,7 +277,7 @@ class FOGConfigurationPage extends FOGPage
 					'menu_item' => $Menu->get('name'),
 					'menu_description' => $Menu->get('description'),
 					'menu_params' => $Menu->get('params'),
-					'menu_default' => ($Menu->get('default') ? 'checked="checked"' : ''),
+					'menu_default' => ($Menu->get('default') ? 'checked' : ''),
 					'menu_regmenu' => $this->getClass('PXEMenuOptionsManager')->regSelect($Menu->get('regMenu')),
 					'menu_options' => $Menu->get('args'),
 					'disabled' => $menuid ? 'readonly="true"' : '',
@@ -354,7 +354,7 @@ class FOGConfigurationPage extends FOGPage
 				'menu_item' => $_REQUEST['menu_item'],
 				'menu_description' => $_REQUEST['menu_description'],
 				'menu_params' => $_REQUEST['menu_params'],
-				'menu_default' => $_REQUEST['menu_default'] ? 'checked="checked"' : '',
+				'menu_default' => $_REQUEST['menu_default'] ? 'checked' : '',
 				'menu_regmenu' => $this->getClass('PXEMenuOptionsManager')->regSelect($_REQUEST['menu_regmenu']),
 				'menu_options' => $_REQUEST['menu_options'],
 			);
@@ -709,7 +709,7 @@ class FOGConfigurationPage extends FOGPage
 					unset($options);
 				}
 				else if (in_array($Service->get('name'),$ServiceNames))
-					$type = '<input type="checkbox" name="${service_id}" value="1" '.($Service->get('value') ? 'checked="checked"' : '').' />';
+					$type = '<input type="checkbox" name="${service_id}" value="1" '.($Service->get('value') ? 'checked' : '').' />';
 				else if ($Service->get('name') == 'FOG_DEFAULT_LOCALE')
 				{
 					foreach((array)$this->foglang['Language'] AS $lang => $humanreadable)

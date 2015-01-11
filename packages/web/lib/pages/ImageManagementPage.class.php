@@ -345,7 +345,7 @@ class ImageManagementPage extends FOGPage
 				'image_partition_types' => $this->getClass('ImagePartitionTypeManager')->buildSelectBox($Image->get('imagePartitionTypeID'),'','id'),
 				'is_legacy' => $Image->get('format') == 1 ? 'selected="selected"' : '',
 				'is_modern' => $Image->get('format') == 0 ? 'selected="selected"' : '',
-				'image_protected' => $Image->get('protected') == 1 ? 'checked="checked"' : '',
+				'image_protected' => $Image->get('protected') == 1 ? 'checked' : '',
 				'image_comp' => $Image->get('compress') ? $Image->get('compress') : $this->FOGCore->getSetting('FOG_PIGZ_COMP'),
 			);
 		}
@@ -880,6 +880,31 @@ class ImageManagementPage extends FOGPage
 			$this->FOGCore->setMessage(_('Canceled task'));
 			$this->FOGCore->redirect('?node='.$this->node.'&sub=multicast');
 		}
+	}
+	// Overrides
+	/** render()
+		Overrides the FOGCore render method.
+		Prints the group box data below the host list/search information.
+	*/
+	public function render()
+	{
+		// Render
+		parent::render();
+
+		// Add action-box
+		if ((!$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
+		{
+			$this->additional = array(
+				"\n\t\t\t".'<div class="c" id="action-boxdel">',
+				"\n\t\t\t<p>"._('Delete all selected items').'</p>',
+				"\n\t\t\t\t".'<form method="post" action="'.sprintf('?node=%s&sub=deletemulti').'">',
+				"\n\t\t\t\t\t".'<input type="submit" value="'._('Delete all selected hosts').'?"/>',
+				"\n\t\t\t\t</form>",
+				"\n\t\t\t</div>",
+			);
+		}
+		if ($this->additional)
+			print implode("\n\t\t\t",(array)$this->additional);
 	}
 }
 /* Local Variables: */
