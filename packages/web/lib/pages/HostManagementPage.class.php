@@ -577,19 +577,19 @@ class HostManagementPage extends FOGPage
 		}
 		unset($this->data);
 		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			_('Group Name'),
 			_('Total Members'),
-			_('Remove Membership?'),
 		);
 		$this->attributes = array(
-			array(),
+			array('class' => 'c','width' => 16),
 			array(),
 			array(),
 		);
 		$this->templates = array(
+			'<input type="checkbox" name="groupdel" value="${group_id}" class="toggle-action" checked/>',
 			'<a href="?node=group&sub=edit&id=${group_id}" title="'._('Edit Group').':${group_name}">${group_name}</a>',
 			'${group_count}',
-			'<input type="checkbox" class="delid" onclick="this.form.submit()" name="groupdel" id="groupdelmem${group_id}" value="${group_id}" /><label for="groupdelmem${group_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
 		);
 		// Find Group Relationships
 		foreach((array)$Host->get('groups') AS $Group)
@@ -607,6 +607,8 @@ class HostManagementPage extends FOGPage
 		$this->HookManager->processEvent('HOST_EDIT_GROUP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-grouprel">';
 		$this->render();
+		if (count($this->data) > 0)
+			print "\n\t\t\t".'<center><input type="submit" value="'._('Delete Selected Group Associations').'" name="remgroups"/></center>';
 		unset($this->data,$this->headerData);
 		print '</form>';
 		print "\n\t\t\t</div>";
@@ -1287,7 +1289,7 @@ class HostManagementPage extends FOGPage
 				break;
 				case 'host-grouprel';
 					$Host->addGroup($_REQUEST['group']);
-					if(isset($_REQUEST['groupdel']))
+					if(isset($_REQUEST['remgroups']))
 						$Host->removeGroup($_REQUEST['groupdel']);
 				break;
 				case 'host-active-directory';
@@ -1606,22 +1608,21 @@ class HostManagementPage extends FOGPage
 		parent::render();
 		
 		// Add action-box
-		if ((!$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
+		if (((strtolower($this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN')) == 'list' && !$_REQUEST['sub']) || !$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
 		{	
 			$this->additional = array(
-				'<form method="post" action="'.sprintf('%s?node=%s&sub=save_group', $_SERVER['PHP_SELF'], $this->node).'" id="action-box">',
-				"\n\t\t\t".'<input type="hidden" name="hostIDArray" id="hostIDArray" value="" autocomplete="off" />',
+				'<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box">',
+				"\n\t\t\t".'<input type="hidden" name="hostIDArray" value="" autocomplete="off" />',
 				"\n\t\t\t".'<p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p>',
 				"\n\t\t\t".'<p class="c">'._('OR').'</p>',
 				"\n\t\t\t".'<p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p>',
 				"\n\t\t\t".'<p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p>',
 				"\n\t\t\t</form>",
-				"\n\t\t\t".'<div class="c" id="action-boxdel">',
-				"\n\t\t\t<p>"._('Delete all selected items').'</p>',
-				"\n\t\t\t\t".'<form method="post" action="'.sprintf('?node=%s&sub=deletemulti').'">',
-				"\n\t\t\t\t\t".'<input type="submit" value="'._('Delete all selected hosts').'?"/>',
-				"\n\t\t\t\t</form>",
-				"\n\t\t\t</div>",
+				"\n\t\t\t".'<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'">',
+				"\n\t\t\t\t<p>"._('Delete all selected items').'</p>',
+				"\n\t\t\t".'<input type="hidden" name="hostIDArray" value="" autocomplete="off" />',
+				"\n\t\t\t\t".'<input type="submit" value="'._('Delete all selected hosts').'?"/>',
+				"\n\t\t\t</form>",
 			);
 		}
 		if ($this->additional)
@@ -1635,17 +1636,17 @@ class HostManagementPage extends FOGPage
 		try
 		{
 			// Error checking
-			if (empty($this->REQUEST['hostIDArray']))
+			if (empty($_REQUEST['hostIDArray']))
 				throw new Exception( _('No Hosts were selected') );
-			if (empty($this->REQUEST['group_new']) && empty($this->REQUEST['group']))
+			if (empty($_REQUEST['group_new']) && empty($_REQUEST['group']))
 				throw new Exception( _('No Group selected and no new Group name entered') );
 			// Determine which method to use
 			// New group
-			if (!empty($this->REQUEST['group_new']))
+			if (!empty($_REQUEST['group_new']))
 			{
-				if (!$Group = current($this->getClass('GroupManager')->find(array('name' => $this->REQUEST['group_new']))))
+				if (!$Group = current($this->getClass('GroupManager')->find(array('name' => $_REQUEST['group_new']))))
 				{
-					$Group = new Group(array('name' => $this->REQUEST['group_new']));
+					$Group = new Group(array('name' => $_REQUEST['group_new']));
 					if (!$Group->save())
 						throw new Exception( _('Failed to create new Group') );
 				}
@@ -1660,7 +1661,7 @@ class HostManagementPage extends FOGPage
 			if (!$Group->isValid())
 				throw new Exception( _('Group is Invalid') );
 			// Main
-			foreach ((array)explode(',', $this->REQUEST['hostIDArray']) AS $hostID)
+			foreach ((array)explode(',', $_REQUEST['hostIDArray']) AS $hostID)
 			{
 				//$Group->add('hosts', $hostID);
 				$GroupAssociation = new GroupAssociation(array('hostID' => $hostID, 'groupID' => $Group->get('id')));
@@ -1673,6 +1674,21 @@ class HostManagementPage extends FOGPage
 		{
 			printf('<div class="task-start-failed"><p>%s</p><p>%s</p></div>', _('Failed to Associate Hosts with Group'), $e->getMessage());
 		}
+	}
+	public function deletemulti()
+	{
+		$this->additional = array(
+			'<div id="removemulti">',
+			"\n\t\t\t<p>"._('Hosts to be removed').":</p>",
+		);
+		foreach ((array)explode(',',$_REQUEST['hostIDArray']) AS $hostID)
+		{
+			$Host = new Host($hostID);
+			if ($Host && $Host->isValid())
+				array_push($this->additional,"\n\t\t\t<p>".$Host->get('name')."</p>");
+		}
+		array_push($this->additional,"\n\t\t\t</div>");
+		print implode("\n\t\t\t",$this->additional);
 	}
 	public function hostlogins()
 	{

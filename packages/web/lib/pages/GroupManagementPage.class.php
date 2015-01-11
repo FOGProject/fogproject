@@ -426,21 +426,21 @@ class GroupManagementPage extends FOGPage
 		}
 		unset($this->data);
 		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
             _('Hostname'),
             _('Deployed'),
-            _('Remove'),
             _('Image'),
 		);
 		$this->attributes = array(
-            array(),
+            array('class' => 'c','width' => 16),
             array(),
             array(),
             array(),
 		);
 		$this->templates = array(
+			'<input type="checkbox" name="member[]" value="${host_id}" class="toggle-action" checked/>',
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'<small>${deployed}</small>',
-			'<input type="checkbox" name="member" value="${host_id}" class="delid" onclick="this.form.submit()" id="memberdel${host_id}" /><label for="memberdel${host_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
 			'<small>${image_name}</small>',
 		);
 		foreach ((array)$Group->get('hosts') AS $Host)
@@ -461,10 +461,11 @@ class GroupManagementPage extends FOGPage
 		$this->HookManager->processEvent('GROUP_MEMBERSHIP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
-		unset($this->data);
-		print '<input type="hidden" name="updatehosts" value="1" /><center><input type="submit" value="'._('Update Hosts').'" /></center>';
+		if (count($this->data) > 0)
+			print "\n\t\t\t".'<center><input type="submit" value="'._('Update Hosts').'" name="updatehosts"/>&nbsp;&nbsp;<input type="submit" value="'._('Delete Selected Hosts From Group').'" name="remhosts"/></center>';
 		print "\n\t\t\t</form>";
 		print "\n\t\t\t</div>";
+		unset($this->data);
 		print "\n\t\t\t<!-- Image Association -->";
 		print "\n\t\t\t".'<div id="group-image">';
 		print "\n\t\t\t<h2>"._('Image Association for').': '.$Group->get('name').'</h2>';
@@ -845,7 +846,7 @@ class GroupManagementPage extends FOGPage
 							$_REQUEST['host'] = array_unique($_REQUEST['host']);
 						$Group->addHost($_REQUEST['host']);
 					}
-					if ($_REQUEST['updatehosts'])
+					if (isset($_REQUEST['updatehosts']))
 					{
 						foreach((array)$Group->get('hosts') AS $Host)
 						{
@@ -853,7 +854,7 @@ class GroupManagementPage extends FOGPage
 								$Host->set('imageID',$_REQUEST[$Host->get('name').'_'.$Host->get('id')])->save();
 						}
 					}
-					if(isset($_REQUEST['member']))
+					if(isset($_REQUEST['remhosts']))
 						$Group->removeHost($_REQUEST['member']);
 				break;
 				// Image Association
@@ -993,7 +994,7 @@ class GroupManagementPage extends FOGPage
 		parent::render();
 
 		// Add action-box
-		if ((!$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
+		if (((strtolower($this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN')) == 'list' && !$_REQUEST['sub']) || !$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
 		{
 			$this->additional = array(
 				"\n\t\t\t".'<div class="c" id="action-boxdel">',
