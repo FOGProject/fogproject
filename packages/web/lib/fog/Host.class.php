@@ -1149,14 +1149,14 @@ class Host extends FOGController
 		if (!$MAC)
 			$MAC = $this->get('mac')->__toString();
 		$mac = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MAC,'hostID' => $this->get('id'),'clientIgnore' => 1)));
-		return ($mac && $mac->isValid() ? 'checked="checked"' : '');
+		return ($mac && $mac->isValid() ? 'checked' : '');
 	}
 	public function imageMacCheck($MAC = false)
 	{
 		if (!$MAC)
 			$MAC = $this->get('mac')->__toString();
 		$mac = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MAC,'hostID' => $this->get('id'),'imageIgnore' => 1)));
-		return ($mac && $mac->isValid() ? 'checked="checked"' : '');
+		return ($mac && $mac->isValid() ? 'checked' : '');
 	}
 	public function setAD($useAD,$domain,$ou,$user,$pass)
 	{
