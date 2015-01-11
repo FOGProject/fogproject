@@ -27,18 +27,21 @@ class SnapinManagementPage extends FOGPage
 		parent::__construct($name);
 		// Header row
 		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			_('Snapin Name'),
 			_('Storage Group'),
 			'',
 		);
 		// Row templates
 		$this->templates = array(
+			'<input type="checkbox" name="snapin[]" value="${id}" class="toggle-action" checked/>',
 			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, _('Edit')),
 			'${storage_group}',
 			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><span class="icon icon-edit"></span></a> <a href="?node=%s&sub=delete&%s=${id}" title="%s"><span class="icon icon-delete"></span></a>', $this->node, $this->id, _('Edit'), $this->node, $this->id, _('Delete'))
 		);
 		// Row attributes
 		$this->attributes = array(
+			array('class' => 'c', 'width' => '16'),
 			array(),
 			array('class' => 'c', 'width' => '50'),
 		);
@@ -339,7 +342,7 @@ class SnapinManagementPage extends FOGPage
 				'max_size' => ini_get('post_max_size'),
 				'snapin_file' => $Snapin->get('file'),
 				'snapin_filesexist' => $filesFound,
-				'checked' => $Snapin->get('reboot') ? 'checked="checked"' : '',
+				'checked' => $Snapin->get('reboot') ? 'checked' : '',
 			);
 		}
 		// Hook
@@ -734,5 +737,30 @@ class SnapinManagementPage extends FOGPage
 			// Redirect to new entry
 			$this->FOGCore->redirect($this->formAction);
 		}
+	}
+	// Overrides
+	/** render()
+		Overrides the FOGCore render method.
+		Prints the group box data below the host list/search information.
+	*/
+	public function render()
+	{
+		// Render
+		parent::render();
+
+		// Add action-box
+		if ((!$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
+		{
+			$this->additional = array(
+				"\n\t\t\t".'<div class="c" id="action-boxdel">',
+				"\n\t\t\t<p>"._('Delete all selected items').'</p>',
+				"\n\t\t\t\t".'<form method="post" action="'.sprintf('?node=%s&sub=deletemulti').'">',
+				"\n\t\t\t\t\t".'<input type="submit" value="'._('Delete all selected hosts').'?"/>',
+				"\n\t\t\t\t</form>",
+				"\n\t\t\t</div>",
+			);
+		}
+		if ($this->additional)
+			print implode("\n\t\t\t",(array)$this->additional);
 	}
 }
