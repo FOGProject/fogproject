@@ -281,7 +281,8 @@ class UserManagementPage extends FOGPage
 			$this->additional = array(
 				"\n\t\t\t".'<div class="c" id="action-boxdel">',
 				"\n\t\t\t<p>"._('Delete all selected items').'</p>',
-				"\n\t\t\t\t".'<form method="post" action="'.sprintf('?node=%s&sub=deletemulti').'">',
+				"\n\t\t\t\t".'<form method="post" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'">',
+				"\n\t\t\t".'<input type="hidden" name="userIDArray" value="" autocomplete="off" />',
 				"\n\t\t\t\t\t".'<input type="submit" value="'._('Delete all selected hosts').'?"/>',
 				"\n\t\t\t\t</form>",
 				"\n\t\t\t</div>",
@@ -289,5 +290,20 @@ class UserManagementPage extends FOGPage
 		}
 		if ($this->additional)
 			print implode("\n\t\t\t",(array)$this->additional);
+	}
+	public function deletemulti()
+	{
+		$this->additional = array(
+			'<div id="removemulti">',
+			"\n\t\t\t<p>"._('Users to be removed').":</p>",
+		);
+		foreach ((array)explode(',',$_REQUEST['userIDArray']) AS $userID)
+		{
+			$User = new User($userID);
+			if ($User && $User->isValid())
+				array_push($this->additional,"\n\t\t\t<p>".$User->get('name')."</p>");
+		}
+		array_push($this->additional,"\n\t\t\t</div>");
+		print implode("\n\t\t\t",$this->additional);
 	}
 }
