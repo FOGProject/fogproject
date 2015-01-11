@@ -27,13 +27,13 @@ class UserManagementPage extends FOGPage
 		parent::__construct($name);
 		// Header row
 		$this->headerData = array(
-			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked="checked" />',
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			_('Username'),
 			_('Edit')
 		);
 		// Row templates
 		$this->templates = array(
-			'<input type="checkbox" name="user[]" value="${id}" class="toggle-action" checked="checked" />',
+			'<input type="checkbox" name="user[]" value="${id}" class="toggle-action" checked/>',
 			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, _('Edit User')),
 			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><span class="icon icon-edit"></span></a>', $this->node, $this->id, _('Edit User'))
 		);
@@ -188,7 +188,7 @@ class UserManagementPage extends FOGPage
 			_('User Name') => '<input type="text" name="name" value="'.$User->get('name').'" />',
 			_('New Password') => '<input type="password" name="password" value="" />',
 			_('New Password (confirm)') => '<input type="password" name="password_confirm" value="" />',
-			_('Mobile/Quick Image Access Only?').'&nbsp;'.'<span class="icon icon-help hand" title="'._('Warning - if you tick this box, this user     will not be able to log into this FOG Management Console in the future.').'"></span>' => '<input type="checkbox" name="isGuest" '.($User->get('type') == 1 ? 'checked="checked"' : '').' />',
+			_('Mobile/Quick Image Access Only?').'&nbsp;'.'<span class="icon icon-help hand" title="'._('Warning - if you tick this box, this user     will not be able to log into this FOG Management Console in the future.').'"></span>' => '<input type="checkbox" name="isGuest" '.($User->get('type') == 1 ? 'checked' : '').' />',
 			'&nbsp;' => '<input type="submit" value="'._('Update').'" />',
 		);
 		unset ($this->headerData);
@@ -264,5 +264,30 @@ class UserManagementPage extends FOGPage
 			// Redirect to new entry
 			$this->FOGCore->redirect($this->formAction);
 		}
+	}
+	// Overrides
+	/** render()
+		Overrides the FOGCore render method.
+		Prints the group box data below the host list/search information.
+	*/
+	public function render()
+	{
+		// Render
+		parent::render();
+
+		// Add action-box
+		if ((!$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
+		{
+			$this->additional = array(
+				"\n\t\t\t".'<div class="c" id="action-boxdel">',
+				"\n\t\t\t<p>"._('Delete all selected items').'</p>',
+				"\n\t\t\t\t".'<form method="post" action="'.sprintf('?node=%s&sub=deletemulti').'">',
+				"\n\t\t\t\t\t".'<input type="submit" value="'._('Delete all selected hosts').'?"/>',
+				"\n\t\t\t\t</form>",
+				"\n\t\t\t</div>",
+			);
+		}
+		if ($this->additional)
+			print implode("\n\t\t\t",(array)$this->additional);
 	}
 }

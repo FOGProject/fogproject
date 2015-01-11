@@ -148,7 +148,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 		$this->headerData = array(
 			'',
-			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkbox" checked="checked" />',
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkbox" checked />',
 			($_SESSION['FOGPingActive'] ? '' : null),
 			_('Host Name'),
 			_('Edit/Remove'),
@@ -156,7 +156,7 @@ class HostManagementPage extends FOGPage
 		// Row templates
 		$this->templates = array(
 			'<span class="icon icon-help hand" title="${host_desc}"></span>',
-			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host" checked="checked" />',
+			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host" checked />',
 			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'<a href="?node=host&sub=edit&id=${host_id}"><span class="icon icon-edit" title="Edit"></span></a> <a href="?node=host&sub=delete&id=${host_id}"><span class="icon icon-delete" title="Delete"></span></a>',
@@ -307,7 +307,7 @@ class HostManagementPage extends FOGPage
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
-				'ad_dom' => ($_REQUEST['domain'] == 'on' ? 'checked="checked"' : ''),
+				'ad_dom' => ($_REQUEST['domain'] == 'on' ? 'checked' : ''),
 				'ad_name' => $_REQUEST['domainname'],
 				'ad_oufield' => $OUOptions,
 				'ad_user' => $_REQUEST['domainuser'],
@@ -681,9 +681,9 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<h2>"._('Host Printer Configuration').'</h2>';
 		print "\n\t\t\t<p>"._('Select Management Level for this Host').'</p>';
 		print "\n\t\t\t<p>";
-		print "\n\t\t\t".'<input type="radio" name="level" value="0"'.($Host->get('printerLevel') == 0 ? 'checked="checked"' : '').' />'._('No Printer Management').'<br/>';
-		print "\n\t\t\t".'<input type="radio" name="level" value="1"'.($Host->get('printerLevel') == 1 ? 'checked="checked"' : '').' />'._('Add Only').'<br/>';
-		print "\n\t\t\t".'<input type="radio" name="level" value="2"'.($Host->get('printerLevel') == 2 ? 'checked="checked"' : '').' />'._('Add and Remove').'<br/>';
+		print "\n\t\t\t".'<input type="radio" name="level" value="0"'.($Host->get('printerLevel') == 0 ? 'checked' : '').' />'._('No Printer Management').'<br/>';
+		print "\n\t\t\t".'<input type="radio" name="level" value="1"'.($Host->get('printerLevel') == 1 ? 'checked' : '').' />'._('Add Only').'<br/>';
+		print "\n\t\t\t".'<input type="radio" name="level" value="2"'.($Host->get('printerLevel') == 2 ? 'checked' : '').' />'._('Add and Remove').'<br/>';
 		print "\n\t\t\t</p>";
 		foreach ((array)$Host->get('printers') AS $Printer)
 		{
@@ -691,7 +691,7 @@ class HostManagementPage extends FOGPage
 			{
 				$this->data[] = array(
 					'printer_id' => $Printer->get('id'),
-					'is_default' => ($Host->getDefault($Printer->get('id')) ? 'checked="checked"' : ''),
+					'is_default' => ($Host->getDefault($Printer->get('id')) ? 'checked' : ''),
 					'printer_name' => addslashes($Printer->get('name')),
 					'printer_type' => $Printer->get('config'),
 				);
@@ -829,7 +829,7 @@ class HostManagementPage extends FOGPage
 				$this->data[] = array(
 					'input' => '<input type="checkbox" '.($Module->get('isDefault') ? 'class="checkboxes"' : '').' name="${mod_shname}" value="${mod_id}" ${checked} '.(!$Module->get('isDefault') ? 'disabled="disabled"' : '').' />',
 					'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
-					'checked' => ($ModOns ? 'checked="checked"' : ''),
+					'checked' => ($ModOns ? 'checked' : ''),
            	     	'mod_name' => $Module->get('name'),
            	     	'mod_shname' => $Module->get('shortName'),
            	     	'mod_id' => $Module->get('id'),
@@ -1608,19 +1608,24 @@ class HostManagementPage extends FOGPage
 		// Add action-box
 		if ((!$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
 		{	
-			print '<form method="post" action="'.sprintf('%s?node=%s&sub=save_group', $_SERVER['PHP_SELF'], $this->node).'" id="action-box">';
-			print "\n\t\t\t".'<input type="hidden" name="hostIDArray" id="hostIDArray" value="" autocomplete="off" />';
-			print "\n\t\t\t".'<p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p>';
-			print "\n\t\t\t".'<p class="c">'._('OR').'</p>';
-			print "\n\t\t\t".'<p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p>';
-			print "\n\t\t\t".'<p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p>';
-			print "\n\t\t\t</form>";
-			print "\n\t\t\t".'<div id="action-boxdel">';
-			print "\n\t\t\t\t".'<form method="post" action="'.sprintf('?node=%s&sub=deletemulti').'">';
-			print "\n\t\t\t\t\t".'<p>THIS IS A TEST</p>';
-			print "\n\t\t\t\t</form>";
-			print "\n\t\t\t</div>";
+			$this->additional = array(
+				'<form method="post" action="'.sprintf('%s?node=%s&sub=save_group', $_SERVER['PHP_SELF'], $this->node).'" id="action-box">',
+				"\n\t\t\t".'<input type="hidden" name="hostIDArray" id="hostIDArray" value="" autocomplete="off" />',
+				"\n\t\t\t".'<p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p>',
+				"\n\t\t\t".'<p class="c">'._('OR').'</p>',
+				"\n\t\t\t".'<p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p>',
+				"\n\t\t\t".'<p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p>',
+				"\n\t\t\t</form>",
+				"\n\t\t\t".'<div class="c" id="action-boxdel">',
+				"\n\t\t\t<p>"._('Delete all selected items').'</p>',
+				"\n\t\t\t\t".'<form method="post" action="'.sprintf('?node=%s&sub=deletemulti').'">',
+				"\n\t\t\t\t\t".'<input type="submit" value="'._('Delete all selected hosts').'?"/>',
+				"\n\t\t\t\t</form>",
+				"\n\t\t\t</div>",
+			);
 		}
+		if ($this->additional)
+			print implode("\n\t\t\t",(array)$this->additional);
 	}
 	/** save_group()
 		Saves the data to a host.
