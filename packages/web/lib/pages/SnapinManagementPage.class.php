@@ -749,7 +749,7 @@ class SnapinManagementPage extends FOGPage
 		parent::render();
 
 		// Add action-box
-		if ((!$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
+		if (((strtolower($this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN')) == 'list' && !$_REQUEST['sub']) || !$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
 		{
 			$this->additional = array(
 				"\n\t\t\t".'<div class="c" id="action-boxdel">',

@@ -5,13 +5,12 @@ $(function() {
 	$('.toggle-checkboxgroup').click(function() {
 		$('input.toggle-group[type="checkbox"]').prop('checked', $(this).is(':checked'));
 	});
-	//i Action Box, had to remove action-box id search as it seems broken.
-	$('#action-box').submit(function() {
-		var checked = $('input.toggle-host:checked');
+	$('#action-box,#action-boxdel').submit(function() {
+		var checked = $('input.toggle-action:checked');
 		var hostIDArray = new Array();
 		for (var i = 0,len = checked.size();i < len;i++) {
 			hostIDArray[hostIDArray.length] = checked.eq(i).attr('value');
 		}
-		$('#hostIDArray',this).val(hostIDArray.join(','));
+		$('input[name="hostIDArray"]').val(hostIDArray.join(','));
 	});
 });
