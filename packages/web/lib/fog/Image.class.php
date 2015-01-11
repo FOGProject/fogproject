@@ -183,7 +183,10 @@ class Image extends FOGController
 	{
 		// Iterate array (or other as array)
 		foreach((array)$removeArray AS $remove)
-			$this->remove('storageGroups', ($remove instanceof StorageGroup ? $remove : new StorageGroup((int)$remove)));
+		{
+			if (count($this->get('storageGroups')) > 1)
+				$this->remove('storageGroups', ($remove instanceof StorageGroup ? $remove : new StorageGroup((int)$remove)));
+		}
 		// Return
 		return $this;
 	}
