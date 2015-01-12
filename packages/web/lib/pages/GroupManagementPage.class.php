@@ -46,7 +46,7 @@ class GroupManagementPage extends FOGPage
 		);
 		// Row templates
 		$this->templates = array(
-			'<input type="checkbox" name="group[]" value="${group_id}" class="toggle-action" checked/>',
+			'<input type="checkbox" name="group[]" value="${id}" class="toggle-action" checked/>',
 			sprintf('<a href="?node=group&sub=edit&%s=${id}" title="Edit">${name}</a>', $this->id),
 			//'${description}',
 			'${count}',
@@ -1011,17 +1011,45 @@ class GroupManagementPage extends FOGPage
 	}
 	public function deletemulti()
 	{
-		$this->additional = array(
-			'<div id="removemulti">',
-			"\n\t\t\t<p>"._('Groups to be removed').":</p>",
+		$this->title = _('Groups to remove');
+		unset($this->headerData);
+		print "\n\t\t\t".'<div class="confirm-message">';
+		print "\n\t\t\t<p>"._('Groups to be removed').":</p>";
+		$this->attributes = array(
+			array(),
+		);
+		$this->templates = array(
+			'<a href="?node=group&sub=edit&id=${group_id}">${group_name}</a>',
 		);
 		foreach ((array)explode(',',$_REQUEST['groupIDArray']) AS $groupID)
 		{
 			$Group = new Group($groupID);
 			if ($Group && $Group->isValid())
+			{
+				$this->data[] = array(
+					'group_id' => $Group->get('id'),
+					'group_name' => $Group->get('name'),
+				);
+				$_SESSION['delitems']['group'][] = $Group->get('id');
 				array_push($this->additional,"\n\t\t\t<p>".$Group->get('name')."</p>");
+			}
 		}
-		array_push($this->additional,"\n\t\t\t</div>");
-		print implode("\n\t\t\t",$this->additional);
+		$this->render();
+		print "\n\t\t\t\t".'<form method="post" action="?node=group&sub=deleteconf">';
+		print "\n\t\t\t\t\t<center>".'<input type="submit" value="'._('Are you sure you wish to remove these groups').'?"/></center>';
+		print "\n\t\t\t\t</form>";
+		print "\n\t\t\t</div>";
+	}
+	public function deleteconf()
+	{
+		foreach($_SESSION['delitems']['group'] AS $groupid)
+		{
+			$Group = new Group($groupid);
+			if ($Group && $Group->isValid())
+				$Group->destroy();
+		}
+		unset($_SESSION['delitems']);
+		$this->FOGCore->setMessage('All selected items have been deleted');
+		$this->FOGCore->redirect('?node='.$this->node);
 	}
 }
