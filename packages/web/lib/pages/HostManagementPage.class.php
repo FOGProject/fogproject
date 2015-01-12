@@ -587,7 +587,7 @@ class HostManagementPage extends FOGPage
 			array(),
 		);
 		$this->templates = array(
-			'<input type="checkbox" name="groupdel" value="${group_id}" class="toggle-action" checked/>',
+			'<input type="checkbox" name="groupdel[]" value="${group_id}" class="toggle-action" checked/>',
 			'<a href="?node=group&sub=edit&id=${group_id}" title="'._('Edit Group').':${group_name}">${group_name}</a>',
 			'${group_count}',
 		);
