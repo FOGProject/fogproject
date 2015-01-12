@@ -648,17 +648,45 @@ class PrinterManagementPage extends FOGPage
 	}
 	public function deletemulti()
 	{
-		$this->additional = array(
-			'<div id="removemulti">',
-			"\n\t\t\t<p>"._('Printers to be removed').":</p>",
+		$this->title = _('Printers to remove');
+		unset($this->headerData);
+		print "\n\t\t\t".'<div class="confirm-message">';
+		print "\n\t\t\t<p>"._('Printers to be removed').":</p>";
+		$this->attributes = array(
+			array(),
+		);
+		$this->templates = array(
+			'<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
 		);
 		foreach ((array)explode(',',$_REQUEST['printerIDArray']) AS $printerID)
 		{
 			$Printer = new Printer($printerID);
 			if ($Printer && $Printer->isValid())
+			{
+				$this->data[] = array(
+					'printer_id' => $Printer->get('id'),
+					'printer_name' => $Printer->get('name'),
+				);
+				$_SESSION['delitems']['printer'][] = $Printer->get('id');
 				array_push($this->additional,"\n\t\t\t<p>".$Printer->get('name')."</p>");
+			}
 		}
-		array_push($this->additional,"\n\t\t\t</div>");
-		print implode("\n\t\t\t",$this->additional);
+		$this->render();
+		print "\n\t\t\t\t".'<form method="post" action="?node=printer&sub=deleteconf">';
+		print "\n\t\t\t\t\t<center>".'<input type="submit" value="'._('Are you sure you wish to remove these printers').'?"/></center>';
+		print "\n\t\t\t\t</form>";
+		print "\n\t\t\t</div>";
+	}
+	public function deleteconf()
+	{
+		foreach($_SESSION['delitems']['printer'] AS $printerid)
+		{
+			$Printer = new Printer($printerid);
+			if ($Printer && $Printer->isValid())
+				$Printer->destroy();
+		}
+		unset($_SESSION['delitems']);
+		$this->FOGCore->setMessage('All selected items have been deleted');
+		$this->FOGCore->redirect('?node='.$this->node);
 	}
 }
