@@ -481,12 +481,27 @@ class SnapinManagementPage extends FOGPage
 			print "\n\t\t\t</form></center>";
 		}
 		unset($this->data);
-		array_push($this->headerData,_('Remove Snapin'));
-        array_push($this->templates,'<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>');
-		array_push($this->attributes,array());
-		array_splice($this->headerData,1,1);
-		array_splice($this->templates,1,1);
-		array_splice($this->attributes,1,1);
+		$this->headerData = array(
+			'',
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+			_('Host Name'),
+			_('Last Deployed'),
+			_('Registered'),
+		);
+		$this->attributes = array(
+			array('class' => 'l','width' => 22),
+			array('class' => 'c','width' => 16),
+			array(),
+			array(),
+			array(),
+		);
+		$this->templates = array(
+			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
+			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+			'${deployed}',
+			'${host_reg}',
+		);
 		foreach((array)$Snapin->get('hosts') AS $Host)
 		{
 			if ($Host && $Host->isValid())
@@ -506,6 +521,8 @@ class SnapinManagementPage extends FOGPage
 		// Output
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=snap-host">';
 		$this->render();
+		if (count($this->data) > 0)
+			print '<center><input type="submit" value="'._('Delete Selected Hosts From Snapin').'" name="remhosts"/></center>';
 		print '</form>';
 		print "\n\t\t\t\t</div>";
 		unset($this->data);
@@ -702,7 +719,7 @@ class SnapinManagementPage extends FOGPage
 				case 'snap-host';
 					if ($_REQUEST['host'])
 						$Snapin->addHost($_REQUEST['host']);
-					if ($_REQUEST['hostdel'])
+					if (isset($_REQUEST['remhosts']))
 						$Snapin->removeHost($_REQUEST['hostdel']);
 				break;
 				case 'snap-storage';
