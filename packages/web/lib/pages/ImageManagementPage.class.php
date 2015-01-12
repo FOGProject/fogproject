@@ -917,18 +917,46 @@ class ImageManagementPage extends FOGPage
 	}
 	public function deletemulti()
 	{
-		$this->additional = array(
-			'<div id="removemulti">',
-			"\n\t\t\t<p>"._('Images to be removed').":</p>",
+		$this->title = _('Images to remove');
+		unset($this->headerData);
+		print "\n\t\t\t".'<div class="confirm-message">';
+		print "\n\t\t\t<p>"._('Images to be removed').":</p>";
+		$this->attributes = array(
+			array(),
+		);
+		$this->templates = array(
+			'<a href="?node=image&sub=edit&id=${image_id}">${image_name}</a>',
 		);
 		foreach ((array)explode(',',$_REQUEST['imageIDArray']) AS $imageID)
 		{
 			$Image = new Image($imageID);
 			if ($Image && $Image->isValid())
+			{
+				$this->data[] = array(
+					'image_id' => $Image->get('id'),
+					'image_name' => $Image->get('name'),
+				);
+				$_SESSION['delitems']['image'][] = $Image->get('id');
 				array_push($this->additional,"\n\t\t\t<p>".$Image->get('name')."</p>");
+			}
 		}
-		array_push($this->additional,"\n\t\t\t</div>");
-		print implode("\n\t\t\t",$this->additional);
+		$this->render();
+		print "\n\t\t\t\t".'<form method="post" action="?node=image&sub=deleteconf">';
+		print "\n\t\t\t\t\t<center>".'<input type="submit" value="'._('Are you sure you wish to remove these image definitions').'?"/></center>';
+		print "\n\t\t\t\t</form>";
+		print "\n\t\t\t</div>";
+	}
+	public function deleteconf()
+	{
+		foreach($_SESSION['delitems']['image'] AS $imageid)
+		{
+			$Image = new Image($imageid);
+			if ($Image && $Image->isValid())
+				$Image->destroy();
+		}
+		unset($_SESSION['delitems']);
+		$this->FOGCore->setMessage('All selected items have been deleted');
+		$this->FOGCore->redirect('?node='.$this->node);
 	}
 }
 /* Local Variables: */
