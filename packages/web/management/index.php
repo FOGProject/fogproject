@@ -1,5 +1,7 @@
 <?php
 require_once('../commons/base.inc.php');
+if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'],array('deletemulti','deleteconf')))
+	unset($_SESSION['delitems']);
 $currentUser = $FOGCore->FOGUser = $HookManager->FOGUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
 $Page = new Page();
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
