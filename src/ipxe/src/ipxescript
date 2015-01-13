@@ -7,6 +7,7 @@ dhcp && goto bootme || reboot
 echo -n Please enter tftp server: && read next-server && goto bootme
 :bootme
 isset ${next-server} && goto netboot || 
-isset ${proxydhcp/next-server} && set next-server ${proxydhcp/next-server} || goto setserv
+set next-server ${proxydhcp/next-server}
+isset ${next-server} || goto setserv
 :netboot
 chain tftp://${next-server}/default.ipxe || exit
