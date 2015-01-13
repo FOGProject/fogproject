@@ -903,8 +903,9 @@ $this->schema[] = array(
 	function()
 	{
 		// Get all imageID's from Hosts -> Push imageID and osID into an array
-		$this->DB->query("SELECT DISTINCT hostImage, hostOS FROM `%s`.`hosts` WHERE hostImage > 0", array(DATABASE_NAME));
-		while ($host = $this->DB->fetch()->get())
+		global $DB;
+		$DB->query("SELECT DISTINCT hostImage, hostOS FROM `%s`.`hosts` WHERE hostImage > 0", array(DATABASE_NAME));
+		while ($host = $DB->fetch()->get())
 		{
 			$allImageID[$host['hostImage']] = $host['hostOS'];
 		}
