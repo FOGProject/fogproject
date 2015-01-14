@@ -148,7 +148,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 		$this->headerData = array(
 			'',
-			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkbox" checked />',
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			($_SESSION['FOGPingActive'] ? '' : null),
 			_('Host Name'),
 			_('Edit/Remove'),
@@ -187,7 +187,8 @@ class HostManagementPage extends FOGPage
 		$this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData' => &$this->headerData));
 		// Output
 		$this->render();
-		print '<center><input type="submit" value="'._('Approve selected Hosts').'"/></center>';
+		if (count($this->data) > 0)
+			print '<center><input name="approvependhost" type="submit" value="'._('Approve selected Hosts').'"/>&nbsp;&nbsp;<input name="delpendhost" type="submit" value="'._('Delete selected Hosts').'"/></center>';
 		print "\n\t\t\t</form>";
 	}
 	/** pending_post()
@@ -195,10 +196,10 @@ class HostManagementPage extends FOGPage
 	*/
 	public function pending_post()
 	{
-		if ($_REQUEST['host'])
+		$countOfHosts = count($_REQUEST['host']);
+		$count = 0;
+		if (isset($_REQUEST['approvependhost']))
 		{
-			$countOfHosts = count($_REQUEST['host']);
-			$countApproved = 0;
 			foreach ($_REQUEST['host'] AS $HostID)
 			{
 				$Host = new Host($HostID);
@@ -206,19 +207,28 @@ class HostManagementPage extends FOGPage
 				{
 					$Host->set('pending',null);
 					if ($Host->save())
-						$countApproved++;
+						$count++;
 				} 
 			}
-			if ($countApproved == $countOfHosts)
+		}
+		if (isset($_REQUEST['delpendhost']))
+		{
+			foreach($_REQUEST['host'] AS $HostID)
 			{
-				$this->FOGCore->setMessage(_('All hosts approved successfully'));
-				$this->FOGCore->redirect('?node='.$_REQUEST['node']);
+				$Host = new Host($HostID);
+				if ($Host && $Host->isValid() && $Host->destroy())
+					$count++;
 			}
-			if ($countApproved != $countOfHosts)
-			{
-				$this->FOGCore->setMessage($countApproved.' '._('of').' '.$countOfHosts.' '._('approved successfully'));
-				$this->FOGCore->redirect($this->formAction);
-			}
+		}
+		if ($count == $countOfHosts)
+		{
+			$this->FOGCore->setMessage(_('All hosts approved successfully'));
+			$this->FOGCore->redirect('?node='.$_REQUEST['node']);
+		}
+		if ($count != $countOfHosts)
+		{
+			$this->FOGCore->setMessage($countApproved.' '._('of').' '.$countOfHosts.' '._('approved successfully'));
+			$this->FOGCore->redirect($this->formAction);
 		}
 	}
 	/** add()
