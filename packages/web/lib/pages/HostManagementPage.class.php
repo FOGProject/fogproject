@@ -616,6 +616,7 @@ class HostManagementPage extends FOGPage
 			$this->basictasksOptions();
 		$this->adFieldsToDisplay();
 		print "\n\t\t\t<!-- Printers -->";
+		$PrintersFound = false;
 		print "\n\t\t\t".'<div id="host-printers" class="organic-tabs-hidden">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-printers">';
 		// Create Header for non associated printers
@@ -653,6 +654,7 @@ class HostManagementPage extends FOGPage
 		}
 		if (count($this->data) > 0)
 		{
+			$PrintersFound = true;
 			print "\n\t\t\t<center>".'<label for="hostPrinterShow">'._('Check here to see what printers can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostPrinterShow" id="hostPrinterShow" /></label></center>';
 			print "\n\t\t\t".'<div id="printerNotInHost">';
 			print "\n\t\t\t<h2>"._('Add new printer(s) to this host').'</h2>';
@@ -663,22 +665,22 @@ class HostManagementPage extends FOGPage
 		}
 		unset($this->data);
 		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			_('Default'),
 			_('Printer Alias'),
 			_('Printer Type'),
-			_('Remove'),
 		);
 		$this->attributes = array(
-			array(),
+			array('class' => 'c','width' => 16),
 			array(),
 			array(),
 			array(),
 		);
 		$this->templates = array(
+			'<input type="checkbox" name="printerRemove[]" value="${printer_id}" class="toggle-action" checked/>',
 			'<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}"${is_default} /><label for="printer${printer_id}" class="icon icon-hand" title="'._('Default Printer Select').'">&nbsp;</label><input type="hidden" name="printerid[]" value="${printer_id}" />',
 			'<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
 			'${printer_type}',
-			'<input onclick="this.form.submit()" class="delid" type="checkbox" name="printerRemove[]" value="${printer_id}" id="rempr${printer_id}" /><label for="rempr${printer_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
 		);
 		print "\n\t\t\t<h2>"._('Host Printer Configuration').'</h2>';
 		print "\n\t\t\t<p>"._('Select Management Level for this Host').'</p>';
@@ -703,9 +705,13 @@ class HostManagementPage extends FOGPage
 		$this->HookManager->processEvent('HOST_EDIT_PRINTER', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
+		if ($PrintersFound || count($this->data) > 0)
+			print "\n\t\t\t".'<center><input type="submit" value="'._('Update').'" name="updateprinters"/>';
+		if (count($this->data) > 0)
+			print '&nbsp;&nbsp;<input type="submit" value="'._('Remove selected printers').'" name="printdel"/>';
+		print "</center>";
 		// Reset for next tab
 		unset($this->data, $this->headerData);
-		print "\n\t\t\t".'<input type="submit" value="Update" />';
 		print "\n\t\t\t</form>";
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t<!-- Snapins -->";
@@ -766,16 +772,16 @@ class HostManagementPage extends FOGPage
 			unset($this->data);
 		}
 		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			_('Snapin Name'),
-			_('Remove'),
 		);
 		$this->attributes = array(
-			array(),
+			array('class' => 'c','width' => 16),
 			array(),
 		);
 		$this->templates = array(
+			'<input type="checkbox" name="snapinRemove[]" value="${snap_id}" class="toggle-action" checked/>',
 			'<a href="?node=snapin&sub=edit&id=${snap_id}">${snap_name}</a>',
-			'<input type="checkbox" name="snapinRemove[]" value="${snap_id}" class="delid" onclick="this.form.submit()" id="snap${snap_id}" /><label for="snap${snap_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
 		);
 		foreach ((array)$Host->get('snapins') AS $Snapin)
 		{
@@ -791,6 +797,7 @@ class HostManagementPage extends FOGPage
 		$this->HookManager->processEvent('HOST_EDIT_SNAPIN', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
+		print "\n\t\t\t".'<center><input type="submit" name="snaprem" value="'._('Remove selected snapins').'"/></center>';
 		print "</form>";
 		print "\n\t\t\t</div>";
 		// Reset for next tab
@@ -1306,24 +1313,27 @@ class HostManagementPage extends FOGPage
 					if (isset($_REQUEST['level']))
 						$Host->set('printerLevel',$_REQUEST['level']);
 					// Add
-					$Host->addPrinter($_REQUEST['printer']);
-					// Set Default
-					foreach($_REQUEST['printerid'] AS $printerid)
+					if (isset($_REQUEST['updateprinters']))
 					{
-						$Printer = new Printer($printerid);
-						$Host->updateDefault($_REQUEST['default'],isset($_REQUEST['default']));
+						$Host->addPrinter($_REQUEST['printer']);
+						// Set Default
+						foreach($_REQUEST['printerid'] AS $printerid)
+						{
+							$Printer = new Printer($printerid);
+							$Host->updateDefault($_REQUEST['default'],isset($_REQUEST['default']));
+						}
 					}
 					// Remove
-					if (!empty($_REQUEST['printerRemove']))
-						$Host->removePrinter($this->REQUEST['printerRemove']);
+					if (isset($_REQUEST['printdel']))
+						$Host->removePrinter($_REQUEST['printerRemove']);
 				break;
 				case 'host-snapins';
 					// Add
 					if (!isset($_REQUEST['snapinRemove']))
 						$Host->addSnapin($_REQUEST['snapin']);
 					// Remove
-					if (isset($_REQUEST['snapinRemove']))
-						$Host->removeSnapin($this->REQUEST['snapinRemove']);
+					if (isset($_REQUEST['snaprem']))
+						$Host->removeSnapin($_REQUEST['snapinRemove']);
 				break;
 				case 'host-service';
 					// The values below are the checking of the service enabled/disabled.
