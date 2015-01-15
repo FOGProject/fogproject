@@ -808,6 +808,23 @@ class FOGConfigurationPage extends FOGPage
 				$this->FOGCore->setSetting('FOG_AD_DEFAULT_PASSWORD',$this->FOGCore->aesencrypt($password,$_REQUEST[$key]).$_REQUEST[$key]);
 				$Service->set('value',$_REQUEST[$key])->save();
 			}
+			else if ($Service->get('name') == 'FOG_MULTICAST_PORT_OVERRIDE')
+			{
+				if (is_numeric($_REQUEST[$key]) && $_REQUEST[$key] > 0)
+				{
+					if ($_REQUEST[$key] < 65536)
+						$Service->set('value',$_REQUEST[$key])->save();
+				}
+				else
+					$Service->set('value',0)->save();
+			}
+			else if ($Service->get('name') == 'FOG_MULTICAST_ADDRESS')
+			{
+				if (filter_var($_REQUEST[$key], FILTER_VALIDATE_IP))
+					$Service->set('value',$_REQUEST[$key])->save();
+				else
+					$Service->set('value',0)->save();
+			}
 			else
 				$Service->set('value',$_REQUEST[$key])->save();
 		}
