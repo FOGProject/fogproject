@@ -130,16 +130,11 @@ class Printer extends FOGController
 
 	public function updateDefault($hostid,$onoff)
 	{
-		foreach($hostid AS $id)
+		foreach((array)$hostid AS $id)
 		{
 			$Host = new Host($id);
 			if ($Host && $Host->isValid())
-			{
-				if (in_array($Host->get('id'),$onoff))
-					$Host->updateDefault($this->get('id'),1);
-				if (!in_array($Host->get('id'),$onoff))
-					$Host->updateDefault($this->get('id'),0);
-			}
+				$Host->updateDefault($this->get('id'),in_array($Host->get('id'),$onoff));
 		}
 		return $this;
 	}

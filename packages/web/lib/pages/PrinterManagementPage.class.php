@@ -495,13 +495,31 @@ class PrinterManagementPage extends FOGPage
 			print '</br><input type="submit" value="'._('Add Printer to Host(s)').'" />';
 			print "\n\t\t\t</form></center>";
 		}
+		$this->headerData = array(
+			'',
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+			_('Host Name'),
+			_('Last Deployed'),
+			_('Registered'),
+			'<input type="checkbox" name="toggle-alldef" class="toggle-actiondef" />&nbsp;'._('Is Default'),
+		);
+		$this->attributes = array(
+			array(),
+			array('class' => 'c','width' => 16),
+			array(),
+			array(),
+			array(),
+			array('class' => 'l'),
+		);
+		$this->templates = array(
+			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<input type="checkbox" name="hosts[]" value="${host_id}" class="toggle-action" checked/>',
+			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+			'${deployed}',
+			'${host_reg}',
+			'<input class="default" type="checkbox" name="default[]" id="host_printer${host_id}"${is_default} value="${host_id}" /><label for="host_printer${host_id}" class="icon icon-hand" title="'._('Default Printer Selection').'">&nbsp;</label><input type="hidden" value="${host_id}" name="hostid[]"/>',
+		);
 		unset($this->data);
-		array_push($this->headerData,_('Is Default'),_('Remove Printer'));
-		array_push($this->templates,'<input class="default" type="checkbox" name="default[]" id="host_printer${host_id}"${is_default} value="${host_id}" /><label for="host_printer${host_id}" class="icon icon-hand" title="'._('Default Printer Selection').'">&nbsp;</label><input type="hidden" value="${host_id}" name="hostid[]">','<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}" class="icon icon-hand" title="'.$this->foglang['Delete'].'">&nbsp;</label>');
-		array_push($this->attributes,array(),array());
-		array_splice($this->headerData,1,1);
-		array_splice($this->templates,1,1);
-		array_splice($this->attributes,1,1);
 		foreach((array)$Printer->get('hosts') AS $Host)
 		{
 			if ($Host && $Host->isValid())
@@ -523,7 +541,8 @@ class PrinterManagementPage extends FOGPage
 		// Output
 		print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=printer-host">';
 		$this->render();
-		print '<input type="submit" value="'._('Update defaults').'" />';
+		if (count($this->data) > 0)
+		print '<center><input type="submit" name="updefaults" value="'._('Update defaults').'"/>&nbsp;&nbsp;<input type="submit" name="remhosts" value="'._('Remove the selected hosts').'"/>';
 		print '</form>';
 		print "\n\t\t\t\t</div>";
 		print "\n\t\t\t</div>";
@@ -591,8 +610,10 @@ class PrinterManagementPage extends FOGPage
 				break;
 				case 'printer-host';
 					$Printer->addHost($_REQUEST['host']);
-					$Printer->updateDefault($_REQUEST['hostid'],$_REQUEST['default']);
-					$Printer->removeHost($_REQUEST['hostdel']);
+					if (isset($_REQUEST['updefaults']))
+						$Printer->updateDefault($_REQUEST['hostid'],$_REQUEST['default']);
+					if (isset($_REQUEST['remhosts']))
+						$Printer->removeHost($_REQUEST['hosts']);
 				break;
 			}
 			// Save
