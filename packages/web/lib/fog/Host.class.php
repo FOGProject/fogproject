@@ -865,7 +865,7 @@ class Host extends FOGController
 					// Create New Multicast Session Job
 					$MulticastSession = new MulticastSessions(array(
 						'name' => $taskName,
-						'port' => $this->FOGCore->getSetting('FOG_UDPCAST_STARTINGPORT'),
+						'port' => $this->FOGCore->getSetting('FOG_MULTICAST_PORT_OVERRIDE') ? $this->FOGCore->getSetting('FOG_MULTICAST_PORT_OVERRIDE') : $this->FOGCore->getSetting('FOG_UDPCAST_STARTINGPORT'),
 						'logpath' => $this->getImage()->get('path'),
 						'image' => $this->getImage()->get('id'),
 						'interface' => $StorageNode->get('interface'),
@@ -878,10 +878,13 @@ class Host extends FOGController
 					if ($MulticastSession->save())
 					{
 						// Sets a new port number so you can create multiple Multicast Tasks.
-						$randomnumber = mt_rand(24576,32766)*2;
-						while ($randomnumber == $MulticastSession->get('port'))
+						if (!$this->FOGCore->getSetting('FOG_MULTICAST_PORT_OVERRIDE'))
+						{
 							$randomnumber = mt_rand(24576,32766)*2;
-						$this->FOGCore->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
+							while ($randomnumber == $MulticastSession->get('port'))
+								$randomnumber = mt_rand(24576,32766)*2;
+							$this->FOGCore->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
+						}
 					}
 					$assoc = true;
 				}
