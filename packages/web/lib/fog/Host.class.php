@@ -86,10 +86,15 @@ class Host extends FOGController
 			if ($PrinterSet && $PrinterSet->isValid())
 				$PrinterSet->set('isDefault',0)->save();
 		}
-		// Set the current sent printer to it's on/off state.
-		$SetDefault = current((array)$this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $printerid)));
-		if ($SetDefault && $SetDefault->isValid())
-			$SetDefault->set('isDefault',$onoff)->save();
+		foreach((array)$printerid AS $printer)
+		{
+			$Printer = new Printer($printer);
+			if ($Printer && $Printer->isValid())
+				$SetDefault = current($this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $Printer->get('id'))));
+			// Set the current sent printer to it's on/off state.
+			if ($SetDefault && $SetDefault->isValid())
+				$SetDefault->set('isDefault',$onoff)->save();
+		}
 		return $this;
 	}
 	public function getDispVals($key = '')
