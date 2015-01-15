@@ -919,7 +919,7 @@ class ImageManagementPage extends FOGPage
 				"\n\t\t\t<p>"._('Delete all selected items').'</p>',
 				"\n\t\t\t\t".'<form method="post" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'">',
 				"\n\t\t\t".'<input type="hidden" name="imageIDArray" value="" autocomplete="off" />',
-				"\n\t\t\t\t\t".'<input type="submit" value="'._('Delete all selected hosts').'?"/>',
+				"\n\t\t\t\t\t".'<input type="submit" value="'._('Delete all selected images').'?"/>',
 				"\n\t\t\t\t</form>",
 				"\n\t\t\t</div>",
 			);
