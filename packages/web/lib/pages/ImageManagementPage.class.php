@@ -484,12 +484,22 @@ class ImageManagementPage extends FOGPage
 			print "\n\t\t\t</form></center>";
 		}
 		unset($this->data);
-		array_push($this->headerData,_('Remove Image'));
-		array_push($this->templates,'<input type="checkbox" class="delid" onclick="this.form.submit()" name="hostdel" id="hostdelmem${host_id}" value="${host_id}" /><label for="hostdelmem${host_id}" class="icon icon-hand" title="'.$this->foglang['Delete'].'">&nbsp;</label>');
-		array_push($this->attributes,array());
-		array_splice($this->headerData,1,1);
-		array_splice($this->templates,1,1);
-		array_splice($this->attributes,1,1);
+		// Create the header data:
+		$this->headerData = array(
+			'',
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+			_('Host Name'),
+			_('Last Deployed'),
+			_('Registered'),
+		);
+		// Create the template data:
+		$this->templates = array(
+			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
+			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+			'${deployed}',
+			'${host_reg}',
+		);
 		foreach((array)$Image->get('hosts') AS $Host)
 		{
 			if ($Host && $Host->isValid())
@@ -509,6 +519,8 @@ class ImageManagementPage extends FOGPage
 		// Output
 		print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-host">';
 		$this->render();
+		if (count($this->data) > 0)
+			print "\n\t\t\t\t\t".'<center><input type="submit" value="'._('Remove image from selected hosts').'"/>';
 		print '</form>';
 		print "\n\t\t\t\t</div>";
 		unset($this->data);

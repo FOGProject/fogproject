@@ -629,13 +629,19 @@ class SnapinManagementPage extends FOGPage
 			print '<br/><input type="submit" value="'._('Add Snapin to Group(s)').'" />';
 			print "\n\t\t\t</form></center>";
 		}
+		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+			_('Storage Group Name'),
+		);
+		$this->attributes = array(
+			array('width' => 16, 'class' => 'c'),
+			array('class' => 'r'),
+		);
+		$this->templates = array(
+			'<input type="checkbox" class="toggle-action" name="storagegroup-rm[]" value="${storageGroup_id}" checked/>',
+			'${storageGroup_name}',
+		);
 		unset($this->data);
-		array_push($this->headerData,_('Remove Group'));
-		array_push($this->templates,'<input type="checkbox" class="delid" onclick="this.form.submit()" name="storagegroup-rm" id="sgdelmem${storageGroup_id}" value="${storageGroup_id}" /><label for="sgdelmem${storageGroup_id}" class="icon icon-hand" title="'.$this->foglang['Delete'].'">&nbsp;</label>');
-		array_push($this->attributes,array());
-		array_splice($this->headerData,0,1);
-		array_splice($this->templates,0,1);
-		array_splice($this->attributes,0,1);
 		foreach((array)$Snapin->get('storageGroups') AS $Group)
 		{
 			if ($Group && $Group->isValid())
@@ -651,6 +657,8 @@ class SnapinManagementPage extends FOGPage
 		// Output
 		print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=snap-storage">';
 		$this->render();
+		if (count($this->data) > 0)
+			print "\n\t\t\t".'<center><input type="submit" value="'._('Delete Selected Group associations').'" name="remstorgroups"/></center>';
 		print '</form>';
 		print "\n\t\t\t\t</div>";
 		print "\n\t\t\t".'</div>';
@@ -724,7 +732,7 @@ class SnapinManagementPage extends FOGPage
 				break;
 				case 'snap-storage';
 					$Snapin->addGroup($_REQUEST['storagegroup']);
-					if ($_REQUEST['storagegroup-rm'])
+					if (isset($_REQUEST['remstorgroups']))
 						$Snapin->removeGroup($_REQUEST['storagegroup-rm']);
 				break;
 			}
