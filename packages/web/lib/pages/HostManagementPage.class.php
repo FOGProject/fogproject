@@ -1719,7 +1719,7 @@ class HostManagementPage extends FOGPage
 					'host_name' => $Host->get('name'),
 					'host_mac' => $Host->get('mac'),
 				);
-				$_SESSION['delitems'][] = $Host->get('id');
+				$_SESSION['delitems']['host'] = $Host->get('id');
 				array_push($this->additional,"\n\t\t\t<p>".$Host->get('name')."</p>");
 			}
 		}
