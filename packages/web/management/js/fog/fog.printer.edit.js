@@ -9,9 +9,12 @@ $(function() {
 		$('#hostNoPrinter').toggle();
 	});
 	$('.toggle-checkbox1').click(function() {
-		$('input.toggle-host1:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+		$('input.toggle-host1:checkbox').prop('checked', $(this).is(':checked'));
 	});
 	$('.toggle-checkbox2').click(function() {
-		$('input.toggle-host2:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+		$('input.toggle-host2:checkbox').prop('checked', $(this).is(':checked'));
+	});
+	$('.toggle-actiondef').click(function() {
+		$('.default').prop('checked', $(this).is(':checked'));
 	});
 });
