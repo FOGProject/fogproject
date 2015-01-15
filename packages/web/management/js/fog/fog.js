@@ -72,7 +72,7 @@ function getQueryParams(qs) {
 		if (this.length == 0) return this;
 		// Default Options
 		var Defaults = {
-			URL: 'ajax/host.search.php',
+			URL: $('#search-wrapper').attr('action'),
 			Container: '#search-content',
 			SearchDelay: 500,
 			SearchMinLength: 1,
@@ -92,7 +92,7 @@ function getQueryParams(qs) {
 			return this;
 		}
 		// If the container already contains data, show, else hide
-		if ($('tbody > tr', Container).filter('.no-active-tasks').size() > 0) {
+		if ($('tbody > tr', Container).filter('.no-active-tasks').length > 0) {
 			Container.show();
 			ActionBox.show();
 			ActionBoxDel.show();
@@ -223,18 +223,18 @@ function getQueryParams(qs) {
 							Loader.fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/, '0').replace(/%2/, 's'), { 'Class': 'error' });
 						}
 						this.SearchAJAX = null;
-					},
-					error:	function(jqXHR, textStatus, errorThrown) {
-						// Error - hide content boxes, show nice message
-						Container.hide();
-						ActionBox.hide();
-						ActionBoxDel.hide();
-						// Show nice error
-						Loader.fogStatusUpdate(_L['ERROR_SEARCHING'] + (errorThrown != '' ? ': ' + (errorThrown == 'Not Found' ? 'URL Not Found' : errorThrown) : ''), { 'Class': 'error' });
-						// Reset
-						this.SearchAJAX = null;
-						this.SearchLastQuery = null;
 					}
+				//	error:	function(jqXHR, textStatus, errorThrown) {
+				//		// Error - hide content boxes, show nice message
+				//		Container.hide();
+				//		ActionBox.hide();
+				//		ActionBoxDel.hide();
+				//		// Show nice error
+				//		Loader.fogStatusUpdate(_L['ERROR_SEARCHING'] + (errorThrown != '' ? ': ' + (errorThrown == 'Not Found' ? 'URL Not Found' : errorThrown) : ''), { 'Class': 'error' });
+				//		// Reset
+				//		this.SearchAJAX = null;
+				//		this.SearchLastQuery = null;
+				//	}
 				});
 			}
 		});
