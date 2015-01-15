@@ -810,7 +810,7 @@ class FOGConfigurationPage extends FOGPage
 			}
 			else if ($Service->get('name') == 'FOG_MULTICAST_PORT_OVERRIDE')
 			{
-				if (is_numeric($_REQUEST[$key]) && $_REQUEST[$key] > 0))
+				if (is_numeric($_REQUEST[$key]) && $_REQUEST[$key] > 0)
 				{
 					if ($_REQUEST[$key] < 65536)
 						$Service->set('value',$_REQUEST[$key])->save();
