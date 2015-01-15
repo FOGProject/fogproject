@@ -179,12 +179,9 @@ pre { white-space: pre-wrap; }
 .bolder { font-weight: bold; }
 .hidden { display: none; }
 
-#action-box{ display: none; margin: 20px 10px 0 10px; padding-top: 10px; padding-bottom: 10px; border: 1px solid #CCCCCC; background-color: #EFEFEF; }
-#action-box p { margin: 5px 0; line-height: 18px; }
-#action-box label { float: left; margin: 3px 0; width: 200px; text-align: right; margin-right: 15px; }
-#action-boxdel{ display: none; margin: 20px 10px 0 10px; padding-top: 10px; padding-bottom: 10px; border: 1px solid #CCCCCC; background-color: #EFEFEF; }
-#action-boxdel p { margin: 5px 0; line-height: 18px; }
-#action-boxdel label { float: left; margin: 3px 0; width: 200px; text-align: right; margin-right: 15px; }
+#action-box,#action-boxdel{ display: none; margin: 20px 10px 0 10px; padding-top: 10px; padding-bottom: 10px; border: 1px solid #CCCCCC; background-color: #EFEFEF; }
+#action-box p,#action-boxdel p { margin: 5px 0; line-height: 18px; }
+#action-box label,#action-boxdel label { float: left; margin: 3px 0; width: 200px; text-align: right; margin-right: 15px; }
 
 .dashbaord { text-align: center; border-color: black; border-width: 1px; border-style: solid; background-color: white; background-image: url(../../images/statusbg.jpg); margin: 5px 5px 6px 0; width: 237px; height: 120px; float: left; padding: 2px; text-align: left; overflow: hidden; }
 .dashbaord p { line-height: 15px; margin: 2px 0; }
