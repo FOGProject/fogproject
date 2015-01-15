@@ -1777,3 +1777,8 @@ $this->schema[] = array(
 $this->schema[] = array(
 	"INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey,settingDesc,settingValue,settingCategory) VALUES ('FOG_FTP_IMAGE_SIZE', '"._('This setting defines the global enabling of image on server size.  Checkbox on or off is the enabling element.  Default is off.')."','0','General Settings')",
 );
+// 154
+$this->schema[] = array(
+	"INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey,settingDesc,settingValue,settingCategory) VALUES ('FOG_MULTICAST_ADDRESS','"._('This setting defines an alternate Multicast Address. Default is 0 which means disabled, value will be ip validated if entered.')."','0','Multicast Settings')",
+	"INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey,settingDesc,settingValue,settingCategory) VALUES ('FOG_MULTICAST_PORT_OVERRIDE','"._('This setting defines an override multicast port address, which of course remains static if set. Valid values are 0 thru 65535 and will be checked on save. Default is 0 which is disabled.')."','0','Multicast Settings')",
+);

@@ -38,7 +38,7 @@ class MulticastTask extends FOGBase
 		parent::__construct();
 		$this->intID = $id;
 		$this->strName = $name;
-		$this->intPort = $port;
+		$this->intPort = $this->FOGCore->getSetting('FOG_MULTICAST_PORT_OVERRIDE') ? $this->FOGCore->getSetting('FOG_MULTICAST_PORT_OVERRIDE') : $port;
 		$this->strImage = $image;
 		$this->strEth = $eth;
 		$this->intClients = $clients;
@@ -69,6 +69,7 @@ class MulticastTask extends FOGBase
 		$count = '';
 		$countTemp = $this->getClientCount();
 		$count = sprintf(' --min-receivers %d',($countTemp > 0 ? $countTemp : $this->getClass('HostManager')->count()));
+		$multicastaddress = $this->FOGCore->getSetting('FOG_MULTICAST_ADDRESS') ? ' --mcast-data-address '.$this->FOGCore->getSetting('FOG_MULTICAST_ADDRESS') : '';
 		if ($waitTemp)
 			$wait = sprintf(' --max-wait %d',($waitTemp > 0 ? $waitTemp * 60 : 60));
 		unset($filelist);
@@ -152,7 +153,7 @@ class MulticastTask extends FOGBase
 		foreach ($filelist AS $file)
 		{
 			$path = rtrim($this->getImagePath(),'/').'/'.$file;
-			$cmd .= 'cat '.$path.' | '.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.' --full-duplex --ttl 32 --nokbd;';
+			$cmd .= 'cat '.$path.' | '.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.$multicastaddress.' --full-duplex --ttl 32 --nokbd;';
 		}
 		return $cmd;
 	}
