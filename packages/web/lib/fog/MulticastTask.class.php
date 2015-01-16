@@ -153,7 +153,7 @@ class MulticastTask extends FOGBase
 		foreach ($filelist AS $file)
 		{
 			$path = rtrim($this->getImagePath(),'/').'/'.$file;
-			$cmd .= 'cat '.$path.' | '.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.$multicastaddress.' --full-duplex --ttl 32 --nokbd --nopointopoint;';
+			$cmd .= 'cat '.$path.' | '.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.$multicastaddress.' '.$this->FOGCore->getSetting('FOG_MULTICAST_DUPLEX').' --ttl 32 --nokbd --nopointopoint;';
 		}
 		return $cmd;
 	}
