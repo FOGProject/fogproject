@@ -336,9 +336,9 @@ class FOGCore extends FOGBase
 	public function getIPAddress()
 	{
 		$output = array();
-		exec("/sbin/ifconfig | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d':' -f 2 | cut -d' ' -f1", $IPs, $retVal);
+		exec("/sbin/ip addr | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d/ -f1 | awk '{print $2}'", $IPs, $retVal);
 		if (!$IPs)
-			exec("/sbin/ip addr | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d/ -f1 | awk '{print $2}'", $IPs, $retVal);
+			exec("/sbin/ifconfig | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d':' -f 2 | cut -d' ' -f1", $IPs, $retVal);
 		foreach ($IPs AS $IP)
 		{
 			$IP = trim($IP);
