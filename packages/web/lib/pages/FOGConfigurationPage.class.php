@@ -694,6 +694,16 @@ class FOGConfigurationPage extends FOGPage
 					$type = "\n\t\t\t".'<select name="${service_id}" style="width: 220px" autocomplete="off">'."\n\t\t\t\t".implode("\n",$options)."\n\t\t\t".'</select>';
 					unset($options);
 				}
+				else if ($Service->get('name') == 'FOG_MULTICAST_DUPLEX')
+				{
+					$duplexTypes = array(
+						'HALF_DUPLEX' => '--half-duplex',
+						'FULL_DUPLEX' => '--full-duplex',
+					);
+					foreach($duplexTypes AS $types => $val)
+						$options[] = '<option value="'.$val.'" '.($Service->get('value') == $val ? 'selected="selected"' : '').'>'.$types.'</option>';
+					$type = "\n\t\t\t".'<select name="${service_id}" style="width: 220px" autocomplete="off">'."\n\t\t\t\t".implode("\n",$options)."\n\t\t\t".'</select>';
+				}
 				else if ($Service->get('name') == 'FOG_BOOT_EXIT_TYPE')
 				{
 					foreach(array('sanboot','grub','exit') AS $viewop)
