@@ -484,10 +484,13 @@ class TaskManagementPage extends FOGPage
 			if ($Task->get('typeID') == 8)
 			{
 				$MSA = current($this->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))));
-				$MS = new MulticastSessions($MSA->get('msID'));
-				$MS->set('clients', $MS->get('clients')-1)->save();
-				if ($MS->get('clients') <= 0)
-					$MS->set('completetime',$this->formatTime('now','Y-m-d H:i:s'))->set('stateID', 5)->save();
+				if ($MSA && $MSA->isValid())
+				{
+					$MS = new MulticastSessions($MSA->get('msID'));
+					$MS->set('clients', $MS->get('clients')-1)->save();
+					if ($MS->get('clients') <= 0)
+						$MS->set('completetime',$this->formatTime('now','Y-m-d H:i:s'))->set('stateID', 5)->save();
+				}
 			}
 			$Task->cancel();
 		}
