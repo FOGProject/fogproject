@@ -656,7 +656,7 @@ setupFreshClam()
 {
 	echo  -n "  * Configuring Fresh Clam...";
 	if [ ! -d "/opt/fog/clamav" ]; then
-		cp -r ../packages/clamav /opt/fog/
+		mkdir /opt/fog/clamav
 		chmod -R 777 /opt/fog/clamav
 	fi
 	if [ -d "/opt/fog/clamav" ]; then
