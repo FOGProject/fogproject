@@ -74,21 +74,7 @@ class MulticastTask extends FOGBase
 			' --nopointopoint;',
 		);
 		$buildcmd = array_values(array_filter($buildcmd));
-		if (in_array($this->getOSID(),array(5,6,7)) && $this->getImageType() == 1)
-		{
-			if (is_dir($this->getImagePath()))
-			{
-				if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000') || file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
-				{
-					unset($filelist);
-					if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000'))
-						$filelist[] = 'rec.img.*';
-					if (file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
-						$filelist[] = 'sys.img.*';
-				}
-			}
-		}
-		else if ($this->getImageType() == 4)
+		if ($this->getImageType() == 4)
 		{
 			if (is_dir($this->getImagePath()))
 			{
@@ -146,6 +132,20 @@ class MulticastTask extends FOGBase
 						}
 					}
 					closedir($handle);
+				}
+			}
+		}
+		if (in_array($this->getOSID(),array(5,6,7)) && $this->getImageType() == 1)
+		{
+			if (is_dir($this->getImagePath()))
+			{
+				if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000') || file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
+				{
+					unset($filelist);
+					if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000'))
+						$filelist[] = 'rec.img.*';
+					if (file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
+						$filelist[] = 'sys.img.*';
 				}
 			}
 		}
