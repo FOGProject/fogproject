@@ -60,20 +60,35 @@ class MulticastTask extends FOGBase
 
 	public function getCMD()
 	{
-		$interface = "";
-		if ($this->getInterface() != null && strlen($this->getInterface()) > 0)
-			$interface = sprintf(' --interface %s',$this->getInterface());
-		$cmd = null;
-		$wait = '';
-		$waitTemp = $this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT');
-		$count = '';
-		$countTemp = $this->getClientCount();
-		$count = sprintf(' --min-receivers %d',($countTemp > 0 ? $countTemp : $this->getClass('HostManager')->count()));
-		$multicastaddress = $this->FOGCore->getSetting('FOG_MULTICAST_ADDRESS') ? ' --mcast-data-address '.$this->FOGCore->getSetting('FOG_MULTICAST_ADDRESS') : '';
-		if ($waitTemp)
-			$wait = sprintf(' --max-wait %d',($waitTemp > 0 ? $waitTemp * 60 : 60));
-		unset($filelist);
-		if ($this->getImageType() == 4)
+		unset($filelist,$buildcmd,$cmd);
+		$buildcmd = array(
+			UDPSENDERPATH,
+			$this->getInterface() ? sprintf(' --interface %s',$this->getInterface()) : null,
+			sprintf(' --min-receivers %d',($this->getClientCount() ? $this->getClientCount() : $this->getClass('HostManager')->count())),
+			$this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT') ? sprintf(' --max-wait %d',$this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT')) : null,
+			$this->FOGCore->getSetting('FOG_MULTICAST_ADDRESS') ? sprintf(' --mcast-data-address %s',$this->FOGCore->getSetting('FOG_MULTICAST_ADDRESS')) : null,
+			sprintf(' --portbase %s',$this->getPortBase()),
+			sprintf(' %s',$this->FOGCore->getSetting('FOG_MULTICAST_DUPLEX')),
+			' --ttl 32',
+			' --nokbd',
+			' --nopointopoint;',
+		);
+		$buildcmd = array_values(array_filter($buildcmd));
+		if (in_array($this->getOSID(),array(5,6,7)) && $this->getImageType() == 1)
+		{
+			if (is_dir($this->getImagePath()))
+			{
+				if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000') || file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
+				{
+					unset($filelist);
+					if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000'))
+						$filelist[] = 'rec.img.*';
+					if (file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
+						$filelist[] = 'sys.img.*';
+				}
+			}
+		}
+		else if ($this->getImageType() == 4)
 		{
 			if (is_dir($this->getImagePath()))
 			{
@@ -134,47 +149,26 @@ class MulticastTask extends FOGBase
 				}
 			}
 		}
-		if (in_array($this->getOSID(),array(5,6,7)) && $this->getImageType() == 1)
-		{
-			if (is_dir($this->getImagePath()))
-			{
-				if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000') || file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
-				{
-					unset($filelist);
-					if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000'))
-						$filelist[] = 'rec.img.*';
-					if (file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
-						$filelist[] = 'sys.img.*';
-				}
-			}
-		}
 		natsort($filelist);
-		$cmd = '';
 		foreach ($filelist AS $file)
-		{
-			$path = rtrim($this->getImagePath(),'/').'/'.$file;
-			$cmd .= 'cat '.$path.' | '.UDPSENDERPATH.$count.' --portbase '.$this->getPortBase().$interface.$wait.$multicastaddress.' '.$this->FOGCore->getSetting('FOG_MULTICAST_DUPLEX').' --ttl 32 --nokbd --nopointopoint;';
-		}
-		return $cmd;
+			$cmd[] = sprintf('cat %s | %s',rtrim($this->getImagePath(),'/').'/'.$file,implode($buildcmd));
+		return implode($cmd);
 	}
-
 	public function startTask()
 	{
 		@unlink($this->getUDPCastLogFile());
 		$descriptor = array(0 => array('pipe','r'), 1 => array('file',$this->getUDPCastLogFile(),'w'), 2 => array('file',$this->getUDPCastLogFile(),'w'));
-		$this->procRef = @proc_open('exec '.$this->getCMD(),$descriptor,$pipes);
+		$this->procRef = @proc_open($this->getCMD(),$descriptor,$pipes);
 		$this->arPipes = $pipes;
 		$MultiSess = new MulticastSessions($this->intID);
 		$MultiSess->set('stateID','1')->save();
 		return $this->isRunning();
 	}
-
 	public function flagAsDead()
 	{
 		if($this->deathTime == null)
 			$this->deathTime = time();
 	}
-	
 	private static function killAll($pid,$sig)
 	{
 		exec("ps -ef|awk '\$3 == '$pid' {print \$2}'",$output,$ret);
@@ -209,7 +203,6 @@ class MulticastTask extends FOGBase
 		$MultiSess->set('name',null)->set('name','')->set('stateID','5')->save();
 		return true;
 	}
-
 	public function updateStats()
 	{
 		foreach($this->getClass('MulticastSessionsAssociationManager')->find(array('msid' => $this->intID)) AS $MultiSessAssoc)
@@ -222,7 +215,6 @@ class MulticastTask extends FOGBase
 		$MultiSess = new MulticastSessions($this->intID);
 		$MultiSess->set('percent',max((array)$TaskPercent))->save();
 	}
-
 	public function isRunning()
 	{
 		if ($this->procRef)
@@ -232,7 +224,6 @@ class MulticastTask extends FOGBase
 		}
 		return false;
 	}
-
 	public function getPID()
 	{
 		if ($this->procRef)
