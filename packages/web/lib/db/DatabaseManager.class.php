@@ -28,14 +28,14 @@ class DatabaseManager extends FOGBase
 			$this->user = DATABASE_USERNAME;
 			$this->pass = DATABASE_PASSWORD;
 			$this->database = DATABASE_NAME;
-			$this->valid = true;
+			$this->valid = $this;
 		}
 		catch (Exception $e)
 		{
 			$this->valid = false;
 			$this->FOGCore->error('Failed: %s->%s(): Error: %s', array(get_class($this), __FUNCTION__, $e->getMessage()));
 		}
-		return $this->valid ? $this : $this->valid;
+		return $this->valid;
 	}
 	/** connect()
 		Connects the system to the database.
