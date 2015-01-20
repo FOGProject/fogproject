@@ -317,7 +317,6 @@ do
 				echo "";
 			    #restoreReports;
 			    configureStorage;
-			    setupFreshClam;
 	            configureNFS;
 			    configureDHCP;
 			    configureTFTPandPXE;
