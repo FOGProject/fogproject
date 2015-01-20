@@ -723,6 +723,22 @@ handleError()
 	echo -e " $1";
 	echo "";
 	echo "";
+	#
+	# expand the file systems in the restored partitions
+	#
+	# Windows 7, 8, 8.1:
+	# Windows 2000/XP, Vista:
+	# Linux:
+	if [ "$2" == "yes" ]; then
+		if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
+			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
+			for part in $parts; do
+				expandPartition $part;
+			done
+		fi
+	fi
+	echo "";
+	echo "";
 	echo " #############################################################################";
 	echo " #                                                                           #";	
 	echo " #                  Computer will reboot in 1 minute.                        #";
@@ -1137,7 +1153,7 @@ w
 EOF
 	if [ "$?" != 0 ]; then
 		echo "Failed";
-		handleError "Could not fix partition layout";
+		handleError "Could not fix partition layout" "yes";
 	else
 		echo "Done";
 	fi
