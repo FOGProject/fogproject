@@ -17,7 +17,7 @@
 #
 #
 #
-
+linuxReleaseName
 installInitScript()
 {
 	echo -n "  * Installing init scripts...";
@@ -42,7 +42,6 @@ installInitScript()
 configureFOGService()
 {
 	echo "<?php
-
 define( \"WEBROOT\", \"${webdirdest}\" );
 ?>" > ${servicedst}/etc/config.php;
 
@@ -99,7 +98,7 @@ ${storageLocation}/dev                    *(rw,sync,no_wdelay,no_root_squash,ins
 /opt/fog/clamav							  *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=3)" > "${nfsconfig}";
 	setupFreshClam;
 	echo -n "  * Setting up and starting NFS Server..."; 
-	if [ "$RHVER" == "7" ]; then
+	if [ "$RHVER" == "7" -o "$linuxReleaseName" == "Fedora" ]; then
 		systemctl enable rpcbind >/dev/null 2>&1;
 		systemctl enable nfs-server.service 2>&1;
 		systemctl restart rpcbind >/dev/null 2>&1;
@@ -154,7 +153,7 @@ userlist_enable=NO
 tcp_wrappers=YES" > "$ftpconfig";
 
 	RHVER=`rpm -qa | grep release | xargs rpm -q --queryformat '%{VERSION}' | cut -c -1`;
-	if [ "$RHVER" == "7" ]; then
+	if [ "$RHVER" == "7" -o "$linuxReleaseName" == "Fedora" ]; then
 		systemctl enable vsftpd.service >/dev/null 2>&1;
 		systemctl restart vsftpd.service >/dev/null 2>&1;
 	else
@@ -536,7 +535,7 @@ configureMySql()
 {
 	echo -n "  * Setting up and starting MySQL...";
 	RHVER=`rpm -qa | grep release | xargs rpm -q --queryformat '%{VERSION}' | cut -c -1`;
-	if [ "$RHVER" == "7" ]; then
+	if [ "$RHVER" == "7" -o "$linuxReleaseName" == "Fedora" ]; then
 		systemctl enable mariadb.service >/dev/null 2>&1;
 		systemctl restart mariadb.service >/dev/null 2>&1;
 	else
