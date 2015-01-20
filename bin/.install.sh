@@ -317,7 +317,6 @@ do
 				echo "";
 			    #restoreReports;
 			    configureStorage;
-	            configureNFS;
 			    configureDHCP;
 			    configureTFTPandPXE;
 			    configureFTP;
@@ -329,6 +328,7 @@ do
 			    installUtils;
 			    configureFOGService;
 			    #sendInstallationNotice;
+	            configureNFS;
 			    writeUpdateFile;
 				linkOptFogDir;
 				removeOldSSL;
