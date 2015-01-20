@@ -97,13 +97,13 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 
 configureNFS()
 {
-	echo -n "  * Setting up and starting NFS Server..."; 
 	
 	echo "${storageLocation}                        *(ro,sync,no_wdelay,insecure_locks,no_root_squash,insecure,fsid=1)
 ${storageLocation}/dev                    *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=2)
 /opt/fog/clamav							  *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=3)" > "${nfsconfig}";
 	setupFreshClam;
 	
+	echo -n "  * Setting up and starting NFS Server..."; 
 	sysv-rc-conf nfs-kernel-server on >/dev/null 2>&1;
 	/etc/init.d/nfs-kernel-server stop >/dev/null 2>&1;
 	/etc/init.d/nfs-kernel-server start >/dev/null 2>&1;
