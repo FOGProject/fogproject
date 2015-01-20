@@ -93,12 +93,12 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 
 configureNFS()
 {
-	echo -n "  * Setting up and starting NFS Server..."; 
 	RHVER=`rpm -qa | grep release | xargs rpm -q --queryformat '%{VERSION}' | cut -c -1`;
 	echo "${storageLocation}                        *(ro,sync,no_wdelay,insecure_locks,no_root_squash,insecure,fsid=1)
 ${storageLocation}/dev                    *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=2)
 /opt/fog/clamav							  *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=3)" > "${nfsconfig}";
 	setupFreshClam;
+	echo -n "  * Setting up and starting NFS Server..."; 
 	if [ "$RHVER" == "7" ]; then
 		systemctl enable rpcbind >/dev/null 2>&1;
 		systemctl enable nfs-server.service 2>&1;
