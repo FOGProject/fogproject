@@ -155,20 +155,11 @@ if [ -f "/images/.mntcheck" ]; then
 			#  Attempt to shrink all filesystems and partitions, except swap, extended.
 			#  Save partition table with shrunken partitions for use on download
 			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "3" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
-				gptormbr=`gdisk -l $hd | grep 'GPT:' | awk '{$1=""; print $0}' | sed 's/^ //'`;
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				for part in $parts; do
 					shrinkPartition $part "${imagePath}/d1.original.fstypes";
 				done
-				if [ "$gptormbr" == "not present" ]; then
-					dots "Saving MBR and GRUB";
-					saveGRUB "$hd" "1" "${imagePath}";
-					saveSfdiskPartitions "${hd}" "${imagePath}/d1.minimum.partitions";
-				else
-					dots "Saving Partition Tables";
-					sgdisk -b $imagePath/d1.mbr $hd 2>&1 >/dev/null;
-				fi
-				echo "Done";
+				gptorMBRSave "$hd" "$imagePath";
 				debugPause
 			fi
 			# Windows 2000/XP, Vista, 7, 8, 8.1:
