@@ -317,6 +317,7 @@ do
 				echo "";
 			    #restoreReports;
 			    configureStorage;
+			    setupFreshClam;
 	            configureNFS;
 			    configureDHCP;
 			    configureTFTPandPXE;
@@ -330,7 +331,6 @@ do
 			    configureFOGService;
 			    #sendInstallationNotice;
 			    writeUpdateFile;
-			    #setupFreshClam;
 				linkOptFogDir;
 				removeOldSSL;
 			    echo "";
