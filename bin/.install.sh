@@ -330,7 +330,6 @@ do
 			    configureFOGService;
 			    #sendInstallationNotice;
 			    writeUpdateFile;
-			    #setupFreshClam;
 				linkOptFogDir;
 				removeOldSSL;
 			    echo "";
