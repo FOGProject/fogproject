@@ -1105,7 +1105,43 @@ restorePartition()
 		debugPause;
 	fi
 }
-	
+gptorMBRSave()
+{
+	local gptormbr=`gdisk -l $1 | grep 'GPT:' | awk -F: '{print $2}' | awk '{print $1}'`;
+	if [ "$gptormbr" == "not" ]; then
+		debugPause;
+		dots "Saving MBR or MBR/Grub";
+		saveGRUB "$1" "1" "$2";
+		saveSfdiskPartitions "$1" "$2/d1.minimum.partitions";
+		echo "Done";
+	else
+		dots "Saving Partition Tables";
+		sgdisk -b $imagePath/d1.mbr $1 >/dev/null;
+		if [ ! "$?" -eq 0 ]; then
+			echo "Failed";
+			debugPause;
+			runFixparts "$1";
+			debugPause;
+			gptorMBRSave "$1" "$2";
+		else
+			echo "Done";
+		fi
+	fi
+}
+runFixparts()
+{
+	dots "Attempting fixparts";
+	fixparts $1 << EOF
+y
+w
+EOF
+	if [ "$?" != 0 ]; then
+		echo "Failed";
+		handleError "Could not fix partition layout";
+	else
+		echo "Done";
+	fi
+}
 
 # Local Variables:
 # indent-tabs-mode: t
