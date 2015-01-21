@@ -774,7 +774,7 @@ handleWarning()
 # $1 is the drive
 runPartprobe()
 {
-	partprobe $1 &> /dev/null;
+	blockdev --rereadpt $1 &> /dev/null;
 }
 
 debugCommand()
