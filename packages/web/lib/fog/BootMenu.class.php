@@ -783,6 +783,7 @@ class BootMenu extends FOGBase
 					$mac = $_REQUEST['mac'];
 				$osid = $Image->get('osID');
 				$storage = in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',$this->FOGCore->resolveHostname(trim($StorageNode->get('ip'))),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null;
+				$PIGZ_COMP = $Image->get('compress') ? $Image->get('compress') : $this->FOGCore->getSetting('FOG_PIGZ_COMP');
 			}
 			$clamav = in_array($TaskType->get('id'),array(21,22)) ? sprintf('%s:%s',$this->FOGCore->resolveHostname(trim($StorageNode->get('ip'))),'/opt/fog/clamav') : null;
 			$storageip = in_array($TaskType->get('id'),$imagingTasks) ? $this->FOGCore->resolveHostname($StorageNode->get('ip')) : null;
@@ -793,7 +794,6 @@ class BootMenu extends FOGBase
 			$imgid = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('id') : null;
 			$ftp = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_TFTP_HOST'));
 			$chkdsk = $this->FOGCore->getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
-			$PIGZ_COMP = $Image->get('compress') ? $Image->get('compress') : $this->FOGCore->getSetting('FOG_PIGZ_COMP');
 			$kernelArgsArray = array(
 				"mac=$mac",
 				"ftp=$ftp",
