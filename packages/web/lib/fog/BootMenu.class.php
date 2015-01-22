@@ -777,13 +777,13 @@ class BootMenu extends FOGBase
 				$this->HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$this->Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
 				if ($TaskType->isUpload() || $TaskType->isMulticast())
 					$StorageNode = $StorageGroup->getMasterStorageNode();
-				if ($this->Host && $this->Host->isValid())
-					$mac = $this->Host->get('mac');
-				else
-					$mac = $_REQUEST['mac'];
 				$osid = $Image->get('osID');
 				$storage = in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',$this->FOGCore->resolveHostname(trim($StorageNode->get('ip'))),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null;
 			}
+			if ($this->Host && $this->Host->isValid())
+				$mac = $this->Host->get('mac');
+			else
+				$mac = $_REQUEST['mac'];
 			$clamav = in_array($TaskType->get('id'),array(21,22)) ? sprintf('%s:%s',$this->FOGCore->resolveHostname(trim($StorageNode->get('ip'))),'/opt/fog/clamav') : null;
 			$storageip = in_array($TaskType->get('id'),$imagingTasks) ? $this->FOGCore->resolveHostname($StorageNode->get('ip')) : null;
 			$img = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('path') : null;
