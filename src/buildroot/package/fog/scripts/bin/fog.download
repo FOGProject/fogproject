@@ -186,7 +186,7 @@ if [ "$imgType" == "n" ]; then
 			elif [ "$win7partcnt" == "4" ]; then
 				dots "Preparing Hard Disks (Stage 2)";
 				sgdisk --zap-all $hd 2>&1 >/dev/null;
-				runPartprobe $hdyy;
+				runPartprobe $hd;
 				sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
 				echo "Done";
 				debugPause;
