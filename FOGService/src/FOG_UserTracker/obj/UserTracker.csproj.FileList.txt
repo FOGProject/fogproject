@@ -1,6 +1,0 @@
-obj\Release\ResolveAssemblyReference.cache
-bin\Release\UserTracker.dll
-bin\Release\AbstractFOGService.dll
-bin\Release\IniReaderObj.dll
-obj\Release\UserTracker.dll
-obj\Debug\ResolveAssemblyReference.cache
