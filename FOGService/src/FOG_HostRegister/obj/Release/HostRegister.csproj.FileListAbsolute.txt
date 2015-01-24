@@ -1,5 +1,0 @@
-C:\Users\admin\Desktop\src\FOG_HostRegister\bin\Release\HostRegister.dll
-C:\Users\admin\Desktop\src\FOG_HostRegister\bin\Release\AbstractFOGService.dll
-C:\Users\admin\Desktop\src\FOG_HostRegister\bin\Release\IniReaderObj.dll
-C:\Users\admin\Desktop\src\FOG_HostRegister\obj\Release\ResolveAssemblyReference.cache
-C:\Users\admin\Desktop\src\FOG_HostRegister\obj\Release\HostRegister.dll
