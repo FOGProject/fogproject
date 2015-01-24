@@ -1,5 +1,0 @@
-C:\Users\dev-win7\Desktop\src\FOG_DisplayManager\obj\Release\ResolveAssemblyReference.cache
-C:\Users\dev-win7\Desktop\src\FOG_DisplayManager\obj\Release\DisplayManager.dll
-C:\Users\dev-win7\Desktop\src\FOG_DisplayManager\bin\Release\DisplayManager.dll
-C:\Users\dev-win7\Desktop\src\FOG_DisplayManager\bin\Release\AbstractFOGService.dll
-C:\Users\dev-win7\Desktop\src\FOG_DisplayManager\bin\Release\IniReaderObj.dll
