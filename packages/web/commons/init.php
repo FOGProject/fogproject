@@ -39,7 +39,7 @@ class Initiator
 	*/
 	public function __construct()
 	{
-		self::init_system();
+		define('BASEPATH', self::DetermineBasePath());
 		$this->plugPaths = array_filter(glob(BASEPATH . '/lib/plugins/*'), 'is_dir');
 		foreach($this->plugPaths AS $plugPath)
 		{
@@ -58,6 +58,38 @@ class Initiator
 		spl_autoload_register(array($this,'FOGHooks'));
 	}
 	/**
+	* DetermineBasePath()
+	* Determines the base path,
+	* sets the WEB_ROOT variable.
+	* @return void
+	*/
+	private static function DetermineBasePath()
+	{
+		// Find the name of the first directory in the files path
+		if($_SERVER['DOCUMENT_ROOT'] == null)
+		{
+			if(file_exists('/var/www/html/fog'))
+				$_SERVER['DOCUMENT_ROOT'] = '/var/www/html/fog';
+			if(file_exists('/var/www/fog'))
+				$_SERVER['DOCUMENT_ROOT'] = '/var/www/fog';
+			define('WEB_ROOT','/'.basename($_SERVER['DOCUMENT_ROOT']).'/');
+			return $_SERVER['DOCUMENT_ROOT'];
+		}
+		if($_SERVER['DOCUMENT_ROOT'] != null)
+		{
+			if(preg_match('#/fog/#i',$_SERVER['PHP_SELF']))
+			{
+				define('WEB_ROOT', '/fog/');
+				return $_SERVER['DOCUMENT_ROOT'].WEB_ROOT;
+			}
+			else
+			{
+				define('WEB_ROOT','/');
+				return $_SERVER['DOCUMENT_ROOT'];
+			}
+		}
+	}
+	/**
 	* __destruct()
 	* Used to unload the autoload functions as needed.
 	* @return void
@@ -67,16 +99,6 @@ class Initiator
 		spl_autoload_unregister(array($this,'FOGLoader'));
 		spl_autoload_unregister(array($this,'FOGPages'));
 		spl_autoload_unregister(array($this,'FOGHooks'));
-	}
-	/**
-	* init_system()
-	* Load the system information.
-	* @return void
-	*/
-	private static function init_system()
-	{
-		include('system.php');
-		new System();
 	}
 	/** startInit()
 	* Starts the initiation of the environment.
@@ -198,6 +220,7 @@ class Initiator
 }
 // Initialize everything
 $Init = new Initiator();
+$System = new System();
 $Init::startInit();
 // Get the configuration
 $Config = new Config();
