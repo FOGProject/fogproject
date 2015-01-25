@@ -65,7 +65,7 @@ class MulticastTask extends FOGBase
 			UDPSENDERPATH,
 			$this->getInterface() ? sprintf(' --interface %s',$this->getInterface()) : null,
 			sprintf(' --min-receivers %d',($this->getClientCount() ? $this->getClientCount() : $this->getClass('HostManager')->count())),
-			$this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT') ? sprintf(' --max-wait %d',$this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT')) : null,
+			sprintf(' --max-wait %d', $this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT') ? $this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT') * 60 : UDPSENDER_MAXWAIT),
 			$this->FOGCore->getSetting('FOG_MULTICAST_ADDRESS') ? sprintf(' --mcast-data-address %s',$this->FOGCore->getSetting('FOG_MULTICAST_ADDRESS')) : null,
 			sprintf(' --portbase %s',$this->getPortBase()),
 			sprintf(' %s',$this->FOGCore->getSetting('FOG_MULTICAST_DUPLEX')),
