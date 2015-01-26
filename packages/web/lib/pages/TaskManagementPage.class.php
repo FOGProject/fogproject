@@ -432,7 +432,7 @@ class TaskManagementPage extends FOGPage
 						'bpm' => $Task->get('bpm'),
 						'details_taskname'	=> ($Task->get('name')	? sprintf('<div class="task-name">%s</div>', $Task->get('name')) : ''),
 						'details_taskforce'	=> ($Task->get('isForced') ? sprintf('<span class="icon icon-forced" title="%s"></span>', _('Task forced to start')) : ($Task->get('typeID') < 3 && $Task->get('stateID') < 3 ? sprintf('<a href="?node=tasks&sub=force-task&id=%s"><span class="icon icon-force" title="%s"></span></a>', $Task->get('id'),_('Force task to start')) : '&nbsp;')),
-						'host_id'	=> $Host>get('id'),
+						'host_id'	=> $Host->get('id'),
 						'host_name'	=> $Host->get('name'),
 						'host_mac'	=> $Host->get('mac')->__toString(),
 						'icon_state'	=> strtolower(str_replace(' ', '', $Task->getTaskStateText())),
