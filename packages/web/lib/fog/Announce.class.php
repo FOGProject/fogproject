@@ -4,7 +4,6 @@ class Announce extends FOGBase
 	private $downloaded, $uploaded, $left;
 	private $peer, $torrent, $peer_torrent;
 	private $numwant;
-
 	public function __construct()
 	{
 		parent::__construct();
