@@ -4,13 +4,11 @@
 class MACAddress extends FOGBase
 {
 	private $MAC;
-	
 	public function __construct($MAC)
 	{
 		$this->setMAC($MAC);
 		return parent::__construct();
 	}
-	
 	public function setMAC($MAC)
 	{
 		try
@@ -37,22 +35,18 @@ class MACAddress extends FOGBase
 		}
 		return $this;
 	}
-	
 	public function getMACPrefix()
 	{
 		return substr(str_replace(':','-',strtolower($this->MAC)), 0, 8);
 	}
-
 	public function __toString()
 	{
 		return str_replace('-',':',strtolower($this->MAC));
 	}
-	
 	public function isValid()
 	{
 		return ($this->__toString() != '' ? preg_match('#^([0-9a-fA-F][0-9a-fA-F][:-]){5}([0-9a-fA-F][0-9a-fA-F])$#', $this->__toString()) : false);
 	}
-
 	public function isPending()
 	{
 		$PendingMACs = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->MAC, 'pending' => 1)));
