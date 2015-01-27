@@ -14,7 +14,7 @@ class Mainmenu extends FOGBase
 		{
 			$menuItem[] = '<ul>';
 			foreach($this->main AS $link => $title)
-				$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t\t",'<li><a href="?node='.$link.'" title="'.$title.'"><img src="images/icon-'.$link.'.png" alt="'.$title.'" /></a></li>');
+				$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t\t",'<li><a href="?node='.$link.'" title="'.$title.'"><img src="css/'.dirname($this->FOGCore->getSetting('FOG_THEME')).'/images/icon-'.$link.'.png" alt="'.$title.'" /></a></li>');
 			$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t","</ul>\n");
 		}
 		else
