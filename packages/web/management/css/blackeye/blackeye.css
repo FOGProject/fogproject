@@ -39,14 +39,14 @@ div.header
 	background-color: #000000;
 	margin: 0px;
 	padding: 0px;
-	background-image: url( ../css/blackeye/images/fogbanner.jpg );
+	background-image: url( images/fogbanner.jpg );
 	text-align: right;
 	
 }
 
 div.login
 {
-	background-image: url( ../css/blackeye/images/fade.jpg );
+	background-image: url( images/fade.jpg );
 	background-position: top left;
 	background-repeat: no-repeat;
 	width: 450px;
@@ -61,7 +61,7 @@ div.login
 
 .fogInfo
 {
-	background-image: url( ../css/blackeye/images/fade2.jpg );
+	background-image: url( images/fade2.jpg );
 	background-position: top left;
 	background-repeat: no-repeat;
 	width: 442px;
@@ -109,7 +109,7 @@ div.menuBar
 	border-color: #000000;
 	border-style: solid;
 	background-color: #ffffff;
-	background-image: url(../css/blackeye/images/menubg.jpg);
+	background-image: url(images/menubg.jpg);
 	max-height: 50px;
 	height: 38px;
 	top: -10px;
@@ -377,7 +377,7 @@ div.footer
 	margin-left: auto;
 	margin-right: auto;
 	color: #eaeaea;
-	background-image: url( ../css/blackeye/images/be_footer.jpg );
+	background-image: url( images/be_footer.jpg );
 }
 
 /* Footer */
@@ -593,7 +593,7 @@ div.kernel
 	text-align: left;
 	background-repeat: no-repeat;
 	background-position: 5px 5px;	
-	background-image: url( ../css/blackeye/images/kernel.png );	
+	background-image: url( images/kernel.png );	
 	min-height: 50px;
 	border-top-width: 1px;	
 	border-bottom-width: 1px;
@@ -650,7 +650,7 @@ p.downloadKContainer
 	border-color: #000000;	
 	border-style: solid;	
 	border-width: 1px;
-	background-image: url( ../css/blackeye/images/titlebg1.jpg );
+	background-image: url( images/titlebg1.jpg );
 	background-color: #ffffff;
 	text-align: center;
 	color: #ffffff;
@@ -665,7 +665,7 @@ p.downloadKContainer
 	border-color: #000000;	
 	border-style: solid;	
 	border-width: 1px;
-	background-image: url( ../css/blackeye/images/titlebg2.jpg );
+	background-image: url( images/titlebg2.jpg );
 	background-color: #ffffff;
 	text-align: center;
 	color: #ffffff;
@@ -680,7 +680,7 @@ p.downloadKContainer
 	border-color: #000000;	
 	border-style: solid;	
 	border-width: 1px;
-	background-image: url( ../css/blackeye/images/titlebg3.jpg );
+	background-image: url( images/titlebg3.jpg );
 	background-color: #ffffff;
 	text-align: center;
 	color: #ffffff;
@@ -748,7 +748,7 @@ div.alert
 	border-width: 0px;
 	border-color: #000000;
 	border-style: solid;	
-	background-image: url( ../css/blackeye/images/msgboxbg.png );
+	background-image: url( images/msgboxbg.png );
 	z-index: 100;
 }
 
@@ -787,7 +787,7 @@ div.progress
 	width: 100%;
 	height: 100%;
 	background-color: #4d4d4d;
-	background-image: url(../css/blackeye/images/progress.gif);
+	background-image: url(images/progress.gif);
 	background-position: 10px 10px;
 	background-repeat: no-repeat;
 	filter:alpha(opacity=85);
@@ -810,7 +810,7 @@ div.taskStartOK
 	padding-top: 30px;
 	padding-right: 10px;
 	background-color: #c5d2c6;
-	background-image: url(../css/blackeye/images/taskok.png);
+	background-image: url(images/taskok.png);
 	background-position: 10px 10px;
 	background-repeat: no-repeat;
 	border-width: 1px;
@@ -829,7 +829,7 @@ div.taskStartFailed
 	padding-top: 30px;
 	padding-right: 10px;
 	background-color: #c18175;
-	background-image: url(../css/blackeye/images/taskfailed.png);
+	background-image: url(images/taskfailed.png);
 	background-position: 10px 10px;
 	background-repeat: no-repeat;
 	border-width: 1px;
@@ -848,7 +848,7 @@ div.taskStartWarn
 	padding-top: 30px;
 	padding-right: 10px;
 	background-color: #ffd688;
-	background-image: url(../css/blackeye/images/taskwarning.png);
+	background-image: url(images/taskwarning.png);
 	background-position: 10px 10px;
 	background-repeat: no-repeat;
 	border-width: 1px;
@@ -888,7 +888,7 @@ div.confirmMessage
 	border-style: dashed;
 	border-color: #5f0000;
 	background-position: 5px 5px;
-	background-image: url( ../css/blackeye/images/question.png );
+	background-image: url( images/question.png );
 	background-repeat: no-repeat;
 	background-color: #c5d2c6;
 	text-align: left;
