@@ -1786,3 +1786,7 @@ $this->schema[] = array(
 $this->schema[] = array(
 	"INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey,settingDesc,settingValue,settingCategory) VALUES ('FOG_MULTICAST_DUPLEX','"._('This setting defines the duplex value. Default is FULL_DUPLEX.')."','--full-duplex','Multicast Settings')",
 );
+// 156
+$this->schema[] = array(
+	"UPDATE `".DATABASE_NAME."`.globalSettings SET settingValue='default/fog.css' WHERE settingKey='FOG_THEME'",
+);
