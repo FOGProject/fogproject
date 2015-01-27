@@ -7,7 +7,7 @@ class Page extends FOGBase {
 		{
 			$this->addCSS('css/jquery-ui.css');
 			$this->addCSS('css/jquery.organicTabs.css');
-			$this->addCSS('css/fog.css');
+			$this->addCSS('css/'.$this->FOGCore->getSetting('FOG_THEME'));
 
 		}
 		else
