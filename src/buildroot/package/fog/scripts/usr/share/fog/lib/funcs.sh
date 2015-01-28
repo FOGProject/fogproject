@@ -638,7 +638,7 @@ getSAMLoc()
 }
 # $1 is the partition to search for.
 getPartitionCount() {
-	echo `cat /proc/partitions | awk '$4 ~ /'$1'/ {print $4}' | wc -l`;
+	echo `cat /proc/partitions | awk '$4 ~ "'$1'" {print $4}' | wc -l`;
 }
 getHardDisk() {
 	if [ -n "${fdrive}" ]; then
