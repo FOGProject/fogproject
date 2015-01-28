@@ -14,7 +14,6 @@ fi
 if [ $percent -lt 10 ]; then
 	percent="0$percent";
 fi
-runPartprobe;
 fog.statusreporter $mac $web &
 dots "Checking Mounted File System";
 if [ -f "/images/.mntcheck" ]; then
@@ -32,6 +31,9 @@ if [ -f "/images/.mntcheck" ]; then
 		echo "Done";
 		dots "Looking for Hard Disks";
 		getHardDisk;
+		echo "Done";
+		dots "Re-reading Partition Tables";
+		runPartprobe $hd;
 		echo "Done";
 		echo " * Using Hard Disk: $hd";
 		if [ ! -n $hd ]; then
