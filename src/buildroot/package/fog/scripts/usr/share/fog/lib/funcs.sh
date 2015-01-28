@@ -106,6 +106,12 @@ fsTypeSetting()
 	fi
 }
 # $1 is the partition
+getPartType()
+{
+	parttype=`blkid -po udev $1 | grep PART_ENTRY_TYPE | awk -F'=' '{print $2}'`;
+	echo $parttype;
+}
+# $1 is the partition
 # Returns the size in bytes.
 getPartSize()
 {
@@ -774,9 +780,9 @@ handleWarning()
 # $1 is the drive
 runPartprobe()
 {
-	hdparm -z $1 &>/dev/null;
-	if [ ! -f "${1}1" ]; then
-		partprobe $1 &>/dev/null;
+	partprobe $1 &>/dev/null || hdparm -z $1 &>/dev/null;
+	if [ "$?" != "0" ]; then
+		handleError "Failed to read back partitions";
 	fi
 }
 
@@ -1023,6 +1029,7 @@ savePartition()
 	local imgPartitionType="$6";
 	local partNum="";
 	local fstype="";
+	local parttype="";
 	local imgpart="";
 	
 	partNum=${part:$diskLength};
@@ -1030,7 +1037,8 @@ savePartition()
 		mkfifo /tmp/pigz1;
 		echo " * Processing Partition: $part ($partNum)";
 		fstype=`fsTypeSetting $part`;
-		if [ "$fstype" != "swap" ]; then
+		parttype=`getPartType $part`;
+		if [ "$fstype" != "swap" ] || [ "$parttype" != "0x5" -a "$parttype" != "0xf" ]; then
 			echo -n " * Using partclone.";
 			echo $fstype;
 			sleep 5;
@@ -1042,8 +1050,12 @@ savePartition()
 			clear;
 			echo " * Image uploaded";
 		else
-			echo " * Not uploading swap partition";
-			saveSwapUUID "${imagePath}/d${intDisk}.original.swapuuids" "$part"; 
+			if [ "$parttype" == "0x5" -o "$parttype" == "0xf" ]; then
+				echo " * Not uploading content of extended partition";
+			else
+				echo " * Not uploading swap partition";
+				saveSwapUUID "${imagePath}/d${intDisk}.original.swapuuids" "$part"; 
+			fi
 		fi
 		rm /tmp/pigz1;
 	else
