@@ -20,7 +20,7 @@
 html, body { height: 100%; }
 body { margin: 0; padding: 0; background: #FFFFFF url(images/body-bkg.gif) repeat-x; font-family: Ubuntu, Arial, Helvetica, sans-serif; font-size: 13px; color: #555; }
 
-h1, h2, h3, h4, h5, h6 { margin: 6px 0; /*text-transform: lowercase;*/ font-weight: normal; color: #4c68a0; }
+h1, h2, h3, h4, h5, h6 { margin: 3px 0; /*text-transform: lowercase;*/ font-weight: normal; color: #4c68a0; }
 h1 { font-size: 32px; }
 h2 { font-size: 23px; }
 h3 { font-weight: bold; line-height: 26px; }
@@ -88,17 +88,17 @@ fieldset table tbody td select { min-width: 220px; }
 
 /* Menu */
 #menu { margin: 0 auto; }
-#menu ul { margin: 0; padding: 10px 0 0 0; list-style: none; line-height: 26px; text-align: center;}
+#menu ul { margin: 0; padding: 5px 0 0 0; list-style: none; text-align: center;}
 #menu li { display: inline-block; margin-left: 5px;  }
 #menu a { text-decoration: none; font-size: 13px; color: #000000; padding: 7px; display: block; }
 #menu a:hover {  }
 
 /* Structure */
-#wrapper { width: 850px; margin: 13px auto; min-height: 100%; }
+#wrapper { width: 850px; margin: 6px auto; min-height: 100%; }
 #content { float: right; width: 620px; padding-bottom: 21px; background: url(images/content-bkg.png) no-repeat center top; }
 #content-inner {padding: 0 10px; padding-bottom: 21px;}
-#content h1 { text-align: center; height: 50px; line-height: 50px; color: #666; margin: 0; }
-#content h2 { font-size: 18px; text-align: center; margin: 7px 0; padding: 5px 0; }
+#content h1 { text-align: center; height: 40px; line-height: 40px; color: #666; margin: 0; }
+#content h2 { font-size: 18px; text-align: center; margin: 3px 0; }
 #content.dashboard { width: 795px; background-image: url('images/content-bkg-dashboard.png'); float: none; margin: 0 auto; }
 #content-title.dashboard { width: 815px; }
 
@@ -108,10 +108,10 @@ fieldset table tbody td select { min-width: 220px; }
 #header.login { }
 
 #logo {  }
-#logo h1 { font-size: 38px; color: #494949; width: 222px; text-align: center; }
-#logo h1 sup { color: #94C3D3; font-size: 10px; margin-left: -40px; margin-top: 25px; position: absolute; vertical-align: text-top; }
+#logo h1 { font-size: 38px; color: #494949; width: 222px; text-align: left; margin-left: 50px; }
+#logo h1 sup { color: #94C3D3; font-size: 10px; margin-left: 10px; margin-top: 15px; position: absolute; vertical-align: text-top; }
 #logo h1 a { color: #494949; }
-#logo h2 { font-size: 12px; color: #A0A0A0; }
+#logo h2 { font-size: 12px; color: #A0A0A0; position: absolute; margin-top: -35px; margin-left: 350px; }
 #logo a { text-decoration: none; display: block; }
 
 /* Footer */
