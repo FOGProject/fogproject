@@ -26,7 +26,7 @@
 			<!-- Header -->
 			<div id="header"<?php !$this->FOGUser ? print ' class="login"' : ''?>>
 				<div id="logo">
-					<h1><a href="<?php print $_SERVER['PHP_SELF'] ?>"><img src="css/images/fog-logo.png" title="<?php print $this->foglang['Home'] ?>" /><sup><?php print FOG_VERSION ?></sup></a></h1>
+					<h1><a href="<?php print $_SERVER['PHP_SELF'] ?>"><img src="css/<?php print dirname($this->FOGCore->getSetting('FOG_THEME')) ?>/images/fog-logo.png" title="<?php print $this->foglang['Home'] ?>" /><sup><?php print FOG_VERSION ?></sup></a></h1>
 					<h2><?php print $this->foglang['Slogan'] ?></h2>
 				</div>
 				<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn()) { ?><!-- Mainmenu -->
