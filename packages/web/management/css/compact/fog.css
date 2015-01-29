@@ -163,7 +163,7 @@ pre { white-space: pre-wrap; }
 .code { font-family: monospace; font-size: 13px; line-height: 16px; }
 
 /* LOADER */
-#loader-wrapper { z-index: 10; position: absolute; min-width: 233px; max-width: 300px; top: 140px; left: 50%; padding: 5px; min-height: 50px; }
+#loader-wrapper { z-index: 10; position: absolute; min-width: 233px; max-width: 300px; top: 25px; left: 50%; min-height: 40px; }
 #loader-wrapper * { cursor: default; }
 #loader { display: none; border: 1px solid #bbb; background: #fff; min-height: 28px; border-radius: 3px; box-shadow: 0 0 10px #bbb; }
 #loader.loading {  background: #fff url('images/loader.gif') 5px center no-repeat; padding-left: 25px; }
