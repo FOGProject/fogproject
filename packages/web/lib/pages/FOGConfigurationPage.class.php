@@ -139,7 +139,7 @@ class FOGConfigurationPage extends FOGPage
 				@unlink( $_SESSION["tmp-kernel-file"] );
 			print "\n\t\t\t".'<div id="kdlRes">';
 			print "\n\t\t\t".'<p id="currentdlstate">'._("Starting process...").'</p>';
-			print "\n\t\t\t".'<img id="img" src="./images/loader.gif" />';
+			print "\n\t\t\t".'<img id="img" src="'.$this->imagelink.'loader.gif" />';
 			print "\n\t\t\t</div>";
 		}
 		else
