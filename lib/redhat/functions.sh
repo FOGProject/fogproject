@@ -17,7 +17,6 @@
 #
 #
 #
-linuxReleaseName
 installInitScript()
 {
 	echo -n "  * Installing init scripts...";
