@@ -14,7 +14,7 @@ abstract class FOGBase
 	public $info = false;
 	// Class variables
 	/** Sets the Variables to use later on. **/
-	public $FOGCore, $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang;
+	public $FOGCore, $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang, $imagelink;
 	// LEGACY
 	/** Legacy calls for $db/$conn */
 	public $db;
@@ -51,6 +51,7 @@ abstract class FOGBase
 		$this->foglang = $GLOBALS['foglang'];
 		// Default TimeZone to use for date fields
 		$this->TimeZone = (ini_get('date.timezone') ? ini_get('date.timezone') : 'GMT');
+		$this->imagelink = $GLOBALS['imagelink'];
 	}
 	/** fatalError($txt, $data = array())
 		Fatal error in the case something went wrong.

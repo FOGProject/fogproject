@@ -14,14 +14,14 @@ class Mainmenu extends FOGBase
 		{
 			$menuItem[] = '<ul>';
 			foreach($this->main AS $link => $title)
-				$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t\t",'<li><a href="?node='.$link.'" title="'.$title.'"><img src="css/'.dirname($this->FOGCore->getSetting('FOG_THEME')).'/images/icon-'.$link.'.png" alt="'.$title.'" /></a></li>');
+				$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t\t",'<li><a href="?node='.$link.'" title="'.$title.'"><img src="'.$this->imagelink.'icon-'.$link.'.png" alt="'.$title.'" /></a></li>');
 			$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t","</ul>\n");
 		}
 		else
 		{
 			$menuItem[] = sprintf("%s%s","\n\t\t\t\t",'<div id="menuBar">');
 			foreach($this->main AS $link => $title)
-				$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t",'<a href="?node='.$link.($link != 'logout' ? 's' : '').'"><img class="'.$link.'" src="images/icon-'.$link.'.png" alt="'.$title.'" /></a>');
+				$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t",'<a href="?node='.$link.($link != 'logout' ? 's' : '').'"><img class="'.$link.'" src="'.$this->imagelink.'icon-'.$link.'.png" alt="'.$title.'" /></a>');
 			$menuItem[] = sprintf("%s%s","\n\t\t\t\t","</div>");
 		}
 		return implode($menuItem);

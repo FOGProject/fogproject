@@ -811,7 +811,7 @@ class ImageManagementPage extends FOGPage
 			'<small>${mc_start}</small>',
 			'${mc_percent}',
 			'${mc_state}',
-			'<a href="?node='.$this->node.'&sub=stop&mcid=${mc_id}" title="Remove"><img src="./images/kill.png" alt="Kill"/></a>',
+			'<a href="?node='.$this->node.'&sub=stop&mcid=${mc_id}" title="Remove"><img src="'.$this->imagelink.'kill.png" alt="Kill"/></a>',
 		);
 		$MulticastSessions = $this->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3)));
 		foreach($MulticastSessions AS $MulticastSession)
