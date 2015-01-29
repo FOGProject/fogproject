@@ -1790,3 +1790,11 @@ $this->schema[] = array(
 $this->schema[] = array(
 	"UPDATE `".DATABASE_NAME."`.globalSettings SET settingValue='default/fog.css' WHERE settingKey='FOG_THEME'",
 );
+$this->DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE='MyISAM'");
+while ($row = $this->DB->fetch()->get())
+{
+	$table = $row['TABLE_NAME'];
+	$this->DB->query("ALTER TABLE `".DATABASE_NAME."`.`".$table."` ENGINE=InnoDB");
+}
+// 157, doesn't do anything but ensure all currently create tables are InnoDB
+$this->schema[] = array();
