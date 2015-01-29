@@ -506,7 +506,7 @@ abstract class FOGPage extends FOGBase
 		$Data = new $ClassType($_REQUEST['id']);
 		unset($this->headerData);
 		$this->templates = array(
-			'<a href="?node=${node}&sub=${sub}&id=${'.$this->node.'_id}${task_type}"><img src="images/${task_icon}" /><br/>${task_name}</a>',
+			'<a href="?node=${node}&sub=${sub}&id=${'.$this->node.'_id}${task_type}"><img src="'.$this->imagelink.'${task_icon}" /><br/>${task_name}</a>',
 			'${task_desc}',
 		);
 		$this->attributes = array(

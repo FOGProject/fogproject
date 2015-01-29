@@ -1059,7 +1059,7 @@ class HostManagementPage extends FOGPage
 			'${virus_file}',
 			'${virus_mode}',
 			'${virus_date}',
-			'<input type="checkbox" id="vir_del${virus_id}" class="delvid" name="delvid" onclick="this.form.submit()" value="${virus_id}" /><label for="${virus_id}" class="icon icon-hand" title="'._('Delete').' ${virus_name}"><img src="images/deleteSmall.png" class="link" />&nbsp;</label>',
+			'<input type="checkbox" id="vir_del${virus_id}" class="delvid" name="delvid" onclick="this.form.submit()" value="${virus_id}" /><label for="${virus_id}" class="icon icon-hand" title="'._('Delete').' ${virus_name}"><img src="'.$this->imagelink.'deleteSmall.png" class="link" />&nbsp;</label>',
 		);
 		print "\n\t\t\t".'<div id="host-virus-history" class="organic-tabs-hidden">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-virus-history">';
@@ -1126,7 +1126,7 @@ class HostManagementPage extends FOGPage
 				$optionDate[] = '<option value="'.$Date.'" '.($Date == $_REQUEST['dte'] ? 'selected="selected"' : '').'>'.$Date.'</option>';
 			}
 			print "\n\t\t\t".'<select name="dte" id="loghist-date" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select>';
-			print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><img src="images/go.png" class="noBorder" /></a></p>';
+			print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><img src="'.$this->imagelink.'go.png" class="noBorder" /></a></p>';
 			foreach ((array)$Host->get('users') AS $UserLogin)
 			{
 				if ($UserLogin && $UserLogin->isValid() && $UserLogin->get('date') == $_REQUEST['dte'])
