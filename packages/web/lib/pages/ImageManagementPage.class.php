@@ -125,6 +125,10 @@ class ImageManagementPage extends FOGPage
 		$this->searchFormURL = $_SERVER['PHP_SELF'].'?node='.$this->node.'&sub=search';
 		// Hook
 		$this->HookManager->processEvent('IMAGE_DATA');
+		$this->headerData = array_filter((array)$this->headerData);
+		$this->templates = array_filter((array)$this->templates);
+		$this->attributes = array_filter((array)$this->attributes);
+		$this->data = array_filter((array)$this->data);
 		// Output
 		$this->render();
 	}
