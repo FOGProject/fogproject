@@ -227,15 +227,19 @@ $Config = new Config();
 // Core
 $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
+// Cache SQL query stuff
+ini_set('mysqlnd_qc.enable_qc',true);
+ini_set('mysqlnd_qc.cache_by_default',true);
+ini_set('mysqlnd_qc.cache_no_table',true);
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
+// Set the memory limits
+ini_set('memory_limit',is_numeric($FOGCore->getSetting('FOG_MEMORY_LIMIT')) && $FOGCore->getSetting('FOG_MEMORY_LIMIT') >= 128 ? $FOGCore->getSetting('FOG_MEMORY_LIMIT').'M' : ini_get('memory_limit'));
 // Generate the Server's Key Pairings
 $FOGCore->createKeyPair();
 // Set the base image link.
 $imagelink = ($FOGCore->getSetting('FOG_THEME') ? 'css/'.dirname($FOGCore->getSetting('FOG_THEME')).'/images/' : 'css/default/images/');
-// Set the memory limits
-ini_set('memory_limit',is_numeric($FOGCore->getSetting('FOG_MEMORY_LIMIT')) && $FOGCore->getSetting('FOG_MEMORY_LIMIT') >= 128 ? $FOGCore->getSetting('FOG_MEMORY_LIMIT').'M' : ini_get('memory_limit'));
 // HookManager
 $HookManager = new HookManager();
 $HookManager->load();
