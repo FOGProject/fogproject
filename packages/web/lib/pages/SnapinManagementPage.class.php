@@ -188,7 +188,7 @@ class SnapinManagementPage extends FOGPage
 				if (!$_REQUEST['storagegroup'])
 				{
 					$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
-					if(!file_exists($this->FOGCore->getSetting('FOG_SNAPINDIR')))
+					if(!is_dir($this->FOGCore->getSetting('FOG_SNAPINDIR')) && !is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
 						throw new Exception('Failed to add snapin, unable to locate snapin directory.');
 					else if (!is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
 						throw new Exception('Failed to add snapin, snapin directory is not writeable.');
@@ -683,7 +683,7 @@ class SnapinManagementPage extends FOGPage
 						if (!$Snapin->getStorageGroup())
 						{
 							$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
-							if(!file_exists($this->FOGCore->getSetting('FOG_SNAPINDIR')))
+							if(!is_dir($this->FOGCore->getSetting('FOG_SNAPINDIR')) && !is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
 								throw new Exception('Failed to add snapin, unable to locate snapin directory.');
 							else if (!is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
 								throw new Exception('Failed to add snapin, snapin directory is not writeable.');
