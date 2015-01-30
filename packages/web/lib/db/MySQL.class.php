@@ -149,14 +149,13 @@ class MySQL extends FOGBase
 			if ($this->queryResult === false)
 				throw new Exception(_('No query was performed'));
 			// Return: 'field' if requested and field exists in results, otherwise the raw result
-			$result = ($field && array_key_exists($field, $this->result) ? $this->result[$field] : $this->result);
+			return ($field && array_key_exists($field, $this->result) ? $this->result[$field] : $this->result);
 		}
 		catch (Exception $e)
 		{
-			$result = false;
 			$this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			return false;
 		}
-		return $result;
 	}
 	/** sqlerror()
 		What was the error.
