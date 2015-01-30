@@ -113,7 +113,7 @@ class MulticastTask extends FOGBase
 			if (in_array($this->getImageType(),array(1,2)))
 				$filename = 'd1p%d.%s';
 			if ($this->getImageType() == 3)
-				$filename = 'd%d%d.%s';
+				$filename = 'd%dp%d.%s';
 			if (is_dir($this->getImagePath()))
 			{
 				if ($handle = opendir($this->getImagePath()))
