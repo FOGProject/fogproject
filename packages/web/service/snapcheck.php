@@ -4,7 +4,7 @@ try
 {
 	$HostManager = new HostManager();
 	// Get the MAC
-	$MACs = HostManager::parseMacList($_REQUEST['mac']);
+	$MACs = FOGCore::parseMacList($_REQUEST['mac']);
 	if (!$MACs) throw new Exception($foglang['InvalidMAC']);
 	// Get the host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
