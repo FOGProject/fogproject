@@ -5,7 +5,7 @@ try
 	$HostManager = new HostManager();
 	if (!$_REQUEST['newService'] && $_REQUEST['version'] != 2)
 		throw new Exception('#!er:Invalid Version Number, please update this module.');
-	$MACs = HostManager::parseMacList($_REQUEST['mac']);
+	$MACs = FOGCore::parseMacList($_REQUEST['mac']);
 	if (!$MACs) throw new Exception('#!im');
 	// The total number of pending macs that can be used.
 	$maxPending = $FOGCore->getSetting('FOG_QUICKREG_MAX_PENDING_MACS');

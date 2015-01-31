@@ -489,6 +489,19 @@ abstract class FOGBase
 		openssl_free_key($priv_key);
 		return $output;
 	}
+	public static function parseMacList($stringlist)
+	{
+		$MACs = explode('|',$stringlist);
+		foreach($MACs AS $MAC)
+		{
+			$MAC = new MACAddress($MAC);
+			if ($MAC && $MAC->isValid())
+				$MAClist[] = $MAC->__toString();
+		}
+		if (!$MAClist)
+			$MAClist = false;
+		return $MAClist;
+	}
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */
