@@ -874,7 +874,7 @@ abstract class FOGPage extends FOGBase
 				throw new Exception(base64_encode($srv_key));
 			}
 			$HostMan = new HostManager();
-			$MACs = HostManager::parseMacList($_REQUEST['mac']);
+			$MACs = FOGCore::parseMacList($_REQUEST['mac']);
 			if (!$MACs)
 				throw new Exception('#!im');
 			$Host = $HostMan->getHostByMacAddresses($MACs);
