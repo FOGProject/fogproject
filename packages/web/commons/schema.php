@@ -906,10 +906,7 @@ $this->schema[] = array(
 		global $DB;
 		$DB->query("SELECT DISTINCT hostImage, hostOS FROM `%s`.`hosts` WHERE hostImage > 0", array(DATABASE_NAME));
 		while ($host = $DB->fetch()->get())
-		{
 			$allImageID[$host['hostImage']] = $host['hostOS'];
-		}
-		$DB->queryResult()->free();
 		// Iterate imageID's -> Update Image setting new osID -> Save
 		foreach ((array)$allImageID AS $imageID => $osID)
 		{
