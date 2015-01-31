@@ -226,7 +226,6 @@ $Init::startInit();
 $Config = new Config();
 // Core
 $FOGFTP = new FOGFTP();
-$FOGCache = new FOGCache();
 $FOGCore = new FOGCore();
 // Cache SQL query stuff
 ini_set('mysqlnd_qc.enable_qc',true);
