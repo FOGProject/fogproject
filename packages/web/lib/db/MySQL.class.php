@@ -113,7 +113,14 @@ class MySQL extends FOGBase
 			elseif ($this->queryResult === true)
 				$this->result = true;
 			else
-				$this->result = $this->queryResult->fetch_array($type);
+			{
+				$this->result = $this->FOGCache->read('cache_'.addslashes($this->query).'_cache.tmp');
+				if (!$this->result)
+				{
+					$this->result = $this->queryResult->fetch_array($type);
+					$this->FOGCache->write(addslashes($this->query).'_cache.tmp',$this->result);
+				}
+			}
 		}
 		catch (Exception $e)
 		{
