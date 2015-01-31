@@ -52,6 +52,7 @@ abstract class FOGBase
 		// Default TimeZone to use for date fields
 		$this->TimeZone = (ini_get('date.timezone') ? ini_get('date.timezone') : 'GMT');
 		$this->imagelink = $GLOBALS['imagelink'];
+		$this->FOGCache = $GLOBALS['FOGCache'];
 	}
 	/** fatalError($txt, $data = array())
 		Fatal error in the case something went wrong.
