@@ -61,7 +61,7 @@ class MySQL extends FOGBase
 			if (!$this->link)
 				$this->link = new mysqli($this->host, $this->user, $this->pass);
 			if ($this->link->connect_error)
-				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s, Error: %s', $this->host, $this->user, '[Protected]', $this->dbname, $this->link->connect_error));
+				throw new Exception(sprintf('Host: %s, Username: %s, Password: %s, Database: %s, Error: %s', $this->host, $this->user, '[Protected]', $this->dbname, $this->sqlerror));
 			$this->link->set_charset('utf8');
 			if (!$this->link->select_db($this->dbname))
 				throw new Exception(_('Issue working with the current DB, maybe it has not been created yet'));
@@ -113,14 +113,7 @@ class MySQL extends FOGBase
 			elseif ($this->queryResult === true)
 				$this->result = true;
 			else
-			{
-				$this->result = $this->FOGCache->read('cache_'.addslashes($this->query).'_cache.tmp');
-				if (!$this->result)
-				{
-					$this->result = $this->queryResult->fetch_array($type);
-					$this->FOGCache->write(addslashes($this->query).'_cache.tmp',$this->result);
-				}
-			}
+				$this->result = $this->queryResult->fetch_array($type);
 		}
 		catch (Exception $e)
 		{
@@ -169,7 +162,10 @@ class MySQL extends FOGBase
 	*/
 	public function sqlerror()
 	{
-		return $this->link->error;
+		if ($this->link->connect_error)
+			return $this->link->connect_error.', Message: '.'Check that database is running';
+		else
+			return $this->link->error;
 	}
 	/** insert_id()
 		Return the id of the inserted element.
