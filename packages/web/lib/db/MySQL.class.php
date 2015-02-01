@@ -102,10 +102,14 @@ class MySQL extends FOGBase
 	/** fetch($type = MYSQL_ASSOC)
 		fetches the information.
 	*/
-	public function fetch($type = MYSQLI_ASSOC)
+	public function fetch($type = MYSQLI_ASSOC,$fetchType = 'fetch_array')
 	{
 		try
 		{
+			if (empty($type))
+				$type = MYSQLI_ASSOC;
+			if (empty($fetchType))
+				$fetchType = 'fetch_array';
 			if (!$this->queryResult)
 				throw new Exception('No query result present. Use query() first');
 			if ($this->queryResult === false)
@@ -113,12 +117,14 @@ class MySQL extends FOGBase
 			elseif ($this->queryResult === true)
 				$this->result = true;
 			else
-				$this->result = $this->queryResult->fetch_array($type);
+				$this->result = $this->queryResult->$fetchType($type);
 		}
 		catch (Exception $e)
 		{
 			$this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
+		if ($fetchType != 'fetch_array')
+			return $this->result;
 		return $this;
 	}
 	/** result()
