@@ -560,8 +560,8 @@ installPackages()
 	RHVER=`rpm -qa | grep release | xargs rpm -q --queryformat '%{VERSION}' | cut -c -1`;
 	if [ -d "/etc/yum.repos.d/" -a ! -f "/etc/yum.repos.d/remi.repo" ]; then
 		echo -n "  * Copying needed repo...";
-		rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-$RHVER.rpm
-		rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi
+		rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-$RHVER.rpm &> /dev/null;
+		rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi &> /dev/null
 		echo "OK";
 	fi
 	echo "  * Packages to be installed: $packages";
