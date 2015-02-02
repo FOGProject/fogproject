@@ -23,21 +23,21 @@
 if [ "$linuxReleaseName" == "Mageia" ];
 then
     # Mageia 
-    packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core php-mysql dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp";
-    storageNodePackages="apache apache-mod_php php-cli php-gettext mariadb mariadb-core mariadb-common mariadb-common-core php-mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp";
+    packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core php-mysql dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd";
+    storageNodePackages="apache apache-mod_php php-cli php-gettext mariadb mariadb-core mariadb-common mariadb-common-core php-mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd";
     packageinstaller="urpmi --auto";
 
 elif [ "linuxReleaseName" == "Fedora" ];
 then
     # Fedora
-    packages="httpd php php-cli php-common php-gd php-mysql mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp";
+    packages="httpd php php-cli php-common php-gd php-mysql mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd";
     storageNodePackages="httpd php php-cli php-common php-gd php-mysql mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp";
-    packageinstaller="yum -y install";
+    packageinstaller="yum -y --enablerepo=remi,remi-php56 install";
 else
     # CentOS or Other  PCLinuxOS uses apt-rpm  
-    packages="httpd php php-cli php-common php-gd php-mysql mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp";
-    storageNodePackages="httpd php php-cli php-common php-gd php-mysql mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp";
-    packageinstaller="yum -y install";
+    packages="httpd php php-cli php-common php-gd php-mysql mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd";
+    storageNodePackages="httpd php php-cli php-common php-gd php-mysql mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd";
+    packageinstaller="yum -y --enablerepo=remi,remi-php56 install";
 fi
     
 langPackages="iso-codes";
