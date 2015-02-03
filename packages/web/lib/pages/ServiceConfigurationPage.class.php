@@ -39,7 +39,7 @@ class ServiceConfigurationPage extends FOGPage
 		// Row templates
 		$this->templates = array(
 			sprintf('<a href="?node=%s&sub=edit">${name}</a>', $this->node),
-			sprintf('<a href="?node=%s&sub=edit"><span class="icon icon-edit"></span></a>', $this->node)
+			sprintf('<a href="?node=%s&sub=edit"><i class="icon fa fa-pencil"></i></a>', $this->node)
 		);
 		// Row attributes
 		$this->attributes = array(
@@ -110,7 +110,7 @@ class ServiceConfigurationPage extends FOGPage
 						'input' => $input,
 						'checked' => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? 'checked' : ''),
 						($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? 'is_on' : null) => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? ($Module->get('isDefault') ? 'checked' : null) : null),
-						'span' => '<span class="icon icon-help hand" title="${module_desc}"></span>',
+						'span' => '<i class="icon fa fa-question hand" title="${module_desc}"></i>',
 						'module_desc' => $Service->get('description'),
 					);
 				}
@@ -158,7 +158,7 @@ class ServiceConfigurationPage extends FOGPage
 				);
 				$this->templates = array(
 					'${dir_path}',
-					'<input type="checkbox" id="rmdir${dir_id}" class="delid" name="delid" onclick="this.form.submit()" value="${dir_id}" /><label for="rmdir${dir_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
+					'<input type="checkbox" id="rmdir${dir_id}" class="delid" name="delid" onclick="this.form.submit()" value="${dir_id}" /><label for="rmdir${dir_id}" class="icon fa fa-minus-circle hand" title="'._('Delete').'">&nbsp;</label>',
 				);
 				print "\n\t\t\t<h2>"._('Add Directory').'</h2>';
 				print "\n\t\t\t".'<form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'">';
@@ -229,7 +229,7 @@ class ServiceConfigurationPage extends FOGPage
 				$this->templates = array(
 					'${gf_time}',
 					'${gf_action}',
-					'<input type="checkbox" id="gfrem${gf_id}" class="delid" name="delid" onclick="this.form.submit()" value="${gf_id}" /><label for="gfrem${gf_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
+					'<input type="checkbox" id="gfrem${gf_id}" class="delid" name="delid" onclick="this.form.submit()" value="${gf_id}" /><label for="gfrem${gf_id}" class="icon fa fa-minus-circle hand" title="'._('Delete').'">&nbsp;</label>',
 				);
 				print "\n\t\t\t<h2>"._('Shutdown/Reboot Schedule').'</h2>';
 				print "\n\t\t\t".'<form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'">';
@@ -298,7 +298,7 @@ class ServiceConfigurationPage extends FOGPage
 				{
 					$this->data[] = array(
 						'user_name' => $UserCleanup->get('name'),
-						'input' => $UserCleanup->get('id') < 7 ? null : '<input type="checkbox" id="rmuser${user_id}" class="delid" name="delid" onclick="this.form.submit()" value="${user_id}" /><label for="rmuser${user_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
+						'input' => $UserCleanup->get('id') < 7 ? null : '<input type="checkbox" id="rmuser${user_id}" class="delid" name="delid" onclick="this.form.submit()" value="${user_id}" /><label for="rmuser${user_id}" class="icon fa fa-minus-circle hand" title="'._('Delete').'">&nbsp;</label>',
 						'user_id' => $UserCleanup->get('id'),
 					);
 				}

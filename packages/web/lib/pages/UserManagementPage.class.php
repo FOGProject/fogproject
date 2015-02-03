@@ -35,7 +35,7 @@ class UserManagementPage extends FOGPage
 		$this->templates = array(
 			'<input type="checkbox" name="user[]" value="${id}" class="toggle-action" checked/>',
 			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, _('Edit User')),
-			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><span class="icon icon-edit"></span></a>', $this->node, $this->id, _('Edit User'))
+			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a>', $this->node, $this->id, _('Edit User'))
 		);
 		// Row attributes
 		$this->attributes = array(
