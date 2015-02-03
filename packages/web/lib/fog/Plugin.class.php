@@ -77,9 +77,10 @@ class Plugin extends FOGController
 		{
 			if(md5(trim($Plugin->getName())) == trim($plugincode))
 			{
-				$ME = $this->getClass('PluginManager')->find(array('name' => $Plugin->getName()));
-				if (count($ME) > 0)
+				$ME = $this->getClass('PluginManager')->count(array('name' => $Plugin->getName()));
+				if ($ME)
 				{
+					$ME = $this->getClass('PluginManager')->find(array('name' => $Plugin->getName()));
 					$blActive = false;
 					foreach($ME AS $Me)
 					{
