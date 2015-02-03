@@ -61,3 +61,11 @@ p.padded {
 .center {
 	text-align: center;
 }
+/* HOVER COLOR */
+.activelink .fa, .fa:hover {
+	color: orange;
+}
+/* NON HOVER COLOR */
+.fa {
+	color: #00567a;
+}
