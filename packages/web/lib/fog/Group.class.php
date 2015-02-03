@@ -39,10 +39,7 @@ class Group extends FOGController
 
 	public function getHostCount()
 	{
-		$i = 0;
-		foreach((array)$this->get('hosts') AS $Host)
-			$Host && $Host->isValid() ? $i++ : null;
-		return $i;
+		return $this->getClass('GroupAssociationManager')->count(array('groupID' => $this->get('id')));
 	}
 
     public function get($key = '') 
