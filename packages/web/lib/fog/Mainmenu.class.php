@@ -12,7 +12,7 @@ class Mainmenu extends FOGBase
 	{
 		if(!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
 		{
-			$menuItem[] = '<ul>';
+			$menuItem[] = '<center><ul>';
 			foreach($this->main AS $link => $title)
 			{
 				$activelink = false;
@@ -20,7 +20,7 @@ class Mainmenu extends FOGBase
 					$activelink = true;
 				$menuItem[] = "\n\t\t\t\t\t\t".'<li><a href="?node='.$link.'" title="'.$title[0].'" '.($activelink ? 'class="activelink"' : '').'><i class="'.$title[1].'"></i></a></li>';
 			}
-			$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t","</ul>\n");
+			$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t","</ul></center>\n");
 		}
 		else
 		{
