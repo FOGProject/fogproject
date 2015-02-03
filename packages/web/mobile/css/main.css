@@ -68,4 +68,6 @@ p.padded {
 /* NON HOVER COLOR */
 .fa {
 	color: #00567a;
+	margin-left: 15px;
+	margin-right: 15px
 }
