@@ -1,30 +1,19 @@
-*
-{
+* {
 	font-family: arial;
 	font-size: 11px;
 }
-
-html,body
-{
-	height: 100%;
+html,body {
+	position: relative;
 }
-
-div#mainContainer
-{
+div#mainContainer {
 	width: 100%;
 	height: 100%;
 }
-
-div#header
-{
-	background-image: url( ../images/mobile.png );
-	background-repeat: no-repeat;
+div#header {
+	background: url('images/mobile.png') no-repeat center;
 	height: 28px;
-	width: 100%;
 }
-
-div#menuBar
-{
+div#menuBar {
 	width: 100%;
 	text-align: center;
 	margin-top: 5px;
@@ -32,16 +21,13 @@ div#menuBar
 	border-color: black;
 	border-style: dashed;
 }
-h1, h2
-{
+h1, h2{
 	text-align: center;
 }
-div#mobile_content
-{
+div#mobile_content {
 	text-align: center;
 }
-div#mainContent
-{
+div#mainContent {
 	height: 100%;
 	background-color: #e8e8e8;
 	border-width: 1px;
@@ -50,9 +36,7 @@ div#mainContent
 	margin-top: 4px;
 	text-align: center;
 }
-
-p#contentTitle
-{
+p#contentTitle {
 	margin-top: 0px;
 	margin-bottom: 0px;
 	border-width: 0px 0px 1px 0px;
@@ -61,27 +45,19 @@ p#contentTitle
 	background-color: #c3c3c3;	
 	padding-left: 3px;
 }
-
-img.task
-{
+img.task {
 	margin-top: 7px;
 	margin-bottom: 7px;
 	border-width: 0px;
 }
-
-img.link
-{
+img.link {
 	margin-right: 10px;
 	margin-left: 10px;
 	border-width: 0px;
 }
-
-p.padded
-{
+p.padded {
 	padding: 3px;
 }
-
-.center
-{
+.center {
 	text-align: center;
 }

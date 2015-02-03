@@ -11,10 +11,8 @@ class Page extends FOGBase {
 			$this->addCSS($theme);
 		}
 		else
-		{
 			$this->addCSS('css/main.css');
-			$this->media = ' media="only screen and (max-device-width: 320px)"';
-		}
+		$this->addCSS('../management/css/font-awesome.css');
 		$this->isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST['sub'],array('configure','authorize')) || !$this->FOGUser || !$this->FOGUser->isLoggedIn());
 		if ($this->FOGUser && $this->FOGUser->isLoggedIn() && $_REQUEST['node'] != 'schemaupdater')
 		{
