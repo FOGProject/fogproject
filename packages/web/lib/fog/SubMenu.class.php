@@ -15,7 +15,7 @@ class SubMenu extends FOGBase
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Group']);
 			$this->object = new Group($_REQUEST['id']);
 			$this->title = array($this->foglang['Group'] => $this->object->get('name'),
-								 $this->foglang['Members'] => count($this->object->get('hosts')),
+								 $this->foglang['Members'] => $this->object->getHostCount()),
 			);
 		}
 		else if ($this->node == 'host' && $_REQUEST['id'])
