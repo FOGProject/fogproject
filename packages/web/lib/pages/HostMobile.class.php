@@ -43,7 +43,7 @@ class HostMobile extends FOGPage
 			'${host_id}',
 			'${host_name}',
 			'${host_mac}',
-			'<a href="index.php?node=${node}&sub=deploy&id=${host_id}"><img class="task" src="./images/send.png" /></a>',
+			'<a href="index.php?node=${node}&sub=deploy&id=${host_id}"><i class="fa fa-arrow-down fa-2x"></i></a>',
 		);
 	}
 

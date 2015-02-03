@@ -49,7 +49,7 @@ class TaskMobile extends FOGPage
 			'${host_name}',
 			'${task_type}',
 			'${task_state}',
-			'<a href="?node=${node}&sub=killtask&id=${task_id}"><img src="'.$this->imagelink.'kill.png" border="0" class="task" /></a>',
+			'<a href="?node=${node}&sub=killtask&id=${task_id}"><i class="fa fa-minus-circle fa-2x task"></i></a>',
 		);
 	}
 
@@ -59,7 +59,7 @@ class TaskMobile extends FOGPage
 		{
 			$Host = new Host($Task->get('hostID'));
 			$this->data[] = array(
-				'task_force' => (!$Task->get('isForced') ? '<a href="?node=${node}&sub=force&id=${task_id}"><img src="'.$this->imagelink.'force.png" border="0" class="task" /></a>' : ''),
+				'task_force' => (!$Task->get('isForced') ? '<a href="?node=${node}&sub=force&id=${task_id}"><i class="fa fa-step-forward fa-2x task"></i></a>' : '<i class="fa fa-play fa-2x task"></i>'),
 				'node' => $_REQUEST['node'],
 				'task_id' => $Task->get('id'),
 				'task_name' => $Task->get('name'),

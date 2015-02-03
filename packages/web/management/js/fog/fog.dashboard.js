@@ -158,7 +158,7 @@ $(function() {
 		return false;
 	});
 	// Remove loading spinners
-	$('.graph').not(GraphDiskUsage,GraphBandwidth).addClass('loaded');
+	$('.graph').not(GraphBandwidth,GraphDiskUsage).addClass('loaded');
 });
 // Disk Usage Functions
 function GraphDiskUsageUpdate() {
@@ -208,6 +208,7 @@ function UpdateBandwidth() {
 		success: UpdateBandwidthGraph,
 		complete: function() {
 			setTimeout(UpdateBandwidth,1000);
+			GraphBandwidth.addClass('loaded');
 		}
 	});
 }
