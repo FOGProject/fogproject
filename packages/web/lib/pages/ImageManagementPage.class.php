@@ -49,7 +49,7 @@ class ImageManagementPage extends FOGPage
 			$SizeServer ? '${serv_size}' : null,
 			'${type}',
 			'${deployed}',
-			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').'"><span class="icon icon-edit"></span></a> <a href="?node='.$this->node.'&sub=delete&'.$this->id.'=${id}" title="'._('Delete').'"><span class="icon icon-delete"></span></a>',
+			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').'"><i class="fa fa-pencil"></i></a> <a href="?node='.$this->node.'&sub=delete&'.$this->id.'=${id}" title="'._('Delete').'"><i class="fa fa-minus-circle"></i></a>',
 		);
 		// Row attributes
 		$this->attributes = array(
@@ -207,7 +207,7 @@ class ImageManagementPage extends FOGPage
 			_('Image Type') => '${image_types}',
 			_('Partition') => '${image_partition_types}',
 			_('Compression') => '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="${image_comp}" />',
-			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" /><!--<span class="icon icon-help" title="TODO!"></span>-->',
+			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" /><!--<i class="icon fa fa-question" title="TODO!"></i>-->',
 		);
 		print "\n\t\t\t<h2>"._('Add new image definition').'</h2>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
@@ -332,7 +332,7 @@ class ImageManagementPage extends FOGPage
 			_('Protected') => '<input type="checkbox" name="protected_image" value="1" ${image_protected} />',
 			_('Compression') => '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="${image_comp}" />',
 			$this->FOGCore->getSetting('FOG_FORMAT_FLAG_IN_GUI') ? _('Image Manager') : '' => $this->FOGCore->getSetting('FOG_FORMAT_FLAG_IN_GUI') ? '<select name="imagemanage"><option value="1" ${is_legacy}>'._('PartImage').'</option><option value="0" ${is_modern}>'._('PartClone').'</option></select>' : '',
-			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" /><!--<span class="icon icon-help" title="TODO!"></span>-->',
+			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" /><!--<i class="icon fa fa-question" title="TODO!"></i>-->',
 		);
 		$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
 		foreach ((array)$fields AS $field => $input)
@@ -401,7 +401,7 @@ class ImageManagementPage extends FOGPage
 		);
 		// Create the template data:
 		$this->templates = array(
-			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<i class="icon fa fa-question" title="${host_desc}"></i>',
 			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'${deployed}',
@@ -498,7 +498,7 @@ class ImageManagementPage extends FOGPage
 		);
 		// Create the template data:
 		$this->templates = array(
-			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
 			'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'${deployed}',
@@ -773,7 +773,7 @@ class ImageManagementPage extends FOGPage
 			_('Client Count') => '<input type="text" name="count" id="iCount" autocomplete="off" />',
 			_('Timeout') .'('._('minutes').')' => '<input type="text" name="timeout" id="iTimeout" autocomplete="off" />',
 			_('Select Image') => '${select_image}',
-			'<input type="hidden" name="start" value="1" />' => '<input type="submit" value="'._('Start').'" /><!--span class="icon icon-help" title="TODO!"></span>-->',
+			'<input type="hidden" name="start" value="1" />' => '<input type="submit" value="'._('Start').'" /><!--<i class="icon fa fa-question" title="TODO!"></i>-->',
 		);
 		print "\n\t\t\t<h2>"._('Start Multicast Session').'</h2>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
@@ -815,7 +815,7 @@ class ImageManagementPage extends FOGPage
 			'<small>${mc_start}</small>',
 			'${mc_percent}',
 			'${mc_state}',
-			'<a href="?node='.$this->node.'&sub=stop&mcid=${mc_id}" title="Remove"><img src="'.$this->imagelink.'kill.png" alt="Kill"/></a>',
+			'<a href="?node='.$this->node.'&sub=stop&mcid=${mc_id}" title="Remove"><i class="fa fa-minus-circle" alt="'._('Kill').'"></i></a>',
 		);
 		$MulticastSessions = $this->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3)));
 		foreach($MulticastSessions AS $MulticastSession)

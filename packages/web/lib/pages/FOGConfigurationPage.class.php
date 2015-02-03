@@ -179,10 +179,10 @@ class FOGConfigurationPage extends FOGPage
 			'${input}',
 		);
 		$fields = array(
-			_('No Menu') => '<input type="checkbox" name="nomenu" ${noMenu} value="1" /><span class="icon icon-help hand" title="Option sets if there will even be the presence of a menu to the client systems.  If there is not a task set, it boots to the first device, if there is a task, it performs that task."></span>',
-			_('Hide Menu') => '<input type="checkbox" name="hidemenu" ${checked} value="1" /><span class="icon icon-help hand" title="Option below sets the key sequence.  If none is specified, ESC is defaulted. Login with the FOG credentials and you will see the menu.  Otherwise it will just boot like normal."></span>',
-			_('Hide Menu Timeout') => '<input type="text" name="hidetimeout" value="${hidetimeout}" /><span class="icon icon-help hand" title="Option specifies the timeout value for the hidden menu system."></span>',
-			_('Advanced Menu Login') => '<input type="checkbox" name="advmenulogin" ${advmenulogincheck} value="1" /><span class="icon icon-help hand" title="Option below enforces a Login system for the Advanced menu parameters.  If off no login will appear, if on, it will only allow login to the advanced system.."></span>',
+			_('No Menu') => '<input type="checkbox" name="nomenu" ${noMenu} value="1" /><i class="icon fa fa-question hand" title="Option sets if there will even be the presence of a menu to the client systems.  If there is not a task set, it boots to the first device, if there is a task, it performs that task."></i>',
+			_('Hide Menu') => '<input type="checkbox" name="hidemenu" ${checked} value="1" /><i class="icon fa fa-question hand" title="Option below sets the key sequence.  If none is specified, ESC is defaulted. Login with the FOG credentials and you will see the menu.  Otherwise it will just boot like normal."></i>',
+			_('Hide Menu Timeout') => '<input type="text" name="hidetimeout" value="${hidetimeout}" /><i class="icon fa fa-question hand" title="Option specifies the timeout value for the hidden menu system."></i>',
+			_('Advanced Menu Login') => '<input type="checkbox" name="advmenulogin" ${advmenulogincheck} value="1" /><i class="icon fa fa-question hand" title="Option below enforces a Login system for the Advanced menu parameters.  If off no login will appear, if on, it will only allow login to the advanced system.."></i>',
 			_('Boot Key Sequence') => '${boot_keys}',
 			_('Menu Timeout (in seconds)').':*' => '<input type="text" name="timeout" value="${timeout}" id="timeout" />',
 			_('Exit to Hard Drive Type') => '<select name="bootTypeExit"><option value="sanboot" '.($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'sanboot' ? 'selected="selected"' : '').'>Sanboot style</option><option value="exit" '.($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'selected="selected"' : '').'>Exit style</option><option value="grub" '.($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'grub' ? 'selected="selected"' : '').'>Grub style</option></select>',
@@ -419,7 +419,7 @@ class FOGConfigurationPage extends FOGPage
 			'<form method="post" action="${action}"><input type="hidden" name="name" value="FOG_SERVICE_CLIENTUPDATER_ENABLED" />${name}',
 			'${module}',
 			'${type}',
-			'<input type="checkbox" onclick="this.form.submit()" name="delcu" class="delid" id="delcuid${client_id}" value="${client_id}" /><label for="delcuid${client_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label></form>',
+			'<input type="checkbox" onclick="this.form.submit()" name="delcu" class="delid" id="delcuid${client_id}" value="${client_id}" /><label for="delcuid${client_id}" class="icon fa fa-minus-circle icon-hand" title="'._('Delete').'">&nbsp;</label></form>',
 		);
 		$this->attributes = array(
 			array(),
@@ -523,7 +523,7 @@ class FOGConfigurationPage extends FOGPage
 				}
 			}
 		}
-		$this->FOGCore->redirect(sprintf('?node=%s&sub=%s#%s', $_REQUEST['node'], $_REQUEST['sub'], $_REQUEST['tab']));
+		$this->FOGCore->redirect(sprintf('?node=%s&sub=%s#%s', $_REQUEST['node'], 'edit', $_REQUEST['tab']));
 	}
 	// MAC Address List
 	/** mac_list()
@@ -743,7 +743,7 @@ class FOGConfigurationPage extends FOGPage
 				$this->data[] = array(
 					'input_type' => (count(explode(chr(10),$Service->get('value'))) <= 1 ? $type : '<textarea name="${service_id}">${service_value}</textarea>'),
 					'service_name' => $Service->get('name'),
-					'span' => '<span class="icon icon-help hand" title="${service_desc}"></span>',
+					'span' => '<i class="icon fa fa-question hand" title="${service_desc}"></i>',
 					'service_id' => $Service->get('id'),
 					'service_value' => $Service->get('value'),
 					'service_desc' => $Service->get('description'),

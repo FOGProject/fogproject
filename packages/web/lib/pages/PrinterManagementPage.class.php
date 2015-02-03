@@ -49,7 +49,7 @@ class PrinterManagementPage extends FOGPage
 			'${port}',
 			'${file}',
 			'${ip}',
-			'<a href="?node=printer&sub=edit&id=${id}" title="Edit"><span class="icon icon-edit"></span></a><a href="?node=printer&sub=delete&id=${id}" title="Delete"><span class="icon icon-delete"></span></>', 
+			'<a href="?node=printer&sub=edit&id=${id}" title="Edit"><i class="icon fa fa-pencil"></i></a><a href="?node=printer&sub=delete&id=${id}" title="Delete"><i class="icon fa fa-minus-circle"></i></>',
 		);	
 		// Row attributes
 		$this->attributes = array(
@@ -409,7 +409,7 @@ class PrinterManagementPage extends FOGPage
 		);
 		// Create the template data:
 		$this->templates = array(
-			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
 			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'${deployed}',
@@ -512,7 +512,7 @@ class PrinterManagementPage extends FOGPage
 			array('class' => 'l'),
 		);
 		$this->templates = array(
-			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
 			'<input type="checkbox" name="hosts[]" value="${host_id}" class="toggle-action" checked/>',
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'${deployed}',
