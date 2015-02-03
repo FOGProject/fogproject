@@ -77,7 +77,7 @@ class StorageManagementPage extends FOGPage
 			sprintf('${isEnabledText}', $this->node, $this->id),
 			sprintf('${isGraphEnabledText}', $this->node, $this->id),
 			sprintf('${isMasterText}', $this->node, $this->id),
-			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><span class="icon icon-edit"></span></a> <a href="?node=%s&sub=delete&%s=${id}" title="%s"><span class="icon icon-delete"></span></a>', $this->node, $this->id, $this->foglang['Edit'], $this->node, $this->id, $this->foglang['Delete'])
+			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a> <a href="?node=%s&sub=delete&%s=${id}" title="%s"><i class="icon fa fa-minus-circle"></i></a>', $this->node, $this->id, $this->foglang['Edit'], $this->node, $this->id, $this->foglang['Delete'])
 		);
 		// Row attributes
 		$this->attributes = array(
@@ -138,8 +138,8 @@ class StorageManagementPage extends FOGPage
 				'node_desc' => $_REQUEST['description'],
 				'node_ip' => $_REQUEST['ip'],
 				'node_maxclient' => $_REQUEST['maxClients'] ? $_REQUEST['maxClients'] : 10,
-				'span' => '<span class="icon icon-help hand" title="'.$this->foglang['CautionPhrase'].'"></span>',
-				'span2' => '<span class="icon icon-help hand" title="'.$this->foglang['BandwidthRepHelp'].'"></span>',
+				'span' => '<i class="icon fa fa-question hand" title="'.$this->foglang['CautionPhrase'].'"></i>',
+				'span2' => '<i class="icon fa fa-question hand" title="'.$this->foglang['BandwidthRepHelp'].'"></i>',
 				'node_group' => $this->getClass('StorageGroupManager')->buildSelectBox(1, 'storageGroupID'),
 				'node_path' => $_REQUEST['path'] ? $_REQUEST['path'] : '/images/',
 				'node_snapinpath' => $_REQUEST['snapinpath'] ? $_REQUEST['snapinpath'] : '/opt/fog/snapins/',
@@ -281,8 +281,8 @@ class StorageManagementPage extends FOGPage
 				'ismaster' => $StorageNode->get('isMaster') == 1 ? 'checked' : '',
 				'isenabled' => $StorageNode->get('isEnabled') == 1 ? 'checked' : '',
 				'graphenabled' => $StorageNode->get('isGraphEnabled') == 1 ? 'checked' : '',
-				'span' => '<span class="icon icon-help hand" title="'.$this->foglang['CautionPhrase'].'"></span>',
-				'span2' => '<span class="icon icon-help hand" title="'.$this->foglang['BandwidthRepHelp'].'"></span>',
+				'span' => '<i class="icon fa fa-question hand" title="'.$this->foglang['CautionPhrase'].'"></i>',
+				'span2' => '<i class="icon fa fa-question hand" title="'.$this->foglang['BandwidthRepHelp'].'"></i>',
 				'node_group' => $this->getClass('StorageGroupManager')->buildSelectBox($StorageNode->get('storageGroupID'), 'storageGroupID'),
 				'node_bandwidth' => $StorageNode->get('bandwidth'),
 				'node_path' => $StorageNode->get('path'),
@@ -462,7 +462,7 @@ class StorageManagementPage extends FOGPage
 		// Row templates
 		$this->templates = array(
 			sprintf('<a href="?node=%s&sub=edit-storage-group&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, $this->foglang['Edit']),
-			sprintf('<a href="?node=%s&sub=edit-storage-group&%s=${id}" title="%s"><span class="icon icon-edit"></span></a> <a href="?node=%s&sub=delete-storage-group&%s=${id}" title="%s"><span class="icon icon-delete"></span></a>', $this->node, $this->id, $this->foglang['Edit'], $this->node, $this->id, $this->foglang['Delete'])
+			sprintf('<a href="?node=%s&sub=edit-storage-group&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a> <a href="?node=%s&sub=delete-storage-group&%s=${id}" title="%s"><i class="icon fa fa-minus-circle"></i></a>', $this->node, $this->id, $this->foglang['Edit'], $this->node, $this->id, $this->foglang['Delete'])
 		);
 		// Row attributes
 		$this->attributes = array(
