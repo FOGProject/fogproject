@@ -16,7 +16,7 @@ class Mainmenu extends FOGBase
 			foreach($this->main AS $link => $title)
 			{
 				$activelink = false;
-				if ($_REQUEST['node'] == $link || !$_REQUEST['node'])
+				if ($_REQUEST['node'] == $link || (!$_REQUEST['node'] && $link == 'home'))
 					$activelink = true;
 				$menuItem[] = "\n\t\t\t\t\t\t".'<li><a href="?node='.$link.'" title="'.$title[0].'" '.($activelink ? 'class="activelink"' : '').'><i class="'.$title[1].'"></i></a></li>';
 			}
