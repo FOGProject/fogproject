@@ -26,7 +26,12 @@ class Mainmenu extends FOGBase
 		{
 			$menuItem[] = sprintf("%s%s","\n\t\t\t\t",'<div id="menuBar">');
 			foreach($this->main AS $link => $title)
-				$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t",'<a href="?node='.$link.($link != 'logout' ? 's' : '').'"><i class="'.$title[1].'"></i></a>');
+			{
+				$activelink = false;
+				if ($_REQUEST['node'] == $link.'s' || (!$_REQUEST['node'] && $link == 'home'))
+					$activelink = true;
+				$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t",'<a href="?node='.$link.($link != 'logout' ? 's' : '').'" '.($activelink ? 'class="activelink"' : '').'><i class="'.$title[1].'"></i></a>');
+			}
 			$menuItem[] = sprintf("%s%s","\n\t\t\t\t","</div>");
 		}
 		return implode($menuItem);
