@@ -11,9 +11,9 @@
 		} ?>
 		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
 	</head>
-	<body>
-		<?php if (preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) { if ($this->FOGUser && $this->FOGUser->isLoggedIn()) { ?><div id="mainContainer">
-			<div id="header"></div>
+	<body> 
+		<?php if (preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) { ?><div id="header"></div>
+		<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn()) { ?><div id="mainContainer">
 			<div class="mainContent"><?php print $this->menu."\n\t\t\t\t";
 				print ($this->pageTitle ? "<h2>$this->pageTitle</h2>" : null)."\n" ?>
 				<div id="mobile_content">

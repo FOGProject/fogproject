@@ -14,14 +14,19 @@ class Mainmenu extends FOGBase
 		{
 			$menuItem[] = '<ul>';
 			foreach($this->main AS $link => $title)
-				$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t\t",'<li><a href="?node='.$link.'" title="'.$title.'"><img src="'.$this->imagelink.'icon-'.$link.'.png" alt="'.$title.'" /></a></li>');
+			{
+				$activelink = false;
+				if ($_REQUEST['node'] == $link || !$_REQUEST['node'])
+					$activelink = true;
+				$menuItem[] = "\n\t\t\t\t\t\t".'<li><a href="?node='.$link.'" title="'.$title[0].'" '.($activelink ? 'class="activelink"' : '').'><i class="'.$title[1].'"></i></a></li>';
+			}
 			$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t","</ul>\n");
 		}
 		else
 		{
 			$menuItem[] = sprintf("%s%s","\n\t\t\t\t",'<div id="menuBar">');
 			foreach($this->main AS $link => $title)
-				$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t",'<a href="?node='.$link.($link != 'logout' ? 's' : '').'"><img class="'.$link.'" src="'.$this->imagelink.'icon-'.$link.'.png" alt="'.$title.'" /></a>');
+				$menuItem[] = sprintf("%s%s","\n\t\t\t\t\t",'<a href="?node='.$link.($link != 'logout' ? 's' : '').'"><i class="'.$title[1].'"></i></a>');
 			$menuItem[] = sprintf("%s%s","\n\t\t\t\t","</div>");
 		}
 		return implode($menuItem);
@@ -30,22 +35,22 @@ class Mainmenu extends FOGBase
 	{
 		$plugin = $this->FOGCore->getSetting('FOG_PLUGINSYS_ENABLED');
 		$this->main = array(
-			'home' => $this->foglang['Home'],
-			'user' => $this->foglang['User Management'],
-			'host' => $this->foglang['Host Management'],
-			'group' => $this->foglang['Group Management'],
-			'image' => $this->foglang['Image Management'],
-			'storage' => $this->foglang['Storage Management'],
-			'snapin' => $this->foglang['Snapin Management'],
-			'printer' => $this->foglang['Printer Management'],
-			'service' => $this->foglang['Service Configuration'],
-			'tasks' => $this->foglang['Task Management'],
-			'report' => $this->foglang['Report Management'],
-			'about' => $this->foglang['FOG Configuration'],
-			$plugin ? 'plugin' : '' => $plugin ? $this->foglang['Plugin Management'] : '',
-			'logout' => $this->foglang['Logout'],
+			'home' => array($this->foglang['Home'], 'fa fa-home fa-3x'),
+			'user' => array($this->foglang['User Management'], 'fa fa-user fa-3x'),
+			'host' => array($this->foglang['Host Management'], 'fa fa-desktop fa-3x'),
+			'group' => array($this->foglang['Group Management'], 'fa fa-sitemap fa-3x'),
+			'image' => array($this->foglang['Image Management'], 'fa fa-picture-o fa-3x'),
+			'storage' => array($this->foglang['Storage Management'], 'fa fa-download fa-3x'),
+			'snapin' => array($this->foglang['Snapin Management'], 'fa fa-files-o fa-3x'),
+			'printer' => array($this->foglang['Printer Management'], 'fa fa-print fa-3x'),
+			'service' => array($this->foglang['Service Configuration'], 'fa fa-cogs fa-3x'),
+			'tasks' => array($this->foglang['Task Management'], 'fa fa-tasks fa-3x'),
+			'report' => array($this->foglang['Report Management'], 'fa fa-file-text fa-3x'),
+			'about' => array($this->foglang['FOG Configuration'],'fa fa-wrench fa-3x'),
+			$plugin ? 'plugin' : '' => $plugin ? array($this->foglang['Plugin Management'],'fa fa-cog fa-3x') : '',
+			'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-3x'),
 		);
-		$this->main = array_unique(array_filter($this->main));
+		$this->main = array_unique(array_filter($this->main),SORT_REGULAR);
 		$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
 		foreach ($this->main AS $link => $title)
 			$links[] = $link;
@@ -58,10 +63,10 @@ class Mainmenu extends FOGBase
 	private function mobileSetting()
 	{
 		$this->main = array(
-			'home' => $this->foglang['Home'],
-			'host' => $this->foglang['Host'],
-			'tasks' => $this->foglang['Task'],
-			'logout' => $this->foglang['Logout'],
+			'home' => array($this->foglang['Home'], 'fa fa-home fa-3x'),
+			'host' => array($this->foglang['Host'], 'fa fa-desktop fa-3x'),
+			'tasks' => array($this->foglang['Task'], 'fa fa-tasks fa-3x'),
+			'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-3x'),
 		);
 		foreach ($this->main AS $link => $title)
 			$links[] = ($link != 'logout' ? $link.'s' :$link);

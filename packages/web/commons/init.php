@@ -244,7 +244,10 @@ ini_set('memory_limit',is_numeric($FOGCore->getSetting('FOG_MEMORY_LIMIT')) && $
 // Generate the Server's Key Pairings
 $FOGCore->createKeyPair();
 // Set the base image link.
-$imagelink = ($FOGCore->getSetting('FOG_THEME') ? 'css/'.dirname($FOGCore->getSetting('FOG_THEME')).'/images/' : 'css/default/images/');
+if (!preg_match('#/mobile/#',$_SERVER['PHP_SELF']))
+	$imagelink = ($FOGCore->getSetting('FOG_THEME') ? 'css/'.dirname($FOGCore->getSetting('FOG_THEME')).'/images/' : 'css/default/images/');
+else
+	$imagelink = 'css/images/';
 // HookManager
 $HookManager = new HookManager();
 $HookManager->load();
