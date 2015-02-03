@@ -39,7 +39,7 @@ class PluginManagementPage extends FOGPage
 			'<a href="?node=plugin&sub=${type}&run=${encname}&${type}=${encname}" title="Plugin: ${name}"><img alt="${name}" src="${icon}"/></a>',
 			'${desc}',
 			'${location}',
-			$_REQUEST['sub'] == 'installed' || $_REQUEST['sub'] == 'install' ? '<a href="?node=plugin&sub=removeplugin&rmid=${pluginid}"><span class="icon icon-kill" title="Remove Plugin"></span></a>' : null,
+			$_REQUEST['sub'] == 'installed' || $_REQUEST['sub'] == 'install' ? '<a href="?node=plugin&sub=removeplugin&rmid=${pluginid}"><i class="icon fa fa-minus-circle" title="Remove Plugin"></i></a>' : null,
 		);
 		//Row attributes
 		$this->attributes = array(
