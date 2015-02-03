@@ -37,7 +37,7 @@ class SnapinManagementPage extends FOGPage
 			'<input type="checkbox" name="snapin[]" value="${id}" class="toggle-action" checked/>',
 			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, _('Edit')),
 			'${storage_group}',
-			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><span class="icon icon-edit"></span></a> <a href="?node=%s&sub=delete&%s=${id}" title="%s"><span class="icon icon-delete"></span></a>', $this->node, $this->id, _('Edit'), $this->node, $this->id, _('Delete'))
+			sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a> <a href="?node=%s&sub=delete&%s=${id}" title="%s"><i class="icon fa fa-minus-circle"></i></a>', $this->node, $this->id, _('Edit'), $this->node, $this->id, _('Delete'))
 		);
 		// Row attributes
 		$this->attributes = array(
@@ -318,7 +318,7 @@ class SnapinManagementPage extends FOGPage
 			_('Snapin Description') => '<textarea name="description" rows="8" cols="40" value="${snapin_desc}">${snapin_desc}</textarea>',
 			_('Snapin Run With') => '<input type="text" name="rw" value="${snapin_rw}" />',
 			_('Snapin Run With Argument') => '<input type="text" name="rwa" value="${snapin_rwa}" />',
-			_('Snapin File').' <span class="lightColor">'._('Max Size').':${max_size}</span>' => '<span id="uploader">${snapin_file}<a href="#" id="snapin-upload"><img class="noBorder" src="'.$this->imagelink.'upload.png" /></a></span>',
+			_('Snapin File').' <span class="lightColor">'._('Max Size').':${max_size}</span>' => '<span id="uploader">${snapin_file}<a href="#" id="snapin-upload"><i class="fa fa-arrow-up noBorder"></i></a></span>',
 			(count($files) > 0 ? _('Snapin File (exists)') : null)=> (count($files) > 0 ? '<select name="snapinfileexist"><<span class="lightColor"><option value="">- '._('Please select an option').'-</option>${snapin_filesexist}</select>' : null),
 			_('Snapin Arguments') => '<input type="text" name="args" value="${snapin_args}" />',
 			_('Reboot after install') => '<input type="checkbox" name="reboot" ${checked} />',
@@ -394,7 +394,7 @@ class SnapinManagementPage extends FOGPage
 		);
 		// Create the template data:
 		$this->templates = array(
-			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
 			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'${deployed}',
@@ -496,7 +496,7 @@ class SnapinManagementPage extends FOGPage
 			array(),
 		);
 		$this->templates = array(
-			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
 			'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'${deployed}',
