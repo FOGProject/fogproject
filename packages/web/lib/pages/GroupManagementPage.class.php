@@ -50,8 +50,8 @@ class GroupManagementPage extends FOGPage
 			sprintf('<a href="?node=group&sub=edit&%s=${id}" title="Edit">${name}</a>', $this->id),
 			//'${description}',
 			'${count}',
-			sprintf('<a href="?node=group&sub=deploy&type=1&%s=${id}"><span class="icon icon-download" title="Download"></span></a> <a href="?node=group&sub=deploy&type=8&%s=${id}"><span class="icon icon-multicast" title="Multi-cast"></span></a> <a href="?node=group&sub=edit&%s=${id}#group-tasks"><span class="icon icon-deploy" title="Deploy"></span></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
-			sprintf('<a href="?node=group&sub=edit&%s=${id}"><span class="icon icon-edit" title="Edit"></span></a> <a href="?node=group&sub=delete&%s=${id}"><span class="icon icon-delete" title="Delete"></span></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
+			sprintf('<a href="?node=group&sub=deploy&type=1&%s=${id}"><i class="icon fa fa-arrow-down" title="Download"></i></a> <a href="?node=group&sub=deploy&type=8&%s=${id}"><i class="icon fa fa-share-alt" title="Multi-cast"></i></a> <a href="?node=group&sub=edit&%s=${id}#group-tasks"><i class="icon fa fa-arrows-alt" title="Deploy"></i></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
+			sprintf('<a href="?node=group&sub=edit&%s=${id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=group&sub=delete&%s=${id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
 		);
 		// Row attributes
 		$this->attributes = array(

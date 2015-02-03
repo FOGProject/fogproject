@@ -42,13 +42,13 @@ class HostManagementPage extends FOGPage
 		);
 		// Row templates
 		$this->templates = array(
-			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<span class="icon fa fa-question hand" title="${host_desc}"></span>',
 			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-action" checked/>',
 			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'<small>${deployed}</small>',
-			'<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${host_id}"><span class="icon icon-download" title="Download"></span></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${host_id}"><span class="icon icon-upload" title="Upload"></span></a> <a href="?node=host&sub=deploy&type=8&id=${host_id}"><span class="icon icon-multicast" title="Multi-cast"></span></a> <a href="?node=host&sub=edit&id=${host_id}#host-tasks"><span class="icon icon-deploy" title="Deploy"></span></a>',
-			'<a href="?node=host&sub=edit&id=${host_id}"><span class="icon icon-edit" title="Edit"></span></a> <a href="?node=host&sub=delete&id=${host_id}"><span class="icon icon-delete" title="Delete"></span></a>',
+			'<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${host_id}"><i class="icon fa fa-arrow-down" title="Download"></i></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${host_id}"><i class="icon fa fa-arrow-up" title="Upload"></i></a> <a href="?node=host&sub=deploy&type=8&id=${host_id}"><i class="icon fa fa-share-alt" title="Multi-cast"></i></a> <a href="?node=host&sub=edit&id=${host_id}#host-tasks"><i class="icon fa fa-arrows-alt" title="Deploy"></i></a>',
+			'<a href="?node=host&sub=edit&id=${host_id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=host&sub=delete&id=${host_id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>',
 			'${image_name}',
 		);
 		// Row attributes
@@ -155,11 +155,11 @@ class HostManagementPage extends FOGPage
 		);
 		// Row templates
 		$this->templates = array(
-			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
 			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host" checked />',
 			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-			'<a href="?node=host&sub=edit&id=${host_id}"><span class="icon icon-edit" title="Edit"></span></a> <a href="?node=host&sub=delete&id=${host_id}"><span class="icon icon-delete" title="Delete"></span></a>',
+			'<a href="?node=host&sub=edit&id=${host_id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=host&sub=delete&id=${host_id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>',
 		);
 		// Row attributes
 		$this->attributes = array(
@@ -253,7 +253,7 @@ class HostManagementPage extends FOGPage
 		);
 		$fields = array(
 			_('Host Name') => '<input type="text" name="host" value="${host_name}" maxlength="15" class="hostname-input" />*',
-			_('Primary MAC') => '<input type="text" id="mac" name="mac" value="${host_mac}" />* <span id="priMaker></span><span class="icon icon-add add-mac hand" title="'._('Add Mac').'"></span><span class="mac-manufactor"></span>',
+			_('Primary MAC') => '<input type="text" id="mac" name="mac" value="${host_mac}" />*<span id="priMaker"></span><span class="mac-manufactor"></span>',
 			_('Host Description') => '<textarea name="description" rows="8" cols="40">${host_desc}</textarea>',
 			_('Host Product Key') => '<input id="productKey" type="text" name="key" value="${host_key}" />',
 			_('Host Image') => '${host_image}',
@@ -479,18 +479,18 @@ class HostManagementPage extends FOGPage
 		foreach((array)$Host->get('additionalMACs') AS $MAC)
 		{
 			if ($MAC && $MAC->isValid())
-				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" /><span class="icon icon-hand" title="'._('Remove MAC').'"><input type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" /><label for="rm'.$MAC.'" class="icon icon-remove remove-mac hand">&nbsp;</label></span><span class="icon icon-hand" title="'._('Make Primary').'"><input type="radio" name="primaryMAC" value="'.$MAC.'" /></span><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$Host->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$Host->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span></div>';
+				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" /><input title="'._('Remove MAC').'" type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" /><label for="rm'.$MAC.'" class="icon fa fa-minus-circle hand">&nbsp;</label><span class="icon icon-hand" title="'._('Make Primary').'"><input type="radio" name="primaryMAC" value="'.$MAC.'" /></span><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$Host->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$Host->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span></div>';
 		}
 		foreach ((array)$Host->get('pendingMACs') AS $MAC)
 		{
 			if ($MAC && $MAC->isValid())
-				$pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC.'" /><a href="${link}&confirmMac='.$MAC.'"><span class="icon icon-tick"></span></a><span class="mac-manufactor"></span></div>';
+				$pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC.'" /><a href="${link}&confirmMac='.$MAC.'"><i class="icon fa fa-check-circle"></i></a><span class="mac-manufactor"></span></div>';
 		}
 		if ($pending != null && $pending != '')
-			$pending .= '<div>'._('Approve All MACs?').'<a href="${link}&approveAll=1"><span class="icon icon-tick"></span></a></div>';
+			$pending .= '<div>'._('Approve All MACs?').'<a href="${link}&approveAll=1"><i class="icon fa fa-check-circle"></i></a></div>';
 		$fields = array(
 			_('Host Name') => '<input type="text" name="host" value="${host_name}" maxlength="15" class="hostname-input" />*',
-			_('Primary MAC') => '<input type="text" name="mac" id="mac" value="${host_mac}" />*<span id="priMaker"></span><span class="icon icon-add add-mac hand" title="'._('Add MAC').'"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="${host_mac}" '.$Host->clientMacCheck().' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="${host_mac}" '.$Host->imageMacCheck().'/></span><br/><span class="mac-manufactor"></span>',
+			_('Primary MAC') => '<input type="text" name="mac" id="mac" value="${host_mac}" />*<span id="priMaker"></span><i class="icon fa fa-plus-circle hand" title="'._('Add MAC').'"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="${host_mac}" '.$Host->clientMacCheck().' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="${host_mac}" '.$Host->imageMacCheck().'/></span><br/><span class="mac-manufactor"></span>',
 			'<span id="additionalMACsRow">'._('Additional MACs').'</span>' => '<span id="additionalMACsCell">'.$addMACs.'</span>',
 			($Host->get('pendingMACs') ? _('Pending MACs') : null) => ($Host->get('pendingMACs') ? $pending : null),
 			_('Host Description') => '<textarea name="description" rows="8" cols="40">${host_desc}</textarea>',
@@ -1059,7 +1059,7 @@ class HostManagementPage extends FOGPage
 			'${virus_file}',
 			'${virus_mode}',
 			'${virus_date}',
-			'<input type="checkbox" id="vir_del${virus_id}" class="delvid" name="delvid" onclick="this.form.submit()" value="${virus_id}" /><label for="${virus_id}" class="icon icon-hand" title="'._('Delete').' ${virus_name}"><img src="'.$this->imagelink.'deleteSmall.png" class="link" />&nbsp;</label>',
+			'<input type="checkbox" id="vir_del${virus_id}" class="delvid" name="delvid" onclick="this.form.submit()" value="${virus_id}" /><label for="${virus_id}" class="icon icon-hand" title="'._('Delete').' ${virus_name}"><i class="icon fa fa-minus-circle link"></i>&nbsp;</label>',
 		);
 		print "\n\t\t\t".'<div id="host-virus-history" class="organic-tabs-hidden">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-virus-history">';
@@ -1126,7 +1126,7 @@ class HostManagementPage extends FOGPage
 				$optionDate[] = '<option value="'.$Date.'" '.($Date == $_REQUEST['dte'] ? 'selected="selected"' : '').'>'.$Date.'</option>';
 			}
 			print "\n\t\t\t".'<select name="dte" id="loghist-date" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select>';
-			print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><img src="'.$this->imagelink.'go.png" class="noBorder" /></a></p>';
+			print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><i class="icon fa fa-play noBorder"></i></a></p>';
 			foreach ((array)$Host->get('users') AS $UserLogin)
 			{
 				if ($UserLogin && $UserLogin->isValid() && $UserLogin->get('date') == $_REQUEST['dte'])

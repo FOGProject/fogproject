@@ -70,7 +70,7 @@ class TaskManagementPage extends FOGPage
 				if ($Host && $Host->isValid())
 				{
 					$this->data[] = array(
-						'columnkill' => '${details_taskforce} <a href="?node=tasks&sub=cancel-task&id=${id}"><span class="icon icon-kill" title="' . _('Cancel Task') . '"></span></a>',
+						'columnkill' => '${details_taskforce} <a href="?node=tasks&sub=cancel-task&id=${id}"><i class="icon fa fa-minus-circle" title="' . _('Cancel Task') . '"></i></a>',
 						'startedby' => $Task->get('createdBy'),
 						'id'	=> $Task->get('id'),
 						'name'	=> $Task->get('name'),
@@ -88,7 +88,7 @@ class TaskManagementPage extends FOGPage
 						'total' => $Task->get('dataTotal'),
 						'bpm' => $Task->get('bpm'),
 						'details_taskname'	=> ($Task->get('name')	? sprintf('<div class="task-name">%s</div>', $Task->get('name')) : ''),
-						'details_taskforce'	=> ($Task->get('isForced') ? sprintf('<span class="icon icon-forced" title="%s"></span>', _('Task forced to start')) : ($Task->get('typeID') < 3 && $Task->get('stateID') < 3 ? sprintf('<a href="?node=tasks&sub=force-task&id=%s"><span class="icon icon-force" title="%s"></span></a>', $Task->get('id'),_('Force task to start')) : '&nbsp;')),
+						'details_taskforce'	=> ($Task->get('isForced') ? sprintf('<i class="icon fa fa-play" title="%s"></i>', _('Task forced to start')) : ($Task->get('typeID') < 3 && $Task->get('stateID') < 3 ? sprintf('<a href="?node=tasks&sub=force-task&id=%s"><i class="icon fa fa-step-forward" title="%s"></i></a>', $Task->get('id'),_('Force task to start')) : '&nbsp;')),
 						'host_id'	=> $Task->get('hostID'),
 						'host_name'	=> $Host->get('name'),
 						'host_mac'	=> $Host->get('mac')->__toString(),
@@ -131,7 +131,7 @@ class TaskManagementPage extends FOGPage
 			{
 				$Host = $Task->getHost();
 				$this->data[] = array(
-					'columnkill' => $Task->get('stateID') == 1 || $Task->get('stateID') == 2 || $Task->get('stateID') == '3' ? '${details_taskforce} <a href="?node=tasks&sub=cancel-task&id=${id}"><span class="icon icon-kill" title="' . _('Cancel Task') . '"></span></a>' : '',
+					'columnkill' => $Task->get('stateID') == 1 || $Task->get('stateID') == 2 || $Task->get('stateID') == '3' ? '${details_taskforce} <a href="?node=tasks&sub=cancel-task&id=${id}"><i class="icon fa fa-minus-circle" title="' . _('Cancel Task') . '"></i></a>' : '',
 					'startedby' => $Task->get('createdBy'),
 					'id'	=> $Task->get('id'),
 					'name'	=> $Task->get('name'),
@@ -149,7 +149,7 @@ class TaskManagementPage extends FOGPage
 					'total' => $Task->get('dataTotal'),
 					'bpm' => $Task->get('bpm'),
 					'details_taskname'	=> ($Task->get('name')	? sprintf('<div class="task-name">%s</div>', $Task->get('name')) : ''),
-					'details_taskforce'	=> ($Task->get('isForced') ? sprintf('<span class="icon icon-forced" title="%s"></span>', _('Task forced to start')) : ($Task->get('typeID') < 3 && $Task->get('stateID') < 3 ? sprintf('<a href="?node=tasks&sub=force-task&id=%s"><span class="icon icon-force" title="%s"></span></a>', $Task->get('id'),_('Force task to start')) : '&nbsp;')),
+					'details_taskforce'	=> ($Task->get('isForced') ? sprintf('<span class="icon fa fa-play" title="%s"></i>', _('Task forced to start')) : ($Task->get('typeID') < 3 && $Task->get('stateID') < 3 ? sprintf('<a href="?node=tasks&sub=force-task&id=%s"><i class="icon fa fa-step-forward" title="%s"></i></a>', $Task->get('id'),_('Force task to start')) : '&nbsp;')),
 					'host_id'	=> $Task->get('hostID'),
 					'host_name'	=> $Host ? $Host->get('name') : '',
 					'host_mac'	=> $Host ? $Host->get('mac')->__toString() : '',
@@ -198,9 +198,9 @@ class TaskManagementPage extends FOGPage
 		{
 			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{
-				$imgUp = '<a href="?node=tasks&sub=hostdeploy&type=2&id='.$Host->get('id').'"><span class="icon icon-upload" title="Upload"></span></a>';
-				$imgDown = '<a href="?node=tasks&sub=hostdeploy&type=1&id='.$Host->get('id').'"><span class="icon icon-download" title="Download"></span></a>';
-				$imgAdvanced = '<a href="?node=tasks&sub=hostadvanced&id='.$Host->get('id').'#host-tasks"><span class="icon icon-advanced" title="Advanced Deployment"></span></a>';
+				$imgUp = '<a href="?node=tasks&sub=hostdeploy&type=2&id='.$Host->get('id').'"><i class="fa fa-arrow-up" title="Upload"></i></a>';
+				$imgDown = '<a href="?node=tasks&sub=hostdeploy&type=1&id='.$Host->get('id').'"><i class="fa fa-arrow-down" title="Download"></i></a>';
+				$imgAdvanced = '<a href="?node=tasks&sub=hostadvanced&id='.$Host->get('id').'#host-tasks"><i class="fa fa-arrows-alt" title="Advanced Deployment"></i></a>';
 				$this->data[] = array(
 					'id'			=>	$Host->get('id'),
 					'host_name'		=>	$Host->get('name'),
@@ -249,7 +249,7 @@ class TaskManagementPage extends FOGPage
 		);
 		// Templates
 		$this->templates = array(
-			'<a href="?node=${node}&sub=${sub}&id=${id}&type=${type}"><img src="./images/${task_icon}" /><br />${task_name}</a>',
+			'<a href="?node=${node}&sub=${sub}&id=${id}&type=${type}"><img src="'.$this->imagelink.'${task_icon}" /><br />${task_name}</a>',
 			'${task_desc}',
 		);
 		print "\n\t\t\t<div>";
@@ -286,7 +286,7 @@ class TaskManagementPage extends FOGPage
 		);
 		// Templates
 		$this->templates = array(
-			'<a href="?node=${node}&sub=${sub}&id=${id}&type=${type}"><img src="./images/${task_icon}" /><br />${task_name}</a>',
+			'<a href="?node=${node}&sub=${sub}&id=${id}&type=${type}"><img src="'.$this->imagelink.'${task_icon}" /><br />${task_name}</a>',
 			'${task_desc}',
 		);
 		print "\n\t\t\t<div>";
@@ -340,9 +340,9 @@ class TaskManagementPage extends FOGPage
 		$Groups = $this->getClass('GroupManager')->find();
 		foreach ((array)$Groups AS $Group)
 		{
-			$deployLink = '<a href="?node=tasks&sub=groupdeploy&type=1&id='.$Group->get('id').'"><span class="icon icon-download" title="Download"></span></a>';
-			$multicastLink = '<a href="?node=tasks&sub=groupdeploy&type=8&id='.$Group->get('id').'"><span class="icon icon-multicast" title="Multicast"></span></a>';
-			$advancedLink = '<a href="?node=tasks&sub=groupadvanced&id='.$Group->get('id').'"><span class="icon icon-advanced" title="Advanced Deployment"></span></a>';
+			$deployLink = '<a href="?node=tasks&sub=groupdeploy&type=1&id='.$Group->get('id').'"><i class="icon fa fa-arrow-down" title="Download"></i></a>';
+			$multicastLink = '<a href="?node=tasks&sub=groupdeploy&type=8&id='.$Group->get('id').'"><span class="icon fa fa-share-alt" title="Multicast"></i></a>';
+			$advancedLink = '<a href="?node=tasks&sub=groupadvanced&id='.$Group->get('id').'"><i class="icon fa fa-arrows-alt" title="Advanced Deployment"></i></a>';
 			$this->data[] = array(
 				'id'			=>	$Group->get('id'),
 				'name'			=>	$Group->get('name'),
@@ -413,7 +413,7 @@ class TaskManagementPage extends FOGPage
 				if ($Host && $Host->isValid())
 				{
 					$this->data[] = array(
-						'columnkill' => '${details_taskforce} <a href="?node=tasks&sub=cancel-task&id=${id}"><span class="icon icon-kill" title="' . _('Cancel Task') . '"></span></a>',
+						'columnkill' => '${details_taskforce} <a href="?node=tasks&sub=cancel-task&id=${id}"><i class="fa fa-minus-circle" title="' . _('Cancel Task') . '"></i></a>',
 						'startedby' => $Task->get('createdBy'),
 						'id'	=> $Task->get('id'),
 						'name'	=> $Task->get('name'),
@@ -431,7 +431,7 @@ class TaskManagementPage extends FOGPage
 						'total' => $Task->get('dataTotal'),
 						'bpm' => $Task->get('bpm'),
 						'details_taskname'	=> ($Task->get('name')	? sprintf('<div class="task-name">%s</div>', $Task->get('name')) : ''),
-						'details_taskforce'	=> ($Task->get('isForced') ? sprintf('<span class="icon icon-forced" title="%s"></span>', _('Task forced to start')) : ($Task->get('typeID') < 3 && $Task->get('stateID') < 3 ? sprintf('<a href="?node=tasks&sub=force-task&id=%s"><span class="icon icon-force" title="%s"></span></a>', $Task->get('id'),_('Force task to start')) : '&nbsp;')),
+						'details_taskforce'	=> ($Task->get('isForced') ? sprintf('<i class="fa fa-play" title="%s"></i>', _('Task forced to start')) : ($Task->get('typeID') < 3 && $Task->get('stateID') < 3 ? sprintf('<a href="?node=tasks&sub=force-task&id=%s"><i class="fa fa-step-forward" title="%s"></i></a>', $Task->get('id'),_('Force task to start')) : '&nbsp;')),
 						'host_id'	=> $Host->get('id'),
 						'host_name'	=> $Host->get('name'),
 						'host_mac'	=> $Host->get('mac')->__toString(),
@@ -563,7 +563,7 @@ class TaskManagementPage extends FOGPage
 			'${start_date}',
 			'${state}',
 			'${percent}',
-			'<a href="?node=tasks&sub=remove-multicast-task&id=${id}"><span class="icon icon-kill" title="Kill Task"></span></a>',
+			'<a href="?node=tasks&sub=remove-multicast-task&id=${id}"><i class="icon fa fa-minus-circle" title="Kill Task"></i></a>',
 		);
 		
 		// Row attributes
@@ -611,7 +611,7 @@ class TaskManagementPage extends FOGPage
 			'<form method="post" method="?node=tasks&sub=active-snapins">${name}',
 			'${startDate}',
 			'${state}',
-			'<input type="checkbox" id="${id}" class="delid" name="rmid" value="%id%" onclick="this.form.submit()" title="Kill Task" /><label for="${id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label></form>',
+			'<input type="checkbox" id="${id}" class="delid" name="rmid" value="%id%" onclick="this.form.submit()" title="Kill Task" /><label for="${id}" class="icon fa fa-minus-circle" title="'._('Delete').'">&nbsp;</label></form>',
 		);
 		$this->attributes = array(
 			array(),
@@ -706,7 +706,7 @@ class TaskManagementPage extends FOGPage
 			'${task_type}',
 			'<small>${time}</small>',
 			'${active}/${type}',
-			'<input type="checkbox" name="rmid" id="r${schedtaskid}" class="delid" value="${schedtaskid}" onclick="this.form.submit()" /><label for="r${schedtaskid}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label></form>',
+			'<input type="checkbox" name="rmid" id="r${schedtaskid}" class="delid" value="${schedtaskid}" onclick="this.form.submit()" /><label for="r${schedtaskid}" class="icon fa fa-minus-circle" title="'._('Delete').'">&nbsp;</label></form>',
 		);
 		// Row attributes
 		$this->attributes = array(
@@ -722,26 +722,30 @@ class TaskManagementPage extends FOGPage
 		{
 			if ($task && $task->isValid())
 			{
-				$taskType = $task->getTaskType();
-				if ($task->get('type') == 'C')
-					$taskTime = FOGCron::parse($task->get('minute').' '.$task->get('hour').' '.$task->get('dayOfMonth').' '.$task->get('month').' '.$task->get('dayOfWeek'));
-				else
-					$taskTime = $task->get('scheduleTime');
-				$taskTime = $this->nice_date()->setTimestamp($taskTime);
-				$hostGroupName = ($task->isGroupBased() ? $task->getGroup() : $task->getHost());
-				$this->data[] = array(
-					'columnkill' => '${details_taskforce} <a href="?node=tasks&sub=cancel-task&id=${id}"><span class="icon icon-kill" title="' . _('Cancel Task') . '"></span></a>',
-					'hostgroup' => $task->isGroupBased() ? 'group' : 'host',
-					'hostgroupname' => $hostGroupName,
-					'id' => $hostGroupName->get('id'),
-					'groupbased' => $task->isGroupBased() ? _('Yes') : _('No'),
-					'details_taskname' => $task->get('name'),
-					'time' => $this->formatTime($taskTime),
-					'active' => $task->get('isActive') ? 'Yes' : 'No',
-					'type' => $task->get('type') == 'C' ? 'Cron' : 'Delayed',
-					'schedtaskid' => $task->get('id'),
-					'task_type' => $taskType,
-				);
+				$Host = $task->getHost();
+				if ($Host && $Host->isValid())
+				{
+					$taskType = $task->getTaskType();
+					if ($task->get('type') == 'C')
+						$taskTime = FOGCron::parse($task->get('minute').' '.$task->get('hour').' '.$task->get('dayOfMonth').' '.$task->get('month').' '.$task->get('dayOfWeek'));
+					else
+						$taskTime = $task->get('scheduleTime');
+					$taskTime = $this->nice_date()->setTimestamp($taskTime);
+					$hostGroupName = ($task->isGroupBased() ? $task->getGroup() : $task->getHost());
+					$this->data[] = array(
+						'columnkill' => '${details_taskforce} <a href="?node=tasks&sub=cancel-task&id=${id}"><i class="icon fa fa-minus-circle" title="' . _('Cancel Task') . '"></i></a>',
+						'hostgroup' => $task->isGroupBased() ? 'group' : 'host',
+						'hostgroupname' => $hostGroupName,
+						'id' => $hostGroupName->get('id'),
+						'groupbased' => $task->isGroupBased() ? _('Yes') : _('No'),
+						'details_taskname' => $task->get('name'),
+						'time' => $this->formatTime($taskTime),
+						'active' => $task->get('isActive') ? 'Yes' : 'No',
+						'type' => $task->get('type') == 'C' ? 'Cron' : 'Delayed',
+						'schedtaskid' => $task->get('id'),
+						'task_type' => $taskType,
+					);
+				}
 			}
 		}
 		// Hook
