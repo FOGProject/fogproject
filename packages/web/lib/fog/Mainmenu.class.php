@@ -40,20 +40,20 @@ class Mainmenu extends FOGBase
 	{
 		$plugin = $this->FOGCore->getSetting('FOG_PLUGINSYS_ENABLED');
 		$this->main = array(
-			'home' => array($this->foglang['Home'], 'fa fa-home fa-3x'),
-			'user' => array($this->foglang['User Management'], 'fa fa-user fa-3x'),
-			'host' => array($this->foglang['Host Management'], 'fa fa-desktop fa-3x'),
-			'group' => array($this->foglang['Group Management'], 'fa fa-sitemap fa-3x'),
-			'image' => array($this->foglang['Image Management'], 'fa fa-picture-o fa-3x'),
-			'storage' => array($this->foglang['Storage Management'], 'fa fa-download fa-3x'),
-			'snapin' => array($this->foglang['Snapin Management'], 'fa fa-files-o fa-3x'),
-			'printer' => array($this->foglang['Printer Management'], 'fa fa-print fa-3x'),
-			'service' => array($this->foglang['Service Configuration'], 'fa fa-cogs fa-3x'),
-			'tasks' => array($this->foglang['Task Management'], 'fa fa-tasks fa-3x'),
-			'report' => array($this->foglang['Report Management'], 'fa fa-file-text fa-3x'),
-			'about' => array($this->foglang['FOG Configuration'],'fa fa-wrench fa-3x'),
-			$plugin ? 'plugin' : '' => $plugin ? array($this->foglang['Plugin Management'],'fa fa-cog fa-3x') : '',
-			'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-3x'),
+			'home' => array($this->foglang['Home'], 'fa fa-home fa-2x'),
+			'user' => array($this->foglang['User Management'], 'fa fa-users fa-2x'),
+			'host' => array($this->foglang['Host Management'], 'fa fa-desktop fa-2x'),
+			'group' => array($this->foglang['Group Management'], 'fa fa-sitemap fa-2x'),
+			'image' => array($this->foglang['Image Management'], 'fa fa-picture-o fa-2x'),
+			'storage' => array($this->foglang['Storage Management'], 'fa fa-download fa-2x'),
+			'snapin' => array($this->foglang['Snapin Management'], 'fa fa-files-o fa-2x'),
+			'printer' => array($this->foglang['Printer Management'], 'fa fa-print fa-2x'),
+			'service' => array($this->foglang['Service Configuration'], 'fa fa-cogs fa-2x'),
+			'tasks' => array($this->foglang['Task Management'], 'fa fa-tasks fa-2x'),
+			'report' => array($this->foglang['Report Management'], 'fa fa-file-text fa-2x'),
+			'about' => array($this->foglang['FOG Configuration'],'fa fa-wrench fa-2x'),
+			$plugin ? 'plugin' : '' => $plugin ? array($this->foglang['Plugin Management'],'fa fa-cog fa-2x') : '',
+			'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-2x'),
 		);
 		$this->main = array_unique(array_filter($this->main),SORT_REGULAR);
 		$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
@@ -68,10 +68,10 @@ class Mainmenu extends FOGBase
 	private function mobileSetting()
 	{
 		$this->main = array(
-			'home' => array($this->foglang['Home'], 'fa fa-home fa-3x'),
-			'host' => array($this->foglang['Host'], 'fa fa-desktop fa-3x'),
-			'tasks' => array($this->foglang['Task'], 'fa fa-tasks fa-3x'),
-			'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-3x'),
+			'home' => array($this->foglang['Home'], 'fa fa-home fa-2x'),
+			'host' => array($this->foglang['Host'], 'fa fa-desktop fa-2x'),
+			'tasks' => array($this->foglang['Task'], 'fa fa-tasks fa-2x'),
+			'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-2x'),
 		);
 		foreach ($this->main AS $link => $title)
 			$links[] = ($link != 'logout' ? $link.'s' :$link);
