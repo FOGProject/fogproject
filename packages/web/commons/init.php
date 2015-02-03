@@ -228,17 +228,17 @@ $Config = new Config();
 $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
 // Cache SQL query stuff
-ini_set('mysqlnd_qc.enable_qc',true);
-ini_set('mysqlnd_qc.cache_by_default',true);
-ini_set('mysqlnd_qc.cache_no_table',true);
+//ini_set('mysqlnd_qc.enable_qc',true);
+//ini_set('mysqlnd_qc.cache_by_default',true);
+//ini_set('mysqlnd_qc.cache_no_table',true);
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
-// Ensure any new tables are always Innodb
-$DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'InnoDB'");
+// Ensure any new tables are always MyISAM
+$DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
 $tables = $DB->fetch('','fetch_all');
 foreach ($tables AS $table)
-	$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".$table['TABLE_NAME']."` ENGINE=InnoDB");
+	$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".$table['TABLE_NAME']."` ENGINE=MyISAM");
 // Set the memory limits
 ini_set('memory_limit',is_numeric($FOGCore->getSetting('FOG_MEMORY_LIMIT')) && $FOGCore->getSetting('FOG_MEMORY_LIMIT') >= 128 ? $FOGCore->getSetting('FOG_MEMORY_LIMIT').'M' : ini_get('memory_limit'));
 // Generate the Server's Key Pairings
