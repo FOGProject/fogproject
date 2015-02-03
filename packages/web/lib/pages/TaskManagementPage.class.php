@@ -346,7 +346,7 @@ class TaskManagementPage extends FOGPage
 			$this->data[] = array(
 				'id'			=>	$Group->get('id'),
 				'name'			=>	$Group->get('name'),
-				'memberCount'	=>	count($Group->get('hosts')),
+				'memberCount'	=>	$Group->getHostCount(),
 				'deployLink'	=>	$deployLink,
 				'advancedLink'	=>	$advancedLink,
 				'multicastLink'	=>	$multicastLink,
@@ -583,7 +583,7 @@ class TaskManagementPage extends FOGPage
 			$this->data[] = array(
 				'id' => $MS->get('id'),
 				'name' => ($MS->get('name') ? $MS->get('name') : 'Multicast Task'),
-				'count' => count($this->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $MS->get('id')))),
+				'count' => $this->getClass('MulticastSessionsAssociationManager')->count(array('msID' => $MS->get('id'))),
 				'start_date' => $MS->get('starttime'),
 				'state' => ($TS->get('name') ? $TS->get('name') : null),
 				'percent'	=> $MS->get('percent'),
