@@ -228,9 +228,9 @@ $Config = new Config();
 $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
 // Cache SQL query stuff
-//ini_set('mysqlnd_qc.enable_qc',true);
-//ini_set('mysqlnd_qc.cache_by_default',true);
-//ini_set('mysqlnd_qc.cache_no_table',true);
+ini_set('mysqlnd_qc.enable_qc',true);
+ini_set('mysqlnd_qc.cache_by_default',true);
+ini_set('mysqlnd_qc.cache_no_table',true);
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
