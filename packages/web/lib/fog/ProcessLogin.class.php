@@ -209,8 +209,8 @@ class ProcessLogin extends FOGBase
 		print "\n\t\t\t\t\t\t".'<input type="submit" value="'.$this->foglang['Login'].'" id="login-form-submit" />';
 		print "\n\t\t\t\t\t</form>";
 		print "\n\t\t\t\t\t".'<div id="login-form-info">';
-		print "\n\t\t\t\t\t\t<p>".$this->foglang['FOGSites'].': <b><span class="icon icon-loading"></span></b></p>';
-		print "\n\t\t\t\t\t\t<p>".$this->foglang['LatestVer'].': <b><span class="icon icon-loading"></span></b></p>';
+		print "\n\t\t\t\t\t\t<p>".$this->foglang['FOGSites'].': <b><span class="icon fa fa-circle-o-notch fa-spin fa-1x"></span></b></p>';
+		print "\n\t\t\t\t\t\t<p>".$this->foglang['LatestVer'].': <b><span class="icon fa fa-circle-o-notch fa-spin fa-1x"></span></b></p>';
 		print "\n\t\t\t\t\t</div>";
 	}
 

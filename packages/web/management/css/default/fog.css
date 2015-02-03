@@ -364,3 +364,11 @@ tbody td.small { font-size: 10px; }
 .ui-timepicker-rtl dl { text-align: right; padding: 0 5px 0 0; }
 .ui-timepicker-rtl dl dt{ float: right; clear: right; }
 .ui-timepicker-rtl dl dd { margin: 0 45% 10px 10px; }
+/* HOVER COLOR */
+.activelink .fa, .fa:hover {
+	color: orange;
+}
+/* NON HOVER COLOR */
+.fa {
+	color: #00567a;
+}
