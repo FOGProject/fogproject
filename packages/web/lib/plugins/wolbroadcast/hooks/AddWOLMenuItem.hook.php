@@ -10,7 +10,7 @@ class AddWOLMenuItem extends Hook
 	{
 		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
-			$arguments['main'] = $this->array_insert_after('storage',$arguments['main'],$this->node,_('WOL Broadcast Management'));
+			$arguments['main'] = $this->array_insert_after('storage',$arguments['main'],$this->node,array(_('WOL Broadcast Management'),'fa fa-plug fa-2x'));
 	}
 }
 $AddWOLMenuItem = new AddWOLMenuItem();
