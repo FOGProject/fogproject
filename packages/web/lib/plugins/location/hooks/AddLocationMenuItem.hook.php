@@ -10,7 +10,7 @@ class AddLocationMenuItem extends Hook
 	{
 		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
 		if ($plugin && $plugin->isValid())
-			$arguments['main'] = $this->array_insert_after('storage',$arguments['main'],$this->node,_('Location Management'));
+			$arguments['main'] = $this->array_insert_after('storage',$arguments['main'],$this->node,array(_('Location Management'),'fa fa-globe fa-2x'));
 	}
 }
 $AddLocationMenuItem = new AddLocationMenuItem();
