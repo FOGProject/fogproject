@@ -33,8 +33,8 @@ class LDAP extends FOGController
 		$port = $this->get('port');
 		if ($fp = fsockopen($server,$port,$errno,$errstr,3))
 			fclose($fp);
-		
-		$con = @ldap_connect("ldaps://".$server , $port);
+		// $con = @ldap_connect("ldaps://".$server , $port);
+		$con = @ldap_connect($server,$port);
 		// set protocol options
 		ldap_set_option($con, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($con, LDAP_OPT_REFERRALS, 0);

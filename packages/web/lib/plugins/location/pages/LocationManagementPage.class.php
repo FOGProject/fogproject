@@ -52,6 +52,8 @@ class LocationManagementPage extends FOGPage
 	{
 		// Set title
 		$this->title = _('Search');
+		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('LocationManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
+			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
 		// Find data
 		$Locations = $this->getClass('LocationManager')->find();
 		// Row data
@@ -66,8 +68,6 @@ class LocationManagementPage extends FOGPage
 				'tftp' => $Location->get('tftp') ? _('Yes') : _('No'),
 			);
 		}
-		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED'))
-			$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
 		// Hook
 		$this->HookManager->event[] = 'LOCATION_DATA';
 		$this->HookManager->processEvent('LOCATION_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));

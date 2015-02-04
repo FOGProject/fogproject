@@ -75,6 +75,8 @@ class GroupManagementPage extends FOGPage
 		// Set title
 		$this->title = _('All Groups');
 		// Find data
+		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('GroupManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
+			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
 		$Groups = $this->getClass('GroupManager')->find();
 		// Row data
 		foreach ((array)$Groups AS $Group)
@@ -86,8 +88,6 @@ class GroupManagementPage extends FOGPage
 				'count'		=> $Group->getHostCount(),
 			);
 		}
-		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
-			$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
 		// Hook
 		$this->HookManager->processEvent('GROUP_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
