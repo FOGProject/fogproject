@@ -118,8 +118,7 @@ class HostManagementPage extends FOGPage
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Find data -> Push data
-		$Hosts = new HostManager();
-		foreach($Hosts->search($keyword) AS $Host)
+		foreach($this->getClass('HostManager')->search($keyword) AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{

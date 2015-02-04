@@ -74,7 +74,7 @@ class Host extends FOGController
 	}
 	public function getDefault($printerid)
 	{
-		$PrinterMan = current((array)$this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $printerid)));
+		$PrinterMan = (array)$this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $printerid))[0];
 		return ($PrinterMan && $PrinterMan->isValid() ? $PrinterMan->get('isDefault') : false);
 	}
 	public function updateDefault($printerid,$onoff)
@@ -148,163 +148,125 @@ class Host extends FOGController
 		{
 			if ($this->get('id'))
 			{
-				$SnapinJob = current((array)$this->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(-1,0,1))));
+				$SnapinJob = $this->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(-1,0,1)))[0];
 				if ($SnapinJob && $SnapinJob->isValid())
 					$this->set('snapinjob',$SnapinJob);
-				else
-					$this->set('snapinjob',new SnapinJob(array('id' => 0)));
 			}
 		}
 		return $this;
 	}
 	private function loadPrimary()
 	{
-		if (!$this->isLoaded('mac'))
+		if (!$this->isLoaded('mac') && $this->get('id'))
 		{
-			if ($this->get('id'))
-			{
-				$PriMAC = $this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1));
-				foreach((array)$PriMAC AS $MAC)
-				{
-					if ($MAC && $MAC->isValid())
-						$this->set('mac',new MACAddress($MAC->get('mac')));
-				}
-			}
+			$PriMAC = $this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1))[0];
+			if ($PriMAC && $PriMAC->isValid())
+				$this->set('mac',new MACAddress($PriMAC->get('mac')));
 		}
 		return $this;
 	}
 	private function loadAdditional()
 	{
-		if (!$this->isLoaded('additionalMACs'))
+		if (!$this->isLoaded('additionalMACs') && $this->get('id'))
 		{
-			if ($this->get('id'))
+			$AdditionalMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 0));
+			foreach((array)$AdditionalMACs AS $MAC)
 			{
-				$AdditionalMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 0));
-				foreach((array)$AdditionalMACs AS $MAC)
-				{
-					if ($MAC && $MAC->isValid())
-						$this->add('additionalMACs', new MACAddress($MAC->get('mac')));
-				}
+				if ($MAC && $MAC->isValid())
+					$this->add('additionalMACs', new MACAddress($MAC->get('mac')));
 			}
 		}
 		return $this;
 	}
 	private function loadPending()
 	{
-		if (!$this->isLoaded('pendingMACs'))
+		if (!$this->isLoaded('pendingMACs') && $this->get('id'))
 		{
-			if ($this->get('id'))
+			$PendMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'pending' => 1));
+			foreach((array)$PendMACs AS $MAC)
 			{
-				$PendMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'pending' => 1));
-				foreach((array)$PendMACs AS $MAC)
-				{
-					if ($MAC && $MAC->isValid() && $MAC->get('pending'))
-						$this->add('pendingMACs', new MACAddress($MAC->get('mac')));
-				}
+				if ($MAC && $MAC->isValid() && $MAC->get('pending'))
+					$this->add('pendingMACs', new MACAddress($MAC->get('mac')));
 			}
 		}
 		return $this;
 	}
 	private function loadPrinters()
 	{
-		if (!$this->isLoaded('printers'))
+		if (!$this->isLoaded('printers') && $this->get('id'))
 		{
-			if ($this->get('id'))
-			{
-				$Printers = $this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id')));
-				foreach((array)$Printers AS $Printer)
-					$this->add('printers',new Printer($Printer->get('printerID')));
-			}
+			$Printers = $this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id')));
+			foreach((array)$Printers AS $Printer)
+				$this->add('printers',$Printer->getPrinter());
 		}
 		return $this;
 	}
 	private function loadGroups()
 	{
-		if (!$this->isLoaded('groups'))
+		if (!$this->isLoaded('groups') && $this->get('id'))
 		{
-			if ($this->get('id'))
-			{
-				$Groups = $this->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')));
-				foreach((array)$Groups AS $Group)
-					$this->add('groups',new Group($Group->get('groupID')));
-			}
+			$Groups = $this->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')));
+			foreach((array)$Groups AS $Group)
+				$this->add('groups',$Group->getGroup());
 		}
 		return $this;
 	}
 	private function loadInventory()
 	{
-		if (!$this->isLoaded('inventory'))
+		if (!$this->isLoaded('inventory') && $this->get('id'))
 		{
-			if ($this->get('id'))
+			$Inventories = $this->getClass('InventoryManager')->find(array('hostID' => $this->get('id')));
+			foreach((array)$Inventories AS $Inventory)
 			{
-				$Inventories = $this->getClass('InventoryManager')->find(array('hostID' => $this->get('id')));
-				foreach((array)$Inventories AS $Inventory)
-				{
-					if ($Inventory && $Inventory->isValid())
-						$this->set('inventory',$Inventory);
-					else
-						$this->set('inventory',new Inventory(array('id' => -1)));
-				}
+				if ($Inventory && $Inventory->isValid())
+					$this->set('inventory',$Inventory);
+				else
+					$this->set('inventory',new Inventory(array('id' => -1)));
 			}
 		}
 		return $this;
 	}
 	private function loadModules()
 	{
-		if (!$this->isLoaded('modules'))
+		if (!$this->isLoaded('modules') && $this->get('id'))
 		{
-			if ($this->get('id'))
-			{
-				$Modules = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')));
-				foreach((array)$Modules AS $Module)
-					$this->add('modules', new Module($Module->get('moduleID')));
-			}
+			$Modules = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')));
+			foreach((array)$Modules AS $Module)
+				$this->add('modules', new Module($Module->get('moduleID')));
 		}
 		return $this;
 	}
 	private function loadSnapins()
 	{
-		if (!$this->isLoaded('snapins'))
+		if (!$this->isLoaded('snapins') && $this->get('id'))
 		{
-			if ($this->get('id'))
-			{
-				$Snapins = $this->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')));
-				foreach((array)$Snapins AS $Snapin)
-				{
-					if ($Snapin->getSnapin() && $Snapin->getSnapin()->isValid())
-						$this->add('snapins',$Snapin->getSnapin());
-				}
-			}
+			$Snapins = $this->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')));
+			foreach((array)$Snapins AS $Snapin)
+				$this->add('snapins',$Snapin->getSnapin());
 		}
 		return $this;
 	}
 	private function loadTask()
 	{
-		if (!$this->isLoaded('task'))
+		if (!$this->isLoaded('task') && $this->get('id'))
 		{
-			if ($this->get('id'))
-			{
-				$Task = current((array)$this->getClass('TaskManager')->find(array('hostID' => $this->get('id'),'stateID' => array(1,2,3))));
-				if ($Task && $Task->isValid())
-					$this->set('task',$Task);
-				else
-					$this->set('task',new Task(array('id' => 0)));
-			}
+			$Task = $this->getClass('TaskManager')->find(array('hostID' => $this->get('id'),'stateID' => array(1,2,3)))[0];
+			if ($Task && $Task->isValid())
+				$this->set('task',$Task);
+			else
+				$this->set('task',new Task(array('id' => 0)));
 		}
 		return $this;
 	}
 	private function loadUsers()
 	{
-		if (!$this->isLoaded('users'))
+		if (!$this->isLoaded('users') && $this->get('id'))
 		{
-			if ($this->get('id'))
+			$Users = $this->getClass('UserTrackingManager')->find(array('hostID' => $this->get('id'),'action' => array(null,0,1)),'','datetime');
+			foreach((array)$Users AS $User)
 			{
-				$Users = $this->getClass('UserTrackingManager')->find(array('hostID' => $this->get('id'),'action' => array(null,0,1)),'','datetime');
-				foreach((array)$Users AS $User)
-				{
-					if ($User && $User->isValid() && $User->get('username') != 'Array')
-						$this->add('users', $User);
-				}
+				if ($User && $User->isValid() && $User->get('username') != 'Array')
+					$this->add('users', $User);
 			}
 		}
 		return $this;

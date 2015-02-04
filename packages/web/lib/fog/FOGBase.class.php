@@ -135,7 +135,7 @@ abstract class FOGBase
 		$r = new ReflectionClass($class);
 		$args = func_get_args();
 		array_shift($args);
-		return (count($args) ? $r->newInstanceArgs($args) :$r->newInstance());
+		return $r->newInstanceArgs($args);
 	}
 	/** endsWith($str,$sub)
 		Returns true if the sub and str match the ending stuff.

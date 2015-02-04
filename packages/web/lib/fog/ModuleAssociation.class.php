@@ -11,4 +11,12 @@ class ModuleAssociation extends FOGController
 		'moduleID' => 'msModuleID',
 		'state' => 'msState',
 	);
+	public function getModule()
+	{
+		return new Module($this->get('moduleID'));
+	}
+	public function getHost()
+	{
+		return new Host($this->get('hostID'));
+	}
 }
