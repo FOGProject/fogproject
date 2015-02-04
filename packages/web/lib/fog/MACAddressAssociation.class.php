@@ -17,13 +17,11 @@ class MACAddressAssociation extends FOGController
 		'clientIgnore' => 'hmIgnoreClient',
 		'imageIgnore' => 'hmIgnoreImaging',
 	);
-	
 	// Custom
 	public function getHost()
 	{
 		return new Host( $this->get('hostID') );
 	}
-	
 	public function getMACAddress()
 	{
 		return $this->get('mac');

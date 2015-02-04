@@ -13,4 +13,12 @@ class GroupAssociation extends FOGController
 		'hostID'	=> 'gmHostID',
 		'groupID'	=> 'gmGroupID'
 	);
+	public function getGroup()
+	{
+		return new Group($this->get('groupID'));
+	}
+	public function getHost()
+	{
+		return new Host($this->get('hostID'));
+	}
 }
