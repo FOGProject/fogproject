@@ -132,10 +132,10 @@ abstract class FOGBase
 	*/
 	public function getClass($class)
 	{
-		$r = new ReflectionClass($class);
 		$args = func_get_args();
-		array_shift($args);
-		return $r->newInstanceArgs($args);
+		$args = array_shift($args);
+		$r = new ReflectionClass($class);
+		return (count($args) ? (count($args) === 1 ? $r->newInstanceArgs((array)$args[0]) : $r->newInstanceArgs($args)) : $r->newInstance());
 	}
 	/** endsWith($str,$sub)
 		Returns true if the sub and str match the ending stuff.

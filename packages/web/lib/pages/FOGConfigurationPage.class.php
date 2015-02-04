@@ -274,6 +274,7 @@ class FOGConfigurationPage extends FOGPage
 					'field' => $field,
 					'input' => $input,
 					'menu_id' => $Menu->get('id'),
+					'id' => $Menu->get('id'),
 					'menu_item' => $Menu->get('name'),
 					'menu_description' => $Menu->get('description'),
 					'menu_params' => $Menu->get('params'),
@@ -439,6 +440,7 @@ class FOGConfigurationPage extends FOGPage
 				'module' => $ClientUpdate->get('md5'),
 				'type' => $ClientUpdate->get('type'),
 				'client_id' => $ClientUpdate->get('id'),
+				'id' => $ClientUpdate->get('id'),
 			);
 		}
 		// Hook
@@ -745,6 +747,7 @@ class FOGConfigurationPage extends FOGPage
 					'service_name' => $Service->get('name'),
 					'span' => '<i class="icon fa fa-question hand" title="${service_desc}"></i>',
 					'service_id' => $Service->get('id'),
+					'id' => $Service->get('id'),
 					'service_value' => $Service->get('value'),
 					'service_desc' => $Service->get('description'),
 				);
@@ -937,12 +940,12 @@ class FOGConfigurationPage extends FOGPage
 		$this->render();
 		unset($this->data);
 		print '</form>';
-		$this->data[0] = array(
+		$this->data[] = array(
 			'field' => _('Import a previous backup file.'),
 			'input' => '<span class="lightColor">Max Size: ${size}</span><input type="file" name="dbFile" />',
 			'size' => ini_get('post_max_size'),
 		);
-		$this->data[1] = array(
+		$this->data[] = array(
 			'field' => null,
 			'input' => '<input type="submit" value="'._('Import').'" />',
 		);

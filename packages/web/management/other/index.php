@@ -52,7 +52,8 @@
 			<?php } ?>
 		</div>
 		<!-- Footer: Be nice, give us some credit -->
-		<div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a></div>
+		<!--<div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a></div>-->
+		<div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a> <?php print number_format(memory_get_usage(),0,'.',',') ?> bytes</div>
 		<!-- Session Messages -->
 		<?php $this->FOGCore->getMessages() ?>
 		<div class="fog-variable" id="FOGPingActive"><?php intval($_SESSION['FOGPingActive']) ?></div>

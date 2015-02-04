@@ -3,6 +3,7 @@ class Page extends FOGBase {
 	private $pageTitle,$sectionTitle,$stylesheets=array(),$javascripts=array(),$body,$isHomepage, $menu, $submenu, $media;
 	public function __construct() {
 		parent::__construct();
+		while (@ob_end_clean());
 		$theme = 'css/'.($this->FOGCore->getSetting('FOG_THEME') ? $this->FOGCore->getSetting('FOG_THEME') : 'default/fog.css');
 		if (!preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
 		{
@@ -94,6 +95,6 @@ class Page extends FOGBase {
 			$path = 'other/index.php';
 		ob_start();
 		include_once($path);
-		print ob_get_clean();
+		ob_end_flush();
 	}
 }
