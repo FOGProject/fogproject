@@ -86,10 +86,10 @@ class MySQL extends FOGBase
 				$sql = vsprintf($sql, $data);
 			// Query
 			$this->query = $sql;
-			if (!$this->queryResult = $this->link->query('/*'.MYSQLND_QC_ENABLE_SWITCH.'*/'.$this->query))
+			if (!$this->queryResult = $this->link->query($this->query))
 				throw new Exception(_('An error in running a query has been found Error: ').$this->link->error);
 			if ($this->num_rows)
-				$this->link->free();
+				$this->queryResult->free();
 			// INFO
 			$this->info($this->query);
 		}
@@ -194,7 +194,7 @@ class MySQL extends FOGBase
 	*/
 	public function num_rows()
 	{
-		return ($this->link->num_rows ? $this->link->num_rows : null);
+		return ($this->queryResult->num_rows ? $this->queryResult->num_rows : null);
 	}
 	/** age()
 		Return the age of the information.

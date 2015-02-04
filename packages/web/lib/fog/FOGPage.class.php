@@ -90,6 +90,7 @@ abstract class FOGPage extends FOGBase
 	}
 	public function process()
 	{
+		unset($result);
 		try
 		{
 			// Error checking
