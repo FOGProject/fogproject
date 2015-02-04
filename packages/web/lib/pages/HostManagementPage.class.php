@@ -252,7 +252,7 @@ class HostManagementPage extends FOGPage
 		);
 		$fields = array(
 			_('Host Name') => '<input type="text" name="host" value="${host_name}" maxlength="15" class="hostname-input" />*',
-			_('Primary MAC') => '<input type="text" id="mac" name="mac" value="${host_mac}" />*<span id="priMaker"></span><span class="mac-manufactor"></span>',
+			_('Primary MAC') => '<input type="text" id="mac" name="mac" value="${host_mac}" />*<span id="priMaker"></span><span class="mac-manufactor"></span><i class="icon add-mac fa fa-plus-circle hand" title="'._('Add MAC').'"></i>',
 			_('Host Description') => '<textarea name="description" rows="8" cols="40">${host_desc}</textarea>',
 			_('Host Product Key') => '<input id="productKey" type="text" name="key" value="${host_key}" />',
 			_('Host Image') => '${host_image}',
@@ -489,8 +489,8 @@ class HostManagementPage extends FOGPage
 			$pending .= '<div>'._('Approve All MACs?').'<a href="${link}&approveAll=1"><i class="icon fa fa-check-circle"></i></a></div>';
 		$fields = array(
 			_('Host Name') => '<input type="text" name="host" value="${host_name}" maxlength="15" class="hostname-input" />*',
-			_('Primary MAC') => '<input type="text" name="mac" id="mac" value="${host_mac}" />*<span id="priMaker"></span><i class="icon fa fa-plus-circle hand" title="'._('Add MAC').'"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="${host_mac}" '.$Host->clientMacCheck().' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="${host_mac}" '.$Host->imageMacCheck().'/></span><br/><span class="mac-manufactor"></span>',
-			'<span id="additionalMACsRow">'._('Additional MACs').'</span>' => '<span id="additionalMACsCell">'.$addMACs.'</span>',
+			_('Primary MAC') => '<input type="text" name="mac" id="mac" value="${host_mac}" />*<span id="priMaker"></span><i class="icon add-mac fa fa-plus-circle hand" title="'._('Add MAC').'"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="${host_mac}" '.$Host->clientMacCheck().' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="${host_mac}" '.$Host->imageMacCheck().'/></span><br/><span class="mac-manufactor"></span>',
+			'<div id="additionalMACsRow">'._('Additional MACs').'</div>' => '<div id="additionalMACsCell">'.$addMACs.'</div>',
 			($Host->get('pendingMACs') ? _('Pending MACs') : null) => ($Host->get('pendingMACs') ? $pending : null),
 			_('Host Description') => '<textarea name="description" rows="8" cols="40">${host_desc}</textarea>',
 			_('Host Product Key') => '<input id="productKey" type="text" name="key" value="${host_key}" />',

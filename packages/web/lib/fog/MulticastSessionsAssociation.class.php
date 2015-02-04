@@ -16,6 +16,6 @@ class MulticastSessionsAssociation extends FOGController
 	}
 	public function getTask()
 	{
-		return new Task($this->taskID)
+		return new Task($this->taskID);
 	}
 }
