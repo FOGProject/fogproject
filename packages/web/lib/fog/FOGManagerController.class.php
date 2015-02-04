@@ -329,8 +329,9 @@ abstract class FOGManagerController extends FOGBase
 			}
 			if ($groupBy)
 			{
-				$sql = "SELECT %s FROM (SELECT * FROM `%s` %s %s %s) AS tmp %s %s %s";
+				$sql = "SELECT %s FROM (SELECT %s FROM `%s` %s %s %s) AS tmp %s %s %s";
 				$fieldValues = array(
+					trim(implode(',',$this->databaseFields),','),
 					trim(implode(',',$this->databaseFields),','),
 					$this->databaseTable,
 					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),

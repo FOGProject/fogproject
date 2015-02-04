@@ -70,6 +70,8 @@ class ImageManagementPage extends FOGPage
 	{
 		// Set title
 		$this->title = _('All Images');
+		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('ImageManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
+			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
 		// Find data
 		$Images = $this->getClass('ImageManager')->find();
 		$SizeServer = $this->FOGCore->getSetting('FOG_FTP_IMAGE_SIZE');
@@ -103,8 +105,6 @@ class ImageManagementPage extends FOGPage
 				'type' => $Image->get('format') ? 'Partimage' : 'Partclone',
 			);
 		}
-		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
-			$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
 		// Hook
 		$this->HookManager->processEvent('IMAGE_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		$this->headerData = array_filter((array)$this->headerData);
