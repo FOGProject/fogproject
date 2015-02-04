@@ -10,4 +10,12 @@ class MulticastSessionsAssociation extends FOGController
 		'msID'				=> 'msID',
 		'taskID'			=> 'tID',
 	);
+	public function getMulticastSession()
+	{
+		return new MulticastSessions($this->get('msID'));
+	}
+	public function getTask()
+	{
+		return new Task($this->taskID)
+	}
 }

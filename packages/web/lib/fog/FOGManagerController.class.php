@@ -329,8 +329,9 @@ abstract class FOGManagerController extends FOGBase
 			}
 			if ($groupBy)
 			{
-				$sql = "SELECT * FROM (SELECT * FROM `%s` %s %s %s) AS tmp %s %s %s";
+				$sql = "SELECT %s FROM (SELECT * FROM `%s` %s %s %s) AS tmp %s %s %s";
 				$fieldValues = array(
+					trim(implode(',',$this->databaseFields),','),
 					$this->databaseTable,
 					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
 					'ORDER BY '.trim(implode($orderArray,','),','),
@@ -342,8 +343,9 @@ abstract class FOGManagerController extends FOGBase
 			}
 			else
 			{
-				$sql = "SELECT * FROM `%s` %s %s %s";
+				$sql = "SELECT %s FROM `%s` %s %s %s";
 				$fieldValues = array(
+					trim(implode(',',$this->databaseFields),','),
 					$this->databaseTable,
 					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
 					'ORDER BY '.trim(implode($orderArray,','),','),
@@ -352,10 +354,11 @@ abstract class FOGManagerController extends FOGBase
 			}
 			// Select all
 			$this->DB->query($sql,$fieldValues);
+			$data = array();
 			while ($row = $this->DB->fetch()->get())
 			{
 				$r = new ReflectionClass($this->childClass);
-				$data[] = $r->newInstance($row);
+				array_push($data,$r->newInstance($row));
 			}
 			// Return
 			return (array)$data;
