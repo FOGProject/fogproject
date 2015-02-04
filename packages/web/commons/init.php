@@ -56,6 +56,12 @@ class Initiator
 		spl_autoload_register(array($this,'FOGLoader'));
 		spl_autoload_register(array($this,'FOGPages'));
 		spl_autoload_register(array($this,'FOGHooks'));
+		$vars = array_keys(get_defined_vars());
+		for ($i = 0; $i < sizeOf($vars); $i++) {
+			global $$vars[$i];
+			unset($$vars[$i]);
+		}
+		unset($vars,$i);
 	}
 	/**
 	* DetermineBasePath()
@@ -227,13 +233,9 @@ $Config = new Config();
 // Core
 $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
-// Cache SQL query stuff
-ini_set('mysqlnd_qc.enable_qc',true);
-ini_set('mysqlnd_qc.cache_by_default',true);
-ini_set('mysqlnd_qc.cache_no_table',true);
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
-$DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
+$DB = $DatabaseManager->connect()->DB;
 // Ensure any new tables are always MyISAM
 $DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
 $tables = $DB->fetch('','fetch_all');

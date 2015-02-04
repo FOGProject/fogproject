@@ -49,6 +49,8 @@ class UserManagementPage extends FOGPage
 	{
 		// Set title
 		$this->title = _('All Users');
+		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('UserManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
+			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
 		// Find data
 		$Users = $this->getClass('UserManager')->find();
 		// Row data
@@ -59,8 +61,6 @@ class UserManagementPage extends FOGPage
 				'name'	=> $User->get('name')
 			);
 		}
-		if($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && count($this->data) > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
-			$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
 		// Hook
 		$this->HookManager->processEvent('USER_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output

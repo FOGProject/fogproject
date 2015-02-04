@@ -36,19 +36,16 @@ class Group extends FOGController
         }   
         return $this;
     }
-
 	public function getHostCount()
 	{
 		return $this->getClass('GroupAssociationManager')->count(array('groupID' => $this->get('id')));
 	}
-
     public function get($key = '') 
     {   
         if ($this->key($key) == 'hosts')
             $this->loadHosts();
         return parent::get($key);
     }   
-
     public function set($key, $value)
     {   
         if ($this->key($key) == 'hosts')
