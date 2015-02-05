@@ -29,26 +29,22 @@ class LDAP extends FOGController
 	}
 	private function LDAPUp($timeout = 3)
 	{
-		if ($this->get('port') != 389 && $this->get('port') != 689)
-			throw new Exception(_('Port is not valid ldap/ldaps ports');
-		$port = $this->get('port');
-		$server = $this->get('port') == 689 ? 'ldaps://'.$this->get('address') : $this->get('address');
-		$sock = fsockopen($server, $this->get('port'), $errno, $errstr, $timeout);
+		if (!in_array($this->get('port'),array(389,636)))
+			throw new Exception(_('Port is not valid ldap/ldaps ports'));
+		$sock = fsockopen($this->get('address'), $this->get('port'), $errno, $errstr, $timeout);
 		if (!$sock) return false;
 		fclose($sock);
-		$this->set('address', $server);
-		return true;
+		return $this->get('port') == 636 ? 'ldaps://'.$this->get('address') : $this->get('address');
 	}
 	public function authLDAP($user,$pass)
 	{
-		if (!$this->LDAPUp()) return false;
-		$ldapconn = @ldap_connect($this->get('address'),$this->get('port'));
+		if (!$server = $this->LDAPUp()) return false;
+		$ldapconn = @ldap_connect($server,$this->get('port'));
 		// set protocol options
 		ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($ldapconn, LDAP_OPT_REFERRALS, 0);
 		if (!ldap_bind($ldapconn,"uid=$user,{$this->get(DN)}",$pass))
 			return false;
-		ldap_close($ldapconn);
-		return true;
+		return ldap_close($ldapconn);
 	}
 }

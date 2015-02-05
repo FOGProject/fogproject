@@ -18,7 +18,6 @@ class LDAPPluginHook extends Hook
 			{
 				if ($LDAP->authLDAP($username,$password))
 				{
-					echo('We are in!!!');
 					$UserByName = current($this->getClass('UserManager')->find(array('name' => $username)));
 					if ($UserByName)
 					{
