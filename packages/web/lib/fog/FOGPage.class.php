@@ -25,7 +25,6 @@ abstract class FOGPage extends FOGBase
 	public $subMenu = array(
 	);
     /** Sets the Variables to use later on. **/
-    public $FOGCore, $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang;
 	// Variables
 	// Page title
 	public $titleEnabled = true;
@@ -49,8 +48,6 @@ abstract class FOGPage extends FOGBase
 	{
 		// FOGBase contstructor
 		parent::__construct();
-		if (!$this->FOGUser)
-			$this->FOGUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
 		// Set name
 		if (!empty($name))
 			$this->name = $name;
