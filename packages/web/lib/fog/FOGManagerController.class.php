@@ -329,10 +329,11 @@ abstract class FOGManagerController extends FOGBase
 			}
 			if ($groupBy)
 			{
-				$sql = "SELECT %s FROM (SELECT %s FROM `%s` %s %s %s) AS tmp %s %s %s";
+				$sql = "SELECT %s`%s` FROM (SELECT `%s` FROM `%s` %s %s %s) AS tmp %s %s %s";
 				$fieldValues = array(
-					trim(implode(',',$this->databaseFields),','),
-					trim(implode(',',$this->databaseFields),','),
+					(!count($whereArray) ? 'DISTINCT ' : ''),
+					trim(implode(array_keys($this->databaseFieldsFlipped),'`,`'),','),
+					trim(implode(array_keys($this->databaseFieldsFlipped),'`,`'),','),
 					$this->databaseTable,
 					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
 					'ORDER BY '.trim(implode($orderArray,','),','),
@@ -344,9 +345,10 @@ abstract class FOGManagerController extends FOGBase
 			}
 			else
 			{
-				$sql = "SELECT %s FROM `%s` %s %s %s";
+				$sql = "SELECT %s`%s` FROM `%s` %s %s %s";
 				$fieldValues = array(
-					trim(implode(',',$this->databaseFields),','),
+					(!count($whereArray) ? 'DISTINCT ' : ''),
+					trim(implode(array_keys($this->databaseFieldsFlipped),'`,`'),','),
 					$this->databaseTable,
 					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
 					'ORDER BY '.trim(implode($orderArray,','),','),
