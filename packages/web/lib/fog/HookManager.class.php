@@ -11,8 +11,6 @@ class HookManager extends FOGBase
 	public $logLevel = 0;
 	private $data;
 	public $events;
-    /** Sets the Variables to use later on. **/
-    public $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang;
 	public function register($event, $function)
 	{
 		try
@@ -25,8 +23,6 @@ class HookManager extends FOGBase
 				throw new Exception('Not a valid hook class');
 			$this->log(sprintf('Registering Hook: Event: %s, Function: %s', $event, $function[1]));
 			$this->data[$event][] = $function;
-			if (!$this->FOGUser)
-				$this->FOGUser = $GLOBALS['currentUser'];
 			return true;
 		}
 		catch (Exception $e)
