@@ -17,13 +17,9 @@ abstract class Hook extends FOGBase
 	public $logToFile = false;
 	public $logToBrowser = true;
 	public $delformat;
-    /** Sets the Variables to use later on. **/
-    public $FOGCore, $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang;
 	public function __construct()
 	{
 		parent::__construct();
-		if (!$this->FOGUser)
-			$this->FOGUser = (!empty($_SESSION['FOG_USER']) ? unserialize($_SESSION['FOG_USER']) : null);
 	}
 	public function run($arguments)
 	{

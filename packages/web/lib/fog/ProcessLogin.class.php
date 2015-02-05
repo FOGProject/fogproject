@@ -3,11 +3,6 @@ class ProcessLogin extends FOGBase
 {
 	private $username, $password, $currentUser, $langSet;
 	private $mobileMenu, $mainMenu, $langMenu;
-	public function __construct()
-	{
-		parent::__construct();
-	}
-	
 	private function getLanguages()
 	{
 		foreach($this->foglang['Language'] AS $lang)
