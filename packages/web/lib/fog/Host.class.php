@@ -74,8 +74,8 @@ class Host extends FOGController
 	}
 	public function getDefault($printerid)
 	{
-		$PrinterMan = (array)$this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $printerid))[0];
-		return ($PrinterMan && $PrinterMan->isValid() ? $PrinterMan->get('isDefault') : false);
+		$PrinterMan = $this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $printerid))[0];
+		return $PrinterMan->isValid() && $PrinterMan->get('isDefault');
 	}
 	public function updateDefault($printerid,$onoff)
 	{
@@ -149,8 +149,7 @@ class Host extends FOGController
 			if ($this->get('id'))
 			{
 				$SnapinJob = $this->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(-1,0,1)))[0];
-				if ($SnapinJob && $SnapinJob->isValid())
-					$this->set('snapinjob',$SnapinJob);
+				$this->set('snapinjob',$SnapinJob);
 			}
 		}
 		return $this;
@@ -171,10 +170,7 @@ class Host extends FOGController
 		{
 			$AdditionalMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 0));
 			foreach((array)$AdditionalMACs AS $MAC)
-			{
-				if ($MAC && $MAC->isValid())
-					$this->add('additionalMACs', new MACAddress($MAC->get('mac')));
-			}
+				$this->add('additionalMACs', new MACAddress($MAC->get('mac')));
 		}
 		return $this;
 	}
@@ -184,10 +180,7 @@ class Host extends FOGController
 		{
 			$PendMACs = $this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'pending' => 1));
 			foreach((array)$PendMACs AS $MAC)
-			{
-				if ($MAC && $MAC->isValid() && $MAC->get('pending'))
-					$this->add('pendingMACs', new MACAddress($MAC->get('mac')));
-			}
+				$this->add('pendingMACs', new MACAddress($MAC->get('mac')));
 		}
 		return $this;
 	}
@@ -215,14 +208,8 @@ class Host extends FOGController
 	{
 		if (!$this->isLoaded('inventory') && $this->get('id'))
 		{
-			$Inventories = $this->getClass('InventoryManager')->find(array('hostID' => $this->get('id')));
-			foreach((array)$Inventories AS $Inventory)
-			{
-				if ($Inventory && $Inventory->isValid())
-					$this->set('inventory',$Inventory);
-				else
-					$this->set('inventory',new Inventory(array('id' => -1)));
-			}
+			$Inventory = $this->getClass('InventoryManager')->find(array('hostID' => $this->get('id')))[0];
+			$this->set('inventory',$Inventory);
 		}
 		return $this;
 	}
@@ -251,10 +238,7 @@ class Host extends FOGController
 		if (!$this->isLoaded('task') && $this->get('id'))
 		{
 			$Task = $this->getClass('TaskManager')->find(array('hostID' => $this->get('id'),'stateID' => array(1,2,3)))[0];
-			if ($Task && $Task->isValid())
-				$this->set('task',$Task);
-			else
-				$this->set('task',new Task(array('id' => 0)));
+			$this->set('task',$Task);
 		}
 		return $this;
 	}
@@ -265,7 +249,7 @@ class Host extends FOGController
 			$Users = $this->getClass('UserTrackingManager')->find(array('hostID' => $this->get('id'),'action' => array(null,0,1)),'','datetime');
 			foreach((array)$Users AS $User)
 			{
-				if ($User && $User->isValid() && $User->get('username') != 'Array')
+				if ($User->get('username') != 'Array')
 					$this->add('users', $User);
 			}
 		}
