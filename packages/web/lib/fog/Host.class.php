@@ -74,8 +74,8 @@ class Host extends FOGController
 	}
 	public function getDefault($printerid)
 	{
-		$PrinterMan = $this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $printerid))[0];
-		return $PrinterMan->isValid() && $PrinterMan->get('isDefault');
+		$PrinterMan = current($this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $printerid)));
+		return $PrinterMan && $PrinterMan->isValid() && $PrinterMan->get('isDefault');
 	}
 	public function updateDefault($printerid,$onoff)
 	{
@@ -148,7 +148,7 @@ class Host extends FOGController
 		{
 			if ($this->get('id'))
 			{
-				$SnapinJob = $this->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(-1,0,1)))[0];
+				$SnapinJob = current($this->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(-1,0,1))));
 				$this->set('snapinjob',$SnapinJob);
 			}
 		}
@@ -158,7 +158,7 @@ class Host extends FOGController
 	{
 		if (!$this->isLoaded('mac') && $this->get('id'))
 		{
-			$PriMAC = $this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1))[0];
+			$PriMAC = current($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1)));
 			if ($PriMAC && $PriMAC->isValid())
 				$this->set('mac',new MACAddress($PriMAC->get('mac')));
 		}
@@ -208,7 +208,7 @@ class Host extends FOGController
 	{
 		if (!$this->isLoaded('inventory') && $this->get('id'))
 		{
-			$Inventory = $this->getClass('InventoryManager')->find(array('hostID' => $this->get('id')))[0];
+			$Inventory = current($this->getClass('InventoryManager')->find(array('hostID' => $this->get('id'))));
 			$this->set('inventory',$Inventory);
 		}
 		return $this;
@@ -237,7 +237,7 @@ class Host extends FOGController
 	{
 		if (!$this->isLoaded('task') && $this->get('id'))
 		{
-			$Task = $this->getClass('TaskManager')->find(array('hostID' => $this->get('id'),'stateID' => array(1,2,3)))[0];
+			$Task = current($this->getClass('TaskManager')->find(array('hostID' => $this->get('id'),'stateID' => array(1,2,3))));
 			$this->set('task',$Task);
 		}
 		return $this;

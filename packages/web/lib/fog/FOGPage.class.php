@@ -63,6 +63,10 @@ abstract class FOGPage extends FOGBase
 		// Default form target
 		$this->formAction = sprintf('%s?%s', $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
 	}
+	public function __destruct()
+	{
+		parent::__destruct();
+	}
 	// Default index page
 	public function index()
 	{
