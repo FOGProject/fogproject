@@ -21,6 +21,10 @@ abstract class Hook extends FOGBase
 	{
 		parent::__construct();
 	}
+	public function __destruct()
+	{
+		parent::__destruct();
+	}
 	public function run($arguments)
 	{
 	}

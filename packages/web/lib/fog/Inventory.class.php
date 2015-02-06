@@ -41,6 +41,10 @@ class Inventory extends FOGController
 		'caseserial'	=> 'iCaseserial',
 		'caseasset'		=> 'iCaseasset',
 	);
+	public function getHost()
+	{
+		return new Host($this->get('hostID'));
+	}
 
 	public function getMem()
 	{

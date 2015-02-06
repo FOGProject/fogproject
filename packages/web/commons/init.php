@@ -56,12 +56,6 @@ class Initiator
 		spl_autoload_register(array($this,'FOGLoader'));
 		spl_autoload_register(array($this,'FOGPages'));
 		spl_autoload_register(array($this,'FOGHooks'));
-		$vars = array_keys(get_defined_vars());
-		for ($i = 0; $i < sizeOf($vars); $i++) {
-			global $$vars[$i];
-			unset($$vars[$i]);
-		}
-		unset($vars,$i);
 	}
 	/**
 	* DetermineBasePath()
@@ -238,9 +232,9 @@ $DatabaseManager = new DatabaseManager();
 $DB = $DatabaseManager->connect()->DB;
 // Ensure any new tables are always MyISAM
 $DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
-$tables = $DB->fetch('','fetch_all');
+$tables = $DB->fetch('','fetch_all')->get('TABLE_NAME');
 foreach ($tables AS $table)
-	$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".$table['TABLE_NAME']."` ENGINE=MyISAM");
+	$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".$table."` ENGINE=MyISAM");
 // Set the memory limits
 ini_set('memory_limit',is_numeric($FOGCore->getSetting('FOG_MEMORY_LIMIT')) && $FOGCore->getSetting('FOG_MEMORY_LIMIT') >= 128 ? $FOGCore->getSetting('FOG_MEMORY_LIMIT').'M' : ini_get('memory_limit'));
 // Generate the Server's Key Pairings
