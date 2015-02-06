@@ -40,6 +40,7 @@ abstract class FOGBase
 	*/
 	public function __construct()
 	{
+		$this->reset();
 		// Class setup
 		$this->FOGFTP = $GLOBALS['FOGFTP'];
 		$this->FOGCore = $GLOBALS['FOGCore'];
@@ -52,6 +53,15 @@ abstract class FOGBase
 		// Default TimeZone to use for date fields
 		$this->TimeZone = (ini_get('date.timezone') ? ini_get('date.timezone') : 'GMT');
 		$this->imagelink = $GLOBALS['imagelink'];
+	}
+	public function __destruct()
+	{
+		$this->reset();
+	}
+	public function reset()
+	{
+		foreach(get_class_vars(get_class($this)) AS $key => $default)
+			$this->$key = $default;
 	}
 	/** fatalError($txt, $data = array())
 		Fatal error in the case something went wrong.

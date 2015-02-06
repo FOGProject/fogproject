@@ -35,7 +35,8 @@ class LDAPPluginHook extends Hook
 						if ($tmpUser->save())
 						{
 							$this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('User created'), $tmpUser->get('id'), $tmpUser->get('name')));
-							return $tmpUser;
+							$arguments['User'] = $tmpUser;
+							break;
 						}
 						else
 							throw new Exception('Database update failed');

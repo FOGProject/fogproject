@@ -23,8 +23,6 @@ abstract class FOGController extends FOGBase
 		'createdBy',
 		'createdTime'
 	);
-    /** Sets the Variables to use later on. **/
-    public $FOGCore, $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang;
 	// Allow setting / getting of these additional fields
 	/** set or get additional fields. */
 	public $additionalFields = array();
@@ -75,7 +73,7 @@ abstract class FOGController extends FOGBase
 			{
 				if ($data === 0 || $data < 0)
 					throw new Exception(sprintf('No data passed, or less than zero, Value: %s', $data));
-				$this->set('id', $this->DB->sanitize($data))->load();
+				$this->set('id', $data)->load();
 			}
 			// Unknown data format
 			else
@@ -96,6 +94,7 @@ abstract class FOGController extends FOGBase
 		// Auto save
 		if ($this->autoSave)
 			$this->save();
+		parent::__destruct();
 	}
 	// Set
 	/** set($key, $value)
@@ -123,7 +122,7 @@ abstract class FOGController extends FOGBase
 	*/
 	public function get($key = '')
 	{
-		return (!empty($key) && isset($this->data[$key]) ? $this->data[$key] : (empty($key) ? $this->data : ''));
+		return ($key && isset($this->data[$key]) ? $this->data[$key] : (!$key ? $this->data : ''));
 	}
 	// Add
 	/** add($key, $value)
@@ -249,9 +248,9 @@ abstract class FOGController extends FOGBase
 			{
 				// Multiple values
 				foreach ($this->get($field) AS $fieldValue)
-					$fieldData[] = sprintf("`%s`='%s'", $this->DB->sanitize($this->databaseFields[$field]), $this->DB->sanitize($fieldValue));
+					$fieldData[] = sprintf("`%s`='%s'", $this->databaseFields[$field], $fieldValue);
 				$query = sprintf($this->loadQueryTemplateMultiple,
-					$this->DB->sanitize($this->databaseTable),
+					$this->databaseTable,
 					implode(' OR ', $fieldData)
 				);
 			}
@@ -259,9 +258,9 @@ abstract class FOGController extends FOGBase
 			{
 				// Single value
 				$query = sprintf($this->loadQueryTemplateSingle,
-					$this->DB->sanitize($this->databaseTable),
-					$this->DB->sanitize($this->databaseFields[$field]),
-					$this->DB->sanitize($this->get($field))
+					$this->databaseTable,
+					$this->databaseFields[$field],
+					$this->get($field)
 				);
 			}
 			// Did we find a row in the database?
