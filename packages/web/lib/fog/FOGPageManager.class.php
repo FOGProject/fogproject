@@ -94,7 +94,9 @@ class FOGPageManager extends FOGBase
 				ob_start();
 				(!$this->FOGCore->isPOSTRequest() ? $this->resetRequest() : $this->setRequest());
 				call_user_func(array($class, $method));
-				return ob_get_clean();
+				$result = ob_get_clean();
+				$this->resetRequest();
+				return $result;
 			}
 			catch (Exception $e)
 			{
@@ -126,7 +128,7 @@ class FOGPageManager extends FOGBase
 					if ($className)
 					{
 						$class = new $className();
-						$this->register($class);
+						$_REQUEST['node'] == $class->node ? $this->register($class) : $class->reset();
 					}
 				}
 			}

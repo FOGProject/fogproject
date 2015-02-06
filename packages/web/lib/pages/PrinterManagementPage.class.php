@@ -374,30 +374,6 @@ class PrinterManagementPage extends FOGPage
 		print "\n\t\t\t</div>";
 		unset($this->data);
 		print "\n\t\t\t".'<!-- Hosts with this printer -->';
-		$HostMan = new HostManager();
-		// Get Hosts with this printer assigned
-		foreach((array)$Printer->get('hosts') AS $Host)
-		{
-			if ($Host && $Host->isValid())
-				$HostsWithMe[] = $Host->get('id');
-		}
-		// Get all Host IDs with a printer assigned
-		foreach($this->getClass('PrinterAssociationManager')->find() AS $PrinterAssoc)
-		{
-			if ($PrinterAssoc && $PrinterAssoc->isValid())
-				$HostsWithPrinter[] = $PrinterAssoc->get('hostID');
-		}
-		// Set the values
-		foreach($HostMan->find() AS $Host)
-		{
-			if ($Host && $Host->isValid())
-			{
-				if (!in_array($Host->get('id'),(array)$HostsWithPrinter))
-					$HostNotWithPrinter[] = $Host;
-				if (!in_array($Host->get('id'),(array)$HostsWithMe))
-					$HostNotWithMe[] = $Host;
-			}
-		}
 		print "\n\t\t\t".'<div id="printer-host">';
 		// Create the header data:
 		$this->headerData = array(
@@ -424,7 +400,7 @@ class PrinterManagementPage extends FOGPage
 			array(),
 		);
 		// All hosts not with this printer
-		foreach((array)$HostNotWithMe AS $Host)
+		foreach($Printer->get('hostsnotinme') AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
@@ -463,7 +439,7 @@ class PrinterManagementPage extends FOGPage
 			_('Registered'),
 		);
 		// All hosts not with any printer
-		foreach((array)$HostNotWithPrinter AS $Host)
+		foreach($Printer->get('noprinter') AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
@@ -520,7 +496,7 @@ class PrinterManagementPage extends FOGPage
 			'<input class="default" type="checkbox" name="default[]" id="host_printer${host_id}"${is_default} value="${host_id}" /><label for="host_printer${host_id}" class="icon icon-hand" title="'._('Default Printer Selection').'">&nbsp;</label><input type="hidden" value="${host_id}" name="hostid[]"/>',
 		);
 		unset($this->data);
-		foreach((array)$Printer->get('hosts') AS $Host)
+		foreach($Printer->get('hosts') AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
