@@ -119,8 +119,9 @@ class FOGPageManager extends FOGBase
 				$iterator = new DirectoryIterator($path);
 				foreach ($iterator as $fileInfo)
 				{
-					$PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : '';
-					$Plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $PluginName,'state' => 1, 'installed' => 1)));
+					$PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : null;
+					if ($PluginName)
+						$Plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $PluginName, 'installed' => 1)));
 					if ($Plugin)
 						$className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
 					else if (!preg_match('#plugins#i',$path))
@@ -128,7 +129,7 @@ class FOGPageManager extends FOGBase
 					if ($className)
 					{
 						$class = new $className();
-						$_REQUEST['node'] == $class->node ? $this->register($class) : $class->reset();
+						($_REQUEST['node'] == $class->node ? $this->register($class) : (!$_REQUEST['node'] && $class->node = 'home' ? $this->register($class) : $class = null));
 					}
 				}
 			}
