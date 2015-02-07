@@ -56,10 +56,13 @@ class UserManagementPage extends FOGPage
 		// Row data
 		foreach ((array)$Users AS $User)
 		{
-			$this->data[] = array(
-				'id'	=> $User->get('id'),
-				'name'	=> $User->get('name')
-			);
+			if ($User && $User->isValid())
+			{
+				$this->data[] = array(
+					'id'	=> $User->get('id'),
+					'name'	=> $User->get('name')
+				);
+			}
 		}
 		// Hook
 		$this->HookManager->processEvent('USER_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -80,11 +83,8 @@ class UserManagementPage extends FOGPage
 	}
 	public function search_post()
 	{
-		// Variables
-		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
-		$Users = new UserManager();
 		// Find data -> Push data
-		foreach ($Users->search($keyword,'User') AS $User)
+		foreach ($this->getClass('UserManager')->search() AS $User)
 		{
 			$this->data[] = array(
 				'id'	=> $User->get('id'),
