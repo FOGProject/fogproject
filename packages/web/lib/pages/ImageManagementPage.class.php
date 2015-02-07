@@ -138,13 +138,10 @@ class ImageManagementPage extends FOGPage
 	*/
 	public function search_post()
 	{
-		// Variables
-		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Get All images based on the keyword
-		$Images = new ImageManager();
 		$SizeServer = $this->FOGCore->getSetting('FOG_FTP_IMAGE_SIZE');
 		// Find data -> Push data
-		foreach ($Images->search($keyword,'Image') AS $Image)
+		foreach ($this->getClass('ImageManager')->search() AS $Image)
 		{
 			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
 			if ($Image->getStorageGroup() && $Image->getStorageGroup()->isValid())

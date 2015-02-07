@@ -102,11 +102,7 @@ class HostMobile extends FOGPage
 
 	public function search_post()
 	{
-		// Variables
-		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['host-search']) . '%');
-		// Get All hosts class for matching keyword
-		$Hosts = new HostManager();
-		foreach($Hosts->search($keyword) AS $Host)
+		foreach($this->getClass('HostManager')->search() AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
