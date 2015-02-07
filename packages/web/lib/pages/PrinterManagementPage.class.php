@@ -103,11 +103,8 @@ class PrinterManagementPage extends FOGPage
 	}
 	public function search_post()
 	{
-		// Variables
-		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
-		$Printers = new PrinterManager();
 		// Find data -> Push data
-		foreach ($Printers->search($keyword,'Printer') AS $Printer)
+		foreach ($this->getClass('PrinterManager')->search() AS $Printer)
 		{
 			$this->data[] = array(
 				'id'		=> $Printer->get('id'),
