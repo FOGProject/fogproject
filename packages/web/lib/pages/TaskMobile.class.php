@@ -52,7 +52,6 @@ class TaskMobile extends FOGPage
 			'<a href="?node=${node}&sub=killtask&id=${task_id}"><i class="fa fa-minus-circle fa-2x task"></i></a>',
 		);
 	}
-
 	public function index()
 	{
 		foreach((array)$this->getClass('TaskManager')->find(array('stateID' => array(1,2,3))) AS $Task)
