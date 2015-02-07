@@ -74,17 +74,6 @@ class SnapinManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-	public function search()
-	{
-		// Set title
-		$this->title = _('Search');
-		// Set search form
-		$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
-		// Hook
-		$this->HookManager->processEvent('SNAPIN_SEARCH');
-		// Output
-		$this->render();
-	}
 	public function search_post()
 	{
 		// Find data -> Push data

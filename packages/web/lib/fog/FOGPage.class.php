@@ -43,6 +43,7 @@ abstract class FOGPage extends FOGBase
 	protected $request = array();
 	protected $formAction;
 	protected $formPostAction;
+	protected $childClass;
 	// __construct
 	public function __construct($name = '')
 	{
@@ -60,6 +61,7 @@ abstract class FOGPage extends FOGBase
 		// Methods
 		$this->post = $this->FOGCore->isPOSTRequest();
 		$this->ajax = $this->FOGCore->isAJAXRequest();
+		$this->childClass = preg_replace('#_?ManagementPage%#', '', get_class($this));
 		// Default form target
 		$this->formAction = sprintf('%s?%s', $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
 	}
@@ -952,5 +954,21 @@ abstract class FOGPage extends FOGBase
 			// Redirect
 			$this->FOGCore->redirect($this->formAction);
 		}
+	}
+	/* search system
+	 * @return void
+	 */
+	public function search()
+	{
+		// Set Title
+		$this->title = _('Search');
+		// Set search form
+		if (in_array($this->node,array('user','host','group','image','snapin','printer','tasks','hosts','location','wolbroadcast','ldap','accesscontrol')))
+			$this->searchFormURL = sprintf('?node=%s&sub=search',$this->node);
+		// Hook
+		$this->HookManager->processEvent(strtoupper($this->childClass).'_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'headerData' => &$this->headerData,'attributes' => &$this->attributes,'title' => &$this->title,'searchFormURL' => &$this->searchFormURL));
+		$this->HookManager->processEvent(strtoupper($this->childClass).'_HEADER_DATA', array('headerData' => &$this->headerData));
+		// Output
+		$this->render();
 	}
 }
