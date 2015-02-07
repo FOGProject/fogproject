@@ -121,11 +121,8 @@ class TaskManagementPage extends FOGPage
 	}
 	public function search_post()
 	{
-		// Variables
-		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
-		$Tasks = new TaskManager();
 		// Find data -> Push data
-		foreach ($Tasks->search($keyword,'Task') AS $Task)
+		foreach ($this->getClass('TaskManager')->search() AS $Task)
 		{
 			if ($Task && $Task->isValid())
 			{

@@ -77,9 +77,8 @@ class GroupManagementPage extends FOGPage
 		// Find data
 		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('GroupManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
 			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
-		$Groups = $this->getClass('GroupManager')->find();
 		// Row data
-		foreach ((array)$Groups AS $Group)
+		foreach ($this->getClass('GroupManager')->find() AS $Group)
 		{
 			$this->data[] = array(
 				'id'		=> $Group->get('id'),
@@ -116,10 +115,9 @@ class GroupManagementPage extends FOGPage
 	public function search_post()
 	{
 		// Variables
-		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		$Groups = new GroupManager();
 		// Find data -> Push data
-		foreach($Groups->search($keyword,'Group') AS $Group)
+		foreach($Groups->search() AS $Group)
 		{
 			$this->data[] = array(
 				'id'		=> $Group->get('id'),
