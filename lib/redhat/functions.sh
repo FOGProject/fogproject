@@ -182,7 +182,7 @@ tcp_wrappers=YES" > "$ftpconfig";
 	vsftp=`vsftpd -version 0>&1`;
 	vsvermaj=`echo $vsftp | awk -F. '{print $1}' | awk '{print $3}'`;
 	vsverbug=`echo $vsftp | awk -F. '{print $3}'`;
-	if [ "$vsvermaj" -gt 3 ] || [ "$vsvermaj" -e 3 -a "$vsverbug" -ge 2 ]; then
+	if [ "$vsvermaj" -gt 3 ] || [ "$vsvermaj" = "3" -a "$vsverbug" -ge 2 ]; then
 		echo "seccomp_sandbox=NO" >> "$ftpconfig";
 	fi
 	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
