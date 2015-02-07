@@ -74,7 +74,7 @@ class HostManagementPage extends FOGPage
 		// Find data -> Push data
 		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('HostManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
 			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
-		foreach ($this->getClass('HostManager')->find() AS $Host)
+		foreach ($this->getClass('HostManager')->search() AS $Host)
 		{
 			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{
@@ -115,10 +115,8 @@ class HostManagementPage extends FOGPage
 	*/
 	public function search_post()
 	{
-		// Variables
-		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Find data -> Push data
-		foreach($this->getClass('HostManager')->search($keyword) AS $Host)
+		foreach($this->getClass('HostManager')->search() AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
@@ -1627,7 +1625,7 @@ class HostManagementPage extends FOGPage
 		parent::render();
 		
 		// Add action-box
-		if ((!$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
+		if ((!$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest() && count($this->data))
 		{	
 			$this->additional = array(
 				'<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box">',
