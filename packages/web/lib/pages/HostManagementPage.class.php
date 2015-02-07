@@ -74,7 +74,7 @@ class HostManagementPage extends FOGPage
 		// Find data -> Push data
 		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('HostManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
 			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
-		foreach ($this->getClass('HostManager')->search() AS $Host)
+		foreach ($this->getClass('HostManager')->find() AS $Host)
 		{
 			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{
@@ -91,22 +91,6 @@ class HostManagementPage extends FOGPage
 		// Hook
 		$this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		$this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData' => &$this->headerData, 'title' => &$this->title));
-		// Output
-		$this->render();
-	}
-	/** search()
-		Prints the search page.
-	*/
-	public function search()
-	{
-		// Set title
-		$this->title = _('Search');
-		// Set search form
-		$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
-
-		// Hook
-		$this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-		$this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData' => &$this->headerData));
 		// Output
 		$this->render();
 	}

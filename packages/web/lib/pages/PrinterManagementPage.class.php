@@ -90,17 +90,6 @@ class PrinterManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-	public function search()
-	{
-		// Set title
-		$this->title = 'Search';
-		// Set search form
-		$this->searchFormURL = $_SERVER['PHP_SELF'].'?node=printer&sub=search';
-		// Hook
-		$this->HookManager->processEvent('PRINTER_SEARCH');
-		// Output
-		$this->render();
-	}
 	public function search_post()
 	{
 		// Find data -> Push data

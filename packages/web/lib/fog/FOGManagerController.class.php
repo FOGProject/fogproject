@@ -47,19 +47,19 @@ abstract class FOGManagerController extends FOGBase
 		parent::__destruct();
 	}
 	// Search
-	/** search($keyword = '%') defaults the search
-		part to use the wildcard.
-	*/
 	public function search()
 	{
 		try
 		{
-			$keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', $_REQUEST['crit']) . '%');
+			$keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', preg_replace('#[?*]*#','%',$_REQUEST['crit'])) . '%');
 			$_SESSION['caller'] = __FUNCTION__;
 			if (empty($keyword))
 				throw new Exception('No keyword passed');
 			foreach((array)$this->databaseFields AS $common => $dbField)
-				$findWhere[$common] = $keyword;
+			{
+				if ($common != 'createdBy')
+					$findWhere[$common] = $keyword;
+			}
 			if ($this->classClass == 'User')
 				return $this->getClass('UserManager')->find($findWhere,'OR');
 			$HostIDs = ($this->childClass == 'Host' ? $this->getClass('HostManager')->find($findWhere,'OR','','','','','','id') : $this->getClass('HostManager')->find(array('name' => $keyword,'description' => $keyword,'ip' => $keyword),'OR','','','','','','id'));
