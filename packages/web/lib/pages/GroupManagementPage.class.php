@@ -92,22 +92,6 @@ class GroupManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-	/** search()
-		This function displays the search form used by the system.
-		If default view is search, this is displayed.  You can search
-		for the groups using this.
-	*/
-	public function search()
-	{
-		// Set title
-		$this->title = _('Search');
-		// Set search form
-		$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
-		// Hook
-		$this->HookManager->processEvent('GROUP_SEARCH');
-		// Output
-		$this->render();
-	}
 	/** search_post()
 		This function is how the data gets processed and displayed based on what was
 		searched for.

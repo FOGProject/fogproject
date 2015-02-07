@@ -36,30 +36,39 @@ class ImageManagementPage extends FOGPage
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			_('Image Name') .'<br /><small>'._('Storage Group').': '._('O/S').'</small><br /><small>'._('Image Type').'</small><br /><small>'._('Partition').'</small>',
 			_('Image Size: ON CLIENT'),
-			$SizeServer ? _('Image Size: ON SERVER') : null,
+		);
+		$SizeServer ? array_push($this->headerData,_('Image Size: ON SERVER')) : null;
+		array_push(
+			$this->headerData,
 			_('Format'),
 			_('Uploaded'),
-			_('Edit/Remove'),
+			_('Edit/Remove')
 		);
 		// Row templates
 		$this->templates = array(
 			'<input type="checkbox" name="image[]" value="${id}" class="toggle-action" checked/>',
 			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name} - ${id}</a><br /><small>${storageGroup}:${os}</small><br /><small>${image_type}</small><br /><small>${image_partition_type}</small>',
 			'${size}',
-			$SizeServer ? '${serv_size}' : null,
+		);
+		$SizeServer ? array_push($this->templates,'${serv_size}') : null;
+		array_push(
+			$this->templates,
 			'${type}',
 			'${deployed}',
-			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').'"><i class="fa fa-pencil"></i></a> <a href="?node='.$this->node.'&sub=delete&'.$this->id.'=${id}" title="'._('Delete').'"><i class="fa fa-minus-circle"></i></a>',
+			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').'"><i class="fa fa-pencil"></i></a> <a href="?node='.$this->node.'&sub=delete&'.$this->id.'=${id}" title="'._('Delete').'"><i class="fa fa-minus-circle"></i></a>'
 		);
 		// Row attributes
 		$this->attributes = array(
 			array('width' => 16, 'class' => 'c'),
 			array('width' => 50, 'class' => 'l'),
 			array('width' => 50, 'class' => 'c'),
-			$SizeServer ? array('width' => 50, 'class' => 'c') : null,
+		);
+		$SizeServer ? array_push($this->attributes,array('width' => 50, 'class' => 'c')) : null;
+		array_push(
+			$this->attributes,
 			array('width' => 50, 'class' => 'c'),
 			array('width' => 50, 'class' => 'c'),
-			array('width' => 50, 'class' => 'c'),
+			array('width' => 50, 'class' => 'c')
 		);
 	}
 	// Pages
@@ -107,28 +116,6 @@ class ImageManagementPage extends FOGPage
 		}
 		// Hook
 		$this->HookManager->processEvent('IMAGE_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-		$this->headerData = array_filter((array)$this->headerData);
-		$this->templates = array_filter((array)$this->templates);
-		$this->attributes = array_filter((array)$this->attributes);
-		$this->data = array_filter((array)$this->data);
-		// Output
-		$this->render();
-	}
-	/** search()
-		Search parameter function.
-	*/
-	public function search()
-	{
-		// Set title
-		$this->title = _('Search');
-		// Set search form
-		$this->searchFormURL = $_SERVER['PHP_SELF'].'?node='.$this->node.'&sub=search';
-		// Hook
-		$this->HookManager->processEvent('IMAGE_DATA');
-		$this->headerData = array_filter((array)$this->headerData);
-		$this->templates = array_filter((array)$this->templates);
-		$this->attributes = array_filter((array)$this->attributes);
-		$this->data = array_filter((array)$this->data);
 		// Output
 		$this->render();
 	}
@@ -172,10 +159,6 @@ class ImageManagementPage extends FOGPage
 		}
 		// Hook
 		$this->HookManager->processEvent('IMAGE_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-		$this->headerData = array_filter((array)$this->headerData);
-		$this->templates = array_filter((array)$this->templates);
-		$this->attributes = array_filter((array)$this->attributes);
-		$this->data = array_filter((array)$this->data);
 		// Output
 		$this->render();
 	}

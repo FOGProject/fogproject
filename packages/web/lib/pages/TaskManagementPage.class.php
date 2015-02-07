@@ -103,22 +103,6 @@ class TaskManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-	public function search()
-	{
-		if ($_REQUEST['sub'] != 'search')
-			$this->active();
-		else
-		{
-			// Set title
-			$this->title = _('Search');
-			// Set search form
-			$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
-			// Hook
-			$this->HookManager->processEvent('HOST_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-			// Output
-			$this->render();
-		}
-	}
 	public function search_post()
 	{
 		// Find data -> Push data

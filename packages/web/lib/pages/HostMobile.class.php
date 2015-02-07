@@ -46,60 +46,41 @@ class HostMobile extends FOGPage
 			'<a href="index.php?node=${node}&sub=deploy&id=${host_id}"><i class="fa fa-arrow-down fa-2x"></i></a>',
 		);
 	}
-
 	public function index()
 	{
 		$this->search();
 	}
-
 	public function deploy()
 	{
-		$Host = new Host($_REQUEST['id']);
-		// Title
-		$this->title = $this->foglang['QuickImageMenu'];
-		unset($this->headerData);
-		$this->attributes = array(
-			array(),
-		);
-		$this->templates = array(
-			'${task_started}',
-		);
-		$ImageMembers = $Host->getImageMemberFromHostID($_REQUEST['id']);
-		if ($ImageMembers)
+		try
 		{
-			if ($Host->createImagePackage('1', "Mobile: ".$ImageMembers->getHost()->get('name'), false, false, true, false, $_SESSION['FOG_USERNAME']))
-			{
-				$this->data[] = array(
-					$this->foglang['TaskStarted'],
-				);
-			}
-			else
-			{
-				$this->data[] = array(
-					$this->foglang['FailedTask'],
-				);
-			}
+			$Host = new Host($_REQUEST['id']);
+			// Title
+			$this->title = $this->foglang['QuickImageMenu'];
+			unset($this->headerData);
+			$this->attributes = array(
+				array(),
+			);
+			$this->templates = array(
+				'${task_started}',
+			);
+			if (!$Host->getImageMemberFromHostID($_REQUEST['id']))
+				throw new Exception($this->foglang['ErrorImageAssoc']);
+			if (!$Host->createImagePackage('1', "Mobile: ".$ImageMembers->getHost()->get('name'), false, false, true, false, $_SESSION['FOG_USERNAME']))
+				throw new Exception($this->foglang['FailedTask']);
+			$this->data[] = array(
+				$this->foglang['TaskStarted'],
+			);
 		}
-		else
+		catch (Exception $e)
 		{
 			$this->data[] = array(
-				$this->foglang['ErrorImageAssoc'],
+				$e->getMessage(),
 			);
 		}
 		$this->render();
 		$this->FOGCore->redirect('?node=taskss');
 	}
-
-	public function search()
-	{
-		// Set title
-		$this->title = $this->foglang['HostSearch'];
-		// Set search form
-		$this->searchFormURL = sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node);
-		// Output
-		$this->render();
-	}
-
 	public function search_post()
 	{
 		foreach($this->getClass('HostManager')->search() AS $Host)
