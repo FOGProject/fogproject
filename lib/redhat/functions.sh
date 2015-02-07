@@ -180,7 +180,7 @@ pam_service_name=vsftpd
 userlist_enable=NO
 tcp_wrappers=YES" > "$ftpconfig";
 	vsftp=`vsftpd -version 0>&1`;
-	vsvermaj=`echo $vsftp | awk -F. '{print $1}'`;
+	vsvermaj=`echo $vsftp | awk -F. '{print $1}' | awk '{print $1}'`;
 	vsverbug=`echo $vsftp | awk -F. '{print $3}'`;
 	if [ "$vsvermaj" -gt 3 ] || [ "$vsvermaj" -e 3 -a "$vsverbug" -ge 2 ]; then
 		echo "seccomp_sandbox=NO" >> "$ftpconfig";
@@ -188,6 +188,7 @@ tcp_wrappers=YES" > "$ftpconfig";
 	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
 		systemctl enable vsftpd.service >/dev/null 2>&1;
 		systemctl restart vsftpd.service >/dev/null 2>&1;
+		systemctl status vsftpd.service >/dev/null 2>&1;
 	else
 		chkconfig vsftpd on;
 		service vsftpd restart >/dev/null 2>&1;
