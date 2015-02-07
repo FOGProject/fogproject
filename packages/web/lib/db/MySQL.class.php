@@ -1,21 +1,56 @@
 <?php
-/**	Class Name: MySQL
-	For mysql connections specifically.
-*/
 class MySQL extends FOGBase
 {
-	private $host, $user, $pass, $dbname, $startTime, $result, $queryResult, $queryHandle, $link, $query;
-	// Cannot use constants as you cannot access constants from $this->dbname::ROW_ASSOC
-	public $ROW_ASSOC = 1;	// MYSQL_ASSOC
-	public $ROW_NUM = 2;	// MYSQL_NUM
-	public $ROW_BOTH = 3;	// MYSQL_BOTH
+	/* host to connect to
+	 * @var string
+	 */
+	private $host;
+	/* user to connect with
+	 * @var string
+	 */
+	private $user;
+	/* pass to connect with
+	 * @var string
+	 */
+	private $pass;
+	/* dbname to use
+	 * @var string
+	 */
+	private $dbname;
+	/* link the actual connection
+	 * @var resource
+	 */
+	private $link;
+	/* query the query to use
+	 * @var string
+	 */
+	private $query;
+	/* queryResult the result of query
+	 * @var resource
+	 */
+	private $queryResult;
+	/* result the returned results
+	 * @var array of info
+	 */
+	private $result;
+	/* debug turn on or off
+	 * @var boolean
+	 */
 	public $debug = false;
+	/* info turn on or off
+	 * @var boolean
+	 */
 	public $info = false;
-	/** __construct($host,$user,$pass,$db = '')
-		Constructs the connections to the database.
-	*/
+	/* __construct initializes the class
+	 * @param string host
+	 * @param string user
+	 * @param string pass
+	 * @param string dbname set null
+	 * @return void
+	 */
 	public function __construct($host, $user, $pass, $db = '')
 	{
+		/* Get the constructor of the main first */
 		parent::__construct();
 		try
 		{
@@ -27,33 +62,25 @@ class MySQL extends FOGBase
 			$this->dbname = $db;
 			if (!$this->connect())
 				throw new Exception('Failed to connect');
-			$this->startTime = $this->now();
 		}
 		catch (Exception $e)
 		{
 			$this->error(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
 	}
-	/** __destruct()
-		Disconnect the connection.
-	*/
+	/* __destruct destroys the class
+	 * @return main destructor
+	 */
 	public function __destruct()
 	{
 		if (!$this->link)
 			return;
 		unset($this->link,$this->result);
-		return;
+		return parent::__destruct();
 	}
-	/** close()
-		Close the connection.
-	*/
-	public function close()
-	{
-		$this->__destruct();
-	}
-	/** connect()
-		Connects the database.
-	*/
+	/* connect establishes the link
+	 * @return the class
+	 */
 	public function connect()
 	{
 		try
@@ -72,24 +99,24 @@ class MySQL extends FOGBase
 		}
 		return $this;
 	}
-	/** query($sql,$data = array())
-		Allows the sending of specific sql settings.
-	*/
+	/* query performs the db query
+	 * @param string sql
+	 * @param array data
+	 * @return this class
+	 */
 	public function query($sql, $data = array())
 	{
 		try
 		{
-			// printf
 			if (!is_array($data))
 				$data = array($data);
 			if (count($data))
-				$sql = vsprintf($sql, $data);
-			// Query
+				$sql = vsprintf($sql,$data);
 			$this->query = $sql;
+			if (!$this->query)
+				throw new Exception(_('No query sent'));
 			if (!$this->queryResult = $this->link->query($this->query))
-				throw new Exception(_('An error in running a query has been found Error: ').$this->link->error);
-			if ($this->num_rows)
-				$this->queryResult->free();
+				throw new Exception(_('Error: ').$this->link->error);
 			// INFO
 			$this->info($this->query);
 		}
@@ -106,19 +133,26 @@ class MySQL extends FOGBase
 	{
 		try
 		{
-			$this->fetchType = $fetchType;
 			if (empty($type))
 				$type = MYSQLI_ASSOC;
 			if (empty($fetchType))
 				$fetchType = 'fetch_array';
-			if (!$this->queryResult)
+			if ($this->queryResult === false || $this->queryResult === true)
+				$this->result = $this->queryResult;
+			else if (!$this->queryResult)
 				throw new Exception('No query result present. Use query() first');
-			if ($this->queryResult === false)
-				$this->result = false;
-			elseif ($this->queryResult === true)
-				$this->result = true;
 			else
-				$this->result = $this->queryResult->$fetchType($type);
+			{
+				if ($fetchType == 'fetch_all')
+				{
+					$this->result = array();
+					while ($row = $this->queryResult->fetch_array($type))
+						array_push($this->result,$row);
+					$this->queryResult->close();
+				}
+				else
+					$this->result = $this->queryResult->fetch_array($type);
+			}
 		}
 		catch (Exception $e)
 		{
@@ -150,11 +184,8 @@ class MySQL extends FOGBase
 			// Result finished
 			if ($this->result === false)
 				throw new Exception(_('No data returned'));
-			// Query failed
-			if ($this->queryResult === false)
-				throw new Exception(_('No query was performed'));
 			// Return: 'field' if requested and field exists in results, otherwise the raw result
-			return ($field && array_key_exists($field,$this->result) ? $this->result[$field] : $this->result);
+			return ($field && array_key_exists($field,(array)$this->result) ? $this->result[$field] : $this->result);
 		}
 		catch (Exception $e)
 		{
@@ -194,13 +225,6 @@ class MySQL extends FOGBase
 	public function num_rows()
 	{
 		return ($this->queryResult->num_rows ? $this->queryResult->num_rows : null);
-	}
-	/** age()
-		Return the age of the information.
-	*/
-	public function age()
-	{
-		return ($this->now() - $this->startTime);
 	}
 	/** now()
 		Return the current time.

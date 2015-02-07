@@ -143,7 +143,12 @@ listen=YES
 pam_service_name=vsftpd
 userlist_enable=NO
 tcp_wrappers=YES" > "$ftpconfig";
-
+	vsftp=`vsftpd -version 0>&1`;
+	vsvermaj=`echo $vsftp | awk -F. '{print $1}'`;
+	vsverbug=`echo $vsftp | awk -F. '{print $3}'`;
+	if [ "$vsvermaj" -gt 3 ] || [ "$vsvermaj" -e 3 -a "$vsverbug" -ge 2 ]; then
+		echo "seccomp_sandbox=NO" >> "$ftpconfig";
+	fi
 	systemctl enable vsftpd;
 	systemctl restart vsftpd >/dev/null 2>&1;
 	systemctl status vsftpd >/dev/null 2>&1;
