@@ -18,8 +18,7 @@ $(function() {
 	ActiveTasksUpdateTimerStart();
 });
 function ActiveTasksUpdateTimerStart() {
-	var Subs = ['search','listhosts','listgroups','active-multicast','active-snapins','scheduled'];
-	if ($.inArray($_GET['sub'],Subs) == -1) {
+	if ($_GET['sub'] == 'active') {
 		ActiveTasksUpdateTimer = setTimeout(function() {
 			if (!ActiveTasksRequests.length) {
 				ActiveTasksUpdate();
