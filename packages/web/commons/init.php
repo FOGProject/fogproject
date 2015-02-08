@@ -111,7 +111,6 @@ class Initiator
 	{
 		@set_time_limit(0);
 		@error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
-		@ini_set('session.use_strict_mode',true);
 		@ini_set('session.cookie_httponly',true);
 		@session_start();
 		@header('X-Content-Type-Options: nosniff');
