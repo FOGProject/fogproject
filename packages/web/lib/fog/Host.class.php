@@ -198,9 +198,11 @@ class Host extends FOGController
 	{
 		if (!$this->isLoaded('groups') && $this->get('id'))
 		{
-			$Groups = $this->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')));
-			foreach((array)$Groups AS $Group)
-				$this->add('groups',$Group->getGroup());
+			$GroupIDs = $this->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','groupID');
+			$Groups = $this->getClass('GroupManager')->find(array('id' => $GroupIDs));
+			foreach($Groups AS $Group)
+				$this->add('groups',$Group);
+			unset($Group,$Groups,$GroupIDs);
 		}
 		return $this;
 	}
@@ -208,8 +210,10 @@ class Host extends FOGController
 	{
 		if (!$this->isLoaded('inventory') && $this->get('id'))
 		{
-			$Inventory = current($this->getClass('InventoryManager')->find(array('hostID' => $this->get('id'))));
-			$this->set('inventory',$Inventory);
+			$Inventorys = $this->getClass('InventoryManager')->find(array('hostID' => $this->get('id')));
+			foreach($Inventorys AS $Inventory)
+				$this->set('inventory',$Inventory);
+			unset($Inventorys,$Inventory);
 		}
 		return $this;
 	}
@@ -217,9 +221,11 @@ class Host extends FOGController
 	{
 		if (!$this->isLoaded('modules') && $this->get('id'))
 		{
-			$Modules = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')));
+			$ModuleIDs = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','moduleID');
+			$Modules = $this->getClass('ModuleManager')->find(array('id' => $ModuleIDs));
 			foreach((array)$Modules AS $Module)
-				$this->add('modules', new Module($Module->get('moduleID')));
+				$this->add('modules', $Module);
+			unset($Module,$Modules,$ModuleIDs);
 		}
 		return $this;
 	}
