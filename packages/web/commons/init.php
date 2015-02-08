@@ -247,5 +247,4 @@ else
 	$imagelink = 'css/images/';
 // HookManager
 $HookManager = new HookManager();
-$HookManager->load();
 $Init::endInit();
