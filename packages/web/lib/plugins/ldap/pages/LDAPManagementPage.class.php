@@ -75,20 +75,6 @@ class LDAPManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-
-	public function search()
-	{
-		// Set title
-		$this->title = 'Search';
-		// Set search form
-		$this->searchFormURL = $_SERVER['PHP_SELF'].'?node=ldap&sub=search';
-		// Hook
-		$this->HookManager->event[] = 'LDAP_SEARCH';
-		$this->HookManager->processEvent('LDAP_SEARCH');
-		// Output
-		$this->render();
-	}
-
 	public function search_post()
 	{
 		// Variables
@@ -270,79 +256,6 @@ class LDAPManagementPage extends FOGPage
 		catch (Exception $e)
 		{
 			$this->FOGCore->setMessage($e->getMessage());
-			$this->FOGCore->redirect($this->formAction);
-		}
-	}
-	public function delete()
-	{
-		// Find
-		$LDAP = new LDAP($_REQUEST['id']);
-		//Title
-		$this->title = sprintf('%s: %s', _('Remove'), $LDAP->get('name'));
-		// Header Data
-		unset($this->headerData);
-		// Attributes
-		$this->attributes = array(
-			array(),
-			array(),
-		);
-		// Templates
-		$this->templates = array(
-			'${field}',
-			'${input}',
-		);
-		$fields = array(
-			_('Please confirm you want to delete').' <b>'.$LDAP->get('name').'</b>' => '<input type="submit" value="${title}" />',
-		);
-		foreach((array)$fields AS $field => $input)
-		{
-			$this->data[] = array(
-				'field' => $field,
-				'input' => $input,
-				'title' => $this->title,
-			);
-		}
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" class="c">';
-		// Hook
-		$this->HookManager->event[] = 'LDAP_DELETE';
-		$this->HookManager->processEvent('LDAP_DELETE', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-		// Output
-		$this->render();
-		print '</form>';
-	}
-	public function delete_post()
-	{
-		// Find
-		$LDAP = new LDAP($_REQUEST['id']);
-		// Hook
-		$this->HookManager->event[] = 'LDAP_DELETE_POST';
-		$this->HookManager->processEvent('LDAP_DELETE_POST', array('LDAP' => &$LDAP));
-		// POST
-		try
-		{
-			// Remove LDAP Server
-			if (!$LDAP->destroy())
-				throw new Exception(_('Failed to destroy LDAP Server'));
-			// Hook
-			$this->HookManager->event[] = 'LDAP_DELETE_SUCCESS';
-			$this->HookManager->processEvent('LDAP_DELETE_SUCCESS', array('LDAP' => &$LDAP));
-			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('LDAP Server deleted'), $LDAP->get('id'), $LDAP->get('name')));
-			// Set session message
-			$this->FOGCore->setMessage(sprintf('%s: %s', _('LDAP Server deleted'), $LDAP->get('name')));
-			// Redirect
-			$this->FOGCore->redirect(sprintf('?node=%s', $this->request['node']));
-		}
-		catch (Exception $e)
-		{
-			// Hook
-			$this->HookManager->event[] = 'LDAP_DELETE_FAIL';
-			$this->HookManager->processEvent('LDAP_DELETE_FAIL', array('LDAP' => &$LDAP));
-			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s %s: ID: %s, Name: %s', _('LDAP Server'), _('deleted'), $LDAP->get('id'), $LDAP->get('name')));
-			// Set session message
-			$this->FOGCore->setMessage($e->getMessage());
-			// Redirect
 			$this->FOGCore->redirect($this->formAction);
 		}
 	}
