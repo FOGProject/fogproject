@@ -109,20 +109,33 @@ class Initiator
 	*/
 	public static function startInit()
 	{
-		set_time_limit(0);
+		@set_time_limit(0);
 		@error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
+		@ini_set('session.use_strict_mode',true);
+		@ini_set('session.cookie_httponly',true);
+		@session_start();
+		@header('X-Content-Type-Options: nosniff');
+		@header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
+		@header('X-XSS-Protection: 1; mode=block');
+		@header('X-Frame-Options: deny');
 		@header('Cache-Control: no-cache');
 		@session_cache_limiter('no-cache');
-		@session_set_cookie_params(0);
-		@session_start();
+		@session_set_cookie_params(0,null,null,true,true);
 		@set_magic_quotes_runtime(0);
 		self::verCheck();
 		self::extCheck();
+		$userValidChars = '&[^-a-zA-Z0-9!\/\\\^.*?!@]&';
 		// Sanitize valid input variables
+		foreach($_REQUEST as $key => $val)
+			$_REQUEST[$key] = preg_replace($userValidChars, '', $val);
+		foreach($_GET as $key => $val)
+			$_GET[$key] = preg_replace($userValidChars, '', $val);
+		foreach($_POST as $key => $val)
+			$_POST[$key] = preg_replace($userValidChars, '', $val);
 		foreach(array('node','sub','printertype','id','sub','crit','sort','confirm','tab') AS $x)
 		{
 			global $$x;
-			$$x = (isset($_REQUEST[$x]) ? addslashes($_REQUEST[$x]) : '');
+			$$x = isset($_REQUEST[$x]) ? preg_replace($userValidChars,'',$_REQUEST[$x]) : '';
 		}
 		unset($x);
 	}
