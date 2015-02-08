@@ -64,6 +64,8 @@ abstract class FOGPage extends FOGBase
 		$this->childClass = preg_replace('#_?ManagementPage%#', '', get_class($this));
 		// Default form target
 		$this->formAction = sprintf('%s?%s', $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
+		// Hook in to allow search pages to be adjusted as needed.
+		$this->HookManager->processEvent('SEARCH_PAGES',array('searchPages' => &$this->searchPages));
 	}
 	public function __destruct()
 	{
@@ -963,7 +965,7 @@ abstract class FOGPage extends FOGBase
 		// Set Title
 		$this->title = _('Search');
 		// Set search form
-		if (in_array($this->node,array('user','host','group','image','snapin','printer','tasks','hosts','location','wolbroadcast','ldap','accesscontrol')))
+		if (in_array($this->node,$this->searchPages))
 			$this->searchFormURL = sprintf('?node=%s&sub=search',$this->node);
 		// Hook
 		$this->HookManager->processEvent(strtoupper($this->childClass).'_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'headerData' => &$this->headerData,'attributes' => &$this->attributes,'title' => &$this->title,'searchFormURL' => &$this->searchFormURL));

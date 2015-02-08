@@ -23,6 +23,7 @@ abstract class FOGBase
 	// isLoaded counter
 	/** sets the "isLoaded" variable */
 	protected $isLoaded = array();
+	protected $searchPages = array();
 	// Construct
 	/** __construct()
 	 FOGBase's constructor so variables that are needed
@@ -53,6 +54,7 @@ abstract class FOGBase
 		// Default TimeZone to use for date fields
 		$this->TimeZone = (ini_get('date.timezone') ? ini_get('date.timezone') : 'GMT');
 		$this->imagelink = $GLOBALS['imagelink'];
+		$this->searchPages = array('user','host','group','image','snapin','printer','tasks','hosts');
 	}
 	public function __destruct()
 	{

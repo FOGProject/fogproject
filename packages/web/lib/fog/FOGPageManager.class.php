@@ -21,6 +21,8 @@ class FOGPageManager extends FOGBase
 		// Save class & method values into class - used many times through out
 		$this->classValue = ($GLOBALS[$this->classVariable] ? preg_replace('#[^\w]#', '_', urldecode($GLOBALS[$this->classVariable])) : (preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'homes' : 'home'));
 		$this->methodValue = preg_replace('#[^\w]#', '_', urldecode($GLOBALS[$this->methodVariable]));	// No default value as we want to detect an empty string for 'list' or 'search' default page
+		// Hook in to allow search pages to be adjusted as needed.
+		$this->HookManager->processEvent('SEARCH_PAGES',array('searchPages' => &$this->searchPages));
 	}
 	// Util functions - easy access to class & child class data
 	public function getFOGPageClass()
@@ -80,7 +82,7 @@ class FOGPageManager extends FOGBase
 					$method = 'index';
 				}
 				// FOG - Default view override
-				if ($this->methodValue != 'list' && $method == 'index' && $this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN') != 'list' && method_exists($class, 'search') && in_array($class->node,array('user','host','group','image','snapin','printer','tasks','hosts','location','wolbroadcast','ldap','accesscontrol')))
+				if ($this->methodValue != 'list' && $method == 'index' && $this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN') != 'list' && method_exists($class, 'search') && in_array($class->node,$this->searchPages))
 					$method = 'search';
 				// POST - Append '_post' to method name if request method is POST and the method exists
 				if ($this->FOGCore->isPOSTRequest() && method_exists($class, $method . '_post'))

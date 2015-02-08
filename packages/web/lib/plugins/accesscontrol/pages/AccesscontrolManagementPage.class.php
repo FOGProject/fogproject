@@ -75,19 +75,6 @@ class AccesscontrolManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-
-	public function search()
-	{
-		// Set title
-		$this->title = 'Search';
-		// Set search form
-		$this->searchFormURL = $_SERVER['PHP_SELF'].'?node='.$this->node.'&sub=search';
-		// Hook
-		$this->HookManager->processEvent('CONTROL_SEARCH');
-		// Output
-		$this->render();
-	}
-
 	public function search_post()
 	{
 		// Variables
