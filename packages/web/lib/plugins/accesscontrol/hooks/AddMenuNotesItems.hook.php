@@ -22,8 +22,15 @@ class AddMenuNotesItems extends Hook
 			$arguments['submenu'][$this->node]['add'] = sprintf($this->foglang['CreateNew'],_('Control'));
 		}
 	}
+	public function addSearch($arguments)
+	{
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
+			array_push($arguments['searchPages'],$this->node);
+	}
 }
 $AddMenuNotesItems = new AddMenuNotesItems();
 // Register hooks
 $HookManager->register('MAIN_MENU_DATA', array($AddMenuNotesItems, 'AddMenuData'));
 $HookManager->register('SUB_MENULINK_DATA', array($AddMenuNotesItems, 'AddSubMenuData'));
+$HookManager->register('SEARCH_PAGES', array($AddMenuNotesItems, 'AddSearch'));
