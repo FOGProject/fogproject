@@ -401,7 +401,7 @@ class HostManagementPage extends FOGPage
 	public function edit()
 	{
 		// Find
-		$Host = new Host($this->REQUEST['id']);
+		$Host = new Host($_REQUEST['id']);
 		// Inventory find for host.
 		$Inventory = $Host->get('inventory');
 		// Get the associated Groups.
@@ -514,18 +514,6 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<!-- Group Relationships -->";
 		print "\n\t\t\t".'<div id="host-grouprel" class="organic-tabs-hidden">';
 		print "\n\t\t\t<h2>"._('Group Relationships').'</h2>';
-		// Get all group id's the host belongs to.
-		foreach((array)$Host->get('groups') AS $Group)
-		{
-			if ($Group && $Group->isValid())
-				$GroupIDs[] = $Group->get('id');
-		}
-		// Get Groups that are not associated with this host.
-		foreach($this->getClass('GroupManager')->find() AS $Group)
-		{
-			if ($Group && $Group->isValid() && !in_array($Group->get('id'),(array)$GroupIDs))
-				$Groups[] = $Group;
-		}
 		// Create the Header:
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkboxgroup" class="toggle-checkboxgroup" />',
@@ -544,7 +532,7 @@ class HostManagementPage extends FOGPage
 			array('width' => 90, 'class' => 'l'),
 			array('width' => 40, 'class' => 'c'),
 		);
-		foreach((array)$Groups AS $Group)
+		foreach($Host->get('groupsnotinme') AS $Group)
 		{
 			if ($Group && $Group->isValid())
 			{
@@ -607,7 +595,6 @@ class HostManagementPage extends FOGPage
 			$this->basictasksOptions();
 		$this->adFieldsToDisplay();
 		print "\n\t\t\t<!-- Printers -->";
-		$PrintersFound = false;
 		print "\n\t\t\t".'<div id="host-printers" class="organic-tabs-hidden">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-printers">';
 		// Create Header for non associated printers
@@ -627,12 +614,7 @@ class HostManagementPage extends FOGPage
 			array('width' => 50, 'class' => 'l'),
 			array('width' => 50, 'class' => 'r'),
 		);
-		foreach((array)$Host->get('printers') AS $Printer)
-		{
-			if ($Printer && $Printer->isValid())
-				$PrinterIDs[] = $Printer->get('id');
-		}
-		foreach($this->getClass('PrinterManager')->find() AS $Printer)
+		foreach($Host->get('printersnotinme') AS $Printer)
 		{
 			if ($Printer && $Printer->isValid() && !in_array($Printer->get('id'),(array)$PrinterIDs))
 			{
@@ -643,6 +625,7 @@ class HostManagementPage extends FOGPage
 				);
 			}
 		}
+		$PrintersFound = false;
 		if (count($this->data) > 0)
 		{
 			$PrintersFound = true;
@@ -680,7 +663,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<input type="radio" name="level" value="1"'.($Host->get('printerLevel') == 1 ? 'checked' : '').' />'._('Add Only').'<br/>';
 		print "\n\t\t\t".'<input type="radio" name="level" value="2"'.($Host->get('printerLevel') == 2 ? 'checked' : '').' />'._('Add and Remove').'<br/>';
 		print "\n\t\t\t</p>";
-		foreach ((array)$Host->get('printers') AS $Printer)
+		foreach ($Host->get('printers') AS $Printer)
 		{
 			if ($Printer && $Printer->isValid())
 			{
@@ -709,18 +692,6 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<div id="host-snapins" class="organic-tabs-hidden">';
 		print "\n\t\t\t<h2>"._('Snapins').'</h2>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-snapins">';
-		// Get all Snapin IDs Associated to host
-		foreach((array)$Host->get('snapins') AS $Snapin)
-		{
-			if ($Snapin && $Snapin->isValid())
-				$SnapinIDs[] = $Snapin->get('id');
-		}
-		// Get all Snapin's Not associated with this host.
-		foreach($this->getClass('SnapinManager')->find() AS $Snapin)
-		{
-			if ($Snapin && $Snapin->isValid() && !in_array($Snapin->get('id'),(array)$SnapinIDs))
-				$Snapins[] = $Snapin;
-		}
 		// Create the header:
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkboxsnapin" class="toggle-checkboxsnapin" />',
@@ -739,7 +710,7 @@ class HostManagementPage extends FOGPage
 			array('width' => 90, 'class' => 'l'),
 			array('width' => 20, 'class' => 'r'),
 		);
-		foreach((array)$Snapins AS $Snapin)
+		foreach($Host->get('snapinsnotinme') AS $Snapin)
 		{
 			if ($Snapin && $Snapin->isValid())
 			{
@@ -774,7 +745,7 @@ class HostManagementPage extends FOGPage
 			'<input type="checkbox" name="snapinRemove[]" value="${snap_id}" class="toggle-action" checked/>',
 			'<a href="?node=snapin&sub=edit&id=${snap_id}">${snap_name}</a>',
 		);
-		foreach ((array)$Host->get('snapins') AS $Snapin)
+		foreach ($Host->get('snapins') AS $Snapin)
 		{
 			if ($Snapin && $Snapin->isValid())
 			{
@@ -814,30 +785,23 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<h2>"._('Service Configuration').'</h2>';
 		print "\n\t\t\t<fieldset>";
 		print "\n\t\t\t<legend>"._('General').'</legend>';
-		foreach ((array)$this->getClass('ModuleManager')->find() AS $Module)
+		$ModOns = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $Host->get('id')),'','','','','','','moduleID');
+		foreach ($this->getClass('ModuleManager')->find() AS $Module)
 		{
 			if ($Module && $Module->isValid())
 			{
-				foreach((array)$Host->get('modules') AS $ModHost)
-				{
-					if ($ModHost && $ModHost->isValid())
-					{
-						if ($ModHost->get('id') == $Module->get('id') && $Module->get('isDefault'))
-							$ModOns[] = $ModHost->get('id');
-					}
-				}
 				$this->data[] = array(
-					'input' => '<input type="checkbox" '.($Module->get('isDefault') ? 'class="checkboxes"' : '').' name="${mod_shname}" value="${mod_id}" ${checked} '.(!$Module->get('isDefault') ? 'disabled="disabled"' : '').' />',
+					'input' => '<input type="checkbox" '.($Module->get('isDefault') ? 'class="checkboxes"' : '').' name="${mod_shname}" value="${mod_id}" ${checked} '.(!$Module->get('isDefault') ? 'disabled' : '').' />',
 					'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
-					'checked' => ($ModOns ? 'checked' : ''),
-           	     	'mod_name' => $Module->get('name'),
-           	     	'mod_shname' => $Module->get('shortName'),
-           	     	'mod_id' => $Module->get('id'),
-           	     	'mod_desc' => str_replace('"','\"',$Module->get('description')),
-            	);
-				unset($ModOns);
+					'checked' => (in_array($Module->get('id'),$ModOns) ? 'checked' : ''),
+           	    	'mod_name' => $Module->get('name'),
+           	    	'mod_shname' => $Module->get('shortName'),
+           	    	'mod_id' => $Module->get('id'),
+           	    	'mod_desc' => str_replace('"','\"',$Module->get('description')),
+           		);
 			}
         }
+		unset($ModOns,$Module);
 		$this->data[] = array(
 			'mod_name' => '&nbsp',
 			'input' => '<input type="hidden" name="updatestatus" value="1" />',
