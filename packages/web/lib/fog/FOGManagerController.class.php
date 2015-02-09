@@ -155,6 +155,11 @@ abstract class FOGManagerController extends FOGBase
 					$getFields = $this->databaseFields[$idField ? $idField : 'id'];
 					$idField = $idField ? $idField : 'id';
 				}
+				else
+				{
+					if ($idField)
+						$getFields = array_key_exists($idField,$this->databaseFields) ? $this->databaseFields[$idField] : $this->databaseFields['id'];
+				}
 			}
 			if (empty($compare))
 				$compare = '=';

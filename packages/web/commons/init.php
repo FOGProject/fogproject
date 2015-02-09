@@ -125,11 +125,11 @@ class Initiator
 		self::extCheck();
 		// Sanitize valid input variables
 		foreach($_REQUEST as $key => $val)
-			$_REQUEST[$key] = filter_var($val,FILTER_SANITIZE_STRING);
+			$_REQUEST[$key] = is_array($val) ? filter_var_array($val,FILTER_SANITIZE_STRING) : filter_var($val,FILTER_SANITIZE_STRING);
 		foreach($_GET as $key => $val)
-			$_GET[$key] = filter_var($var,FILTER_SANITIZE_STRING);
+			$_GET[$key] = is_array($val) ? filter_var_array($val,FILTER_SANITIZE_STRING) : filter_var($val,FILTER_SANITIZE_STRING);
 		foreach($_POST as $key => $val)
-			$_POST[$key] = filter_var($var,FILTER_SANITIZE_STRING);
+			$_POST[$key] = is_array($val) ? filter_var_array($val,FILTER_SANITIZE_STRING) : filter_var($val,FILTER_SANITIZE_STRING);
 		foreach(array('node','sub','printertype','id','sub','crit','sort','confirm','tab') AS $x)
 		{
 			global $$x;
