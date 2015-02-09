@@ -155,6 +155,8 @@ class Host extends FOGController
 			$SnapinJob = $this->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(-1,0,1)));
 			if (is_array($SnapinJob) && ($SnapinJob[0] instanceof SnapinJob))
 				$this->set('snapinjob',$SnapinJob[0]);
+			else
+				$this->set('snapinjob',new SnapinJob(array('id' => 0)));
 		}
 		return $this;
 	}
@@ -237,6 +239,8 @@ class Host extends FOGController
 			$Inventory = $this->getClass('InventoryManager')->find(array('hostID' => $this->get('id')));
 			if (is_array($Inventory) && ($Inventory[0] instanceof Inventory))
 				$this->set('inventory',$Inventory);
+			else
+				$this->set('inventory',new Inventory(array('id' => 0)));
 			unset($Inventory);
 		}
 		return $this;
@@ -269,6 +273,8 @@ class Host extends FOGController
 			$Task = $this->getClass('TaskManager')->find(array('hostID' => $this->get('id'),'stateID' => array(1,2,3)));
 			if (is_array($Task) && ($Task[0] instanceof Task))
 				$this->set('task',$Task);
+			else
+				$this->set('task',new Task(array('id' => 0)));
 		}
 		return $this;
 	}
