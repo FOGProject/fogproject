@@ -42,24 +42,20 @@ class Printer extends FOGController
 				$PrinterHostIDs = array_unique($this->getClass('PrinterAssociationManager')->find(array('printerID' => $this->get('id')),'','','','','','','hostID'));
 				if ($PrinterHostIDs)
 				{
-					$Hosts = $this->getClass('HostManager')->find(array('id' => (array)$PrinterHostIDs));
-					foreach($Hosts AS $Host)
+					foreach($this->getClass('HostManager')->find(array('id' => (array)$PrinterHostIDs)) AS $Host)
 						$this->add('hosts',$Host);
-					$Hosts = null;
 					unset($Host);
 					// Hosts not in this printer
 					if (count($this->get('hosts')))
 					{
-						$Hosts = array_unique($this->getClass('HostManager')->find(array('id' => (array)$PrinterHostIDs),'','','','',false,true));
-						foreach($Hosts AS $Host)
+						foreach($this->getClass('HostManager')->find(array('id' => $PrinterHostIDs),'','','','',false,true) AS $Host)
 							$this->add('hostsnotinme',$Host);
 					}
 				}
-				unset($PrinterHostIDs,$Hosts,$Host);
+				unset($PrinterHostIDs,$Host);
 				// Hosts not in any printer
 				$PrinterHostIDs = array_unique($this->getClass('PrinterAssociationManager')->find('','','','','','','','hostID'));
-				$Hosts = $this->getClass('HostManager')->find(array('id' => (array)$PrinterHostIDs),'','','','','',true);
-				foreach($Hosts AS $Host)
+				foreach($this->getClass('HostManager')->find(array('id' => (array)$PrinterHostIDs),'','','','','',true) AS $Host)
 					$this->add('noprinter',$Host);
 				unset($PrinterHostIDs,$Hosts,$Host);
 			}
