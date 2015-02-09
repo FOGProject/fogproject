@@ -21,34 +21,48 @@ class Group extends FOGController
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
 		'hosts',
+		'hostsnotinme',
+		'nogroup',
 	);
     // Overides
     private function loadHosts()
     {   
-        if (!$this->isLoaded('hosts'))
-        {   
-            if ($this->get('id'))
-            {   
-                $GroupAssocs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')));
-                foreach($GroupAssocs AS $GroupAssoc)
-                    $this->add('hosts', new Host($GroupAssoc->get('hostID')));
-            }   
-        }   
-        return $this;
-    }
+        if (!$this->isLoaded('hosts') && $this->get('id'))
+        {
+			$GroupHostIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID'));
+			if ($GroupHostIDs)
+			{
+				foreach($this->getClass('HostManager')->find(array('id' => $GroupHostIDs)) AS $Host)
+					$this->add('hosts',$Host);
+				unset($Host);
+				// Hosts not in this group
+				if (count($this->get('hosts')))
+				{
+					foreach($this->getClass('HostManager')->find(array('id' => $GroupHostIDs),'','','','','',true) AS $Host)
+						$this->add('hostsnotinme',$Host);
+				}
+			}
+			unset($Host,$GroupHostIDs);
+			// Hosts not in any group
+			$GroupHostIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID'));
+			foreach($this->getClass('HostManager')->find(array('id' => $GroupHostIDs),'','','','','',true) AS $Host)
+				$this->add('nogroup',$Host);
+		}
+		return $this;
+	}
 	public function getHostCount()
 	{
 		return $this->getClass('GroupAssociationManager')->count(array('groupID' => $this->get('id')));
 	}
     public function get($key = '') 
     {   
-        if ($this->key($key) == 'hosts')
+        if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme' || $this->key($key) == 'nogroup')
             $this->loadHosts();
         return parent::get($key);
     }   
     public function set($key, $value)
     {   
-        if ($this->key($key) == 'hosts')
+        if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme' || $this->key($key) == 'nogroup')
         {   
             foreach((array)$value AS $Host)
                 $newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
@@ -60,7 +74,7 @@ class Group extends FOGController
 
     public function add($key, $value)
     {   
-        if ($this->key($key) == 'hosts' && !($value instanceof Host))
+        if (($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme' || $this->key($key) == 'nogroup') && !($value instanceof Host))
         {   
             $this->loadHosts();
             $value = new Host($value);
@@ -71,7 +85,7 @@ class Group extends FOGController
 
     public function remove($key, $object)
     {   
-        if ($this->key($key) == 'hosts')
+        if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme' || $this->key($key) == 'nogroup')
             $this->loadHosts();
         // Remove
         return parent::remove($key, $object);
