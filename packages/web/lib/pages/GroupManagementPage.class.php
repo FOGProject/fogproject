@@ -311,33 +311,8 @@ class GroupManagementPage extends FOGPage
 			array(),
 			array(),
 		);
-		// Get the Hosts in this group
-		foreach($Group->get('hosts') AS $Host)
-		{
-			if ($Host && $Host->isValid())
-				$HostsInMe[] = $Host->get('id');
-		}
-		// Get All Host ID's that are associated to a group
-		foreach($this->getClass('GroupAssociationManager')->find() AS $GroupAssoc)
-		{
-			if ($GroupAssoc && $GroupAssoc->isValid())
-				$HostInAnyGroupIDs[] = $GroupAssoc->get('hostID');
-		}
-		// Make the values unique as a host can be a part of many groups.
-		$HostInAnyGroupIDs = array_unique((array)$HostInAnyGroupIDs);
-		// Set the values
-		foreach($this->getClass('HostManager')->find() AS $Host)
-		{
-			if ($Host && $Host->isValid() && !$Host->get('pending'))
-			{
-				if (!in_array($Host->get('id'),$HostInAnyGroupIDs))
-					$HostNotInAnyGroup[] = $Host;
-				if (!in_array($Host->get('id'),$HostsInMe))
-					$HostNotInGroup[] = $Host;
-			}
-		}
 		// All hosts not in this group.
-		foreach((array)$HostNotInGroup AS $Host)
+		foreach($Group->get('hostsnotinme') AS $Host)
 		{
 			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{
@@ -375,7 +350,7 @@ class GroupManagementPage extends FOGPage
 			_('Image'),
 		);
 		// All hosts not in any group.
-		foreach((array)$HostNotInAnyGroup AS $Host)
+		foreach($Group->get('nogroup') AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
@@ -434,7 +409,8 @@ class GroupManagementPage extends FOGPage
                     'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
                     'host_name' => $Host->get('name'),
                     'host_mac'  => $Host->get('mac')->__toString(),
-                    'image_name' => $this->getClass('ImageManager')->buildSelectBox($Host->getImage()->get('id'),$Host->get('name').'_'.$Host->get('id')),
+                    //'image_name' => $this->getClass('ImageManager')->buildSelectBox($Host->getImage()->get('id'),$Host->get('name').'_'.$Host->get('id')),
+					'image_name' => $Host->getImage()->get('name'),
 				);
 			}
 		}
@@ -444,7 +420,8 @@ class GroupManagementPage extends FOGPage
 		// Output
 		$this->render();
 		if (count($this->data) > 0)
-			print "\n\t\t\t".'<center><input type="submit" value="'._('Update Hosts').'" name="updatehosts"/>&nbsp;&nbsp;<input type="submit" value="'._('Delete Selected Hosts From Group').'" name="remhosts"/></center>';
+			//print "\n\t\t\t".'<center><input type="submit" value="'._('Update Hosts').'" name="updatehosts"/>&nbsp;&nbsp;';
+			print "\n\t\t\t".'<center><input type="submit" value="'._('Delete Selected Hosts From Group').'" name="remhosts"/></center>';
 		print "\n\t\t\t</form>";
 		print "\n\t\t\t</div>";
 		unset($this->data);
