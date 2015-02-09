@@ -123,18 +123,17 @@ class Initiator
 		@set_magic_quotes_runtime(0);
 		self::verCheck();
 		self::extCheck();
-		$userValidChars = '&[^-a-zA-Z0-9!\/\\\^.*?!@]&';
 		// Sanitize valid input variables
 		foreach($_REQUEST as $key => $val)
-			$_REQUEST[$key] = preg_replace($userValidChars, '', $val);
+			$_REQUEST[$key] = filter_var($val,FILTER_SANITIZE_STRING);
 		foreach($_GET as $key => $val)
-			$_GET[$key] = preg_replace($userValidChars, '', $val);
+			$_GET[$key] = filter_var($var,FILTER_SANITIZE_STRING);
 		foreach($_POST as $key => $val)
-			$_POST[$key] = preg_replace($userValidChars, '', $val);
+			$_POST[$key] = filter_var($var,FILTER_SANITIZE_STRING);
 		foreach(array('node','sub','printertype','id','sub','crit','sort','confirm','tab') AS $x)
 		{
 			global $$x;
-			$$x = isset($_REQUEST[$x]) ? preg_replace($userValidChars,'',$_REQUEST[$x]) : '';
+			$$x = isset($_REQUEST[$x]) ? filter_var($_REQUEST[$x],FILTER_SANITIZE_STRING) : '';
 		}
 		unset($x);
 	}
