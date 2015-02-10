@@ -2,6 +2,10 @@
 class Mainmenu extends FOGBase
 {
 	public $main;
+	public function __construct()
+	{
+		parent::__construct();
+	}
 	private function manageData()
 	{
 		if(!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
@@ -74,7 +78,6 @@ class Mainmenu extends FOGBase
 	}
 	public function mainMenu()
 	{
-		parent::__construct();
 		try
 		{
 			if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn() && preg_match('#mobile#i',$_SERVER['PHP_SELF']))

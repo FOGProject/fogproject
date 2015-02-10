@@ -178,6 +178,15 @@ abstract class FOGManagerController extends FOGBase
 			else if (!$this->databaseFields[$orderBy])
 				$orderBy = 'id';
 			$not = ($not ? ' NOT ' : '');
+			if ($this->databaseFieldClassRelationships)
+			{
+				foreach($this->databaseFieldClassRelationships AS $class => $field)
+				{
+					$class = new $class();
+					$getFields .= '`,`'.$class->databaseTable.'`.`'.trim(implode(array_keys($class->databaseFieldsFlipped),'`,`'.$class->databaseTable.'`.`'),',');
+					$innerJoin[] = sprintf(' LEFT OUTER JOIN `%s` ON %s=%s ',$class->databaseTable,$class->databaseTable.'.'.$class->databaseFields[$field[0]],$this->databaseFields[$field[1]]);
+				}
+			}
 			// Error checking
 			if (empty($this->databaseTable))
 				throw new Exception('No database table defined');
@@ -204,16 +213,18 @@ abstract class FOGManagerController extends FOGBase
 			}
 			if ($groupBy)
 			{
-				$sql = "SELECT %s`%s` FROM (SELECT %s`%s` FROM `%s` %s %s %s) AS tmp %s %s %s";
+				$sql = "SELECT %s`%s` FROM (SELECT `%s` FROM `%s` %s %s %s %s) AS tmp %s %s %s";
 				$fieldValues = array(
 					(!count($whereArray) ? 'DISTINCT ' : ''),
 					$getFields,
-					(!count($whereArray) ? 'DISTINCT ' : ''),
+					//(!count($whereArray) ? 'DISTINCT ' : ''),
 					$getFields,
 					$this->databaseTable,
+					count($innerJoin) ? implode($innerJoin) : '',
 					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
 					'ORDER BY '.trim(implode($orderArray,','),','),
 					$sort,
+					count($innerJoin) ? implode($innerJoin) : '',
 					'GROUP BY '.trim(implode($groupArray,','),','),
 					'ORDER BY '.trim(implode($orderArray,','),','),
 					$sort
@@ -221,11 +232,12 @@ abstract class FOGManagerController extends FOGBase
 			}
 			else
 			{
-				$sql = "SELECT %s`%s` FROM `%s` %s %s %s";
+				$sql = "SELECT %s`%s` FROM `%s` %s %s %s %s";
 				$fieldValues = array(
 					(!count($whereArray) ? 'DISTINCT ' : ''),
 					$getFields,
 					$this->databaseTable,
+					count($innerJoin) ? implode($innerJoin) : '',
 					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
 					'ORDER BY '.trim(implode($orderArray,','),','),
 					$sort
@@ -243,7 +255,24 @@ abstract class FOGManagerController extends FOGBase
 			else
 			{
 				while($row = $this->DB->fetch()->get())
-					array_push($data,new $this->childClass($row));
+				{
+					$mainclass = new $this->childClass($row);
+					array_push($data,$mainclass);
+				}
+				foreach($data AS $mainclass)
+				{
+					if ($this->databaseFieldClassRelationships)
+					{
+						foreach($this->databaseFieldClassRelationships AS $class => $field)
+						{
+							while($row = $this->DB->fetch()->get($this->getClass($class)->databaseTable.'.'.$field[3]))
+							{
+								$class = new $class($this->DB->get($field[3]));
+								$mainclass->add($field[2],$class);
+							}
+						}
+					}
+				}
 			}
 			unset($id,$ids,$row);
 			// Return
