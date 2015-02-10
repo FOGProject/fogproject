@@ -13,6 +13,7 @@ class FOGPageManager extends FOGBase
 	private $classValue;
 	private $methodValue;
 	private $arguments;
+	private $plugin_checked;
 	// Construct
 	public function __construct()
 	{
@@ -116,14 +117,18 @@ class FOGPageManager extends FOGBase
 		global $Init;
 		foreach($Init->PagePaths as $path)
 		{
+			$this->plugin_checked = false;
 			if (file_exists($path))
 			{
 				$iterator = new DirectoryIterator($path);
 				foreach ($iterator as $fileInfo)
 				{
 					$PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : null;
-					if ($PluginName)
+					if ($PluginName && !$this->plugin_checked)
+					{
 						$Plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $PluginName, 'installed' => 1)));
+						$this->plugin_checked = true;
+					}
 					if ($Plugin)
 						$className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
 					else if (!preg_match('#plugins#i',$path))

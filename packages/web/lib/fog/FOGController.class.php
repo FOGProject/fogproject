@@ -247,7 +247,7 @@ abstract class FOGController extends FOGBase
 			if (is_array($this->get($field)))
 			{
 				// Multiple values
-				foreach ($this->get($field) AS $fieldValue)
+				foreach($this->get($field) AS $fieldValue)
 					$fieldData[] = sprintf("`%s`='%s'", $this->databaseFields[$field], $fieldValue);
 				$query = sprintf($this->loadQueryTemplateMultiple,
 					$this->databaseTable,
