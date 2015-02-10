@@ -243,17 +243,19 @@ $DatabaseManager = new DatabaseManager();
 $DB = $DatabaseManager->connect()->DB;
 // Ensure any new tables are always MyISAM
 $DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
-$tables = $DB->fetch('','fetch_all')->get('TABLE_NAME');
+$tables = $DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
 foreach ($tables AS $table)
-	$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".$table."` ENGINE=MyISAM");
+	$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
 unset($tables,$table);
 // Set the memory limits
-ini_set('memory_limit',is_numeric($FOGCore->getSetting('FOG_MEMORY_LIMIT')) && $FOGCore->getSetting('FOG_MEMORY_LIMIT') >= 128 ? $FOGCore->getSetting('FOG_MEMORY_LIMIT').'M' : ini_get('memory_limit'));
+$memory = $FOGCore->getSetting('FOG_MEMORY_LIMIT');
+ini_set('memory_limit',is_numeric($memory) && $memory >= 128 ? $memory.'M' : ini_get('memory_limit'));
 // Generate the Server's Key Pairings
 $FOGCore->createKeyPair();
 // Set the base image link.
+$theme = $FOGCore->getSetting('FOG_THEME');
 if (!preg_match('#/mobile/#',$_SERVER['PHP_SELF']))
-	$imagelink = ($FOGCore->getSetting('FOG_THEME') ? 'css/'.dirname($FOGCore->getSetting('FOG_THEME')).'/images/' : 'css/default/images/');
+	$imagelink = ($theme ? 'css/'.dirname($theme).'/images/' : 'css/default/images/');
 else
 	$imagelink = 'css/images/';
 // HookManager

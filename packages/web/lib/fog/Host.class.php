@@ -54,7 +54,14 @@ class Host extends FOGController
 	);
 	// Database field to Class relationships
 	public $databaseFieldClassRelationships = array(
-		'imageID'	=> 'Image'
+		'Inventory' => array('hostID','id','inventory','id'),
+		'GroupAssociation' => array('hostID','id','groups','groupID'),
+		'SnapinAssociation' => array('hostID','id','snapins','snapinID'),
+		'PrinterAssociation' => array('hostID','id','printers','printerID'),
+		'SnapinJob' => array('hostID','id','snapinjob','id'),
+		'Task' => array('hostID','id','task','id'),
+		'ModuleAssociation' => array('hostID','id','modules','moduleID'),
+		//'UserTracking' => array('hostID','id','users','id'),
 	);
 
 	// Custom functons
