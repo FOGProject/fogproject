@@ -509,9 +509,8 @@ class FOGCore extends FOGBase
 	public function createKeyPair($keybits = 4096,$keytype = OPENSSL_KEYTYPE_RSA)
 	{
 		$pub_path = BASEPATH.'/management/other/ssl/';
-		$priv_path = '/'.trim($this->getSetting('FOG_SNAPINDIR'),'/').'/ssl/';
-		if (!trim($this->getSetting('FOG_SNAPINDIR')))
-			$priv_path = '/opt/fog/snapins/ssl/';
+		$priv_path = '/'.trim($this->getSetting('FOG_SNAPINDIR'),'/');
+		$priv_path = !$priv_path ? '/opt/fog/snapins/ssl/' : $priv_path.'/';
 		if (!is_dir($priv_path))
 			exec('mkdir '.$priv_path);
 		if (!is_dir($pub_path))
