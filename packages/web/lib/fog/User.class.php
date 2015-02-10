@@ -4,7 +4,7 @@
 class User extends FOGController
 {
 	// Variables
-	public $inactivitySessionTimeout,$regenerateSessionTimeout;
+	public $inactivitySessionTimeout,$regenerateSessionTimeout,$alwaysloggedin,$checkedalready;
 
 	// Table
 	public $databaseTable = 'users';
@@ -51,13 +51,18 @@ class User extends FOGController
 	
 	public function isLoggedIn()
 	{
-		$this->inactivitySessionTimeout = $this->FOGCore->getSetting('FOG_INACTIVITY_TIMEOUT');
-		$this->regenerateSessionTimeout = $this->FOGCore->getSetting('FOG_REGENERATE_TIMEOUT');
+		if (!$this->checkedalready)
+		{
+			$this->inactivitySessionTimeout = $this->FOGCore->getSetting('FOG_INACTIVITY_TIMEOUT');
+			$this->regenerateSessionTimeout = $this->FOGCore->getSetting('FOG_REGENERATE_TIMEOUT');
+			$this->alwaysloggedin = $this->FOGCore->getSetting('FOG_ALWAYS_LOGGED_IN');
+			$this->checkedalready = true;
+		}
 		// Has IP Address has changed
 		if (!$_SERVER['REMOTE_ADDR'] || $this->get('authIP') != $_SERVER['REMOTE_ADDR'])
 			return false;
 		// Has session expired due to inactivity
-		if (!$this->FOGCore->getSetting('FOG_ALWAYS_LOGGED_IN') && isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] >= ($this->inactivitySessionTimeout * 60 * 60)))
+		if (!$this->alwaysloggedin && isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] >= ($this->inactivitySessionTimeout * 60 * 60)))
 		{
 			// Logout
 			$this->logout();

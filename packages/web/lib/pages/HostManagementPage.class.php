@@ -74,7 +74,7 @@ class HostManagementPage extends FOGPage
 		// Find data -> Push data
 		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('HostManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
 			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
-		foreach ($this->getClass('HostManager')->find() AS $Host)
+		foreach ($this->getClass('HostManager')->find('','','','','','name') AS $Host)
 		{
 			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{

@@ -8,25 +8,17 @@ class AddMenuNotesItems extends Hook
 	var $node = 'accesscontrol';
 	public function AddMenuData($arguments)
 	{
-		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
-		if ($plugin && $plugin->isValid())
-			$arguments['main'] = $this->array_insert_after('user',$arguments['main'],$this->node,array(_('Access Control'),'fa fa-user-secret fa-2x'));
+		$arguments['main'] = $this->array_insert_after('user',$arguments['main'],$this->node,array(_('Access Control'),'fa fa-user-secret fa-2x'));
 	}
 	public function AddSubMenuData($arguments)
 	{
-		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
-		if ($plugin && $plugin->isValid())
-		{
-			$arguments['submenu'][$this->node]['search'] = $this->foglang['NewSearch'];
-			$arguments['submenu'][$this->node]['list'] = sprintf($this->foglang['ListAll'],_('Controls'));
-			$arguments['submenu'][$this->node]['add'] = sprintf($this->foglang['CreateNew'],_('Control'));
-		}
+		$arguments['submenu'][$this->node]['search'] = $this->foglang['NewSearch'];
+		$arguments['submenu'][$this->node]['list'] = sprintf($this->foglang['ListAll'],_('Controls'));
+		$arguments['submenu'][$this->node]['add'] = sprintf($this->foglang['CreateNew'],_('Control'));
 	}
 	public function addSearch($arguments)
 	{
-		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
-		if ($plugin && $plugin->isValid())
-			array_push($arguments['searchPages'],$this->node);
+		array_push($arguments['searchPages'],$this->node);
 	}
 }
 $AddMenuNotesItems = new AddMenuNotesItems();
