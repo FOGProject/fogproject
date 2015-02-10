@@ -3,13 +3,14 @@ class Page extends FOGBase {
 	private $pageTitle,$sectionTitle,$stylesheets=array(),$javascripts=array(),$body,$isHomepage, $menu, $submenu, $media;
 	public function __construct() {
 		parent::__construct();
+		global $theme;
 		while (@ob_end_clean());
-		$theme = 'css/'.($this->FOGCore->getSetting('FOG_THEME') ? $this->FOGCore->getSetting('FOG_THEME') : 'default/fog.css');
+		$dispTheme = 'css/'.($theme ? $theme : 'default/fog.css');
 		if (!preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
 		{
 			$this->addCSS('css/jquery-ui.css');
 			$this->addCSS('css/jquery.organicTabs.css');
-			$this->addCSS($theme);
+			$this->addCSS($dispTheme);
 		}
 		else
 			$this->addCSS('css/main.css');
