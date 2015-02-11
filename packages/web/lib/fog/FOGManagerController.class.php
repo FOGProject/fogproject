@@ -207,14 +207,16 @@ abstract class FOGManagerController extends FOGBase
 			{
 				foreach((array)$where AS $field => $value)
 				{
-					if ($value !== null && !$value)
-						$values = '%';
+					if (is_array($value))
+						$whereArray[] = sprintf("`%s` %s IN ('%s')", $this->key($field), $not,implode("', '", $value));
 					else
-						$values = $value;
-					if (is_array($values))
-						$whereArray[] = sprintf("`%s`%s IN ('%s')", $this->key($field), $not,implode("', '", $values));
-					else
-						$whereArray[] = sprintf("%s %s '%s'", (preg_match('#date()#',$value) ? 'date('.$this->key($field).')' : '`'.$this->key($field).'`'), (preg_match('#%#', $value) ? 'LIKE' : $compare), $values);
+					{
+						if ($value !== null && $value !== 0 && !$value)
+							$value = '%';
+						else
+							$value = $value;
+						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
+					}
 				}
 			}
 			foreach((array)$orderBy AS $item)
