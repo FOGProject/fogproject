@@ -212,7 +212,7 @@ abstract class FOGManagerController extends FOGBase
 					else
 						$values = $value;
 					if (is_array($values))
-						$whereArray[] = sprintf("`%s`%sIN ('%s')", $this->key($field), $not,implode("', '", $values));
+						$whereArray[] = sprintf("`%s`%s IN ('%s')", $this->key($field), $not,implode("', '", $values));
 					else
 						$whereArray[] = sprintf("%s %s '%s'", (preg_match('#date()#',$value) ? 'date('.$this->key($field).')' : '`'.$this->key($field).'`'), (preg_match('#%#', $value) ? 'LIKE' : $compare), $values);
 				}
@@ -279,24 +279,18 @@ abstract class FOGManagerController extends FOGBase
 			{
 				while($row = $this->DB->fetch()->get())
 				{
+					$MainClass = new $this->childClass($row);
 					if ($this->databaseNeededFieldClassRelationships)
 					{
 						foreach($this->databaseNeededFieldClassRelationships AS $class => $field)
-							$NewClass[$field[2]] = $row[$this->getClass($class,array('id' => 0))->databaseFields[$field[3]]];
+							$MainClass->set($field[2],$row[$this->getClass($class,array('id' => 0))->databaseFields[$field[3]]]);
 					}
 					if ($this->databaseFieldClassRelationships)
 					{
 						foreach($this->databaseFieldClassRelationships AS $class => $field)
-							$NewClass[$field[2]] = $row[$this->getClass($class,array('id' => 0))->databaseFields[$field[3]]];
+							$MainClass->set($field[2],$row[$this->getClass($class,array('id' => 0))->databaseFields[$field[3]]]);
 					}
-					if ($NewClass)
-					{
-						foreach($this->databaseFields AS $com => $real)
-							$NewClass[$com] = $row[$this->getClass($this->childClass,array('id' => 0))->databaseFields[$com]];
-						array_push($data,new $this->childClass($NewClass));
-					}
-					else
-						array_push($data,new $this->childClass($row));
+					array_push($data,$MainClass);
 					unset($NewClass);
 				}
 			}
