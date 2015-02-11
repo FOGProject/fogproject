@@ -24,28 +24,39 @@ class Group extends FOGController
 		'hostsnotinme',
 		'nogroup',
 	);
+	// field class associations
+	public $databaseClassFieldRelationships = array(
+		'GroupAssociation' => array('groupID','id','hosts','hostID')
+	);
     // Overides
     private function loadHosts()
     {   
         if (!$this->isLoaded('hosts') && $this->get('id'))
         {
-			$GroupHostIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID'));
-			if ($GroupHostIDs)
+			// All hosts in a any group
+			$GroupHostIDs = array_unique($this->getClass('GroupAssociationManager')->find('','','','','','','','hostID'));
+			// Hosts not in any group
+			$NoGroupIDs = $this->getClass('HostManager')->find(array('id' => $GroupHostIDs),'','','','','',true,'id');
+			// Hosts in Me
+			$GroupHostMeIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID'));
+			if ($GroupHostMeIDs)
 			{
-				foreach($this->getClass('HostManager')->find(array('id' => $GroupHostIDs)) AS $Host)
+				// Hosts In Me find->push
+				foreach($this->getClass('HostManager')->find(array('id' => $GroupHostMeIDs)) AS $Host)
 					$this->add('hosts',$Host);
 				unset($Host);
-				// Hosts not in this group
+				// Hosts not in this group and not existing in the other group.
 				if (count($this->get('hosts')))
 				{
-					foreach($this->getClass('HostManager')->find(array('id' => $GroupHostIDs),'','','','','',true) AS $Host)
+					// Only get the list of hosts if they don't already exist in no group.
+					$GroupIDs = array_unique(array_merge((array)$NoGroupIDs,(array)$GroupHostMeIDs));
+					// Hosts not in me and not in the no group find->push
+					foreach($this->getClass('HostManager')->find(array('id' => $GroupIDs),'','','','','',true) AS $Host)
 						$this->add('hostsnotinme',$Host);
 				}
 			}
-			unset($Host,$GroupHostIDs);
-			// Hosts not in any group
-			$GroupHostIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID'));
-			foreach($this->getClass('HostManager')->find(array('id' => $GroupHostIDs),'','','','','',true) AS $Host)
+			// Hosts known to not be in any group
+			foreach($this->getClass('HostManager')->find(array('id' => $NoGroupIDs)) AS $Host)
 				$this->add('nogroup',$Host);
 		}
 		return $this;
