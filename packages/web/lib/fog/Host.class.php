@@ -32,6 +32,7 @@ class Host extends FOGController
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
 		'mac',
+		'imagename',
 		'additionalMACs',
 		'pendingMACs',
 		'groups',
@@ -52,16 +53,13 @@ class Host extends FOGController
 		'id',
 		'name',
 	);
+	// Database needed Class relationships
+	public $databaseNeededFieldClassRelationships = array(
+		'MACAddressAssociation' => array('hostID','id','mac','mac'),// TODO: MAKE SEARCHABLE IN THIS FORM array('mac' => array('primary' => 1))),
+	);
 	// Database field to Class relationships
 	public $databaseFieldClassRelationships = array(
-		'Inventory' => array('hostID','id','inventory','id'),
-		'GroupAssociation' => array('hostID','id','groups','groupID'),
-		'SnapinAssociation' => array('hostID','id','snapins','snapinID'),
-		'PrinterAssociation' => array('hostID','id','printers','printerID'),
-		'SnapinJob' => array('hostID','id','snapinjob','id'),
-		'Task' => array('hostID','id','task','id'),
-		'ModuleAssociation' => array('hostID','id','modules','moduleID'),
-		//'UserTracking' => array('hostID','id','users','id'),
+		'Image' => array('id','imageID','imagename','name'),
 	);
 
 	// Custom functons
@@ -169,7 +167,7 @@ class Host extends FOGController
 	}
 	private function loadPrimary()
 	{
-		if (!$this->isLoaded('mac') && $this->get('id'))
+		if ((!$this->isLoaded('mac') && $this->get('id') && !$_REQUEST['node'] == 'host' && !in_array($_REQUEST['sub'],array('list','search'))) || (!$this->isLoaded('mac') && $this->get('id') && !$_REQUEST['host'] && !$_REQUEST['sub'] && in_array(strtolower($this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN')),array('list','search'))))
 		{
 			foreach($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1)) AS $MAC)
 				$this->set('mac',new MACAddress($MAC->get('mac')));
@@ -324,6 +322,8 @@ class Host extends FOGController
 			$this->loadTask();
 		if ($this->key($key) == 'users')
 			$this->loadUsers();
+		if ($this->key($key) == 'mac' && !($value instanceof MACAddress))
+			$value = new MACAddress($value);
 		return parent::get($key);
 	}
 	public function set($key, $value)
@@ -1143,16 +1143,12 @@ class Host extends FOGController
 	}
 	public function clientMacCheck($MAC = false)
 	{
-		if (!$MAC)
-			$MAC = $this->get('mac')->__toString();
-		$mac = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MAC,'hostID' => $this->get('id'),'clientIgnore' => 1)));
+		$mac = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->get('mac'),'hostID' => $this->get('id'),'clientIgnore' => 1)));
 		return ($mac && $mac->isValid() ? 'checked' : '');
 	}
 	public function imageMacCheck($MAC = false)
 	{
-		if (!$MAC)
-			$MAC = $this->get('mac')->__toString();
-		$mac = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MAC,'hostID' => $this->get('id'),'imageIgnore' => 1)));
+		$mac = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->get('mac'),'hostID' => $this->get('id'),'imageIgnore' => 1)));
 		return ($mac && $mac->isValid() ? 'checked' : '');
 	}
 	public function setAD($useAD,$domain,$ou,$user,$pass)

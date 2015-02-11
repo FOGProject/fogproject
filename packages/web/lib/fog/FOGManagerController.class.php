@@ -22,8 +22,10 @@ abstract class FOGManagerController extends FOGBase
 	protected $classVariables;
 	/** The database fields. */
 	protected $databaseFields;
-	/** The database to class relationships. */
+	/** The database to class relationships extra data, but not needed **/
 	protected $databaseFieldClassRelationships;
+	/** Needed external table items **/
+	protected $databaseNeededFieldClassRelationships;
 	// Construct
 	/** __construct()
 		Different constructor from FOG Base
@@ -41,6 +43,7 @@ abstract class FOGManagerController extends FOGBase
 		$this->databaseFieldsFlipped = array_flip($this->databaseFields);
 		$this->databaseTable = $this->classVariables['databaseTable'];
 		$this->databaseFieldClassRelationships = $this->classVariables['databaseFieldClassRelationships'];
+		$this->databaseNeededFieldClassRelationships = $this->classVariables['databaseNeededFieldClassRelationships'];
 	}
 	public function __destruct()
 	{
@@ -147,7 +150,7 @@ abstract class FOGManagerController extends FOGBase
 	{
 		try
 		{
-			$getFields = trim(implode(array_keys($this->databaseFieldsFlipped),'`,`'),',');
+			$getFields = implode(array_keys($this->databaseFieldsFlipped),'`,`');
 			if ($idField || (!$where && !$whereOperator && !$orderBy && !$sort && !$compare && !$groupBy && !$not && !$idField))
 			{
 				if (strtolower($_SESSION['caller']) == 'search')
@@ -170,21 +173,30 @@ abstract class FOGManagerController extends FOGBase
 				$whereOperator = 'AND';
 			if (empty($orderBy))
 			{
-				if ($this->databaseFields['name'])
+				if (array_key_exists('name',$this->databaseFields))
 					$orderBy = 'name';
 				else
 					$orderBy = 'id';
 			}
-			else if (!$this->databaseFields[$orderBy])
+			else if (!array_key_exists($orderBy,$this->databaseFields))
 				$orderBy = 'id';
 			$not = ($not ? ' NOT ' : '');
+			if ($this->databaseNeededFieldClassRelationships)
+			{
+				foreach($this->databaseNeededFieldClassRelationships AS $class => $field)
+				{
+					$class = new $class(array('id' => 0));
+					$getFields .= '`,`'.get_class($class).'`.`'.implode(array_keys($class->databaseFieldsFlipped),'`,`'.get_class($class).'`.`');
+					$join[] = sprintf(' INNER JOIN `%s` %s ON %s=%s ',$class->databaseTable,get_class($class),'`'.get_class($class).'`.`'.$class->databaseFields[$field[0]].'`','`'.$this->childClass.'`.`'.$this->databaseFields[$field[1]].'`');
+				}
+			}
 			if ($this->databaseFieldClassRelationships)
 			{
 				foreach($this->databaseFieldClassRelationships AS $class => $field)
 				{
-					$class = new $class();
-					$getFields .= '`,`'.$class->databaseTable.'`.`'.trim(implode(array_keys($class->databaseFieldsFlipped),'`,`'.$class->databaseTable.'`.`'),',');
-					$innerJoin[] = sprintf(' LEFT OUTER JOIN `%s` ON %s=%s ',$class->databaseTable,$class->databaseTable.'.'.$class->databaseFields[$field[0]],$this->databaseFields[$field[1]]);
+					$class = new $class(array('id' => 0));
+					$getFields .= '`,`'.get_class($class).'`.`'.implode(array_keys($class->databaseFieldsFlipped),'`,`'.get_class($class).'`.`');
+					$join[] = sprintf(' LEFT OUTER JOIN `%s` `%s` ON %s=%s ',$class->databaseTable,get_class($class),'`'.get_class($class).'`.`'.$class->databaseFields[$field[0]].'`','`'.$this->childClass.'`.`'.$this->databaseFields[$field[1]].'`');
 				}
 			}
 			// Error checking
@@ -195,10 +207,14 @@ abstract class FOGManagerController extends FOGBase
 			{
 				foreach((array)$where AS $field => $value)
 				{
-					if (is_array($value))
-						$whereArray[] = sprintf("`%s`%sIN ('%s')", $this->key($field), $not,implode("', '", $value));
+					if ($value !== null && !$value)
+						$values = '%';
 					else
-						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
+						$values = $value;
+					if (is_array($values))
+						$whereArray[] = sprintf("`%s`%sIN ('%s')", $this->key($field), $not,implode("', '", $values));
+					else
+						$whereArray[] = sprintf("%s %s '%s'", (preg_match('#date()#',$value) ? 'date('.$this->key($field).')' : '`'.$this->key($field).'`'), (preg_match('#%#', $value) ? 'LIKE' : $compare), $values);
 				}
 			}
 			foreach((array)$orderBy AS $item)
@@ -211,35 +227,42 @@ abstract class FOGManagerController extends FOGBase
 				if ($this->databaseFields[$item])
 					$groupArray[] = sprintf("`%s`",$this->databaseFields[$item]);
 			}
+			$groupImplode = implode((array)$groupArray,','.(count($join) ? $this->childclass.'`.`' : ''));
+			$orderImplode = implode((array)$orderArray,','.(count($join) ? $this->childclass.'`.`' : ''));
+			$groupByField = 'GROUP BY '.(count($join) ? '`'.$this->childClass.'`.' : '').$groupImplode;
+			$orderByField = 'ORDER BY '.(count($join) ? '`'.$this->childClass.'`.' : '').$orderImplode;
 			if ($groupBy)
 			{
-				$sql = "SELECT %s`%s` FROM (SELECT `%s` FROM `%s` %s %s %s %s) AS tmp %s %s %s";
+				$sql = "SELECT %s`%s` FROM (SELECT %s`%s` FROM `%s` %s %s %s %s %s) `%s` %s %s %s %s";
 				$fieldValues = array(
 					(!count($whereArray) ? 'DISTINCT ' : ''),
 					$getFields,
-					//(!count($whereArray) ? 'DISTINCT ' : ''),
+					(!count($whereArray) ? 'DISTINCT ' : ''),
 					$getFields,
 					$this->databaseTable,
-					count($innerJoin) ? implode($innerJoin) : '',
+					count($join) ? $this->childClass : '',
+					count($join) ? implode($join) : '',
 					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
-					'ORDER BY '.trim(implode($orderArray,','),','),
+					$orderByField,
 					$sort,
-					count($innerJoin) ? implode($innerJoin) : '',
-					'GROUP BY '.trim(implode($groupArray,','),','),
-					'ORDER BY '.trim(implode($orderArray,','),','),
+					count($join) ? $this->childClass : $this->databaseTable,
+					count($join) ? implode($join) : '',
+					$groupByField,
+					$orderByField,
 					$sort
 				);
 			}
 			else
 			{
-				$sql = "SELECT %s`%s` FROM `%s` %s %s %s %s";
+				$sql = "SELECT %s`%s` FROM `%s` %s %s %s %s %s";
 				$fieldValues = array(
 					(!count($whereArray) ? 'DISTINCT ' : ''),
 					$getFields,
 					$this->databaseTable,
-					count($innerJoin) ? implode($innerJoin) : '',
+					count($join) ? $this->childClass : '',
+					count($join) ? implode($join) : '',
 					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
-					'ORDER BY '.trim(implode($orderArray,','),','),
+					$orderByField,
 					$sort
 				);
 			}
@@ -256,22 +279,25 @@ abstract class FOGManagerController extends FOGBase
 			{
 				while($row = $this->DB->fetch()->get())
 				{
-					$mainclass = new $this->childClass($row);
-					array_push($data,$mainclass);
-				}
-				foreach($data AS $mainclass)
-				{
+					if ($this->databaseNeededFieldClassRelationships)
+					{
+						foreach($this->databaseNeededFieldClassRelationships AS $class => $field)
+							$NewClass[$field[2]] = $row[$this->getClass($class,array('id' => 0))->databaseFields[$field[3]]];
+					}
 					if ($this->databaseFieldClassRelationships)
 					{
 						foreach($this->databaseFieldClassRelationships AS $class => $field)
-						{
-							while($row = $this->DB->fetch()->get($this->getClass($class)->databaseTable.'.'.$field[3]))
-							{
-								$class = new $class($this->DB->get($field[3]));
-								$mainclass->add($field[2],$class);
-							}
-						}
+							$NewClass[$field[2]] = $row[$this->getClass($class,array('id' => 0))->databaseFields[$field[3]]];
 					}
+					if ($NewClass)
+					{
+						foreach($this->databaseFields AS $com => $real)
+							$NewClass[$com] = $row[$this->getClass($this->childClass,array('id' => 0))->databaseFields[$com]];
+						array_push($data,new $this->childClass($NewClass));
+					}
+					else
+						array_push($data,new $this->childClass($row));
+					unset($NewClass);
 				}
 			}
 			unset($id,$ids,$row);

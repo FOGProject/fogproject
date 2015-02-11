@@ -26,7 +26,7 @@ class Page extends FOGBase {
 			$files = array(
 				'js/jquery-latest.js',
 				'js/jquery-migrate-1.2.1.min.js',
-				'js/jquery.tablesorter.min.js',
+				//'js/jquery.tablesorter.min.js',
 				'js/jquery.tipsy.js',
 				'js/jquery.progressbar.js',
 				'js/jquery.tmpl.js',
@@ -94,7 +94,7 @@ class Page extends FOGBase {
 			$path = '../management/other/index.php';
 		else
 			$path = 'other/index.php';
-		ob_start();
+		ob_start('ob_gzhandler');
 		include_once($path);
 		ob_end_flush();
 	}
