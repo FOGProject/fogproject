@@ -39,17 +39,13 @@ class GroupManagementPage extends FOGPage
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			_('Name'),
-			//_('Description'),
-			_('Members'),
-			'',
-			'',
+			_('Tasking'),
+			_('Edit/Remove'),
 		);
 		// Row templates
 		$this->templates = array(
 			'<input type="checkbox" name="group[]" value="${id}" class="toggle-action" checked/>',
 			sprintf('<a href="?node=group&sub=edit&%s=${id}" title="Edit">${name}</a>', $this->id),
-			//'${description}',
-			'${count}',
 			sprintf('<a href="?node=group&sub=deploy&type=1&%s=${id}"><i class="icon fa fa-arrow-down" title="Download"></i></a> <a href="?node=group&sub=deploy&type=8&%s=${id}"><i class="icon fa fa-share-alt" title="Multi-cast"></i></a> <a href="?node=group&sub=edit&%s=${id}#group-tasks"><i class="icon fa fa-arrows-alt" title="Deploy"></i></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
 			sprintf('<a href="?node=group&sub=edit&%s=${id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=group&sub=delete&%s=${id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
 		);
@@ -57,8 +53,6 @@ class GroupManagementPage extends FOGPage
 		$this->attributes = array(
 			array('width' => 16, 'class' => 'c'),
 			array(),
-			//array('width' => 150),
-			array('width' => 40, 'class' => 'c'),
 			array('width' => 90, 'class' => 'c'),
 			array('width' => 50, 'class' => 'c')
 		);
@@ -84,7 +78,6 @@ class GroupManagementPage extends FOGPage
 				'id'		=> $Group->get('id'),
 				'name'		=> $Group->get('name'),
 				'description'	=> $Group->get('description'),
-				'count'		=> $Group->getHostCount(),
 			);
 		}
 		// Hook
@@ -107,7 +100,6 @@ class GroupManagementPage extends FOGPage
 				'id'		=> $Group->get('id'),
 				'name'		=> $Group->get('name'),
 				'description'	=> $Group->get('description'),
-				'count'		=> $Group->getHostCount(), 
 			);
 		}
 		// Hook
@@ -227,7 +219,7 @@ class GroupManagementPage extends FOGPage
 		{
 			if ($Host && $Host->isValid())
 			{
-				$imageID[] = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
+				$imageID[] = $Host && $Host->isValid() ? $Host->get('imageID') : '';
 				$groupKey[] = $Host && $Host->isValid() ? base64_decode($Host->get('productKey')) : '';
 			}
 		}
@@ -235,7 +227,7 @@ class GroupManagementPage extends FOGPage
 		$groupKeyMult = (is_array($groupKey) ? array_unique($groupKey) : $groupKey);
 		$groupKeyMult = array_filter((array)$groupKeyMult);
 		if (count($imageIDMult) == 1)
-			$imageMatchID = $Host && $Host->isValid() ? $Host->getImage()->get('id') : '';
+			$imageMatchID = $Host && $Host->isValid() ? $Host->get('imageID') : '';
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', _('Edit'), $Group->get('name'));
 		// Headerdata
@@ -322,7 +314,7 @@ class GroupManagementPage extends FOGPage
 					'host_name' => $Host->get('name'),
 					'host_mac' => $Host->get('mac')->__toString(),
 					'host_desc' => $Host->get('description'),
-					'image_name' => $Host->getImage()->get('name'),
+					'image_name' => $Host->get('imagename'),
 					'check_num' => '1'
 				);
 			}
@@ -360,7 +352,7 @@ class GroupManagementPage extends FOGPage
 					'host_name' => $Host->get('name'),
 					'host_mac' => $Host->get('mac')->__toString(),
 					'host_desc' => $Host->get('description'),
-					'image_name' => $Host->getImage()->get('name'),
+					'image_name' => $Host->get('imagename'),
 					'check_num' => '2'
 				);
 			}
@@ -409,8 +401,7 @@ class GroupManagementPage extends FOGPage
                     'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
                     'host_name' => $Host->get('name'),
                     'host_mac'  => $Host->get('mac')->__toString(),
-                    //'image_name' => $this->getClass('ImageManager')->buildSelectBox($Host->getImage()->get('id'),$Host->get('name').'_'.$Host->get('id')),
-					'image_name' => $Host->getImage()->get('name'),
+					'image_name' => $Host->get('imagename'),
 				);
 			}
 		}
@@ -420,7 +411,6 @@ class GroupManagementPage extends FOGPage
 		// Output
 		$this->render();
 		if (count($this->data) > 0)
-			//print "\n\t\t\t".'<center><input type="submit" value="'._('Update Hosts').'" name="updatehosts"/>&nbsp;&nbsp;';
 			print "\n\t\t\t".'<center><input type="submit" value="'._('Delete Selected Hosts From Group').'" name="remhosts"/></center>';
 		print "\n\t\t\t</form>";
 		print "\n\t\t\t</div>";
