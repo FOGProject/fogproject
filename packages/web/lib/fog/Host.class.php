@@ -167,7 +167,7 @@ class Host extends FOGController
 	}
 	private function loadPrimary()
 	{
-		$list = (($_REQUEST['node'] && $_REQUEST['sub'] && !in_array($_REQUEST['sub'],array('list','search'))) || ($_REQUEST['node'] && !$_REQUEST['sub'] && in_array(strtolower($this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN')),array('list','search'))));
+		$list = (($_REQUEST['node'] && $_REQUEST['sub'] && !in_array($_REQUEST['sub'],array('list','listhosts','search'))) || ($_REQUEST['node'] && !$_REQUEST['sub'] && in_array(strtolower($this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN')),array('list','search'))));
 		if (!$this->isLoaded('mac') && $this->get('id') && $list)
 		{
 			foreach($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1)) AS $MAC)
