@@ -38,6 +38,8 @@ abstract class FOGController extends FOGBase
 	// Database field to Class relationship
 	/** For classes that are assigned to a particular field */
 	public $databaseFieldClassRelationships = array();
+	/** To tell what class relationships are required **/
+	public $databaseNeededFieldClassRelationships = array();
 	/** The Manager of the info. */
 	private $Manager;
 	// Construct
