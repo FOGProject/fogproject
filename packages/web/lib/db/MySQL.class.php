@@ -145,10 +145,10 @@ class MySQL extends FOGBase
 			{
 				if ($fetchType == 'fetch_all')
 				{
-					$this->result = array();
-					while ($row = $this->queryResult->fetch_array($type))
-						array_push($this->result,$row);
-					$this->queryResult->close();
+					if (method_exists('mysqli_result','fetch_all'))
+						$this->result = $this->queryResult->fetch_all($type);
+					else
+						for($this->result = array();$tmp = $this->queryResult->fetch_array($type);) $this->result[] = $tmp;
 				}
 				else
 					$this->result = $this->queryResult->fetch_array($type);

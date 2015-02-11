@@ -83,7 +83,7 @@ class FOGPageManager extends FOGBase
 					$method = 'index';
 				}
 				// FOG - Default view override
-				if ($this->methodValue != 'list' && $method == 'index' && $this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN') != 'list' && method_exists($class, 'search') && in_array($class->node,$this->searchPages))
+				if ($this->methodValue != 'list' && $method == 'index' && ($this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN')) != 'list' && method_exists($class, 'search') && in_array($class->node,$this->searchPages))
 					$method = 'search';
 				// POST - Append '_post' to method name if request method is POST and the method exists
 				if ($this->FOGCore->isPOSTRequest() && method_exists($class, $method . '_post'))
