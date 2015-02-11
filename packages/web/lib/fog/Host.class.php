@@ -167,14 +167,14 @@ class Host extends FOGController
 	}
 	private function loadPrimary()
 	{
-		$list = true;
+		/*$list = true;
 		if (($_REQUEST['node'] && $_REQUEST['sub']) && !in_array($_REQUEST['sub'],array('list','listhosts','search')))
 			$list = false;
 		if (($_REQUEST['node'] && !$_REQUEST['sub']) && in_array(strtolower($this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN')),array('list','search')))
 			$list = false;
 		if (($_REQUEST['sub'] == 'active'))
-			$list = true;
-		if (!$this->isLoaded('mac') && $this->get('id') && $list)
+			$list = true;*/
+		if (!$this->isLoaded('mac') && $this->get('id'))
 		{
 			foreach($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1)) AS $MAC)
 				$this->set('mac',new MACAddress($MAC->get('mac')));
