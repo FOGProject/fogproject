@@ -84,7 +84,7 @@ class HostManagementPage extends FOGPage
 					'host_name'	=> $Host->get('name'),
 					'host_mac'	=> $Host->get('mac')->__toString(),
 					'host_desc'  => $Host->get('description'),
-					'image_name' => $Host->getImage()->get('name'),
+					'image_name' => $Host->get('imagename'),
 				);
 			}
 		}
@@ -404,6 +404,8 @@ class HostManagementPage extends FOGPage
 		$Host = new Host($_REQUEST['id']);
 		// Inventory find for host.
 		$Inventory = $Host->get('inventory');
+		// Image for this host
+		$Image = $Host->getImage();
 		// Get the associated Groups.
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', 'Edit', $Host->get('name'));
@@ -488,6 +490,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<div id="host-general">';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-general">';
 		print "\n\t\t\t<h2>"._('Edit host definition').'</h2>';
+		$imageSelect = $this->getClass('ImageManager')->buildSelectBox($Image->get('id'));
 		foreach($fields AS $field => $input)
 		{
 			$this->data[] = array(
@@ -498,7 +501,7 @@ class HostManagementPage extends FOGPage
 				'host_mac' => $Host->get('mac'),
 				'link' => $this->formAction,
 				'host_desc' => $Host->get('description'),
-				'host_image' => $this->getClass('ImageManager')->buildSelectBox($Host->get('imageID')),
+				'host_image' => $imageSelect,
 				'host_kern' => $Host->get('kernel'),
 				'host_args' => $Host->get('kernelArgs'),
 				'host_devs' => $Host->get('kernelDevice'),

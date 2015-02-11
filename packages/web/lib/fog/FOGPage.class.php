@@ -142,6 +142,7 @@ abstract class FOGPage extends FOGBase
 				// Rows
 				if (count($this->data))
 				{
+					$defaultScreen = strtolower($this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN'));
 					// Data found
 					foreach ($this->data AS $rowData)
 					{
@@ -149,7 +150,7 @@ abstract class FOGPage extends FOGBase
 							"\t\t\t\t\t\t\t",
 							(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
 							$rowData['id'],
-							(++$i % 2 ? 'alt1' : ((!$_REQUEST['sub'] && $this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN') == 'list') || in_array($_REQUEST['sub'],array('list','search')) ? 'alt2' : '')),
+							(++$i % 2 ? 'alt1' : ((!$_REQUEST['sub'] && $defaultScreen == 'list') || in_array($_REQUEST['sub'],array('list','search')) ? 'alt2' : '')),
 							$this->buildRow($rowData)
 						);
 					}

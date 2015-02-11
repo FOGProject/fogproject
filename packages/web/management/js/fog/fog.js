@@ -241,8 +241,8 @@ function getQueryParams(qs) {
 	}
 	$.fn.fogTableInfo = function() {
 		// Add table header sorting information.
-		$('table:not(#search-content) > thead > tr > td').addClass('hand');
-		$('table:not(#search-content)').tablesorter();
+		//$('table:not(#search-content) > thead > tr > td').addClass('hand');
+		//$('table:not(#search-content)').tablesorter();
 	}
 	$.fn.fogPing = function(opts) {	
 		// If no elements were found before this was called
