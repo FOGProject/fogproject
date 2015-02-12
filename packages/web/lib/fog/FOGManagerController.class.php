@@ -54,7 +54,7 @@ abstract class FOGManagerController extends FOGBase
 	{
 		try
 		{
-			$keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', preg_replace('#[?*]*#','%',$_REQUEST['crit'])) . '%');
+			$keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', $_REQUEST['crit']).'%');
 			$_SESSION['caller'] = __FUNCTION__;
 			if (empty($keyword))
 				throw new Exception('No keyword passed');
