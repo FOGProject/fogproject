@@ -74,10 +74,10 @@ class HostManagementPage extends FOGPage
 		// Find data -> Push data
 		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('HostManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
 			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
-		foreach ($this->getClass('HostManager')->find('','','','','','name') AS $Host)
+		foreach ($this->getClass('HostManager')->find() AS $Host)
 		{
-			if ($Host && $Host->isValid() && !$Host->get('pending'))
-			{
+			//if ($Host && $Host->isValid() && !$Host->get('pending'))
+			//{
 				$this->data[] = array(
 					'host_id'	=> $Host->get('id'),
 					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
@@ -86,7 +86,7 @@ class HostManagementPage extends FOGPage
 					'host_desc'  => $Host->get('description'),
 					'image_name' => $Host->get('imagename'),
 				);
-			}
+			//}
 		}
 		// Hook
 		$this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));

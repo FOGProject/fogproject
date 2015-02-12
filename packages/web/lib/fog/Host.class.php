@@ -63,7 +63,16 @@ class Host extends FOGController
 	public $databaseFieldClassRelationships = array(
 		'Image' => array('id','imageID','imagename','name'),
 	);
-
+	// Database search field to Class relationships
+	// Format is <Class with relation> => array(mixed <items of this class to search within>)
+	public $databaseSearchFieldClassRelationships = array(
+		'Image' => array('name','description'),
+		'Group' => array('name','description'),
+		'Snapin' => array('name','description','file'),
+		'Printer' => array('name','description'),
+		'Inventory' => array('sysserial','caseserial','mbserial','primaryUser','other1','other2','sysman','sysproduct'),
+		'MACAddressAssociation' => array('mac','description'),
+	);
 	// Custom functons
 	public function isHostnameSafe()
 	{
@@ -169,18 +178,10 @@ class Host extends FOGController
 	}
 	private function loadPrimary()
 	{
-		/*$list = true;
-		if (($_REQUEST['node'] && $_REQUEST['sub']) && !in_array($_REQUEST['sub'],array('list','listhosts','search')))
-			$list = false;
-		if (($_REQUEST['node'] && !$_REQUEST['sub']) && in_array(strtolower($this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN')),array('list','search')))
-			$list = false;
-		if (($_REQUEST['sub'] == 'active'))
-			$list = true;*/
 		if (!$this->isLoaded('mac') && $this->get('id'))
 		{
-			foreach($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1)) AS $MAC)
+			foreach($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1,'pending' => 0)) AS $MAC)
 				$this->set('mac',new MACAddress($MAC->get('mac')));
-			unset($MAC);
 		}
 		return $this;
 	}
@@ -620,7 +621,6 @@ class Host extends FOGController
 	}
 	public function isValid()
 	{
-		//return (($this->get('id') != '' || !(HostManager::isHostnameSafe($this->get('name')))));
 		return (($this->get('id') != '' || !(HostManager::isHostnameSafe($this->get('name')))) && $this->getMACAddress() != '' ? true : false);
 	}
 	// Custom functions
