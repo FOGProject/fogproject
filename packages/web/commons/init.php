@@ -231,7 +231,7 @@ class Initiator
 }
 // Initialize everything
 $Init = new Initiator();
-Init::startInit();
+$Init::startInit();
 $System = new System();
 // Get the configuration
 $Config = new Config();
