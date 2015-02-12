@@ -28,6 +28,16 @@ class Group extends FOGController
 	public $databaseClassFieldRelationships = array(
 		'GroupAssociation' => array('groupID','id','hosts','hostID')
 	);
+	// Database search field to Class relationships
+	// Format is <Class with relation> => array(mixed <items of this class to search within>)
+	public $databaseSearchFieldClassRelationships = array(
+		'Image' => array('name','description'),
+		'Group' => array('name','description'),
+		'Snapin' => array('name','description','file'),
+		'Printer' => array('name','description'),
+		'Inventory' => array('sysserial','caseserial','mbserial','primaryUser','other1','other2','sysman','sysproduct'),
+		'MACAddressAssociation' => array('mac','description'),
+	);
     // Overides
     private function loadHosts()
     {   
