@@ -78,11 +78,11 @@ abstract class FOGManagerController extends FOGBase
 				$SnapinIDs = $this->getClass('SnapinManager')->find(array('name' => $keyword,'description' => $keyword,'file' => $keyword),'OR','','','','','','id');
 				$PrinterIDs = $this->getClass('PrinterManager')->find(array('name' => $keyword),'OR','','','','','','id');
 				$GroupHostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $GroupIDs),'','','','','','','hostID');
-				$HostIDs = array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs));
-				$findWhere = array('id' => $HostIDs);
 				$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
 				$SnapinHostIDs = $this->getClass('SnapinAssociationManager')->find(array('snapinID' => $SnapinIDs),'','','','','','','hostID');
 				$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $PrinterIDs),'','','','','','','hostID');
+				$HostIDs = array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs));
+				$findWhere = array('id' => $HostIDs);
 				unset($GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$GroupHostIDs,$ImageHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
 			}
 			else if ($this->childClass == 'Group')
@@ -267,12 +267,22 @@ abstract class FOGManagerController extends FOGBase
 					if ($this->databaseNeededFieldClassRelationships)
 					{
 						foreach($this->databaseNeededFieldClassRelationships AS $class => $field)
-							$MainClass->set($field[2],$row[$this->getClass($class,array('id' => 0))->databaseFields[$field[3]]]);
+						{
+							$classVars = get_class_vars($class);
+							$classVars = $classVars['databaseFields'];
+							$classVars = $classVars[$field[3]];
+							$MainClass->set($field[2],$row[$classVars]);
+						}
 					}
 					if ($this->databaseFieldClassRelationships)
 					{
 						foreach($this->databaseFieldClassRelationships AS $class => $field)
-							$MainClass->set($field[2],$row[$this->getClass($class,array('id' => 0))->databaseFields[$field[3]]]);
+						{
+							$classVars = get_class_vars($class);
+							$classVars = $classVars['databaseFields'];
+							$classVars = $classVars[$field[3]];
+							$MainClass->set($field[2],$row[$classVars]);
+						}
 					}
 					array_push($data,$MainClass);
 					unset($NewClass);
