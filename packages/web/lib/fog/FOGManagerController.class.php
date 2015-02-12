@@ -150,20 +150,6 @@ abstract class FOGManagerController extends FOGBase
 	{
 		try
 		{
-			$getFields = implode(array_keys($this->databaseFieldsFlipped),'`,`');
-			if ($idField || (!$where && !$whereOperator && !$orderBy && !$sort && !$compare && !$groupBy && !$not && !$idField))
-			{
-				if (strtolower($_SESSION['caller']) == 'search')
-				{
-					$getFields = $this->databaseFields[$idField ? $idField : 'id'];
-					$idField = $idField ? $idField : 'id';
-				}
-				else
-				{
-					if ($idField)
-						$getFields = array_key_exists($idField,$this->databaseFields) ? $this->databaseFields[$idField] : $this->databaseFields['id'];
-				}
-			}
 			if (empty($compare))
 				$compare = '=';
 			// Fail safe defaults
@@ -181,22 +167,18 @@ abstract class FOGManagerController extends FOGBase
 			else if (!array_key_exists($orderBy,$this->databaseFields))
 				$orderBy = 'id';
 			$not = ($not ? ' NOT ' : '');
-			if ($this->databaseNeededFieldClassRelationships)
+			list($getFields,$join) = $this->getClass($this->childClass,array('id' => 0))->buildQuery();
+			if ($idField || (!$where && !$whereOperator && !$orderBy && !$sort && !$compare && !$groupBy && !$not && !$idField))
 			{
-				foreach($this->databaseNeededFieldClassRelationships AS $class => $field)
+				if (strtolower($_SESSION['caller']) == 'search')
 				{
-					$class = new $class(array('id' => 0));
-					$getFields .= '`,`'.get_class($class).'`.`'.implode(array_keys($class->databaseFieldsFlipped),'`,`'.get_class($class).'`.`');
-					$join[] = sprintf(' INNER JOIN `%s` %s ON %s=%s ',$class->databaseTable,get_class($class),'`'.get_class($class).'`.`'.$class->databaseFields[$field[0]].'`','`'.$this->childClass.'`.`'.$this->databaseFields[$field[1]].'`');
+					$getFields = $this->databaseFields[$idField ? $idField : 'id'];
+					$idField = $idField ? $idField : 'id';
 				}
-			}
-			if ($this->databaseFieldClassRelationships)
-			{
-				foreach($this->databaseFieldClassRelationships AS $class => $field)
+				else
 				{
-					$class = new $class(array('id' => 0));
-					$getFields .= '`,`'.get_class($class).'`.`'.implode(array_keys($class->databaseFieldsFlipped),'`,`'.get_class($class).'`.`');
-					$join[] = sprintf(' LEFT OUTER JOIN `%s` `%s` ON %s=%s ',$class->databaseTable,get_class($class),'`'.get_class($class).'`.`'.$class->databaseFields[$field[0]].'`','`'.$this->childClass.'`.`'.$this->databaseFields[$field[1]].'`');
+					if ($idField)
+						$getFields = $this->databaseFields[$idField ? $idField : 'id'];
 				}
 			}
 			// Error checking
