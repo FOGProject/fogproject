@@ -8,7 +8,7 @@ try
 		throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if ((!$Host && !$Host->isValid()) || ($Host->get('pending') && $_REQUEST['moduleid'] != 'hostregister'))
+	if ((!$Host || !$Host->isValid() || $Host->get('pending')) && $_REQUEST['moduleid'] != 'hostregister'))
 		throw new Exception('#!ih');
 	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
 		throw new Exception('#!ihc');
