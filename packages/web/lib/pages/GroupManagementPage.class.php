@@ -324,13 +324,12 @@ class GroupManagementPage extends FOGPage
 		{
 			$GroupDataExists = true;
 			$this->HookManager->processEvent('GROUP_HOST_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-			print "\n\t\t\t<center>".'<label for="hostMeShow">'._('Check here to see hosts not in this group').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label>';
-			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
-			print "\n\t\t\t".'<div id="hostNotInMe">';
-			print "\n\t\t\t".'<h2>'._('Modify Membership for').' '.$Group->get('name').'</h2>';
-			print "\n\t\t\t".'<p>'._('Add hosts to group').' '.$Group->get('name').'</p>';
-			$this->render();
-			print "</div>";
+			$groupAdd[] = "\n\t\t\t<center>".'<label for="hostMeShow">'._('Check here to see hosts not in this group').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label>';
+			$groupAdd[] = "\n\t\t\t".'<div id="hostNotInMe">';
+			$groupAdd[] = "\n\t\t\t".'<h2>'._('Modify Membership for').' '.$Group->get('name').'</h2>';
+			$groupAdd[] = "\n\t\t\t".'<p>'._('Add hosts to group').' '.$Group->get('name').'</p>';
+			$groupAdd[] = $this->process();
+			$groupAdd[] = "</div></center>";
 		}
 		// Reset the data for the next value
 		unset($this->data);
@@ -361,17 +360,23 @@ class GroupManagementPage extends FOGPage
 		{
 			$GroupDataExists = true;
 			$this->HookManager->processEvent('GROUP_HOST_NOT_IN_ANY',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-			print "\n\t\t\t".'<label for="hostNoShow">'._('Check here to see hosts not within a group').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" /></label>';
-			print "\n\t\t\t".'<div id="hostNoGroup">';
-			print "\n\t\t\t".'<p>'._('Hosts below do not belong to a group').'</p>';
-			print "\n\t\t\t".'<p>'._('Add hosts to group').' '.$Group->get('name').'</p>';
-			$this->render();
-			print "\n\t\t\t</div>";
+			$groupAdd[] = "\n\t\t\t<center>".'<label for="hostNoShow">'._('Check here to see hosts not within a group').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" /></label>';
+			$groupAdd[] = "\n\t\t\t".'<div id="hostNoGroup">';
+			$groupAdd[] = "\n\t\t\t".'<p>'._('Hosts below do not belong to a group').'</p>';
+			$groupAdd[] = "\n\t\t\t".'<p>'._('Add hosts to group').' '.$Group->get('name').'</p>';
+			$groupAdd[] = $this->process(); 
+			$groupAdd[] = "\n\t\t\t</div></center>";
 		}
 		if ($GroupDataExists)
 		{
-			print '</br><input type="submit" value="'._('Add Host(s) to Group').'" />';
-			print "\n\t\t\t</form></center>";
+			$groupAdd[] = '<br/><center><input type="submit" value="'._('Add Host(s) to Group').'" />';
+			$groupAdd[] = "\n\t\t\t</center><br/>";
+		}
+		if ($groupAdd)
+		{
+			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
+			print implode($groupAdd);
+			print '</form>';
 		}
 		unset($this->data);
 		$this->headerData = array(

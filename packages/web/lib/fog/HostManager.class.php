@@ -4,26 +4,11 @@ class HostManager extends FOGManagerController
 	public function getHostByMacAddresses($MACs)
 	{
 		foreach((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MACs)) AS $MAC)
-		{
-			$MACHost = $MAC->get('hostID');
-			$HostTask = new Host($MACHost);
-			$MAC = new MACAddress($MAC->get('mac'));
-			if ($HostTask && $HostTask->isValid() && $HostTask->get('task') && $HostTask->get('task')->isValid())
-			{
-				if ($MAC && $MAC->isValid() && !$MAC->isImageIgnored() && !$MAC->isPending())
-					$HostIDs[] = $MACHost;
-			}
-			if ($HostTask && $HostTask->isValid() && (!$HostTask->get('task') || !$HostTask->get('task')->isValid()))
-			{
-				if ($MAC && $MAC->isValid() && !$MAC->isClientIgnored() && !$MAC->isPending())
-					$HostIDs[] = $MACHost;
-			}
-		}
-		$HostIDs = array_unique((array)$HostIDs);
-		if (count($HostIDs) > 1)
+			$MACHost[] = $MAC->get('hostID');
+		$Hosts = $this->find(array('id' => $MACHost));
+		if (count($Hosts) > 1)
 			throw new Exception($this->foglang['ErrorMultipleHosts']);
-		$Host = new Host(implode((array)$HostIDs));
-		return $Host;
+		return current($Hosts);
 	}
 	public function isSafeHostName($hostname)
 	{

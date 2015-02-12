@@ -44,12 +44,8 @@ try
 	// If it's globally disabled, return that so the client doesn't keep trying it.
 	if (!$moduleName[$moduleID->get('shortName')])
 		throw new Exception('#!ng');
-	foreach((array)$Host->get('modules') AS $Module)
-	{
-		if ($Module && $Module->isValid() && $Module->get('isDefault'))
-			$activeIDs[] = $Module->get('id');
-	}
-	$Datatosend = (in_array($moduleID->get('id'),(array)$activeIDs) ? '#!ok' : '#!nh')."\n";
+	$ModOns = $FOGCore->getClass('ModuleAssociationManager')->find(array('hostID' => $Host->get('id')),'','','','','','','moduleID');
+	$Datatosend = (in_array($moduleID->get('id'),(array)$ModOns) ? '#!ok' : '#!nh')."\n";
 	if ($_REQUEST['newService'])
 		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
 	else
