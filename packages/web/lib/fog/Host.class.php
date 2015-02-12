@@ -54,10 +54,12 @@ class Host extends FOGController
 		'name',
 	);
 	// Database needed Class relationships
+	// Format is <Class with relation> => array(<class key to join>,<this related key>, <key to set on here>,<key to pull from other class>
 	public $databaseNeededFieldClassRelationships = array(
 		'MACAddressAssociation' => array('hostID','id','mac','mac'),// TODO: MAKE SEARCHABLE IN THIS FORM array('mac' => array('primary' => 1))),
 	);
 	// Database field to Class relationships
+	// Format is <Class with relation> => array(<class key to join>,<this related key>, <key to set on here>,<key to pull from other class>
 	public $databaseFieldClassRelationships = array(
 		'Image' => array('id','imageID','imagename','name'),
 	);
@@ -618,6 +620,7 @@ class Host extends FOGController
 	}
 	public function isValid()
 	{
+		//return (($this->get('id') != '' || !(HostManager::isHostnameSafe($this->get('name')))));
 		return (($this->get('id') != '' || !(HostManager::isHostnameSafe($this->get('name')))) && $this->getMACAddress() != '' ? true : false);
 	}
 	// Custom functions

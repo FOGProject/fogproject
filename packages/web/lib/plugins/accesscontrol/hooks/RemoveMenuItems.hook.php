@@ -21,8 +21,7 @@ class RemoveMenuItems extends Hook
 	}
 	public function MenuData($arguments)
 	{
-		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
-		if ($plugin && $plugin->isValid())
+		if ($_SESSION[$this->node])
 		{
 			foreach((array)$this->linksToFilter AS $link)
 				unset($arguments['main'][$link]);
@@ -30,8 +29,7 @@ class RemoveMenuItems extends Hook
 	}
 	public function SubMenuData($arguments)
 	{
-		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
-		if ($plugin && $plugin->isValid())
+		if ($_SESSION[$this->node])
 		{
 			foreach($arguments['submenu'] AS $node => $link)
 			{
@@ -50,8 +48,7 @@ class RemoveMenuItems extends Hook
 	}
 	public function NotAllowed($arguments)
 	{
-		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
-		if ($plugin && $plugin->isValid())
+		if ($_SESSION[$this->node])
 		{
 			if (in_array($_REQUEST['node'],(array)$this->linksToFilter))
 			{

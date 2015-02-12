@@ -8,8 +8,7 @@ class ChangeItems extends Hook
     var $node = 'location';	
 	public function StorageNodeSetting($arguments)
 	{
-		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
-		if ($plugin && $plugin->isValid())
+		if ($_SESSION[$this->node])
 		{
 			$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id'))));
 			if ($arguments['Host'] && $arguments['Host']->isValid() && $LA && $LA->isValid())
@@ -18,8 +17,7 @@ class ChangeItems extends Hook
 	}
 	public function StorageGroupSetting($arguments)
 	{
-		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
-		if ($plugin && $plugin->isValid())
+		if ($_SESSION[$this->node])
 		{
 			$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id'))));
 			if ($arguments['Host'] && $arguments['Host']->isValid() && $LA && $LA->isValid())
@@ -28,8 +26,7 @@ class ChangeItems extends Hook
 	}
 	public function BootItemSettings($arguments)
 	{
-		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
-		if ($plugin && $plugin->isValid())
+		if ($_SESSION[$this->node])
 		{
 			$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id'))));
 			if ($arguments['Host'] && $arguments['Host']->isValid() && $LA && $LA->isValid())
