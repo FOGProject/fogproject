@@ -26,6 +26,10 @@ abstract class FOGManagerController extends FOGBase
 	protected $databaseFieldClassRelationships;
 	/** Needed external table items **/
 	protected $databaseNeededFieldClassRelationships;
+	/** Searchable class elements **/
+	protected $databaseSearchFieldClassRelationships;
+	/** Search Query Template **/
+	private $searchQueryTemplate = "SELECT `%s` FROM %s %s %s";
 	// Construct
 	/** __construct()
 		Different constructor from FOG Base
@@ -39,22 +43,25 @@ abstract class FOGManagerController extends FOGBase
 		// Get child class variables
 		$this->classVariables = get_class_vars($this->childClass);
 		// Set required child variable data
+		$this->databaseTable = $this->classVariables['databaseTable'];
 		$this->databaseFields = $this->classVariables['databaseFields'];
 		$this->databaseFieldsFlipped = array_flip($this->databaseFields);
-		$this->databaseTable = $this->classVariables['databaseTable'];
 		$this->databaseFieldClassRelationships = $this->classVariables['databaseFieldClassRelationships'];
 		$this->databaseNeededFieldClassRelationships = $this->classVariables['databaseNeededFieldClassRelationships'];
+		$this->databaseSearchFieldClassRelationships = $this->classVariables['databaseSearchFieldClassRelationships'];
 	}
 	public function __destruct()
 	{
 		parent::__destruct();
 	}
 	// Search
-	public function search()
+	public function search($keyword = null)
 	{
 		try
 		{
-			$keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', $_REQUEST['crit']).'%');
+			if (empty($keyword))
+				$keyword = $_REQUEST['crit'];
+			$keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', $keyword).'%');
 			$_SESSION['caller'] = __FUNCTION__;
 			if (empty($keyword))
 				throw new Exception('No keyword passed');
@@ -73,12 +80,12 @@ abstract class FOGManagerController extends FOGBase
 			// Get the IDs of the objects we are trying to "scan" for
 			if ($this->childClass == 'Host')
 			{
-				$GroupIDs = $this->getClass('GroupManager')->find(array('name' => $keyword,'description' => $keyword),'OR','','','','','','id');
 				$ImageIDs = $this->getClass('ImageManager')->find(array('name' => $keyword,'description' => $keyword),'OR','','','','','','id');
+				$GroupIDs = $this->getClass('GroupManager')->find(array('name' => $keyword,'description' => $keyword),'OR','','','','','','id');
 				$SnapinIDs = $this->getClass('SnapinManager')->find(array('name' => $keyword,'description' => $keyword,'file' => $keyword),'OR','','','','','','id');
 				$PrinterIDs = $this->getClass('PrinterManager')->find(array('name' => $keyword),'OR','','','','','','id');
+				//$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
 				$GroupHostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $GroupIDs),'','','','','','','hostID');
-				$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
 				$SnapinHostIDs = $this->getClass('SnapinAssociationManager')->find(array('snapinID' => $SnapinIDs),'','','','','','','hostID');
 				$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $PrinterIDs),'','','','','','','hostID');
 				$HostIDs = array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs));
@@ -127,7 +134,7 @@ abstract class FOGManagerController extends FOGBase
 				$SnapinIDs = $this->getClass('SnapinManager')->find(array('name' => $keyword,'description' => $keyword,'file' => $keyword),'OR','','','','','','id');
 				$PrinterIDs = $this->getClass('PrinterManager')->find(array('name' => $keyword),'OR','','','','','','id');
 				$GroupHostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $GroupIDs),'','','','','','','hostID');
-				$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
+				//$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
 				$SnapinHostIDs = $this->getClass('SnapinAssociationManager')->find(array('snapinID' => $SnapinIDs),'','','','','','','hostID');
 				$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $PrinterIDs),'','','','','','','hostID');
 				$HostIDs = array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs));
@@ -135,7 +142,7 @@ abstract class FOGManagerController extends FOGBase
 				unset($TaskIDs,$TaskTypeIDs,$GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$GroupHostIDs,$ImageHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
 			}
 			unset($_SESSION['caller']);
-			return $this->childClass == 'Task' ? $this->getClass($this->childClass.'Manager')->find($findWhere,'OR') : array_unique($this->getClass($this->childClass.'Manager')->find((array)$findWhere,'OR'),SORT_REGULAR);
+			return array_unique($this->getClass($this->childClass)->getManager()->find($findWhere,'OR'));
 		}
 		catch (Exception $e)
 		{
@@ -191,14 +198,8 @@ abstract class FOGManagerController extends FOGBase
 				{
 					if (is_array($value))
 						$whereArray[] = sprintf("`%s` %s IN ('%s')", $this->key($field), $not,implode("', '", $value));
-					else
-					{
-						if ($value !== null && $value !== 0 && !$value)
-							$value = '%';
-						else
-							$value = $value;
-						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
-					}
+					else if (!is_array($value))
+						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : ($not ? '!' : '').$compare), $value);
 				}
 			}
 			foreach((array)$orderBy AS $item)

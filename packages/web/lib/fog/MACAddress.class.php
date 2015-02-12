@@ -3,11 +3,11 @@
 // Blackout - 10:15 AM 1/10/2011
 class MACAddress extends FOGBase
 {
-	private $MAC;
+	private $MAC,$Host;
 	public function __construct($MAC,$primary = false,$pending = false, $isClientIgnored = false, $isImageIgnored = false)
 	{
+		parent::__construct();
 		$this->setMAC($MAC);
-		return parent::__construct();
 	}
 	public function setMAC($MAC)
 	{
@@ -47,7 +47,7 @@ class MACAddress extends FOGBase
 	{
 		return ($this->__toString() != '' ? preg_match('#^([0-9a-fA-F][0-9a-fA-F][:-]){5}([0-9a-fA-F][0-9a-fA-F])$#', $this->__toString()) : false);
 	}
-	/*public function isPending()
+	public function isPending()
 	{
 		$PendingMACs = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->MAC, 'pending' => 1)));
 		return ($PendingMACs && $PendingMACs instanceof MACAddressAssociation);
@@ -70,5 +70,5 @@ class MACAddress extends FOGBase
 		return false;
 		$IgnoredMACs = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->MAC, 'imageIgnore' => 1)));
 		return ($IgnoredMACs && $IgnoredMACs instanceof MACAddressAssociation);
-	}*/
+	}
 }
