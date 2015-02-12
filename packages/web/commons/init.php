@@ -232,7 +232,6 @@ class Initiator
 // Initialize everything
 $Init = new Initiator();
 $System = new System();
-$Init::startInit();
 // Get the configuration
 $Config = new Config();
 // Core
@@ -242,23 +241,27 @@ $FOGCore = new FOGCore();
 $DatabaseManager = new DatabaseManager();
 $DB = $DatabaseManager->connect()->DB;
 // Ensure any new tables are always MyISAM
-$DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
-$tables = $DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
-foreach ($tables AS $table)
-	$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
-unset($tables,$table);
-// Set the memory limits
-$memory = $FOGCore->getSetting('FOG_MEMORY_LIMIT');
-ini_set('memory_limit',is_numeric($memory) && $memory >= 128 ? $memory.'M' : ini_get('memory_limit'));
-// Generate the Server's Key Pairings
-$FOGCore->createKeyPair();
-// Set the base image link.
-$theme = $FOGCore->getSetting('FOG_THEME');
-if (!preg_match('#/mobile/#',$_SERVER['PHP_SELF']))
-	$imagelink = ($theme ? 'css/'.dirname($theme).'/images/' : 'css/default/images/');
-else
-	$imagelink = 'css/images/';
-// HookManager
-$HookManager = new HookManager();
-$HookManager->load();
-$Init::endInit();
+if (!preg_match('#/service/#',$_SERVER['PHP_SELF']))
+{
+	$Init::startInit();
+	$DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
+	$tables = $DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
+	foreach ($tables AS $table)
+		$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
+	unset($tables,$table);
+	// Set the memory limits
+	$memory = $FOGCore->getSetting('FOG_MEMORY_LIMIT');
+	ini_set('memory_limit',is_numeric($memory) && $memory >= 128 ? $memory.'M' : ini_get('memory_limit'));
+	// Generate the Server's Key Pairings
+	$FOGCore->createKeyPair();
+	// Set the base image link.
+	$theme = $FOGCore->getSetting('FOG_THEME');
+	if (!preg_match('#/mobile/#',$_SERVER['PHP_SELF']))
+		$imagelink = ($theme ? 'css/'.dirname($theme).'/images/' : 'css/default/images/');
+	else
+		$imagelink = 'css/images/';
+	// HookManager
+	$HookManager = new HookManager();
+	$HookManager->load();
+	$Init::endInit();
+}
