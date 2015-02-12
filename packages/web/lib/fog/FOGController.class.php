@@ -14,9 +14,9 @@ abstract class FOGController extends FOGBase
 	public $databaseFields = array();
 	// ->load() queries, this way subclasses can override (ie: NodeFailure)
 	/** The standard query template for a single call */
-	protected $loadQueryTemplateSingle = "SELECT * FROM `%s` WHERE `%s`='%s'";
+	protected $loadQueryTemplateSingle = "SELECT `%s` FROM `%s` `%s` %s WHERE `%s`='%s'";
 	/** The standard query template for a multiple call */
-	protected $loadQueryTemplateMultiple = "SELECT * FROM `%s` WHERE %s";
+	protected $loadQueryTemplateMultiple = "SELECT `%s` FROM `%s` %s %s WHERE %s";
 	// Do not update these database fields
 	/** Ignore these fileds */
 	public $databaseFieldsToIgnore = array(
@@ -53,6 +53,7 @@ abstract class FOGController extends FOGBase
 		parent::__construct();
 		try
 		{
+			$this->info = false;
 			// Error checking
 			if (!count($this->databaseFields))
 				throw new Exception('No database fields defined for this class!');
@@ -106,6 +107,7 @@ abstract class FOGController extends FOGBase
 	{
 		try
 		{
+			$this->info('Setting Key: %s, Value: %s',array($key,$value));
 			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped))
 				throw new Exception('Invalid key being set');
 			if (array_key_exists($key, $this->databaseFieldsFlipped))
@@ -245,22 +247,31 @@ abstract class FOGController extends FOGBase
 				throw new Exception('No Table defined for this class');
 			if (!$this->get($field))
 				throw new Exception(sprintf('Operation field not set: %s', strtoupper($field)));
+			list($getFields,$join) = $this->buildQuery();
 			// Build query
 			if (is_array($this->get($field)))
 			{
 				// Multiple values
 				foreach($this->get($field) AS $fieldValue)
 					$fieldData[] = sprintf("`%s`='%s'", $this->databaseFields[$field], $fieldValue);
-				$query = sprintf($this->loadQueryTemplateMultiple,
+				$query = sprintf(
+					$this->loadQueryTemplateMultiple,
+					$getFields,
 					$this->databaseTable,
+					get_class($this),
+					count($join) ? implode($join) : '',
 					implode(' OR ', $fieldData)
 				);
 			}
 			else
 			{
 				// Single value
-				$query = sprintf($this->loadQueryTemplateSingle,
+				$query = sprintf(
+					$this->loadQueryTemplateSingle,
+					$getFields,
 					$this->databaseTable,
+					get_class($this),
+					count($join) ? implode($join) : '',
 					$this->databaseFields[$field],
 					$this->get($field)
 				);
@@ -269,8 +280,23 @@ abstract class FOGController extends FOGBase
 			if (!$queryData = $this->DB->query($query)->fetch()->get())
 				throw new Exception(($this->DB->sqlerror() ? $this->DB->sqlerror() : 'Row not found'));
 			// Loop returned rows -> Set new data
-			foreach ($queryData AS $key => $value)
-				$this->set($this->key($key), (string)$value);
+			foreach ($queryData AS $key => $value) {
+				if (($this->databaseNeededFieldClassRelationships || $this->databaseFieldClassRelationships) && !$this->databaseFieldsFlipped[$key])
+				{
+					if ($this->databaseNeededFieldClassRelationships)
+					{
+						foreach($this->databaseNeededFieldClassRelationships AS $class => $field)
+							$this->set($this->getClass($class)->key($key,$field[2]),$value);
+					}
+					if ($this->databaseFieldClassRelationships)
+					{
+						foreach($this->databaseFieldClassRelationships AS $class => $field)
+							$this->set($this->getClass($class)->key($key,$field[2]),$value);
+					}
+				}
+				else
+					$this->set($this->key($key), $value);
+			}
 			// Success
 			return true;
 		}
@@ -313,14 +339,39 @@ abstract class FOGController extends FOGBase
 		// Fail
 		return false;
 	}
+	public function buildQuery()
+	{
+		$getFields = implode(array_keys($this->databaseFieldsFlipped),'`,`');
+		$needed = false;
+		if ($this->databaseNeededFieldClassRelationships)
+		{
+			$field = array();
+			foreach($this->databaseNeededFieldClassRelationships AS $class => $field)
+			{
+				$class = new $class(array('id' => 0));
+				$getFields .= '`,`'.get_class($class).'`.`'.implode(array_keys($class->databaseFieldsFlipped),'`,`'.get_class($class).'`.`');
+				$join[] = sprintf(' INNER JOIN `%s` %s ON %s=%s ',$class->databaseTable,get_class($class),'`'.get_class($class).'`.`'.$class->databaseFields[$field[0]].'`','`'.get_class($this).'`.`'.$this->databaseFields[$field[1]].'`');
+			}
+		}
+		if ($this->databaseFieldClassRelationships)
+		{
+			foreach($this->databaseFieldClassRelationships AS $class => $field)
+			{
+				$class = new $class(array('id' => 0));
+				$getFields .= '`,`'.get_class($class).'`.`'.implode(array_keys($class->databaseFieldsFlipped),'`,`'.get_class($class).'`.`');
+				$join[] = sprintf(' LEFT OUTER JOIN `%s` `%s` ON %s=%s ',$class->databaseTable,get_class($class),'`'.get_class($class).'`.`'.$class->databaseFields[$field[0]].'`','`'.get_class($this).'`.`'.$this->databaseFields[$field[1]].'`');
+			}
+		}
+		return array($getFields,$join);
+	}
 	// Key
 	/** key($key)
 		Checks if a relevant key exists within the database.
 	*/
-	public function key($key)
+	public function key($key,$override = false)
 	{
 		if (array_key_exists($key, $this->databaseFieldsFlipped))
-			return $this->databaseFieldsFlipped[$key];
+			$key = $override ? $override : $this->databaseFieldsFlipped[$key];
 		return $key;
 	}
 	// isValid
