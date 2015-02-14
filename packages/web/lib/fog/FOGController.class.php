@@ -53,6 +53,7 @@ abstract class FOGController extends FOGBase
 		parent::__construct();
 		try
 		{
+			$this->debug = false;
 			$this->info = false;
 			// Error checking
 			if (!count($this->databaseFields))
@@ -78,9 +79,6 @@ abstract class FOGController extends FOGBase
 					throw new Exception(sprintf('No data passed, or less than zero, Value: %s', $data));
 				$this->set('id', $data)->load();
 			}
-			// Unknown data format
-			else
-				throw new Exception('No data array or ID passed!');
 		}
 		catch (Exception $e)
 		{
@@ -107,7 +105,7 @@ abstract class FOGController extends FOGBase
 	{
 		try
 		{
-			$this->info('Setting Key: %s, Value: %s',array($key,$value));
+			//$this->info('Setting Key: %s, Value: %s',array($key,$value));
 			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped))
 				throw new Exception('Invalid key being set');
 			if (array_key_exists($key, $this->databaseFieldsFlipped))
@@ -281,6 +279,8 @@ abstract class FOGController extends FOGBase
 				throw new Exception(($this->DB->sqlerror() ? $this->DB->sqlerror() : 'Row not found'));
 			// Loop returned rows -> Set new data
 			foreach ($queryData AS $key => $value) {
+				$this->set($this->key($key), $value);
+			}/*
 				if (($this->databaseNeededFieldClassRelationships || $this->databaseFieldClassRelationships) && !$this->databaseFieldsFlipped[$key])
 				{
 					if ($this->databaseNeededFieldClassRelationships)
@@ -295,8 +295,7 @@ abstract class FOGController extends FOGBase
 					}
 				}
 				else
-					$this->set($this->key($key), $value);
-			}
+			}*/
 			// Success
 			return true;
 		}

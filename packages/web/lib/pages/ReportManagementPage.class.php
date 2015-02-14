@@ -27,7 +27,6 @@ class ReportManagementPage extends FOGPage
 	public function __construct()
 	{
 		parent::__construct();
-		$this->imagefile = "css/".dirname($this->FOGCore->getSetting('FOG_THEME'))."/images";
 		$this->pdffile = '<i class="fa fa-file-pdf-o fa-2x"></i>';
 		$this->csvfile = '<i class="fa fa-file-excel-o fa-2x"></i>';
 		$_SESSION['foglastreport'] = null;
