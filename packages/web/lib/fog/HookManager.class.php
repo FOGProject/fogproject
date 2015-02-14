@@ -95,22 +95,12 @@ class HookManager extends FOGBase
 		{
 			if (file_exists($hookDirectory))
 			{
-				$plug_done = false;
 				$hookIterator = new DirectoryIterator($hookDirectory);
 				foreach ($hookIterator AS $fileInfo)
 				{
 					$file = !$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-9) == '.hook.php' ? file($fileInfo->getPathname()) : null;
 					$PluginName = preg_match('#plugins#i',$hookDirectory) ? basename(substr($hookDirectory,0,-6)) : null;
-					if ($PluginName && !$plug_done)
-					{
-						if (!array_key_exists($PluginName,$_SESSION))
-						{
-							$Plugin = current($this->getClass('PluginManager')->find(array('name' => $PluginName,'installed' => 1)));
-							$_SESSION[$PluginName] = $Plugin && $Plugin->isValid() ? true : false;
-						}
-						$plug_done = true;
-					}
-					if ($_SESSION[$PluginName])
+					if (in_array($PluginName,$_SESSION['PluginsInstalled']))
 						$className = (substr($fileInfo->getFilename(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
 					else if ($file && !preg_match('#plugins#',$fileInfo->getPathname()))
 					{
@@ -124,7 +114,7 @@ class HookManager extends FOGBase
 							$className = (substr($fileInfo->getFileName(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
 					}
 					if ($className && !in_array($className,get_declared_classes()))
-						$class = new $className();
+						$this->getClass($className);
 				}
 			}
 		}

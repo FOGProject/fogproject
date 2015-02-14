@@ -72,7 +72,7 @@ class HostManagementPage extends FOGPage
 		// Set title
 		$this->title = $this->foglang['AllHosts'];
 		// Find data -> Push data
-		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('HostManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
+		if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list')
 			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
 		foreach ($this->getClass('HostManager')->find() AS $Host)
 		{
