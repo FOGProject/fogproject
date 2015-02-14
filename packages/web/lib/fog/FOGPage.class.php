@@ -142,7 +142,7 @@ abstract class FOGPage extends FOGBase
 				// Rows
 				if (count($this->data))
 				{
-					$defaultScreen = strtolower($this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN'));
+					$defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
 					// Data found
 					foreach ($this->data AS $rowData)
 					{

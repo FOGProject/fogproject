@@ -83,7 +83,7 @@ class FOGPageManager extends FOGBase
 					$method = 'index';
 				}
 				// FOG - Default view override
-				if ($this->methodValue != 'list' && $method == 'index' && ($this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN')) != 'list' && method_exists($class, 'search') && in_array($class->node,$this->searchPages))
+				if ($this->methodValue != 'list' && $method == 'index' && $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] != 'list' && method_exists($class, 'search') && in_array($class->node,$this->searchPages))
 					$method = 'search';
 				// POST - Append '_post' to method name if request method is POST and the method exists
 				if ($this->FOGCore->isPOSTRequest() && method_exists($class, $method . '_post'))
@@ -115,29 +115,26 @@ class FOGPageManager extends FOGBase
 			return;
 		// This variable is required as each class file uses it
 		global $Init;
+		foreach((array)$_SESSION['PluginsInstalled'] AS $PluginStore)
+			$_SESSION[$PluginStore] = $PluginStore;
 		foreach($Init->PagePaths as $path)
 		{
-			$this->plugin_checked = false;
 			if (file_exists($path))
 			{
 				$iterator = new DirectoryIterator($path);
 				foreach ($iterator as $fileInfo)
 				{
 					$PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : null;
-					if ($PluginName && !$this->plugin_checked)
-					{
-						$Plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $PluginName, 'installed' => 1)));
-						$this->plugin_checked = true;
-					}
-					if ($Plugin)
+					if (in_array($PluginName,$_SESSION['PluginsInstalled']))
 						$className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
 					else if (!preg_match('#plugins#i',$path))
 						$className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
-					if ($className)
+					if ($className && !in_array($className,get_declared_classes()))
 					{
-						$class = new $className();
+						$class = $this->getClass($className);
 						($_REQUEST['node'] == $class->node ? $this->register($class) : (!$_REQUEST['node'] && $class->node = 'home' ? $this->register($class) : $class = null));
 					}
+					unset($class);
 				}
 			}
 		}

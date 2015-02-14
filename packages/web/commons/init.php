@@ -111,6 +111,7 @@ class Initiator
 	{
 		@set_time_limit(0);
 		@error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
+		@ini_set('session.save_handler','mm');
 		@ini_set('session.cookie_httponly',true);
 		@session_start();
 		@header('X-Content-Type-Options: nosniff');
@@ -240,7 +241,11 @@ $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
-$DB = $DatabaseManager->connect()->DB;
+$DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
+$FOGCore->setSessionEnv();
+// HookManager
+$HookManager = new HookManager();
+$HookManager->load();
 // Ensure any new tables are always MyISAM
 $DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
 $tables = $DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
@@ -253,12 +258,8 @@ ini_set('memory_limit',is_numeric($memory) && $memory >= 128 ? $memory.'M' : ini
 // Generate the Server's Key Pairings
 $FOGCore->createKeyPair();
 // Set the base image link.
-$theme = $FOGCore->getSetting('FOG_THEME');
 if (!preg_match('#/mobile/#',$_SERVER['PHP_SELF']))
 	$imagelink = ($theme ? 'css/'.dirname($theme).'/images/' : 'css/default/images/');
 else
 	$imagelink = 'css/images/';
-// HookManager
-$HookManager = new HookManager();
-$HookManager->load();
 $Init::endInit();

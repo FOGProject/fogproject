@@ -30,7 +30,7 @@ class ImageManagementPage extends FOGPage
 	{
 		// Call parent constructor
 		parent::__construct($name);
-		$SizeServer = $this->FOGCore->getSetting('FOG_FTP_IMAGE_SIZE');
+		$SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];//this->FOGCore->getSetting('FOG_FTP_IMAGE_SIZE');
 		// Header row
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
@@ -79,7 +79,7 @@ class ImageManagementPage extends FOGPage
 	{
 		// Set title
 		$this->title = _('All Images');
-		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('ImageManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
+		if ($_SESSION['DataReturn'] > 0 && $_SESSION['ImageCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list')
 			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
 		// Find data
 		$Images = $this->getClass('ImageManager')->find();
