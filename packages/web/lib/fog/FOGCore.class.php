@@ -538,4 +538,22 @@ class FOGCore extends FOGBase
 			file_put_contents($pub_path.'srvpublic.key',$pub_key['key']);
 		}
 	}
+	public function setSessionEnv()
+	{
+		$_SESSION['theme'] = $this->getSetting('FOG_THEME');
+		$_SESSION['theme'] = $_SESSION['theme'] ? $_SESSION['theme'] : 'default/fog.css';
+		$_SESSION['imagelink'] = 'css/'.($_SESSION['theme'] ? dirname($_SESSION['theme']) : 'default').'/images/';
+		$_SESSION['PLUGSON'] = $this->getSetting('FOG_PLUGINSYS_ENABLED');
+		$_SESSION['PluginsInstalled'] = $this->getActivePlugins();
+		$_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = $this->getSetting('FOG_VIEW_DEFAULT_SCREEN');
+		$_SESSION['FOG_FTP_IMAGE_SIZE'] = $this->getSetting('FOG_FTP_IMAGE_SIZE');
+		$_SESSION['Pending-Hosts'] = $this->getClass('HostManager')->count(array('pending' => 1));
+		$_SESSION['DataReturn'] = $this->getSetting('FOG_DATA_RETURNED');
+		$_SESSION['UserCount'] = $this->getClass('UserManager')->count();
+		$_SESSION['HostCount'] = $this->getClass('HostManager')->count();
+		$_SESSION['GroupCount'] = $this->getClass('GroupManager')->count();
+		$_SESSION['ImageCount'] = $this->getClass('ImageManager')->count();
+		$_SESSION['SnapinCount'] = $this->getClass('SnapinManager')->count();
+		$_SESSION['PrinterCount'] = $this->getClass('PrinterManager')->count();
+	}
 }
