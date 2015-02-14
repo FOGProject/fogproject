@@ -218,12 +218,12 @@ abstract class FOGManagerController extends FOGBase
 			$orderByField = 'ORDER BY '.(count($join) ? '`'.$this->childClass.'`.' : '').$orderImplode;
 			if ($groupBy)
 			{
-				$sql = "SELECT %s`%s` FROM (SELECT %s`%s` FROM `%s` %s %s %s %s %s) `%s` %s %s %s %s";
+				$sql = "SELECT %s* FROM (SELECT %s* FROM `%s` %s %s %s %s %s) `%s` %s %s %s %s";
 				$fieldValues = array(
 					(!count($whereArray) ? 'DISTINCT ' : ''),
-					$getFields,
+					//$getFields,
 					(!count($whereArray) ? 'DISTINCT ' : ''),
-					$getFields,
+					//$getFields,
 					$this->databaseTable,
 					count($join) ? $this->childClass : '',
 					count($join) ? implode($join) : '',
@@ -239,10 +239,10 @@ abstract class FOGManagerController extends FOGBase
 			}
 			else
 			{
-				$sql = "SELECT %s`%s` FROM `%s` %s %s %s %s %s";
+				$sql = "SELECT %s* FROM `%s` %s %s %s %s %s";
 				$fieldValues = array(
 					(!count($whereArray) ? 'DISTINCT ' : ''),
-					$getFields,
+					//$getFields,
 					$this->databaseTable,
 					count($join) ? $this->childClass : '',
 					count($join) ? implode($join) : '',

@@ -76,7 +76,6 @@ class MySQL extends FOGBase
 		if (!$this->link)
 			return;
 		unset($this->link,$this->result);
-		return parent::__destruct();
 	}
 	/* connect establishes the link
 	 * @return the class
@@ -112,13 +111,13 @@ class MySQL extends FOGBase
 				$data = array($data);
 			if (count($data))
 				$sql = vsprintf($sql,$data);
+			$this->info($sql);
 			$this->query = $sql;
 			if (!$this->query)
 				throw new Exception(_('No query sent'));
 			if (!$this->queryResult = $this->link->query($this->query))
-				throw new Exception(_('Error: ').$this->link->error);
+				throw new Exception(_('Error: ').$this->sqlerror());
 			// INFO
-			$this->info($this->query);
 		}
 		catch (Exception $e)
 		{
@@ -190,8 +189,8 @@ class MySQL extends FOGBase
 		catch (Exception $e)
 		{
 			$this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
-			return false;
 		}
+		return false;
 	}
 	/** sqlerror()
 		What was the error.
