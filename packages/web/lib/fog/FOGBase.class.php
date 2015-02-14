@@ -513,6 +513,10 @@ abstract class FOGBase
 			$MAClist = false;
 		return $MAClist;
 	}
+	public function getActivePlugins()
+	{
+		return $this->getClass('PluginManager')->find(array('installed' => 1),'','','','','','','name');
+	}
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */

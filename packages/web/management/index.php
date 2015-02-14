@@ -25,7 +25,6 @@ if (!in_array($node,array('schemaupdater','client')) && !in_array($sub,array('co
 	$Page->render();
 }
 $FOGPageManager = new FOGPageManager();
-$_SESSION['FOGPingActive'] = ($FOGCore->getSetting('FOG_HOST_LOOKUP') == '1' ? true : false);
 $_SESSION['AllowAJAXTasks'] = true;
 $content = $FOGPageManager->render();
 $sectionTitle = $FOGPageManager->getFOGPageName();
