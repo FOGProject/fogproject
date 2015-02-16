@@ -29,7 +29,7 @@ abstract class FOGManagerController extends FOGBase
 	/** Searchable class elements **/
 	protected $databaseSearchFieldClassRelationships;
 	/** Search Query Template **/
-	private $searchQueryTemplate = "SELECT `%s` FROM %s %s %s";
+	private $searchQueryTemplate = "SELECT `%s` FROM `%s` %s %s %s";
 	// Construct
 	/** __construct()
 		Different constructor from FOG Base
@@ -70,7 +70,9 @@ abstract class FOGManagerController extends FOGBase
 				if ($common != 'createdBy')
 					$findWhere[$common] = $keyword;
 			}
-			if ($this->classClass == 'User')
+			$Main = $this->getClass($this->childClass);
+			list($getFields,$join) = $Main->buildQuery(true);
+			if ($this->childClass == 'User')
 				return $this->getClass('UserManager')->find($findWhere,'OR');
 			$HostIDs = ($this->childClass == 'Host' ? $this->getClass('HostManager')->find($findWhere,'OR','','','','','','id') : $this->getClass('HostManager')->find(array('name' => $keyword,'description' => $keyword,'ip' => $keyword),'OR','','','','','','id'));
 			// Get all the hosts host search is different than other searches
@@ -90,7 +92,7 @@ abstract class FOGManagerController extends FOGBase
 				$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $PrinterIDs),'','','','','','','hostID');
 				$HostIDs = array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs));
 				$findWhere = array('id' => $HostIDs);
-				unset($GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$GroupHostIDs,$ImageHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
+				unset($GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$GroupHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
 			}
 			else if ($this->childClass == 'Group')
 			{
@@ -142,7 +144,7 @@ abstract class FOGManagerController extends FOGBase
 				unset($TaskIDs,$TaskTypeIDs,$GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$GroupHostIDs,$ImageHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
 			}
 			unset($_SESSION['caller']);
-			return array_unique($this->getClass($this->childClass)->getManager()->find($findWhere,'OR'));
+			return array_unique($this->getClass($this->childClass)->getManager()->find($findWhere));
 		}
 		catch (Exception $e)
 		{
@@ -201,6 +203,40 @@ abstract class FOGManagerController extends FOGBase
 					else if (!is_array($value))
 						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : ($not ? '!' : '').$compare), $value);
 				}
+				if ($this->databaseNeededFieldClassRelationships)
+				{
+					foreach((array)$this->databaseNeededFieldClassRelationships AS $class => $fields)
+					{
+						$class = $this->getClass($class);
+						if ($fields[3])
+						{
+							foreach((array)$fields[3] AS $field => $value)
+							{
+								if (is_array($value))
+									$whereArrayAnd[] = sprintf("`%s` %s IN ('%s')", get_class($class).'`.`'.$class->databaseFields[$field], $not, implode("', '", $value));
+								else if (!is_array($value))
+									$whereArrayAnd[] = sprintf("`%s` %s '%s'", get_class($class).'`.`'.$class->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : ($mot ? '!' : '').$compare),$value);
+							}
+						}
+					}
+				}
+				if ($this->databaseFieldClassRelationships)
+				{
+					foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
+					{
+						$class = $this->getClass($class);
+						if ($fields[3])
+						{
+							foreach((array)$fields[3] AS $field => $value)
+							{
+								if (is_array($value))
+									$whereArrayAnd[] = sprintf("`%s` %s IN ('%s')", get_class($class).'`.`'.$class->databaseFields[$field], $not, implode("', '", $value));
+								else if (!is_array($value))
+									$whereArrayAnd[] = sprintf("`%s` %s '%s'", get_class($class).'`.`'.$class->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : ($mot ? '!' : '').$compare),$value);
+							}
+						}
+					}
+				}
 			}
 			foreach((array)$orderBy AS $item)
 			{
@@ -227,7 +263,7 @@ abstract class FOGManagerController extends FOGBase
 					$this->databaseTable,
 					count($join) ? $this->childClass : '',
 					count($join) ? implode($join) : '',
-					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
+					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray).(count($whereArrayAnd) ? ' AND '.implode(' '.$whereOperator.' ',$whereArrayAnd) : '') : ''),
 					$orderByField,
 					$sort,
 					count($join) ? $this->childClass : $this->databaseTable,
@@ -246,7 +282,7 @@ abstract class FOGManagerController extends FOGBase
 					$this->databaseTable,
 					count($join) ? $this->childClass : '',
 					count($join) ? implode($join) : '',
-					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
+					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray).(count($whereArrayAnd) ? ' AND '.implode(' '.$whereOperator.' ',$whereArrayAnd) : '') : ''),
 					$orderByField,
 					$sort
 				);
