@@ -14,9 +14,9 @@ abstract class FOGController extends FOGBase
 	public $databaseFields = array();
 	// ->load() queries, this way subclasses can override (ie: NodeFailure)
 	/** The standard query template for a single call */
-	protected $loadQueryTemplateSingle = "SELECT `%s` FROM `%s` `%s` %s WHERE `%s`='%s'";
+	protected $loadQueryTemplateSingle = "SELECT DISTINCT `%s` FROM `%s` `%s` %s WHERE `%s`='%s'";
 	/** The standard query template for a multiple call */
-	protected $loadQueryTemplateMultiple = "SELECT `%s` FROM `%s` %s %s WHERE %s";
+	protected $loadQueryTemplateMultiple = "SELECT DISTINCT `%s` FROM `%s` %s %s WHERE %s";
 	// Do not update these database fields
 	/** Ignore these fileds */
 	public $databaseFieldsToIgnore = array(
@@ -105,8 +105,8 @@ abstract class FOGController extends FOGBase
 	{
 		try
 		{
-			//$this->info('Setting Key: %s, Value: %s',array($key,$value));
-			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped))
+			$this->info('Setting Key: %s, Value: %s',array($key,$value));
+			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key, $this->databaseNeededFieldClassRelationships) && !array_key_exists($key,$this->databaseFieldClassRelationships))
 				throw new Exception('Invalid key being set');
 			if (array_key_exists($key, $this->databaseFieldsFlipped))
 				$key = $this->databaseFieldsFlipped[$key];
@@ -135,8 +135,9 @@ abstract class FOGController extends FOGBase
 	{
 		try
 		{
-			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped))
+			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key, $this->databaseNeededFieldClassRelationships) && !array_key_exists($key,$this->databaseFieldClassRelationships))
 				throw new Exception('Invalid data being set');
+			$this->info('Adding Key: %s, Value: %s',array($key,$value));
 			if (array_key_exists($key, $this->databaseFieldsFlipped))
 				$key = $this->databaseFieldsFlipped[$key];
 			$this->data[$key][] = $value;
@@ -156,7 +157,7 @@ abstract class FOGController extends FOGBase
 	{
 		try
 		{
-			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped))
+			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key, $this->databaseNeededFieldClassRelationships) && !array_key_exists($key,$this->databaseFieldClassRelationships))
 				throw new Exception('Invalid data being set');
 			if (array_key_exists($key, $this->databaseFieldsFlipped))
 				$key = $this->databaseFieldsFlipped[$key];
@@ -277,27 +278,8 @@ abstract class FOGController extends FOGBase
 			// Did we find a row in the database?
 			if (!$queryData = $this->DB->query($query)->fetch()->get())
 				throw new Exception(($this->DB->sqlerror() ? $this->DB->sqlerror() : 'Row not found'));
-			// Loop returned rows -> Set new data
-			foreach ($queryData AS $key => $value) {
-				$this->set($this->key($key), $value);
-			}/*
-				if (($this->databaseNeededFieldClassRelationships || $this->databaseFieldClassRelationships) && !$this->databaseFieldsFlipped[$key])
-				{
-					if ($this->databaseNeededFieldClassRelationships)
-					{
-						foreach($this->databaseNeededFieldClassRelationships AS $class => $field)
-							$this->set($this->getClass($class)->key($key,$field[2]),$value);
-					}
-					if ($this->databaseFieldClassRelationships)
-					{
-						foreach($this->databaseFieldClassRelationships AS $class => $field)
-							$this->set($this->getClass($class)->key($key,$field[2]),$value);
-					}
-				}
-				else
-			}*/
 			// Success
-			return true;
+			return $this->getQuery($queryData);
 		}
 		catch (Exception $e)
 		{
@@ -305,6 +287,53 @@ abstract class FOGController extends FOGBase
 		}
 		// Fail
 		return false;
+	}
+	public function getQuery($queryData,$returnObject = false)
+	{
+		// Loop returned rows -> Set new data
+		foreach ($queryData AS $key => $value)
+		{
+			if (!array_key_exists($key,$this->databaseFieldsFlipped))
+			{
+				if ($fieldAssocs = $this->databaseNeededFieldClassRelationships)
+				{
+					foreach($fieldAssocs AS $class => $field)
+					{
+						if (!$NewClass[$class] instanceof $class)
+							$NewClass[$class] = $this->getClass($class);
+						if ($NewClass[$class] && array_key_exists($key,$NewClass[$class]->databaseFieldsFlipped))
+							$NewClass[$class]->set($NewClass[$class]->key($key),$value);
+					}
+					foreach($fieldAssocs AS $class => $field)
+					{
+						if ($NewClass[$class])
+							$this->add($field[2],$NewClass[$class]);
+					}
+				}
+				if ($fieldAssocs = $this->databaseFieldClassRelationships)
+				{
+					foreach($fieldAssocs AS $class => $field)
+					{
+						if (!$NewClass[$class] instanceof $class)
+							$NewClass[$class] = $this->getClass($class);
+						if ($NewClass[$class] && array_key_exists($key,$NewClass[$class]->databaseFieldsFlipped))
+							$NewClass[$class]->set($NewClass[$class]->key($key),$value);
+					}
+					foreach($fieldAssocs AS $class => $field)
+					{
+						if ($NewClass[$class])
+							$this->add($field[2],$NewClass[$class]);
+					}
+				}
+			}
+			else if (array_key_exists($key,$this->databaseFieldsFlipped))
+				$this->set($this->key($key), $value);
+		}
+		if ($returnObject)
+			return $this;
+	}
+	public function addClassObject($fieldAssocs,$key,$value)
+	{
 	}
 	// Destroy
 	/** destroy($field = 'id')
@@ -341,15 +370,14 @@ abstract class FOGController extends FOGBase
 	public function buildQuery()
 	{
 		$getFields = implode(array_keys($this->databaseFieldsFlipped),'`,`');
-		$needed = false;
 		if ($this->databaseNeededFieldClassRelationships)
 		{
 			$field = array();
 			foreach($this->databaseNeededFieldClassRelationships AS $class => $field)
 			{
-				$class = new $class(array('id' => 0));
+				$class = $this->getClass($class);
 				$getFields .= '`,`'.get_class($class).'`.`'.implode(array_keys($class->databaseFieldsFlipped),'`,`'.get_class($class).'`.`');
-				$join[] = sprintf(' INNER JOIN `%s` %s ON %s=%s ',$class->databaseTable,get_class($class),'`'.get_class($class).'`.`'.$class->databaseFields[$field[0]].'`','`'.get_class($this).'`.`'.$this->databaseFields[$field[1]].'`');
+				$join[] = sprintf(' INNER JOIN `%s` `%s` ON %s=%s ',$class->databaseTable,get_class($class),'`'.get_class($class).'`.`'.$class->databaseFields[$field[0]].'`','`'.get_class($this).'`.`'.$this->databaseFields[$field[1]].'`');
 			}
 		}
 		if ($this->databaseFieldClassRelationships)
@@ -367,10 +395,10 @@ abstract class FOGController extends FOGBase
 	/** key($key)
 		Checks if a relevant key exists within the database.
 	*/
-	public function key($key,$override = false)
+	public function key($key)
 	{
 		if (array_key_exists($key, $this->databaseFieldsFlipped))
-			$key = $override ? $override : $this->databaseFieldsFlipped[$key];
+			$key = $this->databaseFieldsFlipped[$key];
 		return $key;
 	}
 	// isValid
