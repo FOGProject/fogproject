@@ -3,7 +3,7 @@ class HostManager extends FOGManagerController
 {
 	public function getHostByMacAddresses($MACs)
 	{
-		foreach((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MACs)) AS $MAC)
+		foreach($this->getClass('MACAddressAssociationManager')->find(array('mac' => $MACs)) AS $MAC)
 			$MACHost[] = $MAC->get('hostID');
 		$Hosts = $this->find(array('id' => $MACHost));
 		if (count($Hosts) > 1)

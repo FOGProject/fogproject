@@ -32,7 +32,8 @@ class Host extends FOGController
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
 		'mac',
-		'imagename',
+		'macs',
+		'image',
 		'additionalMACs',
 		'pendingMACs',
 		'groups',
@@ -43,6 +44,7 @@ class Host extends FOGController
 		'snapins',
 		'snapinsnotinme',
 		'modules',
+		'hardware',
 		'inventory',
 		'task',
 		'snapinjob',
@@ -54,17 +56,15 @@ class Host extends FOGController
 		'name',
 	);
 	// Database needed Class relationships
-	// Format is <Class with relation> => array(<class key to join>,<this related key>, <key to set on here>,<key to pull from other class>
 	public $databaseNeededFieldClassRelationships = array(
-		'MACAddressAssociation' => array('hostID','id','mac','mac'),// TODO: MAKE SEARCHABLE IN THIS FORM array('mac' => array('primary' => 1))),
+		'MACAddressAssociation' => array('hostID','id','macs'),
 	);
 	// Database field to Class relationships
-	// Format is <Class with relation> => array(<class key to join>,<this related key>, <key to set on here>,<key to pull from other class>
 	public $databaseFieldClassRelationships = array(
-		'Image' => array('id','imageID','imagename','name'),
+		'Image' => array('id','imageID','image'),
+		'Inventory' => array('hostID','id','hardware'),
 	);
 	// Database search field to Class relationships
-	// Format is <Class with relation> => array(mixed <items of this class to search within>)
 	public $databaseSearchFieldClassRelationships = array(
 		'Image' => array('name','description'),
 		'Group' => array('name','description'),
@@ -81,7 +81,7 @@ class Host extends FOGController
 	// Snapins
 	public function getImage()
 	{
-		return new Image($this->get('imageID'));
+		return current($this->get('image'));
 	}
 	public function getOS()
 	{
@@ -180,8 +180,14 @@ class Host extends FOGController
 	{
 		if (!$this->isLoaded('mac') && $this->get('id'))
 		{
-			foreach($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1,'pending' => 0)) AS $MAC)
-				$this->set('mac',new MACAddress($MAC->get('mac')));
+			foreach($this->get('macs') AS $MAC)
+			{
+				if ($MAC && $MAC->isValid())
+				{
+					$this->set('mac',new MACAddress($MAC->get('mac')));
+					break;
+				}
+			}
 		}
 		return $this;
 	}
@@ -233,8 +239,8 @@ class Host extends FOGController
 			$GroupIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','groupID'));
 			if ($GroupIDs)
 			{
-				foreach($this->getClass('GroupManager')->find(array('id' => $GroupIDs)) AS $Group)
-					$this->add('groups',$Group);
+				foreach($this->get('groups') AS $Group)
+					$this->add('groups',$Group->getGroup());
 				unset($Group);
 				// Groups I am not in
 				if (count($this->get('groups')))
@@ -250,14 +256,7 @@ class Host extends FOGController
 	private function loadInventory()
 	{
 		if (!$this->isLoaded('inventory') && $this->get('id'))
-		{
-			$Inventory = current($this->getClass('InventoryManager')->find(array('hostID' => $this->get('id'))));
-			if ($Inventory && $Inventory->isValid())
-				$this->set('inventory',$Inventory);
-			else
-				$this->set('inventory',new Inventory(array('id' => 0)));
-			unset($Inventory);
-		}
+			$this->set('inventory',current($this->get('hardware')));
 		return $this;
 	}
 	private function loadModules()

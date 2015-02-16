@@ -94,8 +94,6 @@ class Page extends FOGBase {
 			$path = '../management/other/index.php';
 		else
 			$path = 'other/index.php';
-		ob_start('ob_gzhandler');
 		include_once($path);
-		ob_end_flush();
 	}
 }

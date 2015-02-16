@@ -404,7 +404,7 @@ class ImageManagementPage extends FOGPage
 					'host_id' => $Host->get('id'),
 					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
 					'host_name' => $Host->get('name'),
-					'host_mac' => $Host->get('mac')->__toString(),
+					'host_mac' => $Host->get('mac'),
 					'host_desc' => $Host->get('description'),
 					'check_num' => '1',
 					'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),

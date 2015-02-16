@@ -74,19 +74,19 @@ class HostManagementPage extends FOGPage
 		// Find data -> Push data
 		if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list')
 			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
-		foreach ($this->getClass('HostManager')->find() AS $Host)
+		foreach ($this->getClass('HostManager')->find('','','','','','name') AS $Host)
 		{
-			//if ($Host && $Host->isValid() && !$Host->get('pending'))
-			//{
+			if ($Host && $Host->isValid() && !$Host->get('pending'))
+			{
 				$this->data[] = array(
 					'host_id'	=> $Host->get('id'),
 					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
 					'host_name'	=> $Host->get('name'),
-					'host_mac'	=> $Host->get('mac')->__toString(),
+					'host_mac'	=> $Host->get('mac'),
 					'host_desc'  => $Host->get('description'),
-					'image_name' => $Host->get('imagename'),
+					'image_name' => $Host->getImage()->get('name'),
 				);
-			//}
+			}
 		}
 		// Hook
 		$this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
