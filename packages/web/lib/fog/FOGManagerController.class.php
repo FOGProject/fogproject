@@ -218,12 +218,12 @@ abstract class FOGManagerController extends FOGBase
 			$orderByField = 'ORDER BY '.(count($join) ? '`'.$this->childClass.'`.' : '').$orderImplode;
 			if ($groupBy)
 			{
-				$sql = "SELECT %s* FROM (SELECT %s* FROM `%s` %s %s %s %s %s) `%s` %s %s %s %s";
+				$sql = "SELECT %s`%s` FROM (SELECT %s`%s` FROM `%s` %s %s %s %s %s) `%s` %s %s %s %s";
 				$fieldValues = array(
 					(!count($whereArray) ? 'DISTINCT ' : ''),
-					//$getFields,
+					$getFields,
 					(!count($whereArray) ? 'DISTINCT ' : ''),
-					//$getFields,
+					$getFields,
 					$this->databaseTable,
 					count($join) ? $this->childClass : '',
 					count($join) ? implode($join) : '',
@@ -239,10 +239,10 @@ abstract class FOGManagerController extends FOGBase
 			}
 			else
 			{
-				$sql = "SELECT %s* FROM `%s` %s %s %s %s %s";
+				$sql = "SELECT %s`%s` FROM `%s` %s %s %s %s %s";
 				$fieldValues = array(
 					(!count($whereArray) ? 'DISTINCT ' : ''),
-					//$getFields,
+					$getFields,
 					$this->databaseTable,
 					count($join) ? $this->childClass : '',
 					count($join) ? implode($join) : '',
@@ -262,34 +262,15 @@ abstract class FOGManagerController extends FOGBase
 			}
 			else
 			{
-				while($row = $this->DB->fetch()->get())
+				while($queryData = $this->DB->fetch()->get())
 				{
-					$MainClass = new $this->childClass($row);
-					if ($this->databaseNeededFieldClassRelationships)
-					{
-						foreach($this->databaseNeededFieldClassRelationships AS $class => $field)
-						{
-							$classVars = get_class_vars($class);
-							$classVars = $classVars['databaseFields'];
-							$classVars = $classVars[$field[3]];
-							$MainClass->set($field[2],$row[$classVars]);
-						}
-					}
-					if ($this->databaseFieldClassRelationships)
-					{
-						foreach($this->databaseFieldClassRelationships AS $class => $field)
-						{
-							$classVars = get_class_vars($class);
-							$classVars = $classVars['databaseFields'];
-							$classVars = $classVars[$field[3]];
-							$MainClass->set($field[2],$row[$classVars]);
-						}
-					}
-					array_push($data,$MainClass);
-					unset($NewClass);
+					$Main = new $this->childClass(array('id' => 0));
+					$Main->getQuery($queryData);
+					array_push($data,$Main);
 				}
 			}
 			unset($id,$ids,$row);
+			$data = array_unique($data);
 			// Return
 			return (array)$data;
 		}
