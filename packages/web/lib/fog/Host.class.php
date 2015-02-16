@@ -57,7 +57,7 @@ class Host extends FOGController
 	);
 	// Database needed Class relationships
 	public $databaseNeededFieldClassRelationships = array(
-		'MACAddressAssociation' => array('hostID','id','macs'),
+		'MACAddressAssociation' => array('hostID','id','macs',array('primary' => 1)),
 	);
 	// Database field to Class relationships
 	public $databaseFieldClassRelationships = array(
@@ -66,12 +66,9 @@ class Host extends FOGController
 	);
 	// Database search field to Class relationships
 	public $databaseSearchFieldClassRelationships = array(
-		'Image' => array('name','description'),
-		'Group' => array('name','description'),
-		'Snapin' => array('name','description','file'),
-		'Printer' => array('name','description'),
-		'Inventory' => array('sysserial','caseserial','mbserial','primaryUser','other1','other2','sysman','sysproduct'),
-		'MACAddressAssociation' => array('mac','description'),
+		'Image' => array('id','imageID','image',array('name','description')),
+		'Inventory' => array('hostID','id','hardware',array('sysserial','caseserial','mbserial','primaryUser','other1','other2','sysman','sysproduct')),
+		'MACAddressAssociation' => array('hostID','id','macs',array('mac','description'),array('primary' => 1)),
 	);
 	// Custom functons
 	public function isHostnameSafe()
@@ -236,19 +233,15 @@ class Host extends FOGController
 		if (!$this->isLoaded('groups') && $this->get('id'))
 		{
 			// Groups I am in
-			$GroupIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','groupID'));
-			if ($GroupIDs)
-			{
-				foreach($this->get('groups') AS $Group)
-					$this->add('groups',$Group->getGroup());
-				unset($Group);
-				// Groups I am not in
-				if (count($this->get('groups')))
-				{
-					foreach($this->getClass('GroupManager')->find(array('id' => $GroupIDs),'','','','',false,true) AS $Group)
-						$this->add('groupsnotinme',$Group);
-				}
-			}
+			$GroupIDs = $this->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','groupID');
+			$Groups = $this->getClass('GroupManager')->find(array('id' => $GroupIDs),'','','','','name');
+			$NotGroups = $this->getClass('GroupManager')->find(array('id' => $GroupIDs),'','','','','name',true);
+			foreach($Groups AS $Group)
+				$this->add('groups',$Group);
+			unset($Group);
+			// Groups I am not in
+			foreach($NotGroups AS $Group)
+				$this->add('groupsnotinme',$Group);
 			unset($Group,$GroupIDs);
 		}
 		return $this;
