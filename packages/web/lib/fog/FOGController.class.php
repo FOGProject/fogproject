@@ -367,26 +367,42 @@ abstract class FOGController extends FOGBase
 		// Fail
 		return false;
 	}
-	public function buildQuery()
+	public function buildQuery($search = false)
 	{
 		$getFields = implode(array_keys($this->databaseFieldsFlipped),'`,`');
-		if ($this->databaseNeededFieldClassRelationships)
+		if (!$search)
 		{
-			$field = array();
-			foreach($this->databaseNeededFieldClassRelationships AS $class => $field)
+			if ($this->databaseNeededFieldClassRelationships)
 			{
-				$class = $this->getClass($class);
-				$getFields .= '`,`'.get_class($class).'`.`'.implode(array_keys($class->databaseFieldsFlipped),'`,`'.get_class($class).'`.`');
-				$join[] = sprintf(' INNER JOIN `%s` `%s` ON %s=%s ',$class->databaseTable,get_class($class),'`'.get_class($class).'`.`'.$class->databaseFields[$field[0]].'`','`'.get_class($this).'`.`'.$this->databaseFields[$field[1]].'`');
+				$field = array();
+				foreach($this->databaseNeededFieldClassRelationships AS $class => $field)
+				{
+					$class = $this->getClass($class);
+					$getFields .= '`,`'.get_class($class).'`.`'.implode(array_keys($class->databaseFieldsFlipped),'`,`'.get_class($class).'`.`');
+					$join[] = sprintf(' INNER JOIN `%s` `%s` ON %s=%s ',$class->databaseTable,get_class($class),'`'.get_class($class).'`.`'.$class->databaseFields[$field[0]].'`','`'.get_class($this).'`.`'.$this->databaseFields[$field[1]].'`');
+				}
+			}
+			if ($this->databaseFieldClassRelationships)
+			{
+				foreach($this->databaseFieldClassRelationships AS $class => $field)
+				{
+					$class = $this->getClass($class);
+					$getFields .= '`,`'.get_class($class).'`.`'.implode(array_keys($class->databaseFieldsFlipped),'`,`'.get_class($class).'`.`');
+					$join[] = sprintf(' LEFT OUTER JOIN `%s` `%s` ON %s=%s ',$class->databaseTable,get_class($class),'`'.get_class($class).'`.`'.$class->databaseFields[$field[0]].'`','`'.get_class($this).'`.`'.$this->databaseFields[$field[1]].'`');
+				}
 			}
 		}
-		if ($this->databaseFieldClassRelationships)
+		else
 		{
-			foreach($this->databaseFieldClassRelationships AS $class => $field)
+			if ($this->databaseSearchFieldClassRelationships)
 			{
-				$class = new $class(array('id' => 0));
-				$getFields .= '`,`'.get_class($class).'`.`'.implode(array_keys($class->databaseFieldsFlipped),'`,`'.get_class($class).'`.`');
-				$join[] = sprintf(' LEFT OUTER JOIN `%s` `%s` ON %s=%s ',$class->databaseTable,get_class($class),'`'.get_class($class).'`.`'.$class->databaseFields[$field[0]].'`','`'.get_class($this).'`.`'.$this->databaseFields[$field[1]].'`');
+				$field = array();
+				foreach($this->databaseSearchFieldClassRelationships AS $class => $field)
+				{
+					$class = $this->getClass($class);
+					$getFields .= '`,`'.get_class($class).'`.`'.implode(array_keys($class->databaseFieldsFlipped),'`,`'.get_class($class).'`.`');
+					$join[] = sprintf(' LEFT OUTER JOIN `%s` `%s` ON %s=%s ',$class->databaseTable,get_class($class),'`'.get_class($class).'`.`'.$class->databaseFields[$field[0]].'`','`'.get_class($this).'`.`'.$this->databaseFields[$field[1]].'`');
+				}
 			}
 		}
 		return array($getFields,$join);
