@@ -142,11 +142,12 @@ abstract class FOGBase
 	/** getClass($class)
 		Used primarily with FOGCore to get the classes by name.
 	*/
-	public function getClass($class)
+	public function getClass($class,$data = '')
 	{
 		$args = func_get_args();
+		array_shift($args);
 		$r = new ReflectionClass($class);
-		return $r->newInstanceArgs($args);
+		return (count($args) ? $r->newInstanceArgs($args) : $r->newInstance($data));
 	}
 	/** endsWith($str,$sub)
 		Returns true if the sub and str match the ending stuff.
