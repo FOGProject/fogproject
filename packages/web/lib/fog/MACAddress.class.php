@@ -7,15 +7,17 @@ class MACAddress extends FOGBase
 	public function __construct($MAC,$primary = false,$pending = false, $isClientIgnored = false, $isImageIgnored = false)
 	{
 		parent::__construct();
+		$this->tmpMAC = $MAC;
 		$this->setMAC($MAC);
 	}
 	public function setMAC($MAC)
 	{
 		try
 		{
-			$MAC = trim($MAC);
-			if ($MAC instanceof MACAddress)
-				$MAC = $MAC->__toString();
+			if ($MAC instanceof MACAddressAssociation)
+				$MAC = trim($MAC->get('mac'));
+			if ($this->tmpMAC instanceof MACAddress)
+				$MAC = trim($MAC->__toString());
 			elseif (strlen($MAC) == 12)
 			{
 				for ($i = 0; $i < 12; $i = $i + 2)
@@ -49,26 +51,18 @@ class MACAddress extends FOGBase
 	}
 	public function isPending()
 	{
-		$PendingMACs = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->MAC, 'pending' => 1)));
-		return ($PendingMACs && $PendingMACs instanceof MACAddressAssociation);
+		return $this->tmpMAC->get('pending');
 	}
-
 	public function isClientIgnored()
 	{
-		$IgnoredMACs = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->MAC, 'clientIgnore' => 1)));
-		return ($IgnoredMACs && $IgnoredMACs instanceof MACAddressAssociation);
+		return $this->tmpMAC->get('clientIgnore');
 	}
-
 	public function isPrimary()
 	{
-		$PrimaryMACs = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->MAC, 'primary' => 1)));
-		return ($PrimaryMACs && $PrimaryMACs instanceof MACAddressAssociation);
+		return $this->tmpMAC->get('primary');
 	}
-
 	public function isImageIgnored()
 	{
-		return false;
-		$IgnoredMACs = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->MAC, 'imageIgnore' => 1)));
-		return ($IgnoredMACs && $IgnoredMACs instanceof MACAddressAssociation);
+		return $this->tmpMAC->get('imageIgnore');
 	}
 }
