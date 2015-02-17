@@ -21,12 +21,13 @@ class Group extends FOGController
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
 		'hosts',
+		'hostitems',
 		'hostsnotinme',
 		'nogroup',
 	);
 	// field class associations
 	public $databaseClassFieldRelationships = array(
-		'GroupAssociation' => array('groupID','id','hosts','hostID')
+		'GroupAssociation' => array('groupID','id','hostitems')
 	);
 	// Database search field to Class relationships
 	// Format is <Class with relation> => array(mixed <items of this class to search within>)
@@ -40,27 +41,31 @@ class Group extends FOGController
 	);
     // Overides
     private function loadHosts()
-    {   
-        if (!$this->isLoaded('hosts') && $this->get('id'))
-        {
-			// All hosts in a any group
+    {
+		if (!$this->isLoaded('hosts') && $this->get('id'))
+		{
+			$GroupHostIDs = array();
+			foreach($this->get('hostitems') AS $GAHosts)
+				$GroupHostMeIDs[] = $GAHosts->get('hostID');
+			unset($GAHosts);
+			// All Hosts in Me
+			$GroupHostMeIDs = array_unique($GroupHostMeIDs);
+			// All Hosts in any group
 			$GroupHostIDs = array_unique($this->getClass('GroupAssociationManager')->find('','','','','','','','hostID'));
-			// Hosts not in any group
+			// All Hosts in no group
 			$NoGroupIDs = $this->getClass('HostManager')->find(array('id' => $GroupHostIDs),'','','','','',true,'id');
-			// Hosts in Me
-			$GroupHostMeIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID'));
 			if ($GroupHostMeIDs)
 			{
-				// Hosts In Me find->push
+				// Hosts in Me find->push
 				foreach($this->getClass('HostManager')->find(array('id' => $GroupHostMeIDs)) AS $Host)
 					$this->add('hosts',$Host);
 				unset($Host);
-				// Hosts not in this group and not existing in the other group.
+				// Hosts not in this and in no group
 				if (count($this->get('hosts')))
 				{
 					// Only get the list of hosts if they don't already exist in no group.
 					$GroupIDs = array_unique(array_merge((array)$NoGroupIDs,(array)$GroupHostMeIDs));
-					// Hosts not in me and not in the no group find->push
+					// Only hosts not in me, but are in A group.
 					foreach($this->getClass('HostManager')->find(array('id' => $GroupIDs),'','','','','',true) AS $Host)
 						$this->add('hostsnotinme',$Host);
 				}

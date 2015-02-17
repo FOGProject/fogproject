@@ -176,7 +176,6 @@ abstract class FOGManagerController extends FOGBase
 			else if (!array_key_exists($orderBy,$this->databaseFields))
 				$orderBy = 'id';
 			$not = ($not ? ' NOT ' : '');
-			list($getFields,$join) = $this->getClass($this->childClass,array('id' => 0))->buildQuery();
 			if ($idField || (!$where && !$whereOperator && !$orderBy && !$sort && !$compare && !$groupBy && !$not && !$idField))
 			{
 				if (strtolower($_SESSION['caller']) == 'search')
@@ -203,40 +202,6 @@ abstract class FOGManagerController extends FOGBase
 					else if (!is_array($value))
 						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : ($not ? '!' : '').$compare), $value);
 				}
-				if ($this->databaseNeededFieldClassRelationships)
-				{
-					foreach((array)$this->databaseNeededFieldClassRelationships AS $class => $fields)
-					{
-						$class = $this->getClass($class);
-						if ($fields[3])
-						{
-							foreach((array)$fields[3] AS $field => $value)
-							{
-								if (is_array($value))
-									$whereArrayAnd[] = sprintf("`%s` %s IN ('%s')", get_class($class).'`.`'.$class->databaseFields[$field], $not, implode("', '", $value));
-								else if (!is_array($value))
-									$whereArrayAnd[] = sprintf("`%s` %s '%s'", get_class($class).'`.`'.$class->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : ($mot ? '!' : '').$compare),$value);
-							}
-						}
-					}
-				}
-				if ($this->databaseFieldClassRelationships)
-				{
-					foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
-					{
-						$class = $this->getClass($class);
-						if ($fields[3])
-						{
-							foreach((array)$fields[3] AS $field => $value)
-							{
-								if (is_array($value))
-									$whereArrayAnd[] = sprintf("`%s` %s IN ('%s')", get_class($class).'`.`'.$class->databaseFields[$field], $not, implode("', '", $value));
-								else if (!is_array($value))
-									$whereArrayAnd[] = sprintf("`%s` %s '%s'", get_class($class).'`.`'.$class->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : ($mot ? '!' : '').$compare),$value);
-							}
-						}
-					}
-				}
 			}
 			foreach((array)$orderBy AS $item)
 			{
@@ -248,26 +213,25 @@ abstract class FOGManagerController extends FOGBase
 				if ($this->databaseFields[$item])
 					$groupArray[] = sprintf("`%s`",$this->databaseFields[$item]);
 			}
-			$groupImplode = implode((array)$groupArray,','.(count($join) ? $this->childclass.'`.`' : ''));
-			$orderImplode = implode((array)$orderArray,','.(count($join) ? $this->childclass.'`.`' : ''));
-			$groupByField = 'GROUP BY '.(count($join) ? '`'.$this->childClass.'`.' : '').$groupImplode;
-			$orderByField = 'ORDER BY '.(count($join) ? '`'.$this->childClass.'`.' : '').$orderImplode;
+			$groupImplode = implode((array)$groupArray,',');
+			$orderImplode = implode((array)$orderArray,',');
+			$groupByField = 'GROUP BY '.$groupImplode;
+			$orderByField = 'ORDER BY '.$orderImplode;
+			list($join,$whereArrayAnd) = $this->getClass($this->childClass)->buildQuery($not,$compare);
 			if ($groupBy)
 			{
-				$sql = "SELECT %s`%s` FROM (SELECT %s`%s` FROM `%s` %s %s %s %s %s) `%s` %s %s %s %s";
+				$sql = "SELECT * FROM (SELECT * FROM `%s` %s %s %s %s %s) `%s` %s %s %s %s %s";
 				$fieldValues = array(
-					(!count($whereArray) ? 'DISTINCT ' : ''),
-					$getFields,
-					(!count($whereArray) ? 'DISTINCT ' : ''),
-					$getFields,
 					$this->databaseTable,
-					count($join) ? $this->childClass : '',
-					count($join) ? implode($join) : '',
-					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray).(count($whereArrayAnd) ? ' AND '.implode(' '.$whereOperator.' ',$whereArrayAnd) : '') : ''),
+					$join,
+					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
+					(count($whereArrayAnd) ? (count($whereArray) ? 'AND ' : 'WHERE ').implode(' '.$whereOperator.' ',$whereArrayAnd) : ''),
 					$orderByField,
 					$sort,
-					count($join) ? $this->childClass : $this->databaseTable,
-					count($join) ? implode($join) : '',
+					$this->databaseTable,
+					$join,
+					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
+					(count($whereArrayAnd) ? (count($whereArray) ? 'AND ' : 'WHERE ').implode(' '.$whereOperator.' ',$whereArrayAnd) : ''),
 					$groupByField,
 					$orderByField,
 					$sort
@@ -275,14 +239,12 @@ abstract class FOGManagerController extends FOGBase
 			}
 			else
 			{
-				$sql = "SELECT %s`%s` FROM `%s` %s %s %s %s %s";
+				$sql = "SELECT * FROM `%s` %s %s %s %s %s";
 				$fieldValues = array(
-					(!count($whereArray) ? 'DISTINCT ' : ''),
-					$getFields,
 					$this->databaseTable,
-					count($join) ? $this->childClass : '',
-					count($join) ? implode($join) : '',
-					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray).(count($whereArrayAnd) ? ' AND '.implode(' '.$whereOperator.' ',$whereArrayAnd) : '') : ''),
+					$join,
+					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
+					(count($whereArrayAnd) ? (count($whereArray) ? 'AND ' : 'WHERE ').implode(' '.$whereOperator.' ',$whereArrayAnd) : ''),
 					$orderByField,
 					$sort
 				);
@@ -299,14 +261,9 @@ abstract class FOGManagerController extends FOGBase
 			else
 			{
 				while($queryData = $this->DB->fetch()->get())
-				{
-					$Main = new $this->childClass(array('id' => 0));
-					$Main->getQuery($queryData);
-					array_push($data,$Main);
-				}
+					$data[] = $this->getClass($this->childClass)->setQuery($queryData);
 			}
 			unset($id,$ids,$row);
-			$data = array_unique($data);
 			// Return
 			return (array)$data;
 		}
