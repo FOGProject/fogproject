@@ -47,7 +47,7 @@
 			</div>
 			<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !$this->isHomepage) { ?><!-- Submenu -->
 			<div id="sidebar">
-			<?php print $this->submenu ?>
+			<?php print $this->getClass('SubMenu')->buildMenu() ?>
 			</div>
 			<?php } ?>
 		</div>
