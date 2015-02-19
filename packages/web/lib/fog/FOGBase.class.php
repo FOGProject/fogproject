@@ -41,7 +41,6 @@ abstract class FOGBase
 	*/
 	public function __construct()
 	{
-		$this->reset();
 		// Class setup
 		$this->FOGFTP = $GLOBALS['FOGFTP'];
 		$this->FOGCore = $GLOBALS['FOGCore'];
@@ -55,15 +54,6 @@ abstract class FOGBase
 		$this->TimeZone = (ini_get('date.timezone') ? ini_get('date.timezone') : 'GMT');
 		$this->imagelink = $GLOBALS['imagelink'];
 		$this->searchPages = array('user','host','group','image','snapin','printer','tasks','hosts');
-	}
-	public function __destruct()
-	{
-		$this->reset();
-	}
-	public function reset()
-	{
-		foreach(get_class_vars(get_class($this)) AS $key => $default)
-			$this->$key = $default;
 	}
 	/** fatalError($txt, $data = array())
 		Fatal error in the case something went wrong.
@@ -517,6 +507,17 @@ abstract class FOGBase
 	public function getActivePlugins()
 	{
 		return $this->getClass('PluginManager')->find(array('installed' => 1),'','','','','','','name');
+	}
+
+	public function array_ksort(Array $array,Array $orderArray) {
+		$ordered = array();
+		foreach($orderArray AS $key) {
+			if (array_key_exists($key,$array)) {
+				$ordered[$key] = $array[$key];
+				unset($array[$key]);
+			}
+		}
+		return $ordered + $array;
 	}
 }
 /* Local Variables: */

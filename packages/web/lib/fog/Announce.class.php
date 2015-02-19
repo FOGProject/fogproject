@@ -7,6 +7,11 @@ class Announce extends FOGBase
 	public function __construct()
 	{
 		parent::__construct();
+		header('X-Content-Type-Options: nosniff');
+		header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
+		header('X-XSS-Protection: 1; mode=block');
+		header('X-Frame-Options: deny');
+		header('Cache-Control: no-cache');
 		header("Content-type: Text/Plain");
 		$this->FOGCore->valdata('peer_id', true);
 		$this->FOGCore->valdata('port');
