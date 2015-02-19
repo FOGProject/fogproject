@@ -19,7 +19,6 @@ class Page extends FOGBase {
 		if ($this->FOGUser && $this->FOGUser->isLoggedIn() && $_REQUEST['node'] != 'schemaupdater')
 		{
 			$this->menu = $this->getClass('Mainmenu')->mainMenu();
-			$this->submenu = $this->getClass('SubMenu')->buildMenu();
 		}
 		if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
 		{

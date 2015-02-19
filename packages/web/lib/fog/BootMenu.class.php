@@ -140,7 +140,7 @@ class BootMenu extends FOGBase
 			$iPXE = new iPXE(array(
 				'product' => $_REQUEST['product'],
 				'manufacturer' => $_REQUEST['manufacturer'],
-				'mac' => $Host->get('mac'),
+				'mac' => $Host && $Host->isValid() ? $Host->get('mac') : 'no mac',
 				'success' => 1,
 				'file' => $_REQUEST['filename'],
 				'version' => $_REQUEST['ipxever'],

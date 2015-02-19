@@ -37,8 +37,16 @@ class FOGCore extends FOGBase
 		if (headers_sent())
 			printf('<meta http-equiv="refresh" content="0; url=%s">', $url);
 		else
+		{
+			header('X-Content-Type-Options: nosniff');
+			header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
+			header('X-XSS-Protection: 1; mode=block');
+			header('X-Frame-Options: deny');
+			header('Cache-Control: no-cache');
 			header("Location: $url");
+		}
 		exit;
+
 	}
 	
 	/** setMessage(,$txt, $data = array())

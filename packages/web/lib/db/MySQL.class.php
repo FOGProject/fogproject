@@ -4,19 +4,19 @@ class MySQL extends FOGBase
 	/* host to connect to
 	 * @var string
 	 */
-	private $host;
+	protected $host;
 	/* user to connect with
 	 * @var string
 	 */
-	private $user;
+	protected $user;
 	/* pass to connect with
 	 * @var string
 	 */
-	private $pass;
+	protected $pass;
 	/* dbname to use
 	 * @var string
 	 */
-	private $dbname;
+	protected $dbname;
 	/* link the actual connection
 	 * @var resource
 	 */
