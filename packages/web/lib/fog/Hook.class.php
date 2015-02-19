@@ -22,10 +22,6 @@ abstract class Hook extends FOGBase
 		parent::__construct();
 		$this->FOGUser = unserialize($_SESSION['FOG_USER']);
 	}
-	public function __destruct()
-	{
-		parent::__destruct();
-	}
 	public function run($arguments)
 	{
 	}

@@ -93,7 +93,6 @@ abstract class FOGController extends FOGBase
 		// Auto save
 		if ($this->autoSave)
 			$this->save();
-		parent::__destruct();
 	}
 	// Set
 	/** set($key, $value)
@@ -303,11 +302,9 @@ abstract class FOGController extends FOGBase
 	}
 	public function setQuery($queryData)
 	{
-		foreach($queryData AS $key => $value)
-		{
-			if (array_key_exists($this->key($key),$this->databaseFields))
-				$this->set($this->key($key),$value);
-		}
+		$classData = array_intersect_key($queryData,$this->databaseFieldsFlipped);
+		$orderedData = array_merge($this->databaseFieldsFlipped,$classData);
+		$this->data = array_combine(array_keys($this->databaseFields),$orderedData);
 		if ($this->databaseFieldClassRelationships)
 		{
 			foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)

@@ -114,11 +114,6 @@ class Initiator
 		@ini_set('session.save_handler','mm');
 		@ini_set('session.cookie_httponly',true);
 		@session_start();
-		@header('X-Content-Type-Options: nosniff');
-		@header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
-		@header('X-XSS-Protection: 1; mode=block');
-		@header('X-Frame-Options: deny');
-		@header('Cache-Control: no-cache');
 		@session_cache_limiter('no-cache');
 		@session_set_cookie_params(0,null,null,true,true);
 		@set_magic_quotes_runtime(0);
@@ -246,6 +241,8 @@ $FOGCore->setSessionEnv();
 // HookManager
 $HookManager = new HookManager();
 $HookManager->load();
+// Make sure to allow concat flags.
+$DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION[HostCount]})")->fetch()->get();
 // Ensure any new tables are always MyISAM
 $DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
 $tables = $DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');

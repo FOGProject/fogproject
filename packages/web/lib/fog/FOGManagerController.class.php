@@ -24,10 +24,10 @@ abstract class FOGManagerController extends FOGBase
 	protected $databaseFields;
 	/** The database to class relationships extra data, but not needed **/
 	protected $databaseFieldClassRelationships;
-	/** Needed external table items **/
-	protected $databaseNeededFieldClassRelationships;
-	/** Searchable class elements **/
-	protected $databaseSearchFieldClassRelationships;
+	/** The query to use from the class **/
+	public $loadQueryTemplate = "SELECT * FROM `%s` %s %s %s %s %s";
+	/** The query to use from the class **/
+	public $loadQueryGroupTemplate = "SELECT * FROM (SELECT * FROM `%s` %s %s %s %s %s) `%s` %s %s %s %s %s";
 	/** Search Query Template **/
 	private $searchQueryTemplate = "SELECT `%s` FROM `%s` %s %s %s";
 	// Construct
@@ -47,12 +47,6 @@ abstract class FOGManagerController extends FOGBase
 		$this->databaseFields = $this->classVariables['databaseFields'];
 		$this->databaseFieldsFlipped = array_flip($this->databaseFields);
 		$this->databaseFieldClassRelationships = $this->classVariables['databaseFieldClassRelationships'];
-		$this->databaseNeededFieldClassRelationships = $this->classVariables['databaseNeededFieldClassRelationships'];
-		$this->databaseSearchFieldClassRelationships = $this->classVariables['databaseSearchFieldClassRelationships'];
-	}
-	public function __destruct()
-	{
-		parent::__destruct();
 	}
 	// Search
 	public function search($keyword = null)
@@ -71,7 +65,7 @@ abstract class FOGManagerController extends FOGBase
 					$findWhere[$common] = $keyword;
 			}
 			$Main = $this->getClass($this->childClass);
-			list($getFields,$join) = $Main->buildQuery(true);
+			list($getFields,$join,$getFields) = $Main->buildQuery(true);
 			if ($this->childClass == 'User')
 				return $this->getClass('UserManager')->find($findWhere,'OR');
 			$HostIDs = ($this->childClass == 'Host' ? $this->getClass('HostManager')->find($findWhere,'OR','','','','','','id') : $this->getClass('HostManager')->find(array('name' => $keyword,'description' => $keyword,'ip' => $keyword),'OR','','','','','','id'));
@@ -198,9 +192,9 @@ abstract class FOGManagerController extends FOGBase
 				foreach((array)$where AS $field => $value)
 				{
 					if (is_array($value))
-						$whereArray[] = sprintf("`%s` %s IN ('%s')", $this->key($field), $not,implode("', '", $value));
+						$whereArray[] = sprintf("`%s` %s IN ('%s')", $this->databaseFields[$field], $not,implode("', '", $value));
 					else if (!is_array($value))
-						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : ($not ? '!' : '').$compare), $value);
+						$whereArray[] = sprintf("`%s` %s '%s'", $this->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : ($not ? '!' : '').$compare), $value);
 				}
 			}
 			foreach((array)$orderBy AS $item)
@@ -220,7 +214,7 @@ abstract class FOGManagerController extends FOGBase
 			list($join,$whereArrayAnd) = $this->getClass($this->childClass)->buildQuery($not,$compare);
 			if ($groupBy)
 			{
-				$sql = "SELECT * FROM (SELECT * FROM `%s` %s %s %s %s %s) `%s` %s %s %s %s %s";
+				$sql = $this->loadQueryGroupTemplate;
 				$fieldValues = array(
 					$this->databaseTable,
 					$join,
@@ -239,7 +233,7 @@ abstract class FOGManagerController extends FOGBase
 			}
 			else
 			{
-				$sql = "SELECT * FROM `%s` %s %s %s %s %s";
+				$sql = $this->loadQueryTemplate;
 				$fieldValues = array(
 					$this->databaseTable,
 					$join,
@@ -260,8 +254,15 @@ abstract class FOGManagerController extends FOGBase
 			}
 			else
 			{
+				//$startTime = $this->nice_date();
+				//print 'Start Time: '.$startTime->format('Y-m-d H:i:s')."\n";
 				while($queryData = $this->DB->fetch()->get())
 					$data[] = $this->getClass($this->childClass)->setQuery($queryData);
+				//print count($data).' ';
+				//$endTime = $this->nice_date();
+				//print 'End Time: '.$endTime->format('Y-m-d H:i:s')."\n";
+				//print 'Total Time of Execution: '.$endTime->diff($startTime)->format('%s seconds')."\n";
+				//print "Total Found: $count";
 			}
 			unset($id,$ids,$row);
 			// Return
@@ -294,9 +295,9 @@ abstract class FOGManagerController extends FOGBase
 				foreach((array)$where AS $field => $value)
 				{
 					if (is_array($value))
-						$whereArray[] = sprintf("`%s` IN ('%s')", $this->key($field), implode("', '", $value));
+						$whereArray[] = sprintf("`%s` IN ('%s')", $this->databaseFields[$field], implode("', '", $value));
 					else
-						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
+						$whereArray[] = sprintf("`%s` %s '%s'", $this->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
 				}
 			}
 			// Count result rows
