@@ -59,7 +59,7 @@ class Host extends FOGController
 	public $databaseFieldClassRelationships = array(
 		'MACAddressAssociation' => array('hostID','id','macs',array('primary' => 1)),
 		'Image' => array('id','imageID','image'),
-		'Inventory' => array('hostID','id','hardware'),
+		//'Inventory' => array('hostID','id','hardware'),
 	);
 	// Custom functons
 	public function isHostnameSafe()
@@ -69,7 +69,10 @@ class Host extends FOGController
 	// Snapins
 	public function getImage()
 	{
-		return current($this->get('image'));
+		$Image = current($this->get('image'));
+		if (!$Image || !$Image->isValid())
+			$Image = new Image(array('id' => 0));
+		return $Image;
 	}
 	public function getOS()
 	{
@@ -226,8 +229,8 @@ class Host extends FOGController
 		{
 			// Groups I am in
 			$GroupIDs = $this->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','groupID');
-			$Groups = $this->getClass('GroupManager')->find(array('id' => $GroupIDs),'','','','','name');
-			$NotGroups = $this->getClass('GroupManager')->find(array('id' => $GroupIDs),'','','','','name',true);
+			$Groups = $this->getClass('GroupManager')->find(array('id' => $GroupIDs));
+			$NotGroups = $this->getClass('GroupManager')->find(array('id' => $GroupIDs),'','','','','','',true);
 			foreach($Groups AS $Group)
 				$this->add('groups',$Group);
 			unset($Group);
@@ -1178,10 +1181,10 @@ class Host extends FOGController
 	public function destroy($field = 'id')
 	{
 		// Complete active tasks
-		if ($this->get('task')->isValid())
+		if ($this->get('task') && $this->get('task')->isValid())
 			$this->get('task')->set('stateID',5)->save();
 		// Remove Snapinjob Associations
-		if ($this->get('snapinjob')->isValid())
+		if ($this->get('snapinjob') && $this->get('snapinjob')->isValid())
 			$this->get('snapinjob')->set('stateID',5)->save();
 		// Remove Group associations
 		$this->getClass('GroupAssociationManager')->destroy(array('hostID' => $this->get('id')));

@@ -67,10 +67,6 @@ abstract class FOGPage extends FOGBase
 		// Hook in to allow search pages to be adjusted as needed.
 		$this->HookManager->processEvent('SEARCH_PAGES',array('searchPages' => &$this->searchPages));
 	}
-	public function __destruct()
-	{
-		parent::__destruct();
-	}
 	// Default index page
 	public function index()
 	{

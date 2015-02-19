@@ -39,6 +39,7 @@ class GroupManagementPage extends FOGPage
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			_('Name'),
+			_('Members'),
 			_('Tasking'),
 			_('Edit/Remove'),
 		);
@@ -46,6 +47,7 @@ class GroupManagementPage extends FOGPage
 		$this->templates = array(
 			'<input type="checkbox" name="group[]" value="${id}" class="toggle-action" checked/>',
 			sprintf('<a href="?node=group&sub=edit&%s=${id}" title="Edit">${name}</a>', $this->id),
+			'${count}',
 			sprintf('<a href="?node=group&sub=deploy&type=1&%s=${id}"><i class="icon fa fa-arrow-down" title="Download"></i></a> <a href="?node=group&sub=deploy&type=8&%s=${id}"><i class="icon fa fa-share-alt" title="Multi-cast"></i></a> <a href="?node=group&sub=edit&%s=${id}#group-tasks"><i class="icon fa fa-arrows-alt" title="Deploy"></i></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
 			sprintf('<a href="?node=group&sub=edit&%s=${id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=group&sub=delete&%s=${id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
 		);
@@ -53,8 +55,9 @@ class GroupManagementPage extends FOGPage
 		$this->attributes = array(
 			array('width' => 16, 'class' => 'c'),
 			array(),
+			array('width' => 30, 'class' => 'c'),
 			array('width' => 90, 'class' => 'c'),
-			array('width' => 50, 'class' => 'c')
+			array('width' => 50, 'class' => 'c'),
 		);
 	}
 	// Pages
@@ -75,9 +78,10 @@ class GroupManagementPage extends FOGPage
 		foreach ($this->getClass('GroupManager')->find() AS $Group)
 		{
 			$this->data[] = array(
-				'id'		=> $Group->get('id'),
-				'name'		=> $Group->get('name'),
-				'description'	=> $Group->get('description'),
+				'id' => $Group->get('id'),
+				'name' => $Group->get('name'),
+				'description' => $Group->get('description'),
+				'count' => $Group->getHostCount(),
 			);
 		}
 		// Hook
@@ -213,9 +217,9 @@ class GroupManagementPage extends FOGPage
 	public function edit()
 	{
 		// Find
-		$Group = new Group($_REQUEST['id']);
+		$Group = new Group($_REQUEST[$this->id]);
 		// If all hosts have the same image setup up the selection.
-		foreach ((array)$Group->get('hosts') AS $Host)
+		/*foreach ((array)$Group->get('hosts') AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
@@ -227,7 +231,7 @@ class GroupManagementPage extends FOGPage
 		$groupKeyMult = (is_array($groupKey) ? array_unique($groupKey) : $groupKey);
 		$groupKeyMult = array_filter((array)$groupKeyMult);
 		if (count($imageIDMult) == 1)
-			$imageMatchID = $Host && $Host->isValid() ? $Host->get('imageID') : '';
+			$imageMatchID = $Host && $Host->isValid() ? $Host->get('imageID') : '';*/
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', _('Edit'), $Group->get('name'));
 		// Headerdata
@@ -251,7 +255,7 @@ class GroupManagementPage extends FOGPage
 			_('Group Primary Disk') => '<input type="text" name="dev" value="${group_devs}" />',
 			'<input type="hidden" name="updategroup" value="1" />' => '<input type="submit" value="'._('Update').'" />',
 		);
-		$this->HookManager->processEvent('GROUP_FIELDS',array('fields' => &$fields,'Group' => &$Group));
+		//$this->HookManager->processEvent('GROUP_FIELDS',array('fields' => &$fields,'Group' => &$Group));
 		print "\n\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-general">';
 		print "\n\t\t\t".'<input type="hidden" name="'.$this->id.'" value="'.$_REQUEST['id'].'" />';
 		print "\n\t\t\t".'<div id="tab-container">';
@@ -314,7 +318,7 @@ class GroupManagementPage extends FOGPage
 					'host_name' => $Host->get('name'),
 					'host_mac' => $Host->get('mac')->__toString(),
 					'host_desc' => $Host->get('description'),
-					'image_name' => $Host->get('imagename'),
+					'image_name' => $Host->getImage()->get('name'),
 					'check_num' => '1'
 				);
 			}
@@ -351,7 +355,7 @@ class GroupManagementPage extends FOGPage
 					'host_name' => $Host->get('name'),
 					'host_mac' => $Host->get('mac')->__toString(),
 					'host_desc' => $Host->get('description'),
-					'image_name' => $Host->get('imagename'),
+					'image_name' => $Host->getImage()->get('name'),
 					'check_num' => '2'
 				);
 			}
@@ -406,7 +410,7 @@ class GroupManagementPage extends FOGPage
                     'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
                     'host_name' => $Host->get('name'),
                     'host_mac'  => $Host->get('mac')->__toString(),
-					'image_name' => $Host->get('imagename'),
+					'image_name' => $Host->getImage()->get('name'),
 				);
 			}
 		}
@@ -543,24 +547,25 @@ class GroupManagementPage extends FOGPage
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-service">';
 		print "\n\t\t\t<fieldset>";
 		print "\n\t\t\t<legend>"._('General')."</legend>";
+		/*foreach((array)$Group->get('hosts') AS $Host)
+		{
+			if ($Host && $Host->isValid())
+			{
+				foreach((array)$Host->get('modules') AS $Module)
+				{
+					if ($Module && $Module->isValid())
+						$ModOns[$Host->get('name')][] = $Module->get('id');
+				}
+			}
+		}*/
         foreach ((array)$this->getClass('ModuleManager')->find() AS $Module)
         {
 			$i = 0;
-			foreach((array)$Group->get('hosts') AS $Host)
-			{
-				if ($Host && $Host->isValid())
-				{
-					foreach((array)$Host->get('modules') AS $ModHost)
-					{
-						if ($ModHost && $ModHost->isValid())
-						{
-							if ($ModHost->get('id') == $Module->get('id'))
-								$ModOns[] = $ModHost->get('id');
-						}
-					}
-					$i = count($ModOns);
-				}
-			}
+			//foreach($ModOns AS $item => $array)
+			//{
+			//	if (in_array($Module->get('id'),$array))
+			//		$i++;
+			//}
 			$this->data[] = array(
 				'input' => '<input type="checkbox" '.($Module->get('isDefault') ? 'class="checkboxes"' : '').' name="${mod_shname}" value="${mod_id}" ${checked} '.(!$Module->get('isDefault') ? 'disabled="disabled"' : '').' />',
 				'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
