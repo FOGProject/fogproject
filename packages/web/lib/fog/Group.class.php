@@ -16,50 +16,49 @@ class Group extends FOGController
 		'building'	=> 'groupBuilding',
 		'kernel'	=> 'groupKernel',
 		'kernelArgs'	=> 'groupKernelArgs',
-		'kernelDevice'	=> 'groupPrimaryDisk'
+		'kernelDevice'	=> 'groupPrimaryDisk',
+		'membercount' => 'groupMemberCount',
+		'grouphosts' => 'groupHosts',
 	);
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
-		'hosts',
 		'hostitems',
+		'hosts',
 		'hostsnotinme',
 		'nogroup',
 	);
 	// field class associations
-	public $databaseClassFieldRelationships = array(
+	public $databaseFieldClassRelationships = array(
 		'GroupAssociation' => array('groupID','id','hostitems')
 	);
-	// Database search field to Class relationships
-	// Format is <Class with relation> => array(mixed <items of this class to search within>)
-	public $databaseSearchFieldClassRelationships = array(
-		'Image' => array('name','description'),
-		'Group' => array('name','description'),
-		'Snapin' => array('name','description','file'),
-		'Printer' => array('name','description'),
-		'Inventory' => array('sysserial','caseserial','mbserial','primaryUser','other1','other2','sysman','sysproduct'),
-		'MACAddressAssociation' => array('mac','description'),
-	);
+	/** The customized query for this item template for a single call */
+	public $loadQueryTemplateSingle = "SELECT *,COUNT(`groupMembers`.`gmID`) groupMemberCount,GROUP_CONCAT(DISTINCT `groupMembers`.`gmHostID` ORDER BY `groupMembers`.`gmHostID`) groupHosts FROM `%s` %s WHERE `%s`='%s' GROUP BY `groupName`";
+	/** The customized query for this item template for a multiple call */
+	public $loadQueryTemplateMultiple = "SELECT *,COUNT(`groupMembers`.`gmID`) groupMemberCount,GROUP_CONCAT(DISTINCT `groupMembers`.`gmHostID` ORDER BY `groupMembers`.`gmHostID`) groupHosts FROM `%s` %s WHERE %s GROUP BY `groupName`";
     // Overides
     private function loadHosts()
     {
 		if (!$this->isLoaded('hosts') && $this->get('id'))
 		{
-			$GroupHostIDs = array();
-			foreach($this->get('hostitems') AS $GAHosts)
-				$GroupHostMeIDs[] = $GAHosts->get('hostID');
-			unset($GAHosts);
-			// All Hosts in Me
-			$GroupHostMeIDs = array_unique($GroupHostMeIDs);
+			// All my hosts
+			foreach((array)$this->getClass('HostManager')->find(array('id' => explode(',',trim($this->get('grouphosts'),',')))) AS $Host)
+				$this->add('hosts',$Host);
 			// All Hosts in any group
 			$GroupHostIDs = array_unique($this->getClass('GroupAssociationManager')->find('','','','','','','','hostID'));
+			// All Host IDs
+			$HostIDs = array_unique($this->getClass('HostManager')->find('','','','','','','','id'));
+
+			$GroupHostIDs = array_diff($GroupHostIDs,$HostIDs,explode(',',trim($this->get('grouphosts'),',')));
 			// All Hosts in no group
-			$NoGroupIDs = $this->getClass('HostManager')->find(array('id' => $GroupHostIDs),'','','','','',true,'id');
-			if ($GroupHostMeIDs)
+			foreach($this->getClass('HostManager')->find(array('id' => $GroupHostIDs),'','','','','',true) AS $Host)
+				$this->add('nogroup',$Host);
+			// All Hosts not in me
+			//$NotMeGroupIDs = array_unique($this->getClass('HostManager')->find(array('id' => explode(',',trim($this->get('grouphosts'),','))),'','','','','',true,'id'));
+			/*if ($GroupHostMeIDs)
 			{
 				// Hosts in Me find->push
 				foreach($this->getClass('HostManager')->find(array('id' => $GroupHostMeIDs)) AS $Host)
 					$this->add('hosts',$Host);
-				unset($Host);
 				// Hosts not in this and in no group
 				if (count($this->get('hosts')))
 				{
@@ -72,13 +71,13 @@ class Group extends FOGController
 			}
 			// Hosts known to not be in any group
 			foreach($this->getClass('HostManager')->find(array('id' => $NoGroupIDs)) AS $Host)
-				$this->add('nogroup',$Host);
+				$this->add('nogroup',$Host);*/
 		}
 		return $this;
 	}
 	public function getHostCount()
 	{
-		return $this->getClass('GroupAssociationManager')->count(array('groupID' => $this->get('id')));
+		return $this->get('membercount');
 	}
     public function get($key = '') 
     {   

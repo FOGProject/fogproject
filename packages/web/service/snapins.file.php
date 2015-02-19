@@ -42,6 +42,11 @@ try
 	{
 		if (ob_get_level())
 			ob_end_clean();
+		header('X-Content-Type-Options: nosniff');
+		header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
+		header('X-XSS-Protection: 1; mode=block');
+		header('X-Frame-Options: deny');
+		header('Cache-Control: no-cache');
 		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 		header("Content-Description: File Transfer");
 		header("Content-Type: application/octet-stream");
