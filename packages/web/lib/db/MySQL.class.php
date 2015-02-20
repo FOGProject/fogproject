@@ -186,7 +186,7 @@ class MySQL extends FOGBase
 			if ($this->result === false)
 				throw new Exception(_('No data returned'));
 			// Return: 'field' if requested and field exists in results, otherwise the raw result
-			return ($field && array_key_exists($field,(array)$this->result) ? $this->result[$field] : $this->result);
+			return ($field && array_key_exists((string)$field,(array)$this->result) ? $this->result[$field] : $this->result);
 		}
 		catch (Exception $e)
 		{
