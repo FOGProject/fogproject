@@ -170,19 +170,6 @@ abstract class FOGManagerController extends FOGBase
 			else if (!array_key_exists($orderBy,$this->databaseFields))
 				$orderBy = 'id';
 			$not = ($not ? ' NOT ' : '');
-			if ($idField || (!$where && !$whereOperator && !$orderBy && !$sort && !$compare && !$groupBy && !$not && !$idField))
-			{
-				if (strtolower($_SESSION['caller']) == 'search')
-				{
-					$getFields = $this->databaseFields[$idField ? $idField : 'id'];
-					$idField = $idField ? $idField : 'id';
-				}
-				else
-				{
-					if ($idField)
-						$getFields = $this->databaseFields[$idField ? $idField : 'id'];
-				}
-			}
 			// Error checking
 			if (empty($this->databaseTable))
 				throw new Exception('No database table defined');
@@ -248,21 +235,14 @@ abstract class FOGManagerController extends FOGBase
 			$this->DB->query($sql,$fieldValues);
 			if ($idField)
 			{
-				while($id = $this->DB->fetch(MYSQLI_NUM)->get($idField))
-					$ids[] = $id[0];
+				while($id = $this->DB->fetch()->get())
+					$ids[] = $id[$this->databaseFields[$idField]];
 				$data = array_unique((array)$ids);
 			}
 			else
 			{
-				//$startTime = $this->nice_date();
-				//print 'Start Time: '.$startTime->format('Y-m-d H:i:s')."\n";
 				while($queryData = $this->DB->fetch()->get())
 					$data[] = $this->getClass($this->childClass)->setQuery($queryData);
-				//print count($data).' ';
-				//$endTime = $this->nice_date();
-				//print 'End Time: '.$endTime->format('Y-m-d H:i:s')."\n";
-				//print 'Total Time of Execution: '.$endTime->diff($startTime)->format('%s seconds')."\n";
-				//print "Total Found: $count";
 			}
 			unset($id,$ids,$row);
 			// Return
