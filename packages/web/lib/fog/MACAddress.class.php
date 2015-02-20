@@ -28,8 +28,6 @@ class MACAddress extends FOGBase
 			}
 			elseif (strlen($MAC) == 17)
 				$MAC = str_replace('-', ':', $MAC);
-			else
-				throw new Exception('');
 			$this->MAC = $MAC;
 		}
 		catch (Exception $e)
