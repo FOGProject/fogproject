@@ -617,7 +617,7 @@ class HostManagementPage extends FOGPage
 			array('width' => 50, 'class' => 'l'),
 			array('width' => 50, 'class' => 'r'),
 		);
-		foreach($Host->get('printersnotinme') AS $Printer)
+		foreach((array)$Host->get('printersnotinme') AS $Printer)
 		{
 			if ($Printer && $Printer->isValid() && !in_array($Printer->get('id'),(array)$PrinterIDs))
 			{
@@ -666,7 +666,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t".'<input type="radio" name="level" value="1"'.($Host->get('printerLevel') == 1 ? 'checked' : '').' />'._('Add Only').'<br/>';
 		print "\n\t\t\t".'<input type="radio" name="level" value="2"'.($Host->get('printerLevel') == 2 ? 'checked' : '').' />'._('Add and Remove').'<br/>';
 		print "\n\t\t\t</p>";
-		foreach ($Host->get('printers') AS $Printer)
+		foreach ((array)$Host->get('printers') AS $Printer)
 		{
 			if ($Printer && $Printer->isValid())
 			{
@@ -713,7 +713,7 @@ class HostManagementPage extends FOGPage
 			array('width' => 90, 'class' => 'l'),
 			array('width' => 20, 'class' => 'r'),
 		);
-		foreach($Host->get('snapinsnotinme') AS $Snapin)
+		foreach((array)$Host->get('snapinsnotinme') AS $Snapin)
 		{
 			if ($Snapin && $Snapin->isValid())
 			{

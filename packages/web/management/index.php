@@ -19,11 +19,9 @@ if (!in_array($node,array('schemaupdater','client')) && !in_array($sub,array('co
 	// Show login form
 	$Page->setTitle($foglang['Login']);
 	$Page->setSecTitle($foglang['ManagementLogin']);
-	ob_flush();
 	$Page->startBody();
 	$FOGCore->getClass('ProcessLogin')->mainLoginForm();
 	$Page->endBody();
-	ob_flush();
 	$Page->render();
 }
 $FOGPageManager = new FOGPageManager();
@@ -38,9 +36,7 @@ if ($FOGCore->isAJAXRequest())
 }
 $Page->setTitle($pageTitle);
 $Page->setSecTitle($sectionTitle);
-ob_flush();
 $Page->startBody();
 print $content;
 $Page->endBody();
-ob_flush();
 $Page->render();

@@ -408,7 +408,7 @@ abstract class FOGBase
 	* @param $input the input to filter
 	* clean up arrays recursively.
 	*/
-	public function array_filter_recursive($input)
+	public function array_filter_recursive(&$input)
 	{
 		foreach($input AS &$value)
 		{
