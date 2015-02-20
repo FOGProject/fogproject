@@ -45,7 +45,7 @@ abstract class FOGController extends FOGBase
 		The main constructor for the controller.
 		Builds the database fields as needed.
 	*/
-	public function __construct($data = null)
+	public function __construct($data)
 	{
 		// FOGBase contstructor
 		parent::__construct();
@@ -66,9 +66,8 @@ abstract class FOGController extends FOGBase
 			// Add incoming data
 			if (is_array($data))
 			{
-				// Iterate data -> Set data
-				foreach ($data AS $key => $value)
-					$this->set($this->key($key), $value);
+				$this->data = array();
+				$this->data = array_combine(array_keys($data),array_values($data));
 			}
 			// If incoming data is an INT -> Set as ID -> Load from database
 			elseif (is_numeric($data))
