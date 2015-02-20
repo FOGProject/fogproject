@@ -59,7 +59,7 @@ class Host extends FOGController
 	public $databaseFieldClassRelationships = array(
 		'MACAddressAssociation' => array('hostID','id','macs',array('primary' => 1)),
 		'Image' => array('id','imageID','image'),
-		//'Inventory' => array('hostID','id','hardware'),
+		'Inventory' => array('hostID','id','hardware'),
 	);
 	// Custom functons
 	public function isHostnameSafe()
@@ -69,7 +69,7 @@ class Host extends FOGController
 	// Snapins
 	public function getImage()
 	{
-		$Image = current($this->get('image'));
+		$Image = current((array)$this->get('image'));
 		if (!$Image || !$Image->isValid())
 			$Image = new Image(array('id' => 0));
 		return $Image;
@@ -251,7 +251,7 @@ class Host extends FOGController
 	{
 		if (!$this->isLoaded('modules') && $this->get('id'))
 		{
-			$ModuleIDs = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','moduleID');
+			$ModuleIDs = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','moduleID');
 			foreach($this->getClass('ModuleManager')->find(array('id' => $ModuleIDs)) AS $Module)
 				$this->add('modules', $Module);
 			unset($Module,$ModuleIDs);
@@ -544,7 +544,6 @@ class Host extends FOGController
 					'hostregister' => 'FOG_SERVICE_HOSTREGISTER_ENABLED',
 					'hostnamechanger' => 'FOG_SERVICE_HOSTNAMECHANGER_ENABLED',
 					'printermanager' => 'FOG_SERVICE_PRINTERMANAGER_ENABLED',
-					'snapin' => 'FOG_SERVICE_SNAPIN_ENABLED',
 					'snapinclient' => 'FOG_SERVICE_SNAPIN_ENABLED',
 					'taskreboot' => 'FOG_SERVICE_TASKREBOOT_ENABLED',
 					'usercleanup' => 'FOG_SERVICE_USERCLEANUP_ENABLED',
@@ -552,7 +551,7 @@ class Host extends FOGController
 				);
 				if (($Module instanceof Module) && $Module->isValid())
 				{
-					if ($Module->get('isDefault') && $this->FOGCore->getSetting($moduleName[$Module->get('shortName')]))
+					if ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]))
 					{
 						$ModuleInsert = new ModuleAssociation(array(
 							'hostID' => $this->get('id'),

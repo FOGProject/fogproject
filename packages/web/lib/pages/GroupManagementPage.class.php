@@ -104,6 +104,7 @@ class GroupManagementPage extends FOGPage
 				'id'		=> $Group->get('id'),
 				'name'		=> $Group->get('name'),
 				'description'	=> $Group->get('description'),
+				'count' => $Group->getHostCount(),
 			);
 		}
 		// Hook
@@ -547,17 +548,17 @@ class GroupManagementPage extends FOGPage
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-service">';
 		print "\n\t\t\t<fieldset>";
 		print "\n\t\t\t<legend>"._('General')."</legend>";
-		/*foreach((array)$Group->get('hosts') AS $Host)
-		{
-			if ($Host && $Host->isValid())
-			{
-				foreach((array)$Host->get('modules') AS $Module)
-				{
-					if ($Module && $Module->isValid())
-						$ModOns[$Host->get('name')][] = $Module->get('id');
-				}
-			}
-		}*/
+		//foreach((array)$Group->get('hosts') AS $Host)
+		//{
+		//	if ($Host && $Host->isValid())
+		//	{
+		//		foreach((array)$Host->get('modules') AS $Module)
+		///		{
+		//			if ($Module && $Module->isValid())
+		//				$ModOns[] = $Module->get('id');
+		//		}
+		//	}
+		//}
         foreach ((array)$this->getClass('ModuleManager')->find() AS $Module)
         {
 			$i = 0;
