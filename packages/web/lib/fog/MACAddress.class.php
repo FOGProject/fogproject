@@ -14,11 +14,13 @@ class MACAddress extends FOGBase
 	{
 		try
 		{
-			if ($MAC instanceof MACAddressAssociation)
-				$MAC = trim($MAC->get('mac'));
 			if ($this->tmpMAC instanceof MACAddress)
 				$MAC = trim($MAC->__toString());
-			elseif (strlen($MAC) == 12)
+			else if (is_object($this->tmpMAC) && $this->tmpMAC instanceof MACAddressAssociation)
+				$MAC = trim($MAC->get('mac'));
+			else
+				$this->tmpMAC = $this->getClass('MACAddressAssociation',array('id' => 0));
+			if (strlen($MAC) == 12)
 			{
 				for ($i = 0; $i < 12; $i = $i + 2)
 					$newMAC[] = $MAC{$i} . $MAC{$i + 1};
