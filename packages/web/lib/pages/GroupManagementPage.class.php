@@ -220,7 +220,7 @@ class GroupManagementPage extends FOGPage
 		// Find
 		$Group = new Group($_REQUEST[$this->id]);
 		// If all hosts have the same image setup up the selection.
-		/*foreach ((array)$Group->get('hosts') AS $Host)
+		foreach ((array)$Group->get('hosts') AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
@@ -232,7 +232,7 @@ class GroupManagementPage extends FOGPage
 		$groupKeyMult = (is_array($groupKey) ? array_unique($groupKey) : $groupKey);
 		$groupKeyMult = array_filter((array)$groupKeyMult);
 		if (count($imageIDMult) == 1)
-			$imageMatchID = $Host && $Host->isValid() ? $Host->get('imageID') : '';*/
+			$imageMatchID = $Host && $Host->isValid() ? $Host->get('imageID') : '';
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', _('Edit'), $Group->get('name'));
 		// Headerdata
@@ -296,7 +296,7 @@ class GroupManagementPage extends FOGPage
 		);
 		// Create the template data:
 		$this->templates = array(
-			'<span class="icon icon-help hand" title="${host_desc}"></span>',
+			'<span class="icon fa fa-question fa-1x hand" title="${host_desc}"></span>',
 			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'${image_name}',
@@ -402,6 +402,7 @@ class GroupManagementPage extends FOGPage
 			'<small>${deployed}</small>',
 			'<small>${image_name}</small>',
 		);
+		$imageSelector = $this->getClass('ImageManager')->buildSelectBox('','','','',true);
 		foreach ((array)$Group->get('hosts') AS $Host)
 		{
 			if ($Host && $Host->isValid())
@@ -411,7 +412,8 @@ class GroupManagementPage extends FOGPage
                     'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
                     'host_name' => $Host->get('name'),
                     'host_mac'  => $Host->get('mac')->__toString(),
-					'image_name' => $Host->getImage()->get('name'),
+					'image_name' => $imageSelector,
+					'selected_item'.$Host->get('imageID') => 'selected',
 				);
 			}
 		}
@@ -421,7 +423,10 @@ class GroupManagementPage extends FOGPage
 		// Output
 		$this->render();
 		if (count($this->data) > 0)
-			print "\n\t\t\t".'<center><input type="submit" value="'._('Delete Selected Hosts From Group').'" name="remhosts"/></center>';
+		{
+			print "\n\t\t\t".'<center><input type="submit" value="'._('Update Hosts').'" name="updatehosts"/>&nbsp;&nbsp;';
+			print "\n\t\t\t".'<input type="submit" value="'._('Delete Selected Hosts From Group').'" name="remhosts"/></center>';
+		}
 		print "\n\t\t\t</form>";
 		print "\n\t\t\t</div>";
 		unset($this->data);
@@ -569,7 +574,7 @@ class GroupManagementPage extends FOGPage
 			//}
 			$this->data[] = array(
 				'input' => '<input type="checkbox" '.($Module->get('isDefault') ? 'class="checkboxes"' : '').' name="${mod_shname}" value="${mod_id}" ${checked} '.(!$Module->get('isDefault') ? 'disabled="disabled"' : '').' />',
-				'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
+				'span' => '<span class="icon fa fa-question fa-1x hand" title="${mod_desc}"></span>',
 				'checked' => ($i == $Group->getHostCount() ? 'checked' : ''),
 				'mod_name' => $Module->get('name'),
 				'mod_shname' => $Module->get('shortName'),
@@ -608,7 +613,7 @@ class GroupManagementPage extends FOGPage
 		{
 			$this->data[] = array(
 				'input' => '<input type="text" name="${type}" value="${disp}" />',
-				'span' => '<span class="icon icon-help hand" title="${desc}"></span>',
+				'span' => '<span class="icon fa fa-question fa-1x hand" title="${desc}"></span>',
 				'field' => ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? _('Screen Width (in pixels)') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_Y' ? _('Screen Height (in pixels)') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? _('Screen Refresh Rate (in Hz)') : null))),
 				'type' => ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? 'x' : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_Y' ? 'y' : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? 'r' : null))),
 				'disp' => $Service->get('value'),
@@ -644,7 +649,7 @@ class GroupManagementPage extends FOGPage
 		$this->data[] = array(
 			'field' => _('Auto Log Out Time (in minutes)'),
 			'input' => '<input type="text" name="tme" value="${value}" />',
-			'desc' => '<span class="icon icon-help hand" title="${serv_desc}"></span>',
+			'desc' => '<span class="icon fa fa-question fa-1x hand" title="${serv_desc}"></span>',
 			'value' => $Service->get('value'),
 			'serv_desc' => $Service->get('description'),
 		);
