@@ -134,6 +134,7 @@ class MySQL extends FOGBase
 	{
 		try
 		{
+			$this->result = array();
 			if (empty($type))
 				$type = MYSQLI_ASSOC;
 			if (empty($fetchType))
@@ -152,7 +153,7 @@ class MySQL extends FOGBase
 						for($this->result = array();$tmp = $this->queryResult->fetch_array($type);) $this->result[] = $tmp;
 				}
 				else
-					$this->result = $this->queryResult->fetch_array($type);
+					$this->result = $this->queryResult->fetch_assoc();
 			}
 		}
 		catch (Exception $e)

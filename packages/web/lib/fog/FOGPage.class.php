@@ -87,9 +87,12 @@ abstract class FOGPage extends FOGBase
 	}
 	public function render()
 	{
-		ob_start();
-		print $this->process();
-		ob_end_flush();
+		foreach($this->process() AS $result)
+		{
+			ob_start(null,$_SESSION['chunksize']);
+			print $result;
+			ob_end_flush();
+		}
 	}
 	public function process()
 	{
@@ -168,7 +171,7 @@ abstract class FOGPage extends FOGBase
 				$result[] = sprintf('%s</tbody>%s</table>%s', "\t\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t");
 			}
 			// Return output
-			return implode("\n",$result);
+			return $result;
 		}
 		catch (Exception $e)
 		{
