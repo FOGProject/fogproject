@@ -281,7 +281,7 @@ class FOGConfigurationPage extends FOGPage
 					'menu_default' => ($Menu->get('default') ? 'checked' : ''),
 					'menu_regmenu' => $this->getClass('PXEMenuOptionsManager')->regSelect($Menu->get('regMenu')),
 					'menu_options' => $Menu->get('args'),
-					'disabled' => $menuid ? 'readonly="true"' : '',
+					'disabled' => '',//$menuid ? 'readonly="true"' : '',
 				);
 			}
 			// Hook
