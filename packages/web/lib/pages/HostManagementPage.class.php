@@ -748,7 +748,7 @@ class HostManagementPage extends FOGPage
 			'<input type="checkbox" name="snapinRemove[]" value="${snap_id}" class="toggle-action" checked/>',
 			'<a href="?node=snapin&sub=edit&id=${snap_id}">${snap_name}</a>',
 		);
-		foreach ($Host->get('snapins') AS $Snapin)
+		foreach ((array)$Host->get('snapins') AS $Snapin)
 		{
 			if ($Snapin && $Snapin->isValid())
 			{
@@ -789,13 +789,27 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<fieldset>";
 		print "\n\t\t\t<legend>"._('General').'</legend>';
 		$ModOns = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $Host->get('id')),'','','','','','','moduleID');
+		$moduleName = array(
+			'dircleanup' => $this->FOGCore->getSetting('FOG_SERVICE_DIRECTORYCLEANER_ENABLED'),
+			'usercleanup' => $this->FOGCore->getSetting('FOG_SERVICE_USERCLEANUP_ENABLED'),
+			'displaymanager' => $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_ENABLED'),
+			'autologout' => $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_ENABLED'),
+			'greenfog' => $this->FOGCore->getSetting('FOG_SERVICE_GREENFOG_ENABLED'),
+			'hostnamechanger' => $this->FOGCore->getSetting('FOG_SERVICE_HOSTNAMECHANGER_ENABLED'),
+			'snapinclient' => $this->FOGCore->getSetting('FOG_SERVICE_SNAPIN_ENABLED'),
+			'clientupdater' => $this->FOGCore->getSetting('FOG_SERVICE_CLIENTUPDATER_ENABLED'),
+			'hostregister' => $this->FOGCore->getSetting('FOG_SERVICE_HOSTREGISTER_ENABLED'),
+			'printermanager' => $this->FOGCore->getSetting('FOG_SERVICE_PRINTERMANAGER_ENABLED'),
+			'taskreboot' => $this->FOGCore->getSetting('FOG_SERVICE_TASKREBOOT_ENABLED'),
+			'usertracker' => $this->FOGCore->getSetting('FOG_SERVICE_USERTRACKER_ENABLED'),
+		);
 		foreach ($this->getClass('ModuleManager')->find() AS $Module)
 		{
 			if ($Module && $Module->isValid())
 			{
 				$this->data[] = array(
-					'input' => '<input type="checkbox" '.($Module->get('isDefault') ? 'class="checkboxes"' : '').' name="${mod_shname}" value="${mod_id}" ${checked} '.(!$Module->get('isDefault') ? 'disabled' : '').' />',
-					'span' => '<span class="icon icon-help hand" title="${mod_desc}"></span>',
+					'input' => '<input type="checkbox" '.($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes"' : '').' name="modules[]" value="${mod_id}" ${checked} '.(!$moduleName[$Module->get('shortName')] ? 'disabled' : '').' />',
+					'span' => '<span class="icon fa fa-question fa-1x hand" title="${mod_desc}"></span>',
 					'checked' => (in_array($Module->get('id'),$ModOns) ? 'checked' : ''),
            	    	'mod_name' => $Module->get('name'),
            	    	'mod_shname' => $Module->get('shortName'),
@@ -807,8 +821,8 @@ class HostManagementPage extends FOGPage
 		unset($ModOns,$Module);
 		$this->data[] = array(
 			'mod_name' => '&nbsp',
-			'input' => '<input type="hidden" name="updatestatus" value="1" />',
-			'span' => '<input type="submit" value="'._('Update').'" />',
+			'input' => '',
+			'span' => '<input type="submit" name="updatestatus" value="'._('Update').'" />',
 		);
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_SERVICE', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -838,7 +852,7 @@ class HostManagementPage extends FOGPage
 			{
 				$this->data[] = array(
 					'input' => '<input type="text" name="${type}" value="${disp}" />',
-					'span' => '<span class="icon icon-help hand" title="${desc}"></span>',
+					'span' => '<span class="icon fa fa-question fa-1x hand" title="${desc}"></span>',
 					'field' => ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? _('Screen Width (in pixels)') : ($Service->get('name') == 'FOG_SERVICE_DISPLAY_MANAGER_Y' ? _('Screen Height (in pixels)') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? _('Screen Refresh Rate (in Hz)') : ''))),
 					'type' => ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? 'x' : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_Y' ? 'y' : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? 'r' : ''))),
 					'disp' => ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_X' ? $Host->getDispVals('width') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_Y' ? $Host->getDispVals('height') : ($Service->get('name') == 'FOG_SERVICE_DISPLAYMANAGER_R' ? $Host->getDispVals('refresh') : ''))),
@@ -876,7 +890,7 @@ class HostManagementPage extends FOGPage
 		$this->data[] = array(
 			'field' => _('Auto Log Out Time (in minutes)'),
 			'input' => '<input type="text" name="tme" value="${value}" />',
-			'desc' => '<span class="icon icon-help" title="${serv_desc}"></span>',
+			'desc' => '<span class="icon fa fa-question fa-1x hand" title="${serv_desc}"></span>',
 			'value' => $Host->getAlo() ? $Host->getAlo() : $Service->get('value'),
 			'serv_desc' => $Service->get('description'),
 		);
@@ -1294,23 +1308,15 @@ class HostManagementPage extends FOGPage
 						$Host->removeSnapin($_REQUEST['snapinRemove']);
 				break;
 				case 'host-service';
-					// The values below are the checking of the service enabled/disabled.
-					// If they're enabled when you click update, they'll send the call
-					// with the Module's ID to insert into the db.  If they're disabled
-					// they'll delete from the database.
-					$ServiceModules = $this->getClass('ModuleManager')->find('','','id');
-					foreach((array)$ServiceModules AS $ServiceModule)
-						$ServiceSetting[$ServiceModule->get('id')] = $_REQUEST[$ServiceModule->get('shortName')];
-					// The values below set the display Width, Height, and Refresh.  If they're not set by you, they'll
 					// be set to the default values within the system.
 					$x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
 					$y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
 					$r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
 					$tme = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
-					if ($_REQUEST['updatestatus'] == '1')
+					if (isset($_REQUEST['updatestatus']))
 					{
-						foreach((array)$ServiceSetting AS $id => $onoff)
-							$onoff ? $modOn[] = $id : $modOff[] = $id;
+						$modOn = $_REQUEST['modules'];
+						$modOff = $this->getClass('ModuleManager')->find(array('id' => $modOn),'','','','','',true,'id');
 						$Host->addModule($modOn);
 						$Host->removeModule($modOff);
 					}
