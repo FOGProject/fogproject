@@ -225,6 +225,21 @@ class Initiator
 			(!class_exists($className) && file_exists($path.$className.'.hook.php') ? include_once($path.$className.'.hook.php') : null);
 	}
 }
+function sanitize_output($buffer)
+{
+	$search = array(
+		'/\>[^\S ]+/s', //strip whitespaces after tags, except space
+		'/[^\S ]+\</s', //strip whitespaces before tags, except space
+		'/(\s)+/s',  // shorten multiple whitespace sequences
+	);
+	$replace = array(
+		'>',
+		'<',
+		'\\1',
+	);
+	$buffer = preg_replace($search,$replace,$buffer);
+	return $buffer;
+}
 // Initialize everything
 $Init = new Initiator();
 $Init::startInit();
@@ -250,8 +265,9 @@ foreach ($tables AS $table)
 	$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
 unset($tables,$table);
 // Set the memory limits
-$memory = $FOGCore->getSetting('FOG_MEMORY_LIMIT');
-ini_set('memory_limit',is_numeric($memory) && $memory >= 128 ? $memory.'M' : ini_get('memory_limit'));
+$_SESSION['memory'] = $FOGCore->getSetting('FOG_MEMORY_LIMIT');
+ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M' : ini_get('memory_limit'));
+$_SESSION['chunksize'] = 8192;
 // Generate the Server's Key Pairings
 $FOGCore->createKeyPair();
 // Set the base image link.
