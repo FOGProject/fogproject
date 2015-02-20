@@ -215,7 +215,7 @@ class Host extends FOGController
 					$this->add('printers', $Printer);
 				if (count($this->get('printers')))
 				{
-					foreach($this->getClass('PrinterManager')->find(array('id' => $PrinterIDs),'','','','',false,true) AS $Printer)
+					foreach($this->getClass('PrinterManager')->find(array('id' => $PrinterIDs),'','','','','',true) AS $Printer)
 						$this->add('printersnotinme',$Printer);
 				}
 			}
@@ -230,7 +230,7 @@ class Host extends FOGController
 			// Groups I am in
 			$GroupIDs = $this->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','groupID');
 			$Groups = $this->getClass('GroupManager')->find(array('id' => $GroupIDs));
-			$NotGroups = $this->getClass('GroupManager')->find(array('id' => $GroupIDs),'','','','','','',true);
+			$NotGroups = $this->getClass('GroupManager')->find(array('id' => $GroupIDs),'','','','','',true);
 			foreach($Groups AS $Group)
 				$this->add('groups',$Group);
 			unset($Group);

@@ -310,13 +310,13 @@ abstract class FOGManagerController extends FOGBase
 	/** buildSelectBox($matchID = '',$elementName = '',$orderBy = 'name')
 		Builds a select box for the class values found.
 	*/
-	public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '')
+	public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '',$templateholder = false)
 	{
 		$matchID = ($_REQUEST['node'] == 'image' ? ($matchID === 0 ? 1 : $matchID) : $matchID);
 		if (empty($elementName))
 			$elementName = strtolower($this->childClass);
 		foreach($this->find($filter ? array('id' => $filter) : '','',$orderBy,'','','',($filter ? true : false)) AS $Object)
-			$listArray[] = '<option value="'.$Object->get('id').'"'.($matchID == $Object->get('id') ? ' selected' : '').'>'.$Object->get('name').' - ('.$Object->get('id').')</option>';
+			$listArray[] = '<option value="'.$Object->get('id').'"'.($matchID == $Object->get('id') ? ' selected' : ($templateholder ? '${selected_item'.$Object->get('id').'}' : '')).'>'.$Object->get('name').' - ('.$Object->get('id').')</option>';
 		return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',$elementName,'- '.$this->foglang['PleaseSelect'].' -',implode("\n",$listArray)) : false);
 	}
 	// TODO: Read DB fields from child class
