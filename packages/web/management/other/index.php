@@ -10,19 +10,19 @@
 			print ($cnt++ > 0 ? "\t\t" : '').'<link href="'.$stylesheet.'" rel="stylesheet" type="text/css" />'."\n";
 		} ?>
 		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
-	</head><?php flush() ?>
+	</head>
 	<body> 
+		<div class="fog-variable" id="FOGPingActive"><?php intval($_SESSION['FOGPingActive']) ?></div>
 		<!-- Session Messages -->
-		<?php $this->FOGCore->getMessages(); flush() ?>
-		<?php if (preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) { ?><div id="header"></div>
+		<?php $this->FOGCore->getMessages() ?>
+		<?php if (preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) { // Mobile Login ?><div id="header"></div>
 		<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn()) { ?><div id="mainContainer">
 			<div class="mainContent"><?php print $this->menu."\n\t\t\t\t";
-				print ($this->pageTitle ? "<h2>$this->pageTitle</h2>" : null)."\n"; flush() ?>
+				print ($this->pageTitle ? "<h2>$this->pageTitle</h2>" : null)."\n" ?>
 				<div id="mobile_content">
-				<?php print $this->body; ob_flush(); ?>	</div>
+				<?php print $this->body ?>	</div>
 			</div>
-		</div><?php } else print $this->body; ob_flush(); } else { ?><!-- FOG Message Boxes -->
-		<div class="fog-variable" id="FOGPingActive"><?php intval($_SESSION['FOGPingActive']) ?></div>
+		</div><?php } else print $this->body; } else { // Main Login?><!-- FOG Message Boxes -->
 		<div id="loader-wrapper"><div id="loader"><div id="progress"></div></div></div>
 		<!-- Main -->
 		<div id="wrapper">
@@ -30,16 +30,16 @@
 			<div id="header"<?php !$this->FOGUser ? print ' class="login"' : ''?>>
 				<div id="logo">
 					<h1><a href="<?php print $_SERVER['PHP_SELF'] ?>"><img src="<?php print $this->imagelink ?>fog-logo.png" title="<?php print $this->foglang['Home'] ?>" /><sup><?php print FOG_VERSION ?></sup></a></h1>
-					<h2><?php print $this->foglang['Slogan']; flush(); ?></h2>
+					<h2><?php print $this->foglang['Slogan'] ?></h2>
 				</div>
 				<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn()) { ?><!-- Mainmenu -->
 				<div id="menu">
-					<?php print $this->menu; flush(); ?>
+					<?php print $this->menu ?>
 				</div>
 				<?php } ?></div>
 			<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !$this->isHomepage) { ?><!-- Submenu -->
 			<div id="sidebar">
-			<?php print $this->getClass('SubMenu')->buildMenu(); flush(); ?>
+			<?php print $this->getClass('SubMenu')->buildMenu() ?>
 			</div>
 			<?php } ?>
 			<!-- Content -->
@@ -48,9 +48,9 @@
 				<div id="content-inner">
 					<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn()) {
 						$this->pageTitle ? print "<h2>$this->pageTitle</h2>" : null;
-						$this->HookManager->processEvent('CONTENT_DISPLAY',array('content' => &$this->body,'sectionTitle' => &$this->sectionTitle,'pageTitle' => &$this->pageTitle)); flush();
+						$this->HookManager->processEvent('CONTENT_DISPLAY',array('content' => &$this->body,'sectionTitle' => &$this->sectionTitle,'pageTitle' => &$this->pageTitle));
 					}
-					print $this->body."\n"; ob_flush() ?>
+					print $this->body ?>
 				</div>
 			</div>
 		</div>
@@ -58,8 +58,7 @@
 		<div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a></div>
 		<!-- Javascript -->
 		<?php $cnt=0; $this->HookManager->processEvent('JAVASCRIPT',array('javascripts' => &$this->javascripts)); foreach($this->javascripts AS $javascript) {
-			print ($cnt++ > 0 ? "\t\t" : '').'<script src="'.$javascript.'" language="javascript" type="text/javascript" defer></script>'."\n"; flush();
+			print ($cnt++ > 0 ? "\t\t" : '').'<script src="'.$javascript.'" language="javascript" type="text/javascript" defer></script>'."\n";
 		} } ?>
 	</body>
 </html>
-<?php while(@ob_end_flush()); ?>
