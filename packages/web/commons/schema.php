@@ -1806,3 +1806,12 @@ $this->schema[] = array(
 	  PRIMARY KEY  (`qaID`)
 	) ENGINE=MyISAM;",
 );
+// 159
+$this->schema[] = array(
+	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME . "`.`nodeJSconfig` (
+	  `nodeID` mediumint(9) NOT NULL auto_increment,
+	  `port` mediumint(9) NOT NULL,
+	  `aesTmp` LONGTEXT NOT NULL,
+	  PRIMARY KEY  (`nodeID`)
+	) ENGINE=MyISAM;",
+);
