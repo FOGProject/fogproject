@@ -63,8 +63,7 @@ abstract class FOGBase
 	{
 		if (!preg_match('#/service/#', $_SERVER['PHP_SELF']) && !FOGCore::isAJAXRequest())
 		{
-			printf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
-			flush();
+			print sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 			exit;
 		}
 	}
@@ -76,10 +75,7 @@ abstract class FOGBase
 	public function error($txt, $data = array())
 	{
 		if ((((isset($this->debug)) && $this->debug === true)) && !preg_match('#/service/#', $_SERVER['PHP_SELF']) && !FOGCore::isAJAXRequest())
-		{
-			printf('<div class="debug-error">FOG ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
-			flush();
-		}
+			print sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 	}
 	// Debug - message is shown if debug is enabled for that class
 	/** debug($txt, $data=array())
@@ -88,10 +84,7 @@ abstract class FOGBase
 	public function debug($txt, $data = array())
 	{
 		if ((!isset($this) || (isset($this->debug) && $this->debug === true)) && !FOGCore::isAJAXRequest() && !preg_match('#/service/#', $_SERVER['PHP_SELF']))
-		{
-			printf('<div class="debug-error">FOG DEBUG: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
-			flush();
-		}
+			print sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 	}
 	// Info - message is shown if info is enabled for that class
 	/** info($txt, $data = array())
@@ -100,10 +93,7 @@ abstract class FOGBase
 	public function info($txt, $data = array())
 	{
 		if ((!isset($this) || (isset($this->info) && $this->info === true)) && !preg_match('#/service/#',$_SERVER['PHP_SELF']))
-		{
-			printf('<div class="debug-info">FOG INFO: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
-			flush();
-		}
+			print sprintf('<div class="debug-info">FOG INFO: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 	}
 	/** __toString()
 		Returns data as a string.
@@ -261,20 +251,20 @@ abstract class FOGBase
 	{
 
 		// Below is if we ever figure out how to use asymmetric keys
-		/*if (!$pub_key = openssl_pkey_get_public($data))
-			throw new Exception('#!ihc');
-		$a_key = openssl_pkey_get_details($pub_key);*/
+		//if (!$pub_key = openssl_pkey_get_public($data))
+		//	throw new Exception('#!ihc');
+		//$a_key = openssl_pkey_get_details($pub_key);
 		$iv_size = mcrypt_get_iv_size($enctype,$mode);
-		$iv = $this->randomString($iv_size);
-		$cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
-		return $iv.base64_encode($cipher);
+		$iv = bin2hex(mcrypt_create_iv($iv_size,MCRYPT__DEV_RANDOM));
+		$cipher = bin2hex(mcrypt_encrypt($enctype,$key,$data,$mode,$iv));
+		return $iv."|".$cipher;
 		// return $a_key['bits'].'|'.$iv.base64_encode($cipher);
 	}
 	public function aesdecrypt($encdata,$key,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
 	{
 		$iv_size = mcrypt_get_iv_size($enctype,$mode);
-		$iv = substr($encdata,0,$iv_size);
-		$decipher = mcrypt_decrypt($enctype,$key,base64_decode(substr($encdata,$iv_size)),$mode,$iv);
+		$data = explode('|',$encdata);
+		$decipher = mcrypt_decrypt($enctype,$key,$data[1],$mode,$data[0]);
 		return $decipher;
 	}
 	/**
