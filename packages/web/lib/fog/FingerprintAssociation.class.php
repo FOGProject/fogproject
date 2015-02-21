@@ -6,7 +6,7 @@ class FingerprintAssociation extends FOGController
 	
 	// Name -> Database field name
 	public $databaseFields = array(
-		'id' => 'hostID',
+		'id' => 'fpHostID',
 		'fingerprint' => 'fingerprint',
 	);
 	public function getHost()
