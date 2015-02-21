@@ -1815,3 +1815,7 @@ $this->schema[] = array(
 	  PRIMARY KEY  (`nodeID`)
 	) ENGINE=MyISAM;",
 );
+// 160
+$this->schema[] = array(
+	"ALTER TABLE`".DATABASE_NAME."`.`hostFingerprintAssoc` CHANGE `hostID` `fpHostID` MEDIUMINT(9) NOT NULL",
+);
