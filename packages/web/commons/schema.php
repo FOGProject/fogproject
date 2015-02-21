@@ -1789,3 +1789,20 @@ $this->schema[] = array(
 );
 // 157, doesn't do anything but ensure all currently create tables are InnoDB
 $this->schema[] = array();
+// 158
+$this->schema[] = array(
+	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME . "`.`hostFingerprintAssoc` (
+	  `hostID` mediumint(9) NOT NULL,
+	  `fingerprint` LONGTEXT NULL,
+	  PRIMARY KEY  (`hostID`)
+	) ENGINE=MyISAM;",
+	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME . "`.`queueAssoc` (
+	  `qaID` mediumint(9) NOT NULL auto_increment,
+	  `qaHostID` mediumint(9) NOT NULL,
+	  `qaStateID` mediumint(9) NOT NULL,
+	  `qaModuleID` mediumint(9) NOT NULL,
+	  `qaTaskInfo` LONGTEXT NULL,
+	  `qaCreatedTime` datetime NOT NULL, 
+	  PRIMARY KEY  (`qaID`)
+	) ENGINE=MyISAM;",
+);
