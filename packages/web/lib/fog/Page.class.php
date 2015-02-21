@@ -83,7 +83,7 @@ class Page extends FOGBase {
 		$this->javascripts[] = $path;
 	}
 	public function startBody() {
-		ob_start('ob_gzhandler');
+		ob_start('sanitize_output');
 	}
 	public function endBody() {
 		$this->body = ob_get_clean();
@@ -94,6 +94,7 @@ class Page extends FOGBase {
 		else
 			$path = 'other/index.php';
 		ob_start('sanitize_output',$_SESSION['chunksize']);
+		ob_implicit_flush(1);
 		include_once($path);
 		ob_end_flush();
 	}

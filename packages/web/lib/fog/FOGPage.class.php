@@ -87,12 +87,9 @@ abstract class FOGPage extends FOGBase
 	}
 	public function render()
 	{
+		ob_implicit_flush(true);
 		foreach($this->process() AS $result)
-		{
-			ob_start(null,$_SESSION['chunksize']);
 			print $result;
-			ob_end_flush();
-		}
 	}
 	public function process()
 	{
