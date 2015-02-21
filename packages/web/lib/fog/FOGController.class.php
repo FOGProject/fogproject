@@ -285,7 +285,7 @@ abstract class FOGController extends FOGBase
 	{
 		foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
 		{
-			$join[] = sprintf(' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s` ',$this->getClass($class)->databaseTable,$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$fields[0]],$this->databaseFields[$fields[1]]);
+			$join[] = sprintf(' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s` ',$this->getClass($class)->databaseTable,$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$fields[0]],$this->databaseTable,$this->databaseFields[$fields[1]]);
 			if ($fields[3])
 			{
 				foreach((array)$fields[3] AS $field => $value)
