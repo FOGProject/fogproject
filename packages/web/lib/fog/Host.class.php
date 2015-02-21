@@ -1197,6 +1197,10 @@ class Host extends FOGController
 		$this->getClass('PrinterAssociationManager')->destroy(array('hostID' => $this->get('id')));
 		// Remove Additional MAC Associations
 		$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id')));
+		// Remove Stored Fingerprints
+		$this->getClass('FingerprintAssociationManager')->destroy(array('id' => $this->get('id')));
+		// Remove Queued Items
+		$this->getClass('QueueManager')->destroy(array('hostID' => $this->get('id')));
 		// Update inventory to know when it was deleted
 		if ($this->get('inventory'))
 			$this->get('inventory')->set('deleteDate',$this->nice_date()->format('Y-m-d H:i:s'))->save();
