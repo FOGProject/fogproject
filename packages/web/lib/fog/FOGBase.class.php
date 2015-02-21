@@ -264,7 +264,9 @@ abstract class FOGBase
 	{
 		$iv_size = mcrypt_get_iv_size($enctype,$mode);
 		$data = explode('|',$encdata);
-		$decipher = mcrypt_decrypt($enctype,$key,$data[1],$mode,$data[0]);
+		$iv = $this->hex2bin($data[0]);
+		$encoded = $this->hex2bin($data[1]);
+		$decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
 		return $decipher;
 	}
 	/**
