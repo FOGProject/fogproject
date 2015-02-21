@@ -49,6 +49,7 @@ class Host extends FOGController
 		'task',
 		'snapinjob',
 		'users',
+		'fingerprint',
 	);
 	// Required database fields
 	public $databaseFieldsRequired = array(
@@ -60,6 +61,7 @@ class Host extends FOGController
 		'MACAddressAssociation' => array('hostID','id','macs',array('primary' => 1)),
 		'Image' => array('id','imageID','image'),
 		'Inventory' => array('hostID','id','hardware'),
+		'FingerprintAssociation' => array('id','id','fingerprint'),
 	);
 	// Custom functons
 	public function isHostnameSafe()
