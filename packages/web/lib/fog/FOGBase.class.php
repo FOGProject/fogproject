@@ -256,7 +256,7 @@ abstract class FOGBase
 		//$a_key = openssl_pkey_get_details($pub_key);
 		$iv_size = mcrypt_get_iv_size($enctype,$mode);
 		$iv = bin2hex(mcrypt_create_iv($iv_size,MCRYPT__DEV_RANDOM));
-		$cipher = bin2hex(mcrypt_encrypt($enctype,$key,$data,$mode,$iv));
+		$cipher = bin2hex(mcrypt_encrypt($enctype,$key,$data,$mode,$this->hex2bin($iv)));
 		return $iv."|".$cipher;
 		// return $a_key['bits'].'|'.$iv.base64_encode($cipher);
 	}
