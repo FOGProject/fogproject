@@ -309,7 +309,7 @@ class GroupManagementPage extends FOGPage
 			array(),
 		);
 		// All hosts not in this group.
-		foreach($Group->get('hostsnotinme') AS $Host)
+		foreach((array)$Group->get('hostsnotinme') AS $Host)
 		{
 			if ($Host && $Host->isValid() && !$Host->get('pending'))
 			{
@@ -333,7 +333,7 @@ class GroupManagementPage extends FOGPage
 			$groupAdd[] = "\n\t\t\t".'<div id="hostNotInMe">';
 			$groupAdd[] = "\n\t\t\t".'<h2>'._('Modify Membership for').' '.$Group->get('name').'</h2>';
 			$groupAdd[] = "\n\t\t\t".'<p>'._('Add hosts to group').' '.$Group->get('name').'</p>';
-			$groupAdd[] = $this->process();
+			$groupAdd[] = implode("\n",$this->process());
 			$groupAdd[] = "</div></center>";
 		}
 		// Reset the data for the next value
@@ -345,33 +345,6 @@ class GroupManagementPage extends FOGPage
 			_('Host Name'),
 			_('Image'),
 		);
-		// All hosts not in any group.
-		foreach($Group->get('nogroup') AS $Host)
-		{
-			if ($Host && $Host->isValid())
-			{
-				$this->data[] = array(
-					'host_id' => $Host->get('id'),
-					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-					'host_name' => $Host->get('name'),
-					'host_mac' => $Host->get('mac')->__toString(),
-					'host_desc' => $Host->get('description'),
-					'image_name' => $Host->getImage()->get('name'),
-					'check_num' => '2'
-				);
-			}
-		}
-		if (count($this->data) > 0)
-		{
-			$GroupDataExists = true;
-			$this->HookManager->processEvent('GROUP_HOST_NOT_IN_ANY',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-			$groupAdd[] = "\n\t\t\t<center>".'<label for="hostNoShow">'._('Check here to see hosts not within a group').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" /></label>';
-			$groupAdd[] = "\n\t\t\t".'<div id="hostNoGroup">';
-			$groupAdd[] = "\n\t\t\t".'<p>'._('Hosts below do not belong to a group').'</p>';
-			$groupAdd[] = "\n\t\t\t".'<p>'._('Add hosts to group').' '.$Group->get('name').'</p>';
-			$groupAdd[] = $this->process(); 
-			$groupAdd[] = "\n\t\t\t</div></center>";
-		}
 		if ($GroupDataExists)
 		{
 			$groupAdd[] = '<br/><center><input type="submit" value="'._('Add Host(s) to Group').'" />';
@@ -411,7 +384,7 @@ class GroupManagementPage extends FOGPage
                     'host_id'   => $Host->get('id'),
                     'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
                     'host_name' => $Host->get('name'),
-                    'host_mac'  => $Host->get('mac')->__toString(),
+                    'host_mac'  => $Host->get('mac'),
 					'image_name' => $imageSelector,
 					'selected_item'.$Host->get('imageID') => 'selected',
 				);

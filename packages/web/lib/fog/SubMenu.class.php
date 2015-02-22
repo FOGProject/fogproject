@@ -24,7 +24,7 @@ class SubMenu extends FOGBase
 			$this->title = array($this->foglang['Host'] => $this->object->get('name'),
 								 $this->foglang['MAC']	=> stripslashes($this->object ? $this->object->get('mac') : ''),
 								 $this->foglang['Image'] => stripslashes($this->object->getImage()->get('name')),
-								 $this->foglang['OS']	=> stripslashes($this->object->getOS()->get('name')),
+								 $this->foglang['OS']	=> stripslashes($this->object->getOS()),
 								 $this->foglang['LastDeployed'] => stripslashes($this->object->get('deployed')),
 			);
 			$GA = $this->getClass('GroupAssociationManager')->find(array('hostID' => $this->object->get('id')));
@@ -36,11 +36,10 @@ class SubMenu extends FOGBase
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Image']);
 			$this->object = new Image($_REQUEST['id']);
-			$imageType = $this->object->get('imageTypeID') ? new ImageType($this->object->get('imageTypeID')) : null;
 			$this->title = array($this->foglang['Images'] => $this->object->get('name'),
 								$this->foglang['LastUploaded'] => stripslashes($this->object->get('deployed')),
 								$this->foglang['DeployMethod'] => ($this->object->get('format') == 1 ? 'Partimage' : ($this->object->get('format') == 0 ? 'Partclone' : 'N/A')),
-								$this->foglang['ImageType'] => ($imageType && $imageType->isValid() ? $imageType->get('name') : $this->foglang['NoAvail']),
+								$this->foglang['ImageType'] => $this->object->get('imageType') ? $this->object->get('imageType') : $this->foglang['NoAvail'],
 								_('Primary Storage Group') => $this->object->getStorageGroup(),
 			);
 		}
