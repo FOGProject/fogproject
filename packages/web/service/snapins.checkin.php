@@ -9,8 +9,6 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host || !$Host->isValid() || $Host->get('pending'))
 		throw new Exception('#!ih');
-	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-		throw new Exception('#!ihc');
 	// Only worry about if the Task is queued, in line, or in progress (for reporting reasons).
 	$Task = $Host->get('task');
 	// If the task is Valid and is not of type 12 or 13 report that it's waiting for other tasks.
@@ -63,10 +61,7 @@ try
 			}
 		}
 	}
-	if ($_REQUEST['newService'])
-		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-	else
-		print $Datatosend;
+	print $Datatosend;
 }
 catch(Exception $e)
 {

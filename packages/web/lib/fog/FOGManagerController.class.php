@@ -20,6 +20,8 @@ abstract class FOGManagerController extends FOGBase
 	protected $childClass;
 	/** The variables of the class */
 	protected $classVariables;
+	/** The aliased fields **/
+	protected $aliasedFields;
 	/** The database fields. */
 	protected $databaseFields;
 	/** The database to class relationships extra data, but not needed **/
@@ -43,6 +45,7 @@ abstract class FOGManagerController extends FOGBase
 		// Get child class variables
 		$this->classVariables = get_class_vars($this->childClass);
 		// Set required child variable data
+		$this->aliasedFields = $this->classVariables['aliasedFields'];
 		$this->databaseTable = $this->classVariables['databaseTable'];
 		$this->databaseFields = $this->classVariables['databaseFields'];
 		$this->databaseFieldsFlipped = array_flip($this->databaseFields);
@@ -59,13 +62,10 @@ abstract class FOGManagerController extends FOGBase
 			$_SESSION['caller'] = __FUNCTION__;
 			if (empty($keyword))
 				throw new Exception('No keyword passed');
-			foreach((array)$this->databaseFields AS $common => $dbField)
-			{
-				if ($common != 'createdBy')
-					$findWhere[$common] = $keyword;
-			}
+			$this->array_remove($this->aliasedFields,$this->databaseFields);
+			$findWhere = array_fill_keys(array_keys($this->databaseFields),$keyword);
 			$Main = $this->getClass($this->childClass);
-			list($getFields,$join,$getFields) = $Main->buildQuery(true);
+			list($getFields,$join,$getFields) = $Main->buildQuery();
 			if ($this->childClass == 'User')
 				return $this->getClass('UserManager')->find($findWhere,'OR');
 			$HostIDs = ($this->childClass == 'Host' ? $this->getClass('HostManager')->find($findWhere,'OR','','','','','','id') : $this->getClass('HostManager')->find(array('name' => $keyword,'description' => $keyword,'ip' => $keyword),'OR','','','','','','id'));

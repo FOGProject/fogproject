@@ -26,6 +26,8 @@ abstract class FOGController extends FOGBase
 	// Allow setting / getting of these additional fields
 	/** set or get additional fields. */
 	public $additionalFields = array();
+	/** which fields are aliased **/
+	public $aliasedFields = array();
 	// Required database fields
 	/** Required Database Fields */
 	public $databaseFieldsRequired = array();
@@ -185,13 +187,9 @@ abstract class FOGController extends FOGBase
 				throw new Exception('No Table defined for this class');
 			// Variables
 			$fieldData = array();
+			$this->array_remove($this->aliasedFields,$this->databaseFields);
+			$this->array_remove($this->databaseFieldsToIgnore,$this->databaseFields);
 			$fieldsToUpdate = $this->databaseFields;
-			// Remove unwanted fields for update query
-			foreach ($this->databaseFields AS $name => $fieldName)
-			{
-				if (in_array($name, $this->databaseFieldsToIgnore))
-					unset($fieldsToUpdate[$name]);
-			}
 			// Build insert key and value arrays
 			foreach ($this->databaseFields AS $name => $fieldName)
 			{

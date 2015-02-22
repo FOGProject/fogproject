@@ -20,12 +20,14 @@ class Group extends FOGController
 		'membercount' => 'groupMemberCount',
 		'grouphosts' => 'groupHosts',
 	);
+	public $aliasedFields = array(
+		'membercount',
+		'grouphosts',
+	);
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
-		'hostitems',
 		'hosts',
 		'hostsnotinme',
-		'nogroup',
 	);
 	// field class associations
 	public $databaseFieldClassRelationships = array(
@@ -33,45 +35,15 @@ class Group extends FOGController
 	);
 	/** The customized query for this item template for a single call */
 	public $loadQueryTemplateSingle = "SELECT *,COUNT(`groupMembers`.`gmID`) groupMemberCount,GROUP_CONCAT(DISTINCT `groupMembers`.`gmHostID` ORDER BY `groupMembers`.`gmHostID`) groupHosts FROM `%s` %s WHERE `%s`='%s' GROUP BY `groupName`";
-	/** The customized query for this item template for a multiple call */
-	public $loadQueryTemplateMultiple = "SELECT *,COUNT(`groupMembers`.`gmID`) groupMemberCount,GROUP_CONCAT(DISTINCT `groupMembers`.`gmHostID` ORDER BY `groupMembers`.`gmHostID`) groupHosts FROM `%s` %s WHERE %s GROUP BY `groupName`";
     // Overides
     private function loadHosts()
     {
 		if (!$this->isLoaded('hosts') && $this->get('id'))
 		{
 			// All my hosts
-			foreach((array)$this->getClass('HostManager')->find(array('id' => explode(',',trim($this->get('grouphosts'),',')))) AS $Host)
-				$this->add('hosts',$Host);
-			// All Hosts in any group
-			$GroupHostIDs = array_unique($this->getClass('GroupAssociationManager')->find('','','','','','','','hostID'));
-			// All Host IDs
-			$HostIDs = array_unique($this->getClass('HostManager')->find('','','','','','','','id'));
-
-			$GroupHostIDs = array_diff($GroupHostIDs,$HostIDs,explode(',',trim($this->get('grouphosts'),',')));
-			// All Hosts in no group
-			foreach($this->getClass('HostManager')->find(array('id' => $GroupHostIDs),'','','','','',true) AS $Host)
-				$this->add('nogroup',$Host);
-			// All Hosts not in me
-			//$NotMeGroupIDs = array_unique($this->getClass('HostManager')->find(array('id' => explode(',',trim($this->get('grouphosts'),','))),'','','','','',true,'id'));
-			/*if ($GroupHostMeIDs)
-			{
-				// Hosts in Me find->push
-				foreach($this->getClass('HostManager')->find(array('id' => $GroupHostMeIDs)) AS $Host)
-					$this->add('hosts',$Host);
-				// Hosts not in this and in no group
-				if (count($this->get('hosts')))
-				{
-					// Only get the list of hosts if they don't already exist in no group.
-					$GroupIDs = array_unique(array_merge((array)$NoGroupIDs,(array)$GroupHostMeIDs));
-					// Only hosts not in me, but are in A group.
-					foreach($this->getClass('HostManager')->find(array('id' => $GroupIDs),'','','','','',true) AS $Host)
-						$this->add('hostsnotinme',$Host);
-				}
-			}
-			// Hosts known to not be in any group
-			foreach($this->getClass('HostManager')->find(array('id' => $NoGroupIDs)) AS $Host)
-				$this->add('nogroup',$Host);*/
+			$this->set('hosts',$this->getClass('HostManager')->find(array('id' => explode(',',$this->get('grouphosts')))));
+			// All hosts in a group other than me
+			$this->set('hostsnotinme',$this->getClass('HostManager')->find(array('id' => explode(',',$this->get('grouphosts'))),'','','','','',true));
 		}
 		return $this;
 	}

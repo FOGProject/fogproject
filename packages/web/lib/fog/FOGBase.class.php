@@ -233,6 +233,27 @@ abstract class FOGBase
 		}
 		return false;
 	}
+	/** removes specified key or keys (in array) from an array
+	 * @param $key the key or set of keys to remove
+	 * @param $array the array to keys from
+	 * @return void
+	 */
+	public function array_remove($key, array &$array)
+	{
+		if (is_array($key))
+		{
+			foreach($key AS $val)
+				unset($array[$val]);
+		}
+		else
+		{
+			foreach($array AS &$value)
+			{
+				if (is_array($value))
+					$this->array_remove($key,$value);
+			}
+		}
+	}
 	/*
 	* Generates a random string based on the length you pass.
 	*
@@ -247,7 +268,7 @@ abstract class FOGBase
 		shuffle($chars);
 		return implode(array_slice($chars,0,$length));
 	}
-	public function aesencrypt($data,$key,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
+	public function aesencrypt($data,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
 	{
 
 		// Below is if we ever figure out how to use asymmetric keys
@@ -255,17 +276,21 @@ abstract class FOGBase
 		//	throw new Exception('#!ihc');
 		//$a_key = openssl_pkey_get_details($pub_key);
 		$iv_size = mcrypt_get_iv_size($enctype,$mode);
-		$iv = bin2hex(mcrypt_create_iv($iv_size,MCRYPT__DEV_RANDOM));
-		$cipher = bin2hex(mcrypt_encrypt($enctype,$key,$data,$mode,$this->hex2bin($iv)));
-		return $iv."|".$cipher;
+		// Generate a one time, secure and random key if the key hasn't been entered already
+		if (!$key)
+			$key = openssl_random_pseudo_bytes($iv_size,$cstrong);
+		$iv = mcrypt_create_iv($iv_size,MCRYPT_DEV_URANDOM);
+		$cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
+		return bin2hex($iv)."|".bin2hex($cipher).'|'.bin2hex($key);
 		// return $a_key['bits'].'|'.$iv.base64_encode($cipher);
 	}
-	public function aesdecrypt($encdata,$key,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
+	public function aesdecrypt($encdata,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
 	{
 		$iv_size = mcrypt_get_iv_size($enctype,$mode);
 		$data = explode('|',$encdata);
-		$iv = $this->hex2bin($data[0]);
-		$encoded = $this->hex2bin($data[1]);
+		$iv = pack('H*',$data[0]);
+		$encoded = pack('H*',$data[1]);
+		$key = pack('H*',$data[2]);
 		$decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
 		return $decipher;
 	}
@@ -450,6 +475,32 @@ abstract class FOGBase
 		openssl_free_key($pub_key);
 		return base64_encode($output);
 	}
+	/** hex2bin($hex)
+	* @param $hex
+	* Function simple takes the data and transforms it into hexadecimal.
+	* @return the hex coded data.
+	*/
+	public function hex2bin($hex)
+	{
+		if (function_exists('hex2bin'))
+			$sbin = hex2bin($hex);
+		else
+		{
+			$n = strlen($hex);
+			$i = 0;
+			while ($i<$n)
+			{
+				$a = substr($hexstr,$i,2);
+				$c = pack("H*",$a);
+				if ($i == 0)
+					$sbin = $c;
+				else
+					$sbin .= $c;
+				$i += 2;
+			}
+		}
+		return $sbin;
+	}
 	/** certDecrypt($data)
 	* @param $data the data to decrypt
 	* @return $output the decrypted data
@@ -463,7 +514,7 @@ abstract class FOGBase
 		if (function_exists('hex2bin'))
 			$data = hex2bin($data);
 		else
-			$data = $this->FOGCore->hex2bin($data);
+			$data = $this->hex2bin($data);
 		$path = '/var/www/fogsslkeypair/';
 		if (!$priv_key = openssl_pkey_get_private(file_get_contents($path.'srvprivate.key')))
 			throw new Exception('Private Key Failed');

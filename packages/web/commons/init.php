@@ -237,8 +237,7 @@ function sanitize_output($buffer)
 		'<',
 		'\\1',
 	);
-	$buffer = preg_replace($search,$replace,$buffer);
-	return $buffer;
+	return preg_replace($search,$replace,$buffer);
 }
 // Initialize everything
 $Init = new Initiator();
@@ -264,10 +263,6 @@ $tables = $DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
 foreach ($tables AS $table)
 	$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
 unset($tables,$table);
-// Set the memory limits
-$_SESSION['memory'] = $FOGCore->getSetting('FOG_MEMORY_LIMIT');
-ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M' : ini_get('memory_limit'));
-$_SESSION['chunksize'] = 8192;
 // Generate the Server's Key Pairings
 $FOGCore->createKeyPair();
 // Set the base image link.

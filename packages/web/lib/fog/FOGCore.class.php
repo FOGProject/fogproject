@@ -391,27 +391,6 @@ class FOGCore extends FOGBase
 		return $str;
 	}
 
-	/** hex2bin($hex)
-	* @param $hex
-	* Function simple takes the data and transforms it into hexadecimal.
-	* @return the hex coded data.
-	*/
-	public function hex2bin($hex)
-	{
-		$n = strlen($hex);
-		$i = 0;
-		while ($i<$n)
-		{
-			$a = substr($hexstr,$i,2);
-			$c = pack("H*",$a);
-			if ($i == 0)
-				$sbin = $c;
-			else
-				$sbin .= $c;
-			$i += 2;
-		}
-		return $sbin;
-	}
 	/** getHWInfo()
 	* Returns the hardware information for hwinfo link on dashboard.
 	* @return $data
@@ -563,5 +542,10 @@ class FOGCore extends FOGBase
 		$_SESSION['ImageCount'] = $this->getClass('ImageManager')->count();
 		$_SESSION['SnapinCount'] = $this->getClass('SnapinManager')->count();
 		$_SESSION['PrinterCount'] = $this->getClass('PrinterManager')->count();
+		// Set the memory limits
+		$_SESSION['memory'] = $this->getSetting('FOG_MEMORY_LIMIT');
+		ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M' : ini_get('memory_limit'));
+		$_SESSION['chunksize'] = 8192;
+		$_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = $this->getSetting('FOG_FORMAT_FLAG_IN_GUI');
 	}
 }

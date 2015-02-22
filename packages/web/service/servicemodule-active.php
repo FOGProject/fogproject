@@ -10,8 +10,6 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if ((!$Host || !$Host->isValid() || $Host->get('pending')) && $_REQUEST['moduleid'] != 'hostregister')
 		throw new Exception('#!ih');
-	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-		throw new Exception('#!ihc');
 	// Get the true module ID for comparing what the host has.
 	$moduleID = current($FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['moduleid'])));
 	// get the module id
@@ -46,10 +44,7 @@ try
 		throw new Exception('#!ng');
 	$ModOns = $FOGCore->getClass('ModuleAssociationManager')->find(array('hostID' => $Host->get('id')),'','','','','','','moduleID');
 	$Datatosend = (in_array($moduleID->get('id'),(array)$ModOns) ? '#!ok' : '#!nh')."\n";
-	if ($_REQUEST['newService'])
-		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-	else
-		print $Datatosend;
+	print $Datatosend;
 }
 catch(Exception $e)
 {

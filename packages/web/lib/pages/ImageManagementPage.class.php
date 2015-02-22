@@ -30,7 +30,7 @@ class ImageManagementPage extends FOGPage
 	{
 		// Call parent constructor
 		parent::__construct($name);
-		$SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];//this->FOGCore->getSetting('FOG_FTP_IMAGE_SIZE');
+		$SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
 		// Header row
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
@@ -83,34 +83,24 @@ class ImageManagementPage extends FOGPage
 			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
 		// Find data
 		$Images = $this->getClass('ImageManager')->find();
-		$SizeServer = $this->FOGCore->getSetting('FOG_FTP_IMAGE_SIZE');
+		$SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
 		// Row data
 		foreach ((array)$Images AS $Image)
 		{
 			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
-			if ($Image->getStorageGroup() && $Image->getStorageGroup()->isValid())
-			{
-				$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
-				$StorageGroupName = $Image->getStorageGroup()->get('name');
-				$StorageGroupID = $Image->getStorageGroup()->get('id');
-			}
 			if ($StorageNode && $StorageNode->isValid() && $SizeServer)
 				$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
-			$imageType = $Image->get('imageTypeID') ? new ImageType($Image->get('imageTypeID')) : null;
-			$imagePartitionType = $Image->get('imagePartitionTypeID') ? new ImagePartitionType($Image->get('imagePartitionTypeID')) : null;
 			$this->data[] = array(
 				'id'		=> $Image->get('id'),
 				'name'		=> $Image->get('name'),
 				'description'	=> $Image->get('description'),
-				'storageGroup'	=> $StorageGroupName,
-				'storageGroupID'=> $StorageGroupID,
-				'osID'		=> $Image->get('osID'),
-				'os'		=> $Image->getOS()->get('name'),
+				'storageGroup'	=> $Image->get('storagename'),
+				'os'		=> $Image->get('imageOS'),
 				'deployed' => $this->validDate($Image->get('deployed')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
 				$SizeServer ? 'serv_size' : null => $SizeServer ? $servSize : null,
-				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
-				'image_partition_type' => $imagePartitionType && $imagePartitionType->isValid() ? $imagePartitionType->get('name') : '',
+				'image_type' => $Image->get('imageType'),
+				'image_partition_type' => $Image->get('imagePart'),
 				'type' => $Image->get('format') ? 'Partimage' : 'Partclone',
 			);
 		}
@@ -126,34 +116,24 @@ class ImageManagementPage extends FOGPage
 	public function search_post()
 	{
 		// Get All images based on the keyword
-		$SizeServer = $this->FOGCore->getSetting('FOG_FTP_IMAGE_SIZE');
+		$SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
 		// Find data -> Push data
 		foreach ($this->getClass('ImageManager')->search() AS $Image)
 		{
 			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
-			if ($Image->getStorageGroup() && $Image->getStorageGroup()->isValid())
-			{
-				$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
-				$StorageGroupName = $Image->getStorageGroup()->get('name');
-				$StorageGroupID = $Image->getStorageGroup()->get('id');
-			}
 			if ($StorageNode && $StorageNode->isValid() && $SizeServer)
 				$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
-			$imageType = $Image->get('imageTypeID') ? new ImageType($Image->get('imageTypeID')) : null;
-			$imagePartitionType = $Image->get('imagePartitionTypeID') ? new ImagePartitionType($Image->get('imagePartitionTypeID')) : null;
 			$this->data[] = array(
 				'id'		=> $Image->get('id'),
 				'name'		=> $Image->get('name'),
 				'description'	=> $Image->get('description'),
-				'storageGroup'	=> $StorageGroupName,
-				'storageGroupID'=> $StorageGroupID,
-				'osID'		=> $Image->get('osID'),
-				'os'		=> $Image->getOS()->get('name'),
+				'storageGroup'	=> $Image->get('storagename'),
+				'os'		=> $Image->get('imageOS'),
 				'deployed' => $this->validDate($Image->get('deployed')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
 				$SizeServer ? 'serv_size' : null => $SizeServer ? $servSize : null,
-				'image_type' => $imageType && $imageType->isValid() ? $imageType->get('name') : '',
-				'image_partition_type' => $imagePartitionType && $imagePartitionType->isValid() ? $imagePartitionType->get('name') : '',
+				'image_type' => $Image->get('imageType'),
+				'image_partition_type' => $Image->get('imagePart'),
 				'type' => $Image->get('format') ? 'Partimage' : 'Partclone',
 			);
 		}
@@ -311,7 +291,7 @@ class ImageManagementPage extends FOGPage
 			_('Partition') => '${image_partition_types}',
 			_('Protected') => '<input type="checkbox" name="protected_image" value="1" ${image_protected} />',
 			_('Compression') => '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="${image_comp}" />',
-			$this->FOGCore->getSetting('FOG_FORMAT_FLAG_IN_GUI') ? _('Image Manager') : '' => $this->FOGCore->getSetting('FOG_FORMAT_FLAG_IN_GUI') ? '<select name="imagemanage"><option value="1" ${is_legacy}>'._('PartImage').'</option><option value="0" ${is_modern}>'._('PartClone').'</option></select>' : '',
+			$_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ? _('Image Manager') : '' => $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ? '<select name="imagemanage"><option value="1" ${is_legacy}>'._('PartImage').'</option><option value="0" ${is_modern}>'._('PartClone').'</option></select>' : '',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" /><!--<i class="icon fa fa-question" title="TODO!"></i>-->',
 		);
 		$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
@@ -346,30 +326,7 @@ class ImageManagementPage extends FOGPage
 		// Reset for next tab
 		unset($this->data);
 		print "\n\t\t\t\t<!-- Hosts with Assigned Image -->";
-		$HostMan = new HostManager();
-		// Get hosts with this image assigned
-		foreach((array)$Image->get('hosts') AS $Host)
-		{
-			if ($Host && $Host->isValid())
-				$HostsWithMe[] = $Host->get('id');
-		}
-		// Get all Host IDs with an image assigned
-		foreach($HostMan->find() AS $Host)
-		{
-			if ($Host && $Host->isValid() && $Host->getImage()->isValid())
-				$HostWithAnyImage[] = $Host->get('id');
-		}
 		// Set the values
-		foreach($HostMan->find() AS $Host)
-		{
-			if ($Host && $Host->isValid())
-			{
-				if (!in_array($Host->get('id'),(array)$HostWithAnyImage))
-					$HostNotWithImage[] = $Host;
-				if (!in_array($Host->get('id'),(array)$HostsWithMe))
-					$HostNotWithMe[] = $Host;
-			}
-		}
 		print "\n\t\t\t\t".'<div id="image-host">';
 		// Create the header data:
 		$this->headerData = array(
@@ -396,7 +353,7 @@ class ImageManagementPage extends FOGPage
 			array(),
 		);
 		// All hosts not with this set as the image
-		foreach((array)$HostNotWithMe AS $Host)
+		foreach((array)$Image->get('hostsnotinme') AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
@@ -416,13 +373,12 @@ class ImageManagementPage extends FOGPage
 		{
 			$ImageDataExists = true;
 			$this->HookManager->processEvent('IMAGE_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-			print "\n\t\t\t<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label>';
-			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-host">';
-			print "\n\t\t\t".'<div id="hostNotInMe">';
-			print "\n\t\t\t".'<h2>'._('Modify image association for').' '.$Image->get('name').'</h2>';
-			print "\n\t\t\t".'<p>'._('Add hosts to image').' '.$Image->get('name').'</p>';
-			$this->render();
-			print "</div>";
+			$imageAdd[] = "\n\t\t\t<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label>';
+			$imageAdd[] = "\n\t\t\t".'<div id="hostNotInMe">';
+			$imageAdd[] = "\n\t\t\t".'<h2>'._('Modify image association for').' '.$Image->get('name').'</h2>';
+			$imageAdd[] = "\n\t\t\t".'<p>'._('Add hosts to image').' '.$Image->get('name').'</p>';
+			$imageAdd[] = implode("\n",$this->process());
+			$imageAdd[] = "\n\t\t\t</div></center>";
 		}
 		// Reset the data for the next value
 		unset($this->data);
@@ -435,7 +391,7 @@ class ImageManagementPage extends FOGPage
 			_('Registered'),
 		);
 		// All hosts without an image
-		foreach((array)$HostNotWithImage AS $Host)
+		foreach((array)$Image->get('hostsnotinany') AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
@@ -454,18 +410,23 @@ class ImageManagementPage extends FOGPage
 		{
 			$ImageDataExists = true;
 			$this->HookManager->processEvent('IMAGE_HOST_NOT_WITH_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-			print "\n\t\t\t".'<label for="hostNoShow">'._('Check here to see hosts not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" /></label>';
-			print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-host">';
-			print "\n\t\t\t".'<div id="hostNoImage">';
-			print "\n\t\t\t".'<p>'._('Hosts below have no image association').'</p>';
-			print "\n\t\t\t".'<p>'._('Assign hosts with image').' '.$Image->get('name').'</p>';
-			$this->render();
-			print "\n\t\t\t</div>";
+			$imageAdd[] = "\n\t\t\t<center>".'<label for="hostNoShow">'._('Check here to see hosts not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" /></label>';
+			$imageAdd[] = "\n\t\t\t".'<div id="hostNoImage">';
+			$imageAdd[] = "\n\t\t\t".'<p>'._('Hosts below have no image association').'</p>';
+			$imageAdd[] = "\n\t\t\t".'<p>'._('Assign hosts with image').' '.$Image->get('name').'</p>';
+			$imageAdd[] = implode("\n",$this->process());
+			$imageAdd[] = "\n\t\t\t</div></center>";
 		}
 		if ($ImageDataExists)
 		{
-			print '</br><input type="submit" value="'._('Add Image to Host(s)').'" />';
-			print "\n\t\t\t</form></center>";
+			$imageAdd[] = '</br><center><input type="submit" value="'._('Add Image to Host(s)').'" />';
+			$imageAdd[] = "\n\t\t\t</center><br/>";
+		}
+		if ($imageAdd)
+		{
+			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-host">';
+			print implode($imageAdd);
+			print "</form>";
 		}
 		unset($this->data);
 		// Create the header data:

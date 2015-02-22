@@ -57,7 +57,6 @@ try
 		if ($Task && $Task->isValid()) $Task->set('stateID',3)->save();
 		// Update the snapin task information.
 		$SnapinTask->set('stateID',1)->set('return',-1)->set('details','Pending...')->save();
-		print $file;
 		exit;
 	}
 }
