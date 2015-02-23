@@ -8,10 +8,8 @@ try
 		throw new Exception('#!im');
 	// Get the Host
 	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if ((!$Host && !$Host->isValid()) || ($Host->get('pending') && $_REQUEST['moduleid'] != 'hostregister'))
+	if ((!$Host || !$Host->isValid() || $Host->get('pending')) && $_REQUEST['moduleid'] != 'hostregister')
 		throw new Exception('#!ih');
-	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-		throw new Exception('#!ihc');
 	// Get the true module ID for comparing what the host has.
 	$moduleID = current($FOGCore->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['moduleid'])));
 	// get the module id
@@ -44,16 +42,9 @@ try
 	// If it's globally disabled, return that so the client doesn't keep trying it.
 	if (!$moduleName[$moduleID->get('shortName')])
 		throw new Exception('#!ng');
-	foreach((array)$Host->get('modules') AS $Module)
-	{
-		if ($Module && $Module->isValid() && $Module->get('isDefault'))
-			$activeIDs[] = $Module->get('id');
-	}
-	$Datatosend = (in_array($moduleID->get('id'),(array)$activeIDs) ? '#!ok' : '#!nh')."\n";
-	if ($_REQUEST['newService'])
-		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-	else
-		print $Datatosend;
+	$ModOns = $FOGCore->getClass('ModuleAssociationManager')->find(array('hostID' => $Host->get('id')),'','','','','','','moduleID');
+	$Datatosend = (in_array($moduleID->get('id'),(array)$ModOns) ? '#!ok' : '#!nh')."\n";
+	print $Datatosend;
 }
 catch(Exception $e)
 {

@@ -1,29 +1,15 @@
 <?php
 class HostManager extends FOGManagerController
 {
+	public $loadQueryTemplate = "SELECT *,GROUP_CONCAT(DISTINCT `hostMAC`.`hmID`) hostMacs,`hostPriMac`.`hmMAC` hostPriMac FROM `%s` LEFT OUTER JOIN `hostMAC` ON `hostMAC`.`hmHostID`=`hosts`.`hostID` LEFT OUTER JOIN `hostMAC` hostPriMac ON `hostPriMac`.`hmHostID`=`hosts`.`hostID` %s %s AND `hostPriMac`.`hmPrimary`='1' %s GROUP BY `hostName` %s %s";
 	public function getHostByMacAddresses($MACs)
 	{
-		foreach((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MACs)) AS $MAC)
-		{
-			$MACHost = $MAC->get('hostID');
-			$HostTask = new Host($MACHost);
-			$MAC = new MACAddress($MAC->get('mac'));
-			if ($HostTask && $HostTask->isValid() && $HostTask->get('task') && $HostTask->get('task')->isValid())
-			{
-				if ($MAC && $MAC->isValid() && !$MAC->isImageIgnored() && !$MAC->isPending())
-					$HostIDs[] = $MACHost;
-			}
-			if ($HostTask && $HostTask->isValid() && (!$HostTask->get('task') || !$HostTask->get('task')->isValid()))
-			{
-				if ($MAC && $MAC->isValid() && !$MAC->isClientIgnored() && !$MAC->isPending())
-					$HostIDs[] = $MACHost;
-			}
-		}
-		$HostIDs = array_unique((array)$HostIDs);
-		if (count($HostIDs) > 1)
+		foreach($this->getClass('MACAddressAssociationManager')->find(array('mac' => $MACs)) AS $MAC)
+			$MACHost[] = $MAC->get('hostID');
+		$Hosts = array_unique((array)$this->getClass('HostManager')->find(array('id' => array_unique((array)$MACHost))));
+		if (count($Hosts) > 1)
 			throw new Exception($this->foglang['ErrorMultipleHosts']);
-		$Host = new Host(implode((array)$HostIDs));
-		return $Host;
+		return current($Hosts);
 	}
 	public function isSafeHostName($hostname)
 	{

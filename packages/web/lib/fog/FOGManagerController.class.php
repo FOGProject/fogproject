@@ -20,10 +20,18 @@ abstract class FOGManagerController extends FOGBase
 	protected $childClass;
 	/** The variables of the class */
 	protected $classVariables;
+	/** The aliased fields **/
+	protected $aliasedFields;
 	/** The database fields. */
 	protected $databaseFields;
-	/** The database to class relationships. */
+	/** The database to class relationships extra data, but not needed **/
 	protected $databaseFieldClassRelationships;
+	/** The query to use from the class **/
+	public $loadQueryTemplate = "SELECT * FROM `%s` %s %s %s %s %s";
+	/** The query to use from the class **/
+	public $loadQueryGroupTemplate = "SELECT * FROM (SELECT * FROM `%s` %s %s %s %s %s) `%s` %s %s %s %s %s";
+	/** Search Query Template **/
+	private $searchQueryTemplate = "SELECT `%s` FROM `%s` %s %s %s";
 	// Construct
 	/** __construct()
 		Different constructor from FOG Base
@@ -37,26 +45,28 @@ abstract class FOGManagerController extends FOGBase
 		// Get child class variables
 		$this->classVariables = get_class_vars($this->childClass);
 		// Set required child variable data
+		$this->aliasedFields = $this->classVariables['aliasedFields'];
+		$this->databaseTable = $this->classVariables['databaseTable'];
 		$this->databaseFields = $this->classVariables['databaseFields'];
 		$this->databaseFieldsFlipped = array_flip($this->databaseFields);
-		$this->databaseTable = $this->classVariables['databaseTable'];
 		$this->databaseFieldClassRelationships = $this->classVariables['databaseFieldClassRelationships'];
 	}
 	// Search
-	public function search()
+	public function search($keyword = null)
 	{
 		try
 		{
-			$keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', preg_replace('#[?*]*#','%',$_REQUEST['crit'])) . '%');
+			if (empty($keyword))
+				$keyword = $_REQUEST['crit'];
+			$keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', $keyword).'%');
 			$_SESSION['caller'] = __FUNCTION__;
 			if (empty($keyword))
 				throw new Exception('No keyword passed');
-			foreach((array)$this->databaseFields AS $common => $dbField)
-			{
-				if ($common != 'createdBy')
-					$findWhere[$common] = $keyword;
-			}
-			if ($this->classClass == 'User')
+			$this->array_remove($this->aliasedFields,$this->databaseFields);
+			$findWhere = array_fill_keys(array_keys($this->databaseFields),$keyword);
+			$Main = $this->getClass($this->childClass);
+			list($getFields,$join,$getFields) = $Main->buildQuery();
+			if ($this->childClass == 'User')
 				return $this->getClass('UserManager')->find($findWhere,'OR');
 			$HostIDs = ($this->childClass == 'Host' ? $this->getClass('HostManager')->find($findWhere,'OR','','','','','','id') : $this->getClass('HostManager')->find(array('name' => $keyword,'description' => $keyword,'ip' => $keyword),'OR','','','','','','id'));
 			// Get all the hosts host search is different than other searches
@@ -66,17 +76,17 @@ abstract class FOGManagerController extends FOGBase
 			// Get the IDs of the objects we are trying to "scan" for
 			if ($this->childClass == 'Host')
 			{
-				$GroupIDs = $this->getClass('GroupManager')->find(array('name' => $keyword,'description' => $keyword),'OR','','','','','','id');
 				$ImageIDs = $this->getClass('ImageManager')->find(array('name' => $keyword,'description' => $keyword),'OR','','','','','','id');
+				$GroupIDs = $this->getClass('GroupManager')->find(array('name' => $keyword,'description' => $keyword),'OR','','','','','','id');
 				$SnapinIDs = $this->getClass('SnapinManager')->find(array('name' => $keyword,'description' => $keyword,'file' => $keyword),'OR','','','','','','id');
 				$PrinterIDs = $this->getClass('PrinterManager')->find(array('name' => $keyword),'OR','','','','','','id');
+				//$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
 				$GroupHostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $GroupIDs),'','','','','','','hostID');
-				$HostIDs = array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs));
-				$findWhere = array('id' => $HostIDs);
-				$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
 				$SnapinHostIDs = $this->getClass('SnapinAssociationManager')->find(array('snapinID' => $SnapinIDs),'','','','','','','hostID');
 				$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $PrinterIDs),'','','','','','','hostID');
-				unset($GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$GroupHostIDs,$ImageHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
+				$HostIDs = array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs));
+				$findWhere = array('id' => $HostIDs);
+				unset($GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$GroupHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
 			}
 			else if ($this->childClass == 'Group')
 			{
@@ -120,7 +130,7 @@ abstract class FOGManagerController extends FOGBase
 				$SnapinIDs = $this->getClass('SnapinManager')->find(array('name' => $keyword,'description' => $keyword,'file' => $keyword),'OR','','','','','','id');
 				$PrinterIDs = $this->getClass('PrinterManager')->find(array('name' => $keyword),'OR','','','','','','id');
 				$GroupHostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $GroupIDs),'','','','','','','hostID');
-				$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
+				//$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
 				$SnapinHostIDs = $this->getClass('SnapinAssociationManager')->find(array('snapinID' => $SnapinIDs),'','','','','','','hostID');
 				$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $PrinterIDs),'','','','','','','hostID');
 				$HostIDs = array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs));
@@ -128,7 +138,7 @@ abstract class FOGManagerController extends FOGBase
 				unset($TaskIDs,$TaskTypeIDs,$GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$GroupHostIDs,$ImageHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
 			}
 			unset($_SESSION['caller']);
-			return $this->childClass == 'Task' ? $this->getClass($this->childClass.'Manager')->find($findWhere,'OR') : array_unique($this->getClass($this->childClass.'Manager')->find((array)$findWhere,'OR'),SORT_REGULAR);
+			return array_unique($this->getClass($this->childClass)->getManager()->find($findWhere));
 		}
 		catch (Exception $e)
 		{
@@ -143,20 +153,6 @@ abstract class FOGManagerController extends FOGBase
 	{
 		try
 		{
-			$getFields = trim(implode(array_keys($this->databaseFieldsFlipped),'`,`'),',');
-			if ($idField || (!$where && !$whereOperator && !$orderBy && !$sort && !$compare && !$groupBy && !$not && !$idField))
-			{
-				if (strtolower($_SESSION['caller']) == 'search')
-				{
-					$getFields = $this->databaseFields[$idField ? $idField : 'id'];
-					$idField = $idField ? $idField : 'id';
-				}
-				else
-				{
-					if ($idField)
-						$getFields = array_key_exists($idField,$this->databaseFields) ? $this->databaseFields[$idField] : $this->databaseFields['id'];
-				}
-			}
 			if (empty($compare))
 				$compare = '=';
 			// Fail safe defaults
@@ -166,12 +162,12 @@ abstract class FOGManagerController extends FOGBase
 				$whereOperator = 'AND';
 			if (empty($orderBy))
 			{
-				if ($this->databaseFields['name'])
+				if (array_key_exists('name',$this->databaseFields))
 					$orderBy = 'name';
 				else
 					$orderBy = 'id';
 			}
-			else if (!$this->databaseFields[$orderBy])
+			else if (!array_key_exists($orderBy,$this->databaseFields))
 				$orderBy = 'id';
 			$not = ($not ? ' NOT ' : '');
 			// Error checking
@@ -183,9 +179,9 @@ abstract class FOGManagerController extends FOGBase
 				foreach((array)$where AS $field => $value)
 				{
 					if (is_array($value))
-						$whereArray[] = sprintf("`%s`%sIN ('%s')", $this->key($field), $not,implode("', '", $value));
-					else
-						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
+						$whereArray[] = sprintf("`%s` %s IN ('%s')", $this->databaseFields[$field], $not,implode("', '", $value));
+					else if (!is_array($value))
+						$whereArray[] = sprintf("`%s` %s '%s'", $this->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : ($not ? '!' : '').$compare), $value);
 				}
 			}
 			foreach((array)$orderBy AS $item)
@@ -198,32 +194,39 @@ abstract class FOGManagerController extends FOGBase
 				if ($this->databaseFields[$item])
 					$groupArray[] = sprintf("`%s`",$this->databaseFields[$item]);
 			}
+			$groupImplode = implode((array)$groupArray,',');
+			$orderImplode = implode((array)$orderArray,',');
+			$groupByField = 'GROUP BY '.$groupImplode;
+			$orderByField = 'ORDER BY '.$orderImplode;
+			list($join,$whereArrayAnd) = $this->getClass($this->childClass)->buildQuery($not,$compare);
 			if ($groupBy)
 			{
-				$sql = "SELECT %s`%s` FROM (SELECT %s`%s` FROM `%s` %s %s %s) AS tmp %s %s %s";
+				$sql = $this->loadQueryGroupTemplate;
 				$fieldValues = array(
-					(!count($whereArray) ? 'DISTINCT ' : ''),
-					$getFields,
-					(!count($whereArray) ? 'DISTINCT ' : ''),
-					$getFields,
 					$this->databaseTable,
+					$join,
 					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
-					'ORDER BY '.trim(implode($orderArray,','),','),
+					(count($whereArrayAnd) ? (count($whereArray) ? 'AND ' : 'WHERE ').implode(' '.$whereOperator.' ',$whereArrayAnd) : ''),
+					$orderByField,
 					$sort,
-					'GROUP BY '.trim(implode($groupArray,','),','),
-					'ORDER BY '.trim(implode($orderArray,','),','),
+					$this->databaseTable,
+					$join,
+					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
+					(count($whereArrayAnd) ? (count($whereArray) ? 'AND ' : 'WHERE ').implode(' '.$whereOperator.' ',$whereArrayAnd) : ''),
+					$groupByField,
+					$orderByField,
 					$sort
 				);
 			}
 			else
 			{
-				$sql = "SELECT %s`%s` FROM `%s` %s %s %s";
+				$sql = $this->loadQueryTemplate;
 				$fieldValues = array(
-					(!count($whereArray) ? 'DISTINCT ' : ''),
-					$getFields,
 					$this->databaseTable,
+					$join,
 					(count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
-					'ORDER BY '.trim(implode($orderArray,','),','),
+					(count($whereArrayAnd) ? (count($whereArray) ? 'AND ' : 'WHERE ').implode(' '.$whereOperator.' ',$whereArrayAnd) : ''),
+					$orderByField,
 					$sort
 				);
 			}
@@ -232,14 +235,14 @@ abstract class FOGManagerController extends FOGBase
 			$this->DB->query($sql,$fieldValues);
 			if ($idField)
 			{
-				while($id = $this->DB->fetch(MYSQLI_NUM)->get($idField))
-					$ids[] = $id[0];
+				while($id = $this->DB->fetch()->get())
+					$ids[] = $id[$this->databaseFields[$idField]];
 				$data = array_unique((array)$ids);
 			}
 			else
 			{
-				while($row = $this->DB->fetch()->get())
-					array_push($data,new $this->childClass($row));
+				while($queryData = $this->DB->fetch()->get())
+					$data[] = $this->getClass($this->childClass)->setQuery($queryData);
 			}
 			unset($id,$ids,$row);
 			// Return
@@ -272,9 +275,9 @@ abstract class FOGManagerController extends FOGBase
 				foreach((array)$where AS $field => $value)
 				{
 					if (is_array($value))
-						$whereArray[] = sprintf("`%s` IN ('%s')", $this->key($field), implode("', '", $value));
+						$whereArray[] = sprintf("`%s` IN ('%s')", $this->databaseFields[$field], implode("', '", $value));
 					else
-						$whereArray[] = sprintf("`%s` %s '%s'", $this->key($field), (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
+						$whereArray[] = sprintf("`%s` %s '%s'", $this->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
 				}
 			}
 			// Count result rows
@@ -307,13 +310,13 @@ abstract class FOGManagerController extends FOGBase
 	/** buildSelectBox($matchID = '',$elementName = '',$orderBy = 'name')
 		Builds a select box for the class values found.
 	*/
-	public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '')
+	public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '',$templateholder = false)
 	{
 		$matchID = ($_REQUEST['node'] == 'image' ? ($matchID === 0 ? 1 : $matchID) : $matchID);
 		if (empty($elementName))
 			$elementName = strtolower($this->childClass);
 		foreach($this->find($filter ? array('id' => $filter) : '','',$orderBy,'','','',($filter ? true : false)) AS $Object)
-			$listArray[] = '<option value="'.$Object->get('id').'"'.($matchID == $Object->get('id') ? ' selected' : '').'>'.$Object->get('name').' - ('.$Object->get('id').')</option>';
+			$listArray[] = '<option value="'.$Object->get('id').'"'.($matchID == $Object->get('id') ? ' selected' : ($templateholder ? '${selected_item'.$Object->get('id').'}' : '')).'>'.$Object->get('name').' - ('.$Object->get('id').')</option>';
 		return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',$elementName,'- '.$this->foglang['PleaseSelect'].' -',implode("\n",$listArray)) : false);
 	}
 	// TODO: Read DB fields from child class
