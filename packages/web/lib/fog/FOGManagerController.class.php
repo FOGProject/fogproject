@@ -42,10 +42,6 @@ abstract class FOGManagerController extends FOGBase
 		$this->databaseTable = $this->classVariables['databaseTable'];
 		$this->databaseFieldClassRelationships = $this->classVariables['databaseFieldClassRelationships'];
 	}
-	public function __destruct()
-	{
-		parent::__destruct();
-	}
 	// Search
 	public function search()
 	{

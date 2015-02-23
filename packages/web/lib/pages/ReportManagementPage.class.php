@@ -27,7 +27,6 @@ class ReportManagementPage extends FOGPage
 	public function __construct()
 	{
 		parent::__construct();
-		$this->imagefile = "css/".dirname($this->FOGCore->getSetting('FOG_THEME'))."/images";
 		$this->pdffile = '<i class="fa fa-file-pdf-o fa-2x"></i>';
 		$this->csvfile = '<i class="fa fa-file-excel-o fa-2x"></i>';
 		$_SESSION['foglastreport'] = null;
@@ -92,25 +91,14 @@ class ReportManagementPage extends FOGPage
 			'${input}',
 		);
 		// Get the dates to use!
-		$ImagingLogs = $this->getClass('ImagingLogManager')->find('','','','','',array('start','finish'));
-		foreach ((array)$ImagingLogs AS $ImagingLog)
-		{
-			$DateStart = $this->nice_date($ImagingLog->get('start'));
-			$DateEnd = $this->nice_date($ImagingLog->get('finish'));
-			$checkStart = $this->validDate($DateStart);
-			$checkEnd = $this->validDate($DateEnd);
-			if ($checkStart && $checkEnd)
-			{
-				$datesold[] = $DateStart->format('Y-m-d');
-				$datesnew[] = $DateEnd->format('Y-m-d');
-			}
-		}
-		if (($datesold || $datesnew) || ($datesold && $datesnew))
-			$Dates = array_merge($datesold,$datesnew);
+		$DateStart = $this->DB->query("SELECT DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') start FROM `imagingLog` WHERE DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start');
+		$DateEnd = $this->DB->query("SELECT DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') finish FROM `imagingLog` WHERE DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start');
+		$AllDates = array_merge($DateStart,$DateEnd);
+		foreach($AllDates AS $Date)
+			$Dates[] = array_shift($Date);
+		$Dates = array_unique($Dates);
 		if ($Dates)
 		{
-			$Dates = array_unique($Dates);
-			rsort($Dates);
 			foreach($Dates AS $Date)
 			{
 				$dates1 .= '<option value="'.$Date.'">'.$Date.'</option>';
@@ -198,7 +186,7 @@ class ReportManagementPage extends FOGPage
 		foreach((array)$csvHead AS $csvHeader)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
-		$ImagingLogs = $this->getClass('ImagingLogManager')->find(array('start' => '','finish' => ''),'OR','','',"BETWEEN '$date1' AND '$date2'");
+		$ImagingLogs = $this->getClass('ImagingLogManager')->find(array('start' => 'nope','finish' => 'nope'),'OR','','',"BETWEEN '$date1' AND '$date2'");
 		foreach((array)$ImagingLogs AS $ImagingLog)
 		{
 			$start = $this->nice_date($ImagingLog->get('start'));
@@ -254,7 +242,7 @@ class ReportManagementPage extends FOGPage
 			}
 		}
 		// This is for the pdf.
-		$ReportMaker->appendHTML($this->process());
+		$ReportMaker->appendHTML(implode("\n",$this->process()));
 		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
@@ -339,7 +327,7 @@ class ReportManagementPage extends FOGPage
 			$ReportMaker->endCSVLine();
 		}
 		// This is for the pdf.
-		$ReportMaker->appendHTML($this->process());
+		$ReportMaker->appendHTML(implode("\n",$this->process()));
 		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
@@ -424,7 +412,7 @@ class ReportManagementPage extends FOGPage
 		// All hosts
 		$Hosts = $this->getClass('HostManager')->find();
 		// Loop through each of the hosts.
-		foreach((array)$Hosts AS $Host)
+		foreach($this->getClass('HostManager')->find('','','','','','name') AS $Host)
 		{
 			if ($Host && $Host->isValid())
 			{
@@ -475,7 +463,7 @@ class ReportManagementPage extends FOGPage
 			}
 		}
 		// This is for the pdf.
-		$ReportMaker->appendHTML($this->process());
+		$ReportMaker->appendHTML(implode("\n",$this->process()));
 		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
@@ -556,7 +544,7 @@ class ReportManagementPage extends FOGPage
 			}
 		}
 		// This is for the pdf.
-		$ReportMaker->appendHTML($this->process());
+		$ReportMaker->appendHTML(implode("\n",$this->process()));
 		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
@@ -634,7 +622,7 @@ class ReportManagementPage extends FOGPage
 			$ReportMaker->endCSVLine();
 		}
 		// This is for the pdf.
-		$ReportMaker->appendHTML($this->process());
+		$ReportMaker->appendHTML(implode("\n",$this->process()));
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 		$ReportMaker->outputReport(0);
 		print '</form>';
@@ -956,7 +944,7 @@ class ReportManagementPage extends FOGPage
 			$ReportMaker->endCSVLine();
 		}
 		// This is for the pdf.
-		$ReportMaker->appendHTML($this->process());
+		$ReportMaker->appendHTML(implode("\n",$this->process()));
 		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
@@ -1142,7 +1130,7 @@ class ReportManagementPage extends FOGPage
 			$ReportMaker->endCSVLine();
 		}
 		// This is for the pdf.
-		$ReportMaker->appendHTML($this->process());
+		$ReportMaker->appendHTML(implode("\n",$this->process()));
 		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}

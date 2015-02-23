@@ -100,9 +100,7 @@ class HookManager extends FOGBase
 				{
 					$file = !$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-9) == '.hook.php' ? file($fileInfo->getPathname()) : null;
 					$PluginName = preg_match('#plugins#i',$hookDirectory) ? basename(substr($hookDirectory,0,-6)) : null;
-					if ($PluginName)
-						$Plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $PluginName,'installed' => 1)));
-					if ($Plugin)
+					if (in_array($PluginName,$_SESSION['PluginsInstalled']))
 						$className = (substr($fileInfo->getFilename(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
 					else if ($file && !preg_match('#plugins#',$fileInfo->getPathname()))
 					{
@@ -116,7 +114,7 @@ class HookManager extends FOGBase
 							$className = (substr($fileInfo->getFileName(),-9) == '.hook.php' ? substr($fileInfo->getFilename(),0,-9) : null);
 					}
 					if ($className && !in_array($className,get_declared_classes()))
-						$class = new $className();
+						$this->getClass($className);
 				}
 			}
 		}

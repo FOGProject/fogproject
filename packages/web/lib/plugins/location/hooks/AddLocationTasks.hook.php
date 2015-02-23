@@ -8,8 +8,7 @@ class AddLocationTasks extends Hook
     var $node = 'location';	
 	public function TasksActiveTableHeader($arguments)
 	{
-		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
-		if ($plugin && $plugin->isValid())
+		if ($_SESSION[$this->node])
 		{
 			if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']))
 				$arguments['headerData'][3] = 'Location';
@@ -18,8 +17,7 @@ class AddLocationTasks extends Hook
 
 	public function TasksActiveData($arguments)
 	{
-		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
-		if ($plugin && $plugin->isValid())
+		if ($_SESSION[$this->node])
 		{
 			if ($_REQUEST['node'] == 'tasks' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub']))
 			{
