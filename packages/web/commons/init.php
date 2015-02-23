@@ -111,9 +111,13 @@ class Initiator
 	{
 		@set_time_limit(0);
 		@error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
-		@ini_set('session.save_handler','mm');
 		@ini_set('session.cookie_httponly',true);
 		@session_start();
+		@header('X-Content-Type-Options: nosniff');
+		@header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
+		@header('X-XSS-Protection: 1; mode=block');
+		@header('X-Frame-Options: deny');
+		@header('Cache-Control: no-cache');
 		@session_cache_limiter('no-cache');
 		@session_set_cookie_params(0,null,null,true,true);
 		@set_magic_quotes_runtime(0);
@@ -225,24 +229,10 @@ class Initiator
 			(!class_exists($className) && file_exists($path.$className.'.hook.php') ? include_once($path.$className.'.hook.php') : null);
 	}
 }
-function sanitize_output($buffer)
-{
-	$search = array(
-		'/\>[^\S ]+/s', //strip whitespaces after tags, except space
-		'/[^\S ]+\</s', //strip whitespaces before tags, except space
-		'/(\s)+/s',  // shorten multiple whitespace sequences
-	);
-	$replace = array(
-		'>',
-		'<',
-		'\\1',
-	);
-	return preg_replace($search,$replace,$buffer);
-}
 // Initialize everything
 $Init = new Initiator();
-$Init::startInit();
 $System = new System();
+$Init::startInit();
 // Get the configuration
 $Config = new Config();
 // Core
@@ -250,24 +240,23 @@ $FOGFTP = new FOGFTP();
 $FOGCore = new FOGCore();
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
-$DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
-$FOGCore->setSessionEnv();
-// HookManager
-$HookManager = new HookManager();
-$HookManager->load();
-// Make sure to allow concat flags.
-$DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION[HostCount]})")->fetch()->get();
+$DB = $DatabaseManager->connect()->DB;
 // Ensure any new tables are always MyISAM
 $DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
-$tables = $DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
+$tables = $DB->fetch('','fetch_all')->get('TABLE_NAME');
 foreach ($tables AS $table)
-	$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
+	$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".$table."` ENGINE=MyISAM");
 unset($tables,$table);
+// Set the memory limits
+ini_set('memory_limit',is_numeric($FOGCore->getSetting('FOG_MEMORY_LIMIT')) && $FOGCore->getSetting('FOG_MEMORY_LIMIT') >= 128 ? $FOGCore->getSetting('FOG_MEMORY_LIMIT').'M' : ini_get('memory_limit'));
 // Generate the Server's Key Pairings
 $FOGCore->createKeyPair();
 // Set the base image link.
 if (!preg_match('#/mobile/#',$_SERVER['PHP_SELF']))
-	$imagelink = ($theme ? 'css/'.dirname($theme).'/images/' : 'css/default/images/');
+	$imagelink = ($FOGCore->getSetting('FOG_THEME') ? 'css/'.dirname($FOGCore->getSetting('FOG_THEME')).'/images/' : 'css/default/images/');
 else
 	$imagelink = 'css/images/';
+// HookManager
+$HookManager = new HookManager();
+$HookManager->load();
 $Init::endInit();

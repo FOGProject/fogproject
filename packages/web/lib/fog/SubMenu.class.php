@@ -24,7 +24,7 @@ class SubMenu extends FOGBase
 			$this->title = array($this->foglang['Host'] => $this->object->get('name'),
 								 $this->foglang['MAC']	=> stripslashes($this->object ? $this->object->get('mac') : ''),
 								 $this->foglang['Image'] => stripslashes($this->object->getImage()->get('name')),
-								 $this->foglang['OS']	=> stripslashes($this->object->getOS()),
+								 $this->foglang['OS']	=> stripslashes($this->object->getOS()->get('name')),
 								 $this->foglang['LastDeployed'] => stripslashes($this->object->get('deployed')),
 			);
 			$GA = $this->getClass('GroupAssociationManager')->find(array('hostID' => $this->object->get('id')));
@@ -36,10 +36,11 @@ class SubMenu extends FOGBase
 			$this->id = 'id';
 			$this->name = sprintf($this->foglang['SelMenu'],$this->foglang['Image']);
 			$this->object = new Image($_REQUEST['id']);
+			$imageType = $this->object->get('imageTypeID') ? new ImageType($this->object->get('imageTypeID')) : null;
 			$this->title = array($this->foglang['Images'] => $this->object->get('name'),
 								$this->foglang['LastUploaded'] => stripslashes($this->object->get('deployed')),
 								$this->foglang['DeployMethod'] => ($this->object->get('format') == 1 ? 'Partimage' : ($this->object->get('format') == 0 ? 'Partclone' : 'N/A')),
-								$this->foglang['ImageType'] => $this->object->get('imageType') ? $this->object->get('imageType') : $this->foglang['NoAvail'],
+								$this->foglang['ImageType'] => ($imageType && $imageType->isValid() ? $imageType->get('name') : $this->foglang['NoAvail']),
 								_('Primary Storage Group') => $this->object->getStorageGroup(),
 			);
 		}
@@ -160,7 +161,7 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Hosts']);
 			$this->subMenu[$this->node]['add'] = sprintf($this->foglang['CreateNew'],$this->foglang['Host']);
-			if ($_SESSION['Pending-Hosts'] > 0)
+			if ($this->getClass('HostManager')->count(array('pending' => 1)) > 0)
 				$this->subMenu[$this->node]['pending'] = $this->foglang['PendingHosts'];
 			$this->subMenu[$this->node]['export'] = $this->foglang['ExportHost'];
 			$this->subMenu[$this->node]['import'] = $this->foglang['ImportHost'];

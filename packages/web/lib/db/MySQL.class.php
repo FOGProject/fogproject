@@ -4,19 +4,19 @@ class MySQL extends FOGBase
 	/* host to connect to
 	 * @var string
 	 */
-	protected $host;
+	private $host;
 	/* user to connect with
 	 * @var string
 	 */
-	protected $user;
+	private $user;
 	/* pass to connect with
 	 * @var string
 	 */
-	protected $pass;
+	private $pass;
 	/* dbname to use
 	 * @var string
 	 */
-	protected $dbname;
+	private $dbname;
 	/* link the actual connection
 	 * @var resource
 	 */
@@ -54,8 +54,6 @@ class MySQL extends FOGBase
 		parent::__construct();
 		try
 		{
-			$this->debug = false;
-			$this->info = false;
 			if (!class_exists('mysqli'))
 				throw new Exception(sprintf('%s PHP extension not loaded', __CLASS__));
 			$this->host = $host;
@@ -78,6 +76,7 @@ class MySQL extends FOGBase
 		if (!$this->link)
 			return;
 		unset($this->link,$this->result);
+		return parent::__destruct();
 	}
 	/* connect establishes the link
 	 * @return the class
@@ -113,13 +112,13 @@ class MySQL extends FOGBase
 				$data = array($data);
 			if (count($data))
 				$sql = vsprintf($sql,$data);
-			$this->info($sql);
 			$this->query = $sql;
 			if (!$this->query)
 				throw new Exception(_('No query sent'));
 			if (!$this->queryResult = $this->link->query($this->query))
-				throw new Exception(_('Error: ').$this->sqlerror());
+				throw new Exception(_('Error: ').$this->link->error);
 			// INFO
+			$this->info($this->query);
 		}
 		catch (Exception $e)
 		{
@@ -134,7 +133,6 @@ class MySQL extends FOGBase
 	{
 		try
 		{
-			$this->result = array();
 			if (empty($type))
 				$type = MYSQLI_ASSOC;
 			if (empty($fetchType))
@@ -147,13 +145,13 @@ class MySQL extends FOGBase
 			{
 				if ($fetchType == 'fetch_all')
 				{
-					if (method_exists('mysqli_result','fetch_all'))
-						$this->result = $this->queryResult->fetch_all($type);
-					else
-						for($this->result = array();$tmp = $this->queryResult->fetch_array($type);) $this->result[] = $tmp;
+					$this->result = array();
+					while ($row = $this->queryResult->fetch_array($type))
+						array_push($this->result,$row);
+					$this->queryResult->close();
 				}
 				else
-					$this->result = $this->queryResult->fetch_assoc();
+					$this->result = $this->queryResult->fetch_array($type);
 			}
 		}
 		catch (Exception $e)
@@ -187,13 +185,13 @@ class MySQL extends FOGBase
 			if ($this->result === false)
 				throw new Exception(_('No data returned'));
 			// Return: 'field' if requested and field exists in results, otherwise the raw result
-			return ($field && array_key_exists((string)$field,(array)$this->result) ? $this->result[$field] : $this->result);
+			return ($field && array_key_exists($field,(array)$this->result) ? $this->result[$field] : $this->result);
 		}
 		catch (Exception $e)
 		{
 			$this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+			return false;
 		}
-		return false;
 	}
 	/** sqlerror()
 		What was the error.

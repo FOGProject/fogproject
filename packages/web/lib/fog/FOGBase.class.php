@@ -41,6 +41,7 @@ abstract class FOGBase
 	*/
 	public function __construct()
 	{
+		$this->reset();
 		// Class setup
 		$this->FOGFTP = $GLOBALS['FOGFTP'];
 		$this->FOGCore = $GLOBALS['FOGCore'];
@@ -55,6 +56,15 @@ abstract class FOGBase
 		$this->imagelink = $GLOBALS['imagelink'];
 		$this->searchPages = array('user','host','group','image','snapin','printer','tasks','hosts');
 	}
+	public function __destruct()
+	{
+		$this->reset();
+	}
+	public function reset()
+	{
+		foreach(get_class_vars(get_class($this)) AS $key => $default)
+			$this->$key = $default;
+	}
 	/** fatalError($txt, $data = array())
 		Fatal error in the case something went wrong.
 		Prints to the screen so it can be easily seen.
@@ -63,7 +73,8 @@ abstract class FOGBase
 	{
 		if (!preg_match('#/service/#', $_SERVER['PHP_SELF']) && !FOGCore::isAJAXRequest())
 		{
-			print sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
+			printf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
+			flush();
 			exit;
 		}
 	}
@@ -75,7 +86,10 @@ abstract class FOGBase
 	public function error($txt, $data = array())
 	{
 		if ((((isset($this->debug)) && $this->debug === true)) && !preg_match('#/service/#', $_SERVER['PHP_SELF']) && !FOGCore::isAJAXRequest())
-			print sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
+		{
+			printf('<div class="debug-error">FOG ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
+			flush();
+		}
 	}
 	// Debug - message is shown if debug is enabled for that class
 	/** debug($txt, $data=array())
@@ -84,7 +98,10 @@ abstract class FOGBase
 	public function debug($txt, $data = array())
 	{
 		if ((!isset($this) || (isset($this->debug) && $this->debug === true)) && !FOGCore::isAJAXRequest() && !preg_match('#/service/#', $_SERVER['PHP_SELF']))
-			print sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
+		{
+			printf('<div class="debug-error">FOG DEBUG: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
+			flush();
+		}
 	}
 	// Info - message is shown if info is enabled for that class
 	/** info($txt, $data = array())
@@ -93,7 +110,10 @@ abstract class FOGBase
 	public function info($txt, $data = array())
 	{
 		if ((!isset($this) || (isset($this->info) && $this->info === true)) && !preg_match('#/service/#',$_SERVER['PHP_SELF']))
-			print sprintf('<div class="debug-info">FOG INFO: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
+		{
+			printf('<div class="debug-info">FOG INFO: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
+			flush();
+		}
 	}
 	/** __toString()
 		Returns data as a string.
@@ -122,12 +142,12 @@ abstract class FOGBase
 	/** getClass($class)
 		Used primarily with FOGCore to get the classes by name.
 	*/
-	public function getClass($class,$data = '')
+	public function getClass($class)
 	{
 		$args = func_get_args();
-		array_shift($args);
+		$args = array_shift($args);
 		$r = new ReflectionClass($class);
-		return (count($args) ? $r->newInstanceArgs($args) : $r->newInstance($data));
+		return (count($args) ? (count($args) === 1 ? $r->newInstanceArgs((array)$args[0]) : $r->newInstanceArgs($args)) : $r->newInstance());
 	}
 	/** endsWith($str,$sub)
 		Returns true if the sub and str match the ending stuff.
@@ -233,27 +253,6 @@ abstract class FOGBase
 		}
 		return false;
 	}
-	/** removes specified key or keys (in array) from an array
-	 * @param $key the key or set of keys to remove
-	 * @param $array the array to keys from
-	 * @return void
-	 */
-	public function array_remove($key, array &$array)
-	{
-		if (is_array($key))
-		{
-			foreach($key AS $val)
-				unset($array[$val]);
-		}
-		else
-		{
-			foreach($array AS &$value)
-			{
-				if (is_array($value))
-					$this->array_remove($key,$value);
-			}
-		}
-	}
 	/*
 	* Generates a random string based on the length you pass.
 	*
@@ -268,30 +267,24 @@ abstract class FOGBase
 		shuffle($chars);
 		return implode(array_slice($chars,0,$length));
 	}
-	public function aesencrypt($data,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
+	public function aesencrypt($data,$key,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
 	{
 
 		// Below is if we ever figure out how to use asymmetric keys
-		//if (!$pub_key = openssl_pkey_get_public($data))
-		//	throw new Exception('#!ihc');
-		//$a_key = openssl_pkey_get_details($pub_key);
+		/*if (!$pub_key = openssl_pkey_get_public($data))
+			throw new Exception('#!ihc');
+		$a_key = openssl_pkey_get_details($pub_key);*/
 		$iv_size = mcrypt_get_iv_size($enctype,$mode);
-		// Generate a one time, secure and random key if the key hasn't been entered already
-		if (!$key)
-			$key = openssl_random_pseudo_bytes($iv_size,$cstrong);
-		$iv = mcrypt_create_iv($iv_size,MCRYPT_DEV_URANDOM);
+		$iv = $this->randomString($iv_size);
 		$cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
-		return bin2hex($iv)."|".bin2hex($cipher).'|'.bin2hex($key);
+		return $iv.base64_encode($cipher);
 		// return $a_key['bits'].'|'.$iv.base64_encode($cipher);
 	}
-	public function aesdecrypt($encdata,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
+	public function aesdecrypt($encdata,$key,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
 	{
 		$iv_size = mcrypt_get_iv_size($enctype,$mode);
-		$data = explode('|',$encdata);
-		$iv = pack('H*',$data[0]);
-		$encoded = pack('H*',$data[1]);
-		$key = pack('H*',$data[2]);
-		$decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
+		$iv = substr($encdata,0,$iv_size);
+		$decipher = mcrypt_decrypt($enctype,$key,base64_decode(substr($encdata,$iv_size)),$mode,$iv);
 		return $decipher;
 	}
 	/**
@@ -425,7 +418,7 @@ abstract class FOGBase
 	* @param $input the input to filter
 	* clean up arrays recursively.
 	*/
-	public function array_filter_recursive(&$input)
+	public function array_filter_recursive($input)
 	{
 		foreach($input AS &$value)
 		{
@@ -475,32 +468,6 @@ abstract class FOGBase
 		openssl_free_key($pub_key);
 		return base64_encode($output);
 	}
-	/** hex2bin($hex)
-	* @param $hex
-	* Function simple takes the data and transforms it into hexadecimal.
-	* @return the hex coded data.
-	*/
-	public function hex2bin($hex)
-	{
-		if (function_exists('hex2bin'))
-			$sbin = hex2bin($hex);
-		else
-		{
-			$n = strlen($hex);
-			$i = 0;
-			while ($i<$n)
-			{
-				$a = substr($hexstr,$i,2);
-				$c = pack("H*",$a);
-				if ($i == 0)
-					$sbin = $c;
-				else
-					$sbin .= $c;
-				$i += 2;
-			}
-		}
-		return $sbin;
-	}
 	/** certDecrypt($data)
 	* @param $data the data to decrypt
 	* @return $output the decrypted data
@@ -514,7 +481,7 @@ abstract class FOGBase
 		if (function_exists('hex2bin'))
 			$data = hex2bin($data);
 		else
-			$data = $this->hex2bin($data);
+			$data = $this->FOGCore->hex2bin($data);
 		$path = '/var/www/fogsslkeypair/';
 		if (!$priv_key = openssl_pkey_get_private(file_get_contents($path.'srvprivate.key')))
 			throw new Exception('Private Key Failed');
@@ -546,21 +513,6 @@ abstract class FOGBase
 		if (!$MAClist)
 			$MAClist = false;
 		return $MAClist;
-	}
-	public function getActivePlugins()
-	{
-		return $this->getClass('PluginManager')->find(array('installed' => 1),'','','','','','','name');
-	}
-
-	public function array_ksort(Array $array,Array $orderArray) {
-		$ordered = array();
-		foreach($orderArray AS $key) {
-			if (array_key_exists($key,$array)) {
-				$ordered[$key] = $array[$key];
-				unset($array[$key]);
-			}
-		}
-		return $ordered + $array;
 	}
 }
 /* Local Variables: */

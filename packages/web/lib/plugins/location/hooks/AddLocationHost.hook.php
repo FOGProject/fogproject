@@ -8,7 +8,8 @@ class AddLocationHost extends Hook
     var $node = 'location';	
 	public function HostTableHeader($arguments)
 	{
-		if ($_SESSION[$this->node])
+		$plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
 			if ($_REQUEST['node'] == 'host' && $_REQUEST['sub'] != 'pending')
 				$arguments['headerData'][4] = _('Location/Deployed');
@@ -17,7 +18,8 @@ class AddLocationHost extends Hook
 
 	public function HostData($arguments)
 	{
-		if ($_SESSION[$this->node])
+		$plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
 			if ($_REQUEST['node'] == 'host' && $_REQUEST['sub'] != 'pending')
 			{
@@ -37,7 +39,8 @@ class AddLocationHost extends Hook
 	}
 	public function HostFields($arguments)
 	{
-		if ($_SESSION[$this->node])
+		$plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
 			if ($_REQUEST['node'] == 'host')
 				$arguments['fields'] = $this->array_insert_after(_('Host Image'),$arguments['fields'],_('Host Location'),'${host_locs}');
@@ -45,7 +48,8 @@ class AddLocationHost extends Hook
 	}
 	public function HostDataFields($arguments)
 	{
-		if ($_SESSION[$this->node])
+		$plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
 			if ($_REQUEST['node'] == 'host')
 			{
@@ -65,7 +69,8 @@ class AddLocationHost extends Hook
 	}
 	public function HostAddLocation($arguments)
 	{
-		if ($_SESSION[$this->node])
+		$plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
 			if ($_REQUEST['node'] == 'host')
 			{
@@ -91,7 +96,8 @@ class AddLocationHost extends Hook
 	}
 	public function HostImport($arguments)
 	{
-		if ($_SESSION[$this->node])
+		$plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
 			if ($arguments['data'][5])
 			{
@@ -105,7 +111,8 @@ class AddLocationHost extends Hook
 	}
 	public function HostExport($arguments)
 	{
-		if ($_SESSION[$this->node])
+		$plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
 			$LA = current((array)$this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id'))));
 			if ($LA && $LA->isValid())
@@ -116,12 +123,14 @@ class AddLocationHost extends Hook
 	}
 	public function HostDestroy($arguments)
 	{
-		if ($_SESSION[$this->node])
+		$plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 			$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $arguments['Host']->get('id')));
 	}
 	public function HostEmailHook($arguments)
 	{
-		if ($_SESSION[$this->node])
+		$plugin = current((array)$this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
 			$LA = current((array)$this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id'))));
 			if ($LA && $LA->isValid())

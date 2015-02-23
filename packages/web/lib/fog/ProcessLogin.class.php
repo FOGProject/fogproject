@@ -2,21 +2,24 @@
 class ProcessLogin extends FOGBase
 {
 	private $username, $password, $currentUser, $langSet;
-	private $mobileMenu, $langMenu;
+	private $mobileMenu, $mainMenu, $langMenu;
 	private function getLanguages()
 	{
-		$translang = $this->transLang();
 		foreach($this->foglang['Language'] AS $lang)
-			$this->langMenu .= "\t\t\t\t\t\t\t\t".'<option value="'.$lang.'" '.($translang == $lang ? 'selected="selected"' : '').'>'.$lang.'</option>'."\n";
+			$this->langMenu .= "\t\t\t\t\t\t\t\t".'<option value="'.$lang.'" '.($this->transLang() == $lang ? 'selected="selected"' : '').'>'.$lang.'</option>'."\n";
 	}
 
 	private function defaultLang()
 	{
-		$deflang = $this->FOGCore->getSetting('FOG_DEFAULT_LOCALE');
 		foreach($this->foglang['Language'] AS $lang => $val)
 		{
-			if ($deflang == $lang)
+			if ($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') != $lang)
+				$this->FOGCore->setSetting('FOG_DEFAULT_LOCALE',substr($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE'),0,2));
+			if ($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') == $lang)
+			{
 				$data = array($lang,$val);
+				return $data;
+			}
 			else
 				$data = array('en','English');
 		}

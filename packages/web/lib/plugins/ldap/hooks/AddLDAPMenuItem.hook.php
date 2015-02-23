@@ -8,12 +8,14 @@ class AddLDAPMenuItem extends Hook
 	var $node = 'ldap';
 	public function MenuData($arguments)
 	{
-		if ($_SESSION[$this->node])
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 			$arguments['main'] = $this->array_insert_after('storage',$arguments['main'],$this->node,array(_('LDAP Management'),'fa fa-key fa-2x'));
 	}
 	public function addSearch($arguments)
 	{
-		if ($_SESSION[$this->node])
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 			array_push($arguments['searchPages'],$this->node);
 	}
 }

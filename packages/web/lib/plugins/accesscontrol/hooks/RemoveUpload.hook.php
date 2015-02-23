@@ -8,7 +8,8 @@ class RemoveUpload extends Hook
 	var $node = 'accesscontrol';
 	public function UploadData($arguments)
 	{
-		if ($_SESSION[$this->node])
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
 			if (!in_array($this->FOGUser->get('type'),array(0)))
 			{
@@ -19,7 +20,8 @@ class RemoveUpload extends Hook
 	}
 	public function EditTasks($arguments)
     {
-		if ($_SESSION[$this->node])
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
 			if (!in_array($this->FOGUser->get('type'),array(0)))
 			{
@@ -30,7 +32,8 @@ class RemoveUpload extends Hook
     }
 	public function SubMenuData($arguments)
 	{
-		if ($_SESSION[$this->node])
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
 			if (!in_array($this->FOGUser->get('type'),array(0)))
 			{
