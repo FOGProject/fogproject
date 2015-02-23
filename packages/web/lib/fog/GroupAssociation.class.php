@@ -11,7 +11,7 @@ class GroupAssociation extends FOGController
 	public $databaseFields = array(
 		'id'		=> 'gmID',
 		'hostID'	=> 'gmHostID',
-		'groupID'	=> 'gmGroupID'
+		'groupID'	=> 'gmGroupID',
 	);
 	public function getGroup()
 	{
