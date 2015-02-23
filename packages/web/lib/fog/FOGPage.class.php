@@ -67,10 +67,6 @@ abstract class FOGPage extends FOGBase
 		// Hook in to allow search pages to be adjusted as needed.
 		$this->HookManager->processEvent('SEARCH_PAGES',array('searchPages' => &$this->searchPages));
 	}
-	public function __destruct()
-	{
-		parent::__destruct();
-	}
 	// Default index page
 	public function index()
 	{
@@ -91,7 +87,9 @@ abstract class FOGPage extends FOGBase
 	}
 	public function render()
 	{
-		print $this->process();
+		ob_implicit_flush(true);
+		foreach($this->process() AS $result)
+			print $result;
 	}
 	public function process()
 	{
@@ -102,7 +100,7 @@ abstract class FOGPage extends FOGBase
 			if (!count($this->templates))
 				throw new Exception('Requires templates to process');
 			// Variables
-			//$result = '';
+			$result = array();
 			// Is AJAX Request?
 			if ($this->FOGCore->isAJAXRequest())
 			{
@@ -142,6 +140,7 @@ abstract class FOGPage extends FOGBase
 				// Rows
 				if (count($this->data))
 				{
+					$defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
 					// Data found
 					foreach ($this->data AS $rowData)
 					{
@@ -149,7 +148,7 @@ abstract class FOGPage extends FOGBase
 							"\t\t\t\t\t\t\t",
 							(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
 							$rowData['id'],
-							(++$i % 2 ? 'alt1' : ((!$_REQUEST['sub'] && $this->FOGCore->getSetting('FOG_VIEW_DEFAULT_SCREEN') == 'list') || in_array($_REQUEST['sub'],array('list','search')) ? 'alt2' : '')),
+							(++$i % 2 ? 'alt1' : ((!$_REQUEST['sub'] && $defaultScreen == 'list') || in_array($_REQUEST['sub'],array('list','search')) ? 'alt2' : '')),
 							$this->buildRow($rowData)
 						);
 					}
@@ -169,7 +168,7 @@ abstract class FOGPage extends FOGBase
 				$result[] = sprintf('%s</tbody>%s</table>%s', "\t\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t");
 			}
 			// Return output
-			return implode("\n",$result);
+			return $result;
 		}
 		catch (Exception $e)
 		{
@@ -187,10 +186,13 @@ abstract class FOGPage extends FOGBase
 				foreach ((array)$this->attributes[$i] as $attributeName => $attributeValue)
 					$attributes[] = sprintf('%s="%s"', $attributeName, $attributeValue);
 				// Push into results array
-				$result[] = sprintf('<%s%s>%s</%s>',	$this->wrapper,
-									(count($attributes) ? ' ' . implode(' ', $attributes) : ''),
-									$content,
-									$this->wrapper);
+				$result[] = sprintf(
+					'<%s%s>%s</%s>',	
+					$this->wrapper,
+					(count($attributes) ? ' ' . implode(' ', $attributes) : ''),
+					$content,
+					$this->wrapper
+				);
 				// Reset
 				unset($attributes);
 			}
@@ -200,38 +202,29 @@ abstract class FOGPage extends FOGBase
 	}
 	public function buildRow($data)
 	{
+		unset($dataFind,$dataReplace);
+		$urlvars = array('node' => $GLOBALS['node'],'sub' => $GLOBALS['sub'],'tab' => $GLOBALS['tab']);
+		foreach(array_merge($urlvars,$data) AS $name => $val)
+		{
+			$dataFind[] = '#\$\{'.$name.'\}#';
+			$dataReplace[] = $val;
+		}
 		// Loop template data
 		foreach ($this->templates AS $i => $template)
 		{
-			// Create find and replace arrays for data
-			foreach ($data AS $dataName => $dataValue)
-			{
-				// Legacy - remove when converted
-				$dataFind[] = '#%' . $dataName . '%#';
-				$dataReplace[] = $dataValue;
-				// New
-				$dataFind[] = '#\$\{' . $dataName . '\}#';
-				$dataReplace[] = $dataValue;
-			}
-			foreach (array('node', 'sub', 'tab') AS $extraData)
-			{
-				// Legacy - remove when converted
-				$dataFind[] = '#%' . $extraData . '%#';
-				$dataReplace[] = $GLOBALS[$extraData];
-				// New
-				$dataFind[] = '#\$\{' . $extraData . '\}#';
-				$dataReplace[] = $GLOBALS[$extraData];
-			}
+			// Clean up
+			unset($attributes);
 			// Create attributes data
 			foreach ((array)$this->attributes[$i] as $attributeName => $attributeValue)
 				$attributes[] = sprintf('%s="%s"',$attributeName,preg_replace($dataFind,$dataReplace,$attributeValue));
 			// Replace variables in template with data -> wrap in $this->wrapper -> push into $result
-			$result[] = sprintf('<%s%s>%s</%s>',	$this->wrapper,
-								(count($attributes) ? ' ' . implode(' ', $attributes) : ''),
-								preg_replace($dataFind, $dataReplace, $template),
-								$this->wrapper);
-			// Reset
-			unset($attributes, $dataFind, $dataReplace);
+			$result[] = sprintf(
+				'<%s%s>%s</%s>',
+				$this->wrapper,
+				(count($attributes) ? ' ' . implode(' ', $attributes) : ''),
+				preg_replace($dataFind, $dataReplace, $template),
+				$this->wrapper
+			);
 		}
 		// Return result
 		return "\n\t\t\t\t\t\t\t\t" . implode("\n\t\t\t\t\t\t\t\t", $result) . "\n\t\t\t\t\t\t\t";
@@ -962,6 +955,8 @@ abstract class FOGPage extends FOGBase
 	 */
 	public function search()
 	{
+		if ($this->node == 'tasks' && $_REQUEST['sub'] != 'search')
+			$this->FOGCore->redirect(sprintf('?node=%s&sub=active',$this->node));
 		// Set Title
 		$this->title = _('Search');
 		// Set search form

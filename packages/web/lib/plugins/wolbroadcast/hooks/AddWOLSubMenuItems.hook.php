@@ -8,8 +8,7 @@ class AddWOLSubMenuItems extends Hook
 	var $node = 'wolbroadcast';
 	public function SubMenuData($arguments)
 	{
-		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1, 'state' => 1)));
-		if ($plugin && $plugin->isValid())
+		if ($_SESSION[$this->node])
 		{
 			if ($_REQUEST['node'] == 'wolbroadcast')
 			{
@@ -27,8 +26,7 @@ class AddWOLSubMenuItems extends Hook
 	}
 	public function SubMenuNotes($arguments)
 	{
-		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1, 'state' => 1)));
-		if ($plugin && $plugin->isValid())
+		if ($_SESSION[$this->node])
 		{
 			if ($_REQUEST['node'] == 'wolbroadcast' && $_REQUEST['id'])
 			{

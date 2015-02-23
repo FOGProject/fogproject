@@ -2,6 +2,10 @@
 class Mainmenu extends FOGBase
 {
 	public $main;
+	public function __construct()
+	{
+		parent::__construct();
+	}
 	private function manageData()
 	{
 		if(!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
@@ -32,7 +36,6 @@ class Mainmenu extends FOGBase
 	}
 	private function mainSetting()
 	{
-		$plugin = $this->FOGCore->getSetting('FOG_PLUGINSYS_ENABLED');
 		$this->main = array(
 			'home' => array($this->foglang['Home'], 'fa fa-home fa-2x'),
 			'user' => array($this->foglang['User Management'], 'fa fa-users fa-2x'),
@@ -46,7 +49,7 @@ class Mainmenu extends FOGBase
 			'tasks' => array($this->foglang['Task Management'], 'fa fa-tasks fa-2x'),
 			'report' => array($this->foglang['Report Management'], 'fa fa-file-text fa-2x'),
 			'about' => array($this->foglang['FOG Configuration'],'fa fa-wrench fa-2x'),
-			$plugin ? 'plugin' : '' => $plugin ? array($this->foglang['Plugin Management'],'fa fa-cog fa-2x') : '',
+			$_SESSION['PLUGSON'] ? 'plugin' : '' => $_SESSION['PLUGSON'] ? array($this->foglang['Plugin Management'],'fa fa-cog fa-2x') : '',
 			'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-2x'),
 		);
 		$this->main = array_unique(array_filter($this->main),SORT_REGULAR);
@@ -74,7 +77,6 @@ class Mainmenu extends FOGBase
 	}
 	public function mainMenu()
 	{
-		parent::__construct();
 		try
 		{
 			if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn() && preg_match('#mobile#i',$_SERVER['PHP_SELF']))

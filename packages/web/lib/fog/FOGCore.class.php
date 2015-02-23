@@ -37,8 +37,16 @@ class FOGCore extends FOGBase
 		if (headers_sent())
 			printf('<meta http-equiv="refresh" content="0; url=%s">', $url);
 		else
+		{
+			header('X-Content-Type-Options: nosniff');
+			header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
+			header('X-XSS-Protection: 1; mode=block');
+			header('X-Frame-Options: deny');
+			header('Cache-Control: no-cache');
 			header("Location: $url");
+		}
 		exit;
+
 	}
 	
 	/** setMessage(,$txt, $data = array())
@@ -383,27 +391,6 @@ class FOGCore extends FOGBase
 		return $str;
 	}
 
-	/** hex2bin($hex)
-	* @param $hex
-	* Function simple takes the data and transforms it into hexadecimal.
-	* @return the hex coded data.
-	*/
-	public function hex2bin($hex)
-	{
-		$n = strlen($hex);
-		$i = 0;
-		while ($i<$n)
-		{
-			$a = substr($hexstr,$i,2);
-			$c = pack("H*",$a);
-			if ($i == 0)
-				$sbin = $c;
-			else
-				$sbin .= $c;
-			$i += 2;
-		}
-		return $sbin;
-	}
 	/** getHWInfo()
 	* Returns the hardware information for hwinfo link on dashboard.
 	* @return $data
@@ -509,9 +496,8 @@ class FOGCore extends FOGBase
 	public function createKeyPair($keybits = 4096,$keytype = OPENSSL_KEYTYPE_RSA)
 	{
 		$pub_path = BASEPATH.'/management/other/ssl/';
-		$priv_path = '/'.trim($this->getSetting('FOG_SNAPINDIR'),'/').'/ssl/';
-		if (!trim($this->getSetting('FOG_SNAPINDIR')))
-			$priv_path = '/opt/fog/snapins/ssl/';
+		$priv_path = '/'.trim($this->getSetting('FOG_SNAPINDIR'),'/');
+		$priv_path = !$priv_path ? '/opt/fog/snapins/ssl/' : $priv_path.'/';
 		if (!is_dir($priv_path))
 			exec('mkdir '.$priv_path);
 		if (!is_dir($pub_path))
@@ -538,5 +524,28 @@ class FOGCore extends FOGBase
 			$pub_key = openssl_pkey_get_details($pub_key);
 			file_put_contents($pub_path.'srvpublic.key',$pub_key['key']);
 		}
+	}
+	public function setSessionEnv()
+	{
+		$_SESSION['theme'] = $this->getSetting('FOG_THEME');
+		$_SESSION['theme'] = $_SESSION['theme'] ? $_SESSION['theme'] : 'default/fog.css';
+		$_SESSION['imagelink'] = 'css/'.($_SESSION['theme'] ? dirname($_SESSION['theme']) : 'default').'/images/';
+		$_SESSION['PLUGSON'] = $this->getSetting('FOG_PLUGINSYS_ENABLED');
+		$_SESSION['PluginsInstalled'] = $this->getActivePlugins();
+		$_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = $this->getSetting('FOG_VIEW_DEFAULT_SCREEN');
+		$_SESSION['FOG_FTP_IMAGE_SIZE'] = $this->getSetting('FOG_FTP_IMAGE_SIZE');
+		$_SESSION['Pending-Hosts'] = $this->getClass('HostManager')->count(array('pending' => 1));
+		$_SESSION['DataReturn'] = $this->getSetting('FOG_DATA_RETURNED');
+		$_SESSION['UserCount'] = $this->getClass('UserManager')->count();
+		$_SESSION['HostCount'] = $this->getClass('HostManager')->count();
+		$_SESSION['GroupCount'] = $this->getClass('GroupManager')->count();
+		$_SESSION['ImageCount'] = $this->getClass('ImageManager')->count();
+		$_SESSION['SnapinCount'] = $this->getClass('SnapinManager')->count();
+		$_SESSION['PrinterCount'] = $this->getClass('PrinterManager')->count();
+		// Set the memory limits
+		$_SESSION['memory'] = $this->getSetting('FOG_MEMORY_LIMIT');
+		ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M' : ini_get('memory_limit'));
+		$_SESSION['chunksize'] = 8192;
+		$_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = $this->getSetting('FOG_FORMAT_FLAG_IN_GUI');
 	}
 }

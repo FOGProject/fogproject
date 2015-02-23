@@ -94,7 +94,6 @@ abstract class FOGController extends FOGBase
 		// Auto save
 		if ($this->autoSave)
 			$this->save();
-		parent::__destruct();
 	}
 	// Set
 	/** set($key, $value)
