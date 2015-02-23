@@ -281,7 +281,7 @@ class FOGConfigurationPage extends FOGPage
 					'menu_default' => ($Menu->get('default') ? 'checked' : ''),
 					'menu_regmenu' => $this->getClass('PXEMenuOptionsManager')->regSelect($Menu->get('regMenu')),
 					'menu_options' => $Menu->get('args'),
-					'disabled' => '',//$menuid ? 'readonly="true"' : '',
+					'disabled' => $menuid ? 'readonly="true"' : '',
 				);
 			}
 			// Hook
@@ -794,7 +794,9 @@ class FOGConfigurationPage extends FOGPage
 			{
 				if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST[$key])
 				{
-					$decrypt = $this->FOGCore->aesdecrypt($_REQUEST[$key]);
+					$encdat = substr($_REQUEST[$key],0,-32);
+					$enckey = substr($_REQUEST[$key],-32);
+					$decrypt = $this->FOGCore->aesdecrypt($encdat,$enckey);
 					if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))
 						$password = $decrypt;
 					else
@@ -802,19 +804,21 @@ class FOGConfigurationPage extends FOGPage
 				}
 				else
 					$password = $_REQUEST[$key];
-				$Service->set('value',$this->FOGCore->aesencrypt($password))->save();
+				$Service->set('value',$this->FOGCore->aesencrypt($password,$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY')).$this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY'))->save();
 			}
 			else if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $Service->get('name') == 'FOG_AES_ADPASS_ENCRYPT_KEY')
 			{
 				if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST[$key])
 				{
-					$decrypt = $this->FOGCore->aesdecrypt($this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD'));
+					$encdat = substr($this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD'),0,-32);
+					$enckey = substr($this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD'),-32);
+					$decrypt = $this->FOGCore->aesdecrypt($encdat,$enckey);
 					if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))
 						$password = $decrypt;
 					else
 						$password = $this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD');
 				}
-				$this->FOGCore->setSetting('FOG_AD_DEFAULT_PASSWORD',$this->FOGCore->aesencrypt($password));
+				$this->FOGCore->setSetting('FOG_AD_DEFAULT_PASSWORD',$this->FOGCore->aesencrypt($password,$_REQUEST[$key]).$_REQUEST[$key]);
 				$Service->set('value',$_REQUEST[$key])->save();
 			}
 			else if ($Service->get('name') == 'FOG_MULTICAST_PORT_OVERRIDE')

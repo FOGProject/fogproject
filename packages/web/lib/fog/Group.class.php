@@ -16,40 +16,43 @@ class Group extends FOGController
 		'building'	=> 'groupBuilding',
 		'kernel'	=> 'groupKernel',
 		'kernelArgs'	=> 'groupKernelArgs',
-		'kernelDevice'	=> 'groupPrimaryDisk',
-		'membercount' => 'groupMemberCount',
-		'grouphosts' => 'groupHosts',
-	);
-	public $aliasedFields = array(
-		'membercount',
-		'grouphosts',
+		'kernelDevice'	=> 'groupPrimaryDisk'
 	);
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
 		'hosts',
 		'hostsnotinme',
+		'nogroup',
 	);
-	// field class associations
-	public $databaseFieldClassRelationships = array(
-		'GroupAssociation' => array('groupID','id','hostitems')
-	);
-	/** The customized query for this item template for a single call */
-	public $loadQueryTemplateSingle = "SELECT *,COUNT(`groupMembers`.`gmID`) groupMemberCount,GROUP_CONCAT(DISTINCT `groupMembers`.`gmHostID` ORDER BY `groupMembers`.`gmHostID`) groupHosts FROM `%s` %s WHERE `%s`='%s' GROUP BY `groupName`";
     // Overides
     private function loadHosts()
-    {
-		if (!$this->isLoaded('hosts') && $this->get('id'))
-		{
-			// All my hosts
-			$this->set('hosts',$this->getClass('HostManager')->find(array('id' => explode(',',$this->get('grouphosts')))));
-			// All hosts in a group other than me
-			$this->set('hostsnotinme',$this->getClass('HostManager')->find(array('id' => explode(',',$this->get('grouphosts'))),'','','','','',true));
+    {   
+        if (!$this->isLoaded('hosts') && $this->get('id'))
+        {
+			$GroupHostIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID'));
+			if ($GroupHostIDs)
+			{
+				foreach($this->getClass('HostManager')->find(array('id' => $GroupHostIDs)) AS $Host)
+					$this->add('hosts',$Host);
+				unset($Host);
+				// Hosts not in this group
+				if (count($this->get('hosts')))
+				{
+					foreach($this->getClass('HostManager')->find(array('id' => $GroupHostIDs),'','','','','',true) AS $Host)
+						$this->add('hostsnotinme',$Host);
+				}
+			}
+			unset($Host,$GroupHostIDs);
+			// Hosts not in any group
+			$GroupHostIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID'));
+			foreach($this->getClass('HostManager')->find(array('id' => $GroupHostIDs),'','','','','',true) AS $Host)
+				$this->add('nogroup',$Host);
 		}
 		return $this;
 	}
 	public function getHostCount()
 	{
-		return $this->get('membercount');
+		return $this->getClass('GroupAssociationManager')->count(array('groupID' => $this->get('id')));
 	}
     public function get($key = '') 
     {   

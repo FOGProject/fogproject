@@ -3,14 +3,13 @@ class Page extends FOGBase {
 	private $pageTitle,$sectionTitle,$stylesheets=array(),$javascripts=array(),$body,$isHomepage, $menu, $submenu, $media;
 	public function __construct() {
 		parent::__construct();
-		global $theme;
 		while (@ob_end_clean());
-		$dispTheme = 'css/'.($theme ? $theme : 'default/fog.css');
+		$theme = 'css/'.($this->FOGCore->getSetting('FOG_THEME') ? $this->FOGCore->getSetting('FOG_THEME') : 'default/fog.css');
 		if (!preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
 		{
 			$this->addCSS('css/jquery-ui.css');
 			$this->addCSS('css/jquery.organicTabs.css');
-			$this->addCSS($dispTheme);
+			$this->addCSS($theme);
 		}
 		else
 			$this->addCSS('css/main.css');
@@ -19,13 +18,14 @@ class Page extends FOGBase {
 		if ($this->FOGUser && $this->FOGUser->isLoggedIn() && $_REQUEST['node'] != 'schemaupdater')
 		{
 			$this->menu = $this->getClass('Mainmenu')->mainMenu();
+			$this->submenu = $this->getClass('SubMenu')->buildMenu();
 		}
 		if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
 		{
 			$files = array(
 				'js/jquery-latest.js',
 				'js/jquery-migrate-1.2.1.min.js',
-				//'js/jquery.tablesorter.min.js',
+				'js/jquery.tablesorter.min.js',
 				'js/jquery.tipsy.js',
 				'js/jquery.progressbar.js',
 				'js/jquery.tmpl.js',
@@ -83,7 +83,7 @@ class Page extends FOGBase {
 		$this->javascripts[] = $path;
 	}
 	public function startBody() {
-		ob_start('sanitize_output');
+		ob_start();
 	}
 	public function endBody() {
 		$this->body = ob_get_clean();
@@ -93,8 +93,7 @@ class Page extends FOGBase {
 			$path = '../management/other/index.php';
 		else
 			$path = 'other/index.php';
-		ob_start('sanitize_output',$_SESSION['chunksize']);
-		ob_implicit_flush(1);
+		ob_start();
 		include_once($path);
 		ob_end_flush();
 	}

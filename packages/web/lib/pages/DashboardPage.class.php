@@ -86,21 +86,14 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t".'<div id="graph-bandwidth" class="graph"></div>';
-		$DateStart = '%'.date('Y-m-d',strtotime('-30 days')).'%';
-		$DateEnd = '%'.date('Y-m-d',time()).'%';
 		for ($i = 0; $i < 30; $i++)
 			$DatePeriod[] = date('Y-m-d',strtotime('-'.$i.' days'));
-		$ImagingLogs = $this->getClass('ImagingLogManager')->find(array('start' => null,'finish' => null,'type' => array('up','down')),'','','',"BETWEEN '".trim($DateStart,'%')."' AND '".trim($DateEnd,'%')."'");
 		foreach($DatePeriod AS $Date)
 		{
-			$Date = $this->nice_date($Date);
-			$count = 0;
-			foreach($ImagingLogs AS $ImagingLog)
-			{
-				if ($ImagingLog && $ImagingLog->isValid() && date('Y-m-d',strtotime($ImagingLog->get('start'))) == $Date->format('Y-m-d'))
-					$count++;
-			}
-			$Graph30dayData[] = '["'.(1000*$Date->getTimestamp()).'", '.$count.']';
+			$Date = new DateTime($Date);
+			$keyword = '%'.$Date->format('Y-m-d').'%';
+			$ImagingLogs = $this->getClass('ImagingLogManager')->count(array('start' => $keyword, 'type' => array('up','down')));
+			$Graph30dayData[] = '["'.(1000*$Date->getTimestamp()).'", '.$ImagingLogs.']';
 		}
 		$ActivityActive = 0;
        	$ActivityQueued = 0;

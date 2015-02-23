@@ -15,7 +15,8 @@ class RestrictUAA extends Hook
  
     public function UserData($arguments)
     {
-		if ($_SESSION[$this->node])
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
 			if (!in_array($this->FOGUser->get('type'),array(0)))
 			{
@@ -29,7 +30,8 @@ class RestrictUAA extends Hook
     }
 	public function RemoveName($arguments)
     {
-		if ($_SESSION[$this->node])
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
 			if (!in_array($this->FOGUser->get('type'),array(0)))
 			{
@@ -41,7 +43,8 @@ class RestrictUAA extends Hook
 	
 	public function RemoveCreate($arguments)
 	{
-		if ($_SESSION[$this->node])
+		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1,'state' => 1)));
+		if ($plugin && $plugin->isValid())
 		{
 			foreach($arguments['submenu'] AS $node => $link)
 			{
