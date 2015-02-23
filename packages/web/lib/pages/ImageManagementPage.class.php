@@ -94,13 +94,13 @@ class ImageManagementPage extends FOGPage
 				'id'		=> $Image->get('id'),
 				'name'		=> $Image->get('name'),
 				'description'	=> $Image->get('description'),
-				'storageGroup'	=> $Image->get('storagename'),
-				'os'		=> $Image->get('imageOS'),
+				'storageGroup'	=> $Image->getStorageGroup()->get('name'),
+				'os'		=> $Image->getOS()->get('name'),
 				'deployed' => $this->validDate($Image->get('deployed')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
 				$SizeServer ? 'serv_size' : null => $SizeServer ? $servSize : null,
-				'image_type' => $Image->get('imageType'),
-				'image_partition_type' => $Image->get('imagePart'),
+				'image_type' => $Image->getImageType()->get('name'),
+				'image_partition_type' => $Image->getImagePartitionType()->get('name'),
 				'type' => $Image->get('format') ? 'Partimage' : 'Partclone',
 			);
 		}
@@ -127,13 +127,13 @@ class ImageManagementPage extends FOGPage
 				'id'		=> $Image->get('id'),
 				'name'		=> $Image->get('name'),
 				'description'	=> $Image->get('description'),
-				'storageGroup'	=> $Image->get('storagename'),
-				'os'		=> $Image->get('imageOS'),
+				'storageGroup'	=> $Image->getStorageGroup()->get('name'),
+				'os'		=> $Image->getOS()->get('name'),
 				'deployed' => $this->validDate($Image->get('deployed')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
 				'size'		=> $imageSize,
 				$SizeServer ? 'serv_size' : null => $SizeServer ? $servSize : null,
-				'image_type' => $Image->get('imageType'),
-				'image_partition_type' => $Image->get('imagePart'),
+				'image_type' => $Image->getImageType()->get('name'),
+				'image_partition_type' => $Image->getImagePartitionType()->get('name'),
 				'type' => $Image->get('format') ? 'Partimage' : 'Partclone',
 			);
 		}
@@ -265,7 +265,7 @@ class ImageManagementPage extends FOGPage
 	public function edit()
 	{
 		// Find
-		$Image = new Image($this->request['id']);
+		$Image = new Image($_REQUEST['id']);
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', _('Edit'), $Image->get('name'));
 		print "\n\t\t\t".'<div id="tab-container">';

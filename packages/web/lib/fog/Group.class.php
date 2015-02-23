@@ -17,49 +17,37 @@ class Group extends FOGController
 		'kernel'	=> 'groupKernel',
 		'kernelArgs'	=> 'groupKernelArgs',
 		'kernelDevice'	=> 'groupPrimaryDisk',
-		'membercount' => 'groupMemberCount',
-		'grouphosts' => 'groupHosts',
-	);
-	public $aliasedFields = array(
-		'membercount',
-		'grouphosts',
 	);
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
 		'hosts',
 		'hostsnotinme',
 	);
-	// field class associations
-	public $databaseFieldClassRelationships = array(
-		'GroupAssociation' => array('groupID','id','hostitems')
-	);
-	/** The customized query for this item template for a single call */
-	public $loadQueryTemplateSingle = "SELECT *,COUNT(`groupMembers`.`gmID`) groupMemberCount,GROUP_CONCAT(DISTINCT `groupMembers`.`gmHostID` ORDER BY `groupMembers`.`gmHostID`) groupHosts FROM `%s` %s WHERE `%s`='%s' GROUP BY `groupName`";
     // Overides
     private function loadHosts()
     {
 		if (!$this->isLoaded('hosts') && $this->get('id'))
 		{
-			// All my hosts
-			$this->set('hosts',$this->getClass('HostManager')->find(array('id' => explode(',',$this->get('grouphosts')))));
-			// All hosts in a group other than me
-			$this->set('hostsnotinme',$this->getClass('HostManager')->find(array('id' => explode(',',$this->get('grouphosts'))),'','','','','',true));
+			$HostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID');
+			$this->set('hosts',$this->getClass('HostManager')->find(array('id' => array_unique($HostIDs))));
+			$this->set('hostsnotinme',$this->getClass('HostManager')->find(array('id' => array_unique($HostIDs)),'','','','','',true));
+
 		}
 		return $this;
 	}
 	public function getHostCount()
 	{
-		return $this->get('membercount');
+		return $this->getClass('GroupAssociationManager')->count(array('groupID' => $this->get('id')));
 	}
-    public function get($key = '') 
+	public function get($key = '') 
     {   
-        if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme' || $this->key($key) == 'nogroup')
+        if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
             $this->loadHosts();
         return parent::get($key);
     }   
     public function set($key, $value)
     {   
-        if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme' || $this->key($key) == 'nogroup')
+        if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
         {   
             foreach((array)$value AS $Host)
                 $newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
@@ -71,7 +59,7 @@ class Group extends FOGController
 
     public function add($key, $value)
     {   
-        if (($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme' || $this->key($key) == 'nogroup') && !($value instanceof Host))
+        if (($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme') && !($value instanceof Host))
         {   
             $this->loadHosts();
             $value = new Host($value);
@@ -82,7 +70,7 @@ class Group extends FOGController
 
     public function remove($key, $object)
     {   
-        if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme' || $this->key($key) == 'nogroup')
+        if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
             $this->loadHosts();
         // Remove
         return parent::remove($key, $object);
@@ -115,7 +103,11 @@ class Group extends FOGController
     {
         // Add
         foreach((array)$addArray AS $item)
+		{
             $this->add('hosts', $item);
+			$this->remove('hostsnotinme', $item);
+		}
+		
         // Return
         return $this;
     }
@@ -124,7 +116,10 @@ class Group extends FOGController
     {
         // Iterate array (or other as array)
         foreach ((array)$removeArray AS $remove)
+		{
             $this->remove('hosts', ($remove instanceof Host ? $remove : new Host((int)$remove)));
+			$this->add('hostsnotinme', ($remove instanceof Host ? $remove : new Host((int)$remove)));
+		}
         // Return
         return $this;
     }

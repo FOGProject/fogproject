@@ -547,5 +547,6 @@ class FOGCore extends FOGBase
 		ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M' : ini_get('memory_limit'));
 		$_SESSION['chunksize'] = 8192;
 		$_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = $this->getSetting('FOG_FORMAT_FLAG_IN_GUI');
+		ini_set('max_input_vars',5000);
 	}
 }

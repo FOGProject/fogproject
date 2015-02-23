@@ -347,7 +347,7 @@ class GroupManagementPage extends FOGPage
 		);
 		if ($GroupDataExists)
 		{
-			$groupAdd[] = '<br/><center><input type="submit" value="'._('Add Host(s) to Group').'" />';
+			$groupAdd[] = '<br/><center><input type="submit" value="'._('Add Host(s) to Group').'" name="addHosts"/>';
 			$groupAdd[] = "\n\t\t\t</center><br/>";
 		}
 		if ($groupAdd)
@@ -387,12 +387,13 @@ class GroupManagementPage extends FOGPage
                     'host_mac'  => $Host->get('mac'),
 					'image_name' => $imageSelector,
 					'selected_item'.$Host->get('imageID') => 'selected',
+					'selector_name' => $Host->get('name').'_'.$Host->get('id'),
 				);
 			}
 		}
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
 		// Hook
 		$this->HookManager->processEvent('GROUP_MEMBERSHIP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
 		// Output
 		$this->render();
 		if (count($this->data) > 0)
@@ -778,12 +779,8 @@ class GroupManagementPage extends FOGPage
 				break;
 				// Group membership
 				case 'group-membership';
-					if ($_REQUEST['host'])
-					{
-						if (is_array($_REQUEST['host']))
-							$_REQUEST['host'] = array_unique($_REQUEST['host']);
+					if (isset($_REQUEST['addHosts']))
 						$Group->addHost($_REQUEST['host']);
-					}
 					if (isset($_REQUEST['updatehosts']))
 					{
 						foreach((array)$Group->get('hosts') AS $Host)
