@@ -163,7 +163,7 @@ abstract class FOGController extends FOGBase
 			{
 				if ($data instanceof MACAddress)
 					$newDataArray[] = $data;
-				else if ($data->get('id') != $object->get('id'))
+				else if ($data && $data->isValid && $data->get('id') != $object->get('id'))
 					$newDataArray[] = $data;
 			}
 			$this->data[$key] = (array)$newDataArray;

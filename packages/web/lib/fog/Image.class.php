@@ -26,20 +26,6 @@ class Image extends FOGController
 		'magnet' => 'imageMagnetUri',
 		'protected' => 'imageProtect',
 		'compress' => 'imageCompress',
-		'storageinme' => 'imageStorage',
-		'storagename' => 'storageName',
-		'imageType' => 'imageTypeName',
-		'imageOS' => 'imageOSName',
-		'imagePart' => 'imagePartName',
-		'imageHosts' => 'imageHosts',
-	);
-	public $aliasedFields = array(
-		'imageType',
-		'imageOS',
-		'imagePart',
-		'imageHosts',
-		'storageinme',
-		'storagename',
 	);
 
 	// Additional Fields
@@ -47,36 +33,31 @@ class Image extends FOGController
 		'stores',
 		'hosts',
 		'hostsnotinme',
-		'hostsnotinany',
 		'storageGroups',
 	);
 
-	// Class association fields
-	/** The customized query for this item template for a single call */
-	public $loadQueryTemplateSingle = "SELECT *,GROUP_CONCAT(DISTINCT `nfsGroups`.`ngName` ORDER BY `nfsGroups`.`ngName`) storageName,`imageTypes`.`imageTypeName` imageTypeName,`os`.`osName` imageOSName,`imagePartitionTypes`.`imagePartitionTypeName` imagePartName,GROUP_CONCAT(DISTINCT `nfsGroups`.`ngID` ORDER BY `nfsGroups`.`ngName`) imageStorage,GROUP_CONCAT(DISTINCT `hosts`.`hostID` ORDER BY `hosts`.`hostName`) imageHosts FROM `%s` LEFT OUTER JOIN `hosts` ON `hosts`.`hostImage`=`images`.`imageID` LEFT OUTER JOIN `imageGroupAssoc` ON `imageGroupAssoc`.`igaImageID`=`images`.`imageID` LEFT OUTER JOIN `nfsGroups` ON `imageGroupAssoc`.`igaStorageGroupID`=`nfsGroups`.`ngID` LEFT OUTER JOIN `imageTypes` ON `images`.`imageTypeID`=`imageTypes`.`imageTypeID` LEFT OUTER JOIN `os` ON `os`.`osID`=`images`.`imageOSID` LEFT OUTER JOIN `imagePartitionTypes` ON `imagePartitionTypes`.`imagePartitionTypeID`=`images`.`imagePartitionTypeID` %s WHERE `%s`='%s' GROUP BY `imageName`";
 	// Overrides
 	private function loadHosts()
 	{
 		if (!$this->isLoaded('hosts') && $this->get('id'))
-		{
-			$Hostsinme = $this->getClass('HostManager')->find(array('id' => explode(',',$this->get('imageHosts'))));
-			$Hostsnotinme = $this->getClass('HostManager')->find(array('id' => explode(',',$this->get('imageHosts'))),'','','','','',true);
-			$this->set('hosts',$Hostsinme);
-			$this->set('hostsnotinany',$this->getClass('HostManager')->find(array('imageID' => '')));
-			$this->set('hostsnotinme',array_diff($this->get('hostsnotinany'),$Hostsnotinme));
-		}
+			$this->set('hosts',$this->getClass('HostManager')->find(array('imageID' => $this->get('id'))));
+		if (!$this->isLoaded('hostsnotinme') && $this->get('id'))
+			$this->set('hostsnotinme',$this->getClass('HostManager')->find(array('imageID' => $this->get('id'),'','','','','',true)));
 		return $this;
 	}
 	private function loadGroups()
 	{
 		if (!$this->isLoaded('storageGroups') && $this->get('id'))
-			$this->set('storageGroups',$this->getClass('StorageGroupManager')->find(array('id' => explode(',',$this->get('storageinme')))));
+		{
+			foreach($this->getClass('ImageAssociationManager')->find(array('imageID' => $this->get('id'))) AS $IAStore)
+				$this->add('storageGroups',$IAStore->getStorageGroup());
+		}
 		return $this;
 	}
 
 	public function get($key = '')
 	{
-		if (in_array($this->key($key),array('hosts','hostsnotinme','hostsnotinany')))
+		if (in_array($this->key($key),array('hosts','hostsnotinme')))
 			$this->loadHosts();
 		else if ($this->key($key) == 'storageGroups')
 			$this->loadGroups();
@@ -94,7 +75,7 @@ class Image extends FOGController
 		else if ($this->key($key) == 'storageGroups')
 		{
 			foreach((array)$value AS $Group)
-				$newValue[] = ($Group instanceof StorageGroup ? $Group : new Group($Group));
+				$newValue[] = ($Group instanceof StorageGroup ? $Group : new StorageGroup($Group));
 			$value = (array)$newValue;
 		}
 		// Set
@@ -209,7 +190,7 @@ class Image extends FOGController
 	*/
 	public function getStorageGroup()
 	{
-		$StorageGroup = current((array)$this->get('storageGroups'));
+		$StorageGroup = current($this->get('storageGroups'));
 		try
 		{
 			if (!$StorageGroup || ($StorageGroup instanceof StorageGroup && !$StorageGroup->isValid()))
@@ -226,21 +207,21 @@ class Image extends FOGController
 	*/
 	public function getOS()
 	{
-		return $this->get('imageOSName');
+		return new OS($this->get('osID'));
 	}
 	/** getImageType()
 		Gets the relevant ImageType class object for the image.
 	*/
 	public function getImageType()
 	{
-		return $this->get('imageType');
+		return new ImageType($this->get('imageTypeID'));
 	}
 	/** getImagePartitionType()
 		Gets the relevant ImagePartitionType class object for the image.
 	*/
 	public function getImagePartitionType()
 	{
-		return $this->get('ImagePartitionType');
+		return new ImagePartitionType($this->get('imagePartitionTypeID'));
 	}
 	/** deleteFile()
 		This function just deletes the file(s) via FTP.

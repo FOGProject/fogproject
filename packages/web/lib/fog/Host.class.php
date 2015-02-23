@@ -28,18 +28,11 @@ class Host extends FOGController
 		'kernelDevice'	=> 'hostDevice',
 		'pending' => 'hostPending',
 		'pub_key' => 'hostPubKey',
-		// These are aliased keys, don't use them as regular search will work
-		'macs' => 'hostMacs',
-		'primac' => 'hostPriMac',
-	);
-	public $aliasedFields = array(
-		'macs',
-		'primac',
 	);
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
+		'macs',
 		'mac',
-		'image',
 		'additionalMACs',
 		'pendingMACs',
 		'groups',
@@ -62,14 +55,6 @@ class Host extends FOGController
 		'id',
 		'name',
 	);
-	// Database field to Class relationships
-	public $databaseFieldClassRelationships = array(
-		'Image' => array('id','imageID','image'),
-		'Inventory' => array('hostID','id','hardware'),
-		'FingerprintAssociation' => array('id','id','fingerprint'),
-	);
-	/** The customized query for this item template for a single call */
-	public $loadQueryTemplateSingle = "SELECT *,GROUP_CONCAT(DISTINCT `hostMAC`.`hmID`) hostMacs,`hostPriMac`.`hmMAC` hostPriMac FROM `%s` LEFT OUTER JOIN `hostMAC` ON `hostMAC`.`hmHostID`=`hosts`.`hostID` LEFT OUTER JOIN `hostMAC` hostPriMac ON `hostPriMac`.`hmHostID`=`hosts`.`hostID` %s WHERE `%s`='%s' AND `hostPriMac`.`hmPrimary`='1'";
 	// Custom functons
 	public function isHostnameSafe()
 	{
@@ -78,14 +63,11 @@ class Host extends FOGController
 	// Snapins
 	public function getImage()
 	{
-		$Image = current((array)$this->get('image'));
-		if (!$Image || !$Image->isValid())
-			$Image = new Image(array('id' => 0));
-		return $Image;
+		return new Image($this->get('imageID'));
 	}
 	public function getOS()
 	{
-		return $this->getImage()->getOS();
+		return $this->getImage()->getOS()->get('name');
 	}
 	public function getMACAddress()
 	{
@@ -178,16 +160,27 @@ class Host extends FOGController
 	}
 	private function loadPrimary()
 	{
+		if (!$this->isLoaded('macs') && $this->get('id'))
+			$this->set('macs',$this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'))));
 		if (!$this->isLoaded('mac') && $this->get('id'))
-			$this->set('mac',new MACAddress($this->get('primac')));
+		{
+			foreach($this->get('macs') AS $MAC)
+			{
+				if ($MAC  && $MAC->isValid() && $MAC->get('primary'))
+					$this->set('mac',new MACAddress($MAC));
+			}
+		}
 		return $this;
 	}
 	private function loadAdditional()
 	{
 		if (!$this->isLoaded('additionalMACs') && $this->get('id'))
 		{
-			foreach($this->getClass('MACAddressAssociationManager')->find(array('id' => explode(',',$this->get('macs')),'pending' => 0,'primary' => 0)) AS $MACAdd)
-				$this->add('additionalMACs',new MACAddress($MACAdd));
+			foreach($this->get('macs') AS $MACAdd)
+			{
+				if ($MACAdd && $MACAdd->isValid() && !$MACAdd->get('primary') && !$MACAdd->get('pending'))
+					$this->add('additionalMACs',new MACAddress($MACAdd));
+			}
 		}
 		return $this;
 	}
@@ -195,8 +188,11 @@ class Host extends FOGController
 	{
 		if (!$this->isLoaded('pendingMACs') && $this->get('id'))
 		{
-			foreach($this->getClass('MACAddressAssociationManager')->find(array('id' => explode(',',$this->get('macs')),'pending' => 1,'primary' => 0)) AS $MACAdd)
-				$this->add('pendingMACs',new MACAddress($MACAdd));
+			foreach($this->get('macs') AS $MACAdd)
+			{
+				if ($MACAdd && $MACAdd->isValid() && !$MACAdd->get('primary') && $MACAdd->get('pending'))
+					$this->add('pendingMACs',new MACAddress($MACAdd));
+			}
 		}
 		return $this;
 	}
@@ -241,7 +237,7 @@ class Host extends FOGController
 	private function loadInventory()
 	{
 		if (!$this->isLoaded('inventory') && $this->get('id'))
-			$this->set('inventory',current($this->get('hardware')));
+			$this->set('inventory',current($this->getClass('InventoryManager')->find(array('hostID' => $this->get('id')))));
 		return $this;
 	}
 	private function loadModules()

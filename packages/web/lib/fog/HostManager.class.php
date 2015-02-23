@@ -1,7 +1,6 @@
 <?php
 class HostManager extends FOGManagerController
 {
-	public $loadQueryTemplate = "SELECT *,GROUP_CONCAT(DISTINCT `hostMAC`.`hmID`) hostMacs,`hostPriMac`.`hmMAC` hostPriMac FROM `%s` LEFT OUTER JOIN `hostMAC` ON `hostMAC`.`hmHostID`=`hosts`.`hostID` LEFT OUTER JOIN `hostMAC` hostPriMac ON `hostPriMac`.`hmHostID`=`hosts`.`hostID` %s %s AND `hostPriMac`.`hmPrimary`='1' %s GROUP BY `hostName` %s %s";
 	public function getHostByMacAddresses($MACs)
 	{
 		foreach($this->getClass('MACAddressAssociationManager')->find(array('mac' => $MACs)) AS $MAC)
