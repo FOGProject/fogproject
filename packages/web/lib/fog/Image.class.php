@@ -35,7 +35,7 @@ class Image extends FOGController
 	// databaseFieldClassRelationships
 	public $databaseFieldClassRelationships = array(
 		//'Host' => array('imageID','id','hosts'),
-		'StorageGroup' => array('imageID','id','storageGroups'),
+		//'StorageGroup' => array('imageID','id','storageGroups'),
 	);
 	public function save()
 	{

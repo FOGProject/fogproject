@@ -58,7 +58,7 @@ class Host extends FOGController
 	);
 	// Class to field relationships
 	public $databaseFieldClassRelationships = array(
-		'Image' => array('id','imageID','image'),
+		//'Image' => array('id','imageID','image'),
 	);
 	// Custom functons
 	public function isHostnameSafe()
