@@ -181,7 +181,7 @@ class TaskManagementPage extends FOGPage
 					'id'			=>	$Host->get('id'),
 					'host_name'		=>	$Host->get('name'),
 					'host_mac'		=>	$Host->get('mac')->__toString(),
-					'image_name' 	=> $Host->get('imagename'),
+					'image_name' 	=> $Host->getImage()->get('name'),
 				);
 			}
 		}
