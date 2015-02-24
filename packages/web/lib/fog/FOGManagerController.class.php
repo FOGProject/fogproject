@@ -57,7 +57,7 @@ abstract class FOGManagerController extends FOGBase
 		try
 		{
 			if (empty($keyword))
-				$keyword = $_REQUEST['crit'];
+				$keyword = preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? $_REQUEST['host-search'] : $_REQUEST['crit'];
 			$keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', $keyword).'%');
 			$_SESSION['caller'] = __FUNCTION__;
 			if (empty($keyword))
@@ -65,7 +65,6 @@ abstract class FOGManagerController extends FOGBase
 			$this->array_remove($this->aliasedFields,$this->databaseFields);
 			$findWhere = array_fill_keys(array_keys($this->databaseFields),$keyword);
 			$Main = $this->getClass($this->childClass);
-			list($getFields,$join,$getFields) = $Main->buildQuery();
 			if ($this->childClass == 'User')
 				return $this->getClass('UserManager')->find($findWhere,'OR');
 			$HostIDs = ($this->childClass == 'Host' ? $this->getClass('HostManager')->find($findWhere,'OR','','','','','','id') : $this->getClass('HostManager')->find(array('name' => $keyword,'description' => $keyword,'ip' => $keyword),'OR','','','','','','id'));

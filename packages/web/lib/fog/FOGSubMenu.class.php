@@ -4,8 +4,8 @@
  * 	FOG: FOGSubMenu Class
  *	Author:		Blackout
  *	Created:	3:02 PM 4/09/2010
- *	Revision:	$Revision$
- *	Last Update:	$LastChangedDate$
+ *	Revision:	$Revision: 2321 $
+ *	Last Update:	$LastChangedDate: 2014-09-21 18:53:13 -0400 (Sun, 21 Sep 2014) $
  ***/
 
 /*

@@ -6,54 +6,82 @@
 */
 abstract class FOGController extends FOGBase
 {
-	// Table
-	/** Gets the database table */
+	/** @var databaseTable
+	  * Sets the databaseTable to perform lookups
+	  */
 	public $databaseTable = '';
-	// Name -> Database field name
-	/** Gets the database fields */
+	/** @var databaseFields
+	  * The Fields the database contains
+	  * using common for friendly names
+	  */
 	public $databaseFields = array();
-	// ->load() queries, this way subclasses can override (ie: NodeFailure)
-	/** The standard query template for a single call */
+	/** @var loadQueryTemplateMultiple
+	  * The Query template in case of multiple items passed to data
+	  * Protected so as to allow other classes to assign into them
+	  */
 	protected $loadQueryTemplateSingle = "SELECT * FROM `%s` %s WHERE `%s`='%s'";
-	/** The standard query template for a multiple call */
+	/** @var loadQueryTemplateMultiple
+	  * The Query template in case of multiple items passed to data
+	  */
 	protected $loadQueryTemplateMultiple = "SELECT * FROM `%s` %s WHERE %s";
-	// Do not update these database fields
-	/** Ignore these fileds */
+	/** @var databaseFieldsToIgnore
+	  * Which fields to not really care about updatin
+	  */
 	public $databaseFieldsToIgnore = array(
 		'createdBy',
 		'createdTime'
 	);
-	// Allow setting / getting of these additional fields
-	/** set or get additional fields. */
+	/** @var additionalFields
+	  * Fields to allow assignment into object
+	  * but are not directly associated to the
+	  * objects table
+	  */
 	public $additionalFields = array();
-	/** which fields are aliased **/
+	/** @var aliasedField
+	  * Aliased fields that aren't directly related to db
+	  * but not capable of being updated or searched
+	  */
 	public $aliasedFields = array();
-	// Required database fields
-	/** Required Database Fields */
+	/** @var databaseFieldsRequired
+	  * Required fields to allow updating/inserting into
+	  * the database
+	  */
 	public $databaseFieldsRequired = array();
-	// Store data array
-	/** The data to return */
+	/** @var data
+	  * The data to actually set and return to the object
+	  */
 	protected $data = array();
-	// Auto save class data on __destruct
-	/** If true will save db on exit auto matically */
+	/** @var autoSave
+	  * If set, when the object is destroyed it will save first.
+	  */
 	public $autoSave = false;
-	// Database field to Class relationship
-	/** For classes that are assigned to a particular field */
+	/** @var databaseFieldClassRelationships
+	  * Set the classes to associate to between objects
+	  * This is hard as most use associative properties
+	  * But each object (including associations) are 
+	  * counted as their own objects
+	  */
 	public $databaseFieldClassRelationships = array();
 	/** The Manager of the info. */
+	/** @var Manager
+	  * Just sets the class manager field as needed.
+	  */
 	private $Manager;
-	// Construct
-	/** __construct($data)
-		The main constructor for the controller.
-		Builds the database fields as needed.
-	*/
+	/** @param data
+	  * Initializer of the objects themselves.
+	  */
 	public function __construct($data)
 	{
-		// FOGBase contstructor
+		/** FOGBase constructor
+		  * Allows the rest of the base of fog to come
+		  * with the object begin called
+		  */
 		parent::__construct();
 		try
 		{
+			/** sets if to print controller debug information to screen/log/either/both*/
 			$this->debug = false;
+			/** sets if to print controller general information to screen/log/either/both*/
 			$this->info = false;
 			// Error checking
 			if (!count($this->databaseFields))
@@ -195,7 +223,7 @@ abstract class FOGController extends FOGBase
 			{
 				if ($this->get($name) != '')
 				{
-					$insertKeys[] = $this->DB->sanitize($fieldName);
+					$insertKeys[] = $fieldName;
 					$insertValues[] = $this->DB->sanitize($this->get($name));
 				}
 			}
@@ -301,12 +329,10 @@ abstract class FOGController extends FOGBase
 	{
 		$classData = array_intersect_key($queryData,$this->databaseFieldsFlipped);
 		$orderedData = array_merge($this->databaseFieldsFlipped,$classData);
+		$this->data = array();
 		$this->data = array_combine(array_keys($this->databaseFields),$orderedData);
-		if ($this->databaseFieldClassRelationships)
-		{
-			foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
-				$this->add($fields[2],$this->getClass($class)->setQuery($queryData));
-		}
+		foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
+			$this->add($fields[2],$this->getClass($class)->setQuery($queryData));
 		return $this;
 	}
 	// Destroy

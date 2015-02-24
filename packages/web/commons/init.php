@@ -11,7 +11,7 @@
 */
 class Initiator
 {
-	public $HookPaths,$FOGPaths,$PagePaths, $plugPaths;
+	public $HookPaths,$EventPaths, $FOGPaths,$PagePaths, $plugPaths;
 	/** __construct()
 	* Tells the initial call to load all the calls files.
 	* 
@@ -45,17 +45,21 @@ class Initiator
 		{
 			$plug_class[] = $plugPath.'/class/';
 			$plug_hook[] = $plugPath.'/hooks/';
+			$plug_event[] = $plugPath.'/events/';
 			$plug_page[] = $plugPath.'/pages/';
 		}
 		$FOGPaths = array(BASEPATH . '/lib/fog/', BASEPATH . '/lib/db/');
 		$HookPaths = array(BASEPATH . '/lib/hooks/');
+		$EventPaths = array(BASEPATH . '/lib/events/');
 		$PagePaths = array(BASEPATH . '/lib/pages/');
 		$this->FOGPaths = array_merge((array)$FOGPaths,(array)$plug_class);
 		$this->HookPaths = array_merge((array)$HookPaths,(array)$plug_hook);
+		$this->EventPaths = array_merge((array)$EventPaths,(array)$plug_event);
 		$this->PagePaths = array_merge((array)$PagePaths,(array)$plug_page);
 		spl_autoload_register(array($this,'FOGLoader'));
 		spl_autoload_register(array($this,'FOGPages'));
 		spl_autoload_register(array($this,'FOGHooks'));
+		spl_autoload_register(array($this,'FOGEvents'));
 	}
 	/**
 	* DetermineBasePath()
@@ -99,6 +103,7 @@ class Initiator
 		spl_autoload_unregister(array($this,'FOGLoader'));
 		spl_autoload_unregister(array($this,'FOGPages'));
 		spl_autoload_unregister(array($this,'FOGHooks'));
+		spl_autoload_unregister(array($this,'FOGEvents'));
 	}
 	/** startInit()
 	* Starts the initiation of the environment.
@@ -224,6 +229,12 @@ class Initiator
 		foreach($this->HookPaths AS $path)
 			(!class_exists($className) && file_exists($path.$className.'.hook.php') ? include_once($path.$className.'.hook.php') : null);
 	}
+	private function FOGEvents($className)
+	{
+		global $EventManager;
+		foreach($this->EventPaths AS $path)
+			(!class_exists($className) && file_exists($path.$className.'.event.php') ? include_once($path.$className.'.event.php') : null);
+	}	
 }
 function sanitize_output($buffer)
 {
@@ -237,7 +248,8 @@ function sanitize_output($buffer)
 		'<',
 		'\\1',
 	);
-	return preg_replace($search,$replace,$buffer);
+	$buffer = preg_replace($search,$replace,$buffer);
+	return $buffer;
 }
 // Initialize everything
 $Init = new Initiator();
@@ -263,6 +275,10 @@ $tables = $DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
 foreach ($tables AS $table)
 	$DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
 unset($tables,$table);
+// Set the memory limits
+$_SESSION['memory'] = $FOGCore->getSetting('FOG_MEMORY_LIMIT');
+ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M' : ini_get('memory_limit'));
+$_SESSION['chunksize'] = 8192;
 // Generate the Server's Key Pairings
 $FOGCore->createKeyPair();
 // Set the base image link.
