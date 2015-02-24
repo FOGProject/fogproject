@@ -8,7 +8,7 @@ class AddLocationHost extends Hook
     var $node = 'location';	
 	public function HostTableHeader($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if ($_REQUEST['node'] == 'host' && $_REQUEST['sub'] != 'pending')
 				$arguments['headerData'][4] = _('Location/Deployed');
@@ -17,7 +17,7 @@ class AddLocationHost extends Hook
 
 	public function HostData($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if ($_REQUEST['node'] == 'host' && $_REQUEST['sub'] != 'pending')
 			{

@@ -15,7 +15,7 @@ class RestrictUAA extends Hook
  
     public function UserData($arguments)
     {
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if (!in_array($this->FOGUser->get('type'),array(0)))
 			{
@@ -29,7 +29,7 @@ class RestrictUAA extends Hook
     }
 	public function RemoveName($arguments)
     {
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if (!in_array($this->FOGUser->get('type'),array(0)))
 			{
@@ -41,7 +41,7 @@ class RestrictUAA extends Hook
 	
 	public function RemoveCreate($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			foreach($arguments['submenu'] AS $node => $link)
 			{

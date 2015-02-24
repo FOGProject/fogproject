@@ -8,8 +8,7 @@ class AddLDAPSubMenuItems extends Hook
 	var $node = 'ldap';
 	public function SubMenuData($arguments)
 	{
-		$plugin = current($this->getClass('PluginManager')->find(array('name' => $this->node,'installed' => 1, 'state' => 1)));
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			$arguments['submenu'][$this->node]['search'] = $this->foglang['NewSearch'];
 			$arguments['submenu'][$this->node]['list'] = sprintf($this->foglang['ListAll'],_('LDAP Server'));
@@ -24,7 +23,7 @@ class AddLDAPSubMenuItems extends Hook
 	}
 	public function SubMenuNotes($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if ($_REQUEST['node'] == $this->node && $_REQUEST['id'])
 			{
