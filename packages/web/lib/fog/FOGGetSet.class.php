@@ -12,7 +12,7 @@ class FOGGetSet extends FOGBase
 	// Constructor
 	public function __construct($data = array())
 	{
-		foreach((array($data AS $key => $value)
+		foreach((array)$data AS $key => $value)
 			$this->set($key,$value);
 	}
 	public function set($key, $value)
