@@ -54,7 +54,7 @@ class EventManager extends FOGBase {
 				$subscriberIterator = new DirectoryIterator($subscriberDirectory);
 				foreach ($subscriberIterator AS $fileInfo) {
 					$file = !$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.event.php' ? file($fileInfo->getPathname()) : null;
-					$PluginName = preg_match('#plugins#i',$subscriberDirectory) ? basename(substr($subscriberDirectory,0,-6)) : null;
+					$PluginName = preg_match('#plugins#i',$subscriberDirectory) ? basename(substr($subscriberDirectory,0,-7)) : null;
 					if (in_array($PluginName,$_SESSION['PluginsInstalled']))
 						$className = (substr($fileInfo->getFilename(),-10) == '.event.php' ? substr($fileInfo->getFilename(),0,-10) : null);
 					
