@@ -8,7 +8,7 @@ class AddLocationSubMenuItems extends Hook
 	var $node = 'location';
 	public function SubMenuData($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			$arguments['submenu'][$this->node]['search'] = $this->foglang['NewSearch'];
 			$arguments['submenu'][$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Locations']);
@@ -23,7 +23,7 @@ class AddLocationSubMenuItems extends Hook
 	}
 	public function SubMenuNotes($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if ($_REQUEST['node'] == $this->node && $_REQUEST['id'])
 			{

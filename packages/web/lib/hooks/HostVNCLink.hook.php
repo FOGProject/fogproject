@@ -3,8 +3,8 @@
  * FOG Hook: HostVNCLink
  *	Author:		Blackout
  *	Created:	9:26 AM 3/09/2011
- *	Revision:	$Revision$
- *	Last Update:	$LastChangedDate$
+ *	Revision:	$Revision: 1732 $
+ *	Last Update:	$LastChangedDate: 2014-05-24 15:37:43 -0400 (Sat, 24 May 2014) $
  ***/
 // HostVNCLink - custom hook class
 class HostVNCLink extends Hook

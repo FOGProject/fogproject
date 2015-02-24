@@ -8,7 +8,7 @@ class AddLocationGroup extends Hook
     var $node = 'location';	
 	public function GroupFields($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if ($_REQUEST['node'] == 'group')
 			{
@@ -29,7 +29,7 @@ class AddLocationGroup extends Hook
 	}
 	public function GroupAddLocation($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if ($_REQUEST['node'] == 'group')
 			{

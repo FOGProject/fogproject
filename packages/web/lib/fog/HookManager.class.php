@@ -3,8 +3,8 @@
  * FOG Hook Manager
  *	Author:		$Author: Blackout
  *	Created:	8:57 AM 31/08/2011
- *	Revision:	$Revision$
- *	Last Update:	$LastChangedDate$
+ *	Revision:	$Revision: 3034 $
+ *	Last Update:	$LastChangedDate: 2015-02-23 08:11:07 -0500 (Mon, 23 Feb 2015) $
  ***/
 class HookManager extends FOGBase
 {
