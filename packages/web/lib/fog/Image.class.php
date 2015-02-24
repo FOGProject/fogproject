@@ -27,21 +27,98 @@ class Image extends FOGController
 		'protected' => 'imageProtect',
 		'compress' => 'imageCompress',
 	);
-	// additionalFields
+
+	// Additional Fields
 	public $additionalFields = array(
+		'stores',
 		'hosts',
+		'hostsnotinme',
 		'storageGroups',
 	);
-	// databaseFieldClassRelationships
-	public $databaseFieldClassRelationships = array(
-		//'Host' => array('imageID','id','hosts'),
-		//'StorageGroup' => array('imageID','id','storageGroups'),
-	);
+
+	// Overrides
+	private function loadHosts()
+	{
+		if (!$this->isLoaded('hosts') && $this->get('id'))
+			$this->set('hosts',$this->getClass('HostManager')->find(array('imageID' => $this->get('id'))));
+		if (!$this->isLoaded('hostsnotinme') && $this->get('id'))
+			$this->set('hostsnotinme',$this->getClass('HostManager')->find(array('imageID' => $this->get('id'),'','','','','',true)));
+		return $this;
+	}
+	private function loadGroups()
+	{
+		if (!$this->isLoaded('storageGroups') && $this->get('id'))
+		{
+			foreach($this->getClass('ImageAssociationManager')->find(array('imageID' => $this->get('id'))) AS $IAStore)
+				$this->add('storageGroups',$IAStore->getStorageGroup());
+		}
+		return $this;
+	}
+
+	public function get($key = '')
+	{
+		if (in_array($this->key($key),array('hosts','hostsnotinme')))
+			$this->loadHosts();
+		else if ($this->key($key) == 'storageGroups')
+			$this->loadGroups();
+		return parent::get($key);
+	}
+
+	public function set($key, $value)
+	{
+		if ($this->key($key) == 'hosts')
+		{
+			foreach((array)$value AS $Host)
+				$newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
+			$value = (array)$newValue;
+		}
+		else if ($this->key($key) == 'storageGroups')
+		{
+			foreach((array)$value AS $Group)
+				$newValue[] = ($Group instanceof StorageGroup ? $Group : new StorageGroup($Group));
+			$value = (array)$newValue;
+		}
+		// Set
+		return parent::set($key, $value);
+	}
+
+	public function add($key, $value)
+	{
+		if ($this->key($key) == 'hosts' && !($value instanceof Host))
+		{
+			$this->loadHosts();
+			$value = new Host($value);
+		}
+		else if ($this->key($key) == 'storageGroups' && !($value instanceof StorageGroup))
+		{
+			$this->loadGroups();
+			$value = new StorageGroup($value);
+		}
+		// Add
+		return parent::add($key, $value);
+	}
+
+	public function remove($key, $object)
+	{
+		if ($this->key($key) == 'hosts')
+			$this->loadHosts();
+		else if ($this->key($key) == 'storageGroups')
+			$this->loadGroups();
+		// Remove
+		return parent::remove($key, $object);
+	}
+
 	public function save()
 	{
 		parent::save();
 		if ($this->isLoaded('hosts'))
 		{
+			// Unset all hosts
+			foreach($this->getClass('HostManager')->find(array('imageID' => $this->get('id'))) AS $Host)
+			{
+				if(($Host instanceof Host) && $Host->isValid())
+					$Host->set('imageID', 0)->save();
+			}
 			// Reset the hosts necessary
 			foreach ((array)$this->get('hosts') AS $Host)
 			{
@@ -68,6 +145,7 @@ class Image extends FOGController
 		}
 		return $this;
 	}
+
 	public function addHost($addArray)
 	{
 		// Add
@@ -84,6 +162,7 @@ class Image extends FOGController
 		// Return
 		return $this;
 	}
+
 	public function removeHost($removeArray)
 	{
 		// Iterate array (or other as array)
@@ -92,6 +171,7 @@ class Image extends FOGController
 		// Return
 		return $this;
 	}
+
 	public function removeGroup($removeArray)
 	{
 		// Iterate array (or other as array)
@@ -103,6 +183,7 @@ class Image extends FOGController
 		// Return
 		return $this;
 	}
+	
 	// Custom functions
 	/** getStorageGroup()
 		Gets the relevant StorageGroup class object for the image.
