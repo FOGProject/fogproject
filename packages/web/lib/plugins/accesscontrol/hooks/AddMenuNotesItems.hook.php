@@ -8,12 +8,12 @@ class AddMenuNotesItems extends Hook
 	var $node = 'accesscontrol';
 	public function AddMenuData($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 			$arguments['main'] = $this->array_insert_after('user',$arguments['main'],$this->node,array(_('Access Control'),'fa fa-user-secret fa-2x'));
 	}
 	public function AddSubMenuData($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			$arguments['submenu'][$this->node]['search'] = $this->foglang['NewSearch'];
 			$arguments['submenu'][$this->node]['list'] = sprintf($this->foglang['ListAll'],_('Controls'));
@@ -22,7 +22,7 @@ class AddMenuNotesItems extends Hook
 	}
 	public function addSearch($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 			array_push($arguments['searchPages'],$this->node);
 	}
 }

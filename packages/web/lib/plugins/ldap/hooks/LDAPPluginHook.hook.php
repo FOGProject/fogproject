@@ -11,7 +11,7 @@ class LDAPPluginHook extends Hook
 		$username = $arguments['username'];
 		$password = $arguments['password'];
 		$User = $arguments['User'];
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			foreach($this->getClass('LDAPManager')->find() AS $LDAP)
 			{

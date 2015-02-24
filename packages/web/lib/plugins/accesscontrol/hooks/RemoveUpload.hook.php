@@ -19,7 +19,7 @@ class RemoveUpload extends Hook
 	}
 	public function EditTasks($arguments)
     {
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if (!in_array($this->FOGUser->get('type'),array(0)))
 			{
@@ -30,7 +30,7 @@ class RemoveUpload extends Hook
     }
 	public function SubMenuData($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if (!in_array($this->FOGUser->get('type'),array(0)))
 			{

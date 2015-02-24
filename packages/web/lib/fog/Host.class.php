@@ -33,6 +33,7 @@ class Host extends FOGController
 	public $additionalFields = array(
 		'macs',
 		'mac',
+		'image',
 		'additionalMACs',
 		'pendingMACs',
 		'groups',
@@ -55,6 +56,10 @@ class Host extends FOGController
 		'id',
 		'name',
 	);
+	// Class to field relationships
+	public $databaseFieldClassRelationships = array(
+		'Image' => array('id','imageID','image'),
+	);
 	// Custom functons
 	public function isHostnameSafe()
 	{
@@ -63,7 +68,7 @@ class Host extends FOGController
 	// Snapins
 	public function getImage()
 	{
-		return new Image($this->get('imageID'));
+		return current($this->get('image'));
 	}
 	public function getOS()
 	{
