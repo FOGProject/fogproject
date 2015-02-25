@@ -264,9 +264,12 @@ $FOGCore = new FOGCore();
 $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
 $FOGCore->setSessionEnv();
+// EventManager
+$EventManager = new EventManager();
 // HookManager
 $HookManager = new HookManager();
 $HookManager->load();
+$EventManager->load();
 // Make sure to allow concat flags.
 $DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION[HostCount]})")->fetch()->get();
 // Ensure any new tables are always MyISAM
