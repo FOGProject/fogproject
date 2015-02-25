@@ -259,9 +259,8 @@ class Host extends FOGController
 		if (!$this->isLoaded('snapins') && $this->get('id'))
 		{
 			$SnapinIDs = $this->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','snapinID');
-			print_r($SnapinIDs);
-			exit;
 			$this->set('snapins',$this->getClass('SnapinManager')->find(array('id' => $SnapinIDs)));
+			$this->set('snapinsnotinme',$this->getClass('SnapinManager')->find(array('id' => $SnapinIDs),'','','','','',true));
 		}
 		return $this;
 	}
