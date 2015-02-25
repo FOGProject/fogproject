@@ -25,7 +25,12 @@ try
 	// Task Logging.
 	$TaskLog = new TaskLog($Task);
 	$TaskLog->set('taskID',$Task->get('id'))->set('taskStateID',$Task->get('stateID'))->set('createdTime',$Task->get('createdTime'))->set('createdBy',$Task->get('createdBy'))->save();
-	if (!$Task->save()) throw new Exception('Failed to update task.');
+	if (!$Task->save()) {
+		$EventManager->notify('HOST_IMAGE_Fail', array(HostName=>$Host->get('name')));
+		throw new Exception('Failed to update task.');
+	}
+	$EventManager->notify('HOST_IMAGE_COMPLETE', array(HostName=>$Host->get('name')));
+
 	////============================== Email Notification Start ==============================
 	if ($FOGCore->getSetting('FOG_EMAIL_ACTION'))
 	{
