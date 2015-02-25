@@ -3,8 +3,6 @@ require_once('../commons/base.inc.php');
 if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'],array('deletemulti','deleteconf')))
 	unset($_SESSION['delitems']);
 $currentUser = ($_SESSION['FOG_USER'] ? unserialize($_SESSION['FOG_USER']) : null);
-$EventManager = new EventManager();
-$EventManager->load();
 $Page = new Page();
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 if (!in_array($node,array('schemaupdater','client')) && !in_array($sub,array('configure','authorize')) && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))

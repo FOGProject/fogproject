@@ -66,6 +66,8 @@ abstract class FOGPage extends FOGBase
 		$this->formAction = sprintf('%s?%s', $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
 		// Hook in to allow search pages to be adjusted as needed.
 		$this->HookManager->processEvent('SEARCH_PAGES',array('searchPages' => &$this->searchPages));
+		if (!$this->FOGUser)
+			$this->FOGUser = unserialize($_SESSION['FOG_USER']);
 	}
 	// Default index page
 	public function index()

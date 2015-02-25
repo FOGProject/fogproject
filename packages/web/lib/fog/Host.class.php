@@ -33,6 +33,7 @@ class Host extends FOGController
 	public $additionalFields = array(
 		'macs',
 		'mac',
+		'primac',
 		'image',
 		'additionalMACs',
 		'pendingMACs',
@@ -58,7 +59,8 @@ class Host extends FOGController
 	);
 	// Class to field relationships
 	public $databaseFieldClassRelationships = array(
-		//'Image' => array('id','imageID','image'),
+		'MACAddressAssociation' => array('hostID','id','primac',array('primary' => 1)),
+		'Image' => array('id','imageID','image'),
 	);
 	// Custom functons
 	public function isHostnameSafe()
@@ -68,7 +70,7 @@ class Host extends FOGController
 	// Snapins
 	public function getImage()
 	{
-		return current($this->get('image'));
+		return current($this->get('image'));//new Image($this->get('imageID'));
 	}
 	public function getOS()
 	{
@@ -165,20 +167,14 @@ class Host extends FOGController
 	}
 	private function loadPrimary()
 	{
-		if (!$this->isLoaded('macs') && $this->get('id'))
-			$this->set('macs',$this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'))));
 		if (!$this->isLoaded('mac') && $this->get('id'))
-		{
-			foreach($this->get('macs') AS $MAC)
-			{
-				if ($MAC  && $MAC->isValid() && $MAC->get('primary'))
-					$this->set('mac',new MACAddress($MAC));
-			}
-		}
+			$this->set('mac',new MACAddress(current($this->get('primac'))));
 		return $this;
 	}
 	private function loadAdditional()
 	{
+		if (!$this->isLoaded('macs'))
+			$this->set('macs',$this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'))));
 		if (!$this->isLoaded('additionalMACs') && $this->get('id'))
 		{
 			foreach($this->get('macs') AS $MACAdd)
@@ -191,6 +187,8 @@ class Host extends FOGController
 	}
 	private function loadPending()
 	{
+		if (!$this->isLoaded('macs'))
+			$this->set('macs',$this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'))));
 		if (!$this->isLoaded('pendingMACs') && $this->get('id'))
 		{
 			foreach($this->get('macs') AS $MACAdd)
@@ -261,8 +259,9 @@ class Host extends FOGController
 		if (!$this->isLoaded('snapins') && $this->get('id'))
 		{
 			$SnapinIDs = $this->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','snapinID');
-			foreach($this->getClass('SnapinManager')->find(array('id' => $SnapinIDs)) AS $Snapin)
-				$this->add('snapins',$Snapin);
+			print_r($SnapinIDs);
+			exit;
+			$this->set('snapins',$this->getClass('SnapinManager')->find(array('id' => $SnapinIDs)));
 		}
 		return $this;
 	}
