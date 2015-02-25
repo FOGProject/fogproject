@@ -1,4 +1,7 @@
 <?php
+/**
+ *	Author:		Jbob
+**/
 class AddPushbulletSubMenuItems extends Hook
 {
 	var $name = 'AddPushbulletSubMenuItems';
@@ -13,8 +16,8 @@ class AddPushbulletSubMenuItems extends Hook
 		{
 			if ($_REQUEST['node'] == 'pushbullet')
 			{
-				$arguments['submenu'][$this->node]['list'] = sprintf($this->foglang['ListAll'],_('Pushbullet Tokens'));
-				$arguments['submenu'][$this->node]['add'] = sprintf($this->foglang['CreateNew'],_('Pushbullet Token'));
+				$arguments['submenu'][$this->node]['list'] = sprintf($this->foglang['ListAll'],_('Pushbullet Accounts'));
+				$arguments['submenu'][$this->node]['add'] = 'Link Pushbullet Account';
 				
 			}
 		}
