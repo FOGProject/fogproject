@@ -250,7 +250,6 @@ class Host extends FOGController
 			$ModuleIDs = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','moduleID');
 			foreach($this->getClass('ModuleManager')->find(array('id' => $ModuleIDs)) AS $Module)
 				$this->add('modules', $Module);
-			unset($Module,$ModuleIDs);
 		}
 		return $this;
 	}
@@ -520,42 +519,6 @@ class Host extends FOGController
 						'snapinID' => $Snapin->get('id')
 					));
 					$NewSnapin->save();
-				}
-			}
-		}
-		// Modules
-		if ($this->isLoaded('modules'))
-		{
-			// Remove old rows
-			$this->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id')));
-			// Create assoc
-			foreach ((array)$this->get('modules') AS $Module)
-			{
-				$moduleName = array(
-					'autologout' => 'FOG_SERVICE_AUTOLOGOFF_ENABLED',
-					'clientupdater' => 'FOG_SERVICE_CLIENTUPDATER_ENABLED',
-					'dircleanup' => 'FOG_SERVICE_DIRECTORYCLEANER_ENABLED',
-					'displaymanager' => 'FOG_SERVICE_DISPLAYMANAGER_ENABLED',
-					'greenfog' => 'FOG_SERVICE_GREENFOG_ENABLED',
-					'hostregister' => 'FOG_SERVICE_HOSTREGISTER_ENABLED',
-					'hostnamechanger' => 'FOG_SERVICE_HOSTNAMECHANGER_ENABLED',
-					'printermanager' => 'FOG_SERVICE_PRINTERMANAGER_ENABLED',
-					'snapinclient' => 'FOG_SERVICE_SNAPIN_ENABLED',
-					'taskreboot' => 'FOG_SERVICE_TASKREBOOT_ENABLED',
-					'usercleanup' => 'FOG_SERVICE_USERCLEANUP_ENABLED',
-					'usertracker' => 'FOG_SERVICE_USERTRACKER_ENABLED',
-				);
-				if (($Module instanceof Module) && $Module->isValid())
-				{
-					if ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]))
-					{
-						$ModuleInsert = new ModuleAssociation(array(
-							'hostID' => $this->get('id'),
-							'moduleID' => $Module->get('id'),
-							'state' => 1,
-						));
-						$ModuleInsert->save();
-					}
 				}
 			}
 		}
@@ -1075,11 +1038,49 @@ class Host extends FOGController
 		// Add
 		foreach ((array)$addArray AS $item)
 			$this->add('modules', $item);
+		// Modules
+		if ($this->isLoaded('modules'))
+		{
+			// Remove old rows
+			$this->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id')));
+			// Create assoc
+			foreach((array)$this->get('modules') AS $Module)
+			{
+				$moduleName = array(
+					'autologout' => 'FOG_SERVICE_AUTOLOGOFF_ENABLED',
+					'clientupdater' => 'FOG_SERVICE_CLIENTUPDATER_ENABLED',
+					'dircleanup' => 'FOG_SERVICE_DIRECTORYCLEANER_ENABLED',
+					'displaymanager' => 'FOG_SERVICE_DISPLAYMANAGER_ENABLED',
+					'greenfog' => 'FOG_SERVICE_GREENFOG_ENABLED',
+					'hostregister' => 'FOG_SERVICE_HOSTREGISTER_ENABLED',
+					'hostnamechanger' => 'FOG_SERVICE_HOSTNAMECHANGER_ENABLED',
+					'printermanager' => 'FOG_SERVICE_PRINTERMANAGER_ENABLED',
+					'snapinclient' => 'FOG_SERVICE_SNAPIN_ENABLED',
+					'taskreboot' => 'FOG_SERVICE_TASKREBOOT_ENABLED',
+					'usercleanup' => 'FOG_SERVICE_USERCLEANUP_ENABLED',
+					'usertracker' => 'FOG_SERVICE_USERTRACKER_ENABLED',
+				);
+				if (($Module instanceof Module) && $Module->isValid())
+				{
+					if ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]))
+					{
+						$ModuleInsert = new ModuleAssociation(array(
+							'hostID' => $this->get('id'),
+							'moduleID' => $Module->get('id'),
+							'state' => 1,
+						));
+						$ModuleInsert->save();
+					}
+				}
+			}
+		}
 		// Return
 		return $this;
 	}
 	public function removeModule($removeArray)
 	{
+		// Remove the modules
+		$this->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id'),'moduleID' => $removeArray));
 		// Iterate array (or other as array)
 		foreach ((array)$removeArray AS $remove)
 			$this->remove('modules', ($remove instanceof Module ? $remove : new Module((int)$remove)));
