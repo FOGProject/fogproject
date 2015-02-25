@@ -3,8 +3,8 @@
  * FOG Hook: Template
  *	Author:		Blackout
  *	Created:	8:57 AM 31/08/2011
- *	Revision:	$Revision: 1732 $
- *	Last Update:	$LastChangedDate: 2014-05-24 15:37:43 -0400 (Sat, 24 May 2014) $
+ *	Revision:	$Revision$
+ *	Last Update:	$LastChangedDate$
  ***/
 // Hook Template
 class Template extends Hook
