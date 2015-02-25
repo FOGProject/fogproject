@@ -96,11 +96,12 @@ abstract class FOGController extends FOGBase
 			// Add incoming data
 			if (is_array($data))
 			{
-				foreach($data AS $key => $value)
-					$this->set($this->key($key), $value);
+				$this->data = $data;
+				//foreach($data AS $key => $value)
+				//	$this->set($this->key($key), $value);
 			}
 			// If incoming data is an INT -> Set as ID -> Load from database
-			elseif (is_numeric($data))
+			else if (is_numeric($data))
 			{
 				if ($data === 0 || $data < 0)
 					throw new Exception(sprintf('No data passed, or less than zero, Value: %s', $data));
@@ -216,7 +217,7 @@ abstract class FOGController extends FOGBase
 			// Variables
 			$fieldData = array();
 			$this->array_remove($this->aliasedFields,$this->databaseFields);
-			$this->array_remove($this->databaseFieldsToIgnore,$this->databaseFields);
+			//$this->array_remove($this->databaseFieldsToIgnore,$this->databaseFields);
 			$fieldsToUpdate = $this->databaseFields;
 			// Build insert key and value arrays
 			foreach ($this->databaseFields AS $name => $fieldName)
@@ -327,9 +328,9 @@ abstract class FOGController extends FOGBase
 	}
 	public function setQuery($queryData)
 	{
-		//	$classData = array_intersect_key($queryData,$this->databaseFieldsFlipped);
-		foreach($queryData AS $key => $value)
-			$this->set($this->key($key),(string)$value);
+		$classData = array_intersect_key($queryData,$this->databaseFieldsFlipped);
+		$orderedData = array_merge($this->databaseFieldsFlipped,$classData);
+		$this->data = array_combine(array_keys($this->databaseFields),$orderedData);
 		foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
 			$this->add($fields[2],$this->getClass($class)->setQuery($queryData));
 		return $this;
