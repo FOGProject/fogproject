@@ -574,7 +574,7 @@ class TaskManagementPage extends FOGPage
 			'<form method="post" method="?node=tasks&sub=active-snapins">${name}',
 			'${startDate}',
 			'${state}',
-			'<input type="checkbox" id="${id}" class="delid" name="rmid" value="%id%" onclick="this.form.submit()" title="Kill Task" /><label for="${id}" class="icon fa fa-minus-circle" title="'._('Delete').'">&nbsp;</label></form>',
+			'<input type="checkbox" id="${id}" class="delid" name="rmid" value="${id}" onclick="this.form.submit()" title="Kill Task" /><label for="${id}" class="icon fa fa-minus-circle" title="'._('Delete').'">&nbsp;</label></form>',
 		);
 		$this->attributes = array(
 			array(),
