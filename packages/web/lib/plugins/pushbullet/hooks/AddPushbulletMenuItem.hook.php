@@ -1,4 +1,7 @@
 <?php
+/**
+ *	Author:		Jbob
+**/
 class AddPushbulletMenuItem extends Hook
 {
 	var $name = 'AddPushbulletMenuItem';

@@ -2,10 +2,7 @@
 /**	Class Name: PushbulletnManagementPage
     FOGPage lives in: {fogwebdir}/lib/fog
     Lives in: {fogwebdir}/lib/plugins/location/pages
-
-	Description: This is an extension of the FOGPage Class
-    This class controls locations you want FOG to associate
-	with.  It's only enabled if the plugin is installed.
+ *	Author:		Jbob
 
 **/
 require_once(BASEPATH.'/lib/plugins/pushbullet/libs/PushbulletHandler.php');
@@ -85,7 +82,7 @@ class PushbulletManagementPage extends FOGPage
 			'${input}',
 		);
 		$fields = array(
-			_('API Token') => '<input class="smaller" type="text" name="apiToken" />',
+			_('Access Token') => '<input class="smaller" type="text" name="apiToken" />',
 			'<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
 		);
 		print '<form method="post" action="'.$this->formAction.'">';
@@ -111,7 +108,7 @@ class PushbulletManagementPage extends FOGPage
 			if ($this->getClass('PushbulletManager')->exists(trim($_REQUEST['apiToken'])))
 				throw new Exception('Account already linked');
 			if (!$token)
-				throw new Exception('Please enter an api token');
+				throw new Exception('Please enter an access token');
 			
 			$bulletHandler = new PushbulletHandler($token);
 			$userInfo = $bulletHandler->getUserInformation();

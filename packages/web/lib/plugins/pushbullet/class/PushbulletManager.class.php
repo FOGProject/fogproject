@@ -1,5 +1,7 @@
 <?php
-
+/**
+ *	Author:		Jbob
+**/
 class PushbulletManager extends FOGManagerController {
 	/**	install($name)
 		Method that installs the relevant plugin.

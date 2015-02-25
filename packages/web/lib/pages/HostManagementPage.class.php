@@ -1315,8 +1315,8 @@ class HostManagementPage extends FOGPage
 					if (isset($_REQUEST['updatestatus']))
 					{
 						$modOn = $_REQUEST['modules'];
-						$modOff = $this->getClass('ModuleManager')->find(array('id' => $modOn),'','','','','',true,'id');
 						$Host->addModule($modOn);
+						$modOff = $this->getClass('ModuleManager')->find(array('id' => $modOn),'','','','','',true,'id');
 						$Host->removeModule($modOff);
 					}
 					if ($_REQUEST['updatedisplay'] == '1')
