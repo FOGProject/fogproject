@@ -225,15 +225,8 @@ class Host extends FOGController
 		{
 			// Groups I am in
 			$GroupIDs = $this->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','groupID');
-			$Groups = $this->getClass('GroupManager')->find(array('id' => $GroupIDs));
-			$NotGroups = $this->getClass('GroupManager')->find(array('id' => $GroupIDs),'','','','','',true);
-			foreach($Groups AS $Group)
-				$this->add('groups',$Group);
-			unset($Group);
-			// Groups I am not in
-			foreach($NotGroups AS $Group)
-				$this->add('groupsnotinme',$Group);
-			unset($Group,$GroupIDs);
+			$this->set('groups',$this->getClass('GroupManager')->find(array('id' => $GroupIDs)));
+			$this->set('groupsnotinme',$this->getClass('GroupManager')->find(array('id' => $GroupIDs),'','','','','',true));
 		}
 		return $this;
 	}
@@ -474,6 +467,29 @@ class Host extends FOGController
 				));
 				$NewMAC->save();
 				$this->add('macs',$NewMAC);
+			}
+		}
+		// Modules
+		if ($this->isLoaded('modules'))
+		{
+			// Remove old rows
+			$this->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id')));
+			// Create assoc
+			foreach((array)$this->get('modules') AS $Module)
+			{
+				$moduleName = $this->getGlobalModuleStatus();
+				if (($Module instanceof Module) && $Module->isValid())
+				{
+					if ($moduleName[$Module->get('shortName')])
+					{
+						$ModuleInsert = new ModuleAssociation(array(
+							'hostID' => $this->get('id'),
+							'moduleID' => $Module->get('id'),
+							'state' => 1,
+						));
+						$ModuleInsert->save();
+					}
+				}
 			}
 		}
 		// Printers
@@ -1038,42 +1054,6 @@ class Host extends FOGController
 		// Add
 		foreach ((array)$addArray AS $item)
 			$this->add('modules', $item);
-		// Modules
-		if ($this->isLoaded('modules'))
-		{
-			// Remove old rows
-			$this->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id')));
-			// Create assoc
-			foreach((array)$this->get('modules') AS $Module)
-			{
-				$moduleName = array(
-					'autologout' => 'FOG_SERVICE_AUTOLOGOFF_ENABLED',
-					'clientupdater' => 'FOG_SERVICE_CLIENTUPDATER_ENABLED',
-					'dircleanup' => 'FOG_SERVICE_DIRECTORYCLEANER_ENABLED',
-					'displaymanager' => 'FOG_SERVICE_DISPLAYMANAGER_ENABLED',
-					'greenfog' => 'FOG_SERVICE_GREENFOG_ENABLED',
-					'hostregister' => 'FOG_SERVICE_HOSTREGISTER_ENABLED',
-					'hostnamechanger' => 'FOG_SERVICE_HOSTNAMECHANGER_ENABLED',
-					'printermanager' => 'FOG_SERVICE_PRINTERMANAGER_ENABLED',
-					'snapinclient' => 'FOG_SERVICE_SNAPIN_ENABLED',
-					'taskreboot' => 'FOG_SERVICE_TASKREBOOT_ENABLED',
-					'usercleanup' => 'FOG_SERVICE_USERCLEANUP_ENABLED',
-					'usertracker' => 'FOG_SERVICE_USERTRACKER_ENABLED',
-				);
-				if (($Module instanceof Module) && $Module->isValid())
-				{
-					if ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]))
-					{
-						$ModuleInsert = new ModuleAssociation(array(
-							'hostID' => $this->get('id'),
-							'moduleID' => $Module->get('id'),
-							'state' => 1,
-						));
-						$ModuleInsert->save();
-					}
-				}
-			}
-		}
 		// Return
 		return $this;
 	}

@@ -563,6 +563,23 @@ abstract class FOGBase
 		}
 		return $ordered + $array;
 	}
+	public function getGlobalModuleStatus()
+	{
+		return array(
+			'dircleanup' => $this->FOGCore->getSetting('FOG_SERVICE_DIRECTORYCLEANER_ENABLED'),
+			'usercleanup' => $this->FOGCore->getSetting('FOG_SERVICE_USERCLEANUP_ENABLED'),
+			'displaymanager' => $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_ENABLED'),
+			'autologout' => $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_ENABLED'),
+			'greenfog' => $this->FOGCore->getSetting('FOG_SERVICE_GREENFOG_ENABLED'),
+			'hostnamechanger' => $this->FOGCore->getSetting('FOG_SERVICE_HOSTNAMECHANGER_ENABLED'),
+			'snapinclient' => $this->FOGCore->getSetting('FOG_SERVICE_SNAPIN_ENABLED'),
+			'clientupdater' => $this->FOGCore->getSetting('FOG_SERVICE_CLIENTUPDATER_ENABLED'),
+			'hostregister' => $this->FOGCore->getSetting('FOG_SERVICE_HOSTREGISTER_ENABLED'),
+			'printermanager' => $this->FOGCore->getSetting('FOG_SERVICE_PRINTERMANAGER_ENABLED'),
+			'taskreboot' => $this->FOGCore->getSetting('FOG_SERVICE_TASKREBOOT_ENABLED'),
+			'usertracker' => $this->FOGCore->getSetting('FOG_SERVICE_USERTRACKER_ENABLED'),
+		);
+	}
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */
