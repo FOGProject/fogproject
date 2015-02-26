@@ -66,21 +66,7 @@ class ServiceConfigurationPage extends FOGPage
 		print "\n\t\t\t".'<div id="home">';
 		$this->index();
 		print "\n\t\t\t</div>";
-		$moduleName = array(
-			'autologout' => 'FOG_SERVICE_AUTOLOGOFF_ENABLED',
-			'clientupdater' => 'FOG_SERVICE_CLIENTUPDATER_ENABLED',
-			'dircleanup' => 'FOG_SERVICE_DIRECTORYCLEANER_ENABLED',
-			'displaymanager' => 'FOG_SERVICE_DISPLAYMANAGER_ENABLED',
-			'greenfog' => 'FOG_SERVICE_GREENFOG_ENABLED',
-			'hostregister' => 'FOG_SERVICE_HOSTREGISTER_ENABLED',
-			'hostnamechanger' => 'FOG_SERVICE_HOSTNAMECHANGER_ENABLED',
-			'printermanager' => 'FOG_SERVICE_PRINTERMANAGER_ENABLED',
-			'snapin' => 'FOG_SERVICE_SNAPIN_ENABLED',
-			'snapinclient' => 'FOG_SERVICE_SNAPIN_ENABLED',
-			'taskreboot' => 'FOG_SERVICE_TASKREBOOT_ENABLED',
-			'usercleanup' => 'FOG_SERVICE_USERCLEANUP_ENABLED',
-			'usertracker' => 'FOG_SERVICE_USERTRACKER_ENABLED',
-		);
+		$moduleName = $this->getGlobalModuleStatus();
 		$Modules = $this->getClass('ModuleManager')->find();
 		foreach ((array)$Modules AS $Module)
 		{
@@ -97,7 +83,7 @@ class ServiceConfigurationPage extends FOGPage
 			);
 			$fields = array(
 				_($Module->get('name').' Enabled?') => '<input type="checkbox" name="en" value="on" ${checked} />',
-				($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? _($Module->get('name').' Enabled as default?') : null) => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? '<input type="checkbox" name="defen" value="on" ${is_on} />' : null),
+				($moduleName[$Module->get('shortName')] ? _($Module->get('name').' Enabled as default?') : null) => ($moduleName[$Module->get('shortName')] ? '<input type="checkbox" name="defen" value="on" ${is_on} />' : null),
 			);
 			$fields = array_filter($fields);
 			foreach((array)$fields AS $field => $input)
@@ -108,8 +94,8 @@ class ServiceConfigurationPage extends FOGPage
 					$this->data[] = array(
 						'field' => $field,
 						'input' => $input,
-						'checked' => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? 'checked' : ''),
-						($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? 'is_on' : null) => ($this->FOGCore->getSetting($moduleName[$Module->get('shortName')]) ? ($Module->get('isDefault') ? 'checked' : null) : null),
+						'checked' => ($moduleName[$Module->get('shortName')] ? 'checked' : ''),
+						($moduleName[$Module->get('shortName')] ? 'is_on' : null) => ($moduleName[$Module->get('shortName')] ? ($Module->get('isDefault') ? 'checked' : null) : null),
 						'span' => '<i class="icon fa fa-question hand" title="${module_desc}"></i>',
 						'module_desc' => $Service->get('description'),
 					);
