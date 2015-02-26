@@ -527,40 +527,38 @@ class GroupManagementPage extends FOGPage
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-service">';
 		print "\n\t\t\t<fieldset>";
 		print "\n\t\t\t<legend>"._('General')."</legend>";
-		//foreach((array)$Group->get('hosts') AS $Host)
-		//{
-		//	if ($Host && $Host->isValid())
-		//	{
-		//		foreach((array)$Host->get('modules') AS $Module)
-		///		{
-		//			if ($Module && $Module->isValid())
-		//				$ModOns[] = $Module->get('id');
-		//		}
-		//	}
-		//}
+		foreach((array)$Group->get('hosts') AS $Host)
+		{
+			if ($Host && $Host->isValid() && !$ModOns[$Host->get('id')])
+				$ModOns[$Host->get('id')] = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $Host->get('id')),'','','','','','','moduleID');
+		}
+		$moduleName = $this->getGlobalModuleStatus();
         foreach ((array)$this->getClass('ModuleManager')->find() AS $Module)
         {
-			$i = 0;
-			//foreach($ModOns AS $item => $array)
-			//{
-			//	if (in_array($Module->get('id'),$array))
-			//		$i++;
-			//}
-			$this->data[] = array(
-				'input' => '<input type="checkbox" '.($Module->get('isDefault') ? 'class="checkboxes"' : '').' name="${mod_shname}" value="${mod_id}" ${checked} '.(!$Module->get('isDefault') ? 'disabled="disabled"' : '').' />',
-				'span' => '<span class="icon fa fa-question fa-1x hand" title="${mod_desc}"></span>',
-				'checked' => ($i == $Group->getHostCount() ? 'checked' : ''),
-				'mod_name' => $Module->get('name'),
-				'mod_shname' => $Module->get('shortName'),
-				'mod_id' => $Module->get('id'),
-				'mod_desc' => str_replace('"','\"',$Module->get('description')),
-			);
-			unset($ModOns);
+			if ($Module && $Module->isValid())
+			{
+				$i = 0;
+				foreach($ModOns AS $Host => $ModOn)
+				{
+					if (in_array($Module->get('id'),$ModOn))
+						$i++;
+				}
+				$this->data[] = array(
+					'input' => '<input type="checkbox" '.($moduleName[$Module->get('shortname')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes"' : '').' name="modules[]" value="${mod_id}" ${checked} '.(!$moduleName[$Module->get('shortName')] ? 'disabled="disabled"' : '').' />',
+					'span' => '<span class="icon fa fa-question fa-1x hand" title="${mod_desc}"></span>',
+					'checked' => ($i == $Group->getHostCount() ? 'checked' : ''),
+					'mod_name' => $Module->get('name'),
+					'mod_shname' => $Module->get('shortName'),
+					'mod_id' => $Module->get('id'),
+					'mod_desc' => str_replace('"','\"',$Module->get('description')),
+				);
+			}
 		}
+		unset($ModOns);
 		$this->data[] = array(
-			'mod_name' => '<input type="hidden" name="updatestatus" value="1" />',
+			'mod_name' => '',
 			'input' => '',
-			'span' => '<input type="submit" value="'._('Update').'" />',
+			'span' => '<input type="submit" name="updatestatus" value="'._('Update').'" />',
 		);
 		// Hook
 		$this->HookManager->processEvent('GROUP_MODULES', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -596,8 +594,8 @@ class GroupManagementPage extends FOGPage
 		}
 		$this->data[] = array(
 			'field' => '',
-			'input' => '<input type="hidden" name="updatedisplay" value="1" />',
-			'span' => '<input type="submit" value="'._('Update').'" />',
+			'input' => '',
+			'span' => '<input type="submit" name="updatedisplay" value="'._('Update').'" />',
 		);
 		// Hook
 		$this->HookManager->processEvent('GROUP_DISPLAY', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -628,9 +626,9 @@ class GroupManagementPage extends FOGPage
 			'serv_desc' => $Service->get('description'),
 		);
 		$this->data[] = array(
-			'field' => '<input type="hidden" name="updatealo" value="1" />',
-			'input' => null,
-			'desc' => '<input type="submit" value="'._('Update').'" />',
+			'field' => '',
+			'input' => '',
+			'desc' => '<input type="submit" name="updatealo" value="'._('Update').'" />',
 		);
 		// Hook
 		$this->HookManager->processEvent('GROUP_ALO', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -820,31 +818,26 @@ class GroupManagementPage extends FOGPage
 				break;
 				// Update Services
 				case 'group-service';
-                    // The values below are the checking of the service enabled/disabled.
-                    // If they're enabled when you click update, they'll send the call
-                    // with the Module's ID to insert into the db.  If they're disabled
-                    // they'll delete from the database.
-                    $ServiceModules = $this->getClass('ModuleManager')->find('','','id');
-                    foreach((array)$ServiceModules AS $ServiceModule)
-						$ServiceSetting[$ServiceModule->get('id')] = $_REQUEST[$ServiceModule->get('shortName')];
                     // The values below set the display Width, Height, and Refresh.  If they're not set by you, they'll
                     // be set to the default values within the system.
                     $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
                     $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
                     $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
                     $tme = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
+					$modOn = $_REQUEST['modules'];
+					$modOff = $this->getClass('ModuleManager')->find(array('id' => $modOn),'','','','','',true,'id');
 					foreach((array)$Group->get('hosts') AS $Host)
 					{
 						if ($Host && $Host->isValid())
 						{
-							if($_REQUEST['updatestatus'] == '1')
+							if (isset($_REQUEST['updatestatus']))
 							{
-								foreach((array)$ServiceSetting AS $id => $onoff)
-									$onoff ? $Host->addModule($id)->save('modules') : $Host->removeModule($id)->save('modules');
+								$Host->removeModule($modOff);
+								$Host->addModule($modOn);
 							}
-							if ($_REQUEST['updatedisplay'] == '1')
+							if (isset($_REQUEST['updatedisplay']))
 								$Host->setDisp($x,$y,$r);
-							if ($_REQUEST['updatealo'] == '1')
+							if (isset($_REQUEST['updatealo']))
 								$Host->setAlo($tme);
 							$Host->save();
 						}
