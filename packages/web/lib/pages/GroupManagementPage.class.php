@@ -418,7 +418,9 @@ class GroupManagementPage extends FOGPage
 			'${input}',
 		);
 		$this->data[] = array(
-			'field' => $this->getClass('ImageManager')->buildSelectBox($imageMatchID).'</select>',
+			'field' => $imageSelector,
+			'selected_item'.$imageMatchID => 'selected',
+			'selector_name' => 'image',
 			'input' => '<input type="submit" value="'._('Update Images').'" />',
 		);
 		// Hook
