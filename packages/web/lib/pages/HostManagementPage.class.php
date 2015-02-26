@@ -552,7 +552,7 @@ class HostManagementPage extends FOGPage
 			print "\n\t\t\t".'<center><div id="hostGroupDisplay">';
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-grouprel">';
 			$this->render();
-			print '<input type="submit" value="'._('Add to Group(s)').'" />';
+			print '<input type="submit" name="addGroups" value="'._('Add to Group(s)').'" />';
 			print "\n\t\t\t</form>";
 			print "\n\t\t\t</div></center>";
 		}
@@ -788,20 +788,7 @@ class HostManagementPage extends FOGPage
 		print "\n\t\t\t<fieldset>";
 		print "\n\t\t\t<legend>"._('General').'</legend>';
 		$ModOns = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $Host->get('id')),'','','','','','','moduleID');
-		$moduleName = array(
-			'dircleanup' => $this->FOGCore->getSetting('FOG_SERVICE_DIRECTORYCLEANER_ENABLED'),
-			'usercleanup' => $this->FOGCore->getSetting('FOG_SERVICE_USERCLEANUP_ENABLED'),
-			'displaymanager' => $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_ENABLED'),
-			'autologout' => $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_ENABLED'),
-			'greenfog' => $this->FOGCore->getSetting('FOG_SERVICE_GREENFOG_ENABLED'),
-			'hostnamechanger' => $this->FOGCore->getSetting('FOG_SERVICE_HOSTNAMECHANGER_ENABLED'),
-			'snapinclient' => $this->FOGCore->getSetting('FOG_SERVICE_SNAPIN_ENABLED'),
-			'clientupdater' => $this->FOGCore->getSetting('FOG_SERVICE_CLIENTUPDATER_ENABLED'),
-			'hostregister' => $this->FOGCore->getSetting('FOG_SERVICE_HOSTREGISTER_ENABLED'),
-			'printermanager' => $this->FOGCore->getSetting('FOG_SERVICE_PRINTERMANAGER_ENABLED'),
-			'taskreboot' => $this->FOGCore->getSetting('FOG_SERVICE_TASKREBOOT_ENABLED'),
-			'usertracker' => $this->FOGCore->getSetting('FOG_SERVICE_USERTRACKER_ENABLED'),
-		);
+		$moduleName = $this->getGlobalModuleStatus();
 		foreach ($this->getClass('ModuleManager')->find() AS $Module)
 		{
 			if ($Module && $Module->isValid())
@@ -860,9 +847,9 @@ class HostManagementPage extends FOGPage
 			}
 		}
 		$this->data[] = array(
-			'field' => '&nbsp;',
-			'input' => '<input type="hidden" name="updatedisplay" value="1" />',
-			'span' => '<input type="submit" value="'._('Update').'" />',
+			'field' => '',
+			'input' => '',
+			'span' => '<input type="submit" name="updatedisplay" value="'._('Update').'" />',
 		);
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_DISPSERV', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -894,9 +881,9 @@ class HostManagementPage extends FOGPage
 			'serv_desc' => $Service->get('description'),
 		);
 		$this->data[] = array(
-			'field' => '<input type="hidden" name="updatealo" value="1" />',
+			'field' => '',
 			'input' => '',
-			'desc' => '<input type="submit" value="'._('Update').'" />',
+			'desc' => '<input type="submit" name="updatealo" value="'._('Update').'" />',
 		);
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_ALO', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -1230,13 +1217,13 @@ class HostManagementPage extends FOGPage
 						throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
 					// Define new Image object with data provided
 
-					$Host	->set('name',		$_REQUEST['host'])
-							->set('description',	$_REQUEST['description'])
-							->set('imageID',	$_REQUEST['image'])
-							->set('kernel',		$_REQUEST['kern'])
-							->set('kernelArgs',	$_REQUEST['args'])
-							->set('kernelDevice',	$_REQUEST['dev'])
-							->set('productKey', base64_encode($_REQUEST['key']));
+					$Host->set('name',$_REQUEST['host'])
+						 ->set('description',$_REQUEST['description'])
+						 ->set('imageID',$_REQUEST['image'])
+						 ->set('kernel',$_REQUEST['kern'])
+						 ->set('kernelArgs',$_REQUEST['args'])
+						 ->set('kernelDevice',$_REQUEST['dev'])
+						 ->set('productKey',base64_encode($_REQUEST['key']));
 					$newPriMAC = new MACAddress($_REQUEST['primaryMAC']);
 					if ($Host->get('mac') != $mac->__toString())
 						$Host->addPriMAC($mac->__toString());
@@ -1266,9 +1253,10 @@ class HostManagementPage extends FOGPage
 					}
 				break;
 				case 'host-grouprel';
-					$Host->addGroup($_REQUEST['group']);
-					if(isset($_REQUEST['remgroups']))
-						$Host->removeGroup($_REQUEST['groupdel']);
+					if (isset($_REQUEST['addGroups']))
+						$Host->addGroup($_REQUEST['group']);
+					if (isset($_REQUEST['remgroups']))
+						$Host->removeGroup(array_unique($_REQUEST['groupdel']));
 				break;
 				case 'host-active-directory';
 					$useAD = ($_REQUEST['domain'] == 'on');
@@ -1315,13 +1303,13 @@ class HostManagementPage extends FOGPage
 					if (isset($_REQUEST['updatestatus']))
 					{
 						$modOn = $_REQUEST['modules'];
-						$Host->addModule($modOn);
 						$modOff = $this->getClass('ModuleManager')->find(array('id' => $modOn),'','','','','',true,'id');
+						$Host->addModule($modOn);
 						$Host->removeModule($modOff);
 					}
-					if ($_REQUEST['updatedisplay'] == '1')
+					if (isset($_REQUEST['updatedisplay']))
 						$Host->setDisp($x,$y,$r);
-					if ($_REQUEST['updatealo'] == '1')
+					if (isset($_REQUEST['updatealo']))
 						$Host->setAlo($tme);
 				break;
 				case 'host-hardware-inventory';
