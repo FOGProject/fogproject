@@ -95,11 +95,7 @@ abstract class FOGController extends FOGBase
 				$this->set('createdTime', $this->nice_date()->format('Y-m-d H:i:s'));
 			// Add incoming data
 			if (is_array($data))
-			{
 				$this->data = $data;
-				//foreach($data AS $key => $value)
-				//	$this->set($this->key($key), $value);
-			}
 			// If incoming data is an INT -> Set as ID -> Load from database
 			else if (is_numeric($data))
 			{
@@ -192,10 +188,11 @@ abstract class FOGController extends FOGBase
 			{
 				if ($data instanceof MACAddress)
 					$newDataArray[] = $data;
-				else if ($data && $data->isValid && $data->get('id') != $object->get('id'))
+				else if ($data && $data->isValid() && $data->get('id') != $object->get('id'))
 					$newDataArray[] = $data;
 			}
 			$this->data[$key] = (array)$newDataArray;
+			$this->info('Remove attempt: Key: %s, Object: %s', array($key, $object));
 		}
 		catch (Exception $e)
 		{
@@ -216,8 +213,8 @@ abstract class FOGController extends FOGBase
 				throw new Exception('No Table defined for this class');
 			// Variables
 			$fieldData = array();
-			$this->array_remove($this->aliasedFields,$this->databaseFields);
-			//$this->array_remove($this->databaseFieldsToIgnore,$this->databaseFields);
+			if ($this->aliasedFields)
+				$this->array_remove($this->aliasedFields,$this->databaseFields);
 			$fieldsToUpdate = $this->databaseFields;
 			// Build insert key and value arrays
 			foreach ($this->databaseFields AS $name => $fieldName)
