@@ -14,7 +14,7 @@
 	<body> 
 		<div class="fog-variable" id="FOGPingActive"><?php intval($_SESSION['FOGPingActive']) ?></div>
 		<!-- Session Messages -->
-		<?php $this->FOGCore->getMessages() ?>
+		<?php !preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? $this->FOGCore->getMessages() : '' ?>
 		<?php if (preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) { // Mobile Login ?><div id="header"></div>
 		<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn()) { ?><div id="mainContainer">
 			<div class="mainContent"><?php print $this->menu."\n\t\t\t\t";

@@ -26,12 +26,11 @@ class Group extends FOGController
     // Overides
     private function loadHosts()
     {
-		if (!$this->isLoaded('hosts') && $this->get('id'))
+		if ((!$this->isLoaded('hosts') || !$this->isLoaded('hostsnotinme')) && $this->get('id'))
 		{
-			$HostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID');
-			$this->set('hosts',$this->getClass('HostManager')->find(array('id' => array_unique($HostIDs))));
-			$this->set('hostsnotinme',$this->getClass('HostManager')->find(array('id' => array_unique($HostIDs)),'','','','','',true));
-
+			$HostIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID'));
+			$this->set('hosts',$this->getClass('HostManager')->find(array('id' => $HostIDs)));
+			$this->set('hostsnotinme',$this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','',true));
 		}
 		return $this;
 	}
@@ -103,11 +102,7 @@ class Group extends FOGController
     {
         // Add
         foreach((array)$addArray AS $item)
-		{
             $this->add('hosts', $item);
-			$this->remove('hostsnotinme', $item);
-		}
-		
         // Return
         return $this;
     }
@@ -116,10 +111,7 @@ class Group extends FOGController
     {
         // Iterate array (or other as array)
         foreach ((array)$removeArray AS $remove)
-		{
             $this->remove('hosts', ($remove instanceof Host ? $remove : new Host((int)$remove)));
-			$this->add('hostsnotinme', ($remove instanceof Host ? $remove : new Host((int)$remove)));
-		}
         // Return
         return $this;
     }
