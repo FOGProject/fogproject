@@ -184,15 +184,19 @@ abstract class FOGController extends FOGBase
 				throw new Exception('Invalid data being removed');
 			if (array_key_exists($key, $this->databaseFieldsFlipped))
 				$key = $this->databaseFieldsFlipped[$key];
+			$this->info('Remove attempt: Key: %s, Object: %s', array($key, $object));
+			// TODO: FIGURE THIS OUT IT'S MANY TIMES FASTER THAN THE ITERATIVE SEARCH
+			//$index = $this->binary_search($object,$this->data[$key]); 
+			//unset($this->data[$key][$index]);
 			foreach ((array)$this->data[$key] AS $i => $data)
 			{
-				if ($data instanceof MACAddress)
-					$newDataArray[] = $data;
-				else if ($data && $data->isValid() && $data->get('id') != $object->get('id'))
-					$newDataArray[] = $data;
+				if ($data && $data->isValid() && $data->get('id') == $object->get('id'))
+				{
+					unset($this->data[$key][$i]);
+					break;
+				}
 			}
-			$this->data[$key] = (array)$newDataArray;
-			$this->info('Remove attempt: Key: %s, Object: %s', array($key, $object));
+			$this->data[$key] = array_values(array_filter($this->data[$key]));
 		}
 		catch (Exception $e)
 		{
@@ -309,15 +313,15 @@ abstract class FOGController extends FOGBase
 	{
 		foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
 		{
-			$join[] = sprintf(' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s` ',$this->getClass($class)->databaseTable,$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$fields[0]],$this->databaseTable,$this->databaseFields[$fields[1]]);
+			$join[] = sprintf(' LEFT OUTER JOIN %s ON %s.%s=%s.%s ',$this->getClass($class)->databaseTable,$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$fields[0]],$this->databaseTable,$this->databaseFields[$fields[1]]);
 			if ($fields[3])
 			{
 				foreach((array)$fields[3] AS $field => $value)
 				{
 					if (is_array($value))
-						$whereArrayAnd[] = sprintf("`%s`.`%s` %s IN ('%s')",$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$field],($not ? 'NOT' : ''), implode("','",$value));
+						$whereArrayAnd[] = sprintf("%s.%s IN ('%s')",$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$field], implode("','",$value));
 					else
-						$whereArrayAnd[] = sprintf("`%s`.`%s` %s%s '%s'",$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$field],($not ? '!' : ''),(preg_match('#%#',$value) ? 'LIKE' : $compare),$value);
+						$whereArrayAnd[] = sprintf("%s.%s %s '%s'",$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$field],(preg_match('#%#',$value) ? 'LIKE' : $compare),$value);
 				}
 			}
 		}
