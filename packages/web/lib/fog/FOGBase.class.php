@@ -580,6 +580,23 @@ abstract class FOGBase
 			'usertracker' => $this->FOGCore->getSetting('FOG_SERVICE_USERTRACKER_ENABLED'),
 		);
 	}
+	public function binary_search($needle, $haystack, $left = '', $right = '')
+	{
+		sort($haystack);
+		if (empty($left))
+			$left = 0;
+		if (empty($right))
+			$right = count($haystack) - 1;
+		if ($left > $right)
+			return false;
+		$mid = ($left + $right)/2;
+		if ($haystack[$mid] == $needle)
+			return $mid;
+		elseif ($haystack[$mid] > $needle)
+			return $this->binary_search($needle,$haystack,$left,$mid-1);
+		elseif ($haystack[$mid] < $needle)
+			return $this->binary_search($needle,$haystack,$mid+1,$right);
+	}
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */

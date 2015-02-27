@@ -26,9 +26,9 @@ class Group extends FOGController
     // Overides
     private function loadHosts()
     {
-		if ((!$this->isLoaded('hosts') || !$this->isLoaded('hostsnotinme')) && $this->get('id'))
+		if (!$this->isLoaded('hosts') && $this->get('id'))
 		{
-			$HostIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID'));
+			$HostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID');
 			$this->set('hosts',$this->getClass('HostManager')->find(array('id' => $HostIDs)));
 			$this->set('hostsnotinme',$this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','',true));
 		}
@@ -68,9 +68,9 @@ class Group extends FOGController
     }
 
     public function remove($key, $object)
-    {   
+    {
         if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
-            $this->loadHosts();
+			$this->loadHosts();
         // Remove
         return parent::remove($key, $object);
     }
@@ -80,20 +80,20 @@ class Group extends FOGController
         parent::save();
         if ($this->isLoaded('hosts'))
         {
-            // Remove all old entries.
-            $this->getClass('GroupAssociationManager')->destroy(array('groupID' => $this->get('id')));
-            // Create new Assocs
-            foreach ((array)$this->get('hosts') AS $Host)
-            {
-                if (($Host instanceof Host) && $Host->isValid())
-                {
-                    $NewGroup = new GroupAssociation(array(
-                        'groupID' => $this->get('id'),
-                        'hostID' => $Host->get('id'),
-                    ));
-                    $NewGroup->save();
-                }
-            }
+			// Remove old rows
+			$this->getClass('GroupAssociationManager')->destroy(array('groupID' => $this->get('id')));
+			// Create assoc
+			foreach ((array)$this->get('hosts') AS $Host)
+			{
+				if(($Host instanceof Host) && $Host->isValid())
+				{
+					$NewGroup = new GroupAssociation(array(
+						'hostID' => $Host->get('id'),
+						'groupID' => $this->get('id'),
+					));
+					$NewGroup->save();
+				}
+			}
         }
         return $this;
     }
