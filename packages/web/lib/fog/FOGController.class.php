@@ -112,8 +112,9 @@ abstract class FOGController extends FOGBase
 	}
 	// Destruct
 	/** __destruct()
-		At close of class, it trys to save the information if autoSave is enabled for that class.
-	*/
+	  * At close of class, it trys to save the information 
+	  *if autoSave is enabled for that class.
+	  */
 	public function __destruct()
 	{
 		// Auto save
@@ -122,8 +123,11 @@ abstract class FOGController extends FOGBase
 	}
 	// Set
 	/** set($key, $value)
-		Set's the fields relevent for that class.
-	*/
+	  * @param $key the key to set
+	  * @param $value the value to set into the key, can be
+	  *    an array of items too as needed.
+	  * Set's the fields relevent for that class.
+	  */
 	public function set($key, $value)
 	{
 		try
@@ -143,17 +147,21 @@ abstract class FOGController extends FOGBase
 	}
 	// Get
 	/** get($key = '')
-		Get's all fields or the specified field for the class member.
-	*/
+	  * Get's all fields or the specified field for the class member.
+	  * @return the data from
+	  */
 	public function get($key = '')
 	{
 		return ($key && isset($this->data[$key]) ? $this->data[$key] : (!$key ? $this->data : ''));
 	}
 	// Add
 	/** add($key, $value)
-		Used to add a new field to the database relevant to the class.
-		Could potentially be used to add a new moderation field to the database??
-	*/
+	  * @param $key the key to add value into
+	  * @param $value the item to add to the key
+	  * @return the class returned with data set
+	  * Used to add a new field to the database relevant to the class.
+	  * Could potentially be used to add a new moderation field to the database??
+	  */
 	public function add($key, $value)
 	{
 		try
@@ -173,9 +181,12 @@ abstract class FOGController extends FOGBase
 	}
 	// Remove
 	/** remove($key, $object)
-		Removes a field from the relevant class caller.
-		Can be used to remove fields from the database??
-	*/
+	  * @param $key the key to remove
+	  * @param $object the object/element to remove.
+	  * @return $this the class itself with modified data.
+	  * Removes a field from the relevant class caller.
+	  * Can be used to remove fields from the database??
+	  */
 	public function remove($key, $object)
 	{
 		try
@@ -199,8 +210,8 @@ abstract class FOGController extends FOGBase
 	}
 	// Save
 	/** save()
-		Saves the information stored in the class variables to the database.
-	*/
+	  * @return boolean, returns if the item was saved or not.
+	  */
 	public function save()
 	{
 		try
@@ -251,9 +262,9 @@ abstract class FOGController extends FOGBase
 	}
 	// Load
 	/** load($field = 'id')
-		Defaults the load from database as ID, but can be used to load
-		whichever field you want.
-	*/
+	  * @param $field the item to load
+	  * @return boolean, if the class was loaded or not.
+	  */
 	public function load($field = 'id')
 	{
 		try
@@ -302,6 +313,12 @@ abstract class FOGController extends FOGBase
 		// Fail
 		return false;
 	}
+	/** buildQuery builds the joins as needed for the associative
+	  *     linking of objects.
+	  * @param $not not used, but if we need it it's there
+	  * @param $compare not used, but if we need it it's there
+	  * @returns the elements of the query we need
+	  */
 	public function buildQuery($not = false,$compare = '=')
 	{
 		foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
@@ -320,6 +337,10 @@ abstract class FOGController extends FOGBase
 		}
 		return array(implode((array)$join),$whereArrayAnd);
 	}
+	/** setQuery sets the objects into the class for us
+	  * @param $queryData
+	  * @return the set class
+	  */
 	public function setQuery($queryData)
 	{
 		$classData = array_intersect_key($queryData,$this->databaseFieldsFlipped);
@@ -330,9 +351,10 @@ abstract class FOGController extends FOGBase
 		return $this;
 	}
 	// Destroy
-	/** destroy($field = 'id')
-		Can be used to delete items from the databased.
-	*/
+	/** destroy removes objects from the databse for us.
+	  * @param $field the element to search for to remove
+	  * @return boolean if it was good or not.
+	  */
 	public function destroy($field = 'id')
 	{
 		try
@@ -362,9 +384,10 @@ abstract class FOGController extends FOGBase
 		return false;
 	}
 	// Key
-	/** key($key)
-		Checks if a relevant key exists within the database.
-	*/
+	/** key returns the key or the flipped key as needed.
+	  * @param $key the key to test
+	  * @return the flipped key
+	  */
 	public function key($key)
 	{
 		if (array_key_exists($key, $this->databaseFieldsFlipped))
@@ -372,9 +395,10 @@ abstract class FOGController extends FOGBase
 		return $key;
 	}
 	// isValid
-	/** isValid()
-		Checks that the returned items are valid for the relevant class calling it.
-	*/
+	/** isValid() Checks that the returned items are valid
+	  *    for the relevant class calling it.
+	  * @return boolean if the item is valid or not
+	  */
 	public function isValid()
 	{
 		try
@@ -394,8 +418,10 @@ abstract class FOGController extends FOGBase
 		return false;
 	}
 	/** getManager()
-		Checks the relevant class manager class file (Image => ImageManager, Host => HostManager, etc...)
-	*/
+	  * gets the relevant class manager class file
+	  * (Image => ImageManager, Host => HostManager, etc...)
+	  * @return the manager itself.
+	  */
 	public function getManager()
 	{
 		if (!is_object($this->Manager))
@@ -407,18 +433,17 @@ abstract class FOGController extends FOGBase
 	}
 	
 	// isTableDefined 
-	/** istableDefined()
-		Makes sur ethe table being called is defined in the database.  osID on hosts database table is not defined anymore.
-		This would return false in that case.
-	*/
+	/** istableDefined() tests if the table is defined for the class.
+	  * @return boolean
+	  */
 	private function isTableDefined()
 	{
-		return (!empty($this->databaseTable) ? true : false);
+		return !empty($this->databaseTable);
 	}
 	// Name is returned if class is printed
 	/** __toString()
-		Returns the name of the class as a string.
-	*/
+	  * @return string name of the class
+	  */
 	public function __toString()
 	{
 		return ($this->get('name') ? $this->get('name') : sprintf('%s #%s', get_class($this), $this->get('id')));
