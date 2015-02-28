@@ -95,7 +95,7 @@ class Page extends FOGBase {
 			$path = 'other/index.php';
 		ob_start('sanitize_output',$_SESSION['chunksize']);
 		ob_implicit_flush(1);
-		include_once($path);
+		require_once($path);
 		ob_end_flush();
 	}
 }
