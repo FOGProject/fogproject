@@ -59,7 +59,7 @@ class Plugin extends FOGController
 		$cfgfile = 'plugin.config.php';
 		foreach($this->getDirs() AS $file)
 		{
-			include(rtrim($file,'/').'/config/'.$cfgfile);
+			include_once(rtrim($file,'/').'/config/'.$cfgfile);
 			$p=new Plugin(array('name' => $fog_plugin['name']));
 			$p->strPath = $file;
 			$p->strName = $fog_plugin['name'];
