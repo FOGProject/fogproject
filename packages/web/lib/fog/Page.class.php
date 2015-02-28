@@ -84,6 +84,7 @@ class Page extends FOGBase {
 	}
 	public function startBody() {
 		ob_start('sanitize_output');
+		ob_implicit_flush(1);
 	}
 	public function endBody() {
 		$this->body = ob_get_clean();

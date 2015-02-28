@@ -18,7 +18,7 @@ for iface in $(ls -1 /sys/class/net | tr -d '@'); do
 	if [[ "x$linkstate" = "x1" ]]; then
 		if [[ "x$iface" = "xlo" ]]; then
 			echo "auto lo " > /etc/network/interface
-			echo "iface lo inet loopback" >> /etc/network interfaces
+			echo "iface lo inet loopback" >> /etc/network/interfaces
 		else
 			echo "auto $iface" >> /etc/network/interfaces
 			echo "iface $iface inet dhcp" >> /etc/network/interfaces
