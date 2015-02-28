@@ -185,17 +185,10 @@ abstract class FOGController extends FOGBase
 			if (array_key_exists($key, $this->databaseFieldsFlipped))
 				$key = $this->databaseFieldsFlipped[$key];
 			$this->info('Remove attempt: Key: %s, Object: %s', array($key, $object));
-			// TODO: FIGURE THIS OUT IT'S MANY TIMES FASTER THAN THE ITERATIVE SEARCH
-			//$index = $this->binary_search($object,$this->data[$key]); 
-			//unset($this->data[$key][$index]);
-			foreach ((array)$this->data[$key] AS $i => $data)
-			{
-				if ($data && $data->isValid() && $data->get('id') == $object->get('id'))
-				{
-					unset($this->data[$key][$i]);
-					break;
-				}
-			}
+			asort($this->data[$key]);
+			$index = $this->binary_search($object,$this->data[$key]);
+			if ($index > -1)
+				unset($this->data[$key][$index]);
 			$this->data[$key] = array_values(array_filter($this->data[$key]));
 		}
 		catch (Exception $e)
