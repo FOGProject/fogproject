@@ -580,22 +580,40 @@ abstract class FOGBase
 			'usertracker' => $this->FOGCore->getSetting('FOG_SERVICE_USERTRACKER_ENABLED'),
 		);
 	}
-	public function binary_search($needle, $haystack, $left = '', $right = '')
+	/** binary_search Searches array of objects, or array for the needle
+	  * @param $needle is the item to search for
+	  * @param $haystack the array to scan within
+	  * @return index
+	  */
+	public function binary_search($needle, $haystack)
 	{
-		sort($haystack);
-		if (empty($left))
-			$left = 0;
-		if (empty($right))
-			$right = count($haystack) - 1;
-		if ($left > $right)
-			return false;
-		$mid = ($left + $right)/2;
-		if ($haystack[$mid] == $needle)
-			return $mid;
-		elseif ($haystack[$mid] > $needle)
-			return $this->binary_search($needle,$haystack,$left,$mid-1);
-		elseif ($haystack[$mid] < $needle)
-			return $this->binary_search($needle,$haystack,$mid+1,$right);
+		$left = 0;
+		$right = count($haystack) - 1;
+		$values = array_values($haystack);
+		$keys = array_keys($haystack);
+		while ($left <= $right)
+		{
+			$mid = $left + $right >> 1;
+			if (is_object($needle))
+			{
+				if ($values[$mid]->get('id') == $needle->get('id'))
+					return $keys[$mid];
+				elseif ($values[$mid] > $needle)
+					$right = $mid - 1;
+				elseif ($values[$mid] < $needle)
+					$left = $mid + 1;
+			}
+			else
+			{
+				if ($values[$mid] == $needle)
+					return $keys[$mid];
+				elseif ($values[$mid] > $needle)
+					$right = $mid - 1;
+				elseif ($values[$mid] < $needle)
+					$left = $mid + 1;
+			}
+		}
+		return -1;
 	}
 }
 /* Local Variables: */
