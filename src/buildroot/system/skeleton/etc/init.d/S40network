@@ -10,7 +10,7 @@ if [ -n "$has_usb_nic" ]; then
 	echo "Sleeping for 5 seconds to allow USB to sync back with system";
 	sleep 5;
 fi
-for iface in $(ls -l /sys/class/net | tr -d '@'); do
+for iface in $(ls -1 /sys/class/net | tr -d '@'); do
 	# all interfaces need to be up or you will get an invalid
 	# argument error when checking the link state
 	/sbin/ip link set $iface up
