@@ -28,7 +28,7 @@ class SchemaUpdaterPage extends FOGPage
 	{
 		if (isset($_REQUEST['confirm']))
 		{
-			include_once(BASEPATH.'/commons/schema.php');
+			require_once(BASEPATH.'/commons/schema.php');
 			if (count($this->schema) > $this->mySchema)
 			{
 				foreach(array_slice($this->schema,$this->mySchema,null,true) AS $version => $updates)
