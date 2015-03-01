@@ -47,6 +47,7 @@ class Host extends FOGController
 		'modules',
 		'hardware',
 		'inventory',
+		'inv',
 		'task',
 		'snapinjob',
 		'users',
@@ -61,6 +62,7 @@ class Host extends FOGController
 	public $databaseFieldClassRelationships = array(
 		'MACAddressAssociation' => array('hostID','id','primac',array('primary' => 1)),
 		'Image' => array('id','imageID','image'),
+		'Inventory' => array('hostID','id','inv'),
 	);
 	// Custom functons
 	public function isHostnameSafe()
@@ -70,7 +72,7 @@ class Host extends FOGController
 	// Snapins
 	public function getImage()
 	{
-		return current($this->get('image'));//new Image($this->get('imageID'));
+		return (current($this->get('image')) ? current($this->get('image')) : new Image($this->get('imageID')));
 	}
 	public function getOS()
 	{
@@ -233,7 +235,7 @@ class Host extends FOGController
 	private function loadInventory()
 	{
 		if (!$this->isLoaded('inventory') && $this->get('id'))
-			$this->set('inventory',current($this->getClass('InventoryManager')->find(array('hostID' => $this->get('id')))));
+			$this->set('inventory',current($this->get('inv')));
 		return $this;
 	}
 	private function loadModules()
