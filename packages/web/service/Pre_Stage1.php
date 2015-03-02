@@ -32,12 +32,12 @@ try
 	// Forced to start
 	if ($Task->get('isForced'))
 	{
-		$winner = $StorageGroup->getOptimalStorageNode();
 		if (!in_array($Task->get('typeID'),array(12,13)))
 		{
-			if (!$Task->set('stateID', '3' )->save())
+			if (!$Task->set('stateID', '3')->save())
 				throw new Exception(_('Forced Task: Failed to update Task'));
 		}
+		$winner = $StorageGroup->getMasterStorageNode();
 	}
 	// Queue checks
 	$totalSlots = $StorageGroup->getTotalSupportedClients();
