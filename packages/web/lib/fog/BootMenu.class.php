@@ -568,7 +568,7 @@ class BootMenu extends FOGBase
 		{
 			if ($this->Host && $this->Host->isValid())
 			{
-				$this->Host->set('imageID',$MultiSess->get('image'));
+				$this->Host->set('image',$MultiSess->get('image'));
 				 // Create the host task
 				if($this->Host->createImagePackage(8,$MultiSess->get('name'),false,false,true,false,$_REQUEST['username'],'',true))
 					$this->chainBoot(false,true);
@@ -700,9 +700,9 @@ class BootMenu extends FOGBase
 			if ($this->Host && $this->Host->isValid())
 			{
 				if (!$this->Host->getImage() || !$this->Host->getImage()->isValid())
-					$this->Host->set('imageID',$imgID);
+					$this->Host->set('image',$imgID);
 				if ($imgID && $this->Host->getImage() && $this->Host->getImage()->isValid() && $imgID != $this->Host->getImage()->get('id'))
-					$this->Host->set('imageID',$imgID);
+					$this->Host->set('image',$imgID);
 				if ($this->Host->getImage()->isValid())
 				{
 					try
@@ -767,7 +767,7 @@ class BootMenu extends FOGBase
 				$MulticastSessionAssoc = current($this->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))));
 				$MulticastSession = new MulticastSessions($MulticastSessionAssoc->get('msID'));
 				if ($MulticastSession && $MulticastSession->isValid())
-					$this->Host->set('imageID',$MulticastSession->get('image'));
+					$this->Host->set('image',$MulticastSession->get('image'));
 			}
 			if (in_array($TaskType->get('id'),$imagingTasks))
 			{

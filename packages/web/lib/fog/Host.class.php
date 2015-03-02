@@ -72,7 +72,7 @@ class Host extends FOGController
 	// Snapins
 	public function getImage()
 	{
-		return (current($this->get('image')) ? current($this->get('image')) : new Image($this->get('imageID')));
+		return ($this->get('image') ? $this->get('image') : new Image($this->get('imageID')));
 	}
 	public function getOS()
 	{
@@ -170,7 +170,7 @@ class Host extends FOGController
 	private function loadPrimary()
 	{
 		if (!$this->isLoaded('mac') && $this->get('id'))
-			$this->set('mac',new MACAddress(current($this->get('primac'))));
+			$this->set('mac',new MACAddress($this->get('primac')));
 		return $this;
 	}
 	private function loadAdditional()
@@ -367,6 +367,8 @@ class Host extends FOGController
 				$newValue[] = ($user instanceof UserTracking ? $user : new UserTracking($user));
 			$value = (array)$newValue;
 		}
+		if (($this->key($key) == 'image') && !($value instanceof Image))
+			$value = new Image($value);
 		// Set
 		return parent::set($key, $value);
 	}
@@ -376,49 +378,55 @@ class Host extends FOGController
 		if ($this->key($key) == 'additionalMACs' && !($value instanceof MACAddress))
 		{
 			$this->loadAdditional();
-			$value = $value;
+			$value = new MACAddress($value);
 		}
 		// Pending MAC Addresses
-		if ($this->key($key) == 'pendingMACs' && !($value instanceof MACAddress))
+		else if ($this->key($key) == 'pendingMACs' && !($value instanceof MACAddress))
 		{
 			$this->loadPending();
-			$value = $value;
+			$value = new MACAddress($value);
 		}
 		// Printers
-		if (($this->key($key) == 'printers' || $this->key($key) == 'printersnotinme') && !($value instanceof Printer))
+		else if (($this->key($key) == 'printers' || $this->key($key) == 'printersnotinme') && !($value instanceof Printer))
 		{
 			$this->loadPrinters();
 			$value = new Printer($value);
 		}
 		// Snapins
-		if (($this->key($key) == 'snapins' || $this->key($key) == 'snapinsnotinme') && !($value instanceof Snapin))
+		else if (($this->key($key) == 'snapins' || $this->key($key) == 'snapinsnotinme') && !($value instanceof Snapin))
 		{
 			$this->loadSnapins();
 			$value = new Snapin($value);
 		}
 		// Modules
-		if ($this->key($key) == 'modules' && !($value instanceof Module))
+		else if ($this->key($key) == 'modules' && !($value instanceof Module))
 		{
 			$this->loadModules();
 			$value = new Module($value);
 		}
 		// Inventory
-		if ($this->key($key) == 'inventory' && !($value instanceof Inventory))
+		else if ($this->key($key) == 'inventory' && !($value instanceof Inventory))
 		{
 			$this->loadInventory();
 			$value = new Inventory($value);
 		}
 		// Groups
-		if (($this->key($key) == 'groups' || $this->key($key) == 'groupsnotinme') && !($value instanceof Group))
+		else if (($this->key($key) == 'groups' || $this->key($key) == 'groupsnotinme') && !($value instanceof Group))
 		{
 			$this->loadGroups();
 			$value = new Group($value);
 		}
 		// Users
-		if ($this->key($key) == 'users' && !($value instanceof UserTracking))
+		else if ($this->key($key) == 'users' && !($value instanceof UserTracking))
 		{
 			$this->loadUsers();
 			$value = new UserTracking($value);
+		}
+		// Image
+		else if ($this->key($key) == 'image' && !($value instanceof Image))
+		{
+			$this->getImage();
+			$value = new Image($value);
 		}
 		// Add
 		return parent::add($key, $value);
