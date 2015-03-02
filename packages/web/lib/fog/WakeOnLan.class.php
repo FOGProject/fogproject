@@ -34,16 +34,7 @@ class WakeOnLan extends FOGBase
 				$this->packet[] = implode($this->hwaddr);
 			// Always send to the main broadcast.
 			$BroadCast[] = '255.255.255.255';
-			// Check if WOL Plugin is active and installed
-			$PluginActive = in_array('wolbroadcast',$_SESSION['PluginsInstalled']);
-			if ($PluginActive)
-			{
-				foreach($this->getClass('WolbroadcastManager')->find() AS $Broadcast)
-				{
-					if ($Broadcast && $Broadcast->isValid())
-						$BroadCast[] = $Broadcast->get('broadcast');
-				}
-			}
+			$this->HookManager->processEvent('BROADCAST_ADDR',array('broadcast' => &$BroadCast));
 			foreach((array)$BroadCast AS $SendTo)
 			{
 				$sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
