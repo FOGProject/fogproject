@@ -35,7 +35,7 @@ class WakeOnLan extends FOGBase
 			// Always send to the main broadcast.
 			$BroadCast[] = '255.255.255.255';
 			// Check if WOL Plugin is active and installed
-			$PluginActive = in_array('wolbroadcast',$_SESSION['PluginsInstalled'])
+			$PluginActive = in_array('wolbroadcast',$_SESSION['PluginsInstalled']);
 			if ($PluginActive)
 			{
 				foreach($this->getClass('WolbroadcastManager')->find() AS $Broadcast)
