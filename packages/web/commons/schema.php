@@ -1817,5 +1817,40 @@ $this->schema[] = array(
 );
 // 160
 $this->schema[] = array(
-	"ALTER TABLE`".DATABASE_NAME."`.`hostFingerprintAssoc` CHANGE `hostID` `fpHostID` MEDIUMINT(9) NOT NULL",
+	"ALTER TABLE `".DATABASE_NAME."`.`hostFingerprintAssoc` CHANGE `hostID` `fpHostID` MEDIUMINT(9) NOT NULL",
+);
+// 161
+$this->schema[] = array(
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`greenFog` ADD UNIQUE (`gfHostID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`groupMembers` ADD UNIQUE (`gmHostID`,`gmGroupID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`groups` ADD UNIQUE (`groupName`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`hostAutoLogOut` ADD UNIQUE (`haloHostID`,`haloTime`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`hostFingerprintAssoc` ADD UNIQUE (`fpHostID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`hostMAC` ADD UNIQUE (`hmHostID`,`hmMAC`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`hosts` ADD UNIQUE (`hostName`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`hostScreenSettings` ADD UNIQUE (`hssHostID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`imageGroupAssoc` ADD UNIQUE (`igaImageID`,`igaStorageGroupID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`imagePartitionTypes` ADD UNIQUE (`imagePartitionTypeName`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`images` ADD UNIQUE (`imageName`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`imageTypes` ADD UNIQUE (`imageTypeValue`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`inventory` ADD UNIQUE (`iHostID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`modules` ADD UNIQUE (`short_name`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`moduleStatusByHost` ADD UNIQUE (`msHostID`,`msModuleID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`multicastSessionsAssoc` ADD UNIQUE (`msID`,`tID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`nfsFailures` ADD UNIQUE (`nfNodeID`,`nfHostID`,`nfTaskID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`nfsGroupMembers` ADD UNIQUE (`ngmMemberName`,`ngmGroupID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`nfsGroups` ADD UNIQUE (`ngName`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`nodeJSconfig` ADD UNIQUE (`nodeID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`os` ADD UNIQUE (`osName`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`oui` ADD UNIQUE (`ouiMACPrefix`,`ouiMan`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`plugins` ADD UNIQUE (`pName`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`printerAssoc` ADD UNIQUE (`paHostID`,`paPrinterID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`printers` ADD UNIQUE (`pAlias`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`snapinAssoc` ADD UNIQUE (`saSnapinID`,`saHostID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`snapinGroupAssoc` ADD UNIQUE (`sgaStorageGroupID`,`sgaSnapinID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`snapins` ADD UNIQUE (`sName`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`snapinTasks` ADD UNIQUE (`stJobID`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`supportedOS` ADD UNIQUE (`osName`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`taskStates` ADD UNIQUE (`tsName`)",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`taskTypes` ADD UNIQUE (`ttName`)",
 );
