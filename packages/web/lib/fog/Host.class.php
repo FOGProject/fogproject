@@ -50,6 +50,7 @@ class Host extends FOGController
 		'inv',
 		'task',
 		'snapinjob',
+		'snapjob',
 		'users',
 		'fingerprint',
 	);
@@ -63,6 +64,7 @@ class Host extends FOGController
 		'MACAddressAssociation' => array('hostID','id','primac',array('primary' => 1)),
 		'Image' => array('id','imageID','image'),
 		'Inventory' => array('hostID','id','inv'),
+		'SnapinJob' => array('hostID','id','snapjob'),
 	);
 	// Custom functons
 	public function isHostnameSafe()
@@ -158,13 +160,7 @@ class Host extends FOGController
 	private function loadSnapinJob()
 	{
 		if (!$this->isLoaded('snapinjob') && $this->get('id'))
-		{
-			$SnapinJob = current($this->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(-1,0,1))));
-			if ($SnapinJob && $SnapinJob->isValid())
-				$this->set('snapinjob',$SnapinJob);
-			else
-				$this->set('snapinjob',new SnapinJob(array('id' => 0)));
-		}
+			$this->set('snapinjob',$this->get('snapjob'));
 		return $this;
 	}
 	private function loadPrimary()
@@ -719,13 +715,13 @@ class Host extends FOGController
 					// Create Snapin Tasking
 					if ($SnapinJob->save())
 					{
+						$this->set('snapinjob',$SnapinJob);
 						// If -1 for the snapinID sent, it needs to set a task for all of the snapins associated to that host.
 						if ($deploySnapins == -1)
 						{
-							$SnapinAssoc = $this->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')));
-							foreach ((array)$SnapinAssoc AS $SA)
+							foreach ((array)$this->get('snapins') AS $Snapin)
 							{
-								$SnapinTask = current((array)$this->getClass('SnapinTaskManager')->find(array('snapinID' => $SA->get('snapinID'), 'stateID' => array(-1,0,1))));
+								$SnapinTask = current((array)$this->getClass('SnapinTaskManager')->find(array('snapinID' => $Snapin->get('id'), 'stateID' => array(-1,0,1))));
 								if ($SnapinTask && $SnapinTask->isValid())
 									$SnapinJobCheck = $this->get('snapinjob');
 								if (!$SnapinJobCheck || !$SnapinJobCheck->isValid())
@@ -733,7 +729,7 @@ class Host extends FOGController
 									$ST = new SnapinTask(array(
 										'jobID' => $SnapinJob->get('id'),
 										'stateID' => 0,
-										'snapinID' => $SA->get('snapinID'),
+										'snapinID' => $Snapin->get('id'),
 									));
 									$ST->save();
 								}
@@ -741,7 +737,7 @@ class Host extends FOGController
 								{
 									$SnapinTask->set('jobID', $SnapinJob->get('id'))
 											   ->set('stateID', 0)
-											   ->set('snapinID', $SA->get('snapinID'))
+											   ->set('snapinID', $Snapin->get('id'))
 											   ->save();
 								}
 							}
