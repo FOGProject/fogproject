@@ -1849,8 +1849,16 @@ $this->schema[] = array(
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`snapinAssoc` ADD UNIQUE (`saSnapinID`,`saHostID`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`snapinGroupAssoc` ADD UNIQUE (`sgaStorageGroupID`,`sgaSnapinID`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`snapins` ADD UNIQUE (`sName`)",
-	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`snapinTasks` ADD UNIQUE (`stJobID`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`supportedOS` ADD UNIQUE (`osName`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`taskStates` ADD UNIQUE (`tsName`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`taskTypes` ADD UNIQUE (`ttName`)",
+);
+// 162
+$this->schema[] = array(
+	"ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` DROP INDEX `stID`",
+	"ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` DROP INDEX `stID_2`",
+	"ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` DROP INDEX `stJobID`",
+	"ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` DROP INDEX `stJobID_2`",
+	"ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` DROP INDEX `stJobID_3`",
+	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`snapinTasks` ADD UNIQUE (`stJobID`,`stSnapinID`)",
 );
