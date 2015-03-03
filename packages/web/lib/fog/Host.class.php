@@ -231,7 +231,7 @@ class Host extends FOGController
 	private function loadInventory()
 	{
 		if (!$this->isLoaded('inventory') && $this->get('id'))
-			$this->set('inventory',current($this->get('inv')));
+			$this->set('inventory',$this->get('inv'));
 		return $this;
 	}
 	private function loadModules()
