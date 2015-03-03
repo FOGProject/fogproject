@@ -7,25 +7,9 @@
  *
  */
 
-FILE_LICENCE ( GPL2_OR_LATER );
+FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 
 #include <config/defaults.h>
-
-/*
- * Branding
- *
- * Vendors may use these strings to add their own branding to iPXE.
- * PRODUCT_NAME is displayed prior to any iPXE branding in startup
- * messages, and PRODUCT_SHORT_NAME is used where a brief product
- * label is required (e.g. in BIOS boot selection menus).
- *
- * To minimise end-user confusion, it's probably a good idea to either
- * make PRODUCT_SHORT_NAME a substring of PRODUCT_NAME or leave it as
- * "iPXE".
- *
- */
-#define PRODUCT_NAME ""
-#define PRODUCT_SHORT_NAME "iPXE"
 
 /*
  * Banner timeout configuration
@@ -87,9 +71,9 @@ FILE_LICENCE ( GPL2_OR_LATER );
  * 802.11 cryptosystems and handshaking protocols
  *
  */
-//#define	CRYPTO_80211_WEP	/* WEP encryption (deprecated and insecure!) */
-//#define	CRYPTO_80211_WPA	/* WPA Personal, authenticating with passphrase */
-//#define	CRYPTO_80211_WPA2	/* Add support for stronger WPA cryptography */
+#define	CRYPTO_80211_WEP	/* WEP encryption (deprecated and insecure!) */
+#define	CRYPTO_80211_WPA	/* WPA Personal, authenticating with passphrase */
+#define	CRYPTO_80211_WPA2	/* Add support for stronger WPA cryptography */
 
 /*
  * Name resolution modules

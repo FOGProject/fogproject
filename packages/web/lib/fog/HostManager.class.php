@@ -5,10 +5,18 @@ class HostManager extends FOGManagerController
 	{
 		foreach($this->getClass('MACAddressAssociationManager')->find(array('mac' => $MACs)) AS $MAC)
 			$MACHost[] = $MAC->get('hostID');
-		$Hosts = array_unique((array)$this->getClass('HostManager')->find(array('id' => array_unique((array)$MACHost))));
+		$Hosts = $this->getClass('HostManager')->find(array('id' => array_unique((array)$MACHost)));
 		if (count($Hosts) > 1)
 			throw new Exception($this->foglang['ErrorMultipleHosts']);
-		return current($Hosts);
+		if (count($Hosts))
+		{
+			foreach($Hosts AS $Host)
+			{
+				if ($Host && $Host->isValid())
+					return $Host;
+			}
+		}
+		return false;
 	}
 	public function isSafeHostName($hostname)
 	{
