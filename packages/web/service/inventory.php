@@ -12,7 +12,7 @@ try
 	// If it doesn't exist, it creates new inventory record.
 	$Host = $FOGCore->getClass('HostManager')->getHostByMacAddresses($MACs);
 	if ($Host->isValid())
-		$Inventory = $Host->get('inventory');
+		$Inventory = $Host->get('inv');
 	$sysman=trim(base64_decode($_REQUEST['sysman']));
 	$sysproduct=trim(base64_decode($_REQUEST["sysproduct"]));
 	$sysversion=trim(base64_decode($_REQUEST["sysversion"]));
