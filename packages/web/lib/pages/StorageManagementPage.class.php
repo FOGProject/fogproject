@@ -336,8 +336,8 @@ class StorageManagementPage extends FOGPage
 					->set('interface',	$_REQUEST['interface'])
 					->set('isGraphEnabled',	($_REQUEST['isGraphEnabled'] ? '1' : '0'))
 					->set('isEnabled',	($_REQUEST['isEnabled'] ? '1' : '0'))
-					->set('user',		$_REQUEST['user'])
-					->set('pass',		$_REQUEST['pass'])
+					->set('user', $_REQUEST['user'])
+					->set('pass', $_REQUEST['pass'])
 					->set('bandwidth',  $_REQUEST['bandwidth']);
 			// Save
 			if ($StorageNode->save())
