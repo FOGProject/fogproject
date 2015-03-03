@@ -5,7 +5,6 @@ try
 	//Get MAC to get Host from mac address.
 	$ifconfig = explode('HWaddr',base64_decode(trim($_REQUEST['mac'])));
 	$mac = strtolower(trim($ifconfig[1]));
-	$mac = '00:0c:29:9f:ca:60';
 	$MACs = FOGCore::parseMacList($mac);
 	if (!$MACs)
 		throw new Exception($foglang['InvalidMAC']);
