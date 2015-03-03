@@ -111,7 +111,7 @@ class ServiceConfigurationPage extends FOGPage
 			print "\n\t\t\t".'<div id="'.$Module->get('shortName').'">';
 			print "\n\t\t\t<h2>"._($Module->get('name')).'</h2>';
 			print "\n\t\t\t".'<form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'">';
-			print "\n\t\t\t<p>"._($Service->get('description')).'</p>';
+			print "\n\t\t\t<p>"._($Module->get('description')).'</p>';
 			print "\n\t\t\t<h2>"._('Service Status').'</h2>';
 			// Hook
 			// $this->HookManager->processEvent()
