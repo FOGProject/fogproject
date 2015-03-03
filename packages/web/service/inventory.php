@@ -11,7 +11,7 @@ try
 	// Set the Host variable to find host record for update.
 	// If it doesn't exist, it creates new inventory record.
 	$Host = $FOGCore->getClass('HostManager')->getHostByMacAddresses($MACs);
-	if ($Host && $Host->isValid())
+	if ($Host->isValid())
 		$Inventory = $Host->get('inventory');
 	$sysman=trim(base64_decode($_REQUEST['sysman']));
 	$sysproduct=trim(base64_decode($_REQUEST["sysproduct"]));
@@ -51,36 +51,32 @@ try
 	$casesasset=trim(base64_decode($_REQUEST["casesasset"]));						
 	if (!$Inventory || !$Inventory->isValid())
 	{
-			$Inventory = new Inventory(array(
-						'hostID' => $Host->get('id'),
-						'sysman' => $sysman,
-						'sysproduct' => $sysproduct,
-						'sysversion' => $sysversion,
-						'sysserial' => $sysserial,
-						'systype' => $systype,
-						'biosversion' => $biosversion,
-						'mbman' => $mbman,
-						'mbproductname' => $mbproductname,
-						'mbversion' => $mbversion,
-						'mbserial' => $mbserial,
-						'mbasset' => $mbasset,
-						'cpuman' => $cpuman,
-						'cpuversion' => $cpuversion,
-						'cpucurrent' => $cpucurrent,
-						'cpumax' => $cpumax,
-						'mem' => $mem,
-						'hdmodel' => $hdmodel,
-						'hdfirmware' => $hdfirmware,
-						'hdserial' => $hdserial,
-						'caseman' => $caseman,
-						'casever' => $casever,
-						'caseserial' => $caseserial,
-						'caseasset' => $casesasset
-			));
-			if ($Inventory->save())
-				print _('Done');
-			else
-				throw new Exception(_('Failed to create inventory for this host!'));
+		$Inventory = new Inventory(array(
+			'hostID' => $Host->get('id'),
+			'sysman' => $sysman,
+			'sysproduct' => $sysproduct,
+			'sysversion' => $sysversion,
+			'sysserial' => $sysserial,
+			'systype' => $systype,
+			'biosversion' => $biosversion,
+			'mbman' => $mbman,
+			'mbproductname' => $mbproductname,
+			'mbversion' => $mbversion,
+			'mbserial' => $mbserial,
+			'mbasset' => $mbasset,
+			'cpuman' => $cpuman,
+			'cpuversion' => $cpuversion,
+			'cpucurrent' => $cpucurrent,
+			'cpumax' => $cpumax,
+			'mem' => $mem,
+			'hdmodel' => $hdmodel,
+			'hdfirmware' => $hdfirmware,
+			'hdserial' => $hdserial,
+			'caseman' => $caseman,
+			'casever' => $casever,
+			'caseserial' => $caseserial,
+			'caseasset' => $casesasset
+		));
 	}
 	else
 	{
@@ -109,11 +105,11 @@ try
 				  ->set('casever',$casever)
 				  ->set('caseserial',$caseserial)
 				  ->set('caseasset',$casesasset);
-		if ($Inventory->save())
-			print _('Done');
-		else
-			throw new Exception(_('Failed to update inventory for this host!'));
 	}
+	if ($Inventory->save())
+		print _('Done');
+	else
+		throw new Exception(_('Failed to create inventory for this host!'));
 }
 catch (Exception $e)
 {
