@@ -78,8 +78,8 @@ class ServerInfo extends FOGPage
 					$arNicParts = explode( "$$", $arNIC[$i] );
 					if (count($arNicParts) == 5) 
 					{
-						$NICTransSized[] = $this->formatByteSize($arNicParts[1]);
-						$NICRecSized[] = $this->formatByteSize($arNicParts[2]);
+						$NICTransSized[] = $this->formatByteSize($arNicParts[2]);
+						$NICRecSized[] = $this->formatByteSize($arNicParts[1]);
 						$NICErrInfo[] = $arNicParts[3];
 						$NICDropInfo[] = $arNicParts[4];
 						$NICTrans[] = $arNicParts[0].' '._('TX');
