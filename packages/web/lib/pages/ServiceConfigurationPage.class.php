@@ -88,18 +88,14 @@ class ServiceConfigurationPage extends FOGPage
 			$fields = array_filter($fields);
 			foreach((array)$fields AS $field => $input)
 			{
-				$Service = current($this->getClass('ServiceManager')->find(array('name' => $moduleName[$Module->get('shortName')])));
-				if ($Service && $Service->isValid())
-				{
-					$this->data[] = array(
-						'field' => $field,
-						'input' => $input,
-						'checked' => ($moduleName[$Module->get('shortName')] ? 'checked' : ''),
-						($moduleName[$Module->get('shortName')] ? 'is_on' : null) => ($moduleName[$Module->get('shortName')] ? ($Module->get('isDefault') ? 'checked' : null) : null),
-						'span' => '<i class="icon fa fa-question hand" title="${module_desc}"></i>',
-						'module_desc' => $Service->get('description'),
-					);
-				}
+				$this->data[] = array(
+					'field' => $field,
+					'input' => $input,
+					'checked' => ($moduleName[$Module->get('shortName')] ? 'checked' : ''),
+					($moduleName[$Module->get('shortName')] ? 'is_on' : null) => ($moduleName[$Module->get('shortName')] ? ($Module->get('isDefault') ? 'checked' : null) : null),
+					'span' => '<i class="icon fa fa-question hand" title="${module_desc}"></i>',
+					'module_desc' => $Module->get('description'),
+				);
 			}
 			$this->data[] = array(
 				'field' => '<input type="hidden" name="name" value="${mod_name}" />',
