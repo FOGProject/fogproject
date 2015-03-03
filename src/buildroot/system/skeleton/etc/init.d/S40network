@@ -10,23 +10,20 @@ if [ -n "$has_usb_nic" ]; then
 	echo "Sleeping for 5 seconds to allow USB to sync back with system";
 	sleep 5;
 fi
-echo > "/etc/network/interfaces";
-for iface in $(ls -1 /sys/class/net | tr -d '@'); do
+#echo "auto lo" > /etc/network/interfaces;
+#echo "iface lo inet loopback" >> /etc/network/interfaces;
+#for iface in $(ls -1 /sys/class/net | tr -d '@'); do
 	# all interfaces need to be up or you will get an invalid
 	# argument error when checking the link state
-	/sbin/ip link set $iface up
-	linkstate=$(/bin/cat /sys/class/net/$iface/carrier)
-	if [[ "x$linkstate" = "x1" ]]; then
-		if [[ "x$iface" = "xlo" ]]; then
-			echo "auto lo " >> /etc/network/interfaces
-			echo "iface lo inet loopback" >> /etc/network/interfaces
-		else
-			echo "auto $iface" >> /etc/network/interfaces
-			echo "iface $iface inet dhcp" >> /etc/network/interfaces
-			echo -e "\tudhcpc_opts -i $iface -t 100 -T 20\n" >> /etc/network/interfaces
-		fi
-	fi
-done
+#	/sbin/ip link set $iface up
+#	linkstate=$(/bin/cat /sys/class/net/$iface/carrier)
+#	if [[ "x$linkstate" = "x1" -a  "x$iface" != "xlo" ]]; then
+#		echo "auto $iface" >> /etc/network/interfaces
+#		echo "iface $iface inet dhcp" >> /etc/network/interfaces
+#		echo -e "\tudhcpc_opts -t 100 -T 20\n" >> /etc/network/interfaces
+#	fi
+#	/sbin/ip link set $iface down
+#done
 case "$1" in
   start)
  	echo "Starting network..."
