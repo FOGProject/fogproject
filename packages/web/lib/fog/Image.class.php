@@ -28,12 +28,26 @@ class Image extends FOGController
 		'compress' => 'imageCompress',
 	);
 
+	// Aliased Fields
+	public $aliasedFields = array(
+	);
+
 	// Additional Fields
 	public $additionalFields = array(
 		'stores',
 		'hosts',
 		'hostsnotinme',
 		'storageGroups',
+		'imagetype',
+		'imagepart',
+		'os',
+	);
+
+	// Class relationships
+	public $databaseFieldClassRelationships = array(
+		'ImageType' => array('id','imageTypeID','imagetype'),
+		'ImagePartitionType' => array('id','imagePartitionTypeID','imagepart'),
+		'OS' => array('id','osID','os'),
 	);
 	
 	// Overrides
@@ -207,21 +221,21 @@ class Image extends FOGController
 	*/
 	public function getOS()
 	{
-		return new OS($this->get('osID'));
+		return $this->get('os');
 	}
 	/** getImageType()
 		Gets the relevant ImageType class object for the image.
 	*/
 	public function getImageType()
 	{
-		return new ImageType($this->get('imageTypeID'));
+		return $this->get('imagetype');
 	}
 	/** getImagePartitionType()
 		Gets the relevant ImagePartitionType class object for the image.
 	*/
 	public function getImagePartitionType()
 	{
-		return new ImagePartitionType($this->get('imagePartitionTypeID'));
+		return $this->get('imagepart');
 	}
 	/** deleteFile()
 		This function just deletes the file(s) via FTP.
