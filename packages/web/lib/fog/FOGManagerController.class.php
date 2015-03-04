@@ -27,11 +27,11 @@ abstract class FOGManagerController extends FOGBase
 	/** The database to class relationships extra data, but not needed **/
 	protected $databaseFieldClassRelationships;
 	/** The query to use from the class **/
-	public $loadQueryTemplate = "SELECT * FROM `%s` %s %s %s %s %s";
+	public $loadQueryTemplate = "SELECT * FROM %s %s %s %s %s %s";
 	/** The query to use from the class **/
-	public $loadQueryGroupTemplate = "SELECT * FROM (SELECT * FROM `%s` %s %s %s %s %s) `%s` %s %s %s %s %s";
+	public $loadQueryGroupTemplate = "SELECT * FROM (SELECT * FROM %s %s %s %s %s %s) %s %s %s %s %s %s";
 	/** Search Query Template **/
-	private $searchQueryTemplate = "SELECT `%s` FROM `%s` %s %s %s";
+	private $searchQueryTemplate = "SELECT %s FROM %s %s %s %s";
 	// Construct
 	/** __construct()
 		Different constructor from FOG Base
@@ -178,20 +178,20 @@ abstract class FOGManagerController extends FOGBase
 				foreach((array)$where AS $field => $value)
 				{
 					if (is_array($value))
-						$whereArray[] = sprintf("`%s` %s IN ('%s')", $this->databaseFields[$field], $not,implode("', '", $value));
+						$whereArray[] = sprintf("%s %s IN ('%s')", $this->databaseFields[$field], $not,implode("', '", $value));
 					else if (!is_array($value))
-						$whereArray[] = sprintf("`%s` %s '%s'", $this->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : ($not ? '!' : '').$compare), $value);
+						$whereArray[] = sprintf("%s %s '%s'", $this->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : ($not ? '!' : '').$compare), $value);
 				}
 			}
 			foreach((array)$orderBy AS $item)
 			{
 				if ($this->databaseFields[$item])
-					$orderArray[] = sprintf("`%s`",$this->databaseFields[$item]);
+					$orderArray[] = sprintf("%s",$this->databaseFields[$item]);
 			}
 			foreach((array)$groupBy AS $item)
 			{
 				if ($this->databaseFields[$item])
-					$groupArray[] = sprintf("`%s`",$this->databaseFields[$item]);
+					$groupArray[] = sprintf("%s",$this->databaseFields[$item]);
 			}
 			$groupImplode = implode((array)$groupArray,',');
 			$orderImplode = implode((array)$orderArray,',');
@@ -274,13 +274,13 @@ abstract class FOGManagerController extends FOGBase
 				foreach((array)$where AS $field => $value)
 				{
 					if (is_array($value))
-						$whereArray[] = sprintf("`%s` IN ('%s')", $this->databaseFields[$field], implode("', '", $value));
+						$whereArray[] = sprintf("%s IN ('%s')", $this->databaseFields[$field], implode("', '", $value));
 					else
-						$whereArray[] = sprintf("`%s` %s '%s'", $this->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
+						$whereArray[] = sprintf("%s %s '%s'", $this->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
 				}
 			}
 			// Count result rows
-			$this->DB->query("SELECT COUNT(%s) AS total FROM `%s`%s LIMIT 1", array(
+			$this->DB->query("SELECT COUNT(%s) AS total FROM %s%s LIMIT 1", array(
 				$this->databaseFields['id'],
 				$this->databaseTable,
 				(count($whereArray) ? ' WHERE ' . implode(' ' . $whereOperator . ' ', $whereArray) : '')
@@ -326,7 +326,7 @@ abstract class FOGManagerController extends FOGBase
 	{
 		if (empty($idfield))
 			$idfield = 'id';
-		$this->DB->query("SELECT COUNT(%s) AS total FROM `%s` WHERE `%s` = '%s' AND `%s` <> '%s'", 
+		$this->DB->query("SELECT COUNT(%s) AS total FROM %s WHERE %s = '%s' AND %s <> '%s'", 
 			array(	
 				$this->databaseFields[$idfield],
 				$this->databaseTable,
