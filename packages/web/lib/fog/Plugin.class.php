@@ -28,7 +28,7 @@ class Plugin extends FOGController
 			if(md5(trim($Plugin->getName())) == trim($hash))
 			{
 				$_SESSION['fogactiveplugin']=serialize($Plugin);
-				//return $Plugin->getEntryPoint();
+				return $Plugin->getEntryPoint();
 			}
 		}
 		return null;
@@ -59,7 +59,7 @@ class Plugin extends FOGController
 		$cfgfile = 'plugin.config.php';
 		foreach($this->getDirs() AS $file)
 		{
-			include_once(rtrim($file,'/').'/config/'.$cfgfile);
+			require(rtrim($file,'/').'/config/'.$cfgfile);
 			$p=new Plugin(array('name' => $fog_plugin['name']));
 			$p->strPath = $file;
 			$p->strName = $fog_plugin['name'];
