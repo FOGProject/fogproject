@@ -19,11 +19,11 @@ abstract class FOGController extends FOGBase
 	  * The Query template in case of multiple items passed to data
 	  * Protected so as to allow other classes to assign into them
 	  */
-	protected $loadQueryTemplateSingle = "SELECT * FROM `%s` %s WHERE `%s`='%s'";
+	protected $loadQueryTemplateSingle = "SELECT * FROM %s %s WHERE %s='%s'";
 	/** @var loadQueryTemplateMultiple
 	  * The Query template in case of multiple items passed to data
 	  */
-	protected $loadQueryTemplateMultiple = "SELECT * FROM `%s` %s WHERE %s";
+	protected $loadQueryTemplateMultiple = "SELECT * FROM %s %s WHERE %s";
 	/** @var databaseFieldsToIgnore
 	  * Which fields to not really care about updatin
 	  */
@@ -235,13 +235,13 @@ abstract class FOGController extends FOGBase
 			}
 			// Build update field array using filtered data
 			foreach ($fieldsToUpdate AS $name => $fieldName)
-				$updateData[] = sprintf("`%s` = '%s'", $this->DB->sanitize($fieldName), $this->DB->sanitize($this->get($name)));
+				$updateData[] = sprintf("%s = '%s'", $this->DB->sanitize($fieldName), $this->DB->sanitize($this->get($name)));
 			// Force ID to update so ID is returned on DUPLICATE UPDATE - No ID was returning when A) Nothing is inserted (already exists) or B) Nothing is updated (data has not changed)
-			$updateData[] = sprintf("`%s` = LAST_INSERT_ID(%s)", $this->DB->sanitize($this->databaseFields['id']), $this->DB->sanitize($this->databaseFields['id']));
+			$updateData[] = sprintf("%s = LAST_INSERT_ID(%s)", $this->DB->sanitize($this->databaseFields['id']), $this->DB->sanitize($this->databaseFields['id']));
 			// Insert & Update query all-in-one
-			$query = sprintf("INSERT INTO `%s` (`%s`) VALUES ('%s') ON DUPLICATE KEY UPDATE %s",
+			$query = sprintf("INSERT INTO %s (%s) VALUES ('%s') ON DUPLICATE KEY UPDATE %s",
 				$this->databaseTable,
-				implode("`, `", (array)$insertKeys),
+				implode(", ", (array)$insertKeys),
 				implode("', '", (array)$insertValues),
 				implode(', ', $updateData)
 			);
@@ -280,7 +280,7 @@ abstract class FOGController extends FOGBase
 			{
 				// Multiple values
 				foreach($this->get($field) AS $fieldValue)
-					$fieldData[] = sprintf("`%s`='%s'", $this->databaseFields[$field], $fieldValue);
+					$fieldData[] = sprintf("%s='%s'", $this->databaseFields[$field], $fieldValue);
 				$query = sprintf(
 					$this->loadQueryTemplateMultiple,
 					$this->databaseTable,
@@ -365,7 +365,7 @@ abstract class FOGController extends FOGBase
 			if (!$this->get($field))
 				throw new Exception(sprintf('Operation field not set: %s', strtoupper($field)));
 			// Query row data
-			$query = sprintf("DELETE FROM `%s` WHERE `%s`='%s'",
+			$query = sprintf("DELETE FROM %s WHERE %s='%s'",
 				$this->DB->sanitize($this->databaseTable),
 				$this->DB->sanitize($this->databaseFields[$field]),
 				$this->DB->sanitize($this->get($field))
