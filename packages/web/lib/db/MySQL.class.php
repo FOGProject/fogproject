@@ -117,25 +117,9 @@ class MySQL extends FOGBase
 			$this->query = $sql;
 			if (!$this->query)
 				throw new Exception(_('No query sent'));
-			if (!$this->link->query($this->query,MYSQLI_ASYNC))
+			if (!$this->queryResult = $this->link->query($this->query))
 				throw new Exception(_('Error: ').$this->sqlerror());
-			$processed = 0;
-			do
-			{
-				foreach(array($this->link) AS $link)
-					$links[] = $errors[] = $reject[] = $link;
-				if (!$this->link->poll($links,$errors,$reject,0,1))
-					continue;
-				foreach($links AS $link)
-				{
-					if ($this->queryResult = $this->link->reap_async_query())
-					{
-						if (is_object($this->queryResult))
-							$this->queryResult->free_result($this->queryResult);
-					}
-					$processed++;
-				}
-			} while ($processed < count(array($this->link)));
+			// INFO
 		}
 		catch (Exception $e)
 		{
