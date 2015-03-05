@@ -203,17 +203,9 @@ class Host extends FOGController
 		{
 			// Printers I have
 			$PrinterIDs = array_unique($this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','printerID'));
-			if ($PrinterIDs)
-			{
-				foreach($this->getClass('PrinterManager')->find(array('id' => $PrinterIDs)) AS $Printer)
-					$this->add('printers', $Printer);
-				if (count($this->get('printers')))
-				{
-					foreach($this->getClass('PrinterManager')->find(array('id' => $PrinterIDs),'','','','','',true) AS $Printer)
-						$this->add('printersnotinme',$Printer);
-				}
-			}
-			unset($PrinterIDs,$Printer);
+			$this->set('printers', $this->getClass('PrinterManager')->find(array('id' => $PrinterIDs)));
+			$this->set('printersnotinme',$this->getClass('PrinterManager')->find(array('id' => $PrinterIDs),'','','','','',true));
+			unset($PrinterIDs);
 		}
 		return $this;
 	}
