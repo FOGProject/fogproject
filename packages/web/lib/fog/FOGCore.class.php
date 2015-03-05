@@ -215,7 +215,7 @@ class FOGCore extends FOGBase
 		}
 
 		// Get data
-		$fp = fopen($URL,'rb');
+		$fp = fopen($URL,'rb',false,stream_context_create($contextOptions));
 		stream_set_blocking($fp,0);
 		$data = fread($fp, 8192);
 		fclose($fp);
