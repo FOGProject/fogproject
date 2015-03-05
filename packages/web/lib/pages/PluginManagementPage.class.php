@@ -272,7 +272,7 @@ class PluginManagementPage extends FOGPage
 					'${image_name}',
 					'${os_name}',
 					'${capone_key}',
-					'<input type="checkbox" name="kill" value="${capone_id}" class="delid" onclick="this.form.submit()" id="rmcap${capone_id}" /><label for="rmcap${capone_id}" class="icon icon-hand" title="'._('Delete').'">&nbsp;</label>',
+					'<input type="checkbox" name="kill" value="${capone_id}" class="delid" onclick="this.form.submit()" id="rmcap${capone_id}" /><label for="rmcap${capone_id}"><i class="icon icon-hand fa fa-minus-circle fa-1x" title="'._('Delete').'"></i></label>',
 				);
 				$this->attributes = array(
 					array(),
