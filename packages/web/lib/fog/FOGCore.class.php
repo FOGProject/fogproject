@@ -215,15 +215,13 @@ class FOGCore extends FOGBase
 		}
 
 		// Get data
-		$fp = fopen($URL,'rb',false,stream_context_create($contextOptions));
-		stream_set_blocking($fp,0);
-		$data = fread($fp, 8192);
-		fclose($fp);
+		$fp = @fopen($URL,'rb',false,stream_context_create($contextOptions));
+		if (!$fp)
+			return false;
+		@stream_set_blocking($fp,0);
+		$data = @stream_get_contents($fp);
+		@fclose($fp);
 		return $data;
-		/*if ($response = trim(@file_get_contents($URL, false, stream_context_create($contextOptions))))
-			return $response;
-		else
-			return false;*/
 	}
 
 	/** resolveHostname($host)
