@@ -22,8 +22,8 @@ class System
 	private static function default_values()
 	{
 		(ini_get('date.timezone') ? date_default_timezone_set(ini_get('date.timezone')) : date_default_timezone_set('UTC'));
-		define('FOG_VERSION', '3083');
-		define('FOG_SCHEMA', 162);
+		define('FOG_VERSION', '3084');
+		define('FOG_SCHEMA', 163);
 		define('FOG_SVN_REVISION', '$Revision: 2868 $');
 		define('FOG_SVN_LAST_UPDATE', '$LastChangedDate: 2015-01-01 14:16:56 -0500 (Thu, 01 Jan 2015) $');
 		define('PHP_VERSION_REQUIRED', '5.3.0');
