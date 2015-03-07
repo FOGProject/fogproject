@@ -1790,42 +1790,17 @@ $this->schema[] = array(
 // 157, doesn't do anything but ensure all currently create tables are InnoDB
 $this->schema[] = array();
 // 158
-$this->schema[] = array(
-	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME . "`.`hostFingerprintAssoc` (
-	  `hostID` mediumint(9) NOT NULL,
-	  `fingerprint` LONGTEXT NULL,
-	  PRIMARY KEY  (`hostID`)
-	) ENGINE=MyISAM;",
-	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME . "`.`queueAssoc` (
-	  `qaID` mediumint(9) NOT NULL auto_increment,
-	  `qaHostID` mediumint(9) NOT NULL,
-	  `qaStateID` mediumint(9) NOT NULL,
-	  `qaModuleID` mediumint(9) NOT NULL,
-	  `qaTaskInfo` LONGTEXT NULL,
-	  `qaCreatedTime` datetime NOT NULL, 
-	  PRIMARY KEY  (`qaID`)
-	) ENGINE=MyISAM;",
-);
+$this->schema[] = array();
 // 159
-$this->schema[] = array(
-	"CREATE TABLE IF NOT EXISTS `" . DATABASE_NAME . "`.`nodeJSconfig` (
-	  `nodeID` mediumint(9) NOT NULL auto_increment,
-	  `port` mediumint(9) NOT NULL,
-	  `aesTmp` LONGTEXT NOT NULL,
-	  PRIMARY KEY  (`nodeID`)
-	) ENGINE=MyISAM;",
-);
+$this->schema[] = array();
 // 160
-$this->schema[] = array(
-	"ALTER TABLE `".DATABASE_NAME."`.`hostFingerprintAssoc` CHANGE `hostID` `fpHostID` MEDIUMINT(9) NOT NULL",
-);
+$this->schema[] = array();
 // 161
 $this->schema[] = array(
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`greenFog` ADD UNIQUE (`gfHostID`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`groupMembers` ADD UNIQUE (`gmHostID`,`gmGroupID`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`groups` ADD UNIQUE (`groupName`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`hostAutoLogOut` ADD UNIQUE (`haloHostID`,`haloTime`)",
-	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`hostFingerprintAssoc` ADD UNIQUE (`fpHostID`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`hostMAC` ADD UNIQUE (`hmHostID`,`hmMAC`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`hosts` ADD UNIQUE (`hostName`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`hostScreenSettings` ADD UNIQUE (`hssHostID`)",
@@ -1840,7 +1815,6 @@ $this->schema[] = array(
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`nfsFailures` ADD UNIQUE (`nfNodeID`,`nfHostID`,`nfTaskID`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`nfsGroupMembers` ADD UNIQUE (`ngmMemberName`,`ngmGroupID`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`nfsGroups` ADD UNIQUE (`ngName`)",
-	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`nodeJSconfig` ADD UNIQUE (`nodeID`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`os` ADD UNIQUE (`osName`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`oui` ADD UNIQUE (`ouiMACPrefix`,`ouiMan`)",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`plugins` ADD UNIQUE (`pName`)",
@@ -1861,4 +1835,8 @@ $this->schema[] = array(
 	"ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` DROP INDEX `stJobID_2`",
 	"ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` DROP INDEX `stJobID_3`",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`snapinTasks` ADD UNIQUE (`stJobID`,`stSnapinID`)",
+);
+// 163
+$this->schema[] = array(
+	"DROP TABLE IF EXISTS `".DATABASE_NAME."`.`hostFingerprintAssoc`,`".DATABASE_NAME."`.`queueAssoc`,`".DATABASE_NAME."`.`nodeJSconfig`",
 );
