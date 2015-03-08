@@ -282,14 +282,12 @@ class ReportManagementPage extends FOGPage
 			_('Hostname'),
 			_('Host MAC'),
 			_('Image Name'),
-			_('Operating System'),
 		);
 		// Templates
 		$this->templates = array(
 			'${host_name}',
 			'${host_mac}',
 			'${image_name}',
-			'${os_name}',
 		);
 		// Find hosts
 		$Hosts = $this->getClass('HostManager')->find();
@@ -297,16 +295,13 @@ class ReportManagementPage extends FOGPage
 		foreach((array)$Hosts AS $Host)
 		{
 			$Image = $Host->getImage();
-			$OS = $Image->getOS();
 			$imgID = $Image->isValid() ? $Image->get('id') : '';
 			$imgName = $Image->isValid() ? $Image->get('name') : '';
 			$imgDesc = $Image->isValid() ? $Image->get('description') : '';
-			$osName = $OS && $OS->isValid() ? $OS->get('name') : '';
 			$this->data[] = array(
 				'host_name' => $Host->get('name'),
 				'host_mac' => $Host->get('mac'),
 				'image_name' => $imgName,
-				'os_name' => $osName,
 			);
 			// The below lines create the csv.
 			foreach ((array)$csvHead AS $head => $classGet)
@@ -317,8 +312,6 @@ class ReportManagementPage extends FOGPage
 					$ReportMaker->addCSVCell($imgName);
 				else if ($head == _('Image Desc'))
 					$ReportMaker->addCSVCell($imgDesc);
-				else if ($head == _('OS Name'))
-					$ReportMaker->addCSVCell($osName);
 				else if ($head == _('AD Join'))
 					$ReportMaker->addCSVCell(($Host->get('useAD') == 1 ? _('Yes') : _('No')));
 				else
@@ -419,9 +412,6 @@ class ReportManagementPage extends FOGPage
 				// Find the image information
 				if ($Host->get('imageID'))
 					$Image = $Host->getImage();
-				// Find the os information if image is set.
-				if ($Image && $Image->isValid() && $Image->getOS())
-					$OS = $Image->getOS();
 				// Find the current inventory for this host
 				$Inventory = $Host->get('inventory');
 				// If found print data
@@ -430,7 +420,6 @@ class ReportManagementPage extends FOGPage
 					$this->data[] = array(
 						'host_name' => $Host->get('name'),
 						'host_mac' => $Host->get('mac'),
-						'os_name' => $OS && $OS->isValid()  ? $OS->get('name') : '',
 						'memory' => $Inventory->getMem(),
 						'sysprod' => $Inventory->get('sysproduct'),
 						'sysser' => $Inventory->get('sysserial'),
@@ -451,8 +440,6 @@ class ReportManagementPage extends FOGPage
 							$ReportMaker->addCSVCell($Image && $Image->isValid() ? $Image->get('name') : '');
 						else if ($head == _('Image Desc'))
 							$ReportMaker->addCSVCell($Image && $Image->isValid() ? $Image->get('description') : '');
-						else if ($head == _('OS Name'))
-							$ReportMaker->addCSVCell($OS && $OS->isValid() ? $OS->get('name') : '');
 						else if ($head == _('Memory'))
 							$ReportMaker->addCSVCell($Inventory->getMem());
 						else
