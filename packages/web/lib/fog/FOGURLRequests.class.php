@@ -20,8 +20,10 @@ class FOGURLRequests extends FOGBase
 		$this->contextOptions = array(
 			CURLOPT_HTTPGET => true,
 			CURLOPT_HTTPPROXYTUNNEL => $ProxyUsed,
+			CURLOPT_FOLLOWLOCATION => true,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_SSL_VERIFYHOST => false,
 			CURLOPT_CONNECTTIMEOUT_MS => 10000,
 			CURLOPT_TIMEOUT_MS => 10000,
 			CURLOPT_ENCODING => '',
