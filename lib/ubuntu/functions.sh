@@ -379,6 +379,7 @@ configureHttpd()
 		dbuser=$snmysqluser;
 	fi
 	echo -n "  * Setting up and starting Apache Web Server...";
+	php5enmod mysqlnd >/dev/null 2>&1;
 	sysv-rc-conf apache2 on;
 	mv /etc/apache2/mods-available/php5* /etc/apache2/mods-enabled/  >/dev/null 2>&1
 	/etc/init.d/apache2  stop  >/dev/null 2>&1
