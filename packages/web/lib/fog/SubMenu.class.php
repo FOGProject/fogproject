@@ -24,7 +24,6 @@ class SubMenu extends FOGBase
 			$this->title = array($this->foglang['Host'] => $this->object->get('name'),
 								 $this->foglang['MAC']	=> stripslashes($this->object ? $this->object->get('mac') : ''),
 								 $this->foglang['Image'] => stripslashes($this->object->getImage()->get('name')),
-								 $this->foglang['OS']	=> stripslashes($this->object->getOS()),
 								 $this->foglang['LastDeployed'] => stripslashes($this->object->get('deployed')),
 			);
 			$GA = $this->getClass('GroupAssociationManager')->find(array('hostID' => $this->object->get('id')));
