@@ -265,13 +265,13 @@ do
 			        configureUsers;
 			        configureMinHttpd;
 	                configureStorage;
-	                configureNFS;
 	                configureFTP;
 			        configureUDPCast;          
 			        installInitScript;
 			        installFOGServices;
 			        configureFOGService;	
 			        #sendInstallationNotice;
+	                configureNFS;
 			        writeUpdateFile;
 			        
 			        # Removed because this puts a file in the /tftpboot directory
