@@ -6,9 +6,7 @@ $(function() {
 	var ReturnIndexes = new Array('sites', 'version');
 	var ResultContainers = $('#login-form-info b');
 	$.ajax({
-		async: true,
 		url: '../management/index.php',
-		cache: true,
 		data: {
 			node: 'client',
 			sub: 'loginInfo'

@@ -426,7 +426,7 @@ abstract class FOGBase
 	* @param $input the input to filter
 	* clean up arrays recursively.
 	*/
-	public function array_filter_recursive(&$input)
+	public function array_filter_recursive(&$input,$keepkeys = false)
 	{
 		foreach($input AS &$value)
 		{
@@ -434,7 +434,8 @@ abstract class FOGBase
 				$value = $this->array_filter_recursive($value);
 		}
 		$input = array_filter($input);
-		$input = array_values($input);
+		if (!$keepkeys)
+			$input = array_values($input);
 		return $input;
 	}
 	/** byteconvert($kilobytes)
