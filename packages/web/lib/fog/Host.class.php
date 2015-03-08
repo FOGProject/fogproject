@@ -78,7 +78,7 @@ class Host extends FOGController
 	}
 	public function getOS()
 	{
-		return $this->getImage()->getOS()->get('name');
+		return $this->getImage()->getOS();
 	}
 	public function getMACAddress()
 	{
