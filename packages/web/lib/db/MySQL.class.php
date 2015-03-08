@@ -128,8 +128,8 @@ class MySQL extends FOGBase
 				if (0 == ($ready = mysqli_poll($links,$errors,$reject, 1, 0)))
 					continue;
 				foreach($links AS $k => $link) {
-					if ($this->queryResult = $link->reap_async_query())
-						$processed++;
+					$this->queryResult = $link->reap_async_query();
+					$processed++;
 				}
 			} while ($processed < 1);
 		}
