@@ -176,52 +176,7 @@ class FOGCore extends FOGBase
 	*/
 	public function fetchURL($URL)
 	{
-		if ($this->DB && $this->getSetting('FOG_PROXY_IP'))
-		{
-			foreach($this->getClass('StorageNodeManager')->find() AS $StorageNode)
-				$IPs[] = $this->resolveHostname($StorageNode->get('ip'));
-			$IPs = array_filter(array_unique($IPs));
-			if (!preg_match('#('.implode('|',$IPs).')#i',$URL))
-				$Proxy = $this->getSetting('FOG_PROXY_IP') . ':' . $this->getSetting('FOG_PROXY_PORT');
-		}
-		$userAgent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.6.12) Gecko/20110319 Firefox/4.0.1 ( .NET CLR 3.5.30729; .NET4.0E)';
-		$timeout = 10;
-		$maxRedirects = 20;
-		$contextOptions = array(
-					'ssl'	=> array(
-							'allow_self_signed' => true
-							),
-					'http'	=> array(
-							'method' 	=> 'GET',
-							'user_agent' 	=> $userAgent,
-							'timeout' 	=> $timeout,
-							'max_redirects'	=> $maxRedirects,
-							'header' 	=> array(
-										'Accept-language: en',
-										'Pragma: no-cache'
-									)
-							)
-					);
-		// Proxy
-		if ($Proxy)
-		{
-			$contextOptions['http']['proxy'] = 'tcp://' . $Proxy;
-			$contextOptions['http']['request_fulluri'] = true;
-			if ($this->getSetting('FOG_PROXY_USERNAME'))
-			{
-				$auth = base64_encode($this->getSetting('FOG_PROXY_USERNAME').':'.$this->getSetting('FOG_PROXY_PASSWORD'));
-				$contextOptions['http']['header'] = "Proxy-Authorization:Basic $auth";
-			}
-		}
-
-		// Get data
-		$fp = @fopen($URL,'rb',false,stream_context_create($contextOptions));
-		if (!$fp)
-			return false;
-		@stream_set_blocking($fp,0);
-		$data = @stream_get_contents($fp);
-		@fclose($fp);
-		return $data;
+		return $this->getClass('FOGURLRequests')->process($URL);
 	}
 
 	/** resolveHostname($host)
