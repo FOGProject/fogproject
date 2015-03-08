@@ -23,18 +23,20 @@ class FOGURLRequests extends FOGBase
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_SSL_VERIFYPEER => false,
 			CURLOPT_CONNECTTIMEOUT_MS => 10000,
-			$ProxyUsed ? CURLOPT_PROXYAUTH : null => $ProxyUsed ? CURLAUTH_BASIC : null,
-			$ProxyUsed ? CURLOPT_PROXYPORT : null => $ProxyUsed ? $this->FOGCore->getSetting('FOG_PROXY_PORT') : null,
-			$ProxyUsed ? CUROPT_PROXYTYPE : null => $ProxyUsed ? CURLPROXY_HTTP : null,
 			CURLOPT_TIMEOUT_MS => 10000,
-
-			CUROPT_ENCODING => '',
-			$ProxyUsed ? CURLOPT_PROXY : null => $ProxyUsed ? $this->FOGCore->getSetting('FOG_PROXY_IP') : null,
-			CUROPT_USERAGENT => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.6.12) Gecko/20110319 Firefox/4.0.1 ( .NET CLR 3.5.30729; .NET4.0E)',
+			CURLOPT_ENCODING => '',
+			CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.6.12) Gecko/20110319 Firefox/4.0.1 ( .NET CLR 3.5.30729; .NET4.0E)',
 			CURLOPT_MAXREDIRS => 20,
-			$ProxyUsed && $username ? CURL_PROXYUSERPWD : null => $ProxyUsed && $username ? $username.':'.$password : null,
 		);
-		$this->array_filter_recursive($this->contextOptions,true);
+		if ($ProxyUsed)
+		{
+			$this->contextOptions[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
+			$this->contextOptions[CURLOPT_PROXYPORT] = $this->FOGCore->getSetting('FOG_PROXY_PORT');
+			$this->contextOptions[CURLOPT_PROXYTYPE] = CURLPROXY_HTTP;
+			$this->contextOptions[CURLOPT_PROXY] = $this->FOGCore->getSetting('FOG_PROXY_IP');
+			if ($username)
+				$this->contextOptions[CURLOPT_PROXYUSERPWD] = $username.':'.$password;
+		}
 	}
 	public function process($urls, $callback = false)
 	{
