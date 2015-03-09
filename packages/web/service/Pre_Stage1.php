@@ -83,6 +83,7 @@ try
 	}
 	// All tests passed! Almost there!
 	$Task->set('stateID', '3');
+	$EventManager->notify('HOST_IMAGE_START', array(HostName=>$Host->get('name')));
 	// Update Task State ID -> Update Storage Node ID -> Save
 	if (!$Task->save())
 		throw new Exception(_('Failed to update Task'));
