@@ -30,7 +30,6 @@ try
 		throw new Exception('Failed to update task.');
 	}
 	$EventManager->notify('HOST_IMAGE_COMPLETE', array(HostName=>$Host->get('name')));
-
 	////============================== Email Notification Start ==============================
 	if ($FOGCore->getSetting('FOG_EMAIL_ACTION'))
 	{
