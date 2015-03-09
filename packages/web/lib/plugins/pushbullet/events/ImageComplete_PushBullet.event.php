@@ -25,5 +25,5 @@ class ImageComplete_PushBullet extends Event {
 
 	}
 }
-
 $EventManager->register('HOST_IMAGE_COMPLETE', new ImageComplete_PushBullet());
+$EventManager->register('HOST_IMAGEUP_COMPLETE', new ImageComplete_PushBullet());

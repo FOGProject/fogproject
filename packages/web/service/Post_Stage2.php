@@ -66,6 +66,7 @@ try
 	$Task->set('stateID','4')->set('pct','100')->set('percent','100');
 	if (!$Task->save())
 		throw new Exception(_('Failed to update Task'));
+	$EventManager->notify('HOST_IMAGEUP_COMPLETE', array(HostName=>$Host->get('name')));
 	// Log it
 	$ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
 	foreach($ImagingLogs AS $ImagingLog)
