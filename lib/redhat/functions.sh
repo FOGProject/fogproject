@@ -592,6 +592,9 @@ installPackages()
 	fi
 	if [ -d "/etc/yum.repos.d/" -a ! -f "/etc/yum.repos.d/remi.repo" ]; then
 		echo -n "  * Copying needed repo...";
+		if [ "$linuxReleaseName" == "CentOS" ]; then
+			yum -y install epel-release &> /dev/null;
+		fi
 		rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-$RHVER.rpm &> /dev/null;
 		rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi &> /dev/null
 		echo "OK";
