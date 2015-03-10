@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/i386 3.19.0 Kernel Configuration
+# Linux/i386 3.19.1 Kernel Configuration
 #
 # CONFIG_64BIT is not set
 CONFIG_X86_32=y
@@ -1171,7 +1171,7 @@ CONFIG_B44=y
 CONFIG_B44_PCI_AUTOSELECT=y
 CONFIG_B44_PCICORE_AUTOSELECT=y
 CONFIG_B44_PCI=y
-# CONFIG_BCMGENET is not set
+CONFIG_BCMGENET=y
 CONFIG_BNX2=y
 CONFIG_CNIC=y
 CONFIG_TIGON3=y
