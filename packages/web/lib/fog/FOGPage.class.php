@@ -61,7 +61,7 @@ abstract class FOGPage extends FOGBase
 		// Methods
 		$this->post = $this->FOGCore->isPOSTRequest();
 		$this->ajax = $this->FOGCore->isAJAXRequest();
-		$this->childClass = preg_replace('#_?ManagementPage%#', '', get_class($this));
+		$this->childClass = preg_replace('#ManagementPage#', '', preg_replace('#Mobile#','',get_class($this)));
 		// Default form target
 		$this->formAction = sprintf('%s?%s', $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
 		// Hook in to allow search pages to be adjusted as needed.
@@ -89,25 +89,22 @@ abstract class FOGPage extends FOGBase
 	}
 	public function render()
 	{
-		ob_implicit_flush(true);
-		foreach($this->process() AS $result)
-			print $result;
+		print $this->process();
 	}
 	public function process()
 	{
-		unset($result);
 		try
 		{
 			// Error checking
 			if (!count($this->templates))
 				throw new Exception('Requires templates to process');
 			// Variables
-			$result = array();
+			$result = '';
 			// Is AJAX Request?
 			if ($this->FOGCore->isAJAXRequest())
 			{
 				// JSON output
-				$result[] = @json_encode(array(
+				$result .= @json_encode(array(
 					'data'		=> $this->data,
 					'templates'	=> $this->templates,
 					'headerData' => $this->headerData,
@@ -120,8 +117,7 @@ abstract class FOGPage extends FOGBase
 				// HTML output
 				if ($this->searchFormURL)
 				{
-					$result[] = sprintf('%s<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" '.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'name="host-search"' : '').'/> <input id="%s-search-submit" class="search-submit" type="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'submit' : 'button').'" value="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? $this->foglang['Search'] : '').'" /></form>'."\n",
-						"\t\t\t\t",
+					$result .= sprintf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" '.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'name="host-search"' : '').'/> <input id="%s-search-submit" class="search-submit" type="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'submit' : 'button').'" value="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? $this->foglang['Search'] : '').'" /></form>'."\n",
 						$this->searchFormURL,
 						(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),	// TODO: Store this in class as variable
 						sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), $this->foglang['Search']),
@@ -129,15 +125,10 @@ abstract class FOGPage extends FOGBase
 					);
 				}
 				// Table -> Header Row
-				$result[] = sprintf('%s<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s">%s<thead>%s<tr class="header">%s</tr>%s</thead>%s<tbody>',
-					"\n\t\t\t\t\t",
+				$result .= sprintf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s"><thead><tr class="header">%s</tr></thead><tbody>',
 					'100%',
 					($this->searchFormURL ? 'search-content' : 'active-tasks'),
-					"\n\t\t\t\t\t\t",
-					"\n\t\t\t\t\t\t\t",
-					$this->buildHeaderRow(),
-					"\n\t\t\t\t\t\t",
-					"\n\t\t\t\t\t\t"
+					$this->buildHeaderRow()
 				);
 				// Rows
 				if (count($this->data))
@@ -146,8 +137,7 @@ abstract class FOGPage extends FOGBase
 					// Data found
 					foreach ($this->data AS $rowData)
 					{
-						$result[] = sprintf('%s<tr id="%s-%s" class="%s">%s</tr>',
-							"\t\t\t\t\t\t\t",
+						$result .= sprintf('<tr id="%s-%s" class="%s">%s</tr>',
 							(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
 							$rowData['id'],
 							(++$i % 2 ? 'alt1' : ((!$_REQUEST['sub'] && $defaultScreen == 'list') || in_array($_REQUEST['sub'],array('list','search')) ? 'alt2' : '')),
@@ -161,14 +151,21 @@ abstract class FOGPage extends FOGBase
 				else
 				{
 					// No data found
-					$result[] = sprintf('<tr><td colspan="%s" class="no-active-tasks">%s</td></tr>',
+					$result .= sprintf('<tr><td colspan="%s" class="no-active-tasks">%s</td></tr>',
 						count($this->templates),
 						($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : $this->foglang['NoResults'])
 					);
 				}
 				// Table close
-				$result[] = sprintf('%s</tbody>%s</table>%s', "\t\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t");
+				$result .= '</tbody></table>';
+				if (in_array($_REQUEST['node'],$this->searchPages) && (in_array($_REQUEST['sub'],array('list','search')) || !$_REQUEST['sub']) && !preg_match('#mobile#',$_SERVER['PHP_SELF']))
+				{
+					if ($this->childClass == 'Host')
+						$result .= '<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>';
+					$result .= '<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value=""autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>';
+				}
 			}
+			
 			// Return output
 			return $result;
 		}
@@ -188,7 +185,7 @@ abstract class FOGPage extends FOGBase
 				foreach ((array)$this->attributes[$i] as $attributeName => $attributeValue)
 					$attributes[] = sprintf('%s="%s"', $attributeName, $attributeValue);
 				// Push into results array
-				$result[] = sprintf(
+				$result .= sprintf(
 					'<%s%s>%s</%s>',	
 					$this->wrapper,
 					(count($attributes) ? ' ' . implode(' ', $attributes) : ''),
@@ -199,7 +196,7 @@ abstract class FOGPage extends FOGBase
 				unset($attributes);
 			}
 			// Return result
-			return "\n\t\t\t\t\t" . implode("\n\t\t\t\t\t", $result) . "\n\t\t\t\t";
+			return $result;
 		}
 	}
 	public function buildRow($data)
@@ -220,7 +217,7 @@ abstract class FOGPage extends FOGBase
 			foreach ((array)$this->attributes[$i] as $attributeName => $attributeValue)
 				$attributes[] = sprintf('%s="%s"',$attributeName,preg_replace($dataFind,$dataReplace,$attributeValue));
 			// Replace variables in template with data -> wrap in $this->wrapper -> push into $result
-			$result[] = sprintf(
+			$result .= sprintf(
 				'<%s%s>%s</%s>',
 				$this->wrapper,
 				(count($attributes) ? ' ' . implode(' ', $attributes) : ''),
@@ -229,7 +226,7 @@ abstract class FOGPage extends FOGBase
 			);
 		}
 		// Return result
-		return "\n\t\t\t\t\t\t\t\t" . implode("\n\t\t\t\t\t\t\t\t", $result) . "\n\t\t\t\t\t\t\t";
+		return $result;
 	}
 
 	public function deploy()
