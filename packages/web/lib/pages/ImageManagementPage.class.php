@@ -186,7 +186,7 @@ class ImageManagementPage extends FOGPage
 				'image_file' => $_REQUEST['file'],
 				'image_types' => $this->getClass('ImageTypeManager')->buildSelectBox($_REQUEST['imagetype'],'','id'),
 				'image_partition_types' => $this->getClass('ImagePartitionTypeManager')->buildSelectBox($_REQUEST['imagepartitiontype'],'','id'),
-				'image_comp' => isset($_REQUEST['compress']) ? $_REQUEST['compress'] : $this->FOGCore->getSetting('FOG_PIGZ_COMP'),
+				'image_comp' => isset($_REQUEST['compress']) ? intval($_REQUEST['compress']) : $this->FOGCore->getSetting('FOG_PIGZ_COMP'),
 			);
 		}
 		// Hook
@@ -312,7 +312,7 @@ class ImageManagementPage extends FOGPage
 				'is_legacy' => $Image->get('format') == 1 ? 'selected="selected"' : '',
 				'is_modern' => $Image->get('format') == 0 ? 'selected="selected"' : '',
 				'image_protected' => $Image->get('protected') == 1 ? 'checked' : '',
-				'image_comp' => $Image->get('compress') ? $Image->get('compress') : $this->FOGCore->getSetting('FOG_PIGZ_COMP'),
+				'image_comp' => is_numeric($Image->get('compress')) && $Image->get('compress') > -1 ? $Image->get('compress') : $this->FOGCore->getSetting('FOG_PIGZ_COMP'),
 			);
 		}
 		// Hook
