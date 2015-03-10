@@ -131,7 +131,15 @@ abstract class FOGPage extends FOGBase
 					$this->buildHeaderRow()
 				);
 				// Rows
-				if (count($this->data))
+				if (!count($this->data))
+				{
+					// No data found
+					$result .= sprintf('<tr><td colspan="%s" class="no-active-tasks">%s</td></tr>',
+						count($this->templates),
+						($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : $this->foglang['NoResults'])
+					);
+				}
+				else
 				{
 					$defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
 					// Data found
@@ -147,14 +155,6 @@ abstract class FOGPage extends FOGBase
 					// Set message
 					if (!$this->searchFormURL && in_array($_REQUEST['sub'],array('search','list')))
 						$this->FOGCore->setMessage(sprintf('%s %s%s found', count($this->data), ucwords($this->node), (count($this->data) == 1 ? '' : (substr($this->node, -1) == 's' ? '' : 's'))));
-				}
-				else
-				{
-					// No data found
-					$result .= sprintf('<tr><td colspan="%s" class="no-active-tasks">%s</td></tr>',
-						count($this->templates),
-						($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : $this->foglang['NoResults'])
-					);
 				}
 				// Table close
 				$result .= '</tbody></table>';
