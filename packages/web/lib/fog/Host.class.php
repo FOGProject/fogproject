@@ -50,7 +50,6 @@ class Host extends FOGController
 		'inv',
 		'task',
 		'snapinjob',
-		'snapjob',
 		'users',
 		'fingerprint',
 	);
@@ -64,7 +63,6 @@ class Host extends FOGController
 		'MACAddressAssociation' => array('hostID','id','primac',array('primary' => 1)),
 		'Image' => array('id','imageID','image'),
 		'Inventory' => array('hostID','id','inv'),
-		'SnapinJob' => array('hostID','id','snapjob'),
 	);
 	// Custom functons
 	public function isHostnameSafe()
@@ -160,7 +158,7 @@ class Host extends FOGController
 	private function loadSnapinJob()
 	{
 		if (!$this->isLoaded('snapinjob') && $this->get('id'))
-			$this->set('snapinjob',$this->get('snapjob'));
+			$this->set('snapinjob',current($this->getClass('SnapinJobManager')->find(array('stateID' => array(-1,0,1),'hostID' => $this->get('id')))));
 		return $this;
 	}
 	private function loadPrimary()
