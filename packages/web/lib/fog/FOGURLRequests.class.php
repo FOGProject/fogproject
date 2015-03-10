@@ -19,7 +19,6 @@ class FOGURLRequests extends FOGBase
 		$this->handle = curl_multi_init();
 		$this->contextOptions = array(
 			CURLOPT_HTTPGET => true,
-			CURLOPT_HTTPPROXYTUNNEL => $ProxyUsed,
 			CURLOPT_FOLLOWLOCATION => true,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_SSL_VERIFYPEER => false,
@@ -34,7 +33,6 @@ class FOGURLRequests extends FOGBase
 		{
 			$this->contextOptions[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
 			$this->contextOptions[CURLOPT_PROXYPORT] = $this->FOGCore->getSetting('FOG_PROXY_PORT');
-			$this->contextOptions[CURLOPT_PROXYTYPE] = CURLPROXY_HTTP;
 			$this->contextOptions[CURLOPT_PROXY] = $this->FOGCore->getSetting('FOG_PROXY_IP');
 			if ($username)
 				$this->contextOptions[CURLOPT_PROXYUSERPWD] = $username.':'.$password;
