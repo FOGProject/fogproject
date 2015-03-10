@@ -846,32 +846,6 @@ class ImageManagementPage extends FOGPage
 			$this->FOGCore->redirect('?node='.$this->node.'&sub=multicast');
 		}
 	}
-	// Overrides
-	/** render()
-		Overrides the FOGCore render method.
-		Prints the group box data below the host list/search information.
-	*/
-	public function render()
-	{
-		// Render
-		parent::render();
-
-		// Add action-box
-		if ((!$_REQUEST['sub'] || in_array($_REQUEST['sub'],array('list','search'))) && !$this->FOGCore->isAJAXRequest() && !$this->FOGCore->isPOSTRequest())
-		{
-			$this->additional = array(
-				"\n\t\t\t".'<div class="c" id="action-boxdel">',
-				"\n\t\t\t<p>"._('Delete all selected items').'</p>',
-				"\n\t\t\t\t".'<form method="post" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'">',
-				"\n\t\t\t".'<input type="hidden" name="imageIDArray" value="" autocomplete="off" />',
-				"\n\t\t\t\t\t".'<input type="submit" value="'._('Delete all selected images').'?"/>',
-				"\n\t\t\t\t</form>",
-				"\n\t\t\t</div>",
-			);
-		}
-		if ($this->additional)
-			print implode("\n\t\t\t",(array)$this->additional);
-	}
 	public function deletemulti()
 	{
 		$this->title = _('Images to remove');
