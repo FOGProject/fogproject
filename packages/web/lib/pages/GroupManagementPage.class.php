@@ -325,16 +325,12 @@ class GroupManagementPage extends FOGPage
 			}
 		}
 		$GroupDataExists = false;
+		$groupAdd = '';
 		if (count($this->data) > 0)
 		{
 			$GroupDataExists = true;
 			$this->HookManager->processEvent('GROUP_HOST_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-			$groupAdd[] = "\n\t\t\t<center>".'<label for="hostMeShow">'._('Check here to see hosts not in this group').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label>';
-			$groupAdd[] = "\n\t\t\t".'<div id="hostNotInMe">';
-			$groupAdd[] = "\n\t\t\t".'<h2>'._('Modify Membership for').' '.$Group->get('name').'</h2>';
-			$groupAdd[] = "\n\t\t\t".'<p>'._('Add hosts to group').' '.$Group->get('name').'</p>';
-			$groupAdd[] = implode("\n",$this->process());
-			$groupAdd[] = "</div></center>";
+			$groupAdd .= "<center>".'<label for="hostMeShow">'._('Check here to see hosts not in this group').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label><div id="hostNotInMe"><h2>'._('Modify Membership for').' '.$Group->get('name').'</h2><p>'._('Add hosts to group').' '.$Group->get('name').'</p>'.$this->process()."</div></center>";
 		}
 		// Reset the data for the next value
 		unset($this->data);
@@ -346,14 +342,11 @@ class GroupManagementPage extends FOGPage
 			_('Image'),
 		);
 		if ($GroupDataExists)
-		{
-			$groupAdd[] = '<br/><center><input type="submit" value="'._('Add Host(s) to Group').'" name="addHosts"/>';
-			$groupAdd[] = "\n\t\t\t</center><br/>";
-		}
+			$groupAdd .= '<br/><center><input type="submit" value="'._('Add Host(s) to Group').'" name="addHosts"/></center><br/>';
 		if ($groupAdd)
 		{
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
-			print implode($groupAdd);
+			print $groupAdd;
 			print '</form>';
 		}
 		unset($this->data);
