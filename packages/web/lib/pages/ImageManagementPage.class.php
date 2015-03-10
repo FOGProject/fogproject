@@ -88,6 +88,7 @@ class ImageManagementPage extends FOGPage
 		foreach ((array)$Images AS $Image)
 		{
 			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
+			$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
 			if ($StorageNode && $StorageNode->isValid() && $SizeServer)
 				$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
 			$this->data[] = array(
@@ -121,6 +122,7 @@ class ImageManagementPage extends FOGPage
 		foreach ($this->getClass('ImageManager')->search() AS $Image)
 		{
 			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
+			$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
 			if ($StorageNode && $StorageNode->isValid() && $SizeServer)
 				$servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
 			$this->data[] = array(
