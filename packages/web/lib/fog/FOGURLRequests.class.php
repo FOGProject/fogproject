@@ -9,7 +9,7 @@ class FOGURLRequests extends FOGBase
 		if ($this->DB && $this->FOGCore->getSetting('FOG_PROXY_IP'))
 		{
 			foreach($this->getClass('StorageNodeManager')->find() AS $StorageNode)
-				$IPs[] = $this->resolveHostname($StorageNode->get('ip'));
+				$IPs[] = $this->FOGCore->resolveHostname($StorageNode->get('ip'));
 			$IPs = array_filter(array_unique($IPs));
 			if (!preg_match('#('.implode('|',$IPs).')#i',$URL))
 				$ProxyUsed = true;
