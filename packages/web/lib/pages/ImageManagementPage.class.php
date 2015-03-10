@@ -369,16 +369,12 @@ class ImageManagementPage extends FOGPage
 			}
 		}
 		$ImageDataExists = false;
+		$imageAdd = '';
 		if (count($this->data) > 0)
 		{
 			$ImageDataExists = true;
 			$this->HookManager->processEvent('IMAGE_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-			$imageAdd[] = "\n\t\t\t<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label>';
-			$imageAdd[] = "\n\t\t\t".'<div id="hostNotInMe">';
-			$imageAdd[] = "\n\t\t\t".'<h2>'._('Modify image association for').' '.$Image->get('name').'</h2>';
-			$imageAdd[] = "\n\t\t\t".'<p>'._('Add hosts to image').' '.$Image->get('name').'</p>';
-			$imageAdd[] = implode("\n",$this->process());
-			$imageAdd[] = "\n\t\t\t</div></center>";
+			$imageAdd .= "<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label><div id="hostNotInMe"><h2>'._('Modify image association for').' '.$Image->get('name').'</h2><p>'._('Add hosts to image').' '.$Image->get('name').'</p>'.$this->process().'</div></center>';
 		}
 		// Reset the data for the next value
 		unset($this->data);
@@ -410,22 +406,14 @@ class ImageManagementPage extends FOGPage
 		{
 			$ImageDataExists = true;
 			$this->HookManager->processEvent('IMAGE_HOST_NOT_WITH_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-			$imageAdd[] = "\n\t\t\t<center>".'<label for="hostNoShow">'._('Check here to see hosts not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" /></label>';
-			$imageAdd[] = "\n\t\t\t".'<div id="hostNoImage">';
-			$imageAdd[] = "\n\t\t\t".'<p>'._('Hosts below have no image association').'</p>';
-			$imageAdd[] = "\n\t\t\t".'<p>'._('Assign hosts with image').' '.$Image->get('name').'</p>';
-			$imageAdd[] = implode("\n",$this->process());
-			$imageAdd[] = "\n\t\t\t</div></center>";
+			$imageAdd .= "\n\t\t\t<center>".'<label for="hostNoShow">'._('Check here to see hosts not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" /></label><div id="hostNoImage"><p>'._('Hosts below have no image association').'</p><p>'._('Assign hosts with image').' '.$Image->get('name').'</p>'.$this->process()."</div></center>";
 		}
 		if ($ImageDataExists)
-		{
-			$imageAdd[] = '</br><center><input type="submit" value="'._('Add Image to Host(s)').'" />';
-			$imageAdd[] = "\n\t\t\t</center><br/>";
-		}
+			$imageAdd .= '</br><center><input type="submit" value="'._('Add Image to Host(s)').'" /></center></br>';
 		if ($imageAdd)
 		{
-			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-host">';
-			print implode($imageAdd);
+			print '<form method="post" action="'.$this->formAction.'&tab=image-host">';
+			print $imageAdd;
 			print "</form>";
 		}
 		unset($this->data);

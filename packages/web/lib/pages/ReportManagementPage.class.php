@@ -242,7 +242,7 @@ class ReportManagementPage extends FOGPage
 			}
 		}
 		// This is for the pdf.
-		$ReportMaker->appendHTML(implode("\n",$this->process()));
+		$ReportMaker->appendHTML($this->process());
 		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
@@ -320,7 +320,7 @@ class ReportManagementPage extends FOGPage
 			$ReportMaker->endCSVLine();
 		}
 		// This is for the pdf.
-		$ReportMaker->appendHTML(implode("\n",$this->process()));
+		$ReportMaker->appendHTML($this->process());
 		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
@@ -450,7 +450,7 @@ class ReportManagementPage extends FOGPage
 			}
 		}
 		// This is for the pdf.
-		$ReportMaker->appendHTML(implode("\n",$this->process()));
+		$ReportMaker->appendHTML($this->process());
 		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
@@ -531,7 +531,7 @@ class ReportManagementPage extends FOGPage
 			}
 		}
 		// This is for the pdf.
-		$ReportMaker->appendHTML(implode("\n",$this->process()));
+		$ReportMaker->appendHTML($this->process());
 		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
@@ -609,7 +609,7 @@ class ReportManagementPage extends FOGPage
 			$ReportMaker->endCSVLine();
 		}
 		// This is for the pdf.
-		$ReportMaker->appendHTML(implode("\n",$this->process()));
+		$ReportMaker->appendHTML($this->process());
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 		$ReportMaker->outputReport(0);
 		print '</form>';
@@ -931,7 +931,7 @@ class ReportManagementPage extends FOGPage
 			$ReportMaker->endCSVLine();
 		}
 		// This is for the pdf.
-		$ReportMaker->appendHTML(implode("\n",$this->process()));
+		$ReportMaker->appendHTML($this->process());
 		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
@@ -1117,7 +1117,7 @@ class ReportManagementPage extends FOGPage
 			$ReportMaker->endCSVLine();
 		}
 		// This is for the pdf.
-		$ReportMaker->appendHTML(implode("\n",$this->process()));
+		$ReportMaker->appendHTML($this->process());
 		$ReportMaker->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
