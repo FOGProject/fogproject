@@ -20,7 +20,7 @@ class MACAddressAssociation extends FOGController
 	// Custom
 	public function getHost()
 	{
-		return new Host( $this->get('hostID') );
+		return new Host($this->get('hostID'));
 	}
 	public function getMACAddress()
 	{
