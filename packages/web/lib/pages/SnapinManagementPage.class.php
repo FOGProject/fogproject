@@ -273,7 +273,6 @@ class SnapinManagementPage extends FOGPage
 			'${input}',
 		);
 		// See's what files are available and sorts them.
-		$dots = array('.','..');
 		if ($Snapin->get('storageGroups'))
 		{
 			foreach((array)$Snapin->get('storageGroups') AS $StorageGroup)
@@ -285,7 +284,7 @@ class SnapinManagementPage extends FOGPage
 								 ->set('username',$StorageNode->get('user'))
 								 ->set('password',$StorageNode->get('pass'))
 								 ->connect();
-					$filelist[] = (array)$this->FOGFTP->nlist($StorageNode->get('snapinpath'));
+					$filelist[] = $this->FOGFTP->nlist($StorageNode->get('snapinpath'));
 				}
 			}
 			$filelist = array_unique((array)$filelist);
@@ -295,6 +294,8 @@ class SnapinManagementPage extends FOGPage
 					$files[] = basename($item);
 			}
 			unset($filelist);
+			$filelist = $files;
+			$this->FOGFTP->close();
 		}
 		else
 		{
@@ -305,8 +306,8 @@ class SnapinManagementPage extends FOGPage
 				if (!is_dir(rtrim($_SESSION['FOG_SNAPINDIR'],'/').'/'.$file))
 					$filelist[] = $file;
 			}
-			sort($filelist);
 		}
+		sort($filelist);
 		foreach((array)$filelist AS $file)
 			$filesFound .= '<option value="'.basename($file).'" '.(basename($file) == basename($Snapin->get('file')) ? 'selected="selected"' : '').'>'. basename($file) .'</option>';
 		// Fields to work from:
