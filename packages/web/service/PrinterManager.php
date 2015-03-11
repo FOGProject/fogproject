@@ -10,8 +10,8 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host || !$Host->isValid() || $Host->get('pending'))
 		throw new Exception('#ih');
-	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-		throw new Exception('#ihc');
+	//if ($_REQUEST['newService'] && !$Host->get('pub_key'))
+	//	throw new Exception('#ihc');
 	// get and eval level
 	// ???? three separate levels of enabling/disabling ????
 	$level = $Host->get('printerLevel');

@@ -10,8 +10,8 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host || !$Host->isValid() || $Host->get('pending'))
 		throw new Exception('#!ih');
-	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-		throw new Exception('#!ihc');
+	//if ($_REQUEST['newService'] && !$Host->get('pub_key'))
+	//	throw new Exception('#!ihc');
 	// Get the global values.
 	$HostDisplay = current($FOGCore->getClass('HostScreenSettingsManager')->find(array('hostID' => $Host->get('id'))));
 	// If hostdisplay is set, use those values, other wise, use the globally set values.

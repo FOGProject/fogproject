@@ -10,8 +10,8 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host || !$Host->isValid() || $Host->get('pending') || !HostManager::isHostnameSafe($Host->get('name')))
 		throw new Exception('#!ih');
-	if ($_REQUEST['newService'] && $Host->get('pub_key'))
-		throw new Exception('#!ihc');
+	//if ($_REQUEST['newService'] && $Host->get('pub_key'))
+	//	throw new Exception('#!ihc');
 	if ($Host->get('ADPass') && $_REQUEST['newService'] && $FOGCore->getSetting('FOG_NEW_CLIENT'))
 	{
 		$encdat = substr($Host->get('ADPass'),0,-32);

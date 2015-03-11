@@ -10,8 +10,8 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host || !$Host->isValid() || $Host->get('pending'))
 		throw new Exception('#!ih');
-	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-		throw new Exception('#!ihc');
+//	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
+//		throw new Exception('#!ihc');
 	// Poll the manager to see if it's set per host.
 	$HaloMan = current($FOGCore->getClass('HostAutoLogoutManager')->find(array('hostID' => $Host->get('id'))));
 	// Set the time.  If host is set, use it, if not use global.
