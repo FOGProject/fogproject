@@ -9,6 +9,8 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if (!$Host || !$Host->isValid() || $Host->get('pending'))
 		throw new Exception('#!ih');
+	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
+		throw new Exception('#!ihc');
 	// Only worry about if the Task is queued, in line, or in progress (for reporting reasons).
 	$Task = $Host->get('task');
 	// If the task is Valid and is not of type 12 or 13 report that it's waiting for other tasks.
@@ -26,7 +28,7 @@ try
 		if (strlen($_REQUEST['exitcode']) > 0 && is_numeric($_REQUEST['exitcode']))
 		{
 			// Place the task for records, but outside of recognizable as Complete or Done!
-			$SnapinTask->set('stateID',2)->set('return',$_REQUEST['exitcode'])->set('details',$_REQUEST['exitdesc'])->set('complete',$FOGCore->nice_date()->format('Y-m-d H:i:s'));
+			$SnapinTask->set('stateID','2')->set('return',$_REQUEST['exitcode'])->set('details',$_REQUEST['exitdesc'])->set('complete',$FOGCore->nice_date()->format('Y-m-d H:i:s'));
 			if ($SnapinTask->save()) print "#!ok";
 			// If that was the last task, delete the job.
 			if ($FOGCore->getClass('SnapinTaskManager')->count(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id'))) < 1)
@@ -61,7 +63,10 @@ try
 			}
 		}
 	}
-	print $Datatosend;
+//	if ($_REQUEST['newService'])
+//		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
+//	else
+		print $Datatosend;
 }
 catch(Exception $e)
 {
