@@ -32,11 +32,6 @@ try
 				$Datatosend = "#!ok\n#filename=".basename($ClientUpdate->get('name'))."\n#updatefile=".bin2hex($ClientUpdate->get('file'));
 			else
 			{
-				header('X-Content-Type-Options: nosniff');
-				header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
-				header('X-XSS-Protection: 1; mode=block');
-				header('X-Frame-Options: deny');
-				header('Cache-Control: no-cache');
 				header("Cache-control: must-revalidate, post-check=0, pre-check=0");
 				header("Content-Description: File Transfer");
 				header("ContentType: application/octet-stream");
@@ -56,9 +51,9 @@ try
 	}
 	if ($Data)
 		$Datatosend = $FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n".implode("\n",$Data) : implode("\n",$Data);
-	if ($_REQUEST['newService'])
-		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-	else
+//	if ($_REQUEST['newService'])
+//		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
+//	else
 		print $Datatosend;
 }
 catch (Exception $e)
