@@ -10,8 +10,8 @@ try
 	$Host = $HostManager->getHostByMacAddresses($MACs);
 	if(!$Host || !$Host->isValid() || $Host->get('pending'))
 		throw new Exception('#!ih');
-	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-		throw new Exception('#!ihc');
+	//if ($_REQUEST['newService'] && !$Host->get('pub_key'))
+	//	throw new Exception('#!ihc');
 	if (!in_array(strtolower(($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $_REQUEST['action'] : base64_decode($_REQUEST['action']))),array('login','start','logout')))
 		throw new Exception('#!er: Postfix requires an action of login,logout, or start to operate');
 	$user = explode(chr(92),strtolower(($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $_REQUEST['user'] : base64_decode($_REQUEST['user']))));
