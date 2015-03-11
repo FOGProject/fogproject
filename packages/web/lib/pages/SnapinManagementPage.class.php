@@ -113,7 +113,7 @@ class SnapinManagementPage extends FOGPage
 			'${input}',
 		);
 		// See's what files are available and sorts them.
-		$files = array_diff(scandir($this->FOGCore->getSetting('FOG_SNAPINDIR')), array('..', '.'));
+		$files = array_diff(preg_grep('#^([^.])#',scandir($this->FOGCore->getSetting('FOG_SNAPINDIR')), array('..', '.')));
 		sort($files);
 		foreach((array)$files AS $file)
 			$filesFound .= '<option value="'.basename($file).'"'.(basename($_REQUEST['snapinfileexist']) == basename($file) ? 'selected="selected"' : '').'>'.basename($file).'</option>';

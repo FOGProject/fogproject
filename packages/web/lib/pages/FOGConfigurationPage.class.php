@@ -834,6 +834,20 @@ class FOGConfigurationPage extends FOGPage
 				else
 					$Service->set('value',0)->save();
 			}
+			else if ($Service->get('name') == 'FOG_MAX_UPLOADSIZE')
+			{
+				$val = $_REQUEST[$key];
+				if (!is_numeric($val) || $val < 2)
+					$val = 2;
+				$Service->set('value',$val)->save();
+			}
+			else if ($Service->get('name') == 'FOG_POST_MAXSIZE')
+			{
+				$val = $_REQUEST[$key];
+				if ($val < 8 || !is_numeric($val))
+					$val = 8;
+				$Service->set('value',$val)->save();
+			}
 			else
 				$Service->set('value',$_REQUEST[$key])->save();
 		}

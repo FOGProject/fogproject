@@ -39,8 +39,8 @@ try
 	}
 	else if (!$Host || !$Host->isValid() || $Host->get('pending'))
 		throw new Exception('#!ih');
-	if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-		throw new Exception('#!ihc');
+	//if ($_REQUEST['newService'] && !$Host->get('pub_key'))
+	//	throw new Exception('#!ihc');
 	// Check if count is okay.
 	if (count($MACs) > $maxPending + 1)
 		throw new Exception('#!er:Too many MACs');
