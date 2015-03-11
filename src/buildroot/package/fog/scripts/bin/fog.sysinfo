@@ -19,11 +19,7 @@ displayBanner;
 
 #setupDNS ${dns}
 
-mac=`ifconfig | grep HWaddr | head -n1 `;
-mac=`echo $mac | sed -e "s/ //g"`
-maclen=${#mac}
-offset=`expr $maclen - 17`
-mac=${mac:$offset:17}
+mac=`getMACAddresses`
 
 echo 
 echo
