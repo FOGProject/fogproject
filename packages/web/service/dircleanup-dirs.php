@@ -12,8 +12,8 @@ try
 		$Host = $HostManager->getHostByMacAddresses($MACs);
 		if (!$Host || !$Host->isValid() || $Host->get('pending'))
 			throw new Exception('#!ih');
-		if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-			throw new Exception('#!ihc');
+		//if ($_REQUEST['newService'] && !$Host->get('pub_key'))
+		//	throw new Exception('#!ihc');
 	}
 	$index = 0;
 	foreach($FOGCore->getClass('DirCleanerManager')->find() AS $Dir)
