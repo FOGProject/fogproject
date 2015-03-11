@@ -26,7 +26,7 @@ try
 	// Make system wait ten seconds before sending data
 	sleep(10);
 	// Send the information.
-	$Datatosend = $FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\nhostname=".$Host->get('name')."\n" : '#!ok='.$Host->get('name')."\n";
+	$Datatosend = $FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n#hostname=".$Host->get('name')."\n" : '#!ok='.$Host->get('name')."\n";
 	$Datatosend .= '#AD='.$Host->get('useAD')."\n";
 	$Datatosend .= '#ADDom='.($Host->get('useAD') ? $Host->get('ADDomain') : '')."\n";
 	$Datatosend .= '#ADOU='.($Host->get('useAD') ? $Host->get('ADOU') : '')."\n";
