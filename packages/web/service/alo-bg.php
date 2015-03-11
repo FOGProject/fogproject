@@ -12,8 +12,8 @@ try
 		$Host = $HostManager->getHostByMacAddresses($MACs);
 		if (!$Host || !$Host->isValid() || $Host->get('pending'))
 			throw new Exception('#!ih');
-		if (!$Host->get('pub_key'))
-			throw new Exception('#!ihc');
+//		if (!$Host->get('pub_key'))
+//			throw new Exception('#!ihc');
 		$Datatosend = $FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_BGIMAGE');
 	}
 	else

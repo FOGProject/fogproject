@@ -12,8 +12,8 @@ try
 		$Host = $HostManager->getHostByMacAddresses($MACs);
 		if (!$Host || !$Host->isValid() || $Host->get('pending'))
 			throw new Exception('#!ih');
-		if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-			throw new Exception('#!ihc');
+		//if ($_REQUEST['newService'] && !$Host->get('pub_key'))
+		//	throw new Exception('#!ihc');
 		if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'])
 		{
 			$index = 0;
