@@ -12,8 +12,8 @@ try
 		$Host = $HostManager->getHostByMacAddresses($MACs);
 		if (!$Host || !$Host->isValid() || $Host->get('pending'))
 			throw new Exception('#!ih');
-		if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-			throw new Exception('#!ihc');
+		//if ($_REQUEST['newService'] && !$Host->get('pub_key'))
+		//	throw new Exception('#!ihc');
 	}
 	if (!in_array($_REQUEST['action'],array('ask','get','list')))
 		throw new Exception('#!er: Needs action string of ask, get, or list');

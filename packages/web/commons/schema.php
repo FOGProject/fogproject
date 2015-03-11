@@ -1840,3 +1840,10 @@ $this->schema[] = array(
 $this->schema[] = array(
 	"DROP TABLE IF EXISTS `".DATABASE_NAME."`.`hostFingerprintAssoc`,`".DATABASE_NAME."`.`queueAssoc`,`".DATABASE_NAME."`.`nodeJSconfig`",
 );
+// 164
+$this->schema[] = array(
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_MAX_UPLOADSIZE','Default setting is the upload size set in php.ini.','2','General Settings')",
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_POST_MAXSIZE','Default setting is the upload size set in php.ini.','8','General Settings')",
+);
