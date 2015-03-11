@@ -31,6 +31,12 @@ dots()
         fi
     fi
 }
+# Get All Active MAC Addresses
+getMACAddresses()
+{
+	local lomac="00:00:00:00:00:00"
+	echo `cat /sys/class/net/*/address | grep -v $lomac | tr '\n' '|' | sed s/.$//g`;
+}
 # $1 is the drive
 enableWriteCache() 
 {
@@ -335,8 +341,8 @@ writeImage()
 writeImageMultiCast() 
 {
 	mkfifo /tmp/pigz1;
-	#udp-receiver --nokbd --portbase $port --ttl 32 2>/dev/null > /tmp/pigz1 &
-	udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null > /tmp/pigz1 &
+	udp-receiver --nokbd --portbase $port --ttl 32 2>/dev/null > /tmp/pigz1 &
+	#udp-receiver --nokbd --portbase $port --mcast-rdv-address $storageip 2>/dev/null > /tmp/pigz1 &
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
 		gunzip -d -c < /tmp/pigz1 | partimage restore $hd stdin -f3 -b 2>/tmp/status.fog;
