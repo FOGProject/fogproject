@@ -113,9 +113,14 @@ class SnapinManagementPage extends FOGPage
 			'${input}',
 		);
 		// See's what files are available and sorts them.
-		$files = array_diff(preg_grep('#^([^.])#',scandir($this->FOGCore->getSetting('FOG_SNAPINDIR')), array('..', '.')));
-		sort($files);
-		foreach((array)$files AS $file)
+		$files = array_diff(preg_grep('#^([^.])#',scandir($_SESSION['FOG_SNAPINDIR'])), array('..', '.'));
+		foreach($files AS $file)
+		{
+			if (!is_dir(rtrim($_SESSION['FOG_SNAPINDIR'],'/').'/'.$file))
+				$filelist[] = $file;
+		}
+		sort($filelist);
+		foreach((array)$filelist AS $file)
 			$filesFound .= '<option value="'.basename($file).'"'.(basename($_REQUEST['snapinfileexist']) == basename($file) ? 'selected="selected"' : '').'>'.basename($file).'</option>';
 		// Fields to work from:
 		$fields = array(
@@ -173,10 +178,10 @@ class SnapinManagementPage extends FOGPage
 			{
 				if (!$_REQUEST['storagegroup'])
 				{
-					$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
-					if(!is_dir($this->FOGCore->getSetting('FOG_SNAPINDIR')) && !is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
+					$uploadfile = rtrim($_SESSION['FOG_SNAPINDIR'],'/').'/'.basename($_FILES['snapin']['name']);
+					if(!is_dir($_SESSION['FOG_SNAPINDIR']) && !is_writeable($_SESSION['FOG_SNAPINDIR']))
 						throw new Exception('Failed to add snapin, unable to locate snapin directory.');
-					else if (!is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
+					else if (!is_writeable($_SESSION['FOG_SNAPINDIR']))
 						throw new Exception('Failed to add snapin, snapin directory is not writeable.');
 					else if (file_exists($uploadfile))
 						throw new Exception('Failed to add snapin, file already exists.');
@@ -292,11 +297,17 @@ class SnapinManagementPage extends FOGPage
 			unset($filelist);
 		}
 		else
-			$files = array_diff(scandir($this->FOGCore->getSetting('FOG_SNAPINDIR')), $dots);
-		$files = array_unique($files);
-		if ($files && is_array($files))
-			sort($files);
-		foreach((array)$files AS $file)
+		{
+			// See's what files are available and sorts them.
+			$files = array_diff(preg_grep('#^([^.])#',scandir($_SESSION['FOG_SNAPINDIR'])), array('..', '.'));
+			foreach($files AS $file)
+			{
+				if (!is_dir(rtrim($_SESSION['FOG_SNAPINDIR'],'/').'/'.$file))
+					$filelist[] = $file;
+			}
+			sort($filelist);
+		}
+		foreach((array)$filelist AS $file)
 			$filesFound .= '<option value="'.basename($file).'" '.(basename($file) == basename($Snapin->get('file')) ? 'selected="selected"' : '').'>'. basename($file) .'</option>';
 		// Fields to work from:
 		$fields = array(
@@ -668,10 +679,10 @@ class SnapinManagementPage extends FOGPage
 					{
 						if (!$Snapin->getStorageGroup())
 						{
-							$uploadfile = rtrim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/').'/'.basename($_FILES['snapin']['name']);
-							if(!is_dir($this->FOGCore->getSetting('FOG_SNAPINDIR')) && !is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
+							$uploadfile = rtrim($_SESSION['FOG_SNAPINDIR'],'/').'/'.basename($_FILES['snapin']['name']);
+							if(!is_dir($_SESSION['FOG_SNAPINDIR']) && !is_writeable($_SESSION['FOG_SNAPINDIR']))
 								throw new Exception('Failed to add snapin, unable to locate snapin directory.');
-							else if (!is_writeable($this->FOGCore->getSetting('FOG_SNAPINDIR')))
+							else if (!is_writeable($_SESSION['FOG_SNAPINDIR']))
 								throw new Exception('Failed to add snapin, snapin directory is not writeable.');
 							else if (file_exists($uploadfile))
 								throw new Exception('Failed to add snapin, file already exists.');
