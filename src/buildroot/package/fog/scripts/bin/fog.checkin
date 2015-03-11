@@ -92,7 +92,7 @@ if [ "$type" == "up" ]; then
 	fi
 	debugPause;
 elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
-	mac64=`ifconfig | grep HWaddr | head -n1 | base64`;
+	mac64=`getMACAddresses | base64`;
 	dots "Attempting to send inventory";
 	doInventory 2>/dev/null;
 	poststring="mac=${mac64}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}";

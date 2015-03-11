@@ -18,7 +18,7 @@ echo "fog";
 echo "    * This is the main script that";
 echo "      is used to image a computer";
 echo "";
-echo "ifconfig";
+echo "ifconfig or ip addr";
 echo "    * This command will show you the";
 echo "       network interface on this machine.";
 echo "";
