@@ -704,16 +704,14 @@ class Host extends FOGController
 					// Create Snapin Tasking
 					if ($SnapinJob->save())
 					{
-						$this->set('snapinjob',$SnapinJob);
 						// If -1 for the snapinID sent, it needs to set a task for all of the snapins associated to that host.
 						if ($deploySnapins == -1)
 						{
 							foreach ((array)$this->get('snapins') AS $Snapin)
 							{
-								$SnapinTask = current((array)$this->getClass('SnapinTaskManager')->find(array('snapinID' => $Snapin->get('id'), 'stateID' => array(-1,0,1))));
-								if ($SnapinTask && $SnapinTask->isValid())
-									$SnapinJobCheck = $this->get('snapinjob');
-								if (!$SnapinJobCheck || !$SnapinJobCheck->isValid())
+								if ($this->get('snapinjob') && $this->get('snapinjob')->isValid())
+									$ST = current((array)$this->getClass('SnapinTaskManager')->find(array('snapinID' => $Snapin->get('id'), 'stateID' => array(-1,0,1),'jobID' => $this->get('snapinjob')->get('id'))));
+								if (!$ST || !$ST->isValid())
 								{
 									$ST = new SnapinTask(array(
 										'jobID' => $SnapinJob->get('id'),
@@ -723,21 +721,18 @@ class Host extends FOGController
 									$ST->save();
 								}
 								else
-								{
-									$SnapinTask->set('jobID', $SnapinJob->get('id'))
-											   ->set('stateID', 0)
-											   ->set('snapinID', $Snapin->get('id'))
-											   ->save();
-								}
+									$ST->set('jobID',$this->get('snapinjob')->get('id'))
+									   ->set('stateID', 0)
+									   ->set('snapinID', $Snapin->get('id'))
+									   ->save();
 							}
 						}
 						else
 						{
 							$Snapin = new Snapin($deploySnapins);
-							$SnapinTask = current((array)$this->getClass('SnapinTaskManager')->find(array('snapinID' => $Snapin->get('id'), 'stateID' => array(-1,0,1))));
-							if ($SnapinTask && $SnapinTask->isValid())
-								$SnapinJobCheck = $this->get('snapinjob');
-							if (!$SnapinJobCheck || !$SnapinJobCheck->isValid())
+							if ($this->get('snapinjob') && $this->get('snapinjob')->isValid())
+								$ST = current((array)$this->getClass('SnapinTaskManager')->find(array('snapinID' => $Snapin->get('id'), 'stateID' => array(-1,0,1),'jobID' => $this->get('snapinjob')->get('id'))));
+							if (!$ST || !$ST->isValid())
 							{
 								$ST = new SnapinTask(array(
 									'jobID' => $SnapinJob->get('id'),
