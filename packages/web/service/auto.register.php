@@ -6,15 +6,12 @@ try
 	foreach($FOGCore->getClass('ModuleManager')->find() AS $Module)
 		$ids[] = $Module->get('id');
 	$HostManager = new HostManager();
-	$ifconfig = explode('HWaddr',base64_decode($_REQUEST['mac']));
-	$mac = strtolower(trim($ifconfig[1]));
-	// Verify MAC is okay.
-	$MACAddress = new MACAddress($mac);
-	$Host = $HostManager->getHostByMacAddresses($mac);
-	if (!$MACAddress->isValid())
-		throw new Exception($foglang['InvalidMAC']);
+	$MACs = FOGCore::parseMacList(trim(base64_decode($_REQUEST['mac'])));
+	if (!$MACs) throw new Exception($foglang['InvalidMAC']);
+	$Host = $FOGCore->getClass('HostManager')->getHostByMacAddresses($MACs);
+	if (!is_array($MACs)) $MACs = array($MACs);
 	// Set safe and simple mac for hostname if needed.
-	$macsimple = str_replace(':','',$mac);
+	$macsimple = str_replace(':','',$MACs[0]);
 	// Make sure it's a unique name.
 	if($_REQUEST['advanced'] == '1')
 	{
@@ -87,16 +84,10 @@ try
 		if ($Host->save())
 		{
 			$Host->addModule($ids);
-			$Host->addPriMAC($mac);
 			$Host->addGroup($groupid);
-			try
-			{
-				$Host->addSnapin($snapinid);
-			}
-			catch (Exception $e)
-			{
-			}
+			$Host->addSnapin($snapinid);
 			$Host->save();
+			$Host->addPriMAC($MACs[0]);
 			$LocPlugInst = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
 			if ($LocPlugInst)
 			{
@@ -191,9 +182,9 @@ try
 			if ($Host->save())
 			{
 				$Host->addModule($ids);
-				$Host->addPriMAC($mac);
 				$Host->addGroup($groupid);
 				$Host->save();
+				$Host->addPriMAC($MACs[0]);
 				// If the image is valid and get's the member from the host
 				// create the tasking, otherwise just register!.
 				if ($Image->isValid() && $Host->getImageMemberFromHostID())
@@ -223,9 +214,9 @@ try
 				));
 				if ($Host->save())
 				{
-					$Host->addModule($ids);
-					$Host->addPriMAC($mac);
+					$Host->addModule($ids)->save();
 					print _('Done');
+					$Host->addPriMAC($MACs[0]);
 				}
 				else
 					throw new Exception(_('Failed to save new Host!'));

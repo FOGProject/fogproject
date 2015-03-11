@@ -462,7 +462,6 @@ class Host extends FOGController
 					'imageIgnore' => $me->isImageIgnored(),
 				));
 				$NewMAC->save();
-				$this->add('macs',$NewMAC);
 			}
 		}
 		// Modules
@@ -974,14 +973,13 @@ class Host extends FOGController
 			{
 				$NewMAC = new MACAddressAssociation(array(
 					'hostID' => $this->get('id'),
-					'mac' => ($item instanceof MACAddress ? $item->__toString() : $item),
+					'mac' => $item->__toString(),
 					'pending' => $pending,
 					'primary' => $primary,
 					'clientIgnore' => $clientIgnore,
 					'imageIgnore' => $imageIgnore,
 				));
 				$NewMAC->save();
-				$this->add('macs',$NewMAC);
 			}
 		}
 		// Return
@@ -1005,7 +1003,6 @@ class Host extends FOGController
 	public function addPriMAC($MAC)
 	{
 		$this->addAddMAC($MAC,false,true);
-		$this->set('mac',$MAC);
 		return $this;
 	}
 	public function addPendMAC($MAC)

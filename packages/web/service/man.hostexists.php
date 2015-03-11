@@ -2,15 +2,11 @@
 require_once('../commons/base.inc.php');
 try
 {
-	// Get MAC Address from Host.
-	$ifconfig = base64_decode($_REQUEST['mac']);
-	$arIfconfig = explode('HWaddr',$ifconfig);
-	$mac = strtolower(trim($arIfconfig[1]));
-	// Check if MAC Address is valid
-	$MACAddress = new MACAddress($mac);
-	if (!$MACAddress->isvalid()) throw new Exception($foglang['InvalidMAC']);
+	// Get MAC Addresses from Host.
+	$MACs = FOGCore::parseMacList(base64_decode($_REQUEST['mac']));
+	if (!$MACs) throw new Exception($foglang['InvalidMAC']);
 	// Check if host already Exists
-	$Host = $FOGCore->getClass('HostManager')->getHostByMacAddresses($mac);
+	$Host = $FOGCore->getClass('HostManager')->getHostByMacAddresses($MACs);
 	if ($Host)
 	{
 		if ($Host->isValid())

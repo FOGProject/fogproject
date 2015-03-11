@@ -2,17 +2,13 @@
 require_once('../commons/base.inc.php');
 try
 {
-	//Get MAC to get Host from mac address.
-	$ifconfig = explode('HWaddr',base64_decode(trim($_REQUEST['mac'])));
-	$mac = strtolower(trim($ifconfig[1]));
-	$MACs = FOGCore::parseMacList($mac);
-	if (!$MACs)
-		throw new Exception($foglang['InvalidMAC']);
-	// Set the Host variable to find host record for update.
-	// If it doesn't exist, it creates new inventory record.
+	// Get MAC Addresses from Host.
+	$MACs = FOGCore::parseMacList(trim(base64_decode($_REQUEST['mac'])));
+	if (!$MACs) throw new Exception($foglang['InvalidMAC']);
+	// Check if host already Exists
 	$Host = $FOGCore->getClass('HostManager')->getHostByMacAddresses($MACs);
 	if ($Host->isValid())
-		$Inventory = $Host->get('inv');
+		$Inventory = $Host->get('inventory');
 	$sysman=trim(base64_decode($_REQUEST['sysman']));
 	$sysproduct=trim(base64_decode($_REQUEST["sysproduct"]));
 	$sysversion=trim(base64_decode($_REQUEST["sysversion"]));
