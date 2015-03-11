@@ -58,7 +58,7 @@ if [ -n "$hd" ]; then
 	echo " * Using disk device...........................$hd";
 	echo " * Starting host registration...";
 	mac_deployed="$mac";
-	mac=`ifconfig | grep HWaddr | head -n1 | base64`;
+	mac=`getMACAddresses|base64`;
 	echo 
 	echo -n " * Attempting to register host.................";
 	res="";

@@ -66,7 +66,7 @@ if [ -n "$hd" ]; then
 
 	echo " * Starting host registration...";
 	
-	mac=`ifconfig | grep HWaddr | head -n1 | base64`;
+	mac=`getMACAddresses | base64`;
 	
 	exists=`wget -O - --post-data="mac=${mac}" "http://${web}service/man.hostexists.php" 2>/dev/null`
 	
