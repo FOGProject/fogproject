@@ -44,21 +44,21 @@ class FOGURLRequests extends FOGBase
 		{
 			$ch = curl_init($url);
 			curl_setopt_array($ch,$this->contextOptions);
-			$curls[$url] = $ch;
 			curl_multi_add_handle($this->handle,$ch);
 		}
-		do{$mrc = curl_multi_exec($this->handle,$active);}while ($mrc == CURLM_CALL_MULTI_PERFORM);
-		while($active && $mrc == CURLM_OK)
+		do
 		{
-			if (curl_multi_select($this->handle) != -1)
+			$mrc = curl_multi_exec($this->handle,$active);
+			if ($state = curl_multi_info_read($this->handle))
 			{
-				do
-				{
-					$mrc = curl_multi_exec($this->handle,$active);
-				} while ($mrc == CURLM_CALL_MULTI_PERFORM);
+				$info = curl_getinfo($state['handle']);
+				$data[] = curl_multi_getcontent($state['handle']);
+				if ($callback)
+					$callback($data,$info);
+				curl_multi_remove_handle($this->handle,$state['handle']);
 			}
-		}
-		foreach($curls AS $url => $ch){$data[] = curl_multi_getcontent($ch);curl_multi_remove_handle($this->handle,$ch);}
+			usleep(10000); // stop wasting CPU cycles and rest for a couple ms
+		} while ($mrc == CURLM_CALL_MULTI_PERFORM || $active);
 		return $data;
 	}
 	public function __destruct()
