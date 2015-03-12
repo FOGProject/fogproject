@@ -45,7 +45,7 @@ class ImageReplicator extends FOGBase
 				unset($limit);
 				foreach($Images AS $Image)
 				{
-					foreach($Image->get('storageGroups') AS $GroupToSend)
+					foreach((array)$Image->get('storageGroups') AS $GroupToSend)
 					{
 						if ($GroupToSend && $GroupToSend->isValid() && $GroupToSend->get('id') != $StorageNode->get('storageGroupID'))
 						{
