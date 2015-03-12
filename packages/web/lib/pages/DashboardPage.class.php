@@ -128,19 +128,19 @@ class DashboardPage extends FOGPage
 	*/
 	public function bandwidth()
 	{
+		$Nodes = $this->getClass('StorageNodeManager')->find(array('isGraphEnabled' => 1));
 		// Loop each storage node -> grab stats
-		foreach($this->getClass('StorageNodeManager')->find(array('isGraphEnabled' => 1)) AS $StorageNode)
+		foreach($Nodes AS $StorageNode)
+			$URL[] = sprintf('http://%s/%s?dev=%s', $this->FOGCore->resolveHostname($StorageNode->get('ip')), ltrim($this->FOGCore->getSetting("FOG_NFS_BANDWIDTHPATH"), '/'), $StorageNode->get('interface'));
+		$fetchedData = $this->FOGCore->fetchURL($URL);
+		$count = 0;
+		$len = count($fetchedData);
+		for ($i = 0;$i < $len; $i++)
 		{
-			$URL = sprintf('http://%s/%s?dev=%s', $this->FOGCore->resolveHostname($StorageNode->get('ip')), ltrim($this->FOGCore->getSetting("FOG_NFS_BANDWIDTHPATH"), '/'), $StorageNode->get('interface'));
-			// Fetch bandwidth stats from remote server
-			if ($fetchedData = $this->FOGCore->fetchURL($URL))
-			{
-				// Legacy client
-				if (preg_match('/(.*)##(.*)/U', $fetchedData, $match))
-					$data[$StorageNode->get('name')] = array('rx' => $match[1], 'tx' => $match[2]);
-				else
-					$data[$StorageNode->get('name')] = json_decode($fetchedData, true);
-			}
+			if (preg_match('/(.*)##(.*)/U', $fetchedData[$i],$match))
+				$data[$Nodes[$i]->get('name')] = array('rx' => $match[1],'tx' => $match[2]);
+			else
+				$data[$Nodes[$i]->get('name')] = json_decode($fetchedData[$i],true);
 		}
 		print json_encode((array)$data);
 	}
@@ -160,11 +160,11 @@ class DashboardPage extends FOGPage
 				if ($Response = $this->FOGCore->fetchURL($URL))
 				{
 					// Legacy client
-					if (preg_match('#(.*)@(.*)#', $Response, $match))
+					if (preg_match('#(.*)@(.*)#', $Response[0], $match))
 						$Data = array('free' => $match[1], 'used' => $match[2]);
 					else
 					{
-						$Response = json_decode($Response, true);
+						$Response = json_decode($Response[0], true);
 						$Data = array('free' => $Response['free'], 'used' => $Response['used']);
 					}
 				}
