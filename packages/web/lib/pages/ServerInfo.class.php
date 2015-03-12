@@ -46,7 +46,7 @@ class ServerInfo extends FOGPage
 			$URL = sprintf('http://%s%sstatus/hw.php',$this->FOGCore->resolveHostname($StorageNode->get('ip')),$webroot);
             if ($ret = $this->FOGCore->fetchURL($URL))
 			{
-				$arRet = explode( "\n", $ret );
+				$arRet = explode("\n",$ret[0]);
 				$section = 0; //general
 				$arGeneral = array();
 				$arFS = array();

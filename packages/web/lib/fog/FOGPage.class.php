@@ -764,20 +764,15 @@ abstract class FOGPage extends FOGBase
 	}
 	public function loginInfo()
 	{
-		$data = array(
-			'sites' => $this->FOGCore->fetchURL('http://fogproject.org/globalusers/'),
-			'version' => $this->FOGCore->fetchURL('http://fogproject.org/version/version.php'),
-		);
-		if (!$data['sites'])
-		{
-			unset($data['sites']);
+		$data = $this->FOGCore->fetchURL(array('http://fogproject.org/globalusers','http://fogproject.org/version/version.php'));
+		if (!$data[0])
 			$data['error-sites'] = _('Error contacting server');
-		}
-		if (!$data['version'])
-		{
-			unset($data['version']);
-			$data['error-version'] = _('Error Contacting server');
-		}
+		else
+			$data['sites'] = $data[0];
+		if (!$data[1])
+			$data['error-version'] = _('Error contacting server');
+		else
+			$data['version'] = $data[1];
 		print json_encode($data);
 	}
 	public function random()
