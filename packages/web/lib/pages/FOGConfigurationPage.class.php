@@ -854,6 +854,20 @@ class FOGConfigurationPage extends FOGPage
 					$val = 8;
 				$Service->set('value',$val)->save();
 			}
+			else if ($Service->get('name') == 'FOG_INACTIVITY_TIMEOUT')
+			{
+				$val = $_REQUEST[$key];
+				if (!is_numeric($val) || $val <= 0 || $val > 24)
+					$val = 1;
+				$Service->set('value',$val)->save();
+			}
+			else if ($Service->get('name') == 'FOG_REGENERATE_TIMEOUT')
+			{
+				$val = $_REQUEST[$key];
+				if (!is_numeric($val))
+					$val = 0;
+				$Service->set('value',$val)->save();
+			}
 			else
 				$Service->set('value',$_REQUEST[$key])->save();
 		}
