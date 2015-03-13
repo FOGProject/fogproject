@@ -37,7 +37,7 @@ class AddLocationHost extends Hook
 	}
 	public function HostFields($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if ($_REQUEST['node'] == 'host')
 				$arguments['fields'] = $this->array_insert_after(_('Host Image'),$arguments['fields'],_('Host Location'),'${host_locs}');
@@ -45,7 +45,7 @@ class AddLocationHost extends Hook
 	}
 	public function HostDataFields($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if ($_REQUEST['node'] == 'host')
 			{
@@ -65,7 +65,7 @@ class AddLocationHost extends Hook
 	}
 	public function HostAddLocation($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if ($_REQUEST['node'] == 'host')
 			{
@@ -91,7 +91,7 @@ class AddLocationHost extends Hook
 	}
 	public function HostImport($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if ($arguments['data'][5])
 			{
@@ -105,7 +105,7 @@ class AddLocationHost extends Hook
 	}
 	public function HostExport($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			$LA = current((array)$this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id'))));
 			if ($LA && $LA->isValid())
@@ -116,12 +116,12 @@ class AddLocationHost extends Hook
 	}
 	public function HostDestroy($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 			$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $arguments['Host']->get('id')));
 	}
 	public function HostEmailHook($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			$LA = current((array)$this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id'))));
 			if ($LA && $LA->isValid())
