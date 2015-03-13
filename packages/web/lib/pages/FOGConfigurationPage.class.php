@@ -614,6 +614,7 @@ class FOGConfigurationPage extends FOGPage
 	public function settings()
 	{
 		$ServiceNames = array(
+			'FOG_REGISTRATION_ENABLED',
 			'FOG_PXE_MENU_HIDDEN',
 			'FOG_QUICKREG_AUTOPOP',
 			'FOG_SERVICE_AUTOLOGOFF_ENABLED',
