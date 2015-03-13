@@ -11,7 +11,7 @@ class AddPushbulletMenuItem extends Hook
 	var $node = 'pushbullet';
 	public function MenuData($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 			$arguments['main'] = $this->array_insert_after('tasks',$arguments['main'],$this->node,array(_('Pushbullet Management'),'fa fa-bell fa-2x'));
 	}
 }
