@@ -864,11 +864,6 @@ abstract class FOGPage extends FOGBase
 	{
 		try
 		{
-			if ($_REQUEST['get_srv_key'])
-			{
-				$srv_key = file_get_contents(BASEPATH.'/management/other/ssl/srvpublic.key');
-				throw new Exception(base64_encode($srv_key));
-			}
 			$HostMan = new HostManager();
 			$MACs = FOGCore::parseMacList($_REQUEST['mac']);
 			if (!$MACs)
