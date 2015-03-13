@@ -517,8 +517,9 @@ abstract class FOGBase
 			$data = hex2bin($data);
 		else
 			$data = $this->hex2bin($data);
-		$path = '/var/www/fogsslkeypair/';
-		if (!$priv_key = openssl_pkey_get_private(file_get_contents($path.'srvprivate.key')))
+		$path = '/'.trim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/');
+		$path = !$path ? '/opt/fog/snapins/ssl/' : $path.'/';
+		if (!$priv_key = openssl_pkey_get_private(file_get_contents($path.'.srvprivate.key')))
 			throw new Exception('Private Key Failed');
 		$a_key = openssl_pkey_get_details($priv_key);
 		// Decrypt the data in the small chunks
