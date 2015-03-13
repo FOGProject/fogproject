@@ -1847,3 +1847,8 @@ $this->schema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	 values('FOG_POST_MAXSIZE','Default setting is the upload size set in php.ini.','8','General Settings')",
 );
+// 165
+$this->schema[] = array(
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_REGISTRATION_ENABLED','This setting enables the capabilities to allow registration to occur or not.  Default setting is enabled.','1','FOG Boot Settings')",
+);

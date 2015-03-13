@@ -1029,8 +1029,11 @@ class BootMenu extends FOGBase
 				array_push($ArrayOfStuff,($AdvLogin ? 5 : 4));
 			foreach($Menus AS $Menu)
 			{
-				if (in_array($Menu->get('regMenu'),$ArrayOfStuff))
-					$Send['item-'.$Menu->get('name')] = $this->menuItem($Menu, $desc);
+				if (!in_array($Menu->get('name'),array('fog.reg','fog.reginput')) || (in_array($Menu->get('name'),array('fog.reg','fog.reginput')) && $this->FOGCore->getSetting('FOG_REGISTRATION_ENABLED')))
+				{
+					if (in_array($Menu->get('regMenu'),$ArrayOfStuff))
+						$Send['item-'.$Menu->get('name')] = $this->menuItem($Menu, $desc);
+				}
 			}
 			$Send['default'] = array(
 				"$this->defaultChoice",
