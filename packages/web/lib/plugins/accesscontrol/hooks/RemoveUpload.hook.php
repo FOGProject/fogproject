@@ -8,7 +8,7 @@ class RemoveUpload extends Hook
 	var $node = 'accesscontrol';
 	public function UploadData($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if (!in_array($this->FOGUser->get('type'),array(0)))
 			{
