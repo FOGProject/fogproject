@@ -12,7 +12,7 @@ class AddPushbulletSubMenuItems extends Hook
 	
 	public function SubMenuData($arguments)
 	{
-		if ($_SESSION[$this->node])
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
 			if ($_REQUEST['node'] == 'pushbullet')
 			{
