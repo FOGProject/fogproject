@@ -282,7 +282,7 @@ abstract class FOGBase
 			$key = openssl_random_pseudo_bytes($iv_size,$cstrong);
 		$iv = mcrypt_create_iv($iv_size,MCRYPT_DEV_URANDOM);
 		$cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
-		return bin2hex($iv)."|".bin2hex($cipher).'|'.bin2hex($key);
+		return bin2hex($iv)."|".bin2hex($cipher);//.'|'.bin2hex($key);
 		// return $a_key['bits'].'|'.$iv.base64_encode($cipher);
 	}
 	public function aesdecrypt($encdata,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
@@ -616,6 +616,39 @@ abstract class FOGBase
 			}
 		}
 		return -1;
+	}
+	/** getHostItem returns the host or error of host for the service files.
+	  * @param $service if the caller is a service
+	  * @param $encoded if the item is base64 encoded or not.
+	  * @param $hostnotrequired
+	  * @return host item
+	  */
+	public function getHostItem($service = true,$encoded = false,$hostnotrequired = false)
+	{
+		$MACs = self::parseMacList(!$encoded ? $_REQUEST['mac'] : base64_decode($_REQUEST['mac']));
+		if (!$MACs)
+			throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC']);
+		$Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);
+		if (!$hostnotrequired)
+		{
+			if ($service && (!$Host || !$Host->isValid() || $Host->get('pending')))
+				throw new Exception('#!ih');
+			if ($service && $_REQUEST['newService'] && !$Host->get('pub_key'))
+				throw new Exception('#!ihc');
+		}
+		return $Host;
+	}
+	/** sendData prints the return values as needed
+	  * @param $datatosend the data to send out
+	  * @param $service if the caller is a service
+	  * @return void
+	  */
+	public function sendData($datatosend,$service = true)
+	{
+		if ($_REQUEST['newService'] && $this->FOGCore->getSetting('FOG_NEW_CLIENT'))
+			print "#!enkey=".$this->certEncrypt($datatosend,$this->getHostItem());
+		else
+			print $datatosend;
 	}
 }
 /* Local Variables: */
