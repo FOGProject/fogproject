@@ -873,7 +873,7 @@ abstract class FOGPage extends FOGBase
 				throw new Exception('#!ih');
 			if (!$pub_key = $this->certDecrypt($_REQUEST['sym_key']))
 				throw new Exception('#!ihc');
-			$Host->set('pub_key',$pub_key)->save();
+			$Host->set('pub_key',bin2hex($pub_key))->save();
 			if (!$Host->get('pub_key'))
 				throw new Exception('#!ihc');
 			print '#!en='.$this->certEncrypt('#!ok',$Host);
