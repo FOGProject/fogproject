@@ -5,14 +5,12 @@ try
 	$HostManager = new HostManager();
 	if (!$_REQUEST['newService'] && $_REQUEST['version'] != 2)
 		throw new Exception('#!er:Invalid Version Number, please update this module.');
-	$MACs = FOGCore::parseMacList($_REQUEST['mac']);
-	if (!$MACs) throw new Exception('#!im');
 	// The total number of pending macs that can be used.
 	$maxPending = $FOGCore->getSetting('FOG_QUICKREG_MAX_PENDING_MACS');
 	// The ignore list.  Comma Separated.
 	$ignoreList = explode(',', $FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'));
 	// Get the actual host (if it is registered)
-	$Host = $HostManager->getHostByMacAddresses($MACs);
+	$Host = $FOGCore->getHostItem(true,false,true);
 	$HostPend = false;
 	if($_REQUEST['newService'] && (!$Host || !$Host->isValid()) && !$Host->get('pending'))
 	{
@@ -23,7 +21,6 @@ try
 			'name' => $_REQUEST['hostname'],
 			'description' => 'Pending Registration created by FOG_CLIENT',
 			'pending' => 1,
-			'pub_key' => $FOGCore->certDecrypt($_REQUEST['pub_key']),
 		));
 		foreach($FOGCore->getClass('ModuleManager')->find() AS $Module)
 			$ModuleIDs[] = $Module->get('id');
@@ -37,10 +34,6 @@ try
 				$Host->addPriMAC($PriMAC);
 		}
 	}
-	else if (!$Host || !$Host->isValid() || $Host->get('pending'))
-		throw new Exception('#!ih');
-	//if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-	//	throw new Exception('#!ihc');
 	// Check if count is okay.
 	if (count($MACs) > $maxPending + 1)
 		throw new Exception('#!er:Too many MACs');
@@ -80,10 +73,7 @@ try
 		else
 			($HostPend && $mac1[0] == $Host->get('mac') ? $Datatosend.="#!ok\n" : $Datatosend .= "#!ig\n");
 	}
-	if ($_REQUEST['newService'])
-		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-	else
-		print $Datatosend;
+	$FOGCore->sendData($Datatosend);
 }
 catch (Exception $e)
 {

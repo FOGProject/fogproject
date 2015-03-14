@@ -4,16 +4,6 @@ try
 {
 	if ($_REQUEST['newService'])
 	{
-		$HostManager = new HostManager();
-		$MACs = FOGCore::parseMacList($_REQUEST['mac']);
-		if (!$MACs)
-			throw new Exception('#!im');
-		// Get the Host
-		$Host = $HostManager->getHostByMacAddresses($MACs);
-		if (!$Host || !$Host->isValid() || $Host->get('pending'))
-			throw new Exception('#!ih');
-		//if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-		//	throw new Exception('#!ihc');
 		if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'])
 		{
 			$index = 0;
@@ -31,10 +21,7 @@ try
 			$Datatosend .= base64_encode($User->get('name'))."\n";
 		$Datatosend .= "#!end";
 	}
-//	if ($_REQUEST['newService'])
-//		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-//	else
-		print $Datatosend;
+	$FOGCore->sendData($Datatosend);
 }
 catch (Exception $e)
 {

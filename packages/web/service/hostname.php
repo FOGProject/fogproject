@@ -2,16 +2,7 @@
 require_once('../commons/base.inc.php');
 try
 {
-	$HostManager = new HostManager();
-	$MACs = FOGCore::parseMacList($_REQUEST['mac']);
-	if (!$MACs)
-		throw new Exception('#!im');
-	// Get the Host
-	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host || !$Host->isValid() || $Host->get('pending') || !HostManager::isHostnameSafe($Host->get('name')))
-		throw new Exception('#!ih');
-	//if ($_REQUEST['newService'] && $Host->get('pub_key'))
-	//	throw new Exception('#!ihc');
+	$Host = $FOGCore->getHostItem();
 	if ($Host->get('ADPass') && $_REQUEST['newService'] && $FOGCore->getSetting('FOG_NEW_CLIENT'))
 	{
 		$encdat = substr($Host->get('ADPass'),0,-32);
@@ -36,10 +27,7 @@ try
 		$Datatosend .= "\n#Key=".base64_decode($Host->get('productKey'));
 	if ($_REQUEST['newService'] && $FOGCore->getSetting('FOG_NEW_CLIENT'))
 		$FOGCore->setSetting('FOG_AES_ADPASS_ENCRYPT_KEY',$FOGCore->randomString(32));
-//	if ($_REQUEST['newService'])
-//		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-//	else
-		print $Datatosend;
+	$FOGCore->sendData($Datatosend);
 }
 catch (Exception $e)
 {
