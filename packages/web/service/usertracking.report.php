@@ -2,16 +2,6 @@
 require_once('../commons/base.inc.php');
 try
 {
-	$HostManager = new HostManager();
-	$MACs = FOGCore::parseMacList(($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $_REQUEST['mac'] : base64_decode($_REQUEST['mac'])));
-	if (!$MACs)
-		throw new Exception('#!im');
-	// Get the Host
-	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if(!$Host || !$Host->isValid() || $Host->get('pending'))
-		throw new Exception('#!ih');
-	//if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-	//	throw new Exception('#!ihc');
 	if (!in_array(strtolower(($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $_REQUEST['action'] : base64_decode($_REQUEST['action']))),array('login','start','logout')))
 		throw new Exception('#!er: Postfix requires an action of login,logout, or start to operate');
 	$user = explode(chr(92),strtolower(($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $_REQUEST['user'] : base64_decode($_REQUEST['user']))));
@@ -26,6 +16,7 @@ try
 	$login = ($_REQUEST['newService'] ? strtolower($_REQUEST['action']) : strtolower(base64_decode($_REQUEST['action'])));
 	$actionText = ($login == 'login' ? 1 : ($login == 'logout' ? 0 : 99));
 	$user = $_REQUEST['action'] == 'start' ? '' : $user;
+	$Host = $FOGCore->getHostItem();
 	$UserTracking = new UserTracking(array(
 		'hostID'	=> $Host->get('id'),
 		'username'	=> $user,
@@ -36,11 +27,7 @@ try
 	));
 	if ($UserTracking->save())
 		throw new Exception('#!ok');
-	//	$Datatosend = '#!ok';
-//	if ($_REQUEST['newService'])
-//		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-//	else
-		print $Datatosend;
+		$FOGCore->sendData($Datatosend);
 }
 catch (Exception $e)
 {
