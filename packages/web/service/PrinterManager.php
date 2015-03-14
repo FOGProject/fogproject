@@ -2,17 +2,7 @@
 require_once('../commons/base.inc.php');
 try
 {
-	$HostManager = new HostManager();
-	$MACs = FOGCore::parseMacList($_REQUEST['mac']);
-	if (!$MACs)
-		throw new Exception('#!im');
-	// Get the Host
-	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host || !$Host->isValid() || $Host->get('pending'))
-		throw new Exception('#ih');
-	//if ($_REQUEST['newService'] && !$Host->get('pub_key'))
-	//	throw new Exception('#ihc');
-	// get and eval level
+	$Host = $FOGCore->getHostItem();
 	// ???? three separate levels of enabling/disabling ????
 	$level = $Host->get('printerLevel');
 	if (empty($level) || $level == 0 || $level > 2)
@@ -41,10 +31,7 @@ try
 		$Datatosendprint = implode("\n",(array)$Datatosendprinter);
 	}
 	$Datatosend = ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n" : '').($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $Datatosendlevel."\n".$Datatosendprint : base64_encode($Datatosendlevel)."\n".$Datatosendprint);
-//	if ($_REQUEST['newService'])
-//		print "#!enkey=".$FOGCore->certEncrypt($Datatosend,$Host);
-//	else
-		print $Datatosend;
+	$FOGCore->sendData($Datatosend);
 }
 catch(Exception $e)
 {
