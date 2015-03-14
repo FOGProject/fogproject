@@ -282,7 +282,7 @@ abstract class FOGBase
 			$key = openssl_random_pseudo_bytes($iv_size,$cstrong);
 		$iv = mcrypt_create_iv($iv_size,MCRYPT_DEV_URANDOM);
 		$cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
-		return bin2hex($iv)."|".bin2hex($cipher);//.'|'.bin2hex($key);
+		return bin2hex($iv)."|".bin2hex($cipher);
 		// return $a_key['bits'].'|'.$iv.base64_encode($cipher);
 	}
 	public function aesdecrypt($encdata,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
@@ -457,7 +457,7 @@ abstract class FOGBase
 			throw new Exception('#!ih');
 		if (!$Host->get('pub_key'))
 			throw new Exception('#!ihc');
-		return $this->aesencrypt($data,$Host->get('pub_key'));
+		return $this->aesencrypt($data,$this->hex2bin($Host->get('pub_key')));
 		// Below is if we ever figure out an asymmetric system.
 		if (!$pub_key = openssl_pkey_get_public($Host->get('pub_key')))
 			throw new Exception('#!ihc');
@@ -645,7 +645,7 @@ abstract class FOGBase
 	  */
 	public function sendData($datatosend,$service = true)
 	{
-		if ($_REQUEST['newService'] && $this->FOGCore->getSetting('FOG_NEW_CLIENT'))
+		if ($_REQUEST['newService'] && $this->getClass('FOGCore')->getSetting('FOG_NEW_CLIENT'))
 			print "#!enkey=".$this->certEncrypt($datatosend,$this->getHostItem());
 		else
 			print $datatosend;
