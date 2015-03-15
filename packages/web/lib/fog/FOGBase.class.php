@@ -620,22 +620,24 @@ abstract class FOGBase
 	/** getHostItem returns the host or error of host for the service files.
 	  * @param $service if the caller is a service
 	  * @param $encoded if the item is base64 encoded or not.
-	  * @param $hostnotrequired
+	  * @param $hostnotrequired let us know if the host is required or not
+	  * @param $returnmacs return the macs or the host
 	  * @return host item
 	  */
-	public function getHostItem($service = true,$encoded = false,$hostnotrequired = false)
+	public function getHostItem($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false)
 	{
-		$MACs = self::parseMacList(!$encoded ? $_REQUEST['mac'] : base64_decode($_REQUEST['mac']));
-		if (!$MACs)
-			throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC']);
+		$MACs = self::parseMacList(!$encoded ? $_REQUEST['mac'] : trim(base64_decode($_REQUEST['mac'])));
+		if (!$MACs) throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC']);
 		$Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);
 		if (!$hostnotrequired)
 		{
-			if ($service && (!$Host || !$Host->isValid() || $Host->get('pending')))
-				throw new Exception('#!ih');
+			if ((!$Host || !$Host->isValid() || $Host->get('pending')))
+				throw new Exception($service ? '#!ih' : _('Invalid Host'));
 			if ($service && $_REQUEST['newService'] && !$Host->get('pub_key'))
 				throw new Exception('#!ihc');
 		}
+		if ($returnmacs)
+			return (is_array($MACs) ? $MACs : array($MACs));
 		return $Host;
 	}
 	/** sendData prints the return values as needed
@@ -645,10 +647,35 @@ abstract class FOGBase
 	  */
 	public function sendData($datatosend,$service = true)
 	{
-		if ($_REQUEST['newService'] && $this->getClass('FOGCore')->getSetting('FOG_NEW_CLIENT'))
-			print "#!enkey=".$this->certEncrypt($datatosend,$this->getHostItem());
-		else
-			print $datatosend;
+		if ($service)
+		{
+			if ($_REQUEST['newService'] && $this->getClass('FOGCore')->getSetting('FOG_NEW_CLIENT'))
+				print "#!enkey=".$this->certEncrypt($datatosend,$this->getHostItem());
+			else
+				print $datatosend;
+		}
+	}
+
+	/** getAllBlamedNodes sets the failure of a node
+	  * @return $nodeRet the node to return if it's already used
+	  */
+	public function getAllBlamedNodes()
+	{
+		$NodeFailures = $this->getClass('NodeFailureManager')->find(array('taskID' => $this->getHostItem(false)->get('task')->get('id'), 'hostID' => $this->getHostItem(false)->get('id')));
+		$DateInterval = $this->nice_date()->modify('-5 minutes');
+		foreach($NodeFailures AS $NodeFailure)
+		{
+			$DateTime = $this->nice_date($NodeFailure->get('failureTime'));
+			if ($DateTime >= $DateInterval)
+			{
+				$node = $NodeFailure->get('id');
+				if (!in_array($node,(array)$nodeRet))
+					$nodeRet[] = $node;
+			}
+			else
+				$NodeFailure->destroy();
+		}
+		return $nodeRet;
 	}
 }
 /* Local Variables: */
