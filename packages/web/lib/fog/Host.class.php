@@ -578,7 +578,7 @@ class Host extends FOGController
 	}
 	public function isValid()
 	{
-		return (($this->get('id') != '' || !(HostManager::isHostnameSafe($this->get('name')))) && $this->getMACAddress() != '' ? true : false);
+		return $this->get('id') && HostManager::isHostnameSafe($this->get('name')) && $this->getMACAddress();
 	}
 	// Custom functions
 	public function getActiveTaskCount()
@@ -998,6 +998,7 @@ class Host extends FOGController
 	public function addPriMAC($MAC)
 	{
 		$this->addAddMAC($MAC,false,true);
+		$this->set('mac',$MAC);
 		return $this;
 	}
 	public function addPendMAC($MAC)
