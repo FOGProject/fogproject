@@ -7,13 +7,10 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED'))
 		// Set the services so all id's can be enabled.
 		foreach($FOGCore->getClass('ModuleManager')->find() AS $Module)
 			$ids[] = $Module->get('id');
-		$HostManager = new HostManager();
-		$MACs = FOGCore::parseMacList(trim(base64_decode($_REQUEST['mac'])));
-		if (!$MACs) throw new Exception($foglang['InvalidMAC']);
-		$Host = $FOGCore->getClass('HostManager')->getHostByMacAddresses($MACs);
-		if (!is_array($MACs)) $MACs = array($MACs);
+		$MACs = $FOGCore->getHostItem(false,true,true,true);
 		// Set safe and simple mac for hostname if needed.
-		$macsimple = str_replace(':','',$MACs[0]);
+		$macsimple = strtolower(str_replace(':','',$MACs[0]));
+		$HostManager = $FOGCore->getClass('HostManager');
 		// Make sure it's a unique name.
 		if($_REQUEST['advanced'] == '1')
 		{
