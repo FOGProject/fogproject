@@ -2,12 +2,6 @@
 require_once('../commons/base.inc.php');
 try
 {
-	$HostManager = new HostManager();
-	$MACs = FOGCore::parseMacList($_REQUEST['mac']);
-	if (!$MACs)
-		throw new Exception('#!im');
-	// Get the Host
-	$Host = $HostManager->getHostByMacAddresses($MACs);
 	// Get the mode.
 	if (trim($_REQUEST['mode']) != array('q','s'))
 		throw new Exception(_('Invalid operational mode'));
@@ -17,7 +11,7 @@ try
 	//Store the info.
 	$Virus = new Virus(array(
 		'name' => trim($vInfo[0]),
-		'hostMAC' => strtolower($Host->get('mac')),
+		'hostMAC' => strtolower($FOGCore->getHostItem(false)->get('mac')),
 		'file' => $string[0],
 		'date' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
 		'mode' => $_REQUEST['mode']
