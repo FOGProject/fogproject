@@ -1852,3 +1852,8 @@ $this->schema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	 values('FOG_REGISTRATION_ENABLED','This setting enables the capabilities to allow registration to occur or not.  Default setting is enabled.','1','FOG Boot Settings')",
 );
+// 166
+$this->schema[] = array(
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_TZ_INFO','This setting allows the user to set the system timezone. Default is UTC in the db, but will first try the ini set if possible.','UTC','General Settings')",
+);
