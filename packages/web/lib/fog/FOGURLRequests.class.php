@@ -55,7 +55,7 @@ class FOGURLRequests extends FOGBase
 		} while ($mrc == CURLM_CALL_MULTI_PERFORM);
 		while ($active && $mrc == CURLM_OK)
 		{
-			if (curl_multi_select($mh) != -1)
+			if (curl_multi_select($this->handle) != -1)
 			{
 				do
 				{
