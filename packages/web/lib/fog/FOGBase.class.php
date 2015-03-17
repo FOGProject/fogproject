@@ -52,7 +52,7 @@ abstract class FOGBase
 		// Language Setup
 		$this->foglang = $GLOBALS['foglang'];
 		// Default TimeZone to use for date fields
-		$this->TimeZone = (ini_get('date.timezone') ? ini_get('date.timezone') : 'GMT');
+		$this->TimeZone = $GLOBALS['TimeZone'];
 		$this->imagelink = $GLOBALS['imagelink'];
 		$this->searchPages = array('user','host','group','image','snapin','printer','tasks','hosts');
 	}
