@@ -319,7 +319,7 @@ abstract class FOGBase
 	*/
 	public function nice_date($Date = 'now',$utc = false)
 	{
-		$NiceDate = (!$utc ? new DateTime($Date,new DateTimeZone($this->TimeZone)) : new DateTime($Date,new DateTimeZone('GMT')));
+		$NiceDate = (!$utc ? new DateTime($Date,new DateTimeZone($this->TimeZone)) : new DateTime($Date,new DateTimeZone('UTC')));
 		return $NiceDate;
 	}
 	/**
