@@ -747,6 +747,24 @@ class FOGConfigurationPage extends FOGPage
 						$Image = new Image($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID'));
 					$type = '<p id="${service_name}">'.($Image && $Image->isValid() ? $Image->getOS()->get('name') : _('No image specified')).'</p>';
 				}
+				else if ($Service->get('name') == 'FOG_TZ_INFO')
+				{
+					$utc = new DateTimeZone('UTC');
+					$dt = new DateTime('now',$utc);
+					$tzIDs = DateTimeZone::listIdentifiers();
+					$type = '<select name="${service_id}">';
+					foreach($tzIDs AS $tz)
+					{
+						$current_tz = new DateTimeZone($tz);
+						$offset = $current_tz->getOffset($dt);
+						$transition = $current_tz->getTransitions($dt->getTimestamp(),$dt->getTimestamp());
+						$abbr = $transition[0]['abbr'];
+						$offset = sprintf('%+03d:%02u', floor($offset / 3600), floor(abs($offset) % 3600 / 60));
+						$type .= '<option value="'.$tz.'"'.($Service->get('value') == $tz ? ' selected' : '').'>'.$tz.' ['.$abbr.' '.$offset.']</option>';
+					}
+					unset($current_tz,$offset,$transition);
+					$type .= '</select>';
+				}
 				else
 					$type = '<input id="${service_name}" type="text" name="${service_id}" value="${service_value}" autocomplete="off" />';
 				$this->data[] = array(

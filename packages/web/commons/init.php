@@ -263,6 +263,8 @@ $FOGCore = new FOGCore();
 // Database Load initiator
 $DatabaseManager = new DatabaseManager();
 $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
+// Default TimeZone to use for date fields
+$TimeZone = (ini_get('date.timezone') ? ini_get('date.timezone') : $FOGCore->getSetting('FOG_TZ_INFO'));
 $FOGCore->setSessionEnv();
 // EventManager
 $EventManager = new EventManager();
