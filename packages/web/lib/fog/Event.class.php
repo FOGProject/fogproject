@@ -14,10 +14,6 @@ abstract class Event extends FOGBase
 	public $logToFile = false;
 	public $logToBrowser = true;
 	public $delformat;
-	public function __construct() {
-		parent::__construct();
-		$this->FOGUser = unserialize($_SESSION['FOG_USER']);
-	}
 	public function run($arguments) { }
 	public function log($txt, $level = 1)
 	{
