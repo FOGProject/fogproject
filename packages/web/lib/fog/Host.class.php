@@ -650,7 +650,7 @@ class Host extends FOGController
 			{
 				$Task = new Task(array(
 					'name'		=> $taskName,
-					'createdBy' => ($this->FOGUser ? $this->FOGUser : ($username ? $username : '')),
+					'createdBy' => ($this->FOGUser ? $this->FOGUser->get('name') : ($username ? $username : '')),
 					'hostID'	=> $this->get('id'),
 					'isForced'	=> 0,
 					'stateID'	=> 1,
@@ -682,7 +682,7 @@ class Host extends FOGController
 				// Task: Create Task Object
 				$Task = new Task(array(
 					'name'		=> $taskName,
-					'createdBy'	=> ($this->FOGUser ? $this->FOGUser : ($username ? $username : 'nobody')),
+					'createdBy'	=> ($this->FOGUser ? $this->FOGUser->get('name') : ($username ? $username : 'nobody')),
 					'hostID'	=> $this->get('id'),
 					'isForced'	=> 0,
 					'stateID'	=> 1,
@@ -780,7 +780,7 @@ class Host extends FOGController
 			// Task: Create Task Object
 			$Task = new Task(array(
 				'name'		=> $taskName,
-				'createdBy'	=> ($this->FOGUser ? $this->FOGUser : ($username ? $username : '')),
+				'createdBy'	=> ($this->FOGUser ? $this->FOGUser->get('name') : ($username ? $username : '')),
 				'hostID'	=> $this->get('id'),
 				'isForced'	=> '0',
 				'stateID'	=> '1',

@@ -1427,10 +1427,10 @@ class HostManagementPage extends FOGPage
 			while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) 
 			{
 				// Ignore header data if left in CSV
-				if (preg_match('#ie#', $data[0]))
+				if (preg_match('#ie#',$data[0]))
 					continue;
 				$totalRows++;
-				if ( count( $data ) < 7 && count( $data ) >= 2 )
+				if (count($data) < 7 && count($data) >= 2)
 				{
 					try
 					{
@@ -1441,11 +1441,11 @@ class HostManagementPage extends FOGPage
 						if($this->getClass('HostManager')->exists($data[1]))
 							throw new Exception('A host with this name already exists');
 						$Host = new Host(array(
-							'name'		=> $data[1],
-							'description'	=> $data[3] . ' Uploaded by batch import on',
-							'ip'		=> $data[2],
-							'imageID'	=> $data[4],
-							'createdTime'	=> $this->nice_date()->format('Y-m-d H:i:s'),
+							'name' => $data[1],
+							'description' => $data[3] . ' Uploaded by batch import on',
+							'ip' => $data[2],
+							'imageID' => $data[4],
+							'createdTime' => $this->nice_date()->format('Y-m-d H:i:s'),
 							'createdBy'	=> $this->FOGUser->get('name'),
 						));
 						if ($Host->save())
