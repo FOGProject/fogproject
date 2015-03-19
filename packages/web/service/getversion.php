@@ -1,3 +1,6 @@
 <?php
 require_once('../commons/base.inc.php');
-print FOG_VERSION;
+if (isset($_REQUEST['clientver']))
+	print FOG_CLIENT_VERSION;
+else
+	print FOG_VERSION;
