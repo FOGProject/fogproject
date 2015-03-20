@@ -10,11 +10,12 @@ try
 	// The ignore list.  Comma Separated.
 	$ignoreList = explode(',', $FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'));
 	// Get the actual host (if it is registered)
-	$Host = $FOGCore->getHostItem(true,false,true);
+	$Host = $FOGCore->getHostItem(false,false,true);
+	$MACs = $FOGCore->getHostItem(true,false,false,true);
 	$HostPend = false;
-	if($_REQUEST['newService'] && (!$Host || !$Host->isValid()) && !$Host->get('pending'))
+	if($_REQUEST['newService'] && (!$Host || ($Host instanceof Host && !$Host->isValid())))
 	{
-		if (!$_REQUEST['hostname'] || HostManager::isHostnameSafe($_REQUEST['hostname']))
+		if (!$_REQUEST['hostname'] || !HostManager::isHostnameSafe($_REQUEST['hostname']))
 			throw new Exception('#!ih');
 		$HostPend = true;
 		$Host = new Host(array(
