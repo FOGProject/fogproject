@@ -628,6 +628,7 @@ abstract class FOGBase
 	{
 		$MACs = self::parseMacList(!$encoded ? $_REQUEST['mac'] : trim(base64_decode($_REQUEST['mac'])));
 		if (!$MACs) throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC']);
+		if ($returnmacs) return (is_array($MACs) ? $MACs : array($MACs));
 		$Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);
 		if (!$hostnotrequired)
 		{
@@ -636,8 +637,6 @@ abstract class FOGBase
 			if ($service && $_REQUEST['newService'] && !$Host->get('pub_key'))
 				throw new Exception('#!ihc');
 		}
-		if ($returnmacs)
-			return (is_array($MACs) ? $MACs : array($MACs));
 		return $Host;
 	}
 	/** sendData prints the return values as needed
