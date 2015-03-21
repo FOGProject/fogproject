@@ -793,7 +793,7 @@ class BootMenu extends FOGBase
 			$imgid = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('id') : null;
 			$ftp = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_TFTP_HOST'));
 			$chkdsk = $this->FOGCore->getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
-			$PIGZ_COMP = in_array($TaskType->get('id'),$imagingTasks) ? ($Image->get('compress') ? $Image->get('compress') : $this->FOGCore->getSetting('FOG_PIGZ_COMP')) : $this->FOGCore->getSetting('FOG_PIGZ_COMP');
+			$PIGZ_COMP = in_array($TaskType->get('id'),$imagingTasks) ? ($Image->get('compress') > -1 && is_numeric($Image->get('compress')) ? $Image->get('compress') : $this->FOGCore->getSetting('FOG_PIGZ_COMP')) : $this->FOGCore->getSetting('FOG_PIGZ_COMP');
 			$kernelArgsArray = array(
 				"mac=$mac",
 				"ftp=$ftp",
