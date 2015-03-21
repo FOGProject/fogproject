@@ -805,10 +805,8 @@ class FOGConfigurationPage extends FOGPage
 	{
 		$ServiceMan = $this->getClass('ServiceManager')->find();
 		foreach ((array)$ServiceMan AS $Service)
-			$key[] = $Service->get('id');
-		foreach ((array)$key AS $key)
 		{
-			$Service = new Service($key);
+			$key = $Service->get('id');
 			if ($Service->get('name') == 'FOG_MEMORY_LIMIT' && ($_REQUEST[$key] < 128 || !is_numeric($_REQUEST[$key])))
 				$Service->set('value',128)->save();
 			else if ($Service->get('name') == 'FOG_QUICKREG_IMG_ID' && empty($_REQUEST[$key]))
