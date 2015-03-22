@@ -10,8 +10,7 @@ class Ping
 	private $host;
 	private $port = '445';	// Microsoft netbios port
 	private $timeout;
-
-	public function __construct( $host, $timeout=2, $port='445' )
+	public function __construct($host, $timeout=2, $port = '445')
 	{
 		$this->host = $host;
 		$this->timeout = $timeout;
@@ -20,29 +19,20 @@ class Ping
 	
 	public function execute()
 	{
-		if ( $this->timeout > 0 && $this->host != null )
-		{
+		if ($this->timeout > 0 && $this->host != null)
 			return $this->fsockopenPing();
-		}
 	}
 
 	// Blackout - 7:41 AM 6/12/2011
-	function fsockopenPing()
-	{   
-		$socket = @fsockopen($this->host, $this->port, $errorCode, $errorMessage, $this->timeout);
-		if ($socket)
-		{
-			fclose($socket);
-		}
-		
-		//
-		// Blackout - 7:41 AM 6/12/2011
+	private function fsockopenPing()
+	{
+		$file = fsockopen($this->host,$this->port,$errno,$errstr,$this->timeout);
+		stream_set_blocking($file,false);
+		$status = 0;
+		!$file ? $status = 111 : fclose($file);
 		// 110 = ETIMEDOUT = Connection timed out
 		// 111 = ECONNREFUSED = Connection refused
 		// 112 = EHOSTDOWN = Host is down
-		//
-		// All error codes for all O/S's are located here: http://www.ioplex.com/~miallen/errcmp.html - also in 'man connect'
-		//
-		return ($errorCode === 0 || !in_array($errorCode, array(110, 111, 112)) ? true : $errorMessage);
+		return ($errorCode === 0 || !in_array($errorno,array(110,111,112)) ? true : $errstr);
 	}
 }
