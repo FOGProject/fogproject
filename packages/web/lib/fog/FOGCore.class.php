@@ -500,6 +500,7 @@ class FOGCore extends FOGBase
 		$_SESSION['ImageCount'] = $this->getClass('ImageManager')->count();
 		$_SESSION['SnapinCount'] = $this->getClass('SnapinManager')->count();
 		$_SESSION['PrinterCount'] = $this->getClass('PrinterManager')->count();
+		$_SESSION['FOGPingActive'] = $this->getSetting('FOG_HOST_LOOKUP');
 		// Set the memory limits
 		$_SESSION['memory'] = $this->getSetting('FOG_MEMORY_LIMIT');
 		ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M' : ini_get('memory_limit'));
