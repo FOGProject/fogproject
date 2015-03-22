@@ -8,7 +8,7 @@ try
 	$x = $HostDisplay ? $HostDisplay->get('width') : $FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_X');
 	$y = $HostDisplay ? $HostDisplay->get('height') : $FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y');
 	$r = $HostDisplay ? $HostDisplay->get('refresh') : $FOGCore->getSetting('FOG_SERVICE_DISPLAYMANaGER_R');
-	$Datatosend = $FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n#x=$x\n#y=$y\n#r=$r" : base64_encode($x.'x'.$y.'x'.$r);
+	$Datatosend = $_REQUEST['newService'] ? "#!ok\n#x=$x\n#y=$y\n#r=$r" : base64_encode($x.'x'.$y.'x'.$r);
 	$FOGCore->sendData($Datatosend);
 }
 catch(Exception $e)

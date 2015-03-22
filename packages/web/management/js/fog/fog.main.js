@@ -83,18 +83,6 @@ $(function() {
 		return false;
 	});
 	// The below elements just performs the randomization techniques.
-	$('#FOG_AES_PASS_ENCRYPT_KEY_button').click(function() {
-		$.ajax({
-			type: 'POST',
-			url: '../management/index.php',
-			cache: false,
-			data: {sub: 'random'},
-			dataType: 'json',
-			success: function(data){
-				$('#FOG_AES_PASS_ENCRYPT_KEY_text').val(data['key']);
-			}
-		});
-	});
 	$('#FOG_AES_ADPASS_ENCRYPT_KEY_button').click(function() {
 		$.ajax({
 			type: 'POST',

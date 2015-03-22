@@ -624,7 +624,7 @@ abstract class FOGBase
 	  * @param $returnmacs return the macs or the host
 	  * @return host item
 	  */
-	public function getHostItem($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false)
+	public function getHostItem($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false,$override = false)
 	{
 		$MACs = self::parseMacList(!$encoded ? $_REQUEST['mac'] : trim(base64_decode($_REQUEST['mac'])));
 		if (!$MACs) throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC']);
@@ -632,9 +632,9 @@ abstract class FOGBase
 		$Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);
 		if (!$hostnotrequired)
 		{
-			if ((!$Host || !$Host->isValid() || $Host->get('pending')))
+			if ((!$Host || !$Host->isValid() || $Host->get('pending')) && !$override)
 				throw new Exception($service ? '#!ih' : _('Invalid Host'));
-			if ($service && $_REQUEST['newService'] && !$Host->get('pub_key'))
+			if ($service && $_REQUEST['newService'] && !$Host->get('pub_key') && $this->getClass('FOGCore')->getSetting('FOG_AES_ENCRYPT'))
 				throw new Exception('#!ihc');
 		}
 		return $Host;
@@ -648,7 +648,7 @@ abstract class FOGBase
 	{
 		if ($service)
 		{
-			if ($_REQUEST['newService'] && $this->getClass('FOGCore')->getSetting('FOG_NEW_CLIENT'))
+			if ($_REQUEST['newService'] && $this->getClass('FOGCore')->getSetting('FOG_AES_ENCRYPT'))
 				print "#!enkey=".$this->certEncrypt($datatosend,$this->getHostItem());
 			else
 				print $datatosend;
