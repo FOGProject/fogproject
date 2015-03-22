@@ -10,8 +10,8 @@ try
 	// The ignore list.  Comma Separated.
 	$ignoreList = explode(',', $FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'));
 	// Get the actual host (if it is registered)
-	$Host = $FOGCore->getHostItem(false,false,true);
 	$MACs = $FOGCore->getHostItem(true,false,false,true);
+	$Host = $FOGCore->getHostItem(false,false,true,false,true);
 	$HostPend = false;
 	if($_REQUEST['newService'] && (!$Host || ($Host instanceof Host && !$Host->isValid())))
 	{

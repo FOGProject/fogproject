@@ -337,8 +337,7 @@ class HostManagementPage extends FOGPage
 			if ($this->getClass('HostManager')->exists($_REQUEST['host']))
 				throw new Exception(_('Hostname already exists'));
 			// Get all the service id's so they can be enabled.
-			foreach($this->getClass('ModuleManager')->find() AS $Module)
-				$ModuleIDs[] = $Module->get('id');
+			$ModuleIDs = $this->getClass('ModuleManager')->find('','','','','','','','id');
 			if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['domainpassword'])
 			{
 				$encdat = $_REQUEST['domainpassword'];
@@ -1422,8 +1421,7 @@ class HostManagementPage extends FOGPage
 			$numSuccess = $numFailed = $numAlreadyExist = 0;
 			$handle = fopen($_FILES["file"]["tmp_name"], "r");
 			// Get all the service id's so they can be enabled.
-			foreach($this->getClass('ModuleManager')->find() AS $Module)
-				$ModuleIDs[] = $Module->get('id');
+			$ModuleIDs = $this->getClass('ModuleManager')->find('','','','','','','','id');
 			while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) 
 			{
 				// Ignore header data if left in CSV
