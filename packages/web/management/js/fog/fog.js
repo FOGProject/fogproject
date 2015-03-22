@@ -27,7 +27,7 @@ _L['PING_PROGRESS'] = '<p>Pinging: %1</p><p>Progress: %2/%3</p>';
 _L['PING_COMPLETE'] = 'Pinging %1 hosts complete!';
 
 // Variables
-var PingActive = new Array();
+var FOGPingActive = new Array();
 var StatusAutoHideTimer;
 var StatusAutoHideDelay = 3000;
 var PingDelay = 2000;
@@ -223,18 +223,18 @@ function getQueryParams(qs) {
 							Loader.fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/, '0').replace(/%2/, 's'), { 'Class': 'error' });
 						}
 						this.SearchAJAX = null;
+					},
+					error:	function(jqXHR, textStatus, errorThrown) {
+						// Error - hide content boxes, show nice message
+						Container.hide();
+						ActionBox.hide();
+						ActionBoxDel.hide();
+						// Show nice error
+						Loader.fogStatusUpdate(_L['ERROR_SEARCHING'] + (errorThrown != '' ? ': ' + (errorThrown == 'Not Found' ? 'URL Not Found' : errorThrown) : ''), { 'Class': 'error' });
+						// Reset
+						this.SearchAJAX = null;
+						this.SearchLastQuery = null;
 					}
-				//	error:	function(jqXHR, textStatus, errorThrown) {
-				//		// Error - hide content boxes, show nice message
-				//		Container.hide();
-				//		ActionBox.hide();
-				//		ActionBoxDel.hide();
-				//		// Show nice error
-				//		Loader.fogStatusUpdate(_L['ERROR_SEARCHING'] + (errorThrown != '' ? ': ' + (errorThrown == 'Not Found' ? 'URL Not Found' : errorThrown) : ''), { 'Class': 'error' });
-				//		// Reset
-				//		this.SearchAJAX = null;
-				//		this.SearchLastQuery = null;
-				//	}
 				});
 			}
 		});
@@ -244,14 +244,14 @@ function getQueryParams(qs) {
 		//$('table:not(#search-content) > thead > tr > td').addClass('hand');
 		//$('table:not(#search-content)').tablesorter();
 	}
-	$.fn.fogPing = function(opts) {	
+	$.fn.fogPing = function(opts) {
 		// If no elements were found before this was called
 		if (this.length == 0) return this;
 		// If Ping function has been disabled, return
 		if (typeof(FOGPingActive) != 'undefined' && FOGPingActive != 1) return this;
 		// Default Options
 		var Defaults = {
-			Threads:	4,
+			Threads:	1000,
 			Delay:	PingDelay,
 			UpdateStatus:	true
 		};
@@ -264,7 +264,7 @@ function getQueryParams(qs) {
 		var Timer;
 		// Main
 		if (Options.Delay) {
-			setTimeout(function() { Run(); }, Options.Delay);
+			setTimeout(Run, Options.Delay);
 		} else {
 			Run();
 		}
@@ -299,6 +299,7 @@ function getQueryParams(qs) {
 					cache: false,
 					type: 'POST',
 					data: {
+						node: 'host',
 						sub: 'getPing',
 						ping: hostname
 					},
