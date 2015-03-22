@@ -12,7 +12,7 @@
 		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
 	</head>
 	<body> 
-		<div class="fog-variable" id="FOGPingActive"><?php intval($_SESSION['FOGPingActive']) ?></div>
+		<div class="fog-variable" id="FOGPingActive"><?php print intval($_SESSION['FOGPingActive']) ?></div>
 		<!-- Session Messages -->
 		<?php !preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? $this->FOGCore->getMessages() : '' ?>
 		<?php if (preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) { // Mobile Login ?><div id="header"></div>
