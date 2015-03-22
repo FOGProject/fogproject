@@ -1857,3 +1857,7 @@ $this->schema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	 values('FOG_TZ_INFO','This setting allows the user to set the system timezone. Default is UTC in the db, but will first try the ini set if possible.','UTC','General Settings')",
 );
+// 167
+$this->schema[] = array(
+	"DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_AES_PASS_ENCRYPT_KEY'",
+);
