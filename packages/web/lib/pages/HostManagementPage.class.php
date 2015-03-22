@@ -33,35 +33,41 @@ class HostManagementPage extends FOGPage
 		$this->headerData = array(
 			'',
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-			($_SESSION['FOGPingActive'] ? '' : null),
+		);
+		$_SESSION['FOGPingActive'] ? array_push($this->headerData,'') : null;
+		array_push($this->headerData,
 			_('Host Name'),
 			_('Deployed'),
 			_('Task'),
 			_('Edit/Remove'),
-			_('Image'),
+			_('Image')
 		);
 		// Row templates
 		$this->templates = array(
 			'<span class="icon fa fa-question hand" title="${host_desc}"></span>',
 			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-action" checked/>',
-			($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
+		);
+		$_SESSION['FOGPingActive'] ? array_push($this->templates,'<span class="icon ping"></span>') : null;
+		array_push($this->templates,
 			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
 			'<small>${deployed}</small>',
 			'<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${host_id}"><i class="icon fa fa-arrow-down" title="Download"></i></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${host_id}"><i class="icon fa fa-arrow-up" title="Upload"></i></a> <a href="?node=host&sub=deploy&type=8&id=${host_id}"><i class="icon fa fa-share-alt" title="Multi-cast"></i></a> <a href="?node=host&sub=edit&id=${host_id}#host-tasks"><i class="icon fa fa-arrows-alt" title="Deploy"></i></a>',
 			'<a href="?node=host&sub=edit&id=${host_id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=host&sub=delete&id=${host_id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>',
-			'${image_name}',
+			'${image_name}'
 		);
 		// Row attributes
 		$this->attributes = array(
 			array('width' => 22, 'id' => 'host-${host_name}'),
 			array('class' => 'c','width' => 16),
-			($_SESSION['FOGPingActive'] ? array('width' => 20) : ''),
+		);
+		$_SESSION['FOGPingActive'] ? array_push($this->attributes,array('width' => 20)) : null;
+		array_push($this->attributes,
 			array(),
 			array('width' => 50, 'class' => 'c'),
 			array('width' => 90, 'class' => 'r'),
 			array('width' => 80, 'class' => 'c'),
 			array('width' => 50, 'class' => 'r'),
-			array('width' => 20, 'class' => 'r'),
+			array('width' => 20, 'class' => 'r')
 		);
 	}
 	/** index()

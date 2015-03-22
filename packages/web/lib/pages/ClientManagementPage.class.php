@@ -31,38 +31,6 @@ class ClientManagementPage extends FOGPage
 	public function index()
 	{
 		$this->title = _('FOG Client Installer');
-		print "\n\t\t\t\t\t\t".'<ul id="dashboard-boxes">';
-		print "\n\t\t\t\t\t\t\t".'<li>';
-		print "\n\t\t\t\t\t\t\t\t".'<h4>'._('Client Service').'</h4>';
-		print "\n\t\t\t\t\t\t\t\t".'<div>';
-		print "\n\t\t\t\t\t\t\t\t\t"._('Download the FOG client service. This service allows for advanced management of the PC, including hostname changing, etc...');
-		print "\n\t\t\t\t\t\t\t\t\t".'<br /><br />';
-		print "\n\t\t\t\t\t\t\t\t\t".'<a href="http://'.$this->FOGCore->getSetting('FOG_WEB_HOST').'/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/client/FogService.zip">';
-		print "\n\t\t\t\t\t\t\t\t\t\t"._('FOG Client Service');
-		print "\n\t\t\t\t\t\t\t\t\t</a>";
-		print "\n\t\t\t\t\t\t\t\t</div>";
-		print "\n\t\t\t\t\t\t\t</li>";
-		print "\n\t\t\t\t\t\t\t".'<li>';
-		print "\n\t\t\t\t\t\t\t\t".'<h4>'._('FOG Prep').'</h4>';
-		print "\n\t\t\t\t\t\t\t\t\t".'<div>';
-		print "\n\t\t\t\t\t\t\t\t\t\t"._('Download FOG Prep which must be run on computers running Windows 7 immediately prior to image upload.');
-		print "\n\t\t\t\t\t\t\t\t\t\t".'<br /><br /><br />';
-		print "\n\t\t\t\t\t\t\t\t\t".'<div>';
-		print "\n\t\t\t\t\t\t\t\t\t\t".'<a href="http://'.$this->FOGCore->getSetting('FOG_WEB_HOST').'/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/client/FogPrep.zip">';
-		print "\n\t\t\t\t\t\t\t\t\t\t\t"._('FOG Prep');
-		print "\n\t\t\t\t\t\t\t\t\t\t</a>";
-		print "\n\t\t\t\t\t\t\t\t\t</div>";
-		print "\n\t\t\t\t\t\t\t\t</li>";
-		print "\n\t\t\t\t\t\t\t\t<li>";
-		print "\n\t\t\t\t\t\t\t\t\t".'<h4>'._('FOG Crypt').'</h4>';
-		print "\n\t\t\t\t\t\t\t\t\t".'<div>';
-		print "\n\t\t\t\t\t\t\t\t\t\t"._('Download FOG Crypt which can be used to encrypt the AD Domain Password.');
-		print "\n\t\t\t\t\t\t\t\t\t\t".'<br /><br /><br />';
-		print "\n\t\t\t\t\t\t\t\t\t\t".'<a href="http://'.$this->FOGCore->getSetting('FOG_WEB_HOST').'/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/client/FOGCrypt.zip">';
-		print "\n\t\t\t\t\t\t\t\t\t\t\t"._('FOG Crypt');
-		print "\n\t\t\t\t\t\t\t\t\t\t</a>";
-		print "\n\t\t\t\t\t\t\t\t\t</div>";
-		print "\n\t\t\t\t\t\t\t\t</li>";
-		print "\n\t\t\t\t\t\t\t</ul>";
+		echo '<ul id="dashboard-boxes"><li><h4>'._('Client Service').'</h4><div>'._('Download the FOG client service. This service allows for advanced management of the PC, including hostname changing, etc...').'<br /><br /><a href="http://'.$this->FOGCore->getSetting('FOG_WEB_HOST').'/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/client/FogService.zip">'._('FOG Client Service').'</a></div></li><li><h4>'._('FOG Prep').'</h4><div>'._('Download FOG Prep which must be run on computers running Windows 7 immediately prior to image upload.').'<br /><br /><br /><div><a href="http://'.$this->FOGCore->getSetting('FOG_WEB_HOST').'/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/client/FogPrep.zip">'._('FOG Prep').'</a></div></li><li><h4>'._('FOG Crypt').'</h4><div>'._('Download FOG Crypt which can be used to encrypt the AD Domain Password.').'<br /><br /><br /><a href="http://'.$this->FOGCore->getSetting('FOG_WEB_HOST').'/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/client/FOGCrypt.zip">'._('FOG Crypt').'</a></div></li></ul>';
 	}
 }
