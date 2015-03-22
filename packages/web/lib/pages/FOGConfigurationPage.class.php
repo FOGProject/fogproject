@@ -688,7 +688,7 @@ class FOGConfigurationPage extends FOGPage
 					$type = '<div id="regen" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValRegen" maxsize="5" style="width: 25px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
 				else if (preg_match('#(pass|PASS)#i',$Service->get('name')) && !preg_match('#(VALID|MIN)#i',$Service->get('name')))
 				{
-					if ($Service->get('name') == 'FOG_AES_PASS_ENCRYPT_KEY' || $Service->get('name') == 'FOG_AES_ADPASS_ENCRYPT_KEY')
+					if ($Service->get('name') == 'FOG_AES_ADPASS_ENCRYPT_KEY')
 					{
 						$type = '<input id="'.$Service->get('name').'_text" type="password" name="${service_id}" value="${service_value}" autocomplete="off" readonly="true" maxlength="50" />';
 						$type .= '<br/><small><input type="button" value="Randomize Above Key" id="'.$Service->get('name').'_button" title="You will have to recompile the client if you change this key.'.($Service->get('name') == 'FOG_AES_ADPASS_ENCRYPT_KEY' ? ' You will also o need to reset the password for all hosts and the FOG_AD_DEFAULT_PASSWORD field.' : '').'" /></small>';
@@ -815,7 +815,7 @@ class FOGConfigurationPage extends FOGPage
 				$Service->set('value',addslashes($_REQUEST[$key]))->save();
 			else if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $Service->get('name') == 'FOG_AD_DEFAULT_PASSWORD')
 			{
-				if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST[$key])
+				if ($_REQUEST[$key])
 				{
 					$decrypt = $this->FOGCore->aesdecrypt($_REQUEST[$key]);
 					if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))
@@ -829,7 +829,7 @@ class FOGConfigurationPage extends FOGPage
 			}
 			else if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $Service->get('name') == 'FOG_AES_ADPASS_ENCRYPT_KEY')
 			{
-				if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST[$key])
+				if ($_REQUEST[$key])
 				{
 					$decrypt = $this->FOGCore->aesdecrypt($this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD'));
 					if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))

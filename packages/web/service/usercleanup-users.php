@@ -4,7 +4,7 @@ try
 {
 	if ($_REQUEST['newService'])
 	{
-		if ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'])
+		if ($_REQUEST['newService'])
 		{
 			$index = 0;
 			foreach($FOGCore->getClass('UserCleanupManager')->find() AS $User)

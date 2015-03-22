@@ -30,7 +30,7 @@ try
 		}
 		$Datatosendprint = implode("\n",(array)$Datatosendprinter);
 	}
-	$Datatosend = ($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? "#!ok\n" : '').($FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['newService'] ? $Datatosendlevel."\n".$Datatosendprint : base64_encode($Datatosendlevel)."\n".$Datatosendprint);
+	$Datatosend = ($_REQUEST['newService'] ? "#!ok\n" : '').($_REQUEST['newService'] ? $Datatosendlevel."\n".$Datatosendprint : base64_encode($Datatosendlevel)."\n".$Datatosendprint);
 	$FOGCore->sendData($Datatosend);
 }
 catch(Exception $e)
