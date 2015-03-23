@@ -555,6 +555,13 @@ class Config
 			echo "<?php header('Location: ./fog/index.php');?>" > $webredirect;
 		fi
 		echo "OK";
+		echo -n "  * Downloading New FOG Client file ";
+		cwd=`pwd`;
+		cd $webdirdest;
+		clientVer=`php -f ${webdirdest}/service/getclient.php`;
+		cd $cwd;
+		wget -O "${webdirdest}/client/FOGService.msi" "https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi";
+		echo "OK";
 		if [ -d "${webdirdest}.prev" ]; then
 			echo "  * Copying back any custom hook files.";
 			cp -Rf $webdirdest.prev/lib/hooks $webdirdest/lib/;
