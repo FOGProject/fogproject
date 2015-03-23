@@ -557,10 +557,10 @@ class Config
 		echo "OK";
 		echo -n "  * Downloading New FOG Client file ";
 		cwd=`pwd`;
-		cd $webdirdest;
+		cd $webdirdest/service;
 		clientVer=`php -f ${webdirdest}/service/getclient.php`;
 		cd $cwd;
-		wget -O "${webdirdest}/client/FOGService.msi" "https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi";
+		wget -O "${webdirdest}/client/FOGService.msi" "https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi" >/dev/null 2>&1;
 		echo "OK";
 		if [ -d "${webdirdest}.prev" ]; then
 			echo "  * Copying back any custom hook files.";
