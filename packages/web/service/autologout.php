@@ -8,7 +8,8 @@ try
 	$HaloMan ? $time = $HaloMan->get('time') : $time = $FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN');
 	// Send it.
 	$Datatosend = ($_REQUEST['newService'] && $time >= 5 ? "#!ok\n#time=".($time * 60) : ($_REQUEST['newService'] && $time < 5 ? "#!time\n" : base64_encode($time)));
-	$FOGCore->sendData($Datatosend);
+	print $Datatosend;
+//	$FOGCore->sendData($Datatosend);
 }
 catch(Exception $e)
 {
