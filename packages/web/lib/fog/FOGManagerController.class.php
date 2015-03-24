@@ -58,7 +58,7 @@ abstract class FOGManagerController extends FOGBase
 		{
 			if (empty($keyword))
 				$keyword = preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? $_REQUEST['host-search'] : $_REQUEST['crit'];
-			$keyword = preg_replace('#%+#', '%', preg_replace('#[[:space:]]#', '%', $keyword).'%');
+			$keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', $keyword).'%');
 			if ($keyword === '%')
 				return $this->getClass($this->childClass.'Manager')->find();
 			$_SESSION['caller'] = __FUNCTION__;
@@ -77,47 +77,55 @@ abstract class FOGManagerController extends FOGBase
 			// Get the IDs of the objects we are trying to "scan" for
 			if ($this->childClass == 'Host')
 			{
-				//$ImageIDs = $this->getClass('ImageManager')->find(array('name' => $keyword),'','','','','','','id');
-				//$GroupIDs = $this->getClass('GroupManager')->find(array('name' => $keyword),'','','','','','','id');
-				//$SnapinIDs = $this->getClass('SnapinManager')->find(array('name' => $keyword,'file' => $keyword),'OR','','','','','','id');
-				//$PrinterIDs = $this->getClass('PrinterManager')->find(array('name' => $keyword),'','','','','','','id');
-				//$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
-				//$GroupHostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $GroupIDs),'','','','','','','hostID');
-				//$SnapinHostIDs = $this->getClass('SnapinAssociationManager')->find(array('snapinID' => $SnapinIDs),'','','','','','','hostID');
-				//$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $PrinterIDs),'','','','','','','hostID');
-				//$HostIDs = array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs));
+				$ImageIDs = $this->getClass('ImageManager')->find(array('name' => $keyword),'','','','','','','id');
+				$GroupIDs = $this->getClass('GroupManager')->find(array('name' => $keyword),'','','','','','','id');
+				$SnapinIDs = $this->getClass('SnapinManager')->find(array('name' => $keyword,'file' => $keyword),'OR','','','','','','id');
+				$PrinterIDs = $this->getClass('PrinterManager')->find(array('name' => $keyword),'','','','','','','id');
+				if (count($ImageIDs))
+					$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
+				if (count($GroupIDs))
+					$GroupHostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $GroupIDs),'','','','','','','hostID');
+				if (count($SnapinIDs))
+					$SnapinHostIDs = $this->getClass('SnapinAssociationManager')->find(array('snapinID' => $SnapinIDs),'','','','','','','hostID');
+				if (count($PrinterIDs))
+					$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $PrinterIDs),'','','','','','','hostID');
+				$HostIDs = array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs));
 				$findWhere = array('id' => $HostIDs);
 				unset($GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$ImageHostIDs,$GroupHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
 			}
 			else if ($this->childClass == 'Group')
 			{
 				$GroupIDs = $this->getClass('GroupManager')->find($findWhere,'OR','','','','','','id');
-				//$GroupHostIDs = $this->getClass('GroupAssociationManager')->find(array('hostID' => $HostIDs),'','','','','','','groupID');
-				//$GroupIDs = array_unique(array_merge((array)$GroupIDs,(array)$GroupHostIDs));
+				if (count($HostIDs))
+					$GroupHostIDs = $this->getClass('GroupAssociationManager')->find(array('hostID' => $HostIDs),'','','','','','','groupID');
+				$GroupIDs = array_unique(array_merge((array)$GroupIDs,(array)$GroupHostIDs));
 				$findWhere = array('id' => $GroupIDs);
 				unset($GroupIDs,$GroupHostIDs,$HostIDs);
 			}
 			else if ($this->childClass == 'Image')
 			{
 				$ImageIDs = $this->getClass('ImageManager')->find($findWhere,'OR','','','','','','id');
-				//$ImageHostIDs = $this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','','','imageID');
-				//$ImageIDs = array_unique(array_merge((array)$ImageIDs,(array)$ImageHostIDs));
+				if (count($HostIDs))
+					$ImageHostIDs = $this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','','','imageID');
+				$ImageIDs = array_unique(array_merge((array)$ImageIDs,(array)$ImageHostIDs));
 				$findWhere = array('id' => $ImageIDs);
 				unset($ImageIDs,$ImageHostIDs,$HostIDs);
 			}
 			else if ($this->childClass == 'Snapin')
 			{
 				$SnapinIDs = $this->getClass('SnapinManager')->find($findWhere,'OR','','','','','','id');
-				//$SnapinHostIDs = $this->getClass('SnapinAssociationManager')->find(array('hostID' => $HostIDs),'','','','','','','snapinID');
-				//$SnapinIDs = array_unique(array_merge((array)$SnapinIDs,(array)$SnapinHostIDs));
+				if (count($HostIDs))
+					$SnapinHostIDs = $this->getClass('SnapinAssociationManager')->find(array('hostID' => $HostIDs),'','','','','','','snapinID');
+				$SnapinIDs = array_unique(array_merge((array)$SnapinIDs,(array)$SnapinHostIDs));
 				$findWhere = array('id' => $SnapinIDs);
 				unset($SnapinIDs,$SnapinHostIDs,$HostIDs);
 			}
 			else if ($this->childClass == 'Printer')
 			{
 				$PrinterIDs = $this->getClass('PrinterManager')->find($findWhere,'OR','','','','','','id');
-				//$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('hostID' => $HostIDs),'','','','','','','printerID');
-				//$PrinterIDs = array_unique(array_merge((array)$PrinterIDs,(array)$PrinterHostIDs));
+				if (count($HostIDs))
+					$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('hostID' => $HostIDs),'','','','','','','printerID');
+				$PrinterIDs = array_unique(array_merge((array)$PrinterIDs,(array)$PrinterHostIDs));
 				$findWhere = array('id' => $PrinterIDs);
 				unset($PrinterIDs,$PrinterHostIDs,$HostIDs);
 			}
@@ -126,14 +134,18 @@ abstract class FOGManagerController extends FOGBase
 				$TaskIDs = $this->getClass('TaskManager')->find($findWhere,'OR','','','','','','id');
 				$TaskStateIDs = $this->getClass('TaskStateManager')->find(array('name' => $keyword),'','','','','','','id');
 				$TaskTypeIDs = $this->getClass('TaskTypeManager')->find(array('name' => $keyword),'','','','','','','id');
-				//$GroupIDs = $this->getClass('GroupManager')->find(array('name' => $keyword,'description' => $keyword),'OR','','','','','','id');
-				//$ImageIDs = $this->getClass('ImageManager')->find(array('name' => $keyword,'description' => $keyword),'OR','','','','','','id');
-				//$SnapinIDs = $this->getClass('SnapinManager')->find(array('name' => $keyword,'description' => $keyword,'file' => $keyword),'OR','','','','','','id');
-				//$PrinterIDs = $this->getClass('PrinterManager')->find(array('name' => $keyword),'OR','','','','','','id');
-				//$GroupHostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $GroupIDs),'','','','','','','hostID');
-				//$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
-				//$SnapinHostIDs = $this->getClass('SnapinAssociationManager')->find(array('snapinID' => $SnapinIDs),'','','','','','','hostID');
-				//$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $PrinterIDs),'','','','','','','hostID');
+				$GroupIDs = $this->getClass('GroupManager')->find(array('name' => $keyword,'description' => $keyword),'OR','','','','','','id');
+				$ImageIDs = $this->getClass('ImageManager')->find(array('name' => $keyword,'description' => $keyword),'OR','','','','','','id');
+				$SnapinIDs = $this->getClass('SnapinManager')->find(array('name' => $keyword,'description' => $keyword,'file' => $keyword),'OR','','','','','','id');
+				$PrinterIDs = $this->getClass('PrinterManager')->find(array('name' => $keyword),'OR','','','','','','id');
+				if (count($GroupIDs))
+					$GroupHostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $GroupIDs),'','','','','','','hostID');
+				if (count($ImageIDs))
+					$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
+				if (count($SnapinIDs))
+					$SnapinHostIDs = $this->getClass('SnapinAssociationManager')->find(array('snapinID' => $SnapinIDs),'','','','','','','hostID');
+				if (count($PrinterIDs))
+					$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $PrinterIDs),'','','','','','','hostID');
 				$HostIDs = array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs));
 				$findWhere = array('id' => $TaskIDs,'typeID' => $TaskTypeIDs,'stateID' => $TaskStateIDs,'hostID' => $HostIDs);
 				unset($TaskIDs,$TaskTypeIDs,$GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$GroupHostIDs,$ImageHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
@@ -180,9 +192,9 @@ abstract class FOGManagerController extends FOGBase
 				foreach((array)$where AS $field => $value)
 				{
 					if (is_array($value))
-						$whereArray[] = sprintf("%s %s IN ('%s')", $this->databaseFields[$field], $not,implode("', '", $value));
+						$whereArray[] = sprintf("%s %s IN ('%s')", $this->databaseTable.'.'.$this->databaseFields[$field], $not,implode("', '", $value));
 					else if (!is_array($value))
-						$whereArray[] = sprintf("%s %s '%s'", $this->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : ($not ? '!' : '').$compare), $value);
+						$whereArray[] = sprintf("%s %s '%s'", $this->databaseTable.'.'.$this->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : ($not ? '!' : '').$compare), $value);
 				}
 			}
 			foreach((array)$orderBy AS $item)
