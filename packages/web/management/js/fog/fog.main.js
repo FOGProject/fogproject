@@ -107,6 +107,17 @@ $(function() {
 			}
 		});
 	}
+	if (typeof($("#loglvl").slider) == typeof(Function)) {
+		$("#loglvl").slider({
+			min: 0,
+			max: 7,
+			range: 'min',
+			value: $("#showlogVal").val(),
+			slide: function(event, ui) {
+				$("#showlogVal").val(ui.value);
+			}
+		});
+	}
 	if (typeof($("#inact").slider) == typeof(Function)) {
 		$("#inact").slider({
 			min: 1,
