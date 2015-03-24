@@ -296,7 +296,7 @@ class BootMenu extends FOGBase
         $kernelArgs = array_unique($kernelArgs);
 		$Send['task'] = array(
 			"#!ipxe",
-        	"$this->kernel loglevel=4 ".implode(' ',(array)$kernelArgs).$this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : '',
+        	"$this->kernel loglevel=4 ".implode(' ',(array)$kernelArgs).($this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : ''),
         	"$this->initrd",
         	"boot",
 		);
@@ -633,7 +633,7 @@ class BootMenu extends FOGBase
 	{
 		$Send['debugaccess'] = array(
 			"#!ipxe",
-			"$this->kernel mode=onlydebug".$this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : '',
+			"$this->kernel mode=onlydebug".($this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : ''),
 			"$this->initrd",
 			"boot",
 		);
@@ -983,7 +983,7 @@ class BootMenu extends FOGBase
 		{
 			$Send = array(
 				":$option",
-				"$this->kernel loglevel=4 $type".$this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : '',
+				"$this->kernel loglevel=4 $type".($this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : ''),
 				"$this->initrd",
 				"boot || goto MENU",
 			);
