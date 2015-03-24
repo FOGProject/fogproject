@@ -1866,3 +1866,8 @@ $this->schema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	 values('FOG_KERNEL_DEBUG','This setting allows the user to have the kernel debug flag set. Default is off.','0','FOG Boot Settings')",
 );
+// 169
+$this->schema[] = array(
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_KERNEL_LOGLEVEL','This setting allows the user to specify which loglevel the want. Default is 4.','4','FOG Boot Settings')",
+);
