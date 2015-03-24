@@ -511,4 +511,12 @@ class FOGCore extends FOGBase
 		ini_set('upload_max_filesize',$this->getSetting('FOG_MAX_UPLOADSIZE').'M');
 		ini_set('post_max_size',$this->getSetting('FOG_POST_MAXSIZE').'M');
 	}
+	public function safeImageGroups()
+	{
+		foreach($this->getClass('ImageManager')->find() AS $Image)
+		{
+			if ($Image && $Image->isValid() && !$Image->getStorageGroup())
+				$Image->addGroup(current($this->getClass('StorageGroupManager')->find())->get('id'))->save();
+		}
+	}
 }
