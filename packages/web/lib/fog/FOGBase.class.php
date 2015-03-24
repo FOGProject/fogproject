@@ -565,21 +565,21 @@ abstract class FOGBase
 		}
 		return $ordered + $array;
 	}
-	public function getGlobalModuleStatus()
+	public function getGlobalModuleStatus($names = false)
 	{
 		return array(
-			'dircleanup' => $this->FOGCore->getSetting('FOG_SERVICE_DIRECTORYCLEANER_ENABLED'),
-			'usercleanup' => $this->FOGCore->getSetting('FOG_SERVICE_USERCLEANUP_ENABLED'),
-			'displaymanager' => $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_ENABLED'),
-			'autologout' => $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_ENABLED'),
-			'greenfog' => $this->FOGCore->getSetting('FOG_SERVICE_GREENFOG_ENABLED'),
-			'hostnamechanger' => $this->FOGCore->getSetting('FOG_SERVICE_HOSTNAMECHANGER_ENABLED'),
-			'snapinclient' => $this->FOGCore->getSetting('FOG_SERVICE_SNAPIN_ENABLED'),
-			'clientupdater' => $this->FOGCore->getSetting('FOG_SERVICE_CLIENTUPDATER_ENABLED'),
-			'hostregister' => $this->FOGCore->getSetting('FOG_SERVICE_HOSTREGISTER_ENABLED'),
-			'printermanager' => $this->FOGCore->getSetting('FOG_SERVICE_PRINTERMANAGER_ENABLED'),
-			'taskreboot' => $this->FOGCore->getSetting('FOG_SERVICE_TASKREBOOT_ENABLED'),
-			'usertracker' => $this->FOGCore->getSetting('FOG_SERVICE_USERTRACKER_ENABLED'),
+			'dircleanup' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_DIRECTORYCLEANER_ENABLED') : 'FOG_SERVICE_DIRECTORYCLEANER_ENABLED',
+			'usercleanup' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_USERCLEANUP_ENABLED') : 'FOG_SERVICE_USERCLEANUP_ENABLED',
+			'displaymanager' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_ENABLED') : 'FOG_SERVICE_DISPLAYMANAGER_ENABLED',
+			'autologout' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_ENABLED') : 'FOG_SERVICE_AUTOLOGOFF_ENABLED',
+			'greenfog' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_GREENFOG_ENABLED') : 'FOG_SERVICE_GREENFOG_ENABLED',
+			'hostnamechanger' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_HOSTNAMECHANGER_ENABLED') : 'FOG_SERVICE_HOSTNAMECHANGER_ENABLED',
+			'snapinclient' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_SNAPIN_ENABLED') : 'FOG_SERVICE_SNAPIN_ENABLED',
+			'clientupdater' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_CLIENTUPDATER_ENABLED') : 'FOG_SERVICE_CLIENTUPDATER_ENABLED',
+			'hostregister' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_HOSTREGISTER_ENABLED') : 'FOG_SERVICE_HOSTREGISTER_ENABLED',
+			'printermanager' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_PRINTERMANAGER_ENABLED') : 'FOG_SERVICE_PRINTERMANAGER_ENABLED',
+			'taskreboot' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_TASKREBOOT_ENABLED') : 'FOG_SERVICE_TASKREBOOT_ENABLED',
+			'usertracker' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_USERTRACKER_ENABLED') : 'FOG_SERVICE_USERTRACKER_ENABLED',
 		);
 	}
 	/** binary_search Searches array of objects, or array for the needle
