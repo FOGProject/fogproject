@@ -63,8 +63,13 @@ class Image extends FOGController
 	{
 		if (!$this->isLoaded('storageGroups') && $this->get('id'))
 		{
-			foreach($this->getClass('ImageAssociationManager')->find(array('imageID' => $this->get('id'))) AS $IAStore)
-				$this->add('storageGroups',$IAStore->getStorageGroup());
+			if ($this->getClass('ImageAssociationManager')->count(array('imageID' => $this->get('id'))) > 0)
+			{
+				foreach($this->getClass('ImageAssociationManager')->find(array('imageID' => $this->get('id'))) AS $IAStore)
+					$this->add('storageGroups',$IAStore->getStorageGroup());
+			}
+			else
+				$this->add('storageGroups',current($this->getClass('StorageGroupManager')->find()));
 		}
 		return $this;
 	}
