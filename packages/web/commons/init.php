@@ -286,6 +286,7 @@ ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M'
 $_SESSION['chunksize'] = 8192;
 // Generate the Server's Key Pairings
 $FOGCore->createKeyPair();
+$FOGCore->safeImageGroups();
 // Set the base image link.
 if (!preg_match('#/mobile/#',$_SERVER['PHP_SELF']))
 	$imagelink = ($theme ? 'css/'.dirname($theme).'/images/' : 'css/default/images/');
