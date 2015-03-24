@@ -58,7 +58,9 @@ abstract class FOGManagerController extends FOGBase
 		{
 			if (empty($keyword))
 				$keyword = preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? $_REQUEST['host-search'] : $_REQUEST['crit'];
-			$keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', $keyword).'%');
+			$keyword = preg_replace('#%+#', '%', preg_replace('#[[:space:]]#', '%', $keyword).'%');
+			if ($keyword === '%')
+				return $this->getClass($this->childClass.'Manager')->find();
 			$_SESSION['caller'] = __FUNCTION__;
 			if (empty($keyword))
 				throw new Exception('No keyword passed');
@@ -79,7 +81,7 @@ abstract class FOGManagerController extends FOGBase
 				$GroupIDs = $this->getClass('GroupManager')->find(array('name' => $keyword,'description' => $keyword),'OR','','','','','','id');
 				$SnapinIDs = $this->getClass('SnapinManager')->find(array('name' => $keyword,'description' => $keyword,'file' => $keyword),'OR','','','','','','id');
 				$PrinterIDs = $this->getClass('PrinterManager')->find(array('name' => $keyword),'OR','','','','','','id');
-				//$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
+				$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
 				$GroupHostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $GroupIDs),'','','','','','','hostID');
 				$SnapinHostIDs = $this->getClass('SnapinAssociationManager')->find(array('snapinID' => $SnapinIDs),'','','','','','','hostID');
 				$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $PrinterIDs),'','','','','','','hostID');
