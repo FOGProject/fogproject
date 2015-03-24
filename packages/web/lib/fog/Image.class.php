@@ -142,11 +142,13 @@ class Image extends FOGController
 		}
 		if ($this->isLoaded('storageGroups'))
 		{
+			$me = $this->getClass('ImageAssociationmanager')->find(array('imageID' => $this->get('id')));
 			// Remove old rows
 			$this->getClass('ImageAssociationManager')->destroy(array('imageID' => $this->get('id')));
 			// Create Assoc
-			foreach((array)$this->get('storageGroups') AS $Group)
+			foreach((array)$me AS $Group)
 			{
+				$Group = $Group->getStorageGroup();
 				if (($Group instanceof StorageGroup) && $Group->isValid())
 				{
 					$NewGroup = new ImageAssociation(array(
