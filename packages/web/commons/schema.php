@@ -1861,3 +1861,8 @@ $this->schema[] = array(
 $this->schema[] = array(
 	"DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_AES_PASS_ENCRYPT_KEY'",
 );
+// 168
+$this->schema[] = array(
+	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+	 values('FOG_KERNEL_DEBUG','This setting allows the user to have the kernel debug flag set. Default is off.','0','FOG Boot Settings')",
+);

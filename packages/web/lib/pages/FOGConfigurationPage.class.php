@@ -649,6 +649,7 @@ class FOGConfigurationPage extends FOGPage
 			'FOG_AES_ENCRYPT',
 			'FOG_EMAIL_ACTION',
 			'FOG_FTP_IMAGE_SIZE',
+			'FOG_KERNEL_DEBUG',
 		);
 		// Set title
 		$this->title = _("FOG System Settings");
