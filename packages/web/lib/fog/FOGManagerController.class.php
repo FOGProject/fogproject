@@ -77,17 +77,17 @@ abstract class FOGManagerController extends FOGBase
 			// Get the IDs of the objects we are trying to "scan" for
 			if ($this->childClass == 'Host')
 			{
-				$ImageIDs = $this->getClass('ImageManager')->find(array('name' => $keyword,'description' => $keyword),'OR','','','','','','id');
-				$GroupIDs = $this->getClass('GroupManager')->find(array('name' => $keyword,'description' => $keyword),'OR','','','','','','id');
-				$SnapinIDs = $this->getClass('SnapinManager')->find(array('name' => $keyword,'description' => $keyword,'file' => $keyword),'OR','','','','','','id');
-				$PrinterIDs = $this->getClass('PrinterManager')->find(array('name' => $keyword),'OR','','','','','','id');
+				$ImageIDs = $this->getClass('ImageManager')->find(array('name' => $keyword),'','','','','','','id');
+				$GroupIDs = $this->getClass('GroupManager')->find(array('name' => $keyword),'','','','','','','id');
+				$SnapinIDs = $this->getClass('SnapinManager')->find(array('name' => $keyword,'file' => $keyword),'OR','','','','','','id');
+				$PrinterIDs = $this->getClass('PrinterManager')->find(array('name' => $keyword),'','','','','','','id');
 				$ImageHostIDs = $this->getClass('HostManager')->find(array('imageID' => $ImageIDs),'','','','','','','id');
 				$GroupHostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $GroupIDs),'','','','','','','hostID');
 				$SnapinHostIDs = $this->getClass('SnapinAssociationManager')->find(array('snapinID' => $SnapinIDs),'','','','','','','hostID');
 				$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $PrinterIDs),'','','','','','','hostID');
 				$HostIDs = array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs));
 				$findWhere = array('id' => $HostIDs);
-				unset($GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$GroupHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
+				unset($GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$ImageHostIDs,$GroupHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
 			}
 			else if ($this->childClass == 'Group')
 			{
