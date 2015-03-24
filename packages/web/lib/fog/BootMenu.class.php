@@ -120,7 +120,7 @@ class BootMenu extends FOGBase
 		// Specify the default calls.
 		$this->memdisk = "kernel $memdisk";
 		$this->memtest = "initrd $memtest";
-		$this->kernel = "kernel $bzImage initrd=$initrd root=/dev/ram0 rw ramdisk_size=$ramsize keymap=$keymap web=${webserver}${webroot} consoleblank=0";
+		$this->kernel = "kernel $bzImage $this->loglevel initrd=$initrd root=/dev/ram0 rw ramdisk_size=$ramsize keymap=$keymap web=${webserver}${webroot} consoleblank=0".($this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : '');
 		$this->initrd = "imgfetch $imagefile";
 		// Set the default line based on all the menu entries and only the one with the default set.
 		$defMenuItem = current($this->getClass('PXEMenuOptionsManager')->find(array('default' => 1)));
@@ -297,7 +297,7 @@ class BootMenu extends FOGBase
         $kernelArgs = array_unique($kernelArgs);
 		$Send['task'] = array(
 			"#!ipxe",
-        	"$this->kernel $this->loglevel ".implode(' ',(array)$kernelArgs).($this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : ''),
+        	"$this->kernel ".implode(' ',(array)$kernelArgs),
         	"$this->initrd",
         	"boot",
 		);
@@ -458,7 +458,6 @@ class BootMenu extends FOGBase
 			"storageip=$storageip",
 			"web=$this->web",
 			"osid=$osid",
-			$this->loglevel,
 			"consoleblank=0",
 			"irqpoll",
 			"chkdsk=$chkdsk",
@@ -634,7 +633,7 @@ class BootMenu extends FOGBase
 	{
 		$Send['debugaccess'] = array(
 			"#!ipxe",
-			"$this->kernel mode=onlydebug".($this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : ''),
+			"$this->kernel mode=onlydebug",
 			"$this->initrd",
 			"boot",
 		);
@@ -806,7 +805,6 @@ class BootMenu extends FOGBase
 				"storageip=$storageip",
 				"web=$this->web",
 				"osid=$osid",
-				$this->loglevel,
 				"consoleblank=0",
 				"irqpoll",
 				"hostname=".$this->Host->get('name'),
@@ -984,7 +982,7 @@ class BootMenu extends FOGBase
 		{
 			$Send = array(
 				":$option",
-				"$this->kernel $this->loglevel $type".($this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : ''),
+				"$this->kernel $this->loglevel $type",
 				"$this->initrd",
 				"boot || goto MENU",
 			);
