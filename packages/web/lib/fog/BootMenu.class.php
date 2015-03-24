@@ -29,7 +29,7 @@
 class BootMenu extends FOGBase
 {
 	// Variables
-	private $Host,$kernel,$initrd,$booturl,$memdisk,$memtest,$web,$defaultChoice,$bootexittype;
+	private $Host,$kernel,$initrd,$booturl,$memdisk,$memtest,$web,$defaultChoice,$bootexittype,$loglevel;
 	private $storage, $shutdown, $path;
 	private $hiddenmenu, $timeout, $KS;
 	public $debug;
@@ -43,6 +43,7 @@ class BootMenu extends FOGBase
 	public function __construct($Host = null)
 	{
 		parent::__construct();
+		$this->loglevel = 'loglevel='.$this->FOGCore->getSetting('FOG_KERNEL_LOGLEVEL');
 		// Setups of the basic construct for the menu system.
 		$StorageNode = current($this->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'isMaster' => 1)));
 		// Sets up the default values stored in the server. Lines 51 - 64
@@ -296,7 +297,7 @@ class BootMenu extends FOGBase
         $kernelArgs = array_unique($kernelArgs);
 		$Send['task'] = array(
 			"#!ipxe",
-        	"$this->kernel loglevel=4 ".implode(' ',(array)$kernelArgs).($this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : ''),
+        	"$this->kernel $this->loglevel ".implode(' ',(array)$kernelArgs).($this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : ''),
         	"$this->initrd",
         	"boot",
 		);
@@ -457,7 +458,7 @@ class BootMenu extends FOGBase
 			"storageip=$storageip",
 			"web=$this->web",
 			"osid=$osid",
-			"loglevel=4",
+			$this->loglevel,
 			"consoleblank=0",
 			"irqpoll",
 			"chkdsk=$chkdsk",
@@ -805,7 +806,7 @@ class BootMenu extends FOGBase
 				"storageip=$storageip",
 				"web=$this->web",
 				"osid=$osid",
-				"loglevel=4",
+				$this->loglevel,
 				"consoleblank=0",
 				"irqpoll",
 				"hostname=".$this->Host->get('name'),
@@ -983,7 +984,7 @@ class BootMenu extends FOGBase
 		{
 			$Send = array(
 				":$option",
-				"$this->kernel loglevel=4 $type".($this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : ''),
+				"$this->kernel $this->loglevel $type".($this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : ''),
 				"$this->initrd",
 				"boot || goto MENU",
 			);
