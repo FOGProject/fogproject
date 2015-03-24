@@ -67,6 +67,7 @@ class ServiceConfigurationPage extends FOGPage
 		$this->index();
 		print "\n\t\t\t</div>";
 		$moduleName = $this->getGlobalModuleStatus();
+		$modNames = $this->getGlobalModuleStatus(true);
 		$Modules = $this->getClass('ModuleManager')->find();
 		foreach ((array)$Modules AS $Module)
 		{
@@ -101,7 +102,7 @@ class ServiceConfigurationPage extends FOGPage
 				'field' => '<input type="hidden" name="name" value="${mod_name}" />',
 				'input' => '<input type="hidden" name="updatestatus" value="1" />',
 				'span' => '<input type="submit" value="'._('Update').'" />',
-				'mod_name' => $moduleName[$Module->get('shortName')],
+				'mod_name' => $modNames[$Module->get('shortName')],
 			);
 			print "\n\t\t\t<!-- "._($Module->get('name'))."  -->";
 			print "\n\t\t\t".'<div id="'.$Module->get('shortName').'">';
@@ -110,7 +111,6 @@ class ServiceConfigurationPage extends FOGPage
 			print "\n\t\t\t<p>"._($Module->get('description')).'</p>';
 			print "\n\t\t\t<h2>"._('Service Status').'</h2>';
 			// Hook
-			// $this->HookManager->processEvent()
 			// Output
 			$this->render();
 			print "</form>";
@@ -145,7 +145,7 @@ class ServiceConfigurationPage extends FOGPage
 				print "\n\t\t\t<h2>"._('Add Directory').'</h2>';
 				print "\n\t\t\t".'<form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'">';
 				print "\n\t\t\t<p>"._('Directory Path').': <input type="text" name="adddir" /></p>';
-				print "\n\t\t\t".'<p><input type="hidden" name="name" value="'.$moduleName[$Module->get('shortName')].'" /><input type="submit" value="'._('Add Directory').'" /></p>';
+				print "\n\t\t\t".'<p><input type="hidden" name="name" value="'.$modNames[$Module->get('shortName')].'" /><input type="submit" value="'._('Add Directory').'" /></p>';
 				print "\n\t\t\t<h2>"._('Directories Cleaned').'</h2>';
 				$dirs = $this->getClass('DirCleanerManager')->find();
 				foreach ((array)$dirs AS $DirCleaner)
@@ -187,7 +187,7 @@ class ServiceConfigurationPage extends FOGPage
 						'width' => $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_X'),
 						'height' => $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'),
 						'refresh' => $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'),
-						'mod_name' => $moduleName[$Module->get('shortName')],
+						'mod_name' => $modNames[$Module->get('shortName')],
 					);
 				}
 				// Hook
@@ -216,7 +216,7 @@ class ServiceConfigurationPage extends FOGPage
 				print "\n\t\t\t<h2>"._('Shutdown/Reboot Schedule').'</h2>';
 				print "\n\t\t\t".'<form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'">';
 				print "\n\t\t\t<p>"._('Add Event (24 Hour Format):').'<input class="short" type="text" name="h" maxlength="2" value="HH" onFocus="this.value=\'\'" />:<input class="short" type="text" name="m" maxlength="2" value="MM" onFocus="this.value=\'\'" /><select name="style" size="1"><option value="">'._('Select One').'</option><option value="s">'._('Shut Down').'</option><option value="r">'._('Reboot').'</option></select></p>';
-				print "\n\t\t\t".'<p><input type="hidden" name="name" value="'.$moduleName[$Module->get('shortName')].'" /><input type="hidden" name="addevent" value="1" /><input type="submit" value="'._('Add Event').'" /></p>';
+				print "\n\t\t\t".'<p><input type="hidden" name="name" value="'.$modNames[$Module->get('shortName')].'" /><input type="hidden" name="addevent" value="1" /><input type="submit" value="'._('Add Event').'" /></p>';
 				$greenfogs = $this->getClass('GreenFogManager')->find();
 				foreach((array)$greenfogs AS $GreenFog)
 				{
@@ -257,7 +257,7 @@ class ServiceConfigurationPage extends FOGPage
 					$this->data[] = array(
 						'field' => $field,
 						'input' => $input,
-						'mod_name' => $moduleName[$Module->get('shortName')],
+						'mod_name' => $modNames[$Module->get('shortName')],
 					);
 				}
 				$this->render();
