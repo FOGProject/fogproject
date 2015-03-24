@@ -516,7 +516,7 @@ class FOGCore extends FOGBase
 		foreach($this->getClass('ImageManager')->find() AS $Image)
 		{
 			if ($Image && $Image->isValid() && !$Image->getStorageGroup())
-				$Image->addGroup(current($this->getClass('StorageGroupManager')->find())->get('id'))->save();
+				$Image->addGroup(current($this->getClass('StorageGroupManager')->find())->get('id'));
 		}
 	}
 }
