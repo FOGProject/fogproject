@@ -561,7 +561,7 @@ class Config
 		clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi";
 		curl -sl --silent -f $clienturl &>/dev/null;
 		if [[ "$?" = "0" ]]; then
-			curl -o --silent "${webdirdest}/client/FOGService.msi" $clienturl >/dev/null 2>&1;
+			curl --silent -o "${webdirdest}/client/FOGService.msi" $clienturl >/dev/null 2>&1;
 			echo "OK";
 		else
 			echo "Failed";
