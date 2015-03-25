@@ -374,7 +374,7 @@ class HostManagementPage extends FOGPage
 			if ($Host->save())
 			{
 				$Host->addModule($ModuleIDs);
-				$Host->addPriMAC(new MACAddress($_REQUEST['mac']));
+				$Host->addPriMAC($MAC);
 				// Hook
 				$this->HookManager->processEvent('HOST_ADD_SUCCESS', array('Host' => &$Host));
 				// Log History event
