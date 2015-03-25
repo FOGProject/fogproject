@@ -534,7 +534,7 @@ class Config
 		clientVer=`php -f ${webdirdest}/service/getclient.php`;
 		cd $cwd;
 		clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi";
-		if [[ `wget -S --spider $clienturl 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
+		if [[ `curl -sl --silent $clienturl &>/dev/null` -e 0 ]]; then
 			wget -O "${webdirdest}/client/FOGService.msi" $clienturl >/dev/null 2>&1;
 			echo "OK";
 		else
