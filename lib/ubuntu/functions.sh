@@ -534,16 +534,16 @@ class Config
 		clientVer=`php -f ${webdirdest}/service/getclient.php`;
 		cd $cwd;
 		clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi";
-		curl -sl --silent $clienturl &>/dev/null;
+		curl -sl --silent -f $clienturl &>/dev/null;
 		if [[ "$?" = "0" ]]; then
-			wget -O "${webdirdest}/client/FOGService.msi" $clienturl >/dev/null 2>&1;
+			curl -o --silent "${webdirdest}/client/FOGService.msi" $clienturl >/dev/null 2>&1;
 			echo "OK";
 		else
 			echo "Failed";
-			echo "\t\tYou can try downloading the file yourself by running";
-			echo "\t\tInstallation will continue.  Once complete you can";
-			echo "\t\trun the command:";
-			echo "\t\t\twget -O ${webdirdest}/client/FOGService.msi $clienturl";
+			echo "        You can try downloading the file yourself by running";
+			echo "        Installation will continue.  Once complete you can";
+			echo "        run the command:";
+			echo "            wget -O ${webdirdest}/client/FOGService.msi $clienturl";
 		fi
 		if [ -d "${webdirdest}.prev" ]; then
 			echo -n "  * Copying back any custom hook files...";
