@@ -709,8 +709,8 @@ class Host extends FOGController
 						{
 							foreach ((array)$this->get('snapins') AS $Snapin)
 							{
-								if ($this->get('snapinjob') && $this->get('snapinjob')->isValid())
-									$ST = current((array)$this->getClass('SnapinTaskManager')->find(array('snapinID' => $Snapin->get('id'), 'stateID' => array(-1,0,1),'jobID' => $this->get('snapinjob')->get('id'))));
+								if ($SnapinJob && $SnapinJob->isValid())
+									$ST = current((array)$this->getClass('SnapinTaskManager')->find(array('snapinID' => $Snapin->get('id'), 'stateID' => array(-1,0,1),'jobID' => $SnapinJob->get('id'))));
 								if (!$ST || !$ST->isValid())
 								{
 									$ST = new SnapinTask(array(
@@ -721,10 +721,12 @@ class Host extends FOGController
 									$ST->save();
 								}
 								else
-									$ST->set('jobID',$this->get('snapinjob')->get('id'))
+								{
+									$ST->set('jobID',$SnapinJob->get('id'))
 									   ->set('stateID', 0)
 									   ->set('snapinID', $Snapin->get('id'))
 									   ->save();
+								}
 							}
 						}
 						else
