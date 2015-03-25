@@ -1000,7 +1000,7 @@ class Host extends FOGController
 	public function addPriMAC($MAC)
 	{
 		$this->addAddMAC($MAC,false,true);
-		$this->set('mac',$MAC);
+		$this->set('mac',new MACAddress($MAC));
 		return $this;
 	}
 	public function addPendMAC($MAC)
