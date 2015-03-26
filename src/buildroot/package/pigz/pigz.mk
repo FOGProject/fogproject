@@ -5,7 +5,7 @@
 #############################################################
 PIGZ_VERSION:=2.3.1
 PIGZ_SOURCE:=pigz-$(PIGZ_VERSION).tar.gz
-PIGZ_SITE:=zlib.net/pigz/
+PIGZ_SITE:=download.freenas.org/distfiles
 PIGZ_CAT:=$(ZCAT)
 PIGZ_DIR:=$(BUILD_DIR)/pigz-$(PIGZ_VERSION)
 PIGZ_BINARY:=pigz
