@@ -12,8 +12,8 @@ class FOGFTP extends FOGGetSet
 		'host'		=> '',
 		'username'	=> '',
 		'password'	=> '',
-		'port'		=> 21,
-		'timeout'	=> 10
+		'port'		=> '',
+		'timeout'	=> '', 
 	);
 	
 	// Links
@@ -23,6 +23,8 @@ class FOGFTP extends FOGGetSet
 	public $passiveMode = true;
 	public function connect()
 	{
+		$this->set('port',$this->FOGCore->getSetting('FOG_FTP_PORT'));
+		$this->set('timeout',$this->FOGCore->getSetting('FOG_FTP_TIMEOUT'));
 		// Return if - already connected && last connection is the same || details unset
 		$connectionHash = md5(serialize($this->data));
 		if (($this->link && $this->lastConnectionHash == $connectionHash) || !$this->get('host') || !$this->get('username') || !$this->get('password') || !$this->get('port'))

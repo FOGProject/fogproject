@@ -13,7 +13,7 @@ try
 	$MACs = $FOGCore->getHostItem(true,false,false,true);
 	$Host = $FOGCore->getHostItem(false,false,true,false,true);
 	$HostPend = false;
-	if($_REQUEST['newService'] && (!$Host || ($Host instanceof Host && !$Host->isValid())))
+	if($_REQUEST['newService'] && !($Host instanceof Host && $Host->isValid()))
 	{
 		if (!$_REQUEST['hostname'] || !HostManager::isHostnameSafe($_REQUEST['hostname']))
 			throw new Exception('#!ih');
@@ -45,17 +45,17 @@ try
 		$mac1[] = strtolower($Host->get('mac'));
 		// Get all the additional MACs
 		foreach((array)$Host->get('additionalMACs') AS $mac)
-			$mac1[] = $mac && $mac->isValid() ? strtolower($mac) : '';
+			$mac1[] = $mac && $mac->isValid() ? strtolower($mac->__toString()) : '';
 		// Get all the pending MACs
 		foreach((array)$Host->get('pendingMACs') AS $mac)
-			$mac1[] = $mac && $mac->isValid() ? strtolower($mac) : '';
+			$mac1[] = $mac && $mac->isValid() ? strtolower($mac->__toString()) : '';
 		// Get all the mac's in the list to ensure we don't register a pending mac to another host.
 		// Particularly where the mac exists on a host but is set to be ignored.
-		foreach((array)$FOGCore->getClass('MACAddressAssociationManager')->find() AS $MAC)
+		foreach((array)$FOGCore->getClass('MACAddressAssociationManager')->find() AS $mac)
 		{
-			$MAC = strtolower($MAC);
-			if (!in_array($MAC,(array)$mac1))
-				$mac1[] = $MAC;
+			$mac2 = strtolower($mac->get('mac'));
+			if (!in_array($mac2,(array)$mac1))
+				$mac1[] = $mac2;
 		}
 		// Cycle the ignorelist if there is anything.
 		if ($ignoreList)
