@@ -448,7 +448,7 @@ class Host extends FOGController
 		if ($this->isLoaded('mac'))
 		{
 			// Keep the ignored stuff if changing macs
-			$me = new MACAddress(current($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1))));
+			$me = $this->get('mac');
 			// Remove Existing Primary MAC Addresses
 			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 1));
 			// Add new Pending MAC Addresses
