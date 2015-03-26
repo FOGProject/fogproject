@@ -559,9 +559,9 @@ class Config
 		clientVer=`php -f ${webdirdest}/service/getclient.php`;
 		cd $cwd;
 		clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi";
-		curl -sl --silent -f $clienturl &>/dev/null;
+		curl -sl --silent -f -L $clienturl &>/dev/null;
 		if [[ "$?" = "0" ]]; then
-			curl --silent -o "${webdirdest}/client/FOGService.msi" $clienturl >/dev/null 2>&1;
+			curl --silent -o "${webdirdest}/client/FOGService.msi" -L $clienturl >/dev/null 2>&1;
 			echo "OK";
 		else
 			echo "Failed";
