@@ -170,7 +170,10 @@ class Host extends FOGController
 	private function loadAdditional()
 	{
 		if (!$this->isLoaded('macs'))
-			$this->set('macs',$this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'))));
+		{
+			foreach($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'))) AS $ADDME)
+				$this->add('macs',$ADDME);
+		}
 		if (!$this->isLoaded('additionalMACs') && $this->get('id'))
 		{
 			foreach($this->get('macs') AS $MACAdd)
@@ -184,7 +187,10 @@ class Host extends FOGController
 	private function loadPending()
 	{
 		if (!$this->isLoaded('macs'))
-			$this->set('macs',$this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'))));
+		{
+			foreach($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'))) AS $ADDME)
+				$this->add('macs',$ADDME);
+		}
 		if (!$this->isLoaded('pendingMACs') && $this->get('id'))
 		{
 			foreach($this->get('macs') AS $MACAdd)
@@ -462,6 +468,45 @@ class Host extends FOGController
 					'imageIgnore' => $me->isImageIgnored(),
 				));
 				$NewMAC->save();
+			}
+		}
+		if ($this->isLoaded('additionalMACs'))
+		{
+			$mymacs = $this->get('additionalMACs');
+			// Remove Existing MACs
+			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 0));
+			foreach($mymacs AS $me)
+			{
+				if (($me instanceof MACAddress) && $me->isValid())
+				{
+					$NewMAC = new MACAddressAssociation(array(
+						'hostID' => $this->get('id'),
+						'mac' => $me->__toString(),
+						'clientIgnore' => $me->isClientIgnored(),
+						'imageIgnore' => $me->isImageIgnored(),
+					));
+					$NewMAC->save();
+				}
+			}
+		}
+		if ($this->isLoaded('pendingMACs'))
+		{
+			$mymacs = $this->get('pendingMACs');
+			// Remove Existing MACs
+			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'pending' => 1));
+			foreach($mymacs AS $me)
+			{
+				if (($me instanceof MACAddress) && $me->isValid())
+				{
+					$NewMAC = new MACAddressAssociation(array(
+						'hostID' => $this->get('id'),
+						'mac' => $me->__toString(),
+						'pending' => 1,
+						'clientIgnore' => $me->isClientIgnored(),
+						'imageIgnore' => $me->isImageIgnored(),
+					));
+					$NewMAC->save();
+				}
 			}
 		}
 		// Modules
@@ -991,9 +1036,8 @@ class Host extends FOGController
 	}
 	public function removeAddMAC($removeArray)
 	{
-		$this->getClass('MACAddressAssociationManager')->destroy(array('mac' => $removeArray));
 		foreach((array)$removeArray AS $item)
-			$this->remove('macs',new MACAddress($item));
+			$this->remove('additionalMACs',new MACAddress($item));
 		// Return
 		return $this;
 	}
@@ -1010,9 +1054,8 @@ class Host extends FOGController
 	}
 	public function removePendMAC($removeArray)
 	{
-		$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'mac' => $removeArray,'pending' => 1));
 		foreach((array)$removeArray AS $item)
-			$this->remove('macs',new MACAddress($item));
+			$this->remove('pendingMACs',new MACAddress($item));
 		// Return
 		return $this;
 	}
