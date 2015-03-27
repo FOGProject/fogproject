@@ -331,6 +331,8 @@ class HostManagementPage extends FOGPage
 			// Error checking
 			if (empty($_REQUEST['host']))
 				throw new Exception(_('Hostname is required'));
+			if (!$this->getClass('HostManager')->isHostnameSafe($_REQUEST['host']))
+				throw new Exception(_('Please enter a valid hostname'));
 			if (empty($_REQUEST['mac']))
 				throw new Exception(_('MAC Address is required'));
 			$MAC = new MACAddress($_REQUEST['mac']);
@@ -1211,6 +1213,8 @@ class HostManagementPage extends FOGPage
 						throw new Exception('MAC Address is required');
 					if ($Host->get('name') != $_REQUEST['host'] && $HostManager->exists($_REQUEST['host']))
 						throw new Exception('Hostname Exists already');
+					if ($Host->get('name') != $_REQUEST['host'] && !$this->getClass('HostManager')->isHostnameSafe($_REQUEST['host']))
+						throw new Exception(_('Please enter a valid hostname'));
 					// Variables
 					$mac = new MACAddress($_REQUEST['mac']);
 					// Task variable.
