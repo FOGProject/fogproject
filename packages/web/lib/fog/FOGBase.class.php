@@ -598,12 +598,24 @@ abstract class FOGBase
 			$mid = $left + $right >> 1;
 			if (is_object($needle))
 			{
-				if ($values[$mid]->get('id') == $needle->get('id'))
-					return $keys[$mid];
-				elseif ($values[$mid] > $needle)
-					$right = $mid - 1;
-				elseif ($values[$mid] < $needle)
-					$left = $mid + 1;
+				if ($needle instanceof MACAddress)
+				{
+					if (strtolower($values[$mid]->__toString()) == strtolower($needle->__toString()))
+						return $keys[$mid];
+					elseif ($values[$mid] > $needle)
+						$right = $mid - 1;
+					elseif ($values[$mid] < $needle)
+						$left = $mid + 1;
+				}
+				else
+				{
+					if ($values[$mid]->get('id') == $needle->get('id'))
+						return $keys[$mid];
+					elseif ($values[$mid] > $needle)
+						$right = $mid - 1;
+					elseif ($values[$mid] < $needle)
+						$left = $mid + 1;
+				}
 			}
 			else
 			{
