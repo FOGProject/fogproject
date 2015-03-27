@@ -1009,33 +1009,41 @@ class Host extends FOGController
 	{
 		foreach((array)$addArray AS $item)
 		{
+			if (!$this->DB->insert_id())
+			{
+				$maxid = $this->getClass('MACAddressAssociationManager')->find('','','','','','','','id');
+				$maxid = max(array_unique($maxid));
+			}
+			else
+				$maxid = $this->DB->insert_id();
 			if (!($item instanceof MACAddress))
 				$item = new MACAddress($item);
 			if (($item instanceof MACAddress) && $item->isValid())
 			{
-				$NewMAC = new MACAddressAssociation(array(
+				$this->getClass('MACAddressAssociation',array(
+					'id' => $maxid + 1,
 					'hostID' => $this->get('id'),
 					'mac' => $item->__toString(),
 					'pending' => $pending,
 					'primary' => $primary,
 					'clientIgnore' => $clientIgnore,
 					'imageIgnore' => $imageIgnore,
-				));
-				$NewMAC->save();
+				))->save();
 			}
 		}
 		// Return
 		return $this;
 	}
 	public function addPendtoAdd($MAC)
-	{	
-		$this->removePendMAC($MAC);
+	{
 		$this->addAddMAC($MAC);
+		$this->removePendMAC($MAC);
 		// Return
 		return $this;
 	}
 	public function removeAddMAC($removeArray)
 	{
+		$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'mac' => $removeArray));
 		foreach((array)$removeArray AS $item)
 			$this->remove('additionalMACs',new MACAddress($item));
 		// Return
@@ -1054,6 +1062,7 @@ class Host extends FOGController
 	}
 	public function removePendMAC($removeArray)
 	{
+		$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'pending' => 1,'mac' => $removeArray));
 		foreach((array)$removeArray AS $item)
 			$this->remove('pendingMACs',new MACAddress($item));
 		// Return
