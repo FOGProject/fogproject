@@ -377,7 +377,15 @@ if [ -f "/images/postdownloadscripts/fog.postdownload" ]; then
 	. ${postdownpath}fog.postdownload;
 fi
 if [ "$capone" != "1" ]; then
-	changeHostname;
+	if [ "$osid" == "1" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" ]; then
+		parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
+		for part in $parts; do
+			fstype=`fsTypeSetting $part`;
+			if [ "$fstype" = "ntfs" ]; then
+				changeHostname;
+			fi
+		done
+	fi
 	echo "";
 	echo " * Updating Computer Database Status";
 	echo "";
