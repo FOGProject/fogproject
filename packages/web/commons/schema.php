@@ -1878,3 +1878,7 @@ $this->schema[] = array(
 	"INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
 	 values('FOG_FTP_TIMEOUT','This setting allows the user to specify the FTP Timeout. This value is entered in seconds. Default is 90.','90','General Settings')",
 );
+// 171
+$this->schema[] = array(
+	"DELETE FROM `" . DATABASE_NAME ."`.globalSettings WHERE settingKey IN ('FOG_MAX_UPLOADSIZE','FOG_POST_MAXSIZE')",
+);
