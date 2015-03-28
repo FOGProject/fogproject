@@ -147,7 +147,15 @@ abstract class FOGManagerController extends FOGBase
 				if (count($PrinterIDs))
 					$PrinterHostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $PrinterIDs),'','','','','','','hostID');
 				$HostIDs = array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs));
-				$findWhere = array('id' => $TaskIDs,'typeID' => $TaskTypeIDs,'stateID' => $TaskStateIDs,'hostID' => $HostIDs);
+				$findWhere = array();
+				if (count($TaskIDs))
+					$findWhere['id'] = $TaskIDs;
+				if (count($TaskTypeIDs))
+					$findWhere['typeID'] = $TaskTypeIDs;
+				if (count($TaskStateIDs))
+					$findWhere['stateID'] = $TaskStateIDs;
+				if (count($HostIDs))
+					$findWhere['hostID'] = $HostIDs;
 				unset($TaskIDs,$TaskTypeIDs,$GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$GroupHostIDs,$ImageHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
 			}
 			unset($_SESSION['caller']);
