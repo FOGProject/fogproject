@@ -984,7 +984,7 @@ class FOGConfigurationPage extends FOGPage
 		);
 		$this->data[0] = array(
 			'field' => _('Click the button to export the database.'),
-			'input' => '<input type="hidden" name="backup" value="1" /><input type="submit" value="'._('Export').'" />',
+			'input' => '<input type="submit" name="export" value="'._('Export').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="export.php?type=sql">';
 		$this->render();
