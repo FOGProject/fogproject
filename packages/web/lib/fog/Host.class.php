@@ -475,7 +475,7 @@ class Host extends FOGController
 			$mymacs = $this->get('additionalMACs');
 			// Remove Existing MACs
 			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 0));
-			foreach($mymacs AS $me)
+			foreach((array)$mymacs AS $me)
 			{
 				if (($me instanceof MACAddress) && $me->isValid())
 				{
@@ -494,7 +494,7 @@ class Host extends FOGController
 			$mymacs = $this->get('pendingMACs');
 			// Remove Existing MACs
 			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'pending' => 1));
-			foreach($mymacs AS $me)
+			foreach((array)$mymacs AS $me)
 			{
 				if (($me instanceof MACAddress) && $me->isValid())
 				{
