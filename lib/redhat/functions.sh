@@ -409,6 +409,8 @@ configureHttpd()
 	fi
 	echo -n "  * Setting up and starting Apache Web Server...";
 	chkconfig httpd on;
+	sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' /etc/php.ini
+	sed -i 's/upload_max_fileszie\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php.ini
 	service httpd restart >/dev/null 2>&1
 	sleep 2;
 	service httpd status >/dev/null 2>&1;
