@@ -147,7 +147,7 @@ class Image extends FOGController
 		}
 		if ($this->isLoaded('storageGroups'))
 		{
-			$me = $this->getClass('ImageAssociationmanager')->find(array('imageID' => $this->get('id')));
+			$me = $this->getClass('ImageAssociationManager')->find(array('imageID' => $this->get('id')));
 			// Remove old rows
 			$this->getClass('ImageAssociationManager')->destroy(array('imageID' => $this->get('id')));
 			// Create Assoc
