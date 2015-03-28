@@ -21,8 +21,8 @@
 # Ubuntu Config Settings
 
 # apt-get packages to install
-packages="apache2 php5 php5-json php5-gd php5-cli php5-curl mysql-server mysql-client isc-dhcp-server tftpd-hpa tftp-hpa nfs-kernel-server vsftpd net-tools wget xinetd  sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 htmldoc lftp openssh-server php-gettext php5-mcrypt php5-mysqlnd curl libcurl3 libcurl3-dev";
-storageNodePackages="apache2 php5 php5-json php5-cli php5-curl mysql-client nfs-kernel-server vsftpd net-tools wget xinetd sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 lftp php-gettext php5-mysqlnd curl libcurl3 libcurl3-dev";
+packages="apache2 php5 php5-json php5-gd php5-cli php5-curl mysql-server mysql-client isc-dhcp-server tftpd-hpa tftp-hpa nfs-kernel-server vsftpd net-tools wget xinetd  sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 htmldoc lftp openssh-server php-gettext php5-mcrypt php5-mysqlnd curl libc6 libcurl3 zlib1g";
+storageNodePackages="apache2 php5 php5-json php5-cli php5-curl mysql-client nfs-kernel-server vsftpd net-tools wget xinetd sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 lftp php-gettext php5-mysqlnd curl libc6 libcurl3 zlib1g";
 langPackages="language-pack-it language-pack-en language-pack-es language-pack-zh-hans";
 dhcpname="isc-dhcp-server";
 olddhcpname="dhcp3-server";
