@@ -727,7 +727,7 @@ class Host extends FOGController
 	{
 		// Error Checking
 		// If there are no snapins associated to the host fail out.
-		if (!$this->getClass('SnapinAssociationManager')->count(array('hostID' => $this->get('id'))))
+		if (in_array($this->get('task')->get('id'),array(12,13)) && !$this->getClass('SnapinAssociationManager')->count(array('hostID' => $this->get('id'))))
 			throw new Exception($this->foglang['SnapNoAssoc']);
 		// Create Snapin Job.  Only one job, but will do multiple SnapinTasks.
 		$SnapinJob = new SnapinJob(array(
