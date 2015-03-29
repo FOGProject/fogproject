@@ -27,7 +27,8 @@ class Ping
 	private function fsockopenPing()
 	{
 		$file = fsockopen($this->host,$this->port,$errno,$errstr,$this->timeout);
-		stream_set_blocking($file,false);
+		if ($file)
+			stream_set_blocking($file,false);
 		$status = 0;
 		!$file ? $status = 111 : fclose($file);
 		// 110 = ETIMEDOUT = Connection timed out
