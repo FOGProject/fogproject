@@ -119,7 +119,8 @@ class SnapinManagementPage extends FOGPage
 			if (!is_dir(rtrim($_SESSION['FOG_SNAPINDIR'],'/').'/'.$file))
 				$filelist[] = $file;
 		}
-		sort($filelist);
+		if ($filelist && is_array($filelist))
+			sort($filelist);
 		foreach((array)$filelist AS $file)
 			$filesFound .= '<option value="'.basename($file).'"'.(basename($_REQUEST['snapinfileexist']) == basename($file) ? 'selected="selected"' : '').'>'.basename($file).'</option>';
 		// Fields to work from:
