@@ -5,7 +5,7 @@ try
 	$Host = $FOGCore->getHostItem();
 	if ($Host->get('ADPass') && $_REQUEST['newService'])
 	{
-		$encdat = $Host->get('ADPass')
+		$encdat = $Host->get('ADPass');
 		$decrypt = $FOGCore->aesdecrypt($encdat);
 		if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true))
 			$password = $FOGCore->aesencrypt($decrypt);
