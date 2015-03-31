@@ -97,23 +97,23 @@ abstract class FOGBase
 			print sprintf('<div class="debug-info">FOG INFO: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 	}
 	/** __toString()
-		Returns data as a string.
-	*/
+	  * @return the item in string format
+	  */
 	public function __toString()
 	{
 		return (string)get_class($this);
 	}
 	/** toString()
-		Returns data as a string.
-	*/
+	  * @return the item in string format
+	  */
 	public function toString()
 	{
 		return $this->__toString();
 	}
 	/** isLoaded($key)
-		This sets the isLoaded flag.  If a key is loaded, it's true, otherwise false.
-		It's used in the primary class files to check if fields are loaded.
-	*/
+	  * @param $key the key to check if it is loaded
+	  * @return whether key is loaded or not
+	  */
 	public function isLoaded($key)
 	{
 		$result = (isset($this->isLoaded[$key]) ? $this->isLoaded[$key] : 0);
@@ -121,8 +121,9 @@ abstract class FOGBase
 		return ($result ? $result : false);
 	}
 	/** getClass($class)
-		Used primarily with FOGCore to get the classes by name.
-	*/
+	  * @param $class the class to get items of.
+	  * @return The instance of the class.
+	  */
 	public function getClass($class,$data = '')
 	{
 		$args = func_get_args();
@@ -131,12 +132,19 @@ abstract class FOGBase
 		return (count($args) ? $r->newInstanceArgs($args) : $r->newInstance($data));
 	}
 	/** endsWith($str,$sub)
-		Returns true if the sub and str match the ending stuff.
-	*/
+	  * @param $str the string to find out if it ends with
+	  * @param the sub to match
+	  * @return true or false if it ends with
+	  */
 	public function endsWith($str,$sub)
 	{
 		return (substr($str,strlen($str)-strlen($sub)) === $sub);
 	}
+	/** getFTPByteSize get the byte size from ftp for the file requests.
+	  * @param $StorageNode the storagenode to ftp to
+	  * @param $file the file to get the size of.
+	  * @return the size of the item prettied up from formatByteSize
+	  */
 	public function getFTPByteSize($StorageNode,$file)
 	{
 		try
@@ -158,11 +166,11 @@ abstract class FOGBase
 		$this->FOGFTP->close();
 		return $size;
 	}
-	/* 
-	* formatByteSize
-	* @param $size the size in byptes to format
-	* @return $size retunres the size formatted neatly.
-	*/
+	/** 
+	  * formatByteSize
+	  * @param $size the size in byptes to format
+	  * @return $size retunres the size formatted neatly.
+	  */
 	public function formatByteSize($size)
 	{
 		$units = array('%3.2f iB','%3.2f KiB','%3.2f MiB','%3.2f GiB','%3.2f TiB','%3.2f PiB','%3.2f EiB','%3.2f ZiB','%3.2f YiB');
@@ -170,23 +178,23 @@ abstract class FOGBase
 			$size /= 1024;
 		return sprintf($units[$i],round($size,2));
 	}
-	/*
-	* Inserts a new key/value before the key in the array.
-	*
-	* @param $key
-	*   The key to insert before.
-	* @param $array
-	*   An array to insert in to.
-	* @param $new_key
-	*   The key to insert.
-	* @param $new_value
-	*   An value to insert.
-	*
-	* @return
-	*   The new array if the key exists, FALSE otherwise.
-	*
-	* @see array_insert_after()
-	*/
+	/**
+	  * Inserts a new key/value before the key in the array.
+	  *
+	  * @param $key
+	  *   The key to insert before.
+	  * @param $array
+	  *   An array to insert in to.
+	  * @param $new_key
+	  *   The key to insert.
+	  * @param $new_value
+	  *   A value to insert.
+	  *
+	  * @return
+	  *   The new array if the key exists, FALSE otherwise.
+	  *
+	  * @see array_insert_after()
+	  */
 	public function array_insert_before($key, array &$array, $new_key, $new_value)
 	{
 		if (array_key_exists($key, $array)) 
@@ -202,23 +210,23 @@ abstract class FOGBase
 		}
 		return false;
 	}
-	/*
-	* Inserts a new key/value after the key in the array.
-	*
-	* @param $key
-	*   The key to insert after.
-	* @param $array
-	*   An array to insert in to.
-	* @param $new_key
-	*   The key to insert.
-	* @param $new_value
-	*   An value to insert.
-	*
-	* @return
-	*   The new array if the key exists, FALSE otherwise.
-	*
-	* @see array_insert_before()
-	*/
+	/**
+	  * Inserts a new key/value after the key in the array.
+	  *
+	  * @param $key
+	  *   The key to insert after.
+	  * @param $array
+	  *   An array to insert in to.
+	  * @param $new_key
+	  *   The key to insert.
+	  * @param $new_value
+	  *   A value to insert.
+	  *
+	  * @return
+	  *   The new array if the key exists, FALSE otherwise.
+	  *
+	  * @see array_insert_before()
+	  */
 	public function array_insert_after($key, array &$array, $new_key, $new_value)
 	{
 		if (array_key_exists($key, $array)) 
@@ -255,14 +263,14 @@ abstract class FOGBase
 			}
 		}
 	}
-	/*
-	* Generates a random string based on the length you pass.
-	*
-	* @param $length
-	*   The length of the returned value you want.
-	* @return
-	*   The string randomized.
-	*/
+	/**
+	  * Generates a random string based on the length you pass.
+	  *
+	  * @param $length
+	  *   The length of the returned value you want.
+	  * @return
+	  *   The string randomized.
+	  */
 	public function randomString($length)
 	{
 		$chars = array_merge(range('a','z'),range('A','Z'),range(0,9));
@@ -313,12 +321,12 @@ abstract class FOGBase
 		return $decipher;
 	}
 	/**
-	* diff($start,$end)
-	* Simply a function to return the difference of time between the start and end.
-	* @param $start Translate the sent start time to DateTime format for easy differentials.
-	* @param $end Translate the sent end time to Datetime format for easy differentials.
-	* @return $interval->format('%H:%I:%S') returns the datetime in number of hours, minutes, and seconds it took to perform the task.
-	*/
+	  * diff($start,$end)
+	  * Simply a function to return the difference of time between the start and end.
+	  * @param $start Translate the sent start time to DateTime format for easy differentials.
+	  * @param $end Translate the sent end time to Datetime format for easy differentials.
+	  * @return $interval->format('%H:%I:%S') returns the datetime in number of hours, minutes, and seconds it took to perform the task.
+	  */
 	public function diff($start,$end)
 	{
 		if (!$start instanceof DateTime)
@@ -329,22 +337,22 @@ abstract class FOGBase
 		return $Duration->format('%H:%I:%S');
 	}
 	/**
-	* nice_date($Date)
-	* Simply returns the date in DateTime Class format for easier use.
-	* @param $Date the non-nice Date Sent.
-	* @return $NiceDate returns the DateTime class for the current date.
-	*/
+	  * nice_date($Date)
+	  * Simply returns the date in DateTime Class format for easier use.
+	  * @param $Date the non-nice Date Sent.
+	  * @return $NiceDate returns the DateTime class for the current date.
+	  */
 	public function nice_date($Date = 'now',$utc = false)
 	{
 		$NiceDate = (!$utc ? new DateTime($Date,new DateTimeZone($this->TimeZone)) : new DateTime($Date,new DateTimeZone('UTC')));
 		return $NiceDate;
 	}
 	/**
-	* validDate($Date)
-	* Simply returns if the date is valid or not
-	* @param $Date the date, nice or not nice
-	* @return return whether Date/Time is valid or not
-	*/
+	  * validDate($Date)
+	  * Simply returns if the date is valid or not
+	  * @param $Date the date, nice or not nice
+	  * @return return whether Date/Time is valid or not
+	  */
 	public function validDate($Date,$format = '')
 	{
 		if ($format == 'N')
@@ -356,10 +364,11 @@ abstract class FOGBase
 		return DateTime::createFromFormat($format,$Date->format($format));
 	}
 	/** formatTime($time, $format = '')
-		format's time information.  If format is blank,
-		formats based on current date to date sent.  Otherwise
-		returns the information back based on the format requested.
-	*/
+	  * @param $time the time to format
+	  * @param $format what format to output the time if set.
+	  * @param $utc whether to use UTC or local timezone.
+	  * @return formatted time
+	  */
 	public function formatTime($time, $format = false, $utc = false)
 	{
 		if (!$time instanceof DateTime)
@@ -419,8 +428,9 @@ abstract class FOGBase
 		return $RetDate;
 	}
 	/** resetRequest()
-	* Simply resets the request so data, even if invalid, will populate form.
-	*/
+	  * Simply resets the request so data, even if invalid, will populate form.
+	  * @return void
+	  */
 	public function resetRequest()
 	{
 		$_REQUESTVARS = $_REQUEST;
@@ -432,17 +442,19 @@ abstract class FOGBase
 		unset($_SESSION['post_request_vals'], $_REQUESTVARS);
 	}
 	/** setRequest()
-	* Simply sets the session Request variables as a session variable
-	*/
+	  * Simply sets the session Request variables as a session variable
+	  * @return void
+	  */
 	public function setRequest()
 	{
 		if (!$_SESSION['post_request_vals'] && $this->FOGCore->isPOSTRequest())
 			$_SESSION['post_request_vals'] = $_REQUEST;
 	}
-	/** array_filter_recursive($input) 
-	* @param $input the input to filter
-	* clean up arrays recursively.
-	*/
+	/** array_filter_recursive($input)
+	  * @param $input the input to filter
+	  * clean up arrays recursively.
+	  * @return the filtered array
+	  */
 	public function array_filter_recursive(&$input,$keepkeys = false)
 	{
 		foreach($input AS &$value)
@@ -456,17 +468,17 @@ abstract class FOGBase
 		return $input;
 	}
 	/** byteconvert($kilobytes)
-	* @param $kilobytes
-	* @return $kilobytes
-	**/
+	  * @param $kilobytes
+	  * @return $kilobytes
+	  */
 	public function byteconvert($kilobytes)
 	{
 		return (($kilobytes / 8) * 1024);
 	}
 	/** certEncrypt($data)
-	* @param $data the data to encrypt
-	* @return $encrypt returns the encrypted data
-	**/
+	  * @param $data the data to encrypt
+	  * @return $encrypt returns the encrypted data
+	  */
 	public function certEncrypt($data,$Host)
 	{
 		// Get the public key of the recipient
@@ -495,10 +507,10 @@ abstract class FOGBase
 		return base64_encode($output);
 	}
 	/** hex2bin($hex)
-	* @param $hex
-	* Function simple takes the data and transforms it into hexadecimal.
-	* @return the hex coded data.
-	*/
+	  * @param $hex
+	  * Function simply takes the data and transforms it into hexadecimal.
+	  * @return the hex coded data.
+	  */
 	public function hex2bin($hex)
 	{
 		if (function_exists('hex2bin'))
@@ -521,9 +533,9 @@ abstract class FOGBase
 		return $sbin;
 	}
 	/** certDecrypt($data)
-	* @param $data the data to decrypt
-	* @return $output the decrypted data
-	**/
+	  * @param $data the data to decrypt
+	  * @return $output the decrypted data
+	  */
 	public function certDecrypt($data,$padding = true)
 	{
 		if ($padding)
