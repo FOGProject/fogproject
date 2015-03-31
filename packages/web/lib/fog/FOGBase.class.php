@@ -269,6 +269,13 @@ abstract class FOGBase
 		shuffle($chars);
 		return implode(array_slice($chars,0,$length));
 	}
+	/** aesencrypt aes encrypts the data sent.
+	  * @param $data the data to encrypt
+	  * @param $key if false, have fog generate a random key for it.
+	  * @param $enctype can be set to anything but defaults to MCRYPT_RIJNDAEL_128
+	  * @param $mode the mode to encrypt with defaults as MCRYPT_MODE_CBC
+	  * @return  the iv and the encrypted data. If key wasn't specified it also sends the key with the return.
+	  */
 	public function aesencrypt($data,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
 	{
 
@@ -279,19 +286,29 @@ abstract class FOGBase
 		$iv_size = mcrypt_get_iv_size($enctype,$mode);
 		// Generate a one time, secure and random key if the key hasn't been entered already
 		if (!$key)
+		{
+			$addKey = true;
 			$key = openssl_random_pseudo_bytes($iv_size,$cstrong);
+		}
 		$iv = mcrypt_create_iv($iv_size,MCRYPT_DEV_URANDOM);
 		$cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
-		return bin2hex($iv)."|".bin2hex($cipher);
-		// return $a_key['bits'].'|'.$iv.base64_encode($cipher);
+		return bin2hex($iv).'|'.bin2hex($cipher).($addKey ? '|'.bin2hex($key) : '');
 	}
-	public function aesdecrypt($encdata,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
+	/** aesencrypt aes decrypts the data sent.
+	  * @param $encdata the data to decrypt
+	  * @param $key if false, have fog grab it from the output.
+	  * @param $enctype can be set to anything but defaults to MCRYPT_RIJNDAEL_128
+	  * @param $mode the mode to encrypt with defaults as MCRYPT_MODE_CBC
+	  * @return the decrypted data.
+	  */
+	public function aesdecrypt($encdata,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
 	{
 		$iv_size = mcrypt_get_iv_size($enctype,$mode);
 		$data = explode('|',$encdata);
 		$iv = pack('H*',$data[0]);
 		$encoded = pack('H*',$data[1]);
-		$key = pack('H*',$data[2]);
+		if (!$key)
+			$key = pack('H*',$data[2]);
 		$decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
 		return $decipher;
 	}
@@ -513,10 +530,7 @@ abstract class FOGBase
 			$padding = OPENSSL_PKCS1_PADDING;
 		else
 			$padding = OPENSSL_NO_PADDING;
-		if (function_exists('hex2bin'))
-			$data = hex2bin($data);
-		else
-			$data = $this->hex2bin($data);
+		$data = $this->hex2bin($data);
 		$path = '/'.trim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/');
 		$path = !$path ? '/opt/fog/snapins/ssl/' : $path.'/';
 		if (!$priv_key = openssl_pkey_get_private(file_get_contents($path.'.srvprivate.key')))
@@ -537,6 +551,11 @@ abstract class FOGBase
 		openssl_free_key($priv_key);
 		return $output;
 	}
+	/** parseMacList function takes the string of the MAC addresses sent
+	  *     it then tests if they are each valid macs and returns just the mac's.
+	  * @param $stringlist the list of MACs to check.  Each mac is broken by a | character.
+	  * @return $MAClist, returns the list of valid MACs
+	  */
 	public static function parseMacList($stringlist)
 	{
 		$MACs = explode('|',$stringlist);
@@ -550,11 +569,19 @@ abstract class FOGBase
 			$MAClist = false;
 		return $MAClist;
 	}
+	/** getActivePlugins gets the active plugins.
+	  * @return the array of active plugin names.
+	  */
 	public function getActivePlugins()
 	{
 		return $this->getClass('PluginManager')->find(array('installed' => 1),'','','','','','','name');
 	}
-
+	/** array_ksort
+	  * sorts the array by the keys.
+	  * @param (array) $array the array to compare
+	  * @param (array) $orderArray the array to sort itself
+	  * @return combined array.
+	  */
 	public function array_ksort(Array $array,Array $orderArray) {
 		$ordered = array();
 		foreach($orderArray AS $key) {
@@ -565,6 +592,10 @@ abstract class FOGBase
 		}
 		return $ordered + $array;
 	}
+	/** getGlobalModuleStatus
+	  * @param $names returns the short and long names, otherwise returns if the long is set.  Default is false.
+	  * @return the array of data as requested.
+	  */
 	public function getGlobalModuleStatus($names = false)
 	{
 		return array(
