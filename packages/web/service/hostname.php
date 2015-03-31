@@ -5,11 +5,10 @@ try
 	$Host = $FOGCore->getHostItem();
 	if ($Host->get('ADPass') && $_REQUEST['newService'])
 	{
-		$encdat = substr($Host->get('ADPass'),0,-32);
-		$enckey = substr($Host->get('ADPass'),-32);
-		$decrypt = $FOGCore->aesdecrypt($encdat,$enckey);
+		$encdat = $Host->get('ADPass')
+		$decrypt = $FOGCore->aesdecrypt($encdat);
 		if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true))
-			$password = $FOGCore->aesencrypt($decrypt,$FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY')).$FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY');
+			$password = $FOGCore->aesencrypt($decrypt);
 		else
 			$password = $Host->get('ADPass');
 		$Host->set('ADPass',trim($password))->save();
