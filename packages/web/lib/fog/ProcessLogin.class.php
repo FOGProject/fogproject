@@ -110,7 +110,7 @@ class ProcessLogin extends FOGBase
 		$this->setRedirMode();
 		$this->currentUser = $currentUser;
 		// Hook
-		if (!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
+		if (!preg_match('#/mobile/#',$_SERVER['PHP_SELF']))
 			$this->HookManager->processEvent('LoginSuccess', array('user' => &$currentUser, 'username' => $this->username, 'password' => &$this->password));
 	}
 
@@ -129,8 +129,7 @@ class ProcessLogin extends FOGBase
 	{
 		$this->setLang();
 		// Hook
-		if (!preg_match('#mobile#i',$_SERVER['PHP_SELF']))
-			$this->HookManager->processEvent('LoginFail', array('username' => &$this->username, 'password' => &$this->password));
+		$this->HookManager->processEvent('LoginFail', array('username' => &$this->username, 'password' => &$this->password));
 		$this->FOGCore->setMessage($string);
 	}
 
@@ -148,31 +147,15 @@ class ProcessLogin extends FOGBase
 			{
 				if (!$tmpUser || !$tmpUser->isValid())
 					throw new Exception($this->foglang['InvalidLogin']);
-				if ($tmpUser->get('type') == 0 && $tmpUser->get('type') != 1)
+				if (!preg_match('#/mobile/#',$_SERVER['PHP_SELF']))
+				{
+					if ($tmpUser->get('type') == 0 && $tmpUser->get('type') != 1)
+						$this->setCurUser($tmpUser);
+					else if ($tmpUser->get('type') == 0)
+						throw new Exception($this->foglang['NotAllowedHere']);
+				}
+				else
 					$this->setCurUser($tmpUser);
-				else if ($tmpUser->get('type') == 0)
-					throw new Exception($this->foglang['NotAllowedHere']);
-			}
-			catch (Exception $e)
-			{
-				$this->loginFail($e->getMessage());
-			}
-		}
-	}
-
-	public function processMobileLogin()
-	{
-		$this->setLang();
-		if (isset($_REQUEST['uname']) && isset($_REQUEST['upass']))
-		{
-			$this->username = trim($_REQUEST['uname']);
-			$this->password = trim($_REQUEST['upass']);
-			$tmpUser = $this->FOGCore->attemptLogin($this->username, $this->password);
-			try
-			{
-				if (!$tmpUser || !$tmpUser->isValid())
-					throw new Exception($this->foglang['InvalidLogin']);
-				$this->setCurUser($tmpUser);
 			}
 			catch (Exception $e)
 			{
