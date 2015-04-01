@@ -1882,3 +1882,7 @@ $this->schema[] = array(
 $this->schema[] = array(
 	"DELETE FROM `" . DATABASE_NAME ."`.globalSettings WHERE settingKey IN ('FOG_MAX_UPLOADSIZE','FOG_POST_MAXSIZE')",
 );
+// 172
+$this->schema[] = array(
+	"DELETE FROM `" . DATABASE_NAME ."`.globalSettings WHERE settingKey='FOG_AES_ADPASS_ENCRYPT_KEY'",
+);

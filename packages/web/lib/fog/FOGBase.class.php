@@ -705,6 +705,8 @@ abstract class FOGBase
 		{
 			if ($_REQUEST['newService'] && $this->getClass('FOGCore')->getSetting('FOG_AES_ENCRYPT'))
 				print "#!enkey=".$this->certEncrypt($datatosend,$this->getHostItem());
+			else if ($_REQUEST['newService'] && preg_match('#hostname.php#',$_SERVER['PHP_SELF']))
+				print "#!enkey=".$this->certEncrypt($datatosend,$this->getHostItem());
 			else
 				print $datatosend;
 		}

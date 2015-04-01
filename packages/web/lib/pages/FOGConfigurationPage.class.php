@@ -830,19 +830,6 @@ class FOGConfigurationPage extends FOGPage
 					$password = $_REQUEST[$key];
 				$Service->set('value',$this->FOGCore->aesencrypt($password))->save();
 			}
-			else if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $Service->get('name') == 'FOG_AES_ADPASS_ENCRYPT_KEY')
-			{
-				if ($_REQUEST[$key])
-				{
-					$decrypt = $this->FOGCore->aesdecrypt($this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD'));
-					if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))
-						$password = $decrypt;
-					else
-						$password = $this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD');
-				}
-				$this->FOGCore->setSetting('FOG_AD_DEFAULT_PASSWORD',$this->FOGCore->aesencrypt($password));
-				$Service->set('value',$_REQUEST[$key])->save();
-			}
 			else if ($Service->get('name') == 'FOG_MULTICAST_PORT_OVERRIDE')
 			{
 				if (is_numeric($_REQUEST[$key]) && $_REQUEST[$key] > 0)
