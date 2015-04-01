@@ -15,11 +15,6 @@ if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_e
 	// Unset session variables
 	unset($currentUser, $_SESSION['FOG_USERNAME'], $_SESSION['FOG_USER']);
 	// Show login form
-	header('X-Content-Type-Options: nosniff');
-	header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
-	header('X-XSS-Protection: 1; mode=block');
-	header('X-Frame-Options: deny');
-	header('Cache-Control: no-cache');
 	$Page->setTitle($foglang['Login']);
 	$Page->setSecTitle($foglang['ManagementLogin']);
 	$Page->startBody();
@@ -31,11 +26,6 @@ $FOGPageManager = new FOGPageManager();
 $content = $FOGPageManager->render();
 $sectionTitle = $FOGPageManager->getFOGPageName();
 $pageTitle = $FOGPageManager->getFOGPageTitle();
-header('X-Content-Type-Options: nosniff');
-header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
-header('X-XSS-Protection: 1; mode=block');
-header('X-Frame-Options: deny');
-header('Cache-Control: no-cache');
 $Page->setTitle($pageTitle);
 $Page->setSecTitle($sectionTitle);
 $Page->startBody();
