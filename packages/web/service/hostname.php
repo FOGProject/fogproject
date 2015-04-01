@@ -21,11 +21,19 @@ try
 	$Datatosend .= '#ADDom='.($Host->get('useAD') ? $Host->get('ADDomain') : '')."\n";
 	$Datatosend .= '#ADOU='.($Host->get('useAD') ? $Host->get('ADOU') : '')."\n";
 	$Datatosend .= '#ADUser='.($Host->get('useAD') ? (strpos($Host->get('ADUser'),"\\") || strpos($Host->get('ADUser'),'@') ? $Host->get('ADUser') : $Host->get('ADDomain')."\\".$Host->get('ADUser')) : '')."\n";
-	$Datatosend .= '#ADPass='.($Host->get('useAD') ? $Host->get('ADPass') : '');
+	$Datatosend .= '#ADPass='.($Host->get('useAD') ? ($_REQUEST['newService'] ? $FOGCore->aesdecrypt($Host->get('ADPass')) : $Host->get('ADPass')) : '');
 	if (trim(base64_decode($Host->get('productKey'))))
 		$Datatosend .= "\n#Key=".base64_decode($Host->get('productKey'));
 	if ($_REQUEST['newService'])
-		$FOGCore->setSetting('FOG_AES_ADPASS_ENCRYPT_KEY',$FOGCore->randomString(32));
+	{
+		$pass = $Host->get('ADPass');
+		$decrypt = $FOGCore->aesdecrypt($pass);
+		if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true))
+			$pass = $FOGCore->aesencrypt($decrypt);
+		else
+			$pass = $FOGCore->aesencrypt($pass);
+		$Host->set('ADPass',$pass)->save();
+	}
 	$FOGCore->sendData($Datatosend);
 }
 catch (Exception $e)
