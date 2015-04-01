@@ -1124,7 +1124,6 @@ class Host extends FOGController
 	}
 	public function setAD($useAD,$domain,$ou,$user,$pass)
 	{
-		$key = $this->FOGCore->getSetting('FOG_AES_ADPASS_ENCRYPT_KEY');
 		if ($this->get('id'))
 		{
 			if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $pass)
