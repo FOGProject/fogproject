@@ -452,12 +452,11 @@ class Host extends FOGController
 				$NewMAC->save();
 			}
 		}
-		else if ($this->isLoaded('additionalMACs'))
+		if ($this->isLoaded('additionalMACs'))
 		{
-			$adds = new MACAddress(current($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 0))));
 			// Remove Existing MACs
 			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 0));
-			foreach((array)$adds AS $me)
+			foreach((array)$this->get('additionalMACs') AS $me)
 			{
 				if (($me instanceof MACAddress) && $me->isValid())
 				{
@@ -471,12 +470,11 @@ class Host extends FOGController
 				}
 			}
 		}
-		else if ($this->isLoaded('pendingMACs'))
+		if ($this->isLoaded('pendingMACs'))
 		{
-			$adds = new MACAddress(current($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 1))));
 			// Remove Existing MACs
 			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'pending' => 1));
-			foreach((array)$adds AS $me)
+			foreach((array)$this->get('pendingMACs') AS $me)
 			{
 				if (($me instanceof MACAddress) && $me->isValid())
 				{
