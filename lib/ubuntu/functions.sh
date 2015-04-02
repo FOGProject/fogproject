@@ -539,9 +539,10 @@ class Config
 		cwd=`pwd`;
 		cd "${webdirdest}/service"
 		count=0;
-		while [ -z "$clientVer" -o "$count" -le 50 ]; do
+		while [ -z "$clientVer" -a "$count" -le 10 ]; do
 			clientVer=`php -f ${webdirdest}/service/getclient.php`;
 			count=`expr $count '+' 1`
+			sleep 2;
 		done
 		if [ -z "$clientVer" ]; then
 			echo "Failed to get client version"
