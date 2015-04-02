@@ -536,6 +536,9 @@ class Config
 		fi
 		echo "OK";
 		echo -n "  * Downloading New FOG Client file...";
+		if [ -L "/etc/php5/conf.d/20-mysqlnd.ini" ]; then
+			mv "/etc/php5/conf.d/20-mysqlnd.ini" "/etc/php5/conf.d/20-mysqlnd.ini-old";
+		fi
 		cwd=`pwd`;
 		cd "${webdirdest}/service"
 		count=0;
