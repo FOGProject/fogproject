@@ -452,7 +452,7 @@ class Host extends FOGController
 				$NewMAC->save();
 			}
 		}
-		if ($this->isLoaded('additionalMACs'))
+		else if ($this->isLoaded('additionalMACs'))
 		{
 			// Remove Existing MACs
 			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 0));
@@ -470,7 +470,7 @@ class Host extends FOGController
 				}
 			}
 		}
-		if ($this->isLoaded('pendingMACs'))
+		else if ($this->isLoaded('pendingMACs'))
 		{
 			// Remove Existing MACs
 			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'pending' => 1));
