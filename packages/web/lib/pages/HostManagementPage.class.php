@@ -1233,19 +1233,19 @@ class HostManagementPage extends FOGPage
 						 ->set('kernelArgs',$_REQUEST['args'])
 						 ->set('kernelDevice',$_REQUEST['dev'])
 						 ->set('productKey',base64_encode($_REQUEST['key']));
-					$newPriMAC = new MACAddress($_REQUEST['primaryMAC']);
-					if ($Host->get('mac') != $mac->__toString())
+					if (strtolower($Host->get('mac')->__toString()) != strtolower($mac->__toString()))
 						$Host->addPriMAC($mac->__toString());
-					else if ($newPriMAC && $newPriMAC->isValid())
+					if (isset($_REQUEST['primaryMAC']))
 					{
+						$newPriMAC = new MACAddress($_REQUEST['primaryMAC']);
 						$Host->addAddMAC($Host->get('mac'));
-						$Host->removeAddMAC($newPriMAC->__toString());
-						$Host->addPriMAC($newPriMAC->__toString());
+						$Host->removeAddMAC($newPriMAC);
+						$Host->addPriMAC($newPriMAC);
 					}
 					// Add Additional MAC Addresses
 					foreach((array)$_REQUEST['additionalMACs'] AS $MAC)
 					{
-						$PriMAC = ($Host->get('mac') == $MAC ? true : false);
+						$PriMAC = (strtolower($Host->get('mac')->__toString()) == strtolower($MAC) ? true : false);
 						$AddMAC = current($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $Host->get('id'),'mac' => $MAC)));
 						if (!$PriMAC && (!$AddMAC || !$AddMAC->isValid()))
 							$AddToAdditional[] = $MAC;
