@@ -80,15 +80,14 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED'))
 			));
 			$groupid = explode(',',trim(base64_decode($_REQUEST['groupid'])));
 			$snapinid = explode(',',trim(base64_decode($_REQUEST['snapinid'])));
+			$Host->addModule($ids);
+			$Host->addGroup($groupid);
+			$Host->addSnapin($snapinid);
+			$Host->addPriMAC($MACs[0]);
+			$Host->addAddMAC($MACs);
 			if ($Host->save())
 			{
-				$Host->addModule($ids);
-				$Host->addGroup($groupid);
-				$Host->addSnapin($snapinid);
-				$Host->save();
-				$Host->addPriMAC($MACs[0]);
 				$MACs = array_reverse(array_pop(array_reverse($MACs)));
-				$Host->addAddMAC($MACs);
 				$LocPlugInst = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
 				if ($LocPlugInst)
 				{
@@ -180,14 +179,13 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED'))
 						'createdBy' => 'FOGREG'
 					));
 				}
+				$Host->addModule($ids);
+				$Host->addGroup($groupid);
+				$Host->addPriMAC($MACs[0]);
+				$Host->addAddMAC($MACs);
 				if ($Host->save())
 				{
-					$Host->addModule($ids);
-					$Host->addGroup($groupid);
-					$Host->save();
-					$Host->addPriMAC($MACs[0]);
 					$MACs = array_reverse(array_pop(array_reverse($MACs)));
-					$Host->addAddMAC($MACs);
 					// If the image is valid and get's the member from the host
 					// create the tasking, otherwise just register!.
 					if ($Image->isValid() && $Host->getImageMemberFromHostID())
@@ -215,13 +213,13 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED'))
 						'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
 						'createdBy' => 'FOGREG',
 					));
+					$Host->addPriMAC($MACs[0]);
+					$Host->addAddMAC($MACs);
+					$Host->addModule($ids);
 					if ($Host->save())
 					{
-						$Host->addModule($ids)->save();
 						print _('Done');
-						$Host->addPriMAC($MACs[0]);
 						$MACs = array_reverse(array_pop(array_reverse($MACs)));
-						$Host->addAddMAC($MACs);
 					}
 					else
 						throw new Exception(_('Failed to save new Host!'));
