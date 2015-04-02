@@ -372,11 +372,11 @@ class HostManagementPage extends FOGPage
 				'ADPass'	=> $password,
 				'productKey' => base64_encode($_REQUEST['key']),
 			));
+			$Host->addModule($ModuelIDs);
+			$Host->addPriMAC($MAC);
 			// Save to database
 			if ($Host->save())
 			{
-				$Host->addModule($ModuleIDs);
-				$Host->addPriMAC($MAC);
 				// Hook
 				$this->HookManager->processEvent('HOST_ADD_SUCCESS', array('Host' => &$Host));
 				// Log History event
@@ -1233,7 +1233,7 @@ class HostManagementPage extends FOGPage
 						 ->set('kernelArgs',$_REQUEST['args'])
 						 ->set('kernelDevice',$_REQUEST['dev'])
 						 ->set('productKey',base64_encode($_REQUEST['key']));
-					if (strtolower($Host->get('mac')->__toString()) != strtolower($mac->__toString()))
+					if (strtolower($Host->get('mac')) != strtolower($mac->__toString()))
 						$Host->addPriMAC($mac->__toString());
 					if (isset($_REQUEST['primaryMAC']))
 					{
