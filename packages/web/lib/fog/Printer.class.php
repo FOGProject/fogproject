@@ -126,7 +126,6 @@ class Printer extends FOGController
 		// Return
 		return $this;
 	}
-
 	public function updateDefault($hostid,$onoff)
 	{
 		foreach((array)$hostid AS $id)
