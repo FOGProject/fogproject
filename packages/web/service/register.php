@@ -31,8 +31,8 @@ try
 			$PriMAC = ((preg_match('#|#i',$_REQUEST['mac']) ? explode('|',$_REQUEST['mac']) : $_REQUEST['mac']));
 			if (is_array($PriMAC))
 				$PriMAC = $PriMAC[0];
-			if($Host->save())
-				$Host->addPriMAC($PriMAC);
+			$Host->addPriMAC($PriMAC)
+			     ->save();
 		}
 	}
 	// Check if count is okay.
