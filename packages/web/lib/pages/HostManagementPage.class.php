@@ -1456,10 +1456,10 @@ class HostManagementPage extends FOGPage
 							'createdTime' => $this->nice_date()->format('Y-m-d H:i:s'),
 							'createdBy'	=> $this->FOGUser->get('name'),
 						));
+						$Host->addModule($ModuleIDs);
+						$Host->addPriMAC($data[0]);
 						if ($Host->save())
 						{
-							$Host->addModule($ModuleIDs);
-							$Host->addPriMAC($data[0]);
 							$this->HookManager->processEvent('HOST_IMPORT',array('data' => &$data,'Host' => &$Host));
 							$numSuccess++;
 						}
