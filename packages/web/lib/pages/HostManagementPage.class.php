@@ -372,7 +372,7 @@ class HostManagementPage extends FOGPage
 				'ADPass'	=> $password,
 				'productKey' => base64_encode($_REQUEST['key']),
 			));
-			$Host->addModule($ModuelIDs);
+			$Host->addModule($ModuleIDs);
 			$Host->addPriMAC($MAC);
 			// Save to database
 			if ($Host->save())
@@ -1253,13 +1253,7 @@ class HostManagementPage extends FOGPage
 					$Host->ignore($_REQUEST['igimage'],$_REQUEST['igclient'])
 						 ->addAddMAC($AddToAdditional);
 					if(isset($_REQUEST['additionalMACsRM']))
-					{
-						foreach((array)$_REQUEST['additionalMACsRM'] AS $MAC)
-						{
-							$DelMAC = new MACAddress($MAC);
-							$Host->removeAddMAC($DelMAC);
-						}
-					}
+						$Host->removeAddMAC($_REQUEST['additionalMACsRM']);
 				break;
 				case 'host-grouprel';
 					if (isset($_REQUEST['addGroups']))
