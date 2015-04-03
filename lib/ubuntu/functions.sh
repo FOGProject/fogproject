@@ -539,6 +539,9 @@ class Config
 		if [ -L "/etc/php5/conf.d/20-mysqlnd.ini" ]; then
 			mv "/etc/php5/conf.d/20-mysqlnd.ini" "/etc/php5/conf.d/20-mysqlnd.ini-old";
 		fi
+		if [ -L "/etc/php5/conf.d/20-mcrypt.ini" ]; then
+			mv "/etc/php5/conf.d/20-mcrypt.ini" "/etc/php5/conf.d/20-mcrypt.ini-old";
+		fi
 		cwd=`pwd`;
 		cd "${webdirdest}/service"
 		count=0;
