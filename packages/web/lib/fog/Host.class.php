@@ -929,7 +929,12 @@ class Host extends FOGController
 	}
 	public function wakeOnLAN()
 	{
-		$this->FOGCore->wakeOnLAN($this->get('mac'));
+		$MACs[] = $this->get('mac');
+		foreach($this->get('additionalMACs') AS $MAC)
+			$MACs[] = $MAC;
+		$MACs = array_unique($MACs);
+		foreach((array)$MACs AS $MAC)
+			$this->FOGCore->wakeOnLAN($MAC);
 	}
 	public function addPrinter($addArray)
 	{
