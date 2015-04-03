@@ -1120,7 +1120,7 @@ class Host extends FOGController
 	}
 	public function setAD($useAD,$domain,$ou,$user,$pass)
 	{
-		if ($this->get('id'))
+		if ($this->get('id') && $this->isValid())
 		{
 			if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $pass)
 			{
