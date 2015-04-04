@@ -320,6 +320,18 @@ abstract class FOGBase
 		$decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
 		return $decipher;
 	}
+	/** encryptpw encrypts the passwords for us
+	  * @param $pass the password to work from
+	  * @return returns the encrypted password
+	  */
+	public function encryptpw($pass)
+	{
+		$decrypt = $this->aesdecrypt($pass);
+		$newpass = $pass;
+		if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true))
+			$newpass = $decrypt;
+		return $this->aesencrypt($newpass);
+	}
 	/**
 	  * diff($start,$end)
 	  * Simply a function to return the difference of time between the start and end.
@@ -703,10 +715,11 @@ abstract class FOGBase
 	{
 		if ($service)
 		{
+			$Host = $this->getHostItem();
 			if ($_REQUEST['newService'] && $this->getClass('FOGCore')->getSetting('FOG_AES_ENCRYPT'))
-				print "#!enkey=".$this->certEncrypt($datatosend,$this->getHostItem());
-			else if ($_REQUEST['newService'] && preg_match('#hostname.php#',$_SERVER['PHP_SELF']))
-				print "#!enkey=".$this->certEncrypt($datatosend,$this->getHostItem());
+				print "#!enkey=".$this->certEncrypt($datatosend,$Host);
+			else if ($_REQUEST['newService'] && ($Host->get('useAD') && preg_match('#hostname.php#',$_SERVER['PHP_SELF'])))
+				print "#!enkey=".$this->certEncrypt($datatosend,$Host);
 			else
 				print $datatosend;
 		}
