@@ -250,7 +250,7 @@ class HostManagementPage extends FOGPage
 		);
 		$fieldsad = array(
 			'<input style="display:none" type="text" name="fakeusernameremembered"/>' => '<input style="display:none" type="password" name="fakepasswordremembered"/>',
-			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain"${ad_dom}value="on" />',
+			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain" />',
 			_('Domain Name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="${ad_name}" autocomplete="off" />',
 			_('Domain OU') => '${ad_oufield}',
 			_('Domain Username') => '<input id="adUsername" class="smaller" type="text" name="domainuser" value="${ad_user}" autocomplete="off" />',
@@ -304,7 +304,7 @@ class HostManagementPage extends FOGPage
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
-				'ad_dom' => ($_REQUEST['domain'] == 'on' ? 'checked' : ''),
+				'ad_dom' => (isset($_REQUEST['domain']) ? 'checked' : ''),
 				'ad_name' => $_REQUEST['domainname'],
 				'ad_oufield' => $OUOptions,
 				'ad_user' => $_REQUEST['domainuser'],
@@ -346,17 +346,9 @@ class HostManagementPage extends FOGPage
 				throw new Exception(_('Hostname already exists'));
 			// Get all the service id's so they can be enabled.
 			$ModuleIDs = $this->getClass('ModuleManager')->find('','','','','','','','id');
+			$password = $_REQUEST['domainpassword'];
 			if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['domainpassword'])
-			{
-				$encdat = $_REQUEST['domainpassword'];
-				$decrypt = $this->FOGCore->aesdecrypt($encdat);
-				if ($decrypt && mb_detect_encoding($decrypt, 'UTF-8', true))
-					$password = $this->FOGCore->aesencrypt($decrypt);
-				else
-					$password = $this->FOGCore->aesencrypt($_REQUEST['domainpassword']);
-			}
-			else
-				$password = $_REQUEST['domainpassword'];
+				$password = $this->encryptpw($_REQUEST['domainpassword']);
 			// Define new Image object with data provided
 			$Host = new Host(array(
 				'name'		=> $_REQUEST['host'],
@@ -1262,12 +1254,12 @@ class HostManagementPage extends FOGPage
 						$Host->removeGroup(array_unique($_REQUEST['groupdel']));
 				break;
 				case 'host-active-directory';
-					$useAD = ($_REQUEST['domain'] == 'on');
+					$useAD = isset($_REQUEST['domain']);
 					$domain = $_REQUEST['domainname'];
 					$ou = $_REQUEST['ou'];
 					$user = $_REQUEST['domainuser'];
 					$pass = $_REQUEST['domainpassword'];
-					$Host->setAD($useAD,$domain,$ou,$user,$pass);
+					$Host->setAD($useAD,$domain,$ou,$user,$pass,true);
 				break;
 				case 'host-printers';
 					$PrinterManager = $this->getClass('PrinterAssociationManager');
@@ -1346,8 +1338,7 @@ class HostManagementPage extends FOGPage
 			// Save to database
 			if ($Host->save())
 			{
-				if ($LA)
-					$LA->save();
+				$Host->setAD();
 				// Hook
 				$this->HookManager->processEvent('HOST_EDIT_SUCCESS', array('Host' => &$Host));
 				// Log History event
