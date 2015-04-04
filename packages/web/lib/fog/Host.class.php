@@ -732,22 +732,35 @@ class Host extends FOGController
 	{
 		// Error Checking
 		// If there are no snapins associated to the host fail out.
-		if (in_array($this->get('task')->get('id'),array(12,13)) && !$this->getClass('SnapinAssociationManager')->count(array('hostID' => $this->get('id'))))
-			throw new Exception($this->foglang['SnapNoAssoc']);
-		// Create Snapin Job.  Only one job, but will do multiple SnapinTasks.
-		$SnapinJob = new SnapinJob(array(
-			'hostID' => $this->get('id'),
-			'stateID' => 0,
-			'createdTime' => $this->nice_date()->format('Y-m-d H:i:s'),
-		));
-		// Create Snapin Tasking
-		if ($SnapinJob->save())
+		try
 		{
-			// If -1 for the snapinID sent, it needs to set a task for all of the snapins associated to that host.
-			if ($snapin == -1)
+			if (in_array($this->get('task')->get('id'),array(12,13)) && !$this->getClass('SnapinAssociationManager')->count(array('hostID' => $this->get('id'))))
+				throw new Exception($this->foglang['SnapNoAssoc']);
+			// Create Snapin Job.  Only one job, but will do multiple SnapinTasks.
+			$SnapinJob = new SnapinJob(array(
+				'hostID' => $this->get('id'),
+				'stateID' => 0,
+				'createdTime' => $this->nice_date()->format('Y-m-d H:i:s'),
+			));
+			// Create Snapin Tasking
+			if ($SnapinJob->save())
 			{
-				foreach ((array)$this->get('snapins') AS $Snapin)
+				// If -1 for the snapinID sent, it needs to set a task for all of the snapins associated to that host.
+				if ($snapin == -1)
 				{
+					foreach ((array)$this->get('snapins') AS $Snapin)
+					{
+						$ST = new SnapinTask(array(
+							'jobID' => $SnapinJob->get('id'),
+							'stateID' => 0,
+							'snapinID' => $Snapin->get('id'),
+						));
+						$ST->save();
+					}
+				}
+				else
+				{
+					$Snapin = new Snapin($snapin);
 					$ST = new SnapinTask(array(
 						'jobID' => $SnapinJob->get('id'),
 						'stateID' => 0,
@@ -756,16 +769,11 @@ class Host extends FOGController
 					$ST->save();
 				}
 			}
-			else
-			{
-				$Snapin = new Snapin($snapin);
-				$ST = new SnapinTask(array(
-					'jobID' => $SnapinJob->get('id'),
-					'stateID' => 0,
-					'snapinID' => $Snapin->get('id'),
-				));
-				$ST->save();
-			}
+		}
+		catch (Exception $e)
+		{
+			print $e->getMessage();
+			return false;
 		}
 	}
 
@@ -1118,18 +1126,27 @@ class Host extends FOGController
 		$mac = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->get('mac'),'hostID' => $this->get('id'),'imageIgnore' => 1)));
 		return ($mac && $mac->isValid() ? 'checked' : '');
 	}
-	public function setAD($useAD,$domain,$ou,$user,$pass)
+	public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false)
 	{
 		if ($this->get('id') && $this->isValid())
 		{
-			if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $pass)
+			if (!$override)
 			{
-				$decrypt = $this->aesdecrypt($pass);
-				if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true))
-					$pass = $this->FOGCore->aesencrypt($decrypt);
-				else
-					$pass = $this->FOGCore->aesencrypt($pass);
+				if (empty($useAD))
+					$useAD = $this->get('useAD');
+				if (empty($domain))
+					$domain = $this->get('ADDomain');
+				if (empty($ou))
+					$ou = $this->get('ADOU');
+				if (empty($user))
+					$user = $this->get('ADUser');
+				if (empty($pass))
+					$pass = $this->get('ADPass');
 			}
+			if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $pass)
+				$pass = $this->encryptpw($pass);
+			foreach($this->additionalFields AS $item)
+				$this->get($item);
 			$this->set('useAD',$useAD)
 				 ->set('ADDomain',$domain)
 				 ->set('ADOU',$ou)
