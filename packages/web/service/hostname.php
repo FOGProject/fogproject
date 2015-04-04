@@ -3,18 +3,8 @@ require_once('../commons/base.inc.php');
 try
 {
 	$Host = $FOGCore->getHostItem();
-	if ($Host->get('ADPass') && $_REQUEST['newService'])
-	{
-		$encdat = $Host->get('ADPass');
-		$decrypt = $FOGCore->aesdecrypt($encdat);
-		if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true))
-			$password = $FOGCore->aesencrypt($decrypt);
-		else
-			$password = $Host->get('ADPass');
-		$Host->set('ADPass',trim($password))->save();
-	}
-	// Make system wait ten seconds before sending data
 	sleep(10);
+	// Make system wait ten seconds before sending data
 	// Send the information.
 	$Datatosend = $_REQUEST['newService'] ? "#!ok\n#hostname=".$Host->get('name')."\n" : '#!ok='.$Host->get('name')."\n";
 	$Datatosend .= '#AD='.$Host->get('useAD')."\n";
@@ -25,15 +15,7 @@ try
 	if (trim(base64_decode($Host->get('productKey'))))
 		$Datatosend .= "\n#Key=".base64_decode($Host->get('productKey'));
 	if ($_REQUEST['newService'])
-	{
-		$pass = $Host->get('ADPass');
-		$decrypt = $FOGCore->aesdecrypt($pass);
-		if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true))
-			$pass = $FOGCore->aesencrypt($decrypt);
-		else
-			$pass = $FOGCore->aesencrypt($pass);
-		$Host->set('ADPass',$pass)->save();
-	}
+		$Host->setAD();
 	$FOGCore->sendData($Datatosend);
 }
 catch (Exception $e)
