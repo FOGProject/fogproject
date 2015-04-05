@@ -29,18 +29,21 @@ class AccesscontrolManagementPage extends FOGPage
 		parent::__construct($name);
 		// Header row
 		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			_('Name'),
 			_('Description'),
 			_('User/Group'),
 		);
 		// Row templates
 		$this->templates = array(
+			'<input type="checkbox" name="accesscontrol[]" value="${id}" class="toggle-action" checked/>',
 			'${name} ${id}',
 			'${desc} ${other}',
 			'${user} ${group}',
 		);
 		// Row Attributes
 		$this->attributes = array(
+			array('class' => 'c','width' => 16),
 			array(),
 			array(),
 			array(),
