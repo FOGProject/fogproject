@@ -11,7 +11,7 @@
     Useful for:
     Setting up clients that may move from sight to sight.
 **/
-class WOLManagementPage extends FOGPage
+class WOLBroadcastManagementPage extends FOGPage
 {
 	// Base variables
 	var $name = 'WOL Broadcast Management';
@@ -29,15 +29,18 @@ class WOLManagementPage extends FOGPage
 		parent::__construct($name);
 		// Header row
 		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			'Broadcast Name',
 			'Broadcast IP',
 		);
 		// Row templates
 		$this->templates = array(
+			'<input type="checkbox" name="wolbroadcast[]" value="${id}" class="toggle-action" checked/>',
 			'<a href="?node=wolbroadcast&sub=edit&id=${id}" title="Edit">${name}</a>',
 			'${wol_ip}',
 		);
 		$this->attributes = array(
+			array('class' => 'c', 'width' => '16'),
 			array('class' => 'l'),
 			array('class' => 'r'),
 		);
@@ -244,5 +247,48 @@ class WOLManagementPage extends FOGPage
 			$this->FOGCore->setMessage($e->getMessage());
 			$this->FOGCore->redirect($this->formAction);
 		}
+	}
+	public function deletemulti()
+	{
+		$this->title = _('WOL Broadcasts to remove');
+		unset($this->headerData);
+		print '<div class="confirm-message">';
+		print '<p>'._('WOL Broadcasts to be removed').':</p>';
+		$this->attributes = array(
+			array(),
+		);
+		$this->templates = array(
+			'<a href="?node='.$this->node.'&sub=edit&id=${id}">${name}</a>',
+		);
+		foreach ((array)explode(',',$_REQUEST['wolbroadcastIDArray']) AS $wolID)
+		{
+			$WOL = new Wolbroadcast($wolID);
+			if ($WOL && $WOL->isValid())
+			{
+				$this->data[] = array(
+					'id' => $WOL->get('id'),
+					'name' => $WOL->get('name'),
+				);
+				$_SESSION['delitems'][$this->node][] = $WOL->get('id');
+				array_push($this->additional,'<p>'.$WOL->get('name').'</p>');
+			}
+		}
+		$this->render();
+		print '<form method="post" action="?node='.$this->node.'&sub=deleteconf">';
+		print '<center><input type="submit" value="'._('Are you sure you wish to remove these broadcasts').'?"/></center>';
+		print '</form>';
+		print '</div>';
+	}
+	public function deleteconf()
+	{
+		foreach($_SESSION['delitems'][$this->node] AS $wolid)
+		{
+			$WOL = new Wolbroadcast($wolid);
+			if ($WOL && $WOL->isValid())
+				$WOL->destroy();
+		}
+		unset($_SESSION['delitems']);
+		$this->FOGCore->setMessage('All selected items have been deleted');
+		$this->FOGCore->redirect('?node='.$this->node);
 	}
 }

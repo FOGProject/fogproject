@@ -43,10 +43,26 @@ class Page extends FOGBase {
 				'js/fog/fog.js',
 				'js/fog/fog.main.js',
 			);
-			foreach(array("js/fog/fog.{$_REQUEST['node']}.js","js/fog/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js") AS $jsFilepath)
+			$filepaths = array(
+				"js/fog/fog.{$_REQUEST['node']}.js",
+				"js/fog/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js",
+			);
+			foreach($filepaths AS $jsFilepath)
 			{
 				if (file_exists($jsFilepath))
 					array_push($files,$jsFilepath);
+			}
+			$pluginfilepaths = array(
+				BASEPATH."/lib/plugins/{$_REQUEST['node']}/js/fog.{$_REQUEST['node']}.js",
+				BASEPATH."/lib/plugins/{$_REQUEST['node']}/js/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js",
+			);
+			foreach($pluginfilepaths AS $pluginfilepath)
+			{
+				if (file_exists($pluginfilepath) && !file_exists("js/fog/".basename($pluginfilepath)))
+				{
+					$newfile = "js/fog/".basename($pluginfilepath);
+					file_put_contents($newfile,file_get_contents($pluginfilepath));
+				}
 			}
 			if ($this->isHomepage)
 			{
@@ -68,7 +84,7 @@ class Page extends FOGBase {
 		{
 			if (file_exists($path))
 				$this->addJavascript($path);
-		}
+		} 
 	}
 	public function setTitle($title) {
 		$this->pageTitle = $title;
