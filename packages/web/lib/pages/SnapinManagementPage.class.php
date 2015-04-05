@@ -761,47 +761,4 @@ class SnapinManagementPage extends FOGPage
 			$this->FOGCore->redirect($this->formAction);
 		}
 	}
-	public function deletemulti()
-	{
-		$this->title = _('Snapins to remove');
-		unset($this->headerData);
-		print "\n\t\t\t".'<div class="confirm-message">';
-		print "\n\t\t\t<p>"._('Snapins to be removed').":</p>";
-		$this->attributes = array(
-			array(),
-		);
-		$this->templates = array(
-			'<a href="?node=snapin&sub=edit&id=${snapin_id}">${snapin_name}</a>',
-		);
-		foreach ((array)explode(',',$_REQUEST['snapinIDArray']) AS $snapinID)
-		{
-			$Snapin = new Snapin($snapinID);
-			if ($Snapin && $Snapin->isValid())
-			{
-				$this->data[] = array(
-					'snapin_id' => $Snapin->get('id'),
-					'snapin_name' => $Snapin->get('name'),
-				);
-				$_SESSION['delitems']['snapin'][] = $Snapin->get('id');
-				array_push($this->additional,"\n\t\t\t<p>".$Snapin->get('name')."</p>");
-			}
-		}
-		$this->render();
-		print "\n\t\t\t\t".'<form method="post" action="?node=snapin&sub=deleteconf">';
-		print "\n\t\t\t\t\t<center>".'<input type="submit" value="'._('Are you sure you wish to remove these snapins').'?"/></center>';
-		print "\n\t\t\t\t</form>";
-		print "\n\t\t\t</div>";
-	}
-	public function deleteconf()
-	{
-		foreach($_SESSION['delitems']['snapin'] AS $snapinid)
-		{
-			$Snapin = new Snapin($snapinid);
-			if ($Snapin && $Snapin->isValid())
-				$Snapin->destroy();
-		}
-		unset($_SESSION['delitems']);
-		$this->FOGCore->setMessage('All selected items have been deleted');
-		$this->FOGCore->redirect('?node='.$this->node);
-	}
 }

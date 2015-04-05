@@ -265,47 +265,4 @@ class UserManagementPage extends FOGPage
 			$this->FOGCore->redirect($this->formAction);
 		}
 	}
-	public function deletemulti()
-	{
-		$this->title = _('Users to remove');
-		unset($this->headerData);
-		print "\n\t\t\t".'<div class="confirm-message">';
-		print "\n\t\t\t<p>"._('Users to be removed').":</p>";
-		$this->attributes = array(
-			array(),
-		);
-		$this->templates = array(
-			'<a href="?node=user&sub=edit&id=${user_id}">${user_name}</a>',
-		);
-		foreach ((array)explode(',',$_REQUEST['userIDArray']) AS $userID)
-		{
-			$User = new User($userID);
-			if ($User && $User->isValid())
-			{
-				$this->data[] = array(
-					'user_id' => $User->get('id'),
-					'user_name' => $User->get('name'),
-				);
-				$_SESSION['delitems']['user'][] = $User->get('id');
-				array_push($this->additional,"\n\t\t\t<p>".$User->get('name')."</p>");
-			}
-		}
-		$this->render();
-		print "\n\t\t\t\t".'<form method="post" action="?node=user&sub=deleteconf">';
-		print "\n\t\t\t\t\t<center>".'<input type="submit" value="'._('Are you sure you wish to remove these users').'?"/></center>';
-		print "\n\t\t\t\t</form>";
-		print "\n\t\t\t</div>";
-	}
-	public function deleteconf()
-	{
-		foreach($_SESSION['delitems']['user'] AS $userid)
-		{
-			$User = new User($userid);
-			if ($User && $User->isValid())
-				$User->destroy();
-		}
-		unset($_SESSION['delitems']);
-		$this->FOGCore->setMessage('All selected items have been deleted');
-		$this->FOGCore->redirect('?node='.$this->node);
-	}
 }
