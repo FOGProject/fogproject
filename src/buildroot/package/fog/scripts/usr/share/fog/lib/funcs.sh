@@ -19,17 +19,14 @@ dots()
 {
     max=45
     if [ -n "$1" ]; then
-        len=${#1}
-        if [ "$len" -gt "$max" ]; then
-            echo -n " * ${1:0:max}"
-        else
-            echo -n " * ${1}"
-            n=$((max - len))
-            for ((x = 0; x < n; x++)); do
-              printf %s .
-            done
-        fi
-    fi
+		n=`expr $max - ${#1}`
+		echo -n " * ${1:0:max}"
+		if [ "$n" -gt 0 ]; then
+			for ((x = 0; x < n; x++)); do
+				printf %s .
+			done
+		fi
+	fi
 }
 # Get All Active MAC Addresses
 getMACAddresses()
