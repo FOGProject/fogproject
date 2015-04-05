@@ -87,6 +87,8 @@ your own network.
 * Add capability to tell the system which tasks you want to take slots.
 * Add multicast session joining even with non-registered hosts.
 * Change names of PXE Menu stuff to iPXE stuff.
+* Make a strong move for async methodologies.
+* Ultimately make the Host class a little more in line with DRY.
 
 Version 1.2.0
 -------------
