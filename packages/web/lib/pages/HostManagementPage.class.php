@@ -1598,40 +1598,6 @@ class HostManagementPage extends FOGPage
 			printf('<div class="task-start-failed"><p>%s</p><p>%s</p></div>', _('Failed to Associate Hosts with Group'), $e->getMessage());
 		}
 	}
-	public function deletemulti()
-	{
-		$this->title = _('Hosts to remove');
-		unset($this->headerData);
-		print "\n\t\t\t".'<div class="confirm-message">';
-		print "\n\t\t\t<p>"._('Hosts to be removed').":</p>";
-		$this->attributes = array(
-			array(),
-			array(),
-		);
-		$this->templates = array(
-			'<a href="?node=host&sub=edit&id=${host_id}">${host_name}</a>',
-			'${host_mac}'
-		);
-		foreach ((array)explode(',',$_REQUEST['hostIDArray']) AS $hostID)
-		{
-			$Host = new Host($hostID);
-			if ($Host && $Host->isValid())
-			{
-				$this->data[] = array(
-					'host_id' => $Host->get('id'),
-					'host_name' => $Host->get('name'),
-					'host_mac' => $Host->get('mac'),
-				);
-				$_SESSION['delitems']['host'][] = $Host->get('id');
-				array_push($this->additional,"\n\t\t\t<p>".$Host->get('name')."</p>");
-			}
-		}
-		$this->render();
-		print "\n\t\t\t\t".'<form method="post" action="?node=host&sub=deleteconf">';
-		print "\n\t\t\t\t\t<center>".'<input type="submit" value="'._('Are you sure you wish to remove these hosts').'?"/></center>';
-		print "\n\t\t\t\t</form>";
-		print "\n\t\t\t</div>";
-	}
 	public function hostlogins()
 	{
 		$MainDate = $this->nice_date($_REQUEST['dte'])->getTimestamp();
@@ -1656,17 +1622,5 @@ class HostManagementPage extends FOGPage
 			}
 		}
 		print json_encode($data);
-	}
-	public function deleteconf()
-	{
-		foreach($_SESSION['delitems']['host'] AS $hostid)
-		{
-			$Host = new Host($hostid);
-			if ($Host && $Host->isValid())
-				$Host->destroy();
-		}
-		unset($_SESSION['delitems']);
-		$this->FOGCore->setMessage('All selected items have been deleted');
-		$this->FOGCore->redirect('?node='.$this->node);
 	}
 }

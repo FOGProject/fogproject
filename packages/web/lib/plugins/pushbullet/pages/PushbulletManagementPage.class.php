@@ -25,17 +25,20 @@ class PushbulletManagementPage extends FOGPage
 		parent::__construct($name);
 		// Header row
 		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			_('Name'),
 			_('Email'),
 			_('Delete'),
 		);
 		// Row templates
 		$this->templates = array(
+			'<input type="checkbox" name="pushbullet[]" value="${id}" class="toggle-action" checked/>',
 			'${name}',
 			'${email}',
 			sprintf('<a href="?node=%s&sub=delete&id=${id}" title="%s"><i class="fa fa-minus-circle fa-1x icon hand"></i></a>',$this->node,_('Delete')),
 		);
 		$this->attributes = array(
+			array('class' => 'c','width' => 16),
 			array('class' => 'l'),
 			array('class' => 'l'),
 			array('class' => 'r'),
