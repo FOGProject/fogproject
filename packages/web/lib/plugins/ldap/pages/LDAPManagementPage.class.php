@@ -28,6 +28,7 @@ class LDAPManagementPage extends FOGPage
 		parent::__construct($name);
 		// Header row
 		$this->headerData = array(
+			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"  checked/>',
 			'LDAP Server Name',
 			'LDAP Server Description',
 			'LDAP Server',
@@ -35,12 +36,14 @@ class LDAPManagementPage extends FOGPage
 		);
 		// Row templates
 		$this->templates = array(
+			'<input type="checkbox" name="wolbroadcast[]" value="${id}" class="toggle-action" checked/>',
 			'<a href="?node=ldap&sub=edit&id=${id}" title="Edit">${name}</a>',
 			'${description}',
 			'${address}',
 			'${port}',
 		);
 		$this->attributes = array(
+			array('class' => 'c','width' => 16),
 			array('class' => 'l'),
 			array('class' => 'l'),
 			array('class' => 'l'),

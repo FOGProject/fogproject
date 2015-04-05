@@ -156,7 +156,7 @@ abstract class FOGPage extends FOGBase
 				}
 				// Table close
 				$result .= '</tbody></table>';
-				if (in_array($_REQUEST['node'],$this->searchPages) && (in_array($_REQUEST['sub'],array('list','search')) || !$_REQUEST['sub']) && !preg_match('#mobile#',$_SERVER['PHP_SELF']))
+				if (count($this->data) && in_array($_REQUEST['node'],$this->searchPages) && (in_array($_REQUEST['sub'],array('list','search')) || !$_REQUEST['sub']) && !preg_match('#mobile#',$_SERVER['PHP_SELF']))
 				{
 					if ($this->childClass == 'Host')
 						$result .= '<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>';
@@ -492,6 +492,55 @@ abstract class FOGPage extends FOGBase
 				(count($success) ? sprintf('<ul>%s</ul>',implode('',$success)) : '')
 			);
 		}
+	}
+	/** deletemulti just presents the delete confirmation screen
+	  * @return false
+	  */
+	public function deletemulti()
+	{
+		$this->title = _($this->childClass.'s to remove');
+		unset($this->headerData);
+		print '<div class="confirm-message">';
+		print '<p>'._($this->childClass.'s to be removed').':</p>';
+		$this->attributes = array(
+			array(),
+		);
+		$this->templates = array(
+			'<a href="?node='.$this->node.'&sub=edit&id=${id}">${name}</a>',
+		);
+		foreach ((array)explode(',',$_REQUEST[strtolower($this->childClass).'IDArray']) AS $id)
+		{
+			$Obj = $this->getClass($this->childClass,$id);
+			if ($Obj && $Obj->isValid())
+			{
+				$this->data[] = array(
+					'id' => $Obj->get('id'),
+					'name' => $Obj->get('name'),
+				);
+				$_SESSION['delitems'][$this->node][] = $Obj->get('id');
+				array_push($this->additional,'<p>'.$Obj->get('name').'</p>');
+			}
+		}
+		$this->render();
+		print '<form method="post" action="?node='.$this->node.'&sub=deleteconf">';
+		print '<center><input type="submit" value="'._('Are you sure you wish to remove these items').'?"/></center>';
+		print '</form>';
+		print '</div>';
+	}
+	/** deleteconf delets the items after being confirmed.
+	  * @return false
+	  */
+	public function deleteconf()
+	{
+		foreach($_SESSION['delitems'][$this->node] AS $id)
+		{
+			$Obj = $this->getClass($this->childClass,$id);
+			if ($Obj && $Obj->isValid())
+				$Obj->destroy();
+		}
+		unset($_SESSION['delitems']);
+		$this->FOGCore->setMessage('All selected items have been deleted');
+		$this->FOGCore->redirect('?node='.$this->node);
 	}
 	/**
 	* basictasksOptions
