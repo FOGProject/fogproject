@@ -17,8 +17,8 @@ REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
 $(for var in $(cat /proc/cmdline); do echo export $var | grep =; done)
 dots() 
 {
-	max=45
-	if [ -n "$1" ]; then
+    max=45
+    if [ -n "$1" ]; then
 		n=`expr $max - ${#1}`
 		echo -n " * ${1:0:max}"
 		if [ "$n" -gt 0 ]; then
