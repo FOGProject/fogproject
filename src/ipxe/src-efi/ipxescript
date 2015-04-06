@@ -1,0 +1,2 @@
+#!ipxe
+dhcp && chain tftp://${next-server}/default.ipxe || echo Failed to get IP, Booting back to bios && exit
