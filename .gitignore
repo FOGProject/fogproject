@@ -1,1 +1,11 @@
-*~
+# Do not save executables to the repository
+
+*.exe
+*.msi
+*.exe.manifest
+*.a
+*.o
+
+# Make an exception for grub.exe
+
+!packages/web/service/ipxe/grub.exe
