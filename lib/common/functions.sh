@@ -227,11 +227,11 @@ doOSSpecificIncludes()
 			;;
 	esac
 	currentdir=`pwd`;
-	if [[ "$webdirdest" == *"$currentdir"* -o "$tftpdirdst" == *"$currentdir"* ]]; then
+	if [ "${currentdir/$webdirdest}" = "${currentdir}" -o "${currentdir/$tftpdirdst}" = "${currentdir}" ]; then
 		echo "Please change installation directory.";
 		echo "Running from here will fail.";
-		echo "You're in $currendir which is a folder that will";
-		echo " be moved during installation.";
+		echo "You are in $currentdir which is a folder that will";
+		echo "be moved during installation.";
 		exit 1;
 	fi
 }	
