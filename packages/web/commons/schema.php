@@ -1886,3 +1886,7 @@ $this->schema[] = array(
 $this->schema[] = array(
 	"DELETE FROM `" . DATABASE_NAME ."`.globalSettings WHERE settingKey='FOG_AES_ADPASS_ENCRYPT_KEY'",
 );
+// 173
+$this->schema[] = array(
+	"ALTER TABLE `".DATABASE_NAME."`.`greenFog` DROP INDEX `gfHostID`",
+);

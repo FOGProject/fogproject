@@ -216,7 +216,7 @@ class ServiceConfigurationPage extends FOGPage
 				print "\n\t\t\t<h2>"._('Shutdown/Reboot Schedule').'</h2>';
 				print "\n\t\t\t".'<form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'">';
 				print "\n\t\t\t<p>"._('Add Event (24 Hour Format):').'<input class="short" type="text" name="h" maxlength="2" value="HH" onFocus="this.value=\'\'" />:<input class="short" type="text" name="m" maxlength="2" value="MM" onFocus="this.value=\'\'" /><select name="style" size="1"><option value="">'._('Select One').'</option><option value="s">'._('Shut Down').'</option><option value="r">'._('Reboot').'</option></select></p>';
-				print "\n\t\t\t".'<p><input type="hidden" name="name" value="'.$modNames[$Module->get('shortName')].'" /><input type="hidden" name="addevent" value="1" /><input type="submit" value="'._('Add Event').'" /></p>';
+				print "\n\t\t\t".'<p><input type="hidden" name="name" value="'.$modNames[$Module->get('shortName')].'" /><input type="submit" name="addevent" value="'._('Add Event').'" /></p>';
 				$greenfogs = $this->getClass('GreenFogManager')->find();
 				foreach((array)$greenfogs AS $GreenFog)
 				{
@@ -329,7 +329,7 @@ class ServiceConfigurationPage extends FOGPage
 						$Service->setDisplay($_REQUEST['width'],$_REQUEST['height'],$_REQUEST['refresh']);
 				break;
 				case 'greenfog';
-					if($_REQUEST['addevent'] == '1')
+					if(isset($_REQUEST['addevent']))
 					{
 						if((is_numeric($_REQUEST['h']) && is_numeric($_REQUEST['m'])) && ($_REQUEST['h'] >= 0 && $_REQUEST['h'] <= '23') && ($_REQUEST['m'] >= 0 && $_REQUEST['m'] <= 59) && ($_REQUEST['style'] == 'r' || $_REQUEST['style'] == 's'))
 							$Service->setGreenFog($_REQUEST['h'],$_REQUEST['m'],$_REQUEST['style']);
