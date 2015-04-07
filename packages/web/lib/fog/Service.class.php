@@ -48,7 +48,10 @@ class Service extends FOGController
 			throw new Exception($this->foglang['TimeExists']);
 		else
 		{
+			$maxid = array_unique($this->getClass('GreenFogManager')->find('','','','','','','','id'));
+			$maxid = max($maxid);
 			$NewGreenFog = new GreenFog(array(
+				'id' => ++$maxid,
 				'hour' => $h,
 				'min' => $m,
 				'action' => $t,
