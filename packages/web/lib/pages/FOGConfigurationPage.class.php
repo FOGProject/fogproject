@@ -790,7 +790,7 @@ class FOGConfigurationPage extends FOGPage
 			// Output
 			$this->render();
 			print "\n\t\t\t\t\t</div>";
-			unset($this->data);
+			unset($this->data,$options);
 		}
 		print "\n\t\t\t\t\t</div>";
 		print "\n\t\t\t\t</form>";
