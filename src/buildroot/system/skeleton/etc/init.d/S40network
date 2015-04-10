@@ -8,7 +8,7 @@ if [ -n "$has_usb_nic" ]; then
 	echo -n "Please press enter key to connect [Enter]";
 	read;
 	echo "Sleeping for 5 seconds to allow USB to sync back with system";
-	sleep 5;
+	/bin/sleep 5;
 fi
 # Enable all interfaces
 ifaces=$(ls -1 /sys/class/net | tr -d '@')
@@ -17,7 +17,7 @@ for iface in $ifaces; do
 done
  
 # Provide time for interfaces to detect their state
-sleep 5
+/bin/sleep 5
  
 echo "auto lo" > /etc/network/interfaces
 echo "iface lo inet loopback" >> /etc/network/interfaces

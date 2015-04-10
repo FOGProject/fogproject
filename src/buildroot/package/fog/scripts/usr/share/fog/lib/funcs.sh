@@ -663,7 +663,7 @@ EOF
 			fi
 			partcount=`getPartitionCount $hd`;
 			if [ ! $partcount -gt 1 ]; then
-				handleError "Failed to initiliaze disk";
+				handleError "Failed to initialize disk";
 			fi
 			hd="/dev/$hd";
 			return 0;
