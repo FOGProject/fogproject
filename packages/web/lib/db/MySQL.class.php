@@ -55,7 +55,7 @@ class MySQL extends FOGBase
 		try
 		{
 			$this->debug = false;
-			$this->info = true;
+			$this->info = false;
 			if (!class_exists('mysqli'))
 				throw new Exception(sprintf('%s PHP extension not loaded', __CLASS__));
 			$this->host = $host;
