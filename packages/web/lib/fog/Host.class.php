@@ -270,6 +270,11 @@ class Host extends FOGController
 		}
 		return $this;
 	}
+	private function loadOptimalStorageNode()
+	{
+		if (!$this->isLoaded('optimalStorageNode') && $this->get('id'))
+			$this->set('optimalStorageNode',$this->getImage()->getStorageGroup()->getOptimalStorageNode());
+	}
 	// Overrides
 	public function get($key = '')
 	{
@@ -295,6 +300,8 @@ class Host extends FOGController
 			$this->loadTask();
 		else if ($this->key($key) == 'users')
 			$this->loadUsers();
+		else if ($this->key($key) == 'optimalStorageNode')
+			$this->loadOptimalStorageNode();
 		return parent::get($key);
 	}
 	public function set($key, $value)
