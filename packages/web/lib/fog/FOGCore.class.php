@@ -14,8 +14,10 @@ class FOGCore extends FOGBase
 	*/
 	public function attemptLogin($username,$password)
 	{
-		$User = current($this->getClass('UserManager')->find(array('name' => $username, 'password' => md5($password))));
-		return $User;
+		$User = current($this->getClass('UserManager')->find(array('name' => $username)));
+		if ($User->validate_pw($password))
+			return $User;
+		return false;
 	}
 
 	/** stopScheduledTask($task)

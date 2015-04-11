@@ -145,12 +145,10 @@ class UserManagementPage extends FOGPage
 			if (!$UserManager->isPasswordValid($_REQUEST['password'], $_REQUEST['password_confirm']))
 				throw new Exception(_('Password is invalid'));
 			// Create new Object
-			$User = new User(array(
-				'name'		=> $_REQUEST['name'],
-				'type'		=> (isset($_REQUEST['isGuest']) ? true : '0'),
-				'password'	=> $_REQUEST['password'],
-				'createdBy'	=> $_SESSION['FOG_USERNAME']
-			));
+			$User = $this->getClass('User');
+			$User->set('name',$_REQUEST['name'])
+				 ->set('type',isset($_REQUEST['isGuest']))
+				 ->set('password', $_REQUEST['password']);
 			// Save
 			if ($User->save())
 			{
@@ -181,7 +179,7 @@ class UserManagementPage extends FOGPage
 	public function edit()
 	{
 		// Find
-		$User = new User($this->request['id']);
+		$User = $this->getClass('User',$_REQUEST['id']);
 		// Title
 		$this->title = sprintf('%s: %s', _('Edit'), $User->get('name'));
 		$fields = array(
@@ -216,7 +214,7 @@ class UserManagementPage extends FOGPage
 	public function edit_post()
 	{
 		// Find
-		$User = new User($this->request['id']);
+		$User = $this->getClass('User',$_REQUEST['id']);
 		// Hook
 		$this->HookManager->processEvent('USER_EDIT_POST', array('User' => &$User));
 		// POST
