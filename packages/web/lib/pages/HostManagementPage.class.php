@@ -446,11 +446,7 @@ class HostManagementPage extends FOGPage
 		}
 		if ($_REQUEST['approveAll'] == 1)
 		{
-			foreach((array)$Host->get('pendingMACs') AS $MAC)
-			{
-				if ($MAC && $MAC->isValid())
-					$Host->addPendtoAdd($MAC);
-			}
+			$Host->addPendtoAdd($Host->get('pendingMACs'));
 			if ($Host->save())
 			{
 				$this->FOGCore->setMessage('All Pending MACs approved.');

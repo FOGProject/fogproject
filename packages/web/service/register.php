@@ -11,13 +11,11 @@ try
 	$ignoreList = explode(',', $FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'));
 	// Get the actual host (if it is registered)
 	$MACs = $FOGCore->getHostItem(true,false,false,true);
-	$Host = $FOGCore->getHostItem(false,false,true,false,true);
-	$HostPend = false;
+	$Host = $FOGCore->getHostItem(true,false,true,false,true);
 	if($_REQUEST['newService'] && !($Host instanceof Host && $Host->isValid()))
 	{
 		if (!$_REQUEST['hostname'] || !HostManager::isHostnameSafe($_REQUEST['hostname']))
 			throw new Exception('#!ih');
-		$HostPend = true;
 		$Host = new Host(array(
 			'name' => $_REQUEST['hostname'],
 			'description' => 'Pending Registration created by FOG_CLIENT',
@@ -25,55 +23,41 @@ try
 		));
 		foreach($FOGCore->getClass('ModuleManager')->find() AS $Module)
 			$ModuleIDs[] = $Module->get('id');
-		if ($Host->save())
-		{
-			$Host->addModule($ModuleIDs);
-			$PriMAC = ((preg_match('#|#i',$_REQUEST['mac']) ? explode('|',$_REQUEST['mac']) : $_REQUEST['mac']));
-			if (is_array($PriMAC))
-				$PriMAC = $PriMAC[0];
-			$Host->addPriMAC($PriMAC)
-			     ->save();
-		}
+		$PriMAC = ((preg_match('#|#i',$_REQUEST['mac']) ? explode('|',$_REQUEST['mac']) : $_REQUEST['mac']));
+		$Host->addModule($ModuleIDs)
+			 ->addPriMAC(is_array($PriMAC) ? $PriMAC[0] : $PriMAC)
+			 ->save();
 	}
 	// Check if count is okay.
 	if (count($MACs) > $maxPending + 1)
 		throw new Exception('#!er:Too many MACs');
 	// Cycle the MACs
 	foreach($MACs AS $MAC)
+		$AllMacs[] = strtolower($MAC);
+	// Cycle the already known macs
+	$KnownMacs[] = strtolower($Host->get('mac'));
+	foreach((array)$Host->get('additionalMACs') AS $MAC)
+		$MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
+	foreach((array)$Host->get('pendingMACs') AS $MAC)
+		$MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
+	foreach((array)$FOGCore->getClass('MACAddressAssociationManager')->find() AS $MAC)
+		$MAC && $MAC->isValid() && !in_array(strtolower($MAC->get('mac')),(array)$KnownMacs) ? $KnownMacs[] = strtolower($MAC->get('mac')) : null;
+	if ($ignoreList)
 	{
-		$MAC = strtolower($MAC);
-		$mac1[] = strtolower($Host->get('mac'));
-		// Get all the additional MACs
-		foreach((array)$Host->get('additionalMACs') AS $mac)
-			$mac1[] = $mac && $mac->isValid() ? strtolower($mac->__toString()) : '';
-		// Get all the pending MACs
-		foreach((array)$Host->get('pendingMACs') AS $mac)
-			$mac1[] = $mac && $mac->isValid() ? strtolower($mac->__toString()) : '';
-		// Get all the mac's in the list to ensure we don't register a pending mac to another host.
-		// Particularly where the mac exists on a host but is set to be ignored.
-		foreach((array)$FOGCore->getClass('MACAddressAssociationManager')->find() AS $mac)
-		{
-			$mac2 = strtolower($mac->get('mac'));
-			if (!in_array($mac2,(array)$mac1))
-				$mac1[] = $mac2;
-		}
-		// Cycle the ignorelist if there is anything.
-		if ($ignoreList)
-		{
-			foreach((array)$ignoreList AS $mac)
-				$mac1[] = strtolower($mac);
-		}
-		$mac1 = array_unique($mac1);
-		if (!in_array($MAC,(array)$mac1))
-		{
-			if ($Host->addPendMAC($MAC))
-				$Datatosend = "#!ok\n";
-			else
-				throw new Exception('#!er: Error adding MAC');
-		}
-		else
-			($HostPend && $mac1[0] == $Host->get('mac') ? $Datatosend.="#!ok\n" : $Datatosend .= "#!ig\n");
+		foreach((array)$ignoreList AS $MAC)
+			$MAC && $MAC->isValid() && !in_array(strtolower($MAC->get('mac')),(array)$KnownMacs) ? $KnownMacs[] = strtolower($MAC->get('mac')) : null;
 	}
+	$MACs = array_unique(array_diff((array)$AllMacs,(array)$KnownMacs));
+	if (count($MACs))
+	{
+		$Host->addPendMAC($MACs);
+		if ($Host->save())
+			$Datatosend = "#!ok\n";
+		else
+			throw new Exception('#!er: Error adding MAC');
+	}
+	else
+		$Datatosend = "#!ig\n";
 	$FOGCore->sendData($Datatosend);
 }
 catch (Exception $e)

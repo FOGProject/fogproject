@@ -465,15 +465,7 @@ class ReportManagementPage extends FOGPage
 		if ($_REQUEST['aprvall'] == 1)
 		{
 			foreach((array)$Hosts AS $Host)
-			{
-				$MACs = $Host->get('pendingMACs');
-				foreach((array)$MACs AS $MAC)
-				{
-					if ($MAC && $MAC->isValid())
-						$Host->addPendtoAdd($MAC);
-					$Host->save();
-				}
-			}
+				$Host->addPendtoAdd()->save();
 			$this->FOGCore->setMessage(_('All Pending MACs approved.'));
 			$this->FOGCore->redirect('?node=report&sub=pend-mac');
 		}

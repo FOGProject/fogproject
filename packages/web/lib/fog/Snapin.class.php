@@ -157,6 +157,16 @@ class Snapin extends FOGController
 		return $this;
 	}
 
+	public function load($field = 'id')
+	{
+		parent::load($field);
+		foreach(get_class_methods($this) AS $method)
+		{
+			if (strlen($method) > 5 && strpos($method,'load'))
+				$this->$method();
+		}
+	}
+
 	public function addGroup($addArray)
 	{
 		// Add
