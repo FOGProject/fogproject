@@ -74,7 +74,7 @@ class Host extends FOGController
 		$this->getActiveSnapinJob();
 		foreach(get_class_methods($this) AS $method)
 		{
-			if (strlen($method) > 5 && strpos($method,'load'))
+			if (strlen($method) > 5 && (strpos($method,'load') !== false))
 				$this->$method();
 		}
 	}
@@ -540,7 +540,7 @@ class Host extends FOGController
 			}
 		}
 		// Modules
-		else if ($this->isLoaded('modules'))
+		if ($this->isLoaded('modules'))
 		{
 			// Remove old rows
 			$this->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id')));
@@ -563,7 +563,7 @@ class Host extends FOGController
 			}
 		}
 		// Printers
-		else if ($this->isLoaded('printers'))
+		if ($this->isLoaded('printers'))
 		{
 			// Find the current default
 			$defPrint = current((array)$this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'isDefault' => 1)));
@@ -591,7 +591,7 @@ class Host extends FOGController
 			}
 		}
 		// Snapins
-		else if ($this->isLoaded('snapins'))
+		if ($this->isLoaded('snapins'))
 		{
 			// Remove old rows
 			$this->getClass('SnapinAssociationManager')->destroy(array('hostID' => $this->get('id')));
@@ -609,7 +609,7 @@ class Host extends FOGController
 			}
 		}
 		// Groups
-		else if ($this->isLoaded('groups'))
+		if ($this->isLoaded('groups'))
 		{
 			// Remove old rows
 			$this->getClass('GroupAssociationManager')->destroy(array('hostID' => $this->get('id')));
@@ -627,7 +627,7 @@ class Host extends FOGController
 			}
 		}
 		// Users
-		else if ($this->isLoaded('users'))
+		if ($this->isLoaded('users'))
 		{
 			// Remove old rows
 			$this->getClass('UserTrackingManager')->destroy(array('hostID' => $this->get('id')));
