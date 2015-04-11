@@ -480,7 +480,7 @@ class Host extends FOGController
 	{
 		// Save
 		parent::save();
-		$this->get('id') ? $maxid = max($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','id')) : $maxid = max($this->get('MACAddressAssociationManager')->find('','','','','','','','id'));
+		$maxid = $this->get('id') ? max($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','id')) : max($this->getClass('MACAddressAssociationManager')->find('','','','','','','','id'));
 		// Primary MAC Addresses
 		if ($this->isLoaded('mac'))
 		{
