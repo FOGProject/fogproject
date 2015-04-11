@@ -23,28 +23,37 @@ class User extends FOGController
 	public $additionalFields = array(
 		'authIP',
 		'authTime',
-		'salt'
 	);
-	
-	// Overrides
-	public function __construct($data)
+
+	private function generate_hash($password, $cost = 11)
 	{
-		// FOGController constructor
-		parent::__construct($data);
-		
-		// Add password salt
-		if (!$this->get('salt'))
-			$this->set('salt', uniqid());
+		$salt = substr(base64_encode(openssl_random_pseudo_bytes(255)),0,22);
+		$salt = str_replace("+",".",$salt);
+		$param = '$'.implode('$',array(
+			'2a',
+			str_pad($cost,2,"0",STR_PAD_LEFT),
+			$salt
+		));
+		return crypt($password,$param);
+	}
+
+	public function validate_pw($password)
+	{
+		$res = false;
+		if (crypt($password, $this->get('password')) == $this->get('password'))
+			$res = true;
+		if (md5($password) == $this->get('password'))
+		{
+			$this->set('password',$password)->save();
+			return $this->validate_pw($password);
+		}
+		return $res;
 	}
 	
 	public function set($key, $value)
 	{
-		if ($this->key($key) == 'password' && strlen($value) != 32)
-		{
-			// TODO: Convert to this better password hashing
-			//$value = md5(md5($value) . $this->get('salt'));
-			$value = md5($value);
-		}
+		if ($this->key($key) == 'password')
+			$value = $this->generate_hash($value);
 		// Set
 		return parent::set($key, $value);
 	}

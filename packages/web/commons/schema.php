@@ -1890,3 +1890,8 @@ $this->schema[] = array(
 $this->schema[] = array(
 	"ALTER TABLE `".DATABASE_NAME."`.`greenFog` DROP INDEX `gfHostID`",
 );
+// 174
+$this->schema[] = array(
+	"ALTER TABLE `".DATABASE_NAME."`.`users` DROP KEY new_index1",
+	"ALTER TABLE `".DATABASE_NAME."`.`users` CHANGE `uPass` `uPass` LONGTEXT NOT NULL",
+);
