@@ -2,11 +2,7 @@
 require_once('../commons/base.inc.php');
 try
 {
-	// Get MAC Addresses from Host.
-	$MACs = FOGCore::parseMacList(trim(base64_decode($_REQUEST['mac'])));
-	if (!$MACs) throw new Exception($foglang['InvalidMAC']);
-	// Check if host already Exists
-	$Host = $FOGCore->getClass('HostManager')->getHostByMacAddresses($MACs);
+	$Host = $FOGCore->getHostItem(false);
 	if ($Host->isValid())
 		$Inventory = $Host->get('inventory');
 	$sysman=trim(base64_decode($_REQUEST['sysman']));

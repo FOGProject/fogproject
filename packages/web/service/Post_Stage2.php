@@ -7,16 +7,7 @@
 require_once('../commons/base.inc.php');
 try
 {
-	// Error checking
-	// NOTE: Most of these validity checks should never fail as checks are made during Task creation - better safe than sorry!
-	// MAC Address
-	$HostManager = new HostManager();
-	$MACs = FOGCore::parseMacList($_REQUEST['mac']);
-	if (!$MACs) throw new Exception($foglang['InvalidMAC']);
-	// Get the Host
-	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host->isValid())
-		throw new Exception(_('Invalid Host'));
+	$Host = $FOGCore->getHostItem(false);
 	// Task for Host
 	$Task = $Host->get('task');
 	if (!$Task->isValid())

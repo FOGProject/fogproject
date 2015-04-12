@@ -1,33 +1,39 @@
 <?php
-
-// Blackout - 10:15 AM 1/10/2011
 class MACAddress extends FOGBase
 {
-	private $MAC,$Host;
-	public function __construct($MAC,$primary = false,$pending = false, $isClientIgnored = false, $isImageIgnored = false)
+	/** $MAC the MAC to test */
+	private $MAC;
+	/** $Host the Host if used */
+	private $Host;
+	/** __construct() initiates
+	  * @param $MAC the mac either string or object
+	  * @return void
+	  */
+	public function __construct($MAC)
 	{
 		parent::__construct();
 		$this->tmpMAC = $MAC;
-		$this->setMAC($MAC);
+		$this->setMAC();
 	}
-	public function setMAC($MAC)
+	/** setMAC() sets the mac
+	  * @return class back
+	  */
+	public function setMAC()
 	{
 		try
 		{
-			if (is_object($MAC))
-				$MAC = trim((($this->tmpMAC instanceof MACAddress) ? $MAC->__toString() : (($this->tmpMAC instanceof MACAddressAssociation) ? $MAC->get('mac') : '')));
-			else if (is_array($MAC))
+			if (is_object($this->tmpMAC))
+				$MAC = trim(($this->tmpMAC instanceof MACAddress) ? strtolower($this->tmpMAC) : (($this->tmpMAC instanceof MACAddressAssociation) ? strtolower($this->tmpMAC->get('mac')) : ''));
+			else if (is_array($this->tmpMAC))
 				$MAC = trim($MAC[0]);
-			else
-				$this->tmpMAC = new MACAddressAssociation(array('id' => 0));
-			if (strlen($MAC) == 12)
+			else if (strlen($this->tmpMAC) == 12)
 			{
 				for ($i = 0; $i < 12; $i = $i + 2)
-					$newMAC[] = $MAC{$i} . $MAC{$i + 1};
+					$newMAC[] = $this->tmpMAC{$i} . $this->tmpMAC{$i + 1};
 				$MAC = implode(':', $newMAC);
 			}
-			elseif (strlen($MAC) == 17)
-				$MAC = str_replace('-', ':', $MAC);
+			else if (strlen($this->tmpMAC) == 17)
+				$MAC = str_replace('-', ':', $this->tmpMAC);
 			$this->MAC = $MAC;
 		}
 		catch (Exception $e)
@@ -37,32 +43,45 @@ class MACAddress extends FOGBase
 		}
 		return $this;
 	}
+	/** getMACPrefix() get the MACs prefix
+	  * @return the prefix
+	  */
 	public function getMACPrefix()
 	{
 		return substr(str_replace(':','-',strtolower($this->MAC)), 0, 8);
 	}
+	/** __toString() Magic method to return the string as defined
+	  * @return the mac address with colons
+	  */
 	public function __toString()
 	{
 		return str_replace('-',':',strtolower($this->MAC));
 	}
+	/** isValid() returns if the mac is valid
+	  * @return true or false
+	  */
 	public function isValid()
 	{
-		return ($this->__toString() != '' ? preg_match('#^([0-9a-fA-F][0-9a-fA-F][:-]){5}([0-9a-fA-F][0-9a-fA-F])$#', $this->__toString()) : false);
+		return preg_match('#^([0-9a-fA-F][0-9a-fA-F][:-]){5}([0-9a-fA-F][0-9a-fA-F])$#',$this->MAC);
 	}
 	public function isPending()
 	{
-		return $this->tmpMAC->get('pending');
+		if ($this->tmpMAC instanceof MACAddressAssociation && $this->tmpMAC->isValid())
+			return $this->tmpMAC->get('pending');
 	}
 	public function isClientIgnored()
 	{
-		return $this->tmpMAC->get('clientIgnore');
+		if ($this->tmpMAC instanceof MACAddressAssociation && $this->tmpMAC->isValid())
+			return $this->tmpMAC->get('clientIgnore');
 	}
 	public function isPrimary()
 	{
-		return $this->tmpMAC->get('primary');
+		if ($this->tmpMAC instanceof MACAddressAssociation && $this->tmpMAC->isValid())
+			return $this->tmpMAC->get('primary');
 	}
 	public function isImageIgnored()
 	{
-		return $this->tmpMAC->get('imageIgnore');
+		if ($this->tmpMAC instanceof MACAddressAssociation && $this->tmpMAC->isValid())
+			return $this->tmpMAC->get('imageIgnore');
 	}
 }

@@ -2,13 +2,8 @@
 require_once('../commons/base.inc.php');
 try
 {
-	// Error checking
-	//MAC Address
-	$HostManager = new HostManager();
-	$MACs = FOGCore::parseMacList($_REQUEST['mac']);
-	//if (!$MACs) throw new Exception($foglang['InvalidMAC']);
 	// Get the Host
-	$Host = $HostManager->getHostByMacAddresses($MACs);
+	$Host = $FOGCore->getHostItem(false);
 	if ($Host && $Host->isValid())
 	{
 		// Task for Host

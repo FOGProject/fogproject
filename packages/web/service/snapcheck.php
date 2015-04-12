@@ -2,12 +2,7 @@
 require_once('../commons/base.inc.php');
 try
 {
-	$HostManager = new HostManager();
-	// Get the MAC
-	$MACs = FOGCore::parseMacList($_REQUEST['mac']);
-	if (!$MACs) throw new Exception($foglang['InvalidMAC']);
-	// Get the host
-	$Host = $HostManager->getHostByMacAddresses($MACs);
+	$Host = $FOGCore->getHostItem(false);
 	if (!$Host->isValid())
 		throw new Exception('#!ih');
 	// Get the Jobs if possible
