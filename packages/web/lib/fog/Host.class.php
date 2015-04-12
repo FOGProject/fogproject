@@ -273,7 +273,12 @@ class Host extends FOGController
 	private function loadOptimalStorageNode()
 	{
 		if (!$this->isLoaded('optimalStorageNode') && $this->get('id'))
-			$this->set('optimalStorageNode',$this->getImage()->getStorageGroup()->getOptimalStorageNode());
+		{
+			if ($this->get('image') && $this->get('image')->isValid())
+				$this->set('optimalStorageNode',$this->getImage()->getStorageGroup()->getOptimalStorageNode());
+			else
+				$this->set('optimalStorageNode',$this->getClass('StorageNode',array('id' => 0)));
+		}
 	}
 	// Overrides
 	public function get($key = '')
