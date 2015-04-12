@@ -1,47 +1,41 @@
 <?php
-/**	Class Name: FOGBase
-	The "foundation" of the FOG GUI system.
-	This File is the base of all of the FOG GUI/Tasks systems.
-	Please limit modification to this file as you may not know
-	what will break with you editing it.
-*/
 abstract class FOGBase
 {
-	// Debug & Info
-	/** Standardizes the debug as an abstract variable for use later on. */
+	/** $debug Standardizes the debug as an abstract variable for use later on. */
 	public $debug = false;
-	/** Prepares the information if you should want more info. */
+	/** $info Prepares the information if you should want more info. */
 	public $info = false;
-	// Class variables
-	/** Sets the Variables to use later on. **/
-	public $FOGCore, $DB, $Hookmanager, $FOGUser, $FOGPageManager, $foglang, $imagelink, $EventManager;
-	// LEGACY
-	/** Legacy calls for $db/$conn */
+	/** $FOGFTP the FOGFTP class */
+	public $FOGFTP;
+	/** $FOGCore the FOGCore class */
+	public $FOGCore;
+	/** $DB The database manager class */
+	public $DB;
+	/** $HookManager the hook manager class */
+	public $HookManager;
+	/** $FOGUser the currently logged in user */
+	public $FOGUser;
+	/** $FOGPageManager the FOGPageManager class */
+	public $FOGPageManager;
+	/** $foglang the language interpreted values */
+	public $foglang;
+	/** $imagelink the link to the image files */
+	public $imagelink;
+	/** $EventManager the EventManager class */
+	public $EventManager;
+	/** $db Legacy calls for $db/$conn */
 	public $db;
-	/** Legacy calls for $db/$conn */
+	/** $conn Legacy calls for $db/$conn */
 	public $conn;
-	// isLoaded counter
-	/** sets the "isLoaded" variable */
+	/** $searchPages sets the "isLoaded" variable */
 	protected $isLoaded = array();
+	/** $searchPages sets the pages that have search as a selector. */
 	protected $searchPages = array();
-	// Construct
-	/** __construct()
-	 FOGBase's constructor so variables that are needed
-	 get passed properly as many of them are the same
-	 anyway.
-	 FOGCore gives access to the FOGCore class.
-	 DB gives access to the DB Class as a variable.
-	 HookManager gives access to the HookManager class.
-	 FOGUser gives access to the FOGUser class.
-	 FOGFTP not really needed here, but later is useful.
-
-	 foglang is new, but meant to be the holder for all things
-	 that need to be translated to other languages.  In its infancy
-	 right now.
-	*/
+	/** __construct() initiates the FOGBase class
+	  * @return void
+	  */
 	public function __construct()
 	{
-		// Class setup
 		$this->FOGFTP = $GLOBALS['FOGFTP'];
 		$this->FOGCore = $GLOBALS['FOGCore'];
 		$this->DB = $GLOBALS['DB'];
@@ -49,17 +43,16 @@ abstract class FOGBase
 		$this->HookManager = $GLOBALS['HookManager'];
 		$this->FOGPageManager = $GLOBALS['FOGPageManager'];
 		$this->EventManager = $GLOBALS['EventManager'];
-		// Language Setup
 		$this->foglang = $GLOBALS['foglang'];
-		// Default TimeZone to use for date fields
 		$this->TimeZone = $GLOBALS['TimeZone'];
 		$this->imagelink = $GLOBALS['imagelink'];
 		$this->searchPages = array('user','host','group','image','snapin','printer','tasks','hosts');
 	}
-	/** fatalError($txt, $data = array())
-		Fatal error in the case something went wrong.
-		Prints to the screen so it can be easily seen.
-	*/
+	/** fatalError() prints error to the screen and exits script
+	  * @param $txt the text of the error
+	  * @param $data the data to parse
+	  * @return void
+	  */
 	public function fatalError($txt, $data = array())
 	{
 		if (!preg_match('#/service/#', $_SERVER['PHP_SELF']) && !FOGCore::isAJAXRequest())
@@ -69,34 +62,37 @@ abstract class FOGBase
 		}
 	}
 	
-	// Error - results in FOG halting with an error message
-	/** error($txt, $data = array())
-		Prints to the screen in case of error.  Same as above it seems.
-	*/
+	/** error() prints the error to the screen
+	  * @param $txt the text to print
+	  * @param $data the data to parse
+	  * @return void
+	  */
 	public function error($txt, $data = array())
 	{
 		if ((((isset($this->debug)) && $this->debug === true)) && !preg_match('#/service/#', $_SERVER['PHP_SELF']) && !FOGCore::isAJAXRequest())
 			print sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 	}
-	// Debug - message is shown if debug is enabled for that class
-	/** debug($txt, $data=array())
-		Prints debug information for the use.
-	*/
+	/** debug() prints debug information
+	  * @param $txt the text to print
+	  * @param $data the data to parse
+	  * @return void
+	  */
 	public function debug($txt, $data = array())
 	{
 		if ((!isset($this) || (isset($this->debug) && $this->debug === true)) && !FOGCore::isAJAXRequest() && !preg_match('#/service/#', $_SERVER['PHP_SELF']))
 			print sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 	}
-	// Info - message is shown if info is enabled for that class
-	/** info($txt, $data = array())
-		Prints additional information for the user.
-	*/
+	/** info() prints informational messages
+	  * @param $txt the text to print
+	  * @param $data the data to parse
+	  * @return void
+	  */
 	public function info($txt, $data = array())
 	{
 		if ((!isset($this) || (isset($this->info) && $this->info === true)) && !preg_match('#/service/#',$_SERVER['PHP_SELF']))
 			print sprintf('<div class="debug-info">FOG INFO: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 	}
-	/** __toString()
+	/** __toString() magic function in php as defined
 	  * @return the item in string format
 	  */
 	public function __toString()
@@ -131,7 +127,7 @@ abstract class FOGBase
 		$r = new ReflectionClass($class);
 		return (count($args) ? $r->newInstanceArgs($args) : $r->newInstance($data));
 	}
-	/** endsWith($str,$sub)
+	/** endsWith()
 	  * @param $str the string to find out if it ends with
 	  * @param the sub to match
 	  * @return true or false if it ends with
@@ -140,7 +136,7 @@ abstract class FOGBase
 	{
 		return (substr($str,strlen($str)-strlen($sub)) === $sub);
 	}
-	/** getFTPByteSize get the byte size from ftp for the file requests.
+	/** getFTPByteSize() get the byte size from ftp for the file requests.
 	  * @param $StorageNode the storagenode to ftp to
 	  * @param $file the file to get the size of.
 	  * @return the size of the item prettied up from formatByteSize
@@ -166,8 +162,7 @@ abstract class FOGBase
 		$this->FOGFTP->close();
 		return $size;
 	}
-	/** 
-	  * formatByteSize
+	/** formatByteSize
 	  * @param $size the size in byptes to format
 	  * @return $size retunres the size formatted neatly.
 	  */
@@ -178,7 +173,7 @@ abstract class FOGBase
 			$size /= 1024;
 		return sprintf($units[$i],round($size,2));
 	}
-	/**
+	/** array_insert_before()
 	  * Inserts a new key/value before the key in the array.
 	  *
 	  * @param $key
@@ -210,7 +205,7 @@ abstract class FOGBase
 		}
 		return false;
 	}
-	/**
+	/** array_insert_after()
 	  * Inserts a new key/value after the key in the array.
 	  *
 	  * @param $key
@@ -242,11 +237,11 @@ abstract class FOGBase
 		}
 		return false;
 	}
-	/** removes specified key or keys (in array) from an array
-	 * @param $key the key or set of keys to remove
-	 * @param $array the array to keys from
-	 * @return void
-	 */
+	/** array_remove() removes specified key or keys (in array) from an array
+	  * @param $key the key or set of keys to remove
+	  * @param $array the array to keys from
+	  * @return void
+	  */
 	public function array_remove($key, array &$array)
 	{
 		if (is_array($key))
@@ -263,7 +258,7 @@ abstract class FOGBase
 			}
 		}
 	}
-	/**
+	/** randomString()
 	  * Generates a random string based on the length you pass.
 	  *
 	  * @param $length
@@ -277,7 +272,7 @@ abstract class FOGBase
 		shuffle($chars);
 		return implode(array_slice($chars,0,$length));
 	}
-	/** aesencrypt aes encrypts the data sent.
+	/** aesencrypt() aes encrypts the data sent.
 	  * @param $data the data to encrypt
 	  * @param $key if false, have fog generate a random key for it.
 	  * @param $enctype can be set to anything but defaults to MCRYPT_RIJNDAEL_128
@@ -287,12 +282,7 @@ abstract class FOGBase
 	public function aesencrypt($data,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC)
 	{
 
-		// Below is if we ever figure out how to use asymmetric keys
-		//if (!$pub_key = openssl_pkey_get_public($data))
-		//	throw new Exception('#!ihc');
-		//$a_key = openssl_pkey_get_details($pub_key);
 		$iv_size = mcrypt_get_iv_size($enctype,$mode);
-		// Generate a one time, secure and random key if the key hasn't been entered already
 		if (!$key)
 		{
 			$addKey = true;
@@ -302,7 +292,7 @@ abstract class FOGBase
 		$cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
 		return bin2hex($iv).'|'.bin2hex($cipher).($addKey ? '|'.bin2hex($key) : '');
 	}
-	/** aesencrypt aes decrypts the data sent.
+	/** aesencrypt() aes decrypts the data sent.
 	  * @param $encdata the data to decrypt
 	  * @param $key if false, have fog grab it from the output.
 	  * @param $enctype can be set to anything but defaults to MCRYPT_RIJNDAEL_128
@@ -320,7 +310,7 @@ abstract class FOGBase
 		$decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
 		return $decipher;
 	}
-	/** encryptpw encrypts the passwords for us
+	/** encryptpw() encrypts the passwords for us
 	  * @param $pass the password to work from
 	  * @return returns the encrypted password
 	  */
@@ -332,8 +322,7 @@ abstract class FOGBase
 			$newpass = $decrypt;
 		return $this->aesencrypt($newpass);
 	}
-	/**
-	  * diff($start,$end)
+	/** diff()
 	  * Simply a function to return the difference of time between the start and end.
 	  * @param $start Translate the sent start time to DateTime format for easy differentials.
 	  * @param $end Translate the sent end time to Datetime format for easy differentials.
@@ -348,8 +337,7 @@ abstract class FOGBase
 		$Duration = $start->diff($end);
 		return $Duration->format('%H:%I:%S');
 	}
-	/**
-	  * nice_date($Date)
+	/** nice_date()
 	  * Simply returns the date in DateTime Class format for easier use.
 	  * @param $Date the non-nice Date Sent.
 	  * @return $NiceDate returns the DateTime class for the current date.
@@ -359,8 +347,7 @@ abstract class FOGBase
 		$NiceDate = (!$utc ? new DateTime($Date,new DateTimeZone($this->TimeZone)) : new DateTime($Date,new DateTimeZone('UTC')));
 		return $NiceDate;
 	}
-	/**
-	  * validDate($Date)
+	/** validDate()
 	  * Simply returns if the date is valid or not
 	  * @param $Date the date, nice or not nice
 	  * @return return whether Date/Time is valid or not
@@ -375,7 +362,7 @@ abstract class FOGBase
 			$format = 'm/d/Y';
 		return DateTime::createFromFormat($format,$Date->format($format));
 	}
-	/** formatTime($time, $format = '')
+	/** formatTime()
 	  * @param $time the time to format
 	  * @param $format what format to output the time if set.
 	  * @param $utc whether to use UTC or local timezone.
@@ -462,7 +449,7 @@ abstract class FOGBase
 		if (!$_SESSION['post_request_vals'] && $this->FOGCore->isPOSTRequest())
 			$_SESSION['post_request_vals'] = $_REQUEST;
 	}
-	/** array_filter_recursive($input)
+	/** array_filter_recursive()
 	  * @param $input the input to filter
 	  * clean up arrays recursively.
 	  * @return the filtered array
@@ -479,7 +466,7 @@ abstract class FOGBase
 			$input = array_values($input);
 		return $input;
 	}
-	/** byteconvert($kilobytes)
+	/** byteconvert()
 	  * @param $kilobytes
 	  * @return $kilobytes
 	  */
@@ -487,23 +474,21 @@ abstract class FOGBase
 	{
 		return (($kilobytes / 8) * 1024);
 	}
-	/** certEncrypt($data)
+	/** certEncrypt()
 	  * @param $data the data to encrypt
+	  * @param $Host the host to use for encrypting
 	  * @return $encrypt returns the encrypted data
 	  */
 	public function certEncrypt($data,$Host)
 	{
-		// Get the public key of the recipient
 		if (!$Host || !$Host->isValid())
 			throw new Exception('#!ih');
 		if (!$Host->get('pub_key'))
 			throw new Exception('#!ihc');
 		return $this->aesencrypt($data,$this->hex2bin($Host->get('pub_key')));
-		// Below is if we ever figure out an asymmetric system.
 		if (!$pub_key = openssl_pkey_get_public($Host->get('pub_key')))
 			throw new Exception('#!ihc');
 		$a_key = openssl_pkey_get_details($pub_key);
-		// Encrypt the data in small chunks and then combine and send it.
 		$chunkSize = ceil($a_key['bits'] / 8) - 11;
 		$output = '';
 		while ($data)
@@ -518,7 +503,7 @@ abstract class FOGBase
 		openssl_free_key($pub_key);
 		return base64_encode($output);
 	}
-	/** hex2bin($hex)
+	/** hex2bin()
 	  * @param $hex
 	  * Function simply takes the data and transforms it into hexadecimal.
 	  * @return the hex coded data.
@@ -544,8 +529,9 @@ abstract class FOGBase
 		}
 		return $sbin;
 	}
-	/** certDecrypt($data)
+	/** certDecrypt()
 	  * @param $data the data to decrypt
+	  * @param $padding if we need it or not, defaults to needed
 	  * @return $output the decrypted data
 	  */
 	public function certDecrypt($data,$padding = true)
@@ -560,7 +546,6 @@ abstract class FOGBase
 		if (!$priv_key = openssl_pkey_get_private(file_get_contents($path.'.srvprivate.key')))
 			throw new Exception('Private Key Failed');
 		$a_key = openssl_pkey_get_details($priv_key);
-		// Decrypt the data in the small chunks
 		$chunkSize = ceil($a_key['bits'] / 8);
 		$output = '';
 		while ($data)
@@ -575,7 +560,7 @@ abstract class FOGBase
 		openssl_free_key($priv_key);
 		return $output;
 	}
-	/** parseMacList function takes the string of the MAC addresses sent
+	/** parseMacList() function takes the string of the MAC addresses sent
 	  *     it then tests if they are each valid macs and returns just the mac's.
 	  * @param $stringlist the list of MACs to check.  Each mac is broken by a | character.
 	  * @return $MAClist, returns the list of valid MACs
@@ -593,14 +578,14 @@ abstract class FOGBase
 			$MAClist = false;
 		return $MAClist;
 	}
-	/** getActivePlugins gets the active plugins.
+	/** getActivePlugins() gets the active plugins.
 	  * @return the array of active plugin names.
 	  */
 	public function getActivePlugins()
 	{
 		return $this->getClass('PluginManager')->find(array('installed' => 1),'','','','','','','name');
 	}
-	/** array_ksort
+	/** array_ksort()
 	  * sorts the array by the keys.
 	  * @param (array) $array the array to compare
 	  * @param (array) $orderArray the array to sort itself
@@ -616,7 +601,7 @@ abstract class FOGBase
 		}
 		return $ordered + $array;
 	}
-	/** getGlobalModuleStatus
+	/** getGlobalModuleStatus()
 	  * @param $names returns the short and long names, otherwise returns if the long is set.  Default is false.
 	  * @return the array of data as requested.
 	  */
@@ -637,7 +622,7 @@ abstract class FOGBase
 			'usertracker' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_USERTRACKER_ENABLED') : 'FOG_SERVICE_USERTRACKER_ENABLED',
 		);
 	}
-	/** binary_search Searches array of objects, or array for the needle
+	/** binary_search() Searches array of objects, or array for the needle
 	  * @param $needle is the item to search for
 	  * @param $haystack the array to scan within
 	  * @return index
@@ -684,7 +669,7 @@ abstract class FOGBase
 		}
 		return -1;
 	}
-	/** getHostItem returns the host or error of host for the service files.
+	/** getHostItem() returns the host or error of host for the service files.
 	  * @param $service if the caller is a service
 	  * @param $encoded if the item is base64 encoded or not.
 	  * @param $hostnotrequired let us know if the host is required or not
@@ -706,7 +691,7 @@ abstract class FOGBase
 		}
 		return $Host;
 	}
-	/** sendData prints the return values as needed
+	/** sendData() prints the return values as needed
 	  * @param $datatosend the data to send out
 	  * @param $service if the caller is a service
 	  * @return void
@@ -725,7 +710,7 @@ abstract class FOGBase
 		}
 	}
 
-	/** getAllBlamedNodes sets the failure of a node
+	/** getAllBlamedNodes() sets the failure of a node
 	  * @return $nodeRet the node to return if it's already used
 	  */
 	public function getAllBlamedNodes()

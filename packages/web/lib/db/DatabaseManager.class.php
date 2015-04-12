@@ -4,12 +4,23 @@
 */
 class DatabaseManager extends FOGBase
 {
-	public $type, $host, $user, $pass, $database;
+	/** $type the type of connection to establish */
+	public $type;
+	/** $host the host to connect to */
+	public $host;
+	/** $user the user to connect as */
+	public $user;
+	/** $pass the pass to connect with */
+	public $pass;
+	/** $database the database to use */
+	public $database;
+	/** $DB the Connection as established */
 	public $DB;
+	/** $valid if the item is valid or not */
 	private $valid = false;
-	/** __construct($type,$host,$user,$pass,$database)
-		Constructs the connection variables for connecting to the database.
-	*/
+	/** __construct() initiates the database class
+	  * @return if the class is valid or not
+	  */
 	public function __construct()
 	{
 		try
@@ -38,8 +49,8 @@ class DatabaseManager extends FOGBase
 		return $this->valid;
 	}
 	/** connect()
-		Connects the system to the database.
-	*/
+	  * @return returns the class as established.
+	  */
 	public function connect()
 	{
 		try
@@ -77,10 +88,9 @@ class DatabaseManager extends FOGBase
 		return $this;
 	}
 	
-	/** getVersion()
-		Gets the version stored in the database.  Sets
-		up for if there's a need to update or not.
-	*/
+	/** getVersion() get the version of the schema
+	  * @return the version or false (0)
+	  */
 	public function getVersion()
 	{
 		try
@@ -90,13 +100,12 @@ class DatabaseManager extends FOGBase
 				throw new Exception('Database not connected');
 			// Get version
 			$version = $this->DB->query('SELECT vValue FROM schemaVersion LIMIT 1')->fetch()->get('vValue');
-			// Return version OR 0 (for new install) if query failed
-			return ($version ? $version : 0);
 		}
 		catch (Exception $e)
 		{
 			$this->FOGCore->error('Failed: %s->%s(): Error: %s', array(get_class($this), __FUNCTION__, $e->getMessage()));
 		}
-		return false;
+		// Return version OR 0 (for new install) if query failed
+		return ($version ? $version : false);
 	}
 }
