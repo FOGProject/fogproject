@@ -1,94 +1,110 @@
 <?php
-/** \class FOGPage
-	The pages all use this.  It's what prints out
-	tables and headers, titles.  Basically everything
-	displayed to the user in the GUI is using this
-	class file.
-*/
 abstract class FOGPage extends FOGBase
 {
-	// Name
+	/** $name the name of the page */
 	public $name = '';
+	/** $debug whether or not to use debug output */
 	public $debug = false;
+	/** $info whether or not to use info output */
 	public $info = false;
-	// Node Variable
+	/** $node the node for the page also in url */
 	public $node = '';
-	// ID Variable - name of ID variable used in Page
-	// LEGACY: This is for LEGACY support - all of these will be 'id' eventually
+	/** $id name of the ID variable used in Page */
 	public $id = '';
-	// Menu Items
-	// TODO: Finish
+	/** $menu TODO: Finish, should contain this pages menu */
 	public $menu = array(
 	);
-	// Sub Menu Items - when ID Variable is set
-	// TODO: Finish
+	/** $subMenu TODO: Finish, should contain this pages sub menu */
 	public $subMenu = array(
 	);
-    /** Sets the Variables to use later on. **/
-	// Variables
-	// Page title
+	/** $titleEnabled sets if the title is enabled for this page */
 	public $titleEnabled = true;
+	/** $title sets the title of this page */
 	public $title;
 	// Render engine
+	/** $headerData the header row for tables */
 	public $headerData = array();
+	/** $data the data to display in the tables */
 	public $data = array();
+	/** $templates the template engine of what to replace */
 	public $templates = array();
+	/** $attirbutes the attributes of the table rows */
 	public $attributes = array();
-	public $searchFormURL = '';	// If set, allows a search page using FOGAjaxSearch JQuery function
+	/** $searchFormURL if set, allows a search page */
+	public $searchFormURL = '';
+	/** $wrapper this is the wrapper for the tables cells */
 	private $wrapper = 'td';
+	/** $result this is the result of the items as parsed */
 	private $result;
 	// Method & Form
-	protected $post = false;	// becomes true if POST request
-	protected $ajax = false;	// becomes true if AJAX request
+	/** $post sets up if the form is a POST request */
+	protected $post = false;
+	/** $ajax sets up if the form is an AJAX request */
+	protected $ajax = false;
+	/** $request sets up the total of all post/get vars */
 	protected $request = array();
+	/** $formAction sets up the form action based on current items */
 	protected $formAction;
+	/** $formPostAction sets up the form action after post */
 	protected $formPostAction;
+	/** $childClass the child class of the page calling */
 	protected $childClass;
 	// __construct
+	/** __construct() initiates the constructor of the pages */
 	public function __construct($name = '')
 	{
-		// FOGBase contstructor
 		parent::__construct();
-		// Set name
 		if (!empty($name))
 			$this->name = $name;
-		// Set title
 		$this->title = $this->foglang[$this->name];
-		// Make these key's accessible in $this->request
 		$this->request = $this->REQUEST = $this->DB->sanitize($_REQUEST);
 		$this->REQUEST['id'] = $_REQUEST[$this->id];
 		$this->request['id'] = $_REQUEST[$this->id];
-		// Methods
 		$this->post = $this->FOGCore->isPOSTRequest();
 		$this->ajax = $this->FOGCore->isAJAXRequest();
 		$this->childClass = preg_replace('#ManagementPage#', '', preg_replace('#Mobile#','',get_class($this)));
-		// Default form target
 		$this->formAction = sprintf('%s?%s', $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
-		// Hook in to allow search pages to be adjusted as needed.
 		$this->HookManager->processEvent('SEARCH_PAGES',array('searchPages' => &$this->searchPages));
 	}
-	// Default index page
+	/** index() the default index for all pages that extend this class */
 	public function index()
 	{
 		printf('Index page of: %s%s', get_class($this), (count($args) ? ', Arguments = ' . implode(', ', array_map(create_function('$key, $value', 'return $key." : ".$value;'), array_keys($args), array_values($args))) : ''));
 	}
+	/** set() sets the sent key and value for the page
+	  * @param $key the key to set
+	  * @param $value the value to set
+	  * @return the set class with items set
+	  */
 	public function set($key, $value)
 	{
 		$this->$key = $value;
 		return $this;
 	}
+	/** get() gets the data from the sent key
+	  * @return the value of the key
+	  */
 	public function get($key)
 	{
 		return $this->$key;
 	}
+	/** __toString() magic function that just returns the data
+	  * @return void
+	  */
 	public function __toString()
 	{
 		$this->process();
 	}
+	/** render() just prints the data
+	  * @return void
+	  */
 	public function render()
 	{
 		print $this->process();
 	}
+	/** process() build the relevant html for the page
+	  * @return false or the result
+	  */
 	public function process()
 	{
 		try
@@ -172,6 +188,9 @@ abstract class FOGPage extends FOGBase
 			return $e->getMessage();
 		}
 	}
+	/** buildHeaderRow() builds the header row of the tables
+	  * @return the results as parsed
+	  */
 	public function buildHeaderRow()
 	{
 		// Loop data
@@ -197,6 +216,10 @@ abstract class FOGPage extends FOGBase
 			return $result;
 		}
 	}
+	/** buildRow() builds the row of the tables
+	  * @param $data the data to build upon
+	  * @return the results as parsed
+	  */
 	public function buildRow($data)
 	{
 		unset($dataFind,$dataReplace);
@@ -226,7 +249,9 @@ abstract class FOGPage extends FOGBase
 		// Return result
 		return $result;
 	}
-
+	/** deploy() build the tasking output
+	  * @return void
+	  */
 	public function deploy()
 	{
 		$ClassType = ucfirst($this->node);
@@ -335,9 +360,9 @@ abstract class FOGPage extends FOGBase
 		printf('%s%s%s','<p class="c"><input type="submit" value="',$this->title,'" /></p>');
 		printf("\n\t\t\t</form>");
 	}
-	/** deploy_post()
-	* Make the deployment actually happen.
-	*/
+	/** deploy_post() actually create the deployment task
+	  * @return void
+	  */
 	public function deploy_post()
 	{
 		$ClassType = ucfirst($this->node);
@@ -481,7 +506,6 @@ abstract class FOGPage extends FOGBase
 			// Failure
 			printf('<div class="task-start-failed"><p>%s</p><p>%s</p></div>',_('Failed to create deployment tasking for the following hosts'),$e->getMessage());
 		}
-		
 		// Success
 		if (count($success))
 		{
@@ -493,8 +517,8 @@ abstract class FOGPage extends FOGBase
 			);
 		}
 	}
-	/** deletemulti just presents the delete confirmation screen
-	  * @return false
+	/** deletemulti() just presents the delete confirmation screen
+	  * @return void
 	  */
 	public function deletemulti()
 	{
@@ -527,8 +551,8 @@ abstract class FOGPage extends FOGBase
 		print '</form>';
 		print '</div>';
 	}
-	/** deleteconf delets the items after being confirmed.
-	  * @return false
+	/** deleteconf() deletes the items after being confirmed.
+	  * @return void
 	  */
 	public function deleteconf()
 	{
@@ -542,9 +566,9 @@ abstract class FOGPage extends FOGBase
 		$this->FOGCore->setMessage('All selected items have been deleted');
 		$this->FOGCore->redirect('?node='.$this->node);
 	}
-	/**
-	* basictasksOptions
-	*/
+	/** basictasksOptions() builds the tasks list
+	  * @return void
+	  */
 	public function basictasksOptions()
 	{
 		$ClassType = ucfirst($this->node);
@@ -621,9 +645,9 @@ abstract class FOGPage extends FOGBase
 		printf("\n\t\t\t</div>");
 		unset($this->data);
 	}
-	/**
-	* adFieldsToDisplay()
-	*/
+	/** adFieldsToDisplay() display the Active Directory stuff 
+	  * @return void
+	  */
 	public function adFieldsToDisplay()
 	{
 		$ClassType = ucfirst($this->node);
@@ -688,8 +712,8 @@ abstract class FOGPage extends FOGBase
 		printf('</div>');
 	}
 	/** adInfo() Returns AD Information to host/group
-	 * @return void
-	**/
+	  * @return void
+	  */
 	public function adInfo()
 	{
 		$Data = array(
@@ -702,8 +726,8 @@ abstract class FOGPage extends FOGBase
 			print json_encode($Data);
 	}
 	/** getPing() Performs the ping stuff.
-	 * @return void
-	**/
+	  * @return void
+	  */
 	public function getPing()
 	{
 		try
@@ -735,6 +759,9 @@ abstract class FOGPage extends FOGBase
 		if ($this->FOGCore->isAJAXRequest())
 			print $SendMe;
 	}
+	/** kernelfetch() the kernel fetcher stuff.
+	  * @return void
+	  */
 	public function kernelfetch()
 	{
 		try
@@ -809,6 +836,9 @@ abstract class FOGPage extends FOGBase
 		$this->FOGFTP->close();
 		print $SendME;
 	}
+	/** loginInfo() login information getter
+	  * @return void
+	  */
 	public function loginInfo()
 	{
 		$data = $this->FOGCore->fetchURL(array('http://fogproject.org/globalusers','http://fogproject.org/version/version.php'));
@@ -822,21 +852,9 @@ abstract class FOGPage extends FOGBase
 			$data['version'] = $data[1];
 		print json_encode($data);
 	}
-	public function random()
-	{
-		try
-		{
-			if (!$_SESSION['AllowAJAXTasks'])
-				throw new Exception(_('FOG Session Invalid'));
-			$Data = array('key' => $this->FOGCore->randomString(32));
-		}
-		catch (Exception $e)
-		{
-			$Data = $e->getMessage();
-		}
-		if ($this->FOGCore->isAJAXRequest())
-			print json_encode($Data);
-	}
+	/** getmacman() get the mac manager information
+	  * @return void
+	  */
 	public function getmacman()
 	{
 		try
@@ -858,7 +876,9 @@ abstract class FOGPage extends FOGBase
 		}
 		print $Data;
 	}
-	// Delete function, this should be more or less the same for all pages.
+	/** delete() Delete items from their respective pages.
+	  * @return void
+	  */
 	public function delete()
 	{
 		// Find
@@ -899,14 +919,18 @@ abstract class FOGPage extends FOGBase
 		$this->render();
 		printf('</form>');
 	}
-
+	/** configure() send the client configuration information
+	  * @return void
+	  */
 	public function configure()
 	{
 		$Datatosend = "#!ok\n#sleep={$this->FOGCore->getSetting(FOG_SERVICE_CHECKIN_TIME)}\n#force={$this->FOGCore->getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={$this->FOGCore->getSetting(FOG_CLIENT_MAXSIZE)}\n#promptTime={$this->FOGCore->getSetting(FOG_GRACE_TIMEOUT)}";
 		print $Datatosend;
 		exit;
 	}
-
+	/** authorize() authorize the client information
+	  * @return void
+	  */
 	public function authorize()
 	{
 		try
@@ -932,6 +956,9 @@ abstract class FOGPage extends FOGBase
 		exit;
 
 	}
+	/** delete_post() actually delete the items
+	  * @return void
+	  */
 	public function delete_post()
 	{
 		// Find
@@ -989,9 +1016,9 @@ abstract class FOGPage extends FOGBase
 			$this->FOGCore->redirect($this->formAction);
 		}
 	}
-	/* search system
-	 * @return void
-	 */
+	/** search() the search methods
+	  * @return void
+	  */
 	public function search()
 	{
 		if ($this->node == 'tasks' && $_REQUEST['sub'] != 'search')
