@@ -45,7 +45,7 @@ abstract class FOGBase
 		$this->EventManager = $GLOBALS['EventManager'];
 		$this->foglang = $GLOBALS['foglang'];
 		$this->TimeZone = $GLOBALS['TimeZone'];
-		$this->imagelink = $GLOBALS['imagelink'];
+		$this->imagelink = $_SESSION['imagelink'];
 		$this->searchPages = array('user','host','group','image','snapin','printer','tasks','hosts');
 	}
 	/** fatalError() prints error to the screen and exits script

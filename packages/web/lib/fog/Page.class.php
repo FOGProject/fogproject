@@ -3,9 +3,8 @@ class Page extends FOGBase {
 	private $pageTitle,$sectionTitle,$stylesheets=array(),$javascripts=array(),$body,$isHomepage, $menu, $submenu, $media;
 	public function __construct() {
 		parent::__construct();
-		global $theme;
 		while (@ob_end_clean());
-		$dispTheme = 'css/'.($theme ? $theme : 'default/fog.css');
+		$dispTheme = 'css/'.($_SESSION['theme'] ? $_SESSION['theme'] : 'default/fog.css');
 		if (!preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
 		{
 			$this->addCSS('css/jquery-ui.css');
