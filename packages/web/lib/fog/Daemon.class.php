@@ -1,36 +1,40 @@
 <?php
-/** Class Name: Daemon
-        Class for managing Daemon exclusive functions.
-*/
 class Daemon
 {
+	/** $TTY the console to output to/from */
 	public $TTY;
+	/** $interface the interface to connect with */
 	public $interface = NULL;
+	/** $interfaceSettingName the interface name */
 	public $interfaceSettingName = NULL;
+	/** $DaemonName the name of the Daemon */
 	public $DaemonName;
+	/** $config the configuration class */
 	private $config;
+	/** $mysqli the mysqli connection */
 	private $mysqli;
-	
-
-	/** Construct daemon class
-	new Daemon($DaemonName,$InterfaceSettingName)
-	$DaemonName = string: First part of deviceoutput constant, used to find TTY and display wait info
-	$interfaceSettingName = string: name of the constant to get appropriate interface from. Constant isn't available until config has been constructed.
-	*/
+	/** __construct() Construct daemon class
+	  * @param $DaemonName the name to test
+	  * @param $interfaceSettingName the interface name
+	  * @return void
+	  */
 	public function __construct($DaemonName,$interfaceSettingName) {
-		require_once(WEBROOT."/lib/fog/Config.class.php" );
+		require_once(WEBROOT."/lib/fog/Config.class.php");
 		$this->config = new Config();
 		$this->TTY = constant(strtoupper($DaemonName).'DEVICEOUTPUT');
 		$this->DaemonName = ucfirst(strtolower($DaemonName));
 		$this->interfaceSettingName = $interfaceSettingName;
 	}
+	/** __destruct()
+	  * @return void
+	  */
 	public function __destruct() {
 		unset($this->config);
 		unset($this->mysqli);
 	}
 	/** clear_screen()
-		Clears the screen for information.
-	*/
+	  * Clears the screen for information.
+	  */
 	public function clear_screen()
 	{
 		$this->out(chr(27)."[2J".chr(27)."[;H");
