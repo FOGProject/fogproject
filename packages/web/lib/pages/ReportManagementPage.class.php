@@ -243,7 +243,7 @@ class ReportManagementPage extends FOGPage
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
-		$ReportMaker->outputReport(0);
+		$ReportMaker->outputReport(false);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** host_list()
@@ -321,7 +321,7 @@ class ReportManagementPage extends FOGPage
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
-		$ReportMaker->outputReport(0);
+		$ReportMaker->outputReport(false);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** inventory()
@@ -451,7 +451,7 @@ class ReportManagementPage extends FOGPage
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
-		$ReportMaker->outputReport(0);
+		$ReportMaker->outputReport(false);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** pend_mac()
@@ -524,7 +524,7 @@ class ReportManagementPage extends FOGPage
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
-		$ReportMaker->outputReport(0);
+		$ReportMaker->outputReport(false);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** vir_hist()
@@ -603,7 +603,7 @@ class ReportManagementPage extends FOGPage
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-		$ReportMaker->outputReport(0);
+		$ReportMaker->outputReport(false);
 		print '</form>';
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
@@ -924,7 +924,7 @@ class ReportManagementPage extends FOGPage
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
-		$ReportMaker->outputReport(0);
+		$ReportMaker->outputReport(false);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** snapin_log()
@@ -1110,7 +1110,7 @@ class ReportManagementPage extends FOGPage
 		}
 		// This is for the pdf.
 		$ReportMaker->appendHTML($this->process());
-		$ReportMaker->outputReport(0);
+		$ReportMaker->outputReport(false);
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** equip_loan()

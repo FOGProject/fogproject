@@ -2,12 +2,13 @@
 class ReportMaker extends FOGBase
 {
 	private $strHTML, $strCSV, $strLine, $filename;
-	const FOG_REPORT_HTML = 0;
-	const FOG_REPORT_CSV = 1;
-	const FOG_REPORT_PDF = 2;
-	const FOG_BACKUP_SQL = 3;
-	const FOG_EXPORT_SQL = 4;
-	const FOG_EXPORT_HOST = 5;
+	public $types = array(
+		'html' => 0,
+		'csv' => 1,
+		'pdf' => 2,
+		'sql' => 3,
+		'host' => 4,
+	);
 	public function appendHTML($html){$this->strHTML[] = $html;}
 	public function addCSVCell($item){$this->strCSV[] = trim($item);}
 	public function endCSVLine()
@@ -16,11 +17,17 @@ class ReportMaker extends FOGBase
 		unset($this->strCSV);
 	}
 	public function setFileName($filename){$this->filename = $filename;}
-	public function outputReport($intType)
+	public function outputReport($intType = 0)
 	{
-		if ($intType === self::FOG_REPORT_HTML)
+		if (!isset($_REQUEST['export']))
+			$this->setFileName($_REQUEST['filename']);
+		if ($intType !== false)
+			$intType = (isset($_REQUEST['export']) ? 3 : $this->types[$_REQUEST['type']]);
+		else
+			$intType = 0;
+		if ($intType == 0)
 			print implode($this->strHTML,"\n");
-		else if ( $intType === self::FOG_REPORT_CSV )
+		else if ($intType == 1)
 		{
 			header('X-Content-Type-Options: nosniff');
 			header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
@@ -31,7 +38,7 @@ class ReportMaker extends FOGBase
 			header('Content-Disposition: attachment; filename="'.$this->filename.'.csv"');
 			print implode($this->strLine,"\n");
 		}
-		else if ( $intType === self::FOG_REPORT_PDF )
+		else if ($intType == 2)
 		{
 			header('X-Content-Type-Options: nosniff');
 			header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
@@ -46,7 +53,7 @@ class ReportMaker extends FOGBase
 			fpassthru($pipes[1]);
 			$status = proc_close($proc);
 		}
-		else if ($intType === self::FOG_BACKUP_SQL)
+		else if ($intType == 3)
 		{
 			$filename="fog_backup.sql";
 			$path=BASEPATH.'/management/other/';
@@ -61,21 +68,7 @@ class ReportMaker extends FOGBase
 			readfile($path.$filename);
 			exec('rm -rf '.$path.$filename);
 		}
-		else if ($intType === self::FOG_EXPORT_SQL )
-		{
-			$filename="host_export.sql";
-			$path=BASEPATH.'/management/other/';
-			$backup[]=exec('mysqldump -u'.DATABASE_USERNAME.' -p'.DATABASE_PASSWORD.' -h'.DATABASE_HOST.' '.DATABASE_NAME.' hosts > '.$path.$filename);
-			header('X-Content-Type-Options: nosniff');
-			header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
-			header('X-XSS-Protection: 1; mode=block');
-			header('X-Frame-Options: deny');
-			header('Cache-Control: no-cache');
-			header('Content-Type: application/octet-stream');
-			header('Content-Disposition: attachment; filename=host_export.sql');
-			print_r($backup);
-		}
-		else if ( $intType === self::FOG_EXPORT_HOST )
+		else if ($intType == 4)
 		{
 			header('X-Content-Type-Options: nosniff');
 			header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
