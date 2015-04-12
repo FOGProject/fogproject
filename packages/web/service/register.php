@@ -35,13 +35,7 @@ try
 	foreach($MACs AS $MAC)
 		$AllMacs[] = strtolower($MAC);
 	// Cycle the already known macs
-	$KnownMacs[] = strtolower($Host->get('mac'));
-	foreach((array)$Host->get('additionalMACs') AS $MAC)
-		$MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
-	foreach((array)$Host->get('pendingMACs') AS $MAC)
-		$MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
-	foreach((array)$FOGCore->getClass('MACAddressAssociationManager')->find() AS $MAC)
-		$MAC && $MAC->isValid() && !in_array(strtolower($MAC->get('mac')),(array)$KnownMacs) ? $KnownMacs[] = strtolower($MAC->get('mac')) : null;
+	$KnownMacs = $Host->getMyMacs(false);
 	if ($ignoreList)
 	{
 		foreach((array)$ignoreList AS $MAC)

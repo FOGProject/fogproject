@@ -2,13 +2,7 @@
 require_once('../commons/base.inc.php');
 try
 {
-	$HostManager = new HostManager();
-	$MACs = FOGCore::parseMacList($_REQUEST['mac']);
-	if (!$MACs) throw new Exception('#!im');
-	// Get the Host
-	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host || !$Host->isValid() || $Host->get('pending'))
-		throw new Exception('#!ih');
+	$Host = $FOGCore->getHostItem();
 	// Try and get the task.
 	$Task = $Host->get('task');
 	// Work on the current Snapin Task.

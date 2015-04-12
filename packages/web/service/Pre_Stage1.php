@@ -4,14 +4,7 @@ try
 {
 	// Error checking
 	// NOTE: Most of these validity checks should never fail as checks are made during Task creation - better safe than sorry!
-	// MAC Address
-	$HostManager = new HostManager();
-	$MACs = FOGCore::parseMacList($_REQUEST['mac']);
-	if (!$MACs) throw new Exception($foglang['InvalidMAC']);
-	// Get the Host
-	$Host = $HostManager->getHostByMacAddresses($MACs);
-	if (!$Host->isValid())
-		throw new Exception( _('Invalid Host') );
+	$Host = $FOGCore->getHostItem(false);
 	$Task = $Host->get('task');
 	if (!$Task->isValid())
 		throw new Exception( sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get('name'), $MACAddress) );

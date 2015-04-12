@@ -1238,8 +1238,7 @@ class HostManagementPage extends FOGPage
 						if (!$PriMAC && (!$AddMAC || !$AddMAC->isValid()))
 							$AddToAdditional[] = $MAC;
 					}
-					$Host->ignore($_REQUEST['igimage'],$_REQUEST['igclient'])
-						 ->addAddMAC($AddToAdditional);
+					$Host->addAddMAC($AddToAdditional);
 					if(isset($_REQUEST['additionalMACsRM']))
 						$Host->removeAddMAC($_REQUEST['additionalMACsRM']);
 				break;
@@ -1335,6 +1334,8 @@ class HostManagementPage extends FOGPage
 			if ($Host->save())
 			{
 				$Host->setAD();
+				if ($_REQUEST['tab'] == 'host-general')
+					$Host->ignore($_REQUEST['igimage'],$_REQUEST['igclient']);
 				// Hook
 				$this->HookManager->processEvent('HOST_EDIT_SUCCESS', array('Host' => &$Host));
 				// Log History event

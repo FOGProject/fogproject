@@ -504,7 +504,7 @@ class Host extends FOGController
 				$NewMAC = new MACAddressAssociation(array(
 					'id' => ++$maxid,
 					'hostID' => $this->get('id'),
-					'mac' => $this->get('mac')->__toString(),
+					'mac' => strtolower($this->get('mac')),
 					'primary' => 1,
 					'clientIgnore' => $this->get('mac')->isClientIgnored(),
 					'imageIgnore' => $this->get('mac')->isImageIgnored(),
@@ -523,7 +523,7 @@ class Host extends FOGController
 					$NewMAC = new MACAddressAssociation(array(
 						'id' => ++$maxid,
 						'hostID' => $this->get('id'),
-						'mac' => $me,
+						'mac' => strtolower($me),
 						'clientIgnore' => $me->isClientIgnored(),
 						'imageIgnore' => $me->isImageIgnored(),
 					));
@@ -542,7 +542,7 @@ class Host extends FOGController
 					$NewMAC = new MACAddressAssociation(array(
 						'id' => ++$maxid,
 						'hostID' => $this->get('id'),
-						'mac' => $me,
+						'mac' => strtolower($me),
 						'pending' => 1,
 						'clientIgnore' => $me->isClientIgnored(),
 						'imageIgnore' => $me->isImageIgnored(),
@@ -1096,45 +1096,38 @@ class Host extends FOGController
 		// Return
 		return $this;
 	}
+	public function getMyMacs($justme = true)
+	{
+		$KnownMacs[] = strtolower($this->get('mac'));
+		foreach((array)$this->get('additionalMACs') AS $MAC)
+			$MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
+		foreach((array)$this->get('pendingMACs') AS $MAC)
+			$MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
+		if ($justme)
+			return $KnownMacs;
+		foreach((array)$this->getClass('MACAddressAssociationManager')->find() AS $MAC)
+			$MAC && $MAC->isValid() && !in_array(strtolower($MAC->get('mac')),(array)$KnownMacs) ? $KnownMacs[] = strtolower($MAC->get('mac')) : null;
+		return array_unique($KnownMacs);
+	}
+
 	public function ignore($imageIgnore,$clientIgnore)
 	{
-		$MyMACs[] = strtolower($this->get('mac')->__toString());
-		foreach((array)$this->get('additionalMACs') AS $mac)
+		$MyMACs = $this->getMyMacs();
+		foreach((array)$imageIgnore AS $igMAC)
+			$igMACs[] = strtolower($igMAC);
+		foreach((array)$clientIgnore AS $cgMAC)
+			$cgMACs[] = strtolower($cgMAC);
+		foreach((array)$MyMACs AS $MAC)
 		{
-			if ($mac && $mac->isValid())
-				$MyMACs[] = strtolower($mac->__toString());
-		}
-		$MyMACs = array_unique($MyMACs);
-		if ($imageIgnore)
-		{
-			$macs = $imageIgnore;
-			$imageIgnore = null;
-			foreach((array)$macs AS $mac)
-				$imageIgnore[] = strtolower($mac);
-		}
-		if ($clientIgnore)
-		{
-			$macs = $clientIgnore;
-			$clientIgnore = null;
-			foreach((array)$macs AS $mac)
-				$clientIgnore[] = strtolower($mac);
-		}
-		foreach((array)$MyMACs AS $mac)
-		{
-			$ignore = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $mac,'hostID' => $this->get('id'))));
-			if ($ignore && $ignore->isValid())
+			$ignore = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MAC,'hostID' => $this->get('id'))));
+			$ME = new MACAddress($ignore);
+			if ($ME->isValid())
 			{
-				if (in_array($mac,(array)$imageIgnore))
-					$ignore->set('imageIgnore',1)->save();
-				else
-					$ignore->set('imageIgnore',0)->save();
-				if (in_array($mac,(array)$clientIgnore))
-					$ignore->set('clientIgnore',1)->save();
-				else
-					$ignore->set('clientIgnore',0)->save();
+				$mac = strtolower($MAC);
+				$ignore->set('imageIgnore',in_array($mac,(array)$igMACs))->save();
+				$ignore->set('clientIgnore',in_array($mac,(array)$cgMACs))->save();
 			}
 		}
-		return $this;
 	}
 	public function addGroup($addArray)
 	{
@@ -1154,12 +1147,12 @@ class Host extends FOGController
 	}
 	public function clientMacCheck($MAC = false)
 	{
-		$mac = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->get('mac'),'hostID' => $this->get('id'),'clientIgnore' => 1)));
+		$mac = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MAC ? $MAC : $this->get('mac')->__toString(),'hostID' => $this->get('id'),'clientIgnore' => 1)));
 		return ($mac && $mac->isValid() ? 'checked' : '');
 	}
 	public function imageMacCheck($MAC = false)
 	{
-		$mac = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $this->get('mac'),'hostID' => $this->get('id'),'imageIgnore' => 1)));
+		$mac = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MAC ? $MAC : $this->get('mac')->__toString(),'hostID' => $this->get('id'),'imageIgnore' => 1)));
 		return ($mac && $mac->isValid() ? 'checked' : '');
 	}
 	public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false)

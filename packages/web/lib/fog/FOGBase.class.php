@@ -565,16 +565,38 @@ abstract class FOGBase
 	  * @param $stringlist the list of MACs to check.  Each mac is broken by a | character.
 	  * @return $MAClist, returns the list of valid MACs
 	  */
-	public static function parseMacList($stringlist)
+	public static function parseMacList($stringlist,$image = false,$client = false)
 	{
-		$MACs = explode('|',$stringlist);
-		foreach($MACs AS $MAC)
+		$MACMan = new MACAddressAssociationManager();
+		$MACs = $MACMan->find(array('mac' => (array)explode('|',$stringlist)));
+		if (count($MACs))
 		{
-			$MAC = new MACAddress($MAC);
-			if ($MAC && $MAC->isValid())
-				$MAClist[] = $MAC->__toString();
+			foreach($MACs AS $MAC)
+			{
+				if ($MAC && $MAC->isValid() && !$MAC->get('pending'))
+				{
+					if ($image && !$MAC->get('imageIgnore'))
+						$MAC = new MACAddress($MAC);
+					else if ($client && !$MAC->get('clientIgnore'))
+						$MAC = new MACAddress($MAC);
+					else if (!$image && !$client)
+						$MAC = new MACAddress($MAC);
+					if ($MAC instanceof MACAddress)
+						$MAClist[] = $MAC->__toString();
+				}
+			}
 		}
-		if (!$MAClist)
+		else
+		{
+			$MACs = explode('|',$stringlist);
+			foreach((array)$MACs AS $MAC)
+			{
+				$MAC = new MACAddress($MAC);
+				if ($MAC && $MAC->isValid())
+					$MAClist[] = $MAC->__toString();
+			}
+		}
+		if (!count($MAClist))
 			$MAClist = false;
 		return $MAClist;
 	}
@@ -678,7 +700,7 @@ abstract class FOGBase
 	  */
 	public function getHostItem($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false,$override = false)
 	{
-		$MACs = $this->parseMacList(!$encoded ? $_REQUEST['mac'] : trim(base64_decode($_REQUEST['mac'])));
+		$MACs = $this->parseMacList(!$encoded ? $_REQUEST['mac'] : trim(base64_decode($_REQUEST['mac'])),!$service,$service);
 		if (!$MACs) throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC']);
 		if ($returnmacs) return (is_array($MACs) ? $MACs : array($MACs));
 		$Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);
