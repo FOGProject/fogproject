@@ -648,7 +648,7 @@ getHardDisk() {
 		hd="${fdrive}";
 		return 0;
 	else
-		for i in `cat /proc/partitions | awk '$3 > 0 {print $4}'`; do
+		for i in `cat /proc/partitions | grep -v 'ram?*' | awk '$3 > 0 {print $4}'`; do
 			hd="$i";
 			partcount=`getPartitionCount $hd`;
 			if [ ! $partcount -gt 1 ]; then
