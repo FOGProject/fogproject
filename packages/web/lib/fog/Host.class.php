@@ -492,17 +492,15 @@ class Host extends FOGController
 	{
 		// Save
 		parent::save();
-		$maxid = $this->get('id') ? max($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','id')) : max($this->getClass('MACAddressAssociationManager')->find('','','','','','','','id'));
-		// Primary MAC Addresses
-		if ($this->isLoaded('mac'))
+		// MAC Addresses
+		if ($this->isLoaded('mac') || $this->isLoaded('additionalMACs') || $this->isLoaded('pendingMACs'))
 		{
-			// Remove Existing Primary MAC Addresses
-			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 1));
-			// Add new Pending MAC Addresses
+			// Remove Existing MAC Addresses
+			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id')));
+			// Add new Primary MAC Address
 			if (($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid())
 			{
 				$NewMAC = new MACAddressAssociation(array(
-					'id' => ++$maxid,
 					'hostID' => $this->get('id'),
 					'mac' => strtolower($this->get('mac')),
 					'primary' => 1,
@@ -511,11 +509,7 @@ class Host extends FOGController
 				));
 				$NewMAC->save();
 			}
-		}
-		if ($this->isLoaded('additionalMACs'))
-		{
-			// Remove Existing MACs
-			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 0));
+			// Add new Additional MACs
 			foreach((array)$this->get('additionalMACs') AS $me)
 			{
 				if (($me instanceof MACAddress) && $me->isValid())
@@ -530,11 +524,7 @@ class Host extends FOGController
 					$NewMAC->save();
 				}
 			}
-		}
-		if ($this->isLoaded('pendingMACs'))
-		{
-			// Remove Existing MACs
-			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'pending' => 1));
+			// Add new Pending MACs
 			foreach((array)$this->get('pendingMACs') AS $me)
 			{
 				if (($me instanceof MACAddress) && $me->isValid())
@@ -552,7 +542,7 @@ class Host extends FOGController
 			}
 		}
 		// Modules
-		if ($this->isLoaded('modules'))
+		else if ($this->isLoaded('modules'))
 		{
 			// Remove old rows
 			$this->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id')));
@@ -575,7 +565,7 @@ class Host extends FOGController
 			}
 		}
 		// Printers
-		if ($this->isLoaded('printers'))
+		else if ($this->isLoaded('printers'))
 		{
 			// Find the current default
 			$defPrint = current((array)$this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'isDefault' => 1)));
@@ -603,7 +593,7 @@ class Host extends FOGController
 			}
 		}
 		// Snapins
-		if ($this->isLoaded('snapins'))
+		else if ($this->isLoaded('snapins'))
 		{
 			// Remove old rows
 			$this->getClass('SnapinAssociationManager')->destroy(array('hostID' => $this->get('id')));
@@ -621,7 +611,7 @@ class Host extends FOGController
 			}
 		}
 		// Groups
-		if ($this->isLoaded('groups'))
+		else if ($this->isLoaded('groups'))
 		{
 			// Remove old rows
 			$this->getClass('GroupAssociationManager')->destroy(array('hostID' => $this->get('id')));
@@ -639,7 +629,7 @@ class Host extends FOGController
 			}
 		}
 		// Users
-		if ($this->isLoaded('users'))
+		else if ($this->isLoaded('users'))
 		{
 			// Remove old rows
 			$this->getClass('UserTrackingManager')->destroy(array('hostID' => $this->get('id')));
