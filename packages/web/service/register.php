@@ -12,6 +12,8 @@ try
 	// Get the actual host (if it is registered)
 	$MACs = $FOGCore->getHostItem(true,false,false,true);
 	$Host = $FOGCore->getHostItem(true,false,true,false,true);
+	if (!($Host instanceof Host && $Host->isValid()) && $_REQUEST['newService'] && $_REQUEST['hostname'])
+		$Host = current($FOGCore->getClass('HostManager')->find(array('name' => $_REQUEST['hostname'])));
 	if($_REQUEST['newService'] && !($Host instanceof Host && $Host->isValid()))
 	{
 		if (!$_REQUEST['hostname'] || !HostManager::isHostnameSafe($_REQUEST['hostname']))

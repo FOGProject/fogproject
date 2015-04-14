@@ -935,13 +935,8 @@ abstract class FOGPage extends FOGBase
 	{
 		try
 		{
-			$HostMan = new HostManager();
-			$MACs = FOGCore::parseMacList($_REQUEST['mac']);
-			if (!$MACs)
-				throw new Exception('#!im');
-			$Host = $HostMan->getHostByMacAddresses($MACs);
-			if (!$Host || !$Host->isValid())
-				throw new Exception('#!ih');
+			$MACs = $this->getHostItem(true,false,false,true);
+			$Host = $this->getHostItem(true);
 			if (!$pub_key = $this->certDecrypt($_REQUEST['sym_key']))
 				throw new Exception('#!ihc');
 			$Host->set('pub_key',bin2hex($pub_key))->save();
