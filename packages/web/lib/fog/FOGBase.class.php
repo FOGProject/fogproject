@@ -699,7 +699,7 @@ abstract class FOGBase
 	  */
 	public function getHostItem($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false,$override = false)
 	{
-		$MACs = $this->parseMacList(!$encoded ? $_REQUEST['mac'] : base64_decode($_REQUEST['mac']),!$service,$service);
+		$MACs = $this->parseMacList(trim(!$encoded ? $_REQUEST['mac'] : base64_decode($_REQUEST['mac'])),!$service,$service);
 		if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC']);
 		if ($returnmacs) return (is_array($MACs) ? $MACs : array($MACs));
 		$Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);

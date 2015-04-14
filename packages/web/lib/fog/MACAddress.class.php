@@ -34,6 +34,8 @@ class MACAddress extends FOGBase
 			}
 			else if (strlen($this->tmpMAC) == 17)
 				$MAC = str_replace('-', ':', $this->tmpMAC);
+			else
+				$MAC = $this->tmpMAC;
 			$this->MAC = $MAC;
 		}
 		catch (Exception $e)
