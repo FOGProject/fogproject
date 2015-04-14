@@ -3,7 +3,7 @@ require_once('../commons/base.inc.php');
 try
 {
 	// Get all MACs
-	$MACs = $FOGCore->getHostItem(true,false,false,true);
+	$MACs = $FOGCore->getHostItem(true,true,true,true);
 	// Check if host already Exists
 	$Host = $FOGCore->getClass('HostManager')->getHostByMacAddresses($MACs);
 	if ($Host && $Host->isValid())
