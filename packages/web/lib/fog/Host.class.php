@@ -275,7 +275,7 @@ class Host extends FOGController
 	{
 		if (!$this->isLoaded('optimalStorageNode') && $this->get('id'))
 		{
-			if ($this->get('image') && $this->get('image')->isValid())
+			if ($this->getImage() && $this->getImage()->isValid())
 				$this->set('optimalStorageNode',$this->getImage()->getStorageGroup()->getOptimalStorageNode());
 			else
 				$this->set('optimalStorageNode',$this->getClass('StorageNode',array('id' => 0)));
@@ -495,7 +495,7 @@ class Host extends FOGController
 		parent::save();
 		// MAC Addresses
 		$maxid = max($this->get('id') ? $this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','id') : $this->getClass('MACAddressAssociationManager')->find('','','','','','','','id'));
-		if ($this->isLoaded('mac') || $this->isLoaded('additionalMACs') || $this->isLoaded('pendingMACs'))
+		if ($this->isLoaded('mac'))
 		{
 			// Remove Existing MAC Addresses
 			if ($this->get('id'))
@@ -513,6 +513,9 @@ class Host extends FOGController
 				));
 				$NewMAC->save();
 			}
+		}
+		if ($this->isLoaded('additionalMACs') || $this->isLoaded('pendingMACs'))
+		{
 			if ($this->get('id'))
 				$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 0));
 			// Add new Additional MACs
