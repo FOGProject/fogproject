@@ -117,21 +117,29 @@ class MySQL extends FOGBase
 			$this->query = $sql;
 			if (!$this->query)
 				throw new Exception(_('No query sent'));
-			if (!$this->link->query($this->query,MYSQLI_ASYNC))
-				throw new Exception(_('Error: ').$this->sqlerror());
-			$all_links = array($this->link);
-			$processed = 0;
-			do {
-				$links = $errors = $reject = array();
-				foreach($all_links AS $link)
-					$links[] = $errors[] = $reject[] = $link;
-				if (0 == ($ready = mysqli_poll($links,$errors,$reject, 1, 0)))
-					continue;
-				foreach($links AS $k => $link) {
-					$this->queryResult = $link->reap_async_query();
-					$processed++;
-				}
-			} while ($processed < 1);
+			if (DATABASE_CONNTYPE == 'MYSQLI_ASYNC')
+			{
+				if (!$this->link->query($this->query,MYSQLI_ASYNC))
+					throw new Exception(_('Error: ').$this->sqlerror());
+				$all_links = array($this->link);
+				$processed = 0;
+				do {
+					$links = $errors = $reject = array();
+					foreach($all_links AS $link)
+						$links[] = $errors[] = $reject[] = $link;
+					if (0 == ($ready = mysqli_poll($links,$errors,$reject, 1, 0)))
+						continue;
+					foreach($links AS $k => $link) {
+						$this->queryResult = $link->reap_async_query();
+						$processed++;
+					}
+				} while ($processed < 1);
+			}
+			else
+			{
+				if (!($this->queryResult = $this->link->query($this->query,MYSQLI_STORE_RESULT)))
+					throw new Exception(_('Error: ').$this->sqlerror());
+			}
 		}
 		catch (Exception $e)
 		{

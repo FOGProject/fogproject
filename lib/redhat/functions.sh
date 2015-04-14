@@ -460,6 +460,7 @@ class Config
 		define('DATABASE_NAME',		'fog');
 		define('DATABASE_USERNAME',		'${dbuser}');
 		define('DATABASE_PASSWORD',		'${snmysqlpass}');
+		define('DATABASE_CONNTYPE', '${mysql_conntype}');
 	}
 	/**
 	* svc_setting()

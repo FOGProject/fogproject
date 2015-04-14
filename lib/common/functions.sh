@@ -403,6 +403,7 @@ snmysqlhost=\"$snmysqlhost\";
 installlang=\"$installlang\";
 donate=\"$donate\";
 storageLocation=\"$storageLocation\";
+mysql_conntype=\"$mysql_conntype\";
 fogupdateloaded=\"1\"" > "$fogprogramdir/.fogsettings";
 
 }
