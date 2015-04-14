@@ -565,24 +565,24 @@ abstract class FOGBase
 	  * @param $stringlist the list of MACs to check.  Each mac is broken by a | character.
 	  * @return $MAClist, returns the list of valid MACs
 	  */
-	public static function parseMacList($stringlist,$image = false,$client = false)
+	public function parseMacList($stringlist,$image = false,$client = false)
 	{
 		$MACMan = new MACAddressAssociationManager();
-		$MACs = $MACMan->find(array('mac' => (array)explode('|',$stringlist)));
+		$MACs = $this->getClass('MACAddressAssociationManager')->find(array('mac' => (array)explode('|',$stringlist)));
 		if (count($MACs))
 		{
 			foreach($MACs AS $MAC)
 			{
-				if ($MAC && $MAC->isValid() && !$MAC->get('pending'))
+				if ($MAC && $MAC->isValid())
 				{
 					if ($image && !$MAC->get('imageIgnore'))
 						$MAC = new MACAddress($MAC);
 					else if ($client && !$MAC->get('clientIgnore'))
 						$MAC = new MACAddress($MAC);
-					else if (!$image && !$client)
+					if (!$image && !$client && !$MAC->get('pending'))
 						$MAC = new MACAddress($MAC);
 					if ($MAC instanceof MACAddress)
-						$MAClist[] = $MAC->__toString();
+						$MAClist[] = strtolower($MAC);
 				}
 			}
 		}
@@ -593,7 +593,7 @@ abstract class FOGBase
 			{
 				$MAC = new MACAddress($MAC);
 				if ($MAC && $MAC->isValid())
-					$MAClist[] = $MAC->__toString();
+					$MAClist[] = strtolower($MAC);
 			}
 		}
 		if (!count($MAClist))
