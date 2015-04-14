@@ -720,7 +720,7 @@ abstract class FOGPage extends FOGBase
 			'domainname' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_DOMAINNAME'),
 			'ou' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'),
 			'domainuser' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_USER'),
-			'domainpass' => $this->encryptpw($this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD')),
+			'domainpass' => $this->FOGCore->getSetting('FOG_NEW_CLIENT') ? $this->encryptpw($this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD')) : $this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD'),
 		);
 		if ($this->FOGCore->isAJAXRequest())
 			print json_encode($Data);
