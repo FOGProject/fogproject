@@ -515,7 +515,6 @@ class Host extends FOGController
 				if (($me instanceof MACAddress) && $me->isValid())
 				{
 					$NewMAC = new MACAddressAssociation(array(
-						'id' => ++$maxid,
 						'hostID' => $this->get('id'),
 						'mac' => strtolower($me),
 						'clientIgnore' => $me->isClientIgnored(),
@@ -530,7 +529,6 @@ class Host extends FOGController
 				if (($me instanceof MACAddress) && $me->isValid())
 				{
 					$NewMAC = new MACAddressAssociation(array(
-						'id' => ++$maxid,
 						'hostID' => $this->get('id'),
 						'mac' => strtolower($me),
 						'pending' => 1,
