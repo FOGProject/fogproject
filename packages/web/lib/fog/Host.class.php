@@ -89,6 +89,7 @@ class Host extends FOGController
 	}
 	public function getMACAddress()
 	{
+		$this->set('mac', new MACAddress($this->get('mac')));
 		return $this->get('mac');
 	}
 	public function getDefault($printerid)
@@ -500,7 +501,7 @@ class Host extends FOGController
 			if ($this->get('id'))
 				$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 1));
 			// Add new Primary MAC Address
-			if (($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid())
+			if (($this->getMACAddress() instanceof MACAddress) && $this->getMACAddress()->isValid())
 			{
 				$NewMAC = new MACAddressAssociation(array(
 					'id' => ++$maxid,
@@ -512,11 +513,8 @@ class Host extends FOGController
 				));
 				$NewMAC->save();
 			}
-		}
-		else if ($this->isLoaded('additionalMACs') || $this->isLoaded('pendingMACs'))
-		{
 			if ($this->get('id'))
-				$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id')));
+				$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 0));
 			// Add new Additional MACs
 			foreach((array)$this->get('additionalMACs') AS $me)
 			{
