@@ -2,7 +2,7 @@
 require_once('../commons/base.inc.php');
 try
 {
-	$Host = $FOGCore->getHostItem(false);
+	$Host = $FOGCore->getHostItem(false,true);
 	if ($Host->isValid())
 		$Inventory = $Host->get('inventory');
 	$sysman=trim(base64_decode($_REQUEST['sysman']));
