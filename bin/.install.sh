@@ -269,7 +269,10 @@ do
 					read mysql_conntype;
 					if [ "$mysql_conntype" == "" ]; then
 						mysql_conntype="MYSQLI_ASYNC";
+					elif [ "$mysql_conntype" != "MYSQLI_ASYNC" -o "$mysql_conntype" != "" ]; then
+						mysql_conntype="MYSQLI_STORE_RESULT";
 					fi
+					
 				fi
 	           if [ "$installtype" = "S" ]
 	           then
