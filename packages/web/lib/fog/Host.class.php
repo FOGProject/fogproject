@@ -1024,9 +1024,9 @@ class Host extends FOGController
 		// Return
 		return $this;
 	}
-	public function addPendtoAdd($MACs)
+	public function addPendtoAdd($MACs = false)
 	{
-		foreach((array)$MACs AS $MAC)
+		foreach((array)($MACs ? $MACs : $this->get('pendingMACs')) AS $MAC)
 		{
 			$this->add('additionalMACs',(($MAC instanceof MACAddress) ? $MAC : new MACAddress($MAC)));
 			$this->remove('pendingMACs',(($MAC instanceof MACAddress) ? $MAC : new MACAddress($MAC)));
