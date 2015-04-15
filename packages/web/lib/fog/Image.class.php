@@ -145,7 +145,7 @@ class Image extends FOGController
 					$Host->set('imageID', $this->get('id'))->save();
 			}
 		}
-		else if ($this->isLoaded('storageGroups'))
+		if ($this->isLoaded('storageGroups'))
 		{
 			// Remove old rows
 			$this->getClass('ImageAssociationManager')->destroy(array('imageID' => $this->get('id')));
