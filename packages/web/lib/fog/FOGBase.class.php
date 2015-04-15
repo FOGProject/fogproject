@@ -585,19 +585,16 @@ abstract class FOGBase
 				}
 			}
 		}
-		else
+		$MACs = explode('|',$stringlist);
+		foreach((array)$MACs AS $MAC)
 		{
-			$MACs = explode('|',$stringlist);
-			foreach((array)$MACs AS $MAC)
-			{
-				$MAC = new MACAddress($MAC);
-				if ($MAC && $MAC->isValid())
-					$MAClist[] = strtolower($MAC);
-			}
+			$MAC = new MACAddress($MAC);
+			if ($MAC && $MAC->isValid())
+				$MAClist[] = strtolower($MAC);
 		}
 		if (!count($MAClist))
 			$MAClist = false;
-		return $MAClist;
+		return array_unique($MAClist);
 	}
 	/** getActivePlugins() gets the active plugins.
 	  * @return the array of active plugin names.

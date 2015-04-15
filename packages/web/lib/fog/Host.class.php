@@ -494,17 +494,16 @@ class Host extends FOGController
 		// Save
 		parent::save();
 		// MAC Addresses
-		$maxid = max($this->get('id') ? $this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','id') : $this->getClass('MACAddressAssociationManager')->find('','','','','','','','id'));
+		//$maxid = max($this->get('id') ? $this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','id') : $this->getClass('MACAddressAssociationManager')->find('','','','','','','','id'));
 		if ($this->isLoaded('mac'))
 		{
 			// Remove Existing MAC Addresses
-			if ($this->get('id'))
-				$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 1));
+			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 1));
 			// Add new Primary MAC Address
 			if (($this->getMACAddress() instanceof MACAddress) && $this->getMACAddress()->isValid())
 			{
 				$NewMAC = new MACAddressAssociation(array(
-					'id' => ++$maxid,
+					//'id' => ++$maxid,
 					'hostID' => $this->get('id'),
 					'mac' => strtolower($this->get('mac')),
 					'primary' => 1,
@@ -514,7 +513,7 @@ class Host extends FOGController
 				$NewMAC->save();
 			}
 		}
-		if ($this->isLoaded('additionalMACs') || $this->isLoaded('pendingMACs'))
+		if ($this->isLoaded('additionalMACs'))
 		{
 			if ($this->get('id'))
 				$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 0));
@@ -524,7 +523,7 @@ class Host extends FOGController
 				if (($me instanceof MACAddress) && $me->isValid())
 				{
 					$NewMAC = new MACAddressAssociation(array(
-						'id' => ++$maxid,
+						//'id' => ++$maxid,
 						'hostID' => $this->get('id'),
 						'mac' => strtolower($me),
 						'clientIgnore' => $me->isClientIgnored(),
@@ -533,13 +532,16 @@ class Host extends FOGController
 					$NewMAC->save();
 				}
 			}
+		}
+		if ($this->isLoaded('pendingMACs'))
+		{
 			// Add new Pending MACs
 			foreach((array)$this->get('pendingMACs') AS $me)
 			{
 				if (($me instanceof MACAddress) && $me->isValid())
 				{
 					$NewMAC = new MACAddressAssociation(array(
-						'id' => ++$maxid,
+						//'id' => ++$maxid,
 						'hostID' => $this->get('id'),
 						'mac' => strtolower($me),
 						'pending' => 1,
