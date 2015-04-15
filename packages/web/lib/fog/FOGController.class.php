@@ -250,15 +250,14 @@ abstract class FOGController extends FOGBase
 			// Database query was successful - set ID if ID was not set
 			if (!$this->get('id'))
 				$this->set('id', $this->DB->insert_id());
-			// Success
-			return true;
+			$res = $this;
 		}
 		catch (Exception $e)
 		{
 			$this->debug('Database Save Failed: ID: %s, Error: %s', array($this->get('id'), $e->getMessage()));
+			$res = false;
 		}
-		// Fail
-		return false;
+		return $res;
 	}
 	// Load
 	/** load($field = 'id')
@@ -304,14 +303,15 @@ abstract class FOGController extends FOGBase
 				throw new Exception(($this->DB->sqlerror() ? $this->DB->sqlerror() : 'Row not found'));
 			$this->setQuery($queryData);
 			// Success
-			return true;
+			$res = $this;
 		}
 		catch (Exception $e)
 		{
 			$this->set('id', 0)->debug('Database Load Failed: ID: %s, Error: %s', array($this->get('id'), $e->getMessage()));
+			$res = false;
 		}
 		// Fail
-		return false;
+		return $res;
 	}
 	/** buildQuery builds the joins as needed for the associative
 	  *     linking of objects.

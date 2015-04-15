@@ -319,6 +319,7 @@ class SnapinManagementPage extends FOGPage
 			_('Snapin File').' <span class="lightColor">'._('Max Size').':${max_size}</span>' => '<span id="uploader">${snapin_file}<a href="#" id="snapin-upload"><i class="fa fa-arrow-up noBorder"></i></a></span>',
 			(count($files) > 0 ? _('Snapin File (exists)') : null)=> (count($files) > 0 ? '<select name="snapinfileexist"><<span class="lightColor"><option value="">- '._('Please select an option').'-</option>${snapin_filesexist}</select>' : null),
 			_('Snapin Arguments') => '<input type="text" name="args" value="${snapin_args}" />',
+			_('Protected') => '<input type="checkbox" name="protected_snapin" value="1" ${snapin_protected} />',
 			_('Reboot after install') => '<input type="checkbox" name="reboot" ${checked} />',
 			'<input type="hidden" name="snapinid" value="${snapin_id}" /><input type="hidden" name="update" value="1" />' => '<input type="hidden" name="snapinfile" value="${snapin_file}" /><input type="submit" value="'._('Update').'" />',
 		);
@@ -340,6 +341,7 @@ class SnapinManagementPage extends FOGPage
 				'max_size' => ini_get('post_max_size'),
 				'snapin_file' => $Snapin->get('file'),
 				'snapin_filesexist' => $filesFound,
+				'snapin_protected' => $Snapin->get('protected') ? 'checked' : '',
 				'checked' => $Snapin->get('reboot') ? 'checked' : '',
 			);
 		}
@@ -720,7 +722,8 @@ class SnapinManagementPage extends FOGPage
 							->set('reboot',			(isset($_REQUEST['reboot']) ? 1 : 0 ))
 							->set('runWith',		$_REQUEST['rw'])
 							->set('storageGroupID', $_REQUEST['storagegroup'])
-							->set('runWithArgs',	$_REQUEST['rwa']);
+							->set('runWithArgs',	$_REQUEST['rwa'])
+							->set('protected', $_REQUEST['protected_snapin']);
 				break;
 				case 'snap-host';
 					if ($_REQUEST['host'])

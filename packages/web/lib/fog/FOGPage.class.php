@@ -535,7 +535,7 @@ abstract class FOGPage extends FOGBase
 		foreach ((array)explode(',',$_REQUEST[strtolower($this->childClass).'IDArray']) AS $id)
 		{
 			$Obj = $this->getClass($this->childClass,$id);
-			if ($Obj && $Obj->isValid())
+			if ($Obj && $Obj->isValid() && !$Obj->get('protected'))
 			{
 				$this->data[] = array(
 					'id' => $Obj->get('id'),
@@ -559,7 +559,7 @@ abstract class FOGPage extends FOGBase
 		foreach($_SESSION['delitems'][$this->node] AS $id)
 		{
 			$Obj = $this->getClass($this->childClass,$id);
-			if ($Obj && $Obj->isValid())
+			if ($Obj && $Obj->isValid() && !$Obj->get('protected'))
 				$Obj->destroy();
 		}
 		unset($_SESSION['delitems']);
@@ -980,8 +980,8 @@ abstract class FOGPage extends FOGBase
 			}
 			if ($Data instanceof Image || $Data instanceof Snapin)
 			{
-				if ($Data instanceof Image && $Data->get('protected'))
-					throw new Exception(_('Image is protected, removal not allowed'));
+				if ($Data->get('protected'))
+					throw new Exception($this->childClass.' '._('is protected, removal not allowed'));
 				if (isset($_REQUEST['andFile']))
 					$Data->deleteFile();
 			}

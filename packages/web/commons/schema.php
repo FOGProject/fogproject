@@ -1895,3 +1895,8 @@ $this->schema[] = array(
 	"ALTER TABLE `".DATABASE_NAME."`.`users` DROP KEY new_index1",
 	"ALTER TABLE `".DATABASE_NAME."`.`users` CHANGE `uPass` `uPass` LONGTEXT NOT NULL",
 );
+// 175
+$this->schema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME . "`.`snapins`
+		ADD COLUMN `snapinProtect` mediumint(9) NOT NULL",
+);
