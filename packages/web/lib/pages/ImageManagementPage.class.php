@@ -311,7 +311,7 @@ class ImageManagementPage extends FOGPage
 				'image_partition_types' => $this->getClass('ImagePartitionTypeManager')->buildSelectBox($Image->get('imagePartitionTypeID'),'','id'),
 				'is_legacy' => $Image->get('format') == 1 ? 'selected="selected"' : '',
 				'is_modern' => $Image->get('format') == 0 ? 'selected="selected"' : '',
-				'image_protected' => $Image->get('protected') == 1 ? 'checked' : '',
+				'image_protected' => $Image->get('protected') ? 'checked' : '',
 				'image_comp' => is_numeric($Image->get('compress')) && $Image->get('compress') > -1 ? $Image->get('compress') : $this->FOGCore->getSetting('FOG_PIGZ_COMP'),
 			);
 		}

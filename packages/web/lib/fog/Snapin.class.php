@@ -18,6 +18,7 @@ class Snapin extends FOGController
 		'reboot'	=> 'sReboot',
 		'runWith'	=> 'sRunWith',
 		'runWithArgs'	=> 'sRunWithArgs',
+		'protected' => 'snapinProtect',
 		'anon3'		=> 'sAnon3'
 	);
 
