@@ -233,10 +233,10 @@ class ImageManagementPage extends FOGPage
 				'imagePartitionTypeID'	=> $_REQUEST['imagepartitiontype'],
 				'compress' => $_REQUEST['compress'],
 			));
+			$Image->addGroup($_REQUEST['storagegroup']);
 			// Save
 			if ($Image->save())
 			{
-				$Image->addGroup($_REQUEST['storagegroup'])->save();
 				// Hook
 				$this->HookManager->processEvent('IMAGE_ADD_SUCCESS', array('Image' => &$Image));
 				// Log History event

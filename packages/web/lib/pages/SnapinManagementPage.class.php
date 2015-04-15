@@ -226,10 +226,10 @@ class SnapinManagementPage extends FOGPage
 				'runWith'		=> $_REQUEST['rw'],
 				'runWithArgs'	=> $_REQUEST['rwa'],
 			));
+			$Snapin->addGroup($_REQUEST['storagegroup']);
 			// Save
 			if ($Snapin->save())
 			{
-				$Snapin->addGroup($_REQUEST['storagegroup'])->save();
 				// Hook
 				$this->HookManager->processEvent('SNAPIN_ADD_SUCCESS', array('Snapin' => &$Snapin));
 				// Log History event

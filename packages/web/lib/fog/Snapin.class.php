@@ -128,7 +128,7 @@ class Snapin extends FOGController
 				}
 			}
 		}
-		else if ($this->isLoaded('storageGroups'))
+		if ($this->isLoaded('storageGroups'))
 		{
 			// Remove old rows
 			$this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID' => $this->get('id')));
