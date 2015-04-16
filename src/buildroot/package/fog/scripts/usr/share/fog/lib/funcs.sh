@@ -641,18 +641,18 @@ getSAMLoc()
 }
 # $1 is the partition to search for.
 getPartitionCount() {
-	echo `cat /proc/partitions | awk '$4 ~ "'$1'" {print $4}' | wc -l`;
+	echo `lsblk -pno KNAME ${1}?|wc -l`;
 }
 getHardDisk() {
 	if [ -n "${fdrive}" ]; then
 		hd="${fdrive}";
 		return 0;
 	else
-		for i in `cat /proc/partitions | grep -v 'ram?*' | awk '$3 > 0 {print $4}'`; do
+		for i in `lsblk -dpno KNAME|sort`; do
 			hd="$i";
 			partcount=`getPartitionCount $hd`;
-			if [ ! $partcount -gt 1 ]; then
-				fdisk /dev/$hd &>/dev/null << EOF
+			if [ ! "$partcount" -gt 0 ]; then
+				fdisk $hd &>/dev/null << EOF
 n
 p
 1
@@ -661,11 +661,11 @@ p
 w
 EOF
 			fi
+			runPartprobe $hd;
 			partcount=`getPartitionCount $hd`;
-			if [ ! $partcount -gt 1 ]; then
+			if [ ! "$partcount" -gt 0 ]; then
 				handleError "Failed to initialize disk";
 			fi
-			hd="/dev/$hd";
 			return 0;
 		done;
 		if [ -z "$i" ]; then
