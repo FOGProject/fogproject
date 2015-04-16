@@ -524,8 +524,6 @@ abstract class FOGPage extends FOGBase
 	{
 		$this->title = _($this->childClass.'s to remove');
 		unset($this->headerData);
-		print '<div class="confirm-message">';
-		print '<p>'._($this->childClass.'s to be removed').':</p>';
 		$this->attributes = array(
 			array(),
 		);
@@ -545,11 +543,21 @@ abstract class FOGPage extends FOGBase
 				array_push($this->additional,'<p>'.$Obj->get('name').'</p>');
 			}
 		}
-		$this->render();
-		print '<form method="post" action="?node='.$this->node.'&sub=deleteconf">';
-		print '<center><input type="submit" value="'._('Are you sure you wish to remove these items').'?"/></center>';
-		print '</form>';
-		print '</div>';
+		if (count($_SESSION['delitems']))
+		{
+			print '<div class="confirm-message">';
+			print '<p>'._($this->childClass.'s to be removed').':</p>';
+			$this->render();
+			print '<form method="post" action="?node='.$this->node.'&sub=deleteconf">';
+			print '<center><input type="submit" value="'._('Are you sure you wish to remove these items').'?"/></center>';
+			print '</form>';
+			print '</div>';
+		}
+		else
+		{
+			$this->FOGCore->setMessage('No items to delete<br/>None selected or item is protected');
+			$this->FOGCore->redirect('?node='.$this->node);
+		}
 	}
 	/** deleteconf() deletes the items after being confirmed.
 	  * @return void
