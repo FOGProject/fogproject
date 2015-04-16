@@ -23,7 +23,6 @@ class Printer extends FOGController
 	public $additionalFields = array(
 		'hosts',
 		'hostsnotinme',
-		'noprinter',
 	);
 	// Required database fields
 	public $databaseFieldsRequired = array(
@@ -42,44 +41,34 @@ class Printer extends FOGController
 	// Overrides
 	private function loadHosts()
 	{
-		$PrinterAssocs = null;
-		$HostIDs = null;
-		if (!$this->isLoaded('hosts'))
+		if (!$this->isLoaded('hosts') && $this->get('id'))
 		{
-			if ($this->get('id'))
-			{
-				$PrinterHostIDs = array_unique($this->getClass('PrinterAssociationManager')->find(array('printerID' => $this->get('id')),'','','','','','','hostID'));
-				if ($PrinterHostIDs)
-				{
-					foreach($this->getClass('HostManager')->find(array('id' => (array)$PrinterHostIDs)) AS $Host)
-						$this->add('hosts',$Host);
-					unset($Host);
-					// Hosts not in this printer
-					if (count($this->get('hosts')))
-					{
-						foreach($this->getClass('HostManager')->find(array('id' => $PrinterHostIDs),'','','','',false,true) AS $Host)
-							$this->add('hostsnotinme',$Host);
-					}
-				}
-				unset($PrinterHostIDs,$Host);
-				// Hosts not in any printer
-				$PrinterHostIDs = array_unique($this->getClass('PrinterAssociationManager')->find('','','','','','','','hostID'));
-				foreach($this->getClass('HostManager')->find(array('id' => (array)$PrinterHostIDs),'','','','','',true) AS $Host)
-					$this->add('noprinter',$Host);
-				unset($PrinterHostIDs,$Hosts,$Host);
-			}
+			$HostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $this->get('id')),'','','','','','','hostID');
+			$this->set('hosts',$this->getClass('HostManager')->find(array('id' => $HostIDs)));
+			$this->set('hostsnotinme',$this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','',true));
 		}
 		return $this;
 	}
 	public function get($key = '')
 	{
-		if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme' || $this->key($key) == 'noprinter')
+		if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
 			$this->loadHosts();
 		return parent::get($key);
 	}
+	public function set($key, $value)
+	{
+		if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
+		{
+			foreach((array)$value AS $Host)
+				$newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
+			$value = (array)$newValue;
+		}
+		// Set
+		return parent::set($key,$value);
+	}
 	public function add($key, $value)
 	{
-		if (($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme' || $this->key($key) == 'noprinter') && !($value instanceof Host))
+		if (($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme') && !($value instanceof Host))
 		{
 			$this->loadHosts();
 			$value = new Host($value);
@@ -89,7 +78,7 @@ class Printer extends FOGController
 	}
 	public function remove($key, $object)
 	{
-		if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme' || $this->key($key) == 'noprinter')
+		if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
 			$this->loadHosts();
 		// Remove
 		return parent::remove($key, $object);

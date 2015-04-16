@@ -26,7 +26,9 @@ if (!in_array($node,array('schemaupdater','client')) && !in_array($sub,array('co
 }
 $FOGPageManager = new FOGPageManager();
 $_SESSION['AllowAJAXTasks'] = true;
-$content = $FOGPageManager->render();
+ob_start('sanitize_output');
+$FOGPageManager->render();
+$content = ob_get_clean();
 $sectionTitle = $FOGPageManager->getFOGPageName();
 $pageTitle = $FOGPageManager->getFOGPageTitle();
 if ($FOGCore->isAJAXRequest())

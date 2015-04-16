@@ -1098,13 +1098,6 @@ abstract class FOGPage extends FOGBase
 			}
 			// Reset the data for the next value
 			unset($this->data);
-			// Create the Header data
-			$this->headerData = array(
-				'',
-				'<input type="checkbox" name="toggle-checkboxgroup2" class="toggle-checkbox2" />',
-				_('Host Name'),
-				_('Image'),
-			);
 			if ($GroupDataExists)
 				$groupAdd .= '<br/><center><input type="submit" value="'._('Add Host(s) to Group').'" name="addHosts"/></center><br/>';
 			if ($groupAdd)
@@ -1298,29 +1291,25 @@ abstract class FOGPage extends FOGBase
 		}
 		else if ($this->childClass == 'Printer')
 		{
-			print "\n\t\t\t".'<!-- Hosts with this printer -->';
 			print "\n\t\t\t".'<div id="printer-host">';
 			// Create the header data:
 			$this->headerData = array(
 				'',
 				'<input type="checkbox" name="toggle-checkboxprinter1" class="toggle-checkbox1" />',
 				_('Host Name'),
-				_('Last Deployed'),
-				_('Registered'),
+				_('Image'),
 			);
 			// Create the template data:
 			$this->templates = array(
 				'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
 				'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
 				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-				'${deployed}',
-				'${host_reg}',
+				'${image_name}',
 			);
 			// All hosts not with this set as the image
 			$this->attributes = array(
 				array('width' => 22, 'id' => 'host-${host_name}'),
 				array('class' => 'c', 'width' => 16),
-				array(),
 				array(),
 				array(),
 			);
@@ -1335,77 +1324,38 @@ abstract class FOGPage extends FOGBase
 						'host_name' => $Host->get('name'),
 						'host_mac' => $Host->get('mac')->__toString(),
 						'host_desc' => $Host->get('description'),
+						'image_name' => $Host->getImage()->get('name'),
 						'check_num' => '1',
-						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
 					);
 				}
 			}
 			$PrinterDataExists = false;
+			$printAdd = '';
 			if (count($this->data) > 0)
 			{
 				$PrinterDataExists = true;
 				$this->HookManager->processEvent('PRINTER_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-				print "\n\t\t\t<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this printer').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label>';
-				print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-				print "\n\t\t\t".'<div id="hostNotInMe">';
-				print "\n\t\t\t".'<h2>'._('Modify printer association for').' '.$Printer->get('name').'</h2>';
-				print "\n\t\t\t".'<p>'._('Add hosts to printer').' '.$Printer->get('name').'</p>';
-				$this->render();
-				print "</div>";
+				$printAdd .= "<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this printer').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label><div id="hostNotInMe"><h2>'._('Modify printer association for').' '.$Printer->get('name').'</h2><p>'._('Add hosts to printer').' '.$Printer->get('name').'</p>'.$this->process()."</div></center>";
 			}
 			// Reset the data for the next value
 			unset($this->data);
-			// Create the header data:
-			$this->headerData = array(
-				'',
-				'<input type="checkbox" name="toggle-checkboxprinter2" class="toggle-checkbox2" />',
-				_('Host Name'),
-				_('Last Deployed'),
-				_('Registered'),
-			);
-			// All hosts not with any printer
-			foreach($Printer->get('noprinter') AS $Host)
-			{
-				if ($Host && $Host->isValid())
-				{
-					$this->data[] = array(
-						'host_id' => $Host->get('id'),
-						'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : 'No Data',
-						'host_name' => $Host->get('name'),
-						'host_mac' => $Host->get('mac')->__toString(),
-						'host_desc' => $Host->get('description'),
-						'check_num' => '2',
-						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
-					);
-				}
-			}
-			if (count($this->data) > 0)
-			{
-				$PrinterDataExists = true;
-				$this->HookManager->processEvent('PRINTER_HOST_NOT_WITH_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-				print "\n\t\t\t<center>".'<label for="hostNoShow">'._('Check here to see hosts with no printers').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" /></label>';
-				print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-				print "\n\t\t\t".'<div id="hostNoPrinter">';
-				print "\n\t\t\t".'<p>'._('Hosts below have no printer associations').'</h2>';
-				print "\n\t\t\t".'<p>'._('Add hosts with printer').' '.$Printer->get('name').'</p>';
-				$this->render();
-				print "</div>";
-			}
 			if ($PrinterDataExists)
+				$printAdd .= '<br/><center><input type="submit" value="'._('Add printer to Host(s)').'" name="addHosts"/></center><br/>';
+			if ($printAdd)
 			{
-				print '</br><input type="submit" name="addHosts" value="'._('Add Printer to Host(s)').'" />';
-				print "\n\t\t\t</form></center>";
+				print '<form method="post" action="'.$this->formAction.'">';
+				print $printAdd;
+				print '</form>';
 			}
+			unset($this->data);
 			$this->headerData = array(
-				'',
 				'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-				_('Host Name'),
-				_('Last Deployed'),
-				_('Registered'),
+				_('Hostname'),
+				_('Deployed'),
+				_('Image'),
 				'<input type="checkbox" name="toggle-alldef" class="toggle-actiondef" />&nbsp;'._('Is Default'),
 			);
 			$this->attributes = array(
-				array(),
 				array('class' => 'c','width' => 16),
 				array(),
 				array(),
@@ -1413,11 +1363,10 @@ abstract class FOGPage extends FOGBase
 				array('class' => 'l'),
 			);
 			$this->templates = array(
-				'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
-				'<input type="checkbox" name="hosts[]" value="${host_id}" class="toggle-action" checked/>',
+				'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
 				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-				'${deployed}',
-				'${host_reg}',
+				'<small>${deployed}</small>',
+				'<small>${image_name}</small>',
 				'<input class="default" type="checkbox" name="default[]" id="host_printer${host_id}"${is_default} value="${host_id}" /><label for="host_printer${host_id}" class="icon icon-hand" title="'._('Default Printer Selection').'">&nbsp;</label><input type="hidden" value="${host_id}" name="hostid[]"/>',
 			);
 			unset($this->data);
@@ -1429,9 +1378,9 @@ abstract class FOGPage extends FOGBase
 						'host_id' => $Host->get('id'),
 						'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
 						'host_name' => $Host->get('name'),
-						'host_mac' => $Host->get('mac')->__toString(),
+						'host_mac' => $Host->get('mac'),
 						'host_desc' => $Host->get('description'),
-						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+						'image_name' => $Host->getImage()->get('name'),
 						'printer_id' => $Printer->get('id'),
 						'is_default' => $Host->getDefault($Printer->get('id')) ? 'checked' : '',
 					);
@@ -1450,53 +1399,20 @@ abstract class FOGPage extends FOGBase
 		}
 		else if ($this->childClass == 'Snapin')
 		{
-			// Get hosts with this snapin assigned
-			foreach((array)$Snapin->get('hosts') AS $Host)
-			{
-				if ($Host && $Host->isValid())
-					$HostsWithMe[] = $Host->get('id');
-			}
-			// Get all Host IDs with any snapin assigned
-			foreach($this->getClass('SnapinAssociationManager')->find() AS $SnapAssoc)
-			{
-				if ($SnapAssoc && $SnapAssoc->isValid())
-				{
-					$SnapinMe = new Snapin($SnapAssoc->get('snapinID'));
-					$Host = new Host($SnapAssoc->get('hostID'));
-					if ($SnapinMe && $SnapinMe->isValid() && $Host && $Host->isValid())
-						$HostWithSnapin[] = $Host->get('id');
-				}
-			}
-			$HostWithSnapin = array_unique($HostWithSnapin);
-			$HostMan = new HostManager();
-			// Set the values
-			foreach($HostMan->find() AS $Host)
-			{
-				if ($Host && $Host->isValid())
-				{
-					if (!in_array($Host->get('id'),(array)$HostWithSnapin))
-						$HostNotWithSnapin[] = $Host;
-					if (!in_array($Host->get('id'),(array)$HostsWithMe))
-						$HostNotWithMe[] = $Host;
-				}
-			}
-			print "\n\t\t\t\t".'<!-- Hosts Memberships -->';
 			print "\n\t\t\t\t".'<div id="snap-host">';
 			// Create the header data:
 			$this->headerData = array(
 				'',
 				'<input type="checkbox" name="toggle-checkboxsnapin1" class="toggle-checkbox1" />',
 				_('Host Name'),
-				_('Last Deployed'),
-				_('Registered'),
+				_('Image'),
 			);
 			// Create the template data:
 			$this->templates = array(
 				'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
 				'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
 				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-				'${deployed}',
-				'${host_reg}',
+				'${image_name}',
 			);
 			// Create the attributes data:
 			$this->attributes = array(
@@ -1504,10 +1420,9 @@ abstract class FOGPage extends FOGBase
 				array('class' => 'c', 'width' => 16),
 				array(),
 				array(),
-				array(),
 			);
 			// All hosts not with this snapin
-			foreach((array)$HostNotWithMe AS $Host)
+			foreach((array)$Snapin->get('hostsnotinme') AS $Host)
 			{
 				if ($Host && $Host->isValid())
 				{
@@ -1517,88 +1432,46 @@ abstract class FOGPage extends FOGBase
 						'host_name' => $Host->get('name'),
 						'host_mac' => $Host->get('mac')->__toString(),
 						'host_desc' => $Host->get('description'),
+						'image_name' => $Host->getImage()->get('name'),
 						'check_num' => '1',
-						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
 					);
 				}
 			}
 			$SnapinDataExists = false;
+			$snapAdd = '';
 			if (count($this->data) > 0)
 			{
 				$SnapinDataExists = true;
 				$this->HookManager->processEvent('SNAPIN_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-				print "\n\t\t\t<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this snapin').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label>';
-				print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-				print "\n\t\t\t".'<div id="hostNotInMe">';
-				print "\n\t\t\t".'<h2>'._('Modify snapin association for').' '.$Snapin->get('name').'</h2>';
-				print "\n\t\t\t".'<p>'._('Add hosts to snapin').' '.$Snapin->get('name').'</p>';
-				$this->render();
-				print "</div>";
+				$snapAdd .= "<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this snapin').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label><div id="hostNotInMe"><h2>'._('Modify snapin association for').' '.$Snapin->get('name').'</h2><p>'._('Add hosts to snapin').' '.$Snapin->get('name').'</p>'.$this->process()."</div></center>";
 			}
 			// Reset the data for the next value
 			unset($this->data);
-			// Recreate the header to allow checkboxsnapin2
-			$this->headerData = array(
-				'',
-				'<input type="checkbox" name="toggle-checkboxsnapin2" class="toggle-checkbox2" />',
-				_('Host Name'),
-				_('Last Deployed'),
-				_('Registered'),
-			);
-			// All hosts without a snapin
-			foreach((array)$HostNotWithSnapin AS $Host)
-			{
-				if ($Host && $Host->isValid())
-				{
-					$this->data[] = array(
-						'host_id' => $Host->get('id'),
-						'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : 'No Data',
-						'host_name' => $Host->get('name'),
-						'host_mac' => $Host->get('mac')->__toString(),
-						'host_desc' => $Host->get('description'),
-						'check_num' => '2',
-						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
-					);
-				}
-			}
-			if (count($this->data) > 0)
-			{
-				$SnapinDataExists = true;
-				$this->HookManager->processEvent('SNAPIN_HOST_NOT_IN_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-				print "\n\t\t\t<center>".'<label for="hostNoShow">'._('Check here to see hosts not assigned with any snapin').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostNoShow" /></label>';
-				print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-				print "\n\t\t\t".'<div id="hostNoSnapin">';
-				print "\n\t\t\t".'<p>'._('Hosts below have no snapin association').'</p>';
-				print "\n\t\t\t".'<p>'._('Add hosts to snapin').' '.$Snapin->get('name').'</p>';
-				$this->render();
-				print "</div>";
-			}
 			if ($SnapinDataExists)
+				$snapAdd .= '<br/><center><input type="submit" value="'._('Add snapins to Host(s)').'" name="addHosts"/></center><br/>';
+			if ($snapAdd)
 			{
-				print '</br><input type="submit" name="addHosts" value="'._('Add Snapin to Host(s)').'" />';
-				print "\n\t\t\t</form></center>";
+				print '<form method="post" action="'.$this->formAction.'">';
+				print $snapAdd;
+				print '</form>';
 			}
-			unset($this->data);
 			$this->headerData = array(
-				'',
 				'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-				_('Host Name'),
-				_('Last Deployed'),
-				_('Registered'),
+				_('Hostname'),
+				_('Deployed'),
+				_('Image'),
 			);
 			$this->attributes = array(
-				array('class' => 'l','width' => 22),
 				array('class' => 'c','width' => 16),
 				array(),
 				array(),
 				array(),
 			);
 			$this->templates = array(
-				'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
 				'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
 				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-				'${deployed}',
-				'${host_reg}',
+				'<small>${deployed}</small>',
+				'<small>${image_name}</small>',
 			);
 			foreach((array)$Snapin->get('hosts') AS $Host)
 			{
@@ -1608,9 +1481,9 @@ abstract class FOGPage extends FOGBase
 						'host_id' => $Host->get('id'),
 						'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : '',
 						'host_name' => $Host->get('name'),
-						'host_mac' => $Host->get('mac')->__toString(),
+						'host_mac' => $Host->get('mac'),
+						'image_name' => $Host->getImage()->get('name'),
 						'host_desc' => $Host->get('description'),
-						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
 					);
 				}
 			}
