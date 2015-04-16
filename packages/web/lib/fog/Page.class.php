@@ -42,6 +42,8 @@ class Page extends FOGBase {
 				'js/fog/fog.js',
 				'js/fog/fog.main.js',
 			);
+			if ($_REQUEST['sub'] == 'membership')
+				$_REQUEST['sub'] = 'edit';
 			$filepaths = array(
 				"js/fog/fog.{$_REQUEST['node']}.js",
 				"js/fog/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js",

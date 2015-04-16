@@ -281,123 +281,11 @@ class GroupManagementPage extends FOGPage
 		// Output
 		$this->render();
 		unset ($this->data);
+		print "\n\t\t\t</form>";
 		print "</div>";
-		print "\n\t\t\t</form>";
 		$this->basictasksOptions();
-		print "\n\t\t\t<!-- Membership -->";
-		// Hopeful implementation of all groups to add to group system in similar means to how host page does from list/search functions.
-		print "\n\t\t\t".'<div id="group-membership">';
-		// Create the Header data:
-		$this->headerData = array(
-			'',
-			'<input type="checkbox" name="toggle-checkboxgroup1" class="toggle-checkbox1" />',
-			_('Host Name'),
-			_('Image'),
-		);
-		// Create the template data:
-		$this->templates = array(
-			'<span class="icon fa fa-question fa-1x hand" title="${host_desc}"></span>',
-			'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
-			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-			'${image_name}',
-		);
-		// Create the attributes to build the table info:
-		$this->attributes = array(
-			array('width' => 22, 'id' => 'host-${host_name}'),
-			array('class' => 'c', 'width' => 16),
-			array(),
-			array(),
-		);
-		// All hosts not in this group.
-		foreach((array)$Group->get('hostsnotinme') AS $Host)
-		{
-			if ($Host && $Host->isValid() && !$Host->get('pending'))
-			{
-				$this->data[] = array(
-					'host_id' => $Host->get('id'),
-					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-					'host_name' => $Host->get('name'),
-					'host_mac' => $Host->get('mac')->__toString(),
-					'host_desc' => $Host->get('description'),
-					'image_name' => $Host->getImage()->get('name'),
-					'check_num' => '1'
-				);
-			}
-		}
-		$GroupDataExists = false;
-		$groupAdd = '';
-		if (count($this->data) > 0)
-		{
-			$GroupDataExists = true;
-			$this->HookManager->processEvent('GROUP_HOST_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-			$groupAdd .= "<center>".'<label for="hostMeShow">'._('Check here to see hosts not in this group').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label><div id="hostNotInMe"><h2>'._('Modify Membership for').' '.$Group->get('name').'</h2><p>'._('Add hosts to group').' '.$Group->get('name').'</p>'.$this->process()."</div></center>";
-		}
-		// Reset the data for the next value
-		unset($this->data);
-		// Create the Header data
-		$this->headerData = array(
-			'',
-			'<input type="checkbox" name="toggle-checkboxgroup2" class="toggle-checkbox2" />',
-			_('Host Name'),
-			_('Image'),
-		);
-		if ($GroupDataExists)
-			$groupAdd .= '<br/><center><input type="submit" value="'._('Add Host(s) to Group').'" name="addHosts"/></center><br/>';
-		if ($groupAdd)
-		{
-			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
-			print $groupAdd;
-			print '</form>';
-		}
-		unset($this->data);
-		$this->headerData = array(
-			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-            _('Hostname'),
-            _('Deployed'),
-            _('Image'),
-		);
-		$this->attributes = array(
-            array('class' => 'c','width' => 16),
-            array(),
-            array(),
-            array(),
-		);
-		$this->templates = array(
-			'<input type="checkbox" name="member[]" value="${host_id}" class="toggle-action" checked/>',
-			'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-			'<small>${deployed}</small>',
-			'<small>${image_name}</small>',
-		);
-		$imageSelector = $this->getClass('ImageManager')->buildSelectBox('','','','',true);
-		foreach ((array)$Group->get('hosts') AS $Host)
-		{
-			if ($Host && $Host->isValid())
-			{
-				$this->data[] = array(
-                    'host_id'   => $Host->get('id'),
-                    'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-                    'host_name' => $Host->get('name'),
-                    'host_mac'  => $Host->get('mac'),
-					'image_name' => $imageSelector,
-					'selected_item'.$Host->get('imageID') => 'selected',
-					'selector_name' => $Host->get('name').'_'.$Host->get('id'),
-				);
-			}
-		}
-		// Hook
-		$this->HookManager->processEvent('GROUP_MEMBERSHIP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-membership">';
-		// Output
-		$this->render();
-		if (count($this->data) > 0)
-		{
-			print "\n\t\t\t".'<center><input type="submit" value="'._('Update Hosts').'" name="updatehosts"/>&nbsp;&nbsp;';
-			print "\n\t\t\t".'<input type="submit" value="'._('Delete Selected Hosts From Group').'" name="remhosts"/></center>';
-		}
-		print "\n\t\t\t</form>";
-		print "\n\t\t\t</div>";
-		unset($this->data);
 		print "\n\t\t\t<!-- Image Association -->";
+		$imageSelector = $this->getClass('ImageManager')->buildSelectBox('','','','',true);
 		print "\n\t\t\t".'<div id="group-image">';
 		print "\n\t\t\t<h2>"._('Image Association for').': '.$Group->get('name').'</h2>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-image">';
@@ -769,21 +657,6 @@ class GroupManagementPage extends FOGPage
 							}
 						}
 					}
-				break;
-				// Group membership
-				case 'group-membership';
-					if (isset($_REQUEST['addHosts']))
-						$Group->addHost($_REQUEST['host']);
-					if (isset($_REQUEST['updatehosts']))
-					{
-						foreach((array)$Group->get('hosts') AS $Host)
-						{
-							if ($Host && $Host->isValid())
-								$Host->set('imageID',$_REQUEST[$Host->get('name').'_'.$Host->get('id')])->save();
-						}
-					}
-					if(isset($_REQUEST['remhosts']))
-						$Group->removeHost($_REQUEST['member']);
 				break;
 				// Image Association
 				case 'group-image';
