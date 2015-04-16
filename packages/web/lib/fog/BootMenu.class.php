@@ -483,6 +483,10 @@ class BootMenu extends FOGBase
 				'value' => 'debug',
 				'active' => $this->FOGCore->getSetting('FOG_KERNEL_DEBUG'),
 			),
+			array(
+				'value' => 'fdrive='.$this->FOGCore->getSetting('FOG_NONREG_DEVICE'),
+				'active' => $this->FOGCore->getSetting('FOG_NONREG_DEVICE'),
+			),
 			$TaskType->get('kernelArgs'),
 			$this->FOGCore->getSetting('FOG_KERNEL_ARGS'),
 		);

@@ -1905,3 +1905,8 @@ $this->schema[] = array(
 	"INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey,settingDesc,settingValue,settingCategory)
 		values('FOG_AD_DEFAULT_PASSWORD_LEGACY','This setting defines the default value to populate the hosts Active Directory password value but only uses the old FOGCrypt method of encryption.  This setting must be encrypted.  The FOG_NEW_CLIENT setting will determine if it is going to use this or the other value to populate.','','Active Directory Defaults')",
 );
+// 177
+$this->schema[] = array(
+	"INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey,settingDesc,settingValue,settingCategory)
+		values('FOG_NONREG_DEVICE','This setting defines a target disk to apply an image to specifically for non-registered hosts.  If not set, a disk will be selected by the init.','','Non-Registered Host Image')",
+);
