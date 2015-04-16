@@ -1037,4 +1037,622 @@ abstract class FOGPage extends FOGBase
 		// Output
 		$this->render();
 	}
+	/** membership() the membership of specific class
+	  * @return void
+	  */
+	public function membership()
+	{
+		$Obj = $this->childClass;
+		// Find Object
+		$$Obj = $this->getClass($this->childClass,$_REQUEST['id']);
+		print '<!-- Membership -->';
+		if ($this->childClass == 'Group')
+		{
+			print "\n\t\t\t<!-- Membership -->";
+			// Hopeful implementation of all groups to add to group system in similar means to how host page does from list/search functions.
+			print "\n\t\t\t".'<div id="group-membership">';
+			// Create the Header data:
+			$this->headerData = array(
+				'',
+				'<input type="checkbox" name="toggle-checkboxgroup1" class="toggle-checkbox1" />',
+				_('Host Name'),
+				_('Image'),
+			);
+			// Create the template data:
+			$this->templates = array(
+				'<span class="icon fa fa-question fa-1x hand" title="${host_desc}"></span>',
+				'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
+				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+				'${image_name}',
+			);
+			// Create the attributes to build the table info:
+			$this->attributes = array(
+				array('width' => 22, 'id' => 'host-${host_name}'),
+				array('class' => 'c', 'width' => 16),
+				array(),
+				array(),
+			);
+			// All hosts not in this group.
+			foreach((array)$Group->get('hostsnotinme') AS $Host)
+			{
+				if ($Host && $Host->isValid() && !$Host->get('pending'))
+				{
+					$this->data[] = array(
+						'host_id' => $Host->get('id'),
+						'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac')->__toString(),
+						'host_desc' => $Host->get('description'),
+						'image_name' => $Host->getImage()->get('name'),
+						'check_num' => '1'
+					);
+				}
+			}
+			$GroupDataExists = false;
+			$groupAdd = '';
+			if (count($this->data) > 0)
+			{
+				$GroupDataExists = true;
+				$this->HookManager->processEvent('GROUP_HOST_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+				$groupAdd .= "<center>".'<label for="hostMeShow">'._('Check here to see hosts not in this group').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label><div id="hostNotInMe"><h2>'._('Modify Membership for').' '.$Group->get('name').'</h2><p>'._('Add hosts to group').' '.$Group->get('name').'</p>'.$this->process()."</div></center>";
+			}
+			// Reset the data for the next value
+			unset($this->data);
+			// Create the Header data
+			$this->headerData = array(
+				'',
+				'<input type="checkbox" name="toggle-checkboxgroup2" class="toggle-checkbox2" />',
+				_('Host Name'),
+				_('Image'),
+			);
+			if ($GroupDataExists)
+				$groupAdd .= '<br/><center><input type="submit" value="'._('Add Host(s) to Group').'" name="addHosts"/></center><br/>';
+			if ($groupAdd)
+			{
+				print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+				print $groupAdd;
+				print '</form>';
+			}
+			unset($this->data);
+			$this->headerData = array(
+				'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+				_('Hostname'),
+				_('Deployed'),
+				_('Image'),
+			);
+			$this->attributes = array(
+				array('class' => 'c','width' => 16),
+				array(),
+				array(),
+				array(),
+			);
+			$this->templates = array(
+				'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
+				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+				'<small>${deployed}</small>',
+				'<small>${image_name}</small>',
+			);
+			$imageSelector = $this->getClass('ImageManager')->buildSelectBox('','','','',true);
+			foreach ((array)$Group->get('hosts') AS $Host)
+			{
+				if ($Host && $Host->isValid())
+				{
+					$this->data[] = array(
+						'host_id'   => $Host->get('id'),
+						'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+						'host_name' => $Host->get('name'),
+						'host_mac'  => $Host->get('mac'),
+						'image_name' => $imageSelector,
+						'selected_item'.$Host->get('imageID') => 'selected',
+						'selector_name' => $Host->get('name').'_'.$Host->get('id'),
+					);
+				}
+			}
+			// Hook
+			$this->HookManager->processEvent('GROUP_MEMBERSHIP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+			// Output
+			$this->render();
+			if (count($this->data) > 0)
+			{
+				print "\n\t\t\t".'<center><input type="submit" value="'._('Update Hosts').'" name="updatehosts"/>&nbsp;&nbsp;';
+				print "\n\t\t\t".'<input type="submit" value="'._('Delete Selected Hosts From Group').'" name="remhosts"/></center>';
+			}
+			print "\n\t\t\t</form>";
+			print "\n\t\t\t</div>";
+			unset($this->data);
+		}
+		else if ($this->childClass == 'Image')
+		{
+			// Set the values
+			print "\n\t\t\t\t".'<div id="image-host">';
+			// Create the header data:
+			$this->headerData = array(
+				'',
+				'<input type="checkbox" name="toggle-checkboximage1" class="toggle-checkbox1" />',
+				_('Host Name'),
+				_('Last Deployed'),
+				_('Registered'),
+			);
+			// Create the template data:
+			$this->templates = array(
+				'<i class="icon fa fa-question" title="${host_desc}"></i>',
+				'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
+				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+				'${deployed}',
+				'${host_reg}',
+			);
+			// Create the attributes data:
+			$this->attributes = array(
+				array('width' => 22, 'id' => 'host-${host_name}'),
+				array('class' => 'c', 'width' => 16),
+				array(),
+				array(),
+				array(),
+			);
+			// All hosts not with this set as the image
+			foreach((array)$Image->get('hostsnotinme') AS $Host)
+			{
+				if ($Host && $Host->isValid())
+				{
+					$this->data[] = array(
+						'host_id' => $Host->get('id'),
+						'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac'),
+						'host_desc' => $Host->get('description'),
+						'check_num' => '1',
+						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+					);
+				}
+			}
+			$ImageDataExists = false;
+			$imageAdd = '';
+			if (count($this->data) > 0)
+			{
+				$ImageDataExists = true;
+				$this->HookManager->processEvent('IMAGE_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+				$imageAdd .= "<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label><div id="hostNotInMe"><h2>'._('Modify image association for').' '.$Image->get('name').'</h2><p>'._('Add hosts to image').' '.$Image->get('name').'</p>'.$this->process().'</div></center>';
+			}
+			// Reset the data for the next value
+			unset($this->data);
+			// Create the header data:
+			$this->headerData = array(
+				'',
+				'<input type="checkbox" name="toggle-checkboximage2" class="toggle-checkbox2" />',
+				_('Host Name'),
+				_('Last Deployed'),
+				_('Registered'),
+			);
+			// All hosts without an image
+			foreach((array)$Image->get('hostsnotinany') AS $Host)
+			{
+				if ($Host && $Host->isValid())
+				{
+					$this->data[] = array(
+						'host_id' => $Host->get('id'),
+						'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac')->__toString(),
+						'host_desc' => $Host->get('description'),
+						'check_num' => '2',
+						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+					);
+				}
+			}
+			if (count($this->data) > 0)
+			{
+				$ImageDataExists = true;
+				$this->HookManager->processEvent('IMAGE_HOST_NOT_WITH_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+				$imageAdd .= "\n\t\t\t<center>".'<label for="hostNoShow">'._('Check here to see hosts not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" /></label><div id="hostNoImage"><p>'._('Hosts below have no image association').'</p><p>'._('Assign hosts with image').' '.$Image->get('name').'</p>'.$this->process()."</div></center>";
+			}
+			if ($ImageDataExists)
+				$imageAdd .= '</br><center><input type="submit" value="'._('Add Image to Host(s)').'" name="addHosts"/></center></br>';
+			if ($imageAdd)
+			{
+				print '<form method="post" action="'.$this->formAction.'">';
+				print $imageAdd;
+				print "</form>";
+			}
+			unset($this->data);
+			// Create the header data:
+			$this->headerData = array(
+				'',
+				'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+				_('Host Name'),
+				_('Last Deployed'),
+				_('Registered'),
+			);
+			// Create the template data:
+			$this->templates = array(
+				'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
+				'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
+				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+				'${deployed}',
+				'${host_reg}',
+			);
+			foreach((array)$Image->get('hosts') AS $Host)
+			{
+				if ($Host && $Host->isValid())
+				{
+					$this->data[] = array(
+						'host_id' => $Host->get('id'),
+						'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac')->__toString(),
+						'host_desc' => $Host->get('description'),
+						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+					);
+				}
+			}
+			// Hook
+			$this->HookManager->processEvent('IMAGE_EDIT_HOST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+			// Output
+			print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+			$this->render();
+			if (count($this->data) > 0)
+				print "\n\t\t\t\t\t".'<center><input type="submit" value="'._('Remove image from selected hosts').'" name="remhosts"/>';
+			print '</form>';
+			print "\n\t\t\t\t</div>";
+			unset($this->data);
+		}
+		else if ($this->childClass == 'Printer')
+		{
+			print "\n\t\t\t".'<!-- Hosts with this printer -->';
+			print "\n\t\t\t".'<div id="printer-host">';
+			// Create the header data:
+			$this->headerData = array(
+				'',
+				'<input type="checkbox" name="toggle-checkboxprinter1" class="toggle-checkbox1" />',
+				_('Host Name'),
+				_('Last Deployed'),
+				_('Registered'),
+			);
+			// Create the template data:
+			$this->templates = array(
+				'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
+				'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
+				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+				'${deployed}',
+				'${host_reg}',
+			);
+			// All hosts not with this set as the image
+			$this->attributes = array(
+				array('width' => 22, 'id' => 'host-${host_name}'),
+				array('class' => 'c', 'width' => 16),
+				array(),
+				array(),
+				array(),
+			);
+			// All hosts not with this printer
+			foreach($Printer->get('hostsnotinme') AS $Host)
+			{
+				if ($Host && $Host->isValid())
+				{
+					$this->data[] = array(
+						'host_id' => $Host->get('id'),
+						'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : 'No Data',
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac')->__toString(),
+						'host_desc' => $Host->get('description'),
+						'check_num' => '1',
+						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+					);
+				}
+			}
+			$PrinterDataExists = false;
+			if (count($this->data) > 0)
+			{
+				$PrinterDataExists = true;
+				$this->HookManager->processEvent('PRINTER_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+				print "\n\t\t\t<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this printer').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label>';
+				print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+				print "\n\t\t\t".'<div id="hostNotInMe">';
+				print "\n\t\t\t".'<h2>'._('Modify printer association for').' '.$Printer->get('name').'</h2>';
+				print "\n\t\t\t".'<p>'._('Add hosts to printer').' '.$Printer->get('name').'</p>';
+				$this->render();
+				print "</div>";
+			}
+			// Reset the data for the next value
+			unset($this->data);
+			// Create the header data:
+			$this->headerData = array(
+				'',
+				'<input type="checkbox" name="toggle-checkboxprinter2" class="toggle-checkbox2" />',
+				_('Host Name'),
+				_('Last Deployed'),
+				_('Registered'),
+			);
+			// All hosts not with any printer
+			foreach($Printer->get('noprinter') AS $Host)
+			{
+				if ($Host && $Host->isValid())
+				{
+					$this->data[] = array(
+						'host_id' => $Host->get('id'),
+						'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : 'No Data',
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac')->__toString(),
+						'host_desc' => $Host->get('description'),
+						'check_num' => '2',
+						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+					);
+				}
+			}
+			if (count($this->data) > 0)
+			{
+				$PrinterDataExists = true;
+				$this->HookManager->processEvent('PRINTER_HOST_NOT_WITH_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+				print "\n\t\t\t<center>".'<label for="hostNoShow">'._('Check here to see hosts with no printers').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" /></label>';
+				print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+				print "\n\t\t\t".'<div id="hostNoPrinter">';
+				print "\n\t\t\t".'<p>'._('Hosts below have no printer associations').'</h2>';
+				print "\n\t\t\t".'<p>'._('Add hosts with printer').' '.$Printer->get('name').'</p>';
+				$this->render();
+				print "</div>";
+			}
+			if ($PrinterDataExists)
+			{
+				print '</br><input type="submit" name="addHosts" value="'._('Add Printer to Host(s)').'" />';
+				print "\n\t\t\t</form></center>";
+			}
+			$this->headerData = array(
+				'',
+				'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+				_('Host Name'),
+				_('Last Deployed'),
+				_('Registered'),
+				'<input type="checkbox" name="toggle-alldef" class="toggle-actiondef" />&nbsp;'._('Is Default'),
+			);
+			$this->attributes = array(
+				array(),
+				array('class' => 'c','width' => 16),
+				array(),
+				array(),
+				array(),
+				array('class' => 'l'),
+			);
+			$this->templates = array(
+				'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
+				'<input type="checkbox" name="hosts[]" value="${host_id}" class="toggle-action" checked/>',
+				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+				'${deployed}',
+				'${host_reg}',
+				'<input class="default" type="checkbox" name="default[]" id="host_printer${host_id}"${is_default} value="${host_id}" /><label for="host_printer${host_id}" class="icon icon-hand" title="'._('Default Printer Selection').'">&nbsp;</label><input type="hidden" value="${host_id}" name="hostid[]"/>',
+			);
+			unset($this->data);
+			foreach($Printer->get('hosts') AS $Host)
+			{
+				if ($Host && $Host->isValid())
+				{
+					$this->data[] = array(
+						'host_id' => $Host->get('id'),
+						'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac')->__toString(),
+						'host_desc' => $Host->get('description'),
+						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+						'printer_id' => $Printer->get('id'),
+						'is_default' => $Host->getDefault($Printer->get('id')) ? 'checked' : '',
+					);
+				}
+			}
+			// Hook
+			$this->HookManager->processEvent('PRINTER_EDIT_HOST', array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+			// Output
+			print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+			$this->render();
+			if (count($this->data) > 0)
+				print '<center><input type="submit" name="updefaults" value="'._('Update defaults').'"/>&nbsp;&nbsp;<input type="submit" name="remhosts" value="'._('Remove the selected hosts').'"/>';
+			print '</form>';
+			print "\n\t\t\t\t</div>";
+			unset($this->data);
+		}
+		else if ($this->childClass == 'Snapin')
+		{
+			// Get hosts with this snapin assigned
+			foreach((array)$Snapin->get('hosts') AS $Host)
+			{
+				if ($Host && $Host->isValid())
+					$HostsWithMe[] = $Host->get('id');
+			}
+			// Get all Host IDs with any snapin assigned
+			foreach($this->getClass('SnapinAssociationManager')->find() AS $SnapAssoc)
+			{
+				if ($SnapAssoc && $SnapAssoc->isValid())
+				{
+					$SnapinMe = new Snapin($SnapAssoc->get('snapinID'));
+					$Host = new Host($SnapAssoc->get('hostID'));
+					if ($SnapinMe && $SnapinMe->isValid() && $Host && $Host->isValid())
+						$HostWithSnapin[] = $Host->get('id');
+				}
+			}
+			$HostWithSnapin = array_unique($HostWithSnapin);
+			$HostMan = new HostManager();
+			// Set the values
+			foreach($HostMan->find() AS $Host)
+			{
+				if ($Host && $Host->isValid())
+				{
+					if (!in_array($Host->get('id'),(array)$HostWithSnapin))
+						$HostNotWithSnapin[] = $Host;
+					if (!in_array($Host->get('id'),(array)$HostsWithMe))
+						$HostNotWithMe[] = $Host;
+				}
+			}
+			print "\n\t\t\t\t".'<!-- Hosts Memberships -->';
+			print "\n\t\t\t\t".'<div id="snap-host">';
+			// Create the header data:
+			$this->headerData = array(
+				'',
+				'<input type="checkbox" name="toggle-checkboxsnapin1" class="toggle-checkbox1" />',
+				_('Host Name'),
+				_('Last Deployed'),
+				_('Registered'),
+			);
+			// Create the template data:
+			$this->templates = array(
+				'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
+				'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
+				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+				'${deployed}',
+				'${host_reg}',
+			);
+			// Create the attributes data:
+			$this->attributes = array(
+				array('width' => 22, 'id' => 'host-${host_name}'),
+				array('class' => 'c', 'width' => 16),
+				array(),
+				array(),
+				array(),
+			);
+			// All hosts not with this snapin
+			foreach((array)$HostNotWithMe AS $Host)
+			{
+				if ($Host && $Host->isValid())
+				{
+					$this->data[] = array(
+						'host_id' => $Host->get('id'),
+						'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : 'No Data',
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac')->__toString(),
+						'host_desc' => $Host->get('description'),
+						'check_num' => '1',
+						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+					);
+				}
+			}
+			$SnapinDataExists = false;
+			if (count($this->data) > 0)
+			{
+				$SnapinDataExists = true;
+				$this->HookManager->processEvent('SNAPIN_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+				print "\n\t\t\t<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this snapin').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label>';
+				print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+				print "\n\t\t\t".'<div id="hostNotInMe">';
+				print "\n\t\t\t".'<h2>'._('Modify snapin association for').' '.$Snapin->get('name').'</h2>';
+				print "\n\t\t\t".'<p>'._('Add hosts to snapin').' '.$Snapin->get('name').'</p>';
+				$this->render();
+				print "</div>";
+			}
+			// Reset the data for the next value
+			unset($this->data);
+			// Recreate the header to allow checkboxsnapin2
+			$this->headerData = array(
+				'',
+				'<input type="checkbox" name="toggle-checkboxsnapin2" class="toggle-checkbox2" />',
+				_('Host Name'),
+				_('Last Deployed'),
+				_('Registered'),
+			);
+			// All hosts without a snapin
+			foreach((array)$HostNotWithSnapin AS $Host)
+			{
+				if ($Host && $Host->isValid())
+				{
+					$this->data[] = array(
+						'host_id' => $Host->get('id'),
+						'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : 'No Data',
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac')->__toString(),
+						'host_desc' => $Host->get('description'),
+						'check_num' => '2',
+						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+					);
+				}
+			}
+			if (count($this->data) > 0)
+			{
+				$SnapinDataExists = true;
+				$this->HookManager->processEvent('SNAPIN_HOST_NOT_IN_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+				print "\n\t\t\t<center>".'<label for="hostNoShow">'._('Check here to see hosts not assigned with any snapin').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostNoShow" /></label>';
+				print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+				print "\n\t\t\t".'<div id="hostNoSnapin">';
+				print "\n\t\t\t".'<p>'._('Hosts below have no snapin association').'</p>';
+				print "\n\t\t\t".'<p>'._('Add hosts to snapin').' '.$Snapin->get('name').'</p>';
+				$this->render();
+				print "</div>";
+			}
+			if ($SnapinDataExists)
+			{
+				print '</br><input type="submit" name="addHosts" value="'._('Add Snapin to Host(s)').'" />';
+				print "\n\t\t\t</form></center>";
+			}
+			unset($this->data);
+			$this->headerData = array(
+				'',
+				'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+				_('Host Name'),
+				_('Last Deployed'),
+				_('Registered'),
+			);
+			$this->attributes = array(
+				array('class' => 'l','width' => 22),
+				array('class' => 'c','width' => 16),
+				array(),
+				array(),
+				array(),
+			);
+			$this->templates = array(
+				'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
+				'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
+				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+				'${deployed}',
+				'${host_reg}',
+			);
+			foreach((array)$Snapin->get('hosts') AS $Host)
+			{
+				if ($Host && $Host->isValid())
+				{
+					$this->data[] = array(
+						'host_id' => $Host->get('id'),
+						'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : '',
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac')->__toString(),
+						'host_desc' => $Host->get('description'),
+						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+					);
+				}
+			}
+			// Hook
+			$this->HookManager->processEvent('SNAPIN_EDIT_HOST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+			// Output
+			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+			$this->render();
+			if (count($this->data) > 0)
+				print '<center><input type="submit" value="'._('Delete Selected Hosts From Snapin').'" name="remhosts"/></center>';
+			print '</form>';
+			print "\n\t\t\t\t</div>";
+			unset($this->data);
+		}
+	}
+	/** membership_post() the membership poster of specific class
+	  * @return void
+	  */
+	public function membership_post()
+	{
+		$Obj = $this->childClass;
+		// Find Object
+		$$Obj = $this->getClass($this->childClass,$_REQUEST['id']);
+		if (isset($_REQUEST['addHosts'])) $$Obj->addHost($_REQUEST['host']);
+		if (isset($_REQUEST['remhosts'])) $$Obj->removeHost($_REQUEST['hostdel']);
+		if ($this->childClass == 'Group')
+		{
+			if (isset($_REQUEST['updatehosts']))
+			{
+				foreach((array)$Group->get('hosts') AS $Host)
+				{
+					if ($Host && $Host->isValid())
+						$Host->set('imageID',$_REQUEST[$Host->get('name').'_'.$Host->get('id')])->save();
+				}
+			}
+		}
+		else if ($this->childClass == 'Printer')
+			if (isset($_REQUEST['updefaults'])) $Printer->updateDefault($_REQUEST['hostid'],$_REQUEST['default']);
+		if ($$Obj->save())
+		{
+			$this->FOGCore->setMessage($$Obj.' '._('saved successfully'));
+			$this->FOGCore->redirect($this->formAction);
+		}
+	}
 }

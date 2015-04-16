@@ -131,8 +131,9 @@ class SubMenu extends FOGBase
 	private function buildMenuLinks()
 	{
 		// This checks values for sub/sub menu item generation.
-		$delformat = $_SERVER['PHP_SELF'].'?node='.$this->node.'&sub=delete&id='.$_REQUEST['id'];
-		$linkformat = $_SERVER['PHP_SELF'].'?node='.$this->node.'&sub=edit&id='.$_REQUEST['id'];
+		$delformat = '?node='.$this->node.'&sub=delete&id='.$_REQUEST['id'];
+		$linkformat = '?node='.$this->node.'&sub=edit&id='.$_REQUEST['id'];
+		$memlink = '?node='.$this->node.'&sub=membership&id='.$_REQUEST['id'];
 		// Group Sub/Sub menu items.
 		if ($this->node == 'group')
 		{
@@ -143,13 +144,13 @@ class SubMenu extends FOGBase
 			{
         		$this->subMenu[$this->node]['id'][$linkformat.'#group-general'] = $this->foglang['General'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#group-tasks'] = $this->foglang['BasicTasks'];
-				$this->subMenu[$this->node]['id'][$linkformat.'#group-membership'] = $this->foglang['Membership'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#group-image'] = $this->foglang['ImageAssoc'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#group-snap-add'] = $this->foglang['Add'].' '.$this->foglang['Snapins'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#group-snap-del'] = $this->foglang['Remove'].' '.$this->foglang['Snapins'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#group-service'] = $this->foglang['Service'].' '.$this->foglang['Settings'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#group-active-directory'] = $this->foglang['AD'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#group-printers'] = $this->foglang['Printers'];
+				$this->subMenu[$this->node]['id'][$memlink] = $this->foglang['Membership'];
 				$this->subMenu[$this->node]['id'][$delformat] = $this->foglang['Delete'];
 			}
 		}
@@ -192,8 +193,8 @@ class SubMenu extends FOGBase
 			if ($_REQUEST['id'])
 			{
 				$this->subMenu[$this->node]['id'][$linkformat.'#image-gen'] = $this->foglang['General'];
-				$this->subMenu[$this->node]['id'][$linkformat.'#image-host'] = $this->foglang['Host'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#image-storage'] = $this->foglang['Storage'].' '.$this->foglang['Group'];
+				$this->subMenu[$this->node]['id'][$memlink] = $this->foglang['Membership'];
 				$this->subMenu[$this->node]['id'][$delformat] = $this->foglang['Delete'];
 			}
 		}
@@ -206,7 +207,7 @@ class SubMenu extends FOGBase
 			if ($_REQUEST['id'])
 			{
 				$this->subMenu[$this->node]['id'][$linkformat.'#printer-gen'] = $this->foglang['General'];
-				$this->subMenu[$this->node]['id'][$linkformat.'#printer-host'] = $this->foglang['Hosts'];
+				$this->subMenu[$this->node]['id'][$memlink] = $this->foglang['Membership'];
 				$this->subMenu[$this->node]['id'][$delformat] = $this->foglang['Delete'];
 			}
 		}
@@ -279,8 +280,8 @@ class SubMenu extends FOGBase
 			if ($_REQUEST['id'])
 			{
 				$this->subMenu[$this->node]['id'][$linkformat.'#snap-gen'] = $this->foglang['General'];
-				$this->subMenu[$this->node]['id'][$linkformat.'#snap-host'] = $this->foglang['Host'];
 				$this->subMenu[$this->node]['id'][$linkformat.'#snap-storage'] = $this->foglang['Storage'].' '.$this->foglang['Group'];
+				$this->subMenu[$this->node]['id'][$memlink] = $this->foglang['Membership'];
 				$this->subMenu[$this->node]['id'][$delformat] = $this->foglang['Delete'];
 			}
 		}
