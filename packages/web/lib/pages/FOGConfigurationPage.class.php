@@ -816,7 +816,7 @@ class FOGConfigurationPage extends FOGPage
 				$Service->set('value',-1)->save();
 			else if ($Service->get('name') == 'FOG_USER_VALIDPASSCHARS')
 				$Service->set('value',addslashes($_REQUEST[$key]))->save();
-			else if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $Service->get('name') == 'FOG_AD_DEFAULT_PASSWORD')
+			else if ($Service->get('name') == 'FOG_AD_DEFAULT_PASSWORD')
 				$Service->set('value',$this->encryptpw($_REQUEST[$key]))->save();
 			else if ($Service->get('name') == 'FOG_MULTICAST_PORT_OVERRIDE')
 			{
