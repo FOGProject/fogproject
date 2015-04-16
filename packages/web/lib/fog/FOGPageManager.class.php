@@ -93,20 +93,22 @@ class FOGPageManager extends FOGBase
 					$method = $method . '_ajax';
 				// Arguments
 				$this->arguments = (!empty($GLOBALS[$class->id]) ? array('id' => $GLOBALS[$class->id]) : array());
-				// Render result to variable - we do this so we can send HTTP Headers in a class method
-				ob_start();
 				(!$this->FOGCore->isPOSTRequest() ? $this->resetRequest() : $this->setRequest());
-				call_user_func(array($class, $method));
-				$result = ob_get_clean();
+				// Render result to variable - we do this so we can send HTTP Headers in a class method
+				//ob_start('sanitize_output'strlen($result);
+				ob_implicit_flush(true);
+				$this->getClass($class)->$method();
+				//$result = ob_get_clean();
+				//call_user_func(array($class, $method));
 				$this->resetRequest();
-				return $result;
+				//return $result;
 			}
 			catch (Exception $e)
 			{
 				$this->debug('Failed to Render Page: Node: %s, Error: %s', array($this->classValue, $e->getMessage()));
+				return false;
 			}
 		}
-		return false;
 	}
 	// Load FOGPage classes
 	private function loadPageClasses()
