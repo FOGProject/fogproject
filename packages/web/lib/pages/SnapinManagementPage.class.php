@@ -286,16 +286,16 @@ class SnapinManagementPage extends FOGPage
 								 ->set('password',$StorageNode->get('pass'))
 								 ->connect();
 					$filelist = $this->FOGFTP->nlist($StorageNode->get('snapinpath'));
+					foreach($filelist AS $file)
+					{
+						if(!$this->FOGFTP->chdir($file))
+							$files[] = basename($file);
+					}
 				}
-				foreach($filelist AS $file)
-				{
-					if(!$this->FOGFTP->chdir($file))
-						$files[] = basename($file);
-				}
+				$this->FOGFTP->close();
 			}
 			unset($filelist);
 			$filelist = $files;
-			$this->FOGFTP->close();
 		}
 		else
 		{

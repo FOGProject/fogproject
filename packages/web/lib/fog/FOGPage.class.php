@@ -198,14 +198,16 @@ abstract class FOGPage extends FOGBase
 		{
 			foreach ($this->headerData AS $i => $content)
 			{
+				list($dataFind,$dataReplace) = $this->replaceNeeds($content);
+				$attributes = '';
 				// Create attributes data
 				foreach ((array)$this->attributes[$i] as $attributeName => $attributeValue)
-					$attributes[] = sprintf('%s="%s"', $attributeName, $attributeValue);
+					$attributes .= sprintf(' %s="%s"',$attributeName,$attributeValue);
 				// Push into results array
 				$result .= sprintf(
 					'<%s%s>%s</%s>',	
 					$this->wrapper,
-					(count($attributes) ? ' ' . implode(' ', $attributes) : ''),
+					($attributes ? $attributes : ''),
 					$content,
 					$this->wrapper
 				);
@@ -216,32 +218,47 @@ abstract class FOGPage extends FOGBase
 			return $result;
 		}
 	}
+	/** replaceNeeds() sets the template data to replace
+	  * @param $data the data to enact upon
+	  * @return array of the find / replace items.
+	  */
+	private function replaceNeeds($data)
+	{
+		unset($dataFind,$dataReplace);
+		if (count($data) > 1)
+		{
+			$urlvars = array('node' => $GLOBALS['node'],'sub' => $GLOBALS['sub'],'tab' => $GLOBALS['tab']);
+			foreach (array_merge($urlvars,$data) AS $name => $val)
+			{
+				$dataFind[] = '#\$\{'.$name.'\}#';
+				$dataReplace[] = $val;
+			}
+		}
+		else
+		{
+			$dataFind = "#$data#";
+			$dataReplace = $data;
+		}
+		return array($dataFind,$dataReplace);
+	}
 	/** buildRow() builds the row of the tables
 	  * @param $data the data to build upon
 	  * @return the results as parsed
 	  */
 	public function buildRow($data)
 	{
-		unset($dataFind,$dataReplace);
-		$urlvars = array('node' => $GLOBALS['node'],'sub' => $GLOBALS['sub'],'tab' => $GLOBALS['tab']);
-		foreach(array_merge($urlvars,$data) AS $name => $val)
-		{
-			$dataFind[] = '#\$\{'.$name.'\}#';
-			$dataReplace[] = $val;
-		}
+		list($dataFind,$dataReplace) = $this->replaceNeeds($data);
 		// Loop template data
 		foreach ($this->templates AS $i => $template)
 		{
-			// Clean up
-			unset($attributes);
 			// Create attributes data
 			foreach ((array)$this->attributes[$i] as $attributeName => $attributeValue)
-				$attributes[] = sprintf('%s="%s"',$attributeName,preg_replace($dataFind,$dataReplace,$attributeValue));
+				$attributes .= sprintf(' %s="%s"',$attributeName,preg_replace($dataFind,$dataReplace,$attributeValue));
 			// Replace variables in template with data -> wrap in $this->wrapper -> push into $result
 			$result .= sprintf(
 				'<%s%s>%s</%s>',
 				$this->wrapper,
-				(count($attributes) ? ' ' . implode(' ', $attributes) : ''),
+				($attributes ? $attributes : ''),
 				preg_replace($dataFind, $dataReplace, $template),
 				$this->wrapper
 			);
