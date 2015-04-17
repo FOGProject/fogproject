@@ -198,11 +198,10 @@ abstract class FOGPage extends FOGBase
 		{
 			foreach ($this->headerData AS $i => $content)
 			{
-				list($dataFind,$dataReplace) = $this->replaceNeeds($content);
 				$attributes = '';
 				// Create attributes data
 				foreach ((array)$this->attributes[$i] as $attributeName => $attributeValue)
-					$attributes .= sprintf(' %s="%s"',$attributeName,$attributeValue);
+					$attributes .= sprintf(' %s="%s" ', $attributeName, $attributeValue);
 				// Push into results array
 				$result .= sprintf(
 					'<%s%s>%s</%s>',	
@@ -211,8 +210,6 @@ abstract class FOGPage extends FOGBase
 					$content,
 					$this->wrapper
 				);
-				// Reset
-				unset($attributes);
 			}
 			// Return result
 			return $result;
@@ -251,9 +248,10 @@ abstract class FOGPage extends FOGBase
 		// Loop template data
 		foreach ($this->templates AS $i => $template)
 		{
+			$attributes = '';
 			// Create attributes data
 			foreach ((array)$this->attributes[$i] as $attributeName => $attributeValue)
-				$attributes .= sprintf(' %s="%s"',$attributeName,preg_replace($dataFind,$dataReplace,$attributeValue));
+				$attributes .= sprintf(' %s="%s" ',$attributeName,preg_replace($dataFind,$dataReplace,$attributeValue));
 			// Replace variables in template with data -> wrap in $this->wrapper -> push into $result
 			$result .= sprintf(
 				'<%s%s>%s</%s>',
