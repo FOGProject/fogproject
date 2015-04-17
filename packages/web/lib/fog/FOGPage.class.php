@@ -1209,36 +1209,6 @@ abstract class FOGPage extends FOGBase
 			}
 			// Reset the data for the next value
 			unset($this->data);
-			// Create the header data:
-			$this->headerData = array(
-				'',
-				'<input type="checkbox" name="toggle-checkboximage2" class="toggle-checkbox2" />',
-				_('Host Name'),
-				_('Last Deployed'),
-				_('Registered'),
-			);
-			// All hosts without an image
-			foreach((array)$Image->get('hostsnotinany') AS $Host)
-			{
-				if ($Host && $Host->isValid())
-				{
-					$this->data[] = array(
-						'host_id' => $Host->get('id'),
-						'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-						'host_name' => $Host->get('name'),
-						'host_mac' => $Host->get('mac')->__toString(),
-						'host_desc' => $Host->get('description'),
-						'check_num' => '2',
-						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
-					);
-				}
-			}
-			if (count($this->data) > 0)
-			{
-				$ImageDataExists = true;
-				$this->HookManager->processEvent('IMAGE_HOST_NOT_WITH_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-				$imageAdd .= "\n\t\t\t<center>".'<label for="hostNoShow">'._('Check here to see hosts not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="hostNoShow" id="hostNoShow" /></label><div id="hostNoImage"><p>'._('Hosts below have no image association').'</p><p>'._('Assign hosts with image').' '.$Image->get('name').'</p>'.$this->process()."</div></center>";
-			}
 			if ($ImageDataExists)
 				$imageAdd .= '</br><center><input type="submit" value="'._('Add Image to Host(s)').'" name="addHosts"/></center></br>';
 			if ($imageAdd)

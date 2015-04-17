@@ -54,9 +54,10 @@ class Image extends FOGController
 	private function loadHosts()
 	{
 		if (!$this->isLoaded('hosts') && $this->get('id'))
+		{
 			$this->set('hosts',$this->getClass('HostManager')->find(array('imageID' => $this->get('id'))));
-		if (!$this->isLoaded('hostsnotinme') && $this->get('id'))
 			$this->set('hostsnotinme',$this->getClass('HostManager')->find(array('imageID' => $this->get('id')),'','','','','',true));
+		}
 		return $this;
 	}
 	private function loadGroups()
@@ -119,7 +120,7 @@ class Image extends FOGController
 
 	public function remove($key, $object)
 	{
-		if ($this->key($key) == 'hosts')
+		if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
 			$this->loadHosts();
 		else if ($this->key($key) == 'storageGroups')
 			$this->loadGroups();
