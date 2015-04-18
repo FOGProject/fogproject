@@ -27,11 +27,11 @@ class WakeOnLan extends FOGBase
 			$mac_array = split(':', $this->strMac);
 			unset($BroadCast,$this->hwaddr,$this->packet);
 			foreach($mac_array AS $octet)
-				$this->hwaddr[] = chr(hexdec($octet));
+				$this->hwaddr .= chr(hexdec($octet));
 			for($i=0;$i<=6;$i++) 
-				$this->packet[] = chr(255);
+				$this->packet .= chr(255);
 			for($i=0;$i<=16;$i++) 
-				$this->packet[] = implode($this->hwaddr);
+				$this->packet .= $this->hwaddr;
 			// Always send to the main broadcast.
 			$BroadCast[] = '255.255.255.255';
 			$this->HookManager->processEvent('BROADCAST_ADDR',array('broadcast' => &$BroadCast));
@@ -41,7 +41,7 @@ class WakeOnLan extends FOGBase
 				if (!$sock)
 					throw new Exception(sprintf('%s: %s :: %s',_('Socket Error'),socket_last_error(),socket_strerror(socket_last_error())));
 				$options = socket_set_option($sock,SOL_SOCKET,SO_BROADCAST,true);
-				if ($options >= 0 && socket_sendto($sock,implode($this->packet),strlen(implode($this->packet)),0,$SendTo,9))
+				if ($options >= 0 && socket_sendto($sock,$this->packet,strlen($this->packet),0,$SendTo,9))
 						socket_close($sock);
 			}
 		}
