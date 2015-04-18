@@ -117,28 +117,24 @@ class MySQL extends FOGBase
 			$this->query = $sql;
 			if (!$this->query)
 				throw new Exception(_('No query sent'));
-			if (DATABASE_CONNTYPE == 'MYSQLI_ASYNC')
+			$this->queryResult = $this->link->query($this->query,DATABASE_CONNTYPE);
+			if (!$this->queryResult)
+				throw new Exception(_('Error: ').$this->sqlerror());
+			if (!$this->queryResult instanceof mysqli_result)
 			{
-				if (!$this->link->query($this->query,MYSQLI_ASYNC))
-					throw new Exception(_('Error: ').$this->sqlerror());
-				$all_links = array($this->link);
+				$all_links[] = $this->link;
 				$processed = 0;
 				do {
 					$links = $errors = $reject = array();
 					foreach($all_links AS $link)
 						$links[] = $errors[] = $reject[] = $link;
-					if (0 == ($ready = mysqli_poll($links,$errors,$reject, 1, 0)))
+					if (!mysqli_poll($links,$errors,$reject,1))
 						continue;
 					foreach($links AS $k => $link) {
 						$this->queryResult = $link->reap_async_query();
 						$processed++;
 					}
 				} while ($processed < 1);
-			}
-			else
-			{
-				if (!($this->queryResult = $this->link->query($this->query,MYSQLI_STORE_RESULT)))
-					throw new Exception(_('Error: ').$this->sqlerror());
 			}
 		}
 		catch (Exception $e)

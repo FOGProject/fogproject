@@ -275,54 +275,52 @@ abstract class FOGPage extends FOGBase
 		// Title
 		$this->title = sprintf('%s %s %s %s',_('Create'),$TaskType->get('name'),_('task for'),$ClassType);
 		// Deploy
-		printf('%s%s%s%s',"\n\t\t\t",'<p class="c"><b>',_('Are you sure you wish to deploy task to these machines'),'</b></p>');
-		printf('%s<form method="post" action="%s" id="deploy-container">',"\n\t\t\t",$this->formAction);
-		printf("\n\t\t\t%s",'<div class="confirm-message">');
+		printf('%s%s%s','<p class="c"><b>',_('Are you sure you wish to deploy task to these machines'),'</b></p>');
+		printf('<form method="post" action="%s" id="deploy-container">',$this->formAction);
+		print '<div class="confirm-message">';
 		if ($TaskType->get('id') == 13)
 		{
-			printf('<center>%s<p>%s</p>',"\n\t\t\t",_('Please select the snapin you want to deploy'));
+			printf('<center><p>%s</p>',_('Please select the snapin you want to deploy'));
 			if ($Data instanceof Host)
 			{
 				foreach((array)$Data->get('snapins') AS $Snapin)
 				{
 					if ($Snapin && $Snapin->isValid())
-						$optionSnapin[] = sprintf('<option value="%s">%s - (%s)</option>',$Snapin->get('id'),$Snapin->get('name'),$Snapin->get('id'));
+						$optionSnapin .= sprintf('<option value="%s">%s - (%s)</option>',$Snapin->get('id'),$Snapin->get('name'),$Snapin->get('id'));
 				}
 				if ($optionSnapin)
-					printf('%s<select name="snapin">%s</select></center>',"\n\t\t\t",implode("\n\t\t\t\t",$optionSnapin));
+					printf('<select name="snapin">%s</select></center>',$optionSnapin);
 				else
 					printf('%s</center>',_('No snapins associated'));
 			}
 			if ($Data instanceof Group)
 				printf($this->getClass('SnapinManager')->buildSelectBox().'</center>');
 		}
-		printf("\n\t\t\t%s",'<div class="advanced-settings">');
-		printf("\n\t\t\t<h2>%s</h2>",_('Advanced Settings'));
-		printf("\n\t\t\t%s%s%s <u>%s</u> %s%s",'<p class="hideFromDebug">','<input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">',_('Schedule'),_('Shutdown'),_('after task completion'),'</label></p>');
+		printf("%s",'<div class="advanced-settings">');
+		printf("<h2>%s</h2>",_('Advanced Settings'));
+		printf("%s%s%s <u>%s</u> %s%s",'<p class="hideFromDebug">','<input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">',_('Schedule'),_('Shutdown'),_('after task completion'),'</label></p>');
 		if (!$TaskType->isDebug() && $TaskType->get('id') != 11)
 		{
-			printf("\n\t\t\t%s%s%s",'<p><input type="checkbox" name="isDebugTask" id="isDebugTask" autocomplete="off" /><label for="isDebugTask">',_('Schedule task as a debug task'),'</label></p>');
-			printf("\n\t\t\t%s%s %s%s%s",'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked/><label for="scheduleInstant">',_('Schedule '),'<u>',_('Instant Deployment'),'</u></label></p>');
-			printf("\n\t\t\t%s%s %s%s%s",'<p class="hideFromDebug"><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off" /><label for="scheduleSingle">',_('Schedule '),'<u>',_('Delayed Deployment'),'</u></label></p>');
-			printf("\n\t\t\t%s",'<p class="hidden hideFromDebug" id="singleOptions"><input type="text" name="scheduleSingleTime" id="scheduleSingleTime" autocomplete="off" /></p>');
-			printf("\n\t\t\t%s%s %s%s%s",'<p class="hideFromDebug"><input type="radio" name="scheduleType" id="scheduleCron" value="cron" autocomplete="off"><label for="scheduleCron">',_('Schedule'),'<u>',_('Cron-style Deployment'),'</u></label></p>');
-			printf("\n\t\t\t%s",'<p class="hidden hideFromDebug" id="cronOptions">');
-			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronMin" id="scheduleCronMin" placeholder="min" autocomplete="off" />');
-			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronHour" id="scheduleCronHour" placeholder="hour" autocomplete="off" />');
-			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronDOM" id="scheduleCronDOM" placeholder="dom" autocomplete="off" />');
-			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronMonth" id="scheduleCronMonth" placeholder="month" autocomplete="off" />');
-			printf("\n\t\t\t%s",'<input type="text" name="scheduleCronDOW" id="scheduleCronDOW" placeholder="dow" autocomplete="off" /></p>');
+			printf("%s%s%s",'<p><input type="checkbox" name="isDebugTask" id="isDebugTask" autocomplete="off" /><label for="isDebugTask">',_('Schedule task as a debug task'),'</label></p>');
+			printf("%s%s %s%s%s",'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked/><label for="scheduleInstant">',_('Schedule '),'<u>',_('Instant Deployment'),'</u></label></p>');
+			printf("%s%s %s%s%s",'<p class="hideFromDebug"><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off" /><label for="scheduleSingle">',_('Schedule '),'<u>',_('Delayed Deployment'),'</u></label></p>');
+			printf("%s",'<p class="hidden hideFromDebug" id="singleOptions"><input type="text" name="scheduleSingleTime" id="scheduleSingleTime" autocomplete="off" /></p>');
+			printf("%s%s %s%s%s",'<p class="hideFromDebug"><input type="radio" name="scheduleType" id="scheduleCron" value="cron" autocomplete="off"><label for="scheduleCron">',_('Schedule'),'<u>',_('Cron-style Deployment'),'</u></label></p>');
+			printf("%s",'<p class="hidden hideFromDebug" id="cronOptions">');
+			printf("%s",'<input type="text" name="scheduleCronMin" id="scheduleCronMin" placeholder="min" autocomplete="off" />');
+			printf("%s",'<input type="text" name="scheduleCronHour" id="scheduleCronHour" placeholder="hour" autocomplete="off" />');
+			printf("%s",'<input type="text" name="scheduleCronDOM" id="scheduleCronDOM" placeholder="dom" autocomplete="off" />');
+			printf("%s",'<input type="text" name="scheduleCronMonth" id="scheduleCronMonth" placeholder="month" autocomplete="off" />');
+			printf("%s",'<input type="text" name="scheduleCronDOW" id="scheduleCronDOW" placeholder="dow" autocomplete="off" /></p>');
 		}
 		else if ($TaskType->isDebug())
-			printf("\n\t\t\t%s%s %s%s%s",'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked/><label for="scheduleInstant">',_('Schedule '),'<u>',_('Instant Deployment'),'</u></label></p>');
+			printf("%s%s %s%s%s",'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked/><label for="scheduleInstant">',_('Schedule '),'<u>',_('Instant Deployment'),'</u></label></p>');
 		if ($TaskType->get('id') == 11)
 		{
-			printf("\n\t\t\t<p>%s</p>",_('Which account would you like to reset the pasword for'));
-			printf("\n\t\t\t%s",'<input type="text" name="account" value="Administrator" />');
+			printf("<p>%s</p>",_('Which account would you like to reset the pasword for'));
+			printf("%s",'<input type="text" name="account" value="Administrator" />');
 		}
-		printf("\n\t\t\t</div>");
-		printf("\n\t\t\t</div>");
-		printf("\n\t\t\t<h2>%s</h2>",_('Hosts in Task'));
+		print '</div></div><h2>'._('Hosts in Task').'</h2>';
 		unset($this->headerData);
 		$this->attributes = array(
 			array(),
@@ -373,7 +371,7 @@ abstract class FOGPage extends FOGBase
 		// Output
 		$this->render();
 		printf('%s%s%s','<p class="c"><input type="submit" value="',$this->title,'" /></p>');
-		printf("\n\t\t\t</form>");
+		print '</form>';
 	}
 	/** deploy_post() actually create the deployment task
 	  * @return void
@@ -605,9 +603,9 @@ abstract class FOGPage extends FOGBase
 			array('class' => 'l'),
 			array('style' => 'padding-left: 20px'),
 		);
-		printf("\n\t\t\t<!-- Basic Tasks -->");
-		printf("\n\t\t\t%s",'<div id="'.$this->node.'-tasks" class="organic-tabs-hidden">');
-		printf("\n\t\t\t<h2>%s</h2>",_($ClassType.' Tasks'));
+		printf("<!-- Basic Tasks -->");
+		printf("%s",'<div id="'.$this->node.'-tasks" class="organic-tabs-hidden">');
+		printf("<h2>%s</h2>",_($ClassType.' Tasks'));
 		// Find TaskTypes
 		$TaskTypes = $this->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 0), 'AND', 'id');
 		// Iterate -> Print
@@ -640,8 +638,8 @@ abstract class FOGPage extends FOGBase
 		// Output
 		$this->render();
 		unset($this->data);
-		printf("\n\t\t\t%s",'<div id="advanced-tasks" class="hidden">');
-		printf("\n\t\t\t<h2>%s</h2>",_('Advanced Actions'));
+		printf("%s",'<div id="advanced-tasks" class="hidden">');
+		printf("<h2>%s</h2>",_('Advanced Actions'));
 		// Find TaskTypes
 		$TaskTypes = $this->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 1), 'AND', 'id');
 		// Iterate -> Print
@@ -664,8 +662,7 @@ abstract class FOGPage extends FOGBase
 		$this->HookManager->processEvent(strtoupper($this->node).'_DATA_ADV', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' &$this->attributes));
 		// Output
 		$this->render();
-		printf('</div>');
-		printf("\n\t\t\t</div>");
+		print '</div></div>';
 		unset($this->data);
 	}
 	/** adFieldsToDisplay() display the Active Directory stuff 
@@ -686,13 +683,13 @@ abstract class FOGPage extends FOGBase
 			foreach($OUs AS $OU)
 			{
 				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
-				$optionOU[] = '<option value="'.$opt.'" '.($Data instanceof Host && $Data->isValid() && $Data->get('ADOU') == $opt ? 'selected="selected"' : (preg_match('#;#i',$OU) ? 'selected="selected"' : '')).'>'.$opt.'</option>';
+				$optionOU .= '<option value="'.$opt.'" '.($Data instanceof Host && $Data->isValid() && $Data->get('ADOU') == $opt ? 'selected="selected"' : (preg_match('#;#i',$OU) ? 'selected="selected"' : '')).'>'.$opt.'</option>';
 			}
-			$OUOptions = '<select id="adOU" class="smaller" name="ou">'.implode("\n\t\t\t",$optionOU)."\n\t\t\t".'</select>';
+			$OUOptions = '<select id="adOU" class="smaller" name="ou">'.$optionOU.'</select>';
 		}
 		else
 			$OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" value="${ad_ou}" autocomplete="off" />';
-		printf("\n\t\t\t<!-- Active Directory -->");
+		printf("<!-- Active Directory -->");
 		$this->templates = array(
 			'${field}',
 			'${input}',
@@ -710,9 +707,9 @@ abstract class FOGPage extends FOGBase
 			_('Domain Password').'<br />('._('Must be encrypted').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${host_adpass}" autocomplete="off" />',
 			'<input type="hidden" name="updatead" value="1" />' => '<input type="submit"value="'._('Update').'" />',
 		);
-		printf("\n\t\t\t%s",'<div id="'.$this->node.'-active-directory" class="organic-tabs-hidden">');
-		printf("\n\t\t\t%s",'<form method="post" action="'.$this->formAction.'&tab='.$this->node.'-active-directory">');
-		printf("\n\t\t\t<h2>%s</h2>",_('Active Directory'));
+		printf("%s",'<div id="'.$this->node.'-active-directory" class="organic-tabs-hidden">');
+		printf("%s",'<form method="post" action="'.$this->formAction.'&tab='.$this->node.'-active-directory">');
+		printf("<h2>%s</h2>",_('Active Directory'));
 		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
@@ -731,8 +728,7 @@ abstract class FOGPage extends FOGBase
 		// Output
 		$this->render();
 		unset($this->data);
-		printf('</form>');
-		printf('</div>');
+		print '</form></div>';
 	}
 	/** adInfo() Returns AD Information to host/group
 	  * @return void
@@ -938,7 +934,7 @@ abstract class FOGPage extends FOGBase
 		}
 		// Hook
 		$this->HookManager->processEvent(strtoupper($this->node).'_DEL', array($ClassType => &$Data));
-		printf('%s<form method="post" action="%s" class="c">',"\n\t\t\t",$this->formAction);
+		printf('<form method="post" action="%s" class="c">',$this->formAction);
 		$this->render();
 		printf('</form>');
 	}
@@ -1117,7 +1113,7 @@ abstract class FOGPage extends FOGBase
 				$groupAdd .= '<br/><center><input type="submit" value="'._('Add Host(s) to Group').'" name="addHosts"/></center><br/>';
 			if ($groupAdd)
 			{
-				print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+				print '<form method="post" action="'.$this->formAction.'">';
 				print $groupAdd;
 				print '</form>';
 			}
@@ -1158,22 +1154,21 @@ abstract class FOGPage extends FOGBase
 			}
 			// Hook
 			$this->HookManager->processEvent('GROUP_MEMBERSHIP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+			print '<form method="post" action="'.$this->formAction.'">';
 			// Output
 			$this->render();
 			if (count($this->data) > 0)
 			{
-				print "\n\t\t\t".'<center><input type="submit" value="'._('Update Hosts').'" name="updatehosts"/>&nbsp;&nbsp;';
-				print "\n\t\t\t".'<input type="submit" value="'._('Delete Selected Hosts From Group').'" name="remhosts"/></center>';
+				print '<center><input type="submit" value="'._('Update Hosts').'" name="updatehosts"/>&nbsp;&nbsp;';
+				print '<input type="submit" value="'._('Delete Selected Hosts From Group').'" name="remhosts"/></center>';
 			}
-			print "\n\t\t\t</form>";
-			print "\n\t\t\t</div>";
+			print '</form></div>';
 			unset($this->data);
 		}
 		else if ($this->childClass == 'Image')
 		{
 			// Set the values
-			print "\n\t\t\t\t".'<div id="image-host">';
+			print '<div id="image-host">';
 			// Create the header data:
 			$this->headerData = array(
 				'',
@@ -1266,17 +1261,16 @@ abstract class FOGPage extends FOGBase
 			// Hook
 			$this->HookManager->processEvent('IMAGE_EDIT_HOST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 			// Output
-			print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+			print '<form method="post" action="'.$this->formAction.'">';
 			$this->render();
 			if (count($this->data) > 0)
-				print "\n\t\t\t\t\t".'<center><input type="submit" value="'._('Remove image from selected hosts').'" name="remhosts"/>';
-			print '</form>';
-			print "\n\t\t\t\t</div>";
+				print '<center><input type="submit" value="'._('Remove image from selected hosts').'" name="remhosts"/>';
+			print '</form></div>';
 			unset($this->data);
 		}
 		else if ($this->childClass == 'Printer')
 		{
-			print "\n\t\t\t".'<div id="printer-host">';
+			print '<div id="printer-host">';
 			// Create the header data:
 			$this->headerData = array(
 				'',
@@ -1374,17 +1368,16 @@ abstract class FOGPage extends FOGBase
 			// Hook
 			$this->HookManager->processEvent('PRINTER_EDIT_HOST', array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
 			// Output
-			print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+			print '<form method="post" action="'.$this->formAction.'">';
 			$this->render();
 			if (count($this->data) > 0)
 				print '<center><input type="submit" name="updefaults" value="'._('Update defaults').'"/>&nbsp;&nbsp;<input type="submit" name="remhosts" value="'._('Remove the selected hosts').'"/>';
-			print '</form>';
-			print "\n\t\t\t\t</div>";
+			print '</form></div>';
 			unset($this->data);
 		}
 		else if ($this->childClass == 'Snapin')
 		{
-			print "\n\t\t\t\t".'<div id="snap-host">';
+			print '<div id="snap-host">';
 			// Create the header data:
 			$this->headerData = array(
 				'',
@@ -1475,12 +1468,11 @@ abstract class FOGPage extends FOGBase
 			// Hook
 			$this->HookManager->processEvent('SNAPIN_EDIT_HOST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 			// Output
-			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+			print '<form method="post" action="'.$this->formAction.'">';
 			$this->render();
 			if (count($this->data) > 0)
 				print '<center><input type="submit" value="'._('Delete Selected Hosts From Snapin').'" name="remhosts"/></center>';
-			print '</form>';
-			print "\n\t\t\t\t</div>";
+			print '</form></div>';
 			unset($this->data);
 		}
 	}
