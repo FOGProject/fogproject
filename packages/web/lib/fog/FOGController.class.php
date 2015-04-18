@@ -298,10 +298,7 @@ abstract class FOGController extends FOGBase
 					$this->get($field)
 				);
 			}
-			// Did we find a row in the database?
-			if (!$queryData = $this->DB->query($query)->fetch()->get())
-				throw new Exception(($this->DB->sqlerror() ? $this->DB->sqlerror() : 'Row not found'));
-			$this->setQuery($queryData);
+			$this->setQuery($this->DB->query($query)->fetch()->get());
 			// Success
 			$res = $this;
 		}
@@ -365,13 +362,10 @@ abstract class FOGController extends FOGBase
 			if (!$this->get($field))
 				throw new Exception(sprintf('Operation field not set: %s', strtoupper($field)));
 			// Query row data
-			$query = sprintf("DELETE FROM %s WHERE %s='%s'",
+			if (!$this->DB->query(sprintf("DELETE FROM %s WHERE %s='%s'",
 				$this->DB->sanitize($this->databaseTable),
 				$this->DB->sanitize($this->databaseFields[$field]),
-				$this->DB->sanitize($this->get($field))
-			);
-			// Did we find a row in the database?
-			if (!$queryData = $this->DB->query($query)->fetch()->get())
+				$this->DB->sanitize($this->get($field))))->fetch()->get())
 				throw new Exception('Failed to delete');
 			// Success
 			return true;

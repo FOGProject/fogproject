@@ -5,7 +5,6 @@ $Page = new Page();
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 if ($node != 'client' && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
 {
-	@session_write_close();
 	@session_regenerate_id(true);
 	// Hook
 	$HookManager->processEvent('LOGOUT', array('user' => &$currentUser));

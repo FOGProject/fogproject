@@ -95,13 +95,9 @@ class FOGPageManager extends FOGBase
 				$this->arguments = (!empty($GLOBALS[$class->id]) ? array('id' => $GLOBALS[$class->id]) : array());
 				(!$this->FOGCore->isPOSTRequest() ? $this->resetRequest() : $this->setRequest());
 				// Render result to variable - we do this so we can send HTTP Headers in a class method
-				//ob_start('sanitize_output'strlen($result);
-				ob_implicit_flush(true);
-				$this->getClass($class)->$method();
-				//$result = ob_get_clean();
-				//call_user_func(array($class, $method));
+				ob_start('sanitize_output');
+				$this->getClass($class,$this->getFOGPageName())->$method();
 				$this->resetRequest();
-				//return $result;
 			}
 			catch (Exception $e)
 			{
@@ -109,6 +105,7 @@ class FOGPageManager extends FOGBase
 				return false;
 			}
 		}
+		return ob_get_clean();
 	}
 	// Load FOGPage classes
 	private function loadPageClasses()
@@ -117,8 +114,6 @@ class FOGPageManager extends FOGBase
 			return;
 		// This variable is required as each class file uses it
 		global $Init;
-		foreach((array)$_SESSION['PluginsInstalled'] AS $PluginStore)
-			$_SESSION[$PluginStore] = $PluginStore;
 		foreach($Init->PagePaths as $path)
 		{
 			if (file_exists($path))

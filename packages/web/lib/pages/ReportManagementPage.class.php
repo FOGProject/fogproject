@@ -91,9 +91,7 @@ class ReportManagementPage extends FOGPage
 			'${input}',
 		);
 		// Get the dates to use!
-		$DateStart = $this->DB->query("SELECT DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') start FROM `imagingLog` WHERE DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start');
-		$DateEnd = $this->DB->query("SELECT DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') finish FROM `imagingLog` WHERE DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start');
-		$AllDates = array_merge($DateStart,$DateEnd);
+		$AllDates = array_merge($this->DB->query("SELECT DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') start FROM `imagingLog` WHERE DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'),$this->DB->query("SELECT DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') finish FROM `imagingLog` WHERE DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'));
 		foreach($AllDates AS $Date)
 			$Dates[] = array_shift($Date);
 		$Dates = array_unique($Dates);
