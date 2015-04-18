@@ -157,7 +157,7 @@ class TaskManagementPage extends FOGPage
 		);
 		// Row templates
 		$this->templates = array(
-			'${host_name}<br/><small>${host_mac}</small>',
+			'<a href="?node=host&sub=edit&id=${id}"/>${host_name}</a><br /><small>${host_mac}</small>',
 			'<small>${image_name}</small>',
 			'${downLink}&nbsp;${uploadLink}&nbsp;${advancedLink}',
 		);
@@ -298,7 +298,7 @@ class TaskManagementPage extends FOGPage
 			array('width' => 60,'class' => 'c'),
 		);
 		$this->templates = array(
-			'${name}',
+			'<a href="?node=group&sub=edit&id=${id}"/>${name}</a>',
 			'${deployLink}&nbsp;${multicastLink}&nbsp;${advancedLink}',
 		);
 		$Groups = $this->getClass('GroupManager')->find();
