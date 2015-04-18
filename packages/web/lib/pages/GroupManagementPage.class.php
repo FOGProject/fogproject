@@ -218,21 +218,18 @@ class GroupManagementPage extends FOGPage
 	public function edit()
 	{
 		// Find
-		$Group = new Group($_REQUEST[$this->id]);
+		$Group = $this->getClass($this->childClass,$_REQUEST['id']);
 		// If all hosts have the same image setup up the selection.
 		foreach ((array)$Group->get('hosts') AS $Host)
 		{
-			if ($Host && $Host->isValid())
-			{
-				$imageID[] = $Host && $Host->isValid() ? $Host->get('imageID') : '';
-				$groupKey[] = $Host && $Host->isValid() ? base64_decode($Host->get('productKey')) : '';
-			}
+			$imageID[] = $Host && $Host->isValid() ? $Host->get('imageID') : '';
+			$groupKey[] = $Host && $Host->isValid() ? base64_decode($Host->get('productKey')) : '';
 		}
-		$imageIDMult = (is_array($imageID) ? array_unique($imageID) : $imageID);
-		$groupKeyMult = (is_array($groupKey) ? array_unique($groupKey) : $groupKey);
+		$imageIDMult = (is_array($imageID) ? array_unique($imageID) : array($imageID));
+		$groupKeyMult = (is_array($groupKey) ? array_unique($groupKey) : array($groupKey));
 		$groupKeyMult = array_filter((array)$groupKeyMult);
 		if (count($imageIDMult) == 1)
-			$imageMatchID = $Host && $Host->isValid() ? $Host->get('imageID') : '';
+			$imageMatchID = $imageIDMult[0];
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', _('Edit'), $Group->get('name'));
 		// Headerdata

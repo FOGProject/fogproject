@@ -252,19 +252,16 @@ abstract class FOGManagerController extends FOGBase
 				);
 			}
 			$data = array();
-			// Select all
 			$this->DB->query($sql,$fieldValues);
+			// Select all
 			if ($idField)
 			{
-				while($id = $this->DB->fetch()->get())
-					$ids[] = $id[$this->databaseFields[$idField]];
-				$data = array_unique((array)$ids);
+				while ($id = $this->DB->fetch()->get($this->databaseFields[$idField]))
+					$ids[] = $id;
+				return array_unique((array)$ids);
 			}
-			else
-			{
-				while($queryData = $this->DB->fetch()->get())
-					$data[] = $this->getClass($this->childClass)->setQuery($queryData);
-			}
+			while ($queryData = $this->DB->fetch()->get())
+				$data[] = $this->getClass($this->childClass)->setQuery($queryData);
 			unset($id,$ids,$row);
 			// Return
 			return (array)$data;

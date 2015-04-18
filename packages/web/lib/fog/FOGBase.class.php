@@ -654,7 +654,7 @@ abstract class FOGBase
 		while ($left <= $right)
 		{
 			$mid = $left + $right >> 1;
-			if (is_object($needle))
+		/*	if (is_object($needle))
 			{
 				if ($needle instanceof MACAddress)
 				{
@@ -676,14 +676,14 @@ abstract class FOGBase
 				}
 			}
 			else
-			{
+			{*/
 				if ($values[$mid] == $needle)
 					return $keys[$mid];
 				elseif ($values[$mid] > $needle)
 					$right = $mid - 1;
 				elseif ($values[$mid] < $needle)
 					$left = $mid + 1;
-			}
+			//}
 		}
 		return -1;
 	}

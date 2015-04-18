@@ -7,7 +7,6 @@ $Page = new Page();
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 if (!in_array($node,array('schemaupdater','client')) && !in_array($sub,array('configure','authorize')) && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
 {
-	@session_write_close();
 	@session_regenerate_id(true);
 	// Hook
 	$HookManager->processEvent('LOGOUT', array('user' => &$currentUser));
@@ -26,9 +25,7 @@ if (!in_array($node,array('schemaupdater','client')) && !in_array($sub,array('co
 }
 $FOGPageManager = new FOGPageManager();
 $_SESSION['AllowAJAXTasks'] = true;
-ob_start('sanitize_output');
-$FOGPageManager->render();
-$content = ob_get_clean();
+$content = $FOGPageManager->render();
 $sectionTitle = $FOGPageManager->getFOGPageName();
 $pageTitle = $FOGPageManager->getFOGPageTitle();
 if ($FOGCore->isAJAXRequest())

@@ -101,7 +101,6 @@ class Page extends FOGBase {
 	}
 	public function startBody() {
 		ob_start('sanitize_output');
-		ob_implicit_flush(1);
 	}
 	public function endBody() {
 		$this->body = ob_get_clean();
@@ -113,6 +112,7 @@ class Page extends FOGBase {
 			$path = 'other/index.php';
 		ob_start('sanitize_output',$_SESSION['chunksize']);
 		require_once($path);
-		ob_end_flush();
+		while(ob_end_flush());
+		session_write_close();
 	}
 }
