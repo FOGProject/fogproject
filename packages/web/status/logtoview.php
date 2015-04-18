@@ -9,8 +9,7 @@ function read_file($file, $lines = 20, $max_chunk_size = 4096) {
 		$text[] = $line;
 		if ($cnt++ == $lines) break;
 	}
-	$data = array_reverse($text);
-	return implode($data,"\n");
+	return implode("\n",array_reverse($text));
 }
 $vals = read_file($_REQUEST['file'],$_REQUEST['lines'] ? $_REQUEST['lines'] : 20);
 print json_encode($vals);
