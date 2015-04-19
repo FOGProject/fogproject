@@ -56,10 +56,7 @@ abstract class FOGBase
 	public function fatalError($txt, $data = array())
 	{
 		if (!preg_match('#/service/#', $_SERVER['PHP_SELF']) && !FOGCore::isAJAXRequest())
-		{
 			print sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
-			exit;
-		}
 	}
 	
 	/** error() prints the error to the screen
