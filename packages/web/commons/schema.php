@@ -1829,11 +1829,6 @@ $this->schema[] = array(
 );
 // 162
 $this->schema[] = array(
-	"ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` DROP INDEX `stID`",
-	"ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` DROP INDEX `stID_2`",
-	"ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` DROP INDEX `stJobID`",
-	"ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` DROP INDEX `stJobID_2`",
-	"ALTER TABLE `".DATABASE_NAME."`.`snapinTasks` DROP INDEX `stJobID_3`",
 	"ALTER IGNORE TABLE `".DATABASE_NAME."`.`snapinTasks` ADD UNIQUE (`stJobID`,`stSnapinID`)",
 );
 // 163
