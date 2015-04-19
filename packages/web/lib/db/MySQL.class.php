@@ -1,6 +1,9 @@
 <?php
 class MySQL extends FOGBase {
-	private $link,$query,$queryResult,$result;
+	private $link;
+	private $query;
+	private $queryResult;
+	private $result;
 	/** __construct initializes the class
 	  * @return void
 	  */
