@@ -329,6 +329,7 @@ class TaskManagementPage extends FOGPage
 		$enableShutdown = false;
 		$enableSnapins = ($_REQUEST['type'] == 17 ? false : -1);
 		$enableDebug = (in_array($_REQUEST['type'],array(3,15,16)) ? true : false);
+		$imagingTasks = array(1,2,8,15,16,17,24);
 		$taskName = ($taskTypeID == 8 ? 'Multicast Group Quick Deploy' : 'Group Quick Deploy');
 		try
 		{

@@ -975,7 +975,7 @@ class Host extends FOGController
 	public function wakeOnLAN()
 	{
 		$MACs[] = $this->get('mac');
-		foreach($this->get('additionalMACs') AS $MAC)
+		foreach((array)$this->get('additionalMACs') AS $MAC)
 			$MACs[] = $MAC;
 		$MACs = array_unique($MACs);
 		foreach((array)$MACs AS $MAC)
