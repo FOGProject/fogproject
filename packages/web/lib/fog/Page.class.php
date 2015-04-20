@@ -5,6 +5,8 @@ class Page extends FOGBase {
 		parent::__construct();
 		while (@ob_end_clean());
 		$dispTheme = 'css/'.($_SESSION['theme'] ? $_SESSION['theme'] : 'default/fog.css');
+		if (!file_exists(BASEPATH.'/'.$dispTheme))
+			$dispTheme = 'css/default/fog.css';
 		if (!preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
 		{
 			$this->addCSS('css/jquery-ui.css');
