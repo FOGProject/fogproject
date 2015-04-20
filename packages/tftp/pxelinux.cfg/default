@@ -1,0 +1,6 @@
+DEFAULT vesamenu.c32
+LABEL fog
+	MENU DEFAULT
+	kernel ipxe.krn dhcp && chain http://${next-server}/fog/service/ipxe/boot.php?mac=${net0/mac}
+PROMPT 0
+TIMEOUT 01
