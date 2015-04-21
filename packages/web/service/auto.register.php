@@ -59,10 +59,10 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED'))
 						$optionOU = $OUs[0];
 				}
 				$strDoAD="1";
-				$strADDomain = $FOGCore->getSetting( "FOG_AD_DEFAULT_DOMAINNAME");
+				$strADDomain = $FOGCore->getSetting('FOG_AD_DEFAULT_DOMAINNAME');
 				$strADOU = $optionOU;
-				$strADUser = $FOGCore->getSetting( "FOG_AD_DEFAULT_USER");
-				$strADPass = $FOGCore->getSetting( "FOG_AD_DEFAULT_PASSWORD");
+				$strADUser = $FOGCore->getSetting('FOG_AD_DEFAULT_USER');
+				$strADPass = $FOGCore->getSetting('FOG_NEW_CLIENT') ? $FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD') : $FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY');
 			}
 			// Create the host.
 			$Host = new Host(array(
