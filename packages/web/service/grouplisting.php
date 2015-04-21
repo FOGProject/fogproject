@@ -6,7 +6,7 @@ try
 	if (!$Groups)
 		throw new Exception(_('There are no groups on this server.'));
 	foreach ($Groups AS $Group)
-		printf("\tID# %s\t-\t%s\n",$Group->get('id'),$Group->get('name'));
+		printf('\tID# %d\t-\t%s\n',$Group->get('id'),$Group->get('name'));
 }
 catch (Exception $e)
 {

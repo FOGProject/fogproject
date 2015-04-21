@@ -119,7 +119,8 @@ if [ -n "$hd" ]; then
 			if [ "$imageid" = "?" ]
 			then
 				clearScreen;
-				res=`wget -O - "http://${web}service/imagelisting.php" 2>/dev/null`
+				res=`wget -q -O- "http://${web}service/imagelisting.php" 2>/dev/null`;
+				res=`echo -e $res`;
 				i=0
 				OLDIFS=$IFS;
 				IFS='
@@ -152,7 +153,8 @@ if [ -n "$hd" ]; then
 				read locationid;
 				if [ "$locationid" == "?" ]; then
 					clear;
-					res=`wget -O - "http://${web}service/locationlisting.php" 2>/dev/null`;
+					res=`wget -q -O- "http://${web}service/locationlisting.php" 2>/dev/null`;
+					res=`echo -e $res`;
 					i=0
 					OLDIFS=$IFS;
 					IFS='
@@ -189,7 +191,8 @@ if [ -n "$hd" ]; then
 						read groupid;
 						if [ "$groupid" == "?" ]; then
 							clear;
-							res=`wget -O - "http://${web}service/grouplisting.php" 2>/dev/null`;
+							res=`wget -q -O- "http://${web}service/grouplisting.php" 2>/dev/null`;
+							res=`echo -e $res`;
 							i=0
 							OLDIFS=$IFS;
 							IFS='
@@ -233,7 +236,8 @@ if [ -n "$hd" ]; then
 						read snapinid;
 						if [ "$snapinid" == "?" ]; then
 							clear;
-							res=`wget -O - "http://${web}service/snapinlisting.php" 2>/dev/null`;
+							res=`wget -q -O- "http://${web}service/snapinlisting.php" 2>/dev/null`;
+							res=`echo -e $res`;
 							i=0
 							OLDIFS=$IFS;
 							IFS='

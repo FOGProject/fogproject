@@ -7,7 +7,7 @@ try
 	if (!$Images)
 		throw new Exception(_('There are no images on this server.'));
 	foreach ($Images AS $Image)
-		printf("\tID# %s\t-\t%s\n",$Image->get('id'),$Image->get('name'));
+		printf('\tID# %d\t-\t%s\n',$Image->get('id'),$Image->get('name'));
 }
 catch (Exception $e)
 {
