@@ -537,11 +537,11 @@ class Config
 		fi
 		echo "OK";
 		echo -n "  * Downloading New FOG Client file...";
-		if [ -L "/etc/php5/conf.d/20-mysqlnd.ini" ]; then
-			mv "/etc/php5/conf.d/20-mysqlnd.ini" "/etc/php5/conf.d/20-mysqlnd.ini-old";
+		if [ -L "/etc/php5/conf.d/20-mysqlnd.ini-old" ]; then
+			mv "/etc/php5/conf.d/20-mysqlnd.ini-old" "/etc/php5/conf.d/20-mysqlnd.ini";
 		fi
-		if [ -L "/etc/php5/conf.d/20-mcrypt.ini" ]; then
-			mv "/etc/php5/conf.d/20-mcrypt.ini" "/etc/php5/conf.d/20-mcrypt.ini-old";
+		if [ -L "/etc/php5/conf.d/20-mcrypt.ini-old" ]; then
+			mv "/etc/php5/conf.d/20-mcrypt.ini-old" "/etc/php5/conf.d/20-mcrypt.ini";
 		fi
 		cwd=`pwd`;
 		cd "${webdirdest}/service"
