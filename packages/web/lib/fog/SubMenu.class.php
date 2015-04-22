@@ -155,7 +155,7 @@ class SubMenu extends FOGBase
 			}
 		}
 		// Host Sub/Sub menu items.
-		if ($this->node == 'host')
+		else if ($this->node == 'host')
 		{
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Hosts']);
@@ -184,7 +184,7 @@ class SubMenu extends FOGBase
 			}
 		}
 		// Image Sub/Sub menu items.
-		if ($this->node == 'image')
+		else if ($this->node == 'image')
 		{
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Images']);
@@ -199,7 +199,7 @@ class SubMenu extends FOGBase
 			}
 		}
 		// Printer Sub/Sub menu items.
-		if ($this->node == 'printer' || $this->node == 'print')
+		else if ($this->node == 'printer' || $this->node == 'print')
 		{
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Printers']);
@@ -212,7 +212,7 @@ class SubMenu extends FOGBase
 			}
 		}
 		// Configuration Sub/Sub menu items.
-		if ($this->node == 'about')
+		else if ($this->node == 'about')
 		{
 			$this->subMenu[$this->node]['license'] = $this->foglang['License'];
 			$this->subMenu[$this->node]['kernel-update'] = $this->foglang['KernelUpdate'];
@@ -228,7 +228,7 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['http://fogproject.org'] = $this->foglang['FOGWebPage'];
 		}
 		// Report Sub/Sub menu items, created Dynamically.
-		if ($this->node == 'report')
+		else if ($this->node == 'report')
 		{
 			$this->subMenu[$this->node]['home'] = $this->foglang['Home'];
 			$this->subMenu[$this->node]['equip-loan'] = $this->foglang['EquipLoan'];
@@ -253,7 +253,7 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['upload'] = $this->foglang['UploadRprts'];
 		}
 		// Service Sub/Sub menu items.
-		if ($this->node == 'service')
+		else if ($this->node == 'service')
 		{
 			// The service links redirects/tabs.
 			$servicelink = $_SERVER['PHP_SELF'].'?node='.$this->node.'&sub=edit';
@@ -272,7 +272,7 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node][$servicelink.'#usertracker'] = $this->foglang['UserTracker'];
 		}
 		// Snapin Sub/Sub menu items.
-		if ($this->node == 'snapin')
+		else if ($this->node == 'snapin')
 		{
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Snapins']);
@@ -286,7 +286,7 @@ class SubMenu extends FOGBase
 			}
 		}
 		// Storage Sub/Sub menu items.
-		if ($this->node == 'storage')
+		else if ($this->node == 'storage')
 		{
 			$this->subMenu[$this->node][$_SERVER['PHP_SELF'].'?node='.$this->node] = $this->foglang['AllSN'];
 			$this->subMenu[$this->node][$_SERVER['PHP_SELF'].'?node='.$this->node.'&sub=add-storage-node'] = $this->foglang['AddSN'];
@@ -297,14 +297,14 @@ class SubMenu extends FOGBase
 				$this->subMenu[$this->node]['id'][$_SERVER['PHP_SELF'].'?node='.$this->node.'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']] = $this->foglang['General'];
 				$this->subMenu[$this->node]['id'][$_SERVER['PHP_SELF'].'?node='.$this->node.'&sub=delete-storage-node&id='.$_REQUEST['id']] = $this->foglang['Delete'];
 			}
-			if ($_REQUEST['sub'] == 'edit-storage-group')
+			else if ($_REQUEST['sub'] == 'edit-storage-group')
 			{
 				$this->subMenu[$this->node]['id'][$_SERVER['PHP_SELF'].'?node='.$this->node.'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']] = $this->foglang['General'];
 				$this->subMenu[$this->node]['id'][$_SERVER['PHP_SELF'].'?node='.$this->node.'&sub=delete-storage-group&id='.$_REQUEST['id']] = $this->foglang['Delete'];
 			}
 		}
 		// Task Sub/Sub menu items.
-		if ($this->node == 'tasks')
+		else if ($this->node == 'tasks')
 		{
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['active'] = $this->foglang['ActiveTasks'];
@@ -315,7 +315,7 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['scheduled'] = $this->foglang['ScheduledTasks'];
 		}
 		// User Sub/Sub menu items.
-		if ($this->node == 'user')
+		else if ($this->node == 'user')
 		{
 			$this->subMenu[$this->node]['search'] = $this->foglang['NewSearch'];
 			$this->subMenu[$this->node]['list'] = sprintf($this->foglang['ListAll'],$this->foglang['Users']);
@@ -327,7 +327,7 @@ class SubMenu extends FOGBase
 			}
 		}
 		// Plugin Sub/Sub menu items.
-		if ($this->node == 'plugin')
+		else if ($this->node == 'plugin')
 		{
 			$this->subMenu[$this->node]['home'] = $this->foglang['Home'];
 			$this->subMenu[$this->node]['activate'] = $this->foglang['ActivatePlugins'];
@@ -335,9 +335,10 @@ class SubMenu extends FOGBase
 			$this->subMenu[$this->node]['installed'] = $this->foglang['InstalledPlugins'];
 		}
 		// ServerInfo Sub/Sub menu items.
-		if ($this->node == 'hwinfo')
+		else if ($this->node == 'hwinfo')
 		{
-			$this->subMenu[$this->node]['home&id='.$_REQUEST['id']] = $this->foglang['Home'];
+			$this->node = 'storage';
+			$this->subMenu[$this->node]["edit&id={$_REQUEST[id]}"] = _('Edit Node');
 		}
 		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('submenu' => &$this->subMenu,'id' => &$this->id));
 	}
