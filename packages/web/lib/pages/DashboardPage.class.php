@@ -62,9 +62,13 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t<li>";
 		print "\n\t\t\t<h4>"._('Disk Information').'</h4>';
 		print "\n\t\t\t".'<div id="diskusage-selector">';
+		$webroot = '/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/';
 		foreach ((array)$this->getClass('StorageNodeManager')->find(array('isEnabled' => 1,'isGraphEnabled' => 1)) AS $StorageNode)
-			$options[] = "\n\t\t\t".'<option value="'.$StorageNode->get('id').'">'.$StorageNode->get('name').($StorageNode->get('isMaster') == '1' ? ' *' : '').'</option>';
-		$options ? print "\n\t\t\t".'<select name="storagesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">'.implode("\n",$options).'</select>' : null;
+		{
+			$version = $this->FOGCore->fetchurl($StorageNode->get('ip').$webroot.'/service/getversion.php');
+			$options .= "\n\t\t\t".'<option value="'.$StorageNode->get('id').'">'.$StorageNode->get('name').($StorageNode->get('isMaster') == '1' ? " * ({$version[0]})" : '').'</option>';
+		}
+		$options ? print "\n\t\t\t".'<select name="storagesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">'.$options.'</select>' : null;
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t".'<a href="?node=hwinfo"><div class="graph pie-graph" id="graph-diskusage"></div></a>';
 		print "\n\t\t\t</li>";
