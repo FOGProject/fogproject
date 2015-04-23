@@ -96,13 +96,12 @@ class FOGPageManager extends FOGBase
 				(!$this->FOGCore->isPOSTRequest() ? $this->resetRequest() : $this->setRequest());
 				// Render result to variable - we do this so we can send HTTP Headers in a class method
 				ob_start('sanitize_output');
-				$this->getClass($class,$this->getFOGPageName())->$method();
+				call_user_func(array($class,$method));
 				$this->resetRequest();
 			}
 			catch (Exception $e)
 			{
 				$this->debug('Failed to Render Page: Node: %s, Error: %s', array($this->classValue, $e->getMessage()));
-				return false;
 			}
 		}
 		return ob_get_clean();

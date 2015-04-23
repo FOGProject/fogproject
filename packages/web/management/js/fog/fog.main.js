@@ -349,7 +349,7 @@ function checkMonthField(month) {
 	return checkField(month,1,12);
 }
 function checkDOWField(DOW) {
-	return checkField(DOW,1,7);
+	return checkField(DOW,0,6);
 }
 function checkboxToggleSearchListPages() {
 	// Checkbox toggle

@@ -366,6 +366,7 @@ class TaskManagementPage extends FOGPage
 	public function active()
 	{
 		// Set title
+		$this->form = "<center>".'<input type="button" id="taskpause" /></center><br/>';
 		$this->title = _('Active Tasks');
 		// Tasks
 		$i = 0;
