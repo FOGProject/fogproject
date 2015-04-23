@@ -375,7 +375,7 @@ configureHttpd()
   sed -i 's/;extension=mysqli.so/extension=mysqli.so/g' /etc/php/php.ini
 	systemctl enable httpd php-fpm;
 	sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' /etc/php.ini
-	sed -i 's/upload_max_fileszie\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php.ini
+	sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php.ini
 	systemctl restart httpd php-fpm >/dev/null 2>&1
 	sleep 2;
 	systemctl status httpd php-fpm >/dev/null 2>&1;
