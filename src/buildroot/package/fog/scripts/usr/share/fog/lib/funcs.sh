@@ -786,6 +786,7 @@ runPartprobe()
 	if [ "$?" != "0" ]; then
 		handleError "Failed to read back partitions";
 	fi
+	sleep 3;
 }
 
 debugCommand()
