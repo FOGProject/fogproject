@@ -14,7 +14,7 @@ class FOGCron extends FOGGetSet
 			'hours' => self::_parseCronNumbers($Cron[1],0,23),
 			'dom' => self::_parseCronNumbers($Cron[2],1,31),
 			'month' => self::_parseCronNumbers($Cron[3],1,12),
-			'dow' => self::_parseCronNumbers($Cron[4],1,7),
+			'dow' => self::_parseCronNumbers($Cron[4],0,6),
 		);
 		for ($i = 0; $i <= (60*60*24*366); $i += 60)
 		{

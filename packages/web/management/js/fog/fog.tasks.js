@@ -16,14 +16,23 @@ $(function() {
 	ActiveTasksButtonHook();
 	// Update timer
 	ActiveTasksUpdateTimerStart();
+	// Add Pause/Continue button text.
+	$('#taskpause').val('Pause auto update').addClass('active');
+	ActiveTasksUpdateTimerStart();
+	$('#taskpause').click(function(e) {
+		e.preventDefault();
+		if (!$(this).hasClass('active')) {
+			$(this).addClass('active').val('Pause auto update');
+			ActiveTasksUpdateTimerStart();
+		} else {
+			$(this).removeClass('active').val('Continue auto update');
+			clearTimeout(ActiveTasksUpdateTimer);
+		}
+	});
 });
 function ActiveTasksUpdateTimerStart() {
 	if ($_GET['sub'] == 'active') {
-		ActiveTasksUpdateTimer = setTimeout(function() {
-			if (!ActiveTasksRequests.length) {
-				ActiveTasksUpdate();
-			}
-		}, ActiveTasksUpdateInterval);
+		ActiveTasksUpdateTimer = setTimeout(function() { if (!ActiveTasksRequests.length && $('#taskpause').hasClass('active')) ActiveTasksUpdate();},ActiveTasksUpdateInterval);
 	}
 }
 function ActiveTasksUpdate() {

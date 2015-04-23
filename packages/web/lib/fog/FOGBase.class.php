@@ -385,43 +385,7 @@ abstract class FOGBase
 			$TimeVal = $CurrTime->diff($time);
 		if ($time > $CurrTime)
 			$TimeVal = $time->diff($CurrTime);
-		$Datediff = $TimeVal->d;
-		$NoAfter = false;
-		if ($TimeVal->y)
-			$RetDate = $TimeVal->y.' year'.($TimeVal->y != 1 ? 's' : '');
-		else if ($TimeVal->m)
-			$RetDate = $TimeVal->m.' month'.($TimeVal->m != 1 ? 's' : '');
-		else if ($time->format('Y-m-d') == $CurrTime->format('Y-m-d') || !$Datediff)
-		{
-			$RetDate = ($time > $CurrTime ? _('Runs') : _('Ran')).' '._('today, at ').$time->format('g:ia');
-			$NoAfter = true;
-		}
-		else if (in_array($Datediff,$weeks['oneday']))
-		{
-			$RetDate = ($time > $CurrTime ? _('Tomorrow at ') : _('Yesterday at ')).$time->format('g:ia');
-			$NoAfter = true;
-		}
-		else if (in_array($Datediff,$weeks['curweek']))
-		{
-			$RetDate = ($time > $CurrTime ? _('This') : _('Last')).' '.$time->format('l')._(' at ').$time->format('g:ia');
-			$NoAfter = true;
-		}
-		else if (in_array($Datediff,$weeks['1week']))
-		{
-			$RetDate = ($time > $CurrTime ? _('Next week') : _('Last week')).' '.$time->format('l')._(' at ').$time->format('g:ia');
-			$NoAfter = true;
-		}
-		else if (in_array($Datediff,$weeks['2weeks']))
-			$RetDate = ($time > $CurrTime ? _('2 weeks from now') : _('2 weeks ago'));
-		else if (in_array($Datediff,$weeks['3weeks']))
-			$RetDate = ($time > $CurrTime ? _('3 weeks from now') : _('3 weeks ago'));
-		else if (in_array($Datediff,$weeks['4weeks']))
-			$RetDate = ($time > $CurrTime ? _('4 weeks from now') : _('4 weeks ago'));
-		if ($time < $CurrTime && !$NoAfter)
-			$RetDate .= ' ago';
-		if ($time > $CurrTime && !$NoAfter)
-			$RetDate .= ' from now';
-		return $RetDate;
+		return ($time > $CurrTime ? _('Next Run Time: ') : _('Ran At: ')).$time->format('Y-m-d H:i:s');
 	}
 	/** resetRequest()
 	  * Simply resets the request so data, even if invalid, will populate form.

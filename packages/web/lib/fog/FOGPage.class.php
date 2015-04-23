@@ -56,7 +56,7 @@ abstract class FOGPage extends FOGBase
 		parent::__construct();
 		if (!empty($name))
 			$this->name = $name;
-		$this->title = $this->foglang[$this->name];
+		$this->title = $this->name;
 		$this->request = $this->REQUEST = $this->DB->sanitize($_REQUEST);
 		$this->REQUEST['id'] = $_REQUEST[$this->id];
 		$this->request['id'] = $_REQUEST[$this->id];
@@ -124,6 +124,7 @@ abstract class FOGPage extends FOGBase
 					'headerData' => $this->headerData,
 					'title' => $this->title,
 					'attributes'	=> $this->attributes,
+					'form' => $this->form,
 				));
 			}
 			else
@@ -138,6 +139,8 @@ abstract class FOGPage extends FOGBase
 						(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)	// TODO: Store this in class as variable
 					);
 				}
+				if ($this->form)
+					$result .= sprintf($this->form);
 				// Table -> Header Row
 				$result .= sprintf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s"><thead><tr class="header">%s</tr></thead><tbody>',
 					'100%',
