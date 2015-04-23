@@ -383,6 +383,10 @@ configureHttpd()
 	if [ "$?" != 0 ]; then
 		php5enmod mysqlnd &>/dev/null;
 	fi
+	php -m | grep mcrypt &>/dev/null;
+	if [ "$?" != 0 ]; then
+		php5enmod mcrypt &>/dev/null;
+	fi
 	sysv-rc-conf apache2 on;
 	mv /etc/apache2/mods-available/php5* /etc/apache2/mods-enabled/  >/dev/null 2>&1
 	/etc/init.d/apache2  stop  >/dev/null 2>&1
