@@ -947,7 +947,7 @@ savePartitionTablesAndBootLoaders()
 
 clearPartitionTables()
 {
-	local disk="$1";
+	local disk=$1;
 	dots "Erasing current MBR/GPT Tables";
 	sgdisk -Z $disk >/dev/null;
 	runPartprobe $disk;
@@ -1168,6 +1168,7 @@ runFixparts()
 	fixparts $1 << EOF
 y
 w
+y
 EOF
 	if [ "$?" != 0 ]; then
 		echo "Failed";
