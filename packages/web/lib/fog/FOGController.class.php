@@ -341,8 +341,8 @@ abstract class FOGController extends FOGBase
 	public function setQuery($queryData)
 	{
 		$classData = array_intersect_key($queryData,$this->databaseFieldsFlipped);
-		$orderedData = array_merge($this->databaseFieldsFlipped,$classData);
-		$this->data = array_combine(array_keys($this->databaseFields),$orderedData);
+		$orderedData = array_merge((array)$this->databaseFieldsFlipped,(array)$classData);
+		$this->data = array_combine((array)array_keys($this->databaseFields),(array)$orderedData);
 		foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
 			$this->set($fields[2],$this->getClass($class)->setQuery($queryData));
 		return $this;
