@@ -5,7 +5,7 @@ try
 	if (!in_array(strtolower(($_REQUEST['newService'] ? $_REQUEST['action'] : base64_decode($_REQUEST['action']))),array('login','start','logout')))
 		throw new Exception('#!er: Postfix requires an action of login,logout, or start to operate');
 	$user = explode(chr(92),strtolower(($_REQUEST['newService'] ? $_REQUEST['user'] : base64_decode($_REQUEST['user']))));
-	$user = count($user) == 2 ? $user[1] : $user[0]
+	$user = count($user) == 2 ? $user[1] : $user[0];
 	if ($user == null)
 		throw new Exception('#!us');
 	$date = $FOGCore->nice_date();
@@ -15,7 +15,7 @@ try
 	$login = ($_REQUEST['newService'] ? strtolower($_REQUEST['action']) : strtolower(base64_decode($_REQUEST['action'])));
 	$actionText = ($login == 'login' ? 1 : ($login == 'logout' ? 0 : 99));
 	$user = $_REQUEST['action'] == 'start' ? '' : $user;
-	$Host = $FOGCore->getHostItem();
+	$Host = $FOGCore->getHostItem(true,($_REQUEST['newService'] ? false : true));
 	$UserTracking = new UserTracking(array(
 		'hostID'	=> $Host->get('id'),
 		'username'	=> $user,
