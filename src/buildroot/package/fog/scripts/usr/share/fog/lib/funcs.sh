@@ -61,7 +61,7 @@ expandPartition()
 		local partNum=`echo $1 | sed -r 's/^[^0-9]+//g'`;
 		is_fixed=`echo "$fixed_size_partitions" | egrep ':'${partNum}':|^'${partNum}':|:'${partNum}'$' | wc -l`;
 		if [ "$is_fixed" == "1" ]; then
-			dots "Not expanding ($1) fixed size";
+			dots "Not expanding ("$1") fixed size";
 			echo "Done";
 			debugPause;
 			return;
@@ -70,7 +70,7 @@ expandPartition()
 	do_reset_flag="0"
 	fstype=`fsTypeSetting $1`;
 	if [ "$fstype" == "ntfs" ]; then
-		dots "Resizing ntfs volume ($1)";
+		dots "Resizing ntfs volume ("$1")";
 		ntfsresize $1 -f -b -P &>/dev/null << EOFNTFSRESTORE
 Y
 EOFNTFSRESTORE
@@ -81,7 +81,7 @@ EOFNTFSRESTORE
 		resize2fs $1 &>/dev/null;
 		e2fsck -fp $1 &>/dev/null; # prevent fsck at first boot of restored system
 	else
-		dots "Not expanding ($1 $fstype)";
+		dots "Not expanding ("$1" "$fstype")";
 	fi
 	echo "Done";
 	debugPause;
