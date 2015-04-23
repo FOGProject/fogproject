@@ -58,7 +58,7 @@ class HostUsers extends FOGBase
 			}
 		}
 		$report->appendHTML('</table>');
-		$report->outputReport(ReportMaker::FOG_REPORT_HTML);
+		$report->outputReport(0);
 		$_SESSION['foglastreport'] = serialize($report);
 	}
 }
