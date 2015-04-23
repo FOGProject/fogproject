@@ -387,9 +387,9 @@ configureHttpd()
 	mv /etc/apache2/mods-available/php5* /etc/apache2/mods-enabled/  >/dev/null 2>&1
 	/etc/init.d/apache2  stop  >/dev/null 2>&1
 	sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' /etc/php5/apache2/php.ini
-	sed -i 's/upload_max_fileszie\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php5/apache2/php.ini
+	sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php5/apache2/php.ini
 	sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' /etc/php5/cli/php.ini
-	sed -i 's/upload_max_fileszie\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php5/cli/php.ini
+	sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php5/cli/php.ini
 	/etc/init.d/apache2 start >/dev/null 2>&1;
 	if [ "$?" != "0" ]
 	then
