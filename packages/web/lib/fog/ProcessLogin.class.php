@@ -129,6 +129,7 @@ class ProcessLogin extends FOGBase
 	{
 		$this->setLang();
 		// Hook
+		$this->EventManager->notify('LoginFail', array(Failure=>$this->username));
 		$this->HookManager->processEvent('LoginFail', array('username' => &$this->username, 'password' => &$this->password));
 		$this->FOGCore->setMessage($string);
 	}
