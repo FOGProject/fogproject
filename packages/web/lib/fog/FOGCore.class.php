@@ -15,8 +15,11 @@ class FOGCore extends FOGBase
 	public function attemptLogin($username,$password)
 	{
 		$User = current($this->getClass('UserManager')->find(array('name' => $username)));
-		if ($User->validate_pw($password))
-			return $User;
+		if ($User && $User->isValid())
+		{
+			if ($User->validate_pw($password))
+				return $User;
+		}
 		return false;
 	}
 
