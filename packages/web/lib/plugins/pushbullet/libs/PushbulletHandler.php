@@ -495,59 +495,91 @@ class PushbulletHandler
      */
     private function _curlRequest($url, $method, $data = null, $sendAsJSON = true, $auth = true)
     {
-        $curl = curl_init();
-
         if ($method == 'GET' && $data !== null) {
             $url .= '?' . http_build_query($data);
         }
-
-        curl_setopt($curl, CURLOPT_URL, $url);
-
-        if ($auth) {
-            curl_setopt($curl, CURLOPT_USERPWD, $this->_apiKey);
-        }
-
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
-
+	$FOGCore = new FOGCore();
+	$ProxyUsed = false;
+	if ($FOGCore->DB && $FOGCore->getSetting('FOG_PROXY_IP'))
+	{
+		foreach($FOGCore->getClass('StorageNodeManager')->find() AS $StorageNode)
+			$IPs[] = $FOGCore->resolveHostname($StorageNode->get('ip'));
+		$IPs = array_filter(array_unique((array)$IPs));
+		if (!preg_match('#('.implode('|',(array)$IPs).')#i',$url))
+			$ProxyUsed = true;
+		$username = $FOGCore->getSetting('FOG_PROXY_USERNAME');
+		$password = $FOGCore->getSetting('FOG_PROXY_PASSWORD');
+	}
+	$curl = curl_multi_init();
+	$context = array(
+		CURLOPT_HTTPGET => true,
+		CURLOPT_FOLLOWLOCATION => true,
+		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_SSL_VERIFYPEER => false,
+		CURLOPT_SSL_VERIFYHOST => false,
+		CURLOPT_CONNECTTIMEOUT_MS => 10000,
+		CURLOPT_TIMEOUT_MS => 10000,
+		CURLOPT_ENCODING => '',
+		CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.6.12) Gecko/20110319 Firefox/4.0.1 ( .NET CLR 3.5.30729; .NET4.0E)',
+		CURLOPT_MAXREDIRS => 20,
+	);
+	if ($ProxyUsed)
+	{
+		$context[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
+		$context[CURLOPT_PROXYPORT] = $FOGCore->getSetting('FOG_PROXY_PORT');
+		$context[CURLOPT_PROXY] = $FOGCore->getSetting('FOG_PROXY_IP');
+		if ($username)
+			$context[CURLOPT_PROXYUSERPWD] = $username.':'.$password;
+	}
+	$context[CURLOPT_URL] = $url;
+	if ($auth)
+		$context[CURLOPT_USERPWD] = $this->_apiKey;
+	$context[CURLOPT_CUSTOMREQUEST] = $method;
         if ($method == 'POST' && $data !== null) {
-            if ($sendAsJSON) {
-                $data = json_encode($data);
-                curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-                    'Content-Type: application/json',
-                    'Content-Length: ' . strlen($data)
-                ));
-            }
-
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+		if ($sendAsJSON) {
+			$data = json_encode($data);
+			$context[CURLOPT_HTTPHEADER] = array(
+				'Content-Type: application/json',
+				'Content-Length: ' . strlen($data)
+			);
+		}
+		$context[CURLOPT_POSTFIELDS] = $data;
         }
-
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HEADER, false);
-
-        if ($this->_curlCallback !== null) {
-            $curlCallback = $this->_curlCallback;
-            $curlCallback($curl);
-        }
-
-        $response = curl_exec($curl);
-
-        if ($response === false) {
-            $curlError = curl_error($curl);
-            curl_close($curl);
-            throw new PushbulletException('cURL Error: ' . $curlError);
-        }
-
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-        if ($httpCode >= 400) {
-            curl_close($curl);
-            $responseParsed = json_decode($response);
-            throw new PushbulletException('HTTP Error ' . $httpCode .
-                ' (' . $responseParsed->error->type . '): ' . $responseParsed->error->message);
-        }
-
-        curl_close($curl);
-
+	$context[CURLOPT_HEADER] = false;
+	foreach ((array)$url AS $link)
+	{
+		$ch = curl_init($link);
+		curl_setopt_array($ch,$context);
+		$curls[$link] = $ch;
+		curl_multi_add_handle($curl,$ch);
+	}
+	$active = null;
+	do {
+		$mrc = curl_multi_exec($curl,$active);
+	} while ($mrc == CURLM_CALL_MULTI_PERFORM);
+	while ($active && $mrc == CURLM_OK) {
+		if (curl_multi_select($curl) == -1)
+			usleep(1);
+		do {
+			$mrc = curl_multi_exec($curl,$active);
+			$httpCode = curl_multi_info_read($curl);
+			if ($mrc > 0) {
+				throw new PushbulletException('cURL Error: '.curl_multi_strerror($mrc));
+			}
+			if ($httpCode[0] >= 400) {
+				curl_multi_close($curl);
+				throw new PushbulletException('HTTP Error: '.$httpCode);
+			}
+		} while ($mrc == CURLM_CALL_MULTI_PERFORM);
+	}
+	foreach($curls AS $link => $ch) {
+		if ($this->_curlCallback !== null) {
+			$curlCallback = $this->_curlCallback;
+			$curlCallback($ch);
+		}
+		$response = curl_multi_getcontent($ch);
+		curl_multi_remove_handle($curl,$ch);
+	}
         return json_decode($response);
     }
 }
