@@ -365,7 +365,7 @@ class HostManagementPage extends FOGPage
 				'productKey' => base64_encode($_REQUEST['key']),
 			));
 			$Host->addModule($ModuleIDs);
-			$Host->addPriMAC($MAC);p
+			$Host->addPriMAC($MAC);
 			$useAD = isset($_REQUEST['domain']);
 			$domain = trim($_REQUEST['domainname']);
 			$ou = trim($_REQUEST['ou']);
