@@ -365,7 +365,13 @@ class HostManagementPage extends FOGPage
 				'productKey' => base64_encode($_REQUEST['key']),
 			));
 			$Host->addModule($ModuleIDs);
-			$Host->addPriMAC($MAC);
+			$Host->addPriMAC($MAC);p
+			$useAD = isset($_REQUEST['domain']);
+			$domain = trim($_REQUEST['domainname']);
+			$ou = trim($_REQUEST['ou']);
+			$user = trim($_REQUEST['domainuser']);
+			$pass = trim($_REQUEST['domainpassword']);
+			$Host->setAD($useAD,$domain,$ou,$user,$pass,true,true);
 			// Save to database
 			if ($Host->save())
 			{
@@ -1250,10 +1256,10 @@ class HostManagementPage extends FOGPage
 				break;
 				case 'host-active-directory';
 					$useAD = isset($_REQUEST['domain']);
-					$domain = $_REQUEST['domainname'];
-					$ou = $_REQUEST['ou'];
-					$user = $_REQUEST['domainuser'];
-					$pass = $_REQUEST['domainpassword'];
+					$domain = trim($_REQUEST['domainname']);
+					$ou = trim($_REQUEST['ou']);
+					$user = trim($_REQUEST['domainuser']);
+					$pass = trim($_REQUEST['domainpassword']);
 					$Host->setAD($useAD,$domain,$ou,$user,$pass,true);
 				break;
 				case 'host-printers';

@@ -1152,7 +1152,7 @@ class Host extends FOGController
 		$mac = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MAC ? $MAC : $this->get('mac')->__toString(),'hostID' => $this->get('id'),'imageIgnore' => 1)));
 		return ($mac && $mac->isValid() ? 'checked' : '');
 	}
-	public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false)
+	public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false,$nosave = false)
 	{
 		if ($this->get('id'))
 		{
@@ -1169,14 +1169,15 @@ class Host extends FOGController
 				if (empty($pass))
 					$pass = $this->get('ADPass');
 			}
-			if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $pass)
-				$pass = $this->encryptpw($pass);
+			if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && trim($pass))
+				$pass = $this->encryptpw(trim($pass));
 			$this->set('useAD',$useAD)
-				 ->set('ADDomain',$domain)
-				 ->set('ADOU',$ou)
-				 ->set('ADUser',$user)
-				 ->set('ADPass',$pass)
-				 ->save();
+				 ->set('ADDomain',trim($domain))
+				 ->set('ADOU',trim($ou))
+				 ->set('ADUser',trim($user))
+				 ->set('ADPass',trim($pass));
+			if (!$nosave)
+				 $this->save();
 		}
 		return $this;
 	}
