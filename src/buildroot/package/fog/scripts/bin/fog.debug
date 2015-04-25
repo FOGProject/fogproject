@@ -1,15 +1,9 @@
 #!/bin/bash
-
 . /usr/share/fog/lib/funcs.sh
-
 . /bin/fog.donate
-
 clearScreen;
-
 displayBanner;
-
 #setupDNS ${dns}
-
 echo " You have entered into FOG debug";
 echo " mode.  Below is a list of common";
 echo " commands you may wish to run";
@@ -48,7 +42,7 @@ osname="";
 mbrfile="";
 hd="";
 if [ -n "$osid" ]; then
-	determineOS $osid;
+	determineOS "$osid";
 fi
 echo "osid=${osid}";
 echo "osname=${osname}";

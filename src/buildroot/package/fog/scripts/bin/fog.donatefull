@@ -1,12 +1,8 @@
 #!/bin/bash
-	
 . /usr/share/fog/lib/funcs.sh
-
 clearScreen;
 displayBanner;
-
 #setuDNS $dns;
-
 echo 
 echo " Thanks for donating to the FOG Project!"
 echo 

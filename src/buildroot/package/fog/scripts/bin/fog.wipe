@@ -30,15 +30,11 @@ if [ -n "$hd" ]; then
 		echo " Writing zeros to ${hd}";
 		dd if=/dev/zero of=${hd} bs=512 count=100000;
 	fi
-
 	echo "";
-	
 	queueinfo="";
 	cd /tmp			
 	wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
 	queueinfo=`cat co.txt`;
-	
-
 	while [ "$queueinfo" != "##" ]
 	do
 		echo "       * $queueinfo";
@@ -47,13 +43,10 @@ if [ -n "$hd" ]; then
 		queueinfo=`cat co.txt`;
 		sleep 5;
 	done  
-
 	echo "";
 	echo " * Database updated!";
 	echo "";	
-	
 	echo " Task Complete";
-	
 else
 	echo "hard disk not found!";
 fi
