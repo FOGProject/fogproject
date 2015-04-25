@@ -773,7 +773,7 @@ handleWarning()
 # $1 is the drive
 runPartprobe()
 {
-	sleep 3
+	sleep 5
 	udevadm settle
 	blockdev --rereadpt $1;
 	if [ "$?" != "0" ]; then
