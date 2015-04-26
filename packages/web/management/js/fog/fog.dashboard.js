@@ -39,6 +39,7 @@ var GraphBandwidthFilterTransmitActive = GraphBandwidthFilterTransmit.hasClass('
 var GraphBandwidthData = new Array();
 var GraphBandwidthdata = [];
 var GraphBandwidthMaxDataPoints = 120;
+var UpdateTimeout;
 var GraphBandwidthOpts = {
 	colors: ['#7386AD','#91a73c'],
 	xaxis: {
@@ -143,6 +144,9 @@ $(function() {
 		// Update title
 		$('#graph-bandwidth-title > span').eq(0).html($(this).html());
 		GraphBandwidthFilterTransmitActive = (GraphBandwidthFilterTransmit.hasClass('active') ? true : false);
+		// On click change
+		clearTimeout(UpdateTimeout);
+		UpdateBandwidth();
 		// Prevent default action
 		return false;
 	});
@@ -154,6 +158,9 @@ $(function() {
 		$('#graph-bandwidth-title > span').eq(1).html($(this).html());
 		// Update max data points variable
 		GraphBandwidthMaxDataPoints = $(this).attr('rel');
+		// On click change
+		clearTimeout(UpdateTimeout);
+		UpdateBandwidth();
 		// Prevent default action
 		return false;
 	});
@@ -205,9 +212,9 @@ function UpdateBandwidth() {
 			sub: 'bandwidth',
 		},
 		dataType: 'json',
-		success: UpdateBandwidthGraph,
-		complete: function() {
-			setTimeout(UpdateBandwidth,1000);
+		success: function(data) {
+			UpdateBandwidthGraph(data);
+			UpdateTimeout = setTimeout(UpdateBandwidth,1000);
 			GraphBandwidth.addClass('loaded');
 		}
 	});
