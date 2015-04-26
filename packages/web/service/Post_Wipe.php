@@ -3,7 +3,7 @@ require_once('../commons/base.inc.php');
 try
 {
 	// Get the Host
-	$Host = $FOGCore->getHostItem(false);
+	$Host = $FOGCore->getHostItem(false,false,true);
 	if ($Host && $Host->isValid())
 	{
 		// Task for Host
