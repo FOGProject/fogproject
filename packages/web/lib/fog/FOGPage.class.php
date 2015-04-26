@@ -160,8 +160,9 @@ abstract class FOGPage extends FOGBase
 				{
 					$defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
 					// Data found
-					foreach ($this->data AS $rowData)
+					foreach ($this->data AS &$rowData)
 					{
+						$this->replaceNeeds($rowData);
 						$result .= sprintf('<tr id="%s-%s" class="%s">%s</tr>',
 							(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
 							$rowData['id'],
@@ -191,25 +192,24 @@ abstract class FOGPage extends FOGBase
 			return $e->getMessage();
 		}
 	}
+	private function setAtts() {
+		foreach((array)$this->attributes AS $i => &$vals) {
+			foreach((array)$vals AS $name => &$val) $this->atts[$i] .= sprintf(' %s="%s" ',$name,($this->dataFind ? preg_replace($this->dataFind,$this->dataReplace,$val) : $val));
+		}
+	}
 	/** buildHeaderRow() builds the header row of the tables
 	  * @return the results as parsed
 	  */
-	public function buildHeaderRow()
-	{
+	public function buildHeaderRow() {
+		$this->setAtts();
 		// Loop data
-		if ($this->headerData)
-		{
-			foreach ($this->headerData AS $i => $content)
-			{
-				$attributes = '';
-				// Create attributes data
-				foreach ((array)$this->attributes[$i] as $attributeName => $attributeValue)
-					$attributes .= sprintf(' %s="%s" ', $attributeName, $attributeValue);
+		if ($this->headerData) {
+			foreach ($this->headerData AS $i => &$content) {
 				// Push into results array
 				$result .= sprintf(
-					'<%s%s>%s</%s>',	
+					'<%s%s>%s</%s>',
 					$this->wrapper,
-					($attributes ? $attributes : ''),
+					($this->atts[$i] ? $this->atts[$i] : ''),
 					$content,
 					$this->wrapper
 				);
@@ -224,22 +224,12 @@ abstract class FOGPage extends FOGBase
 	  */
 	private function replaceNeeds($data)
 	{
-		unset($dataFind,$dataReplace);
-		if (count($data) > 1)
-		{
-			$urlvars = array('node' => $GLOBALS['node'],'sub' => $GLOBALS['sub'],'tab' => $GLOBALS['tab']);
-			foreach (array_merge($urlvars,$data) AS $name => $val)
-			{
-				$dataFind[] = '#\$\{'.$name.'\}#';
-				$dataReplace[] = $val;
-			}
+		unset($this->dataFind,$this->dataReplace);
+		$urlvars = array('node' => $GLOBALS['node'],'sub' => $GLOBALS['sub'],'tab' => $GLOBALS['tab']);
+		foreach ((array)array_merge($urlvars,$data) AS $name => &$val) {
+				$this->dataFind[] = '#\$\{'.$name.'\}#';
+				$this->dataReplace[] = (is_object($val) ? $val->__toString() : (is_string($val) || is_numeric($val) ? $val : ''));
 		}
-		else
-		{
-			$dataFind = "#$data#";
-			$dataReplace = $data;
-		}
-		return array($dataFind,$dataReplace);
 	}
 	/** buildRow() builds the row of the tables
 	  * @param $data the data to build upon
@@ -247,20 +237,16 @@ abstract class FOGPage extends FOGBase
 	  */
 	public function buildRow($data)
 	{
-		list($dataFind,$dataReplace) = $this->replaceNeeds($data);
+		$this->replaceNeeds($data);
 		// Loop template data
-		foreach ($this->templates AS $i => $template)
+		foreach ($this->templates AS $i => &$template)
 		{
-			$attributes = '';
-			// Create attributes data
-			foreach ((array)$this->attributes[$i] as $attributeName => $attributeValue)
-				$attributes .= sprintf(' %s="%s" ',$attributeName,preg_replace($dataFind,$dataReplace,$attributeValue));
 			// Replace variables in template with data -> wrap in $this->wrapper -> push into $result
 			$result .= sprintf(
 				'<%s%s>%s</%s>',
 				$this->wrapper,
-				($attributes ? $attributes : ''),
-				preg_replace($dataFind, $dataReplace, $template),
+				($this->atts[$i] ? $this->atts[$i] : ''),
+				preg_replace($this->dataFind,$this->dataReplace,$template),
 				$this->wrapper
 			);
 		}
@@ -286,7 +272,7 @@ abstract class FOGPage extends FOGBase
 			printf('<center><p>%s</p>',_('Please select the snapin you want to deploy'));
 			if ($Data instanceof Host)
 			{
-				foreach((array)$Data->get('snapins') AS $Snapin)
+				foreach((array)$Data->get('snapins') AS &$Snapin)
 				{
 					if ($Snapin && $Snapin->isValid())
 						$optionSnapin .= sprintf('<option value="%s">%s - (%s)</option>',$Snapin->get('id'),$Snapin->get('name'),$Snapin->get('id'));
@@ -351,7 +337,7 @@ abstract class FOGPage extends FOGBase
 		}
 		if ($Data instanceof Group)
 		{
-			foreach($Data->get('hosts') AS $Host)
+			foreach($Data->get('hosts') AS &$Host)
 			{
 				if ($Host && $Host->isValid())
 				{
@@ -412,21 +398,21 @@ abstract class FOGPage extends FOGBase
 					if ($TaskType->isMulticast() && !$Data->doMembersHaveUniformImages())
 						throw new Exception(_('Hosts do not contain the same image assignments'));
 					unset($NoImage,$ImageExists,$Tasks);
-					foreach((array)$Data->get('hosts') AS $Host)
+					foreach((array)$Data->get('hosts') AS &$Host)
 					{
 						if ($Host && $Host->isValid() && !$Host->get('pending'))
 							$NoImage[] = !$Host->getImage() || !$Host->getImage()->isValid();
 					}
 					if (in_array(true,$NoImage))
 						throw new Exception(_('One or more hosts do not have an image set'));
-					foreach((array)$Data->get('hosts') AS $Host)
+					foreach((array)$Data->get('hosts') AS &$Host)
 					{
 						if ($Host && $Host->isValid() && !$Host->get('pending'))
 							$ImageExists[] = !$Host->checkIfExist($TaskType->get('id'));
 					}
 					if (in_array(true,$ImageExists))
 						throw new Exception(_('One or more hosts have an image that does not exist'));
-					foreach((array)$Data->get('hosts') AS $Host)
+					foreach((array)$Data->get('hosts') AS &$Host)
 					{
 						if ($Host && $Host->isValid() && $Host->get('task') && $Host->get('task')->isValid())
 							$Tasks[] = $Host->get('task');
@@ -442,7 +428,7 @@ abstract class FOGPage extends FOGBase
 					{
 						if ($Data instanceof Group)
 						{
-							foreach((array)$Data->get('hosts') AS $Host)
+							foreach((array)$Data->get('hosts') AS &$Host)
 							{
 								if ($Host && $Host->isValid() && !$Host->get('pending'))
 								{
@@ -495,7 +481,7 @@ abstract class FOGPage extends FOGBase
 					{
 						if ($Data instanceof Group)
 						{
-							foreach((array)$Data->get('hosts') AS $Host)
+							foreach((array)$Data->get('hosts') AS &$Host)
 							{
 								if ($Host && $Host->isValid() && !$Host->get('pending'))
 									$success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
@@ -546,7 +532,7 @@ abstract class FOGPage extends FOGBase
 		$this->templates = array(
 			'<a href="?node='.$this->node.'&sub=edit&id=${id}">${name}</a>',
 		);
-		foreach ((array)explode(',',$_REQUEST[strtolower($this->childClass).'IDArray']) AS $id)
+		foreach ((array)explode(',',$_REQUEST[strtolower($this->childClass).'IDArray']) AS &$id)
 		{
 			$Obj = $this->getClass($this->childClass,$id);
 			if ($Obj && $Obj->isValid() && !$Obj->get('protected'))
@@ -580,7 +566,7 @@ abstract class FOGPage extends FOGBase
 	  */
 	public function deleteconf()
 	{
-		foreach($_SESSION['delitems'][$this->node] AS $id)
+		foreach($_SESSION['delitems'][$this->node] AS &$id)
 		{
 			$Obj = $this->getClass($this->childClass,$id);
 			if ($Obj && $Obj->isValid() && !$Obj->get('protected'))
@@ -612,7 +598,7 @@ abstract class FOGPage extends FOGBase
 		// Find TaskTypes
 		$TaskTypes = $this->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 0), 'AND', 'id');
 		// Iterate -> Print
-		foreach((array)$TaskTypes AS $TaskType)
+		foreach((array)$TaskTypes AS &$TaskType)
 		{
 			if ($TaskType && $TaskType->isValid())
 			{
@@ -646,7 +632,7 @@ abstract class FOGPage extends FOGBase
 		// Find TaskTypes
 		$TaskTypes = $this->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 1), 'AND', 'id');
 		// Iterate -> Print
-		foreach((array)$TaskTypes AS $TaskType)
+		foreach((array)$TaskTypes AS &$TaskType)
 		{
 			if ($TaskType && $TaskType->isValid())
 			{
@@ -676,14 +662,14 @@ abstract class FOGPage extends FOGBase
 		$ClassType = ucfirst($this->node);
 		$Data = new $ClassType($_REQUEST['id']);
 		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
-		foreach((array)$OUs AS $OU)
+		foreach((array)$OUs AS &$OU)
 			$OUOptions[] = $OU;
 		$OUOPtions = array_filter($OUOptions);
 		if (count($OUOptions) > 1)
 		{
 			$OUs = array_unique((array)$OUOptions);
 			$optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
-			foreach($OUs AS $OU)
+			foreach($OUs AS &$OU)
 			{
 				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
 				$optionOU .= '<option value="'.$opt.'" '.($Data instanceof Host && $Data->isValid() && $Data->get('ADOU') == $opt ? 'selected="selected"' : (preg_match('#;#i',$OU) ? 'selected="selected"' : '')).'>'.$opt.'</option>';
@@ -713,7 +699,7 @@ abstract class FOGPage extends FOGBase
 		printf("%s",'<div id="'.$this->node.'-active-directory" class="organic-tabs-hidden">');
 		printf("%s",'<form method="post" action="'.$this->formAction.'&tab='.$this->node.'-active-directory">');
 		printf("<h2>%s</h2>",_('Active Directory'));
-		foreach((array)$fields AS $field => $input)
+		foreach((array)$fields AS $field => &$input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -769,7 +755,7 @@ abstract class FOGPage extends FOGBase
 			$ip = gethostbyname($ping);
 			if ($ip == $ping)
 				throw new Exception(_('Unable to resolve hostname'));
-			$result = $this->FOGCore->getClass('Ping',$ip)->execute();
+			$result = $this->getClass('Ping',$ip)->execute();
 			if ($result !== true)
 				throw new Exception($result);
 			$SendMe = true;
@@ -927,7 +913,7 @@ abstract class FOGPage extends FOGBase
 			'&nbsp;' => '<input type="submit" value="${label}" />',
 		);
 		$fields = array_filter($fields);
-		foreach($fields AS $field => $input)
+		foreach($fields AS $field => &$input)
 		{
 			$this->data[] = array(
 				'field' => $field,
@@ -990,7 +976,7 @@ abstract class FOGPage extends FOGBase
 			{
 				if ($_REQUEST['delHostConfirm'] == '1')
 				{
-					foreach((array)$Data->get('hosts') AS $Host)
+					foreach((array)$Data->get('hosts') AS &$Host)
 					{
 						if ($Host && $Host->isValid())
 							$Host->destroy();
@@ -1087,7 +1073,7 @@ abstract class FOGPage extends FOGBase
 				array(),
 			);
 			// All hosts not in this group.
-			foreach((array)$Group->get('hostsnotinme') AS $Host)
+			foreach((array)$Group->get('hostsnotinme') AS &$Host)
 			{
 				if ($Host && $Host->isValid() && !$Host->get('pending'))
 				{
@@ -1140,7 +1126,7 @@ abstract class FOGPage extends FOGBase
 				'<small>${image_name}</small>',
 			);
 			$imageSelector = $this->getClass('ImageManager')->buildSelectBox('','','','',true);
-			foreach ((array)$Group->get('hosts') AS $Host)
+			foreach ((array)$Group->get('hosts') AS &$Host)
 			{
 				if ($Host && $Host->isValid())
 				{
@@ -1197,7 +1183,7 @@ abstract class FOGPage extends FOGBase
 				array(),
 			);
 			// All hosts not with this set as the image
-			foreach((array)$Image->get('hostsnotinme') AS $Host)
+			foreach((array)$Image->get('hostsnotinme') AS &$Host)
 			{
 				if ($Host && $Host->isValid())
 				{
@@ -1247,7 +1233,7 @@ abstract class FOGPage extends FOGBase
 				'${deployed}',
 				'${host_reg}',
 			);
-			foreach((array)$Image->get('hosts') AS $Host)
+			foreach((array)$Image->get('hosts') AS &$Host)
 			{
 				if ($Host && $Host->isValid())
 				{
@@ -1296,7 +1282,7 @@ abstract class FOGPage extends FOGBase
 				array(),
 			);
 			// All hosts not with this printer
-			foreach($Printer->get('hostsnotinme') AS $Host)
+			foreach($Printer->get('hostsnotinme') AS &$Host)
 			{
 				if ($Host && $Host->isValid())
 				{
@@ -1352,7 +1338,7 @@ abstract class FOGPage extends FOGBase
 				'<input class="default" type="checkbox" name="default[]" id="host_printer${host_id}"${is_default} value="${host_id}" /><label for="host_printer${host_id}" class="icon icon-hand" title="'._('Default Printer Selection').'">&nbsp;</label><input type="hidden" value="${host_id}" name="hostid[]"/>',
 			);
 			unset($this->data);
-			foreach($Printer->get('hosts') AS $Host)
+			foreach($Printer->get('hosts') AS &$Host)
 			{
 				if ($Host && $Host->isValid())
 				{
@@ -1403,7 +1389,7 @@ abstract class FOGPage extends FOGBase
 				array(),
 			);
 			// All hosts not with this snapin
-			foreach((array)$Snapin->get('hostsnotinme') AS $Host)
+			foreach((array)$Snapin->get('hostsnotinme') AS &$Host)
 			{
 				if ($Host && $Host->isValid())
 				{
@@ -1454,7 +1440,7 @@ abstract class FOGPage extends FOGBase
 				'<small>${deployed}</small>',
 				'<small>${image_name}</small>',
 			);
-			foreach((array)$Snapin->get('hosts') AS $Host)
+			foreach((array)$Snapin->get('hosts') AS &$Host)
 			{
 				if ($Host && $Host->isValid())
 				{
@@ -1493,7 +1479,7 @@ abstract class FOGPage extends FOGBase
 		{
 			if (isset($_REQUEST['updatehosts']))
 			{
-				foreach((array)$Group->get('hosts') AS $Host)
+				foreach((array)$Group->get('hosts') AS &$Host)
 				{
 					if ($Host && $Host->isValid())
 						$Host->set('imageID',$_REQUEST[$Host->get('name').'_'.$Host->get('id')])->save();

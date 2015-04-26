@@ -251,9 +251,9 @@ function getQueryParams(qs) {
 		if (typeof(FOGPingActive) != 'undefined' && FOGPingActive != 1) return this;
 		// Default Options
 		var Defaults = {
-			Threads:	1000,
-			Delay:	PingDelay,
-			UpdateStatus:	true
+			Threads: 100,
+			Delay: PingDelay,
+			UpdateStatus: true
 		};
 		// Variables
 		var Options = $.extend({}, Defaults, opts || {});
@@ -290,38 +290,33 @@ function getQueryParams(qs) {
 			element = $(element);
 			// Get element's TR - this contains hostname data
 			var tr = element.parents('tr');
+			var hostname = tr.find('td > a[id^=host-]').attr('id');
+			hostname = (typeof(hostname) !== 'undefined' ? hostname.replace(/^host-/,'') : false);
 			// Extract hostname
-			var hostname =  tr.data('host_name') || tr.attr('id') && tr.attr('id').replace(/^host-/, '') || tr.children("[id]").attr('id').replace(/^host-/, ''); 
 			// If we found the Hostname
 			if (hostname) {
 				element.data('fog-ping', $.ajax({
 					url: '../management/index.php',
-					cache: false,
 					type: 'POST',
 					data: {
 						node: 'host',
 						sub: 'getPing',
-						ping: hostname
+						ping: hostname,
+						timeout: Options.Delay / 1000
 					},
-					dataType: 'text',
+					//dataType: 'text',
 					beforeSend: function() {
 						element.addClass('icon').addClass('icon-loading');
 					},
 					success: function(data) {						
 						element.removeClass('icon-loading');
+						var codes = new Array();
+						codes = [['Host Down','icon-ping-down'],['Host Up','icon-ping-up']];
 						//alert(hostname + data);
-						if (data == "1") {
-							element.attr('title', 'Host up').addClass('icon-ping-up');
-						} else if (data == "0") {
-							element.attr('title', 'Host down').addClass('icon-ping-down');
-						} else if (data == "99") {
-							element.attr('title', 'FOG Session Invalid').addClass('icon-ping-error');
-						} else if (data == "98") {
-							element.attr('title', 'No host passed to ping').addClass('icon-ping-error');
-						} else if (data == "97") {
-							element.attr('title', 'Ping disabled via FOG Configuration').addClass('icon-ping-error');
+						if ($.inArray(data,['0','1']) !== -1) {
+							element.attr('title',codes[data][0]).addClass(codes[data][1]);
 						} else {
-							element.attr('title', data).addClass('icon-ping-error');
+							element.attr('title',data).addClass('icon-ping-error');
 						}
 						// Tooltip
 						element.tipsy({gravity:'s'});

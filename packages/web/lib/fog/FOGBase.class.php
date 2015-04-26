@@ -161,14 +161,13 @@ abstract class FOGBase
 	}
 	/** formatByteSize
 	  * @param $size the size in byptes to format
-	  * @return $size retunres the size formatted neatly.
+	  * @return $size returnes the size formatted neatly.
 	  */
 	public function formatByteSize($size)
 	{
-		$units = array('%3.2f iB','%3.2f KiB','%3.2f MiB','%3.2f GiB','%3.2f TiB','%3.2f PiB','%3.2f EiB','%3.2f ZiB','%3.2f YiB');
-		for($i = 0; $size >= 1024 && $i < count($units) - 1; $i++)
-			$size /= 1024;
-		return sprintf($units[$i],round($size,2));
+		$units = array('iB','KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
+		$factor = floor((strlen($size) - 1)/3);
+		return sprintf('%3.2f %s',$size/pow(1024,$factor),@$units[$factor]);
 	}
 	/** array_insert_before()
 	  * Inserts a new key/value before the key in the array.
