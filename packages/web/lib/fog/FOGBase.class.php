@@ -23,6 +23,8 @@ abstract class FOGBase
 	public $imagelink;
 	/** $EventManager the EventManager class */
 	public $EventManager;
+	/** $FOGURLRequests the FOGURLRequests class */
+	public $FOGURLRequests;
 	/** $db Legacy calls for $db/$conn */
 	public $db;
 	/** $conn Legacy calls for $db/$conn */
@@ -45,6 +47,7 @@ abstract class FOGBase
 		$this->EventManager = $GLOBALS['EventManager'];
 		$this->foglang = $GLOBALS['foglang'];
 		$this->TimeZone = $GLOBALS['TimeZone'];
+		$this->FOGURLRequests = $GLOBALS['FOGURLRequests'];
 		$this->imagelink = $_SESSION['imagelink'];
 		$this->searchPages = array('user','host','group','image','snapin','printer','tasks','hosts');
 	}

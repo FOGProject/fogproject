@@ -241,7 +241,9 @@ $FOGCore->setSessionEnv();
 /** $EventManager initiates the EventManager class */
 $EventManager = new EventManager();
 /** $HookManager initiates the HookManager class */
-$HookManager = new HookManager();
+$FOGCore->HookManager = $HookManager = new HookManager();
+/** $HookManager initiates the FOGURLRequest class */
+$FOGCore->FOGURLRequests = $FOGURLRequests = new FOGURLRequests();
 /** Loads the Hooks */
 $HookManager->load();
 /** Loads the Events */

@@ -44,7 +44,7 @@ class ServerInfo extends FOGPage
 		{
 			$webroot = $this->FOGCore->getSetting('FOG_WEB_ROOT') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/').'/' : '/';
 			$URL = sprintf('http://%s%sstatus/hw.php',$this->FOGCore->resolveHostname($StorageNode->get('ip')),$webroot);
-            if ($ret = $this->FOGCore->fetchURL($URL))
+            if ($ret = $this->FOGURLRequests->process($URL))
 			{
 				$arRet = explode("\n",$ret[0]);
 				$section = 0; //general

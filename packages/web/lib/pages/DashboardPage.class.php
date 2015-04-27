@@ -65,7 +65,7 @@ class DashboardPage extends FOGPage
 		$webroot = '/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/';
 		foreach ((array)$this->getClass('StorageNodeManager')->find(array('isEnabled' => 1,'isGraphEnabled' => 1)) AS $StorageNode)
 		{
-			$version = $this->FOGCore->fetchurl($StorageNode->get('ip').$webroot.'/service/getversion.php');
+			$version = $this->FOGURLRequests->process($StorageNode->get('ip').$webroot.'/service/getversion.php','GET');
 			$options .= "\n\t\t\t".'<option value="'.$StorageNode->get('id').'">'.$StorageNode->get('name').($StorageNode->get('isMaster') == '1' ? " * ({$version[0]})" : '').'</option>';
 		}
 		$options ? print "\n\t\t\t".'<select name="storagesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">'.$options.'</select>' : null;
@@ -136,7 +136,7 @@ class DashboardPage extends FOGPage
 		// Loop each storage node -> grab stats
 		foreach($Nodes AS $StorageNode)
 			$URL[] = sprintf('http://%s/%s?dev=%s', $this->FOGCore->resolveHostname($StorageNode->get('ip')), ltrim($this->FOGCore->getSetting("FOG_NFS_BANDWIDTHPATH"), '/'), $StorageNode->get('interface'));
-		$fetchedData = $this->FOGCore->fetchURL($URL);
+		$fetchedData = $this->FOGURLRequests->process($URL,'GET');
 		$count = 0;
 		$len = count($fetchedData);
 		for ($i = 0;$i < $len; $i++)
@@ -161,7 +161,7 @@ class DashboardPage extends FOGPage
 			{
 				$webroot = $this->FOGCore->getSetting('FOG_WEB_ROOT') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/').'/' : '/';
 				$URL = sprintf('http://%s%sstatus/freespace.php?path=%s',$this->FOGCore->resolveHostname($StorageNode->get('ip')),$webroot,base64_encode($StorageNode->get('path')));
-				if ($Response = $this->FOGCore->fetchURL($URL))
+				if ($Response = $this->FOGURLRequests->process($URL))
 				{
 					// Legacy client
 					if (preg_match('#(.*)@(.*)#', $Response[0], $match))
