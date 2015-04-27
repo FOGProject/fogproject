@@ -1,6 +1,9 @@
 #!/bin/bash
+	
 . /usr/share/fog/lib/funcs.sh
+
 #setupDNS $dns;
+
 cores=$(grep "core id" /proc/cpuinfo|sort -u|wc -l);
 sockets=$(grep "physical id" /proc/cpuinfo|sort -u|wc -l);
 cores=$((cores * sockets));

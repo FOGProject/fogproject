@@ -21,7 +21,7 @@ displayBanner;
 #setupDNS $dns;
 osname="";
 mbrfile="";
-determineOS "$osid";
+determineOS $osid;
 macWinSafe=`echo $mac|sed 's/://g'`;
 cores=$(grep "core id" /proc/cpuinfo|sort -u|wc -l);
 sockets=$(grep "physical id" /proc/cpuinfo|sort -u|wc -l);
@@ -111,7 +111,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 				waittime=0;
 				while [ ! -n "$blPass" ]; do
 					echo -n "		* $queueinfo (";
-					sec2String "$waittime";
+					sec2String $waittime;
 					echo ")"
 					queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
 					blPass=`echo $queueinfo | grep "##"`;
@@ -144,7 +144,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 				waittime=0;
 				while [ ! -n "$blPass" ]; do
 					echo -n "		* $queueinfo (";
-					sec2String "$waittime"
+					sec2String $waittime
 					echo ")"
 					queueinfo=`wget -q -O - "http://${web}service/mc_checkin.php?mac=$mac&type=$type" 2>/dev/null`;
 					blPass=`echo $queueinfo | grep "##"`;

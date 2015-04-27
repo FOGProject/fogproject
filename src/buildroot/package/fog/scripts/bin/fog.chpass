@@ -7,9 +7,12 @@ hd="";
 getHardDisk;
 echo "";
 echo "";
+
 sam="";
 getSAMLoc;
+
 if [ -n "$hd" ]; then
+
 	part="${hd}1";
 	dots "Mounting Windows File System";
 	mkdir /ntfs;
