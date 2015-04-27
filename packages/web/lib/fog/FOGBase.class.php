@@ -557,7 +557,7 @@ abstract class FOGBase
 		}
 		if (!count($MAClist))
 			$MAClist = false;
-		return array_unique($MAClist);
+		return array_unique((array)$MAClist);
 	}
 	/** getActivePlugins() gets the active plugins.
 	  * @return the array of active plugin names.

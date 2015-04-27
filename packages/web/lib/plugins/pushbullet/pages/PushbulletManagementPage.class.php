@@ -5,8 +5,6 @@
  *	Author:		Jbob
 
 **/
-require_once(BASEPATH.'/lib/plugins/pushbullet/libs/PushbulletHandler.php');
-
 class PushbulletManagementPage extends FOGPage
 {
 	// Base variables
@@ -113,8 +111,7 @@ class PushbulletManagementPage extends FOGPage
 			if (!$token)
 				throw new Exception('Please enter an access token');
 			
-			$bulletHandler = new PushbulletHandler($token);
-			$userInfo = $bulletHandler->getUserInformation();
+			$userInfo = $this->getClass('PushbulletHandler',$token)->getUserInformation();
 			$Bullet = new Pushbullet(array(
 				'token' => $token,
 				'name'  => $userInfo->name,
