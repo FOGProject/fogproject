@@ -14,7 +14,7 @@ fi
 if [ $percent -lt 10 ]; then
 	percent="0$percent";
 fi
-fog.statusreporter "$mac" "$web" &
+fog.statusreporter $mac $web &
 dots "Checking Mounted File System";
 if [ -f "/images/.mntcheck" ]; then
 	echo "Done";
@@ -33,6 +33,7 @@ if [ -f "/images/.mntcheck" ]; then
 		getHardDisk;
 		echo "Done";
 		dots "Re-reading Partition Tables";
+		runPartprobe $hd;
 		echo "Done";
 		echo " * Using Hard Disk: $hd";
 		if [ ! -n $hd ]; then
@@ -119,9 +120,9 @@ if [ -f "/images/.mntcheck" ]; then
 			# Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
 			#  Remove pagefile and hibernate file
 			if [ "$osid" == "1" -o "$osid" == "2" ]; then
-				removePageFile "$part";
+				removePageFile $part;
 			elif [ "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" ]; then
-				removePageFile "$win7sys";
+				removePageFile $win7sys;
 			fi
 			debugPause
 			# Windows 2000/XP:
@@ -158,7 +159,7 @@ if [ -f "/images/.mntcheck" ]; then
 			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "3" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				for part in $parts; do
-					shrinkPartition "$part" "${imagePath}/d1.original.fstypes";
+					shrinkPartition $part "${imagePath}/d1.original.fstypes";
 				done
 				gptorMBRSave "$hd" "$imagePath";
 				debugPause
@@ -171,10 +172,11 @@ if [ -f "/images/.mntcheck" ]; then
 			#  Restore the MBR
 			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
 				dots "Checking Hard Disks";
+				runPartprobe $hd;
 				echo "Done";
 				debugPause;
 				if [ "$osid" != "50" ]; then
-					resetFlag "$part";
+					resetFlag $part;
 				fi
 				debugPause;
 				echo "";
@@ -208,6 +210,7 @@ if [ -f "/images/.mntcheck" ]; then
 				fdisk $hd &>/dev/null << EOFRESTOREPART
 w
 EOFRESTOREPART
+				runPartprobe $hd;
 				echo "Done";
 				debugPause;
 				if [ "$osid" == "2" ]; then
@@ -224,7 +227,7 @@ EOFRESTOREPART
 			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				for part in $parts; do
-					expandPartition "$part";
+					expandPartition $part;
 				done
 			fi
 		elif [ "$imgType" == "mps" ]; then

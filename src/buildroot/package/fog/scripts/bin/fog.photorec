@@ -9,6 +9,7 @@ getHardDisk;
 echo "";
 echo "";
 if [ -n "$hd" ]; then
+
 	echo -n " * Mounting File System........................";
 	mkdir /images;
 	mount -o nolock ${storage} /images 
@@ -18,13 +19,17 @@ if [ -n "$hd" ]; then
 	echo "      ${hd}";
 	echo "";
 	sleep 2;
+
 	photorec ${hd}1;
 	sleep 5;
 	echo "";
+	
 	queueinfo="";
 	cd /tmp			
 	wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
 	queueinfo=`cat co.txt`;
+	
+
 	while [ "$queueinfo" != "##" ]
 	do
 		echo "       * $queueinfo";
@@ -33,10 +38,13 @@ if [ -n "$hd" ]; then
 		queueinfo=`cat co.txt`;
 		sleep 5;
 	done  
+
 	echo "";
 	echo " * Database updated!";
 	echo "";	
+	
 	echo " Task Complete";
+	
 else
 	echo "hard disk not found!";
 fi

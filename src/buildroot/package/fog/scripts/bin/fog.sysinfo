@@ -1,6 +1,8 @@
 #!/bin/bash
+
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.donate
+
 for arg in `cat /proc/cmdline`; do
     case "$arg" in
 	initsh)
@@ -10,17 +12,26 @@ for arg in `cat /proc/cmdline`; do
 	    ;;
     esac
 done
+
 clearScreen;
+
 displayBanner;
+
 #setupDNS ${dns}
+
 mac=`getMACAddresses`
+
 echo 
 echo
 echo "   System MAC Address: ${mac}";
 echo
+
+
 blreboot="0";
+
 while [ "$blreboot" = "0" ]
 do
+	
 	echo
 	echo "   1) Reboot"
 	echo "   2) IP Information"
@@ -30,8 +41,10 @@ do
 	echo "   6) Display MAC Address"
 	echo "   7) Show DMI Information"
 	echo 
+
 	echo -n "   Please enter your choice: "
 	read choice;	
+
 	if [ "$choice" == "1" ]
 	then 
 		blreboot="1"
@@ -64,18 +77,23 @@ do
 		echo 
 		echo "   FOG Compatibility Test";
 		echo "   ======================";
+		
 		blDiskOk="0";
 		blNicOk="0";
 		tmpDisk=`parted --list | grep "Disk"`
+		
 		if [ "$tmpDisk" != "" ]
 		then
 			blDiskOk="1";
 		fi 
+		
 		tmpNic=`ifconfig | grep "HWaddr"`;
+		
 		if [ "$tmpNic" != "" ]
 		then
 			blNicOk="1";
 		fi 		
+		
 		echo 
 		echo
 		if [ "$blNicOk" = "1" ] && [ "$blDiskOk" = "1" ]
@@ -162,6 +180,7 @@ do
 	elif [ "$choice" == "7" ]
 	then
 		clearScreen
+		
 		test="bios-vendor bios-version bios-release-date system-manufacturer system-product-name system-version system-serial-number system-uuid baseboard-manufacturer baseboard-product-name baseboard-version baseboard-serial-number baseboard-asset-tag chassis-manufacturer chassis-type chassis-version chassis-serial-number chassis-asset-tag processor-family processor-manufacturer processor-version processor-frequency" 
 		oIFS=$IFS;
 		IFS=' '
@@ -189,4 +208,5 @@ do
 	fi
 	clearScreen
 done;
+
 
