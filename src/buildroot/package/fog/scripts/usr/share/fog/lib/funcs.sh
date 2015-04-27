@@ -22,7 +22,7 @@ dots()
 		n=`expr $max - ${#1}`
 		echo -n " * ${1:0:max}"
 		if [ "$n" -gt 0 ]; then
-			for ((x = 0; x < n; x++)); do
+			for i in $(seq $n); do
 				printf %s .
 			done
 		fi
@@ -59,9 +59,9 @@ expandPartition()
 	fi
 	if [ -n "$fixed_size_partitions" ]; then
 		local partNum=`echo $1 | sed -r 's/^[^0-9]+//g'`;
-		is_fixed=`echo "$fixed_size_partitions" | egrep ':'${partNum}':|^'${partNum}':|:'${partNum}'$' | wc -l`;
+		is_fixed=`echo $fixed_size_partitions | egrep "(${partNum}|^${partNum}|${partNum}$)" | wc -l`;
 		if [ "$is_fixed" == "1" ]; then
-			dots "Not expanding ("$1") fixed size";
+			dots "Not expanding ($1) fixed size";
 			echo "Done";
 			debugPause;
 			return;
@@ -70,7 +70,7 @@ expandPartition()
 	do_reset_flag="0"
 	fstype=`fsTypeSetting $1`;
 	if [ "$fstype" == "ntfs" ]; then
-		dots "Resizing ntfs volume ("$1")";
+		dots "Resizing ntfs volume ($1)";
 		ntfsresize $1 -f -b -P &>/dev/null << EOFNTFSRESTORE
 Y
 EOFNTFSRESTORE
@@ -81,12 +81,13 @@ EOFNTFSRESTORE
 		resize2fs $1 &>/dev/null;
 		e2fsck -fp $1 &>/dev/null; # prevent fsck at first boot of restored system
 	else
-		dots "Not expanding ("$1" "$fstype")";
+		dots "Not expanding ($1 $fstype)";
 	fi
+	runPartprobe "$hd";
 	echo "Done";
 	debugPause;
 	if [ "$do_reset_flag" == "1" ]; then
-		resetFlag $1;
+		resetFlag "$1";
 	fi
 }
 # $1 is the partition
@@ -111,8 +112,7 @@ fsTypeSetting()
 # $1 is the partition
 getPartType()
 {
-	parttype=`blkid -po udev $1 | grep PART_ENTRY_TYPE | awk -F'=' '{print $2}'`;
-	echo $parttype;
+	echo `blkid -po udev $1 | grep PART_ENTRY_TYPE | awk -F'=' '{print $2}'`;
 }
 # $1 is the partition
 # Returns the size in bytes.
@@ -120,16 +120,14 @@ getPartSize()
 {
 	block_part_tot=`blockdev --getsz $1`;
 	part_block_size=`blockdev --getpbsz $1`;
-	partsize=`awk "BEGIN{print $block_part_tot * $part_block_size}"`;
-	echo $partsize;
+	echo `awk "BEGIN{print $block_part_tot * $part_block_size}"`;
 }
 # Returns the size in bytes.
 getDiskSize()
 {
 	block_disk_tot=`blockdev --getsz $hd`;
 	disk_block_size=`blockdev --getpbsz $hd`;
-	disksize=`awk "BEGIN{print $block_disk_tot * $disk_block_size}"`;
-	echo $disksize;
+	echo `awk "BEGIN{print $block_disk_tot * $disk_block_size}"`;
 }
 validResizeOS()
 {
@@ -204,14 +202,14 @@ y
 FORCEY
 			echo "Done";
 			debugPause;
-			resetFlag $1;
+			resetFlag "$1";
 		fi
 		if [ "$do_resizepart" == "1" ]; then
 			dots "Resizing partition $1";
 			if [ "$osid" == "1" -o "$osid" == "2" ]; then
 				resizePartition "$1" "$sizentfsresize"
 				if [ "$osid" == "2" ]; then
-					correctVistaMBR $hd;
+					correctVistaMBR "$hd";
 				fi
 			elif [ "$win7partcnt" == "1" ]; then
 				win7part1start=`parted -s $hd u kB print | sed -e '/^.1/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
@@ -231,7 +229,6 @@ FORCEY
 				adjustedfdsize=`expr $sizefd '+' 1048576`;
 				resizePartition "$1" "$adjustedfdsize"
 			fi
-			runPartprobe $hd;
 		fi
 	elif [ "$fstype" == "extfs" ]; then
 		dots "Checking $fstype volume ($1)";
@@ -253,13 +250,13 @@ FORCEY
 		resizePartition "$1" "$sizeextresize"
 		echo "Done";
 		debugPause;
-		runPartprobe $hd;
 		dots "Resizing $fstype volume ($1)";
 		resize2fs $1 &>/dev/null;
 		e2fsck -fp $1 &>/dev/null; # prevent fsck at first boot after uploaded system
 	else
 		dots "Not shrinking ($1 $fstype)";
 	fi
+	runPartprobe "$hd";
 	echo "Done";
 	debugPause;
 }
@@ -286,7 +283,7 @@ countNtfs()
 	if [ -n "$1" ]; then
 		parts=`fogpartinfo --list-parts $1 2>/dev/null`;
 		for part in $parts; do
-			fstype=`fsTypeSetting $part`;
+			fstype=`fsTypeSetting "$part"`;
 			if [ "$fstype" == "ntfs" ]; then
 				count=`expr $count '+' 1`;
 			fi
@@ -304,7 +301,7 @@ countExtfs()
 	if [ -n "$1" ]; then
 		parts=`fogpartinfo --list-parts $1 2>/dev/null`;
 		for part in $parts; do
-			fstype=`fsTypeSetting $part`;
+			fstype=`fsTypeSetting "$part"`;
 			if [ "$fstype" == "extfs" ]; then
 				count=`expr $count '+' 1`;
 			fi
@@ -394,6 +391,7 @@ makeAllSwapSystems()
 			makeSwapSystem "${imagePath}/d${driveNum}.original.swapuuids" "$part";
 		fi
 	done
+	runPartprobe "$drive";
 }
 
 changeHostname()
@@ -649,19 +647,14 @@ getHardDisk() {
 	else
 		for i in `lsblk -dpno KNAME|sort`; do
 			hd="$i";
-			partcount=`getPartitionCount $hd`;
+			runPartprobe "$hd";
+			partcount=`getPartitionCount "$hd"`;
 			if [ ! "$partcount" -gt 0 ]; then
-				fdisk $hd &>/dev/null << EOF
-n
-p
-1
-
-
-w
-EOF
+				parted -s $disk mklabel msdos;
+				parted -s $disk -a opt mkpart primary ntfs 2048s -- -1s &>/dev/null;
 			fi
-			runPartprobe $hd;
-			partcount=`getPartitionCount $hd`;
+			runPartprobe "$hd";
+			partcount=`getPartitionCount "$hd"`;
 			if [ ! "$partcount" -gt 0 ]; then
 				handleError "Failed to initialize disk";
 			fi
@@ -741,7 +734,7 @@ handleError()
 		if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
 			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 			for part in $parts; do
-				expandPartition $part;
+				expandPartition "$part";
 			done
 		fi
 	fi
@@ -788,7 +781,6 @@ runPartprobe()
 	if [ "$?" != "0" ]; then
 		handleError "Failed to read back partitions";
 	fi
-	sleep 3;
 }
 
 debugCommand()
@@ -902,6 +894,7 @@ restoreGRUB()
 		local count=1;
 	fi
 	dd if="${tmpMBR}" of="${disk}" bs=512 count="${count}" &>/dev/null;
+	runPartprobe "$disk";
 }
 
 debugPause()
@@ -943,6 +936,7 @@ savePartitionTablesAndBootLoaders()
 	else
 		dots "Skipping partition tables and MBR";
 	fi
+	runPartprobe "$disk";
 	echo "Done";
 	debugPause;
 }
@@ -952,12 +946,13 @@ clearPartitionTables()
 	local disk=$1;
 	dots "Erasing current MBR/GPT Tables";
 	sgdisk -Z $disk >/dev/null;
-	runPartprobe $disk;
+	runPartprobe "$disk";
 	echo "Done";
 	debugPause;
 	dots "Creating disk with new label";
 	parted -s $disk mklabel msdos;
-	runPartprobe $disk;
+	parted -s $disk -a opt mkpart primary ntfs 2048s -- -1s &>/dev/null;
+	runPartprobe "$disk";
 	echo "Done";
 	debugPause;
 }
@@ -1010,7 +1005,7 @@ restorePartitionTablesAndBootLoaders()
 					dots "No extended partitions";
 				fi
 			fi
-			runPartprobe $disk;
+			runPartprobe "$disk";
 			echo "Done";
 			debugPause;
 			sleep 3;
@@ -1102,9 +1097,9 @@ restorePartition()
 	partNum=${part:$diskLength};
 	echo " * Processing Partition: $part ($partNum)";
 	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ] && [ "$mc" == "yes" ]; then
-		writeImageMultiCast $part
+		writeImageMultiCast "$part"
 		debugPause;
-		resetFlag $part;
+		resetFlag "$part";
 	elif [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
 		if [ -f "$imagePath" ]; then
 			imgpart="$imagePath";
@@ -1131,10 +1126,11 @@ restorePartition()
 		if [ ! -f $imgpart ]; then
 			echo " * Partition File Missing: $imgpart";
 		else
-			writeImage "$imgpart" $part;
+			writeImage "$imgpart" "$part";
 			debugPause;
 		fi
-		resetFlag $part;
+		runPartprobe "$hd";
+		resetFlag "$part";
 	else
 		dots "Skipping partition $partNum";
 		echo "Done";
@@ -1176,6 +1172,7 @@ EOF
 		echo "Failed";
 		handleError "Could not fix partition layout" "yes";
 	else
+		runPartprobe "$1";
 		echo "Done";
 	fi
 }
