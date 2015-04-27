@@ -86,9 +86,9 @@ class StorageNode extends FOGController
 						$MulticastJobID[] = $MulticastJob->get('id');
 				}
 			}
-			$MulticastJobID = array_unique($MulticastJobID);
+			$MulticastJobID = array_unique((array)$MulticastJobID);
 			$countTasks = count($MulticastJobID);
-			$UsedTasks = array_values($UsedTasks);
+			$UsedTasks = array_values((array)$UsedTasks);
 		}
 		$countTasks += $this->getClass('TaskManager')->count(array(
 			'stateID' => 3,

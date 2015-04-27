@@ -6,7 +6,7 @@ class ServiceManager extends FOGManagerController
     {   
 		foreach($this->find('','','category') AS $Service)
 			$Cats[] = $Service->get('category');
-		$Cat = array_unique($Cats);
+		$Cat = array_unique((array)$Cats);
         return $Cat;
     } 
 }

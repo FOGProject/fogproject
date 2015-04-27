@@ -6,8 +6,8 @@ class FOGURLRequests extends FOGBase {
 		$ProxyUsed = false;
 		if ($this->DB && $this->FOGCore->getSetting('FOG_PROXY_IP')) {
 			foreach($this->getClass('StorageNodeManager')->find() AS $StorageNode) $IPs[] = $this->FOGCore->resolveHostname($StorageNode->get('ip'));
-			$IPs = array_filter(array_unique($IPs));
-			if (!preg_match('#('.implode('|',$IPs).')#i',$URL)) $ProxyUsed = true;
+			$IPs = array_filter(array_unique((array)$IPs));
+			if (!preg_match('#('.implode('|',(array)$IPs).')#i',$URL)) $ProxyUsed = true;
 			$username = $this->FOGCore->getSetting('FOG_PROXY_USERNAME');
 			$password = $this->FOGCore->getSetting('FOG_PROXY_PASSWORD');
 		}

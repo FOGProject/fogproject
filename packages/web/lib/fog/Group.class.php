@@ -221,7 +221,7 @@ class Group extends FOGController
 	{
 		foreach ($this->get('hosts') AS $Host)
 			$images[] = $Host->get('imageID');
-		$images = array_unique($images);
+		$images = array_unique((array)$images);
 		return (count($images) == 1 ? true : false);
 	}
 	public function destroy($field = 'id')
