@@ -647,9 +647,11 @@ getHardDisk() {
 	else
 		for i in `lsblk -dpno KNAME|sort`; do
 			hd="$i";
+			runPartprobe "$hd";
 			partcount=`getPartitionCount "$hd"`;
 			if [ ! "$partcount" -gt 0 ]; then
-				clearPartitionTables "$hd";
+				parted -s $disk mklabel msdos;
+				parted -s $disk -a opt mkpart primary ntfs 2048s -- -1s &>/dev/null;
 			fi
 			runPartprobe "$hd";
 			partcount=`getPartitionCount "$hd"`;
