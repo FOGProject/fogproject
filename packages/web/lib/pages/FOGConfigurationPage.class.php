@@ -44,7 +44,7 @@ class FOGConfigurationPage extends FOGPage
 		// Set title
 		$this->title = _('FOG Version Information');
 		print "\n\t\t\t<p>"._('Version: ').FOG_VERSION.'</p>';
-		$URLVersion = $this->FOGCore->fetchURL('http://fogproject.org/version/index.php?version='.FOG_VERSION);
+		$URLVersion = $this->FOGURLRequests->process('http://fogproject.org/version/index.php?version='.FOG_VERSION,'GET');
 		print "\n\t\t\t".'<p><div class="sub">'.$URLVersion[0].'</div></p>';
 	}
 	// Licence
@@ -79,7 +79,7 @@ class FOGConfigurationPage extends FOGPage
 	public function kernel_update()
 	{
 		$this->kernelselForm('pk');
-		$htmlData = $this->FOGCore->fetchURL('http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version='.FOG_VERSION);
+		$htmlData = $this->FOGURLRequests->process('http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version='.FOG_VERSION,'GET');
 		print $htmlData[0];
 	}
 	/** kernelselForm($type)
@@ -115,22 +115,22 @@ class FOGConfigurationPage extends FOGPage
 			{
 				case 'pk':
 					$this->kernelselForm('pk');
-					$htmlData = $this->FOGCore->fetchURL("http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version=" . FOG_VERSION);
+					$htmlData = $this->FOGURLRequests->process("http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version=" . FOG_VERSION,'GET');
 					print $htmlData[0];
 					break;
 				case 'uk':
 					$this->kernelselForm('uk');
-					$htmlData = $this->FOGCore->fetchURL("http://mastacontrola.com/fogboot/kernel/index.php?version=" . FOG_VERSION);
+					$htmlData = $this->FOGURLRequests->process("http://mastacontrola.com/fogboot/kernel/index.php?version=" . FOG_VERSION,'GET');
 					print $htmlData[0];
 					break;
 				case 'ok':
 					$this->kernelselForm('ok');
-					$htmlData = $this->FOGCore->fetchURL("http://freeghost.sourceforge.net/kernelupdates/index.php?version=".FOG_VERSION);
+					$htmlData = $this->FOGURLRequests->process("http://freeghost.sourceforge.net/kernelupdates/index.php?version=".FOG_VERSION,'GET');
 					print $htmlData[0];
 					break;
 				default:
 					$this->kernelselForm('pk');
-					$htmlData = $this->FOGCore->fetchURL("http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version=" . FOG_VERSION);
+					$htmlData = $this->FOGURRequestsL("http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version=" . FOG_VERSION,'GET');
 					print $htmlData[0];
 					break;
 			}

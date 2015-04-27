@@ -1,48 +1,30 @@
 <?php
-/** Class Name: FOGCore
-	An extension of FOGBase, again, don't edit unless
-	you know what you're doing.
-	Used by many methods.
-
-	Legacy items need to be checked and removed, but 
-	this just verifies things for us.
-*/
-class FOGCore extends FOGBase
-{
+class FOGCore extends FOGBase {
 	/** attemptLogin($username,$password)
 		Checks the login and returns the user or nothing if not valid/not exist.
 	*/
-	public function attemptLogin($username,$password)
-	{
+	public function attemptLogin($username,$password) {
 		$User = current($this->getClass('UserManager')->find(array('name' => $username)));
-		if ($User && $User->isValid())
-		{
+		if ($User && $User->isValid()) {
 			if ($User->validate_pw($password))
 				return $User;
 		}
 		return false;
 	}
-
 	/** stopScheduledTask($task)
 		Stops the scheduled task.
 	*/
-	public function stopScheduledTask($task)
-	{
+	public function stopScheduledTask($task) {
 		$ScheduledTask = new ScheduledTask($task->get('id'));
 		return $ScheduledTask->set('isActive',0)->save();
 	}
-	
 	/** redirect($url = '')
 		Redirect the page.
 	*/
-	public function redirect($url = '')
-	{
-		if ($url == '')
-			$url = $_SERVER['PHP_SELF'] . ($_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : '');
-		if (headers_sent())
-			printf('<meta http-equiv="refresh" content="0; url=%s">', $url);
-		else
-		{
+	public function redirect($url = '') {
+		if ($url == '') $url = $_SERVER['PHP_SELF'] . ($_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : '');
+		if (headers_sent()) printf('<meta http-equiv="refresh" content="0; url=%s">', $url);
+		else {
 			header('X-Content-Type-Options: nosniff');
 			header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
 			header('X-XSS-Protection: 1; mode=block');
@@ -51,211 +33,153 @@ class FOGCore extends FOGBase
 			header("Location: $url");
 		}
 		exit;
-
 	}
-	
 	/** setMessage(,$txt, $data = array())
 		Sets the message at the top of the screen (e.g. 14 Active Tasks Found)
 	*/
-	public function setMessage($txt, $data = array())
-	{
+	public function setMessage($txt, $data = array()) {
 		$_SESSION['FOG_MESSAGES'] = (!is_array($txt) ? array(vsprintf($txt, $data)) : $txt);
 		return $this;
 	}
-	
 	/** getMessage()
 		Get's the current message in the store to display to the screen
 	*/
-	public function getMessages()
-	{
+	public function getMessages() {
 		print "<!-- FOG Variables -->\n";
 		$cnt = 0;	
-		foreach ((array)$_SESSION['FOG_MESSAGES'] AS $message)
-		{
+		foreach ((array)$_SESSION['FOG_MESSAGES'] AS $message) {
 			// Hook
-			$GLOBALS['HookManager']->processEvent('MessageBox', array('data' => &$message));
+			$this->HookManager->processEvent('MessageBox', array('data' => &$message));
 			// Message Box
 			print ($cnt++ > 0 ? "\t\t" : '').'<div class="fog-message-box">'.$message."</div>\n";
 		}
 		unset($_SESSION['FOG_MESSAGES']);
 	}
-	
 	/** logHistory($string)
 		Logs the actions to the database.
 	*/
-	public function logHistory($string)
-	{
+	public function logHistory($string) {
 		global $conn, $currentUser;
 		$uname = "";
-		if ( $currentUser != null )
-			$uname = $currentUser->get('name');
-		$History = new History(array(
-			'info' => $string,
-			'createdBy' => $uname,
-			'createdTime' => $this->nice_date()->format('Y-m-d H:i:s'),
-			'ip' => $_SERVER[REMOTE_ADDR],
-		));
-		$History->save();
+		if ($currentUser != null) $uname = $currentUser->get('name');
+		$this->getClass('History')
+			 ->set('info',$string)
+			 ->set('createdBy',$uname)
+			 ->set('createdTime',$this->nice_date()->format('Y-m-d H:i:s'))
+			 ->set('ip',$_SERVER[REMOTE_ADDR])
+			 ->save();
 	}
-	
 	/** getSetting($key)
 		Get's global Setting Values
 	*/
-	public function getSetting($key)
-	{
+	public function getSetting($key) {
 		$Service = current($this->getClass('ServiceManager')->find(array('name' => $key)));
 		return $Service && $Service->isValid() ? $Service->get('value') : '';
 	}
-	
 	/** setSetting($key, $value)
 		Set's a new default value.
 	*/
-	public function setSetting($key, $value)
-	{
+	public function setSetting($key, $value) {
 		$ServMan = current($this->getClass('ServiceManager')->find(array('name' => $key)));
-		if ($ServMan && $ServMan->isValid())
-			return $ServMan->set('value',$value)->save();
+		if ($ServMan && $ServMan->isValid()) return $ServMan->set('value',$value)->save();
 		return false;
 	}
-	
 	/** isAJAXRequest()
 		Returns true if ajax is requesting, otherwise false
 	*/
-	public static function isAJAXRequest()
-	{
+	public static function isAJAXRequest() {
 		return (strtolower(@$_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' ? true : false);
 	}
-	
 	/** isPOSTRequest()
 		Returns true if form is method="post"
 	*/
-	public function isPOSTRequest()
-	{
+	public function isPOSTRequest() {
 		return (strtolower(@$_SERVER['REQUEST_METHOD']) == 'post' ? true : false);
 	}
-	
 	/** getMACManufacturer($macprefix)
 		Returns the Manufacturer of the prefix sent if the tables are loaded.
 	*/
-	public function getMACManufacturer($macprefix)
-	{
+	public function getMACManufacturer($macprefix) {
 		$OUI = current($this->getClass('OUIManager')->find(array('prefix' => $macprefix)));
 		return ($OUI && $OUI->isValid() ? $OUI->get('name') : $this->foglang['n/a']);
 	}
-	
 	/** addUpdateMACLookupTable($macprefix,$strMan)
 		Updates/add's MAC Manufacturers
 	*/
-	public function addUpdateMACLookupTable($macprefix)
-	{
+	public function addUpdateMACLookupTable($macprefix) {
 		$this->clearMACLookupTable();
-		foreach($macprefix AS $macpre => $maker)
-			$macArray[] = "('".$this->DB->sanitize($macpre)."','".$this->DB->sanitize($maker)."')";
+		foreach($macprefix AS $macpre => &$maker) $macArray[] = "('".$this->DB->sanitize($macpre)."','".$this->DB->sanitize($maker)."')";
 		$sql = "INSERT INTO `oui` (`ouiMACPrefix`,`ouiMan`) VALUES ".implode((array)$macArray,',');
 		return $this->DB->query($sql);
 	}
-	
 	/** clearMACLookupTable()
 		Clear's all entries in the table.
 	*/
-	public function clearMACLookupTable()
-	{
+	public function clearMACLookupTable() {
 		$OUI = new OUI(array('id' => 0));
 		$this->DB->query("TRUNCATE TABLE ".$OUI->databaseTable);
 		return (!$this->DB->fetch()->get());
 	}
-	
 	/** getMACLookupCount()
 		returns the number of MAC's loaded.
 	*/
-	public function getMACLookupCount()
-	{
+	public function getMACLookupCount() {
 		return $this->getClass('OUIManager')->count();
 	}
-	
-	// Blackout - 10:26 AM 25/05/2011
-	// Used from one of my classes - hacked to make it work
-	// TODO: Make a FOG Utilities Class - include this
-	/** fetchURL($URL)
-		fetches information from external addresses.
-	*/
-	public function fetchURL($URL)
-	{
-		return $this->getClass('FOGURLRequests')->process($URL);
-	}
-
 	/** resolveHostname($host)
 		Returns the hostname.  Useful for Hostname dns translating for the server (e.g. fogserver instead of 127.0.0.1) in the address
 		bar.
 	*/
-	public function resolveHostname($host)
-	{
-		if (filter_var($host,FILTER_VALIDATE_IP))
-			$ip = $host;
-		else
-			$ip = gethostbyname($host);
+	public function resolveHostname($host) {
+		if (filter_var($host,FILTER_VALIDATE_IP)) $ip = $host;
+		else $ip = gethostbyname($host);
 		return $ip;
 	}
-	
 	/** makeTempFilePath()
 		creates the temporary file.
 	*/
-	public function makeTempFilePath()
-	{
+	public function makeTempFilePath() {
 		return tempnam(sys_get_temp_dir(), 'FOG');
 	}
-	
 	/** wakeOnLAN($mac)
 		Wakes systems up with the magic packet.
 	*/
-	public function wakeOnLAN($mac)
-	{
+	public function wakeOnLAN($mac) {
 		// HTTP request to WOL script
-		$this->fetchURL(array(sprintf('http://%s%s?wakeonlan=%s', $this->getSetting('FOG_WOL_HOST'), $this->getSetting('FOG_WOL_PATH'), ($mac instanceof MACAddress ? $mac->__toString() : $mac))));
+		$this->FOGURLRequests->process(array(sprintf('http://%s%s?wakeonlan=%s', $this->getSetting('FOG_WOL_HOST'), $this->getSetting('FOG_WOL_PATH'), ($mac instanceof MACAddress ? $mac->__toString() : $mac))),'GET');
 	}
-	
-	
 	// Blackout - 2:40 PM 25/05/2011
 	/** SystemUptime()
 		Returns the uptime of the server.
 	*/
-	public function SystemUptime()
-	{
+	public function SystemUptime() {
 		$data = trim(shell_exec('uptime'));
-	    
         $tmp = explode(' load average: ', $data);
 		$load = end($tmp);
-		
 		$tmp = explode(' up ',$data);
 		$tmp = explode(',', end($tmp));
 		$uptime = $tmp;
 		$uptime = (count($uptime) > 1 ? $uptime[0] . ', ' . $uptime[1] : 'uptime not found');
-		
 		return array('uptime' => $uptime, 'load' => $load);
 	}
 	/** clear_screen($outputdevice)
 		Clears the screen for information.
 	*/
-	public function clear_screen($outputdevice)
-	{
+	public function clear_screen($outputdevice) {
 		$this->out(chr(27)."[2J".chr(27)."[;H",$outputdevice);
 	}
 	/** wait_interface_ready($interface,$outputdevice)
 		Waits for the network interface to be ready so services operate.
 	*/
-	public function wait_interface_ready($interface,$outputdevice)
-	{
-		while (true)
-		{
+	public function wait_interface_ready($interface,$outputdevice) {
+		while (true) {
 			$retarr = array();
 			exec('netstat -inN',$retarr);
 			array_shift($retarr);
 			array_shift($retarr);
-			foreach($retarr AS $line)
-			{
+			foreach($retarr AS $line) {
 				$t = substr($line,0,strpos($line,' '));
-				if ($t == $interface)
-				{
+				if ($t == $interface) {
 					$this->out('Interface now ready..',$outputdevice);
 					break 2;
 				}
@@ -268,8 +192,7 @@ class FOGCore extends FOGBase
 	/** out($sting, $device, $blLog=false,$blNewLine=true)
 		prints the information to the service log files.
 	*/
-	public function out($string,$device,$blLog=false,$blNewLine=true)
-	{
+	public function out($string,$device,$blLog=false,$blNewLine=true) {
 		($blNewLine ? $strOut = $string."\n" : null);
 		if (!$hdl = fopen($device,'w')) return;
 		if (fwrite($hdl,$strOut) === FALSE) return;
@@ -278,38 +201,25 @@ class FOGCore extends FOGBase
 	/** getDateTime()
 		Returns the date format used at the start of each line in the service lines.
 	*/
-	public function getDateTime()
-	{
+	public function getDateTime() {
 		return $this->nice_date()->format('m-d-y g:i:s a');
 	}
 	/** wlog($string, $path)
 		Writes to the log file and clears if needed.
 	*/
-	public function wlog($string, $path)
-	{
+	public function wlog($string, $path) {
 		if (filesize($path) > LOGMAXSIZE) unlink($path);
-		if (!$hdl = fopen($path,'a'))
-		{
-			$this->out("\n");
-			$this->out(" * Error: Unable to open file: $path");
-			$this->out("\n");
-		}
-		if (fwrite($hdl,sprintf('[%s] %s%s',$this->getDateTime(),$string,"\n")) === FALSE)
-		{
-			$this->out("\n");
-			$this->out(" * Error: Unable to write to file: $path");
-			$this->out("\n");
-		}
+		if (!$hdl = fopen($path,'a')) $this->out("\n * Error: Unable to open file: $path\n");
+		if (fwrite($hdl,sprintf('[%s] %s%s',$this->getDateTime(),$string,"\n")) === FALSE) $this->out("\n * Error: Unable to write to file: $path\n");
 	}
 	/** getIPAddress()
 		Gets the service server's IP address.
 	*/
-	public function getIPAddress()
-	{
+	public function getIPAddress() {
 		$output = array();
 		exec("/sbin/ip addr | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d/ -f1 | awk '{print $2}'", $IPs, $retVal);
 		if (!$IPs)
-			exec("/sbin/ifconfig | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d':' -f 2 | cut -d' ' -f1", $IPs, $retVal);
+			exec("/sbin/ip addr show | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d':' -f 2 | cut -d' ' -f1", $IPs, $retVal);
 		foreach ($IPs AS $IP)
 		{
 			$IP = trim($IP);
