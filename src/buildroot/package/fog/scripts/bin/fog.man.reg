@@ -5,9 +5,7 @@ clearScreen;
 displayBanner;
 hd="";
 getHardDisk;
-
 #setupDNS ${dns}
-
 sysman="";
 sysman64="";
 sysproduct="";
@@ -54,24 +52,16 @@ caseman64="";
 casever64="";
 caseserial64="";
 casesasset64="";
-
-
 echo "";
 echo "";
 if [ -n "$hd" ]; then
 	part=$hd'1';	
 	dots "Using disk device"
 	echo $hd
-	
-
 	echo " * Starting host registration...";
-	
 	mac=`getMACAddresses | base64`;
-	
 	exists=`wget -O - --post-data="mac=${mac}" "http://${web}service/man.hostexists.php" 2>/dev/null`
-	
 	if [ "$exists" = "#!ok" ]; then
-	
 		host="";
 		ip="";
 		productKey="";
@@ -110,7 +100,6 @@ if [ -n "$hd" ]; then
 			queueinfo=`cat co.txt`;
 		done
 		echo
-		
 		while [ "$imageid" = "" ]
 		do
 			echo

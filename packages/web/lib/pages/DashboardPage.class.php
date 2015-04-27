@@ -92,18 +92,12 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t".'<div id="graph-bandwidth" class="graph"></div>';
 		$DateStart = '%'.date('Y-m-d',strtotime('-30 days')).'%';
 		$DateEnd = '%'.date('Y-m-d',time()).'%';
-		for ($i = 0; $i < 30; $i++)
+		for ($i = 0; $i <= 30; $i++)
 			$DatePeriod[] = date('Y-m-d',strtotime('-'.$i.' days'));
-		$ImagingLogs = $this->getClass('ImagingLogManager')->find(array('start' => null,'finish' => null,'type' => array('up','down')),'','','',"BETWEEN '".trim($DateStart,'%')."' AND '".trim($DateEnd,'%')."'");
 		foreach($DatePeriod AS $Date)
 		{
 			$Date = $this->nice_date($Date);
-			$count = 0;
-			foreach($ImagingLogs AS $ImagingLog)
-			{
-				if ($ImagingLog && $ImagingLog->isValid() && date('Y-m-d',strtotime($ImagingLog->get('start'))) == $Date->format('Y-m-d'))
-					$count++;
-			}
+			$count = $this->getClass('ImagingLogManager')->count(array('start' => '%'.$Date->format('Y-m-d').'%','finish' => '%'.$Date->format('Y-m-d').'%'),'OR');
 			$Graph30dayData[] = '["'.(1000*$Date->getTimestamp()).'", '.$count.']';
 		}
 		$ActivityActive = 0;
