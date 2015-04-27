@@ -161,7 +161,7 @@ class DashboardPage extends FOGPage
 			{
 				$webroot = $this->FOGCore->getSetting('FOG_WEB_ROOT') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/').'/' : '/';
 				$URL = sprintf('http://%s%sstatus/freespace.php?path=%s',$this->FOGCore->resolveHostname($StorageNode->get('ip')),$webroot,base64_encode($StorageNode->get('path')));
-				if ($Response = $this->FOGURLRequests->process($URL))
+				if ($Response = $this->FOGURLRequests->process($URL,'GET'))
 				{
 					// Legacy client
 					if (preg_match('#(.*)@(.*)#', $Response[0], $match))
