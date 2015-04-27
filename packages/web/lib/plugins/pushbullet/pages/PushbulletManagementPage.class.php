@@ -119,7 +119,7 @@ class PushbulletManagementPage extends FOGPage
 			));
 			if ($Bullet->save())
 			{
-				$bulletHandler->pushNote('', 'FOG', 'Account linked');
+				$this->getClass('PushbulletHandler',$token)->pushNote('', 'FOG', 'Account linked');
 				$this->FOGCore->setMessage('Account Added!');
 				$this->FOGCore->redirect('?node=pushbullet&sub=list');
 			}
