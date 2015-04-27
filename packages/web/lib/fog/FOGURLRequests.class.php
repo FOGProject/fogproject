@@ -11,7 +11,7 @@ class FOGURLRequests extends FOGBase {
 			$username = $this->FOGCore->getSetting('FOG_PROXY_USERNAME');
 			$password = $this->FOGCore->getSetting('FOG_PROXY_PASSWORD');
 		}
-		$this->handle = curl_multi_init();
+		$this->handle = @curl_multi_init();
 		$this->contextOptions = array(
 			CURLOPT_HTTPGET => true,
 			CURLOPT_FOLLOWLOCATION => true,
@@ -34,12 +34,12 @@ class FOGURLRequests extends FOGBase {
 	public function process($urls, $method = false,$data = null,$sendAsJSON = false,$auth = false,$callback = false,$file = false) {
 		if (!is_array($urls)) $urls = array($urls);
 		foreach ($urls AS &$url) {
-			if ($method && $method == 'GET' && $data !== null) $url .= '?'.http_build_query($data);
-			$ch = curl_init($url);
+			if ($method == 'GET' && $data !== null) $url .= '?'.http_build_query($data);
+			$ch = @curl_init($url);
 			$this->contextOptions[CURLOPT_URL] = $url;
 			if ($auth) $this->contextOptions[CURLOPT_USERPWD] = $auth;
 			if ($file) $this->contextOptions[CURLOPT_FILE] = $file;
-			if ($method && $method == 'POST' && $data !== null) {
+			if ($method == 'POST' && $data !== null) {
 				if ($sendAsJSON) {
 					$data = json_encode($data);
 					$this->contextOptions[CURLOPT_HTTPHEADER] = array(
@@ -52,20 +52,20 @@ class FOGURLRequests extends FOGBase {
 			$this->contextOptions[CURLOPT_CUSTOMREQUEST] = $method;
 			curl_setopt_array($ch,$this->contextOptions);
 			$curl[$url] = $ch;
-			curl_multi_add_handle($this->handle,$ch);
+			@curl_multi_add_handle($this->handle,$ch);
 		}
 		$active = null;
 		do {
-			$mrc = curl_multi_exec($this->handle, $active);
+			$mrc = @curl_multi_exec($this->handle, $active);
 		} while ($mrc == CURLM_CALL_MULTI_PERFORM);
 		while ($active && $mrc == CURLM_OK) {
-			if (curl_multi_select($this->handle) == -1) usleep(1);
+			if (@curl_multi_select($this->handle) == -1) usleep(1);
 			do {
-				$mrc = curl_multi_exec($this->handle,$active);
-				$httpCode = curl_multi_info_read($this->handle);
+				$mrc = @curl_multi_exec($this->handle,$active);
+				$httpCode = @curl_multi_info_read($this->handle);
 				if ($mrc > 0) throw new Exception('cURL Error: '.curl_multi_strerror($mrc));
 				if ($httpCode[0] >= 400) {
-					curl_multi_close($this->handle);
+					@curl_multi_close($this->handle);
 					throw new Exception('cURL HTTP Error Code: '.$httpCode[0]);
 				}
 			} while ($mrc == CURLM_CALL_MULTI_PERFORM);
@@ -73,16 +73,16 @@ class FOGURLRequests extends FOGBase {
 		if (!$file) {
 			foreach($curl AS $url => $ch) {
 				if ($callback) $callback($ch);
-				$response[] = curl_multi_getcontent($ch);
-				curl_multi_remove_handle($this->handle,$ch);
+				$response[] = @curl_multi_getcontent($ch);
+				@curl_multi_remove_handle($this->handle,$ch);
 			}
 			return $response;
 		}
 		else
-			fclose($file);
+			@fclose($file);
 	}
 	public function __destruct()
 	{
-		curl_multi_close($this->handle);
+		@curl_multi_close($this->handle);
 	}
 }
