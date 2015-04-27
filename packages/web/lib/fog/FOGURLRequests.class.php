@@ -19,9 +19,8 @@ class FOGURLRequests extends FOGBase {
 			CURLOPT_SSL_VERIFYPEER => false,
 			CURLOPT_SSL_VERIFYHOST => false,
 			CURLOPT_CONNECTTIMEOUT_MS => 10000,
-			CURLOPT_TIMEOUT_MS => 10000,
+			CURLOPT_TIMEOUT => 300,
 			CURLOPT_ENCODING => '',
-			CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.6.12) Gecko/20110319 Firefox/4.0.1 ( .NET CLR 3.5.30729; .NET4.0E)',
 			CURLOPT_MAXREDIRS => 20,
 			CURLOPT_HEADER => false,
 		);
@@ -71,13 +70,16 @@ class FOGURLRequests extends FOGBase {
 				}
 			} while ($mrc == CURLM_CALL_MULTI_PERFORM);
 		}
-		foreach($curl AS $url => $ch) {
-			if ($callback) $callback($ch);
-			$response[] = curl_multi_getcontent($ch);
-			curl_multi_remove_handle($this->handle,$ch);
-			if ($file) fclose($file);
+		if (!$file) {
+			foreach($curl AS $url => $ch) {
+				if ($callback) $callback($ch);
+				$response[] = curl_multi_getcontent($ch);
+				curl_multi_remove_handle($this->handle,$ch);
+			}
+			return $response;
 		}
-		return $response;
+		else
+			fclose($file);
 	}
 	public function __destruct()
 	{
