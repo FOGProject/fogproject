@@ -493,7 +493,7 @@ class PushbulletHandler
      * @return object Response.
      * @throws PushbulletException
      */
-    private function _curlRequest($url, $method, $data = null, $sendAsJSON = true, $auth = true)
+    private function _curlRequest($url, $method, $data = null, $sendAsJSON = false, $auth = true)
     {
 		$Requests = new FOGURLRequests();
 		$data = $Requests->process($url,$method,$data,$sendAsJSON,($auth ? $this->_apiKey : false),$this->_curlCallback);
