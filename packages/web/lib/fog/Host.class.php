@@ -1014,12 +1014,12 @@ class Host extends FOGController
 		if ($pending)
 		{
 			foreach((array)$addArray AS $item)
-				$this->add('pendingMACs',(($item instanceof MACAddress) ? $item : new MACAddress($item)));
+				$this->add('pendingMACs', $item);
 		}
 		else
 		{
 			foreach((array)$addArray AS $item)
-				$this->add('additionalMACs',(($item instanceof MACAddress) ? $item : new MACAddress($item)));
+				$this->add('additionalMACs', $item);
 		}
 		// Return
 		return $this;

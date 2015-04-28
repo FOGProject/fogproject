@@ -84,7 +84,8 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED'))
 			$Host->addGroup($groupid);
 			$Host->addSnapin($snapinid);
 			$Host->addPriMAC($MACs[0]);
-			$Host->addAddMAC(array_shift($MACs));
+			array_shift($MACs);
+			$Host->addAddMAC($MACs);
 			if ($Host->save())
 			{
 				$LocPlugInst = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
@@ -181,7 +182,8 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED'))
 				$Host->addModule($ids);
 				$Host->addGroup($groupid);
 				$Host->addPriMAC($MACs[0]);
-				$Host->addAddMAC(array_shift($MACs));
+				array_shift($MACs);
+				$Host->addAddMAC($MACs);
 				if ($Host->save())
 				{
 					// If the image is valid and get's the member from the host
@@ -212,7 +214,8 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED'))
 						'createdBy' => 'FOGREG',
 					));
 					$Host->addPriMAC($MACs[0]);
-					$Host->addAddMAC(array_shift($MACs));
+					array_shift($MACs);
+					$Host->addAddMAC($MACs);
 					$Host->addModule($ids);
 					if ($Host->save())
 						print _('Done');
