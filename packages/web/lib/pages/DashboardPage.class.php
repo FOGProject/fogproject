@@ -90,16 +90,8 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t</div>";
 		print "\n\t\t\t".'<div id="graph-bandwidth" class="graph"></div>';
-		$DateStart = '%'.date('Y-m-d',strtotime('-30 days')).'%';
-		$DateEnd = '%'.date('Y-m-d',time()).'%';
 		for ($i = 0; $i <= 30; $i++)
-			$DatePeriod[] = date('Y-m-d',strtotime('-'.$i.' days'));
-		foreach($DatePeriod AS $Date)
-		{
-			$Date = $this->nice_date($Date);
-			$count = $this->getClass('ImagingLogManager')->count(array('start' => '%'.$Date->format('Y-m-d').'%','finish' => '%'.$Date->format('Y-m-d').'%'),'OR');
-			$Graph30dayData[] = '["'.(1000*$Date->getTimestamp()).'", '.$count.']';
-		}
+			$Graph30dayData .= '["'.(1000*$this->nice_date()->modify("-$i days")->getTimestamp()).'", '.$this->getClass('ImagingLogManager')->count(array('start' => $this->nice_date()->modify("-$i days")->format('Y-m-d%'),'finish' => $this->nice_date()->modify("-$i days")->format('Y-m-d%')),'OR').']'.($i < 30 ? ', ' : '');
 		$ActivityActive = 0;
        	$ActivityQueued = 0;
   		$ActivitySlots = 0;
@@ -119,7 +111,7 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t".'<div class="fog-variable" id="ActivityQueued">'.$ActivityQueued.'</div>';
 		print "\n\t\t\t".'<div class="fog-variable" id="ActivitySlots">'.($ActivitySlots < 0 ? 0 : $ActivitySlots).'</div>';
 		print "\n\t\t\t<!-- Variables -->";
-		print "\n\t\t\t".'<div class="fog-variable" id="Graph30dayData">['.implode(', ', (array)$Graph30dayData).']</div>';
+		print "\n\t\t\t".'<div class="fog-variable" id="Graph30dayData">['.$Graph30dayData.']</div>';
 	}
 	/** bandwidth()
 		Display's the bandwidth bar on the dashboard page.
