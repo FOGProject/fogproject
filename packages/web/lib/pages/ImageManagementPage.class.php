@@ -33,6 +33,7 @@ class ImageManagementPage extends FOGPage
 		$SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
 		// Header row
 		$this->headerData = array(
+			'',
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
 			_('Image Name') .'<br /><small>'._('Storage Group').': '._('O/S').'</small><br /><small>'._('Image Type').'</small><br /><small>'._('Partition').'</small>',
 			_('Image Size: ON CLIENT'),
@@ -46,6 +47,7 @@ class ImageManagementPage extends FOGPage
 		);
 		// Row templates
 		$this->templates = array(
+			'${protected}',
 			'<input type="checkbox" name="image[]" value="${id}" class="toggle-action" checked/>',
 			'<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name} - ${id}</a><br /><small>${storageGroup}:${os}</small><br /><small>${image_type}</small><br /><small>${image_partition_type}</small>',
 			'${size}',
@@ -59,6 +61,7 @@ class ImageManagementPage extends FOGPage
 		);
 		// Row attributes
 		$this->attributes = array(
+			array('width' => 5, 'class' => 'c'),
 			array('width' => 16, 'class' => 'c'),
 			array('width' => 50, 'class' => 'l'),
 			array('width' => 50, 'class' => 'c'),
@@ -102,6 +105,7 @@ class ImageManagementPage extends FOGPage
 				$SizeServer ? 'serv_size' : null => $SizeServer ? $servSize : null,
 				'image_type' => $Image->getImageType()->get('name'),
 				'image_partition_type' => $Image->getImagePartitionType()->get('name'),
+				'protected' => '<i class="fa fa-'.(!$Image->get('protected') ? 'un' : '').'lock fa-1x icon hand" title="'.(!$Image->get('protected') ? _('Not Protected') : _('Protected')).'"></i>',
 				'type' => $Image->get('format') ? 'Partimage' : 'Partclone',
 			);
 		}
@@ -137,6 +141,7 @@ class ImageManagementPage extends FOGPage
 				'image_type' => $Image->getImageType()->get('name'),
 				'image_partition_type' => $Image->getImagePartitionType()->get('name'),
 				'type' => $Image->get('format') ? 'Partimage' : 'Partclone',
+				'protected' => '<i class="fa fa-'.(!$Image->get('protected') ? 'un' : '').'lock fa-1x icon hand" title="'.(!$Image->get('protected') ? _('Not Protected') : _('Protected')).'"></i>',
 			);
 		}
 		// Hook
