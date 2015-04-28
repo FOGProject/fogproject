@@ -43,9 +43,21 @@ class FOGConfigurationPage extends FOGPage
 	{
 		// Set title
 		$this->title = _('FOG Version Information');
-		print "\n\t\t\t<p>"._('Version: ').FOG_VERSION.'</p>';
+		print '<p>'._('Version: ').FOG_VERSION.'</p>';
 		$URLVersion = $this->FOGURLRequests->process('http://fogproject.org/version/index.php?version='.FOG_VERSION,'GET');
-		print "\n\t\t\t".'<p><div class="sub">'.$URLVersion[0].'</div></p>';
+		print '<p><div class="sub">'.$URLVersion[0].'</div></p>';
+		print '<h1>Kernel Versions</h1>';
+		$webroot = trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/') .'/': '/';
+		foreach((array)$this->getClass('StorageNodeManager')->find() AS $StorageNode)
+		{
+			$Names[] = $StorageNode->get('name');
+			$URLs[] = "http://{$this->FOGCore->resolveHostname($StorageNode->get(ip))}{$webroot}status/kernelvers.php";
+		}
+		$Responses = $this->FOGURLRequests->process($URLs);
+		foreach($Responses AS $i => $data) {
+			print "<h2>{$Names[$i]}</h2>";
+			print "<pre>$data</pre>";
+		}
 	}
 	// Licence
 	/** license()
