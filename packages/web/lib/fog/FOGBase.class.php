@@ -564,7 +564,9 @@ abstract class FOGBase
 	  */
 	public function getActivePlugins()
 	{
-		return $this->getClass('PluginManager')->find(array('installed' => 1),'','','','','','','name');
+		foreach($this->getClass('PluginManager')->find(array('installed' => 1),'','','','','','','name') AS $name)
+			$res[] = strtolower($name);
+		return $res;
 	}
 	/** array_ksort()
 	  * sorts the array by the keys.

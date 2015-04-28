@@ -1,11 +1,5 @@
 <?php
-/** Class Name: FOGController
-	Controller that extends FOGBase
-	Gets the database information
-	and returns it to be used as needed.
-*/
-abstract class FOGController extends FOGBase
-{
+abstract class FOGController extends FOGBase {
 	/** @var databaseTable
 	  * Sets the databaseTable to perform lookups
 	  */
@@ -70,42 +64,32 @@ abstract class FOGController extends FOGBase
 	/** @param data
 	  * Initializer of the objects themselves.
 	  */
-	public function __construct($data)
-	{
+	public function __construct($data) {
 		/** FOGBase constructor
 		  * Allows the rest of the base of fog to come
 		  * with the object begin called
 		  */
 		parent::__construct();
-		try
-		{
+		try {
 			/** sets if to print controller debug information to screen/log/either/both*/
 			$this->debug = false;
 			/** sets if to print controller general information to screen/log/either/both*/
 			$this->info = false;
 			// Error checking
-			if (!count($this->databaseFields))
-				throw new Exception('No database fields defined for this class!');
+			if (!count($this->databaseFields)) throw new Exception('No database fields defined for this class!');
 			// Flip database fields and common name - used multiple times
 			$this->databaseFieldsFlipped = array_flip($this->databaseFields);
 			// Created By
-			if (array_key_exists('createdBy', $this->databaseFields) && !empty($_SESSION['FOG_USERNAME']))
-				$this->set('createdBy', $this->DB->sanitize($_SESSION['FOG_USERNAME']));
-			if (array_key_exists('createdTime', $this->databaseFields))
-				$this->set('createdTime', $this->nice_date()->format('Y-m-d H:i:s'));
+			if (array_key_exists('createdBy', $this->databaseFields) && !empty($_SESSION['FOG_USERNAME'])) $this->set('createdBy', $this->DB->sanitize($_SESSION['FOG_USERNAME']));
+			if (array_key_exists('createdTime', $this->databaseFields)) $this->set('createdTime', $this->nice_date()->format('Y-m-d H:i:s'));
 			// Add incoming data
-			if (is_array($data))
-				$this->data = $data;
+			if (is_array($data)) $this->data = $data;
 			// If incoming data is an INT -> Set as ID -> Load from database
-			else if (is_numeric($data))
-			{
-				if ($data === 0 || $data < 0)
-					throw new Exception(sprintf('No data passed, or less than zero, Value: %s', $data));
+			else if (is_numeric($data)) {
+				if ($data === 0 || $data < 0) throw new Exception(sprintf('No data passed, or less than zero, Value: %s', $data));
 				$this->set('id', $data)->load();
 			}
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->error('Record not found, Error: %s', array($e->getMessage()));
 		}
 		return $this;
@@ -113,14 +97,10 @@ abstract class FOGController extends FOGBase
 	// Destruct
 	/** __destruct()
 	  * At close of class, it trys to save the information 
-	  *if autoSave is enabled for that class.
+	  * if autoSave is enabled for that class.
+	  * @return void
 	  */
-	public function __destruct()
-	{
-		// Auto save
-		if ($this->autoSave)
-			$this->save();
-	}
+	public function __destruct() {if ($this->autoSave) $this->save();}
 	// Set
 	/** set($key, $value)
 	  * @param $key the key to set
@@ -128,19 +108,13 @@ abstract class FOGController extends FOGBase
 	  *    an array of items too as needed.
 	  * Set's the fields relevent for that class.
 	  */
-	public function set($key, $value)
-	{
-		try
-		{
+	public function set($key, $value) {
+		try {
 			$this->info('Setting Key: %s, Value: %s',array($key,$value));
-			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key,$this->databaseFieldClassRelationships))
-				throw new Exception('Invalid key being set');
-			if (array_key_exists($key, $this->databaseFieldsFlipped))
-				$key = $this->databaseFieldsFlipped[$key];
+			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key,$this->databaseFieldClassRelationships)) throw new Exception('Invalid key being set');
+			if (array_key_exists($key, $this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
 			$this->data[$key] = $value;
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->debug('Set Failed: Key: %s, Value: %s, Error: %s', array($key, $value, $e->getMessage()));
 		}
 		return $this;
@@ -150,10 +124,7 @@ abstract class FOGController extends FOGBase
 	  * Get's all fields or the specified field for the class member.
 	  * @return the data from
 	  */
-	public function get($key = '')
-	{
-		return ($key && isset($this->data[$key]) ? $this->data[$key] : (!$key ? $this->data : ''));
-	}
+	public function get($key = '') {return ($key && isset($this->data[$key]) ? $this->data[$key] : (!$key ? $this->data : ''));}
 	// Add
 	/** add($key, $value)
 	  * @param $key the key to add value into
@@ -162,19 +133,14 @@ abstract class FOGController extends FOGBase
 	  * Used to add a new field to the database relevant to the class.
 	  * Could potentially be used to add a new moderation field to the database??
 	  */
-	public function add($key, $value)
-	{
-		try
-		{
-			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key,$this->databaseFieldClassRelationships))
-				throw new Exception('Invalid data being added');
+	public function add($key, $value) {
+		try {
+			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key,$this->databaseFieldClassRelationships)) throw new Exception('Invalid data being added');
 			$this->info('Adding Key: %s, Value: %s',array($key,$value));
 			if (array_key_exists($key, $this->databaseFieldsFlipped))
 				$key = $this->databaseFieldsFlipped[$key];
 			$this->data[$key][] = $value;
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->debug('Add Failed: Key: %s, Value: %s, Error: %s', array($key, $value, $e->getMessage()));
 		}
 		return $this;
@@ -187,23 +153,16 @@ abstract class FOGController extends FOGBase
 	  * Removes a field from the relevant class caller.
 	  * Can be used to remove fields from the database??
 	  */
-	public function remove($key, $object)
-	{
-		try
-		{
-			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key,$this->databaseFieldClassRelationships))
-				throw new Exception('Invalid data being removed');
-			if (array_key_exists($key, $this->databaseFieldsFlipped))
-				$key = $this->databaseFieldsFlipped[$key];
+	public function remove($key, $object) {
+		try {
+			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key,$this->databaseFieldClassRelationships)) throw new Exception('Invalid data being removed');
+			if (array_key_exists($key, $this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
 			$this->info('Remove attempt: Key: %s, Object: %s', array($key, $object));
 			asort($this->data[$key]);
 			$index = $this->binary_search($object,$this->data[$key]);
-			if ($index > -1)
-				unset($this->data[$key][$index]);
+			if ($index > -1) unset($this->data[$key][$index]);
 			$this->data[$key] = array_values(array_filter($this->data[$key]));
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->debug('Remove Failed: Key: %s, Object: %s, Error: %s', array($key, $object, $e->getMessage()));
 		}
 		return $this;
@@ -212,30 +171,23 @@ abstract class FOGController extends FOGBase
 	/** save()
 	  * @return boolean, returns if the item was saved or not.
 	  */
-	public function save()
-	{
-		try
-		{
+	public function save() {
+		try {
 			// Error checking
-			if (!$this->isTableDefined())
-				throw new Exception('No Table defined for this class');
+			if (!$this->isTableDefined()) throw new Exception('No Table defined for this class');
 			// Variables
 			$fieldData = array();
-			if ($this->aliasedFields)
-				$this->array_remove($this->aliasedFields,$this->databaseFields);
+			if ($this->aliasedFields) $this->array_remove($this->aliasedFields,$this->databaseFields);
 			$fieldsToUpdate = $this->databaseFields;
 			// Build insert key and value arrays
-			foreach ($this->databaseFields AS $name => $fieldName)
-			{
-				if ($this->get($name) != '')
-				{
+			foreach ($this->databaseFields AS $name => $fieldName) {
+				if ($this->get($name) != '') {
 					$insertKeys[] = $fieldName;
 					$insertValues[] = $this->DB->sanitize($this->get($name));
 				}
 			}
 			// Build update field array using filtered data
-			foreach ($fieldsToUpdate AS $name => $fieldName)
-				$updateData[] = sprintf("%s = '%s'", $this->DB->sanitize($fieldName), $this->DB->sanitize($this->get($name)));
+			foreach ($fieldsToUpdate AS $name => $fieldName) $updateData[] = sprintf("%s = '%s'", $this->DB->sanitize($fieldName), $this->DB->sanitize($this->get($name)));
 			// Force ID to update so ID is returned on DUPLICATE UPDATE - No ID was returning when A) Nothing is inserted (already exists) or B) Nothing is updated (data has not changed)
 			$updateData[] = sprintf("%s = LAST_INSERT_ID(%s)", $this->DB->sanitize($this->databaseFields['id']), $this->DB->sanitize($this->databaseFields['id']));
 			// Insert & Update query all-in-one
@@ -245,15 +197,11 @@ abstract class FOGController extends FOGBase
 				implode("', '", (array)$insertValues),
 				implode(', ', $updateData)
 			);
-			if (!$this->DB->query($query))
-				throw new Exception($this->DB->sqlerror());
+			if (!$this->DB->query($query)) throw new Exception($this->DB->sqlerror());
 			// Database query was successful - set ID if ID was not set
-			if (!$this->get('id'))
-				$this->set('id', $this->DB->insert_id());
+			if (!$this->get('id')) $this->set('id', $this->DB->insert_id());
 			$res = $this;
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->debug('Database Save Failed: ID: %s, Error: %s', array($this->get('id'), $e->getMessage()));
 			$res = false;
 		}
@@ -264,31 +212,23 @@ abstract class FOGController extends FOGBase
 	  * @param $field the item to load
 	  * @return boolean, if the class was loaded or not.
 	  */
-	public function load($field = 'id')
-	{
-		try
-		{
+	public function load($field = 'id') {
+		try {
 			// Error checking
-			if (!$this->isTableDefined())
-				throw new Exception('No Table defined for this class');
-			if (!$this->get($field))
-				throw new Exception(sprintf('Operation field not set: %s', strtoupper($field)));
+			if (!$this->isTableDefined()) throw new Exception('No Table defined for this class');
+			if (!$this->get($field)) throw new Exception(sprintf('Operation field not set: %s', strtoupper($field)));
 			list($join,$where) = $this->buildQuery();
 			// Build query
-			if (is_array($this->get($field)))
-			{
+			if (is_array($this->get($field))) {
 				// Multiple values
-				foreach($this->get($field) AS $fieldValue)
-					$fieldData[] = sprintf("%s='%s'", $this->databaseFields[$field], $fieldValue);
+				foreach($this->get($field) AS $fieldValue) $fieldData[] = sprintf("%s='%s'", $this->databaseFields[$field], $fieldValue);
 				$query = sprintf(
 					$this->loadQueryTemplateMultiple,
 					$this->databaseTable,
 					$join,
 					implode(' OR ', $fieldData)
 				);
-			}
-			else
-			{
+			} else {
 				// Single value
 				$query = sprintf(
 					$this->loadQueryTemplateSingle,
@@ -301,9 +241,7 @@ abstract class FOGController extends FOGBase
 			$this->setQuery($this->DB->query($query)->fetch()->get());
 			// Success
 			$res = $this;
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->set('id', 0)->debug('Database Load Failed: ID: %s, Error: %s', array($this->get('id'), $e->getMessage()));
 			$res = false;
 		}
@@ -316,19 +254,13 @@ abstract class FOGController extends FOGBase
 	  * @param $compare not used, but if we need it it's there
 	  * @returns the elements of the query we need
 	  */
-	public function buildQuery($not = false,$compare = '=')
-	{
-		foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
-		{
+	public function buildQuery($not = false,$compare = '=') {
+		foreach((array)$this->databaseFieldClassRelationships AS $class => $fields) {
 			$join[] = sprintf(' LEFT OUTER JOIN %s ON %s.%s=%s.%s ',$this->getClass($class)->databaseTable,$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$fields[0]],$this->databaseTable,$this->databaseFields[$fields[1]]);
-			if ($fields[3])
-			{
-				foreach((array)$fields[3] AS $field => $value)
-				{
-					if (is_array($value))
-						$whereArrayAnd[] = sprintf("%s.%s IN ('%s')",$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$field], implode("','",$value));
-					else
-						$whereArrayAnd[] = sprintf("%s.%s %s '%s'",$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$field],(preg_match('#%#',$value) ? 'LIKE' : $compare),$value);
+			if ($fields[3]) {
+				foreach((array)$fields[3] AS $field => $value) {
+					if (is_array($value)) $whereArrayAnd[] = sprintf("%s.%s IN ('%s')",$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$field], implode("','",$value));
+					else $whereArrayAnd[] = sprintf("%s.%s %s '%s'",$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$field],(preg_match('#%#',$value) ? 'LIKE' : $compare),$value);
 				}
 			}
 		}
@@ -338,13 +270,15 @@ abstract class FOGController extends FOGBase
 	  * @param $queryData
 	  * @return the set class
 	  */
-	public function setQuery($queryData)
-	{
-		$classData = array_intersect_key($queryData,$this->databaseFieldsFlipped);
+	public function setQuery($queryData) {
+		$classData = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
+		$diffClassData = array_diff((array)$queryData,(array)$this->databaseFieldsFlipped);
 		$orderedData = array_merge((array)$this->databaseFieldsFlipped,(array)$classData);
-		$this->data = array_combine((array)array_keys($this->databaseFields),(array)$orderedData);
-		foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
-			$this->set($fields[2],$this->getClass($class)->setQuery($queryData));
+		$this->data = array_combine(array_keys((array)$this->databaseFields),(array)$orderedData);
+		if ($diffClassData) {
+			foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
+				$this->set($fields[2],$this->getClass($class)->setQuery($diffClassData));
+		}
 		return $this;
 	}
 	// Destroy
@@ -352,15 +286,11 @@ abstract class FOGController extends FOGBase
 	  * @param $field the element to search for to remove
 	  * @return boolean if it was good or not.
 	  */
-	public function destroy($field = 'id')
-	{
-		try
-		{
+	public function destroy($field = 'id') {
+		try {
 			// Error checking
-			if (!$this->isTableDefined())
-				throw new Exception('No Table defined for this class');
-			if (!$this->get($field))
-				throw new Exception(sprintf('Operation field not set: %s', strtoupper($field)));
+			if (!$this->isTableDefined()) throw new Exception('No Table defined for this class');
+			if (!$this->get($field)) throw new Exception(sprintf('Operation field not set: %s', strtoupper($field)));
 			// Query row data
 			if (!$this->DB->query(sprintf("DELETE FROM %s WHERE %s='%s'",
 				$this->DB->sanitize($this->databaseTable),
@@ -369,9 +299,7 @@ abstract class FOGController extends FOGBase
 				throw new Exception('Failed to delete');
 			// Success
 			return true;
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->debug('Database Destroy Failed: ID: %s, Error: %s', array($this->get('id'), $e->getMessage()));
 		}
 		// Fail
@@ -382,10 +310,8 @@ abstract class FOGController extends FOGBase
 	  * @param $key the key to test
 	  * @return the flipped key
 	  */
-	public function key($key)
-	{
-		if (array_key_exists($key, $this->databaseFieldsFlipped))
-			$key = $this->databaseFieldsFlipped[$key];
+	public function key($key) {
+		if (array_key_exists($key, $this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
 		return $key;
 	}
 	// isValid
@@ -393,20 +319,11 @@ abstract class FOGController extends FOGBase
 	  *    for the relevant class calling it.
 	  * @return boolean if the item is valid or not
 	  */
-	public function isValid()
-	{
-		try
-		{
-			foreach ($this->databaseFieldsRequired AS $field)
-			{
-				if (!$this->get($field))
-					throw new Exception($foglang['RequiredDB']);
-			}
-			if ($this->get('id') || $this->get('name'))
-				return true;
-		}
-		catch (Exception $e)
-		{
+	public function isValid() {
+		try {
+			foreach ($this->databaseFieldsRequired AS $field) if (!$this->get($field)) throw new Exception($foglang['RequiredDB']);
+			if ($this->get('id') || $this->get('name')) return true;
+		} catch (Exception $e) {
 			$this->debug('isValid Failed: Error: %s', array($e->getMessage()));
 		}
 		return false;
@@ -416,10 +333,8 @@ abstract class FOGController extends FOGBase
 	  * (Image => ImageManager, Host => HostManager, etc...)
 	  * @return the manager itself.
 	  */
-	public function getManager()
-	{
-		if (!is_object($this->Manager))
-		{
+	public function getManager() {
+		if (!is_object($this->Manager)) {
 			$managerClass = get_class($this) . 'Manager';
 			$this->Manager = new $managerClass();
 		}
@@ -430,18 +345,12 @@ abstract class FOGController extends FOGBase
 	/** istableDefined() tests if the table is defined for the class.
 	  * @return boolean
 	  */
-	private function isTableDefined()
-	{
-		return !empty($this->databaseTable);
-	}
+	private function isTableDefined() {return !empty($this->databaseTable);}
 	// Name is returned if class is printed
 	/** __toString()
 	  * @return string name of the class
 	  */
-	public function __toString()
-	{
-		return ($this->get('name') ? $this->get('name') : sprintf('%s #%s', get_class($this), $this->get('id')));
-	}
+	public function __toString() {return ($this->get('name') ? $this->get('name') : sprintf('%s #%s', get_class($this), $this->get('id')));}
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */
