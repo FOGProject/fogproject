@@ -53,7 +53,7 @@ class FOGURLRequests extends FOGBase {
 	  * @param $file whether we're downloading a file or not.  Defaults to false, others takes the file resource
 	  * @return if $file it just closes the handle otherwise it returns the response
 	  */
-	public function process($urls, $method = 'GET',$data = null,$sendAsJSON = false,$auth = false,$callback = false,$file = false) {
+	public function process($urls, $method = false,$data = null,$sendAsJSON = false,$auth = false,$callback = false,$file = false) {
 		if (!is_array($urls)) $urls = array($urls);
 		foreach ($urls AS &$url) {
 			if ($method == 'GET' && $data !== null) $url .= '?'.http_build_query($data);
