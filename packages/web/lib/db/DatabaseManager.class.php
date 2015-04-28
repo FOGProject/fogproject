@@ -1,7 +1,8 @@
 <?php
 class DatabaseManager extends FOGBase {
+	/** @var $valid to know if things are valid or not */
 	private $valid = false;
-	/** $DB the Connection as established */
+	/** @var $DB the Connection as established */
 	public $DB;
 	/** __construct() initiates the database class
 	  * @return if the class is valid or not

@@ -1,34 +1,17 @@
 <?php
-/**	Class Name: HostManagementPage
-    FOGPage lives in: {fogwebdir}/lib/fog
-    Lives in: {fogwebdir}/lib/pages
-    Description: This is an extension of the FOGPage Class
-    This class controls the host management page for FOG.
-    It allows creating and editing of hosts.
-
-    Manages host settings such as:
-    Image Association, Active Directory, Snapin Add and removal,
-    Printer association, and Service configurations.
-**/
-class HostManagementPage extends FOGPage
-{
-	// Base variables
-	var $name = 'Host Management';
-	var $node = 'host';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
-	// __construct
+class HostManagementPage extends FOGPage {
 	/** __construct($name = '')
 		Host default construction for listing the hosts.
 	*/
 	public function __construct($name = '')
 	{
 		// Call parent constructor
-		parent::__construct($name);
+		$this->name = 'Host Management';
+		$this->node = 'host';
+		$this->id = 'id';
+		$this->menu = array();
+		$this->subMenu = array();
+		parent::__construct($this->name);
 		// Header row
 		$this->headerData = array(
 			'',
@@ -1420,20 +1403,18 @@ class HostManagementPage extends FOGPage
 			$handle = fopen($_FILES["file"]["tmp_name"], "r");
 			// Get all the service id's so they can be enabled.
 			$ModuleIDs = $this->getClass('ModuleManager')->find('','','','','','','','id');
-			while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) 
-			{
+			while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
 				// Ignore header data if left in CSV
 				if (preg_match('#ie#',$data[0]))
 					continue;
 				$totalRows++;
-				if (count($data) < 7 && count($data) >= 2)
-				{
-					try
-					{
+				if (count($data) < 7 && count($data) >= 2) {
+					try {
 						// Error checking
-						$Host = $this->getClass('HostManager')->getHostByMacAddresses($data[0]);
+						$MACs = $this->parseMacList($data[0]);
+						$Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);
 						if ($Host && $Host->isValid())
-							throw new Exception('A Host with this MAC Address already exists');
+							throw new Exception('A Host with any or one of these MACs already exists');
 						if($this->getClass('HostManager')->exists($data[1]))
 							throw new Exception('A host with this name already exists');
 						$Host = new Host(array(
@@ -1445,31 +1426,24 @@ class HostManagementPage extends FOGPage
 							'createdBy'	=> $this->FOGUser->get('name'),
 						));
 						$Host->addModule($ModuleIDs);
-						$Host->addPriMAC($data[0]);
-						if ($Host->save())
-						{
+						$Host->addPriMAC($MACs[0]);
+						array_shift($MACs);
+						$Host->addAddMAC($MACs);
+						if ($Host->save()) {
 							$this->HookManager->processEvent('HOST_IMPORT',array('data' => &$data,'Host' => &$Host));
 							$numSuccess++;
-						}
-						else
-							$numFailed++;
-					}
-					catch (Exception $e )
-					{
+						} else $numFailed++;
+					} catch (Exception $e) {
 						$numFailed++;
 						$uploadErrors .= sprintf('%s #%s: %s<br />', _('Row'), $totalRows, $e->getMessage());
 					}					
-				}
-				else
-				{
+				} else {
 					$numFailed++;
 					$uploadErrors .= sprintf('%s #%s: %s<br />', _('Row'), $totalRows, _('Invalid number of cells'));
 				}
 			}
 			fclose($handle);
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$error = $e->getMessage();
 		}
 		// Title
@@ -1526,17 +1500,20 @@ class HostManagementPage extends FOGPage
 		);
 		$report = new ReportMaker();
 		$Hosts = $this->getClass('HostManager')->find();
-		foreach((array)$Hosts AS $Host)
-		{
-			if ($Host && $Host->isValid())
-			{
-				$report->addCSVCell($Host->get('mac'));
+		foreach((array)$Hosts AS $Host) {
+			if ($Host && $Host->isValid()) {
+				$macs[] = $Host->get('mac');
+				foreach($Host->get('additionalMACs') AS $AddMAC) {
+					if ($AddMAC && $AddMAC->isValid()) $macs[] = $AddMAC->__toString();
+				}
+				$report->addCSVCell(implode('|',(array)$macs));
 				$report->addCSVCell($Host->get('name'));
 				$report->addCSVCell($Host->get('ip'));
 				$report->addCSVCell('"'.$Host->get('description').'"');
 				$report->addCSVCell($Host->get('imageID'));
 				$this->HookManager->processEvent('HOST_EXPORT_REPORT',array('report' => &$report,'Host' => &$Host));
 				$report->endCSVLine();
+				unset($macs);
 			}
 		}
 		$_SESSION['foglastreport']=serialize($report);

@@ -1,22 +1,26 @@
 <?php
 class MySQL extends FOGBase {
+	/** @var $link the link after connected */
 	private $link;
+	/** @var $query the query to call */
 	private $query;
+	/** @var $queryResult the result of the query */
 	private $queryResult;
+	/** @var $result the result set */
 	private $result;
 	/** __construct initializes the class
 	  * @return void
 	  */
-	public function __construct()
-	{
+	public function __construct() {
 		parent::__construct();
 		try {
 			$this->debug = false;
 			$this->info = false;
 			if (!class_exists('mysqli')) throw new Exception(sprintf('%s PHP extension not loaded', __CLASS__));
 			if (!$this->connect()) throw new Exception('Failed to connect');
+		} catch (Exception $e) {
+			$this->error(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
-		catch (Exception $e) {$this->error(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));}
 	}
 	/** __destruct destroys the class
 	  * @return void
@@ -34,8 +38,9 @@ class MySQL extends FOGBase {
 			if ($this->link->connect_error) throw new Exception(sprintf('Host: %s, Username: %s, Database: %s, Error: %s', DATABASE_HOST, DATABASE_USERNAME, DATABASE_NAME, $this->sqlerror));
 			$this->link->set_charset('utf8');
 			if (!$this->link->select_db(DATABASE_NAME)) throw new Exception(_('Issue working with the current DB, maybe it has not been created yet'));
+		} catch (Exception $e) {
+			$this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
-		catch (Exception $e) {$this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));}
 		return $this;
 	}
 	/** query performs the db query
@@ -67,8 +72,9 @@ class MySQL extends FOGBase {
 					}
 				} while ($processed < 1);
 			}
+		} catch (Exception $e) {
+			$this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
-		catch (Exception $e) {$this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));}
 		return $this;
 	}
 	/** fetch() fetches the data
@@ -89,8 +95,9 @@ class MySQL extends FOGBase {
 				}
 				else $this->result = $this->queryResult->fetch_assoc();
 			}
+		} catch (Exception $e) {
+			$this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
-		catch (Exception $e) {$this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));}
 		return $this;
 	}
 	/** get() get the information as called
@@ -101,8 +108,9 @@ class MySQL extends FOGBase {
 		try {
 			if ($this->result === false) throw new Exception(_('No data returned'));
 			return ($field && array_key_exists((string)$field,(array)$this->result) ? $this->result[$field] : $this->result);
+		} catch (Exception $e) {
+			$this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
 		}
-		catch (Exception $e) {$this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));}
 		return false;
 	}
 	/** result() result of the query
@@ -144,13 +152,10 @@ class MySQL extends FOGBase {
 	  * @return the sanitized data
 	  */
 	public function sanitize($data) {
-		if (!is_array($data))
-			return $this->clean($data);
+		if (!is_array($data)) return $this->clean($data);
 		foreach ($data AS $key => $val) {
-			if (is_array($val))
-				$data[$this->clean($key)] = $this->escape($val);
-			else
-				$data[$this->clean($key)] = $this->clean($val);
+			if (is_array($val)) $data[$this->clean($key)] = $this->escape($val);
+			else $data[$this->clean($key)] = $this->clean($val);
 		}
 		return $data;
 	}

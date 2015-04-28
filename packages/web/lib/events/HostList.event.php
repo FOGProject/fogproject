@@ -1,9 +1,4 @@
 <?php
-
-/****************************************************
- * Host List Exame
- *	Author:		Jbob
- ***/
 class HostList extends Event {
 	// Class variables
 	var $name = 'HostListEvent';
@@ -11,6 +6,5 @@ class HostList extends Event {
 	var $author = 'Jbob';
 	var $active = false;
 }
-
 // Register hooks with HookManager on desired events
 $EventManager->register('HOST_LIST_EVENT', new HostList());
