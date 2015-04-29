@@ -16,6 +16,14 @@ abstract class Event extends FOGBase {
 	public $logToBrowser = true;
 	/** @var $delformat the link format for deleting from event/hook */
 	public $delformat;
+	/** @function __construct() constructs the base elements
+	  * @return void
+	  */
+	public function __construct() {
+		parent::__construct();
+		if (!$this->FOGUser)
+			$this->FOGUser = unserialize($_SESSION['FOG_USER']);
+	}
 	/** @function run() what to run if anything
 	  * @param $arguments the event/hookevent to enact upon
 	  * @return void

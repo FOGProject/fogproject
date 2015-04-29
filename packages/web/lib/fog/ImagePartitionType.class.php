@@ -1,12 +1,8 @@
 <?php
-
-// Blackout - 1:50 PM 1/12/2011
-class ImagePartitionType extends FOGController
-{
-	// Table
+class ImagePartitionType extends FOGController {
+	/** @var $databaseTable the table to work with */
 	public $databaseTable = 'imagePartitionTypes';
-	
-	// Name -> Database field name
+	/** @var $databaseFields the fields within the table */
 	public $databaseFields = array(
 		'id'		=> 'imagePartitionTypeID',
 		'name'		=> 'imagePartitionTypeName',

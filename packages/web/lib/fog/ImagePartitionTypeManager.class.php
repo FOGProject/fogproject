@@ -1,4 +1,2 @@
 <?php
-class ImagePartitionTypeManager extends FOGManagerController
-{
-}
+class ImagePartitionTypeManager extends FOGManagerController {}

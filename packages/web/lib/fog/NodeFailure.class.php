@@ -1,12 +1,10 @@
 <?php
-// microleaks - Tue 14 Feb 2012 09:38:18 AM CST 
-class NodeFailure extends FOGController
-{
-	// Table
+class NodeFailure extends FOGController {
+	/** @var $databaseTable the table to work with */
 	public $databaseTable = 'nfsFailures';
 	protected $loadQueryTemplateSingle = "SELECT * FROM `%s` WHERE `%s`='%s' AND TIMESTAMP(nfDateTime) BETWEEN TIMESTAMP(DATE_ADD(NOW(), INTERVAL -5 MINUTE)) and TIMESTAMP(NOW())";
 	protected $loadQueryTemplateMultiple = "SELECT * FROM `%s` WHERE (%s) AND TIMESTAMP(nfDateTime) BETWEEN TIMESTAMP(DATE_ADD(NOW(), INTERVAL -5 MINUTE)) and TIMESTAMP(NOW())";
-	// Name -> Database field name
+	/** @var $databaseFields the fields within the table */
 	public $databaseFields = array(
 		'id'			=> 'nfID',
 		'storageNodeID'		=> 'nfNodeID',

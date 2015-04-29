@@ -1,12 +1,8 @@
 <?php
-
-// Blackout - 6:00 PM 5/05/2012
-class TaskLog extends FOGController
-{
-	// Table
+class TaskLog extends FOGController {
+	/** @var $databaseTable the table to work with */
 	public $databaseTable = 'taskLog';
-	
-	// Name -> Database field name
+	/** @var $databaseFields the fields within the table */
 	public $databaseFields = array(
 		'id'		=> 'id',
 		'taskID'	=> 'taskID',
@@ -15,31 +11,24 @@ class TaskLog extends FOGController
 		'createdTime'	=> 'createTime',
 		'createdBy'	=> 'createdBy'
 	);
-	
-	// Overrides
-	public function __construct($data = '')
-	{
-		// FOGController constructor
+	/** @function __construct() the class constructor
+	  * @param $data the data to pass to the parent constructor
+	  * @return sets the ip field to that of the remote server
+	  */
+	public function __construct($data = '') {
 		parent::__construct($data);
-		
-		// Set IP Address -> Return
 		return $this->set('ip', $_SERVER['REMOTE_ADDR']);
 	}
-	
-	
-	// Custom
-	public function getTask()
-	{
-		return new Task( $this->get('taskID') );
-	}
-	
-	public function getTaskState()
-	{
-		return new TaskState( $this->get('taskStateID') );
-	}
-	
-	public function getHost()
-	{
-		return $this->getTask()->getHost();
-	}
+	/** @function getTask() return the task
+	  * @return the task
+	  */
+	public function getTask() {return $this->getClass('Task',$this->get('taskID'));}
+	/** @function getTaskState() return the task state
+	  * @return the task state
+	  */
+	public function getTaskState() {return $this->getClass('TaskState',$this->get('taskStateID'));}
+	/** @function getHost() return the host
+	  * @return the task host
+	  */
+	public function getHost() {return $this->getTask()->getHost();}
 }
