@@ -1,4 +1,2 @@
 <?php
-class ClientUpdaterManager extends FOGManagerController
-{
-}
+class ClientUpdaterManager extends FOGManagerController {}

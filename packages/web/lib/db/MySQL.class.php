@@ -1,5 +1,5 @@
 <?php
-class MySQL extends FOGBase {
+class MySQL extends DatabaseManager {
 	/** @var $link the link after connected */
 	private $link;
 	/** @var $query the query to call */
@@ -128,15 +128,15 @@ class MySQL extends FOGBase {
 	/** insert_id() the last insert id
 	  * @return the value of the id
 	  */
-	public function insert_id() {return ($this->link->insert_id ? $this->link->insert_id : 0);}
+	public function insert_id() {return (int)$this->link->insert_id;}
 	/** affected_rows() the number of affected rows
 	  * @return the number
 	  */
-	public function affected_rows() {return ($this->link->affected_rows ? $this->link->affected_rows : 0);}
+	public function affected_rows() {return (int)$this->link->affected_rows;}
 	/** num_rows() the number of rows.
 	  * @return the number
 	  */
-	public function num_rows() {return ($this->link->num_rows ? $this->link->num_rows : 0);}
+	public function num_rows() {return (int)$this->link->num_rows;}
 	/** escape() escape/clean the data
 	  * @param $data the data to be cleaned
 	  * @return the sanitized data
