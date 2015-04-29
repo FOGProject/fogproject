@@ -125,7 +125,7 @@ class FOGCore extends FOGBase {
 	/** wakeOnLAN($mac)
 		Wakes systems up with the magic packet.
 	*/
-	public function wakeOnLAN($mac) {return $this->FOGURLRequests->process(array(sprintf('http://%s%s?wakeonlan=%s', $this->getSetting('FOG_WOL_HOST'), $this->getSetting('FOG_WOL_PATH'), ($mac instanceof MACAddress ? $mac->__toString() : $mac))),'GET');}
+	public function wakeOnLAN($mac) {return $this->FOGURLRequests->process(sprintf('http://%s%s?wakeonlan=%s', $this->getSetting('FOG_WOL_HOST'), $this->getSetting('FOG_WOL_PATH'), $mac),'GET');}
 	// Blackout - 2:40 PM 25/05/2011
 	/** SystemUptime()
 		Returns the uptime of the server.
