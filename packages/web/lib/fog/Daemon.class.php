@@ -1,6 +1,5 @@
 <?php
-class Daemon
-{
+class Daemon {
 	/** $TTY the console to output to/from */
 	public $TTY;
 	/** $interface the interface to connect with */
@@ -35,16 +34,13 @@ class Daemon
 	/** clear_screen()
 	  * Clears the screen for information.
 	  */
-	public function clear_screen()
-	{
+	public function clear_screen() {
 		$this->out(chr(27)."[2J".chr(27)."[;H");
 	}
-
 	/** wait_db_ready()
 	        Waits until mysql is ready to accept connections.
 	*/
-	public function wait_db_ready()
-	{
+	public function wait_db_ready() {
 		$this->mysqli = @new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD,DATABASE_NAME); // try connection
 		while ($this->mysqli->connect_errno)
 		{ // no mysql answer..
@@ -54,33 +50,25 @@ class Daemon
 		}
 		return;
 	}
-
 	/** wait_interface_ready()
 		Waits for the network interface to be ready so services operate.
 		This requires FOGCore!!!!
 	*/
-	public function wait_interface_ready()
-	{
-	        if ($this->interface == NULL)
-	        {
-	                $this->out("Getting interface name.. ");
-	                $this->interface = $GLOBALS['FOGCore']->getSetting('FOG_UDPCAST_INTERFACE');
-	                $this->out($this->interface."\n");
-	        }
-	        
-		
-		while (true)
-		{
+	public function wait_interface_ready() {
+		if ($this->interface == NULL) {
+			$this->out("Getting interface name.. ");
+			$this->FOGCore = $GLOBALS['FOGCore'];
+			$this->out($this->interface."\n");
+		}
+		while (true) {
 			$retarr = array();
-			exec("ifconfig $this->interface|  grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d':' -f 2 | cut -d' ' -f1",$retarr);
-                        foreach ($retarr as $line)
-                        {
-                                if ($line !== false)
-                                {
-                                        $this->out("Interface now ready, with IPAddr $line\n");
-                                        break 2;
-                                }
-                        }
+			$retarr = $this->FOGCore->getIPAddress();
+			foreach ($retarr as $line) {
+				if ($line !== false) {
+					$this->out("Interface now ready, with IPAddr $line\n");
+					break 2;
+				}
+			}
 			$this->out("Interface not ready, waiting..\n");
 			sleep(10);
 		}
@@ -89,15 +77,14 @@ class Daemon
 	/** out($sting, $device=NULL)
 		prints the information to the service console files.
 	*/
-	public function out($string,$device=NULL)
-	{	if ($device === NULL) {$device = $this->TTY;}
+	public function out($string,$device=NULL) {
+		if ($device === NULL) {$device = $this->TTY;}
 		file_put_contents($this->TTY,$string,FILE_APPEND);
 	}
 	/** getBanner()
         Prints the FOG banner
 	*/
-	function getBanner()
-	{ 
+	public function getBanner() {
 		$str  = "        ___           ___           ___      \n";
 		$str .= "       /\  \         /\  \         /\  \     \n";
 		$str .= "      /::\  \       /::\  \       /::\  \    \n";

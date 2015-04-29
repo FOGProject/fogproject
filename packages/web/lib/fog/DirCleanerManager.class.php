@@ -1,4 +1,2 @@
 <?php
-class DirCleanerManager extends FOGManagerController
-{
-}
+class DirCleanerManager extends FOGManagerController {}

@@ -5,10 +5,7 @@ class FOGCore extends FOGBase {
 	*/
 	public function attemptLogin($username,$password) {
 		$User = current($this->getClass('UserManager')->find(array('name' => $username)));
-		if ($User && $User->isValid()) {
-			if ($User->validate_pw($password))
-				return $User;
-		}
+		if ($User && $User->isValid() && $User->validate_pw($password)) return $User;
 		return false;
 	}
 	/** stopScheduledTask($task)
@@ -87,15 +84,11 @@ class FOGCore extends FOGBase {
 	/** isAJAXRequest()
 		Returns true if ajax is requesting, otherwise false
 	*/
-	public static function isAJAXRequest() {
-		return (strtolower(@$_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' ? true : false);
-	}
+	public static function isAJAXRequest() {return strtolower(@$_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';}
 	/** isPOSTRequest()
 		Returns true if form is method="post"
 	*/
-	public function isPOSTRequest() {
-		return (strtolower(@$_SERVER['REQUEST_METHOD']) == 'post' ? true : false);
-	}
+	public function isPOSTRequest() {return strtolower(@$_SERVER['REQUEST_METHOD']) == 'post';}
 	/** getMACManufacturer($macprefix)
 		Returns the Manufacturer of the prefix sent if the tables are loaded.
 	*/
@@ -123,9 +116,7 @@ class FOGCore extends FOGBase {
 	/** getMACLookupCount()
 		returns the number of MAC's loaded.
 	*/
-	public function getMACLookupCount() {
-		return $this->getClass('OUIManager')->count();
-	}
+	public function getMACLookupCount() {return $this->getClass('OUIManager')->count();}
 	/** resolveHostname($host)
 		Returns the hostname.  Useful for Hostname dns translating for the server (e.g. fogserver instead of 127.0.0.1) in the address
 		bar.
@@ -138,16 +129,11 @@ class FOGCore extends FOGBase {
 	/** makeTempFilePath()
 		creates the temporary file.
 	*/
-	public function makeTempFilePath() {
-		return tempnam(sys_get_temp_dir(), 'FOG');
-	}
+	public function makeTempFilePath() {return tempnam(sys_get_temp_dir(), 'FOG');}
 	/** wakeOnLAN($mac)
 		Wakes systems up with the magic packet.
 	*/
-	public function wakeOnLAN($mac) {
-		// HTTP request to WOL script
-		$this->FOGURLRequests->process(array(sprintf('http://%s%s?wakeonlan=%s', $this->getSetting('FOG_WOL_HOST'), $this->getSetting('FOG_WOL_PATH'), ($mac instanceof MACAddress ? $mac->__toString() : $mac))),'GET');
-	}
+	public function wakeOnLAN($mac) {return $this->FOGURLRequests->process(array(sprintf('http://%s%s?wakeonlan=%s', $this->getSetting('FOG_WOL_HOST'), $this->getSetting('FOG_WOL_PATH'), ($mac instanceof MACAddress ? $mac->__toString() : $mac))),'GET');}
 	// Blackout - 2:40 PM 25/05/2011
 	/** SystemUptime()
 		Returns the uptime of the server.
@@ -165,9 +151,7 @@ class FOGCore extends FOGBase {
 	/** clear_screen($outputdevice)
 		Clears the screen for information.
 	*/
-	public function clear_screen($outputdevice) {
-		$this->out(chr(27)."[2J".chr(27)."[;H",$outputdevice);
-	}
+	public function clear_screen($outputdevice) {$this->out(chr(27)."[2J".chr(27)."[;H",$outputdevice);}
 	/** wait_interface_ready($interface,$outputdevice)
 		Waits for the network interface to be ready so services operate.
 	*/
@@ -201,9 +185,7 @@ class FOGCore extends FOGBase {
 	/** getDateTime()
 		Returns the date format used at the start of each line in the service lines.
 	*/
-	public function getDateTime() {
-		return $this->nice_date()->format('m-d-y g:i:s a');
-	}
+	public function getDateTime() {return $this->nice_date()->format('m-d-y g:i:s a');}
 	/** wlog($string, $path)
 		Writes to the log file and clears if needed.
 	*/
@@ -218,16 +200,11 @@ class FOGCore extends FOGBase {
 	public function getIPAddress() {
 		$output = array();
 		exec("/sbin/ip addr | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d/ -f1 | awk '{print $2}'", $IPs, $retVal);
-		if (!$IPs)
-			exec("/sbin/ip addr show | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d':' -f 2 | cut -d' ' -f1", $IPs, $retVal);
-		foreach ($IPs AS $IP)
-		{
+		foreach ($IPs AS $IP) {
 			$IP = trim($IP);
-			if ($IP != "127.0.0.1")
-			{
-				if (($bIp = ip2long($IP)) !== false)
-					$output[] = $IP;
-					$output[] = gethostbyaddr($IP);
+			if ($IP != "127.0.0.1") {
+				if (($bIp = ip2long($IP)) !== false) $output[] = $IP;
+				$output[] = gethostbyaddr($IP);
 			}
 		}
 		$output = array_values(array_unique((array)$output));
@@ -236,8 +213,7 @@ class FOGCore extends FOGBase {
 	/** getBanner()
 		Prints the FOG banner
 	*/
-	public function getBanner()
-	{
+	public function getBanner() {
 		$str  = "        ___           ___           ___      \n";
 		$str .= "       /\  \         /\  \         /\  \     \n";
 		$str .= "      /::\  \       /::\  \       /::\  \    \n";
@@ -268,8 +244,7 @@ class FOGCore extends FOGBase {
 	* Returns the hardware information for hwinfo link on dashboard.
 	* @return $data
 	*/
-	public function getHWInfo()
-	{
+	public function getHWInfo() {
 		$data['general'] = '@@general';
 		$data['kernel'] = trim(php_uname('r'));
 		$data['hostname'] = trim(php_uname('n'));
@@ -285,14 +260,10 @@ class FOGCore extends FOGBase {
 		$data['filesys'] = '@@fs';
 		$t = shell_exec('df | grep -vE "^Filesystem|shm"');
 		$l = explode("\n",$t);
-		foreach ($l AS $n)
-		{
-			if (preg_match("/(\d+) +(\d+) +(\d+) +\d+%/",$n,$matches))
-			{
-				if (is_numeric($matches[1]))
-					$hdtotal += $matches[1]*1024;
-				if (is_numeric($matches[2]))
-					$hdused += $matches[2]*1024;
+		foreach ($l AS $n) {
+			if (preg_match("/(\d+) +(\d+) +(\d+) +\d+%/",$n,$matches)) {
+				if (is_numeric($matches[1])) $hdtotal += $matches[1]*1024;
+				if (is_numeric($matches[2])) $hdused += $matches[2]*1024;
 			}
 		}
 		$data['totalspace'] = $this->formatByteSize($hdtotal);
@@ -300,10 +271,8 @@ class FOGCore extends FOGBase {
 		$data['nic'] = '@@nic';
 		$NET = shell_exec('cat "/proc/net/dev"');
 		$lines = explode("\n",$NET);
-		foreach ($lines AS $line)
-		{
-			if (preg_match('/:/',$line))
-			{
+		foreach ($lines AS $line) {
+			if (preg_match('/:/',$line)) {
 				list($dev_name,$stats_list) = preg_split('/:/',$line,2);
 				$stats = preg_split('/\s+/', trim($stats_list));
 				$data[$dev_name] = trim($dev_name).'$$'.$stats[0].'$$'.$stats[8].'$$'.($stats[2]+$stats[10]).'$$'.($stats[3]+$stats[11]);
@@ -320,16 +289,12 @@ class FOGCore extends FOGBase {
 	* @return void
 	* Will "return" but through throw/catch statement.
 	*/
-	public function track($list, $c = 0, $i = 0)
-	{
-		if (is_string($list))
-			return 'd14:failure reason'.strlen($list).':'.$list.'e';
+	public function track($list, $c = 0, $i = 0) {
+		if (is_string($list)) return 'd14:failure reason'.strlen($list).':'.$list.'e';
 		$p = '';
-		foreach((array)$list AS $d)
-		{
+		foreach((array)$list AS $d) {
 			$peer_id = '';
-			if (!$_REQUEST['no_peer_id'])
-				$peer_id = '7:peer id'.strlen($this->hex2bin($d[2])).':'.$this->hex2bin($d[2]);
+			if (!$_REQUEST['no_peer_id']) $peer_id = '7:peer id'.strlen($this->hex2bin($d[2])).':'.$this->hex2bin($d[2]);
 			$p .= 'd2:ip'.strlen($d[0]).':'.$d[0].$peer_id.'4:porti'.$d[1].'ee';
 		}
 		return 'd8:intervali'.$this->getSetting('FOG_TORRENT_INTERVAL').'e12:min intervali'.$this->getSetting('FOG_TORRENT_INTERVAL_MIN').'e8:completei'.$c.'e10:incompletei'.$i.'e5:peersl'.$p.'ee';
@@ -342,21 +307,13 @@ class FOGCore extends FOGBase {
 	* @return void
 	* Sends info back to track.
 	*/
-	public function valdata($g,$fixed_size=false)
-	{
-		try
-		{
-			if (!$_REQUEST[$g])
-				throw new Exception($this->track('Invalid request, missing data'));
-			if (!is_string($_REQUEST[$g]))
-				throw new Exception($this->track('Invalid request, unkown data type'));
-			if ($fixed_size && strlen($_REQUEST[$g]) != 20)
-				throw new Exception($this->track('Invalid request, length on fixed argument not correct'));
-			if (strlen($_REQUEST[$g]) > 80)
-				throw new Exception($this->track('Request too long'));
-		}
-		catch (Exception $e)
-		{
+	public function valdata($g,$fixed_size=false) {
+		try {
+			if (!$_REQUEST[$g]) throw new Exception($this->track('Invalid request, missing data'));
+			if (!is_string($_REQUEST[$g])) throw new Exception($this->track('Invalid request, unkown data type'));
+			if ($fixed_size && strlen($_REQUEST[$g]) != 20) throw new Exception($this->track('Invalid request, length on fixed argument not correct'));
+			if (strlen($_REQUEST[$g]) > 80) throw new Exception($this->track('Request too long'));
+		} catch (Exception $e) {
 			die($e->getMessage());
 		}
 	}
@@ -366,17 +323,13 @@ class FOGCore extends FOGBase {
 	* @param $keytype the type of key to use.
 	* @return void
 	**/
-	public function createKeyPair($keybits = 4096,$keytype = OPENSSL_KEYTYPE_RSA)
-	{
+	public function createKeyPair($keybits = 4096,$keytype = OPENSSL_KEYTYPE_RSA) {
 		$pub_path = BASEPATH.'/management/other/ssl/';
 		$priv_path = '/'.trim($this->getSetting('FOG_SNAPINDIR'),'/');
 		$priv_path = !$priv_path ? '/opt/fog/snapins/ssl/' : $priv_path.'/';
-		if (!is_dir($priv_path))
-			exec('mkdir '.$priv_path);
-		if (!is_dir($pub_path))
-			exec('mkdir '.$pub_path);
-		else if (!file_exists("{$priv_path}.srvprivate.key"))
-		{
+		if (!is_dir($priv_path)) exec('mkdir '.$priv_path);
+		if (!is_dir($pub_path)) exec('mkdir '.$pub_path);
+		else if (!file_exists("{$priv_path}.srvprivate.key")) {
 			// Key settings as needed
 			$privateKey = openssl_pkey_new(array(
 				'private_key_bits' => $keybits,
@@ -391,19 +344,16 @@ class FOGCore extends FOGBase {
 			// Free the private key
 			openssl_free_key($privateKey);
 		}
-		if (!file_exists($pub_path.'srvpublic.key'))
-		{
+		if (!file_exists($pub_path.'srvpublic.key')) {
 			$pub_key = openssl_pkey_get_private(file_get_contents($priv_path.'.srvprivate.key'));
 			$pub_key = openssl_pkey_get_details($pub_key);
 			file_put_contents($pub_path.'srvpublic.key',$pub_key['key']);
 		}
 	}
-	public function setSessionEnv()
-	{
+	public function setSessionEnv() {
 		$_SESSION['theme'] = $this->getSetting('FOG_THEME');
 		$_SESSION['theme'] = $_SESSION['theme'] ? $_SESSION['theme'] : 'default/fog.css';
-		if (!file_exists(BASEPATH.'/css/'.$_SESSION['theme']))
-			$_SESSION['theme'] = 'default/fog.css';
+		if (!file_exists(BASEPATH.'/css/'.$_SESSION['theme'])) $_SESSION['theme'] = 'default/fog.css';
 		$_SESSION['imagelink'] = !preg_match('#/mobile/#i',$_SERVER['PHP_SELF']) ? 'css/'.($_SESSION['theme'] ? dirname($_SESSION['theme']) : 'default').'/images/' : 'css/images/';
 		$_SESSION['PLUGSON'] = $this->getSetting('FOG_PLUGINSYS_ENABLED');
 		$_SESSION['PluginsInstalled'] = $this->getActivePlugins();
