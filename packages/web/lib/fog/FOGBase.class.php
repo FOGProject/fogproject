@@ -448,8 +448,15 @@ abstract class FOGBase {
 			$MAC = new MACAddress($MAC);
 			if ($MAC && $MAC->isValid()) $MAClist[] = strtolower($MAC);
 		}
-		if (!count($MAClist)) $MAClist = false;
-		return array_unique((array)$MAClist);
+		$Ignore = explode(',',$this->getClass('FOGCore')->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'));
+		foreach((array)$Ignore AS $ignore) {
+			if ($matches = preg_grep("#$ignore#i",$MACs)) {
+				$NewMatches = array_merge((array)$NewMatches,$matches);
+				unset($matches);
+			}
+		}
+		if (!count($MAClist)) return false;
+		return array_unique(array_diff((array)$MAClist,(array)$NewMatches));
 	}
 	/** getActivePlugins() gets the active plugins.
 	  * @return the array of active plugin names.
@@ -578,6 +585,22 @@ abstract class FOGBase {
 	  * @return boolean whether true or not
 	  */
 	public function isPOSTRequest() {return strtolower(@$_SERVER['REQUEST_METHOD']) == 'post';}
+	/** array_strpos() array of needles in
+	  * @param $haystack the element to search in
+	  * @param $needles the element to search for
+	  * @param $case to check case or not defaults to true
+	  * @return if true or not
+	  */
+	public function array_strpos($haystack, $needles, $case = true) {
+		foreach ($needles AS $needle) {
+			if ($case) {
+				if (strpos($haystack,$needle) !== false) return true;
+			} else {
+				if (stripos($haystack,$needle) !== false) return true;
+			}
+		}
+		return false;
+	}
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */

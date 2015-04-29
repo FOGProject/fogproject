@@ -499,8 +499,7 @@ class Host extends FOGController
 			// Remove Existing MAC Addresses
 			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 1));
 			// Add new Primary MAC Address
-			if (($this->getMACAddress() instanceof MACAddress) && $this->getMACAddress()->isValid())
-			{
+			if (($this->getMACAddress() instanceof MACAddress) && $this->getMACAddress()->isValid()) {
 				$NewMAC = new MACAddressAssociation(array(
 					'hostID' => $this->get('id'),
 					'mac' => strtolower($this->get('mac')),
@@ -511,8 +510,7 @@ class Host extends FOGController
 				$NewMAC->save();
 			}
 		}
-		if ($this->isLoaded('additionalMACs'))
-		{
+		if ($this->isLoaded('additionalMACs')) {
 			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 0));
 			// Add new Additional MACs
 			foreach((array)$this->get('additionalMACs') AS $me)
@@ -1009,19 +1007,14 @@ class Host extends FOGController
 		// Return
 		return $this;
 	}
-	public function addAddMAC($addArray,$pending = false)
-	{
-		if ($pending)
-		{
+	public function addAddMAC($addArray,$pending = false) {
+		if ($pending) {
 			foreach((array)$addArray AS $item)
 				$this->add('pendingMACs', $item);
-		}
-		else
-		{
+		} else {
 			foreach((array)$addArray AS $item)
 				$this->add('additionalMACs', $item);
 		}
-		// Return
 		return $this;
 	}
 	public function addPendtoAdd($MACs = false)
