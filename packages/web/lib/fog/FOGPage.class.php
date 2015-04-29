@@ -79,21 +79,15 @@ abstract class FOGPage extends FOGBase {
 	/** get() gets the data from the sent key
 	  * @return the value of the key
 	  */
-	public function get($key) {
-		return $this->$key;
-	}
+	public function get($key) {return $this->$key;}
 	/** __toString() magic function that just returns the data
 	  * @return void
 	  */
-	public function __toString() {
-		$this->process();
-	}
+	public function __toString() {$this->process();}
 	/** render() just prints the data
 	  * @return void
 	  */
-	public function render() {
-		print $this->process();
-	}
+	public function render() {print $this->process();}
 	/** process() build the relevant html for the page
 	  * @return false or the result
 	  */
