@@ -1,21 +1,27 @@
 <?php
-class BootItem extends Hook
-{
-	var $name = 'BootItem';
-	var $description = 'Example how to tweak boot menu items.';
-	var $author = 'Tom Elliott';
-	var $active = false;
-	public function tweaktask($arguments)
-	{
+class BootItem extends Hook {
+	/** @var $name the name of the hook */
+	public  $name = 'BootItem';
+	/** @var $description the description of what the hook does */
+	public $description = 'Example how to tweak boot menu items.';
+	/** @var $author the author of the hook */
+	public $author = 'Tom Elliott';
+	/** @var $active whether or not the hook is to be running */
+	public $active = false;
+	/** @function tweaktask() tweaks tasks to add elements
+	  * @param $arguments the Hook Events to enact upon
+	  */
+	public function tweaktask($arguments) {
 		if ($arguments['ipxe']['task'])
 			$arguments['ipxe']['task'][1] .= " capone=1";
 	}
-	public function tweakmenu($arguments)
-	{
+	/** @function tweakmenu() tweaks the menu items
+	  * @param $arguments the Hook Events to enact upon
+	  */
+	public function tweakmenu($arguments) {
 		// This is How the menu get's displayed:
 		// 'ipxe' 'head' key's followed by the item.
-		if ($arguments['ipxe']['head'])
-		{
+		if ($arguments['ipxe']['head']) {
 			$arguments['ipxe']['head'][0] = '#!ipxeishereherherherher';
 			$arguments['ipxe']['head'][1] = 'cpuid --ext 29 && set arch x86_64 || set arch i386';
 			$arguments['ipxe']['head'][2] = 'goto get_console';
@@ -31,17 +37,13 @@ class BootItem extends Hook
 		}
 		// This is the start of the MENU information.
 		// 'ipxe' 'menustart' key's followed by the item
-		if ($arguments['ipxe']['menustart'])
-		{
+		if ($arguments['ipxe']['menustart']) {
 			$arguments['ipxe']['menustart'][0] = ':MENU';
 			$arguments['ipxe']['menustart'][1] = 'menu';
-			if ($arguments['Host'] && $arguments['Host']->isValid())
-			{
+			if ($arguments['Host'] && $arguments['Host']->isValid()) {
 				$arguments['ipxe']['menustart'][2] = 'colour --rgb 0x00ff00 0';
 				$arguments['ipxe']['menustart'][4] = 'item --gap Host is registered as '.$arguments['Host']->get('name');
-			}
-			else
-			{
+			} else {
 				$arguments['ipxe']['menustart'][2] = 'colour --rgb 0xff0000 0';
 				$arguments['ipxe']['menustart'][4] = 'item --gap Host is NOT registered!';
 			}
@@ -52,13 +54,11 @@ class BootItem extends Hook
 		// item-<label-name>  so fog.local has item value of: item-fog.local
 		// inside of the item label is an arrayed item of value [0] containing the label
 		// so to tweak:
-		foreach($this->getClass('PXEMenuOptionsManager')->find() AS $Menu)
-		{
+		foreach($this->getClass('PXEMenuOptionsManager')->find() AS $Menu) {
 			if ($arguments['ipxe']['item-'.$Menu->get('name')] && $Menu->get('name') == 'fog.local')
 				$arguments['ipxe']['item-fog.local'][0] = 'item fog.local THIS BOOTS TO DISK';
 			// Similar to the item-<label-name>  The choices follow similar constructs
-			if ($arguments['ipxe']['choice-'.$Menu->get('name')] && $Menu->get('name') == 'fog.local')
-			{
+			if ($arguments['ipxe']['choice-'.$Menu->get('name')] && $Menu->get('name') == 'fog.local') {
 				$arguments['ipxe']['choice-fog.local'][0] = ':fog.local';
 				$arguments['ipxe']['choice-fog.local'][1] = $arguments['bootexittype'] . ' || goto MENU';
 			}
@@ -69,6 +69,5 @@ class BootItem extends Hook
 	}
 }
 $BootItem = new BootItem();
-// Hook Event
 $HookManager->register('IPXE_EDIT', array($BootItem, 'tweaktask'));
 $HookManager->register('IPXE_EDIT', array($BootItem, 'tweakmenu'));

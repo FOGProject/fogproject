@@ -65,7 +65,4 @@ class EventManager extends FOGBase {
 		if (!$this->isAJAXRequest() && $this->logLevel >= $level)
 			printf('[%s] %s%s', $this->nice_date()->format("d-m-Y H:i:s"), trim(preg_replace(array("#\r#", "#\n#", "#\s+#", "# ,#"), array("", " ", " ", ","), $txt)), "<br />\n");
 	}
-	public function isAJAXRequest() {
-		return (strtolower(@$_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' ? true : false);
-	}
 }

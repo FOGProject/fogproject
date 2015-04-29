@@ -54,9 +54,9 @@ class FOGPageManager extends FOGBase {
 				// FOG - Default view override
 				if ($this->methodValue != 'list' && $method == 'index' && $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] != 'list' && method_exists($class, 'search') && in_array($class->node,$this->searchPages)) $method = 'search';
 				// POST - Append '_post' to method name if request method is POST and the method exists
-				if ($this->FOGCore->isPOSTRequest() && method_exists($class, $method . '_post')) $method = $method . '_post';
+				if ($this->isPOSTRequest() && method_exists($class, $method . '_post')) $method = $method . '_post';
 				// AJAX - Append '_ajax' to method name if request is ajax and the method exists
-				if ($this->FOGCore->isAJAXRequest() && method_exists($class, $method . '_ajax')) $method = $method . '_ajax';
+				if ($this->isAJAXRequest() && method_exists($class, $method . '_ajax')) $method = $method . '_ajax';
 				// Arguments
 				$this->arguments = (!empty($GLOBALS[$class->id]) ? array('id' => $GLOBALS[$class->id]) : array());
 				(!$this->FOGCore->isPOSTRequest() ? $this->resetRequest() : $this->setRequest());

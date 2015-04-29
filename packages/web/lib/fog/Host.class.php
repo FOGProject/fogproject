@@ -979,7 +979,7 @@ class Host extends FOGController
 			$MACs[] = $MAC;
 		$MACs = array_unique($MACs);
 		foreach((array)$MACs AS $MAC)
-			$this->FOGCore->wakeOnLAN($MAC);
+			$this->FOGCore->wakeOnLAN(implode('|',(array)$MAC));
 	}
 	public function addPrinter($addArray)
 	{

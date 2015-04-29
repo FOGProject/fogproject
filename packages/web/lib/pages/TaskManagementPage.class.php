@@ -428,7 +428,7 @@ class TaskManagementPage extends FOGPage
 			$result['error'] = $e->getMessage();
 		}
 		// Output
-		if ($this->FOGCore->isAJAXRequest())
+		if ($this->isAJAXRequest())
 			print json_encode($result);
 		else
 		{
@@ -482,7 +482,7 @@ class TaskManagementPage extends FOGPage
 		}
 		
 		// Output
-		if ($this->FOGCore->isAJAXRequest())
+		if ($this->isAJAXRequest())
 			print json_encode($result);
 		else
 		{
