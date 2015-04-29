@@ -49,12 +49,12 @@ class FOGSubMenu {
 		// No check variable? then Main Menu
 		//$ifVariable = ($ifVariable == '' ? 'Main Menu' : $ifVariable);
 		// No ifVariable to check, this must be a main menu item
-		if (!$ifVariable) is_array($this->items[$node][$this->foglang['MainMenu']])) ? $this->items[$node][$this->foglang['MainMenu']] = array_merge($this->items[$node][$this->foglang['MainMenu']], $items) : $this->items[$node][$this->foglang['MainMenu']] = $items;
+		if (!$ifVariable) is_array($this->items[$node][$this->foglang['MainMenu']]) ? $this->items[$node][$this->foglang['MainMenu']] = array_merge($this->items[$node][$this->foglang['MainMenu']], $items) : $this->items[$node][$this->foglang['MainMenu']] = $items;
 		// ifVariable passed to be checked, if it is set then add to menu
 		elseif (isset($GLOBALS[$ifVariable])) {
 			foreach ($items AS $title => $link)
 				if (!$this->isExternalLink($link)) $items[$title] = "$link&$ifVariable=" . $GLOBALS[$ifVariable];
-			is_array($this->items[$node][$ifVariableTitle]))? $this->items[$node][$ifVariableTitle] = array_merge($this->items[$node][$ifVariableTitle], $items) : $this->items[$node][$ifVariableTitle] = $items;
+			is_array($this->items[$node][$ifVariableTitle]) ? $this->items[$node][$ifVariableTitle] = array_merge($this->items[$node][$ifVariableTitle], $items) : $this->items[$node][$ifVariableTitle] = $items;
 		}
 	}
 	// Add notes below menu items
