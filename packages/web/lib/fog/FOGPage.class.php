@@ -57,8 +57,8 @@ abstract class FOGPage extends FOGBase {
 		$this->request = $this->REQUEST = $this->DB->sanitize($_REQUEST);
 		$this->REQUEST['id'] = $_REQUEST[$this->id];
 		$this->request['id'] = $_REQUEST[$this->id];
-		$this->post = $this->FOGCore->isPOSTRequest();
-		$this->ajax = $this->FOGCore->isAJAXRequest();
+		$this->post = $this->isPOSTRequest();
+		$this->ajax = $this->isAJAXRequest();
 		$this->childClass = preg_replace('#ManagementPage#', '', preg_replace('#Mobile#','',get_class($this)));
 		$this->formAction = sprintf('%s?%s', $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
 		$this->HookManager->processEvent('SEARCH_PAGES',array('searchPages' => &$this->searchPages));
@@ -98,7 +98,7 @@ abstract class FOGPage extends FOGBase {
 			// Variables
 			$result = '';
 			// Is AJAX Request?
-			if ($this->FOGCore->isAJAXRequest()) {
+			if ($this->isAJAXRequest()) {
 				// JSON output
 				$result .= @json_encode(array(
 					'data'		=> $this->data,
@@ -609,7 +609,7 @@ abstract class FOGPage extends FOGBase {
 			'domainuser' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_USER'),
 			'domainpass' => $this->FOGCore->getSetting('FOG_NEW_CLIENT') ? $this->encryptpw($this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD')) : $this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY'),
 		);
-		if ($this->FOGCore->isAJAXRequest()) print json_encode($Data);
+		if ($this->isAJAXRequest()) print json_encode($Data);
 	}
 	/** getPing() Performs the ping stuff.
 	  * @return void
@@ -633,7 +633,7 @@ abstract class FOGPage extends FOGBase {
 		} catch (Exception $e) {
 			$SendMe = $e->getMessage();
 		}
-		if ($this->FOGCore->isAJAXRequest()) print $SendMe;
+		if ($this->isAJAXRequest()) print $SendMe;
 	}
 	/** kernelfetch() the kernel fetcher stuff.
 	  * @return void

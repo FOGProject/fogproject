@@ -81,14 +81,6 @@ class FOGCore extends FOGBase {
 		if ($ServMan && $ServMan->isValid()) return $ServMan->set('value',$value)->save();
 		return false;
 	}
-	/** isAJAXRequest()
-		Returns true if ajax is requesting, otherwise false
-	*/
-	public static function isAJAXRequest() {return strtolower(@$_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';}
-	/** isPOSTRequest()
-		Returns true if form is method="post"
-	*/
-	public function isPOSTRequest() {return strtolower(@$_SERVER['REQUEST_METHOD']) == 'post';}
 	/** getMACManufacturer($macprefix)
 		Returns the Manufacturer of the prefix sent if the tables are loaded.
 	*/

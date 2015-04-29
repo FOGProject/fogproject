@@ -109,9 +109,10 @@ class ProcessLogin extends FOGBase
 		$_SESSION['FOG_USERNAME'] = $currentUser->get('name');
 		$this->setRedirMode();
 		$this->currentUser = $currentUser;
+		unset($currentUser);
 		// Hook
 		if (!preg_match('#/mobile/#',$_SERVER['PHP_SELF']))
-			$this->HookManager->processEvent('LoginSuccess', array('user' => &$currentUser, 'username' => $this->username, 'password' => &$this->password));
+			$this->HookManager->processEvent('LoginSuccess', array('user' => &$this->currentUser, 'username' => $this->username, 'password' => &$this->password));
 	}
 
 	private function setRedirMode()

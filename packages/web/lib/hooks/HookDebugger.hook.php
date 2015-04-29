@@ -1,26 +1,13 @@
 <?php
-/****************************************************
- * FOG Hook: HookDebugger
- *	Author:		Blackout
- *	Created:	8:57 AM 31/08/2011
- *	Revision:	$Revision$
- *	Last Update:	$LastChangedDate$
- ***/
-
-// HookDebugger class
-class HookDebugger extends Hook
-{
-	var $name = 'HookDebugger';
-	var $description = 'Prints all Hook data to the web page and/or file when a hook is encountered';
-	var $author = 'Blackout';
-	var $active = false;
-	var $logLevel = 9;
-	var $logToFile = false;		// Logs to: lib/hooks/HookDebugger.log
-	var $logToBrowser = true;
-	public function run($arguments)
-	{
-		$this->log(print_r($arguments['event'],1));
-	}
+class HookDebugger extends Hook {
+	public $name = 'HookDebugger';
+	public $description = 'Prints all Hook data to the web page and/or file when a hook is encountered';
+	public $author = 'Blackout';
+	public $active = false;
+	public $logLevel = 9;
+	public $logToFile = false;		
+	public $logToBrowser = true;
+	public function run($arguments) {$this->log(print_r($arguments['event'],1));}
 }
 $HookDebugger = new HookDebugger();
 if (!$HookManager->events)

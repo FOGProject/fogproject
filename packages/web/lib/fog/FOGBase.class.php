@@ -55,7 +55,7 @@ abstract class FOGBase {
 	  * @return void
 	  */
 	public function fatalError($txt, $data = array()) {
-		if (!preg_match('#/service/#', $_SERVER['PHP_SELF']) && !FOGCore::isAJAXRequest())
+		if (!preg_match('#/service/#', $_SERVER['PHP_SELF']) && !$this->isAJAXRequest())
 			print sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 	}
 	/** error() prints the error to the screen
@@ -64,7 +64,7 @@ abstract class FOGBase {
 	  * @return void
 	  */
 	public function error($txt, $data = array()) {
-		if ((((isset($this->debug)) && $this->debug === true)) && !preg_match('#/service/#', $_SERVER['PHP_SELF']) && !FOGCore::isAJAXRequest())
+		if ((((isset($this->debug)) && $this->debug === true)) && !preg_match('#/service/#', $_SERVER['PHP_SELF']) && !$this->isAJAXRequest())
 			print sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 	}
 	/** debug() prints debug information
@@ -73,7 +73,7 @@ abstract class FOGBase {
 	  * @return void
 	  */
 	public function debug($txt, $data = array()) {
-		if ((!isset($this) || (isset($this->debug) && $this->debug === true)) && !FOGCore::isAJAXRequest() && !preg_match('#/service/#', $_SERVER['PHP_SELF']))
+		if ((!isset($this) || (isset($this->debug) && $this->debug === true)) && !$this->isAJAXRequest() && !preg_match('#/service/#', $_SERVER['PHP_SELF']))
 			print sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 	}
 	/** info() prints informational messages
@@ -338,7 +338,7 @@ abstract class FOGBase {
 	  * @return void
 	  */
 	public function setRequest() {
-		if (!$_SESSION['post_request_vals'] && $this->FOGCore->isPOSTRequest()) $_SESSION['post_request_vals'] = $_REQUEST;
+		if (!$_SESSION['post_request_vals'] && $this->isPOSTRequest()) $_SESSION['post_request_vals'] = $_REQUEST;
 	}
 	/** array_filter_recursive()
 	  * @param $input the input to filter
@@ -532,7 +532,7 @@ abstract class FOGBase {
 	  * @return host item
 	  */
 	public function getHostItem($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false,$override = false) {
-		$MACs = $this->parseMacList(trim(!$encoded ? $_REQUEST['mac'] : base64_decode($_REQUEST['mac'])),!$service,$service);
+		$MACs = $this->parseMacList(trim(!$encoded ? (isset($_REQUEST['mac']) ? $_REQUEST['mac'] : $_REQUEST['wakeonlan']) : base64_decode($_REQUEST['mac'])),!$service,$service);
 		if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC']);
 		if ($returnmacs) return (is_array($MACs) ? $MACs : array($MACs));
 		$Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);
@@ -570,6 +570,14 @@ abstract class FOGBase {
 		}
 		return $nodeRet;
 	}
+	/** isAJAXRequest() is this ajax request
+	  * @return boolean whether true or not
+	  */
+	public function isAJAXRequest() {return strtolower(@$_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';}
+	/** isPOSTRequest() is this a post request
+	  * @return boolean whether true or not
+	  */
+	public function isPOSTRequest() {return strtolower(@$_SERVER['REQUEST_METHOD']) == 'post';}
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */
