@@ -1,4 +1,2 @@
 <?php
-class OUIManager extends FOGManagerController
-{
-}
+class OUIManager extends FOGManagerController {}

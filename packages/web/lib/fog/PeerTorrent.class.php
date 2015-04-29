@@ -1,13 +1,8 @@
 <?php
-/**
-* Class Peer
-*/
-class PeerTorrent extends FOGController
-{
-	// Table
+class PeerTorrent extends FOGController {
+	/** @var $databaseTable the table to work with */
 	public $databaseTable = 'peer_torrent';
-
-	// Name -> Database field name
+	/** @var $databaseFields the fields within the table */
 	public $databaseFields = array(
 		'id' => 'id',
 		'peerID' => 'peer_id',

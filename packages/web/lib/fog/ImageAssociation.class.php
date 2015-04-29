@@ -1,29 +1,21 @@
 <?php
-/** \class ImageAssociation
-	Builds all the Image class attributes.  The way it pulls data from the database.
-*/
-class ImageAssociation extends FOGController
-{
-	// Table
+class ImageAssociation extends FOGController {
+	/** @var $databaseTable the table to work with */
 	public $databaseTable = 'imageGroupAssoc';
-	
-	// Name -> Database field name
+	/** @var $databaseFields the fields within the table */
 	public $databaseFields = array(
 		'id' => 'igaID',
 		'imageID' => 'igaImageID',
 		'storageGroupID' => 'igaStorageGroupID',
 	);
-
-	// Custom
-	public function getImage()
-	{
-		return new Image($this->get('imageID'));
-	}
-
-	public function getStorageGroup()
-	{
-		return new StorageGroup($this->get('storageGroupID'));
-	}
+	/** @function getImage() returns the image
+	  * @return the image
+	  */
+	public function getImage() {return $this->getClass('Image',$this->get('imageID'));}
+	/** @function getStorageGroup() returns the storage group
+	  * @return the storage group
+	  */
+	public function getStorageGroup() {return $this->getClass('StorageGroup',$this->get('storageGroupID'));}
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */

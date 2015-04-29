@@ -1,4 +1,2 @@
 <?php
-class TorrentManager extends FOGManagerController
-{
-}
+class TorrentManager extends FOGManagerController {}
