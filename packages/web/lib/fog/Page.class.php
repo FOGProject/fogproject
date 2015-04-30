@@ -4,25 +4,55 @@ class Page extends FOGBase {
 	public function __construct() {
 		parent::__construct();
 		while (@ob_end_clean());
+		$isMobile = preg_match('#/mobile/#i',@$_SERVER['PHP_SELF']);
 		$dispTheme = 'css/'.($_SESSION['theme'] ? $_SESSION['theme'] : 'default/fog.css');
-		if (!file_exists(BASEPATH.'/'.$dispTheme))
-			$dispTheme = 'css/default/fog.css';
-		if (!preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
-		{
+		if (!file_exists(BASEPATH.'/'.$dispTheme)) $dispTheme = 'css/default/fog.css';
+		if (!$isMobile) {
 			$this->addCSS('css/jquery-ui.css');
 			$this->addCSS('css/jquery.organicTabs.css');
 			$this->addCSS($dispTheme);
-		}
-		else
-			$this->addCSS('css/main.css');
+		} else $this->addCSS('css/main.css');
 		$this->addCSS('../management/css/font-awesome.css');
 		$this->isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST['sub'],array('configure','authorize')) || !$this->FOGUser || !$this->FOGUser->isLoggedIn());
-		if ($this->FOGUser && $this->FOGUser->isLoggedIn() && $_REQUEST['node'] != 'schemaupdater')
-		{
-			$this->menu = $this->getClass('Mainmenu')->mainMenu();
+		if ($this->FOGUser && $this->FOGUser->isLoggedIn()) {
+			if (!$isMobile) {
+				$this->main = array(
+					'home' => array($this->foglang['Home'], 'fa fa-home fa-2x'),
+					'user' => array($this->foglang['User Management'], 'fa fa-users fa-2x'),
+					'host' => array($this->foglang['Host Management'], 'fa fa-desktop fa-2x'),
+					'group' => array($this->foglang['Group Management'], 'fa fa-sitemap fa-2x'),
+					'image' => array($this->foglang['Image Management'], 'fa fa-picture-o fa-2x'),
+					'storage' => array($this->foglang['Storage Management'], 'fa fa-download fa-2x'),
+					'snapin' => array($this->foglang['Snapin Management'], 'fa fa-files-o fa-2x'),
+					'printer' => array($this->foglang['Printer Management'], 'fa fa-print fa-2x'),
+					'service' => array($this->foglang['Service Configuration'], 'fa fa-cogs fa-2x'),
+					'tasks' => array($this->foglang['Task Management'], 'fa fa-tasks fa-2x'),
+					'report' => array($this->foglang['Report Management'], 'fa fa-file-text fa-2x'),
+					'about' => array($this->foglang['FOG Configuration'],'fa fa-wrench fa-2x'),
+					$_SESSION['PLUGSON'] ? 'plugin' : '' => $_SESSION['PLUGSON'] ? array($this->foglang['Plugin Management'],'fa fa-cog fa-2x') : '',
+					'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-2x'),
+				);
+			} else {
+				$this->main = array(
+					'home' => array($this->foglang['Home'], 'fa fa-home fa-2x'),
+					'host' => array($this->foglang['Host Management'], 'fa fa-desktop fa-2x'),
+					'tasks' => array($this->foglang['Task Management'], 'fa fa-tasks fa-2x'),
+					'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-2x'),
+				);
+			}
+			$this->main = array_unique(array_filter($this->main),SORT_REGULAR);
+			$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
+			foreach ($this->main AS $link => $title) $links[] = (!$isMobile ? $link : ($link != 'logout' ? $link.'s' : $link));
+			if (!$isMobile) $links = array_merge((array)$links,array('hwinfo','client','schemaupdater'));
+			if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links)) $this->FOGCore->redirect('index.php');
+			$this->menu = (!$isMobile ? '<center><ul>' : '<div id="menuBar">');
+			foreach($this->main AS $link => $title) {
+				$activelink = (!$isMobile ? ($_REQUEST['node'] == $link || (!$_REQUEST['node'] && $link == 'home') ? $activelink = 1 : 0) : ($_REQUEST['node'] == $link.'s' || (!$_REQUEST['node'] && $link == 'home') ? 1 : 0));
+				$this->menu .= (!$isMobile ? sprintf('<li><a href="?node=%s" title="%s"%s><i class="%s"></i></a></li>',$link,$title[0],($activelink ? ' class="activelink"' : ''),$title[1]) : sprintf('<a href="?node=%s"%s><i class="%s"></i></a>',($link != 'logout' ? $link.'s' : $link),($activelink ? ' class="activelink"' : ''),$title[1]));
+			}
+			$this->menu .= (!$isMobile ? '</ul></center>' : '</div>');
 		}
-		if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
-		{
+		if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) {
 			$files = array(
 				'js/jquery-latest.js',
 				'js/jquery-migrate-1.2.1.min.js',
