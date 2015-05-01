@@ -411,7 +411,7 @@ abstract class FOGBase {
 		else $padding = OPENSSL_NO_PADDING;
 		$data = $this->hex2bin($data);
 		$path = '/'.trim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/');
-		$path = !$path ? '/opt/fog/snapins/ssl/' : $path.'/';
+		$path = !$path ? '/opt/fog/snapins/ssl/' : $path.'/ssl/';
 		if (!$priv_key = openssl_pkey_get_private(file_get_contents($path.'.srvprivate.key'))) throw new Exception('Private Key Failed');
 		$a_key = openssl_pkey_get_details($priv_key);
 		$chunkSize = ceil($a_key['bits'] / 8);
