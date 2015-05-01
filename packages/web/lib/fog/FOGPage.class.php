@@ -762,7 +762,6 @@ abstract class FOGPage extends FOGBase {
 	  */
 	public function authorize() {
 		try {
-			$MACs = $this->getHostItem(true,false,false,true);
 			$Host = $this->getHostItem(true);
 			if (!$pub_key = $this->certDecrypt($_REQUEST['sym_key'])) throw new Exception('#!ihc');
 			$Host->set('pub_key',bin2hex($pub_key))->save();
