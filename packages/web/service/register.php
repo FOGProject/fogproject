@@ -6,23 +6,21 @@ try {
 		throw new Exception('#!er:Invalid Version Number, please update this module.');
 	// The total number of pending macs that can be used.
 	$maxPending = $FOGCore->getSetting('FOG_QUICKREG_MAX_PENDING_MACS');
-	// The ignore list.  Comma Separated.
-	$ignoreList = explode(',', $FOGCore->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'));
 	// Get the actual host (if it is registered)
 	$MACs = $FOGCore->getHostItem(true,false,false,true);
 	$Host = $FOGCore->getHostItem(true,false,true,false,true);
 	if (!($Host instanceof Host && $Host->isValid()) && $_REQUEST['newService'] && $_REQUEST['hostname']) $Host = current($FOGCore->getClass('HostManager')->find(array('name' => $_REQUEST['hostname'])));
 	if($_REQUEST['newService'] && !($Host instanceof Host && $Host->isValid())) {
 		if (!$_REQUEST['hostname'] || !HostManager::isHostnameSafe($_REQUEST['hostname'])) throw new Exception('#!ih');
-		$Host = new Host(array(
-			'name' => $_REQUEST['hostname'],
-			'description' => 'Pending Registration created by FOG_CLIENT',
-			'pending' => 1,
-		));
 		foreach($FOGCore->getClass('ModuleManager')->find() AS $Module) $ModuleIDs[] = $Module->get('id');
-		$PriMAC = ((preg_match('#|#i',$_REQUEST['mac']) ? explode('|',$_REQUEST['mac']) : $_REQUEST['mac']));
-		$Host->addModule($ModuleIDs)
-			 ->addPriMAC(is_array($PriMAC) ? $PriMAC[0] : $PriMAC)
+		$MACs = explode('|',$_REQUEST['mac']);
+		$PriMAC = array_shift($MACs);
+		$Host = $this->getClass('Host')
+			 ->set('name', $_REQUEST['hostname'])
+			 ->set('description','Pending Registration created by FOG_CLIENT')
+			 ->set('pending',1)
+			 ->addModule($ModuleIDs)
+			 ->addPriMAC($PriMAC)
 			 ->save();
 	}
 	// Check if count is okay.

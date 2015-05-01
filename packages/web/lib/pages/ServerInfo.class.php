@@ -1,16 +1,5 @@
 <?php
-/**	Class Name: ServerInfo
-	FOGPage lives in: {fogwebdir}/lib/fog
-	Lives in: {fogwebdir}/lib/pages
-	Description: This is an extension of the FOGPage Class
-	This is only used when a user clicks on the free space
-	pie chart.  This class displays the server information.
-
-	Useful for:
-	Obtaining information about the server.
-*/
-class ServerInfo extends FOGPage
-{
+class ServerInfo extends FOGPage {
 	// Base variables
 	var $name = 'Hardware Information';
 	var $node = 'hwinfo';
@@ -20,6 +9,21 @@ class ServerInfo extends FOGPage
 	);
 	var $subMenu = array(
 	);
+	public function __construct($name = '') {
+		$this->name = 'Hardware Information';
+		$this->node = 'hwinfo';
+		parent::__construct($this->name);
+		$this->obj = $this->getClass('StorageNode',$_REQUEST[id]);
+		$this->menu = array(
+			"?node=storage&sub=edit&id={$_REQUEST[id]}" => _('Edit Node'),
+		);
+		$this->notes = array(
+			"{$this->foglang[Storage]} {$this->foglang[Node]}" => $this->obj->get('name'),
+			'IP' => $this->FOGCore->resolveHostname($this->obj->get('ip')),
+			$this->foglang[Path] => $this->obj->get('path'),
+		);
+
+	}
 	// Pages
 	public function index()
 	{   

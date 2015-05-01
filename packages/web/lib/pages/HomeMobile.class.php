@@ -1,33 +1,14 @@
 <?php
-/** Class Name: HomeMobile
-	FOGPage lives in: {fogwebdir}/lib/fog
-	Lives in: {fogwebdir}/lib/pages
-	Description: This is an extension of the FOGPage Class
-	This is the page constructed for the mobile front end.
-	It creates the elements visible to the user from a
-	lighter side of the house.
-
-	Useful for:
-	Dislaying FOG on mobile devices.
-*/
-class HomeMobile extends FOGPage
-{
-	var $name = 'Dashboard';
-	var $node = 'homes';
-	var $id = '';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
-	/** __construct($name = '')
-		This just creates the default data
-		to be used for hooking and such later on.
-	*/
-	public function __construct($name = '')
-	{
+class HomeMobile extends FOGPage {
+	public function __construct($name = '') {
+		$this->name = 'Dashboard';
+		$this->node = 'homes';
+		$this->menu = array(
+		);
+		$this->subMenu = array(
+		);
 		// Call parent constructor
-		parent::__construct($name);
+		parent::__construct($this->name);
 		// Header Data
 		unset($this->headerData);
 		// Attributes
@@ -39,12 +20,8 @@ class HomeMobile extends FOGPage
 			'${page_desc}',
 		);
 	}
-	/** index()
-		This is the first display page for the mobile interface.
-	*/
-	public function index()
-	{
-		print "\t<h1>"._('Welcome to FOG Mobile')."</h1>";
+	public function index() {
+		print '<h1>'._('Welcome to FOG Mobile').'</h1>';
 		$this->data[] = array(
 			'page_desc' => _("Welcome to FOG - Mobile Edition!  This light weight interface for FOG allows for access via mobile, low power devices."),
 		);

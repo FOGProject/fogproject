@@ -1,31 +1,25 @@
 <?php
-/**	Class Name: FOGConfigurationPage 
-	FOGPage lives in: {fogwebdir}/lib/fog
-	Lives in: {fogwebdir}/lib/pages
-	Description: This is an extension of the FOGPage Class
-	This class controls the FOG Configuration Page of FOG.
-	It, now, allows a place for users to configure FOG Settings,
-	Services, Active Directory settings, Version infro, Kernel
-	updates, PXE Menu, Service Client updates, MAC lists, and
-	has an ssh viewer for actual terminal based management of the
-	server.  These controls are globally to my understanding.
-
-	Manages server settings..
-
-	Useful for:
-	Making configuration changes to the server, PXE, kernel, etc....
-**/
-class FOGConfigurationPage extends FOGPage
-{
-	// Base variables
-	var $name = 'FOG Configuration';
-	var $node = 'about';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
+class FOGConfigurationPage extends FOGPage {
+	public function __construct($name = '') {
+		$this->name = 'FOG Configuration';
+		$this->node = 'about';
+		parent::__construct($this->name);
+		$this->menu = array(
+			'license' => $this->foglang['License'],
+			'kernel-update' => $this->foglang['KernelUpdate'],
+			'pxemenu' => $this->foglang['PXEBootMenu'],
+			'customize-edit' => $this->foglang['PXEConfiguration'],
+			'new-menu' => $this->foglang['NewMenu'],
+			'client-updater' => $this->foglang['ClientUpdater'],
+			'mac-list' => $this->foglang['MACAddrList'],
+			'settings' => $this->foglang['FOGSettings'],
+			'log' => $this->foglang['LogViewer'],
+			'config' => $this->foglang['ConfigSave'],
+			'http://www.sf.net/projects/freeghost' => $this->foglang['FOGSFPage'],
+			'http://fogproject.org' => $this->foglang['FOGWebPage'],
+		);
+		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
+	}
 	// Pages
 	/** index()
 		Displays the configuration page.  Right now it redirects to display

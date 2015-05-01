@@ -1,32 +1,17 @@
 <?php
-/**	Class Name: PluginManagementPage
-    FOGPage lives in: {fogwebdir}/lib/fog
-    Lives in: {fogwebdir}/lib/pages
-
-	Description: This is an extension of the FOGPage Class
-    This class controls plugins you want installed with FOG.
- 
-    Useful for:
-    Installing Plugins for FOG's use.
->
-	Note:
-	Only two plugins exist right now.  Location and Capone
-**/
-class PluginManagementPage extends FOGPage
-{
-	// Base variables
-	var $name = 'Plugin Management';
-	var $node = 'plugin';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
-	public function __construct($name = '')
-	{
+class PluginManagementPage extends FOGPage {
+	public function __construct($name = '') {
+		$this->name = 'Plugin Management';
+		$this->node = 'plugin';
 		// Call parent constructor
-		parent::__construct($name);
+		parent::__construct($this->name);
+		$this->menu = array(
+			'home' => $this->foglang[Home],
+			'activate' => $this->foglang[ActivatePlugins],
+			'install' => $this->foglang[InstallPlugins],
+			'installed' => $this->foglang[InstalledPlugins],
+		);
+		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
 		// Header row
 		$this->headerData = array(
 			_('Plugin Name'),

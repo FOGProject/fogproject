@@ -31,7 +31,7 @@ $(function() {
 	});
 });
 function ActiveTasksUpdateTimerStart() {
-	if ($_GET['sub'] == 'active') {
+	if (!$_GET['sub'] || $_GET['sub'] == 'active') {
 		ActiveTasksUpdateTimer = setTimeout(function() { if (!ActiveTasksRequests.length && $('#taskpause').hasClass('active')) ActiveTasksUpdate();},ActiveTasksUpdateInterval);
 	}
 }
@@ -39,7 +39,7 @@ function ActiveTasksUpdate() {
 	if (ActiveTasksAJAX) return;
 	ActiveTasksAJAX = $.ajax({
 		type: 'POST',
-		url: '?node=tasks&sub=active',
+		url: '?node=task&sub=active',
 		cache: false,
 		dataType: 'json',
 		beforeSend:	function() {

@@ -1,29 +1,10 @@
 <?php
-/** Class Name: TaskMobile
-	FOGPage lives in: {fogwebdir}/lib/fog
-	Lives in: {fogwebdir}/lib/pages
-	Description: This is an extension of the FOGPage Class
-	Gives a minimal task page for viewing from mobile
-	devices.
-
-	Useful for:
-	Managing tasks from mobile devices.
-*/
-class TaskMobile extends FOGPage
-{
-	var $name = 'Task Management';
-	var $node = 'taskss';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
-
-	public function __construct($name = '')
-	{
+class TaskMobile extends FOGPage {
+	public function __construct($name = '') {
+		$this->name = 'Task Management';
+		$this->node = 'tasks';
 		// Call parent constructor
-		parent::__construct($name);
+		parent::__construct($this->name);
 		// Header Data
 		$this->headerData = array(
 			_('Force'),
@@ -52,10 +33,8 @@ class TaskMobile extends FOGPage
 			'<a href="?node=${node}&sub=killtask&id=${task_id}"><i class="fa fa-minus-circle fa-2x task"></i></a>',
 		);
 	}
-	public function index()
-	{
-		foreach((array)$this->getClass('TaskManager')->find(array('stateID' => array(1,2,3))) AS $Task)
-		{
+	public function index() {
+		foreach((array)$this->getClass('TaskManager')->find(array('stateID' => array(1,2,3))) AS $Task) {
 			$Host = new Host($Task->get('hostID'));
 			$this->data[] = array(
 				'task_force' => (!$Task->get('isForced') ? '<a href="?node=${node}&sub=force&id=${task_id}"><i class="fa fa-step-forward fa-2x task"></i></a>' : '<i class="fa fa-play fa-2x task"></i>'),
@@ -69,16 +48,12 @@ class TaskMobile extends FOGPage
 		}
 		$this->render();
 	}
-
-	public function force()
-	{
+	public function force() {
 		$Task = new Task($_REQUEST['id']);
 		$Task->set('isForced',true)->save();
 		$this->FOGCore->redirect('?node='.$this->node);
 	}
-
-	public function killtask()
-	{
+	public function killtask() {
 		$Task = new Task($_REQUEST['id']);
 		$Task->destroy();
 		$this->FOGCore->redirect('?node='.$this->node);

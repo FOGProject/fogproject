@@ -1,40 +1,30 @@
 <?php
-/**	Class Name: GroupManagementPage
-	FOGPage lives in: {fogwebdir}/lib/fog
-	Lives in: {fogwebdir}/lib/pages
-    Description: This is an extention of the FOGPage Class
-    This class controls the group management page for FOG.
-	It, now, allows group creation within as opposed to the
-	old method it used.
-
-	Manages group settings such as:
-	Image Association, Active Directory, Snapin Add and removal,
-	Printer association, and Service configurations.
-
-	Useful for:
-	Making setting changes quickly on multiple systems at a time.
-**/
-class GroupManagementPage extends FOGPage
-{
-	// Base variables
-	var $name = 'Group Management';
-	var $node = 'group';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
-	// __construct
-	/** __construct($name = '')
-		Builds the default header and template information
-		for the Group page.
-		This builds the default display for index and search.
-	*/
-	public function __construct($name = '')
-	{
+class GroupManagementPage extends FOGPage {
+	public function __construct($name = '') {
+		$this->name = 'Group Management';
+		$this->node = 'group';
 		// Call parent constructor
-		parent::__construct($name);
+		parent::__construct($this->name);
+		if ($_REQUEST['id']) {
+			$this->subMenu = array(
+				"$this->linkformat#group-general" => $this->foglang['General'],
+				"$this->linkformat#group-tasks" => $this->foglang['BasicTasks'],
+				"$this->linkformat#group-image" => $this->foglang['ImageAssoc'],
+				"$this->linkformat#group-snap-add" => "{$this->foglang[Add]} {$this->foglang[Snapins]}",
+				"$this->linkformat#group-snap-del" => "{$this->foglang[Remove]} {$this->foglang[Snapins]}",
+				"$this->linkformat#group-service" => "{$this->foglang[Service]} {$this->foglang[Settings]}",
+				"$this->linkformat#group-active-directory" => $this->foglang['AD'],
+				"$this->linkformat#group-printers" => $this->foglang['Printers'],
+				$this->membership => $this->foglang['Membership'],
+				$this->delformat => $this->foglang['Delete'],
+			);
+			$this->obj = $this->getClass('Group',$_REQUEST['id']);
+			$this->notes = array(
+				$this->foglang['Group'] => $this->obj->get('name'),
+				$this->foglang['Members'] => $this->obj->getHostCount(),
+			);
+		}
+		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
 		// Header row
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
@@ -621,7 +611,7 @@ class GroupManagementPage extends FOGPage
 	public function edit_post()
 	{
 		// Find
-		$Group = new Group($_REQUEST['id']);
+		$Group = $this->obj;
 		// Hook
 		$this->HookManager->processEvent('GROUP_EDIT_POST', array('Group' => &$Group));
 		// Group Edit 
@@ -738,7 +728,7 @@ class GroupManagementPage extends FOGPage
 	}
 	public function delete_hosts()
 	{
-		$Group = new Group($_REQUEST['id']);
+		$Group = $this->obj;
 		$this->title = _('Delete Hosts');
 		unset($this->data);
 		// Header Data

@@ -1,35 +1,14 @@
 <?php
-/**	Class Name: ClientManagementPage
-    FOGPage lives in: {fogwebdir}/lib/fog
-    Lives in: {fogwebdir}/lib/pages
-
-	Description: This is an extension of the FOGPage Class
-    This class controls locations you want FOG to associate
-	with.  It's only enabled if the plugin is installed.
- 
-    Useful for:
-    Setting up clients that may move from sight to sight.
-**/
-class ClientManagementPage extends FOGPage
-{
-	// Base variables
-	var $name = 'Client Management';
-	var $node = 'client';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
+class ClientManagementPage extends FOGPage {
 	// __construct
-	public function __construct($name = '')
-	{
+	public function __construct($name = '') {
+		$this->name = 'Client Management';
+		$this->node = 'client';
 		// Call parent constructor
-		parent::__construct($name);
+		parent::__construct($this->name);
 	}
 	// Pages
-	public function index()
-	{
+	public function index() {
 		$this->title = _('FOG Client Installer');
 		$webroot = ($this->FOGCore->getSetting('FOG_WEB_ROOT') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/') : '');
 		$url = "http://{$this->FOGCore->getSetting(FOG_WEB_HOST)}$webroot/client";

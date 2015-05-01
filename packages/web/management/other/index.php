@@ -38,10 +38,7 @@
 				</div>
 				<?php } ?></div>
 			<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !$this->isHomepage) { ?><!-- Submenu -->
-			<div id="sidebar">
-			<?php print $this->getClass('SubMenu')->buildMenu() ?>
-			</div>
-			<?php } ?>
+			<?php print $this->FOGPageManager->getSideMenu(); } ?>
 			<!-- Content -->
 			<div id="content"<?php $this->isHomepage ? print ' class="dashboard"' : '' ?>>
 				<?php print "<h1>$this->sectionTitle</h1>\n" ?>

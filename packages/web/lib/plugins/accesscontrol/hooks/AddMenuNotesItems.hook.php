@@ -15,9 +15,9 @@ class AddMenuNotesItems extends Hook
 	{
 		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
-			$arguments['submenu'][$this->node]['search'] = $this->foglang['NewSearch'];
-			$arguments['submenu'][$this->node]['list'] = sprintf($this->foglang['ListAll'],_('Controls'));
-			$arguments['submenu'][$this->node]['add'] = sprintf($this->foglang['CreateNew'],_('Control'));
+			$arguments['submenu']['search'] = $this->foglang['NewSearch'];
+			$arguments['submenu']['list'] = sprintf($this->foglang['ListAll'],_('Controls'));
+			$arguments['submenu']['add'] = sprintf($this->foglang['CreateNew'],_('Control'));
 		}
 	}
 	public function addSearch($arguments)

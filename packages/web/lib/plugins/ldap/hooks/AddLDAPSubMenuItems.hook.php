@@ -10,9 +10,9 @@ class AddLDAPSubMenuItems extends Hook
 	{
 		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
-			$arguments['submenu'][$this->node]['search'] = $this->foglang['NewSearch'];
-			$arguments['submenu'][$this->node]['list'] = sprintf($this->foglang['ListAll'],_('LDAP Server'));
-			$arguments['submenu'][$this->node]['add'] = sprintf($this->foglang['CreateNew'],_('LDAP Server'));
+			$arguments['submenu']['search'] = $this->foglang['NewSearch'];
+			$arguments['submenu']['list'] = sprintf($this->foglang['ListAll'],_('LDAP Server'));
+			$arguments['submenu']['test'] = sprintf($this->foglang['CreateNew'],_('LDAP Server'));
 			if ($_REQUEST['id'])
 			{
 				$LDAP = new LDAP($_REQUEST['id']);

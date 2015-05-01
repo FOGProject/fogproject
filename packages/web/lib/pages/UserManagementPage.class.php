@@ -1,30 +1,23 @@
 <?php
-/** Class Name: UserManagementPage
-	FOGPage lives in: {fogwebdir}/lib/fog
-	Lives in: {fogwebdir}/lib/page
-	Description: This is an extension of the FOGPage Class
-	Used to manage users.  Reset passwords.
-	Eventually for RBAC setup's as well.
-
-	Useful for:
-	Adding, Deleting users.  Resetting passwords for users.
-*/
-class UserManagementPage extends FOGPage
-{
-	// Base variables
-	var $name = 'User Management';
-	var $node = 'user';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
+class UserManagementPage extends FOGPage {
 	// __construct
 	public function __construct($name = '')
 	{
+		$this->name = 'User Management';
+		$this->node = 'user';
 		// Call parent constructor
-		parent::__construct($name);
+		parent::__construct($this->name);
+		if ($_REQUEST['id']) {
+			$this->subMenu = array(
+				$this->linkformat => $this->foglang['General'],
+				$this->delformat => $this->foglang['Delete'],
+			);
+			$this->obj = $this->getClass('User',$_REQUEST['id']);
+			$this->notes = array(
+				$this->foglang['User'] => $this->obj->get('name')
+			);
+		}
+		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
 		// Header row
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
@@ -179,7 +172,7 @@ class UserManagementPage extends FOGPage
 	public function edit()
 	{
 		// Find
-		$User = $this->getClass('User',$_REQUEST['id']);
+		$User = $this->obj;
 		// Title
 		$this->title = sprintf('%s: %s', _('Edit'), $User->get('name'));
 		$fields = array(
@@ -214,7 +207,7 @@ class UserManagementPage extends FOGPage
 	public function edit_post()
 	{
 		// Find
-		$User = $this->getClass('User',$_REQUEST['id']);
+		$User = $this->obj;
 		// Hook
 		$this->HookManager->processEvent('USER_EDIT_POST', array('User' => &$User));
 		// POST

@@ -1,34 +1,22 @@
 <?php
-/** Class Name: PrinterManagementPage
-    FOGPage lives in: {fogwebdir}/lib/fog
-    Lives in: {fogwebdir}/lib/pages
-
-	Description: This is an extension of the FOGPage Class
-    This class controls printers you want FOG to associate
-	for possible installing onto clients.
-    It, now, figures out the type of printer if you already
-	installed it and are editing it This way you can change
-	a printer's type easily.
- 
-    Useful for:
-    Setting up printers of network, iprint, or local.
-**/
-class PrinterManagementPage extends FOGPage
-{
-	// Base variables
-	var $name = 'Printer Management';
-	var $node = 'printer';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
-	// __construct
-	public function __construct($name = '')
-	{
-		// Call parent constructor
-		parent::__construct($name);
+class PrinterManagementPage extends FOGPage {
+	public function __construct($name = '') {
+		$this->name = 'Printer Management';
+		$this->node = 'printer';
+		parent::__construct($this->name);
+		if ($_REQUEST[id]) {
+			$this->obj = $this->getClass('Printer',$_REQUEST[id]);
+			$this->subMenu = array(
+				"$this->linkformat#$this->node-gen" => $this->foglang[General],
+				$this->membership => $this->foglang[Membership],
+				$this->delformat => $this->foglang[Delete],
+			);
+			$this->notes = array(
+				$this->foglang[Printer] => $this->obj->get('name'),
+				$this->foglang[Type] => $this->obj->get('config'),
+			);
+		}
+		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
 		// Header row
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
@@ -281,7 +269,7 @@ class PrinterManagementPage extends FOGPage
 	public function edit()
 	{
 		// Find
-		$Printer = new Printer($this->request['id']);
+		$Printer = $this->obj;
 		// Title
 		$this->title = sprintf('%s: %s', 'Edit', $Printer->get('name'));
 		print "\n\t\t\t".'<div id="tab-container">';
@@ -364,7 +352,7 @@ class PrinterManagementPage extends FOGPage
 	public function edit_post()
 	{
 		// Find
-		$Printer = new Printer($this->request['id']);
+		$Printer = $this->obj;
 		// Hook
 		$this->HookManager->processEvent('PRINTER_EDIT_POST', array('Printer' => &$Printer));
 		// POST

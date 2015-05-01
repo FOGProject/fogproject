@@ -3,6 +3,8 @@ require_once('../commons/base.inc.php');
 if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'],array('deletemulti','deleteconf')))
 	unset($_SESSION['delitems']);
 $currentUser = $FOGCore->FOGUser = ($_SESSION['FOG_USER'] ? unserialize($_SESSION['FOG_USER']) : null);
+/** $FOGPageManager initiates the FOGPageManager */
+$FOGPageManager = $FOGCore->FOGPageManager = new FOGPageManager();
 $Page = new Page();
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 if (!in_array($node,array('schemaupdater','client')) && !in_array($sub,array('configure','authorize')) && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn()))
@@ -23,7 +25,6 @@ if (!in_array($node,array('schemaupdater','client')) && !in_array($sub,array('co
 	$Page->endBody();
 	$Page->render();
 }
-$FOGPageManager = new FOGPageManager();
 $_SESSION['AllowAJAXTasks'] = true;
 $content = $FOGPageManager->render();
 $sectionTitle = $FOGPageManager->getFOGPageName();

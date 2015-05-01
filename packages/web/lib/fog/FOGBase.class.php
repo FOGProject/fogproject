@@ -450,7 +450,8 @@ abstract class FOGBase {
 		}
 		$Ignore = explode(',',$this->getClass('FOGCore')->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'));
 		foreach((array)$Ignore AS $ignore) {
-			if ($matches = preg_grep("#$ignore#i",$MACs)) {
+			$matches = preg_grep("#$ignore#i",$MACs);
+			if (count($matches)) {
 				$NewMatches = array_merge((array)$NewMatches,$matches);
 				unset($matches);
 			}

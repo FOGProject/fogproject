@@ -1,30 +1,24 @@
 <?php
-/**	Class Name: SnapinManagementPage
-	FOGPage lives in: {fogwebdir}/lib/fog
-	Lives in: {fogwebdir}/lib/pages
-	Description: This is an extension of the FOGPage Class
-	This class controls the snapin management page for FOG.
-	It helps create snapins for use on hosts
-	
-	Useful for:
-	Managing Snapins.
-**/
-class SnapinManagementPage extends FOGPage
-{
-	// Base variables
-	var $name = 'Snapin Management';
-	var $node = 'snapin';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
-	// __construct
-	public function __construct($name = '')
-	{
+class SnapinManagementPage extends FOGPage {
+	public function __construct($name = '') {
+		$this->name = 'Snapin Management';
+		$this->node = 'snapin';
 		// Call parent constructor
 		parent::__construct($name);
+		if ($_REQUEST['id']) {
+			$this->obj = $this->getClass('Snapin',$_REQUEST[id]);
+			$this->subMenu = array(
+				"$this->linkformat#snap-gen" => $this->foglang[General],
+				"$this->linkformat#snap-storage" => "{$this->foglang[Storage]} {$this->foglang[Group]}",
+				$this->membership => $this->foglang[Membership],
+				$this->delformat => $this->foglang[Delete],
+			);
+			$this->notes = array(
+				$this->foglang[Snapin] => $this->obj->get('name'),
+				$this->foglang[File] => $this->obj->get('file'),
+			);
+		}
+		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
 		// Header row
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
@@ -258,7 +252,7 @@ class SnapinManagementPage extends FOGPage
 	public function edit()
 	{
 		// Find
-		$Snapin = new Snapin($_REQUEST['id']);
+		$Snapin = $this->obj;
 		// Title
 		$this->title = sprintf('%s: %s', _('Edit'), $Snapin->get('name'));
 		// Header Data
@@ -492,7 +486,7 @@ class SnapinManagementPage extends FOGPage
 	public function edit_post()
 	{
 		// Find
-		$Snapin = new Snapin($_REQUEST['id']);
+		$Snapin = $this->obj;
 		// Hook
 		$this->HookManager->processEvent('SNAPIN_EDIT_POST', array('Snapin' => &$Snapin));
 		// POST

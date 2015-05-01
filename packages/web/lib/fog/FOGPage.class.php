@@ -2,20 +2,16 @@
 abstract class FOGPage extends FOGBase {
 	/** $name the name of the page */
 	public $name = '';
-	/** $debug whether or not to use debug output */
-	public $debug = false;
-	/** $info whether or not to use info output */
-	public $info = false;
 	/** $node the node for the page also in url */
 	public $node = '';
 	/** $id name of the ID variable used in Page */
-	public $id = '';
+	public $id = 'id';
 	/** $menu TODO: Finish, should contain this pages menu */
-	public $menu = array(
-	);
+	public $menu = array();
 	/** $subMenu TODO: Finish, should contain this pages sub menu */
-	public $subMenu = array(
-	);
+	public $subMenu = array();
+	/** $notes TODO: Finish, should contain the elements we want for notes */
+	public $notes = array();
 	/** $titleEnabled sets if the title is enabled for this page */
 	public $titleEnabled = true;
 	/** $title sets the title of this page */
@@ -51,17 +47,28 @@ abstract class FOGPage extends FOGBase {
 	// __construct
 	/** __construct() initiates the constructor of the pages */
 	public function __construct($name = '') {
+		$this->debug = false;
+		$this->info = false;
 		parent::__construct();
 		if (!empty($name)) $this->name = $name;
 		$this->title = $this->name;
+		$this->delformat = "?node={$this->node}&sub=delete&{$this->id}={$_REQUEST[id]}";
+		$this->linkformat = "?node={$this->node}&sub=edit&{$this->id}={$_REQUEST[id]}";
+		$this->membership = "?node={$this->node}&sub=membership&{$this->id}={$_REQUEST[id]}";
 		$this->request = $this->REQUEST = $this->DB->sanitize($_REQUEST);
 		$this->REQUEST['id'] = $_REQUEST[$this->id];
 		$this->request['id'] = $_REQUEST[$this->id];
 		$this->post = $this->isPOSTRequest();
 		$this->ajax = $this->isAJAXRequest();
 		$this->childClass = preg_replace('#ManagementPage#', '', preg_replace('#Mobile#','',get_class($this)));
+		$this->menu = array(
+			'search' => $this->foglang['NewSearch'],
+			'list' => sprintf($this->foglang['ListAll'],_($this->childClass.'s')),
+			'add' => sprintf($this->foglang['CreateNew'],_($this->childClass)),
+		);
 		$this->formAction = sprintf('%s?%s', $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
 		$this->HookManager->processEvent('SEARCH_PAGES',array('searchPages' => &$this->searchPages));
+		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
 	}
 	/** index() the default index for all pages that extend this class */
 	public function index() {
@@ -93,10 +100,9 @@ abstract class FOGPage extends FOGBase {
 	  */
 	public function process() {
 		try {
+			$result = '';
 			// Error checking
 			if (!count($this->templates)) throw new Exception('Requires templates to process');
-			// Variables
-			$result = '';
 			// Is AJAX Request?
 			if ($this->isAJAXRequest()) {
 				// JSON output
@@ -169,6 +175,7 @@ abstract class FOGPage extends FOGBase {
 	  * @return the results as parsed
 	  */
 	public function buildHeaderRow() {
+		unset($this->atts);
 		$this->setAtts();
 		// Loop data
 		if ($this->headerData) {
@@ -546,7 +553,7 @@ abstract class FOGPage extends FOGBase {
 	  */
 	public function adFieldsToDisplay() {
 		$ClassType = ucfirst($this->node);
-		$Data = new $ClassType($_REQUEST['id']);
+		$Data = $this->obj;
 		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
 		foreach((array)$OUs AS $OU) $OUOptions[] = $OU;
 		$OUOPtions = array_filter($OUOptions);
@@ -577,7 +584,7 @@ abstract class FOGPage extends FOGBase {
 			_('Domain Password').'<br />('._('Must be encrypted').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${host_adpass}" autocomplete="off" />',
 			'<input type="hidden" name="updatead" value="1" />' => '<input type="submit"value="'._('Update').'" />',
 		);
-		printf("%s",'<div id="'.$this->node.'-active-directory" class="organic-tabs-hidden">');
+		print '<div id="'.$this->node.'-active-directory" class="organic-tabs-hidden">';
 		printf("%s",'<form method="post" action="'.$this->formAction.'&tab='.$this->node.'-active-directory">');
 		printf("<h2>%s</h2>",_('Active Directory'));
 		foreach((array)$fields AS $field => $input) {
@@ -818,7 +825,7 @@ abstract class FOGPage extends FOGBase {
 	  * @return void
 	  */
 	public function search() {
-		if ($this->node == 'tasks' && $_REQUEST['sub'] != 'search') $this->FOGCore->redirect(sprintf('?node=%s&sub=active',$this->node));
+		if ($this->node == 'task' && $_REQUEST['sub'] != 'search') $this->FOGCore->redirect(sprintf('?node=%s&sub=active',$this->node));
 		// Set Title
 		$this->title = _('Search');
 		// Set search form
