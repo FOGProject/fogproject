@@ -1,30 +1,14 @@
 <?php
-/**	Class Name: DashboardPage
-    FOGPage lives in: {fogwebdir}/lib/fog
-    Lives in: {fogwebdir}/lib/pages
-    Description: This is an extension of the FOGPage Class
-    This class controls the Dashboard/Home page for fog.
-	It creates the elements dynamically when a person first logs
-	into FOG.
-    It, provides the overview elements:
-	System overview, Activity, Disk usage, and bandwidth
-	information.
-
-	Useful for:
-	One stop shop of overall server usage/activity.
-*/
-class DashboardPage extends FOGPage
-{
-	// Base variables
-	var $name = 'Dashboard';
-	var $node = 'home';
-	var $id = 'id';
-	// Pages
-	/** index()
-		The first page displayed especially when a user logs in.
-	*/
-	public function index()
-	{
+class DashboardPage extends FOGPage {
+	public function __construct($name = '') {
+		$this->name = 'Dashboard';
+		$this->node = 'home';
+		parent::__construct($this->name);
+		$this->menu = array();
+		$this->subMenu = array();
+		$this->notes = array();
+	}
+	public function index() {
 		$SystemUptime = $this->FOGCore->SystemUptime();
 		$fields = array(
 			_('Username') => $this->FOGUser ? $this->FOGUser->get('name') : '',
@@ -45,8 +29,7 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t".'<ul id="dashboard-boxes">';
 		print "\n\t\t\t<li>";
 		print "\n\t\t\t<h4>"._('System Overview').'</h4>';
-		foreach ((array)$fields AS $field => $fielddata)
-		{
+		foreach ((array)$fields AS $field => $fielddata) {
 			$this->data[] = array(
 				'field' => $field,
 				'fielddata' => $fielddata,
@@ -63,8 +46,7 @@ class DashboardPage extends FOGPage
 		print "\n\t\t\t<h4>"._('Disk Information').'</h4>';
 		print "\n\t\t\t".'<div id="diskusage-selector">';
 		$webroot = '/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/';
-		foreach ((array)$this->getClass('StorageNodeManager')->find(array('isEnabled' => 1,'isGraphEnabled' => 1)) AS $StorageNode)
-		{
+		foreach ((array)$this->getClass('StorageNodeManager')->find(array('isEnabled' => 1,'isGraphEnabled' => 1)) AS $StorageNode) {
 			$version = $this->FOGURLRequests->process($StorageNode->get('ip').$webroot.'/service/getversion.php','GET');
 			$options .= "\n\t\t\t".'<option value="'.$StorageNode->get('id').'">'.$StorageNode->get('name').($StorageNode->get('isMaster') == '1' ? " * ({$version[0]})" : '').'</option>';
 		}

@@ -1,17 +1,45 @@
 <?php
 class HostManagementPage extends FOGPage {
-	/** __construct($name = '')
-		Host default construction for listing the hosts.
-	*/
-	public function __construct($name = '')
-	{
-		// Call parent constructor
+	public function __construct($name = '') {
 		$this->name = 'Host Management';
 		$this->node = 'host';
-		$this->id = 'id';
-		$this->menu = array();
-		$this->subMenu = array();
 		parent::__construct($this->name);
+		if ($_SESSION[Pending-Hosts]) $this->menu[pending] = $this->foglang[PendingHosts];
+		$this->menu[export] = $this->foglang[ExportHost];
+		$this->menu[import] = $this->foglang[ImportHost];
+		if ($_REQUEST['id']) {
+			$this->obj = $this->getClass('Host',$_REQUEST[id]);
+			if ($this->obj->isValid()) {
+				$this->subMenu = array(
+					"$this->linkformat#host-general" => $this->foglang[General],
+					"$this->linkformat#host-grouprel" => $this->foglang[Groups],
+				);
+				if (!$this->obj->get('pending')) $this->subMenu = array_merge($this->subMenu,array("$this->linkformat#host-tasks" => $this->foglang[BasicTasks]));
+				$this->subMenu = array_merge($this->subMenu,array(
+					"$this->linkformat#host-active-directory" => $this->foglang[AD],
+					"$this->linkformat#host-printers" => $this->foglang[Printers],
+					"$this->linkformat#host-snapins" => $this->foglang[Snapins],
+					"$this->linkformat#host-service" => "{$this->foglang[Service]} {$this->foglang[Settings]}",
+					"$this->linkformat#host-hardware-inventory" => $this->foglang[Inventory],
+					"$this->linkformat#host-virus-history" => $this->foglang[VirusHistory],
+					"$this->linkformat#host-login-history" => $this->foglang[LoginHistory],
+					"$this->linkformat#host-image-history" => $this->foglang[ImageHistory],
+					"$this->linkformat#host-snapin-history" => $this->foglang[SnapinHistory],
+					$this->delformat => $this->foglang[Delete],
+				));
+				$this->notes = array(
+					$this->foglang['Host'] => $this->obj->get('name'),
+					$this->foglang['MAC'] => $this->obj->get('mac'),
+					$this->foglang['Image'] => $this->obj->getImage()->get('name'),
+					$this->foglang['LastDeployed'] => $this->obj->get('deployed'),
+				);
+				foreach ((array)$this->obj->get('groups') AS $Group) {
+					if ($Group && $Group->isValid()) break;
+				}
+				if ($Group && $Group->isValid()) $this->notes[$this->foglang['PrimaryGroup']] = $Group->get('name');
+			}
+		}
+		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
 		// Header row
 		$this->headerData = array(
 			'',
@@ -53,20 +81,16 @@ class HostManagementPage extends FOGPage {
 			array('width' => 20, 'class' => 'r')
 		);
 	}
-	/** index()
-		This display's the first page.
-	*/
-	public function index()
-	{
+	/** @function index() the first page
+	  * @return void
+	  */
+	public function index() {
 		// Set title
 		$this->title = $this->foglang['AllHosts'];
 		// Find data -> Push data
-		if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list')
-			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
-		foreach ($this->getClass('HostManager')->find() AS $Host)
-		{
-			if ($Host && $Host->isValid() && !$Host->get('pending'))
-			{
+		if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
+		foreach ($this->getClass('HostManager')->find() AS $Host) {
+			if ($Host && $Host->isValid() && !$Host->get('pending')) {
 				$this->data[] = array(
 					'host_id'	=> $Host->get('id'),
 					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
@@ -86,13 +110,10 @@ class HostManagementPage extends FOGPage {
 	/** search_post()
 		Provides the data from the search.
 	*/
-	public function search_post()
-	{
+	public function search_post() {
 		// Find data -> Push data
-		foreach($this->getClass('HostManager')->search() AS $Host)
-		{
-			if ($Host && $Host->isValid())
-			{
+		foreach($this->getClass('HostManager')->search() AS $Host) {
+			if ($Host && $Host->isValid()) {
 				$this->data[] = array(
 					'host_id'	=> $Host->get('id'),
 					'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
@@ -112,8 +133,7 @@ class HostManagementPage extends FOGPage {
 	/** pending()
 		Display's pending hosts from the host register.  This is where it will show hosts that are pending and can be approved en-mass.
 	*/
-	public function pending()
-	{
+	public function pending() {
 		$this->title = _('Pending Host List');
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 		$this->headerData = array(
@@ -140,10 +160,8 @@ class HostManagementPage extends FOGPage {
 			array('width' => 80, 'class' => 'c'),
 			array('width' => 50, 'class' => 'r'),
 		);
-		foreach($this->getClass('HostManager')->find(array('pending' => 1)) AS $Host)
-		{
-			if ($Host && $Host->isValid())
-			{
+		foreach($this->getClass('HostManager')->find(array('pending' => 1)) AS $Host) {
+			if ($Host && $Host->isValid()) {
 				$this->data[] = array(
 					'host_id'	=> $Host->get('id'),
 					'host_name' => $Host->get('name'),
@@ -157,55 +175,41 @@ class HostManagementPage extends FOGPage {
 		$this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData' => &$this->headerData));
 		// Output
 		$this->render();
-		if (count($this->data) > 0)
-			print '<center><input name="approvependhost" type="submit" value="'._('Approve selected Hosts').'"/>&nbsp;&nbsp;<input name="delpendhost" type="submit" value="'._('Delete selected Hosts').'"/></center>';
-		print "\n\t\t\t</form>";
+		if (count($this->data) > 0) print '<center><input name="approvependhost" type="submit" value="'._('Approve selected Hosts').'"/>&nbsp;&nbsp;<input name="delpendhost" type="submit" value="'._('Delete selected Hosts').'"/></center>';
+		print '</form>';
 	}
-	/** pending_post()
-		Actually approve the hosts as they are selected.
-	*/
-	public function pending_post()
-	{
+	/** @function pending_post() approve/delete hosts
+	  * @return void
+	  */
+	public function pending_post() {
 		$countOfHosts = count($_REQUEST['host']);
 		$count = 0;
-		if (isset($_REQUEST['approvependhost']))
-		{
-			foreach ($_REQUEST['host'] AS $HostID)
-			{
-				$Host = new Host($HostID);
-				if ($Host && $Host->isValid())
-				{
-					$Host->set('pending',null);
-					if ($Host->save())
-						$count++;
-				} 
+		if (isset($_REQUEST['approvependhost'])) {
+			foreach ($_REQUEST['host'] AS $HostID) {
+				$this->getClass('Host',$HostID)->set('pending',null)->save();
+				$count++;
 			}
 		}
-		if (isset($_REQUEST['delpendhost']))
-		{
-			foreach($_REQUEST['host'] AS $HostID)
-			{
-				$Host = new Host($HostID);
-				if ($Host && $Host->isValid() && $Host->destroy())
-					$count++;
+		if (isset($_REQUEST['delpendhost'])) {
+			foreach($_REQUEST['host'] AS $HostID) {
+				$this->getClass('Host',$HostID)->destroy();
+				$count++;
 			}
 		}
-		if ($count == $countOfHosts)
-		{
-			$this->FOGCore->setMessage(_('All hosts approved successfully'));
+		$appdel = (isset($_REQUEST['approvependhost']) ? 'approved' : 'deleted');
+		if ($count == $countOfHosts) {
+			$this->FOGCore->setMessage(_("All hosts $appdel successfully"));
 			$this->FOGCore->redirect('?node='.$_REQUEST['node']);
 		}
-		if ($count != $countOfHosts)
-		{
-			$this->FOGCore->setMessage($countApproved.' '._('of').' '.$countOfHosts.' '._('approved successfully'));
+		if ($count != $countOfHosts) {
+			$this->FOGCore->setMessage($countApproved.' '._('of').' '.$countOfHosts.' '._("$appdel successfully"));
 			$this->FOGCore->redirect($this->formAction);
 		}
 	}
 	/** add()
 		Add's a new host.
 	*/
-	public function add()
-	{
+	public function add() {
 		// Set title
 		$this->title = _('New Host');
 		unset($this->data);
@@ -240,11 +244,10 @@ class HostManagementPage extends FOGPage {
 			_('Domain Password').'<br/>'._('Must be encrypted') => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${ad_pass}" autocomplete="off" />',
 			'<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" />'
 		);
-		print "\n\t\t\t<h2>"._('Add new host definition').'</h2>';
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+		print '<h2>'._('Add new host definition').'</h2>';
+		print '<form method="post" action="'.$this->formAction.'">';
 		$this->HookManager->processEvent('HOST_FIELDS', array('fields' => &$fields));
-		foreach ($fields AS $field => $input)
-		{
+		foreach ($fields AS $field => $input) {
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
@@ -264,26 +267,20 @@ class HostManagementPage extends FOGPage {
 		$this->render();
 		// unset for use later.
 		unset ($this->data);
-		print "\n\t\t\t<h2>"._('Active Directory').'</h2>';
+		print '<h2>'._('Active Directory').'</h2>';
 		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
-		foreach ((array)$OUs AS $OU)
-			$OUOptions[] = $OU;
+		foreach ((array)$OUs AS $OU) $OUOptions[] = $OU;
 		$OUOptions = array_filter($OUOptions);
-		if (count($OUOptions) > 1)
-		{
+		if (count($OUOptions) > 1) {
 			$OUs = array_unique((array)$OUOptions);
 			$optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
-			foreach ($OUs AS $OU)
-			{
+			foreach ($OUs AS $OU) {
 				$opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
 				$optionOU[] = '<option value="'.$opt.'"'.($_REQUEST['ou'] == $opt ? ' selected="selected"' : (preg_match('#;#i',$OU) ? ' selected="selected"' : '')).'>'.$opt.'</option>';
 			}
 			$OUOptions = '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>';
-		}
-		else
-			$OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" value="${ad_ou}" autocomplete="off" />';
-		foreach ((array)$fieldsad AS $field => $input)
-		{
+		} else $OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" value="${ad_ou}" autocomplete="off" />';
+		foreach ((array)$fieldsad AS $field => $input) {
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
@@ -299,34 +296,26 @@ class HostManagementPage extends FOGPage {
 		$this->HookManager->processEvent('HOST_ADD_AD', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
-		print "\n\t\t\t</form>";
+		print "</form>";
 	}
 	/** add_post()
 		Actually add's the host.
 	*/
-	public function add_post()
-	{
+	public function add_post() {
 		// Hook
 		$this->HookManager->processEvent('HOST_ADD_POST');
 		// POST ?
-		try
-		{
+		try {
 			// Error checking
-			if (empty($_REQUEST['host']))
-				throw new Exception(_('Hostname is required'));
-			if (!$this->getClass('HostManager')->isHostnameSafe($_REQUEST['host']))
-				throw new Exception(_('Please enter a valid hostname'));
-			if (empty($_REQUEST['mac']))
-				throw new Exception(_('MAC Address is required'));
+			if (empty($_REQUEST['host'])) throw new Exception(_('Hostname is required'));
+			if (!$this->getClass('HostManager')->isHostnameSafe($_REQUEST['host'])) throw new Exception(_('Please enter a valid hostname'));
+			if (empty($_REQUEST['mac'])) throw new Exception(_('MAC Address is required'));
 			$MAC = new MACAddress($_REQUEST['mac']);
-			if (!$MAC || !$MAC->isValid())
-				throw new Exception(_('MAC Format is invalid'));
+			if (!$MAC || !$MAC->isValid()) throw new Exception(_('MAC Format is invalid'));
 			// Check if host exists with MAC Address.
 			$Host = $this->getClass('HostManager')->getHostByMacAddresses($MAC);
-			if ($Host && $Host->isValid())
-				throw new Exception(_('A host with this MAC already exists with Hostname: ').$Host->get('name'));
-			if ($this->getClass('HostManager')->exists($_REQUEST['host']))
-				throw new Exception(_('Hostname already exists'));
+			if ($Host && $Host->isValid()) throw new Exception(_('A host with this MAC already exists with Hostname: ').$Host->get('name'));
+			if ($this->getClass('HostManager')->exists($_REQUEST['host'])) throw new Exception(_('Hostname already exists'));
 			// Get all the service id's so they can be enabled.
 			$ModuleIDs = $this->getClass('ModuleManager')->find('','','','','','','','id');
 			$password = $_REQUEST['domainpassword'];
@@ -356,8 +345,7 @@ class HostManagementPage extends FOGPage {
 			$pass = trim($_REQUEST['domainpassword']);
 			$Host->setAD($useAD,$domain,$ou,$user,$pass,true,true);
 			// Save to database
-			if ($Host->save())
-			{
+			if ($Host->save()) {
 				// Hook
 				$this->HookManager->processEvent('HOST_ADD_SUCCESS', array('Host' => &$Host));
 				// Log History event
@@ -366,12 +354,8 @@ class HostManagementPage extends FOGPage {
 				$this->FOGCore->setMessage(_('Host added'));
 				// Redirect to new entry
 				$this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s', $this->REQUEST['node'], $this->id, $Host->get('id')));
-			}
-			else
-				throw new Exception('Database update failed');
-		}
-		catch (Exception $e)
-		{
+			} else throw new Exception('Database update failed');
+		} catch (Exception $e) {
 			// Hook
 			$this->HookManager->processEvent('HOST_ADD_FAIL', array('Host' => &$Host));
 			// Log History event
@@ -385,10 +369,9 @@ class HostManagementPage extends FOGPage {
 	/** edit()
 		Edit host form information.
 	*/
-	public function edit()
-	{
+	public function edit() {
 		// Find
-		$Host = new Host($_REQUEST['id']);
+		$Host = $this->obj;
 		// Inventory find for host.
 		$Inventory = $Host->get('inventory');
 		// Image for this host
@@ -396,17 +379,13 @@ class HostManagementPage extends FOGPage {
 		// Get the associated Groups.
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', 'Edit', $Host->get('name'));
-		if ($_REQUEST['approveHost'])
-		{
+		if ($_REQUEST['approveHost']) {
 			$Host->set('pending',null);
-			if ($Host->save())
-				$this->FOGCore->setMessage(_('Host approved'));
-			else
-				$this->FOGCore->setMessage(_('Host approval failed.'));
+			if ($Host->save()) $this->FOGCore->setMessage(_('Host approved'));
+			else $this->FOGCore->setMessage(_('Host approval failed.'));
 			$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
 		}
-		if ($Host->get('pending'))
-			print '<h2><a href="'.$this->formAction.'&approveHost=1">'._('Approve this host?').'</a></h2>';
+		if ($Host->get('pending')) print '<h2><a href="'.$this->formAction.'&approveHost=1">'._('Approve this host?').'</a></h2>';
 		unset($this->headerData);
 		$this->attributes = array(
 			array(),
@@ -416,39 +395,29 @@ class HostManagementPage extends FOGPage {
 			'${field}',
 			'${input}',
 		);
-		if ($_REQUEST['confirmMac'])
-		{
-			try
-			{
+		if ($_REQUEST['confirmMac']) {
+			try {
 				$MAC = new MACAddress($_REQUEST['confirmMac']);
-				if (!$MAC->isValid())
-					throw new Exception(_('Invalid MAC Address'));
+				if (!$MAC->isValid()) throw new Exception(_('Invalid MAC Address'));
 				$Host->addPendtoAdd($MAC);
-				if ($Host->save())
-					$this->FOGCore->setMessage('MAC: '.$MAC.' Approved!');
-			}
-			catch (Exception $e)
-			{
+				if ($Host->save()) $this->FOGCore->setMessage('MAC: '.$MAC.' Approved!');
+			} catch (Exception $e) {
 				$this->FOGCore->setMessage($e->getMessage());
 			}
 			$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
 		}
-		if ($_REQUEST['approveAll'] == 1)
-		{
+		if ($_REQUEST['approveAll'] == 1) {
 			$Host->addPendtoAdd($Host->get('pendingMACs'));
-			if ($Host->save())
-			{
+			if ($Host->save()) {
 				$this->FOGCore->setMessage('All Pending MACs approved.');
 				$this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
 			}
 		}
-		foreach((array)$Host->get('additionalMACs') AS $MAC)
-		{
+		foreach((array)$Host->get('additionalMACs') AS $MAC) {
 			if ($MAC && $MAC->isValid())
 				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" /><input title="'._('Remove MAC').'" type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" /><label for="rm'.$MAC.'" class="icon fa fa-minus-circle hand">&nbsp;</label><span class="icon icon-hand" title="'._('Make Primary').'"><input type="radio" name="primaryMAC" value="'.$MAC.'" /></span><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$Host->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$Host->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span></div>';
 		}
-		foreach ((array)$Host->get('pendingMACs') AS $MAC)
-		{
+		foreach ((array)$Host->get('pendingMACs') AS $MAC) {
 			if ($MAC && $MAC->isValid())
 				$pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC.'" /><a href="${link}&confirmMac='.$MAC.'"><i class="icon fa fa-check-circle"></i></a><span class="mac-manufactor"></span></div>';
 		}
@@ -468,14 +437,13 @@ class HostManagementPage extends FOGPage {
 			'&nbsp' => '<input type="submit" value="'._('Update').'" />',
 		);
 		$this->HookManager->processEvent('HOST_FIELDS',array('fields' => &$fields));
-		print "\n\t\t\t".'<div id="tab-container">';
-		print "\n\t\t\t<!-- General -->";
-		print "\n\t\t\t".'<div id="host-general">';
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-general">';
-		print "\n\t\t\t<h2>"._('Edit host definition').'</h2>';
+		print '<div id="tab-container">';
+		print "<!-- General -->";
+		print '<div id="host-general">';
+		print '<form method="post" action="'.$this->formAction.'&tab=host-general">';
+		print '<h2>'._('Edit host definition').'</h2>';
 		$imageSelect = $this->getClass('ImageManager')->buildSelectBox($Image->get('id'));
-		foreach($fields AS $field => $input)
-		{
+		foreach($fields AS $field => $input) {
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
@@ -494,12 +462,11 @@ class HostManagementPage extends FOGPage {
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_GEN', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		$this->render();
-		print '</form>';
-		print "\n\t\t\t</div>";
+		print '</form></div>';
 		unset($this->data);
-		print "\n\t\t\t<!-- Group Relationships -->";
-		print "\n\t\t\t".'<div id="host-grouprel" class="organic-tabs-hidden">';
-		print "\n\t\t\t<h2>"._('Group Relationships').'</h2>';
+		print "<!-- Group Relationships -->";
+		print '<div id="host-grouprel" class="organic-tabs-hidden">';
+		print '<h2>'._('Group Relationships').'</h2>';
 		// Create the Header:
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkboxgroup" class="toggle-checkboxgroup" />',
@@ -518,10 +485,8 @@ class HostManagementPage extends FOGPage {
 			array('width' => 90, 'class' => 'l'),
 			array('width' => 40, 'class' => 'c'),
 		);
-		foreach($Host->get('groupsnotinme') AS $Group)
-		{
-			if ($Group && $Group->isValid())
-			{
+		foreach($Host->get('groupsnotinme') AS $Group) {
+			if ($Group && $Group->isValid()) {
 				$this->data[] = array(
 					'group_id' => $Group->get('id'),
 					'group_name' => $Group->get('name'),
@@ -529,16 +494,14 @@ class HostManagementPage extends FOGPage {
 				);
 			}
 		}
-		if (count($this->data) > 0)
-		{
+		if (count($this->data) > 0) {
 			$this->HookManager->processEvent('HOST_GROUP_JOIN',array('headerData' => &$this->headerData,'templates' => &$this->templates,'attributes' => &$this->attributes,'data' => &$this->data));
-			print "\n\t\t\t<center>".'<label for="hostGroupShow">'._('Check here to see groups this host is not associated with').'&nbsp;&nbsp;<input type="checkbox" name="hostGroupShow" id="hostGroupShow" /></label></center>';
-			print "\n\t\t\t".'<center><div id="hostGroupDisplay">';
-			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-grouprel">';
+			print '<center><label for="hostGroupShow">'._('Check here to see groups this host is not associated with').'&nbsp;&nbsp;<input type="checkbox" name="hostGroupShow" id="hostGroupShow" /></label></center>';
+			print '<center><div id="hostGroupDisplay">';
+			print '<form method="post" action="'.$this->formAction.'&tab=host-grouprel">';
 			$this->render();
 			print '<input type="submit" name="addGroups" value="'._('Add to Group(s)').'" />';
-			print "\n\t\t\t</form>";
-			print "\n\t\t\t</div></center>";
+			print '</form></div></center>';
 		}
 		unset($this->data);
 		$this->headerData = array(
@@ -557,10 +520,8 @@ class HostManagementPage extends FOGPage {
 			'${group_count}',
 		);
 		// Find Group Relationships
-		foreach((array)$Host->get('groups') AS $Group)
-		{
-			if ($Group && $Group->isValid())
-			{
+		foreach((array)$Host->get('groups') AS $Group) {
+			if ($Group && $Group->isValid()) {
 				$this->data[] = array(
 					'group_id' => $Group->get('id'),
 					'group_name' => $Group->get('name'),
@@ -570,19 +531,17 @@ class HostManagementPage extends FOGPage {
 		}
 		// Hook
 		$this->HookManager->processEvent('HOST_EDIT_GROUP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-grouprel">';
+		print '<form method="post" action="'.$this->formAction.'&tab=host-grouprel">';
 		$this->render();
 		if (count($this->data) > 0)
-			print "\n\t\t\t".'<center><input type="submit" value="'._('Delete Selected Group Associations').'" name="remgroups"/></center>';
-		unset($this->data,$this->headerData);
-		print '</form>';
-		print "\n\t\t\t</div>";
-		if (!$Host->get('pending'))
-			$this->basictasksOptions();
+			print '<center><input type="submit" value="'._('Delete Selected Group Associations').'" name="remgroups"/></center>';
+		unset($this->data,$this->headerData,$this->attributes);
+		print '</form></div>';
+		if (!$Host->get('pending')) $this->basictasksOptions();
 		$this->adFieldsToDisplay();
-		print "\n\t\t\t<!-- Printers -->";
-		print "\n\t\t\t".'<div id="host-printers" class="organic-tabs-hidden">';
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-printers">';
+		print "<!-- Printers -->";
+		print '<div id="host-printers" class="organic-tabs-hidden">';
+		print '<form method="post" action="'.$this->formAction.'&tab=host-printers">';
 		// Create Header for non associated printers
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkboxprint" class="toggle-checkboxprint" />',
@@ -600,10 +559,8 @@ class HostManagementPage extends FOGPage {
 			array('width' => 50, 'class' => 'l'),
 			array('width' => 50, 'class' => 'r'),
 		);
-		foreach((array)$Host->get('printersnotinme') AS $Printer)
-		{
-			if ($Printer && $Printer->isValid() && !in_array($Printer->get('id'),(array)$PrinterIDs))
-			{
+		foreach((array)$Host->get('printersnotinme') AS $Printer) {
+			if ($Printer && $Printer->isValid() && !in_array($Printer->get('id'),(array)$PrinterIDs)) {
 				$this->data[] = array(
 					'printer_id' => $Printer->get('id'),
 					'printer_name' => addslashes($Printer->get('name')),
@@ -612,12 +569,11 @@ class HostManagementPage extends FOGPage {
 			}
 		}
 		$PrintersFound = false;
-		if (count($this->data) > 0)
-		{
+		if (count($this->data) > 0) {
 			$PrintersFound = true;
-			print "\n\t\t\t<center>".'<label for="hostPrinterShow">'._('Check here to see what printers can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostPrinterShow" id="hostPrinterShow" /></label></center>';
-			print "\n\t\t\t".'<div id="printerNotInHost">';
-			print "\n\t\t\t<h2>"._('Add new printer(s) to this host').'</h2>';
+			print '<center><label for="hostPrinterShow">'._('Check here to see what printers can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostPrinterShow" id="hostPrinterShow" /></label></center>';
+			print '<div id="printerNotInHost">';
+			print '<h2>'._('Add new printer(s) to this host').'</h2>';
 			$this->HookManager->processEvent('HOST_ADD_PRINTER', array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
 			// Output
 			$this->render();
@@ -642,17 +598,14 @@ class HostManagementPage extends FOGPage {
 			'<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
 			'${printer_type}',
 		);
-		print "\n\t\t\t<h2>"._('Host Printer Configuration').'</h2>';
-		print "\n\t\t\t<p>"._('Select Management Level for this Host').'</p>';
-		print "\n\t\t\t<p>";
-		print "\n\t\t\t".'<input type="radio" name="level" value="0"'.($Host->get('printerLevel') == 0 ? 'checked' : '').' />'._('No Printer Management').'<br/>';
-		print "\n\t\t\t".'<input type="radio" name="level" value="1"'.($Host->get('printerLevel') == 1 ? 'checked' : '').' />'._('Add Only').'<br/>';
-		print "\n\t\t\t".'<input type="radio" name="level" value="2"'.($Host->get('printerLevel') == 2 ? 'checked' : '').' />'._('Add and Remove').'<br/>';
-		print "\n\t\t\t</p>";
-		foreach ((array)$Host->get('printers') AS $Printer)
-		{
-			if ($Printer && $Printer->isValid())
-			{
+		print "<h2>"._('Host Printer Configuration').'</h2>';
+		print "<p>"._('Select Management Level for this Host').'</p>';
+		print "<p>";
+		print '<input type="radio" name="level" value="0"'.($Host->get('printerLevel') == 0 ? 'checked' : '').' />'._('No Printer Management').'<br/>';
+		print '<input type="radio" name="level" value="1"'.($Host->get('printerLevel') == 1 ? 'checked' : '').' />'._('Add Only').'<br/>';
+		print '<input type="radio" name="level" value="2"'.($Host->get('printerLevel') == 2 ? 'checked' : '').' />'._('Add and Remove').'<br/></p>';
+		foreach ((array)$Host->get('printers') AS $Printer) {
+			if ($Printer && $Printer->isValid()) {
 				$this->data[] = array(
 					'printer_id' => $Printer->get('id'),
 					'is_default' => ($Host->getDefault($Printer->get('id')) ? 'checked' : ''),
@@ -665,19 +618,14 @@ class HostManagementPage extends FOGPage {
 		$this->HookManager->processEvent('HOST_EDIT_PRINTER', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
-		if ($PrintersFound || count($this->data) > 0)
-			print "\n\t\t\t".'<center><input type="submit" value="'._('Update').'" name="updateprinters"/>';
-		if (count($this->data) > 0)
-			print '&nbsp;&nbsp;<input type="submit" value="'._('Remove selected printers').'" name="printdel"/>';
+		if ($PrintersFound || count($this->data) > 0) print '<center><input type="submit" value="'._('Update').'" name="updateprinters"/>';
+		if (count($this->data) > 0) print '&nbsp;&nbsp;<input type="submit" value="'._('Remove selected printers').'" name="printdel"/>';
 		print "</center>";
 		// Reset for next tab
 		unset($this->data, $this->headerData);
-		print "\n\t\t\t</form>";
-		print "\n\t\t\t</div>";
-		print "\n\t\t\t<!-- Snapins -->";
-		print "\n\t\t\t".'<div id="host-snapins" class="organic-tabs-hidden">';
-		print "\n\t\t\t<h2>"._('Snapins').'</h2>';
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-snapins">';
+		print '</form></div><!-- Snapins --><div id="host-snapins" class="organic-tabs-hidden">';
+		print '<h2>'._('Snapins').'</h2>';
+		print '<form method="post" action="'.$this->formAction.'&tab=host-snapins">';
 		// Create the header:
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkboxsnapin" class="toggle-checkboxsnapin" />',
@@ -696,10 +644,8 @@ class HostManagementPage extends FOGPage {
 			array('width' => 90, 'class' => 'l'),
 			array('width' => 20, 'class' => 'r'),
 		);
-		foreach((array)$Host->get('snapinsnotinme') AS $Snapin)
-		{
-			if ($Snapin && $Snapin->isValid())
-			{
+		foreach((array)$Host->get('snapinsnotinme') AS $Snapin) {
+			if ($Snapin && $Snapin->isValid()) {
 				$this->data[] = array(
 					'snapin_id' => $Snapin->get('id'),
 					'snapin_name' => $Snapin->get('name'),
@@ -707,16 +653,13 @@ class HostManagementPage extends FOGPage {
 				);
 			}
 		}
-		if (count($this->data) > 0)
-		{
-			print "\n\t\t\t<center>".'<label for="hostSnapinShow">'._('Check here to see what snapins can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostSnapinShow" id="hostSnapinShow" /></label>';
-			print "\n\t\t\t".'<div id="snapinNotInHost">';
+		if (count($this->data) > 0) {
+			print '<center><label for="hostSnapinShow">'._('Check here to see what snapins can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostSnapinShow" id="hostSnapinShow" /></label>';
+			print '<div id="snapinNotInHost">';
 			$this->HookManager->processEvent('HOST_SNAPIN_JOIN',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
 			$this->render();
-			print "\n\t\t\t".'<input type="submit" value="'._('Add Snapin(s)').'" />';
-			print "\n\t\t\t</form>";
-			print "\n\t\t\t</div></center>";
-			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-snapins">';
+			print '<input type="submit" value="'._('Add Snapin(s)').'" /></form></div></center>';
+			print '<form method="post" action="'.$this->formAction.'&tab=host-snapins">';
 			unset($this->data);
 		}
 		$this->headerData = array(
@@ -731,10 +674,8 @@ class HostManagementPage extends FOGPage {
 			'<input type="checkbox" name="snapinRemove[]" value="${snap_id}" class="toggle-action" checked/>',
 			'<a href="?node=snapin&sub=edit&id=${snap_id}">${snap_name}</a>',
 		);
-		foreach ((array)$Host->get('snapins') AS $Snapin)
-		{
-			if ($Snapin && $Snapin->isValid())
-			{
+		foreach ((array)$Host->get('snapins') AS $Snapin) {
+			if ($Snapin && $Snapin->isValid()) {
 				$this->data[] = array(
 					'snap_id' => $Snapin->get('id'),
 					'snap_name' => $Snapin->get('name'),
@@ -745,12 +686,10 @@ class HostManagementPage extends FOGPage {
 		$this->HookManager->processEvent('HOST_EDIT_SNAPIN', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
 		// Output
 		$this->render();
-		print "\n\t\t\t".'<center><input type="submit" name="snaprem" value="'._('Remove selected snapins').'"/></center>';
-		print "</form>";
-		print "\n\t\t\t</div>";
+		print '<center><input type="submit" name="snaprem" value="'._('Remove selected snapins').'"/></center></form></div>';
 		// Reset for next tab
 		unset($this->data, $this->headerData);
-		print "\n\t\t\t<!-- Service Configuration -->";
+		print '<!-- Service Configuration -->';
        	$this->attributes = array(
 			array('width' => 270),
 			array('class' => 'c'),
@@ -766,17 +705,14 @@ class HostManagementPage extends FOGPage {
 			'input' => '<input type="checkbox" class="checkboxes" id="checkAll" name="checkAll" value="checkAll" />',
 			'span' => ''
 		);
-		print "\n\t\t\t".'<div id="host-service" class="organic-tabs-hidden">';
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-service">';
-		print "\n\t\t\t<h2>"._('Service Configuration').'</h2>';
-		print "\n\t\t\t<fieldset>";
-		print "\n\t\t\t<legend>"._('General').'</legend>';
+		print '<div id="host-service" class="organic-tabs-hidden">';
+		print '<form method="post" action="'.$this->formAction.'&tab=host-service">';
+		print '<h2>'._('Service Configuration').'</h2><fieldset>';
+		print "<legend>"._('General').'</legend>';
 		$ModOns = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $Host->get('id')),'','','','','','','moduleID');
 		$moduleName = $this->getGlobalModuleStatus();
-		foreach ($this->getClass('ModuleManager')->find() AS $Module)
-		{
-			if ($Module && $Module->isValid())
-			{
+		foreach ($this->getClass('ModuleManager')->find() AS $Module) {
+			if ($Module && $Module->isValid()) {
 				$this->data[] = array(
 					'input' => '<input type="checkbox" '.($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes"' : '').' name="modules[]" value="${mod_id}" ${checked} '.(!$moduleName[$Module->get('shortName')] ? 'disabled' : '').' />',
 					'span' => '<span class="icon fa fa-question fa-1x hand" title="${mod_desc}"></span>',
@@ -800,11 +736,10 @@ class HostManagementPage extends FOGPage {
 		$this->render();
 		// Reset for next tab
 		unset($this->data);
-		print "\n\t\t\t</fieldset>";
-		print "\n\t\t\t</form>";
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-service">';
-		print "\n\t\t\t<fieldset>";
-		print "\n\t\t\t<legend>"._('Host Screen Resolution').'</legend>';
+		print '</fieldset></form>';
+		print '<form method="post" action="'.$this->formAction.'&tab=host-service">';
+		print "<fieldset>";
+		print "<legend>"._('Host Screen Resolution').'</legend>';
 		$this->attributes = array(
 			array('class' => 'l','style' => 'padding-right: 25px'),
 			array('class' => 'c'),
@@ -816,10 +751,8 @@ class HostManagementPage extends FOGPage {
 			'${span}',
 		);
 		$Services = $this->getClass('ServiceManager')->find(array('name' => array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')), 'OR', 'id');
-		foreach((array)$Services AS $Service)
-		{
-			if ($Service && $Service->isValid())
-			{
+		foreach((array)$Services AS $Service) {
+			if ($Service && $Service->isValid()) {
 				$this->data[] = array(
 					'input' => '<input type="text" name="${type}" value="${disp}" />',
 					'span' => '<span class="icon fa fa-question fa-1x hand" title="${desc}"></span>',
@@ -841,10 +774,9 @@ class HostManagementPage extends FOGPage {
 		$this->render();
 		// Reset for next tab
 		unset($this->data);
-		print "</fieldset>";
-		print "\n\t\t\t</form>";
-		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-service">';
-		print "\n\t\t\t<fieldset>";
+		print '</fieldset></form>';
+		print '<form method="post" action="'.$this->formAction.'&tab=host-service">';
+		print '<fieldset>';
 		print "\n\t\t\t<legend>"._('Auto Log Out Settings').'</legend>';
 		$this->attributes = array(
 			array('width' => 270),
@@ -1173,7 +1105,7 @@ class HostManagementPage extends FOGPage {
 	public function edit_post()
 	{
 		// Find
-		$Host = new Host($this->REQUEST['id']);
+		$Host = $this->obj;
 		$HostManager = $this->getClass('HostManager');
 		$Inventory = $Host->get('inventory');
 		// Hook

@@ -1,17 +1,5 @@
 <?php
-/**	Class Name: ImageManagementPage
-    FOGPage lives in: {fogwebdir}/lib/fog
-    Lives in: {fogwebdir}/lib/pages
-    Description: This is an extension of the FOGPage Class
-    This class controls the image management page for FOG.
-    It allows creating and editing of images.
-
-    Manages image settings such as:
-    OS Association, Image type (multi part, resizable, raw),
-	and the file name and node attached.
-**/
-class ImageManagementPage extends FOGPage
-{
+class ImageManagementPage extends FOGPage {
 	// Base variables
 	var $name = 'Image Management';
 	var $node = 'image';
@@ -26,11 +14,30 @@ class ImageManagementPage extends FOGPage
 		The basic constructor template for
 		index and search functions.
 	*/
-	public function __construct($name = '')
-	{
+	public function __construct($name = '') {
+		$this->name = 'Image Management';
+		$this->node = 'image';
 		// Call parent constructor
-		parent::__construct($name);
+		parent::__construct($this->name);
+		$this->menu[multicast] = $this->foglang[Multicast].' '.$this->foglang[Image];
 		$SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
+		if ($_REQUEST['id']) {
+			$this->obj = $this->getClass('Image',$_REQUEST['id']);
+			$this->subMenu = array(
+				"$this->linkformat#image-gen" => $this->foglang[General],
+				"$this->linkformat#image-storage" => $this->foglang[Storage].' '.$this->foglang[Group],
+				$this->membership => $this->foglang['Membership'],
+				$this->delformat => $this->foglang['Delete'],
+			);
+			$this->notes = array(
+				$this->foglang[Images] => $this->obj->get('name'),
+				$this->foglang[LastUploaded] => $this->obj->get('deployed'),
+				$this->foglang[DeployMethod] => $this->obj->get('format') ? 'Partimage' : 'Partclone',
+				$this->foglang[ImageType] => $this->obj->get('imagetype') ? $this->obj->get('imagetype') : $this->foglang[NoAvail],
+				_('Primary Storage Group') => $this->obj->getStorageGroup()->get('name'),
+			);
+		}
+		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
 		// Header row
 		$this->headerData = array(
 			'',
@@ -78,8 +85,7 @@ class ImageManagementPage extends FOGPage
 	/** index()
 		The default page view for Image Management.  If search is default view, this is not displayed.
 	*/
-	public function index()
-	{
+	public function index() {
 		// Set title
 		$this->title = _('All Images');
 		if ($_SESSION['DataReturn'] > 0 && $_SESSION['ImageCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list')
@@ -88,8 +94,7 @@ class ImageManagementPage extends FOGPage
 		$Images = $this->getClass('ImageManager')->find();
 		$SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
 		// Row data
-		foreach ((array)$Images AS $Image)
-		{
+		foreach ((array)$Images AS $Image) {
 			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
 			$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
 			if ($StorageNode && $StorageNode->isValid() && $SizeServer)
@@ -118,13 +123,11 @@ class ImageManagementPage extends FOGPage
 		Used from the search field.  If search is default view, this is how the data gets displayed based
 		on what was searched for.
 	*/
-	public function search_post()
-	{
+	public function search_post() {
 		// Get All images based on the keyword
 		$SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
 		// Find data -> Push data
-		foreach ($this->getClass('ImageManager')->search() AS $Image)
-		{
+		foreach ($this->getClass('ImageManager')->search() AS $Image) {
 			$imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
 			$StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
 			if ($StorageNode && $StorageNode->isValid() && $SizeServer)
@@ -152,8 +155,7 @@ class ImageManagementPage extends FOGPage
 	/** add()
 		Displays the form to create a new image object.
 	*/
-	public function add()
-	{
+	public function add() {
 		// Set title
 		$this->title = _('New Image');
 		unset($this->headerData);
@@ -178,8 +180,7 @@ class ImageManagementPage extends FOGPage
 		);
 		print "\n\t\t\t<h2>"._('Add new image definition').'</h2>';
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-		foreach ((array)$fields AS $field => $input)
-		{
+		foreach ((array)$fields AS $field => $input) {
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
@@ -203,13 +204,11 @@ class ImageManagementPage extends FOGPage
 	/** add_post()
 		Actually creates the new image object.
 	*/
-	public function add_post()
-	{
+	public function add_post() {
 		// Hook
 		$this->HookManager->processEvent('IMAGE_ADD_POST');
 		// POST
-		try
-		{
+		try {
 			$_REQUEST['file'] = trim($_REQUEST['file']);
 			// Error checking
 			if (empty($_REQUEST['name']))
@@ -240,8 +239,7 @@ class ImageManagementPage extends FOGPage
 			));
 			$Image->addGroup($_REQUEST['storagegroup']);
 			// Save
-			if ($Image->save())
-			{
+			if ($Image->save()) {
 				// Hook
 				$this->HookManager->processEvent('IMAGE_ADD_SUCCESS', array('Image' => &$Image));
 				// Log History event
@@ -250,12 +248,8 @@ class ImageManagementPage extends FOGPage
 				$this->FOGCore->setMessage(_('Image created'));
 				// Redirect to new entry
 				$this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s', $this->request['node'], $this->id, $Image->get('id')));
-			}
-			else
-				throw new Exception('Database update failed');
-		}
-		catch (Exception $e)
-		{
+			} else throw new Exception('Database update failed');
+		} catch (Exception $e) {
 			// Hook
 			$this->HookManager->processEvent('IMAGE_ADD_FAIL', array('Image' => &$Image));
 			// Log History event
@@ -272,7 +266,7 @@ class ImageManagementPage extends FOGPage
 	public function edit()
 	{
 		// Find
-		$Image = new Image($_REQUEST['id']);
+		$Image = $this->obj;
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', _('Edit'), $Image->get('name'));
 		print "\n\t\t\t".'<div id="tab-container">';
@@ -475,7 +469,7 @@ class ImageManagementPage extends FOGPage
 	public function edit_post()
 	{
 		// Find
-		$Image = new Image($this->request['id']);
+		$Image = $this->obj;
 		// Hook
 		$this->HookManager->processEvent('IMAGE_EDIT_POST', array('Image' => &$Image));
 		// POST
@@ -640,10 +634,8 @@ class ImageManagementPage extends FOGPage
 		$this->render();
 		print '</form>';
 	}
-	public function multicast_post()
-	{
-		try
-		{
+	public function multicast_post() {
+		try {
 			// Error Checking
 			if (!trim($_REQUEST['name']))
 				throw new Exception(_('Please input a session name'));

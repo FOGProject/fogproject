@@ -1,10 +1,12 @@
 <?php
-class SchemaUpdaterPage extends FOGPage
-{
-	// Base variables
-	var $name = 'Database Schema Installer / Updater';
-	var $node = 'schemaupdater';
-	var $id = '';
+class SchemaUpdaterPage extends FOGPage {
+	public function __construct($name = '') {
+		$this->name = 'Database Schema Installer / Updater';
+		$this->node = 'schemaupdater';
+		parent::__construct($this->name);
+		$this->menu = array();
+		$this->subMenu = array();
+	}
 	// Pages
 	/** index()
 		The first page displayed especially when a user logs in.

@@ -20,6 +20,38 @@ class StorageManagementPage extends FOGPage
 	);
 	var $subMenu = array(
 	);
+	public function __construct($name = '') {
+		$this->name = 'Storage Management';
+		$this->node = 'storage';
+		parent::__construct($this->name);
+		$this->menu = array(
+			'' => $this->foglang[AllSN],
+			'add-storage-node' => $this->foglang[AddSN],
+			'storage-group' => $this->foglang[AllSG],
+			'add-storage-group' => $this->foglang[AddSG],
+		);
+		if ($_REQUEST[sub] == 'edit' && $_REQUEST[id]) {
+			$this->obj = $this->getClass('StorageNode',$_REQUEST[id]);
+			$this->subMenu = array(
+				"?node={$this->node}&sub={$_REQUEST[sub]}&id={$_REQUEST[id]}" => $this->foglang[General],
+				"?node={$this->node}&sub=delete-storage-node&id={$_REQUEST[id]}" => $this->foglang[Delete],
+			);
+			$this->notes = array(
+				"{$this->foglang[Storage]} {$this->foglang[Node]}" => $this->obj->get('name'),
+				$this->foglang[Path] => $this->obj->get('path'),
+			);
+		} else if ($_REQUEST[sub] == 'edit-storage-group' && $_REQUEST[id]) {
+			$this->obj = $this->getClass('StorageGroup',$_REQUEST[id]);
+			$this->subMenu = array(
+				"?node={$this->node}&sub={$_REQUEST[sub]}&id={$_REQUEST[id]}" => $this->foglang[General],
+				"?node={$this->node}&sub=delete-storage-group&id={$_REQUEST[id]}" => $this->foglang[Delete],
+			);
+			$this->notes = array(
+				"{$this->foglang[Storage]} {$this->foglang[Group]}" => $this->obj->get('name'),
+			);
+		}
+	}
+
 	// Common functions - call Storage Node functions if the default sub's are used
 	public function search()
 	{
@@ -235,7 +267,7 @@ class StorageManagementPage extends FOGPage
 	public function edit_storage_node()
 	{
 		// Find
-		$StorageNode = new StorageNode($_REQUEST['id']);
+		$StorageNode = $this->obj;
 		// Title
 		$this->title = sprintf('%s: %s', $this->foglang['Edit'], $StorageNode->get('name'));
 		// Header Data
@@ -301,7 +333,7 @@ class StorageManagementPage extends FOGPage
 	public function edit_storage_node_post()
 	{
 		// Find
-		$StorageNode = new StorageNode($_REQUEST['id']);
+		$StorageNode = $this->obj;
 		// Hook
 		$this->HookManager->processEvent('STORAGE_NODE_EDIT_POST', array('StorageNode' => &$StorageNode));
 		// POST
@@ -378,7 +410,7 @@ class StorageManagementPage extends FOGPage
 	public function delete_storage_node()
     {    
         // Find
-        $StorageNode = new StorageNode($_REQUEST['id']);
+        $StorageNode = $this->obj;
         // Title
         $this->title = sprintf('%s: %s', $this->foglang['Remove'], $StorageNode->get('name'));
         // Headerdata
@@ -414,7 +446,7 @@ class StorageManagementPage extends FOGPage
 	public function delete_storage_node_post()
 	{
 		// Find
-		$StorageNode = new StorageNode($_REQUEST['id']);
+		$StorageNode = $this->obj;
 		// Hook
 		$this->HookManager->processEvent('STORAGE_NODE_DELETE_POST', array('StorageNode' => &$StorageNode));
 		// POST
@@ -560,7 +592,7 @@ class StorageManagementPage extends FOGPage
 	public function edit_storage_group()
 	{
 		// Find
-		$StorageGroup = new StorageGroup($_REQUEST['id']);
+		$StorageGroup = $this->obj;
 		// Title
 		$this->title = sprintf('%s: %s', $this->foglang['Edit'], $StorageGroup->get('name'));
 		// Header Data
@@ -600,7 +632,7 @@ class StorageManagementPage extends FOGPage
 	public function edit_storage_group_post()
 	{
 		// Find
-		$StorageGroup = new StorageGroup($_REQUEST['id']);
+		$StorageGroup = $this->obj;
 		// Hook
 		$this->HookManager->processEvent('STORAGE_GROUP_EDIT_POST', array('StorageGroup' => &$StorageGroup));
 		// POST
@@ -644,7 +676,7 @@ class StorageManagementPage extends FOGPage
 	public function delete_storage_group()
     {    
         // Find
-        $StorageGroup = new StorageGroup($_REQUEST['id']);
+        $StorageGroup = $this->obj;
         // Title
         $this->title = sprintf('%s: %s', $this->foglang['Remove'], $StorageGroup->get('name'));
         // Headerdata
@@ -680,7 +712,7 @@ class StorageManagementPage extends FOGPage
 	public function delete_storage_group_post()
 	{
 		// Find
-		$StorageGroup = new StorageGroup($_REQUEST['id']);
+		$StorageGroup = $this->obj;
 		// Hook
 		$this->HookManager->processEvent('STORAGE_GROUP_DELETE_POST', array('StorageGroup' => &$StorageGroup));
 		// POST

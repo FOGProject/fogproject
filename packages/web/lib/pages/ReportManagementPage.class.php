@@ -1,32 +1,30 @@
 <?php
-/**	Class Name: ReportManagementPage
-    FOGPage lives in: {fogwebdir}/lib/fog
-    Lives in: {fogwebdir}/lib/pages
-    Description: This is an extension of the FOGPage Class
-    This class controls reports for FOG.  You may also
-	upload any custom reports you want as well.
-
-	New Features:
-	Default reports are now in this class file.  This way the reports dir
-	only contains the reports customized for an environment.
- 
-    Useful for:
-	Reports and reporting.
-**/
-class ReportManagementPage extends FOGPage
-{
-	// Base variables
-	var $name = 'Report Management';
-	var $node = 'report';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
+class ReportManagementPage extends FOGPage {
 	public function __construct()
 	{
-		parent::__construct();
+		$this->name = 'Report Management';
+		$this->node = 'report';
+		parent::__construct($this->name);
+		$this->menu = array(
+			'home' => $this->foglang[Home],
+			'equip-loan' => $this->foglang[EquipLoan],
+			'host-list' => $this->foglang[HostList],
+			'imaging-log' => $this->foglang[ImageLog],
+			'inventory' => $this->foglang[Inventory],
+			'pend-mac' => $this->foglang[PendingMACs],
+			'snapin-log' => $this->foglang[SnapinLog],
+			'user-track' => $this->foglang[LoginHistory],
+			'vir-hist' => $this->foglang[VirusHistory],
+		);
+		$reportlink = "?node={$this->node}&sub=file&f=";
+		$dh = opendir($_SESSION['FOG_REPORT_DIR']);
+		if ($dh) {
+			while (!(($f=readdir($dh)) === false)) {
+				if (is_file($_SESSION['FOG_REPORT_DIR'].$f) && substr($f,strlen($f) - strlen('.php')) === '.php') $this->menu = array_merge($this->menu, array($reportlink.base64_encode($f) => substr($f,0,strlen($f) - 4)));
+			}
+		}
+		$this->menu = array_merge($this->menu,array('upload' => $this->foglang[UploadRprts]));
+		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
 		$this->pdffile = '<i class="fa fa-file-pdf-o fa-2x"></i>';
 		$this->csvfile = '<i class="fa fa-file-excel-o fa-2x"></i>';
 		$_SESSION['foglastreport'] = null;

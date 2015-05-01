@@ -1,36 +1,26 @@
 <?php
-/** Class Name: ServiceConfigurationPage
-	FOGPage lives in: {fogwebdir}/lib/fog
-	Lives in: {fogwebdir}/lib/pages
-	Description: This is an extension of the FOGPage Class
-	This class allows the user to setup the default server
-	FOG Service configuration.  Each host still needs their
-	own setup as it's ultimately upto the host to use the
-	services.  However, you can globally disable services
-	so no host can use them.
-
-	Useful for:
-	Globally enabling or disabling services.  Also setups up
-	default information for Auto Log Out, setups the Directory
-	Cleanups, a global Display resolution, and user cleanup
-	information.
-**/
-class ServiceConfigurationPage extends FOGPage
-{
-	// Base variables
-	var $name = 'Service Configuration';
-	var $node = 'service';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
-	// __construct
-	public function __construct($name = '')
-	{
-		// Call parent constructor
+class ServiceConfigurationPage extends FOGPage {
+	public function __construct($name = '') {
+		$this->name = 'Service Configuration';
+		$this->node = 'service';
 		parent::__construct($name);
+		$servicelink = "?node=$this->node&sub=edit";
+		$this->menu = array(
+			"?node=$this->node#home" => $this->foglang[Home],
+			"$servicelink#autologout" => "{$this->foglang[Auto]} {$this->foglang[Home]}",
+			"$servicelink#clientupdater" => $this->foglang[ClientUpdater],
+			"$servicelink#dircleanup" => $this->foglang[DirectoryCleaner],
+			"$servicelink#displaymanager" => sprintf($this->foglang[SelManager],$this->foglang[Display]),
+			"$servicelink#greenfog" => $this->foglang[GreenFOG],
+			"$servicelink#hostregister" => $this->foglang[HostRegistration],
+			"$servicelink#hostnamechanger" => $this->foglang[HostnameChanger],
+			"$servicelink#printermanager" => sprintf($this->foglang[SelManager],$this->foglang[Printer]),
+			"$servicelink#snapinclient" => $this->foglang[SnapinClient],
+			"$servicelink#taskreboot" => $this->foglang[TaskReboot],
+			"$servicelink#usercleanup" => $this->foglang[UserCleanup],
+			"$servicelink#usertracker" => $this->foglang[UserTracker],
+		);
+		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
 		// Header row
 		$this->headerData = array(
 			_('Username'),
