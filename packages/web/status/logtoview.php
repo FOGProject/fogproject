@@ -1,15 +1,15 @@
 <?php
 function read_file($file, $lines = 20, $max_chunk_size = 4096) {
-	$data = file_get_contents($file);
-	$data = explode("\n",$data);
-	$data = array_reverse($data);
-	$cnt = 0;
-	foreach($data AS $line)
-	{
-		$text[] = $line;
-		if ($cnt++ == $lines) break;
+	$linearr = array();
+	$fp = fopen($file,'r');
+	stream_set_blocking($fp,false);
+	while (!feof($fp)) {
+		$line = fgets($fp,$max_chunk_size);
+		array_push($linearr,$line);
+		if (count($linearr) > $lines) array_shift($linearr);
 	}
-	return implode("\n",array_reverse($text));
+	fclose($fp);
+	return implode($linearr);
 }
 $vals = read_file($_REQUEST['file'],$_REQUEST['lines'] ? $_REQUEST['lines'] : 20);
 print json_encode($vals);
