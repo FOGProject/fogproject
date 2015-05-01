@@ -449,11 +449,13 @@ abstract class FOGBase {
 			if ($MAC && $MAC->isValid()) $MAClist[] = strtolower($MAC);
 		}
 		$Ignore = explode(',',$this->getClass('FOGCore')->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'));
-		foreach((array)$Ignore AS $ignore) {
-			$matches = preg_grep("#$ignore#i",$MACs);
-			if (count($matches)) {
-				$NewMatches = array_merge((array)$NewMatches,$matches);
-				unset($matches);
+		if (count($ignore)) {
+			foreach((array)$Ignore AS $ignore) {
+				$matches = preg_grep("#$ignore#i",$MACs);
+				if (count($matches)) {
+					$NewMatches = array_merge((array)$NewMatches,$matches);
+					unset($matches);
+				}
 			}
 		}
 		if (!count($MAClist)) return false;
