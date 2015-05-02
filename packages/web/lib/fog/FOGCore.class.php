@@ -342,6 +342,15 @@ class FOGCore extends FOGBase {
 		file_put_contents($pub_path.'srvpublic.key',$pub_key['key']);
 	}
 	public function setSessionEnv() {
+		/** This allows the database concatination system based on number of hosts */
+		$this->DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION[HostCount]})")->fetch()->get();
+		/** This below ensures the database is always MyISAM */
+		$this->DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
+		/** $tables just stores the tables to cycle through and change as needed */
+		$tables = $this->DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
+		foreach ((array)$tables AS $table) $this->DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
+		/** frees the memory of the $tables and $table values */
+		unset($tables,$table);
 		$_SESSION['theme'] = $this->getSetting('FOG_THEME');
 		$_SESSION['theme'] = $_SESSION['theme'] ? $_SESSION['theme'] : 'default/fog.css';
 		if (!file_exists(BASEPATH.'/css/'.$_SESSION['theme'])) $_SESSION['theme'] = 'default/fog.css';
@@ -366,6 +375,8 @@ class FOGCore extends FOGBase {
 		$_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = $this->getSetting('FOG_FORMAT_FLAG_IN_GUI');
 		$_SESSION['FOG_SNAPINDIR'] = $this->getSetting('FOG_SNAPINDIR');
 		$_SESSION['FOG_REPORT_DIR'] = $this->getSetting('FOG_REPORT_DIR');
+		/** $TimeZone set the TimeZone based on the stored data */
+		$_SESSION['TimeZone'] = (ini_get('date.timezone') ? ini_get('date.timezone') : $FOGCore->getSetting('FOG_TZ_INFO'));
 		ini_set('max_input_vars',5000);
 		ini_set('upload_max_filesize',$this->getSetting('FOG_MAX_UPLOADSIZE').'M');
 		ini_set('post_max_size',$this->getSetting('FOG_POST_MAXSIZE').'M');

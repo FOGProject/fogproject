@@ -13,8 +13,7 @@ class DatabaseManager extends FOGBase {
 			if (!DATABASE_TYPE || !DATABASE_HOST || !DATABASE_USERNAME || !DATABASE_NAME)
 				throw new Exception('Configuration is missing an item');
 			$this->valid = $this;
-		}
-		catch (Exception $e) {
+		} catch (Exception $e) {
 			$this->error('Failed: %s->%s(): Error: %s', array(get_class($this), __FUNCTION__, $e->getMessage()));
 		}
 	}
@@ -24,8 +23,7 @@ class DatabaseManager extends FOGBase {
 	public function connect() {
 		try {
 			// Error checking
-			if (!$this->valid)
-				throw new Exception('Class not constructed correctly');
+			if (!$this->valid) throw new Exception('Class not constructed correctly');
 			// Determine database host type
 			switch(DATABASE_TYPE) {
 				case 'mysql':
@@ -45,10 +43,10 @@ class DatabaseManager extends FOGBase {
 					throw new Exception(sprintf('Unknown database type. Check that DATABASE_TYPE is being set in "%s/lib/fog/Config.class.php"', rtrim($_SERVER['DOCUMENT_ROOT'], '/') . dirname($_SERVER['PHP_SELF'])));
 			}
 			// Database Schema version check
-			if ($this->getVersion() < FOG_SCHEMA && !preg_match('#schemaupdater#i', $_SERVER['PHP_SELF']) && !preg_match('#schemaupdater#i',$_SERVER['QUERY_STRING']))
-				$this->FOGCore->redirect('?node=schemaupdater');
+			if ($this->getVersion() < FOG_SCHEMA && !preg_match('#schemaupdater#i', $_SERVER['PHP_SELF']) && !preg_match('#schemaupdater#i',$_SERVER['QUERY_STRING'])) $this->FOGCore->redirect('?node=schemaupdater');
+		} catch (Exception $e) {
+			$this->error('Failed: %s->%s(): Error: %s', array(get_class($this), __FUNCTION__, $e->getMessage()));
 		}
-		catch (Exception $e) {$this->error('Failed: %s->%s(): Error: %s', array(get_class($this), __FUNCTION__, $e->getMessage()));}
 		return $this;
 	}
 	/** getVersion() get the version of the schema
