@@ -316,7 +316,7 @@ class FOGCore extends FOGBase {
 	* @return void
 	**/
 	public function createKeyPair($keybits = 4096,$keytype = OPENSSL_KEYTYPE_RSA) {
-		$pub_path = BASEPATH.'/management/other/ssl/';
+		$pub_path = '/'.trim(BASEPATH,'/').'/management/other/ssl/';
 		$priv_path = '/'.trim($this->getSetting('FOG_SNAPINDIR'),'/');
 		$priv_path = !$priv_path ? '/opt/fog/snapins/ssl/' : $priv_path.'/ssl/';
 		if (!is_dir($priv_path)) exec('mkdir '.$priv_path.' &');
@@ -336,7 +336,7 @@ class FOGCore extends FOGBase {
 			// Free the private key
 			openssl_free_key($privateKey);
 		}
-		if (file_exists($pub_path)) exec("rm {$pub_path}srvpublic.key &");
+		if (file_exists("{$pub_path}srvpublic.key")) exec("rm {$pub_path}srvpublic.key &");
 		$pub_key = openssl_pkey_get_private(file_get_contents($priv_path.'.srvprivate.key'));
 		$pub_key = openssl_pkey_get_details($pub_key);
 		file_put_contents($pub_path.'srvpublic.key',$pub_key['key']);
