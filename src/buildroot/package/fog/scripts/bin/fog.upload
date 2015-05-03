@@ -76,7 +76,7 @@ if [ -f "/images/.mntcheck" ]; then
 			#    : fixed_size_partitions: list of partitions that should not be resized
 			#  assumes windows partitions are ntfs partitions
 			#  assumes windows partitions are at the front of the disk (1,2,3, etc.)
-			if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ] || [ "$osid" == "50" ]; then
+			if [[ "$osid" == +([5-7]|50) ]];then
 				win7partcnt=`countNtfs $hd`;
 				extfsavail=`countExtfs $hd`;
 				if [ "$win7partcnt" == "0" ] && [ "$extfsavail" == "0" ]; then
@@ -118,9 +118,9 @@ if [ -f "/images/.mntcheck" ]; then
 			echo $fixed_size_partitions > "${imagePath}/d1.fixed_size_partitions";
 			# Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
 			#  Remove pagefile and hibernate file
-			if [ "$osid" == "1" -o "$osid" == "2" ]; then
+			if [[ "$osid" == +(1|2) ]]; then
 				removePageFile "$part";
-			elif [ "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" ]; then
+			elif [[ "$osid" == +([5-7]) ]]; then
 				removePageFile "$win7sys";
 			fi
 			debugPause
@@ -138,7 +138,7 @@ if [ -f "/images/.mntcheck" ]; then
 			# Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
 			#  Save unmodified partition table for download use
 			#  Start filesytem type record
-			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
+			if [[ "$osid" == +([1-2]|[5-7]|50) ]]; then
 				dots "Saving original partition table";
 				saveSfdiskPartitions "${hd}" "${imagePath}/d1.original.partitions";
 				makeFstypesFile "${imagePath}/d1.original.fstypes";
@@ -155,7 +155,7 @@ if [ -f "/images/.mntcheck" ]; then
 			#  Save MBR
 			#  Attempt to shrink all filesystems and partitions, except swap, extended.
 			#  Save partition table with shrunken partitions for use on download
-			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "3" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
+			if [[ "$osid" == +([1-2]|[5-7]|50) ]]; then
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				for part in $parts; do
 					shrinkPartition "$part" "${imagePath}/d1.original.fstypes";
@@ -169,7 +169,7 @@ if [ -f "/images/.mntcheck" ]; then
 			# Linux:
 			#  Actually clone the partitions now
 			#  Restore the MBR
-			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
+			if [[ "$osid" == +([1-2]|[5-7]|50) ]]; then
 				dots "Checking Hard Disks";
 				echo "Done";
 				debugPause;
@@ -221,7 +221,7 @@ EOFRESTOREPART
 			# Windows 7, 8, 8.1:
 			# Windows 2000/XP, Vista:
 			# Linux:
-			if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
+			if [[ "$osid" == +([1-2]|[5-7]|50) ]]; then
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				for part in $parts; do
 					expandPartition "$part";
@@ -284,7 +284,7 @@ EOFRESTOREPART
 		fi
 		chmod -R 777 $imagePath;
 		queueinfo="";
-		if [ "$osid" == "5" ] || [ "$osid" == "6" ] || [ "$osid" == "7" ]; then
+		if [[ "$osid" == +([5-7]) ]]; then
 			imgType="mps";
 		fi
 		post="http://${web}service/Post_Stage2.php?to=$img&mac=$mac&ftp=$ftp&size=$size&imgid=$imgid&imgtype=$imgType&osid=$osid&type=$type"
