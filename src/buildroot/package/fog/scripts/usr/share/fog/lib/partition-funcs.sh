@@ -190,7 +190,7 @@ fillDiskWithPartitions() {
 processSfdisk() {
 	local data="$1";
 	local minstart=`awk -F'[ ,]+' '/start/{if ($4) print $4}' $data | sort -n | head -1`;
-	if [ "$osid" == "1" -o "$osid" == "2" ]; then
+	if [[ "$osid" == +([1-2]) ]]; then
 		local chunksize="512";
 		local minstart="63";
 	else

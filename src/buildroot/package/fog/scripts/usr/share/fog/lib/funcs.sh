@@ -15,8 +15,7 @@ REG_HOSTNAME_KEY5_7="\ControlSet001\services\Tcpip\Parameters\Hostname"
 REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
 #If a sub shell gets involked and we lose kernel vars this will reimport them
 $(for var in $(cat /proc/cmdline); do echo export $var | grep =; done)
-dots() 
-{
+dots() {
     max=45
     if [ -n "$1" ]; then
 		n=`expr $max - ${#1}`
@@ -129,10 +128,9 @@ getDiskSize()
 	disk_block_size=`blockdev --getpbsz $hd`;
 	echo `awk "BEGIN{print $block_disk_tot * $disk_block_size}"`;
 }
-validResizeOS()
-{
+validResizeOS() {
 	#Valid OSID's are 1 XP, 2 Vista, 5 Win 7, 6 Win 8, 7 Win 8.1, and 50 Linux
-	if [ "$osid" != "1" -a "$osid" != "2" -a "$osid" != "5" -a "$osid" != "6" -a "$osid" != "7" -a "$osid" != "50" ]; then
+	if [[ "$osid" != +([1-2]|[5-7]|50) ]]; then
 		handleError " * Invalid operating system id: $osname ($osid)!";
 	fi
 }
@@ -206,7 +204,7 @@ FORCEY
 		fi
 		if [ "$do_resizepart" == "1" ]; then
 			dots "Resizing partition $1";
-			if [ "$osid" == "1" -o "$osid" == "2" ]; then
+			if [[ "$osid" == +([1-2]) ]];then
 				resizePartition "$1" "$sizentfsresize"
 				if [ "$osid" == "2" ]; then
 					correctVistaMBR "$hd";
@@ -403,7 +401,7 @@ changeHostname()
 		regfile="";
 		key1="";
 		key2="";
-		if [ "$osid" = "5" ] || [ "$osid" = "6" ] || [ "$osid" = "7" ]; then
+		if [[ "$osid" == +([5-7]) ]]; then
 			regfile=$REG_LOCAL_MACHINE_7
 			key1=$REG_HOSTNAME_KEY1_7
 			key2=$REG_HOSTNAME_KEY2_7
@@ -453,7 +451,7 @@ fixWin7boot()
 clearMountedDevices()
 {
 	mkdir /ntfs &>/dev/null
-	if [ "$osid" = "5" ] || [ "$osid" = "6" ] || [ "$osid" = "7" ]; then
+	if [[ "$osid" == +([5-7]) ]]; then
 		dots "Clearing mounted devices";
 		ntfs-3g -o force,rw $win7sys /ntfs
 		reged -e "$REG_LOCAL_MACHINE_7" &>/dev/null  <<EOFMOUNT
@@ -477,7 +475,7 @@ removePageFile()
 	fi
 	if [ "$fstype" != "ntfs" ]; then
 		echo " * No ntfs file system to remove page file"
-	elif [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
+	elif [[ "$osid" == +([1-2]|[5-7]|50) ]]; then
 		if [ "$ignorepg" == "1" ]; then
 			dots "Mounting device";
 			mkdir /ntfs &>/dev/null;
@@ -731,7 +729,7 @@ handleError()
 	# Windows 2000/XP, Vista:
 	# Linux:
 	if [ "$2" == "yes" ]; then
-		if [ "$osid" == "1" -o "$osid" == "2" -o "$osid" == "5" -o "$osid" == "6" -o "$osid" == "7" -o "$osid" == "50" ]; then
+		if [[ "$osid" == +([1-2]|[5-7]|50) ]]; then
 			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 			for part in $parts; do
 				expandPartition "$part";
