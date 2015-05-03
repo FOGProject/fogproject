@@ -376,7 +376,7 @@ class FOGCore extends FOGBase {
 		$_SESSION['FOG_SNAPINDIR'] = $this->getSetting('FOG_SNAPINDIR');
 		$_SESSION['FOG_REPORT_DIR'] = $this->getSetting('FOG_REPORT_DIR');
 		/** $TimeZone set the TimeZone based on the stored data */
-		$_SESSION['TimeZone'] = (ini_get('date.timezone') ? ini_get('date.timezone') : $FOGCore->getSetting('FOG_TZ_INFO'));
+		$_SESSION['TimeZone'] = (ini_get('date.timezone') ? ini_get('date.timezone') : $this->getSetting('FOG_TZ_INFO'));
 		ini_set('max_input_vars',5000);
 		ini_set('upload_max_filesize',$this->getSetting('FOG_MAX_UPLOADSIZE').'M');
 		ini_set('post_max_size',$this->getSetting('FOG_POST_MAXSIZE').'M');
