@@ -41,7 +41,7 @@ class FOGURLRequests extends FOGBase {
 	  */
 	public function process($urls, $method = false,$data = null,$sendAsJSON = false,$auth = false,$callback = false,$file = false) {
 		if (!is_array($urls)) $urls = array($urls);
-		foreach ($urls AS &$url) {
+		foreach ($urls AS $url) {
 			$ProxyUsed = false;
 			if ($this->DB && $this->FOGCore->getSetting('FOG_PROXY_IP')) {
 				foreach($this->getClass('StorageNodeManager')->find() AS $StorageNode) $IPs[] = $this->FOGCore->resolveHostname($StorageNode->get('ip'));
