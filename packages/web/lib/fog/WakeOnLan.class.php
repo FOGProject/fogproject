@@ -11,8 +11,7 @@ class WakeOnLan extends FOGBase {
 		$this->arrMAC = array();
 		foreach ((array)$mac AS $MAC) {
 			$MAC = $this->getClass('MACAddress',$MAC);
-			if ($MAC->isValid())
-				$this->arrMAC[] = $MAC->__toString();
+			if ($MAC->isValid()) $this->arrMAC[] = $MAC->__toString();
 		}
 	}
 	/** send()

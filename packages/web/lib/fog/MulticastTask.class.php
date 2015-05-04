@@ -1,13 +1,10 @@
 <?php
-class MulticastTask extends FOGBase
-{
+class MulticastTask extends FOGBase {
 	// Updated to only care about tasks in its group
-	public static function getAllMulticastTasks($root)
-	{
+	public static function getAllMulticastTasks($root) {
 		global $FOGCore;
 		$arTasks = array();
-		foreach($FOGCore->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3))) AS $MultiSess)
-		{
+		foreach($FOGCore->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3))) AS $MultiSess) {
 			$Image = new Image($MultiSess->get('image'));
 			if (in_array($FOGCore->resolveHostname($Image->getStorageGroup()->getOptimalStorageNode()->get('ip')),$FOGCore->getIPAddress()))
 			{
@@ -27,14 +24,11 @@ class MulticastTask extends FOGBase
 		}
 		return $Tasks;
 	}
-
 	private $intID, $strName, $intPort, $strImage, $strEth, $intClients;
 	private $intImageType, $intOSID;
 	private $procRef, $arPipes;
 	private $deathTime;
-
-	public function __construct($id, $name, $port, $image, $eth, $clients, $imagetype, $osid)
-	{
+	public function __construct($id, $name, $port, $image, $eth, $clients, $imagetype, $osid) {
 		parent::__construct();
 		$this->intID = $id;
 		$this->strName = $name;
@@ -47,7 +41,6 @@ class MulticastTask extends FOGBase
 		$this->intOSID = $osid;
 		$this->dubPercent = null;
 	}
-
 	public function getID() {return $this->intID;}
 	public function getName() {return $this->strName;}
 	public function getImagePath() {return $this->strImage;}
@@ -57,9 +50,7 @@ class MulticastTask extends FOGBase
 	public function getInterface() {return $this->strEth;}
 	public function getOSID() {return $this->intOSID;}
 	public function getUDPCastLogFile() {return MULTICASTLOGPATH.".udpcast.".$this->getID();}
-
-	public function getCMD()
-	{
+	public function getCMD() {
 		unset($filelist,$buildcmd,$cmd);
 		$buildcmd = array(
 			UDPSENDERPATH,
@@ -76,86 +67,56 @@ class MulticastTask extends FOGBase
 		$buildcmd = array_values(array_filter($buildcmd));
 		if ($this->getImageType() == 4)
 		{
-			if (is_dir($this->getImagePath()))
-			{
-				if($handle = opendir($this->getImagePath()))
-				{
-					while (false !== ($file = readdir($handle)))
-					{
-						if ($file != '.' && $file != '..')
-								$filelist[] = $file;
+			if (is_dir($this->getImagePath())) {
+				if($handle = opendir($this->getImagePath())) {
+					while (false !== ($file = readdir($handle))) {
+						if ($file != '.' && $file != '..') $filelist[] = $file;
 					}
 					closedir($handle);
 				}
 			}
-		}
-		else if ($this->getImageType() == 1 && in_array($this->getOSID(),array(1,2)))
-		{
-			if (is_dir($this->getImagePath()))
-			{
-				if ($handle = opendir($this->getImagePath()))
-				{
-					while (false !== ($file = readdir($handle)))
-					{
-						if ($file != '.' && $file != '..')
-							$filelist[] = $file;
+		} else if ($this->getImageType() == 1 && in_array($this->getOSID(),array(1,2))) {
+			if (is_dir($this->getImagePath())) {
+				if ($handle = opendir($this->getImagePath())) {
+					while (false !== ($file = readdir($handle))) {
+						if ($file != '.' && $file != '..') $filelist[] = $file;
 					}
 					closedir($handle);
 				}
-			}
-			else if (is_file($this->getImagePath()))
-				$filelist[] = $this->getImagePath();
-		}
-		else
-		{
+			} else if (is_file($this->getImagePath())) $filelist[] = $this->getImagePath();
+		} else {
 			$device = 1;
 			$part = 0;
-			if (in_array($this->getImageType(),array(1,2)))
-				$filename = 'd1p%d.%s';
-			if ($this->getImageType() == 3)
-				$filename = 'd%dp%d.%s';
-			if (is_dir($this->getImagePath()))
-			{
-				if ($handle = opendir($this->getImagePath()))
-				{
-					while (false !== ($file = readdir($handle)))
-					{
-						if ($file != '.' && $file != '..')
-						{
+			if (in_array($this->getImageType(),array(1,2))) $filename = 'd1p%d.%s';
+			if ($this->getImageType() == 3) $filename = 'd%dp%d.%s';
+			if (is_dir($this->getImagePath())) {
+				if ($handle = opendir($this->getImagePath())) {
+					while (false !== ($file = readdir($handle))) {
+						if ($file != '.' && $file != '..') {
 							$ext = '';
-							if ($this->getImageType() == 3)
-								sscanf($file,$filename,$device,$part,$ext);
-							else
-								sscanf($file,$filename,$part,$ext);
-							if ($ext == 'img')
-								$filelist[] = $file;
+							if ($this->getImageType() == 3) sscanf($file,$filename,$device,$part,$ext);
+							else sscanf($file,$filename,$part,$ext);
+							if ($ext == 'img') $filelist[] = $file;
 						}
 					}
 					closedir($handle);
 				}
 			}
 		}
-		if (in_array($this->getOSID(),array(5,6,7)) && $this->getImageType() == 1)
-		{
-			if (is_dir($this->getImagePath()))
-			{
-				if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000') || file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
-				{
+		if (in_array($this->getOSID(),array(5,6,7)) && $this->getImageType() == 1) {
+			if (is_dir($this->getImagePath())) {
+				if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000') || file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000')) {
 					unset($filelist);
-					if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000'))
-						$filelist[] = 'rec.img.*';
-					if (file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000'))
-						$filelist[] = 'sys.img.*';
+					if (file_exists(rtrim($this->getImagePath(),'/').'/rec.img.000')) $filelist[] = 'rec.img.*';
+					if (file_exists(rtrim($this->getImagePath(),'/').'/sys.img.000')) $filelist[] = 'sys.img.*';
 				}
 			}
 		}
 		natsort($filelist);
-		foreach ($filelist AS $file)
-			$cmd[] = sprintf('cat %s | %s',rtrim($this->getImagePath(),'/').'/'.$file,implode($buildcmd));
+		foreach ($filelist AS $file) $cmd[] = sprintf('cat %s | %s',rtrim($this->getImagePath(),'/').'/'.$file,implode($buildcmd));
 		return implode($cmd);
 	}
-	public function startTask()
-	{
+	public function startTask() {
 		@unlink($this->getUDPCastLogFile());
 		$descriptor = array(0 => array('pipe','r'), 1 => array('file',$this->getUDPCastLogFile(),'w'), 2 => array('file',$this->getUDPCastLogFile(),'w'));
 		$this->procRef = @proc_open($this->getCMD(),$descriptor,$pipes);
@@ -164,38 +125,28 @@ class MulticastTask extends FOGBase
 		$MultiSess->set('stateID','1')->save();
 		return $this->isRunning();
 	}
-	public function flagAsDead()
-	{
-		if($this->deathTime == null)
-			$this->deathTime = time();
+	public function flagAsDead() {
+		if($this->deathTime == null) $this->deathTime = time();
 	}
-	private static function killAll($pid,$sig)
-	{
+	private static function killAll($pid,$sig) {
 		exec("ps -ef|awk '\$3 == '$pid' {print \$2}'",$output,$ret);
 		if ($ret) return false;
-		while (list(,$t) = each($output))
-		{
-			if  ($t != $pid)
-				self::killAll($t,$sig);
+		while (list(,$t) = each($output)) {
+			if  ($t != $pid) self::killAll($t,$sig);
 		}
 		@posix_kill($pid,$sig);
 	}
-	public function killTask()
-	{
-		foreach($this->arPipes AS $closeme)
-			@fclose($closeme);
-		if ($this->isRunning())
-		{
+	public function killTask() {
+		foreach($this->arPipes AS $closeme) @fclose($closeme);
+		if ($this->isRunning()) {
 			$pid = $this->getPID();
-			if ($pid)
-				self::killAll($pid, SIGTERM);
+			if ($pid) self::killAll($pid, SIGTERM);
 			@proc_terminate($this->procRef, SIGTERM);
 		}
     	@proc_close($this->procRef);
 		$this->procRef=null;
 		@unlink($this->getUDPCastLogFile());
-		foreach($this->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $this->intID)) AS $MultiSessAssoc)
-		{
+		foreach($this->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $this->intID)) AS $MultiSessAssoc) {
 			$Task = new Task($MultiSessAssoc->get('taskID'));
 			$Task->set('stateID','5')->save();
 		}
@@ -203,31 +154,24 @@ class MulticastTask extends FOGBase
 		$MultiSess->set('name',null)->set('name','')->set('stateID','5')->save();
 		return true;
 	}
-	public function updateStats()
-	{
-		foreach($this->getClass('MulticastSessionsAssociationManager')->find(array('msid' => $this->intID)) AS $MultiSessAssoc)
-		{
+	public function updateStats() {
+		foreach($this->getClass('MulticastSessionsAssociationManager')->find(array('msid' => $this->intID)) AS $MultiSessAssoc) {
 			$Task = new Task($MultiSessAssoc->get('taskID'));
-			if ($Task && $Task->isValid())
-				$TaskPercent[] = $Task->get('percent');
+			if ($Task && $Task->isValid()) $TaskPercent[] = $Task->get('percent');
 		}
 		$TaskPercent = array_unique((array)$TaskPercent);
 		$MultiSess = new MulticastSessions($this->intID);
 		$MultiSess->set('percent',max((array)$TaskPercent))->save();
 	}
-	public function isRunning()
-	{
-		if ($this->procRef)
-		{
+	public function isRunning() {
+		if ($this->procRef) {
 			$ar = proc_get_status($this->procRef);
 			return $ar['running'];
 		}
 		return false;
 	}
-	public function getPID()
-	{
-		if ($this->procRef)
-		{
+	public function getPID() {
+		if ($this->procRef) {
 			$ar = proc_get_status($this->procRef);
 			return $ar['pid'];
 		}

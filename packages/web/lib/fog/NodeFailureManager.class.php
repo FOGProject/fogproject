@@ -1,4 +1,2 @@
 <?php
-class NodeFailureManager extends FOGManagerController
-{
-}
+class NodeFailureManager extends FOGManagerController {}

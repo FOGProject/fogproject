@@ -1,6 +1,5 @@
 <?php
-class Plugin extends FOGController
-{
+class Plugin extends FOGController {
 	private $strName, $strDesc, $strEntryPoint, $strVersion, $strPath, $strIcon, $strIconHover, $blIsInstalled, $blIsActive;
 	// Table
 	public $databaseTable = 'plugins';
@@ -21,44 +20,35 @@ class Plugin extends FOGController
 	public $databaseFieldsRequired = array(
 		'name',
 	);
-	public function getRunInclude($hash)
-	{
-		foreach($this->getPlugins() AS $Plugin)
-		{
-			if(md5(trim($Plugin->getName())) == trim($hash))
-			{
+	public function getRunInclude($hash) {
+		foreach($this->getPlugins() AS $Plugin) {
+			if(md5(trim($Plugin->getName())) == trim($hash)) {
 				$_SESSION['fogactiveplugin']=serialize($Plugin);
 				return $Plugin->getEntryPoint();
 			}
 		}
 		return null;
 	}
-	public function getActivePlugs()
-	{
+	public function getActivePlugs() {
 		$Plugin = current($this->getClass('PluginManager')->find(array('name' => $this->getName())));
 		$this->blIsActive = ($Plugin && $Plugin->isValid() ? ($Plugin->get('state') == 1 ? 1 : 0) : 0);
 		$this->blIsInstalled = ($Plugin && $Plugin->isValid() ? ($Plugin->get('installed') == 1 ? 1 : 0) : 0);
 	}
-	private function getDirs()
-	{
+	private function getDirs() {
 		$dir = trim($this->FOGCore->getSetting('FOG_PLUGINSYS_DIR'));
 		// For now, automatically sets the plugin directory.  Should not be moved though so classes work properly.
 		$dir != '../lib/plugins/' ?	$this->FOGCore->setSetting('FOG_PLUGINSYS_DIR','../lib/plugins/') : null;
 		$dir = '../lib/plugins/';
 		$handle=opendir($dir);
-		while(false !== ($file=readdir($handle)))
-		{
-			if(file_exists($dir.$file.'/config/plugin.config.php'))
-				$files[] = $dir.$file.'/';
+		while(false !== ($file=readdir($handle))) {
+			if(file_exists($dir.$file.'/config/plugin.config.php')) $files[] = $dir.$file.'/';
 		}
 		closedir($handle);
 		return $files;
 	}
-	public function getPlugins()
-	{
+	public function getPlugins() {
 		$cfgfile = 'plugin.config.php';
-		foreach($this->getDirs() AS $file)
-		{
+		foreach($this->getDirs() AS $file) {
 			require(rtrim($file,'/').'/config/'.$cfgfile);
 			$p=new Plugin(array('name' => $fog_plugin['name']));
 			$p->strPath = $file;
@@ -71,32 +61,23 @@ class Plugin extends FOGController
 		}
 		return $arPlugs;
 	}
-	public function activatePlugin($plugincode)
-	{
-		foreach($this->getPlugins() AS $Plugin)
-		{
-			if(md5(trim($Plugin->getName())) == trim($plugincode))
-			{
+	public function activatePlugin($plugincode) {
+		foreach($this->getPlugins() AS $Plugin) {
+			if(md5(trim($Plugin->getName())) == trim($plugincode)) {
 				$ME = $this->getClass('PluginManager')->count(array('name' => $Plugin->getName()));
-				if ($ME)
-				{
+				if ($ME) {
 					$ME = $this->getClass('PluginManager')->find(array('name' => $Plugin->getName()));
 					$blActive = false;
-					foreach($ME AS $Me)
-					{
-						if($Me->get('state') != 1)
-							$blActive = true;
+					foreach($ME AS $Me) {
+						if($Me->get('state') != 1) $blActive = true;
 					}
-					if (!$blActive)
-					{
+					if (!$blActive) {
 						$this->set('state',1)
 							 ->set('installed',0)
 							 ->set('name',$Plugin->getName())
 							 ->save();
 					}
-				}
-				else
-				{
+				} else {
 					$ME = new self(array(
 						'name' => $Plugin->getName(),
 						'installed' => 0,

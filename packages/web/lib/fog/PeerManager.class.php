@@ -1,4 +1,2 @@
 <?php
-class PeerManager extends FOGManagerController
-{
-}
+class PeerManager extends FOGManagerController {}
