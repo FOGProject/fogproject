@@ -471,6 +471,7 @@ EOFMOUNT
 		else
 			echo "Not valid ntfs";
 		fi
+	fi
 }
 # $1 is the device name of the windows system partition
 removePageFile() {
