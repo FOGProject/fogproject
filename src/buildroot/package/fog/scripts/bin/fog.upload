@@ -110,7 +110,9 @@ if [ -f "/images/.mntcheck" ]; then
 				elif [ "$win7partcnt" -gt 4 ]; then
 					handleError "More than 4 ntfs partitions found, not valid for this image type.";
 				fi
-				clearMountedDevices;
+				for partClr in $parts=`fogpartinfo --list-parts $hd 2>/dev/null`; do
+					clearMountedDevices $partClr;
+				done
 			fi
 			# All: 
 			#  save the list of fixed size partitions
