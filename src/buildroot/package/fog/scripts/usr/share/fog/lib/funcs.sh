@@ -636,7 +636,7 @@ getSAMLoc()
 }
 # $1 is the partition to search for.
 getPartitionCount() {
-	echo `lsblk -pno KNAME ${1}?|wc -l`;
+	echo `lsblk -pno KNAME ${1}|wc -l`;
 }
 getHardDisk() {
 	if [ -n "${fdrive}" ]; then
@@ -647,13 +647,13 @@ getHardDisk() {
 			hd="$i";
 			runPartprobe "$hd";
 			partcount=`getPartitionCount "$hd"`;
-			if [ ! "$partcount" -gt 0 ]; then
+			if [ ! "$partcount" -gt 1 ]; then
 				parted -s $disk mklabel msdos;
 				parted -s $disk -a opt mkpart primary ntfs 2048s -- -1s &>/dev/null;
 			fi
 			runPartprobe "$hd";
 			partcount=`getPartitionCount "$hd"`;
-			if [ ! "$partcount" -gt 0 ]; then
+			if [ ! "$partcount" -gt 1 ]; then
 				handleError "Failed to initialize disk";
 			fi
 			return 0;
