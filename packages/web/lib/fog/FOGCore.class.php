@@ -336,7 +336,7 @@ class FOGCore extends FOGBase {
 			// Free the private key
 			openssl_free_key($privateKey);
 		}
-		if (file_exists("{$pub_path}srvpublic.key")) exec("rm {$pub_path}srvpublic.key &");
+		if (file_exists("{$pub_path}srvpublic.key")) exec("rm -rf {$pub_path}srvpublic.key");
 		$pub_key = openssl_pkey_get_private(file_get_contents($priv_path.'.srvprivate.key'));
 		$pub_key = openssl_pkey_get_details($pub_key);
 		file_put_contents($pub_path.'srvpublic.key',$pub_key['key']);
