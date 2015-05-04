@@ -448,26 +448,32 @@ fixWin7boot()
 	debugPause;
 }
 
-clearMountedDevices()
-{
+clearMountedDevices() {
 	mkdir /ntfs &>/dev/null
 	if [[ "$osid" == +([5-7]) ]]; then
-		dots "Clearing mounted devices";
-		ntfs-3g -o force,rw $win7sys /ntfs
-		reged -e "$REG_LOCAL_MACHINE_7" &>/dev/null  <<EOFMOUNT
+		fstype=`fsTypeSetting $1`;
+		dots "Clearing part ($1)";
+		if [ "$fstype" == "ntfs" ]; then
+			ntfs-3g -o force,rw $1 /ntfs
+			if [ -f "$REG_LOCAL_MACHINE_7" ]; then
+				reged -e "$REG_LOCAL_MACHINE_7" &>/dev/null  <<EOFMOUNT
 cd $REG_HOSTNAME_MOUNTED_DEVICES_7
 delallv
 q
 y
 EOFMOUNT
-		echo "Done";
-		debugPause;
-		umount /ntfs
-	fi
+				echo "Done";
+			else
+				echo "No reg found";
+			fi
+			debugPause;
+			umount /ntfs
+		else
+			echo "Not valid ntfs";
+		fi
 }
 # $1 is the device name of the windows system partition
-removePageFile()
-{
+removePageFile() {
 	local part="$1";
 	local fstype="";
 	if [ "$part" != "" ]; then
@@ -771,11 +777,9 @@ handleWarning()
 }
 
 # $1 is the drive
-runPartprobe()
-{
-	sleep 5
+runPartprobe() {
 	udevadm settle
-	blockdev --rereadpt $1;
+	blockdev --rereadpt $1 2>&1 &> /dev/null;
 	if [ "$?" != "0" ]; then
 		handleError "Failed to read back partitions";
 	fi
