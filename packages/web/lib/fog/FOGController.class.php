@@ -64,7 +64,7 @@ abstract class FOGController extends FOGBase {
 	/** @param data
 	  * Initializer of the objects themselves.
 	  */
-	public function __construct($data) {
+	public function __construct($data = '') {
 		/** FOGBase constructor
 		  * Allows the rest of the base of fog to come
 		  * with the object begin called
