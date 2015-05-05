@@ -5,6 +5,8 @@ class HookManager extends EventManager {
 	public $events;
 	public function register($event, $function) {
 		try {
+			if (preg_match('#/mobile/#',$_SERVER['PHP_SELF']))
+				throw new Exception('Hooks not allowed in mobile space');
 			if (!is_array($function) || count($function) != 2)
 				throw new Exception('Function is invalid');
 			if (!method_exists($function[0], $function[1]))

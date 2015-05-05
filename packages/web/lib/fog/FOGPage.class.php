@@ -115,13 +115,17 @@ abstract class FOGPage extends FOGBase {
 					'form' => $this->form,
 				));
 			} else {
+				$isMobile = preg_match('#/mobile/#',$_SERVER['PHP_SELF']);
 				// HTML output
 				if ($this->searchFormURL) {
-					$result .= sprintf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" '.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'name="host-search"' : '').'/> <input id="%s-search-submit" class="search-submit" type="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? 'submit' : 'button').'" value="'.(preg_match('#mobile#i',$_SERVER['PHP_SELF']) ? $this->foglang['Search'] : '').'" /></form>'."\n",
+					$result .= sprintf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><input id="%s-search-submit" class="search-submit" type="%s" value="%s"/></form>',
 						$this->searchFormURL,
-						(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),	// TODO: Store this in class as variable
+						(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
 						sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), $this->foglang['Search']),
-						(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)	// TODO: Store this in class as variable
+						$isMobile ? 'name="host-search"' : '',
+						(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
+						$isMobile ? 'submit' : 'button',
+						$isMobile ? $this->foglang['Search'] : ''
 					);
 				}
 				if ($this->form) $result .= sprintf($this->form);
@@ -131,31 +135,25 @@ abstract class FOGPage extends FOGBase {
 					($this->searchFormURL ? 'search-content' : 'active-tasks'),
 					$this->buildHeaderRow()
 				);
-				// Rows
-				if (!count($this->data)) {
+				if (!count($this->data) && $_REQUEST['sub'] == 'search') {
 					// No data found
-					$result .= sprintf('<tr><td colspan="%s" class="no-active-tasks">%s</td></tr>',
+					return $result.sprintf('<tr><td colspan="%s" class="no-active-tasks">%s</td></tr></tbody></table',
 						count($this->templates),
 						($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : $this->foglang['NoResults'])
 					);
 				} else {
 					$defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
-					// Data found
 					foreach ($this->data AS $rowData) {
-						$this->replaceNeeds($rowData);
-						$result .= sprintf('<tr id="%s-%s" class="%s">%s</tr>',
-							(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
+						$result .= sprintf('<tr id="%s-%s"%s>%s</tr>',
+							strtolower($this->childClass),
 							$rowData['id'],
-							(++$i % 2 ? 'alt1' : ((!$_REQUEST['sub'] && $defaultScreen == 'list') || in_array($_REQUEST['sub'],array('list','search')) ? 'alt2' : '')),
+							((++$i % 2) ? ' class="alt1"' : ((!$_REQUEST['sub'] && $defaultScreen == 'list') || in_array($_REQUEST['sub'],array('list','search')) ? ' class="alt2"' : '')),
 							$this->buildRow($rowData)
 						);
 					}
-					// Set message
-					if (!$this->searchFormURL && in_array($_REQUEST['sub'],array('search','list'))) $this->FOGCore->setMessage(sprintf('%s %s%s found', count($this->data), ucwords($this->node), (count($this->data) == 1 ? '' : (substr($this->node, -1) == 's' ? '' : 's'))));
+					$result .= '</tbody></table>';
 				}
-				// Table close
-				$result .= '</tbody></table>';
-				if ((count($this->data) || $result['data']) && in_array($_REQUEST['node'],$this->searchPages) && (in_array($_REQUEST['sub'],array('list','search')) || !$_REQUEST['sub']) && !preg_match('#mobile#',$_SERVER['PHP_SELF'])) {
+				if ((count($this->data) || $result['data']) && in_array($_REQUEST['node'],$this->searchPages) && (in_array($_REQUEST['sub'],array('list','search')) || !$_REQUEST['sub']) && !$isMobile) {
 					if ($this->childClass == 'Host') $result .= '<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>';
 					$result .= '<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value=""autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>';
 				}
@@ -201,8 +199,8 @@ abstract class FOGPage extends FOGBase {
 		unset($this->dataFind,$this->dataReplace);
 		$urlvars = array('node' => $GLOBALS['node'],'sub' => $GLOBALS['sub'],'tab' => $GLOBALS['tab']);
 		foreach ((array)array_merge($urlvars,$data) AS $name => $val) {
-				$this->dataFind[] = '#\$\{'.$name.'\}#';
-				$this->dataReplace[] = (is_object($val) ? $val->__toString() : (is_string($val) || is_numeric($val) ? $val : ''));
+			$this->dataFind[] = '#\$\{'.$name.'\}#';
+			$this->dataReplace[] = (is_object($val) ? $val->__toString() : (is_string($val) || is_numeric($val) ? $val : ''));
 		}
 	}
 	/** buildRow() builds the row of the tables
@@ -229,11 +227,10 @@ abstract class FOGPage extends FOGBase {
 	  * @return void
 	  */
 	public function deploy() {
-		$ClassType = ucfirst($this->node);
-		$Data = new $ClassType($_REQUEST['id']);
+		$Data = $this->obj;
 		$TaskType = new TaskType(($_REQUEST['type'] ? $_REQUEST['type'] : 1));
 		// Title
-		$this->title = sprintf('%s %s %s %s',_('Create'),$TaskType->get('name'),_('task for'),$ClassType);
+		$this->title = sprintf('%s %s %s %s',_('Create'),$TaskType->get('name'),_('task for'),$Data->get('name'));
 		// Deploy
 		printf('%s%s%s','<p class="c"><b>',_('Are you sure you wish to deploy task to these machines'),'</b></p>');
 		printf('<form method="post" action="%s" id="deploy-container">',$this->formAction);
@@ -312,7 +309,7 @@ abstract class FOGPage extends FOGBase {
 			}
 		}
 		// Hook
-		$this->HookManager->processEvent(strtoupper($ClassType.'_DEPLOY'),array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+		$this->HookManager->processEvent(strtoupper($this->childClass.'_DEPLOY'),array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
 		// Output
 		$this->render();
 		printf('%s%s%s','<p class="c"><input type="submit" value="',$this->title,'" /></p>');
@@ -322,8 +319,7 @@ abstract class FOGPage extends FOGBase {
 	  * @return void
 	  */
 	public function deploy_post() {
-		$ClassType = ucfirst($this->node);
-		$Data = new $ClassType($_REQUEST['id']);
+		$Data = $this->obj;
 		$TaskType = new TaskType($_REQUEST['type']);
 		$Snapin = $_REQUEST['snapin'] ? new Snapin($_REQUEST['snapin']) : -1;
 		$enableShutdown = $_REQUEST['shutdown'] ? true : false;
@@ -479,8 +475,7 @@ abstract class FOGPage extends FOGBase {
 	  * @return void
 	  */
 	public function basictasksOptions() {
-		$ClassType = ucfirst($this->node);
-		$Data = new $ClassType($_REQUEST['id']);
+		$Data = new $this->obj;
 		unset($this->headerData);
 		$this->templates = array(
 			'<a href="?node=${node}&sub=${sub}&id=${'.$this->node.'_id}${task_type}"><img src="'.$this->imagelink.'${task_icon}" /><br/>${task_name}</a>',
@@ -492,7 +487,7 @@ abstract class FOGPage extends FOGBase {
 		);
 		printf("<!-- Basic Tasks -->");
 		printf("%s",'<div id="'.$this->node.'-tasks" class="organic-tabs-hidden">');
-		printf("<h2>%s</h2>",_($ClassType.' Tasks'));
+		printf("<h2>%s</h2>",_($this->childClass.' Tasks'));
 		// Find TaskTypes
 		$TaskTypes = $this->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 0), 'AND', 'id');
 		// Iterate -> Print
@@ -519,7 +514,7 @@ abstract class FOGPage extends FOGBase {
 			'task_desc' => _('View advanced tasks for this').' '._($this->node),
 		);
 		// Hook
-		$this->HookManager->processEvent(strtoupper($ClassType).'_EDIT_TASKS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' &$this->attributes));
+		$this->HookManager->processEvent(strtoupper($this->childClass).'_EDIT_TASKS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' &$this->attributes));
 		// Output
 		$this->render();
 		unset($this->data);
@@ -552,7 +547,6 @@ abstract class FOGPage extends FOGBase {
 	  * @return void
 	  */
 	public function adFieldsToDisplay() {
-		$ClassType = ucfirst($this->node);
 		$Data = $this->obj;
 		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
 		foreach((array)$OUs AS $OU) $OUOptions[] = $OU;
@@ -600,7 +594,7 @@ abstract class FOGPage extends FOGBase {
 			);
 		}
 		// Hook
-		$this->HookManager->processEvent(strtoupper($ClassType).'_EDIT_AD', array('headerData' => &$this->headerData,'data' => &$this->data,'attributes' => &$this->attributes,'templates' => &$this->templates));
+		$this->HookManager->processEvent(strtoupper($this->childClass).'_EDIT_AD', array('headerData' => &$this->headerData,'data' => &$this->data,'attributes' => &$this->attributes,'templates' => &$this->templates));
 		// Output
 		$this->render();
 		unset($this->data);
@@ -713,8 +707,7 @@ abstract class FOGPage extends FOGBase {
 	  */
 	public function delete() {
 		// Find
-		$ClassType = ucfirst($this->node);
-		$Data = new $ClassType($_REQUEST['id']);
+		$Data = $this->obj;
 		// Title
 		$this->title = sprintf('%s: %s',_('Remove'),$Data->get('name'));
 		// Header Data
@@ -744,7 +737,7 @@ abstract class FOGPage extends FOGBase {
 			);
 		}
 		// Hook
-		$this->HookManager->processEvent(strtoupper($this->node).'_DEL', array($ClassType => &$Data));
+		$this->HookManager->processEvent(strtoupper($this->childClass).'_DEL', array($this->childClass => &$Data));
 		printf('<form method="post" action="%s" class="c">',$this->formAction);
 		$this->render();
 		printf('</form>');
@@ -778,10 +771,9 @@ abstract class FOGPage extends FOGBase {
 	  */
 	public function delete_post() {
 		// Find
-		$ClassType = ucfirst($this->node);
-		$Data = new $ClassType($_REQUEST['id']);
+		$Data = $this->obj;
 		// Hook
-		$this->HookManager->processEvent(strtoupper($this->node).'_DEL_POST', array($ClassType => &$Data));
+		$this->HookManager->processEvent(strtoupper($this->node).'_DEL_POST', array($this->childClass => &$Data));
 		// POST
 		try {
 			if ($Data instanceof Group) {
@@ -800,20 +792,20 @@ abstract class FOGPage extends FOGBase {
 			// Error checking
 			if (!$Data->destroy()) throw new Exception(_('Failed to destroy'));
 			// Hook
-			$this->HookManager->processEvent(strtoupper($this->node).'_DELETE_SUCCESS', array($ClassType => &$Data));
+			$this->HookManager->processEvent(strtoupper($this->childClass).'_DELETE_SUCCESS', array($this->childClass => &$Data));
 			// Log History event
-			$this->FOGCore->logHistory($ClassType.' deleted: ID: '.$Data->get('id').', Name:'.$Data->get('name'));
+			$this->FOGCore->logHistory($this->childClass.' deleted: ID: '.$Data->get('id').', Name:'.$Data->get('name'));
 			// Set session message
-			$this->FOGCore->setMessage($ClassType.' deleted: '.$Data->get('name'));
+			$this->FOGCore->setMessage($this->childClass.' deleted: '.$Data->get('name'));
 			// Reset request
 			$this->resetRequest();
 			// Redirect
 			$this->FOGCore->redirect('?node='.$this->node);
 		} catch (Exception $e) {
 			// Hook
-			$this->HookManager->processEvent(strtoupper($this->node).'_DELETE_FAIL', array($ClassType => &$Data));
+			$this->HookManager->processEvent(strtoupper($this->node).'_DELETE_FAIL', array($this->childClass => &$Data));
 			// Log History event
-			$this->FOGCore->logHistory(sprintf('%s %s: ID: %s, Name: %s',_($ClassType), _('delete failed'),$Data->get('id'),$Data->get('name')));
+			$this->FOGCore->logHistory(sprintf('%s %s: ID: %s, Name: %s',_($this->childClass), _('delete failed'),$Data->get('id'),$Data->get('name')));
 			// Set session message
 			$this->FOGCore->setMessage($e->getMessage());
 			// Redirect
