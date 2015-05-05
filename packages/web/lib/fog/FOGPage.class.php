@@ -475,7 +475,7 @@ abstract class FOGPage extends FOGBase {
 	  * @return void
 	  */
 	public function basictasksOptions() {
-		$Data = new $this->obj;
+		$Data = $this->obj;
 		unset($this->headerData);
 		$this->templates = array(
 			'<a href="?node=${node}&sub=${sub}&id=${'.$this->node.'_id}${task_type}"><img src="'.$this->imagelink.'${task_icon}" /><br/>${task_name}</a>',
