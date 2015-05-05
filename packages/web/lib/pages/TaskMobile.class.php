@@ -48,6 +48,24 @@ class TaskMobile extends FOGPage {
 		}
 		$this->render();
 	}
+	public function search() {
+		unset($this->headerData[0],$this->headerData[5],$this->attributes[0],$this->attributes[5],$this->templates[0],$this->templates[5]);
+		parent::search();
+	}
+	public function search_post() {
+		unset($this->headerData[0],$this->headerData[5],$this->attributes[0],$this->attributes[5],$this->templates[0],$this->templates[5]);
+		foreach((array)$this->getClass('TaskManager')->search() AS $Task) {
+			$Host = new Host($Task->get('hostID'));
+			$this->data[] = array(
+				'task_id' => $Task->get('id'),
+				'task_name' => $Task->get('name'),
+				'host_name' => ($Task->get('isForced') ? '* '.$Host->get('name') : $Host->get('name')),
+				'task_type' => $Task->getTaskTypeText(),
+				'task_state' => $Task->getTaskStateText(),
+			);
+		}
+		$this->render();
+	}
 	public function force() {
 		$Task = new Task($_REQUEST['id']);
 		$Task->set('isForced',true)->save();
