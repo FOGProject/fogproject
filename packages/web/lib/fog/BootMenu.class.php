@@ -144,7 +144,10 @@ class BootMenu extends FOGBase {
 	    } else {
 	        $Send['chainhide'] = array(
 				"#!ipxe",
-				"prompt --key ".($this->KS && $this->KS->isValid() ? $this->KS->get('ascii') : '0x1b')." --timeout $this->timeout Booting... (Press ".($this->KS && $this->KS->isValid() ?  $this->KS->get('name') : 'Escape')." to access the menu) && goto menuAccess || $this->bootexittype",
+				"cpuid --ext 29 && set arch x86_64 || set arch i386",
+				'iseq ${platform} efi && set key 0x1b || set key '.($this->KS && $this->KS->isValid() ? $this->KS->get('ascii') : '0x1b'),
+				'iseq ${platform} efi && set keyName ESC || set keyName '.($this->KS && $this->KS->isValid() ? $this->KS->get('name') : 'Escape'),
+				'prompt --key ${key} --timeout '.$this->timeout.' Booting... (Press ${keyName} to access the menu) && goto menuAccess || '.$this->bootexittype,
 				":menuAccess",
 				"login",
 				"params",

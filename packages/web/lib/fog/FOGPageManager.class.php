@@ -100,11 +100,11 @@ class FOGPageManager extends FOGBase {
 				$iterator = new DirectoryIterator($path);
 				foreach ($iterator as $fileInfo) {
 					$PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : null;
-					if (in_array($PluginName,$_SESSION['PluginsInstalled'])) $className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
+					if (in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) $className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
 					else if (!preg_match('#plugins#i',$path)) $className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
 					if ($className && !in_array($className,get_declared_classes())) {
 						$class = $this->getClass($className);
-							($_REQUEST['node'] == $class->node ? $this->register($class) : (!$_REQUEST['node'] && $class->node = 'home' ? $this->register($class) : $class = null));
+						($_REQUEST['node'] == $class->node ? $this->register($class) : (!$_REQUEST['node'] && $class->node = 'home' ? $this->register($class) : $class = null));
 					}
 					unset($class);
 				}
