@@ -33,6 +33,7 @@ done
 case "$1" in
   start)
  	echo "Starting network..."
+	"$0" stop
 	/sbin/ifup -a
 	;;
   stop)
