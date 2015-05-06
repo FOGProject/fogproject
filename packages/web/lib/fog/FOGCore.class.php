@@ -319,8 +319,8 @@ class FOGCore extends FOGBase {
 		$pub_path = '/'.trim(BASEPATH,'/').'/management/other/ssl/';
 		$priv_path = '/'.trim($this->getSetting('FOG_SNAPINDIR'),'/');
 		$priv_path = !$priv_path ? '/opt/fog/snapins/ssl/' : $priv_path.'/ssl/';
-		if (!is_dir($priv_path)) exec('mkdir '.$priv_path.' &');
-		if (!is_dir($pub_path)) exec('mkdir '.$pub_path.' &');
+		if (!is_dir($priv_path)) mkdir($priv_path);
+		if (!is_dir($pub_path)) mkdir($pub_path);
 		else if (!file_exists("$priv_path.srvprivate.key")) {
 			// Key settings as needed
 			$privateKey = openssl_pkey_new(array(
@@ -336,11 +336,11 @@ class FOGCore extends FOGBase {
 			// Free the private key
 			openssl_free_key($privateKey);
 		}
-		if (file_exists("{$pub_path}srvpublic.key")) exec("rm -rf {$pub_path}srvpublic.key");
 		$pub_key = openssl_pkey_get_private(file_get_contents($priv_path.'.srvprivate.key'));
 		if ($pub_key !== false) {
 			$pub_key = openssl_pkey_get_details($pub_key);
 			file_put_contents($pub_path.'srvpublic.key',$pub_key['key']);
+			chmod($pub_path.'srvpublic.key',0600);
 		}
 	}
 	public function setSessionEnv() {

@@ -100,6 +100,7 @@ abstract class FOGPage extends FOGBase {
 	  */
 	public function process() {
 		try {
+			$defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
 			$result = '';
 			// Error checking
 			if (!count($this->templates)) throw new Exception('Requires templates to process');
@@ -142,7 +143,6 @@ abstract class FOGPage extends FOGBase {
 						($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : $this->foglang['NoResults'])
 					);
 				} else {
-					$defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
 					foreach ($this->data AS $rowData) {
 						$result .= sprintf('<tr id="%s-%s"%s>%s</tr>',
 							strtolower($this->childClass),
@@ -151,11 +151,13 @@ abstract class FOGPage extends FOGBase {
 							$this->buildRow($rowData)
 						);
 					}
-					$result .= '</tbody></table>';
 				}
-				if (in_array($_REQUEST['node'],$this->searchPages) && !$isMobile && (in_array($_REQUEST['sub'],array('list','search')) || !$_REQUEST['sub'])) {
-					if ($this->childClass == 'Host') $result .= '<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>';
-					$result .= '<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value=""autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>';
+				$result .= '</tbody></table>';
+				if (count($this->data) || (($defaultScreen == 'search' && $_REQUEST['sub'] == 'search') || !$_REQUEST['sub'])) {
+					if (in_array($_REQUEST['node'],$this->searchPages) && !$isMobile && (in_array($_REQUEST['sub'],array('list','search')) || !$_REQUEST['sub'])) {
+						if ($this->childClass == 'Host') $result .= '<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>';
+						$result .= '<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value=""autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>';
+					}
 				}
 			}
 			// Return output
