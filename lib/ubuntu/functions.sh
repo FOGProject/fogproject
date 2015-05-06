@@ -409,32 +409,19 @@ configureHttpd()
 		mkdir "$webdirdest";
 		cp -Rf $webdirsrc/* $webdirdest/
 		echo "<?php
-/**
-* Class Name: Config
-* Initializes default settings.
-* Most notably the sql connection.
-*/
-class Config
-{
-	/**
-	* Calls the required functions to define the settings.
-	* method db_settings()
-	* method svc_setting()
-	* method init_setting()
-	*/
-	public function __construct()
-	{
+class Config {
+	/** @function __construct() Calls the required functions to define the settings.
+	  * @return void
+	  */
+	public function __construct() {
 		self::db_settings();
 		self::svc_setting();
 		self::init_setting();
 	}
-	/**
-	* db_settings()
-	* Defines the database settings for FOG
-	* @return void
-	*/
-	private static function db_settings()
-	{
+	/** @function db_settings() Defines the database settings for FOG
+	  * @return void
+	  */
+	private static function db_settings() {
 		define('DATABASE_TYPE',		'mysql');	// mysql or oracle
 		define('DATABASE_HOST',		'${dbhost}');
 		define('DATABASE_NAME',		'fog');
@@ -442,16 +429,13 @@ class Config
 		define('DATABASE_PASSWORD',		'${snmysqlpass}');
 		define('DATABASE_CONNTYPE', ${mysql_conntype});
 	}
-	/**
-	* svc_setting()
-	* Defines the service settings.
-	* (e.g. FOGMulticastManager,
-	*       FOGScheduler,
-	*       FOGImageReplicator)
-	* @return void
-	*/
-	private static function svc_setting()
-	{
+	/** @function svc_setting() Defines the service settings.
+	  * (e.g. FOGMulticastManager,
+	  *       FOGScheduler,
+	  *       FOGImageReplicator)
+	  * @return void
+	  */
+	private static function svc_setting() {
 		define( \"UDPSENDERPATH\", \"/usr/local/sbin/udp-sender\" );
 		define( \"MULTICASTLOGPATH\", \"/opt/fog/log/multicast.log\" );
 		define( \"MULTICASTDEVICEOUTPUT\", \"/dev/tty2\" );
@@ -470,20 +454,17 @@ class Config
 		define( \"SNAPINREPDEVICEOUTPUT\", \"/dev/tty5\" );
 		define( \"SNAPINREPSLEEPTIME\", 600 );
 	}
-	/**
-	* init_setting()
-	* Initial values if fresh install are set here
-	* NOTE: These values are only used on initial
-	* installation to set the database values.
-	* If this is an upgrade, they do not change
-	* the values within the Database.
-	* Please use FOG Configuration->FOG Settings
-	* to change these values after everything is
-	* setup.
-	* @return void
-	*/
-	private static function init_setting()
-	{
+	/** @function init_setting() Initial values if fresh install are set here
+	  * NOTE: These values are only used on initial
+	  * installation to set the database values.
+	  * If this is an upgrade, they do not change
+	  * the values within the Database.
+	  * Please use FOG Configuration->FOG Settings
+	  * to change these values after everything is
+	  * setup.
+	  * @return void
+	  */
+	private static function init_setting() {
 		define('TFTP_HOST', \"${ipaddress}\");
 		define('TFTP_FTP_USERNAME', \"${username}\");
 		define('TFTP_FTP_PASSWORD', \"${password}\");
