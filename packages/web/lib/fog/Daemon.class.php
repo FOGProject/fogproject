@@ -1,18 +1,18 @@
 <?php
 class Daemon {
-	/** $TTY the console to output to/from */
+	/** @var $TTY the console to output to/from */
 	public $TTY;
-	/** $interface the interface to connect with */
+	/** @var $interface the interface to connect with */
 	public $interface = NULL;
-	/** $interfaceSettingName the interface name */
+	/** @var $interfaceSettingName the interface name */
 	public $interfaceSettingName = NULL;
-	/** $DaemonName the name of the Daemon */
+	/** @var $DaemonName the name of the Daemon */
 	public $DaemonName;
-	/** $config the configuration class */
+	/** @var $config the configuration class */
 	private $config;
-	/** $mysqli the mysqli connection */
+	/** @var $mysqli the mysqli connection */
 	private $mysqli;
-	/** __construct() Construct daemon class
+	/** @function __construct() Construct daemon class
 	  * @param $DaemonName the name to test
 	  * @param $interfaceSettingName the interface name
 	  * @return void
@@ -24,41 +24,40 @@ class Daemon {
 		$this->DaemonName = ucfirst(strtolower($DaemonName));
 		$this->interfaceSettingName = $interfaceSettingName;
 	}
-	/** __destruct()
+	/** @function __destruct()
 	  * @return void
 	  */
 	public function __destruct() {
 		unset($this->config);
 		unset($this->mysqli);
 	}
-	/** clear_screen()
-	  * Clears the screen for information.
+	/** @function clear_screen() Clears the screen for information.
+	  * @return void
 	  */
 	public function clear_screen() {
 		$this->out(chr(27)."[2J".chr(27)."[;H");
 	}
-	/** wait_db_ready()
-	        Waits until mysql is ready to accept connections.
-	*/
+	/** @function wait_db_ready() Waits until mysql is ready to accept connections.
+	  * @return void
+	  */
 	public function wait_db_ready() {
 		$this->mysqli = @new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD,DATABASE_NAME); // try connection
-		while ($this->mysqli->connect_errno)
-		{ // no mysql answer..
+		while ($this->mysqli->connect_errno) {
 			$this->out("FOGService:{$this->DaemonName} - Waiting for mysql to be available..\n");
 			sleep(10); // wait some time
 		        @$this->mysqli->connect(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD,DATABASE_NAME); // try again before loop continues
 		}
 		return;
 	}
-	/** wait_interface_ready()
-		Waits for the network interface to be ready so services operate.
-		This requires FOGCore!!!!
-	*/
+	/** @function wait_interface_ready() Waits for the network interface to be ready
+	  * so the system can report if it will work or not
+	  * @return void
+	  */
 	public function wait_interface_ready() {
 		if ($this->interface == NULL) {
 			$this->out("Getting interface name.. ");
 			$this->FOGCore = $GLOBALS['FOGCore'];
-			$this->out($this->interface."\n");
+			$this->out("$this->interface\n");
 		}
 		while (true) {
 			$retarr = array();
@@ -73,17 +72,18 @@ class Daemon {
 			sleep(10);
 		}
 	}
-	// The below functions are from the FOG Service Scripts Data writing and checking.
-	/** out($sting, $device=NULL)
-		prints the information to the service console files.
-	*/
+	/** @function out()	prints the information to the service console files.
+	  * @param $string the data to put to log
+	  * @param $device the screen to print to defaults to default tty
+	  * @return void
+	  */
 	public function out($string,$device=NULL) {
 		if ($device === NULL) {$device = $this->TTY;}
 		file_put_contents($this->TTY,$string,FILE_APPEND);
 	}
-	/** getBanner()
-        Prints the FOG banner
-	*/
+	/** @function getBanner() Prints the FOG banner
+	  * @return the banner
+	  */
 	public function getBanner() {
 		$str  = "        ___           ___           ___      \n";
 		$str .= "       /\  \         /\  \         /\  \     \n";

@@ -1,8 +1,15 @@
 <?php
 class Announce extends FOGBase {
-	private $downloaded, $uploaded, $left;
-	private $peer, $torrent, $peer_torrent;
+	private $downloaded;
+	private $uploaded;
+	private $left;
+	private $peer;
+	private $torrent;
+	private $peer_torrent;
 	private $numwant;
+	/** @function __construct() the constructor for this class.  Sets up when class is called.
+	  * @return void
+	  */
 	public function __construct() {
 		parent::__construct();
 		header('X-Content-Type-Options: nosniff');
@@ -30,13 +37,10 @@ class Announce extends FOGBase {
 		if ($_REQUEST['numwant'] && ctype_digit($_REQUEST['numwant']) && $_REQUEST['numwant'] <= $this->FOGCore->getSetting('FOG_TORRENT_PPR') && $_REQUEST['numwant'] >= 0) $this->numwant = intval($_REQUEST['numwant']);
 		$this->doTheWork();
 	}
-	/**
-	* checkPort()
-	* Checks the port setting.  If in valid returns as invalid.  
-	* Sets up if port is 9999 and the peer_id is -TO0001-XX to use trackon methods.
-	* @return void
-	* dies with the relevant message if either are true.
-	*/
+	/** @function checkPort() Checks the port setting.  If in valid returns as invalid.
+	  * Sets up if port is 9999 and the peer_id is -TO0001-XX to use trackon methods.
+	  * @return void
+	  */
 	private function checkPort() {
 		try {
 			if (!ctype_digit($_REQUEST['port']) || $_REQUEST['port'] < 1 || $_REQUEST['port'] > 65535) throw new Exception('Invalid client port');
@@ -45,12 +49,9 @@ class Announce extends FOGBase {
 			die($e->getMessage());
 		}
 	}
-	/**
-	* PeerGen()
-	* Inserts the new peer or updates if it already exists.
-	* Sets the peer variable.
-	* @return $Peer return the peer.
-	*/
+	/** @function PeerGen() Inserts the new peer or updates if it already exists.
+	  * @return $Peer return the peer.
+	  */
 	private function PeerGen() {
 		$Peer = current($this->getClass('PeerManager')->find(array('hash' => bin2hex($_REQUEST['peer_id']))));
 		if (!$Peer || !$Peer->isValid()) {
@@ -70,12 +71,9 @@ class Announce extends FOGBase {
 		$Peer->save();
 		return $Peer;
 	}
-	/**
-	* TorrentGen()
-	* Inserts the new torrent or updates if it already exists.
-	* Sets the torrent variable.
-	* @return $Torrent returns the torrent.
-	*/
+	/** @function TorrentGen() Inserts the new torrent or updates if it already exists.
+	  * @return $Torrent returns the torrent.
+	  */
 	private function TorrentGen() {
 		$Torrent = current($this->getClass('TorrentManager')->find(array('hash' => bin2hex($_REQUEST['info_hash']))));
 		if (!$Torrent || !$Torrent->isValid()) {
@@ -88,12 +86,9 @@ class Announce extends FOGBase {
 		$Torrent->save();
 		return $Torrent;
 	}
-	/**
-	* PeerTorrentGen()
-	* Inserts the new peer_torrent or updates if it already exists.
-	* Sets the peer_torrent variable.
-	* @return $PeerTorrent returns the PeerTorrent.
-	*/
+	/** @function PeerTorrentGen() Inserts the new peer_torrent or updates if it already exists.
+	  * @return $PeerTorrent returns the PeerTorrent.
+	  */
 	private function PeerTorrentGen() {
 		$PeerTorrent = current($this->getClass('PeerTorrentManager')->find(array('peerID' => $this->peer->get('id'))));
 		if (!$PeerTorrent || !$PeerTorrent->isValid()) {
@@ -115,11 +110,9 @@ class Announce extends FOGBase {
 		$PeerTorrent->save();
 		return $PeerTorrent;
 	}
-	/**
-	* stopTorrent()
-	* stops the torrent if the event sent is to stop.
-	* @return void
-	*/
+	/** @function stopTorrent() stops the torrent if the event sent is to stop.
+	  * @return void
+	  */
 	private function stopTorrent() {
 		try {
 			$PeerTorrent = new PeerTorrent($this->peer_torrent);
@@ -129,11 +122,9 @@ class Announce extends FOGBase {
 			die($e->getMessage());
 		}
 	}
-	/**
-	* doTheWork()
-	* Returns the info to the client.
-	* @return void
-	*/
+	/** @function doTheWork() Returns the info to the client.
+	  * @return void
+	  */
 	private function doTheWork() {
 		try {
 			$seeders = 0;
