@@ -283,10 +283,8 @@ if [ "$imgType" == "n" ]; then
 	if [ -f "$win7imgroot/sys.img.000" ] && [[ "$osid" == +([5-7]) ]]; then
 		if [ "$win7partcnt" == "1" ]; then
 			restorePartition "$win7sys";
-			fixWin7boot "$win7sys";
 		elif [ "$win7partcnt" == "2" ]; then
 			restorePartition "$win7rec";
-			fixWin7boot "$win7rec";
 			restorePartition "$win7sys";
 		elif [ "$win7partcnt" == "3" ]; then
 			restorePartition "${hd}1";
@@ -320,6 +318,10 @@ if [ "$imgType" == "n" ]; then
 			fi
 		done
 	fi
+	parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
+	for part in $parts; do
+		fixWin7boot "$part";
+	done
 elif [ "$imgType" == "mps" ]; then
 	parts=`getValidRestorePartitions $hd 1 $imagePath`;
 	diskLength=`expr length $hd`;
