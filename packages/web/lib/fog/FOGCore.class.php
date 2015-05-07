@@ -362,6 +362,7 @@ class FOGCore extends FOGBase {
 		$_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = $this->getSetting('FOG_VIEW_DEFAULT_SCREEN');
 		$_SESSION['FOG_FTP_IMAGE_SIZE'] = $this->getSetting('FOG_FTP_IMAGE_SIZE');
 		$_SESSION['Pending-Hosts'] = $this->getClass('HostManager')->count(array('pending' => 1));
+		$_SESSION['Pending-MACs'] = $this->getClass('MACAddressAssociationManager')->count(array('pending' => 1));
 		$_SESSION['DataReturn'] = $this->getSetting('FOG_DATA_RETURNED');
 		$_SESSION['UserCount'] = $this->getClass('UserManager')->count();
 		$_SESSION['HostCount'] = $this->getClass('HostManager')->count();

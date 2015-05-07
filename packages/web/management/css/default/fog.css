@@ -369,3 +369,11 @@ tbody td.small { font-size: 10px; }
 .fa {
 	color: #00567a;
 }
+
+.notifier {
+	color: orange;
+}
+
+.notifier:hover {
+	color: orange;
+}
