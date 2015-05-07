@@ -7,13 +7,6 @@ class DashboardPage extends FOGPage {
 		$this->menu = array();
 		$this->subMenu = array();
 		$this->notes = array();
-		$hostPend = '<i class="fa fa-circle fa-1x notifier"></i>&nbsp;'._('There are pending hosts awaiting approval').'<br/>'._('Click').' '.'<a href="?node=host&sub=pending">'._('here').'</a> '._('to go to the approval page');
-		$macPend = '<i class="fa fa-circle fa-1x notifier"></i>&nbsp;'._('There are pending macs awaiting approval').'<br/>'._('Click').' '.'<a href="?node=report&sub=pend-mac">'._('here').'</a> '._('to go to the approval page');
-		if ($_REQUEST['node'] == $this->node || !$_REQUEST['node']) {
-			if ($_SESSION['Pending-Hosts'] && $_SESSION['Pending-MACs']) $this->FOGCore->setMessage($hostPend.'<br/>'.$macPend);
-			else if ($_SESSION['Pending-Hosts']) $this->FOGCore->setMessage($hostPend);
-			else if ($_SESSION['Pending-MACs']) $this->FOGCore->setMessage($macPend);
-		}
 	}
 	public function index() {
 		$SystemUptime = $this->FOGCore->SystemUptime();
