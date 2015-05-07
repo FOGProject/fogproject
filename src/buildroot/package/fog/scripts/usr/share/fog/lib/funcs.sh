@@ -50,8 +50,7 @@ enableWriteCache()
 	fi
 }
 # $1 is the partition
-expandPartition() 
-{
+expandPartition() {
 	if [ ! -n "$1" ]; then
 		echo " * No partition";
 		return;
@@ -436,15 +435,26 @@ EOFREG
 	fi
 }
 
-fixWin7boot()
-{
-	dots "Backing up and replacing BCD";
-	mkdir /bcdstore &>/dev/null;
-	ntfs-3g -o force,rw $1 /bcdstore &> /tmp/bcdstore-mount-output;
-	mv /bcdstore/Boot/BCD /bcdstore/Boot/BCD.bak;
-	cp /usr/share/fog/BCD /bcdstore/Boot/BCD;
-	umount /bcdstore;
-	echo "Done";
+fixWin7boot() {
+	local fstype=`fsTypeSetting $1`;
+	if [[ "$osid" == +([5-7]) ]]
+		dots "Backing up and replacing BCD";
+		if [ $fstype == "ntfs" ]; then
+			mkdir /bcdstore &>/dev/null;
+			ntfs-3g -o force,rw $1 /bcdstore;
+			if [ -f "/bcdstore/Boot/BCD" ]; then
+				mv /bcdstore/Boot/BCD /bcdstore/Boot/BCD.bak;
+				cp /usr/share/fog/BCD /bcdstore/Boot/BCD;
+				umount /bcdstore;
+				echo "Done";
+			else
+				umount /bcdstore;
+				echo "BCD not present";
+			fi
+		else
+			echo "Not NTFS filesystem";
+		fi
+	fi
 	debugPause;
 }
 

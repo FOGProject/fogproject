@@ -15,7 +15,7 @@ try {
 		foreach($FOGCore->getClass('ModuleManager')->find() AS $Module) $ModuleIDs[] = $Module->get('id');
 		$MACs = explode('|',$_REQUEST['mac']);
 		$PriMAC = array_shift($MACs);
-		$Host = $this->getClass('Host')
+		$Host = $FOGCore->getClass('Host')
 			 ->set('name', $_REQUEST['hostname'])
 			 ->set('description','Pending Registration created by FOG_CLIENT')
 			 ->set('pending',1)
