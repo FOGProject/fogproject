@@ -4,7 +4,7 @@ class HostManagementPage extends FOGPage {
 		$this->name = 'Host Management';
 		$this->node = 'host';
 		parent::__construct($this->name);
-		if ($_SESSION[Pending-Hosts]) $this->menu[pending] = $this->foglang[PendingHosts];
+		if ($_SESSION['Pending-Hosts']) $this->menu[pending] = $this->foglang[PendingHosts];
 		$this->menu[export] = $this->foglang[ExportHost];
 		$this->menu[import] = $this->foglang[ImportHost];
 		if ($_REQUEST['id']) {
