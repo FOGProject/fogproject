@@ -320,10 +320,10 @@ writeImage()
 	cat $1 > /tmp/pigz1 &
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-		gunzip -d -c < /tmp/pigz1 | partimage restore $2 stdin -f3 -b 2>/tmp/status.fog;
+		pigz -d -c < /tmp/pigz1 | partimage restore $2 stdin -f3 -b 2>/tmp/status.fog;
 	else 
 		# partclone
-		gunzip -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
+		pigz -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
 	fi
 	rm /tmp/pigz1;
 }
@@ -335,10 +335,10 @@ writeImageMultiCast()
 	udp-receiver --nokbd --portbase $port --ttl 32 --mcast-rdv-address $storageip 2>/dev/null > /tmp/pigz1 &
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-		gunzip -d -c < /tmp/pigz1 | partimage restore $hd stdin -f3 -b 2>/tmp/status.fog;
+		pigz -d -c < /tmp/pigz1 | partimage restore $hd stdin -f3 -b 2>/tmp/status.fog;
 	else 
 		# partclone
-		gunzip -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;
+		pigz -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;
 	fi
 	rm /tmp/pigz1
 }
@@ -823,12 +823,12 @@ uploadFormat()
 		return;
 	fi
 	if [ "$imgFormat" == "2" ]; then
-		pigz -p $1 $PIGZ_COMP < $2 | split -a 3 -d -b 200m - ${3}. &
+		pigz $PIGZ_COMP < $2 | split -a 3 -d -b 200m - ${3}. &
 	else
 		if [ "$imgType" == "n" ]; then
-			pigz -p $1 $PIGZ_COMP < $2 > ${3}.000 &
+			pigz $PIGZ_COMP < $2 > ${3}.000 &
 		else
-			pigz -p $1 $PIGZ_COMP < $2 > $3 &
+			pigz $PIGZ_COMP < $2 > $3 &
 		fi
 	fi
 }
