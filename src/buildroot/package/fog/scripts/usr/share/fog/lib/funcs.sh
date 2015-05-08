@@ -437,7 +437,7 @@ EOFREG
 
 fixWin7boot() {
 	local fstype=`fsTypeSetting $1`;
-	if [[ "$osid" == +([5-7]) ]]
+	if [[ "$osid" == +([5-7]) ]]; then
 		dots "Backing up and replacing BCD";
 		if [ $fstype == "ntfs" ]; then
 			mkdir /bcdstore &>/dev/null;
