@@ -26,4 +26,10 @@ class Location extends FOGController
 		$this->getClass('LocationAssociationManager')->find(array('locationID' => $this->get('id')));
 		return parent::destroy($field);
 	}
+	public function getStorageGroup() {
+		return $this->getClass('StorageGroup',$this->get('storageGroupID'));
+	}
+	public function getStorageNode() {
+		return $this->getClass('StorageNode',$this->get('storageNodeID'));
+	}
 }

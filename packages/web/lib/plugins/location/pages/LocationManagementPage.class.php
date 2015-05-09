@@ -1,17 +1,5 @@
 <?php
-/**	Class Name: LocationManagementPage
-    FOGPage lives in: {fogwebdir}/lib/fog
-    Lives in: {fogwebdir}/lib/plugins/location/pages
-
-	Description: This is an extension of the FOGPage Class
-    This class controls locations you want FOG to associate
-	with.  It's only enabled if the plugin is installed.
- 
-    Useful for:
-    Setting up clients that may move from sight to sight.
-**/
-class LocationManagementPage extends FOGPage
-{
+class LocationManagementPage extends FOGPage {
 	// Base variables
 	var $name = 'Location Management';
 	var $node = 'location';
@@ -22,10 +10,23 @@ class LocationManagementPage extends FOGPage
 	var $subMenu = array(
 	);
 	// __construct
-	public function __construct($name = '')
-	{
+	public function __construct($name = '') {
+		$this->name = 'Location Management';
+		$this->node = 'location';
 		// Call parent constructor
-		parent::__construct($name);
+		parent::__construct($this->name);
+		if ($_REQUEST['id']) {
+			$this->obj = $this->getClass('Location',$_REQUEST['id']);
+			$this->subMenu = array(
+				"$this->linkformat" => $this->foglang[General],
+				"$this->delformat" => $this->foglang[Delete],
+			);
+			$this->notes = array(
+				$this->foglang[Location] => $this->obj->get('name'),
+				$this->foglang[Storage].' '.$this->foglang[Group] => $this->obj->getStorageGroup(),
+			);
+			if ($this->obj->getStorageNode()->isValid()) $this->notes[$this->foglang[Storage].' '.$this->foglang[Node]] = $this->obj->getStorageNode();
+		}
 		// Header row
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
