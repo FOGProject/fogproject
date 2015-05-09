@@ -1,39 +1,32 @@
 <?php
-class ChangeItems extends Hook
-{
-	var $name = 'ChangeItems';
-	var $description = 'Add Location to Active Tasks';
-	var $author = 'Rowlett';
-	var $active = true;
-    var $node = 'location';	
-	public function StorageNodeSetting($arguments)
-	{
-		if (in_array($this->node,$_SESSION['PluginsInstalled']))
-		{
+class ChangeItems extends Hook {
+	public function __construct() {
+		$this->name = 'ChangeItems';
+		$this->description = 'Add Location to Active Tasks';
+		$this->author = 'Rowlett';
+		$this->active = true;
+		$this->node = 'location';
+	}
+	public function StorageNodeSetting($arguments) {
+		if (in_array($this->node,$_SESSION['PluginsInstalled'])) {
 			$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id'))));
 			if ($arguments['Host'] && $arguments['Host']->isValid() && $LA && $LA->isValid())
 				$arguments['StorageNode'] = $LA->getStorageNode();
 		}
 	}
-	public function StorageGroupSetting($arguments)
-	{
-		if (in_array($this->node,$_SESSION['PluginsInstalled']))
-		{
+	public function StorageGroupSetting($arguments) {
+		if (in_array($this->node,$_SESSION['PluginsInstalled'])) {
 			$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id'))));
 			if ($arguments['Host'] && $arguments['Host']->isValid() && $LA && $LA->isValid())
 				$arguments['StorageGroup'] = $LA->getStorageGroup();
 		}
 	}
-	public function BootItemSettings($arguments)
-	{
-		if (in_array($this->node,$_SESSION['PluginsInstalled']))
-		{
+	public function BootItemSettings($arguments) {
+		if (in_array($this->node,$_SESSION['PluginsInstalled'])) {
 			$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $arguments['Host']->get('id'))));
-			if ($arguments['Host'] && $arguments['Host']->isValid() && $LA && $LA->isValid())
-			{
-				if ($LA->isTFTP())
-				{
-					$ip = $this->FOGCore->resolveHostname($LA->getStorageNode()->get('ip'));
+			if ($arguments['Host'] && $arguments['Host']->isValid() && $LA && $LA->isValid()) {
+				if ($LA->isTFTP()) {
+					$ip = $this->getClass('FOGCore')->resolveHostname($LA->getStorageNode()->get('ip'));
 					$webroot = $arguments['webroot'];
 					$memtest = $arguments['memtest'];
 					$memdisk = $arguments['memdisk'];

@@ -1,18 +1,18 @@
 <?php
-class AddLocationMenuItem extends Hook
-{
-	var $name = 'AddLocationMenuItem';
-	var $description = 'Add menu item for location';
-	var $author = 'Tom Elliott';
-	var $active = true;
-	var $node = 'location';
-	public function MenuData($arguments)
-	{
+class AddLocationMenuItem extends Hook {
+	public function __construct() {
+		parent::__construct();
+		$this->name = 'AddLocationMenuItem';
+		$this->description = 'Add menu item for location';
+		$this->author = 'Tom Elliott';
+		$this->active = true;
+		$this->node = 'location';
+	}
+	public function MenuData($arguments) {
 		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 			$arguments['main'] = $this->array_insert_after('storage',$arguments['main'],$this->node,array(_('Location Management'),'fa fa-globe fa-2x'));
 	}
-	public function addSearch($arguments)
-	{
+	public function addSearch($arguments) {
 		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 			array_push($arguments['searchPages'],$this->node);
 	}
