@@ -1,20 +1,12 @@
 <?php
-/** Class Name: CaponeManager
-	Just gives us something to search for other
-	capone's within.
-	Also used to install the schema for capone
-	if the user installs the plugin.
-*/
-class CaponeManager extends FOGManagerController
-{
+class CaponeManager extends FOGManagerController {
 	/**	install($name)
 		Method that installs the relevant plugin.
 
 		$name just sends the plugin name.  Useful
 		for schema adding.
 	*/
-	public function install($name)
-    {   
+	public function install($name) {
         $sql = "CREATE TABLE capone
         (cID INTEGER NOT NULL AUTO_INCREMENT,
         cImageID INTEGER NOT NULL,
@@ -24,8 +16,7 @@ class CaponeManager extends FOGManagerController
         INDEX new_index (cImageID),
         INDEX new_index2 (cKey))
         ENGINE = MyISAM";
-        if ($this->DB->query($sql))
-        {   
+        if ($this->DB->query($sql)) {
             $CaponeDMI = new Service(array(
                 'name' => 'FOG_PLUGIN_CAPONE_DMI',
                 'description' => 'This setting is used for the capone module to set the DMI field used.',
@@ -51,14 +42,14 @@ class CaponeManager extends FOGManagerController
         }   
         return false;
     }
-	public function uninstall()
-	{
+	public function uninstall() {
+		$res = true;
 		if (!$this->DB->query("DROP TABLE capone"))
-			return false;
+			$res = false;
 		if (!$this->getClass('ServiceManager')->destroy(array('name' => 'FOG_PLUGIN_CAPON_%')))
-			return false;
+			$res = false;
 		if (!$this->getClass('PXEMenuOptionsManager')->destroy(array('name' => 'fog.capone')))
-			return false;
-		return true;
+			$res = false;
+		return $res;
 	}
 }

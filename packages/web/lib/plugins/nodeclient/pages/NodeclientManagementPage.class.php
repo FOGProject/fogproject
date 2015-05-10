@@ -1,29 +1,17 @@
 <?php
-/**	Class Name: NodeclientManagementPage
-    FOGPage lives in: {fogwebdir}/lib/fog
-    Lives in: {fogwebdir}/lib/plugins/node/pages
-
-	Description: This is an extension of the FOGPage Class
-    This class controls configuration of node client.
-	It's only enabled if the plugin is installed.
- 
-**/
-class NodeclientManagementPage extends FOGPage
-{
-	// Base variables
-	var $name = 'Node Client Configuration';
-	var $node = 'nodeclient';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
-	// __construct
-	public function __construct($name = '')
-	{
+class NodeclientManagementPage extends FOGPage {
+	public function __construct($name = '') {
+		$this->name = 'Node Client Configuration';
+		$this->node = 'nodeclient';
 		// Call parent constructor
 		parent::__construct($name);
+		if ($_REQUEST['id']) {
+			$this->obj = $this->getClass('NodeJS',$_REQUEST['id']);
+			$this->subMenu = array(
+				$this->linkformat = $this->foglang[General],
+				$this->delformat = $this->foglang[Delete],
+			);
+		}
 		// Header row
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
@@ -45,17 +33,14 @@ class NodeclientManagementPage extends FOGPage
 		);
 	}
 	// Pages
-	public function index()
-	{
+	public function index() {
 		// Set title
 		$this->title = _('All Node Servers');
 		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('NodeJSManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
 			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
 		// Row data
-		foreach ((array)$this->getClass('NodeJSManager')->find() AS $NodeConf)
-		{
-			if ($NodeConf && $NodeConf->isValid())
-			{
+		foreach ((array)$this->getClass('NodeJSManager')->find() AS $NodeConf) {
+			if ($NodeConf && $NodeConf->isValid()) {
 				$this->data[] = array(
 					'id'	=> $NodeConf->get('id'),
 					'name'  => $NodeConf->get('name'),
@@ -69,9 +54,7 @@ class NodeclientManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-
-	public function search()
-	{
+	public function search() {
 		// Set title
 		$this->title = 'Search';
 		// Set search form
@@ -81,9 +64,7 @@ class NodeclientManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-
-	public function search_post()
-	{
+	public function search_post() {
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// To assist with finding wol broadcasts.
@@ -94,10 +75,8 @@ class NodeclientManagementPage extends FOGPage
 			'port' => $keyword,
 		);
 		// Find data -> Push data
-		foreach ((array)$this->getClass('NodeJSManager')->find($where,'OR') AS $NodeConf)
-		{
-			if ($NodeConf && $NodeConf->isValid())
-			{
+		foreach ((array)$this->getClass('NodeJSManager')->find($where,'OR') AS $NodeConf) {
+			if ($NodeConf && $NodeConf->isValid()) {
 				$this->data[] = array(
 					'id'	=> $NodeConf->get('id'),
 					'name'  => $NodeConf->get('name'),
@@ -111,8 +90,7 @@ class NodeclientManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-	public function add()
-	{
+	public function add() {
 		$this->title = 'New Node Configuration';
 		// Header Data
 		unset($this->headerData);
@@ -133,8 +111,7 @@ class NodeclientManagementPage extends FOGPage
 			'<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
 		);
 		print '<form method="post" action="'.$this->formAction.'">';
-		foreach((array)$fields AS $field => $input)
-		{
+		foreach((array)$fields AS $field => $input) {
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
@@ -149,10 +126,8 @@ class NodeclientManagementPage extends FOGPage
 		$this->render();
 		print '</form>';
 	}
-	public function add_post()
-	{
-		try
-		{
+	public function add_post() {
+		try {
 			$name = trim($_REQUEST['name']);
 			$ip = trim($_REQUEST['nodeip']);
 			$port = trim($_REQUEST['portnum']);
@@ -169,22 +144,18 @@ class NodeclientManagementPage extends FOGPage
 				'ip' => $ip,
 				'port' => $port,
 			));
-			if ($NodeConf->save())
-			{
+			if ($NodeConf->save()) {
 				$this->FOGCore->setMessage('Node Added, editing!');
 				$this->FOGCore->redirect('?node=nodeclient&sub=edit&id='.$NodeConf->get('id'));
 			}
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->FOGCore->setMessage($e->getMessage());
 			$this->FOGCore->redirect($this->formAction);
 		}
 	}
-	public function edit()
-	{
+	public function edit() {
 		// Find
-		$NodeConf = new NodeJS($_REQUEST['id']);
+		$NodeConf = $this->obj;
 		// Title
 		$this->title = sprintf('%s: %s', 'Edit', $NodeConf->get('name'));
 		// Header Data
@@ -206,8 +177,7 @@ class NodeclientManagementPage extends FOGPage
 			'<input type="hidden" name="update" value="1" />' => '<input class="smaller" type="submit" value="'._('Update').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&id='.$NodeConf->get('id').'">';
-		foreach ((array)$fields AS $field => $input)
-		{
+		foreach ((array)$fields AS $field => $input) {
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
@@ -222,11 +192,9 @@ class NodeclientManagementPage extends FOGPage
 		$this->render();
 		print '</form>';
 	}
-	public function edit_post()
-	{
-		try
-		{
-			$NodeConf = new NodeJS($_REQUEST['id']);
+	public function edit_post() {
+		try {
+			$NodeConf = $this->obj;
 			$name = trim($_REQUEST['name']);
 			$ip = trim($_REQUEST['nodeip']);
 			$port = trim($_REQUEST['portnum']);
@@ -239,23 +207,16 @@ class NodeclientManagementPage extends FOGPage
 			$this->HookManager->processEvent('NODECONF_EDIT_POST', array('NodeConf'=> &$NodeConf));
 			if ($_REQUEST['name'] != $NodeConf->get('name') && $NodeConf->exists($_REQUEST['name']))
 				throw new Exception('Node name already Exists, please try again.');
-			if ($_REQUEST['update'])
-			{
-				if ($ip != $NodeConf->get('ip'))
-					$NodeConf->set('ip', $ip);
-				if ($name != $NodeConf->get('name'))
-					$NodeConf->set('name',$name);
-				if ($port != $NodeConf->get('port'))
-					$NodeConf->set('port',$port);
-				if ($NodeConf->save())
-				{
+			if ($_REQUEST['update']) {
+				if ($ip != $NodeConf->get('ip')) $NodeConf->set('ip', $ip);
+				if ($name != $NodeConf->get('name')) $NodeConf->set('name',$name);
+				if ($port != $NodeConf->get('port')) $NodeConf->set('port',$port);
+				if ($NodeConf->save()) {
 					$this->FOGCore->setMessage('Node Updated');
 					$this->FOGCore->redirect('?node=nodeclient&sub=edit&id='.$NodeConf->get('id'));
 				}
 			}
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->FOGCore->setMessage($e->getMessage());
 			$this->FOGCore->redirect($this->formAction);
 		}

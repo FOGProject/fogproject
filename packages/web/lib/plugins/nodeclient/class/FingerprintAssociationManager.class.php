@@ -1,4 +1,2 @@
 <?php
-class FingerprintAssociationManager extends FOGManagerController
-{
-}
+class FingerprintAssociationManager extends FOGManagerController{}

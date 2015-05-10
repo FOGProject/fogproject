@@ -1,32 +1,11 @@
 <?php
-/**	Class Name: AccessControlManagementPage
-    FOGPage lives in: {fogwebdir}/lib/fog
-    Lives in: {fogwebdir}/lib/plugins/accesscontrol/pages
-
-	Description: This is an extension of the FOGPage Class
-    This class controls access to users based on group or individual
-	access limitations determined by the sysadmins/admins of FOG.
-	It's only enabled if the plugin is installed.
- 
-    Useful for:
-	Restricting user roles and priveleges
-**/
-class AccesscontrolManagementPage extends FOGPage
-{
-	// Base variables
-	var $name = 'Access Management';
-	var $node = 'accesscontrol';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
-	// __construct
-	public function __construct($name = '')
-	{
+class AccesscontrolManagementPage extends FOGPage {
+	public function __construct($name = '') {
+		$this->name = 'Access Management';
+		$this->node = 'accesscontrol';
 		// Call parent constructor
-		parent::__construct($name);
+		parent::__construct($this->name);
+		if ($_REQUEST['id']) $this->obj = $this->getClass('AccessControl',$_REQUEST[id]);
 		// Header row
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
@@ -50,19 +29,15 @@ class AccesscontrolManagementPage extends FOGPage
 		);
 	}
 	// Pages
-	public function index()
-	{
+	public function index() {
 		// Set title
 		$this->title = _('All Access Controls');
-		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('AccesscontrolManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
-			$this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
+		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('AccesscontrolManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list') $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
 		// Find data
 		$AccessControls = $this->getClass('AccesscontrolManager')->find();
 		// Row data
-		foreach ((array)$AccessControls AS $AccessControl)
-		{
-			if ($AccessControl && $AccessControl->isValid())
-			{
+		foreach ((array)$AccessControls AS $AccessControl) {
+			if ($AccessControl && $AccessControl->isValid()) {
 				$this->data[] = array(
 					'id'	=> $AccessControl->get('id'),
 					'name'  => $AccessControl->get('name'),
@@ -78,18 +53,14 @@ class AccesscontrolManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-	public function search_post()
-	{
+	public function search_post() {
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// Find data -> Push data
 		$AccessControls = new AccesscontrolManager();
-		foreach($AccessAcontrols->databaseFields AS $common => $dbField)
-			$findWhere[$common] = $keyword;
-		foreach($AccessControls->find($findWhere) AS $AccessControl)
-		{
-			if ($AccessControl && $AccessControl->isValid())
-			{
+		foreach($AccessAcontrols->databaseFields AS $common => $dbField) $findWhere[$common] = $keyword;
+		foreach($AccessControls->find($findWhere) AS $AccessControl) {
+			if ($AccessControl && $AccessControl->isValid()) {
 				$this->data[] = array(
 					'id' => $AccessControl->get('id'),
 					'name'  => $AccessControl->get('name'),

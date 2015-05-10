@@ -1,4 +1,2 @@
 <?php
-class NodeJSManager extends FOGManagerController
-{
-}
+class NodeJSManager extends FOGManagerController {}

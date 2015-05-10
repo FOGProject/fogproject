@@ -5,4 +5,3 @@ $fog_plugin["description"] = "Allows you to create WOL across separate broadcast
 $fog_plugin["menuicon"] = "html/images/{$fog_plugin['name']}.png";
 $fog_plugin["menuicon_hover"] = null;
 $fog_plugin["entrypoint"] = "html/run.php";
-?>

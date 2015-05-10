@@ -1,17 +1,12 @@
 <?php
-/** Class Name: ExampleManager
-	Just helps more with the example.
-*/
-class ExampleManager extends FOGManagerController
-{
+class ExampleManager extends FOGManagerController {
 	/**	install($name)
 		Method that installs the relevant plugin.
 
 		$name just sends the plugin name.  Useful
 		for schema adding.
 	*/
-	public function install($name)
-    {   
+	public function install($name) {
 		/** Add the information into the database.
 			This is commented out so we don't actually
 			create anything.
@@ -41,8 +36,7 @@ class ExampleManager extends FOGManagerController
 		*/
 		return true;
     } 
-	public function uninstall()
-	{
+	public function uninstall() {
 		return true;
 	}
 }

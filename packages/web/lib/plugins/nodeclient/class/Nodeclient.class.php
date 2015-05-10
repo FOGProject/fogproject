@@ -1,4 +1,2 @@
 <?php
-class Nodeclient extends NodeJS
-{
-}
+class Nodeclient extends NodeJS {}

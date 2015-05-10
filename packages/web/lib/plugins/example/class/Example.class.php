@@ -1,12 +1,5 @@
 <?php
-/** Class Name: Example
-	This just serves as an example class file.
-
-	This is only for the Example Plugin created, but
-	could serve to help the user create their own class files.
-*/
-class Example extends FOGController
-{
+class Example extends FOGController {
 	// Table
 	public $databaseTable = 'example';
 	// Name -> Database field name
