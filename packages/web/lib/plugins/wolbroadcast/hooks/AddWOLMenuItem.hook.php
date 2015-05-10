@@ -1,18 +1,18 @@
 <?php
-class AddWOLMenuItem extends Hook
-{
-	var $name = 'AddWOLMenuItem';
-	var $description = 'Add menu item for WOL Broadcast';
-	var $author = 'Tom Elliott';
-	var $active = true;
-	var $node = 'wolbroadcast';
-	public function MenuData($arguments)
-	{
+class AddWOLMenuItem extends Hook {
+	public function __construct() {
+		parent::__construct();
+		$this->name = 'AddWOLMenuItem';
+		$this->description = 'Add menu item for WOL Broadcast';
+		$this->author = 'Tom Elliott';
+		$this->active = true;
+		$this->node = 'wolbroadcast';
+	}
+	public function MenuData($arguments) {
 		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 			$arguments['main'] = $this->array_insert_after('storage',$arguments['main'],$this->node,array(_('WOL Broadcast Management'),'fa fa-plug fa-2x'));
 	}
-	public function addSearch($arguments)
-	{
+	public function addSearch($arguments) {
 		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 			array_push($arguments['searchPages'],$this->node);
 	}

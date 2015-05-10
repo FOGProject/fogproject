@@ -1,15 +1,5 @@
 <?php
 class LocationManagementPage extends FOGPage {
-	// Base variables
-	var $name = 'Location Management';
-	var $node = 'location';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
-	// __construct
 	public function __construct($name = '') {
 		$this->name = 'Location Management';
 		$this->node = 'location';
@@ -52,8 +42,7 @@ class LocationManagementPage extends FOGPage {
 		);
 	}
 	// Pages
-	public function index()
-	{
+	public function index() {
 		// Set title
 		$this->title = _('Search');
 		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('LocationManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
@@ -61,8 +50,7 @@ class LocationManagementPage extends FOGPage {
 		// Find data
 		$Locations = $this->getClass('LocationManager')->find();
 		// Row data
-		foreach ((array)$Locations AS $Location)
-		{
+		foreach ((array)$Locations AS $Location) {
 			$StorageGroup = new StorageGroup($Location->get('storageGroupID'));
 			$this->data[] = array(
 				'id'	=> $Location->get('id'),
@@ -78,8 +66,7 @@ class LocationManagementPage extends FOGPage {
 		// Output
 		$this->render();
 	}
-	public function search_post()
-	{
+	public function search_post() {
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// To assist with finding by storage group or location.
@@ -90,8 +77,7 @@ class LocationManagementPage extends FOGPage {
 			'storageGroupID' => $keyword,
 		);
 		// Find data -> Push data
-		foreach ((array)$this->getClass('LocationManager')->find($where,'OR') AS $Location)
-		{
+		foreach ((array)$this->getClass('LocationManager')->find($where,'OR') AS $Location) {
 			$this->data[] = array(
 				'id'		=> $Location->get('id'),
 				'name'		=> $Location->get('name'),
@@ -106,8 +92,7 @@ class LocationManagementPage extends FOGPage {
 		// Output
 		$this->render();
 	}
-	public function add()
-	{
+	public function add() {
 		$this->title = 'New Location';
 		// Header Data
 		unset($this->headerData);
@@ -129,8 +114,7 @@ class LocationManagementPage extends FOGPage {
 			'<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
 		);
 		print '<form method="post" action="'.$this->formAction.'">';
-		foreach((array)$fields AS $field => $input)
-		{
+		foreach((array)$fields AS $field => $input) {
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
@@ -143,10 +127,8 @@ class LocationManagementPage extends FOGPage {
 		$this->render();
 		print '</form>';
 	}
-	public function add_post()
-	{
-		try
-		{
+	public function add_post() {
+		try {
 			$name = trim($_REQUEST['name']);
 			if ($this->getClass('LocationManager')->exists(trim($_REQUEST['name'])))
 				throw new Exception('Location already Exists, please try again.');
@@ -162,22 +144,18 @@ class LocationManagementPage extends FOGPage {
 			));
 			if ($_REQUEST['storagenode'] && $Location->get('storageGroupID') != $this->getClass('StorageNode',$_REQUEST['storagenode'])->get('storageGroupID'))
 				$Location->set('storageGroupID', $this->getClass('StorageNode',$_REQUEST['storagenode'])->get('storageGroupID'));
-			if ($Location->save())
-			{
+			if ($Location->save()) {
 				$this->FOGCore->setMessage('Location Added, editing!');
 				$this->FOGCore->redirect('?node=location&sub=edit&id='.$Location->get('id'));
 			}
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->FOGCore->setMessage($e->getMessage());
 			$this->FOGCore->redirect($this->formAction);
 		}
 	}
-	public function edit()
-	{
+	public function edit() {
 		// Find
-		$Location = new Location($_REQUEST['id']);
+		$Location = $this->obj;
 		// Get the Storage Node ID if it's set
 		// Title
 		$this->title = sprintf('%s: %s', 'Edit', $Location->get('name'));
@@ -201,8 +179,7 @@ class LocationManagementPage extends FOGPage {
 			'<input type="hidden" name="update" value="1" />' => '<input type="submit" class="smaller" value="'._('Update').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&id='.$Location->get('id').'">';
-		foreach ((array)$fields AS $field => $input)
-		{
+		foreach ((array)$fields AS $field => $input) {
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
@@ -219,34 +196,27 @@ class LocationManagementPage extends FOGPage {
 		$this->render();
 		print '</form>';
 	}
-	public function edit_post()
-	{
-		$Location = new Location($_REQUEST['id']);
+	public function edit_post() {
+		$Location = $this->obj;
 		$LocationMan = new LocationManager();
 		$this->HookManager->event[] = 'LOCATION_EDIT_POST';
 		$this->HookManager->processEvent('LOCATION_EDIT_POST', array('Location'=> &$Location));
-		try
-		{
+		try {
 			if ($_REQUEST['name'] != $Location->get('name') && $LocationMan->exists($_REQUEST['name']))
 				throw new Exception('A location with that name already exists.');
-			if ($_REQUEST['update'])
-			{
-				if ($_REQUEST['storagegroup'])
-				{
+			if ($_REQUEST['update']) {
+				if ($_REQUEST['storagegroup']) {
 					$Location->set('name', $_REQUEST['name'])
 							 ->set('storageGroupID', $_REQUEST['storagegroup']);
 				}
 				$Location->set('storageNodeID', $_REQUEST['storagenode'])
 						 ->set('tftp', $_REQUEST['tftp']);
-				if ($Location->save())
-				{
+				if ($Location->save()) {
 					$this->FOGCore->setMessage('Location Updated');
 					$this->FOGCore->redirect('?node=location&sub=edit&id='.$Location->get('id'));
 				}
 			}
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->FOGCore->setMessage($e->getMessage());
 			$this->FOGCore->redirect($this->formAction);
 		}

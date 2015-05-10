@@ -1,17 +1,12 @@
 <?php
-/** Class Name: AccesscontrolManager
-	Just helps more with the example.
-*/
-class AccesscontrolManager extends FOGManagerController
-{
+class AccesscontrolManager extends FOGManagerController {
 	/**	install($name)
 		Method that installs the relevant plugin.
 
 		$name just sends the plugin name.  Useful
 		for schema adding.
 	*/
-	public function install($name)
-    {   
+	public function install($name) {
         $sql = "CREATE TABLE accessControls
         (acID INTEGER NOT NULL AUTO_INCREMENT,
         acName VARCHAR(250) NOT NULL,
@@ -27,8 +22,7 @@ class AccesscontrolManager extends FOGManagerController
 			return false;
 		return true;
     } 
-	public function uninstall()
-	{
+	public function uninstall() {
 		if (!$this->DB->query("DROP TABLE accessControls"))
 			return false;
 		return true;

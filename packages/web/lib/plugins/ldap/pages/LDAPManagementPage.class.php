@@ -1,31 +1,21 @@
 <?php
-/**	Class Name: LDAPManagementPage
-    FOGPage lives in: {fogwebdir}/lib/fog
-    Lives in: {fogwebdir}/lib/plugins/ldap/pages
-
-	Description: This is an extension of the FOGPage Class
-    This class controls locations you want FOG to associate
-	with.  It's only enabled if the plugin is installed.
- 
-    Useful for:
-    Setting up clients that may move from sight to sight.
-**/
-class LDAPManagementPage extends FOGPage
-{
-	// Base variables
-	var $name = 'LDAP Management';
-	var $node = 'ldap';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
-	// __construct
-	public function __construct($name = '')
-	{
+class LDAPManagementPage extends FOGPage {
+	public function __construct($name = '') {
+		$this->name = 'LDAP Management';
+		$this->node = 'ldap';
 		// Call parent constructor
 		parent::__construct($name);
+		if ($_REQUEST['id']) {
+			$this->obj = $this->getClass('LDAP',$_REQUEST[id]);
+			$this->subMenu = array(
+				"$this->linkformat" => $this->foglang[General],
+				"$this->delformat" => $this->foglang[Delete],
+			);
+			$this->notes = array(
+				_('LDAP Server Name') => $this->obj->get('name'),
+				_('LDAP Server Address') => $this->obj->get('address'),
+			);
+		}
 		// Header row
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"  checked/>',
@@ -51,8 +41,7 @@ class LDAPManagementPage extends FOGPage
 		);
 	}
 	// Pages
-	public function index()
-	{
+	public function index() {
 		// Set title
 		$this->title = _('Search');
 		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('LDAPManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
@@ -60,8 +49,7 @@ class LDAPManagementPage extends FOGPage
 		// Find data
 		$LDAPs = $this->getClass('LDAPManager')->find();
 		// Row data
-		foreach ((array)$LDAPs AS $LDAP)
-		{
+		foreach ((array)$LDAPs AS $LDAP) {
 			$this->data[] = array(
 				'id'	=> $LDAP->get('id'),
 				'name'  => $LDAP->get('name'),
@@ -78,8 +66,7 @@ class LDAPManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-	public function search_post()
-	{
+	public function search_post() {
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// To assist with finding by storage group or location.
@@ -91,8 +78,7 @@ class LDAPManagementPage extends FOGPage
 			'DN'		=> $keyword,
 		);
 		// Find data -> Push data
-		foreach ((array)$this->getClass('LDAPManager')->find($where,'OR') AS $LDAP)
-		{
+		foreach ((array)$this->getClass('LDAPManager')->find($where,'OR') AS $LDAP) {
 			$this->data[] = array(
 				'id'		=> $LDAP->get('id'),
 				'name'		=> $LDAP->get('name'),
@@ -108,8 +94,7 @@ class LDAPManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-	public function add()
-	{
+	public function add() {
 		$this->title = 'New LDAP Server';
 		// Header Data
 		unset($this->headerData);
@@ -132,8 +117,7 @@ class LDAPManagementPage extends FOGPage
 			'<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
 		);
 		print '<form method="post" action="'.$this->formAction.'">';
-		foreach((array)$fields AS $field => $input)
-		{
+		foreach((array)$fields AS $field => $input) {
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
@@ -146,10 +130,8 @@ class LDAPManagementPage extends FOGPage
 		$this->render();
 		print '</form>';
 	}
-	public function add_post()
-	{
-		try
-		{
+	public function add_post() {
+		try {
 			$name = trim($_REQUEST['name']);
 			$address = trim($_REQUEST['address']);
 			if ($this->getClass('LDAPManager')->exists(trim($_REQUEST['name'])))
@@ -165,22 +147,18 @@ class LDAPManagementPage extends FOGPage
 				'DN' => $_REQUEST['DN'],
 				'port'	=> $_REQUEST['port'],
 			));
-			if ($LDAP->save())
-			{
+			if ($LDAP->save()) {
 				$this->FOGCore->setMessage('LDAP Server Added, editing!');
 				$this->FOGCore->redirect('?node=ldap&sub=edit&id='.$LDAP->get('id'));
 			}
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->FOGCore->setMessage($e->getMessage());
 			$this->FOGCore->redirect($this->formAction);
 		}
 	}
-	public function edit()
-	{
+	public function edit() {
 		// Find
-		$LDAP = new LDAP($_REQUEST['id']);
+		$LDAP = $this->obj;
 		// Title
 		$this->title = sprintf('%s: %s', 'Edit', $LDAP->get('name'));
 		// Header Data
@@ -204,8 +182,7 @@ class LDAPManagementPage extends FOGPage
 			'<input type="hidden" name="update" value="1" />' => '<input type="submit" class="smaller" value="'._('Update').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&id='.$LDAP->get('id').'">';
-		foreach ((array)$fields AS $field => $input)
-		{
+		foreach ((array)$fields AS $field => $input) {
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
@@ -223,20 +200,17 @@ class LDAPManagementPage extends FOGPage
 		$this->render();
 		print '</form>';
 	}
-	public function edit_post()
-	{
-		$LDAP = new LDAP($_REQUEST['id']);
-		$LDAPMan = new LDAPManager();
+	public function edit_post() {
+		$LDAP = $this->obj;
+		$LDAPMan = $LDAP->getManager();
 		$this->HookManager->event[] = 'LDAP_EDIT_POST';
 		$this->HookManager->processEvent('LDAP_EDIT_POST', array('LDAP'=> &$LDAP));
-		try
-		{
+		try {
 			if ($_REQUEST['name'] != $LDAP->get('name') && $LDAPMan->exists($_REQUEST['name']))
 				throw new Exception('A LDAP Server with that name already exists.');
 			if (empty($_REQUEST['address']))
 				throw new Exception('LDAP server address is empty!!');
-			if ($_REQUEST['update'])
-			{
+			if ($_REQUEST['update']) {
 				if ($_REQUEST['name'] != $LDAP->get('name'))
 					$LDAP->set('name', $_REQUEST['name']);
 				
@@ -249,15 +223,12 @@ class LDAPManagementPage extends FOGPage
 					$LDAP->set('DN', $_REQUEST['DN']);
 				if ($_REQUEST['port'] != $LDAP->get('port'))
 					$LDAP->set('port', $_REQUEST['port']);
-				if ($LDAP->save())
-				{
+				if ($LDAP->save()) {
 					$this->FOGCore->setMessage('LDAP Server Updated');
 					$this->FOGCore->redirect('?node=ldap&sub=edit&id='.$LDAP->get('id'));
 				}
 			}
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->FOGCore->setMessage($e->getMessage());
 			$this->FOGCore->redirect($this->formAction);
 		}

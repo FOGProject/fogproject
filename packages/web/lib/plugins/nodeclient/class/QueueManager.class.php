@@ -1,4 +1,2 @@
 <?php
-class QueueManager extends FOGManagerController
-{
-}
+class QueueManager extends FOGManagerController {}

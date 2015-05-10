@@ -5,4 +5,3 @@ $fog_plugin["description"] = "Just an example plugin for those who want to creat
 $fog_plugin["menuicon"] = "html/images/{$fog_plugin['name']}.png";
 $fog_plugin["menuicon_hover"] = null;
 $fog_plugin["entrypoint"] = "html/run.php";
-?>

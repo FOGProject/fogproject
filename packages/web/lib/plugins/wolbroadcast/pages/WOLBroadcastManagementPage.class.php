@@ -1,32 +1,22 @@
 <?php
-/**	Class Name: WOLManagementPage
-    FOGPage lives in: {fogwebdir}/lib/fog
-    Lives in: {fogwebdir}/lib/plugins/wolbroadcast/pages
-
-	Description: This is an extension of the FOGPage Class
-    This class controls wol broadcast addresses you want 
-	FOG to associate with.  
-	It's only enabled if the plugin is installed.
- 
-    Useful for:
-    Setting up clients that may move from sight to sight.
-**/
-class WOLBroadcastManagementPage extends FOGPage
-{
-	// Base variables
-	var $name = 'WOL Broadcast Management';
-	var $node = 'wolbroadcast';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
+class WOLBroadcastManagementPage extends FOGPage {
 	// __construct
-	public function __construct($name = '')
-	{
+	public function __construct($name = '') {
+		$this->name = 'WOL Broadcast Management';
+		$this->node = 'wolbroadcast';
 		// Call parent constructor
-		parent::__construct($name);
+		parent::__construct($this->name);
+		if ($_REQUEST['id']) {
+			$this->obj = $this->getClass('Wolbroadcast',$_REQUEST[id]);
+			$this->subMenu = array(
+				$this->linkformat => $this->foglang[General],
+				$this->delformat => $this->foglang[Delete],
+			);
+			$this->notes = array(
+				_('Broadcast Name') => $this->obj->get('name'),
+				_('IP Address') => $this->obj->get('broadcast'),
+			);
+		}
 		// Header row
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
@@ -46,8 +36,7 @@ class WOLBroadcastManagementPage extends FOGPage
 		);
 	}
 	// Pages
-	public function index()
-	{
+	public function index() {
 		// Set title
 		$this->title = _('All Broadcasts');
 		if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('WolbroadcastManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
@@ -55,10 +44,8 @@ class WOLBroadcastManagementPage extends FOGPage
 		// Find data
 		$Broadcasts = $this->getClass('WolbroadcastManager')->find();
 		// Row data
-		foreach ((array)$Broadcasts AS $Broadcast)
-		{
-			if ($Broadcast && $Broadcast->isValid())
-			{
+		foreach ((array)$Broadcasts AS $Broadcast) {
+			if ($Broadcast && $Broadcast->isValid()) {
 				$this->data[] = array(
 					'id'	=> $Broadcast->get('id'),
 					'name'  => $Broadcast->get('name'),
@@ -71,9 +58,7 @@ class WOLBroadcastManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-
-	public function search()
-	{
+	public function search() {
 		// Set title
 		$this->title = 'Search';
 		// Set search form
@@ -83,9 +68,7 @@ class WOLBroadcastManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-
-	public function search_post()
-	{
+	public function search_post() {
 		// Variables
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// To assist with finding wol broadcasts.
@@ -95,10 +78,8 @@ class WOLBroadcastManagementPage extends FOGPage
 			'broadcast' => $keyword,
 		);
 		// Find data -> Push data
-		foreach ((array)$this->getClass('WolbroadcastManager')->find($where,'OR') AS $Broadcast)
-		{
-			if ($Broadcast && $Broadcast->isValid())
-			{
+		foreach ((array)$this->getClass('WolbroadcastManager')->find($where,'OR') AS $Broadcast) {
+			if ($Broadcast && $Broadcast->isValid()) {
 				$this->data[] = array(
 					'id'		=> $Broadcast->get('id'),
 					'name'		=> $Broadcast->get('name'),
@@ -111,8 +92,7 @@ class WOLBroadcastManagementPage extends FOGPage
 		// Output
 		$this->render();
 	}
-	public function add()
-	{
+	public function add() {
 		$this->title = 'New Broadcast Address';
 		// Header Data
 		unset($this->headerData);
@@ -132,8 +112,7 @@ class WOLBroadcastManagementPage extends FOGPage
 			'<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
 		);
 		print '<form method="post" action="'.$this->formAction.'">';
-		foreach((array)$fields AS $field => $input)
-		{
+		foreach((array)$fields AS $field => $input) {
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
@@ -145,10 +124,8 @@ class WOLBroadcastManagementPage extends FOGPage
 		$this->render();
 		print '</form>';
 	}
-	public function add_post()
-	{
-		try
-		{
+	public function add_post() {
+		try {
 			$name = trim($_REQUEST['name']);
 			$ip = trim($_REQUEST['broadcast']);
 			if ($this->getClass('WolbroadcastManager')->exists(trim($_REQUEST['name'])))
@@ -163,22 +140,18 @@ class WOLBroadcastManagementPage extends FOGPage
 				'name' => $name,
 				'broadcast' => $ip,
 			));
-			if ($WOLBroadcast->save())
-			{
+			if ($WOLBroadcast->save()) {
 				$this->FOGCore->setMessage('Broadcast Added, editing!');
 				$this->FOGCore->redirect('?node=wolbroadcast&sub=edit&id='.$WOLBroadcast->get('id'));
 			}
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->FOGCore->setMessage($e->getMessage());
 			$this->FOGCore->redirect($this->formAction);
 		}
 	}
-	public function edit()
-	{
+	public function edit() {
 		// Find
-		$WOLBroadcast = new Wolbroadcast($_REQUEST['id']);
+		$WOLBroadcast = $this->obj;
 		// Title
 		$this->title = sprintf('%s: %s', 'Edit', $WOLBroadcast->get('name'));
 		// Header Data
@@ -199,8 +172,7 @@ class WOLBroadcastManagementPage extends FOGPage
 			'<input type="hidden" name="update" value="1" />' => '<input type="submit" class="smaller" value="'._('Update').'" />',
 		);
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&id='.$WOLBroadcast->get('id').'">';
-		foreach ((array)$fields AS $field => $input)
-		{
+		foreach ((array)$fields AS $field => $input) {
 			$this->data[] = array(
 				'field' => $field,
 				'input' => $input,
@@ -214,13 +186,11 @@ class WOLBroadcastManagementPage extends FOGPage
 		$this->render();
 		print '</form>';
 	}
-	public function edit_post()
-	{
-		$WOLBroadcast = new Wolbroadcast($_REQUEST['id']);
+	public function edit_post() {
+		$WOLBroadcast = $this->obj;
 		$WOLBroadcastMan = new WolbroadcastManager();
 		$this->HookManager->processEvent('BROADCAST_EDIT_POST', array('Broadcast'=> &$WOLBroadcast));
-		try
-		{
+		try {
 			$name = trim($_REQUEST['name']);
 			$ip = trim($_REQUEST['broadcast']);
 			if (!$name)
@@ -229,21 +199,17 @@ class WOLBroadcastManagementPage extends FOGPage
 				throw new Exception('Please enter a valid IP address');
 			if ($_REQUEST['name'] != $WOLBroadcast->get('name') && $WOLBroadcastMan->exists($_REQUEST['name']))
 				throw new Exception('A broadcast with that name already exists.');
-			if ($_REQUEST['update'])
-			{
+			if ($_REQUEST['update']) {
 				if ($ip != $WOLBroadcast->get('broadcast'))
 					$WOLBroadcast->set('broadcast', $ip);
 				if ($name != $WOLBroadcast->get('name'))
 					$WOLBroadcast->set('name',$name);
-				if ($WOLBroadcast->save())
-				{
+				if ($WOLBroadcast->save()) {
 					$this->FOGCore->setMessage('Broadcast Updated');
 					$this->FOGCore->redirect('?node=wolbroadcast&sub=edit&id='.$WOLBroadcast->get('id'));
 				}
 			}
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			$this->FOGCore->setMessage($e->getMessage());
 			$this->FOGCore->redirect($this->formAction);
 		}

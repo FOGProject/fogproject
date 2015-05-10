@@ -1,10 +1,12 @@
 <?php
 class LDAPPluginHook extends Hook {
-	var $name = 'LDAPPluginHook';
-	var $description = 'LDAP Hook';
-	var $author = 'Fernando Gietz';
-	var $active = true;
-	var $node = 'ldap';
+	public function __construct() {
+		$this->name = 'LDAPPluginHook';
+		$this->description = 'LDAP Hook';
+		$this->author = 'Fernando Gietz';
+		$this->active = true;
+		$this->node = 'ldap';
+	}
 	public function check_addUser($arguments) {
 		$username = $arguments['username'];
 		$password = $arguments['password'];

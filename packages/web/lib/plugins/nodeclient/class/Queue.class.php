@@ -1,9 +1,7 @@
 <?php
-class Queue extends FOGController
-{
+class Queue extends FOGController {
 	// Table
 	public $databaseTable = 'queueAssoc';
-	
 	// Name -> Database field name
 	public $databaseFields = array(
 		'id' => 'qaID',
@@ -13,12 +11,10 @@ class Queue extends FOGController
 		'taskVals' => 'qaTaskInfo',
 		'createdTime' => 'qaCreatedTime',
 	);
-	public function getHost()
-	{
-		return new Host($this->get('hostID'));
+	public function getHost() {
+		return $this->getClass('Host',$this->get('hostID'));
 	}
-	public function getModule()
-	{
-		return new Module($this->get('moduleID'));
+	public function getModule() {
+		return $this->getClass('Host',$this->get('moduleID'));
 	}
 }
