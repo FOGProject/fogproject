@@ -5,7 +5,7 @@
 clearScreen;
 displayBanner;
 hd="";
-getHardDisk;
+getHardDisk 'true';
 #setupDNS ${dns};
 echo "";
 echo "";

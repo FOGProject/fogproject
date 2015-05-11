@@ -30,7 +30,7 @@ if [ -f "/images/.mntcheck" ]; then
 		rm -Rf "$imagePath/*";
 		echo "Done";
 		dots "Looking for Hard Disks";
-		getHardDisk;
+		getHardDisk 'true';
 		echo "Done";
 		dots "Re-reading Partition Tables";
 		echo "Done";
