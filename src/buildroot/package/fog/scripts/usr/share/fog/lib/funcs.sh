@@ -697,6 +697,7 @@ correctVistaMBR() {
 
 displayBanner()
 {
+	version=`wget -q -O - http://${web}service/getversion.php`;
 	echo "  +--------------------------------------------------------------------------+";
 	echo "                                                                            ";
 	echo "                         ..#######:.    ..,#,..     .::##::.                ";
@@ -711,15 +712,11 @@ displayBanner()
 	echo "                        #                     ..:;###..                     ";
 	echo "                                                                            ";
 	echo "                         Free Computer Imaging Solution                     ";
-	version=`wget -q -O - http://${web}service/getversion.php`;
 	echo "                                 Version $version                              ";
 	echo "                                                                            ";
 	echo "  +--------------------------------------------------------------------------+";
-	echo "   Created by:                                                              ";
-	echo "                Chuck Syperski                                              ";
-	echo "                Jian Zhang                                                  ";
-	echo "                Peter Gilchrist                                             ";
-	echo "                Tom Elliott                                                 ";
+	echo "   Credits:                                                                 ";
+	echo "   http://fogproject.org/Credits";
 	echo "   Released under GPL Version 3                                             ";
 	echo "  +--------------------------------------------------------------------------+";
 }
