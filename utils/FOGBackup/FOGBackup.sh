@@ -1,18 +1,12 @@
 #!/bin/sh
-
 IMAGEDIR="/images";
-
 SNAPINDIR="/opt/fog/snapins";
-
 REPORTDIR="/var/www/html/fog/management/reports";
-
 MYSQL_USER="root";
 MYSQL_PASSWORD="";
 MYSQL_HOST="localhost";
 MYSQL_DATABASE="fog";
-
-displayBanner()
-{
+displayBanner() {
 	echo "        ___           ___           ___      ";
 	echo "       /\  \         /\  \         /\  \     ";
 	echo "      /::\  \       /::\  \       /::\  \    ";
@@ -37,19 +31,15 @@ displayBanner()
 	echo "  #     GNU GPL Version 3                   #";		
 	echo "  ###########################################";
 	echo "";
-	
 }
 
-usage()
-{
+usage() {
 	echo "  FOG Backup Usage:";
 	echo "";
 	echo " ./FOGBackup backuplocation";
 	echo "      backuplocation is the path where you would like to store your backup files";
 }
-
 clear;
-
 if [ -n "$1" ]; then
 	if [ -d "$1" ]; then
 		displayBanner;
@@ -62,19 +52,15 @@ if [ -n "$1" ]; then
 		echo "        $1";
 		echo "";
 		sleep 1;
-		backupdir="${1}/";
-		
+		backupdir="${1}/";	
 		echo "";
 		starttime=`date +%D%t%r`;
 		echo "  Task started at: $starttime";
 		echo "";
-		
 		mkdir "${backupdir}/images" "${backupdir}/mysql" "${backupdir}/snapins" "${backupdir}/reports" 2>/dev/null
-		
 		echo -n "  Backing up MySql Database:            ";
 		mysqldump --host=${MYSQL_HOST} --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} --allow-keywords -f ${MYSQL_DATABASE} > "${backupdir}/mysql/fog.sql"
 		echo " [ OK ]";
-		
 		echo -n "  Backing up Images:                    ";
 		if [ -d "${IMAGEDIR}/" ]
 		then
