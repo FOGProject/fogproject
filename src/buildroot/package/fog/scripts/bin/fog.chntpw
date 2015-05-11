@@ -5,7 +5,7 @@ clearScreen;
 displayBanner;
 #setupDNS ${dns};
 hd="";
-getHardDisk;
+getHardDisk 'true';
 echo "";
 echo "";
 acct="$winuser";

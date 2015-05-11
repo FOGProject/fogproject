@@ -53,7 +53,7 @@ echo "img=${img}";
 echo "imgType=${imgType}";
 echo "imgFormat=${imgFormat}";
 echo "imgPartitionType=${imgPartitionType}";
-getHardDisk;
+getHardDisk 'true';
 echo "hd=${hd}";
 part=$hd"1";
 echo "part=${part}";

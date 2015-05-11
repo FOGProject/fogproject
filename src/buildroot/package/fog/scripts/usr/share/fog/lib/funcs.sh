@@ -663,17 +663,24 @@ getHardDisk() {
 		for i in `lsblk -dpno KNAME|sort`; do
 			hd="$i";
 			runPartprobe "$hd";
-			partcount=`getPartitionCount "$hd"`;
-			if [ ! "$partcount" -gt 1 ]; then
-				parted -s $disk mklabel msdos;
-				parted -s $disk -a opt mkpart primary ntfs 2048s -- -1s &>/dev/null;
+			if [ -z $1 ]; then
+				partcount=`getPartitionCount "$hd"`;
+				if [ ! "$partcount" -gt 1 ]; then
+					clearPartitionTables;
+					parted -s $disk mklabel msdos;
+					parted -s $disk -a opt mkpart primary ext4 2048s -- -1s &>/dev/null;
+					runtPartprobe "$hd";
+					dots "Attempting to initialize";
+					fsck.ext4 /dev/sda1 &> /dev/null
+					if [ "$?" == "0" ]; then
+						echo "Done";
+					else
+						echo "Failed";
+						handleError "Failed to initilize disk";
+					fi
+				fi
+				return 0;
 			fi
-			runPartprobe "$hd";
-			partcount=`getPartitionCount "$hd"`;
-			if [ ! "$partcount" -gt 1 ]; then
-				handleError "Failed to initialize disk";
-			fi
-			return 0;
 		done;
 		if [ -z "$i" ]; then
 			handleError "Cannot find HDD on system";
