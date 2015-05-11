@@ -174,7 +174,6 @@ EOFNTFS`
 		too_big=`echo $tmpSuc | grep "bigger than the device size"`;
 		ok_size=`echo $tmpSuc | grep "volume size is already OK"`;
 		echo "Done";
-		debugPause;
 		if [ -n "$too_big" ]; then
 			echo " * Not resizing filesystem $1 (part too small)";
 			do_resizefs=0;
@@ -192,6 +191,7 @@ EOFNTFS`
 			do_resizefs=1;
 			do_resizepart=1;
 		fi
+		debugPause;
 		if [ "$do_resizefs" == "1" ]; then
 			dots "Resizing filesystem";
 			ntfsresize -f -s ${sizentfsresize}k $1 &>/dev/null << FORCEY
@@ -722,8 +722,6 @@ displayBanner()
 	echo "                Tom Elliott                                                 ";
 	echo "   Released under GPL Version 3                                             ";
 	echo "  +--------------------------------------------------------------------------+";
-	echo "";
-	echo "";
 }
 
 handleError()
@@ -982,7 +980,6 @@ restorePartitionTablesAndBootLoaders()
 	local mbrsize="";
 	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "mbr" ]; then
 		clearPartitionTables $disk;
-		debugPause;
 		tmpMBR="$imagePath/d${intDisk}.mbr";
 		has_GRUB=`hasGRUB "${disk}" "${intDisk}" "${imagePath}"`;
 		mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
@@ -996,14 +993,13 @@ restorePartitionTablesAndBootLoaders()
 				restoreGRUB "${disk}" "${intDisk}" "${imagePath}";
 				if [ -e "${imagePath}/d${intDisk}.partitions" ]; then
 					echo "Done";
-					debugPause;
 					dots "Extended partitions";
 					sfdisk $disk < ${imagePath}/d${intDisk}.partitions &>/dev/null;
 				else
 					echo "Done";
-					debugPause;
 					dots "No extended partitions";
 				fi
+				debugPause;
 			else
 				dots "Restoring MBR";
 				dd if=$tmpMBR of=$disk bs=512 count=1 &>/dev/null;

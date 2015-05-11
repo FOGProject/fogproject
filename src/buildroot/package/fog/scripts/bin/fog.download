@@ -151,6 +151,7 @@ if [ "$imgType" == "n" ]; then
 					else
 						fixed_size_partitions="";
 					fi
+					echo "Done";
 					fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
 				elif [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
 					parted -s $hd mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
@@ -158,6 +159,7 @@ if [ "$imgType" == "n" ]; then
 					parted -s $hd -a opt mkpart primary ntfs 2048s -- $layPartSize &>/dev/null;
 				fi
 				parted -s $hd set 1 boot on &>/dev/null;
+				echo "Done";
 			elif [ "$win7partcnt" == "2" ]; then
 				dots "Preparing Hard Disks (Stage 2)";
 				parted -s $hd rm 2 &>/dev/null;
@@ -174,6 +176,7 @@ if [ "$imgType" == "n" ]; then
 				else
 					parted -s $hd -a opt mkpart primary ntfs $defaultpart2start -- $layPartSize &>/dev/null;
 				fi
+				echo "Done";
 			elif [ "$win7partcnt" == "3" ]; then
 				dots "Preparing Hard Disks (Stage 2)";
 				sgdisk --zap-all $hd 2>&1 >/dev/null;
