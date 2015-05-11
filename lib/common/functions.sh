@@ -431,11 +431,8 @@ displayBanner()
 	echo "  #                                         #";
 	echo "  #     http://www.fogproject.org/          #";
 	echo "  #                                         #";
-	echo "  #     Developers:                         #";
-	echo "  #         Chuck Syperski                  #";	
-	echo "  #         Jian Zhang                      #";
-	echo "  #         Peter Gilchrist                 #";
-	echo "  #         Tom Elliott                     #";		
+	echo "  #     Credits:                            #";
+	echo "  #     http://fogproject.org/Credits       #"
 	echo "  #     GNU GPL Version 3                   #";		
 	echo "  ###########################################";
 	echo "";
