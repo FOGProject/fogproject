@@ -83,10 +83,10 @@ EOFNTFSRESTORE
 	fi
 	runPartprobe "$hd";
 	echo "Done";
-	debugPause;
 	if [ "$do_reset_flag" == "1" ]; then
 		resetFlag "$1";
 	fi
+	debugPause;
 }
 # $1 is the partition
 fsTypeSetting()
@@ -1002,14 +1002,14 @@ restorePartitionTablesAndBootLoaders()
 				dd if=$tmpMBR of=$disk bs=512 count=1 &>/dev/null;
 				if [ -e "${imagePath}/d${intDisk}.partitions" ]; then
 					echo "Done";
-					debugPause;
 					dots "Extended partitions";
 					sfdisk $disk < ${imagePath}/d${intDisk}.partitions &>/dev/null;
 				else
 					echo "Done";
-					debugPause;
 					dots "No extended partitions";
 				fi
+					echo "Done";
+					debugPause;
 			fi
 			runPartprobe "$disk";
 			echo "Done";

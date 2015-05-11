@@ -151,8 +151,9 @@ if [ "$imgType" == "n" ]; then
 					else
 						fixed_size_partitions="";
 					fi
-					echo "Done";
 					fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
+					echo "Done";
+					debugPause;
 				elif [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
 					parted -s $hd mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
 				else
@@ -160,6 +161,7 @@ if [ "$imgType" == "n" ]; then
 				fi
 				parted -s $hd set 1 boot on &>/dev/null;
 				echo "Done";
+				debugPause;
 			elif [ "$win7partcnt" == "2" ]; then
 				dots "Preparing Hard Disks (Stage 2)";
 				parted -s $hd rm 2 &>/dev/null;
@@ -176,7 +178,6 @@ if [ "$imgType" == "n" ]; then
 				else
 					parted -s $hd -a opt mkpart primary ntfs $defaultpart2start -- $layPartSize &>/dev/null;
 				fi
-				echo "Done";
 			elif [ "$win7partcnt" == "3" ]; then
 				dots "Preparing Hard Disks (Stage 2)";
 				sgdisk --zap-all $hd 2>&1 >/dev/null;
@@ -216,7 +217,6 @@ if [ "$imgType" == "n" ]; then
 	#  resize original partition table to current disk, and apply it
 	elif [[ "$osid" == +([1-2]|[5-7]|50) ]]; then
 		clearPartitionTables "$hd";
-		debugPause;
 		tmpMBR="$imagePath/d1.mbr";
 		has_GRUB=`hasGRUB "${hd}" "1" "${imagePath}"`;
 		mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
