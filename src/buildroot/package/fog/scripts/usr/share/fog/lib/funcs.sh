@@ -663,28 +663,15 @@ getHardDisk() {
 		for i in `lsblk -dpno KNAME|sort`; do
 			hd="$i";
 			runPartprobe "$hd";
-			if [ -z $1 ]; then
-				partcount=`getPartitionCount "$hd"`;
-				if [ ! "$partcount" -gt 1 ]; then
-					clearPartitionTables;
-					parted -s $disk mklabel msdos;
-					parted -s $disk -a opt mkpart primary ext4 2048s -- -1s &>/dev/null;
-					runtPartprobe "$hd";
-					dots "Attempting to initialize";
-					fsck.ext4 /dev/sda1 &> /dev/null
-					if [ "$?" == "0" ]; then
-						echo "Done";
-					else
-						echo "Failed";
-						handleError "Failed to initilize disk";
-					fi
-				fi
-				return 0;
+			if [ -z "$1" ]; then
+				echo "Done";
+				clearPartitionTables "$hd";
 			fi
 		done;
 		if [ -z "$i" ]; then
 			handleError "Cannot find HDD on system";
 		fi
+		return 0;
 	fi
 	return 1;
 }
@@ -963,13 +950,20 @@ clearPartitionTables()
 	local disk=$1;
 	dots "Erasing current MBR/GPT Tables";
 	sgdisk -Z $disk >/dev/null;
-	runPartprobe "$disk";
 	echo "Done";
 	debugPause;
 	dots "Creating disk with new label";
 	parted -s $disk mklabel msdos;
+	echo "Done"
+	dots "Initializing $disk with NTFS partition";
 	parted -s $disk -a opt mkpart primary ntfs 2048s -- -1s &>/dev/null;
 	runPartprobe "$disk";
+	mkfs.ntfs -Q ${disk}1 &>/dev/null;
+	if [ "$?" != "0" ]; then
+		echo "Failed";
+		debugPause;
+		handleError "Failed to initialize";
+	fi
 	echo "Done";
 	debugPause;
 }
@@ -985,7 +979,6 @@ restorePartitionTablesAndBootLoaders()
 	local has_GRUB="";
 	local mbrsize="";
 	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "mbr" ]; then
-		clearPartitionTables $disk;
 		debugPause;
 		tmpMBR="$imagePath/d${intDisk}.mbr";
 		has_GRUB=`hasGRUB "${disk}" "${intDisk}" "${imagePath}"`;
