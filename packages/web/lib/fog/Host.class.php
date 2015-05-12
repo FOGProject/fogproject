@@ -1,8 +1,5 @@
 <?php
-
-// Blackout - 11:15 AM 1/10/2011
-class Host extends FOGController
-{
+class Host extends FOGController {
 	// Table
 	public $databaseTable = 'hosts';
 	// Name -> Database field name
@@ -62,63 +59,48 @@ class Host extends FOGController
 		'Inventory' => array('hostID','id','inv'),
 	);
 	// Custom functons
-	public function isHostnameSafe()
-	{
+	public function isHostnameSafe() {
 		return (strlen($this->get('name')) > 0 && strlen($this->get('name')) <= 15 && preg_replace('#[0-9a-zA-Z_\-]#', '', $this->get('name')) == '');
 	}
 	// Load the items
-	public function load($field = 'id')
-	{
+	public function load($field = 'id') {
 		parent::load($field);
 		$this->getMACAddress();
 		$this->getActiveSnapinJob();
-		foreach(get_class_methods($this) AS $method)
-		{
-			if (strlen($method) > 5 && (strpos($method,'load') !== false))
-				$this->$method();
+		foreach(get_class_methods($this) AS $method) {
+			if (strlen($method) > 5 && (strpos($method,'load') !== false)) $this->$method();
 		}
 	}
 	// Snapins
-	public function getImage()
-	{
-		return ($this->get('image') ? $this->get('image') : new Image($this->get('imageID')));
+	public function getImage() {
+		return new Image($this->get('imageID'));
 	}
-	public function getOS()
-	{
+	public function getOS() {
 		return $this->getImage()->getOS();
 	}
-	public function getMACAddress()
-	{
+	public function getMACAddress() {
 		$this->set('mac', new MACAddress($this->get('mac')));
 		return $this->get('mac');
 	}
-	public function getDefault($printerid)
-	{
+	public function getDefault($printerid) {
 		$PrinterMan = current($this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $printerid)));
 		return $PrinterMan && $PrinterMan->isValid() && $PrinterMan->get('isDefault');
 	}
-	public function updateDefault($printerid,$onoff)
-	{
+	public function updateDefault($printerid,$onoff) {
 		$PrinterAssoc = $this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id')));
 		// Set all to not default
-		foreach((array)$PrinterAssoc AS $PrinterSet)
-		{
-			if ($PrinterSet && $PrinterSet->isValid())
-				$PrinterSet->set('isDefault',0)->save();
+		foreach((array)$PrinterAssoc AS $PrinterSet) {
+			if ($PrinterSet && $PrinterSet->isValid()) $PrinterSet->set('isDefault',0)->save();
 		}
-		foreach((array)$printerid AS $printer)
-		{
+		foreach((array)$printerid AS $printer) {
 			$Printer = new Printer($printer);
-			if ($Printer && $Printer->isValid())
-				$SetDefault = current($this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $Printer->get('id'))));
+			if ($Printer && $Printer->isValid()) $SetDefault = current($this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $Printer->get('id'))));
 			// Set the current sent printer to it's on/off state.
-			if ($SetDefault && $SetDefault->isValid())
-				$SetDefault->set('isDefault',$onoff)->save();
+			if ($SetDefault && $SetDefault->isValid()) $SetDefault->set('isDefault',$onoff)->save();
 		}
 		return $this;
 	}
-	public function getDispVals($key = '')
-	{
+	public function getDispVals($key = '') {
 		$keyTran = array(
 			'width' => 'FOG_SERVICE_DISPLAYMANAGER_X',
 			'height' => 'FOG_SERVICE_DISPLAYMANAGER_Y',
@@ -128,8 +110,7 @@ class Host extends FOGController
 		$Service = current((array)$this->getClass('ServiceManager')->find(array('name' => $keyTran[$key])));
 		return ($HostScreen && $HostScreen->isValid() ? $HostScreen->get($key) : ($Service && $Service->isValid() ? $Service->get('value') : ''));
 	}
-	public function setDisp($x,$y,$r)
-	{
+	public function setDisp($x,$y,$r) {
 		$this->getClass('HostScreenSettingsManager')->destroy(array('hostID' => $this->get('id')));
 		$HostScreen = new HostScreenSettings(array(
 			'hostID' => $this->get('id'),
@@ -139,14 +120,12 @@ class Host extends FOGController
 		));
 		$HostScreen->save();
 	}
-	public function getAlo()
-	{
+	public function getAlo() {
 		$HostALO = current($this->getClass('HostAutoLogoutManager')->find(array('hostID' => $this->get('id'))));
 		$Service = current($this->getClass('ServiceManager')->find(array('name' => 'FOG_SERVICE_AUTOLOGOFF_MIN')));
 		return ($HostALO && $HostALO->isValid() ? $HostALO->get('time') : ($Service && $Service->isValid() ? $Service->get('value') : ''));
 	}
-	public function setAlo($tme)
-	{
+	public function setAlo($tme) {
 		// Clear Current setting
 		$this->getClass('HostAutoLogoutManager')->destroy(array('hostID' => $this->get('id')));
 		// Set new setting
@@ -158,32 +137,26 @@ class Host extends FOGController
 		unset($HostALO);
 		return $this;
 	}
-	public function getActiveSnapinJob()
-	{
+	public function getActiveSnapinJob() {
 		// Find Active Snapin Task, there should never be more than one per host.
 		if (!$this->get('snapinjob'))
 			throw new Exception(sprintf('%s: %s (%s)', $this->foglang['NoActSnapJobs'], $this->get('name'), $this->get('mac')));
 		return $this->get('snapinjob');
 	}
-	private function loadSnapinJob()
-	{
+	private function loadSnapinJob() {
 		if (!$this->isLoaded('snapinjob') && $this->get('id'))
 			$this->set('snapinjob',current($this->getClass('SnapinJobManager')->find(array('stateID' => array(-1,0,1),'hostID' => $this->get('id')))));
 		return $this;
 	}
-	private function loadPrimary()
-	{
-		if (!$this->isLoaded('mac') && $this->get('id'))
-		{
+	private function loadPrimary() {
+		if (!$this->isLoaded('mac') && $this->get('id')) {
 			foreach($this->getClass('MACAddressAssociationManager')->find(array('primary' => 1,'hostID' => $this->get('id'))) AS $PriMAC)
 				$this->set('mac',new MACAddress($PriMAC));
 		}
 		return $this;
 	}
-	private function loadAdditional()
-	{
-		if (!$this->isLoaded('additionalMACs') && $this->get('id'))
-		{
+	private function loadAdditional() {
+		if (!$this->isLoaded('additionalMACs') && $this->get('id')) {
 			foreach($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 0)) AS $MACAdd)
 				$this->add('additionalMACs',new MACAddress($MACAdd));
 		}
