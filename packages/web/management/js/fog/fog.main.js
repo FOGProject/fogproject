@@ -21,6 +21,16 @@ $(function() {
 			}
 		});
 	});
+	// Make button
+	$('#adClear').html('<br/><input type="button" id="clearAD" value="Clear Fields"></input>');
+	// Clear fields
+	$('#clearAD').click(function() {
+		$('#adEnabled').prop('checked',false);
+		$('#adOU').is('input:text') ? $('#adOU').val('') : null;
+		$('#adDomain').val('');
+		$('#adUsername').val('');
+		$('#adPassword').val('');
+	});
 	// Bind to AD Settings checkbox
 	$('#adEnabled').change(function() {
 		if ($(this).is(':checked')) {
