@@ -153,7 +153,8 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
 					print _('Done');
 				} else print _('Already registered as').': '.$Host->get('name');
 			}
-		}
+		} else print "Already registered";
+
 	} catch (Exception $e) {
 		print $e->getMessage();
 	}
