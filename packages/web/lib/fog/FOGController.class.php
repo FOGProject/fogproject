@@ -336,7 +336,7 @@ abstract class FOGController extends FOGBase {
 	public function getManager() {
 		if (!is_object($this->Manager)) {
 			$managerClass = get_class($this) . 'Manager';
-			$this->Manager = new $managerClass();
+			$this->Manager = $this->getClass($managerClass);
 		}
 		return $this->Manager;
 	}
