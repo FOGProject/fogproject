@@ -1,7 +1,6 @@
 <?php
 class ReportManagementPage extends FOGPage {
-	public function __construct()
-	{
+	public function __construct() {
 		$this->name = 'Report Management';
 		$this->node = 'report';
 		parent::__construct($this->name);
@@ -32,15 +31,13 @@ class ReportManagementPage extends FOGPage {
 	/** home()
 		Sub home, just redirects to index page.
 	*/
-    public function home()
-	{
+    public function home() {
         $this->index();
 	}
 	/** upload()
 		Allows you to upload your own reports.
 	*/
-    public function upload()
-    {   
+    public function upload() {
 		// Title
 		$this->title = _('Upload FOG Reports');
 		print "\n\t\t\t".'<div class="hostgroup">';
@@ -56,8 +53,7 @@ class ReportManagementPage extends FOGPage {
 	/** index()
 		First page seen when clicking on the manager.
 	*/
-	public function index()
-	{
+	public function index() {
 		// Set title
 		$this->title = _('About FOG Reports');
 		print "\n\t\t\t<p>"._('FOG reports exist to give you information about what is going on with your FOG system.  To view a report, select an item from the menu on the left-hand side of this page.').'</p>';
@@ -67,8 +63,7 @@ class ReportManagementPage extends FOGPage {
 		Exceptions are the default reports which have been written into this
 		file as opjects of the report class.
 	*/
-	public function file()
-	{
+	public function file() {
 		$path = rtrim($this->FOGCore->getSetting('FOG_REPORT_DIR'), '/') . '/' . basename(base64_decode($this->REQUEST['f']));
 		if (!file_exists($path))
 			$this->fatalError('Report file does not exist! Path: %s', array($path));
@@ -77,8 +72,7 @@ class ReportManagementPage extends FOGPage {
 	/** imaging_log()
 		Gives out the dates, if available, from imaging log.
 	*/
-	public function imaging_log()
-	{
+	public function imaging_log() {
 		// Set title
 		$this->title = _('FOG Imaging Log - Select Date Range');
 		// Header Data
@@ -93,10 +87,8 @@ class ReportManagementPage extends FOGPage {
 		foreach($AllDates AS $Date)
 			$Dates[] = array_shift($Date);
 		$Dates = array_unique($Dates);
-		if ($Dates)
-		{
-			foreach($Dates AS $Date)
-			{
+		if ($Dates) {
+			foreach($Dates AS $Date) {
 				$dates1 .= '<option value="'.$Date.'">'.$Date.'</option>';
 				$dates2 .= '<option value="'.$Date.'">'.$Date.'</option>';
 			}
@@ -107,8 +99,7 @@ class ReportManagementPage extends FOGPage {
 				_('Select End Date') => $date2,
 				'&nbsp;' => '<input type="submit" value="'._('Search for Entries').'" />',
 			);
-			foreach((array)$fields AS $field => $input)
-			{
+			foreach((array)$fields AS $field => $input) {
 				$this->data[] = array(
 					'field' => $field,
 					'input' => $input,
@@ -117,15 +108,12 @@ class ReportManagementPage extends FOGPage {
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 			$this->render();
 			print "</form>";
-		}
-		else
-			$this->render();
+		} else $this->render();
 	}
 	/** imaging_log_post()
 		Prints the data and gives access to download the reports.
 	*/
-	public function imaging_log_post()
-	{
+	public function imaging_log_post() {
 		// Set title
 		$this->title = _('FOG Imaging Log');
 		// This gets the download links for which type of file you want.
@@ -157,8 +145,7 @@ class ReportManagementPage extends FOGPage {
 		// Set dates and check order is proper
 		$date1 = $_REQUEST['date1'];
 		$date2 = $_REQUEST['date2'];
-		if ($date1 > $date2)
-		{
+		if ($date1 > $date2) {
 			$date1 = $_REQUEST['date2'];
 			$date2 = $_REQUEST['date1'];
 		}
@@ -183,8 +170,7 @@ class ReportManagementPage extends FOGPage {
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
 		$ImagingLogs = $this->getClass('ImagingLogManager')->find(array('start' => 'nope','finish' => 'nope'),'OR','','',"BETWEEN '$date1' AND '$date2'");
-		foreach((array)$ImagingLogs AS $ImagingLog)
-		{
+		foreach((array)$ImagingLogs AS $ImagingLog) {
 			$start = $this->nice_date($ImagingLog->get('start'));
 			$end = $this->nice_date($ImagingLog->get('finish'));
 			// Find the host if it still exists.
@@ -207,8 +193,7 @@ class ReportManagementPage extends FOGPage {
 			$imgPath = ($Image && $Image->isValid() ? $Image->get('path') : '');
 			$imgType = ($ImagingLog->get('type') == 'down' ? _('Download') : _('Upload'));
 			// For the html report (PDF)
-			if ($checkStart && $checkEnd)
-			{
+			if ($checkStart && $checkEnd) {
 				$this->data[] = array(
 					'createdBy' => $createdBy,
 					'host_name' => $hostName,
@@ -245,8 +230,7 @@ class ReportManagementPage extends FOGPage {
 	/** host_list()
 		Display's the host list for both CSV and PDF Reports.
 	*/
-	public function host_list()
-	{
+	public function host_list() {
 		// Setup Report Maker for this object.
 		$ReportMaker = new ReportMaker();
 		// Set Title
@@ -288,8 +272,7 @@ class ReportManagementPage extends FOGPage {
 		// Find hosts
 		$Hosts = $this->getClass('HostManager')->find();
 		// Store the data
-		foreach((array)$Hosts AS $Host)
-		{
+		foreach((array)$Hosts AS $Host) {
 			$Image = $Host->getImage();
 			$imgID = $Image->isValid() ? $Image->get('id') : '';
 			$imgName = $Image->isValid() ? $Image->get('name') : '';
@@ -300,18 +283,12 @@ class ReportManagementPage extends FOGPage {
 				'image_name' => $imgName,
 			);
 			// The below lines create the csv.
-			foreach ((array)$csvHead AS $head => $classGet)
-			{
-				if ($head == _('Image ID'))
-					$ReportMaker->addCSVCell($imgID);
-				else if ($head == _('Image Name'))
-					$ReportMaker->addCSVCell($imgName);
-				else if ($head == _('Image Desc'))
-					$ReportMaker->addCSVCell($imgDesc);
-				else if ($head == _('AD Join'))
-					$ReportMaker->addCSVCell(($Host->get('useAD') == 1 ? _('Yes') : _('No')));
-				else
-					$ReportMaker->addCSVCell($Host->get($classGet));
+			foreach ((array)$csvHead AS $head => $classGet) {
+				if ($head == _('Image ID')) $ReportMaker->addCSVCell($imgID);
+				else if ($head == _('Image Name')) $ReportMaker->addCSVCell($imgName);
+				else if ($head == _('Image Desc')) $ReportMaker->addCSVCell($imgDesc);
+				else if ($head == _('AD Join')) $ReportMaker->addCSVCell(($Host->get('useAD') == 1 ? _('Yes') : _('No')));
+				else $ReportMaker->addCSVCell($Host->get($classGet));
 			}
 			$ReportMaker->endCSVLine();
 		}
@@ -323,8 +300,7 @@ class ReportManagementPage extends FOGPage {
 	/** inventory()
 		Returns all VALID inventory stuff.
 	*/
-	public function inventory()
-	{	
+	public function inventory() {
 		// Setup Report Maker for this object.
 		$ReportMaker = new ReportMaker();
 		// Set Title
@@ -376,15 +352,13 @@ class ReportManagementPage extends FOGPage {
 		$ReportMaker->endCSVLine();
 		$this->headerData = array(
 			_('Host name'),
-			_('Host MAC'),
 			_('OS name'),
 			_('Memory'),
 			_('System Product'),
 			_('System Serial'),
 		);
 		$this->templates = array(
-			'${host_name}',
-			'${host_mac}',
+			'${host_name}<br/><small>${host_mac}</small>',
 			'${os_name}',
 			'${memory}',
 			'${sysprod}',
@@ -396,32 +370,28 @@ class ReportManagementPage extends FOGPage {
 			array(),
 			array(),
 			array(),
-			array(),
 		);
 		// All hosts
 		$Hosts = $this->getClass('HostManager')->find();
 		// Loop through each of the hosts.
-		foreach($this->getClass('HostManager')->find('','','','','','name') AS $Host)
-		{
-			if ($Host && $Host->isValid())
-			{
+		foreach($this->getClass('HostManager')->find('','','','','','name') AS $Host) {
+			if ($Host && $Host->isValid()) {
 				// Find the image information
 				if ($Host->get('imageID'))
 					$Image = $Host->getImage();
 				// Find the current inventory for this host
 				$Inventory = $Host->get('inventory');
 				// If found print data
-				if($Inventory)
-				{
+				if($Inventory) {
 					$this->data[] = array(
 						'host_name' => $Host->get('name'),
 						'host_mac' => $Host->get('mac'),
+						'os_name' => $Host->getImage()->getOS(),
 						'memory' => $Inventory->getMem(),
 						'sysprod' => $Inventory->get('sysproduct'),
 						'sysser' => $Inventory->get('sysserial'),
 					);
-					foreach((array)$csvHead AS $head => $classGet)
-					{
+					foreach((array)$csvHead AS $head => $classGet) {
 						if ($head == _('Host ID'))
 							$ReportMaker->addCSVCell($Host->get('id'));
 						else if ($head == _('Host name'))
@@ -453,13 +423,11 @@ class ReportManagementPage extends FOGPage {
 	/** pend_mac()
 		Pending MAC's report.
 	*/
-	public function pend_mac()
-	{
+	public function pend_mac() {
 		// Get all the pending mac hosts.
 		$Hosts = $this->getClass('HostManager')->find();
 		// Approves All Pending MACs for all hosts.
-		if ($_REQUEST['aprvall'] == 1)
-		{
+		if ($_REQUEST['aprvall'] == 1) {
 			foreach((array)$Hosts AS $Host)
 				$Host->addPendtoAdd()->save();
 			$this->FOGCore->setMessage(_('All Pending MACs approved.'));
