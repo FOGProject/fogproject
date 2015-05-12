@@ -582,7 +582,7 @@ abstract class FOGPage extends FOGBase {
 		);
 		print '<div id="'.$this->node.'-active-directory" class="organic-tabs-hidden">';
 		printf("%s",'<form method="post" action="'.$this->formAction.'&tab='.$this->node.'-active-directory">');
-		printf("<h2>%s</h2>",_('Active Directory'));
+		printf('<h2>%s<div id="adClear"></div></h2>',_('Active Directory'));
 		foreach((array)$fields AS $field => $input) {
 			$this->data[] = array(
 				'field' => $field,
