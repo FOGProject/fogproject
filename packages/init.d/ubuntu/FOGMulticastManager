@@ -55,8 +55,11 @@ case "$1" in
 			log_end_msg 1;
 		fi
 		;;						
+	status)
+		status_of_proc ${DAEMON} ${NAME}
+		;;
 	*)
-		echo "Usage FOGMulticastManager {start|stop|restart}" >&2
+		echo "Usage FOGMulticastManager {start|stop|restart|status}" >&2
 		exit 1;
 		;;
 esac
