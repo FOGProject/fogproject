@@ -8,9 +8,10 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
 		$PriMAC = array_shift($MACs);
 		// Set safe and simple mac for hostname if needed.
 		$macsimple = strtolower(str_replace(':','',$PriMAC));
+		$Host = $FOGCore->getHostItem(false,true,true);
 		$HostManager = $FOGCore->getClass('HostManager');
 		// Make sure it's a unique name.
-		if($_REQUEST['advanced'] == '1') {
+		if((!$Host || !$Host->isValid()) && $_REQUEST['advanced'] == '1') {
 			if (base64_decode($_REQUEST['productKey'],true)) $productKey = trim($_REQUEST['productKey']);
 			$username = base64_decode(trim($_REQUEST['username']));
 			$host=trim(base64_decode($_REQUEST['host']));
@@ -101,7 +102,7 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
 				));
 				$Inventory->save();
 			}
-		} else {
+		} else if (!$Host || !$Host->isValid()) {
 			$groupid = explode(',',trim($FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC')));
 			if ($FOGCore->getSetting('FOG_QUICKREG_AUTOPOP')) {
 				$Image = ($FOGCore->getSetting('FOG_QUICKREG_IMG_ID') ? new Image($FOGCore->getSetting('FOG_QUICKREG_IMG_ID')) : new Image(array('id' => 0)));
