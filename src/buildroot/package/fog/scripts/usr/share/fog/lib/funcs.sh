@@ -28,14 +28,12 @@ dots() {
 	fi
 }
 # Get All Active MAC Addresses
-getMACAddresses()
-{
+getMACAddresses() {
 	local lomac="00:00:00:00:00:00"
 	echo `cat /sys/class/net/*/address | grep -v $lomac | tr '\n' '|' | sed s/.$//g`;
 }
 # $1 is the drive
-enableWriteCache() 
-{
+enableWriteCache()  {
 	if [ -n "$1" ]; then
 		dots "Checking write caching status on HDD";
 		wcache=$(hdparm -i $1 2>/dev/null|sed '/WriteCache=/!d; s/^.*WriteCache=//; s/ .*$//');
@@ -89,8 +87,7 @@ EOFNTFSRESTORE
 	fi
 }
 # $1 is the partition
-fsTypeSetting()
-{
+fsTypeSetting() {
 	fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
 	is_ext=`echo "$fstype" | egrep '^ext[234]$' | wc -l`;
 	if [ "x${is_ext}" == "x1" ]; then
@@ -108,21 +105,18 @@ fsTypeSetting()
 	fi
 }
 # $1 is the partition
-getPartType()
-{
+getPartType() {
 	echo `blkid -po udev $1 | grep PART_ENTRY_TYPE | awk -F'=' '{print $2}'`;
 }
 # $1 is the partition
 # Returns the size in bytes.
-getPartSize()
-{
+getPartSize() {
 	block_part_tot=`blockdev --getsz $1`;
 	part_block_size=`blockdev --getpbsz $1`;
 	echo `awk "BEGIN{print $block_part_tot * $part_block_size}"`;
 }
 # Returns the size in bytes.
-getDiskSize()
-{
+getDiskSize() {
 	block_disk_tot=`blockdev --getsz $hd`;
 	disk_block_size=`blockdev --getpbsz $hd`;
 	echo `awk "BEGIN{print $block_disk_tot * $disk_block_size}"`;
@@ -135,8 +129,7 @@ validResizeOS() {
 }
 # $1 is the partition
 # $2 is the fstypes file location
-shrinkPartition() 
-{
+shrinkPartition() {
 	if [ ! -n "$1" ]; then
 		echo " * No partition";
 		return;
@@ -258,8 +251,7 @@ FORCEY
 	debugPause;
 }
 # $1 is the part
-resetFlag() 
-{
+resetFlag() {
 	if [ -n "$1" ]; then
 		fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
 		if [ "$fstype" == "ntfs" ]; then
@@ -271,8 +263,7 @@ resetFlag()
 	fi
 }
 # $1 is the disk
-countNtfs() 
-{
+countNtfs() {
 	local count=0;
 	local fstype="";
 	local part="";
@@ -289,8 +280,7 @@ countNtfs()
 	echo $count;
 }
 # $1 is the disk
-countExtfs()
-{
+countExtfs() {
 	local count=0;
 	local fstype="";
 	local part="";
@@ -314,8 +304,7 @@ countExtfs()
 
 # $1 = Source File
 # $2 = Target
-writeImage() 
-{
+writeImage()  {
 	mkfifo /tmp/pigz1;
 	cat $1 > /tmp/pigz1 &
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
@@ -329,8 +318,7 @@ writeImage()
 }
 
 # $1 = Target
-writeImageMultiCast() 
-{
+writeImageMultiCast() {
 	mkfifo /tmp/pigz1;
 	udp-receiver --nokbd --portbase $port --ttl 32 --mcast-rdv-address $storageip 2>/dev/null > /tmp/pigz1 &
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
@@ -342,12 +330,10 @@ writeImageMultiCast()
 	fi
 	rm /tmp/pigz1
 }
-
 # $1 = DriveName  (e.g. /dev/sdb)
 # $2 = DriveNumber  (e.g. 1)
 # $3 = ImagePath  (e.g. /net/foo)
-getValidRestorePartitions() 
-{
+getValidRestorePartitions() {
 	local drive="$1";
 	local driveNum="$2";
 	local imagePath="$3";
@@ -366,13 +352,11 @@ getValidRestorePartitions()
 	done
 	echo $valid_parts;
 }
-
 # $1 = DriveName  (e.g. /dev/sdb)
 # $2 = DriveNumber  (e.g. 1)
 # $3 = ImagePath  (e.g. /net/foo)
 # $4 = ImagePartitionType  (e.g. all, mbr, 1, 2, 3, etc.)
-makeAllSwapSystems() 
-{
+makeAllSwapSystems() {
 	local drive="$1";
 	local driveNum="$2";
 	local imagePath="$3";
@@ -381,7 +365,6 @@ makeAllSwapSystems()
 	local part="";
 	local diskLength=`expr length $drive`;
 	local partNum="";
-	
 	for part in $parts; do
 		partNum=${part:$diskLength};
 		if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
@@ -390,9 +373,7 @@ makeAllSwapSystems()
 	done
 	runPartprobe "$drive";
 }
-
-changeHostname()
-{
+changeHostname() {
 	if [ "$hostearly" == "1" ]; then
 		dots "Changing hostname";
 		mkdir /ntfs &>/dev/null
@@ -434,7 +415,6 @@ EOFREG
 		debugPause;
 	fi
 }
-
 fixWin7boot() {
 	local fstype=`fsTypeSetting $1`;
 	if [[ "$osid" == +([5-7]) ]]; then
@@ -457,7 +437,6 @@ fixWin7boot() {
 	fi
 	debugPause;
 }
-
 clearMountedDevices() {
 	mkdir /ntfs &>/dev/null
 	if [[ "$osid" == +([5-7]) ]]; then
@@ -516,9 +495,7 @@ removePageFile() {
 		fi
 	fi
 }
-
-doInventory()
-{
+doInventory() {
 	sysman=`dmidecode -s system-manufacturer`;
 	sysproduct=`dmidecode -s system-product-name`;
 	sysversion=`dmidecode -s system-version`;
@@ -566,9 +543,7 @@ doInventory()
 	caseserial64=`echo $caseserial | base64`;
 	casesasset64=`echo $casesasset | base64`;	
 }
-
-determineOS()
-{
+determineOS() {
 	if [ -n "$1" ]; then
 		if [ "$1" = "1" ]; then
 			osname="Windows XP";
@@ -610,18 +585,14 @@ determineOS()
 		handleError " * Unable to determine operating system type!";
 	fi
 }
-
-clearScreen()
-{
+clearScreen() {
 	if [ "$mode" != "debug" ]; then
 		for i in $(seq 0 99); do
 			echo "";
 		done
 	fi
 }
-
-sec2String()
-{
+sec2String() {
 	if [ $1 -gt 60 ]; then
 		if [ $1 -gt 3600 ]; then
 			if [ $1 -gt 216000 ]; then
@@ -639,9 +610,7 @@ sec2String()
 		echo -n "$1 sec";
 	fi
 }
-
-getSAMLoc()
-{
+getSAMLoc() {
 	poss="/ntfs/WINDOWS/system32/config/SAM /ntfs/Windows/System32/config/SAM";
 	for pth in $poss; do
 		if [ -f $pth ]; then
@@ -662,7 +631,6 @@ getHardDisk() {
 	else
 		for i in `lsblk -dpno KNAME|sort`; do
 			hd="$i";
-			runPartprobe "$hd";
 			if [ -z "$1" ]; then
 				echo "Done";
 				clearPartitionTables "$hd";
@@ -688,9 +656,7 @@ correctVistaMBR() {
 	echo "Done";
 	debugPause;
 }
-
-displayBanner()
-{
+displayBanner() {
 	version=`wget -q -O - http://${web}service/getversion.php`;
 	echo "  +--------------------------------------------------------------------------+";
 	echo "                                                                            ";
@@ -716,9 +682,7 @@ displayBanner()
 	echo "";
 	echo "";
 }
-
-handleError()
-{
+handleError() {
     echo "";
 	echo " #############################################################################";
 	echo " #                                                                           #";	
@@ -755,9 +719,7 @@ handleError()
 	debugPause;
 	exit 0;
 }
-
-handleWarning()
-{
+handleWarning() {
     echo "";
 	echo " #############################################################################";
 	echo " #                                                                           #";	
@@ -777,7 +739,6 @@ handleWarning()
 	sleep 60;
 	debugPause;
 }
-
 # $1 is the drive
 runPartprobe() {
 	udevadm settle
@@ -786,9 +747,7 @@ runPartprobe() {
 		handleError "Failed to read back partitions";
 	fi
 }
-
-debugCommand()
-{
+debugCommand() {
 	if [ "$mode" == "debug" ]; then
 		echo $1 >> /tmp/cmdlist;
 	fi
@@ -801,8 +760,7 @@ debugCommand()
 # Expects second argument to be the fifo to send to.
 # Expects part of the filename in the case of resizable
 #    will append 000 001 002 automatically
-uploadFormat()
-{
+uploadFormat() {
 	if [ ! -n "$1" ]; then
 		echo "Missing Cores";
 		return;
@@ -823,7 +781,6 @@ uploadFormat()
 		fi
 	fi
 }
-
 # Thank you, fractal13 Code Base
 #
 # Save enough MBR and embedding area to capture all of GRUB
@@ -841,8 +798,7 @@ uploadFormat()
 # the disk number (e.g. 1) as the second parameter
 # the directory to store images in (e.g. /image/dev/xyz) as the third parameter
 # 
-saveGRUB()
-{
+saveGRUB() {
 	local disk="$1";
 	local disk_number="$2";
 	local imagePath="$3";
@@ -860,7 +816,6 @@ saveGRUB()
 	fi
 	dd if="$disk" of="$imagePath/d${disk_number}.mbr" count="${count}" bs=512 &>/dev/null;
 }
-
 # Checks for the existence of the grub embedding area in the image directory.
 # Echos 1 for true, and 0 for false.
 #
@@ -868,8 +823,7 @@ saveGRUB()
 # the device name (e.g. /dev/sda) as the first parameter,
 # the disk number (e.g. 1) as the second parameter
 # the directory images stored in (e.g. /image/xyz) as the third parameter
-hasGRUB()
-{
+hasGRUB() {
 	local disk="$1";
 	local disk_number="$2";
 	local imagePath="$3";
@@ -879,7 +833,6 @@ hasGRUB()
 		echo "0";
 	fi
 }
-
 # Restore the grub boot record and all of the embedding area data
 # necessary for grub2.
 #
@@ -887,8 +840,7 @@ hasGRUB()
 # the device name (e.g. /dev/sda) as the first parameter,
 # the disk number (e.g. 1) as the second parameter
 # the directory images stored in (e.g. /image/xyz) as the third parameter
-restoreGRUB()
-{
+restoreGRUB() {
 	local disk="$1";
 	local disk_number="$2";
 	local imagePath="$3";
@@ -900,17 +852,13 @@ restoreGRUB()
 	dd if="${tmpMBR}" of="${disk}" bs=512 count="${count}" &>/dev/null;
 	runPartprobe "$disk";
 }
-
-debugPause()
-{
+debugPause() {
 	if [ -n "$isdebug" -o "$mode" == "debug" ]; then
 		echo 'Press [Enter] key to continue.';
 		read -p "$*";
 	fi
 }
-
-savePartitionTablesAndBootLoaders()
-{
+savePartitionTablesAndBootLoaders() {
 	local disk="$1";
 	local intDisk="$2";
 	local imagePath="$3";
@@ -918,7 +866,6 @@ savePartitionTablesAndBootLoaders()
 	local hasgpt="$5";
 	local have_extended_partition="$6";
 	local imgPartitionType="$7";
-
 	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "mbr" ]; then
 		makeSwapUUIDFile "${imagePath}/d${intDisk}.original.swapuuids";
 		if [ "$hasgpt" == "0" -a "$osid" == "50" -a "$intDisk" == "1" ]; then
@@ -944,9 +891,7 @@ savePartitionTablesAndBootLoaders()
 	echo "Done";
 	debugPause;
 }
-
-clearPartitionTables()
-{
+clearPartitionTables() {
 	local disk=$1;
 	dots "Erasing current MBR/GPT Tables";
 	sgdisk -Z $disk >/dev/null;
@@ -955,10 +900,11 @@ clearPartitionTables()
 	dots "Creating disk with new label";
 	parted -s $disk mklabel msdos;
 	echo "Done"
+	debugPause;
 	dots "Initializing $disk with NTFS partition";
 	parted -s $disk -a opt mkpart primary ntfs 2048s -- -1s &>/dev/null;
 	runPartprobe "$disk";
-	mkfs.ntfs -Q ${disk}1 &>/dev/null;
+	mkfs.ntfs -Q -q ${disk}1;
 	if [ "$?" != "0" ]; then
 		echo "Failed";
 		debugPause;
@@ -967,9 +913,7 @@ clearPartitionTables()
 	echo "Done";
 	debugPause;
 }
-
-restorePartitionTablesAndBootLoaders()
-{
+restorePartitionTablesAndBootLoaders() {
 	local disk="$1";
 	local intDisk="$2";
 	local imagePath="$3";
@@ -979,7 +923,7 @@ restorePartitionTablesAndBootLoaders()
 	local has_GRUB="";
 	local mbrsize="";
 	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "mbr" ]; then
-		debugPause;
+		clearPartitionTables $disk;
 		tmpMBR="$imagePath/d${intDisk}.mbr";
 		has_GRUB=`hasGRUB "${disk}" "${intDisk}" "${imagePath}"`;
 		mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
@@ -1028,9 +972,7 @@ restorePartitionTablesAndBootLoaders()
 		debugPause;
 	fi
 }
-
-savePartition()
-{
+savePartition() {
 	local part="$1";
 	local intDisk="$2";
 	local imagePath="$3";
@@ -1041,7 +983,6 @@ savePartition()
 	local fstype="";
 	local parttype="";
 	local imgpart="";
-	
 	partNum=${part:$diskLength};
 	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
 		mkfifo /tmp/pigz1;
@@ -1074,9 +1015,7 @@ savePartition()
 		debugPause;
 	fi
 }
-
-restorePartition()
-{
+restorePartition() {
 	if [ -z "$1" ]; then
 		handleError "No partition sent to process";
 	else
@@ -1147,8 +1086,7 @@ restorePartition()
 		debugPause;
 	fi
 }
-gptorMBRSave()
-{
+gptorMBRSave() {
 	local gptormbr=`gdisk -l $1 | grep 'GPT:' | awk -F: '{print $2}' | awk '{print $1}'`;
 	if [ "$gptormbr" == "not" ]; then
 		debugPause;
@@ -1167,11 +1105,11 @@ gptorMBRSave()
 			gptorMBRSave "$1" "$2";
 		else
 			echo "Done";
+			debugPause;
 		fi
 	fi
 }
-runFixparts()
-{
+runFixparts() {
 	dots "Attempting fixparts";
 	fixparts $1 << EOF
 y
@@ -1180,13 +1118,14 @@ y
 EOF
 	if [ "$?" != 0 ]; then
 		echo "Failed";
+		debugPause;
 		handleError "Could not fix partition layout" "yes";
 	else
 		runPartprobe "$1";
 		echo "Done";
+		debugPause;
 	fi
 }
-
 # Local Variables:
 # indent-tabs-mode: t
 # sh-basic-offset: 4
