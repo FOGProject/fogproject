@@ -142,4 +142,11 @@ class Printer extends FOGController
 		// Return
 		return parent::destroy($field);
 	}
+	public function isValid() {
+		$ret = false;
+		if ($this->get('config') == 'Network') $ret = ($this->get('name') ? true : false);
+		else if ($this->get('config') == 'iPrint') $ret = ($this->get('name') && $this->get('port') ? true : false);
+		else if ($this->get('config') == 'Local') $ret = ($this->get('name') && $this->get('port') && $this->get('file') && $this->get('model') ? true : false);
+		return $ret;
+	}
 }
