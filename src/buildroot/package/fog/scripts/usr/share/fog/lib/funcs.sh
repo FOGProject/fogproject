@@ -1094,12 +1094,14 @@ restorePartition() {
 gptorMBRSave() {
 	local gptormbr=`gdisk -l $1 | grep 'GPT:' | awk -F: '{print $2}' | awk '{print $1}'`;
 	if [ "$gptormbr" == "not" ]; then
-		debugPause;
+		runPartprobe $1;
 		dots "Saving MBR or MBR/Grub";
 		saveGRUB "$1" "1" "$2";
 		saveSfdiskPartitions "$1" "$2/d1.minimum.partitions";
 		echo "Done";
+		debugPause;
 	else
+		runPartprobe $1;
 		dots "Saving Partition Tables";
 		sgdisk -b $imagePath/d1.mbr $1 >/dev/null;
 		if [ ! "$?" -eq 0 ]; then
