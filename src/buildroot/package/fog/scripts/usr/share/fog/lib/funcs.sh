@@ -45,6 +45,7 @@ enableWriteCache()  {
 		else
 			echo "Unknown status $wcache";
 		fi
+		debugPause;
 	fi
 }
 # $1 is the partition
@@ -143,7 +144,7 @@ shrinkPartition() {
 			dots "Not shrinking ($1) fixed size";
 			echo "Done";
 			debugPause;
-			return;
+			return 0;
 		fi
 	fi
 	if [ "$fstype" == "ntfs" ]; then
@@ -185,6 +186,7 @@ EOFNTFS`
 			do_resizefs=1;
 			do_resizepart=1;
 		fi
+		debugPause;
 		if [ "$do_resizefs" == "1" ]; then
 			dots "Resizing filesystem";
 			ntfsresize -f -s ${sizentfsresize}k $1 &>/dev/null << FORCEY
@@ -204,6 +206,8 @@ FORCEY
 			elif [ "$win7partcnt" == "1" ]; then
 				win7part1start=`parted -s $hd u kB print | sed -e '/^.1/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
 				if [ "$win7part1start" == "" ]; then
+					echo "Failed";
+					debugPause;
 					handleError "Unable to determine disk start location.";
 				fi
 				adjustedfdsize=`expr $sizefd '+' $win7part1start`;
@@ -211,6 +215,8 @@ FORCEY
 			elif [ "$win7partcnt" == "2" ]; then
 				win7part2start=`parted -s $hd u kB print | sed -e '/^.2/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
 				if [ "$win7part2start" == "" ]; then
+					echo "Failed";
+					debugPause;
 					handleError "Unable to determine disk start location.";
 				fi
 				adjustedfdsize=`expr $sizefd '+' $win7part2start`;
@@ -219,6 +225,8 @@ FORCEY
 				adjustedfdsize=`expr $sizefd '+' 1048576`;
 				resizePartition "$1" "$adjustedfdsize"
 			fi
+			echo "Done";
+			debugPause;
 		fi
 	elif [ "$fstype" == "extfs" ]; then
 		dots "Checking $fstype volume ($1)";
@@ -243,12 +251,13 @@ FORCEY
 		dots "Resizing $fstype volume ($1)";
 		resize2fs $1 &>/dev/null;
 		e2fsck -fp $1 &>/dev/null; # prevent fsck at first boot after uploaded system
+		runPartprobe "$hd";
+		echo "Done";
+		debugPause;
 	else
-		dots "Not shrinking ($1 $fstype)";
+		echo " * Not shrinking ($1 $fstype)";
+		debugPause;
 	fi
-	runPartprobe "$hd";
-	echo "Done";
-	debugPause;
 }
 # $1 is the part
 resetFlag() {
@@ -314,6 +323,9 @@ writeImage()  {
 		# partclone
 		pigz -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
 	fi
+	if [ "$?" != 0 ]; then
+		handleError "Image failed to restore";
+	fi
 	rm /tmp/pigz1;
 }
 
@@ -327,6 +339,9 @@ writeImageMultiCast() {
 	else 
 		# partclone
 		pigz -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;
+	fi
+	if [ "$?" != 0 ]; then
+		handleError "Image failed to restore";
 	fi
 	rm /tmp/pigz1
 }
@@ -455,11 +470,11 @@ EOFMOUNT
 			else
 				echo "No reg found";
 			fi
-			debugPause;
 			umount /ntfs
 		else
 			echo "Not valid ntfs";
 		fi
+		debugPause;
 	fi
 }
 # $1 is the device name of the windows system partition
@@ -471,6 +486,7 @@ removePageFile() {
 	fi
 	if [ "$fstype" != "ntfs" ]; then
 		echo " * No ntfs file system to remove page file"
+		debugPause;
 	elif [[ "$osid" == +([1-2]|[5-7]|50) ]]; then
 		if [ "$ignorepg" == "1" ]; then
 			dots "Mounting device";
@@ -486,12 +502,11 @@ removePageFile() {
 				dots "Removing hibernate file";
 				rm -f "/ntfs/hiberfil.sys";
 				echo "Done";
-				debugPause;
 				umount /ntfs;
 			else
 				echo "Failed";
-				debugPause;
 			fi
+			debugPause;
 		fi
 	fi
 }
@@ -634,6 +649,21 @@ getHardDisk() {
 			if [ -z "$1" ]; then
 				echo "Done";
 				clearPartitionTables "$hd";
+				dots "Creating disk with new label";
+				parted -s $disk mklabel msdos;
+				echo "Done"
+				debugPause;
+				dots "Initializing $disk with NTFS partition";
+				parted -s $disk -a opt mkpart primary ntfs 2048s -- -1s &>/dev/null;
+				runPartprobe "$disk";
+				mkfs.ntfs -Q -q ${disk}1;
+				if [ "$?" != "0" ]; then
+				echo "Failed";
+				debugPause;
+				handleError "Failed to initialize";
+				fi
+				echo "Done";
+				debugPause;
 			fi
 		done;
 		if [ -z "$i" ]; then
@@ -812,7 +842,7 @@ saveGRUB() {
 		local count=$first;
 		touch "$imagePath/d${disk_number}.has_grub";
 	else
-		local count=1;
+		local count=$first;
 	fi
 	dd if="$disk" of="$imagePath/d${disk_number}.mbr" count="${count}" bs=512 &>/dev/null;
 }
@@ -868,20 +898,20 @@ savePartitionTablesAndBootLoaders() {
 	local imgPartitionType="$7";
 	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "mbr" ]; then
 		makeSwapUUIDFile "${imagePath}/d${intDisk}.original.swapuuids";
-		if [ "$hasgpt" == "0" -a "$osid" == "50" -a "$intDisk" == "1" ]; then
-			dots "Saving MBR and GRUB";
+		if [ "$hasgpt" == 0 -a "$osid" == "50" -a "$intDisk" == "1" ]; then
+			dots "Saving Partition Tables and GRUB (MBR)";
 			saveGRUB "${disk}" "${intDisk}" "${imagePath}";
 			if [ "$have_extended_partition" == "1" ]; then
 				sfdisk -d $disk 2>/dev/null >${imagePath}/d${intDisk}.partitions;
 			fi
 		elif [ "$hasgpt" == "0" ]; then
-			dots "Saving MBR";
-			dd if=$disk of=$imagePath/d${intDisk}.mbr count=1 bs=512 &>/dev/null;
+			dots "Saving Partition Tables (MBR)";
+			saveGRUB "${disk}" "${intDisk}" "${imagePath}";
 			if [ "$have_extended_partition" == "1" ]; then
 				sfdisk -d $disk 2>/dev/null >${imagePath}/d${intDisk}.partitions;
 			fi
 		else
-			dots "Saving Partition Tables";
+			dots "Saving Partition Tables (GPT)";
 			sgdisk -b $imagePath/d${intDisk}.mbr $disk 2>&1 >/dev/null;
 		fi
 	else
@@ -895,21 +925,6 @@ clearPartitionTables() {
 	local disk=$1;
 	dots "Erasing current MBR/GPT Tables";
 	sgdisk -Z $disk >/dev/null;
-	echo "Done";
-	debugPause;
-	dots "Creating disk with new label";
-	parted -s $disk mklabel msdos;
-	echo "Done"
-	debugPause;
-	dots "Initializing $disk with NTFS partition";
-	parted -s $disk -a opt mkpart primary ntfs 2048s -- -1s &>/dev/null;
-	runPartprobe "$disk";
-	mkfs.ntfs -Q -q ${disk}1;
-	if [ "$?" != "0" ]; then
-		echo "Failed";
-		debugPause;
-		handleError "Failed to initialize";
-	fi
 	echo "Done";
 	debugPause;
 }
@@ -932,8 +947,11 @@ restorePartitionTablesAndBootLoaders() {
 				dots "Restoring Partition Tables";
 				sgdisk -gel $tmpMBR $disk 2>&1 >/dev/null;
 				global_gptcheck="yes";
-			elif [ "$mbrsize" == "32256" -o "$has_GRUB" == "1" ] && [ "$intDisk" == "1" ] && [ "$osid" == "50" ]; then
-				dots "Restoring MBR and GRUB";
+				if [ "$osid" == "50"]; then
+					dots "Restoring Partition Tables and GRUB (MBR)";
+				else 
+					dots "Restoring Partition Tables (MBR)";
+				fi
 				restoreGRUB "${disk}" "${intDisk}" "${imagePath}";
 				if [ -e "${imagePath}/d${intDisk}.partitions" ]; then
 					echo "Done";
@@ -945,22 +963,9 @@ restorePartitionTablesAndBootLoaders() {
 					debugPause;
 					dots "No extended partitions";
 				fi
-			else
-				dots "Restoring MBR";
-				dd if=$tmpMBR of=$disk bs=512 count=1 &>/dev/null;
-				if [ -e "${imagePath}/d${intDisk}.partitions" ]; then
-					echo "Done";
-					debugPause;
-					dots "Extended partitions";
-					sfdisk $disk < ${imagePath}/d${intDisk}.partitions &>/dev/null;
-				else
-					echo "Done";
-					debugPause;
-					dots "No extended partitions";
-				fi
 			fi
-			runPartprobe "$disk";
 			echo "Done";
+			runPartprobe "$disk";
 			debugPause;
 			sleep 3;
 		else
@@ -1101,7 +1106,6 @@ gptorMBRSave() {
 			echo "Failed";
 			debugPause;
 			runFixparts "$1";
-			debugPause;
 			gptorMBRSave "$1" "$2";
 		else
 			echo "Done";
