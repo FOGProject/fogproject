@@ -15,17 +15,22 @@ $Download = function() {
 	header('Connection: close');
 	print 'Foobar22!';
 };
-$AESDecryptionResponse1 = function($key,$iv) {
-	$cipher = mcrypt_encrypt(MCRYPT_RIJNDAEL,$key,'#data=Foobar22!',MCRYPT_MODE_CBC,$iv);
-	print "#!en=$iv|".bin2hex($cipher);
+$AESDecryptionResponse1 = function($key,$iv,$data) {
+	$data = "#data=$data";
+	$cipher = bin2hex(mcrypt_encrypt(MCRYPT_RIJNDAEL_128,$key,$data,MCRYPT_MODE_CBC,$iv));
+	$iv = bin2hex($iv);
+	print "#!en=$iv|$cipher";
 };
-$AESDecryptionResponse2 = function($key,$iv) {
-	$cipher = mcrypt_encrypt(MCRYPT_RIJNDAEL,$key,'#data=Foobar22!',MCRYPT_MODE_CBC,$iv);
-	print "#!enkey=$iv|".bin2hex($cipher);
+$AESDecryptionResponse2 = function($key,$iv,$data) {
+	$data = "#data=$data";
+	$cipher = bin2hex(mcrypt_encrypt(MCRYPT_RIJNDAEL_128,$key,$data,MCRYPT_MODE_CBC,$iv));
+	$iv = bin2hex($iv);
+	print "#!enkey=$iv|$cipher";
 };
-$AESDecryption = function($key,$iv) {
-	$cipher = mcrypt_encrypt(MCRYPT_RIJNDAEL,$key,'Foobar22!',MCRYPT_MODE_CBC,$iv);
-	print $iv.'|'.bin2hex($cipher);
+$AESDecryption = function($key,$iv,$data) {
+	$cipher = bin2hex(mcrypt_encrypt(MCRYPT_RIJNDAEL_128,$key,$data,MCRYPT_MODE_CBC,$iv));
+	$iv = bin2hex($iv);
+	print "$iv|$cipher";
 };
 $RawResponse = function() {
 	print 'Foobar22!';
@@ -43,8 +48,8 @@ $units = array_keys(
 	)
 );
 if (in_array($_REQUEST['unit'],$units)) {
-	$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128,MCRYPT_MODE_CBC);
-	if (strpos('AESDecryption',$_REQUEST['unit']) !== false) {	
+	if (strpos($_REQUEST['unit'],'AESDecryption') !== false) {
+		$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128,MCRYPT_MODE_CBC);
 		$iv = mcrypt_create_iv($iv_size,MCRYPT_DEV_URANDOM);
 		$n = strlen($_REQUEST['key']);
 		$i = 0;
@@ -55,7 +60,7 @@ if (in_array($_REQUEST['unit'],$units)) {
 			else $key .= $c;
 			$i += 2;
 		}
-		$$_REQUEST['unit']($key,bin2hex($iv));
+		$$_REQUEST['unit']($key,$iv,'Foobar22!');
 	} else {
 		$$_REQUEST['unit']();
 	}
