@@ -46,7 +46,16 @@ if (in_array($_REQUEST['unit'],$units)) {
 	$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128,MCRYPT_MODE_CBC);
 	if (strpos('AESDecryption',$_REQUEST['unit']) !== false) {	
 		$iv = mcrypt_create_iv($iv_size,MCRYPT_DEV_URANDOM);
-		$$_REQUEST['unit']($_REQUEST['key'],bin2hex($iv));
+		$n = strlen($_REQUEST['key']);
+		$i = 0;
+		while ($i < $n) {
+			$a = substr($_REQUEST['key'],$i,2);
+			$c = pack("H*",$a);
+			if ($i == 0) $key = $c;
+			else $key .= $c;
+			$i += 2;
+		}
+		$$_REQUEST['unit']($key,bin2hex($iv));
 	} else {
 		$$_REQUEST['unit']();
 	}
