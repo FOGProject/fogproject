@@ -949,7 +949,7 @@ restorePartitionTablesAndBootLoaders() {
 				sgdisk -gel $tmpMBR $disk 2>&1 >/dev/null;
 				global_gptcheck="yes";
 			else
-				if [ "$osid" == "50"]; then
+				if [ "$osid" == "50" ]; then
 					dots "Restoring Partition Tables and GRUB (MBR)";
 				else 
 					dots "Restoring Partition Tables (MBR)";

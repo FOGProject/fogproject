@@ -47,7 +47,7 @@ abstract class FOGBase {
 		$this->TimeZone = $GLOBALS['TimeZone'];
 		$this->FOGURLRequests = $GLOBALS['FOGURLRequests'];
 		$this->imagelink = $_SESSION['imagelink'];
-		$this->searchPages = array('user','host','group','image','snapin','printer','tasks','hosts');
+		$this->searchPages = array('user','host','group','image','snapin','printer','tasks','task','hosts');
 	}
 	/** @function fatalError() prints error to the screen and exits script
 	  * @param $txt the text of the error
