@@ -570,8 +570,8 @@ class BootMenu extends FOGBase {
 		if ($imgID) {
 			$Image = new Image($imgID);
 			if ($this->Host && $this->Host->isValid()) {
-				if (!$this->Host->getImage() || !$this->Host->getImage()->isValid()) $this->Host->set('image',$imgID);
-				if ($imgID && $this->Host->getImage() && $this->Host->getImage()->isValid() && $imgID != $this->Host->getImage()->get('id')) $this->Host->set('image',$imgID);
+				if (!$this->Host->getImage() || !$this->Host->getImage()->isValid()) $this->Host->set('imageID',$imgID);
+				if ($imgID && $this->Host->getImage() && $this->Host->getImage()->isValid() && $imgID != $this->Host->getImage()->get('id')) $this->Host->set('imageID',$imgID);
 				if ($this->Host->getImage()->isValid()) {
 					try {
 						if($this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,$_REQUEST['username'])) $this->chainBoot(false, true);

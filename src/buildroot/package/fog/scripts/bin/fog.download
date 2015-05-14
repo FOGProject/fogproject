@@ -86,8 +86,13 @@ if [ "$imgType" == "n" ]; then
 			echo "Skipped";
 			debugPause;
 		else
-			restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
+			dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
+			parted -s $hd mktable msdos &>/dev/null;
+			dd if=$mbrfile of=$hd bs=512 count=1 &>/dev/null;
+			runPartprobe "$hd";
+			echo "Done";
 		fi
+		debugPause;
 		diskSize=`parted -s $hd u kB print | grep "Disk" | grep -v "Flags" | sed 's/Disk \/dev\/[a-zA-Z0-9]*: //' | sed 's/kB//'`;
 		if [ $diskSize -gt 2199023256 ]; then
 			layPartSize="2tB";
