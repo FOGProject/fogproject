@@ -998,13 +998,21 @@ class FOGConfigurationPage extends FOGPage {
 			if($_FILES['dbFile'] != null)
 			{
 				$dbFileName = BASEPATH.'/management/other/'.basename($_FILES['dbFile']['name']);
-				if(move_uploaded_file($_FILES['dbFile']['tmp_name'], $dbFileName))
-					print "\n\t\t\t<h2>"._('File Import successful!').'</h2>';
-				else
-					throw new Exception('Could not upload file!');
-				exec('mysql -u' . DATABASE_USERNAME . ' -p' . DATABASE_PASSWORD . ' -h'.preg_replace('#p:#','',DATABASE_HOST).' '.DATABASE_NAME.' < "'.$dbFileName.'" > /dev/null 2>/dev/null &');
-				print "\n\t\t\t<h2>"._('Database Added!').'</h2>';
-				exec('rm -rf "'.$dbFileName.'" > /dev/null 2>/dev/null &');
+				if(!move_uploaded_file($_FILES['dbFile']['tmp_name'], $dbFileName)) throw new Exception('Could not upload file!');
+				
+				print "\n\t\t\t<h2>"._('File Import successful!').'</h2>';
+				$password = (DATABASE_PASSWORD ? ' -p"'.DATABASE_PASSWORD.'"' : '');
+				$command = 'mysql -u ' . DATABASE_USERNAME . $password .' -h '.preg_replace('#p:#','',DATABASE_HOST).' '.DATABASE_NAME.' < "'.$dbFileName.'"';
+				exec($command,$output = array(),$worked);
+				switch ($worked) {
+					case 0:
+						print "\n\t\t\t<h2>"._('Database Added!').'</h2>';
+						exec('rm -rf "'.$dbFileName.'" > /dev/null 2>/dev/null &');
+						break;
+					case 1:
+						print "\n\t\t\t<h2>"._('Database import failed!').'</h2>';
+						break;
+				}
 			}
 		}
 		catch (Exception $e)
