@@ -842,7 +842,7 @@ saveGRUB() {
 		local count=$first;
 		touch "$imagePath/d${disk_number}.has_grub";
 	else
-		local count=1;
+		local count=$first;
 	fi
 	dd if="$disk" of="$imagePath/d${disk_number}.mbr" count="${count}" bs=512 &>/dev/null;
 }
@@ -948,6 +948,7 @@ restorePartitionTablesAndBootLoaders() {
 				dots "Restoring Partition Tables";
 				sgdisk -gel $tmpMBR $disk 2>&1 >/dev/null;
 				global_gptcheck="yes";
+			else
 				if [ "$osid" == "50"]; then
 					dots "Restoring Partition Tables and GRUB (MBR)";
 				else 

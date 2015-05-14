@@ -430,7 +430,7 @@ class BootMenu extends FOGBase {
 				if ($Image && $Image->isValid()) {
 					array_push($Send['ImageListing'],"item ".$Image->get('path').' '.$Image->get('name'));
 					// If the host is valid and the image is set and valid, set the selected target.
-					if ($this->Host && $this->Host->isValid() && $this->Host->getImage() && $this->Host->getImage()->isValid() && $this->Host->getImage()->get('id') == $Image->get('id')) $defItem = 'choose --default '.$Image->get('path').' target && goto ${target}';
+					if ($this->Host && $this->Host->isValid() && $this->Host->getImage() && $this->Host->getImage()->isValid() && $this->Host->getImage()->get('id') == $Image->get('id')) $defItem = 'choose --default '.$Image->get('path').' --timeout '.$this->timeout.' target && goto ${target}';
 				}
 			}
 			// Add the return to other menu
