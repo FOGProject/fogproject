@@ -210,31 +210,17 @@ if [ "$imgType" == "n" ]; then
 	#  resize original partition table to current disk, and apply it
 	elif [[ "$osid" == +([1-2]|[5-7]|50) ]]; then
 		debugPause;
-		tmpMBR="$imagePath/d1.mbr";
-		has_GRUB=`hasGRUB "${hd}" "1" "${imagePath}"`;
-		mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
-		gpt=`awk '/label:/{print $2}' ${imagePath}/d1.minimum.partitions`;
-		if [ -f $tmpMBR ]; then
-			if [ "$gptcheck" == 'gpt' ] || [[ "$mbrsize" != +(1048576|512|32256) ]] ; then
-				dots "Restoring Partition Tables (GPT)";
-				sgdisk -gel $tmpMBR $hd 2>&1 >/dev/null;
-				gptcheck="yes";
-			else
-				restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
-				dots "Expanding partition table to fill disk";
-				if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
-					fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
-				else
-					fixed_size_partitions="";
-				fi
-				echo "Done";
-				debugPause;
-				fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
-			fi
-			sleep 3;
+		restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
+		gptcheck="$global_gptcheck";
+		dots "Expanding partition table to fill disk";
+		if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
+			fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
 		else
-			handleError "Image Store Corrupt: Unable to locate MBR.";
+			fixed_size_partitions="";
 		fi
+		echo "Done";
+		debugPause;
+		fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
 	fi
 elif [ "$imgType" == "mps" ]; then
 	if [ -d "$imagePath" ]; then
