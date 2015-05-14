@@ -50,7 +50,6 @@ if [ "$imgType" == "n" ]; then
 	win7partcnt="0";
 	win7rec="";
 	win7sys="";
-	debugPause;
 	if [ -f "$win7imgroot/sys.img.000" ] || grep -q "sys.img.000" /tmp/filelist.txt &>/dev/null ; then
 		if [[ "$osid" == +([5-7]) ]]; then
 			dots "Windows Boot Partition Exists";
@@ -64,6 +63,7 @@ if [ "$imgType" == "n" ]; then
 				partCount="2";
 				downloadPartitionCount="3";
 			elif [ -f "$win7imgroot/gpt.bak" ] || grep -q "gpt.bak" /tmp/filelist.txt &>/dev/null ; then
+				echo "Yes";
 				win7partcnt="3";
 				win7rec="gpt";
 				win7sys="${hd}3";
@@ -80,16 +80,14 @@ if [ "$imgType" == "n" ]; then
 				downloadPartitionCount="2";
 			fi
 		fi
+		debugPause;
 		dots "Preparing Hard Disks (Stage 1)";
 		if [ "$nombr" == "1" ]; then
 			echo "Skipped";
+			debugPause;
 		else
-			dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
-			parted -s $hd mktable msdos &>/dev/null;
-			dd if=$mbrfile  of=$hd bs=512 count=1  &>/dev/null;
-			echo "Done";
+			restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
 		fi
-		debugPause;
 		diskSize=`parted -s $hd u kB print | grep "Disk" | grep -v "Flags" | sed 's/Disk \/dev\/[a-zA-Z0-9]*: //' | sed 's/kB//'`;
 		if [ $diskSize -gt 2199023256 ]; then
 			layPartSize="2tB";
@@ -99,6 +97,7 @@ if [ "$imgType" == "n" ]; then
 				dots "Preparing Hard Disks (Stage 2)";
 				parted -s $hd rm 1 &>/dev/null;
 				echo "Done";
+				debugPause;
 				dots "Preparing Hard Disks (Stage 3)";
 			if [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
 					parted -s $hd mkpart primary ntfs 63s -- $downloadPartitionStart &>/dev/null;
@@ -112,6 +111,7 @@ if [ "$imgType" == "n" ]; then
 				dots "Preparing Hard Disks (Stage 2)";
 				parted -s $hd rm 2 &>/dev/null;
 				echo "Done";
+				debugPause;
 				dots "Preparing Hard Disks (Stage 3)";
 				parted -s $hd -a opt mkpart primary ntfs -- $defaultpart2start $downloadPartitionStart &>/dev/null;
 				parted -s $hd -a opt mkpart primary ext2 -- $downloadPartitionStart $layPartSize &>/dev/null;
@@ -213,38 +213,24 @@ if [ "$imgType" == "n" ]; then
 		tmpMBR="$imagePath/d1.mbr";
 		has_GRUB=`hasGRUB "${hd}" "1" "${imagePath}"`;
 		mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
+		gpt=`awk '/label:/{print $2}' ${imagePath}/d1.minimum.partitions`;
 		if [ -f $tmpMBR ]; then
-			if [ "$mbrsize" != "32256" -a "$has_GRUB" != "1" ] && [ "$mbrsize" != "512" ]; then
-				dots "Restoring Partition Tables";
+			if [ "$gptcheck" == 'gpt' ] || [[ "$mbrsize" != +(1048576|512|32256) ]] ; then
+				dots "Restoring Partition Tables (GPT)";
 				sgdisk -gel $tmpMBR $hd 2>&1 >/dev/null;
 				gptcheck="yes";
-			elif [ "$mbrsize" == "32256" -o "$has_GRUB" == "1" ]; then
-				dots "Restoring MBR and GRUB";
-				restoreGRUB "${hd}" "1" "${imagePath}";
-				echo "Done";
-				debugPause;
-				dots "Expanding partition table to fill disk";
-				if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
-					fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
-				else
-					fixed_size_partitions="";
-				fi
-				fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
 			else
-				dots "Restoring MBR";
-				dd if=$tmpMBR of=$hd bs=512 count=1 &>/dev/null;
-				echo "Done";
-				debugPause;
+				restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
 				dots "Expanding partition table to fill disk";
 				if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
 					fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
 				else
 					fixed_size_partitions="";
 				fi
+				echo "Done";
+				debugPause;
 				fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
 			fi
-			echo "Done";
-			debugPause;
 			sleep 3;
 		else
 			handleError "Image Store Corrupt: Unable to locate MBR.";

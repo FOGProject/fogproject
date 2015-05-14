@@ -650,23 +650,23 @@ getHardDisk() {
 				echo "Done";
 				clearPartitionTables "$hd";
 				dots "Creating disk with new label";
-				parted -s $disk mklabel msdos;
+				parted -s $hd mklabel msdos;
 				echo "Done"
 				debugPause;
-				dots "Initializing $disk with NTFS partition";
-				parted -s $disk -a opt mkpart primary ntfs 2048s -- -1s &>/dev/null;
-				runPartprobe "$disk";
-				mkfs.ntfs -Q -q ${disk}1;
+				dots "Initializing $hd with NTFS partition";
+				parted -s $hd -a opt mkpart primary ntfs 2048s -- -1s &>/dev/null;
+				runPartprobe "$hd";
+				mkfs.ntfs -Q -q ${hd}1;
 				if [ "$?" != "0" ]; then
-				echo "Failed";
-				debugPause;
-				handleError "Failed to initialize";
+					echo "Failed";
+					debugPause;
+					handleError "Failed to initialize";
 				fi
 				echo "Done";
 				debugPause;
 			fi
 		done;
-		if [ -z "$i" ]; then
+		if [ -z "$hd" ]; then
 			handleError "Cannot find HDD on system";
 		fi
 		return 0;
@@ -943,7 +943,8 @@ restorePartitionTablesAndBootLoaders() {
 		has_GRUB=`hasGRUB "${disk}" "${intDisk}" "${imagePath}"`;
 		mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
 		if [ -f $tmpMBR ]; then
-			if [ "$mbrsize" != "32256" -a "$has_GRUB" != "1" ] && [ "$mbrsize" != "512" ]; then
+			gpt=`awk '/label:/{print $2}' ${imagePath}/d${intDisk}.minimum.partitions`;
+			if [ "$gptcheck" == 'gpt' ] || [[ "$mbrsize" != +(1048576|512|32256) ]] ; then
 				dots "Restoring Partition Tables";
 				sgdisk -gel $tmpMBR $disk 2>&1 >/dev/null;
 				global_gptcheck="yes";
