@@ -17,7 +17,12 @@
 #
 #
 #
-
+stopInitScript() {
+	systemctl stop ${initdMCfullname} >/dev/null 2>&1;
+	systemctl stop ${initdIRfullname} >/dev/null 2>&1;
+	systemctl stop ${initdSDfullname} >/dev/null 2>&1;
+	systemctl stop ${initdSRfullname} >/dev/null 2>&1;
+}
 installInitScript()
 {
 	echo -n "  * Installing init scripts...";
@@ -316,6 +321,7 @@ configureMinHttpd()
 
 configureHttpd()
 {
+	stopInitScript;
 	if [ "$installtype" == N -a "$fogupdateloaded" != 1 ]; then
 		echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
 		read dummy;
@@ -508,7 +514,10 @@ class Config {
 		cd $webdirdest/service;
 		count=0;
 		while [ -z "$clientVer" -a "$count" -le 10 ]; do
-			clientVer=`php -f ${webdirdest}/service/getclient.php`;
+			clientVer=`wget $ipaddress/fog/service/getclient.php`;
+			if [ -z "$clientVer" ]; then
+				clientVer=`wget $ipaddress/service/getclient.php`;
+			fi
 			count=`expr $count '+' 1`
 			sleep 2;
 		done

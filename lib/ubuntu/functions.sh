@@ -17,6 +17,12 @@
 #
 #
 #
+stopInitScript() {
+	${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
+	${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
+	${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
+	${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
+}
 
 installInitScript()
 {
@@ -25,7 +31,6 @@ installInitScript()
 	${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
 	${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
 	${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
-	
 	cp -f ${initdsrc}/* ${initdpath}/
 	chmod 755 ${initdpath}/${initdMCfullname}
 	sysv-rc-conf ${initdMCfullname} on >/dev/null 2>&1;
@@ -329,6 +334,7 @@ configureMinHttpd()
 
 configureHttpd()
 {
+	stopInitScript;
 	if [ "$installtype" == N -a "$fogupdateloaded" != 1 ]; then
 		echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
 		read dummy;
@@ -532,7 +538,10 @@ class Config {
 		cd "${webdirdest}/service"
 		count=0;
 		while [ -z "$clientVer" -a "$count" -le 10 ]; do
-			clientVer=`php -f ${webdirdest}/service/getclient.php`;
+			clientVer=`wget $ipaddress/fog/service/getclient.php`;
+			if [ -z "$clientVer" ]; then
+				clientVer=`wget $ipaddress/service/getclient.php`;
+			fi
 			count=`expr $count '+' 1`
 			sleep 2;
 		done
