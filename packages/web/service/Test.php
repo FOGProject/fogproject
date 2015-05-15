@@ -16,13 +16,13 @@ $Download = function() {
 	print 'Foobar22!';
 };
 $AESDecryptionResponse1 = function($key,$iv,$data) {
-	$data = "#data=$data";
+	$data = "#!ok\n#data=$data";
 	$cipher = bin2hex(mcrypt_encrypt(MCRYPT_RIJNDAEL_128,$key,$data,MCRYPT_MODE_CBC,$iv));
 	$iv = bin2hex($iv);
 	print "#!en=$iv|$cipher";
 };
 $AESDecryptionResponse2 = function($key,$iv,$data) {
-	$data = "#data=$data";
+	$data = "#!ok\n#data=$data";
 	$cipher = bin2hex(mcrypt_encrypt(MCRYPT_RIJNDAEL_128,$key,$data,MCRYPT_MODE_CBC,$iv));
 	$iv = bin2hex($iv);
 	print "#!enkey=$iv|$cipher";
