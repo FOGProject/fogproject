@@ -326,7 +326,7 @@ EOF
 			exit 1;
 		fi
 	fi
-	if [ -z $password -a -z $storageftppass ]; then
+	if [ -z "$password" -a -z "$storageftppass" ]; then
 		echo -n "  * Setting password for FOG User";
 		password=`date | md5sum | cut -d" " -f1`;
 		password=${password:0:6}
