@@ -335,6 +335,12 @@ ${password}
 ${password}
 EOF
 		echo "...OK";
+		echo "  * New password set for: ";
+		echo "      username: ${username}";
+		echo "      password: ${password}";
+
+		echo "";
+		sleep 10;
 		storageftpuser=${username};
 		storageftppass=${password};
 	fi
