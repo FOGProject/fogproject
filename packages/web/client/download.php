@@ -1,5 +1,6 @@
 <?php
-$path = '/'.trim($_SERVER['DOCUMENT_ROOT'],'/').'/client/';
+require_once('../commons/base.inc.php');
+$path = '/'.trim(BASEPATH,'/').'/client/';
 if (isset($_REQUEST['legclient'])) {
 	$filename = 'FogService.zip';
 } else if (isset($_REQUEST['newclient'])) {
