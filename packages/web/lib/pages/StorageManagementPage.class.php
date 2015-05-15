@@ -30,7 +30,7 @@ class StorageManagementPage extends FOGPage
 			'storage-group' => $this->foglang[AllSG],
 			'add-storage-group' => $this->foglang[AddSG],
 		);
-		if ($_REQUEST[sub] == 'edit' && $_REQUEST[id]) {
+		if (in_array($_REQUEST[sub],array('edit','delete')) && $_REQUEST[id]) {
 			$this->obj = $this->getClass('StorageNode',$_REQUEST[id]);
 			$this->subMenu = array(
 				"?node={$this->node}&sub={$_REQUEST[sub]}&id={$_REQUEST[id]}" => $this->foglang[General],
@@ -40,7 +40,7 @@ class StorageManagementPage extends FOGPage
 				"{$this->foglang[Storage]} {$this->foglang[Node]}" => $this->obj->get('name'),
 				$this->foglang[Path] => $this->obj->get('path'),
 			);
-		} else if ($_REQUEST[sub] == 'edit-storage-group' && $_REQUEST[id]) {
+		} else if (in_array($_REQUEST[sub],array('edit-storage-group','delete-storage-group')) && $_REQUEST[id]) {
 			$this->obj = $this->getClass('StorageGroup',$_REQUEST[id]);
 			$this->subMenu = array(
 				"?node={$this->node}&sub={$_REQUEST[sub]}&id={$_REQUEST[id]}" => $this->foglang[General],
