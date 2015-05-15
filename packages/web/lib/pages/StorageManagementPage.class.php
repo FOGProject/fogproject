@@ -30,7 +30,7 @@ class StorageManagementPage extends FOGPage
 			'storage-group' => $this->foglang[AllSG],
 			'add-storage-group' => $this->foglang[AddSG],
 		);
-		if (in_array($_REQUEST[sub],array('edit','delete')) && $_REQUEST[id]) {
+		if (in_array($_REQUEST[sub],array('edit','delete','delete-storage-node')) && $_REQUEST[id]) {
 			$this->obj = $this->getClass('StorageNode',$_REQUEST[id]);
 			$this->subMenu = array(
 				"?node={$this->node}&sub={$_REQUEST[sub]}&id={$_REQUEST[id]}" => $this->foglang[General],

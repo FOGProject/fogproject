@@ -291,8 +291,16 @@ configureUsers()
 			# save everyone wrist injuries
 			storageftpuser=${username};
 			storageftppass=${password};
+		else
+			storageftpuser=${storageftpuser};
+			storageftppass=${storageftppass};
+			if [ -z "$storageftpuser" ]; then
+				storageftpuser='fog';
+			fi
+			if [ -z "$storageftppass" ]; then
+				storageftppass=${password};
+			fi
 		fi
-		
 		if [ $password != "" ]
 		then
 			useradd -s "/bin/bash" -d "/home/${username}" ${username} >/dev/null 2>&1;
@@ -317,6 +325,18 @@ EOF
 			echo "...Failed!";
 			exit 1;
 		fi
+	fi
+	if [ -z $password -a -z $storageftppass ]; then
+		echo -n "  * Setting password for FOG User";
+		password=`date | md5sum | cut -d" " -f1`;
+		password=${password:0:6}
+		passwd ${username} >/dev/null 2>&1 << EOF
+${password}
+${password}
+EOF
+		echo "...OK";
+		storageftpuser=${username};
+		storageftppass=${password};
 	fi
 }
 
@@ -407,8 +427,10 @@ installlang=\"$installlang\";
 donate=\"$donate\";
 storageLocation=\"$storageLocation\";
 mysql_conntype=\"$mysql_conntype\";
-fogupdateloaded=\"1\"" > "$fogprogramdir/.fogsettings";
-
+fogupdateloaded=\"1\";
+storageftpuser=\"$storageftpuser\";
+storageftppass=\"$storageftppass\";
+" > "$fogprogramdir/.fogsettings";
 }
 
 displayBanner()
