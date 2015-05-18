@@ -773,7 +773,7 @@ abstract class FOGPage extends FOGBase {
 			if ($Host->get('sec_tok') && !$key) throw new Exception('#!ihc');
 			$key = bin2hex($key);
 			$Host->set('pub_key',$key)->save();
-			print '#!en='.$this->certEncrypt('#!ok'.$Host->get('sec_tok'),$Host);
+			print '#!en='.$this->certEncrypt("#!ok\n#token=".$Host->get('sec_tok'),$Host);
 		}
 		catch (Exception $e) {
 				print  $e->getMessage();
