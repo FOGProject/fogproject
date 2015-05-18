@@ -25,6 +25,7 @@ class Host extends FOGController {
 		'kernelDevice'	=> 'hostDevice',
 		'pending' => 'hostPending',
 		'pub_key' => 'hostPubKey',
+		'sec_tok' => 'hostSecToken',
 	);
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(

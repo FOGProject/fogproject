@@ -1905,3 +1905,7 @@ $this->schema[] = array(
 	"INSERT INTO `".DATABASE_NAME."`.globalSettings(settingKey,settingDesc,settingValue,settingCategory)
 		values('FOG_NONREG_DEVICE','This setting defines a target disk to apply an image to specifically for non-registered hosts.  If not set, a disk will be selected by the init.','','Non-Registered Host Image')",
 );
+// 178
+$this->schema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME ."`.`hosts` ADD COLUMN `hostSecToken` LONGTEXT",
+);
