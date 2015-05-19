@@ -207,7 +207,8 @@ class Host extends FOGController {
 		if (!$this->isLoaded('modules') && $this->get('id'))
 		{
 			$ModuleIDs = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','moduleID');
-			$this->set('modules',$this->getClass('ModuleManager')->find(array('id' => $ModuleIDs)));
+			foreach($this->getClass('ModuleManager')->find(array('id' => $ModuleIDs)) AS $Module)
+				$this->add('modules', $Module);
 		}
 		return $this;
 	}
