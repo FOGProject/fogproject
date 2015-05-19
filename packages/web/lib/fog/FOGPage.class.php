@@ -759,19 +759,14 @@ abstract class FOGPage extends FOGBase {
 		try {
 			// Get the host or error out
 			$Host = $this->getHostItem(true);
-			// Make sure the decryption is valid
-			if (!$pub_key = $this->certDecrypt($_REQUEST['sym_key'])) throw new Exception('#!ihc');
-			// Store the key
-			$key = trim(mb_substr($pub_key,0,32));
-			// Get the token
-			$token = trim(mb_substr($pub_key,33));
+			// Store the key and potential token
+			$key = trim(bin2hex($this->certDecrypt($_REQUEST['sym_key'])));
+			$token = trim(bin2hex($this->certDecrypt($_REQUEST['token'])));
 			// Test if the sec_tok is valid and the received token don't match error out
-			
-			if ($Host->get('sec_tok') && bin2hex($token) !== $Host->get('sec_tok')) throw new Exception('#!ist');
-			// If there is no token defined generate one
-			if (!$Host->get('sec_tok')) $Host->set('sec_tok',$this->createSecToken())->save();
+			if ($Host->get('sec_tok') && $token !== $Host->get('sec_tok')) throw new Exception('#!ist');
+			// generate next token
+			$Host->set('sec_tok',$this->createSecToken())->set('sec_time',$this->nice_date()->format('Y-m-d H:i:s'))->save();
 			if ($Host->get('sec_tok') && !$key) throw new Exception('#!ihc');
-			$key = bin2hex($key);
 			$Host->set('pub_key',$key)->save();
 			print '#!en='.$this->certEncrypt("#!ok\n#token=".$Host->get('sec_tok'),$Host);
 		}
@@ -779,14 +774,6 @@ abstract class FOGPage extends FOGBase {
 				print  $e->getMessage();
 		}
 		exit;
-	}
-	/** createSecToken() create security token
-	  * @return trimmed hex of token
-	  */
-	private function createSecToken() {
-		$p = new OAuthProvider();
-		$token = $p->generateToken(64);
-		return trim(bin2hex($token));
 	}
 	/** delete_post() actually delete the items
 	  * @return void

@@ -21,6 +21,10 @@ class TaskScheduler extends FOGBase
 	{
 		try
 		{
+			foreach($this->getClass('HostManager')->find() AS $Host) {
+				if ($Host && $Host->isValid() && (strtotime($Host->get('sec_time')) > strtotime("-30 Minutes")))
+					$Host->set('pub_key',null)->save();
+			}
 			$Tasks = $this->getClass('TaskManager')->find(array('stateID' => 1,'typeID' => array(1,15,17)));
 			if ($Tasks)
 			{
