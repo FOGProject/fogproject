@@ -1913,3 +1913,7 @@ $this->schema[] = array(
 $this->schema[] = array(
 	"ALTER TABLE `" . DATABASE_NAME ."`.`hosts` ADD COLUMN `hostSecTime` TIMESTAMP NOT NULL",
 );
+// 180
+$this->schema[] = array(
+	"UPDATE `".DATABASE_NAME."`.globalSettings SET settingValue=6 WHERE settingKey='FOG_PIGZ_COMP'",
+);
