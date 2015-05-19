@@ -21,9 +21,15 @@ class TaskScheduler extends FOGBase
 	{
 		try
 		{
+			$DateInterval = $this->nice_date('-30 minutes');
 			foreach($this->getClass('HostManager')->find() AS $Host) {
-				if ($Host && $Host->isValid() && (strtotime($Host->get('sec_time')) > strtotime("-30 Minutes")))
-					$Host->set('pub_key',null)->save();
+				if ($Host && $Host->isValid()) {
+					if ($this->validDate($Host->get('sec_time'))) {
+						$DateTime = $this->nice_date($Host->get('sec_time'));
+						if ($DateTime->format('Y-m-d H:i:s') >= $DateInterval->format('Y-m-d H:i:s'))
+							$Host->set('pub_key',null)->save();
+					}
+				}
 			}
 			$Tasks = $this->getClass('TaskManager')->find(array('stateID' => 1,'typeID' => array(1,15,17)));
 			if ($Tasks)
