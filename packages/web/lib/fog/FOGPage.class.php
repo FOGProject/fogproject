@@ -777,6 +777,9 @@ abstract class FOGPage extends FOGBase {
 		}
 		exit;
 	}
+	public function clearAES() {
+		$this->getClass('Host',$_REQUEST['id'])->set('pub_key',null)->set('sec_tok',null)->save();
+	}
 	/** delete_post() actually delete the items
 	  * @return void
 	  */

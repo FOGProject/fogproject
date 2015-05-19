@@ -86,6 +86,32 @@ function UpdateLoginGraphPlot(data) {
 	$.plot(LoginHistory, LoginHistoryData, LoginHistoryOpts);
 }
 $(function() {
+	$('#resetSecData').val('Reset Encryption Data');
+	$('#resetSecData').click(function() {
+		$('#resetSecDataBox').html('Are you sure you wish to reset this hosts encryption data?');
+		$('#resetSecDataBox').dialog({
+			resizable: false,
+			modal: true,
+			title: 'Clear Encryption',
+			buttons: {
+				'Yes': function() {
+					$.ajax({
+						url: '../management/index.php',
+						type: 'POST',
+						timeout: 1000,
+						data: {
+							sub: 'clearAES',
+							id: $_GET['id'],
+						},
+					});
+					$(this).dialog('close');
+				},
+				'No': function() {
+					$(this).dialog('close');
+				}
+			}
+		});
+	});
 	UpdateLoginGraph();
 	// Uncheck default printer boxes.
 	$('input:checkbox[name="default"]').click(function() {

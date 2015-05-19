@@ -37,8 +37,8 @@ $(function() {
 			if ($('#adDomain').val() == '' && $('#adUsername').val() == '' &&  $('#adPassword').val() == '') {
 				$.ajax({
 					url: '../management/index.php',
-					cache: false,
 					type: 'POST',
+					timeout: 1000,
 					data: {sub: 'adInfo'},
 					dataType: 'json',
 					success: function(data) {
