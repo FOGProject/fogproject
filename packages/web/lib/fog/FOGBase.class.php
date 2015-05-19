@@ -395,6 +395,13 @@ abstract class FOGBase {
 		}
 		return $sbin;
 	}
+	/** createSecToken() create security token
+	  * @return trimmed hex of token
+	  */
+	public function createSecToken() {
+		$token = md5(uniqid(mt_rand(), true)).md5(uniqid(mt_rand(),true));
+		return trim(bin2hex($token));
+	}
 	/** certDecrypt()
 	  * @param $data the data to decrypt
 	  * @param $padding if we need it or not, defaults to needed

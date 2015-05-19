@@ -1909,3 +1909,7 @@ $this->schema[] = array(
 $this->schema[] = array(
 	"ALTER TABLE `" . DATABASE_NAME ."`.`hosts` ADD COLUMN `hostSecToken` LONGTEXT",
 );
+// 179
+$this->schema[] = array(
+	"ALTER TABLE `" . DATABASE_NAME ."`.`hosts` ADD COLUMN `hostSecTime` TIMESTAMP NOT NULL",
+);
