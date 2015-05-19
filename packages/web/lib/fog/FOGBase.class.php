@@ -547,10 +547,7 @@ abstract class FOGBase {
 		if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC']);
 		if ($returnmacs) return (is_array($MACs) ? $MACs : array($MACs));
 		$Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);
-		if (!$hostnotrequired) {
-			if ((!$Host || !$Host->isValid() || $Host->get('pending')) && !$override) throw new Exception($service ? '#!ih' : _('Invalid Host'));
-			if ($service && $_REQUEST['newService'] && !$Host->get('pub_key') && $this->getClass('FOGCore')->getSetting('FOG_AES_ENCRYPT')) throw new Exception('#!ihc');
-		}
+		if (!$hostnotrequired && (!$Host || !$Host->isValid() || $Host->get('pending')) && !$override) throw new Exception($service ? '#!ih' : _('Invalid Host'));
 		return $Host;
 	}
 	/** sendData() prints the return values as needed

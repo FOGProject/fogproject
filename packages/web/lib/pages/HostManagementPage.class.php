@@ -379,6 +379,7 @@ class HostManagementPage extends FOGPage {
 		// Get the associated Groups.
 		// Title - set title for page title in window
 		$this->title = sprintf('%s: %s', 'Edit', $Host->get('name'));
+		if ($Host->get('pub_key') || $Host->get('sec_tok'))	$this->form = '<center><div id="resetSecDataBox"></div><input type="button" id="resetSecData" /></center><br/>';
 		if ($_REQUEST['approveHost']) {
 			$Host->set('pending',null);
 			if ($Host->save()) $this->FOGCore->setMessage(_('Host approved'));

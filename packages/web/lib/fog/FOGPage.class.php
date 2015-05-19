@@ -760,20 +760,25 @@ abstract class FOGPage extends FOGBase {
 			// Get the host or error out
 			$Host = $this->getHostItem(true);
 			// Store the key and potential token
-			$key = trim(bin2hex($this->certDecrypt($_REQUEST['sym_key'])));
-			$token = trim(bin2hex($this->certDecrypt($_REQUEST['token'])));
+			$key = bin2hex(trim($this->certDecrypt($_REQUEST['sym_key'])));
+			$token = bin2hex(trim($this->certDecrypt($_REQUEST['token'])));
 			// Test if the sec_tok is valid and the received token don't match error out
 			if ($Host->get('sec_tok') && $token !== $Host->get('sec_tok')) throw new Exception('#!ist');
 			// generate next token
-			$Host->set('sec_tok',$this->createSecToken())->set('sec_time',$this->nice_date()->format('Y-m-d H:i:s'))->save();
+			$Host->set('sec_tok',$this->createSecToken())
+				->set('sec_time',date('Y-m-d H:i:s'));
 			if ($Host->get('sec_tok') && !$key) throw new Exception('#!ihc');
-			$Host->set('pub_key',$key)->save();
+			$Host->set('pub_key',$key)
+				->save();
 			print '#!en='.$this->certEncrypt("#!ok\n#token=".$Host->get('sec_tok'),$Host);
 		}
 		catch (Exception $e) {
 				print  $e->getMessage();
 		}
 		exit;
+	}
+	public function clearAES() {
+		$this->getClass('Host',$_REQUEST['id'])->set('pub_key',null)->set('sec_tok',null)->save();
 	}
 	/** delete_post() actually delete the items
 	  * @return void

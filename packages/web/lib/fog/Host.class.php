@@ -796,6 +796,11 @@ class Host extends FOGController {
 			$TaskType = new TaskType($taskTypeID);
 			// Imaging types.
 			$imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17,24)) ? true : false;
+			if ($imagingTypes) {
+				$this->set('sec_tok',null)
+					 ->set('pub_key',null)
+					 ->save();
+			}
 			$isUpload = $TaskType->isUpload();
 			// Image: Variables
 			$Image = $this->getImage();
