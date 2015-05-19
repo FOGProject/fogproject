@@ -765,6 +765,7 @@ abstract class FOGPage extends FOGBase {
 			// Test if the sec_tok is valid and the received token don't match error out
 			if ($Host->get('sec_tok') && $token !== $Host->get('sec_tok')) throw new Exception('#!ist');
 			// generate next token
+			$Host->load();
 			$Host->set('sec_tok',$this->createSecToken())->set('sec_time',$this->nice_date()->format('Y-m-d H:i:s'))->save();
 			if ($Host->get('sec_tok') && !$key) throw new Exception('#!ihc');
 			$Host->set('pub_key',$key)->save();
