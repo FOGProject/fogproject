@@ -66,12 +66,12 @@ class Host extends FOGController {
 	}
 	// Load the items
 	public function load($field = 'id') {
+		parent::load($field);
 		$this->getMACAddress();
 		$this->getActiveSnapinJob();
 		foreach(get_class_methods($this) AS $method) {
 			if (strlen($method) > 5 && (strpos($method,'load') !== false)) $this->$method();
 		}
-		parent::load($field);
 	}
 	// Snapins
 	public function getImage() {
