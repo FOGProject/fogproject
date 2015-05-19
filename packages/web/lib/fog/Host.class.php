@@ -66,12 +66,12 @@ class Host extends FOGController {
 	}
 	// Load the items
 	public function load($field = 'id') {
-		parent::load($field);
 		$this->getMACAddress();
 		$this->getActiveSnapinJob();
 		foreach(get_class_methods($this) AS $method) {
 			if (strlen($method) > 5 && (strpos($method,'load') !== false)) $this->$method();
 		}
+		parent::load($field);
 	}
 	// Snapins
 	public function getImage() {
@@ -207,8 +207,7 @@ class Host extends FOGController {
 		if (!$this->isLoaded('modules') && $this->get('id'))
 		{
 			$ModuleIDs = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','moduleID');
-			foreach($this->getClass('ModuleManager')->find(array('id' => $ModuleIDs)) AS $Module)
-				$this->add('modules', $Module);
+			$this->set('modules',$this->getClass('ModuleManager')->find(array('id' => $ModuleIDs)));
 		}
 		return $this;
 	}
