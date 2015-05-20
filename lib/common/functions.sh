@@ -473,7 +473,7 @@ createSSLCA() {
 		mkdir -p "/opt/fog/snapins/CA" &>/dev/null;
 		echo -n "Creating SSL CA...";
 		openssl genrsa -out "/opt/fog/snapins/CA/.fogCA.key" &>/dev/null;
-		openssl req -x509 -new -nodes -key /opt/fog/snapins/CA/.fogCA.key -days 3650 -out /opt/fog/snapins/CA/.fogCA.pem &> << EOF
+		openssl req -x509 -new -nodes -key /opt/fog/snapins/CA/.fogCA.key -days 3650 -out /opt/fog/snapins/CA/.fogCA.pem &>/dev/null << EOF
 .
 .
 .
