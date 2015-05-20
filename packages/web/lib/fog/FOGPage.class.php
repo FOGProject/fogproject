@@ -153,11 +153,9 @@ abstract class FOGPage extends FOGBase {
 					}
 				}
 				$result .= '</tbody></table>';
-				if (count($this->data) || (($defaultScreen == 'search' && $_REQUEST['sub'] == 'search') || !$_REQUEST['sub'])) {
-					if (in_array($_REQUEST['node'],$this->searchPages) && !$isMobile && (in_array($_REQUEST['sub'],array('list','search')) || !$_REQUEST['sub'])) {
-						if ($this->childClass == 'Host') $result .= '<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>';
-						$result .= '<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value=""autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>';
-					}
+				if ((in_array($_REQUEST['node'],$this->searchPages) && !$isMobile) && count($this->data) || in_array($_REQUEST['sub'],array('search','list')) || !$_REQUEST['sub']) {
+					if ($this->childClass == 'Host') $result .= '<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>';
+					$result .= '<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value=""autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>';
 				}
 			}
 			// Return output
