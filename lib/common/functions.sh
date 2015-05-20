@@ -466,3 +466,27 @@ displayBanner()
 	echo "";
 	
 }
+
+createSSLCA() {
+	echo "";
+	cwd=`pwd`;
+	if [ ! -d "/opt/fog/snapins/CA" ]; then
+		echo -n "Creating SSL CA...";
+		mkdir /opt/fog/snapins/CA &>/dev/null;
+		cd /opt/fog/snapins/CA &>/dev/null;
+		openssl req -x509 -new -nodes -key .fogCA.key -days 3650 -out .fogCA.pem &>/dev/null;
+		openssl req -x509 -new -nodes -key .fogCA.key -days 3650 -out .fogCA.pem &>/dev/null << EOF
+.
+.
+.
+.
+.
+FOG
+.
+EOF
+		echo "OK";
+	fi
+	cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem
+	chown $apacheuser:$apacheuser $webdirdest/management/other/ca.cert.pem
+	cd $cwd;
+}
