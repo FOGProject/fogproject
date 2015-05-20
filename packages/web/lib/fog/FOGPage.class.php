@@ -101,6 +101,7 @@ abstract class FOGPage extends FOGBase {
 	public function process() {
 		try {
 			$defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
+			$defaultScreens = array('search','list');
 			$result = '';
 			// Error checking
 			if (!count($this->templates)) throw new Exception('Requires templates to process');
@@ -153,7 +154,7 @@ abstract class FOGPage extends FOGBase {
 					}
 				}
 				$result .= '</tbody></table>';
-				if ((in_array($_REQUEST['node'],$this->searchPages) && !$isMobile) && count($this->data) || in_array($_REQUEST['sub'],array('search','list')) || !$_REQUEST['sub']) {
+				if ((!$_REQUEST['sub'] || ($_REQUEST['sub'] && in_array($_REQUEST['sub'],$defaultScreens) && in_array($_REQUEST['node'],$this->searchPages))) && !$isMobile) {
 					if ($this->childClass == 'Host') $result .= '<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>';
 					$result .= '<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value=""autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>';
 				}
@@ -249,7 +250,7 @@ abstract class FOGPage extends FOGBase {
 		printf("%s",'<div class="advanced-settings">');
 		printf("<h2>%s</h2>",_('Advanced Settings'));
 		printf("%s%s%s <u>%s</u> %s%s",'<p class="hideFromDebug">','<input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">',_('Schedule'),_('Shutdown'),_('after task completion'),'</label></p>');
-		if (!$TaskType->isDebug() && $TaskType->get('id') != 11) {
+		if (!$TaskType->isDebug() && !$TaskType->get('id') == 11) {
 			printf("%s%s%s",'<p><input type="checkbox" name="isDebugTask" id="isDebugTask" autocomplete="off" /><label for="isDebugTask">',_('Schedule task as a debug task'),'</label></p>');
 			printf("%s%s %s%s%s",'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked/><label for="scheduleInstant">',_('Schedule '),'<u>',_('Instant Deployment'),'</u></label></p>');
 			printf("%s%s %s%s%s",'<p class="hideFromDebug"><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off" /><label for="scheduleSingle">',_('Schedule '),'<u>',_('Delayed Deployment'),'</u></label></p>');
@@ -261,7 +262,7 @@ abstract class FOGPage extends FOGBase {
 			printf("%s",'<input type="text" name="scheduleCronDOM" id="scheduleCronDOM" placeholder="dom" autocomplete="off" />');
 			printf("%s",'<input type="text" name="scheduleCronMonth" id="scheduleCronMonth" placeholder="month" autocomplete="off" />');
 			printf("%s",'<input type="text" name="scheduleCronDOW" id="scheduleCronDOW" placeholder="dow" autocomplete="off" /></p>');
-		} else if ($TaskType->isDebug()) printf("%s%s %s%s%s",'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked/><label for="scheduleInstant">',_('Schedule '),'<u>',_('Instant Deployment'),'</u></label></p>');
+		} else if ($TaskType->isDebug() || $TaskType->get('id') == 11) printf("%s%s %s%s%s",'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked/><label for="scheduleInstant">',_('Schedule '),'<u>',_('Instant Deployment'),'</u></label></p>');
 		if ($TaskType->get('id') == 11) {
 			printf("<p>%s</p>",_('Which account would you like to reset the pasword for'));
 			printf("%s",'<input type="text" name="account" value="Administrator" />');
@@ -352,17 +353,18 @@ abstract class FOGPage extends FOGBase {
 					}
 					if (count($Tasks) > 0) throw new Exception(_('One or more hosts are currently in a task'));
 				}
-				if ($TaskType->get('id') == 11 && !trim($_REQUEST['account'])) throw New Exception(_('Password reset requires a user account to reset'));
+				$passreset = trim($_REQUEST['account']);
+				if ($TaskType->get('id') == 11 && empty($passreset)) throw New Exception(_('Password reset requires a user account to reset'));
 				try {
 					if ($_REQUEST['scheduleType'] == 'instant') {
 						if ($Data instanceof Group) {
 							foreach((array)$Data->get('hosts') AS $Host) {
 								if ($Host && $Host->isValid() && !$Host->get('pending')) {
-									if ($Host->createImagePackage($TaskType->get('id'),$taskName,$enableShutdown,$enableDebug,$enableSnapins,$Data instanceof Group,$_SESSION['FOG_USERNAME'],trim($_REQUEST['account']))) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
+									if ($Host->createImagePackage($TaskType->get('id'),$taskName,$enableShutdown,$enableDebug,$enableSnapins,$Data instanceof Group,$_SESSION['FOG_USERNAME'],$passreset)) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
 								}
 							}
 						} else if ($Data instanceof Host) {
-							if ($Data->createImagePackage($TaskType->get('id'),$taskName,$enableShutdown,$enableDebug,$enableSnapins,$Data instanceof Group,$_SESSION['FOG_USERNAME'],trim($_REQUEST['account']))) $success[] = sprintf('<li>%s &ndash; %s</li>',$Data->get('name'),$Data->getImage()->get('name'));
+							if ($Data->createImagePackage($TaskType->get('id'),$taskName,$enableShutdown,$enableDebug,$enableSnapins,$Data instanceof Group,$_SESSION['FOG_USERNAME'],$passreset)) $success[] = sprintf('<li>%s &ndash; %s</li>',$Data->get('name'),$Data->getImage()->get('name'));
 						}
 					} else if ($_REQUEST['scheduleType'] == 'single') {
 						if ($scheduleDeployTime < $this->nice_date()) throw new Exception(sprintf('%s<br>%s: %s',_('Scheduled date is in the past'),_('Date'),$scheduleDeployTime->format('Y/d/m H:i')));
