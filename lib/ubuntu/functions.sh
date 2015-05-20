@@ -429,11 +429,11 @@ class Config {
 	  */
 	private static function db_settings() {
 		define('DATABASE_TYPE',		'mysql');	// mysql or oracle
-		define('DATABASE_HOST',		'${dbhost}');
+		define('DATABASE_HOST',		'$dbhost');
 		define('DATABASE_NAME',		'fog');
-		define('DATABASE_USERNAME',		'${dbuser}');
-		define('DATABASE_PASSWORD',		'${snmysqlpass}');
-		define('DATABASE_CONNTYPE', ${mysql_conntype});
+		define('DATABASE_USERNAME',		'$dbuser');
+		define('DATABASE_PASSWORD',		'$snmysqlpass');
+		define('DATABASE_CONNTYPE', $mysql_conntype);
 	}
 	/** @function svc_setting() Defines the service settings.
 	  * (e.g. FOGMulticastManager,
