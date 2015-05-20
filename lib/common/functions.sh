@@ -469,13 +469,12 @@ displayBanner()
 
 createSSLCA() {
 	echo "";
-	cwd=`pwd`;
-	if [ ! -d "/opt/fog/snapins/CA" ]; then
+	if [ ! -d "/opt/fog/snapins/CA" -o ! -f "/opt/fog/snapins/CA/.fogCA.key" ]; then
+		mkdir -p "/opt/fog/snapins/CA" &>/dev/null;
 		echo -n "Creating SSL CA...";
-		mkdir /opt/fog/snapins/CA &>/dev/null;
-		cd /opt/fog/snapins/CA &>/dev/null;
-		openssl req -x509 -new -nodes -key .fogCA.key -days 3650 -out .fogCA.pem &>/dev/null;
-		openssl req -x509 -new -nodes -key .fogCA.key -days 3650 -out .fogCA.pem &>/dev/null << EOF
+		openssl genrsa -out /opt/fog/snapins/CA/.fogCA.key &>/dev/null;
+		openssl req -x509 -new -nodes -key /opt/fog/snapins/CA/.fogCA.key -days 3650 -out /opt/fog/snapins/CA/.fogCA.pem &>/dev/null;
+		openssl req -x509 -new -nodes -key /opt/fog/snapins/CA/.fogCA.key -days 3650 -out /opt/fog/snapins/CA/.fogCA.pem &>/dev/null << EOF
 .
 .
 .
@@ -486,7 +485,6 @@ FOG
 EOF
 		echo "OK";
 	fi
-	cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem
-	chown $apacheuser:$apacheuser $webdirdest/management/other/ca.cert.pem
-	cd $cwd;
+	cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem &>/dev/null
+	chown $apacheuser:$apacheuser $webdirdest/management/other/ca.cert.pem &>/dev/null
 }
