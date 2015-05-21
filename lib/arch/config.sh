@@ -35,7 +35,8 @@ initdSDfullname="FOGScheduler.service";
 initdSRfullname="FOGSnapinReplicator.service";
 
 # where do the php files go?
-webdirdest="/srv/http/fog";
+docroot="/srv/http/";
+webdirdest="${docroot}fog";
 webredirect="${webdirdest}/index.php";
 apacheuser="http";
 

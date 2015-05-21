@@ -386,6 +386,8 @@ configureHttpd()
 	sleep 2;
 	systemctl status httpd php-fpm >/dev/null 2>&1;
 	ret=$?;
+	etcconf="/etc/httpd/conf.d/fog.conf";
+	systemctl="yes";
 	if [ "$ret" != "0" ]
 	then
 		echo "Failed! ($ret)";

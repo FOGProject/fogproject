@@ -62,7 +62,8 @@ else
 fi
 
 # where do the php files go?
-webdirdest="/var/www/html/fog";
+docroot="/var/www/html/";
+webdirdest="${docroot}fog";
 webredirect="${webdirdest}/index.php";
 apacheuser="apache";
 
