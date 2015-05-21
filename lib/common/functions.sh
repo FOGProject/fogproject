@@ -514,17 +514,16 @@ EOF
     ServerName $ipaddress
 	DocumentRoot $docroot
 	RewriteEngine On
-	RewriteCond %{REQUEST_URI} ^/fog/ [NC]
-	RewriteRule ^ca.cert.der$ - [L]
-	RewriteRule /(.*) https://$ipaddress/fog/ [P,L]
+	RewriteRule /management/other/ca.cert.der$ http://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]
+	RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]
 </VirtualHost>
 <VirtualHost $ipaddress:443>
     Servername $ipaddress
-	DocumentRoot $docroot
-	SSLEngine On
-	SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt
-	SSLCertificateKeyFile /opt/fog/snapins/ssl/.srvprivate.key
-	SSLCertificateChainFile $webdirdest/management/other/ca.cert.der
+    DocumentRoot $docroot
+    SSLEngine On
+    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt
+    SSLCertificateKeyFile /opt/fog/snapins/ssl/.srvprivate.key
+    SSLCertificateChainFile $webdirdest/management/other/ca.cert.der
 </VirtualHost>" > "$etcconf";
 		if [ "$a2ensite" == "yes" ]; then
 			a2enmod rewrite &> /dev/null;
