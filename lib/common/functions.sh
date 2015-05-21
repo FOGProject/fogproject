@@ -504,11 +504,11 @@ EOF
 	mkdir -p $webdirdest/management/other/ssl &>/dev/null;
 	openssl x509 -req -in "/opt/fog/snapins/ssl/fog.csr" -CA "/opt/fog/snapins/CA/.fogCA.pem" -CAkey "/opt/fog/snapins/CA/.fogCA.key" -CAcreateserial -out "$webdirdest/management/other/ssl/srvpublic.key" -days 3650 &>/dev/null
 	echo "OK";
-	echo "  * Creating auth pub key and cert...";
+	echo -n "  * Creating auth pub key and cert...";
 	cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem &>/dev/null
 	openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der &>/dev/null;
 	echo "OK";
-	echo "  * Resetting Permissions...";
+	echo -n "  * Resetting SSL Permissions...";
 	chown -R $apacheuser:$apacheuser $webdirdest/management/other &>/dev/null;
 	echo "OK";
 }
