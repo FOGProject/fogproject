@@ -522,7 +522,7 @@ EOF
     Servername $ipaddress
 	DocumentRoot $docroot
 	SSLEngine On
-	SSLCertificateFile $webdirdest/management/other/srvpublic.crt
+	SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt
 	SSLCertificateKeyFile /opt/fog/snapins/ssl/.srvprivate.key
 	SSLCertificateChainFile $webdirdest/management/other/ca.cert.der
 </VirtualHost>" > "$etcconf";
