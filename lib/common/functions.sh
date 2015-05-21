@@ -484,6 +484,6 @@ FOG
 EOF
 		echo "OK";
 	fi
-	cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem &>/dev/null
+	cp /opt/fog/snapins/CA/.fogCA.key $webdirdest/management/other/ca.cert.pem &>/dev/null
 	chown $apacheuser:$apacheuser $webdirdest/management/other/ca.cert.pem &>/dev/null
 }

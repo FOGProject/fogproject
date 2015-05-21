@@ -339,13 +339,7 @@ class FOGCore extends FOGBase {
 		$pub_key = @openssl_pkey_get_private(file_get_contents($priv_path.'.srvprivate.key'));
 		if ($pub_key !== false) {
 			$dn = array(
-				'countryName' => '',
-				'stateOrPrivinceName' => '',
-				'localityName' => '',
-				'organizationName' => '',
-				'organizationalUnitName' => '',
 				'commonName' => 'FOG',
-				'emailAddress' => '',
 			);
 			$csr = @openssl_csr_new($dn, $privateKey);
 			$sscert = @openssl_csr_sign($csr,$pub_path.'../ca.cert.pem',$priv_path.'.srvprivate.key',3650);
