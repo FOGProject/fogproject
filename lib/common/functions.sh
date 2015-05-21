@@ -527,6 +527,7 @@ EOF
 </VirtualHost>" > "$etcconf";
 		if [ "$a2ensite" == "yes" ]; then
 			a2enmod rewrite &> /dev/null;
+			a2enmod ssl &> /dev/null;
 			a2ensite "001-fog" &> /dev/null;
 			service apache2 restart &> /dev/null;
 		elif [ "$systemctl" == "yes" ]; then
