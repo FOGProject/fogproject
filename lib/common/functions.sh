@@ -513,9 +513,9 @@ EOF
 		echo "<VirtualHost $ipaddress:80>
     ServerName $ipaddress
 	DocumentRoot $docroot
-	RewriteEngine On
-	RewriteRule /management/other/ca.cert.der$ - [L]
-    RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]
+	#RewriteEngine On
+	#RewriteRule /management/other/ca.cert.der$ - [L]
+    #RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]
 </VirtualHost>
 <VirtualHost $ipaddress:443>
     Servername $ipaddress
