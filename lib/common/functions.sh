@@ -472,7 +472,7 @@ createSSLCA() {
 	if [ ! -d "/opt/fog/snapins/CA" -o ! -f "/opt/fog/snapins/CA/.fogCA.key" ]; then
 		mkdir -p "/opt/fog/snapins/CA" &>/dev/null;
 		echo -n "  * Creating SSL CA...";
-		openssl genrsa -out "/opt/fog/snapins/CA/.fogCA.key" &>/dev/null;
+		openssl genrsa -out "/opt/fog/snapins/CA/.fogCA.key" 4096 &>/dev/null;
 		openssl req -x509 -new -nodes -key /opt/fog/snapins/CA/.fogCA.key -days 3650 -out /opt/fog/snapins/CA/.fogCA.pem &>/dev/null << EOF
 .
 .
@@ -482,8 +482,22 @@ createSSLCA() {
 FOG
 .
 EOF
+		if [ ! -d "/opt/fog/snapins/ssl" -o ! -f "/opt/fog/snapins/ssl/.srvprivate.key" ]; then
+			openssl genrsa -out "/opt/fog/snapins/ssl/.srvprivate.key" 4096 &>/dev/null;
+			openssl req -new -key "/opt/fog/snapins/ssl/.srvprivate.key" -out "/opt/fog/snapins/ssl/fog.csr" &> /dev/null << EOF
+.
+.
+.
+.
+.
+FOG
+.
+EOF
+			openssl x509 -req -in "/opt/fog/snapins/ssl/fog.csr" -CA "/opt/fog/snapins/CA/.fogCA.pem" -CAkey "/opt/fog/snapins/CA/.fogCA.key" -CAcreateserial -out "$webdirdest/management/other/srvpublic.key" -days 3650 &>/dev/null
 		echo "OK";
+		fi
 	fi
-	cp /opt/fog/snapins/CA/.fogCA.key $webdirdest/management/other/ca.cert.pem &>/dev/null
+	cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem &>/dev/null
 	chown $apacheuser:$apacheuser $webdirdest/management/other/ca.cert.pem &>/dev/null
+	chown $apacheuser:$apacheuser $webdirdest/management/other/ssl/srvpublic.key &>/dev/null
 }

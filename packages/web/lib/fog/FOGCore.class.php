@@ -309,40 +309,6 @@ class FOGCore extends FOGBase {
 			die($e->getMessage());
 		}
 	}
-	/**
-	* createKeyPair($keybits, $keytype = OPENSSL_KEYTYPE_RSA)
-	* @param $keybits the bitsize of the key to be generated.
-	* @param $keytype the type of key to use.
-	* @return void
-	**/
-	public function createKeyPair($keybits = 4096,$keytype = OPENSSL_KEYTYPE_RSA) {
-		$pub_path = '/'.trim(BASEPATH,'/').'/management/other/ssl/';
-		$priv_path = '/'.trim($this->getSetting('FOG_SNAPINDIR'),'/');
-		$priv_path = !$priv_path ? '/opt/fog/snapins/ssl/' : $priv_path.'/ssl/';
-		if (!is_dir($priv_path)) mkdir($priv_path);
-		if (!is_dir($pub_path)) mkdir($pub_path);
-		else if (!file_exists("$priv_path.srvprivate.key")) {
-			// Key settings as needed
-			$privateKey = openssl_pkey_new(array(
-				'private_key_bits' => $keybits,
-				'private_key_type' => $keytype,
-			));
-			// Save the private key to a file.
-			openssl_pkey_export_to_file($privateKey,"{$priv_path}.srvprivate.key");
-			// Generate the public key for the private key.
-			$pub_key = openssl_pkey_get_details($privateKey);
-			// Save the public key in location
-			file_put_contents($pub_path.'srvpublic.key',$pub_key['key']);
-			// Free the private key
-			openssl_free_key($privateKey);
-		}
-		$pub_key = openssl_pkey_get_private(file_get_contents($priv_path.'.srvprivate.key'));
-		if ($pub_key !== false) {
-			$pub_key = openssl_pkey_get_details($pub_key);
-			file_put_contents($pub_path.'srvpublic.key',$pub_key['key']);
-			chmod($pub_path.'srvpublic.key',0600);
-		}
-	}
 	public function setSessionEnv() {
 		/** This allows the database concatination system based on number of hosts */
 		$this->DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION[HostCount]})")->fetch()->get();
