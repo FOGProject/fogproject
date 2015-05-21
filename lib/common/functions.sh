@@ -476,7 +476,7 @@ createSSLCA() {
 .
 .
 .
-FOG Server CA
+${ipaddress}CA
 .
 EOF
 		echo "OK";
@@ -489,7 +489,7 @@ EOF
 .
 .
 .
-FOG
+$ipaddress
 .
 
 
