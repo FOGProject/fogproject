@@ -503,7 +503,5 @@ EOF
 	fi
 	cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem &>/dev/null
 	openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der &>/dev/null;
-	chown $apacheuser:$apacheuser $webdirdest/management/other/ca.cert.pem &>/dev/null
-	chown $apacheuser:$apacheuser $webdirdest/management/other/ca.cert.der &>/dev/null
-	chown $apacheuser:$apacheuser $webdirdest/management/other/ssl/srvpublic.key &>/dev/null
+	chown -R $apacheuser:$apacheuser $webdirdest/management/other &>/dev/null;
 }
