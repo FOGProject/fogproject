@@ -502,7 +502,8 @@ EOF
 	fi
 	echo -n "  * Creating SSL Public Key...";
 	mkdir -p $webdirdest/management/other/ssl &>/dev/null;
-	openssl x509 -req -in "/opt/fog/snapins/ssl/fog.csr" -CA "/opt/fog/snapins/CA/.fogCA.pem" -CAkey "/opt/fog/snapins/CA/.fogCA.key" -CAcreateserial -out "$webdirdest/management/other/ssl/srvpublic.key" -days 3650 &>/dev/null
+	openssl x509 -req -in "/opt/fog/snapins/ssl/fog.csr" -CA "/opt/fog/snapins/CA/.fogCA.pem" -CAkey "/opt/fog/snapins/CA/.fogCA.key" -CAcreateserial -out "$webdirdest/management/other/ssl/srvpublic.crt" -days 3650 &>/dev/null
+	openssl x509 -pubkey -in "$webdirdest/management/other/ssl/srvpublic.crt" -out "$webdirdest/management/other/ssl/srvpublic.key" &>/dev/null;
 	echo "OK";
 	echo -n "  * Creating auth pub key and cert...";
 	cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem &>/dev/null
