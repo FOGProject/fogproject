@@ -406,9 +406,7 @@ clearScreen()
 	echo -e "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
 }
 
-writeUpdateFile()
-{
-	
+writeUpdateFile() {
 	tmpDte=`date +%c`;
 	echo "## Created by the FOG Installer
 ## Version: $version
@@ -468,7 +466,7 @@ displayBanner()
 }
 
 createSSLCA() {
-	if [ ! -d "/opt/fog/snapins/CA" -o ! -f "/opt/fog/snapins/CA/.fogCA.key" ]; then
+	if [ -z "$caCreated" ]; then
 		mkdir -p "/opt/fog/snapins/CA" &>/dev/null;
 		echo -n "  * Creating SSL CA...";
 		openssl genrsa -out "/opt/fog/snapins/CA/.fogCA.key" 4096 &>/dev/null;
@@ -478,12 +476,10 @@ createSSLCA() {
 .
 .
 .
-FOG
+FOG Server CA
 .
 EOF
 		echo "OK";
-	fi
-	if [ ! -d "/opt/fog/snapins/ssl" -o ! -f "/opt/fog/snapins/ssl/.srvprivate.key" ]; then
 		echo -n "  * Creating SSL Private Key..."
 		mkdir -p /opt/fog/snapins/ssl &>/dev/null;
 		openssl genrsa -out "/opt/fog/snapins/ssl/.srvprivate.key" 4096 &>/dev/null;
@@ -499,11 +495,11 @@ FOG
 
 EOF
 		echo "OK";
+		echo "caCreated=\"yes\"" >> "$fogprogramdir/.fogsettings";
 	fi
-	echo -n "  * Creating SSL Public Key...";
+	echo -n "  * Creating SSL Certificate...";
 	mkdir -p $webdirdest/management/other/ssl &>/dev/null;
 	openssl x509 -req -in "/opt/fog/snapins/ssl/fog.csr" -CA "/opt/fog/snapins/CA/.fogCA.pem" -CAkey "/opt/fog/snapins/CA/.fogCA.key" -CAcreateserial -out "$webdirdest/management/other/ssl/srvpublic.crt" -days 3650 &>/dev/null
-	openssl x509 -pubkey -noout -in "$webdirdest/management/other/ssl/srvpublic.crt" &> "$webdirdest/management/other/ssl/srvpublic.key";
 	echo "OK";
 	echo -n "  * Creating auth pub key and cert...";
 	cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem &>/dev/null
