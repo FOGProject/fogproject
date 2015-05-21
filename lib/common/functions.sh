@@ -493,7 +493,8 @@ EOF
 FOG
 .
 EOF
-			openssl x509 -req -in "/opt/fog/snapins/ssl/fog.csr" -CA "/opt/fog/snapins/CA/.fogCA.pem" -CAkey "/opt/fog/snapins/CA/.fogCA.key" -CAcreateserial -out "$webdirdest/management/other/srvpublic.key" -days 3650 &>/dev/null
+			mkdir $webdirdest/management/other/ssl &>/dev/null;
+			openssl x509 -req -in "/opt/fog/snapins/ssl/fog.csr" -CA "/opt/fog/snapins/CA/.fogCA.pem" -CAkey "/opt/fog/snapins/CA/.fogCA.key" -CAcreateserial -out "$webdirdest/management/other/ssl/srvpublic.key" -days 3650 &>/dev/null
 		echo "OK";
 		fi
 	fi
