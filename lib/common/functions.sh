@@ -485,6 +485,7 @@ EOF
 		echo "OK";
 	fi
 	if [ ! -d "/opt/fog/snapins/ssl" -o ! -f "/opt/fog/snapins/ssl/.srvprivate.key" ]; then
+		mkdir -p /opt/fog/snapins/ssl &>/dev/null;
 		openssl genrsa -out "/opt/fog/snapins/ssl/.srvprivate.key" 4096 &>/dev/null;
 		openssl req -new -key "/opt/fog/snapins/ssl/.srvprivate.key" -out "/opt/fog/snapins/ssl/fog.csr" &> /dev/null << EOF
 .
@@ -495,7 +496,7 @@ EOF
 FOG
 .
 EOF
-		mkdir $webdirdest/management/other/ssl &>/dev/null;
+		mkdir -p $webdirdest/management/other/ssl &>/dev/null;
 		openssl x509 -req -in "/opt/fog/snapins/ssl/fog.csr" -CA "/opt/fog/snapins/CA/.fogCA.pem" -CAkey "/opt/fog/snapins/CA/.fogCA.key" -CAcreateserial -out "$webdirdest/management/other/ssl/srvpublic.key" -days 3650 &>/dev/null
 	fi
 	cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem &>/dev/null
