@@ -514,8 +514,8 @@ EOF
     ServerName $ipaddress
 	DocumentRoot $docroot
 	RewriteEngine On
-	RewriteRule /management/other/ca.cert.der$ http://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]
-	RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]
+	RewriteRule /management/other/ca.cert.der$ - [L]
+    RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]
 </VirtualHost>
 <VirtualHost $ipaddress:443>
     Servername $ipaddress
