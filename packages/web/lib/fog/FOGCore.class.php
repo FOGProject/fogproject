@@ -328,24 +328,17 @@ class FOGCore extends FOGBase {
 				'private_key_type' => $keytype,
 			));
 			// Save the private key to a file.
-			@openssl_pkey_export_to_file($privateKey,"{$priv_path}.srvprivate.key");
+			openssl_pkey_export_to_file($privateKey,"{$priv_path}.srvprivate.key");
 			// Generate the public key for the private key.
-			$pub_key = @openssl_pkey_get_details($privateKey);
+			$pub_key = openssl_pkey_get_details($privateKey);
 			// Save the public key in location
 			file_put_contents($pub_path.'srvpublic.key',$pub_key['key']);
 			// Free the private key
-			@openssl_free_key($privateKey);
+			openssl_free_key($privateKey);
 		}
-		$pub_key = @openssl_pkey_get_private(file_get_contents($priv_path.'.srvprivate.key'));
+		$pub_key = openssl_pkey_get_private(file_get_contents($priv_path.'.srvprivate.key'));
 		if ($pub_key !== false) {
-			$dn = array(
-				'commonName' => 'FOG',
-			);
-			$csr = @openssl_csr_new($dn, $privateKey);
-			$sscert = @openssl_csr_sign($csr,$pub_path.'../ca.cert.pem',$priv_path.'.srvprivate.key',3650);
-			@openssl_csr_export_to_file($csr,$pub_path.'srvpublic.csr');
-			@openssl_x509_export_to_file($sscert,$pub_path.'srvpublic.crt');
-			$pub_key = @openssl_pkey_get_details($pub_key);
+			$pub_key = openssl_pkey_get_details($pub_key);
 			file_put_contents($pub_path.'srvpublic.key',$pub_key['key']);
 			chmod($pub_path.'srvpublic.key',0600);
 		}
