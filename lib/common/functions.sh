@@ -482,9 +482,11 @@ createSSLCA() {
 FOG
 .
 EOF
-		if [ ! -d "/opt/fog/snapins/ssl" -o ! -f "/opt/fog/snapins/ssl/.srvprivate.key" ]; then
-			openssl genrsa -out "/opt/fog/snapins/ssl/.srvprivate.key" 4096 &>/dev/null;
-			openssl req -new -key "/opt/fog/snapins/ssl/.srvprivate.key" -out "/opt/fog/snapins/ssl/fog.csr" &> /dev/null << EOF
+		echo "OK";
+	fi
+	if [ ! -d "/opt/fog/snapins/ssl" -o ! -f "/opt/fog/snapins/ssl/.srvprivate.key" ]; then
+		openssl genrsa -out "/opt/fog/snapins/ssl/.srvprivate.key" 4096 &>/dev/null;
+		openssl req -new -key "/opt/fog/snapins/ssl/.srvprivate.key" -out "/opt/fog/snapins/ssl/fog.csr" &> /dev/null << EOF
 .
 .
 .
@@ -493,12 +495,10 @@ EOF
 FOG
 .
 EOF
-			mkdir $webdirdest/management/other/ssl &>/dev/null;
-			openssl x509 -req -in "/opt/fog/snapins/ssl/fog.csr" -CA "/opt/fog/snapins/CA/.fogCA.pem" -CAkey "/opt/fog/snapins/CA/.fogCA.key" -CAcreateserial -out "$webdirdest/management/other/ssl/srvpublic.key" -days 3650 &>/dev/null
-		echo "OK";
-		fi
+		mkdir $webdirdest/management/other/ssl &>/dev/null;
+		openssl x509 -req -in "/opt/fog/snapins/ssl/fog.csr" -CA "/opt/fog/snapins/CA/.fogCA.pem" -CAkey "/opt/fog/snapins/CA/.fogCA.key" -CAcreateserial -out "$webdirdest/management/other/ssl/srvpublic.key" -days 3650 &>/dev/null
 	fi
-	cp /opt/fog/snapins/CA/.fogCA. $webdirdest/management/other/ca.cert.pem &>/dev/null
+	cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem &>/dev/null
 	openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der &>/dev/null;
 	chown $apacheuser:$apacheuser $webdirdest/management/other/ca.cert.pem &>/dev/null
 	chown $apacheuser:$apacheuser $webdirdest/management/other/ca.cert.der &>/dev/null
