@@ -466,7 +466,7 @@ displayBanner()
 }
 
 createSSLCA() {
-	if [ -z "$caCreated" ]; then
+	if [ "$caCreated" != "yes" ]; then
 		mkdir -p "/opt/fog/snapins/CA" &>/dev/null;
 		echo -n "  * Creating SSL CA...";
 		openssl genrsa -out "/opt/fog/snapins/CA/.fogCA.key" 4096 &>/dev/null;
@@ -508,7 +508,7 @@ EOF
 	echo -n "  * Resetting SSL Permissions...";
 	chown -R $apacheuser:$apacheuser $webdirdest/management/other &>/dev/null;
 	echo "OK";
-	if [ -z "$fogVhostCreated" ]; then
+	if [ "$fogVhostCreated" != "yes" ]; then
 		echo -n "  * Setting up SSL FOG Server...";
 		echo "<VirtualHost $ipaddress:80>
     ServerName $ipaddress
@@ -526,11 +526,11 @@ EOF
 	SSLCertificateKeyFile /opt/fog/snapins/ssl/.srvprivate.key
 	SSLCertificateChainFile $webdirdest/management/other/ca.cert.der
 </VirtualHost>" > "$etcconf";
-		if [ ! -z "$a2ensite" ]; then
+		if [ "$a2ensite" == "yes" ]; then
 			a2enmod rewrite &> /dev/null;
 			a2ensite "001-fog" &> /dev/null;
 			service apache2 restart &> /dev/null;
-		elif [ ! -z "$systemctl" ]; then
+		elif [ "$systemctl" == "yes" ]; then
 			systemctl restart httpd php-fpm &>/dev/null;
 		else
 			service httpd restart &> /dev/null;

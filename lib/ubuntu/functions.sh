@@ -520,7 +520,7 @@ class Config {
 		wget -O "${webdirdest}/service/ipxe/init_32.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init_32.xz" >/dev/null 2>&1
 		docroot="/var/www/";
 		etcconf="/etc/apache2/sites-available/001-fog.conf";
-		aenmod="yes";
+		a2ensite="yes";
 		if [ -d "$apachehtmlroot" ]; then
 			docroot="/var/www/html/";
 		    # check if there is a html directory in the /var/www directory
