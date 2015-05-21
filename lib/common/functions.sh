@@ -508,4 +508,34 @@ EOF
 	echo -n "  * Resetting SSL Permissions...";
 	chown -R $apacheuser:$apacheuser $webdirdest/management/other &>/dev/null;
 	echo "OK";
+	if [ -z "$fogVhostCreated" ]; then
+		echo -n "  * Setting up SSL FOG Server...";
+		echo "<VirtualHost $ipaddress:80>
+    ServerName $ipaddress
+	DocumentRoot $docroot
+	RewriteEngine On
+	RewriteCond %{REQUEST_URI} ^/fog/ [NC]
+	RewriteRule ^ca.cert.der$ - [L]
+	RewriteRule /(.*) https://$ipaddress/fog/ [P,L]
+</VirtualHost>
+<VirtualHost $ipaddress:443>
+    Servername $ipaddress
+	DocumentRoot $docroot
+	SSLEngine On
+	SSLCertificateFile $webdirdest/management/other/srvpublic.crt
+	SSLCertificateKeyFile /opt/fog/snapins/ssl/.srvprivate.key
+	SSLCertificateChainFile $webdirdest/management/other/ca.cert.der
+</VirtualHost>" > "$etcconf";
+		if [ ! -z "$a2ensite" ]; then
+			a2enmod rewrite &> /dev/null;
+			a2ensite "001-fog" &> /dev/null;
+			service apache2 restart &> /dev/null;
+		elif [ ! -z "$systemctl" ]; then
+			systemctl restart httpd php-fpm &>/dev/null;
+		else
+			service httpd restart &> /dev/null;
+		fi
+		echo "fogVhostCreated=\"yes\"" >> "$fogprogramdir/.fogsettings";
+		echo "OK";
+	fi
 }

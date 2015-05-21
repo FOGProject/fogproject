@@ -422,13 +422,20 @@ configureHttpd()
 		dbuser=$snmysqluser;
 	fi
 	echo -n "  * Setting up and starting Apache Web Server...";
-	chkconfig httpd on;
 	sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' /etc/php.ini
 	sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php.ini
-	service httpd restart >/dev/null 2>&1
-	sleep 2;
-	service httpd status >/dev/null 2>&1;
+	if [ -z "$systemctl" ]; then
+		chkconfig httpd on;
+		service httpd restart >/dev/null 2>&1
+		sleep 2;
+		service httpd status >/dev/null 2>&1;
+	else
+		systemctl enable httpd >/dev/null 2>&1;
+		systemctl restart httpd >/dev/null 2>&1;
+		systemctl status httpd >/dev/null 2>&1;
+	fi
 	ret=$?;
+	etcconf="/etc/httpd/conf.d/fog.conf";
 	if [ "$ret" != "0" ]
 	then
 		echo "Failed! ($ret)";
@@ -596,6 +603,7 @@ configureMySql()
 {
 	echo -n "  * Setting up and starting MySQL...";
 	if [ "$RHVER" == "7" -o "$linuxReleaseName" == "Fedora" ]; then
+		systemctl="yes";
 		systemctl enable mariadb.service >/dev/null 2>&1;
 		systemctl restart mariadb.service >/dev/null 2>&1;
 	else

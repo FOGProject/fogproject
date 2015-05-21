@@ -518,7 +518,11 @@ class Config {
 		wget -O "${webdirdest}/service/ipxe/bzImage32" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage32" >/dev/null 2>&1
 		wget -O "${webdirdest}/service/ipxe/init.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init.xz" >/dev/null 2>&1
 		wget -O "${webdirdest}/service/ipxe/init_32.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init_32.xz" >/dev/null 2>&1
+		docroot="/var/www/";
+		etcconf="/etc/apache2/sites-available/001-fog.conf";
+		aenmod="yes";
 		if [ -d "$apachehtmlroot" ]; then
+			docroot="/var/www/html/";
 		    # check if there is a html directory in the /var/www directory
     		# if so, then we need to create a link in there for the fog web files
     		[ ! -h ${apachehtmlroot}/fog ] && ln -s ${webdirdest} ${apachehtmlroot}/fog
