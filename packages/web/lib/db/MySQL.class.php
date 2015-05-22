@@ -64,8 +64,10 @@ class MySQL extends DatabaseManager {
 					$links = $errors = $reject = array();
 					foreach($all_links AS $link)
 						$links[] = $errors[] = $reject[] = $link;
-					if (0 == ($ready = mysqli_poll($links,$errors,$reject,1,0)))
+					if (0 == ($ready = mysqli_poll($links,$errors,$reject,1,0))) {
+						usleep(1);
 						continue;
+					}
 					foreach($links AS $k => $link) {
 						$this->queryResult = $link->reap_async_query();
 						$processed++;
