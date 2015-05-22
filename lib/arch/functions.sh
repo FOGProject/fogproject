@@ -322,6 +322,11 @@ configureMinHttpd()
 configureHttpd()
 {
 	stopInitScript;
+	systemctl="yes";
+	etcconf="/etc/httpd/conf.d/fog.conf";
+	if [ -f "$etcconf" ]; then
+		rm $etcconf &>/dev/null;
+	fi
 	if [ "$installtype" == N -a "$fogupdateloaded" != 1 ]; then
 		echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
 		read dummy;
@@ -386,8 +391,6 @@ configureHttpd()
 	sleep 2;
 	systemctl status httpd php-fpm >/dev/null 2>&1;
 	ret=$?;
-	etcconf="/etc/httpd/conf.d/fog.conf";
-	systemctl="yes";
 	if [ "$ret" != "0" ]
 	then
 		echo "Failed! ($ret)";

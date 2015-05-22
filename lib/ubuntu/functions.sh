@@ -335,6 +335,11 @@ configureMinHttpd()
 configureHttpd()
 {
 	stopInitScript;
+	docroot="/var/www/";
+	etcconf="/etc/apache2/sites-available/001-fog.conf";
+	if [ -f "$etcconf" ]; then
+		rm $etcconf &>/dev/null;
+	fi
 	if [ "$installtype" == N -a "$fogupdateloaded" != 1 ]; then
 		echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
 		read dummy;
@@ -518,8 +523,6 @@ class Config {
 		wget -O "${webdirdest}/service/ipxe/bzImage32" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage32" >/dev/null 2>&1
 		wget -O "${webdirdest}/service/ipxe/init.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init.xz" >/dev/null 2>&1
 		wget -O "${webdirdest}/service/ipxe/init_32.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init_32.xz" >/dev/null 2>&1
-		docroot="/var/www/";
-		etcconf="/etc/apache2/sites-available/001-fog.conf";
 		a2ensite="yes";
 		if [ -d "$apachehtmlroot" ]; then
 			docroot="/var/www/html/";
