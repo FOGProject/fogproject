@@ -26,8 +26,7 @@ class TaskScheduler extends FOGBase
 				if ($Host && $Host->isValid()) {
 					if ($this->validDate($Host->get('sec_time'))) {
 						$DateTime = $this->nice_date($Host->get('sec_time'));
-						if ($DateTime->format('Y-m-d H:i:s') >= $DateInterval->format('Y-m-d H:i:s'))
-							$Host->set('pub_key',null)->save();
+						if ($DateTime->format('Y-m-d H:i:s') <= $DateInterval->format('Y-m-d H:i:s')) $Host->set('pub_key',null)->set('sec_time',null)->save();
 					}
 				}
 			}
