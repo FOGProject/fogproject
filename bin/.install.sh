@@ -65,7 +65,7 @@ doupdate="1";
 
 #ignore htmldoc
 ignorehtmldoc="0";
-$forcehttps="#";
+forcehttps="#";
 
 clearScreen;
 displayBanner;
@@ -100,6 +100,9 @@ do
 			;;
 		"--recreate-vhost" )
 			recreateVhost="yes";
+			;;
+		"--recreate-ca")
+			recreateCA="yes";
 			;;
 	esac
 done

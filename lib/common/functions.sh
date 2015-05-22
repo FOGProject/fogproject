@@ -80,9 +80,10 @@ help()
 	echo "             --uninstall         Not yet supported";
 	echo "             --no-htmldoc        Don't try to install htmldoc";
 	echo "                                 (You won't be able to create pdf reports)";
-	echo "			   --force-https       Force https over http";
+	echo "             --force-https       Force https over http";
 	echo "             --recreate-vhost    Force recreation of the vhost";
-	echo "			   --recreate-keys     Force recreation of the ssl keys";
+	echo "             --recreate-keys     Force recreation of the ssl keys";
+	echo "             --recreate-CA       Force recreation of the CA keys";
 	echo "";
 }
 
@@ -469,7 +470,7 @@ displayBanner()
 }
 
 createSSLCA() {
-	if [ "$recreateKeys" == "yes" -o "$caCreated" != "yes" ]; then
+	if [ "$recreateCA" == "yes" -o "$caCreated" != "yes" ]; then
 		mkdir -p "/opt/fog/snapins/CA" &>/dev/null;
 		echo -n "  * Creating SSL CA...";
 		openssl genrsa -out "/opt/fog/snapins/CA/.fogCA.key" 4096 &>/dev/null;
@@ -483,6 +484,8 @@ ${ipaddress}CA
 .
 EOF
 		echo "OK";
+	fi
+	if [ "$recreateKeys" == "yes" -o "$recreateCA" == "yes" -o "$caCreated" != "yes" ]; then
 		echo -n "  * Creating SSL Private Key..."
 		mkdir -p /opt/fog/snapins/ssl &>/dev/null;
 		openssl genrsa -out "/opt/fog/snapins/ssl/.srvprivate.key" 4096 &>/dev/null;
