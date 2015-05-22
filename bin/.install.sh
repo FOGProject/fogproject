@@ -65,6 +65,7 @@ doupdate="1";
 
 #ignore htmldoc
 ignorehtmldoc="0";
+$forcehttps="#";
 
 clearScreen;
 displayBanner;
@@ -89,7 +90,17 @@ do
 			;;	
 		"--no-htmldoc" )
 			ignorehtmldoc="1";
-			;;		
+			;;
+		"--force-https" )
+			forcehttps="";
+			recreateVhost="yes";
+			;;
+		"--recreate-keys" )
+			recreateKeys="yes";
+			;;
+		"--recreate-vhost" )
+			recreateVhost="yes";
+			;;
 	esac
 done
 
