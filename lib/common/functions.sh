@@ -80,6 +80,9 @@ help()
 	echo "             --uninstall         Not yet supported";
 	echo "             --no-htmldoc        Don't try to install htmldoc";
 	echo "                                 (You won't be able to create pdf reports)";
+	echo "			   --force-https       Force https over http";
+	echo "             --recreate-vhost    Force recreation of the vhost";
+	echo "			   --recreate-keys     Force recreation of the ssl keys";
 	echo "";
 }
 
@@ -466,7 +469,7 @@ displayBanner()
 }
 
 createSSLCA() {
-	if [ "$caCreated" != "yes" ]; then
+	if [ "$recreateKeys" == "yes" -o "$caCreated" != "yes" ]; then
 		mkdir -p "/opt/fog/snapins/CA" &>/dev/null;
 		echo -n "  * Creating SSL CA...";
 		openssl genrsa -out "/opt/fog/snapins/CA/.fogCA.key" 4096 &>/dev/null;
@@ -508,14 +511,14 @@ EOF
 	echo -n "  * Resetting SSL Permissions...";
 	chown -R $apacheuser:$apacheuser $webdirdest/management/other &>/dev/null;
 	echo "OK";
-	if [ "$fogVhostCreated" != "yes" ]; then
+	if [ "$recreateVhost" == "yes" -o "$fogVhostCreated" != "yes" ]; then
 		echo -n "  * Setting up SSL FOG Server...";
 		echo "<VirtualHost $ipaddress:80>
     ServerName $ipaddress
 	DocumentRoot $docroot
-	#RewriteEngine On
-	#RewriteRule /management/other/ca.cert.der$ - [L]
-    #RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]
+	${forcehttps}RewriteEngine On
+	${forcehttps}RewriteRule /management/other/ca.cert.der$ - [L]
+    ${forcehttps}RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]
 </VirtualHost>
 <VirtualHost $ipaddress:443>
     Servername $ipaddress
