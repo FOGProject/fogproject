@@ -760,8 +760,8 @@ abstract class FOGPage extends FOGBase {
 			// Get the host or error out
 			$Host = $this->getHostItem(true);
 			// Store the key and potential token
-			$key = bin2hex(trim($this->certDecrypt($_REQUEST['sym_key'])));
-			$token = bin2hex(trim($this->certDecrypt($_REQUEST['token'])));
+			$key = bin2hex($this->certDecrypt($_REQUEST['sym_key']));
+			$token = bin2hex($this->certDecrypt($_REQUEST['token']));
 			// Test if the sec_tok is valid and the received token don't match error out
 			if ($Host->get('sec_tok') && $token !== $Host->get('sec_tok')) {
 				$Host->set('pub_key',null)->save();
