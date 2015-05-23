@@ -480,7 +480,7 @@ createSSLCA() {
 .
 .
 .
-${ipaddress}CA
+FOG Server CA
 .
 EOF
 		echo "OK";
