@@ -364,18 +364,6 @@ linkOptFogDir()
 	fi
 }
 
-removeOldSSL()
-{
-	if [ -d "/var/www/fogsslkeypair" ]; then
-		echo -n "  * Remove old private key...";
-		rm -rf "/var/www/fogsslkeypair" &>/dev/null;
-		echo "OK";
-	fi
-	if [ -d "/opt/fog/snapins/ssl" ]; then
-		rm -rf "/opt/fog/snapins/ssl" &>/dev/null;
-	fi
-}
-
 configureStorage()
 {
 	echo -n "  * Setting up storage";

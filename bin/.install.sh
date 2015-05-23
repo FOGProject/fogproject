@@ -360,7 +360,6 @@ do
 	            configureNFS;
 			    writeUpdateFile;
 				linkOptFogDir;
-				removeOldSSL;
 				createSSLCA;
 			    echo "";
 			    echo "  Setup complete!";
