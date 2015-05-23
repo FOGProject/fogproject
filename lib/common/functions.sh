@@ -489,7 +489,6 @@ $ipaddress
 
 EOF
 		echo "OK";
-		echo "caCreated=\"yes\"" >> "$fogprogramdir/.fogsettings";
 	fi
 	echo -n "  * Creating SSL Certificate...";
 	mkdir -p $webdirdest/management/other/ssl &>/dev/null;
@@ -529,7 +528,8 @@ EOF
 		else
 			service httpd restart &> /dev/null;
 		fi
-		echo "fogVhostCreated=\"yes\"" >> "$fogprogramdir/.fogsettings";
 		echo "OK";
 	fi
+	echo "caCreated=\"yes\"" >> "$fogprogramdir/.fogsettings";
+	echo "fogVhostCreated=\"yes\"" >> "$fogprogramdir/.fogsettings";
 }
