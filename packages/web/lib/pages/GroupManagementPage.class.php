@@ -243,7 +243,7 @@ class GroupManagementPage extends FOGPage {
 			_('Group Primary Disk') => '<input type="text" name="dev" value="${group_devs}" />',
 			'<input type="hidden" name="updategroup" value="1" />' => '<input type="submit" value="'._('Update').'" />',
 		);
-		//$this->HookManager->processEvent('GROUP_FIELDS',array('fields' => &$fields,'Group' => &$Group));
+		$this->HookManager->processEvent('GROUP_FIELDS',array('fields' => &$fields,'Group' => &$Group));
 		print "\n\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-general">';
 		print "\n\t\t\t".'<input type="hidden" name="'.$this->id.'" value="'.$_REQUEST['id'].'" />';
 		print "\n\t\t\t".'<div id="tab-container">';
