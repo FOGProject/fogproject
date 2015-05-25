@@ -103,7 +103,7 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 configureNFS()
 {
 	echo "${storageLocation} *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)
-${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=2)" > "${nfsconfig}";
+${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "${nfsconfig}";
 	echo -n "  * Setting up and starting NFS Server..."; 
 	sysv-rc-conf nfs-kernel-server on >/dev/null 2>&1;
 	/etc/init.d/nfs-kernel-server stop >/dev/null 2>&1;
