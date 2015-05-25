@@ -6,16 +6,11 @@ class AddLocationGroup extends Hook
 	var $author = 'Rowlett';
 	var $active = true;
     var $node = 'location';	
-	public function GroupFields($arguments)
-	{
-		if (in_array($this->node,$_SESSION['PluginsInstalled']))
-		{
-			if ($_REQUEST['node'] == 'group')
-			{
-				foreach($arguments['Group']->get('hosts') AS $Host)
-				{
-					if ($Host && $Host->isValid())
-					{
+	public function GroupFields($arguments) {
+		if (in_array($this->node,$_SESSION['PluginsInstalled'])) {
+			if ($_REQUEST['node'] == 'group') {
+				foreach($arguments['Group']->get('hosts') AS $Host) {
+					if ($Host && $Host->isValid()) {
 						$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
 						$LA ? $locationID[] = $LA->get('locationID') : null;
 					}
@@ -27,38 +22,23 @@ class AddLocationGroup extends Hook
 			}
 		}
 	}
-	public function GroupAddLocation($arguments)
-	{
-		if (in_array($this->node,$_SESSION['PluginsInstalled']))
-		{
-			if ($_REQUEST['node'] == 'group')
-			{
-				foreach($arguments['Group']->get('hosts') AS $Host)
-				{
-					if ($Host && $Host->isValid())
-					{
-						if ($_REQUEST['tab'] == 'group-general' && !$_REQUEST['location'])
-							$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $Host->get('id')));
-						$Location = new Location($_REQUEST['location']);
-						if ($Location && $Location->isValid())
-						{
-							$LA = current((array)$this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
-							if (!$LA || !$LA->isValid())
-							{
-								$LA = new LocationAssociation(array(
-									'locationID' => $_REQUEST['location'],
-									'hostID' => $Host->get('id'),
-								));
-							}
-							else
-								$LA->set('locationID',$_REQUEST['location']);
-							$LA->save();
-						}
-						else
-						{
-							if ($LA && $LA->isValid())
-								$LA->destroy();
-						}
+	public function GroupAddLocation($arguments) {
+		if (in_array($this->node,$_SESSION['PluginsInstalled']) && $_REQUEST['node'] == 'group') {
+			foreach($arguments['Group']->get('hosts') AS $Host) {
+				if ($Host && $Host->isValid() && $_REQUEST['tab'] == 'group-general' && !$_REQUEST['location']) {
+					$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $Host->get('id')));
+					$Location = new Location($_REQUEST['location']);
+					if ($Location && $Location->isValid()) {
+						$LA = current((array)$this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
+						if (!$LA || !$LA->isValid()) {
+							$LA = new LocationAssociation(array(
+								'locationID' => $_REQUEST['location'],
+								'hostID' => $Host->get('id'),
+							));
+						} else $LA->set('locationID',$_REQUEST['location']);
+						$LA->save();
+					} else {
+						if ($LA && $LA->isValid()) $LA->destroy();
 					}
 				}
 			}

@@ -133,10 +133,8 @@ define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
 }
 configureNFS()
 {
-	echo "${storageLocation}                        *(ro,sync,no_wdelay,insecure_locks,no_root_squash,insecure,fsid=1)
-${storageLocation}/dev                    *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=2)
-/opt/fog/clamav							  *(rw,sync,no_wdelay,no_root_squash,insecure,fsid=3)" > "${nfsconfig}";
-	setupFreshClam;
+	echo "${storageLocation} *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)
+${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=2)" > "${nfsconfig}";
 	echo -n "  * Setting up and starting NFS Server..."; 
 	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
 		systemctl enable rpcbind >/dev/null 2>&1;
