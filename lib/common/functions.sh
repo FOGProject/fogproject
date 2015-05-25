@@ -501,9 +501,8 @@ EOF
 	echo -n "  * Resetting SSL Permissions...";
 	chown -R $apacheuser:$apacheuser $webdirdest/management/other &>/dev/null;
 	echo "OK";
-	if [ "$recreateVhost" == "yes" -o "$fogVhostCreated" != "yes" ]; then
-		echo -n "  * Setting up SSL FOG Server...";
-		echo "<VirtualHost $ipaddress:80>
+	echo -n "  * Setting up SSL FOG Server...";
+	echo "<VirtualHost $ipaddress:80>
     ServerName $ipaddress
 	DocumentRoot $docroot
 	${forcehttps}RewriteEngine On
@@ -518,8 +517,7 @@ EOF
     SSLCertificateKeyFile /opt/fog/snapins/ssl/.srvprivate.key
     SSLCertificateChainFile $webdirdest/management/other/ca.cert.der
 </VirtualHost>" > "$etcconf";
-		echo "OK";
-	fi
+	echo "OK";
 	if [ "$a2ensite" == "yes" ]; then
 		a2enmod rewrite &> /dev/null;
 		a2enmod ssl &> /dev/null;
@@ -531,5 +529,4 @@ EOF
 		service httpd restart &> /dev/null;
 	fi
 	echo "caCreated=\"yes\"" >> "$fogprogramdir/.fogsettings";
-	echo "fogVhostCreated=\"yes\"" >> "$fogprogramdir/.fogsettings";
 }
