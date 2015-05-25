@@ -518,17 +518,17 @@ EOF
     SSLCertificateKeyFile /opt/fog/snapins/ssl/.srvprivate.key
     SSLCertificateChainFile $webdirdest/management/other/ca.cert.der
 </VirtualHost>" > "$etcconf";
-		if [ "$a2ensite" == "yes" ]; then
-			a2enmod rewrite &> /dev/null;
-			a2enmod ssl &> /dev/null;
-			a2ensite "001-fog" &> /dev/null;
-			service apache2 restart &> /dev/null;
-		elif [ "$systemctl" == "yes" ]; then
-			systemctl restart httpd php-fpm &>/dev/null;
-		else
-			service httpd restart &> /dev/null;
-		fi
 		echo "OK";
+	fi
+	if [ "$a2ensite" == "yes" ]; then
+		a2enmod rewrite &> /dev/null;
+		a2enmod ssl &> /dev/null;
+		a2ensite "001-fog" &> /dev/null;
+		service apache2 restart &> /dev/null;
+	elif [ "$systemctl" == "yes" ]; then
+		systemctl restart httpd php-fpm &>/dev/null;
+	else
+		service httpd restart &> /dev/null;
 	fi
 	echo "caCreated=\"yes\"" >> "$fogprogramdir/.fogsettings";
 	echo "fogVhostCreated=\"yes\"" >> "$fogprogramdir/.fogsettings";
