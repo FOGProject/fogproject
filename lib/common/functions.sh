@@ -178,7 +178,7 @@ displayOSChoices()
 			echo "";
 			echo "          1) Redhat Based Linux (Redhat, CentOS, Mageia)";
 			echo "          2) Debian Based Linux (Debian, Ubuntu, Kubuntu, Edubuntu)";
-			echo "			    3) Arch Linux";
+			echo "          3) Arch Linux";
 			echo "";
 			echo -n "  Choice: [${strSuggestedOS}]";
 			read osid;
@@ -255,33 +255,6 @@ configureSnapins()
 	fi
 
 }
-
-sendInstallationNotice()
-{
-	echo "";
-	echo "";
-	echo "  Would you like to notify the FOG group about this installation?";
-	echo "    * This information is only used to help the FOG group determine";
-	echo "      if FOG is being used.  This information helps to let us know";
-	echo "      if we should keep improving this product.";
-	echo "";
-	echo -n "  Send notification? (Y/N)";
-	read send;
-	case "$send" in
-	    yes | y | Yes | YES )
-	    	echo -n "  * Thank you, sending notification..."
-	    	wget -q -O - "http://freeghost.no-ip.org/notify/index.php?version=$version" >/dev/null 2>&1;
-	    	echo "Done";
-	    	;;
-    	    *)
-           	echo "  NOT sending notification."
-           	;;
-	esac	    	
-	
-	echo "";
-	echo "";
-}
-
 
 configureUsers()
 {

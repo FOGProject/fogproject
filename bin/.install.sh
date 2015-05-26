@@ -32,7 +32,6 @@ then
 	linuxReleaseName=`cat /etc/issue /etc/*release* 2>/dev/null | head -n1 | awk '{print $1}'`;
 fi
 
-echo $linuxReleaseName;
 installtype="";
 ipaddress="";
 interface="";
@@ -299,7 +298,6 @@ do
 			        installInitScript;
 			        installFOGServices;
 			        configureFOGService;	
-			        #sendInstallationNotice;
 	                configureNFS;
 			        writeUpdateFile;
 			        
