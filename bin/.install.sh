@@ -299,7 +299,6 @@ do
 			        installInitScript;
 			        installFOGServices;
 			        configureFOGService;	
-			        #sendInstallationNotice;
 	                configureNFS;
 			        writeUpdateFile;
 			        
