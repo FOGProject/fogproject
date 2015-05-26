@@ -622,13 +622,13 @@ installPackages()
 	
 	for x in $packages
 	do
-		checkMe=`dpkg -l $x | grep '^ii'`;
+		checkMe=`dpkg -l $x 2>/dev/null | grep '^ii'`;
 		if [ "$checkMe" == "" -a "$x" == "php5-json" ]; then
 			x="php5-common";
-			checkMe=`dpkg -l $x | grep '^ii'`;
+			checkMe=`dpkg -l $x 2>/dev/null | grep '^ii'`;
 			if [ "$checkMe" == "" ]; then
 				x="php5-json";
-				checkme=`dpkg -l $x | grep '^ii'`;
+				checkme=`dpkg -l $x 2>/dev/null | grep '^ii'`;
 			fi
 		fi
 		if [ "$checkMe" == "" ]; then
