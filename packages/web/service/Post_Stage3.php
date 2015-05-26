@@ -6,7 +6,7 @@ try
 	$Host = $FOGCore->getHostItem(false);
 	// Task for Host
 	$Task = $Host->get('task');
-	if (!$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)',_('No Active Task found for Host'), $Host->get('name'),$MACAddress));
+	if (!$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)',_('No Active Task found for Host'), $Host->get('name'),$Host->get('mac')));
 	// Set the task to state 4
 	if (!in_array($Task->get('typeID'),array(12,13)))
 		$Task->set('stateID','4')->set('pct','100')->set('percent','100');
