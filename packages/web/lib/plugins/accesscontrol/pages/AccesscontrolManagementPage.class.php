@@ -5,7 +5,7 @@ class AccesscontrolManagementPage extends FOGPage {
 		$this->node = 'accesscontrol';
 		// Call parent constructor
 		parent::__construct($this->name);
-		if ($_REQUEST['id']) $this->obj = $this->getClass('AccessControl',$_REQUEST[id]);
+		if ($_REQUEST['id']) $this->obj = $this->getClass('Accesscontrol',$_REQUEST[id]);
 		// Header row
 		$this->headerData = array(
 			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
