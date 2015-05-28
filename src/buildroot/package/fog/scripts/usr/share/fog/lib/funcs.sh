@@ -1098,7 +1098,6 @@ gptorMBRSave() {
 	if [ "$gptormbr" == "not" ]; then
 		dots "Saving MBR or MBR/Grub";
 		saveGRUB "$1" "1" "$2";
-		saveSfdiskPartitions $hd $2/d1.minimum.partitions;
 		echo "Done";
 		debugPause;
 	else
