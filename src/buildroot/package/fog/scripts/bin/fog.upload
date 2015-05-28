@@ -162,6 +162,8 @@ if [ -f "/images/.mntcheck" ]; then
 				for part in $parts; do
 					shrinkPartition "$part" "${imagePath}/d1.original.fstypes";
 				done
+				runPartprobe $hd;
+				saveSfdiskPartitions "${hd}" "${imagePath}/d1.minimum.partitions";
 				gptorMBRSave "$hd" "$imagePath";
 				debugPause
 			fi
