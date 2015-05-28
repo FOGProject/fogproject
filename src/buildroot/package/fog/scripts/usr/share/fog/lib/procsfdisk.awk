@@ -17,6 +17,11 @@ function display_output(partition_names, partitions, \
 	} else {
 		type = "type=";
 	}
+	if (label && labelid && device) {
+		printf("label: %s\n", label);
+		printf("label-id: %s\n", labelid);
+		printf("device: %s\n", device);
+	}
 	printf("unit: %s\n\n", unit);
 	for(pName in partition_names) {
 		printf("%s : start=%10d, size=%10d, %2s", partitions[pName, "device"], partitions[pName, "start"], partitions[pName, "size"], partitions[pName, "type"]);
@@ -265,7 +270,8 @@ BEGIN{
 }
 
 /^label:/{ label = $2 }
-
+/^label-id:/{ labelid = $2 }
+/^device:/{ device = $2 }
 /^unit:/{ unit = $2; }
 
 /start=/{
