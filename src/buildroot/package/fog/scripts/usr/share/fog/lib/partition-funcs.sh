@@ -118,6 +118,7 @@ resizePartition() {
 	local part="$1";
 	local size="$2";
 	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
+	local $imagePath == "$3";
 	local tmp_file="/tmp/sfdisk.$$";
 	local tmp_file2="/tmp/sfdisk2.$$";
 	saveSfdiskPartitions $disk $tmp_file;
@@ -127,8 +128,8 @@ resizePartition() {
 	fi
 	udevadm --settle &>/dev/null;
 	blockdev --rereadpt $disk &>/dev/null;
-	rm -f $tmp_file;
-	rm -f $tmp_file2;
+	mv $tmp_file $imagePath/d1.original.partitions &>/dev/null;
+	mv $tmp_file2 $imagePath/d1.minimum.partitions &>/dev/null;
 }
 
 # $1 is the disk device (e.g. /dev/sda)

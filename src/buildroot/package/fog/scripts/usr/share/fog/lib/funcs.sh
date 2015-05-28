@@ -199,7 +199,7 @@ FORCEY
 		if [ "$do_resizepart" == "1" ]; then
 			dots "Resizing partition $1";
 			if [[ "$osid" == +([1-2]) ]];then
-				resizePartition "$1" "$sizentfsresize"
+				resizePartition "$1" "$sizentfsresize" "$imagePath";
 				if [ "$osid" == "2" ]; then
 					correctVistaMBR "$hd";
 				fi
@@ -211,7 +211,7 @@ FORCEY
 					handleError "Unable to determine disk start location.";
 				fi
 				adjustedfdsize=`expr $sizefd '+' $win7part1start`;
-				resizePartition "$1" "$adjustedfdsize"
+				resizePartition "$1" "$adjustedfdsize" "$imagePath";
 			elif [ "$win7partcnt" == "2" ]; then
 				win7part2start=`parted -s $hd u kB print | sed -e '/^.2/!d' -e 's/^ [0-9]*[ ]*//' -e 's/kB  .*//' -e 's/\..*$//'`;
 				if [ "$win7part2start" == "" ]; then
@@ -220,10 +220,10 @@ FORCEY
 					handleError "Unable to determine disk start location.";
 				fi
 				adjustedfdsize=`expr $sizefd '+' $win7part2start`;
-				resizePartition "$1" "$adjustedfdsize"
+				resizePartition "$1" "$adjustedfdsize" "$imagePath";
 			else
 				adjustedfdsize=`expr $sizefd '+' 1048576`;
-				resizePartition "$1" "$adjustedfdsize"
+				resizePartition "$1" "$adjustedfdsize" "$imagePath";
 			fi
 			echo "Done";
 			debugPause;
@@ -245,7 +245,7 @@ FORCEY
 		echo "Done";
 		debugPause;
 		dots "Shrinking $1 partition";
-		resizePartition "$1" "$sizeextresize"
+		resizePartition "$1" "$sizeextresize" "$imagePath";
 		echo "Done";
 		debugPause;
 		dots "Resizing $fstype volume ($1)";

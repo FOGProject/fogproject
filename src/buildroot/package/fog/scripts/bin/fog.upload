@@ -142,7 +142,7 @@ if [ -f "/images/.mntcheck" ]; then
 			#  Start filesytem type record
 			if [[ "$osid" == +([1-2]|[5-7]|50) ]]; then
 				dots "Saving original partition table";
-				saveSfdiskPartitions "${hd}" "${imagePath}/d1.original.partitions";
+				#saveSfdiskPartitions "${hd}" "${imagePath}/d1.original.partitions";
 				makeFstypesFile "${imagePath}/d1.original.fstypes";
 				makeSwapUUIDFile "${imagePath}/d1.original.swapuuids";
 				echo "Done";
@@ -163,7 +163,7 @@ if [ -f "/images/.mntcheck" ]; then
 					shrinkPartition "$part" "${imagePath}/d1.original.fstypes";
 				done
 				runPartprobe $hd;
-				saveSfdiskPartitions "${hd}" "${imagePath}/d1.minimum.partitions";
+				#saveSfdiskPartitions "${hd}" "${imagePath}/d1.minimum.partitions";
 				gptorMBRSave "$hd" "$imagePath";
 				debugPause
 			fi
