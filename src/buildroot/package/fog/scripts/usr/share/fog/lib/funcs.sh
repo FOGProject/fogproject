@@ -251,13 +251,13 @@ FORCEY
 		dots "Resizing $fstype volume ($1)";
 		resize2fs $1 &>/dev/null;
 		e2fsck -fp $1 &>/dev/null; # prevent fsck at first boot after uploaded system
-		runPartprobe "$hd";
 		echo "Done";
 		debugPause;
 	else
 		echo " * Not shrinking ($1 $fstype)";
 		debugPause;
 	fi
+	runPartprobe "$hd";
 }
 # $1 is the part
 resetFlag() {
