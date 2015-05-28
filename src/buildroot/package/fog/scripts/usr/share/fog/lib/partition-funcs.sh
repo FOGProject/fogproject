@@ -19,7 +19,7 @@ saveSfdiskPartitions() {
 # $1 is the name of the disk drive
 # $2 is name of file to load from.
 applySfdiskPartitions() {
-	sfdisk "$1" >&/dev/null < "$2";
+	sfdisk "$1" &>/dev/null < "$2";
 }
 
 
@@ -125,6 +125,8 @@ resizePartition() {
 	if [ "$?" == "0" ]; then
 		applySfdiskPartitions $disk $tmp_file2;
 	fi
+	udevadm --settle &>/dev/null;
+	blockdev --rereadpt $disk &>/dev/null;
 	rm -f $tmp_file;
 	rm -f $tmp_file2;
 }
@@ -141,6 +143,8 @@ fillDiskWithPartitions() {
 	if [ "$?" == "0" ]; then
 		applySfdiskPartitions $1 $tmp_file2;
 	fi
+	udevadm --settle &>/dev/null;
+	blockdev --rereadpt $1 &>/dev/null;
 	rm -f $tmp_file2;
 }
 

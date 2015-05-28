@@ -257,7 +257,6 @@ FORCEY
 		echo " * Not shrinking ($1 $fstype)";
 		debugPause;
 	fi
-	runPartprobe "$hd";
 }
 # $1 is the part
 resetFlag() {
@@ -943,8 +942,8 @@ restorePartitionTablesAndBootLoaders() {
 		has_GRUB=`hasGRUB "${disk}" "${intDisk}" "${imagePath}"`;
 		mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
 		if [ -f $tmpMBR ]; then
-			gpt=`awk '/label:/{print $2}' ${imagePath}/d${intDisk}.minimum.partitions`;
-			if [ "$gptcheck" == 'gpt' ] || [[ "$mbrsize" != +(1048576|512|32256) ]] ; then
+			gpt=`awk '/label:/{print $2}' ${imagePath}/d${intDisk}.original.partitions`;
+			if [ "$gpt" == 'gpt' ] || [[ "$mbrsize" != +(1048576|512|32256) ]] ; then
 				dots "Restoring Partition Tables";
 				sgdisk -gel $tmpMBR $disk 2>&1 >/dev/null;
 				global_gptcheck="yes";
@@ -1094,16 +1093,15 @@ restorePartition() {
 	fi
 }
 gptorMBRSave() {
+	runPartprobe $1;
 	local gptormbr=`gdisk -l $1 | grep 'GPT:' | awk -F: '{print $2}' | awk '{print $1}'`;
 	if [ "$gptormbr" == "not" ]; then
-		runPartprobe $1;
 		dots "Saving MBR or MBR/Grub";
 		saveGRUB "$1" "1" "$2";
-		saveSfdiskPartitions "$1" "$2/d1.minimum.partitions";
+		saveSfdiskPartitions $hd $2/d1.minimum.partitions;
 		echo "Done";
 		debugPause;
 	else
-		runPartprobe $1;
 		dots "Saving Partition Tables";
 		sgdisk -b $imagePath/d1.mbr $1 >/dev/null;
 		if [ ! "$?" -eq 0 ]; then
