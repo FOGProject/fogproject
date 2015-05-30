@@ -40,6 +40,7 @@ else
     packageinstaller="yum -y --enablerepo=remi,remi-php56 install";
 fi
 RHVER=`awk '{for(i=1;i<=NF;i++) if ($i == "release") print $(i+1)}' /etc/redhat-release`;
+RHVER=`echo ${RHVER%.*}`
 langPackages="iso-codes";
 dhcpname="dhcp";
 nfsservice="nfs";
