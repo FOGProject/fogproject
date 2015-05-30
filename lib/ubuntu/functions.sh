@@ -18,33 +18,56 @@
 #
 #
 stopInitScript() {
-	${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
-	${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
-	${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
-	${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
+	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+		systemctl stop ${initdMCfullname} >/dev/null 2>&1;
+		systemctl stop ${initdIRfullname} >/dev/null 2>&1;
+		systemctl stop ${initdSDfullname} >/dev/null 2>&1;
+		systemctl stop ${initdSRfullname} >/dev/null 2>&1;
+	else
+		${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
+		${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
+		${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
+		${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
+	fi
 }
 
 installInitScript()
 {
 	echo -n "  * Installing init scripts...";
-	${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
-	${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
-	${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
-	${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
-	cp -f ${initdsrc}/* ${initdpath}/
-	chmod 755 ${initdpath}/${initdMCfullname}
-	sysv-rc-conf ${initdMCfullname} on >/dev/null 2>&1;
-	chmod 755 ${initdpath}/${initdIRfullname}
-	sysv-rc-conf ${initdIRfullname} on >/dev/null 2>&1;		
-	chmod 755 ${initdpath}/${initdSDfullname}
-	sysv-rc-conf ${initdSDfullname} on >/dev/null 2>&1;
-	chmod 755 ${initdpath}/${initdSRfullname}
-	sysv-rc-conf ${initdSRfullname} on >/dev/null 2>&1;
-	insserv -d ${initdpath}/${initdMCfullname} >/dev/null 2>&1;
-	insserv -d ${initdpath}/${initdIRfullname} >/dev/null 2>&1;
-	insserv -d ${initdpath}/${initdSDfullname} >/dev/null 2>&1;
-	insserv -d ${initdpath}/${initdSRfullname} >/dev/null 2>&1;
-	echo "OK";	
+	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+		systemctl stop ${initdMCfullname} >/dev/null 2>&1;
+		systemctl stop ${initdIRfullname} >/dev/null 2>&1;
+		systemctl stop ${initdSDfullname} >/dev/null 2>&1;
+		systemctl stop ${initdSRfullname} >/dev/null 2>&1;
+		cp -f ${initdsrc}/* ${initdpath}/
+		chmod 755 ${initdpath}/${initdMCfullname}
+		systemctl enable ${initdMCfullname};
+		chmod 755 ${initdpath}/${initdIRfullname}
+		systemctl enable ${initdIRfullname};
+		chmod 755 ${initdpath}/${initdSDfullname}
+		systemctl enable ${initdSDfullname};
+		chmod 755 ${initdpath}/${initdSRfullname}
+		systemctl enable ${initdSRfullname};
+	else
+		${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
+		${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
+		${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
+		${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
+		cp -f ${initdsrc}/* ${initdpath}/
+		chmod 755 ${initdpath}/${initdMCfullname}
+		sysv-rc-conf ${initdMCfullname} on >/dev/null 2>&1;
+		chmod 755 ${initdpath}/${initdIRfullname}
+		sysv-rc-conf ${initdIRfullname} on >/dev/null 2>&1;		
+		chmod 755 ${initdpath}/${initdSDfullname}
+		sysv-rc-conf ${initdSDfullname} on >/dev/null 2>&1;
+		chmod 755 ${initdpath}/${initdSRfullname}
+		sysv-rc-conf ${initdSRfullname} on >/dev/null 2>&1;
+		insserv -d ${initdpath}/${initdMCfullname} >/dev/null 2>&1;
+		insserv -d ${initdpath}/${initdIRfullname} >/dev/null 2>&1;
+		insserv -d ${initdpath}/${initdSDfullname} >/dev/null 2>&1;
+		insserv -d ${initdpath}/${initdSRfullname} >/dev/null 2>&1;
+	fi
+	echo "OK";
 }
 
 configureFOGService()
@@ -56,8 +79,13 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 
 
 	echo -n "  * Starting FOG Multicast Management Server..."; 
-	${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
-	${initdpath}/${initdMCfullname} start >/dev/null 2>&1;
+	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+		systemctl restart ${initdMCfullname} >/dev/null 2>&1;
+		systemctl status ${initdMCfullname} >/dev/null 2>&1;
+	else
+		${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
+		${initdpath}/${initdMCfullname} start >/dev/null 2>&1;
+	fi
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
@@ -67,8 +95,13 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 	fi	
 	
 	echo -n "  * Starting FOG Image Replicator Server..."; 
-	${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
-	${initdpath}/${initdIRfullname} start >/dev/null 2>&1;
+	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+		systemctl restart ${initdIRfullname} >/dev/null 2>&1;
+		systemctl status ${initdIRfullname} >/dev/null 2>&1;
+	else
+		${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
+		${initdpath}/${initdIRfullname} start >/dev/null 2>&1;
+	fi
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
@@ -78,8 +111,13 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 	fi	
 	
 	echo -n "  * Starting FOG Task Scheduler Server..."; 
-	${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
-	${initdpath}/${initdSDfullname} start >/dev/null 2>&1;
+	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+		systemctl restart ${initdSDfullname} >/dev/null 2>&1;
+		systemctl status ${initdSDfullname} >/dev/null 2>&1;
+	else
+		${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
+		${initdpath}/${initdSDfullname} start >/dev/null 2>&1;
+	fi
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
@@ -89,8 +127,13 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 	fi
 
 	echo -n "  * Starting FOG Snapin Replicator Server...";
-	${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
-	${initdpath}/${initdSRfullname} start >/dev/null 2>&1;
+	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+		systemctl restart ${initdSRfullname} >/dev/null 2>&1;
+		systemctl status ${initdSRfullname} >/dev/null 2>&1;
+	else
+		${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
+		${initdpath}/${initdSRfullname} start >/dev/null 2>&1;
+	fi
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
@@ -105,9 +148,17 @@ configureNFS()
 	echo "${storageLocation} *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)
 ${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "${nfsconfig}";
 	echo -n "  * Setting up and starting NFS Server..."; 
-	sysv-rc-conf nfs-kernel-server on >/dev/null 2>&1;
-	/etc/init.d/nfs-kernel-server stop >/dev/null 2>&1;
-	/etc/init.d/nfs-kernel-server start >/dev/null 2>&1;
+	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+		systemctl enable rpcbind >/dev/null 2>&1;
+		systemctl enable nfs-server.service >/dev/null 2>&1;
+		systemctl restart rpcbind >/dev/null 2>&1;
+		systemctl restart nfs-server.service >/dev/null 2>&1;
+		systemctl status rpcbind >/dev/null 2>&1 && systemctl status nfs-server.service >/dev/null 2>&1;
+	else
+		sysv-rc-conf nfs-kernel-server on >/dev/null 2>&1;
+		/etc/init.d/nfs-kernel-server stop >/dev/null 2>&1;
+		/etc/init.d/nfs-kernel-server start >/dev/null 2>&1;
+	fi
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
@@ -143,9 +194,15 @@ tcp_wrappers=YES" > "$ftpconfig";
 	if [ "$vsvermaj" -gt 3 ] || [ "$vsvermaj" = "3" -a "$vsverbug" -ge 2 ]; then
 		echo "seccomp_sandbox=NO" >> "$ftpconfig";
 	fi
-	sysv-rc-conf vsftpd on >/dev/null 2>&1;
-	service vsftpd stop >/dev/null 2>&1;
-	service vsftpd start >/dev/null 2>&1;
+	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+		systemctl enable vsftpd.service >/dev/null 2>&1;
+		systemctl restart vsftpd.service >/dev/null 2>&1;
+		systemctl status vsftpd.service >/dev/null 2>&1;
+	else
+		sysv-rc-conf vsftpd on >/dev/null 2>&1;
+		service vsftpd stop >/dev/null 2>&1;
+		service vsftpd start >/dev/null 2>&1;
+	fi
 	if [ "$?" != "0" ] 
 	then
 		echo "Failed!";
@@ -212,14 +269,18 @@ TFTP_USERNAME=\"root\"
 TFTP_DIRECTORY=\"/tftpboot\"
 TFTP_ADDRESS=\"0.0.0.0:69\"
 TFTP_OPTIONS=\"-s\"" > "${tftpconfigupstartdefaults}";
-		sysv-rc-conf xinetd off >/dev/null 2>&1;
-		/etc/init.d/xinetd stop >/dev/null 2>&1;
-		
-		sysv-rc-conf tftpd-hpa on >/dev/null 2>&1;
-		service tftpd-hpa stop >/dev/null 2>&1;
-		sleep 5;
-		service tftpd-hpa start >/dev/null 2>&1;
-		
+		if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+			systemctl enable xinetd >/dev/null 2>&1;
+			systemctl restart xinetd >/dev/null 2>&1;
+			systemctl status xinetd >/dev/null 2>&1;
+		else
+			sysv-rc-conf xinetd off >/dev/null 2>&1;
+			/etc/init.d/xinetd stop >/dev/null 2>&1;
+			sysv-rc-conf tftpd-hpa on >/dev/null 2>&1;
+			service tftpd-hpa stop >/dev/null 2>&1;
+			sleep 5;
+			service tftpd-hpa start >/dev/null 2>&1;
+		fi
 		if [ "$?" != "0" ]
 		then
 			echo "Failed!";
@@ -245,11 +306,17 @@ service tftp
 	per_source		= 11
 	cps			= 100 2
 	flags			= IPv4
-}" > "${tftpconfig}";	
+}" > "${tftpconfig}";
 
-		sysv-rc-conf xinetd on >/dev/null 2>&1;
-		/etc/init.d/xinetd stop >/dev/null 2>&1;
-		/etc/init.d/xinetd start >/dev/null 2>&1;
+		if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+			systemctl enable xinetd >/dev/null 2>&1;
+			systemctl restart xinetd >/dev/null 2>&1;
+			systemctl status xinetd >/dev/null 2>&1;
+		else
+			sysv-rc-conf xinetd on >/dev/null 2>&1;
+			/etc/init.d/xinetd stop >/dev/null 2>&1;
+			/etc/init.d/xinetd start >/dev/null 2>&1;
+		fi
 		if [ "$?" != "0" ]
 		then
 			echo "Failed!";
@@ -299,16 +366,25 @@ ${routeraddress}
 }" > "$activeconfig";
 		
 	if [ "$bldhcp" = "1" ]; then	
-		sysv-rc-conf ${dhcpname} on >/dev/null 2>&1;
-		sysv-rc-conf ${olddhcpname} on >/dev/null 2>&1;
-		
-		/etc/init.d/${dhcpname} stop >/dev/null 2>&1;
-		/etc/init.d/${dhcpname} start >/dev/null 2>&1;
-		try1="$?";
-		
-		/etc/init.d/${olddhcpname} stop >/dev/null 2>&1;
-		/etc/init.d/${olddhcpname} start >/dev/null 2>&1;
-		try2="$?";
+		if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+			systemctl enable ${dhcpname} >/dev/null 2>&1;
+			systemctl enable ${olddhcpname} >/dev/null 2>&1;
+			systemctl restart ${dhcpname} >/dev/null 2>&1;
+			try1="$?";
+			systemctl restart ${dhcpname} >/dev/null 2>&1;
+			try2="$?";
+		else
+			sysv-rc-conf ${dhcpname} on >/dev/null 2>&1;
+			sysv-rc-conf ${olddhcpname} on >/dev/null 2>&1;
+			
+			/etc/init.d/${dhcpname} stop >/dev/null 2>&1;
+			/etc/init.d/${dhcpname} start >/dev/null 2>&1;
+			try1="$?";
+			
+			/etc/init.d/${olddhcpname} stop >/dev/null 2>&1;
+			/etc/init.d/${olddhcpname} start >/dev/null 2>&1;
+			try2="$?";
+		fi
 		if [ "$try1" != "0" -o "$try2" != "0" ]
 		then
 			echo "OK";
@@ -395,14 +471,20 @@ configureHttpd()
 	if [ "$?" != 0 ]; then
 		php5enmod mcrypt &>/dev/null;
 	fi
-	sysv-rc-conf apache2 on;
 	mv /etc/apache2/mods-available/php5* /etc/apache2/mods-enabled/  >/dev/null 2>&1
-	/etc/init.d/apache2  stop  >/dev/null 2>&1
 	sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' /etc/php5/apache2/php.ini
 	sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php5/apache2/php.ini
 	sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' /etc/php5/cli/php.ini
 	sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php5/cli/php.ini
-	/etc/init.d/apache2 start >/dev/null 2>&1;
+	if [ -z "$systemctl" ]; then
+		sysv-rc-conf apache2 on;
+		/etc/init.d/apache2  stop  >/dev/null 2>&1
+		/etc/init.d/apache2 start >/dev/null 2>&1;
+	else
+		systemctl enable apache2 >/dev/null 2>&1;
+		systemctl restart apache2 >/dev/null 2>&1;
+		systemctl status apache2 >/dev/null 2>&1;
+	fi
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
@@ -593,10 +675,17 @@ configureSudo()
 configureMySql()
 {
 	echo -n "  * Setting up and starting MySql...";
-	sysv-rc-conf mysql on >/dev/null 2>&1;
-	service mysql stop >/dev/null 2>&1;
-	sleep 10;
-	service mysql start >/dev/null 2>&1;
+	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+		systemctl="yes";
+		systemctl enable mysql >/dev/null 2>&1;
+		systemctl restart mysql >/dev/null 2>&1;
+		systemctl status mysql >/dev/null 2>&1;
+	else
+		sysv-rc-conf mysql on >/dev/null 2>&1;
+		service mysql stop >/dev/null 2>&1;
+		sleep 10;
+		service mysql start >/dev/null 2>&1;
+	fi
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
