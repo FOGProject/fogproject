@@ -273,9 +273,15 @@ service tftp
 	flags			= IPv4
 }" > "$tftpconfig";
 
-	chkconfig xinetd on;
-	service xinetd restart >/dev/null 2>&1;
-	service xinetd status  >/dev/null 2>&1;	
+	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
+		systemctl enable xinetd >/dev/null 2>&1;
+		systemctl restart xinetd >/dev/null 2>&1;
+		systemctl status xinetd >/dev/null 2>&1;
+	else
+		chkconfig xinetd on;
+		service xinetd restart >/dev/null 2>&1;
+		service xinetd status  >/dev/null 2>&1;
+	fi
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
@@ -283,7 +289,6 @@ service tftp
 	else
 		echo "OK";	
 	fi	
-	
 }
 
 configureDHCP()
@@ -346,9 +351,15 @@ ${routeraddress}
 }" > "$dhcptouse";
 		
 	if [ "$bldhcp" = "1" ]; then
-		chkconfig dhcpd on;
-		service dhcpd restart >/dev/null 2>&1
-		service dhcpd status  >/dev/null 2>&1;
+		if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
+			systemctl enable dhcpd >/dev/null 2>&1;
+			systemctl restart dhcpd >/dev/null 2>&1;
+			systemctl status dhcpd >/dev/null 2>&1;
+		else
+			chkconfig dhcpd on;
+			service dhcpd restart >/dev/null 2>&1
+			service dhcpd status  >/dev/null 2>&1;
+		fi
 		if [ "$?" != "0" ]
 		then
 			echo "Failed!";
