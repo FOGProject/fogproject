@@ -7,7 +7,7 @@
 		<meta name="viewport" content="initial-scale=1.0" />
 		<title><?php print 'FOG :: '._('Mobile Manager').' :: '._('Version').' '.FOG_VERSION ?></title>
 		<?php } $cnt=0; $this->HookManager->processEvent('CSS',array('stylesheets' => &$this->stylesheets)); foreach($this->stylesheets AS $stylesheet) {
-			print ($cnt++ > 0 ? "\t\t" : '').'<link href="'.$stylesheet.'" rel="stylesheet" type="text/css" />'."\n";
+			print ($cnt++ > 0 ? "\t\t" : '').'<link href="'.$stylesheet.'?'.time().'" rel="stylesheet" type="text/css" />'."\n";
 		} ?>
 		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
 	</head>
@@ -56,7 +56,7 @@
 		<!-- <div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a> Memory Usage: <?php print $this->formatByteSize(memory_get_usage(true)) ?></div> -->
 		<!-- Javascript -->
 		<?php $cnt=0; $this->HookManager->processEvent('JAVASCRIPT',array('javascripts' => &$this->javascripts)); foreach($this->javascripts AS $javascript) {
-			print ($cnt++ > 0 ? "\t\t" : '').'<script src="'.$javascript.'" language="javascript" type="text/javascript" defer></script>'."\n";
+			print ($cnt++ > 0 ? "\t\t" : '').'<script src="'.$javascript.'?'.time().'" language="javascript" type="text/javascript" defer></script>'."\n";
 		} } ?>
 	</body>
 </html>
