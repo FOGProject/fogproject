@@ -1,8 +1,8 @@
 <?php
 class TaskManagementPage extends FOGPage {
+	public $node = 'task';
 	public function __construct($name = '') {
 		$this->name = 'Task Management';
-		$this->node = 'task';
 		parent::__construct($this->name);
 		$this->menu = array(
 			'search' => $this->foglang[NewSearch],

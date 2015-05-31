@@ -1,8 +1,8 @@
 <?php
 class PluginManagementPage extends FOGPage {
+	public $node = 'plugin';
 	public function __construct($name = '') {
 		$this->name = 'Plugin Management';
-		$this->node = 'plugin';
 		// Call parent constructor
 		parent::__construct($this->name);
 		$this->menu = array(

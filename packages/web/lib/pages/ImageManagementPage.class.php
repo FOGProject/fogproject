@@ -1,14 +1,7 @@
 <?php
 class ImageManagementPage extends FOGPage {
 	// Base variables
-	var $name = 'Image Management';
-	var $node = 'image';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
+	public $node = 'image';
 	// __construct
 	/** __construct($name = '')
 		The basic constructor template for
@@ -16,7 +9,6 @@ class ImageManagementPage extends FOGPage {
 	*/
 	public function __construct($name = '') {
 		$this->name = 'Image Management';
-		$this->node = 'image';
 		// Call parent constructor
 		parent::__construct($this->name);
 		$this->menu[multicast] = $this->foglang[Multicast].' '.$this->foglang[Image];

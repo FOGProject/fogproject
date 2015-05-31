@@ -103,8 +103,18 @@ class FOGPageManager extends FOGBase {
 					if (in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) $className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
 					else if (!preg_match('#plugins#i',$path)) $className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
 					if ($className && !in_array($className,get_declared_classes())) {
-						$class = $this->getClass($className);
-						($_REQUEST['node'] == $class->node ? $this->register($class) : (!$_REQUEST['node'] && $class->node = 'home' ? $this->register($class) : $class = null));
+						$r = new ReflectionClass($className);
+						$vals = $r->getDefaultProperties();
+						$node = $vals['node'];
+						unset($r);
+						if ($node === $_REQUEST['node']) {
+							$class = $this->getClass($className);
+							$this->register($class);
+						} else if (!$_REQUEST['node'] && in_array($node,array('home','homes'))) {
+							$class = $this->getClass($className);
+							$this->register($class);
+						}
+						unset($vals,$node);
 					}
 					unset($class);
 				}

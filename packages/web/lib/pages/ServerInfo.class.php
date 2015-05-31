@@ -1,17 +1,9 @@
 <?php
 class ServerInfo extends FOGPage {
 	// Base variables
-	var $name = 'Hardware Information';
-	var $node = 'hwinfo';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
+	public $node = 'hwinfo';
 	public function __construct($name = '') {
 		$this->name = 'Hardware Information';
-		$this->node = 'hwinfo';
 		parent::__construct($this->name);
 		$this->obj = $this->getClass('StorageNode',$_REQUEST[id]);
 		$this->menu = array(

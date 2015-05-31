@@ -1,8 +1,8 @@
 <?php
 class GroupManagementPage extends FOGPage {
+	public $node = 'group';
 	public function __construct($name = '') {
 		$this->name = 'Group Management';
-		$this->node = 'group';
 		// Call parent constructor
 		parent::__construct($this->name);
 		if ($_REQUEST['id']) {
