@@ -1,8 +1,8 @@
 <?php
 class HostMobile extends FOGPage {
+	public $node = 'hosts';
 	public function __construct($name = '') {
 		$this->name = 'Host Management';
-		$this->node = 'hosts';
 		// Call parent constructor
 		parent::__construct($this->name);
 		$this->menu = array();

@@ -1,8 +1,8 @@
 <?php
 class FOGConfigurationPage extends FOGPage {
+	public $node = 'about';
 	public function __construct($name = '') {
 		$this->name = 'FOG Configuration';
-		$this->node = 'about';
 		parent::__construct($this->name);
 		$this->menu = array(
 			'license' => $this->foglang['License'],

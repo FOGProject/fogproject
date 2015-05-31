@@ -1,8 +1,8 @@
 <?php
 class ServiceConfigurationPage extends FOGPage {
+	public $node = 'service';
 	public function __construct($name = '') {
 		$this->name = 'Service Configuration';
-		$this->node = 'service';
 		parent::__construct($name);
 		$servicelink = "?node=$this->node&sub=edit";
 		$this->menu = array(

@@ -1,9 +1,9 @@
 <?php
 class ClientManagementPage extends FOGPage {
+	public $node = 'client';
 	// __construct
 	public function __construct($name = '') {
 		$this->name = 'Client Management';
-		$this->node = 'client';
 		// Call parent constructor
 		parent::__construct($this->name);
 	}

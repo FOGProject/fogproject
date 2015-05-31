@@ -1,10 +1,10 @@
 <?php
 class UserManagementPage extends FOGPage {
+	public $node = 'user';
 	// __construct
 	public function __construct($name = '')
 	{
 		$this->name = 'User Management';
-		$this->node = 'user';
 		// Call parent constructor
 		parent::__construct($this->name);
 		if ($_REQUEST['id']) {

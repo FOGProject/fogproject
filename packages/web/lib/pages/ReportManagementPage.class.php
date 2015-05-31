@@ -1,8 +1,8 @@
 <?php
 class ReportManagementPage extends FOGPage {
+	public $node = 'report';
 	public function __construct() {
 		$this->name = 'Report Management';
-		$this->node = 'report';
 		parent::__construct($this->name);
 		$this->menu = array(
 			'home' => $this->foglang[Home],

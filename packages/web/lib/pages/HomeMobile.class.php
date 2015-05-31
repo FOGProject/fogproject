@@ -1,12 +1,8 @@
 <?php
 class HomeMobile extends FOGPage {
+	public $node = 'homes';
 	public function __construct($name = '') {
 		$this->name = 'Dashboard';
-		$this->node = 'homes';
-		$this->menu = array(
-		);
-		$this->subMenu = array(
-		);
 		// Call parent constructor
 		parent::__construct($this->name);
 		// Header Data

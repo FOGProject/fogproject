@@ -1,8 +1,8 @@
 <?php
 class PrinterManagementPage extends FOGPage {
+	public $node = 'printer';
 	public function __construct($name = '') {
 		$this->name = 'Printer Management';
-		$this->node = 'printer';
 		parent::__construct($this->name);
 		if ($_REQUEST[id]) {
 			$this->obj = $this->getClass('Printer',$_REQUEST[id]);

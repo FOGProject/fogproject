@@ -1,9 +1,5 @@
 <?php
-/** \class Group
-	Gets groups created and handling methods.
-*/
-class Group extends FOGController
-{
+class Group extends FOGController {
 	// Table
 	public $databaseTable = 'groups';
 	// Name -> Database field name
@@ -24,165 +20,116 @@ class Group extends FOGController
 		'hostsnotinme',
 	);
     // Overides
-    private function loadHosts()
-    {
-		if (!$this->isLoaded('hosts') && $this->get('id'))
-		{
+    private function loadHosts() {
+		if (!$this->isLoaded('hosts') && $this->get('id')) {
 			$HostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID');
 			$this->set('hosts',$this->getClass('HostManager')->find(array('id' => $HostIDs)));
 			$this->set('hostsnotinme',$this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','',true));
 		}
 		return $this;
 	}
-	public function getHostCount()
-	{
+	public function getHostCount() {
 		return $this->getClass('GroupAssociationManager')->count(array('groupID' => $this->get('id')));
 	}
-	public function get($key = '') 
-    {   
+	public function get($key = '') {
         if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
             $this->loadHosts();
         return parent::get($key);
     }   
-    public function set($key, $value)
-    {   
-        if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
-        {   
+    public function set($key, $value) {
+        if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme') {
             foreach((array)$value AS $Host)
                 $newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
             $value = (array)$newValue;
         }   
         // Set
         return parent::set($key, $value);
-    }   
-
-    public function add($key, $value)
-    {   
-        if (($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme') && !($value instanceof Host))
-        {   
+    }
+    public function add($key, $value) {
+        if (($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme') && !($value instanceof Host)) {
             $this->loadHosts();
             $value = new Host($value);
         }   
         // Add
         return parent::add($key, $value);
     }
-
-    public function remove($key, $object)
-    {
+    public function remove($key, $object) {
         if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
 			$this->loadHosts();
         // Remove
         return parent::remove($key, $object);
     }
-	
-	public function load($field = 'id')
-	{
+	public function load($field = 'id') {
 		parent::load($field);
-		foreach(get_class_methods($this) AS $method)
-		{
+		foreach(get_class_methods($this) AS $method) {
 			if (strlen($method) > 5 && strpos($method,'load'))
 				$this->$method();
 		}
 	}
-
-    public function save()
-    {
+    public function save() {
         parent::save();
-        if ($this->isLoaded('hosts'))
-        {
+        if ($this->isLoaded('hosts')) {
 			// Remove old rows
 			$this->getClass('GroupAssociationManager')->destroy(array('groupID' => $this->get('id')));
 			// Create assoc
-			foreach ((array)$this->get('hosts') AS $Host)
-			{
-				if(($Host instanceof Host) && $Host->isValid())
-				{
-					$NewGroup = new GroupAssociation(array(
-						'hostID' => $Host->get('id'),
-						'groupID' => $this->get('id'),
-					));
-					$NewGroup->save();
+			foreach ((array)$this->get('hosts') AS $Host) {
+				if(($Host instanceof Host) && $Host->isValid()) {
+					$this->getClass('GroupAssociation')
+						->set('hostID',$Host->get('id'))
+						->set('groupID', $this->get('id'))
+						->save();
 				}
 			}
         }
         return $this;
     }
-
-    public function addHost($addArray)
-    {
+    public function addHost($addArray) {
         // Add
-        foreach((array)$addArray AS $item)
-            $this->add('hosts', $item);
+        foreach((array)$addArray AS $item) $this->add('hosts', $item);
         // Return
         return $this;
     }
-
-    public function removeHost($removeArray)
-    {
+    public function removeHost($removeArray) {
         // Iterate array (or other as array)
         foreach ((array)$removeArray AS $remove)
             $this->remove('hosts', ($remove instanceof Host ? $remove : new Host((int)$remove)));
         // Return
         return $this;
     }
-
-	public function addImage($imageID)
-	{
-		if (!$imageID)
-			throw new Exception(_('Select an image'));
+	public function addImage($imageID) {
+		if (!$imageID) throw new Exception(_('Select an image'));
 		$Image = ($imageID instanceof Image ? $imageID : new Image((int)$imageID));
-		foreach($this->get('hosts') AS $Host)
-		{
-			if ($Host && $Host->isValid())
-			{
-				if ($Host->get('task') && $Host->get('task')->isValid())
-					throw new Exception(_('There is a host in a tasking'));
-				if (!$Image || !$Image->isValid())
-					throw new Exception(_('Image is not valid'));
-				else
-					$Host->set('imageID', $Image->get('id'));
+		foreach($this->get('hosts') AS $Host) {
+			if ($Host && $Host->isValid()) {
+				if ($Host->get('task') && $Host->get('task')->isValid()) throw new Exception(_('There is a host in a tasking'));
+				if (!$Image || !$Image->isValid()) throw new Exception(_('Image is not valid'));
+				else $Host->set('imageID', $Image->get('id'));
 				$Host->save();
 			}
 		}
 		return $this;
 	}
-
-	public function addSnapin($snapArray)
-	{
-		foreach($this->get('hosts') AS $Host)
-		{
-			if ($Host && $Host->isValid())
-				$Host->addSnapin($snapArray)->save();
+	public function addSnapin($snapArray) {
+		foreach($this->get('hosts') AS $Host) {
+			if ($Host && $Host->isValid()) $Host->addSnapin($snapArray)->save();
 		}
 		return $this;
 	}
-
-	public function removeSnapin($snapArray)
-	{
-		foreach($this->get('hosts') AS $Host)
-		{
-			if ($Host && $Host->isValid())
-				$Host->removeSnapin($snapArray)->save();
+	public function removeSnapin($snapArray) {
+		foreach($this->get('hosts') AS $Host) {
+			if ($Host && $Host->isValid()) $Host->removeSnapin($snapArray)->save();
 		}
 		return $this;
 	}
-
-	public function setAD($useAD, $domain, $ou, $user, $pass)
-	{
-		foreach($this->get('hosts') AS $Host)
-		{
-			if ($Host && $Host->isValid())
-				$Host->setAD($useAD,$domain,$ou,$user,$pass)->save();
+	public function setAD($useAD, $domain, $ou, $user, $pass) {
+		foreach($this->get('hosts') AS $Host) {
+			if ($Host && $Host->isValid()) $Host->setAD($useAD,$domain,$ou,$user,$pass)->save();
 		}
 		return $this;
 	}
-
-	public function addPrinter($printAdd,$printDel,$level = 0)
-	{
-		foreach($this->get('hosts') AS $Host)
-		{
-			if ($Host && $Host->isValid())
-			{
+	public function addPrinter($printAdd,$printDel,$level = 0) {
+		foreach($this->get('hosts') AS $Host) {
+			if ($Host && $Host->isValid()) {
 				$Host->set('printerLevel',$level)
 					 ->addPrinter($printAdd)
 					 ->removePrinter($printDel)
@@ -193,39 +140,27 @@ class Group extends FOGController
 		}
 		return $this;
 	}
-
-	public function updateDefault($printerid,$onoff)
-	{
-		foreach($this->get('hosts') AS $Host)
-		{
-			if ($Host && $Host->isValid())
-			{
-				foreach($printerid AS $printer)
-				{
-					$Printer = new Printer($printer);
-					if ($Printer && $Printer->isValid())
-					{
-						if ($Printer->get('id') == $onoff)
-							$Host->updateDefault($Printer->get('id'),1);
-						else
-							$Host->updateDefault($Printer->get('id'),0);
+	public function updateDefault($printerid,$onoff) {
+		foreach($this->get('hosts') AS $Host) {
+			if ($Host && $Host->isValid()) {
+				foreach($printerid AS $printer) {
+					$Printer = $this->getClass('Printer',$printer);
+					if ($Printer && $Printer->isValid()) {
+						if ($Printer->get('id') == $onoff) $Host->updateDefault($Printer->get('id'),1);
+						else $Host->updateDefault($Printer->get('id'),0);
 					}
 				}
 			}
 		}
 		return $this;
 	}
-
 	// Custom Variables
-	public function doMembersHaveUniformImages()
-	{
-		foreach ($this->get('hosts') AS $Host)
-			$images[] = $Host->get('imageID');
+	public function doMembersHaveUniformImages() {
+		foreach ($this->get('hosts') AS $Host) $images[] = $Host->get('imageID');
 		$images = array_unique((array)$images);
 		return (count($images) == 1 ? true : false);
 	}
-	public function destroy($field = 'id')
-	{
+	public function destroy($field = 'id') {
 		// Remove All Host Associations
 		$this->getClass('GroupAssociationManager')->destroy(array('groupID' => $this->get('id')));
 		// Return

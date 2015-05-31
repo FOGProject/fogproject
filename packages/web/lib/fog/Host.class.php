@@ -75,6 +75,7 @@ class Host extends FOGController {
 	}
 	// Snapins
 	public function getImage() {
+		return $this->get('image');
 		return $this->getClass('Image',$this->get('imageID'));
 	}
 	public function getOS() {
@@ -471,7 +472,7 @@ class Host extends FOGController {
 		$OS = $this->getOS();
 		$StorageGroup = $Image->getStorageGroup();
 		$StorageNode = $StorageGroup->getStorageNode();
-		return ($this->getImage()->isValid() && $this->getImage()->getOS()->isValid() && $this->getImage()->getStorageGroup()->isValid() && $this->getImage()->getStorageGroup()->getStorageNode()->isValid() ? true : false);
+		return ($this->getImage()->isValid() && $this->getOS()->isValid() && $this->getImage()->getStorageGroup()->isValid() && $this->getImage()->getStorageGroup()->getStorageNode()->isValid());
 	}
 	public function getOptimalStorageNode() {return $this->get('optimalStorageNode');}
 	public function checkIfExist($taskTypeID) {

@@ -1,8 +1,8 @@
 <?php
 class DashboardPage extends FOGPage {
+	public $node = 'home';
 	public function __construct($name = '') {
 		$this->name = 'Dashboard';
-		$this->node = 'home';
 		parent::__construct($this->name);
 		$this->menu = array();
 		$this->subMenu = array();

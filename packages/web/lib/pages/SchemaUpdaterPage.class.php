@@ -1,8 +1,8 @@
 <?php
 class SchemaUpdaterPage extends FOGPage {
+	public $node = 'schemaupdater';
 	public function __construct($name = '') {
 		$this->name = 'Database Schema Installer / Updater';
-		$this->node = 'schemaupdater';
 		parent::__construct($this->name);
 		$this->menu = array();
 		$this->subMenu = array();
