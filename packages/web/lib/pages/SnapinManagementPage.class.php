@@ -1,8 +1,8 @@
 <?php
 class SnapinManagementPage extends FOGPage {
+	public $node = 'snapin';
 	public function __construct($name = '') {
 		$this->name = 'Snapin Management';
-		$this->node = 'snapin';
 		// Call parent constructor
 		parent::__construct($name);
 		if ($_REQUEST['id']) {
