@@ -627,7 +627,7 @@ class Config {
 			clientVer=`wget http://$ipaddress/fog/service/getclient.php -q -O -`;
 			if [ -z "$clientVer" ]; then
 				clientVer=`wget http://$ipaddress/service/getclient.php -q -O -`;
-			fi5
+			fi
 			count=`expr $count '+' 1`
 			sleep 2;
 		done
