@@ -1,8 +1,8 @@
 <?php
 class AccesscontrolManagementPage extends FOGPage {
+	public $node = 'accesscontrol';
 	public function __construct($name = '') {
 		$this->name = 'Access Management';
-		$this->node = 'accesscontrol';
 		// Call parent constructor
 		parent::__construct($this->name);
 		if ($_REQUEST['id']) $this->obj = $this->getClass('Accesscontrol',$_REQUEST[id]);

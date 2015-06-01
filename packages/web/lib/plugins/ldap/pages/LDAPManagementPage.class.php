@@ -1,8 +1,8 @@
 <?php
 class LDAPManagementPage extends FOGPage {
+	public $node = 'ldap';
 	public function __construct($name = '') {
 		$this->name = 'LDAP Management';
-		$this->node = 'ldap';
 		// Call parent constructor
 		parent::__construct($name);
 		if ($_REQUEST['id']) {
