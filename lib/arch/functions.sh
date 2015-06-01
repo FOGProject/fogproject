@@ -516,9 +516,9 @@ class Config {
 		cd $webdirdest/service;
 		count=0;
 		while [ -z "$clientVer" -a "$count" -le 10 ]; do
-			clientVer=`wget $ipaddress/fog/service/getclient.php -q -O -`;
+			clientVer=`wget http://$ipaddress/fog/service/getclient.php -q -O -`;
 			if [ -z "$clientVer" ]; then
-				clientVer=`wget $ipaddress/service/getclient.php -q -O -`;
+				clientVer=`wget http://$ipaddress/service/getclient.php -q -O -`;
 			fi
 			count=`expr $count '+' 1`
 			sleep 2;
