@@ -12,17 +12,9 @@
 class StorageManagementPage extends FOGPage
 {
 	// Base variables
-	var $name = 'Storage Management';
-	var $node = 'storage';
-	var $id = 'id';
-	// Menu Items
-	var $menu = array(
-	);
-	var $subMenu = array(
-	);
+	public $node = 'storage';
 	public function __construct($name = '') {
 		$this->name = 'Storage Management';
-		$this->node = 'storage';
 		parent::__construct($this->name);
 		$this->menu = array(
 			'' => $this->foglang[AllSN],
