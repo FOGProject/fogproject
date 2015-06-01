@@ -3,13 +3,11 @@ class MulticastTask extends FOGBase {
 	// Updated to only care about tasks in its group
 	public static function getAllMulticastTasks($root) {
 		global $FOGCore;
-		$arTasks = array();
+		$Tasks = array();
 		foreach($FOGCore->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3))) AS $MultiSess) {
-			$Image = new Image($MultiSess->get('image'));
-			if (in_array($FOGCore->resolveHostname($Image->getStorageGroup()->getOptimalStorageNode()->get('ip')),$FOGCore->getIPAddress()))
-			{
+			$Image = $FOGCore->getClass('Image',$MultiSess->get('image'));
+			if (in_array($FOGCore->resolveHostname($Image->getStorageGroup()->getOptimalStorageNode()->get('ip')),$FOGCore->getIPAddress())) {
 				$count = $FOGCore->getClass('MulticastSessionsAssociationManager')->count(array('msID' => $MultiSess->get('id')));
-				$Image = new Image($MultiSess->get('image'));
 				$Tasks[] = new self(
 					$MultiSess->get('id'), 
 					$MultiSess->get('name'),
@@ -22,7 +20,7 @@ class MulticastTask extends FOGBase {
 				);
 			}
 		}
-		return $Tasks;
+		return array_filter($Tasks);
 	}
 	private $intID, $strName, $intPort, $strImage, $strEth, $intClients;
 	private $intImageType, $intOSID;
@@ -65,8 +63,7 @@ class MulticastTask extends FOGBase {
 			' --nopointopoint;',
 		);
 		$buildcmd = array_values(array_filter($buildcmd));
-		if ($this->getImageType() == 4)
-		{
+		if ($this->getImageType() == 4) {
 			if (is_dir($this->getImagePath())) {
 				if($handle = opendir($this->getImagePath())) {
 					while (false !== ($file = readdir($handle))) {
