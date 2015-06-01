@@ -321,9 +321,9 @@ writeImage()  {
 	else 
 		# partclone
 		pigz -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
-	fi
-	if [ "$?" != 0 ]; then
-		handleError "Image failed to restore";
+		if [ "$?" != 0 ]; then
+			handleError "Image failed to restore";
+		fi
 	fi
 	rm /tmp/pigz1;
 }
@@ -338,9 +338,9 @@ writeImageMultiCast() {
 	else 
 		# partclone
 		pigz -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;
-	fi
-	if [ "$?" != 0 ]; then
-		handleError "Image failed to restore";
+		if [ "$?" != 0 ]; then
+			handleError "Image failed to restore";
+		fi
 	fi
 	rm /tmp/pigz1
 }
