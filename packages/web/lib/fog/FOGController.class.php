@@ -182,12 +182,15 @@ abstract class FOGController extends FOGBase {
 			// Build insert key and value arrays
 			foreach ($this->databaseFields AS $name => $fieldName) {
 				if ($this->get($name) != '') {
-					$insertKeys[] = $fieldName;
+					$insertKeys[] = (preg_match('#default#i',$fieldName) ? '`'.$fieldName.'`' : $fieldName);
 					$insertValues[] = $this->DB->sanitize($this->get($name));
 				}
 			}
 			// Build update field array using filtered data
-			foreach ($fieldsToUpdate AS $name => $fieldName) $updateData[] = sprintf("%s = '%s'", $this->DB->sanitize($fieldName), $this->DB->sanitize($this->get($name)));
+			foreach ($fieldsToUpdate AS $name => $fieldName) {
+				$fieldName = (preg_match('#default#i',$fieldName) ? '`'.$fieldName.'`' : $fieldName);
+				$updateData[] = sprintf("%s = '%s'", $fieldName, $this->DB->sanitize($this->get($name)));
+			}
 			// Force ID to update so ID is returned on DUPLICATE UPDATE - No ID was returning when A) Nothing is inserted (already exists) or B) Nothing is updated (data has not changed)
 			$updateData[] = sprintf("%s = LAST_INSERT_ID(%s)", $this->DB->sanitize($this->databaseFields['id']), $this->DB->sanitize($this->databaseFields['id']));
 			// Insert & Update query all-in-one
@@ -195,7 +198,7 @@ abstract class FOGController extends FOGBase {
 				$this->databaseTable,
 				implode(", ", (array)$insertKeys),
 				implode("', '", (array)$insertValues),
-				implode(', ', $updateData)
+				implode(', ', (array)$updateData)
 			);
 			if (!$this->DB->query($query)) throw new Exception($this->DB->sqlerror());
 			// Database query was successful - set ID if ID was not set

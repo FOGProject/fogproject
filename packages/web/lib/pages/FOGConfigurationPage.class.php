@@ -444,8 +444,7 @@ class FOGConfigurationPage extends FOGPage {
 		print _("This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.");
 		print "\n\t\t\t</div>";
 		$ClientUpdates = $this->getClass('ClientUpdaterManager')->find('','name');
-		foreach ((array)$ClientUpdates AS $ClientUpdate)
-		{
+		foreach ((array)$ClientUpdates AS $ClientUpdate) {
 			$this->data[] = array(
 				'action' => $this->formAction.'&tab=clientupdater',
 				'name' => $ClientUpdate->get('name'),
@@ -495,35 +494,23 @@ class FOGConfigurationPage extends FOGPage {
 	/** client_updater_post()
 		Just updates the values set in client_updater().
 	*/
-	public function client_updater_post()
-	{
-		$Service = current($this->getClass('ServiceManager')->find(array('name' => $_REQUEST['name'])));
-		if ($_REQUEST['en'])
-			$Service && $Service->isValid() ? $Service->set('value',$_REQUEST['en'])->save() : null;
-		if ($_REQUEST['delcu'])
-		{
+	public function client_updater_post() {
+		if ($_REQUEST['delcu']) {
 			$ClientUpdater = new ClientUpdater($_REQUEST['delcu']);
 			$ClientUpdater->destroy();
 			$this->FOGCore->setMessage(_('Client module update deleted!'));
 		}
-		if ($_FILES['module'])
-		{
-			foreach((array)$_FILES['module']['tmp_name'] AS $index => $tmp_name)
-			{
-				if (file_exists($_FILES['module']['tmp_name'][$index]))
-				{
+		if ($_FILES['module']) {
+			foreach((array)$_FILES['module']['tmp_name'] AS $index => $tmp_name) {
+				if (file_exists($_FILES['module']['tmp_name'][$index])) {
 					$ClientUpdater = current($this->getClass('ClientUpdaterManager')->find(array('name' => $_FILES['module']['name'][$index])));
-					if(file_get_contents($_FILES['module']['tmp_name'][$index]))
-					{
-						if ($ClientUpdater)
-						{
+					if(file_get_contents($_FILES['module']['tmp_name'][$index])) {
+						if ($ClientUpdater) {
 							$ClientUpdater->set('name',basename($_FILES['module']['name'][$index]))
 								->set('md5',md5(file_get_contents($_FILES['module']['tmp_name'][$index])))
 								->set('type',($this->FOGCore->endsWith($_FILES['module']['name'][$index],'.ini') ? 'txt' : 'bin'))
 								->set('file',file_get_contents($_FILES['module']['tmp_name'][$index]));
-						}
-						else
-						{
+						} else {
 							$ClientUpdater = new ClientUpdater(array(
 								'name' => basename($_FILES['module']['name'][$index]),
 								'md5' => md5(file_get_contents($_FILES['module']['tmp_name'][$index])),
@@ -547,8 +534,7 @@ class FOGConfigurationPage extends FOGPage {
 		
 		Then it updates the database with these values.
 	*/
-	public function mac_list()
-	{
+	public function mac_list() {
 		// Set title
 		$this->title = _("MAC Address Manufacturer Listing");
         // Allow the updating and deleting of the mac-lists.
@@ -617,8 +603,7 @@ class FOGConfigurationPage extends FOGPage {
 		help limit typos in the old text based system.
 		Passwords are blocked with the password form field.
 	*/
-	public function settings()
-	{
+	public function settings() {
 		$ServiceNames = array(
 			'FOG_REGISTRATION_ENABLED',
 			'FOG_PXE_MENU_HIDDEN',
