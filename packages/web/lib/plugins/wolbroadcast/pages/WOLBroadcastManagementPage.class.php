@@ -1,9 +1,9 @@
 <?php
 class WOLBroadcastManagementPage extends FOGPage {
+	public $node = 'wolbroadcast';
 	// __construct
 	public function __construct($name = '') {
 		$this->name = 'WOL Broadcast Management';
-		$this->node = 'wolbroadcast';
 		// Call parent constructor
 		parent::__construct($this->name);
 		if ($_REQUEST['id']) {

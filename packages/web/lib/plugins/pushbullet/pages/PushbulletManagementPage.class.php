@@ -1,12 +1,12 @@
 <?php
 class PushbulletManagementPage extends FOGPage {
+	public $node = 'pushbullet';
 	/** @function __construct() constructor
 	  * @param $name the name to send
 	  * @return void
 	  */
 	public function __construct($name = '') {
 		$this->name = 'Pushbullet Management';
-		$this->node = 'pushbullet';
 		// Call parent constructor
 		parent::__construct($this->name);
 		$this->menu = array(

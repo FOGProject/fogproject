@@ -1,8 +1,8 @@
 <?php
 class NodeclientManagementPage extends FOGPage {
+	public $node = 'nodeclient';
 	public function __construct($name = '') {
 		$this->name = 'Node Client Configuration';
-		$this->node = 'nodeclient';
 		// Call parent constructor
 		parent::__construct($name);
 		if ($_REQUEST['id']) {
