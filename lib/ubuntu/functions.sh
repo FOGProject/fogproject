@@ -41,13 +41,13 @@ installInitScript()
 		systemctl stop ${initdSRfullname} >/dev/null 2>&1;
 		cp -f ${initdsrc}/* ${initdpath}/
 		chmod 755 ${initdpath}/${initdMCfullname}
-		systemctl enable ${initdMCfullname};
+		systemctl enable ${initdMCfullname} >/dev/null 2>&1;
 		chmod 755 ${initdpath}/${initdIRfullname}
-		systemctl enable ${initdIRfullname};
+		systemctl enable ${initdIRfullname} >/dev/null 2>&1;
 		chmod 755 ${initdpath}/${initdSDfullname}
-		systemctl enable ${initdSDfullname};
+		systemctl enable ${initdSDfullname} >/dev/null 2>&1;
 		chmod 755 ${initdpath}/${initdSRfullname}
-		systemctl enable ${initdSRfullname};
+		systemctl enable ${initdSRfullname} >/dev/null 2>&1;
 	else
 		${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
 		${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
@@ -150,10 +150,10 @@ ${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,inse
 	echo -n "  * Setting up and starting NFS Server..."; 
 	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
 		systemctl enable rpcbind >/dev/null 2>&1;
-		systemctl enable nfs-server.service >/dev/null 2>&1;
+		systemctl enable nfs-kernel-server.service >/dev/null 2>&1;
 		systemctl restart rpcbind >/dev/null 2>&1;
-		systemctl restart nfs-server.service >/dev/null 2>&1;
-		systemctl status rpcbind >/dev/null 2>&1 && systemctl status nfs-server.service >/dev/null 2>&1;
+		systemctl restart nfs-kernel-server.service >/dev/null 2>&1;
+		systemctl status rpcbind >/dev/null 2>&1 && systemctl status nfs-kernel-server.service >/dev/null 2>&1;
 	else
 		sysv-rc-conf nfs-kernel-server on >/dev/null 2>&1;
 		/etc/init.d/nfs-kernel-server stop >/dev/null 2>&1;
