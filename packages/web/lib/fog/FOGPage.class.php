@@ -437,16 +437,19 @@ abstract class FOGPage extends FOGBase {
 		$this->templates = array(
 			'<a href="?node='.$this->node.'&sub=edit&id=${id}">${name}</a>',
 		);
-		foreach ((array)explode(',',$_REQUEST[strtolower($this->childClass).'IDArray']) AS $id) {
-			$Obj = $this->getClass($this->childClass,$id);
-			if ($Obj && $Obj->isValid() && !$Obj->get('protected')) {
-				$this->data[] = array(
-					'id' => $Obj->get('id'),
-					'name' => $Obj->get('name'),
-				);
-				$_SESSION['delitems'][$this->node][] = $Obj->get('id');
-				array_push($this->additional,'<p>'.$Obj->get('name').'</p>');
-			}
+		$this->additional = array();
+		$ids = explode(',',$_REQUEST[strtolower($this->childClass).'IDArray']);
+		$findWhere = array('id' => $ids);
+		if (array_key_exists('protected',$this->getClass($this->childClass)->databaseFields))
+			$findWhere['protected'] = array('',null,0,false);
+		$_SESSION['delitems'][$this->node] = $this->getClass($this->childClass.'Manager')->find($findWhere,'','','','','','','id');
+		$Objs = $this->getClass($this->childClass.'Manager')->find(array('id' => $_SESSION['delitems'][$this->node]));
+		foreach ((array)$Objs AS $Obj) {
+			$this->data[] = array(
+				'id' => $Obj->get('id'),
+				'name' => $Obj->get('name'),
+			);
+			array_push($this->additional,'<p>'.$Obj->get('name').'</p>');
 		}
 		if (count($_SESSION['delitems'])) {
 			print '<div class="confirm-message">';
@@ -467,8 +470,10 @@ abstract class FOGPage extends FOGBase {
 	public function deleteconf() {
 		foreach($_SESSION['delitems'][$this->node] AS $id) {
 			$Obj = $this->getClass($this->childClass,$id);
-			if ($Obj && $Obj->isValid() && !$Obj->get('protected')) $Obj->destroy();
+			if ($Obj->isValid() && !$Obj->get('protected')) $ids[] = $id;
 		}
+		$ids = array_filter(array_unique($ids));
+		$this->getClass($this->childClass.'Manager')->destroy(array('id' => $ids));
 		unset($_SESSION['delitems']);
 		$this->FOGCore->setMessage('All selected items have been deleted');
 		$this->FOGCore->redirect('?node='.$this->node);

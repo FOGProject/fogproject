@@ -100,11 +100,7 @@ class FOGCore extends FOGBase {
 	/** clearMACLookupTable()
 		Clear's all entries in the table.
 	*/
-	public function clearMACLookupTable() {
-		$OUI = new OUI(array('id' => 0));
-		$this->DB->query("TRUNCATE TABLE ".$OUI->databaseTable);
-		return (!$this->DB->fetch()->get());
-	}
+	public function clearMACLookupTable() {return !$this->DB->query("TRUNCATE TABLE %s".$this->getClass('OUI')->databaseTable)->fetch()->get();}
 	/** getMACLookupCount()
 		returns the number of MAC's loaded.
 	*/

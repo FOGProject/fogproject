@@ -31,7 +31,7 @@ OSVER=`awk -F\" '/^VERSION_ID=\"/ {print $2}' /etc/os-release | cut -d. -f 1`;
 
 # where do the init scripts go?
 if [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ] || [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ]; then
-	initdpath="/usr/lib/systemd/system";
+	initdpath="/lib/systemd/system";
 	initdsrc="../packages/systemd";
 	initdMCfullname="FOGMulticastManager.service";
 	initdIRfullname="FOGImageReplicator.service";
