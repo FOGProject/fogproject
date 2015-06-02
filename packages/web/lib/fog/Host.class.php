@@ -31,6 +31,7 @@ class Host extends FOGController {
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
 		'mac',
+		'primac',
 		'image',
 		'additionalMACs',
 		'pendingMACs',
@@ -57,6 +58,7 @@ class Host extends FOGController {
 	);
 	// Class to field relationships
 	public $databaseFieldClassRelationships = array(
+		'MACAddressAssociation' => array('hostID','id','primac',array('primary' => 1)),
 		'Image' => array('id','imageID','image'),
 		'Inventory' => array('hostID','id','inv'),
 	);
@@ -68,21 +70,19 @@ class Host extends FOGController {
 	public function load($field = 'id') {
 		parent::load($field);
 		$this->getMACAddress();
-		$this->getActiveSnapinJob();
 		foreach(get_class_methods($this) AS $method) {
 			if (strlen($method) > 5 && (strpos($method,'load') !== false)) $this->$method();
 		}
+		$this->getActiveSnapinJob();
 	}
 	// Snapins
 	public function getImage() {
 		return $this->get('image');
-		return $this->getClass('Image',$this->get('imageID'));
 	}
 	public function getOS() {
 		return $this->getImage()->getOS();
 	}
 	public function getMACAddress() {
-		$this->set('mac', $this->getClass('MACAddress',$this->get('mac')));
 		return $this->get('mac');
 	}
 	public function getDefault($printerid) {
@@ -149,10 +149,7 @@ class Host extends FOGController {
 		return $this;
 	}
 	private function loadPrimary() {
-		if (!$this->isLoaded('mac') && $this->get('id')) {
-			foreach($this->getClass('MACAddressAssociationManager')->find(array('primary' => 1,'hostID' => $this->get('id'))) AS $PriMAC)
-				$this->set('mac',$this->getClass('MACAddress',$PriMAC));
-		}
+		if (!$this->isLoaded('mac') && $this->get('id')) $this->set('mac',$this->getClass('MACAddress',$this->get('primac')));
 		return $this;
 	}
 	private function loadAdditional() {
@@ -227,9 +224,7 @@ class Host extends FOGController {
 		return $this;
 	}
 	private function loadOptimalStorageNode() {
-		if (!$this->isLoaded('optimalStorageNode') && $this->get('id')) {
-			if ($this->getImage() && $this->getImage()->isValid()) $this->set('optimalStorageNode',$this->getImage()->getStorageGroup()->getOptimalStorageNode());
-		}
+		if (!$this->isLoaded('optimalStorageNode') && $this->get('id') && $this->getImage() && $this->getImage()->isValid()) $this->set('optimalStorageNode',$this->getImage()->getStorageGroup()->getOptimalStorageNode());
 	}
 	// Overrides
 	public function get($key = '') {
@@ -282,8 +277,7 @@ class Host extends FOGController {
 			$value = (array)$newValue;
 		} else if (($this->key($key) == 'inventory')) {
 			$this->loadInventory();
-			if (!($value instanceof Inventory))
-				$value = new Inventory($value);
+			if (!($value instanceof Inventory)) $value = new Inventory($value);
 		} else if (in_array($this->key($key),array('groups','groupsnotinme'))) {
 			$this->loadGroups();
 			foreach ((array)$value AS $group)
@@ -349,7 +343,7 @@ class Host extends FOGController {
 		parent::save();
 		if ($this->isLoaded('mac')) {
 			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 1));
-			if (($this->getMACAddress() instanceof MACAddress) && $this->getMACAddress()->isValid()) {
+			if (($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid()) {
 				$this->getClass('MACAddressAssociation')
 					->set('hostID', $this->get('id'))
 					->set('mac',strtolower($this->get('mac')))
@@ -360,12 +354,14 @@ class Host extends FOGController {
 			}
 		}
 		if ($this->isLoaded('additionalMACs')) {
-			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 0));
+			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 0));
 			foreach((array)$this->get('additionalMACs') AS $me) {
 				if (($me instanceof MACAddress) && $me->isValid()) {
 					$this->getClass('MACAddressAssociation')
 						->set('hostID',$this->get('id'))
 						->set('mac',strtolower($me))
+						->set('primary', 0)
+						->set('pending', 0)
 						->set('clientIgnore',$me->isClientIgnored())
 						->set('imageIgnore',$me->isImageIgnored())
 						->save();
@@ -373,12 +369,13 @@ class Host extends FOGController {
 			}
 		}
 		if ($this->isLoaded('pendingMACs')) {
-			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'pending' => 1));
+			$this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 1));
 			foreach((array)$this->get('pendingMACs') AS $me) {
 				if (($me instanceof MACAddress) && $me->isValid()) {
 					$this->getClass('MACAddressAssociation')
 						->set('hostID',$this->get('id'))
 						->set('mac',strtolower($me))
+						->set('primary', 0)
 						->set('pending', 1)
 						->set('clientIgnore',$me->isClientIgnored())
 						->set('imageIgnore',$me->isImageIgnored())

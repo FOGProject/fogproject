@@ -414,7 +414,7 @@ class HostManagementPage extends FOGPage {
 			}
 		}
 		foreach((array)$Host->get('additionalMACs') AS $MAC) {
-			if ($MAC && $MAC->isValid())
+			if ($MAC && $MAC->isValid()) 
 				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" /><input title="'._('Remove MAC').'" type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" /><label for="rm'.$MAC.'" class="icon fa fa-minus-circle hand">&nbsp;</label><span class="icon icon-hand" title="'._('Make Primary').'"><input type="radio" name="primaryMAC" value="'.$MAC.'" /></span><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$Host->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$Host->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span></div>';
 		}
 		foreach ((array)$Host->get('pendingMACs') AS $MAC) {
@@ -1137,32 +1137,30 @@ class HostManagementPage extends FOGPage {
 					// Define new Image object with data provided
 
 					$Host->set('name',$_REQUEST['host'])
-						 ->set('description',$_REQUEST['description'])
-						 ->set('imageID',$_REQUEST['image'])
-						 ->set('kernel',$_REQUEST['kern'])
-						 ->set('kernelArgs',$_REQUEST['args'])
-						 ->set('kernelDevice',$_REQUEST['dev'])
-						 ->set('productKey',base64_encode($_REQUEST['key']));
-					if (strtolower($Host->get('mac')) != strtolower($mac->__toString()))
-						$Host->addPriMAC($mac->__toString());
-					if (isset($_REQUEST['primaryMAC']))
-					{
-						$newPriMAC = new MACAddress($_REQUEST['primaryMAC']);
-						$Host->addAddMAC($Host->get('mac'));
-						$Host->removeAddMAC($newPriMAC);
-						$Host->addPriMAC($newPriMAC);
+						->set('description',$_REQUEST['description'])
+						->set('imageID',$_REQUEST['image'])
+						->set('kernel',$_REQUEST['kern'])
+						->set('kernelArgs',$_REQUEST['args'])
+						->set('kernelDevice',$_REQUEST['dev'])
+						->set('productKey',base64_encode($_REQUEST['key']));
+					if (strtolower($Host->get('mac')->__toString()) != strtolower($mac->__toString()))
+						$Host->set('mac', strtolower($mac->__toString()));
+					$MyMACs = $AddMe = array();
+					foreach((array)$_REQUEST['additionalMACs'] AS $MAC) {
+						$MAC = (!($MAC instanceof MACAddress) ? $this->getClass('MACAddress',$MAC) : $MAC);
+						if ($MAC->isValid()) $AddMe[] = strtolower($MAC->__toString());
 					}
-					// Add Additional MAC Addresses
-					foreach((array)$_REQUEST['additionalMACs'] AS $MAC)
-					{
-						$PriMAC = (strtolower($Host->get('mac')->__toString()) == strtolower($MAC) ? true : false);
-						$AddMAC = current($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $Host->get('id'),'mac' => $MAC)));
-						if (!$PriMAC && (!$AddMAC || !$AddMAC->isValid()))
-							$AddToAdditional[] = $MAC;
+					foreach((array)$Host->get('additionalMACs') AS $MyMAC) {
+						if ($MyMAC->isValid()) $MyMACs[] = strtolower($MyMAC->__toString());
 					}
-					$Host->addAddMAC($AddToAdditional);
-					if(isset($_REQUEST['additionalMACsRM']))
-						$Host->removeAddMAC($_REQUEST['additionalMACsRM']);
+					if (isset($_REQUEST['primaryMAC'])) {
+						$AddMe[] = strtolower($mac->__toString());
+						$Host->removeAddMAC($_REQUEST['primaryMAC'])
+							->set('mac', strtolower($_REQUEST['primaryMAC']));
+					}
+					$AddMe = array_diff((array)$AddMe,(array)$MyMACs);
+					if (count($AddMe)) $Host->addAddMAC($AddMe);
+					if(isset($_REQUEST['additionalMACsRM'])) $Host->removeAddMAC($_REQUEST['additionalMACsRM']);
 				break;
 				case 'host-grouprel';
 					if (isset($_REQUEST['addGroups']))
