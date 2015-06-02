@@ -700,8 +700,7 @@ class GroupManagementPage extends FOGPage {
                 break;
 			}
             // Save to database
-			if ($Group->save())
-			{
+			if ($Group->save()) {
 				// Hook
 				$this->HookManager->processEvent('GROUP_EDIT_SUCCESS', array('Group' => &$Group));
 				// Log History event
@@ -710,9 +709,7 @@ class GroupManagementPage extends FOGPage {
 				$this->FOGCore->setMessage('Group information updated!');
 				// Redirect to new entry
 				$this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $this->request['node'], $this->id, $Group->get('id'), $this->REQUEST['tab']));
-			}
-			else
-				throw new Exception('Database update failed');
+			} else throw new Exception('Database update failed');
 		}
 		catch (Exception $e)
 		{

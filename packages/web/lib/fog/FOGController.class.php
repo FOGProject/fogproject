@@ -13,11 +13,11 @@ abstract class FOGController extends FOGBase {
 	  * The Query template in case of multiple items passed to data
 	  * Protected so as to allow other classes to assign into them
 	  */
-	protected $loadQueryTemplateSingle = "SELECT * FROM %s %s WHERE %s='%s'";
+	protected $loadQueryTemplateSingle = "SELECT * FROM %s %s WHERE %s='%s' %s";
 	/** @var loadQueryTemplateMultiple
 	  * The Query template in case of multiple items passed to data
 	  */
-	protected $loadQueryTemplateMultiple = "SELECT * FROM %s %s WHERE %s";
+	protected $loadQueryTemplateMultiple = "SELECT * FROM %s %s WHERE %s %s";
 	/** @var databaseFieldsToIgnore
 	  * Which fields to not really care about updatin
 	  */
@@ -158,6 +158,7 @@ abstract class FOGController extends FOGBase {
 			if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key,$this->databaseFieldClassRelationships)) throw new Exception('Invalid data being removed');
 			if (array_key_exists($key, $this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
 			$this->info('Remove attempt: Key: %s, Object: %s', array($key, $object));
+			if (!is_array($this->data[$key])) $this->data[$key] = array($this->data[$key]);
 			asort($this->data[$key]);
 			$index = $this->binary_search($object,$this->data[$key]);
 			if ($index > -1) unset($this->data[$key][$index]);
@@ -229,7 +230,8 @@ abstract class FOGController extends FOGBase {
 					$this->loadQueryTemplateMultiple,
 					$this->databaseTable,
 					$join,
-					implode(' OR ', $fieldData)
+					implode(' OR ', $fieldData),
+					count($where) ? ' AND '.implode(' AND ',$where) : ''
 				);
 			} else {
 				// Single value
@@ -238,7 +240,8 @@ abstract class FOGController extends FOGBase {
 					$this->databaseTable,
 					$join,
 					$this->databaseFields[$field],
-					$this->get($field)
+					$this->get($field),
+					count($where) ? '  AND '.implode(' AND ',$where) : ''
 				);
 			}
 			$this->setQuery($this->DB->query($query)->fetch()->get());
