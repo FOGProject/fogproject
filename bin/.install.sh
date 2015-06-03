@@ -280,7 +280,7 @@ do
 					echo "         MYSQLI_ASYNC is what is Defaulted and recommended";
 					echo -n "          Any value not equal to MYSQLI_ASYNC and not blank will use store result ";
 					read mysql_conntype;
-					if [ -z "$mysql_conntype" == "" ]; then
+					if [ -z "$mysql_conntype" ]; then
 						mysql_conntype="MYSQLI_ASYNC";
 					elif [ "$mysql_conntype" != "MYSQLI_ASYNC" -o "$mysql_conntype" != "" ]; then
 						mysql_conntype="MYSQLI_STORE_RESULT";
