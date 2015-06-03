@@ -51,7 +51,7 @@ if [ "$imgType" == "n" ]; then
 	win7rec="";
 	win7sys="";
 	if [ -f "$win7imgroot/sys.img.000" ] || grep -q "sys.img.000" /tmp/filelist.txt &>/dev/null ; then
-		if [[ "$osid" == +([5-7]) ]]; then
+		if [[ "$osid" == +([5-7]|9) ]]; then
 			dots "Windows Boot Partition Exists";
 			if [ -f "$win7imgroot/rec.img.000" ] || grep -q "rec.img.000" /tmp/filelist.txt &>/dev/null ; then
 				echo "Yes";
@@ -219,7 +219,7 @@ if [ "$imgType" == "n" ]; then
 	# Linux:
 	#  restore MBR/GRUB
 	#  resize original partition table to current disk, and apply it
-	elif [[ "$osid" == +([1-2]|[5-7]|50) ]]; then
+	elif [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
 		debugPause;
 		restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
 		dots "Expanding partition table to fill disk";
@@ -259,7 +259,7 @@ if [ "$mc" == "yes" ]; then
 	sleep 10
 fi
 if [ "$imgType" == "n" ]; then
-	if [ -f "$win7imgroot/sys.img.000" ] && [[ "$osid" == +([5-7]) ]]; then
+	if [ -f "$win7imgroot/sys.img.000" ] && [[ "$osid" == +([5-7]|9) ]]; then
 		if [ "$win7partcnt" == "1" ]; then
 			restorePartition "$win7sys";
 		elif [ "$win7partcnt" == "2" ]; then
@@ -279,7 +279,7 @@ if [ "$imgType" == "n" ]; then
 	#  clone filesystem
 	#  restore EBR so that the extended and logical partitions are not corrupted
 	#  expand the partitions
-	elif [[ "$osid" == +([1-2]|[5-7]|50) ]]; then
+	elif [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
 		parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 		diskLength=`expr length $hd`;
 		for part in $parts; do
@@ -349,7 +349,7 @@ if [ -f "/images/postdownloadscripts/fog.postdownload" ]; then
 	. ${postdownpath}fog.postdownload;
 fi
 if [ "$capone" != "1" ]; then
-	if [[ "$osid" == +(1|[5-7]) ]]; then
+	if [[ "$osid" == +(1|[5-7]|9) ]]; then
 		parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 		for part in $parts; do
 			fstype=`fsTypeSetting $part`;

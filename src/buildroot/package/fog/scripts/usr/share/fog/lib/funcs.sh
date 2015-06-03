@@ -124,7 +124,7 @@ getDiskSize() {
 }
 validResizeOS() {
 	#Valid OSID's are 1 XP, 2 Vista, 5 Win 7, 6 Win 8, 7 Win 8.1, and 50 Linux
-	if [[ "$osid" != +([1-2]|[5-7]|50) ]]; then
+	if [[ "$osid" != +([1-2]|[5-7]|9|50) ]]; then
 		handleError " * Invalid operating system id: $osname ($osid)!";
 	fi
 }
@@ -395,7 +395,7 @@ changeHostname() {
 		regfile="";
 		key1="";
 		key2="";
-		if [[ "$osid" == +([5-7]) ]]; then
+		if [[ "$osid" == +([5-7]|9) ]]; then
 			regfile=$REG_LOCAL_MACHINE_7
 			key1=$REG_HOSTNAME_KEY1_7
 			key2=$REG_HOSTNAME_KEY2_7
@@ -431,7 +431,7 @@ EOFREG
 }
 fixWin7boot() {
 	local fstype=`fsTypeSetting $1`;
-	if [[ "$osid" == +([5-7]) ]]; then
+	if [[ "$osid" == +([5-7]|9) ]]; then
 		dots "Backing up and replacing BCD";
 		if [ $fstype == "ntfs" ]; then
 			mkdir /bcdstore &>/dev/null;
@@ -453,7 +453,7 @@ fixWin7boot() {
 }
 clearMountedDevices() {
 	mkdir /ntfs &>/dev/null
-	if [[ "$osid" == +([5-7]) ]]; then
+	if [[ "$osid" == +([5-7]|9) ]]; then
 		fstype=`fsTypeSetting $1`;
 		dots "Clearing part ($1)";
 		if [ "$fstype" == "ntfs" ]; then
@@ -486,7 +486,7 @@ removePageFile() {
 	if [ "$fstype" != "ntfs" ]; then
 		echo " * No ntfs file system to remove page file"
 		debugPause;
-	elif [[ "$osid" == +([1-2]|[5-7]|50) ]]; then
+	elif [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
 		if [ "$ignorepg" == "1" ]; then
 			dots "Mounting device";
 			mkdir /ntfs &>/dev/null;
@@ -585,6 +585,9 @@ determineOS() {
 			defaultpart2start="368050176B";
 		elif [ "$1" = "8" ]; then
 			osname="Apple Mac OS";
+			mbrfile="";
+		elif [ "$1" = "9" ]; then
+			osname="Windows 10";
 			mbrfile="";
 		elif [ "$1" = "50" ]; then
 			osname="Linux";
@@ -730,7 +733,7 @@ handleError() {
 	# Windows 2000/XP, Vista:
 	# Linux:
 	if [ "$2" == "yes" ]; then
-		if [[ "$osid" == +([1-2]|[5-7]|50) ]]; then
+		if [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
 			parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 			for part in $parts; do
 				expandPartition "$part";

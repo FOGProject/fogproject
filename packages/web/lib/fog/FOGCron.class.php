@@ -38,7 +38,6 @@ class FOGCron extends FOGBase {
 	}
 	public function shouldRunCron($Time) {
 		$CurrTime = $this->nice_date();
-		if ($Time <= $CurrTime) return true;
-		return false;
+		return ($Time <= $CurrTime);
 	}
 }
