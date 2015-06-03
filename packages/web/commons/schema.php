@@ -1917,3 +1917,7 @@ $this->schema[] = array(
 $this->schema[] = array(
 	"UPDATE `".DATABASE_NAME."`.globalSettings SET settingValue=6 WHERE settingKey='FOG_PIGZ_COMP'",
 );
+// 181
+$this->schema[] = array(
+	"INSERT INTO `" . DATABASE_NAME . "`.`os` (`osID`, `osName`, `osDescription`) VALUES ('9', 'Windows 10', '')",
+);

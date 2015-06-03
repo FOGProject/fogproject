@@ -28,10 +28,10 @@ abstract class FOGBase {
 	public $db;
 	/** @var $conn Legacy calls for $db/$conn */
 	public $conn;
-	/** @var $searchPages sets the "isLoaded" variable */
+	/** @var $isLoaded sets the "isLoaded" variable */
 	protected $isLoaded = array();
 	/** @var $searchPages sets the pages that have search as a selector. */
-	protected $searchPages = array();
+	protected $searchPages = array('user','host','group','image','snapin','printer','tasks','task','hosts');
 	/** @function __construct() initiates the FOGBase class
 	  * @return void
 	  */
@@ -47,7 +47,6 @@ abstract class FOGBase {
 		$this->TimeZone = $GLOBALS['TimeZone'];
 		$this->FOGURLRequests = $GLOBALS['FOGURLRequests'];
 		$this->imagelink = $_SESSION['imagelink'];
-		$this->searchPages = array('user','host','group','image','snapin','printer','tasks','task','hosts');
 	}
 	/** @function fatalError() prints error to the screen and exits script
 	  * @param $txt the text of the error
