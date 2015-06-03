@@ -1148,10 +1148,10 @@ class HostManagementPage extends FOGPage {
 					$MyMACs = $AddMe = array();
 					foreach((array)$_REQUEST['additionalMACs'] AS $MAC) {
 						$MAC = (!($MAC instanceof MACAddress) ? $this->getClass('MACAddress',$MAC) : $MAC);
-						if ($MAC->isValid()) $AddMe[] = strtolower($MAC->__toString());
+						if ($MAC && $MAC->isValid()) $AddMe[] = strtolower($MAC->__toString());
 					}
 					foreach((array)$Host->get('additionalMACs') AS $MyMAC) {
-						if ($MyMAC->isValid()) $MyMACs[] = strtolower($MyMAC->__toString());
+						if ($MyMAC instanceof MACAddress && $MyMAC->isValid()) $MyMACs[] = strtolower($MyMAC->__toString());
 					}
 					if (isset($_REQUEST['primaryMAC'])) {
 						$AddMe[] = strtolower($mac->__toString());
