@@ -59,7 +59,6 @@ class Host extends FOGController {
 	// Class to field relationships
 	public $databaseFieldClassRelationships = array(
 		'MACAddressAssociation' => array('hostID','id','primac',array('primary' => 1)),
-		'Image' => array('id','imageID','image'),
 		'Inventory' => array('hostID','id','inv'),
 	);
 	// Custom functons
@@ -77,7 +76,7 @@ class Host extends FOGController {
 	}
 	// Snapins
 	public function getImage() {
-		return $this->get('image');
+		return $this->getClass('Image',$this->get('imageID'));
 	}
 	public function getOS() {
 		return $this->getImage()->getOS();
@@ -675,8 +674,8 @@ class Host extends FOGController {
 	}
 	public function getImageMemberFromHostID() {
 		try {
-			$Image = $this->getImage();
-			if(!$Image->get('id')) throw new Exception('No Image defined for this host');
+			$Image = $this->getClass('Image',$this->get('imageID'));
+			if(!$Image->isValid() || !$Image->get('id')) throw new Exception('No Image defined for this host');
 			$StorageGroup = $Image->getStorageGroup();
 			if(!$StorageGroup->get('id')) throw new Exception('No StorageGroup defined for this host');
 			$Task = $this->getClass('Task')
