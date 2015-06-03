@@ -17,6 +17,7 @@
 #
 #
 #
+RHVER=`awk '{for(i=1;i<=NF;i++) if ($i == "release") print $(i+1)}' /etc/redhat-release | cut -d. -f 1`;
 
 # Yum packages to install
 
@@ -32,14 +33,17 @@ then
     # Fedora
     packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl";
     storageNodePackages="httpd php php-cli php-common php-gd php-mysqlnd mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp curl php-mcrypt php-mbstring mod_ssl";
-    packageinstaller="yum -y --enablerepo=remi,remi-php56 install";
+	if [ "$RHVER" -ge 22 ]; then
+		packageinstaller="dnf -y install";
+	else
+    	packageinstaller="yum -y --enablerepo=remi,remi-php56 install";
+	fi
 else
     # CentOS or Other  PCLinuxOS uses apt-rpm  
     packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl";
     storageNodePackages="httpd php php-cli php-common php-gd mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl";
     packageinstaller="yum -y --enablerepo=remi,remi-php56 install";
 fi
-RHVER=`awk '{for(i=1;i<=NF;i++) if ($i == "release") print $(i+1)}' /etc/redhat-release | cut -d. -f 1`;
 langPackages="iso-codes";
 dhcpname="dhcp";
 nfsservice="nfs";

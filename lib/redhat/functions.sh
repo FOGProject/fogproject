@@ -40,13 +40,13 @@ installInitScript()
 		systemctl stop ${initdSRfullname} >/dev/null 2>&1;
 		cp -f ${initdsrc}/* ${initdpath}/
 		chmod 755 ${initdpath}/${initdMCfullname}
-		systemctl enable ${initdMCfullname};
+		systemctl enable ${initdMCfullname} >/dev/null 2>&1;
 		chmod 755 ${initdpath}/${initdIRfullname}
-		systemctl enable ${initdIRfullname};	
+		systemctl enable ${initdIRfullname} >/dev/null 2>&1;	
 		chmod 755 ${initdpath}/${initdSDfullname}
-		systemctl enable ${initdSDfullname};
+		systemctl enable ${initdSDfullname} >/dev/null 2>&1;
 		chmod 755 ${initdpath}/${initdSRfullname}
-		systemctl enable ${initdSRfullname};
+		systemctl enable ${initdSRfullname} >/dev/null 2>&1;
 	else
 		service ${initdMCfullname} stop >/dev/null 2>&1;
 		service ${initdIRfullname} stop >/dev/null 2>&1;
@@ -643,7 +643,12 @@ installPackages()
 		if [ "$linuxReleaseName" == "CentOS" ]; then
 			yum -y install epel-release &> /dev/null;
 		fi
-		rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-$RHVER.rpm &> /dev/null;
+		if [ "$linuxReleaseName" == "Fedora" ]; then
+			repo="fedora";
+		else
+			repo="enterprise";
+		fi
+		rpm -Uvh http://rpms.famillecollet.com/$repo/remi-release-$RHVER.rpm &> /dev/null;
 		rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi &> /dev/null
 		echo "OK";
 	fi
