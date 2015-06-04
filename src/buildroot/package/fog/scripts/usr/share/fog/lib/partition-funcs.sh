@@ -594,8 +594,8 @@ getDesiredPartitionTableType() {
     [[ $gptsig == "EFI PART" ]] && table_type="GPT"
 =======
 	local disk="$1";
-	local mbr=`gdisk -l $disk | awk '/^\ *MBR/{print $2}'`;
-	local gpt=`gdisk -l $disk | awk '/^\ *GPT/{print $2}'`;
+	local mbr=`gdisk -l $disk | awk '/^\ *MBR:/{print $2}'`;
+	local gpt=`gdisk -l $disk | awk '/^\ *GPT:/{print $2}'`;
 	local type="";
 	local mbrtype="";
 	local gpttype="";
@@ -635,7 +635,7 @@ hasHybridMBR() {
     [[ $mbr == hybrid ]] && echo 1 || echo 0
 =======
 	local disk="$1";
-	local mbr=`gdisk -l $disk | awk '/^\ *MBR/{print $2}'`;
+	local mbr=`gdisk -l $disk | awk '/^\ *MBR:/{print $2}'`;
 	if [ "$mbr" == "hybrid" ]; then
 		echo "1";
 	else
@@ -855,7 +855,7 @@ majorDebugShowCurrentPartitionTable() {
     esac
 =======
 	local disk="$1";
-	local gpt=`gdisk -l $disk | awk '/^\ *GPT/{print $2}'`;
+	local gpt=`gdisk -l $disk | awk '/^\ *GPT:/{print $2}'`;
 	if [ "$gpt" == "present" ]; then
 		echo "1";
 	elif [ "$gpt" == "not" ]; then
