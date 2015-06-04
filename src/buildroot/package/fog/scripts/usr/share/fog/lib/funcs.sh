@@ -648,7 +648,7 @@ getHardDisk() {
 	else
 		for i in `lsblk -dpno KNAME|sort`; do
 			hd="$i";
-			if [ -z "$1" ]; then
+			if [ -z "$1" -a ! -z "$hd" ]; then
 				echo "Done";
 				clearPartitionTables "$hd";
 				dots "Creating disk with new label";
@@ -667,6 +667,8 @@ getHardDisk() {
 				echo "Done";
 				debugPause;
 			fi
+			if [ ! -z "$hd" ]; then
+				return 0;
 		done;
 		if [ -z "$hd" ]; then
 			handleError "Cannot find HDD on system";
