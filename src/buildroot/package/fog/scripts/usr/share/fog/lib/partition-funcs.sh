@@ -73,7 +73,7 @@ makeSwapUUIDFile() {
 # $1 is the location of the file to store uuids in
 # $2 is the partition device name
 saveSwapUUID() {
-	local uuid=`blkid $2 | awk '{print $2;}' | sed 's/"//g' | awk -F= '{print $2;}'`;
+	local uuid=`blkid $2 | awk -F\" '{print $2}'`;
 	if [ -n "$uuid" ]; then
 		echo " * Saving UUID ($uuid) for ($2)";
 		echo "$2 $uuid" >> $1;
@@ -221,8 +221,8 @@ processSfdisk() {
 # $1 : device name of drive
 getPartitionTableType() {
 	local disk="$1";
-	local mbr=`gdisk -l $disk | egrep '^ *MBR:' | awk '{print $2;}'`;
-	local gpt=`gdisk -l $disk | egrep '^ *GPT:' | awk '{print $2;}'`;
+	local mbr=`gdisk -l $disk | awk '/^ *MBR/{print $2}'`;
+	local gpt=`gdisk -l $disk | awk '/^ *GPT/{print $2}'`;
 	local type="";
 	local mbrtype="";
 	local gpttype="";
@@ -256,7 +256,7 @@ getPartitionTableType() {
 # $1 : device name of drive
 hasHybridMBR() {
 	local disk="$1";
-	local mbr=`gdisk -l $disk | egrep '^ *MBR:' | awk '{print $2;}'`;
+	local mbr=`gdisk -l $disk | awk '/^ *MBR/{print $2}'`;
 	if [ "$mbr" == "hybrid" ]; then
 		echo "1";
 	else
@@ -267,7 +267,7 @@ hasHybridMBR() {
 # $1 : device name of drive
 hasGPT() {
 	local disk="$1";
-	local gpt=`gdisk -l $disk | egrep '^ *GPT:' | awk '{print $2;}'`;
+	local gpt=`gdisk -l $disk | awk '/^ *GPT/{print $2}'`;
 	if [ "$gpt" == "present" ]; then
 		echo "1";
 	elif [ "$gpt" == "not" ]; then
