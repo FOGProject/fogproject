@@ -89,7 +89,7 @@ EOFNTFSRESTORE
 }
 # $1 is the partition
 fsTypeSetting() {
-	fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
+	fstype=`blkid -po udev $1 | awk -F= /FS_TYPE=/'{print $2}'`;
 	is_ext=`echo "$fstype" | egrep '^ext[234]$' | wc -l`;
 	if [ "x${is_ext}" == "x1" ]; then
 		echo "extfs";
@@ -107,7 +107,7 @@ fsTypeSetting() {
 }
 # $1 is the partition
 getPartType() {
-	echo `blkid -po udev $1 | grep PART_ENTRY_TYPE | awk -F'=' '{print $2}'`;
+	echo `blkid -po udev $1 | awk -F'=' /PART_ENTRY_TYPE/'{print $2}'`;
 }
 # $1 is the partition
 # Returns the size in bytes.
@@ -234,7 +234,7 @@ FORCEY
 		echo "Done";
 		debugPause;
 		extminsizenum=`resize2fs -P $1 2>/dev/null | awk -F': ' '{print $2}'`;
-		block_size=`dumpe2fs -h $1 2>/dev/null | grep "^Block size:" | awk '{print $3}'`;
+		block_size=`dumpe2fs -h $1 2>/dev/null | awk /^Block\ size:/'{print $3}'`;
 		size=`expr $extminsizenum '*' $block_size`;
 		sizeextresize=`expr $size '*' 103 '/' 100 '/' 1024`;
 		echo "";
@@ -261,7 +261,7 @@ FORCEY
 # $1 is the part
 resetFlag() {
 	if [ -n "$1" ]; then
-		fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
+		fstype=`blkid -po udev $1 | awk -F= /FS_TYPE=/'{print $2}'`;
 		if [ "$fstype" == "ntfs" ]; then
 			dots "Clearing ntfs flag";
 			ntfsfix -b -d $1 &>/dev/null;
@@ -648,7 +648,7 @@ getHardDisk() {
 	else
 		for i in `lsblk -dpno KNAME|sort`; do
 			hd="$i";
-			if [ -z "$1" -a ! -z "$hd" ]; then
+			if [ -z "$1" ]; then
 				echo "Done";
 				clearPartitionTables "$hd";
 				dots "Creating disk with new label";
@@ -666,9 +666,6 @@ getHardDisk() {
 				fi
 				echo "Done";
 				debugPause;
-			fi
-			if [ ! -z "$hd" ]; then
-				return 0;
 			fi
 		done;
 		if [ -z "$hd" ]; then
@@ -837,11 +834,10 @@ saveGRUB() {
 	local disk="$1";
 	local disk_number="$2";
 	local imagePath="$3";
+	# Hack Note: print $4+0 causes the column to be interpretted as a number
+	#            so the comma is tossed
 	local first=`sfdisk -d "${disk}" 2>/dev/null | \
-		awk -F: '{print $2;}' | \
-		awk -F, '{print $1;}' | \
-		grep start= | \
-		awk -F= 'BEGIN{start=1000000000;}{if($2 > 0 && $2 < start){start=$2;}}END{printf("%d\n", start);}'`;
+		awk /start=\ *[1-9]/'{print $4+0}' | sort | head -n1`
 	local has_grub=`dd if=$1 bs=512 count=1 2>&1 | grep GRUB`
 	if [ "$has_grub" != "" ]; then
 		local count=$first;
@@ -1100,7 +1096,7 @@ restorePartition() {
 }
 gptorMBRSave() {
 	runPartprobe $1;
-	local gptormbr=`gdisk -l $1 | grep 'GPT:' | awk -F: '{print $2}' | awk '{print $1}'`;
+	local gptormbr=`gdisk -l $1 | awk /^\ *GPT:/'{print $2}'`;
 	if [ "$gptormbr" == "not" ]; then
 		dots "Saving MBR or MBR/Grub";
 		saveGRUB "$1" "1" "$2";
