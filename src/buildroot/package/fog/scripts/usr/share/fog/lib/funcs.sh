@@ -669,6 +669,7 @@ getHardDisk() {
 			fi
 			if [ ! -z "$hd" ]; then
 				return 0;
+			fi
 		done;
 		if [ -z "$hd" ]; then
 			handleError "Cannot find HDD on system";
