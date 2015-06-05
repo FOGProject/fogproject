@@ -321,9 +321,9 @@ writeImage()  {
 	else 
 		# partclone
 		pigz -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
-		if [ "$?" != 0 ]; then
-			handleError "Image failed to restore";
-		fi
+	fi
+	if [ "$?" != 0 ]; then
+		handleError "Image failed to restore";
 	fi
 	rm /tmp/pigz1;
 }
@@ -334,13 +334,10 @@ writeImageMultiCast() {
 	udp-receiver --nokbd --portbase $port --ttl 32 --mcast-rdv-address $storageip 2>/dev/null > /tmp/pigz1 &
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-		pigz -d -c < /tmp/pigz1 | partimage restore $hd stdin -f3 -b 2>/tmp/status.fog;
+		pigz -d -c < /tmp/pigz1 | partimage restore $1 stdin -f3 -b 2>/tmp/status.fog;
 	else 
 		# partclone
 		pigz -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;
-		if [ "$?" != 0 ]; then
-			handleError "Image failed to restore";
-		fi
 	fi
 	rm /tmp/pigz1
 }
