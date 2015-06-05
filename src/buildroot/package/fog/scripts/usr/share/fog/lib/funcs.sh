@@ -89,7 +89,7 @@ EOFNTFSRESTORE
 }
 # $1 is the partition
 fsTypeSetting() {
-	fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
+	fstype=`blkid -po udev $1 | awk -F= /FS_TYPE=/'{print $2}'`;
 	is_ext=`echo "$fstype" | egrep '^ext[234]$' | wc -l`;
 	if [ "x${is_ext}" == "x1" ]; then
 		echo "extfs";
@@ -107,7 +107,7 @@ fsTypeSetting() {
 }
 # $1 is the partition
 getPartType() {
-	echo `blkid -po udev $1 | grep PART_ENTRY_TYPE | awk -F'=' '{print $2}'`;
+	echo `blkid -po udev $1 | awk -F'=' /PART_ENTRY_TYPE/'{print $2}'`;
 }
 # $1 is the partition
 # Returns the size in bytes.
@@ -234,7 +234,7 @@ FORCEY
 		echo "Done";
 		debugPause;
 		extminsizenum=`resize2fs -P $1 2>/dev/null | awk -F': ' '{print $2}'`;
-		block_size=`dumpe2fs -h $1 2>/dev/null | grep "^Block size:" | awk '{print $3}'`;
+		block_size=`dumpe2fs -h $1 2>/dev/null | awk /^Block\ size:/'{print $3}'`;
 		size=`expr $extminsizenum '*' $block_size`;
 		sizeextresize=`expr $size '*' 103 '/' 100 '/' 1024`;
 		echo "";
@@ -261,7 +261,7 @@ FORCEY
 # $1 is the part
 resetFlag() {
 	if [ -n "$1" ]; then
-		fstype=`blkid -po udev $1 | grep FS_TYPE | awk -F'=' '{print $2}'`;
+		fstype=`blkid -po udev $1 | awk -F= /FS_TYPE=/'{print $2}'`;
 		if [ "$fstype" == "ntfs" ]; then
 			dots "Clearing ntfs flag";
 			ntfsfix -b -d $1 &>/dev/null;
@@ -314,7 +314,11 @@ countExtfs() {
 # $2 = Target
 writeImage()  {
 	mkfifo /tmp/pigz1;
-	cat $1 > /tmp/pigz1 &
+	if [ "$mc" == "yes" ]; then
+		udp-receiver --nokbd --portbase $port --ttl 32 --mcast-rdv-address $storageip 2>/dev/null > /tmp/pigz1 &
+	else
+		cat $1 > /tmp/pigz1 &
+	fi
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
 		pigz -d -c < /tmp/pigz1 | partimage restore $2 stdin -f3 -b 2>/tmp/status.fog;
@@ -326,20 +330,6 @@ writeImage()  {
 		handleError "Image failed to restore";
 	fi
 	rm /tmp/pigz1;
-}
-
-# $1 = Target
-writeImageMultiCast() {
-	mkfifo /tmp/pigz1;
-	udp-receiver --nokbd --portbase $port --ttl 32 --mcast-rdv-address $storageip 2>/dev/null > /tmp/pigz1 &
-	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
-		#partimage
-		pigz -d -c < /tmp/pigz1 | partimage restore $1 stdin -f3 -b 2>/tmp/status.fog;
-	else 
-		# partclone
-		pigz -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;
-	fi
-	rm /tmp/pigz1
 }
 # $1 = DriveName  (e.g. /dev/sdb)
 # $2 = DriveNumber  (e.g. 1)
@@ -834,11 +824,10 @@ saveGRUB() {
 	local disk="$1";
 	local disk_number="$2";
 	local imagePath="$3";
+	# Hack Note: print $4+0 causes the column to be interpretted as a number
+	#            so the comma is tossed
 	local first=`sfdisk -d "${disk}" 2>/dev/null | \
-		awk -F: '{print $2;}' | \
-		awk -F, '{print $1;}' | \
-		grep start= | \
-		awk -F= 'BEGIN{start=1000000000;}{if($2 > 0 && $2 < start){start=$2;}}END{printf("%d\n", start);}'`;
+		awk /start=\ *[1-9]/'{print $4+0}' | sort | head -n1`
 	local has_grub=`dd if=$1 bs=512 count=1 2>&1 | grep GRUB`
 	if [ "$has_grub" != "" ]; then
 		local count=$first;
@@ -1054,8 +1043,8 @@ restorePartition() {
 	local imgpart="";
 	partNum=${part:$diskLength};
 	echo " * Processing Partition: $part ($partNum)";
-	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ] && [ "$mc" == "yes" ]; then
-		writeImageMultiCast "$part"
+	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
+		writeImage "$part"
 		debugPause;
 		resetFlag "$part";
 	elif [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
@@ -1097,7 +1086,7 @@ restorePartition() {
 }
 gptorMBRSave() {
 	runPartprobe $1;
-	local gptormbr=`gdisk -l $1 | grep 'GPT:' | awk -F: '{print $2}' | awk '{print $1}'`;
+	local gptormbr=`gdisk -l $1 | awk /^\ *GPT:/'{print $2}'`;
 	if [ "$gptormbr" == "not" ]; then
 		dots "Saving MBR or MBR/Grub";
 		saveGRUB "$1" "1" "$2";
