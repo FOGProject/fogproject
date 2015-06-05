@@ -314,7 +314,11 @@ countExtfs() {
 # $2 = Target
 writeImage()  {
 	mkfifo /tmp/pigz1;
-	cat $1 > /tmp/pigz1 &
+	if [ "$mc" == "yes" ]; then
+		udp-receiver --nokbd --portbase $port --ttl 32 --mcast-rdv-address $storageip 2>/dev/null > /tmp/pigz1 &
+	else
+		cat $1 > /tmp/pigz1 &
+	fi
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
 		pigz -d -c < /tmp/pigz1 | partimage restore $2 stdin -f3 -b 2>/tmp/status.fog;
@@ -326,20 +330,6 @@ writeImage()  {
 		handleError "Image failed to restore";
 	fi
 	rm /tmp/pigz1;
-}
-
-# $1 = Target
-writeImageMultiCast() {
-	mkfifo /tmp/pigz1;
-	udp-receiver --nokbd --portbase $port --ttl 32 --mcast-rdv-address $storageip 2>/dev/null > /tmp/pigz1 &
-	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
-		#partimage
-		pigz -d -c < /tmp/pigz1 | partimage restore $1 stdin -f3 -b 2>/tmp/status.fog;
-	else 
-		# partclone
-		pigz -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $1 -N -f 1 2>/tmp/status.fog;
-	fi
-	rm /tmp/pigz1
 }
 # $1 = DriveName  (e.g. /dev/sdb)
 # $2 = DriveNumber  (e.g. 1)
@@ -1053,8 +1043,8 @@ restorePartition() {
 	local imgpart="";
 	partNum=${part:$diskLength};
 	echo " * Processing Partition: $part ($partNum)";
-	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ] && [ "$mc" == "yes" ]; then
-		writeImageMultiCast "$part"
+	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
+		writeImage "$part"
 		debugPause;
 		resetFlag "$part";
 	elif [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
