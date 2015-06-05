@@ -24,13 +24,8 @@
 . ../lib/common/functions.sh
 . ../lib/common/config.sh
 
-# Determine Linux release name
-linuxReleaseName=`lsb_release -a 2> /dev/null | grep "Distributor ID" | awk '{print $3,$4,$5,$6,$7,$8,$9}' | tr -d " "`;
-if [ -z "$linuxReleaseName" ];
-then
-	# Fall back incase lsb_release does not exist / fails - use /etc/issue over /etc/*release*
-	linuxReleaseName=`cat /etc/issue /etc/*release* 2>/dev/null | head -n1 | awk '{print $1}'`;
-fi
+# Determine Linux release name using the /etc/os-release standard
+linuxReleaseName=`sed -n 's/^NAME="\(.*\)"/\1/p' /etc/os-release`
 
 installtype="";
 ipaddress="";

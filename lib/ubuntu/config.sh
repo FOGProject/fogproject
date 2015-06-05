@@ -27,7 +27,7 @@ langPackages="language-pack-it language-pack-en language-pack-es language-pack-z
 dhcpname="isc-dhcp-server";
 olddhcpname="dhcp3-server";
 
-OSVER=`awk -F\" '/^VERSION_ID=\"/ {print $2}' /etc/os-release | cut -d. -f 1`;
+OSVER=`sed -n 's/^VERSION_ID="\([^.]*\).*"/\1/p' /etc/os-release`
 
 # where do the init scripts go?
 if [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ] || [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ]; then
