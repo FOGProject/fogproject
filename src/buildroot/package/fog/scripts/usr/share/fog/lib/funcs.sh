@@ -1044,10 +1044,6 @@ restorePartition() {
 	partNum=${part:$diskLength};
 	echo " * Processing Partition: $part ($partNum)";
 	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
-		writeImage "$part"
-		debugPause;
-		resetFlag "$part";
-	elif [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
 		if [ -f "$imagePath" ]; then
 			imgpart="$imagePath";
 		elif [ "$win7partcnt" == "1" -a -f "$imagePath/sys.img.000" ]; then
