@@ -17,7 +17,7 @@
 #
 #
 #
-RHVER=`awk '{for(i=1;i<=NF;i++) if ($i == "release") print $(i+1)}' /etc/redhat-release | cut -d. -f 1`;
+RHVER=`sed -n 's/^VERSION_ID="\(.*\)"/\1/p' /etc/os-release;
 
 # Yum packages to install
 

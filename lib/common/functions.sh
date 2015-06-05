@@ -261,8 +261,8 @@ configureUsers()
 	getent passwd $username > /dev/null;
 	if [ $? != 0 ] || [ "$doupdate" != "1" ]; then
 		echo -n "  * Setting up fog user";
-		password=`date | md5sum | cut -d" " -f1`;
-		password=${password:0:6}
+		# Consider this a temporary security fix
+		password=`dd if=/dev/urandom bs=1 count=9 2>/dev/null | base64`
 		if [ "$installtype" = "S" ]
 		then
 			# save everyone wrist injuries
@@ -305,8 +305,8 @@ EOF
 	fi
 	if [ -z "$password" -a -z "$storageftppass" ]; then
 		echo -n "  * Setting password for FOG User";
-		password=`date | md5sum | cut -d" " -f1`;
-		password=${password:0:6}
+		# Consider this a temporary security fix
+		password=`dd if=/dev/urandom bs=1 count=9 2>/dev/null | base64`
 		passwd ${username} >/dev/null 2>&1 << EOF
 ${password}
 ${password}
