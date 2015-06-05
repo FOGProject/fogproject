@@ -32,7 +32,8 @@ hasExtendedPartition() {
 saveEBR() {
 	local part_number=`echo $1 | sed -r 's/^[^0-9]+//g'`;
 	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
-	local part_type=`sfdisk -d "$disk" 2>/dev/null | egrep ^$1 | awk -F, '{print $3;}' | awk -F= '{print $2;}' | sed -r 's/\s//g'`;
+	# Leaving the grep in place due to forward slashes
+	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$1 | awk -F[,=] '{print $6+0}'`;
 	if [ "$part_type" == "5" -o "$part_type" == "f" -o "$part_number" -ge 5 ]; then
 		dots "Saving EBR for ($1)";
 		dd if=$1 of=/tmp/d1p${part_number}.ebr bs=512 count=1 &> /dev/null;
@@ -44,7 +45,8 @@ saveEBR() {
 restoreEBR() {
 	local part_number=`echo $1 | sed -r 's/^[^0-9]+//g'`;
 	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
-	local part_type=`sfdisk -d "$disk" 2>/dev/null | egrep ^$1 | awk -F, '{print $3;}' | awk -F= '{print $2;}' | sed -r 's/\s//g'`;
+	# Leaving the grep in place due to forward slashes
+	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$1 | awk -F[,=] '{print $6+0}'`;
 	if [ "$part_type" == "5" -o "$part_type" == "f" -o "$part_number" -ge 5 ]; then
 		if [ -e "/tmp/d1p${part_number}.ebr" ]; then
 			dots "Restoring EBR for ($1)";
@@ -98,7 +100,8 @@ makeSwapSystem() {
 			part_type="82";
 		fi
 	else
-		part_type=`sfdisk -d "$disk" 2>/dev/null | egrep "^$2" | awk -F, '{print $3;}' | awk -F= '{print $2;}' | sed -r 's/\s//g'`;
+		# Leaving the grep in place due to forward slashes
+		part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$2 | awk -F[,=] '{print $6+0}'`;
 	fi
 	if [ "$part_type" == "82" ]; then
 		if [ -e "$1" ]; then
