@@ -26,9 +26,9 @@ class FOGFTP extends FOGGetSet {
 			$result = sprintf('%s: Failed to connect. Host: %s, Error: %s', get_class($this), $this->get('host'), $error['message']);
 		}
 		// Login
-		if (!$this->loginLink = @ftp_login($this->link, $this->get('username'), $this->get('password'))) {
+		if (!$this->loginLink = @ftp_login($this->link, addslashes($this->get('username')), $this->get('password'))) {
 			$error = error_get_last();
-			$result = sprintf('%s: Login failed. Host: %s, Username: %s, Password: %s, Error: %s', get_class($this), $this->get('host'), $this->get('username'), $this->get('password'), $error['message']);
+			$result = sprintf('%s: Login failed. Host: %s, Username: %s, Password: %s, Error: %s', get_class($this), $this->get('host'), addslashes($this->get('username')), $this->get('password'), $error['message']);
 		}
 		if ($this->passiveMode) ftp_pasv($this->link, true);
 		// Store connection hash
