@@ -55,7 +55,7 @@ abstract class FOGBase {
 	  */
 	public function fatalError($txt, $data = array()) {
 		if (!preg_match('#/service/#', $_SERVER['PHP_SELF']) && !$this->isAJAXRequest())
-			print sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
+			print sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
 	}
 	/** @function error() prints the error to the screen
 	  * @param $txt the text to print
@@ -64,7 +64,7 @@ abstract class FOGBase {
 	  */
 	public function error($txt, $data = array()) {
 		if ((((isset($this->debug)) && $this->debug === true)) && !preg_match('#/service/#', $_SERVER['PHP_SELF']) && !$this->isAJAXRequest())
-			print sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
+			print sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
 	}
 	/** @function debug() prints debug information
 	  * @param $txt the text to print
@@ -73,7 +73,7 @@ abstract class FOGBase {
 	  */
 	public function debug($txt, $data = array()) {
 		if ((!isset($this) || (isset($this->debug) && $this->debug === true)) && !$this->isAJAXRequest() && !preg_match('#/service/#', $_SERVER['PHP_SELF']))
-			print sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
+			print sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
 	}
 	/** @function info() prints informational messages
 	  * @param $txt the text to print
@@ -82,7 +82,7 @@ abstract class FOGBase {
 	  */
 	public function info($txt, $data = array()) {
 		if ((!isset($this) || (isset($this->info) && $this->info === true)) && !preg_match('#/service/#',$_SERVER['PHP_SELF']))
-			print sprintf('<div class="debug-info">FOG INFO: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
+			print sprintf('<div class="debug-info">FOG INFO: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
 	}
 	/** @function __toString() magic function in php as defined
 	  * @return the item in string format
@@ -432,7 +432,8 @@ abstract class FOGBase {
 	  * @return $MAClist, returns the list of valid MACs
 	  */
 	public function parseMacList($stringlist,$image = false,$client = false) {
-		$MACs = $this->getClass('MACAddressAssociationManager')->find(array('mac' => (array)explode('|',$stringlist)));
+		$MACSToSearch = explode('|',$stringlist);
+		$MACs = $this->getClass('MACAddressAssociationManager')->find(array('mac' => $MACSToSearch));
 		if (count($MACs)) {
 			foreach($MACs AS $MAC) {
 				if ($MAC && $MAC->isValid()) {
@@ -443,15 +444,14 @@ abstract class FOGBase {
 				}
 			}
 		}
-		$MACs = explode('|',$stringlist);
-		foreach((array)$MACs AS $MAC) {
+		foreach((array)$MACSToSearch AS $MAC) {
 			$MAC = new MACAddress($MAC);
 			if ($MAC && $MAC->isValid()) $MAClist[] = strtolower($MAC);
 		}
 		$Ignore = explode(',',$this->getClass('FOGCore')->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'));
 		if (count($ignore)) {
 			foreach((array)$Ignore AS $ignore) {
-				$matches = preg_grep("#$ignore#i",$MACs);
+				$matches = preg_grep("#$ignore#i",$MACSToSearch);
 				if (count($matches)) {
 					$NewMatches = array_merge((array)$NewMatches,$matches);
 					unset($matches);
