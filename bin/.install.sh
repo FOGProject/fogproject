@@ -167,7 +167,7 @@ then
 	echo "         Using FOG DHCP: ${bldhcp}";
 	echo "         Internationalization: ${installlang}";
 	echo "         Image Storage Location: ${storageLocation}";
-	echo "         MySQL Connection Type: ${mysql_conntype}";
+	echo "         MySQL Connection Type: MYSQLI_ASYNC";
 	echo "         Donate: ${donate}";
 	echo "";
 elif [ "$installtype" = "S" ]
@@ -273,18 +273,7 @@ do
 					fi
 				fi
 				if [ -z "$mysql_conntype" ]; then
-					echo "";
-					echo "     What mysql connection type would you like? (MYSQLI_ASYNC)";
-					echo "         MYSQLI_STORE_RESULT is normal";
-					echo "         MYSQLI_ASYNC is what is Defaulted and recommended";
-					echo -n "          Any value not equal to MYSQLI_ASYNC and not blank will use store result ";
-					read mysql_conntype;
-					if [ -z "$mysql_conntype" ]; then
-						mysql_conntype="MYSQLI_ASYNC";
-					elif [ "$mysql_conntype" != "MYSQLI_ASYNC" -o "$mysql_conntype" != "" ]; then
-						mysql_conntype="MYSQLI_STORE_RESULT";
-					fi
-					
+					mysql_conntype="MYSQLI_ASYNC";
 				fi
 	           if [ "$installtype" = "S" ]
 	           then

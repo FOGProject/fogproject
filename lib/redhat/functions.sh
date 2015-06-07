@@ -634,14 +634,13 @@ configureMySql()
 
 installPackages()
 {
-	if [ "$installlang" = "1" ]
-	then
+	if [ "$installlang" = "1" ]; then
 		packages="$packages $langPackages"
 	fi
 	if [ -d "/etc/yum.repos.d/" -a ! -f "/etc/yum.repos.d/remi.repo" ]; then
 		echo -n "  * Copying needed repo...";
-		if [ "$linuxReleaseName" == "CentOS" ]; then
-			yum -y install epel-release &> /dev/null;
+		if [[ "$linuxReleaseName" == +(*'CentOS'*|*'Redhat'*|*'Fedora'*) ]]; then
+			${packageinstaller} epel-release >/dev/null 2>&1;
 		fi
 		if [ "$linuxReleaseName" == "Fedora" ]; then
 			repo="fedora";
@@ -654,103 +653,82 @@ installPackages()
 	fi
 	echo "  * Packages to be installed: $packages";
 	echo "";
-
-	for x in $packages
-	do
+	for x in $packages; do
 		rpm -q $x >/dev/null 2>&1
-		if [ $x == "mysql" ]
-		then
-			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]
-			then
+		if [ $x == "mysql" ]; then
+			rpm -q $x >/dev/null 2>&1
+			if [ "$?" != "0" ]; then
 				x="mariadb";
 			fi
-			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]
-			then
-				x="mysql";
+			rpm -q $x >/dev/null 2>&1
+			if [ "$?" != "0" ]; then
+				${packageinstaller} $x >/dev/null 2>&1
 			fi
-		fi
-		if [ $x == "mysql-server" ]
-		then
-			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]
-			then
+		elif [ $x == "mysql-server" ]; then
+			rpm -q $x >/dev/null 2>&1
+			if [ "$?" != "0" ]; then
 				x="mariadb-server";
 			fi
-			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]
-			then
+			rpm -q $x >/dev/null 2>&1
+			if [ "$?" != "0" ]; then
+				${packageinstaller} $x >/dev/null 2>&1
+			fi
+			rpm -q $x >/dev/null 2>&1
+			if [ "$?" != "0" ]; then
+				${packageinstaller} $x >/dev/null 2>&1
+			fi
+			rpm -q $x >/dev/null 2>&1
+			if [ "$?" != "0" ]; then
 				x="mariadb-galera-server";
 			fi
-			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]
-			then
-				x="mysql-server";
+			rpm -q $x >/dev/null 2>&1
+			if [ "$?" != "0" ]; then
+				${packageinstaller} $x >/dev/null 2>&1
 			fi
-		fi
-		if [ $x == "php-mysql" ]
-		then
-			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]
-			then
+		elif [ $x == "php-mysql" ]; then
+			rpm -q $x >/dev/null 2>&1
+			if [ "$?" != "0" ]; then
 				x="php-mysqlnd";
 			fi
-			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]
-			then
-				x="php-mysql";
-			fi
+			${packageinstaller} $x >/dev/null 2>&1
 		fi
-		rpm -q $x >/dev/null 2>&1;
-		if [ "$?" != "0" ]
-		then
+		rpm -q $x >/dev/null 2>&1
+		if [ "$?" != "0" ]; then
 			echo  "  * Installing package: $x";
-			${packageinstaller} $x 1>/dev/null;
+			${packageinstaller} $x >/dev/null 2>&1
 		else
 			echo  "  * Skipping package: $x (Already installed)";
 		fi
 	done
-
 }
 
-confirmPackageInstallation()
-{
-	for x in $packages
-	do
+confirmPackageInstallation() {
+	for x in $packages; do
 		echo -n "  * Checking package: $x...";
-		if [ $x == "mysql" ]
-		then
+		if [ $x == "mysql" ]; then
 			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]
-			then
+			if [ "$?" != "0" ]; then
 				x="mariadb";
 			fi
 		fi
-		if [ $x == "mysql-server" ]
-		then
+		if [ $x == "mysql-server" ]; then
 			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]
-			then
+			if [ "$?" != "0" ]; then
 				x="mariadb-server";
 			fi
 			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]
-			then
+			if [ "$?" != "0" ]; then
 				x="mariadb-galera-server";
 			fi
 		fi
-		if [ $x == "php-mysql" ]
-		then
+		if [ $x == "php-mysql" ]; then
 			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]
-			then
+			if [ "$?" != "0" ]; then
 				x="php-mysqlnd";
 			fi
 		fi
 		rpm -q $x >/dev/null 2>&1;
-		if [ "$?" != "0" ]
-		then
+		if [ "$?" != "0" ]; then
 			echo "Failed!"
 			exit 1;		
 		else
