@@ -45,7 +45,7 @@ else
     # CentOS or Other  PCLinuxOS uses apt-rpm  
     packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl";
     storageNodePackages="httpd php php-cli php-common php-gd mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl";
-    packageinstaller="yum -y --enablerepo=remi,remi-php56 install";
+    packageinstaller="yum -y --enablerepo=remi,remi-php56,epel install";
 fi
 langPackages="iso-codes";
 dhcpname="dhcp";
