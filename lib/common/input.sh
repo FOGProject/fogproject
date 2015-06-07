@@ -17,89 +17,53 @@
 #
 #
 #
-if [ "${guessdefaults}" = "1" ]
-then
+if [ "${guessdefaults}" = "1" ]; then
 	## Linux Version Detection
 	strSuggestedOS="";
-	
 	#tmpOS=`cat /etc/*release* /etc/issue 2> /dev/null | grep -Ei "Fedora|Redhat|CentOS"`;
-	if [ "`echo $linuxReleaseName | grep -Ei "Fedora|Redhat|CentOS|Mageia"`" != "" ]
-	then
+	if [ "`echo $linuxReleaseName | grep -Ei "Fedora|Redhat|CentOS|Mageia"`" != "" ]; then
 		strSuggestedOS="1";
 	fi
-	
 	#tmpOS=`cat /etc/*release* /etc/issue 2> /dev/null | grep -Ei "Ubuntu|Debian"`;
 	#if [ "$tmpOS" != "" ]
-	if [ "`echo $linuxReleaseName | grep -Ei "Ubuntu|Debian"`" != "" ]
-	then
+	if [ "`echo $linuxReleaseName | grep -Ei "Ubuntu|Debian"`" != "" ]; then
 		strSuggestedOS="2";
 	fi
-
 	#tmpOS=`cat /etc/*release* /etc/issue 2> /dev/null | grep -Ei "Arch"`;
 	#if [ "$tmpOS" != "" ]
-	if [ "`echo $linuxReleaseName | grep -Ei "Arch"`" != "" ]
-	then
+	if [ "`echo $linuxReleaseName | grep -Ei "Arch"`" != "" ]; then
 		strSuggestedOS="3";
 	fi
-
 	## IP Address
-  if [ "`echo $linuxReleaseName | grep -Ei "Arch"`" != "" ]
-	then
     strSuggestedIPaddress=`ip -f inet -o addr show | cut -d\  -f 7 | cut -d/ -f 1 | head -n2 | tail -n1`;
-  else
-    strSuggestedIPaddress=`LC_ALL=POSIX ifconfig | grep "inet addr:" | head -n 1  | cut -d':' -f2 | cut -d' ' -f1`;
-  fi
-	if [ -z "$strSuggestedIPaddress" ]
-	then
+	if [ -z "$strSuggestedIPaddress" ]; then
 		strSuggestedIPaddress=`ifconfig | grep "inet" | head -n 1  | awk '{print $2}'`;
 	fi
-	
 	## Interface
-  if [ "`echo $linuxReleaseName | grep -Ei "Arch"`" != "" ]
-	then
     strSuggestedInterface=`ip -f inet -o addr show | cut -d' ' -f 2 | head -n2 | tail -n1`;
-  else
-	  strSuggestedInterface=`ifconfig | grep "Link encap:" | head -n 1 | cut -d' ' -f1`;
-  fi
-	if [ -z "$strSuggestedInterface" ]
-	then
+	if [ -z "$strSuggestedInterface" ]; then
 		strSuggestedInterface=`ifconfig | grep "RUNNING" | head -n 1 | cut -d':' -f1`;
 	fi
-	
 	## Route
-  if [ "`echo $linuxReleaseName | grep -Ei "Arch"`" != "" ]
-	then
-    strSuggestedRoute=`ip route | head -n1 | cut -d' ' -f3`;
-  else
-	  strSuggestedRoute=`route -n | grep "^.*UG.*${strSuggestedInterface}$"  | head -n 1`;
-	  if [ -z "$strSuggestedRoute" ]
-	  then
-		  strSuggestedRoute=`route -n | grep "^.*U.*${strSuggestedInterface}$"  | head -n 1`;
-	  fi
-	  strSuggestedRoute=`echo ${strSuggestedRoute:16:16} | tr -d [:blank:]`;
-  fi
-	
+    strSuggestedRoute=`ip route | head -n1 | cut -d' ' -f3 | tr -d [:blank:]`;
+	if [ -z "$strSuggestedRoute" ]; then
+		strSuggestedRoute=`route -n | grep "^.*U.*${strSuggestedInterface}$"  | head -n 1`;
+		strSuggestedRoute=`echo ${strSuggestedRoute:16:16} | tr -d [:blank:]`;
+	fi
 	## DNS
 	strSuggestedDNS="";
-	if [ -f "/etc/resolv.conf" ]
-	then
+	if [ -f "/etc/resolv.conf" ]; then
 		strSuggestedDNS=` cat /etc/resolv.conf | grep "nameserver" | head -n 1 | tr -d "nameserver" | tr -d [:blank:] | grep "^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$"`
 	fi
-
-	if [ -z "$strSuggestedDNS" ]
-	then
-		if [ -d "/etc/NetworkManager/system-connections" ]
-		then
+	if [ -z "$strSuggestedDNS" ]; then
+		if [ -d "/etc/NetworkManager/system-connections" ]; then
 			strSuggestedDNS=`cat /etc/NetworkManager/system-connections/* | grep "dns" | head -n 1 | tr -d "dns=" | tr -d ";" | tr -d [:blank:] | grep "^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$"`
 		fi
 	fi
-	
 	## User
 	strSuggestedSNUser="fogstorage";
 fi
-
 displayOSChoices;
-
 while [ "${installtype}" = "" ]
 do
 	echo "  FOG Server installation modes:";
@@ -248,7 +212,7 @@ fi
 while [ "${interface}" = "" ]
 do
 	echo 
-	echo "  Would you like to change the default network interface from eth0?"
+	echo "  Would you like to change the default network interface from ${strSuggestedInterface}?"
 	echo -n "  If you are not sure, select No. [y/N]"
 	read blInt;
 	case "$blInt" in
@@ -257,10 +221,10 @@ do
 			read interface;
 			;;
 		[nN]*)	
-			interface="eth0";
+			interface="${strSuggestedInterface}";
 			;;
 		*)
-			interface="eth0";
+			interface="${strSuggestedInterface}";
 			;;	
 	esac	
 done
