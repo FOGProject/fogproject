@@ -4,7 +4,7 @@ SNAPINDIR="/opt/fog/snapins";
 REPORTDIR="/var/www/html/fog/management/reports";
 MYSQL_USER="root";
 MYSQL_PASSWORD="";
-MYSQL_HOST="localhost";
+MYSQL_HOST="127.0.0.1";
 MYSQL_DATABASE="fog";
 displayBanner() {
 	echo "        ___           ___           ___      ";

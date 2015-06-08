@@ -24,7 +24,7 @@ username="fog";
 # This is used for storage nodes
 dbuser="root"
 dbpass=""
-dbhost="localhost"
+dbhost="p:127.0.0.1"
 
 # where are the php files from the download package?
 webdirsrc="../packages/web";
