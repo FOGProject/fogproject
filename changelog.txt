@@ -36,7 +36,7 @@ This should allow OEM built systems to be imaged even with resizable.
 * Init's are now truly native with dns pulling.
 * Added to inits to check for has_usb_nic flag which simply tells the system
 to wait for the user to unplug and replug their usb nics.
-* Update init.xz/init_32.xz to 2014.11 and update kernel infos to 3.16.1
+* Update init.xz/init_32.xz to 2015.05 and update kernel infos to 4.0.4
 within the inits
 * Add memory limit, timezone setting, and post_max_size, max_upload_size to be
 pulled from the database rather than from the php.ini setting

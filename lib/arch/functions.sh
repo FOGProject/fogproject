@@ -367,7 +367,7 @@ configureHttpd()
 			dbhost=$snmysqlhost;
 		fi
 		if [ "$snmysqlhost" == "" ]; then
-			dbhost="localhost";
+			dbhost="p:127.0.0.1";
 		fi
 	fi
 	if [ "$snmysqluser" != "" ] && [ "$snmysqluser" != "$dbuser" ]; then
@@ -375,7 +375,7 @@ configureHttpd()
 	fi
 	echo -n "  * Setting up and starting Apache Web Server...";
   echo '<FilesMatch \.php$>
-    SetHandler "proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://localhost/"
+    SetHandler "proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://127.0.0.1/"
 </FilesMatch>
 <IfModule dir_module>
     DirectoryIndex index.php index.html
