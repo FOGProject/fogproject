@@ -9,6 +9,8 @@ FOG_SITE = https://www.fogproject.org/
 FOG_DEPENDENCIES = parted
 
 define FOG_BUILD_CMDS
+	cp -rf package/fog/src $(@D)
+	cp -rf package/fog/scripts $(@D)
 	$(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)/src \
 	CXXFLAGS="$(TARGET_CXXFLAGS)" \
 	LDFLAGS="$(TARGET_LDFLAGS)"
