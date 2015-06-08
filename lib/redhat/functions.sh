@@ -428,7 +428,7 @@ configureHttpd()
 			dbhost=$snmysqlhost;
 		fi
 		if [ "$snmysqlhost" == "" ]; then
-			dbhost="localhost";
+			dbhost="p:127.0.0.1";
 		fi
 	fi
 	if [ "$snmysqluser" != "" ] && [ "$snmysqluser" != "$dbuser" ]; then
