@@ -279,8 +279,7 @@ class BootMenu extends FOGBase {
 		$Send['keyreg'] = array(
 			"#!ipxe",
 			"cpuid --ext 29 && set arch x86_64 || set arch i386",
-			"echo -n Please enter the product key>",
-			"read key",
+			"echo -n Please enter the product key> && read key",
 			"params",
 			'param mac0 ${net0/mac}',
 			'param arch ${arch}',
@@ -323,8 +322,7 @@ class BootMenu extends FOGBase {
 		$Send['joinsession'] = array(
 			"#!ipxe",
 			"cpuid --ext 29 && set arch x86_64 || set arch i386",
-			"echo -n Please enter the session name to join>",
-			"read sessname",
+			"echo -n Please enter the session name to join> && read sessname",
 			"params",
 			'param mac0 ${net0/mac}',
 			'param arch ${arch}',
