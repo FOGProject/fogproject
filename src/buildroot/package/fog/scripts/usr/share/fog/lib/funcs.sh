@@ -136,7 +136,8 @@ shrinkPartition() {
 		return;
 	fi
 	fstype=`fsTypeSetting $1`;
-	addToFstypesFile "$2" "$1" "$fstype";
+	# Save filesystem type information
+	echo "$1 $fstype" > "$2"
 	if [ -n "$fixed_size_partitions" ]; then
 		local partNum=`echo $1 | sed -r 's/^[^0-9]+//g'`;
 		is_fixed=`echo "$fixed_size_partitions" | egrep ':'${partNum}':|^'${partNum}':|:'${partNum}'$' | wc -l`;
@@ -888,7 +889,7 @@ savePartitionTablesAndBootLoaders() {
 	local have_extended_partition="$6";
 	local imgPartitionType="$7";
 	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "mbr" ]; then
-		makeSwapUUIDFile "${imagePath}/d${intDisk}.original.swapuuids";
+		echo -n "" > "${imagePath}/d${intDisk}.original.swapuuids";
 		if [ "$hasgpt" == 0 -a "$osid" == "50" -a "$intDisk" == "1" ]; then
 			dots "Saving Partition Tables and GRUB (MBR)";
 			saveGRUB "${disk}" "${intDisk}" "${imagePath}";

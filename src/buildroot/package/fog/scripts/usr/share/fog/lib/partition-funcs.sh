@@ -56,29 +56,16 @@ restoreEBR() {
 	fi
 }
 
-# $1 is the location of the file
-makeFstypesFile() {
-	echo "" > "$1"
-}
-# $1 is the location of the file
-# $2 is the partition device name
-# $3 is the fstype
-addToFstypesFile() {
-	echo "$2 $3" >> $1;
-}
-# $1 is the location of the file to store uuids in
-makeSwapUUIDFile() {
-	echo "" > "$1"
-}
 # $1 is the location of the file to store uuids in
 # $2 is the partition device name
 saveSwapUUID() {
 	local uuid=`blkid $2 | awk -F\" '{print $2}'`;
 	if [ -n "$uuid" ]; then
 		echo " * Saving UUID ($uuid) for ($2)";
-		echo "$2 $uuid" >> $1;
+		echo "$2 $uuid" >> "$1";
 	fi
 }
+
 # $1 is the location of the file uuids are stored in
 # $2 is the partition device name
 makeSwapSystem() {
