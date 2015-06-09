@@ -23,11 +23,11 @@ win7imgroot="$imagePath";
 echo "Done";
 debugPause;
 echo -e "\n * Starting Image Push";
-if [ -n "$img" ] || [ "$mc" == "yes" ]; then
-	if [ "$mc" != "yes" ]; then
-		echo " * Using Image: $img";
-		echo "";
-	fi
+if [ -z "$img" ]; then
+	handleError "No image set"
+fi
+if [ "$mc" != "yes" ]; then
+	echo -e " * Using Image: $img\n";
 fi
 dots "Looking for Hard Disks";
 # $hd is obtained by getHardDisk
