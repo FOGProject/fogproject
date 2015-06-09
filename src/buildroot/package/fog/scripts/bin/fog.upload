@@ -1,27 +1,24 @@
 #!/bin/bash
-. /usr/share/fog/lib/funcs.sh;
-. /bin/fog.checkin;
-echo " * Preparing to send image file to server.";
-imagePath="/images/$macWinSafe";
-percent=$pct;
-if [ $percent -ge 5 ]; then
-	if [ ! $percent -lt 100 ]; then
-		percent=5;
-	fi
-else
-	percent=5;
+. /usr/share/fog/lib/funcs.sh
+. /bin/fog.checkin
+
+echo " * Preparing to send image file to server."
+imagePath="/images/$macWinSafe"
+percent=$pct
+
+if [ $percent -lt 5 ] || [ $percent -ge 100 ]; then
+	percent=5
 fi
 if [ $percent -lt 10 ]; then
-	percent="0$percent";
+	percent="0$percent"
 fi
+
 fog.statusreporter "$mac" "$web" &
-dots "Checking Mounted File System";
+dots "Checking Mounted File System"
 if [ -f "/images/.mntcheck" ]; then
-	echo "Done";
-	echo "";
+	echo -e "Done\n";
 	if [ -n "$img" ]; then
-		echo " * Using Image: $img";
-		echo "";
+		echo -e " * Using Image: ${img}\n";
 		dots "Preparing backup location";
 		if [ ! -d "$imagePath" ]; then
 			mkdir -p "$imagePath" 2>/dev/null;
@@ -30,7 +27,7 @@ if [ -f "/images/.mntcheck" ]; then
 		rm -Rf "$imagePath/*";
 		echo "Done";
 		dots "Looking for Hard Disks";
-		getHardDisk 'true';
+		getHardDisk
 		echo "Done";
 		dots "Re-reading Partition Tables";
 		echo "Done";
@@ -143,8 +140,8 @@ if [ -f "/images/.mntcheck" ]; then
 			if [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
 				dots "Saving original partition table";
 				#saveSfdiskPartitions "${hd}" "${imagePath}/d1.original.partitions";
-				makeFstypesFile "${imagePath}/d1.original.fstypes";
-				makeSwapUUIDFile "${imagePath}/d1.original.swapuuids";
+				echo -n "" > "${imagePath}/d1.original.fstypes";
+				echo -n "" > "${imagePath}/d1.original.swapuuids";
 				echo "Done";
 				debugPause
 			fi

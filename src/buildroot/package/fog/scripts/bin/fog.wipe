@@ -1,53 +1,47 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.donate
-clearScreen;
-displayBanner;
+clearScreen
+displayBanner
 #setupDNS ${dns}
-hd="";
-getHardDisk 'true';
-echo "";
-echo "";
+hd=""
+getHardDisk
+echo -e "\n"
 if [ -n "$hd" ]; then
-	echo " Warning!  You are about to destroy the contents of the following hard disk:";
-	echo "      ${hd}";
-	echo "";
-	echo " You have 60 seconds to turn off this computer to cancel!";
-	echo "";
-	sleep 60;
+	echo " WARNING!  You are about to destroy the contents of the following hard disk:"
+	echo -e "      ${hd}\n"
+	echo -e " You have 60 seconds to turn off this computer to cancel!\n"
+	sleep 60
 	if [ "$wipemode" == "full" ]; then
-		echo " Starting disk wipe using shred...";
-		echo "";
-		sleep 10;
+		echo -e " Starting disk wipe using shred...\n"
+		sleep 10
 		shred -f -v -z -n 3 ${hd}
-		echo "";
-		echo " Wiping complete.";
-		echo "";	
+		echo -e "\n Wiping complete.\n"
 	elif [ "$wipemode" == "normal" ]; then
-		echo " Writing zeros to ${hd}";
-		dd if=/dev/zero of=${hd};
+		echo " Writing zeros to ${hd}"
+		dd if=/dev/zero of=${hd}
+		echo -e "\n Wiping complete.\n"
 	elif [ "$wipemode" == "fast" ]; then
-		echo " Writing zeros to ${hd}";
-		dd if=/dev/zero of=${hd} bs=512 count=100000;
+		echo " Writing zeros to ${hd}"
+		dd if=/dev/zero of=${hd} bs=512 count=100000
+		echo -e "\n Wiping complete.\n"
 	fi
-	echo "";
-	queueinfo="";
+
+	queueinfo=""
 	cd /tmp			
 	wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-	queueinfo=`cat co.txt`;
+	queueinfo=`cat co.txt`
 	while [ "$queueinfo" != "##" ]
 	do
-		echo "       * $queueinfo";
+		echo "       * $queueinfo"
 		rm co.txt
 		wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-		queueinfo=`cat co.txt`;
-		sleep 5;
+		queueinfo=`cat co.txt`
+		sleep 5
 	done  
-	echo "";
-	echo " * Database updated!";
-	echo "";	
-	echo " Task Complete";
+	echo -e "\n * Database updated!\n"
+	echo -e " Task Complete"
 else
-	echo "hard disk not found!";
+	echo -e "Hard disk not found!\n"
 fi
 sleep 10
