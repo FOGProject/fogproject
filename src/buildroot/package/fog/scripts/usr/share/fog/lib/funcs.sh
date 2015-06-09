@@ -476,19 +476,27 @@ removePageFile() {
 		debugPause;
 	elif [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
 		if [ "$ignorepg" == "1" ]; then
-			dots "Mounting device";
+			dots "Mounting partition ($part)";
 			mkdir /ntfs &>/dev/null;
 			mount -o rw $part /ntfs;
 			if [ "$?" == "0" ]; then
 				echo "Done";
 				debugPause;
 				dots "Removing page file";
-				rm -f "/ntfs/pagefile.sys";
-				echo "Done";
+				if [ -f "/ntfs/pagefile.sys" ]; then
+					rm -f "/ntfs/pagefile.sys" >/dev/null 2>&1;
+					echo "Done";
+				else
+					echo "No pagefile found";
+				fi
 				debugPause;
 				dots "Removing hibernate file";
-				rm -f "/ntfs/hiberfil.sys";
-				echo "Done";
+				if [ -f "/ntfs/hiberfil.sys" ]; then
+					rm -f "/ntfs/hiberfil.sys" >/dev/null 2>&1;
+					echo "Done";
+				else
+					echo "No hibernate found";
+				fi
 				umount /ntfs;
 			else
 				echo "Failed";

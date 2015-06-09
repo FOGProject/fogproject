@@ -117,12 +117,11 @@ if [ -f "/images/.mntcheck" ]; then
 			echo $fixed_size_partitions > "${imagePath}/d1.fixed_size_partitions";
 			# Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
 			#  Remove pagefile and hibernate file
-			if [[ "$osid" == +(1|2) ]]; then
-				removePageFile "$part";
-			elif [[ "$osid" == +([5-7]|9) ]]; then
-				removePageFile "$win7sys";
+			if [[ "$osid" == +([1-2]|[5-7]|9) ]]; then
+				for partPage in $parts; do
+					removePageFile "$partPage";
+				done
 			fi
-			debugPause
 			# Windows 2000/XP:
 			#  Make sure XP has the partition at the correct location
 			if [ "$osid" == "1" ]; then
