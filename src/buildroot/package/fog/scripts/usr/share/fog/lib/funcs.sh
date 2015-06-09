@@ -379,7 +379,7 @@ changeHostname() {
 	if [ "$hostearly" == "1" ]; then
 		dots "Changing hostname";
 		mkdir /ntfs &>/dev/null
-		ntfs-3g -o force,rw $part /ntfs &> /tmp/ntfs-mount-output
+		mount -o rw $part /ntfs &> /tmp/ntfs-mount-output
 		regfile="";
 		key1="";
 		key2="";
@@ -423,7 +423,7 @@ fixWin7boot() {
 		dots "Backing up and replacing BCD";
 		if [ $fstype == "ntfs" ]; then
 			mkdir /bcdstore &>/dev/null;
-			ntfs-3g -o force,rw $1 /bcdstore;
+			mount -o rw $1 /bcdstore;
 			if [ -f "/bcdstore/Boot/BCD" ]; then
 				mv /bcdstore/Boot/BCD /bcdstore/Boot/BCD.bak;
 				cp /usr/share/fog/BCD /bcdstore/Boot/BCD;
@@ -445,7 +445,7 @@ clearMountedDevices() {
 		fstype=`fsTypeSetting $1`;
 		dots "Clearing part ($1)";
 		if [ "$fstype" == "ntfs" ]; then
-			ntfs-3g -o force,rw $1 /ntfs
+			mount -o rw $1 /ntfs
 			if [ -f "$REG_LOCAL_MACHINE_7" ]; then
 				reged -e "$REG_LOCAL_MACHINE_7" &>/dev/null  <<EOFMOUNT
 cd $REG_HOSTNAME_MOUNTED_DEVICES_7
@@ -478,7 +478,7 @@ removePageFile() {
 		if [ "$ignorepg" == "1" ]; then
 			dots "Mounting device";
 			mkdir /ntfs &>/dev/null;
-			ntfs-3g -o force,rw $part /ntfs;
+			mount -o rw $part /ntfs;
 			if [ "$?" == "0" ]; then
 				echo "Done";
 				debugPause;

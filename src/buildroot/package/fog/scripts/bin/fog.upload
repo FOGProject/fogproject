@@ -12,8 +12,8 @@ fi
 if [ $percent -lt 10 ]; then
 	percent="0$percent"
 fi
-
 fog.statusreporter "$mac" "$web" &
+statusReporter="$!";
 dots "Checking Mounted File System"
 if [ -f "/images/.mntcheck" ]; then
 	echo -e "Done\n";
