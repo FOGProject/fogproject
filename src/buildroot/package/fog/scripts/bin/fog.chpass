@@ -12,7 +12,7 @@ if [ -n "$hd" ]; then
 	part="${hd}1"
 	dots "Mounting Windows File System"
 	mkdir /ntfs
-	mount.ntfs-3g $part /ntfs 
+	mount -o rw $part /ntfs 
 	echo -e "Done\n"
 	if [ -f "$sam" ]; then
 		echo " * Loading..."
