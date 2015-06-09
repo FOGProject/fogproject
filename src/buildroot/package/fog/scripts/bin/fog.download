@@ -14,8 +14,7 @@ fi
 win7imgroot="$imagePath";
 echo "Done";
 debugPause;
-echo "";
-echo " * Starting Image Push";
+echo -e "\n * Starting Image Push";
 if [ -z "$img" ]; then
 	handleError "No image specified to download";
 fi
@@ -27,7 +26,8 @@ debugPause;
 if [ ! -n $hd ]; then
 	handleError "HD is null, no hard disk found.";
 fi
-echo " * Using Hard Disk: $hd";
+echo "Wiping $hd partition information"
+initHardDisk $hd
 # Generates the partitions.  If singledisk resizeable, it generates
 # based on default normal values.
 # Otherwise it uses MBR/GPT to generate the partition table(s).
@@ -67,8 +67,8 @@ if [ "$imgType" == "n" ]; then
 				partCount="1";
 				downloadPartitionCount="2";
 			fi
-			debugPause;
 		fi
+		debugPause;
 		dots "Preparing Hard Disks (Stage 1)";
 		if [ "$nombr" == "1" ]; then
 			echo "Skipped";
