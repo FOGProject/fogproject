@@ -58,8 +58,7 @@ restoreEBR() {
 
 # $1 is the location of the file
 makeFstypesFile() {
-	rm -f "$1"
-	touch "$1"
+	echo "" > "$1"
 }
 # $1 is the location of the file
 # $2 is the partition device name
@@ -69,8 +68,7 @@ addToFstypesFile() {
 }
 # $1 is the location of the file to store uuids in
 makeSwapUUIDFile() {
-	rm -f "$1"
-	touch "$1"
+	echo "" > "$1"
 }
 # $1 is the location of the file to store uuids in
 # $2 is the partition device name
