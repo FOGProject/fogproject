@@ -629,43 +629,55 @@ getSAMLoc() {
 getPartitionCount() {
 	echo `lsblk -pno KNAME ${1}|wc -l`;
 }
+
+# Gets the hard drive on the host
+# Note: This function makes a best guess
 getHardDisk() {
 	if [ -n "${fdrive}" ]; then
 		hd="${fdrive}";
 		return 0;
 	else
-		for i in `lsblk -dpno KNAME|sort`; do
-			hd="$i";
-			if [ -z "$1" -a ! -z "$hd" ]; then
-				echo "Done";
-				clearPartitionTables "$hd";
-				dots "Creating disk with new label";
-				parted -s $hd mklabel msdos;
-				echo "Done"
-				debugPause;
-				dots "Initializing $hd with NTFS partition";
-				parted -s $hd -a opt mkpart primary ntfs 2048s -- -1s &>/dev/null;
-				runPartprobe "$hd";
-				mkfs.ntfs -Q -q ${hd}1;
-				if [ "$?" != "0" ]; then
-					echo "Failed";
-					debugPause;
-					handleError "Failed to initialize";
-				fi
-				echo "Done";
-				debugPause;
-			fi
-			if [ ! -z "$hd" ]; then
-				return 0;
-			fi
-		done;
+		hd=`lsblk -dpno KNAME,MAJ:MIN -x KNAME | awk -F'[ :]+' '{
+				if ($2 == "3" || $2 == "8" || $2 == "9")
+					print $1
+			}' | head -n1`
+
 		if [ -z "$hd" ]; then
 			handleError "Cannot find HDD on system";
+		else
+			return 0;
 		fi
-		return 0;
 	fi
 	return 1;
 }
+
+# Initialize hard drive by formatting it
+# Note: This probably should not be used
+# $1 is the drive that should be initialized (Required)
+initHardDisk() {
+	if [ -n $1 ]; then
+		drive="$1";
+		clearPartitionTables "$drive";
+		dots "Creating disk with new label";
+		parted -s $drive mklabel msdos;
+		echo "Done"
+		debugPause;
+		dots "Initializing $drive with NTFS partition";
+		parted -s $drive -a opt mkpart primary ntfs 2048s -- -1s &>/dev/null;
+		runPartprobe "$drive";
+		mkfs.ntfs -Q -q ${drive}1;
+		if [ "$?" != "0" ]; then
+			echo "Failed";
+			debugPause;
+			handleError "Failed to initialize";
+		fi
+		echo "Done";
+		debugPause;
+	else
+		handleError "No hard drive argument provided to initHardDisk"
+	fi
+}
+
 correctVistaMBR() {
 	dots "Correcting Vista MBR";
 	dd if=$1 of=/tmp.mbr count=1 bs=512 &>/dev/null

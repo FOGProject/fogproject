@@ -1,37 +1,33 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.donate
-clearScreen;
-displayBanner;
+clearScreen
+displayBanner
 #setupDNS ${dns}
-hd="";
-getHardDisk 'true';
-echo "";
-echo "";
+hd=""
+getHardDisk
+echo -e "\n"
 if [ -n "$hd" ]; then
-	echo " Starting TestDisk on ";
-	echo "      ${hd}";
-	echo "";
-	sleep 2;
-	testdisk ${hd}1;
-	echo "";
-	queueinfo="";
+	echo " Starting TestDisk on "
+	echo -e "      ${hd}\n"
+	sleep 2
+	testdisk ${hd}1
+	echo
+	queueinfo=""
 	cd /tmp			
 	wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-	queueinfo=`cat co.txt`;
+	queueinfo=`cat co.txt`
 	while [ "$queueinfo" != "##" ]
 	do
-		echo "       * $queueinfo";
+		echo "       * $queueinfo"
 		rm co.txt
 		wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-		queueinfo=`cat co.txt`;
-		sleep 5;
+		queueinfo=`cat co.txt`
+		sleep 5
 	done  
-	echo "";
-	echo " * Database updated!";
-	echo "";	
-	echo " Task Complete";
+	echo -e "\n * Database updated!\n"
+	echo " Task Complete"
 else
-	echo "hard disk not found!";
+	echo "Hard disk not found!"
 fi
 sleep 10

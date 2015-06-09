@@ -1,11 +1,11 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh;
 . /bin/fog.donate;
-clear;
-displayBanner;
-hd="";
-getHardDisk 'true';
-#setupDNS ${dns};
+clear
+displayBanner
+hd=""
+getHardDisk
+#setupDNS ${dns}
 sysman="";
 sysman64="";
 sysproduct="";
@@ -52,8 +52,7 @@ caseman64="";
 casever64="";
 caseserial64="";
 casesasset64="";
-echo "";
-echo "";
+echo -e "\n"
 if [ -n "$hd" ]; then
 	echo " * Using disk device...........................$hd";
 	echo " * Starting host registration...";
@@ -68,70 +67,63 @@ if [ -n "$hd" ]; then
 		sleep 2;
 	done
 	doInventory;
-	echo
-	echo
-	echo 	
-	echo " System Information";
-	echo " ------------------";
-	echo 
+	echo -e "\n\n\n System Information";
+	echo -e " ------------------\n";
+
 	echo " * System Manufacturer: $sysman";
 	echo " * System Product Name: $sysproduct";
 	echo " * System Version: $sysversion";
 	echo " * System Serial Number: $sysserial";
 	echo " * Computer Form Factor: $systype";	
 	sleep 1;
-	echo 
-	echo " BIOS Information";
-	echo " ----------------";
-	echo 
+	 
+	echo -e "\n BIOS Information";
+	echo -e " ----------------\n";
+
 	echo " * BIOS Version: $biosversion";
 	echo " * BIOS Vendor: $biosvendor";
 	echo " * BIOS Date: $biosdate";
 	sleep 1;
 	echo
-	echo " Motherboard Information";
-	echo " -----------------------";
-	echo
+	echo -e "\n Motherboard Information";
+	echo -e " -----------------------\n";
+
 	echo " * Motherboard Manufacturer: $mbman";
 	echo " * Motherboard Product Name: $mbproductname";	
 	echo " * Motherboard Product Version: $mbversion";
 	echo " * Motherboard Serial Number: $mbserial";	
 	echo " * Motherboard Asset Tag: $mbasset";		
 	sleep 1;
-	echo 
-	echo " CPU Information";
-	echo " ---------------";
-	echo 	
+
+	echo -e "\n CPU Information";
+	echo -e " ---------------\n";
+
 	echo " * CPU Manufacturer: $cpuman";	
 	echo " * CPU Version: $cpuversion";		
 	echo " * CPU Current Speed: $cpucurrent";
 	echo " * CPU Max Speed: $cpumax";	
 	sleep 1		
-	echo 
-	echo " Memory Information";
-	echo " ------------------";
-	echo 	
+
+	echo -e "\n Memory Information";
+	echo " ------------------\n";
+
 	echo " * Memory: $mem";
 	sleep 1	
-	echo 
-	echo " Hard Disk Information";
-	echo " ---------------------";
-	echo 		
+
+	echo -e "\n Hard Disk Information";
+	echo -e " ---------------------\n";
+
 	echo " * Hard Disk: $hdinfo";
 	sleep 1	
 	echo 
-	echo " Case Information";
-	echo " ----------------";
-	echo 	
+	echo -e "\n Case Information";
+	echo -e " ----------------\n";
+
 	echo " * Case Manufacturer: $caseman";	
 	echo " * Case Version: $casever";
 	echo " * Case Serial Number: $caseserial";
-	echo " * Case Asset Number: $casesasset";
-	echo 
-	echo 
-	echo 
-	echo 
-	echo 		
+	echo -e " * Case Asset Number: $casesasset\n\n\n\n\n";
+	
 	poststring="mac=${mac}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}";
 	res="";
 	while [ "$res" = "" ]; do
@@ -142,20 +134,18 @@ if [ -n "$hd" ]; then
 	done
 	if [ "$deployed" = "1" ]; then
 		res="";
-		echo "";
-		echo " * Updating Computer Database Status";
-		echo "";		
+		echo -e "\n * Updating Computer Database Status\n"
 		while [ "$res" != "##" ]
 		do
 			res=`wget -O - "http://${web}service/Post_Wipe.php?mac=$mac_deployed" 2>/dev/null`
 			if [ "$res" != "##" ]; then
 				echo " * ${res}";
 			fi
-			sleep 2;
+			sleep 2
 		done
 	fi
-	sleep 2;
+	sleep 2
 else
-	echo "hard disk not found!";
+	echo "hard disk not found!"
 fi
-sleep 3;
+sleep 3

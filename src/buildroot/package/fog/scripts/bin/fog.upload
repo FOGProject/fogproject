@@ -1,27 +1,25 @@
 #!/bin/bash
-. /usr/share/fog/lib/funcs.sh;
-. /bin/fog.checkin;
-echo " * Preparing to send image file to server.";
-imagePath="/images/$macWinSafe";
-percent=$pct;
+. /usr/share/fog/lib/funcs.sh
+. /bin/fog.checkin
+echo " * Preparing to send image file to server."
+imagePath="/images/$macWinSafe"
+percent=$pct
 if [ $percent -ge 5 ]; then
 	if [ ! $percent -lt 100 ]; then
-		percent=5;
+		percent=5
 	fi
 else
-	percent=5;
+	percent=5
 fi
 if [ $percent -lt 10 ]; then
-	percent="0$percent";
+	percent="0$percent"
 fi
 fog.statusreporter "$mac" "$web" &
-dots "Checking Mounted File System";
+dots "Checking Mounted File System"
 if [ -f "/images/.mntcheck" ]; then
-	echo "Done";
-	echo "";
+	echo -e "Done\n";
 	if [ -n "$img" ]; then
-		echo " * Using Image: $img";
-		echo "";
+		echo -e " * Using Image: ${img}\n";
 		dots "Preparing backup location";
 		if [ ! -d "$imagePath" ]; then
 			mkdir -p "$imagePath" 2>/dev/null;
@@ -30,7 +28,7 @@ if [ -f "/images/.mntcheck" ]; then
 		rm -Rf "$imagePath/*";
 		echo "Done";
 		dots "Looking for Hard Disks";
-		getHardDisk 'true';
+		getHardDisk
 		echo "Done";
 		dots "Re-reading Partition Tables";
 		echo "Done";
