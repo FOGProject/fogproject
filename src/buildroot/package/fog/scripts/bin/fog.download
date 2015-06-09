@@ -5,41 +5,28 @@
 layPartSize="-1s";
 imagePath="/images/$img";
 fog.statusreporter "$mac" "$web" &
-if [ "$mc" == "bt" ]; then
-	# Turn downloadPartitionStart into the number of bytes from the end of the
-	# drive to use for the download partition
-	# Retrieve torrent data size and probably need to add a value to it, so
-	# drive will not be 100% full
-	downloadPartitionStart="-`expr  $torrentDownloadSize '+' 2048`MiB"; 
-	imagePath="/download/$img";
-else
-	dots "Checking Mounted File System";
-	if [ ! -f "/images/.mntcheck" ]; then
-		handleError "Fatal Error: Failed to mount NFS Volume.\n* If you believe the filesystem is mounted,\n\tmake sure you have a file called .mntcheck\n\tin the directory you are mounting on the server";
-		exit 1;
-	fi
+statusReporter="$!";
+fixed_size_partitions="";
+dots "Checking Mounted File System";
+if [ ! -f "/images/.mntcheck" ]; then
+	handleError "Fatal Error: Failed to mount NFS Volume.\n* If you believe the filesystem is mounted,\n\tmake sure you have a file called .mntcheck\n\tin the directory you are mounting on the server";
 fi
 win7imgroot="$imagePath";
 echo "Done";
 debugPause;
-echo -e "\n * Starting Image Push";
+echo "";
+echo " * Starting Image Push";
 if [ -z "$img" ]; then
-	handleError "No image set"
+	handleError "No image specified to download";
 fi
-if [ "$mc" != "yes" ]; then
-	echo -e " * Using Image: $img\n";
-fi
+echo " * Using Image: $img";
 dots "Looking for Hard Disks";
-# $hd is obtained by getHardDisk
-getHardDisk
+getHardDisk;
+echo "Done";
 debugPause;
 if [ ! -n $hd ]; then
 	handleError "HD is null, no hard disk found.";
-	exit 1;
 fi
-echo "Wiping $hd partition information"
-initHardDisk $hd
-echo "Done"
 echo " * Using Hard Disk: $hd";
 # Generates the partitions.  If singledisk resizeable, it generates
 # based on default normal values.
@@ -47,9 +34,6 @@ echo " * Using Hard Disk: $hd";
 if [ "$imgType" == "n" ]; then
 	validResizeOS;
 	enableWriteCache "$hd";
-	if [ "$mc" != "bt" ]; then
-		cd /images;
-	fi
 	part="${hd}1";
 	win7partcnt="0";
 	win7rec="";
@@ -83,12 +67,11 @@ if [ "$imgType" == "n" ]; then
 				partCount="1";
 				downloadPartitionCount="2";
 			fi
+			debugPause;
 		fi
-		debugPause;
 		dots "Preparing Hard Disks (Stage 1)";
 		if [ "$nombr" == "1" ]; then
 			echo "Skipped";
-			debugPause;
 		else
 			dd if=/dev/zero of=$hd bs=512 count=20 &>/dev/null;
 			parted -s $hd mktable msdos &>/dev/null;
@@ -98,114 +81,60 @@ if [ "$imgType" == "n" ]; then
 		fi
 		debugPause;
 		diskSize=`parted -s $hd u kB print | grep "Disk" | grep -v "Flags" | sed 's/Disk \/dev\/[a-zA-Z0-9]*: //' | sed 's/kB//'`;
-		if [ $diskSize -gt 2199023256 ]; then
+		if [ "$diskSize" -gt 2199023256 ]; then
 			layPartSize="2tB";
 		fi
-		if [ "$mc" == "bt" ]; then
-			if [ "$win7partcnt" == "1" ]; then
-				dots "Preparing Hard Disks (Stage 2)";
-				parted -s $hd rm 1 &>/dev/null;
-				echo "Done";
-				debugPause;
-				dots "Preparing Hard Disks (Stage 3)";
-			if [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
-					parted -s $hd mkpart primary ntfs 63s -- $downloadPartitionStart &>/dev/null;
-					parted -s $hd -a opt mkpart primary ext2 -- $downloadPartitionStart $layPartSize &>/dev/null;
-				else
-					parted -s $hd -a opt mkpart primary ntfs 2048s -- $downloadPartitionStart &>/dev/null;
-					parted -s $hd -a opt mkpart primary ext2 -- $downloadPartitionStart $layPartSize &>/dev/null;
+		if [ "$win7partcnt" == "1" ]; then
+			dots "Preparing Hard Disks (Stage 2)";
+			parted -s $hd rm 1 &>/dev/null;
+			echo "Done";
+			debugPause;
+			dots "Preparing Hard Disks (Stage 3)";
+			if [ -r "${imagePath}/d1.original.partitions" ]; then
+				if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
+					fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
 				fi
-				parted -s $hd set 1 boot on &>/dev/null;
-			elif [ "$win7partcnt" == "2" ]; then
-				dots "Preparing Hard Disks (Stage 2)";
-				parted -s $hd rm 2 &>/dev/null;
-				echo "Done";
-				debugPause;
-				dots "Preparing Hard Disks (Stage 3)";
-				parted -s $hd -a opt mkpart primary ntfs -- $defaultpart2start $downloadPartitionStart &>/dev/null;
-				parted -s $hd -a opt mkpart primary ext2 -- $downloadPartitionStart $layPartSize &>/dev/null;
-			elif [ "$win7partcnt" == "3" ]; then
-				handleError "I have no idea what to do with this partition structure, bail out";
-				exit 1;
+				fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
+			elif [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
+				parted -s $hd mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
+			else
+				parted -s $hd -a opt mkpart primary ntfs 2048s -- $layPartSize &>/dev/null;
 			fi
+			parted -s $hd set 1 boot on &>/dev/null;
+		elif [ "$win7partcnt" == "2" ]; then
+			dots "Preparing Hard Disks (Stage 2)";
+			parted -s $hd rm 2 &>/dev/null;
 			echo "Done";
 			debugPause;
-			mkdir /download;
-			echo "creating download partition using $downloadPartition";
-			mkfs.ext2 $downloadPartition;
-			#mount downloadPartition
-			mount -t ext2 $downloadPartition /download;
-			mkdir /download/session;
-			echo "Done";
-			debugPause;
-			#start ctorrent, on download complete, proceed
-			dots "Downloading image file by bittorrent";
-			cd /download;
-			ctorrent /tmp/${img}.torrent -dd -X "touch finished";
-			while [ ! -f "finished" ]; do
-				sleep 2;
-			done;
-			cd ..;
-			echo "Done";
-			debugPause;
-		else
-			if [ "$win7partcnt" == "1" ]; then
-				dots "Preparing Hard Disks (Stage 2)";
-				parted -s $hd rm 1 &>/dev/null;
-				echo "Done";
-				debugPause;
-				dots "Preparing Hard Disks (Stage 3)";
-				if [ -r "${imagePath}/d1.original.partitions" ]; then
-					dots "Expanding partition table to fill disk";
-					if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
-						fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
-					else
-						fixed_size_partitions="";
-					fi
-					fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
-				elif [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
-					parted -s $hd mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
-				else
-					parted -s $hd -a opt mkpart primary ntfs 2048s -- $layPartSize &>/dev/null;
+			dots "Preparing Hard Disks (Stage 3)";
+			if [ -r "${imagePath}/d1.original.partitions" ]; then
+				if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
+					fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
 				fi
-				parted -s $hd set 1 boot on &>/dev/null;
-			elif [ "$win7partcnt" == "2" ]; then
-				dots "Preparing Hard Disks (Stage 2)";
-				parted -s $hd rm 2 &>/dev/null;
-				echo "Done";
-				debugPause;
-				dots "Preparing Hard Disks (Stage 3)";
-				if [ -r "${imagePath}/d1.original.partitions" ]; then
-					if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
-						fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
-					else
-						fixed_size_partitions="";
-					fi
-					fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
-				else
-					parted -s $hd -a opt mkpart primary ntfs $defaultpart2start -- $layPartSize &>/dev/null;
-				fi
-			elif [ "$win7partcnt" == "3" ]; then
-				dots "Preparing Hard Disks (Stage 2)";
-				sgdisk --zap-all $hd 2>&1 >/dev/null;
-				sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
-				echo "Done";
-				debugPause;
-				dots "Preparing Hard Disks (Stage 3)";
-				sgdisk -x 3:$(sgdisk -E $hd) $hd &>/dev/null;
-			elif [ "$win7partcnt" == "4" ]; then
-				dots "Preparing Hard Disks (Stage 2)";
-				sgdisk --zap-all $hd 2>&1 >/dev/null;
-				sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
-				echo "Done";
-				debugPause;
-				dots "Preparing Hard Disks (Stage 3)";
-				sgdisk -x 4:$(sgdisk -E $hd) $hd &>/dev/null;
+				fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
+			else
+				parted -s $hd -a opt mkpart primary ntfs $defaultpart2start -- $layPartSize &>/dev/null;
 			fi
-			runPartprobe $hd;
+		elif [ "$win7partcnt" == "3" ]; then
+			dots "Preparing Hard Disks (Stage 2)";
+			sgdisk --zap-all $hd 2>&1 >/dev/null;
+			sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
 			echo "Done";
 			debugPause;
+			dots "Preparing Hard Disks (Stage 3)";
+			sgdisk -x 3:$(sgdisk -E $hd) $hd &>/dev/null;
+		elif [ "$win7partcnt" == "4" ]; then
+			dots "Preparing Hard Disks (Stage 2)";
+			sgdisk --zap-all $hd 2>&1 >/dev/null;
+			sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
+			echo "Done";
+			debugPause;
+			dots "Preparing Hard Disks (Stage 3)";
+			sgdisk -x 4:$(sgdisk -E $hd) $hd &>/dev/null;
 		fi
+		runPartprobe $hd;
+		echo "Done";
+		debugPause;
 	elif [ -f "$imagePath" -o -f "$imagePath/$img" ] && [[ "$osid" == +([1-2]) ]];then
 		if [ -d "$imagePath" ]; then
 			imagePath="$imagePath/$img";
@@ -224,19 +153,17 @@ if [ "$imgType" == "n" ]; then
 	#  restore MBR/GRUB
 	#  resize original partition table to current disk, and apply it
 	elif [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
-		debugPause;
 		restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
 		dots "Expanding partition table to fill disk";
 		if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
 			fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
-		else
-			fixed_size_partitions="";
 		fi
+		fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
+		runPartprobe $hd;
 		echo "Done";
 		debugPause;
-		fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
-		sleep 3;
 	fi
+	sleep 3;
 elif [ "$imgType" == "mps" ]; then
 	if [ -d "$imagePath" ]; then
 		restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
@@ -257,12 +184,9 @@ elif [ "$imgType" == "mpa" ]; then
 		handleError "Unable to locate image store.";
 	fi
 fi
-if [ "$mc" == "yes" ]; then
-	# we need an artificial pause to allow the server to spin up the upd-cast
-	# process.
-	sleep 10
-fi
 if [ "$imgType" == "n" ]; then
+	parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
+	diskLength=`expr length $hd`;
 	if [ -f "$win7imgroot/sys.img.000" ] && [[ "$osid" == +([5-7]|9) ]]; then
 		if [ "$win7partcnt" == "1" ]; then
 			restorePartition "$win7sys";
@@ -274,18 +198,9 @@ if [ "$imgType" == "n" ]; then
 			restorePartition "${hd}2";
 			restorePartition "$win7sys";
 		fi
-		expandPartition "$win7sys";
 	elif [ -f "$imagePath" ] && [[ "$osid" == +(1|2) ]]; then
 		restorePartition "$part";
-		expandPartition "$part";
-	# Linux:
-	#  save EBR so that the extended and logical partitions are not corrupted
-	#  clone filesystem
-	#  restore EBR so that the extended and logical partitions are not corrupted
-	#  expand the partitions
 	elif [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
-		parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
-		diskLength=`expr length $hd`;
 		for part in $parts; do
 			saveEBR "$part";
 			partNum=${part:$diskLength};
@@ -297,12 +212,14 @@ if [ "$imgType" == "n" ]; then
 			else
 				restorePartition "$part";
 				restoreEBR "$part";
-				expandPartition "$part";
 			fi
 		done
 	fi
-	parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
+	dots "Stopping FOG Status Reporter";
+	kill -9 $statusReporter 2>/dev/null;
+	echo "Done";
 	for part in $parts; do
+		expandPartition "$part";
 		fixWin7boot "$part";
 	done
 elif [ "$imgType" == "mps" ]; then
@@ -313,10 +230,12 @@ elif [ "$imgType" == "mps" ]; then
 		if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
 			restorePartition "$part" "1" "$imagePath" "$diskLength" "$imgPartitionType";
 		else
-			dots "Skipping partition $partNum";
-			echo "Done";
+			echo " * Skipping partition $partNum";
 		fi
 	done
+	dots "Stopping FOG Status Reporter";
+	kill -9 $statusReporter 2>/dev/null;
+	echo "Done";
 	makeAllSwapSystems "$hd" "1" "$imagePath" "$imgPartitionType";
 elif [ "$imgType" == "mpa" ]; then
 	disks=`fogpartinfo --list-devices 2>/dev/null`;
@@ -330,15 +249,20 @@ elif [ "$imgType" == "mpa" ]; then
 				echo " * Processing Partition: $part ($partNum)";
 				restorePartition "$part" "$intDisk" "$imagePath" "$diskLength" "$imgPartitionType";
 			else
-				dots "Skipping partition $partNum";
-				echo "Done";
+				echo " * Skipping partition $partNum";
 			fi
 		done
 		makeAllSwapSystems "$disk" "$intDisk" "$imagePath" "$imgPartitionType";
 		intDisk=`expr $intDisk '+' 1`;
-		done
+	done
+	dots "Stopping FOG Status Reporter";
+	kill -9 $statusReporter 2>/dev/null;
+	echo "Done";
 else
 	restorePartition "$hd";
+	dots "Stopping FOG Status Reporter";
+	kill -9 $statusReporter 2>/dev/null;
+	echo "Done";
 fi
 if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "mbr" ]; then
 	if [ "$gptcheck" == "yes" ]; then
