@@ -1,19 +1,18 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.checkin
+
 echo " * Preparing to send image file to server."
 imagePath="/images/$macWinSafe"
 percent=$pct
-if [ $percent -ge 5 ]; then
-	if [ ! $percent -lt 100 ]; then
-		percent=5
-	fi
-else
+
+if [ $percent -lt 5 ] || [ $percent -ge 100 ]; then
 	percent=5
 fi
 if [ $percent -lt 10 ]; then
 	percent="0$percent"
 fi
+
 fog.statusreporter "$mac" "$web" &
 dots "Checking Mounted File System"
 if [ -f "/images/.mntcheck" ]; then
