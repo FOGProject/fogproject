@@ -191,9 +191,7 @@ class Host extends FOGController {
 	}
 	private function loadModules() {
 		if (!$this->isLoaded('modules') && $this->get('id')) {
-			$ModuleIDs = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','moduleID');
-			foreach($this->getClass('ModuleManager')->find(array('id' => $ModuleIDs)) AS $Module)
-				$this->add('modules', $Module);
+            $this->set('modules',$this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id'))));
 		}
 		return $this;
 	}
@@ -384,8 +382,8 @@ class Host extends FOGController {
 		}
 		if ($this->isLoaded('modules')) {
 			$this->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id')));
+			$moduleName = $this->getGlobalModuleStatus();
 			foreach((array)$this->get('modules') AS $Module) {
-				$moduleName = $this->getGlobalModuleStatus();
 				if (($Module instanceof Module) && $Module->isValid()) {
 					if ($moduleName[$Module->get('shortName')]) {
 						$this->getClass('ModuleAssociation')
