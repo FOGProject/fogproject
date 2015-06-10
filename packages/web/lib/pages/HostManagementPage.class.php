@@ -317,7 +317,7 @@ class HostManagementPage extends FOGPage {
 			if ($Host && $Host->isValid()) throw new Exception(_('A host with this MAC already exists with Hostname: ').$Host->get('name'));
 			if ($this->getClass('HostManager')->exists($_REQUEST['host'])) throw new Exception(_('Hostname already exists'));
 			// Get all the service id's so they can be enabled.
-			$ModuleIDs = $this->getClass('ModuleManager')->find('','','','','','','','id');
+            $ModuleIDs = $this->getClass('ModuleManager')->find('','','','','','','','id');
 			$password = $_REQUEST['domainpassword'];
 			if ($this->FOGCore->getSetting('FOG_NEW_CLIENT') && $_REQUEST['domainpassword'])
 				$password = $this->encryptpw($_REQUEST['domainpassword']);
@@ -1212,10 +1212,12 @@ class HostManagementPage extends FOGPage {
 					$tme = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
 					if (isset($_REQUEST['updatestatus']))
 					{
-						$modOn = $_REQUEST['modules'];
-						$modOff = $this->getClass('ModuleManager')->find(array('id' => $modOn),'','','','','',true,'id');
-						$Host->addModule($modOn);
-						$Host->removeModule($modOff);
+                        $modOn = $_REQUEST['modules'];
+                        $modOff = $this->getClass('ModuleManager')->find(array('id' => $modOn),'','','','','',true,'id');
+                        if (count($modOn))
+                            $Host->addModule($modOn);
+                        if (count($modOff))
+                            $Host->removeModule($modOff);
 					}
 					if (isset($_REQUEST['updatedisplay']))
 						$Host->setDisp($x,$y,$r);
