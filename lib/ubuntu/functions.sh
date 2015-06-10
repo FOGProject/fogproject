@@ -267,7 +267,7 @@ configureTFTPandPXE()
 # FOG Modified version
 TFTP_USERNAME=\"root\"
 TFTP_DIRECTORY=\"/tftpboot\"
-TFTP_ADDRESS=\"0.0.0.0:69\"
+TFTP_ADDRESS=\":69\"
 TFTP_OPTIONS=\"-s\"" > "${tftpconfigupstartdefaults}";
 		if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
 			systemctl enable xinetd >/dev/null 2>&1;
