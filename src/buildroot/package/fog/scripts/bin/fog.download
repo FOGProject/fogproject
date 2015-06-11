@@ -80,7 +80,7 @@ if [ "$imgType" == "n" ]; then
 			echo "Done";
 		fi
 		debugPause;
-		diskSize=`parted -s $hd u kB print | grep "Disk" | grep -v "Flags" | sed 's/Disk \/dev\/[a-zA-Z0-9]*: //' | sed 's/kB//'`;
+		diskSize=`parted -s $hd u kB print | awk -F'[: ]+' /Disk\ \\//'{print $3+0}'`
 		if [ "$diskSize" -gt 2199023256 ]; then
 			layPartSize="2tB";
 		fi
