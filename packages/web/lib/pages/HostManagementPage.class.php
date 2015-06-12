@@ -1150,15 +1150,15 @@ class HostManagementPage extends FOGPage {
 					foreach((array)$Host->get('additionalMACs') AS $MyMAC) {
 						if ($MyMAC instanceof MACAddress && $MyMAC->isValid()) $MyMACs[] = strtolower($MyMAC->__toString());
 					}
+					$AddMe = array_diff((array)$AddMe,(array)$MyMACs);
+					if (count($AddMe)) $Host->addAddMAC($AddMe);
 					if (isset($_REQUEST['primaryMAC'])) {
-                        $AddMe[] = strtolower($PriMAC->__toString());
+                        $Host->addAddMAC(strtolower($PriMAC->__toString()));
                         $PriMAC = new MACAddress(strtolower($_REQUEST['primaryMAC']));
 					    if (!$PriMAC->isValid()) throw new Exception(_('MAC Address is not valid'));
                         $Host->removeAddMAC($PriMAC);
                     }
                     $Host->set('mac',$PriMAC);
-					$AddMe = array_diff((array)$AddMe,(array)$MyMACs);
-					if (count($AddMe)) $Host->addAddMAC($AddMe);
 					if(isset($_REQUEST['additionalMACsRM'])) $Host->removeAddMAC($_REQUEST['additionalMACsRM']);
 					$Host->ignore($_REQUEST['igimage'],$_REQUEST['igclient']);
 				break;

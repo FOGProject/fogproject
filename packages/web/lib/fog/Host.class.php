@@ -31,7 +31,6 @@ class Host extends FOGController {
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
 		'mac',
-		'primac',
 		'image',
 		'additionalMACs',
 		'pendingMACs',
@@ -58,7 +57,6 @@ class Host extends FOGController {
 	);
 	// Class to field relationships
 	public $databaseFieldClassRelationships = array(
-		'MACAddressAssociation' => array('hostID','id','primac',array('primary' => 1)),
 		'Inventory' => array('hostID','id','inv'),
 	);
 	// Custom functons
@@ -148,7 +146,7 @@ class Host extends FOGController {
 		return $this;
 	}
 	private function loadPrimary() {
-		if (!$this->isLoaded('mac') && $this->get('id')) $this->set('mac',$this->getClass('MACAddress',$this->get('primac')));
+        if (!$this->isLoaded('mac') && $this->get('id')) $this->set('mac',$this->getClass('MACAddress',current($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1)))));
 		return $this;
 	}
 	private function loadAdditional() {
@@ -191,7 +189,8 @@ class Host extends FOGController {
 	}
 	private function loadModules() {
 		if (!$this->isLoaded('modules') && $this->get('id')) {
-            $this->set('modules',$this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id'))));
+            foreach ((array)$this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id'))) AS $MA)
+                $this->add('modules',$this->getClass('Module',$MA->get('moduleID')));
 		}
 		return $this;
 	}
