@@ -193,7 +193,7 @@ abstract class FOGController extends FOGBase {
 				$updateData[] = sprintf("%s = '%s'", $fieldName, $this->DB->sanitize($this->get($name)));
 			}
 			// Force ID to update so ID is returned on DUPLICATE UPDATE - No ID was returning when A) Nothing is inserted (already exists) or B) Nothing is updated (data has not changed)
-			$updateData[] = sprintf("%s = LAST_INSERT_ID(%s)", $this->DB->sanitize($this->databaseFields['id']), $this->DB->sanitize($this->databaseFields['id']));
+			$updateData[] = sprintf("%s = LAST_INSERT_ID(%s)", $this->databaseFields['id'], $this->databaseFields['id']);
 			// Insert & Update query all-in-one
 			$query = sprintf("INSERT INTO %s (%s) VALUES ('%s') ON DUPLICATE KEY UPDATE %s",
 				$this->databaseTable,
@@ -246,7 +246,7 @@ abstract class FOGController extends FOGBase {
 			}
 			$this->setQuery($this->DB->query($query)->fetch()->get());
 			// Success
-			$res = $this;
+			$res = true;
 		} catch (Exception $e) {
 			$this->set('id', 0)->debug('Database Load Failed: ID: %s, Error: %s', array($this->get('id'), $e->getMessage()));
 			$res = false;

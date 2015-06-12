@@ -836,7 +836,6 @@ class Host extends FOGController {
 				 ->set('ADOU',trim($ou))
 				 ->set('ADUser',trim($user))
 				 ->set('ADPass',trim($pass));
-			if (!$nosave) $this->save();
 		}
 		return $this;
 	}

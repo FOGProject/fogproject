@@ -1126,12 +1126,11 @@ class HostManagementPage extends FOGPage {
 					if ($Host->get('name') != $_REQUEST['host'] && !$this->getClass('HostManager')->isHostnameSafe($_REQUEST['host']))
 						throw new Exception(_('Please enter a valid hostname'));
 					// Variables
-					$mac = new MACAddress($_REQUEST['mac']);
+					$PriMAC = new MACAddress($_REQUEST['mac']);
 					// Task variable.
 					$Task = $Host->get('task');
 					// Error checking
-					if (!$mac->isValid())
-						throw new Exception(_('MAC Address is not valid'));
+					if (!$PriMAC->isValid()) throw new Exception(_('MAC Address is not valid'));
 					if ((!$_REQUEST['image'] && $Task && $Task->isValid()) || ($_REQUEST['image'] && $_REQUEST['image'] != $Host->get('imageID') && $Task && $Task->isValid()))
 						throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
 					// Define new Image object with data provided
@@ -1143,8 +1142,6 @@ class HostManagementPage extends FOGPage {
 						->set('kernelArgs',$_REQUEST['args'])
 						->set('kernelDevice',$_REQUEST['dev'])
 						->set('productKey',base64_encode($_REQUEST['key']));
-					if (strtolower($Host->get('mac')->__toString()) != strtolower($mac->__toString()))
-						$Host->set('mac', strtolower($mac->__toString()));
 					$MyMACs = $AddMe = array();
 					foreach((array)$_REQUEST['additionalMACs'] AS $MAC) {
 						$MAC = (!($MAC instanceof MACAddress) ? $this->getClass('MACAddress',$MAC) : $MAC);
@@ -1154,13 +1151,16 @@ class HostManagementPage extends FOGPage {
 						if ($MyMAC instanceof MACAddress && $MyMAC->isValid()) $MyMACs[] = strtolower($MyMAC->__toString());
 					}
 					if (isset($_REQUEST['primaryMAC'])) {
-						$AddMe[] = strtolower($mac->__toString());
-						$Host->removeAddMAC($_REQUEST['primaryMAC'])
-							->set('mac', strtolower($_REQUEST['primaryMAC']));
-					}
+                        $AddMe[] = strtolower($PriMAC->__toString());
+                        $PriMAC = new MACAddress(strtolower($_REQUEST['primaryMAC']));
+					    if (!$PriMAC->isValid()) throw new Exception(_('MAC Address is not valid'));
+                        $Host->removeAddMAC($PriMAC);
+                    }
+                    $Host->set('mac',$PriMAC);
 					$AddMe = array_diff((array)$AddMe,(array)$MyMACs);
 					if (count($AddMe)) $Host->addAddMAC($AddMe);
 					if(isset($_REQUEST['additionalMACsRM'])) $Host->removeAddMAC($_REQUEST['additionalMACsRM']);
+					$Host->ignore($_REQUEST['igimage'],$_REQUEST['igclient']);
 				break;
 				case 'host-grouprel';
 					if (isset($_REQUEST['addGroups']))
@@ -1253,11 +1253,7 @@ class HostManagementPage extends FOGPage {
 				break;
 			}
 			// Save to database
-			if ($Host->save())
-			{
-				$Host->setAD();
-				if ($_REQUEST['tab'] == 'host-general')
-					$Host->ignore($_REQUEST['igimage'],$_REQUEST['igclient']);
+			if ($Host->save()) {
 				// Hook
 				$this->HookManager->processEvent('HOST_EDIT_SUCCESS', array('Host' => &$Host));
 				// Log History event
