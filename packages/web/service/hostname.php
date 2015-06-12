@@ -15,7 +15,7 @@ try
 	if (trim(base64_decode($Host->get('productKey'))))
 		$Datatosend .= "\n#Key=".base64_decode($Host->get('productKey'));
 	if ($_REQUEST['newService'])
-		$Host->setAD();
+		$Host->setAD()->save();
 	$FOGCore->sendData($Datatosend);
 }
 catch (Exception $e)
