@@ -109,7 +109,7 @@ abstract class FOGBase {
 		$args = func_get_args();
 		array_shift($args);
 		$r = new ReflectionClass($class);
-		return (count($args) ? $r->newInstanceArgs($args) : $r->newInstance($data));
+		return (count($args) >= 1 ? $r->newInstanceArgs($args) : $r->newInstance());
 	}
 	/** @function endsWith()
 	  * @param $str the string to find out if it ends with

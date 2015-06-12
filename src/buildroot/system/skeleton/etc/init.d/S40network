@@ -27,7 +27,7 @@ for iface in $ifaces; do
     if [[ "x$linkstate" = "x1" -a "x$iface" != "xlo" ]]; then
         echo "auto $iface" >> /etc/network/interfaces
         echo "iface $iface inet dhcp" >> /etc/network/interfaces
-        echo -e "\tudhcpc_opts -t 100 -T 20\n" >> /etc/network/interfaces
+        echo -e "\tudhcpc_opts -t 3 -T 10\n" >> /etc/network/interfaces
     fi
 done
 case "$1" in
