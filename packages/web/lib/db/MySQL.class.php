@@ -68,9 +68,8 @@ class MySQL extends DatabaseManager {
 						usleep(1);
 						continue;
 					}
-					foreach($links AS $k => $link) {
-						$this->queryResult = $link->reap_async_query();
-						$processed++;
+					foreach($links AS $link) {
+						if ($this->queryResult = $link->reap_async_query()) $processed++;
 					}
 				} while ($processed < 1);
 			}
