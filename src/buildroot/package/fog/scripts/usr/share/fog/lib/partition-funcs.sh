@@ -59,7 +59,7 @@ restoreEBR() {
 # $1 is the location of the file to store uuids in
 # $2 is the partition device name
 saveSwapUUID() {
-	local uuid=`blkid $2 | awk -F\" '{print $2}'`;
+	local uuid=`blkid -s UUID $2 | cut -d\" -f2`;
 	if [ -n "$uuid" ]; then
 		echo " * Saving UUID ($uuid) for ($2)";
 		echo "$2 $uuid" >> "$1";
