@@ -516,15 +516,14 @@ abstract class FOGBase {
 		$keys = array_keys($haystack);
 		while ($left <= $right) {
 			$mid = $left + $right >> 1;
-			if (is_object($needle) && !($needle instanceof MACAddress)) {
-				if ($values[$mid]->get('id') == $needle->get('id')) return $keys[$mid];
-				elseif ($values[$mid] > $needle) $right = $mid - 1;
-				elseif ($values[$mid] < $needle) $left = $mid + 1;
-			} else {
-				if ($values[$mid] == $needle) return $keys[$mid];
-				elseif ($values[$mid] > $needle) $right = $mid - 1;
-				elseif ($values[$mid] < $needle) $left = $mid + 1;
-			}
+            if (is_object($values[$mid]) && is_object($needle) && !($needle instanceof MACAddress) && !($values[$mid] instanceof MACAddress)) {
+                if ($values[$mid]->get('id') == $needle->get('id')) return $keys[$mid];
+            } else if (($values[$mid] instanceof MACAddress) && ($needle instanceof MACAddress)) {
+                if ($values[$mid]->__toString() == $needle->__toString()) return $keys[$mid];
+            }
+            if ($values[$mid] == $needle) return $keys[$mid];
+            elseif ($values[$mid] > $needle) $right = $mid - 1;
+			elseif ($values[$mid] < $needle) $left = $mid + 1;
 		}
 		return -1;
 	}

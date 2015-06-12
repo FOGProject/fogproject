@@ -404,7 +404,7 @@ storageftppass=\"$storageftppass\";
 
 displayBanner()
 {
-	echo "";                                        
+	echo
 	echo "       ..#######:.    ..,#,..     .::##::.   ";
 	echo "  .:######          .:;####:......;#;..      ";
 	echo "  ...##...        ...##;,;##::::.##...       ";
@@ -415,7 +415,7 @@ displayBanner()
 	echo "      #  .      ...##:,;##;:::#: ... ##..    ";
 	echo "     .#  .       .:;####;::::.##:::;#:..     ";
 	echo "      #                     ..:;###..        ";
-	echo "";
+	echo
 	echo "  ###########################################";
 	echo "  #     FOG                                 #";
 	echo "  #     Free Computer Imaging Solution      #";
@@ -426,7 +426,7 @@ displayBanner()
 	echo "  #     http://fogproject.org/Credits       #"
 	echo "  #     GNU GPL Version 3                   #";		
 	echo "  ###########################################";
-	echo "";
+	echo
 	
 }
 
@@ -475,14 +475,14 @@ EOF
 	chown -R $apacheuser:$apacheuser $webdirdest/management/other &>/dev/null;
 	echo "OK";
 	echo -n "  * Setting up SSL FOG Server...";
-	echo "<VirtualHost $ipaddress:80>
+	echo "<VirtualHost *:80>
     ServerName $ipaddress
 	DocumentRoot $docroot
 	${forcehttps}RewriteEngine On
 	${forcehttps}RewriteRule /management/other/ca.cert.der$ - [L]
     ${forcehttps}RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]
 </VirtualHost>
-<VirtualHost $ipaddress:443>
+<VirtualHost *:443>
     Servername $ipaddress
     DocumentRoot $docroot
     SSLEngine On

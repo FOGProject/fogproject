@@ -408,10 +408,10 @@ configureHttpd()
 {
 	stopInitScript;
 	docroot="/var/www/";
-	etcconf="/etc/apache2/sites-available/001-fog.conf";
+	etcconf="/etc/apache2/sites-available/001-fog";
 	if [ -f "$etcconf" ]; then
-		rm $etcconf &>/dev/null;
-		a2dissite 001-fog &>/dev/null;
+		a2dissite 001-fog &>/dev/null
+		rm $etcconf &>/dev/null
 	fi
 	if [ "$installtype" == N -a "$fogupdateloaded" != 1 ]; then
 		echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
@@ -623,10 +623,10 @@ class Config {
 		cwd=`pwd`;
 		cd "${webdirdest}/service"
 		count=0;
-		while [ -z "$clientVer" -a "$count" -le 10 ]; do
-			clientVer=`wget http://$ipaddress/fog/service/getclient.php -q -O -`;
+		while [ -z "$clientVer" -a "$count" -le 5 ]; do
+			clientVer=`wget -t 1 -T 15 http://127.0.0.1/fog/service/getclient.php -q -O -`;
 			if [ -z "$clientVer" ]; then
-				clientVer=`wget http://$ipaddress/service/getclient.php -q -O -`;
+				clientVer=`wget -t -T 15 http://127.0.0.1/service/getclient.php -q -O -`;
 			fi
 			count=`expr $count '+' 1`
 			sleep 2;
