@@ -415,7 +415,7 @@ class HostManagementPage extends FOGPage {
 		}
 		foreach((array)$Host->get('additionalMACs') AS $MAC) {
 			if ($MAC && $MAC->isValid()) 
-				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" /><input title="'._('Remove MAC').'" type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" /><label for="rm'.$MAC.'" class="icon fa fa-minus-circle hand">&nbsp;</label><span class="icon icon-hand" title="'._('Make Primary').'"><input type="radio" name="primaryMAC" value="'.$MAC.'" /></span><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$Host->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$Host->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span></div>';
+				$addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" /><input title="'._('Remove MAC').'" type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" /><label for="rm'.$MAC.'" class="icon fa fa-minus-circle hand">&nbsp;</label><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><!--<span class="icon icon-hand" title="'._('Make Primary').'"><input type="radio" name="primaryMAC" value="'.$MAC.'" /></span>--><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$Host->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$Host->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span></div>';
 		}
 		foreach ((array)$Host->get('pendingMACs') AS $MAC) {
 			if ($MAC && $MAC->isValid())
@@ -1126,7 +1126,7 @@ class HostManagementPage extends FOGPage {
 					if ($Host->get('name') != $_REQUEST['host'] && !$this->getClass('HostManager')->isHostnameSafe($_REQUEST['host']))
 						throw new Exception(_('Please enter a valid hostname'));
 					// Variables
-					$PriMAC = new MACAddress($_REQUEST['mac']);
+                    $PriMAC = $this->getClass('MACAddress',$_REQUEST['mac']);
 					// Task variable.
 					$Task = $Host->get('task');
 					// Error checking
@@ -1148,17 +1148,12 @@ class HostManagementPage extends FOGPage {
 						if ($MAC && $MAC->isValid()) $AddMe[] = strtolower($MAC->__toString());
 					}
 					foreach((array)$Host->get('additionalMACs') AS $MyMAC) {
-						if ($MyMAC instanceof MACAddress && $MyMAC->isValid()) $MyMACs[] = strtolower($MyMAC->__toString());
-					}
-					$AddMe = array_diff((array)$AddMe,(array)$MyMACs);
-					if (count($AddMe)) $Host->addAddMAC($AddMe);
-					if (isset($_REQUEST['primaryMAC'])) {
-                        $Host->addAddMAC(strtolower($PriMAC->__toString()));
-                        $PriMAC = new MACAddress(strtolower($_REQUEST['primaryMAC']));
-					    if (!$PriMAC->isValid()) throw new Exception(_('MAC Address is not valid'));
-                        $Host->removeAddMAC($PriMAC);
+						if ($MyMAC instanceof MACAddress && $MyMAC->isValid()) $MyMACs[] = strtolower($MyMAC);
                     }
-                    $Host->set('mac',$PriMAC);
+                    $MyMACs[] = strtolower($Host->get('mac'));
+					$AddMe = array_diff((array)$AddMe,(array)$MyMACs);
+                    if (count($AddMe)) $Host->addAddMAC($AddMe);
+                    if (strtolower($Host->get('mac')) != strtolower($PriMAC)) $Host->set('mac',$PriMAC);
 					if(isset($_REQUEST['additionalMACsRM'])) $Host->removeAddMAC($_REQUEST['additionalMACsRM']);
 					$Host->ignore($_REQUEST['igimage'],$_REQUEST['igclient']);
 				break;
