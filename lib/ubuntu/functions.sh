@@ -408,10 +408,10 @@ configureHttpd()
 {
 	stopInitScript;
 	docroot="/var/www/";
-	etcconf="/etc/apache2/sites-available/001-fog.conf";
+	etcconf="/etc/apache2/sites-available/001-fog";
 	if [ -f "$etcconf" ]; then
-		rm $etcconf &>/dev/null;
-		a2dissite 001-fog &>/dev/null;
+		a2dissite 001-fog &>/dev/null
+		rm $etcconf &>/dev/null
 	fi
 	if [ "$installtype" == N -a "$fogupdateloaded" != 1 ]; then
 		echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
