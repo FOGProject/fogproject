@@ -55,7 +55,7 @@ abstract class FOGBase {
 	  */
 	public function fatalError($txt, $data = array()) {
 		if (!preg_match('#/service/#', $_SERVER['PHP_SELF']) && !$this->isAJAXRequest())
-			print sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
+			print sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 	}
 	/** @function error() prints the error to the screen
 	  * @param $txt the text to print
@@ -64,7 +64,7 @@ abstract class FOGBase {
 	  */
 	public function error($txt, $data = array()) {
 		if ((((isset($this->debug)) && $this->debug === true)) && !preg_match('#/service/#', $_SERVER['PHP_SELF']) && !$this->isAJAXRequest())
-			print sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
+			print sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 	}
 	/** @function debug() prints debug information
 	  * @param $txt the text to print
@@ -73,7 +73,7 @@ abstract class FOGBase {
 	  */
 	public function debug($txt, $data = array()) {
 		if ((!isset($this) || (isset($this->debug) && $this->debug === true)) && !$this->isAJAXRequest() && !preg_match('#/service/#', $_SERVER['PHP_SELF']))
-			print sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
+			print sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 	}
 	/** @function info() prints informational messages
 	  * @param $txt the text to print
@@ -82,7 +82,7 @@ abstract class FOGBase {
 	  */
 	public function info($txt, $data = array()) {
 		if ((!isset($this) || (isset($this->info) && $this->info === true)) && !preg_match('#/service/#',$_SERVER['PHP_SELF']))
-			print sprintf('<div class="debug-info">FOG INFO: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
+			print sprintf('<div class="debug-info">FOG INFO: %s: %s</div>%s', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt), "\n");
 	}
 	/** @function __toString() magic function in php as defined
 	  * @return the item in string format
@@ -109,7 +109,7 @@ abstract class FOGBase {
 		$args = func_get_args();
 		array_shift($args);
 		$r = new ReflectionClass($class);
-		return (count($args) >= 1 ? $r->newInstanceArgs($args) : $r->newInstance());
+		return (count($args) ? $r->newInstanceArgs($args) : $r->newInstance($data));
 	}
 	/** @function endsWith()
 	  * @param $str the string to find out if it ends with
@@ -432,8 +432,7 @@ abstract class FOGBase {
 	  * @return $MAClist, returns the list of valid MACs
 	  */
 	public function parseMacList($stringlist,$image = false,$client = false) {
-		$MACSToSearch = explode('|',$stringlist);
-		$MACs = $this->getClass('MACAddressAssociationManager')->find(array('mac' => $MACSToSearch));
+		$MACs = $this->getClass('MACAddressAssociationManager')->find(array('mac' => (array)explode('|',$stringlist)));
 		if (count($MACs)) {
 			foreach($MACs AS $MAC) {
 				if ($MAC && $MAC->isValid()) {
@@ -444,14 +443,15 @@ abstract class FOGBase {
 				}
 			}
 		}
-		foreach((array)$MACSToSearch AS $MAC) {
+		$MACs = explode('|',$stringlist);
+		foreach((array)$MACs AS $MAC) {
 			$MAC = new MACAddress($MAC);
 			if ($MAC && $MAC->isValid()) $MAClist[] = strtolower($MAC);
 		}
 		$Ignore = explode(',',$this->getClass('FOGCore')->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'));
 		if (count($ignore)) {
 			foreach((array)$Ignore AS $ignore) {
-				$matches = preg_grep("#$ignore#i",$MACSToSearch);
+				$matches = preg_grep("#$ignore#i",$MACs);
 				if (count($matches)) {
 					$NewMatches = array_merge((array)$NewMatches,$matches);
 					unset($matches);
@@ -515,15 +515,18 @@ abstract class FOGBase {
 		$values = array_values($haystack);
 		$keys = array_keys($haystack);
 		while ($left <= $right) {
-			$mid = $left + $right >> 1;
-            if (is_object($values[$mid]) && is_object($needle) && !($needle instanceof MACAddress) && !($values[$mid] instanceof MACAddress)) {
-                if ($values[$mid]->get('id') == $needle->get('id')) return $keys[$mid];
-            } else if (($values[$mid] instanceof MACAddress) && ($needle instanceof MACAddress)) {
-                if ($values[$mid]->__toString() == $needle->__toString()) return $keys[$mid];
-            }
-            if ($values[$mid] == $needle) return $keys[$mid];
-            elseif ($values[$mid] > $needle) $right = $mid - 1;
-			elseif ($values[$mid] < $needle) $left = $mid + 1;
+            $mid = $left + $right >> 1;
+            if (is_object($needle)) {
+		    	if (!($needle instanceof MACAddress)) {
+                    if ($values[$mid]->get('id') == $needle->get('id')) return $keys[$mid];
+                } else {
+                    if (strtolower($values[$mid]->__toString()) == strtolower($needle->__toString())) return $keys[$mid];
+                }
+            } else {
+				if ($values[$mid] == $needle) return $keys[$mid];
+			}
+			if ($values[$mid] > $needle) $right = $mid - 1;
+		    elseif ($values[$mid] < $needle) $left = $mid + 1;
 		}
 		return -1;
 	}
