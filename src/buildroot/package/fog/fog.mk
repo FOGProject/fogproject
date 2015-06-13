@@ -23,8 +23,8 @@ define FOG_INSTALL_TARGET_CMDS
 	$(STRIPCMD) $(STRIP_STRIP_ALL) $(TARGET_DIR)/bin/fogmbrfix
 	$(STRIPCMD) $(STRIP_STRIP_ALL) $(TARGET_DIR)/bin/fogpartinfo
 	$(foreach script, \
-	$(shell find $(@D)/scripts/ -type f | sed 's:package/fog/scripts/:./:g'), \
-	$(INSTALL) -D -m 0755 $(script) $(TARGET_DIR)/$(script);)
+	$(shell find $(@D)/scripts/ -type f | sed 's:$(@D)/scripts/:./:g'), \
+	$(INSTALL) -D -m 0755 $(@D)/scripts/$(script) $(TARGET_DIR)/$(script);)
 	sed -i 's/^tty1.*/tty1::respawn:\/sbin\/getty -i -n -l \/bin\/sh 38400 tty1/; s/^tty2/#tty2/' $(TARGET_DIR)/etc/inittab
 	mkdir -p $(TARGET_DIR)/usr/share/clamav
 	$(INSTALL) -D -m 0755 $(@D)/src/usbreset $(TARGET_DIR)/usr/sbin/usbreset
