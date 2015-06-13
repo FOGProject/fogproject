@@ -14,7 +14,7 @@ class Page extends FOGBase {
 		} else $this->addCSS('css/main.css');
 		$this->addCSS('../management/css/font-awesome.css');
 		$this->isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST['sub'],array('configure','authorize')) || !$this->FOGUser || !$this->FOGUser->isLoggedIn());
-		if ($this->FOGUser && $this->FOGUser->isLoggedIn()) {
+		if ($this->FOGUser && $this->FOGUser->isLoggedIn() && strtolower($_REQUEST['node']) != 'schemaupdater') {
 			if (!$isMobile) {
 				$this->main = array(
 					'home' => array($this->foglang['Home'], 'fa fa-home fa-2x'),
