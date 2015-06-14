@@ -22,9 +22,13 @@ class Group extends FOGController {
     // Overides
     private function loadHosts() {
 		if (!$this->isLoaded('hosts') && $this->get('id')) {
-			$HostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID');
-			$this->set('hosts',$this->getClass('HostManager')->find(array('id' => $HostIDs)));
-			$this->set('hostsnotinme',$this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','',true));
+            $HostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID');
+            foreach ($this->getClass('HostManager')->find(array('id' => $HostIDs)) AS $Host) {
+                if ($Host->isValid()) $this->add('hosts', $Host);
+            }
+            foreach ($this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','',true) AS $Host) {
+                if ($Host->isValid()) $this->add('hostsnotinme', $Host);
+            }
 		}
 		return $this;
 	}
@@ -38,8 +42,7 @@ class Group extends FOGController {
     }   
     public function set($key, $value) {
         if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme') {
-            foreach((array)$value AS $Host)
-                $newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
+            foreach((array)$value AS $Host) $newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
             $value = (array)$newValue;
         }   
         // Set

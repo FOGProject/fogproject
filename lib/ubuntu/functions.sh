@@ -18,7 +18,7 @@
 #
 #
 stopInitScript() {
-	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
 		systemctl stop ${initdMCfullname} >/dev/null 2>&1;
 		systemctl stop ${initdIRfullname} >/dev/null 2>&1;
 		systemctl stop ${initdSDfullname} >/dev/null 2>&1;
@@ -34,7 +34,7 @@ stopInitScript() {
 installInitScript()
 {
 	echo -n "  * Installing init scripts...";
-	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
 		systemctl stop ${initdMCfullname} >/dev/null 2>&1;
 		systemctl stop ${initdIRfullname} >/dev/null 2>&1;
 		systemctl stop ${initdSDfullname} >/dev/null 2>&1;
@@ -79,7 +79,7 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 
 
 	echo -n "  * Starting FOG Multicast Management Server..."; 
-	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
 		systemctl restart ${initdMCfullname} >/dev/null 2>&1;
 		systemctl status ${initdMCfullname} >/dev/null 2>&1;
 	else
@@ -95,7 +95,7 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 	fi	
 	
 	echo -n "  * Starting FOG Image Replicator Server..."; 
-	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
 		systemctl restart ${initdIRfullname} >/dev/null 2>&1;
 		systemctl status ${initdIRfullname} >/dev/null 2>&1;
 	else
@@ -111,7 +111,7 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 	fi	
 	
 	echo -n "  * Starting FOG Task Scheduler Server..."; 
-	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
 		systemctl restart ${initdSDfullname} >/dev/null 2>&1;
 		systemctl status ${initdSDfullname} >/dev/null 2>&1;
 	else
@@ -127,7 +127,7 @@ define( \"WEBROOT\", \"${webdirdest}\" );
 	fi
 
 	echo -n "  * Starting FOG Snapin Replicator Server...";
-	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
 		systemctl restart ${initdSRfullname} >/dev/null 2>&1;
 		systemctl status ${initdSRfullname} >/dev/null 2>&1;
 	else
@@ -148,7 +148,7 @@ configureNFS()
 	echo "${storageLocation} *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)
 ${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "${nfsconfig}";
 	echo -n "  * Setting up and starting NFS Server..."; 
-	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
 		systemctl enable rpcbind >/dev/null 2>&1;
 		systemctl enable nfs-kernel-server.service >/dev/null 2>&1;
 		systemctl restart rpcbind >/dev/null 2>&1;
@@ -194,7 +194,7 @@ tcp_wrappers=YES" > "$ftpconfig";
 	if [ "$vsvermaj" -gt 3 ] || [ "$vsvermaj" = "3" -a "$vsverbug" -ge 2 ]; then
 		echo "seccomp_sandbox=NO" >> "$ftpconfig";
 	fi
-	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
 		systemctl enable vsftpd.service >/dev/null 2>&1;
 		systemctl restart vsftpd.service >/dev/null 2>&1;
 		systemctl status vsftpd.service >/dev/null 2>&1;
@@ -269,7 +269,7 @@ TFTP_USERNAME=\"root\"
 TFTP_DIRECTORY=\"/tftpboot\"
 TFTP_ADDRESS=\":69\"
 TFTP_OPTIONS=\"-s\"" > "${tftpconfigupstartdefaults}";
-		if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+        if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
 			systemctl enable xinetd >/dev/null 2>&1;
 			systemctl restart xinetd >/dev/null 2>&1;
 			systemctl status xinetd >/dev/null 2>&1;
@@ -308,7 +308,7 @@ service tftp
 	flags			= IPv4
 }" > "${tftpconfig}";
 
-		if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+        if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
 			systemctl enable xinetd >/dev/null 2>&1;
 			systemctl restart xinetd >/dev/null 2>&1;
 			systemctl status xinetd >/dev/null 2>&1;
@@ -366,7 +366,7 @@ ${routeraddress}
 }" > "$activeconfig";
 		
 	if [ "$bldhcp" = "1" ]; then	
-		if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+        if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
 			systemctl enable ${dhcpname} >/dev/null 2>&1;
 			systemctl enable ${olddhcpname} >/dev/null 2>&1;
 			systemctl restart ${dhcpname} >/dev/null 2>&1;
@@ -675,7 +675,7 @@ configureSudo()
 configureMySql()
 {
 	echo -n "  * Setting up and starting MySql...";
-	if [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ] || [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ]; then
+    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
 		systemctl="yes";
 		systemctl enable mysql >/dev/null 2>&1;
 		systemctl restart mysql >/dev/null 2>&1;
