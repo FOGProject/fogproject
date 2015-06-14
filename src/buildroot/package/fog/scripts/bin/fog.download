@@ -4,7 +4,7 @@
 . /bin/fog.checkin;
 layPartSize="-1s";
 imagePath="/images/$img";
-fog.statusreporter "$mac" "$web" &
+fog.statusreporter "$mac" "$web" & disown
 statusReporter="$!";
 fixed_size_partitions="";
 dots "Checking Mounted File System";
@@ -215,9 +215,7 @@ if [ "$imgType" == "n" ]; then
 			fi
 		done
 	fi
-	dots "Stopping FOG Status Reporter";
-	kill -9 $statusReporter 2>/dev/null;
-	echo "Done";
+    killStatusReporter
 	for part in $parts; do
 		expandPartition "$part";
 		fixWin7boot "$part";

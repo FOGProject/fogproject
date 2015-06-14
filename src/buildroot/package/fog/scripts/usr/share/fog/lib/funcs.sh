@@ -379,7 +379,7 @@ changeHostname() {
 	if [ "$hostearly" == "1" ]; then
 		dots "Changing hostname";
 		mkdir /ntfs &>/dev/null
-		mount -o rw $part /ntfs &> /tmp/ntfs-mount-output
+		ntfs-3g -o force,rw $part /ntfs &> /tmp/ntfs-mount-output
 		regfile="";
 		key1="";
 		key2="";
@@ -423,9 +423,9 @@ fixWin7boot() {
 		dots "Backing up and replacing BCD";
 		if [ $fstype == "ntfs" ]; then
 			mkdir /bcdstore &>/dev/null;
-			mount -o rw $1 /bcdstore;
+			ntfs-3g -o force,rw $1 /bcdstore;
 			if [ -f "/bcdstore/Boot/BCD" ]; then
-				mv /bcdstore/Boot/BCD /bcdstore/Boot/BCD.bak;
+				mv /bcdstore/Boot/BCD{,.bak} >/dev/null 2>&1;
 				cp /usr/share/fog/BCD /bcdstore/Boot/BCD;
 				umount /bcdstore;
 				echo "Done";
@@ -445,7 +445,7 @@ clearMountedDevices() {
 		fstype=`fsTypeSetting $1`;
 		dots "Clearing part ($1)";
 		if [ "$fstype" == "ntfs" ]; then
-			mount -o rw $1 /ntfs
+			ntfs-3g -o force,rw $1 /ntfs
 			if [ -f "$REG_LOCAL_MACHINE_7" ]; then
 				reged -e "$REG_LOCAL_MACHINE_7" &>/dev/null  <<EOFMOUNT
 cd $REG_HOSTNAME_MOUNTED_DEVICES_7
@@ -478,7 +478,7 @@ removePageFile() {
 		if [ "$ignorepg" == "1" ]; then
 			dots "Mounting partition ($part)";
 			mkdir /ntfs &>/dev/null;
-			mount -o rw $part /ntfs;
+			ntfs-3g -o force,rw $part /ntfs;
 			if [ "$?" == "0" ]; then
 				echo "Done";
 				debugPause;
@@ -1137,6 +1137,11 @@ EOF
 		echo "Done";
 		debugPause;
 	fi
+}
+killStatusReporter() {
+	dots "Stopping FOG Status Reporter";
+	`kill -9 $statusReporter` >/dev/null 2>&1;
+	echo "Done";
 }
 # Local Variables:
 # indent-tabs-mode: t
