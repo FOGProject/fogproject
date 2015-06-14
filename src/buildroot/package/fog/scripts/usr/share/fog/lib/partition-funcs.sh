@@ -59,7 +59,7 @@ restoreEBR() {
 # $1 is the location of the file to store uuids in
 # $2 is the partition device name
 saveSwapUUID() {
-	local uuid=`blkid $2 | awk -F\" '{print $2}'`;
+	local uuid=`blkid -s UUID $2 | cut -d\" -f2`;
 	if [ -n "$uuid" ]; then
 		echo " * Saving UUID ($uuid) for ($2)";
 		echo "$2 $uuid" >> "$1";
@@ -172,7 +172,7 @@ fillDiskWithPartitions() {
 #	1:3:6 = partition numbers that are fixed in size, : separated
 #	output: new sfdisk -d like output
 #
-# example file data	   
+# example file data
 # /dev/sda1 : start=	 2048, size=   204800, Id= 7, bootable
 # /dev/sda2 : start=   206848, size= 50573312, Id= 7
 # /dev/sda3 : start= 50780160, size=	 2048, Id=83
