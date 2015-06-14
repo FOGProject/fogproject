@@ -26,7 +26,7 @@
 
 # Determine Linux release name using the /etc/os-release standard
 if [ -f "/etc/os-release" ]; then
-	linuxReleaseName=`sed -n 's/^NAME="\(.*\)"/\1/p' /etc/os-release`;
+	linuxReleaseName=`sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release`;
 else
 	linuxReleaseName=`cat /etc/*release* 2>/devnull | head -n1 | awk '{print $1}'`;
 fi
