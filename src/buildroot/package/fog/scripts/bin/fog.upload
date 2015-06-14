@@ -12,7 +12,7 @@ fi
 if [ $percent -lt 10 ]; then
 	percent="0$percent"
 fi
-fog.statusreporter "$mac" "$web" &
+fog.statusreporter "$mac" "$web" & disown
 statusReporter="$!";
 dots "Checking Mounted File System"
 if [ -f "/images/.mntcheck" ]; then
@@ -287,6 +287,7 @@ EOFRESTOREPART
 		if [[ "$osid" == +([5-7]|9) ]]; then
 			imgType="mps";
 		fi
+        killStatusReporter
 		post="http://${web}service/Post_Stage2.php?to=$img&mac=$mac&ftp=$ftp&size=$size&imgid=$imgid&imgtype=$imgType&osid=$osid&type=$type"
 		queueinfo=`wget -q -O - "$post" 2>/dev/null`;
 		while [ "$queueinfo" != "##" ]; do
