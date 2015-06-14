@@ -172,7 +172,7 @@ fillDiskWithPartitions() {
 #	1:3:6 = partition numbers that are fixed in size, : separated
 #	output: new sfdisk -d like output
 #
-# example file data	   
+# example file data
 # /dev/sda1 : start=	 2048, size=   204800, Id= 7, bootable
 # /dev/sda2 : start=   206848, size= 50573312, Id= 7
 # /dev/sda3 : start= 50780160, size=	 2048, Id=83
