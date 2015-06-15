@@ -18,7 +18,7 @@
 #
 #
 stopInitScript() {
-    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
+    if [ "$systemctl" == "yes" ]; then
 		systemctl stop ${initdMCfullname} >/dev/null 2>&1;
 		systemctl stop ${initdIRfullname} >/dev/null 2>&1;
 		systemctl stop ${initdSDfullname} >/dev/null 2>&1;
@@ -30,55 +30,47 @@ stopInitScript() {
 		${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
 	fi
 }
-
-installInitScript()
-{
-	echo -n "  * Installing init scripts...";
-    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
-		systemctl stop ${initdMCfullname} >/dev/null 2>&1;
-		systemctl stop ${initdIRfullname} >/dev/null 2>&1;
-		systemctl stop ${initdSDfullname} >/dev/null 2>&1;
-		systemctl stop ${initdSRfullname} >/dev/null 2>&1;
-		cp -f ${initdsrc}/* ${initdpath}/
-		chmod 755 ${initdpath}/${initdMCfullname}
-		systemctl enable ${initdMCfullname} >/dev/null 2>&1;
-		chmod 755 ${initdpath}/${initdIRfullname}
-		systemctl enable ${initdIRfullname} >/dev/null 2>&1;
-		chmod 755 ${initdpath}/${initdSDfullname}
-		systemctl enable ${initdSDfullname} >/dev/null 2>&1;
-		chmod 755 ${initdpath}/${initdSRfullname}
-		systemctl enable ${initdSRfullname} >/dev/null 2>&1;
-	else
-		${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
-		cp -f ${initdsrc}/* ${initdpath}/
-		chmod 755 ${initdpath}/${initdMCfullname}
-		sysv-rc-conf ${initdMCfullname} on >/dev/null 2>&1;
-		chmod 755 ${initdpath}/${initdIRfullname}
-		sysv-rc-conf ${initdIRfullname} on >/dev/null 2>&1;		
-		chmod 755 ${initdpath}/${initdSDfullname}
-		sysv-rc-conf ${initdSDfullname} on >/dev/null 2>&1;
-		chmod 755 ${initdpath}/${initdSRfullname}
-		sysv-rc-conf ${initdSRfullname} on >/dev/null 2>&1;
-		insserv -d ${initdpath}/${initdMCfullname} >/dev/null 2>&1;
-		insserv -d ${initdpath}/${initdIRfullname} >/dev/null 2>&1;
-		insserv -d ${initdpath}/${initdSDfullname} >/dev/null 2>&1;
-		insserv -d ${initdpath}/${initdSRfullname} >/dev/null 2>&1;
-	fi
-	echo "OK";
+installInitScript() {
+    echo -n "  * Installing init scripts...";
+    if [ "$systemctl" == "yes" ]; then
+        systemctl stop ${initdMCfullname} >/dev/null 2>&1;
+        systemctl stop ${initdIRfullname} >/dev/null 2>&1;
+        systemctl stop ${initdSDfullname} >/dev/null 2>&1;
+        systemctl stop ${initdSRfullname} >/dev/null 2>&1;
+        cp -f ${initdsrc}/* ${initdpath}/
+        chmod 755 ${initdpath}/${initdMCfullname}
+        systemctl enable ${initdMCfullname} >/dev/null 2>&1;
+        chmod 755 ${initdpath}/${initdIRfullname}
+        systemctl enable ${initdIRfullname} >/dev/null 2>&1;
+        chmod 755 ${initdpath}/${initdSDfullname}
+        systemctl enable ${initdSDfullname} >/dev/null 2>&1;
+        chmod 755 ${initdpath}/${initdSRfullname}
+        systemctl enable ${initdSRfullname} >/dev/null 2>&1;
+    else
+        ${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
+        ${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
+        ${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
+        ${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
+        cp -f ${initdsrc}/* ${initdpath}/
+        chmod 755 ${initdpath}/${initdMCfullname}
+        sysv-rc-conf ${initdMCfullname} on >/dev/null 2>&1;
+        chmod 755 ${initdpath}/${initdIRfullname}
+        sysv-rc-conf ${initdIRfullname} on >/dev/null 2>&1;
+        chmod 755 ${initdpath}/${initdSDfullname}
+        sysv-rc-conf ${initdSDfullname} on >/dev/null 2>&1;
+        chmod 755 ${initdpath}/${initdSRfullname}
+        sysv-rc-conf ${initdSRfullname} on >/dev/null 2>&1;
+        insserv -d ${initdpath}/${initdMCfullname} >/dev/null 2>&1;
+        insserv -d ${initdpath}/${initdIRfullname} >/dev/null 2>&1;
+        insserv -d ${initdpath}/${initdSDfullname} >/dev/null 2>&1;
+        insserv -d ${initdpath}/${initdSRfullname} >/dev/null 2>&1;
+    fi
+    echo "OK";
 }
-
-configureFOGService()
-{
-	echo "<?php
-
-define( \"WEBROOT\", \"${webdirdest}\" );
-?>" > ${servicedst}/etc/config.php;
-
-
-	echo -n "  * Starting FOG Multicast Management Server..."; 
+configureFOGService() {
+    echo "<?php
+define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
+    echo -n "  * Starting FOG Multicast Management Server..."; 
     if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
 		systemctl restart ${initdMCfullname} >/dev/null 2>&1;
 		systemctl status ${initdMCfullname} >/dev/null 2>&1;
@@ -408,7 +400,7 @@ configureHttpd()
 {
 	stopInitScript;
 	docroot="/var/www/";
-	etcconf="/etc/apache2/sites-available/001-fog";
+	etcconf="/etc/apache2/sites-available/001-fog.conf";
 	if [ -f "$etcconf" ]; then
 		a2dissite 001-fog &>/dev/null
 		rm $etcconf &>/dev/null
@@ -624,9 +616,9 @@ class Config {
 		cd "${webdirdest}/service"
 		count=0;
 		while [ -z "$clientVer" -a "$count" -le 5 ]; do
-			clientVer=`wget -t 1 -T 15 http://127.0.0.1/fog/service/getclient.php -q -O -`;
+			clientVer=`wget -t 1 -T 15 --no_proxy=localhost,127.0.0.1 http://127.0.0.1/fog/service/getclient.php -q -O -`;
 			if [ -z "$clientVer" ]; then
-				clientVer=`wget -t 1 -T 15 http://127.0.0.1/service/getclient.php -q -O -`;
+				clientVer=`wget -t 1 -T 15 --no_proxy=localhost,127.0.0.1 http://127.0.0.1/service/getclient.php -q -O -`;
 			fi
 			count=`expr $count '+' 1`
 			sleep 2;
@@ -660,39 +652,41 @@ class Config {
 	fi
 }
 
-configureSudo()
-{
-	echo -n "  * Setting up sudo settings...";
-	# This is no longer required, now that we switched to wakeonlan instead of etherwake
-	#ret=`cat /etc/sudoers | grep "${apacheuser} ALL=(ALL) NOPASSWD: /usr/sbin/etherwake"`
-	#if [ "$ret" = "" ]
-	#then
-	#	 echo "${apacheuser} ALL=(ALL) NOPASSWD: /usr/sbin/etherwake" >>  "/etc/sudoers";
-	#fi
-	echo "OK";	
+configureSudo() {
+    echo -n "  * Setting up sudo settings...";
+    # This is no longer required, now that we switched to wakeonlan instead of etherwake
+    #ret=`cat /etc/sudoers | grep "${apacheuser} ALL=(ALL) NOPASSWD: /usr/sbin/etherwake"`
+    #if [ "$ret" = "" ]
+    #then
+    #	 echo "${apacheuser} ALL=(ALL) NOPASSWD: /usr/sbin/etherwake" >>  "/etc/sudoers";
+    #fi
+    echo "OK";
 }
 
-configureMySql()
-{
-	echo -n "  * Setting up and starting MySql...";
-    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
-		systemctl="yes";
-		systemctl enable mysql >/dev/null 2>&1;
-		systemctl restart mysql >/dev/null 2>&1;
-		systemctl status mysql >/dev/null 2>&1;
+configureMySql() {
+    echo -n "  * Setting up and starting MySql...";
+    if [ "$systemctl" == "yes" ]; then
+        systemctl="yes";
+        systemctl enable mysql >/dev/null 2>&1;
+        systemctl restart mysql >/dev/null 2>&1;
+        systemctl status mysql >/dev/null 2>&1;
+        if [ "$?" != 0 ]; then
+            systemctl enable mariadb >/dev/null 2>&1;
+            systemctl restart mariadb >/dev/null 2>&1;
+            systemctl status mariadb >/dev/null 2>&1;
+        fi
 	else
-		sysv-rc-conf mysql on >/dev/null 2>&1;
-		service mysql stop >/dev/null 2>&1;
-		sleep 10;
-		service mysql start >/dev/null 2>&1;
+        sysv-rc-conf mysql on >/dev/null 2>&1;
+        service mysql stop >/dev/null 2>&1;
+        sleep 10;
+        service mysql start >/dev/null 2>&1;
 	fi
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;	
-	else
-		echo "OK";
-	fi	
+	if [ "$?" != "0" ]; then
+        echo "Failed!";
+        exit 1;
+    else
+        echo "OK";
+    fi
 }
 
 installPackages()
