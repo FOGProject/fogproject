@@ -94,7 +94,7 @@ class ImageManagementPage extends FOGPage {
                 'name' => $Image->get('name'),
                 'description' => $Image->get('description'),
                 'storageGroup' => $Image->getStorageGroup()->get('name'),
-                'os' => $Image->getOS()->get('name'),
+                'os' => $Image->getOS() && $Image->getOS()->isValid() ? $Image->getOS()->get('name') : _('Not set'),
                 'deployed' => $this->validDate($Image->get('deployed')) ? $this->FOGCore->formatTime($Image->get('deployed')) : 'No Data',
                 'size' => $imageSize,
                 $SizeServer ? 'serv_size' : null => $SizeServer ? $servSize : null,
