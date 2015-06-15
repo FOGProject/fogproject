@@ -516,8 +516,8 @@ abstract class FOGBase {
 		$keys = array_keys($haystack);
 		while ($left <= $right) {
             $mid = $left + $right >> 1;
-            if (is_object($needle)) {
-		    	if (!($needle instanceof MACAddress)) {
+            if (is_object($needle) && is_object($values[$mid])) {
+		    	if (!($needle instanceof MACAddress) && !($values[$mid] instanceof MACAddress)) {
                     if ($values[$mid]->get('id') == $needle->get('id')) return $keys[$mid];
                 } else {
                     if (strtolower($values[$mid]->__toString()) == strtolower($needle->__toString())) return $keys[$mid];
