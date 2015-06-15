@@ -17,46 +17,36 @@
 #
 #
 #
-
 # Linux Account that is used for FTP transactions
 username="fog";
-
 # This is used for storage nodes
 dbuser="root"
 dbpass=""
 dbhost="p:127.0.0.1"
-
 # where are the php files from the download package?
 webdirsrc="../packages/web";
-
 # where are the tftp files from the download package?
 tftpdirsrc="../packages/tftp";
-
 # where are the udpcast files from the download package?
 udpcastsrc="../packages/udpcast-20120424.tar.gz";
 udpcasttmp="/tmp/udpcast.tar.gz";
 udpcastout="udpcast-20120424";
-
 # where are the service files from the download package?
 servicesrc="../packages/service";
-
 # where do the service files go?
 servicedst="/opt/fog/service"
-
 # where do the service log files go?
 servicelogs="/opt/fog/log"
-
 # where do the fog program files go?
 fogprogramdir="/opt/fog"
-
 # where do generic fog utils go?
 fogutilsdir="${fogprogramdir}/utils";
-
 # where do generic fog utils come from?
 fogutilsdirsrc="../packages/utils";
-
 # what version are we working with?
-version="1.3.0";
-
+version="`wget -t 1 -T 15 --no-check-certificate https://fogproject.org/version/version.php -q -O -`";
+if [ -z "$version" ]; then
+    version="Current";
+fi
 # what is the schema version
-schemaversion="23";
+schemaversion="181";
