@@ -616,9 +616,9 @@ class Config {
 		cd "${webdirdest}/service"
 		count=0;
 		while [ -z "$clientVer" -a "$count" -le 5 ]; do
-			clientVer=`wget -t 1 -T 15 --no_proxy=localhost,127.0.0.1 http://127.0.0.1/fog/service/getclient.php -q -O -`;
+			clientVer=`wget -t 1 -T 15 --no-proxy http://127.0.0.1/fog/service/getclient.php -q -O -`;
 			if [ -z "$clientVer" ]; then
-				clientVer=`wget -t 1 -T 15 --no_proxy=localhost,127.0.0.1 http://127.0.0.1/service/getclient.php -q -O -`;
+				clientVer=`wget -t 1 -T 15 --no-proxy http://127.0.0.1/service/getclient.php -q -O -`;
 			fi
 			count=`expr $count '+' 1`
 			sleep 2;
