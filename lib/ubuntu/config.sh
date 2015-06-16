@@ -31,19 +31,19 @@ OSVER=`sed -n 's/^VERSION_ID="\([^.]*\).*"/\1/p' /etc/os-release`
 
 # where do the init scripts go?
 if [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ] || [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ]; then
-initdpath="/lib/systemd/system";
-initdsrc="../packages/systemd";
-initdMCfullname="FOGMulticastManager.service";
-initdIRfullname="FOGImageReplicator.service";
-initdSDfullname="FOGScheduler.service";
-initdSRfullname="FOGSnapinReplicator.service";
+	initdpath="/lib/systemd/system";
+	initdsrc="../packages/systemd";
+	initdMCfullname="FOGMulticastManager.service";
+	initdIRfullname="FOGImageReplicator.service";
+	initdSDfullname="FOGScheduler.service";
+	initdSRfullname="FOGSnapinReplicator.service";
 else
-initdpath="/etc/init.d";
-initdsrc="../packages/init.d/ubuntu";
-initdMCfullname="FOGMulticastManager";
-initdIRfullname="FOGImageReplicator";
-initdSDfullname="FOGScheduler";
-initdSRfullname="FOGSnapinReplicator";
+	initdpath="/etc/init.d";
+	initdsrc="../packages/init.d/ubuntu";
+	initdMCfullname="FOGMulticastManager";
+	initdIRfullname="FOGImageReplicator";
+	initdSDfullname="FOGScheduler";
+	initdSRfullname="FOGSnapinReplicator";
 fi
 
 # where do the php files go?
