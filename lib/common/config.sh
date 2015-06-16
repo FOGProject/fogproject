@@ -46,19 +46,19 @@ fogutilsdirsrc="../packages/utils";
 # what version are we working with?
 version="`wget -t 1 -T 15 --no-check-certificate https://fogproject.org/version/version.php -q -O -`";
 if [ -z "$version" ]; then
-version="Current";
+    version="Current";
 fi
 # what is the schema version
 schemaversion="181";
 if [ "$systemctl" == "yes" ]; then
-initdsrc="../packages/systemd";
-initdMCfullname="FOGMulticastManager.service";
-initdIRfullname="FOGImageReplicator.service";
-initdSDfullname="FOGScheduler.service";
-initdSRfullname="FOGSnapinReplicator.service";
-if [[ "$linuxReleaseName" == +(*'Ubuntu'*|*'Debian'*) ]]; then
-initdpath="/lib/systemd/system";
-else
-initdpath="/usr/lib/systemd/system";
-fi
+    initdsrc="../packages/systemd";
+    initdMCfullname="FOGMulticastManager.service";
+    initdIRfullname="FOGImageReplicator.service";
+    initdSDfullname="FOGScheduler.service";
+    initdSRfullname="FOGSnapinReplicator.service";
+    if [[ "$linuxReleaseName" == +(*'Ubuntu'*|*'Debian'*) ]]; then
+        initdpath="/lib/systemd/system";
+    else
+        initdpath="/usr/lib/systemd/system";
+    fi
 fi
