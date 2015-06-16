@@ -11,18 +11,18 @@ class HostVNCLink extends Hook
 {
 	// Class variables
 	var $name = 'HostVNCLink';
-		var $description = 'Adds a "VNC" link to the Host Lists';
-		var $author = 'Blackout';
-		var $active = false;
-		// Custom variable
-		var $port = 5800;
-		function HostData($arguments)
-		{
-			// Add column template into 'templates' array
-			$arguments['templates'][8] = sprintf('<a href="http://%s:%d" target="_blank">VNC</a>', '${host_name}', $this->port);
-				// Add these HTML attributes to that column
-				$arguments['attributes'][8] = array('class' => 'c');
-		}
+	var $description = 'Adds a "VNC" link to the Host Lists';
+	var $author = 'Blackout';
+	var $active = false;
+	// Custom variable
+	var $port = 5800;
+	function HostData($arguments)
+	{
+		// Add column template into 'templates' array
+		$arguments['templates'][8] = sprintf('<a href="http://%s:%d" target="_blank">VNC</a>', '${host_name}', $this->port);
+		// Add these HTML attributes to that column
+		$arguments['attributes'][8] = array('class' => 'c');
+	}
 	function HostTableHeader($arguments)
 	{
 		// Add new Header column with the content 'VNC'

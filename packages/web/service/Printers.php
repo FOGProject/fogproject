@@ -6,10 +6,10 @@ try {
 	if (!$FOGCore->getClass('PrinterAssociationManager')->count(array('hostID' => $Host->get('id')))) throw new Exception('#!np');
 	$Datatosend = '';
 	$modes = array(
-			'0',
-			'a',
-			'ar',
-		      );
+		'0',
+		'a',
+		'ar',
+	);
 	$mode = $modes[$Host->get(printerLevel)];
 	if (!isset($_REQUEST['id'])) {
 		// Only send mode if no management is selected

@@ -7,7 +7,7 @@
 # Default-Stop: 0 1 6
 # X-Interactive: true
 # Short-Description: Start/Stop FOGSnapinReplicator
-# Long-Description: Created by David Fear
+# Long-Description: Created by David Fear 
 # Used to stop and start the FOGSnapinReplicator Service.
 # FOGSnapinReplicator enacts upon the FOG System to replicate
 # Snapins to nodes.  It only replicates if it is the master node.

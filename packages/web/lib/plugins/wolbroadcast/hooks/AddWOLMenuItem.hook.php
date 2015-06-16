@@ -2,11 +2,11 @@
 class AddWOLMenuItem extends Hook {
 	public function __construct() {
 		parent::__construct();
-			$this->name = 'AddWOLMenuItem';
-			$this->description = 'Add menu item for WOL Broadcast';
-			$this->author = 'Tom Elliott';
-			$this->active = true;
-			$this->node = 'wolbroadcast';
+		$this->name = 'AddWOLMenuItem';
+		$this->description = 'Add menu item for WOL Broadcast';
+		$this->author = 'Tom Elliott';
+		$this->active = true;
+		$this->node = 'wolbroadcast';
 	}
 	public function MenuData($arguments) {
 		if (in_array($this->node,$_SESSION['PluginsInstalled']))

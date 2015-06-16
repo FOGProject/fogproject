@@ -1,5 +1,5 @@
 config BR2_PACKAGE_EFIBOOTMGR
-bool "efibootmgr"
-select BR2_PACKAGE_PCIUTILS
-help
-efibootmgr
+	bool "efibootmgr"
+	select BR2_PACKAGE_PCIUTILS
+	help
+	  efibootmgr

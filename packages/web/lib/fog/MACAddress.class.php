@@ -6,9 +6,9 @@ class MACAddress extends FOGBase
 	/** $Host the Host if used */
 	private $Host;
 	/** __construct() initiates
-	 * @param $MAC the mac either string or object
-	 * @return void
-	 */
+	  * @param $MAC the mac either string or object
+	  * @return void
+	  */
 	public function __construct($MAC)
 	{
 		parent::__construct();
@@ -16,8 +16,8 @@ class MACAddress extends FOGBase
 		$this->setMAC();
 	}
 	/** setMAC() sets the mac
-	 * @return class back
-	 */
+	  * @return class back
+	  */
 	public function setMAC()
 	{
 		try
@@ -46,22 +46,22 @@ class MACAddress extends FOGBase
 		return $this;
 	}
 	/** getMACPrefix() get the MACs prefix
-	 * @return the prefix
-	 */
+	  * @return the prefix
+	  */
 	public function getMACPrefix()
 	{
 		return substr(str_replace(':','-',strtolower($this->MAC)), 0, 8);
 	}
 	/** __toString() Magic method to return the string as defined
-	 * @return the mac address with colons
-	 */
+	  * @return the mac address with colons
+	  */
 	public function __toString()
 	{
 		return str_replace('-',':',strtolower($this->MAC));
 	}
 	/** isValid() returns if the mac is valid
-	 * @return true or false
-	 */
+	  * @return true or false
+	  */
 	public function isValid()
 	{
 		return preg_match('#^([0-9a-fA-F][0-9a-fA-F][:-]){5}([0-9a-fA-F][0-9a-fA-F])$#',$this->MAC);

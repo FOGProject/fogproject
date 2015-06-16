@@ -8,13 +8,13 @@
 
 @font-face {
 	font-family: 'Ubuntu';
-		src: url('ubuntu-regular-webfont.eot');
-		src: url('ubuntu-regular-webfont.eot?#iefix') format('embedded-opentype'),
-		url('ubuntu-regular-webfont.woff') format('woff'),
-		url('ubuntu-regular-webfont.ttf') format('truetype'),
-		url('ubuntu-regular-webfont.svg#UbuntuRegular') format('svg');
-		font-weight: normal;
-		font-style: normal;
+	src: url('ubuntu-regular-webfont.eot');
+	src: url('ubuntu-regular-webfont.eot?#iefix') format('embedded-opentype'),
+	     url('ubuntu-regular-webfont.woff') format('woff'),
+	     url('ubuntu-regular-webfont.ttf') format('truetype'),
+	     url('ubuntu-regular-webfont.svg#UbuntuRegular') format('svg');
+	font-weight: normal;
+	font-style: normal;
 }
 
 html, body { height: 100%; }
@@ -54,13 +54,13 @@ input[type="text"]:focus { padding-right: 8px; }
 input:focus, textarea:focus { border-color: #5372af; background-image: url('images/icon_pencil.png'); background-repeat: no-repeat; background-position: 97% center; }
 .hideShowPassword-toggle {
 	background-image: url(images/wink.svg);
-		background-position: -44px center;
-		background-repeat: no-repeat;
-		cursor: pointer;
-		overflow: hidden;
-		text-indent: -9999em;
-		height: 26px;
-		width: 44px;
+	background-position: -44px center;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	overflow: hidden;
+	text-indent: -9999em;
+	height: 26px;
+	width: 44px;
 }
 .hideShowPassword-toggle-hide {
 	background-position: 0px center;

@@ -10,7 +10,7 @@ class RestrictUAA extends Hook {
 		$this->node = 'accesscontrol';
 		$this->linksToFilter = array('users');
 	}
-	public function UserData($arguments) {
+    public function UserData($arguments) {
 		if (in_array($this->node,$_SESSION['PluginsInstalled'])) {
 			if (!in_array($this->FOGUser->get('type'),array(0))) {
 				foreach ($arguments['data'] AS $i => $data) {
@@ -18,7 +18,7 @@ class RestrictUAA extends Hook {
 				}
 			}
 		}
-	}
+    }
 	public function RemoveName($arguments) {
 		if (in_array($this->node,$_SESSION['PluginsInstalled'])) {
 			if (!in_array($this->FOGUser->get('type'),array(0))) {

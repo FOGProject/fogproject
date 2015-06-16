@@ -9,7 +9,7 @@ main(int argc, char* argv[])
 	string strLine;
 	int intLineCnt = 0;
 	string strWriteBack = "";
-
+	
 	if ( argc != 3 )
 	{
 		cout << "Usage: " << argv[0] << " input.mbr.txt output.mbr.txt" << endl;
@@ -22,26 +22,26 @@ main(int argc, char* argv[])
 
 	if( ! inFile )
 	{
-		cout << " Unable to locate mbr text file." << endl;
+		cout << " Unable to locate mbr text file." << endl; 
 		return 1;
 	}
 
 	if( ! outFile )
 	{
-		cout << " Unable to open output file." << endl;
+		cout << " Unable to open output file." << endl; 
 		return 1;
 	}
 
 	while( getline(inFile,strLine) )
 	{
 		intLineCnt++;
-		if( ! strLine.empty() );
+		if( ! strLine.empty() );                     
 		{
 			if ( intLineCnt == 28 )
 			{
 				for( int i = 29; i < 33; i++ )
 					strLine[i] = '0';
-
+	
 				for( int i = 34; i < 38; i++ )
 					strLine[i] = '0';
 				strLine[46] = '2';
@@ -49,12 +49,12 @@ main(int argc, char* argv[])
 				strWriteBack += strLine;
 			}
 			else if (intLineCnt == 29 )
-			{
+			{		
 				strLine[9] = '2';
 
 				for( int i = 24; i < 27; i++)
 					strLine[i] = '0';
-
+			
 				strLine[27] = '8';
 				strWriteBack += strLine;
 			}
@@ -64,7 +64,7 @@ main(int argc, char* argv[])
 			}
 
 			strWriteBack += "\n";
-		}
+	       }
 	}
 	outFile<<strWriteBack;
 	return 0;

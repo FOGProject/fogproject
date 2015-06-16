@@ -9,7 +9,7 @@ try
 	// Send it.
 	$Datatosend = ($_REQUEST['newService'] && $time >= 5 ? "#!ok\n#time=".($time * 60) : ($_REQUEST['newService'] && $time < 5 ? "#!time\n" : base64_encode($time)));
 	print $Datatosend;
-	//	$FOGCore->sendData($Datatosend);
+//	$FOGCore->sendData($Datatosend);
 }
 catch(Exception $e)
 {
