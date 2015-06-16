@@ -2,45 +2,45 @@
 class PushbulletManagementPage extends FOGPage {
 	public $node = 'pushbullet';
 	/** @function __construct() constructor
-	  * @param $name the name to send
-	  * @return void
-	  */
+	 * @param $name the name to send
+	 * @return void
+	 */
 	public function __construct($name = '') {
 		$this->name = 'Pushbullet Management';
 		// Call parent constructor
 		parent::__construct($this->name);
 		$this->menu = array(
-			'list' => sprintf($this->foglang['ListAll'],_('Pushbullet Accounts')),
-			'add' => _('Link Pushbullet Account'),
-		);
+				'list' => sprintf($this->foglang['ListAll'],_('Pushbullet Accounts')),
+				'add' => _('Link Pushbullet Account'),
+				);
 		if ($_REQUEST['id']) {
 			$this->obj = $this->getClass('Pushbullet',$_REQUEST[id]);
 			unset($this->subMenu);
 		}
 		// Header row
 		$this->headerData = array(
-			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-			_('Name'),
-			_('Email'),
-			_('Delete'),
-		);
+				'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+				_('Name'),
+				_('Email'),
+				_('Delete'),
+				);
 		// Row templates
 		$this->templates = array(
-			'<input type="checkbox" name="pushbullet[]" value="${id}" class="toggle-action" checked/>',
-			'${name}',
-			'${email}',
-			sprintf('<a href="?node=%s&sub=delete&id=${id}" title="%s"><i class="fa fa-minus-circle fa-1x icon hand"></i></a>',$this->node,_('Delete')),
-		);
+				'<input type="checkbox" name="pushbullet[]" value="${id}" class="toggle-action" checked/>',
+				'${name}',
+				'${email}',
+				sprintf('<a href="?node=%s&sub=delete&id=${id}" title="%s"><i class="fa fa-minus-circle fa-1x icon hand"></i></a>',$this->node,_('Delete')),
+				);
 		$this->attributes = array(
-			array('class' => 'c','width' => 16),
-			array('class' => 'l'),
-			array('class' => 'l'),
-			array('class' => 'r'),
-		);
+				array('class' => 'c','width' => 16),
+				array('class' => 'l'),
+				array('class' => 'l'),
+				array('class' => 'r'),
+				);
 	}
 	/** @function index() Default List page.
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function index() {
 		// Set title
 		$this->title = _('Accounts');
@@ -49,10 +49,10 @@ class PushbulletManagementPage extends FOGPage {
 		// Row data
 		foreach ((array)$this->getClass('PushbulletManager')->find() AS $Token) {
 			$this->data[] = array(
-				'name'    => $Token->get('name'),
-				'email'   => $Token->get('email'),
-				'id'      => $Token->get('id'),
-			);
+					'name'    => $Token->get('name'),
+					'email'   => $Token->get('email'),
+					'id'      => $Token->get('id'),
+					);
 		}
 		// Hook
 		$this->HookManager->event[] = 'PUSHBULLET_DATA';
@@ -61,32 +61,32 @@ class PushbulletManagementPage extends FOGPage {
 		$this->render();
 	}
 	/** @function add() Page to add a new account
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function add() {
 		$this->title = 'Link New Account';
 		// Header Data
 		unset($this->headerData);
 		// Attributes
 		$this->attributes = array(
-			array(),
-			array(),
-		);
+				array(),
+				array(),
+				);
 		// Templates
 		$this->templates = array(
-			'${field}',
-			'${input}',
-		);
+				'${field}',
+				'${input}',
+				);
 		$fields = array(
-			_('Access Token') => '<input class="smaller" type="text" name="apiToken" />',
-			'<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
-		);
+				_('Access Token') => '<input class="smaller" type="text" name="apiToken" />',
+				'<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
+			       );
 		print '<form method="post" action="'.$this->formAction.'">';
 		foreach((array)$fields AS $field => $input) {
 			$this->data[] = array(
-				'field' => $field,
-				'input' => $input,
-			);
+					'field' => $field,
+					'input' => $input,
+					);
 		}
 		// Hook
 		$this->HookManager->event[] = 'PUSHBULLET_ADD';
@@ -96,8 +96,8 @@ class PushbulletManagementPage extends FOGPage {
 		print '</form>';
 	}
 	/** @function add_post() To actually perform the action of adding
-	  * @ return void
-	  */
+	 * @ return void
+	 */
 	public function add_post() {
 		try {
 			$token = trim($_REQUEST['apiToken']);
@@ -105,10 +105,10 @@ class PushbulletManagementPage extends FOGPage {
 			if (!$token) throw new Exception('Please enter an access token');
 			$userInfo = $this->getClass('PushbulletHandler',$token)->getUserInformation();
 			$Bullet = new Pushbullet(array(
-				'token' => $token,
-				'name'  => $userInfo->name,
-				'email' => $userInfo->email,
-			));
+						'token' => $token,
+						'name'  => $userInfo->name,
+						'email' => $userInfo->email,
+						));
 			if ($Bullet->save()) {
 				$this->getClass('PushbulletHandler',$token)->pushNote('', 'FOG', 'Account linked');
 				$this->FOGCore->setMessage('Account Added!');

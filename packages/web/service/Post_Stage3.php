@@ -53,22 +53,22 @@ try
 			$puser = ucwords($Inventory->get('primaryUser')); //ucwords purely aesthetics
 			$to = $FOGCore->getSetting('FOG_EMAIL_ADDRESS'); //Email address(es) to be used
 			$headers = 'From: '.$FOGCore->getSetting('FOG_FROM_EMAIL')."\r\n".
-					   'X-Mailer: PHP/'.phpversion();
+				'X-Mailer: PHP/'.phpversion();
 			$headers = preg_replace('#\$\{server-name\}#',($StorageNode && $StorageNode->isValid() ? $StorageNode->get('name') : 'fogserver'),$headers);
 			//$Email - is just the context of the email put in variable saves repeating
 			$email = array(
-				"Machine Details:-\n" => '',
-				"\nHostName: " => $Host->get('name'),
-				"\nComputer Model: " => $Inventory->get('sysproduct'),
-				"\nSerial Number: " => $Inventory->get('sysserial'),
-				"\nMAC Address: " => $Host->get('mac')->__toString(),
-				"\n" => '',
-				"\nImage Used: " => $ImagingLog->get('image'),
-				"\nSnapin Used: " => $snpusd,
-				"\n" => '',
-				"\nImaged By (Engineer): " => $engineer,
-				($puser ? "\nImaged For (User): " : '') => ($puser ? $puser : ''),
-			);
+					"Machine Details:-\n" => '',
+					"\nHostName: " => $Host->get('name'),
+					"\nComputer Model: " => $Inventory->get('sysproduct'),
+					"\nSerial Number: " => $Inventory->get('sysserial'),
+					"\nMAC Address: " => $Host->get('mac')->__toString(),
+					"\n" => '',
+					"\nImage Used: " => $ImagingLog->get('image'),
+					"\nSnapin Used: " => $snpusd,
+					"\n" => '',
+					"\nImaged By (Engineer): " => $engineer,
+					($puser ? "\nImaged For (User): " : '') => ($puser ? $puser : ''),
+				      );
 			$HookManager->processEvent('EMAIL_ITEMS',array('email' => &$email,'Host' => &$Host));
 			$emailMe = '';
 			foreach($email AS $key => $val)

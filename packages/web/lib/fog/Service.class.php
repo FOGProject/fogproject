@@ -5,24 +5,24 @@ class Service extends FOGController
 	public $databaseTable = 'globalSettings';
 	// Name -> Database field name
 	public $databaseFields = array(
-		'id'				=> 'settingID',
-		'name'				=> 'settingKey',
-		'description'		=> 'settingDesc',
-		'value'				=> 'settingValue',
-		'category'			=> 'settingCategory',
-	);
+			'id'				=> 'settingID',
+			'name'				=> 'settingKey',
+			'description'		=> 'settingDesc',
+			'value'				=> 'settingValue',
+			'category'			=> 'settingCategory',
+			);
 	// Required database fields
 	public $databaseFieldsRequired = array(
-		'name',
-	);
+			'name',
+			);
 	//Add a directory to be cleaned
 	public function addDir($dir)
 	{
 		if ($this->getClass('DirCleanerManager')->count(array('path' => addslashes($dir))) > 0)
 			throw new Exception($this->foglang['n/a']);
 		$NewDir = new DirCleaner(array(
-			'path' => $dir,
-		));
+					'path' => $dir,
+					));
 		$NewDir->save();
 	}
 	//Remove a directory from being cleaned
@@ -34,10 +34,10 @@ class Service extends FOGController
 	public function setDisplay($x,$y,$r)
 	{
 		$keySettings = array(
-			'FOG_SERVICE_DISPLAYMANAGER_X' => $x,
-			'FOG_SERVICE_DISPLAYMANAGER_Y' => $y,
-			'FOG_SERVICE_DISPLAYMANAGER_R' => $r,
-		);
+				'FOG_SERVICE_DISPLAYMANAGER_X' => $x,
+				'FOG_SERVICE_DISPLAYMANAGER_Y' => $y,
+				'FOG_SERVICE_DISPLAYMANAGER_R' => $r,
+				);
 		foreach($keySettings AS $name => $value)
 			$this->FOGCore->setSetting($name,$value);
 	}
@@ -51,11 +51,11 @@ class Service extends FOGController
 			$maxid = array_unique($this->getClass('GreenFogManager')->find('','','','','','','','id'));
 			$maxid = max($maxid);
 			$NewGreenFog = new GreenFog(array(
-				'id' => ++$maxid,
-				'hour' => $h,
-				'min' => $m,
-				'action' => $t,
-			));
+						'id' => ++$maxid,
+						'hour' => $h,
+						'min' => $m,
+						'action' => $t,
+						));
 			$NewGreenFog->save();
 		}
 	}

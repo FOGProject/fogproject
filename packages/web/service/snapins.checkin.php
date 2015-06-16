@@ -35,16 +35,16 @@ try {
 			// As long as things update, send the information.
 			if ($SnapinTask->save()) {
 				$goodSnapin = array(
-					"#!ok\n",
-					"JOBTASKID=".$SnapinTask->get('id')."\n",
-					"JOBCREATION=".$SnapinJob->get('createdTime')."\n",
-					"SNAPINNAME=".$Snapin->get('name')."\n",
-					"SNAPINARGS=".$Snapin->get('args')."\n",
-					"SNAPINBOUNCE=".$Snapin->get('reboot')."\n",
-					"SNAPINFILENAME=".basename($Snapin->get('file'))."\n",
-					"SNAPINRUNWITH=".$Snapin->get('runWith')."\n",
-					"SNAPINRUNWITHARGS=".$Snapin->get('runWithArgs'),
-				);
+						"#!ok\n",
+						"JOBTASKID=".$SnapinTask->get('id')."\n",
+						"JOBCREATION=".$SnapinJob->get('createdTime')."\n",
+						"SNAPINNAME=".$Snapin->get('name')."\n",
+						"SNAPINARGS=".$Snapin->get('args')."\n",
+						"SNAPINBOUNCE=".$Snapin->get('reboot')."\n",
+						"SNAPINFILENAME=".basename($Snapin->get('file'))."\n",
+						"SNAPINRUNWITH=".$Snapin->get('runWith')."\n",
+						"SNAPINRUNWITHARGS=".$Snapin->get('runWithArgs'),
+						);
 				$Datatosend = implode($goodSnapin);
 			}
 		}

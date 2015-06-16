@@ -54,98 +54,98 @@ caseserial64="";
 casesasset64="";
 echo -e "\n"
 if [ -n "$hd" ]; then
-	echo " * Using disk device...........................$hd";
-	echo " * Starting host registration...";
-	mac_deployed="$mac";
-	mac=`getMACAddresses|base64`;
-	echo 
-	echo -n " * Attempting to register host.................";
-	res="";
-	while [ "$res" = "" ]; do
-		res=`wget -O - --post-data="mac=$mac" "http://${web}service/auto.register.php" 2>/dev/null`
-		echo "${res}";
-		sleep 2;
-	done
-	doInventory;
-	echo -e "\n\n\n System Information";
-	echo -e " ------------------\n";
+echo " * Using disk device...........................$hd";
+echo " * Starting host registration...";
+mac_deployed="$mac";
+mac=`getMACAddresses|base64`;
+echo
+echo -n " * Attempting to register host.................";
+res="";
+while [ "$res" = "" ]; do
+res=`wget -O - --post-data="mac=$mac" "http://${web}service/auto.register.php" 2>/dev/null`
+echo "${res}";
+sleep 2;
+done
+doInventory;
+echo -e "\n\n\n System Information";
+echo -e " ------------------\n";
 
-	echo " * System Manufacturer: $sysman";
-	echo " * System Product Name: $sysproduct";
-	echo " * System Version: $sysversion";
-	echo " * System Serial Number: $sysserial";
-	echo " * Computer Form Factor: $systype";	
-	sleep 1;
-	 
-	echo -e "\n BIOS Information";
-	echo -e " ----------------\n";
+echo " * System Manufacturer: $sysman";
+echo " * System Product Name: $sysproduct";
+echo " * System Version: $sysversion";
+echo " * System Serial Number: $sysserial";
+echo " * Computer Form Factor: $systype";
+sleep 1;
 
-	echo " * BIOS Version: $biosversion";
-	echo " * BIOS Vendor: $biosvendor";
-	echo " * BIOS Date: $biosdate";
-	sleep 1;
-	echo
-	echo -e "\n Motherboard Information";
-	echo -e " -----------------------\n";
+echo -e "\n BIOS Information";
+echo -e " ----------------\n";
 
-	echo " * Motherboard Manufacturer: $mbman";
-	echo " * Motherboard Product Name: $mbproductname";	
-	echo " * Motherboard Product Version: $mbversion";
-	echo " * Motherboard Serial Number: $mbserial";	
-	echo " * Motherboard Asset Tag: $mbasset";		
-	sleep 1;
+echo " * BIOS Version: $biosversion";
+echo " * BIOS Vendor: $biosvendor";
+echo " * BIOS Date: $biosdate";
+sleep 1;
+echo
+echo -e "\n Motherboard Information";
+echo -e " -----------------------\n";
 
-	echo -e "\n CPU Information";
-	echo -e " ---------------\n";
+echo " * Motherboard Manufacturer: $mbman";
+echo " * Motherboard Product Name: $mbproductname";
+echo " * Motherboard Product Version: $mbversion";
+echo " * Motherboard Serial Number: $mbserial";
+echo " * Motherboard Asset Tag: $mbasset";
+sleep 1;
 
-	echo " * CPU Manufacturer: $cpuman";	
-	echo " * CPU Version: $cpuversion";		
-	echo " * CPU Current Speed: $cpucurrent";
-	echo " * CPU Max Speed: $cpumax";	
-	sleep 1		
+echo -e "\n CPU Information";
+echo -e " ---------------\n";
 
-	echo -e "\n Memory Information";
-	echo " ------------------\n";
+echo " * CPU Manufacturer: $cpuman";
+echo " * CPU Version: $cpuversion";
+echo " * CPU Current Speed: $cpucurrent";
+echo " * CPU Max Speed: $cpumax";
+sleep 1
 
-	echo " * Memory: $mem";
-	sleep 1	
+echo -e "\n Memory Information";
+echo " ------------------\n";
 
-	echo -e "\n Hard Disk Information";
-	echo -e " ---------------------\n";
+echo " * Memory: $mem";
+sleep 1
 
-	echo " * Hard Disk: $hdinfo";
-	sleep 1	
-	echo 
-	echo -e "\n Case Information";
-	echo -e " ----------------\n";
+echo -e "\n Hard Disk Information";
+echo -e " ---------------------\n";
 
-	echo " * Case Manufacturer: $caseman";	
-	echo " * Case Version: $casever";
-	echo " * Case Serial Number: $caseserial";
-	echo -e " * Case Asset Number: $casesasset\n\n\n\n\n";
-	
-	poststring="mac=${mac}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}";
-	res="";
-	while [ "$res" = "" ]; do
-		dots "Attempting to send inventory";
-		res=`wget -O - --post-data="${poststring}" "http://${web}service/inventory.php" 2>/dev/null`
-		echo "${res}";
-		sleep 2;	
-	done
-	if [ "$deployed" = "1" ]; then
-		res="";
-		echo -e "\n * Updating Computer Database Status\n"
-		while [ "$res" != "##" ]
-		do
-			res=`wget -O - "http://${web}service/Post_Wipe.php?mac=$mac_deployed" 2>/dev/null`
-			if [ "$res" != "##" ]; then
-				echo " * ${res}";
-			fi
-			sleep 2
-		done
-	fi
-	sleep 2
+echo " * Hard Disk: $hdinfo";
+sleep 1
+echo
+echo -e "\n Case Information";
+echo -e " ----------------\n";
+
+echo " * Case Manufacturer: $caseman";
+echo " * Case Version: $casever";
+echo " * Case Serial Number: $caseserial";
+echo -e " * Case Asset Number: $casesasset\n\n\n\n\n";
+
+poststring="mac=${mac}&sysman=${sysman64}&sysproduct=${sysproduct64}&sysversion=${sysversion64}&sysserial=${sysserial64}&systype=${systype64}&biosversion=${biosversion64}&biosvendor=${biosvendor64}&biosdate=${biosdate64}&mbman=${mbman64}&mbproductname=${mbproductname64}&mbversion=${mbversion64}&mbserial=${mbserial64}&mbasset=${mbasset64}&cpuman=${cpuman64}&cpuversion=${cpuversion64}&cpucurrent=${cpucurrent64}&cpumax=${cpumax64}&mem=${mem64}&hdinfo=${hdinfo64}&caseman=${caseman64}&casever=${casever64}&caseserial=${caseserial64}&casesasset=${casesasset64}";
+res="";
+while [ "$res" = "" ]; do
+dots "Attempting to send inventory";
+res=`wget -O - --post-data="${poststring}" "http://${web}service/inventory.php" 2>/dev/null`
+echo "${res}";
+sleep 2;
+done
+if [ "$deployed" = "1" ]; then
+res="";
+echo -e "\n * Updating Computer Database Status\n"
+while [ "$res" != "##" ]
+do
+res=`wget -O - "http://${web}service/Post_Wipe.php?mac=$mac_deployed" 2>/dev/null`
+if [ "$res" != "##" ]; then
+echo " * ${res}";
+fi
+sleep 2
+done
+fi
+sleep 2
 else
-	echo "hard disk not found!"
+echo "hard disk not found!"
 fi
 sleep 3

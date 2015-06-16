@@ -8,26 +8,26 @@ FOG_SOURCE = fog_$(FOG_VERSION).tar.gz
 FOG_SITE = https://www.fogproject.org/
 FOG_DEPENDENCIES = parted
 
-define FOG_BUILD_CMDS
+	define FOG_BUILD_CMDS
 	cp -rf package/fog/src $(@D)
-	cp -rf package/fog/scripts $(@D)
+cp -rf package/fog/scripts $(@D)
 	$(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)/src \
-	CXXFLAGS="$(TARGET_CXXFLAGS)" \
-	LDFLAGS="$(TARGET_LDFLAGS)"
-	$(CC) $(@D)/src/usbreset.c -o $(@D)/src/usbreset
-endef
+		CXXFLAGS="$(TARGET_CXXFLAGS)" \
+		LDFLAGS="$(TARGET_LDFLAGS)"
+		$(CC) $(@D)/src/usbreset.c -o $(@D)/src/usbreset
+		endef
 
-define FOG_INSTALL_TARGET_CMDS
-	$(INSTALL) -D -m 0755 $(@D)/src/fogmbrfix $(TARGET_DIR)/bin/fogmbrfix
-	$(INSTALL) -D -m 0755 $(@D)/src/fogpartinfo $(TARGET_DIR)/bin/fogpartinfo
-	$(STRIPCMD) $(STRIP_STRIP_ALL) $(TARGET_DIR)/bin/fogmbrfix
-	$(STRIPCMD) $(STRIP_STRIP_ALL) $(TARGET_DIR)/bin/fogpartinfo
-	$(foreach script, \
-	$(shell find $(@D)/scripts/ -type f | sed 's:$(@D)/scripts/:./:g'), \
-	$(INSTALL) -D -m 0755 $(@D)/scripts/$(script) $(TARGET_DIR)/$(script);)
-	sed -i 's/^tty1.*/tty1::respawn:\/sbin\/getty -i -n -l \/bin\/sh 38400 tty1/; s/^tty2/#tty2/' $(TARGET_DIR)/etc/inittab
-	mkdir -p $(TARGET_DIR)/usr/share/clamav
-	$(INSTALL) -D -m 0755 $(@D)/src/usbreset $(TARGET_DIR)/usr/sbin/usbreset
-endef
+		define FOG_INSTALL_TARGET_CMDS
+		$(INSTALL) -D -m 0755 $(@D)/src/fogmbrfix $(TARGET_DIR)/bin/fogmbrfix
+		$(INSTALL) -D -m 0755 $(@D)/src/fogpartinfo $(TARGET_DIR)/bin/fogpartinfo
+		$(STRIPCMD) $(STRIP_STRIP_ALL) $(TARGET_DIR)/bin/fogmbrfix
+		$(STRIPCMD) $(STRIP_STRIP_ALL) $(TARGET_DIR)/bin/fogpartinfo
+		$(foreach script, \
+				$(shell find $(@D)/scripts/ -type f | sed 's:$(@D)/scripts/:./:g'), \
+				$(INSTALL) -D -m 0755 $(@D)/scripts/$(script) $(TARGET_DIR)/$(script);)
+		sed -i 's/^tty1.*/tty1::respawn:\/sbin\/getty -i -n -l \/bin\/sh 38400 tty1/; s/^tty2/#tty2/' $(TARGET_DIR)/etc/inittab
+		mkdir -p $(TARGET_DIR)/usr/share/clamav
+		$(INSTALL) -D -m 0755 $(@D)/src/usbreset $(TARGET_DIR)/usr/sbin/usbreset
+		endef
 
 $(eval $(generic-package))

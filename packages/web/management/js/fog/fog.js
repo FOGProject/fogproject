@@ -43,220 +43,220 @@ var Loader;
 var $_GET = getQueryParams(document.location.search);
 function getQueryParams(qs) {
 	qs = qs.split("+").join(" ");
-	var params = {},
+		var params = {},
 		tokens,
 		re = /[?&]?([^=]+)=([^&]*)/g
-	while (tokens = re.exec(qs)) {
-		params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
-	}
+		while (tokens = re.exec(qs)) {
+			params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+		}
 	return params;
 }
 // Auto loader
 
 // Main FOG JQuery Functions
 (function($) {
-	Content = $('#content');
-	Loader = $('#loader');
-	var ActionBox = $('#action-box');
-	var ActionBoxDel = $('#action-boxdel');
-	if (!$_GET['sub'] || $_GET['sub'] == 'list') {
+ Content = $('#content');
+ Loader = $('#loader');
+ var ActionBox = $('#action-box');
+ var ActionBoxDel = $('#action-boxdel');
+ if (!$_GET['sub'] || $_GET['sub'] == 'list') {
+ ActionBox.show();
+ ActionBoxDel.show();
+ } else {
+ ActionBox.hide();
+ ActionBoxDel.hide();
+ }
+ // Custom FOG JQuery functions
+ $.fn.fogAjaxSearch = function(opts) {
+ // If no elements were found before this was called
+ if (this.length == 0) return this;
+ // Default Options
+ var Defaults = {
+ URL: $('#search-wrapper').attr('action'),
+ Container: '#search-content',
+ SearchDelay: 500,
+ SearchMinLength: 1,
+ Template: function(data, i) {
+	 return '<tr><td>'+data['host_name']+'</td></tr>';
+ }
+ };
+// Variables
+var SearchAJAX = null;
+	var SearchTimer;
+	var SearchLastQuery;
+	var Options = $.extend({}, Defaults, opts || {});
+	var Container = $(Options.Container);
+	// Check if containers exist
+	if (!Container.length) {
+		alert('No Container element found: ' + Options.Container);
+			return this;
+	}
+// If the container already contains data, show, else hide
+if ($('tbody > tr', Container).filter('.no-active-tasks').length > 0) {
+	Container.show();
 		ActionBox.show();
 		ActionBoxDel.show();
-	} else {
+} else {
+	Container.hide();
 		ActionBox.hide();
 		ActionBoxDel.hide();
-	}
-	// Custom FOG JQuery functions
-	$.fn.fogAjaxSearch = function(opts) {
-		// If no elements were found before this was called
-		if (this.length == 0) return this;
-		// Default Options
-		var Defaults = {
-			URL: $('#search-wrapper').attr('action'),
-			Container: '#search-content',
-			SearchDelay: 500,
-			SearchMinLength: 1,
-			Template: function(data, i) {
-				return '<tr><td>'+data['host_name']+'</td></tr>';
-			}
-		};
+}
+// Iterate each element
+return this.each(function() {
 		// Variables
-		var SearchAJAX = null;
-		var SearchTimer;
-		var SearchLastQuery;
-		var Options = $.extend({}, Defaults, opts || {});
-		var Container = $(Options.Container);
-		// Check if containers exist
-		if (!Container.length) {
-			alert('No Container element found: ' + Options.Container);
-			return this;
-		}
-		// If the container already contains data, show, else hide
-		if ($('tbody > tr', Container).filter('.no-active-tasks').length > 0) {
-			Container.show();
-			ActionBox.show();
-			ActionBoxDel.show();
-		} else {
-			Container.hide();
-			ActionBox.hide();
-			ActionBoxDel.hide();
-		}
-		// Iterate each element
-		return this.each(function() {
-			// Variables
-			var $this = $(this);
-			var SubmitButton = $('#' + $this.attr('id') + '-submit');
-			// Bind search input
-			// keyup - perform search
-			$this.keyup(function() {
-				if (this.SearchTimer) clearTimeout(this.SearchTimer);
-				this.SearchTimer = setTimeout(function() {
-					PerformSearch();
+		var $this = $(this);
+		var SubmitButton = $('#' + $this.attr('id') + '-submit');
+		// Bind search input
+		// keyup - perform search
+		$this.keyup(function() {
+			if (this.SearchTimer) clearTimeout(this.SearchTimer);
+			this.SearchTimer = setTimeout(function() {
+				PerformSearch();
 				}, Options.SearchDelay);
 			// focus
 			}).focus(function() {
 				var $this = $(this).removeClass('placeholder');
 				if ($this.val() == $this.attr('placeholder')) {
-					$this.val('');
+				$this.val('');
 				}
-			// blur - if the search textbox is empty, reset everything!
-			}).blur(function() {
-				var $this = $(this);
-				if ($this.val() == '') {
+				// blur - if the search textbox is empty, reset everything!
+				}).blur(function() {
+					var $this = $(this);
+					if ($this.val() == '') {
 					$this.addClass('placeholder').val($this.attr('placeholder'));
 					if (this.SearchAJAX) this.SearchAJAX.abort();
 					if (this.SearchTimer) clearTimeout(this.SearchTimer);
 					Loader.fogStatusUpdate();
 					$('tbody', Container).empty().parents('table').hide();
-				}
-			// set value to nothing - occurs on refresh for browsers that remember
-			}).each(function() {
-				var $this = $(this);
-				if ($this.val() != $this.attr('placeholder')) {
-					$this.val('');
-				}
-			// Stop submit event for parent form - when you press enter in the search box
-			}).parents('form').submit(function() {
-				return false;
-			});
-			function PerformSearch() {
-				// Extract Query
-				var Query = $this.val();
-				// Is this query different from the last?
-				if (Query == this.SearchLastQuery) return;
-				this.SearchLastQuery = Query;
+					}
+					// set value to nothing - occurs on refresh for browsers that remember
+					}).each(function() {
+						var $this = $(this);
+						if ($this.val() != $this.attr('placeholder')) {
+						$this.val('');
+						}
+						// Stop submit event for parent form - when you press enter in the search box
+						}).parents('form').submit(function() {
+							return false;
+							});
+function PerformSearch() {
+	// Extract Query
+	var Query = $this.val();
+		// Is this query different from the last?
+		if (Query == this.SearchLastQuery) return;
+			this.SearchLastQuery = Query;
 				// Length check
 				if (Query.length < Options.SearchMinLength) {
 					return;
 				}
-				// Abort previous AJAX query if one is already running
-				if (this.SearchAJAX) this.SearchAJAX.abort();
-				// Run AJAX
-				this.SearchAJAX = $.ajax({
-					type: $('#search-wrapper').attr('method'),
-					cache: false,
-					url: $('#search-wrapper').attr('action'),
-					data: {crit: Query},
-					dataType: 'json',
-					beforeSend: function() {
-						// Abort all pings of current hosts
-						$('.ping').fogPingAbort();
-						// Update Status
-						Loader.fogStatusUpdate();
-						// Submit button spinner
-						SubmitButton.addClass('searching');
-					},
-					success: function(response) {
-						// Submit button spinner
-						SubmitButton.removeClass('searching');
-						// Variables
-						var tbody = $('tbody', Container);
-						var rows = '';
-						// Empty search table
-						tbody.empty();
-						// Do we have search results?
-						if (response['data'].length > 0) {
-							// Status Update
-							Loader.fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/, response['data'].length).replace(/%2/, (response['data'].length == 1 ? '' : 's')), { 'Class': 'info' });
-							// Iterate data
-							for (var i in response['data']) {
-								// Reset
-								var row = "<tr>";
-								// Add column templates
-								for (var j in response['templates']) {
-									// Add attributes to columns
-									var attributes = [];
-									for (var k in response['attributes'][j]) {
-										attributes[attributes.length] = k + '="' + response['attributes'][j][k] + '"';
-									}
-									// Create row
-									row += "<td" + (attributes.length ? ' ' + attributes.join(' ') : '') + ">" + response['templates'][j] + "</td>";
-								}
-								// Replace variable data
-								for (var k in response['data'][i]) {
-									row = row.replace(new RegExp('\\$\\{' + k + '\\}', 'g'), (typeof(response['data'][i][k]) != 'undefined' ? response['data'][i][k] : ''));
-								}
-								// Add to rows
-								rows += row + "</tr>";
-							}
-							// Append rows into tbody
-							tbody.append(rows);
-							// Add data to new elements - elements should be in tbody, so we dont have to search all DOM
-							var tr = $('tr', tbody);
-							for (i in response['data']) tr.eq(i).addClass((i % 2 ? 'alt1' : 'alt2')).data({ 'id': response['data'][i]['id'], 'host_name': response['data'][i]['host_name'] });
-							// Tooltips
-							HookTooltips();
-							// Show results
-							Container.show();
-							ActionBox.show();
-							ActionBoxDel.show();
-							// Ping hosts
-							$('.ping', Container).fogPing();
-							// Callback
-							Options.CallbackSearchSuccess(Container);
-						} else {
-							// No results - hide content boxes, show nice message
-							Container.hide();
-							ActionBox.hide();	
-							ActionBoxDel.hide();	
-							// Show nice error
-							Loader.fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/, '0').replace(/%2/, 's'), { 'Class': 'error' });
+	// Abort previous AJAX query if one is already running
+	if (this.SearchAJAX) this.SearchAJAX.abort();
+		// Run AJAX
+		this.SearchAJAX = $.ajax({
+				type: $('#search-wrapper').attr('method'),
+				cache: false,
+				url: $('#search-wrapper').attr('action'),
+				data: {crit: Query},
+				dataType: 'json',
+				beforeSend: function() {
+				// Abort all pings of current hosts
+				$('.ping').fogPingAbort();
+				// Update Status
+				Loader.fogStatusUpdate();
+				// Submit button spinner
+				SubmitButton.addClass('searching');
+				},
+success: function(response) {
+// Submit button spinner
+SubmitButton.removeClass('searching');
+// Variables
+var tbody = $('tbody', Container);
+var rows = '';
+// Empty search table
+tbody.empty();
+// Do we have search results?
+if (response['data'].length > 0) {
+	// Status Update
+	Loader.fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/, response['data'].length).replace(/%2/, (response['data'].length == 1 ? '' : 's')), { 'Class': 'info' });
+		// Iterate data
+		for (var i in response['data']) {
+			// Reset
+			var row = "<tr>";
+				// Add column templates
+				for (var j in response['templates']) {
+					// Add attributes to columns
+					var attributes = [];
+						for (var k in response['attributes'][j]) {
+							attributes[attributes.length] = k + '="' + response['attributes'][j][k] + '"';
 						}
-						this.SearchAJAX = null;
-					},
-					error:	function(jqXHR, textStatus, errorThrown) {
-						// Error - hide content boxes, show nice message
-						Container.hide();
-						ActionBox.hide();
-						ActionBoxDel.hide();
-						// Show nice error
-						Loader.fogStatusUpdate(_L['ERROR_SEARCHING'] + (errorThrown != '' ? ': ' + (errorThrown == 'Not Found' ? 'URL Not Found' : errorThrown) : ''), { 'Class': 'error' });
-						// Reset
-						this.SearchAJAX = null;
-						this.SearchLastQuery = null;
-					}
-				});
+					// Create row
+					row += "<td" + (attributes.length ? ' ' + attributes.join(' ') : '') + ">" + response['templates'][j] + "</td>";
+				}
+			// Replace variable data
+			for (var k in response['data'][i]) {
+				row = row.replace(new RegExp('\\$\\{' + k + '\\}', 'g'), (typeof(response['data'][i][k]) != 'undefined' ? response['data'][i][k] : ''));
 			}
-		});
+			// Add to rows
+			rows += row + "</tr>";
+		}
+	// Append rows into tbody
+	tbody.append(rows);
+		// Add data to new elements - elements should be in tbody, so we dont have to search all DOM
+		var tr = $('tr', tbody);
+		for (i in response['data']) tr.eq(i).addClass((i % 2 ? 'alt1' : 'alt2')).data({ 'id': response['data'][i]['id'], 'host_name': response['data'][i]['host_name'] });
+			// Tooltips
+			HookTooltips();
+				// Show results
+				Container.show();
+				ActionBox.show();
+				ActionBoxDel.show();
+				// Ping hosts
+				$('.ping', Container).fogPing();
+				// Callback
+				Options.CallbackSearchSuccess(Container);
+} else {
+	// No results - hide content boxes, show nice message
+	Container.hide();
+		ActionBox.hide();	
+		ActionBoxDel.hide();	
+		// Show nice error
+		Loader.fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/, '0').replace(/%2/, 's'), { 'Class': 'error' });
+}
+this.SearchAJAX = null;
+},
+error:	function(jqXHR, textStatus, errorThrown) {
+		// Error - hide content boxes, show nice message
+		Container.hide();
+			ActionBox.hide();
+			ActionBoxDel.hide();
+			// Show nice error
+			Loader.fogStatusUpdate(_L['ERROR_SEARCHING'] + (errorThrown != '' ? ': ' + (errorThrown == 'Not Found' ? 'URL Not Found' : errorThrown) : ''), { 'Class': 'error' });
+			// Reset
+			this.SearchAJAX = null;
+			this.SearchLastQuery = null;
 	}
-	$.fn.fogTableInfo = function() {
-		// Add table header sorting information.
-		//$('table:not(#search-content) > thead > tr > td').addClass('hand');
-		//$('table:not(#search-content)').tablesorter();
-	}
-	$.fn.fogPing = function(opts) {
-		// If no elements were found before this was called
-		if (this.length == 0) return this;
+});
+}
+});
+}
+$.fn.fogTableInfo = function() {
+	// Add table header sorting information.
+	//$('table:not(#search-content) > thead > tr > td').addClass('hand');
+	//$('table:not(#search-content)').tablesorter();
+}
+$.fn.fogPing = function(opts) {
+	// If no elements were found before this was called
+	if (this.length == 0) return this;
 		// If Ping function has been disabled, return
 		if (typeof(FOGPingActive) != 'undefined' && FOGPingActive != 1) return this;
-		// Default Options
-		var Defaults = {
-			Threads: 100,
-			Delay: PingDelay,
-			UpdateStatus: true
-		};
-		// Variables
-		var Options = $.extend({}, Defaults, opts || {});
+			// Default Options
+			var Defaults = {
+				Threads: 100,
+					Delay: PingDelay,
+					UpdateStatus: true
+			};
+	// Variables
+	var Options = $.extend({}, Defaults, opts || {});
 		// Row List
 		var List = $(this).get();
 		var ListTotal = List.length;
@@ -268,20 +268,20 @@ function getQueryParams(qs) {
 		} else {
 			Run();
 		}
-		function Run() {
-			// Log
-			if (Options.UpdateStatus) {
-				Loader.fogStatusUpdate(_L['PING_START'].replace(/%1/, ListTotal), { 'Class': 'info' });
-			}
-			// Start threads
-			for (var i = 0; i < Options.Threads; i++) {
-				PerformPing();
-			}
+	function Run() {
+		// Log
+		if (Options.UpdateStatus) {
+			Loader.fogStatusUpdate(_L['PING_START'].replace(/%1/, ListTotal), { 'Class': 'info' });
 		}
-		// Ping()
-		function PerformPing(start) {
-			// Variables
-			var start = start || 0;
+		// Start threads
+		for (var i = 0; i < Options.Threads; i++) {
+			PerformPing();
+		}
+	}
+	// Ping()
+	function PerformPing(start) {
+		// Variables
+		var start = start || 0;
 			// Extract element from List - dont turn into JQuery object yet (for speed)
 			var element = List[start];
 			// Remove element from List so no other thread can use it
@@ -296,90 +296,90 @@ function getQueryParams(qs) {
 			// If we found the Hostname
 			if (hostname) {
 				element.data('fog-ping', $.ajax({
-					url: '../management/index.php',
-					type: 'POST',
-					data: {
-						node: 'host',
-						sub: 'getPing',
-						ping: hostname,
-						timeout: Options.Delay / 1000
-					},
-					//dataType: 'text',
-					beforeSend: function() {
-						element.addClass('icon').addClass('icon-loading');
-					},
-					success: function(data) {						
-						element.removeClass('icon-loading');
-						var codes = new Array();
-						codes = [['Host Down','icon-ping-down'],['Host Up','icon-ping-up']];
-						//alert(hostname + data);
-						if ($.inArray(data,['0','1']) !== -1) {
-							element.attr('title',codes[data][0]).addClass(codes[data][1]);
-						} else {
-							element.attr('title',data).addClass('icon-ping-error');
-						}
-						// Tooltip
-						element.tipsy({gravity:'s'});
-						var ListCount = List.length;
-						// Start another Ping if there are still elements to process
-						if (ListCount) {
-							if (Options.UpdateStatus) {
-								Loader.fogStatusUpdate(_L['PING_PROGRESS'].replace(/%1/, hostname).replace(/%2/, (ListTotal-ListCount)).replace(/%3/, ListTotal), { 'Progress': Math.round((ListTotal-ListCount)/ListTotal*100) });
-							}
-							PerformPing();
-						} else if (Options.UpdateStatus) {
-							Loader.fogStatusUpdate(_L['PING_COMPLETE'].replace(/%1/, ListTotal), { 'Progress': 100 });
-						}
-					},
-					error: function(data) {
-						element.attr('title', 'Ping Aborted').addClass('icon-ping-error').tipsy({ 'gravity': 's' });
-					}
-				}));
-			}
-		}
-		return $(this);
+							url: '../management/index.php',
+							type: 'POST',
+							data: {
+							node: 'host',
+							sub: 'getPing',
+							ping: hostname,
+							timeout: Options.Delay / 1000
+							},
+							//dataType: 'text',
+beforeSend: function() {
+element.addClass('icon').addClass('icon-loading');
+},
+success: function(data) {						
+element.removeClass('icon-loading');
+var codes = new Array();
+codes = [['Host Down','icon-ping-down'],['Host Up','icon-ping-up']];
+//alert(hostname + data);
+if ($.inArray(data,['0','1']) !== -1) {
+element.attr('title',codes[data][0]).addClass(codes[data][1]);
+} else {
+	element.attr('title',data).addClass('icon-ping-error');
+}
+// Tooltip
+element.tipsy({gravity:'s'});
+var ListCount = List.length;
+// Start another Ping if there are still elements to process
+if (ListCount) {
+	if (Options.UpdateStatus) {
+		Loader.fogStatusUpdate(_L['PING_PROGRESS'].replace(/%1/, hostname).replace(/%2/, (ListTotal-ListCount)).replace(/%3/, ListTotal), { 'Progress': Math.round((ListTotal-ListCount)/ListTotal*100) });
 	}
-	$.fn.fogPingAbort = function(opts) {
-		// If Ping function has been disabled, return
-		if (typeof(FOGPingActive) != 'undefined' && FOGPingActive != 1) return this;
+	PerformPing();
+} else if (Options.UpdateStatus) {
+	Loader.fogStatusUpdate(_L['PING_COMPLETE'].replace(/%1/, ListTotal), { 'Progress': 100 });
+}
+},
+error: function(data) {
+	       element.attr('title', 'Ping Aborted').addClass('icon-ping-error').tipsy({ 'gravity': 's' });
+       }
+}));
+}
+}
+return $(this);
+}
+$.fn.fogPingAbort = function(opts) {
+	// If Ping function has been disabled, return
+	if (typeof(FOGPingActive) != 'undefined' && FOGPingActive != 1) return this;
 		// Process each ping element -> check data for AJAX request -> abort AJAX request if it exists
 		return $(this).each(function() {
-			var $this = $(this);
-			if ($this.data('fog-ping')) {
+				var $this = $(this);
+				if ($this.data('fog-ping')) {
 				$this.data('fog-ping').abort();
 				$this.data('fog-ping', '');
-			}
-		});
-	}
-	$.fn.fogMessageBox = function() {
-		// If no elements were found before this was called
-		if (this.length == 0) return this;
+				}
+				});
+}
+$.fn.fogMessageBox = function() {
+	// If no elements were found before this was called
+	if (this.length == 0) return this;
 		// Variables
 		var Messages = new Array;
-		// Iterate each element
-		this.each(function() {
-			// Variables
-			var $this = $(this);
-			// Push message into array
-			Messages[Messages.length] = $this.html();
-		});
-		// Display messages if any were found
-		if (Messages.length > 0) {
-			Loader.fogStatusUpdate(Messages.join('</p><p>')).hide().fadeIn();
-		}
-		return this;
+			// Iterate each element
+			this.each(function() {
+					// Variables
+					var $this = $(this);
+					// Push message into array
+					Messages[Messages.length] = $this.html();
+					});
+	// Display messages if any were found
+	if (Messages.length > 0) {
+		Loader.fogStatusUpdate(Messages.join('</p><p>')).hide().fadeIn();
 	}
-	// Common FOG Functions	
-	$.fn.fogStatusUpdate = function(txt, opts) {
-		// Defaults
-		var Defaults = {
-			AutoHide: 0,
+	return this;
+}
+// Common FOG Functions	
+$.fn.fogStatusUpdate = function(txt, opts) {
+	// Defaults
+	var Defaults = {
+		AutoHide: 0,
 			Class: '',
 			Raw: false,
 			Progress: null
-		};
-		// Build Options
-		var Options = $.extend({}, Defaults, opts || {});
+	};
+	// Build Options
+	var Options = $.extend({}, Defaults, opts || {});
 		var Loader = $(this);
 		var ProgressBar = $('#progress', this);
 		// Progress bar update
@@ -388,54 +388,54 @@ function getQueryParams(qs) {
 		} else {
 			ProgressBar.hide().progressBar(0);
 		}
-		// Status text update
-		if (!txt) {
-			// Reset status and hide
-			Loader.find('p').remove().end().hide();
-		} else {
-			// Set and show status
-			Loader.find('p').remove().end().prepend((Options.Raw ? txt : '<p>' + txt + '</p>')).show();
-		}
-		// Class
-		Loader.removeClass();
-		if (Options.Class) Loader.addClass(Options.Class);
-		// AutoHide
-		if (StatusAutoHideTimer) clearTimeout(StatusAutoHideTimer);
-		if (Options.AutoHide) {
-			// Hide timeout
-			StatusAutoHideTimer = setTimeout(function() {
-				// Fade out Loader
-				Loader.fadeOut('fast');
-			}, Options.AutoHide);
-		}
-		return this;
+	// Status text update
+	if (!txt) {
+		// Reset status and hide
+		Loader.find('p').remove().end().hide();
+	} else {
+		// Set and show status
+		Loader.find('p').remove().end().prepend((Options.Raw ? txt : '<p>' + txt + '</p>')).show();
 	}
-	$.fn.fogVariable = function(opts) {		
-		// If no elements were found before this was called
-		if (this.length == 0) return this;
+	// Class
+	Loader.removeClass();
+		if (Options.Class) Loader.addClass(Options.Class);
+			// AutoHide
+			if (StatusAutoHideTimer) clearTimeout(StatusAutoHideTimer);
+				if (Options.AutoHide) {
+					// Hide timeout
+					StatusAutoHideTimer = setTimeout(function() {
+							// Fade out Loader
+							Loader.fadeOut('fast');
+							}, Options.AutoHide);
+				}
+	return this;
+}
+$.fn.fogVariable = function(opts) {		
+	// If no elements were found before this was called
+	if (this.length == 0) return this;
 		// Default Options
 		var Defaults = {
 			Debug: false
 		};
-		// Variables
-		var Options = $.extend({}, Defaults, opts || {});
+	// Variables
+	var Options = $.extend({}, Defaults, opts || {});
 		var Variables = {};
 		// Iterate each element
 		return this.each(function() {
-			// Variables
-			var $this = $(this);
-			// Set variable in window - this will make the variable 'global'
-			window[$this.attr('id').toString()] = $this.html().toString();
-			// DEBUG
-			if (Options.Debug) alert($this.attr('id').toString() + ' = ' + $this.html().toString());
-			// Remove element from DOM
-			$this.remove();
-		});
-	}
-	jQuery.fn.exists = function() {
-		return this.length > 0;
-	}
-	jQuery.fn.isIE8 = function() {
-		return $.browser.msie && parseInt($.browser.version, 10) <= 8;
-	}
+				// Variables
+				var $this = $(this);
+				// Set variable in window - this will make the variable 'global'
+				window[$this.attr('id').toString()] = $this.html().toString();
+				// DEBUG
+				if (Options.Debug) alert($this.attr('id').toString() + ' = ' + $this.html().toString());
+				// Remove element from DOM
+				$this.remove();
+				});
+}
+jQuery.fn.exists = function() {
+	return this.length > 0;
+}
+jQuery.fn.isIE8 = function() {
+	return $.browser.msie && parseInt($.browser.version, 10) <= 8;
+}
 })(jQuery);

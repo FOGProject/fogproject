@@ -4,8 +4,8 @@ class WakeOnLan extends FOGBase {
 	private $hwaddr;
 	private $packet;
 	/** __construct($mac)
-		Stores the MAC of which to system to wake.
-	*/
+	  Stores the MAC of which to system to wake.
+	 */
 	public function __construct($mac) {
 		parent::__construct();
 		$this->arrMAC = array();
@@ -15,8 +15,8 @@ class WakeOnLan extends FOGBase {
 		}
 	}
 	/** send()
-		Creates the packet and sends it to wake up the machine.
-	*/
+	  Creates the packet and sends it to wake up the machine.
+	 */
 	public function send() {
 		try {
 			if (!count($this->arrMAC)) throw new Exception($foglang['InvalidMAC']);
@@ -41,4 +41,4 @@ class WakeOnLan extends FOGBase {
 		}
 		return true;
 	}
-} 
+}

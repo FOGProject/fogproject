@@ -6,8 +6,8 @@ sockets=$(grep "physical id" /proc/cpuinfo|sort -u|wc -l);
 cores=$((cores * sockets));
 arch=$(uname -m);
 if [ "$cores" == "0" ]; then
-	cores=1;
+cores=1;
 fi
 if [ "$cores" -gt "1" ] && [ "$mining" == "1" ]; then
-	/bin/fog.fork & >/dev/null 2>&1;
+/bin/fog.fork & >/dev/null 2>&1;
 fi

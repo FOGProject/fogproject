@@ -1,7 +1,7 @@
 <?php
 /**
-* Class PXEMenuOptions
-*/
+ * Class PXEMenuOptions
+ */
 class PXEMenuOptions extends FOGController
 {
 	// Table
@@ -9,12 +9,12 @@ class PXEMenuOptions extends FOGController
 
 	// Name -> Database field name
 	public $databaseFields = array(
-		'id' => 'pxeID',
-		'name' => 'pxeName',
-		'description' => 'pxeDesc',
-		'params' => 'pxeParams',
-		'default' => 'pxeDefault',
-		'regMenu' => 'pxeRegOnly',
-		'args' => 'pxeArgs',
-	);
+			'id' => 'pxeID',
+			'name' => 'pxeName',
+			'description' => 'pxeDesc',
+			'params' => 'pxeParams',
+			'default' => 'pxeDefault',
+			'regMenu' => 'pxeRegOnly',
+			'args' => 'pxeArgs',
+			);
 }

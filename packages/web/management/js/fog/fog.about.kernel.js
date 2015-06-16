@@ -1,19 +1,19 @@
 $(function() {
-	$("#currentdlstate").html('Downloading file...');
-	$.post('../management/index.php?sub=kernelfetch',{msg: "dl"}, dlComplete, "text");
-});				
+		$("#currentdlstate").html('Downloading file...');
+		$.post('../management/index.php?sub=kernelfetch',{msg: "dl"}, dlComplete, "text");
+		});				
 function dlComplete(data, textStatus) {
 	if (textStatus == "success") {
 		if (data == "##OK##") {
 			$("#currentdlstate").html('Download Completed! Moving file to TFTP server...');
-			$.post('../management/index.php?sub=kernelfetch',{msg: "tftp"}, mvComplete, "text");
+				$.post('../management/index.php?sub=kernelfetch',{msg: "tftp"}, mvComplete, "text");
 		} else {
 			$("#currentdlstate").html('<div class="task-start-failed">'+data+'</div>');
-			$("#img").fadeOut('slow');
+				$("#img").fadeOut('slow');
 		}
 	} else {
 		$("#currentdlstate").html('<div class="task-start-failed">Download Failed!</div>');
-		$("#img").fadeOut('slow');
+			$("#img").fadeOut('slow');
 	}
 }
 function mvComplete(data, textStatus) {

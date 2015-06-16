@@ -17,10 +17,10 @@ try
 				// Task Logging.
 				$TaskLog = new TaskLog($Task);
 				$TaskLog->set('taskID',$Task->get('id'))
-						->set('taskStateID',$Task->get('stateID'))
-						->set('createdTime',$Task->get('createdTime'))
-						->set('createdBy',$Task->get('createdBy'))
-						->save();
+					->set('taskStateID',$Task->get('stateID'))
+					->set('createdTime',$Task->get('createdTime'))
+					->set('createdBy',$Task->get('createdBy'))
+					->save();
 			}
 		}
 	}

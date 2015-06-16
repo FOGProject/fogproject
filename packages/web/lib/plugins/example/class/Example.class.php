@@ -4,9 +4,9 @@ class Example extends FOGController {
 	public $databaseTable = 'example';
 	// Name -> Database field name
 	public $databaseFields = array(
-		'id'		=> 'eID',
-		'name'		=> 'eName',
-		'other'		=> 'eOther',
-		'hostID'	=> 'eHostID',
-	);
+			'id'		=> 'eID',
+			'name'		=> 'eName',
+			'other'		=> 'eOther',
+			'hostID'	=> 'eHostID',
+			);
 }
