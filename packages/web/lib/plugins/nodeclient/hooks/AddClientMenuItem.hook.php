@@ -2,17 +2,17 @@
 class AddClientMenuItem extends Hook
 {
 	var $name = 'AddClientMenuItem';
-		var $description = 'Add menu item for Client';
-		var $author = 'Tom Elliott';
-		var $active = true;
-		var $node = 'nodeclient';
-		public function MenuData($arguments)
+	var $description = 'Add menu item for Client';
+	var $author = 'Tom Elliott';
+	var $active = true;
+	var $node = 'nodeclient';
+	public function MenuData($arguments)
+	{
+		if (in_array($this->node,$_SESSION['PluginsInstalled']))
 		{
-			if (in_array($this->node,$_SESSION['PluginsInstalled']))
-			{
-				$arguments['main'] = $this->array_insert_after('service',$arguments['main'],$this->node,array(_('Node Client Management'),'fa fa-weixin fa-2x'));
-			}
+			$arguments['main'] = $this->array_insert_after('service',$arguments['main'],$this->node,array(_('Node Client Management'),'fa fa-weixin fa-2x'));
 		}
+	}
 	public function addSearch($arguments)
 	{
 		if (in_array($this->node,$_SESSION['PluginsInstalled']))

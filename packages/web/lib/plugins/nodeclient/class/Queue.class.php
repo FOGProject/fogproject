@@ -4,13 +4,13 @@ class Queue extends FOGController {
 	public $databaseTable = 'queueAssoc';
 	// Name -> Database field name
 	public $databaseFields = array(
-			'id' => 'qaID',
-			'hostID' => 'qaHostID',
-			'stateID' => 'qaStateID',
-			'moduleID' => 'qaModuleID',
-			'taskVals' => 'qaTaskInfo',
-			'createdTime' => 'qaCreatedTime',
-			);
+		'id' => 'qaID',
+		'hostID' => 'qaHostID',
+		'stateID' => 'qaStateID',
+		'moduleID' => 'qaModuleID',
+		'taskVals' => 'qaTaskInfo',
+		'createdTime' => 'qaCreatedTime',
+	);
 	public function getHost() {
 		return $this->getClass('Host',$this->get('hostID'));
 	}

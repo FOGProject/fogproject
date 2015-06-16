@@ -3,12 +3,12 @@ class ReportMaker extends FOGBase
 {
 	private $strHTML, $strCSV, $strLine, $filename;
 	public $types = array(
-			'html' => 0,
-			'csv' => 1,
-			'pdf' => 2,
-			'sql' => 3,
-			'host' => 4,
-			);
+		'html' => 0,
+		'csv' => 1,
+		'pdf' => 2,
+		'sql' => 3,
+		'host' => 4,
+	);
 	public function appendHTML($html){$this->strHTML[] = $html;}
 	public function addCSVCell($item){$this->strCSV[] = trim($item);}
 	public function endCSVLine()
@@ -76,7 +76,7 @@ class ReportMaker extends FOGBase
 			header('X-Frame-Options: deny');
 			header('Cache-Control: no-cache');
 			header('Content-Type: application/octet-stream');
-			header("Content-Disposition: attachment; filename=host_export.csv");
+			header("Content-Disposition: attachment; filename=host_export.csv");	
 			print implode($this->strLine,"\n");
 		}
 	}

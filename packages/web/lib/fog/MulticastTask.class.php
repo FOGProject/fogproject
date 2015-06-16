@@ -9,15 +9,15 @@ class MulticastTask extends FOGBase {
 			if (in_array($FOGCore->resolveHostname($Image->getStorageGroup()->getOptimalStorageNode()->get('ip')),$FOGCore->getIPAddress())) {
 				$count = $FOGCore->getClass('MulticastSessionsAssociationManager')->count(array('msID' => $MultiSess->get('id')));
 				$Tasks[] = new self(
-						$MultiSess->get('id'),
-						$MultiSess->get('name'),
-						$MultiSess->get('port'),
-						$root.'/'.$MultiSess->get('logpath'),
-						$FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),
-						($count > 0 ? $count : ($MultiSess->get('sessclients') > 0 ? $MultiSess->get('sessclients') : $FOGCore->getClass('HostManager')->count())),
-						$MultiSess->get('isDD'),
-						$Image->get('osID')
-						);
+					$MultiSess->get('id'), 
+					$MultiSess->get('name'),
+					$MultiSess->get('port'),
+					$root.'/'.$MultiSess->get('logpath'),
+					$FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),
+					($count > 0 ? $count : ($MultiSess->get('sessclients') > 0 ? $MultiSess->get('sessclients') : $FOGCore->getClass('HostManager')->count())),
+					$MultiSess->get('isDD'),
+					$Image->get('osID')
+				);
 			}
 		}
 		return array_filter($Tasks);
@@ -51,17 +51,17 @@ class MulticastTask extends FOGBase {
 	public function getCMD() {
 		unset($filelist,$buildcmd,$cmd);
 		$buildcmd = array(
-				UDPSENDERPATH,
-				$this->getInterface() ? sprintf(' --interface %s',$this->getInterface()) : null,
-				sprintf(' --min-receivers %d',($this->getClientCount() ? $this->getClientCount() : $this->getClass('HostManager')->count())),
-				sprintf(' --max-wait %d', $this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT') ? $this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT') * 60 : UDPSENDER_MAXWAIT),
-				$this->FOGCore->getSetting('FOG_MULTICAST_ADDRESS') ? sprintf(' --mcast-data-address %s',$this->FOGCore->getSetting('FOG_MULTICAST_ADDRESS')) : null,
-				sprintf(' --portbase %s',$this->getPortBase()),
-				sprintf(' %s',$this->FOGCore->getSetting('FOG_MULTICAST_DUPLEX')),
-				' --ttl 32',
-				' --nokbd',
-				' --nopointopoint;',
-				);
+			UDPSENDERPATH,
+			$this->getInterface() ? sprintf(' --interface %s',$this->getInterface()) : null,
+			sprintf(' --min-receivers %d',($this->getClientCount() ? $this->getClientCount() : $this->getClass('HostManager')->count())),
+			sprintf(' --max-wait %d', $this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT') ? $this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT') * 60 : UDPSENDER_MAXWAIT),
+			$this->FOGCore->getSetting('FOG_MULTICAST_ADDRESS') ? sprintf(' --mcast-data-address %s',$this->FOGCore->getSetting('FOG_MULTICAST_ADDRESS')) : null,
+			sprintf(' --portbase %s',$this->getPortBase()),
+			sprintf(' %s',$this->FOGCore->getSetting('FOG_MULTICAST_DUPLEX')),
+			' --ttl 32',
+			' --nokbd',
+			' --nopointopoint;',
+		);
 		$buildcmd = array_values(array_filter($buildcmd));
 		if ($this->getImageType() == 4) {
 			if (is_dir($this->getImagePath())) {
@@ -140,7 +140,7 @@ class MulticastTask extends FOGBase {
 			if ($pid) self::killAll($pid, SIGTERM);
 			@proc_terminate($this->procRef, SIGTERM);
 		}
-		@proc_close($this->procRef);
+    	@proc_close($this->procRef);
 		$this->procRef=null;
 		@unlink($this->getUDPCastLogFile());
 		foreach($this->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $this->intID)) AS $MultiSessAssoc) {

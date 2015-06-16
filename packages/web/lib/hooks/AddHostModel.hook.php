@@ -9,9 +9,9 @@ class AddHostModel extends Hook {
 	/** @var $active whether or not the hook is to be running */
 	public $active = false;
 	/** @function HostData the data to change
-	 * @param $arguments the Hook Events to enact upon
-	 * @return void
-	 */
+	  * @param $arguments the Hook Events to enact upon
+	  * @return void
+	  */
 	public function HostData($arguments) {
 		if ($_REQUEST['node'] == 'host') {
 			foreach((array)$arguments['data'] AS $i => $data) {
@@ -24,9 +24,9 @@ class AddHostModel extends Hook {
 		}
 	}
 	/** @function HostTableHeader the header data to change
-	 * @param $arguments the Hook Events to enact upon
-	 * @return void
-	 */
+	  * @param $arguments the Hook Events to enact upon
+	  * @return void
+	  */
 	public function HostTableHeader($arguments) {
 		if ($_REQUEST['node'] == 'host') $arguments['headerData'][5] = 'Model';
 	}

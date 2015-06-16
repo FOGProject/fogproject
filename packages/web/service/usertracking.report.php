@@ -17,16 +17,16 @@ try
 	$user = $_REQUEST['action'] == 'start' ? '' : $user;
 	$Host = $FOGCore->getHostItem(true,($_REQUEST['newService'] ? false : true));
 	$UserTracking = new UserTracking(array(
-				'hostID'	=> $Host->get('id'),
-				'username'	=> $user,
-				'action'	=> $actionText,
-				'datetime'	=> $date->format('Y-m-d H:i:s'),
-				'description' => $desc,
-				'date' => $date->format('Y-m-d'),
-				));
+		'hostID'	=> $Host->get('id'),
+		'username'	=> $user,
+		'action'	=> $actionText,
+		'datetime'	=> $date->format('Y-m-d H:i:s'),
+		'description' => $desc,
+		'date' => $date->format('Y-m-d'),
+	));
 	if ($UserTracking->save())
 		throw new Exception('#!ok');
-	$FOGCore->sendData($Datatosend);
+		$FOGCore->sendData($Datatosend);
 }
 catch (Exception $e)
 {

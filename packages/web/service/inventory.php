@@ -39,63 +39,63 @@ try
 	$caseman=trim(base64_decode($_REQUEST["caseman"]));
 	$casever=trim(base64_decode($_REQUEST["casever"]));
 	$caseserial=trim(base64_decode($_REQUEST["caseserial"]));
-	$casesasset=trim(base64_decode($_REQUEST["casesasset"]));
+	$casesasset=trim(base64_decode($_REQUEST["casesasset"]));						
 	if (!$Inventory || !$Inventory->isValid())
 	{
 		$Inventory = new Inventory(array(
-					'hostID' => $Host->get('id'),
-					'sysman' => $sysman,
-					'sysproduct' => $sysproduct,
-					'sysversion' => $sysversion,
-					'sysserial' => $sysserial,
-					'systype' => $systype,
-					'biosversion' => $biosversion,
-					'mbman' => $mbman,
-					'mbproductname' => $mbproductname,
-					'mbversion' => $mbversion,
-					'mbserial' => $mbserial,
-					'mbasset' => $mbasset,
-					'cpuman' => $cpuman,
-					'cpuversion' => $cpuversion,
-					'cpucurrent' => $cpucurrent,
-					'cpumax' => $cpumax,
-					'mem' => $mem,
-					'hdmodel' => $hdmodel,
-					'hdfirmware' => $hdfirmware,
-					'hdserial' => $hdserial,
-					'caseman' => $caseman,
-					'casever' => $casever,
-					'caseserial' => $caseserial,
-					'caseasset' => $casesasset
-						));
+			'hostID' => $Host->get('id'),
+			'sysman' => $sysman,
+			'sysproduct' => $sysproduct,
+			'sysversion' => $sysversion,
+			'sysserial' => $sysserial,
+			'systype' => $systype,
+			'biosversion' => $biosversion,
+			'mbman' => $mbman,
+			'mbproductname' => $mbproductname,
+			'mbversion' => $mbversion,
+			'mbserial' => $mbserial,
+			'mbasset' => $mbasset,
+			'cpuman' => $cpuman,
+			'cpuversion' => $cpuversion,
+			'cpucurrent' => $cpucurrent,
+			'cpumax' => $cpumax,
+			'mem' => $mem,
+			'hdmodel' => $hdmodel,
+			'hdfirmware' => $hdfirmware,
+			'hdserial' => $hdserial,
+			'caseman' => $caseman,
+			'casever' => $casever,
+			'caseserial' => $caseserial,
+			'caseasset' => $casesasset
+		));
 	}
 	else
 	{
 		$Inventory->set('sysman',$sysman)
-			->set('sysproduct',$sysproduct)
-			->set('sysversion',$sysversion)
-			->set('sysserial',$sysserial)
-			->set('systype',$systype)
-			->set('biosversion',$biosversion)
-			->set('biosvendor',$biosvendor)
-			->set('biosdate',$biosdate)
-			->set('mbman',$mbman)
-			->set('mbproductname',$mbproductname)
-			->set('mbversion',$mbversion)
-			->set('mbserial',$mbserial)
-			->set('mbasset',$mbasset)
-			->set('cpuman',$cpuman)
-			->set('cpuversion',$cpuversion)
-			->set('cpucurrent',$cpucurrent)
-			->set('cpumax',$cpumax)
-			->set('mem',$mem)
-			->set('hdmodel',$hdmodel)
-			->set('hdfirmware',$hdfirmware)
-			->set('hdserial',$hdserial)
-			->set('caseman',$caseman)
-			->set('casever',$casever)
-			->set('caseserial',$caseserial)
-			->set('caseasset',$casesasset);
+				  ->set('sysproduct',$sysproduct)
+				  ->set('sysversion',$sysversion)
+				  ->set('sysserial',$sysserial)
+				  ->set('systype',$systype)
+				  ->set('biosversion',$biosversion)
+				  ->set('biosvendor',$biosvendor)
+				  ->set('biosdate',$biosdate)
+				  ->set('mbman',$mbman)
+				  ->set('mbproductname',$mbproductname)
+				  ->set('mbversion',$mbversion)
+				  ->set('mbserial',$mbserial)
+				  ->set('mbasset',$mbasset)
+				  ->set('cpuman',$cpuman)
+				  ->set('cpuversion',$cpuversion)
+				  ->set('cpucurrent',$cpucurrent)
+				  ->set('cpumax',$cpumax)
+				  ->set('mem',$mem)
+				  ->set('hdmodel',$hdmodel)
+				  ->set('hdfirmware',$hdfirmware)
+				  ->set('hdserial',$hdserial)
+				  ->set('caseman',$caseman)
+				  ->set('casever',$casever)
+				  ->set('caseserial',$caseserial)
+				  ->set('caseasset',$casesasset);
 	}
 	if ($Inventory->save())
 		print _('Done');

@@ -40,28 +40,28 @@ try
 	// Fail if all Slots are used
 	if ($imagingTasks && !$Task->get('isForced'))
 	{
-		if ($usedSlots >= $totalSlots)
-			throw new Exception(sprintf('%s, %s %s', _('Waiting for a slot'), $inFrontOfMe, _('PCs are in front of me.')));
-		// At this point we know there are open slots, but are we next in line for that slot (or has the next is line timed out?)
-		if ($groupOpenSlots <= $inFrontOfMe)
-			throw new Exception(sprintf('%s %s %s', _('There are open slots, but I am waiting for'), $inFrontOfMe, _('PCs in front of me.')));
+	    if ($usedSlots >= $totalSlots)
+		    throw new Exception(sprintf('%s, %s %s', _('Waiting for a slot'), $inFrontOfMe, _('PCs are in front of me.')));
+	    // At this point we know there are open slots, but are we next in line for that slot (or has the next is line timed out?)
+	    if ($groupOpenSlots <= $inFrontOfMe)
+		    throw new Exception(sprintf('%s %s %s', _('There are open slots, but I am waiting for'), $inFrontOfMe, _('PCs in front of me.')));
 		// Determine the best Storage Node to use - based off amount of clients connected
 		$messageArray = array();
 		$winner = null;
 		foreach($StorageNodes AS $StorageNode)
 		{
 			$nodeAvailableSlots = $StorageNode->get('maxClients') - $StorageNode->getUsedSlotCount();
-			if ($StorageNode->get('maxClients') > 0 && $nodeAvailableSlots > 0)
+		    if ($StorageNode->get('maxClients') > 0 && $nodeAvailableSlots > 0)
 			{
-				if ($winner == null)
-					$winner = $StorageNode;
-				else if ( $StorageNode->getClientLoad() < $winner->getClientLoad() )
+		        if ($winner == null)
+		            $winner = $StorageNode;
+		        else if ( $StorageNode->getClientLoad() < $winner->getClientLoad() )
 				{
-					if ($StorageNode->getNodeFailure($Host) === null)
-						$winner = $StorageNode;
-				}
-				else
-					$messageArray[] = sprintf("%s '%s' (%s) %s", _('Storage Node'), $StorageNode->get('name'), $FOGCore->resolveHostname($StorageNode->get('ip')), _('is open, but has recently failed for this Host'));
+		        	if ($StorageNode->getNodeFailure($Host) === null)
+   	                	$winner = $StorageNode;
+			    }
+			    else
+				    $messageArray[] = sprintf("%s '%s' (%s) %s", _('Storage Node'), $StorageNode->get('name'), $FOGCore->resolveHostname($StorageNode->get('ip')), _('is open, but has recently failed for this Host'));
 			}
 		}
 	}
@@ -91,11 +91,11 @@ try
 		if (!$id)
 		{
 			$il = new ImagingLog(array(
-						'hostID' => $Host->get('id'),
-						'start' => $FOGCore->nice_date()->format('Y-m-d H:i:s'),
-						'image' => $Task->getImage()->get('name'),
-						'type' => $_REQUEST['type'],
-						));
+				'hostID' => $Host->get('id'),
+				'start' => $FOGCore->nice_date()->format('Y-m-d H:i:s'),
+				'image' => $Task->getImage()->get('name'),
+				'type' => $_REQUEST['type'],
+			));
 		}
 		else
 		{
@@ -106,11 +106,11 @@ try
 	}
 	// Task Logging.
 	$TaskLog = new TaskLog(array(
-				'taskID' => $Task->get('id'),
-				'taskStateID' => $Task->get('stateID'),
-				'createdTime' => $Task->get('createdTime'),
-				'createdBy' => $Task->get('createdBy'),
-				));
+		'taskID' => $Task->get('id'),
+		'taskStateID' => $Task->get('stateID'),
+		'createdTime' => $Task->get('createdTime'),
+		'createdBy' => $Task->get('createdBy'),
+	));
 	$TaskLog->save();
 	print '##@GO';
 }

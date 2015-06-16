@@ -3,15 +3,15 @@ mkdir /tmp/tmpMnt >/dev/null 2>&1;
 currentuser=`whoami`;
 if [ "$currentuser" != "root" ]
 then
-echo "Warning!!!!!!!!"
-echo " This script isn't running as root!";
-echo "Warning!!!!!!!!"
-sleep 5;
+	echo "Warning!!!!!!!!"
+	echo " This script isn't running as root!";
+	echo "Warning!!!!!!!!"
+	sleep 5;
 fi
 if [ -d "/var/www/fog" ]; then
-$webroot = "/var/www/fog";
+	$webroot = "/var/www/fog";
 elif [ -d "/var/www/html/fog" ]; then
-$webroot = "/var/www/html/fog";
+	$webroot = "/var/www/html/fog";
 fi
 echo -n "Copying boot image...";
 cp $webroot/service/ipxe/init.xz /tmp/init.xz >/dev/null 2>&1;
@@ -21,7 +21,7 @@ cd /tmp
 xz --decompress init.xz >/dev/null 2>&1;
 echo "Done";
 echo -n "Mounting boot image...";
-mount -o loop /tmp/init /tmp/tmpMnt;
+mount -o loop /tmp/init /tmp/tmpMnt; 
 echo "Done";
 echo "Launching nautilus...";
 nautilus --no-desktop /tmp/tmpMnt &

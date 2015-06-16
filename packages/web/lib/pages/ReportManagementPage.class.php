@@ -5,16 +5,16 @@ class ReportManagementPage extends FOGPage {
 		$this->name = 'Report Management';
 		parent::__construct($this->name);
 		$this->menu = array(
-				'home' => $this->foglang[Home],
-				'equip-loan' => $this->foglang[EquipLoan],
-				'host-list' => $this->foglang[HostList],
-				'imaging-log' => $this->foglang[ImageLog],
-				'inventory' => $this->foglang[Inventory],
-				'pend-mac' => $this->foglang[PendingMACs],
-				'snapin-log' => $this->foglang[SnapinLog],
-				'user-track' => $this->foglang[LoginHistory],
-				'vir-hist' => $this->foglang[VirusHistory],
-				);
+			'home' => $this->foglang[Home],
+			'equip-loan' => $this->foglang[EquipLoan],
+			'host-list' => $this->foglang[HostList],
+			'imaging-log' => $this->foglang[ImageLog],
+			'inventory' => $this->foglang[Inventory],
+			'pend-mac' => $this->foglang[PendingMACs],
+			'snapin-log' => $this->foglang[SnapinLog],
+			'user-track' => $this->foglang[LoginHistory],
+			'vir-hist' => $this->foglang[VirusHistory],
+		);
 		$reportlink = "?node={$this->node}&sub=file&f=";
 		$dh = opendir($_SESSION['FOG_REPORT_DIR']);
 		if ($dh) {
@@ -29,15 +29,15 @@ class ReportManagementPage extends FOGPage {
 		$_SESSION['foglastreport'] = null;
 	}
 	/** home()
-	  Sub home, just redirects to index page.
-	 */
-	public function home() {
-		$this->index();
+		Sub home, just redirects to index page.
+	*/
+    public function home() {
+        $this->index();
 	}
 	/** upload()
-	  Allows you to upload your own reports.
-	 */
-	public function upload() {
+		Allows you to upload your own reports.
+	*/
+    public function upload() {
 		// Title
 		$this->title = _('Upload FOG Reports');
 		print "\n\t\t\t".'<div class="hostgroup">';
@@ -48,21 +48,21 @@ class ReportManagementPage extends FOGPage {
 		print "\n\t\t\t".'<input type="file" name="report" /><span class="lightColor">Max Size: '.ini_get('post_max_size').'</span>';
 		print "\n\t\t\t".'<p><input type="submit" value="'._('Upload File').'" /></p>';
 		print "\n\t\t\t</form>";
-	}
+    }
 	// Pages
 	/** index()
-	  First page seen when clicking on the manager.
-	 */
+		First page seen when clicking on the manager.
+	*/
 	public function index() {
 		// Set title
 		$this->title = _('About FOG Reports');
 		print "\n\t\t\t<p>"._('FOG reports exist to give you information about what is going on with your FOG system.  To view a report, select an item from the menu on the left-hand side of this page.').'</p>';
 	}
 	/** file()
-	  Checks if the file actually exists, from the menu item clicked.
-	  Exceptions are the default reports which have been written into this
-	  file as opjects of the report class.
-	 */
+		Checks if the file actually exists, from the menu item clicked.
+		Exceptions are the default reports which have been written into this
+		file as opjects of the report class.
+	*/
 	public function file() {
 		$path = rtrim($this->FOGCore->getSetting('FOG_REPORT_DIR'), '/') . '/' . basename(base64_decode($this->REQUEST['f']));
 		if (!file_exists($path))
@@ -70,8 +70,8 @@ class ReportManagementPage extends FOGPage {
 		require_once($path);
 	}
 	/** imaging_log()
-	  Gives out the dates, if available, from imaging log.
-	 */
+		Gives out the dates, if available, from imaging log.
+	*/
 	public function imaging_log() {
 		// Set title
 		$this->title = _('FOG Imaging Log - Select Date Range');
@@ -79,9 +79,9 @@ class ReportManagementPage extends FOGPage {
 		unset($this->headerData);
 		// Templates
 		$this->templates = array(
-				'${field}',
-				'${input}',
-				);
+			'${field}',
+			'${input}',
+		);
 		// Get the dates to use!
 		$AllDates = array_merge($this->DB->query("SELECT DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') start FROM `imagingLog` WHERE DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'),$this->DB->query("SELECT DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') finish FROM `imagingLog` WHERE DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'));
 		foreach($AllDates AS $Date)
@@ -95,15 +95,15 @@ class ReportManagementPage extends FOGPage {
 			$date1 = "\n\t\t\t\t".'<select name="date1" size="1">'."\n\t\t\t\t\t".$dates1."\n\t\t\t\t</select>";
 			$date2 = "\n\t\t\t\t".'<select name="date2" size="1">'."\n\t\t\t\t\t".$dates2."\n\t\t\t\t</select>";
 			$fields = array(
-					_('Select Start Date') => $date1,
-					_('Select End Date') => $date2,
-					'&nbsp;' => '<input type="submit" value="'._('Search for Entries').'" />',
-				       );
+				_('Select Start Date') => $date1,
+				_('Select End Date') => $date2,
+				'&nbsp;' => '<input type="submit" value="'._('Search for Entries').'" />',
+			);
 			foreach((array)$fields AS $field => $input) {
 				$this->data[] = array(
-						'field' => $field,
-						'input' => $input,
-						);
+					'field' => $field,
+					'input' => $input,
+				);
 			}
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 			$this->render();
@@ -111,8 +111,8 @@ class ReportManagementPage extends FOGPage {
 		} else $this->render();
 	}
 	/** imaging_log_post()
-	  Prints the data and gives access to download the reports.
-	 */
+		Prints the data and gives access to download the reports.
+	*/
 	public function imaging_log_post() {
 		// Set title
 		$this->title = _('FOG Imaging Log');
@@ -120,26 +120,26 @@ class ReportManagementPage extends FOGPage {
 		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv&filename=ImagingLog" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=ImagingLog" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
 		// Header Data
 		$this->headerData = array(
-				_('Engineer'),
-				_('Host'),
-				_('Start'),
-				_('End'),
-				_('Duration'),
-				_('Image'),
-				_('Type'),
-				_('Clear'),
-				);
+			_('Engineer'),
+			_('Host'),
+			_('Start'),
+			_('End'),
+			_('Duration'),
+			_('Image'),
+			_('Type'),
+			_('Clear'),
+		);
 		// Templates
 		$this->templates = array(
-				'${createdBy}',
-				'${host_name}',
-				'<small>${start_date}<br/>${start_time}</small>',
-				'<small>${end_date}<br/>${end_time}</small>',
-				'${duration}',
-				'${image_name}',
-				'${type}',
-				'',
-				);
+			'${createdBy}',
+			'${host_name}',
+			'<small>${start_date}<br/>${start_time}</small>',
+			'<small>${end_date}<br/>${end_time}</small>',
+			'${duration}',
+			'${image_name}',
+			'${type}',
+			'',
+		);
 		// Setup Report Maker for this class.
 		$ReportMaker = new ReportMaker();
 		// Set dates and check order is proper
@@ -152,20 +152,20 @@ class ReportManagementPage extends FOGPage {
 		$date2 = date('Y-m-d',strtotime($date2.'+1 day'));
 		// This is just for the header in the CSV:
 		$csvHead = array(
-				_('Engineer'),
-				_('Host ID'),
-				_('Host Name'),
-				_('Host MAC'),
-				_('Host Desc'),
-				_('Image Name'),
-				_('Image Path'),
-				_('Start Date'),
-				_('Start Time'),
-				_('End Date'),
-				_('End Time'),
-				_('Duration'),
-				_('Download/Upload'),
-				);
+			_('Engineer'),
+			_('Host ID'),
+			_('Host Name'),
+			_('Host MAC'),
+			_('Host Desc'),
+			_('Image Name'),
+			_('Image Path'),
+			_('Start Date'),
+			_('Start Time'),
+			_('End Date'),
+			_('End Time'),
+			_('Duration'),
+			_('Download/Upload'),
+		);
 		foreach((array)$csvHead AS $csvHeader)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
@@ -195,16 +195,16 @@ class ReportManagementPage extends FOGPage {
 			// For the html report (PDF)
 			if ($checkStart && $checkEnd) {
 				$this->data[] = array(
-						'createdBy' => $createdBy,
-						'host_name' => $hostName,
-						'start_date' => $start->format('Y-m-d'),
-						'start_time' => $start->format('H:i:s'),
-						'end_date' => $end->format('Y-m-d'),
-						'end_time' => $end->format('H:i:s'),
-						'duration' => $diff,
-						'image_name' => $ImagingLog->get('image'),
-						'type' => $imgType,
-						);
+					'createdBy' => $createdBy,
+					'host_name' => $hostName,
+					'start_date' => $start->format('Y-m-d'),
+					'start_time' => $start->format('H:i:s'),
+					'end_date' => $end->format('Y-m-d'),
+					'end_time' => $end->format('H:i:s'),
+					'duration' => $diff,
+					'image_name' => $ImagingLog->get('image'),
+					'type' => $imgType,
+				);
 				// For the CSV
 				$ReportMaker->addCSVCell($createdBy);
 				$ReportMaker->addCSVCell($hostId);
@@ -228,8 +228,8 @@ class ReportManagementPage extends FOGPage {
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** host_list()
-	  Display's the host list for both CSV and PDF Reports.
-	 */
+		Display's the host list for both CSV and PDF Reports.
+	*/
 	public function host_list() {
 		// Setup Report Maker for this object.
 		$ReportMaker = new ReportMaker();
@@ -239,36 +239,36 @@ class ReportManagementPage extends FOGPage {
 		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv&filename=HostList" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=HostList" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
 		// CSV Header row:
 		$csvHead = array(
-				_('Host ID') => 'id',
-				_('Host Name') => 'name',
-				_('Host Desc') => 'description',
-				_('Host MAC') => 'mac',
-				_('Host Created') => 'createdTime',
-				_('Image ID') => 'id',
-				_('Image Name') => 'name',
-				_('Image Desc') => 'description',
-				_('AD Join') => 'useAD',
-				_('AD OU') => 'ADOU',
-				_('AD Domain') => 'ADDomain',
-				_('Kernel') => 'kernel',
-				_('HD Device') => 'kernelDevice',
-				_('OS Name') => 'name',
-				);
+			_('Host ID') => 'id',
+			_('Host Name') => 'name',
+			_('Host Desc') => 'description',
+			_('Host MAC') => 'mac',
+			_('Host Created') => 'createdTime',
+			_('Image ID') => 'id',
+			_('Image Name') => 'name',
+			_('Image Desc') => 'description',
+			_('AD Join') => 'useAD',
+			_('AD OU') => 'ADOU',
+			_('AD Domain') => 'ADDomain',
+			_('Kernel') => 'kernel',
+			_('HD Device') => 'kernelDevice',
+			_('OS Name') => 'name',
+		);
 		foreach((array)$csvHead AS $csvHeader => $classGet)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
 		// Header Data
 		$this->headerData = array(
-				_('Hostname'),
-				_('Host MAC'),
-				_('Image Name'),
-				);
+			_('Hostname'),
+			_('Host MAC'),
+			_('Image Name'),
+		);
 		// Templates
 		$this->templates = array(
-				'${host_name}',
-				'${host_mac}',
-				'${image_name}',
-				);
+			'${host_name}',
+			'${host_mac}',
+			'${image_name}',
+		);
 		// Find hosts
 		$Hosts = $this->getClass('HostManager')->find();
 		// Store the data
@@ -278,10 +278,10 @@ class ReportManagementPage extends FOGPage {
 			$imgName = $Image->isValid() ? $Image->get('name') : '';
 			$imgDesc = $Image->isValid() ? $Image->get('description') : '';
 			$this->data[] = array(
-					'host_name' => $Host->get('name'),
-					'host_mac' => $Host->get('mac'),
-					'image_name' => $imgName,
-					);
+				'host_name' => $Host->get('name'),
+				'host_mac' => $Host->get('mac'),
+				'image_name' => $imgName,
+			);
 			// The below lines create the csv.
 			foreach ((array)$csvHead AS $head => $classGet) {
 				if ($head == _('Image ID')) $ReportMaker->addCSVCell($imgID);
@@ -298,8 +298,8 @@ class ReportManagementPage extends FOGPage {
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** inventory()
-	  Returns all VALID inventory stuff.
-	 */
+		Returns all VALID inventory stuff.
+	*/
 	public function inventory() {
 		// Setup Report Maker for this object.
 		$ReportMaker = new ReportMaker();
@@ -308,69 +308,69 @@ class ReportManagementPage extends FOGPage {
 		// This gets the download links for which type of file you want.
 		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv&filename=InventoryReport" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=InventoryReport" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
 		$csvHead = array(
-				_('Host ID') => 'id',
-				_('Host name') => 'name',
-				_('Host MAC') => 'mac',
-				_('Host Desc') => 'description',
-				_('Image ID') => 'id',
-				_('Image Name') => 'name',
-				_('Image Desc') => 'description',
-				_('OS Name') => 'name',
-				_('Inventory ID') => 'id',
-				_('Inventory Desc') => 'description',
-				_('Primary User') => 'primaryUser',
-				_('Other Tag 1') => 'other1',
-				_('Other Tag 2') => 'other2',
-				_('System Manufacturer') => 'sysman',
-				_('System Product') => 'sysproduct',
-				_('System Version') => 'sysversion',
-				_('System Serial') => 'sysserial',
-				_('System Type') => 'systype',
-				_('BIOS Version') => 'biosversion',
-				_('BIOS Vendor') => 'biosvendor',
-				_('BIOS Date') => 'biosdate',
-				_('MB Manufacturer') => 'mbman',
-				_('MB Name') => 'mbproductname',
-				_('MB Version') => 'mbversion',
-				_('MB Serial') => 'mbserial',
-				_('MB Asset') => 'mbasset',
-				_('CPU Manufacturer') => 'cpuman',
-				_('CPU Version') => 'cpuversion',
-				_('CPU Speed') => 'cpucurrent',
-				_('CPU Max Speed') => 'cpumax',
-				_('Memory') => 'mem',
-				_('HD Model') => 'hdmodel',
-				_('HD Firmware') => 'hdfirmware',
-				_('HD Serial') => 'hdserial',
-				_('Chassis Manufacturer') => 'caseman',
-				_('Chassis Version') => 'casever',
-				_('Chassis Serial') => 'caseser',
-				_('Chassis Asset') => 'caseasset',
-				);
+			_('Host ID') => 'id',
+			_('Host name') => 'name',
+			_('Host MAC') => 'mac',
+			_('Host Desc') => 'description',
+			_('Image ID') => 'id',
+			_('Image Name') => 'name',
+			_('Image Desc') => 'description',
+			_('OS Name') => 'name',
+			_('Inventory ID') => 'id',
+			_('Inventory Desc') => 'description',
+			_('Primary User') => 'primaryUser',
+			_('Other Tag 1') => 'other1',
+			_('Other Tag 2') => 'other2',
+			_('System Manufacturer') => 'sysman',
+			_('System Product') => 'sysproduct',
+			_('System Version') => 'sysversion',
+			_('System Serial') => 'sysserial',
+			_('System Type') => 'systype',
+			_('BIOS Version') => 'biosversion',
+			_('BIOS Vendor') => 'biosvendor',
+			_('BIOS Date') => 'biosdate',
+			_('MB Manufacturer') => 'mbman',
+			_('MB Name') => 'mbproductname',
+			_('MB Version') => 'mbversion',
+			_('MB Serial') => 'mbserial',
+			_('MB Asset') => 'mbasset',
+			_('CPU Manufacturer') => 'cpuman',
+			_('CPU Version') => 'cpuversion',
+			_('CPU Speed') => 'cpucurrent',
+			_('CPU Max Speed') => 'cpumax',
+			_('Memory') => 'mem',
+			_('HD Model') => 'hdmodel',
+			_('HD Firmware') => 'hdfirmware',
+			_('HD Serial') => 'hdserial',
+			_('Chassis Manufacturer') => 'caseman',
+			_('Chassis Version') => 'casever',
+			_('Chassis Serial') => 'caseser',
+			_('Chassis Asset') => 'caseasset',
+		);
 		foreach((array)$csvHead AS $csvHeader => $classGet)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
 		$this->headerData = array(
-				_('Host name'),
-				_('OS name'),
-				_('Memory'),
-				_('System Product'),
-				_('System Serial'),
-				);
+			_('Host name'),
+			_('OS name'),
+			_('Memory'),
+			_('System Product'),
+			_('System Serial'),
+		);
 		$this->templates = array(
-				'${host_name}<br/><small>${host_mac}</small>',
-				'${os_name}',
-				'${memory}',
-				'${sysprod}',
-				'${sysser}',
-				);
+			'${host_name}<br/><small>${host_mac}</small>',
+			'${os_name}',
+			'${memory}',
+			'${sysprod}',
+			'${sysser}',
+		);
 		$this->attributes = array(
-				array(),
-				array(),
-				array(),
-				array(),
-				array(),
-				);
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+		);
 		// All hosts
 		$Hosts = $this->getClass('HostManager')->find();
 		// Loop through each of the hosts.
@@ -384,13 +384,13 @@ class ReportManagementPage extends FOGPage {
 				// If found print data
 				if($Inventory) {
 					$this->data[] = array(
-							'host_name' => $Host->get('name'),
-							'host_mac' => $Host->get('mac'),
-							'os_name' => $Host->getImage()->getOS(),
-							'memory' => $Inventory->getMem(),
-							'sysprod' => $Inventory->get('sysproduct'),
-							'sysser' => $Inventory->get('sysserial'),
-							);
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac'),
+						'os_name' => $Host->getImage()->getOS(),
+						'memory' => $Inventory->getMem(),
+						'sysprod' => $Inventory->get('sysproduct'),
+						'sysser' => $Inventory->get('sysserial'),
+					);
 					foreach((array)$csvHead AS $head => $classGet) {
 						if ($head == _('Host ID'))
 							$ReportMaker->addCSVCell($Host->get('id'));
@@ -421,8 +421,8 @@ class ReportManagementPage extends FOGPage {
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** pend_mac()
-	  Pending MAC's report.
-	 */
+		Pending MAC's report.
+	*/
 	public function pend_mac() {
 		// Get all the pending mac hosts.
 		$Hosts = $this->getClass('HostManager')->find();
@@ -441,30 +441,30 @@ class ReportManagementPage extends FOGPage {
 		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv&filename=PendingMACsList" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=PendingMACsList" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a><br /><a href="?node=report&sub=pend-mac&aprvall=1">'._('Approve All Pending MACs for all hosts?').'</a></h2>';
 		// CSV Header
 		$csvHead = array(
-				_('Host ID'),
-				_('Host name'),
-				_('Host Primary MAC'),
-				_('Host Desc'),
-				_('Host Pending MAC'),
-				);
+			_('Host ID'),
+			_('Host name'),
+			_('Host Primary MAC'),
+			_('Host Desc'),
+			_('Host Pending MAC'),
+		);
 		foreach((array)$csvHead AS $csvHeader => $classGet)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
 		$this->headerData = array(
-				_('Host name'),
-				_('Host Primary MAC'),
-				_('Host Pending MAC'),
-				);
+			_('Host name'),
+			_('Host Primary MAC'),
+			_('Host Pending MAC'),
+		);
 		$this->templates = array(
-				'${host_name}',
-				'${host_mac}',
-				'${host_pend}',
-				);
+			'${host_name}',
+			'${host_mac}',
+			'${host_pend}',
+		);
 		$this->attributes = array(
-				array(),
-				array(),
-				array(),
-				);
+			array(),
+			array(),
+			array(),
+		);
 		foreach((array)$Hosts AS $Host)
 		{
 			$MACs = $Host->get('pendingMACs');
@@ -473,10 +473,10 @@ class ReportManagementPage extends FOGPage {
 				if ($MAC && $MAC->isValid())
 				{
 					$this->data[] = array(
-							'host_name' => $Host->get('name'),
-							'host_mac' => $Host->get('mac'),
-							'host_pend' => $MAC,
-							);
+						'host_name' => $Host->get('name'),
+						'host_mac' => $Host->get('mac'),
+						'host_pend' => $MAC,
+					);
 					$ReportMaker->addCSVCell($Host->get('id'));
 					$ReportMaker->addCSVCell($Host->get('name'));
 					$ReportMaker->addCSVCell($Host->get('mac'));
@@ -492,8 +492,8 @@ class ReportManagementPage extends FOGPage {
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** vir_hist()
-	  Prints the virus history report.
-	 */
+		Prints the virus history report.
+	*/
 	public function vir_hist()
 	{
 		// Setup Report Maker for this object.
@@ -507,36 +507,36 @@ class ReportManagementPage extends FOGPage {
 		print "\n\t\t\t\t".'</form>';
 		// CSV Header
 		$csvHead = array(
-				_('Host Name') => 'name',
-				_('Virus Name') => 'name',
-				_('File') => 'file',
-				_('Mode') => 'mode',
-				_('Date') => 'date',
-				);
+			_('Host Name') => 'name',
+			_('Virus Name') => 'name',
+			_('File') => 'file',
+			_('Mode') => 'mode',
+			_('Date') => 'date',
+		);
 		$this->headerData = array(
-				_('Host name'),
-				_('Virus Name'),
-				_('File'),
-				_('Mode'),
-				_('Date'),
-				_('Clear'),
-				);
+			_('Host name'),
+			_('Virus Name'),
+			_('File'),
+			_('Mode'),
+			_('Date'),
+			_('Clear'),
+		);
 		$this->templates = array(
-				'${host_name}',
-				'<a href="http://www.google.com/search?q=${vir_name}">${vir_name}</a>',
-				'${vir_file}',
-				'${vir_mode}',
-				'${vir_date}',
-				'<input type="checkbox" onclick="this.form.submit()" class="delvid" value="${vir_id}" id="vir${vir_id}" name="delvid" /><label for="vir${vir_id}" class="icon icon-hand" title="'._('Delete').' ${vir_name}"><i class="fa fa-minus-circle fa-1x link"></i></label>',
-				);
+			'${host_name}',
+			'<a href="http://www.google.com/search?q=${vir_name}">${vir_name}</a>',
+			'${vir_file}',
+			'${vir_mode}',
+			'${vir_date}',
+			'<input type="checkbox" onclick="this.form.submit()" class="delvid" value="${vir_id}" id="vir${vir_id}" name="delvid" /><label for="vir${vir_id}" class="icon icon-hand" title="'._('Delete').' ${vir_name}"><i class="fa fa-minus-circle fa-1x link"></i></label>',
+		);
 		$this->attributes = array(
-				array(),
-				array(),
-				array(),
-				array(),
-				array(),
-				array(),
-				);
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+		);
 		foreach((array)$csvHead AS $csvHeader => $classGet)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
@@ -546,13 +546,13 @@ class ReportManagementPage extends FOGPage {
 		{
 			$Host = $Host->getHostByMacAddresses($Virus->get('hostMAC'));
 			$this->data[] = array(
-					'host_name' => $Host && $Host->isValid() ? $Host->get('name') : '',
-					'vir_id' => $Virus->get('id'),
-					'vir_name' => $Virus->get('name'),
-					'vir_file' => $Virus->get('file'),
-					'vir_mode' => $Virus->get('mode') == 'q' ? _('Quarantine') : _('Report'),
-					'vir_date' => $Virus->get('date'),
-					);
+				'host_name' => $Host && $Host->isValid() ? $Host->get('name') : '',
+				'vir_id' => $Virus->get('id'),
+				'vir_name' => $Virus->get('name'),
+				'vir_file' => $Virus->get('file'),
+				'vir_mode' => $Virus->get('mode') == 'q' ? _('Quarantine') : _('Report'),
+				'vir_date' => $Virus->get('date'),
+			);
 			foreach((array)$csvHead AS $head => $classGet)
 			{
 				if ($head == _('Host name'))
@@ -572,8 +572,8 @@ class ReportManagementPage extends FOGPage {
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** vir_hist_post()
-	  Deletes the selected element. All virus' or just the particular one.
-	 */
+		Deletes the selected element. All virus' or just the particular one.
+	*/
 	public function vir_hist_post()
 	{
 		if ($_REQUEST['delvall'] == 'all')
@@ -591,9 +591,9 @@ class ReportManagementPage extends FOGPage {
 		}
 	}
 	/** user_track()
-	  User Login Report.  Can search by Username, Hostname, or filter a specific user to specific
-	  hostname if there's any matches. Will call other functions.
-	 */
+		User Login Report.  Can search by Username, Hostname, or filter a specific user to specific
+		hostname if there's any matches. Will call other functions.
+	*/
 	public function user_track()
 	{
 		// Set Title
@@ -602,20 +602,20 @@ class ReportManagementPage extends FOGPage {
 		unset($this->headerData);
 		// Templates
 		$this->templates = array(
-				'${field}',
-				'${input}',
-				);
+			'${field}',
+			'${input}',
+		);
 		// Attributes
 		$this->attributes = array(
-				array(),
-				array(),
-				);
+			array(),
+			array(),
+		);
 		// Fields
 		$fields = array(
-				_('Enter a username to search for') => '${user_sel}',
-				_('Enter a hostname to search for') => '${host_sel}',
-				'&nbsp;' => '<input type="submit" value="'._('Search').'" />',
-			       );
+			_('Enter a username to search for') => '${user_sel}',
+			_('Enter a hostname to search for') => '${host_sel}',
+			'&nbsp;' => '<input type="submit" value="'._('Search').'" />',
+		);
 		$Users = $this->getClass('UserTrackingManager')->find('','','','','','username');
 		$Hosts = $this->getClass('HostManager')->find('','','','','','name');
 		foreach((array)$Hosts AS $Host)
@@ -643,38 +643,38 @@ class ReportManagementPage extends FOGPage {
 		foreach((array)$fields AS $field => $input)
 		{
 			$this->data[] = array(
-					'field' => $field,
-					'input' => $input,
-					'user_sel' => $userSelForm,
-					'host_sel' => $hostSelForm,
-					);
+				'field' => $field,
+				'input' => $input,
+				'user_sel' => $userSelForm,
+				'host_sel' => $hostSelForm,
+			);
 		}
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 		$this->render();
 		print '</form>';
 	}
 	/** user_track_post()
-	  Looks up the user/host user&&host matches.
-	 */
+		Looks up the user/host user&&host matches.
+	*/
 	public function user_track_post()
 	{
 		// Set title
 		$this->title = _('Results Found for user and/or hostname search');
 		// Header Row
 		$this->headerData = array(
-				_('Host/User name'),
-				_('Username'),
-				);
+			_('Host/User name'),
+			_('Username'),
+		);
 		// Templates
 		$this->templates = array(
-				'<a href="?node='.$this->node.'&sub=user-track-disp&hostID=${host_id}&userID=${user_id}">${hostuser_name}</a>',
-				'${user_name}',
-				);
+			'<a href="?node='.$this->node.'&sub=user-track-disp&hostID=${host_id}&userID=${user_id}">${hostuser_name}</a>',
+			'${user_name}',
+		);
 		// Attributes
 		$this->attributes = array(
-				array(),
-				array(),
-				);
+			array(),
+			array(),
+		);
 		// search setup
 		$hostsearch = str_replace('*','%','%'.trim($_REQUEST['hostsearch']).'%');
 		$usersearch = str_replace('*','%','%'.trim($_REQUEST['usersearch']).'%');
@@ -691,11 +691,11 @@ class ReportManagementPage extends FOGPage {
 				if ($Host && $Host->isValid())
 				{
 					$this->data[] = array(
-							'host_id' => $Host->get('id'),
-							'hostuser_name' => $Host->get('name'),
-							'user_id' => base64_encode('%'),
-							'user_name' => '',
-							);
+						'host_id' => $Host->get('id'),
+						'hostuser_name' => $Host->get('name'),
+						'user_id' => base64_encode('%'),
+						'user_name' => '',
+					);
 				}
 			}
 		}
@@ -717,11 +717,11 @@ class ReportManagementPage extends FOGPage {
 				if($Hosts)
 				{
 					$this->data[] = array(
-							'host_id' => 0,
-							'hostuser_name' => $Username,
-							'user_id' => base64_encode($Username),
-							'user_name' => '',
-							);
+						'host_id' => 0,
+						'hostuser_name' => $Username,
+						'user_id' => base64_encode($Username),
+						'user_name' => '', 
+					);
 				}
 			}
 		}
@@ -742,11 +742,11 @@ class ReportManagementPage extends FOGPage {
 			{
 				$User = current($this->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'username' => $Usernames)));
 				$this->data[] = array(
-						'host_id' => $Host->get('id'),
-						'hostuser_name' => $Host->get('name'),
-						'user_id' => base64_encode($User->get('username')),
-						'user_name' => $User->get('username'),
-						);
+					'host_id' => $Host->get('id'),
+					'hostuser_name' => $Host->get('name'),
+					'user_id' => base64_encode($User->get('username')),
+					'user_name' => $User->get('username'),
+				);
 			}
 		}
 		else if (!$hostsearch && !$usersearch)
@@ -754,8 +754,8 @@ class ReportManagementPage extends FOGPage {
 		$this->render();
 	}
 	/** user_track_disp()
-	  Display's the date range selection for what host/user is found.
-	 */
+		Display's the date range selection for what host/user is found.
+	*/
 	public function user_track_disp()
 	{
 		// Set title.
@@ -764,9 +764,9 @@ class ReportManagementPage extends FOGPage {
 		unset($this->headerData);
 		// Templates
 		$this->templates = array(
-				'${field}',
-				'${input}',
-				);
+			'${field}',
+			'${input}',
+		);
 		if (base64_decode($_REQUEST['userID']) && !$_REQUEST['hostID'])
 			$UserSearchDates = $this->getClass('UserTrackingManager')->find(array('username' => base64_decode($_REQUEST['userID'])));
 		if (!base64_decode($_REQUEST['userID']) && $_REQUEST['hostID'])
@@ -787,16 +787,16 @@ class ReportManagementPage extends FOGPage {
 			$date1 = "\n\t\t\t\t".'<select name="date1" size="1">'."\n\t\t\t\t\t".$dates1."\n\t\t\t\t</select>";
 			$date2 = "\n\t\t\t\t".'<select name="date2" size="1">'."\n\t\t\t\t\t".$dates2."\n\t\t\t\t</select>";
 			$fields = array(
-					_('Select Start Date') => $date1,
-					_('Select End Date') => $date2,
-					'&nbsp;' => '<input type="submit" value="'._('Search for Entries').'" />',
-				       );
+				_('Select Start Date') => $date1,
+				_('Select End Date') => $date2,
+				'&nbsp;' => '<input type="submit" value="'._('Search for Entries').'" />',
+			);
 			foreach((array)$fields AS $field => $input)
 			{
 				$this->data[] = array(
-						'field' => $field,
-						'input' => $input,
-						);
+					'field' => $field,
+					'input' => $input,
+				);
 			}
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 			$this->render();
@@ -806,8 +806,8 @@ class ReportManagementPage extends FOGPage {
 			$this->render();
 	}
 	/** user_track_disp_post()
-	  Display the actual report.
-	 */
+		Display the actual report.
+	*/
 	public function user_track_disp_post()
 	{
 		// Setup Report Maker for this object.
@@ -817,28 +817,28 @@ class ReportManagementPage extends FOGPage {
 		$this->title = _('FOG User Login History Summary');
 		// Header data
 		$this->headerData = array(
-				_('Action'),
-				_('Username'),
-				_('Hostname'),
-				_('Time'),
-				_('Description'),
-				);
+			_('Action'),
+			_('Username'),
+			_('Hostname'),
+			_('Time'),
+			_('Description'),
+		);
 		// Templates
 		$this->templates = array(
-				'${action}',
-				'${username}',
-				'${hostname}',
-				'${time}',
-				'${desc}',
-				);
+			'${action}',
+			'${username}',
+			'${hostname}',
+			'${time}',
+			'${desc}',
+		);
 		// Attributes
 		$this->attributes = array(
-				array(),
-				array(),
-				array(),
-				array(),
-				array(),
-				);
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+		);
 		$ReportMaker->addCSVCell(_('Action'));
 		$ReportMaker->addCSVCell(_('Username'));
 		$ReportMaker->addCSVCell(_('Hostname'));
@@ -871,12 +871,12 @@ class ReportManagementPage extends FOGPage {
 			$logintext = ($User->get('action') == 1 ? 'Login' : ($User->get('action') == 0 ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
 			$Host = current($this->getClass('HostManager')->find(array('id' => $User->get('hostID'))));
 			$this->data[] = array(
-					'action' => $logintext,
-					'username' => $User->get('username'),
-					'hostname' => $Host && $Host->isValid() ? $Host->get('name') : '',
-					'time' => $this->FOGCore->formatTime($User->get('datetime')),
-					'desc' => $User->get('description'),
-					);
+				'action' => $logintext,
+				'username' => $User->get('username'),
+				'hostname' => $Host && $Host->isValid() ? $Host->get('name') : '',
+				'time' => $this->FOGCore->formatTime($User->get('datetime')),
+				'desc' => $User->get('description'),
+			);
 			$ReportMaker->addCSVCell($logintext);
 			$ReportMaker->addCSVCell($User->get('username'));
 			$ReportMaker->addCSVCell($Host && $Host->isValid() ? $Host->get('name') : '');
@@ -892,8 +892,8 @@ class ReportManagementPage extends FOGPage {
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** snapin_log()
-	  Returns all snapins deployed between specified dates.
-	 */
+		Returns all snapins deployed between specified dates.
+	*/
 	public function snapin_log()
 	{
 		// Set title
@@ -902,9 +902,9 @@ class ReportManagementPage extends FOGPage {
 		unset($this->headerData);
 		// Templates
 		$this->templates = array(
-				'${field}',
-				'${input}',
-				);
+			'${field}',
+			'${input}',
+		);
 		// Get the dates to use!
 		$SnapinLogs = $this->getClass('SnapinTaskManager')->find();
 		foreach ((array)$SnapinLogs AS $SnapinLog)
@@ -927,16 +927,16 @@ class ReportManagementPage extends FOGPage {
 				$date1 = "\n\t\t\t\t".'<select name="date1" size="1">'."\n\t\t\t\t\t".$dates1."\n\t\t\t\t</select>";
 				$date2 = "\n\t\t\t\t".'<select name="date2" size="1">'."\n\t\t\t\t\t".$dates2."\n\t\t\t\t</select>";
 				$fields = array(
-						_('Select Start Date') => $date1,
-						_('Select End Date') => $date2,
-						'&nbsp;' => '<input type="submit" value="'._('Search for Entries').'" />',
-					       );
+					_('Select Start Date') => $date1,
+					_('Select End Date') => $date2,
+					'&nbsp;' => '<input type="submit" value="'._('Search for Entries').'" />',
+				);
 				foreach((array)$fields AS $field => $input)
 				{
 					$this->data[] = array(
-							'field' => $field,
-							'input' => $input,
-							);
+						'field' => $field,
+						'input' => $input,
+					);
 				}
 				print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 				$this->render();
@@ -949,8 +949,8 @@ class ReportManagementPage extends FOGPage {
 			$this->render();
 	}
 	/** snapin_log_post()
-	  Display's the dates to filter through.
-	 */
+		Display's the dates to filter through.
+	*/
 	public function snapin_log_post()
 	{
 		// Set title
@@ -959,22 +959,22 @@ class ReportManagementPage extends FOGPage {
 		print "\n\t\t\t\t<h2>".'<a href="export.php?type=csv&filename=SnapinLog" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=SnapinLog" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
 		// Header Data
 		$this->headerData = array(
-				_('Snapin Name'),
-				_('State'),
-				_('Return Code'),
-				_('Return Desc'),
-				_('Create Date'),
-				_('Create Time'),
-				);
+			_('Snapin Name'),
+			_('State'),
+			_('Return Code'),
+			_('Return Desc'),
+			_('Create Date'),
+			_('Create Time'),
+		);
 		// Templates
 		$this->templates = array(
-				'${snap_name}',
-				'${snap_state}',
-				'${snap_return}',
-				'${snap_detail}',
-				'${snap_create}',
-				'${snap_time}',
-				);
+			'${snap_name}',
+			'${snap_state}',
+			'${snap_return}',
+			'${snap_detail}',
+			'${snap_create}',
+			'${snap_time}',
+		);
 		// Setup Report Maker for this class.
 		$ReportMaker = new ReportMaker();
 		// Set dates and check order is proper
@@ -988,26 +988,26 @@ class ReportManagementPage extends FOGPage {
 		$date2 = date('Y-m-d',strtotime($date2.'+1 day'));
 		// This is just for the header in the CSV:
 		$csvHead = array(
-				_('Host ID'),
-				_('Host Name'),
-				_('Host MAC'),
-				_('Snapin ID'),
-				_('Snapin Name'),
-				_('Snapin Description'),
-				_('Snapin File'),
-				_('Snapin Args'),
-				_('Snapin Run With'),
-				_('Snapin Run With Args'),
-				_('Snapin State'),
-				_('Snapin Return Code'),
-				_('Snapin Return Detail'),
-				_('Snapin Creation Date'),
-				_('Snapin Creation Time'),
-				_('Job Create Date'),
-				_('Job Create Time'),
-				_('Task Checkin Date'),
-				_('Task Checkin Time'),
-				);
+			_('Host ID'),
+			_('Host Name'),
+			_('Host MAC'),
+			_('Snapin ID'),
+			_('Snapin Name'),
+			_('Snapin Description'),
+			_('Snapin File'),
+			_('Snapin Args'),
+			_('Snapin Run With'),
+			_('Snapin Run With Args'),
+			_('Snapin State'),
+			_('Snapin Return Code'),
+			_('Snapin Return Detail'),
+			_('Snapin Creation Date'),
+			_('Snapin Creation Time'),
+			_('Job Create Date'),
+			_('Job Create Time'),
+			_('Task Checkin Date'),
+			_('Task Checkin Time'),
+		);
 		foreach((array)$csvHead AS $csvHeader)
 			$ReportMaker->addCSVCell($csvHeader);
 		$ReportMaker->endCSVLine();
@@ -1044,13 +1044,13 @@ class ReportManagementPage extends FOGPage {
 			$TaskCheckinDate = $SnapinCheckin1->format('Y-m-d');
 			$TaskCheckinTime = $SnapinCheckin2->format('H:i:s');
 			$this->data[] = array(
-					'snap_name' => $snapinName,
-					'snap_state' => $snapinState,
-					'snap_return' => $snapinReturn,
-					'snap_detail' => $snapinDetail,
-					'snap_create' => $snapinCreateDate,
-					'snap_time' => $snapinCreateTime,
-					);
+				'snap_name' => $snapinName,
+				'snap_state' => $snapinState,
+				'snap_return' => $snapinReturn,
+				'snap_detail' => $snapinDetail,
+				'snap_create' => $snapinCreateDate,
+				'snap_time' => $snapinCreateTime,
+			);
 			$ReportMaker->addCSVCell($hostID);
 			$ReportMaker->addCSVCell($hostName);
 			$ReportMaker->addCSVCell($HostMac);
@@ -1078,8 +1078,8 @@ class ReportManagementPage extends FOGPage {
 		$_SESSION['foglastreport'] = serialize($ReportMaker);
 	}
 	/** equip_loan()
-	  Equipment Loan stuff.
-	 */
+		Equipment Loan stuff.
+	*/
 	public function equip_loan()
 	{
 		// Set title
@@ -1088,18 +1088,18 @@ class ReportManagementPage extends FOGPage {
 		unset($this->headerData);
 		// Templates
 		$this->templates = array(
-				'${field}',
-				'${input}',
-				);
+			'${field}',
+			'${input}',
+		);
 		// Attributes
 		$this->attributes = array(
-				array(),
-				array(),
-				);
+			array(),
+			array(),
+		);
 		$fields = array(
-				_('Select User') => '${users}',
-				'&nbsp;' => '<input type="submit" value="'._('Create Report').'" />',
-			       );
+			_('Select User') => '${users}',
+			'&nbsp;' => '<input type="submit" value="'._('Create Report').'" />',
+		);
 		// Get data (other users) from inventory.
 		$InventoryUsers = $this->getClass('InventoryManager')->find();
 		// Create the select field.
@@ -1114,10 +1114,10 @@ class ReportManagementPage extends FOGPage {
 			foreach((array)$fields AS $field => $input)
 			{
 				$this->data[] = array(
-						'field' => $field,
-						'input' => $input,
-						'users' => $selForm,
-						);
+					'field' => $field,
+					'input' => $input,
+					'users' => $selForm,
+				);
 			}
 			print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
 			$this->render();
@@ -1127,8 +1127,8 @@ class ReportManagementPage extends FOGPage {
 			$this->render();
 	}
 	/** equip_loan_post()
-	  Display the form for printing/pdf output.
-	 */
+		Display the form for printing/pdf output.
+	*/
 	public function equip_loan_post()
 	{
 		$Inventory = new Inventory($_REQUEST['user']);

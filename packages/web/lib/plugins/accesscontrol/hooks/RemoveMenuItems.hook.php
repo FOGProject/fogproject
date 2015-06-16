@@ -2,12 +2,12 @@
 class RemoveMenuItems extends Hook {
 	public function __construct() {
 		parent::__construct();
-			$this->name = 'RemoveMenuItems';
-			$this->description = 'Removes menu items and restricts the links from the page';
-			$this->author = 'Tom Elliott';
-			$this->active = true;
-			$this->node = 'accesscontrol';
-			$this->getLoggedIn();
+		$this->name = 'RemoveMenuItems';
+		$this->description = 'Removes menu items and restricts the links from the page';
+		$this->author = 'Tom Elliott';
+		$this->active = true;
+		$this->node = 'accesscontrol';
+		$this->getLoggedIn();
 	}
 	public function getLoggedIn() {
 		if ($this->FOGUser && $this->FOGUser->isLoggedIn()) {
@@ -24,11 +24,11 @@ class RemoveMenuItems extends Hook {
 			foreach($arguments['submenu'] AS $node => $link) {
 				if (in_array($node,(array)$this->linksToFilter)) {
 					$linkformat = $_SERVER['PHP_SELF'].'?node='.$node.'&sub=edit&id='.$_REQUEST['id'];
-						$delformat = $_SERVER['PHP_SELF'].'?node='.$node.'&sub=delete&id='.$_REQUEST['id'];
-						unset($arguments['submenu'][$node]['id'][$linkformat.'#host-printers']);
-						unset($arguments['submenu'][$node]['id'][$linkformat.'#host-service']);
-						unset($arguments['submenu'][$node]['id'][$linkformat.'#host-virus-history']);
-						if(!in_array($this->FOGUser->get('name'),array('fog'))) unset($arguments['submenu'][$node]['id'][$delformat]);
+					$delformat = $_SERVER['PHP_SELF'].'?node='.$node.'&sub=delete&id='.$_REQUEST['id'];
+					unset($arguments['submenu'][$node]['id'][$linkformat.'#host-printers']);
+					unset($arguments['submenu'][$node]['id'][$linkformat.'#host-service']);
+					unset($arguments['submenu'][$node]['id'][$linkformat.'#host-virus-history']);
+					if(!in_array($this->FOGUser->get('name'),array('fog'))) unset($arguments['submenu'][$node]['id'][$delformat]);
 				}
 			}
 		}
@@ -37,7 +37,7 @@ class RemoveMenuItems extends Hook {
 		if (in_array($this->node,$_SESSION['PluginsInstalled'])) {
 			if (in_array($_REQUEST['node'],(array)$this->linksToFilter)) {
 				$this->FOGCore->setMessage('Not Allowed!');
-					$this->FOGCore->redirect('index.php');
+				$this->FOGCore->redirect('index.php');
 			}
 		}
 	}

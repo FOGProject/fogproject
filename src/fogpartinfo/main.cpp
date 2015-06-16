@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 		if (strcmp(argv[1], "--list-devices" ) == 0) {
 			listAllDevices();
 			blFound = true;
-		}
+		}	
 	} else if (argc == 3) {
 		if (strcmp(argv[1], "--list-parts") == 0) {
 			listAllParts( argv[2] );
@@ -35,17 +35,17 @@ void listAllParts(char *strDev) {
 		dev = ped_device_get_next(dev);
 		if (!dev)
 			break;
-		PedDisk *disk = 0;
-		if ((disk = ped_disk_new(dev)) == 0)
-			continue;
+			PedDisk *disk = 0;
+			if ((disk = ped_disk_new(dev)) == 0)
+				continue;
 		if (strcmp(strDev, dev->path) == 0) {
 			do {
 				part = ped_disk_next_partition(disk, part);
 				if (!part)
 					break;
 				if (part->type == PED_PARTITION_NORMAL || part->type == PED_PARTITION_LOGICAL || part->type == PED_PARTITION_EXTENDED)
-					cout << ped_partition_get_path(part) << " ";
-			} while (part);
+					cout << ped_partition_get_path(part) << " ";                        
+	        } while (part);
 			return;
 		}
 	} while (dev);
@@ -65,12 +65,12 @@ void listAllDevices() {
 }
 void usage() {
 	cout << " FOG Partition Information\n\n";
-	cout << " ./fogpartinfo command [arguments]\n\n";
+	cout << " ./fogpartinfo command [arguments]\n\n"; 
 	cout << "               Commands: \n";
 	cout << "                  --list-devices\n";
 	cout << "                           This will list all devices\n";
 	cout << "                           known to the computer.\n\n";
-	cout << "                  --list-parts /dev/xxx\n";
+	cout << "                  --list-parts /dev/xxx\n";	
 	cout << "                           This will list all partitions\n";
-	cout << "                           on the device.\n\n";
+	cout << "                           on the device.\n\n";	
 }

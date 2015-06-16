@@ -4,9 +4,9 @@ class FingerprintAssociation extends FOGController {
 	public $databaseTable = 'hostFingerprintAssoc';
 	// Name -> Database field name
 	public $databaseFields = array(
-			'id' => 'fpHostID',
-			'fingerprint' => 'fingerprint',
-			);
+		'id' => 'fpHostID',
+		'fingerprint' => 'fingerprint',
+	);
 	public function getHost() {
 		return $this->getClass('Host',$this->get('hostID'));
 	}

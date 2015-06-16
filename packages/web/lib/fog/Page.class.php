@@ -17,28 +17,28 @@ class Page extends FOGBase {
 		if ($this->FOGUser && $this->FOGUser->isLoggedIn() && strtolower($_REQUEST['node']) != 'schemaupdater') {
 			if (!$isMobile) {
 				$this->main = array(
-						'home' => array($this->foglang['Home'], 'fa fa-home fa-2x'),
-						'user' => array($this->foglang['User Management'], 'fa fa-users fa-2x'),
-						'host' => array($this->foglang['Host Management'], 'fa fa-desktop fa-2x'),
-						'group' => array($this->foglang['Group Management'], 'fa fa-sitemap fa-2x'),
-						'image' => array($this->foglang['Image Management'], 'fa fa-picture-o fa-2x'),
-						'storage' => array($this->foglang['Storage Management'], 'fa fa-download fa-2x'),
-						'snapin' => array($this->foglang['Snapin Management'], 'fa fa-files-o fa-2x'),
-						'printer' => array($this->foglang['Printer Management'], 'fa fa-print fa-2x'),
-						'service' => array($this->foglang['Service Configuration'], 'fa fa-cogs fa-2x'),
-						'task' => array($this->foglang['Task Management'], 'fa fa-tasks fa-2x'),
-						'report' => array($this->foglang['Report Management'], 'fa fa-file-text fa-2x'),
-						'about' => array($this->foglang['FOG Configuration'],'fa fa-wrench fa-2x'),
-						$_SESSION['PLUGSON'] ? 'plugin' : '' => $_SESSION['PLUGSON'] ? array($this->foglang['Plugin Management'],'fa fa-cog fa-2x') : '',
-						'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-2x'),
-						);
+					'home' => array($this->foglang['Home'], 'fa fa-home fa-2x'),
+					'user' => array($this->foglang['User Management'], 'fa fa-users fa-2x'),
+					'host' => array($this->foglang['Host Management'], 'fa fa-desktop fa-2x'),
+					'group' => array($this->foglang['Group Management'], 'fa fa-sitemap fa-2x'),
+					'image' => array($this->foglang['Image Management'], 'fa fa-picture-o fa-2x'),
+					'storage' => array($this->foglang['Storage Management'], 'fa fa-download fa-2x'),
+					'snapin' => array($this->foglang['Snapin Management'], 'fa fa-files-o fa-2x'),
+					'printer' => array($this->foglang['Printer Management'], 'fa fa-print fa-2x'),
+					'service' => array($this->foglang['Service Configuration'], 'fa fa-cogs fa-2x'),
+					'task' => array($this->foglang['Task Management'], 'fa fa-tasks fa-2x'),
+					'report' => array($this->foglang['Report Management'], 'fa fa-file-text fa-2x'),
+					'about' => array($this->foglang['FOG Configuration'],'fa fa-wrench fa-2x'),
+					$_SESSION['PLUGSON'] ? 'plugin' : '' => $_SESSION['PLUGSON'] ? array($this->foglang['Plugin Management'],'fa fa-cog fa-2x') : '',
+					'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-2x'),
+				);
 			} else {
 				$this->main = array(
-						'home' => array($this->foglang['Home'], 'fa fa-home fa-2x'),
-						'host' => array($this->foglang['Host Management'], 'fa fa-desktop fa-2x'),
-						'task' => array($this->foglang['Task Management'], 'fa fa-tasks fa-2x'),
-						'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-2x'),
-						);
+					'home' => array($this->foglang['Home'], 'fa fa-home fa-2x'),
+					'host' => array($this->foglang['Host Management'], 'fa fa-desktop fa-2x'),
+					'task' => array($this->foglang['Task Management'], 'fa fa-tasks fa-2x'),
+					'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-2x'),
+				);
 			}
 			$this->main = array_unique(array_filter($this->main),SORT_REGULAR);
 			$this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
@@ -54,41 +54,41 @@ class Page extends FOGBase {
 		}
 		if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) {
 			$files = array(
-					'js/jquery-latest.js',
-					'js/jquery-migrate-1.2.1.min.js',
-					//'js/jquery.tablesorter.min.js',
-					'js/jquery.tipsy.js',
-					'js/jquery.progressbar.js',
-					'js/jquery.tmpl.js',
-					'js/jquery.organicTabs.js',
-					'js/jquery.placeholder.js',
-					'js/jquery.disableSelection.js',
-					'js/jquery-ui.min.js',
-					'js/flot/jquery.flot.js',
-					'js/flot/jquery.flot.time.js',
-					'js/flot/jquery.flot.pie.js',
-					'js/flot/jquery.flot.JUMlib.js',
-					'js/flot/jquery.flot.gantt.js',
-					'js/jquery-ui-timepicker-addon.js',
-					'js/hideShowPassword.min.js',
-					'js/fog/fog.js',
-					'js/fog/fog.main.js',
-				      );
+				'js/jquery-latest.js',
+				'js/jquery-migrate-1.2.1.min.js',
+				//'js/jquery.tablesorter.min.js',
+				'js/jquery.tipsy.js',
+				'js/jquery.progressbar.js',
+				'js/jquery.tmpl.js',
+				'js/jquery.organicTabs.js',
+				'js/jquery.placeholder.js',
+				'js/jquery.disableSelection.js',
+				'js/jquery-ui.min.js',
+				'js/flot/jquery.flot.js',
+				'js/flot/jquery.flot.time.js',
+				'js/flot/jquery.flot.pie.js',
+				'js/flot/jquery.flot.JUMlib.js',
+				'js/flot/jquery.flot.gantt.js',
+				'js/jquery-ui-timepicker-addon.js',
+				'js/hideShowPassword.min.js',
+				'js/fog/fog.js',
+				'js/fog/fog.main.js',
+			);
 			if ($_REQUEST['sub'] == 'membership')
 				$_REQUEST['sub'] = 'edit';
 			$filepaths = array(
-					"js/fog/fog.{$_REQUEST['node']}.js",
-					"js/fog/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js",
-					);
+				"js/fog/fog.{$_REQUEST['node']}.js",
+				"js/fog/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js",
+			);
 			foreach($filepaths AS $jsFilepath)
 			{
 				if (file_exists($jsFilepath))
 					array_push($files,$jsFilepath);
 			}
 			$pluginfilepaths = array(
-					BASEPATH."/lib/plugins/{$_REQUEST['node']}/js/fog.{$_REQUEST['node']}.js",
-					BASEPATH."/lib/plugins/{$_REQUEST['node']}/js/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js",
-					);
+				BASEPATH."/lib/plugins/{$_REQUEST['node']}/js/fog.{$_REQUEST['node']}.js",
+				BASEPATH."/lib/plugins/{$_REQUEST['node']}/js/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js",
+			);
 			foreach($pluginfilepaths AS $pluginfilepath)
 			{
 				if (file_exists($pluginfilepath) && !file_exists("js/fog/".basename($pluginfilepath)))
@@ -107,17 +107,17 @@ class Page extends FOGBase {
 		else if (!preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
 		{
 			$files = array(
-					'js/jquery-latest.js',
-					'js/jquery.progressbar.js',
-					'js/fog/fog.js',
-					'js/fog/fog.login.js',
-				      );
+				'js/jquery-latest.js',
+				'js/jquery.progressbar.js',
+				'js/fog/fog.js',
+				'js/fog/fog.login.js',
+			);
 		}
 		foreach((array)$files AS $path)
 		{
 			if (file_exists($path))
 				$this->addJavascript($path);
-		}
+		} 
 	}
 	public function setTitle($title) {
 		$this->pageTitle = $title;

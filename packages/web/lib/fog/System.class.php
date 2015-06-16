@@ -1,12 +1,12 @@
 <?php
 class System {
 	/**
-	 * __construct()
-	 * method called default_values()
-	 * @return void
-	 */
+	  * __construct()
+	  * method called default_values()
+	  * @return void
+	  */
 	public function __construct() {
-		define('FOG_VERSION', '3562');
+		define('FOG_VERSION', '3563');
 		define('FOG_SCHEMA', 181);
 		define('FOG_BCACHE_VER',1);
 		define('FOG_SVN_REVISION', '$Revision: 2868 $');

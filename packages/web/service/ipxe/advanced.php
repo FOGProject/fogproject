@@ -7,10 +7,10 @@ header('Cache-Control: no-cache');
 header("Content-type: text/plain");
 require_once('../../commons/base.inc.php');
 /**
- * parseMe($Send)
- * @param $Send the data to be sent.
- * @return void
- */
+* parseMe($Send)
+* @param $Send the data to be sent.
+* @return void
+*/
 function parseMe($Send)
 {
 	foreach($Send AS $ipxe => $val)
@@ -19,15 +19,15 @@ function parseMe($Send)
 if ($_REQUEST['login'] == 1)
 {
 	$Send['loginstuff'] = array(
-			'#!ipxe',
-			'clear username',
-			'clear password',
-			'login',
-			'params',
-			'param username ${username}',
-			'param password ${password}',
-			'chain ${boot-url}/service/ipxe/advanced.php##params',
-			);
+		'#!ipxe',
+		'clear username',
+		'clear password',
+		'login',
+		'params',
+		'param username ${username}',
+		'param password ${password}',
+		'chain ${boot-url}/service/ipxe/advanced.php##params',
+	);
 	parseMe($Send);
 	unset($_REQUEST['login']);
 }
@@ -36,21 +36,21 @@ if ($_REQUEST['username'])
 	if ($FOGCore->attemptLogin($_REQUEST['username'],$_REQUEST['password']))
 	{
 		$Send['loginsuccess'] = array(
-				'#!ipxe',
-				'set userID ${username}',
-				'chain ${boot-url}/service/ipxe/advanced.php',
-				);
+			'#!ipxe',
+			'set userID ${username}',
+			'chain ${boot-url}/service/ipxe/advanced.php',
+		);
 	}
 	else
 	{
 		$Send['loginfail'] = array(
-				'#!ipxe',
-				'clear username',
-				'clear password',
-				'echo Invalid login!',
-				'sleep 3',
-				'chain -ar ${boot-url}/service/ipxe/advanced.php',
-				);
+			'#!ipxe',
+			'clear username',
+			'clear password',
+			'echo Invalid login!',
+			'sleep 3',
+			'chain -ar ${boot-url}/service/ipxe/advanced.php',
+		);
 		parseMe($Send);
 		unset($_REQUEST['username'],$_REQUEST['password']);
 	}

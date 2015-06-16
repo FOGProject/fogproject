@@ -7,7 +7,7 @@
 # Default-Stop: 0 1 6
 # X-Interactive: true
 # Short-Description: Start/Stop FOGImageReplicator
-# Long-Description: Created by David Fear
+# Long-Description: Created by David Fear 
 # Used to stop and start the FOGImageReplicator Service.
 # FOGImageReplicator enacts upon the FOG System to replicate
 # Images to nodes.  It only replicates if it is the master node.

@@ -16,7 +16,7 @@ try
 				throw new Exception("Restarting the client...");
 			else
 				print "#!OK";
-		}
+        }
 	}
 	else
 		throw new Exception("Donations are disabled!");

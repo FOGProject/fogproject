@@ -47,18 +47,18 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
 			}
 			// Create the host.
 			$Host = new Host(array(
-						'name' => $realhost,
-						'description' => sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')),
-						'imageID' => $realimageid,
-						'useAD' => $strDoAD,
-						'ADDomain' => $strADDomain,
-						'ADOU' => $strADOU,
-						'ADUser' => $strADUser,
-						'ADPass' => $strADPass,
-						'productKey' => $productKey,
-						'createdTime' => $FOGCore->formatTime('now',"Y-m-d H:i:s"),
-						'createdBy' => 'FOGREG',
-					      ));
+				'name' => $realhost,
+				'description' => sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')),
+				'imageID' => $realimageid,
+				'useAD' => $strDoAD,
+				'ADDomain' => $strADDomain,
+				'ADOU' => $strADOU,
+				'ADUser' => $strADUser,
+				'ADPass' => $strADPass,
+				'productKey' => $productKey,
+				'createdTime' => $FOGCore->formatTime('now',"Y-m-d H:i:s"),
+				'createdBy' => 'FOGREG',
+			));
 			$groupid = explode(',',trim(base64_decode($_REQUEST['groupid'])));
 			$snapinid = explode(',',trim(base64_decode($_REQUEST['snapinid'])));
 			$Host->addModule($ids);
@@ -71,9 +71,9 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
 			$LocPlugInst = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
 			if ($LocPlugInst) {
 				$LocationAssoc = new LocationAssociation(array(
-							'locationID' => $reallocid,
-							'hostID' => $Host->get('id'),
-							));
+					'locationID' => $reallocid,
+					'hostID' => $Host->get('id'),
+				));
 				$LocationAssoc->save();
 			}
 			if ($doimage == '1') {
@@ -89,17 +89,17 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
 			$Inventory = $Host->get('inventory');
 			if ($Inventory && $Inventory->isValid()) {
 				$Inventory->set('primaryUser',$primaryuser)
-					->set('other1',$other1)
-					->set('other2',$other2)
-					->save();
+						  ->set('other1',$other1)
+						  ->set('other2',$other2)
+						  ->save();
 			} else {
 				$Inventory = new Inventory(array(
-							'hostID' => $Host->get('id'),
-							'primaryUser' => $primaryuser,
-							'other1' => $other1,
-							'other2' => $other2,
-							'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
-							));
+					'hostID' => $Host->get('id'),
+					'primaryUser' => $primaryuser,
+					'other1' => $other1,
+					'other2' => $other2,
+					'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
+				));
 				$Inventory->save();
 			}
 		} else if (!$Host || !$Host->isValid()) {
@@ -119,12 +119,12 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
 				} else $realhost = (strtoupper($autoregSysName) == 'MAC' ? $macsimple : $autoregSysName);
 				if (!$Host || !$Host->isValid()) {
 					$Host = new Host(array(
-								'name' => $realhost,
-								'description' => sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')),
-								'imageID' => $realimageid,
-								'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
-								'createdBy' => 'FOGREG'
-							      ));
+						'name' => $realhost,
+						'description' => sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')),
+						'imageID' => $realimageid,
+						'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
+						'createdBy' => 'FOGREG'
+					));
 				}
 				$Host->addModule($ids);
 				$Host->addGroup($groupid);
@@ -140,11 +140,11 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
 				$realhost = $macsimple;
 				if (!$Host || !$Host->isValid()) {
 					$Host = new Host(array(
-								'name' => $realhost,
-								'description' => sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')),
-								'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
-								'createdBy' => 'FOGREG',
-							      ));
+						'name' => $realhost,
+						'description' => sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')),
+						'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
+						'createdBy' => 'FOGREG',
+					));
 					$Host->addPriMAC($PriMAC);
 					$Host->addAddMAC($MACs);
 					$Host->addModule($ids);

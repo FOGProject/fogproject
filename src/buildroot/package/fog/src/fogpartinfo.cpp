@@ -45,7 +45,7 @@ void listAllParts(char *strDev) {
 				if (!part)
 					break;
 				if (part->type == PED_PARTITION_NORMAL || part->type == PED_PARTITION_LOGICAL || part->type == PED_PARTITION_EXTENDED) {
-					cout << ped_partition_get_path(part) << " ";
+	            	cout << ped_partition_get_path(part) << " ";
 				}
 			} while (part);
 			return;
