@@ -5,7 +5,7 @@
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
 #   the Free Software Foundation, either version 3 of the License, or
-#    any later version.
+#   any later version.
 #
 #   This program is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -50,3 +50,15 @@ if [ -z "$version" ]; then
 fi
 # what is the schema version
 schemaversion="181";
+if [ "$systemctl" == "yes" ]; then
+    initdsrc="../packages/systemd";
+    initdMCfullname="FOGMulticastManager.service";
+    initdIRfullname="FOGImageReplicator.service";
+    initdSDfullname="FOGScheduler.service";
+    initdSRfullname="FOGSnapinReplicator.service";
+    if [[ "$linuxReleaseName" == +(*'Ubuntu'*|*'Debian'*) ]]; then
+        initdpath="/lib/systemd/system";
+    else
+        initdpath="/usr/lib/systemd/system";
+    fi
+fi
