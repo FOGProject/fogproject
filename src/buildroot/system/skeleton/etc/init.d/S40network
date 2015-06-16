@@ -4,50 +4,50 @@
 #
 
 if [ -n "$has_usb_nic" ]; then
-echo "Please unplug your device and replug it into the usb port";
-echo -n "Please press enter key to connect [Enter]";
-read;
-echo "Sleeping for 5 seconds to allow USB to sync back with system";
-/bin/sleep 5;
+	echo "Please unplug your device and replug it into the usb port";
+	echo -n "Please press enter key to connect [Enter]";
+	read;
+	echo "Sleeping for 5 seconds to allow USB to sync back with system";
+	/bin/sleep 5;
 fi
 # Enable all interfaces
 ifaces=$(ls -1 /sys/class/net | tr -d '@')
 for iface in $ifaces; do
-/sbin/ip link set $iface up
+    /sbin/ip link set $iface up
 done
-
+ 
 # Provide time for interfaces to detect their state
 /bin/sleep 10
-
+ 
 echo "auto lo" > /etc/network/interfaces
 echo "iface lo inet loopback" >> /etc/network/interfaces
-
-	for iface in $ifaces; do
-linkstate=$(/bin/cat /sys/class/net/$iface/carrier)
-	if [[ "x$linkstate" = "x1" -a "x$iface" != "xlo" ]]; then
-	echo "auto $iface" >> /etc/network/interfaces
-	echo "iface $iface inet dhcp" >> /etc/network/interfaces
-	echo -e "\tudhcpc_opts -t 3 -T 10\n" >> /etc/network/interfaces
-	fi
-	done
-	case "$1" in
-	start)
-	echo "Starting network..."
+ 
+for iface in $ifaces; do
+    linkstate=$(/bin/cat /sys/class/net/$iface/carrier)
+    if [[ "x$linkstate" = "x1" -a "x$iface" != "xlo" ]]; then
+        echo "auto $iface" >> /etc/network/interfaces
+        echo "iface $iface inet dhcp" >> /etc/network/interfaces
+        echo -e "\tudhcpc_opts -t 3 -T 10\n" >> /etc/network/interfaces
+    fi
+done
+case "$1" in
+  start)
+ 	echo "Starting network..."
 	"$0" stop
 	/sbin/ifup -a
 	;;
-	stop)
+  stop)
 	echo -n "Stopping network..."
 	/sbin/ifdown -a
 	;;
-	restart|reload)
+  restart|reload)
 	"$0" stop
 	"$0" start
 	;;
-	*)
+  *)
 	echo "Usage: $0 {start|stop|restart}"
 	exit 1
-	esac
+esac
 
-	exit $?
+exit $?
 

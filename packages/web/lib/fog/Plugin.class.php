@@ -5,21 +5,21 @@ class Plugin extends FOGController {
 	public $databaseTable = 'plugins';
 	// Name -> Database field name
 	public $databaseFields = array(
-			'id'			=> 'pID',
-			'name'			=> 'pName',
-			'state'			=> 'pState',
-			'installed'		=> 'pInstalled',
-			'version'		=> 'pVersion',
-			'pAnon1'		=> 'pAnon1',
-			'pAnon2'		=> 'pAnon2',
-			'pAnon3'		=> 'pAnon3',
-			'pAnon4'		=> 'pAnon4',
-			'pAnon5'		=> 'pAnon5',
-			);
+		'id'			=> 'pID',
+		'name'			=> 'pName',
+		'state'			=> 'pState',
+		'installed'		=> 'pInstalled',
+		'version'		=> 'pVersion',
+		'pAnon1'		=> 'pAnon1',
+		'pAnon2'		=> 'pAnon2',
+		'pAnon3'		=> 'pAnon3',
+		'pAnon4'		=> 'pAnon4',
+		'pAnon5'		=> 'pAnon5',
+	);
 	// Required database fields
 	public $databaseFieldsRequired = array(
-			'name',
-			);
+		'name',
+	);
 	public function getRunInclude($hash) {
 		foreach($this->getPlugins() AS $Plugin) {
 			if(md5(trim($Plugin->getName())) == trim($hash)) {
@@ -73,16 +73,16 @@ class Plugin extends FOGController {
 					}
 					if (!$blActive) {
 						$this->set('state',1)
-							->set('installed',0)
-							->set('name',$Plugin->getName())
-							->save();
+							 ->set('installed',0)
+							 ->set('name',$Plugin->getName())
+							 ->save();
 					}
 				} else {
 					$ME = new self(array(
-								'name' => $Plugin->getName(),
-								'installed' => 0,
-								'state' => 1,
-							    ));
+						'name' => $Plugin->getName(),
+						'installed' => 0,
+						'state' => 1,
+					));
 					$ME->save();
 				}
 			}

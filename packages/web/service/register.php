@@ -16,12 +16,12 @@ try {
 		$MACs = explode('|',$_REQUEST['mac']);
 		$PriMAC = array_shift($MACs);
 		$Host = $FOGCore->getClass('Host')
-			->set('name', $_REQUEST['hostname'])
-			->set('description','Pending Registration created by FOG_CLIENT')
-			->set('pending',1)
-			->addModule($ModuleIDs)
-			->addPriMAC($PriMAC)
-			->save();
+			 ->set('name', $_REQUEST['hostname'])
+			 ->set('description','Pending Registration created by FOG_CLIENT')
+			 ->set('pending',1)
+			 ->addModule($ModuleIDs)
+			 ->addPriMAC($PriMAC)
+			 ->save();
 	}
 	// Check if count is okay.
 	if (count($MACs) > $maxPending + 1) throw new Exception('#!er:Too many MACs');

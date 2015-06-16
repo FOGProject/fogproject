@@ -1,4 +1,4 @@
 config BR2_PACKAGE_TESTDISK
-bool "TestDisk & PhotoRec"
-help
-Photo & Disk recover utilities
+	bool "TestDisk & PhotoRec"
+	help
+	 Photo & Disk recover utilities 

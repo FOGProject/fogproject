@@ -8,13 +8,13 @@
 
 @font-face {
 	font-family: 'Ubuntu';
-src: url('ubuntu-regular-webfont.eot');
-src: url('ubuntu-regular-webfont.eot?#iefix') format('embedded-opentype'),
+	src: url('ubuntu-regular-webfont.eot');
+	src: url('ubuntu-regular-webfont.eot?#iefix') format('embedded-opentype'),
 	     url('ubuntu-regular-webfont.woff') format('woff'),
 	     url('ubuntu-regular-webfont.ttf') format('truetype'),
 	     url('ubuntu-regular-webfont.svg#UbuntuRegular') format('svg');
-     font-weight: normal;
-     font-style: normal;
+	font-weight: normal;
+	font-style: normal;
 }
 
 html, body { height: 100%; }
@@ -56,11 +56,11 @@ input:focus, textarea:focus { border-color: #5372af; background-image: url('imag
 	background-image: url(images/wink.svg);
 	background-position: -44px center;
 	background-repeat: no-repeat;
-cursor: pointer;
-overflow: hidden;
-	  text-indent: -9999em;
-height: 26px;
-width: 44px;
+	cursor: pointer;
+	overflow: hidden;
+	text-indent: -9999em;
+	height: 26px;
+	width: 44px;
 }
 .hideShowPassword-toggle-hide {
 	background-position: 0px center;
@@ -188,13 +188,13 @@ pre { white-space: pre-wrap; }
 .dashbaord p.infoTitle { padding: 0px; margin-top: 0px; margin-right: 0px; margin-left: 0px; margin-bottom: 4px; text-align: center; font-weight: bold; border-width: 0px 0px 1px 0px; border-style: solid; border-color: #000000; background-color: #bcbcbc;}
 
 .task-start-ok,
-	.task-start-failed {border: 2px solid #CCCCCC; background-color: #EFEFEF; font-size: 16px; padding: 20px; border-radius: 5px; margin: 0 0 5px 0; }
-	.task-start-ok p,
-	.task-start-failed p { text-align: center; }
-	.task-start-ok { border-color: #008000; background: #dfffdf; color: #008000; }
-	.task-start-failed { border-color: #ff0000; background: #ffd8d8; color: #ff0000; }
+.task-start-failed {border: 2px solid #CCCCCC; background-color: #EFEFEF; font-size: 16px; padding: 20px; border-radius: 5px; margin: 0 0 5px 0; }
+.task-start-ok p,
+.task-start-failed p { text-align: center; }
+.task-start-ok { border-color: #008000; background: #dfffdf; color: #008000; }
+.task-start-failed { border-color: #ff0000; background: #ffd8d8; color: #ff0000; }
 
-	.confirm-message { padding: 10px; margin: 5px 10px; min-height: 50px; border-width: 1px; border-style: dashed; border-color: #999; font-size: 13px; font-weight: bold; border-radius: 3px; }
+.confirm-message { padding: 10px; margin: 5px 10px; min-height: 50px; border-width: 1px; border-style: dashed; border-color: #999; font-size: 13px; font-weight: bold; border-radius: 3px; }
 
 #search-wrapper { text-align: center; }
 #search-wrapper .search-input { width: 150px; height: 21px; background: #fff; }
@@ -203,12 +203,12 @@ pre { white-space: pre-wrap; }
 #search-wrapper .search-submit.searching { background-image: url('images/loader.gif'); }
 #search-wrapper .search-submit:active { border-color: #5372af #94c3d3 #94c3d3 #5372af; }
 #search-content { margin-top: 10px; display: none; }
-	.task-name { float: right; background: #efefef url('images/icon-task.png') no-repeat 3px center; border: 1px solid #ccc; padding: 4px; font-size: 10px; margin-right: 3px; margin-top: 5px; padding-left: 25px; cursor: default; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
-	.no-active-tasks { padding: 15px 0; text-align: center; }
+.task-name { float: right; background: #efefef url('images/icon-task.png') no-repeat 3px center; border: 1px solid #ccc; padding: 4px; font-size: 10px; margin-right: 3px; margin-top: 5px; padding-left: 25px; cursor: default; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+.no-active-tasks { padding: 15px 0; text-align: center; }
 
 #login-form { margin: 20px auto; width: 300px; }
 #login-form label { float: left; margin: 3px 0; width: 80px; font-size: 16px; }
-	/* using '#login-form input' instead '#login-form .input' means '#login-form-submit' width cannot be modified */
+/* using '#login-form input' instead '#login-form .input' means '#login-form-submit' width cannot be modified */
 #login-form .input { clear: right; display: block; margin-top: 5px; margin-bottom: 5px; padding: 4px; border: 1px solid #666; width: 200px; }
 #login-form input[type="text"]:focus, #login-form input[type="password"]:focus { background-image: none; }
 #login-form select { border: 1px solid #666; width: 210px; }
@@ -219,87 +219,87 @@ pre { white-space: pre-wrap; }
 #login-form-info b { color: #00567A; }
 #login-form-info .icon { vertical-align: text-bottom; }
 
-	.fog-variable, .fog-message-box { display: none; }
+.fog-variable, .fog-message-box { display: none; }
 
-	/* ALIGNS */
-	.v { writing-mode:tb-rl; -webkit-transform:rotate(90deg); -moz-transform:rotate(90deg); -o-transform: rotate(90deg); }
-	.c { text-align: center; }
-	.l { text-align: left; }
-	.r { text-align: right; }
+/* ALIGNS */
+.v { writing-mode:tb-rl; -webkit-transform:rotate(90deg); -moz-transform:rotate(90deg); -o-transform: rotate(90deg); }
+.c { text-align: center; }
+.l { text-align: left; }
+.r { text-align: right; }
 
-	/* ICONS */
-	.icon { outline: 0; border: 0; display: inline-block; width: 16px; height: 16px; }
-	.icon-force { background: url('images/icon-force.png') no-repeat center center; }
-	.icon-forced { background: url('images/icon-forced.png') no-repeat center center; }
-	.icon-kill { background: url('images/kill.png') no-repeat center center; }
-	.icon-loading, .icon.loading { background: url('images/loader.gif') no-repeat center center; }
-	.icon-loading-grey { background: url('images/loader-grey.gif') no-repeat center center; }
-	.icon-edit { background: url('images/edit.png') no-repeat center center; }
-	.icon-multicast { background: url('images/multicast.png') no-repeat center center; }
-	.icon-advanced { background: url('images/icon-advanced.png') no-repeat center center; }
-	.icon-taskrunning { background: url('images/icon-taskrunning.png') no-repeat center center; width: 20px; height: 20px; }
-	.icon-task { background: url('images/icon-task.png') no-repeat center center; width: 20px; height: 20px; }
-	.icon-ping-error { background: url('images/host-down-error.png') no-repeat center center; }
-	.icon-ping-up { background: url('images/host-up.png') no-repeat center center; }
-	.icon-ping-down { background: url('images/host-down.png') no-repeat center center; }
-	.icon-add { background: url('images/icon-add.png') no-repeat center center; }
-	.icon-remove, .icon-delete { background: url('images/icon-remove.png') no-repeat center center; }
-	.icon-tick, .icon-complete { background: url('images/icon-tick.png') no-repeat center center; }
-	.icon-download, .icon-download-without-snapins { background: url('images/icon-download.png') no-repeat center center; }
-	.icon-multicast, .icon-multi-cast { background: url('images/icon-multicast.png') no-repeat center center; }
-	.icon-upload { background: url('images/icon-upload.png') no-repeat center center; }
-	.icon-inline, .icon-checkedin { background: url('images/icon-inline.png') no-repeat center center; }
-	.icon-queued { background: url('images/icon-queued.png') no-repeat center center; }
-	.icon-inprogress, .icon-in-progress { background: url('images/icon-inprogress.png') no-repeat center center; }
-	.icon-help { background: url('images/help.png') no-repeat center center; }
-	.icon-cancel, .icon-cancelled { background: url('images/kill.png') no-repeat center center; }
-	.icon-all-snapins { background: url('images/icon-allsnapins.png') no-repeat center center; }
-	.icon-debug, .icon-upload-debug, .icon-download-debug { background: url('images/icon-debug.png') no-repeat center center; }
-	.icon-inventory, .icon-hardware-inventory { background: url('images/icon-inventory.png') no-repeat center center; }
-	.icon-memtest { background: url('images/icon-memtest.png') no-repeat center center; }
-	.icon-passreset, .icon-password-reset { background: url('images/icon-passreset.png') no-repeat center center; }
-	.icon-photorec, .icon-recover { background: url('images/icon-photorec.png') no-repeat center center; }
-	.icon-single-snapin { background: url('images/icon-singlesnapin.png') no-repeat center center; }
-	.icon-testdisk, .icon-disk-surface-test { background: url('images/icon-testdisk.png') no-repeat center center; }
-	.icon-virusscan, .icon-virus-scan, .icon-virus-scan-quarantine { background: url('images/icon-virusscan.png') no-repeat center center; }
-	.icon-wakeup, .icon-wake-up { background: url('images/icon-wakeup.png') no-repeat center center; }
-	.icon-wipe, .icon-fast-wipe, .icon-full-wipe, .icon-normal-wipe { background: url('images/icon-wipe.png') no-repeat center center; }
-	.icon-loading { background: url('images/loader.gif') no-repeat center center; }
-	.icon-deploy { background: url('images/icon-deploy.png') no-repeat center center; }
-	.icon-donate { background: url('images/donate.png') no-repeat center center; }
-	.hand { cursor: pointer; }
+/* ICONS */
+.icon { outline: 0; border: 0; display: inline-block; width: 16px; height: 16px; }
+.icon-force { background: url('images/icon-force.png') no-repeat center center; }
+.icon-forced { background: url('images/icon-forced.png') no-repeat center center; }
+.icon-kill { background: url('images/kill.png') no-repeat center center; }
+.icon-loading, .icon.loading { background: url('images/loader.gif') no-repeat center center; }
+.icon-loading-grey { background: url('images/loader-grey.gif') no-repeat center center; }
+.icon-edit { background: url('images/edit.png') no-repeat center center; }
+.icon-multicast { background: url('images/multicast.png') no-repeat center center; }
+.icon-advanced { background: url('images/icon-advanced.png') no-repeat center center; }
+.icon-taskrunning { background: url('images/icon-taskrunning.png') no-repeat center center; width: 20px; height: 20px; }
+.icon-task { background: url('images/icon-task.png') no-repeat center center; width: 20px; height: 20px; }
+.icon-ping-error { background: url('images/host-down-error.png') no-repeat center center; }
+.icon-ping-up { background: url('images/host-up.png') no-repeat center center; }
+.icon-ping-down { background: url('images/host-down.png') no-repeat center center; }
+.icon-add { background: url('images/icon-add.png') no-repeat center center; }
+.icon-remove, .icon-delete { background: url('images/icon-remove.png') no-repeat center center; }
+.icon-tick, .icon-complete { background: url('images/icon-tick.png') no-repeat center center; }
+.icon-download, .icon-download-without-snapins { background: url('images/icon-download.png') no-repeat center center; }
+.icon-multicast, .icon-multi-cast { background: url('images/icon-multicast.png') no-repeat center center; }
+.icon-upload { background: url('images/icon-upload.png') no-repeat center center; }
+.icon-inline, .icon-checkedin { background: url('images/icon-inline.png') no-repeat center center; }
+.icon-queued { background: url('images/icon-queued.png') no-repeat center center; }
+.icon-inprogress, .icon-in-progress { background: url('images/icon-inprogress.png') no-repeat center center; }
+.icon-help { background: url('images/help.png') no-repeat center center; }
+.icon-cancel, .icon-cancelled { background: url('images/kill.png') no-repeat center center; }
+.icon-all-snapins { background: url('images/icon-allsnapins.png') no-repeat center center; }
+.icon-debug, .icon-upload-debug, .icon-download-debug { background: url('images/icon-debug.png') no-repeat center center; }
+.icon-inventory, .icon-hardware-inventory { background: url('images/icon-inventory.png') no-repeat center center; }
+.icon-memtest { background: url('images/icon-memtest.png') no-repeat center center; }
+.icon-passreset, .icon-password-reset { background: url('images/icon-passreset.png') no-repeat center center; }
+.icon-photorec, .icon-recover { background: url('images/icon-photorec.png') no-repeat center center; }
+.icon-single-snapin { background: url('images/icon-singlesnapin.png') no-repeat center center; }
+.icon-testdisk, .icon-disk-surface-test { background: url('images/icon-testdisk.png') no-repeat center center; }
+.icon-virusscan, .icon-virus-scan, .icon-virus-scan-quarantine { background: url('images/icon-virusscan.png') no-repeat center center; }
+.icon-wakeup, .icon-wake-up { background: url('images/icon-wakeup.png') no-repeat center center; }
+.icon-wipe, .icon-fast-wipe, .icon-full-wipe, .icon-normal-wipe { background: url('images/icon-wipe.png') no-repeat center center; }
+.icon-loading { background: url('images/loader.gif') no-repeat center center; }
+.icon-deploy { background: url('images/icon-deploy.png') no-repeat center center; }
+.icon-donate { background: url('images/donate.png') no-repeat center center; }
+.hand { cursor: pointer; }
 
-	/* Hosts - Edit */
-	.pending-mac .mac { padding-right: 26px; }
-	.mac-manufactor { padding-left: 8px; }
+/* Hosts - Edit */
+.pending-mac .mac { padding-right: 26px; }
+.mac-manufactor { padding-left: 8px; }
 
-	/* Tasks - Active */
-	.with-progress td { border: 0; }
-	.task-progress-td { color: #fff; padding: 0; font-size: 10px; line-height: 17px; text-align: center; height: 25px; background: #6f9dcf; }
-	.task-progress-td.min { height: 3px; }
-	.task-progress-fill { background: #5CDB65; position: absolute; z-index: 9; width: 300px; height: 25px; }
-	.task-progress-fill.min { height: 3px; }
-	.task-progress { height: 100%; }
-	.task-progress ul { margin: 5px; padding: 0; position: absolute; z-index: 10; width: 600px; height: 17px; display: none; cursor: default; }
-	.task-progress ul li { float: left; width: 33%; display: block; height: 18px; }
+/* Tasks - Active */
+.with-progress td { border: 0; }
+.task-progress-td { color: #fff; padding: 0; font-size: 10px; line-height: 17px; text-align: center; height: 25px; background: #6f9dcf; }
+.task-progress-td.min { height: 3px; }
+.task-progress-fill { background: #5CDB65; position: absolute; z-index: 9; width: 300px; height: 25px; }
+.task-progress-fill.min { height: 3px; }
+.task-progress { height: 100%; }
+.task-progress ul { margin: 5px; padding: 0; position: absolute; z-index: 10; width: 600px; height: 17px; display: none; cursor: default; }
+.task-progress ul li { float: left; width: 33%; display: block; height: 18px; }
 
-	/* Dashboard - Graph */
-	.graph { height: 160px; background: #fff url('images/loader.gif') center center no-repeat; }
-	.graph.loaded { background-image: none; }
-	.graph.pie-graph { height: 120px; margin: 5px 0 0 0; }
+/* Dashboard - Graph */
+.graph { height: 160px; background: #fff url('images/loader.gif') center center no-repeat; }
+.graph.loaded { background-image: none; }
+.graph.pie-graph { height: 120px; margin: 5px 0 0 0; }
 
-	/* Dashboard - 3 row boxes */
+/* Dashboard - 3 row boxes */
 #dashboard-boxes { list-style: none; padding: 0 2px; margin-bottom: 10px; height: 160px; font-size: 12px; }
 #dashboard-boxes li { border: 2px solid #C7CEDE; float: left; width: 242px; padding: 2px; margin: 0 3px; height: 150px; border-radius: 5px; overflow: hidden; }
 #dashboard-boxes li h4 { text-align: center; background: #c7cede; padding: 5px; margin: 0; font-size: 13px; font-weight: bold; border-radius: 2px; }
 #dashboard-boxes li p { margin: 0; line-height: 20px; }
 #dashboard-boxes table td { padding: 4px 5px; }
 
-	/* Dashboard - Disk usage graph */
+/* Dashboard - Disk usage graph */
 #diskusage-selector { width: 240px; position: absolute; z-index: 1; text-align: right; margin-top: 3px; } /* margin-top: -22px to move the select box into the header */
 #diskusage-selector select { font-size: 10px; border: 1px solid #666; padding: 0; }
 
-	/* Dashboard - Bandwidth Graph */
+/* Dashboard - Bandwidth Graph */
 #graph-bandwidth { margin-top: 20px; }
 #graph-bandwidth-filters { border: 0px solid red; width: 721px; position: absolute; z-index: 10; margin-top: -6px; padding-left: 50px; }
 #graph-bandwidth-filters a { background: #666; color: #fff; font-size: 10px; margin: 0 5px; padding: 2px 5px; text-decoration: none; }
@@ -308,32 +308,32 @@ pre { white-space: pre-wrap; }
 #graph-bandwidth-filters .l { float: left; }
 #graph-bandwidth-filters .r { float: right; }
 
-	/* Tipsy tooltips */
-	.tipsy { padding: 5px; font-size: 12px; position: absolute; z-index: 100000; }
-	.tipsy-inner { padding: 5px 8px 4px 8px; background-color: black; color: white; max-width: 200px; text-align: center; }
-	.tipsy-inner { border-radius: 3px; -moz-border-radius:3px; -webkit-border-radius:3px; }
-	.tipsy-arrow { position: absolute; background: url('images/tipsy.gif') no-repeat top left; width: 9px; height: 5px; }
-	.tipsy-n .tipsy-arrow { top: 0; left: 50%; margin-left: -4px; }
-	.tipsy-nw .tipsy-arrow { top: 0; left: 10px; }
-	.tipsy-ne .tipsy-arrow { top: 0; right: 10px; }
-	.tipsy-s .tipsy-arrow { bottom: 0; left: 50%; margin-left: -4px; background-position: bottom left; }
-	.tipsy-sw .tipsy-arrow { bottom: 0; left: 10px; background-position: bottom left; }
-	.tipsy-se .tipsy-arrow { bottom: 0; right: 10px; background-position: bottom left; }
-	.tipsy-e .tipsy-arrow { top: 50%; margin-top: -4px; right: 0; width: 5px; height: 9px; background-position: top right; }
-	.tipsy-w .tipsy-arrow { top: 50%; margin-top: -4px; left: 0; width: 5px; height: 9px; }
-	.default {display: none;}
-	.default + label {background:url('images/no.png') no-repeat;height: 100%; width: 100%;display:inline-block;padding: 0 0 0 0px;}
-	.default:checked + label {background:url('images/yes.png') no-repeat;height: 100%; width: 100%;display:inline-block;padding: 0 0 0 0px;}
-	.delid {display: none;}
-	.delid + label {background:url('images/kill.png') no-repeat;height: 101%; width: 100%;display:inline-block;padding: 0 0 0 15px;}
-	.delid:checked + label {background:url('images/kill.png') no-repeat;height: 100%; width: 100%;display:inline-block;padding: 0 0 0 15px;}
-	.delvid {display: none;}
+/* Tipsy tooltips */
+.tipsy { padding: 5px; font-size: 12px; position: absolute; z-index: 100000; }
+.tipsy-inner { padding: 5px 8px 4px 8px; background-color: black; color: white; max-width: 200px; text-align: center; }
+.tipsy-inner { border-radius: 3px; -moz-border-radius:3px; -webkit-border-radius:3px; }
+.tipsy-arrow { position: absolute; background: url('images/tipsy.gif') no-repeat top left; width: 9px; height: 5px; }
+.tipsy-n .tipsy-arrow { top: 0; left: 50%; margin-left: -4px; }
+.tipsy-nw .tipsy-arrow { top: 0; left: 10px; }
+.tipsy-ne .tipsy-arrow { top: 0; right: 10px; }
+.tipsy-s .tipsy-arrow { bottom: 0; left: 50%; margin-left: -4px; background-position: bottom left; }
+.tipsy-sw .tipsy-arrow { bottom: 0; left: 10px; background-position: bottom left; }
+.tipsy-se .tipsy-arrow { bottom: 0; right: 10px; background-position: bottom left; }
+.tipsy-e .tipsy-arrow { top: 50%; margin-top: -4px; right: 0; width: 5px; height: 9px; background-position: top right; }
+.tipsy-w .tipsy-arrow { top: 50%; margin-top: -4px; left: 0; width: 5px; height: 9px; }
+.default {display: none;}
+.default + label {background:url('images/no.png') no-repeat;height: 100%; width: 100%;display:inline-block;padding: 0 0 0 0px;}
+.default:checked + label {background:url('images/yes.png') no-repeat;height: 100%; width: 100%;display:inline-block;padding: 0 0 0 0px;}
+.delid {display: none;}
+.delid + label {background:url('images/kill.png') no-repeat;height: 101%; width: 100%;display:inline-block;padding: 0 0 0 15px;}
+.delid:checked + label {background:url('images/kill.png') no-repeat;height: 100%; width: 100%;display:inline-block;padding: 0 0 0 15px;}
+.delvid {display: none;}
 
 #additionalMACsRow { display: none; }
 
-	/* Task Conformations */
-	.advanced-settings { border: 1px solid #ccc; padding: 0 15px; background: #efefef; margin: 0 auto; width: 300px; font-weight: normal; border-radius: 5px; }
-	.advanced-settings h2 { text-align: center; margin: 7px 0; background: #e9e9e9; }
+/* Task Conformations */
+.advanced-settings { border: 1px solid #ccc; padding: 0 15px; background: #efefef; margin: 0 auto; width: 300px; font-weight: normal; border-radius: 5px; }
+.advanced-settings h2 { text-align: center; margin: 7px 0; background: #e9e9e9; }
 
 #deploy-container .advanced-settings h2 { padding: 5px 0; margin: 7px -16px; border-radius: 0; border-left: 1px solid #ccc; border-right: 1px solid #ccc; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; }
 #deploy-container .confirm-message p { margin: 5px 0; line-height: 24px; }
@@ -345,13 +345,13 @@ pre { white-space: pre-wrap; }
 #deploy-container #cronOptions input:focus { width: 37px; text-align: center; }
 #deploy-container #scheduleSingleTime { width: 150px; margin: 0 auto; text-align: center; display: block; cursor: pointer; }
 
-	.task-action { text-align: center; width: 100px; }
-	.task-action a { display: block; }
+.task-action { text-align: center; width: 100px; }
+.task-action a { display: block; }
 
-	tbody td.small { font-size: 10px; }
-	.ui-dialog-titlebar-close {
-visibility: hidden;
-	}
+tbody td.small { font-size: 10px; }
+.ui-dialog-titlebar-close {
+	visibility: hidden;
+}
 /* CSS FOR TIMEPICKER */
 .ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
 .ui-timepicker-div dl { text-align: left; }
@@ -366,9 +366,9 @@ visibility: hidden;
 .ui-timepicker-rtl dl dd { margin: 0 45% 10px 10px; }
 /* HOVER COLOR */
 .activelink .fa, .fa:hover {
-color: orange;
+	color: orange;
 }
 /* NON HOVER COLOR */
 .fa {
-color: #00567a;
+	color: #00567a;
 }

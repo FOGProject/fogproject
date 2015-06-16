@@ -5,8 +5,8 @@ class DatabaseManager extends FOGBase {
 	/** @var $DB the Connection as established */
 	public $DB;
 	/** __construct() initiates the database class
-	 * @return if the class is valid or not
-	 */
+	  * @return if the class is valid or not
+	  */
 	public function __construct() {
 		try {
 			parent::__construct();
@@ -18,8 +18,8 @@ class DatabaseManager extends FOGBase {
 		}
 	}
 	/** connect()
-	 * @return returns the class as established.
-	 */
+	  * @return returns the class as established.
+	  */
 	public function connect() {
 		try {
 			// Error checking
@@ -50,7 +50,7 @@ class DatabaseManager extends FOGBase {
 		return $this;
 	}
 	/** getVersion() get the version of the schema
-	 * @return the version or false (0)
-	 */
+	  * @return the version or false (0)
+	  */
 	public function getVersion() {return (int)$this->DB->query('SELECT vValue FROM schemaVersion')->fetch()->get('vValue');}
 }

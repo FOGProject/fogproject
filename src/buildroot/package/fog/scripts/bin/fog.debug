@@ -40,7 +40,7 @@ osname="";
 mbrfile="";
 hd="";
 if [ -n "$osid" ]; then
-determineOS "$osid";
+	determineOS "$osid";
 fi
 echo "osid=${osid}";
 echo "osname=${osname}";

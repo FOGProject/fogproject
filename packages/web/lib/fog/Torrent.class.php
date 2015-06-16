@@ -1,7 +1,7 @@
 <?php
 /**
- * Class Torrent
- */
+* Class Torrent 
+*/
 class Torrent extends FOGController
 {
 	// Table
@@ -9,7 +9,7 @@ class Torrent extends FOGController
 
 	// Name -> Database field name
 	public $databaseFields = array(
-			'id' => 'id',
-			'hash' => 'hash',
-			);
+		'id' => 'id',
+		'hash' => 'hash',
+	);
 }

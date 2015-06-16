@@ -16,13 +16,13 @@ try {
 		// If the subsets all exist, write the data, otherwise leave it alone.
 		if ($str[0] && $str[1] && $str[2] && $str[3] && $str[4] && $str[5]) {
 			$Task->set('bpm', $str[0])
-				->set('timeElapsed', $str[1])
-				->set('timeRemaining', $str[2])
-				->set('dataCopied', $str[3])
-				->set('dataTotal', $str[4])
-				->set('percent',trim($str[5]))
-				->set('pct',trim($str[5]))
-				->save();
+				 ->set('timeElapsed', $str[1])
+				 ->set('timeRemaining', $str[2])
+				 ->set('dataCopied', $str[3])
+				 ->set('dataTotal', $str[4])
+				 ->set('percent',trim($str[5]))
+				 ->set('pct',trim($str[5]))
+				 ->save();
 			// Suppose I could just add the data together, but easier to just
 			// Use the largest partition on the system as the file representation.
 			if ($str[6] > (int)$Image->get('size'))

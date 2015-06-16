@@ -4,10 +4,10 @@ class NodeJS extends FOGController {
 	public $databaseTable = 'nodeJSconfig';
 	// Name -> Database field name
 	public $databaseFields = array(
-			'id' => 'nodeID',
-			'name' => 'nodeName',
-			'ip' => 'nodeIP',
-			'port' => 'nodePort',
-			'aeskey' => 'nodeAES',
-			);
+		'id' => 'nodeID',
+		'name' => 'nodeName',
+		'ip' => 'nodeIP',
+		'port' => 'nodePort',
+		'aeskey' => 'nodeAES',
+	);
 }

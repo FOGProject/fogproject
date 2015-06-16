@@ -1,4 +1,4 @@
-
+ 
 
 GNU 通用公共授權 （繁體中文翻譯版）
 
@@ -7,7 +7,7 @@ GNU 通用公共授權 （繁體中文翻譯版）
 This is an unofficial translation of the GNU General Public License into simplified Chinese. It was not published by the Free Software Foundation, and does not legally state the distribution terms for software that uses the GNU GPL—only the original English text of the GNU GPL does that. However, we hope that this translation will help Chinese speakers understand the GNU GPL better.
 
 
-這是一份GNU通用公共授權的非官方中文繁體翻譯。它並非由自由軟體基金會發佈，也不是使用GNU通用公共授權的軟體的法定發佈條款——只有GNU通用公共授權的英文原版具有這樣的效力。然而，我們希望這份翻譯能夠幫助中文讀者更好的理解GNU通用公共授權。
+這是一份GNU通用公共授權的非官方中文繁體翻譯。它並非由自由軟體基金會發佈，也不是使用GNU通用公共授權的軟體的法定發佈條款——只有GNU通用公共授權的英文原版具有這樣的效力。然而，我們希望這份翻譯能夠幫助中文讀者更好的理解GNU通用公共授權。 
 
 GNU通用公共授權
 
