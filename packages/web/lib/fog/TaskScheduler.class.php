@@ -7,7 +7,7 @@ class TaskScheduler extends FOGService {
 		try {
 			$DateInterval = $this->nice_date('-30 minutes');
 			foreach($this->getClass('HostManager')->find() AS $Host) {
-				if ($Host && $Host->isValid()) {
+				if ($Host->isValid()) {
 					if ($this->validDate($Host->get('sec_time'))) {
 						$DateTime = $this->nice_date($Host->get('sec_time'));
 						if ($DateTime->format('Y-m-d H:i:s') >= $DateInterval->format('Y-m-d H:i:s')) $Host->set('pub_key',null)->set('sec_time',null)->save();
@@ -23,13 +23,11 @@ class TaskScheduler extends FOGService {
 					$this->outall(sprintf("\t\t- Host: %s WOL sent using MAC: %s",$Host->get('name'),$Host->get('mac')));
 					usleep(500000);
 				}
-			}
-			else $this->outall(" * 0 active task(s) awaiting check-in.");
+			} else $this->outall(" * 0 active task(s) awaiting check-in.");
 			$Tasks = $this->getClass('ScheduledTaskManager')->find(array('isActive' => 1));
 			if ($Tasks) {
 				$this->outall(sprintf(" * %s task(s) found.",count($Tasks)));
 				foreach($Tasks AS $Task) {
-					$deploySnapin = (($Task->get('taskType') == 12 || $Task->get('taskType') == 13) && $Task->get('taskType') != 17 ? $Task->get('other2') : false);
 					$Timer = $Task->getTimer();
 					$this->outall(sprintf(" * Task run time: %s",$Timer->toString()));
 					if ($Timer->shouldRunNow()) {
@@ -44,7 +42,6 @@ class TaskScheduler extends FOGService {
 								foreach((array)$Group->get('hosts') AS $Host) {
 									$Host->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,true,'FOG_SCHED');
 									$this->outall(sprintf("\t\t - Task Started for host %s!",$Host->get('name')));
-
 								}
 								if ($Timer->isSingleRun()) {
 									if ($this->FOGCore->stopScheduledTask($Task)) $this->outall("\t\t - Scheduled Task cleaned.");
@@ -54,7 +51,7 @@ class TaskScheduler extends FOGService {
 								$this->outall("\t\t - Regular task found!");
 								$this->outall(sprintf("\t\t - Group %s",$Group->get('name')));
 								foreach((array)$Group->get('hosts') AS $Host) {
-									$Host->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$deploySnapin,true,$Task->get('other3'));
+									$Host->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$Task->get('other2'),true,$Task->get('other3'));
 									$this->outall(sprintf("\t\t - Task Started for host %s!",$Host->get('name')));
 								}
 								if ($Timer->isSingleRun()) {
@@ -65,7 +62,7 @@ class TaskScheduler extends FOGService {
 						} else {
 							$this->outall("\t\t - Is a host based task.");
 							$Host = $Task->getHost();
-							$Host->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$deploySnapin,false,$Task->get('other3'));
+							$Host->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$Task->get('other2'),false,$Task->get('other3'));
 							$this->outall(sprintf("\t\t - Task Started for host %s!",$Host->get('name')));
 							if ($Timer->isSingleRun()) {
 								if ($this->FOGCore->stopScheduledTask($Task)) $this->outall("\t\t - Scheduled Task cleaned.");
@@ -74,8 +71,7 @@ class TaskScheduler extends FOGService {
 						}
 					} else $this->outall(" * Task doesn't run now.");
 				}
-			}
-			else $this->outall(" * No tasks found!");
+			} else $this->outall(" * No tasks found!");
 		} catch (Exception $e) {
 			$this->outall("\t\t - ".$e->getMessage());
 		}
