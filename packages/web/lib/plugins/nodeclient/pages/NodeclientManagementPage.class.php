@@ -8,29 +8,29 @@ class NodeclientManagementPage extends FOGPage {
 		if ($_REQUEST['id']) {
 			$this->obj = $this->getClass('NodeJS',$_REQUEST['id']);
 			$this->subMenu = array(
-				$this->linkformat = $this->foglang[General],
-				$this->delformat = $this->foglang[Delete],
-			);
+					$this->linkformat = $this->foglang[General],
+					$this->delformat = $this->foglang[Delete],
+					);
 		}
 		// Header row
 		$this->headerData = array(
-			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-		    _('Name'),
-			_('Port'),
-			_('IP/Hostname'),
-		);
+				'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+				_('Name'),
+				_('Port'),
+				_('IP/Hostname'),
+				);
 		// Row templates
 		$this->templates = array(
-			'<input type="checkbox" name="nodeclient[]" value="${id}" class="toggle-action" checked/>',
-			sprintf('<a href="?node=%s&sub=edit&id=${id}" title="%s">${name}</a>',$this->node,_('Edit')),
-			'${port}',
-			'${ip}',
-		);
+				'<input type="checkbox" name="nodeclient[]" value="${id}" class="toggle-action" checked/>',
+				sprintf('<a href="?node=%s&sub=edit&id=${id}" title="%s">${name}</a>',$this->node,_('Edit')),
+				'${port}',
+				'${ip}',
+				);
 		$this->attributes = array(
-			array('class' => 'l'),
-			array(),
-			array('class' => 'r'),
-		);
+				array('class' => 'l'),
+				array(),
+				array('class' => 'r'),
+				);
 	}
 	// Pages
 	public function index() {
@@ -42,11 +42,11 @@ class NodeclientManagementPage extends FOGPage {
 		foreach ((array)$this->getClass('NodeJSManager')->find() AS $NodeConf) {
 			if ($NodeConf && $NodeConf->isValid()) {
 				$this->data[] = array(
-					'id'	=> $NodeConf->get('id'),
-					'name'  => $NodeConf->get('name'),
-					'ip' => $NodeConf->get('ip'),
-					'port' => $NodeConf->get('port'),
-				);
+						'id'	=> $NodeConf->get('id'),
+						'name'  => $NodeConf->get('name'),
+						'ip' => $NodeConf->get('ip'),
+						'port' => $NodeConf->get('port'),
+						);
 			}
 		}
 		// Hook
@@ -69,20 +69,20 @@ class NodeclientManagementPage extends FOGPage {
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// To assist with finding wol broadcasts.
 		$where = array(
-			'id'	=> $keyword,
-			'name'  => $keyword,
-			'ip' => $keyword,
-			'port' => $keyword,
-		);
+				'id'	=> $keyword,
+				'name'  => $keyword,
+				'ip' => $keyword,
+				'port' => $keyword,
+			      );
 		// Find data -> Push data
 		foreach ((array)$this->getClass('NodeJSManager')->find($where,'OR') AS $NodeConf) {
 			if ($NodeConf && $NodeConf->isValid()) {
 				$this->data[] = array(
-					'id'	=> $NodeConf->get('id'),
-					'name'  => $NodeConf->get('name'),
-					'ip' => $NodeConf->get('ip'),
-					'port' => $NodeConf->get('port'),
-				);
+						'id'	=> $NodeConf->get('id'),
+						'name'  => $NodeConf->get('name'),
+						'ip' => $NodeConf->get('ip'),
+						'port' => $NodeConf->get('port'),
+						);
 			}
 		}
 		// Hook
@@ -96,29 +96,29 @@ class NodeclientManagementPage extends FOGPage {
 		unset($this->headerData);
 		// Attributes
 		$this->attributes = array(
-			array(),
-			array(),
-		);
+				array(),
+				array(),
+				);
 		// Templates
 		$this->templates = array(
-			'${field}',
-			'${input}',
-		);
+				'${field}',
+				'${input}',
+				);
 		$fields = array(
-			_('Node Name') => '<input class="smaller" type="text" name="name" value="${name}"/>',
-			_('Node IP') => '<input class="smaller" type="text" name="nodeip" value="${ip}"/>',
-			_('Node Port') => '<input class="smaller" text="text" name="portnum" value="${port}"/>',
-			'<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
-		);
+				_('Node Name') => '<input class="smaller" type="text" name="name" value="${name}"/>',
+				_('Node IP') => '<input class="smaller" type="text" name="nodeip" value="${ip}"/>',
+				_('Node Port') => '<input class="smaller" text="text" name="portnum" value="${port}"/>',
+				'<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
+			       );
 		print '<form method="post" action="'.$this->formAction.'">';
 		foreach((array)$fields AS $field => $input) {
 			$this->data[] = array(
-				'field' => $field,
-				'input' => $input,
-				'name'  => $_REQUEST['name'],
-				'ip' => $_REQUEST['nodeip'],
-				'port' => $_REQUEST['portnum'],
-			);
+					'field' => $field,
+					'input' => $input,
+					'name'  => $_REQUEST['name'],
+					'ip' => $_REQUEST['nodeip'],
+					'port' => $_REQUEST['portnum'],
+					);
 		}
 		// Hook
 		$this->HookManager->processEvent('NODECONF_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -140,10 +140,10 @@ class NodeclientManagementPage extends FOGPage {
 			if (!$port || !is_numeric($port) || $port < 1 || $port > 65535)
 				throw new Exception('Please enter a valid port number between 1 and 65535');
 			$NodeConf = new NodeJS(array(
-				'name' => $name,
-				'ip' => $ip,
-				'port' => $port,
-			));
+						'name' => $name,
+						'ip' => $ip,
+						'port' => $port,
+						));
 			if ($NodeConf->save()) {
 				$this->FOGCore->setMessage('Node Added, editing!');
 				$this->FOGCore->redirect('?node=nodeclient&sub=edit&id='.$NodeConf->get('id'));
@@ -162,29 +162,29 @@ class NodeclientManagementPage extends FOGPage {
 		unset($this->headerData);
 		// Attributes
 		$this->attributes = array(
-			array(),
-			array(),
-		);
+				array(),
+				array(),
+				);
 		// Templates
 		$this->templates = array(
-			'${field}',
-			'${input}',
-		);
+				'${field}',
+				'${input}',
+				);
 		$fields = array(
-			_('Node Name') => '<input class="smaller" type="text" name="name" value="${name}"/>',
-			_('Node IP') => '<input class="smaller" type="text" name="nodeip" value="${ip}"/>',
-			_('Node Port') => '<input class="smaller" text="text" name="portnum" value="${port}"/>',
-			'<input type="hidden" name="update" value="1" />' => '<input class="smaller" type="submit" value="'._('Update').'" />',
-		);
+				_('Node Name') => '<input class="smaller" type="text" name="name" value="${name}"/>',
+				_('Node IP') => '<input class="smaller" type="text" name="nodeip" value="${ip}"/>',
+				_('Node Port') => '<input class="smaller" text="text" name="portnum" value="${port}"/>',
+				'<input type="hidden" name="update" value="1" />' => '<input class="smaller" type="submit" value="'._('Update').'" />',
+			       );
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&id='.$NodeConf->get('id').'">';
 		foreach ((array)$fields AS $field => $input) {
 			$this->data[] = array(
-				'field' => $field,
-				'input' => $input,
-				'name'  => $NodeConf->get('name'),
-				'ip' => $NodeConf->get('ip'),
-				'port' => $NodeConf->get('port'),
-			);
+					'field' => $field,
+					'input' => $input,
+					'name'  => $NodeConf->get('name'),
+					'ip' => $NodeConf->get('ip'),
+					'port' => $NodeConf->get('port'),
+					);
 		}
 		// Hook
 		$this->HookManager->processEvent('NODECONF_EDIT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));

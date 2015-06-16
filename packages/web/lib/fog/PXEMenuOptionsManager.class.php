@@ -4,15 +4,15 @@ class PXEMenuOptionsManager extends FOGManagerController
 	public function regText()
 	{
 		$regVals = array(
-			0 => $this->foglang['NotRegHost'],
-			1 => $this->foglang['RegHost'],
-			2 => $this->foglang['AllHosts'],
-			3 => $this->foglang['DebugOpts'],
-			4 => $this->foglang['AdvancedOpts'],
-			5 => $this->foglang['AdvancedLogOpts'],
-			6 => $this->foglang['PendRegHost'],
-			7 => $this->foglang['DoNotList'],
-		);
+				0 => $this->foglang['NotRegHost'],
+				1 => $this->foglang['RegHost'],
+				2 => $this->foglang['AllHosts'],
+				3 => $this->foglang['DebugOpts'],
+				4 => $this->foglang['AdvancedOpts'],
+				5 => $this->foglang['AdvancedLogOpts'],
+				6 => $this->foglang['PendRegHost'],
+				7 => $this->foglang['DoNotList'],
+				);
 		return $regVals;
 	}
 	public function regSelect($request = '')

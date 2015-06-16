@@ -4,9 +4,9 @@ class Capone extends FOGController {
 	public $databaseTable = 'capone';
 	// Name -> Database field name
 	public $databaseFields = array(
-		'id'		=> 'cID',
-		'imageID'	=> 'cImageID',
-		'osID'		=> 'cOSID',
-		'key'		=> 'cKey',
-	);
+			'id'		=> 'cID',
+			'imageID'	=> 'cImageID',
+			'osID'		=> 'cOSID',
+			'key'		=> 'cKey',
+			);
 }

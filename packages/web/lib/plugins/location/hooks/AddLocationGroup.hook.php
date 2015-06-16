@@ -5,7 +5,7 @@ class AddLocationGroup extends Hook
 	var $description = 'Add Location to Groups';
 	var $author = 'Rowlett';
 	var $active = true;
-    var $node = 'location';	
+	var $node = 'location';
 	public function GroupFields($arguments) {
 		if (in_array($this->node,(array)$_SESSION['PluginsInstalled'])) {
 			if ($_REQUEST['node'] == 'group') {

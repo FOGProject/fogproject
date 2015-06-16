@@ -6,8 +6,8 @@ class HostAutoLogout extends FOGController
 
 	// Fields
 	public $databaseFields = array(
-		'id' => 'haloID',
-		'hostID' => 'haloHostID',
-		'time' => 'haloTime',
-	);
+			'id' => 'haloID',
+			'hostID' => 'haloHostID',
+			'time' => 'haloTime',
+			);
 }

@@ -9,31 +9,31 @@ class WOLBroadcastManagementPage extends FOGPage {
 		if ($_REQUEST['id']) {
 			$this->obj = $this->getClass('Wolbroadcast',$_REQUEST[id]);
 			$this->subMenu = array(
-				$this->linkformat => $this->foglang[General],
-				$this->delformat => $this->foglang[Delete],
-			);
+					$this->linkformat => $this->foglang[General],
+					$this->delformat => $this->foglang[Delete],
+					);
 			$this->notes = array(
-				_('Broadcast Name') => $this->obj->get('name'),
-				_('IP Address') => $this->obj->get('broadcast'),
-			);
+					_('Broadcast Name') => $this->obj->get('name'),
+					_('IP Address') => $this->obj->get('broadcast'),
+					);
 		}
 		// Header row
 		$this->headerData = array(
-			'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-			'Broadcast Name',
-			'Broadcast IP',
-		);
+				'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+				'Broadcast Name',
+				'Broadcast IP',
+				);
 		// Row templates
 		$this->templates = array(
-			'<input type="checkbox" name="wolbroadcast[]" value="${id}" class="toggle-action" checked/>',
-			'<a href="?node=wolbroadcast&sub=edit&id=${id}" title="Edit">${name}</a>',
-			'${wol_ip}',
-		);
+				'<input type="checkbox" name="wolbroadcast[]" value="${id}" class="toggle-action" checked/>',
+				'<a href="?node=wolbroadcast&sub=edit&id=${id}" title="Edit">${name}</a>',
+				'${wol_ip}',
+				);
 		$this->attributes = array(
-			array('class' => 'c', 'width' => '16'),
-			array('class' => 'l'),
-			array('class' => 'r'),
-		);
+				array('class' => 'c', 'width' => '16'),
+				array('class' => 'l'),
+				array('class' => 'r'),
+				);
 	}
 	// Pages
 	public function index() {
@@ -47,10 +47,10 @@ class WOLBroadcastManagementPage extends FOGPage {
 		foreach ((array)$Broadcasts AS $Broadcast) {
 			if ($Broadcast && $Broadcast->isValid()) {
 				$this->data[] = array(
-					'id'	=> $Broadcast->get('id'),
-					'name'  => $Broadcast->get('name'),
-					'wol_ip' => $Broadcast->get('broadcast'),
-				);
+						'id'	=> $Broadcast->get('id'),
+						'name'  => $Broadcast->get('name'),
+						'wol_ip' => $Broadcast->get('broadcast'),
+						);
 			}
 		}
 		// Hook
@@ -73,18 +73,18 @@ class WOLBroadcastManagementPage extends FOGPage {
 		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $this->REQUEST['crit']) . '%');
 		// To assist with finding wol broadcasts.
 		$where = array(
-		    'id'		=> $keyword,
-			'name'		=> $keyword,
-			'broadcast' => $keyword,
-		);
+				'id'		=> $keyword,
+				'name'		=> $keyword,
+				'broadcast' => $keyword,
+			      );
 		// Find data -> Push data
 		foreach ((array)$this->getClass('WolbroadcastManager')->find($where,'OR') AS $Broadcast) {
 			if ($Broadcast && $Broadcast->isValid()) {
 				$this->data[] = array(
-					'id'		=> $Broadcast->get('id'),
-					'name'		=> $Broadcast->get('name'),
-					'wol_ip' => $Broadcast->get('broadcast'),
-				);
+						'id'		=> $Broadcast->get('id'),
+						'name'		=> $Broadcast->get('name'),
+						'wol_ip' => $Broadcast->get('broadcast'),
+						);
 			}
 		}
 		// Hook
@@ -98,25 +98,25 @@ class WOLBroadcastManagementPage extends FOGPage {
 		unset($this->headerData);
 		// Attributes
 		$this->attributes = array(
-			array(),
-			array(),
-		);
+				array(),
+				array(),
+				);
 		// Templates
 		$this->templates = array(
-			'${field}',
-			'${input}',
-		);
+				'${field}',
+				'${input}',
+				);
 		$fields = array(
-			_('Broadcast Name') => '<input class="smaller" type="text" name="name" />',
-			_('Broadcast IP') => '<input class="smaller" type="text" name="broadcast" />',
-			'<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
-		);
+				_('Broadcast Name') => '<input class="smaller" type="text" name="name" />',
+				_('Broadcast IP') => '<input class="smaller" type="text" name="broadcast" />',
+				'<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
+			       );
 		print '<form method="post" action="'.$this->formAction.'">';
 		foreach((array)$fields AS $field => $input) {
 			$this->data[] = array(
-				'field' => $field,
-				'input' => $input,
-			);
+					'field' => $field,
+					'input' => $input,
+					);
 		}
 		// Hook
 		$this->HookManager->processEvent('BROADCAST_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -137,9 +137,9 @@ class WOLBroadcastManagementPage extends FOGPage {
 			if (strlen($ip) > 15 || !filter_var($ip,FILTER_VALIDATE_IP))
 				throw new Exception('Please enter a valid ip');
 			$WOLBroadcast = new Wolbroadcast(array(
-				'name' => $name,
-				'broadcast' => $ip,
-			));
+						'name' => $name,
+						'broadcast' => $ip,
+						));
 			if ($WOLBroadcast->save()) {
 				$this->FOGCore->setMessage('Broadcast Added, editing!');
 				$this->FOGCore->redirect('?node=wolbroadcast&sub=edit&id='.$WOLBroadcast->get('id'));
@@ -158,27 +158,27 @@ class WOLBroadcastManagementPage extends FOGPage {
 		unset($this->headerData);
 		// Attributes
 		$this->attributes = array(
-			array(),
-			array(),
-		);
+				array(),
+				array(),
+				);
 		// Templates
 		$this->templates = array(
-			'${field}',
-			'${input}',
-		);
+				'${field}',
+				'${input}',
+				);
 		$fields = array(
-			_('Broadcast Name') => '<input class="smaller" type="text" name="name" value="${broadcast_name}" />',
-			_('Broadcast Address') => '<input class="smaller" type="text" name="broadcast" value="${broadcast_ip}" />',
-			'<input type="hidden" name="update" value="1" />' => '<input type="submit" class="smaller" value="'._('Update').'" />',
-		);
+				_('Broadcast Name') => '<input class="smaller" type="text" name="name" value="${broadcast_name}" />',
+				_('Broadcast Address') => '<input class="smaller" type="text" name="broadcast" value="${broadcast_ip}" />',
+				'<input type="hidden" name="update" value="1" />' => '<input type="submit" class="smaller" value="'._('Update').'" />',
+			       );
 		print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&id='.$WOLBroadcast->get('id').'">';
 		foreach ((array)$fields AS $field => $input) {
 			$this->data[] = array(
-				'field' => $field,
-				'input' => $input,
-				'broadcast_name' => $WOLBroadcast->get('name'),
-				'broadcast_ip' => $WOLBroadcast->get('broadcast'),
-			);
+					'field' => $field,
+					'input' => $input,
+					'broadcast_name' => $WOLBroadcast->get('name'),
+					'broadcast_ip' => $WOLBroadcast->get('broadcast'),
+					);
 		}
 		// Hook
 		$this->HookManager->processEvent('BROADCAST_EDIT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));

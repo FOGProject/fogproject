@@ -1,17 +1,17 @@
 <?php
 /**
-* Class Name: Config
-* Initializes default settings.
-* Most notably the sql connection.
-*/
+ * Class Name: Config
+ * Initializes default settings.
+ * Most notably the sql connection.
+ */
 class Config
 {
 	/**
-	* Calls the required functions to define the settings.
-	* method db_settings()
-	* method svc_setting()
-	* method init_setting()
-	*/
+	 * Calls the required functions to define the settings.
+	 * method db_settings()
+	 * method svc_setting()
+	 * method init_setting()
+	 */
 	public function __construct()
 	{
 		self::db_settings();
@@ -19,10 +19,10 @@ class Config
 		self::init_setting();
 	}
 	/**
-	* db_settings();
-	* Defines the database settings for FOG
-	* @return void
-	*/
+	 * db_settings();
+	 * Defines the database settings for FOG
+	 * @return void
+	 */
 	private static function db_settings()
 	{
 		define('DATABASE_TYPE',		'mysql');	// mysql or oracle
@@ -32,13 +32,13 @@ class Config
 		define('DATABASE_PASSWORD',		'');
 	}
 	/**
-	* svn_setting()
-	* Defines the service settings.
-	* (e.g. FOGMulticastManager,
-	*	    FOGScheduler,
-	*		FOGImageReplicator)
-	* @return void
-	*/
+	 * svn_setting()
+	 * Defines the service settings.
+	 * (e.g. FOGMulticastManager,
+	 *	    FOGScheduler,
+	 *		FOGImageReplicator)
+	 * @return void
+	 */
 	private static function svc_setting()
 	{
 		define( "UDPSENDERPATH", "/usr/local/sbin/udp-sender" );
@@ -61,17 +61,17 @@ class Config
 		define( "SNAPINREPSLEEPTIME", 600 );
 	}
 	/**
-	* init_setting()
-	* Initial values if fresh install are set here
-	* NOTE: These values are only used on initial
-	* installation to set the database values.
-	* If this is an upgrade, they do not change
-	* the values within the Database.
-	* Please use FOG Configuration->FOG Settings
-	* to change these values after everything is
-	* setup.
-	* @return void
-	*/
+	 * init_setting()
+	 * Initial values if fresh install are set here
+	 * NOTE: These values are only used on initial
+	 * installation to set the database values.
+	 * If this is an upgrade, they do not change
+	 * the values within the Database.
+	 * Please use FOG Configuration->FOG Settings
+	 * to change these values after everything is
+	 * setup.
+	 * @return void
+	 */
 	private static function init_setting()
 	{
 		define('TFTP_HOST', '10.0.0.10');

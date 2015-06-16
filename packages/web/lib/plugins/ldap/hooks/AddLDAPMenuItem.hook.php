@@ -2,11 +2,11 @@
 class AddLDAPMenuItem extends Hook {
 	public function __construct() {
 		parent::__construct();
-		$this->name = 'AddLDAPMenuItem';
-		$this->description = 'Add menu item for LDAP';
-		$this->author = 'Fernando Gietz';
-		$this->active = true;
-		$this->node = 'ldap';
+			$this->name = 'AddLDAPMenuItem';
+			$this->description = 'Add menu item for LDAP';
+			$this->author = 'Fernando Gietz';
+			$this->active = true;
+			$this->node = 'ldap';
 	}
 	public function MenuData($arguments) {
 		if (in_array($this->node,$_SESSION['PluginsInstalled']))

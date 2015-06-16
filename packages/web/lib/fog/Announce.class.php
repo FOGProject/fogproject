@@ -8,8 +8,8 @@ class Announce extends FOGBase {
 	private $peer_torrent;
 	private $numwant;
 	/** @function __construct() the constructor for this class.  Sets up when class is called.
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function __construct() {
 		parent::__construct();
 		header('X-Content-Type-Options: nosniff');
@@ -38,9 +38,9 @@ class Announce extends FOGBase {
 		$this->doTheWork();
 	}
 	/** @function checkPort() Checks the port setting.  If in valid returns as invalid.
-	  * Sets up if port is 9999 and the peer_id is -TO0001-XX to use trackon methods.
-	  * @return void
-	  */
+	 * Sets up if port is 9999 and the peer_id is -TO0001-XX to use trackon methods.
+	 * @return void
+	 */
 	private function checkPort() {
 		try {
 			if (!ctype_digit($_REQUEST['port']) || $_REQUEST['port'] < 1 || $_REQUEST['port'] > 65535) throw new Exception('Invalid client port');
@@ -50,36 +50,36 @@ class Announce extends FOGBase {
 		}
 	}
 	/** @function PeerGen() Inserts the new peer or updates if it already exists.
-	  * @return $Peer return the peer.
-	  */
+	 * @return $Peer return the peer.
+	 */
 	private function PeerGen() {
 		$Peer = current($this->getClass('PeerManager')->find(array('hash' => bin2hex($_REQUEST['peer_id']))));
 		if (!$Peer || !$Peer->isValid()) {
 			$Peer = new Peer(array(
-				'hash' => bin2hex($_REQUEST['peer_id']),
-				'agent' => substr($_SERVER['HTTP_USER_AGENT'],0,80),
-				'ip' => ip2long($_SERVER['REMOTE_ADDR']),
-				'key' => sha1($_REQUEST['key']),
-				'port' => intval($_REQUEST['port']),
-			));
+						'hash' => bin2hex($_REQUEST['peer_id']),
+						'agent' => substr($_SERVER['HTTP_USER_AGENT'],0,80),
+						'ip' => ip2long($_SERVER['REMOTE_ADDR']),
+						'key' => sha1($_REQUEST['key']),
+						'port' => intval($_REQUEST['port']),
+					      ));
 		} else {
 			$Peer->set('hash',bin2hex($_REQUEST['peer_id']))
-				 ->set('agent',substr($_SERVER['HTTP_USER_AGENT'],0,80))
-				 ->set('ip',ip2long($_SERVER['REMOTE_ADDR']))
-				 ->set('port',intval($_REQUEST['port']));
+				->set('agent',substr($_SERVER['HTTP_USER_AGENT'],0,80))
+				->set('ip',ip2long($_SERVER['REMOTE_ADDR']))
+				->set('port',intval($_REQUEST['port']));
 		}
 		$Peer->save();
 		return $Peer;
 	}
 	/** @function TorrentGen() Inserts the new torrent or updates if it already exists.
-	  * @return $Torrent returns the torrent.
-	  */
+	 * @return $Torrent returns the torrent.
+	 */
 	private function TorrentGen() {
 		$Torrent = current($this->getClass('TorrentManager')->find(array('hash' => bin2hex($_REQUEST['info_hash']))));
 		if (!$Torrent || !$Torrent->isValid()) {
 			$Torrent = new Torrent(array(
-				'hash' => bin2hex($_REQUEST['info_hash']),
-			));
+						'hash' => bin2hex($_REQUEST['info_hash']),
+						));
 		} else {
 			$Torrent->set('hash',bin2hex($_REQUEST['info_hash']));
 		}
@@ -87,32 +87,32 @@ class Announce extends FOGBase {
 		return $Torrent;
 	}
 	/** @function PeerTorrentGen() Inserts the new peer_torrent or updates if it already exists.
-	  * @return $PeerTorrent returns the PeerTorrent.
-	  */
+	 * @return $PeerTorrent returns the PeerTorrent.
+	 */
 	private function PeerTorrentGen() {
 		$PeerTorrent = current($this->getClass('PeerTorrentManager')->find(array('peerID' => $this->peer->get('id'))));
 		if (!$PeerTorrent || !$PeerTorrent->isValid()) {
 			$PeerTorrent = new PeerTorrent(array(
-				'peerID' => $this->peer->get('id'),
-				'torrentID' => $this->torrent->get('id'),
-				'downloaded' => $this->downloaded,
-				'uploaded' => $this->uploaded,
-				'left' => $this->left,
-				'lastUpdated' => $this->nice_date('now',true)->format('Y-m-d H:i:s'),
-				'stopped' => 0,
-			));
+						'peerID' => $this->peer->get('id'),
+						'torrentID' => $this->torrent->get('id'),
+						'downloaded' => $this->downloaded,
+						'uploaded' => $this->uploaded,
+						'left' => $this->left,
+						'lastUpdated' => $this->nice_date('now',true)->format('Y-m-d H:i:s'),
+						'stopped' => 0,
+						));
 		} else {
 			$PeerTorrent->set('downloaded',$this->downloaded)
-						->set('uploaded',$this->uploaded)
-						->set('left',$this->left)
-						->set('lastUpdated',$this->nice_date('now',true)->format('Y-m-d H:i:s'));
+				->set('uploaded',$this->uploaded)
+				->set('left',$this->left)
+				->set('lastUpdated',$this->nice_date('now',true)->format('Y-m-d H:i:s'));
 		}
 		$PeerTorrent->save();
 		return $PeerTorrent;
 	}
 	/** @function stopTorrent() stops the torrent if the event sent is to stop.
-	  * @return void
-	  */
+	 * @return void
+	 */
 	private function stopTorrent() {
 		try {
 			$PeerTorrent = new PeerTorrent($this->peer_torrent);
@@ -123,8 +123,8 @@ class Announce extends FOGBase {
 		}
 	}
 	/** @function doTheWork() Returns the info to the client.
-	  * @return void
-	  */
+	 * @return void
+	 */
 	private function doTheWork() {
 		try {
 			$seeders = 0;

@@ -62,10 +62,10 @@ abstract class FOGPage extends FOGBase {
 		$this->ajax = $this->isAJAXRequest();
 		$this->childClass = preg_replace('#ManagementPage#', '', preg_replace('#Mobile#','',get_class($this)));
 		$this->menu = array(
-			'search' => $this->foglang['NewSearch'],
-			'list' => sprintf($this->foglang['ListAll'],_($this->childClass.'s')),
-			'add' => sprintf($this->foglang['CreateNew'],_($this->childClass)),
-		);
+				'search' => $this->foglang['NewSearch'],
+				'list' => sprintf($this->foglang['ListAll'],_($this->childClass.'s')),
+				'add' => sprintf($this->foglang['CreateNew'],_($this->childClass)),
+				);
 		$this->formAction = sprintf('%s?%s', $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
 		$this->HookManager->processEvent('SEARCH_PAGES',array('searchPages' => &$this->searchPages));
 		$this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
@@ -75,29 +75,29 @@ abstract class FOGPage extends FOGBase {
 		printf('Index page of: %s%s', get_class($this), (count($args) ? ', Arguments = ' . implode(', ', array_map(create_function('$key, $value', 'return $key." : ".$value;'), array_keys($args), array_values($args))) : ''));
 	}
 	/** set() sets the sent key and value for the page
-	  * @param $key the key to set
-	  * @param $value the value to set
-	  * @return the set class with items set
-	  */
+	 * @param $key the key to set
+	 * @param $value the value to set
+	 * @return the set class with items set
+	 */
 	public function set($key, $value) {
 		$this->$key = $value;
 		return $this;
 	}
 	/** get() gets the data from the sent key
-	  * @return the value of the key
-	  */
+	 * @return the value of the key
+	 */
 	public function get($key) {return $this->$key;}
 	/** __toString() magic function that just returns the data
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function __toString() {$this->process();}
 	/** render() just prints the data
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function render() {print $this->process();}
 	/** process() build the relevant html for the page
-	  * @return false or the result
-	  */
+	 * @return false or the result
+	 */
 	public function process() {
 		try {
 			$defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
@@ -109,48 +109,48 @@ abstract class FOGPage extends FOGBase {
 			if ($this->isAJAXRequest()) {
 				// JSON output
 				$result = @json_encode(array(
-					'data'		=> $this->data,
-					'templates'	=> $this->templates,
-					'headerData' => $this->headerData,
-					'title' => $this->title,
-					'attributes'	=> $this->attributes,
-					'form' => $this->form,
-				));
+							'data'		=> $this->data,
+							'templates'	=> $this->templates,
+							'headerData' => $this->headerData,
+							'title' => $this->title,
+							'attributes'	=> $this->attributes,
+							'form' => $this->form,
+							));
 			} else {
 				$isMobile = preg_match('#/mobile/#',$_SERVER['PHP_SELF']);
 				// HTML output
 				if ($this->searchFormURL) {
 					$result .= sprintf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><input id="%s-search-submit" class="search-submit" type="%s" value="%s"/></form>',
-						$this->searchFormURL,
-						(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
-						sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), $this->foglang['Search']),
-						$isMobile ? 'name="host-search"' : '',
-						(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
-						$isMobile ? 'submit' : 'button',
-						$isMobile ? $this->foglang['Search'] : ''
-					);
+							$this->searchFormURL,
+							(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
+							sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), $this->foglang['Search']),
+							$isMobile ? 'name="host-search"' : '',
+							(substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
+							$isMobile ? 'submit' : 'button',
+							$isMobile ? $this->foglang['Search'] : ''
+							);
 				}
 				if ($this->form) $result .= sprintf($this->form);
 				// Table -> Header Row
 				$result .= sprintf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s"><thead><tr class="header">%s</tr></thead><tbody>',
-					'100%',
-					($this->searchFormURL ? 'search-content' : 'active-tasks'),
-					$this->buildHeaderRow()
-				);
+						'100%',
+						($this->searchFormURL ? 'search-content' : 'active-tasks'),
+						$this->buildHeaderRow()
+						);
 				if (!count($this->data)) {
 					// No data found
 					$result .= sprintf('<tr><td colspan="%s" class="no-active-tasks">%s</td></tr></tbody></table>',
-						count($this->templates),
-						($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : $this->foglang['NoResults'])
-					);
+							count($this->templates),
+							($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : $this->foglang['NoResults'])
+							);
 				} else {
 					foreach ($this->data AS $rowData) {
 						$result .= sprintf('<tr id="%s-%s"%s>%s</tr>',
-							strtolower($this->childClass),
-							$rowData['id'],
-							((++$i % 2) ? ' class="alt1"' : ((!$_REQUEST['sub'] && $defaultScreen == 'list') || in_array($_REQUEST['sub'],array('list','search')) ? ' class="alt2"' : '')),
-							$this->buildRow($rowData)
-						);
+								strtolower($this->childClass),
+								$rowData['id'],
+								((++$i % 2) ? ' class="alt1"' : ((!$_REQUEST['sub'] && $defaultScreen == 'list') || in_array($_REQUEST['sub'],array('list','search')) ? ' class="alt2"' : '')),
+								$this->buildRow($rowData)
+								);
 					}
 				}
 				$result .= '</tbody></table>';
@@ -171,8 +171,8 @@ abstract class FOGPage extends FOGBase {
 		}
 	}
 	/** buildHeaderRow() builds the header row of the tables
-	  * @return the results as parsed
-	  */
+	 * @return the results as parsed
+	 */
 	public function buildHeaderRow() {
 		unset($this->atts);
 		$this->setAtts();
@@ -181,21 +181,21 @@ abstract class FOGPage extends FOGBase {
 			foreach ($this->headerData AS $i => $content) {
 				// Push into results array
 				$result .= sprintf(
-					'<%s%s>%s</%s>',
-					$this->wrapper,
-					($this->atts[$i] ? $this->atts[$i] : ''),
-					$content,
-					$this->wrapper
-				);
+						'<%s%s>%s</%s>',
+						$this->wrapper,
+						($this->atts[$i] ? $this->atts[$i] : ''),
+						$content,
+						$this->wrapper
+						);
 			}
 			// Return result
 			return $result;
 		}
 	}
 	/** replaceNeeds() sets the template data to replace
-	  * @param $data the data to enact upon
-	  * @return array of the find / replace items.
-	  */
+	 * @param $data the data to enact upon
+	 * @return array of the find / replace items.
+	 */
 	private function replaceNeeds($data) {
 		unset($this->dataFind,$this->dataReplace);
 		$urlvars = array('node' => $GLOBALS['node'],'sub' => $GLOBALS['sub'],'tab' => $GLOBALS['tab']);
@@ -205,28 +205,28 @@ abstract class FOGPage extends FOGBase {
 		}
 	}
 	/** buildRow() builds the row of the tables
-	  * @param $data the data to build upon
-	  * @return the results as parsed
-	  */
+	 * @param $data the data to build upon
+	 * @return the results as parsed
+	 */
 	public function buildRow($data) {
 		$this->replaceNeeds($data);
 		// Loop template data
 		foreach ($this->templates AS $i => $template) {
 			// Replace variables in template with data -> wrap in $this->wrapper -> push into $result
 			$result .= sprintf(
-				'<%s%s>%s</%s>',
-				$this->wrapper,
-				($this->atts[$i] ? $this->atts[$i] : ''),
-				preg_replace($this->dataFind,$this->dataReplace,$template),
-				$this->wrapper
-			);
+					'<%s%s>%s</%s>',
+					$this->wrapper,
+					($this->atts[$i] ? $this->atts[$i] : ''),
+					preg_replace($this->dataFind,$this->dataReplace,$template),
+					$this->wrapper
+					);
 		}
 		// Return result
 		return $result;
 	}
 	/** deploy() build the tasking output
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function deploy() {
 		$Data = $this->obj;
 		$TaskType = new TaskType(($_REQUEST['type'] ? $_REQUEST['type'] : 1));
@@ -270,42 +270,42 @@ abstract class FOGPage extends FOGBase {
 		print '</div></div><h2>'._('Hosts in Task').'</h2>';
 		unset($this->headerData);
 		$this->attributes = array(
-			array(),
-			array(),
-			array(),
-		);
+				array(),
+				array(),
+				array(),
+				);
 		$this->templates = array(
-			'<a href="${host_link}" title="${host_title}">${host_name}</a>',
-			'${host_mac}',
-			'<a href="${image_link}" title="${image_title}">${image_name}</a>',
-		);
+				'<a href="${host_link}" title="${host_title}">${host_name}</a>',
+				'${host_mac}',
+				'<a href="${image_link}" title="${image_title}">${image_name}</a>',
+				);
 		if ($Data instanceof Host) {
 			$this->data[] = array(
-				'host_link' => $_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
-				'image_link' => $_SERVER['PHP_SELF'].'?node=image&sub=edit&id=${image_id}',
-				'host_id' => $Data->get('id'),
-				'image_id' => $Data->getImage()->get('id'),
-				'host_name' => $Data->get('name'),
-				'host_mac' => $Data->get('mac'),
-				'image_name' => $Data->getImage()->get('name'),
-				'host_title' => _('Edit Host'),
-				'image_title' => _('Edit Image'),
-			);
+					'host_link' => $_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
+					'image_link' => $_SERVER['PHP_SELF'].'?node=image&sub=edit&id=${image_id}',
+					'host_id' => $Data->get('id'),
+					'image_id' => $Data->getImage()->get('id'),
+					'host_name' => $Data->get('name'),
+					'host_mac' => $Data->get('mac'),
+					'image_name' => $Data->getImage()->get('name'),
+					'host_title' => _('Edit Host'),
+					'image_title' => _('Edit Image'),
+					);
 		}
 		if ($Data instanceof Group) {
 			foreach($Data->get('hosts') AS $Host) {
 				if ($Host && $Host->isValid()) {
 					$this->data[] = array(
-						'host_link' => $_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
-						'image_link' => $_SERVER['PHP_SELF'].'?node=image&sub=edit&id=${image_id}',
-						'host_id' => $Host->get('id'),
-						'image_id' => $Host->getImage()->get('id'),
-						'host_name' => $Host->get('name'),
-						'host_mac' => $Host->get('mac'),
-						'image_name' => $Host->getImage()->get('name'),
-						'host_title' => _('Edit Host'),
-						'image_title' => _('Edit Image'),
-					);
+							'host_link' => $_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
+							'image_link' => $_SERVER['PHP_SELF'].'?node=image&sub=edit&id=${image_id}',
+							'host_id' => $Host->get('id'),
+							'image_id' => $Host->getImage()->get('id'),
+							'host_name' => $Host->get('name'),
+							'host_mac' => $Host->get('mac'),
+							'image_name' => $Host->getImage()->get('name'),
+							'host_title' => _('Edit Host'),
+							'image_title' => _('Edit Image'),
+							);
 				}
 			}
 		}
@@ -317,8 +317,8 @@ abstract class FOGPage extends FOGBase {
 		print '</form>';
 	}
 	/** deploy_post() actually create the deployment task
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function deploy_post() {
 		$Data = $this->obj;
 		$TaskType = new TaskType($_REQUEST['type']);
@@ -369,32 +369,32 @@ abstract class FOGPage extends FOGBase {
 					} else if ($_REQUEST['scheduleType'] == 'single') {
 						if ($scheduleDeployTime < $this->nice_date()) throw new Exception(sprintf('%s<br>%s: %s',_('Scheduled date is in the past'),_('Date'),$scheduleDeployTime->format('Y/d/m H:i')));
 						$ScheduledTask = new ScheduledTask(array(
-							'taskType' => $TaskType->get('id'),
-							'name' => $taskName,
-							'hostID' => $Data->get('id'),
-							'shutdown' => $enableShutdown,
-							'other2' => $enableSnapins,
-							'isGroupTask' => $Data instanceof Group,
-							'type' => 'S',
-							'scheduleTime' => $scheduleDeployTime->getTimestamp(),
-							'other3' => $this->FOGUser->get('name'),
-						));
+									'taskType' => $TaskType->get('id'),
+									'name' => $taskName,
+									'hostID' => $Data->get('id'),
+									'shutdown' => $enableShutdown,
+									'other2' => $enableSnapins,
+									'isGroupTask' => $Data instanceof Group,
+									'type' => 'S',
+									'scheduleTime' => $scheduleDeployTime->getTimestamp(),
+									'other3' => $this->FOGUser->get('name'),
+									));
 					} else if ($_REQUEST['scheduleType'] == 'cron') {
 						$ScheduledTask = new ScheduledTask(array(
-							'taskType' => $TaskType->get('id'),
-							'name' => $taskName,
-							'hostID' => $Data->get('id'),
-							'shutdown' => $enableShutdown,
-							'other2' => $enableSnapins,
-							'isGroupTask' => $Data instanceof Group,
-							'type' => 'C',
-							'other3' => $this->FOGUser->get('name'),
-							'minute' => $_REQUEST['scheduleCronMin'],
-							'hour' => $_REQUEST['scheduleCronHour'],
-							'dayOfMonth' => $_REQUEST['scheduleCronDOM'],
-							'month' => $_REQUEST['scheduleCronMonth'],
-							'dayOfWeek' => $_REQUEST['scheduleCronDOW'],
-						));
+									'taskType' => $TaskType->get('id'),
+									'name' => $taskName,
+									'hostID' => $Data->get('id'),
+									'shutdown' => $enableShutdown,
+									'other2' => $enableSnapins,
+									'isGroupTask' => $Data instanceof Group,
+									'type' => 'C',
+									'other3' => $this->FOGUser->get('name'),
+									'minute' => $_REQUEST['scheduleCronMin'],
+									'hour' => $_REQUEST['scheduleCronHour'],
+									'dayOfMonth' => $_REQUEST['scheduleCronDOM'],
+									'month' => $_REQUEST['scheduleCronMonth'],
+									'dayOfWeek' => $_REQUEST['scheduleCronDOW'],
+									));
 					}
 					if ($ScheduledTask && $ScheduledTask->save()) {
 						if ($Data instanceof Group) {
@@ -418,25 +418,25 @@ abstract class FOGPage extends FOGBase {
 		// Success
 		if (count($success)) {
 			printf('<div class="task-start-ok"><p>%s</p><p>%s%s%s</p></div>',
-				sprintf(_('Successfully created tasks for deployment to the following Hosts'),($Data instanceof Group ? $Host->getImage()->get('name') : $Data->getImage()->get('name'))),
-				($_REQUEST['scheduleType'] == 'cron' ? sprintf('%s: %s',_('Cron Schedule'),implode(' ',array($_REQUEST['scheduleCronMin'],$_REQUEST['scheduleCronHour'],$_REQUEST['scheduleCronDOM'],$_REQUEST['scheduleCronMonth'],$_REQUEST['scheduleCronDOW']))) : ''),
-				($_REQUEST['scheduleType'] == 'single' ? sprintf('%s: %s',_('Scheduled to start at'),$scheduleDeployTime->format('Y/m/d H:i')) : ''),
-				(count($success) ? sprintf('<ul>%s</ul>',implode('',$success)) : '')
-			);
+					sprintf(_('Successfully created tasks for deployment to the following Hosts'),($Data instanceof Group ? $Host->getImage()->get('name') : $Data->getImage()->get('name'))),
+					($_REQUEST['scheduleType'] == 'cron' ? sprintf('%s: %s',_('Cron Schedule'),implode(' ',array($_REQUEST['scheduleCronMin'],$_REQUEST['scheduleCronHour'],$_REQUEST['scheduleCronDOM'],$_REQUEST['scheduleCronMonth'],$_REQUEST['scheduleCronDOW']))) : ''),
+					($_REQUEST['scheduleType'] == 'single' ? sprintf('%s: %s',_('Scheduled to start at'),$scheduleDeployTime->format('Y/m/d H:i')) : ''),
+					(count($success) ? sprintf('<ul>%s</ul>',implode('',$success)) : '')
+			      );
 		}
 	}
 	/** deletemulti() just presents the delete confirmation screen
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function deletemulti() {
 		$this->title = _($this->childClass.'s to remove');
 		unset($this->headerData);
 		$this->attributes = array(
-			array(),
-		);
+				array(),
+				);
 		$this->templates = array(
-			'<a href="?node='.$this->node.'&sub=edit&id=${id}">${name}</a>',
-		);
+				'<a href="?node='.$this->node.'&sub=edit&id=${id}">${name}</a>',
+				);
 		$this->additional = array();
 		$ids = explode(',',$_REQUEST[strtolower($this->childClass).'IDArray']);
 		$findWhere = array('id' => $ids);
@@ -446,9 +446,9 @@ abstract class FOGPage extends FOGBase {
 		$Objs = $this->getClass($this->childClass.'Manager')->find(array('id' => $_SESSION['delitems'][$this->node]));
 		foreach ((array)$Objs AS $Obj) {
 			$this->data[] = array(
-				'id' => $Obj->get('id'),
-				'name' => $Obj->get('name'),
-			);
+					'id' => $Obj->get('id'),
+					'name' => $Obj->get('name'),
+					);
 			array_push($this->additional,'<p>'.$Obj->get('name').'</p>');
 		}
 		if (count($_SESSION['delitems'])) {
@@ -465,8 +465,8 @@ abstract class FOGPage extends FOGBase {
 		}
 	}
 	/** deleteconf() deletes the items after being confirmed.
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function deleteconf() {
 		foreach($_SESSION['delitems'][$this->node] AS $id) {
 			$Obj = $this->getClass($this->childClass,$id);
@@ -479,19 +479,19 @@ abstract class FOGPage extends FOGBase {
 		$this->FOGCore->redirect('?node='.$this->node);
 	}
 	/** basictasksOptions() builds the tasks list
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function basictasksOptions() {
 		$Data = $this->obj;
 		unset($this->headerData);
 		$this->templates = array(
-			'<a href="?node=${node}&sub=${sub}&id=${'.$this->node.'_id}${task_type}"><img src="'.$this->imagelink.'${task_icon}" /><br/>${task_name}</a>',
-			'${task_desc}',
-		);
+				'<a href="?node=${node}&sub=${sub}&id=${'.$this->node.'_id}${task_type}"><img src="'.$this->imagelink.'${task_icon}" /><br/>${task_name}</a>',
+				'${task_desc}',
+				);
 		$this->attributes = array(
-			array('class' => 'l'),
-			array('style' => 'padding-left: 20px'),
-		);
+				array('class' => 'l'),
+				array('style' => 'padding-left: 20px'),
+				);
 		printf("<!-- Basic Tasks -->");
 		printf("%s",'<div id="'.$this->node.'-tasks" class="organic-tabs-hidden">');
 		printf("<h2>%s</h2>",_($this->childClass.' Tasks'));
@@ -501,25 +501,25 @@ abstract class FOGPage extends FOGBase {
 		foreach((array)$TaskTypes AS $TaskType) {
 			if ($TaskType && $TaskType->isValid()) {
 				$this->data[] = array(
-					'node' => $this->node,
-					'sub' => 'deploy',
-					$this->node.'_id' => $Data->get('id'),
-					'task_type' => '&type='.$TaskType->get('id'),
-					'task_icon' => $TaskType->get('icon'),
-					'task_name' => $TaskType->get('name'),
-					'task_desc' => $TaskType->get('description'),
-				);
+						'node' => $this->node,
+						'sub' => 'deploy',
+						$this->node.'_id' => $Data->get('id'),
+						'task_type' => '&type='.$TaskType->get('id'),
+						'task_icon' => $TaskType->get('icon'),
+						'task_name' => $TaskType->get('name'),
+						'task_desc' => $TaskType->get('description'),
+						);
 			}
 		}
 		$this->data[] = array(
-			'node' => $this->node,
-			'sub' => 'edit',
-			$this->node.'_id' => $Data->get('id'),
-			'task_type' => '#'.$this->node.'-tasks" class="advanced-tasks-link',
-			'task_icon' => 'host-advanced.png',
-			'task_name' => _('Advanced'),
-			'task_desc' => _('View advanced tasks for this').' '._($this->node),
-		);
+				'node' => $this->node,
+				'sub' => 'edit',
+				$this->node.'_id' => $Data->get('id'),
+				'task_type' => '#'.$this->node.'-tasks" class="advanced-tasks-link',
+				'task_icon' => 'host-advanced.png',
+				'task_name' => _('Advanced'),
+				'task_desc' => _('View advanced tasks for this').' '._($this->node),
+				);
 		// Hook
 		$this->HookManager->processEvent(strtoupper($this->childClass).'_EDIT_TASKS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' &$this->attributes));
 		// Output
@@ -533,14 +533,14 @@ abstract class FOGPage extends FOGBase {
 		foreach((array)$TaskTypes AS $TaskType) {
 			if ($TaskType && $TaskType->isValid()) {
 				$this->data[] = array(
-					'node' => $this->node,
-					'sub' => 'deploy',
-					$this->node.'_id' => $Data->get('id'),
-					'task_type' => '&type='.$TaskType->get('id'),
-					'task_icon' => $TaskType->get('icon'),
-					'task_name' => $TaskType->get('name'),
-					'task_desc' => $TaskType->get('description'),
-				);
+						'node' => $this->node,
+						'sub' => 'deploy',
+						$this->node.'_id' => $Data->get('id'),
+						'task_type' => '&type='.$TaskType->get('id'),
+						'task_icon' => $TaskType->get('icon'),
+						'task_name' => $TaskType->get('name'),
+						'task_desc' => $TaskType->get('description'),
+						);
 			}
 		}
 		// Hook
@@ -550,9 +550,9 @@ abstract class FOGPage extends FOGBase {
 		print '</div></div>';
 		unset($this->data);
 	}
-	/** adFieldsToDisplay() display the Active Directory stuff 
-	  * @return void
-	  */
+	/** adFieldsToDisplay() display the Active Directory stuff
+	 * @return void
+	 */
 	public function adFieldsToDisplay() {
 		$Data = $this->obj;
 		$OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
@@ -569,36 +569,36 @@ abstract class FOGPage extends FOGBase {
 		} else $OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" value="${ad_ou}" autocomplete="off" />';
 		printf("<!-- Active Directory -->");
 		$this->templates = array(
-			'${field}',
-			'${input}',
-		);
+				'${field}',
+				'${input}',
+				);
 		$this->attributes = array(
-			array(),
-			array(),
-		);
+				array(),
+				array(),
+				);
 		$fields = array(
-			'<input style="display:none" type="text" name="fakeusernameremembered"/>' => '<input style="display:none" type="password" name="fakepasswordremembered"/>',
-			_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain"${domainon} />',
-			_('Domain name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="${host_dom}" autocomplete="off" />',
-			_('Organizational Unit').'<br /><span class="lightColor">('._('Blank for default').')</span>' => '${host_ou}',
-			_('Domain Username') => '<input id="adUsername" class="smaller" type="text"name="domainuser" value="${host_aduser}" autocomplete="off" />',
-			_('Domain Password').'<br />('._('Must be encrypted').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${host_adpass}" autocomplete="off" />',
-			'<input type="hidden" name="updatead" value="1" />' => '<input type="submit"value="'._('Update').'" />',
-		);
+				'<input style="display:none" type="text" name="fakeusernameremembered"/>' => '<input style="display:none" type="password" name="fakepasswordremembered"/>',
+				_('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain"${domainon} />',
+				_('Domain name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="${host_dom}" autocomplete="off" />',
+				_('Organizational Unit').'<br /><span class="lightColor">('._('Blank for default').')</span>' => '${host_ou}',
+				_('Domain Username') => '<input id="adUsername" class="smaller" type="text"name="domainuser" value="${host_aduser}" autocomplete="off" />',
+				_('Domain Password').'<br />('._('Must be encrypted').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${host_adpass}" autocomplete="off" />',
+				'<input type="hidden" name="updatead" value="1" />' => '<input type="submit"value="'._('Update').'" />',
+			       );
 		print '<div id="'.$this->node.'-active-directory" class="organic-tabs-hidden">';
 		printf("%s",'<form method="post" action="'.$this->formAction.'&tab='.$this->node.'-active-directory">');
 		printf('<h2>%s<div id="adClear"></div></h2>',_('Active Directory'));
 		foreach((array)$fields AS $field => $input) {
 			$this->data[] = array(
-				'field' => $field,
-				'input' => $input,
-				'domainon' => $Data instanceof Host && $Data->get('useAD') ? 'checked' : '',
-				'host_dom' => $Data instanceof Host ? $Data->get('ADDomain') : $_REQUEST['domainname'],
-				'host_ou' => $OUOptions,
-				'ad_ou' => $Data instanceof Host ? $Data->get('ADOU') : $_REQUEST['ou'],
-				'host_aduser' => $Data instanceof Host ? $Data->get('ADUser') : $_REQUEST['domainuser'],
-				'host_adpass' => $Data instanceof Host ? $Data->get('ADPass') : $_REQUEST['domainpassword'],
-			);
+					'field' => $field,
+					'input' => $input,
+					'domainon' => $Data instanceof Host && $Data->get('useAD') ? 'checked' : '',
+					'host_dom' => $Data instanceof Host ? $Data->get('ADDomain') : $_REQUEST['domainname'],
+					'host_ou' => $OUOptions,
+					'ad_ou' => $Data instanceof Host ? $Data->get('ADOU') : $_REQUEST['ou'],
+					'host_aduser' => $Data instanceof Host ? $Data->get('ADUser') : $_REQUEST['domainuser'],
+					'host_adpass' => $Data instanceof Host ? $Data->get('ADPass') : $_REQUEST['domainpassword'],
+					);
 		}
 		// Hook
 		$this->HookManager->processEvent(strtoupper($this->childClass).'_EDIT_AD', array('headerData' => &$this->headerData,'data' => &$this->data,'attributes' => &$this->attributes,'templates' => &$this->templates));
@@ -608,20 +608,20 @@ abstract class FOGPage extends FOGBase {
 		print '</form></div>';
 	}
 	/** adInfo() Returns AD Information to host/group
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function adInfo() {
 		$Data = array(
-			'domainname' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_DOMAINNAME'),
-			'ou' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'),
-			'domainuser' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_USER'),
-			'domainpass' => $this->FOGCore->getSetting('FOG_NEW_CLIENT') ? $this->encryptpw($this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD')) : $this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY'),
-		);
+				'domainname' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_DOMAINNAME'),
+				'ou' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'),
+				'domainuser' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_USER'),
+				'domainpass' => $this->FOGCore->getSetting('FOG_NEW_CLIENT') ? $this->encryptpw($this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD')) : $this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY'),
+			     );
 		if ($this->isAJAXRequest()) print json_encode($Data);
 	}
 	/** getPing() Performs the ping stuff.
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function getPing() {
 		try {
 			$ping = $_REQUEST['ping'];
@@ -644,8 +644,8 @@ abstract class FOGPage extends FOGBase {
 		if ($this->isAJAXRequest()) print $SendMe;
 	}
 	/** kernelfetch() the kernel fetcher stuff.
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function kernelfetch() {
 		try {
 			if (!$_SESSION['AllowAJAXTasks']) throw new Exception(_('FOG Session Invalid'));
@@ -662,8 +662,8 @@ abstract class FOGPage extends FOGBase {
 					$tmpfile = $_SESSION['tmp-kernel-file'];
 					unset($_SESSION['dest-kernel-file'],$_SESSION['tmp-kernel-file'],$_SESSION['dl-kernel-file']);
 					$this->FOGFTP->set('host',$this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_TFTP_HOST')))
-								 ->set('username',trim($this->FOGCore->getSetting('FOG_TFTP_FTP_USERNAME')))
-								 ->set('password',trim($this->FOGCore->getSetting('FOG_TFTP_FTP_PASSWORD')));
+						->set('username',trim($this->FOGCore->getSetting('FOG_TFTP_FTP_USERNAME')))
+						->set('password',trim($this->FOGCore->getSetting('FOG_TFTP_FTP_PASSWORD')));
 					if (!$this->FOGFTP->connect()) throw new Exception(_('Error: Unable to connect to tftp server'));
 					$orig = rtrim($this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/');
 					$backuppath = $orig.'/backup/';
@@ -683,8 +683,8 @@ abstract class FOGPage extends FOGBase {
 		print $SendME;
 	}
 	/** loginInfo() login information getter
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function loginInfo() {
 		$data = $this->FOGURLRequests->process(array('http://fogproject.org/globalusers','http://fogproject.org/version/version.php'),'GET');
 		if (!$data[0]) $data['error-sites'] = _('Error contacting server');
@@ -694,8 +694,8 @@ abstract class FOGPage extends FOGBase {
 		print json_encode($data);
 	}
 	/** getmacman() get the mac manager information
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function getmacman() {
 		try {
 			if (!$_SESSION['AllowAJAXTasks']) throw new Exception(_('FOG Session Invalid'));
@@ -710,8 +710,8 @@ abstract class FOGPage extends FOGBase {
 		print $Data;
 	}
 	/** delete() Delete items from their respective pages.
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function delete() {
 		// Find
 		$Data = $this->obj;
@@ -721,27 +721,27 @@ abstract class FOGPage extends FOGBase {
 		unset($this->headerData);
 		// Attributes
 		$this->attributes = array(
-			array(),
-			array(),
-		);
+				array(),
+				array(),
+				);
 		// Templates
 		$this->templates = array(
-			'${field}',
-			'${input}',
-		);
+				'${field}',
+				'${input}',
+				);
 		$fields = array(
-			sprintf('%s <b>%s</b>',_('Please confirm you want to delete'),addslashes($Data->get('name'))) => '&nbsp;',
-			($Data instanceof Group ? _('Delete all hosts within group') : null) => ($Data instanceof Group ? '<input type="checkbox" name="massDelHosts" value="1" />' : null),
-			($Data instanceof Image || $Data instanceof Snapin ? _('Delete file data') : null) => ($Data instanceof Image || $Data instanceof Snapin ? '<input type="checkbox" name="andFile" id="andFile" value="1" />' : null),
-			'&nbsp;' => '<input type="submit" value="${label}" />',
-		);
+				sprintf('%s <b>%s</b>',_('Please confirm you want to delete'),addslashes($Data->get('name'))) => '&nbsp;',
+				($Data instanceof Group ? _('Delete all hosts within group') : null) => ($Data instanceof Group ? '<input type="checkbox" name="massDelHosts" value="1" />' : null),
+				($Data instanceof Image || $Data instanceof Snapin ? _('Delete file data') : null) => ($Data instanceof Image || $Data instanceof Snapin ? '<input type="checkbox" name="andFile" id="andFile" value="1" />' : null),
+				'&nbsp;' => '<input type="submit" value="${label}" />',
+			       );
 		$fields = array_filter($fields);
 		foreach($fields AS $field => $input) {
 			$this->data[] = array(
-				'field' => $field,
-				'input' => $input,
-				'label' => addslashes($this->title),
-			);
+					'field' => $field,
+					'input' => $input,
+					'label' => addslashes($this->title),
+					);
 		}
 		// Hook
 		$this->HookManager->processEvent(strtoupper($this->childClass).'_DEL', array($this->childClass => &$Data));
@@ -750,16 +750,16 @@ abstract class FOGPage extends FOGBase {
 		printf('</form>');
 	}
 	/** configure() send the client configuration information
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function configure() {
 		$Datatosend = "#!ok\n#sleep={$this->FOGCore->getSetting(FOG_SERVICE_CHECKIN_TIME)}\n#force={$this->FOGCore->getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={$this->FOGCore->getSetting(FOG_CLIENT_MAXSIZE)}\n#promptTime={$this->FOGCore->getSetting(FOG_GRACE_TIMEOUT)}";
 		print $Datatosend;
 		exit;
 	}
 	/** authorize() authorize the client information
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function authorize() {
 		try {
 			// Get the host or error out
@@ -781,7 +781,7 @@ abstract class FOGPage extends FOGBase {
 			print '#!en='.$this->certEncrypt("#!ok\n#token=".$Host->get('sec_tok'),$Host);
 		}
 		catch (Exception $e) {
-				print  $e->getMessage();
+			print  $e->getMessage();
 		}
 		exit;
 	}
@@ -789,8 +789,8 @@ abstract class FOGPage extends FOGBase {
 		$this->getClass('Host',$_REQUEST['id'])->set('pub_key',null)->set('sec_tok',null)->save();
 	}
 	/** delete_post() actually delete the items
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function delete_post() {
 		// Find
 		$Data = $this->obj;
@@ -835,8 +835,8 @@ abstract class FOGPage extends FOGBase {
 		}
 	}
 	/** search() the search methods
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function search() {
 		if ($this->node == 'task' && $_REQUEST['sub'] != 'search') $this->FOGCore->redirect(sprintf('?node=%s&sub=active',$this->node));
 		// Set Title
@@ -850,8 +850,8 @@ abstract class FOGPage extends FOGBase {
 		$this->render();
 	}
 	/** membership() the membership of specific class
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function membership() {
 		$Obj = $this->childClass;
 		// Find Object
@@ -863,37 +863,37 @@ abstract class FOGPage extends FOGBase {
 			print "\n\t\t\t".'<div id="group-membership">';
 			// Create the Header data:
 			$this->headerData = array(
-				'',
-				'<input type="checkbox" name="toggle-checkboxgroup1" class="toggle-checkbox1" />',
-				_('Host Name'),
-				_('Image'),
-			);
+					'',
+					'<input type="checkbox" name="toggle-checkboxgroup1" class="toggle-checkbox1" />',
+					_('Host Name'),
+					_('Image'),
+					);
 			// Create the template data:
 			$this->templates = array(
-				'<span class="icon fa fa-question fa-1x hand" title="${host_desc}"></span>',
-				'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
-				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-				'${image_name}',
-			);
+					'<span class="icon fa fa-question fa-1x hand" title="${host_desc}"></span>',
+					'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
+					'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+					'${image_name}',
+					);
 			// Create the attributes to build the table info:
 			$this->attributes = array(
-				array('width' => 22, 'id' => 'host-${host_name}'),
-				array('class' => 'c', 'width' => 16),
-				array(),
-				array(),
-			);
+					array('width' => 22, 'id' => 'host-${host_name}'),
+					array('class' => 'c', 'width' => 16),
+					array(),
+					array(),
+					);
 			// All hosts not in this group.
 			foreach((array)$Group->get('hostsnotinme') AS $Host) {
 				if ($Host && $Host->isValid() && !$Host->get('pending')) {
 					$this->data[] = array(
-						'host_id' => $Host->get('id'),
-						'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-						'host_name' => $Host->get('name'),
-						'host_mac' => $Host->get('mac')->__toString(),
-						'host_desc' => $Host->get('description'),
-						'image_name' => $Host->getImage()->get('name'),
-						'check_num' => '1'
-					);
+							'host_id' => $Host->get('id'),
+							'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+							'host_name' => $Host->get('name'),
+							'host_mac' => $Host->get('mac')->__toString(),
+							'host_desc' => $Host->get('description'),
+							'image_name' => $Host->getImage()->get('name'),
+							'check_num' => '1'
+							);
 				}
 			}
 			$GroupDataExists = false;
@@ -913,35 +913,35 @@ abstract class FOGPage extends FOGBase {
 			}
 			unset($this->data);
 			$this->headerData = array(
-				'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-				_('Hostname'),
-				_('Deployed'),
-				_('Image'),
-			);
+					'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+					_('Hostname'),
+					_('Deployed'),
+					_('Image'),
+					);
 			$this->attributes = array(
-				array('class' => 'c','width' => 16),
-				array(),
-				array(),
-				array(),
-			);
+					array('class' => 'c','width' => 16),
+					array(),
+					array(),
+					array(),
+					);
 			$this->templates = array(
-				'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
-				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-				'<small>${deployed}</small>',
-				'<small>${image_name}</small>',
-			);
+					'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
+					'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+					'<small>${deployed}</small>',
+					'<small>${image_name}</small>',
+					);
 			$imageSelector = $this->getClass('ImageManager')->buildSelectBox('','','','',true);
 			foreach ((array)$Group->get('hosts') AS $Host) {
 				if ($Host && $Host->isValid()) {
 					$this->data[] = array(
-						'host_id'   => $Host->get('id'),
-						'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-						'host_name' => $Host->get('name'),
-						'host_mac'  => $Host->get('mac'),
-						'image_name' => $imageSelector,
-						'selected_item'.$Host->get('imageID') => 'selected',
-						'selector_name' => $Host->get('name').'_'.$Host->get('id'),
-					);
+							'host_id'   => $Host->get('id'),
+							'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+							'host_name' => $Host->get('name'),
+							'host_mac'  => $Host->get('mac'),
+							'image_name' => $imageSelector,
+							'selected_item'.$Host->get('imageID') => 'selected',
+							'selector_name' => $Host->get('name').'_'.$Host->get('id'),
+							);
 				}
 			}
 			// Hook
@@ -960,40 +960,40 @@ abstract class FOGPage extends FOGBase {
 			print '<div id="image-host">';
 			// Create the header data:
 			$this->headerData = array(
-				'',
-				'<input type="checkbox" name="toggle-checkboximage1" class="toggle-checkbox1" />',
-				_('Host Name'),
-				_('Last Deployed'),
-				_('Registered'),
-			);
+					'',
+					'<input type="checkbox" name="toggle-checkboximage1" class="toggle-checkbox1" />',
+					_('Host Name'),
+					_('Last Deployed'),
+					_('Registered'),
+					);
 			// Create the template data:
 			$this->templates = array(
-				'<i class="icon fa fa-question" title="${host_desc}"></i>',
-				'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
-				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-				'${deployed}',
-				'${host_reg}',
-			);
+					'<i class="icon fa fa-question" title="${host_desc}"></i>',
+					'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
+					'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+					'${deployed}',
+					'${host_reg}',
+					);
 			// Create the attributes data:
 			$this->attributes = array(
-				array('width' => 22, 'id' => 'host-${host_name}'),
-				array('class' => 'c', 'width' => 16),
-				array(),
-				array(),
-				array(),
-			);
+					array('width' => 22, 'id' => 'host-${host_name}'),
+					array('class' => 'c', 'width' => 16),
+					array(),
+					array(),
+					array(),
+					);
 			// All hosts not with this set as the image
 			foreach((array)$Image->get('hostsnotinme') AS $Host) {
 				if ($Host && $Host->isValid()) {
 					$this->data[] = array(
-						'host_id' => $Host->get('id'),
-						'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-						'host_name' => $Host->get('name'),
-						'host_mac' => $Host->get('mac'),
-						'host_desc' => $Host->get('description'),
-						'check_num' => '1',
-						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
-					);
+							'host_id' => $Host->get('id'),
+							'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+							'host_name' => $Host->get('name'),
+							'host_mac' => $Host->get('mac'),
+							'host_desc' => $Host->get('description'),
+							'check_num' => '1',
+							'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+							);
 				}
 			}
 			$ImageDataExists = false;
@@ -1014,30 +1014,30 @@ abstract class FOGPage extends FOGBase {
 			unset($this->data);
 			// Create the header data:
 			$this->headerData = array(
-				'',
-				'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-				_('Host Name'),
-				_('Last Deployed'),
-				_('Registered'),
-			);
+					'',
+					'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+					_('Host Name'),
+					_('Last Deployed'),
+					_('Registered'),
+					);
 			// Create the template data:
 			$this->templates = array(
-				'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
-				'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
-				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-				'${deployed}',
-				'${host_reg}',
-			);
+					'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
+					'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
+					'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+					'${deployed}',
+					'${host_reg}',
+					);
 			foreach((array)$Image->get('hosts') AS $Host) {
 				if ($Host && $Host->isValid()) {
 					$this->data[] = array(
-						'host_id' => $Host->get('id'),
-						'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-						'host_name' => $Host->get('name'),
-						'host_mac' => $Host->get('mac')->__toString(),
-						'host_desc' => $Host->get('description'),
-						'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
-					);
+							'host_id' => $Host->get('id'),
+							'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+							'host_name' => $Host->get('name'),
+							'host_mac' => $Host->get('mac')->__toString(),
+							'host_desc' => $Host->get('description'),
+							'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
+							);
 				}
 			}
 			// Hook
@@ -1052,37 +1052,37 @@ abstract class FOGPage extends FOGBase {
 			print '<div id="printer-host">';
 			// Create the header data:
 			$this->headerData = array(
-				'',
-				'<input type="checkbox" name="toggle-checkboxprinter1" class="toggle-checkbox1" />',
-				_('Host Name'),
-				_('Image'),
-			);
+					'',
+					'<input type="checkbox" name="toggle-checkboxprinter1" class="toggle-checkbox1" />',
+					_('Host Name'),
+					_('Image'),
+					);
 			// Create the template data:
 			$this->templates = array(
-				'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
-				'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
-				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-				'${image_name}',
-			);
+					'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
+					'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
+					'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+					'${image_name}',
+					);
 			// All hosts not with this set as the image
 			$this->attributes = array(
-				array('width' => 22, 'id' => 'host-${host_name}'),
-				array('class' => 'c', 'width' => 16),
-				array(),
-				array(),
-			);
+					array('width' => 22, 'id' => 'host-${host_name}'),
+					array('class' => 'c', 'width' => 16),
+					array(),
+					array(),
+					);
 			// All hosts not with this printer
 			foreach($Printer->get('hostsnotinme') AS $Host) {
 				if ($Host && $Host->isValid()) {
 					$this->data[] = array(
-						'host_id' => $Host->get('id'),
-						'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : 'No Data',
-						'host_name' => $Host->get('name'),
-						'host_mac' => $Host->get('mac')->__toString(),
-						'host_desc' => $Host->get('description'),
-						'image_name' => $Host->getImage()->get('name'),
-						'check_num' => '1',
-					);
+							'host_id' => $Host->get('id'),
+							'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : 'No Data',
+							'host_name' => $Host->get('name'),
+							'host_mac' => $Host->get('mac')->__toString(),
+							'host_desc' => $Host->get('description'),
+							'image_name' => $Host->getImage()->get('name'),
+							'check_num' => '1',
+							);
 				}
 			}
 			$PrinterDataExists = false;
@@ -1102,39 +1102,39 @@ abstract class FOGPage extends FOGBase {
 			}
 			unset($this->data);
 			$this->headerData = array(
-				'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-				_('Hostname'),
-				_('Deployed'),
-				_('Image'),
-				'<input type="checkbox" name="toggle-alldef" class="toggle-actiondef" />&nbsp;'._('Is Default'),
-			);
+					'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+					_('Hostname'),
+					_('Deployed'),
+					_('Image'),
+					'<input type="checkbox" name="toggle-alldef" class="toggle-actiondef" />&nbsp;'._('Is Default'),
+					);
 			$this->attributes = array(
-				array('class' => 'c','width' => 16),
-				array(),
-				array(),
-				array(),
-				array('class' => 'l'),
-			);
+					array('class' => 'c','width' => 16),
+					array(),
+					array(),
+					array(),
+					array('class' => 'l'),
+					);
 			$this->templates = array(
-				'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
-				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-				'<small>${deployed}</small>',
-				'<small>${image_name}</small>',
-				'<input class="default" type="checkbox" name="default[]" id="host_printer${host_id}"${is_default} value="${host_id}" /><label for="host_printer${host_id}" class="icon icon-hand" title="'._('Default Printer Selection').'">&nbsp;</label><input type="hidden" value="${host_id}" name="hostid[]"/>',
-			);
+					'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
+					'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+					'<small>${deployed}</small>',
+					'<small>${image_name}</small>',
+					'<input class="default" type="checkbox" name="default[]" id="host_printer${host_id}"${is_default} value="${host_id}" /><label for="host_printer${host_id}" class="icon icon-hand" title="'._('Default Printer Selection').'">&nbsp;</label><input type="hidden" value="${host_id}" name="hostid[]"/>',
+					);
 			unset($this->data);
 			foreach($Printer->get('hosts') AS $Host) {
 				if ($Host && $Host->isValid()) {
 					$this->data[] = array(
-						'host_id' => $Host->get('id'),
-						'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-						'host_name' => $Host->get('name'),
-						'host_mac' => $Host->get('mac'),
-						'host_desc' => $Host->get('description'),
-						'image_name' => $Host->getImage()->get('name'),
-						'printer_id' => $Printer->get('id'),
-						'is_default' => $Host->getDefault($Printer->get('id')) ? 'checked' : '',
-					);
+							'host_id' => $Host->get('id'),
+							'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
+							'host_name' => $Host->get('name'),
+							'host_mac' => $Host->get('mac'),
+							'host_desc' => $Host->get('description'),
+							'image_name' => $Host->getImage()->get('name'),
+							'printer_id' => $Printer->get('id'),
+							'is_default' => $Host->getDefault($Printer->get('id')) ? 'checked' : '',
+							);
 				}
 			}
 			// Hook
@@ -1149,37 +1149,37 @@ abstract class FOGPage extends FOGBase {
 			print '<div id="snap-host">';
 			// Create the header data:
 			$this->headerData = array(
-				'',
-				'<input type="checkbox" name="toggle-checkboxsnapin1" class="toggle-checkbox1" />',
-				_('Host Name'),
-				_('Image'),
-			);
+					'',
+					'<input type="checkbox" name="toggle-checkboxsnapin1" class="toggle-checkbox1" />',
+					_('Host Name'),
+					_('Image'),
+					);
 			// Create the template data:
 			$this->templates = array(
-				'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
-				'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
-				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-				'${image_name}',
-			);
+					'<i class="icon fa fa-question hand" title="${host_desc}"></i>',
+					'<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
+					'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+					'${image_name}',
+					);
 			// Create the attributes data:
 			$this->attributes = array(
-				array('width' => 22, 'id' => 'host-${host_name}'),
-				array('class' => 'c', 'width' => 16),
-				array(),
-				array(),
-			);
+					array('width' => 22, 'id' => 'host-${host_name}'),
+					array('class' => 'c', 'width' => 16),
+					array(),
+					array(),
+					);
 			// All hosts not with this snapin
 			foreach((array)$Snapin->get('hostsnotinme') AS $Host) {
 				if ($Host && $Host->isValid()) {
 					$this->data[] = array(
-						'host_id' => $Host->get('id'),
-						'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : 'No Data',
-						'host_name' => $Host->get('name'),
-						'host_mac' => $Host->get('mac')->__toString(),
-						'host_desc' => $Host->get('description'),
-						'image_name' => $Host->getImage()->get('name'),
-						'check_num' => '1',
-					);
+							'host_id' => $Host->get('id'),
+							'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : 'No Data',
+							'host_name' => $Host->get('name'),
+							'host_mac' => $Host->get('mac')->__toString(),
+							'host_desc' => $Host->get('description'),
+							'image_name' => $Host->getImage()->get('name'),
+							'check_num' => '1',
+							);
 				}
 			}
 			$SnapinDataExists = false;
@@ -1198,33 +1198,33 @@ abstract class FOGPage extends FOGBase {
 				print '</form>';
 			}
 			$this->headerData = array(
-				'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-				_('Hostname'),
-				_('Deployed'),
-				_('Image'),
-			);
+					'<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+					_('Hostname'),
+					_('Deployed'),
+					_('Image'),
+					);
 			$this->attributes = array(
-				array('class' => 'c','width' => 16),
-				array(),
-				array(),
-				array(),
-			);
+					array('class' => 'c','width' => 16),
+					array(),
+					array(),
+					array(),
+					);
 			$this->templates = array(
-				'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
-				'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-				'<small>${deployed}</small>',
-				'<small>${image_name}</small>',
-			);
+					'<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
+					'<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
+					'<small>${deployed}</small>',
+					'<small>${image_name}</small>',
+					);
 			foreach((array)$Snapin->get('hosts') AS $Host) {
 				if ($Host && $Host->isValid()) {
 					$this->data[] = array(
-						'host_id' => $Host->get('id'),
-						'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : '',
-						'host_name' => $Host->get('name'),
-						'host_mac' => $Host->get('mac'),
-						'image_name' => $Host->getImage()->get('name'),
-						'host_desc' => $Host->get('description'),
-					);
+							'host_id' => $Host->get('id'),
+							'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : '',
+							'host_name' => $Host->get('name'),
+							'host_mac' => $Host->get('mac'),
+							'image_name' => $Host->getImage()->get('name'),
+							'host_desc' => $Host->get('description'),
+							);
 				}
 			}
 			// Hook
@@ -1238,8 +1238,8 @@ abstract class FOGPage extends FOGBase {
 		}
 	}
 	/** membership_post() the membership poster of specific class
-	  * @return void
-	  */
+	 * @return void
+	 */
 	public function membership_post() {
 		$Obj = $this->childClass;
 		// Find Object

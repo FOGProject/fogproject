@@ -3,27 +3,27 @@ class MulticastSessions extends FOGController
 {
 	// Table
 	public $databaseTable = 'multicastSessions';
-	
+
 	// Name -> Database field name
 	public $databaseFields = array(
-		'id'				=> 'msID',
-		'name'				=> 'msName',
-		'port'				=> 'msBasePort',
-		'logpath'			=> 'msLogPath',
-		'image'				=> 'msImage',
-		'clients'			=> 'msClients',
-		'sessclients'		=> 'msSessClients',
-		'interface'			=> 'msInterface',
-		'starttime'			=> 'msStartDateTime',
-		'percent'			=> 'msPercent',
-		'stateID'			=> 'msState',
-		'completetime'		=> 'msCompleteDateTime',
-		'isDD'				=> 'msIsDD',
-		'NFSGroupID'		=> 'msNFSGroupID',
-		'anon3'				=> 'msAnon3',
-		'anon4'				=> 'msAnon4',
-		'anon5'				=> 'msAnon5',
-	);
+			'id'				=> 'msID',
+			'name'				=> 'msName',
+			'port'				=> 'msBasePort',
+			'logpath'			=> 'msLogPath',
+			'image'				=> 'msImage',
+			'clients'			=> 'msClients',
+			'sessclients'		=> 'msSessClients',
+			'interface'			=> 'msInterface',
+			'starttime'			=> 'msStartDateTime',
+			'percent'			=> 'msPercent',
+			'stateID'			=> 'msState',
+			'completetime'		=> 'msCompleteDateTime',
+			'isDD'				=> 'msIsDD',
+			'NFSGroupID'		=> 'msNFSGroupID',
+			'anon3'				=> 'msAnon3',
+			'anon4'				=> 'msAnon4',
+			'anon5'				=> 'msAnon5',
+			);
 
 	// Custom Functions
 	public function getImage()

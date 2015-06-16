@@ -36,17 +36,17 @@ $RawResponse = function() {
 	print 'Foobar22!';
 };
 $units = array_keys(
-	array(
-		'Response',
-		'ResponseArray',
-		'BadResponse',
-		'Download',
-		'AESDecryptionResponse1',
-		'AESDecryptionResponse2',
-		'AESDecryption',
-		'RawResponse',
-	)
-);
+		array(
+			'Response',
+			'ResponseArray',
+			'BadResponse',
+			'Download',
+			'AESDecryptionResponse1',
+			'AESDecryptionResponse2',
+			'AESDecryption',
+			'RawResponse',
+		     )
+		);
 if (in_array($_REQUEST['unit'],$units)) {
 	if (strpos($_REQUEST['unit'],'AESDecryption') !== false) {
 		$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128,MCRYPT_MODE_CBC);

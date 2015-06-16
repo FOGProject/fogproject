@@ -10,13 +10,13 @@ var MACLookupTimer;
 var MACLookupTimeout = 1000;
 
 $(function() {
-	MACUpdate = function() {
+		MACUpdate = function() {
 		var $this = $(this);
 		$this.val($this.val().replace(/-/g, ':').toUpperCase());
 		if (MACLookupTimer) clearTimeout(MACLookupTimer);
 		MACLookupTimer = setTimeout(function() {
 			$('#primaker').load('../management/index.php?sub=getmacman&prefix=' + mac);
-		}, MACLookupTimeout);
-	};
-	$('#mac').keyup(MACUpdate).blur(MACUpdate);
-});
+			}, MACLookupTimeout);
+		};
+		$('#mac').keyup(MACUpdate).blur(MACUpdate);
+		});

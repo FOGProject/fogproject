@@ -19,7 +19,7 @@ class AddLocationTasks extends Hook {
 				foreach((array)$arguments['data'] AS $i => $data) {
 					$Host = current($this->getClass('HostManager')->find(array('id' => $arguments['data'][$i]['host_id'])));
 					if ($Host && $Host->isValid())
-					$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
+						$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
 					$Location = ($LA ? new Location($LA->get('locationID')) : '');
 					// Set the field.
 					$arguments['data'][$i]['details_taskname'] = $Location && $Location->isValid() ? $Location->get('name') : '';
