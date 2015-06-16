@@ -12,7 +12,7 @@ try {
     $Datatosend .= '#ADUser='.($Host->get('useAD') ? (strpos($Host->get('ADUser'),"\\") || strpos($Host->get('ADUser'),'@') ? $Host->get('ADUser') : $Host->get('ADDomain')."\\".$Host->get('ADUser')) : '')."\n";
     $Datatosend .= '#ADPass='.($Host->get('useAD') ? ($_REQUEST['newService'] ? $FOGCore->aesdecrypt($Host->get('ADPass')) : $Host->get('ADPass')) : '');
     if (trim(base64_decode($Host->get('productKey')))) $Datatosend .= "\n#Key=".base64_decode($Host->get('productKey'));
-    if ($_REQUEST['newService']) $Host->setAD()->save();
+    if ($_REQUEST['newService']) $Host->setAD();
     $FOGCore->sendData($Datatosend);
 } catch (Exception $e) {
     print $e->getMessage();
