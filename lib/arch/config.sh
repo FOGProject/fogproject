@@ -26,14 +26,6 @@ langPackages="iso-codes";
 dhcpname="dhcp";
 nfsservice="nfs-server";
 
-# where do the init scripts go?
-initdpath="/usr/lib/systemd/system";
-initdsrc="../packages/systemd";
-initdMCfullname="FOGMulticastManager.service";
-initdIRfullname="FOGImageReplicator.service";
-initdSDfullname="FOGScheduler.service";
-initdSRfullname="FOGSnapinReplicator.service";
-
 # where do the php files go?
 docroot="/srv/http/";
 webdirdest="${docroot}fog";

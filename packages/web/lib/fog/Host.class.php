@@ -194,7 +194,7 @@ class Host extends FOGController {
 	private function loadModules() {
 		if (!$this->isLoaded('modules') && $this->get('id')) {
             foreach ($this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id'))) AS $MA)
-                $this->add('modules',$this->getClass('Module',$MA->get('moduleID')));
+                $this->add('modules',$MA->getModule());
 		}
 		return $this;
 	}
@@ -380,7 +380,7 @@ class Host extends FOGController {
 		}
 		if ($this->isLoaded('modules')) {
 			$this->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id')));
-			$moduleName = $this->getGlobalModuleStatus();
+            $moduleName = $this->getGlobalModuleStatus();
 			foreach((array)$this->get('modules') AS $Module) {
 				if (($Module instanceof Module) && $Module->isValid()) {
 					if ($moduleName[$Module->get('shortName')]) {
@@ -391,7 +391,7 @@ class Host extends FOGController {
 							->save();
 					}
 				}
-			}
+            }
 		}
 		if ($this->isLoaded('printers')) {
 			$defPrint = current((array)$this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'isDefault' => 1)));
@@ -833,7 +833,7 @@ class Host extends FOGController {
 				 ->set('ADDomain',trim($domain))
 				 ->set('ADOU',trim($ou))
 				 ->set('ADUser',trim($user))
-				 ->set('ADPass',trim($pass));
+                 ->set('ADPass',trim($pass));
             if (!$nosave) $this->save();
 		}
 		return $this;

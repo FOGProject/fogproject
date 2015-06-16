@@ -1253,11 +1253,9 @@ class HostManagementPage extends FOGPage {
 				break;
 			}
 			// Save to database
-			if ($Host->save())
-			{
+			if ($Host->save()) {
 				$Host->setAD();
-				if ($_REQUEST['tab'] == 'host-general')
-					$Host->ignore($_REQUEST['igimage'],$_REQUEST['igclient']);
+				if ($_REQUEST['tab'] == 'host-general') $Host->ignore($_REQUEST['igimage'],$_REQUEST['igclient']);
 				// Hook
 				$this->HookManager->processEvent('HOST_EDIT_SUCCESS', array('Host' => &$Host));
 				// Log History event
