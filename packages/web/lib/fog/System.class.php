@@ -1,10 +1,10 @@
 <?php
 class System {
 	/**
-	  * __construct()
-	  * method called default_values()
-	  * @return void
-	  */
+	 * __construct()
+	 * method called default_values()
+	 * @return void
+	 */
 	public function __construct() {
 		define('FOG_VERSION', '3559');
 		define('FOG_SCHEMA', 181);

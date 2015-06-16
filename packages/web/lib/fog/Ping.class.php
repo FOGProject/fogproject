@@ -1,8 +1,8 @@
 <?php
 /**
  *  This is the poor man's ping class.  Because we run in Linux we can use
- *  TCP ports below 1024, so we did a little UDP trick to check is a host is 
- *  alive.  From our tests it seems pretty stable.  We didn't want to have to 
+ *  TCP ports below 1024, so we did a little UDP trick to check is a host is
+ *  alive.  From our tests it seems pretty stable.  We didn't want to have to
  *  use the system ping command because the overhead of execute().
  */
 class Ping
@@ -16,7 +16,7 @@ class Ping
 		$this->timeout = $_REQUEST['timeout'];
 		$this->port = $port;
 	}
-	
+
 	public function execute()
 	{
 		if ($this->timeout > 0 && $this->host != null)

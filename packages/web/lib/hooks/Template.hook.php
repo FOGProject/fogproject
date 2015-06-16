@@ -10,13 +10,13 @@
 class Template extends Hook
 {
 	var $name = 'Hook Name';
-	var $description = 'Hook Description';
-	var $author = 'Hook Author';
-	var $active = false;
-	function HostData($arguments)
-	{
-		$this->log(print_r($arguments, 1));
-	}
+		var $description = 'Hook Description';
+		var $author = 'Hook Author';
+		var $active = false;
+		function HostData($arguments)
+		{
+			$this->log(print_r($arguments, 1));
+		}
 }
 // Hook Event
 $HookManager->register('HOST_DATA', array(new Template(), 'HostData'));

@@ -348,2950 +348,2950 @@ msgid "Default Setting"
 msgstr ""
 
 msgid "Default log out time (in minutes): "
-msgstr ""
+	msgstr ""
 
-msgid "Update Defaults"
-msgstr ""
+	msgid "Update Defaults"
+	msgstr ""
 
-msgid "Path"
-msgstr ""
+	msgid "Path"
+	msgstr ""
 
-msgid "Delete"
-msgstr ""
+	msgid "Delete"
+	msgstr ""
 
-msgid "Add Directory"
-msgstr ""
+	msgid "Add Directory"
+	msgstr ""
 
-msgid "Directory Path"
-msgstr ""
+	msgid "Directory Path"
+	msgstr ""
 
-msgid "Directories Cleaned"
-msgstr ""
+	msgid "Directories Cleaned"
+	msgstr ""
 
-msgid "Default Width"
-msgstr ""
+	msgid "Default Width"
+	msgstr ""
 
-msgid "Default Height"
-msgstr ""
+	msgid "Default Height"
+	msgstr ""
 
-msgid "Default Refresh Rate"
-msgstr ""
+	msgid "Default Refresh Rate"
+	msgstr ""
 
-msgid "Time"
-msgstr ""
+	msgid "Time"
+	msgstr ""
 
-msgid "Action"
-msgstr ""
+	msgid "Action"
+	msgstr ""
 
-msgid "Shutdown/Reboot Schedule"
-msgstr ""
+	msgid "Shutdown/Reboot Schedule"
+	msgstr ""
 
-msgid "Add Event (24 Hour Format):"
-msgstr ""
+	msgid "Add Event (24 Hour Format):"
+		msgstr ""
 
-msgid "Select One"
-msgstr ""
+		msgid "Select One"
+		msgstr ""
 
-msgid "Shut Down"
-msgstr ""
+		msgid "Shut Down"
+		msgstr ""
 
-msgid "Reboot"
-msgstr ""
+		msgid "Reboot"
+		msgstr ""
 
-msgid "Add Event"
-msgstr ""
+		msgid "Add Event"
+		msgstr ""
 
-msgid "N/A"
-msgstr ""
+		msgid "N/A"
+		msgstr ""
 
-msgid "Add User"
-msgstr ""
+		msgid "Add User"
+		msgstr ""
 
-msgid "Add Protected User"
-msgstr ""
+		msgid "Add Protected User"
+		msgstr ""
 
-msgid "User"
-msgstr ""
+		msgid "User"
+		msgstr ""
 
-msgid "Current Protected User Accounts"
-msgstr ""
+		msgid "Current Protected User Accounts"
+		msgstr ""
 
-msgid "Service"
-msgstr ""
+		msgid "Service"
+		msgstr ""
 
-msgid "Upload FOG Reports"
-msgstr ""
+		msgid "Upload FOG Reports"
+		msgstr ""
 
-msgid "This section allows you to upload user defined reports that may not be part of the base FOG package.  The report files should end in .php"
-msgstr ""
+		msgid "This section allows you to upload user defined reports that may not be part of the base FOG package.  The report files should end in .php"
+		msgstr ""
 
-msgid "Upload a FOG report"
-msgstr ""
+		msgid "Upload a FOG report"
+		msgstr ""
 
-msgid "Upload File"
-msgstr ""
+		msgid "Upload File"
+		msgstr ""
 
-msgid "About FOG Reports"
-msgstr ""
+		msgid "About FOG Reports"
+		msgstr ""
 
-msgid "FOG reports exist to give you information about what is going on with your FOG system.  To view a report, select an item from the menu on the left-hand side of this page."
-msgstr ""
+		msgid "FOG reports exist to give you information about what is going on with your FOG system.  To view a report, select an item from the menu on the left-hand side of this page."
+		msgstr ""
 
-msgid "FOG Imaging Log - Select Date Range"
-msgstr ""
+		msgid "FOG Imaging Log - Select Date Range"
+		msgstr ""
 
-msgid "Select Start Date"
-msgstr ""
+		msgid "Select Start Date"
+		msgstr ""
 
-msgid "Select End Date"
-msgstr ""
+		msgid "Select End Date"
+		msgstr ""
 
-msgid "Search for Entries"
-msgstr ""
+		msgid "Search for Entries"
+		msgstr ""
 
-msgid "FOG Imaging Log"
-msgstr ""
+		msgid "FOG Imaging Log"
+		msgstr ""
 
-msgid "Engineer"
-msgstr ""
+		msgid "Engineer"
+		msgstr ""
 
-msgid "Start"
-msgstr ""
+		msgid "Start"
+		msgstr ""
 
-msgid "End"
-msgstr ""
+		msgid "End"
+		msgstr ""
 
-msgid "Duration"
-msgstr ""
+		msgid "Duration"
+		msgstr ""
 
-msgid "Image"
-msgstr ""
+		msgid "Image"
+		msgstr ""
 
-msgid "Clear"
-msgstr ""
+		msgid "Clear"
+		msgstr ""
 
-msgid "Host ID"
-msgstr ""
+		msgid "Host ID"
+		msgstr ""
 
-msgid "Host Name"
-msgstr ""
+		msgid "Host Name"
+		msgstr ""
 
-msgid "Host MAC"
-msgstr ""
+		msgid "Host MAC"
+		msgstr ""
 
-msgid "Host Desc"
-msgstr ""
+		msgid "Host Desc"
+		msgstr ""
 
-msgid "Image Name"
-msgstr ""
+		msgid "Image Name"
+		msgstr ""
 
-msgid "Image Path"
-msgstr ""
+		msgid "Image Path"
+		msgstr ""
 
-msgid "Start Date"
-msgstr ""
+		msgid "Start Date"
+		msgstr ""
 
-msgid "Start Time"
-msgstr ""
+		msgid "Start Time"
+		msgstr ""
 
-msgid "End Date"
-msgstr ""
+		msgid "End Date"
+		msgstr ""
 
-msgid "End Time"
-msgstr ""
+		msgid "End Time"
+		msgstr ""
 
-msgid "Download/Upload"
-msgstr ""
+		msgid "Download/Upload"
+		msgstr ""
 
-msgid "Download"
-msgstr ""
+		msgid "Download"
+		msgstr ""
 
-msgid "Upload"
-msgstr ""
+		msgid "Upload"
+		msgstr ""
 
-msgid "Host Listing Export"
-msgstr ""
+		msgid "Host Listing Export"
+		msgstr ""
 
-msgid "Host Created"
-msgstr ""
+		msgid "Host Created"
+		msgstr ""
 
-msgid "Image ID"
-msgstr ""
+		msgid "Image ID"
+		msgstr ""
 
-msgid "Image Desc"
-msgstr ""
+		msgid "Image Desc"
+		msgstr ""
 
-msgid "AD Join"
-msgstr ""
+		msgid "AD Join"
+		msgstr ""
 
-msgid "AD OU"
-msgstr ""
+		msgid "AD OU"
+		msgstr ""
 
-msgid "AD Domain"
-msgstr ""
+		msgid "AD Domain"
+		msgstr ""
 
-msgid "Kernel"
-msgstr ""
+		msgid "Kernel"
+		msgstr ""
 
-msgid "HD Device"
-msgstr ""
+		msgid "HD Device"
+		msgstr ""
 
-msgid "OS Name"
-msgstr ""
+		msgid "OS Name"
+		msgstr ""
 
-msgid "Hostname"
-msgstr ""
+		msgid "Hostname"
+		msgstr ""
 
-msgid "Operating System"
-msgstr ""
+		msgid "Operating System"
+		msgstr ""
 
-msgid "Yes"
-msgstr ""
+		msgid "Yes"
+		msgstr ""
 
-msgid "No"
-msgstr ""
+		msgid "No"
+		msgstr ""
 
-msgid "Full Inventory Export"
-msgstr ""
+		msgid "Full Inventory Export"
+		msgstr ""
 
-msgid "Host name"
-msgstr ""
+		msgid "Host name"
+		msgstr ""
 
-msgid "Inventory ID"
-msgstr ""
+		msgid "Inventory ID"
+		msgstr ""
 
-msgid "Inventory Desc"
-msgstr ""
+		msgid "Inventory Desc"
+		msgstr ""
 
-msgid "Primary User"
-msgstr ""
+		msgid "Primary User"
+		msgstr ""
 
-msgid "Other Tag 1"
-msgstr ""
+		msgid "Other Tag 1"
+		msgstr ""
 
-msgid "Other Tag 2"
-msgstr ""
+		msgid "Other Tag 2"
+		msgstr ""
 
-msgid "System Manufacturer"
-msgstr ""
+		msgid "System Manufacturer"
+		msgstr ""
 
-msgid "System Product"
-msgstr ""
+		msgid "System Product"
+		msgstr ""
 
-msgid "System Version"
-msgstr ""
+		msgid "System Version"
+		msgstr ""
 
-msgid "System Serial"
-msgstr ""
+		msgid "System Serial"
+		msgstr ""
 
-msgid "System Type"
-msgstr ""
+		msgid "System Type"
+		msgstr ""
 
-msgid "BIOS Version"
-msgstr ""
+		msgid "BIOS Version"
+		msgstr ""
 
-msgid "BIOS Vendor"
-msgstr ""
+		msgid "BIOS Vendor"
+		msgstr ""
 
-msgid "BIOS Date"
-msgstr ""
+		msgid "BIOS Date"
+		msgstr ""
 
-msgid "MB Manufacturer"
-msgstr ""
+		msgid "MB Manufacturer"
+		msgstr ""
 
-msgid "MB Name"
-msgstr ""
+		msgid "MB Name"
+		msgstr ""
 
-msgid "MB Version"
-msgstr ""
+		msgid "MB Version"
+		msgstr ""
 
-msgid "MB Serial"
-msgstr ""
+		msgid "MB Serial"
+		msgstr ""
 
-msgid "MB Asset"
-msgstr ""
+		msgid "MB Asset"
+		msgstr ""
 
-msgid "CPU Manufacturer"
-msgstr ""
+		msgid "CPU Manufacturer"
+		msgstr ""
 
-msgid "CPU Version"
-msgstr ""
+		msgid "CPU Version"
+		msgstr ""
 
-msgid "CPU Speed"
-msgstr ""
+		msgid "CPU Speed"
+		msgstr ""
 
-msgid "CPU Max Speed"
-msgstr ""
+		msgid "CPU Max Speed"
+		msgstr ""
 
-msgid "Memory"
-msgstr ""
+		msgid "Memory"
+		msgstr ""
 
-msgid "HD Model"
-msgstr ""
+		msgid "HD Model"
+		msgstr ""
 
-msgid "HD Firmware"
-msgstr ""
+		msgid "HD Firmware"
+		msgstr ""
 
-msgid "HD Serial"
-msgstr ""
+		msgid "HD Serial"
+		msgstr ""
 
-msgid "Chassis Manufacturer"
-msgstr ""
+		msgid "Chassis Manufacturer"
+		msgstr ""
 
-msgid "Chassis Version"
-msgstr ""
+		msgid "Chassis Version"
+		msgstr ""
 
-msgid "Chassis Serial"
-msgstr ""
+		msgid "Chassis Serial"
+		msgstr ""
 
-msgid "Chassis Asset"
-msgstr ""
+		msgid "Chassis Asset"
+		msgstr ""
 
-msgid "OS name"
-msgstr ""
+		msgid "OS name"
+		msgstr ""
 
-msgid "All Pending MACs approved."
-msgstr ""
+		msgid "All Pending MACs approved."
+		msgstr ""
 
-msgid "Pending MAC Export"
-msgstr ""
+		msgid "Pending MAC Export"
+		msgstr ""
 
-msgid "Approve All Pending MACs for all hosts?"
-msgstr ""
+		msgid "Approve All Pending MACs for all hosts?"
+		msgstr ""
 
-msgid "Host Primary MAC"
-msgstr ""
+		msgid "Host Primary MAC"
+		msgstr ""
 
-msgid "Host Pending MAC"
-msgstr ""
+		msgid "Host Pending MAC"
+		msgstr ""
 
-msgid "FOG Virus Summary"
-msgstr ""
+		msgid "FOG Virus Summary"
+		msgstr ""
 
-msgid "clear all history"
-msgstr ""
+		msgid "clear all history"
+		msgstr ""
 
-msgid "Virus Name"
-msgstr ""
+		msgid "Virus Name"
+		msgstr ""
 
-msgid "File"
-msgstr ""
+		msgid "File"
+		msgstr ""
 
-msgid "Mode"
-msgstr ""
+		msgid "Mode"
+		msgstr ""
 
-msgid "Quarantine"
-msgstr ""
+		msgid "Quarantine"
+		msgstr ""
 
-msgid "Report"
-msgstr ""
+		msgid "Report"
+		msgstr ""
 
-msgid "All Virus' cleared"
-msgstr ""
+		msgid "All Virus' cleared"
+		msgstr ""
 
-msgid "Virus cleared"
-msgstr ""
+		msgid "Virus cleared"
+		msgstr ""
 
-msgid "FOG User Login History Summary - Search"
-msgstr ""
+		msgid "FOG User Login History Summary - Search"
+		msgstr ""
 
-msgid "Enter a username to search for"
-msgstr ""
+		msgid "Enter a username to search for"
+		msgstr ""
 
-msgid "Enter a hostname to search for"
-msgstr ""
+		msgid "Enter a hostname to search for"
+		msgstr ""
 
-msgid "Search"
-msgstr ""
+		msgid "Search"
+		msgstr ""
 
-msgid "Results Found for user and/or hostname search"
-msgstr ""
+		msgid "Results Found for user and/or hostname search"
+		msgstr ""
 
-msgid "Host/User name"
-msgstr ""
+		msgid "Host/User name"
+		msgstr ""
 
-msgid "FOG User Login History Summary - Select Date Range"
-msgstr ""
+		msgid "FOG User Login History Summary - Select Date Range"
+		msgstr ""
 
-msgid "FOG User Login History Summary"
-msgstr ""
+		msgid "FOG User Login History Summary"
+		msgstr ""
 
-msgid "Description"
-msgstr ""
+		msgid "Description"
+		msgstr ""
 
-msgid "FOG Snapin Log - Select Date Range"
-msgstr ""
+		msgid "FOG Snapin Log - Select Date Range"
+		msgstr ""
 
-msgid "FOG Snapin Log"
-msgstr ""
+		msgid "FOG Snapin Log"
+		msgstr ""
 
-msgid "Snapin Name"
-msgstr ""
+		msgid "Snapin Name"
+		msgstr ""
 
-msgid "Return Code"
-msgstr ""
+		msgid "Return Code"
+		msgstr ""
 
-msgid "Return Desc"
-msgstr ""
+		msgid "Return Desc"
+		msgstr ""
 
-msgid "Create Date"
-msgstr ""
+		msgid "Create Date"
+		msgstr ""
 
-msgid "Create Time"
-msgstr ""
+		msgid "Create Time"
+		msgstr ""
 
-msgid "Snapin ID"
-msgstr ""
+		msgid "Snapin ID"
+		msgstr ""
 
-msgid "Snapin Description"
-msgstr ""
+		msgid "Snapin Description"
+		msgstr ""
 
-msgid "Snapin File"
-msgstr ""
+		msgid "Snapin File"
+		msgstr ""
 
-msgid "Snapin Args"
-msgstr ""
+		msgid "Snapin Args"
+		msgstr ""
 
-msgid "Snapin Run With"
-msgstr ""
+		msgid "Snapin Run With"
+		msgstr ""
 
-msgid "Snapin Run With Args"
-msgstr ""
+		msgid "Snapin Run With Args"
+		msgstr ""
 
-msgid "Snapin State"
-msgstr ""
+		msgid "Snapin State"
+		msgstr ""
 
-msgid "Snapin Return Code"
-msgstr ""
+		msgid "Snapin Return Code"
+		msgstr ""
 
-msgid "Snapin Return Detail"
-msgstr ""
+		msgid "Snapin Return Detail"
+		msgstr ""
 
-msgid "Snapin Creation Date"
-msgstr ""
+		msgid "Snapin Creation Date"
+		msgstr ""
 
-msgid "Snapin Creation Time"
-msgstr ""
+		msgid "Snapin Creation Time"
+		msgstr ""
 
-msgid "Job Create Date"
-msgstr ""
+		msgid "Job Create Date"
+		msgstr ""
 
-msgid "Job Create Time"
-msgstr ""
+		msgid "Job Create Time"
+		msgstr ""
 
-msgid "Task Checkin Date"
-msgstr ""
+		msgid "Task Checkin Date"
+		msgstr ""
 
-msgid "Task Checkin Time"
-msgstr ""
+		msgid "Task Checkin Time"
+		msgstr ""
 
-msgid "FOG Equipment Loan Form"
-msgstr ""
+		msgid "FOG Equipment Loan Form"
+		msgstr ""
 
-msgid "Select User"
-msgstr ""
+		msgid "Select User"
+		msgstr ""
 
-msgid "Create Report"
-msgstr ""
+		msgid "Create Report"
+		msgstr ""
 
-msgid "FOOTER CENTER"
-msgstr ""
+		msgid "FOOTER CENTER"
+		msgstr ""
 
-msgid "of"
-msgstr ""
+		msgid "of"
+		msgstr ""
 
-msgid "Printed"
-msgstr ""
+		msgid "Printed"
+		msgstr ""
 
-msgid "[YOUR ORGANIZATION HERE]"
-msgstr ""
+		msgid "[YOUR ORGANIZATION HERE]"
+		msgstr ""
 
-msgid "[sub-unit here]"
-msgstr ""
+		msgid "[sub-unit here]"
+		msgstr ""
 
-msgid "PC Check-Out Agreement"
-msgstr ""
+		msgid "PC Check-Out Agreement"
+		msgstr ""
 
-msgid "Personal Information"
-msgstr ""
+		msgid "Personal Information"
+		msgstr ""
 
-msgid "Name"
-msgstr ""
+		msgid "Name"
+		msgstr ""
 
-msgid "Location"
-msgstr ""
+		msgid "Location"
+		msgstr ""
 
-msgid "Your Location Here"
-msgstr ""
+		msgid "Your Location Here"
+		msgstr ""
 
-msgid "Home Address"
-msgstr ""
+		msgid "Home Address"
+		msgstr ""
 
-msgid "City / State / Zip"
-msgstr ""
+		msgid "City / State / Zip"
+		msgstr ""
 
-msgid "Extension"
-msgstr ""
+		msgid "Extension"
+		msgstr ""
 
-msgid "Home Phone"
-msgstr ""
+		msgid "Home Phone"
+		msgstr ""
 
-msgid "Computer Information"
-msgstr ""
+		msgid "Computer Information"
+		msgstr ""
 
-msgid "Serial Number / Service Tag"
-msgstr ""
+		msgid "Serial Number / Service Tag"
+		msgstr ""
 
-msgid "Barcode Numbers"
-msgstr ""
+		msgid "Barcode Numbers"
+		msgstr ""
 
-msgid "Date of Checkout"
-msgstr ""
+		msgid "Date of Checkout"
+		msgstr ""
 
-msgid "Notes / Miscellaneous / Included Items"
-msgstr ""
+		msgid "Notes / Miscellaneous / Included Items"
+		msgstr ""
 
-msgid "Releasing Staff Initials"
-msgstr ""
+		msgid "Releasing Staff Initials"
+		msgstr ""
 
-msgid "(To be released only by XXXXXXXXX)"
-msgstr ""
+		msgid "(To be released only by XXXXXXXXX)"
+		msgstr ""
 
-msgid "I have read, understood, and agree to all the Terms and Condidtions on the following pages of this document."
-msgstr ""
+		msgid "I have read, understood, and agree to all the Terms and Condidtions on the following pages of this document."
+		msgstr ""
 
-msgid "Signed"
-msgstr ""
+		msgid "Signed"
+		msgstr ""
 
-msgid "NEW PAGE"
-msgstr ""
+		msgid "NEW PAGE"
+		msgstr ""
 
-msgid "<!-- "
-msgstr ""
+		msgid "<!-- "
+		msgstr ""
 
-msgid "Terms and Conditions"
-msgstr ""
+		msgid "Terms and Conditions"
+		msgstr ""
 
-msgid "Your terms and conditions here"
-msgstr ""
+		msgid "Your terms and conditions here"
+		msgstr ""
 
-msgid "X"
-msgstr ""
+		msgid "X"
+		msgstr ""
 
-msgid "Your form is ready."
-msgstr ""
+		msgid "Your form is ready."
+		msgstr ""
 
-msgid "Started By:"
-msgstr ""
+		msgid "Started By:"
+		msgstr ""
 
-msgid "Hostname<br><small>MAC</small>"
-msgstr ""
+		msgid "Hostname<br><small>MAC</small>"
+		msgstr ""
 
-msgid "Status"
-msgstr ""
+		msgid "Status"
+		msgstr ""
 
-msgid "Actions"
-msgstr ""
+		msgid "Actions"
+		msgstr ""
 
-msgid "All Tasks"
-msgstr ""
+		msgid "All Tasks"
+		msgstr ""
 
-msgid "Cancel Task"
-msgstr ""
+		msgid "Cancel Task"
+		msgstr ""
 
-msgid "Task forced to start"
-msgstr ""
+		msgid "Task forced to start"
+		msgstr ""
 
-msgid "Force task to start"
-msgstr ""
+		msgid "Force task to start"
+		msgstr ""
 
-msgid "All Hosts"
-msgstr ""
+		msgid "All Hosts"
+		msgstr ""
 
-msgid "MAC"
-msgstr ""
+		msgid "MAC"
+		msgstr ""
 
-msgid "is protected"
-msgstr ""
+		msgid "is protected"
+		msgstr ""
 
-msgid "Failed to create deploy task"
-msgstr ""
+		msgid "Failed to create deploy task"
+		msgstr ""
 
-msgid "List all Groups"
-msgstr ""
+		msgid "List all Groups"
+		msgstr ""
 
-msgid "Members"
-msgstr ""
+		msgid "Members"
+		msgstr ""
 
-msgid "Deploy"
-msgstr ""
+		msgid "Deploy"
+		msgstr ""
 
-msgid "Multicast"
-msgstr ""
+		msgid "Multicast"
+		msgstr ""
 
-msgid "You need to assign an image to all of the hosts"
-msgstr ""
+		msgid "You need to assign an image to all of the hosts"
+		msgstr ""
 
-msgid "To setup download task, you must first upload an image"
-msgstr ""
+		msgid "To setup download task, you must first upload an image"
+		msgstr ""
 
-msgid "Active Tasks"
-msgstr ""
+		msgid "Active Tasks"
+		msgstr ""
 
-msgid "Active Multi-cast Tasks"
-msgstr ""
+		msgid "Active Multi-cast Tasks"
+		msgstr ""
 
-msgid "Hosts"
-msgstr ""
+		msgid "Hosts"
+		msgstr ""
 
-msgid "Snapin"
-msgstr ""
+		msgid "Snapin"
+		msgstr ""
 
-msgid "Name:"
-msgstr ""
+		msgid "Name:"
+		msgstr ""
 
-msgid "Is Group"
-msgstr ""
+		msgid "Is Group"
+		msgstr ""
 
-msgid "Task Type"
-msgstr ""
+		msgid "Task Type"
+		msgstr ""
 
-msgid "Active/Type"
-msgstr ""
+		msgid "Active/Type"
+		msgstr ""
 
-msgid "Local Printer"
-msgstr ""
+		msgid "Local Printer"
+		msgstr ""
 
-msgid "iPrint Printer"
-msgstr ""
+		msgid "iPrint Printer"
+		msgstr ""
 
-msgid "Network Printer"
-msgstr ""
+		msgid "Network Printer"
+		msgstr ""
 
-msgid "Printer Alias"
-msgstr ""
+		msgid "Printer Alias"
+		msgstr ""
 
-msgid "Printer Port"
-msgstr ""
+		msgid "Printer Port"
+		msgstr ""
 
-msgid "Printer Model"
-msgstr ""
+		msgid "Printer Model"
+		msgstr ""
 
-msgid "Printer INF File"
-msgstr ""
+		msgid "Printer INF File"
+		msgstr ""
 
-msgid "Printer IP (optional)"
-msgstr ""
+		msgid "Printer IP (optional)"
+		msgstr ""
 
-msgid "Add Printer"
-msgstr ""
+		msgid "Add Printer"
+		msgstr ""
 
-msgid "Printer created"
-msgstr ""
+		msgid "Printer created"
+		msgstr ""
 
-msgid "Update Printer"
-msgstr ""
+		msgid "Update Printer"
+		msgstr ""
 
-msgid "Last Deployed"
-msgstr ""
+		msgid "Last Deployed"
+		msgstr ""
 
-msgid "Registered"
-msgstr ""
+		msgid "Registered"
+		msgstr ""
 
-msgid "Pending Approval"
-msgstr ""
+		msgid "Pending Approval"
+		msgstr ""
 
-msgid "Approved"
-msgstr ""
+		msgid "Approved"
+		msgstr ""
 
-msgid "Check here to see hosts not assigned with this printer"
-msgstr ""
+		msgid "Check here to see hosts not assigned with this printer"
+		msgstr ""
 
-msgid "Modify printer association for"
-msgstr ""
+		msgid "Modify printer association for"
+		msgstr ""
 
-msgid "Add hosts to printer"
-msgstr ""
+		msgid "Add hosts to printer"
+		msgstr ""
 
-msgid "Check here to see hosts with no printers"
-msgstr ""
+		msgid "Check here to see hosts with no printers"
+		msgstr ""
 
-msgid "Hosts below have no printer associations"
-msgstr ""
+		msgid "Hosts below have no printer associations"
+		msgstr ""
 
-msgid "Add hosts with printer"
-msgstr ""
+		msgid "Add hosts with printer"
+		msgstr ""
 
-msgid "Add Printer to Host(s)"
-msgstr ""
+		msgid "Add Printer to Host(s)"
+		msgstr ""
 
-msgid "Is Default"
-msgstr ""
+		msgid "Is Default"
+		msgstr ""
 
-msgid "Remove Printer"
-msgstr ""
+		msgid "Remove Printer"
+		msgstr ""
 
-msgid "Default Printer Selection"
-msgstr ""
+		msgid "Default Printer Selection"
+		msgstr ""
 
-msgid "Update defaults"
-msgstr ""
+		msgid "Update defaults"
+		msgstr ""
 
-msgid "You must specify the alias, port, model, and inf"
-msgstr ""
+		msgid "You must specify the alias, port, model, and inf"
+		msgstr ""
 
-msgid "You must specify the alias and port"
-msgstr ""
+		msgid "You must specify the alias and port"
+		msgstr ""
 
-msgid "You must specify the alias"
-msgstr ""
+		msgid "You must specify the alias"
+		msgstr ""
 
-msgid "Printer name already exists, please choose another"
-msgstr ""
+		msgid "Printer name already exists, please choose another"
+		msgstr ""
 
-msgid "Printer updated"
-msgstr ""
+		msgid "Printer updated"
+		msgstr ""
 
-msgid "Printer"
-msgstr ""
+		msgid "Printer"
+		msgstr ""
 
-msgid "Deployed"
-msgstr ""
+		msgid "Deployed"
+		msgstr ""
 
-msgid "Task"
-msgstr ""
+		msgid "Task"
+		msgstr ""
 
-msgid "Edit/Remove"
-msgstr ""
+		msgid "Edit/Remove"
+		msgstr ""
 
-msgid "Pending Host List"
-msgstr ""
+		msgid "Pending Host List"
+		msgstr ""
 
-msgid "Approve selected Hosts"
-msgstr ""
+		msgid "Approve selected Hosts"
+		msgstr ""
 
-msgid "All hosts approved successfully"
-msgstr ""
+		msgid "All hosts approved successfully"
+		msgstr ""
 
-msgid "approved successfully"
-msgstr ""
+		msgid "approved successfully"
+		msgstr ""
 
-msgid "New Host"
-msgstr ""
+		msgid "New Host"
+		msgstr ""
 
-msgid "Primary MAC"
-msgstr ""
+		msgid "Primary MAC"
+		msgstr ""
 
-msgid "Add Mac"
-msgstr ""
+		msgid "Add Mac"
+		msgstr ""
 
-msgid "Host Description"
-msgstr ""
+		msgid "Host Description"
+		msgstr ""
 
-msgid "Host Product Key"
-msgstr ""
+		msgid "Host Product Key"
+		msgstr ""
 
-msgid "Host Image"
-msgstr ""
+		msgid "Host Image"
+		msgstr ""
 
-msgid "Host Kernel"
-msgstr ""
+		msgid "Host Kernel"
+		msgstr ""
 
-msgid "Host Kernel Arguments"
-msgstr ""
+		msgid "Host Kernel Arguments"
+		msgstr ""
 
-msgid "Host Primary Disk"
-msgstr ""
+		msgid "Host Primary Disk"
+		msgstr ""
 
-msgid "Domain Name"
-msgstr ""
+		msgid "Domain Name"
+		msgstr ""
 
-msgid "Domain OU"
-msgstr ""
+		msgid "Domain OU"
+		msgstr ""
 
-msgid "Add"
-msgstr ""
+		msgid "Add"
+		msgstr ""
 
-msgid "Add new host definition"
-msgstr ""
+		msgid "Add new host definition"
+		msgstr ""
 
-msgid "Hostname is required"
-msgstr ""
+		msgid "Hostname is required"
+		msgstr ""
 
-msgid "MAC Address is required"
-msgstr ""
+		msgid "MAC Address is required"
+		msgstr ""
 
-msgid "MAC Format is invalid"
-msgstr ""
+		msgid "MAC Format is invalid"
+		msgstr ""
 
-msgid "A host with this MAC already exists with Hostname: "
-msgstr ""
+		msgid "A host with this MAC already exists with Hostname: "
+		msgstr ""
 
-msgid "Hostname already exists"
-msgstr ""
+		msgid "Hostname already exists"
+		msgstr ""
 
-msgid "Host added"
-msgstr ""
+		msgid "Host added"
+		msgstr ""
 
-msgid "Host approved"
-msgstr ""
+		msgid "Host approved"
+		msgstr ""
 
-msgid "Host approval failed."
-msgstr ""
+		msgid "Host approval failed."
+		msgstr ""
 
-msgid "Approve this host?"
-msgstr ""
+		msgid "Approve this host?"
+		msgstr ""
 
-msgid "Invalid MAC Address"
-msgstr ""
+		msgid "Invalid MAC Address"
+		msgstr ""
 
-msgid "Remove MAC"
-msgstr ""
+		msgid "Remove MAC"
+		msgstr ""
 
-msgid "Make Primary"
-msgstr ""
+		msgid "Make Primary"
+		msgstr ""
 
-msgid "Ignore MAC on Client"
-msgstr ""
+		msgid "Ignore MAC on Client"
+		msgstr ""
 
-msgid "Ignore MAC for imaging"
-msgstr ""
+		msgid "Ignore MAC for imaging"
+		msgstr ""
 
-msgid "Approve All MACs?"
-msgstr ""
+		msgid "Approve All MACs?"
+		msgstr ""
 
-msgid "Add MAC"
-msgstr ""
+		msgid "Add MAC"
+		msgstr ""
 
-msgid "Additional MACs"
-msgstr ""
+		msgid "Additional MACs"
+		msgstr ""
 
-msgid "Pending MACs"
-msgstr ""
+		msgid "Pending MACs"
+		msgstr ""
 
-msgid "Edit host definition"
-msgstr ""
+		msgid "Edit host definition"
+		msgstr ""
 
-msgid "Group Relationships"
-msgstr ""
+		msgid "Group Relationships"
+		msgstr ""
 
-msgid "Check here to see groups this host is not associated with"
-msgstr ""
+		msgid "Check here to see groups this host is not associated with"
+		msgstr ""
 
-msgid "Add to Group(s)"
-msgstr ""
+		msgid "Add to Group(s)"
+		msgstr ""
 
-msgid "Group Name"
-msgstr ""
+		msgid "Group Name"
+		msgstr ""
 
-msgid "Total Members"
-msgstr ""
+		msgid "Total Members"
+		msgstr ""
 
-msgid "Remove Membership?"
-msgstr ""
+		msgid "Remove Membership?"
+		msgstr ""
 
-msgid "Edit Group"
-msgstr ""
+		msgid "Edit Group"
+		msgstr ""
 
-msgid "Printer Name"
-msgstr ""
+		msgid "Printer Name"
+		msgstr ""
 
-msgid "Configuration"
-msgstr ""
+		msgid "Configuration"
+		msgstr ""
 
-msgid "Check here to see what printers can be added"
-msgstr ""
+		msgid "Check here to see what printers can be added"
+		msgstr ""
 
-msgid "Add new printer(s) to this host"
-msgstr ""
+		msgid "Add new printer(s) to this host"
+		msgstr ""
 
-msgid "Default"
-msgstr ""
+		msgid "Default"
+		msgstr ""
 
-msgid "Printer Type"
-msgstr ""
+		msgid "Printer Type"
+		msgstr ""
 
-msgid "Default Printer Select"
-msgstr ""
+		msgid "Default Printer Select"
+		msgstr ""
 
-msgid "Host Printer Configuration"
-msgstr ""
+		msgid "Host Printer Configuration"
+		msgstr ""
 
-msgid "Select Management Level for this Host"
-msgstr ""
+		msgid "Select Management Level for this Host"
+		msgstr ""
 
-msgid "No Printer Management"
-msgstr ""
+		msgid "No Printer Management"
+		msgstr ""
 
-msgid "Add Only"
-msgstr ""
+		msgid "Add Only"
+		msgstr ""
 
-msgid "Add and Remove"
-msgstr ""
+		msgid "Add and Remove"
+		msgstr ""
 
-msgid "Snapins"
-msgstr ""
+		msgid "Snapins"
+		msgstr ""
 
-msgid "Created"
-msgstr ""
+		msgid "Created"
+		msgstr ""
 
-msgid "Check here to see what snapins can be added"
-msgstr ""
+		msgid "Check here to see what snapins can be added"
+		msgstr ""
 
-msgid "Add Snapin(s)"
-msgstr ""
+		msgid "Add Snapin(s)"
+		msgstr ""
 
-msgid "Service Configuration"
-msgstr ""
+		msgid "Service Configuration"
+		msgstr ""
 
-msgid "General"
-msgstr ""
+		msgid "General"
+		msgstr ""
 
-msgid "Host Screen Resolution"
-msgstr ""
+		msgid "Host Screen Resolution"
+		msgstr ""
 
-msgid "Screen Width (in pixels)"
-msgstr ""
+		msgid "Screen Width (in pixels)"
+		msgstr ""
 
-msgid "Screen Height (in pixels)"
-msgstr ""
+		msgid "Screen Height (in pixels)"
+		msgstr ""
 
-msgid "Screen Refresh Rate (in Hz)"
-msgstr ""
+		msgid "Screen Refresh Rate (in Hz)"
+		msgstr ""
 
-msgid "Auto Log Out Settings"
-msgstr ""
+		msgid "Auto Log Out Settings"
+		msgstr ""
 
-msgid "Auto Log Out Time (in minutes)"
-msgstr ""
+		msgid "Auto Log Out Time (in minutes)"
+		msgstr ""
 
-msgid "Other Tag #1"
-msgstr ""
+		msgid "Other Tag #1"
+		msgstr ""
 
-msgid "Other Tag #2"
-msgstr ""
+		msgid "Other Tag #2"
+		msgstr ""
 
-msgid "System Serial Number"
-msgstr ""
+		msgid "System Serial Number"
+		msgstr ""
 
-msgid "Motherboard Manufacturer"
-msgstr ""
+		msgid "Motherboard Manufacturer"
+		msgstr ""
 
-msgid "Motherboard Product Name"
-msgstr ""
+		msgid "Motherboard Product Name"
+		msgstr ""
 
-msgid "Motherboard Version"
-msgstr ""
+		msgid "Motherboard Version"
+		msgstr ""
 
-msgid "Motherboard Serial Number"
-msgstr ""
+		msgid "Motherboard Serial Number"
+		msgstr ""
 
-msgid "Motherboard Asset Tag"
-msgstr ""
+		msgid "Motherboard Asset Tag"
+		msgstr ""
 
-msgid "CPU Normal Speed"
-msgstr ""
+		msgid "CPU Normal Speed"
+		msgstr ""
 
-msgid "Hard Disk Model"
-msgstr ""
+		msgid "Hard Disk Model"
+		msgstr ""
 
-msgid "Hard Disk Firmware"
-msgstr ""
+		msgid "Hard Disk Firmware"
+		msgstr ""
 
-msgid "Hard Disk Serial Number"
-msgstr ""
+		msgid "Hard Disk Serial Number"
+		msgstr ""
 
-msgid "Host Hardware Inventory"
-msgstr ""
+		msgid "Host Hardware Inventory"
+		msgstr ""
 
-msgid "Virus History"
-msgstr ""
+		msgid "Virus History"
+		msgstr ""
 
-msgid "Host Login History"
-msgstr ""
+		msgid "Host Login History"
+		msgstr ""
 
-msgid "View History for"
-msgstr ""
+		msgid "View History for"
+		msgstr ""
 
-msgid "Login"
-msgstr ""
+		msgid "Login"
+		msgstr ""
 
-msgid "Logout"
-msgstr ""
+		msgid "Logout"
+		msgstr ""
 
-msgid "Service Start"
-msgstr ""
+		msgid "Service Start"
+		msgstr ""
 
-msgid "Service Stop"
-msgstr ""
+		msgid "Service Stop"
+		msgstr ""
 
-msgid "No user history data found!"
-msgstr ""
+		msgid "No user history data found!"
+		msgstr ""
 
-msgid "Host Imaging History"
-msgstr ""
+		msgid "Host Imaging History"
+		msgstr ""
 
-msgid "Imaging Type"
-msgstr ""
+		msgid "Imaging Type"
+		msgstr ""
 
-msgid "Complete"
-msgstr ""
+		msgid "Complete"
+		msgstr ""
 
-msgid "Snapin No longer exists"
-msgstr ""
+		msgid "Snapin No longer exists"
+		msgstr ""
 
-msgid "MAC Address is not valid"
-msgstr ""
+		msgid "MAC Address is not valid"
+		msgstr ""
 
-msgid "CSV File"
-msgstr ""
+		msgid "CSV File"
+		msgstr ""
 
-msgid "Upload CSV"
-msgstr ""
+		msgid "Upload CSV"
+		msgstr ""
 
-msgid "This page allows you to upload a CSV file of hosts into FOG to ease migration.  Right click"
-msgstr ""
+		msgid "This page allows you to upload a CSV file of hosts into FOG to ease migration.  Right click"
+		msgstr ""
 
-msgid "here"
-msgstr ""
+		msgid "here"
+		msgstr ""
 
-msgid " and select "
-msgstr ""
+		msgid " and select "
+		msgstr ""
 
-msgid "Save target as..."
-msgstr ""
+		msgid "Save target as..."
+		msgstr ""
 
-msgid " or "
-msgstr ""
+		msgid " or "
+		msgstr ""
 
-msgid " to download a template file.  The only fields that are required are hostname and MAC address.  Do "
-msgstr ""
+		msgid " to download a template file.  The only fields that are required are hostname and MAC address.  Do "
+		msgstr ""
 
-msgid "NOT"
-msgstr ""
+		msgid "NOT"
+		msgstr ""
 
-msgid " include a header row, and make sure you resave the file as a CSV file and not XLS!"
-msgstr ""
+		msgid " include a header row, and make sure you resave the file as a CSV file and not XLS!"
+		msgstr ""
 
-msgid "Row"
-msgstr ""
+		msgid "Row"
+		msgstr ""
 
-msgid "Invalid number of cells"
-msgstr ""
+		msgid "Invalid number of cells"
+		msgstr ""
 
-msgid "Import Host Results"
-msgstr ""
+		msgid "Import Host Results"
+		msgstr ""
 
-msgid "Total Rows"
-msgstr ""
+		msgid "Total Rows"
+		msgstr ""
 
-msgid "Successful Hosts"
-msgstr ""
+		msgid "Successful Hosts"
+		msgstr ""
 
-msgid "Failed Hosts"
-msgstr ""
+		msgid "Failed Hosts"
+		msgstr ""
 
-msgid "Errors"
-msgstr ""
+		msgid "Errors"
+		msgstr ""
 
-msgid "Click the button to download the hosts table backup."
-msgstr ""
+		msgid "Click the button to download the hosts table backup."
+		msgstr ""
 
-msgid "Export"
-msgstr ""
+		msgid "Export"
+		msgstr ""
 
-msgid "Create new group"
-msgstr ""
+		msgid "Create new group"
+		msgstr ""
 
-msgid "OR"
-msgstr ""
+		msgid "OR"
+		msgstr ""
 
-msgid "Add to group"
-msgstr ""
+		msgid "Add to group"
+		msgstr ""
 
-msgid "Process Group Changes"
-msgstr ""
+		msgid "Process Group Changes"
+		msgstr ""
 
-msgid "No Hosts were selected"
-msgstr ""
+		msgid "No Hosts were selected"
+		msgstr ""
 
-msgid "No Group selected and no new Group name entered"
-msgstr ""
+		msgid "No Group selected and no new Group name entered"
+		msgstr ""
 
-msgid "Failed to create new Group"
-msgstr ""
+		msgid "Failed to create new Group"
+		msgstr ""
 
-msgid "Invalid Group ID"
-msgstr ""
+		msgid "Invalid Group ID"
+		msgstr ""
 
-msgid "Group is Invalid"
-msgstr ""
+		msgid "Group is Invalid"
+		msgstr ""
 
-msgid "Successfully associated Hosts with the Group "
-msgstr ""
+		msgid "Successfully associated Hosts with the Group "
+		msgstr ""
 
-msgid "Failed to Associate Hosts with Group"
-msgstr ""
+		msgid "Failed to Associate Hosts with Group"
+		msgstr ""
 
-msgid "FOG Version Information"
-msgstr ""
+		msgid "FOG Version Information"
+		msgstr ""
 
-msgid "Version: "
-msgstr ""
+		msgid "Version: "
+		msgstr ""
 
-msgid "FOG License Information"
-msgstr ""
+		msgid "FOG License Information"
+		msgstr ""
 
-msgid "This section allows you to update the Linux kernel which is used to boot the client computers.  In FOG, this kernel holds all the drivers for the client computer, so if you are unable to boot a client you may wish to update to a newer kernel which may have more drivers built in.  This installation process may take a few minutes, as FOG will attempt to go out to the internet to get the requested Kernel, so if it seems like the process is hanging please be patient."
-msgstr ""
+		msgid "This section allows you to update the Linux kernel which is used to boot the client computers.  In FOG, this kernel holds all the drivers for the client computer, so if you are unable to boot a client you may wish to update to a newer kernel which may have more drivers built in.  This installation process may take a few minutes, as FOG will attempt to go out to the internet to get the requested Kernel, so if it seems like the process is hanging please be patient."
+		msgstr ""
 
-msgid "Published Kernels"
-msgstr ""
+		msgid "Published Kernels"
+		msgstr ""
 
-msgid "Unofficial Kernels"
-msgstr ""
+		msgid "Unofficial Kernels"
+		msgstr ""
 
-msgid "Starting process..."
-msgstr ""
+		msgid "Starting process..."
+		msgstr ""
 
-msgid "New Kernel name:"
-msgstr ""
+		msgid "New Kernel name:"
+		msgstr ""
 
-msgid "FOG PXE Boot Menu Configuration"
-msgstr ""
+		msgid "FOG PXE Boot Menu Configuration"
+		msgstr ""
 
-msgid "No Menu"
-msgstr ""
+		msgid "No Menu"
+		msgstr ""
 
-msgid "Hide Menu"
-msgstr ""
+		msgid "Hide Menu"
+		msgstr ""
 
-msgid "Hide Menu Timeout"
-msgstr ""
+		msgid "Hide Menu Timeout"
+		msgstr ""
 
-msgid "Advanced Menu Login"
-msgstr ""
+		msgid "Advanced Menu Login"
+		msgstr ""
 
-msgid "Boot Key Sequence"
-msgstr ""
+		msgid "Boot Key Sequence"
+		msgstr ""
 
-msgid "Menu Timeout (in seconds)"
-msgstr ""
+		msgid "Menu Timeout (in seconds)"
+		msgstr ""
 
-msgid "Exit to Hard Drive Type"
-msgstr ""
+		msgid "Exit to Hard Drive Type"
+		msgstr ""
 
-msgid "Save PXE MENU"
-msgstr ""
+		msgid "Save PXE MENU"
+		msgstr ""
 
-msgid "Invalid Timeout Value."
-msgstr ""
+		msgid "Invalid Timeout Value."
+		msgstr ""
 
-msgid "This item allows you to edit all of the PXE Menu items as you see fit.  Mind you, iPXE syntax is very finicky when it comes to edits.  If you need help understanding what items are needed, please see the forums.  You can also look at ipxe.org for syntactic usage and methods.  Some of the items here are bound to limitations.  Documentation will follow when enough time is provided."
-msgstr ""
+		msgid "This item allows you to edit all of the PXE Menu items as you see fit.  Mind you, iPXE syntax is very finicky when it comes to edits.  If you need help understanding what items are needed, please see the forums.  You can also look at ipxe.org for syntactic usage and methods.  Some of the items here are bound to limitations.  Documentation will follow when enough time is provided."
+		msgstr ""
 
-msgid "Menu Item:"
-msgstr ""
+		msgid "Menu Item:"
+		msgstr ""
 
-msgid "Description:"
-msgstr ""
+		msgid "Description:"
+		msgstr ""
 
-msgid "Parameters:"
-msgstr ""
+		msgid "Parameters:"
+		msgstr ""
 
-msgid "Boot Options:"
-msgstr ""
+		msgid "Boot Options:"
+		msgstr ""
 
-msgid "Default Item:"
-msgstr ""
+		msgid "Default Item:"
+		msgstr ""
 
-msgid "Menu Show with:"
-msgstr ""
+		msgid "Menu Show with:"
+		msgstr ""
 
-msgid "successfully updated"
-msgstr ""
+		msgid "successfully updated"
+		msgstr ""
 
-msgid "successfully removed"
-msgstr ""
+		msgid "successfully removed"
+		msgstr ""
 
-msgid "Create New iPXE Menu Entry"
-msgstr ""
+		msgid "Create New iPXE Menu Entry"
+		msgstr ""
 
-msgid "Menu Item or title cannot be blank"
-msgstr ""
+		msgid "Menu Item or title cannot be blank"
+		msgstr ""
 
-msgid "A description needs to be set"
-msgstr ""
+		msgid "A description needs to be set"
+		msgstr ""
 
-msgid "successfully added, you may now add another"
-msgstr ""
+		msgid "successfully added, you may now add another"
+		msgstr ""
 
-msgid "FOG Client Service Updater"
-msgstr ""
+		msgid "FOG Client Service Updater"
+		msgstr ""
 
-msgid "Module Name"
-msgstr ""
+		msgid "Module Name"
+		msgstr ""
 
-msgid "Module MD5"
-msgstr ""
+		msgid "Module MD5"
+		msgstr ""
 
-msgid "Module Type"
-msgstr ""
+		msgid "Module Type"
+		msgstr ""
 
-msgid "This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started."
-msgstr ""
+		msgid "This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started."
+		msgstr ""
 
-msgid "Upload a new client module/configuration file"
-msgstr ""
+		msgid "Upload a new client module/configuration file"
+		msgstr ""
 
-msgid "Max Size:"
-msgstr ""
+		msgid "Max Size:"
+		msgstr ""
 
-msgid "Client module update deleted!"
-msgstr ""
+		msgid "Client module update deleted!"
+		msgstr ""
 
-msgid "MAC Address Manufacturer Listing"
-msgstr ""
+		msgid "MAC Address Manufacturer Listing"
+		msgstr ""
 
-msgid "This section allows you to import known mac address makers into the FOG database for easier identification."
-msgstr ""
+		msgid "This section allows you to import known mac address makers into the FOG database for easier identification."
+		msgstr ""
 
-msgid "Current Records: "
-msgstr ""
+		msgid "Current Records: "
+		msgstr ""
 
-msgid "Delete Current Records"
-msgstr ""
+		msgid "Delete Current Records"
+		msgstr ""
 
-msgid "Update Current Listing"
-msgstr ""
+		msgid "Update Current Listing"
+		msgstr ""
 
-msgid "MAC address listing source: "
-msgstr ""
+		msgid "MAC address listing source: "
+		msgstr ""
 
-msgid " mac addresses updated!"
-msgstr ""
+		msgid " mac addresses updated!"
+		msgstr ""
 
-msgid "FOG System Settings"
-msgstr ""
+		msgid "FOG System Settings"
+		msgstr ""
 
-msgid "This section allows you to customize or alter the way in which FOG operates.  Please be very careful changing any of the following settings, as they can cause issues that are difficult to troubleshoot."
-msgstr ""
+		msgid "This section allows you to customize or alter the way in which FOG operates.  Please be very careful changing any of the following settings, as they can cause issues that are difficult to troubleshoot."
+		msgstr ""
 
-msgid "No image specified"
-msgstr ""
+		msgid "No image specified"
+		msgstr ""
 
-msgid "Save Changes"
-msgstr ""
+		msgid "Save Changes"
+		msgstr ""
 
-msgid "File:"
-msgstr ""
+		msgid "File:"
+		msgstr ""
 
-msgid "Number of lines:"
-msgstr ""
+		msgid "Number of lines:"
+		msgstr ""
 
-msgid "Refresh"
-msgstr ""
+		msgid "Refresh"
+		msgstr ""
 
-msgid "Click the button to export the database."
-msgstr ""
+		msgid "Click the button to export the database."
+		msgstr ""
 
-msgid "Import a previous backup file."
-msgstr ""
+		msgid "Import a previous backup file."
+		msgstr ""
 
-msgid "Import"
-msgstr ""
+		msgid "Import"
+		msgstr ""
 
-msgid "File Import successful!"
-msgstr ""
+		msgid "File Import successful!"
+		msgstr ""
 
-msgid "Database Added!"
-msgstr ""
+		msgid "Database Added!"
+		msgstr ""
 
-msgid "All Groups"
-msgstr ""
+		msgid "All Groups"
+		msgstr ""
 
-msgid "New Group"
-msgstr ""
+		msgid "New Group"
+		msgstr ""
 
-msgid "Group Description"
-msgstr ""
+		msgid "Group Description"
+		msgstr ""
 
-msgid "Group Kernel"
-msgstr ""
+		msgid "Group Kernel"
+		msgstr ""
 
-msgid "Group Kernel Arguments"
-msgstr ""
+		msgid "Group Kernel Arguments"
+		msgstr ""
 
-msgid "Group Primary Disk"
-msgstr ""
+		msgid "Group Primary Disk"
+		msgstr ""
 
-msgid "Group added"
-msgstr ""
+		msgid "Group added"
+		msgstr ""
 
-msgid "Group"
-msgstr ""
+		msgid "Group"
+		msgstr ""
 
-msgid "Group Product Key"
-msgstr ""
+		msgid "Group Product Key"
+		msgstr ""
 
-msgid "Modify Group"
-msgstr ""
+		msgid "Modify Group"
+		msgstr ""
 
-msgid "Check here to see hosts not in this group"
-msgstr ""
+		msgid "Check here to see hosts not in this group"
+		msgstr ""
 
-msgid "Modify Membership for"
-msgstr ""
+		msgid "Modify Membership for"
+		msgstr ""
 
-msgid "Add hosts to group"
-msgstr ""
+		msgid "Add hosts to group"
+		msgstr ""
 
-msgid "Check here to see hosts not within a group"
-msgstr ""
+		msgid "Check here to see hosts not within a group"
+		msgstr ""
 
-msgid "Hosts below do not belong to a group"
-msgstr ""
+		msgid "Hosts below do not belong to a group"
+		msgstr ""
 
-msgid "Add Host(s) to Group"
-msgstr ""
+		msgid "Add Host(s) to Group"
+		msgstr ""
 
-msgid "Update Hosts"
-msgstr ""
+		msgid "Update Hosts"
+		msgstr ""
 
-msgid "Image Association for"
-msgstr ""
+		msgid "Image Association for"
+		msgstr ""
 
-msgid "Update Images"
-msgstr ""
+		msgid "Update Images"
+		msgstr ""
 
-msgid "Add Snapin to all hosts in"
-msgstr ""
+		msgid "Add Snapin to all hosts in"
+		msgstr ""
 
-msgid "Remove Snapin to all hosts in"
-msgstr ""
+		msgid "Remove Snapin to all hosts in"
+		msgstr ""
 
-msgid "Remove Snapin(s)"
-msgstr ""
+		msgid "Remove Snapin(s)"
+		msgstr ""
 
-msgid "Group Screen Resolution"
-msgstr ""
+		msgid "Group Screen Resolution"
+		msgstr ""
 
-msgid "Select Management Level for all Hosts in this group"
-msgstr ""
+		msgid "Select Management Level for all Hosts in this group"
+		msgstr ""
 
-msgid "Default Printer Selector"
-msgstr ""
+		msgid "Default Printer Selector"
+		msgstr ""
 
-msgid "Add new printer(s) to all hosts in this group."
-msgstr ""
+		msgid "Add new printer(s) to all hosts in this group."
+		msgstr ""
 
-msgid "There are no printers to assign."
-msgstr ""
+		msgid "There are no printers to assign."
+		msgstr ""
 
-msgid "Remove printer from all hosts in this group."
-msgstr ""
+		msgid "Remove printer from all hosts in this group."
+		msgstr ""
 
-msgid "Delete Hosts"
-msgstr ""
+		msgid "Delete Hosts"
+		msgstr ""
 
-msgid "Confirm you really want to delete the following hosts"
-msgstr ""
+		msgid "Confirm you really want to delete the following hosts"
+		msgstr ""
 
-msgid "Delete listed hosts"
-msgstr ""
+		msgid "Delete listed hosts"
+		msgstr ""
 
-msgid "Storage Group"
-msgstr ""
+		msgid "Storage Group"
+		msgstr ""
 
-msgid "O/S"
-msgstr ""
+		msgid "O/S"
+		msgstr ""
 
-msgid "Image Type"
-msgstr ""
+		msgid "Image Type"
+		msgstr ""
 
-msgid "Partition"
-msgstr ""
+		msgid "Partition"
+		msgstr ""
 
-msgid "Image Size: ON CLIENT"
-msgstr ""
+		msgid "Image Size: ON CLIENT"
+		msgstr ""
 
-msgid "Image Size: ON SERVER"
-msgstr ""
+		msgid "Image Size: ON SERVER"
+		msgstr ""
 
-msgid "Uploaded"
-msgstr ""
+		msgid "Uploaded"
+		msgstr ""
 
-msgid "All Images"
-msgstr ""
+		msgid "All Images"
+		msgstr ""
 
-msgid "New Image"
-msgstr ""
+		msgid "New Image"
+		msgstr ""
 
-msgid "Image Description"
-msgstr ""
+		msgid "Image Description"
+		msgstr ""
 
-msgid "Add new image definition"
-msgstr ""
+		msgid "Add new image definition"
+		msgstr ""
 
-msgid "Image created"
-msgstr ""
+		msgid "Image created"
+		msgstr ""
 
-msgid "Protected"
-msgstr ""
+		msgid "Protected"
+		msgstr ""
 
-msgid "Image Manager"
-msgstr ""
+		msgid "Image Manager"
+		msgstr ""
 
-msgid "PartImage"
-msgstr ""
+		msgid "PartImage"
+		msgstr ""
 
-msgid "PartClone"
-msgstr ""
+		msgid "PartClone"
+		msgstr ""
 
-msgid "Edit image definition"
-msgstr ""
+		msgid "Edit image definition"
+		msgstr ""
 
-msgid "Check here to see hosts not assigned with this image"
-msgstr ""
+		msgid "Check here to see hosts not assigned with this image"
+		msgstr ""
 
-msgid "Modify image association for"
-msgstr ""
+		msgid "Modify image association for"
+		msgstr ""
 
-msgid "Add hosts to image"
-msgstr ""
+		msgid "Add hosts to image"
+		msgstr ""
 
-msgid "Check here to see hosts not with any image associated"
-msgstr ""
+		msgid "Check here to see hosts not with any image associated"
+		msgstr ""
 
-msgid "Hosts below have no image association"
-msgstr ""
+		msgid "Hosts below have no image association"
+		msgstr ""
 
-msgid "Assign hosts with image"
-msgstr ""
+		msgid "Assign hosts with image"
+		msgstr ""
 
-msgid "Add Image to Host(s)"
-msgstr ""
+		msgid "Add Image to Host(s)"
+		msgstr ""
 
-msgid "Remove Image"
-msgstr ""
+		msgid "Remove Image"
+		msgstr ""
 
-msgid "Storage Group Name"
-msgstr ""
+		msgid "Storage Group Name"
+		msgstr ""
 
-msgid "Check here to see groups not assigned with this image"
-msgstr ""
+		msgid "Check here to see groups not assigned with this image"
+		msgstr ""
 
-msgid "Modify group association for"
-msgstr ""
+		msgid "Modify group association for"
+		msgstr ""
 
-msgid "Add image to groups"
-msgstr ""
+		msgid "Add image to groups"
+		msgstr ""
 
-msgid "Check here to see groups not with any image associated"
-msgstr ""
+		msgid "Check here to see groups not with any image associated"
+		msgstr ""
 
-msgid "Groups below have no image association"
-msgstr ""
+		msgid "Groups below have no image association"
+		msgstr ""
 
-msgid "Assign image to groups"
-msgstr ""
+		msgid "Assign image to groups"
+		msgstr ""
 
-msgid "Add Image to Group(s)"
-msgstr ""
+		msgid "Add Image to Group(s)"
+		msgstr ""
 
-msgid "Remove Group"
-msgstr ""
+		msgid "Remove Group"
+		msgstr ""
 
-msgid "Image must be assigned to one Storage Group"
-msgstr ""
+		msgid "Image must be assigned to one Storage Group"
+		msgstr ""
 
-msgid "Image updated"
-msgstr ""
+		msgid "Image updated"
+		msgstr ""
 
-msgid "Session Name"
-msgstr ""
+		msgid "Session Name"
+		msgstr ""
 
-msgid "Client Count"
-msgstr ""
+		msgid "Client Count"
+		msgstr ""
 
-msgid "Timeout"
-msgstr ""
+		msgid "Timeout"
+		msgstr ""
 
-msgid "minutes"
-msgstr ""
+		msgid "minutes"
+		msgstr ""
 
-msgid "Select Image"
-msgstr ""
+		msgid "Select Image"
+		msgstr ""
 
-msgid "Start Multicast Session"
-msgstr ""
+		msgid "Start Multicast Session"
+		msgstr ""
 
-msgid "Clients"
-msgstr ""
+		msgid "Clients"
+		msgstr ""
 
-msgid "Percent"
-msgstr ""
+		msgid "Percent"
+		msgstr ""
 
-msgid "Stop Task"
-msgstr ""
+		msgid "Stop Task"
+		msgstr ""
 
-msgid "Please input a session name"
-msgstr ""
+		msgid "Please input a session name"
+		msgstr ""
 
-msgid "Please choose an image"
-msgstr ""
+		msgid "Please choose an image"
+		msgstr ""
 
-msgid "Session with that name already exists"
-msgstr ""
+		msgid "Session with that name already exists"
+		msgstr ""
 
-msgid "Session name cannot be the same as an existing hostname"
-msgstr ""
+		msgid "Session name cannot be the same as an existing hostname"
+		msgstr ""
 
-msgid "Please wait until a slot is open<br/>There are currently "
-msgstr ""
+		msgid "Please wait until a slot is open<br/>There are currently "
+		msgstr ""
 
-msgid "Failed to create Session"
-msgstr ""
+		msgid "Failed to create Session"
+		msgstr ""
 
-msgid "Multicast session created"
-msgstr ""
+		msgid "Multicast session created"
+		msgstr ""
 
-msgid "Canceled task"
-msgstr ""
+		msgid "Canceled task"
+		msgstr ""
 
-msgid "Edit User"
-msgstr ""
+		msgid "Edit User"
+		msgstr ""
 
-msgid "All Users"
-msgstr ""
+		msgid "All Users"
+		msgstr ""
 
-msgid "New User"
-msgstr ""
+		msgid "New User"
+		msgstr ""
 
-msgid "User Name"
-msgstr ""
+		msgid "User Name"
+		msgstr ""
 
-msgid "User Password"
-msgstr ""
+		msgid "User Password"
+		msgstr ""
 
-msgid "User Password (confirm)"
-msgstr ""
+		msgid "User Password (confirm)"
+		msgstr ""
 
-msgid "Mobile/Quick Image Access Only?"
-msgstr ""
+		msgid "Mobile/Quick Image Access Only?"
+		msgstr ""
 
-msgid "Warning - if you tick this box, this user will not be able to log into this FOG Management Console in the future."
-msgstr ""
+		msgid "Warning - if you tick this box, this user will not be able to log into this FOG Management Console in the future."
+		msgstr ""
 
-msgid "Create User"
-msgstr ""
+		msgid "Create User"
+		msgstr ""
 
-msgid "Add new user account"
-msgstr ""
+		msgid "Add new user account"
+		msgstr ""
 
-msgid "Username already exists"
-msgstr ""
+		msgid "Username already exists"
+		msgstr ""
 
-msgid "Password is invalid"
-msgstr ""
+		msgid "Password is invalid"
+		msgstr ""
 
-msgid "User created"
-msgstr ""
+		msgid "User created"
+		msgstr ""
 
-msgid "New Password"
-msgstr ""
+		msgid "New Password"
+		msgstr ""
 
-msgid "New Password (confirm)"
-msgstr ""
+		msgid "New Password (confirm)"
+		msgstr ""
 
-msgid "Warning - if you tick this box, this user     will not be able to log into this FOG Management Console in the future."
-msgstr ""
+		msgid "Warning - if you tick this box, this user     will not be able to log into this FOG Management Console in the future."
+		msgstr ""
 
-msgid "User updated"
-msgstr ""
+		msgid "User updated"
+		msgstr ""
 
-msgid "TX"
-msgstr ""
+		msgid "TX"
+		msgstr ""
 
-msgid "RX"
-msgstr ""
+		msgid "RX"
+		msgstr ""
 
-msgid "Dropped"
-msgstr ""
+		msgid "Dropped"
+		msgstr ""
 
-msgid "General Information"
-msgstr ""
+		msgid "General Information"
+		msgstr ""
 
-msgid "Storage Node"
-msgstr ""
+		msgid "Storage Node"
+		msgstr ""
 
-msgid "IP"
-msgstr ""
+		msgid "IP"
+		msgstr ""
 
-msgid "CPU Type"
-msgstr ""
+		msgid "CPU Type"
+		msgstr ""
 
-msgid "CPU Count"
-msgstr ""
+		msgid "CPU Count"
+		msgstr ""
 
-msgid "CPU Model"
-msgstr ""
+		msgid "CPU Model"
+		msgstr ""
 
-msgid "CPU Cache"
-msgstr ""
+		msgid "CPU Cache"
+		msgstr ""
 
-msgid "Total Memory"
-msgstr ""
+		msgid "Total Memory"
+		msgstr ""
 
-msgid "Used Memory"
-msgstr ""
+		msgid "Used Memory"
+		msgstr ""
 
-msgid "Free Memory"
-msgstr ""
+		msgid "Free Memory"
+		msgstr ""
 
-msgid "File System Information"
-msgstr ""
+		msgid "File System Information"
+		msgstr ""
 
-msgid "Total Disk Space"
-msgstr ""
+		msgid "Total Disk Space"
+		msgstr ""
 
-msgid "Used Disk Space"
-msgstr ""
+		msgid "Used Disk Space"
+		msgstr ""
 
-msgid "Network Information"
-msgstr ""
+		msgid "Network Information"
+		msgstr ""
 
-msgid "Information"
-msgstr ""
+		msgid "Information"
+		msgstr ""
 
-msgid "Unable to pull server information!"
-msgstr ""
+		msgid "Unable to pull server information!"
+		msgstr ""
 
-msgid "Invalid Server Information!"
-msgstr ""
+		msgid "Invalid Server Information!"
+		msgstr ""
 
-msgid "Welcome to FOG Mobile"
-msgstr ""
+		msgid "Welcome to FOG Mobile"
+		msgstr ""
 
-msgid "Welcome to FOG - Mobile Edition!  This light weight interface for FOG allows for access via mobile, low power devices."
-msgstr ""
+		msgid "Welcome to FOG - Mobile Edition!  This light weight interface for FOG allows for access via mobile, low power devices."
+		msgstr ""
 
-msgid "All Snap-ins"
-msgstr ""
+		msgid "All Snap-ins"
+		msgstr ""
 
-msgid "Add New Snapin"
-msgstr ""
+		msgid "Add New Snapin"
+		msgstr ""
 
-msgid "Snapin Storage Group"
-msgstr ""
+		msgid "Snapin Storage Group"
+		msgstr ""
 
-msgid "Snapin Run With Argument"
-msgstr ""
+		msgid "Snapin Run With Argument"
+		msgstr ""
 
-msgid "Max Size"
-msgstr ""
+		msgid "Max Size"
+		msgstr ""
 
-msgid "Snapin File (exists)"
-msgstr ""
+		msgid "Snapin File (exists)"
+		msgstr ""
 
-msgid "Snapin Arguments"
-msgstr ""
+		msgid "Snapin Arguments"
+		msgstr ""
 
-msgid "Reboot after install"
-msgstr ""
+		msgid "Reboot after install"
+		msgstr ""
 
-msgid "Please enter a name to give this Snapin"
-msgstr ""
+		msgid "Please enter a name to give this Snapin"
+		msgstr ""
 
-msgid "Snapin already exists"
-msgstr ""
+		msgid "Snapin already exists"
+		msgstr ""
 
-msgid "Please select a storage group for this snapin to reside in"
-msgstr ""
+		msgid "Please select a storage group for this snapin to reside in"
+		msgstr ""
 
-msgid "Storage Node: "
-msgstr ""
+		msgid "Storage Node: "
+		msgstr ""
 
-msgid "Failed to add snapin, unable to locate snapin directory."
-msgstr ""
+		msgid "Failed to add snapin, unable to locate snapin directory."
+		msgstr ""
 
-msgid "Failed to add snapin"
-msgstr ""
+		msgid "Failed to add snapin"
+		msgstr ""
 
-msgid "Snapin created"
-msgstr ""
+		msgid "Snapin created"
+		msgstr ""
 
-msgid "Storage"
-msgstr ""
+		msgid "Storage"
+		msgstr ""
 
-msgid "Check here to see hosts not assigned with this snapin"
-msgstr ""
+		msgid "Check here to see hosts not assigned with this snapin"
+		msgstr ""
 
-msgid "Modify snapin association for"
-msgstr ""
+		msgid "Modify snapin association for"
+		msgstr ""
 
-msgid "Add hosts to snapin"
-msgstr ""
+		msgid "Add hosts to snapin"
+		msgstr ""
 
-msgid "Check here to see hosts not assigned with any snapin"
-msgstr ""
+		msgid "Check here to see hosts not assigned with any snapin"
+		msgstr ""
 
-msgid "Hosts below have no snapin association"
-msgstr ""
+		msgid "Hosts below have no snapin association"
+		msgstr ""
 
-msgid "Add Snapin to Host(s)"
-msgstr ""
+		msgid "Add Snapin to Host(s)"
+		msgstr ""
 
-msgid "Remove Snapin"
-msgstr ""
+		msgid "Remove Snapin"
+		msgstr ""
 
-msgid "Check here to see groups not assigned with this snapin"
-msgstr ""
+		msgid "Check here to see groups not assigned with this snapin"
+		msgstr ""
 
-msgid "Add snapin to groups"
-msgstr ""
+		msgid "Add snapin to groups"
+		msgstr ""
 
-msgid "Check here to see groups not with any snapin associated"
-msgstr ""
+		msgid "Check here to see groups not with any snapin associated"
+		msgstr ""
 
-msgid "Groups below have no snapin association"
-msgstr ""
+		msgid "Groups below have no snapin association"
+		msgstr ""
 
-msgid "Assign snapin to groups"
-msgstr ""
+		msgid "Assign snapin to groups"
+		msgstr ""
 
-msgid "Add Snapin to Group(s)"
-msgstr ""
+		msgid "Add Snapin to Group(s)"
+		msgstr ""
 
-msgid "Snapin updated"
-msgstr ""
+		msgid "Snapin updated"
+		msgstr ""
 
-msgid "Plugin Name"
-msgstr ""
+		msgid "Plugin Name"
+		msgstr ""
 
-msgid "Activate Plugins"
-msgstr ""
+		msgid "Activate Plugins"
+		msgstr ""
 
-msgid "Installed Plugins"
-msgstr ""
+		msgid "Installed Plugins"
+		msgstr ""
 
-msgid "Plugin"
-msgstr ""
+		msgid "Plugin"
+		msgstr ""
 
-msgid "Plugin Description"
-msgstr ""
+		msgid "Plugin Description"
+		msgstr ""
 
-msgid "Settings"
-msgstr ""
+		msgid "Settings"
+		msgstr ""
 
-msgid "Reboot after deploy"
-msgstr ""
+		msgid "Reboot after deploy"
+		msgstr ""
 
-msgid "Shutdown after deploy"
-msgstr ""
+		msgid "Shutdown after deploy"
+		msgstr ""
 
-msgid "DMI Field"
-msgstr ""
+		msgid "DMI Field"
+		msgstr ""
 
-msgid "Update Settings"
-msgstr ""
+		msgid "Update Settings"
+		msgstr ""
 
-msgid "Add Image to DMI Associations"
-msgstr ""
+		msgid "Add Image to DMI Associations"
+		msgstr ""
 
-msgid "Image Definition"
-msgstr ""
+		msgid "Image Definition"
+		msgstr ""
 
-msgid "DMI Result"
-msgstr ""
+		msgid "DMI Result"
+		msgstr ""
 
-msgid "Add Association"
-msgstr ""
+		msgid "Add Association"
+		msgstr ""
 
-msgid "Current Image to DMI Associations"
-msgstr ""
+		msgid "Current Image to DMI Associations"
+		msgstr ""
 
-msgid "DMI Key"
-msgstr ""
+		msgid "DMI Key"
+		msgstr ""
 
-msgid "Remove Association"
-msgstr ""
+		msgid "Remove Association"
+		msgstr ""
 
-msgid "Already installed!"
-msgstr ""
+		msgid "Already installed!"
+		msgstr ""
 
-msgid "Plugin Installation"
-msgstr ""
+		msgid "Plugin Installation"
+		msgstr ""
 
-msgid "This plugin is currently not installed, would you like to install it now?"
-msgstr ""
+		msgid "This plugin is currently not installed, would you like to install it now?"
+		msgstr ""
 
-msgid "Plugin Installed!"
-msgstr ""
+		msgid "Plugin Installed!"
+		msgstr ""
 
-msgid "Plugin Installation Failed!"
-msgstr ""
+		msgid "Plugin Installation Failed!"
+		msgstr ""
 
-msgid "Failed to install Plugin!"
-msgstr ""
+		msgid "Failed to install Plugin!"
+		msgstr ""
 
-msgid "Location Name"
-msgstr ""
+		msgid "Location Name"
+		msgstr ""
 
-msgid "TFTP From Node"
-msgstr ""
+		msgid "TFTP From Node"
+		msgstr ""
 
-msgid "Location/Deployed"
-msgstr ""
+		msgid "Location/Deployed"
+		msgstr ""
 
-msgid "Host Location"
-msgstr ""
+		msgid "Host Location"
+		msgstr ""
 
-msgid "Group Location"
-msgstr ""
+		msgid "Group Location"
+		msgstr ""
 
-msgid "Location Management"
-msgstr ""
+		msgid "Location Management"
+		msgstr ""
 
-msgid "User/Group"
-msgstr ""
+		msgid "User/Group"
+		msgstr ""
 
-msgid "All Access Controls"
-msgstr ""
+		msgid "All Access Controls"
+		msgstr ""
 
-msgid "Access Control"
-msgstr ""
+		msgid "Access Control"
+		msgstr ""
 
-msgid "Controls"
-msgstr ""
+		msgid "Controls"
+		msgstr ""
 
-msgid "Control"
-msgstr ""
+		msgid "Control"
+		msgstr ""
 
-msgid "LDAP Server Name"
-msgstr ""
+		msgid "LDAP Server Name"
+		msgstr ""
 
-msgid "LDAP Server Description"
-msgstr ""
+		msgid "LDAP Server Description"
+		msgstr ""
 
-msgid "LDAP Server Address"
-msgstr ""
+		msgid "LDAP Server Address"
+		msgstr ""
 
-msgid "DN"
-msgstr ""
+		msgid "DN"
+		msgstr ""
 
-msgid "Server Port"
-msgstr ""
+		msgid "Server Port"
+		msgstr ""
 
-msgid "Failed to destroy LDAP Server"
-msgstr ""
+		msgid "Failed to destroy LDAP Server"
+		msgstr ""
 
-msgid "LDAP Server deleted"
-msgstr ""
+		msgid "LDAP Server deleted"
+		msgstr ""
 
-msgid "LDAP Server"
-msgstr ""
+		msgid "LDAP Server"
+		msgstr ""
 
-msgid "deleted"
-msgstr ""
+		msgid "deleted"
+		msgstr ""
 
-msgid "LDAP Management"
-msgstr ""
+		msgid "LDAP Management"
+		msgstr ""
 
-msgid "All Broadcasts"
-msgstr ""
+		msgid "All Broadcasts"
+		msgstr ""
 
-msgid "Broadcast Name"
-msgstr ""
+		msgid "Broadcast Name"
+		msgstr ""
 
-msgid "Broadcast IP"
-msgstr ""
+		msgid "Broadcast IP"
+		msgstr ""
 
-msgid "Broadcast Address"
-msgstr ""
+		msgid "Broadcast Address"
+		msgstr ""
 
-msgid "WOL Broadcast Management"
-msgstr ""
+		msgid "WOL Broadcast Management"
+		msgstr ""
 
-msgid "Broadcast Addresses"
-msgstr ""
+		msgid "Broadcast Addresses"
+		msgstr ""
 
-msgid "IP Address"
-msgstr ""
+		msgid "IP Address"
+		msgstr ""
 
-msgid "An error in running a query has been found Error: "
-msgstr ""
+		msgid "An error in running a query has been found Error: "
+		msgstr ""
 
-msgid "No data returned"
-msgstr ""
+		msgid "No data returned"
+		msgstr ""
 
-msgid "No query was performed"
-msgstr ""
+		msgid "No query was performed"
+		msgstr ""
 
-msgid "Example data to insert"
-msgstr ""
+		msgid "Example data to insert"
+		msgstr ""
 
-msgid "FOG session invalid"
-msgstr ""
+		msgid "FOG session invalid"
+		msgstr ""
 
-msgid "Undefined host to ping"
-msgstr ""
+		msgid "Undefined host to ping"
+		msgstr ""
 
-msgid "Invalid hostname"
-msgstr ""
+		msgid "Invalid hostname"
+		msgstr ""
 
-msgid "Unable to resolve hostname"
-msgstr ""
+		msgid "Unable to resolve hostname"
+		msgstr ""
 
-msgid "Unknown"
-msgstr ""
+		msgid "Unknown"
+		msgstr ""
 
-msgid "Load MAC Vendors"
-msgstr ""
+		msgid "Load MAC Vendors"
+		msgstr ""
 
-msgid "Error: Failed to install new kernel!"
-msgstr ""
+		msgid "Error: Failed to install new kernel!"
+		msgstr ""
 
-msgid "Error: Unable to connect to tftp server."
-msgstr ""
+		msgid "Error: Unable to connect to tftp server."
+		msgstr ""
 
-msgid "This page can only be viewed via the FOG Management portal"
-msgstr ""
+		msgid "This page can only be viewed via the FOG Management portal"
+		msgstr ""
 
-msgid "Error contacting server"
-msgstr ""
+		msgid "Error contacting server"
+		msgstr ""
 
-msgid "Windows XP"
-msgstr ""
+		msgid "Windows XP"
+		msgstr ""
 
-msgid "Windows Vista"
-msgstr ""
+		msgid "Windows Vista"
+		msgstr ""
 
-msgid "Windows 98"
-msgstr ""
+		msgid "Windows 98"
+		msgstr ""
 
-msgid "Windows (other)"
-msgstr ""
+		msgid "Windows (other)"
+		msgstr ""
 
-msgid "Linux"
-msgstr ""
+		msgid "Linux"
+		msgstr ""
 
-msgid "Hostname or IP address of the TFTP Server."
-msgstr ""
+		msgid "Hostname or IP address of the TFTP Server."
+		msgstr ""
 
-msgid "Username used to access the tftp server via ftp."
-msgstr ""
+		msgid "Username used to access the tftp server via ftp."
+		msgstr ""
 
-msgid "Password used to access the tftp server via ftp."
-msgstr ""
+		msgid "Password used to access the tftp server via ftp."
+		msgstr ""
 
-msgid "Location of pxe boot files on the PXE server."
-msgstr ""
+		msgid "Location of pxe boot files on the PXE server."
+		msgstr ""
 
-msgid "Location of kernel files on the PXE server."
-msgstr ""
+		msgid "Location of kernel files on the PXE server."
+		msgstr ""
 
-msgid "Location of kernel file on the PXE server, this should point to the kernel itself."
-msgstr ""
+		msgid "Location of kernel file on the PXE server, this should point to the kernel itself."
+		msgstr ""
 
-msgid "This setting defines the amount of physical memory (in KB) you want to use for the boot image.  This setting needs to be larger than the boot image and smaller that the total physical memory on the client."
-msgstr ""
+		msgid "This setting defines the amount of physical memory (in KB) you want to use for the boot image.  This setting needs to be larger than the boot image and smaller that the total physical memory on the client."
+		msgstr ""
 
-msgid "The settings was added to workaround a partial implementation of DHCP in the boot image.  The boot image is unable to obtain a DNS server address from the DHCP server, so what this setting will do is resolve any hostnames to IP address on the FOG server before writing the config files."
-msgstr ""
+		msgid "The settings was added to workaround a partial implementation of DHCP in the boot image.  The boot image is unable to obtain a DNS server address from the DHCP server, so what this setting will do is resolve any hostnames to IP address on the FOG server before writing the config files."
+		msgstr ""
 
-msgid "The settings defines where the memtest boot image/kernel is located."
-msgstr ""
+		msgid "The settings defines where the memtest boot image/kernel is located."
+		msgstr ""
 
-msgid "The settings defines where the fog boot file system image is located."
-msgstr ""
+		msgid "The settings defines where the fog boot file system image is located."
+		msgstr ""
 
-msgid "Since the fog boot image has an incomplete dhcp implementation, you can specify a dns address to be used with the boot image.  If you are going to use this settings, you should turn <b>FOG_USE_SLOPPY_NAME_LOOKUPS</b> off."
-msgstr ""
+		msgid "Since the fog boot image has an incomplete dhcp implementation, you can specify a dns address to be used with the boot image.  If you are going to use this settings, you should turn <b>FOG_USE_SLOPPY_NAME_LOOKUPS</b> off."
+		msgstr ""
 
-msgid "This setting defines the hostname or ip address of the NFS server used with FOG."
-msgstr ""
+		msgid "This setting defines the hostname or ip address of the NFS server used with FOG."
+		msgstr ""
 
-msgid "This setting defines the username used to access files on the nfs server used with FOG."
-msgstr ""
+		msgid "This setting defines the username used to access files on the nfs server used with FOG."
+		msgstr ""
 
-msgid "This setting defines the password used to access flies on the nfs server used with FOG."
-msgstr ""
+		msgid "This setting defines the password used to access flies on the nfs server used with FOG."
+		msgstr ""
 
-msgid "This setting defines the directory on the NFS server where images are stored.  "
-msgstr ""
+		msgid "This setting defines the directory on the NFS server where images are stored.  "
+		msgstr ""
 
-msgid "This setting defines the directory on the NFS server where images are uploaded too."
-msgstr ""
+		msgid "This setting defines the directory on the NFS server where images are uploaded too."
+		msgstr ""
 
-msgid "This setting defines the web page used to acquire the bandwidth used by the nfs server."
-msgstr ""
+		msgid "This setting defines the web page used to acquire the bandwidth used by the nfs server."
+		msgstr ""
 
-msgid "This setting defines the amount of padding applied to a partition before attempting resize the ntfs volume and upload it."
-msgstr ""
+		msgid "This setting defines the amount of padding applied to a partition before attempting resize the ntfs volume and upload it."
+		msgstr ""
 
-msgid "This setting defines the hostname or ip address of the web server used with fog."
-msgstr ""
+		msgid "This setting defines the hostname or ip address of the web server used with fog."
+		msgstr ""
 
-msgid "This setting defines the path to the fog webserver\\'s root directory."
-msgstr ""
+		msgid "This setting defines the path to the fog webserver\\'s root directory."
+		msgstr ""
 
-msgid "This setting defines the ip address of hostname for the server hosting the Wake-on-lan service."
-msgstr ""
+		msgid "This setting defines the ip address of hostname for the server hosting the Wake-on-lan service."
+		msgstr ""
 
-msgid "This setting defines the path to the files performing the WOL tasks."
-msgstr ""
+		msgid "This setting defines the path to the files performing the WOL tasks."
+		msgstr ""
 
-msgid "This setting defines the network interface used in the WOL process."
-msgstr ""
+		msgid "This setting defines the network interface used in the WOL process."
+		msgstr ""
 
-msgid "This setting defines the location of the snapin files.  These files must be hosted on the web server."
-msgstr ""
+		msgid "This setting defines the location of the snapin files.  These files must be hosted on the web server."
+		msgstr ""
 
-msgid "This setting defines how many unicast tasks to allow to be active at one time."
-msgstr ""
+		msgid "This setting defines how many unicast tasks to allow to be active at one time."
+		msgstr ""
 
-msgid "This setting defines the amount of time between client checks to determine if they are active clients."
-msgstr ""
+		msgid "This setting defines the amount of time between client checks to determine if they are active clients."
+		msgstr ""
 
-msgid "This setting defines the minimum number of characters in a user\\'s password."
-msgstr ""
+		msgid "This setting defines the minimum number of characters in a user\\'s password."
+		msgstr ""
 
-msgid "This setting defines the valid characters used in a password."
-msgstr ""
+		msgid "This setting defines the valid characters used in a password."
+		msgstr ""
 
-msgid "This setting defines which interface is monitored for traffic summaries."
-msgstr ""
+		msgid "This setting defines which interface is monitored for traffic summaries."
+		msgstr ""
 
-msgid "This setting defines the interface used in multicast communications."
-msgstr ""
+		msgid "This setting defines the interface used in multicast communications."
+		msgstr ""
 
-msgid "This setting defines the starting port number used in multicast communications.  This starting port number must be an even number."
-msgstr ""
+		msgid "This setting defines the starting port number used in multicast communications.  This starting port number must be an even number."
+		msgstr ""
 
-msgid "This setting defines the maximum number of multicast sessions that can be running at one time."
-msgstr ""
+		msgid "This setting defines the maximum number of multicast sessions that can be running at one time."
+		msgstr ""
 
-msgid "This setting defines "
-msgstr ""
+		msgid "This setting defines "
+		msgstr ""
 
-msgid "This setting defines the location on the web server of the FOG reports."
-msgstr ""
+		msgid "This setting defines the location on the web server of the FOG reports."
+		msgstr ""
 
-msgid "This setting defines what css style sheet and theme to use for FOG."
-msgstr ""
+		msgid "This setting defines what css style sheet and theme to use for FOG."
+		msgstr ""
 
-msgid "This setting defines if you would like to remove hibernate and swap files before uploading a Windows image.  "
-msgstr ""
+		msgid "This setting defines if you would like to remove hibernate and swap files before uploading a Windows image.  "
+		msgstr ""
 
-msgid "This setting defines if the Windows Service module directory cleaner should be enabled on client computers. This service is clean out the contents of a directory on when a user logs out of the workstation. (Valid values: 0 or 1)."
-msgstr ""
+		msgid "This setting defines if the Windows Service module directory cleaner should be enabled on client computers. This service is clean out the contents of a directory on when a user logs out of the workstation. (Valid values: 0 or 1)."
+		msgstr ""
 
-msgid "This setting defines if the FOG management portal uses animation effects on it.  Valid values are 0 or 1"
-msgstr ""
+		msgid "This setting defines if the FOG management portal uses animation effects on it.  Valid values are 0 or 1"
+		msgstr ""
 
-msgid "This setting defines if user cleanup should be enabled.  The User Cleanup module will remove all local windows users from the workstation on log off accept for users that are whitelisted.  (Valid values are 0 or 1)"
-msgstr ""
+		msgid "This setting defines if user cleanup should be enabled.  The User Cleanup module will remove all local windows users from the workstation on log off accept for users that are whitelisted.  (Valid values are 0 or 1)"
+		msgstr ""
 
-msgid "This setting defines if the green fog module should be enabled.  The green fog module will shutdown or restart a computer at a set time.  (Valid values are 0 or 1)"
-msgstr ""
+		msgid "This setting defines if the green fog module should be enabled.  The green fog module will shutdown or restart a computer at a set time.  (Valid values are 0 or 1)"
+		msgstr ""
 
-msgid "This setting defines if the auto log off module should be enabled.  This module will log off any active user after X minutes of inactivity.  (Valid values are 0 or 1)"
-msgstr ""
+		msgid "This setting defines if the auto log off module should be enabled.  This module will log off any active user after X minutes of inactivity.  (Valid values are 0 or 1)"
+		msgstr ""
 
-msgid "This setting defines if the fog display manager should be active.  The fog display manager will reset the clients screen resolution to a fixed size on log off and on computer start up.  (Valid values are 0 or 1)"
-msgstr ""
+		msgid "This setting defines if the fog display manager should be active.  The fog display manager will reset the clients screen resolution to a fixed size on log off and on computer start up.  (Valid values are 0 or 1)"
+		msgstr ""
 
-msgid "This setting defines the default width in pixels to reset the computer display to with the fog display manager service."
-msgstr ""
+		msgid "This setting defines the default width in pixels to reset the computer display to with the fog display manager service."
+		msgstr ""
 
-msgid "This setting defines the default height in pixels to reset the computer display to with the fog display manager service."
-msgstr ""
+		msgid "This setting defines the default height in pixels to reset the computer display to with the fog display manager service."
+		msgstr ""
 
-msgid "This setting defines the default refresh rate to reset the computer display to with the fog display manager service."
-msgstr ""
+		msgid "This setting defines the default refresh rate to reset the computer display to with the fog display manager service."
+		msgstr ""
 
-msgid "This setting defines the number of minutes to wait before logging a user off of a PC. (Value of 0 will disable this module.)"
-msgstr ""
+		msgid "This setting defines the number of minutes to wait before logging a user off of a PC. (Value of 0 will disable this module.)"
+		msgstr ""
 
-msgid "This setting defines the location of the background image used in the auto log off module.  The image should be 300px x 300px.  This image can be located locally (such as c:\\\\images\\\\myimage.jpg) or on a web server (such as http://freeghost.sf.net/images/image.jpg)"
-msgstr ""
+		msgid "This setting defines the location of the background image used in the auto log off module.  The image should be 300px x 300px.  This image can be located locally (such as c:\\\\images\\\\myimage.jpg) or on a web server (such as http://freeghost.sf.net/images/image.jpg)"
+		msgstr ""
 
-msgid "This setting defines the keymap used on the client boot image."
-msgstr ""
+		msgid "This setting defines the keymap used on the client boot image."
+		msgstr ""
 
-msgid "This setting defines if the fog hostname changer should be globally active.  (Valid values are 0 or 1)"
-msgstr ""
+		msgid "This setting defines if the fog hostname changer should be globally active.  (Valid values are 0 or 1)"
+		msgstr ""
 
-msgid "This setting defines if the fog snapin installer should be globally active.  (Valid values are 0 or 1)"
-msgstr ""
+		msgid "This setting defines if the fog snapin installer should be globally active.  (Valid values are 0 or 1)"
+		msgstr ""
 
-msgid "This setting allows you to add additional kernel arguments to the client boot image.  This setting is global for all hosts."
-msgstr ""
+		msgid "This setting allows you to add additional kernel arguments to the client boot image.  This setting is global for all hosts."
+		msgstr ""
 
-msgid "This setting defines if the fog client updater should be globally active.  (Valid values are 0 or 1)"
-msgstr ""
+		msgid "This setting defines if the fog client updater should be globally active.  (Valid values are 0 or 1)"
+		msgstr ""
 
-msgid "This setting defines if the fog host register should be globally active.  (Valid values are 0 or 1)"
-msgstr ""
+		msgid "This setting defines if the fog host register should be globally active.  (Valid values are 0 or 1)"
+		msgstr ""
 
-msgid "This setting defines if the fog printer maanger should be globally active.  (Valid values are 0 or 1)"
-msgstr ""
+		msgid "This setting defines if the fog printer maanger should be globally active.  (Valid values are 0 or 1)"
+		msgstr ""
 
-msgid "This setting defines if the fog task reboot should be globally active.  (Valid values are 0 or 1)"
-msgstr ""
+		msgid "This setting defines if the fog task reboot should be globally active.  (Valid values are 0 or 1)"
+		msgstr ""
 
-msgid "This setting defines if the fog user tracker should be globally active.  (Valid values are 0 or 1)"
-msgstr ""
+		msgid "This setting defines if the fog user tracker should be globally active.  (Valid values are 0 or 1)"
+		msgstr ""
 
-msgid "This setting defines the default value to populate the host\\'s Active Directory domain name value."
-msgstr ""
+		msgid "This setting defines the default value to populate the host\\'s Active Directory domain name value."
+		msgstr ""
 
-msgid "This setting defines the default value to populate the host\\'s Active Directory OU value."
-msgstr ""
+		msgid "This setting defines the default value to populate the host\\'s Active Directory OU value."
+		msgstr ""
 
-msgid "This setting defines the default value to populate the host\\'s Active Directory user name value.'"
-msgstr ""
+		msgid "This setting defines the default value to populate the host\\'s Active Directory user name value.'"
+		msgstr ""
 
-msgid "This setting defines the default value to populate the host\\'s Active Directory password value.  This settings must be encrypted."
-msgstr ""
+		msgid "This setting defines the default value to populate the host\\'s Active Directory password value.  This settings must be encrypted."
+		msgstr ""
 
-msgid "This setting defines the location of the fog utility directory."
-msgstr ""
+		msgid "This setting defines the location of the fog utility directory."
+		msgstr ""
 
-msgid "This setting defines if the fog plugin system should be enabled."
-msgstr ""
+		msgid "This setting defines if the fog plugin system should be enabled."
+		msgstr ""
 
-msgid "This setting defines the base location of fog plugins."
-msgstr ""
+		msgid "This setting defines the base location of fog plugins."
+		msgstr ""
 
-msgid "Auto generated fog nfs group"
-msgstr ""
+		msgid "Auto generated fog nfs group"
+		msgstr ""
 
-msgid "Auto generated fog nfs group member"
-msgstr ""
+		msgid "Auto generated fog nfs group member"
+		msgstr ""
 
-msgid "This setting defines the username the storage nodes should use to connect to the fog server."
-msgstr ""
+		msgid "This setting defines the username the storage nodes should use to connect to the fog server."
+		msgstr ""
 
-msgid "This setting defines the password the storage nodes should use to connect to the fog server."
-msgstr ""
+		msgid "This setting defines the password the storage nodes should use to connect to the fog server."
+		msgstr ""
 
-msgid "This setting defines the username used for the ssh client."
-msgstr ""
+		msgid "This setting defines the username used for the ssh client."
+		msgstr ""
 
-msgid "This setting defines the port to use for the ssh client."
-msgstr ""
+		msgid "This setting defines the port to use for the ssh client."
+		msgstr ""
 
-msgid "This setting defines which page is displayed in each section, valid settings includes <b>LIST</b> and <b>SEARCH</b>."
-msgstr ""
+		msgid "This setting defines which page is displayed in each section, valid settings includes <b>LIST</b> and <b>SEARCH</b>."
+		msgstr ""
 
-msgid "Windows 7"
-msgstr ""
+		msgid "Windows 7"
+		msgstr ""
 
-msgid "Windows 8"
-msgstr ""
+		msgid "Windows 8"
+		msgstr ""
 
-msgid "This setting defines the default value for the pxe menu timeout."
-msgstr ""
+		msgid "This setting defines the default value for the pxe menu timeout."
+		msgstr ""
 
-msgid "This setting defines the proxy ip address to use."
-msgstr ""
+		msgid "This setting defines the proxy ip address to use."
+		msgstr ""
 
-msgid "This setting defines the proxy port address to use."
-msgstr ""
+		msgid "This setting defines the proxy port address to use."
+		msgstr ""
 
-msgid "This setting defines the location of util base, which is typically /opt/fog/"
-msgstr ""
+		msgid "This setting defines the location of util base, which is typically /opt/fog/"
+		msgstr ""
 
-msgid "This setting defines if you would like the FOG pxe menu hidden or displayed"
-msgstr ""
+		msgid "This setting defines if you would like the FOG pxe menu hidden or displayed"
+		msgstr ""
 
-msgid "This setting defines if you would like to append any settings to the end of your PXE default file."
-msgstr ""
+		msgid "This setting defines if you would like to append any settings to the end of your PXE default file."
+		msgstr ""
 
-msgid "This setting defines if you would like to use the legacy active tasks window.  Note:  The legacy screen will no longer be updated."
-msgstr ""
+		msgid "This setting defines if you would like to use the legacy active tasks window.  Note:  The legacy screen will no longer be updated."
+		msgstr ""
 
-msgid "PIGZ Compression Rating"
-msgstr ""
+		msgid "PIGZ Compression Rating"
+		msgstr ""
 
-msgid "Key Sequence for boot prompt."
-msgstr ""
+		msgid "Key Sequence for boot prompt."
+		msgstr ""
 
-msgid "This setting allows you to set whether or not an image is legacy.  Valid values are 0 or 1"
-msgstr ""
+		msgid "This setting allows you to set whether or not an image is legacy.  Valid values are 0 or 1"
+		msgstr ""
 
-msgid "This setting defines the proxy username to use."
-msgstr ""
+		msgid "This setting defines the proxy username to use."
+		msgstr ""
 
-msgid "This setting defines the proxy password to use."
-msgstr ""
+		msgid "This setting defines the proxy password to use."
+		msgstr ""
 
-msgid "This setting sets the system to no menu, if there is no task set, it boots to first device."
-msgstr ""
+		msgid "This setting sets the system to no menu, if there is no task set, it boots to first device."
+		msgstr ""
 
-msgid "This setting defines if the fog printer manager should be globally active.  (Valid values are 0 or 1)"
-msgstr ""
+		msgid "This setting defines if the fog printer manager should be globally active.  (Valid values are 0 or 1)"
+		msgstr ""
 
-msgid "This setting defines the default value for the pxe hidden menu timeout."
-msgstr ""
+		msgid "This setting defines the default value for the pxe hidden menu timeout."
+		msgstr ""
 
-msgid "This setting defines tasks to consider \\'Used\\' in the task count.  Listing is comma separated, using the ID\\'s of the tasks."
-msgstr ""
+		msgid "This setting defines tasks to consider \\'Used\\' in the task count.  Listing is comma separated, using the ID\\'s of the tasks."
+		msgstr ""
 
-msgid "This setting defines the grace period for the reboots and shutdowns.  The value is specified in seconds"
-msgstr ""
+		msgid "This setting defines the grace period for the reboots and shutdowns.  The value is specified in seconds"
+		msgstr ""
 
-msgid "FOG"
-msgstr ""
+		msgid "FOG"
+		msgstr ""
 
-msgid "Database Schema Installer / Updater"
-msgstr ""
+		msgid "Database Schema Installer / Updater"
+		msgstr ""
 
-msgid "Update/Install Successful!"
-msgstr ""
+		msgid "Update/Install Successful!"
+		msgstr ""
 
-msgid "Click"
-msgstr ""
+		msgid "Click"
+		msgstr ""
 
-msgid "to login."
-msgstr ""
+		msgid "to login."
+		msgstr ""
 
-msgid "Update/Install Failed!"
-msgstr ""
+		msgid "Update/Install Failed!"
+		msgstr ""
 
-msgid "The following errors occured"
-msgstr ""
+		msgid "The following errors occured"
+		msgstr ""
 
-msgid "Update not required, your database schema is up to date!"
-msgstr ""
+		msgid "Update not required, your database schema is up to date!"
+		msgstr ""
 
-msgid "Unable to connect to Database"
-msgstr ""
+		msgid "Unable to connect to Database"
+		msgstr ""
 
-msgid "Database Error"
-msgstr ""
+		msgid "Database Error"
+		msgstr ""
 
-msgid "Make sure your database username and password are correct."
-msgstr ""
+		msgid "Make sure your database username and password are correct."
+		msgstr ""
 
-msgid "Your FOG database schema is not up to date, either because you have updated FOG or this is a new FOG installation.  If this is a upgrade, we highly recommend that you backup your FOG database before updating the schema (this will allow you to return the previous installed version)."
-msgstr ""
+		msgid "Your FOG database schema is not up to date, either because you have updated FOG or this is a new FOG installation.  If this is a upgrade, we highly recommend that you backup your FOG database before updating the schema (this will allow you to return the previous installed version)."
+		msgstr ""
 
-msgid "If you would like to backup your FOG database you can do so my using MySql Administrator or by running the following command in a terminal window (Applications -> System Tools -> Terminal), this will save sqldump in your home directory."
-msgstr ""
+		msgid "If you would like to backup your FOG database you can do so my using MySql Administrator or by running the following command in a terminal window (Applications -> System Tools -> Terminal), this will save sqldump in your home directory."
+		msgstr ""
 
-msgid "Are you sure you wish to install/update the FOG database?"
-msgstr ""
+		msgid "Are you sure you wish to install/update the FOG database?"
+		msgstr ""
 
-msgid "Install/Upgrade Now"
-msgstr ""
+		msgid "Install/Upgrade Now"
+		msgstr ""
 
 #, php-format
-msgid "Your systems PHP version is not sufficient. You have version %s, version %s is required."
-msgstr ""
+		msgid "Your systems PHP version is not sufficient. You have version %s, version %s is required."
+		msgstr ""
 
-msgid "Display"
-msgstr ""
+		msgid "Display"
+		msgstr ""
 
-msgid "Auto"
-msgstr ""
+		msgid "Auto"
+		msgstr ""
 
-msgid "Model"
-msgstr ""
+		msgid "Model"
+		msgstr ""
 
-msgid "Inventory"
-msgstr ""
+		msgid "Inventory"
+		msgstr ""
 
-msgid "Deleted"
-msgstr ""
+		msgid "Deleted"
+		msgstr ""
 
-msgid "All"
-msgstr ""
+		msgid "All"
+		msgstr ""
 
-msgid "Removed"
-msgstr ""
+		msgid "Removed"
+		msgstr ""
 
-msgid "Enabled"
-msgstr ""
+		msgid "Enabled"
+		msgstr ""
 
-msgid "Management"
-msgstr ""
+		msgid "Management"
+		msgstr ""
 
-msgid "Images"
-msgstr ""
+		msgid "Images"
+		msgstr ""
 
-msgid "Node"
-msgstr ""
+		msgid "Node"
+		msgstr ""
 
-msgid "Groups"
-msgstr ""
+		msgid "Groups"
+		msgstr ""
 
-msgid "Bandwidth"
-msgstr ""
+		msgid "Bandwidth"
+		msgstr ""
 
-msgid "Replication Bandwidth"
-msgstr ""
+		msgid "Replication Bandwidth"
+		msgstr ""
 
-msgid "This setting limits the bandwidth for replication between nodes.  It operates by getting the max upload setting of the node it's transmitting to. So if you are trying to transmit to remote node A and node A only has a 5Mbps and you want the speed limited to 1Mbps on that node, you set the bandwidth field on that node to 1000."
-msgstr ""
+		msgid "This setting limits the bandwidth for replication between nodes.  It operates by getting the max upload setting of the node it's transmitting to. So if you are trying to transmit to remote node A and node A only has a 5Mbps and you want the speed limited to 1Mbps on that node, you set the bandwidth field on that node to 1000."
+		msgstr ""
 
-msgid "Transmit"
-msgstr ""
+		msgid "Transmit"
+		msgstr ""
 
-msgid "Receive"
-msgstr ""
+		msgid "Receive"
+		msgstr ""
 
-msgid "New"
-msgstr ""
+		msgid "New"
+		msgstr ""
 
-msgid "Users"
-msgstr ""
+		msgid "Users"
+		msgstr ""
 
-msgid "Version"
-msgstr ""
+		msgid "Version"
+		msgstr ""
 
-msgid "Text"
-msgstr ""
+		msgid "Text"
+		msgstr ""
 
-msgid "Graphical"
-msgstr ""
+		msgid "Graphical"
+		msgstr ""
 
-msgid "Client"
-msgstr ""
+		msgid "Client"
+		msgstr ""
 
-msgid "or"
-msgstr ""
+		msgid "or"
+		msgstr ""
 
-msgid "Error"
-msgstr ""
+		msgid "Error"
+		msgstr ""
 
-msgid "Home"
-msgstr ""
+		msgid "Home"
+		msgstr ""
 
-msgid "Reports"
-msgstr ""
+		msgid "Reports"
+		msgstr ""
 
-msgid "Queued"
-msgstr ""
+		msgid "Queued"
+		msgstr ""
 
-msgid "Active"
-msgstr ""
+		msgid "Active"
+		msgstr ""
 
-msgid "Printers"
-msgstr ""
+		msgid "Printers"
+		msgstr ""
 
-msgid "Directory"
-msgstr ""
+		msgid "Directory"
+		msgstr ""
 
-msgid "Login History"
-msgstr ""
+		msgid "Login History"
+		msgstr ""
 
-msgid "Image History"
-msgstr ""
+		msgid "Image History"
+		msgstr ""
 
-msgid "Snapin History"
-msgstr ""
+		msgid "Snapin History"
+		msgstr ""
 
-msgid "Locations"
-msgstr ""
+		msgid "Locations"
+		msgstr ""
 
-msgid "License"
-msgstr ""
+		msgid "License"
+		msgstr ""
 
-msgid "Kernel Update"
-msgstr ""
+		msgid "Kernel Update"
+		msgstr ""
 
-msgid "iPXE Boot Menu"
-msgstr ""
+		msgid "iPXE Boot Menu"
+		msgstr ""
 
-msgid "Client Updater"
-msgstr ""
+		msgid "Client Updater"
+		msgstr ""
 
-msgid "Hostname Changer"
-msgstr ""
+		msgid "Hostname Changer"
+		msgstr ""
 
-msgid "Host Registration"
-msgstr ""
+		msgid "Host Registration"
+		msgstr ""
 
-msgid "Snapin Client"
-msgstr ""
+		msgid "Snapin Client"
+		msgstr ""
 
-msgid "Task Reboot"
-msgstr ""
+		msgid "Task Reboot"
+		msgstr ""
 
-msgid "User Cleanup"
-msgstr ""
+		msgid "User Cleanup"
+		msgstr ""
 
-msgid "User Tracker"
-msgstr ""
-
-#, php-format
-msgid "%s Manager"
-msgstr ""
-
-msgid "Green FOG"
-msgstr ""
-
-msgid "Directory Cleaner"
-msgstr ""
-
-msgid "MAC Address List"
-msgstr ""
-
-msgid "FOG Settings"
-msgstr ""
-
-msgid "Server Shell"
-msgstr ""
-
-msgid "Log Viewer"
-msgstr ""
-
-msgid "Configuration Save"
-msgstr ""
-
-msgid "FOG Sourceforge Page"
-msgstr ""
-
-msgid "FOG Home Page"
-msgstr ""
-
-msgid "New Search"
-msgstr ""
+		msgid "User Tracker"
+		msgstr ""
 
 #, php-format
-msgid "List All %s"
-msgstr ""
+		msgid "%s Manager"
+		msgstr ""
+
+		msgid "Green FOG"
+		msgstr ""
+
+		msgid "Directory Cleaner"
+		msgstr ""
+
+		msgid "MAC Address List"
+		msgstr ""
+
+		msgid "FOG Settings"
+		msgstr ""
+
+		msgid "Server Shell"
+		msgstr ""
+
+		msgid "Log Viewer"
+		msgstr ""
+
+		msgid "Configuration Save"
+		msgstr ""
+
+		msgid "FOG Sourceforge Page"
+		msgstr ""
+
+		msgid "FOG Home Page"
+		msgstr ""
+
+		msgid "New Search"
+		msgstr ""
 
 #, php-format
-msgid "Create New %s"
-msgstr ""
-
-msgid "Basic Tasks"
-msgstr ""
-
-msgid "Membership"
-msgstr ""
-
-msgid "Image Association"
-msgstr ""
+		msgid "List All %s"
+		msgstr ""
 
 #, php-format
-msgid "%s Menu"
-msgstr ""
+		msgid "Create New %s"
+		msgstr ""
 
-msgid "Primary Group"
-msgstr ""
+		msgid "Basic Tasks"
+		msgstr ""
 
-msgid "All Storage Nodes"
-msgstr ""
+		msgid "Membership"
+		msgstr ""
 
-msgid "Add Storage Node"
-msgstr ""
-
-msgid "All Storage Groups"
-msgstr ""
-
-msgid "Add Storage Group"
-msgstr ""
-
-msgid "Active Multicast Tasks"
-msgstr ""
-
-msgid "Active Snapin Tasks"
-msgstr ""
-
-msgid "Scheduled Tasks"
-msgstr ""
-
-msgid "Export Configuration"
-msgstr ""
-
-msgid "Import Configuration"
-msgstr ""
-
-msgid "Open Source Computer Cloning Solution"
-msgstr ""
-
-msgid "Invalid MAC Address!"
-msgstr ""
-
-msgid "iPXE Menu Configuration"
-msgstr ""
-
-msgid "iPXE Menu Customization"
-msgstr ""
-
-msgid "iPXE New Menu Entry"
-msgstr ""
-
-msgid "Required database field is empty"
-msgstr ""
-
-msgid "No results found"
-msgstr ""
+		msgid "Image Association"
+		msgstr ""
 
 #, php-format
-msgid "%s is required"
-msgstr ""
+		msgid "%s Menu"
+		msgstr ""
 
-msgid "Host Management"
-msgstr ""
+		msgid "Primary Group"
+		msgstr ""
 
-msgid "Storage Management"
-msgstr ""
+		msgid "All Storage Nodes"
+		msgstr ""
 
-msgid "Task Management"
-msgstr ""
+		msgid "Add Storage Node"
+		msgstr ""
 
-msgid "Client Management"
-msgstr ""
+		msgid "All Storage Groups"
+		msgstr ""
 
-msgid "Dashboard"
-msgstr ""
+		msgid "Add Storage Group"
+		msgstr ""
 
-msgid "Report Management"
-msgstr ""
+		msgid "Active Multicast Tasks"
+		msgstr ""
 
-msgid "Printer Management"
-msgstr ""
+		msgid "Active Snapin Tasks"
+		msgstr ""
 
-msgid "FOG Configuration"
-msgstr ""
+		msgid "Scheduled Tasks"
+		msgstr ""
 
-msgid "Group Management"
-msgstr ""
+		msgid "Export Configuration"
+		msgstr ""
 
-msgid "Image Management"
-msgstr ""
+		msgid "Import Configuration"
+		msgstr ""
 
-msgid "User Management"
-msgstr ""
+		msgid "Open Source Computer Cloning Solution"
+		msgstr ""
 
-msgid "Hardware Information"
-msgstr ""
+		msgid "Invalid MAC Address!"
+		msgstr ""
 
-msgid "Snapin Management"
-msgstr ""
+		msgid "iPXE Menu Configuration"
+		msgstr ""
 
-msgid "Plugin Management"
-msgstr ""
+		msgid "iPXE Menu Customization"
+		msgstr ""
 
-msgid "Access Control Management"
-msgstr ""
+		msgid "iPXE New Menu Entry"
+		msgstr ""
 
-msgid "FOG General Help"
-msgstr ""
+		msgid "Required database field is empty"
+		msgstr ""
 
-msgid "Pending Hosts"
-msgstr ""
+		msgid "No results found"
+		msgstr ""
 
-msgid "Last Uploaded"
-msgstr ""
+#, php-format
+		msgid "%s is required"
+		msgstr ""
 
-msgid "Deploy Method"
-msgstr ""
+		msgid "Host Management"
+		msgstr ""
 
-msgid "Not Available"
-msgstr ""
+		msgid "Storage Management"
+		msgstr ""
 
-msgid "Export Hosts"
-msgstr ""
+		msgid "Task Management"
+		msgstr ""
 
-msgid "Import Hosts"
-msgstr ""
+		msgid "Client Management"
+		msgstr ""
 
-msgid "Equipment Loan"
-msgstr ""
+		msgid "Dashboard"
+		msgstr ""
 
-msgid "Host List"
-msgstr ""
+		msgid "Report Management"
+		msgstr ""
 
-msgid "Imaging Log"
-msgstr ""
+		msgid "Printer Management"
+		msgstr ""
 
-msgid "Snapin Log"
-msgstr ""
+		msgid "FOG Configuration"
+		msgstr ""
 
-msgid "Upload Reports"
-msgstr ""
+		msgid "Group Management"
+		msgstr ""
 
-msgid "Main Menu"
-msgstr ""
+		msgid "Image Management"
+		msgstr ""
 
-msgid "Invalid Login"
-msgstr ""
+		msgid "User Management"
+		msgstr ""
 
-msgid "Not allowed here"
-msgstr ""
+		msgid "Hardware Information"
+		msgstr ""
 
-msgid "Management Login"
-msgstr ""
+		msgid "Snapin Management"
+		msgstr ""
 
-msgid "Password"
-msgstr ""
+		msgid "Plugin Management"
+		msgstr ""
 
-msgid "Estimated FOG Sites"
-msgstr ""
+		msgid "Access Control Management"
+		msgstr ""
 
-msgid "Latest Version"
-msgstr ""
+		msgid "FOG General Help"
+		msgstr ""
 
-msgid "FOG Mobile Login"
-msgstr ""
+		msgid "Pending Hosts"
+		msgstr ""
 
-msgid "Image is protected and cannot be deleted"
-msgstr ""
+		msgid "Last Uploaded"
+		msgstr ""
 
-msgid "No master nodes are enabled to delete this image"
-msgstr ""
+		msgid "Deploy Method"
+		msgstr ""
 
-msgid "Failed to delete image files"
-msgstr ""
+		msgid "Not Available"
+		msgstr ""
 
-msgid "Failed to delete file"
-msgstr ""
+		msgid "Export Hosts"
+		msgstr ""
 
-msgid "Not Registered Hosts"
-msgstr ""
+		msgid "Import Hosts"
+		msgstr ""
 
-msgid "Registered Hosts"
-msgstr ""
+		msgid "Equipment Loan"
+		msgstr ""
 
-msgid "Debug Options"
-msgstr ""
+		msgid "Host List"
+		msgstr ""
 
-msgid "Advanced Options"
-msgstr ""
+		msgid "Imaging Log"
+		msgstr ""
 
-msgid "Advanced Login Required"
-msgstr ""
+		msgid "Snapin Log"
+		msgstr ""
 
-msgid "Pending Registered Hosts"
-msgstr ""
+		msgid "Upload Reports"
+		msgstr ""
 
-msgid "n/a"
-msgstr ""
+		msgid "Main Menu"
+		msgstr ""
 
-msgid "Directory Already Exists"
-msgstr ""
+		msgid "Invalid Login"
+		msgstr ""
 
-msgid "Time Already Exists"
-msgstr ""
+		msgid "Not allowed here"
+		msgstr ""
 
-msgid "User Already Exists"
-msgstr ""
+		msgid "Management Login"
+		msgstr ""
 
-msgid "No Active Snapin Jobs Found For Host"
-msgstr ""
+		msgid "Password"
+		msgstr ""
 
-msgid "Failed to create task"
-msgstr ""
+		msgid "Estimated FOG Sites"
+		msgstr ""
 
-msgid "Host is already a member of an active task"
-msgstr ""
+		msgid "Latest Version"
+		msgstr ""
 
-msgid "Host is not valid"
-msgstr ""
+		msgid "FOG Mobile Login"
+		msgstr ""
 
-msgid "Task Type is not valid"
-msgstr ""
+		msgid "Image is protected and cannot be deleted"
+		msgstr ""
 
-msgid "The image storage group assigned is not valid"
-msgstr ""
+		msgid "No master nodes are enabled to delete this image"
+		msgstr ""
 
-msgid "There are no snapins associated with this host"
-msgstr ""
+		msgid "Failed to delete image files"
+		msgstr ""
 
-msgid "Snapins Are already deployed to this host"
-msgstr ""
+		msgid "Failed to delete file"
+		msgstr ""
 
-msgid "Could not find a Storage Node  Is there one enabled within this Storage Group"
-msgstr ""
+		msgid "Not Registered Hosts"
+		msgstr ""
 
-msgid "The storage groups associated storage node is not valid"
-msgstr ""
+		msgid "Registered Hosts"
+		msgstr ""
 
-msgid "A task already exists for this host at the scheduled tasking"
-msgstr ""
+		msgid "Debug Options"
+		msgstr ""
 
-msgid "Minute value is not valid"
-msgstr ""
+		msgid "Advanced Options"
+		msgstr ""
 
-msgid "Hour value is not valid"
-msgstr ""
+		msgid "Advanced Login Required"
+		msgstr ""
 
-msgid "Day of month value is not valid"
-msgstr ""
+		msgid "Pending Registered Hosts"
+		msgstr ""
 
-msgid "Month value is not valid"
-msgstr ""
+		msgid "n/a"
+		msgstr ""
 
-msgid "Day of week value is not valid"
-msgstr ""
+		msgid "Directory Already Exists"
+		msgstr ""
 
-msgid "No Host found for MAC Address"
-msgstr ""
+		msgid "Time Already Exists"
+		msgstr ""
 
-msgid "Error multiple hosts returned for list of mac addresses"
-msgstr ""
+		msgid "User Already Exists"
+		msgstr ""
 
-msgid "Session timeout"
-msgstr ""
+		msgid "No Active Snapin Jobs Found For Host"
+		msgstr ""
 
-msgid "ID"
-msgstr ""
+		msgid "Failed to create task"
+		msgstr ""
 
-msgid "Quick Image Menu"
-msgstr ""
+		msgid "Host is already a member of an active task"
+		msgstr ""
 
-msgid "Task Started"
-msgstr ""
+		msgid "Host is not valid"
+		msgstr ""
 
-msgid "Error, Is an image associated with this host"
-msgstr ""
+		msgid "Task Type is not valid"
+		msgstr ""
 
-msgid "Host Search"
-msgstr ""
+		msgid "The image storage group assigned is not valid"
+		msgstr ""
 
-msgid "Graph Enabled"
-msgstr ""
+		msgid "There are no snapins associated with this host"
+		msgstr ""
 
-msgid "Master Node"
-msgstr ""
+		msgid "Snapins Are already deployed to this host"
+		msgstr ""
 
-msgid "Is Master Node"
-msgstr ""
+		msgid "Could not find a Storage Node  Is there one enabled within this Storage Group"
+		msgstr ""
 
-msgid "Storage Node Name"
-msgstr ""
+		msgid "The storage groups associated storage node is not valid"
+		msgstr ""
 
-msgid "Storage Node Description"
-msgstr ""
+		msgid "A task already exists for this host at the scheduled tasking"
+		msgstr ""
 
-msgid "Max Clients"
-msgstr ""
+		msgid "Minute value is not valid"
+		msgstr ""
 
-msgid "Snapin Path"
-msgstr ""
+		msgid "Hour value is not valid"
+		msgstr ""
 
-msgid "Interface"
-msgstr ""
+		msgid "Day of month value is not valid"
+		msgstr ""
 
-msgid "Is Enabled"
-msgstr ""
+		msgid "Month value is not valid"
+		msgstr ""
 
-msgid "Is Graph Enabled"
-msgstr ""
+		msgid "Day of week value is not valid"
+		msgstr ""
 
-msgid "On Dashboard"
-msgstr ""
+		msgid "No Host found for MAC Address"
+		msgstr ""
 
-msgid "Management Username"
-msgstr ""
+		msgid "Error multiple hosts returned for list of mac addresses"
+		msgstr ""
 
-msgid "Management Password"
-msgstr ""
+		msgid "Session timeout"
+		msgstr ""
 
-msgid "Use extreme caution with this setting! This setting, if used incorrectly could potentially wipe out all of your images stored on all current storage nodes.  The 'Is Master Node' setting defines which node is the distributor of the images. If you add a blank node, meaning a node that has no images on it, and set it to master, it will distribute its store, which is empty, to all nodes in the group"
-msgstr ""
+		msgid "ID"
+		msgstr ""
 
-msgid "Storage Node already exists"
-msgstr ""
+		msgid "Quick Image Menu"
+		msgstr ""
 
-msgid "Storage Node IP"
-msgstr ""
+		msgid "Task Started"
+		msgstr ""
 
-msgid "Storage Node Max Clients"
-msgstr ""
+		msgid "Error, Is an image associated with this host"
+		msgstr ""
 
-msgid "Storage Node Interface"
-msgstr ""
+		msgid "Host Search"
+		msgstr ""
 
-msgid "Storage Node Username"
-msgstr ""
+		msgid "Graph Enabled"
+		msgstr ""
 
-msgid "Storage Node Password"
-msgstr ""
+		msgid "Master Node"
+		msgstr ""
 
-msgid "Storage Node Created"
-msgstr ""
+		msgid "Is Master Node"
+		msgstr ""
 
-msgid "Storage Node Updated"
-msgstr ""
+		msgid "Storage Node Name"
+		msgstr ""
 
-msgid "Database Update Failed"
-msgstr ""
+		msgid "Storage Node Description"
+		msgstr ""
 
-msgid "Failed to destroy Storage Node"
-msgstr ""
+		msgid "Max Clients"
+		msgstr ""
 
-msgid "Storage Node deleted"
-msgstr ""
+		msgid "Snapin Path"
+		msgstr ""
 
-msgid "Storage Group Description"
-msgstr ""
+		msgid "Interface"
+		msgstr ""
 
-msgid "Storage Group Already Exists"
-msgstr ""
+		msgid "Is Enabled"
+		msgstr ""
 
-msgid "Storage Group Created"
-msgstr ""
+		msgid "Is Graph Enabled"
+		msgstr ""
 
-msgid "Storage Group Updated"
-msgstr ""
+		msgid "On Dashboard"
+		msgstr ""
 
-msgid "You must have at least one Storage Group"
-msgstr ""
+		msgid "Management Username"
+		msgstr ""
 
-msgid "Storage Group deleted"
-msgstr ""
+		msgid "Management Password"
+		msgstr ""
 
-msgid "Failed to destroy Storage Group"
-msgstr ""
+		msgid "Use extreme caution with this setting! This setting, if used incorrectly could potentially wipe out all of your images stored on all current storage nodes.  The 'Is Master Node' setting defines which node is the distributor of the images. If you add a blank node, meaning a node that has no images on it, and set it to master, it will distribute its store, which is empty, to all nodes in the group"
+		msgstr ""
 
-msgid "Invalid Class"
-msgstr ""
+		msgid "Storage Node already exists"
+		msgstr ""
 
-msgid "Class is not extended from FOGPage"
-msgstr ""
+		msgid "Storage Node IP"
+		msgstr ""
 
-msgid "Language"
-msgstr ""
+		msgid "Storage Node Max Clients"
+		msgstr ""
 
-msgid ""
-msgstr ""
+		msgid "Storage Node Interface"
+		msgstr ""
 
-msgid "English"
-msgstr ""
+		msgid "Storage Node Username"
+		msgstr ""
 
-msgid "Espaol"
-msgstr ""
+		msgid "Storage Node Password"
+		msgstr ""
 
-msgid "Franais"
-msgstr ""
+		msgid "Storage Node Created"
+		msgstr ""
 
-msgid "Deutsch"
-msgstr ""
+		msgid "Storage Node Updated"
+		msgstr ""
 
-msgid "Italiano"
-msgstr ""
+		msgid "Database Update Failed"
+		msgstr ""
 
-msgid "Portugus"
-msgstr ""
+		msgid "Failed to destroy Storage Node"
+		msgstr ""
 
-msgid "FOG :: Mobile Manager :: Version"
-msgstr ""
+		msgid "Storage Node deleted"
+		msgstr ""
 
-msgid "This Machine is already registered as"
-msgstr ""
+		msgid "Storage Group Description"
+		msgstr ""
 
-msgid "Replay from journal: real insert time"
-msgstr ""
+		msgid "Storage Group Already Exists"
+		msgstr ""
 
-msgid "There are no images on this server."
-msgstr ""
+		msgid "Storage Group Created"
+		msgstr ""
 
-msgid "Invalid Host"
-msgstr ""
+		msgid "Storage Group Updated"
+		msgstr ""
 
-msgid "No Active Task found for Host"
-msgstr ""
+		msgid "You must have at least one Storage Group"
+		msgstr ""
 
-msgid "Invalid Storage Group"
-msgstr ""
+		msgid "Storage Group deleted"
+		msgstr ""
 
-msgid "Could not find a Storage Node. Is there one enabled within this Storage Group?"
-msgstr ""
+		msgid "Failed to destroy Storage Group"
+		msgstr ""
 
-msgid "Move/rename failed."
-msgstr ""
+		msgid "Invalid Class"
+		msgstr ""
 
-msgid "Failed to update Task"
-msgstr ""
+		msgid "Class is not extended from FOGPage"
+		msgstr ""
 
-msgid "There are no groups on this server."
-msgstr ""
+		msgid "Language"
+		msgstr ""
 
-msgid "Invalid operational mode"
-msgstr ""
+		msgid ""
+		msgstr ""
 
-msgid "Accepted"
-msgstr ""
+		msgid "English"
+		msgstr ""
 
-msgid "Failed"
-msgstr ""
+		msgid "Espaol"
+		msgstr ""
 
-msgid "There are no snapins on this server."
-msgstr ""
+		msgid "Franais"
+		msgstr ""
 
-msgid "Done"
-msgstr ""
+		msgid "Deutsch"
+		msgstr ""
 
-msgid "Failed to create inventory for this host!"
-msgstr ""
+		msgid "Italiano"
+		msgstr ""
 
-msgid "Failed to update inventory for this host!"
-msgstr ""
+		msgid "Portugus"
+		msgstr ""
 
-msgid "Invalid host"
-msgstr ""
+		msgid "FOG :: Mobile Manager :: Version"
+		msgstr ""
 
-msgid "Created by FOG Reg on"
-msgstr ""
+		msgid "This Machine is already registered as"
+		msgstr ""
 
-msgid "Done, with imaging!"
-msgstr ""
+		msgid "Replay from journal: real insert time"
+		msgstr ""
 
-msgid "Failed to create image task."
-msgstr ""
+		msgid "There are no images on this server."
+		msgstr ""
 
-msgid "No image assigned for this host."
-msgstr ""
+		msgid "Invalid Host"
+		msgstr ""
 
-msgid "Done!"
-msgstr ""
+		msgid "No Active Task found for Host"
+		msgstr ""
 
-msgid "Failed to save new Host!"
-msgstr ""
+		msgid "Invalid Storage Group"
+		msgstr ""
 
-msgid "Done, but unable to create task!"
-msgstr ""
+		msgid "Could not find a Storage Node. Is there one enabled within this Storage Group?"
+		msgstr ""
 
-msgid "Already registered as"
-msgstr ""
+		msgid "Move/rename failed."
+		msgstr ""
 
-msgid "Invalid image"
-msgstr ""
+		msgid "Failed to update Task"
+		msgstr ""
 
-msgid "Hello FOG Client"
-msgstr ""
+		msgid "There are no groups on this server."
+		msgstr ""
 
-msgid "Invalid StorageGroup"
-msgstr ""
+		msgid "Invalid operational mode"
+		msgstr ""
 
-msgid "Forced Task: Failed to update Task"
-msgstr ""
+		msgid "Accepted"
+		msgstr ""
 
-msgid "Waiting for a slot"
-msgstr ""
+		msgid "Failed"
+		msgstr ""
 
-msgid "PCs are in front of me."
-msgstr ""
+		msgid "There are no snapins on this server."
+		msgstr ""
 
-msgid "There are open slots, but I am waiting for"
-msgstr ""
+		msgid "Done"
+		msgstr ""
 
-msgid "PCs in front of me."
-msgstr ""
+		msgid "Failed to create inventory for this host!"
+		msgstr ""
 
-msgid "is open, but has recently failed for this Host"
-msgstr ""
+		msgid "Failed to update inventory for this host!"
+		msgstr ""
 
-msgid "Unable to find a suitable Storage Node for transfer!"
-msgstr ""
+		msgid "Invalid host"
+		msgstr ""
 
-msgid "There are no locations on this server."
-msgstr ""
+		msgid "Created by FOG Reg on"
+		msgstr ""
+
+		msgid "Done, with imaging!"
+		msgstr ""
+
+		msgid "Failed to create image task."
+		msgstr ""
+
+		msgid "No image assigned for this host."
+		msgstr ""
+
+		msgid "Done!"
+		msgstr ""
+
+		msgid "Failed to save new Host!"
+		msgstr ""
+
+		msgid "Done, but unable to create task!"
+		msgstr ""
+
+		msgid "Already registered as"
+		msgstr ""
+
+		msgid "Invalid image"
+		msgstr ""
+
+		msgid "Hello FOG Client"
+		msgstr ""
+
+		msgid "Invalid StorageGroup"
+		msgstr ""
+
+		msgid "Forced Task: Failed to update Task"
+		msgstr ""
+
+		msgid "Waiting for a slot"
+		msgstr ""
+
+		msgid "PCs are in front of me."
+		msgstr ""
+
+		msgid "There are open slots, but I am waiting for"
+		msgstr ""
+
+		msgid "PCs in front of me."
+		msgstr ""
+
+		msgid "is open, but has recently failed for this Host"
+		msgstr ""
+
+		msgid "Unable to find a suitable Storage Node for transfer!"
+		msgstr ""
+
+		msgid "There are no locations on this server."
+		msgstr ""

@@ -1,7 +1,7 @@
 <?php
 require_once('../commons/base.inc.php');
 if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'],array('deletemulti','deleteconf')))
-	unset($_SESSION['delitems']);
+unset($_SESSION['delitems']);
 $currentUser = $FOGCore->FOGUser = ($_SESSION['FOG_USER'] ? unserialize($_SESSION['FOG_USER']) : null);
 /** $FOGPageManager initiates the FOGPageManager */
 $FOGPageManager = $FOGCore->FOGPageManager = new FOGPageManager();

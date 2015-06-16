@@ -4,11 +4,11 @@ class ImagingLog extends FOGController {
 	public $databaseTable = 'imagingLog';
 	/** @var $databaseFields the fields within the table */
 	public $databaseFields = array(
-		'id'		=> 'ilID',
-		'hostID'		=> 'ilHostID',
-		'start'	=> 'ilStartTime',
-		'finish'	=> 'ilFinishTime',
-		'image'	=> 'ilImageName',
-		'type' => 'ilType',
-	);
+			'id'		=> 'ilID',
+			'hostID'		=> 'ilHostID',
+			'start'	=> 'ilStartTime',
+			'finish'	=> 'ilFinishTime',
+			'image'	=> 'ilImageName',
+			'type' => 'ilType',
+			);
 }

@@ -9,18 +9,18 @@ echo -e "\n"
 sam=""
 getSAMLoc
 if [ -n "$hd" ]; then
-	part="${hd}1"
-	dots "Mounting Windows File System"
-	mkdir /ntfs
-	mount -o rw $part /ntfs 
-	echo -e "Done\n"
-	if [ -f "$sam" ]; then
-		echo " * Loading..."
-		chntpw ${sam}  
-		echo " Task Complete"
-	else 
-		echo " Unable to locate SAM file."
-	fi
+part="${hd}1"
+dots "Mounting Windows File System"
+mkdir /ntfs
+mount -o rw $part /ntfs
+echo -e "Done\n"
+if [ -f "$sam" ]; then
+echo " * Loading..."
+chntpw ${sam}
+echo " Task Complete"
 else
-	echo "hard disk not found!"
+echo " Unable to locate SAM file."
+fi
+else
+echo "hard disk not found!"
 fi

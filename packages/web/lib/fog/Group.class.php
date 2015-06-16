@@ -4,31 +4,31 @@ class Group extends FOGController {
 	public $databaseTable = 'groups';
 	// Name -> Database field name
 	public $databaseFields = array(
-		'id'		=> 'groupID',
-		'name'		=> 'groupName',
-		'description'	=> 'groupDesc',
-		'createdBy'	=> 'groupCreateBy',
-		'createdTime'	=> 'groupDateTime',
-		'building'	=> 'groupBuilding',
-		'kernel'	=> 'groupKernel',
-		'kernelArgs'	=> 'groupKernelArgs',
-		'kernelDevice'	=> 'groupPrimaryDisk',
-	);
+			'id'		=> 'groupID',
+			'name'		=> 'groupName',
+			'description'	=> 'groupDesc',
+			'createdBy'	=> 'groupCreateBy',
+			'createdTime'	=> 'groupDateTime',
+			'building'	=> 'groupBuilding',
+			'kernel'	=> 'groupKernel',
+			'kernelArgs'	=> 'groupKernelArgs',
+			'kernelDevice'	=> 'groupPrimaryDisk',
+			);
 	// Allow setting / getting of these additional fields
 	public $additionalFields = array(
-		'hosts',
-		'hostsnotinme',
-	);
-    // Overides
-    private function loadHosts() {
+			'hosts',
+			'hostsnotinme',
+			);
+	// Overides
+	private function loadHosts() {
 		if (!$this->isLoaded('hosts') && $this->get('id')) {
-            $HostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID');
-            foreach ($this->getClass('HostManager')->find(array('id' => $HostIDs)) AS $Host) {
-                if ($Host->isValid()) $this->add('hosts', $Host);
-            }
-            foreach ($this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','',true) AS $Host) {
-                if ($Host->isValid()) $this->add('hostsnotinme', $Host);
-            }
+			$HostIDs = $this->getClass('GroupAssociationManager')->find(array('groupID' => $this->get('id')),'','','','','','','hostID');
+			foreach ($this->getClass('HostManager')->find(array('id' => $HostIDs)) AS $Host) {
+				if ($Host->isValid()) $this->add('hosts', $Host);
+			}
+			foreach ($this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','',true) AS $Host) {
+				if ($Host->isValid()) $this->add('hostsnotinme', $Host);
+			}
 		}
 		return $this;
 	}
@@ -36,32 +36,32 @@ class Group extends FOGController {
 		return $this->getClass('GroupAssociationManager')->count(array('groupID' => $this->get('id')));
 	}
 	public function get($key = '') {
-        if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
-            $this->loadHosts();
-        return parent::get($key);
-    }   
-    public function set($key, $value) {
-        if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme') {
-            foreach((array)$value AS $Host) $newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
-            $value = (array)$newValue;
-        }   
-        // Set
-        return parent::set($key, $value);
-    }
-    public function add($key, $value) {
-        if (($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme') && !($value instanceof Host)) {
-            $this->loadHosts();
-            $value = new Host($value);
-        }   
-        // Add
-        return parent::add($key, $value);
-    }
-    public function remove($key, $object) {
-        if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
+		if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
 			$this->loadHosts();
-        // Remove
-        return parent::remove($key, $object);
-    }
+		return parent::get($key);
+	}
+	public function set($key, $value) {
+		if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme') {
+			foreach((array)$value AS $Host) $newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
+			$value = (array)$newValue;
+		}
+		// Set
+		return parent::set($key, $value);
+	}
+	public function add($key, $value) {
+		if (($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme') && !($value instanceof Host)) {
+			$this->loadHosts();
+			$value = new Host($value);
+		}
+		// Add
+		return parent::add($key, $value);
+	}
+	public function remove($key, $object) {
+		if ($this->key($key) == 'hosts' || $this->key($key) == 'hostsnotinme')
+			$this->loadHosts();
+		// Remove
+		return parent::remove($key, $object);
+	}
 	public function load($field = 'id') {
 		parent::load($field);
 		foreach(get_class_methods($this) AS $method) {
@@ -69,9 +69,9 @@ class Group extends FOGController {
 				$this->$method();
 		}
 	}
-    public function save() {
-        parent::save();
-        if ($this->isLoaded('hosts')) {
+	public function save() {
+		parent::save();
+		if ($this->isLoaded('hosts')) {
 			// Remove old rows
 			$this->getClass('GroupAssociationManager')->destroy(array('groupID' => $this->get('id')));
 			// Create assoc
@@ -83,22 +83,22 @@ class Group extends FOGController {
 						->save();
 				}
 			}
-        }
-        return $this;
-    }
-    public function addHost($addArray) {
-        // Add
-        foreach((array)$addArray AS $item) $this->add('hosts', $item);
-        // Return
-        return $this;
-    }
-    public function removeHost($removeArray) {
-        // Iterate array (or other as array)
-        foreach ((array)$removeArray AS $remove)
-            $this->remove('hosts', ($remove instanceof Host ? $remove : new Host((int)$remove)));
-        // Return
-        return $this;
-    }
+		}
+		return $this;
+	}
+	public function addHost($addArray) {
+		// Add
+		foreach((array)$addArray AS $item) $this->add('hosts', $item);
+		// Return
+		return $this;
+	}
+	public function removeHost($removeArray) {
+		// Iterate array (or other as array)
+		foreach ((array)$removeArray AS $remove)
+			$this->remove('hosts', ($remove instanceof Host ? $remove : new Host((int)$remove)));
+		// Return
+		return $this;
+	}
 	public function addImage($imageID) {
 		if (!$imageID) throw new Exception(_('Select an image'));
 		$Image = ($imageID instanceof Image ? $imageID : new Image((int)$imageID));
@@ -134,9 +134,9 @@ class Group extends FOGController {
 		foreach($this->get('hosts') AS $Host) {
 			if ($Host && $Host->isValid()) {
 				$Host->set('printerLevel',$level)
-					 ->addPrinter($printAdd)
-					 ->removePrinter($printDel)
-					 ->save();
+					->addPrinter($printAdd)
+					->removePrinter($printDel)
+					->save();
 				if ($default)
 					$Host->updateDefault($default);
 			}

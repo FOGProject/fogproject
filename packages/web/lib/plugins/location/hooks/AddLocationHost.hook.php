@@ -4,7 +4,7 @@ class AddLocationHost extends Hook {
 	public $description = 'Add Location to Hosts';
 	public $author = 'Rowlett';
 	public $active = true;
-	public $node = 'location';	
+	public $node = 'location';
 	public function HostTableHeader($arguments) {
 		if (in_array($this->node,(array)$_SESSION['PluginsInstalled'])) {
 			if ($_REQUEST[node] == 'host' && $_REQUEST[sub] != 'pending')

@@ -7,17 +7,17 @@ abstract class FOGService extends FOGBase {
 	/** @var $zzz int the sleep time for the service */
 	public $zzz;
 	/** @function outall() outputs to log file
-	  * @param $string string the data to write
-	  * @return null
-	  */
+	 * @param $string string the data to write
+	 * @return null
+	 */
 	public function outall($string) {
 		$this->FOGCore->out($string, $this->dev);
 		$this->FOGCore->wlog($string, $this->log);
 		return;
 	}
 	/** @function serviceStart() starts the service
-	  * @return null
-	  */
+	 * @return null
+	 */
 	public function serviceStart() {
 		$this->FOGCore->out($this->FOGCore->getBanner(), $this->log);
 		$this->outall(sprintf(' * Starting %s Service',get_class($this)));

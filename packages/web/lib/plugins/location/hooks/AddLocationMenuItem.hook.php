@@ -2,11 +2,11 @@
 class AddLocationMenuItem extends Hook {
 	public function __construct() {
 		parent::__construct();
-		$this->name = 'AddLocationMenuItem';
-		$this->description = 'Add menu item for location';
-		$this->author = 'Tom Elliott';
-		$this->active = true;
-		$this->node = 'location';
+			$this->name = 'AddLocationMenuItem';
+			$this->description = 'Add menu item for location';
+			$this->author = 'Tom Elliott';
+			$this->active = true;
+			$this->node = 'location';
 	}
 	public function MenuData($arguments) {
 		if (in_array($this->node,$_SESSION['PluginsInstalled']))

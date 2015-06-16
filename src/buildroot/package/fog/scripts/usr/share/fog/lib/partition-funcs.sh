@@ -32,12 +32,12 @@ hasExtendedPartition() {
 saveEBR() {
 	local part_number=`echo $1 | sed -r 's/^[^0-9]+//g'`;
 	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
-	# Leaving the grep in place due to forward slashes
+# Leaving the grep in place due to forward slashes
 	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$1 | awk -F[,=] '{print $6+0}'`;
 	if [ "$part_type" == "5" -o "$part_type" == "f" -o "$part_number" -ge 5 ]; then
 		dots "Saving EBR for ($1)";
-		dd if=$1 of=/tmp/d1p${part_number}.ebr bs=512 count=1 &> /dev/null;
-		echo "Done";
+	dd if=$1 of=/tmp/d1p${part_number}.ebr bs=512 count=1 &> /dev/null;
+	echo "Done";
 	fi
 }
 
@@ -45,15 +45,15 @@ saveEBR() {
 restoreEBR() {
 	local part_number=`echo $1 | sed -r 's/^[^0-9]+//g'`;
 	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
-	# Leaving the grep in place due to forward slashes
+# Leaving the grep in place due to forward slashes
 	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$1 | awk -F[,=] '{print $6+0}'`;
 	if [ "$part_type" == "5" -o "$part_type" == "f" -o "$part_number" -ge 5 ]; then
 		if [ -e "/tmp/d1p${part_number}.ebr" ]; then
 			dots "Restoring EBR for ($1)";
-			dd of=$1 if=/tmp/d1p${part_number}.ebr bs=512 count=1 &> /dev/null;
-			echo "Done";
-		fi
+	dd of=$1 if=/tmp/d1p${part_number}.ebr bs=512 count=1 &> /dev/null;
+	echo "Done";
 	fi
+		fi
 }
 
 # $1 is the location of the file to store uuids in
@@ -62,7 +62,7 @@ saveSwapUUID() {
 	local uuid=`blkid -s UUID $2 | cut -d\" -f2`;
 	if [ -n "$uuid" ]; then
 		echo " * Saving UUID ($uuid) for ($2)";
-		echo "$2 $uuid" >> "$1";
+	echo "$2 $uuid" >> "$1";
 	fi
 }
 
@@ -75,28 +75,28 @@ makeSwapSystem() {
 	local part_type="0";
 	local hasgpt=`hasGPT $disk`;
 	if [ "$hasgpt" == "1" ]; then
-		# don't have a good way to test, as ubuntu installer
-		# doesn't set the GPT partition type correctly.
-		# so, only format as swap if uuid exists.
+# don't have a good way to test, as ubuntu installer
+# doesn't set the GPT partition type correctly.
+# so, only format as swap if uuid exists.
 		if [ -e "$1" ]; then
 			uuid=`egrep "^$2" "$1" | awk '{print $2;}'`;
-		fi
+	fi
 		if [ -n "$uuid" ]; then
 			part_type="82";
-		fi
-	else
-		# Leaving the grep in place due to forward slashes
-		part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$2 | awk -F[,=] '{print $6+0}'`;
 	fi
-	if [ "$part_type" == "82" ]; then
-		if [ -e "$1" ]; then
-			uuid=`egrep "^$2" "$1" | awk '{print $2;}'`;
-		fi
+		else
+# Leaving the grep in place due to forward slashes
+			part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$2 | awk -F[,=] '{print $6+0}'`;
+	fi
+		if [ "$part_type" == "82" ]; then
+			if [ -e "$1" ]; then
+				uuid=`egrep "^$2" "$1" | awk '{print $2;}'`;
+	fi
 		if [ -n "$uuid" ]; then
 			option="-U $uuid";
-		fi
+	fi
 		echo " * Restoring swap partition: $2";
-		mkswap $option $2 &> /dev/null;
+	mkswap $option $2 &> /dev/null;
 	fi
 }
 
@@ -114,7 +114,7 @@ resizePartition() {
 	if [ "$?" == "0" ]; then
 		applySfdiskPartitions $disk $tmp_file2;
 	fi
-	udevadm --settle &>/dev/null;
+		udevadm --settle &>/dev/null;
 	blockdev --rereadpt $disk &>/dev/null;
 	mv $tmp_file $imagePath/d1.original.partitions &>/dev/null;
 	mv $tmp_file2 $imagePath/d1.minimum.partitions &>/dev/null;
@@ -132,7 +132,7 @@ fillDiskWithPartitions() {
 	if [ "$?" == "0" ]; then
 		applySfdiskPartitions $1 $tmp_file2;
 	fi
-	udevadm --settle &>/dev/null;
+		udevadm --settle &>/dev/null;
 	blockdev --rereadpt $1 &>/dev/null;
 	rm -f $tmp_file2;
 }
@@ -185,21 +185,21 @@ processSfdisk() {
 	local minstart=`awk -F'[ ,]+' '/start/{if ($4) print $4}' $data | sort -n | head -1`;
 	if [[ "$osid" == +([1-2]) ]]; then
 		local chunksize="512";
-		local minstart="63";
+	local minstart="63";
 	else
 		if [ "$minstart" == "63" ]; then
 			local chunksize="512";
 		else
 			local chunksize="2048";
-		fi
 	fi
-	local awkArgs="-v CHUNK_SIZE=$chunksize -v MIN_START=$minstart";
+		fi
+		local awkArgs="-v CHUNK_SIZE=$chunksize -v MIN_START=$minstart";
 	awkArgs="${awkArgs} -v action=$2 -v target=$3 -v sizePos=$4";
 	if [ -n "$5" ]; then
 		awkArgs="${awkArgs} -v fixedList=$5"
-	fi
-	# process with external awk script
-	/usr/share/fog/lib/procsfdisk.awk $awkArgs $data;
+			fi
+# process with external awk script
+			/usr/share/fog/lib/procsfdisk.awk $awkArgs $data;
 }
 
 #
@@ -224,21 +224,21 @@ getPartitionTableType() {
 		mbrtype="";
 	fi
 
-	if [ "$gpt" == "present" ]; then
-		gpttype="GPT";
+		if [ "$gpt" == "present" ]; then
+			gpttype="GPT";
 	elif [ "$gpt" == "not" ]; then
 		gpttype="";
 	fi
-	if [ -n "$gpttype" -a -n "$mbrtype" ]; then
-		type="${gpttype}-${mbrtype}"
-	elif [ -n "$gpttype" ]; then
-		type="${gpttype}"
-	elif [ -n "$mbrtype" ]; then
-		type="${gpttype}"
-	else
-		type="";
+		if [ -n "$gpttype" -a -n "$mbrtype" ]; then
+			type="${gpttype}-${mbrtype}"
+				elif [ -n "$gpttype" ]; then
+				type="${gpttype}"
+				elif [ -n "$mbrtype" ]; then
+				type="${gpttype}"
+		else
+			type="";
 	fi
-	echo "$type"
+		echo "$type"
 }
 
 # $1 : device name of drive

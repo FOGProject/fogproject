@@ -44,11 +44,11 @@ try
 		if (!$id)
 		{
 			$il = new ImagingLog(array(
-				'hostID' => $Host->get('id'),
-				'start' => $FOGCore->nice_date()->format('Y-m-d H:i:s'),
-				'image' => $Task->getImage()->get('name'),
-				'type' => $_REQUEST['type'],
-			));
+						'hostID' => $Host->get('id'),
+						'start' => $FOGCore->nice_date()->format('Y-m-d H:i:s'),
+						'image' => $Task->getImage()->get('name'),
+						'type' => $_REQUEST['type'],
+						));
 		}
 		else
 		{
@@ -57,11 +57,11 @@ try
 		}
 		$il->save();
 		$TaskLog = new TaskLog(array(
-			'taskID' => $Task->get('id'),
-			'taskStateID' => $Task->get('stateID'),
-			'createdTime' => $Task->get('createdTime'),
-			'createdBy' => $Task->get('createdBy'),
-		));
+					'taskID' => $Task->get('id'),
+					'taskStateID' => $Task->get('stateID'),
+					'createdTime' => $Task->get('createdTime'),
+					'createdBy' => $Task->get('createdBy'),
+					));
 		$TaskLog->save();
 		print '##@GO';
 	}

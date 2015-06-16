@@ -8,10 +8,10 @@ class AddHostSerial extends Hook {
 	public $author = 'Junkhacker with edits from Tom Elliott';
 	/** @var $active whether or not the hook is to be running */
 	public $active = false;
-    /** @function HostData the data to change
-	  * @param $arguments the Hook Events to enact upon
-	  * @return void
-	  */
+	/** @function HostData the data to change
+	 * @param $arguments the Hook Events to enact upon
+	 * @return void
+	 */
 	public function HostData($arguments) {
 		if ($_REQUEST['node'] == 'host') {
 			foreach((array)$arguments['data'] AS $i => $data) {
@@ -23,10 +23,10 @@ class AddHostSerial extends Hook {
 			}
 		}
 	}
-    /** @function HostTableHeader the header data to change
-	  * @param $arguments the Hook Events to enact upon
-	  * @return void
-	  */
+	/** @function HostTableHeader the header data to change
+	 * @param $arguments the Hook Events to enact upon
+	 * @return void
+	 */
 	public function HostTableHeader($arguments) {
 		if ($_REQUEST['node'] == 'host') $arguments['headerData'][7] = 'Serial';
 	}

@@ -3,27 +3,27 @@
 clearScreen;
 displayBanner;
 #setuDNS $dns;
-echo 
+echo
 echo " Thanks for donating to the FOG Project!"
-echo 
+echo
 echo " To abort this task at any time, press the enter key"
-echo 
+echo
 sleep 5
 dots "Checking in with server"
-        cd /tmp			
-        touch co.txt
-        wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-        queueinfo=`cat co.txt`;
-        while [ "$queueinfo" != "##" ]
-        do
-                echo 
-	        echo "       * $queueinfo";
-	        rm co.txt
-	        touch co.txt
-	        wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-	        queueinfo=`cat co.txt`;
-	        sleep 2;
-        done  
+cd /tmp
+touch co.txt
+wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+queueinfo=`cat co.txt`;
+while [ "$queueinfo" != "##" ]
+do
+echo
+echo "       * $queueinfo";
+rm co.txt
+touch co.txt
+wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+queueinfo=`cat co.txt`;
+sleep 2;
+done
 echo "done"
 echo
 echo " Turning off montior output to conserve power..."
