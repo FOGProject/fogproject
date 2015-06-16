@@ -126,7 +126,7 @@ class Group extends FOGController {
 	}
 	public function setAD($useAD, $domain, $ou, $user, $pass) {
 		foreach($this->get('hosts') AS $Host) {
-			if ($Host && $Host->isValid()) $Host->setAD($useAD,$domain,$ou,$user,$pass)->save();
+			if ($Host && $Host->isValid()) $Host->setAD($useAD,$domain,$ou,$user,$pass);
 		}
 		return $this;
 	}
