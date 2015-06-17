@@ -351,27 +351,10 @@ class TaskManagementPage extends FOGPage {
         // Hook
         $this->HookManager->processEvent('TASK_CANCEL', array('Task' => &$Task));
         try {
-            // Cencel task - will throw Exception on error
+            // Cancel task - will throw Exception on error
             $Task->cancel();
             // Success
             $result['success'] = true;
-            if ($Task->get('typeID') == 12 || $Task->get('typeID') == 13) {
-                $Host = $Task->getHost();
-                $SnapinJob = $Host->getActiveSnapinJob();
-                $SnapinTasks = $this->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id')));
-                print $SnapinJob->get('id');
-                foreach ((array)$SnapinTasks AS $SnapinTask) $SnapinTask->destroy();
-                $SnapinJob->destroy();
-            }
-            if ($Task->get('typeID') == 8) {
-                $MSA = current($this->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))));
-                if ($MSA && $MSA->isValid()) {
-                    $MS = $this->getClass('MulticastSessions',$MSA->get('msID'));
-                    $MS->set('clients', $MS->get('clients')-1)->save();
-                    if ($MS->get('clients') <= 0) $MS->set('completetime',$this->formatTime('now','Y-m-d H:i:s'))->set('stateID', 5)->save();
-                }
-            }
-            $Task->cancel();
         } catch (Exception $e) {
             // Failure
             $result['error'] = $e->getMessage();
@@ -384,10 +367,14 @@ class TaskManagementPage extends FOGPage {
         }
     }
     public function remove_multicast_task() {
-        $MSAs = $this->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $_REQUEST['id']));
-        $MulticastTask = $this->getClass('MulticastSessions',$_REQUEST[id]);
-        foreach((array)$MSAs AS $MSA) $this->getClass('Task',$MSA->get('taskID'))->cancel();
-        $MulticastTask->set('completetime',$this->formatTime('now','Y-m-d H:i:s'))->set('stateID',5)->save();
+        $MulticastSession = $this->getClass('MulticastSessions',$_REQUEST[id]);
+        $this->HookManager->processEvent('MULTICAST_TASK_CANCEL',array('MulticastSession' => &$MulticastSession));
+        foreach($this->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $MulticastSession->get(id))) AS $MSA) {
+            if ($MSA->isValid()) {
+                $MS = $MSA->getMulticastSession();
+                if ($MS->get(id) == $MulticastSession->get(id)) $MSA->getTask()->cancel();
+            }
+        }
     }
     public function active_multicast() {
         // Set title

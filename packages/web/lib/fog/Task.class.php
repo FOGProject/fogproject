@@ -53,7 +53,26 @@ class Task extends FOGController {
         return $count;
     }
     public function cancel() {
-        // Set State to User Cancelled
+        // Set State to User cancelled
+        $SnapinJob = $this->getHost()->getActiveSnapinJob();
+        if ($SnapinJob instanceof SnapinJob && $SnapinJob->isValid()) {
+            $this->getClass('SnapinTaskManager')->destroy(array('jobID' => $SnapinJob->get('id')));
+            $SnapinJob->destroy();
+        }
+        if ($this->getTaskType()->isMulticast()) {
+            foreach ($this->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $this->get('id'))) AS $MSA) {
+                if ($MSA->isValid()) {
+                    $MS = $MSA->getMulticastSession();
+                    $clients = $MS->get('clients');
+                    $MS->set('clients',--$clients);
+                    if ($MS->get('clients') <= 0) {
+                        $MS->set('completetime',$this->formatTime('now','Y-m-d H:i:s'))
+                            ->set('stateID', 5);
+                    }
+                    $MS->save();
+                }
+            }
+        }
         $this->set('stateID', '5')->save();
     }
     // Overrides
@@ -92,11 +111,11 @@ class Task extends FOGController {
     }
     // Custom Functions
     public function getHost() {return $this->getClass('Host',$this->get('hostID'));}
-    public function getStorageGroup() {return $this->getClass('StorageGroup',$this->get('NFSGroupID'));}
-    public function getStorageNode() {return $this->getClass('StorageNode',$this->get('NFSMemberID'));}
-    public function getImage() {return $this->getClass('Image',$this->get('imageID'));}
-    public function getTaskType() {return $this->getClass('TaskType',$this->get('typeID'));}
-	public function getTaskTypeText() {return $this->getTaskType()->get('name');}
-	public function getTaskState() {return $this->getClass('TaskState',$this->get('stateID'));}
-	public function getTaskStateText() {return $this->getTaskState()->get('name');}
+        public function getStorageGroup() {return $this->getClass('StorageGroup',$this->get('NFSGroupID'));}
+        public function getStorageNode() {return $this->getClass('StorageNode',$this->get('NFSMemberID'));}
+        public function getImage() {return $this->getClass('Image',$this->get('imageID'));}
+        public function getTaskType() {return $this->getClass('TaskType',$this->get('typeID'));}
+        public function getTaskTypeText() {return $this->getTaskType()->get('name');}
+        public function getTaskState() {return $this->getClass('TaskState',$this->get('stateID'));}
+        public function getTaskStateText() {return $this->getTaskState()->get('name');}
 }
