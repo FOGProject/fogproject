@@ -1,7 +1,7 @@
 <?php
 class HostManager extends FOGManagerController {
     public function getHostByMacAddresses($MACs) {
-        foreach($this->getClass('MACAddressAssociationManager')->find(array('mac' => $MACs)) AS $MAC) {
+        foreach($this->getClass('MACAddressAssociationManager')->find(array('mac' => $MACs,'pending' => 0)) AS $MAC) {
             if ($MAC && $MAC->isValid()) {
                 $macTest = new MACAddress($MAC);
                 if ($macTest->isValid()) $MACHost[] = $MAC->get('hostID');
