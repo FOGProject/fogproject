@@ -193,7 +193,7 @@ abstract class FOGManagerController extends FOGBase {
 				return array_unique((array)$ids);
 			}
 			while ($queryData = $this->DB->fetch()->get())
-				$data[] = $this->getClass($this->childClass)->setQuery($queryData);
+				$data[] = $this->getClass($this->childClass,$queryData);
 			unset($id,$ids,$row,$queryData);
 			// Return
 			return (array)$data;
