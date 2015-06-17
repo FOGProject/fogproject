@@ -345,5 +345,19 @@ class FOGCore extends FOGBase {
 		ini_set('max_input_vars',5000);
 		ini_set('upload_max_filesize',$this->getSetting('FOG_MAX_UPLOADSIZE').'M');
 		ini_set('post_max_size',$this->getSetting('FOG_POST_MAXSIZE').'M');
-	}
+    }
+    public function cleanupBadEntries() {
+        $idFieldsToCleanup = array(
+            'SnapinGroup',
+            'Image',
+            'Printer',
+            'MACAddress',
+            'Group',
+            'Module',
+            'MulticastSessions',
+            'Snapin',
+            'Printer',
+        );
+        foreach ($idFieldsToCleanup AS $class) $this->getClass($class.'AssociationManager')->destroy(array('id' => array('','NULL',0)));
+    }
 }
