@@ -280,7 +280,7 @@ class Host extends FOGController {
         } else if (in_array($this->key($key),array('printers','printersnotinme')) && !($value instanceof Printer)) {
             $this->loadPrinters();
             $value = new Printer($value);
-        } else if (in_array($this->key($key),array('printers','printersnotinme')) && !($value instanceof Snapin)) {
+        } else if (in_array($this->key($key),array('snapins','snapinsnotinme')) && !($value instanceof Snapin)) {
             $this->loadSnapins();
             $value = new Snapin($value);
         } else if ($this->key($key) == 'modules' && !($value instanceof Module)) {
