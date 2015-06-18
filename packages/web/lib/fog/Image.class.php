@@ -160,7 +160,11 @@ class Image extends FOGController {
     }
     public function getOS() {return current((array)$this->getClass('OSManager')->find(array('id' => $this->get('osID'))));}
     public function getImageType() {return current((array)$this->getClass('ImageTypeManager')->find(array('id' => $this->get('imageTypeID'))));}
-    public function getImagePartitionType() {return current((array)$this->getClass('ImagePartitionTypeManager')->find(array('id' => $this->get('imagePartitionTypeID'))));}
+    public function getImagePartitionType() {
+        if ($this->get('imagePartitionTypeID')) $IPT = $this->getClass('ImagePartitionType',$this->get('imagePartitionTypeID'));
+        else $IPT = $this->getClass('ImagePartitionType',1);
+        return $IPT;
+    }
     public function deleteFile() {
         if ($this->get('protected')) throw new Exception($this->foglang['ProtectedImage']);
         $SN = $this->getStorageGroup()->getMasterStorageNode();
