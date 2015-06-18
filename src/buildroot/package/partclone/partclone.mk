@@ -16,8 +16,8 @@ define PARTCLONE_LINK_LIBRARIES_TOOL
 	rm -rf $(@D)/../../staging/usr/include/xfs
 	rm -rf $(@D)/../../staging/usr/include/ncursesw
 	rm -rf $(@D)/../../staging/usr/lib/libxfs*
-	ln -s /usr/include/xfs $(@D)/../../staging/usr/include/ && \
-	ln -s /usr/lib/libxfs* $(@D)/../../staging/usr/lib/
+	ln -s $(@D)/../xfsprogs-*/include/xfs $(@D)/../../staging/usr/include/
+    	ln -s $(@D)/../xfsprogs-*/libxfs/.libs/libxfs.* $(@D)/../../staging/usr/lib/
 	ln -s /usr/include/ncursesw $(@D)/../../staging/usr/include/
 endef
 
