@@ -169,15 +169,34 @@ class ImageManagementPage extends FOGPage {
         );
         print "\n\t\t\t<h2>"._('Add new image definition').'</h2>';
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+        $StorageNodes = $this->getClass('StorageNodeManager')->find(array('isEnabled' => 1));
+        unset($MasterGroupID,$MasterNode,$MastserSet);
+        foreach((array)$StorageNodes AS $Node) {
+            if ($Node->isValid() && $Node->get('isMaster')) {
+                $MasterGroupID = $Node->get('storageGroupID');
+                $MasterNode = $Node;
+                break;
+            }
+        }
+        unset($Node); 
+        if (!isset($MasterGroupID) || is_numeric($MasterGroupID) || $MasterGroupID <= 0) {
+            foreach((array)$StorageNodes AS $Node) {
+                if ($Node->isValid()) {
+                    $MasterGroupID = $Node->get('storageGroupID');
+                    $MasterNode = $Node;
+                }
+            }
+        }
+        $StorageGroups = $this->getClass('StorageGroupManager')->buildSelectBox($MasterGroupID);
         foreach ((array)$fields AS $field => $input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
                 'image_name' => $_REQUEST['name'],
                 'image_desc' => $_REQUEST['description'],
-                'storage_groups' => $this->getClass('StorageGroupManager')->buildSelectBox(current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1)))->get('storageGroupID')),
+                'storage_groups' => $StorageGroups,
                 'operating_systems' => $this->getClass('OSManager')->buildSelectBox($_REQUEST['os']),
-                'image_path' => current($this->getClass('StorageNodeManager')->find(array('isMaster' => 1,'isEnabled' => 1)))->get('path').'/&nbsp;',
+                'image_path' => $MasterNode && $MasterNode->isValid() ? $MasterNode->get('path').'/&nbsp;' : _('No Storage Nodes Found'),
                 'image_file' => $_REQUEST['file'],
                 'image_types' => $this->getClass('ImageTypeManager')->buildSelectBox($_REQUEST['imagetype'],'','id'),
                 'image_partition_types' => $this->getClass('ImagePartitionTypeManager')->buildSelectBox($_REQUEST['imagepartitiontype'],'','id'),
