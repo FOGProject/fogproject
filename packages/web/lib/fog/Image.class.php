@@ -31,20 +31,23 @@ class Image extends FOGController {
     // Overrides
     private function loadHosts() {
         if (!$this->isLoaded('hosts') && $this->get('id')) {
-            foreach ($this->getClass('HostManager')->find(array('imageID' => $this->get('id'))) AS $Host) {
-                if ($Host->isValid()) $this->add('hosts', $Host);
-            }
-            foreach ($this->getClass('HostManager')->find(array('imageID' => $this->get('id')),'','','','','',true) AS $Host) {
-                if ($Host->isValid()) $this->add('hostsnotinme', $Host);
-            }
+            $this->set('hosts',array_unique($this->getClass('HostManager')->find(array('imageID' => $this->get('id')),'','','','','','','id')));
+            $this->set('hostsnotinme',array_unique($this->getClass('HostManager')->find(array('imageID' => $this->get('id')),'','','','','',true,'id')));
         }
         return $this;
     }
     private function loadGroups() {
         if (!$this->isLoaded('storageGroups') && $this->get('id')) {
-            foreach($this->getClass('ImageAssociationManager')->find(array('imageID' => $this->get('id'))) AS $IAStore) {
-                if ($IAStore->isValid()) $this->add('storageGroups',$IAStore->getStorageGroup());
+            $StorageGroupIDs = array_unique($this->getClass('ImageAssociationManager')->find(array('imageID' => $this->get('id')),'','','','','','','storageGroupID'));
+            if (!count($StorageGroupIDs)) {
+                foreach($this->getClass('StorageGroupManager')->find() AS $Group) {
+                    if ($Group->isValid()) {
+                        $StorageGroupIDs = $Group->get('id');
+                        break;
+                    }
+                }
             }
+            $this->set('storageGroups',$StorageGroupIDs);
         }
         return $this;
     }
@@ -54,13 +57,13 @@ class Image extends FOGController {
         return parent::get($key);
     }
     public function set($key, $value) {
-        if ($this->key($key) == 'hosts') {
+        if (in_array($this->key($key),array('hosts','hostsnotinme'))) {
             $this->loadHosts();
-            foreach((array)$value AS $Host) $newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
+            foreach((array)$value AS $Host) $newValue[] = ($Host instanceof Host ? $Host : $this->getClass('Host',$Host));
             $value = (array)$newValue;
         } else if ($this->key($key) == 'storageGroups') {
             $this->loadGroups();
-            foreach((array)$value AS $Group) $newValue[] = ($Group instanceof StorageGroup ? $Group : new StorageGroup($Group));
+            foreach((array)$value AS $Group) $newValue[] = ($Group instanceof StorageGroup ? $Group : $this->getClass('StorageGroup',$Group));
             $value = (array)$newValue;
         }
         // Set
@@ -69,10 +72,10 @@ class Image extends FOGController {
     public function add($key, $value) {
         if ($this->key($key) == 'hosts' && !($value instanceof Host)) {
             $this->loadHosts();
-            $value = new Host($value);
+            $value = $this->getClass('Host',$value);
         } else if ($this->key($key) == 'storageGroups' && !($value instanceof StorageGroup)) {
             $this->loadGroups();
-            $value = new StorageGroup($value);
+            $value = $this->getClass('StorageGroup',$value);
         }
         // Add
         return parent::add($key, $value);
@@ -130,20 +133,20 @@ class Image extends FOGController {
     }
     public function removeHost($removeArray) {
         // Iterate array (or other as array)
-        foreach((array)$removeArray AS $remove) $this->remove('hosts', ($remove instanceof Host ? $remove : new Host((int)$remove)));
+        foreach((array)$removeArray AS $remove) $this->remove('hosts', ($remove instanceof Host ? $remove : $this->getClass('Host',(int)$remove)));
         // Return
         return $this;
     }
     public function removeGroup($removeArray) {
         // Iterate array (or other as array)
         foreach((array)$removeArray AS $remove) {
-            if (count($this->get('storageGroups')) > 1) $this->remove('storageGroups', ($remove instanceof StorageGroup ? $remove : new StorageGroup((int)$remove)));
+            if (count($this->get('storageGroups')) > 1) $this->remove('storageGroups', ($remove instanceof StorageGroup ? $remove : $this->getClass('StorageGrup',(int)$remove)));
         }
         // Return
         return $this;
     }
     public function getStorageGroup() {
-        $StorageGroup = current($this->get('storageGroups'));
+        $StorageGroup = current((array)$this->get('storageGroups'));
         if (!$StorageGroup || ($StorageGroup instanceof StorageGroup && !$StorageGroup->isValid())) {
             foreach ($this->getClass('StorageGroupManager')->find() AS $SG) {
                 if ($SG->isValid()) {
@@ -155,9 +158,9 @@ class Image extends FOGController {
         }
         return $StorageGroup;
     }
-    public function getOS() {return current($this->getClass('OSManager')->find(array('id' => $this->get('osID'))));}
-    public function getImageType() {return current($this->getClass('ImageTypeManager')->find(array('id' => $this->get('imageTypeID'))));}
-    public function getImagePartitionType() {return current($this->getClass('ImagePartitionTypeManager')->find(array('id' => $this->get('imagePartitionTypeID'))));}
+    public function getOS() {return current((array)$this->getClass('OSManager')->find(array('id' => $this->get('osID'))));}
+    public function getImageType() {return current((array)$this->getClass('ImageTypeManager')->find(array('id' => $this->get('imageTypeID'))));}
+    public function getImagePartitionType() {return current((array)$this->getClass('ImagePartitionTypeManager')->find(array('id' => $this->get('imagePartitionTypeID'))));}
     public function deleteFile() {
         if ($this->get('protected')) throw new Exception($this->foglang['ProtectedImage']);
         $SN = $this->getStorageGroup()->getMasterStorageNode();
