@@ -25,7 +25,6 @@ define FOG_INSTALL_TARGET_CMDS
 	$(foreach script, \
 	$(shell find $(@D)/scripts/ -type f | sed 's:$(@D)/scripts/:./:g'), \
 	$(INSTALL) -D -m 0755 $(@D)/scripts/$(script) $(TARGET_DIR)/$(script);)
-	sed -i 's/^tty1.*/tty1::respawn:\/sbin\/getty -i -n -l \/bin\/sh 38400 tty1/; s/^tty2/#tty2/' $(TARGET_DIR)/etc/inittab
 	mkdir -p $(TARGET_DIR)/usr/share/clamav
 	$(INSTALL) -D -m 0755 $(@D)/src/usbreset $(TARGET_DIR)/usr/sbin/usbreset
 endef
