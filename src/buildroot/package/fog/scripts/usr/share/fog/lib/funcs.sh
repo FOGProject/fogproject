@@ -953,7 +953,9 @@ restorePartitionTablesAndBootLoaders() {
 		has_GRUB=`hasGRUB "${disk}" "${intDisk}" "${imagePath}"`;
 		mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
 		if [ -f $tmpMBR ]; then
-			gpt=`awk '/label:/{print $2}' ${imagePath}/d${intDisk}.original.partitions`;
+            if [ -e "${imagePath}/d${intDisk}.original.partitions" ]; then
+			    gpt=`awk '/label:/{print $2}' ${imagePath}/d${intDisk}.original.partitions`;
+            fi
 			if [ "$gpt" == 'gpt' ] || [[ "$mbrsize" != +(1048576|512|32256) ]] ; then
 				dots "Restoring Partition Tables";
 				sgdisk -gel $tmpMBR $disk 2>&1 >/dev/null;
