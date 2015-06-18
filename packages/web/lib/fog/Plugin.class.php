@@ -87,7 +87,8 @@ class Plugin extends FOGController {
 				}
 			}
 		}
-	}
+    }
+    public function getManager() {return $this->getClass(ucfirst($this->get(name)).'Manager');}
 	public function getPath() {return $this->strPath;}
 	public function getName() {return $this->strName;}
 	public function getDesc() {return $this->strDesc;}
