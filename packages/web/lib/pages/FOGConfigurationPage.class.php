@@ -25,25 +25,25 @@ class FOGConfigurationPage extends FOGPage {
      * whether the user is on the current version.
      */
     public function index() {$this->version();}
-    /** version() Pulls the current version from the internet. */
-    public function version() {
-        // Set title
-        $this->title = _('FOG Version Information');
-        print '<p>'._('Version: ').FOG_VERSION.'</p>';
-        $URLVersion = $this->FOGURLRequests->process('http://fogproject.org/version/index.php?version='.FOG_VERSION,'GET');
-        print '<p><div class="sub">'.$URLVersion[0].'</div></p>';
-        print '<h1>Kernel Versions</h1>';
-        $webroot = trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/') .'/': '/';
-        foreach((array)$this->getClass('StorageNodeManager')->find() AS $StorageNode) {
-            $Names[] = $StorageNode->get('name');
-            $URLs[] = "http://{$this->FOGCore->resolveHostname($StorageNode->get(ip))}{$webroot}status/kernelvers.php";
+        /** version() Pulls the current version from the internet. */
+        public function version() {
+            // Set title
+            $this->title = _('FOG Version Information');
+            print '<p>'._('Version: ').FOG_VERSION.'</p>';
+            $URLVersion = $this->FOGURLRequests->process('http://fogproject.org/version/index.php?version='.FOG_VERSION,'GET');
+            print '<p><div class="sub">'.$URLVersion[0].'</div></p>';
+            print '<h1>Kernel Versions</h1>';
+            $webroot = trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/') .'/': '/';
+            foreach((array)$this->getClass('StorageNodeManager')->find() AS $StorageNode) {
+                $Names[] = $StorageNode->get('name');
+                $URLs[] = "http://{$this->FOGCore->resolveHostname($StorageNode->get(ip))}{$webroot}status/kernelvers.php";
+            }
+            $Responses = $this->FOGURLRequests->process($URLs);
+            foreach($Responses AS $i => $data) {
+                print "<h2>{$Names[$i]}</h2>";
+                print "<pre>$data</pre>";
+            }
         }
-        $Responses = $this->FOGURLRequests->process($URLs);
-        foreach($Responses AS $i => $data) {
-            print "<h2>{$Names[$i]}</h2>";
-            print "<pre>$data</pre>";
-        }
-    }
     /** license()
      * Displays the GNU License to the user.  Currently Version 3.
      */
@@ -59,16 +59,16 @@ class FOGConfigurationPage extends FOGPage {
      * tries to kernel_post.  The sub is kernel_update though.
      */
     public function kernel() {$this->kernel_update_post();}
-    /** kernel_update()
-     * Display's the published kernels for update.
-     * This information is obtained from the internet.
-     * Displays the default of Published kernels.
-     */
-    public function kernel_update() {
-        $this->kernelselForm('pk');
-        $htmlData = $this->FOGURLRequests->process('http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version='.FOG_VERSION,'GET');
-        print $htmlData[0];
-    }
+        /** kernel_update()
+         * Display's the published kernels for update.
+         * This information is obtained from the internet.
+         * Displays the default of Published kernels.
+         */
+        public function kernel_update() {
+            $this->kernelselForm('pk');
+            $htmlData = $this->FOGURLRequests->process('http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version='.FOG_VERSION,'GET');
+            print $htmlData[0];
+        }
     /** kernelselForm($type)
      * Gives the user the option to select between:
      * Published Kernels (from sourceforge)
@@ -89,25 +89,25 @@ class FOGConfigurationPage extends FOGPage {
     public function kernel_update_post() {
         if ($_REQUEST['sub'] == 'kernel-update') {
             switch ($_REQUEST['kernelsel']) {
-                case 'pk':
-                    $this->kernelselForm('pk');
-                    $htmlData = $this->FOGURLRequests->process("http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version=" . FOG_VERSION,'GET');
-                    print $htmlData[0];
+            case 'pk':
+                $this->kernelselForm('pk');
+                $htmlData = $this->FOGURLRequests->process("http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version=" . FOG_VERSION,'GET');
+                print $htmlData[0];
                 break;
-                case 'uk':
-                    $this->kernelselForm('uk');
-                    $htmlData = $this->FOGURLRequests->process("http://mastacontrola.com/fogboot/kernel/index.php?version=" . FOG_VERSION,'GET');
-                    print $htmlData[0];
+            case 'uk':
+                $this->kernelselForm('uk');
+                $htmlData = $this->FOGURLRequests->process("http://mastacontrola.com/fogboot/kernel/index.php?version=" . FOG_VERSION,'GET');
+                print $htmlData[0];
                 break;
-                case 'ok':
-                    $this->kernelselForm('ok');
-                    $htmlData = $this->FOGURLRequests->process("http://freeghost.sourceforge.net/kernelupdates/index.php?version=".FOG_VERSION,'GET');
-                    print $htmlData[0];
+            case 'ok':
+                $this->kernelselForm('ok');
+                $htmlData = $this->FOGURLRequests->process("http://freeghost.sourceforge.net/kernelupdates/index.php?version=".FOG_VERSION,'GET');
+                print $htmlData[0];
                 break;
-                default:
-                    $this->kernelselForm('pk');
-                    $htmlData = $this->FOGURRequestsL("http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version=" . FOG_VERSION,'GET');
-                    print $htmlData[0];
+            default:
+                $this->kernelselForm('pk');
+                $htmlData = $this->FOGURRequestsL("http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version=" . FOG_VERSION,'GET');
+                print $htmlData[0];
                 break;
             }
         } else if ($_REQUEST['install']) {
@@ -116,7 +116,7 @@ class FOGConfigurationPage extends FOGPage {
             $_SESSION["tmp-kernel-file"] = rtrim(sys_get_temp_dir(),'/').'/'.basename($_SESSION["dest-kernel-file"]);
             $_SESSION["dl-kernel-file"] = base64_decode($_REQUEST["file"]);
             if (file_exists($_SESSION["tmp-kernel-file"])) @unlink( $_SESSION["tmp-kernel-file"] );
-			print '<div id="kdlRes"><p id="currentdlstate">'._('Starting process...').'</p><i id="img" class="fa fa-cog fa-2x fa-spin"></i></div>';
+            print '<div id="kdlRes"><p id="currentdlstate">'._('Starting process...').'</p><i id="img" class="fa fa-cog fa-2x fa-spin"></i></div>';
         } else {
             print '<form method="post" action="?node='.$_REQUEST['node'].'&sub=kernel&install=1&file='.$_REQUEST['file'].'">';
             print "<p>"._('New Kernel name:').'<input class="smaller" type="text" name="dstName" value="'.($_REQUEST['arch'] == 64 || !$_REQUEST['arch'] ? 'bzImage' : 'bzImage32').'" /></p>';
@@ -278,7 +278,7 @@ class FOGConfigurationPage extends FOGPage {
         }
         $this->FOGCore->redirect($this->formAction);
     }
-	public function new_menu() {
+    public function new_menu() {
         $this->title = _('Create New iPXE Menu Entry');
         $this->templates = array(
             '${field}',
@@ -812,12 +812,12 @@ class FOGConfigurationPage extends FOGPage {
                 $command = 'mysql -u ' . DATABASE_USERNAME . $password .' -h '.preg_replace('#p:#','',DATABASE_HOST).' '.DATABASE_NAME.' < "'.$dbFileName.'"';
                 exec($command,$output = array(),$worked);
                 switch ($worked) {
-                    case 0:
-                        print "\n\t\t\t<h2>"._('Database Added!').'</h2>';
-                        exec('rm -rf "'.$dbFileName.'" > /dev/null 2>/dev/null &');
+                case 0:
+                    print "\n\t\t\t<h2>"._('Database Added!').'</h2>';
+                    exec('rm -rf "'.$dbFileName.'" > /dev/null 2>/dev/null &');
                     break;
-                    case 1:
-                        print "\n\t\t\t<h2>"._('Database import failed!').'</h2>';
+                case 1:
+                    print "\n\t\t\t<h2>"._('Database import failed!').'</h2>';
                     break;
                 }
             }

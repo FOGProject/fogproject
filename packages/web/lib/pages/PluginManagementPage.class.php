@@ -40,36 +40,36 @@ class PluginManagementPage extends FOGPage {
         $this->title = $this->name;
     }
     public function home() {$this->index();}
-    public function activate() {
-        // Set title
-        $this->title = _('Activate Plugins');
-        $Plugins = new Plugin(array('name' => null));
-        // Find data
-        foreach ((array)$Plugins->getPlugins() AS $Plugin) {
-            if(!$Plugin->isActive()) {
-                $this->data[] = array(
-                    'name' => $Plugin->getName(),
-                    'type' => 'activate',
-                    'encname' => md5(trim($Plugin->getName())),
-                    'location' => $Plugin->getPath(),
-                    'desc' => $Plugin->getDesc(),
-                    'icon' => $Plugin->getIcon(),
-                );
+        public function activate() {
+            // Set title
+            $this->title = _('Activate Plugins');
+            $Plugins = new Plugin(array('name' => null));
+            // Find data
+            foreach ((array)$Plugins->getPlugins() AS $Plugin) {
+                if(!$Plugin->isActive()) {
+                    $this->data[] = array(
+                        'name' => $Plugin->getName(),
+                        'type' => 'activate',
+                        'encname' => md5(trim($Plugin->getName())),
+                        'location' => $Plugin->getPath(),
+                        'desc' => $Plugin->getDesc(),
+                        'icon' => $Plugin->getIcon(),
+                    );
+                }
+            }
+            //Hook
+            $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=> &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
+            // Output
+            $this->render();
+            // Activate plugin if it's not already!
+            if (!empty($_REQUEST['activate'])&&$_REQUEST['sub'] == 'activate') {
+                $Plugin->activatePlugin($_REQUEST['activate']);
+                $this->FOGCore->setMessage('Successfully added Plugin!');
+                $this->FOGCore->redirect('?node=plugin&sub=activate');
             }
         }
-        //Hook
-        $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=> &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-        // Output
-        $this->render();
-        // Activate plugin if it's not already!
-        if (!empty($_REQUEST['activate'])&&$_REQUEST['sub'] == 'activate') {
-            $Plugin->activatePlugin($_REQUEST['activate']);
-            $this->FOGCore->setMessage('Successfully added Plugin!');
-            $this->FOGCore->redirect('?node=plugin&sub=activate');
-        }
-    }
     public function install() {
-		$this->title = 'Install Plugins';
+        $this->title = 'Install Plugins';
         $Plugins = new Plugin(array('name' => null));
         // Find data
         foreach ((array)$Plugins->getPlugins() AS $Plugin) {
@@ -257,34 +257,34 @@ class PluginManagementPage extends FOGPage {
         }
     }
     public function install_post() {$this->installed_post();}
-    public function installed_post() {
-        $plugin = unserialize($_SESSION['fogactiveplugin']);
-        if ($_REQUEST['install'] == 1) {
-            if($this->getClass(ucfirst($plugin->getName()).'Manager')->install($plugin->getName())) {
-                $Plugin = current($this->getClass('PluginManager')->find(array('name' => $plugin->getName())));
-                $Plugin->set('installed',1)
-                    ->set('version',1);
-                if ($Plugin->save()) $this->FOGCore->setMessage(_('Plugin Installed!'));
-                else $this->FOGCore->setMessage(_('Plugin Installation Failed!'));
-            } else $this->FOGCore->setMessage(_('Failed to install Plugin!'));
-            if ($_REQUEST['sub'] == 'install') $_REQUEST['sub'] = 'installed';
-            $this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&run='.$_REQUEST['run']);
+        public function installed_post() {
+            $plugin = unserialize($_SESSION['fogactiveplugin']);
+            if ($_REQUEST['install'] == 1) {
+                if($this->getClass(ucfirst($plugin->getName()).'Manager')->install($plugin->getName())) {
+                    $Plugin = current($this->getClass('PluginManager')->find(array('name' => $plugin->getName())));
+                    $Plugin->set('installed',1)
+                        ->set('version',1);
+                    if ($Plugin->save()) $this->FOGCore->setMessage(_('Plugin Installed!'));
+                    else $this->FOGCore->setMessage(_('Plugin Installation Failed!'));
+                } else $this->FOGCore->setMessage(_('Failed to install Plugin!'));
+                if ($_REQUEST['sub'] == 'install') $_REQUEST['sub'] = 'installed';
+                $this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&run='.$_REQUEST['run']);
+            }
+            if ($_REQUEST['basics']) {
+                $this->FOGCore->setSetting('FOG_PLUGIN_CAPONE_DMI',$_REQUEST['dmifield']);
+                $this->FOGCore->setSetting('FOG_PLUGIN_CAPONE_SHUTDOWN',$_REQUEST['shutdown']);
+            }
+            if($_REQUEST['addass']) {
+                $this->getClass('Capone')
+                    ->set('imageID', $_REQUEST['image'])
+                    ->set('osID',$this->getClass('Image',$_REQUEST['image'])->getOS()->get('id'))
+                    ->set('key',$_REQUEST['key'])
+                    ->save();
+            }
+            if ($_REQUEST['kill']) $this->getClass('Capone',$_REQUEST['kill'])->destroy();
+            $this->FOGCore->setMessage('Plugin updated!');
+            $this->FOGCore->redirect($this->formAction);
         }
-        if ($_REQUEST['basics']) {
-            $this->FOGCore->setSetting('FOG_PLUGIN_CAPONE_DMI',$_REQUEST['dmifield']);
-            $this->FOGCore->setSetting('FOG_PLUGIN_CAPONE_SHUTDOWN',$_REQUEST['shutdown']);
-        }
-        if($_REQUEST['addass']) {
-            $this->getClass('Capone')
-                ->set('imageID', $_REQUEST['image'])
-                ->set('osID',$this->getClass('Image',$_REQUEST['image'])->getOS()->get('id'))
-                ->set('key',$_REQUEST['key'])
-                ->save();
-        }
-        if ($_REQUEST['kill']) $this->getClass('Capone',$_REQUEST['kill'])->destroy();
-        $this->FOGCore->setMessage('Plugin updated!');
-        $this->FOGCore->redirect($this->formAction);
-    }
     public function removeplugin() {
         if ($_REQUEST['rmid']) $Plugin = $this->getClass('Plugin',$_REQUEST['rmid']);
         if ($Plugin && $Plugin->getManager()->uninstall() && $Plugin->destroy()) {
