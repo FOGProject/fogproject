@@ -179,7 +179,7 @@ class Host extends FOGController {
         return $this;
     }
     private function loadTask() {
-        if (!$this->isLoaded('task') && $this->get('id')) $this->set('task',max((array)$this->getClass('TaskManager')->getClass('TaskManager')->find(array('hostID' => $this->get('id')),'','','','','','','id')));
+        if (!$this->isLoaded('task') && $this->get('id')) $this->set('task',max((array)$this->getClass('TaskManager')->getClass('TaskManager')->find(array('hostID' => $this->get('id'),'stateID' => array(0,1,2)),'','','','','','','id')));
         return $this;
     }
     private function loadUsers() {
