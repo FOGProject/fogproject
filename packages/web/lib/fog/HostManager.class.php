@@ -11,5 +11,5 @@ class HostManager extends FOGManagerController {
         return current($this->getClass('HostManager')->find(array('id' => $MACHost)));
     }
     public function isSafeHostName($hostname) {return (preg_match("#^[0-9a-zA-Z_\-]*$#",$hostname) && strlen($hostname) > 0 && strlen($hostname) <= 15);}
-    public static function isHostnameSafe($name) {return (strlen($name) > 0 && strlen($name) <= 15 && preg_replace('#[0-9a-zA-Z_\-]#', '', $name) == '');}
+        public static function isHostnameSafe($name) {return (strlen($name) > 0 && strlen($name) <= 15 && preg_replace('#[0-9a-zA-Z_\-]#', '', $name) == '');}
 }

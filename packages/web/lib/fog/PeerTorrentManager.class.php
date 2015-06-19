@@ -1,4 +1,2 @@
 <?php
-class PeerTorrentManager extends FOGManagerController
-{
-}
+class PeerTorrentManager extends FOGManagerController {}

@@ -1,4 +1,2 @@
 <?php
-class HistoryManager extends FOGManagerController
-{
-}
+class HistoryManager extends FOGManagerController {}

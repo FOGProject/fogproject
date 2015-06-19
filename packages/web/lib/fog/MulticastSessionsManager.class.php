@@ -1,4 +1,2 @@
 <?php
-class MulticastSessionsManager extends FOGManagerController
-{
-}
+class MulticastSessionsManager extends FOGManagerController {}

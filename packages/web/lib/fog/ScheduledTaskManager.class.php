@@ -1,4 +1,2 @@
 <?php
-class ScheduledTaskManager extends FOGManagerController
-{
-}
+class ScheduledTaskManager extends FOGManagerController {}

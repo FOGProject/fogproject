@@ -1,4 +1,2 @@
 <?php
-class iPXEManager extends FOGManagerController
-{
-}
+class iPXEManager extends FOGManagerController {}

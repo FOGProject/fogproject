@@ -1,4 +1,2 @@
 <?php
-class OSManager extends FOGManagerController
-{
-}
+class OSManager extends FOGManagerController {}
