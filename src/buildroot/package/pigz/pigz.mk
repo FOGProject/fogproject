@@ -3,22 +3,16 @@
 # pigz
 #
 #############################################################
-PIGZ_VERSION = 2.3.1
-PIGZ_SOURCE = pigz-$(PIGZ_VERSION).tar.gz
-PIGZ_SITE = download.freenas.org/distfiles
+PIGZ_VERSION = 2.3.3
+PIGZ_SOURCE = v$(PIGZ_VERSION).tar.gz
+PIGZ_SITE = https://github.com/madler/pigz/archive
 PIGZ_CAT = $(ZCAT)
 PIGZ_DIR = $(BUILD_DIR)/pigz-$(PIGZ_VERSION)
 PIGZ_BINARY = pigz
 PIGZ_DEPENDENCIES = zlib
 
-define PIGZ_EXTRACT_CMDS
-	$(ZCAT) $(DL_DIR)/$(PIGZ_SOURCE) | tar -C $(BUILD_DIR) $(TAR_OPTIONS) -
-endef
-
 define PIGZ_BUILD_CMDS
-	$(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D) \
-		CFLAGS="$(TARGET_CFLAGS)" \
-		LDFLAGS="$(TARGET_LDFLAGS)"
+	$(MAKE) $(TARGET_CONFIGUR_OPTS) -C $(@D) 
 endef
 
 define PIGZ_INSTALL_TARGET_CMDS

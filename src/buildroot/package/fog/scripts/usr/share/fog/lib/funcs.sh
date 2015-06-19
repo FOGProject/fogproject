@@ -316,16 +316,16 @@ countExtfs() {
 writeImage()  {
 	mkfifo /tmp/pigz1;
 	if [ "$mc" == "yes" ]; then
-		udp-receiver --nokbd --portbase $port --ttl 32 --mcast-rdv-address $storageip 2>/dev/null > /tmp/pigz1 &
+		udp-receiver --nokbd --portbase $port --ttl 32 --mcast-rdv-address $storageip 2>/dev/null | pigz -d > /tmp/pigz1 &
 	else
-		cat $1 > /tmp/pigz1 &
+		cat $1 | pigz -d > /tmp/pigz1 &
 	fi
 	if [ "$imgFormat" = "1" ] || [ "$imgLegacy" = "1" ]; then
 		#partimage
-		pigz -d -c < /tmp/pigz1 | partimage restore $2 stdin -f3 -b 2>/tmp/status.fog;
+		cat /tmp/pigz1 | partimage restore $2 stdin -f3 -b 2>/tmp/status.fog;
 	else 
 		# partclone
-		pigz -d -c < /tmp/pigz1 | partclone.restore --ignore_crc -O $2 -N -f 1 2>/tmp/status.fog;
+		partclone.restore --ignore_crc -O $2 -s /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
 	fi
 	if [ "$?" != 0 ]; then
 		handleError "Image failed to restore";
