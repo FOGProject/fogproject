@@ -158,8 +158,8 @@ class Image extends FOGController {
         }
         return $StorageGroup;
     }
-    public function getOS() {return current((array)$this->getClass('OSManager')->find(array('id' => $this->get('osID'))));}
-    public function getImageType() {return current((array)$this->getClass('ImageTypeManager')->find(array('id' => $this->get('imageTypeID'))));}
+    public function getOS() {return $this->getClass('OS',$this->get('osID'));}
+        public function getImageType() {return $this->getClass('ImageType',$this->get('imageTypeID'));}
     public function getImagePartitionType() {
         if ($this->get('imagePartitionTypeID')) $IPT = $this->getClass('ImagePartitionType',$this->get('imagePartitionTypeID'));
         else $IPT = $this->getClass('ImagePartitionType',1);
