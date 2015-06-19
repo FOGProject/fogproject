@@ -1,4 +1,2 @@
 <?php
-class InventoryManager extends FOGManagerController
-{
-}
+class InventoryManager extends FOGManagerController {}
