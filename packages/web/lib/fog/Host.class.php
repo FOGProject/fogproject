@@ -1,4 +1,4 @@
- ($module instanceof Module ? $module : $this->getClass('Module',$module));<?php
+<?php
 class Host extends FOGController {
     // Table
     public $databaseTable = 'hosts';
