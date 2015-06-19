@@ -1,4 +1,2 @@
 <?php
-class PrinterAssociationManager extends FOGManagerController
-{
-}
+class PrinterAssociationManager extends FOGManagerController {}

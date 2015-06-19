@@ -1,4 +1,2 @@
 <?php
-class SnapinJobManager extends FOGManagerController
-{
-}
+class SnapinJobManager extends FOGManagerController {}

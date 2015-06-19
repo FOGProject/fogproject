@@ -1,4 +1,2 @@
 <?php
-class ImageTypeManager extends FOGManagerController
-{
-}
+class ImageTypeManager extends FOGManagerController {}

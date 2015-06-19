@@ -1,4 +1,2 @@
 <?php
-class MACAddressAssociationManager extends FOGManagerController
-{
-}
+class MACAddressAssociationManager extends FOGManagerController {}

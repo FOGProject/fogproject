@@ -1,4 +1,2 @@
 <?php
-class SchemaManager extends FOGManagerController
-{
-}
+class SchemaManager extends FOGManagerController {}

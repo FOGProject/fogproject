@@ -1,4 +1,2 @@
 <?php
-class UserTrackingManager extends FOGManagerController
-{
-}
+class UserTrackingManager extends FOGManagerController {}

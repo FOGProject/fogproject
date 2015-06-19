@@ -1,4 +1,2 @@
 <?php
-class GreenFogManager extends FOGManagerController
-{
-}
+class GreenFogManager extends FOGManagerController {}

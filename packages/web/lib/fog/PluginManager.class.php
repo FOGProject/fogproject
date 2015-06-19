@@ -1,4 +1,2 @@
 <?php
-class PluginManager extends FOGManagerController
-{
-}
+class PluginManager extends FOGManagerController {}

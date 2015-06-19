@@ -1,4 +1,2 @@
 <?php
-class ModuleAssociationManager extends FOGManagerController
-{
-}
+class ModuleAssociationManager extends FOGManagerController {}

@@ -1,12 +1,5 @@
 <?php
-class ServiceManager extends FOGManagerController
-{
+class ServiceManager extends FOGManagerController {
     //Setting Categories
-    public function getSettingCats()
-    {   
-		foreach($this->find('','','category') AS $Service)
-			$Cats[] = $Service->get('category');
-		$Cat = array_unique((array)$Cats);
-        return $Cat;
-    } 
+    public function getSettingCats() {return array_unique((array)$this->find('','','category','','','','','category'));}
 }

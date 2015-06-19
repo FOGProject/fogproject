@@ -1,53 +1,44 @@
 <?php
-
-// Blackout - 6:04 PM 28/09/2011
-class Inventory extends FOGController
-{
+class Inventory extends FOGController {
 	// Table
 	public $databaseTable = 'inventory';
-	
 	// Name -> Database field name
 	public $databaseFields = array(
-		'id'			=> 'iID',
-		'hostID'		=> 'iHostID',
-		'primaryUser'	=> 'iPrimaryUser',
-		'other1'		=> 'iOtherTag',
-		'other2'		=> 'iOtherTag1',
-		'createdTime'	=> 'iCreateDate',
-		'deleteDate'	=> 'iDeleteDate',
-		'sysman'		=> 'iSysman',
-		'sysproduct'	=> 'iSysproduct',
-		'sysversion'	=> 'iSysversion',
-		'sysserial'		=> 'iSysserial',
-		'systype'		=> 'iSystype',
-		'biosversion'	=> 'iBiosversion',
-		'biosvendor'	=> 'iBiosvendor',
-		'biosdate'		=> 'iBiosdate',
-		'mbman'			=> 'iMbman',
+		'id' => 'iID',
+		'hostID' => 'iHostID',
+		'primaryUser' => 'iPrimaryUser',
+		'other1' => 'iOtherTag',
+		'other2' => 'iOtherTag1',
+		'createdTime' => 'iCreateDate',
+		'deleteDate' => 'iDeleteDate',
+		'sysman' => 'iSysman',
+		'sysproduct' => 'iSysproduct',
+		'sysversion' => 'iSysversion',
+		'sysserial' => 'iSysserial',
+		'systype' => 'iSystype',
+		'biosversion' => 'iBiosversion',
+		'biosvendor' => 'iBiosvendor',
+		'biosdate' => 'iBiosdate',
+		'mbman' => 'iMbman',
 		'mbproductname' => 'iMbproductname',
-		'mbversion'		=> 'iMbversion',
-		'mbserial'		=> 'iMbserial',
-		'mbasset'		=> 'iMbasset',
-		'cpuman'		=> 'iCpuman',
-		'cpuversion'	=> 'iCpuversion',
-		'cpucurrent'	=> 'iCpucurrent',
-		'cpumax'		=> 'iCpumax',
-		'mem'			=> 'iMem',
-		'hdmodel'		=> 'iHdmodel',
-		'hdserial'		=> 'iHdserial',
-		'hdfirmware'	=> 'iHdfirmware',
-		'caseman'		=> 'iCaseman',
-		'casever'		=> 'iCasever',
-		'caseserial'	=> 'iCaseserial',
-		'caseasset'		=> 'iCaseasset',
+		'mbversion' => 'iMbversion',
+		'mbserial' => 'iMbserial',
+		'mbasset' => 'iMbasset',
+		'cpuman' => 'iCpuman',
+		'cpuversion' => 'iCpuversion',
+		'cpucurrent' => 'iCpucurrent',
+		'cpumax' => 'iCpumax',
+		'mem' => 'iMem',
+		'hdmodel' => 'iHdmodel',
+		'hdserial' => 'iHdserial',
+		'hdfirmware' => 'iHdfirmware',
+		'caseman' => 'iCaseman',
+		'casever' => 'iCasever',
+		'caseserial' => 'iCaseserial',
+		'caseasset' => 'iCaseasset',
 	);
-	public function getHost()
-	{
-		return new Host($this->get('hostID'));
-	}
-
-	public function getMem()
-	{
+	public function getHost() {return $this->getClass('Host',$this->get('hostID'));}
+	public function getMem() {
 		$memar = explode(' ',$this->get('mem'));
 		if ($memar[1] < 1024)
 			$mem = sprintf('%.2f %s',($memar[1]),'KB');
