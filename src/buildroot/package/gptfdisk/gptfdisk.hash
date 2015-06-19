@@ -1,3 +1,2 @@
 # From http://sourceforge.net/projects/gptfdisk/files/gptfdisk/1.0.0/
-md5sum	2061f917af084215898d4fea04d8388f	gptfdisk-1.0.0.tar.gz
-sha1sum	97f25db2def1c1939ed3954520bfd9948806d95a	gptfdisk-1.0.0.tar.gz
+sha512	d60660563268c20737415e1cfd4239fba0cc2ceb4c6ae86cc34e9550d969f9b88ac3d8c862d1790f6d644266b423eeb5d78540eec01a447b722793fba54f6afc	gptfdisk-1.0.0.tar.gz
