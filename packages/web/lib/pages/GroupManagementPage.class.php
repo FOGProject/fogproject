@@ -372,20 +372,19 @@ class GroupManagementPage extends FOGPage {
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=group-service">';
         print "\n\t\t\t<fieldset>";
         print "\n\t\t\t<legend>"._('General')."</legend>";
-        foreach((array)$Group->get('hosts') AS $Host) {
-            if ($Host && $Host->isValid() && !$ModOns[$Host->get('id')]) $ModOns[$Host->get('id')] = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $Host->get('id')),'','','','','','','moduleID');
-        }
+        foreach($Group->get('hosts') AS $Host) $ModOns[$Host->get('id')] = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $Host->get('id')),'','','','','','','moduleID');
         $moduleName = $this->getGlobalModuleStatus();
+        $HostCount = $Group->getHostCount();
         foreach ($this->getClass('ModuleManager')->find() AS $Module) {
-            if ($Module && $Module->isValid()) {
+            if ($Module->isValid()) {
                 $i = 0;
                 foreach($ModOns AS $Host => $ModOn) {
-                    if (in_array($Module->get('id'),$ModOn)) $i++;
+                    if (in_array($Module->get('id'),(array)$ModOn)) $i++;
                 }
                 $this->data[] = array(
-                    'input' => '<input type="checkbox" '.($moduleName[$Module->get('shortname')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes"' : '').' name="modules[]" value="${mod_id}" ${checked} '.(!$moduleName[$Module->get('shortName')] ? 'disabled="disabled"' : '').' />',
+                    'input' => '<input type="checkbox" '.($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes"' : '').' name="modules[]" value="${mod_id}" ${checked} '.(!$moduleName[$Module->get('shortName')] ? 'disabled' : '').' />',
                     'span' => '<span class="icon fa fa-question fa-1x hand" title="${mod_desc}"></span>',
-                    'checked' => ($i == $Group->getHostCount() ? 'checked' : ''),
+                    'checked' => ($i == $HostCount) ? 'checked' : '',
                     'mod_name' => $Module->get('name'),
                     'mod_shname' => $Module->get('shortName'),
                     'mod_id' => $Module->get('id'),
@@ -393,7 +392,7 @@ class GroupManagementPage extends FOGPage {
                 );
             }
         }
-        unset($ModOns);
+        unset($ModOns,$Module);
         $this->data[] = array(
             'mod_name' => '',
             'input' => '',
@@ -574,73 +573,73 @@ class GroupManagementPage extends FOGPage {
             switch($_REQUEST['tab']) {
                 // Group Main Edit
                 case 'group-general';
-                    // Error checking
-                    if (empty($_REQUEST['name'])) throw new Exception('Group Name is required');
-					else {
-                        // Define new Image object with data provided
-                        $Group->set('name', $_REQUEST['name'])
-                            ->set('description', $_REQUEST['description'])
-                            ->set('kernel', $_REQUEST['kern'])
-                            ->set('kernelArgs', $_REQUEST['args'])
-                            ->set('kernelDevice', $_REQUEST['dev']);
-                        foreach((array)$Group->get('hosts') AS $Host) {
-                            if ($Host && $Host->isValid()) {
-                                $Host->set('kernel', $_REQUEST['kern'])
-                                    ->set('kernelArgs', $_REQUEST['args'])
-                                    ->set('kernelDevice', $_REQUEST['dev'])
-                                    ->set('productKey', $_REQUEST['key'])
-                                    ->save();
-                            }
+                // Error checking
+                if (empty($_REQUEST['name'])) throw new Exception('Group Name is required');
+                else {
+                    // Define new Image object with data provided
+                    $Group->set('name', $_REQUEST['name'])
+                        ->set('description', $_REQUEST['description'])
+                        ->set('kernel', $_REQUEST['kern'])
+                        ->set('kernelArgs', $_REQUEST['args'])
+                        ->set('kernelDevice', $_REQUEST['dev']);
+                    foreach((array)$Group->get('hosts') AS $Host) {
+                        if ($Host && $Host->isValid()) {
+                            $Host->set('kernel', $_REQUEST['kern'])
+                                ->set('kernelArgs', $_REQUEST['args'])
+                                ->set('kernelDevice', $_REQUEST['dev'])
+                                ->set('productKey', $_REQUEST['key'])
+                                ->save();
                         }
                     }
+                }
                 break;
                 // Image Association
                 case 'group-image';
-                    $Group->addImage($_REQUEST['image']);
+                $Group->addImage($_REQUEST['image']);
                 break;
                 // Snapin Add
                 case 'group-snap-add';
-                    $Group->addSnapin($_REQUEST['snapin']);
+                $Group->addSnapin($_REQUEST['snapin']);
                 break;
                 // Snapin Del
                 case 'group-snap-del';
-                    $Group->removeSnapin($_REQUEST['snapin']);
+                $Group->removeSnapin($_REQUEST['snapin']);
                 break;
                 // Active Directory
                 case 'group-active-directory';
-                    $useAD = ($_REQUEST['domain'] == 'on');
-                    $domain = $_REQUEST['domainname'];
-                    $ou = $_REQUEST['ou'];
-                    $user = $_REQUEST['domainuser'];
-                    $pass = $_REQUEST['domainpassword'];
-                    $Group->setAD($useAD,$domain,$ou,$user,$pass);
+                $useAD = ($_REQUEST['domain'] == 'on');
+                $domain = $_REQUEST['domainname'];
+                $ou = $_REQUEST['ou'];
+                $user = $_REQUEST['domainuser'];
+                $pass = $_REQUEST['domainpassword'];
+                $Group->setAD($useAD,$domain,$ou,$user,$pass);
                 break;
                 // Printer Add/Rem
                 case 'group-printers';
-                    $Group->addPrinter($_REQUEST['prntadd'],$_REQUEST['prntdel'],$_REQUEST['level']);
-                    $Group->updateDefault($_REQUEST['printerid'],$_REQUEST['default']);
+                $Group->addPrinter($_REQUEST['prntadd'],$_REQUEST['prntdel'],$_REQUEST['level']);
+                $Group->updateDefault($_REQUEST['printerid'],$_REQUEST['default']);
                 break;
                 // Update Services
                 case 'group-service';
-                    // The values below set the display Width, Height, and Refresh.  If they're not set by you, they'll
-                    // be set to the default values within the system.
-                    $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
-                    $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
-                    $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
-                    $tme = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
-                    $modOn = $_REQUEST['modules'];
-                    $modOff = $this->getClass('ModuleManager')->find(array('id' => $modOn),'','','','','',true,'id');
-                    foreach((array)$Group->get('hosts') AS $Host) {
-                        if ($Host && $Host->isValid()) {
-                            if (isset($_REQUEST['updatestatus'])) {
-                                $Host->removeModule($modOff);
-                                $Host->addModule($modOn);
-                            }
-                            if (isset($_REQUEST['updatedisplay'])) $Host->setDisp($x,$y,$r);
-                            if (isset($_REQUEST['updatealo'])) $Host->setAlo($tme);
-                            $Host->save();
+                // The values below set the display Width, Height, and Refresh.  If they're not set by you, they'll
+                // be set to the default values within the system.
+                $x =(is_numeric($_REQUEST['x']) ? $_REQUEST['x'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_X'));
+                $y =(is_numeric($_REQUEST['y']) ? $_REQUEST['y'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_Y'));
+                $r =(is_numeric($_REQUEST['r']) ? $_REQUEST['r'] : $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'));
+                $tme = (is_numeric($_REQUEST['tme']) ? $_REQUEST['tme'] : $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN'));
+                $modOn = $_REQUEST['modules'];
+                $modOff = $this->getClass('ModuleManager')->find(array('id' => $modOn),'','','','','',true,'id');
+                foreach((array)$Group->get('hosts') AS $Host) {
+                    if ($Host && $Host->isValid()) {
+                        if (isset($_REQUEST['updatestatus'])) {
+                            $Host->removeModule($modOff);
+                            $Host->addModule($modOn);
                         }
+                        if (isset($_REQUEST['updatedisplay'])) $Host->setDisp($x,$y,$r);
+                        if (isset($_REQUEST['updatealo'])) $Host->setAlo($tme);
+                        $Host->save();
                     }
+                }
                 break;
             }
             // Save to database

@@ -178,7 +178,7 @@ class ImageManagementPage extends FOGPage {
                 break;
             }
         }
-        unset($Node); 
+        unset($Node);
         if (!isset($MasterGroupID) || is_numeric($MasterGroupID) || $MasterGroupID <= 0) {
             foreach((array)$StorageNodes AS $Node) {
                 if ($Node->isValid()) {
@@ -220,13 +220,13 @@ class ImageManagementPage extends FOGPage {
             $_REQUEST['file'] = trim($_REQUEST['file']);
             // Error checking
             if (empty($_REQUEST['name'])) throw new Exception('An image name is required!');
-			if ($this->getClass('ImageManager')->exists($_REQUEST['name'])) throw new Exception('An image already exists with this name!');
-			if (empty($_REQUEST['file'])) throw new Exception('An image file name is required!');
-			if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev') throw new Exception('Please choose a different name, this one is reserved for FOG.');
-			if (empty($_REQUEST['storagegroup'])) throw new Exception('A Storage Group is required!');
-			if (empty($_REQUEST['os'])) throw new Exception('An Operating System is required!');
-			if (empty($_REQUEST['imagetype']) || !is_numeric($_REQUEST['imagetype'])) throw new Exception('An image type is required!');
-			if (empty($_REQUEST['imagepartitiontype']) || !is_numeric($_REQUEST['imagepartitiontype'])) throw new Exception('An image partition type is required!');
+            if ($this->getClass('ImageManager')->exists($_REQUEST['name'])) throw new Exception('An image already exists with this name!');
+            if (empty($_REQUEST['file'])) throw new Exception('An image file name is required!');
+            if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev') throw new Exception('Please choose a different name, this one is reserved for FOG.');
+            if (empty($_REQUEST['storagegroup'])) throw new Exception('A Storage Group is required!');
+            if (empty($_REQUEST['os'])) throw new Exception('An Operating System is required!');
+            if (empty($_REQUEST['imagetype']) || !is_numeric($_REQUEST['imagetype'])) throw new Exception('An image type is required!');
+            if (empty($_REQUEST['imagepartitiontype']) || !is_numeric($_REQUEST['imagepartitiontype'])) throw new Exception('An image partition type is required!');
             // Create new Object
             $Image = $this->getClass('Image')
                 ->set('name',$_REQUEST['name'])
@@ -237,7 +237,7 @@ class ImageManagementPage extends FOGPage {
                 ->set('imagePartitionTypeID',$_REQUEST['imagepartitiontype'])
                 ->set('compress',$_REQUEST['compress'])
                 ->addGroup($_REQUEST['storagegroup']);
-			// Save
+            // Save
             if ($Image->save()) {
                 // Hook
                 $this->HookManager->processEvent('IMAGE_ADD_SUCCESS', array('Image' => &$Image));
@@ -259,7 +259,7 @@ class ImageManagementPage extends FOGPage {
             $this->FOGCore->redirect($this->formAction);
         }
     }
-	/** edit()
+    /** edit()
      * 	Creates the form and display for editing an existing image object.
      */
     public function edit() {
@@ -329,7 +329,7 @@ class ImageManagementPage extends FOGPage {
         // Get groups with this image assigned
         foreach((array)$Image->get('storageGroups') AS $Group) {
             if ($Group && $Group->isValid()) $GroupsWithMe[] = $Group->get('id');
-		}
+        }
         // Get all group IDs with an image assigned
         foreach($IAMan->find() AS $Group) {
             if ($Group->getStorageGroup() && $Group->getStorageGroup()->isValid() && $Group->getImage()->isValid()) $GroupWithAnyImage[] = $Group->getStorageGroup()->get('id');
@@ -339,7 +339,7 @@ class ImageManagementPage extends FOGPage {
             if ($Group && $Group->isValid()) {
                 if (!in_array($Group->get('id'),$GroupWithAnyImage)) $GroupNotWithImage[] = $Group;
                 if (!in_array($Group->get('id'),$GroupsWithMe)) $GroupNotWithMe[] = $Group;
-			}
+            }
         }
         print "\n\t\t\t\t".'<div id="image-storage">';
         // Create the header data:
@@ -454,31 +454,31 @@ class ImageManagementPage extends FOGPage {
         try {
             switch ($_REQUEST['tab']) {
                 case 'image-gen';
-                    // Error checking
-                    if (empty($_REQUEST['name'])) throw new Exception('An image name is required!');
-                    if ($Image->get('name') != $_REQUEST['name'] && $this->getClass('ImageManager')->exists($_REQUEST['name'], $Image->get('id'))) throw new Exception('An image already exists with this name!');
-                    if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev') throw new Exception('Please choose a different name, this one is reserved for FOG.');
-                    if (empty($_REQUEST['file'])) throw new Exception('An image file name is required!');
-                    if (empty($_REQUEST['os'])) throw new Exception('An Operating System is required!');
-                    if (empty($_REQUEST['imagetype']) && $_REQUEST['imagetype'] != '0') throw new Exception('An image type is required!');
-                    if (empty($_REQUEST['imagepartitiontype']) && $_REQUEST['imagepartitiontype'] != '0') throw new Exception('An image partition type is required!');
-                    // Update Object
-                    $Image->set('name', $_REQUEST['name'])
-                        ->set('description', $_REQUEST['description'])
-                        ->set('osID', $_REQUEST['os'])
-                        ->set('path', $_REQUEST['file'])
-                        ->set('imageTypeID', $_REQUEST['imagetype'])
-                        ->set('imagePartitionTypeID', $_REQUEST['imagepartitiontype'])
-                        ->set('format',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $Image->get('format'))
-                        ->set('protected', $_REQUEST['protected_image'])
-                        ->set('compress', $_REQUEST['compress']);
+                // Error checking
+                if (empty($_REQUEST['name'])) throw new Exception('An image name is required!');
+                if ($Image->get('name') != $_REQUEST['name'] && $this->getClass('ImageManager')->exists($_REQUEST['name'], $Image->get('id'))) throw new Exception('An image already exists with this name!');
+                if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev') throw new Exception('Please choose a different name, this one is reserved for FOG.');
+                if (empty($_REQUEST['file'])) throw new Exception('An image file name is required!');
+                if (empty($_REQUEST['os'])) throw new Exception('An Operating System is required!');
+                if (empty($_REQUEST['imagetype']) && $_REQUEST['imagetype'] != '0') throw new Exception('An image type is required!');
+                if (empty($_REQUEST['imagepartitiontype']) && $_REQUEST['imagepartitiontype'] != '0') throw new Exception('An image partition type is required!');
+                // Update Object
+                $Image->set('name', $_REQUEST['name'])
+                    ->set('description', $_REQUEST['description'])
+                    ->set('osID', $_REQUEST['os'])
+                    ->set('path', $_REQUEST['file'])
+                    ->set('imageTypeID', $_REQUEST['imagetype'])
+                    ->set('imagePartitionTypeID', $_REQUEST['imagepartitiontype'])
+                    ->set('format',isset($_REQUEST['imagemanage']) ? $_REQUEST['imagemanage'] : $Image->get('format'))
+                    ->set('protected', $_REQUEST['protected_image'])
+                    ->set('compress', $_REQUEST['compress']);
                 break;
                 case 'image-storage';
-                    $Image->addGroup($_REQUEST['storagegroup']);
-                    if (isset($_REQUEST['remstorgroups'])) {
-                        if (count($Image->get('storageGroups')) > 1) $Image->removeGroup($_REQUEST['storagegroup-rm']);
-                        else throw new Exception(_('Image must be assigned to one Storage Group'));
-                    }
+                $Image->addGroup($_REQUEST['storagegroup']);
+                if (isset($_REQUEST['remstorgroups'])) {
+                    if (count($Image->get('storageGroups')) > 1) $Image->removeGroup($_REQUEST['storagegroup-rm']);
+                    else throw new Exception(_('Image must be assigned to one Storage Group'));
+                }
                 break;
             }
             // Save
@@ -613,13 +613,13 @@ class ImageManagementPage extends FOGPage {
                 ->set('starttime',$this->formatTime('now','Y-m-d H:i:s'))
                 ->set('interface',$StorageNode->get('interface'))
                 ->set('logpath',$Image->get('path'));
-			if (!$MulticastSession->save()) $this->FOGCore->setMessage(_('Failed to create Session'));
-			// Sets a new port number so you can create multiple Multicast Tasks.
-			$randomnumber = mt_rand(24576,32766)*2;
-			while ($randomnumber == $MulticastSession->get('port')) $randomnumber = mt_rand(24576,32766)*2;
-			$this->FOGCore->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
-			$this->FOGCore->setMessage(_('Multicast session created').'<br />'.$MulticastSession->get('name').' has been started on port '.$MulticastSession->get('port'));
-		} catch (Exception $e) {
+            if (!$MulticastSession->save()) $this->FOGCore->setMessage(_('Failed to create Session'));
+            // Sets a new port number so you can create multiple Multicast Tasks.
+            $randomnumber = mt_rand(24576,32766)*2;
+            while ($randomnumber == $MulticastSession->get('port')) $randomnumber = mt_rand(24576,32766)*2;
+            $this->FOGCore->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
+            $this->FOGCore->setMessage(_('Multicast session created').'<br />'.$MulticastSession->get('name').' has been started on port '.$MulticastSession->get('port'));
+        } catch (Exception $e) {
             $this->FOGCore->setMessage($e->getMessage());
         }
         $this->FOGCore->redirect('?node='.$this->node.'&sub=multicast');

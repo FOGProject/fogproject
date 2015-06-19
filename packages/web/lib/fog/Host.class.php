@@ -1,4 +1,4 @@
-<?php
+ ($module instanceof Module ? $module : $this->getClass('Module',$module));<?php
 class Host extends FOGController {
     // Table
     public $databaseTable = 'hosts';
@@ -66,16 +66,6 @@ class Host extends FOGController {
         }
         $this->getActiveSnapinJob();
     }
-    // Snapins
-    public function getImage() {
-        return $this->getClass('Image',$this->get('imageID'));
-    }
-    public function getOS() {
-        return $this->getImage()->getOS();
-    }
-    public function getMACAddress() {
-        return $this->get('mac');
-    }
     public function getDefault($printerid) {
         $PrinterMan = current($this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $printerid)));
         return $PrinterMan && $PrinterMan->isValid() && $PrinterMan->get('isDefault');
@@ -128,7 +118,6 @@ class Host extends FOGController {
             ->save();
         return $this;
     }
-    public function getActiveSnapinJob() {return $this->get('snapinjob');}
         private function loadSnapinJob() {
             if (!$this->isLoaded('snapinjob') && $this->get('id'))
                 $this->set('snapinjob',current($this->getClass('SnapinJobManager')->find(array('stateID' => array(-1,0,1),'hostID' => $this->get('id')))));
@@ -159,9 +148,9 @@ class Host extends FOGController {
     private function loadGroups() {
         if (!$this->isLoaded('groups') && $this->get('id')) {
             // Groups I am in
-            $GroupIDs = $this->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','groupID');
-            $this->set('groups',$this->getClass('GroupManager')->find(array('id' => $GroupIDs)));
-            $this->set('groupsnotinme',$this->getClass('GroupManager')->find(array('id' => $GroupIDs),'','','','','',true));
+            $GroupIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','groupID'));
+            $this->set('groups',$GroupIDs);
+            $this->set('groupsnotinme',array_unique($this->getClass('GroupManager')->find(array('id' => $GroupIDs),'','','','','',true,'groupID')));
             unset($GroupIDs);
         }
         return $this;
@@ -174,7 +163,8 @@ class Host extends FOGController {
     private function loadModules() {
         if (!$this->isLoaded('modules') && $this->get('id')) {
             $ModuleIDs = array_unique($this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','moduleID'));
-            $this->set('modules',$this->getClass('ModuleManager')->find(array('id' => $ModuleIDs)));
+            foreach ($ModuleIDs AS $modid)
+            $this->add('modules',$modid);
             unset($ModuleIDs);
         }
         return $this;
@@ -182,27 +172,18 @@ class Host extends FOGController {
     private function loadSnapins() {
         if (!$this->isLoaded('snapins') && $this->get('id')) {
             $SnapinIDs = array_unique($this->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','snapinID'));
-            $this->set('snapins',$this->getClass('SnapinManager')->find(array('id' => $SnapinIDs)));
-            $this->set('snapinsnotinme',$this->getClass('SnapinManager')->find(array('id' => $SnapinIDs),'','','','','',true));
+            $this->set('snapins',$SnapinIDs);
+            $this->set('snapinsnotinme',array_unique($this->getClass('SnapinManager')->find(array('id' => $SnapinIDs),'','','','','',true,'snapinID')));
             unset($SnapinIDs);
         }
         return $this;
     }
     private function loadTask() {
-        if (!$this->isLoaded('task') && $this->get('id')) {
-            $Task = current($this->getClass('TaskManager')->find(array('hostID' => $this->get('id'),'stateID' => array(1,2,3))));
-            if (!$Task || !$Task->isValid()) $Task = $this->getClass('Task');
-            $this->set('task',$Task);
-        }
+        if (!$this->isLoaded('task') && $this->get('id')) $this->set('task',max((array)$this->getClass('TaskManager')->getClass('TaskManager')->find(array('hostID' => $this->get('id')),'','','','','','','id')));
         return $this;
     }
     private function loadUsers() {
-        if (!$this->isLoaded('users') && $this->get('id')) {
-            foreach($this->getClass('UserTrackingManager')->find(array('hostID' => $this->get('id'),'action' => array(null,0,1)),'','datetime') AS $User) {
-                if ($User && $User->isValid() && $User->get('username') != 'Array')
-                    $this->add('users', $User);
-            }
-        }
+        if (!$this->isLoaded('users') && $this->get('id')) $this->set('users',$this->getClass('UserTrackingManager')->find(array('hostID' => $this->get('id'),'action' => array(null,0,1)),'','datetime','','','','','id'));
         return $this;
     }
     private function loadOptimalStorageNode() {
@@ -228,43 +209,43 @@ class Host extends FOGController {
         // MAC Address
         if ($this->key($key) == 'mac') {
             $this->loadPrimary();
-            if (!($value instanceof MACAddress)) $value = new MACAddress($value);
+            if (!($value instanceof MACAddress)) $value = $this->getClass('MACAddress',$value);
         } else if ($this->key($key) == 'additionalMACs') {
             $this->loadAdditional();
-            foreach((array)$value AS $mac) $newValue[] = ($mac instanceof MACAddress ? $mac : new MACAddress($mac));
+            foreach((array)$value AS $mac) $newValue[] = ($mac instanceof MACAddress ? $mac : $this->getClass('MACAddress',$mac));
             $value = (array)$newValue;
         } else if ($this->key($key) == 'pendingMACs') {
             $this->loadPending();
-            foreach((array)$value AS $mac) $newValue[] = ($mac instanceof MACAddress ? $mac : new MACAddress($mac));
+            foreach((array)$value AS $mac) $newValue[] = ($mac instanceof MACAddress ? $mac : $this->getClass('MACAddress',$mac));
             $value = (array)$newValue;
         } else if (in_array($this->key($key),array('printers','printersnotinme'))) {
             $this->loadPrinters();
-            foreach ((array)$value AS $printer) $newValue[] = ($printer instanceof Printer ? $printer : new Printer($printer));
+            foreach ((array)$value AS $printer) $newValue[] = ($printer instanceof Printer ? $printer : $this->getClass('Printer',$printer));
             $value = (array)$newValue;
         } else if (in_array($this->key($key),array('snapins','snapinsnotinme'))) {
             $this->loadSnapins();
-            foreach ((array)$value AS $snapin) $newValue[] = ($snapin instanceof Snapin ? $snapin : new Snapin($snapin));
+            foreach ((array)$value AS $snapin) $newValue[] = ($snapin instanceof Snapin ? $snapin : $this->getClass('Snapin',$snapin));
             $value = (array)$newValue;
         } else if ($this->key($key) == 'snapinjob' && !($value instanceof SnapinJob)) {
             $this->loadSnapinJob();
-            if (!($value instanceof SnapinJob)) $value = new SnapinJob($value);
+            if (!($value instanceof SnapinJob)) $value = $this->getClass('SnapinJob',$value);
         } else if ($this->key($key) == 'modules') {
             $this->loadModules();
-            foreach((array)$value AS $module) $newValue[] = ($module instanceof Module ? $module : new Module($module));
+            foreach((array)$value AS $module) $newValue[] = ($module instanceof Module ? $module : $this->getClass('Module',$module));
             $value = (array)$newValue;
         } else if (($this->key($key) == 'inventory')) {
             $this->loadInventory();
-            if (!($value instanceof Inventory)) $value = new Inventory($value);
+            if (!($value instanceof Inventory)) $value = $this->getClass('Inventory',$value);
         } else if (in_array($this->key($key),array('groups','groupsnotinme'))) {
             $this->loadGroups();
-            foreach ((array)$value AS $group) $newValue[] = ($group instanceof Group ? $group : new Group($group));
+            foreach ((array)$value AS $group) $newValue[] = ($group instanceof Group ? $group : $this->getClass('Group',$group));
             $value = (array)$newValue;
         } else if ($this->key($key) == 'task') {
             $this->loadTask();
-            if (!($value instanceof Task)) $value = new Task($value);
+            if (!($value instanceof Task)) $value = $this->getClass('Task',$value);
         } else if ($this->key($key) == 'users') {
             $this->loadUsers();
-            foreach ((array)$value AS $user) $newValue[] = ($user instanceof UserTracking ? $user : new UserTracking($user));
+            foreach ((array)$value AS $user) $newValue[] = ($user instanceof UserTracking ? $user : $this->getClass('UserTracking',$user));
             $value = (array)$newValue;
         }
         // Set
@@ -273,25 +254,25 @@ class Host extends FOGController {
     public function add($key, $value) {
         if ($this->key($key) == 'additionalMACs' && !($value instanceof MACAddress)) {
             $this->loadAdditional();
-            $value = new MACAddress($value);
+            $value = $this->getClass('MACAddress',$value);
         } else if ($this->key($key) == 'pendingMACs' && !($value instanceof MACAddress)) {
             $this->loadPending();
-            $value = new MACAddress($value);
+            $value = $this->getClass('MACAddress',$value);
         } else if (in_array($this->key($key),array('printers','printersnotinme')) && !($value instanceof Printer)) {
             $this->loadPrinters();
-            $value = new Printer($value);
+            $value = $this->getClass('Printer',$value);
         } else if (in_array($this->key($key),array('snapins','snapinsnotinme')) && !($value instanceof Snapin)) {
             $this->loadSnapins();
-            $value = new Snapin($value);
+            $value = $this->getClass('Snapin',$value);
         } else if ($this->key($key) == 'modules' && !($value instanceof Module)) {
             $this->loadModules();
-            $value = new Module($value);
+            $value = $this->getClass('Module',$value);
         } else if (in_array($this->key($key),array('groups','groupsnotinme')) && !($value instanceof Group)) {
             $this->loadGroups();
-            $value = new Group($value);
+            $value = $this->getClass('Group',$value);
         } else if ($this->key($key) == 'users' && !($value instanceof UserTracking)) {
             $this->loadUsers();
-            $value = new UserTracking($value);
+            $value = $this->getClass('UserTracking',$value);
         }
         // Add
         return parent::add($key, $value);
@@ -489,14 +470,10 @@ class Host extends FOGController {
             ->set('typeID',$taskTypeID)
             ->set('NFSGroupID',$groupID)
             ->set('NFSMemberID',$memID);
-        if ($imagingTask)
-            $Task->set('imageID', $this->getImage()->get('id'));
-        if ($shutdown)
-            $Task->set('shutdown', $shutdown);
-        if ($debug)
-            $Task->set('isDebug', $debug);
-        if ($passreset)
-            $Task->set('passreset', $passreset);
+        if ($imagingTask) $Task->set('imageID', $this->getImage()->get('id'));
+        if ($shutdown) $Task->set('shutdown', $shutdown);
+        if ($debug) $Task->set('isDebug', $debug);
+        if ($passreset) $Task->set('passreset', $passreset);
         return $Task;
     }
     /** cancelJobsSnapinsForHost cancels all jobs and tasks that are snapins associate
@@ -673,8 +650,8 @@ class Host extends FOGController {
         }
     public function addPrinter($addArray) {
         // Check for existing.
-        foreach((array)$this->get('printers') AS $Printer) {
-            if ($Printer && $Printer->isValid()) $PrinterIDs[] = $Printer->get('id');
+        foreach($this->get('printers') AS $Printer) {
+            if ($Printer->isValid()) $PrinterIDs[] = $Printer->get('id');
         }
         $PrinterIDs = array_unique($PrinterIDs);
         // Add
@@ -741,8 +718,10 @@ class Host extends FOGController {
         return $this;
     }
     public function addModule($addArray) {
+        $ModsExist = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','moduleID');
+        $NewMods = array_diff((array)$addArray,(array)$ModsExist);
         // Add
-        foreach ((array)$addArray AS $item) $this->add('modules', $item);
+        foreach ($NewMods AS $item) $this->add('modules', (int)$item);
         // Return
         return $this;
     }
@@ -841,6 +820,11 @@ class Host extends FOGController {
         // Return
         return parent::destroy($field);
     }
+    // Custom functions
+    public function getImage() {return $this->getClass('Image',$this->get('imageID'));}
+    public function getOS() {return $this->getImage()->getOS();}
+    public function getMACAddress() {return $this->get('mac');}
+    public function getActiveSnapinJob() {return $this->get('snapinjob');}
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */

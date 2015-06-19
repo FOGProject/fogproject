@@ -137,8 +137,7 @@ abstract class FOGController extends FOGBase {
             try {
                 if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key,$this->databaseFieldClassRelationships)) throw new Exception('Invalid data being added');
                 $this->info('Adding Key: %s, Value: %s',array($key,$value));
-                if (array_key_exists($key, $this->databaseFieldsFlipped))
-                    $key = $this->databaseFieldsFlipped[$key];
+                $key = $this->key($key);
                 $this->data[$key][] = $value;
             } catch (Exception $e) {
                 $this->debug('Add Failed: Key: %s, Value: %s, Error: %s', array($key, $value, $e->getMessage()));
