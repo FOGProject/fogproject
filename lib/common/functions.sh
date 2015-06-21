@@ -366,11 +366,11 @@ displayBanner() {
     echo
 }
 createSSLCA() {
-    if [ "$recreateCA" == "yes" -o "$caCreated" != "yes" ]; then
-        mkdir -p "/opt/fog/snapins/CA" &>/dev/null;
-        echo -n "  * Creating SSL CA...";
-        openssl genrsa -out "/opt/fog/snapins/CA/.fogCA.key" 4096 &>/dev/null;
-        openssl req -x509 -new -nodes -key /opt/fog/snapins/CA/.fogCA.key -days 3650 -out /opt/fog/snapins/CA/.fogCA.pem &>/dev/null << EOF
+    if [ "$recreateCA" == "yes" -o "$caCreated" != "yes" -o ! -e "/opt/fog/snapins/CA" -o ! -e "/opt/fog/snapins/CA/.fogCA.key" ]; then
+        mkdir -p "/opt/fog/snapins/CA" >/dev/null 2>&1
+        echo -n "  * Creating SSL CA..."
+        openssl genrsa -out "/opt/fog/snapins/CA/.fogCA.key" 4096 >/dev/null 2>&1
+        openssl req -x509 -new -nodes -key /opt/fog/snapins/CA/.fogCA.key -days 3650 -out /opt/fog/snapins/CA/.fogCA.pem >/dev/null 2>&1 << EOF
 .
 .
 .
@@ -379,13 +379,13 @@ createSSLCA() {
 FOG Server CA
 .
 EOF
-        echo "OK";
+        echo "OK"
     fi
-    if [ "$recreateKeys" == "yes" -o "$recreateCA" == "yes" -o "$caCreated" != "yes" ]; then
+    if [ "$recreateKeys" == "yes" -o "$recreateCA" == "yes" -o "$caCreated" != "yes" -o ! -e "/opt/fog/snapins/ssl" -o ! -e "/opt/fog/snapins/ssl/.srvprivate.key" ]; then
         echo -n "  * Creating SSL Private Key..."
-        mkdir -p /opt/fog/snapins/ssl &>/dev/null;
-        openssl genrsa -out "/opt/fog/snapins/ssl/.srvprivate.key" 4096 &>/dev/null;
-        openssl req -new -key "/opt/fog/snapins/ssl/.srvprivate.key" -out "/opt/fog/snapins/ssl/fog.csr" &> /dev/null << EOF
+        mkdir -p /opt/fog/snapins/ssl &>/dev/null
+        openssl genrsa -out "/opt/fog/snapins/ssl/.srvprivate.key" 4096 >/dev/null 2>&1
+        openssl req -new -key "/opt/fog/snapins/ssl/.srvprivate.key" -out "/opt/fog/snapins/ssl/fog.csr" >/dev/null 2>&1 << EOF
 .
 .
 .
@@ -396,20 +396,20 @@ $ipaddress
 
 
 EOF
-        echo "OK";
+        echo "OK"
     fi
-    echo -n "  * Creating SSL Certificate...";
-    mkdir -p $webdirdest/management/other/ssl &>/dev/null;
-    openssl x509 -req -in "/opt/fog/snapins/ssl/fog.csr" -CA "/opt/fog/snapins/CA/.fogCA.pem" -CAkey "/opt/fog/snapins/CA/.fogCA.key" -CAcreateserial -out "$webdirdest/management/other/ssl/srvpublic.crt" -days 3650 &>/dev/null
-    echo "OK";
-    echo -n "  * Creating auth pub key and cert...";
-    cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem &>/dev/null
-    openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der &>/dev/null;
-    echo "OK";
-    echo -n "  * Resetting SSL Permissions...";
-    chown -R $apacheuser:$apacheuser $webdirdest/management/other &>/dev/null;
-    echo "OK";
-    echo -n "  * Setting up SSL FOG Server...";
+    echo -n "  * Creating SSL Certificate..."
+    mkdir -p $webdirdest/management/other/ssl >/dev/null 2>&1
+    openssl x509 -req -in "/opt/fog/snapins/ssl/fog.csr" -CA "/opt/fog/snapins/CA/.fogCA.pem" -CAkey "/opt/fog/snapins/CA/.fogCA.key" -CAcreateserial -out "$webdirdest/management/other/ssl/srvpublic.crt" -days 3650 >/dev/null 2>&1
+    echo "OK"
+    echo -n "  * Creating auth pub key and cert..."
+    cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem >/dev/null 2>&1
+    openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der >/dev/null 2>&1
+    echo "OK"
+    echo -n "  * Resetting SSL Permissions..."
+    chown -R $apacheuser:$apacheuser $webdirdest/management/other >/dev/null 2>&1
+    echo "OK"
+    echo -n "  * Setting up SSL FOG Server..."
     echo "<VirtualHost *:80>
     ServerName $ipaddress
     DocumentRoot $docroot
@@ -425,20 +425,20 @@ EOF
     SSLCertificateKeyFile /opt/fog/snapins/ssl/.srvprivate.key
     SSLCertificateChainFile $webdirdest/management/other/ca.cert.der
 </VirtualHost>" > "$etcconf";
-    echo "OK";
+    echo "OK"
     if [ "$a2ensite" == "yes" ]; then
-        a2enmod rewrite &> /dev/null;
-        a2enmod ssl &> /dev/null;
-        a2ensite "001-fog" &> /dev/null;
+        a2enmod rewrite >/dev/null 2>&1
+        a2enmod ssl >/dev/null 2>&1
+        a2ensite "001-fog" >/dev/null 2>&1
         if [ "$systemctl" == "yes" ]; then
-            systemctl restart apache2 >/dev/null 2>&1;
+            systemctl restart apache2 >/dev/null 2>&1
         else
-            service apache2 restart >/dev/null 2>&1;
+            service apache2 restart >/dev/null 2>&1
         fi
     elif [ "$systemctl" == "yes" ]; then
-        systemctl restart httpd php-fpm >/dev/null 2>&1;
+        systemctl restart httpd php-fpm >/dev/null 2>&1
     else
-        service httpd restart >/dev/null 2>&1;
+        service httpd restart >/dev/null 2>&1
     fi
     echo "caCreated=\"yes\"" >> "$fogprogramdir/.fogsettings";
 }
