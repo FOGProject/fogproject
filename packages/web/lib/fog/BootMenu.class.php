@@ -14,7 +14,7 @@ class BootMenu extends FOGBase {
         // Setups of the basic construct for the menu system.
         $StorageNode = current($this->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'isMaster' => 1)));
         // Sets up the default values stored in the server. Lines 51 - 64
-        $webserver = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_WEB_HOST'));
+        $webserver = $this->FOGCore->getSetting(FOG_WEB_HOST);
         $webroot = '/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/';
         $this->web = "${webserver}${webroot}";
         $this->bootexittype = ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'exit' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'sanboot' ? 'sanboot --no-describe --drive 0x80' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'grub' ? 'chain -ar http://'.rtrim($this->web,'/').'/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"' : 'exit')));
@@ -217,14 +217,14 @@ class BootMenu extends FOGBase {
     /** @function printTasking() Sends the Tasking file.  In PXE this is equivalent to the creation
      * of the 01-XX-XX-XX-XX-XX-XX file.
      * Just tells the system it's got a task.
-     * @param $kernelArgsArray sets up the tasking through the 
+     * @param $kernelArgsArray sets up the tasking through the
      * kernelArgs information.
      * @return void
      */
     private function printTasking($kernelArgsArray) {
         foreach($kernelArgsArray AS $arg) {
             if (!is_array($arg) && !empty($arg) || (is_array($arg) && $arg['active'] && !empty($arg))) $kernelArgs[] = (is_array($arg) ? $arg['value'] : $arg);
-        }   
+        }
         $kernelArgs = array_unique($kernelArgs);
         $Send['task'] = array(
             "#!ipxe",
