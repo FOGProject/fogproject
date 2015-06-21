@@ -118,11 +118,11 @@ class Host extends FOGController {
             ->save();
         return $this;
     }
-        private function loadSnapinJob() {
-            if (!$this->isLoaded('snapinjob') && $this->get('id'))
-                $this->set('snapinjob',current($this->getClass('SnapinJobManager')->find(array('stateID' => array(-1,0,1),'hostID' => $this->get('id')))));
-            return $this;
-        }
+    private function loadSnapinJob() {
+        if (!$this->isLoaded('snapinjob') && $this->get('id'))
+            $this->set('snapinjob',current($this->getClass('SnapinJobManager')->find(array('stateID' => array(-1,0,1),'hostID' => $this->get('id')))));
+        return $this;
+    }
     private function loadPrimary() {
         if (!$this->isLoaded('mac') && $this->get('id')) $this->set('mac',$this->getClass('MACAddress',current($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1)))));
         return $this;
@@ -163,8 +163,7 @@ class Host extends FOGController {
     private function loadModules() {
         if (!$this->isLoaded('modules') && $this->get('id')) {
             $ModuleIDs = array_unique($this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','moduleID'));
-            foreach ($ModuleIDs AS $modid)
-            $this->add('modules',$modid);
+            $this->set('modules',$ModuleIDs);
             unset($ModuleIDs);
         }
         return $this;
@@ -822,9 +821,9 @@ class Host extends FOGController {
     }
     // Custom functions
     public function getImage() {return $this->getClass('Image',$this->get('imageID'));}
-    public function getOS() {return $this->getImage()->getOS();}
-    public function getMACAddress() {return $this->get('mac');}
-    public function getActiveSnapinJob() {return $this->get('snapinjob');}
+        public function getOS() {return $this->getImage()->getOS();}
+        public function getMACAddress() {return $this->get('mac');}
+        public function getActiveSnapinJob() {return $this->get('snapinjob');}
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */
