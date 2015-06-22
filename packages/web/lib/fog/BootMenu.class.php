@@ -14,7 +14,7 @@ class BootMenu extends FOGBase {
         // Setups of the basic construct for the menu system.
         $StorageNode = current($this->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'isMaster' => 1)));
         // Sets up the default values stored in the server. Lines 51 - 64
-        $webserver = $this->FOGCore->getSetting(FOG_WEB_HOST);
+        $webserver = $this->FOGCore->getSetting('FOG_WEB_HOST');
         $webroot = '/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/';
         $this->web = "${webserver}${webroot}";
         $this->bootexittype = ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'exit' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'sanboot' ? 'sanboot --no-describe --drive 0x80' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'grub' ? 'chain -ar http://'.rtrim($this->web,'/').'/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"' : 'exit')));
@@ -51,7 +51,7 @@ class BootMenu extends FOGBase {
         $DMISet = $CaponePlugInst ? $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_DMI') : false;
         // If it is installed store the needed elements into variables.
         if ($CaponePlugInst) {
-            $this->storage = $this->FOGCore->resolveHostname($StorageNode->get('ip'));
+            $this->storage = $StorageNode->get('ip');
             $this->path = $StorageNode->get('path');
             $this->shutdown = $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN');
         }
@@ -279,7 +279,8 @@ class BootMenu extends FOGBase {
         $Send['keyreg'] = array(
             "#!ipxe",
             "cpuid --ext 29 && set arch x86_64 || set arch i386",
-            "echo -n Please enter the product key> && read key",
+            "echo -n Please enter the product key>",
+            "read key",
             "params",
             'param mac0 ${net0/mac}',
             'param arch ${arch}',
@@ -322,7 +323,8 @@ class BootMenu extends FOGBase {
         $Send['joinsession'] = array(
             "#!ipxe",
             "cpuid --ext 29 && set arch x86_64 || set arch i386",
-            "echo -n Please enter the session name to join> && read sessname",
+            "echo -n Please enter the session name to join>",
+            "read sessname",
             "params",
             'param mac0 ${net0/mac}',
             'param arch ${arch}',
@@ -350,15 +352,15 @@ class BootMenu extends FOGBase {
         $StorageGroup = $Image->getStorageGroup();
         $StorageNode = $StorageGroup->getOptimalStorageNode();
         $osid = $Image->get('osID');
-        $storage = sprintf('%s:/%s/%s',$this->FOGCore->resolveHostname(trim($StorageNode->get('ip'))),trim($StorageNode->get('path'),'/'),'');
-        $storageip = $this->FOGCore->resolveHostname($StorageNode->get('ip'));
+        $storage = sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),'');
+        $storageip = $StorageNode->get('ip');
         $img = $Image->get('path');
         $imgFormat = $Image->get('format');
         $imgType = $Image->getImageType()->get('type');
         $imgPartitionType = $Image->getImagePartitionType()->get('type');
         $imgid = $Image->get('id');
         $chkdsk = $this->FOGCore->getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
-        $ftp = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_TFTP_HOST'));
+        $ftp = $StorageNode->get('ip');
         $port = ($mc ? $mc->get('port') : null);
         $miningcores = $this->FOGCore->getSetting('FOG_MINING_MAX_CORES');
         $kernelArgsArray = array(
@@ -622,18 +624,18 @@ class BootMenu extends FOGBase {
                 $this->HookManager->processEvent('BOOT_TASK_NEW_SETTINGS',array('Host' => &$this->Host,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
                 if ($TaskType->isUpload() || $TaskType->isMulticast()) $StorageNode = $StorageGroup->getMasterStorageNode();
                 $osid = $Image->get('osID');
-                $storage = in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',$this->FOGCore->resolveHostname(trim($StorageNode->get('ip'))),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null;
+                $storage = in_array($TaskType->get('id'),$imagingTasks) ? sprintf('%s:/%s/%s',trim($StorageNode->get('ip')),trim($StorageNode->get('path'),'/'),($TaskType->isUpload() ? 'dev/' : '')) : null;
             }
             if ($this->Host && $this->Host->isValid()) $mac = $this->Host->get('mac');
             else $mac = $_REQUEST['mac'];
-            $clamav = in_array($TaskType->get('id'),array(21,22)) ? sprintf('%s:%s',$this->FOGCore->resolveHostname(trim($StorageNode->get('ip'))),'/opt/fog/clamav') : null;
-            $storageip = in_array($TaskType->get('id'),$imagingTasks) ? $this->FOGCore->resolveHostname($StorageNode->get('ip')) : null;
+            $clamav = in_array($TaskType->get('id'),array(21,22)) ? sprintf('%s:%s',trim($StorageNode->get('ip')),'/opt/fog/clamav') : null;
+            $storageip = in_array($TaskType->get('id'),$imagingTasks) ? $StorageNode->get('ip') : null;
             $img = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('path') : null;
             $imgFormat = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('format') : null;
             $imgType = in_array($TaskType->get('id'),$imagingTasks) ? $Image->getImageType()->get('type') : null;
             $imgPartitionType = in_array($TaskType->get('id'),$imagingTasks) ? $Image->getImagePartitionType()->get('type') : null;
             $imgid = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('id') : null;
-            $ftp = $this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_TFTP_HOST'));
+            $ftp = $StorageNode instanceof StorageNode && $StorageNode->isValid() ? $StorageNode->get('ip') : $this->FOGCore->getSetting(FOG_TFTP_HOST);
             $chkdsk = $this->FOGCore->getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
             $PIGZ_COMP = in_array($TaskType->get('id'),$imagingTasks) ? ($Image->get('compress') > -1 && is_numeric($Image->get('compress')) ? $Image->get('compress') : $this->FOGCore->getSetting('FOG_PIGZ_COMP')) : $this->FOGCore->getSetting('FOG_PIGZ_COMP');
             $kernelArgsArray = array(
