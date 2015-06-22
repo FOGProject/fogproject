@@ -137,7 +137,7 @@ shrinkPartition() {
 	fi
 	fstype=`fsTypeSetting $1`;
 	# Save filesystem type information
-	echo "$1 $fstype" > "$2"
+	echo "$1 $fstype" >> "$2"
 	if [ -n "$fixed_size_partitions" ]; then
 		local partNum=`echo $1 | sed -r 's/^[^0-9]+//g'`;
 		is_fixed=`echo "$fixed_size_partitions" | egrep ':'${partNum}':|^'${partNum}':|:'${partNum}'$' | wc -l`;
