@@ -139,8 +139,8 @@ class Host extends FOGController {
         if (!$this->isLoaded('printers') && $this->get('id')) {
             // Printers I have
             $PrinterIDs = array_unique($this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','printerID'));
-            $this->set('printers',$this->getClass('PrinterManager')->find(array('id' => $PrinterIDs)));
-            $this->set('printersnotinme',$this->getClass('PrinterManager')->find(array('id' => $PrinterIDs),'','','','','',true));
+            $this->set('printers',$PrinterIDs);
+            $this->set('printersnotinme',array_unique($this->getClass('PrinterManager')->find(array('id' => $PrinterIDs),'','','','','',true,'id')));
             unset($PrinterIDs);
         }
         return $this;
@@ -169,10 +169,10 @@ class Host extends FOGController {
         return $this;
     }
     private function loadSnapins() {
-        if (!$this->isLoaded('snapins') && $this->get('id')) {
+        if ($this->get('id') && !$this->isLoaded('snapins')) {
             $SnapinIDs = array_unique($this->getClass('SnapinAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','snapinID'));
             $this->set('snapins',$SnapinIDs);
-            $this->set('snapinsnotinme',array_unique($this->getClass('SnapinManager')->find(array('id' => $SnapinIDs),'','','','','',true,'snapinID')));
+            $this->set('snapinsnotinme',array_unique($this->getClass('SnapinManager')->find(array('id' => $SnapinIDs),'','','','','',true,'id')));
             unset($SnapinIDs);
         }
         return $this;
