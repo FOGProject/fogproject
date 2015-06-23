@@ -42,7 +42,7 @@ installInitScript()
 		chmod 755 ${initdpath}/${initdMCfullname}
 		systemctl enable ${initdMCfullname} >/dev/null 2>&1;
 		chmod 755 ${initdpath}/${initdIRfullname}
-		systemctl enable ${initdIRfullname} >/dev/null 2>&1;	
+		systemctl enable ${initdIRfullname} >/dev/null 2>&1;
 		chmod 755 ${initdpath}/${initdSDfullname}
 		systemctl enable ${initdSDfullname} >/dev/null 2>&1;
 		chmod 755 ${initdpath}/${initdSRfullname}
@@ -69,7 +69,7 @@ configureFOGService()
 {
 	echo "<?php
 define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
-	echo -n "  * Starting FOG Multicast Management Server..."; 
+	echo -n "  * Starting FOG Multicast Management Server...";
 	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
 		systemctl restart ${initdMCfullname} >/dev/null 2>&1;
 		systemctl status ${initdMCfullname} >/dev/null 2>&1;
@@ -80,11 +80,11 @@ define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
-		exit 1;	
+		exit 1;
 	else
 		echo "OK";
 	fi
-	echo -n "  * Starting FOG Image Replicator Server..."; 
+	echo -n "  * Starting FOG Image Replicator Server...";
 	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
 		systemctl restart ${initdIRfullname} >/dev/null 2>&1;
 		systemctl status ${initdIRfullname} >/dev/null 2>&1;
@@ -95,12 +95,12 @@ define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
-		exit 1;	
+		exit 1;
 	else
 		echo "OK";
-	fi	
-	
-	echo -n "  * Starting FOG Task Scheduler Server..."; 
+	fi
+
+	echo -n "  * Starting FOG Task Scheduler Server...";
 	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
 		systemctl restart ${initdSDfullname} >/dev/null 2>&1;
 		systemctl status ${initdSDfullname} >/dev/null 2>&1;
@@ -111,7 +111,7 @@ define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
-		exit 1;	
+		exit 1;
 	else
 		echo "OK";
 	fi
@@ -135,7 +135,7 @@ configureNFS()
 {
 	echo "${storageLocation} *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)
 ${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "${nfsconfig}";
-	echo -n "  * Setting up and starting NFS Server..."; 
+	echo -n "  * Setting up and starting NFS Server...";
 	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
 		systemctl enable rpcbind >/dev/null 2>&1;
 		systemctl enable nfs-server.service >/dev/null 2>&1;
@@ -152,10 +152,10 @@ ${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,inse
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
-		exit 1;	
+		exit 1;
 	else
 		echo "OK";
-	fi		
+	fi
 }
 
 configureSudo()
@@ -167,7 +167,7 @@ configureSudo()
 	#	 echo "${apacheuser} ALL=(ALL) NOPASSWD: /sbin/ether-wake" >>  "/etc/sudoers";
 	#	 echo "Defaults:${apacheuser} !requiretty" >>  "/etc/sudoers";
 	#fi
-	echo "OK";	
+	echo "OK";
 }
 
 configureFTP()
@@ -177,7 +177,7 @@ configureFTP()
 	then
 		mv "$ftpconfig" "${ftpconfig}.fogbackup";
 	fi
-	
+
 	echo "anonymous_enable=NO
 local_enable=YES
 write_enable=YES
@@ -205,13 +205,13 @@ tcp_wrappers=YES" > "$ftpconfig";
 		service vsftpd restart >/dev/null 2>&1;
 		service vsftpd status  >/dev/null 2>&1;
 	fi
-	if [ "$?" != "0" ] 
+	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
-		exit 1;	
+		exit 1;
 	else
 		echo "OK";
-	fi	
+	fi
 
 }
 configureDefaultiPXEfile()
@@ -282,34 +282,31 @@ service tftp
 		service xinetd restart >/dev/null 2>&1;
 		service xinetd status  >/dev/null 2>&1;
 	fi
-	if [ "$?" != "0" ]
-	then
+	if [ "$?" != "0" ]; then
 		echo "Failed!";
-		exit 1;	
+		exit 1;
 	else
-		echo "OK";	
-	fi	
+		echo "OK";
+	fi
 }
-
-configureDHCP()
-{
+configureDHCP() {
 	echo -n "  * Setting up and starting DHCP Server...";
 
 	if [ -f "$dhcpconfig" ]
 	then
 		mv "$dhcpconfig" "${dhcpconfig}.fogbackup"
 	fi
-	
+
 	networkbase=`echo "${ipaddress}" | cut -d. -f1-3`;
 	network="${networkbase}.0";
 	startrange="${networkbase}.10";
 	endrange="${networkbase}.254";
-	
+
 	dhcptouse=$dhcpconfig;
 	if [ -f "${dhcpconfigother}" ]; then
 		dhcptouse=$dhcpconfigother;
-	fi 
-	
+	fi
+
 	echo "# DHCP Server Configuration file.
 # see /usr/share/doc/dhcp*/dhcpd.conf.sample
 # This file was created by FOG
@@ -337,7 +334,7 @@ ignore client-updates;
 next-server ${ipaddress};
 
 # Specify subnet of ether device you do NOT want serviced.  For systems with
-# two or more ethernet devices. 
+# two or more ethernet devices.
 # subnet 136.165.0.0 netmask 255.255.0.0 { }
 
 subnet ${network} netmask 255.255.255.0 {
@@ -346,10 +343,10 @@ subnet ${network} netmask 255.255.255.0 {
         default-lease-time 21600;
         max-lease-time 43200;
 ${dnsaddress}
-${routeraddress} 
+${routeraddress}
         filename \"undionly.kpxe\";
 }" > "$dhcptouse";
-		
+
 	if [ "$bldhcp" = "1" ]; then
 		if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
 			systemctl enable dhcpd >/dev/null 2>&1;
@@ -363,23 +360,19 @@ ${routeraddress}
 		if [ "$?" != "0" ]
 		then
 			echo "Failed!";
-			exit 1;	
+			exit 1;
 		else
 			echo "OK";
-		fi	
+		fi
 	else
 		echo "Skipped";
 	fi
 }
-
-configureMinHttpd()
-{
+configureMinHttpd() {
 	configureHttpd;
 	echo "<?php die( \"This is a storage node, please do not access the web ui here!\" ); ?>" > "$webdirdest/management/index.php";
 }
-
-configureHttpd()
-{
+configureHttpd() {
 	stopInitScript;
 	etcconf="/etc/httpd/conf.d/fog.conf";
 	if [ -f "$etcconf" ]; then
@@ -451,7 +444,7 @@ configureHttpd()
 	if [ "$ret" != "0" ]
 	then
 		echo "Failed! ($ret)";
-		exit 1;	
+		exit 1;
 	else
 		if [ -d "${webdirdest}.prev" ]; then
 			rm -rf "${webdirdest}.prev";
@@ -464,16 +457,16 @@ configureHttpd()
 		echo "<?php
 class Config {
 	/** @function __construct() Calls the required functions to define the settings.
-	  * @return void
-	  */
+      * @return void
+      */
 	public function __construct() {
 		self::db_settings();
 		self::svc_setting();
 		self::init_setting();
 	}
 	/** @function db_settings() Defines the database settings for FOG
-	  * @return void
-	  */
+      * @return void
+      */
 	private static function db_settings() {
 		define('DATABASE_TYPE',		'mysql');	// mysql or oracle
 		define('DATABASE_HOST',		'$dbhost');
@@ -538,7 +531,7 @@ class Config {
 		define('WEB_HOST', \"${ipaddress}\");
 		define('WOL_HOST', \"${ipaddress}\");
 		define('WOL_PATH', '/fog/wol/wol.php');
-		define('WOL_INTERFACE', \"${interface}\");					
+        define('WOL_INTERFACE', \"${interface}\");
 		define('SNAPINDIR', \"${snapindir}/\");
 		define('QUEUESIZE', '10');
 		define('CHECKIN_TIMEOUT',600);
@@ -611,8 +604,7 @@ class Config {
 	fi
 }
 
-configureMySql()
-{
+configureMySql() {
 	echo -n "  * Setting up and starting MySQL...";
 	if [ "$RHVER" == "7" -o "$linuxReleaseName" == "Fedora" ]; then
 		systemctl="yes";
@@ -626,14 +618,12 @@ configureMySql()
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
-		exit 1;	
+		exit 1;
 	else
 		echo "OK";
-	fi	
+	fi
 }
-
-installPackages()
-{
+installPackages() {
 	if [ "$installlang" = "1" ]; then
 		packages="$packages $langPackages"
 	fi
@@ -642,10 +632,9 @@ installPackages()
 		if [[ "$linuxReleaseName" == +(*'CentOS'*|*'Redhat'*|*'Fedora'*) ]]; then
 			${packageinstaller} epel-release >/dev/null 2>&1;
 		fi
+        repo="enterprise";
 		if [ "$linuxReleaseName" == "Fedora" ]; then
 			repo="fedora";
-		else
-			repo="enterprise";
 		fi
 		rpm -Uvh http://rpms.famillecollet.com/$repo/remi-release-$RHVER.rpm &> /dev/null;
 		rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi &> /dev/null
@@ -654,91 +643,74 @@ installPackages()
 	echo "  * Packages to be installed: $packages";
 	echo "";
 	for x in $packages; do
-		rpm -q $x >/dev/null 2>&1
-		if [ $x == "mysql" ]; then
-			rpm -q $x >/dev/null 2>&1
-			if [ "$?" != "0" ]; then
-				x="mariadb";
-			fi
-			rpm -q $x >/dev/null 2>&1
-			if [ "$?" != "0" ]; then
-				${packageinstaller} $x >/dev/null 2>&1
-			fi
-		elif [ $x == "mysql-server" ]; then
-			rpm -q $x >/dev/null 2>&1
-			if [ "$?" != "0" ]; then
-				x="mariadb-server";
-			fi
-			rpm -q $x >/dev/null 2>&1
-			if [ "$?" != "0" ]; then
-				${packageinstaller} $x >/dev/null 2>&1
-			fi
-			rpm -q $x >/dev/null 2>&1
-			if [ "$?" != "0" ]; then
-				${packageinstaller} $x >/dev/null 2>&1
-			fi
-			rpm -q $x >/dev/null 2>&1
-			if [ "$?" != "0" ]; then
-				x="mariadb-galera-server";
-			fi
-			rpm -q $x >/dev/null 2>&1
-			if [ "$?" != "0" ]; then
-				${packageinstaller} $x >/dev/null 2>&1
-			fi
-		elif [ $x == "php-mysql" ]; then
-			rpm -q $x >/dev/null 2>&1
-			if [ "$?" != "0" ]; then
-				x="php-mysqlnd";
-			fi
-			${packageinstaller} $x >/dev/null 2>&1
-		fi
-		rpm -q $x >/dev/null 2>&1
-		if [ "$?" != "0" ]; then
-			echo  "  * Installing package: $x";
-			${packageinstaller} $x >/dev/null 2>&1
-		else
-			echo  "  * Skipping package: $x (Already installed)";
-		fi
+        retPackageInst=0;
+		if [ "$x" == "mysql" ]; then
+            cyclelist="mysql mariadb MariaDB-client"
+            for sqlclient in $cyclelist; do
+                x=$sqlclient;
+                rpm -q $x >/dev/null 2>&1
+                retPackageInst="$?";
+                if [ $retPackageInst -eq 0 ]; then
+                    break;
+                fi
+            done
+		elif [ "$x" == "mysql-server" ]; then
+            cyclelist="mysql-server mariadb-server mariadb-galera-server MariaDB-server";
+            for sqlserver in $cyclelist; do
+                x=$sqlserver;
+                rpm -q $x >/dev/null 2>&1;
+                retPackageInst="$?";
+                if [ $retPackageInst -eq 0 ]; then
+                    break;
+                fi
+            done
+        fi
+        rpm -q $x >/dev/null 2>&1
+        retPackage=$?;
+        if [ $retPackage -eq 0 ]; then
+            echo "  * Skipping package: $x (Already installed)";
+            continue;
+        fi
+        echo "  * Installing package: $x";
+        ${packageinstaller} $x >/dev/null 2>&1
 	done
 }
-
 confirmPackageInstallation() {
 	for x in $packages; do
-		echo -n "  * Checking package: $x...";
-		if [ $x == "mysql" ]; then
-			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]; then
-				x="mariadb";
-			fi
-		fi
-		if [ $x == "mysql-server" ]; then
-			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]; then
-				x="mariadb-server";
-			fi
-			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]; then
-				x="mariadb-galera-server";
-			fi
-		fi
-		if [ $x == "php-mysql" ]; then
-			rpm -q $x >/dev/null 2>&1;
-			if [ "$?" != "0" ]; then
-				x="php-mysqlnd";
-			fi
-		fi
-		rpm -q $x >/dev/null 2>&1;
-		if [ "$?" != "0" ]; then
-			echo "Failed!"
-			exit 1;		
-		else
-			echo "OK";
-		fi
+        retPackageInst=0;
+		if [ "$x" == "mysql" ]; then
+            cyclelist="mysql mariadb MariaDB-client"
+            for sqlclient in $cyclelist; do
+                x=$sqlclient;
+                rpm -q $x >/dev/null 2>&1
+                retPackageInst="$?";
+                if [ $retPackageInst -eq 0 ]; then
+                    break;
+                fi
+            done
+		elif [ "$x" == "mysql-server" ]; then
+            cyclelist="mysql-server mariadb-server mariadb-galera-server MariaDB-server";
+            for sqlserver in $cyclelist; do
+                x=$sqlserver;
+                rpm -q $x >/dev/null 2>&1;
+                retPackageInst="$?";
+                if [ $retPackageInst -eq 0 ]; then
+                    break;
+                fi
+            done
+        fi
+        echo -n "  * Checking package: $x...";
+        rpm -q $x >/dev/null 2>&1
+        retPackage=$?;
+        if [ $retPackage -eq 0 ]; then
+            echo "OK";
+            continue;
+        fi
+		echo "Failed!"
+        exit 1;
 	done;
 }
-
-setupFreshClam()
-{
+setupFreshClam() {
 	echo  -n "  * Configuring Fresh Clam...";
 	if [ ! -d "/opt/fog/clamav" ]; then
 		mkdir /opt/fog/clamav
