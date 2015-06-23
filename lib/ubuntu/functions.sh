@@ -70,8 +70,8 @@ installInitScript() {
 configureFOGService() {
     echo "<?php
 define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
-    echo -n "  * Starting FOG Multicast Management Server..."; 
-    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
+    echo -n "  * Starting FOG Multicast Management Server...";
+    if [ "$systemctl" ]; then
 		systemctl restart ${initdMCfullname} >/dev/null 2>&1;
 		systemctl status ${initdMCfullname} >/dev/null 2>&1;
 	else
@@ -81,13 +81,13 @@ define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
-		exit 1;	
+		exit 1;
 	else
 		echo "OK";
-	fi	
-	
-	echo -n "  * Starting FOG Image Replicator Server..."; 
-    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
+	fi
+
+	echo -n "  * Starting FOG Image Replicator Server...";
+    if [ "$systemctl" ]; then
 		systemctl restart ${initdIRfullname} >/dev/null 2>&1;
 		systemctl status ${initdIRfullname} >/dev/null 2>&1;
 	else
@@ -97,13 +97,13 @@ define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
-		exit 1;	
+		exit 1;
 	else
 		echo "OK";
-	fi	
-	
-	echo -n "  * Starting FOG Task Scheduler Server..."; 
-    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
+	fi
+
+	echo -n "  * Starting FOG Task Scheduler Server...";
+    if [ "$systemctl" ]; then
 		systemctl restart ${initdSDfullname} >/dev/null 2>&1;
 		systemctl status ${initdSDfullname} >/dev/null 2>&1;
 	else
@@ -113,13 +113,13 @@ define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
-		exit 1;	
+		exit 1;
 	else
 		echo "OK";
 	fi
 
 	echo -n "  * Starting FOG Snapin Replicator Server...";
-    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
+    if [ "$systemctl" ]; then
 		systemctl restart ${initdSRfullname} >/dev/null 2>&1;
 		systemctl status ${initdSRfullname} >/dev/null 2>&1;
 	else
@@ -135,12 +135,11 @@ define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
 	fi
 }
 
-configureNFS()
-{
+configureNFS() {
 	echo "${storageLocation} *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)
 ${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "${nfsconfig}";
-	echo -n "  * Setting up and starting NFS Server..."; 
-    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
+	echo -n "  * Setting up and starting NFS Server...";
+    if [ "$systemctl" ]; then
 		systemctl enable rpcbind >/dev/null 2>&1;
 		systemctl enable nfs-kernel-server.service >/dev/null 2>&1;
 		systemctl restart rpcbind >/dev/null 2>&1;
@@ -154,10 +153,10 @@ ${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,inse
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
-		exit 1;	
+		exit 1;
 	else
 		echo "OK";
-	fi		
+	fi
 }
 
 configureFTP()
@@ -167,7 +166,7 @@ configureFTP()
 	then
 		mv "${ftpconfig}" "${ftpconfig}.fogbackup";
 	fi
-	
+
 	echo "anonymous_enable=NO
 local_enable=YES
 write_enable=YES
@@ -186,7 +185,7 @@ tcp_wrappers=YES" > "$ftpconfig";
 	if [ "$vsvermaj" -gt 3 ] || [ "$vsvermaj" = "3" -a "$vsverbug" -ge 2 ]; then
 		echo "seccomp_sandbox=NO" >> "$ftpconfig";
 	fi
-    if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
+    if [ "$systemctl" ]; then
 		systemctl enable vsftpd.service >/dev/null 2>&1;
 		systemctl restart vsftpd.service >/dev/null 2>&1;
 		systemctl status vsftpd.service >/dev/null 2>&1;
@@ -195,13 +194,13 @@ tcp_wrappers=YES" > "$ftpconfig";
 		service vsftpd stop >/dev/null 2>&1;
 		service vsftpd start >/dev/null 2>&1;
 	fi
-	if [ "$?" != "0" ] 
+	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
-		exit 1;	
+		exit 1;
 	else
 		echo "OK";
-	fi	
+	fi
 
 }
 
@@ -261,7 +260,7 @@ TFTP_USERNAME=\"root\"
 TFTP_DIRECTORY=\"/tftpboot\"
 TFTP_ADDRESS=\":69\"
 TFTP_OPTIONS=\"-s\"" > "${tftpconfigupstartdefaults}";
-        if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
+        if [ "$systemctl" ]; then
 			systemctl enable xinetd >/dev/null 2>&1;
 			systemctl restart xinetd >/dev/null 2>&1;
 			systemctl status xinetd >/dev/null 2>&1;
@@ -276,10 +275,10 @@ TFTP_OPTIONS=\"-s\"" > "${tftpconfigupstartdefaults}";
 		if [ "$?" != "0" ]
 		then
 			echo "Failed!";
-			exit 1;	
+			exit 1;
 		else
-			echo "OK";	
-		fi			
+			echo "OK";
+		fi
 	else
 		echo "# default: off
 # description: The tftp server serves files using the trivial file transfer \
@@ -300,7 +299,7 @@ service tftp
 	flags			= IPv4
 }" > "${tftpconfig}";
 
-        if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
+        if [ "$systemctl" ]; then
 			systemctl enable xinetd >/dev/null 2>&1;
 			systemctl restart xinetd >/dev/null 2>&1;
 			systemctl status xinetd >/dev/null 2>&1;
@@ -312,11 +311,11 @@ service tftp
 		if [ "$?" != "0" ]
 		then
 			echo "Failed!";
-			exit 1;	
+			exit 1;
 		else
-			echo "OK";	
-		fi	
-	fi	
+			echo "OK";
+		fi
+	fi
 }
 
 configureDHCP()
@@ -327,18 +326,18 @@ configureDHCP()
 	if [ -f "$dhcpconfig" ]
 	then
 		mv "$dhcpconfig" "${dhcpconfig}.fogbackup"
-		activeconfig="$dhcpconfig" 
+		activeconfig="$dhcpconfig"
 	elif [ -f "$olddhcpconfig" ]
 	then
 		mv "$olddhcpconfig" "${olddhcpconfig}.fogbackup"
-		activeconfig="$olddhcpconfig" 
+		activeconfig="$olddhcpconfig"
 	fi
-	
+
 	networkbase=`echo "${ipaddress}" | cut -d. -f1-3`;
 	network="${networkbase}.0";
 	startrange="${networkbase}.10";
 	endrange="${networkbase}.254";
-	
+
 	echo "# DHCP Server Configuration file.
 # see /usr/share/doc/dhcp*/dhcpd.conf.sample
 # This file was created by FOG
@@ -353,12 +352,12 @@ subnet ${network} netmask 255.255.255.0 {
         default-lease-time 21600;
         max-lease-time 43200;
 ${dnsaddress}
-${routeraddress} 
+${routeraddress}
         filename \"undionly.kpxe\";
 }" > "$activeconfig";
-		
-	if [ "$bldhcp" = "1" ]; then	
-        if [ "$OSVER" -ge 8 ] && [[ "$linuxReleaseName" == +(*'Debian'*) ]] || [ "$OSVER" -ge 15 ] && [[ "$linuxReleaseName" == +(*'Ubuntu'*) ]]; then
+
+	if [ "$bldhcp" = "1" ]; then
+        if [ "$systemctl" ]; then
 			systemctl enable ${dhcpname} >/dev/null 2>&1;
 			systemctl enable ${olddhcpname} >/dev/null 2>&1;
 			systemctl restart ${dhcpname} >/dev/null 2>&1;
@@ -368,11 +367,11 @@ ${routeraddress}
 		else
 			sysv-rc-conf ${dhcpname} on >/dev/null 2>&1;
 			sysv-rc-conf ${olddhcpname} on >/dev/null 2>&1;
-			
+
 			/etc/init.d/${dhcpname} stop >/dev/null 2>&1;
 			/etc/init.d/${dhcpname} start >/dev/null 2>&1;
 			try1="$?";
-			
+
 			/etc/init.d/${olddhcpname} stop >/dev/null 2>&1;
 			/etc/init.d/${olddhcpname} start >/dev/null 2>&1;
 			try2="$?";
@@ -382,7 +381,7 @@ ${routeraddress}
 			echo "OK";
 		else
 			echo "Failed!";
-			exit 1;	
+			exit 1;
 		fi
 	else
 		echo "Skipped";
@@ -480,7 +479,7 @@ configureHttpd()
 	if [ "$?" != "0" ]
 	then
 		echo "Failed!";
-		exit 1;	
+		exit 1;
 	else
 		if [ -d "${webdirdest}.prev" ]; then
 			rm -rf "${webdirdest}.prev";
@@ -567,7 +566,7 @@ class Config {
 		define('WEB_HOST', \"${ipaddress}\");
 		define('WOL_HOST', \"${ipaddress}\");
 		define('WOL_PATH', '/fog/wol/wol.php');
-		define('WOL_INTERFACE', \"${interface}\");					
+		define('WOL_INTERFACE', \"${interface}\");
 		define('SNAPINDIR', \"${snapindir}/\");
 		define('QUEUESIZE', '10');
 		define('CHECKIN_TIMEOUT',600);
@@ -601,7 +600,7 @@ class Config {
     		# if so, then we need to create a link in there for the fog web files
     		[ ! -h ${apachehtmlroot}/fog ] && ln -s ${webdirdest} ${apachehtmlroot}/fog
 			echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/html/index.php";
-		else 
+		else
 			echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/index.php";
 		fi
 		echo "OK";
@@ -702,7 +701,7 @@ installPackages()
 
 	echo "  * Packages to be installed: $packages";
 	echo "";
-	
+
 	for x in $packages
 	do
 		checkMe=`dpkg -l $x 2>/dev/null | grep '^ii'`;
@@ -730,8 +729,8 @@ installPackages()
 				apt-get -y -q install $x;
 				echo "";
 			elif [ "$x" = "$dhcpname" ]
-			then			
-				apt-get -y -q install $dhcpname >/dev/null 2>&1;			
+			then
+				apt-get -y -q install $dhcpname >/dev/null 2>&1;
 				apt-get -y -q install $olddhcpname >/dev/null 2>&1;
 			else
 				apt-get -y -q install $x >/dev/null 2>&1;
@@ -764,7 +763,7 @@ confirmPackageInstallation()
 		if [ "$checkMe" == "" ]; then
 			echo "Failed!"
 			if [ "$x" = "$dhcpname" ]
-			then			
+			then
 				echo -n "  * Checking for legacy package: $olddhcpname";
 				dpkg -l $olddhcpname >/dev/null 2>&1 | grep '^ii' >/dev/null;
 				if [ "$?" != "0" ]

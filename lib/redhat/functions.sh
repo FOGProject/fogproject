@@ -18,7 +18,7 @@
 #
 #
 stopInitScript() {
-	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
+    if [ "$systemctl" == "yes" ]; then
 		systemctl stop ${initdMCfullname} >/dev/null 2>&1;
 		systemctl stop ${initdIRfullname} >/dev/null 2>&1;
 		systemctl stop ${initdSDfullname} >/dev/null 2>&1;
@@ -33,7 +33,7 @@ stopInitScript() {
 installInitScript()
 {
 	echo -n "  * Installing init scripts...";
-	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
+    if [ "$systemctl" == "yes" ]; then
 		systemctl stop ${initdMCfullname} >/dev/null 2>&1;
 		systemctl stop ${initdIRfullname} >/dev/null 2>&1;
 		systemctl stop ${initdSDfullname} >/dev/null 2>&1;
@@ -70,7 +70,7 @@ configureFOGService()
 	echo "<?php
 define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
 	echo -n "  * Starting FOG Multicast Management Server...";
-	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
+    if [ "$systemctl" == "yes" ]; then
 		systemctl restart ${initdMCfullname} >/dev/null 2>&1;
 		systemctl status ${initdMCfullname} >/dev/null 2>&1;
 	else
@@ -85,7 +85,7 @@ define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
 		echo "OK";
 	fi
 	echo -n "  * Starting FOG Image Replicator Server...";
-	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
+    if [ "$systemctl" == "yes" ]; then
 		systemctl restart ${initdIRfullname} >/dev/null 2>&1;
 		systemctl status ${initdIRfullname} >/dev/null 2>&1;
 	else
@@ -101,7 +101,7 @@ define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
 	fi
 
 	echo -n "  * Starting FOG Task Scheduler Server...";
-	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
+    if [ "$systemctl" == "yes" ]; then
 		systemctl restart ${initdSDfullname} >/dev/null 2>&1;
 		systemctl status ${initdSDfullname} >/dev/null 2>&1;
 	else
@@ -116,7 +116,7 @@ define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
 		echo "OK";
 	fi
 	echo -n "  * Starting FOG Snapin Replicator Server...";
-	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
+    if [ "$systemctl" == "yes" ]; then
 		systemctl restart ${initdSRfullname} >/dev/null 2>&1;
 		systemctl status ${initdSRfullname} >/dev/null 2>&1;
 	else
@@ -136,7 +136,7 @@ configureNFS()
 	echo "${storageLocation} *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)
 ${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "${nfsconfig}";
 	echo -n "  * Setting up and starting NFS Server...";
-	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
+    if [ "$systemctl" == "yes" ]; then
 		systemctl enable rpcbind >/dev/null 2>&1;
 		systemctl enable nfs-server.service >/dev/null 2>&1;
 		systemctl restart rpcbind >/dev/null 2>&1;
@@ -196,7 +196,7 @@ tcp_wrappers=YES" > "$ftpconfig";
 	if [ "$vsvermaj" -gt 3 ] || [ "$vsvermaj" = "3" -a "$vsverbug" -ge 2 ]; then
 		echo "seccomp_sandbox=NO" >> "$ftpconfig";
 	fi
-	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
+    if [ "$systemctl" == "yes" ]; then
 		systemctl enable vsftpd.service >/dev/null 2>&1;
 		systemctl restart vsftpd.service >/dev/null 2>&1;
 		systemctl status vsftpd.service >/dev/null 2>&1;
@@ -273,7 +273,7 @@ service tftp
 	flags			= IPv4
 }" > "$tftpconfig";
 
-	if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
+    if [ "$systemctl" == "yes" ]; then
 		systemctl enable xinetd >/dev/null 2>&1;
 		systemctl restart xinetd >/dev/null 2>&1;
 		systemctl status xinetd >/dev/null 2>&1;
@@ -348,7 +348,7 @@ ${routeraddress}
 }" > "$dhcptouse";
 
 	if [ "$bldhcp" = "1" ]; then
-		if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
+        if [ "$systemctl" == "yes" ]; then
 			systemctl enable dhcpd >/dev/null 2>&1;
 			systemctl restart dhcpd >/dev/null 2>&1;
 			systemctl status dhcpd >/dev/null 2>&1;
@@ -606,7 +606,7 @@ class Config {
 
 configureMySql() {
 	echo -n "  * Setting up and starting MySQL...";
-	if [ "$RHVER" == "7" -o "$linuxReleaseName" == "Fedora" ]; then
+    if [ "$systemctl" == "yes" ]; then
 		systemctl="yes";
 		systemctl enable mariadb.service >/dev/null 2>&1;
 		systemctl restart mariadb.service >/dev/null 2>&1;
@@ -636,7 +636,7 @@ installPackages() {
 		if [ "$linuxReleaseName" == "Fedora" ]; then
 			repo="fedora";
 		fi
-		rpm -Uvh http://rpms.famillecollet.com/$repo/remi-release-$RHVER.rpm &> /dev/null;
+		rpm -Uvh http://rpms.famillecollet.com/$repo/remi-release-$OSVersion.rpm &> /dev/null;
 		rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi &> /dev/null
 		echo "OK";
 	fi
