@@ -17,8 +17,6 @@
 #
 #
 #
-RHVER=$OSVersion
-
 # Yum packages to install
 if [ "$linuxReleaseName" == "Mageia" ];
 then

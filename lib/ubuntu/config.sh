@@ -26,11 +26,8 @@ storageNodePackages="apache2 php5 php5-json php5-cli php5-curl mysql-client nfs-
 langPackages="language-pack-it language-pack-en language-pack-es language-pack-zh-hans";
 dhcpname="isc-dhcp-server";
 olddhcpname="dhcp3-server";
-
-OSVER=`sed -n 's/^VERSION_ID="\([^.]*\).*"/\1/p' /etc/os-release`
-
 # where do the init scripts go?
-if [ "$OSVER" -ge 15 -a "$linuxReleaseName" == "Ubuntu" ] || [ "$OSVER" -ge 8 -a "$linuxReleaseName" == "Debian" ]; then
+if [ "$systemctl" == "yes" ]; then
 	initdpath="/lib/systemd/system";
 	initdsrc="../packages/systemd";
 	initdMCfullname="FOGMulticastManager.service";

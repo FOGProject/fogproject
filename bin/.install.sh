@@ -32,11 +32,11 @@ if [ -z "$OSVersion" ]; then
     if [[ "$linuxReleaseName" == +(*'Debian'*|*'Ubuntu'*) ]]; then
         apt-get install lsb_release >/dev/null 2>&1;
         OSVersion=`lsb_release -r| awk -F'[^0-9]*' /^[Rr]elease\([^.]*\).*/'{print $2}'`;
-    elif [[ "$linuxReleaseName" == +(*'CentOS'*|*'Redhat'*|*'Fedora'*) ]]; then
+    elif [[ "$linuxReleaseName" == +(*'CentOS'*|*'Redhat'*|*'Red'*|*'Fedora'*) ]]; then
         OSVersion=`awk -F'[^0-9]*' /[Rr]elease*\([^.]*\).*/'{print $2}' /etc/*release* | head -n1`
     fi
 fi
-if [[ "$OSVersion" -ge 7 && "$linuxReleaseName" == +(*'CentOS'*|*'Redhat'*) ]] || [[ "$OSVersion" -ge 15 && "$linuxReleaseName" == +(*'Fedora'*|*'Ubuntu'*) ]] || [[ "$OSVersion" -ge 8 && "$linuxReleaseName" == +(*'Debian'*) ]]; then
+if [[ "$OSVersion" -ge 7 && "$linuxReleaseName" == +(*'CentOS'*|*'Redhat'*|*'Red'*) ]] || [[ "$OSVersion" -ge 15 && "$linuxReleaseName" == +(*'Fedora'*|*'Ubuntu'*) ]] || [[ "$OSVersion" -ge 8 && "$linuxReleaseName" == +(*'Debian'*) ]]; then
     systemctl="yes";
 fi
 installtype="";
