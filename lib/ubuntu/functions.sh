@@ -611,22 +611,7 @@ class Config {
 		if [ -L "/etc/php5/conf.d/20-mcrypt.ini-old" ]; then
 			mv "/etc/php5/conf.d/20-mcrypt.ini-old" "/etc/php5/conf.d/20-mcrypt.ini";
 		fi
-		cwd=`pwd`;
-		cd "${webdirdest}/service"
-		count=0;
-		while [ -z "$clientVer" -a "$count" -le 5 ]; do
-			clientVer=`wget -t 1 -T 15 --no-proxy http://127.0.0.1/fog/service/getclient.php -q -O -`;
-			if [ -z "$clientVer" ]; then
-				clientVer=`wget -t 1 -T 15 --no-proxy http://127.0.0.1/service/getclient.php -q -O -`;
-			fi
-			count=`expr $count '+' 1`
-			sleep 2;
-		done
-		if [ -z "$clientVer" ]; then
-			echo "Failed to get client version"
-			exit 1
-		fi
-		cd $cwd;
+        clientVer="`awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/System.class.php | tr -d '[[:space:]]'`";
 		clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi";
 		curl -sl --silent -f -L $clienturl &>/dev/null;
 		if [[ "$?" = "0" ]]; then
