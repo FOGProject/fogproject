@@ -512,22 +512,7 @@ class Config {
 		fi
 		echo "OK";
 		echo -n "  * Downloading New FOG Client file...";
-		cwd=`pwd`;
-		cd $webdirdest/service;
-		count=0;
-		while [ -z "$clientVer" -a "$count" -le 10 ]; do
-			clientVer=`wget -t 1 -T 15 --no-proxy http://127.0.0.1/fog/service/getclient.php -q -O -`;
-			if [ -z "$clientVer" ]; then
-				clientVer=`wget -t 1 -T 15 --no-proxy http://127.0.0.1/service/getclient.php -q -O -`;
-			fi
-			count=`expr $count '+' 1`
-			sleep 2;
-		done
-		if [ -z "$clientVer" ]; then
-			echo "Failed to get client version"
-			exit 1
-		fi
-		cd $cwd;
+        clientVer="`awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/System.class.php | tr -d '[[:space:]]'`";
 		clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi";
 		curl -sl --silent -f -L $clienturl &>/dev/null;
 		if [[ "$?" = "0" ]]; then
@@ -535,10 +520,10 @@ class Config {
 			echo "OK";
 		else
 			echo "Failed";
-			echo "\t\tYou can try downloading the file yourself by running";
-			echo "\t\tInstallation will continue.  Once complete you can";
-			echo "\t\trun the command:";
-			echo "\t\t\twget -O ${webdirdest}/client/FOGService.msi $clienturl";
+			echo -e "\n\t\tYou can try downloading the file yourself by running";
+			echo -e "\n\t\tInstallation will continue.  Once complete you can";
+			echo -e "\n\t\trun the command:";
+			echo -e "\n\t\t\twget -O ${webdirdest}/client/FOGService.msi $clienturl";
 		fi
 		if [ -d "${webdirdest}.prev" ]; then
 			echo -n "  * Copying back any custom hook files...";

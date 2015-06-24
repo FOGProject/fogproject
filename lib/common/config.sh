@@ -44,10 +44,7 @@ fogutilsdir="${fogprogramdir}/utils";
 # where do generic fog utils come from?
 fogutilsdirsrc="../packages/utils";
 # what version are we working with?
-version="`wget -t 1 -T 15 --no-check-certificate https://fogproject.org/version/version.php -q -O -`";
-if [ -z "$version" ]; then
-    version="Current";
-fi
+version="`awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/System.class.php | tr -d '[[:space:]]'`";
 # what is the schema version
 schemaversion="181";
 if [ "$systemctl" == "yes" ]; then
