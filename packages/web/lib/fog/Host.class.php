@@ -294,6 +294,7 @@ class Host extends FOGController {
         parent::save();
         if ($this->isLoaded('mac')) {
             $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'mac' => $this->get('mac')->__toString()));
+            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 1));
             if (($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid()) {
                 $this->getClass('MACAddressAssociation')
                     ->set('hostID', $this->get('id'))
@@ -309,6 +310,7 @@ class Host extends FOGController {
             $MAClist = array();
             foreach ($this->get(additionalMACs) AS $MAC) $MAClist[] = $MAC->__toString();
             $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'mac' => (array)$MAClist));
+            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'pending' => 0,'primary' => 0));
             foreach($this->get('additionalMACs') AS $me) {
                 if (($me instanceof MACAddress) && $me->isValid()) {
                     $this->getClass('MACAddressAssociation')
@@ -326,6 +328,7 @@ class Host extends FOGController {
             $MAClist = array();
             foreach ($this->get(pendingMACs) AS $MAC) $MAClist[] = $MAC->__toString();
             $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'mac' => (array)$MAClist));
+            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'pending' => 1,'primary' => 0));
             foreach($this->get('pendingMACs') AS $me) {
                 if (($me instanceof MACAddress) && $me->isValid()) {
                     $this->getClass('MACAddressAssociation')
