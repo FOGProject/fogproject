@@ -54,8 +54,9 @@ class Host extends FOGController {
         'name',
     );
     // Custom functons
-    public function isHostnameSafe() {
-        return (strlen($this->get('name')) > 0 && strlen($this->get('name')) <= 15 && preg_replace('#[0-9a-zA-Z_\-]#', '', $this->get('name')) == '');
+    public function isHostnameSafe($hostname = '') {
+        if (empty($hostname)) $hostname = $this->get(name);
+        return (strlen($hostname) > 0 && strlen($hostname) <= 15 && preg_replace('#[0-9a-zA-Z_\-]#', '', $hostname) == '');
     }
     // Load the items
     public function load($field = 'id') {
@@ -292,24 +293,27 @@ class Host extends FOGController {
     public function save() {
         parent::save();
         if ($this->isLoaded('mac')) {
-            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 1));
+            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'mac' => $this->get('mac')->__toString()));
             if (($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid()) {
                 $this->getClass('MACAddressAssociation')
                     ->set('hostID', $this->get('id'))
-                    ->set('mac',strtolower($this->get('mac')))
+                    ->set('mac',strtolower($this->get('mac')->__toString()))
                     ->set('primary',1)
+                    ->set('pending',0)
                     ->set('clientIgnore',$this->get('mac')->isClientIgnored())
                     ->set('imageIgnore',$this->get('mac')->isImageIgnored())
                     ->save();
             }
         }
         if ($this->isLoaded('additionalMACs')) {
-            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 0));
-            foreach((array)$this->get('additionalMACs') AS $me) {
+            $MAClist = array();
+            foreach ($this->get(additionalMACs) AS $MAC) $MAClist[] = $MAC->__toString();
+            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'mac' => (array)$MAClist));
+            foreach($this->get('additionalMACs') AS $me) {
                 if (($me instanceof MACAddress) && $me->isValid()) {
                     $this->getClass('MACAddressAssociation')
                         ->set('hostID',$this->get('id'))
-                        ->set('mac',strtolower($me))
+                        ->set('mac',strtolower($me->__toString()))
                         ->set('primary', 0)
                         ->set('pending', 0)
                         ->set('clientIgnore',$me->isClientIgnored())
@@ -319,12 +323,14 @@ class Host extends FOGController {
             }
         }
         if ($this->isLoaded('pendingMACs')) {
-            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 0,'pending' => 1));
-            foreach((array)$this->get('pendingMACs') AS $me) {
+            $MAClist = array();
+            foreach ($this->get(pendingMACs) AS $MAC) $MAClist[] = $MAC->__toString();
+            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'mac' => (array)$MAClist));
+            foreach($this->get('pendingMACs') AS $me) {
                 if (($me instanceof MACAddress) && $me->isValid()) {
                     $this->getClass('MACAddressAssociation')
                         ->set('hostID',$this->get('id'))
-                        ->set('mac',strtolower($me))
+                        ->set('mac',strtolower($me->__toString()))
                         ->set('primary', 0)
                         ->set('pending', 1)
                         ->set('clientIgnore',$me->isClientIgnored())
@@ -431,10 +437,8 @@ class Host extends FOGController {
             $StorageGroup = $Image->getStorageGroup();
             $StorageNode = ($isUpload ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode());
             if (!$isUpload)	$this->HookManager->processEvent('HOST_NEW_SETTINGS',array('Host' => &$this,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
-            if (!$StorageGroup || !$StorageGroup->isValid())
-                throw new Exception(_('No Storage Group found for this image'));
-            if (!$StorageNode || !$StorageNode->isValid())
-                throw new Exception(_('No Storage Node found for this image'));
+            if (!$StorageGroup || !$StorageGroup->isValid()) throw new Exception(_('No Storage Group found for this image'));
+            if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(_('No Storage Node found for this image'));
             if (in_array($TaskType->get('id'),array('1','8','15','17')) && in_array($Image->get('osID'), array('5', '6', '7'))) {
                 // FTP
                 $this->FOGFTP->set('username',$StorageNode->get('user'))
@@ -668,25 +672,31 @@ class Host extends FOGController {
         return $this;
     }
     public function addAddMAC($addArray,$pending = false) {
-        if ($pending) {
-            foreach((array)$addArray AS $item)
-                $this->add('pendingMACs', $item);
-        } else {
-            foreach((array)$addArray AS $item)
-                $this->add('additionalMACs', $item);
-        }
+        if ($pending) foreach((array)$addArray AS $item) $this->add(pendingMACs, $item);
+        else foreach((array)$addArray AS $item) $this->add(additionalMACs, $item);
         return $this;
     }
     public function addPendtoAdd($MACs = false) {
-        foreach((array)($MACs ? $MACs : $this->get('pendingMACs')) AS $MAC) {
-            $this->add('additionalMACs',(($MAC instanceof MACAddress) ? $MAC : new MACAddress($MAC)));
-            $this->remove('pendingMACs',(($MAC instanceof MACAddress) ? $MAC : new MACAddress($MAC)));
+        $MAClist = array();
+        if (!$MACs) foreach ($this->get(pendingMACs) AS $MAC) $MAClist[] = $MAC;
+        else {
+            $MACs = array_map('strtolower',(array)$MACs);
+            foreach ($this->get(pendingMACs) AS $MAC) {
+                if (in_array(strtolower($MAC->__toString()),$MACs)) $MAClist[] = $MAC;
+            }
         }
+        $this->addAddMAC($MAClist);
+        $this->removePendMAC($MAClist);
         // Return
         return $this;
     }
     public function removeAddMAC($removeArray) {
-        foreach((array)$removeArray AS $item) $this->remove('additionalMACs',(($item instanceof MACAddress) ? $item : new MACAddress($item)));
+        foreach((array)$removeArray AS $item) $this->remove('additionalMACs',(($item instanceof MACAddress) ? $item : $this->getClass(MACAddress,$item)));
+        // Return
+        return $this;
+    }
+    public function removePendMAC($removeArray) {
+        foreach((array)$removeArray AS $item) $this->remove('pendingMACs',(($item instanceof MACAddress) ? $item : $this->getClass(MACAddress,$item)));
         // Return
         return $this;
     }

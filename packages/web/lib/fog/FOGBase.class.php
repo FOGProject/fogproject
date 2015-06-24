@@ -399,28 +399,19 @@ abstract class FOGBase {
      * @return $MAClist, returns the list of valid MACs
      */
     public function parseMacList($stringlist,$image = false,$client = false) {
-        $MACs = $this->getClass('MACAddressAssociationManager')->find(array('mac' => (array)explode('|',$stringlist)));
-        if (count($MACs)) {
-            foreach($MACs AS $MAC) {
-                if ($MAC && $MAC->isValid()) {
-                    if (!$MAC->get('pending')) {
-                        if ($image && !$MAC->get('imageIgnore')) $MAC = new MACAddress($MAC);
-                        else if ($client && !$MAC->get('clientIgnore')) $MAC = new MACAddress($MAC);
-                        else if (!$image && !$client) $MAC = new MACAddress($MAC);
-                        if ($MAC instanceof MACAddress) $MAClist[] = strtolower($MAC);
-                    }
-                }
+        foreach($this->getClass('MACAddressAssociationManager')->find(array('mac' => explode('|',$stringlist))) AS $MAC) {
+            if ($MAC->isValid()) {
+                if (($image && !$MAC->get('imageIgnore')) || ($client && !$MAC->get('clientIgnore')) || (!$image && !$client)) $MAClist[] = strtolower($this->getClass('MACAddress',$MAC)->__toString());
             }
         }
-        $MACs = explode('|',$stringlist);
-        foreach((array)$MACs AS $MAC) {
-            $MAC = new MACAddress($MAC);
-            if ($MAC && $MAC->isValid()) $MAClist[] = strtolower($MAC);
+        foreach(explode('|',$stringlist) AS $MAC) {
+            $MAC = $this->getClass('MACAddress',$MAC);
+            if ($MAC->isValid() && !in_array(strtolower($MAC->__toString()),(array)$MAClist)) $MAClist[] = strtolower($MAC->__toString());
         }
-        $Ignore = explode(',',$this->getClass('FOGCore')->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'));
-        if (count($ignore)) {
-            foreach((array)$Ignore AS $ignore) {
-                $matches = preg_grep("#$ignore#i",$MACs);
+        $Ignore = array_filter(array_map('trim',explode(',',$this->getClass('FOGCore')->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'))));
+        if (count($Ignore)) {
+            foreach($Ignore AS $ignore) {
+                $matches = preg_grep("#$ignore#i",$MAClist);
                 if (count($matches)) {
                     $NewMatches = array_merge((array)$NewMatches,$matches);
                     unset($matches);
@@ -506,7 +497,10 @@ abstract class FOGBase {
      * @return host item
      */
     public function getHostItem($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false,$override = false) {
-        $MACs = $this->parseMacList(trim(!$encoded ? (isset($_REQUEST['mac']) ? $_REQUEST['mac'] : $_REQUEST['wakeonlan']) : base64_decode($_REQUEST['mac'])),!$service,$service);
+        $mac = isset($_REQUEST[mac]) ? $_REQUEST[mac] : $_REQUEST[wakeonlan];
+        if ($encoded === true) $mac = base64_decode($mac);
+        $mac = trim($mac);
+        $MACs = $this->parseMacList($mac,!$service,$service);
         if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC']);
         if ($returnmacs) return (is_array($MACs) ? $MACs : array($MACs));
         $Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);

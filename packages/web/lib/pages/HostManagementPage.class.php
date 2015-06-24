@@ -395,19 +395,17 @@ class HostManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        if ($_REQUEST['confirmMac']) {
+        if ($_REQUEST[confirmMAC]) {
             try {
-                $MAC = new MACAddress($_REQUEST['confirmMac']);
-                if (!$MAC->isValid()) throw new Exception(_('Invalid MAC Address'));
-                $Host->addPendtoAdd($MAC);
-                if ($Host->save()) $this->FOGCore->setMessage('MAC: '.$MAC.' Approved!');
+                $Host->addPendtoAdd($_REQUEST[confirmMAC]);
+                if ($Host->save()) $this->FOGCore->setMessage('MAC: '.$_REQUEST[confirmMAC].' Approved!');
             } catch (Exception $e) {
                 $this->FOGCore->setMessage($e->getMessage());
             }
             $this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
         }
-        if ($_REQUEST['approveAll'] == 1) {
-            $Host->addPendtoAdd($Host->get('pendingMACs'));
+        else if ($_REQUEST[approveAll]) {
+            $Host->addPendtoAdd();
             if ($Host->save()) {
                 $this->FOGCore->setMessage('All Pending MACs approved.');
                 $this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
@@ -417,10 +415,7 @@ class HostManagementPage extends FOGPage {
             if ($MAC && $MAC->isValid())
                 $addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" /><input title="'._('Remove MAC').'" type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" /><label for="rm'.$MAC.'" class="icon fa fa-minus-circle hand">&nbsp;</label><span class="icon icon-hand" title="'._('Make Primary').'"><input type="radio" name="primaryMAC" value="'.$MAC.'" /></span><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$Host->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$Host->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span></div>';
         }
-        foreach ((array)$Host->get('pendingMACs') AS $MAC) {
-            if ($MAC && $MAC->isValid())
-                $pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC.'" /><a href="${link}&confirmMac='.$MAC.'"><i class="icon fa fa-check-circle"></i></a><span class="mac-manufactor"></span></div>';
-        }
+        foreach ($Host->get('pendingMACs') AS $MAC) $pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC.'" /><a href="${link}&confirmMAC='.$MAC.'"><i class="icon fa fa-check-circle"></i></a><span class="mac-manufactor"></span></div>';
         if ($pending != null && $pending != '')
             $pending .= '<div>'._('Approve All MACs?').'<a href="${link}&approveAll=1"><i class="icon fa fa-check-circle"></i></a></div>';
         $fields = array(
