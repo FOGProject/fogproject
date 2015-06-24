@@ -447,6 +447,8 @@ class Config {
 		define( \"SNAPINREPLOGPATH\", \"/opt/fog/log/fogsnapinrep.log\" );
 		define( \"SNAPINREPDEVICEOUTPUT\", \"/dev/tty5\" );
 		define( \"SNAPINREPSLEEPTIME\", 600 );
+		define( \"SERVICELOGPATH\", \"/opt/fog/log/servicemaster.log\" );
+		define( \"SERVICESLEEPTIME\", 3 );
 	}
 	/** @function init_setting() Initial values if fresh install are set here
 	  * NOTE: These values are only used on initial
