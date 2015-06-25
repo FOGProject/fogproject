@@ -17,19 +17,6 @@
 #
 #
 #
-stopInitScript() {
-    if [ "$systemctl" == "yes" ]; then
-		systemctl stop ${initdMCfullname} >/dev/null 2>&1;
-		systemctl stop ${initdIRfullname} >/dev/null 2>&1;
-		systemctl stop ${initdSDfullname} >/dev/null 2>&1;
-		systemctl stop ${initdSRfullname} >/dev/null 2>&1;
-	else
-		${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
-	fi
-}
 installInitScript() {
     echo -n "  * Installing init scripts...";
     if [ "$systemctl" == "yes" ]; then
@@ -67,74 +54,6 @@ installInitScript() {
     fi
     echo "OK";
 }
-configureFOGService() {
-    echo "<?php
-define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
-    echo -n "  * Starting FOG Multicast Management Server...";
-    if [ "$systemctl" ]; then
-		systemctl restart ${initdMCfullname} >/dev/null 2>&1;
-		systemctl status ${initdMCfullname} >/dev/null 2>&1;
-	else
-		${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdMCfullname} start >/dev/null 2>&1;
-	fi
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;
-	else
-		echo "OK";
-	fi
-
-	echo -n "  * Starting FOG Image Replicator Server...";
-    if [ "$systemctl" ]; then
-		systemctl restart ${initdIRfullname} >/dev/null 2>&1;
-		systemctl status ${initdIRfullname} >/dev/null 2>&1;
-	else
-		${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdIRfullname} start >/dev/null 2>&1;
-	fi
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;
-	else
-		echo "OK";
-	fi
-
-	echo -n "  * Starting FOG Task Scheduler Server...";
-    if [ "$systemctl" ]; then
-		systemctl restart ${initdSDfullname} >/dev/null 2>&1;
-		systemctl status ${initdSDfullname} >/dev/null 2>&1;
-	else
-		${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdSDfullname} start >/dev/null 2>&1;
-	fi
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;
-	else
-		echo "OK";
-	fi
-
-	echo -n "  * Starting FOG Snapin Replicator Server...";
-    if [ "$systemctl" ]; then
-		systemctl restart ${initdSRfullname} >/dev/null 2>&1;
-		systemctl status ${initdSRfullname} >/dev/null 2>&1;
-	else
-		${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdSRfullname} start >/dev/null 2>&1;
-	fi
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;
-	else
-		echo "OK";
-	fi
-}
-
 configureNFS() {
 	echo "${storageLocation} *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)
 ${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "${nfsconfig}";
