@@ -27,21 +27,28 @@ class FOGConfigurationPage extends FOGPage {
     public function index() {$this->version();}
         /** version() Pulls the current version from the internet. */
         public function version() {
+            $URLs = array();
+            $Names = array();
             // Set title
             $this->title = _('FOG Version Information');
             print '<p>'._('Version: ').FOG_VERSION.'</p>';
-            $URLVersion = $this->FOGURLRequests->process('http://fogproject.org/version/index.php?version='.FOG_VERSION,'GET');
-            print '<p><div class="sub">'.$URLVersion[0].'</div></p>';
-            print '<h1>Kernel Versions</h1>';
+            $URLs[] = 'http://fogproject.org/version/index.php?version='.FOG_VERSION;
+            $Names[] = '';
             $webroot = trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/') .'/': '/';
-            foreach((array)$this->getClass('StorageNodeManager')->find() AS $StorageNode) {
-                $Names[] = $StorageNode->get('name');
-                $URLs[] = "http://{$this->FOGCore->resolveHostname($StorageNode->get(ip))}{$webroot}status/kernelvers.php";
+            foreach($this->getClass('StorageNodeManager')->find(array('isEnabled' => 1)) AS $StorageNode) {
+                $Names[] = $StorageNode->get(name);
+                $URLs[] = "http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php";
             }
             $Responses = $this->FOGURLRequests->process($URLs);
+            ksort($Responses);
             foreach($Responses AS $i => $data) {
-                print "<h2>{$Names[$i]}</h2>";
-                print "<pre>$data</pre>";
+                if ($i === 0) {
+                    print '<p><div class="sub">'.$data.'</div></p>';
+                    print '<h1>Kernel Versions</h1>';
+                } else {
+                    print "<h2>{$Names[$i]}</h2>";
+                    print "<pre>$data</pre>";
+                }
             }
         }
     /** license()
