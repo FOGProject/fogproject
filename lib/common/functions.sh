@@ -200,57 +200,75 @@ doOSSpecificIncludes() {
     fi
 }
 errorStat() {
-    if [ "$1" != "0" ]; then
+    if [ "$1" != "0" -a -z "$2" ]; then
         echo "Failed!"
         exit 1
     fi
     echo "OK"
 }
 stopInitScript() {
-    if [ "$systemctl" == "yes" ]; then
-		systemctl stop ${initdMCfullname} >/dev/null 2>&1;
-		systemctl stop ${initdIRfullname} >/dev/null 2>&1;
-		systemctl stop ${initdSDfullname} >/dev/null 2>&1;
-		systemctl stop ${initdSRfullname} >/dev/null 2>&1;
-	else
-		${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
-	fi
+    serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname"
+    for serviceItem in $serviceList; do
+        echo -n "  * Stopping $serviceItem Service..."
+        if [ "$systemctl" == "yes" ]; then
+            systemctl stop $serviceItem >/dev/null 2>&1
+        else
+            $initdpath/$serviceItem stop >/dev/null 2>&1
+        fi
+        echo "OK"
+    done
 }
-configureFOGService() {
-	echo "<?php
-define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php
+startInitScript() {
     serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname"
     for serviceItem in $serviceList; do
         echo -n "  * Starting $serviceItem Service..."
         if [ "$systemctl" == "yes" ]; then
             systemctl restart $serviceItem >/dev/null 2>&1
-            systemctl status $serviceItem >/dev/null 2>&1
         else
-            if [ "$osid" -eq 2 ]; then
-                $initdpath/$serviceItem stop >/dev/null 2>&1
-                $initdpath/$serviceItem start >/dev/null 2>&1
-            else
-                service $serviceItem restart >/dev/null 2>&1
-                service $serviceItem status >/dev/null 2>&1
-            fi
+            $initdpath/$serviceItem start >/dev/null 2>&1
         fi
         errorStat $?
     done
 }
+enableInitScript() {
+    serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname"
+    for serviceItem in $serviceList; do
+        echo -n "  * Setting $serviceItem script executable..."
+        chmod 755 $initdpath/$serviceItem >/dev/null 2>&1
+        errorStat $?
+        echo -n "  * Enabling $serviceItem Service..."
+        if [ "$systemctl" == "yes" ]; then
+            systemctl enable $serviceItem >/dev/null 2>&1
+        elif [ "$osid" -eq 2 ]; then
+            sysv-rc-conf $serviceItem on >/dev/null 2>&1
+            insserv -d $initdpath/$serviceItem >/dev/null 2>&1
+        elif [ "$osid" -eq 1 ]; then
+            chkconfig $serviceItem on >/dev/null 2>&1
+        fi
+        errorStat $?
+    done
+}
+installInitScript() {
+    echo -n "  * Installing FOG System Scripts..."
+    cp -f $initdsrc/* $initdpath/ >/dev/null 2>&1
+    errorStat $?
+    echo -e "\n\n  * Configuring FOG System Services\n\n"
+    stopInitScript
+    enableInitScript
+}
+configureFOGService() {
+	echo "<?php
+define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php
+    startInitScript
+}
 configureSnapins() {
-    echo -n "  * Setting up FOG Snapins";
-    mkdir -p $snapindir >/dev/null 2>&1;
+    echo -n "  * Setting up FOG Snapins..."
+    mkdir -p $snapindir >/dev/null 2>&1
     if [ -d "$snapindir" ]; then
-        chmod 775 $snapindir;
-        chown -R fog:${apacheuser} ${snapindir};
-        echo "...OK";
-    else
-        echo "...Failed!";
-        exit 1;
+        chmod 775 $snapindir
+        chown -R fog:${apacheuser} ${snapindir}
     fi
+    errorStat $?
 }
 configureUsers() {
     getent passwd $username > /dev/null;

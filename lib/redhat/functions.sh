@@ -17,39 +17,6 @@
 #
 #
 #
-installInitScript() {
-	echo -n "  * Installing init scripts...";
-    if [ "$systemctl" == "yes" ]; then
-		systemctl stop ${initdMCfullname} >/dev/null 2>&1;
-		systemctl stop ${initdIRfullname} >/dev/null 2>&1;
-		systemctl stop ${initdSDfullname} >/dev/null 2>&1;
-		systemctl stop ${initdSRfullname} >/dev/null 2>&1;
-		cp -f ${initdsrc}/* ${initdpath}/
-		chmod 755 ${initdpath}/${initdMCfullname}
-		systemctl enable ${initdMCfullname} >/dev/null 2>&1;
-		chmod 755 ${initdpath}/${initdIRfullname}
-		systemctl enable ${initdIRfullname} >/dev/null 2>&1;
-		chmod 755 ${initdpath}/${initdSDfullname}
-		systemctl enable ${initdSDfullname} >/dev/null 2>&1;
-		chmod 755 ${initdpath}/${initdSRfullname}
-		systemctl enable ${initdSRfullname} >/dev/null 2>&1;
-	else
-		service ${initdMCfullname} stop >/dev/null 2>&1;
-		service ${initdIRfullname} stop >/dev/null 2>&1;
-		service ${initdSDfullname} stop >/dev/null 2>&1;
-		service ${initdSRfullname} stop >/dev/null 2>&1;
-		cp -f ${initdsrc}/* ${initdpath}/
-		chmod 755 ${initdpath}/${initdMCfullname}
-		chkconfig ${initdMCfullname} on;
-		chmod 755 ${initdpath}/${initdIRfullname}
-		chkconfig ${initdIRfullname} on;
-		chmod 755 ${initdpath}/${initdSDfullname}
-		chkconfig ${initdSDfullname} on;
-		chmod 755 ${initdpath}/${initdSRfullname}
-		chkconfig ${initdSRfullname} on;
-	fi
-	echo "OK";
-}
 configureNFS() {
 	echo "${storageLocation} *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)
 ${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "${nfsconfig}";
