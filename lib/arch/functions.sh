@@ -17,12 +17,6 @@
 #
 #
 #
-stopInitScript() {
-	systemctl stop ${initdMCfullname} >/dev/null 2>&1;
-	systemctl stop ${initdIRfullname} >/dev/null 2>&1;
-	systemctl stop ${initdSDfullname} >/dev/null 2>&1;
-	systemctl stop ${initdSRfullname} >/dev/null 2>&1;
-}
 installInitScript()
 {
 	echo -n "  * Installing init scripts...";
@@ -43,58 +37,6 @@ installInitScript()
 	systemctl enable ${initdSRfullname};
 	echo "OK";
 }
-
-configureFOGService()
-{
-	echo "<?php
-
-define( \"WEBROOT\", \"${webdirdest}\" );
-?>" > ${servicedst}/etc/config.php;
-
-	echo -n "  * Starting FOG Multicast Management Server..."; 
-	systemctl restart ${initdMCfullname} >/dev/null 2>&1;
-	systemctl status ${initdMCfullname} >/dev/null 2>&1;
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;	
-	else
-		echo "OK";
-	fi
-	
-	echo -n "  * Starting FOG Image Replicator Server..."; 
-	systemctl restart ${initdIRfullname} >/dev/null 2>&1;
-	systemctl status ${initdIRfullname}  >/dev/null 2>&1;
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;	
-	else
-		echo "OK";
-	fi	
-	
-	echo -n "  * Starting FOG Task Scheduler Server..."; 
-	systemctl stop ${initdSDfullname} >/dev/null 2>&1;
-	systemctl start ${initdSDfullname} >/dev/null 2>&1;
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;	
-	else
-		echo "OK";
-	fi
-	echo -n "  * Starting FOG Snapin Replicator Server...";
-	systemctl stop ${initdSRfullname} >/dev/null 2>&1;
-	systemctl start ${initdSRfullname} >/dev/null 2>&1;
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;
-	else
-		echo "OK";
-	fi
-}
-
 configureNFS()
 {
 	echo "${storageLocation} *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)

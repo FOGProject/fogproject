@@ -179,6 +179,7 @@ doOSSpecificIncludes() {
             osname="Arch";
             . ../lib/arch/functions.sh
             . ../lib/arch/config.sh
+            systemctl="yes"
             echo "";
         ;;
         *)
@@ -197,6 +198,47 @@ doOSSpecificIncludes() {
         echo "be moved during installation.";
         exit 1;
     fi
+}
+errorStat() {
+    if [ "$1" != "0" ]; then
+        echo "Failed!"
+        exit 1
+    fi
+    echo "OK"
+}
+stopInitScript() {
+    if [ "$systemctl" == "yes" ]; then
+		systemctl stop ${initdMCfullname} >/dev/null 2>&1;
+		systemctl stop ${initdIRfullname} >/dev/null 2>&1;
+		systemctl stop ${initdSDfullname} >/dev/null 2>&1;
+		systemctl stop ${initdSRfullname} >/dev/null 2>&1;
+	else
+		${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
+		${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
+		${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
+		${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
+	fi
+}
+configureFOGService() {
+	echo "<?php
+define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php
+    serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname"
+    for serviceItem in $serviceList; do
+        echo -n "  * Starting $serviceItem Service..."
+        if [ "$systemctl" == "yes" ]; then
+            systemctl restart $serviceItem >/dev/null 2>&1
+            systemctl status $serviceItem >/dev/null 2>&1
+        else
+            if [ "$osid" -eq 2 ]; then
+                $initdpath/$serviceItem stop >/dev/null 2>&1
+                $initdpath/$serviceItem start >/dev/null 2>&1
+            else
+                service $serviceItem restart >/dev/null 2>&1
+                service $serviceItem status >/dev/null 2>&1
+            fi
+        fi
+        errorStat $?
+    done
 }
 configureSnapins() {
     echo -n "  * Setting up FOG Snapins";
