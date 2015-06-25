@@ -77,33 +77,21 @@ class FOGURLRequests extends FOGBase {
             $this->contextOptions[CURLOPT_CUSTOMREQUEST] = $method;
             curl_setopt_array($ch,$this->contextOptions);
             $curl[$url] = $ch;
-            @curl_multi_add_handle($this->handle,$ch);
+            curl_multi_add_handle($this->handle,$ch);
         }
         $active = null;
+        $response = array();
         do {
-            $mrc = @curl_multi_exec($this->handle, $active);
-        } while ($mrc == CURLM_CALL_MULTI_PERFORM);
-        while ($active && $mrc == CURLM_OK) {
-            if (@curl_multi_select($this->handle) == -1) usleep(1);
-            do {
-                $mrc = @curl_multi_exec($this->handle,$active);
-                $httpCode = @curl_multi_info_read($this->handle);
-                if ($mrc > 0) throw new Exception('cURL Error: '.curl_multi_strerror($mrc));
-                if ($httpCode[0] >= 400) {
-                    @curl_multi_close($this->handle);
-                    throw new Exception('cURL HTTP Error Code: '.$httpCode[0]);
-                }
-            } while ($mrc == CURLM_CALL_MULTI_PERFORM);
-        }
-        if (!$file) {
-            foreach($curl AS $url => $ch) {
-                if ($callback) $callback($ch);
-                $response[] = @curl_multi_getcontent($ch);
-                @curl_multi_remove_handle($this->handle,$ch);
+            //if (curl_multi_select($this->handle) !== 0) usleep(1000);
+            $mrc = curl_multi_exec($this->handle, $active);
+            if ($state = curl_multi_info_read($this->handle)) {
+                $info = curl_getinfo($state[handle]);
+                if ($callback) $callback(curl_multi_getcontent($state[handle],$info));
+                $response[(int)$active] = curl_multi_getcontent($state[handle]);
+                curl_multi_remove_handle($this->handle,$state[handle]);
             }
-            return $response;
-        }
-        else
-            @fclose($file);
+        } while ($mrc == CURLM_CALL_MULTI_PERFORM || ($active && $mrc == CURLM_OK));
+        if (!$file) return $response;
+        @fclose($file);
     }
 }

@@ -593,8 +593,14 @@ configureMySql() {
 	echo -n "  * Setting up and starting MySQL...";
     if [ "$systemctl" == "yes" ]; then
 		systemctl="yes";
-		systemctl enable mariadb.service >/dev/null 2>&1;
-		systemctl restart mariadb.service >/dev/null 2>&1;
+		systemctl enable mariadb.service >/dev/null 2>&1 && \
+		systemctl restart mariadb.service >/dev/null 2>&1 && \
+		systemctl status mariadb.service >?dev/null 2>&1
+		if [ "$?" != "0" ]; then
+			systemctl enable mysql.service >/dev/null 2>&1 && \
+			systemctl restart mysql.service >/dev/null 2>&1 && \
+			systemctl status mysql.service >/dev/null 2>&1
+		fi
 	else
 		chkconfig mysqld on;
 		service mysqld restart >/dev/null 2>&1;
