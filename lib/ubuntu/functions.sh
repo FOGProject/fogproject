@@ -17,43 +17,6 @@
 #
 #
 #
-installInitScript() {
-    echo -n "  * Installing init scripts...";
-    if [ "$systemctl" == "yes" ]; then
-        systemctl stop ${initdMCfullname} >/dev/null 2>&1;
-        systemctl stop ${initdIRfullname} >/dev/null 2>&1;
-        systemctl stop ${initdSDfullname} >/dev/null 2>&1;
-        systemctl stop ${initdSRfullname} >/dev/null 2>&1;
-        cp -f ${initdsrc}/* ${initdpath}/
-        chmod 755 ${initdpath}/${initdMCfullname}
-        systemctl enable ${initdMCfullname} >/dev/null 2>&1;
-        chmod 755 ${initdpath}/${initdIRfullname}
-        systemctl enable ${initdIRfullname} >/dev/null 2>&1;
-        chmod 755 ${initdpath}/${initdSDfullname}
-        systemctl enable ${initdSDfullname} >/dev/null 2>&1;
-        chmod 755 ${initdpath}/${initdSRfullname}
-        systemctl enable ${initdSRfullname} >/dev/null 2>&1;
-    else
-        ${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
-        ${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
-        ${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
-        ${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
-        cp -f ${initdsrc}/* ${initdpath}/
-        chmod 755 ${initdpath}/${initdMCfullname}
-        sysv-rc-conf ${initdMCfullname} on >/dev/null 2>&1;
-        chmod 755 ${initdpath}/${initdIRfullname}
-        sysv-rc-conf ${initdIRfullname} on >/dev/null 2>&1;
-        chmod 755 ${initdpath}/${initdSDfullname}
-        sysv-rc-conf ${initdSDfullname} on >/dev/null 2>&1;
-        chmod 755 ${initdpath}/${initdSRfullname}
-        sysv-rc-conf ${initdSRfullname} on >/dev/null 2>&1;
-        insserv -d ${initdpath}/${initdMCfullname} >/dev/null 2>&1;
-        insserv -d ${initdpath}/${initdIRfullname} >/dev/null 2>&1;
-        insserv -d ${initdpath}/${initdSDfullname} >/dev/null 2>&1;
-        insserv -d ${initdpath}/${initdSRfullname} >/dev/null 2>&1;
-    fi
-    echo "OK";
-}
 configureNFS() {
 	echo "${storageLocation} *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)
 ${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "${nfsconfig}";
@@ -69,15 +32,8 @@ ${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,inse
 		/etc/init.d/nfs-kernel-server stop >/dev/null 2>&1;
 		/etc/init.d/nfs-kernel-server start >/dev/null 2>&1;
 	fi
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;
-	else
-		echo "OK";
-	fi
+    errorStat $?
 }
-
 configureFTP()
 {
 	echo -n "  * Setting up and starting VSFTP Server...";
