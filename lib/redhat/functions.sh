@@ -595,7 +595,7 @@ configureMySql() {
 		systemctl="yes";
 		systemctl enable mariadb.service >/dev/null 2>&1 && \
 		systemctl restart mariadb.service >/dev/null 2>&1 && \
-		systemctl status mariadb.service >?dev/null 2>&1
+		systemctl status mariadb.service >/dev/null 2>&1
 		if [ "$?" != "0" ]; then
 			systemctl enable mysql.service >/dev/null 2>&1 && \
 			systemctl restart mysql.service >/dev/null 2>&1 && \
