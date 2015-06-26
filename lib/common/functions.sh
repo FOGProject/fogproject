@@ -262,8 +262,8 @@ configureMySql() {
 		fi
     elif [ "$osid" -eq 2 ]; then
         sysv-rc-conf mysql on >/dev/null 2>&1 && \
-        service mysql stop mysql >/dev/null 2>&1 && \
-        service mysql start mysql >/dev/null 2>&1
+        service mysql stop >/dev/null 2>&1 && \
+        service mysql start >/dev/null 2>&1
 	else
 		chkconfig mysqld on >/dev/null 2>&1 && \
 		service mysqld restart >/dev/null 2>&1 && \
