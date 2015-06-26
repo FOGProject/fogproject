@@ -41,6 +41,10 @@ else
     storageNodePackages="httpd php php-cli php-common php-gd mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm";
     packageinstaller="yum -y --enablerepo=remi,remi-php56,epel install";
 fi
+packagelist=`echo $packageinstaller|sed 's/install/list/'`
+packageupdater=`echo $packageinstaller|sed 's/install/update/'`;
+sqlclientlist="mysql mariadb MariaDB-client"
+sqlserverlist="mysql-server mariadb-server mariadb-galera-server MariaDB-server";
 langPackages="iso-codes";
 dhcpname="dhcp";
 
