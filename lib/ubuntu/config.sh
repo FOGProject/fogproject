@@ -46,7 +46,11 @@ fi
 # where do the php files go?
 apachehtmlroot="/var/www/html"
 webdirdest="/var/www/fog";
-webredirect="${apachehtmlroot}/index.php"
+if [ -e "$apachehtmlroot" ]; then
+    webredirect="${apachehtmlroot}/index.php"
+else
+    webredirect="/var/www/index.php"
+fi
 apacheuser="www-data";
 
 # where do we store the image files?
