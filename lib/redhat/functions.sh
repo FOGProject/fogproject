@@ -417,7 +417,7 @@ installPackages() {
 		packages="$packages $langPackages"
 	fi
 	if [ -d "/etc/yum.repos.d/" -a ! -f "/etc/yum.repos.d/remi.repo" ]; then
-        dots "Copying needed repo";
+        dots "Adding needed repo";
 		if [[ "$linuxReleaseName" == +(*'CentOS'*|*'Redhat'*|*'Fedora'*) ]]; then
 			${packageinstaller} epel-release >/dev/null 2>&1;
 		fi
@@ -429,7 +429,7 @@ installPackages() {
 		rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi >/dev/null 2>&1
 		echo "OK";
 	fi
- 	echo -e "  * Packages to be installed: \n      $packages\n\n";
+ 	echo -e " * Packages to be installed: \n      $packages\n\n";
 	for x in $packages; do
         retPackageInst=0;
 		if [ "$x" == "mysql" ]; then
@@ -454,15 +454,16 @@ installPackages() {
             done
         fi
         rpm -q $x >/dev/null 2>&1
-		if [ "$?" == "0" ]; then
-            dots "Skipping package: $x"
-            echo "(Already installed)";
-            continue
-		fi
-        dots "Installing package: $x";
-		${packageinstaller} $x >/dev/null 2>&1
-        errorStat $?
+        if [ "$?" -gt 0 ]; then
+            dots "Installing package: $x";
+		    ${packageinstaller} $x >/dev/null 2>&1
+            errorStat $?
+        fi
 	done
+    dots "Upgrading packages as needed"
+    packageupdater=`echo $packageinstaller|sed 's/install/update/'`;
+    $packageupdater $packages >/dev/null 2>&1
+    echo "OK"
 }
 confirmPackageInstallation() {
 	for x in $packages; do

@@ -70,3 +70,5 @@ ftpconfig="/etc/vsftpd.conf"
 
 # where do snapins go?
 snapindir="/opt/fog/snapins";
+
+packageinstaller="apt-get -yq install"
