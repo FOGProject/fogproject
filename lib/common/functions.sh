@@ -17,6 +17,18 @@
 #
 #
 #
+dots() {
+    max=60
+    if [ -n "$1" ]; then
+        n=`expr $max - ${#1}`
+        echo -n " * ${1:0:max}"
+        if [ "$n" -gt 0 ]; then
+            for dot in `seq $n`; do
+                printf %s .
+            done
+        fi
+    fi
+}
 warnRoot() {
     currentuser=`whoami`;
     if [ "$currentuser" != "root" ]; then
@@ -50,12 +62,12 @@ warnRoot() {
     fi
 }
 installUtils() {
-    echo -n "  * Setting up FOG Utils";
-    mkdir -p ${fogutilsdir} >/dev/null 2>&1;
-    cp -Rf ${fogutilsdirsrc}/* "${fogutilsdir}" >/dev/null 2>&1;
-    chown -R ${apacheuser} ${fogutilsdir} >/dev/null 2>&1;
-    chmod -R 700 ${fogutilsdir} >/dev/null 2>&1;
-    echo "...OK";
+    dots "Setting up FOG Utils"
+    mkdir -p ${fogutilsdir} >/dev/null 2>&1
+    cp -Rf ${fogutilsdirsrc}/* "${fogutilsdir}" >/dev/null 2>&1
+    chown -R ${apacheuser} ${fogutilsdir} >/dev/null 2>&1
+    chmod -R 700 ${fogutilsdir} >/dev/null 2>&1
+    errorStat $?
 }
 help() {
     echo "";
@@ -75,63 +87,48 @@ help() {
     echo "";
 }
 backupReports() {
-    echo -n "  * Backing up user reports";
+    dots "Backing up user reports"
     if [ ! -d "../rpttmp/" ]; then
-        mkdir "../rpttmp/";
+        mkdir "../rpttmp/"
     fi
     if [ -d "${webdirdest}/management/reports" ]; then
-        cp -a ${webdirdest}/management/reports/* "../rpttmp/" >/dev/null 2>&1;
+        cp -a ${webdirdest}/management/reports/* "../rpttmp/" >/dev/null 2>&1
     fi
-    echo "...OK";
+    errorStat $?
 }
 restoreReports() {
-    echo -n "  * Restoring user reports";
+    dots "Restoring user reports"
     if [ -d "${webdirdest}/management/reports" ]; then
         if [ -d "../rpttmp/" ]; then
             cp -a ../rpttmp/* ${webdirdest}/management/reports/ >/dev/null 2>&1;
         fi
     fi
-    echo "...OK";
+    errorStat $?
 }
 installFOGServices() {
-    echo -n "  * Setting up FOG Services";
-    mkdir -p ${servicedst} >/dev/null 2>&1;
-    cp -Rf ${servicesrc}/* ${servicedst}/
-    mkdir -p ${servicelogs} >/dev/null 2>&1;
-    echo "...OK";
+    dots "Setting up FOG Services"
+    mkdir -p ${servicedst} >/dev/null 2>&1
+    cp -Rf ${servicesrc}/* ${servicedst}/ >/dev/null 2>&1
+    mkdir -p ${servicelogs} >/dev/null 2>&1
+    errorStat $?
 }
 configureUDPCast() {
-    echo -n "  * Setting up and building UDPCast";
-    cp -Rf "${udpcastsrc}" "${udpcasttmp}";
-    cur=`pwd`;
-    cd /tmp;
-    tar xvzf "${udpcasttmp}"  >/dev/null 2>&1;
-    cd ${udpcastout};
-    ./configure >/dev/null 2>&1;
-    if [ "$?" != 0 ]; then
-        echo "...Failed!";
-        echo;
-        echo "./configure failed!"
-        echo;
-        exit 1;
-    fi
-    make >/dev/null 2>&1;
-    if [ "$?" != 0 ]; then
-        echo "...Failed!";
-        echo;
-        echo "make failed!"
-        echo;
-        exit 1;
-    fi
+    dots "Setting up UDPCast"
+    cp -Rf "${udpcastsrc}" "${udpcasttmp}"
+    cur=`pwd`
+    cd /tmp
+    tar xvzf "${udpcasttmp}"  >/dev/null 2>&1
+    cd ${udpcastout}
+    errorStat $?
+    dots "Configuring UDPCast"
+    ./configure >/dev/null 2>&1
+    errorStat $?
+    dots "Building UDPCast"
+    make >/dev/null 2>&1
+    errorStat $?
+    dots "Installing UDPCast"
     make install >/dev/null 2>&1;
-    if [ "$?" != 0 ]; then
-        echo "...Failed!";
-        echo;
-        echo "make install failed!"
-        echo;
-        exit 1;
-    fi
-    echo "...OK";
+    errorStat $?
     cd $cur
 }
 displayOSChoices() {
@@ -161,32 +158,27 @@ doOSSpecificIncludes() {
     echo "";
     case "$osid" in
         "1")
-            echo "  Staring Redhat / CentOS Installation."
-            osname="Redhat";
+            echo -e "\n\n  Starting Redhat based Installation\n\n"
+            osname="Redhat"
             . ../lib/redhat/functions.sh
             . ../lib/redhat/config.sh
-            echo "";
         ;;
         "2")
-            echo "  Starting Debian / Ubuntu / Kubuntu / Edubuntu Installtion."
-            osname="Debian";
+            echo -e "\n\n  Starting Debian based Installation\n\n"
+            osname="Debian"
             . ../lib/ubuntu/functions.sh
             . ../lib/ubuntu/config.sh
-            echo "";
         ;;
         "3")
-            echo "  Starting Arch Installation.";
-            osname="Arch";
+            echo -e "\n\n  Starting Arch Installation\n\n"
+            osname="Arch"
             . ../lib/arch/functions.sh
             . ../lib/arch/config.sh
             systemctl="yes"
-            echo "";
         ;;
         *)
-            echo "  Sorry, answer not recognized."
-            echo "";
+            echo -e "  Sorry, answer not recognized\n\n"
             sleep 2;
-            echo "";
             osid="";
         ;;
     esac
@@ -209,7 +201,7 @@ errorStat() {
 stopInitScript() {
     serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname"
     for serviceItem in $serviceList; do
-        echo -n "  * Stopping $serviceItem Service..."
+        dots "Stopping $serviceItem Service"
         if [ "$systemctl" == "yes" ]; then
             systemctl stop $serviceItem >/dev/null 2>&1
         else
@@ -221,7 +213,7 @@ stopInitScript() {
 startInitScript() {
     serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname"
     for serviceItem in $serviceList; do
-        echo -n "  * Starting $serviceItem Service..."
+        dots "Starting $serviceItem Service"
         if [ "$systemctl" == "yes" ]; then
             systemctl restart $serviceItem >/dev/null 2>&1
         else
@@ -233,10 +225,10 @@ startInitScript() {
 enableInitScript() {
     serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname"
     for serviceItem in $serviceList; do
-        echo -n "  * Setting $serviceItem script executable..."
+        dots "Setting $serviceItem script executable"
         chmod 755 $initdpath/$serviceItem >/dev/null 2>&1
         errorStat $?
-        echo -n "  * Enabling $serviceItem Service..."
+        dots "Enabling $serviceItem Service"
         if [ "$systemctl" == "yes" ]; then
             systemctl enable $serviceItem >/dev/null 2>&1
         elif [ "$osid" -eq 2 ]; then
@@ -249,20 +241,81 @@ enableInitScript() {
     done
 }
 installInitScript() {
-    echo -n "  * Installing FOG System Scripts..."
+    dots "Installing FOG System Scripts"
     cp -f $initdsrc/* $initdpath/ >/dev/null 2>&1
     errorStat $?
     echo -e "\n\n  * Configuring FOG System Services\n\n"
-    stopInitScript
     enableInitScript
+}
+configureMySql() {
+	stopInitScript
+    dots "Setting up and starting MySQL"
+    if [ "$systemctl" == "yes" ]; then
+		systemctl="yes";
+		systemctl enable mariadb.service >/dev/null 2>&1 && \
+		systemctl restart mariadb.service >/dev/null 2>&1 && \
+		systemctl status mariadb.service >/dev/null 2>&1
+		if [ "$?" != "0" ]; then
+			systemctl enable mysql.service >/dev/null 2>&1 && \
+			systemctl restart mysql.service >/dev/null 2>&1 && \
+			systemctl status mysql.service >/dev/null 2>&1
+		fi
+    elif [ "$osid" -eq 2 ]; then
+        sysv-rc-conf mysql on >/dev/null 2>&1 && \
+        service mysql stop mysql >/dev/null 2>&1 && \
+        service mysql start mysql >/dev/null 2>&1
+	else
+		chkconfig mysqld on >/dev/null 2>&1 && \
+		service mysqld restart >/dev/null 2>&1 && \
+		service mysqld status >/dev/null 2>&1
+	fi
+    errorStat $?
 }
 configureFOGService() {
 	echo "<?php
 define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php
     startInitScript
 }
+configureNFS() {
+    echo -e "$storageLocation *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)\n$storageLocation/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "$nfsconfig";
+    dots "Setting up and starting RPCBind";
+    if [ "$systemctl" == "yes" ]; then
+        systemctl enable rpcbind.service >/dev/null 2>&1 && \
+        systemctl restart rpcbind.service >/dev/null 2>&1 && \
+        systemctl status rpcbind.service >/dev/null 2>&1
+    elif [ "$osid" -eq 2 ]; then
+        true
+    else
+        chkconfig rpcbind on >/dev/null 2>&1 && \
+        $initdpath/rpcbind restart >/dev/null 2>&1 && \
+        $initdpath/rpcbind status >/dev/null 2>&1
+    fi
+    errorStat $?
+    dots "Setting up and starting NFS Server..."
+    for nfsItem in $nfsservice; do
+        if [ "$systemctl" == "yes" ]; then
+            systemctl enable $nfsItem >/dev/null 2>&1 && \
+            systemctl restart $nfsItem >/dev/null 2>&1 && \
+            systemctl status $nfsItem >/dev/null 2>&1
+        else
+            if [ "$osid" == 2 ]; then
+                sysv-rc-conf $nfsItem on >/dev/null 2>&1 && \
+                $initdpath/nfs-kernel-server stop >/dev/null 2>&1 && \
+                $initdpath/nfs-kernel-server start >/dev/null 2>&1
+            else
+                chkconfig $nfsItem on >/dev/null 2>&1 && \
+                $initdpath/$nfsItem restart >/dev/null 2>&1 && \
+                $initdpath/$nfsItem status >/dev/null 2>&1
+            fi
+        fi
+        if [ "$?" -eq 0 ]; then
+            break
+        fi
+    done
+    errorStat $?
+}
 configureSnapins() {
-    echo -n "  * Setting up FOG Snapins..."
+    dots "Setting up FOG Snapins"
     mkdir -p $snapindir >/dev/null 2>&1
     if [ -d "$snapindir" ]; then
         chmod 775 $snapindir
@@ -273,7 +326,7 @@ configureSnapins() {
 configureUsers() {
     getent passwd $username > /dev/null;
     if [ $? != 0 ] || [ "$doupdate" != "1" ]; then
-        echo -n "  * Setting up fog user";
+        dots "Setting up fog user";
         # Consider this a temporary security fix
         password=`dd if=/dev/urandom bs=1 count=9 2>/dev/null | base64`
         if [ "$installtype" = "S" ]; then
@@ -307,50 +360,48 @@ EOF
                 echo "...Exists";
                 bluseralreadyexists="1";
             fi
+            true
         else
-            echo "...Failed!";
-            exit 1;
+            false
         fi
+        errorStat $?
     fi
     if [ -z "$password" -a -z "$storageftppass" ]; then
-        echo -n "  * Setting password for FOG User";
+        dots "Setting password for FOG User"
         # Consider this a temporary security fix
         password=`dd if=/dev/urandom bs=1 count=9 2>/dev/null | base64`
         passwd ${username} >/dev/null 2>&1 << EOF
 ${password}
 ${password}
 EOF
-        echo "...OK";
-        echo "  * New password set for: ";
-        echo "      username: ${username}";
-        echo "      password: ${password}";
-        echo "";
+        errorStat $?
+        storageftpuser=$username
+        storageftppass=$password
+        echo -e "  * New password set for:\nusername: $username\npassword: $password\n"
         sleep 10;
-        storageftpuser=${username};
-        storageftppass=${password};
     fi
 }
 linkOptFogDir() {
     if [ ! -h "/var/log/fog" ]; then
-        echo -n "  * Linking /opt/fog/log to /var/log/fog...";
-        ln -s "/opt/fog/log" "/var/log/fog";
-        echo "OK";
+        dots "Linking FOG Logs to Linux Logs"
+        ln -s "/opt/fog/log" "/var/log/fog" >/dev/null 2>&1
+        errorStat $?
     fi
     if [ ! -h "/etc/fog" ]; then
-        echo -n "  * Linking /opt/fog/service/etc to /etc/fog...";
-        ln -s "/opt/fog/service/etc" "/etc/fog";
-        echo "OK";
+        dots "Linking FOG Service config /etc"
+        ln -s "/opt/fog/service/etc" "/etc/fog" >/dev/null 2>&1
+        errorStat $?
     fi
 }
 configureStorage() {
-    echo -n "  * Setting up storage";
+    dots "Setting up storage";
     if [ ! -d "$storage" ]; then
-        mkdir "$storage";
-        touch "$storage/.mntcheck";
-        chmod -R 777 "$storage"
+        mkdir "$storage" >/dev/null 2>&1
+        touch "$storage/.mntcheck" >/dev/null 2>&1
+        chmod -R 777 "$storage" >/dev/null 2>&1
     fi
     if [ ! -d "$storage/postdownloadscripts" ]; then
-        mkdir "$storage/postdownloadscripts";
+        mkdir "$storage/postdownloadscripts" >/dev/null 2>&1
         if [ ! -f "$storage/postdownloadscripts/fog.postdownload" ]; then
             echo "#!/bin/sh
 ## This file serves as a starting point to call your custom postimaging scripts.
@@ -358,17 +409,17 @@ configureStorage() {
 ## Syntax of post download scripts are
 #. \${postdownpath}<SCRIPTNAME>" > "$storage/postdownloadscripts/fog.postdownload";
         fi
-        chmod -R 777 "$storage";
+        chmod -R 777 "$storage" >/dev/null 2>&1
     fi
     if [ ! -d "$storageupload" ]; then
-        mkdir "$storageupload";
-        touch "$storageupload/.mntcheck";
-        chmod -R 777 "$storageupload"
+        mkdir "$storageupload" >/dev/null 2>&1
+        touch "$storageupload/.mntcheck" >/dev/null 2>&1
+        chmod -R 777 "$storageupload" >/dev/null 2>&1
     fi
-    echo "...OK";
+    errorStat $?
 }
 clearScreen() {
-    echo -e "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+    clear
 }
 writeUpdateFile() {
     tmpDte=`date +%c`;
@@ -428,7 +479,7 @@ displayBanner() {
 createSSLCA() {
     if [ "$recreateCA" == "yes" -o "$caCreated" != "yes" -o ! -e "/opt/fog/snapins/CA" -o ! -e "/opt/fog/snapins/CA/.fogCA.key" ]; then
         mkdir -p "/opt/fog/snapins/CA" >/dev/null 2>&1
-        echo -n "  * Creating SSL CA..."
+        dots "Creating SSL CA"
         openssl genrsa -out "/opt/fog/snapins/CA/.fogCA.key" 4096 >/dev/null 2>&1
         openssl req -x509 -new -nodes -key /opt/fog/snapins/CA/.fogCA.key -days 3650 -out /opt/fog/snapins/CA/.fogCA.pem >/dev/null 2>&1 << EOF
 .
@@ -439,10 +490,10 @@ createSSLCA() {
 FOG Server CA
 .
 EOF
-        echo "OK"
+        errorStat $?
     fi
     if [ "$recreateKeys" == "yes" -o "$recreateCA" == "yes" -o "$caCreated" != "yes" -o ! -e "/opt/fog/snapins/ssl" -o ! -e "/opt/fog/snapins/ssl/.srvprivate.key" ]; then
-        echo -n "  * Creating SSL Private Key..."
+        dots "Creating SSL Private Key"
         mkdir -p /opt/fog/snapins/ssl &>/dev/null
         openssl genrsa -out "/opt/fog/snapins/ssl/.srvprivate.key" 4096 >/dev/null 2>&1
         openssl req -new -key "/opt/fog/snapins/ssl/.srvprivate.key" -out "/opt/fog/snapins/ssl/fog.csr" >/dev/null 2>&1 << EOF
@@ -456,20 +507,20 @@ $ipaddress
 
 
 EOF
-        echo "OK"
+        errorStat $?
     fi
-    echo -n "  * Creating SSL Certificate..."
+    dots "Creating SSL Certificate"
     mkdir -p $webdirdest/management/other/ssl >/dev/null 2>&1
     openssl x509 -req -in "/opt/fog/snapins/ssl/fog.csr" -CA "/opt/fog/snapins/CA/.fogCA.pem" -CAkey "/opt/fog/snapins/CA/.fogCA.key" -CAcreateserial -out "$webdirdest/management/other/ssl/srvpublic.crt" -days 3650 >/dev/null 2>&1
-    echo "OK"
-    echo -n "  * Creating auth pub key and cert..."
+    errorStat $?
+    dots "Creating auth pub key and cert"
     cp /opt/fog/snapins/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem >/dev/null 2>&1
     openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der >/dev/null 2>&1
-    echo "OK"
-    echo -n "  * Resetting SSL Permissions..."
+    errorStat $?
+    dots "Resetting SSL Permissions"
     chown -R $apacheuser:$apacheuser $webdirdest/management/other >/dev/null 2>&1
-    echo "OK"
-    echo -n "  * Setting up SSL FOG Server..."
+    errorStat $?
+    dots "Setting up SSL FOG Server"
     echo "<VirtualHost *:80>
     ServerName $ipaddress
     DocumentRoot $docroot
@@ -485,20 +536,28 @@ EOF
     SSLCertificateKeyFile /opt/fog/snapins/ssl/.srvprivate.key
     SSLCertificateChainFile $webdirdest/management/other/ca.cert.der
 </VirtualHost>" > "$etcconf";
-    echo "OK"
-    if [ "$a2ensite" == "yes" ]; then
+    errorStat $?
+    dots "Restarting Apache2 for fog vhost"
+    if [ "$osid" -eq 2 ]; then
         a2enmod rewrite >/dev/null 2>&1
         a2enmod ssl >/dev/null 2>&1
         a2ensite "001-fog" >/dev/null 2>&1
         if [ "$systemctl" == "yes" ]; then
-            systemctl restart apache2 >/dev/null 2>&1
+            systemctl restart apache2 php5-fpm >/dev/null 2>&1 && \
+            systemctl status apache2 php5-fpm >/dev/null 2>&1
         else
-            service apache2 restart >/dev/null 2>&1
+            service apache2 restart >/dev/null 2>&1 && \
+            service apache2 status >/dev/null 2>&1
         fi
     elif [ "$systemctl" == "yes" ]; then
-        systemctl restart httpd php-fpm >/dev/null 2>&1
+        systemctl restart httpd php-fpm >/dev/null 2>&1 >/dev/null 2>&1 && \
+        systemctl status httpd php-fpm >/dev/null 2>&1
     else
-        service httpd restart >/dev/null 2>&1
+        service httpd restart >/dev/null 2>&1 && \
+        service php-fpm restart >/dev/null 2>&1 && \
+        service httpd status >/dev/null 2>&1 && \
+        service php-fpm status >/dev/null 2>&1
     fi
+    errorStat $?
     echo "caCreated=\"yes\"" >> "$fogprogramdir/.fogsettings";
 }
