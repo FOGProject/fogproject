@@ -422,62 +422,53 @@ installPackages() {
 		echo "OK";
 	fi
  	echo -e " * Packages to be installed: \n      $packages\n\n";
+    newPackList=""
 	for x in $packages; do
-        retPackageInst=0;
 		if [ "$x" == "mysql" ]; then
-            cyclelist="mysql mariadb MariaDB-client"
-            for sqlclient in $cyclelist; do
-                x=$sqlclient;
-                rpm -q $x >/dev/null 2>&1
-                retPackageInst="$?";
-                if [ $retPackageInst -eq 0 ]; then
-                    break;
+            for sqlclient in $sqlclientlist; do
+                $packagelist $sqlclient >/dev/null 2>&1
+                if [ "$?" -eq 0 ]; then
+                    x=$sqlclient
+                    break
                 fi
             done
 		elif [ "$x" == "mysql-server" ]; then
-            cyclelist="mysql-server mariadb-server mariadb-galera-server MariaDB-server";
-            for sqlserver in $cyclelist; do
-                x=$sqlserver;
-                rpm -q $x >/dev/null 2>&1;
-                retPackageInst="$?";
-                if [ $retPackageInst -eq 0 ]; then
-                    break;
+            for sqlserver in $sqlserverlist; do
+                $packagelist $sqlserver >/dev/null 2>&1
+                if [ "$?" -eq 0 ]; then
+                    x=$sqlserver
+                    break
                 fi
             done
         fi
         rpm -q $x >/dev/null 2>&1
-        if [ "$?" -gt 0 ]; then
+        if [ "$?" != 0 ]; then
             dots "Installing package: $x";
 		    ${packageinstaller} $x >/dev/null 2>&1
             errorStat $?
         fi
+        newPackList="${newPackList} $x";
 	done
     dots "Upgrading packages as needed"
-    packageupdater=`echo $packageinstaller|sed 's/install/update/'`;
-    $packageupdater $packages >/dev/null 2>&1
-    echo "OK"
+    $packageupdater $newPackList >/dev/null 2>&1
+    errorStat $?
 }
 confirmPackageInstallation() {
 	for x in $packages; do
-        retPackageInst=0;
 		if [ "$x" == "mysql" ]; then
-            cyclelist="mysql mariadb MariaDB-client"
-            for sqlclient in $cyclelist; do
-                x=$sqlclient;
-                rpm -q $x >/dev/null 2>&1
-                retPackageInst="$?";
-                if [ $retPackageInst -eq 0 ]; then
-                    break;
+            for sqlclient in $sqlclientlist; do
+                $packagelist $sqlclient >/dev/null 2>&1
+                if [ "$?" -eq 0 ]; then
+                    x=$sqlclient
+                    break
                 fi
             done
 		elif [ "$x" == "mysql-server" ]; then
-            cyclelist="mysql-server mariadb-server mariadb-galera-server MariaDB-server";
-            for sqlserver in $cyclelist; do
-                x=$sqlserver;
-                rpm -q $x >/dev/null 2>&1;
-                retPackageInst="$?";
-                if [ $retPackageInst -eq 0 ]; then
-                    break;
+            for sqlserver in $sqlserverlist; do
+                $packagelist $sqlserver >/dev/null 2>&1
+                if [ "$?" -eq 0 ]; then
+                    x=$sqlserver
+                    break
                 fi
             done
         fi
