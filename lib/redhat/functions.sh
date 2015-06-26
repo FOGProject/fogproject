@@ -248,11 +248,13 @@ configureHttpd() {
 	sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php.ini
 	if [ -z "$systemctl" ]; then
 		chkconfig httpd on >/dev/null 2>&1 && \
-		service httpd restart >/dev/null 2>&1 && \
+		service httpd restart >/dev/null 2>&1
+        sleep 2
 		service httpd status >/dev/null 2>&1
 	else
 		systemctl enable httpd >/dev/null 2>&1 && \
-		systemctl restart httpd >/dev/null 2>&1 && \
+		systemctl restart httpd >/dev/null 2>&1
+        sleep 2
 		systemctl status httpd >/dev/null 2>&1
 	fi
 	ret=$?;
