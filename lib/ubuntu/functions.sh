@@ -490,6 +490,16 @@ installPackages() {
     fi
     dots "Preparing Package Manager"
     apt-get -yq update >/dev/null 2>&1
+    if [ "$?" != 0 ]; then
+        cp /etc/apt/sources.list /etc/apt/source.list.original_fog
+        sed -i -e 's/archive.ubuntu.com\|security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
+        apt-get -yq update >/dev/null 2>&1
+    fi
+    if [ "$?" != 0 ]; then
+        cp -f /etc/apt/sources.list.original_fog /etc/apt/source.list >/dev/null 2>&1
+        rm -f /etc/apt/sources.list.original >/dev/null 2>&1
+        false
+    fi
     errorStat $?
 	if [ "$installlang" = "1" ]; then
 		packages="$packages $langPackages"
