@@ -449,29 +449,13 @@ installPackages() {
         fi
         newPackList="${newPackList} $x";
 	done
+    packages="$newPackList";
     dots "Upgrading packages as needed"
-    $packageupdater $newPackList >/dev/null 2>&1
+    $packageupdater $packages >/dev/null 2>&1
     errorStat $?
 }
 confirmPackageInstallation() {
 	for x in $packages; do
-		if [ "$x" == "mysql" ]; then
-            for sqlclient in $sqlclientlist; do
-                $packagelist $sqlclient >/dev/null 2>&1
-                if [ "$?" -eq 0 ]; then
-                    x=$sqlclient
-                    break
-                fi
-            done
-		elif [ "$x" == "mysql-server" ]; then
-            for sqlserver in $sqlserverlist; do
-                $packagelist $sqlserver >/dev/null 2>&1
-                if [ "$?" -eq 0 ]; then
-                    x=$sqlserver
-                    break
-                fi
-            done
-        fi
         dots "Checking package: $x";
         rpm -q $x >/dev/null 2>&1
         errorStat $?
