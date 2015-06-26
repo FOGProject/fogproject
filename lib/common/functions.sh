@@ -211,11 +211,12 @@ stopInitScript() {
     done
 }
 startInitScript() {
+    stopInitScript
     serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname"
     for serviceItem in $serviceList; do
         dots "Starting $serviceItem Service"
         if [ "$systemctl" == "yes" ]; then
-            systemctl restart $serviceItem >/dev/null 2>&1
+            systemctl start $serviceItem >/dev/null 2>&1
         else
             $initdpath/$serviceItem start >/dev/null 2>&1
         fi
