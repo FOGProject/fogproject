@@ -211,7 +211,6 @@ stopInitScript() {
     done
 }
 startInitScript() {
-    stopInitScript
     serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname"
     for serviceItem in $serviceList; do
         dots "Starting $serviceItem Service"
@@ -234,7 +233,11 @@ enableInitScript() {
             systemctl enable $serviceItem >/dev/null 2>&1
         elif [ "$osid" -eq 2 ]; then
             sysv-rc-conf $serviceItem on >/dev/null 2>&1
-            insserv -d $initdpath/$serviceItem >/dev/null 2>&1
+            if [[ "$linuxReleaseName" == +(*'buntu'*) ]]; then
+                /usr/lib/insserv/insserv -d $initdpath/$serviceItem >/dev/null 2>&1
+            else
+                insserv -d $initdpath/$serviceItem >/dev/null 2>&1
+            fi
         elif [ "$osid" -eq 1 ]; then
             chkconfig $serviceItem on >/dev/null 2>&1
         fi
