@@ -305,7 +305,7 @@ while [ "$blGo" = "" ]; do
                 configureDHCP;
                 configureTFTPandPXE;
                 configureFTP;
-                configureSudo;
+                #configureSudo;
                 configureSnapins;
                 configureUDPCast;
                 installInitScript;

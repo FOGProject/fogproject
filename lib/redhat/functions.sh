@@ -17,16 +17,6 @@
 #
 #
 #
-configureSudo() {
-    dots "Setting up sudo settings";
-	#ret=`cat /etc/sudoers | grep "${apacheuser} ALL=(ALL) NOPASSWD: /sbin/ether-wake"`
-	#if [ "$ret" = "" ]
-	#then
-	#	 echo "${apacheuser} ALL=(ALL) NOPASSWD: /sbin/ether-wake" >>  "/etc/sudoers";
-	#	 echo "Defaults:${apacheuser} !requiretty" >>  "/etc/sudoers";
-	#fi
-	echo "OK";
-}
 configureFTP() {
 	dots "Setting up and starting VSFTP Server"
 	if [ -f "$ftpconfig" ];	then

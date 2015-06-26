@@ -482,17 +482,6 @@ class Config {
 		chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 	fi
 }
-
-configureSudo() {
-    dots "Setting up sudo settings"
-    # This is no longer required, now that we switched to wakeonlan instead of etherwake
-    #ret=`cat /etc/sudoers | grep "${apacheuser} ALL=(ALL) NOPASSWD: /usr/sbin/etherwake"`
-    #if [ "$ret" = "" ]
-    #then
-    #	 echo "${apacheuser} ALL=(ALL) NOPASSWD: /usr/sbin/etherwake" >>  "/etc/sudoers";
-    #fi
-    echo "OK";
-}
 installPackages() {
     if [[ "$linuxReleaseName" == +(*'buntu'*) ]]; then
         dots "Adding needed repository"
@@ -530,6 +519,11 @@ installPackages() {
 				read strDummy;
 				$packageinstaller $x
 				echo "";
+            elif [ "$x" = "php5-fpm" ]; then
+                echo -e "\n\n\t\tWe are about to install php5-fpm\n\t\tIt may ask about configs, use the local\n\n\t\tPress [Enter] to acknowldege this message"
+                read strDummy
+                $packageinstaller $x
+                echo
 			elif [ "$x" = "$dhcpname" ]; then
 				$packageinstaller $dhcpname >/dev/null 2>&1;
 				$packageinstaller $olddhcpname >/dev/null 2>&1;
