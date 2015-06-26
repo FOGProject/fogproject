@@ -21,22 +21,32 @@
 # Include all the common installer stuff for all distros
 . ../lib/common/functions.sh
 . ../lib/common/config.sh
-# Determine Linux release name using the /etc/os-release standard
-if [ -f "/etc/os-release" ]; then
-	linuxReleaseName=`sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"'`;
-    OSVersion=`sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"'`;
+OS=`uname -s`
+if [ "$OS" != "Linux" ]; then
+    echo "We do not currently support Installation on non-Linux Operating Systems"
+    exit 1
 else
-	linuxReleaseName=`cat /etc/*release* 2>/devnull | head -n1 | awk '{print $1}'`;
-fi
-if [ -z "$OSVersion" ]; then
-    if [[ "$linuxReleaseName" == +(*'Debian'*|*'Ubuntu'*) ]]; then
-        apt-get install lsb_release >/dev/null 2>&1;
-        OSVersion=`lsb_release -r| awk -F'[^0-9]*' /^[Rr]elease\([^.]*\).*/'{print $2}'`;
-    elif [[ "$linuxReleaseName" == +(*'CentOS'*|*'Redhat'*|*'Red'*|*'Fedora'*) ]]; then
-        OSVersion=`awk -F'[^0-9]*' /[Rr]elease*\([^.]*\).*/'{print $2}' /etc/*release* | head -n1`
+    if [ -f /etc/os-release ]; then
+        linuxReleaseName=`sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"'`
+        OSVersion=`sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"'`
+    elif [ -f /etc/redhat-release ]; then
+        linuxReleaseName=`cat /etc/redhat-release | sed s/.*\(// | sed s/\)//`
+        OSVersion=`cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
+    elif [ -f /etc/debian_version ]; then
+        linuxReleaseName='Debian'
+        OSVersion=`cat /etc/debian_version`
     fi
 fi
-if [[ "$OSVersion" -ge 7 && "$linuxReleaseName" == +(*'CentOS'*|*'Redhat'*|*'Red'*) ]] || [[ "$OSVersion" -ge 15 && "$linuxReleaseName" == +(*'Fedora'*|*'Ubuntu'*) ]] || [[ "$OSVersion" -ge 8 && "$linuxReleaseName" == +(*'Debian'*) ]]; then
+if [ -z "$OSVersion" ]; then
+    if [[ "$linuxReleaseName" == +(*[Dd]'ebian'*|*'buntu'*) ]]; then
+        apt-get install lsb_release >/dev/null 2>&1
+    elif [[ "$linuxReleaseName" == +(*[Cc]'ent'[Oo][Ss]*|*[Rr]'ed'*[Hh]'at'*|*[Ff]'edora'*) ]]; then
+        yum -y install redhat-lsb-core >/dev/null 2>&1
+    fi
+    OSVersion=`lsb_release -r| awk -F'[^0-9]*' /^[Rr]elease\([^.]*\).*/'{print $2}'`;
+fi
+OSVersion=`echo $OSVersion | cut -d '.' -f1`
+if [[ "$OSVersion" -ge 7 && "$linuxReleaseName" == +(*[Cc]'ent'[Oo][Ss]*|*[Rr]'ed'*[Hh]'at'*) ]] || [[ "$OSVersion" -ge 15 && "$linuxReleaseName" == +(*[Ff]'edora'*|*'buntu'*) ]] || [[ "$OSVersion" -ge 8 && "$linuxReleaseName" == +(*[Dd]'ebian'*) ]]; then
     systemctl="yes";
 fi
 installtype="";
