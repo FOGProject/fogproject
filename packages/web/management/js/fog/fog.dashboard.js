@@ -212,8 +212,8 @@ function UpdateBandwidth() {
 				sub: 'bandwidth',
 				},
 dataType: 'json',
-success: function(data) {
-UpdateBandwidthGraph(data);
+success: UpdateBandwidthGraph,
+complete: function() {
 UpdateTimeout = setTimeout(UpdateBandwidth,1000);
 GraphBandwidth.addClass('loaded');
 }
