@@ -494,11 +494,18 @@ configureSudo() {
     echo "OK";
 }
 installPackages() {
-	apt-get -y -q update >/dev/null 2>&1 & disown
+    if [[ "$linuxReleaseName" == +(*'buntu'*) ]]; then
+        dots "Adding needed repository"
+        add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
+        echo "OK"
+    fi
+    dots "Preparing Package Manager"
+    apt-get -yq update >/dev/null 2>&1
+    errorStat $?
 	if [ "$installlang" = "1" ]; then
 		packages="$packages $langPackages"
 	fi
-	echo -e "\n\n  * Packages to be installed: $packages\n\n";
+	echo -e "\n\n * Packages to be installed: $packages\n\n";
 	for x in $packages; do
 		checkMe=`dpkg -l $x 2>/dev/null | grep '^ii'`;
 		if [ "$checkMe" == "" -a "$x" == "php5-json" ]; then
@@ -521,19 +528,20 @@ installPackages() {
 				sleep 3;
 				echo "     Press enter to acknowledge this message.";
 				read strDummy;
-				apt-get -y -q install $x
+				$packageinstaller $x
 				echo "";
 			elif [ "$x" = "$dhcpname" ]; then
-				apt-get -y -q install $dhcpname >/dev/null 2>&1;
-				apt-get -y -q install $olddhcpname >/dev/null 2>&1;
+				$packageinstaller $dhcpname >/dev/null 2>&1;
+				$packageinstaller $olddhcpname >/dev/null 2>&1;
 			else
-				apt-get -y -q install $x >/dev/null 2>&1;
+				$packageinstaller $x >/dev/null 2>&1;
 			fi
             errorStat $?
         fi
-        dots "Skipping package: $x"
-        echo "(Already installed)";
 	done
+    dots "Upgrading Packages as needed"
+    $packageinstaller --only-upgrade $packages >/dev/null 2>&1
+    errorStat $?
 }
 confirmPackageInstallation() {
     for x in $packages; do
