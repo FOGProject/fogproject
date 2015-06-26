@@ -547,19 +547,23 @@ EOF
         a2enmod ssl >/dev/null 2>&1
         a2ensite "001-fog" >/dev/null 2>&1
         if [ "$systemctl" == "yes" ]; then
-            systemctl restart apache2 php5-fpm >/dev/null 2>&1 && \
+            systemctl restart apache2 php5-fpm >/dev/null 2>&1
+            sleep 2
             systemctl status apache2 php5-fpm >/dev/null 2>&1
         else
-            service apache2 restart >/dev/null 2>&1 && \
+            service apache2 restart >/dev/null 2>&1
+            sleep 2
             service apache2 status >/dev/null 2>&1
         fi
     elif [ "$systemctl" == "yes" ]; then
-        systemctl restart httpd php-fpm >/dev/null 2>&1 >/dev/null 2>&1 && \
+        systemctl restart httpd php-fpm >/dev/null 2>&1
+        sleep 2
         systemctl status httpd php-fpm >/dev/null 2>&1
     else
-        service httpd restart >/dev/null 2>&1 && \
-        service php-fpm restart >/dev/null 2>&1 && \
-        service httpd status >/dev/null 2>&1 && \
+        service httpd restart >/dev/null 2>&1
+        service php-fpm restart >/dev/null 2>&1
+        sleep 2
+        service httpd status >/dev/null 2>&1
         service php-fpm status >/dev/null 2>&1
     fi
     errorStat $?

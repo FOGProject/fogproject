@@ -319,13 +319,15 @@ configureHttpd() {
 	sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' /etc/php5/cli/php.ini
 	sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php5/cli/php.ini
 	if [ -z "$systemctl" ]; then
-		sysv-rc-conf apache2 on;
-		/etc/init.d/apache2  stop  >/dev/null 2>&1
-		/etc/init.d/apache2 start >/dev/null 2>&1;
+		sysv-rc-conf apache2 on >/dev/null 2>&1
+		/etc/init.d/apache2 stop >/dev/null 2>&1
+        sleep 2
+		/etc/init.d/apache2 start >/dev/null 2>&1
 	else
-		systemctl enable apache2 >/dev/null 2>&1;
-		systemctl restart apache2 >/dev/null 2>&1;
-		systemctl status apache2 >/dev/null 2>&1;
+		systemctl enable apache2 >/dev/null 2>&1
+		systemctl restart apache2 >/dev/null 2>&1
+        sleep 2
+		systemctl status apache2 >/dev/null 2>&1
 	fi
 	if [ "$?" != "0" ]
 	then
