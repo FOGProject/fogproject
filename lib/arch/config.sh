@@ -24,7 +24,6 @@ storageNodePackages="apache php-fpm php mariadb nfs-utils vsftpd xinetd tar gzip
 packageinstaller="pacman -Sy --noconfirm";
 langPackages="iso-codes";
 dhcpname="dhcp";
-nfsservice="nfs-server";
 
 # where do the php files go?
 docroot="/srv/http/";
@@ -49,8 +48,6 @@ tftpconfig="/usr/lib/systemd/system/tftpd.service";
 # where is the ftp server config file?
 ftpconfig="/etc/xinetd.d/vsftpd"
 
-# where is the nfs exports file?
-nfsconfig="/etc/exports";
 
 # where do snapins go?
 snapindir="/opt/fog/snapins";
