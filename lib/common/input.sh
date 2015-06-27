@@ -283,18 +283,21 @@ if [ "$installtype" = "S" ]; then
 fi
 if [ "$installtype" = "N" ]; then
     while [ -z "${installlang}" ]; do
-        echo
-        echo "  This version of FOG has internationalization support, would  "
-        echo -n "  you like to install the additional language packs? [y/N] "
-        read installlang
+        installlang="N"
+        if [ -z "$autoaccept" ]; then
+            echo
+            echo "  This version of FOG has internationalization support, would  "
+            echo -n "  you like to install the additional language packs? [y/N] "
+            read installlang
+            if [ -z "$installlang" ]; then
+                installlang="N"
+            fi
+        fi
         case "$installlang" in
             [Yy]*)
             installlang="1";
             ;;
             [nN]*)
-            installlang="0";
-            ;;
-            *)
             installlang="0";
             ;;
         esac
