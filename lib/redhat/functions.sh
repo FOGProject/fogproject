@@ -194,7 +194,7 @@ configureHttpd() {
 	if [ -f "$etcconf" ]; then
 		rm $etcconf &>/dev/null;
 	fi
-	if [ "$installtype" == N -a "$fogupdateloaded" != 1 ]; then
+	if [ "$installtype" == N -a "$fogupdateloaded" != 1 -a -z "$autoaccept" ]; then
 		echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
 		read dummy
 		echo "";
