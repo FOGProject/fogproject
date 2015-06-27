@@ -175,7 +175,7 @@ configureHttpd() {
 	if [ -f "$etcconf" ]; then
 		rm $etcconf &>/dev/null;
 	fi
-	if [ "$installtype" == N -a "$fogupdateloaded" != 1 ]; then
+	if [ "$installtype" == N -a "$fogupdateloaded" != 1 -a -z "$autoaccept" ]; then
 		echo -n " * Did you leave the mysql password blank during install? (Y/n) ";
 		read dummy;
 		echo "";
@@ -317,8 +317,8 @@ class Config {
 		define('STORAGE_HOST', \"${ipaddress}\");
 		define('STORAGE_FTP_USERNAME', \"${username}\");
 		define('STORAGE_FTP_PASSWORD', \"${password}\");
-		define('STORAGE_DATADIR', '/images/');
-		define('STORAGE_DATADIR_UPLOAD', '/images/dev/');
+		define('STORAGE_DATADIR', '/${storageLocation}/');
+		define('STORAGE_DATADIR_UPLOAD', '/${storageLocation}/dev/');
 		define('STORAGE_BANDWIDTHPATH', '/fog/status/bandwidth.php');
 		define('UPLOADRESIZEPCT',5);
 		define('WEB_HOST', \"${ipaddress}\");
