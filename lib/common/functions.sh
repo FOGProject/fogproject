@@ -138,18 +138,19 @@ displayOSChoices() {
         if [ "$fogupdateloaded" = "1" -a  "$osid" != "" -a "$blFirst" = "1" ]; then
             blFirst="0";
         else
-            echo "  What version of Linux would you like to run the installation for?"
-            echo "";
-            echo "          1) Redhat Based Linux (Redhat, CentOS, Mageia)";
-            echo "          2) Debian Based Linux (Debian, Ubuntu, Kubuntu, Edubuntu)";
-            echo "          3) Arch Linux";
-            echo "";
-            echo -n "  Choice: [${strSuggestedOS}]";
-            read osid;
-        fi
-        if [ "$osid" = "" ]; then
-            if [ "$strSuggestedOS" != "" ]; then
-                osid=$strSuggestedOS;
+            osid=$strSuggestedOS
+            if [ -z "$autoaccept" -a ! -z "$osid" ]; then
+                echo "  What version of Linux would you like to run the installation for?"
+                echo "";
+                echo "          1) Redhat Based Linux (Redhat, CentOS, Mageia)";
+                echo "          2) Debian Based Linux (Debian, Ubuntu, Kubuntu, Edubuntu)";
+                echo "          3) Arch Linux";
+                echo "";
+                echo -n "  Choice: [${strSuggestedOS}]";
+                read osid
+                if [ -z "$osid" ]; then
+                    osid=$strSuggestedOS
+                fi
             fi
         fi
         doOSSpecificIncludes;
