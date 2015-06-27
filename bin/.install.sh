@@ -108,14 +108,10 @@ for arg in $*; do
         "--recreate-vhost")
             recreateVhost="yes";
         ;;
-        "--recreate-ca")
+        "--recreate-CA")
             recreateCA="yes";
         ;;
-        '-'[yY])
-            autoaccept="yes";
-            dbupdate="yes";
-        ;;
-        "--autoaccept")
+        '-'[yY]|'--autoaccept')
             autoaccept="yes";
             dbupdate="yes";
         ;;
@@ -259,13 +255,15 @@ while [ "$blGo" = "" ]; do
             echo "";
             echo "  Configuring services.";
             echo "";
-            if [ ! -n "$storageLocation" ]; then
+            if [ ! -n "$storageLocation" -a -z "$autoaccept" ]; then
                 echo "";
                 echo -n "     What is the storage location for your images directory? (/images) ";
                 read storageLocation;
                 if [ "$storageLocation" == "" ]; then
                     storageLocation="/images";
                 fi
+            elif [ ! -n "$storageLocation" -a "$autoaccept" == "yes" ]; then
+                storageLocation="/images";
             fi
             if [ -z "$mysql_conntype" ]; then
                 mysql_conntype="MYSQLI_ASYNC";

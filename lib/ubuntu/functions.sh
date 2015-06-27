@@ -255,7 +255,7 @@ configureHttpd() {
 		a2dissite 001-fog &>/dev/null
 		rm $etcconf &>/dev/null
 	fi
-	if [ "$installtype" == N -a "$fogupdateloaded" != 1 ]; then
+	if [ "$installtype" == N -a "$fogupdateloaded" != 1 -a -z "$autoaccept" ]; then
 		echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
 		read dummy;
 		echo "";
@@ -519,7 +519,7 @@ installPackages() {
 		fi
 		if [ "$checkMe" == "" ]; then
 			echo  "  * Installing package: $x";
-            if [ "$x" = "mysql-server" ]; then
+            if [ "$x" = "mysql-server" -a -z "$autoaccept" ]; then
 				strDummy="";
 				echo "";
 				echo "     We are about to install MySQL Server on ";
@@ -531,11 +531,15 @@ installPackages() {
 				read strDummy;
 				$packageinstaller $x
 				echo "";
-            elif [ "$x" = "php5-fpm" ]; then
+            elif [ "$x" = "mysql-server" -a "$autoaccept" = "yes" ]; then
+                DEBIAN_FRONTEND=noninteractive $packageinstaller $x >/dev/null 2>&1
+            elif [ "$x" = "php5-fpm" -a -z "$autoaccept" ]; then
                 echo -e "\n\n\t\tWe are about to install php5-fpm\n\t\tIt may ask about configs, use the local\n\n\t\tPress [Enter] to acknowldege this message"
                 read strDummy
                 $packageinstaller $x
                 echo
+            elif [ "$x" = "php5-fpm" -a "$autoaccept" = "yes" ]; then
+                DEBIAN_FRONTEND=noninteractive $packageinstaller $x >/dev/null 2>&1
 			elif [ "$x" = "$dhcpname" ]; then
 				$packageinstaller $dhcpname >/dev/null 2>&1;
 				$packageinstaller $olddhcpname >/dev/null 2>&1;
