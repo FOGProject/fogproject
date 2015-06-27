@@ -84,6 +84,7 @@ help() {
     echo "             --recreate-vhost    Force recreation of the vhost";
     echo "             --recreate-keys     Force recreation of the ssl keys";
     echo "             --recreate-CA       Force recreation of the CA keys";
+    echo "             --autoaccept -y -Y  Auto Accept and install";
     echo "";
 }
 backupReports() {
