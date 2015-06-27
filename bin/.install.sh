@@ -111,6 +111,14 @@ for arg in $*; do
         "--recreate-ca")
             recreateCA="yes";
         ;;
+        '-'[yY])
+            autoaccept="yes";
+            dbupdate="yes";
+        ;;
+        "--autoaccept")
+            autoaccept="yes";
+            dbupdate="yes";
+        ;;
     esac
 done
 warnRoot
@@ -207,8 +215,12 @@ if [ "$bldhcp" == "0" ]; then
 fi;
 while [ "$blGo" = "" ]; do
     echo
-    echo -n "  Are you sure you wish to continue (Y/N) ";
-    read blGo;
+    if [ -z "$autoaccept" ]; then
+        echo -n "  Are you sure you wish to continue (Y/N) ";
+        read blGo;
+    else
+        blGo="y";
+    fi
     echo "";
     case "$blGo" in
         [yY]*)
@@ -301,15 +313,21 @@ while [ "$blGo" = "" ]; do
                 configureMySql;
                 backupReports;
                 configureHttpd;
-                if [ "$installtype" == N ]; then
+                if [ "$installtype" == "N" -a -z "$dbupdate" ]; then
+                    echo
                     echo "  You still need to install/update your database schema.";
                     echo "  This can be done by opening a web browser and going to:";
                     echo "";
                     echo "      http://${ipaddress}/fog/management";
                     echo "";
                     read -p "  Press [Enter] key when database is updated/installed.";
+                    echo
+                elif [ "$installtype" == "N" -a "$dbupdate" == "yes" ]; then
+                    dots "Updating Database"
+                    wget -O - --post-data="confirm=1" --no-proxy http://127.0.0.1/fog/management/index.php?node=schemaupdater >/dev/null 2>&1 ||
+                    wget -O - --post-data="confirm=1" --no-proxy http://127.0.0.1/management/index.php?node=schemaupdater >/dev/null 2>&1
+                    errorStat $?
                 fi
-                echo "";
                 #restoreReports;
                 configureStorage;
                 configureDHCP;
