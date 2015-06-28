@@ -19,9 +19,12 @@
 #
 #
 # Include all the common installer stuff for all distros
+case "$EUID" in
+    0) ;;
+    *) exec sudo $0 $@ || echo FOG Installation must be run as root user; exit 1 ;;
+esac
 . ../lib/common/functions.sh
 . ../lib/common/config.sh
-warnRoot
 OS=`uname -s`
 if [ "$OS" != "Linux" ]; then
     echo "We do not currently support Installation on non-Linux Operating Systems"

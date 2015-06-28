@@ -29,15 +29,6 @@ dots() {
         fi
     fi
 }
-warnRoot() {
-    case "$EUID" in
-        0)
-        ;;
-        *)
-        sudo $0
-        ;;
-    esac
-}
 uninstall() {
     case "$autoaccept" in
         yes)
