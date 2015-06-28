@@ -105,16 +105,17 @@ installUtils() {
     errorStat $?
 }
 help() {
-    echo -e "Usage: $0 [options]";
-    echo -e "\t-h -?        --help\t\tDisplay this info"
+    echo -e "Usage: $0 -[hdUuHSCKY] -[f <filename>]";
+    echo -e "\t-h -? --help\t\t\tDisplay this info"
     echo -e "\t-d    --no-defaults\t\tDon't guess defaults"
-    echo -e "\t-U     --no-upgrade\t\tDon't attempt to upgrade"
-    echo -e "\t-u      --uninstall\t\tUninstall FOG"
-    echo -e "\t-H     --no-htmldoc\t\tNo htmldoc, means no PDFs"
+    echo -e "\t-U    --no-upgrade\t\tDon't attempt to upgrade"
+    echo -e "\t-H    --no-htmldoc\t\tNo htmldoc, means no PDFs"
     echo -e "\t-S    --force-https\t\tForce HTTPS redirect"
     echo -e "\t-C    --recreate-CA\t\tRecreate the CA Keys"
-    echo -e "\t-K  --recreate-keys\t\tRecreate the SSL Keys"
-    echo -e "\t-Y -y  --autoaccept\t\tAuto accept defaults and install"
+    echo -e "\t-K    --recreate-keys\t\tRecreate the SSL Keys"
+    echo -e "\t-Y -y --autoaccept\t\tAuto accept defaults and install"
+    echo -e "\t-f    --file\t\t\tUse different update file"
+    echo -e "\t      --uninstall\t\tUninstall FOG"
     exit 0
 }
 backupReports() {
