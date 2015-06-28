@@ -17,37 +17,41 @@
 
 # Arch Config Settings
 
-# pacman packages to install 
-#packages="apache php-apache php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc htmldoc perl perl-crypt-passwdmd5 lftp";
-packages="apache php-fpm php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc perl perl-crypt-passwdmd5 lftp php-mysqlnd curl";
-storageNodePackages="apache php-fpm php mariadb nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl";
-packageinstaller="pacman -Sy --noconfirm";
-langPackages="iso-codes";
-dhcpname="dhcp";
+# pacman packages to install
+#packages="apache php-apache php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc htmldoc perl perl-crypt-passwdmd5 lftp"
+packages="apache php-fpm php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc perl perl-crypt-passwdmd5 lftp php-mysqlnd curl"
+storageNodePackages="apache php-fpm php mariadb nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl"
+packageinstaller="pacman -Sy --noconfirm"
+packagelist="pacman -Si"
+packageupdater="pacman -Syu"
+packmanUpdate="$packageinstaller"
+langPackages="iso-codes"
+dhcpname="dhcp"
 
 # where do the php files go?
-docroot="/srv/http/";
-webdirdest="${docroot}fog";
-webredirect="${webdirdest}/index.php";
-apacheuser="http";
+docroot="/srv/http/"
+webdirdest="${docroot}fog"
+webredirect="${webdirdest}/index.php"
+apacheuser="http"
 
 # where do we store the image files?
-storage="/images";
-storageupload="/images/dev";
+storage="/images"
+storageupload="/images/dev"
 
 # DHCP config file location
-dhcpconfig="/etc/dhcpd.conf";
-dhcpconfigother="/etc/dhcp/dhcpd.conf";
+dhcpconfig="/etc/dhcpd.conf"
+dhcpconfigother="/etc/dhcp/dhcpd.conf"
 
 # where do the tftp files go?
 tftpdirdst="/srv/tftp"
 
 # where is the tftpd config file?
-tftpconfig="/usr/lib/systemd/system/tftpd.service";
+tftpconfig="/usr/lib/systemd/system/tftpd.service"
 
 # where is the ftp server config file?
 ftpconfig="/etc/xinetd.d/vsftpd"
 
 
 # where do snapins go?
-snapindir="/opt/fog/snapins";
+snapindir="/opt/fog/snapins"
+etcconf="/etc/httpd/conf.d/fog.conf"

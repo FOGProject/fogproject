@@ -211,8 +211,12 @@ configureTFTPandPXE() {
     fi
     errorStat $?
 }
+configureMinHttpd() {
+    configureHttpd
+	echo "<?php die(\"This is a storage node, please do not access the web ui here!\")" > "$webdirdest/management/index.php"
+}
 installPackages() {
-    if [[ "$linuxReleaseName" == +(*'buntu'*) || "$osid" -eq 1 ]]; then
+    if [ "$osid" -eq 1 ]; then
         dots "Adding needed repository"
         if [ "$osid" -eq 1 ]; then
             ${packageinstaller} epel-release >/dev/null 2>&1
@@ -231,25 +235,21 @@ installPackages() {
         fi
         errorStat $?
     fi
-    if [[ "$osid" == +(2|3) ]]; then
-        dots "Preparing Package Manager"
-        if [ "$osid" -eq 2 ]; then
-            apt-get -yq update >/dev/null 2>&1
-            if [ "$?" != 0 ] && [[ "$linuxReleaseName" == +(*'buntu'*) ]]; then
-                cp /etc/apt/sources.list /etc/apt/source.list.original_fog
-                sed -i -e 's/archive.ubuntu.com\|security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
-                apt-get -yq update >/dev/null 2>&1
-                if [ "$?" != 0 ]; then
-                    cp -f /etc/apt/sources.list.original_fog /etc/apt/sources.lib >/dev/null 2>&1
-                    rm -f /etc/apt/sources.list.original >/dev/null 2>&1
-                    false
-                fi
+    dots "Preparing Package Manager"
+    $packmanUpdate >/dev/null 2>&1
+    if [ "$osid" -eq 2 ]; then
+        if [ "$?" != 0 ] && [[ "$linuxReleaseName" == +(*'buntu'*) ]]; then
+            cp /etc/apt/sources.list /etc/apt/source.list.original_fog
+            sed -i -e 's/archive.ubuntu.com\|security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
+            $packmanUpdate >/dev/null 2>&1
+            if [ "$?" != 0 ]; then
+                cp -f /etc/apt/sources.list.original_fog /etc/apt/sources.lib >/dev/null 2>&1
+                rm -f /etc/apt/sources.list.original >/dev/null 2>&1
+                false
             fi
-            errorStat $?
-        elif [ "$osid" -eq 3 ]; then
-            pacman -Syu --noconfirm >/dev/null 2>&1
         fi
     fi
+    errorStat $?
     echo -e " * Packages to be installed:\n\n\t$packages\n\n"
     newPackList=""
     for x in $packages; do
