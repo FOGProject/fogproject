@@ -84,46 +84,75 @@ if [ -z "$*" ]; then
     echo > "/var/log/foginstall.log"
     exec &> >(tee -a "/var/log/foginstall.log")
 else
-    echo "$*" | egrep '(-h|-\?|--help)' >/dev/null 2>&1
-    if [ "$?" != 0 ]; then
-    	echo > "/var/log/foginstall.log"
-    	exec &> >(tee -a "/var/log/foginstall.log")
+    if [[ "$*" != +(-h|-?|--help|--uninstall) ]]; then
+        echo > "/var/log/foginstall.log"
+        exec &> >(tee -a "/var/log/foginstall.log")
     fi
 fi
 displayBanner;
+if [[ "$*" == +(--uninstall) ]]; then
+    uninstall
+    exit
+fi
 echo -e "  Version: ${version} Installer/Updater\n";
-for arg in $*; do
-    case "$arg" in
-        '-'[h\?]|'--help')
-        help
-        exit 0
+fogpriorconfig="$fogprogramdir/.fogsettings"
+optspec=":h?dUHSCKYyf:-:"
+while getopts "$optspec" o; do
+    case "${o}" in
+        -)
+            case "${OPTARG}" in
+                help) help; exit 0 ;;
+                no-defaults) guessdefaults=0 ;;
+                no-upgrade) doupdate=0 ;;
+                no-htmldoc) ignorehtmldoc=1 ;;
+                force-https) forcehttps="yes" ;;
+                recreate-keys) recreateKeys="yes" ;;
+                recreate-[Cc][Aa]) recreateCA="yes" ;;
+                autoaccept) autoaccept="yes"; dbupdate="yes" ;;
+                file)
+                    if [ -f "${OPTARG}" ]; then
+                        fogpriorconfig="${OPTARG}"
+                    else
+                        echo "--${OPTARG} requires file after"
+                        help
+                        exit 1
+                    fi
+                ;;
+                *)
+                    if [ "$OPTERR" = 1 -a "${optspec:0:1}" != ":" ]; then
+                        echo "Unknown option: --${OPTARG}"
+                        help
+                        exit 1
+                    fi
+                ;;
+            esac
         ;;
-        '-'[d]|'--no-defaults')
-        guessdefaults=0
+        h|?) help; exit 0 ;;
+        d) guessdefaults=0 ;;
+        U) doupdate=0 ;;
+        H) ignorehtmldoc=1 ;;
+        S) forcehttps="yes" ;;
+        C) recreateKeys="yes" ;;
+        K) recreateCA="yes" ;;
+        [yY]) autoaccept="yes"; dbupdate="yes" ;;
+        f)
+            if ! -f "${OPTARG}" ]; then
+                echo -${OPTARG} requires a file to follow
+            fi
+            fogpriorconfig="${OPTARG}"
         ;;
-        '-'[U]|'--no-upgrade')
-        doupdate=0
-        ;;
-        '-'[H]|'--no-htmldoc')
-        ignorehtmldoc=1
-        ;;
-        '-'[S]|'--force-https')
-        forcehttps="yes"
-        ;;
-        '-'[C]|'--recreate-keys')
-        recreateKeys="yes"
-        ;;
-        '-'[K]|'--recreate-CA')
-        recreateCA="yes"
-        ;;
-        '-'[yY]|'--autoaccept')
-        autoaccept="yes"
-        dbupdate="yes"
+        :) echo "Option -${OPTARG} requires a value"; help; exit 1 ;;
+        *)
+            if [ "$OPTERR" = 1 -a "${optspec:0:1}" != ":" ]; then
+                echo "Unknown option: -${OPTARG}"
+                help
+                exit 1
+            fi
         ;;
     esac
 done
 if [ "$doupdate" = "1" ]; then
-    if [ -f "$fogprogramdir/.fogsettings" ]; then
+    if [ -f "$fogpriorconfig" ]; then
         echo "";
         echo "  * Found FOG Settings from previous install at: $fogprogramdir/.fogsettings";
         echo -n "  * Performing upgrade using these settings";
@@ -134,7 +163,7 @@ if [ "$doupdate" = "1" ]; then
         sleep 1;
         echo ".";
         sleep 1;
-        . "$fogprogramdir/.fogsettings";
+        . "$fogpriorconfig";
         doOSSpecificIncludes;
     fi
 else
