@@ -67,6 +67,35 @@ warnRoot() {
 #        fi
 #    fi
 }
+uninstall() {
+    case "$autoaccept" in
+        yes)
+        blUninstall="Y"
+        ;;
+        *)
+        echo "You have chosen to uninstall fog."
+        echo
+        echo "Uninstalling will not delete your images or snapins folder."
+        echo "    It will delete the FOG database after backing it up"
+        echo "    It will not delete the installer"
+        echo
+        echo "The snapins folder, usually located in /opt/fog/snapins"
+        echo "    will be moved into the ${storageLocation} folder and"
+        echo "    the /opt/fog directory will be removed."
+        echo
+        echo -n "Are you sure you want to uninstall fog? (y/N) "
+        read blUninstall
+        ;;
+    esac
+    case "$blUninstall" in
+        [Yy]*)
+        echo "We are going to uninstall"
+        ;;
+        "N"|*)
+        echo "We are not going to uninstall"
+        ;;
+    esac
+}
 installUtils() {
     dots "Setting up FOG Utils"
     mkdir -p ${fogutilsdir} >/dev/null 2>&1
