@@ -83,7 +83,6 @@ configureMinHttpd() {
 	echo "<?php die( \"This is a storage node, please do not access the web ui here!\" ); ?>" > "$webdirdest/management/index.php"
 }
 configureHttpd() {
-	etcconf="/etc/httpd/conf.d/fog.conf";
 	if [ -f "$etcconf" ]; then
 		rm $etcconf &>/dev/null;
 	fi

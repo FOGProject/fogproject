@@ -21,11 +21,11 @@
 # Ubuntu Config Settings
 
 # apt-get packages to install
-packages="apache2 php5 php5-json php5-gd php5-cli php5-curl mysql-server mysql-client isc-dhcp-server tftpd-hpa tftp-hpa nfs-kernel-server vsftpd net-tools wget xinetd  sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 htmldoc lftp openssh-server php-gettext php5-mcrypt php5-mysqlnd curl libc6 libcurl3 zlib1g php5-fpm";
-storageNodePackages="apache2 php5 php5-json php5-cli php5-curl mysql-client nfs-kernel-server vsftpd net-tools wget xinetd sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 lftp php-gettext php5-mysqlnd curl libc6 libcurl3 zlib1g php5-fpm";
-langPackages="language-pack-it language-pack-en language-pack-es language-pack-zh-hans";
-dhcpname="isc-dhcp-server";
-olddhcpname="dhcp3-server";
+packages="apache2 php5 php5-json php5-gd php5-cli php5-curl mysql-server mysql-client isc-dhcp-server tftpd-hpa tftp-hpa nfs-kernel-server vsftpd net-tools wget xinetd  sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 htmldoc lftp openssh-server php-gettext php5-mcrypt php5-mysqlnd curl libc6 libcurl3 zlib1g php5-fpm"
+storageNodePackages="apache2 php5 php5-json php5-cli php5-curl mysql-client nfs-kernel-server vsftpd net-tools wget xinetd sysv-rc-conf tar gzip build-essential cpp gcc g++ m4 lftp php-gettext php5-mysqlnd curl libc6 libcurl3 zlib1g php5-fpm"
+langPackages="language-pack-it language-pack-en language-pack-es language-pack-zh-hans"
+dhcpname="isc-dhcp-server"
+olddhcpname="dhcp3-server"
 # where do the init scripts go?
 if [ "$systemctl" == "yes" ]; then
 	initdpath="/lib/systemd/system";
@@ -51,21 +51,21 @@ if [ -e "$apachehtmlroot" ]; then
 else
     webredirect="/var/www/index.php"
 fi
-apacheuser="www-data";
+apacheuser="www-data"
 
 # where do we store the image files?
-storage="/images";
-storageupload="/images/dev";
+storage="/images"
+storageupload="/images/dev"
 
 # DHCP config file location
-dhcpconfig="/etc/dhcp/dhcpd.conf";
-olddhcpconfig="/etc/dhcp3/dhcpd.conf";
+dhcpconfig="/etc/dhcp/dhcpd.conf"
+olddhcpconfig="/etc/dhcp3/dhcpd.conf"
 
 # where do the tftp files go?
 tftpdirdst="/tftpboot"
 
 # where is the tftpd config file?
-tftpconfig="/etc/xinetd.d/tftp";
+tftpconfig="/etc/xinetd.d/tftp"
 tftpconfigupstartconf="/etc/init/tftpd-hpa.conf"
 tftpconfigupstartdefaults="/etc/default/tftpd-hpa"
 
@@ -73,8 +73,9 @@ tftpconfigupstartdefaults="/etc/default/tftpd-hpa"
 ftpconfig="/etc/vsftpd.conf"
 
 # where do snapins go?
-snapindir="/opt/fog/snapins";
+snapindir="/opt/fog/snapins"
 
 packageinstaller="apt-get -yq install"
 packagelist="apt-get cache"
-packageupdater="apt-get -yq update"
+packageupdater="apt-get -yq upgrade"
+packmanUpdate="apt-get update"
