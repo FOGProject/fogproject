@@ -106,7 +106,7 @@ while getopts "$optspec" o; do
             recreate-keys) recreateKeys="yes" ;;
             recreate-[Cc][Aa]) recreateCA="yes" ;;
             autoaccept) autoaccept="yes"; dbupdate="yes" ;;
-            uninstall) uninstall ;;
+            uninstall) uninstall; exit ;;
             file)
             if [ -f "${OPTARG}" ]; then
                 fogpriorconfig="${OPTARG}"
