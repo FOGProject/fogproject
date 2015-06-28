@@ -30,36 +30,42 @@ dots() {
     fi
 }
 warnRoot() {
-    currentuser=`whoami`;
-    if [ "$currentuser" != "root" ]; then
-        echo
-        echo "  This installation script should be run as"
-        echo "  user \"root\".  You are currenly running ";
-        echo "  as $currentuser.  "
-        echo
-        echo -n "  Do you wish to continue? [N] "
-        read ignoreroot;
-        if [ "$ignoreroot" = "" ]; then
-            ignoreroot="N";
-        else
-            case "$ignoreroot" in
-				[yY]*)
-                    ignoreroot="Y";
-                ;;
-                [nN]*)
-                    ignoreroot="N";
-                ;;
-                *)
-                    ignoreroot="N";
-                ;;
-            esac
-        fi
-        if [ "$ignoreroot" = "N" ]; then
-            echo " Exiting...";
-            echo
-            exit 1;
-        fi
-    fi
+    case "$EUID" in
+        0)
+        ;;
+        *)
+        sudo $0
+        ;;
+    esac
+#    currentuser=`whoami`;
+#    if [ "$currentuser" != "root" ]; then
+#       ignoreroot="N"
+#        echo -e "\n  * This installation script should be run as\n    user \"root\".  You are currenly running "
+#        echo "  as $currentuser.  "
+#        echo
+#        echo -n "  Do you wish to continue? [N] "
+#        read ignoreroot;
+#        if [ -z "$ignoreroot" ]; then
+#            ignoreroot="N";
+#        fi
+#        case "$ignoreroot" in
+#            [yY]*)
+#            ignoreroot="Y";
+#            ;;
+#            [nN]*)
+#            echo " Exiting..."
+#            exit 1
+#            ;;
+#            *)
+#            ignoreroot="N";
+#            ;;
+#        esac
+#        if [ "$ignoreroot" = "N" ]; then
+#            echo " Exiting...";
+#            echo
+#            exit 1;
+#        fi
+#    fi
 }
 installUtils() {
     dots "Setting up FOG Utils"
@@ -70,22 +76,17 @@ installUtils() {
     errorStat $?
 }
 help() {
-    echo "";
-    echo "  Usage: ./installfog.sh [options]";
-    echo "       Options:";
-    echo "             --help              Displays this message";
-    echo "             --no-defaults       Don't guess default values";
-    echo "             --no-upgrade        Don't attempt to upgrade";
-    echo "				       from previous version.";
-    echo "             --uninstall         Not yet supported";
-    echo "             --no-htmldoc        Don't try to install htmldoc";
-    echo "                                 (You won't be able to create pdf reports)"
-    echo "             --force-https       Force https over http";
-    echo "             --recreate-vhost    Force recreation of the vhost";
-    echo "             --recreate-keys     Force recreation of the ssl keys";
-    echo "             --recreate-CA       Force recreation of the CA keys";
-    echo "             --autoaccept -y -Y  Auto Accept and install";
-    echo "";
+    echo -e "Usage: $0 [options]";
+    echo -e "\t-h -?        --help\t\tDisplay this info"
+    echo -e "\t-d    --no-defaults\t\tDon't guess defaults"
+    echo -e "\t-U     --no-upgrade\t\tDon't attempt to upgrade"
+    echo -e "\t-u      --uninstall\t\tUninstall FOG"
+    echo -e "\t-H     --no-htmldoc\t\tNo htmldoc, means no PDFs"
+    echo -e "\t-S    --force-https\t\tForce HTTPS redirect"
+    echo -e "\t-C    --recreate-CA\t\tRecreate the CA Keys"
+    echo -e "\t-K  --recreate-keys\t\tRecreate the SSL Keys"
+    echo -e "\t-Y -y  --autoaccept\t\tAuto accept defaults and install"
+    exit 0
 }
 backupReports() {
     dots "Backing up user reports"
