@@ -98,35 +98,37 @@ echo -e "  Version: ${version} Installer/Updater\n";
 fogpriorconfig="$fogprogramdir/.fogsettings"
 optspec=":h?dUHSCKYyf:-:"
 while getopts "$optspec" o; do
+    #long options
     case "${o}" in
         -)
-            case "${OPTARG}" in
-                help) help; exit 0 ;;
-                no-defaults) guessdefaults=0 ;;
-                no-upgrade) doupdate=0 ;;
-                no-htmldoc) ignorehtmldoc=1 ;;
-                force-https) forcehttps="yes" ;;
-                recreate-keys) recreateKeys="yes" ;;
-                recreate-[Cc][Aa]) recreateCA="yes" ;;
-                autoaccept) autoaccept="yes"; dbupdate="yes" ;;
-                file)
-                    if [ -f "${OPTARG}" ]; then
-                        fogpriorconfig="${OPTARG}"
-                    else
-                        echo "--${OPTARG} requires file after"
-                        help
-                        exit 1
-                    fi
-                ;;
-                *)
-                    if [ "$OPTERR" = 1 -a "${optspec:0:1}" != ":" ]; then
-                        echo "Unknown option: --${OPTARG}"
-                        help
-                        exit 1
-                    fi
-                ;;
-            esac
+        case "${OPTARG}" in
+            help) help; exit 0 ;;
+            no-defaults) guessdefaults=0 ;;
+            no-upgrade) doupdate=0 ;;
+            no-htmldoc) ignorehtmldoc=1 ;;
+            force-https) forcehttps="yes" ;;
+            recreate-keys) recreateKeys="yes" ;;
+            recreate-[Cc][Aa]) recreateCA="yes" ;;
+            autoaccept) autoaccept="yes"; dbupdate="yes" ;;
+            file)
+            if [ -f "${OPTARG}" ]; then
+                fogpriorconfig="${OPTARG}"
+            else
+                echo "--${OPTARG} requires file after"
+                help
+                exit 1
+            fi
+            ;;
+            *)
+            if [ "$OPTERR" = 1 -a "${optspec:0:1}" != ":" ]; then
+                echo "Unknown option: --${OPTARG}"
+                help
+                exit 1
+            fi
+            ;;
+        esac
         ;;
+        #short options
         h|?) help; exit 0 ;;
         d) guessdefaults=0 ;;
         U) doupdate=0 ;;
@@ -136,18 +138,18 @@ while getopts "$optspec" o; do
         K) recreateCA="yes" ;;
         [yY]) autoaccept="yes"; dbupdate="yes" ;;
         f)
-            if ! -f "${OPTARG}" ]; then
-                echo -${OPTARG} requires a file to follow
-            fi
-            fogpriorconfig="${OPTARG}"
+        if ! -f "${OPTARG}" ]; then
+            echo -${OPTARG} requires a file to follow
+        fi
+        fogpriorconfig="${OPTARG}"
         ;;
         :) echo "Option -${OPTARG} requires a value"; help; exit 1 ;;
         *)
-            if [ "$OPTERR" = 1 -a "${optspec:0:1}" != ":" ]; then
-                echo "Unknown option: -${OPTARG}"
-                help
-                exit 1
-            fi
+        if [ "$OPTERR" = 1 -a "${optspec:0:1}" != ":" ]; then
+            echo "Unknown option: -${OPTARG}"
+            help
+            exit 1
+        fi
         ;;
     esac
 done
@@ -253,154 +255,154 @@ while [ "$blGo" = "" ]; do
     echo "";
     case "$blGo" in
         [yY]*)
-            echo "  Installation Started...";
-            echo "";
-            echo "  Installing required packages, if this fails";
-            echo "  make sure you have an active internet connection.";
-            echo "";
-            # Which package list do we use?
-            if [ "$installtype" = "S" ]; then
-                packages=$storageNodePackages;
-            fi
-            if [ "${ignorehtmldoc}" = "1" ]; then
-                newpackagelist="";
-                for z in $packages; do
-                    if [ "$z" != "htmldoc" ]; then
-                     newpackagelist="${newpackagelist} $z";
-                    fi
-                done
-                packages=$newpackagelist;
-            fi
-            if [ "${bldhcp}" = "0" ]; then
-                newpackagelist="";
-                for z in $packages; do
-                    if [ "$z" != "$dhcpname" ]; then
-                        newpackagelist="${newpackagelist} $z";
-                    fi
-                done
-                packages=$newpackagelist;
-            fi
-            installPackages;
-            echo "";
-            echo "  Confirming package installation.";
-            echo "";
-            confirmPackageInstallation;
-            echo "";
-            echo "  Configuring services.";
-            echo "";
-            if [ ! -n "$storageLocation" -a -z "$autoaccept" ]; then
-                echo "";
-                echo -n "     What is the storage location for your images directory? (/images) ";
-                read storageLocation;
-                if [ "$storageLocation" == "" ]; then
-                    storageLocation="/images";
+        echo "  Installation Started...";
+        echo "";
+        echo "  Installing required packages, if this fails";
+        echo "  make sure you have an active internet connection.";
+        echo "";
+        # Which package list do we use?
+        if [ "$installtype" = "S" ]; then
+            packages=$storageNodePackages;
+        fi
+        if [ "${ignorehtmldoc}" = "1" ]; then
+            newpackagelist="";
+            for z in $packages; do
+                if [ "$z" != "htmldoc" ]; then
+                    newpackagelist="${newpackagelist} $z";
                 fi
-            elif [ ! -n "$storageLocation" -a "$autoaccept" == "yes" ]; then
+            done
+            packages=$newpackagelist;
+        fi
+        if [ "${bldhcp}" = "0" ]; then
+            newpackagelist="";
+            for z in $packages; do
+                if [ "$z" != "$dhcpname" ]; then
+                    newpackagelist="${newpackagelist} $z";
+                fi
+            done
+            packages=$newpackagelist;
+        fi
+        installPackages;
+        echo "";
+        echo "  Confirming package installation.";
+        echo "";
+        confirmPackageInstallation;
+        echo "";
+        echo "  Configuring services.";
+        echo "";
+        if [ ! -n "$storageLocation" -a -z "$autoaccept" ]; then
+            echo "";
+            echo -n "     What is the storage location for your images directory? (/images) ";
+            read storageLocation;
+            if [ "$storageLocation" == "" ]; then
                 storageLocation="/images";
             fi
-            if [ -z "$mysql_conntype" ]; then
-                mysql_conntype="MYSQLI_ASYNC";
-            fi
-            if [ "$installtype" = "S" ]; then
-                # Storage Node installation
-                configureUsers;
-                configureMinHttpd;
-                configureStorage;
-                configureFTP;
-                configureUDPCast;
-                installInitScript;
-                installFOGServices;
-                configureFOGService;
-                configureNFS;
-                writeUpdateFile;
-                # Removed because this puts a file in the /tftpboot directory
-                # which doesn't exist and there isn't a tftp server installed
-                #configureDefaultiPXEfile;
-                if [ "$bluseralreadyexists" = "1" ]; then
-                    echo "";
-                    echo "  Upgrade complete!";
-                    echo "";
-                else
-                    echo "";
-                    echo "  Setup complete!";
-                    echo "";
-                    echo "";
-                    echo "  You still need to setup this node in the fog management ";
-                    echo "  portal.  You will need the username and password listed";
-                    echo "  below.";
-                    echo "";
-                    echo "  Management Server URL:  ";
-                    echo "      http://${snmysqlhost}/fog";
-                    echo "";
-                    echo "  You will need this, write this down!";
-                    echo "      Username:  ${storageftpuser}";
-                    echo "      Password:  ${storageftppass}";
-                    echo ""
-                    echo "";
-                fi
+        elif [ ! -n "$storageLocation" -a "$autoaccept" == "yes" ]; then
+            storageLocation="/images";
+        fi
+        if [ -z "$mysql_conntype" ]; then
+            mysql_conntype="MYSQLI_ASYNC";
+        fi
+        if [ "$installtype" = "S" ]; then
+            # Storage Node installation
+            configureUsers;
+            configureMinHttpd;
+            configureStorage;
+            configureFTP;
+            configureUDPCast;
+            installInitScript;
+            installFOGServices;
+            configureFOGService;
+            configureNFS;
+            writeUpdateFile;
+            # Removed because this puts a file in the /tftpboot directory
+            # which doesn't exist and there isn't a tftp server installed
+            #configureDefaultiPXEfile;
+            if [ "$bluseralreadyexists" = "1" ]; then
+                echo "";
+                echo "  Upgrade complete!";
+                echo "";
             else
-                # Normal installation
-                configureUsers;
-                configureMySql;
-                backupReports;
-                configureHttpd;
-                if [ "$installtype" == "N" -a -z "$dbupdate" ]; then
-                    echo
-                    echo "  You still need to install/update your database schema.";
-                    echo "  This can be done by opening a web browser and going to:";
-                    echo "";
-                    echo "      http://${ipaddress}/fog/management";
-                    echo "";
-                    read -p "  Press [Enter] key when database is updated/installed.";
-                    echo
-                elif [ "$installtype" == "N" -a "$dbupdate" == "yes" ]; then
-                    dots "Updating Database"
-                    wget -O - --post-data="confirm=1" --no-proxy http://127.0.0.1/fog/management/index.php?node=schemaupdater >/dev/null 2>&1 ||
-                    wget -O - --post-data="confirm=1" --no-proxy http://127.0.0.1/management/index.php?node=schemaupdater >/dev/null 2>&1
-                    errorStat $?
-                fi
-                #restoreReports;
-                configureStorage;
-                configureDHCP;
-                configureTFTPandPXE;
-                configureFTP;
-                #configureSudo;
-                configureSnapins;
-                configureUDPCast;
-                installInitScript;
-                installFOGServices;
-                installUtils;
-                configureFOGService;
-                #sendInstallationNotice;
-                configureNFS;
-                writeUpdateFile;
-                linkOptFogDir;
-                createSSLCA;
                 echo "";
                 echo "  Setup complete!";
                 echo "";
-                echo "  You can now login to the FOG Management Portal using";
-                echo "  the information listed below.  The login information";
-                echo "  is only if this is the first install.";
                 echo "";
+                echo "  You still need to setup this node in the fog management ";
+                echo "  portal.  You will need the username and password listed";
+                echo "  below.";
+                echo "";
+                echo "  Management Server URL:  ";
+                echo "      http://${snmysqlhost}/fog";
+                echo "";
+                echo "  You will need this, write this down!";
+                echo "      Username:  ${storageftpuser}";
+                echo "      Password:  ${storageftppass}";
+                echo ""
+                echo "";
+            fi
+        else
+            # Normal installation
+            configureUsers;
+            configureMySql;
+            backupReports;
+            configureHttpd;
+            if [ "$installtype" == "N" -a -z "$dbupdate" ]; then
+                echo
+                echo "  You still need to install/update your database schema.";
                 echo "  This can be done by opening a web browser and going to:";
                 echo "";
                 echo "      http://${ipaddress}/fog/management";
-                echo ""
-                echo "      Default User:";
-                echo "             Username: fog";
-                echo "             Password: password";
                 echo "";
+                read -p "  Press [Enter] key when database is updated/installed.";
+                echo
+            elif [ "$installtype" == "N" -a "$dbupdate" == "yes" ]; then
+                dots "Updating Database"
+                wget -O - --post-data="confirm=1" --no-proxy http://127.0.0.1/fog/management/index.php?node=schemaupdater >/dev/null 2>&1 ||
+                wget -O - --post-data="confirm=1" --no-proxy http://127.0.0.1/management/index.php?node=schemaupdater >/dev/null 2>&1
+                errorStat $?
             fi
+            #restoreReports;
+            configureStorage;
+            configureDHCP;
+            configureTFTPandPXE;
+            configureFTP;
+            #configureSudo;
+            configureSnapins;
+            configureUDPCast;
+            installInitScript;
+            installFOGServices;
+            installUtils;
+            configureFOGService;
+            #sendInstallationNotice;
+            configureNFS;
+            writeUpdateFile;
+            linkOptFogDir;
+            createSSLCA;
+            echo "";
+            echo "  Setup complete!";
+            echo "";
+            echo "  You can now login to the FOG Management Portal using";
+            echo "  the information listed below.  The login information";
+            echo "  is only if this is the first install.";
+            echo "";
+            echo "  This can be done by opening a web browser and going to:";
+            echo "";
+            echo "      http://${ipaddress}/fog/management";
+            echo ""
+            echo "      Default User:";
+            echo "             Username: fog";
+            echo "             Password: password";
+            echo "";
+        fi
         ;;
         [nN]*)
-            echo "  FOG installer exited by user request."
-            exit 1;
+        echo "  FOG installer exited by user request."
+        exit 1;
         ;;
         *)
-            echo "";
-            echo "  Sorry, answer not recognized."
-            echo "";
+        echo "";
+        echo "  Sorry, answer not recognized."
+        echo "";
         ;;
     esac
 done
