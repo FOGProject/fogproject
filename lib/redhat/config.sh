@@ -43,8 +43,6 @@ else
 fi
 packagelist=`echo $packageinstaller|sed 's/install/list/'`
 packageupdater=`echo $packageinstaller|sed 's/install/update/'`;
-sqlclientlist="mysql mariadb MariaDB-client"
-sqlserverlist="mysql-server mariadb-server mariadb-galera-server MariaDB-server";
 langPackages="iso-codes";
 dhcpname="dhcp";
 

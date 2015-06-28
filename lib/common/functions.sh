@@ -37,35 +37,6 @@ warnRoot() {
         sudo $0
         ;;
     esac
-#    currentuser=`whoami`;
-#    if [ "$currentuser" != "root" ]; then
-#       ignoreroot="N"
-#        echo -e "\n  * This installation script should be run as\n    user \"root\".  You are currenly running "
-#        echo "  as $currentuser.  "
-#        echo
-#        echo -n "  Do you wish to continue? [N] "
-#        read ignoreroot;
-#        if [ -z "$ignoreroot" ]; then
-#            ignoreroot="N";
-#        fi
-#        case "$ignoreroot" in
-#            [yY]*)
-#            ignoreroot="Y";
-#            ;;
-#            [nN]*)
-#            echo " Exiting..."
-#            exit 1
-#            ;;
-#            *)
-#            ignoreroot="N";
-#            ;;
-#        esac
-#        if [ "$ignoreroot" = "N" ]; then
-#            echo " Exiting...";
-#            echo
-#            exit 1;
-#        fi
-#    fi
 }
 uninstall() {
     case "$autoaccept" in
@@ -105,7 +76,7 @@ installUtils() {
     errorStat $?
 }
 help() {
-    echo -e "Usage: $0 -[hdUuHSCKY] -[f <filename>]";
+    echo -e "Usage: $0 [-hdUuHSCKY] [-f <filename>]";
     echo -e "\t-h -? --help\t\t\tDisplay this info"
     echo -e "\t-d    --no-defaults\t\tDon't guess defaults"
     echo -e "\t-U    --no-upgrade\t\tDon't attempt to upgrade"
@@ -162,6 +133,191 @@ configureUDPCast() {
     make install >/dev/null 2>&1;
     errorStat $?
     cd $cur
+}
+configureFTP() {
+	dots "Setting up and starting VSFTP Server...";
+	if [ -f "$ftpconfig" ]; then
+		mv "$ftpconfig" "${ftpconfig}.fogbackup";
+	fi
+	vsftp=`vsftpd -version 0>&1 | awk -F'version ' '{print $2}'`
+    vsvermaj=`echo $vsftp | awk -F. '{print $1}'`
+	vsverbug=`echo $vsftp | awk -F. '{print $3}'`
+    seccompsand=""
+	if [ "$vsvermaj" -gt 3 ] || [ "$vsvermaj" -eq 3 -a "$vsverbug" -ge 2 ]; then
+		seccompsand="seccomp_sandbox=NO"
+	fi
+	echo -e  "anonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\ntcp_wrappers=YES\n$seccompsand" > "$ftpconfig"
+    if [ "$systemctl" == "yes" ]; then
+        systemctl enable vsftpd >/dev/null 2>&1
+        systemctl restart vsftpd >/dev/null 2>&1
+        systemctl status vsftpd >/dev/null 2>&1
+    elif [ "$osid" -eq 2 ]; then
+        sysv-rc-conf vsftpd on >/dev/null 2>&1
+        service vsftpd stop >/dev/null 2>&1
+        service vsftpd start >/dev/null 2>&1
+        service vsftpd status >/dev/null 2>&1
+    else
+        chkconfig vsftpd on >/dev/null 2>&1
+        service vsftpd stop >/dev/null 2>&1
+        service vsftpd start >/dev/null 2>&1
+        service vsftpd status >/dev/null 2>&1
+    fi
+    errorStat $?
+}
+configureDefaultiPXEfile() {
+    find "${tftpdirdst}" ! -type d -exec chmod 644 {} \;
+    echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch i386\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain http://${ipaddress}/fog/service/ipxe/boot.php##params" > "${tftpdirdst}/default.ipxe"
+}
+configureTFTPandPXE() {
+    dots "Setting up and starting TFTP and PXE Servers";
+	if [ -d "${tftpdirdst}.prev" ]; then
+		rm -rf "${tftpdirdst}.prev" 2>/dev/null;
+	fi
+	if [ -d "$tftpdirdst" ]; then
+		rm -rf "${tftpdirdst}.fogbackup" 2>/dev/null;
+		mv "$tftpdirdst" "${tftpdirdst}.prev" 2>/dev/null;
+	fi
+	mkdir -p "$tftpdirdst" >/dev/null 2>&1;
+	cp -Rf ${tftpdirsrc}/* ${tftpdirdst}/
+	chown -R ${username} "${tftpdirdst}";
+	chown -R ${username} "${webdirdest}/service/ipxe";
+	find "${tftpdirdst}" -type d -exec chmod 755 {} \;
+	find "${tftpdirdst}" ! -type d -exec chmod 644 {} \;
+	configureDefaultiPXEfile;
+    if [ -f "$tftpconfig" ]; then
+		mv "$tftpconfig" "${tftpconfig}.fogbackup";
+	fi
+	echo -e "# default: off\n# description: The tftp server serves files using the trivial file transfer \n#	protocol.  The tftp protocol is often used to boot diskless \n#	workstations, download configuration files to network-aware printers, \n#	and to start the installation process for some operating systems.\nservice tftp {\n	socket_type		= dgram\n	protocol		= udp\n	wait			= yes\n	user			= root\n	server			=
+    /usr/sbin/in.tftpd\n	server_args		= -s ${tftpdirdst}\n	disable			= no\n	per_source		= 11\n	cps			= 100 2\n	flags			= IPv4\n}" > "$tftpconfig";
+    if [ "$systemctl" == "yes" ]; then
+        systemctl enable xinetd >/dev/null 2>&1
+        systemctl restart xinetd >/dev/null 2>&1
+        sleep 2
+        systemctl status xinetd >/dev/null 2>&1
+    elif [ "$osid" -eq 2 ]; then
+        blUpstart=0
+        if [ -f "$tftpconfigupstartdefaults" ]; then
+            blUpstart=1
+        fi
+        if [ "$blUpstart" = "1" ]; then
+            echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"-s\"" > "$tftpconfigupstartdefaults"
+            sysv-rc-conf xinetd off >/dev/null 2>&1
+            service xinetd stop >/dev/null 2>&1
+            sysv-rc-conf tftpd-hpa on >/dev/null 2>&1
+            service tftpd-hpa stop >/dev/null 2>&1
+            sleep 2
+            service tftpd-hpa start >/dev/null 2>&1
+        else
+            sysv-rc-conf xinetd on >/dev/null 2>&1
+            $initdpath/xinetd stop >/dev/null 2>&1
+            $initdpach/xinetd start >/dev/null 2>&1
+        fi
+    else
+        chkconfig xinetd on >/dev/null 2>&1
+        service xinetd restart >/dev/nul 2>&1
+        sleep 2
+        service xinetd status >/dev/null 2>&1
+    fi
+    errorStat $?
+}
+installPackages() {
+    if [[ "$linuxReleaseName" == +(*'buntu'*) || "$osid" -eq 1 ]]; then
+        dots "Adding needed repository"
+        if [ "$osid" -eq 1 ]; then
+            ${packageinstaller} epel-release >/dev/null 2>&1
+            repo="enterprise"
+            if [[ "$linuxReleaseName" == +(*[Ff]'edora'*) ]]; then
+                repo="fedora"
+            fi
+            if [ -d "/etc/yum.repos.d/" -a ! -f "/etc/yum.repos.d/remi.repo" ]; then
+                rpm -Uvh http://rpms.famillecollet.com/$repo/remi-release-$OSVersion.rpm >/dev/null 2>&1
+                rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi >/dev/null 2>&1
+            else
+                true
+            fi
+        else
+            add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
+        fi
+        errorStat $?
+    fi
+    if [[ "$osid" == +(2|3) ]]; then
+        dots "Preparing Package Manager"
+        if [ "$osid" -eq 2 ]; then
+            apt-get -yq update >/dev/null 2>&1
+            if [ "$?" != 0 ] && [[ "$linuxReleaseName" == +(*'buntu'*) ]]; then
+                cp /etc/apt/sources.list /etc/apt/source.list.original_fog
+                sed -i -e 's/archive.ubuntu.com\|security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
+                apt-get -yq update >/dev/null 2>&1
+                if [ "$?" != 0 ]; then
+                    cp -f /etc/apt/sources.list.original_fog /etc/apt/sources.lib >/dev/null 2>&1
+                    rm -f /etc/apt/sources.list.original >/dev/null 2>&1
+                    false
+                fi
+            fi
+            errorStat $?
+        elif [ "$osid" -eq 3 ]; then
+            pacman -Syu --noconfirm >/dev/null 2>&1
+        fi
+    fi
+    echo -e " * Packages to be installed:\n\n\t$packages\n\n"
+    newPackList=""
+    for x in $packages; do
+        if [ "$x" == "mysql" ]; then
+            for sqlclient in $sqlclientlist; do
+                $packagelist $sqlclient >/dev/null 2>&1
+                if [ "$?" -eq 0 ]; then
+                    x=$sqlclient
+                    break
+                fi
+            done
+        elif [ "$x" == "mysql-server" ]; then
+            for sqlserver in $sqlserverlist; do
+                $packagelist $sqlserver >/dev/null 2>&1
+                if [ "$?" -eq 0 ]; then
+                    x=$sqlserver
+                    break
+                fi
+            done
+        elif [ "$x" == "php5-json" ]; then
+            for json in `echo "php5-json php5-common"`; do
+                $packagelist $json >/dev/null 2>&1
+                if [ "$?" -eq 0 ]; then
+                    x=$json
+                    break
+                fi
+            done
+        fi
+        newPackList="$newPackList $x"
+        if [ "$osid" -eq 1 ]; then
+            rpm -q $x >/dev/null 2>&1
+        elif [ "$osid" -eq 2 ]; then
+            dpkg -l $x 2>/dev/null | grep '^ii' >/dev/null 2>&1
+        elif [ "$osid" -eq 3 ]; then
+            pacman -Q $x >/dev/null 2>&1
+        fi
+        if [ "$?" -eq 0 ]; then
+            dots "Skipping package: $x"
+            echo "(Already Installed)"
+            continue
+        fi
+        dots "Installing package: $x"
+        ${packageinstaller} $x >/dev/null 2>&1
+        errorStat $?
+    done
+    packages="$newPackList"
+}
+confirmPackageInstallation() {
+    for x in $packages; do
+        dots "Checking package: $x"
+        if [ "$osid" -eq 1 ]; then
+            rpm -q $x >/dev/null 2>&1
+        elif [ "$osid" -eq 2 ]; then
+            dpkg -l $x 2>/dev/null | grep '^ii' >/dev/null 2>&1
+        elif [ "$osid" -eq 3 ]; then
+            pacman -Q $x >/dev/null 2>&1
+        fi
+        errorStat $?
+    done
 }
 displayOSChoices() {
     blFirst="1";
