@@ -22,24 +22,14 @@ configureFTP() {
 	if [ -f "$ftpconfig" ]; then
 		mv "$ftpconfig" "${ftpconfig}.fogbackup";
 	fi
-	echo "anonymous_enable=NO
-local_enable=YES
-write_enable=YES
-local_umask=022
-dirmessage_enable=YES
-xferlog_enable=YES
-connect_from_port_20=YES
-xferlog_std_format=YES
-listen=YES
-pam_service_name=vsftpd
-userlist_enable=NO
-tcp_wrappers=YES" > "$ftpconfig";
 	vsftp=`vsftpd -version 0>&1`;
 	vsvermaj=`echo $vsftp | awk -F. '{print $1}'`;
 	vsverbug=`echo $vsftp | awk -F. '{print $3}'`;
+    $seccompsand=""
 	if [ "$vsvermaj" -gt 3 ] || [ "$vsvermaj" -e 3 -a "$vsverbug" -ge 2 ]; then
-		echo "seccomp_sandbox=NO" >> "$ftpconfig";
+		$seccompsand="seccomp_sandbox=NO"
 	fi
+	echo -e  "anonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nloacl_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuser_enable=NO\ntcp_wrappers=YES\n$seccompsand" > "$ftpconfig"
 	systemctl enable vsftpd >/dev/null 2>&1
 	systemctl restart vsftpd >/dev/null 2>&1
 	systemctl status vsftpd >/dev/null 2>&1
@@ -47,20 +37,7 @@ tcp_wrappers=YES" > "$ftpconfig";
 }
 configureDefaultiPXEfile() {
     find "${tftpdirdst}" ! -type d -exec chmod 644 {} \;
-    echo "#!ipxe
-cpuid --ext 29 && set arch x86_64 || set arch i386
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param product \${product}
-param manufacturer \${product}
-param ipxever \${version}
-param filename \${filename}
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme
-:bootme
-chain http://${ipaddress}/fog/service/ipxe/boot.php##params
-" > "${tftpdirdst}/default.ipxe";
+    echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch i386\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain http://${ipaddress}/fog/service/ipxe/boot.php##params" > "${tftpdirdst}/default.ipxe";
 }
 configureTFTPandPXE() {
     dots "Setting up and starting TFTP and PXE Servers";
@@ -81,30 +58,13 @@ configureTFTPandPXE() {
     if [ -f "$tftpconfig" ]; then
 		mv "$tftpconfig" "${tftpconfig}.fogbackup";
 	fi
-	echo "# default: off
-# description: The tftp server serves files using the trivial file transfer \
-#	protocol.  The tftp protocol is often used to boot diskless \
-#	workstations, download configuration files to network-aware printers, \
-#	and to start the installation process for some operating systems.
-service tftp
-{
-	socket_type		= dgram
-	protocol		= udp
-	wait			= yes
-	user			= root
-	server			= /usr/sbin/in.tftpd
-	server_args		= -s ${tftpdirdst}
-	disable			= no
-	per_source		= 11
-	cps			= 100 2
-	flags			= IPv4
-}" > "$tftpconfig";
+	echo -e "# default: off\n# description: The tftp server serves files using the trivial file transfer \n#	protocol.  The tftp protocol is often used to boot diskless \n#	workstations, download configuration files to network-aware printers, \n#	and to start the installation process for some operating systems.\nservice tftp {\n	socket_type		= dgram\n	protocol		= udp\n	wait			= yes\n	user			= root\n	server			=
+    /usr/sbin/in.tftpd\n	server_args		= -s ${tftpdirdst}\n	disable			= no\n	per_source		= 11\n	cps			= 100 2\n	flags			= IPv4\n}" > "$tftpconfig";
 	systemctl enable xinetd >/dev/null 2>&1
 	systemctl restart xinetd >/dev/null 2>&1
 	systemctl status xinetd >/dev/null 2>&1
     errorStat $?
 }
-
 configureDHCP() {
     dots "Setting up and starting DHCP Server..."
     if [ -f "$dhcpconfig" ]; then
