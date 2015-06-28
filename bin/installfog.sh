@@ -80,11 +80,19 @@ ignorehtmldoc="0";
 forcehttps="#";
 clearScreen;
 # process arguments
-for arg in $*; do
-    if [[ "$arg" != +('-'[h\?]|'--help') ]]; then
-	echo > "/var/log/foginstall.log"
-	exec &> >(tee -a "/var/log/foginstall.log")
+if [ -z "$*" ]; then
+    echo > "/var/log/foginstall.log"
+    exec &> >(tee -a "/var/log/foginstall.log")
+else
+    echo "$*" | egrep '(-h|-\?|--help)' >/dev/null 2>&1
+    if [ "$?" != 0 ]; then
+    	echo > "/var/log/foginstall.log"
+    	exec &> >(tee -a "/var/log/foginstall.log")
     fi
+fi
+displayBanner;
+echo -e "  Version: ${version} Installer/Updater\n";
+for arg in $*; do
     case "$arg" in
         '-'[h\?]|'--help')
         help
@@ -114,8 +122,6 @@ for arg in $*; do
         ;;
     esac
 done
-displayBanner;
-echo -e "  Version: ${version} Installer/Updater\n";
 if [ "$doupdate" = "1" ]; then
     if [ -f "$fogprogramdir/.fogsettings" ]; then
         echo "";
