@@ -90,13 +90,9 @@ else
     fi
 fi
 displayBanner;
-if [[ "$*" == +(--uninstall) ]]; then
-    uninstall
-    exit
-fi
 echo -e "  Version: ${version} Installer/Updater\n";
 fogpriorconfig="$fogprogramdir/.fogsettings"
-optspec=":h?dUHSCKYyf:-:"
+optspec="h?dUHSCKYyf:-:"
 while getopts "$optspec" o; do
     #long options
     case "${o}" in
@@ -110,6 +106,7 @@ while getopts "$optspec" o; do
             recreate-keys) recreateKeys="yes" ;;
             recreate-[Cc][Aa]) recreateCA="yes" ;;
             autoaccept) autoaccept="yes"; dbupdate="yes" ;;
+            uninstall) uninstall ;;
             file)
             if [ -f "${OPTARG}" ]; then
                 fogpriorconfig="${OPTARG}"
@@ -129,7 +126,7 @@ while getopts "$optspec" o; do
         esac
         ;;
         #short options
-        h|?) help; exit 0 ;;
+        h|'?') help; exit 0 ;;
         d) guessdefaults=0 ;;
         U) doupdate=0 ;;
         H) ignorehtmldoc=1 ;;
