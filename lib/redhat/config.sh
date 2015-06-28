@@ -18,34 +18,35 @@
 #
 #
 # Yum packages to install
-if [ "$linuxReleaseName" == "Mageia" ];
-then
-    # Mageia 
+packageinstaller="yum -y --enablerepo=remi,remi-php56,epel install"
+packagelist="yum --enablerepo=remi,remi-php56,epel list"
+packageupdater="yum --enablerepo=remi,remi-php56,epel update"
+packmanUpdate="yum check-update"
+if [ "$linuxReleaseName" == "Mageia" ]; then
+    # Mageia
     packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm";
     storageNodePackages="apache apache-mod_php php-cli php-gettext mariadb mariadb-core mariadb-common mariadb-common-core nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm";
-    packageinstaller="urpmi --auto";
-
-elif [ "$linuxReleaseName" == "Fedora" ];
-then
+    packageinstaller="urpmi --auto"
+    packagelist="urpmq"
+    packageupdater="$packageinstaller"
+    packmanUpdate="urpmi.update -a"
+elif [ "$linuxReleaseName" == "Fedora" ]; then
     # Fedora
     packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm";
     storageNodePackages="httpd php php-cli php-common php-gd php-mysqlnd mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp curl php-mcrypt php-mbstring mod_ssl php-fpm";
-	if [ "$OSVersion" -ge 22 ]; then
-		packageinstaller="dnf -y install";
-	else
-    	packageinstaller="yum -y --enablerepo=remi,remi-php56 install";
+	if [ "$linuxReleaseName" -a "$OSVersion" -ge 22 ]; then
+		packageinstaller="dnf -y install"
+        packagelist="dnf list"
+        packageupdater="dnf -y update"
+        packmanUpdate="dnf check-update"
 	fi
 else
-    # CentOS or Other  PCLinuxOS uses apt-rpm  
+    # CentOS or Other  PCLinuxOS uses apt-rpm
     packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm";
     storageNodePackages="httpd php php-cli php-common php-gd mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm";
-    packageinstaller="yum -y --enablerepo=remi,remi-php56,epel install";
 fi
-packagelist=`echo $packageinstaller|sed 's/install/list/'`
-packageupdater=`echo $packageinstaller|sed 's/install/update/'`;
-langPackages="iso-codes";
-dhcpname="dhcp";
-
+langPackages="iso-codes"
+dhcpname="dhcp"
 # where do the init scripts go?
 if [ "$OSVersion" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$OSVersion" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
 	initdpath="/usr/lib/systemd/system";

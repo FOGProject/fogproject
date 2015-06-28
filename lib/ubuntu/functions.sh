@@ -85,11 +85,6 @@ ${routeraddress}
 
 }
 
-configureMinHttpd()
-{
-	configureHttpd;
-	echo "<?php die( \"This is a storage node, please do not access the web ui here!\" ); ?>" > "$webdirdest/management/index.php";
-}
 
 configureHttpd() {
 	docroot="/var/www/";
