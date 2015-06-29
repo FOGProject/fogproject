@@ -269,11 +269,9 @@ installPackages() {
                 fi
             done
         elif [ "$x" == "php5-json" ]; then
-            for json in `echo "php5-json php5-common"`; do
-                $packagelist $json >/dev/null 2>&1
-                if [ "$?" -eq 0 ]; then
-                    x=$json
-                    break
+            for json in $jsontest; do
+                if [ `$packagelist $json >/dev/null 2>&1; echo $?` -eq 0 ]; then
+                    x="$json"
                 fi
             done
         fi
