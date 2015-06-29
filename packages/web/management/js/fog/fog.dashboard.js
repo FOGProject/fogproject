@@ -219,63 +219,39 @@ GraphBandwidth.addClass('loaded');
 }
 });
 }
-var new_rx = new Array();
-var new_tx = new Array();
-var rate_rx = new Array();
-var rate_tx = new Array();
-var old_rate_rx = new Array();
-var old_rate_tx = new Array();
-var old_rx = new Array();
-var old_tx = new Array();
-var real_rx = new Array();
-var real_tx = new Array();
-var byte_rx = new Array();
-var byte_tx = new Array();
 function UpdateBandwidthGraph(data) {
     var d = new Date();
     Now = new Date().getTime() - (d.getTimezoneOffset() * 60000);
-    var seconds = 1;
-    var range_rx = 512;
-    var range_tx = 512;
     for (i in data) {
-        if (typeof(rate_rx[i]) == "undefined"){
-            rate_rx[i] = new Array();
-            rate_tx[i] = new Array();
-            new_rx[i] = new Array();
-            new_tx[i] = new Array();
-            old_rate_rx[i] = new Array();
-            old_rate_tx[i] = new Array();
-            real_rx[i] = new Array();
-            real_tx[i] = new Array();
-            rate_rx[i].push([Now,0]);
-            rate_tx[i].push([Now,0]);
-            byte_rx[i] = new Array();
-            byte_tx[i] = new Array();
+        // Setup all the values we may need.
+        if (typeof(GraphBandwidthData[i]) == 'undefined') {
+            GraphBandwidthData[i] = new Array();
+            GraphBandwidthData[i]['tx_old'] = new Array();
+            GraphBandwidthData[i]['rx_old'] = new Array();
+            GraphBandwidthData[i]['tx'] = new Array();
+            GraphBandwidthData[i]['rx'] = new Array();
         }
-        new_rx[i] = data[i]['rx'];
-        new_tx[i] = data[i]['tx'];
-        if (typeof(old_rx[i]) != "undefined" && typeof(old_rx[i]) != "undefined") {
-            byte_rx[i] = new_rx[i] - old_rx[i];
-            byte_tx[i] = new_tx[i] - old_tx[i];
-            real_rx[i] = Math.round(byte_rx[i] / seconds / 1024 * 8 / 1000,2);
-            real_tx[i] = Math.round(byte_rx[i] / seconds / 1024 * 8 / 1000,2);
-            console.log(real_tx[i]);
-            console.log(real_rx[i]);
-            if (real_rx[i] > 0) rate_rx[i].push([Now,old_rate_rx[i]]);
-            else old_rate_rx[i] = real_rx[i];
-            if (real_tx[i] > 0) rate_tx[i].push([Now,old_rate_tx[i]]);
-            else old_rate_tx[i] = real_tx[i];
+        // If the old is set, setup the new, compare and set the tbps/rbps values.
+        if (GraphBandwidthData[i]['tx_old'].length >= 1) {
+            // Shift off the end of the array until the total number of points match up.
+            while (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints) {
+                GraphBandwidthData[i]['tx'].shift();
+                GraphBandwidthData[i]['rx'].shift();
+            }
+            GraphBandwidthData[i]['tx'].push([Now,Math.round((Math.round((data[i]['tx'] / 1024), 2) - GraphBandwidthData[i]['tx_old']) * 8 / 1000,2)]);
+            GraphBandwidthData[i]['rx'].push([Now,Math.round((Math.round((data[i]['rx'] / 1024), 2) - GraphBandwidthData[i]['rx_old']) * 8 / 1000,2)]);
+            // Reset the old and new values for the next iteration.
+            GraphBandwidthData[i]['tx_old'] = new Array();
+            GraphBandwidthData[i]['rx_old'] = new Array();
+        } else if (GraphBandwidthData[i]['tx_old'].length == 0) {
+            // Set the old values and wait one second.
+            GraphBandwidthData[i]['tx_old'].push([Math.round((data[i]['tx'] / 1024), 2)]);
+            GraphBandwidthData[i]['rx_old'].push([Math.round((data[i]['rx'] / 1024), 2)]);
         }
-        while (rate_tx[i].length >= GraphBandwidthMaxDataPoints) {
-            rate_rx[i].shift();
-            rate_tx[i].shift();
-        }
-        old_rx[i] = new_rx[i];
-        old_tx[i] = new_tx[i];
     }
     GraphData = new Array();
-    for (i in rate_tx) {
-        GraphData.push({label: i, data: (GraphBandwidthFilterTransmitActive ? rate_tx[i] : rate_rx[i])});
+    for (i in GraphBandwidthData) {
+        GraphData.push({label: i, data: (GraphBandwidthFilterTransmitActive ? GraphBandwidthData[i]['tx'] : GraphBandwidthData[i]['rx'])});
     }
     $.plot(GraphBandwidth,GraphData,GraphBandwidthOpts);
 }
