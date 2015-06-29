@@ -306,9 +306,11 @@ class HostManagementPage extends FOGPage {
         $this->HookManager->processEvent('HOST_ADD_POST');
         // POST ?
         try {
+            $hostName = trim($_REQUEST['host']);
             // Error checking
-            if (empty($_REQUEST['host'])) throw new Exception(_('Hostname is required'));
-            if (!$this->getClass('HostManager')->isHostnameSafe($_REQUEST['host'])) throw new Exception(_('Please enter a valid hostname'));
+            if (empty($hostName)) throw new Exception('Please enter a hostname');
+            if (!$this->getClass('Host')->isHostnameSafe($hostName)) throw new Exception(_('Please enter a valid hostname'));
+            if ($this->getClass('HostManager')->exists($hostName)) throw new Exception('Hostname Exists already');
             if (empty($_REQUEST['mac'])) throw new Exception(_('MAC Address is required'));
             $MAC = new MACAddress($_REQUEST['mac']);
             if (!$MAC || !$MAC->isValid()) throw new Exception(_('MAC Format is invalid'));
@@ -323,7 +325,7 @@ class HostManagementPage extends FOGPage {
                 $password = $this->encryptpw($_REQUEST['domainpassword']);
             // Define new Image object with data provided
             $Host = new Host(array(
-                'name'		=> $_REQUEST['host'],
+                'name'		=> $hostName,
                 'description'	=> $_REQUEST['description'],
                 'imageID'	=> $_REQUEST['image'],
                 'kernel'	=> $_REQUEST['kern'],
@@ -1110,10 +1112,12 @@ class HostManagementPage extends FOGPage {
             // Tabs
             switch ($_REQUEST['tab']) {
                 case 'host-general';
+                $hostName = trim($_REQUEST['host']);
                 // Error checking
+                if (empty($hostName)) throw new Exception('Please enter a hostname');
+                if ($Host->get('name') != $hostName && !$Host->isHostnameSafe($hostName)) throw new Exception(_('Please enter a valid hostname'));
+                if ($Host->get('name') != $hostName && $this->getClass('HostManager')->exists($hostName)) throw new Exception('Hostname Exists already');
                 if (empty($_REQUEST['mac'])) throw new Exception('MAC Address is required');
-                if ($Host->get('name') != $_REQUEST['host'] && $HostManager->exists($_REQUEST['host'])) throw new Exception('Hostname Exists already');
-                if ($Host->get('name') != $_REQUEST['host'] && !$this->getClass('HostManager')->isHostnameSafe($_REQUEST['host'])) throw new Exception(_('Please enter a valid hostname'));
                 // Variables
                 $mac = new MACAddress($_REQUEST['mac']);
                 // Task variable.
@@ -1124,7 +1128,7 @@ class HostManagementPage extends FOGPage {
                     throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
                 // Define new Image object with data provided
 
-                $Host->set('name',$_REQUEST['host'])
+                $Host->set('name',$hostName)
                     ->set('description',$_REQUEST['description'])
                     ->set('imageID',$_REQUEST['image'])
                     ->set('kernel',$_REQUEST['kern'])
