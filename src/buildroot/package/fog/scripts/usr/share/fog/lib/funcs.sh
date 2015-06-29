@@ -1111,7 +1111,7 @@ gptorMBRSave() {
 		debugPause;
 	else
 		dots "Saving Partition Tables";
-		sgdisk -b $imagePath/d1.mbr $1 >/dev/null;
+		sgdisk -b $imagePath/d1.mbr $1 2>/dev/null;
 		if [ ! "$?" -eq 0 ]; then
 			echo "Failed";
 			debugPause;

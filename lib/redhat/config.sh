@@ -18,35 +18,37 @@
 #
 #
 # Yum packages to install
-if [ "$linuxReleaseName" == "Mageia" ];
-then
-    # Mageia 
-    packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl";
-    storageNodePackages="apache apache-mod_php php-cli php-gettext mariadb mariadb-core mariadb-common mariadb-common-core nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl";
-    packageinstaller="urpmi --auto";
-
-elif [ "$linuxReleaseName" == "Fedora" ];
-then
+packageinstaller="yum -y --enablerepo=remi,remi-php56,epel install"
+packagelist="yum --enablerepo=remi,remi-php56,epel list"
+packageupdater="yum --enablerepo=remi,remi-php56,epel update"
+packmanUpdate="yum check-update"
+if [ "$linuxReleaseName" == "Mageia" ]; then
+    # Mageia
+    packages="apache apache-mod_php php-gd php-cli php-gettext mariadb mariadb-common mariadb-core mariadb-common-core dhcp-server tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ htmldoc perl perl-Crypt-PasswdMD5 lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm";
+    storageNodePackages="apache apache-mod_php php-cli php-gettext mariadb mariadb-core mariadb-common mariadb-common-core nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm";
+    packageinstaller="urpmi --auto"
+    packagelist="urpmq"
+    packageupdater="$packageinstaller"
+    packmanUpdate="urpmi.update -a"
+elif [ "$linuxReleaseName" == "Fedora" ]; then
     # Fedora
-    packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl";
-    storageNodePackages="httpd php php-cli php-common php-gd php-mysqlnd mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp curl php-mcrypt php-mbstring mod_ssl";
-	if [ "$RHVER" -ge 22 ]; then
-		packageinstaller="dnf -y install";
-	else
-    	packageinstaller="yum -y --enablerepo=remi,remi-php56 install";
+    packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm";
+    storageNodePackages="httpd php php-cli php-common php-gd php-mysqlnd mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp curl php-mcrypt php-mbstring mod_ssl php-fpm";
+	if [ "$linuxReleaseName" -a "$OSVersion" -ge 22 ]; then
+		packageinstaller="dnf -y install"
+        packagelist="dnf list"
+        packageupdater="dnf -y update"
+        packmanUpdate="dnf check-update"
 	fi
 else
-    # CentOS or Other  PCLinuxOS uses apt-rpm  
-    packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl";
-    storageNodePackages="httpd php php-cli php-common php-gd mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl";
-    packageinstaller="yum -y --enablerepo=remi,remi-php56,epel install";
+    # CentOS or Other  PCLinuxOS uses apt-rpm
+    packages="httpd php php-cli php-common php-gd mysql mysql-server dhcp tftp-server nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm";
+    storageNodePackages="httpd php php-cli php-common php-gd mysql nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp php-mysqlnd curl php-mcrypt php-mbstring mod_ssl php-fpm";
 fi
-langPackages="iso-codes";
-dhcpname="dhcp";
-nfsservice="nfs";
-
+langPackages="iso-codes"
+dhcpname="dhcp"
 # where do the init scripts go?
-if [ "$RHVER" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$RHVER" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
+if [ "$OSVersion" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$OSVersion" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
 	initdpath="/usr/lib/systemd/system";
 	initdsrc="../packages/systemd";
 	initdMCfullname="FOGMulticastManager.service";
@@ -85,9 +87,6 @@ tftpconfig="/etc/xinetd.d/tftp";
 # where is the ftp server config file?
 ftpconfig="/etc/vsftpd/vsftpd.conf"
 
-# where is the nfs exports file?
-nfsconfig="/etc/exports";
-
 # where do snapins go?
 snapindir="/opt/fog/snapins";
 
@@ -99,7 +98,6 @@ then
     # where do the tftp files go?
     tftpdirdst="/var/lib/tftpboot";
     # NFS service name
-    nfsservice="nfs-server";
     # NFS Subtree Check needed
     nfsexportsopts="no_subtree_check";
 fi

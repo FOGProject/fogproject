@@ -43,11 +43,14 @@ fogprogramdir="/opt/fog"
 fogutilsdir="${fogprogramdir}/utils";
 # where do generic fog utils come from?
 fogutilsdirsrc="../packages/utils";
+# where is the nfs exports file?
+nfsconfig="/etc/exports";
+# what are the potential NFS service names
+nfsservice="nfs nfs-server nfs-kernel-server";
 # what version are we working with?
-version="`wget -t 1 -T 15 --no-check-certificate https://fogproject.org/version/version.php -q -O -`";
-if [ -z "$version" ]; then
-    version="Current";
-fi
+version="`awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/System.class.php | tr -d '[[:space:]]'`";
+sqlclientlist="mysql mariadb MariaDB-client"
+sqlserverlist="mysql-server mariadb-server mariadb-galera-server MariaDB-server";
 # what is the schema version
 schemaversion="181";
 if [ "$systemctl" == "yes" ]; then

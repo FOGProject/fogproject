@@ -17,311 +17,8 @@
 #
 #
 #
-stopInitScript() {
-    if [ "$systemctl" == "yes" ]; then
-		systemctl stop ${initdMCfullname} >/dev/null 2>&1;
-		systemctl stop ${initdIRfullname} >/dev/null 2>&1;
-		systemctl stop ${initdSDfullname} >/dev/null 2>&1;
-		systemctl stop ${initdSRfullname} >/dev/null 2>&1;
-	else
-		${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
-	fi
-}
-installInitScript() {
-    echo -n "  * Installing init scripts...";
-    if [ "$systemctl" == "yes" ]; then
-        systemctl stop ${initdMCfullname} >/dev/null 2>&1;
-        systemctl stop ${initdIRfullname} >/dev/null 2>&1;
-        systemctl stop ${initdSDfullname} >/dev/null 2>&1;
-        systemctl stop ${initdSRfullname} >/dev/null 2>&1;
-        cp -f ${initdsrc}/* ${initdpath}/
-        chmod 755 ${initdpath}/${initdMCfullname}
-        systemctl enable ${initdMCfullname} >/dev/null 2>&1;
-        chmod 755 ${initdpath}/${initdIRfullname}
-        systemctl enable ${initdIRfullname} >/dev/null 2>&1;
-        chmod 755 ${initdpath}/${initdSDfullname}
-        systemctl enable ${initdSDfullname} >/dev/null 2>&1;
-        chmod 755 ${initdpath}/${initdSRfullname}
-        systemctl enable ${initdSRfullname} >/dev/null 2>&1;
-    else
-        ${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
-        ${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
-        ${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
-        ${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
-        cp -f ${initdsrc}/* ${initdpath}/
-        chmod 755 ${initdpath}/${initdMCfullname}
-        sysv-rc-conf ${initdMCfullname} on >/dev/null 2>&1;
-        chmod 755 ${initdpath}/${initdIRfullname}
-        sysv-rc-conf ${initdIRfullname} on >/dev/null 2>&1;
-        chmod 755 ${initdpath}/${initdSDfullname}
-        sysv-rc-conf ${initdSDfullname} on >/dev/null 2>&1;
-        chmod 755 ${initdpath}/${initdSRfullname}
-        sysv-rc-conf ${initdSRfullname} on >/dev/null 2>&1;
-        insserv -d ${initdpath}/${initdMCfullname} >/dev/null 2>&1;
-        insserv -d ${initdpath}/${initdIRfullname} >/dev/null 2>&1;
-        insserv -d ${initdpath}/${initdSDfullname} >/dev/null 2>&1;
-        insserv -d ${initdpath}/${initdSRfullname} >/dev/null 2>&1;
-    fi
-    echo "OK";
-}
-configureFOGService() {
-    echo "<?php
-define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php;
-    echo -n "  * Starting FOG Multicast Management Server...";
-    if [ "$systemctl" ]; then
-		systemctl restart ${initdMCfullname} >/dev/null 2>&1;
-		systemctl status ${initdMCfullname} >/dev/null 2>&1;
-	else
-		${initdpath}/${initdMCfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdMCfullname} start >/dev/null 2>&1;
-	fi
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;
-	else
-		echo "OK";
-	fi
-
-	echo -n "  * Starting FOG Image Replicator Server...";
-    if [ "$systemctl" ]; then
-		systemctl restart ${initdIRfullname} >/dev/null 2>&1;
-		systemctl status ${initdIRfullname} >/dev/null 2>&1;
-	else
-		${initdpath}/${initdIRfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdIRfullname} start >/dev/null 2>&1;
-	fi
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;
-	else
-		echo "OK";
-	fi
-
-	echo -n "  * Starting FOG Task Scheduler Server...";
-    if [ "$systemctl" ]; then
-		systemctl restart ${initdSDfullname} >/dev/null 2>&1;
-		systemctl status ${initdSDfullname} >/dev/null 2>&1;
-	else
-		${initdpath}/${initdSDfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdSDfullname} start >/dev/null 2>&1;
-	fi
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;
-	else
-		echo "OK";
-	fi
-
-	echo -n "  * Starting FOG Snapin Replicator Server...";
-    if [ "$systemctl" ]; then
-		systemctl restart ${initdSRfullname} >/dev/null 2>&1;
-		systemctl status ${initdSRfullname} >/dev/null 2>&1;
-	else
-		${initdpath}/${initdSRfullname} stop >/dev/null 2>&1;
-		${initdpath}/${initdSRfullname} start >/dev/null 2>&1;
-	fi
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;
-	else
-		echo "OK";
-	fi
-}
-
-configureNFS() {
-	echo "${storageLocation} *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)
-${storageLocation}/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "${nfsconfig}";
-	echo -n "  * Setting up and starting NFS Server...";
-    if [ "$systemctl" ]; then
-		systemctl enable rpcbind >/dev/null 2>&1;
-		systemctl enable nfs-kernel-server.service >/dev/null 2>&1;
-		systemctl restart rpcbind >/dev/null 2>&1;
-		systemctl restart nfs-kernel-server.service >/dev/null 2>&1;
-		systemctl status rpcbind >/dev/null 2>&1 && systemctl status nfs-kernel-server.service >/dev/null 2>&1;
-	else
-		sysv-rc-conf nfs-kernel-server on >/dev/null 2>&1;
-		/etc/init.d/nfs-kernel-server stop >/dev/null 2>&1;
-		/etc/init.d/nfs-kernel-server start >/dev/null 2>&1;
-	fi
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;
-	else
-		echo "OK";
-	fi
-}
-
-configureFTP()
-{
-	echo -n "  * Setting up and starting VSFTP Server...";
-	if [ -f "$ftpconfig" ]
-	then
-		mv "${ftpconfig}" "${ftpconfig}.fogbackup";
-	fi
-
-	echo "anonymous_enable=NO
-local_enable=YES
-write_enable=YES
-local_umask=022
-dirmessage_enable=YES
-xferlog_enable=YES
-connect_from_port_20=YES
-xferlog_std_format=YES
-listen=YES
-pam_service_name=vsftpd
-userlist_enable=NO
-tcp_wrappers=YES" > "$ftpconfig";
-	vsftp=`vsftpd -version 0>&1`;
-	vsvermaj=`echo $vsftp | awk -F. '{print $1}' | awk '{print $3}'`;
-	vsverbug=`echo $vsftp | awk -F. '{print $3}'`;
-	if [ "$vsvermaj" -gt 3 ] || [ "$vsvermaj" = "3" -a "$vsverbug" -ge 2 ]; then
-		echo "seccomp_sandbox=NO" >> "$ftpconfig";
-	fi
-    if [ "$systemctl" ]; then
-		systemctl enable vsftpd.service >/dev/null 2>&1;
-		systemctl restart vsftpd.service >/dev/null 2>&1;
-		systemctl status vsftpd.service >/dev/null 2>&1;
-	else
-		sysv-rc-conf vsftpd on >/dev/null 2>&1;
-		service vsftpd stop >/dev/null 2>&1;
-		service vsftpd start >/dev/null 2>&1;
-	fi
-	if [ "$?" != "0" ]
-	then
-		echo "Failed!";
-		exit 1;
-	else
-		echo "OK";
-	fi
-
-}
-
-configureDefaultiPXEfile()
-{
-    find "${tftpdirdst}" ! -type d -exec chmod 644 {} \;
-    echo "#!ipxe
-cpuid --ext 29 && set arch x86_64 || set arch i386
-params
-param mac0 \${net0/mac}
-param arch \${arch}
-param product \${product}
-param manufacturer \${product}
-param ipxever \${version}
-param filename \${filename}
-isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
-isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme
-:bootme
-chain http://${ipaddress}/fog/service/ipxe/boot.php##params
-" > "${tftpdirdst}/default.ipxe";
-}
-
-configureTFTPandPXE()
-{
-	echo -n "  * Setting up and starting TFTP and PXE Servers...";
-	if [ -d "${tftpdirdst}.prev" ]; then
-		rm -rf "${tftpdirdst}.prev" 2>/dev/null;
-	fi
-	if [ -d "$tftpdirdst" ]; then
-		rm -rf "${tftpdirdst}.fogbackup" 2>/dev/null;
-		mv "$tftpdirdst" "${tftpdirdst}.prev" 2>/dev/null;
-	fi
-	mkdir -p "$tftpdirdst" >/dev/null 2>&1;
-	cp -Rf ${tftpdirsrc}/* ${tftpdirdst}/
-	chown -R ${username} "${tftpdirdst}";
-	chown -R ${username} "${webdirdest}/service/ipxe";
-	find "${tftpdirdst}" -type d -exec chmod 755 {} \;
-	find "${tftpdirdst}" ! -type d -exec chmod 644 {} \;
-	configureDefaultiPXEfile;
-	if [ -f "$tftpconfig" ]
-	then
-		mv "$tftpconfig" "${tftpconfig}.fogbackup";
-	fi
-
-	# if TFTP defaults file exists
-	blUpstart="0";
-	if [ -f "$tftpconfigupstartdefaults" ]
-	then
-		blUpstart="1";
-	fi
-
-	if [ "$blUpstart" = "1" ]
-	then
-		echo "# /etc/default/tftpd-hpa
-# FOG Modified version
-TFTP_USERNAME=\"root\"
-TFTP_DIRECTORY=\"/tftpboot\"
-TFTP_ADDRESS=\":69\"
-TFTP_OPTIONS=\"-s\"" > "${tftpconfigupstartdefaults}";
-        if [ "$systemctl" ]; then
-			systemctl enable xinetd >/dev/null 2>&1;
-			systemctl restart xinetd >/dev/null 2>&1;
-			systemctl status xinetd >/dev/null 2>&1;
-		else
-			sysv-rc-conf xinetd off >/dev/null 2>&1;
-			/etc/init.d/xinetd stop >/dev/null 2>&1;
-			sysv-rc-conf tftpd-hpa on >/dev/null 2>&1;
-			service tftpd-hpa stop >/dev/null 2>&1;
-			sleep 5;
-			service tftpd-hpa start >/dev/null 2>&1;
-		fi
-		if [ "$?" != "0" ]
-		then
-			echo "Failed!";
-			exit 1;
-		else
-			echo "OK";
-		fi
-	else
-		echo "# default: off
-# description: The tftp server serves files using the trivial file transfer \
-#	protocol.  The tftp protocol is often used to boot diskless \
-#	workstations, download configuration files to network-aware printers, \
-#	and to start the installation process for some operating systems.
-service tftp
-{
-	socket_type		= dgram
-	protocol		= udp
-	wait			= yes
-	user			= root
-	server			= /usr/sbin/in.tftpd
-	server_args		= -s /tftpboot
-	disable			= no
-	per_source		= 11
-	cps			= 100 2
-	flags			= IPv4
-}" > "${tftpconfig}";
-
-        if [ "$systemctl" ]; then
-			systemctl enable xinetd >/dev/null 2>&1;
-			systemctl restart xinetd >/dev/null 2>&1;
-			systemctl status xinetd >/dev/null 2>&1;
-		else
-			sysv-rc-conf xinetd on >/dev/null 2>&1;
-			/etc/init.d/xinetd stop >/dev/null 2>&1;
-			/etc/init.d/xinetd start >/dev/null 2>&1;
-		fi
-		if [ "$?" != "0" ]
-		then
-			echo "Failed!";
-			exit 1;
-		else
-			echo "OK";
-		fi
-	fi
-}
-
-configureDHCP()
-{
-	echo -n "  * Setting up and starting DHCP Server...";
-
+configureDHCP() {
+    dots "Setting up and starting DHCP Server";
 	activeconfig="/dev/null";
 	if [ -f "$dhcpconfig" ]
 	then
@@ -355,7 +52,6 @@ ${dnsaddress}
 ${routeraddress}
         filename \"undionly.kpxe\";
 }" > "$activeconfig";
-
 	if [ "$bldhcp" = "1" ]; then
         if [ "$systemctl" ]; then
 			systemctl enable ${dhcpname} >/dev/null 2>&1;
@@ -389,22 +85,15 @@ ${routeraddress}
 
 }
 
-configureMinHttpd()
-{
-	configureHttpd;
-	echo "<?php die( \"This is a storage node, please do not access the web ui here!\" ); ?>" > "$webdirdest/management/index.php";
-}
 
-configureHttpd()
-{
-	stopInitScript;
+configureHttpd() {
 	docroot="/var/www/";
 	etcconf="/etc/apache2/sites-available/001-fog.conf";
 	if [ -f "$etcconf" ]; then
 		a2dissite 001-fog &>/dev/null
 		rm $etcconf &>/dev/null
 	fi
-	if [ "$installtype" == N -a "$fogupdateloaded" != 1 ]; then
+	if [ "$installtype" == N -a "$fogupdateloaded" != 1 -a -z "$autoaccept" ]; then
 		echo -n "  * Did you leave the mysql password blank during install? (Y/n) ";
 		read dummy;
 		echo "";
@@ -453,7 +142,7 @@ configureHttpd()
 	if [ "$snmysqluser" != "" ] && [ "$snmysqluser" != "$dbuser" ]; then
 		dbuser=$snmysqluser;
 	fi
-	echo -n "  * Setting up and starting Apache Web Server...";
+    dots "Setting up and starting Apache Web Server";
 	php -m | grep mysqlnd &>/dev/null;
 	if [ "$?" != 0 ]; then
 		php5enmod mysqlnd &>/dev/null;
@@ -468,13 +157,15 @@ configureHttpd()
 	sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' /etc/php5/cli/php.ini
 	sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php5/cli/php.ini
 	if [ -z "$systemctl" ]; then
-		sysv-rc-conf apache2 on;
-		/etc/init.d/apache2  stop  >/dev/null 2>&1
-		/etc/init.d/apache2 start >/dev/null 2>&1;
+		sysv-rc-conf apache2 on >/dev/null 2>&1
+		/etc/init.d/apache2 stop >/dev/null 2>&1
+        sleep 2
+		/etc/init.d/apache2 start >/dev/null 2>&1
 	else
-		systemctl enable apache2 >/dev/null 2>&1;
-		systemctl restart apache2 >/dev/null 2>&1;
-		systemctl status apache2 >/dev/null 2>&1;
+		systemctl enable apache2 >/dev/null 2>&1
+		systemctl restart apache2 >/dev/null 2>&1
+        sleep 2
+		systemctl status apache2 >/dev/null 2>&1
 	fi
 	if [ "$?" != "0" ]
 	then
@@ -492,16 +183,16 @@ configureHttpd()
 		echo "<?php
 class Config {
 	/** @function __construct() Calls the required functions to define the settings.
-	  * @return void
-	  */
+      * @return void
+      */
 	public function __construct() {
 		self::db_settings();
 		self::svc_setting();
 		self::init_setting();
 	}
 	/** @function db_settings() Defines the database settings for FOG
-	  * @return void
-	  */
+      * @return void
+      */
 	private static function db_settings() {
 		define('DATABASE_TYPE',		'mysql');	// mysql or oracle
 		define('DATABASE_HOST',		'$dbhost');
@@ -511,11 +202,11 @@ class Config {
 		define('DATABASE_CONNTYPE', $mysql_conntype);
 	}
 	/** @function svc_setting() Defines the service settings.
-	  * (e.g. FOGMulticastManager,
-	  *       FOGScheduler,
-	  *       FOGImageReplicator)
-	  * @return void
-	  */
+      * (e.g. FOGMulticastManager,
+      *       FOGScheduler,
+      *       FOGImageReplicator)
+      * @return void
+      */
 	private static function svc_setting() {
 		define( \"UDPSENDERPATH\", \"/usr/local/sbin/udp-sender\" );
 		define( \"MULTICASTLOGPATH\", \"/opt/fog/log/multicast.log\" );
@@ -538,15 +229,15 @@ class Config {
 		define( \"SERVICESLEEPTIME\", 3 );
 	}
 	/** @function init_setting() Initial values if fresh install are set here
-	  * NOTE: These values are only used on initial
-	  * installation to set the database values.
-	  * If this is an upgrade, they do not change
-	  * the values within the Database.
-	  * Please use FOG Configuration->FOG Settings
-	  * to change these values after everything is
-	  * setup.
-	  * @return void
-	  */
+      * NOTE: These values are only used on initial
+      * installation to set the database values.
+      * If this is an upgrade, they do not change
+      * the values within the Database.
+      * Please use FOG Configuration->FOG Settings
+      * to change these values after everything is
+      * setup.
+      * @return void
+      */
 	private static function init_setting() {
 		define('TFTP_HOST', \"${ipaddress}\");
 		define('TFTP_FTP_USERNAME', \"${username}\");
@@ -585,216 +276,51 @@ class Config {
 	}
 }" > "${webdirdest}/lib/fog/Config.class.php";
 		echo "OK";
-		echo -n "  * Changing permissions on apache log files...";
+        dots "Changing permissions on apache log files"
 		chmod +rx /var/log/apache2;
 		chmod +rx /var/log/apache2/{access,error}.log;
 		chown -R ${apacheuser}:${apacheuser} /var/www;
 		echo "OK";
-		echo -n "  * Downloading kernels and inits...";
-		wget -O "${webdirdest}/service/ipxe/bzImage" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage" >/dev/null 2>&1
-		wget -O "${webdirdest}/service/ipxe/bzImage32" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage32" >/dev/null 2>&1
-		wget -O "${webdirdest}/service/ipxe/init.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init.xz" >/dev/null 2>&1
-		wget -O "${webdirdest}/service/ipxe/init_32.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init_32.xz" >/dev/null 2>&1
-		a2ensite="yes";
+        dots "Downloading kernels and inits"
+        wget -O "${webdirdest}/service/ipxe/bzImage" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage" >/dev/null 2>&1 & disown
+        wget -O "${webdirdest}/service/ipxe/bzImage32" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage32" >/dev/null 2>&1 & disown
+        wget -O "${webdirdest}/service/ipxe/init.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init.xz" >/dev/null 2>&1 & disown
+        wget -O "${webdirdest}/service/ipxe/init_32.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init_32.xz" >/dev/null 2>&1 & disown
+        echo "Backgrounded"
+        if [ ! -f "$webredirect" ]; then
+            echo "<?php header('Location: ./fog/index.php');?>" > $webredirect
+        fi
+        dots "Downloading New FOG Client file"
+        clientVer="`awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/System.class.php | tr -d '[[:space:]]'`"
+        clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi"
+        curl -sl --silent -f -L $clienturl &>/dev/null
+        if [ "$?" -eq 0 ]; then
+            curl --silent -o "${webdirdest}/client/FOGService.msi" -L $clienturl >/dev/null 2>&1 & disown
+            echo "Backgrounded";
+        else
+            echo "Failed";
+            echo -e "\n\t\tYou can try downloading the file yourself by running";
+            echo -e "\n\t\tInstallation will continue.  Once complete you can";
+            echo -e "\n\t\trun the command:";
+            echo -e "\n\t\t\twget -O ${webdirdest}/client/FOGService.msi $clienturl";
+        fi
 		if [ -d "$apachehtmlroot" ]; then
 			docroot="/var/www/html/";
-		    # check if there is a html directory in the /var/www directory
-    		# if so, then we need to create a link in there for the fog web files
-    		[ ! -h ${apachehtmlroot}/fog ] && ln -s ${webdirdest} ${apachehtmlroot}/fog
-			echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/html/index.php";
-		else
-			echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/index.php";
-		fi
-		echo "OK";
-		echo -n "  * Downloading New FOG Client file...";
-		if [ -L "/etc/php5/conf.d/20-mysqlnd.ini-old" ]; then
-			mv "/etc/php5/conf.d/20-mysqlnd.ini-old" "/etc/php5/conf.d/20-mysqlnd.ini";
-		fi
-		if [ -L "/etc/php5/conf.d/20-mcrypt.ini-old" ]; then
-			mv "/etc/php5/conf.d/20-mcrypt.ini-old" "/etc/php5/conf.d/20-mcrypt.ini";
-		fi
-		cwd=`pwd`;
-		cd "${webdirdest}/service"
-		count=0;
-		while [ -z "$clientVer" -a "$count" -le 5 ]; do
-			clientVer=`wget -t 1 -T 15 --no-proxy http://127.0.0.1/fog/service/getclient.php -q -O -`;
-			if [ -z "$clientVer" ]; then
-				clientVer=`wget -t 1 -T 15 --no-proxy http://127.0.0.1/service/getclient.php -q -O -`;
-			fi
-			count=`expr $count '+' 1`
-			sleep 2;
-		done
-		if [ -z "$clientVer" ]; then
-			echo "Failed to get client version"
-			exit 1
-		fi
-		cd $cwd;
-		clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi";
-		curl -sl --silent -f -L $clienturl &>/dev/null;
-		if [[ "$?" = "0" ]]; then
-			curl --silent -o "${webdirdest}/client/FOGService.msi" -L $clienturl >/dev/null 2>&1;
-			echo "OK";
-		else
-			echo "Failed";
-			echo "        You can try downloading the file yourself by running";
-			echo "        Installation will continue.  Once complete you can";
-			echo "        run the command:";
-			echo "            wget -O ${webdirdest}/client/FOGService.msi $clienturl";
+            # check if there is a html directory in the /var/www directory
+            # if so, then we need to create a link in there for the fog web files
+            [ ! -h ${apachehtmlroot}/fog ] && ln -s ${webdirdest} ${apachehtmlroot}/fog
+            echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/html/index.php";
+        else
+            echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/index.php";
 		fi
 		if [ -d "${webdirdest}.prev" ]; then
-			echo -n "  * Copying back any custom hook files...";
+            dots "Copying back any custom hook files"
 			cp -Rf $webdirdest.prev/lib/hooks $webdirdest/lib/;
 			echo "OK";
-			echo -n "  * Copying back any custom report files...";
+			dots "Copying back any custom report files"
 			cp -Rf $webdirdest.prev/management/reports $webdirdest/management/;
 			echo "OK";
 		fi
 		chown -R ${apacheuser}:${apacheuser} "$webdirdest"
-	fi
-}
-
-configureSudo() {
-    echo -n "  * Setting up sudo settings...";
-    # This is no longer required, now that we switched to wakeonlan instead of etherwake
-    #ret=`cat /etc/sudoers | grep "${apacheuser} ALL=(ALL) NOPASSWD: /usr/sbin/etherwake"`
-    #if [ "$ret" = "" ]
-    #then
-    #	 echo "${apacheuser} ALL=(ALL) NOPASSWD: /usr/sbin/etherwake" >>  "/etc/sudoers";
-    #fi
-    echo "OK";
-}
-
-configureMySql() {
-    echo -n "  * Setting up and starting MySql...";
-    if [ "$systemctl" == "yes" ]; then
-        systemctl="yes";
-        systemctl enable mysql >/dev/null 2>&1;
-        systemctl restart mysql >/dev/null 2>&1;
-        systemctl status mysql >/dev/null 2>&1;
-        if [ "$?" != 0 ]; then
-            systemctl enable mariadb >/dev/null 2>&1;
-            systemctl restart mariadb >/dev/null 2>&1;
-            systemctl status mariadb >/dev/null 2>&1;
-        fi
-	else
-        sysv-rc-conf mysql on >/dev/null 2>&1;
-        service mysql stop >/dev/null 2>&1;
-        sleep 10;
-        service mysql start >/dev/null 2>&1;
-	fi
-	if [ "$?" != "0" ]; then
-        echo "Failed!";
-        exit 1;
-    else
-        echo "OK";
-    fi
-}
-
-installPackages()
-{
-	echo "  * Preparing apt-get";
-	apt-get -y -q update >/dev/null 2>&1;
-	sleep 1;
-
-	if [ "$installlang" = "1" ]
-	then
-		packages="$packages $langPackages"
-	fi
-
-	echo "  * Packages to be installed: $packages";
-	echo "";
-
-	for x in $packages
-	do
-		checkMe=`dpkg -l $x 2>/dev/null | grep '^ii'`;
-		if [ "$checkMe" == "" -a "$x" == "php5-json" ]; then
-			x="php5-common";
-			checkMe=`dpkg -l $x 2>/dev/null | grep '^ii'`;
-			if [ "$checkMe" == "" ]; then
-				x="php5-json";
-				checkme=`dpkg -l $x 2>/dev/null | grep '^ii'`;
-			fi
-		fi
-		if [ "$checkMe" == "" ]; then
-			echo  "  * Installing package: $x";
-			if [ "$x" = "mysql-server" ]
-			then
-				strDummy="";
-				echo "";
-				echo "     We are about to install MySQL Server on ";
-				echo "     this server, if MySQL isn't installed already";
-				echo "     you will be prompted for a root password.";
-				echo "";
-				sleep 3;
-				echo "     Press enter to acknowledge this message.";
-				read strDummy;
-				apt-get -y -q install $x;
-				echo "";
-			elif [ "$x" = "$dhcpname" ]
-			then
-				apt-get -y -q install $dhcpname >/dev/null 2>&1;
-				apt-get -y -q install $olddhcpname >/dev/null 2>&1;
-			else
-				apt-get -y -q install $x >/dev/null 2>&1;
-			fi
-			if [ "$?" != "0" ]; then
-				echo "Failed to install package $x";
-				exit 1;
-			fi
-		else
-			echo "  * Skipping package: $x (Already installed)";
-		fi
-	done
-}
-
-confirmPackageInstallation()
-{
-	for x in $packages
-	do
-		echo -n "  * Checking package: $x...";
-		checkMe=`dpkg -l $x | grep '^ii'`;
-		if [ "$checkMe" == "" -a "$x" == "php5-json" ]
-		then
-			x="php5-common";
-			checkMe=`dpkg -l $x | grep '^ii'`;
-			if [ "$checkMe" == "" ]; then
-				x="php5-json";
-				checkMe=`dpkg -l $x | grep '^ii'`;
-			fi
-		fi
-		if [ "$checkMe" == "" ]; then
-			echo "Failed!"
-			if [ "$x" = "$dhcpname" ]
-			then
-				echo -n "  * Checking for legacy package: $olddhcpname";
-				dpkg -l $olddhcpname >/dev/null 2>&1 | grep '^ii' >/dev/null;
-				if [ "$?" != "0" ]
-				then
-					echo "Failed!"
-					exit 1;
-				else
-					echo "OK";
-				fi
-			else
-				exit 1;
-			fi
-		else
-			echo "OK";
-		fi
-	done;
-}
-
-setupFreshClam()
-{
-	echo  -n "  * Configuring Fresh Clam...";
-	if [ ! -d "/opt/fog/clamav" ]; then
-		mkdir /opt/fog/clamav
-		chmod -R 777 /opt/fog/clamav
-	fi
-	if [ -d "/opt/fog/clamav" ]; then
-		echo "OK";
-	else
-		echo "Failed!";
-		exit 1;
 	fi
 }
