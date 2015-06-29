@@ -43,7 +43,7 @@ class HostManagementPage extends FOGPage {
         // Header row
         $this->headerData = array(
             '',
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
         );
         $_SESSION['FOGPingActive'] ? array_push($this->headerData,'') : null;
         array_push($this->headerData,
@@ -56,7 +56,7 @@ class HostManagementPage extends FOGPage {
         // Row templates
         $this->templates = array(
             '<span class="icon fa fa-question hand" title="${host_desc}"></span>',
-            '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-action" checked/>',
+            '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-action" />',
         );
         $_SESSION['FOGPingActive'] ? array_push($this->templates,'<span class="icon ping"></span>') : null;
         array_push($this->templates,
@@ -138,7 +138,7 @@ class HostManagementPage extends FOGPage {
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
         $this->headerData = array(
             '',
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
             ($_SESSION['FOGPingActive'] ? '' : null),
             _('Host Name'),
             _('Edit/Remove'),
@@ -146,7 +146,7 @@ class HostManagementPage extends FOGPage {
         // Row templates
         $this->templates = array(
             '<i class="icon fa fa-question hand" title="${host_desc}"></i>',
-            '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host" checked />',
+            '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host" />',
             ($_SESSION['FOGPingActive'] ? '<span class="icon ping"></span>' : ''),
             '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
             '<a href="?node=host&sub=edit&id=${host_id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=host&sub=delete&id=${host_id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>',
@@ -503,7 +503,7 @@ class HostManagementPage extends FOGPage {
         }
         unset($this->data);
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
             _('Group Name'),
             _('Total Members'),
         );
@@ -513,7 +513,7 @@ class HostManagementPage extends FOGPage {
             array(),
         );
         $this->templates = array(
-            '<input type="checkbox" name="groupdel[]" value="${group_id}" class="toggle-action" checked/>',
+            '<input type="checkbox" name="groupdel[]" value="${group_id}" class="toggle-action" />',
             '<a href="?node=group&sub=edit&id=${group_id}" title="'._('Edit Group').':${group_name}">${group_name}</a>',
             '${group_count}',
         );
@@ -579,7 +579,7 @@ class HostManagementPage extends FOGPage {
         }
         unset($this->data);
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
             _('Default'),
             _('Printer Alias'),
             _('Printer Type'),
@@ -591,7 +591,7 @@ class HostManagementPage extends FOGPage {
             array(),
         );
         $this->templates = array(
-            '<input type="checkbox" name="printerRemove[]" value="${printer_id}" class="toggle-action" checked/>',
+            '<input type="checkbox" name="printerRemove[]" value="${printer_id}" class="toggle-action" />',
             '<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}"${is_default} /><label for="printer${printer_id}" class="icon icon-hand" title="'._('Default Printer Select').'">&nbsp;</label><input type="hidden" name="printerid[]" value="${printer_id}" />',
             '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
             '${printer_type}',
@@ -661,7 +661,7 @@ class HostManagementPage extends FOGPage {
             unset($this->data);
         }
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
             _('Snapin Name'),
         );
         $this->attributes = array(
@@ -669,7 +669,7 @@ class HostManagementPage extends FOGPage {
             array(),
         );
         $this->templates = array(
-            '<input type="checkbox" name="snapinRemove[]" value="${snap_id}" class="toggle-action" checked/>',
+            '<input type="checkbox" name="snapinRemove[]" value="${snap_id}" class="toggle-action" />',
             '<a href="?node=snapin&sub=edit&id=${snap_id}">${snap_name}</a>',
         );
         foreach ((array)$Host->get('snapins') AS $Snapin) {
