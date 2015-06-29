@@ -138,8 +138,10 @@ while getopts "$optspec" o; do
         K) recreateCA="yes" ;;
         [yY]) autoaccept="yes"; dbupdate="yes" ;;
         f)
-        if ! -f "${OPTARG}" ]; then
+        if [ ! -f "${OPTARG}" ]; then
             echo -${OPTARG} requires a file to follow
+			help
+			exit 1
         fi
         fogpriorconfig="${OPTARG}"
         ;;

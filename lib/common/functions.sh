@@ -239,11 +239,11 @@ installPackages() {
     if [ "$osid" -eq 2 ]; then
         if [ "$?" != 0 ] && [[ "$linuxReleaseName" == +(*'buntu'*) ]]; then
             cp /etc/apt/sources.list /etc/apt/source.list.original_fog
-            sed -i -e 's/archive.ubuntu.com\|security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
+            sed -i -e 's/\/\/*archive.ubuntu.com\|\/\/*security.ubuntu.com/\/\/old-releases.ubuntu.com/g' /etc/apt/sources.list
             $packmanUpdate >/dev/null 2>&1
             if [ "$?" != 0 ]; then
-                cp -f /etc/apt/sources.list.original_fog /etc/apt/sources.lib >/dev/null 2>&1
-                rm -f /etc/apt/sources.list.original >/dev/null 2>&1
+                cp -f /etc/apt/sources.list.original_fog /etc/apt/sources.list >/dev/null 2>&1
+                rm -f /etc/apt/sources.list.original_fog >/dev/null 2>&1
                 false
             fi
         fi
