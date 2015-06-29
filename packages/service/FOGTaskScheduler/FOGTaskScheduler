@@ -2,6 +2,10 @@
 <?php
 	@error_reporting(0);
 	require_once(dirname(realpath(__FILE__))."/../etc/config.php");
+	require_once( dirname(realpath(__FILE__)) . "/../lib/service_lib.php" );
+	$service_name = "FOGTaskScheduler";
+	service_persist($service_name);
+
 	// Safe to construct FOGBase/FOGCore
 	require_once(WEBROOT."/commons/base.inc.php");
 	$Daemon = new Daemon('SCHEDULER','FOG_WOL_INTERFACE');
@@ -18,3 +22,6 @@
 		sleep(SCHEDULERSLEEPTIME);
 	}
 	$TS->outall(" * Service has ended.");
+
+	exit(0);
+?>
