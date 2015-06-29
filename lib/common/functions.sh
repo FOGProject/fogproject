@@ -178,8 +178,7 @@ configureTFTPandPXE() {
     if [ -f "$tftpconfig" ]; then
 		mv "$tftpconfig" "${tftpconfig}.fogbackup";
 	fi
-	echo -e "# default: off\n# description: The tftp server serves files using the trivial file transfer \n#	protocol.  The tftp protocol is often used to boot diskless \n#	workstations, download configuration files to network-aware printers, \n#	and to start the installation process for some operating systems.\nservice tftp {\n	socket_type		= dgram\n	protocol		= udp\n	wait			= yes\n	user			= root\n	server			=
-    /usr/sbin/in.tftpd\n	server_args		= -s ${tftpdirdst}\n	disable			= no\n	per_source		= 11\n	cps			= 100 2\n	flags			= IPv4\n}" > "$tftpconfig";
+	echo -e "# default: off\n# description: The tftp server serves files using the trivial file transfer \n#	protocol.  The tftp protocol is often used to boot diskless \n#	workstations, download configuration files to network-aware printers, \n#	and to start the installation process for some operating systems.\nservice tftp {\n	socket_type		= dgram\n	protocol		= udp\n	wait			= yes\n	user			= root\n	server			= /usr/sbin/in.tftpd\n	server_args		= -s ${tftpdirdst}\n	disable			= no\n	per_source		= 11\n	cps			= 100 2\n	flags			= IPv4\n}" > "$tftpconfig";
     if [ "$systemctl" == "yes" ]; then
         systemctl enable xinetd >/dev/null 2>&1
         systemctl restart xinetd >/dev/null 2>&1
