@@ -76,6 +76,7 @@ ftpconfig="/etc/vsftpd.conf"
 snapindir="/opt/fog/snapins"
 
 packageinstaller="apt-get -yq install"
-packagelist="apt-cache pkgnames|grep"
+packagelist="apt-cache pkgnames | grep"
 packageupdater="apt-get -yq upgrade"
 packmanUpdate="apt-get update"
+jsontest="php5-json php5-common"
