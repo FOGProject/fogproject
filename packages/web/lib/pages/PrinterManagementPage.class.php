@@ -19,7 +19,7 @@ class PrinterManagementPage extends FOGPage {
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
         // Header row
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
             'Printer Name',
             'Printer Type',
             'Model',
@@ -30,7 +30,7 @@ class PrinterManagementPage extends FOGPage {
         );
         // Row templates
         $this->templates = array(
-            '<input type="checkbox" name="printer[]" value="${id}" class="toggle-action" checked/>',
+            '<input type="checkbox" name="printer[]" value="${id}" class="toggle-action" />',
             '<a href="?node=printer&sub=edit&id=${id}" title="Edit">${name}</a>',
             '${config}',
             '${model}',

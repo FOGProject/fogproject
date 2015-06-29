@@ -21,14 +21,14 @@ class SnapinManagementPage extends FOGPage {
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
         // Header row
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
             _('Snapin Name'),
             _('Storage Group'),
             '',
         );
         // Row templates
         $this->templates = array(
-            '<input type="checkbox" name="snapin[]" value="${id}" class="toggle-action" checked/>',
+            '<input type="checkbox" name="snapin[]" value="${id}" class="toggle-action" />',
             sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, _('Edit')),
             '${storage_group}',
             sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a> <a href="?node=%s&sub=delete&%s=${id}" title="%s"><i class="icon fa fa-minus-circle"></i></a>', $this->node, $this->id, _('Edit'), $this->node, $this->id, _('Delete'))
@@ -450,7 +450,7 @@ class SnapinManagementPage extends FOGPage {
             print "\n\t\t\t</form></center>";
         }
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
             _('Storage Group Name'),
         );
         $this->attributes = array(
@@ -458,7 +458,7 @@ class SnapinManagementPage extends FOGPage {
             array('class' => 'r'),
         );
         $this->templates = array(
-            '<input type="checkbox" class="toggle-action" name="storagegroup-rm[]" value="${storageGroup_id}" checked/>',
+            '<input type="checkbox" class="toggle-action" name="storagegroup-rm[]" value="${storageGroup_id}" />',
             '${storageGroup_name}',
         );
         unset($this->data);

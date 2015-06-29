@@ -19,13 +19,13 @@ class UserManagementPage extends FOGPage {
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
         // Header row
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
             _('Username'),
             _('Edit')
         );
         // Row templates
         $this->templates = array(
-            '<input type="checkbox" name="user[]" value="${id}" class="toggle-action" checked/>',
+            '<input type="checkbox" name="user[]" value="${id}" class="toggle-action" />',
             sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>', $this->node, $this->id, _('Edit User')),
             sprintf('<a href="?node=%s&sub=edit&%s=${id}" title="%s"><i class="icon fa fa-pencil"></i></a>', $this->node, $this->id, _('Edit User'))
         );
