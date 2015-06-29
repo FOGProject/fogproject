@@ -33,7 +33,7 @@ class ImageManagementPage extends FOGPage {
         // Header row
         $this->headerData = array(
             '',
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
             _('Image Name') .'<br /><small>'._('Storage Group').': '._('O/S').'</small><br /><small>'._('Image Type').'</small><br /><small>'._('Partition').'</small>',
             _('Image Size: ON CLIENT'),
         );
@@ -47,7 +47,7 @@ class ImageManagementPage extends FOGPage {
         // Row templates
         $this->templates = array(
             '${protected}',
-            '<input type="checkbox" name="image[]" value="${id}" class="toggle-action" checked/>',
+            '<input type="checkbox" name="image[]" value="${id}" class="toggle-action" />',
             '<a href="?node='.$this->node.'&sub=edit&'.$this->id.'=${id}" title="'._('Edit').': ${name} Last uploaded: ${deployed}">${name} - ${id}</a><br /><small>${storageGroup}:${os}</small><br /><small>${image_type}</small><br /><small>${image_partition_type}</small>',
             '${size}',
         );
@@ -413,7 +413,7 @@ class ImageManagementPage extends FOGPage {
         }
         unset($this->data);
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
             _('Storage Group Name'),
         );
         $this->attributes = array(
@@ -421,7 +421,7 @@ class ImageManagementPage extends FOGPage {
             array('class' => 'r'),
         );
         $this->templates = array(
-            '<input type="checkbox" class="toggle-action" name="storagegroup-rm[]" value="${storageGroup_id}" checked/>',
+            '<input type="checkbox" class="toggle-action" name="storagegroup-rm[]" value="${storageGroup_id}" />',
             '${storageGroup_name}',
         );
         foreach((array)$Image->get('storageGroups') AS $Group) {

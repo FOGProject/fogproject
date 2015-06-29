@@ -27,7 +27,7 @@ class GroupManagementPage extends FOGPage {
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
         // Header row
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
             _('Name'),
             _('Members'),
             _('Tasking'),
@@ -35,7 +35,7 @@ class GroupManagementPage extends FOGPage {
         );
         // Row templates
         $this->templates = array(
-            '<input type="checkbox" name="group[]" value="${id}" class="toggle-action" checked/>',
+            '<input type="checkbox" name="group[]" value="${id}" class="toggle-action" />',
             sprintf('<a href="?node=group&sub=edit&%s=${id}" title="Edit">${name}</a>', $this->id),
             '${count}',
             sprintf('<a href="?node=group&sub=deploy&type=1&%s=${id}"><i class="icon fa fa-arrow-down" title="Download"></i></a> <a href="?node=group&sub=deploy&type=8&%s=${id}"><i class="icon fa fa-share-alt" title="Multi-cast"></i></a> <a href="?node=group&sub=edit&%s=${id}#group-tasks"><i class="icon fa fa-arrows-alt" title="Deploy"></i></a>', $this->id, $this->id, $this->id, $this->id, $this->id, $this->id),
