@@ -226,28 +226,23 @@ function UpdateBandwidthGraph(data) {
         // Setup all the values we may need.
         if (typeof(GraphBandwidthData[i]) == 'undefined') {
             GraphBandwidthData[i] = new Array();
-            GraphBandwidthData[i]['tx_old'] = new Array();
-            GraphBandwidthData[i]['rx_old'] = new Array();
             GraphBandwidthData[i]['tx'] = new Array();
             GraphBandwidthData[i]['rx'] = new Array();
         }
-        // If the old is set, setup the new, compare and set the tbps/rbps values.
-        if (GraphBandwidthData[i]['tx_old'].length >= 1) {
-            // Shift off the end of the array until the total number of points match up.
-            while (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints) {
-                GraphBandwidthData[i]['tx'].shift();
-                GraphBandwidthData[i]['rx'].shift();
-            }
-            GraphBandwidthData[i]['tx'].push([Now,Math.round((Math.round((data[i]['tx'] / 1024), 2) - GraphBandwidthData[i]['tx_old']) * 8 / 1000,2)]);
-            GraphBandwidthData[i]['rx'].push([Now,Math.round((Math.round((data[i]['rx'] / 1024), 2) - GraphBandwidthData[i]['rx_old']) * 8 / 1000,2)]);
-            // Reset the old and new values for the next iteration.
-            GraphBandwidthData[i]['tx_old'] = new Array();
-            GraphBandwidthData[i]['rx_old'] = new Array();
-        } else if (GraphBandwidthData[i]['tx_old'].length == 0) {
-            // Set the old values and wait one second.
-            GraphBandwidthData[i]['tx_old'].push([Math.round((data[i]['tx'] / 1024), 2)]);
-            GraphBandwidthData[i]['rx_old'].push([Math.round((data[i]['rx'] / 1024), 2)]);
+        while (GraphBandwidthData[i]['tx'].length >= GraphBandwidthMaxDataPoints) {
+            GraphBandwidthData[i]['tx'].shift();
+            GraphBandwidthData[i]['rx'].shift();
         }
+        // Set the old values and wait one second.
+        if (GraphBandwidthData[i]['tx_old'] > 0 && data[i]['tx'] !== false) GraphBandwidthData[i]['tx'].push([Now,Math.round(((data[i]['tx'] / 1024 / 1024) - (GraphBandwidthData[i]['tx_old'] / 1024 / 1024)) * 8)]);
+        else  GraphBandwidthData[i]['tx'].push([Now,0]);
+        if (GraphBandwidthData[i]['rx_old'] > 0 && data[i]['tx'] !== false) GraphBandwidthData[i]['rx'].push([Now,Math.round(((data[i]['rx'] / 1024 / 1024) - (GraphBandwidthData[i]['rx_old'] / 1024 / 1024)) * 8)]);
+        else  GraphBandwidthData[i]['rx'].push([Now,0]);
+        // Reset the old and new values for the next iteration.
+        if (data[i]['tx'] !== false) GraphBandwidthData[i]['tx_old'] = data[i]['tx'];
+        else GraphBandwidthData[i]['tx_old'] = 0;
+        if (data[i]['rx'] !== false) GraphBandwidthData[i]['rx_old'] = data[i]['rx'];
+        else GraphBandwidthData[i]['rx_old'] = 0;
     }
     GraphData = new Array();
     for (i in GraphBandwidthData) {
