@@ -431,29 +431,29 @@ class Host extends FOGController {
         return ($this->getImage()->isValid() && $this->getOS()->isValid() && $this->getImage()->getStorageGroup()->isValid() && $this->getImage()->getStorageGroup()->getStorageNode()->isValid());
     }
     public function getOptimalStorageNode() {return $this->get('optimalStorageNode');}
-        public function checkIfExist($taskTypeID) {
-            // TaskType: Variables
-            $TaskType = new TaskType($taskTypeID);
-            $isUpload = $TaskType->isUpload();
-            // Image: Variables
-            $Image = $this->getImage();
-            $StorageGroup = $Image->getStorageGroup();
-            $StorageNode = ($isUpload ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode());
-            if (!$isUpload)	$this->HookManager->processEvent('HOST_NEW_SETTINGS',array('Host' => &$this,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
-            if (!$StorageGroup || !$StorageGroup->isValid()) throw new Exception(_('No Storage Group found for this image'));
-            if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(_('No Storage Node found for this image'));
-            if (in_array($TaskType->get('id'),array('1','8','15','17')) && in_array($Image->get('osID'), array('5', '6', '7'))) {
-                // FTP
-                $this->FOGFTP->set('username',$StorageNode->get('user'))
-                    ->set('password',$StorageNode->get('pass'))
-                    ->set('host',$this->FOGCore->resolveHostname($StorageNode->get('ip')));
-                if ($this->FOGFTP->connect()) {
-                    if(!$this->FOGFTP->chdir(rtrim($StorageNode->get('path'),'/').'/'.$Image->get('path'))) return false;
-                }
-                $this->FOGFTP->close();
-            }
-            return true;
+    public function checkIfExist($taskTypeID) {
+        // TaskType: Variables
+        $TaskType = new TaskType($taskTypeID);
+        $isUpload = $TaskType->isUpload();
+        // Image: Variables
+        $Image = $this->getImage();
+        $StorageGroup = $Image->getStorageGroup();
+        $StorageNode = ($isUpload ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode());
+        if (!$isUpload)	$this->HookManager->processEvent('HOST_NEW_SETTINGS',array('Host' => &$this,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
+        if (!$StorageGroup || !$StorageGroup->isValid()) throw new Exception(_('No Storage Group found for this image'));
+        if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(_('No Storage Node found for this image'));
+        if (in_array($TaskType->get('id'),array('1','8','15','17'))) {
+            // FTP
+            $this->FOGFTP->set('username',$StorageNode->get('user'))
+                ->set('password',$StorageNode->get('pass'))
+                ->set('host',$this->FOGCore->resolveHostname($StorageNode->get('ip')));
+            $conn = $this->FOGFTP->connect();
+            $res = true;
+            if (!$conn || !$this->FOGFTP->exists('/'.trim($StorageNode->get('path'),'/').'/'.$Image->get('path'))) $res = false;
+            $this->FOGFTP->close();
         }
+        return $res;
+    }
     /** createTasking creates the tasking so I don't have to keep typing it in for each element.
      * @param $taskName the name to assign to the tasking
      * @param $taskTypeID the task type id to set the tasking
