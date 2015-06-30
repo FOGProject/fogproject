@@ -443,8 +443,7 @@ abstract class FOGPage extends FOGBase {
         if (array_key_exists('protected',$this->getClass($this->childClass)->databaseFields))
             $findWhere['protected'] = array('',null,0,false);
         $_SESSION['delitems'][$this->node] = $this->getClass($this->childClass.'Manager')->find($findWhere,'','','','','','','id');
-        $Objs = $this->getClass($this->childClass.'Manager')->find(array('id' => $_SESSION['delitems'][$this->node]));
-        foreach ((array)$Objs AS $Obj) {
+        foreach ($this->getClass($this->childClass)->getManager()->find(array('id' => $_SESSION[delitems][$this->node])) AS $Obj) {
             $this->data[] = array(
                 'id' => $Obj->get('id'),
                 'name' => $Obj->get('name'),
@@ -470,10 +469,11 @@ abstract class FOGPage extends FOGBase {
     public function deleteconf() {
         foreach((array)$_SESSION['delitems'][$this->node] AS $id) {
             $Obj = $this->getClass($this->childClass,$id);
-            if ($Obj->isValid() && !$Obj->get('protected')) $ids[] = $id;
+            if ($Obj->isValid() && array_key_exists('protected',$Obj->databaseFields) && !$Obj->get('protected')) $ids[] = $id;
         }
         $ids = array_filter((array)array_unique((array)$ids));
-        $this->getClass($this->childClass.'Manager')->destroy(array('id' => $ids));
+        if (count($ids)) $this->getClass($this->childClass)->getManager()->destroy(array('id' => $ids));
+        else $this->getClass($this->childClass)->getManager()->destroy(array('id' => $_SESSION['delitems'][$this->node]));
         unset($_SESSION['delitems']);
         $this->FOGCore->setMessage('All selected items have been deleted');
         $this->FOGCore->redirect('?node='.$this->node);
