@@ -76,7 +76,11 @@ class FOGFTP extends FOGGetSet {
         return $this;
     }
     public function nlist($remotePath) {return @ftp_nlist($this->link,$remotePath);}
-        public function chdir($path) {return @ftp_chdir($this->link, $path);}
+        public function exists($path) {
+            $dirlisting = $this->nlist(dirname($path));
+            return in_array($path,$dirlisting);
+        }
+    public function chdir($path) {return @ftp_chdir($this->link, $path);}
         public function size($pathfile) {
             $size = 0;
             $filelist = @ftp_rawlist($this->link,$pathfile);
