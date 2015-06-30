@@ -468,11 +468,11 @@ abstract class FOGPage extends FOGBase {
      * @return void
      */
     public function deleteconf() {
-        foreach($_SESSION['delitems'][$this->node] AS $id) {
+        foreach((array)$_SESSION['delitems'][$this->node] AS $id) {
             $Obj = $this->getClass($this->childClass,$id);
             if ($Obj->isValid() && !$Obj->get('protected')) $ids[] = $id;
         }
-        $ids = array_filter(array_unique($ids));
+        $ids = array_filter((array)array_unique((array)$ids));
         $this->getClass($this->childClass.'Manager')->destroy(array('id' => $ids));
         unset($_SESSION['delitems']);
         $this->FOGCore->setMessage('All selected items have been deleted');
