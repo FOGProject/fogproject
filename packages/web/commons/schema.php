@@ -1971,3 +1971,7 @@ param advLog 1
 isset \${net1/mac} && param mac1 \${net1/mac} || goto bootme
 isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='fog.advancedlogin';",
 );
+// 183
+$this->schema[] = array(
+    "ALTER TABLE `" . DATABASE_NAME ."`.`nfsGroupMembers` CHANGE `ngmInterface` `ngmInterface` VARCHAR (25) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT 'eth0'",
+);
