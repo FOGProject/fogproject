@@ -432,6 +432,7 @@ class Host extends FOGController {
     }
     public function getOptimalStorageNode() {return $this->get('optimalStorageNode');}
     public function checkIfExist($taskTypeID) {
+        $res = true;
         // TaskType: Variables
         $TaskType = new TaskType($taskTypeID);
         $isUpload = $TaskType->isUpload();
@@ -448,7 +449,6 @@ class Host extends FOGController {
                 ->set('password',$StorageNode->get('pass'))
                 ->set('host',$this->FOGCore->resolveHostname($StorageNode->get('ip')));
             $conn = $this->FOGFTP->connect();
-            $res = true;
             if (!$conn || !$this->FOGFTP->exists('/'.trim($StorageNode->get('path'),'/').'/'.$Image->get('path'))) $res = false;
             $this->FOGFTP->close();
         }
