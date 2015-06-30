@@ -214,10 +214,10 @@ sub: 'bandwidth',
 dataType: 'json',
 success: UpdateBandwidthGraph,
 complete: function() {
-UpdateTimeout = setTimeout(UpdateBandwidth,1000);
 GraphBandwidth.addClass('loaded');
 }
 });
+UpdateTimeout = setTimeout(UpdateBandwidth,1000);
 }
 function UpdateBandwidthGraph(data) {
     var d = new Date();
