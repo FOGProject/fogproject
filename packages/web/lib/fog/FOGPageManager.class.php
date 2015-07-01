@@ -74,16 +74,16 @@ class FOGPageManager extends FOGBase {
         if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn()) {
             $this->FOGSubMenu = $this->getClass('FOGSubMenu');
             $class = $this->getFOGPageClass();
-            foreach((array)$class->menu AS $link => &$title) {
+            foreach((array)$class->menu AS $link => $title) {
                 $this->FOGSubMenu->addItems($class->node,array((string)$title => (string)$link));
             }
             unset($title);
             if (isset($class->obj) && is_object($class->obj)) {
-                foreach((array)$class->subMenu AS $link => &$title) {
+                foreach((array)$class->subMenu AS $link => $title) {
                     $this->FOGSubMenu->addItems($class->node,array((string)$title => (string)$link),$class->id,sprintf($this->foglang['SelMenu'],get_class($class->obj)));
                 }
                 unset($title);
-                foreach((array)$class->notes AS $title => &$item) {
+                foreach((array)$class->notes AS $title => $item) {
                     $this->FOGSubMenu->addNotes($class->node,array((string)$title => (string)$item),$class->id,sprintf($this->foglang['SelMenu'],get_class($class->obj)));
                 }
                 unset($item);
