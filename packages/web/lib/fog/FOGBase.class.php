@@ -294,7 +294,7 @@ abstract class FOGBase {
     public function resetRequest() {
         $_REQUESTVARS = $_REQUEST;
         unset($_REQUEST);
-        foreach((array)$_SESSION['post_request_vals'] AS $key => &$val) $_REQUEST[$key] = $val;
+        foreach((array)$_SESSION['post_request_vals'] AS $key => $val) $_REQUEST[$key] = $val;
         unset($val);
         foreach((array)$_REQUESTVARS AS $key => &$val) $_REQUEST[$key] = $val;
         unset($val);

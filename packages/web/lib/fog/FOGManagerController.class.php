@@ -140,7 +140,7 @@ abstract class FOGManagerController extends FOGBase {
             if (empty($this->databaseTable)) throw new Exception('No database table defined');
             // Create Where Array
             if (count($where)) {
-                foreach((array)$where AS $field => &$value) {
+                foreach((array)$where AS $field => $value) {
                     if (is_array($value)) $whereArray[] = sprintf("%s %s IN ('%s')", $this->databaseTable.'.'.$this->databaseFields[$field], $not,implode("', '", $value));
                     else if (!is_array($value)) $whereArray[] = sprintf("%s %s '%s'", $this->databaseTable.'.'.$this->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : ($not ? '!' : '').$compare), $value);
                 }
@@ -217,7 +217,7 @@ abstract class FOGManagerController extends FOGBase {
             if (empty($this->databaseTable)) throw new Exception('No database table defined');
             // Create Where Array
             if (count($where)) {
-                foreach((array)$where AS $field => &$value) {
+                foreach((array)$where AS $field => $value) {
                     if (is_array($value)) $whereArray[] = sprintf("%s IN ('%s')", $this->databaseFields[$field], implode("', '", $value));
                     else $whereArray[] = sprintf("%s %s '%s'", $this->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
                 }
