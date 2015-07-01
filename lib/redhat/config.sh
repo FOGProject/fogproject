@@ -19,7 +19,7 @@
 #
 # Yum packages to install
 packageinstaller="yum -y --enablerepo=remi,remi-php56,epel install"
-packagelist="yum --enablerepo=remi,remi-php56,epel list | grep"
+packagelist="yum --enablerepo=remi,remi-php56,epel list"
 packageupdater="yum --enablerepo=remi,remi-php56,epel update"
 packmanUpdate="yum check-update"
 if [ "$linuxReleaseName" == "Mageia" ]; then
