@@ -62,9 +62,10 @@ class Host extends FOGController {
     public function load($field = 'id') {
         parent::load($field);
         $this->getMACAddress();
-        foreach(get_class_methods($this) AS $method) {
+        foreach(get_class_methods($this) AS &$method) {
             if (strlen($method) > 5 && (strpos($method,'load') !== false)) $this->$method();
         }
+        unset($method);
         $this->getActiveSnapinJob();
     }
     public function getDefault($printerid) {
@@ -74,15 +75,17 @@ class Host extends FOGController {
     public function updateDefault($printerid,$onoff) {
         $PrinterAssoc = $this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id')));
         // Set all to not default
-        foreach((array)$PrinterAssoc AS $PrinterSet) {
+        foreach((array)$PrinterAssoc AS &$PrinterSet) {
             if ($PrinterSet && $PrinterSet->isValid()) $PrinterSet->set('isDefault',0)->save();
         }
-        foreach((array)$printerid AS $printer) {
+        unset($PrinterSet);
+        foreach((array)$printerid AS &$printer) {
             $Printer = $this->getClass('Printer',$printer);
             if ($Printer && $Printer->isValid()) $SetDefault = current($this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $Printer->get('id'))));
             // Set the current sent printer to it's on/off state.
             if ($SetDefault && $SetDefault->isValid()) $SetDefault->set('isDefault',$onoff)->save();
         }
+        unset($printer);
         return $this;
     }
     public function getDispVals($key = '') {
@@ -151,7 +154,7 @@ class Host extends FOGController {
             // Groups I am in
             $GroupIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','groupID'));
             $this->set('groups',$GroupIDs);
-            $this->set('groupsnotinme',array_unique($this->getClass('GroupManager')->find(array('id' => $GroupIDs),'','','','','',true,'groupID')));
+            $this->set('groupsnotinme',array_unique($this->getClass('GroupManager')->find(array('id' => $GroupIDs),'','','','','',true,'id')));
             unset($GroupIDs);
         }
         return $this;
@@ -196,10 +199,10 @@ class Host extends FOGController {
         else if ($this->key($key) == 'pendingMACs') $this->loadPending();
         else if (in_array($this->key($key),array('printers','printersnotinme'))) $this->loadPrinters();
         else if (in_array($this->key($key),array('snapins','snapinsnotinme'))) $this->loadSnapins();
+        else if (in_array($this->key($key),array('groups','groupsnotinme'))) $this->loadGroups();
         else if ($this->key($key) == 'snapinjob') $this->loadSnapinJob();
         else if ($this->key($key) == 'modules') $this->loadModules();
         else if ($this->key($key) == 'inventory') $this->loadInventory();
-        else if (in_array($this->key($key),array('groups','groupsnotinme'))) $this->loadGroups();
         else if ($this->key($key) == 'task') $this->loadTask();
         else if ($this->key($key) == 'users') $this->loadUsers();
         else if ($this->key($key) == 'optimalStorageNode') $this->loadOptimalStorageNode();
@@ -212,40 +215,47 @@ class Host extends FOGController {
             if (!($value instanceof MACAddress)) $value = $this->getClass('MACAddress',$value);
         } else if ($this->key($key) == 'additionalMACs') {
             $this->loadAdditional();
-            foreach((array)$value AS $mac) $newValue[] = ($mac instanceof MACAddress ? $mac : $this->getClass('MACAddress',$mac));
+            foreach((array)$value AS &$mac) $newValue[] = ($mac instanceof MACAddress ? $mac : $this->getClass('MACAddress',$mac));
+            unset($mac);
             $value = (array)$newValue;
         } else if ($this->key($key) == 'pendingMACs') {
             $this->loadPending();
-            foreach((array)$value AS $mac) $newValue[] = ($mac instanceof MACAddress ? $mac : $this->getClass('MACAddress',$mac));
+            foreach((array)$value AS &$mac) $newValue[] = ($mac instanceof MACAddress ? $mac : $this->getClass('MACAddress',$mac));
+            unset($mac);
             $value = (array)$newValue;
-        } else if (in_array($this->key($key),array('printers','printersnotinme'))) {
+        } else if ($this->key($key) == 'printers') {
             $this->loadPrinters();
-            foreach ((array)$value AS $printer) $newValue[] = ($printer instanceof Printer ? $printer : $this->getClass('Printer',$printer));
+            foreach ((array)$value AS &$printer) $newValue[] = ($printer instanceof Printer ? $printer : $this->getClass('Printer',$printer));
+            unset($printer);
             $value = (array)$newValue;
-        } else if (in_array($this->key($key),array('snapins','snapinsnotinme'))) {
+        } else if ($this->key($key) == 'snapins') {
             $this->loadSnapins();
-            foreach ((array)$value AS $snapin) $newValue[] = ($snapin instanceof Snapin ? $snapin : $this->getClass('Snapin',$snapin));
+            foreach ((array)$value AS &$snapin) $newValue[] = ($snapin instanceof Snapin ? $snapin : $this->getClass('Snapin',$snapin));
+            unset($snapin);
             $value = (array)$newValue;
         } else if ($this->key($key) == 'snapinjob' && !($value instanceof SnapinJob)) {
             $this->loadSnapinJob();
             if (!($value instanceof SnapinJob)) $value = $this->getClass('SnapinJob',$value);
         } else if ($this->key($key) == 'modules') {
             $this->loadModules();
-            foreach((array)$value AS $module) $newValue[] = ($module instanceof Module ? $module : $this->getClass('Module',$module));
+            foreach((array)$value AS &$module) $newValue[] = ($module instanceof Module ? $module : $this->getClass('Module',$module));
+            unset($module);
             $value = (array)$newValue;
         } else if (($this->key($key) == 'inventory')) {
             $this->loadInventory();
             if (!($value instanceof Inventory)) $value = $this->getClass('Inventory',$value);
-        } else if (in_array($this->key($key),array('groups','groupsnotinme'))) {
+        } else if ($this->key($key) == 'groups') {
             $this->loadGroups();
-            foreach ((array)$value AS $group) $newValue[] = ($group instanceof Group ? $group : $this->getClass('Group',$group));
+            foreach ((array)$value AS &$group) $newValue[] = ($group instanceof Group ? $group : $this->getClass('Group',$group));
+            unset($group);
             $value = (array)$newValue;
         } else if ($this->key($key) == 'task') {
             $this->loadTask();
             if (!($value instanceof Task)) $value = $this->getClass('Task',$value);
         } else if ($this->key($key) == 'users') {
             $this->loadUsers();
-            foreach ((array)$value AS $user) $newValue[] = ($user instanceof UserTracking ? $user : $this->getClass('UserTracking',$user));
+            foreach ((array)$value AS &$user) $newValue[] = ($user instanceof UserTracking ? $user : $this->getClass('UserTracking',$user));
+            unset($user);
             $value = (array)$newValue;
         }
         // Set
@@ -258,16 +268,16 @@ class Host extends FOGController {
         } else if ($this->key($key) == 'pendingMACs' && !($value instanceof MACAddress)) {
             $this->loadPending();
             $value = $this->getClass('MACAddress',$value);
-        } else if (in_array($this->key($key),array('printers','printersnotinme')) && !($value instanceof Printer)) {
+        } else if ($this->key($key) == 'printers' && !($value instanceof Printer)) {
             $this->loadPrinters();
             $value = $this->getClass('Printer',$value);
-        } else if (in_array($this->key($key),array('snapins','snapinsnotinme')) && !($value instanceof Snapin)) {
+        } else if ($this->key($key) == 'snapins' && !($value instanceof Snapin)) {
             $this->loadSnapins();
             $value = $this->getClass('Snapin',$value);
         } else if ($this->key($key) == 'modules' && !($value instanceof Module)) {
             $this->loadModules();
             $value = $this->getClass('Module',$value);
-        } else if (in_array($this->key($key),array('groups','groupsnotinme')) && !($value instanceof Group)) {
+        } else if ($this->key($key) == 'groups' && !($value instanceof Group)) {
             $this->loadGroups();
             $value = $this->getClass('Group',$value);
         } else if ($this->key($key) == 'users' && !($value instanceof UserTracking)) {
@@ -281,11 +291,11 @@ class Host extends FOGController {
         if ($this->key($key) == 'mac') $this->loadPrimary();
         else if ($this->key($key) == 'additionalMACs') $this->loadAdditional();
         else if ($this->key($key) == 'pendingMACs') $this->loadPending();
-        else if (in_array($this->key($key),array('printers','printersnotinme'))) $this->loadPrinters();
-        else if (in_array($this->key($key),array('snapins','snapinsnotinme'))) $this->loadSnapins();
+        else if ($this->key($key) == 'printers') $this->loadPrinters();
+        else if ($this->key($key) == 'snapins') $this->loadSnapins();
         else if ($this->key($key) == 'snapinjob') $this->loadSnapinJob();
         else if ($this->key($key) == 'modules') $this->loadModules();
-        else if (in_array($this->key($key),array('groups','groupsnotinme'))) $this->loadGroups();
+        else if ($this->key($key) == 'groups') $this->loadGroups();
         else if ($this->key($key) == 'users') $this->loadUsers();
         // Remove
         return parent::remove($key, $object);
@@ -308,10 +318,11 @@ class Host extends FOGController {
         }
         if ($this->isLoaded('additionalMACs')) {
             $MAClist = array();
-            foreach ($this->get(additionalMACs) AS $MAC) $MAClist[] = $MAC->__toString();
+            foreach ($this->get(additionalMACs) AS &$MAC) $MAClist[] = $MAC->__toString();
+            unset($MAC);
             $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'mac' => (array)$MAClist));
             $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'pending' => 0,'primary' => 0));
-            foreach($this->get('additionalMACs') AS $me) {
+            foreach($this->get('additionalMACs') AS &$me) {
                 if (($me instanceof MACAddress) && $me->isValid()) {
                     $this->getClass('MACAddressAssociation')
                         ->set('hostID',$this->get('id'))
@@ -323,13 +334,15 @@ class Host extends FOGController {
                         ->save();
                 }
             }
+            unset($me);
         }
         if ($this->isLoaded('pendingMACs')) {
             $MAClist = array();
-            foreach ($this->get(pendingMACs) AS $MAC) $MAClist[] = $MAC->__toString();
+            foreach ($this->get(pendingMACs) AS &$MAC) $MAClist[] = $MAC->__toString();
+            unset($MAC);
             $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'mac' => (array)$MAClist));
             $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'pending' => 1,'primary' => 0));
-            foreach($this->get('pendingMACs') AS $me) {
+            foreach($this->get('pendingMACs') AS &$me) {
                 if (($me instanceof MACAddress) && $me->isValid()) {
                     $this->getClass('MACAddressAssociation')
                         ->set('hostID',$this->get('id'))
@@ -341,11 +354,12 @@ class Host extends FOGController {
                         ->save();
                 }
             }
+            unset($me);
         }
         if ($this->isLoaded('modules')) {
             $this->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id')));
             $moduleName = $this->getGlobalModuleStatus();
-            foreach((array)$this->get('modules') AS $Module) {
+            foreach($this->get('modules') AS &$Module) {
                 if (($Module instanceof Module) && $Module->isValid()) {
                     if ($moduleName[$Module->get('shortName')]) {
                         $this->getClass('ModuleAssociation')
@@ -356,13 +370,14 @@ class Host extends FOGController {
                     }
                 }
             }
+            unset($Module);
         }
         if ($this->isLoaded('printers')) {
             $defPrint = current((array)$this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'isDefault' => 1)));
             $totalPrinters = $this->getClass('PrinterAssociationManager')->count(array('hostID' => $this->get('id')));
             $this->getClass('PrinterAssociationManager')->destroy(array('hostID' => $this->get('id')));
             $i = 0;
-            foreach ((array)$this->get('printers') AS $Printer) {
+            foreach ($this->get('printers') AS &$Printer) {
                 if(($Printer instanceof Printer) && $Printer->isValid()) {
                     $PrinterAssoc = current((array)$this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'), 'printerID' => $Printer->get('id'))));
                     if (!$PrinterAssoc || !$PrinterAssoc->isValid()) {
@@ -375,10 +390,11 @@ class Host extends FOGController {
                 }
                 $i++;
             }
+            unset($Printer);
         }
         if ($this->isLoaded('snapins')) {
             $this->getClass('SnapinAssociationManager')->destroy(array('hostID' => $this->get('id')));
-            foreach ((array)$this->get('snapins') AS $Snapin) {
+            foreach ($this->get('snapins') AS &$Snapin) {
                 if (($Snapin instanceof Snapin) && $Snapin->isValid()) {
                     $this->getClass('SnapinAssociation')
                         ->set('hostID', $this->get('id'))
@@ -386,12 +402,13 @@ class Host extends FOGController {
                         ->save();
                 }
             }
+            unset($Snapin);
         }
         if ($this->isLoaded('groups')) {
             // Remove old rows
             $this->getClass('GroupAssociationManager')->destroy(array('hostID' => $this->get('id')));
             // Create assoc
-            foreach ((array)$this->get('groups') AS $Group) {
+            foreach ($this->get('groups') AS &$Group) {
                 if(($Group instanceof Group) && $Group->isValid()) {
                     $this->getClass('GroupAssociation')
                         ->set('hostID',$this->get('id'))
@@ -399,10 +416,11 @@ class Host extends FOGController {
                         ->save();
                 }
             }
+            unset($Group);
         }
         if ($this->isLoaded('users')) {
             $this->getClass('UserTrackingManager')->destroy(array('hostID' => $this->get('id')));
-            foreach ((array)$this->get('users') AS $User) {
+            foreach ($this->get('users') AS &$User) {
                 if (($User instanceof UserTracking) && $User->isValid()) {
                     $this->getClass('UserTracking')
                         ->set('hostID',$this->get('id'))
@@ -414,6 +432,7 @@ class Host extends FOGController {
                         ->save();
                 }
             }
+            unset($User);
         }
         return $this;
     }
@@ -487,10 +506,11 @@ class Host extends FOGController {
      * @return void
      */
     private function cancelJobsSnapinsForHost() {
-        foreach($this->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(-1,0,1))) AS $SJ) {
+        foreach($this->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(-1,0,1))) AS &$SJ) {
             foreach($this->getClass('SnapinTaskManager')->find(array('jobID' => $SJ->get('id'),'stateID' => array(-1,0,1))) AS $ST) $ST->set('stateID',2)->save();
             $SJ->set('stateID',2)->set('return',-9999)->save();
         }
+        unset($SJ);
     }
     /** createSnapinTasking creates the snapin tasking or taskings as needed
      * @param $snapin usually -1 or the valid snapin identifier, defaults to all snapins (-1)
@@ -511,7 +531,7 @@ class Host extends FOGController {
                 if ($SnapinJob->save()) {
                     $this->set('snapinjob',$SnapinJob);
                     if ($snapin == -1) {
-                        foreach ($this->get('snapins') AS $Snapin) {
+                        foreach ($this->get('snapins') AS &$Snapin) {
                             if ($Snapin->isValid()) {
                                 $this->getClass('SnapinTask')
                                     ->set('jobID',$SnapinJob->get('id'))
@@ -520,6 +540,7 @@ class Host extends FOGController {
                                     ->save();
                             }
                         }
+                        unset($Snapin);
                     } else {
                         $Snapin = $this->getClass('Snapin',$snapin);
                         if ($Snapin && $Snapin->isValid()) {
@@ -657,57 +678,66 @@ class Host extends FOGController {
         public function wakeOnLAN() {
             $MACs = array();
             $MACs[] = $this->get('mac');
-            foreach((array)$this->get('additionalMACs') AS $MAC) $MACs[] = $MAC;
+            foreach((array)$this->get('additionalMACs') AS &$MAC) $MACs[] = $MAC;
+            unset($MAC);
             $MACs = array_unique($MACs);
-            foreach((array)$MACs AS $MAC) $this->FOGCore->wakeOnLAN(implode('|',(array)$MAC));
+            foreach((array)$MACs AS &$MAC) $this->FOGCore->wakeOnLAN(implode('|',(array)$MAC));
+            unset($MAC);
             return;
         }
     public function addPrinter($addArray) {
         // Check for existing.
-        foreach($this->get('printers') AS $Printer) {
+        foreach($this->get('printers') AS &$Printer) {
             if ($Printer->isValid()) $PrinterIDs[] = $Printer->get('id');
         }
+        unset($Printer);
         $PrinterIDs = array_unique($PrinterIDs);
         // Add
-        foreach ((array)$addArray AS $item) {
+        foreach ((array)$addArray AS &$item) {
             if (!is_object($item) && !in_array($item,$PrinterIDs)) $this->add('printers', $item);
             else if (is_object($item) && $item->isValid() && !in_array($item->get('id'),$PrinterIDs)) $this->add('printers', $item);
         }
+        unset($item);
         // Return
         return $this;
     }
     public function removePrinter($removeArray) {
         // Iterate array (or other as array)
-        foreach ((array)$removeArray AS $remove) $this->remove('printers', ($remove instanceof Printer ? $remove : new Printer((int)$remove)));
+        foreach ((array)$removeArray AS &$remove) $this->remove('printers', ($remove instanceof Printer ? $remove : new Printer((int)$remove)));
+        unset($remove);
         // Return
         return $this;
     }
     public function addAddMAC($addArray,$pending = false) {
-        if ($pending) foreach((array)$addArray AS $item) $this->add(pendingMACs, $item);
-        else foreach((array)$addArray AS $item) $this->add(additionalMACs, $item);
+        if ($pending) foreach((array)$addArray AS &$item) $this->add(pendingMACs, $item);
+        else foreach((array)$addArray AS &$item) $this->add(additionalMACs, $item);
+        unset($item);
         return $this;
     }
     public function addPendtoAdd($MACs = false) {
         $MAClist = array();
-        if (!$MACs) foreach ($this->get(pendingMACs) AS $MAC) $MAClist[] = $MAC;
+        if (!$MACs) foreach ($this->get(pendingMACs) AS &$MAC) $MAClist[] = $MAC;
         else {
             $MACs = array_map('strtolower',(array)$MACs);
-            foreach ($this->get(pendingMACs) AS $MAC) {
+            foreach ($this->get(pendingMACs) AS &$MAC) {
                 if (in_array(strtolower($MAC->__toString()),$MACs)) $MAClist[] = $MAC;
             }
         }
+        unset($MAC);
         $this->addAddMAC($MAClist);
         $this->removePendMAC($MAClist);
         // Return
         return $this;
     }
     public function removeAddMAC($removeArray) {
-        foreach((array)$removeArray AS $item) $this->remove('additionalMACs',(($item instanceof MACAddress) ? $item : $this->getClass(MACAddress,$item)));
+        foreach((array)$removeArray AS &$item) $this->remove('additionalMACs',(($item instanceof MACAddress) ? $item : $this->getClass(MACAddress,$item)));
+        unset($item);
         // Return
         return $this;
     }
     public function removePendMAC($removeArray) {
-        foreach((array)$removeArray AS $item) $this->remove('pendingMACs',(($item instanceof MACAddress) ? $item : $this->getClass(MACAddress,$item)));
+        foreach((array)$removeArray AS &$item) $this->remove('pendingMACs',(($item instanceof MACAddress) ? $item : $this->getClass(MACAddress,$item)));
+        unset($item);
         // Return
         return $this;
     }
@@ -727,13 +757,15 @@ class Host extends FOGController {
             if (count($Snapins) >= $limit || count($addArray) > $limit) throw new Exception(sprintf('%s %d %s',_('You are only allowed to assign'),$limit,$limit == 1 ? _('snapin per host') : _('snapins per host')));
         }
         // Add
-        foreach ((array)$addArray AS $item) $this->add('snapins', $item);
+        foreach ((array)$addArray AS &$item) $this->add('snapins', $item);
+        unset($item);
         // Return
         return $this;
     }
     public function removeSnapin($removeArray) {
         // Iterate array (or other as array)
-        foreach ((array)$removeArray AS $remove) $this->remove('snapins', ($remove instanceof Snapin ? $remove : new Snapin((int)$remove)));
+        foreach ((array)$removeArray AS &$remove) $this->remove('snapins', ($remove instanceof Snapin ? $remove : $this->getClass('Snapin',(int)$remove)));
+        unset($remove);
         // Return
         return $this;
     }
@@ -741,7 +773,8 @@ class Host extends FOGController {
         $ModsExist = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','moduleID');
         $NewMods = array_diff((array)$addArray,(array)$ModsExist);
         // Add
-        foreach ($NewMods AS $item) $this->add('modules', (int)$item);
+        foreach ($NewMods AS &$item) $this->add('modules', (int)$item);
+        unset($item);
         // Return
         return $this;
     }
@@ -749,24 +782,30 @@ class Host extends FOGController {
         // Remove the modules
         $this->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id'),'moduleID' => $removeArray));
         // Iterate array (or other as array)
-        foreach ((array)$removeArray AS $remove) $this->remove('modules', ($remove instanceof Module ? $remove : new Module((int)$remove)));
+        foreach ((array)$removeArray AS &$remove) $this->remove('modules', ($remove instanceof Module ? $remove : $this->getClass('Module',(int)$remove)));
+        unset($item);
         // Return
         return $this;
     }
     public function getMyMacs($justme = true) {
         $KnownMacs[] = strtolower($this->get('mac'));
-        foreach((array)$this->get('additionalMACs') AS $MAC) $MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
-        foreach((array)$this->get('pendingMACs') AS $MAC) $MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
+        foreach($this->get('additionalMACs') AS &$MAC) $MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
+        unset($MAC);
+        foreach($this->get('pendingMACs') AS &$MAC) $MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
+        unset($MAC);
         if ($justme) return $KnownMacs;
-        foreach((array)$this->getClass('MACAddressAssociationManager')->find() AS $MAC) $MAC && $MAC->isValid() && !in_array(strtolower($MAC->get('mac')),(array)$KnownMacs) ? $KnownMacs[] = strtolower($MAC->get('mac')) : null;
+        foreach($this->getClass('MACAddressAssociationManager')->find() AS &$MAC) $MAC && $MAC->isValid() && !in_array(strtolower($MAC->get('mac')),(array)$KnownMacs) ? $KnownMacs[] = strtolower($MAC->get('mac')) : null;
+        unset($MAC);
         return array_unique($KnownMacs);
     }
 
     public function ignore($imageIgnore,$clientIgnore) {
         $MyMACs = $this->getMyMacs();
-        foreach((array)$imageIgnore AS $igMAC) $igMACs[] = strtolower($igMAC);
-        foreach((array)$clientIgnore AS $cgMAC) $cgMACs[] = strtolower($cgMAC);
-        foreach((array)$MyMACs AS $MAC) {
+        foreach((array)$imageIgnore AS &$igMAC) $igMACs[] = strtolower($igMAC);
+        unset($igMAC);
+        foreach((array)$clientIgnore AS &$cgMAC) $cgMACs[] = strtolower($cgMAC);
+        unset($cgMAC);
+        foreach((array)$MyMACs AS &$MAC) {
             $ignore = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MAC,'hostID' => $this->get('id'))));
             $ME = new MACAddress($ignore);
             if ($ME->isValid()) {
@@ -775,21 +814,23 @@ class Host extends FOGController {
                 $ignore->set('clientIgnore',in_array($mac,(array)$cgMACs))->save();
             }
         }
+        unset($MAC);
     }
     public function addGroup($addArray) {
         // Add
-        foreach((array)$addArray AS $item) $this->add('groups', $item);
+        foreach((array)$addArray AS &$item) $this->add('groups', $item);
+        unset($item);
         // Return
         return $this;
     }
     public function removeGroup($removeArray) {
         // Iterate array (or other as array)
-        foreach ((array)$removeArray AS $remove) $this->remove('groups', ($remove instanceof Group ? $remove : new Group((int)$remove)));
+        foreach ((array)$removeArray AS &$remove) $this->remove('groups', ($remove instanceof Group ? $remove : $this->getClass('Group',(int)$remove)));
         // Return
         return $this;
     }
     public function clientMacCheck($MAC = false) {
-        $mac = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac' => $MAC ? $MAC : $this->get('mac')->__toString(),'hostID' => $this->get('id'),'clientIgnore' => 1)));
+        $mac = current($this->getClass('MACAddressAssociationManager')->find(array('mac' => $MAC ? $MAC : $this->get('mac')->__toString(),'hostID' => $this->get('id'),'clientIgnore' => 1)));
         return ($mac && $mac->isValid() ? 'checked' : '');
     }
     public function imageMacCheck($MAC = false) {

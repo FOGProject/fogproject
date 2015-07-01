@@ -62,13 +62,11 @@ class MySQL extends DatabaseManager {
 				$processed = 0;
 				do {
 					$links = $errors = $reject = array();
-					foreach($all_links AS $link)
-						$links[] = $errors[] = $reject[] = $link;
-					if (0 == ($ready = mysqli_poll($links,$errors,$reject,1,0))) {
-						usleep(1);
-						continue;
+					foreach($all_links AS &$link) $links[] = $errors[] = $reject[] = $link;
+					while (!$this->link->poll($links,$errors,$reject,1,0)) {
+					    usleep(10000);
 					}
-					foreach($links AS $link) {
+					foreach($links AS &$link) {
                         $this->queryResult = $link->reap_async_query();
                         $processed++;
 					}
@@ -152,7 +150,7 @@ class MySQL extends DatabaseManager {
 	  */
 	public function sanitize($data) {
 		if (!is_array($data)) return $this->clean($data);
-		foreach ($data AS $key => $val) {
+		foreach ($data AS $key => &$val) {
 			if (is_array($val)) $data[$this->clean($key)] = $this->escape($val);
 			else $data[$this->clean($key)] = $this->clean($val);
 		}

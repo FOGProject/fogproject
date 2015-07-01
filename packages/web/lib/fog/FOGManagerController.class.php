@@ -140,17 +140,20 @@ abstract class FOGManagerController extends FOGBase {
             if (empty($this->databaseTable)) throw new Exception('No database table defined');
             // Create Where Array
             if (count($where)) {
-                foreach((array)$where AS $field => $value) {
+                foreach((array)$where AS $field => &$value) {
                     if (is_array($value)) $whereArray[] = sprintf("%s %s IN ('%s')", $this->databaseTable.'.'.$this->databaseFields[$field], $not,implode("', '", $value));
                     else if (!is_array($value)) $whereArray[] = sprintf("%s %s '%s'", $this->databaseTable.'.'.$this->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : ($not ? '!' : '').$compare), $value);
                 }
+                unset($value);
             }
-            foreach((array)$orderBy AS $item) {
+            foreach((array)$orderBy AS &$item) {
                 if ($this->databaseFields[$item]) $orderArray[] = sprintf("%s",$this->databaseFields[$item]);
             }
-            foreach((array)$groupBy AS $item) {
+            unset($item);
+            foreach((array)$groupBy AS &$item) {
                 if ($this->databaseFields[$item]) $groupArray[] = sprintf("%s",$this->databaseFields[$item]);
             }
+            unset($item);
             $groupImplode = implode((array)$groupArray,',');
             $orderImplode = implode((array)$orderArray,',');
             $groupByField = 'GROUP BY '.$groupImplode;
@@ -214,10 +217,11 @@ abstract class FOGManagerController extends FOGBase {
             if (empty($this->databaseTable)) throw new Exception('No database table defined');
             // Create Where Array
             if (count($where)) {
-                foreach((array)$where AS $field => $value) {
+                foreach((array)$where AS $field => &$value) {
                     if (is_array($value)) $whereArray[] = sprintf("%s IN ('%s')", $this->databaseFields[$field], implode("', '", $value));
                     else $whereArray[] = sprintf("%s %s '%s'", $this->databaseFields[$field], (preg_match('#%#', $value) ? 'LIKE' : $compare), $value);
                 }
+                unset($value);
             }
             // Count result rows
             $this->DB->query("SELECT COUNT(%s) AS total FROM %s%s LIMIT 1", array(
@@ -248,7 +252,8 @@ abstract class FOGManagerController extends FOGBase {
     public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '',$templateholder = false) {
         $matchID = ($_REQUEST['node'] == 'image' ? ($matchID === 0 ? 1 : $matchID) : $matchID);
         if (empty($elementName)) $elementName = strtolower($this->childClass);
-        foreach($this->find($filter ? array('id' => $filter) : '','',$orderBy,'','','',($filter ? true : false)) AS $Object) $listArray .= '<option value="'.$Object->get('id').'"'.($matchID == $Object->get('id') ? ' selected' : ($templateholder ? '${selected_item'.$Object->get('id').'}' : '')).'>'.$Object->get('name').' - ('.$Object->get('id').')</option>';
+        foreach($this->find($filter ? array('id' => $filter) : '','',$orderBy,'','','',($filter ? true : false)) AS &$Object) $listArray .= '<option value="'.$Object->get('id').'"'.($matchID == $Object->get('id') ? ' selected' : ($templateholder ? '${selected_item'.$Object->get('id').'}' : '')).'>'.$Object->get('name').' - ('.$Object->get('id').')</option>';
+        unset($Object);
         return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',($templateholder ? '${selector_name}' : $elementName),'- '.$this->foglang['PleaseSelect'].' -',$listArray) : false);
     }
     // TODO: Read DB fields from child class
