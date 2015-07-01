@@ -30,12 +30,13 @@ class SchemaUpdaterPage extends FOGPage {
             if (count($this->schema) > $this->mySchema) {
                 foreach(array_slice($this->schema,$this->mySchema,null,true) AS $version => $updates) {
                     ++$version;
-                    foreach($updates AS $i => $update) {
+                    foreach($updates AS $i => &$update) {
                         if (is_callable($update)) {
                             $result = $update();
                             if (is_string($result)) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Function Error:</b> <pre>%s</pre></p><p><b>Function:</b> <pre>%s</pre></p>', "$version - $i",$result, print_r($update, 1));
                         } else if (!$this->DB->query($update)->queryResult()) $errors[] = sprintf('<p><b>Update ID:</b> %s</p><p><b>Database Error:</b> <pre>%s</pre></p><p><b>Database SQL:</b> <pre>%s</pre></p>', "$version - $i",$this->DB->sqlerror(),$update);
                     }
+                    unset($update);
                 }
                 $this->DB->connect();
                 $newSchema = current($this->getClass('SchemaManager')->find());

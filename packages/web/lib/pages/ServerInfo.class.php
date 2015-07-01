@@ -40,7 +40,7 @@ class ServerInfo extends FOGPage {
                     $arGeneral = array();
                     $arFS = array();
                     $arNIC = array();
-                    foreach((array)$arRet AS $line) {
+                    foreach((array)$arRet AS &$line) {
                         $line = trim( $line );
                         if ($line == "@@start") {}
                         else if ($line == "@@general") $section = 0;
@@ -53,6 +53,7 @@ class ServerInfo extends FOGPage {
                             else if ($section == 2) $arNIC[] = $line;
                         }
                     }
+                    unset($line);
                     for($i=0;$i<count($arNIC);$i++) {
                         $arNicParts = explode("$$", $arNIC[$i]);
                         if (count($arNicParts) == 5) {
@@ -88,7 +89,7 @@ class ServerInfo extends FOGPage {
                             '<b>'._('Network Information').'</b>' => '&nbsp;',
                         );
                         $i = 0;
-                        foreach((array)$NICTrans AS $txtran) {
+                        foreach((array)$NICTrans AS &$txtran) {
                             $ethName = explode(' ',$NICTrans[$i]);
                             $fields['<b>'.$ethName[0].' '._('Information').'</b>'] = '&nbsp;';
                             $fields[$NICTrans[$i]] = $NICTransSized[$i];
@@ -97,8 +98,9 @@ class ServerInfo extends FOGPage {
                             $fields[$NICDro[$i]] = $NICDropInfo[$i];
                             $i++;
                         }
+                        unset($txtran);
                     }
-                    foreach((array)$fields AS $field => $input) {
+                    foreach((array)$fields AS $field => &$input) {
                         $this->data[] = array(
                             'field' => $field,
                             'input' => $input,
