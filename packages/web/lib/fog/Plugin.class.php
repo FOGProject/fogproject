@@ -21,13 +21,15 @@ class Plugin extends FOGController {
         'name',
     );
     public function getRunInclude($hash) {
-        foreach($this->getPlugins() AS $Plugin) {
+        foreach($this->getPlugins() AS &$Plugin) {
             if(md5(trim($Plugin->getName())) == trim($hash)) {
                 $_SESSION['fogactiveplugin']=serialize($Plugin);
-                return $Plugin->getEntryPoint();
+                $entrypoint = $Plugin->getEntryPoint();
+                break;
             }
         }
-        return null;
+        unset($Plugin);
+        return $entrypoint;
     }
     public function getActivePlugs() {
         $Plugin = current($this->getClass('PluginManager')->find(array('name' => $this->getName())));
@@ -48,7 +50,7 @@ class Plugin extends FOGController {
     }
     public function getPlugins() {
         $cfgfile = 'plugin.config.php';
-        foreach($this->getDirs() AS $file) {
+        foreach($this->getDirs() AS &$file) {
             require(rtrim($file,'/').'/config/'.$cfgfile);
             $p=new Plugin(array('name' => $fog_plugin['name']));
             $p->strPath = $file;
@@ -59,34 +61,20 @@ class Plugin extends FOGController {
             $p->strIconHover = $file.$fog_plugin['menuicon_hover'];
             $arPlugs[] = $p;
         }
+        unset($file);
         return $arPlugs;
     }
     public function activatePlugin($plugincode) {
-        foreach($this->getPlugins() AS $Plugin) {
+        foreach($this->getPlugins() AS &$Plugin) {
             if(md5(trim($Plugin->getName())) == trim($plugincode)) {
-                $ME = $this->getClass('PluginManager')->count(array('name' => $Plugin->getName()));
-                if ($ME) {
-                    $ME = $this->getClass('PluginManager')->find(array('name' => $Plugin->getName()));
-                    $blActive = false;
-                    foreach($ME AS $Me) {
-                        if($Me->get('state') != 1) $blActive = true;
-                    }
-                    if (!$blActive) {
-                        $this->set('state',1)
-                            ->set('installed',0)
-                            ->set('name',$Plugin->getName())
-                            ->save();
-                    }
-                } else {
-                    $ME = new self(array(
-                        'name' => $Plugin->getName(),
-                        'installed' => 0,
-                        'state' => 1,
-                    ));
-                    $ME->save();
-                }
+                $this->set('state',1)
+                    ->set('installed',0)
+                    ->set('name',$Plugin->getName())
+                    ->save();
             }
         }
+        unset($Plugin);
+        return $this;
     }
     public function getManager() {return $this->getClass(ucfirst($this->get(name)).'Manager');}
         public function getPath() {return $this->strPath;}

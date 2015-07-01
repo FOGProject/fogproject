@@ -33,10 +33,13 @@ class HostManagementPage extends FOGPage {
                     $this->foglang['Image'] => $this->obj->getImage()->get('name'),
                     $this->foglang['LastDeployed'] => $this->obj->get('deployed'),
                 );
-                foreach ((array)$this->obj->get('groups') AS $Group) {
-                    if ($Group && $Group->isValid()) break;
+                foreach ($this->obj->get('groups') AS &$Group) {
+                    if ($Group->isValid()) {
+                        $this->notes[$this->foglang['PrimaryGroup']] = $Group->get(name);
+                        break;
+                    }
                 }
-                if ($Group && $Group->isValid()) $this->notes[$this->foglang['PrimaryGroup']] = $Group->get('name');
+                unset($Group);
             }
         }
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
@@ -89,8 +92,8 @@ class HostManagementPage extends FOGPage {
         $this->title = $this->foglang['AllHosts'];
         // Find data -> Push data
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
-        foreach ($this->getClass('HostManager')->find() AS $Host) {
-            if ($Host && $Host->isValid() && !$Host->get('pending')) {
+        foreach ($this->getClass('HostManager')->find() AS &$Host) {
+            if ($Host->isValid() && !$Host->get('pending')) {
                 $this->data[] = array(
                     'host_id'	=> $Host->get('id'),
                     'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
@@ -101,6 +104,7 @@ class HostManagementPage extends FOGPage {
                 );
             }
         }
+        unset($Host);
         // Hook
         $this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData' => &$this->headerData, 'title' => &$this->title));
@@ -112,8 +116,8 @@ class HostManagementPage extends FOGPage {
      */
     public function search_post() {
         // Find data -> Push data
-        foreach($this->getClass('HostManager')->search() AS $Host) {
-            if ($Host && $Host->isValid()) {
+        foreach($this->getClass('HostManager')->search() AS &$Host) {
+            if ($Host->isValid()) {
                 $this->data[] = array(
                     'host_id'	=> $Host->get('id'),
                     'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
@@ -124,6 +128,7 @@ class HostManagementPage extends FOGPage {
                 );
             }
         }
+        unset($Host);
         // Hook
         $this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData' => &$this->headerData));
@@ -160,8 +165,8 @@ class HostManagementPage extends FOGPage {
             array('width' => 80, 'class' => 'c'),
             array('width' => 50, 'class' => 'r'),
         );
-        foreach($this->getClass('HostManager')->find(array('pending' => 1)) AS $Host) {
-            if ($Host && $Host->isValid()) {
+        foreach($this->getClass('HostManager')->find(array('pending' => 1)) AS &$Host) {
+            if ($Host->isValid()) {
                 $this->data[] = array(
                     'host_id'	=> $Host->get('id'),
                     'host_name' => $Host->get('name'),
@@ -170,6 +175,7 @@ class HostManagementPage extends FOGPage {
                 );
             }
         }
+        unset($Host);
         // Hook
         $this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData' => &$this->headerData));
@@ -185,16 +191,18 @@ class HostManagementPage extends FOGPage {
         $countOfHosts = count($_REQUEST['host']);
         $count = 0;
         if (isset($_REQUEST['approvependhost'])) {
-            foreach ($_REQUEST['host'] AS $HostID) {
+            foreach ($_REQUEST['host'] AS &$HostID) {
                 $this->getClass('Host',$HostID)->set('pending',null)->save();
                 $count++;
             }
+            unset($HostID);
         }
         if (isset($_REQUEST['delpendhost'])) {
-            foreach($_REQUEST['host'] AS $HostID) {
+            foreach($_REQUEST['host'] AS &$HostID) {
                 $this->getClass('Host',$HostID)->destroy();
                 $count++;
             }
+            unset($HostID);
         }
         $appdel = (isset($_REQUEST['approvependhost']) ? 'approved' : 'deleted');
         if ($count == $countOfHosts) {
@@ -247,7 +255,7 @@ class HostManagementPage extends FOGPage {
         print '<h2>'._('Add new host definition').'</h2>';
         print '<form method="post" action="'.$this->formAction.'">';
         $this->HookManager->processEvent('HOST_FIELDS', array('fields' => &$fields));
-        foreach ($fields AS $field => $input) {
+        foreach ($fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -261,6 +269,7 @@ class HostManagementPage extends FOGPage {
                 'host_key' => $_REQUEST['key'],
             );
         }
+        unset($input);
         // Hook
         $this->HookManager->processEvent('HOST_ADD_GEN', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes,'fields' => &$fields));
         // Output
@@ -269,18 +278,20 @@ class HostManagementPage extends FOGPage {
         unset ($this->data);
         print '<h2>'._('Active Directory').'</h2>';
         $OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
-        foreach ((array)$OUs AS $OU) $OUOptions[] = $OU;
+        foreach ((array)$OUs AS &$OU) $OUOptions[] = $OU;
+        unset($OU);
         $OUOptions = array_filter($OUOptions);
         if (count($OUOptions) > 1) {
             $OUs = array_unique((array)$OUOptions);
             $optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
-            foreach ($OUs AS $OU) {
+            foreach ($OUs AS &$OU) {
                 $opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
                 $optionOU[] = '<option value="'.$opt.'"'.($_REQUEST['ou'] == $opt ? ' selected="selected"' : (preg_match('#;#i',$OU) ? ' selected="selected"' : '')).'>'.$opt.'</option>';
             }
+            unset($OU);
             $OUOptions = '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>';
         } else $OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" value="${ad_ou}" autocomplete="off" />';
-        foreach ((array)$fieldsad AS $field => $input) {
+        foreach ((array)$fieldsad AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -292,6 +303,7 @@ class HostManagementPage extends FOGPage {
                 'ad_ou' => $_REQUEST['ad_ou'],
             );
         }
+        unset($input);
         // Hook
         $this->HookManager->processEvent('HOST_ADD_AD', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -413,11 +425,13 @@ class HostManagementPage extends FOGPage {
                 $this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
             }
         }
-        foreach((array)$Host->get('additionalMACs') AS $MAC) {
+        foreach($Host->get('additionalMACs') AS &$MAC) {
             if ($MAC && $MAC->isValid())
                 $addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" /><input title="'._('Remove MAC').'" type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" /><label for="rm'.$MAC.'" class="icon fa fa-minus-circle hand">&nbsp;</label><span class="icon icon-hand" title="'._('Make Primary').'"><input type="radio" name="primaryMAC" value="'.$MAC.'" /></span><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$Host->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$Host->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span></div>';
         }
-        foreach ($Host->get('pendingMACs') AS $MAC) $pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC.'" /><a href="${link}&confirmMAC='.$MAC.'"><i class="icon fa fa-check-circle"></i></a><span class="mac-manufactor"></span></div>';
+        unset($MAC);
+        foreach ($Host->get('pendingMACs') AS &$MAC) $pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC.'" /><a href="${link}&confirmMAC='.$MAC.'"><i class="icon fa fa-check-circle"></i></a><span class="mac-manufactor"></span></div>';
+        unset($MAC);
         if ($pending != null && $pending != '')
             $pending .= '<div>'._('Approve All MACs?').'<a href="${link}&approveAll=1"><i class="icon fa fa-check-circle"></i></a></div>';
         $fields = array(
@@ -441,7 +455,7 @@ class HostManagementPage extends FOGPage {
         print '<form method="post" action="'.$this->formAction.'&tab=host-general">';
         print '<h2>'._('Edit host definition').'</h2>';
         $imageSelect = $this->getClass('ImageManager')->buildSelectBox($Image->get('id'));
-        foreach($fields AS $field => $input) {
+        foreach($fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -457,6 +471,7 @@ class HostManagementPage extends FOGPage {
                 'host_key' => base64_decode($Host->get('productKey')),
             );
         }
+        unset($input);
         // Hook
         $this->HookManager->processEvent('HOST_EDIT_GEN', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
@@ -483,8 +498,9 @@ class HostManagementPage extends FOGPage {
             array('width' => 90, 'class' => 'l'),
             array('width' => 40, 'class' => 'c'),
         );
-        foreach($Host->get('groupsnotinme') AS $Group) {
-            if ($Group && $Group->isValid()) {
+        foreach($Host->get('groupsnotinme') AS &$Group) {
+            $Group = $this->getClass('Group',$Group);
+            if ($Group->isValid()) {
                 $this->data[] = array(
                     'group_id' => $Group->get('id'),
                     'group_name' => $Group->get('name'),
@@ -492,6 +508,7 @@ class HostManagementPage extends FOGPage {
                 );
             }
         }
+        unset($Group);
         if (count($this->data) > 0) {
             $this->HookManager->processEvent('HOST_GROUP_JOIN',array('headerData' => &$this->headerData,'templates' => &$this->templates,'attributes' => &$this->attributes,'data' => &$this->data));
             print '<center><label for="hostGroupShow">'._('Check here to see groups this host is not associated with').'&nbsp;&nbsp;<input type="checkbox" name="hostGroupShow" id="hostGroupShow" /></label></center>';
@@ -518,8 +535,8 @@ class HostManagementPage extends FOGPage {
             '${group_count}',
         );
         // Find Group Relationships
-        foreach((array)$Host->get('groups') AS $Group) {
-            if ($Group && $Group->isValid()) {
+        foreach($Host->get('groups') AS &$Group) {
+            if ($Group->isValid()) {
                 $this->data[] = array(
                     'group_id' => $Group->get('id'),
                     'group_name' => $Group->get('name'),
@@ -527,6 +544,7 @@ class HostManagementPage extends FOGPage {
                 );
             }
         }
+        unset($Group);
         // Hook
         $this->HookManager->processEvent('HOST_EDIT_GROUP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         print '<form method="post" action="'.$this->formAction.'&tab=host-grouprel">';
@@ -557,8 +575,9 @@ class HostManagementPage extends FOGPage {
             array('width' => 50, 'class' => 'l'),
             array('width' => 50, 'class' => 'r'),
         );
-        foreach((array)$Host->get('printersnotinme') AS $Printer) {
-            if ($Printer && $Printer->isValid() && !in_array($Printer->get('id'),(array)$PrinterIDs)) {
+        foreach($Host->get('printersnotinme') AS &$Printer) {
+            $Printer = $this->getClass('Printer',$Printer);
+            if ($Printer->isValid() && !in_array($Printer->get('id'),(array)$PrinterIDs)) {
                 $this->data[] = array(
                     'printer_id' => $Printer->get('id'),
                     'printer_name' => addslashes($Printer->get('name')),
@@ -566,6 +585,7 @@ class HostManagementPage extends FOGPage {
                 );
             }
         }
+        unset($Printer);
         $PrintersFound = false;
         if (count($this->data) > 0) {
             $PrintersFound = true;
@@ -602,8 +622,8 @@ class HostManagementPage extends FOGPage {
         print '<input type="radio" name="level" value="0"'.($Host->get('printerLevel') == 0 ? 'checked' : '').' />'._('No Printer Management').'<br/>';
         print '<input type="radio" name="level" value="1"'.($Host->get('printerLevel') == 1 ? 'checked' : '').' />'._('Add Only').'<br/>';
         print '<input type="radio" name="level" value="2"'.($Host->get('printerLevel') == 2 ? 'checked' : '').' />'._('Add and Remove').'<br/></p>';
-        foreach ((array)$Host->get('printers') AS $Printer) {
-            if ($Printer && $Printer->isValid()) {
+        foreach ($Host->get('printers') AS &$Printer) {
+            if ($Printer->isValid()) {
                 $this->data[] = array(
                     'printer_id' => $Printer->get('id'),
                     'is_default' => ($Host->getDefault($Printer->get('id')) ? 'checked' : ''),
@@ -612,6 +632,7 @@ class HostManagementPage extends FOGPage {
                 );
             }
         }
+        unset($Printer);
         // Hook
         $this->HookManager->processEvent('HOST_EDIT_PRINTER', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -642,8 +663,9 @@ class HostManagementPage extends FOGPage {
             array('width' => 90, 'class' => 'l'),
             array('width' => 20, 'class' => 'r'),
         );
-        foreach((array)$Host->get('snapinsnotinme') AS $Snapin) {
-            if ($Snapin && $Snapin->isValid()) {
+        foreach($Host->get('snapinsnotinme') AS &$Snapin) {
+            $Snapin = $this->getClass('Snapin',$Snapin);
+            if ($Snapin->isValid()) {
                 $this->data[] = array(
                     'snapin_id' => $Snapin->get('id'),
                     'snapin_name' => $Snapin->get('name'),
@@ -651,6 +673,7 @@ class HostManagementPage extends FOGPage {
                 );
             }
         }
+        unset($Snapin);
         if (count($this->data) > 0) {
             print '<center><label for="hostSnapinShow">'._('Check here to see what snapins can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostSnapinShow" id="hostSnapinShow" /></label>';
             print '<div id="snapinNotInHost">';
@@ -672,7 +695,7 @@ class HostManagementPage extends FOGPage {
             '<input type="checkbox" name="snapinRemove[]" value="${snap_id}" class="toggle-action" />',
             '<a href="?node=snapin&sub=edit&id=${snap_id}">${snap_name}</a>',
         );
-        foreach ((array)$Host->get('snapins') AS $Snapin) {
+        foreach ($Host->get('snapins') AS &$Snapin) {
             if ($Snapin && $Snapin->isValid()) {
                 $this->data[] = array(
                     'snap_id' => $Snapin->get('id'),
@@ -680,6 +703,7 @@ class HostManagementPage extends FOGPage {
                 );
             }
         }
+        unset($Snapin);
         // Hook
         $this->HookManager->processEvent('HOST_EDIT_SNAPIN', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -709,7 +733,7 @@ class HostManagementPage extends FOGPage {
         print "<legend>"._('General').'</legend>';
         $ModOns = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $Host->get('id')),'','','','','','','moduleID');
         $moduleName = $this->getGlobalModuleStatus();
-        foreach ($this->getClass('ModuleManager')->find() AS $Module) {
+        foreach ($this->getClass('ModuleManager')->find() AS &$Module) {
             if ($Module->isValid()) {
                 $this->data[] = array(
                     'input' => '<input type="checkbox" '.($moduleName[$Module->get('shortName')] || ($moduleName[$Module->get('shortName')] && $Module->get('isDefault')) ? 'class="checkboxes"' : '').' name="modules[]" value="${mod_id}" ${checked} '.(!$moduleName[$Module->get('shortName')] ? 'disabled' : '').' />',
@@ -749,8 +773,8 @@ class HostManagementPage extends FOGPage {
             '${span}',
         );
         $Services = $this->getClass('ServiceManager')->find(array('name' => array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')), 'OR', 'id');
-        foreach((array)$Services AS $Service) {
-            if ($Service && $Service->isValid()) {
+        foreach($Services AS &$Service) {
+            if ($Service->isValid()) {
                 $this->data[] = array(
                     'input' => '<input type="text" name="${type}" value="${disp}" />',
                     'span' => '<span class="icon fa fa-question fa-1x hand" title="${desc}"></span>',
@@ -761,6 +785,7 @@ class HostManagementPage extends FOGPage {
                 );
             }
         }
+        unset($Service);
         $this->data[] = array(
             'field' => '',
             'input' => '',
@@ -851,12 +876,10 @@ class HostManagementPage extends FOGPage {
         print "\n\t\t\t".'<div id="host-hardware-inventory" class="organic-tabs-hidden">';
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=host-hardware-inventory">';
         print "\n\t\t\t<h2>"._('Host Hardware Inventory').'</h2>';
-        if ($Inventory && $Inventory->isValid())
-        {
-            foreach(array('cpuman','cpuversion') AS $x)
-                $Inventory->set($x,implode(' ',array_unique(explode(' ',$Inventory->get($x)))));
-            foreach((array)$fields AS $field => $input)
-            {
+        if ($Inventory && $Inventory->isValid()) {
+            foreach(array('cpuman','cpuversion') AS &$x) $Inventory->set($x,implode(' ',array_unique(explode(' ',$Inventory->get($x)))));
+            unset($x);
+            foreach((array)$fields AS $field => &$input) {
                 $this->data[] = array(
                     'field' => $field,
                     'input' => $input,
@@ -890,6 +913,7 @@ class HostManagementPage extends FOGPage {
                     'case_asset' => $Inventory->get('caseasset'),
                 );
             }
+            unset($input);
         }
         else
             unset($this->data);
@@ -928,10 +952,8 @@ class HostManagementPage extends FOGPage {
         print "\n\t\t\t".'<h2>'._('Virus History').'</h2>';
         print "\n\t\t\t".'<h2><a href="#"><input type="checkbox" class="delvid" id="all" name="delvid" value="all" onclick="this.form.submit()" /><label for="all">('._('clear all history').')</label></a></h2>';
         $Viruses = $this->getClass('VirusManager')->find(array('hostMAC' => $Host->get('mac')));
-        foreach((array)$Viruses AS $Virus)
-        {
-            if ($Virus && $Virus->isValid())
-            {
+        foreach($Viruses AS &$Virus) {
+            if ($Virus->isValid()) {
                 $this->data[] = array(
                     'virus_name' => $Virus->get('name'),
                     'virus_file' => $Virus->get('file'),
@@ -941,6 +963,7 @@ class HostManagementPage extends FOGPage {
                 );
             }
         }
+        unset($Virus);
         // Hook
         $this->HookManager->processEvent('HOST_VIRUS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -971,28 +994,24 @@ class HostManagementPage extends FOGPage {
             '${user_name}',
             '${user_desc}',
         );
-        foreach((array)$Host->get('users') AS $UserLogin)
-        {
+        foreach($Host->get('users') AS &$UserLogin) {
             if ($UserLogin && $UserLogin->isValid())
                 $Dates[] = $UserLogin->get('date');
         }
+        unset($UserLogin);
         $Dates = array_unique((array)$Dates);
-        if ($Dates)
-        {
+        if ($Dates) {
             rsort($Dates);
             print "\n\t\t\t<p>"._('View History for').'</p>';
-            foreach((array)$Dates AS $Date)
-            {
-                if ($_REQUEST['dte'] == '')
-                    $_REQUEST['dte'] = $Date;
+            foreach((array)$Dates AS &$Date) {
+                if ($_REQUEST['dte'] == '') $_REQUEST['dte'] = $Date;
                 $optionDate[] = '<option value="'.$Date.'" '.($Date == $_REQUEST['dte'] ? 'selected="selected"' : '').'>'.$Date.'</option>';
             }
+            unset($Date);
             print "\n\t\t\t".'<select name="dte" id="loghist-date" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select>';
             print "\n\t\t\t".'<a href="#" onclick="document.getElementByID(\'dte\').submit()"><i class="icon fa fa-play noBorder"></i></a></p>';
-            foreach ((array)$Host->get('users') AS $UserLogin)
-            {
-                if ($UserLogin && $UserLogin->isValid() && $UserLogin->get('date') == $_REQUEST['dte'])
-                {
+            foreach ($Host->get('users') AS &$UserLogin) {
+                if ($UserLogin && $UserLogin->isValid() && $UserLogin->get('date') == $_REQUEST['dte']) {
                     $this->data[] = array(
                         'action' => ($UserLogin->get('action') == 1 ? _('Login') : ($UserLogin->get('action') == 0 ? _('Logout') : '')),
                         'user_name' => $UserLogin->get('username'),
@@ -1001,6 +1020,7 @@ class HostManagementPage extends FOGPage {
                     );
                 }
             }
+            unset($UserLogin);
             // Hook
             $this->HookManager->processEvent('HOST_USER_LOGIN', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
             // Output
@@ -1034,10 +1054,8 @@ class HostManagementPage extends FOGPage {
             array(),
         );
         $ImagingLogs = $this->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')));
-        foreach ((array)$ImagingLogs AS $ImageLog)
-        {
-            if ($ImageLog && $ImageLog->isValid())
-            {
+        foreach ($ImagingLogs AS &$ImageLog) {
+            if ($ImageLog->isValid()) {
                 $Start = $ImageLog->get('start');
                 $End = $ImageLog->get('finish');
                 $this->data[] = array(
@@ -1049,6 +1067,7 @@ class HostManagementPage extends FOGPage {
                 );
             }
         }
+        unset($ImageLog);
         // Hook
         $this->HookManager->processEvent('HOST_IMAGE_HIST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -1071,17 +1090,14 @@ class HostManagementPage extends FOGPage {
             '${snapin_return}',
         );
         $SnapinJobs = $this->getClass('SnapinJobManager')->find(array('hostID' => $Host->get('id')));
-        foreach((array)$SnapinJobs AS $SnapinJob)
-            $SnapinTasks[] = $this->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id')));
-        foreach((array)$SnapinTasks AS $SnapinTask1)
-        {
-            foreach($SnapinTask1 AS $SnapinTask)
-            {
-                if ($SnapinTask && $SnapinTask->isValid())
-                {
-                    $Snapin = new Snapin($SnapinTask->get('snapinID'));
+        foreach($SnapinJobs AS &$SnapinJob) $SnapinTasks[] = $this->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id')));
+        unset($SnapinJob);
+        foreach((array)$SnapinTasks AS &$SnapinTask1) {
+            foreach((array)$SnapinTask1 AS &$SnapinTask) {
+                if ($SnapinTask->isValid()) {
+                    $Snapin = $SnapinTask->getSnapin();
                     $this->data[] = array(
-                        'snapin_name' => $Snapin && $Snapin->isValid() ? $Snapin->get('name') : _('Snapin No longer exists'),
+                        'snapin_name' => $Snapin->isValid() ? $Snapin->get('name') : _('Snapin No longer exists'),
                         'snapin_start' => $this->formatTime($SnapinTask->get('checkin')),
                         'snapin_end' => $this->formatTime($SnapinTask->get('complete')),
                         'snapin_duration' => $this->diff($SnapinTask->get('checkin'),$SnapinTask->get('complete')),
@@ -1089,7 +1105,9 @@ class HostManagementPage extends FOGPage {
                     );
                 }
             }
+            unset($SnapinTask);
         }
+        unset($SnapinTask1);
         // Hook
         $this->HookManager->processEvent('HOST_SNAPIN_HIST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -1138,13 +1156,15 @@ class HostManagementPage extends FOGPage {
                 if (strtolower($Host->get('mac')->__toString()) != strtolower($mac->__toString()))
                     $Host->set('mac', strtolower($mac->__toString()));
                 $MyMACs = $AddMe = array();
-                foreach((array)$_REQUEST['additionalMACs'] AS $MAC) {
+                foreach((array)$_REQUEST['additionalMACs'] AS &$MAC) {
                     $MAC = (!($MAC instanceof MACAddress) ? $this->getClass('MACAddress',$MAC) : $MAC);
                     if ($MAC && $MAC->isValid()) $AddMe[] = strtolower($MAC->__toString());
                 }
-                foreach((array)$Host->get('additionalMACs') AS $MyMAC) {
+                unset($MAC);
+                foreach($Host->get('additionalMACs') AS &$MyMAC) {
                     if ($MyMAC instanceof MACAddress && $MyMAC->isValid()) $MyMACs[] = strtolower($MyMAC->__toString());
                 }
+                unset($MyMAC);
                 if (isset($_REQUEST['primaryMAC'])) {
                     $AddMe[] = strtolower($mac->__toString());
                     $Host->removeAddMAC($_REQUEST['primaryMAC'])
@@ -1174,15 +1194,14 @@ class HostManagementPage extends FOGPage {
                 if (isset($_REQUEST['level']))
                     $Host->set('printerLevel',$_REQUEST['level']);
                 // Add
-                if (isset($_REQUEST['updateprinters']))
-                {
+                if (isset($_REQUEST['updateprinters'])) {
                     $Host->addPrinter($_REQUEST['printer']);
                     // Set Default
-                    foreach($_REQUEST['printerid'] AS $printerid)
-                    {
-                        $Printer = new Printer($printerid);
+                    foreach($_REQUEST['printerid'] AS &$printerid) {
+                        $Printer = $this->getClass('Printer',$printerid);
                         $Host->updateDefault($_REQUEST['default'],isset($_REQUEST['default']));
                     }
+                    unset($printerid);
                 }
                 // Remove
                 if (isset($_REQUEST['printdel']))
@@ -1293,13 +1312,13 @@ class HostManagementPage extends FOGPage {
             _('CSV File') => '<input class="smaller" type="file" name="file" />',
             '&nbsp;' => '<input class="smaller" type="submit" value="'._('Upload CSV').'" />',
         );
-        foreach ((array)$fields AS $field => $input)
-        {
+        foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
             );
         }
+        unset($input);
         // Hook
         $this->HookManager->processEvent('HOST_IMPORT_OUT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -1384,13 +1403,13 @@ class HostManagementPage extends FOGPage {
             _('Errors') => $uploadErrors,
         );
 
-        foreach((array)$fields AS $field => $input)
-        {
+        foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
             );
         }
+        unset($input);
         // Hook
         $this->HookManager->processEvent('HOST_IMPORT_FIELDS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -1420,8 +1439,8 @@ class HostManagementPage extends FOGPage {
         );
         $report = new ReportMaker();
         $Hosts = $this->getClass('HostManager')->find();
-        foreach((array)$Hosts AS $Host) {
-            if ($Host && $Host->isValid()) {
+        foreach($Hosts AS &$Host) {
+            if ($Host->isValid()) {
                 $macs[] = $Host->get('mac');
                 foreach($Host->get('additionalMACs') AS $AddMAC) {
                     if ($AddMAC && $AddMAC->isValid()) $macs[] = $AddMAC->__toString();
@@ -1436,15 +1455,16 @@ class HostManagementPage extends FOGPage {
                 unset($macs);
             }
         }
+        unset($Host);
         $_SESSION['foglastreport']=serialize($report);
         print "\n\t\t\t".'<form method="post" action="export.php?type=host">';
-        foreach ((array)$fields AS $field => $input)
-        {
+        foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
             );
         }
+        unset($input);
         // Hook
         $this->HookManager->processEvent('HOST_EXPORT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -1484,12 +1504,7 @@ class HostManagementPage extends FOGPage {
             if (!$Group->isValid())
                 throw new Exception( _('Group is Invalid') );
             // Main
-            foreach ((array)explode(',', $_REQUEST['hostIDArray']) AS $hostID)
-            {
-                //$Group->add('hosts', $hostID);
-                $GroupAssociation = new GroupAssociation(array('hostID' => $hostID, 'groupID' => $Group->get('id')));
-                $GroupAssociation->save();
-            }
+            $Group->addHost(explode(',',$_REQUEST[hostIDArray]))->save();
             // Success
             print '<div class="task-start-ok"><p>'._('Successfully associated Hosts with the Group ').$Group->get('name').'</p></div>';
         }
@@ -1498,29 +1513,23 @@ class HostManagementPage extends FOGPage {
             printf('<div class="task-start-failed"><p>%s</p><p>%s</p></div>', _('Failed to Associate Hosts with Group'), $e->getMessage());
         }
     }
-    public function hostlogins()
-    {
+    public function hostlogins() {
         $MainDate = $this->nice_date($_REQUEST['dte'])->getTimestamp();
         $MainDate_1 = $this->nice_date($_REQUEST['dte'])->modify('+1 day')->getTimestamp();
         $Users = $this->getClass('UserTrackingManager')->find(array('hostID' => $_REQUEST['id'],'date' => $_REQUEST['dte'],'action' => array(null,0,1)),'','date','DESC');
-        foreach($Users AS $Login)
-        {
-            if ($Login && $Login->isValid() && $Login->get('username') != 'Array')
-            {
+        foreach($Users AS &$Login) {
+            if ($Login->isValid() && $Login->get('username') != 'Array') {
                 $time = $this->nice_date($Login->get('datetime'))->format('U');
-                if (!$Data[$Login->get('username')])
-                    $Data[$Login->get('username')] = array('user' => $Login->get('username'),'min' => $MainDate,'max' => $MainDate_1);
-                if ($Login->get('action'))
-                    $Data[$Login->get('username')]['login'] = $time;
-                if (array_key_exists('login',$Data[$Login->get('username')]) && !$Login->get('action'))
-                    $Data[$Login->get('username')]['logout'] = $time;
-                if (array_key_exists('login',$Data[$Login->get('username')]) && array_key_exists('logout',$Data[$Login->get('username')]))
-                {
+                if (!$Data[$Login->get('username')]) $Data[$Login->get('username')] = array('user' => $Login->get('username'),'min' => $MainDate,'max' => $MainDate_1);
+                if ($Login->get('action')) $Data[$Login->get('username')]['login'] = $time;
+                if (array_key_exists('login',$Data[$Login->get('username')]) && !$Login->get('action')) $Data[$Login->get('username')]['logout'] = $time;
+                if (array_key_exists('login',$Data[$Login->get('username')]) && array_key_exists('logout',$Data[$Login->get('username')])) {
                     $data[] = $Data[$Login->get('username')];
                     unset($Data[$Login->get('username')]);
                 }
             }
         }
+        unset($Login);
         print json_encode($data);
     }
 }

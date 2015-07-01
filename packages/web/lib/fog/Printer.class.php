@@ -28,20 +28,17 @@ class Printer extends FOGController {
     );
     public function load($field = 'id') {
         parent::load($field);
-        foreach(get_class_methods($this) AS $method) {
+        foreach(get_class_methods($this) AS &$method) {
             if (strlen($method) > 5 && strpos($method,'load')) $this->$method();
         }
+        unset($method);
     }
     // Overrides
     private function loadHosts() {
         if (!$this->isLoaded('hosts') && $this->get('id')) {
             $HostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $this->get('id')),'','','','','','','hostID');
-            foreach ($this->getClass('HostManager')->find(array('id' => $HostIDs)) AS $Host) {
-                if ($Host->isValid()) $this->add('hosts',$Host);
-            }
-            foreach ($this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','',true) AS $Host) {
-                if ($Host->isValid()) $this->add('hostsnotinme',$Host);
-            }
+            $this->set('hosts',$this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','','','id'));
+            $this->set('hostsnotinme',$this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','',true,'id'));
         }
         return $this;
     }
@@ -50,24 +47,25 @@ class Printer extends FOGController {
         return parent::get($key);
     }
     public function set($key, $value) {
-        if (in_array($this->key($key),array('hosts','hostsnotinme'))) {
+        if ($this->key($key) == 'hosts') {
             $this->loadHosts();
-            foreach((array)$value AS $Host) $newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
+            foreach((array)$value AS &$Host) $newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
+            unset($Host);
             $value = (array)$newValue;
         }
         // Set
         return parent::set($key,$value);
     }
     public function add($key, $value) {
-        if (in_array($this->key($key),array('hosts','hostsnotinme')) && !($value instanceof Host)) {
+        if ($this->key($key) == 'hosts' && !($value instanceof Host)) {
             $this->loadHosts();
-            $value = new Host($value);
+            $value = $this->getClass('Host',$value);
         }
         // Add
         return parent::add($key, $value);
     }
     public function remove($key, $object) {
-        if (in_array($this->key($key),array('hosts','hostsnotinme'))) $this->loadHosts();
+        if ($this->key($key) == 'hosts') $this->loadHosts();
         // Remove
         return parent::remove($key, $object);
     }
@@ -78,7 +76,7 @@ class Printer extends FOGController {
             $this->getClass('PrinterAssociationManager')->destroy(array('printerID' => $this->get('id')));
             // Create new Assocs
             $i = 0;
-            foreach((array)$this->get('hosts') AS $Host) {
+            foreach($this->get('hosts') AS &$Host) {
                 if (($Host instanceof Host) && $Host->isValid()) {
                     $this->getClass('PrinterAssociation')
                         ->set('printerID',$this->get('id'))
@@ -88,26 +86,30 @@ class Printer extends FOGController {
                 }
                 $i++;
             }
+            unset($Host);
         }
         return $this;
     }
     public function addHost($addArray) {
         // Add
-        foreach((array)$addArray AS $item) $this->add('hosts', $item);
+        foreach((array)$addArray AS &$item) $this->add('hosts', $item);
+        unset($item);
         // Return
         return $this;
     }
     public function removeHost($removeArray) {
         // Iterate array (or other as array)
-        foreach((array)$removeArray AS $remove) $this->remove('hosts', ($remove instanceof Host ? $remove : new Host((int)$remove)));
+        foreach((array)$removeArray AS &$remove) $this->remove('hosts', ($remove instanceof Host ? $remove : $this->getClass('Host',(int)$remove)));
+        unset($remove);
         // Return
         return $this;
     }
     public function updateDefault($hostid,$onoff) {
-        foreach((array)$hostid AS $id) {
+        foreach((array)$hostid AS &$id) {
             $Host = $this->getClass('Host',$id);
             if ($Host && $Host->isValid()) $Host->updateDefault($this->get('id'),in_array($Host->get('id'),$onoff));
         }
+        unset($id);
         return $this;
     }
     public function destroy($field = 'id') {
