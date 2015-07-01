@@ -44,14 +44,15 @@ class UserManagementPage extends FOGPage {
         // Find data
         $Users = $this->getClass('UserManager')->find();
         // Row data
-        foreach ((array)$Users AS $User) {
-            if ($User && $User->isValid()) {
+        foreach ($Users AS &$User) {
+            if ($User->isValid()) {
                 $this->data[] = array(
                     'id'	=> $User->get('id'),
                     'name'	=> $User->get('name')
                 );
             }
         }
+        unset($User);
         // Hook
         $this->HookManager->processEvent('USER_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -69,12 +70,13 @@ class UserManagementPage extends FOGPage {
     }
     public function search_post() {
         // Find data -> Push data
-        foreach ($this->getClass('UserManager')->search() AS $User) {
+        foreach ($this->getClass('UserManager')->search() AS &$User) {
             $this->data[] = array(
                 'id'	=> $User->get('id'),
                 'name'	=> $User->get('name')
             );
         }
+        unset($User);
         // Hook
         $this->HookManager->processEvent('USER_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -102,12 +104,13 @@ class UserManagementPage extends FOGPage {
         print "\n\t\t\t<h2>"._('Add new user account').'</h2>';
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
         print "\n\t\t\t".'<input type="hidden" name="add" value="1" />';
-        foreach ((array)$fields AS $field => $input) {
+        foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
             );
         }
+        unset($input);
         $this->HookManager->processEvent('USER_ADD', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
         print "\n\t\t\t</form>";
@@ -172,12 +175,13 @@ class UserManagementPage extends FOGPage {
         );
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
         print "\n\t\t\t".'<input type="hidden" name="update" value="'.$User->get('id').'" />';
-        foreach ((array)$fields AS $field => $formData) {
+        foreach ((array)$fields AS $field => &$formData) {
             $this->data[] = array(
                 'field' => $field,
                 'formData' => $formData,
             );
         }
+        unset($formData);
         $this->HookManager->processEvent('USER_EDIT', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
         print "\n\t\t\t</form>";
