@@ -188,11 +188,15 @@ abstract class FOGBase {
      * @return void
      */
     public function array_remove($key, array &$array) {
-        if (is_array($key)) foreach($key AS $val) unset($array[$val]);
+        if (is_array($key)) {
+            foreach($key AS &$val) unset($array[$val]);
+            unset($val);
+        }
         else {
             foreach($array AS &$value) {
                 if (is_array($value)) $this->array_remove($key,$value);
             }
+            unset($value);
         }
     }
     /** @function randomString() Generates a random string based on the length you pass.
@@ -403,13 +407,15 @@ abstract class FOGBase {
      * @return $MAClist, returns the list of valid MACs
      */
     public function parseMacList($stringlist,$image = false,$client = false) {
-        foreach($this->getClass('MACAddressAssociationManager')->find(array('mac' => explode('|',$stringlist))) AS &$MAC) {
+        $MACs = $this->getClass('MACAddressAssociationManager')->find(array('mac' => explode('|',$stringlist)));
+        foreach((array)$MACs AS &$MAC) {
             if ($MAC->isValid()) {
                 if (($image && !$MAC->get('imageIgnore')) || ($client && !$MAC->get('clientIgnore')) || (!$image && !$client)) $MAClist[] = strtolower($this->getClass('MACAddress',$MAC)->__toString());
             }
         }
         unset($MAC);
-        foreach(explode('|',$stringlist) AS $MAC) {
+        $MACs = explode('|',$stringlist);
+        foreach((array)$MACs AS $MAC) {
             $MAC = $this->getClass('MACAddress',$MAC);
             if ($MAC->isValid() && !in_array(strtolower($MAC->__toString()),(array)$MAClist)) $MAClist[] = strtolower($MAC->__toString());
         }
