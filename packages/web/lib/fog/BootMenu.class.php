@@ -222,9 +222,10 @@ class BootMenu extends FOGBase {
      * @return void
      */
     private function printTasking($kernelArgsArray) {
-        foreach($kernelArgsArray AS $arg) {
+        foreach($kernelArgsArray AS &$arg) {
             if (!is_array($arg) && !empty($arg) || (is_array($arg) && $arg['active'] && !empty($arg))) $kernelArgs[] = (is_array($arg) ? $arg['value'] : $arg);
         }
+        unset($arg);
         $kernelArgs = array_unique($kernelArgs);
         $Send['task'] = array(
             "#!ipxe",
@@ -425,7 +426,7 @@ class BootMenu extends FOGBase {
             $this->parseMe($Send);
             $this->chainBoot();
         } else {
-            foreach($Images AS $Image) {
+            foreach($Images AS &$Image) {
                 // Only create menu items if the image is valid.
                 if ($Image && $Image->isValid()) {
                     array_push($Send['ImageListing'],"item ".$Image->get('path').' '.$Image->get('name'));
@@ -433,11 +434,12 @@ class BootMenu extends FOGBase {
                     if ($this->Host && $this->Host->isValid() && $this->Host->getImage() && $this->Host->getImage()->isValid() && $this->Host->getImage()->get('id') == $Image->get('id')) $defItem = 'choose --default '.$Image->get('path').' --timeout '.$this->timeout.' target && goto ${target}';
                 }
             }
+            unset($Image);
             // Add the return to other menu
             array_push($Send['ImageListing'],'item return Return to menu');
             // Insert the choice of menu item.
             array_push($Send['ImageListing'],$defItem);
-            foreach($Images AS $Image) {
+            foreach($Images AS& $Image) {
                 if ($Image && $Image->isValid()) {
                     $Send['pathofimage'.$Image->get('name')] = array(
                         ':'.$Image->get('path'),
@@ -454,6 +456,7 @@ class BootMenu extends FOGBase {
                     );
                 }
             }
+            unset($Image);
             $Send['returnmenu'] = array(
                 ':return',
                 'params',
@@ -504,7 +507,8 @@ class BootMenu extends FOGBase {
      */
     private function parseMe($Send) {
         $this->HookManager->processEvent('IPXE_EDIT',array('ipxe' => &$Send,'Host' => &$this->Host,'kernel' => &$this->kernel,'initrd' => &$this->initrd,'booturl' => &$this->booturl, 'memdisk' => &$this->memdisk,'memtest' => &$this->memtest, 'web' => &$this->web, 'defaultChoice' => &$this->defaultChoice, 'bootexittype' => &$this->bootexittype,'storage' => &$this->storage,'shutdown' => &$this->shutdown,'path' => &$this->path,'timeout' => &$this->timeout,'KS' => $this->ks));
-        foreach($Send AS $ipxe => $val) print implode("\n",$val)."\n";
+        foreach($Send AS $ipxe => &$val) print implode("\n",$val)."\n";
+        unset($val);
     }
     /** @function advLogin() If advanced login is set this just passes when verifyCreds is correct
      * @return void
@@ -848,17 +852,19 @@ class BootMenu extends FOGBase {
             $ArrayOfStuff = array(($this->Host && $this->Host->isValid() ? ($this->Host->get('pending') ? 6 : 1) : 0),2);
             if ($showDebug) array_push($ArrayOfStuff,3);
             if ($Advanced) array_push($ArrayOfStuff,($AdvLogin ? 5 : 4));
-            foreach($Menus AS $Menu) {
+            foreach($Menus AS &$Menu) {
                 if (!in_array($Menu->get('name'),array('fog.reg','fog.reginput')) || (in_array($Menu->get('name'),array('fog.reg','fog.reginput')) && $this->FOGCore->getSetting('FOG_REGISTRATION_ENABLED'))) {
                     if (in_array($Menu->get('regMenu'),$ArrayOfStuff)) $Send['item-'.$Menu->get('name')] = $this->menuItem($Menu, $desc);
                 }
             }
+            unset($Menu);
             $Send['default'] = array(
                 "$this->defaultChoice",
             );
-            foreach($Menus AS $Menu) {
+            foreach($Menus AS &$Menu) {
                 if (in_array($Menu->get('regMenu'),$ArrayOfStuff)) $Send['choice-'.$Menu->get('name')] = $Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
             }
+            unset($Menu);
             $Send['bootme'] = array(
                 ":bootme",
                 "chain -ar $this->booturl/ipxe/boot.php##params ||",
