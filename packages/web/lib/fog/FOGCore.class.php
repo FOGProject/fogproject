@@ -360,4 +360,23 @@ class FOGCore extends FOGBase {
         );
         foreach ($idFieldsToCleanup AS $class) $this->getClass($class.'AssociationManager')->destroy(array('id' => array('','NULL',0)));
     }
+    public function associationCleanup() {
+        $hostIDs = $this->getClass('HostManager')->find('','','','','','','','id');
+        $HostIDs = $this->getClass('SnapinAssociationManager')->find(array('hostID' => $hostIDs),'','','','','',true,'id');
+        $this->getClass('SnapinAssociationManager')->destroy(array('id' => $HostIDs));
+        $HostIDs = $this->getClass('MACAddressAssociationManager')->find(array('hostID' => $hostIDs),'','','','','',true,'id');
+        $this->getClass('MACAddressAssociationManager')->destroy(array('id' => $HostIDs));
+        $HostIDs = $this->getClass('GroupAssociationManager')->find(array('hostID' => $hostIDs),'','','','','',true,'id');
+        $this->getClass('GroupAssociationManager')->destroy(array('id' => $HostIDs));
+        $HostIDs = $this->getClass('PrinterAssociationManager')->find(array('hostID' => $hostIDs),'','','','','',true,'id');
+        $this->getClass('PrinterAssociationManager')->destroy(array('id' => $HostIDs));
+        $HostIDs = $this->getClass('ModuleAssociationManager')->find(array('hostID' => $hostIDs),'','','','','',true,'id');
+        $this->getClass('ModuleAssociationManager')->destroy(array('id' => $HostIDs));
+        $HostIDs = $this->getClass('InventoryManager')->find(array('hostID' => $hostIDs),'','','','','',true,'id');
+        $this->getClass('InventoryManager')->destroy(array('id' => $HostIDs));
+        $HostIDs = $this->getClass('HostAutoLogoutManager')->find(array('hostID' => $hostIDs),'','','','','',true,'id');
+        $this->getClass('HostAutoLogoutManager')->destroy(array('id' => $HostIDs));
+        $HostIDs = $this->getClass('HostScreenSettingsManager')->find(array('hostID' => $hostIDs),'','','','','',true,'id');
+        $this->getClass('HostScreenSettingsManager')->destroy(array('id' => $HostIDs));
+    }
 }
