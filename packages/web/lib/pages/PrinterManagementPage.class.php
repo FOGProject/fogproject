@@ -61,8 +61,7 @@ class PrinterManagementPage extends FOGPage {
         // Find data
         $Printers = $this->getClass('PrinterManager')->find();
         // Row data
-        foreach ((array)$Printers AS $Printer)
-        {
+        foreach ($Printers AS &$Printer) {
             $this->data[] = array(
                 'id'		=> $Printer->get('id'),
                 'name'		=> quotemeta($Printer->get('name')),
@@ -73,16 +72,15 @@ class PrinterManagementPage extends FOGPage {
                 'ip'		=> $Printer->get('ip')
             );
         }
+        unset($Printer);
         // Hook
         $this->HookManager->processEvent('PRINTER_DATA', array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
         // Output
         $this->render();
     }
-    public function search_post()
-    {
+    public function search_post() {
         // Find data -> Push data
-        foreach ($this->getClass('PrinterManager')->search() AS $Printer)
-        {
+        foreach ($this->getClass('PrinterManager')->search() AS &$Printer) {
             $this->data[] = array(
                 'id'		=> $Printer->get('id'),
                 'name'		=> $Printer->get('name'),
@@ -93,6 +91,7 @@ class PrinterManagementPage extends FOGPage {
                 'ip'		=> $Printer->get('ip')
             );
         }
+        unset($Printer);
         // Hook
         $this->HookManager->processEvent('PRINTER_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -121,8 +120,9 @@ class PrinterManagementPage extends FOGPage {
             'iPrint' => _('iPrint Printer'),
             'Network' => _('Network Printer'),
         );
-        foreach ((array)$printerTypes AS $short => $long)
+        foreach ((array)$printerTypes AS $short => &$long)
             $optionPrinter .= "\n\t\t\t\t".'<option value="'.$short.'" '.($_REQUEST['printertype'] == $short ? 'selected="selected"' : '').'>'.$long.'</option>';
+        unset($long);
         print "\n\t\t\t".'<select name="printertype" onchange="this.form.submit()">'.$optionPrinter."\n\t\t\t</select>";
         print "\n\t\t\t</form>";
         if ($_REQUEST['printertype'] == 'Network')
@@ -150,8 +150,7 @@ class PrinterManagementPage extends FOGPage {
             );
         }
         $fields['<input type="hidden" name="printertype" value="'.$_REQUEST['printertype'].'" />'] = '<input type="hidden" name="add" value="1" /><input type="submit" value="'._('Add Printer').'" />';
-        foreach((array)$fields AS $field => $input)
-        {
+        foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -162,6 +161,7 @@ class PrinterManagementPage extends FOGPage {
                 'printer_ip' => $_REQUEST['ip'],
             );
         }
+        unset($input);
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
         // Hook
         $this->HookManager->processEvent('PRINTER_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -297,8 +297,9 @@ class PrinterManagementPage extends FOGPage {
             'iPrint' => _('iPrint Printer'),
             'Network' => _('Network Printer'),
         );
-        foreach ((array)$printerTypes AS $short => $long)
+        foreach ((array)$printerTypes AS $short => &$long)
             $optionPrinter .= "\n\t\t\t\t".'<option value="'.$short.'" '.($_REQUEST['printertype'] == $short ? 'selected="selected"' : '').'>'.$long.'</option>';
+        unset($long);
         if ($_REQUEST['printertype'] == 'Network')
         {
             $fields = array(
@@ -325,8 +326,7 @@ class PrinterManagementPage extends FOGPage {
             );
         }
         $fields['<input type="hidden" name="printertype" value="'.$_REQUEST['printertype'].'" />'] = '<input type="submit" value="'._('Update Printer').'" />';
-        foreach((array)$fields AS $field => $input)
-        {
+        foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -337,6 +337,7 @@ class PrinterManagementPage extends FOGPage {
                 'printer_ip' => $Printer->get('ip'),
             );
         }
+        unset($input);
         // Hook
         $this->HookManager->processEvent('PRINTER_EDIT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=printer-type">';

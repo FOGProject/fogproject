@@ -85,7 +85,7 @@ class ImageManagementPage extends FOGPage {
         $Images = $this->getClass('ImageManager')->find();
         $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
         // Row data
-        foreach ((array)$Images AS $Image) {
+        foreach ($Images AS &$Image) {
             $imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
             $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
             if ($StorageNode && $StorageNode->isValid() && $SizeServer) $servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
@@ -104,6 +104,7 @@ class ImageManagementPage extends FOGPage {
                 'type' => $Image->get('format') ? 'Partimage' : 'Partclone',
             );
         }
+        unset($Image);
         // Hook
         $this->HookManager->processEvent('IMAGE_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -117,7 +118,7 @@ class ImageManagementPage extends FOGPage {
         // Get All images based on the keyword
         $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
         // Find data -> Push data
-        foreach ($this->getClass('ImageManager')->search() AS $Image) {
+        foreach ($this->getClass('ImageManager')->search() AS &$Image) {
             $imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
             $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
             if ($StorageNode && $StorageNode->isValid() && $SizeServer) $servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('path').'/'.$Image->get('path') : null));
@@ -136,6 +137,7 @@ class ImageManagementPage extends FOGPage {
                 'protected' => '<i class="fa fa-'.(!$Image->get('protected') ? 'un' : '').'lock fa-1x icon hand" title="'.(!$Image->get('protected') ? _('Not Protected') : _('Protected')).'"></i>',
             );
         }
+        unset($Image);
         // Hook
         $this->HookManager->processEvent('IMAGE_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -171,7 +173,7 @@ class ImageManagementPage extends FOGPage {
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
         $StorageNodes = $this->getClass('StorageNodeManager')->find(array('isEnabled' => 1));
         unset($MasterGroupID,$MasterNode,$MastserSet);
-        foreach((array)$StorageNodes AS $Node) {
+        foreach($StorageNodes AS &$Node) {
             if ($Node->isValid() && $Node->get('isMaster')) {
                 $MasterGroupID = $Node->get('storageGroupID');
                 $MasterNode = $Node;
@@ -180,15 +182,16 @@ class ImageManagementPage extends FOGPage {
         }
         unset($Node);
         if (!isset($MasterGroupID) || is_numeric($MasterGroupID) || $MasterGroupID <= 0) {
-            foreach((array)$StorageNodes AS $Node) {
+            foreach($StorageNodes AS &$Node) {
                 if ($Node->isValid()) {
                     $MasterGroupID = $Node->get('storageGroupID');
                     $MasterNode = $Node;
                 }
             }
         }
+        unset($Node);
         $StorageGroups = $this->getClass('StorageGroupManager')->buildSelectBox($MasterGroupID);
-        foreach ((array)$fields AS $field => $input) {
+        foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -203,6 +206,7 @@ class ImageManagementPage extends FOGPage {
                 'image_comp' => isset($_REQUEST['compress']) ? intval($_REQUEST['compress']) : $this->FOGCore->getSetting('FOG_PIGZ_COMP'),
             );
         }
+        unset($input);
         // Hook
         $this->HookManager->processEvent('IMAGE_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -294,7 +298,7 @@ class ImageManagementPage extends FOGPage {
             '<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" /><!--<i class="icon fa fa-question" title="TODO!"></i>-->',
         );
         $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
-        foreach ((array)$fields AS $field => $input) {
+        foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -311,6 +315,7 @@ class ImageManagementPage extends FOGPage {
                 'image_comp' => is_numeric($Image->get('compress')) && $Image->get('compress') > -1 ? $Image->get('compress') : $this->FOGCore->getSetting('FOG_PIGZ_COMP'),
             );
         }
+        unset($input);
         // Hook
         $this->HookManager->processEvent('IMAGE_EDIT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -327,20 +332,23 @@ class ImageManagementPage extends FOGPage {
         $IAMan = new ImageAssociationManager();
         $SGMan = new StorageGroupManager();
         // Get groups with this image assigned
-        foreach((array)$Image->get('storageGroups') AS $Group) {
-            if ($Group && $Group->isValid()) $GroupsWithMe[] = $Group->get('id');
+        foreach($Image->get('storageGroups') AS &$Group) {
+            if ($Group->isValid()) $GroupsWithMe[] = $Group->get('id');
         }
+        unset($Group);
         // Get all group IDs with an image assigned
-        foreach($IAMan->find() AS $Group) {
+        foreach($IAMan->find() AS &$Group) {
             if ($Group->getStorageGroup() && $Group->getStorageGroup()->isValid() && $Group->getImage()->isValid()) $GroupWithAnyImage[] = $Group->getStorageGroup()->get('id');
         }
+        unset($Group);
         // Set the values
-        foreach($SGMan->find() AS $Group) {
-            if ($Group && $Group->isValid()) {
+        foreach($SGMan->find() AS &$Group) {
+            if ($Group->isValid()) {
                 if (!in_array($Group->get('id'),$GroupWithAnyImage)) $GroupNotWithImage[] = $Group;
                 if (!in_array($Group->get('id'),$GroupsWithMe)) $GroupNotWithMe[] = $Group;
             }
         }
+        unset($Group);
         print "\n\t\t\t\t".'<div id="image-storage">';
         // Create the header data:
         $this->headerData = array(
@@ -358,8 +366,8 @@ class ImageManagementPage extends FOGPage {
             array(),
         );
         // All groups not with this set as the image
-        foreach((array)$GroupNotWithMe AS $Group) {
-            if ($Group && $Group->isValid()) {
+        foreach((array)$GroupNotWithMe AS &$Group) {
+            if ($Group->isValid()) {
                 $this->data[] = array(
                     'storageGroup_id' => $Group->get('id'),
                     'storageGroup_name' => $Group->get('name'),
@@ -367,6 +375,7 @@ class ImageManagementPage extends FOGPage {
                 );
             }
         }
+        unset($Group);
         $GroupDataExists = false;
         if (count($this->data) > 0) {
             $GroupDataExists = true;
@@ -387,8 +396,8 @@ class ImageManagementPage extends FOGPage {
             _('Storage Group Name'),
         );
         // All groups without an image
-        foreach((array)$GroupNotWithImage AS $Group) {
-            if ($Group && $Group->isValid()) {
+        foreach((array)$GroupNotWithImage AS &$Group) {
+            if ($Group->isValid()) {
                 $this->data[] = array(
                     'storageGroup_id' => $Group->get('id'),
                     'storageGroup_name' => $Group->get('name'),
@@ -396,6 +405,7 @@ class ImageManagementPage extends FOGPage {
                 );
             }
         }
+        unset($Group);
         if (count($this->data) > 0) {
             $GroupDataExists = true;
             $this->HookManager->processEvent('IMAGE_GROUP_NOT_WITH_ANY',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
@@ -424,14 +434,15 @@ class ImageManagementPage extends FOGPage {
             '<input type="checkbox" class="toggle-action" name="storagegroup-rm[]" value="${storageGroup_id}" />',
             '${storageGroup_name}',
         );
-        foreach((array)$Image->get('storageGroups') AS $Group) {
-            if ($Group && $Group->isValid()) {
+        foreach($Image->get('storageGroups') AS &$Group) {
+            if ($Group->isValid()) {
                 $this->data[] = array(
                     'storageGroup_id' => $Group->get('id'),
                     'storageGroup_name' => $Group->get('name'),
                 );
             }
         }
+        unset($Group);
         // Hook
         $this->HookManager->processEvent('IMAGE_EDIT_GROUP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -527,7 +538,7 @@ class ImageManagementPage extends FOGPage {
         );
         print "\n\t\t\t<h2>"._('Start Multicast Session').'</h2>';
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-        foreach((array)$fields AS $field => $input) {
+        foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -537,6 +548,7 @@ class ImageManagementPage extends FOGPage {
                 'select_image' => $this->getClass('ImageManager')->buildSelectBox($_REQUEST['image'],'','name'),
             );
         }
+        unset($input);
         // Hook
         $this->HookManager->processEvent('IMAGE_MULTICAST_SESS',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -567,7 +579,7 @@ class ImageManagementPage extends FOGPage {
             '<a href="?node='.$this->node.'&sub=stop&mcid=${mc_id}" title="Remove"><i class="fa fa-minus-circle" alt="'._('Kill').'"></i></a>',
         );
         $MulticastSessions = $this->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3)));
-        foreach($MulticastSessions AS $MulticastSession) {
+        foreach($MulticastSessions AS &$MulticastSession) {
             if ($MulticastSession->isValid()) {
                 $Image = new Image($MulticastSession->get('image'));
                 $TaskState = new TaskState($MulticastSession->get('stateID'));
@@ -583,6 +595,7 @@ class ImageManagementPage extends FOGPage {
                 );
             }
         }
+        unset($MulticastSession);
         // Hook
         $this->HookManager->processEvent('IMAGE_MULTICAST_START',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -627,7 +640,8 @@ class ImageManagementPage extends FOGPage {
     public function stop() {
         if (is_numeric($_REQUEST['mcid']) && $_REQUEST['mcid'] > 0) {
             $MulticastSession = $this->getClass('MulticastSessions',$_REQUEST['mcid']);
-            foreach((array)$this->getClass('MulticastSessionsAssociationManager')->find(array('msid' => $MulticastSession->get('id'))) AS $MulticastAssoc) $this->getClass('Task',$MulticastAssoc->get('taskID'))->cancel();
+            foreach((array)$this->getClass('MulticastSessionsAssociationManager')->find(array('msid' => $MulticastSession->get('id'))) AS &$MulticastAssoc) $this->getClass('Task',$MulticastAssoc->get('taskID'))->cancel();
+            unset($MulticastAssoc);
             $MulticastSession->set('name',null)->set('stateID',5)->save();
             $this->FOGCore->setMessage(_('Canceled task'));
             $this->FOGCore->redirect('?node='.$this->node.'&sub=multicast');

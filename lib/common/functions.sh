@@ -254,16 +254,14 @@ installPackages() {
     for x in $packages; do
         if [ "$x" == "mysql" ]; then
             for sqlclient in $sqlclientlist; do
-                $packagelist $sqlclient >/dev/null 2>&1
-                if [ "$?" -eq 0 ]; then
+                if [ `$packagelist $sqlclient >/dev/null 2>&1; echo $?` -eq 0 ]; then
                     x=$sqlclient
                     break
                 fi
             done
         elif [ "$x" == "mysql-server" ]; then
             for sqlserver in $sqlserverlist; do
-                $packagelist $sqlserver >/dev/null 2>&1
-                if [ "$?" -eq 0 ]; then
+                if [ `$packagelist $sqlserver >/dev/null 2>&1; echo $?` -eq 0 ]; then
                     x=$sqlserver
                     break
                 fi
