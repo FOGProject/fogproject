@@ -35,7 +35,7 @@ class TaskMobile extends FOGPage {
         );
     }
     public function index() {
-        foreach((array)$this->getClass('TaskManager')->find(array('stateID' => array(1,2,3))) AS $Task) {
+        foreach((array)$this->getClass('TaskManager')->find(array('stateID' => array(1,2,3))) AS &$Task) {
             $Host = $Task->getHost();
             $this->data[] = array(
                 'task_force' => (!$Task->get('isForced') ? '<a href="?node=${node}&sub=force&id=${task_id}"><i class="fa fa-step-forward fa-2x task"></i></a>' : '<i class="fa fa-play fa-2x task"></i>'),
@@ -47,6 +47,7 @@ class TaskMobile extends FOGPage {
                 'task_state' => $Task->getTaskStateText(),
             );
         }
+        unset($Task);
         $this->render();
     }
     public function search() {
@@ -55,7 +56,7 @@ class TaskMobile extends FOGPage {
     }
     public function search_post() {
         unset($this->headerData[0],$this->headerData[5],$this->attributes[0],$this->attributes[5],$this->templates[0],$this->templates[5]);
-        foreach((array)$this->getClass('TaskManager')->search() AS $Task) {
+        foreach((array)$this->getClass('TaskManager')->search() AS &$Task) {
             $Host = $Task->getHost();
             $this->data[] = array(
                 'task_id' => $Task->get('id'),
@@ -65,6 +66,7 @@ class TaskMobile extends FOGPage {
                 'task_state' => $Task->getTaskStateText(),
             );
         }
+        unset($Task);
         $this->render();
     }
     public function force() {

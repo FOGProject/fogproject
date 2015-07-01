@@ -54,7 +54,7 @@ class ServiceConfigurationPage extends FOGPage {
 		$moduleName = $this->getGlobalModuleStatus();
 		$modNames = $this->getGlobalModuleStatus(true);
 		$Modules = $this->getClass('ModuleManager')->find();
-		foreach ((array)$Modules AS $Module) {
+		foreach ($Modules AS &$Module) {
 			unset($this->data,$this->headerData,$this->attributes,$this->templates);
 			$this->attributes = array(
 				array('width' => 270,'class' => 'l'),
@@ -71,7 +71,7 @@ class ServiceConfigurationPage extends FOGPage {
 				($moduleName[$Module->get('shortName')] ? _($Module->get('name').' Enabled as default?') : null) => ($moduleName[$Module->get('shortName')] ? '<input type="checkbox" name="defen" ${is_on}/>' : null),
 			);
 			$fields = array_filter($fields);
-			foreach((array)$fields AS $field => $input) {
+			foreach((array)$fields AS $field => &$input) {
 				$this->data[] = array(
 					'field' => $field,
 					'input' => $input,
@@ -80,7 +80,8 @@ class ServiceConfigurationPage extends FOGPage {
 					'model_desc' => $Module->get('description'),
 					'is_on' => ($Module->get('isDefault') ? 'checked' : ''),
 				);
-			}
+            }
+            unset($input);
 			$this->data[] = array(
 				'field' => '<input type="hidden" name="name" value="${mod_name}" />',
 				'input' => '',
@@ -126,12 +127,13 @@ class ServiceConfigurationPage extends FOGPage {
 				print "\n\t\t\t".'<p><input type="hidden" name="name" value="'.$modNames[$Module->get('shortName')].'" /><input type="submit" value="'._('Add Directory').'" /></p>';
 				print "\n\t\t\t<h2>"._('Directories Cleaned').'</h2>';
 				$dirs = $this->getClass('DirCleanerManager')->find();
-				foreach ((array)$dirs AS $DirCleaner) {
+				foreach ((array)$dirs AS &$DirCleaner) {
 					$this->data[] = array(
 						'dir_path' => $DirCleaner->get('path'),
 						'dir_id' => $DirCleaner->get('id'),
 					);
-				}
+                }
+                unset($DirCleaner);
 				// Hook
 				// $this->HookManager->processEvent()
 				$this->render();
@@ -154,8 +156,7 @@ class ServiceConfigurationPage extends FOGPage {
 				);
 				print "\n\t\t\t<h2>"._('Default Setting').'</h2>';
 				print "\n\t\t\t".'<form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'">';
-				foreach((array)$fields AS $field => $input)
-				{
+				foreach((array)$fields AS $field => &$input) {
 					$this->data[] = array(
 						'field' => $field,
 						'input' => $input,
@@ -164,7 +165,8 @@ class ServiceConfigurationPage extends FOGPage {
 						'refresh' => $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_R'),
 						'mod_name' => $modNames[$Module->get('shortName')],
 					);
-				}
+                }
+                unset($input);
 				// Hook
 				// $this->HookManager->processEvent()
 				$this->render();
@@ -193,10 +195,8 @@ class ServiceConfigurationPage extends FOGPage {
 				print "\n\t\t\t<p>"._('Add Event (24 Hour Format):').'<input class="short" type="text" name="h" maxlength="2" value="HH" onFocus="this.value=\'\'" />:<input class="short" type="text" name="m" maxlength="2" value="MM" onFocus="this.value=\'\'" /><select name="style" size="1"><option value="">'._('Select One').'</option><option value="s">'._('Shut Down').'</option><option value="r">'._('Reboot').'</option></select></p>';
 				print "\n\t\t\t".'<p><input type="hidden" name="name" value="'.$modNames[$Module->get('shortName')].'" /><input type="submit" name="addevent" value="'._('Add Event').'" /></p>';
 				$greenfogs = $this->getClass('GreenFogManager')->find();
-				foreach((array)$greenfogs AS $GreenFog)
-				{
-					if ($GreenFog && $GreenFog->isValid())
-					{
+				foreach((array)$greenfogs AS &$GreenFog) {
+					if ($GreenFog && $GreenFog->isValid()) {
 						$gftime = $this->nice_date($GreenFog->get('hour').':'.$GreenFog->get('min'))->format('H:i');
 						$this->data[] = array(
 							'gf_time' => $gftime,
@@ -204,7 +204,8 @@ class ServiceConfigurationPage extends FOGPage {
 							'gf_id' => $GreenFog->get('id'),
 						);
 					}
-				}
+                }
+                unset($GreenFog);
 				// Hook
 				// $this->HookManager->processEvent()
 				$this->render();
@@ -227,14 +228,14 @@ class ServiceConfigurationPage extends FOGPage {
 				);
 				print "\n\t\t\t<h2>"._('Add Protected User').'</h2>';
 				print "\n\t\t\t".'<form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'">';
-				foreach((array)$fields AS $field => $input)
-				{
+				foreach((array)$fields AS $field => &$input) {
 					$this->data[] = array(
 						'field' => $field,
 						'input' => $input,
 						'mod_name' => $modNames[$Module->get('shortName')],
 					);
-				}
+                }
+                unset($input);
 				$this->render();
 				unset($this->data,$this->headerData,$this->attributes,$this->templates);
 				$this->headerData = array(
@@ -251,23 +252,23 @@ class ServiceConfigurationPage extends FOGPage {
 				);
 				print "\n\t\t\t<h2>"._('Current Protected User Accounts').'</h2>';
 				$UCs = $this->getClass('UserCleanupManager')->find();
-				foreach ((array)$UCs AS $UserCleanup)
-				{
+				foreach ((array)$UCs AS &$UserCleanup) {
 					$this->data[] = array(
 						'user_name' => $UserCleanup->get('name'),
 						'input' => $UserCleanup->get('id') < 7 ? null : '<input type="checkbox" id="rmuser${user_id}" class="delid" name="delid" onclick="this.form.submit()" value="${user_id}" /><label for="rmuser${user_id}" class="icon fa fa-minus-circle hand" title="'._('Delete').'">&nbsp;</label>',
 						'user_id' => $UserCleanup->get('id'),
 					);
-				}
+                }
+                unset($UserCleanup);
 				$this->render();
 				print "\n\t\t\t</form>";
 			}
 			print "\n\t\t\t</div>";
-		}
+        }
+        unset($Module);
 		print "\n\t\t\t</div>";
 	}
-	public function edit_post()
-	{
+	public function edit_post() {
 		$Service = current($this->getClass('ServiceManager')->find(array('name' => $_REQUEST['name'])));
 		// Finds the relevant module
 		$Module = $this->getClass('ModuleManager')->find(array('shortName' => $_REQUEST['tab']));

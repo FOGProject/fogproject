@@ -1,16 +1,5 @@
 <?php
-/**	Class Name: StorageManagementPage
-    FOGPage lives in: {fogwebpage}/lib/fog
-    Lives in: {fogwebpage}/lib/pages
-    Description: This is an extension of the FOGPage Class
-    This page is used to setup storage groups and storage
-    names.  You can also remove groups and names.
-
-    Useful for:
-    Managing storage groups and names.
-**/
-class StorageManagementPage extends FOGPage
-{
+class StorageManagementPage extends FOGPage {
     // Base variables
     public $node = 'storage';
     public function __construct($name = '') {
@@ -66,25 +55,24 @@ class StorageManagementPage extends FOGPage
         $this->delete_storage_node_post();
     }
     // Pages
-    public function index()
-    {
+    public function index() {
         // Set title
         $this->title = $this->foglang['AllSN'];
         // Find data
         $StorageNodes = $this->getClass('StorageNodeManager')->find();
         // Row data
-        foreach ((array)$StorageNodes AS $StorageNode)
-        {
+        foreach ((array)$StorageNodes AS &$StorageNode) {
             $StorageGroup = new StorageGroup($StorageNode->get('storageGroupID'));
             $this->data[] = array_merge(
                 (array)$StorageNode->get(),
-                array(	'isMasterText'		=> ($StorageNode->get('isMaster') ? 'Yes' : 'No'),
-                'isEnabledText'		=> ($StorageNode->get('isEnabled') ? 'Yes' : 'No'),
-                'isGraphEnabledText'	=> ($StorageNode->get('isGraphEnabled') ? 'Yes' : 'No'),
+                array('isMasterText' => ($StorageNode->get('isMaster') ? 'Yes' : 'No'),
+                'isEnabledText' => ($StorageNode->get('isEnabled') ? 'Yes' : 'No'),
+                'isGraphEnabledText' => ($StorageNode->get('isGraphEnabled') ? 'Yes' : 'No'),
                 'storage_group' => $StorageGroup->get('name'),
-            )
-        );
+                )
+            );
         }
+        unset($StorageNode);
         // Header row
         $this->headerData = array(
             $this->foglang['SN'],
@@ -153,8 +141,7 @@ class StorageManagementPage extends FOGPage
             '<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'.$this->foglang['Add'].'" autocomplete="off" />',
         );
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-        foreach((array)$fields AS $field => $input)
-        {
+        foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -173,6 +160,7 @@ class StorageManagementPage extends FOGPage
                 'node_bandwidth' => $_REQUEST['bandwidth'],
             );
         }
+        unset($input);
         // Hook
         $this->HookManager->processEvent('STORAGE_NODE_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -223,14 +211,12 @@ class StorageManagementPage extends FOGPage
             // Save
             if ($StorageNode->save())
             {
-                if ($StorageNode->get('isMaster'))
-                {
+                if ($StorageNode->get('isMaster')) {
                     // Unset other Master Nodes in this Storage Group
-                    foreach ((array)$this->getClass('StorageNodeManager')->find(array('isMaster' => '1', 'storageGroupID' => $StorageNode->get('storageGroupID'))) AS $StorageNodeMaster)
-                    {
-                        if ($StorageNode->get('id') != $StorageNodeMaster->get('id'))
-                            $StorageNodeMaster->set('isMaster', '0')->save();
+                    foreach ((array)$this->getClass('StorageNodeManager')->find(array('isMaster' => '1', 'storageGroupID' => $StorageNode->get('storageGroupID'))) AS &$StorageNodeMaster) {
+                        if ($StorageNode->get('id') != $StorageNodeMaster->get('id')) $StorageNodeMaster->set('isMaster', '0')->save();
                     }
+                    unset($StorageNodeMaster);
                 }
                 // Hook
                 $this->HookManager->processEvent('STORAGE_NODE_ADD_SUCCESS', array('StorageNode' => &$StorageNode));
@@ -256,8 +242,7 @@ class StorageManagementPage extends FOGPage
             $this->FOGCore->redirect($this->formAction);
         }
     }
-    public function edit_storage_node()
-    {
+    public function edit_storage_node() {
         // Find
         $StorageNode = $this->obj;
         // Title
@@ -293,8 +278,7 @@ class StorageManagementPage extends FOGPage
             '<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'.$this->foglang['Update'].'" />',
         );
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-        foreach((array)$fields AS $field => $input)
-        {
+        foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -316,6 +300,7 @@ class StorageManagementPage extends FOGPage
                 'node_pass' => $StorageNode->get('pass'),
             );
         }
+        unset($input);
         // Hook
         $this->HookManager->processEvent('STORAGE_NODE_EDIT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -369,11 +354,11 @@ class StorageManagementPage extends FOGPage
                 if ($StorageNode->get('isMaster'))
                 {
                     // Unset other Master Nodes in this Storage Group
-                    foreach ((array)$this->getClass('StorageNodeManager')->find(array('isMaster' => '1', 'storageGroupID' => $StorageNode->get('storageGroupID'))) AS $StorageNodeMaster)
-                    {
+                    foreach ((array)$this->getClass('StorageNodeManager')->find(array('isMaster' => '1', 'storageGroupID' => $StorageNode->get('storageGroupID'))) AS &$StorageNodeMaster) {
                         if ($StorageNode->get('id') != $StorageNodeMaster->get('id'))
                             $StorageNodeMaster->set('isMaster', '0')->save();
                     }
+                    unset($StorageNodeMaster);
                 }
                 // Hook
                 $this->HookManager->processEvent('STORAGE_NODE_EDIT_SUCCESS', array('StorageNode' => &$StorageNode));
@@ -420,7 +405,7 @@ class StorageManagementPage extends FOGPage
         $fields = array(
             $this->foglang['ConfirmDel'].' <b>'.$StorageNode->get('name').'</b>' => '<input type="submit" value="${title}" />',
         );
-        foreach((array)$fields AS $field => $input)
+        foreach((array)$fields AS $field => &$input)
         {
             $this->data[] = array(
                 'field' => $field,
@@ -428,6 +413,7 @@ class StorageManagementPage extends FOGPage
                 'title' => $this->title,
             );
         }
+        unset($input);
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" class="c">';
         // Hook
         $this->HookManager->processEvent('STORAGE_NODE_DELETE', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -476,8 +462,9 @@ class StorageManagementPage extends FOGPage
         // Find data
         $StorageGroups = $this->getClass('StorageGroupManager')->find();
         // Row data
-        foreach ((array)$StorageGroups AS $StorageGroup)
+        foreach ((array)$StorageGroups AS &$StorageGroup)
             $this->data[] = $StorageGroup->get();
+        unset($StorageGroup);
         // Header row
         $this->headerData = array(
             $this->foglang['SG'],
@@ -521,7 +508,7 @@ class StorageManagementPage extends FOGPage
             '&nbsp;' => '<input type="submit" value="'.$this->foglang['Add'].'" />',
         );
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-        foreach((array)$fields AS $field => $input)
+        foreach((array)$fields AS $field => &$input)
         {
             $this->data[] = array(
                 'field' => $field,
@@ -530,6 +517,7 @@ class StorageManagementPage extends FOGPage
                 'storgrp_desc' => $_REQUEST['description'],
             );
         }
+        unset($input);
         // Hook
         $this->HookManager->processEvent('STORAGE_GROUP_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -606,7 +594,7 @@ class StorageManagementPage extends FOGPage
             '&nbsp;' => '<input type="submit" value="'.$this->foglang['Update'].'" />',
         );
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-        foreach((array)$fields AS $field => $input)
+        foreach((array)$fields AS $field => &$input)
         {
             $this->data[] = array(
                 'field' => $field,
@@ -615,6 +603,7 @@ class StorageManagementPage extends FOGPage
                 'storgrp_desc' => $StorageGroup->get('description'),
             );
         }
+        unset($input);
         // Hook
         $this->HookManager->processEvent('STORAGE_GROUP_EDIT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -686,7 +675,7 @@ class StorageManagementPage extends FOGPage
         $fields = array(
             $this->foglang['ConfirmDel'].' <b>'.$StorageGroup->get('name').'</b>' => '<input type="submit" value="${title}" />',
         );
-        foreach((array)$fields AS $field => $input)
+        foreach((array)$fields AS $field => &$input)
         {
             $this->data[] = array(
                 'field' => $field,
@@ -694,6 +683,7 @@ class StorageManagementPage extends FOGPage
                 'title' => $this->title,
             );
         }
+        unset($input);
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" class="c">';
         // Hook
         $this->HookManager->processEvent('STORAGE_GROUP_DELETE', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
