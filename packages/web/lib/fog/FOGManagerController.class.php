@@ -242,8 +242,9 @@ abstract class FOGManagerController extends FOGBase {
         Removes the relevant fields from the database.
      */
     public function destroy($where = array(),$whereOperator = 'AND',$orderBy = 'name',$sort = 'ASC') {
-        $ids = $this->find($where,$whereOperator,$orderBy,$sort,'','','','id');
-        return !$this->DB->query("DELETE FROM %s WHERE %s IN ('%s')",array($this->databaseTable,$this->databaseFields['id'],implode("','",(array)$ids)))->fetch()->get();
+        foreach($this->find($where,$whereOperator,$orderBy,$sort) AS &$Object) $Object->destroy();
+        unset($Object);
+        //return !$this->DB->query("DELETE FROM %s WHERE %s IN ('%s')",array($this->databaseTable,$this->databaseFields['id'],implode("','",(array)$ids)))->fetch()->get();
     }
     // Blackout - 11:28 AM 22/11/2011
     /** buildSelectBox($matchID = '',$elementName = '',$orderBy = 'name')

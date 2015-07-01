@@ -44,12 +44,13 @@ class Task extends FOGController {
         ));
         $count = 0;
         $curTime = $this->nice_date();
-        foreach($Tasks AS $Task) {
+        foreach($Tasks AS &$Task) {
             if ($this->get('id') > $Task->get('id')) {
                 $tasktime = $this->nice_date($Task->get('checkInTime'));
                 if (($curTime->getTimestamp() - $tasktime->getTimestamp()) < $this->FOGCore->getSetting('FOG_CHECKIN_TIMEOUT')) $count++;
             }
         }
+        unset($Task);
         return $count;
     }
     public function cancel() {
@@ -60,7 +61,7 @@ class Task extends FOGController {
             $SnapinJob->destroy();
         }
         if ($this->getTaskType()->isMulticast()) {
-            foreach ($this->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $this->get('id'))) AS $MSA) {
+            foreach ($this->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $this->get('id'))) AS &$MSA) {
                 if ($MSA->isValid()) {
                     $MS = $MSA->getMulticastSession();
                     $clients = $MS->get('clients');
@@ -72,6 +73,7 @@ class Task extends FOGController {
                     $MS->save();
                 }
             }
+            unset($MSA);
         }
         $this->set('stateID', '5')->save();
     }
@@ -88,9 +90,11 @@ class Task extends FOGController {
         $SnapinTasks = $this->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id'),'stateID' => array(0,1)));
         // cancel's all the snapin tasks for that host.
         if ($SnapinTasks) {
-            foreach($SnapinTasks AS $ST) {
-                foreach($ST AS $SnapinTask) $SnapinTask->set('stateID', -1)->save();
+            foreach($SnapinTasks AS &$ST) {
+                foreach($ST AS &$SnapinTask) $SnapinTask->set('stateID', -1)->save();
+                unset($SnapinTask);
             }
+            unset($ST);
         }
         // FOGController destroy
         return parent::destroy($field);

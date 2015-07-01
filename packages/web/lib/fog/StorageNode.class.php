@@ -40,10 +40,11 @@ class StorageNode extends FOGController {
                 'storageNodeID'	=> $this->get('id'),
                 'hostID'	=> $this->DB->sanitize($Host instanceof Host ? $Host->get('id') : $Host),
             ));
-            foreach($NodeFailures AS $NodeFailure) {
+            foreach($NodeFailures AS &$NodeFailure) {
                 $DateTime = $this->nice_date($NodeFailure->get('failureTime'));
                 if ($DateTime->format('Y-m-d H:i:s') >= $DateInterval->format('Y-m-d H:i:s')) return $NodeFailure;
             }
+            unset($NodeFailure);
         }
     public function getClientLoad() {
         $max = $this->get('maxClients');
@@ -56,16 +57,18 @@ class StorageNode extends FOGController {
         $UsedTasks = explode(',',$this->FOGCore->getSetting('FOG_USED_TASKS'));
         $countTasks = 0;
         if (in_array(8,(array)$UsedTasks)) {
-            foreach($UsedTasks AS $ind => $val) {
+            foreach($UsedTasks AS $ind => &$val) {
                 if ($val = 8) unset($UsedTasks[$ind]);
             }
-            foreach ($this->getClass('TaskManager')->find(array('stateID' => 3,'typeID' => 8)) AS $MulticastTask) {
+            unset($val);
+            foreach ($this->getClass('TaskManager')->find(array('stateID' => 3,'typeID' => 8)) AS &$MulticastTask) {
                 $Multicast = current($this->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $MulticastTask->get('id'))));
                 if ($Multicast && $Multicast->isValid()) {
                     $MulticastJob = $this->getClass('MulticastSessions',$Multicast->get('msID'));
                     if ($MulticastJob && $MulticastJob->isValid()) $MulticastJobID[] = $MulticastJob->get('id');
                 }
             }
+            unset($MulticastTask);
             $MulticastJobID = array_unique((array)$MulticastJobID);
             $countTasks = count($MulticastJobID);
             $UsedTasks = array_values((array)$UsedTasks);
