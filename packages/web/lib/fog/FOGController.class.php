@@ -180,7 +180,7 @@ abstract class FOGController extends FOGBase {
             if ($this->aliasedFields) $this->array_remove($this->aliasedFields,$this->databaseFields);
             $fieldsToUpdate = $this->databaseFields;
             // Build insert key and value arrays
-            foreach ($this->databaseFields AS $name => &$fieldName) {
+            foreach ($this->databaseFields AS $name => $fieldName) {
                 if ($this->get($name) != '') {
                     $insertKeys[] = (preg_match('#default#i',$fieldName) ? '`'.$fieldName.'`' : $fieldName);
                     $insertValues[] = $this->DB->sanitize($this->get($name));
@@ -188,7 +188,7 @@ abstract class FOGController extends FOGBase {
             }
             unset($fieldName);
             // Build update field array using filtered data
-            foreach ($fieldsToUpdate AS $name => &$fieldName) {
+            foreach ($fieldsToUpdate AS $name => $fieldName) {
                 $fieldName = (preg_match('#default#i',$fieldName) ? '`'.$fieldName.'`' : $fieldName);
                 $updateData[] = sprintf("%s = '%s'", $fieldName, $this->DB->sanitize($this->get($name)));
             }
@@ -263,10 +263,10 @@ abstract class FOGController extends FOGBase {
      * @returns the elements of the query we need
      */
     public function buildQuery($not = false,$compare = '=') {
-        foreach((array)$this->databaseFieldClassRelationships AS $class => &$fields) {
+        foreach((array)$this->databaseFieldClassRelationships AS $class => $fields) {
             $join[] = sprintf(' LEFT OUTER JOIN %s ON %s.%s=%s.%s ',$this->getClass($class)->databaseTable,$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$fields[0]],$this->databaseTable,$this->databaseFields[$fields[1]]);
             if ($fields[3]) {
-                foreach((array)$fields[3] AS $field => &$value) {
+                foreach((array)$fields[3] AS $field => $value) {
                     if (is_array($value)) $whereArrayAnd[] = sprintf("%s.%s IN ('%s')",$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$field], implode("','",$value));
                     else $whereArrayAnd[] = sprintf("%s.%s %s '%s'",$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$field],(preg_match('#%#',$value) ? 'LIKE' : $compare),$value);
                 }
@@ -281,13 +281,12 @@ abstract class FOGController extends FOGBase {
      * @return the set class
      */
     public function setQuery($queryData) {
-        $classData = $diffClassData = $orderedData = array();
         $classData = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
         $diffClassData = array_diff((array)$queryData,(array)$this->databaseFieldsFlipped);
         $orderedData = array_merge((array)$this->databaseFieldsFlipped,(array)$classData);
         $this->data = array_combine(array_keys((array)$this->databaseFields),(array)$orderedData);
         if ($diffClassData) {
-            foreach((array)$this->databaseFieldClassRelationships AS $class => &$fields)
+            foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
                 $this->set($fields[2],$this->getClass($class)->setQuery($diffClassData));
             unset($fields);
         }

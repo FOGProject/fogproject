@@ -167,7 +167,7 @@ abstract class FOGPage extends FOGBase {
             }
         }
     private function setAtts() {
-        foreach((array)$this->attributes AS $i => &$vals) {
+        foreach((array)$this->attributes AS $i => $vals) {
             foreach((array)$vals AS $name => $val) $this->atts[$i] .= sprintf(' %s="%s" ',$name,($this->dataFind ? preg_replace($this->dataFind,$this->dataReplace,$val) : $val));
         }
         unset($vals);
@@ -180,7 +180,7 @@ abstract class FOGPage extends FOGBase {
         $this->setAtts();
         // Loop data
         if ($this->headerData) {
-            foreach ($this->headerData AS $i => &$content) {
+            foreach ($this->headerData AS $i => $content) {
                 // Push into results array
                 $result .= sprintf(
                     '<%s%s>%s</%s>',
@@ -202,7 +202,7 @@ abstract class FOGPage extends FOGBase {
     private function replaceNeeds($data) {
         unset($this->dataFind,$this->dataReplace);
         $urlvars = array('node' => $GLOBALS['node'],'sub' => $GLOBALS['sub'],'tab' => $GLOBALS['tab']);
-        foreach ((array)array_merge($urlvars,$data) AS $name => &$val) {
+        foreach ((array)array_merge($urlvars,$data) AS $name => $val) {
             $this->dataFind[] = '#\$\{'.$name.'\}#';
             $this->dataReplace[] = (is_object($val) ? $val->__toString() : (is_string($val) || is_numeric($val) ? $val : ''));
         }
@@ -215,7 +215,7 @@ abstract class FOGPage extends FOGBase {
     public function buildRow($data) {
         $this->replaceNeeds($data);
         // Loop template data
-        foreach ($this->templates AS $i => &$template) {
+        foreach ($this->templates AS $i => $template) {
             // Replace variables in template with data -> wrap in $this->wrapper -> push into $result
             $result .= sprintf(
                 '<%s%s>%s</%s>',
@@ -606,7 +606,7 @@ abstract class FOGPage extends FOGBase {
         print '<div id="'.$this->node.'-active-directory" class="organic-tabs-hidden">';
         printf("%s",'<form method="post" action="'.$this->formAction.'&tab='.$this->node.'-active-directory">');
         printf('<h2>%s<div id="adClear"></div></h2>',_('Active Directory'));
-        foreach((array)$fields AS $field => &$input) {
+        foreach((array)$fields AS $field => $input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -755,7 +755,7 @@ abstract class FOGPage extends FOGBase {
             '&nbsp;' => '<input type="submit" value="${label}" />',
         );
         $fields = array_filter($fields);
-        foreach($fields AS $field => &$input) {
+        foreach($fields AS $field => $input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -954,8 +954,8 @@ abstract class FOGPage extends FOGBase {
                 '<small>${image_name}</small>',
             );
             $imageSelector = $this->getClass('ImageManager')->buildSelectBox('','','','',true);
-            foreach ((array)$Group->get('hosts') AS $Host) {
-                if ($Host && $Host->isValid()) {
+            foreach ($Group->get('hosts') AS &$Host) {
+                if ($Host->isValid()) {
                     $this->data[] = array(
                         'host_id'   => $Host->get('id'),
                         'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
@@ -967,6 +967,7 @@ abstract class FOGPage extends FOGBase {
                     );
                 }
             }
+            unset($Host);
             // Hook
             $this->HookManager->processEvent('GROUP_MEMBERSHIP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
             print '<form method="post" action="'.$this->formAction.'">';
@@ -1053,8 +1054,8 @@ abstract class FOGPage extends FOGBase {
                 '${deployed}',
                 '${host_reg}',
             );
-            foreach((array)$Image->get('hosts') AS $Host) {
-                if ($Host && $Host->isValid()) {
+            foreach($Image->get('hosts') AS &$Host) {
+                if ($Host->isValid()) {
                     $this->data[] = array(
                         'host_id' => $Host->get('id'),
                         'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
@@ -1065,6 +1066,7 @@ abstract class FOGPage extends FOGBase {
                     );
                 }
             }
+            unset($Host);
             // Hook
             $this->HookManager->processEvent('IMAGE_EDIT_HOST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
             // Output
@@ -1150,8 +1152,8 @@ abstract class FOGPage extends FOGBase {
                 '<input class="default" type="checkbox" name="default[]" id="host_printer${host_id}"${is_default} value="${host_id}" /><label for="host_printer${host_id}" class="icon icon-hand" title="'._('Default Printer Selection').'">&nbsp;</label><input type="hidden" value="${host_id}" name="hostid[]"/>',
             );
             unset($this->data);
-            foreach($Printer->get('hosts') AS $Host) {
-                if ($Host && $Host->isValid()) {
+            foreach($Printer->get('hosts') AS &$Host) {
+                if ($Host->isValid()) {
                     $this->data[] = array(
                         'host_id' => $Host->get('id'),
                         'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
@@ -1164,6 +1166,7 @@ abstract class FOGPage extends FOGBase {
                     );
                 }
             }
+            unset($Host);
             // Hook
             $this->HookManager->processEvent('PRINTER_EDIT_HOST', array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
             // Output
@@ -1244,8 +1247,8 @@ abstract class FOGPage extends FOGBase {
                 '<small>${deployed}</small>',
                 '<small>${image_name}</small>',
             );
-            foreach((array)$Snapin->get('hosts') AS $Host) {
-                if ($Host && $Host->isValid()) {
+            foreach($Snapin->get('hosts') AS &$Host) {
+                if ($Host->isValid()) {
                     $this->data[] = array(
                         'host_id' => $Host->get('id'),
                         'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : '',
@@ -1256,6 +1259,7 @@ abstract class FOGPage extends FOGBase {
                     );
                 }
             }
+            unset($Host);
             // Hook
             $this->HookManager->processEvent('SNAPIN_EDIT_HOST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
             // Output
@@ -1277,9 +1281,10 @@ abstract class FOGPage extends FOGBase {
         if (isset($_REQUEST['remhosts'])) $$Obj->removeHost($_REQUEST['hostdel']);
         if ($this->childClass == 'Group') {
             if (isset($_REQUEST['updatehosts'])) {
-                foreach((array)$Group->get('hosts') AS $Host) {
-                    if ($Host && $Host->isValid()) $Host->set('imageID',$_REQUEST[$Host->get('name').'_'.$Host->get('id')])->save();
+                foreach($Group->get('hosts') AS &$Host) {
+                    if ($Host->isValid()) $Host->set('imageID',$_REQUEST[$Host->get('name').'_'.$Host->get('id')])->save();
                 }
+                unset($Host);
             }
         } else if ($this->childClass == 'Printer') {
             if (isset($_REQUEST['updefaults'])) $Printer->updateDefault($_REQUEST['hostid'],$_REQUEST['default']);
