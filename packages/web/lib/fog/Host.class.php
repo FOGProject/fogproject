@@ -31,8 +31,11 @@ class Host extends FOGController {
     // Allow setting / getting of these additional fields
     public $additionalFields = array(
         'mac',
+        'primac',
+        'inv',
         'additionalMACs',
         'pendingMACs',
+        'image',
         'groups',
         'groupsnotinme',
         'optimalStorageNode',
@@ -52,6 +55,11 @@ class Host extends FOGController {
     public $databaseFieldsRequired = array(
         'id',
         'name',
+    );
+    public $databaseFieldClassRelationships = array(
+        'MACAddressAssociation' => array('hostID','id','primac',array('primary' => 1)),
+        'Image' => array('id','imageID','image'),
+        'Inventory' => array('hostID','id','inv'),
     );
     // Custom functons
     public function isHostnameSafe($hostname = '') {
@@ -128,7 +136,11 @@ class Host extends FOGController {
         return $this;
     }
     private function loadPrimary() {
-        if (!$this->isLoaded('mac') && $this->get('id')) $this->set('mac',$this->getClass('MACAddress',current($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1)))));
+        if (!$this->isLoaded('mac') && $this->get('id')) {
+            if ($this->get('primac')) $this->set('mac',$this->get('primac'));
+            else $this->set('mac',$this->getClass('MACAddress',current($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1)))));
+        }
+        //return $this;
         return $this;
     }
     private function loadAdditional() {
@@ -161,7 +173,8 @@ class Host extends FOGController {
     }
     private function loadInventory() {
         if (!$this->isLoaded('inventory') && $this->get('id'))
-            $this->set('inventory',current($this->getClass('InventoryManager')->find(array('hostID' => $this->get('id')))));
+            if ($this->get('inv')) $this->set('inventory',$this->get('inv'));
+            else $this->set('inventory',current($this->getClass('InventoryManager')->find(array('hostID' => $this->get('id')))));
         return $this;
     }
     private function loadModules() {
@@ -882,7 +895,7 @@ class Host extends FOGController {
         return parent::destroy($field);
     }
     // Custom functions
-    public function getImage() {return $this->getClass('Image',$this->get('imageID'));}
+    public function getImage() {return ($this->get('image') ? $this->get('image') : $this->getClass('Image',$this->get('imageID')));}
         public function getOS() {return $this->getImage()->getOS();}
         public function getMACAddress() {return $this->get('mac');}
         public function getActiveSnapinJob() {return $this->get('snapinjob');}
