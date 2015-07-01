@@ -281,6 +281,7 @@ abstract class FOGController extends FOGBase {
      * @return the set class
      */
     public function setQuery($queryData) {
+        $classData = $diffClassData = $orderedData = array();
         $classData = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
         $diffClassData = array_diff((array)$queryData,(array)$this->databaseFieldsFlipped);
         $orderedData = array_merge((array)$this->databaseFieldsFlipped,(array)$classData);
@@ -290,6 +291,7 @@ abstract class FOGController extends FOGBase {
                 $this->set($fields[2],$this->getClass($class)->setQuery($diffClassData));
             unset($fields);
         }
+        unset($classData, $diffClassData, $orderedData);
         return $this;
     }
     // Destroy

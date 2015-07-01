@@ -74,16 +74,19 @@ class FOGPageManager extends FOGBase {
         if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn()) {
             $this->FOGSubMenu = $this->getClass('FOGSubMenu');
             $class = $this->getFOGPageClass();
-            foreach((array)$class->menu AS $link => $title) {
+            foreach((array)$class->menu AS $link => &$title) {
                 $this->FOGSubMenu->addItems($class->node,array((string)$title => (string)$link));
             }
+            unset($title);
             if (isset($class->obj) && is_object($class->obj)) {
-                foreach((array)$class->subMenu AS $link => $title) {
+                foreach((array)$class->subMenu AS $link => &$title) {
                     $this->FOGSubMenu->addItems($class->node,array((string)$title => (string)$link),$class->id,sprintf($this->foglang['SelMenu'],get_class($class->obj)));
                 }
-                foreach((array)$class->notes AS $title => $item) {
+                unset($title);
+                foreach((array)$class->notes AS $title => &$item) {
                     $this->FOGSubMenu->addNotes($class->node,array((string)$title => (string)$item),$class->id,sprintf($this->foglang['SelMenu'],get_class($class->obj)));
                 }
+                unset($item);
             }
             return '<div id="sidebar">'.$this->FOGSubMenu->get($class->node).'</div>';
         }
@@ -95,10 +98,10 @@ class FOGPageManager extends FOGBase {
         if ($this->isLoaded('PageClasses')) return;
         // This variable is required as each class file uses it
         global $Init;
-        foreach($Init->PagePaths as $path) {
+        foreach($Init->PagePaths AS &$path) {
             if (file_exists($path)) {
                 $iterator = new DirectoryIterator($path);
-                foreach ($iterator as $fileInfo) {
+                foreach ($iterator AS $fileInfo) {
                     $PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : null;
                     if (in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) $className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
                     else if (!preg_match('#plugins#i',$path)) $className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
@@ -118,7 +121,9 @@ class FOGPageManager extends FOGBase {
                     }
                     unset($class);
                 }
+                unset($fileInfo);
             }
         }
+        unset($path);
     }
 }
