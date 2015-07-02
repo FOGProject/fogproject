@@ -31,8 +31,8 @@ class ImageReplicator extends FOGService {
                             $username = $StorageNodeToSend->get('user');
                             $password = $StorageNodeToSend->get('pass');
                             $ip = $this->FOGCore->resolveHostname($StorageNodeToSend->get('ip'));
-                            $remImage = rtrim($StorageNodeToSend->get('path'),'/').'/'.$Image->get('path');
-                            $myImage = rtrim($StorageNode->get('path'),'/').'/'.$Image->get('path');
+                            $remImage = rtrim($StorageNodeToSend->get('ftppath'),'/').'/'.$Image->get('path');
+                            $myImage = rtrim($StorageNode->get('ftppath'),'/').'/'.$Image->get('path');
                             $limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
                             $limitsend = $this->byteconvert($StorageNodeToSend->get('bandwidth'));
                             if ($limitmain > 0) $limit = "set net:limit-total-rate 0:$limitmain;";
@@ -59,7 +59,7 @@ class ImageReplicator extends FOGService {
             if (!count($StorageNodeCount)) throw new Exception(sprintf("I am the only member, no need to copy anything!."));
             $this->outall(sprintf(" * Found: %s other member(s).",count($StorageNodeCount)));
             $this->outall(sprintf(''));
-            $myRoot = rtrim($StorageNode->get('path'),'/');
+            $myRoot = rtrim($StorageNode->get('ftppath'),'/');
             $this->outall(sprintf(" * My root: %s",$myRoot));
             $this->outall(sprintf(" * Starting Sync."));
             foreach($StorageNodeCount AS $StorageNodeFTP) {
@@ -67,7 +67,7 @@ class ImageReplicator extends FOGService {
                     $username = $StorageNodeFTP->get('user');
                     $password = $StorageNodeFTP->get('pass');
                     $ip = $StorageNodeFTP->get('ip');
-                    $remRoot = rtrim($StorageNodeFTP->get('path'),'/');
+                    $remRoot = rtrim($StorageNodeFTP->get('ftppath'),'/');
                     $limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
                     $limitsend = $this->byteconvert($StorageNodeFTP->get('bandwidth'));
                     if ($limitmain > 0) $limit = "set net:limit-total-rate 0:$limitmain;";

@@ -12,7 +12,8 @@ class ServerInfo extends FOGPage {
         $this->notes = array(
             "{$this->foglang[Storage]} {$this->foglang[Node]}" => $this->obj->get('name'),
             'IP' => $this->FOGCore->resolveHostname($this->obj->get('ip')),
-            $this->foglang[Path] => $this->obj->get('path'),
+            $this->foglang[ImagePath] => $this->obj->get('path'),
+            $this->foglang[FTPPath] => $this->obj->get('ftppath'),
         );
     }
     // Pages

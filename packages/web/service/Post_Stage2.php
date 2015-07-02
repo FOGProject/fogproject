@@ -24,12 +24,9 @@ try {
     // Sets the mac address for ftp upload later.
     $macftp = strtolower(str_replace(':','',$_REQUEST['mac']));
     // Set the src based on the image and node path.
-    $src = $StorageNode->get('path').'/dev/'.$macftp;
-    // XP only, typically, had one part so only need the file part.
-    //if (($_REQUEST['osid'] == '1' || $_REQUEST['osid'] == '2') && $_REQUEST['imgtype'] == 'n')
-    //	$src = $StorageNode->get('path').'/dev/'.$macftp.'/'.$macftp.'.000';
+    $src = $StorageNode->get('ftppath').'/dev/'.$macftp;
     // Where is it going?
-    $dest = $StorageNode->get('path').'/'.$_REQUEST['to'];
+    $dest = $StorageNode->get('ftppath').'/'.$_REQUEST['to'];
     //Attempt transfer of image file to Storage Node
     $ftp->set('host',$FOGCore->resolveHostname($StorageNode->get('ip')))
         ->set('username',$StorageNode->get('user'))
@@ -39,7 +36,7 @@ try {
     // Try to delete the file.  Doesn't hurt anything if it doesn't delete anything.
     $ftp->delete($dest);
     if ($ftp->rename($dest,$src)||$ftp->put($dest,$src))
-        ($_REQUEST['osid'] == '1' || $_REQUEST['osid'] == '2' ? $ftp->delete($StorageNode->get('path').'/dev/'.$macftp) : null);
+        ($_REQUEST['osid'] == '1' || $_REQUEST['osid'] == '2' ? $ftp->delete($StorageNode->get('ftppath').'/dev/'.$macftp) : null);
     else
         throw new Exception(_('Move/rename failed.'));
     $ftp->close();
