@@ -298,7 +298,6 @@ installPackages() {
         DEBIAN_FRONTEND=noninteractive ${packageinstaller} $x >/dev/null 2>&1
         errorStat $?
     done
-    packages="$newPackList"
     dots "Updating packages as needed";
     DEBIAN_FRONTEND=noninteractive $packageupdater $packages >/dev/null 2>&1
     echo "OK";
@@ -306,6 +305,35 @@ installPackages() {
 confirmPackageInstallation() {
     for x in $packages; do
         dots "Checking package: $x"
+        if [ "$x" == "mysql" ]; then
+            for sqlclient in $sqlclientlist; do
+                x=$sqlclient
+                if [ "$osid" -eq 1 ]; then
+                    rpm -q $x >/dev/null 2>&1
+                elif [ "$osid" -eq 2 ]; then
+                    dpkg -l $x 2>/dev/null | grep '^ii' >/dev/null 2>&1
+                elif [ "$osid" -eq 3 ]; then
+                    pacman -Q $x >/dev/null 2>&1
+                fi
+                if [ "$?" -eq 0 ]; then
+                    break
+                fi
+            done
+        elif [ "$x" == "mysql-server" ]; then
+            for sqlserver in $sqlserverlist; do
+                x=$sqlserver
+                if [ "$osid" -eq 1 ]; then
+                    rpm -q $x >/dev/null 2>&1
+                elif [ "$osid" -eq 2 ]; then
+                    dpkg -l $x 2>/dev/null | grep '^ii' >/dev/null 2>&1
+                elif [ "$osid" -eq 3 ]; then
+                    pacman -Q $x >/dev/null 2>&1
+                fi
+                if [ "$?" -eq 0 ]; then
+                    break
+                fi
+            done
+        fi
         if [ "$osid" -eq 1 ]; then
             rpm -q $x >/dev/null 2>&1
         elif [ "$osid" -eq 2 ]; then
