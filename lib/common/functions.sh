@@ -288,12 +288,12 @@ installPackages() {
             continue
         fi
         dots "Installing package: $x"
-        ${packageinstaller} $x >/dev/null 2>&1
+        DEBIAN_FRONTEND=noninteractive ${packageinstaller} $x >/dev/null 2>&1
         errorStat $?
     done
     packages="$newPackList"
     dots "Updating packages as needed";
-    $packageupdater $packages >/dev/null 2>&1
+    DEBIAN_FRONTEND=noninteractive $packageupdater $packages >/dev/null 2>&1
     echo "OK";
 }
 confirmPackageInstallation() {
