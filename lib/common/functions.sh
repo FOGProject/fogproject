@@ -292,6 +292,9 @@ installPackages() {
         errorStat $?
     done
     packages="$newPackList"
+    dots "Updating packages as needed";
+    $packageupdater $packages >/dev/null 2>&1
+    echo "OK";
 }
 confirmPackageInstallation() {
     for x in $packages; do
