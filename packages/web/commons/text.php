@@ -270,6 +270,7 @@ $foglang['SNDesc']					= _('Storage Node Description');
 $foglang['IPAdr']					= _('IP Address');
 $foglang['MaxClients']				= _('Max Clients');
 $foglang['ImagePath']				= _('Image Path');
+$foglang['FTPPath']                 = _('FTP Path');
 $foglang['SnapinPath']				= _('Snapin Path');
 $foglang['Interface']				= _('Interface');
 $foglang['IsEnabled']				= _('Is Enabled');
