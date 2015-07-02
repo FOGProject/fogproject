@@ -324,7 +324,7 @@ class BootMenu extends FOGBase {
         $Send['joinsession'] = array(
             "#!ipxe",
             "cpuid --ext 29 && set arch x86_64 || set arch i386",
-            "echo -n Please enter the session name to join>",
+            "echo -n Please enter the session name to join> ",
             "read sessname",
             "params",
             'param mac0 ${net0/mac}',
