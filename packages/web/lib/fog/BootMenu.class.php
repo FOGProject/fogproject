@@ -47,7 +47,7 @@ class BootMenu extends FOGBase {
         // Store the host call into class global.
         $this->Host = $Host;
         // Capone menu setup.
-        $CaponePlugInst = $_SESSION['capone'];
+        $CaponePlugInst = in_array('capone',$_SESSION['PluginsInstalled']);
         $DMISet = $CaponePlugInst ? $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_DMI') : false;
         // If it is installed store the needed elements into variables.
         if ($CaponePlugInst) {
