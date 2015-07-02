@@ -15,9 +15,9 @@ fi
 mountpoint="tmp-loop-mount"
 scriptdir="${FOGROOT}/src/buildroot/package/fog/scripts/bin"
 libdir="${FOGROOT}/src/buildroot/package/fog/scripts/usr/share/fog/lib"
-initdir="${FOGROOT}/packages/web/service/ipxe"
+initdir="/var/www/fog/service/ipxe"
 scripts="fog.upload fog.download"
-libs="funcs.sh partition-funcs.sh"
+libs="funcs.sh partition-funcs.sh procsfdisk.awk"
 
 if [ ! -d "$scriptdir" -o ! -d "$libdir" -o ! -d "$initdir" ]; then
     echo "Misconfigured fogroot: $FOGROOT"

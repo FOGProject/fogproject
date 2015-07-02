@@ -29,42 +29,157 @@ hasExtendedPartition() {
 }
 
 # $1 is the name of the partition device (e.g. /dev/sda3)
+partitionHasEBR() {
+	local part="$1";
+	local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
+	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
+	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$part | awk -F[,=] '{print $6+0}'`;
+	if [ "$part_type" == "5" -o "$part_type" == "f" -o "$part_number" -ge 5 ]; then
+		echo "1";
+	else
+		echo "0";
+	fi
+}
+
+# $1 is the name of the file to save to (e.g. /net/dev/foo/d1p4.ebr)
+# $2 is the name of the partition device (e.g. /dev/sda3)
 saveEBR() {
-	local part_number=`echo $1 | sed -r 's/^[^0-9]+//g'`;
+	local dstfilename="$1";
+	local part="$2";
+	local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
 	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
 	# Leaving the grep in place due to forward slashes
-	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$1 | awk -F[,=] '{print $6+0}'`;
+	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$part | awk -F[,=] '{print $6+0}'`;
 	if [ "$part_type" == "5" -o "$part_type" == "f" -o "$part_number" -ge 5 ]; then
-		dots "Saving EBR for ($1)";
-		dd if=$1 of=/tmp/d1p${part_number}.ebr bs=512 count=1 &> /dev/null;
+		dots "Saving EBR for ($part)";
+		dd if="$part" of="$dstfilename" bs=512 count=1 &> /dev/null;
 		echo "Done";
 	fi
 }
 
-# $1 is the name of the partition device (e.g. /dev/sda3)
+# $1 = DriveName  (e.g. /dev/sdb)
+# $2 = DriveNumber  (e.g. 1)
+# $3 = ImagePath  (e.g. /net/foo)
+saveAllEBRs() {
+	local drive="$1";
+	local driveNum="$2";
+	local imagePath="$3";
+	local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
+	local part="";
+	local diskLength=`expr length $drive`;
+	local partNum="";
+	for part in $parts; do
+		partNum=${part:$diskLength};
+		ebrfilename=`EBRFileName "${imagePath}" "${driveNum}" "${partNum}"`;
+		saveEBR "$ebrpart" "$part";
+	done
+}
+
+
+# $1 is the name of the file to restore from (e.g. /net/foo/d1p4.ebr)
+# $2 is the name of the partition device (e.g. /dev/sda3)
 restoreEBR() {
-	local part_number=`echo $1 | sed -r 's/^[^0-9]+//g'`;
+	local part_number=`echo $2 | sed -r 's/^[^0-9]+//g'`;
 	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
 	# Leaving the grep in place due to forward slashes
-	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$1 | awk -F[,=] '{print $6+0}'`;
+	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$2 | awk -F[,=] '{print $6+0}'`;
 	if [ "$part_type" == "5" -o "$part_type" == "f" -o "$part_number" -ge 5 ]; then
-		if [ -e "/tmp/d1p${part_number}.ebr" ]; then
-			dots "Restoring EBR for ($1)";
-			dd of=$1 if=/tmp/d1p${part_number}.ebr bs=512 count=1 &> /dev/null;
+		if [ -e "$1" ]; then
+			dots "Restoring EBR for ($2)";
+			dd of=$2 if=$1 bs=512 count=1 &> /dev/null;
 			echo "Done";
 		fi
+	fi
+}
+
+# $1 is the name of the partition device (e.g. /dev/sda3)
+partitionIsSwap() {
+	local part="$1";
+	local fstype=`fsTypeSetting $part`;
+	if [ "$fstype" == "swap" ]; then
+		echo "1";
+	else
+		echo "0";
 	fi
 }
 
 # $1 is the location of the file to store uuids in
 # $2 is the partition device name
 saveSwapUUID() {
-	local uuid=`blkid -s UUID $2 | cut -d\" -f2`;
-	if [ -n "$uuid" ]; then
-		echo " * Saving UUID ($uuid) for ($2)";
-		echo "$2 $uuid" >> "$1";
+	local is_swap=`partitionIsSwap $2`;
+	if [ "$is_swap" != 0 ]; then
+		local uuid=`blkid -s UUID $2 | cut -d\" -f2`;
+		if [ -n "$uuid" ]; then
+			echo " * Saving UUID ($uuid) for ($2)";
+			echo "$2 $uuid" >> "$1";
+		fi
 	fi
 }
+
+# Linux swap partition strategy:
+#
+# Upload:
+#
+# In "n" mode, the empty swapUUIDFileName is created first.  Then as each
+# partition is saved, if it is swap then saveSwapUUID is called.
+# In "mps" and "mpa" mode, savePartition is called for each partition.
+# savePartition then calles saveSwapUUID if the partition is swap.
+#
+# When uploading an image, the swapUUIDFileName (e.g. /images/foo/d1.original.swapuuids)
+# is created.  For $imgPartitionType == "all", all swap partition UUIDs are saved.
+# For $imgPartitionType == "$partnum", the partition's UUID is saved, if it is a swap partition.
+# For all others, the swapUUIDFileName will not exist, or will be empty.
+#
+#
+# Download:
+#
+# When downloading an image, makeAllSwapSystems will be called.
+# In "n" mode this is done for those images without special configurations,
+#   after normal partition restoration.
+# In "mps" mode this is always done
+# In "mpa" mode this is always done, for all disks.
+# makeAllSwapSystems will determine using 
+# $imagePartitionType == "all" or == "$partnum" whether to
+# process the swapUUIDFileName contents.  For each matching partition, 
+# mkswap is used, and the UUID is set appropriately.
+#
+# Relevant functions:
+# swapUUIDFileName ImagePath DriveNumber
+#   echos the standardized name for the UUID filename
+# partitionIsSwap PartitionName
+#   echos 1 or 0 if fsTypeSetting says partition is or is not a swap partition.
+# makeSwapSystem SwapUUIDFileName PartitionName
+#   if it finds partition in UUID file, then calls mkswap
+# makeAllSwapSystems DriveName DriveNumber ImagePath ImagePartitionType
+#   checks ImagePartitionType for a match before calling makeSwapSystem
+# saveSwapUUID SwapUUIDFileName PartitionName
+#   checks if paritionIsSwap, if so, obtains UUID and saves it
+# saveAllSwapUUIDs DriveName DriveNumber ImagePath
+#   checks all fogpartinfo partitions if partitionIsSwap, calles saveSwapUUID
+# savePartition:
+#   calls saveSwapUUID for swap partitions
+#
+#
+
+# $1 = DriveName  (e.g. /dev/sdb)
+# $2 = DriveNumber  (e.g. 1)
+# $3 = ImagePath  (e.g. /net/foo)
+saveAllSwapUUIDs() {
+	local drive="$1";
+	local driveNum="$2";
+	local imagePath="$3";
+	local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
+	local part="";
+	local diskLength=`expr length $drive`;
+	local partNum="";
+	local swapfilename=`swapUUIDFileName "$imagePath" "$driveNum"`;
+	for part in $parts; do
+		if [ `partitionIsSwap $part` != '0' ]; then
+			saveSwapUUID "$swapfilename" "$part";
+		fi
+	done
+}
+
 
 # $1 is the location of the file uuids are stored in
 # $2 is the partition device name
