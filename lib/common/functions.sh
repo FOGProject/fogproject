@@ -230,9 +230,16 @@ installPackages() {
                 true
             fi
         fi
-    elif [ "$osid" -eq 2 ] && [[ "$linuxReleaseName" == +(*'buntu'*) ]]; then
+    elif [ "$osid" -eq 2 ]; then
         dots "Adding needed repository"
-        add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
+        if [[ "$linuxReleaseName" == +(*'buntu'*|*'int'*) ]]; then
+            add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
+        elif [[ "$linuxReleaseName" == +(*'ebian'*) ]]; then
+            if [ "$OSVersion" -eq 7 ]; then
+                debcode="wheezy";
+                echo -e "deb http://packages.dotdeb.org wheezy-php56 all\ndeb-src http://packages.dotdeb.org wheezy-php56 all\n" >> "/etc/apt/sources.list";
+            fi
+        fi
     fi
     errorStat $?
     dots "Preparing Package Manager"
