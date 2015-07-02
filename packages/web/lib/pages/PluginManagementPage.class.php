@@ -57,7 +57,6 @@ class PluginManagementPage extends FOGPage {
                     );
                 }
             }
-            unset($Plugin);
             //Hook
             $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=> &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
             // Output
@@ -87,7 +86,6 @@ class PluginManagementPage extends FOGPage {
                 );
             }
         }
-        unset($Plugin);
         //Hook
         $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=> &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
         // Output
@@ -116,7 +114,6 @@ class PluginManagementPage extends FOGPage {
                 );
             }
         }
-        unset($Plugin);
         //Hook
         $this->HookManager->processEvent('PLUGIN_DATA',array('headerData'=> &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
         // Output
