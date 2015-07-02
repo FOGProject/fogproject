@@ -291,7 +291,8 @@ class PluginManagementPage extends FOGPage {
         }
     public function removeplugin() {
         if ($_REQUEST['rmid']) $Plugin = $this->getClass('Plugin',$_REQUEST['rmid']);
-        if ($Plugin && $Plugin->getManager()->uninstall() && $Plugin->destroy()) {
+        $Plugin->getManager()->uninstall();
+        if ($Plugin->destroy()) {
             $this->FOGCore->setMessage('Plugin Removed');
             $this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub=activate');
         }
