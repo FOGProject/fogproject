@@ -19,7 +19,8 @@ class StorageManagementPage extends FOGPage {
             );
             $this->notes = array(
                 "{$this->foglang[Storage]} {$this->foglang[Node]}" => $this->obj->get('name'),
-                $this->foglang[Path] => $this->obj->get('path'),
+                $this->foglang[ImagePath] => $this->obj->get('path'),
+                $this->foglang[FTPPath] => $this->obj->get('ftppath'),
             );
         } else if (in_array($_REQUEST[sub],array('edit-storage-group','delete-storage-group')) && $_REQUEST[id]) {
             $this->obj = $this->getClass('StorageGroup',$_REQUEST[id]);
@@ -132,6 +133,7 @@ class StorageManagementPage extends FOGPage {
             $this->foglang['BandwidthReplication'].' (Kbps)' => '<input type="text" name="bandwidth" value="${node_bandwidth}" autocomplete="off" />&nbsp;&nbsp;${span2}',
             $this->foglang['SG'] => '${node_group}',
             $this->foglang['ImagePath'] => '<input type="text" name="path" value="${node_path}" autocomplete="off" />',
+            $this->foglang['FTPPath'] => '<input type="text" name="ftppath" value="${node_ftppath}" autocomplete="off" />',
             $this->foglang['SnapinPath'] => '<input type="text" name="snapinpath" value="${node_snapinpath}" autocomplete="off" />',
             $this->foglang['Interface'] => '<input type="text" name="interface" value="${node_interface}" autocomplete="off" />',
             $this->foglang['IsEnabled'] => '<input type="checkbox" name="isEnabled" checked value="1" />',
@@ -153,6 +155,7 @@ class StorageManagementPage extends FOGPage {
                 'span2' => '<i class="icon fa fa-question hand" title="'.$this->foglang['BandwidthRepHelp'].'"></i>',
                 'node_group' => $this->getClass('StorageGroupManager')->buildSelectBox(1, 'storageGroupID'),
                 'node_path' => $_REQUEST['path'] ? $_REQUEST['path'] : '/images/',
+                'node_ftppath' => $_REQUEST['ftppath'] ? $_REQUEST['ftppath'] : '/images/',
                 'node_snapinpath' => $_REQUEST['snapinpath'] ? $_REQUEST['snapinpath'] : '/opt/fog/snapins/',
                 'node_interface' => $_REQUEST['interface'] ? $_REQUEST['interface'] : 'eth0',
                 'node_user' => $_REQUEST['user'],
@@ -191,26 +194,24 @@ class StorageManagementPage extends FOGPage {
                 throw new Exception($this->foglang['StoragePassRequired']);
             if (((is_numeric($_REQUEST['bandwidth']) && $_REQUEST['bandwidth'] <= 0) || !is_numeric($_REQUEST['bandwidth'])) && $_REQUEST['bandwidth'])
                 throw new Exception(_('Bandwidth should be numeric and greater than 0'));
-            // Create new Object
-            $StorageNode = new StorageNode(array(
-                'name'			=> $_REQUEST['name'],
-                'description'		=> $_REQUEST['description'],
-                'ip'			=> $_REQUEST['ip'],
-                'maxClients'		=> $_REQUEST['maxClients'],
-                'isMaster'		=> ($_REQUEST['isMaster'] ? '1' : '0'),
-                'storageGroupID'	=> $_REQUEST['storageGroupID'],
-                'path'			=> $_REQUEST['path'],
-                'snapinpath'	=> $_REQUEST['snapinpath'],
-                'interface'		=> $_REQUEST['interface'],
-                'isGraphEnabled'	=> ($_REQUEST['isGraphEnabled'] ? '1' : '0'),
-                'isEnabled'		=> ($_REQUEST['isEnabled'] ? '1' : '0'),
-                'user'			=> $_REQUEST['user'],
-                'pass'			=> $_REQUEST['pass'],
-                'bandwidth'		=> $_REQUEST['bandwidth'],
-            ));
+            $StorageNode = $this->getClass('StorageNode')
+                ->set('name',$_REQUEST[name])
+                ->set('description',$_REQUEST[description])
+                ->set('ip',$_REQUEST[ip])
+                ->set('maxClients',$_REQUEST[maxClients])
+                ->set('isMaster',(int)isset($_REQUEST[isMaster]))
+                ->set('storageGroupID',$_REQUEST[storageGroupID])
+                ->set('path',$_REQUEST[path])
+                ->set('ftppath',$_REQUEST[ftppath])
+                ->set('snapinpath',$_REQUEST[snapinpath])
+                ->set('interface',$_REQUEST['interface'])
+                ->set('isGraphEnabled',(int)isset($_REQUEST[isGraphEnabled]))
+                ->set('isEnabled',(int)isset($_REQUEST[isEnabled]))
+                ->set('user',$_REQUEST[user])
+                ->set('pass',$_REQUEST[pass])
+                ->set('bandwidth',$_REQUEST[bandwidth]);
             // Save
-            if ($StorageNode->save())
-            {
+            if ($StorageNode->save()) {
                 if ($StorageNode->get('isMaster')) {
                     // Unset other Master Nodes in this Storage Group
                     foreach ((array)$this->getClass('StorageNodeManager')->find(array('isMaster' => '1', 'storageGroupID' => $StorageNode->get('storageGroupID'))) AS &$StorageNodeMaster) {
@@ -269,6 +270,7 @@ class StorageManagementPage extends FOGPage {
             $this->foglang['BandwidthReplication'].'  (Kbps)' => '<input type="text" name="bandwidth" value="${node_bandwidth}" autocomplete="off" />&nbsp;&nbsp;${span2}',
             $this->foglang['SG'] => '${node_group}',
             $this->foglang['ImagePath'] => '<input type="text" name="path" value="${node_path}" autocomplete="off"/>',
+            $this->foglang['FTPPath'] => '<input type="text" name="ftppath" value="${node_ftppath}" autocomplete="off"/>',
             $this->foglang['SnapinPath'] => '<input type="text" name="snapinpath" value="${node_snapinpath}" autocomplete="off"/>',
             $this->foglang['Interface'] => '<input type="text" name="interface" value="${node_interface}" autocomplete="off"/>',
             $this->foglang['IsEnabled'] => '<input type="checkbox" name="isEnabled" value="1" ${isenabled}/>',
@@ -294,6 +296,7 @@ class StorageManagementPage extends FOGPage {
                 'node_group' => $this->getClass('StorageGroupManager')->buildSelectBox($StorageNode->get('storageGroupID'), 'storageGroupID'),
                 'node_bandwidth' => $StorageNode->get('bandwidth'),
                 'node_path' => $StorageNode->get('path'),
+                'node_ftppath' => $StorageNode->get('ftppath'),
                 'node_snapinpath' => $StorageNode->get('snapinpath'),
                 'node_interface' => $StorageNode->get('interface'),
                 'node_user' => $StorageNode->get('user'),
@@ -341,6 +344,7 @@ class StorageManagementPage extends FOGPage {
                 ->set('isMaster',	($_REQUEST['isMaster'] ? '1' : '0'))
                 ->set('storageGroupID',	$_REQUEST['storageGroupID'])
                 ->set('path',		$_REQUEST['path'])
+                ->set('ftppath',		$_REQUEST['ftppath'])
                 ->set('snapinpath',		$_REQUEST['snapinpath'])
                 ->set('interface',	$_REQUEST['interface'])
                 ->set('isGraphEnabled',	($_REQUEST['isGraphEnabled'] ? '1' : '0'))

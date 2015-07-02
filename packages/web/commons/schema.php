@@ -1975,3 +1975,8 @@ isset \${net2/mac} && param mac2 \${net2/mac} || goto bootme' WHERE `pxeName`='f
 $this->schema[] = array(
     "ALTER TABLE `" . DATABASE_NAME ."`.`nfsGroupMembers` CHANGE `ngmInterface` `ngmInterface` VARCHAR (25) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT 'eth0'",
 );
+// 184
+$this->schema[] = array(
+	"ALTER TABLE `".DATABASE_NAME."`.`nfsGroupMembers` ADD COLUMN `ngmFTPPath` LONGTEXT NOT NULL AFTER `ngmRootPath`",
+	"UPDATE `".DATABASE_NAME."`.`nfsGroupMembers` SET `ngmFTPPath`='".STORAGE_DATADIR."'",
+);

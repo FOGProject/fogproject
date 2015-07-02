@@ -185,7 +185,7 @@ class Image extends FOGController {
         $ftphost = $this->FOGCore->resolveHostname($SN->get('ip'));
         $ftpuser = $SN->get('user');
         $ftppass = $SN->get('pass');
-        $ftproot = rtrim($SN->get('path'),'/').'/'.$this->get('path');
+        $ftproot = rtrim($SN->get('ftppath'),'/').'/'.$this->get('path');
         $this->FOGFTP
             ->set('host',$ftphost)
             ->set('username',$ftpuser)
