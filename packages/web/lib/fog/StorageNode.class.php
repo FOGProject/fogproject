@@ -12,6 +12,7 @@ class StorageNode extends FOGController {
         'isEnabled'	=> 'ngmIsEnabled',
         'isGraphEnabled'=> 'ngmGraphEnabled',
         'path'		=> 'ngmRootPath',
+        'ftppath' => 'ngmFTPPath',
         'snapinpath'		=> 'ngmSnapinPath',
         'ip'		=> 'ngmHostname',
         'maxClients'	=> 'ngmMaxClients',
@@ -24,12 +25,13 @@ class StorageNode extends FOGController {
     // Required database fields
     public $databaseFieldsRequired = array(
         'ip',
-        'path'
+        'path',
+        'ftppath',
     );
     // Overrides
     public function get($key = '') {
         // Path: Always remove trailing slash on NFS path
-        if ($this->key($key) == 'path') return rtrim(parent::get($key), '/');
+        if (in_array($this->key($key),array('path','ftppath','snapinpath'))) return rtrim(parent::get($key), '/');
         // FOGController get()
         return parent::get($key);
     }
