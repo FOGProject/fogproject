@@ -430,7 +430,7 @@ abstract class FOGPage extends FOGBase {
         // Success
         if (count($success)) {
             printf('<div class="task-start-ok"><p>%s</p><p>%s%s%s</p></div>',
-                sprintf(_('Successfully created tasks for deployment to the following Hosts'),($Data instanceof Group ? $Host->getImage()->get('name') : $Data->getImage()->get('name'))),
+                sprintf(_('Successfully created tasks for deployment to the following Hosts')),
                 ($_REQUEST['scheduleType'] == 'cron' ? sprintf('%s: %s',_('Cron Schedule'),implode(' ',array($_REQUEST['scheduleCronMin'],$_REQUEST['scheduleCronHour'],$_REQUEST['scheduleCronDOM'],$_REQUEST['scheduleCronMonth'],$_REQUEST['scheduleCronDOW']))) : ''),
                 ($_REQUEST['scheduleType'] == 'single' ? sprintf('%s: %s',_('Scheduled to start at'),$scheduleDeployTime->format('Y/m/d H:i')) : ''),
                 (count($success) ? sprintf('<ul>%s</ul>',implode('',$success)) : '')
