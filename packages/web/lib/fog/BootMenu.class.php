@@ -541,8 +541,7 @@ class BootMenu extends FOGBase {
             if ($this->FOGCore->getSetting('FOG_ADVANCED_MENU_LOGIN') && $_REQUEST['advLog']) $this->advLogin();
             if ($_REQUEST['delhost']) $this->delConf();
             else if ($_REQUEST['keyreg']) $this->keyreg();
-            else if ($_REQUEST['qihost'] && !$_REQUEST['imageID']) $this->setTasking();
-            else if ($_REQUEST['qihost'] && $_REQUEST['imageID']) $this->setTasking($_REQUEST['imageID']);
+            else if ($_REQUEST['qihost']) $this->setTasking($_REQUEST['imageID']);
             else if ($_REQUEST['sessionJoin']) $this->sessjoin();
             else if ($_REQUEST['approveHost']) $this->aprvConf();
             else if ($_REQUEST['menuaccess']) {
@@ -574,7 +573,7 @@ class BootMenu extends FOGBase {
         if ($imgID) {
             $Image = new Image($imgID);
             if ($this->Host && $this->Host->isValid()) {
-                if (!$this->Host->getImage() || !$this->Host->getImage()->isValid()) $this->Host->set('imageID',$imgID);
+                if (!$this->Host->getImage() || !$this->Host->getImage()->isValid()) $this->Host->set(imageID,$imgID);
                 if ($imgID && $this->Host->getImage() && $this->Host->getImage()->isValid() && $imgID != $this->Host->getImage()->get('id')) $this->Host->set('imageID',$imgID);
                 if ($this->Host->getImage()->isValid()) {
                     try {

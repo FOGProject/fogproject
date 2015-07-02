@@ -31,11 +31,8 @@ class Host extends FOGController {
     // Allow setting / getting of these additional fields
     public $additionalFields = array(
         'mac',
-        'primac',
-        'inv',
         'additionalMACs',
         'pendingMACs',
-        'image',
         'groups',
         'groupsnotinme',
         'optimalStorageNode',
@@ -57,9 +54,6 @@ class Host extends FOGController {
         'name',
     );
     public $databaseFieldClassRelationships = array(
-        //'MACAddressAssociation' => array('hostID','id','primac',array('primary' => 1)),
-        'Image' => array('id','imageID','image'),
-        'Inventory' => array('hostID','id','inv'),
     );
     // Custom functons
     public function isHostnameSafe($hostname = '') {
@@ -137,8 +131,7 @@ class Host extends FOGController {
     }
     private function loadPrimary() {
         if (!$this->isLoaded('mac') && $this->get('id')) {
-            if ($this->get('primac')) $this->set('mac',$this->get('primac'));
-            else $this->set('mac',$this->getClass('MACAddress',current($this->getClass('MACAddressAssociationManager')->find(array('hostID' => $this->get('id'),'primary' => 1)))));
+            $this->set(mac,$this->getClass(MACAddress,current($this->getClass(MACAddressAssociationManager)->find(array('hostID' => $this->get(id),'primary' => 1)))));
         }
         //return $this;
         return $this;
@@ -172,9 +165,7 @@ class Host extends FOGController {
         return $this;
     }
     private function loadInventory() {
-        if (!$this->isLoaded('inventory') && $this->get('id'))
-            if ($this->get('inv')) $this->set('inventory',$this->get('inv'));
-            else $this->set('inventory',current($this->getClass('InventoryManager')->find(array('hostID' => $this->get('id')))));
+        if (!$this->isLoaded('inventory') && $this->get('id')) $this->set('inventory',current($this->getClass('InventoryManager')->find(array('hostID' => $this->get('id')))));
         return $this;
     }
     private function loadModules() {
@@ -601,6 +592,7 @@ class Host extends FOGController {
                     $hostsWithImgID = $this->getClass(HostManager)->find(array('imageID' => $imageTaskImgID),'','','','','','','id');
                     if (!in_array($this->get(id),(array)$hostsWithImgID)) $this->set('imageID',$this->getClass(Host,$this->get(id))->get(imageID));
                     $this->save();
+                    $this->set('imageID',$imageTaskImgID);
                 }
             }
             $isUpload = $TaskType->isUpload();
@@ -615,6 +607,7 @@ class Host extends FOGController {
             if ($deploySnapins && !$isUpload && (($taskTypeID != 17 && $imagingTypes) || in_array($taskTypeID,array(12,13)))) $this->createSnapinTasking($deploySnapins);
             // Task: Create Task Object
             $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageGroup->getOptimalStorageNode()->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug);
+            $Task->set('imageID',$Image->get(id));
             // Task: Save to database
             if (!$Task->save()) {
                 $this->FOGCore->logHistory(sprintf('Task failed: Task ID: %s, Task Name: %s, Host ID: %s, HostName: %s, Host MAC: %s',$Task->get('id'),$Task->get('name'),$this->get('id'),$this->get('name'),$this->getMACAddress()));
@@ -673,7 +666,7 @@ class Host extends FOGController {
     }
     public function getImageMemberFromHostID() {
         try {
-            $Image = $this->getClass('Image',$this->get('imageID'));
+            $Image = $this->getClass(Image,$this->get(imageID));
             if(!$Image->isValid() || !$Image->get('id')) throw new Exception('No Image defined for this host');
             $StorageGroup = $Image->getStorageGroup();
             if(!$StorageGroup->get('id')) throw new Exception('No StorageGroup defined for this host');
@@ -895,10 +888,10 @@ class Host extends FOGController {
         return parent::destroy($field);
     }
     // Custom functions
-    public function getImage() {return ($this->get('image') ? $this->get('image') : $this->getClass('Image',$this->get('imageID')));}
+    public function getImage() {return $this->getClass(Image,$this->get(imageID));}
         public function getOS() {return $this->getImage()->getOS();}
-        public function getMACAddress() {return $this->get('mac');}
-        public function getActiveSnapinJob() {return $this->get('snapinjob');}
+        public function getMACAddress() {return $this->get(mac);}
+        public function getActiveSnapinJob() {return $this->get(snapinjob);}
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */
