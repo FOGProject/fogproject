@@ -229,11 +229,12 @@ installPackages() {
             else
                 true
             fi
-        else
-            add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
         fi
-        errorStat $?
+    elif [ "$osid" -eq 2 ] && [[ "$linuxReleaseName" == +(*'buntu'*) ]]; then
+        dots "Adding needed repository"
+        add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
     fi
+    errorStat $?
     dots "Preparing Package Manager"
     $packmanUpdate >/dev/null 2>&1
     if [ "$osid" -eq 2 ]; then
