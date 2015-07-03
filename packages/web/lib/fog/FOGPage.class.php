@@ -301,7 +301,7 @@ abstract class FOGPage extends FOGBase {
             );
         }
         if ($Data instanceof Group) {
-            foreach($Data->get('hosts') AS &$Host) {
+            foreach($this->getClass(HostManager)->find(array('id' => $Data->get(hosts))) AS &$Host) {
                 if ($Host->isValid()) {
                     $this->data[] = array(
                         'host_link' => $_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
@@ -349,17 +349,17 @@ abstract class FOGPage extends FOGBase {
                 } else if ($Data instanceof Group && $imagingTasks) {
                     if ($TaskType->isMulticast() && !$Data->doMembersHaveUniformImages()) throw new Exception(_('Hosts do not contain the same image assignments'));
                     unset($NoImage,$ImageExists,$Tasks);
-                    foreach($Data->get('hosts') AS &$Host) {
+                    foreach($this->getClass(HostManager)->find(array('id' => $Data->get(hosts))) AS &$Host) {
                         if ($Host->isValid() && !$Host->get('pending')) $NoImage[] = !$Host->getImage() || !$Host->getImage()->isValid();
                     }
                     unset($Host);
                     if (in_array(true,$NoImage)) throw new Exception(_('One or more hosts do not have an image set'));
-                    foreach($Data->get('hosts') AS &$Host) {
+                    foreach($this->getClass(HostManager)->find(array('id' => $Data->get(hosts))) AS &$Host) {
                         if ($Host->isValid() && !$Host->get('pending')) $ImageExists[] = !$Host->checkIfExist($TaskType->get('id'));
                     }
                     unset($Host);
                     if (in_array(true,$ImageExists)) throw new Exception(_('One or more hosts have an image that does not exist'));
-                    foreach($Data->get('hosts') AS &$Host) {
+                    foreach($this->getClass(HostManager)->find(array('id' => $Data->get(hosts))) AS &$Host) {
                         if ($Host->isValid() && $Host->get('task') && $Host->get('task')->isValid()) $Tasks[] = $Host->get('task');
                     }
                     unset($Host);
@@ -370,7 +370,7 @@ abstract class FOGPage extends FOGBase {
                 try {
                     if ($_REQUEST['scheduleType'] == 'instant') {
                         if ($Data instanceof Group) {
-                            foreach($Data->get('hosts') AS &$Host) {
+                            foreach($this->getClass(HostManager)->find(array('id' => $Data->get(hosts))) AS &$Host) {
                                 if ($Host->isValid() && !$Host->get('pending')) {
                                     if ($Host->createImagePackage($TaskType->get('id'),$taskName,$enableShutdown,$enableDebug,$enableSnapins,$Data instanceof Group,$_SESSION['FOG_USERNAME'],$passreset)) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
                                 }
@@ -411,7 +411,7 @@ abstract class FOGPage extends FOGBase {
                     }
                     if ($ScheduledTask && $ScheduledTask->save()) {
                         if ($Data instanceof Group) {
-                            foreach($Data->get('hosts') AS &$Host) {
+                            foreach($this->getClass(HostManager)->find(array('id' => $Data->get(hosts))) AS &$Host) {
                                 if ($Host->isValid() && !$Host->get('pending')) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
                             }
                             unset($Host);
@@ -822,7 +822,7 @@ abstract class FOGPage extends FOGBase {
         try {
             if ($Data instanceof Group) {
                 if ($_REQUEST['delHostConfirm'] == '1') {
-                    foreach($Data->get('hosts') AS &$Host) {
+                    foreach($this->getClass(HostManager)->find(array('id' => $Data->get(hosts))) AS &$Host) {
                         if ($Host->isValid()) $Host->destroy();
                     }
                     unset($Host);
