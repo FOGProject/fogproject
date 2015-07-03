@@ -71,23 +71,22 @@ class Host extends FOGController {
         $this->getActiveSnapinJob();
     }
     public function getDefault($printerid) {
-        $PrinterMan = current($this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $printerid)));
-        return $PrinterMan && $PrinterMan->isValid() && $PrinterMan->get('isDefault');
+        $PrinterMan = current($this->getClass(PrinterAssociationManager)->find(array('hostID' => $this->get('id'),'printerID' => $printerid)));
+        return $PrinterMan && $PrinterMan->isValid() && $PrinterMan->get(isDefault);
     }
     public function updateDefault($printerid,$onoff) {
-        $PrinterAssoc = $this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id')));
-        // Set all to not default
-        foreach((array)$PrinterAssoc AS &$PrinterSet) {
-            if ($PrinterSet && $PrinterSet->isValid()) $PrinterSet->set('isDefault',0)->save();
+        // Destroy All printers attached to host, to reset default
+        if ($this->isLoaded(printers)) $this->getClass(PrinterAssociationManager)->destroy(array('hostID' => $this->get(id)));
+        $def = false;
+        foreach ($this->get(printers) AS &$Printer) {
+            if ($Printer == $printerid) $def = true;
+            $this->getClass(PrinterAssociation)
+                ->set('printerID',$Printer)
+                ->set('hostID',$this->get(id))
+                ->set('isDefault',(int)$def)
+                ->save();
         }
-        unset($PrinterSet);
-        foreach((array)$printerid AS &$printer) {
-            $Printer = $this->getClass('Printer',$printer);
-            if ($Printer && $Printer->isValid()) $SetDefault = current($this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id'),'printerID' => $Printer->get('id'))));
-            // Set the current sent printer to it's on/off state.
-            if ($SetDefault && $SetDefault->isValid()) $SetDefault->set('isDefault',$onoff)->save();
-        }
-        unset($printer);
+        unset($Printer);
         return $this;
     }
     public function getDispVals($key = '') {
@@ -145,7 +144,7 @@ class Host extends FOGController {
         return $this;
     }
     private function loadPrinters() {
-        if (!$this->isLoaded('printers') && $this->get('id')) {
+        if (!$this->isLoaded(printers) && $this->get(id)) {
             // Printers I have
             $PrinterIDs = array_unique($this->getClass('PrinterAssociationManager')->find(array('hostID' => $this->get('id')),'','','','','','','printerID'));
             $this->set('printers',$PrinterIDs);
@@ -165,7 +164,7 @@ class Host extends FOGController {
         return $this;
     }
     private function loadInventory() {
-        if (!$this->isLoaded('inventory') && $this->get('id')) $this->set('inventory',current($this->getClass('InventoryManager')->find(array('hostID' => $this->get('id')))));
+        if (!$this->isLoaded('inventory') && $this->get('id')) $this->set('inventory',current($this->getClass(InventoryManager)->find(array('hostID' => $this->get(id)))));
         return $this;
     }
     private function loadModules() {
@@ -227,41 +226,21 @@ class Host extends FOGController {
             foreach((array)$value AS &$mac) $newValue[] = ($mac instanceof MACAddress ? $mac : $this->getClass('MACAddress',$mac));
             unset($mac);
             $value = (array)$newValue;
-        } else if ($this->key($key) == 'printers') {
-            $this->loadPrinters();
-            foreach ((array)$value AS &$printer) $newValue[] = ($printer instanceof Printer ? $printer : $this->getClass('Printer',$printer));
-            unset($printer);
-            $value = (array)$newValue;
-        } else if ($this->key($key) == 'snapins') {
-            $this->loadSnapins();
-            foreach ((array)$value AS &$snapin) $newValue[] = ($snapin instanceof Snapin ? $snapin : $this->getClass('Snapin',$snapin));
-            unset($snapin);
-            $value = (array)$newValue;
-        } else if ($this->key($key) == 'snapinjob' && !($value instanceof SnapinJob)) {
+        }  else if ($this->key($key) == 'snapinjob') {
             $this->loadSnapinJob();
             if (!($value instanceof SnapinJob)) $value = $this->getClass('SnapinJob',$value);
-        } else if ($this->key($key) == 'modules') {
-            $this->loadModules();
-            foreach((array)$value AS &$module) $newValue[] = ($module instanceof Module ? $module : $this->getClass('Module',$module));
-            unset($module);
-            $value = (array)$newValue;
         } else if (($this->key($key) == 'inventory')) {
             $this->loadInventory();
             if (!($value instanceof Inventory)) $value = $this->getClass('Inventory',$value);
-        } else if ($this->key($key) == 'groups') {
-            $this->loadGroups();
-            foreach ((array)$value AS &$group) $newValue[] = ($group instanceof Group ? $group : $this->getClass('Group',$group));
-            unset($group);
-            $value = (array)$newValue;
         } else if ($this->key($key) == 'task') {
             $this->loadTask();
             if (!($value instanceof Task)) $value = $this->getClass('Task',$value);
-        } else if ($this->key($key) == 'users') {
-            $this->loadUsers();
-            foreach ((array)$value AS &$user) $newValue[] = ($user instanceof UserTracking ? $user : $this->getClass('UserTracking',$user));
-            unset($user);
-            $value = (array)$newValue;
         }
+        else if ($this->key($key) == 'printers') $this->loadPrinters();
+        else if ($this->key($key) == 'snapins') $this->loadSnapins();
+        else if ($this->key($key) == 'modules') $this->loadModules();
+        else if ($this->key($key) == 'groups') $this->loadGroups();
+        else if ($this->key($key) == 'users') $this->loadUsers();
         // Set
         return parent::set($key, $value);
     }
@@ -272,22 +251,13 @@ class Host extends FOGController {
         } else if ($this->key($key) == 'pendingMACs' && !($value instanceof MACAddress)) {
             $this->loadPending();
             $value = $this->getClass('MACAddress',$value);
-        } else if ($this->key($key) == 'printers' && !($value instanceof Printer)) {
-            $this->loadPrinters();
-            $value = $this->getClass('Printer',$value);
-        } else if ($this->key($key) == 'snapins' && !($value instanceof Snapin)) {
-            $this->loadSnapins();
-            $value = $this->getClass('Snapin',$value);
-        } else if ($this->key($key) == 'modules' && !($value instanceof Module)) {
-            $this->loadModules();
-            $value = $this->getClass('Module',$value);
-        } else if ($this->key($key) == 'groups' && !($value instanceof Group)) {
-            $this->loadGroups();
-            $value = $this->getClass('Group',$value);
-        } else if ($this->key($key) == 'users' && !($value instanceof UserTracking)) {
-            $this->loadUsers();
-            $value = $this->getClass('UserTracking',$value);
-        }
+        } else if ($this->key($key) == 'printers') $this->loadPrinters();
+        else if ($this->key($key) == 'snapins') $this->loadSnapins();
+        else if ($this->key($key) == 'modules') $this->loadModules();
+        else if ($this->key($key) == 'groups') $this->loadGroups();
+        else if ($this->key($key) == 'users') $this->loadUsers();
+        else if ($this->key($key) == 'printers') $this->loadPrinters();
+        else if ($this->key($key) == 'snapins') $this->loadSnapins();
         // Add
         return parent::add($key, $value);
     }
@@ -297,7 +267,6 @@ class Host extends FOGController {
         else if ($this->key($key) == 'pendingMACs') $this->loadPending();
         else if ($this->key($key) == 'printers') $this->loadPrinters();
         else if ($this->key($key) == 'snapins') $this->loadSnapins();
-        else if ($this->key($key) == 'snapinjob') $this->loadSnapinJob();
         else if ($this->key($key) == 'modules') $this->loadModules();
         else if ($this->key($key) == 'groups') $this->loadGroups();
         else if ($this->key($key) == 'users') $this->loadUsers();
@@ -306,72 +275,70 @@ class Host extends FOGController {
     }
     public function save() {
         parent::save();
-        if ($this->isLoaded('mac')) {
-            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'mac' => $this->get('mac')->__toString()));
-            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'primary' => 1));
-            if (($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid()) {
-                $this->getClass('MACAddressAssociation')
-                    ->set('hostID', $this->get('id'))
-                    ->set('mac',strtolower($this->get('mac')->__toString()))
-                    ->set('primary',1)
-                    ->set('pending',0)
-                    ->set('clientIgnore',$this->get('mac')->isClientIgnored())
-                    ->set('imageIgnore',$this->get('mac')->isImageIgnored())
+        if ($this->isLoaded(mac)) {
+            $this->getClass(MACAddressAssociationManager)->destroy(array('hostID' => $this->get('id'),'mac' => $this->get('mac')->__toString()));
+            $this->getClass(MACAddressAssociationManager)->destroy(array('hostID' => $this->get('id'),'primary' => 1));
+            if (($this->get(mac) instanceof MACAddress) && $this->get(mac)->isValid()) {
+                $this->getClass(MACAddressAssociation)
+                    ->set(hostID,$this->get(id))
+                    ->set(mac,strtolower($this->get('mac')->__toString()))
+                    ->set(primary,1)
+                    ->set(pending,0)
+                    ->set(clientIgnore,$this->get(mac)->isClientIgnored())
+                    ->set(imageIgnore,$this->get(mac)->isImageIgnored())
                     ->save();
             }
         }
-        if ($this->isLoaded('additionalMACs')) {
+        if ($this->isLoaded(additionalMACs)) {
             $MAClist = array();
             foreach ($this->get(additionalMACs) AS &$MAC) $MAClist[] = $MAC->__toString();
             unset($MAC);
-            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'mac' => (array)$MAClist));
-            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'pending' => 0,'primary' => 0));
-            foreach($this->get('additionalMACs') AS &$me) {
+            $this->getClass(MACAddressAssociationManager)->destroy(array('hostID' => $this->get(id),'mac' => (array)$MAClist));
+            $this->getClass(MACAddressAssociationManager)->destroy(array('hostID' => $this->get(id),'pending' => 0,'primary' => 0));
+            foreach($this->get(additionalMACs) AS &$me) {
                 if (($me instanceof MACAddress) && $me->isValid()) {
-                    $this->getClass('MACAddressAssociation')
-                        ->set('hostID',$this->get('id'))
-                        ->set('mac',strtolower($me->__toString()))
-                        ->set('primary', 0)
-                        ->set('pending', 0)
-                        ->set('clientIgnore',$me->isClientIgnored())
-                        ->set('imageIgnore',$me->isImageIgnored())
+                    $this->getClass(MACAddressAssociation)
+                        ->set(hostID,$this->get(id))
+                        ->set(mac,strtolower($me->__toString()))
+                        ->set(primary,0)
+                        ->set(pending,0)
+                        ->set(clientIgnore,$me->isClientIgnored())
+                        ->set(imageIgnore,$me->isImageIgnored())
                         ->save();
                 }
             }
             unset($me);
         }
-        if ($this->isLoaded('pendingMACs')) {
+        if ($this->isLoaded(pendingMACs)) {
             $MAClist = array();
             foreach ($this->get(pendingMACs) AS &$MAC) $MAClist[] = $MAC->__toString();
             unset($MAC);
-            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'mac' => (array)$MAClist));
-            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get('id'),'pending' => 1,'primary' => 0));
-            foreach($this->get('pendingMACs') AS &$me) {
+            $this->getClass(MACAddressAssociationManager)->destroy(array('hostID' => $this->get(id),'mac' => (array)$MAClist));
+            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get(id),'pending' => 1,'primary' => 0));
+            foreach($this->get(pendingMACs) AS &$me) {
                 if (($me instanceof MACAddress) && $me->isValid()) {
-                    $this->getClass('MACAddressAssociation')
-                        ->set('hostID',$this->get('id'))
-                        ->set('mac',strtolower($me->__toString()))
-                        ->set('primary', 0)
-                        ->set('pending', 1)
-                        ->set('clientIgnore',$me->isClientIgnored())
-                        ->set('imageIgnore',$me->isImageIgnored())
+                    $this->getClass(MACAddressAssociation)
+                        ->set(hostID,$this->get(id))
+                        ->set(mac,strtolower($me->__toString()))
+                        ->set(primary,0)
+                        ->set(pending,1)
+                        ->set(clientIgnore,$me->isClientIgnored())
+                        ->set(imageIgnore,$me->isImageIgnored())
                         ->save();
                 }
             }
             unset($me);
         }
-        if ($this->isLoaded('modules')) {
+        if ($this->isLoaded(modules)) {
             $this->getClass('ModuleAssociationManager')->destroy(array('hostID' => $this->get('id')));
             $moduleName = $this->getGlobalModuleStatus();
-            foreach($this->get('modules') AS &$Module) {
-                if (($Module instanceof Module) && $Module->isValid()) {
-                    if ($moduleName[$Module->get('shortName')]) {
-                        $this->getClass('ModuleAssociation')
-                            ->set('hostID', $this->get('id'))
-                            ->set('moduleID', $Module->get('id'))
-                            ->set('state', 1)
-                            ->save();
-                    }
+            foreach($this->getClass('ModuleManager')->find(array('id' => $this->get(modules))) AS &$Module) {
+                if ($moduleName[$Module->get(shortName)]) {
+                    $this->getClass(ModuleAssociation)
+                        ->set(hostID,$this->get('id'))
+                        ->set(moduleID,$Module->get('id'))
+                        ->set(state,1)
+                        ->save();
                 }
             }
             unset($Module);
@@ -490,7 +457,7 @@ class Host extends FOGController {
      * @return $Task returns the tasking generated to be saved later
      */
     private function createTasking($taskName, $taskTypeID, $username, $groupID, $memID, $imagingTask = true,$shutdown = false, $passreset = false, $debug = false) {
-        $Task = $this->getClass('Task')
+        $Task = $this->getClass(Task)
             ->set('name',$taskName)
             ->set('createdBy',$username)
             ->set('hostID',$this->get('id'))
