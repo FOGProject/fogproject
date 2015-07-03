@@ -1076,8 +1076,8 @@ class HostManagementPage extends FOGPage {
                 $hostName = trim($_REQUEST['host']);
                 // Error checking
                 if (empty($hostName)) throw new Exception('Please enter a hostname');
-                if ($Host->get('name') != $hostName && !$Host->isHostnameSafe($hostName)) throw new Exception(_('Please enter a valid hostname'));
-                if ($Host->get('name') != $hostName && $this->getClass('HostManager')->exists($hostName)) throw new Exception('Hostname Exists already');
+                if ($this->obj->get('name') != $hostName && !$Host->isHostnameSafe($hostName)) throw new Exception(_('Please enter a valid hostname'));
+                if ($this->obj->get('name') != $hostName && $this->getClass('HostManager')->exists($hostName)) throw new Exception('Hostname Exists already');
                 if (empty($_REQUEST['mac'])) throw new Exception('MAC Address is required');
                 // Variables
                 $mac = $this->getClass(MACAddress,$_REQUEST[mac]);
