@@ -574,7 +574,7 @@ class Host extends FOGController {
             if ($deploySnapins && !$isUpload && (($taskTypeID != 17 && $imagingTypes) || in_array($taskTypeID,array(12,13)))) $this->createSnapinTasking($deploySnapins);
             // Task: Create Task Object
             $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageGroup->getOptimalStorageNode()->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug);
-            $Task->set('imageID',$Image->get(id));
+            if ($Image && $Image->isValid()) $Task->set('imageID',$Image->get(id));
             // Task: Save to database
             if (!$Task->save()) {
                 $this->FOGCore->logHistory(sprintf('Task failed: Task ID: %s, Task Name: %s, Host ID: %s, HostName: %s, Host MAC: %s',$Task->get('id'),$Task->get('name'),$this->get('id'),$this->get('name'),$this->getMACAddress()));
