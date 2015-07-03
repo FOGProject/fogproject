@@ -79,12 +79,10 @@ class Image extends FOGController {
         parent::save();
         if ($this->isLoaded('hosts')) {
             // Unset all hosts
-            foreach($this->getClass('HostManager')->find(array('imageID' => $this->get('id'))) AS &$Host) {
-                if(($Host instanceof Host) && $Host->isValid()) $Host->set('imageID', 0)->save();
-            }
+            foreach($this->getClass(HostManager)->find(array('imageID' => $this->get(id))) AS &$Host) $Host->set(imageID, 0)->save();
             unset($Host);
             // Reset the hosts necessary
-            foreach ($this->get(hosts) AS &$Host) $this->getClass(Host,$Host)->set(imageID,$this->get(id))->save();
+            foreach ($this->getClass(HostManager)->find(array('id' => $this->get(hosts))) AS &$Host) $Host->set(imageID,$this->get(id))->save();
             unset($Host);
         }
         if ($this->isLoaded('storageGroups')) {
@@ -109,6 +107,11 @@ class Image extends FOGController {
             if (strlen($method) > 5 && strpos($method,'load')) $this->$method();
         }
         unset($method);
+    }
+    public function add($key,$value) {
+        if ($this->key($key) == 'hosts') $this->loadHosts();
+        else if ($this->key($key) == 'storageGroups') $this->loadGroups();
+        return parent::add($key,$value);
     }
     public function addHost($addArray) {
         // Add
