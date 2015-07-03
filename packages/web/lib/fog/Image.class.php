@@ -60,9 +60,6 @@ class Image extends FOGController {
     public function set($key, $value) {
         if ($this->key($key) == 'hosts') {
             $this->loadHosts();
-            foreach((array)$value AS &$Host) $newValue[] = ($Host instanceof Host ? $Host : $this->getClass('Host',$Host));
-            unset($Host);
-            $value = (array)$newValue;
         } else if ($this->key($key) == 'storageGroups') {
             $this->loadGroups();
             foreach((array)$value AS &$Group) $newValue[] = ($Group instanceof StorageGroup ? $Group : $this->getClass('StorageGroup',$Group));
@@ -71,17 +68,6 @@ class Image extends FOGController {
         }
         // Set
         return parent::set($key, $value);
-    }
-    public function add($key, $value) {
-        if ($this->key($key) == 'hosts' && !($value instanceof Host)) {
-            $this->loadHosts();
-            $value = $this->getClass('Host',$value);
-        } else if ($this->key($key) == 'storageGroups' && !($value instanceof StorageGroup)) {
-            $this->loadGroups();
-            $value = $this->getClass('StorageGroup',$value);
-        }
-        // Add
-        return parent::add($key, $value);
     }
     public function remove($key, $object) {
         if ($this->key($key) == 'hosts') $this->loadHosts();
@@ -98,9 +84,7 @@ class Image extends FOGController {
             }
             unset($Host);
             // Reset the hosts necessary
-            foreach ($this->get('hosts') AS &$Host) {
-                if (($Host instanceof Host) && $Host->isValid()) $Host->set('imageID', $this->get('id'))->save();
-            }
+            foreach ($this->get(hosts) AS &$Host) $this->getClass(Host,$Host)->set(imageID,$this->get(id))->save();
             unset($Host);
         }
         if ($this->isLoaded('storageGroups')) {
@@ -142,7 +126,7 @@ class Image extends FOGController {
     }
     public function removeHost($removeArray) {
         // Iterate array (or other as array)
-        foreach((array)$removeArray AS &$remove) $this->remove('hosts', ($remove instanceof Host ? $remove : $this->getClass('Host',(int)$remove)));
+        foreach((array)$removeArray AS &$remove) $this->remove(hosts, $remove);
         unset($remove);
         // Return
         return $this;
