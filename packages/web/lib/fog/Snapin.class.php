@@ -54,12 +54,8 @@ class Snapin extends FOGController {
         return parent::get($key);
     }
     public function set($key, $value) {
-        if ($this->key($key) == 'hosts') {
-            $this->loadHosts();
-            foreach((array)$value AS &$Host) $newValue[] = ($Host instanceof Host ? $Host : $this->getClass('Host',$Host));
-            unset($Host);
-            $value = (array)$newValue;
-        } else if ($this->key($key) == 'storageGroups') {
+        if ($this->key($key) == 'hosts') $this->loadHosts();
+        else if ($this->key($key) == 'storageGroups') {
             $this->loadGroups();
             foreach((array)$value AS &$Group) $newValue[] = ($Group instanceof StorageGroup ? $Group : $this->getClass('StorageGroup',$Group));
             unset($Group);
@@ -69,10 +65,8 @@ class Snapin extends FOGController {
         return parent::set($key, $value);
     }
     public function add($key, $value) {
-        if ($this->key($key) == 'hosts' && !($value instanceof Host)) {
-            $this->loadHosts();
-            $value = $this->getClass('Host',$value);
-        } else if ($this->key($key) == 'storageGroups' && !($value instanceof StorageGroup)) {
+        if ($this->key($key) == 'hosts') $this->loadHosts();
+        else if ($this->key($key) == 'storageGroups' && !($value instanceof StorageGroup)) {
             $this->loadGroups();
             $value = $this->getClass('StorageGroup',$value);
         }
@@ -89,15 +83,13 @@ class Snapin extends FOGController {
         parent::save();
         if ($this->isLoaded('hosts')) {
             // Remove old rows
-            $this->getClass('SnapinAssociationManager')->destroy(array('snapinID' => $this->get('id')));
+            $this->getClass(SnapinAssociationManager)->destroy(array('snapinID' => $this->get(id)));
             // Create assoc
-            foreach ($this->get('hosts') AS &$Host) {
-                if(($Host instanceof Host) && $Host->isValid()) {
-                    $this->getClass('SnapinAssociation')
-                        ->set('hostID',$Host->get('id'))
-                        ->set('snapinID',$this->get('id'))
-                        ->save();
-                }
+            foreach ($this->get(hosts) AS &$Host) {
+                $this->getClass(SnapinAssociation)
+                    ->set(hostID,$Host)
+                    ->set(snapinID,$this->get(id))
+                    ->save();
             }
             unset($Host);
         }
@@ -119,7 +111,7 @@ class Snapin extends FOGController {
     }
     public function addHost($addArray) {
         // Add
-        foreach((array)$addArray AS &$item) $this->add('hosts', $item);
+        foreach((array)$addArray AS &$item) $this->add(hosts,$item);
         unset($item);
         // Return
         return $this;
@@ -140,7 +132,7 @@ class Snapin extends FOGController {
     }
     public function removeHost($removeArray) {
         // Iterate array (or other as array)
-        foreach ((array)$removeArray AS &$remove) $this->remove('hosts', ($remove instanceof Host ? $remove : $this->getClass('Host',(int)$remove)));
+        foreach ((array)$removeArray AS &$remove) $this->remove(hosts,$remove);
         unset($remove);
         // Return
         return $this;

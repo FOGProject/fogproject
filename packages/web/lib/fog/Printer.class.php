@@ -47,20 +47,12 @@ class Printer extends FOGController {
         return parent::get($key);
     }
     public function set($key, $value) {
-        if ($this->key($key) == 'hosts') {
-            $this->loadHosts();
-            foreach((array)$value AS &$Host) $newValue[] = ($Host instanceof Host ? $Host : new Host($Host));
-            unset($Host);
-            $value = (array)$newValue;
-        }
+        if ($this->key($key) == 'hosts') $this->loadHosts();
         // Set
         return parent::set($key,$value);
     }
     public function add($key, $value) {
-        if ($this->key($key) == 'hosts' && !($value instanceof Host)) {
-            $this->loadHosts();
-            $value = $this->getClass('Host',$value);
-        }
+        if ($this->key($key) == 'hosts') $this->loadHosts();
         // Add
         return parent::add($key, $value);
     }
@@ -71,19 +63,17 @@ class Printer extends FOGController {
     }
     public function save() {
         parent::save();
-        if ($this->isLoaded('hosts')) {
+        if ($this->isLoaded(hosts)) {
             // Remove all old entries.
-            $this->getClass('PrinterAssociationManager')->destroy(array('printerID' => $this->get('id')));
+            $this->getClass(PrinterAssociationManager)->destroy(array('printerID' => $this->get(id)));
             // Create new Assocs
             $i = 0;
-            foreach($this->get('hosts') AS &$Host) {
-                if (($Host instanceof Host) && $Host->isValid()) {
-                    $this->getClass('PrinterAssociation')
-                        ->set('printerID',$this->get('id'))
-                        ->set('hostID', $Host->get('id'))
-                        ->set('isDefault', ($i === 0 ? 1 : 0))
-                        ->save();
-                }
+            foreach($this->get(hosts) AS &$Host) {
+                $this->getClass(PrinterAssociation)
+                    ->set(printerID,$this->get(id))
+                    ->set(hostID,$Host)
+                    ->set(isDefault,($i === 0 ? 1 : 0))
+                    ->save();
                 $i++;
             }
             unset($Host);
@@ -99,7 +89,7 @@ class Printer extends FOGController {
     }
     public function removeHost($removeArray) {
         // Iterate array (or other as array)
-        foreach((array)$removeArray AS &$remove) $this->remove('hosts', ($remove instanceof Host ? $remove : $this->getClass('Host',(int)$remove)));
+        foreach((array)$removeArray AS &$remove) $this->remove(hosts,$remove);
         unset($remove);
         // Return
         return $this;

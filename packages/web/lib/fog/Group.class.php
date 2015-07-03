@@ -41,6 +41,10 @@ class Group extends FOGController {
         }
         unset($method);
     }
+    public function add($key,$value) {
+        if ($this->key($key) == 'hosts') $this->loadHosts();
+        return parent::add($key,$value);
+    }
     public function save() {
         parent::save();
         if ($this->isLoaded(hosts)) {

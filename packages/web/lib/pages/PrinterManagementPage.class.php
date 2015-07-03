@@ -52,8 +52,7 @@ class PrinterManagementPage extends FOGPage {
         );
     }
     // Pages
-    public function index()
-    {
+    public function index() {
         // Set title
         $this->title = _('Search');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['PrinterCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list')
