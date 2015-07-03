@@ -189,4 +189,3 @@ class Initiator {
         /** $HookManager initiates the FOGURLRequest class */
         $FOGCore->FOGURLRequests = $FOGURLRequests = $FOGCore->getClass('FOGURLRequests');
         $FOGCore->cleanupBadEntries();
-        $FOGCore->associationCleanup();

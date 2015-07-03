@@ -94,7 +94,7 @@ abstract class FOGPage extends FOGBase {
         /** render() just prints the data
          * @return void
          */
-        public function render() {print $this->process();}
+        public function render() {ob_start('sanitize_output',512); echo $this->process(); ob_end_flush();}
         /** process() build the relevant html for the page
          * @return false or the result
          */
@@ -117,10 +117,11 @@ abstract class FOGPage extends FOGBase {
                         'form' => $this->form,
                     ));
                 } else {
+                    ob_start('sanitize_output');
                     $isMobile = preg_match('#/mobile/#',$_SERVER['PHP_SELF']);
                     // HTML output
                     if ($this->searchFormURL) {
-                        $result .= sprintf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><input id="%s-search-submit" class="search-submit" type="%s" value="%s"/></form>',
+                        printf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><input id="%s-search-submit" class="search-submit" type="%s" value="%s"/></form>',
                             $this->searchFormURL,
                             (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
                             sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), $this->foglang['Search']),
@@ -130,22 +131,22 @@ abstract class FOGPage extends FOGBase {
                             $isMobile ? $this->foglang['Search'] : ''
                         );
                     }
-                    if ($this->form) $result .= sprintf($this->form);
+                    if ($this->form) $result .= printf($this->form);
                     // Table -> Header Row
-                    $result .= sprintf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s"><thead><tr class="header">%s</tr></thead><tbody>',
+                    printf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s"><thead><tr class="header">%s</tr></thead><tbody>',
                         '100%',
                         ($this->searchFormURL ? 'search-content' : 'active-tasks'),
                         $this->buildHeaderRow()
                     );
                     if (!count($this->data)) {
                         // No data found
-                        $result .= sprintf('<tr><td colspan="%s" class="no-active-tasks">%s</td></tr></tbody></table>',
+                        printf('<tr><td colspan="%s" class="no-active-tasks">%s</td></tr></tbody></table>',
                             count($this->templates),
                             ($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : $this->foglang['NoResults'])
                         );
                     } else {
                         foreach ($this->data AS &$rowData) {
-                            $result .= sprintf('<tr id="%s-%s"%s>%s</tr>',
+                            printf('<tr id="%s-%s"%s>%s</tr>',
                                 strtolower($this->childClass),
                                 $rowData['id'],
                                 ((++$i % 2) ? ' class="alt1"' : ((!$_REQUEST['sub'] && $defaultScreen == 'list') || in_array($_REQUEST['sub'],array('list','search')) ? ' class="alt2"' : '')),
@@ -154,14 +155,14 @@ abstract class FOGPage extends FOGBase {
                         }
                         unset($rowData);
                     }
-                    $result .= '</tbody></table>';
+                    echo '</tbody></table>';
                     if (((!$_REQUEST['sub'] || ($_REQUEST['sub'] && in_array($_REQUEST['sub'],$defaultScreens))) && in_array($_REQUEST['node'],$this->searchPages)) && !$isMobile) {
-                        if ($this->childClass == 'Host') $result .= '<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>';
-                        $result .= '<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value=""autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>';
+                        if ($this->childClass == 'Host') printf('<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>');
+                    printf('<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value=""autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>');
                     }
                 }
                 // Return output
-                return $result;
+                return ob_get_clean();
             } catch (Exception $e) {
                 return $e->getMessage();
             }
@@ -214,10 +215,11 @@ abstract class FOGPage extends FOGBase {
      */
     public function buildRow($data) {
         $this->replaceNeeds($data);
+        ob_start('sanitize_output');
         // Loop template data
         foreach ($this->templates AS $i => $template) {
             // Replace variables in template with data -> wrap in $this->wrapper -> push into $result
-            $result .= sprintf(
+            printf(
                 '<%s%s>%s</%s>',
                 $this->wrapper,
                 ($this->atts[$i] ? $this->atts[$i] : ''),
@@ -227,7 +229,7 @@ abstract class FOGPage extends FOGBase {
         }
         unset($template);
         // Return result
-        return $result;
+        return ob_get_clean();
     }
     /** deploy() build the tasking output
      * @return void
@@ -874,423 +876,64 @@ abstract class FOGPage extends FOGBase {
      * @return void
      */
     public function membership() {
-        $Obj = $this->childClass;
-        // Find Object
-        $$Obj = $this->getClass($this->childClass,$_REQUEST['id']);
+        $this->data = array();
         print '<!-- Membership -->';
-        if ($this->childClass == 'Group') {
-            print "\n\t\t\t<!-- Membership -->";
-            // Hopeful implementation of all groups to add to group system in similar means to how host page does from list/search functions.
-            print "\n\t\t\t".'<div id="group-membership">';
-            // Create the Header data:
-            $this->headerData = array(
-                '',
-                '<input type="checkbox" name="toggle-checkboxgroup1" class="toggle-checkbox1" />',
-                _('Host Name'),
-                _('Image'),
+        printf('<div id="%s-membership">',$this->node);
+        $this->headerData = array(
+            sprintf('<input type="checkbox" name="toggle-checkbox%s1" class="toggle-checkbox1"',$this->node),
+            _('Host Name'),
+        );
+        $this->templates = array(
+            '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
+            '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',
+        );
+        $this->attributes = array(
+            array('width' => 16, 'class' => 'c'),
+            array('width' => 150,'class' => 'l'),
+        );
+        foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hostsnotinme))) AS &$Host) {
+            $this->data[] = array(
+                'host_id' => $Host->get(id),
+                'host_name' => $Host->get(name),
+                'check_num' => 1,
             );
-            // Create the template data:
-            $this->templates = array(
-                '<span class="icon fa fa-question fa-1x hand" title="${host_desc}"></span>',
-                '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
-                '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-                '${image_name}',
-            );
-            // Create the attributes to build the table info:
-            $this->attributes = array(
-                array('width' => 22, 'id' => 'host-${host_name}'),
-                array('class' => 'c', 'width' => 16),
-                array(),
-                array(),
-            );
-            // All hosts not in this group.
-            foreach($Group->get('hostsnotinme') AS &$Host) {
-                $Host = $this->getClass('Host',$Host);
-                if ($Host->isValid() && !$Host->get('pending')) {
-                    $this->data[] = array(
-                        'host_id' => $Host->get('id'),
-                        'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-                        'host_name' => $Host->get('name'),
-                        'host_mac' => $Host->get('mac')->__toString(),
-                        'host_desc' => $Host->get('description'),
-                        'image_name' => $Host->getImage()->get('name'),
-                        'check_num' => '1'
-                    );
-                }
-            }
-            unset($Host);
-            $GroupDataExists = false;
-            $groupAdd = '';
-            if (count($this->data) > 0) {
-                $GroupDataExists = true;
-                $this->HookManager->processEvent('GROUP_HOST_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-                $groupAdd .= "<center>".'<label for="hostMeShow">'._('Check here to see hosts not in this group').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label><div id="hostNotInMe"><h2>'._('Modify Membership for').' '.$Group->get('name').'</h2><p>'._('Add hosts to group').' '.$Group->get('name').'</p>'.$this->process()."</div></center>";
-            }
-            // Reset the data for the next value
-            unset($this->data);
-            if ($GroupDataExists) $groupAdd .= '<br/><center><input type="submit" value="'._('Add Host(s) to Group').'" name="addHosts"/></center><br/>';
-            if ($groupAdd) {
-                print '<form method="post" action="'.$this->formAction.'">';
-                print $groupAdd;
-                print '</form>';
-            }
-            unset($this->data);
-            $this->headerData = array(
-                '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-                _('Hostname'),
-                _('Deployed'),
-                _('Image'),
-            );
-            $this->attributes = array(
-                array('class' => 'c','width' => 16),
-                array(),
-                array(),
-                array(),
-            );
-            $this->templates = array(
-                '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
-                '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-                '<small>${deployed}</small>',
-                '<small>${image_name}</small>',
-            );
-            $imageSelector = $this->getClass('ImageManager')->buildSelectBox('','','','',true);
-            foreach ($Group->get('hosts') AS &$Host) {
-                if ($Host->isValid()) {
-                    $this->data[] = array(
-                        'host_id'   => $Host->get('id'),
-                        'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-                        'host_name' => $Host->get('name'),
-                        'host_mac'  => $Host->get('mac'),
-                        'image_name' => $imageSelector,
-                        'selected_item'.$Host->get('imageID') => 'selected',
-                        'selector_name' => $Host->get('name').'_'.$Host->get('id'),
-                    );
-                }
-            }
-            unset($Host);
-            // Hook
-            $this->HookManager->processEvent('GROUP_MEMBERSHIP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-            print '<form method="post" action="'.$this->formAction.'">';
-            // Output
-            $this->render();
-            if (count($this->data) > 0) {
-                print '<center><input type="submit" value="'._('Update Hosts').'" name="updatehosts"/>&nbsp;&nbsp;';
-                print '<input type="submit" value="'._('Delete Selected Hosts From Group').'" name="remhosts"/></center>';
-            }
-            print '</form></div>';
-            unset($this->data);
-        } else if ($this->childClass == 'Image') {
-            // Set the values
-            print '<div id="image-host">';
-            // Create the header data:
-            $this->headerData = array(
-                '',
-                '<input type="checkbox" name="toggle-checkboximage1" class="toggle-checkbox1" />',
-                _('Host Name'),
-                _('Last Deployed'),
-                _('Registered'),
-            );
-            // Create the template data:
-            $this->templates = array(
-                '<i class="icon fa fa-question" title="${host_desc}"></i>',
-                '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
-                '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-                '${deployed}',
-                '${host_reg}',
-            );
-            // Create the attributes data:
-            $this->attributes = array(
-                array('width' => 22, 'id' => 'host-${host_name}'),
-                array('class' => 'c', 'width' => 16),
-                array(),
-                array(),
-                array(),
-            );
-            // All hosts not with this set as the image
-            foreach($Image->get('hostsnotinme') AS &$Host) {
-                $Host = $this->getClass('Host',$Host);
-                if ($Host->isValid()) {
-                    $this->data[] = array(
-                        'host_id' => $Host->get('id'),
-                        'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-                        'host_name' => $Host->get('name'),
-                        'host_mac' => $Host->get('mac'),
-                        'host_desc' => $Host->get('description'),
-                        'check_num' => '1',
-                        'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
-                    );
-                }
-            }
-            unset($Host);
-            $ImageDataExists = false;
-            $imageAdd = '';
-            if (count($this->data) > 0) {
-                $ImageDataExists = true;
-                $this->HookManager->processEvent('IMAGE_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-                $imageAdd .= "<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label><div id="hostNotInMe"><h2>'._('Modify image association for').' '.$Image->get('name').'</h2><p>'._('Add hosts to image').' '.$Image->get('name').'</p>'.$this->process().'</div></center>';
-            }
-            // Reset the data for the next value
-            unset($this->data);
-            if ($ImageDataExists) $imageAdd .= '</br><center><input type="submit" value="'._('Add Image to Host(s)').'" name="addHosts"/></center></br>';
-            if ($imageAdd) {
-                print '<form method="post" action="'.$this->formAction.'">';
-                print $imageAdd;
-                print "</form>";
-            }
-            unset($this->data);
-            // Create the header data:
-            $this->headerData = array(
-                '',
-                '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-                _('Host Name'),
-                _('Last Deployed'),
-                _('Registered'),
-            );
-            // Create the template data:
-            $this->templates = array(
-                '<i class="icon fa fa-question hand" title="${host_desc}"></i>',
-                '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
-                '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-                '${deployed}',
-                '${host_reg}',
-            );
-            foreach($Image->get('hosts') AS &$Host) {
-                if ($Host->isValid()) {
-                    $this->data[] = array(
-                        'host_id' => $Host->get('id'),
-                        'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-                        'host_name' => $Host->get('name'),
-                        'host_mac' => $Host->get('mac')->__toString(),
-                        'host_desc' => $Host->get('description'),
-                        'host_reg' => $Host->get('pending') ? _('Pending Approval') : _('Approved'),
-                    );
-                }
-            }
-            unset($Host);
-            // Hook
-            $this->HookManager->processEvent('IMAGE_EDIT_HOST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-            // Output
-            print '<form method="post" action="'.$this->formAction.'">';
-            $this->render();
-            if (count($this->data) > 0) print '<center><input type="submit" value="'._('Remove image from selected hosts').'" name="remhosts"/>';
-            print '</form></div>';
-            unset($this->data);
-        } else if ($this->childClass == 'Printer') {
-            print '<div id="printer-host">';
-            // Create the header data:
-            $this->headerData = array(
-                '',
-                '<input type="checkbox" name="toggle-checkboxprinter1" class="toggle-checkbox1" />',
-                _('Host Name'),
-                _('Image'),
-            );
-            // Create the template data:
-            $this->templates = array(
-                '<i class="icon fa fa-question hand" title="${host_desc}"></i>',
-                '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
-                '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-                '${image_name}',
-            );
-            // All hosts not with this set as the image
-            $this->attributes = array(
-                array('width' => 22, 'id' => 'host-${host_name}'),
-                array('class' => 'c', 'width' => 16),
-                array(),
-                array(),
-            );
-            // All hosts not with this printer
-            foreach($Printer->get('hostsnotinme') AS &$Host) {
-                $Host = $this->getClass('Host',$Host);
-                if ($Host->isValid()) {
-                    $this->data[] = array(
-                        'host_id' => $Host->get('id'),
-                        'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : 'No Data',
-                        'host_name' => $Host->get('name'),
-                        'host_mac' => $Host->get('mac')->__toString(),
-                        'host_desc' => $Host->get('description'),
-                        'image_name' => $Host->getImage()->get('name'),
-                        'check_num' => '1',
-                    );
-                }
-            }
-            unset($Host);
-            $PrinterDataExists = false;
-            $printAdd = '';
-            if (count($this->data) > 0) {
-                $PrinterDataExists = true;
-                $this->HookManager->processEvent('PRINTER_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-                $printAdd .= "<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this printer').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label><div id="hostNotInMe"><h2>'._('Modify printer association for').' '.$Printer->get('name').'</h2><p>'._('Add hosts to printer').' '.$Printer->get('name').'</p>'.$this->process()."</div></center>";
-            }
-            // Reset the data for the next value
-            unset($this->data);
-            if ($PrinterDataExists) $printAdd .= '<br/><center><input type="submit" value="'._('Add printer to Host(s)').'" name="addHosts"/></center><br/>';
-            if ($printAdd) {
-                print '<form method="post" action="'.$this->formAction.'">';
-                print $printAdd;
-                print '</form>';
-            }
-            unset($this->data);
-            $this->headerData = array(
-                '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-                _('Hostname'),
-                _('Deployed'),
-                _('Image'),
-                '<input type="checkbox" name="toggle-alldef" class="toggle-actiondef" />&nbsp;'._('Is Default'),
-            );
-            $this->attributes = array(
-                array('class' => 'c','width' => 16),
-                array(),
-                array(),
-                array(),
-                array('class' => 'l'),
-            );
-            $this->templates = array(
-                '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
-                '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-                '<small>${deployed}</small>',
-                '<small>${image_name}</small>',
-                '<input class="default" type="checkbox" name="default[]" id="host_printer${host_id}"${is_default} value="${host_id}" /><label for="host_printer${host_id}" class="icon icon-hand" title="'._('Default Printer Selection').'">&nbsp;</label><input type="hidden" value="${host_id}" name="hostid[]"/>',
-            );
-            unset($this->data);
-            foreach($Printer->get('hosts') AS &$Host) {
-                if ($Host->isValid()) {
-                    $this->data[] = array(
-                        'host_id' => $Host->get('id'),
-                        'deployed' => $this->validDate($Host->get('deployed')) ? $this->FOGCore->formatTime($Host->get('deployed')) : 'No Data',
-                        'host_name' => $Host->get('name'),
-                        'host_mac' => $Host->get('mac'),
-                        'host_desc' => $Host->get('description'),
-                        'image_name' => $Host->getImage()->get('name'),
-                        'printer_id' => $Printer->get('id'),
-                        'is_default' => $Host->getDefault($Printer->get('id')) ? 'checked' : '',
-                    );
-                }
-            }
-            unset($Host);
-            // Hook
-            $this->HookManager->processEvent('PRINTER_EDIT_HOST', array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-            // Output
-            print '<form method="post" action="'.$this->formAction.'">';
-            $this->render();
-            if (count($this->data) > 0) print '<center><input type="submit" name="updefaults" value="'._('Update defaults').'"/>&nbsp;&nbsp;<input type="submit" name="remhosts" value="'._('Remove the selected hosts').'"/>';
-            print '</form></div>';
-            unset($this->data);
-        } else if ($this->childClass == 'Snapin') {
-            print '<div id="snap-host">';
-            // Create the header data:
-            $this->headerData = array(
-                '',
-                '<input type="checkbox" name="toggle-checkboxsnapin1" class="toggle-checkbox1" />',
-                _('Host Name'),
-                _('Image'),
-            );
-            // Create the template data:
-            $this->templates = array(
-                '<i class="icon fa fa-question hand" title="${host_desc}"></i>',
-                '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
-                '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-                '${image_name}',
-            );
-            // Create the attributes data:
-            $this->attributes = array(
-                array('width' => 22, 'id' => 'host-${host_name}'),
-                array('class' => 'c', 'width' => 16),
-                array(),
-                array(),
-            );
-            // All hosts not with this snapin
-            foreach($Snapin->get('hostsnotinme') AS &$Host) {
-                $Host = $this->getClass('Host',$Host);
-                if ($Host->isValid()) {
-                    $this->data[] = array(
-                        'host_id' => $Host->get('id'),
-                        'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : 'No Data',
-                        'host_name' => $Host->get('name'),
-                        'host_mac' => $Host->get('mac')->__toString(),
-                        'host_desc' => $Host->get('description'),
-                        'image_name' => $Host->getImage()->get('name'),
-                        'check_num' => '1',
-                    );
-                }
-            }
-            unset($Host);
-            $SnapinDataExists = false;
-            $snapAdd = '';
-            if (count($this->data) > 0) {
-                $SnapinDataExists = true;
-                $this->HookManager->processEvent('SNAPIN_HOST_ASSOC',array('headerData' => &$this->headerData,'data' => &$this->data,'templates' => &$this->templates,'attributes' => &$this->attributes));
-                $snapAdd .= "<center>".'<label for="hostMeShow">'._('Check here to see hosts not assigned with this snapin').'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label><div id="hostNotInMe"><h2>'._('Modify snapin association for').' '.$Snapin->get('name').'</h2><p>'._('Add hosts to snapin').' '.$Snapin->get('name').'</p>'.$this->process()."</div></center>";
-            }
-            // Reset the data for the next value
-            unset($this->data);
-            if ($SnapinDataExists) $snapAdd .= '<br/><center><input type="submit" value="'._('Add snapins to Host(s)').'" name="addHosts"/></center><br/>';
-            if ($snapAdd) {
-                print '<form method="post" action="'.$this->formAction.'">';
-                print $snapAdd;
-                print '</form>';
-            }
-            $this->headerData = array(
-                '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" checked/>',
-                _('Hostname'),
-                _('Deployed'),
-                _('Image'),
-            );
-            $this->attributes = array(
-                array('class' => 'c','width' => 16),
-                array(),
-                array(),
-                array(),
-            );
-            $this->templates = array(
-                '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" checked/>',
-                '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name} Was last deployed: ${deployed}">${host_name}</a><br /><small>${host_mac}</small>',
-                '<small>${deployed}</small>',
-                '<small>${image_name}</small>',
-            );
-            foreach($Snapin->get('hosts') AS &$Host) {
-                if ($Host->isValid()) {
-                    $this->data[] = array(
-                        'host_id' => $Host->get('id'),
-                        'deployed' => $this->validDate($Host->get('deployed')) ? $this->formatTime($Host->get('deployed')) : '',
-                        'host_name' => $Host->get('name'),
-                        'host_mac' => $Host->get('mac'),
-                        'image_name' => $Host->getImage()->get('name'),
-                        'host_desc' => $Host->get('description'),
-                    );
-                }
-            }
-            unset($Host);
-            // Hook
-            $this->HookManager->processEvent('SNAPIN_EDIT_HOST', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-            // Output
-            print '<form method="post" action="'.$this->formAction.'">';
-            $this->render();
-            if (count($this->data) > 0) print '<center><input type="submit" value="'._('Delete Selected Hosts From Snapin').'" name="remhosts"/></center>';
-            print '</form></div>';
-            unset($this->data);
         }
+        unset($Host);
+        if (count($this->data) > 0) {
+            $this->HookManager->processEvent('OBJ_HOST_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+            echo '<form method="post" action="'.$this->formAction.'"><center><label for="hostMeShow">'._('Check here to see hosts not within this '.$this->node).'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label><div id="hostNotInMe"><h2>'._('Modify Membership for').' '.$this->obj->get(name).'</h2><p>'._('Add host(s) to '.$this->node).' '.$this->obj->get(name).'</p>';
+            $this->render();
+            echo '</div></center><br/><center><input type="submit" value="'._('Add Host(s) to '.$this->node).'" name="addHosts" /></center><br/></form>';
+        }
+        unset($this->data);
+        $this->headerData = array(
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
+            _('Host Name'),
+        );
+        $this->templates = array(
+            '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" />',
+            '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',
+        );
+        foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) {
+            $this->data[] = array(
+                'host_id' => $Host->get(id),
+                'host_name' => $Host->get(name),
+            );
+        }
+        unset($Host);
+        $this->HookManager->processEvent('OBJ_MEMBERSHIP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        print '<form method="post" action="'.$this->formAction.'">';
+        $this->render();
+        if (count($this->data)) print '<center><input type="submit" value="'._('Delete Selected Hosts From '.$this->node).'" name="remhosts"/></center>';
     }
     /** membership_post() the membership poster of specific class
      * @return void
      */
     public function membership_post() {
-        $Obj = $this->childClass;
-        // Find Object
-        $$Obj = $this->getClass($this->childClass,$_REQUEST['id']);
-        if (isset($_REQUEST['addHosts'])) $$Obj->addHost($_REQUEST['host']);
-        if (isset($_REQUEST['remhosts'])) $$Obj->removeHost($_REQUEST['hostdel']);
-        if ($this->childClass == 'Group') {
-            if (isset($_REQUEST['updatehosts'])) {
-                foreach($Group->get('hosts') AS &$Host) {
-                    if ($Host->isValid()) $Host->set('imageID',$_REQUEST[$Host->get('name').'_'.$Host->get('id')])->save();
-                }
-                unset($Host);
-            }
-        } else if ($this->childClass == 'Printer') {
-            if (isset($_REQUEST['updefaults'])) $Printer->updateDefault($_REQUEST['hostid'],$_REQUEST['default']);
-        }
-        if ($$Obj->save()) {
-            $this->FOGCore->setMessage($$Obj.' '._('saved successfully'));
+        if (isset($_REQUEST[addHosts])) $this->obj->addHost($_REQUEST[host]);
+        if (isset($_REQUEST[remhosts])) $this->obj->removeHost($_REQUEST[hostdel]);
+        if ($this->obj->save()) {
+            $this->FOGCore->setMessage($this->obj->get(name).' '._('saved successfully'));
             $this->FOGCore->redirect($this->formAction);
         }
     }
