@@ -158,7 +158,7 @@ abstract class FOGPage extends FOGBase {
                     echo '</tbody></table>';
                     if (((!$_REQUEST['sub'] || ($_REQUEST['sub'] && in_array($_REQUEST['sub'],$defaultScreens))) && in_array($_REQUEST['node'],$this->searchPages)) && !$isMobile) {
                         if ($this->childClass == 'Host') printf('<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>');
-                    printf('<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value=""autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>');
+                        printf('<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value=""autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>');
                     }
                 }
                 // Return output
@@ -885,7 +885,7 @@ abstract class FOGPage extends FOGBase {
             _(($objType? 'Group' : 'Host').' Name'),
         );
         $this->templates = array(
-            sprintf('<input type="checkbox" name="%s[]" value="${host_id}" class="toggle-host${check_num}" />',$objType ? 'group' : 'host'),
+            '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-'.($objType ? 'group' : 'host').'${check_num}" />',
             sprintf('<a href="?node=%s&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',$objType ? 'group' : 'host'),
         );
         $this->attributes = array(
@@ -893,22 +893,22 @@ abstract class FOGPage extends FOGBase {
             array('width' => 150,'class' => 'l'),
         );
         if (!$objType) {
-        foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hostsnotinme))) AS &$Host) {
-            $this->data[] = array(
-                'host_id' => $Host->get(id),
-                'host_name' => $Host->get(name),
-                'check_num' => 1,
-            );
-        }
-        unset($Host);
+            foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hostsnotinme))) AS &$Host) {
+                $this->data[] = array(
+                    'host_id' => $Host->get(id),
+                    'host_name' => $Host->get(name),
+                    'check_num' => 1,
+                );
+            }
+            unset($Host);
         } else {
-        foreach($this->getClass(GroupManager)->find(array('id' => $this->obj->get(groupsnotinme))) AS &$Group) {
-            $this->data[] = array(
-                'host_id' => $Group->get(id),
-                'host_name' => $Group->get(name),
-                'check_num' => 1,
-            );
-        }
+            foreach($this->getClass(GroupManager)->find(array('id' => $this->obj->get(groupsnotinme))) AS &$Group) {
+                $this->data[] = array(
+                    'host_id' => $Group->get(id),
+                    'host_name' => $Group->get(name),
+                    'check_num' => 1,
+                );
+            }
         }
         if (count($this->data) > 0) {
             $this->HookManager->processEvent('OBJ_'.($objType ? 'GROUP' : 'HOST').'_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -925,13 +925,22 @@ abstract class FOGPage extends FOGBase {
             '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" />',
             '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',
         );
-        foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) {
-            $this->data[] = array(
-                'host_id' => $Host->get(id),
-                'host_name' => $Host->get(name),
-            );
+        if (!$objType) {
+            foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) {
+                $this->data[] = array(
+                    'host_id' => $Host->get(id),
+                    'host_name' => $Host->get(name),
+                );
+            }
+            unset($Host);
+        } else {
+            foreach($this->getClass(GroupManager)->find(array('id' => $this->obj->get(groups))) AS &$Group) {
+                $this->data[] = array(
+                    'host_id' => $Group->get(id),
+                    'host_name' => $Group->get(name),
+                );
+            }
         }
-        unset($Host);
         $this->HookManager->processEvent('OBJ_MEMBERSHIP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         print '<form method="post" action="'.$this->formAction.'">';
         $this->render();

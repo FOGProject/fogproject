@@ -751,14 +751,14 @@ class Host extends FOGController {
         }
         unset($MAC);
     }
-    public function addGroup($addArray) {
+    public function addHost($addArray) {
         // Add
         foreach((array)$addArray AS &$item) $this->add(groups,$item);
         unset($item);
         // Return
         return $this;
     }
-    public function removeGroup($removeArray) {
+    public function removeHost($removeArray) {
         // Iterate array (or other as array)
         foreach ((array)$removeArray AS &$remove) $this->remove(groups,$remove);
         unset($remove);
