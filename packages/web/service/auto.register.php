@@ -3,16 +3,16 @@ require_once('../commons/base.inc.php');
 if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
     try {
         // Set the services so all id's can be enabled.
-        $ids = $FOGCore->getClass('ModuleManager')->find('','','','','','','','id');
+        $ids = $FOGCore->getClass(ModuleManager)->find('','','','','','','','id');
         $MACs = $FOGCore->getHostItem(false,true,true,true);
         $PriMAC = array_shift($MACs);
         // Set safe and simple mac for hostname if needed.
         $macsimple = strtolower(str_replace(':','',$PriMAC));
         $Host = $FOGCore->getHostItem(false,true,true);
-        $HostManager = $FOGCore->getClass('HostManager');
+        $HostManager = $FOGCore->getClass(HostManager);
         // Make sure it's a unique name.
-        if((!$Host || !$Host->isValid()) && $_REQUEST['advanced'] == '1') {
-            if (base64_decode($_REQUEST['productKey'],true)) $productKey = trim($_REQUEST['productKey']);
+        if((!$Host || !$Host->isValid()) && $_REQUEST[advanced] == 1) {
+            if (base64_decode($_REQUEST[productKey],true)) $productKey = trim($_REQUEST[productKey]);
             $username = base64_decode(trim($_REQUEST['username']));
             $host=trim(base64_decode($_REQUEST['host']));
             ($host != null && strlen($host) > 0 && $HostManager->isSafeHostName($host) ? $realhost = $host : $realhost = $macsimple);
