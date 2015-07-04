@@ -12,7 +12,6 @@ class HostManagementPage extends FOGPage {
             if ($this->obj->isValid()) {
                 $this->subMenu = array(
                     "$this->linkformat#host-general" => $this->foglang[General],
-                    "$this->linkformat#host-grouprel" => $this->foglang[Groups],
                 );
                 if (!$this->obj->get(pending)) $this->subMenu = array_merge($this->subMenu,array("$this->linkformat#host-tasks" => $this->foglang[BasicTasks]));
                 $this->subMenu = array_merge($this->subMenu,array(
@@ -25,6 +24,7 @@ class HostManagementPage extends FOGPage {
                     "$this->linkformat#host-login-history" => $this->foglang[LoginHistory],
                     "$this->linkformat#host-image-history" => $this->foglang[ImageHistory],
                     "$this->linkformat#host-snapin-history" => $this->foglang[SnapinHistory],
+                    $this->membership => $this->foglang['Membership'],
                     $this->delformat => $this->foglang[Delete],
                 ));
                 $this->notes = array(
@@ -447,77 +447,7 @@ class HostManagementPage extends FOGPage {
         $this->render();
         print '</form></div>';
         unset($this->data,$this->form);
-        print "<!-- Group Relationships -->";
-        print '<div id="host-grouprel" class="organic-tabs-hidden">';
-        print '<h2>'._('Group Relationships').'</h2>';
-        // Create the Header:
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkboxgroup" class="toggle-checkboxgroup" />',
-            _('Name'),
-            _('Members'),
-        );
-        // Create the template:
-        $this->templates = array(
-            '<input type="checkbox" name="group[]" value="${group_id}" class="toggle-group" />',
-            sprintf('<a href="?node=group&sub=edit&id=${group_id}" title="Edit">${group_name}</a>'),
-            '${group_count}',
-        );
-        // Create the attributes:
-        $this->attributes = array(
-            array('width' => 16,'class' => 'c'),
-            array('width' => 90, 'class' => 'l'),
-            array('width' => 40, 'class' => 'c'),
-        );
-        foreach($this->getClass(GroupManager)->find(array('id' => $this->obj->get(groupsnotinme))) AS &$Group) {
-            $this->data[] = array(
-                'group_id' => $Group->get('id'),
-                'group_name' => $Group->get('name'),
-                'group_count' => $Group->getHostCount(),
-            );
-        }
-        unset($Group);
-        if (count($this->data) > 0) {
-            $this->HookManager->processEvent('HOST_GROUP_JOIN',array('headerData' => &$this->headerData,'templates' => &$this->templates,'attributes' => &$this->attributes,'data' => &$this->data));
-            print '<center><label for="hostGroupShow">'._('Check here to see groups this host is not associated with').'&nbsp;&nbsp;<input type="checkbox" name="hostGroupShow" id="hostGroupShow" /></label></center>';
-            print '<center><div id="hostGroupDisplay">';
-            print '<form method="post" action="'.$this->formAction.'&tab=host-grouprel">';
-            $this->render();
-            print '<input type="submit" name="addGroups" value="'._('Add to Group(s)').'" />';
-            print '</form></div></center>';
-        }
-        unset($this->data);
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
-            _('Group Name'),
-            _('Total Members'),
-        );
-        $this->attributes = array(
-            array('class' => 'c','width' => 16),
-            array(),
-            array(),
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="groupdel[]" value="${group_id}" class="toggle-action" />',
-            '<a href="?node=group&sub=edit&id=${group_id}" title="'._('Edit Group').':${group_name}">${group_name}</a>',
-            '${group_count}',
-        );
-        // Find Group Relationships
-        foreach($this->getClass(GroupManager)->find(array('id' => $this->obj->get('groups'))) AS &$Group) {
-            $this->data[] = array(
-                'group_id' => $Group->get('id'),
-                'group_name' => $Group->get('name'),
-                'group_count' => $Group->getHostCount(),
-            );
-        }
-        unset($Group);
-        // Hook
-        $this->HookManager->processEvent('HOST_EDIT_GROUP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-        print '<form method="post" action="'.$this->formAction.'&tab=host-grouprel">';
-        $this->render();
-        if (count($this->data) > 0)
-            print '<center><input type="submit" value="'._('Delete Selected Group Associations').'" name="remgroups"/></center>';
         unset($this->data,$this->headerData,$this->attributes);
-        print '</form></div>';
         if (!$this->obj->get('pending')) $this->basictasksOptions();
         $this->adFieldsToDisplay();
         print "<!-- Printers -->";
@@ -540,15 +470,12 @@ class HostManagementPage extends FOGPage {
             array('width' => 50, 'class' => 'l'),
             array('width' => 50, 'class' => 'r'),
         );
-        foreach($this->obj->get('printersnotinme') AS &$Printer) {
-            $Printer = $this->getClass('Printer',$Printer);
-            if ($Printer->isValid() && !in_array($Printer->get('id'),(array)$PrinterIDs)) {
-                $this->data[] = array(
-                    'printer_id' => $Printer->get('id'),
-                    'printer_name' => addslashes($Printer->get('name')),
-                    'printer_type' => $Printer->get('config'),
-                );
-            }
+        foreach($this->getClass(PrinterManager)->find(array('id' => $this->obj->get(printersnotinme))) AS &$Printer) {
+            $this->data[] = array(
+                'printer_id' => $Printer->get('id'),
+                'printer_name' => addslashes($Printer->get('name')),
+                'printer_type' => $Printer->get('config'),
+            );
         }
         unset($Printer);
         $PrintersFound = false;
@@ -1117,12 +1044,6 @@ class HostManagementPage extends FOGPage {
                 $AddMe = array_diff((array)$AddMe,(array)$MyMACs);
                 if (count($AddMe)) $this->obj->addAddMAC($AddMe);
                 if(isset($_REQUEST[additionalMACsRM])) $this->obj->removeAddMAC($_REQUEST['additionalMACsRM']);
-                break;
-                case 'host-grouprel';
-                if (isset($_REQUEST[addGroups]))
-                    $this->obj->addGroup($_REQUEST[group]);
-                if (isset($_REQUEST[remgroups]))
-                    $this->obj->removeGroup(array_unique($_REQUEST[groupdel]));
                 break;
                 case 'host-active-directory';
                 $useAD = isset($_REQUEST[domain]);
