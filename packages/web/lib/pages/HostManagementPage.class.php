@@ -509,12 +509,12 @@ class HostManagementPage extends FOGPage {
         print "<h2>"._('Host Printer Configuration').'</h2>';
         print "<p>"._('Select Management Level for this Host').'</p>';
         print "<p>";
-        print '<input type="radio" name="level" value="0"'.($this->obj->get('printerLevel') == 0 ? 'checked' : '').' />'._('No Printer Management').'<br/>';
-        print '<input type="radio" name="level" value="1"'.($this->get('printerLevel') == 1 ? 'checked' : '').' />'._('Add Only').'<br/>';
-        print '<input type="radio" name="level" value="2"'.($this->get('printerLevel') == 2 ? 'checked' : '').' />'._('Add and Remove').'<br/></p>';
-        foreach ($this->getClass(PrinterManager)->find(array('id' => $this->obj->get('printers'))) AS &$Printer) {
+        print '<input type="radio" name="level" value="0"'.($this->obj->get(printerLevel) == 0 ? 'checked' : '').' />'._('No Printer Management').'<br/>';
+        print '<input type="radio" name="level" value="1"'.($this->obj->get(printerLevel) == 1 ? 'checked' : '').' />'._('Add Only').'<br/>';
+        print '<input type="radio" name="level" value="2"'.($this->obj->get(printerLevel) == 2 ? 'checked' : '').' />'._('Add and Remove').'<br/></p>';
+        foreach ($this->getClass(PrinterManager)->find(array('id' => $this->obj->get(printers))) AS &$Printer) {
             $this->data[] = array(
-                'printer_id' => $Printer->get('id'),
+                'printer_id' => $Printer->get(id),
                 'is_default' => ($this->obj->getDefault($Printer->get(id)) ? 'checked' : ''),
                 'printer_name' => addslashes($Printer->get(name)),
                 'printer_type' => $Printer->get(config),
