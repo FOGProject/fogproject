@@ -6,12 +6,12 @@ class System {
      * @return void
      */
     public function __construct() {
-        define('FOG_VERSION', '3686');
+        define('FOG_VERSION', '3687');
         define('FOG_SCHEMA', 184);
         define('FOG_BCACHE_VER',6);
         define('FOG_SVN_REVISION', '$Revision: 2868 $');
         define('FOG_SVN_LAST_UPDATE', '$LastChangedDate: 2015-01-01 14:16:56 -0500 (Thu, 01 Jan 2015) $');
-        define('FOG_CLIENT_VERSION', '0.8.4');
+        define('FOG_CLIENT_VERSION', '0.9.0');
         define('PHP_VERSION_REQUIRED', '5.3.0');
         define('PHP_COMPATIBLE', version_compare(PHP_VERSION, PHP_VERSION_REQUIRED, '>='));
         define('SPACE_DEFAULT_STORAGE', '/images');
