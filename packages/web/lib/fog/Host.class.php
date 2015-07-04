@@ -467,33 +467,31 @@ class Host extends FOGController {
             if (in_array($this->get('task')->get('taskType'),array(12,13)) && !$this->getClass('SnapinAssociationManager')->count(array('hostID' => $this->get('id')))) throw new Exception($this->foglang['SnapNoAssoc']);
             // Create Snapin Job.  Only one job, but will do multiple SnapinTasks.
             else {
-                $SnapinJob = $this->getClass('SnapinJob')
-                    ->set('hostID',$this->get('id'))
-                    ->set('stateID', 0)
-                    ->set('createdTime',$this->nice_date()->format('Y-m-d H:i:s'));
+                $SnapinJob = $this->getClass(SnapinJob)
+                    ->set(hostID,$this->get(id))
+                    ->set(stateID,0)
+                    ->set(createdTime,$this->nice_date()->format('Y-m-d H:i:s'));
                 // Create Snapin Tasking
                 if ($SnapinJob->save()) {
-                    $this->set('snapinjob',$SnapinJob);
+                    $this->set(snapinjob,$SnapinJob);
                     if ($snapin == -1) {
-                        foreach ($this->get('snapins') AS &$Snapin) {
-                            if ($Snapin->isValid()) {
-                                $this->getClass('SnapinTask')
-                                    ->set('jobID',$SnapinJob->get('id'))
-                                    ->set('stateID', 0)
-                                    ->set('snapinID', $Snapin->get('id'))
-                                    ->save();
-                            }
-                        }
-                        unset($Snapin);
-                    } else {
-                        $Snapin = $this->getClass('Snapin',$snapin);
-                        if ($Snapin && $Snapin->isValid()) {
-                            $this->getClass('SnapinTask')
-                                ->set('jobID',$SnapinJob->get('id'))
-                                ->set('stateID', 0)
-                                ->set('snapinID', $Snapin->get('id'))
+                        foreach ($this->get(snapins) AS &$Snapin) {
+                            $this->getClass(SnapinTask)
+                                ->set(jobID,$SnapinJob->get(id))
+                                ->set(stateID,0)
+                                ->set(snapinID,$Snapin)
                                 ->save();
                         }
+                    }
+                    unset($Snapin);
+                } else {
+                    $Snapin = $this->getClass(Snapin,$snapin);
+                    if ($Snapin && $Snapin->isValid()) {
+                        $this->getClass(SnapinTask)
+                            ->set(jobID,$SnapinJob->get(id))
+                            ->set(stateID,0)
+                            ->set(snapinID,$Snapin->get(id))
+                            ->save();
                     }
                 }
             }
