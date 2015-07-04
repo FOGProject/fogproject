@@ -287,6 +287,7 @@ abstract class FOGBase {
         if (!$time instanceof DateTime) $time = $this->nice_date($time,$utc);
         // Forced format
         if ($format) return $time->format($format);
+        if (!$this->validDate($time)) return 'No Data';
         $CurrTime = $this->nice_date('now',$utc);
         if ($time < $CurrTime) $TimeVal = $CurrTime->diff($time);
         if ($time > $CurrTime) $TimeVal = $time->diff($CurrTime);
