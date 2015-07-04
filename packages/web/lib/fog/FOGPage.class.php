@@ -876,21 +876,23 @@ abstract class FOGPage extends FOGBase {
      * @return void
      */
     public function membership() {
+        $objType = ($this->obj instanceof Host);
         $this->data = array();
         print '<!-- Membership -->';
         printf('<div id="%s-membership">',$this->node);
         $this->headerData = array(
             sprintf('<input type="checkbox" name="toggle-checkbox%s1" class="toggle-checkbox1"',$this->node),
-            _('Host Name'),
+            _(($objType? 'Group' : 'Host').' Name'),
         );
         $this->templates = array(
-            '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-host${check_num}" />',
-            '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',
+            sprintf('<input type="checkbox" name="%s[]" value="${host_id}" class="toggle-host${check_num}" />',$objType ? 'group' : 'host'),
+            sprintf('<a href="?node=%s&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',$objType ? 'group' : 'host'),
         );
         $this->attributes = array(
             array('width' => 16, 'class' => 'c'),
             array('width' => 150,'class' => 'l'),
         );
+        if (!$objType) {
         foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hostsnotinme))) AS &$Host) {
             $this->data[] = array(
                 'host_id' => $Host->get(id),
@@ -899,16 +901,25 @@ abstract class FOGPage extends FOGBase {
             );
         }
         unset($Host);
+        } else {
+        foreach($this->getClass(GroupManager)->find(array('id' => $this->obj->get(groupsnotinme))) AS &$Group) {
+            $this->data[] = array(
+                'host_id' => $Group->get(id),
+                'host_name' => $Group->get(name),
+                'check_num' => 1,
+            );
+        }
+        }
         if (count($this->data) > 0) {
-            $this->HookManager->processEvent('OBJ_HOST_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-            echo '<form method="post" action="'.$this->formAction.'"><center><label for="hostMeShow">'._('Check here to see hosts not within this '.$this->node).'&nbsp;&nbsp;<input type="checkbox" name="hostMeShow" id="hostMeShow" /></label><div id="hostNotInMe"><h2>'._('Modify Membership for').' '.$this->obj->get(name).'</h2><p>'._('Add host(s) to '.$this->node).' '.$this->obj->get(name).'</p>';
+            $this->HookManager->processEvent('OBJ_'.($objType ? 'GROUP' : 'HOST').'_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+            echo '<form method="post" action="'.$this->formAction.'"><center><label for="'.($objType ? 'group' : 'host').'MeShow">'._('Check here to see '.($objType ? 'groups' : 'hosts').' not within this '.$this->node).'&nbsp;&nbsp;<input type="checkbox" name="'.($objType ? 'group' : 'host').'MeShow" id="'.($objType ? 'group' : 'host').'MeShow" /></label></center><div id="'.($objType ? 'group' : 'host').'NotInMe"><h2>'._('Modify Membership for').' '.$this->obj->get(name).'</h2>';
             $this->render();
-            echo '</div></center><br/><center><input type="submit" value="'._('Add Host(s) to '.$this->node).'" name="addHosts" /></center><br/></form>';
+            echo '</div></center><br/><center><input type="submit" value="'._('Add '.($objType ? 'Group' : 'Host').'(s) to '.$this->node).'" name="addHosts" /></center><br/></form>';
         }
         unset($this->data);
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
-            _('Host Name'),
+            _(($this->obj instanceof Host ? 'Group' : 'Host').' Name'),
         );
         $this->templates = array(
             '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" />',
