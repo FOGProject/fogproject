@@ -944,7 +944,7 @@ abstract class FOGPage extends FOGBase {
         $this->HookManager->processEvent('OBJ_MEMBERSHIP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         print '<form method="post" action="'.$this->formAction.'">';
         $this->render();
-        if (count($this->data)) print '<center><input type="submit" value="'._('Delete Selected Hosts From '.$this->node).'" name="remhosts"/></center>';
+        if (count($this->data)) print '<center><input type="submit" value="'._('Delete Selected '.($objType ? 'Groups' : 'Hosts').' From '.$this->node).'" name="remhosts"/></center>';
     }
     /** membership_post() the membership poster of specific class
      * @return void
