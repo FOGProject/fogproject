@@ -90,15 +90,17 @@ class HostManagementPage extends FOGPage {
         $this->title = $this->foglang[AllHosts];
         // Find data -> Push data
         if ($_SESSION[DataReturn] > 0 && $_SESSION[HostCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER[PHP_SELF], $this->node));
-        foreach ($this->getClass(HostManager)->find(array('pending' => 0)) AS &$Host) {
-            $this->data[] = array(
-                'host_id'	=> $Host->get(id),
-                'deployed' => $this->FOGCore->formatTime($Host->get(deployed)),
-                'host_name'	=> $Host->get(name),
-                'host_mac'	=> $Host->get(mac),
-                'host_desc'  => $Host->get(description),
-                'image_name' => $Host->getImage(),
-            );
+        foreach ($this->getClass(HostManager)->find() AS &$Host) {
+            if (!$Host->get(pending)) {
+                $this->data[] = array(
+                    'host_id'	=> $Host->get(id),
+                    'deployed' => $this->FOGCore->formatTime($Host->get(deployed)),
+                    'host_name'	=> $Host->get(name),
+                    'host_mac'	=> $Host->get(mac),
+                    'host_desc'  => $Host->get(description),
+                    'image_name' => $Host->getImage()->get(name),
+                );
+            }
         }
         // Hook
         $this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -119,7 +121,7 @@ class HostManagementPage extends FOGPage {
                 'host_name'	=> $Host->get(name),
                 'host_mac'	=> $Host->get(mac)->__toString(),
                 'host_desc'  => $Host->get(description),
-                'image_name' => $Host->getImage(),
+                'image_name' => $Host->getImage()->get(name),
             );
         }
         unset($Host);
