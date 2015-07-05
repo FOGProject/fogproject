@@ -325,95 +325,78 @@ abstract class FOGPage extends FOGBase {
     public function deploy_post() {
         $TaskType = $this->getClass(TaskType,$_REQUEST[type]);
         $Snapin = $_REQUEST[snapin] ? $this->getClass(Snapin,$_REQUEST[snapin]) : -1;
-        $enableShutdown = $_REQUEST['shutdown'] ? true : false;
-        $enableSnapins = $TaskType->get('id') != '17' ? ($Snapin instanceof Snapin && $Snapin->isValid() ? $Snapin->get('id') : $Snapin) : false;
-        $enableDebug = $_REQUEST['debug'] == 'true' || $_REQUEST['isDebugTask'] ? true : false;
-        $scheduleDeployTime = $this->nice_date($_REQUEST['scheduleSingleTime']);
-        $imagingTasks = in_array($TaskType->get('id'),array(1,2,8,15,16,17,24));
+        $enableShutdown = $_REQUEST[shutdown] ? true : false;
+        $enableSnapins = $TaskType->get(id) != 17 ? ($Snapin instanceof Snapin && $Snapin->isValid() ? $Snapin->get(id) : $Snapin) : false;
+        $enableDebug = $_REQUEST[debug] == 'true' || $_REQUEST[isDebugTask] ? true : false;
+        $scheduleDeployTime = $this->nice_date($_REQUEST[scheduleSingleTime]);
+        $imagingTasks = in_array($TaskType->get(id),array(1,2,8,15,16,17,24));
         try {
             if (!$TaskType || !$TaskType->isValid()) throw new Exception(_('Task type is not valid'));
-            $taskName = $TaskType->get('name').' Task';
-            if ($this->obj && $this->obj->isValid()) {
+            $taskName = $TaskType->get(name).' Task';
+            if ($this->obj->isValid()) {
                 // Error Checking
                 if ($this->obj instanceof Host && $imagingTasks) {
                     if(!$this->obj->getImage() || !$this->obj->getImage()->isValid()) throw new Exception(_('You need to assign an image to the host'));
                     if ($TaskType->isUpload() && $this->obj->getImage()->get('protected')) throw new Exception(_('You cannot upload to this image as it is currently protected'));
-                    if (!$this->obj->checkIfExist($TaskType->get('id'))) throw new Exception(_('You must first upload an image to create a download task'));
+                    if (!$this->obj->checkIfExist($TaskType->get(id))) throw new Exception(_('You must first upload an image to create a download task'));
                 } else if ($this->obj instanceof Group && $imagingTasks) {
                     if ($TaskType->isMulticast() && !$this->obj->doMembersHaveUniformImages()) throw new Exception(_('Hosts do not contain the same image assignments'));
                     unset($NoImage,$ImageExists,$Tasks);
-                    foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) {
-                        if ($Host->isValid() && !$Host->get('pending')) $NoImage[] = !$Host->getImage() || !$Host->getImage()->isValid();
-                    }
+                    foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) if (!$Host->get(pending)) $NoImage[] = !$Host->getImage() || !$Host->getImage()->isValid();
                     unset($Host);
                     if (in_array(true,$NoImage)) throw new Exception(_('One or more hosts do not have an image set'));
-                    foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) {
-                        if ($Host->isValid() && !$Host->get('pending')) $ImageExists[] = !$Host->checkIfExist($TaskType->get('id'));
-                    }
+                    foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) if (!$Host->get(pending)) $ImageExists[] = !$Host->checkIfExist($TaskType->get(id));
                     unset($Host);
                     if (in_array(true,$ImageExists)) throw new Exception(_('One or more hosts have an image that does not exist'));
-                    foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) {
-                        if ($Host->isValid() && $Host->get('task') && $Host->get('task')->isValid()) $Tasks[] = $Host->get('task');
-                    }
+                    foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) if ($Host->get(task) && $Host->get(task)->isValid()) $Tasks[] = $Host->get(task);
                     unset($Host);
                     if (count($Tasks) > 0) throw new Exception(_('One or more hosts are currently in a task'));
                 }
-                $passreset = trim($_REQUEST['account']);
-                if ($TaskType->get('id') == 11 && empty($passreset)) throw New Exception(_('Password reset requires a user account to reset'));
+                $passreset = trim($_REQUEST[account]);
+                if ($TaskType->get(id) == 11 && empty($passreset)) throw New Exception(_('Password reset requires a user account to reset'));
                 try {
-                    if ($_REQUEST['scheduleType'] == 'instant') {
-                        if ($this->obj instanceof Group) {
-                            foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) {
-                                if ($Host->isValid() && !$Host->get('pending')) {
-                                    if ($Host->createImagePackage($TaskType->get('id'),$taskName,$enableShutdown,$enableDebug,$enableSnapins,$this->obj instanceof Group,$_SESSION['FOG_USERNAME'],$passreset)) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
-                                }
-                            }
-                            unset($Host);
-                        } else if ($this->obj instanceof Host) {
-                            if ($this->obj->createImagePackage($TaskType->get('id'),$taskName,$enableShutdown,$enableDebug,$enableSnapins,$this->obj instanceof Group,$_SESSION['FOG_USERNAME'],$passreset)) $success[] = sprintf('<li>%s &ndash; %s</li>',$this->obj->get('name'),$this->obj->getImage()->get('name'));
-                        }
-                    } else if ($_REQUEST['scheduleType'] == 'single') {
-                        if ($scheduleDeployTime < $this->nice_date()) throw new Exception(sprintf('%s<br>%s: %s',_('Scheduled date is in the past'),_('Date'),$scheduleDeployTime->format('Y/d/m H:i')));
-                        $ScheduledTask = new ScheduledTask(array(
-                            'taskType' => $TaskType->get('id'),
-                            'name' => $taskName,
-                            'hostID' => $this->obj->get('id'),
-                            'shutdown' => $enableShutdown,
-                            'other2' => $enableSnapins,
-                            'isGroupTask' => $this->obj instanceof Group,
-                            'type' => 'S',
-                            'scheduleTime' => $scheduleDeployTime->getTimestamp(),
-                            'other3' => $this->FOGUser->get('name'),
-                        ));
-                    } else if ($_REQUEST['scheduleType'] == 'cron') {
-                        $ScheduledTask = new ScheduledTask(array(
-                            'taskType' => $TaskType->get('id'),
-                            'name' => $taskName,
-                            'hostID' => $this->obj->get('id'),
-                            'shutdown' => $enableShutdown,
-                            'other2' => $enableSnapins,
-                            'isGroupTask' => $this->obj instanceof Group,
-                            'type' => 'C',
-                            'other3' => $this->FOGUser->get('name'),
-                            'minute' => $_REQUEST['scheduleCronMin'],
-                            'hour' => $_REQUEST['scheduleCronHour'],
-                            'dayOfMonth' => $_REQUEST['scheduleCronDOM'],
-                            'month' => $_REQUEST['scheduleCronMonth'],
-                            'dayOfWeek' => $_REQUEST['scheduleCronDOW'],
-                        ));
+                    $groupTask = (int)$this->obj instanceof Group;
+                    switch ($_REQUEST[scheduleType]) {
+                    case 'instant':
+                        $success = $this->obj->createImagePackage($TaskType->get(id),$taskName,$enableShutdown,$enableDebug,$enableSnapins,$groupTask,$_SESSION[FOG_USERNAME],$passreset);
+                        if (!is_array($success)) $success = array($success);
+                        break;
+                    case 'single':
+                        if ($scheduleDeployTime < $this->nice_date()) throw new Exception(sprintf('%s<br>%s: %s',_('Scheduled date is in the past'),_('Date'),$scheduleDeployTime->format('Y-m-d H:i:s')));
+                        break;
                     }
-                    if ($ScheduledTask && $ScheduledTask->save()) {
-                        if ($this->obj instanceof Group) {
-                            foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) {
-                                if ($Host->isValid() && !$Host->get('pending')) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get('name'),$Host->getImage()->get('name'));
+                    if (in_array($_REQUEST[scheduleType],array('single','cron'))) {
+                        $ScheduledTask = $this->getClass(ScheduledTask)
+                            ->set(taskType,$TaskType->get(id))
+                            ->set(name,$taskName)
+                            ->set(hostID,$this->obj->get(id))
+                            ->set(shutdown,$enableShutdown)
+                            ->set(other2,$enableSnapins)
+                            ->set(type,($_REQUEST[scheduleType] == 'single' ? 'S' : 'C'))
+                            ->set(isGroupTask,$groupTask)
+                            ->set(other3,$this->FOGUser->get(name));
+                        if ($_REQUEST[scheduleType] == 'single') $ScheduledTask->set(scheduleTime,$scheduleDeployTime->getTimestamp());
+                        else if ($_REQUEST[scheduleType] == 'cron') {
+                            $ScheduledTask
+                                ->set(minute,$_REQUEST[scheduleCronMin])
+                                ->set(hour,$_REQUEST[scheduleCronHour])
+                                ->set(dayOfMonth,$_REQUEST[scheduleCronDOM])
+                                ->set(month,$_REQUEST[scheduleCronMonth])
+                                ->set(dayOfWeek,$_REQUEST[scheduleCronDOW]);
+                        }
+                        if ($ScheduledTask->save()) {
+                            if ($this->obj instanceof Group) {
+                                foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) {
+                                    if ($Host->isValid() && !$Host->get(pending)) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get(name),$Host->getImage()->get(name));
+                                }
+                                unset($Host);
+                            } else if ($this->obj instanceof Host) {
+                                if ($this->obj->isValid() && !$this->obj->get(pending)) $success[] = sprintf('<li>%s &ndash; %s</li>',$this->obj->get(name),$this->obj->getImage()->get(name));
                             }
-                            unset($Host);
-                        } else if ($this->obj instanceof Host) {
-                            if ($this->obj->isValid() && !$this->obj->get('pending')) $success[] = sprintf('<li>%s &ndash; %s</li>',$this->obj->get('name'),$this->obj->getImage()->get('name'));
                         }
                     }
                 } catch (Exception $e) {
-                    $error[] = sprintf($this->obj->get(name).' Failed to start deployment tasking');
+                    $error[] = sprintf($this->obj->get(name)." Failed to start deployment tasking<br>%s",$e->getMessage());
                 }
             }
             // Failure
@@ -426,8 +409,8 @@ abstract class FOGPage extends FOGBase {
         if (count($success)) {
             printf('<div class="task-start-ok"><p>%s</p><p>%s%s%s</p></div>',
                 sprintf(_('Successfully created tasks for deployment to the following Hosts')),
-                ($_REQUEST['scheduleType'] == 'cron' ? sprintf('%s: %s',_('Cron Schedule'),implode(' ',array($_REQUEST['scheduleCronMin'],$_REQUEST['scheduleCronHour'],$_REQUEST['scheduleCronDOM'],$_REQUEST['scheduleCronMonth'],$_REQUEST['scheduleCronDOW']))) : ''),
-                ($_REQUEST['scheduleType'] == 'single' ? sprintf('%s: %s',_('Scheduled to start at'),$scheduleDeployTime->format('Y/m/d H:i')) : ''),
+                ($_REQUEST[scheduleType] == 'cron' ? sprintf('%s: %s',_('Cron Schedule'),implode(' ',array($_REQUEST[scheduleCronMin],$_REQUEST[scheduleCronHour],$_REQUEST[scheduleCronDOM],$_REQUEST[scheduleCronMonth],$_REQUEST[scheduleCronDOW]))) : ''),
+                ($_REQUEST[scheduleType] == 'single' ? sprintf('%s: %s',_('Scheduled to start at'),$scheduleDeployTime->format('Y-m-d H:i:s')) : ''),
                 (count($success) ? sprintf('<ul>%s</ul>',implode('',$success)) : '')
             );
         }
@@ -449,13 +432,13 @@ abstract class FOGPage extends FOGBase {
         $findWhere = array('id' => $ids);
         if (array_key_exists('protected',$this->getClass($this->childClass)->databaseFields))
             $findWhere['protected'] = array('',null,0,false);
-        $_SESSION['delitems'][$this->node] = $this->getClass($this->childClass.'Manager')->find($findWhere,'','','','','','','id');
+        $_SESSION[delitems][$this->node] = $this->getClass($this->childClass)->getManager()->find($findWhere,'','','','','','','id');
         foreach ($this->getClass($this->childClass)->getManager()->find(array('id' => $_SESSION[delitems][$this->node])) AS &$Obj) {
             $this->data[] = array(
-                'id' => $Obj->get('id'),
-                'name' => $Obj->get('name'),
+                'id' => $Obj->get(id),
+                'name' => $Obj->get(name),
             );
-            array_push($this->additional,'<p>'.$Obj->get('name').'</p>');
+            array_push($this->additional,'<p>'.$Obj->get(name).'</p>');
         }
         unset($Obj);
         if (count($_SESSION['delitems'])) {
