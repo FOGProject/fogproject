@@ -280,10 +280,19 @@ abstract class FOGController extends FOGBase {
      * @param $queryData
      * @return the set class
      */
-    public function setQuery($queryData) {
-        $this->data = array_combine(array_keys((array)$this->databaseFields),(array)$queryData);
-        foreach((array)$this->databaseFieldClassRelationships AS $class => $fields) $this->set($fields[2],$this->getClass($class)->setQuery($queryData));
-        unset($fields);
+    public function setQuery(&$queryData) {
+        $classData = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
+        $diffClassData = array_diff((array)$queryData,(array)$this->databaseFieldsFlipped);
+        foreach ($classData AS $key => $val) {
+            $this->set($key,$val);
+        }
+        unset($queryData);
+        if ($diffClassData) {
+            foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
+                $this->set($fields[2],$this->getClass($class)->setQuery($diffClassData));
+            unset($fields);
+        }
+        unset($classData, $diffClassData, $orderedData);
         return $this;
     }
     // Destroy
@@ -328,7 +337,7 @@ abstract class FOGController extends FOGBase {
         try {
             foreach ($this->databaseFieldsRequired AS &$field) if (!$this->get($field)) throw new Exception($foglang['RequiredDB']);
             unset($field);
-            if ($this->get(id) || $this->get(name)) return true;
+            if ($this->get('id') || $this->get('name')) return true;
         } catch (Exception $e) {
             $this->debug('isValid Failed: Error: %s', array($e->getMessage()));
         }
