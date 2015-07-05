@@ -381,7 +381,7 @@ class Host extends FOGController {
         return $this;
     }
     public function isValid() {
-        return $this->get('id') && HostManager::isHostnameSafe($this->get('name')) && $this->getMACAddress();
+        return $this->get(id) && $this->get(name) && HostManager::isHostnameSafe($this->get(name)) && $this->getMACAddress();
     }
     public function getActiveTaskCount() {
         return $this->getClass('TaskManager')->count(array('stateID' => array(1, 2, 3), 'hostID' => $this->get('id')));

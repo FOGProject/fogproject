@@ -28,6 +28,9 @@ class Image extends FOGController {
         'hostsnotinme',
         'storageGroups',
     );
+    public function isValid() {
+        return $this->get(id) && $this->get(name);
+    }
     // Overrides
     private function loadHosts() {
         if (!$this->isLoaded('hosts') && $this->get('id')) {
