@@ -31,6 +31,8 @@ class Host extends FOGController {
     // Allow setting / getting of these additional fields
     public $additionalFields = array(
         'mac',
+        'primac',
+        'imagename',
         'additionalMACs',
         'pendingMACs',
         'groups',
@@ -54,7 +56,9 @@ class Host extends FOGController {
         'name',
     );
     public $databaseFieldClassRelationships = array(
-        );
+        'MACAddressAssociation' => array('hostID','id','primac',array('primary' => 1)),
+        'Image' => array('id','imageID','imagename'),
+    );
     // Custom functons
     public function isHostnameSafe($hostname = '') {
         if (empty($hostname)) $hostname = $this->get(name);
@@ -129,9 +133,7 @@ class Host extends FOGController {
         return $this;
     }
     private function loadPrimary() {
-        if (!$this->isLoaded(mac) && $this->get(id)) {
-            $this->set(mac,$this->getClass(MACAddress,current($this->getClass(MACAddressAssociationManager)->find(array('hostID' => $this->get(id),'primary' => 1)))));
-        }
+        if (!$this->isLoaded(mac) && $this->get(id)) $this->set(mac,$this->get(primac)->get(mac));
         //return $this;
         return $this;
     }
@@ -600,7 +602,7 @@ class Host extends FOGController {
             throw new Exception($e->getMessage());
         }
         if ($taskTypeID == '14') $Task->destroy();
-        return $Task;
+        return sprintf('<li>%s &ndash; %s</li>',$this->get(name),$this->getImage()->get(name));
     }
     public function getImageMemberFromHostID() {
         try {
@@ -812,10 +814,21 @@ class Host extends FOGController {
         return parent::destroy($field);
     }
     // Custom functions
-    public function getImage() {return $this->getClass(Image,$this->get(imageID));}
-        public function getOS() {return $this->getImage()->getOS();}
-        public function getMACAddress() {return $this->get(mac);}
-        public function getActiveSnapinJob() {return $this->get(snapinjob);}
+    public function getImage() {
+        return $this->getClass(Image,$this->get(imageID));
+    }
+    public function getImageName() {
+        return $this->get(imagename)->isValid() ? $this->get(imagename)->get(name) : '';
+    }
+    public function getOS() {
+        return $this->getImage()->getOS()->get(name);
+    }
+    public function getMACAddress() {
+        return $this->get(mac);
+    }
+    public function getActiveSnapinJob() {
+        return $this->get(snapinjob);
+    }
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */
