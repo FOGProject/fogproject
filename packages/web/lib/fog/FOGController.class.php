@@ -280,7 +280,7 @@ abstract class FOGController extends FOGBase {
      * @param $queryData
      * @return the set class
      */
-    public function setQuery(&$queryData) {
+    public function setQuery($queryData) {
         foreach($queryData AS $key => $val) $this->data[$this->key($key)] = $val;
         if (count($this->databaseFieldClassRelationships)) {
             foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
