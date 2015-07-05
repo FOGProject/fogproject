@@ -266,7 +266,7 @@ abstract class FOGBase {
      * @param $Date the non-nice Date Sent.
      * @return returns the DateTime class for the current date.
      */
-    public function nice_date($Date = 'now',$utc = false) {print $this->TimeZone;return (!$utc ? new DateTime($Date,new DateTimeZone($this->TimeZone)) : new DateTime($Date,new DateTimeZone('UTC')));}
+    public function nice_date($Date = 'now',$utc = false) {return (!$utc ? new DateTime($Date,new DateTimeZone($this->TimeZone)) : new DateTime($Date,new DateTimeZone('UTC')));}
     /** @function validDate() Simply returns if the date is valid or not
      * @param $Date the date, nice or not nice
      * @return return whether Date/Time is valid or not
