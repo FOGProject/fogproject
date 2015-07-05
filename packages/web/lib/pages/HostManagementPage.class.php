@@ -94,14 +94,15 @@ class HostManagementPage extends FOGPage {
             if (!$Host->get(pending)) {
                 $this->data[] = array(
                     'host_id'	=> $Host->get(id),
-                    'deployed' => $this->FOGCore->formatTime($Host->get(deployed)),
+                    'deployed' => $this->formatTime($Host->get(deployed)),
                     'host_name'	=> $Host->get(name),
-                    'host_mac'	=> $Host->get(mac),
+                    'host_mac'	=> $Host->getMACAddress(),
                     'host_desc'  => $Host->get(description),
-                    'image_name' => $Host->getImage()->get(name),
+                    'image_name' => $Host->getImageName(),
                 );
             }
         }
+        unset($Host);
         // Hook
         $this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData' => &$this->headerData, 'title' => &$this->title));
@@ -117,11 +118,11 @@ class HostManagementPage extends FOGPage {
         foreach($this->getClass(HostManager)->search() AS &$Host) {
             $this->data[] = array(
                 'host_id' => $Host->get(id),
-                'deployed' => $this->FOGCore->formatTime($Host->get(deployed)),
+                'deployed' => $this->formatTime($Host->get(deployed)),
                 'host_name'	=> $Host->get(name),
-                'host_mac'	=> $Host->get(mac)->__toString(),
+                'host_mac'	=> $Host->getMACAddress(),
                 'host_desc'  => $Host->get(description),
-                'image_name' => $Host->getImage()->get(name),
+                'image_name' => $Host->getImageName(),
             );
         }
         unset($Host);
