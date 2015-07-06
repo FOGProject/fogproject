@@ -4,7 +4,7 @@ try {
     // Just for checking if the host exists
     // Sends back if it does or doesn't.
     $hostname = trim(base64_decode(trim($_REQUEST[host])));
-    foreach ($this->getClass(HostManager)->find(array('name' => $hostname)) AS &$Host) {
+    foreach ($FOGCore->getClass(HostManager)->find(array('name' => $hostname)) AS &$Host) {
         if ($Host->isValid()) throw new Exception("\tA hostname with that name already exists.\nThe MAC Address associated with this is:".$Host->get(mac));
     }
     unset($Host);
