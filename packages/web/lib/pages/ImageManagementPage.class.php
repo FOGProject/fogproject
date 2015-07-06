@@ -26,7 +26,7 @@ class ImageManagementPage extends FOGPage {
                 $this->foglang[LastUploaded] => $this->obj->get('deployed'),
                 $this->foglang[DeployMethod] => $this->obj->get('format') ? 'Partimage' : 'Partclone',
                 $this->foglang[ImageType] => $this->obj->getImageType() ? $this->obj->getImageType() : $this->foglang[NoAvail],
-                _('Primary Storage Group') => $this->obj->getStorageGroup()->get('name'),
+                _('Primary Storage Group') => $this->obj->getStorageGroup()->get(name),
             );
         }
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
@@ -332,7 +332,7 @@ class ImageManagementPage extends FOGPage {
         $IAMan = new ImageAssociationManager();
         $SGMan = new StorageGroupManager();
         // Get groups with this image assigned
-        foreach($Image->get('storageGroups') AS &$Group) {
+        foreach($this->getClass(StorageGroupManager)->find(array('id' => $Image->get(storageGroups))) AS &$Group) {
             if ($Group->isValid()) $GroupsWithMe[] = $Group->get('id');
         }
         unset($Group);
@@ -434,13 +434,11 @@ class ImageManagementPage extends FOGPage {
             '<input type="checkbox" class="toggle-action" name="storagegroup-rm[]" value="${storageGroup_id}" />',
             '${storageGroup_name}',
         );
-        foreach($Image->get('storageGroups') AS &$Group) {
-            if ($Group->isValid()) {
-                $this->data[] = array(
-                    'storageGroup_id' => $Group->get('id'),
-                    'storageGroup_name' => $Group->get('name'),
-                );
-            }
+        foreach($this->getClass(StorageGroupManager)->find(array('id' => $Image->get(storageGroups))) AS &$Group) {
+            $this->data[] = array(
+                'storageGroup_id' => $Group->get('id'),
+                'storageGroup_name' => $Group->get('name'),
+            );
         }
         unset($Group);
         // Hook
