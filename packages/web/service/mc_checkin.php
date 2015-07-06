@@ -31,13 +31,13 @@ try {
         if ($MultiSess && $MultiSess->isValid()) $Host->set(imageID,$MultiSess->get(image));
         // Log it
         $id = $FOGCore->getClass(ImagingLogManager)->find(array('hostID' => $Host->get(id),'type' => $_REQUEST[type],'complete' => '0000-00-00 00:00:00'),'','','','','','','id');
-        $this->getClass(ImagingLog,@max($id))
+        $FOGCore->getClass(ImagingLog,@max($id))
             ->set(hostID,$Host->get(id))
             ->set(start,$FOGCore->nice_date()->format('Y-m-d H:i:s'))
             ->set(image,$Task->getImage()->get(name))
             ->set(type,$_REQUEST[type])
             ->save();
-        $this->getClass(TaskLog)
+        $FOGCore->getClass(TaskLog)
             ->set(taskID,$Task->get(id))
             ->set(taskStateID,$Task->get(stateID))
             ->set(createdTime,$Task->get(createdTime))
