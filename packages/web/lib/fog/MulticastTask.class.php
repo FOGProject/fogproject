@@ -13,7 +13,7 @@ class MulticastTask extends FOGBase {
                     $MultiSess->get('name'),
                     $MultiSess->get('port'),
                     $root.'/'.$MultiSess->get('logpath'),
-                    $Image->getStorageGroup()->getMasterStorageNode()->get('interface') ? $Image->getStorageGroup()->getMasterNode()->get('interface') : $FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),
+                    $Image->getStorageGroup()->getMasterStorageNode()->get('interface') ? $Image->getStorageGroup()->getMasterStorageNode()->get('interface') : $FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),
                     ($count > 0 ? $count : ($MultiSess->get('sessclients') > 0 ? $MultiSess->get('sessclients') : $FOGCore->getClass('HostManager')->count())),
                     $MultiSess->get('isDD'),
                     $Image->get('osID')
