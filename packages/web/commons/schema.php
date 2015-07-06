@@ -1980,3 +1980,7 @@ $this->schema[] = array(
 	"ALTER TABLE `".DATABASE_NAME."`.`nfsGroupMembers` ADD COLUMN `ngmFTPPath` LONGTEXT NOT NULL AFTER `ngmRootPath`",
 	"UPDATE `".DATABASE_NAME."`.`nfsGroupMembers` SET `ngmFTPPath`='".STORAGE_DATADIR."'",
 );
+// 185
+$this->schema[] = array(
+	"ALTER TABLE `".DATABASE_NAME."`.`nfsGroupMembers` ADD COLUMN `ngmMaxBitrate` VARCHAR (25) AFTER `ngmFTPPath`",
+);
