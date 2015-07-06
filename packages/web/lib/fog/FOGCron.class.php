@@ -1,10 +1,11 @@
 <?php
 class FOGCron extends FOGBase {
     public static function parse($Cron,$TimeStamp = null) {
+        global $FOGCore;
         if (!preg_match('/^((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)$/i',trim($Cron))) throw new Exception("Invalid cron string: ".$Cron);
         if ($TimeStamp && !is_numeric($TimeStamp)) throw new Exception("Invalid timestamp passed: ".$TimeStamp);
-        $Cron = preg_split("/[\s]+/i",trim($Cron));
-        $Start = empty($TimeStamp) ? time() : $TimeStamp;
+        $Cron = preg_split("/[\s]+/",trim($Cron));
+        $Start = empty($TimeStamp) ? $FOGCore->nice_date()->getTimestamp() : $TimeStamp;
         $date = array(
             'minutes' => self::_parseCronNumbers($Cron[0],0,59),
             'hours' => self::_parseCronNumbers($Cron[1],0,23),
@@ -13,11 +14,11 @@ class FOGCron extends FOGBase {
             'dow' => self::_parseCronNumbers($Cron[4],0,6),
         );
         for ($i = 0; $i <= (60*60*24*366); $i += 60) {
-            $dom = in_array(intval(date('j',$Start+$i)),$date['dom']);
-            $month = in_array(intval(date('n',$Start+$i)),$date['month']);
-            $dow = in_array(intval(date('N',$Start+$i)),$date['dow']);
-            $hours = in_array(intval(date('H',$Start+$i)),$date['hours']);
-            $minutes = in_array(intval(date('i',$Start+$i)),$date['minutes']);
+            $minutes = in_array(intval($FOGCore->nice_date('',true)->setTimestamp($Start+$i)->format('i')),$date['minutes']);
+            $hours = in_array(intval($FOGCore->nice_date('',true)->setTimestamp($Start+$i)->format('H')),$date['hours']);
+            $dom = in_array(intval($FOGCore->nice_date('',true)->setTimestamp($Start+$i)->format('j')),$date['dom']);
+            $month = in_array(intval($FOGCore->nice_date('',true)->setTimestamp($Start+$i)->format('n')),$date['month']);
+            $dow = in_array(intval($FOGCore->nice_date('',true)->setTimestamp($Start+$i)->format('N')),$date['dow']);
             if ($dom && $month && $dow && $hours && $minutes) return $Start+$i;
         }
         return false;
