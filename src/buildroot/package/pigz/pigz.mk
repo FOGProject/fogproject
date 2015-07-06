@@ -6,13 +6,11 @@
 PIGZ_VERSION = 2.3.3
 PIGZ_SOURCE = v$(PIGZ_VERSION).tar.gz
 PIGZ_SITE = https://github.com/madler/pigz/archive
-PIGZ_CAT = $(ZCAT)
-PIGZ_DIR = $(BUILD_DIR)/pigz-$(PIGZ_VERSION)
-PIGZ_BINARY = pigz
 PIGZ_DEPENDENCIES = zlib
 
 define PIGZ_BUILD_CMDS
-	$(MAKE) $(TARGET_CONFIGUR_OPTS) -C $(@D) 
+	$(MAKE) CC="$(TARGET_CC)" -C $(@D) \
+		LD="$(TARGET_LD)"
 endef
 
 define PIGZ_INSTALL_TARGET_CMDS
