@@ -232,8 +232,14 @@ installPackages() {
         fi
     elif [ "$osid" -eq 2 ]; then
         dots "Adding needed repository"
+        DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >/dev/null 2>&1;
         if [[ "$linuxReleaseName" == +(*'buntu'*|*'int'*) ]]; then
             add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
+            if [ "$?" != 0 ]; then
+                echo "deb http://ppa.launchpad.net/ondrej/php5-5.6/ubuntu vivid main" > "/etc/apt/sources.list.d/ondrej-ubuntu-php5-5_6-vivid.list"
+                echo "deb http://ppa.launchpad.net/ondrej/php5/ubuntu vivid main" > "/etc/apt/sources.list.d/ondrej-ubuntu-php5-vivid.list"
+            fi
+            true
         elif [[ "$linuxReleaseName" == +(*'ebian'*) ]]; then
             if [ "$OSVersion" -eq 7 ]; then
                 debcode="wheezy";
