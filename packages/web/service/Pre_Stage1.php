@@ -21,7 +21,8 @@ try
 	// Storage Node
 	$StorageNodes = $StorageGroup->getStorageNodes();
 	if ($imagingTasks && !$StorageNodes)
-		throw new Exception( _('Could not find a Storage Node. Is there one enabled within this Storage Group?') );
+        throw new Exception( _('Could not find a Storage Node. Is there one enabled within this Storage Group?') );
+    if ($imagingTasks) $Host->set('sec_tok',null)->set('pub_key',null)->save();
 	// Forced to start
 	if ($Task->get('isForced'))
 	{

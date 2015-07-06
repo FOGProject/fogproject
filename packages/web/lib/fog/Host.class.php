@@ -525,10 +525,7 @@ class Host extends FOGController {
                 else if (!$StorageNode || !($StorageNode instanceof StorageNode)) throw new Exception($this->foglang['NoFoundSG']);
                 else if (!$StorageNode->isValid()) throw new Exception($this->foglang['SGNotValid']);
                 else {
-                    $this
-                        ->set('sec_tok',null)
-                        ->set('pub_key',null);
-                    $imageTaskImgID = $this->get('imageID');
+                    $imageTaskImgID = $this->get(imageID);
                     $hostsWithImgID = $this->getClass(HostManager)->find(array('imageID' => $imageTaskImgID),'','','','','','','id');
                     if (!in_array($this->get(id),(array)$hostsWithImgID)) $this->set('imageID',$this->getClass(Host,$this->get(id))->get(imageID));
                     $this->save();
