@@ -75,8 +75,8 @@ ftpconfig="/etc/vsftpd.conf"
 # where do snapins go?
 snapindir="/opt/fog/snapins"
 
-packageinstaller="apt-get -yq install"
+packageinstaller="apt-get -yq install -o Dpkg::='--force-confdef' -o Dpkg::Options::='--force-confold'"
 packagelist="apt-cache pkgnames | grep"
-packageupdater="apt-get -yq upgrade"
+packageupdater="apt-get -yq upgrade -o Dpkg::='--force-confdef' -o Dpkg::Options::='--force-confold'"
 packmanUpdate="apt-get update"
 jsontest="php5-json php5-common"

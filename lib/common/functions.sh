@@ -262,21 +262,21 @@ installPackages() {
     for x in $packages; do
         if [ "$x" == "mysql" ]; then
             for sqlclient in $sqlclientlist; do
-                if [ `$packagelist $sqlclient >/dev/null 2>&1; echo $?` -eq 0 ]; then
+                if [ `$packagelist $sqlclient 2>/dev/null; echo $?` -eq 0 ]; then
                     x=$sqlclient
                     break
                 fi
             done
         elif [ "$x" == "mysql-server" ]; then
             for sqlserver in $sqlserverlist; do
-                if [ `$packagelist $sqlserver >/dev/null 2>&1; echo $?` -eq 0 ]; then
+                if [ `$packagelist $sqlserver 2>/dev/null; echo $?` -eq 0 ]; then
                     x=$sqlserver
                     break
                 fi
             done
         elif [ "$x" == "php5-json" ]; then
             for json in $jsontest; do
-                if [ `$packagelist $json >/dev/null 2>&1; echo $?` -eq 0 ]; then
+                if [ `$packagelist $json 2>/dev/null; echo $?` -eq 0 ]; then
                     x="$json"
                 fi
             done
