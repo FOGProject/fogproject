@@ -459,29 +459,21 @@ class TaskManagementPage extends FOGPage {
             array('class' => 'c'),
             array('width' => 40, 'class' => 'c'),
         );
-        $SnapinTasks = $this->getClass(SnapinTaskManager)->find(array('stateID' => array(-1,0,1)));
-        foreach ($SnapinTasks AS &$SnapinTask) {
-            if ($SnapinTask->isValid()) {
-                $SnapinJob = $this->getClass(SnapinJob,$SnapinTask->get(jobID));
-                if ($SnapinJob->isValid() && $SnapinJob->getHost()->isValid()) {
-                    $Host = $SnapinJob->getHost();
-                    foreach($this->getClass(SnapinManager)->find(array('id' => $SnapinJob->getHost()->get(snapins))) AS &$Snapin) {
-                        if ($Snapin->get(id) == $SnapinTask->get(snapinID)) {
-                            $this->data[] = array(
-                                'id' => $SnapinTask->get('id'),
-                                'name' => $Snapin->get('name'),
-                                'hostID' => $Host->get('id'),
-                                'host_name' => $Host->get('name'),
-                                'startDate' => $SnapinTask->get('checkin'),
-                                'state' => ($SnapinTask->get('stateID') == 0 ? 'Queued' : ($SnapinTask->get('stateID') == 1 ? 'In-Progress' : 'N/A')),
-                            );
-                        }
-                    }
-                    unset($Snapin);
-                }
+        foreach ($this->getClass(SnapinTaskManager)->find(array('stateID' => array(-1,0,1))) AS &$SnapinTask) {
+            $Host = $this->getClass(SnapinJob,$SnapinTask->get(jobID))->getHost();
+            $Snapin = $this->getClass(Snapin,$SnapinTask->get(snapinID));
+            if ($Host->get(snapinjob) && $Host->get(snapinjob)->isValid() && in_array($Host->get(snapinjob)->get(stateID),array(-1,0,1,2,3))) {
+            $this->data[] = array(
+                'id' => $SnapinTask->get(id),
+                'name' => $Snapin->get(name),
+                'hostID' => $Host->get(id),
+                'host_name' => $Host->get(name),
+                'startDate' => $SnapinTask->get(checkin),
+                'state' => $SnapinTask->get(stateID) == 0 ? 'Queued' : ($SnapinTask->get(stateID) == 1 ? 'In-Progress' : 'N/A'),
+            );
             }
         }
-        unset($SnapinTask);
+            unset($SnapinTask);
         // Hook
         $this->HookManager->processEvent('TaskActiveSnapinsData', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
