@@ -13,6 +13,7 @@ class StorageNode extends FOGController {
         'isGraphEnabled'=> 'ngmGraphEnabled',
         'path'		=> 'ngmRootPath',
         'ftppath' => 'ngmFTPPath',
+        'bitrate' => 'ngmMaxBitrate',
         'snapinpath'		=> 'ngmSnapinPath',
         'ip'		=> 'ngmHostname',
         'maxClients'	=> 'ngmMaxClients',

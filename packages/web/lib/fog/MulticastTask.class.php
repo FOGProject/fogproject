@@ -48,10 +48,14 @@ class MulticastTask extends FOGBase {
         public function getInterface() {return $this->strEth;}
         public function getOSID() {return $this->intOSID;}
         public function getUDPCastLogFile() {return MULTICASTLOGPATH.".udpcast.".$this->getID();}
+        public function getBitrate() {
+            return $this->getClass(Image,$this->getClass(MulticastSessions,$this->getID())->get(image))->getStorageGroup()->getMasterStorageNode()->get(bitrate);
+        }
         public function getCMD() {
             unset($filelist,$buildcmd,$cmd);
             $buildcmd = array(
                 UDPSENDERPATH,
+                $this->getBitrate() ? sprintf(' --max-bitrate %s',$this->getBitrate()) : null,
                 $this->getInterface() ? sprintf(' --interface %s',$this->getInterface()) : null,
                 sprintf(' --min-receivers %d',($this->getClientCount() ? $this->getClientCount() : $this->getClass('HostManager')->count())),
                 sprintf(' --max-wait %d', $this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT') ? $this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT') * 60 : UDPSENDER_MAXWAIT),
