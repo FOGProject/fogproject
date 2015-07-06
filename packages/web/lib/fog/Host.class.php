@@ -466,7 +466,7 @@ class Host extends FOGController {
         // Error Checking
         // If there are no snapins associated to the host fail out.
         try {
-            if (in_array($this->get('task')->get('taskType'),array(12,13)) && !$this->getClass('SnapinAssociationManager')->count(array('hostID' => $this->get('id')))) throw new Exception($this->foglang['SnapNoAssoc']);
+            if (in_array($this->get(task)->get(taskTypeID),array(12,13)) && !$this->getClass(SnapinAssociationManager)->count(array('hostID' => $this->get(id)))) throw new Exception($this->foglang[SnapNoAssoc]);
             // Create Snapin Job.  Only one job, but will do multiple SnapinTasks.
             else {
                 $SnapinJob = $this->getClass(SnapinJob)
@@ -484,16 +484,16 @@ class Host extends FOGController {
                                 ->set(snapinID,$Snapin)
                                 ->save();
                         }
-                    }
-                    unset($Snapin);
-                } else {
-                    $Snapin = $this->getClass(Snapin,$snapin);
-                    if ($Snapin && $Snapin->isValid()) {
-                        $this->getClass(SnapinTask)
-                            ->set(jobID,$SnapinJob->get(id))
-                            ->set(stateID,0)
-                            ->set(snapinID,$Snapin->get(id))
-                            ->save();
+                        unset($Snapin);
+                    } else {
+                        $Snapin = $this->getClass(Snapin,$snapin);
+                        if ($Snapin && $Snapin->isValid()) {
+                            $this->getClass(SnapinTask)
+                                ->set(jobID,$SnapinJob->get(id))
+                                ->set(stateID,0)
+                                ->set(snapinID,$Snapin->get(id))
+                                ->save();
+                        }
                     }
                 }
             }

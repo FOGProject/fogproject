@@ -281,13 +281,12 @@ abstract class FOGController extends FOGBase {
      * @return the set class
      */
     public function setQuery($queryData) {
-        foreach($queryData AS $key => $val) $this->data[$this->key($key)] = $val;
+        foreach((array)$queryData AS $key => $val) $this->data[$this->key($key)] = $val;
         if (count($this->databaseFieldClassRelationships)) {
             foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
                 $this->set($fields[2],$this->getClass($class)->setQuery($queryData));
             unset($fields);
         }
-        unset($queryData);
         return $this;
     }
     // Destroy

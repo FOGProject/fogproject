@@ -459,12 +459,13 @@ class TaskManagementPage extends FOGPage {
             array('class' => 'c'),
             array('width' => 40, 'class' => 'c'),
         );
-        $SnapinTasks = $this->getClass('SnapinTaskManager')->find(array('stateID' => array(-1,0,1)));
+        $SnapinTasks = $this->getClass(SnapinTaskManager)->find(array('stateID' => array(-1,0,1)));
         foreach ($SnapinTasks AS &$SnapinTask) {
             if ($SnapinTask->isValid()) {
-                $SnapinJob = $this->get('SnapinJob',$SnapinTask->get('jobID'));
+                $SnapinJob = $this->getClass(SnapinJob,$SnapinTask->get(jobID));
                 if ($SnapinJob->isValid() && $SnapinJob->getHost()->isValid()) {
-                    foreach($SnapinJob->getHost()->get(snapins) AS &$Snapin) {
+                    $Host = $SnapinJob->getHost();
+                    foreach($this->getClass(SnapinManager)->find(array('id' => $SnapinJob->getHost()->get(snapins))) AS &$Snapin) {
                         if ($Snapin->get(id) == $SnapinTask->get(snapinID)) {
                             $this->data[] = array(
                                 'id' => $SnapinTask->get('id'),
@@ -542,30 +543,32 @@ class TaskManagementPage extends FOGPage {
             array('width' => 100, 'class' => 'c', 'style' => 'padding-right: 10px'),
             array('class' => 'c'),
         );
-        foreach ($this->getClass('ScheduledTaskManager')->find() AS &$task) {
-            if ($task->isValid()) {
-                $Host = $task->getHost();
-                if ($Host && $Host->isValid()) {
-                    $taskType = $task->getTaskType();
-                    if ($task->get('type') == 'C') $taskTime = FOGCron::parse($task->get('minute').' '.$task->get('hour').' '.$task->get('dayOfMonth').' '.$task->get('month').' '.$task->get('dayOfWeek'));
-                    else $taskTime = $task->get('scheduleTime');
-                    $taskTime = $this->nice_date()->setTimestamp($taskTime);
-                    $hostGroupName = ($task->isGroupBased() ? $task->getGroup() : $task->getHost());
-                    $this->data[] = array(
-                        'columnkill' => '${details_taskforce} <a href="?node=task&sub=cancel-task&id=${id}"><i class="icon fa fa-minus-circle" title="' . _('Cancel Task') . '"></i></a>',
-                        'hostgroup' => $task->isGroupBased() ? 'group' : 'host',
-                        'hostgroupname' => $hostGroupName,
-                        'id' => $hostGroupName->get('id'),
-                        'groupbased' => $task->isGroupBased() ? _('Yes') : _('No'),
-                        'details_taskname' => $task->get('name'),
-                        'time' => $this->formatTime($taskTime),
-                        'active' => $task->get('isActive') ? 'Yes' : 'No',
-                        'type' => $task->get('type') == 'C' ? 'Cron' : 'Delayed',
-                        'schedtaskid' => $task->get('id'),
-                        'task_type' => $taskType,
-                    );
-                }
+        foreach ($this->getClass(ScheduledTaskManager)->find() AS &$task) {
+            $Host = $task->getHost();
+            $taskType = $task->getTaskType();
+            if ($task->get(type) == 'C') {
+                $taskTime = FOGCron::parse($task->get('minute').' '.$task->get('hour').' '.$task->get('dayOfMonth').' '.$task->get('month').' '.$task->get('dayOfWeek'));
+                print_r($taskTime);
             }
+            else {
+                $taskTime = $task->get(scheduleTime);
+                print_r($taskTime);
+            }
+            $taskTime = $this->nice_date()->setTimestamp($taskTime);
+            $hostGroupName = ($task->isGroupBased() ? $task->getGroup() : $task->getHost());
+            $this->data[] = array(
+                'columnkill' => '${details_taskforce} <a href="?node=task&sub=cancel-task&id=${id}"><i class="icon fa fa-minus-circle" title="' . _('Cancel Task') . '"></i></a>',
+                'hostgroup' => $task->isGroupBased() ? 'group' : 'host',
+                'hostgroupname' => $hostGroupName,
+                'id' => $hostGroupName->get('id'),
+                'groupbased' => $task->isGroupBased() ? _('Yes') : _('No'),
+                'details_taskname' => $task->get('name'),
+                'time' => $this->formatTime($taskTime),
+                'active' => $task->get('isActive') ? 'Yes' : 'No',
+                'type' => $task->get('type') == 'C' ? 'Cron' : 'Delayed',
+                'schedtaskid' => $task->get('id'),
+                'task_type' => $taskType,
+            );
         }
         unset($task);
         // Hook
