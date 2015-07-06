@@ -135,6 +135,7 @@ class StorageManagementPage extends FOGPage {
             $this->foglang['ImagePath'] => '<input type="text" name="path" value="${node_path}" autocomplete="off" />',
             $this->foglang['FTPPath'] => '<input type="text" name="ftppath" value="${node_ftppath}" autocomplete="off" />',
             $this->foglang['SnapinPath'] => '<input type="text" name="snapinpath" value="${node_snapinpath}" autocomplete="off" />',
+            'Bitrate' => '<input type="text" name="bitrate" value="${node_bitrate}" autocomplete="off" />',
             $this->foglang['Interface'] => '<input type="text" name="interface" value="${node_interface}" autocomplete="off" />',
             $this->foglang['IsEnabled'] => '<input type="checkbox" name="isEnabled" checked value="1" />',
             $this->foglang['IsGraphEnabled'].'<br /><small>('.$this->foglang['OnDash'].')'  => '<input type="checkbox" name="isGraphEnabled" checked value="1" />',
@@ -157,6 +158,7 @@ class StorageManagementPage extends FOGPage {
                 'node_path' => $_REQUEST['path'] ? $_REQUEST['path'] : '/images/',
                 'node_ftppath' => $_REQUEST['ftppath'] ? $_REQUEST['ftppath'] : '/images/',
                 'node_snapinpath' => $_REQUEST['snapinpath'] ? $_REQUEST['snapinpath'] : '/opt/fog/snapins/',
+                'node_bitrate' => $_REQUEST[bitrate],
                 'node_interface' => $_REQUEST['interface'] ? $_REQUEST['interface'] : 'eth0',
                 'node_user' => $_REQUEST['user'],
                 'node_pass' => $_REQUEST['pass'],
@@ -204,6 +206,7 @@ class StorageManagementPage extends FOGPage {
                 ->set('path',$_REQUEST[path])
                 ->set('ftppath',$_REQUEST[ftppath])
                 ->set('snapinpath',$_REQUEST[snapinpath])
+                ->set('bitrate', $_REQUEST[bitrate])
                 ->set('interface',$_REQUEST['interface'])
                 ->set('isGraphEnabled',(int)isset($_REQUEST[isGraphEnabled]))
                 ->set('isEnabled',(int)isset($_REQUEST[isEnabled]))
@@ -272,6 +275,7 @@ class StorageManagementPage extends FOGPage {
             $this->foglang['ImagePath'] => '<input type="text" name="path" value="${node_path}" autocomplete="off"/>',
             $this->foglang['FTPPath'] => '<input type="text" name="ftppath" value="${node_ftppath}" autocomplete="off"/>',
             $this->foglang['SnapinPath'] => '<input type="text" name="snapinpath" value="${node_snapinpath}" autocomplete="off"/>',
+            'Bitrate' => '<input type="text" name="bitrate" value="${node_bitrate}" autocomplete="off" />',
             $this->foglang['Interface'] => '<input type="text" name="interface" value="${node_interface}" autocomplete="off"/>',
             $this->foglang['IsEnabled'] => '<input type="checkbox" name="isEnabled" value="1" ${isenabled}/>',
             $this->foglang['IsGraphEnabled'].'<br /><small>('.$this->foglang['OnDash'].')'  => '<input type="checkbox" name="isGraphEnabled" value="1" ${graphenabled} />',
@@ -298,6 +302,7 @@ class StorageManagementPage extends FOGPage {
                 'node_path' => $StorageNode->get('path'),
                 'node_ftppath' => $StorageNode->get('ftppath'),
                 'node_snapinpath' => $StorageNode->get('snapinpath'),
+                'node_bitrate' => $StorageNode->get(bitrate),
                 'node_interface' => $StorageNode->get('interface'),
                 'node_user' => $StorageNode->get('user'),
                 'node_pass' => $StorageNode->get('pass'),
@@ -346,6 +351,7 @@ class StorageManagementPage extends FOGPage {
                 ->set('path',		$_REQUEST['path'])
                 ->set('ftppath',		$_REQUEST['ftppath'])
                 ->set('snapinpath',		$_REQUEST['snapinpath'])
+                ->set(bitrate,$_REQUEST[bitrate])
                 ->set('interface',	$_REQUEST['interface'])
                 ->set('isGraphEnabled',	($_REQUEST['isGraphEnabled'] ? '1' : '0'))
                 ->set('isEnabled',	($_REQUEST['isEnabled'] ? '1' : '0'))
