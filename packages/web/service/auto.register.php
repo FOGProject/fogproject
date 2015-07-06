@@ -13,13 +13,13 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
         // Make sure it's a unique name.
         if((!$Host || !$Host->isValid()) && $_REQUEST[advanced] == 1) {
             if (base64_decode($_REQUEST[productKey],true)) $productKey = trim($_REQUEST[productKey]);
-            $username = base64_decode(trim($_REQUEST['username']));
-            $host=trim(base64_decode($_REQUEST['host']));
+            $username = base64_decode(trim($_REQUEST[username]));
+            $host=trim(base64_decode($_REQUEST[host]));
             ($host != null && strlen($host) > 0 && $HostManager->isSafeHostName($host) ? $realhost = $host : $realhost = $macsimple);
             $desc = _("Created by FOG Reg on")." " . $FOGCore->formatTime('now',"F j, Y, g:i a");
-            $ip=trim(base64_decode($_REQUEST["ip"]));
-            $imageid = trim(base64_decode($_REQUEST['imageid']));
-            $Image = ($imageid && is_numeric($imageid) && $imageid > 0 ? new Image($imageid) : new Image(array('id' => 0)));
+            $ip=trim(base64_decode($_REQUEST[ip]));
+            $imageid = trim(base64_decode($_REQUEST[imageid]));
+            $Image = $FOGCore->getClass(Image,$imageid);
             $realimageid = ($Image && $Image->isValid() ? $Image->get('id') : '0');
             $locationid=trim(base64_decode($_REQUEST['location']));
             ($locationid != null && is_numeric($locationid) && $locationid > 0 ? $reallocid = $locationid : $locationid = '');
