@@ -96,13 +96,12 @@ class HostManagementPage extends FOGPage {
                     'host_id'	=> $Host->get(id),
                     'deployed' => $this->formatTime($Host->get(deployed)),
                     'host_name'	=> $Host->get(name),
-                    'host_mac'	=> $Host->getMACAddress(),
+                    'host_mac'	=> $Host->getMACAddress()->__toString(),
                     'host_desc'  => $Host->get(description),
                     'image_name' => $Host->getImageName(),
                 );
             }
         }
-        unset($Host);
         // Hook
         $this->HookManager->processEvent('HOST_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->HookManager->processEvent('HOST_HEADER_DATA',array('headerData' => &$this->headerData, 'title' => &$this->title));
@@ -120,7 +119,7 @@ class HostManagementPage extends FOGPage {
                 'host_id' => $Host->get(id),
                 'deployed' => $this->formatTime($Host->get(deployed)),
                 'host_name'	=> $Host->get(name),
-                'host_mac'	=> $Host->getMACAddress(),
+                'host_mac'	=> $Host->getMACAddress()->__toString(),
                 'host_desc'  => $Host->get(description),
                 'image_name' => $Host->getImageName(),
             );
