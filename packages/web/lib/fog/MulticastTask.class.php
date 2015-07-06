@@ -5,7 +5,7 @@ class MulticastTask extends FOGBase {
         global $FOGCore;
         $Tasks = array();
         foreach($FOGCore->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3))) AS $MultiSess) {
-            $Image = $FOGCore->getClass('Image',$MultiSess->get('image'));
+            $Image = $FOGCore->getClass(Image,$MultiSess->get(image));
             if (in_array($FOGCore->resolveHostname($Image->getStorageGroup()->getMasterStorageNode()->get('ip')),$FOGCore->getIPAddress())) {
                 $count = $FOGCore->getClass('MulticastSessionsAssociationManager')->count(array('msID' => $MultiSess->get('id')));
                 $Tasks[] = new self(
@@ -13,7 +13,7 @@ class MulticastTask extends FOGBase {
                     $MultiSess->get('name'),
                     $MultiSess->get('port'),
                     $root.'/'.$MultiSess->get('logpath'),
-                    $FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),
+                    $Image->getStorageGroup()->getMasterNode()->get('interface') ? $Image->getStorageGroup()->getMasterNode()->get('interface') : $FOGCore->getSetting('FOG_UDPCAST_INTERFACE'),
                     ($count > 0 ? $count : ($MultiSess->get('sessclients') > 0 ? $MultiSess->get('sessclients') : $FOGCore->getClass('HostManager')->count())),
                     $MultiSess->get('isDD'),
                     $Image->get('osID')
