@@ -34,7 +34,7 @@ $('#clearAD').click(function() {
 // Bind to AD Settings checkbox
 $('#adEnabled').change(function() {
 		if ($(this).is(':checked')) {
-		if ($('#adDomain').val() == '' && $('#adUsername').val() == '' &&  $('#adPassword').val() == '') {
+		if ($('#adDomain').val() == '' || $('#adUsername').val() == '' ||  $('#adPassword').val() == '' || $('#adPasswordLegacy').val() == '') {
 		$.ajax({
 url: '../management/index.php',
 type: 'POST',
@@ -42,9 +42,10 @@ timeout: 1000,
 data: {sub: 'adInfo'},
 dataType: 'json',
 success: function(data) {
-$('#adDomain').val(data['domainname']);
-$('#adUsername').val(data['domainuser']);
-$('#adPassword').val(data['domainpass']);
+if ($('#adDomain').val() == '') $('#adDomain').val(data['domainname']);
+if ($('#adUsername').val() == '') $('#adUsername').val(data['domainuser']);
+if ($('#adPassword').val() == '') $('#adPassword').val(data['domainpass']);
+if ($('#adPasswordLegacy').val() == '') $('#adPasswordLegacy').val(data['domainpasslegacy']);
 if ($('#adOU').is('input:text') && $('#adOU').val() == '') {
 $('#adOU').val(data['ou']);
 }

@@ -45,7 +45,8 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
                 $strADDomain = $FOGCore->getSetting('FOG_AD_DEFAULT_DOMAINNAME');
                 $strADOU = $optionOU;
                 $strADUser = $FOGCore->getSetting('FOG_AD_DEFAULT_USER');
-                $strADPass = $FOGCore->getSetting('FOG_NEW_CLIENT') ? $FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD') : $FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY');
+                $strADPass = $FOGCore->getSetting(FOG_AD_DEFAULT_PASSWORD);
+                $strADPassLegacy = $FOGCore->getSetting(FOG_AD_DEFAULT_PASSWORD_LEGACY);
             }
             // Create the host.
             $Host = new Host(array(
@@ -63,24 +64,34 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
             ));
             $groupid = explode(',',trim(base64_decode($_REQUEST['groupid'])));
             $snapinid = explode(',',trim(base64_decode($_REQUEST['snapinid'])));
-            $Host->addModule($ids);
-            $Host->addGroup($groupid);
-            $Host->addSnapin($snapinid);
-            $Host->addPriMAC($PriMAC);
-            $Host->addAddMAC($MACs);
-            if (!$Host->save())
-                throw new Exception(_('Failed to save new Host!'));
-            $LocPlugInst = current($FOGCore->getClass('PluginManager')->find(array('name' => 'location')));
+            $Host = $this->getClass(Host)
+                ->set(name,$realhost)
+                ->set(description,sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')))
+                ->set(imageID,$realimageid)
+                ->set(useAD,$strDoAD)
+                ->set(ADDomain,$strADDomain)
+                ->set(ADOU,$strADOU)
+                ->set(ADUser,$strADUser)
+                ->set(ADPass,$strADPass)
+                ->set(ADPassLegacy,$strADPassLegacy)
+                ->set(productKey,$productKey)
+                ->set(createdTime,$FOGCore->formatTime('now','Y-m-d H:i:s'))
+                ->set(createdBy,'FOGREG')
+                ->addModule($ids)
+                ->addGroup($groupid)
+                ->addSnapin($snapinid)
+                ->addPriMAC($PriMAC)
+                ->addAddMAC($MACs);
+            if (!$Host->save()) throw new Exception(_('Failed to save new Host!'));
+            $LocPlugInst = in_array('location',$_SESSION[PluginsInstalled]);
             if ($LocPlugInst) {
-                $LocationAssoc = new LocationAssociation(array(
-                    'locationID' => $reallocid,
-                    'hostID' => $Host->get('id'),
-                ));
-                $LocationAssoc->save();
+                $this->getClass(LocationAssociation)
+                    ->set(locationID,$reallocid)
+                    ->set(hostID,$Host->get(id))
+                    ->save();
             }
             if ($doimage == '1') {
-                if (!$Host->getImageMemberFromHostID())
-                    throw new Exception(_('No image assigned for this host.'));
+                if (!$Host->getImageMemberFromHostID()) throw new Exception(_('No image assigned for this host.'));
                 $other .= ' chkdsk='.($FOGCore->getSetting('FOG_DISABLE_CHKDSK') == '1' ? '0' : '1');
                 $other .= ($FOGCore->getSetting('FOG_CHANGE_HOSTNAME_EARLY') == 1 ? ' hostname='.$Host->get('name') : '');
                 $tmp;
@@ -88,27 +99,18 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
                     throw new Exception(_('Failed to create image task.').": $tmp");
                 print _('Done, with imaging!');
             } else print _('Done!');
-            $Inventory = $Host->get('inventory');
-            if ($Inventory && $Inventory->isValid()) {
-                $Inventory->set('primaryUser',$primaryuser)
-                    ->set('other1',$other1)
-                    ->set('other2',$other2)
-                    ->save();
-            } else {
-                $Inventory = new Inventory(array(
-                    'hostID' => $Host->get('id'),
-                    'primaryUser' => $primaryuser,
-                    'other1' => $other1,
-                    'other2' => $other2,
-                    'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
-                ));
-                $Inventory->save();
-            }
+            $this->getClass(Inventory)
+                ->set(hostID,$Host->get(id))
+                ->set(primaryUser,$primaryUser)
+                ->set(other1,$other1)
+                ->set(other2,$other2)
+                ->set(createdTime,$FOGCore->formatTime('now','Y-m-d H:i:s'))
+                ->save();
         } else if (!$Host || !$Host->isValid()) {
             $groupid = explode(',',trim($FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC')));
             if ($FOGCore->getSetting('FOG_QUICKREG_AUTOPOP')) {
-                $Image = ($FOGCore->getSetting('FOG_QUICKREG_IMG_ID') ? new Image($FOGCore->getSetting('FOG_QUICKREG_IMG_ID')) : new Image(array('id' => 0)));
-                $realimageid = ($Image->isValid() ? $Image->get('id') : '');
+                $Image = $this->getClass(Image,$FOGCore->getSetting(FOG_QUICKREG_IMG_ID));
+                $realimageid = ($Image->isValid() ? $Image->get(id) : '');
                 $autoregSysName = $FOGCore->getSetting('FOG_QUICKREG_SYS_NAME');
                 $autoregSysNumber = (int)$FOGCore->getSetting('FOG_QUICKREG_SYS_NUMBER');
                 $paddingLen = substr_count($autoregSysName,'*');
@@ -119,19 +121,16 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
                     $realhost = (strtoupper($autoregSysName) == 'MAC' ? $macsimple : str_replace($paddingString,$paddedInsert,$autoregSysName));
                     $FOGCore->setSetting('FOG_QUICKREG_SYS_NUMBER',($autoregSysNumber + 1));
                 } else $realhost = (strtoupper($autoregSysName) == 'MAC' ? $macsimple : $autoregSysName);
-                if (!$Host || !$Host->isValid()) {
-                    $Host = new Host(array(
-                        'name' => $realhost,
-                        'description' => sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')),
-                        'imageID' => $realimageid,
-                        'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
-                        'createdBy' => 'FOGREG'
-                    ));
-                }
-                $Host->addModule($ids);
-                $Host->addGroup($groupid);
-                $Host->addPriMAC($PriMAC);
-                $Host->addAddMAC($MACs);
+                $Host = $this->getClass(Host)
+                    ->set(name,$realhost)
+                    ->set(description,sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')))
+                    ->set(imageID,$realimageid)
+                    ->set(createdTime,$FOGCore->formatTime('now','Y-m-d H:i:s'))
+                    ->set(createdBy,'FOGREG')
+                    ->addModule($ids)
+                    ->addGroup($groupid)
+                    ->addPriMAC($PriMAC)
+                    ->addAddMAC($MACs);
                 if (!$Host->save()) throw new Exception(_('Failed to save new Host!'));
                 if ($Image->isValid() && $Host->getImageMemberFromHostID()) {
                     if ($Host->createImagePackage(1,'AutoRegTask')) print _('Done, with imaging!');
@@ -141,21 +140,19 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
             } else {
                 $realhost = $macsimple;
                 if (!$Host || !$Host->isValid()) {
-                    $Host = new Host(array(
-                        'name' => $realhost,
-                        'description' => sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')),
-                        'createdTime' => $FOGCore->formatTime('now','Y-m-d H:i:s'),
-                        'createdBy' => 'FOGREG',
-                    ));
-                    $Host->addPriMAC($PriMAC);
-                    $Host->addAddMAC($MACs);
-                    $Host->addModule($ids);
-                    if (!$Host->save())
-                        throw new Exception(_('Failed to save new Host!'));
+                    $Host = $this->getClass(Host)
+                        ->set(name,$realhost)
+                        ->set(description,sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')))
+                        ->set(createdTime,$FOGCore->formatTime('now','Y-m-d H:i:s'))
+                        ->set(createdBy,'FOGREG')
+                        ->addModule($ids)
+                        ->addPriMAC($PriMAC)
+                        ->addAddMAC($MACs);
+                    if (!$Host->save()) throw new Exception(_('Failed to save new Host!'));
                     print _('Done');
-                } else print _('Already registered as').': '.$Host->get('name');
+                } else print _('Already registered as').': '.$Host->get(name);
             }
-        } else print _('Already registered as').': '.$Host->get('name');
+        } else print _('Already registered as').': '.$Host->get(name);
     } catch (Exception $e) {
         print $e->getMessage();
     }

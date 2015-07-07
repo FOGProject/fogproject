@@ -585,6 +585,7 @@ abstract class FOGPage extends FOGBase {
             _('Organizational Unit').'<br /><span class="lightColor">('._('Blank for default').')</span>' => '${host_ou}',
             _('Domain Username') => '<input id="adUsername" class="smaller" type="text"name="domainuser" value="${host_aduser}" autocomplete="off" />',
             _('Domain Password').'<br />('._('Must be encrypted').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${host_adpass}" autocomplete="off" />',
+            _('Domain Password Legacy').'<br />('._('Will auto-encrypt plaintext').')' => '<input id="adPasswordLegacy" class="smaller" type="password" name="domainpasswordlegacy" value="${host_adpasslegacy}" autocomplete="off" />',
             '<input type="hidden" name="updatead" value="1" />' => '<input type="submit"value="'._('Update').'" />',
         );
         print '<div id="'.$this->node.'-active-directory" class="organic-tabs-hidden">';
@@ -598,8 +599,9 @@ abstract class FOGPage extends FOGBase {
                 'host_dom' => $Data instanceof Host ? $Data->get('ADDomain') : $_REQUEST['domainname'],
                 'host_ou' => $OUOptions,
                 'ad_ou' => $Data instanceof Host ? $Data->get('ADOU') : $_REQUEST['ou'],
-                'host_aduser' => $Data instanceof Host ? $Data->get('ADUser') : $_REQUEST['domainuser'],
-                'host_adpass' => $Data instanceof Host ? $Data->get('ADPass') : $_REQUEST['domainpassword'],
+                'host_aduser' => $Data instanceof Host ? $Data->get(ADUser) : $_REQUEST['domainuser'],
+                'host_adpass' => $Data instanceof Host ? $Data->get(ADPass) : $_REQUEST['domainpassword'],
+                'host_adpasslegacy' => $Data instanceof Host ? $Data->get(ADPassLegacy) : $_REQUEST['domainpasswordlegacy'],
             );
         }
         unset($input);
@@ -615,10 +617,11 @@ abstract class FOGPage extends FOGBase {
      */
     public function adInfo() {
         $Data = array(
-            'domainname' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_DOMAINNAME'),
-            'ou' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'),
-            'domainuser' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_USER'),
-            'domainpass' => $this->FOGCore->getSetting('FOG_NEW_CLIENT') ? $this->encryptpw($this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD')) : $this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY'),
+            'domainname' => $this->FOGCore->getSetting(FOG_AD_DEFAULT_DOMAINNAME),
+            'ou' => $this->FOGCore->getSetting(FOG_AD_DEFAULT_OU),
+            'domainuser' => $this->FOGCore->getSetting(FOG_AD_DEFAULT_USER),
+            'domainpass' => $this->encryptpw($this->FOGCore->getSetting(FOG_AD_DEFAULT_PASSWORD)),
+            'domainpasslegacy' => $this->FOGCore->getSetting(FOG_AD_DEFAULT_PASSWORD_LEGACY),
         );
         if ($this->isAJAXRequest()) print json_encode($Data);
     }
