@@ -32,9 +32,10 @@ class EventManager extends FOGBase {
             if (!is_array($eventData)) throw new Exception('Data is invalid');
             $this->log(sprintf('Notifiying listeners: Event: %s, Data: %d', $event, $eventData));
             if(isset($this->data[$event])) {
-                foreach($this->data[$event] as $className) {
+                foreach($this->data[$event] AS $i => &$className) {
                     if($className->active) $className->onEvent($event, $eventData);
                 }
+                unset($classname);
             }
             return true;
         } catch (Exception $e) {
@@ -47,7 +48,7 @@ class EventManager extends FOGBase {
      */
     public function load() {
         global $Init;
-        foreach($Init->EventPaths AS $subscriberDirectory) {
+        foreach($Init->EventPaths AS $i => &$subscriberDirectory) {
             if (file_exists($subscriberDirectory)) {
                 $subscriberIterator = new DirectoryIterator($subscriberDirectory);
                 foreach ($subscriberIterator AS $fileInfo) {
@@ -66,6 +67,7 @@ class EventManager extends FOGBase {
                 }
             }
         }
+        unset($subscriberDirectory);
     }
     /** @function log() logs the event as it happens
      * @param $txt the string to log

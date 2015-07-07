@@ -21,7 +21,8 @@ class Plugin extends FOGController {
         'name',
     );
     public function getRunInclude($hash) {
-        foreach($this->getPlugins() AS &$Plugin) {
+        $Plugins = $this->getPlugins();
+        foreach($Plugins AS $i => &$Plugin) {
             if(md5(trim($Plugin->getName())) == trim($hash)) {
                 $_SESSION['fogactiveplugin']=serialize($Plugin);
                 $entrypoint = $Plugin->getEntryPoint();
@@ -50,7 +51,8 @@ class Plugin extends FOGController {
     }
     public function getPlugins() {
         $cfgfile = 'plugin.config.php';
-        foreach($this->getDirs() AS &$file) {
+        $Dirs = $this->getDirs();
+        foreach($Dirs AS $i => &$file) {
             require(rtrim($file,'/').'/config/'.$cfgfile);
             $p=new Plugin(array('name' => $fog_plugin['name']));
             $p->strPath = $file;
@@ -65,7 +67,8 @@ class Plugin extends FOGController {
         return $arPlugs;
     }
     public function activatePlugin($plugincode) {
-        foreach($this->getPlugins() AS &$Plugin) {
+        $Plugins = $this->getPlugins();
+        foreach($Plugins AS $i => &$Plugin) {
             if(md5(trim($Plugin->getName())) == trim($plugincode)) {
                 $this->set('state',1)
                     ->set('installed',0)

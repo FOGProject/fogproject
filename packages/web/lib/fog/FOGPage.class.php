@@ -145,7 +145,7 @@ abstract class FOGPage extends FOGBase {
                             ($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : $this->foglang['NoResults'])
                         );
                     } else {
-                        foreach ($this->data AS &$rowData) {
+                        foreach ($this->data AS $i => &$rowData) {
                             printf('<tr id="%s-%s"%s>%s</tr>',
                                 strtolower($this->childClass),
                                 $rowData['id'],
@@ -168,8 +168,9 @@ abstract class FOGPage extends FOGBase {
             }
         }
     private function setAtts() {
-        foreach((array)$this->attributes AS $i => $vals) {
-            foreach((array)$vals AS $name => $val) $this->atts[$i] .= sprintf(' %s="%s" ',$name,($this->dataFind ? preg_replace($this->dataFind,$this->dataReplace,$val) : $val));
+        foreach((array)$this->attributes AS $i => &$vals) {
+            foreach((array)$vals AS $name => &$val) $this->atts[$i] .= sprintf(' %s="%s" ',$name,($this->dataFind ? preg_replace($this->dataFind,$this->dataReplace,$val) : $val));
+            unset($val);
         }
         unset($vals);
     }
@@ -181,7 +182,7 @@ abstract class FOGPage extends FOGBase {
         $this->setAtts();
         // Loop data
         if ($this->headerData) {
-            foreach ($this->headerData AS $i => $content) {
+            foreach ($this->headerData AS $i => &$content) {
                 // Push into results array
                 $result .= sprintf(
                     '<%s%s>%s</%s>',
@@ -203,7 +204,7 @@ abstract class FOGPage extends FOGBase {
     private function replaceNeeds(&$data) {
         unset($this->dataFind,$this->dataReplace);
         $urlvars = array('node' => $GLOBALS['node'],'sub' => $GLOBALS['sub'],'tab' => $GLOBALS['tab']);
-        foreach ((array)$data AS $name => $val) {
+        foreach ((array)$data AS $name => &$val) {
             $this->dataFind[] = '#\$\{'.$name.'\}#';
             $this->dataReplace[] = $val;
         }
@@ -217,7 +218,7 @@ abstract class FOGPage extends FOGBase {
         $this->replaceNeeds($data);
         ob_start('sanitize_output');
         // Loop template data
-        foreach ($this->templates AS $i => $template) {
+        foreach ($this->templates AS $i => &$template) {
             // Replace variables in template with data -> wrap in $this->wrapper -> push into $result
             printf(
                 '<%s%s>%s</%s>',
@@ -244,7 +245,8 @@ abstract class FOGPage extends FOGBase {
         if ($TaskType->get('id') == 13) {
             printf('<center><p>%s</p>',_('Please select the snapin you want to deploy'));
             if ($this->obj instanceof Host) {
-                foreach($this->getClass(SnapinManager)->find(array('id' => $this->obj->get(snapins))) AS &$Snapin) $optionSnapin .= sprintf('<option value="%s">%s - (%s)</option>',$Snapin->get('id'),$Snapin->get('name'),$Snapin->get('id'));
+                $Snapins = $this->getClass(SnapinManager)->find(array('id' => $this->obj->get(snapins)));
+                foreach($Snapins AS $i => &$Snapin) $optionSnapin .= sprintf('<option value="%s">%s - (%s)</option>',$Snapin->get('id'),$Snapin->get('name'),$Snapin->get('id'));
                 unset($Snapin);
                 if ($optionSnapin) printf('<select name="snapin">%s</select></center>',$optionSnapin);
                 else printf('%s</center>',_('No snapins associated'));
@@ -297,7 +299,8 @@ abstract class FOGPage extends FOGBase {
             );
         }
         if ($this->obj instanceof Group) {
-            foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) {
+            $Hosts = $this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts)));
+            foreach($Hosts AS $i => &$Host) {
                 $this->data[] = array(
                     'host_link' => $_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
                     'image_link' => $_SERVER['PHP_SELF'].'?node=image&sub=edit&id=${image_id}',
@@ -342,13 +345,14 @@ abstract class FOGPage extends FOGBase {
                 } else if ($this->obj instanceof Group && $imagingTasks) {
                     if ($TaskType->isMulticast() && !$this->obj->doMembersHaveUniformImages()) throw new Exception(_('Hosts do not contain the same image assignments'));
                     unset($NoImage,$ImageExists,$Tasks);
-                    foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) if (!$Host->get(pending)) $NoImage[] = !$Host->getImage() || !$Host->getImage()->isValid();
+                    $Hosts = $this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts)));
+                    foreach($Hosts AS $i => &$Host) if (!$Host->get(pending)) $NoImage[] = !$Host->getImage() || !$Host->getImage()->isValid();
                     unset($Host);
                     if (in_array(true,$NoImage)) throw new Exception(_('One or more hosts do not have an image set'));
-                    foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) if (!$Host->get(pending)) $ImageExists[] = !$Host->checkIfExist($TaskType->get(id));
+                    foreach($Hosts AS $id => &$Host) if (!$Host->get(pending)) $ImageExists[] = !$Host->checkIfExist($TaskType->get(id));
                     unset($Host);
                     if (in_array(true,$ImageExists)) throw new Exception(_('One or more hosts have an image that does not exist'));
-                    foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) if ($Host->get(task) && $Host->get(task)->isValid()) $Tasks[] = $Host->get(task);
+                    foreach($Hosts AS $i => &$Host) if ($Host->get(task) && $Host->get(task)->isValid()) $Tasks[] = $Host->get(task);
                     unset($Host);
                     if (count($Tasks) > 0) throw new Exception(_('One or more hosts are currently in a task'));
                 }
@@ -386,7 +390,8 @@ abstract class FOGPage extends FOGBase {
                         }
                         if ($ScheduledTask->save()) {
                             if ($this->obj instanceof Group) {
-                                foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) {
+                                $Hosts = $this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts)));
+                                foreach($Hosts AS $i => &$Host) {
                                     if ($Host->isValid() && !$Host->get(pending)) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get(name),$Host->getImage()->get(name));
                                 }
                                 unset($Host);
@@ -433,7 +438,8 @@ abstract class FOGPage extends FOGBase {
         if (array_key_exists('protected',$this->getClass($this->childClass)->databaseFields))
             $findWhere['protected'] = array('',null,0,false);
         $_SESSION[delitems][$this->node] = $this->getClass($this->childClass)->getManager()->find($findWhere,'','','','','','','id');
-        foreach ($this->getClass($this->childClass)->getManager()->find(array('id' => $_SESSION[delitems][$this->node])) AS &$Obj) {
+        $Objects = $this->getClass($this->childClass)->getManager()->find(array('id' => $_SESSION[delitems][$this->node]));
+        foreach ($Objects AS $i => &$Obj) {
             $this->data[] = array(
                 'id' => $Obj->get(id),
                 'name' => $Obj->get(name),
@@ -458,7 +464,7 @@ abstract class FOGPage extends FOGBase {
      * @return void
      */
     public function deleteconf() {
-        foreach((array)$_SESSION['delitems'][$this->node] AS &$id) {
+        foreach((array)$_SESSION['delitems'][$this->node] AS $i => &$id) {
             $Obj = $this->getClass($this->childClass,$id);
             if ($Obj->isValid() && array_key_exists('protected',$Obj->databaseFields) && !$Obj->get('protected')) $ids[] = $id;
         }
@@ -490,7 +496,7 @@ abstract class FOGPage extends FOGBase {
         // Find TaskTypes
         $TaskTypes = $this->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 0), 'AND', 'id');
         // Iterate -> Print
-        foreach($TaskTypes AS &$TaskType) {
+        foreach($TaskTypes AS $i => &$TaskType) {
             if ($TaskType->isValid()) {
                 $this->data[] = array(
                     'node' => $this->node,
@@ -523,7 +529,7 @@ abstract class FOGPage extends FOGBase {
         // Find TaskTypes
         $TaskTypes = $this->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 1), 'AND', 'id');
         // Iterate -> Print
-        foreach($TaskTypes AS &$TaskType) {
+        foreach($TaskTypes AS $i => &$TaskType) {
             if ($TaskType->isValid()) {
                 $this->data[] = array(
                     'node' => $this->node,
@@ -550,13 +556,13 @@ abstract class FOGPage extends FOGBase {
     public function adFieldsToDisplay() {
         $Data = &$this->obj;
         $OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
-        foreach((array)$OUs AS &$OU) $OUOptions[] = $OU;
+        foreach((array)$OUs AS $i => &$OU) $OUOptions[] = $OU;
         unset($OU);
         $OUOPtions = array_filter($OUOptions);
         if (count($OUOptions) > 1) {
             $OUs = array_unique((array)$OUOptions);
             $optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
-            foreach($OUs AS &$OU) {
+            foreach($OUs AS $i => &$OU) {
                 $opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
                 $optionOU .= '<option value="'.$opt.'" '.($Data instanceof Host && $Data->isValid() && $Data->get('ADOU') == $opt ? 'selected="selected"' : (preg_match('#;#i',$OU) ? 'selected="selected"' : '')).'>'.$opt.'</option>';
             }
@@ -584,7 +590,7 @@ abstract class FOGPage extends FOGBase {
         print '<div id="'.$this->node.'-active-directory" class="organic-tabs-hidden">';
         printf("%s",'<form method="post" action="'.$this->formAction.'&tab='.$this->node.'-active-directory">');
         printf('<h2>%s<div id="adClear"></div></h2>',_('Active Directory'));
-        foreach((array)$fields AS $field => $input) {
+        foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -733,7 +739,7 @@ abstract class FOGPage extends FOGBase {
             '&nbsp;' => '<input type="submit" value="${label}" />',
         );
         $fields = array_filter($fields);
-        foreach($fields AS $field => $input) {
+        foreach($fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -798,7 +804,8 @@ abstract class FOGPage extends FOGBase {
         try {
             if ($Data instanceof Group) {
                 if ($_REQUEST['delHostConfirm'] == '1') {
-                    foreach($this->getClass(HostManager)->find(array('id' => $Data->get(hosts))) AS &$Host) {
+                    $Hosts = $this->getClass(HostManager)->find(array('id' => $Data->get(hosts)));
+                    foreach($Hosts AS $i => &$Host) {
                         if ($Host->isValid()) $Host->destroy();
                     }
                     unset($Host);
@@ -869,7 +876,8 @@ abstract class FOGPage extends FOGBase {
             array('width' => 150,'class' => 'l'),
         );
         if (!$objType) {
-            foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hostsnotinme))) AS &$Host) {
+            $Hosts = $this->getClass(HostManager)->find(array('id' => $this->obj->get(hostsnotinme)));
+            foreach($Hosts AS $i => &$Host) {
                 $this->data[] = array(
                     'host_id' => $Host->get(id),
                     'host_name' => $Host->get(name),
@@ -878,13 +886,15 @@ abstract class FOGPage extends FOGBase {
             }
             unset($Host);
         } else {
-            foreach($this->getClass(GroupManager)->find(array('id' => $this->obj->get(groupsnotinme))) AS &$Group) {
+            $Groups = $this->getClass(GroupManager)->find(array('id' => $this->obj->get(groupsnotinme)));
+            foreach($Groups AS $i => &$Group) {
                 $this->data[] = array(
                     'host_id' => $Group->get(id),
                     'host_name' => $Group->get(name),
                     'check_num' => 1,
                 );
             }
+            unset($Group);
         }
         if (count($this->data) > 0) {
             $this->HookManager->processEvent('OBJ_'.($objType ? 'GROUP' : 'HOST').'_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
@@ -902,7 +912,8 @@ abstract class FOGPage extends FOGBase {
             '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',
         );
         if (!$objType) {
-            foreach($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts))) AS &$Host) {
+            $Hosts = $this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts)));
+            foreach($Hosts AS $i => &$Host) {
                 $this->data[] = array(
                     'host_id' => $Host->get(id),
                     'host_name' => $Host->get(name),
@@ -910,12 +921,14 @@ abstract class FOGPage extends FOGBase {
             }
             unset($Host);
         } else {
-            foreach($this->getClass(GroupManager)->find(array('id' => $this->obj->get(groups))) AS &$Group) {
+            $Groups = $this->getClass(GroupManager)->find(array('id' => $this->obj->get(groups)));
+            foreach($Groups AS &$Group) {
                 $this->data[] = array(
                     'host_id' => $Group->get(id),
                     'host_name' => $Group->get(name),
                 );
             }
+            unset($Group);
         }
         $this->HookManager->processEvent('OBJ_MEMBERSHIP', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         print '<form method="post" action="'.$this->formAction.'">';

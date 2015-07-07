@@ -26,7 +26,7 @@ class FOGCron extends FOGBase {
     protected static function _parseCronNumbers($s,$min,$max) {
         $result = null;
         $v = explode(',',$s);
-        foreach($v AS $vv) {
+        foreach($v AS $i => &$vv) {
             $vvv = explode('/',$vv);
             $step = empty($vvv[1]) ? 1 : $vvv[1];
             $vvvv = explode('-',$vvv[0]);
@@ -34,6 +34,7 @@ class FOGCron extends FOGBase {
             $_max = count($vvvv) == 2 ? $vvvv[1] : ($vvv[0] == '*' ? $max : $vvv[0]);
             for ($i = $_min; $i <= $_max; $i += $step) $result[] = intval($i);
         }
+        unset($vv);
         ksort($result);
         return $result;
     }

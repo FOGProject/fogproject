@@ -35,7 +35,8 @@ class Group extends FOGController {
         }
     public function load($field = 'id') {
         parent::load($field);
-        foreach(get_class_methods($this) AS &$method) {
+        $methods = get_class_methods($this);
+        foreach($methods AS $i => &$method) {
             if (strlen($method) > 5 && strpos($method,'load'))
                 $this->$method();
         }
@@ -51,42 +52,46 @@ class Group extends FOGController {
             // Remove old rows
             $this->getClass(GroupAssociationManager)->destroy(array('groupID' => $this->get('id')));
             // Create assoc
-            foreach ($this->get(hosts) AS &$Host) $this->getClass(GroupAssociation)->set(hostID,$Host)->set(groupID,$this->get(id))->save();
+            foreach ($this->get(hosts) AS $i => &$Host) $this->getClass(GroupAssociation)->set(hostID,$Host)->set(groupID,$this->get(id))->save();
             unset($Host);
         }
         return $this;
     }
     public function addHost($addArray) {
         // Add
-        foreach((array)$addArray AS &$item) $this->add(hosts,$item);
+        foreach((array)$addArray AS $i => &$item) $this->add(hosts,$item);
         unset($item);
         // Return
         return $this;
     }
     public function removeHost($removeArray) {
         // Iterate array (or other as array)
-        foreach ((array)$removeArray AS &$remove) $this->remove(hosts,$remove);
+        foreach ((array)$removeArray AS $i => &$remove) $this->remove(hosts,$remove);
         unset($remove);
         // Return
         return $this;
     }
     public function addSnapin($snapArray) {
-        foreach($this->getClass(HostManager)->find(array('id' => $this->get(hosts))) AS &$Host) $Host->addSnapin($snapArray)->save();
+        $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
+        foreach($Hosts AS $i => &$Host) $Host->addSnapin($snapArray)->save();
         unset($Host);
         return $this;
     }
     public function removeSnapin($snapArray) {
-        foreach($this->getClass(HostManager)->find(array('id' => $this->get(hosts))) AS &$Host) $Host->removeSnapin($snapArray)->save();
+        $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
+        foreach($Hosts AS $i => &$Host) $Host->removeSnapin($snapArray)->save();
         unset($Host);
         return $this;
     }
     public function setAD($useAD, $domain, $ou, $user, $pass) {
-        foreach($this->getClass(HostManager)->find(array('id' => $this->get(hosts))) AS &$Host) $Host->setAD($useAD,$domain,$ou,$user,$pass);
+        $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
+        foreach($Hosts AS $i => &$Host) $Host->setAD($useAD,$domain,$ou,$user,$pass);
         unset($Host);
         return $this;
     }
     public function addPrinter($printAdd,$printDel,$level = 0) {
-        foreach($this->getClass(HostManager)->find(array('id' => $this->get(hosts))) AS &$Host) $Host->set(printerLevel,$level)->addPrinter($printAdd)->removePrinter($printDel)->save();
+        $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
+        foreach($Hosts AS $i => &$Host) $Host->set(printerLevel,$level)->addPrinter($printAdd)->removePrinter($printDel)->save();
         unset($Host);
         return $this;
     }
@@ -96,7 +101,8 @@ class Group extends FOGController {
         return (count($images) == 1);
     }
     public function updateDefault($printerid,$onoff) {
-        foreach($this->getClass(HostManager)->find(array('id' => $this->get(hosts))) AS &$Host) {
+        $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
+        foreach($Hosts AS $i => &$Host) {
             foreach ($printerid AS &$printer) {
                 if ($printer == $onoff) $Host->updateDefault($printer,1);
                 else $Host->updateDefault($printer,0);
@@ -108,7 +114,8 @@ class Group extends FOGController {
     }
     public function addImage($imageID) {
         if (!$imageID) throw new Exception(_('Select an image'));
-        foreach($this->getClass(HostManager)->find(array('id' => $this->get(hosts))) AS &$Host) {
+        $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
+        foreach($Hosts AS $i => &$Host) {
             if ($Host->get(task)->isValid()) throw new Exception(_('There is a host in tasking'));
             $Host->set(imageID,$imageID)->save();
         }
@@ -122,7 +129,8 @@ class Group extends FOGController {
         return parent::destroy($field);
     }
     public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false) {
-        foreach ($this->getClass(HostManager)->find(array('id' => $this->get(hosts))) AS &$Host) if (!$Host->get(pending)) $success[] = $Host->createImagePackage($taskTypeID,$taskName,$enableShutdown,$enableDebug,$enableSnapins,$groupTask,$_SESSION[FOG_USERNAME],$passreset);
+        $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
+        foreach ($Hosts AS $i => &$Host) if (!$Host->get(pending)) $success[] = $Host->createImagePackage($taskTypeID,$taskName,$enableShutdown,$enableDebug,$enableSnapins,$groupTask,$_SESSION[FOG_USERNAME],$passreset);
         return $success;
     }
 }

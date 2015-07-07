@@ -34,15 +34,15 @@ class Image extends FOGController {
     }
     // Overrides
     private function loadHosts() {
-        if (!$this->isLoaded('hosts') && $this->get('id')) {
-            $this->set('hosts',array_unique($this->getClass('HostManager')->find(array('imageID' => $this->get('id')),'','','','','','','id')));
-            $this->set('hostsnotinme',array_unique($this->getClass('HostManager')->find(array('imageID' => $this->get('id')),'','','','','',true,'id')));
+        if (!$this->isLoaded(hosts) && $this->get(id)) {
+            $this->set(hosts,array_unique($this->getClass(HostManager)->find(array('imageID' => $this->get(id)),'','','','','','','id')));
+            $this->set(hostsnotinme,array_unique($this->getClass(HostManager)->find(array('imageID' => $this->get(id)),'','','','','',true,'id')));
         }
         return $this;
     }
     private function loadGroups() {
-        if (!$this->isLoaded('storageGroups') && $this->get('id')) {
-            $StorageGroupIDs = array_unique($this->getClass('ImageAssociationManager')->find(array('imageID' => $this->get('id')),'','','','','','','storageGroupID'));
+        if (!$this->isLoaded(storageGroups) && $this->get(id)) {
+            $StorageGroupIDs = array_unique($this->getClass(ImageAssociationManager)->find(array('imageID' => $this->get(id)),'','','','','','','storageGroupID'));
             $this->set(storageGroups,$StorageGroupIDs);
             $this->set(storageGroupsnotinme,array_unique($this->getClass(StorageGroupManager)->find(array('id' => $StorageGroupIDs),'','','','','',true,'id')));
         }
@@ -69,17 +69,18 @@ class Image extends FOGController {
         parent::save();
         if ($this->isLoaded(hosts)) {
             // Unset all hosts
-            foreach($this->getClass(HostManager)->find(array('imageID' => $this->get(id))) AS &$Host) $Host->set(imageID, 0)->save();
+            $Hosts = $this->getClass(HostManager)->find(array('imageID' => $this->get(id)));
+            foreach($Hosts AS $i => &$Host) $Host->set(imageID, 0)->save();
             unset($Host);
             // Reset the hosts necessary
-            foreach ($this->getClass(HostManager)->find(array('id' => $this->get(hosts))) AS &$Host) $Host->set(imageID,$this->get(id))->save();
+            foreach ($Hosts AS $i => &$Host) $Host->set(imageID,$this->get(id))->save();
             unset($Host);
         }
         if ($this->isLoaded(storageGroups)) {
             // Remove old rows
             $this->getClass(ImageAssociationManager)->destroy(array('imageID' => $this->get(id)));
             // Create Assoc
-            foreach($this->get(storageGroups) AS &$Group) {
+            foreach($this->get(storageGroups) AS $i => &$Group) {
                 $this->getClass(ImageAssociation)
                     ->set(imageID,$this->get(id))
                     ->set(storageGroupID,$Group)
@@ -91,7 +92,8 @@ class Image extends FOGController {
     }
     public function load($field = 'id') {
         parent::load($field);
-        foreach(get_class_methods($this) AS &$method) {
+        $methods = get_class_methods($this);
+        foreach($methods AS $i => &$method) {
             if (strlen($method) > 5 && strpos($method,'load')) $this->$method();
         }
         unset($method);

@@ -28,7 +28,7 @@ class Printer extends FOGController {
     );
     public function load($field = 'id') {
         parent::load($field);
-        foreach(get_class_methods($this) AS &$method) {
+        foreach(get_class_methods($this) AS $i => &$method) {
             if (strlen($method) > 5 && strpos($method,'load')) $this->$method();
         }
         unset($method);
@@ -68,7 +68,7 @@ class Printer extends FOGController {
             $this->getClass(PrinterAssociationManager)->destroy(array('printerID' => $this->get(id)));
             // Create new Assocs
             $i = 0;
-            foreach($this->get(hosts) AS &$Host) {
+            foreach($this->get(hosts) AS $i => &$Host) {
                 $this->getClass(PrinterAssociation)
                     ->set(printerID,$this->get(id))
                     ->set(hostID,$Host)
@@ -82,20 +82,20 @@ class Printer extends FOGController {
     }
     public function addHost($addArray) {
         // Add
-        foreach((array)$addArray AS &$item) $this->add('hosts', $item);
+        foreach((array)$addArray AS $i => &$item) $this->add('hosts', $item);
         unset($item);
         // Return
         return $this;
     }
     public function removeHost($removeArray) {
         // Iterate array (or other as array)
-        foreach((array)$removeArray AS &$remove) $this->remove(hosts,$remove);
+        foreach((array)$removeArray AS $i => &$remove) $this->remove(hosts,$remove);
         unset($remove);
         // Return
         return $this;
     }
     public function updateDefault($hostid,$onoff) {
-        foreach((array)$hostid AS &$id) {
+        foreach((array)$hostid AS $i => &$id) {
             $Host = $this->getClass('Host',$id);
             if ($Host && $Host->isValid()) $Host->updateDefault($this->get('id'),in_array($Host->get('id'),$onoff));
         }
