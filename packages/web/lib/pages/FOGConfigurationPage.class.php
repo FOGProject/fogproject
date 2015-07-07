@@ -559,7 +559,6 @@ class FOGConfigurationPage extends FOGPage {
             'FOG_ALWAYS_LOGGED_IN',
             'FOG_ADVANCED_MENU_LOGIN',
             'FOG_TASK_FORCE_REBOOT',
-            'FOG_NEW_CLIENT',
             'FOG_AES_ENCRYPT',
             'FOG_EMAIL_ACTION',
             'FOG_FTP_IMAGE_SIZE',
