@@ -101,7 +101,7 @@ class ProcessLogin extends FOGBase {
         unset($redirect['upass'],$redirect['uname'],$redirect['ulang']);
         if (in_array($redirect['node'], array('login','logout'))) unset($redirect['node']);
         foreach ($redirect AS $key => &$value) $redirectData[] = $key.'='.$value;
-        $unset($value);
+        unset($value);
         $this->FOGCore->redirect($_SERVER['PHP_SELF'].($redirectData ? '?' . implode('&',(array)$redirectData) : ''));
     }
     public function loginFail($string) {
