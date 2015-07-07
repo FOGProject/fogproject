@@ -268,22 +268,23 @@ installPackages() {
     for x in $packages; do
         if [ "$x" == "mysql" ]; then
             for sqlclient in $sqlclientlist; do
-                if [ "`$packagelist $sqlclient >/dev/null 2>&1; echo $?`" -eq 0 ]; then
+                if [ "`eval $packagelist $sqlclient >/dev/null 2>&1; echo $?`" -eq 0 ]; then
                     x=$sqlclient
                     break
                 fi
             done
         elif [ "$x" == "mysql-server" ]; then
             for sqlserver in $sqlserverlist; do
-                if [ "`$packagelist $sqlserver >/dev/null 2>&1; echo $?`" -eq 0 ]; then
+                if [ "`eval $packagelist $sqlserver >/dev/null 2>&1; echo $?`" -eq 0 ]; then
                     x=$sqlserver
                     break
                 fi
             done
         elif [ "$x" == "php5-json" ]; then
             for json in $jsontest; do
-                if [ "`$packagelist $json >/dev/null 2>&1; echo $?`" -eq 0 ]; then
+                if [ "`eval $packagelist $json >/dev/null 2>&1; echo $?`" -eq 0 ]; then
                     x="$json"
+		    break;
                 fi
             done
         fi
@@ -301,11 +302,11 @@ installPackages() {
             continue
         fi
         dots "Installing package: $x"
-        DEBIAN_FRONTEND=noninteractive ${packageinstaller} $x >/dev/null 2>&1
+        eval "DEBIAN_FRONTEND=noninteractive ${packageinstaller} $x >/dev/null 2>&1"
         errorStat $?
     done
     dots "Updating packages as needed";
-    DEBIAN_FRONTEND=noninteractive $packageupdater $packages >/dev/null 2>&1
+    eval "DEBIAN_FRONTEND=noninteractive $packageupdater $packages >/dev/null 2>&1"
     echo "OK";
 }
 confirmPackageInstallation() {
@@ -328,6 +329,20 @@ confirmPackageInstallation() {
         elif [ "$x" == "mysql-server" ]; then
             for sqlserver in $sqlserverlist; do
                 x=$sqlserver
+                if [ "$osid" -eq 1 ]; then
+                    rpm -q $x >/dev/null 2>&1
+                elif [ "$osid" -eq 2 ]; then
+                    dpkg -l $x 2>/dev/null | grep '^ii' >/dev/null 2>&1
+                elif [ "$osid" -eq 3 ]; then
+                    pacman -Q $x >/dev/null 2>&1
+                fi
+                if [ "$?" -eq 0 ]; then
+                    break
+                fi
+            done
+        elif [ "$x" == "php5-json" ]; then
+            for json in $jsontest; do
+                x=$json
                 if [ "$osid" -eq 1 ]; then
                     rpm -q $x >/dev/null 2>&1
                 elif [ "$osid" -eq 2 ]; then
