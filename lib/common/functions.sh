@@ -261,6 +261,9 @@ installPackages() {
                 false
             fi
         fi
+        if [[ "$linuxRelease" == +(*[Dd]'ebian'*) ]] && [ "$OSVersion" -eq 7 ]; then
+            packages="${packages} libapache2-mod-php5";
+        fi
     fi
     errorStat $?
     echo -e " * Packages to be installed:\n\n\t$packages\n\n"
@@ -284,7 +287,7 @@ installPackages() {
             for json in $jsontest; do
                 if [ "`eval $packagelist $json >/dev/null 2>&1; echo $?`" -eq 0 ]; then
                     x="$json"
-		    break;
+                    break;
                 fi
             done
         fi
