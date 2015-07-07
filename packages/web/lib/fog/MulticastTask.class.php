@@ -4,7 +4,8 @@ class MulticastTask extends FOGBase {
     public static function getAllMulticastTasks($root) {
         global $FOGCore;
         $Tasks = array();
-        foreach($FOGCore->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3))) AS $MultiSess) {
+        $MulticastSessions = $FOGCore->getClass(MulticastSessionsManager)->find(array('stateID' => array(0,1,2,3)));
+        foreach($MulticastSessions AS $i => &$MultiSess) {
             $Image = $FOGCore->getClass(Image,$MultiSess->get(image));
             if (in_array($FOGCore->resolveHostname($Image->getStorageGroup()->getMasterStorageNode()->get('ip')),$FOGCore->getIPAddress())) {
                 $count = $FOGCore->getClass('MulticastSessionsAssociationManager')->count(array('msID' => $MultiSess->get('id')));
@@ -20,6 +21,7 @@ class MulticastTask extends FOGBase {
                 );
             }
         }
+        unset($MultiSess);
         return array_filter($Tasks);
     }
     private $intID, $strName, $intPort, $strImage, $strEth, $intClients;
@@ -114,7 +116,8 @@ class MulticastTask extends FOGBase {
                 }
             }
             natsort($filelist);
-            foreach ($filelist AS $file) $cmd[] = sprintf('cat %s | %s',rtrim($this->getImagePath(),'/').'/'.$file,implode($buildcmd));
+            foreach ($filelist AS $i => &$file) $cmd[] = sprintf('cat %s | %s',rtrim($this->getImagePath(),'/').'/'.$file,implode($buildcmd));
+            unset($filelist);
             return implode($cmd);
         }
     public function startTask() {
@@ -138,7 +141,8 @@ class MulticastTask extends FOGBase {
         @posix_kill($pid,$sig);
     }
     public function killTask() {
-        foreach($this->arPipes AS $closeme) @fclose($closeme);
+        foreach($this->arPipes AS $i => &$closeme) @fclose($closeme);
+        unset($closeme);
         if ($this->isRunning()) {
             $pid = $this->getPID();
             if ($pid) self::killAll($pid, SIGTERM);
@@ -147,22 +151,24 @@ class MulticastTask extends FOGBase {
         @proc_close($this->procRef);
         $this->procRef=null;
         @unlink($this->getUDPCastLogFile());
-        foreach($this->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $this->intID)) AS $MultiSessAssoc) {
+        $Assocs = $this->getClass(MulticastSessionsAssociationManager)->find(array('msID' => $this->intID));
+        foreach($Assocs AS $i => &$MultiSessAssoc) {
             $Task = new Task($MultiSessAssoc->get('taskID'));
             $Task->set('stateID','5')->save();
         }
-        $MultiSess = new MulticastSessions($this->intID);
-        $MultiSess->set('name',null)->set('name','')->set('stateID','5')->save();
+        unset($MultiSessAssoc);
+        $this->getClass(MulticastSessions,$this->intID)->set(name,null)->set(stateID,5)->save();
         return true;
     }
     public function updateStats() {
-        foreach($this->getClass('MulticastSessionsAssociationManager')->find(array('msid' => $this->intID)) AS $MultiSessAssoc) {
+        $Assocs = $this->getClass(MulticastSessionsAssociationManager)->find(array('msID' => $this->intID));
+        foreach($Assocs AS $i => &$MultiSessAssoc) {
             $Task = new Task($MultiSessAssoc->get('taskID'));
             if ($Task && $Task->isValid()) $TaskPercent[] = $Task->get('percent');
         }
+        unset($MultiSessAssoc);
         $TaskPercent = array_unique((array)$TaskPercent);
-        $MultiSess = new MulticastSessions($this->intID);
-        $MultiSess->set('percent',max((array)$TaskPercent))->save();
+        $this->getClass(MulticastSessions,$this->intID)->set(percent,max((array)$TaskPercent))->save();
     }
     public function isRunning() {
         if ($this->procRef) {

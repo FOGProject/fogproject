@@ -43,7 +43,7 @@ class StorageNode extends FOGController {
                 'storageNodeID'	=> $this->get('id'),
                 'hostID'	=> $this->DB->sanitize($Host instanceof Host ? $Host->get('id') : $Host),
             ));
-            foreach($NodeFailures AS &$NodeFailure) {
+            foreach($NodeFailures AS $i => &$NodeFailure) {
                 $DateTime = $this->nice_date($NodeFailure->get('failureTime'));
                 if ($DateTime->format('Y-m-d H:i:s') >= $DateInterval->format('Y-m-d H:i:s')) return $NodeFailure;
             }
@@ -64,7 +64,8 @@ class StorageNode extends FOGController {
                 if ($val = 8) unset($UsedTasks[$ind]);
             }
             unset($val);
-            foreach ($this->getClass('TaskManager')->find(array('stateID' => 3,'typeID' => 8)) AS &$MulticastTask) {
+            $MCTasks = $this->getClass(TaskManager)->find(array('stateID' => 3,'typeID' => 8));
+            foreach ($MCTasks AS $i => &$MulticastTask) {
                 $Multicast = current($this->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $MulticastTask->get('id'))));
                 if ($Multicast && $Multicast->isValid()) {
                     $MulticastJob = $this->getClass('MulticastSessions',$Multicast->get('msID'));
