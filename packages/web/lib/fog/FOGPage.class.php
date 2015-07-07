@@ -584,8 +584,8 @@ abstract class FOGPage extends FOGBase {
             _('Domain name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="${host_dom}" autocomplete="off" />',
             _('Organizational Unit').'<br /><span class="lightColor">('._('Blank for default').')</span>' => '${host_ou}',
             _('Domain Username') => '<input id="adUsername" class="smaller" type="text"name="domainuser" value="${host_aduser}" autocomplete="off" />',
-            _('Domain Password').'<br />('._('Must be encrypted').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${host_adpass}" autocomplete="off" />',
-            _('Domain Password Legacy').'<br />('._('Will auto-encrypt plaintext').')' => '<input id="adPasswordLegacy" class="smaller" type="password" name="domainpasswordlegacy" value="${host_adpasslegacy}" autocomplete="off" />',
+            _('Domain Password').'<br />('._('Will auto-encrypt plaintext').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${host_adpass}" autocomplete="off" />',
+            _('Domain Password Legacy').'<br />('._('Must be encrypted').')' => '<input id="adPasswordLegacy" class="smaller" type="password" name="domainpasswordlegacy" value="${host_adpasslegacy}" autocomplete="off" />',
             '<input type="hidden" name="updatead" value="1" />' => '<input type="submit"value="'._('Update').'" />',
         );
         print '<div id="'.$this->node.'-active-directory" class="organic-tabs-hidden">';
