@@ -1203,7 +1203,7 @@ class HostManagementPage extends FOGPage {
                         if ($this->getClass(HostManager)->exists($data[1])) throw new Exception('A host with this name already exists');
                         $Host = $this->getClass(Host)
                             ->set(name,$data[1])
-                            ->set(description,$data[3].' Updated by batch import on '.$this->nice_data()->format('Y-m-d H:i:s'))
+                            ->set(description,$data[3].' Updated by batch import on '.$this->nice_date()->format('Y-m-d H:i:s'))
                             ->set(ip,$data[2])
                             ->set(imageID,$data[4])
                             ->set(createdTime,$this->nice_date()->format('Y-m-d H:i:s'))
