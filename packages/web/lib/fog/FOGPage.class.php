@@ -562,9 +562,15 @@ abstract class FOGPage extends FOGBase {
         if (count($OUOptions) > 1) {
             $OUs = array_unique((array)$OUOptions);
             $optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
+            $optFound = false;
             foreach($OUs AS $i => &$OU) {
                 $opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
-                $optionOU .= '<option value="'.$opt.'" '.($Data instanceof Host && $Data->isValid() && $Data->get('ADOU') == $opt ? 'selected="selected"' : (preg_match('#;#i',$OU) ? 'selected="selected"' : '')).'>'.$opt.'</option>';
+                if ($opt == $Data->get(OU)) $optFound = true;
+            }
+            foreach($OUs AS $i => &$OU) {
+                $opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
+                if ($optFound) $optionOU .= '<option value="'.$opt.'" '.($Data instanceof Host && $Data->isValid() && trim($Data->get(ADOU)) == trim($opt) ? 'selected="selected"' : '').'>'.$opt.'</option>';
+                else $optionOU .= '<option value="'.$opt.'" '.(preg_match('#;#i',$OU) ? 'selected="selected"' : '').'>'.$opt.'</option>';
             }
             unset($OU);
             $OUOptions = '<select id="adOU" class="smaller" name="ou">'.$optionOU.'</select>';
