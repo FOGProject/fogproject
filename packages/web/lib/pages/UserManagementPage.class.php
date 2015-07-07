@@ -95,7 +95,7 @@ class UserManagementPage extends FOGPage {
             array(),
         );
         $fields = array(
-            _('User Name') => '<input type="text" name="name" value="'.$_REQUEST['name'].'" autocomplete="off" />',
+            _('User Name') => '<input type="text" name="name" value="'.$_REQUEST[name].'" autocomplete="off" />',
             _('User Password') => '<input type="password" name="password" value="" autocomplete="off" />',
             _('User Password (confirm)') => '<input type="password" name="password_confirm" value="" autocomplete="off" />',
             _('Mobile/Quick Image Access Only?').'&nbsp;'.'<span class="icon icon-help hand" title="'._('Warning - if you tick this box, this user will not be able to log into this FOG Management Console in the future.').'"></span>' => '<input type="checkbox" name="isGuest" autocomplete="off" />',
@@ -137,9 +137,9 @@ class UserManagementPage extends FOGPage {
                 // Log History event
                 $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('User created'), $User->get('id'), $User->get('name')));
                 // Set session message
-                $this->FOGCore->setMessage(_('User created'));
+                $this->FOGCore->setMessage(_('User created').'<br>'._('You may now create another'));
                 // Redirect to new entry
-                $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s', $this->request['node'], $this->id, $User->get('id')));
+                $this->FOGCore->redirect(sprintf('?node=%s&sub=add', $this->request['node'], $this->id, $User->get('id')));
             } else throw new Exception('Database update failed');
         } catch (Exception $e) {
             // Hook
