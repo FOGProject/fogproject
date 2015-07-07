@@ -180,7 +180,7 @@ abstract class FOGController extends FOGBase {
             if ($this->aliasedFields) $this->array_remove($this->aliasedFields,$this->databaseFields);
             $fieldsToUpdate = $this->databaseFields;
             // Build insert key and value arrays
-            foreach ($this->databaseFields AS $name => $fieldName) {
+            foreach ($this->databaseFields AS $name => &$fieldName) {
                 if ($this->get($name) != '') {
                     $insertKeys[] = (preg_match('#default#i',$fieldName) ? '`'.$fieldName.'`' : $fieldName);
                     $insertValues[] = $this->DB->sanitize($this->get($name));
@@ -188,7 +188,7 @@ abstract class FOGController extends FOGBase {
             }
             unset($fieldName);
             // Build update field array using filtered data
-            foreach ($fieldsToUpdate AS $name => $fieldName) {
+            foreach ($fieldsToUpdate AS $name => &$fieldName) {
                 $fieldName = (preg_match('#default#i',$fieldName) ? '`'.$fieldName.'`' : $fieldName);
                 $updateData[] = sprintf("%s = '%s'", $fieldName, $this->DB->sanitize($this->get($name)));
             }
@@ -226,7 +226,8 @@ abstract class FOGController extends FOGBase {
             // Build query
             if (is_array($this->get($field))) {
                 // Multiple values
-                foreach($this->get($field) AS &$fieldValue) $fieldData[] = sprintf("%s='%s'", $this->databaseFields[$field], $fieldValue);
+                $fields = $this->get($field);
+                foreach((array)$fields AS $i => &$fieldValue) $fieldData[] = sprintf("%s='%s'", $this->databaseFields[$field], $fieldValue);
                 unset($fieldValue);
                 $query = sprintf(
                     $this->loadQueryTemplateMultiple,
@@ -263,10 +264,10 @@ abstract class FOGController extends FOGBase {
      * @returns the elements of the query we need
      */
     public function buildQuery($not = false,$compare = '=') {
-        foreach((array)$this->databaseFieldClassRelationships AS $class => $fields) {
+        foreach((array)$this->databaseFieldClassRelationships AS $class => &$fields) {
             $join[] = sprintf(' LEFT OUTER JOIN %s ON %s.%s=%s.%s ',$this->getClass($class)->databaseTable,$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$fields[0]],$this->databaseTable,$this->databaseFields[$fields[1]]);
             if ($fields[3]) {
-                foreach((array)$fields[3] AS $field => $value) {
+                foreach((array)$fields[3] AS $field => &$value) {
                     if (is_array($value)) $whereArrayAnd[] = sprintf("%s.%s IN ('%s')",$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$field], implode("','",$value));
                     else $whereArrayAnd[] = sprintf("%s.%s %s '%s'",$this->getClass($class)->databaseTable,$this->getClass($class)->databaseFields[$field],(preg_match('#%#',$value) ? 'LIKE' : $compare),$value);
                 }
@@ -281,10 +282,10 @@ abstract class FOGController extends FOGBase {
      * @return the set class
      */
     public function setQuery($queryData) {
-        foreach((array)$queryData AS $key => $val) $this->data[$this->key($key)] = $val;
+        foreach((array)$queryData AS $key => &$val) $this->data[$this->key($key)] = $val;
+        unset($val);
         if (count($this->databaseFieldClassRelationships)) {
-            foreach((array)$this->databaseFieldClassRelationships AS $class => $fields)
-                $this->set($fields[2],$this->getClass($class)->setQuery($queryData));
+            foreach((array)$this->databaseFieldClassRelationships AS $class => &$fields) $this->set($fields[2],$this->getClass($class)->setQuery($queryData));
             unset($fields);
         }
         return $this;
@@ -329,7 +330,7 @@ abstract class FOGController extends FOGBase {
      */
     public function isValid() {
         try {
-            foreach ($this->databaseFieldsRequired AS &$field) if (!$this->get($field)) throw new Exception($foglang['RequiredDB']);
+            foreach ($this->databaseFieldsRequired AS $i => &$field) if (!$this->get($field)) throw new Exception($foglang['RequiredDB']);
             unset($field);
             if ($this->get('id') || $this->get('name')) return true;
         } catch (Exception $e) {

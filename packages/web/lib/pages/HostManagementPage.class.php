@@ -320,16 +320,17 @@ class HostManagementPage extends FOGPage {
             // Check if host exists with MAC Address.
             $Host = $this->getClass('HostManager')->getHostByMacAddresses($MAC);
             if ($Host && $Host->isValid()) throw new Exception(_('A host with this MAC already exists with Hostname: ').$Host->get('name'));
-            if ($this->getClass('HostManager')->exists($_REQUEST['host'])) throw new Exception(_('Hostname already exists'));
+            if ($this->getClass('HostManager')->exists($_REQUEST[host])) throw new Exception(_('Hostname already exists'));
             // Get all the service id's so they can be enabled.
             $ModuleIDs = $this->getClass(ModuleManager)->find('','','','','','','','id');
             $password = $_REQUEST[domainpassword];
-            if ($this->FOGCore->getSetting(FOG_NEW_CLIENT) && $_REQUEST['domainpassword']) $password = $this->encryptpw($_REQUEST[domainpassword]);
+            if ($_REQUEST['domainpassword']) $password = $this->encryptpw($_REQUEST[domainpassword]);
             $useAD = (int)isset($_REQUEST[domain]);
             $domain = trim($_REQUEST[domainname]);
             $ou = trim($_REQUEST[ou]);
             $user = trim($_REQUEST[domainuser]);
             $pass = trim($_REQUEST[domainpassword]);
+            $passlegacy = trim($_REQUEST[domainpasswordlegacy]);
             // Define new Host object with data provided
             $Host = $this->getClass(Host)
                 ->set(name,$hostName)
@@ -341,7 +342,7 @@ class HostManagementPage extends FOGPage {
                 ->set(productKey,base64_encode($_REQUEST['key']))
                 ->addModule($ModuleIDs)
                 ->addPriMAC($MAC)
-                ->setAD($useAD,$domain,$ou,$user,$pass,true,true);
+                ->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy);
             // Save to database
             if ($Host->save()) {
                 // Hook
@@ -1051,7 +1052,8 @@ class HostManagementPage extends FOGPage {
                 $ou = trim($_REQUEST[ou]);
                 $user = trim($_REQUEST[domainuser]);
                 $pass = trim($_REQUEST[domainpassword]);
-                $this->obj->setAD($useAD,$domain,$ou,$user,$pass,true);
+                $passlegacy = trim($_REQUEST[domainpasswordlegacy]);
+                $this->obj->setAD($useAD,$domain,$ou,$user,$pass,true,false,$passlegacy);
                 break;
                 case 'host-printers';
                 $PrinterManager = $this->getClass(PrinterAssociationManager);

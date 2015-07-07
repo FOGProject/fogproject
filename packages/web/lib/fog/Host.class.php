@@ -18,6 +18,7 @@ class Host extends FOGController {
         'ADOU' => 'hostADOU',
         'ADUser' => 'hostADUser',
         'ADPass' => 'hostADPass',
+        'ADPassLegacy' => 'hostADPassLegacy',
         'productKey' => 'hostProductKey',
         'printerLevel' => 'hostPrinterLevel',
         'kernel' => 'hostKernel',
@@ -776,21 +777,24 @@ class Host extends FOGController {
         $mac = current((array)$this->getClass(MACAddressAssociationManager)->find(array('mac' => $MAC ? $MAC : $this->get(mac)->__toString(),'hostID' => $this->get(id),'imageIgnore' => 1)));
         return ($mac && $mac->isValid() ? 'checked' : '');
     }
-    public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false,$nosave = false) {
+    public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false,$nosave = false,$legacy = '') {
         if ($this->get('id')) {
             if (!$override) {
                 if (empty($useAD)) $useAD = $this->get(useAD);
-                if (empty($domain))	$domain = $this->get(ADDomain);
-                if (empty($ou)) $ou = $this->get(ADOU);
-                if (empty($user)) $user = $this->get(ADUser);
-                if (empty($pass)) $pass = $this->get(ADPass);
+                if (empty($domain))	$domain = trim($this->get(ADDomain));
+                if (empty($ou)) $ou = trim($this->get(ADOU));
+                if (empty($user)) $user = trim($this->get(ADUser));
+                if (empty($pass)) $pass = trim($this->get(ADPass));
             }
-            if ($this->FOGCore->getSetting(FOG_NEW_CLIENT) && trim($pass)) $pass = $this->encryptpw(trim($pass));
+            if ($pass) $pass = $this->encryptpw(trim($pass));
+            if ($useAD && !$this->get(ADPassLegacy) && !$legacy) $legacy = $this->FOGCore->getSetting(FOG_AD_DEFAULT_PASSWORD_LEGACY);
+            else if ($useAD && $this->get(ADPassLegacy) && !$legacy) $legacy = $this->get(ADPassLegacy);
             $this->set(useAD,$useAD)
                 ->set(ADDomain,trim($domain))
                 ->set(ADOU,trim($ou))
                 ->set(ADUser,trim($user))
-                ->set(ADPass,trim($pass));
+                ->set(ADPass,trim($pass))
+                ->set(ADPassLegacy,trim($legacy));
             if (!$nosave) $this->save();
         }
         return $this;

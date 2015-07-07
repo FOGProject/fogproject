@@ -42,8 +42,8 @@ class FOGSubMenu {
         if (!$ifVariable) is_array($this->items[$node][$this->foglang['MainMenu']]) ? $this->items[$node][$this->foglang['MainMenu']] = array_merge($this->items[$node][$this->foglang['MainMenu']], $items) : $this->items[$node][$this->foglang['MainMenu']] = $items;
         // ifVariable passed to be checked, if it is set then add to menu
         elseif (isset($GLOBALS[$ifVariable])) {
-            foreach ($items AS $title => $link)
-                if (!$this->isExternalLink($link)) $items[$title] = "$link&$ifVariable=" . $GLOBALS[$ifVariable];
+            foreach ($items AS $title => &$link) if (!$this->isExternalLink($link)) $items[$title] = "$link&$ifVariable=" . $GLOBALS[$ifVariable];
+            unset($link);
             is_array($this->items[$node][$ifVariableTitle]) ? $this->items[$node][$ifVariableTitle] = array_merge($this->items[$node][$ifVariableTitle], $items) : $this->items[$node][$ifVariableTitle] = $items;
         }
     }
@@ -51,7 +51,8 @@ class FOGSubMenu {
     public function addNotes($node, $data, $ifVariable = '') {
         if (is_callable($data)) $data = $data();
         if (is_array($data)) {
-            foreach ($data AS $title => $info) $x[] = "<h3>" . $this->fixTitle($title) . "</h3>\n\t<p>$info</p>";
+            foreach ($data AS $title => &$info) $x[] = "<h3>" . $this->fixTitle($title) . "</h3>\n\t<p>$info</p>";
+            unset($info);
         }
         if ($ifVariable == '' || $GLOBALS[$ifVariable]) $this->notes[$node][] = implode((array)$x);
     }
@@ -59,11 +60,13 @@ class FOGSubMenu {
     public function get($node) {
         // Menu Items
         if ($this->items[$node]) {
-            foreach ($this->items[$node] AS $title => $data) {
+            foreach ($this->items[$node] AS $title => &$data) {
                 $output .= '<div class="organic-tabs"><h2>'.$this->fixTitle($title).'</h2><ul>';
-                foreach ($data AS $label => $link) $output .= '<li><a href="' . (!$this->isExternalLink($link) ? $_SERVER['PHP_SELF'] . "?node=$node" . ($link != '' ? '&sub=' : '') . ($GLOBALS['sub'] && $title != $this->foglang['MainMenu'] ? ($this->defaultSubs[$node] ? $this->defaultSubs[$node] : $GLOBALS['sub']) . "&tab=" : '') . $link : $link) . '">' . $label . '</a></li>';
+                foreach ($data AS $label => &$link) $output .= '<li><a href="' . (!$this->isExternalLink($link) ? $_SERVER['PHP_SELF'] . "?node=$node" . ($link != '' ? '&sub=' : '') . ($GLOBALS['sub'] && $title != $this->foglang['MainMenu'] ? ($this->defaultSubs[$node] ? $this->defaultSubs[$node] : $GLOBALS['sub']) . "&tab=" : '') . $link : $link) . '">' . $label . '</a></li>';
+                unset($link);
                 $output .= "</ul></div>";
             }
+            unset($data);
         }
         // Notes
         if ($this->notes[$node]) $output .= '<div id="sidenotes">'.implode($this->notes[$node]).'</div>';

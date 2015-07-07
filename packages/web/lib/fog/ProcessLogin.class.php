@@ -4,14 +4,16 @@ class ProcessLogin extends FOGBase {
     private $mobileMenu, $langMenu;
     private function getLanguages() {
         $translang = $this->transLang();
-        foreach($this->foglang['Language'] AS $lang) $this->langMenu .= "\t\t\t\t\t\t\t\t".'<option value="'.$lang.'" '.($translang == $lang ? 'selected="selected"' : '').'>'.$lang.'</option>'."\n";
+        foreach($this->foglang['Language'] AS $i => &$lang) $this->langMenu .= "\t\t\t\t\t\t\t\t".'<option value="'.$lang.'" '.($translang == $lang ? 'selected="selected"' : '').'>'.$lang.'</option>'."\n";
+        unset($lang);
     }
     private function defaultLang() {
-        $deflang = $this->FOGCore->getSetting('FOG_DEFAULT_LOCALE');
-        foreach($this->foglang['Language'] AS $lang => $val) {
+        $deflang = $this->FOGCore->getSetting(FOG_DEFAULT_LOCALE);
+        foreach($this->foglang['Language'] AS $lang => &$val) {
             if ($deflang == $lang) $data = array($lang,$val);
             else $data = array('en','English');
         }
+        unset($val);
         return $data;
     }
     private function transLang() {
@@ -98,7 +100,8 @@ class ProcessLogin extends FOGBase {
         $redirect = array_merge($_GET, $_POST);
         unset($redirect['upass'],$redirect['uname'],$redirect['ulang']);
         if (in_array($redirect['node'], array('login','logout'))) unset($redirect['node']);
-        foreach ($redirect AS $key => $value) $redirectData[] = $key.'='.$value;
+        foreach ($redirect AS $key => &$value) $redirectData[] = $key.'='.$value;
+        $unset($value);
         $this->FOGCore->redirect($_SERVER['PHP_SELF'].($redirectData ? '?' . implode('&',(array)$redirectData) : ''));
     }
     public function loginFail($string) {
@@ -131,7 +134,8 @@ class ProcessLogin extends FOGBase {
         $this->setLang();
         print "\n\t\t\t\t\t".'<form method="post" action="?node=login" id="login-form">';
         if ($_GET['node'] != 'logout') {
-            foreach ($_GET AS $key => $value) print "\n\t\t\t\t\t\t".'<input type ="hidden" name="'.$key.'" value="'.$value.'" />';
+            foreach ($_GET AS $key => &$value) print "\n\t\t\t\t\t\t".'<input type ="hidden" name="'.$key.'" value="'.$value.'" />';
+            unset($value);
         }
         print "\n\t\t\t\t\t\t".'<label for="username">'.$this->foglang['Username'].'</label>';
         print "\n\t\t\t\t\t\t".'<input type="text" class="input" name="uname" id="username" />';

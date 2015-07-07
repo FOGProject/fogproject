@@ -37,14 +37,14 @@ class Task extends FOGController {
         'hostID',
     );
     public function getInFrontOfHostCount() {
-        $Tasks = $this->getClass('TaskManager')->find(array(
+        $Tasks = $this->getClass(TaskManager)->find(array(
             'stateID' => array(1,2),
             'typeID' => array(1,15,17),
-            'NFSGroupID' => $this->get('NFSGroupID'),
+            'NFSGroupID' => $this->get(NFSGroupID),
         ));
         $count = 0;
         $curTime = $this->nice_date();
-        foreach($Tasks AS &$Task) {
+        foreach($Tasks AS $i => &$Task) {
             if ($this->get('id') > $Task->get('id')) {
                 $tasktime = $this->nice_date($Task->get('checkInTime'));
                 if (($curTime->getTimestamp() - $tasktime->getTimestamp()) < $this->FOGCore->getSetting('FOG_CHECKIN_TIMEOUT')) $count++;
@@ -57,11 +57,12 @@ class Task extends FOGController {
         // Set State to User cancelled
         $SnapinJob = $this->getHost()->getActiveSnapinJob();
         if ($SnapinJob instanceof SnapinJob && $SnapinJob->isValid()) {
-            $this->getClass('SnapinTaskManager')->destroy(array('jobID' => $SnapinJob->get('id')));
+            $this->getClass(SnapinTaskManager)->destroy(array('jobID' => $SnapinJob->get('id')));
             $SnapinJob->destroy();
         }
         if ($this->getTaskType()->isMulticast()) {
-            foreach ($this->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $this->get('id'))) AS &$MSA) {
+            $MSAs = $this->getClass(MulticastSessionsAssociationManager)->find(array('taskID' => $this->get(id)));
+            foreach ($MSAs AS $i => &$MSA) {
                 if ($MSA->isValid()) {
                     $MS = $MSA->getMulticastSession();
                     $clients = $MS->get('clients');
@@ -90,8 +91,8 @@ class Task extends FOGController {
         $SnapinTasks = $this->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id'),'stateID' => array(0,1)));
         // cancel's all the snapin tasks for that host.
         if ($SnapinTasks) {
-            foreach($SnapinTasks AS &$ST) {
-                foreach($ST AS &$SnapinTask) $SnapinTask->set('stateID', -1)->save();
+            foreach($SnapinTasks AS $i => &$ST) {
+                foreach($ST AS $i => &$SnapinTask) $SnapinTask->set('stateID', -1)->save();
                 unset($SnapinTask);
             }
             unset($ST);
