@@ -478,7 +478,7 @@ class Host extends FOGController {
                 if ($SnapinJob->save()) {
                     $this->set(snapinjob,$SnapinJob);
                     if ($snapin == -1) {
-                        foreach ($this->get(snapins) AS &$Snapin) {
+                        foreach ((array)$this->get(snapins) AS $i => &$Snapin) {
                             $this->getClass(SnapinTask)
                                 ->set(jobID,$SnapinJob->get(id))
                                 ->set(stateID,0)
@@ -723,9 +723,9 @@ class Host extends FOGController {
     }
     public function getMyMacs($justme = true) {
         $KnownMacs[] = strtolower($this->get(mac));
-        foreach($this->get(additionalMACs) AS &$MAC) $MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
+        foreach((array)$this->get(additionalMACs) AS $i => &$MAC) $MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
         unset($MAC);
-        foreach($this->get(pendingMACs) AS &$MAC) $MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
+        foreach((array)$this->get(pendingMACs) AS $i => &$MAC) $MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
         unset($MAC);
         if ($justme) return $KnownMacs;
         foreach($this->getClass(MACAddressAssociationManager)->find() AS &$MAC) $MAC && $MAC->isValid() && !in_array(strtolower($MAC->get(mac)),(array)$KnownMacs) ? $KnownMacs[] = strtolower($MAC->get(mac)) : null;
