@@ -243,7 +243,10 @@ installPackages() {
         elif [[ "$linuxReleaseName" == +(*'ebian'*) ]]; then
             if [ "$OSVersion" -eq 7 ]; then
                 debcode="wheezy";
-                echo -e "deb http://packages.dotdeb.org wheezy-php56 all\ndeb-src http://packages.dotdeb.org wheezy-php56 all\n" >> "/etc/apt/sources.list";
+                grep -l "deb http://packages.dotdeb.org wheezy-php56 all" "/etc/apt/sources.list" >/dev/null 2>&1
+                if [ "$?" != 0 ]; then
+                    echo -e "deb http://packages.dotdeb.org wheezy-php56 all\ndeb-src http://packages.dotdeb.org wheezy-php56 all\n" >> "/etc/apt/sources.list";
+                fi
             fi
         fi
     fi

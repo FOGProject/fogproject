@@ -134,7 +134,7 @@ class Host extends FOGController {
         return $this;
     }
     private function loadPrimary() {
-        if (!$this->isLoaded(mac) && $this->get(id)) $this->set(mac,$this->get(primac)->get(mac));
+        if (!$this->isLoaded(mac) && $this->get(id)) $this->set(mac,$this->getClass(MACAddress,$this->get(primac)->get(mac)));
         //return $this;
         return $this;
     }
