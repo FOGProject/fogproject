@@ -201,10 +201,11 @@ abstract class FOGPage extends FOGBase {
      * @param $data the data to enact upon
      * @return array of the find / replace items.
      */
-    private function replaceNeeds(&$data) {
+    private function replaceNeeds($data) {
         unset($this->dataFind,$this->dataReplace);
         $urlvars = array('node' => $GLOBALS['node'],'sub' => $GLOBALS['sub'],'tab' => $GLOBALS['tab']);
-        foreach ((array)$data AS $name => &$val) {
+        $arrayReplace = array_merge($urlvars,(array)$data);
+        foreach ($arrayReplace AS $name => &$val) {
             $this->dataFind[] = '#\$\{'.$name.'\}#';
             $this->dataReplace[] = $val;
         }
@@ -214,7 +215,7 @@ abstract class FOGPage extends FOGBase {
      * @param $data the data to build upon
      * @return the results as parsed
      */
-    public function buildRow(&$data) {
+    public function buildRow($data) {
         $this->replaceNeeds($data);
         ob_start('sanitize_output');
         // Loop template data
@@ -228,6 +229,7 @@ abstract class FOGPage extends FOGBase {
                 $this->wrapper
             );
         }
+        unset($template);
         // Return result
         return ob_get_clean();
     }
