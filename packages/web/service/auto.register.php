@@ -51,7 +51,7 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
             // Create the host.
             $Host = new Host(array(
                 'name' => $realhost,
-                'description' => sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')),
+                'description' => sprintf('%s %s',_('Created by FOG Reg on'),$FOGCore->formatTime('now','F j, Y, g:i a')),
                 'imageID' => $realimageid,
                 'useAD' => $strDoAD,
                 'ADDomain' => $strADDomain,
@@ -64,9 +64,9 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
             ));
             $groupid = explode(',',trim(base64_decode($_REQUEST['groupid'])));
             $snapinid = explode(',',trim(base64_decode($_REQUEST['snapinid'])));
-            $Host = $this->getClass(Host)
+            $Host = $FOGCore->getClass(Host)
                 ->set(name,$realhost)
-                ->set(description,sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')))
+                ->set(description,sprintf('%s %s',_('Created by FOG Reg on'),$FOGCore->formatTime('now','F j, Y, g:i a')))
                 ->set(imageID,$realimageid)
                 ->set(useAD,$strDoAD)
                 ->set(ADDomain,$strADDomain)
@@ -85,7 +85,7 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
             if (!$Host->save()) throw new Exception(_('Failed to save new Host!'));
             $LocPlugInst = in_array('location',$_SESSION[PluginsInstalled]);
             if ($LocPlugInst) {
-                $this->getClass(LocationAssociation)
+                $FOGCore->getClass(LocationAssociation)
                     ->set(locationID,$reallocid)
                     ->set(hostID,$Host->get(id))
                     ->save();
@@ -99,7 +99,7 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
                     throw new Exception(_('Failed to create image task.').": $tmp");
                 print _('Done, with imaging!');
             } else print _('Done!');
-            $this->getClass(Inventory)
+            $FOGCore->getClass(Inventory)
                 ->set(hostID,$Host->get(id))
                 ->set(primaryUser,$primaryUser)
                 ->set(other1,$other1)
@@ -109,7 +109,7 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
         } else if (!$Host || !$Host->isValid()) {
             $groupid = explode(',',trim($FOGCore->getSetting('FOG_QUICKREG_GROUP_ASSOC')));
             if ($FOGCore->getSetting('FOG_QUICKREG_AUTOPOP')) {
-                $Image = $this->getClass(Image,$FOGCore->getSetting(FOG_QUICKREG_IMG_ID));
+                $Image = $FOGCore->getClass(Image,$FOGCore->getSetting(FOG_QUICKREG_IMG_ID));
                 $realimageid = ($Image->isValid() ? $Image->get(id) : '');
                 $autoregSysName = $FOGCore->getSetting('FOG_QUICKREG_SYS_NAME');
                 $autoregSysNumber = (int)$FOGCore->getSetting('FOG_QUICKREG_SYS_NUMBER');
@@ -121,9 +121,9 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
                     $realhost = (strtoupper($autoregSysName) == 'MAC' ? $macsimple : str_replace($paddingString,$paddedInsert,$autoregSysName));
                     $FOGCore->setSetting('FOG_QUICKREG_SYS_NUMBER',($autoregSysNumber + 1));
                 } else $realhost = (strtoupper($autoregSysName) == 'MAC' ? $macsimple : $autoregSysName);
-                $Host = $this->getClass(Host)
+                $Host = $FOGCore->getClass(Host)
                     ->set(name,$realhost)
-                    ->set(description,sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')))
+                    ->set(description,sprintf('%s %s',_('Created by FOG Reg on'),$FOGCore->formatTime('now','F j, Y, g:i a')))
                     ->set(imageID,$realimageid)
                     ->set(createdTime,$FOGCore->formatTime('now','Y-m-d H:i:s'))
                     ->set(createdBy,'FOGREG')
@@ -140,9 +140,9 @@ if ($FOGCore->getSetting('FOG_REGISTRATION_ENABLED')) {
             } else {
                 $realhost = $macsimple;
                 if (!$Host || !$Host->isValid()) {
-                    $Host = $this->getClass(Host)
+                    $Host = $FOGCore->getClass(Host)
                         ->set(name,$realhost)
-                        ->set(description,sprintf('%s %s',_('Created by FOG Reg on'),date('F j, Y, g:i a')))
+                        ->set(description,sprintf('%s %s',_('Created by FOG Reg on'),$FOGCore->formatTime('now','F j, Y, g:i a')))
                         ->set(createdTime,$FOGCore->formatTime('now','Y-m-d H:i:s'))
                         ->set(createdBy,'FOGREG')
                         ->addModule($ids)

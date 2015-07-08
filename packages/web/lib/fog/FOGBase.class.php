@@ -275,7 +275,7 @@ abstract class FOGBase {
         if ($format == 'N') return ($Date instanceof DateTime ? ($Date->format('N') >= 0 && $Date->format('N') <= 7) : $Date >= 0 && $Date <= 7);
         if (!$Date instanceof DateTime) $Date = $this->nice_date($Date);
         if (!$format) $format = 'm/d/Y';
-        return DateTime::createFromFormat($format,$Date->format($format));
+        return DateTime::createFromFormat($format,$Date->format($format),$this->getClass(DateTimeZone,$this->TimeZone));
     }
     /** @function formatTime() format the time
      * @param $time the time to format
