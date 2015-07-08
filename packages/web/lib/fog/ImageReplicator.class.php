@@ -26,7 +26,7 @@ class ImageReplicator extends FOGService {
             $ImageIDs = array_unique($this->getClass(ImageAssociationManager)->find(array('storageGroupID' => $StorageNode->get(storageGroupID)),'','','','','','','imageID'));
             foreach($ImageIDs AS $i => &$imgID) {
                 $Image = $this->getClass(Image,$imgID);
-                $ImageGroups = $this->getClass(StorageGroupManager,$Image->get(storageGroups));
+                $ImageGroups = $this->getClass(StorageGroupManager)->find(array('id' => $Image->get(storageGroups)));
                 foreach($ImageGroups AS $i => &$GroupToSend) {
                     if ($GroupToSend->isValid() && $GroupToSend->get(id) != $StorageNode->get(storageGroupID)) {
                         $StorageNodeToSend = $GroupToSend->getMasterStorageNode();
