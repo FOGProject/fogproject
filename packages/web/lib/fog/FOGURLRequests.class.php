@@ -39,9 +39,10 @@ class FOGURLRequests extends FOGBase {
      * @param $file whether we're downloading a file or not.  Defaults to false, others takes the file resource
      * @return if $file it just closes the handle otherwise it returns the response
      */
-    public function process($urls, $method = false,$data = null,$sendAsJSON = false,$auth = false,$callback = false,$file = false) {
+    public function process($urls, $method = 'GET',$data = null,$sendAsJSON = false,$auth = false,$callback = false,$file = false) {
         if (!is_array($urls)) $urls = array($urls);
-        foreach ($urls AS $url) {
+        if (empty($method)) $method = 'GET';
+        foreach ($urls AS $i => &$url) {
             $ProxyUsed = false;
             if ($this->DB && $this->FOGCore->getSetting('FOG_PROXY_IP')) {
                 foreach($this->getClass('StorageNodeManager')->find() AS $StorageNode) $IPs[] = $this->FOGCore->resolveHostname($StorageNode->get('ip'));
@@ -70,6 +71,7 @@ class FOGURLRequests extends FOGBase {
                     $this->contextOptions[CURLOPT_HTTPHEADER] = array(
                         'Content-Type: application/json',
                         'Content-Length: '.strlen($data),
+                        'Expect:',
                     );
                 }
                 $this->contextOptions[CURLOPT_POSTFIELDS] = $data;
@@ -79,6 +81,7 @@ class FOGURLRequests extends FOGBase {
             $curl[$url] = $ch;
             curl_multi_add_handle($this->handle,$ch);
         }
+        unset($url);
         $active = null;
         $response = array();
         do {

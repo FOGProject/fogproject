@@ -72,7 +72,7 @@ class DashboardPage extends FOGPage {
         $Nodes = $this->getClass('StorageNodeManager')->find(array('isGraphEnabled' => 1));
         // Loop each storage node -> grab stats
         foreach($Nodes AS &$StorageNode) {
-            $fetchedData = $this->FOGURLRequests->process(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim($this->FOGCore->getSetting('FOG_NFS_BANDWIDTHPATH'),'/'), $StorageNode->get('interface')));
+            $fetchedData = $this->FOGURLRequests->process(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim($this->FOGCore->getSetting('FOG_NFS_BANDWIDTHPATH'),'/'), $StorageNode->get('interface')),'GET');
             foreach((array)$fetchedData AS &$dataSet) {
                 if (preg_match('/(.*)##(.*)/U', $dataSet,$match)) $data[$StorageNode->get('name')] = array('rx' => $match[1],'tx' => $match[2]);
                 else $data[$StorageNode->get('name')] = json_decode($dataSet,true);
