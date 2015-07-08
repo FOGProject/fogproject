@@ -567,7 +567,7 @@ abstract class FOGPage extends FOGBase {
             $optFound = false;
             foreach($OUs AS $i => &$OU) {
                 $opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
-                if ($opt == $Data->get(OU)) $optFound = true;
+                if ($opt == $Data->get(ADOU)) $optFound = true;
             }
             foreach($OUs AS $i => &$OU) {
                 $opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
