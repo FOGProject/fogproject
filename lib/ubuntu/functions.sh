@@ -313,14 +313,14 @@ class Config {
         else
             echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/index.php";
 		fi
-		if [ -d "${webdirdest}.prev" ]; then
-            dots "Copying back any custom hook files"
-			cp -Rf $webdirdest.prev/lib/hooks $webdirdest/lib/;
-			echo "OK";
-			dots "Copying back any custom report files"
-			cp -Rf $webdirdest.prev/management/reports $webdirdest/management/;
-			echo "OK";
-		fi
+		#if [ -d "${webdirdest}.prev" ]; then
+        #    dots "Copying back any custom hook files"
+		#	cp -Rf $webdirdest.prev/lib/hooks $webdirdest/lib/;
+		#	echo "OK";
+		#	dots "Copying back any custom report files"
+		#	cp -Rf $webdirdest.prev/management/reports $webdirdest/management/;
+		#	echo "OK";
+		#fi
 		chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 	fi
 }

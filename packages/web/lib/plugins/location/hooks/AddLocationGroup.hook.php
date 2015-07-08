@@ -1,20 +1,24 @@
 <?php
-class AddLocationGroup extends Hook
-{
+class AddLocationGroup extends Hook {
 	var $name = 'AddLocationGroup';
 	var $description = 'Add Location to Groups';
 	var $author = 'Rowlett';
 	var $active = true;
-    var $node = 'location';	
+    var $node = 'location';
+    public function __construct() {
+        parent::__construct();
+        $this->Hosts = $this->getClass(HostManager)->find(array('id' => $arguments[Group]->get(hosts)));
+    }
 	public function GroupFields($arguments) {
 		if (in_array($this->node,(array)$_SESSION['PluginsInstalled'])) {
-			if ($_REQUEST['node'] == 'group') {
-				foreach($arguments['Group']->get('hosts') AS $Host) {
+            if ($_REQUEST['node'] == 'group') {
+				foreach($this->Hosts AS $i => $Host) {
 					if ($Host && $Host->isValid()) {
 						$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
 						$LA ? $locationID[] = $LA->get('locationID') : null;
 					}
-				}
+                }
+                unset($Host);
 				$locationIDMult = (is_array($locationID) ? array_unique($locationID) : $locationID);
 				if (count($locationIDMult) == 1)
 					$locationMatchID = $LA && $LA->isValid() ? $LA->get('locationID') : null;
@@ -24,7 +28,7 @@ class AddLocationGroup extends Hook
 	}
 	public function GroupAddLocation($arguments) {
 		if (in_array($this->node,(array)$_SESSION['PluginsInstalled']) && $_REQUEST['node'] == 'group') {
-			foreach($arguments['Group']->get('hosts') AS $Host) {
+			foreach($this->Hosts AS $i => $Host) {
 				if ($Host && $Host->isValid() && $_REQUEST['tab'] == 'group-general') {
 					$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $Host->get('id')));
 					$Location = $this->getClass('Location',$_REQUEST[location]);
@@ -35,7 +39,8 @@ class AddLocationGroup extends Hook
 							->save();
 					}
 				}
-			}
+            }
+            unset($Host);
 		}
 	}
 }
