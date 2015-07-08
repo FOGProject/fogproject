@@ -134,8 +134,8 @@ while getopts "$optspec" o; do
         U) doupdate=0 ;;
         H) ignorehtmldoc=1 ;;
         S) forcehttps="yes" ;;
-        C) recreateKeys="yes" ;;
-        K) recreateCA="yes" ;;
+        K) recreateKeys="yes" ;;
+        C) recreateCA="yes" ;;
         [yY]) autoaccept="yes"; dbupdate="yes" ;;
         f)
         if [ ! -f "${OPTARG}" ]; then
