@@ -7,10 +7,10 @@ class AddLocationGroup extends Hook {
     var $node = 'location';
     public function __construct() {
         parent::__construct();
-        $this->Hosts = $this->getClass(HostManager)->find(array('id' => $arguments[Group]->get(hosts)));
     }
 	public function GroupFields($arguments) {
 		if (in_array($this->node,(array)$_SESSION['PluginsInstalled'])) {
+        $this->Hosts = $this->getClass(HostManager)->find(array('id' => $arguments[Group]->get(hosts)));
             if ($_REQUEST['node'] == 'group') {
 				foreach($this->Hosts AS $i => $Host) {
 					if ($Host && $Host->isValid()) {
@@ -28,6 +28,7 @@ class AddLocationGroup extends Hook {
 	}
 	public function GroupAddLocation($arguments) {
 		if (in_array($this->node,(array)$_SESSION['PluginsInstalled']) && $_REQUEST['node'] == 'group') {
+        $this->Hosts = $this->getClass(HostManager)->find(array('id' => $arguments[Group]->get(hosts)));
 			foreach($this->Hosts AS $i => $Host) {
 				if ($Host && $Host->isValid() && $_REQUEST['tab'] == 'group-general') {
 					$this->getClass('LocationAssociationManager')->destroy(array('hostID' => $Host->get('id')));
