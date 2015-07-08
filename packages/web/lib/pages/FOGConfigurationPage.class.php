@@ -40,7 +40,7 @@ class FOGConfigurationPage extends FOGPage {
                 $URLs[] = "http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php";
             }
             unset($StorageNode);
-            $Responses = $this->FOGURLRequests->process($URLs);
+            $Responses = $this->FOGURLRequests->process($URLs,'GET');
             ksort($Responses);
             foreach($Responses AS $i => &$data) {
                 if ($i === 0) {
