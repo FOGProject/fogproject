@@ -12,7 +12,7 @@ try {
     $actionText = ($login == 'login' ? 1 : ($login == 'logout' ? 0 : 99));
     $user = $_REQUEST[action] == 'start' ? '' : $user;
     $Host = $FOGCore->getHostItem(true,($_REQUEST[newService] ? false : true));
-    $UserTracking = $this->getClass(UserTracking)
+    $UserTracking = $FOGCore->getClass(UserTracking)
         ->set(hostID,$Host->get(id))
         ->set(username,$User)
         ->set(action,$actionText)
