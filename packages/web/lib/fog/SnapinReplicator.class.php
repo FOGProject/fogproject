@@ -53,7 +53,7 @@ class SnapinReplicator extends FOGService {
 										if ($limitsend > 0) $limit .= "set net:limit-rate 0:$limitsend;";
 										$this->outall(sprintf(" * Found snapin to transfer to %s group(s)",count($Snapin->get('storageGroups')) -1));
 										$this->outall(sprintf(" | Snapin name: %s",$Snapin->get('name')));
-										$process[$StorageNodeToSend->get('name')] = popen("lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30;$limit mirror -R --ignore-time -i $mySnapFile -vvv --delete-first $mySnapin $remSnapin; exit' -u $username,$password $ip 2>&1","r");
+										$process[$StorageNodeToSend->get('name')] = popen("lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30;$limit mirror -R --ignore-time -i $mySnapFile --exclude 'ssl/' --exclude 'dev/' --exclude 'CA/' -vvv --delete-first $mySnapin $remSnapin; exit' -u $username,$password $ip 2>&1","r");
 									}
 								}
                             }
