@@ -77,7 +77,7 @@ class ServiceConfigurationPage extends FOGPage {
 					'input' => $input,
 					'checked' => ($moduleName[$Module->get('shortName')] ? 'checked' : ''),
 					'span' => '<i class="icon fa fa-question hand" title="${module_desc}"></i>',
-					'model_desc' => $Module->get('description'),
+					'module_desc' => $Module->get('description'),
 					'is_on' => ($Module->get('isDefault') ? 'checked' : ''),
 				);
             }
@@ -86,7 +86,7 @@ class ServiceConfigurationPage extends FOGPage {
 				'field' => '<input type="hidden" name="name" value="${mod_name}" />',
 				'input' => '',
 				'span' => '<input type="submit" name="updatestatus" value="'._('Update').'" />',
-				'mod_name' => $modNames[$Module->get('shortName')],
+                'mod_name' => $modNames[$Module->get('shortName')],
 			);
 			print "\n\t\t\t<!-- "._($Module->get('name'))."  -->";
 			print "\n\t\t\t".'<div id="'.$Module->get('shortName').'">';
