@@ -22,7 +22,11 @@ class Snapin extends FOGController {
         'hosts',
         'hostsnotinme',
         'storageGroups',
+        'path',
     );
+    private function loadPath() {
+        $this->set(path,$this->get('file'));
+    }
     // Overides
     private function loadHosts() {
         if (!$this->isLoaded(hosts) && $this->get(id)) {
