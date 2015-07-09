@@ -5,6 +5,7 @@ $service_logpath = SERVICELOGPATH;
 $service_sleep_time = SERVICESLEEPTIME;
 $service_child_pid = 0;
 function service_log_message($logpath, $name, $msg) {
+    global $FOGCore;
     $logfile = fopen($logpath, "a");
     fwrite($logfile, "[".$FOGCore->formatTime('now','m-d-y g:i:s a')."] " . $name . " " . $msg . "\n");
     fflush($logfile);
