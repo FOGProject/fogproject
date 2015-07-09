@@ -16,8 +16,8 @@ class AddLocationHost extends Hook {
 			if ($_REQUEST[node] == 'host' && $_REQUEST[sub] != 'pending') {
 				$arguments[templates][4] = '${location}<br/><small>${deployed}</small>';
 				foreach($arguments[data] AS $index => $vals) {
-					$Host = $this->getClass(Host,$arguments[data][$index][host_id]);
-					$LName = '';
+				    $Host = $this->getClass(Host,$arguments[data][$index][host_id]);
+                    $LName = '';
 					foreach($this->getClass(LocationAssociationManager)->find(array('hostID' => $Host->get(id))) AS $LA) {
 						if ($LA->isValid()) {
 							$LName = $this->getClass(Location,$LA->get(locationID))->get(name);
@@ -32,23 +32,26 @@ class AddLocationHost extends Hook {
 	public function HostFields($arguments) {
 		if (in_array($this->node,(array)$_SESSION['PluginsInstalled'])) {
 			if ($_REQUEST[node] == 'host')
-				$arguments[fields] = $this->array_insert_after(_('Host Image'),$arguments[fields],_('Host Location'),'${host_locs}');
+				$arguments['fields'] = $this->array_insert_after(_('Host Image'),$arguments[fields],_('Host Location'),'${host_locs}');
 		}
 	}
 	public function HostDataFields($arguments) {
 		if (in_array($this->node,(array)$_SESSION['PluginsInstalled'])) {
 			if ($_REQUEST[node] == 'host') {
-				foreach($arguments[data] AS $index => $vals) {
+				foreach($arguments[data] AS $index => &$vals) {
 					if ($_REQUEST[sub] == 'add') $arguments[data][$index] = $this->array_insert_after('host_image',$arguments[data][$index],'host_locs',$this->getClass(LocationManager)->buildSelectBox($_REQUEST[location]));
 					if ($_REQUEST[sub] == 'edit') {
-						$LID = $_REQUEST[location];
-						foreach($this->getClass(LocationAssociationManager)->find(array('hostID' => $arguments[data][$index][host_id])) AS $LA) {
+				        $Host = $arguments[Host];
+                        $LID = $_REQUEST[location];
+                        $LocationAssocs = $this->getClass(LocationAssociationManager)->find(array('hostID' => $Host->get(id)));
+						foreach($LocationAssocs AS $i => &$LA) {
 							if ($LA->isValid()) {
 								$LID = $this->getClass(Location,$LA->get(locationID))->get(id);
 								break;
 							}
 						}
-						$arguments[data][$index] = $this->array_insert_after('host_image',$arguments[data][$index],'host_locs',$this->getClass(LocationManager)->buildSelectBox($LID));
+					if ($_REQUEST[sub] == 'add') $arguments[data][$index] = $this->array_insert_after('host_image',$arguments[data][$index],'host_locs',$this->getClass(LocationManager)->buildSelectBox($_REQUEST[location]));
+                        $arguments[data][$index][host_locs] = $this->getClass(LocationManager)->buildSelectBox($LID);
 					}
 				}
 			}

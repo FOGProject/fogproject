@@ -8,10 +8,9 @@ try {
     $SnapinTask = $FOGCore->getClass(SnapinTask,$_REQUEST[taskid]);
     if (!$SnapinTask->isValid()) throw new Exception('#!ns');
     //Get the snapin to work off of.
-    $Snapin = new Snapin($SnapinTask->get('snapinID'));
+    $Snapin = $SnapinTask->getSnapin();
     // Find the Storage Group
-    if ($Snapin && $Snapin->getStorageGroup() && $Snapin->isValid() && $Snapin->getStorageGroup()->isValid())
-        $StorageGroup = $Snapin->getStorageGroup();
+    if ($Snapin && $Snapin->getStorageGroup() && $Snapin->isValid() && $Snapin->getStorageGroup()->isValid()) $StorageGroup = $Snapin->getStorageGroup();
     // Allow plugins to enact against this. (e.g. location)
     $HookManager->processEvent('SNAPIN_GROUP',array('Host' => &$Host,'StorageGroup' => &$StorageGroup));
     // Assign the file for sending.
@@ -22,8 +21,7 @@ try {
         $StorageNode = $StorageGroup->getMasterStorageNode();
         // Allow plugins to enact against this. (e.g. location)
         $HookManager->processEvent('SNAPIN_NODE',array('Host' => &$Host,'StorageNode' => &$StorageNode));
-        if ($StorageNode && $StorageNode->isValid())
-            $SnapinFile = "ftp://".$StorageNode->get(user).":".$StorageNode->get(pass)."@".$FOGCore->resolveHostname($StorageNode->get(ip)).'/'.ltrim(rtrim($StorageNode->get(snapinpath),'/'),'/').'/'.$Snapin->get('file');
+        if ($StorageNode && $StorageNode->isValid()) $SnapinFile = "ftp://".$StorageNode->get(user).":".$StorageNode->get(pass)."@".$FOGCore->resolveHostname($StorageNode->get(ip)).'/'.ltrim(rtrim($StorageNode->get(snapinpath),'/'),'/').'/'.$Snapin->get('file');
     }
     // If it exists and is readable send it!
     if (file_exists($SnapinFile) && is_readable($SnapinFile)) {
