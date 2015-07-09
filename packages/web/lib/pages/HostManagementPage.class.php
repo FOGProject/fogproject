@@ -96,7 +96,7 @@ class HostManagementPage extends FOGPage {
                     'host_id'	=> $Host->get(id),
                     'deployed' => $this->formatTime($Host->get(deployed)),
                     'host_name'	=> $Host->get(name),
-                    'host_mac'	=> $Host->getMACAddress()->__toString(),
+                    'host_mac'	=> $Host->getMACAddress(),
                     'host_desc'  => $Host->get(description),
                     'image_name' => $Host->getImageName(),
                 );
@@ -429,7 +429,7 @@ class HostManagementPage extends FOGPage {
             _('Host Primary Disk') => '<input type="text" name="dev" value="'.$this->obj->get(kernelDevice).'" />',
             '&nbsp' => '<input type="submit" value="'._('Update').'" />',
         );
-        $this->HookManager->processEvent('HOST_FIELDS',array('fields' => &$fields));
+        $this->HookManager->processEvent('HOST_FIELDS',array('fields' => &$fields,'Host' => &$this->obj));
         print '<div id="tab-container">';
         print "<!-- General -->";
         print '<div id="host-general">';
@@ -444,7 +444,7 @@ class HostManagementPage extends FOGPage {
         }
         unset($input);
         // Hook
-        $this->HookManager->processEvent('HOST_EDIT_GEN', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        $this->HookManager->processEvent('HOST_EDIT_GEN', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes, 'Host' => &$this->obj));
         $this->render();
         print '</form></div>';
         unset($this->data,$this->form);
