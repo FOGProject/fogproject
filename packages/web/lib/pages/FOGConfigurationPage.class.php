@@ -647,9 +647,11 @@ class FOGConfigurationPage extends FOGPage {
                     }
                     unset($current_tz,$offset,$transition,$tz);
                     $type .= '</select>';
+                } else if ($Service->get('name') == 'FOG_AD_DEFAULT_OU') {
+                    $type = '<textarea rows="5" name="${service_id}">${service_value}</textarea>';
                 } else $type = '<input id="${service_name}" type="text" name="${service_id}" value="${service_value}" autocomplete="off" />';
                 $this->data[] = array(
-                    'input_type' => (count(explode(chr(10),$Service->get('value'))) <= 1 ? $type : '<textarea name="${service_id}">${service_value}</textarea>'),
+                    'input_type' => (count(explode(chr(10),$Service->get('value'))) <= 1 ? $type : '<textarea rows="5" name="${service_id}">${service_value}</textarea>'),
                     'service_name' => $Service->get('name'),
                     'span' => '<i class="icon fa fa-question hand" title="${service_desc}"></i>',
                     'service_id' => $Service->get('id'),
