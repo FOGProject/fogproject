@@ -71,12 +71,6 @@ if [ -z "$docroot" ]; then
 else
     webdirdest="${docroot}"
 fi
-webrootexists=`grep -l 'webroot' "/opt/fog/.fogsettings" >/dev/null 2>&1; echo $?`
-if [ "$webrootexists" != 0 -a -z "$webroot" ]; then
-    webroot="fog/";
-elif [ "$webrootexists" -eq 0 -a ! -z "$webroot" ]; then
-    webroot="${webroot}/";
-fi
 webredirect="${webdirdest}/index.php";
 apacheuser="apache";
 
