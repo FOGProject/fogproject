@@ -147,11 +147,11 @@ configureHttpd() {
 	sleep 2;
 	systemctl status httpd php-fpm >/dev/null 2>&1
     errorStat $?
-    if [ -d "~/fog$version.BACKUP" ]; then
-        rm -rf "~/fog$version.BACKUP";
+    if [ -d "/home/fogWeb$version.BACKUP" ]; then
+        rm -rf "/home/fogWeb$version.BACKUP";
     fi
     if [ -d "$webdirdest" ]; then
-        mv "$webdirdest" "~/fog$version.BACKUP";
+        mv "$webdirdest" "/home/fogWeb$version.BACKUP";
     fi
     mkdir "$webdirdest";
     cp -Rf $webdirsrc/* $webdirdest/
