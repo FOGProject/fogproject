@@ -73,7 +73,7 @@ else
 fi
 webrootexists=`grep -l 'webroot' "/opt/fog/.fogsettings" >/dev/null 2>&1; echo $?`
 if [ "$webrootexists" != 0 -a -z "$webroot" ]; then
-    webroot="/fog/";
+    webroot="fog/";
 elif [ "$webrootexists" -eq 0 -a ! -z "$webroot" ]; then
     webroot="${webroot}/";
 fi

@@ -115,7 +115,11 @@ while getopts "$optspec" o; do
             docroot="${docroot%'/'}"
             docroot="/${docroot}/"
             ;;
-            webroot) webroot="${OPTARG}" ;;
+            webroot)
+            webroot="${OPTARG}"
+            webroot="${webroot#'/'}"
+            webroot="${webroot%'/'}"
+            ;;
             uninstall) uninstall; exit ;;
             file)
             if [ -f "${OPTARG}" ]; then
