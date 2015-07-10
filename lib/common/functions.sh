@@ -77,12 +77,12 @@ help() {
     echo -e "\t-K    --recreate-keys\t\tRecreate the SSL Keys"
     echo -e "\t-Y -y --autoaccept\t\tAuto accept defaults and install"
     echo -e "\t-f    --file\t\t\tUse different update file"
-    echo -e "\t-D    --docroot\t\tSpecify the Apache Docroot for fog"
-    echo -e "\t               \t\t\tdefaults to OS DocumentRoot"
-    echo -e "\t-W    --webroot\t\tSpecify the web root url want fog to use"
-    echo -e "\t            \t\t\t(E.G. http://127.0.0.1/fog,"
-    echo -e "\t            \t\t\t      http://127.0.0.1/)"
-    echo -e "\t            \t\t\tDefaults to /fog/"
+    echo -e "\t-D    --docroot\t\t\tSpecify the Apache Docroot for fog"
+    echo -e "\t               \t\t\t\tdefaults to OS DocumentRoot"
+    echo -e "\t-W    --webroot\t\t\tSpecify the web root url want fog to use"
+    echo -e "\t            \t\t\t\t(E.G. http://127.0.0.1/fog,"
+    echo -e "\t            \t\t\t\t      http://127.0.0.1/)"
+    echo -e "\t            \t\t\t\tDefaults to /fog/"
     echo -e "\t      --uninstall\t\tUninstall FOG"
     exit 0
 }
