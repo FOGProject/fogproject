@@ -9,22 +9,16 @@ class AddLocationTasks extends Hook {
 		$this->node = 'location';
 	}
 	public function TasksActiveTableHeader($arguments) {
-		if (in_array($this->node,$_SESSION['PluginsInstalled'])) {
-			if ($_REQUEST['node'] == 'task' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub'])) $arguments['headerData'][3] = 'Location';
-		}
+		if (in_array($this->node,$_SESSION[PluginsInstalled]) && $_REQUEST[node] == 'task') $arguments[headerData][3] = _('Location');
 	}
 	public function TasksActiveData($arguments) {
-		if (in_array($this->node,$_SESSION['PluginsInstalled'])) {
-			if ($_REQUEST['node'] == 'task' && ($_REQUEST['sub'] == 'active' || !$_REQUEST['sub'])) {
-				foreach((array)$arguments['data'] AS $i => $data) {
-					$Host = current($this->getClass('HostManager')->find(array('id' => $arguments['data'][$i]['host_id'])));
-					if ($Host && $Host->isValid())
-					$LA = current($this->getClass('LocationAssociationManager')->find(array('hostID' => $Host->get('id'))));
-					$Location = ($LA ? new Location($LA->get('locationID')) : '');
-					// Set the field.
-					$arguments['data'][$i]['details_taskname'] = $Location && $Location->isValid() ? $Location->get('name') : '';
-				}
-			}
+        if (in_array($this->node,$_SESSION[PluginsInstalled]) && $_REQUEST[node] == 'task') {
+				foreach((array)$arguments[data] AS $i => &$data) {
+                    $LocAssocs = $this->getClass(LocationAssociationManager)->find(array('hostID' => $data[host_id]),'','','','','','','locationID');
+                    $locID = array_shift($LocAssocs);
+                    $arguments[data][$i][details_taskname] = $this->getClass(Location,$locID)->get(name);
+                }
+                unset($data);
 		}
 	}
 }
