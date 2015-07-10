@@ -429,14 +429,14 @@ class HostManagementPage extends FOGPage {
             _('Host Primary Disk') => '<input type="text" name="dev" value="'.$this->obj->get(kernelDevice).'" />',
             '&nbsp' => '<input type="submit" value="'._('Update').'" />',
         );
-        $this->HookManager->processEvent('HOST_FIELDS',array('fields' => &$fields,'Host' => &$this->obj));
+        $this->HookManager->processEvent('HOST_FIELDS', array('fields' => &$fields,'Host' => &$this->obj));
         print '<div id="tab-container">';
         print "<!-- General -->";
         print '<div id="host-general">';
         if ($this->obj->get(pub_key) || $this->obj->get(sec_tok)) $this->form = '<center><div id="resetSecDataBox"></div><input type="button" id="resetSecData" /></center><br/>';
         print '<form method="post" action="'.$this->formAction.'&tab=host-general">';
         print '<h2>'._('Edit host definition').'</h2>';
-        foreach($fields AS $field => $input) {
+        foreach($fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
