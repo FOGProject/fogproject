@@ -857,6 +857,7 @@ abstract class FOGPage extends FOGBase {
     public function search() {
         if ($this->node == 'task' && $_REQUEST['sub'] != 'search') $this->FOGCore->redirect(sprintf('?node=%s&sub=active',$this->node));
         // Set Title
+        if ($this->childClass == 'Task') $this->childClass = 'host';
         $this->title = _('Search');
         // Set search form
         if (in_array($this->node,$this->searchPages)) $this->searchFormURL = sprintf('?node=%s&sub=search',$this->node);
