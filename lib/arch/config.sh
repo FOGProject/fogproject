@@ -29,8 +29,16 @@ langPackages="iso-codes"
 dhcpname="dhcp"
 
 # where do the php files go?
-docroot="/srv/http/"
-webdirdest="${docroot}fog"
+if [ -z "$docroot" ]; then
+    docroot="/srv/httpd/"
+    webdirdest="${docroot}fog"
+else
+    webdirdest="${docroot}"
+fi
+webrootexists=`grep -l 'webroot' "/opt/fog/.fogsettings" >/dev/null 2>&1; echo $?`
+if [ "$webrootexists" != 0 -a -z "$webroot" ]; then
+    webroot="/fog/";
+fi
 webredirect="${webdirdest}/index.php"
 apacheuser="http"
 

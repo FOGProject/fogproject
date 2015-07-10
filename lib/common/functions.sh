@@ -77,6 +77,12 @@ help() {
     echo -e "\t-K    --recreate-keys\t\tRecreate the SSL Keys"
     echo -e "\t-Y -y --autoaccept\t\tAuto accept defaults and install"
     echo -e "\t-f    --file\t\t\tUse different update file"
+    echo -e "\t-D    --docroot\t\tSpecify the Apache Docroot for fog"
+    echo -e "\t               \t\t\tdefaults to OS DocumentRoot"
+    echo -e "\t-W    --webroot\t\tSpecify the web root url want fog to use"
+    echo -e "\t            \t\t\t(E.G. http://127.0.0.1/fog,"
+    echo -e "\t            \t\t\t      http://127.0.0.1/)"
+    echo -e "\t            \t\t\tDefaults to /fog/"
     echo -e "\t      --uninstall\t\tUninstall FOG"
     exit 0
 }
@@ -157,7 +163,7 @@ configureFTP() {
 }
 configureDefaultiPXEfile() {
     find "${tftpdirdst}" ! -type d -exec chmod 644 {} \;
-    echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch i386\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain http://${ipaddress}/fog/service/ipxe/boot.php##params" > "${tftpdirdst}/default.ipxe"
+    echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch i386\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain http://${ipaddress}/${webroot}service/ipxe/boot.php##params" > "${tftpdirdst}/default.ipxe"
 }
 configureTFTPandPXE() {
     dots "Setting up and starting TFTP and PXE Servers";
@@ -694,6 +700,8 @@ mysql_conntype=\"$mysql_conntype\";
 fogupdateloaded=\"1\";
 storageftpuser=\"$storageftpuser\";
 storageftppass=\"$storageftppass\";
+docroot=\"$docroot\";
+webroot=\"$webroot\";
 " > "$fogprogramdir/.fogsettings";
 }
 displayBanner() {

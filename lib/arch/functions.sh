@@ -131,6 +131,7 @@ configureHttpd() {
 	if [ "$snmysqluser" != "" ] && [ "$snmysqluser" != "$dbuser" ]; then
 		dbuser=$snmysqluser;
 	fi
+    createSSLCA;
 	echo -n "  * Setting up and starting Apache Web Server...";
   echo '<FilesMatch \.php$>
     SetHandler "proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://127.0.0.1/"
@@ -228,11 +229,11 @@ class Config {
 		define('STORAGE_FTP_PASSWORD', \"${password}\");
 		define('STORAGE_DATADIR', '/${storageLocation}/');
 		define('STORAGE_DATADIR_UPLOAD', '/${storageLocation}/dev/');
-		define('STORAGE_BANDWIDTHPATH', '/fog/status/bandwidth.php');
+		define('STORAGE_BANDWIDTHPATH', '/${webroot}status/bandwidth.php');
 		define('UPLOADRESIZEPCT',5);
 		define('WEB_HOST', \"${ipaddress}\");
 		define('WOL_HOST', \"${ipaddress}\");
-		define('WOL_PATH', '/fog/wol/wol.php');
+		define('WOL_PATH', '/${webroot}wol/wol.php');
 		define('WOL_INTERFACE', \"${interface}\");
 		define('SNAPINDIR', \"${snapindir}/\");
 		define('QUEUESIZE', '10');
@@ -262,7 +263,7 @@ class Config {
     wget -O "${webdirdest}/service/ipxe/init_32.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init_32.xz" >/dev/null 2>&1 & disown
     echo "Backgrounded"
     if [ ! -f "$webredirect" ]; then
-        echo "<?php header('Location: ./fog/index.php');?>" > $webredirect;
+        echo "<?php header('Location: ./${webroot}index.php');?>" > $webredirect;
 	fi
 	dots "Downloading New FOG Client file";
     clientVer="`awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/System.class.php | tr -d '[[:space:]]'`";
