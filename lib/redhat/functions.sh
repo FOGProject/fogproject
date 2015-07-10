@@ -153,18 +153,13 @@ configureHttpd() {
         sleep 2
 		systemctl status httpd >/dev/null 2>&1
 	fi
-	ret=$?;
-	if [ "$ret" != "0" ]
-	then
-		echo "Failed! ($ret)";
-		exit 1;
-	else
-		if [ -d "~/fog$version.BACKUP" ]; then
-			rm -rf "~/fog$version.BACKUP";
-		fi
-		if [ -d "$webdirdest" ]; then
-			mv "$webdirdest" "~/fog$version.BACKUP";
-		fi
+    errorStat $?
+        if [ -d "/home/fogWeb$version.BACKUP" ]; then
+            rm -rf "/home/fogWeb$version.BACKUP";
+        fi
+        if [ -d "$webdirdest" ]; then
+            mv "$webdirdest" "/home/fogWeb$version.BACKUP";
+        fi
 		mkdir "$webdirdest";
 		cp -Rf $webdirsrc/* $webdirdest/
 		echo "<?php
@@ -300,5 +295,4 @@ class Config {
 		#	echo "OK";
 		#fi
 		chown -R ${apacheuser}:${apacheuser} "$webdirdest"
-	fi
 }
