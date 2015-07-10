@@ -47,6 +47,8 @@ fi
 if [ -z "$docroot" ]; then
     docroot="/var/www/html/"
     webdirdest="${docroot}fog"
+elif [[ "$docroot" != *'fog'* ]]; then
+    webdirdest="${docroot}fog"
 else
     webdirdest="${docroot}"
 fi
