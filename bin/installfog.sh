@@ -382,8 +382,8 @@ while [ "$blGo" = "" ]; do
                 echo
             elif [ "$installtype" == "N" -a "$dbupdate" == "yes" ]; then
                 dots "Updating Database"
-                wget -O - --post-data="confirm=1" --no-proxy http://127.0.0.1/fog/management/index.php?node=schemaupdater >/dev/null 2>&1 ||
-                wget -O - --post-data="confirm=1" --no-proxy http://127.0.0.1/management/index.php?node=schemaupdater >/dev/null 2>&1
+                wget -O - --post-data="confirm=1" --no-proxy http://127.0.0.1/${webroot}management/index.php?node=schemaupdater >/dev/null 2>&1 ||
+                wget -O - --post-data="confirm=1" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schemaupdater >/dev/null 2>&1
                 errorStat $?
             fi
             #restoreReports;

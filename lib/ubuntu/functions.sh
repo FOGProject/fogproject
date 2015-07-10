@@ -173,11 +173,11 @@ configureHttpd() {
 		echo "Failed!";
 		exit 1;
 	else
-		if [ -d "${webdirdest}.prev" ]; then
-			rm -rf "${webdirdest}.prev";
+		if [ -d "~/fog$version.BACKUP" ]; then
+			rm -rf "~/fog$version.BACKUP";
 		fi
 		if [ -d "$webdirdest" ]; then
-			mv "$webdirdest" "${webdirdest}.prev";
+			mv "$webdirdest" "~/fog$version.BACKUP";
 		fi
 		mkdir "$webdirdest";
 		cp -Rf $webdirsrc/* $webdirdest/
