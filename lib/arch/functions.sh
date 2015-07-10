@@ -132,7 +132,7 @@ configureHttpd() {
 		dbuser=$snmysqluser;
 	fi
     createSSLCA;
-	echo -n "  * Setting up and starting Apache Web Server...";
+    dots "  * Setting up and starting Apache Web Server";
   echo '<FilesMatch \.php$>
     SetHandler "proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://127.0.0.1/"
 </FilesMatch>
@@ -147,6 +147,7 @@ configureHttpd() {
 	sleep 2;
 	systemctl status httpd php-fpm >/dev/null 2>&1
     errorStat $?
+    dots "Backing up and copying new fog web folders"
     if [ -d "/home/fogWeb$version.BACKUP" ]; then
         rm -rf "/home/fogWeb$version.BACKUP";
     fi

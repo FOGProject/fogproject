@@ -154,6 +154,7 @@ configureHttpd() {
 		systemctl status httpd >/dev/null 2>&1
 	fi
     errorStat $?
+    dots "Backing up and copying new fog web folders"
         if [ -d "/home/fogWeb$version.BACKUP" ]; then
             rm -rf "/home/fogWeb$version.BACKUP";
         fi
