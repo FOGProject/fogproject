@@ -20,7 +20,7 @@ class DashboardPage extends FOGPage {
             _('Web Server') => $this->FOGCore->getSetting('FOG_WEB_HOST'),
             _('TFTP Server') => $this->FOGCore->getSetting('FOG_TFTP_HOST'),
             _('Load Average') => $SystemUptime['load'],
-            _('Uptime') => $SystemUptime['uptime'],
+            _('System Uptime') => $SystemUptime['uptime'],
         );
         $this->templates = array(
             '${field}',

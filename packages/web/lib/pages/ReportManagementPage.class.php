@@ -152,7 +152,7 @@ class ReportManagementPage extends FOGPage {
             $date1 = $_REQUEST['date2'];
             $date2 = $_REQUEST['date1'];
         }
-        $date2 = date('Y-m-d',strtotime($date2.'+1 day'));
+        $date2 = $this->nice_date($date2)->modify('+1 day')->format('Y-m-d');
         // This is just for the header in the CSV:
         $csvHead = array(
             _('Engineer'),
