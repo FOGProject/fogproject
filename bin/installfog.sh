@@ -95,7 +95,7 @@ fi
 displayBanner;
 echo -e "  Version: ${version} Installer/Updater\n";
 fogpriorconfig="$fogprogramdir/.fogsettings"
-optspec="h?dUHSCKYyf:-:"
+optspec="h?dUHSCKYyf:-:W:D:"
 while getopts "$optspec" o; do
     #long options
     case "${o}" in
@@ -109,6 +109,13 @@ while getopts "$optspec" o; do
             recreate-keys) recreateKeys="yes" ;;
             recreate-[Cc][Aa]) recreateCA="yes" ;;
             autoaccept) autoaccept="yes"; dbupdate="yes" ;;
+            docroot)
+            docroot="${OPTARG}"
+            docroot="${docroot#'/'}"
+            docroot="${docroot%'/'}"
+            docroot="/${docroot}/"
+            ;;
+            webroot) webroot="${OPTARG}" ;;
             uninstall) uninstall; exit ;;
             file)
             if [ -f "${OPTARG}" ]; then
@@ -137,6 +144,22 @@ while getopts "$optspec" o; do
         K) recreateKeys="yes" ;;
         C) recreateCA="yes" ;;
         [yY]) autoaccept="yes"; dbupdate="yes" ;;
+        D)
+        docroot="${OPTARG}"
+        docroot="${docroot#'/'}"
+        docroot="${docroot%'/'}"
+        docroot="/${docroot}/"
+        ;;
+        W)
+        if [[ "${OPTARG}" != *('/')* ]]; then
+            echo -e "-$OPTARG needs a url path for access either / or /fog for example.\n\n\t\tfor example if you access fog using http://127.0.0.1/ without any trail\n\t\tset the path to /"
+            help
+            exit 1
+        fi
+        webroot="${OPTARG}"
+        webroot="${webroot#'/'}"
+        webroot="${webroot%'/'}"
+        ;;
         f)
         if [ ! -f "${OPTARG}" ]; then
             echo -${OPTARG} requires a file to follow
@@ -379,7 +402,6 @@ while [ "$blGo" = "" ]; do
             configureNFS;
             writeUpdateFile;
             linkOptFogDir;
-            createSSLCA;
             echo "";
             echo "  Setup complete!";
             echo "";

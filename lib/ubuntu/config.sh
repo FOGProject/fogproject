@@ -44,13 +44,20 @@ else
 fi
 
 # where do the php files go?
-apachehtmlroot="/var/www/html"
-webdirdest="/var/www/fog";
-if [ -e "$apachehtmlroot" ]; then
-    webredirect="${apachehtmlroot}/index.php"
+if [ -z "$docroot" ]; then
+    docroot="/var/www/html/"
+    webdirdest="${docroot}fog"
 else
-    webredirect="/var/www/index.php"
+    webdirdest="${docroot}"
 fi
+webrootexists=`grep -l 'webroot' "/opt/fog/.fogsettings" >/dev/null 2>&1; echo $?`
+if [ "$webrootexists" != 0 -a -z "$webroot" ]; then
+    webroot="/fog/";
+fi
+if [ "$docroot" == "/var/www/html/" -a ! -e "$docroot" ]; then
+    docroot="/var/www/";
+fi
+webredirect="$docroot/index.php"
 apacheuser="www-data"
 
 # where do we store the image files?
