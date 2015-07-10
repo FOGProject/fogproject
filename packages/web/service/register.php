@@ -20,7 +20,8 @@ try {
                 ->addModule($ModuleIDs)
                 ->addPriMAC($PriMAC)
                 ->addAddMAC($MACs);
-            if (!$Host->save()) throw new Exception('#!ih');
+            if (!$Host->save()) throw new Exception("#!ih\n");
+			throw new Exception("#!ok\n");
         }
     }
     // Check if count is okay.

@@ -52,10 +52,10 @@ try {
     $ImagingLogs = $FOGCore->getClass('ImagingLogManager')->find(array('hostID' => $Host->get('id')),'','','','','','','id');
     $id = max((array)$ids);
     // Last Uploaded date of image.
-    $Image->set('deployed',date('Y-m-d H:i:s'))->save();
+    $Image->set('deployed',$FOGCore->formatTime('now','Y-m-d H:i:s'))->save();
     // Log
     $il = new ImagingLog($id);
-    $il->set('finish',date('Y-m-d H:i:s'))->save();
+    $il->set('finish',$FOGCore->formatTime('now','Y-m-d H:i:s'))->save();
     // Task Logging.
     $TaskLog = new TaskLog($Task);
     $TaskLog->set('taskID',$Task->get('id'))

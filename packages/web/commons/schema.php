@@ -1991,3 +1991,7 @@ $this->schema[] = array(
 	"UPDATE `".DATABASE_NAME."`.`globalSettings` SET `settingDesc`='This setting defines the default value to populate the hosts Active Directory password value but only uses the old FOGCrypt method of encryption.  This setting must be encrypted before stored.' WHERE `settingKey`='FOG_AD_DEFAULT_PASSWORD_LEGACY'",
     "UPDATE `".DATABASE_NAME."`.`globalSettings` SET `settingDesc`='This setting defines the default value to populate the host\'s Active Directory password value.  This setting will encrypt and store then encrypted value of the plain text value entered in this field automatically.' WHERE `settingKey`='FOG_AD_DEFAULT_PASSWORD'",
 );
+// 187
+$this->schema[] = array(
+    "ALTER TABLE `" . DATABASE_NAME ."`.`printers` ADD COLUMN `pDesc` LONGTEXT",
+);
