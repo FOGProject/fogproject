@@ -174,7 +174,7 @@ configureHttpd() {
         if [ -d "$webdirdest" ]; then
             mv "$webdirdest" "/home/fogWeb$version.BACKUP";
         fi
-		mkdir "$webdirdest";
+		mkdir -p "$webdirdest";
 		cp -Rf $webdirsrc/* $webdirdest/
 		echo "<?php
 class Config {
