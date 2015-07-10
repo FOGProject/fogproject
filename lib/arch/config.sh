@@ -31,6 +31,8 @@ dhcpname="dhcp"
 if [ -z "$docroot" ]; then
     docroot="/srv/httpd/"
     webdirdest="${docroot}fog"
+elif [[ "$docroot" != *'fog'* ]]; then
+    webdirdest="${docroot}fog"
 else
     webdirdest="${docroot}"
 fi
