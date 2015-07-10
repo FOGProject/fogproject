@@ -147,11 +147,11 @@ configureHttpd() {
 	sleep 2;
 	systemctl status httpd php-fpm >/dev/null 2>&1
     errorStat $?
-    if [ -d "${webdirdest}.prev" ]; then
-        rm -rf "${webdirdest}.prev";
+    if [ -d "~/fog$version.BACKUP" ]; then
+        rm -rf "~/fog$version.BACKUP";
     fi
     if [ -d "$webdirdest" ]; then
-        mv "$webdirdest" "${webdirdest}.prev";
+        mv "$webdirdest" "~/fog$version.BACKUP";
     fi
     mkdir "$webdirdest";
     cp -Rf $webdirsrc/* $webdirdest/
@@ -279,13 +279,13 @@ class Config {
         echo -e "\n\t\trun the command:";
         echo -e "\n\t\t\twget -O ${webdirdest}/client/FOGService.msi $clienturl";
     fi
-    if [ -d "${webdirdest}.prev" ]; then
-        dots "Copying back any custom hook files"
-        cp -Rf $webdirdest.prev/lib/hooks $webdirdest/lib/ >/dev/null 2>&1
-        errorStat $?
-        dots "Copying back any custom report files";
-		cp -Rf $webdirdest.prev/management/reports $webdirdest/management/ >/dev/null 2>&1
-        errorStat $?
-    fi
+    #if [ -d "${webdirdest}.prev" ]; then
+    #    dots "Copying back any custom hook files"
+    #    cp -Rf $webdirdest.prev/lib/hooks $webdirdest/lib/ >/dev/null 2>&1
+    #    errorStat $?
+    #    dots "Copying back any custom report files";
+#		cp -Rf $webdirdest.prev/management/reports $webdirdest/management/ >/dev/null 2>&1
+    #    errorStat $?
+    #fi
     chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 }
