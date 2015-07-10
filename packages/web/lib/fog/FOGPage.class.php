@@ -789,7 +789,7 @@ abstract class FOGPage extends FOGBase {
             }
             // generate next token
             $Host->set('sec_tok',$this->createSecToken())
-                ->set('sec_time',date('Y-m-d H:i:s'));
+                ->set('sec_time',$this->nice_date()->format('Y-m-d H:i:s'));
             if ($Host->get('sec_tok') && !$key) throw new Exception('#!ihc');
             $Host->set('pub_key',$key)
                 ->save();

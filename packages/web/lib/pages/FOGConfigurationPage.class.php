@@ -771,18 +771,10 @@ class FOGConfigurationPage extends FOGPage {
         unset($filearray);
         // Set title
         $this->title = _('FOG Log Viewer');
-        print "\n\t\t\t<p>";
-        print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-        print "\n\t\t\t<p>"._('File:');
-        print "\n\t\t\t".'<select name="logtype" id="logToView">'.implode("\n\t\t\t\t",$options3)."\n\t\t\t".'</select>';
-        print "\n\t\t\t"._('Number of lines:');
+        print '<p><form method="post" action="'.$this->formAction.'"><p>'._('File:');
+        print '<select name="logtype" id="logToView">'.implode((array)$options3).'</select>'._('Number of lines:');
         foreach (array(20, 50, 100, 200, 400, 500, 1000) AS $value) $options4[] = '<option '.($value == $_REQUEST['n'] ? 'selected="selected"' : '').' value="'.$value.'">'.$value.'</option>';
-        print "\n\t\t\t".'<select name="n" id="linesToView">'.implode("\n\t\t\t\t",$options4)."\n\t\t\t".'</select>';
-        print "\n\t\t\t<center>".'<input type="button" id="logpause" /></center>';
-        print "\n\t\t\t</p>";
-        print "\n\t\t\t</form>";
-        print "\n\t\t\t".'<div id="logsGoHere">&nbsp;</div>';
-        print "\n\t\t\t</p>";
+        print '<select name="n" id="linesToView">'.implode((array)$options4).'</select><center><input type="button" id="logpause" /></center></p></form><div id="logsGoHere">&nbsp;</div></p>';
     }
     /** config()
      * This feature is relatively new.  It's a means for the user to save the fog database

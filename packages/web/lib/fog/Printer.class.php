@@ -6,6 +6,7 @@ class Printer extends FOGController {
     public $databaseFields = array(
         'id' => 'pID',
         'name' => 'pAlias',
+        'description' => 'pDesc',
         'port' => 'pPort',
         'file' => 'pDefFile',
         'model' => 'pModel',
