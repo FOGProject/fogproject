@@ -142,6 +142,7 @@ configureHttpd() {
 	if [ "$snmysqluser" != "" ] && [ "$snmysqluser" != "$dbuser" ]; then
 		dbuser=$snmysqluser;
 	fi
+    createSSLCA;
     dots "Setting up and starting Apache Web Server";
 	php -m | grep mysqlnd &>/dev/null;
 	if [ "$?" != 0 ]; then
@@ -172,11 +173,11 @@ configureHttpd() {
 		echo "Failed!";
 		exit 1;
 	else
-		if [ -d "${webdirdest}.prev" ]; then
-			rm -rf "${webdirdest}.prev";
+		if [ -d "~/fog$version.BACKUP" ]; then
+			rm -rf "~/fog$version.BACKUP";
 		fi
 		if [ -d "$webdirdest" ]; then
-			mv "$webdirdest" "${webdirdest}.prev";
+			mv "$webdirdest" "~/fog$version.BACKUP";
 		fi
 		mkdir "$webdirdest";
 		cp -Rf $webdirsrc/* $webdirdest/
@@ -254,11 +255,11 @@ class Config {
 		define('STORAGE_FTP_PASSWORD', \"${password}\");
 		define('STORAGE_DATADIR', '/images/');
 		define('STORAGE_DATADIR_UPLOAD', '/images/dev/');
-		define('STORAGE_BANDWIDTHPATH', '/fog/status/bandwidth.php');
+		define('STORAGE_BANDWIDTHPATH', '/${webroot}status/bandwidth.php');
 		define('UPLOADRESIZEPCT',5);
 		define('WEB_HOST', \"${ipaddress}\");
 		define('WOL_HOST', \"${ipaddress}\");
-		define('WOL_PATH', '/fog/wol/wol.php');
+		define('WOL_PATH', '/${webroot}wol/wol.php');
 		define('WOL_INTERFACE', \"${interface}\");
 		define('SNAPINDIR', \"${snapindir}/\");
 		define('QUEUESIZE', '10');
@@ -288,7 +289,7 @@ class Config {
         wget -O "${webdirdest}/service/ipxe/init_32.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init_32.xz" >/dev/null 2>&1 & disown
         echo "Backgrounded"
         if [ ! -f "$webredirect" ]; then
-            echo "<?php header('Location: ./fog/index.php');?>" > $webredirect
+            echo "<?php header('Location: ./${webroot}index.php');?>" > $webredirect
         fi
         dots "Downloading New FOG Client file"
         clientVer="`awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/System.class.php | tr -d '[[:space:]]'`"
@@ -304,15 +305,12 @@ class Config {
             echo -e "\n\t\trun the command:";
             echo -e "\n\t\t\twget -O ${webdirdest}/client/FOGService.msi $clienturl";
         fi
-		if [ -d "$apachehtmlroot" ]; then
-			docroot="/var/www/html/";
-            # check if there is a html directory in the /var/www directory
-            # if so, then we need to create a link in there for the fog web files
-            [ ! -h ${apachehtmlroot}/fog ] && ln -s ${webdirdest} ${apachehtmlroot}/fog
-            echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/html/index.php";
+        if [ "$docroot" == "/var/www/html/" ]; then
+            [ ! -h ${docroot}/fog ] && ln -s ${webdirdest} ${docroot}/fog
+            echo "<?php header('Location: ./$webroot/index.php');" > "/var/www/html/index.php";
         else
-            echo "<?php header('Location: ./fog/index.php');?>" > "/var/www/index.php";
-		fi
+            echo "<?php header('Location: ./$webroot/index.php');" > "/var/www/index.php";
+        fi
 		#if [ -d "${webdirdest}.prev" ]; then
         #    dots "Copying back any custom hook files"
 		#	cp -Rf $webdirdest.prev/lib/hooks $webdirdest/lib/;

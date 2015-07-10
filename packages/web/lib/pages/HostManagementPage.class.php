@@ -512,9 +512,9 @@ class HostManagementPage extends FOGPage {
         print "<h2>"._('Host Printer Configuration').'</h2>';
         print "<p>"._('Select Management Level for this Host').'</p>';
         print "<p>";
-        print '<input type="radio" name="level" value="0"'.($this->obj->get(printerLevel) == 0 ? 'checked' : '').' />'._('No Printer Management').'<br/>';
-        print '<input type="radio" name="level" value="1"'.($this->obj->get(printerLevel) == 1 ? 'checked' : '').' />'._('Add Only').'<br/>';
-        print '<input type="radio" name="level" value="2"'.($this->obj->get(printerLevel) == 2 ? 'checked' : '').' />'._('Add and Remove').'<br/></p>';
+        print '<span class="icon fa fa-question hand" title="'._('This setting turns off all FOG Printer Management.  Although there are multiple levels already between host and global settings, this is just another to ensure safety').'"></span><input type="radio" name="level" value="0"'.($this->obj->get(printerLevel) == 0 ? 'checked' : '').' />'._('No Printer Management').'<br/>';
+        print '<span class="icon fa fa-question hand" title="'._('This setting only adds and removes printers that are managed by FOG.  If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unsigned host.  It will add printers to the host that are assigned.').'"></span><input type="radio" name="level" value="1"'.($this->obj->get(printerLevel) == 1 ? 'checked' : '').' />'._('FOG Managed Printers').'<br/>';
+        print '<span class="icon fa fa-question hand" title="'._('This setting will only allow FOG Assigned printers to be added to the host.  Any printer that is assigned will be removed including non-FOG managed printers.').'"></span><input type="radio" name="level" value="2"'.($this->obj->get(printerLevel) == 2 ? 'checked' : '').' />'._('Add and Remove').'<br/></p>';
         foreach ($this->getClass(PrinterManager)->find(array('id' => $this->obj->get(printers))) AS &$Printer) {
             $this->data[] = array(
                 'printer_id' => $Printer->get(id),
