@@ -301,7 +301,8 @@ class Config {
             echo -e "\n\t\t\twget -O ${webdirdest}/client/FOGService.msi $clienturl";
         fi
         if [ "$docroot" == "/var/www/html/" ]; then
-            [ ! -h ${docroot}/fog ] && ln -s ${webdirdest} ${docroot}/fog
+            tmpdocroot="/var/www";
+            [ ! -h ${tmpdocroot}/fog ] && ln -s ${webdirdest} ${tmpdocroot}/fog
             echo "<?php header('Location: ./$webroot/index.php');" > "/var/www/html/index.php";
         else
             echo "<?php header('Location: ./$webroot/index.php');" > "/var/www/index.php";
