@@ -31,42 +31,87 @@ abstract class FOGService extends FOGBase {
     }
     /** replicate_items() replicates data without having to keep repeating
      * @param $myStorageGroupID int this servers groupid
+     * @param $myStorageNodeID int this servers nodeid
      * @param $Obj object that is trying to send data, e.g. images, snapins
      * @param $master bool set if sending to master->master or master->nodes
      *     auto sets to false
      * @return the process
      */
-    public function replicate_items($myStorageGroupID,$Obj,StorageNode $StorageNode,$master = false) {
+    public function replicate_items($myStorageGroupID,$myStorageNodeID,$Obj,$master = false) {
+        // Ensure clean variables
+        unset($username,$password,$ip,$remItem,$myItem,$limitmain,$limitsend,$limit,$includeFile);
+        $itemType = $master ? 'group' : 'node';
+        // Get count of items to transfer to
+        if ($master) $groupOrNodeCount = $this->getClass(StorageGroupManager)->count(array('id' => $Obj->get(storageGroups))) - 1;
+        else $groupOrNodeCount = $this->getClass(StorageGroupManager)->count(array('id' => $myStorageGroupID)) - 1;
+        // No need to try doing anything as nothing exists for it to do
+        if (!$groupOrNodeCount) throw new Exception(_('This is the only member, not syncing'));
+        // Get the Object Type
         $objType = get_class($Obj);
-        $StorageNodeToSend = $master ? current($this->getClass(StorageNodeManager)->find(array('storageGroupID' => $Obj->get(storageGroups),'isMaster' => 1))) : current($this->getClass(StorageNodeManager)->find(array('storageGroupID' => $myStorageGroupID,'isMaster' => 0,'isEnabled','isEnabled' => 1),'','','','','',true));
-        $StorageGroups = ($master ? $this->getClass(StorageGroupManager)->find(array('id' => $Obj->get(storageGroups))) : $this->getClass(StorageNodeManager)->find(array('storageGroupID' => $myStorageGroupID)));
-        if (!$master) $myStorageGroupID = $this->getClass(StorageGroup,$myStorageGroupID)->getMasterStorageNode()->get(id);
+        $this->outall(sprintf(" * Found $itemType to transfer to %s %s(s)",$itemType,$groupOrNodeCount));
+        $this->outall(sprintf(" | $objType name: %s",$Obj->get(name)));
+        // Define the way to search for items
+        $findWhere[isEnabled] = 1;
+        $findWhere[isMaster] = (int)$master;
+        $findWhere[storageGroupID] = $master ? $Obj->get(storageGroups) : $myStorageGroupID;
+        // Get the path based off the object
         $getPathOfItemField = $objType == 'Snapin' ? 'snapinpath' : 'ftppath';
-        foreach ($StorageGroups AS $i => &$GroupToSend) {
-            if ($StorageNodeToSend && $StorageNodeToSend->isValid() && $GroupToSend->isValid() && $GroupToSend->get(id) != $myStorageGroupID) {
-                $username = $StorageNodeToSend->get(user);
-                $password = $StorageNodeToSend->get(pass);
-                $ip = $StorageNodeToSend->get(id);
-                $remItem = rtrim($StorageNodeToSend->get($getPathOfItemField),'/');
-                $myItem = rtrim($StorageNode->get($getPathOfItemField),'/');
-                if ($objType == 'Image') {
-                    $remItem .= $Obj->get(path);
-                    $myItem .= $Obj->get(path);
+        // Get the file itself
+        $getFileOfItemField = $objType == 'Snapin' ? 'file' : 'path';
+        // Get all the potential nodes of this group
+        $PotentialStorageNodes = $this->getClass(StorageNodeManager)->find($findWhere);
+        // Group to group is item specific
+        if ($master) {
+            foreach ($PotentialStorageNodes AS $i => &$StorageNodeToSend) {
+                if ($StorageNodeToSend->get(storageGroupID) != $myStorageGroupID) {
+                    $nodename[] = $StorageNodeToSend->get(name);
+                    $username[] = $StorageNodeToSend->get(user);
+                    $password[] = $StorageNodeToSend->get(pass);
+                    $ip[] = $StorageNodeToSend->get(ip);
+                    $removeItem = rtrim($StorageNodeToSend->get($getPathOfItemField),'/').'/'.$Obj->get($getFileOfItemField);
+                    $myAddItem = rtrim($StorageNode->get($getPathOfItemField),'/').'/'.$Obj->get($getFileOfItemField);
+                    if (is_file($removeItem)) {
+                        $remItem[] = dirname($removeItem).'/';
+                        $myItem[] = dirname($myAddItem).'/';
+                        $includeFile[] = '-i '.basename($removeItem);
+                    } else {
+                        $remItem[] = $removeItem;
+                        $myItem[] = $myAddItem;
+                        $includeFile[] = null;
+                    }
+                    $limitmain = $this->byteconvert($StorageNode->get(bandwidth));
+                    $limitsend = $this->byteconvert($StorageNodeToSend->get(bandwidth));
+                    if ($limitmain > 0) $limitset = "set net:limit-total-rate 0:$limitmain;";
+                    if ($limitsend > 0) $limitset .= "set net:limit-rate 0:$limitsend;";
+                    $limit[] = $limitset;
                 }
-                $limitmain = $this->byteconvert($StorageNode->get(bandwidth));
-                $limitsend = $this->byteconvert($StorageNodeToSend->get(bandwidth));
-                if ($limitmain > 0) $limit = "set net:limit-total-rate 0:$limitmain;";
-                if ($limitsend > 0) $limit .= "set net:limit-rate 0:$limitsend;";
-                $groupOrNodeCount = $master ? $this->getClass(StorageGroupManager)->count(array('id' => $Obj->get(storageGroups))) -1 : $this->getClass(StorageNodeManager)->count(array('storageGroupID' => $myStorageGroupID)) -1;
-                if ($groupOrNodeCount > 1) {
-                    $this->outall(sprintf(" * Found $itemType to transfer to %s %s",$itemType,$groupOrNodeCount));
-                    $this->outall(sprintf(" | $objType name: %s",$Obj->get(name)));
-                } else throw new Exception(_('This is the only member, not syncing'));
-                $process[$StorageNodeToSend->get(name)] = popen("lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; $limit mirror -R --ignore-time -i $mySnapFile -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first $myItem $remItem; exit' -u $username,$password $ip 2>&1","r");
-                stream_set_blocking($process[$StorageNodeToSend->get(name)]);
             }
+            unset($StorageNodeToSend);
+        // Group to nodes is everything
+        } else {
+            foreach ($PotentialStorageNodes AS $i => &$StorageNodeToSend) {
+                if ($StorageNodeToSend->get(storageGroupID) == $myStorageGroupID && $StorageNodeToSend->get(id) != $myStorageNodeID) {
+                    $nodename[] = $StorageNodeToSend->get(name);
+                    $username[] = $StorageNodeToSend->get(user);
+                    $password[] = $StorageNodeToSend->get(pass);
+                    $ip[] = $StorageNodeToSend->get(ip);
+                    $remItem[] = rtrim($StorageNodeToSend->get($getPathOfItemField),'/');
+                    $myItem[] = rtrim($StorageNode->get($getPathOfItemField),'/');
+                    $limitmain = $this->byteconvert($StorageNode->get(bandwidth));
+                    $limitsend = $this->byteconvert($StorageNodeToSend->get(bandwidth));
+                    if ($limitmain > 0) $limitset = "set net:limit-total-rate 0:$limitmain;";
+                    if ($limitsend > 0) $limitset .= "set net:limit-rate 0:$limitsend;";
+                    $limit[] = $limitset;
+                    $includeFile[] = null;
+                }
+            }
+            unset($StorageNodeToSend);
         }
-        unset($GroupToSend);
+        foreach ($nodename AS $i => &$name) {
+            $process[$name] = popen("lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; ".$limit[$i]." mirror -R --ignore-time ".$includeFile[$i]." -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first ".$myItem[$i].' '.$remItem[$i]."; exit' -u ".$username[$i].','.$password[$i].' '.$ip[$i]." 2>&1","r");
+            stream_set_blocking($process[$name]);
+        }
+        unset($name);
         foreach((array)$process AS $nodename => &$proc) {
             while (!feof($proc) && $proc != null) {
                 $output = fgets($proc,256);

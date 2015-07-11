@@ -60,21 +60,13 @@ class Snapin extends FOGController {
     }
     public function set($key, $value) {
         if ($this->key($key) == 'hosts') $this->loadHosts();
-        else if ($this->key($key) == 'storageGroups') {
-            $this->loadGroups();
-            foreach((array)$value AS $i => &$Group) $newValue[] = ($Group instanceof StorageGroup ? $Group : $this->getClass(StorageGroup,$Group));
-            unset($Group);
-            $value = (array)$newValue;
-        }
+        else if ($this->key($key) == 'storageGroups') $this->loadGroups();
         // Set
         return parent::set($key, $value);
     }
     public function add($key, $value) {
         if ($this->key($key) == 'hosts') $this->loadHosts();
-        else if ($this->key($key) == 'storageGroups' && !($value instanceof StorageGroup)) {
-            $this->loadGroups();
-            $value = $this->getClass('StorageGroup',$value);
-        }
+        else if ($this->key($key) == 'storageGroups') $this->loadGroups();
         // Add
         return parent::add($key, $value);
     }
@@ -104,12 +96,10 @@ class Snapin extends FOGController {
             $Groups = $this->get(storageGroups);
             // Create Assoc
             foreach($Groups AS $i => &$Group) {
-                if (($Group instanceof StorageGroup) && $Group->isValid()) {
-                    $this->getClass(SnapinGroupAssociation)
-                        ->set(snapinID,$this->get(id))
-                        ->set(storageGroupID,$Group->get(id))
-                        ->save();
-                }
+                $this->getClass(SnapinGroupAssociation)
+                    ->set(snapinID,$this->get(id))
+                    ->set(storageGroupID,$Group)
+                    ->save();
             }
             unset($Group);
         }
@@ -124,7 +114,8 @@ class Snapin extends FOGController {
     }
     public function load($field = 'id') {
         parent::load($field);
-        foreach(get_class_methods($this) AS $i => &$method) {
+        $methods = get_class_methods($this);
+        foreach ($methods AS $i => &$method) {
             if (strlen($method) > 5 && strpos($method,'load')) $this->$method();
         }
         unset($method);
@@ -145,23 +136,16 @@ class Snapin extends FOGController {
     }
     public function removeGroup($removeArray) {
         // Iterate array (or other as array)
-        foreach((array)$removeArray AS $i => &$remove) $this->remove(storageGroups,($remove instanceof StorageGroup ? $remove : $this->getClass(StorageGroup,(int)$remove)));
+        foreach((array)$removeArray AS $i => &$remove) $this->remove(storageGroups,$remove);
         unset($remove);
         // Return
         return $this;
     }
     public function getStorageGroup() {
-        $StorageGroup = current($this->get(storageGroups));
-        if (!$StorageGroup || ($StorageGroup instanceof StorageGroup && !$StorageGroup->isValid())) {
-            $Groups = $this->getClass(StorageGroupManager)->find();
-            foreach ($Groups AS $i => &$SG) {
-                if ($SG->isValid()) {
-                    $this->add(storageGroups,$SG);
-                    break;
-                }
-            }
-            unset($SG);
-            $StorageGroup = current($this->get(storageGroups));
+        $StorageGroup = $this->getClass(StorageGroup,current((array)$this->get(storageGroups)));
+        if (!$StorageGroup->isValid()) {
+            $this->add(storageGroups,@min($this->getClass(StorageGroupManager)->find('','','','','','','','id')));
+            $StorageGroup = $this->getClass(StorageGroup,current((array)$this->get(storageGroups)));
         }
         return $StorageGroup;
     }
@@ -183,21 +167,18 @@ class Snapin extends FOGController {
         Only used if the user checks the Add File? checkbox.
      */
     public function deleteFile() {
-        $SG = $this->getStorageGroup();
-        if ($SG && $SG->isValid()) {
-            $SN = $this->getStorageGroup()->getMasterStorageNode();
-            $SNME = ($SN && $SN->get('isEnabled') == '1' ? true : false);
-            if (!$SNME) throw new Exception($this->foglang['NoMasterNode']);
-            $ftphost = $this->FOGCore->resolveHostname($SN->get('ip'));
-            $ftpuser = $SN->get('user');
-            $ftppass = $SN->get('pass');
-            $ftproot = rtrim($SN->get('snapinpath'),'/').'/'.$this->get('file');
-            $this->FOGFTP
-                ->set('host',$ftphost)
-                ->set('username',$ftpuser)
-                ->set('password',$ftppass)
-                ->connect();
-            if(!$this->FOGFTP->delete($ftproot)) throw new Exception($this->foglang['FailedDelete']);
-        }
+        $SN = $this->getStorageGroup()->getMasterStorageNode();
+        $SNME = ($SN && $SN->get(isEnabled) == 1 ? true : false);
+        if (!$SNME) throw new Exception($this->foglang[NoMasterNode]);
+        $ftphost = $this->FOGCore->resolveHostname($SN->get(ip));
+        $ftpuser = $SN->get(user);
+        $ftppass = $SN->get(pass);
+        $ftproot = rtrim($SN->get(snapinpath),'/').'/'.$this->get('file');
+        $this->FOGFTP
+            ->set(host,$ftphost)
+            ->set(username,$ftpuser)
+            ->set(password,$ftppass)
+            ->connect();
+        if (!$this->FOGFTP->delete($ftproot)) throw new Exception($this->foglang[FailedDelete]);
     }
 }
