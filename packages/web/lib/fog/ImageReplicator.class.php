@@ -33,7 +33,7 @@ class ImageReplicator extends FOGService {
                         if ($StorageNodeToSend && $StorageNodeToSend->isValid()) {
                             $username = $StorageNodeToSend->get(user);
                             $password = $StorageNodeToSend->get(pass);
-                            $ip = $this->FOGCore->resolveHostname($StorageNodeToSend->get(ip));
+                            $ip = $StorageNodeToSend->get(ip);
                             $remImage = rtrim($StorageNodeToSend->get(ftppath),'/').'/'.$Image->get(path);
                             $myImage = rtrim($StorageNode->get(ftppath),'/').'/'.$Image->get(path);
                             $limitmain = $this->byteconvert($StorageNode->get(bandwidth));

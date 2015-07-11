@@ -28,11 +28,11 @@ try {
     // Where is it going?
     $dest = $StorageNode->get('ftppath').'/'.$_REQUEST['to'];
     //Attempt transfer of image file to Storage Node
-    $ftp->set('host',$FOGCore->resolveHostname($StorageNode->get('ip')))
-        ->set('username',$StorageNode->get('user'))
-        ->set('password',$StorageNode->get('pass'));
+    $ftp->set(host,$StorageNode->get(ip))
+        ->set(username,$StorageNode->get(user))
+        ->set(password,$StorageNode->get(pass));
     if (!$ftp->connect())
-        throw new Exception(_('Storage Node: '.$FOGCore->resolveHostname($StorageNode->get('ip')).' FTP Connection has failed!'));
+        throw new Exception(_('Storage Node: '.$StorageNode->get(ip).' FTP Connection has failed!'));
     // Try to delete the file.  Doesn't hurt anything if it doesn't delete anything.
     $ftp->delete($dest);
     if ($ftp->rename($dest,$src)||$ftp->put($dest,$src))

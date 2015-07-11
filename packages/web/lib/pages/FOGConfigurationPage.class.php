@@ -728,13 +728,13 @@ class FOGConfigurationPage extends FOGPage {
      * Just used to view these logs.  Can be used for more than this as well with some tweeking.
      */
     public function log() {
-        foreach($this->getClass('StorageGroupManager')->find() AS &$StorageGroup) {
+        foreach($this->getClass(StorageGroupManager)->find() AS &$StorageGroup) {
             if ($StorageGroup->isValid()) {
                 $StorageNode = $StorageGroup->getMasterStorageNode();
                 if ($StorageNode && $StorageNode->isValid()) {
-                    $user = $StorageNode->get('user');
-                    $pass = $StorageNode->get('pass');
-                    $host = $this->FOGCore->resolveHostname($StorageNode->get('ip'));
+                    $user = $StorageNode->get(user);
+                    $pass = $StorageNode->get(pass);
+                    $host = $StorageNode->get(ip);
                     $ftpstarter[$StorageNode->get('name')] = "ftp://$user:$pass@$host";
                     $ftpstart = $ftpstarter[$StorageNode->get('name')];
                     $apacheerrlog = (file_exists("$ftpstart/var/log/httpd/error_log") ? "$ftpstart/var/log/httpd/error_log" : (file_exists("$ftpstart/var/log/apache2/error.log") ? "$ftpstart/var/log/apache2/error.log" : false));
