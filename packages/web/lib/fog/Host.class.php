@@ -188,7 +188,12 @@ class Host extends FOGController {
         return $this;
     }
     private function loadTask() {
-        if (!$this->isLoaded(task) && $this->get(id)) $this->set(task,$this->getClass(Task,@max($this->getClass(TaskManager)->find(array('hostID' => $this->get(id),'stateID' => array(1,2,3)),'','','','','','','id'))));
+        if (!$this->isLoaded(task) && $this->get(id)) {
+            $findWhere[hostID] = $this->get(id);
+            $findWhere[stateID] = array(0,1,2,3);
+            if (in_array($_REQUEST[type],array('up','down'))) $findWhere[typeID] = ($_REQUEST[type] == 'up' ? array(2,16) : array(1,8,15,17,24));
+            $this->set(task,$this->getClass(Task,@max($this->getClass(TaskManager)->find($findWhere,'','','','','','','id'))));
+        }
         return $this;
     }
     private function loadUsers() {
@@ -400,7 +405,7 @@ class Host extends FOGController {
         public function checkIfExist($taskTypeID) {
             $res = true;
             // TaskType: Variables
-            $TaskType = new TaskType($taskTypeID);
+            $TaskType = $this->getClass(TaskType,$taskTypeID);
             $isUpload = $TaskType->isUpload();
             // Image: Variables
             $Image = $this->getImage();

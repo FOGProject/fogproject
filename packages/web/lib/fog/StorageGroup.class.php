@@ -8,6 +8,7 @@ class StorageGroup extends FOGController {
         'name'		=> 'ngName',
         'description'	=> 'ngDesc'
     );
+    // Additional Fields
     // Custom functions: Storage Group
     public function getStorageNodes() {return $this->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'storageGroupID' => $this->get('id')));}
         public function getTotalSupportedClients() {
