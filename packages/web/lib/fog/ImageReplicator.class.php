@@ -4,7 +4,14 @@ class ImageReplicator extends FOGService {
     public $log = REPLICATORLOGPATH;
     public $zzz = REPLICATORSLEEPTIME;
     private function commonOutput() {
-        $StorageNode = current($this->getClass(StorageNodeManager)->find(array('isMaster' => 1,'isEnabled' => 1,'ip' => $this->FOGCore->getIPAddress())));
+        $StorageNodes = $this->getClass(StorageNodeManager)->find(array('isMaster' => 1,'isEnabled' => 1));
+        foreach ($StorageNodes AS $i => &$SN) {
+            if (in_array($this->FOGCore->resolveHostname($SN->get(ip)),$this->FOGCore->getIPAddress())) {
+                $StorageNode = $SN;
+                break;
+            }
+        }
+        unset($SN);
         try {
             if (!$StorageNode || !$StorageNode->isValid()) {
                 $this->FOGCore->wlog(" * I don't appear to be the group manager, I will check back later.",'/opt/fog/log/groupmanager.log');
