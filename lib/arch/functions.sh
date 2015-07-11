@@ -131,7 +131,6 @@ configureHttpd() {
 	if [ "$snmysqluser" != "" ] && [ "$snmysqluser" != "$dbuser" ]; then
 		dbuser=$snmysqluser;
 	fi
-    createSSLCA;
     dots "  * Setting up and starting Apache Web Server";
   echo '<FilesMatch \.php$>
     SetHandler "proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://127.0.0.1/"
@@ -143,9 +142,6 @@ configureHttpd() {
     systemctl enable httpd php-fpm >/dev/null 2>&1
     sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' /etc/php.ini >/dev/null 2>&1
     sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php.ini >/dev/null 2>&1
-	systemctl restart httpd php-fpm >/dev/null 2>&1
-	sleep 2;
-	systemctl status httpd php-fpm >/dev/null 2>&1
     errorStat $?
     dots "Backing up and copying new fog web folders"
     if [ -d "/home/fogWeb$version.BACKUP" ]; then
@@ -156,6 +152,7 @@ configureHttpd() {
     fi
     mkdir -p "$webdirdest";
     cp -Rf $webdirsrc/* $webdirdest/
+    createSSLCA;
     echo "<?php
 class Config {
 	/** @function __construct() Calls the required functions to define the settings.
