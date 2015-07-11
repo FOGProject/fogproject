@@ -141,7 +141,6 @@ configureHttpd() {
 	if [ "$snmysqluser" != "" ] && [ "$snmysqluser" != "$dbuser" ]; then
 		dbuser=$snmysqluser;
 	fi
-    createSSLCA;
     dots "Setting up and starting Apache Web Server";
 	php -m | grep mysqlnd &>/dev/null;
 	if [ "$?" != 0 ]; then
@@ -160,12 +159,9 @@ configureHttpd() {
 		sysv-rc-conf apache2 on >/dev/null 2>&1
 		/etc/init.d/apache2 stop >/dev/null 2>&1
         sleep 2
-		/etc/init.d/apache2 start >/dev/null 2>&1
 	else
 		systemctl enable apache2 >/dev/null 2>&1
-		systemctl restart apache2 >/dev/null 2>&1
         sleep 2
-		systemctl status apache2 >/dev/null 2>&1
 	fi
     errorStat $?
     dots "Backing up and copying new fog web folders"
@@ -177,6 +173,7 @@ configureHttpd() {
         fi
 		mkdir -p "$webdirdest";
 		cp -Rf $webdirsrc/* $webdirdest/
+    createSSLCA;
 		echo "<?php
 class Config {
 	/** @function __construct() Calls the required functions to define the settings.
