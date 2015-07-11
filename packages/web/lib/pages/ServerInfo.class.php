@@ -11,9 +11,9 @@ class ServerInfo extends FOGPage {
         );
         $this->notes = array(
             "{$this->foglang[Storage]} {$this->foglang[Node]}" => $this->obj->get('name'),
-            'IP' => $this->FOGCore->resolveHostname($this->obj->get('ip')),
-            $this->foglang[ImagePath] => $this->obj->get('path'),
-            $this->foglang[FTPPath] => $this->obj->get('ftppath'),
+            'IP' => $this->obj->get(ip),
+            $this->foglang[ImagePath] => $this->obj->get(path),
+            $this->foglang[FTPPath] => $this->obj->get(ftppath),
         );
     }
     // Pages
@@ -34,7 +34,7 @@ class ServerInfo extends FOGPage {
             );
             if ($StorageNode) {
                 $webroot = $this->FOGCore->getSetting('FOG_WEB_ROOT') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/').'/' : '/';
-                $URL = sprintf('http://%s%sstatus/hw.php',$this->FOGCore->resolveHostname($StorageNode->get('ip')),$webroot);
+                $URL = sprintf('http://%s%sstatus/hw.php',$StorageNode->get(ip),$webroot);
                 if ($ret = $this->FOGURLRequests->process($URL)) {
                     $arRet = explode("\n",$ret[0]);
                     $section = 0; //general
@@ -72,7 +72,7 @@ class ServerInfo extends FOGPage {
                         $fields = array(
                             '<b>'._('General Information') => '&nbsp;',
                             _('Storage Node') => $StorageNode->get('name'),
-                            _('IP') => $this->FOGCore->resolveHostname($StorageNode->get('ip')),
+                            _('IP') => $this->FOGCore->resolveHostname($StorageNode->get(ip)),
                             _('Kernel') => $arGeneral[0],
                             _('Hostname') => $arGeneral[1],
                             _('Uptime') => $arGeneral[2],

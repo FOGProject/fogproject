@@ -44,7 +44,7 @@ class SnapinReplicator extends FOGService {
 									if ($StorageNodeToSend && $StorageNodeToSend->isValid()) {
 										$username = $StorageNodeToSend->get('user');
 										$password = $StorageNodeToSend->get('pass');
-										$ip = $this->FOGCore->resolveHostname($StorageNodeToSend->get('ip'));
+										$ip = $StorageNodeToSend->get(ip);
 										$remSnapin = rtrim($StorageNodeToSend->get('snapinpath'),'/');
 										$mySnapin = rtrim($StorageNode->get('snapinpath'),'/');
 										$limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
@@ -84,7 +84,7 @@ class SnapinReplicator extends FOGService {
 								if ($StorageNodeFTP->get('isEnabled')) {
 									$username = $StorageNodeFTP->get('user');
 									$password = $StorageNodeFTP->get('pass');
-									$ip = $this->FOGCore->resolveHostname($StorageNodeFTP->get('ip'));
+									$ip = $StorageNodeFTP->get(ip);
 									$remRoot = rtrim($StorageNodeFTP->get('snapinpath'),'/');
 									$limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
 									$limitsend = $this->byteconvert($StorageNodeFTP->get('bandwidth'));
