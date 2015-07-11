@@ -152,7 +152,9 @@ configureHttpd() {
     fi
     mkdir -p "$webdirdest";
     cp -Rf $webdirsrc/* $webdirdest/
+    errorStat $?;
     createSSLCA;
+    dots "Creating config file";
     echo "<?php
 class Config {
 	/** @function __construct() Calls the required functions to define the settings.
