@@ -702,6 +702,7 @@ storageftpuser=\"$storageftpuser\";
 storageftppass=\"$storageftppass\";
 docroot=\"$docroot\";
 webroot=\"$webroot\";
+caCreated=\"$caCreated\";
 " > "$fogprogramdir/.fogsettings";
 }
 displayBanner() {
@@ -816,5 +817,5 @@ EOF
         service php-fpm status >/dev/null 2>&1
     fi
     errorStat $?
-    echo "caCreated=\"yes\"" >> "$fogprogramdir/.fogsettings";
+    caCreated="yes"
 }
