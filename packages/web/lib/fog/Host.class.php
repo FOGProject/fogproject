@@ -809,8 +809,6 @@ class Host extends FOGController {
             'ModuleAssociation',
             'MACAddressAssociation',
             'SnapinAssociation',
-            'FingerprintAssociation',
-            'Queue'
         );
         foreach ($assocs AS &$AssocRem) $this->getClass($AssocRem)->getManager()->destroy(array('hostID' => $this->get(id)));
         unset($AssocRem);
