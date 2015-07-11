@@ -91,7 +91,7 @@ class DashboardPage extends FOGPage {
         if ($StorageNode && $StorageNode->isValid() && $StorageNode->get('isGraphEnabled')) {
             try {
                 $webroot = $this->FOGCore->getSetting('FOG_WEB_ROOT') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/').'/' : '/';
-                $URL = sprintf('http://%s%sstatus/freespace.php?path=%s',$this->FOGCore->resolveHostname($StorageNode->get('ip')),$webroot,base64_encode($StorageNode->get('path')));
+                $URL = sprintf('http://%s%sstatus/freespace.php?path=%s',$StorageNode->get(ip),$webroot,base64_encode($StorageNode->get(path)));
                 if ($Response = $this->FOGURLRequests->process($URL,'GET')) {
                     // Legacy client
                     if (preg_match('#(.*)@(.*)#', $Response[0], $match)) $Data = array('free' => $match[1], 'used' => $match[2]);

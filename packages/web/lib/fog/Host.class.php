@@ -411,11 +411,11 @@ class Host extends FOGController {
             if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(_('No Storage Node found for this image'));
             if (in_array($TaskType->get('id'),array('1','8','15','17'))) {
                 // FTP
-                $this->FOGFTP->set('username',$StorageNode->get('user'))
-                    ->set('password',$StorageNode->get('pass'))
-                    ->set('host',$this->FOGCore->resolveHostname($StorageNode->get('ip')));
+                $this->FOGFTP->set(username,$StorageNode->get(user))
+                    ->set(password,$StorageNode->get(pass))
+                    ->set(host,$StorageNode->get(ip));
                 $conn = $this->FOGFTP->connect();
-                if (!$conn || !$this->FOGFTP->exists('/'.trim($StorageNode->get('ftppath'),'/').'/'.$Image->get('path'))) $res = false;
+                if (!$conn || !$this->FOGFTP->exists('/'.trim($StorageNode->get(ftppath),'/').'/'.$Image->get(path))) $res = false;
                 $this->FOGFTP->close();
             }
             return $res;

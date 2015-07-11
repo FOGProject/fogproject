@@ -151,14 +151,14 @@ class Image extends FOGController {
         $SN = $this->getStorageGroup()->getMasterStorageNode();
         $SNME = ($SN && $SN->get('isEnabled') == '1' ? true : false);
         if (!$SNME)	throw new Exception($this->foglang['NoMasterNode']);
-        $ftphost = $this->FOGCore->resolveHostname($SN->get('ip'));
-        $ftpuser = $SN->get('user');
-        $ftppass = $SN->get('pass');
-        $ftproot = rtrim($SN->get('ftppath'),'/').'/'.$this->get('path');
+        $ftphost = $SN->get(ip);
+        $ftpuser = $SN->get(user);
+        $ftppass = $SN->get(pass);
+        $ftproot = rtrim($SN->get(ftppath),'/').'/'.$this->get(path);
         $this->FOGFTP
-            ->set('host',$ftphost)
-            ->set('username',$ftpuser)
-            ->set('password',$ftppass)
+            ->set(host,$ftphost)
+            ->set(username,$ftpuser)
+            ->set(password,$ftppass)
             ->connect();
         if(!$this->FOGFTP->delete($ftproot)) throw new Exception($this->foglang['FailedDeleteImage']);
     }

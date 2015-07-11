@@ -167,10 +167,10 @@ class SnapinManagementPage extends FOGPage {
                     $StorageNode = $this->getClass('StorageGroup',$_REQUEST['storagegroup'])->getMasterStorageNode();
                     $src = $_FILES['snapin']['tmp_name'];
                     $dest = rtrim($StorageNode->get('snapinpath'),'/').'/'.$_FILES['snapin']['name'];
-                    $this->FOGFTP->set('host',$this->FOGCore->resolveHostname($StorageNode->get('ip')))
-                        ->set('username',$StorageNode->get('user'))
-                        ->set('password',$StorageNode->get('pass'));
-                    if (!$this->FOGFTP->connect()) throw new Exception(_('Storage Node: '.$this->FOGCore->resolveHostname($StorageNode->get('ip')).' FTP Connection has failed!'));
+                    $this->FOGFTP->set(host,$StorageNode->get(ip))
+                        ->set(username,$StorageNode->get(user))
+                        ->set(password,$StorageNode->get(pass));
+                    if (!$this->FOGFTP->connect()) throw new Exception(_('Storage Node: '.$StorageNode->get(ip).' FTP Connection has failed!'));
                     if (!$this->FOGFTP->chdir($StorageNode->get('snapinpath'))) {
                         if (!$this->FOGFTP->mkdir($StorageNode->get('snapinpath'))) throw new Exception(_('Failed to add snapin, unable to locate snapin directory.'));
                     }
