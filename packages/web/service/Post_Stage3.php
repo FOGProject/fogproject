@@ -14,7 +14,7 @@ try {
     $FOGCore->getClass(ImagingLog,$id)
         ->set(finish,$FOGCore->formatTime('now','Y-m-d H:i:s'))
         ->save();
-    $FOGCore->getClass(TaslkLog,$Task)
+    $FOGCore->getClass(TaskLog,$Task)
         ->set(taskID,$Task->get(id))
         ->set(taskStateID,$Task->get(stateID))
         ->set(createdTime,$Task->get(createdTime))
