@@ -14,89 +14,28 @@ class ImageReplicator extends FOGService {
         unset($SN);
         try {
             if (!$StorageNode || !$StorageNode->isValid()) {
-                $this->FOGCore->wlog(" * I don't appear to be the group manager, I will check back later.",'/opt/fog/log/groupmanager.log');
-                throw new Exception("I don't appear to be the group manager, I will check back later.");
+                $message = _('I do not appear to be the group manager');
+                $this->FOGCore->wlog(' * '.$message,'/opt/fog/log/groupmanager.log');
+                throw new Exception($message);
             }
-            $this->FOGCore->out(' * I am the group manager.',$this->dev);
-            $this->FOGCore->wlog(' * I am the group manager.','/opt/fog/log/groupmanager.log');
+            $this->FOGCore->out(' * I am the group manager',$this->dev);
+            $this->FOGCore->wlog(' * I am the group manager','/opt/fog/log/groupmanager.log');
+            $myStorageGroupID = $StorageNode->get(storageGroupID);
+            $myStorageNodeID = $StorageNode->get(id);
             $this->outall(" * Starting Image Replication.");
 
-            $this->outall(sprintf(" * We are group ID: #%s",$StorageNode->get('storageGroupID')));
-            $this->outall(sprintf(" * We have node ID: #%s",$StorageNode->get('id')));
-            $StorageNodes = $this->getClass('StorageNodeManager')->find(array('storageGroupID' => $StorageNode->get('storageGroupID')));
-            foreach($StorageNodes AS $i => &$OtherNode) {
-                if ($OtherNode->get('id') != $StorageNode->get('id') && $OtherNode->get('isEnabled')) $StorageNodeCount[] = $OtherNode;
-            }
-            unset($OtherNode);
-            unset($limit);
-            // Try to get the images based on this group
-            $ImageIDs = array_unique($this->getClass(ImageAssociationManager)->find(array('storageGroupID' => $StorageNode->get(storageGroupID)),'','','','','','','imageID'));
-            foreach($ImageIDs AS $i => &$imgID) {
-                $Image = $this->getClass(Image,$imgID);
-                $ImageGroups = $this->getClass(StorageGroupManager)->find(array('id' => $Image->get(storageGroups)));
-                foreach($ImageGroups AS $i => &$GroupToSend) {
-                    if ($GroupToSend->isValid() && $GroupToSend->get(id) != $StorageNode->get(storageGroupID)) {
-                        $StorageNodeToSend = $GroupToSend->getMasterStorageNode();
-                        if ($StorageNodeToSend && $StorageNodeToSend->isValid()) {
-                            $username = $StorageNodeToSend->get(user);
-                            $password = $StorageNodeToSend->get(pass);
-                            $ip = $StorageNodeToSend->get(ip);
-                            $remImage = rtrim($StorageNodeToSend->get(ftppath),'/').'/'.$Image->get(path);
-                            $myImage = rtrim($StorageNode->get(ftppath),'/').'/'.$Image->get(path);
-                            $limitmain = $this->byteconvert($StorageNode->get(bandwidth));
-                            $limitsend = $this->byteconvert($StorageNodeToSend->get(bandwidth));
-                            if ($limitmain > 0) $limit = "set net:limit-total-rate 0:$limitmain;";
-                            if ($limitsend > 0) $limit .= "set net:limit-rate 0:$limitsend;";
-                            $this->outall(sprintf(" * Found image to transfer to %s group(s)",count($Image->get(storageGroups)) - 1));
-                            $this->outall(sprintf(" | Image name: %s",$Image->get('name')));
-                            $process[$StorageNodeToSend->get('name')] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 10;set net:timeout 30;".$limit." mirror -n --ignore-time -R -vvv --exclude 'dev/' --delete $myImage $remImage; exit\" -u $username,$password $ip 2>&1","r");
-                        }
-                    }
-                }
-                unset($GroupToSend);
-                foreach ((array)$process AS $nodename => &$proc) {
-                    stream_set_blocking($proc,false);
-                    while (!feof($proc) && $proc != null) {
-                        $output = fgets($proc,256);
-                        if ($output) $this->outall(sprintf(" * %s - SubProcess -> %s",$nodename,$output));
-                    }
-                    pclose($proc);
-                    $this->outall(sprintf(" * %s - SubProcess -> Complete",$nodename));
-                }
-                unset($process,$proc);
-            }
-            unset($limit,$imgID);
-            $this->outall(sprintf(" * Checking nodes within my group."));
-            if (!count($StorageNodeCount)) throw new Exception(sprintf("I am the only member, no need to copy anything!."));
-            $this->outall(sprintf(" * Found: %s other member(s).",count($StorageNodeCount)));
-            $this->outall(sprintf(''));
-            $myRoot = rtrim($StorageNode->get('ftppath'),'/');
-            $this->outall(sprintf(" * My root: %s",$myRoot));
-            $this->outall(sprintf(" * Starting Sync."));
-            foreach($StorageNodeCount AS $i => &$StorageNodeFTP) {
-                if ($StorageNodeFTP->get(isEnabled)) {
-                    $username = $StorageNodeFTP->get(user);
-                    $password = $StorageNodeFTP->get(pass);
-                    $ip = $StorageNodeFTP->get(ip);
-                    $remRoot = rtrim($StorageNodeFTP->get(ftppath),'/');
-                    $limitmain = $this->byteconvert($StorageNode->get(bandwidth));
-                    $limitsend = $this->byteconvert($StorageNodeFTP->get(bandwidth));
-                    if ($limitmain > 0) $limit = "set net:limit-total-rate 0:$limitmain;";
-                    if ($limitsend > 0) $limit .= "set net:limit-rate 0:$limitsend;";
-                    $process[$StorageNodeFTP->get(name)] = popen("lftp -e \"set ftp:list-options -a;set net:max-retries 10;set net:timeout 30;".$limit." mirror -n --ignore-time -R -vvv --exclude 'dev/' --delete $myRoot $remRoot; exit\" -u $username,$password $ip 2>&1","r");
-                }
-            }
-            unset($StorageNodeFTP);
-            foreach ((array)$process AS $nodename => &$proc) {
-                stream_set_blocking($proc,false);
-                while(!feof($proc) && $proc != null) {
-                    $output = fgets($proc,256);
-                    if ($output) $this->outall(sprintf(" * %s - SubProcess -> %s",$nodename,$output));
-                }
-                pclose($proc);
-                $this->outall(sprintf(" * %s - SubProcess -> Complete",$nodename));
-            }
-            unset($process,$proc);
+            $this->outall(sprintf(" * We are group ID: #%s",$myStorageGroupID));
+            $this->outall(sprintf(" | We are group name: %s",$this->getClass(StorageGroup,$myStorageGroupID)->get(name)));
+            $this->outall(sprintf(" * We have node ID: #%s",$myStorageNodeID));
+            $this->outall(sprintf(" | We are node name: %s",$this->getClass(StorageNode,$myStorageNodeID)->get(name)));
+            $ImageAssocCount = $this->getClass(ImageAssociationManager)->count(array('storageGroupID' => $myStorageGroupID));
+            $ImageCount = $this->getClass(ImageManager)->count();
+            if ($ImageAssocCount <= 0 || $ImageCount <= 0) throw new Exception(_('There is nothing to replicate'));
+            $Images = $this->getClass(ImageManager)->find(array('id' => $this->getClass(ImageAssociationManager)->find(array('storageGroupID' => $myStorageGroupID),'','','','','','','imageID')));
+            foreach ($Images AS $i => &$Image) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Image,true);
+            unset($Image);
+            foreach ($Images AS $i => &$Image) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Image,false);
+            unset($Image);
         } catch (Exception $e) {
             $this->outall(' * '.$e->getMessage());
         }

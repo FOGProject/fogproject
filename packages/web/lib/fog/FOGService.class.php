@@ -45,7 +45,7 @@ abstract class FOGService extends FOGBase {
         $findWhere[isEnabled] = 1;
         $findWhere[isMaster] = (int)$master;
         $findWhere[storageGroupID] = $master ? $Obj->get(storageGroups) : $myStorageGroupID;
-        // Storage NOde
+        // Storage Node
         $StorageNode = $this->getClass(StorageNode,$myStorageNodeID);
         if (!$StorageNode->isValid() || !$StorageNode->get(isMaster)) throw new Exception(_('I am not the master'));
         // Get the Object Type
@@ -70,7 +70,7 @@ abstract class FOGService extends FOGBase {
             $PotentialStorageNodes = $this->getClass(StorageNodeManager)->find($findWhere);
             // Group to group is item specific
             foreach ($PotentialStorageNodes AS $i => &$StorageNodeToSend) {
-                if ($StorageNodeToSend->get(storageGroupID) != $myStorageGroupID) {
+                if (($master && $StorageNodeToSend->get(storageGroupID) != $myStorageGroupID) || !$master) {
                     $this->FOGFTP
                         ->set(username,$StorageNodeToSend->get(user))
                         ->set(password,$StorageNodeToSend->get(pass))
@@ -82,20 +82,15 @@ abstract class FOGService extends FOGBase {
                         break;
                     }
                     $this->FOGFTP->close();
-                    $nodename[] = $StorageNodeToSend->get(name);
-                    $username[] = $StorageNodeToSend->get(user);
-                    $password[] = $StorageNodeToSend->get(pass);
-                    $ip[] = $StorageNodeToSend->get(ip);
                     $removeItem = '/'.trim($StorageNodeToSend->get($getPathOfItemField),'/').($master ? '/'.$Obj->get($getFileOfItemField) : '');
                     $myAddItem = '/'.trim($StorageNode->get($getPathOfItemField),'/').($master ? '/'.$Obj->get($getFileOfItemField) : '');
-                    $this->outall(file_exists($myAddItem));
                     if (!file_exists($myAddItem)) {
                         $this->outall(_(" * Not syncing $objType between $itemType(s)"));
                         $this->outall(_(" | $objType Name: ".$Obj->get(name)));
                         $this->outall(_(" | File or path cannot be reached"));
                         continue;
                     }
-                    if (is_file($removeItem)) {
+                    if (is_file($myAddItem)) {
                         $remItem[] = dirname($removeItem).'/';
                         $myItem[] = dirname($myAddItem).'/';
                         $includeFile[] = '-i '.basename($removeItem);
@@ -104,6 +99,10 @@ abstract class FOGService extends FOGBase {
                         $myItem[] = $myAddItem;
                         $includeFile[] = null;
                     }
+                    $nodename[] = $StorageNodeToSend->get(name);
+                    $username[] = $StorageNodeToSend->get(user);
+                    $password[] = $StorageNodeToSend->get(pass);
+                    $ip[] = $StorageNodeToSend->get(ip);
                     $limitmain = $this->byteconvert($StorageNode->get(bandwidth));
                     $limitsend = $this->byteconvert($StorageNodeToSend->get(bandwidth));
                     if ($limitmain > 0) $limitset = "set net:limit-total-rate 0:$limitmain;";
@@ -113,7 +112,7 @@ abstract class FOGService extends FOGBase {
                 unset($StorageNodeToSend);
             }
             $this->outall(_(' * Starting Sync Actions'));
-            foreach ($nodename AS $i => &$name) {
+            foreach ((array)$nodename AS $i => &$name) {
                 $process[$name] = popen("lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; ".$limit[$i]." mirror -R --ignore-time ".$includeFile[$i]." -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first ".$myItem[$i].' '.$remItem[$i]."; exit' -u ".$username[$i].','.$password[$i].' '.$ip[$i]." 2>&1","r");
                 stream_set_blocking($process[$name]);
             }
@@ -127,6 +126,7 @@ abstract class FOGService extends FOGBase {
                 $this->outall(sprintf(' * %s - SubProcess -> Complete',$nodename));
             }
             unset($process,$proc);
+            $this->outall(_(' * Sync Actions all complete'));
         }
     }
 }
