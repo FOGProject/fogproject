@@ -34,7 +34,7 @@ try {
                 $SnapinTasks = $FOGCore->getClass(SnapinTaskManager)->find(array('stateID' => array(-1,0,1),'jobID' => $SnapinJob->get(id)));
                 foreach($SnapinTasks AS $SnapinTask) {
                     if ($SnapinTask && $SnapinTask->isValid()) {
-                        $Snapin = $this->getClass(Snapin,$SnapinTask->get(snapinID));
+                        $Snapin = $FOGCore->getClass(Snapin,$SnapinTask->get(snapinID));
                         if ($Snapin->isValid()) $SnapinNames[] = $Snapin->get(name);
                     }
                 }
@@ -82,7 +82,7 @@ try {
     if ($Task->get(typeID) == 8) {
         $MyMulticastTask = current($FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))));
         if ($MyMulticastTask && $MyMulticastTask->isValid()) {
-            $MulticastSession = $this->getClass(MulticastSessions,$MyMulticastTask->get(msID));
+            $MulticastSession = $FOGCore->getClass(MulticastSessions,$MyMulticastTask->get(msID));
             $MulticastSession
                 ->set(clients,$MulticastSession->get(clients) - 1)
                 ->save();
