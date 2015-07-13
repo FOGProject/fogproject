@@ -7,11 +7,12 @@ try {
     // Get the actual host (if it is registered)
     $MACs = $FOGCore->getHostItem(true,false,false,true);
     $Host = $FOGCore->getHostItem(true,false,true,false,true);
-    if (!($Host instanceof Host && $Host->isValid() && $Host->get(pending)) && $_REQUEST[newService]) {
+    if (!($Host instanceof Host && $Host->isValid() && !$Host->get(pending)) && $_REQUEST[newService]) {
         if (!$FOGCore->getClass(Host)->isHostnameSafe($_REQUEST[hostname])) throw new Exception('#!ih');
-        foreach ($FOGCore->getClass('HostManager')->find(array('name' => $_REQUEST['hostname'])) AS $Host) if ($Host->isValid()) break;
+        foreach ($FOGCore->getClass(HostManager)->find(array(name=>$_REQUEST[hostname])) AS $i => &$Host) if ($Host->isValid()) break;
+        unset($Host);
         if (!($Host instanceof Host && $Host->isValid())) {
-            $ModuleIDs = $FOGCore->getClass('ModuleManager')->find(array('isDefault' => 1),'','','','','','','id');
+            $ModuleIDs = $FOGCore->getClass(ModuleManager)->find(array(isDefault => 1),'','','','','','',id);
             $PriMAC = array_shift($MACs);
             $Host = $FOGCore->getClass(Host)
                 ->set(name, $_REQUEST[hostname])
