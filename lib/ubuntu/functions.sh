@@ -146,8 +146,8 @@ configureHttpd() {
 	if [ "$?" != 0 ]; then
 		php5enmod mysqlnd >/dev/null 2>&1
         if [ "$?" != 0 ]; then
-            if [ -e "/etc/php5/conf.d/php5-mysqlnd.ini" ]; then
-                cp "/etc/php5/conf.d/php5-mysqlnd.ini" "/etc/php5/mods-available/php5-mysqlnd.ini" >/dev/null 2>&1
+            if [ -e "/etc/php5/conf.d/mysqlnd.ini" ]; then
+                cp "/etc/php5/conf.d/mysqlnd.ini" "/etc/php5/mods-available/php5-mysqlnd.ini" >/dev/null 2>&1
                 php5enmod mysqlnd >/dev/null 2>&1
             fi
         fi
@@ -156,8 +156,8 @@ configureHttpd() {
 	if [ "$?" != 0 ]; then
 		php5enmod mcrypt >/dev/null 2>&1
         if [ "$?" != 0 ]; then
-            if [ -e "/etc/php5/conf.d/php5-mcrypt.ini" ]; then
-                cp "/etc/php5/conf.d/php5-mcrypt.ini" "/etc/php5/mods-available/" >/dev/null 2>&1
+            if [ -e "/etc/php5/conf.d/mcrypt.ini" ]; then
+                cp "/etc/php5/conf.d/mcrypt.ini" "/etc/php5/mods-available/" >/dev/null 2>&1
                 php5enmod mcrypt >/dev/null 2>&1
             fi
         fi
