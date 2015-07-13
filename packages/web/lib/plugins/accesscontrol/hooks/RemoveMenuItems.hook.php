@@ -10,23 +10,24 @@ class RemoveMenuItems extends Hook {
         $this->getLoggedIn();
     }
     public function getLoggedIn() {
-        if ($this->FOGUser && $this->FOGUser->isLoggedIn() && in_array($this->FOGUser->get('type'),array(2))) $this->linksToFilter = array('accesscontrol','printer','service','about');
+        if ($this->FOGUser && $this->FOGUser->isLoggedIn() && in_array($this->FOGUser->get(type),array(2))) $this->linksToFilter = array('accesscontrol','printer','service','about');
     }
     public function MenuData($arguments) {
         if (in_array($this->node,$_SESSION[PluginsInstalled])) foreach((array)$this->linksToFilter AS $link) unset($arguments['main'][$link]);
     }
     public function SubMenuData($arguments) {
         if (in_array($this->node,$_SESSION[PluginsInstalled])) {
-            foreach($arguments[submenu] AS $node => $link) {
+            foreach($arguments[submenu] AS $node => &$link) {
                 if (in_array($node,(array)$this->linksToFilter)) {
-                    $linkformat = "$_SERVER[PHP_SELF]?node=$node&sub=edit&id=$_REQUEST[id]";
-                    $delformat = "$_SERVER[PHP_SELF]?node=$node&sub=delete&id=$_REQUEST[id]";
+                    $linkformat = $_SERVER[PHP_SELF]."?node=$node&sub=edit&id=".$_REQUEST[id];
+                    $delformat = $_SERVER[PHP_SELF]."?node=$node&sub=delete&id=".$_REQUEST[id];
                     unset($arguments[submenu][$node][id]["$linkformat#host-printers"]);
                     unset($arguments[submenu][$node][id]["$linkformat#host-service"]);
                     unset($arguments[submenu][$node][id]["$linkformat#host-virus-history"]);
                     if(!in_array($this->FOGUser->get(name),array('fog'))) unset($arguments[submenu][$node][id][$delformat]);
                 }
             }
+            unset($link);
         }
     }
     public function NotAllowed($arguments) {
