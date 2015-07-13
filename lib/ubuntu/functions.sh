@@ -314,10 +314,13 @@ class Config {
         fi
         if [ "$docroot" == "/var/www/html/" ]; then
             tmpdocroot="/var/www";
+            if [ -d ${tmpdocroot}/fog ]; then
+                rm -rf ${tmpdocroot}/fog;
+            fi
             [ ! -h ${tmpdocroot}/fog ] && ln -s ${webdirdest} ${tmpdocroot}/fog
-            echo "<?php header('Location: ./$webroot/index.php');" > "/var/www/html/index.php";
+            echo "<?php header('Location: ./${webroot}index.php');" > "/var/www/html/index.php";
         else
-            echo "<?php header('Location: ./$webroot/index.php');" > "/var/www/index.php";
+            echo "<?php header('Location: ./${webroot}index.php');" > "/var/www/index.php";
         fi
 		#if [ -d "${webdirdest}.prev" ]; then
         #    dots "Copying back any custom hook files"
