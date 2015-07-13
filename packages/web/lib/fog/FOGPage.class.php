@@ -643,13 +643,13 @@ abstract class FOGPage extends FOGBase {
             if (!$ping || $ping == 'undefined') throw new Exception(_('Undefined host to ping'));
             if (!HostManager::isHostnameSafe($ping)) throw new Exception(_('Invalid Hostname'));
             if (is_numeric($ping)) {
-                $Host = Host($ping);
-                $ping = $Host->get('name');
+                $Host = $this->getClass(Host,$ping);
+                $ping = $Host->get(name);
             }
             // Resolve Hostname
-            $ip = gethostbyname($ping);
+            $ip = $this->FOGCore->resolveHostname($ping);
             if ($ip == $ping) throw new Exception(_('Unable to resolve hostname'));
-            $result = $this->getClass('Ping',$ip)->execute();
+            $result = $this->getClass(Ping,$ip)->execute();
             if ($result !== true) throw new Exception($result);
             $SendMe = true;
         } catch (Exception $e) {
