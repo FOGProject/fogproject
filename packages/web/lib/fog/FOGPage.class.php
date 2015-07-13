@@ -149,12 +149,13 @@ abstract class FOGPage extends FOGBase {
                             printf('<tr id="%s-%s"%s>%s</tr>',
                                 strtolower($this->childClass),
                                 $rowData['id'],
-                                ((++$i % 2) ? ' class="alt1"' : ((!$_REQUEST[sub] && $defaultScreen == 'list') || in_array($_REQUEST[sub],$defaultScreens) ? ' class="alt2"' : '')),
+                                ((++$i % 2) ? ' class="alt1"' : ((!$_REQUEST[sub] && $defaultScreen == 'list') || (in_array($_REQUEST[sub],$defaultScreens) && in_array($_REQUEST[node],$this->searchPages)) ? ' class="alt2"' : '')),
                                 $this->buildRow($rowData)
                             );
                         }
-                        $this->FOGCore->setMessage(count($this->data).' '.$this->childClass.(count($this->data) > 1 ? 's' : '')._(' found'));
                         unset($rowData);
+                        if ((!$_REQUEST[sub] && $defaultScreen == 'list') || (in_array($_REQUEST[sub],$defaultScreens) && in_array($_REQUEST[node],$this->searchPages)))
+                        $this->FOGCore->setMessage(count($this->data).' '.$this->childClass.(count($this->data) > 1 ? 's' : '')._(' found'));
                     }
                     echo '</tbody></table>';
                     if (((!$_REQUEST['sub'] || ($_REQUEST['sub'] && in_array($_REQUEST['sub'],$defaultScreens))) && in_array($_REQUEST['node'],$this->searchPages)) && !$isMobile) {

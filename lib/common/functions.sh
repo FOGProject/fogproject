@@ -240,12 +240,24 @@ installPackages() {
         dots "Adding needed repository"
         DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >/dev/null 2>&1;
         add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
-        if [ "$?" != 0 ]; then
-            apt-get update >/dev/null 2>&1
-            apt-get install python-software-properties >/dev/null 2>&1
+        if [[ "$linuxReleaseName" != +(*'ebian'*) ]]; then
             if [ "$?" != 0 ]; then
                 apt-get update >/dev/null 2>&1
-                apt-get install software-properties-common >/dev/null 2>&1
+                apt-get install python-software-properties >/dev/null 2>&1
+                add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
+                if [ "$?" != 0 ]; then
+                    apt-get update >/dev/null 2>&1
+                    apt-get install software-properties-common >/dev/null 2>&1
+                    add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
+                fi
+            fi
+        elif [[ "$linuxReleaseName" == +(*'ebian'*) ]]; then
+            if [ "$OSVersion" -eq 7 ]; then
+                debcode="wheezy";
+                grep -l "deb http://packages.dotdeb.org $debcode-php56 all" "/etc/apt/sources.list" >/dev/null 2>&1
+                if [ "$?" != 0 ]; then
+                    echo -e "deb http://packages.dotdeb.org $debcode-php56 all\ndeb-src http://packages.dotdeb.org $debcode-php56 all\n" >> "/etc/apt/sources.list";
+                fi
             fi
         fi
     fi
