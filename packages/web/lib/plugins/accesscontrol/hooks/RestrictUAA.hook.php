@@ -11,29 +11,31 @@ class RestrictUAA extends Hook {
 		$this->linksToFilter = array('users');
 	}
     public function UserData($arguments) {
-		if (in_array($this->node,$_SESSION['PluginsInstalled'])) {
-			if (!in_array($this->FOGUser->get('type'),array(0))) {
-				foreach ($arguments['data'] AS $i => $data) {
-					if($arguments['data'][$i]['name'] != $this->FOGUser->get('name')) unset($arguments['data'][$i]);
-				}
+		if (in_array($this->node,$_SESSION[PluginsInstalled])) {
+			if (!in_array($this->FOGUser->get(type),array(0))) {
+				foreach ($arguments[data] AS $i => &$data) {
+					if($arguments[data][$i][name] != $this->FOGUser->get(name)) unset($arguments[data][$i]);
+                }
+                unset($data);
 			}
 		}
     }
 	public function RemoveName($arguments) {
-		if (in_array($this->node,$_SESSION['PluginsInstalled'])) {
-			if (!in_array($this->FOGUser->get('type'),array(0))) {
-				unset($arguments['data'][0]);
-				unset($arguments['template'][0]);
+		if (in_array($this->node,$_SESSION[PluginsInstalled])) {
+			if (!in_array($this->FOGUser->get(type),array(0))) {
+				unset($arguments[data][0]);
+				unset($arguments[template][0]);
 			}
 		}
 	}
 	public function RemoveCreate($arguments) {
-		if (in_array($this->node,$_SESSION['PluginsInstalled'])) {
-			foreach($arguments['submenu'] AS $node => $link) {
+		if (in_array($this->node,$_SESSION[PluginsInstalled])) {
+			foreach($arguments[submenu] AS $node => &$link) {
 				if (in_array($node,(array)$this->linksToFilter)) {
-					if (!in_array($this->FOGUser->get('type'),array(0))) unset($arguments['submenu'][$node]['add']);
+					if (!in_array($this->FOGUser->get(type),array(0))) unset($arguments[submenu][$node][add]);
 				}
-			}
+            }
+            unset($link);
 		}
 	}
 }
