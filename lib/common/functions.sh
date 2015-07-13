@@ -239,20 +239,13 @@ installPackages() {
     elif [ "$osid" -eq 2 ]; then
         dots "Adding needed repository"
         DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >/dev/null 2>&1;
-        if [[ "$linuxReleaseName" == +(*'buntu'*|*'int'*) ]]; then
-            add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
+        add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
+        if [ "$?" != 0 ]; then
+            apt-get update >/dev/null 2>&1
+            apt-get install python-software-properties >/dev/null 2>&1
             if [ "$?" != 0 ]; then
-                echo "deb http://ppa.launchpad.net/ondrej/php5-5.6/ubuntu vivid main" > "/etc/apt/sources.list.d/ondrej-ubuntu-php5-5_6-vivid.list"
-                echo "deb http://ppa.launchpad.net/ondrej/php5/ubuntu vivid main" > "/etc/apt/sources.list.d/ondrej-ubuntu-php5-vivid.list"
-            fi
-            true
-        elif [[ "$linuxReleaseName" == +(*'ebian'*) ]]; then
-            if [ "$OSVersion" -eq 7 ]; then
-                debcode="wheezy";
-                grep -l "deb http://packages.dotdeb.org wheezy-php56 all" "/etc/apt/sources.list" >/dev/null 2>&1
-                if [ "$?" != 0 ]; then
-                    echo -e "deb http://packages.dotdeb.org wheezy-php56 all\ndeb-src http://packages.dotdeb.org wheezy-php56 all\n" >> "/etc/apt/sources.list";
-                fi
+                apt-get update >/dev/null 2>&1
+                apt-get install software-properties-common >/dev/null 2>&1
             fi
         fi
     fi
