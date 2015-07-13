@@ -196,20 +196,20 @@ if [ "$doupdate" = "1" ]; then
         sleep 1;
         . "$fogpriorconfig";
         doOSSpecificIncludes;
-        webrootexists=`grep -l 'webroot' "/opt/fog/.fogsettings" >/dev/null 2>&1; echo $?`;
-        if [ "$webrootexists" != 0 -a -z "$webroot" ]; then
-            webroot="fog/";
-        elif [ "$webrootexists" -eq 0 -o ! -z "$webroot" ]; then
-            webroot="${webroot#'/'}"
-            webroot="${webroot%'/'}"
-            webroot="${webroot}/"
-        fi
     fi
 else
     echo "";
     echo "  FOG Installer will NOT attempt to upgrade from";
     echo "  previous version of FOG.";
     echo "";
+fi
+webrootexists=`grep -l 'webroot' "/opt/fog/.fogsettings" >/dev/null 2>&1; echo $?`;
+if [ "$webrootexists" != 0 -a -z "$webroot" ]; then
+    webroot="fog/";
+elif [ "$webrootexists" -eq 0 -o ! -z "$webroot" ]; then
+    webroot="${webroot#'/'}"
+    webroot="${webroot%'/'}"
+    webroot="${webroot}/"
 fi
 . ../lib/common/input.sh
 if [ "$installtype" = "N" ]; then

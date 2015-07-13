@@ -483,6 +483,7 @@ enableInitScript() {
         dots "Enabling $serviceItem Service"
         if [ "$systemctl" == "yes" ]; then
             systemctl enable $serviceItem >/dev/null 2>&1
+            true
         elif [ "$osid" -eq 2 ]; then
             sysv-rc-conf $serviceItem on >/dev/null 2>&1
             if [[ "$linuxReleaseName" == +(*'buntu'*) ]]; then
@@ -490,8 +491,10 @@ enableInitScript() {
             else
                 insserv -d $initdpath/$serviceItem >/dev/null 2>&1
             fi
+            true
         elif [ "$osid" -eq 1 ]; then
             chkconfig $serviceItem on >/dev/null 2>&1
+            true
         fi
         errorStat $?
     done
