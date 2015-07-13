@@ -83,7 +83,7 @@ class Host extends FOGController {
         // Destroy All printers attached to host, to reset default
         if ($this->isLoaded(printers)) $this->getClass(PrinterAssociationManager)->destroy(array('hostID' => $this->get(id)));
         $def = false;
-        foreach ($this->get(printers) AS &$Printer) {
+        foreach ((array)$this->get(printers) AS &$Printer) {
             if ($Printer == $printerid) $def = true;
             $this->getClass(PrinterAssociation)
                 ->set(printerID,$Printer)
@@ -130,7 +130,7 @@ class Host extends FOGController {
     }
     private function loadSnapinJob() {
         if (!$this->isLoaded(snapinjob) && $this->get(id))
-            $this->set('snapinjob',current($this->getClass(SnapinJobManager)->find(array('stateID' => array(-1,0,1),'hostID' => $this->get(id)))));
+            $this->set('snapinjob',$this->getClass(SnapinJob,@max($this->getClass(SnapinJobManager)->find(array('stateID' => array(-1,0,1),'hostID' => $this->get(id)),'','','','','','','id'))));
         return $this;
     }
     private function loadPrimary() {
