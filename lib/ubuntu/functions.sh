@@ -142,14 +142,26 @@ configureHttpd() {
 		dbuser=$snmysqluser;
 	fi
     dots "Setting up and starting Apache Web Server";
-	php -m | grep mysqlnd &>/dev/null;
+	php -m | grep mysqlnd >/dev/null 2>&1
 	if [ "$?" != 0 ]; then
-		php5enmod mysqlnd &>/dev/null;
+		php5enmod mysqlnd >/dev/null 2>&1
+        if [ "$?" != 0 ]; then
+            if [ -e "/etc/php5/conf.d/php5-mysqlnd.ini" ]; then
+                cp "/etc/php5/conf.d/php5-mysqlnd.ini" "/etc/php5/mods-available/php5-mysqlnd.ini" >/dev/null 2>&1
+                php5enmod mysqlnd >/dev/null 2>&1
+            fi
+        fi
 	fi
-	php -m | grep mcrypt &>/dev/null;
+	php -m | grep mcrypt >/dev/null 2>&1
 	if [ "$?" != 0 ]; then
-		php5enmod mcrypt &>/dev/null;
-	fi
+		php5enmod mcrypt >/dev/null 2>&1
+        if [ "$?" != 0 ]; then
+            if [ -e "/etc/php5/conf.d/php5-mcrypt.ini" ]; then
+                cp "/etc/php5/conf.d/php5-mcrypt.ini" "/etc/php5/mods-available/" >/dev/null 2>&1
+                php5enmod mcrypt >/dev/null 2>&1
+            fi
+        fi
+    fi
 	mv /etc/apache2/mods-available/php5* /etc/apache2/mods-enabled/  >/dev/null 2>&1
 	sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' /etc/php5/apache2/php.ini
 	sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' /etc/php5/apache2/php.ini
