@@ -15,17 +15,26 @@ ifaces=`ls -1 /sys/class/net | tr -d '@'`
 for iface in $ifaces; do
     /sbin/ip link set $iface up
 done
-# Provide time for interfaces to detect their state
-/bin/sleep 10
 echo "auto lo" > /etc/network/interfaces
 echo "iface lo inet loopback" >> /etc/network/interfaces
+for packet in {1..5}; do
+    udhcpc -t 1 -T 1 -n
+    sleep 2
+done
 for iface in $ifaces; do
-    linkstate=`/bin/cat /sys/class/net/$iface/carrier`
-    if [ "x$linkstate" == "x1" -a "x$iface" != "xlo" ]; then
-        echo "auto $iface" >> /etc/network/interfaces
-        echo "iface $iface inet dhcp" >> /etc/network/interfaces
-        echo -e "\tudhcpc_opts -t 3 -T 20\n" >> /etc/network/interfaces
-    fi
+    # Check if each interface is up and if not wait up to 10 seconds
+    for delay in `seq 10`; do
+        linkstate=`/bin/cat /sys/class/net/$iface/carrier`
+        if [ "x$linkstate" == "x1" ] ; then
+            echo ' ' $iface up
+            echo "auto $iface" >> /etc/network/interfaces
+            echo "iface $iface inet dhcp" >> /etc/network/interfaces
+            echo -e "\tudhcpc_opts -t 3 -T 20\n" >> /etc/network/interfaces
+            break
+        fi
+        echo -n .
+        sleep 1
+    done
 done
 case "$1" in
     start)
