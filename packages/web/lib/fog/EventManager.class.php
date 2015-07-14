@@ -1,5 +1,5 @@
 <?php
-class EventManager extends FOGBase {
+class EventManager extends Event {
     /** @var $loglevel the default loglevel */
     public $logLevel = 0;
     /** @var $data the data as passed */
