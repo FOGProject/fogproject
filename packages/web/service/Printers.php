@@ -2,15 +2,15 @@
 require_once('../commons/base.inc.php');
 try {
 	$Host = $FOGCore->getHostItem();
-	// Error checking why send anything if nothing to send
-	if (!$FOGCore->getClass(PrinterAssociationManager)->count(array('hostID' => $Host->get(id)))) throw new Exception('#!np');
-	$Datatosend = '';
 	$modes = array(
 		'0',
 		'a',
 		'ar',
 	);
 	$mode = $modes[$Host->get(printerLevel)];
+	// Error checking why send anything if nothing to send
+	if (!$FOGCore->getClass(PrinterAssociationManager)->count(array('hostID' => $Host->get(id)))) throw new Exception("#!np\n#mode=$mode\n");
+	$Datatosend = '';
 	if (!isset($_REQUEST[id])) {
 		// Only send mode if no management is selected
 		if (!$mode) throw new Exception("#mode=$mode");
