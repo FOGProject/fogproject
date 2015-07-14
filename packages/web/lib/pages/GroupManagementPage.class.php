@@ -512,7 +512,7 @@ class GroupManagementPage extends FOGPage {
                             ->set(kernel,$_REQUEST[kern])
                             ->set(kernelArgs,$_REQUEST[args])
                             ->set(kernelDevice,$_REQUEST[dev])
-                            ->set(productKey,$_REQUEST['key'])
+                            ->set(productKey,base64_encode($_REQUEST['key']))
                             ->save();
                     }
                     unset($Host);
