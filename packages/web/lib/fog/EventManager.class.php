@@ -1,5 +1,5 @@
 <?php
-class EventManager extends Event {
+class EventManager extends FOGBase {
     /** @var $loglevel the default loglevel */
     public $logLevel = 0;
     /** @var $data the data as passed */
@@ -74,7 +74,7 @@ class EventManager extends Event {
      * @param $level the level of logging
      * @return void
      */
-    private function log($txt, $level = 1) {
+    public function log($txt, $level = 1) {
         if (!$this->isAJAXRequest() && $this->logLevel >= $level)
             printf('[%s] %s%s', $this->nice_date()->format("d-m-Y H:i:s"), trim(preg_replace(array("#\r#", "#\n#", "#\s+#", "# ,#"), array("", " ", " ", ","), $txt)), "<br />\n");
     }
