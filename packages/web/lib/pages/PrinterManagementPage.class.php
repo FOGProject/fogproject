@@ -9,11 +9,11 @@ class PrinterManagementPage extends FOGPage {
             $this->subMenu = array(
                 "$this->linkformat#$this->node-gen" => $this->foglang[General],
                 $this->membership => $this->foglang[Membership],
-                $this->delformat => $this->foglang[Delete],
+                $this->delformat => $this->foglang['Delete'],
             );
             $this->notes = array(
-                $this->foglang[Printer] => $this->obj->get('name'),
-                $this->foglang[Type] => $this->obj->get('config'),
+                $this->foglang[Printer] => $this->obj->get(name),
+                $this->foglang[Type] => $this->obj->get(config),
             );
         }
         $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
@@ -57,21 +57,21 @@ class PrinterManagementPage extends FOGPage {
     public function index() {
         // Set title
         $this->title = _('Search');
-        if ($_SESSION['DataReturn'] > 0 && $_SESSION['PrinterCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list')
-            $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
+        if ($_SESSION[DataReturn] > 0 && $_SESSION[PrinterCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list')
+            $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER[PHP_SELF], $this->node));
         // Find data
-        $Printers = $this->getClass('PrinterManager')->find();
+        $Printers = $this->getClass(PrinterManager)->find();
         // Row data
         foreach ($Printers AS &$Printer) {
             $this->data[] = array(
-                'id'		=> $Printer->get('id'),
-                'name'		=> quotemeta($Printer->get('name')),
-                'config'	=> $Printer->get('config'),
-                'model'		=> $Printer->get('model'),
-                'port'		=> $Printer->get('port'),
-                'file'		=> $Printer->get('file'),
-                'ip'		=> $Printer->get('ip'),
-                'desc'  => $Printer->get(description),
+                id => $Printer->get(id),
+                name => quotemeta($Printer->get(name)),
+                config => $Printer->get(config),
+                model => $Printer->get(model),
+                port => $Printer->get(port),
+                'file' => $Printer->get('file'),
+                ip => $Printer->get(ip),
+                desc => $Printer->get(description),
             );
         }
         unset($Printer);
@@ -82,16 +82,16 @@ class PrinterManagementPage extends FOGPage {
     }
     public function search_post() {
         // Find data -> Push data
-        foreach ($this->getClass('PrinterManager')->search() AS &$Printer) {
+        foreach ($this->getClass(PrinterManager)->search() AS &$Printer) {
             $this->data[] = array(
-                'id'		=> $Printer->get('id'),
-                'name'		=> $Printer->get('name'),
-                'config'	=> $Printer->get('config'),
-                'model'		=> $Printer->get('model'),
-                'port'		=> $Printer->get('port'),
-                'file'		=> $Printer->get('file'),
-                'ip'		=> $Printer->get('ip'),
-                'desc'  => $Printer->get(description),
+                id => $Printer->get(id),
+                name => $Printer->get(name),
+                config => $Printer->get(config),
+                model => $Printer->get(model),
+                port => $Printer->get(port),
+                'file' => $Printer->get('file'),
+                ip => $Printer->get(ip),
+                desc => $Printer->get(description),
             );
         }
         unset($Printer);
@@ -100,8 +100,7 @@ class PrinterManagementPage extends FOGPage {
         // Output
         $this->render();
     }
-    public function add()
-    {
+    public function add() {
         // Set title
         $this->title = 'New Printer';
         // Header Data
@@ -115,37 +114,33 @@ class PrinterManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        if(!isset($_REQUEST['printertype']))
-            $_REQUEST['printertype'] = "Local";
-        print "\n\t\t\t".'<form id="printerform" action="?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'" method="post" >';
+        if(!isset($_REQUEST[printertype])) $_REQUEST[printertype] = "Local";
+        print "\n\t\t\t".'<form id="printerform" action="?node='.$_REQUEST[node].'&sub='.$_REQUEST[sub].'" method="post" >';
         $printerTypes = array(
             'Local' => _('Local Printer'),
             'iPrint' => _('iPrint Printer'),
             'Network' => _('Network Printer'),
         );
         foreach ((array)$printerTypes AS $short => &$long)
-            $optionPrinter .= "\n\t\t\t\t".'<option value="'.$short.'" '.($_REQUEST['printertype'] == $short ? 'selected="selected"' : '').'>'.$long.'</option>';
+            $optionPrinter .= '<option value="'.$short.'" '.($_REQUEST['printertype'] == $short ? 'selected="selected"' : '').'>'.$long.'</option>';
         unset($long);
-        print "\n\t\t\t".'<select name="printertype" onchange="this.form.submit()">'.$optionPrinter."\n\t\t\t</select>";
-        print "\n\t\t\t</form>";
-        if ($_REQUEST['printertype'] == 'Network')
-        {
+        print '<select name="printertype" onchange="this.form.submit()">'.$optionPrinter.'</select></form>';
+        switch (strtolower($_REQUEST[printertype])) {
+            case 'Network';
             $fields = array(
                 _('Printer Description') => '<textarea name="description" rows="8" cols="40">${desc}</textarea>',
                 _('Printer Alias').'*' => '<input type="text" name="alias" value="${printer_name}" />',
-                'e.g. '.addslashes('\\\\printerserver\\printername') => '&nbsp;',
+                'e.g. '.quotemeta('\\printerserver\printername') => '&nbsp;',
             );
-        }
-        if ($_REQUEST['printertype'] == 'iPrint')
-        {
+            break;
+            case 'iprint';
             $fields = array(
                 _('Printer Description') => '<textarea name="description" rows="8" cols="40">${desc}</textarea>',
                 _('Printer Alias').'*' => '<input type="text" name="alias" value="${printer_name}" />',
                 _('Printer Port').'*' => '<input type="text" name="port" value="${printer_port}" />',
             );
-        }
-        if ($_REQUEST['printertype'] == 'Local')
-        {
+            break;
+            case 'local';
             $fields = array(
                 _('Printer Description') => '<textarea name="description" rows="8" cols="40">${desc}</textarea>',
                 _('Printer Alias').'*' => '<input type="text" name="alias" value="${printer_name}" />',
@@ -154,6 +149,7 @@ class PrinterManagementPage extends FOGPage {
                 _('Printer INF File').'*' => '<input type="text" name="inf" value="${printer_inf}" />',
                 _('Printer IP (optional)') => '<input type="text" name="ip" value="${printer_ip}" />',
             );
+            break;
         }
         $fields['<input type="hidden" name="printertype" value="'.$_REQUEST['printertype'].'" />'] = '<input type="hidden" name="add" value="1" /><input type="submit" value="'._('Add Printer').'" />';
         foreach((array)$fields AS $field => &$input) {
@@ -169,12 +165,12 @@ class PrinterManagementPage extends FOGPage {
             );
         }
         unset($input);
-        print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+        print '<form method="post" action="'.$this->formAction.'">';
         // Hook
         $this->HookManager->processEvent('PRINTER_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
         $this->render();
-        print "\n\t\t\t".'</form>';
+        print '</form>';
     }
     public function add_post() {
         // Hook
@@ -213,7 +209,7 @@ class PrinterManagementPage extends FOGPage {
                 if ($PrinterManager->exists($_REQUEST[alias])) throw new Exception('Printer already exists');
                 // Finish Creating the printer
                 $Printer
-                    ->set('name',$_REQUEST[alias])
+                    ->set(name,$_REQUEST[alias])
                     ->set(config,$_REQUEST[printertype])
                     ->set(model,$_REQUEST[model])
                     ->set('file',$_REQUEST[inf])
@@ -242,10 +238,8 @@ class PrinterManagementPage extends FOGPage {
         }
     }
     public function edit() {
-        // Find
-        $Printer = $this->obj;
         // Title
-        $this->title = sprintf('%s: %s', 'Edit', $Printer->get('name'));
+        $this->title = sprintf('%s: %s', 'Edit', $this->obj->get(name));
         print '<div id="tab-container">';
         // Header Data
         unset($this->headerData);
@@ -261,14 +255,14 @@ class PrinterManagementPage extends FOGPage {
         );
         // Output
         print '<!-- General --><div id="printer-gen">';
-        if (!$_REQUEST[printertype]) $_REQUEST[printertype] = $Printer->get(config);
+        if (!$_REQUEST[printertype]) $_REQUEST[printertype] = $this->obj->get(config);
         if (!$_REQUEST[printertype]) $_REQUEST[printertype] = 'Local';
         $printerTypes = array(
             'Local' => _('Local Printer'),
             'iPrint' => _('iPrint Printer'),
             'Network' => _('Network Printer'),
         );
-        foreach ((array)$printerTypes AS $short => &$long) $optionPrinter .= '<option value="'.$short.'" '.($_REQUEST['printertype'] == $short ? 'selected="selected"' : '').'>'.$long.'</option>';
+        foreach ((array)$printerTypes AS $short => &$long) $optionPrinter .= '<option value="'.$short.'" '.($_REQUEST[printertype] == $short ? 'selected="selected"' : '').'>'.$long.'</option>';
         unset($long);
         switch (strtolower($_REQUEST[printertype])) {
             case 'network';
@@ -302,12 +296,12 @@ class PrinterManagementPage extends FOGPage {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
-                'printer_name' => addslashes($Printer->get(name)),
-                'printer_port' => $Printer->get(port),
-                'printer_model' => $Printer->get(model),
-                'printer_inf' => addslashes($Printer->get('file')),
-                'printer_ip' => $Printer->get(ip),
-                'desc' => $Printer->get(description),
+                'printer_name' => quotemeta($this->obj->get(name)),
+                'printer_port' => $this->obj->get(port),
+                'printer_model' => $this->obj->get(model),
+                'printer_inf' => quotemeta($this->obj->get('file')),
+                'printer_ip' => $this->obj->get(ip),
+                'desc' => $this->obj->get(description),
             );
         }
         unset($input);
@@ -319,13 +313,11 @@ class PrinterManagementPage extends FOGPage {
         unset($this->data);
     }
     public function edit_post() {
-        // Find
-        $Printer = $this->obj;
         // Hook
-        $this->HookManager->processEvent('PRINTER_EDIT_POST', array('Printer' => &$Printer));
+        $this->HookManager->processEvent('PRINTER_EDIT_POST', array('Printer' => &$this->obj));
         // POST
         try {
-            switch ($_REQUEST['tab']) {
+            switch ($_REQUEST[tab]) {
                 // Switch the printer type
                 case 'printer-type';
                 $this->FOGCore->setMessage('Printer type changed to: '.$_REQUEST[printertype]);
@@ -339,16 +331,19 @@ class PrinterManagementPage extends FOGPage {
                 $_REQUEST[model] = trim($_REQUEST[model]);
                 $_REQUEST[ip] = trim($_REQUEST[ip]);
                 $_REQUEST[description] = trim($_REQUEST[description]);
-                if ($Printer->get(name) != $_REQUEST[alias] && $Printer->getManager()->exists($_REQUEST[alias])) throw new Exception(_('Printer name already exists, please choose another'));
+                if (isset($_REQUEST[local])) $printertype = "Local";
+                else if (isset($_REQUEST[network])) $printertype = "Network";
+                else if (isset($_REQUEST[iprint])) $printertype = "iPrint";
+                if ($this->obj->get(name) != $_REQUEST[alias] && $this->obj->getManager()->exists($_REQUEST[alias])) throw new Exception(_('Printer name already exists, please choose another'));
                 // Error checking
                 if (isset($_REQUEST[local]) && (!$_REQUEST[alias] || !$_REQUEST[port] || !$_REQUEST[inf] || !$_REQUEST[model])) throw new Exception(_('You must specify the alias, port, model, and inf'));
                 if (isset($_REQUEST[iprint]) && (!$_REQUEST[alias] || !$_REQUEST[port])) throw new Exception(_('You must specify the alias and port'));
-                if (isset($_REQUEST[network]) && (!$_REQUEST[alias] || !$_REQUEST[port])) throw new Exception(_('You must specify the alias'));
+                if (isset($_REQUEST[network]) && (!$_REQUEST[alias])) throw new Exception(_('You must specify the alias'));
                 // Update Object
-                $Printer
+                $this->obj
                     ->set(description,$_REQUEST[description])
                     ->set(name,$_REQUEST[alias])
-                    ->set(config,$_REQUEST[printertype])
+                    ->set(config,$printertype)
                     ->set(model,$_REQUEST[model])
                     ->set(port,$_REQUEST[port])
                     ->set('file',$_REQUEST[inf])
@@ -356,22 +351,22 @@ class PrinterManagementPage extends FOGPage {
                 break;
             }
             // Save
-            if (!$Printer->save()) throw new Exception('Printer update failed!');
+            if (!$this->obj->save()) throw new Exception('Printer update failed!');
             // Hook
-            $this->HookManager->processEvent('PRINTER_UPDATE_SUCCESS', array('Printer' => &$Printer));
+            $this->HookManager->processEvent('PRINTER_UPDATE_SUCCESS', array('Printer' => &$this->obj));
             // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Printer updated'), $Printer->get(id), $Printer->get(name)));
+            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Printer updated'), $this->obj->get(id), $this->obj->get(name)));
             // Set session message
             $this->FOGCore->setMessage('Printer updated!');
         } catch (Exception $e) {
             // Hook
-            $this->HookManager->processEvent('PRINTER_UPDATE_FAIL', array('Printer' => &$Printer));
+            $this->HookManager->processEvent('PRINTER_UPDATE_FAIL', array('Printer' => &$this->obj));
             // Log History event
-            $this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Printer'), $_REQUEST['alias'], $e->getMessage()));
+            $this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Printer'), $_REQUEST[alias], $e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
         }
         // Redirect for user
-        $this->FOGCore->redirect('?node=printer&sub=edit&id='.$Printer->get('id').'#'.$_REQUEST['tab']);
+        $this->FOGCore->redirect('?node=printer&sub=edit&id='.$this->obj->get(id).'#'.$_REQUEST[tab]);
     }
 }
