@@ -139,7 +139,7 @@ class PrinterManagementPage extends FOGPage {
                 _('Printer Description') => '<textarea name="description" rows="8" cols="40">${desc}</textarea>',
                 _('Printer Alias').'*' => '<input type="text" name="alias" value="${printer_name}" />',
                 _('Printer INF File').'*' => '<input type="text" name="inf" value="${printer_inf}" />',
-                _('Printer IP (optional)') => '<input type="text" name="ip" value="${printer_ip}" />',
+                _('Printer IP').'*' => '<input type="text" name="ip" value="${printer_ip}" />',
             );
             break;
             case 'iprint';
@@ -207,7 +207,7 @@ class PrinterManagementPage extends FOGPage {
                 if (isset($_REQUEST[local]) && (empty($_REQUEST[alias]) || empty($_REQUEST[port]) || empty($_REQUEST[inf]) || empty($_REQUEST[model]))) throw new Exception(_('You must specify the alias, port, model, and inf. Unable to create!'));
                 else if (isset($_REQUEST[iprint]) && (empty($_REQUEST[alias]) || empty($_REQUEST[port]))) throw new Exception(_('You must specify the alias and port. Unable to create!'));
                 else if (isset($_REQUEST[network]) && empty($_REQUEST[alias])) throw new Exception(_('You must specify the alias. Unable to create!'));
-                else if (isset($_REQUEST[cups]) && (empty($_REQUEST[alias]) || empty($_REQUEST[inf]))) throw new Exception(_('You must specify the alias and inf!'));
+                else if (isset($_REQUEST[cups]) && (!$_REQUEST[alias] || !$_REQUEST[ip] || !$_REQUEST[inf])) throw new Exception(_('You must specify the alias, inf and ip'));
                 if ($PrinterManager->exists($_REQUEST[alias])) throw new Exception(_('Printer already exists'));
                 // Finish Creating the printer
                 $Printer
@@ -280,7 +280,7 @@ class PrinterManagementPage extends FOGPage {
                 _('Printer Description') => '<textarea name="description" rows="8" cols="40">${desc}</textarea>',
                 _('Printer Alias').'*' => '<input type="text" name="alias" value="${printer_name}" />',
                 _('Printer INF File').'*' => '<input type="text" name="inf" value="${printer_inf}" />',
-                _('Printer IP (optional)') => '<input type="text" name="ip" value="${printer_ip}" />',
+                _('Printer IP').'*' => '<input type="text" name="ip" value="${printer_ip}" />',
             );
             break;
             case 'iprint';
@@ -355,8 +355,9 @@ class PrinterManagementPage extends FOGPage {
                 else if (isset($_REQUEST[cups])) $printertype = "Cups";
                 // Error checking
                 if (isset($_REQUEST[local]) && (!$_REQUEST[alias] || !$_REQUEST[port] || !$_REQUEST[inf] || !$_REQUEST[model])) throw new Exception(_('You must specify the alias, port, model, and inf'));
-                if (isset($_REQUEST[iprint]) && (!$_REQUEST[alias] || !$_REQUEST[port])) throw new Exception(_('You must specify the alias and port'));
-                if (isset($_REQUEST[network]) && (!$_REQUEST[alias])) throw new Exception(_('You must specify the alias'));
+                else if (isset($_REQUEST[iprint]) && (!$_REQUEST[alias] || !$_REQUEST[port])) throw new Exception(_('You must specify the alias and port'));
+                else if (isset($_REQUEST[network]) && (!$_REQUEST[alias])) throw new Exception(_('You must specify the alias'));
+                else if (isset($_REQUEST[cups]) && (!$_REQUEST[alias] || !$_REQUEST[ip] || !$_REQUEST[inf])) throw new Exception(_('You must specify the alias, inf and ip'));
                 // Update Object
                 $this->obj
                     ->set(description,$_REQUEST[description])
