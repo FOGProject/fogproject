@@ -100,9 +100,9 @@ class Group extends FOGController {
         $images = array_unique($this->getClass(HostManager)->find(array('id' => $this->get(hosts)),'','','','','','','imageID'));
         return (count($images) == 1);
     }
-    public function updateDefault($printerid,$onoff) {
-        $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
-        foreach($Hosts AS $i => &$Host) $Host->updateDefault($printerid,$onoff);
+    public function updateDefault($printerid) {
+        $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
+        foreach($Hosts AS $i => &$Host) $Host->updateDefault($printerid,true);
         unset($Host);
         return $this;
     }
