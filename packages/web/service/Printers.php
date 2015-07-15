@@ -13,9 +13,9 @@ try {
 	$Datatosend = '';
 	if (!isset($_REQUEST[id])) {
 		// Only send mode if no management is selected
-		if (!$mode) throw new Exception("#mode=$mode\n");
 		$Datatosend .= "#mode=$mode\n";
-		$index = 0;
+        $index = 0;
+        $Printertosend = '';
 		foreach ($FOGCore->getClass(PrinterManager)->find(array('id' => $Host->get(printers))) AS $Printer) $Printertosend .= '#printer'.$index++.'='.$Printer->get(id)."\n";
 		$Datatosend .= $Printertosend;
 	} else {
