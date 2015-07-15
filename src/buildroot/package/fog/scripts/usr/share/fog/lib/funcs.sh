@@ -250,7 +250,11 @@ FORCEY
     elif [ "$fstype" == "extfs" ]; then
         dots "Checking $fstype volume ($1)";
         e2fsck -fp $1 &>/dev/null;
-        echo "Done";
+		status=$?;
+		echo "Done";
+		if [ $status -gt 3 ]; then
+			handleError "e2fsck failed with exit code $status.";
+		fi
         debugPause;
         extminsizenum=`resize2fs -P $1 2>/dev/null | awk -F': ' '{print $2}'`;
         block_size=`dumpe2fs -h $1 2>/dev/null | awk /^Block\ size:/'{print $3}'`;
@@ -258,6 +262,9 @@ FORCEY
         sizeextresize=`expr $size '*' 103 '/' 100 '/' 1024`;
         echo "";
         echo " * Possible resize partition size: $sizeextresize k";
+		if [ -z "$sizeextresize" ]; then
+			handleError "Error calculating the new size of extfs ($1).";
+		fi
         sleep 3;
         dots "Shrinking $fstype volume ($1)";
         resize2fs $1 -M &>/dev/null;
@@ -492,7 +499,7 @@ removePageFile() {
         fstype=`fsTypeSetting $part`
     fi
     if [ "$fstype" != "ntfs" ]; then
-        echo " * No ntfs file system to remove page file"
+        echo " * No ntfs file system on ($part) to remove page file"
         debugPause;
     elif [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
         if [ "$ignorepg" == "1" ]; then
@@ -804,8 +811,8 @@ handleWarning() {
 }
 # $1 is the drive
 runPartprobe() {
-    udevadm settle
-    blockdev --rereadpt $1 2>&1 &> /dev/null;
+    udevadm settle;
+    blockdev --rereadpt $1 >/dev/null 2>&1;
     if [ "$?" != "0" ]; then
         handleError "Failed to read back partitions";
     fi
@@ -942,6 +949,24 @@ sfdiskPartitionFileName() {
 	local filename="${imagePath}/d${intDisk}.partitions";
 	echo "$filename";
 }
+sfdiskOriginalPartitionFileName() {
+	local imagePath="$1";  # e.g. /net/dev/foo
+	local intDisk="$2";    # e.g. 1
+	local filename="${imagePath}/d${intDisk}.sfdisk.partitions";
+	echo "$filename";
+}
+sgdiskOriginalPartitionFileName() {
+	local imagePath="$1";  # e.g. /net/dev/foo
+	local intDisk="$2";    # e.g. 1
+	local filename="${imagePath}/d${intDisk}.sgdisk.original.partitions";
+	echo "$filename";
+}
+fixedSizePartitionsFileName() {
+	local imagePath="$1";  # e.g. /net/dev/foo
+	local intDisk="$2";    # e.g. 1
+	local filename="${imagePath}/d${intDisk}.fixed_size_partitions";
+	echo "$filename";
+}
 hasGrubFileName() {
 	local imagePath="$1";  # e.g. /net/dev/foo
 	local intDisk="$2";    # e.g. 1
@@ -981,10 +1006,16 @@ savePartitionTablesAndBootLoaders() {
 	local intDisk="$2";                 # e.g. 1
 	local imagePath="$3";               # e.g. /net/dev/foo
 	local osid="$4";                    # e.g. 50
-	local hasgpt="$5";                  # e.g. 0 or 1
-	local have_extended_partition="$6"; # e.g. 0 or 1-n (extended partition count)
-	local imgPartitionType="$7";        # e.g. all, mbr, 1, 2, ...
-	local sfpartitionfilename=`sfdiskPartitionFileName "$imagePath" "$intDisk"`;
+	local imgPartitionType="$5";        # e.g. all, mbr, 1, 2, ...
+	local hasgpt=`hasGPT "${disk}"`;    # e.g. 0 or 1
+	local have_extended_partition="0";  # e.g. 0 or 1-n (extended partition count)
+	if [ "$hasgpt" == "0" ]; then
+		have_extended_partition=`sfdisk -l "$disk" 2>/dev/null | egrep "^${disk}.*  (Extended|W95 Ext'd \(LBA\))$" | wc -l`;
+	else
+		have_extended_partition="0";
+	fi
+
+    runPartprobe "$disk";
 	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "mbr" ]; then
 		if [ "$hasgpt" == 0 ]; then
 			if [ "$osid" == "50" -a "$intDisk" == "1" ]; then
@@ -994,12 +1025,13 @@ savePartitionTablesAndBootLoaders() {
 			fi
 			saveGRUB "${disk}" "${intDisk}" "${imagePath}";
 			if [ "$have_extended_partition" == "1" ]; then
+				local sfpartitionfilename=`sfdiskPartitionFileName "$imagePath" "$intDisk"`;
 				sfdisk -d $disk 2>/dev/null > "${sfpartitionfilename}";
 				saveAllEBRs "$disk" "$intDisk" "$imagePath";
 			fi
 		else
 			dots "Saving Partition Tables (GPT)";
-			sgdisk -b $imagePath/d${intDisk}.mbr $disk 2>&1 >/dev/null;
+			sgdisk -b $imagePath/d${intDisk}.mbr $disk >/dev/null 2>&1;
 			if [ $? -ne 0 ]; then
 				handleError "Error trying to save GPT partition tables."
 			fi
@@ -1047,7 +1079,7 @@ restorePartitionTablesAndBootLoaders() {
             fi
             if [ "$gpt" == 'gpt' ] || [[ "$mbrsize" != +(1048576|512|32256) ]] ; then
                 dots "Restoring Partition Tables (GPT)";
-                sgdisk -gel $tmpMBR $disk 2>&1 >/dev/null;
+                sgdisk -gel $tmpMBR $disk >/dev/null 2>&1;
 				if [ $? -ne 0 ]; then
 					handleError "Error trying to restore GPT partition tables."
 				fi

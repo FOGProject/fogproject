@@ -90,11 +90,9 @@ if [ "$imgType" == "n" ]; then
 			echo "Done";
 			debugPause;
 			dots "Preparing Hard Disks (Stage 3)";
-			if [ -r "${imagePath}/d1.original.partitions" ]; then
-				if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
-					fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
-				fi
-				fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
+			do_fill=`fillDiskWithPartitionsIsOK "${hd}" "${imagePath}" "1"`;
+			if [ "$do_fill" != "0" ]; then
+				fillDiskWithPartitions "${hd}" "${imagePath}" "1";
 			elif [ "$imgFormat" == "1" -o "$imgLegacy" == "1" ]; then
 				parted -s $hd mkpart primary ntfs 63s -- $layPartSize &>/dev/null;
 			else
@@ -107,17 +105,15 @@ if [ "$imgType" == "n" ]; then
 			echo "Done";
 			debugPause;
 			dots "Preparing Hard Disks (Stage 3)";
-			if [ -r "${imagePath}/d1.original.partitions" ]; then
-				if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
-					fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
-				fi
-				fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
+			do_fill=`fillDiskWithPartitionsIsOK "${hd}" "${imagePath}" "1"`;
+			if [ "$do_fill" != "0" ]; then
+				fillDiskWithPartitions "${hd}" "${imagePath}" "1";
 			else
 				parted -s $hd -a opt mkpart primary ntfs $defaultpart2start -- $layPartSize &>/dev/null;
 			fi
 		elif [ "$win7partcnt" == "3" ]; then
 			dots "Preparing Hard Disks (Stage 2)";
-			sgdisk --zap-all $hd 2>&1 >/dev/null;
+			sgdisk --zap-all $hd >/dev/null 2>&1;
 			sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
 			echo "Done";
 			debugPause;
@@ -125,7 +121,7 @@ if [ "$imgType" == "n" ]; then
 			sgdisk -x 3:$(sgdisk -E $hd) $hd &>/dev/null;
 		elif [ "$win7partcnt" == "4" ]; then
 			dots "Preparing Hard Disks (Stage 2)";
-			sgdisk --zap-all $hd 2>&1 >/dev/null;
+			sgdisk --zap-all $hd >/dev/null 2>&1;
 			sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null;
 			echo "Done";
 			debugPause;
@@ -157,11 +153,10 @@ if [ "$imgType" == "n" ]; then
 	elif [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
 		restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
 		dots "Expanding partition table to fill disk";
-		if [ -r "${imagePath}/d1.fixed_size_partitions" ]; then
-			fixed_size_partitions=`cat ${imagePath}/d1.fixed_size_partitions`;
+		do_fill=`fillDiskWithPartitionsIsOK "${hd}" "${imagePath}" "1"`;
+		if [ "$do_fill" != "0" ]; then
+			fillDiskWithPartitions "${hd}" "${imagePath}" "1";
 		fi
-		fillDiskWithPartitions "${hd}" "${imagePath}/d1.original.partitions" "${fixed_size_partitions}";
-		runPartprobe $hd;
 		echo "Done";
 		debugPause;
 	fi
@@ -204,24 +199,14 @@ if [ "$imgType" == "n" ]; then
 		restorePartition "$part";
 	elif [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
 		for part in $parts; do
-			# saveEBR/restoreEBR are to support the resized partitions, 
+			# saveEBR/restoreEBR are to support the resized partitions, on MBR tables
 			# since the partition image will contain the old (potentially incorrect) EBR data
+			# It the partition doesn't make sense to save/restore EBR, then the functions skip it
 			tmpebrfilename=`tmpEBRFileName "1" "${partNum}"`;
 			saveEBR "$tmpebrfilename" "$part";
-			partNum=${part:$diskLength};
-			imgpart="$imagePath/d1p${partNum}.img*";
 			sleep 2;
-			if [ ! -f $imgpart ]; then
-				local ebrfilename=`EBRFileName "${imagePath}" "${intDisk}" "${partNum}"`;
-				if [ -e "$ebrfilename" ]; then
-					restoreEBR "$ebrfilename" "$part";
-				else
-					echo " * Partition File Missing: $imgpart";
-				fi
-			else
-				restorePartition "$part";
-				restoreEBR "$tmpebrfilename" "$part";
-			fi
+			restorePartition "$part";
+			restoreEBR "$tmpebrfilename" "$part";
 		done
 		makeAllSwapSystems "$hd" "1" "$imagePath" "$imgPartitionType";
 	fi

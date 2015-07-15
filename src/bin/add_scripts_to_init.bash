@@ -35,6 +35,7 @@ if [ ! -d $mountpoint ]; then
     mkdir $mountpoint
 fi
 
+echo "uncompressing 64-bit image"
 xzcat ${initdir}/init.xz > init-64
 mount -o loop init-64 $mountpoint
 
@@ -56,12 +57,14 @@ done
 rm -f $mountpoint/bin/*~
 rm -f $mountpoint/usr/share/fog/lib/*~
 umount $mountpoint
+echo "compressing 64-bit image"
 xz -C crc32 -z -c init-64 > ${initdir}/init.xz
 rm init-64
 
 
 # repeat for 32bit
 
+echo "uncompressing 32-bit image"
 xzcat ${initdir}/init_32.xz > init-32
 mount -o loop init-32 $mountpoint
 
@@ -83,6 +86,7 @@ done
 rm -f $mountpoint/bin/*~
 rm -f $mountpoint/usr/share/fog/lib/*~
 umount $mountpoint
+echo "compressing 32-bit image"
 xz -C crc32 -z -c init-32 > ${initdir}/init_32.xz
 rm init-32
 

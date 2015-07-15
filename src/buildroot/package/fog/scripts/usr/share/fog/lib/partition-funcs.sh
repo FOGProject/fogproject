@@ -22,6 +22,15 @@ applySfdiskPartitions() {
 	sfdisk "$1" &>/dev/null < "$2";
 }
 
+# $1 is the name of the disk drive
+# $2 is name of file to load from.
+restoreSfdiskPartitions() {
+	applySfdiskPartitions "$1" "$2";
+	fdisk "$1" &>/dev/null << EOFRESTOREPART
+w
+EOFRESTOREPART
+}
+
 
 # $1 is the name of the disk drive
 hasExtendedPartition() {
@@ -48,6 +57,10 @@ saveEBR() {
 	local part="$2";
 	local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
 	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
+	local table_type=`getPartitionTableType "$disk"`;
+	if [ "$table_type" != "MBR" ]; then
+		return
+	fi
 	# Leaving the grep in place due to forward slashes
 	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$part | awk -F[,=] '{print $6+0}'`;
 	if [ "$part_type" == "5" -o "$part_type" == "f" -o "$part_number" -ge 5 ]; then
@@ -79,8 +92,13 @@ saveAllEBRs() {
 # $1 is the name of the file to restore from (e.g. /net/foo/d1p4.ebr)
 # $2 is the name of the partition device (e.g. /dev/sda3)
 restoreEBR() {
-	local part_number=`echo $2 | sed -r 's/^[^0-9]+//g'`;
+	local part="$2";
+	local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
 	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
+	local table_type=`getPartitionTableType "$disk"`;
+	if [ "$table_type" != "MBR" ]; then
+		return
+	fi
 	# Leaving the grep in place due to forward slashes
 	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$2 | awk -F[,=] '{print $6+0}'`;
 	if [ "$part_type" == "5" -o "$part_type" == "f" -o "$part_number" -ge 5 ]; then
@@ -217,7 +235,8 @@ makeSwapSystem() {
 
 # $1 is the partition device (e.g. /dev/sda1)
 # $2 is the new desired size in 1024 (1k) blocks
-resizePartition() {
+# $3 is the image path (e.g. /net/dev/foo)
+resizeSfdiskPartition() {
 	local part="$1";
 	local size="$2";
 	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
@@ -229,8 +248,6 @@ resizePartition() {
 	if [ "$?" == "0" ]; then
 		applySfdiskPartitions $disk $tmp_file2;
 	fi
-	udevadm --settle &>/dev/null;
-	blockdev --rereadpt $disk &>/dev/null;
 	mv $tmp_file $imagePath/d1.original.partitions &>/dev/null;
 	mv $tmp_file2 $imagePath/d1.minimum.partitions &>/dev/null;
 }
@@ -240,15 +257,14 @@ resizePartition() {
 # $3 is the : separated list of fixed size partitions (e.g. 1:2)
 #	 swap partitions are automatically added.  Empty string is
 #	 ok.
-fillDiskWithPartitions() {
+fillSfdiskWithPartitions() {
 	local disk_size=`blockdev --getsize64 "$1" | awk '{printf("%d\n",$1/1024);}'`;
 	local tmp_file2="/tmp/sfdisk2.$$";
 	processSfdisk "$2" filldisk "$1" "$disk_size" "$3" > $tmp_file2;
 	if [ "$?" == "0" ]; then
 		applySfdiskPartitions $1 $tmp_file2;
 	fi
-	udevadm --settle &>/dev/null;
-	blockdev --rereadpt $1 &>/dev/null;
+	runPartprobe "$1";
 	rm -f $tmp_file2;
 }
 
@@ -343,17 +359,51 @@ getPartitionTableType() {
 		gpttype="GPT";
 	elif [ "$gpt" == "not" ]; then
 		gpttype="";
+	elif [ "$gpt" == "damaged" ]; then
+		gpttype="GPT";
 	fi
+	
 	if [ -n "$gpttype" -a -n "$mbrtype" ]; then
 		type="${gpttype}-${mbrtype}"
 	elif [ -n "$gpttype" ]; then
 		type="${gpttype}"
 	elif [ -n "$mbrtype" ]; then
-		type="${gpttype}"
+		type="${mbrtype}"
 	else
-		type="";
+		type="unknown";
 	fi
 	echo "$type"
+}
+
+
+#
+# Detect the desired partition table type,
+# using the available files in imagePath, don't rely
+# on the actual disk.
+#
+# Assumes GPT or MBR.  Uses first 8 bytes of second block
+# which should hold "EFI PART".  (https://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_table_header_.28LBA_1.29)
+#
+# $1 : imagePath   (e.g. /images/foo)
+# $2 : disk number (e.g. 1)
+getDesiredPartitionTableType() {
+	local imagePath="$1";
+	local intDisk="$2";
+	local type="unknown";
+	local mbrfile=`MBRFileName "${imagePath}" "${intDisk}"`;
+	if [ -r "$mbrfile" ]; then
+		local tmpfile="/tmp/gptsig";
+		dd skip=512 bs=1 if="${mbrfile}" of="${tmpfile}" count=8 >/dev/null 2>&1;
+		touch $tmpfile;
+		local gptsig=`cat $tmpfile`;
+		if [ "$gptsig" == "EFI PART" ]; then
+			type="GPT";
+		else
+			type="MBR";
+		fi
+	fi
+	
+	echo $type;
 }
 
 # $1 : device name of drive
@@ -376,6 +426,396 @@ hasGPT() {
 	elif [ "$gpt" == "not" ]; then
 		echo "0";
 	fi
+}
+
+# $1 is the name of the disk drive
+# $2 is name of file to save to.
+saveSgdiskPartitions() {
+	local disk="$1";
+	local filename="$2";
+	local parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
+	local part="";
+	local diskLength=`expr length $disk`;
+	local partNum="";
+	rm -f $filename;
+	sgdisk -p "$disk" | \
+		awk '/^Logical sector size:/{sectorsize=$4;} /Disk identifier \(GUID\):/{diskcode=$4;}  /^First usable sector is/{split($5, a, ",", seps); first=a[1]; last=$10;}  /^Partitions will be aligned on/{split($6, a, "-", seps); boundary=a[1];}  /^ *[0-9]+ +/{partnum=$1; start=$2; end=$3; code=$6; print "part:" partnum ":" start ":" end ":" code;}  END{print "'$disk':" sectorsize ":" diskcode ":" first ":" last ":" boundary}' \
+		>> $filename;
+	for part in $parts; do
+		partNum=${part:$diskLength};
+		
+		sgdisk -i "$partNum" "$disk" | \
+			awk '/^Partition GUID code:/{typecode=$4;} /Partition unique GUID:/{partcode=$4;} /^Partition name:/{name=$3; for(i=4;i<=NF;i++) {name = name " " $i}} /^First sector:/{first=$3;} /^Last sector:/{last=$3;} END{print "'$part':" typecode ":" partcode ":" first ":" last ":" name;}' \
+			| sed -r "s/'//g" \
+			>> $filename;
+	done
+}
+
+# $1 is the name of the disk drive
+# $2 is name of file to restore from.
+restoreSgdiskPartitions() {
+	local disk="$1";
+	local filename="$2";
+	local parts=`egrep "^${disk}[0-9]+:" $filename | awk -F: '{print $1;}'`;
+	local part="";
+	local escape_disk=`echo "$disk" | sed -r 's%/%\\\\/%g'`;
+	local diskguid=`awk -F: '/^'"$escape_disk"':/{print $3;}' $filename`;
+
+	# wipe out the partition table, then restore
+	sgdisk --zap-all "$disk" >/dev/null 2>&1;
+	if [ "$?" != 0 ]; then
+		handleError "Failed to restore partitions (zap)";
+	fi
+	sgdisk --disk-guid "$diskguid" "$disk" >/dev/null 2>&1;
+	if [ "$?" != 0 ]; then
+		handleError "Failed to restore partitions (disk guid)";
+	fi
+	
+	for part in $parts; do
+		local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
+		local escape_part=`echo "$part" | sed -r 's%/%\\\\/%g'`;
+		local partstart=`awk -F: '/^'"$escape_part"':/{print $4;}' $filename`;
+		local partend=`awk -F: '/^'"$escape_part"':/{print $5;}' $filename`;
+		local parttype=`awk -F: '/^'"$escape_part"':/{print $2;}' $filename`;
+		local partcode=`awk -F: '/^'"$escape_part"':/{print $3;}' $filename`;
+		local partname=`awk -F: '/^'"$escape_part"':/{print $6;}' $filename`;
+
+		sgdisk --new "$part_number:$partstart:$partend" "$disk" >/dev/null 2>&1;
+		if [ "$?" != 0 ]; then
+			handleError "Failed to restore partition (add)";
+		fi
+		sgdisk --change-name "$part_number:$partname" "$disk" >/dev/null 2>&1;
+		if [ "$?" != 0 ]; then
+			handleError "Failed to restore partition (name)";
+		fi
+		sgdisk --typecode "$part_number:$parttype" "$disk" >/dev/null 2>&1;
+		if [ "$?" != 0 ]; then
+			handleError "Failed to restore partition (type)";
+		fi
+		sgdisk --partition-guid "$part_number:$partcode" "$disk" >/dev/null 2>&1;
+		if [ "$?" != 0 ]; then
+			handleError "Failed to restore partition (GUID)";
+		fi
+	done
+}
+
+#
+#
+# $1 is the name of the disk drive
+# $2 is name of file with original partition layout.
+# $3 is the : separated list of fixed size partitions (e.g. 1:2)
+#	 Empty string is ok.
+fillSgdiskWithPartitions() {
+	local disk="$1";
+	local filename="$2";
+	local fixed_size_partitions="$3";
+
+	# get initial information from partition text file
+	local parts=`egrep "^${disk}[0-9]+:" $filename | awk -F: '{print $1;}' | tr '\n' ' '`;
+	local part="";
+	local escape_disk=`echo "$disk" | sed -r 's%/%\\\\/%g'`;
+	local sectorsize=`awk -F: '/^'"$escape_disk"':/{print $2;}' $filename`;
+	local boundary=`awk -F: '/^'"$escape_disk"':/{print $6;}' $filename`;
+
+	# get disk size, but give margin for backup GPT (32 sectors)
+	local disk_size=`blockdev --getsize64 "$disk" | awk '{printf("%d\n",$1/'"$sectorsize"');}'`;
+	((disk_size -= 32));
+
+	# find first partition, and leave its starting position as is
+	local tmppartfile="/tmp/partitionorder";
+	local first_start=$disk_size;
+	rm -f $tmppartfile;
+	for part in $parts; do
+		local escape_part=`echo "$part" | sed -r 's%/%\\\\/%g'`;
+		local partstart=`awk -F: '/^'"$escape_part"':/{print $4;}' $filename`;
+		if [ -n "$partstart" -a "$partstart" -lt "$first_start" ]; then
+			first_start=$partstart;
+		fi
+		echo "$partstart $part" >> $tmppartfile;
+	done
+	
+	# find ordering of partitions on the disk
+	# this is important for final processing so the partitions are stored in the right order
+	parts=`sort -n $tmppartfile | awk '{print $2;}' | tr '\n' ' '`;
+	rm -f $tmppartfile;
+
+	
+	# find number of sectors that were fixed and variable under old disk
+	local original_variable=0;
+	local original_fixed=$first_start;  # pre-first partition is fixed
+	for part in $parts; do
+		local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
+		local escape_part=`echo "$part" | sed -r 's%/%\\\\/%g'`;
+		local partstart=`awk -F: '/^'"$escape_part"':/{print $4;}' $filename`;
+		local partend=`awk -F: '/^'"$escape_part"':/{print $5;}' $filename`;
+		local part_size=`expr "$partend" "-" "$partstart" "+" "1"`;
+		local is_fixed=`echo "${fixed_size_partitions}" | awk -F: '{for(i=1;i<=NF;i++) {print $i;}}' | egrep '^'"$part_number"'$' | wc -l`;
+		if [ "$is_fixed" == "0" ]; then
+			((original_variable += part_size))
+		else
+			((original_fixed += part_size))
+		fi
+	done
+	
+	# find amount of disk fixed and variable under new disk
+	local new_fixed=$original_fixed;
+	local new_variable=`expr "$disk_size" "-" "$original_fixed"`;
+
+	# wipe out the partition table, to start from scratch
+	local diskguid=`awk -F: '/^'"$escape_disk"':/{print $3;}' $filename`;
+	sgdisk --zap-all "$disk" >/dev/null 2>&1;
+	if [ "$?" != 0 ]; then
+		handleError "Failed to fill partitions (zap)";
+	fi
+	sgdisk --disk-guid "$diskguid" "$disk" >/dev/null 2>&1;
+	if [ "$?" != 0 ]; then
+		handleError "Failed to fill partitions (disk guid)";
+	fi
+	
+	# find new start, size, end for all partitions, and create them
+	local g_start="$first_start";
+	for part in $parts; do
+		local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
+		local escape_part=`echo "$part" | sed -r 's%/%\\\\/%g'`;
+		local partstart=`awk -F: '/^'"$escape_part"':/{print $4;}' $filename`;
+		local partend=`awk -F: '/^'"$escape_part"':/{print $5;}' $filename`;
+		local parttype=`awk -F: '/^'"$escape_part"':/{print $2;}' $filename`;
+		local partcode=`awk -F: '/^'"$escape_part"':/{print $3;}' $filename`;
+		local partname=`awk -F: '/^'"$escape_part"':/{print $6;}' $filename`;
+		local part_size=`expr "$partend" "-" "$partstart" "+" "1"`;
+		local is_fixed=`echo "${fixed_size_partitions}" | awk -F: '{for(i=1;i<=NF;i++) {print $i;}}' | egrep '^'"$part_number"'$' | wc -l`;
+		local new_size=$part_size;
+		local remainder=0;
+		if [ "$is_fixed" == "0" ]; then
+			((new_size = part_size * new_variable / original_variable))
+			((remainder = new_size % boundary))
+			# make sure new size is a multiple of boundary, if variable sized partition
+			if [ "$remainder" -gt 0 ]; then
+				((new_size -= remainder))
+			fi
+		fi
+		local new_start=$g_start;
+		local new_end=0;
+		((new_end = new_start + new_size - 1));
+		# don't go past end of drive
+		if [ "$new_end" -gt "$disk_size" ]; then
+			new_end=$disk_size;
+		fi
+
+		sgdisk --new "$part_number:$new_start:$new_end" "$disk" >/dev/null 2>&1;
+		if [ "$?" != 0 ]; then
+			handleError "Failed to fill partition (add)";
+		fi
+		sgdisk --change-name "$part_number:$partname" "$disk" >/dev/null 2>&1;
+		if [ "$?" != 0 ]; then
+			handleError "Failed to fill partition (name)";
+		fi
+		sgdisk --typecode "$part_number:$parttype" "$disk" >/dev/null 2>&1;
+		if [ "$?" != 0 ]; then
+			handleError "Failed to fill partition (type)";
+		fi
+		sgdisk --partition-guid "$part_number:$partcode" "$disk" >/dev/null 2>&1;
+		if [ "$?" != 0 ]; then
+			handleError "Failed to fill partition (GUID)";
+		fi
+
+		# make new start for next partition.  make sure it's a multiple of boundary
+		((g_start += new_size))
+		((remainder = g_start % boundary))
+		if [ "$remainder" -gt 0 ]; then
+			((g_start += boundary - remainder))
+		fi
+	done
+	
+	return
+}
+
+
+# $1 is the partition device (e.g. /dev/sda1)
+# $2 is the new desired size in 1024 (1k) blocks
+# $3 is the image path (e.g. /net/dev/foo)
+resizeSgdiskPartition() {
+	local part="$1";
+	local size="$2";
+	local imagePath="$3";
+	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
+	local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
+	
+
+	local escape_disk=`echo "$disk" | sed -r 's%/%\\\\/%g'`;
+	local escape_part=`echo "$part" | sed -r 's%/%\\\\/%g'`;
+	local filename="/tmp/sgdisk.partitions";
+	saveSgdiskPartitions "$disk" "$filename";
+	local sectorsize=`awk -F: '/^'"$escape_disk"':/{print $2;}' $filename`;
+	local boundary=`awk -F: '/^'"$escape_disk"':/{print $6;}' $filename`;
+	local partstart=`awk -F: '/^'"$escape_part"':/{print $4;}' $filename`;
+	local parttype=`awk -F: '/^'"$escape_part"':/{print $2;}' $filename`;
+	local partcode=`awk -F: '/^'"$escape_part"':/{print $3;}' $filename`;
+	local partname=`awk -F: '/^'"$escape_part"':/{print $6;}' $filename`;
+	local newsize=`expr $size '*' 1024 '/' $sectorsize`;
+	local remainder=`expr $newsize '%' $boundary`;
+	if [ "$remainder" -gt 0 ]; then
+		newsize=`expr "$newsize" "-" "(" "(" "$newsize" "+" "$boundary" ")" "%" "$boundary" ")"`;
+	fi
+	local partend=`expr "$partstart" "+" "$newsize"`;
+
+	sgdisk --delete "$part_number" "$disk" >/dev/null 2>&1;
+	if [ "$?" != 0 ]; then
+        handleError "Failed to resize partition (delete)";
+    fi
+	sgdisk --new "$part_number:$partstart:$partend" "$disk" >/dev/null 2>&1;
+	if [ "$?" != 0 ]; then
+        handleError "Failed to resize partition (add)";
+    fi
+	sgdisk --change-name "$part_number:$partname" "$disk" >/dev/null 2>&1;
+	if [ "$?" != 0 ]; then
+        handleError "Failed to resize partition (name)";
+    fi
+	sgdisk --typecode "$part_number:$parttype" "$disk" >/dev/null 2>&1;
+	if [ "$?" != 0 ]; then
+        handleError "Failed to resize partition (TYPE)";
+    fi
+	sgdisk --partition-guid "$part_number:$partcode" "$disk" >/dev/null 2>&1;
+	if [ "$?" != 0 ]; then
+        handleError "Failed to resize partition (GUID)";
+    fi
+	
+	rm -f $filename;
+}
+
+
+#
+# Detect the partition table type, then call the correct
+# resizePartition function
+#
+# $1 is the partition device (e.g. /dev/sda1)
+# $2 is the new desired size in 1024 (1k) blocks
+# $3 is the image path (e.g. /net/dev/foo)
+resizePartition() {
+	local part="$1";
+	local size="$2";
+	local imagePath="$3";
+	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
+	local table_type=`getPartitionTableType "$disk"`;
+
+	if [ "$table_type" == "MBR" ]; then
+		resizeSfdiskPartition "$part" "$size" "$imagePath";
+	elif [ "$table_type" == "GPT" ]; then
+		resizeSgdiskPartition "$part" "$size" "$imagePath";
+	else
+		handleError "Unexpected partition table type: $table_type";
+	fi
+	
+	# make sure kernel knows about the changes
+	runPartprobe "$disk";
+}
+
+#
+# Detect the partition table type, then save all relevant
+# partition information
+#
+# $1 : device name of the drive
+# $2 : imagePath
+# $3 : disk number
+saveOriginalPartitions() {
+	local disk="$1";
+	local imagePath="$2";
+	local intDisk="$3";
+	local table_type=`getPartitionTableType "$disk"`;
+	if [ "$table_type" == "MBR" ]; then
+		local filename=`sfdiskOriginalPartitionFileName "$imagePath" "$intDisk"`;
+		saveSfdiskPartitions "$disk" "$filename";
+	elif [ "$table_type" == "GPT" ]; then
+		local filename=`sgdiskOriginalPartitionFileName "$imagePath" "$intDisk"`;
+		saveSgdiskPartitions "$disk" "$filename";
+	else
+		handleError "Unexpected partition table type: $table_type";
+	fi
+}
+
+#
+# Detect the partition table type, then restore partition
+# sizes, using saved partition information
+#
+# $1 : device name of the drive
+# $2 : imagePath
+# $3 : disk number
+restoreOriginalPartitions() {
+	local disk="$1";
+	local imagePath="$2";
+	local intDisk="$3";
+	local table_type=`getPartitionTableType "$disk"`;
+	if [ "$table_type" == "MBR" ]; then
+		local filename=`sfdiskOriginalPartitionFileName "$imagePath" "$intDisk"`;
+		restoreSfdiskPartitions "$disk" "$filename";
+	elif [ "$table_type" == "GPT" ]; then
+		local filename=`sgdiskOriginalPartitionFileName "$imagePath" "$intDisk"`;
+		restoreSgdiskPartitions "$disk" "$filename";
+	else
+		handleError "Unexpected partition table type: $table_type";
+	fi
+	
+	# make sure kernel knows about the changes
+	runPartprobe "$disk";
+}
+
+#
+# Detect the partition table type, the fill the disk with
+# the partitions, using the correct routine.
+#
+# $1 : the disk device (e.g. /dev/sda)
+# $2 : imagePath   (e.g. /images/foo)
+# $3 : disk number (e.g. 1)
+fillDiskWithPartitions() {
+	local disk="$1";
+	local imagePath="$2";
+	local intDisk="$3";
+	local fixed_size_partitions="";
+	local fsfilename=`fixedSizePartitionsFileName "${imagePath}" "${intDisk}"`;
+	if [ -r "$fsfilename" ]; then
+		fixed_size_partitions=`cat "$fsfilename"`;
+	fi
+	local table_type=`getDesiredPartitionTableType "$imagePath" "$intDisk"`;
+	
+	if [ "$table_type" == "MBR" ]; then
+		local filename=`sfdiskOriginalPartitionFileName "$imagePath" "$intDisk"`;
+		fillSfdiskWithPartitions "$disk" "$filename" "$fixed_size_partitions";
+	elif [ "$table_type" == "GPT" ]; then
+		local filename=`sgdiskOriginalPartitionFileName "$imagePath" "$intDisk"`;
+		fillSgdiskWithPartitions "$disk" "$filename" "$fixed_size_partitions";
+	else
+		handleError "Unexpected partition table type: $table_type";
+	fi
+	
+	# make sure kernel knows about the changes
+	runPartprobe "$disk";
+}
+
+#
+# Check if it will be ok to call fillDiskWithPartitions
+#
+# $1 : the disk device (e.g. /dev/sda)
+# $2 : imagePath   (e.g. /images/foo)
+# $3 : disk number (e.g. 1)
+fillDiskWithPartitionsIsOK() {
+	local disk="$1";
+	local imagePath="$2";
+	local intDisk="$3";
+	local table_type=`getDesiredPartitionTableType "$imagePath" "$intDisk"`;
+	local result="0";
+	
+	if [ "$table_type" == "MBR" ]; then
+		local filename=`sfdiskOriginalPartitionFileName "$imagePath" "$intDisk"`;
+		if [ -r "$filename" ]; then
+			result="1";
+		fi
+	elif [ "$table_type" == "GPT" ]; then
+		local filename=`sgdiskOriginalPartitionFileName "$imagePath" "$intDisk"`;
+		if [ -r "$filename" ]; then
+			result="1";
+		fi
+	fi
+	echo "$result";
 }
 
 # Local Variables:

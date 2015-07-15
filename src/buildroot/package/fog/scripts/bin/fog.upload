@@ -117,7 +117,7 @@ if [ -f "/images/.mntcheck" ]; then
 			echo $fixed_size_partitions > "${imagePath}/d1.fixed_size_partitions";
 			# Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
 			#  Remove pagefile and hibernate file
-			if [[ "$osid" == +([1-2]|[5-7]|9) ]]; then
+			if [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
 				for partPage in $parts; do
 					removePageFile "$partPage";
 				done
@@ -138,11 +138,12 @@ if [ -f "/images/.mntcheck" ]; then
 			#  Start filesytem type record
 			if [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
 				dots "Saving original partition table";
-				#saveSfdiskPartitions "${hd}" "${imagePath}/d1.original.partitions";
+				saveOriginalPartitions "${hd}" "${imagePath}" "1";
 				echo -n "" > "${imagePath}/d1.original.fstypes";
 				echo -n "" > `swapUUIDFileName "${imagePath}" "1"`;
 				echo "Done";
 				debugPause
+				savePartitionTablesAndBootLoaders "${hd}" "1" "${imagePath}" "${osid}" "${imgPartitionType}";
 			fi
 			# Windows 2000/XP, Vista, 7, 8, 8.1:
 			#  Save MBR
@@ -159,8 +160,6 @@ if [ -f "/images/.mntcheck" ]; then
 					shrinkPartition "$part" "${imagePath}/d1.original.fstypes";
 				done
 				runPartprobe $hd;
-				#saveSfdiskPartitions "${hd}" "${imagePath}/d1.minimum.partitions";
-				gptorMBRSave "$hd" "$imagePath";
 				debugPause
 			fi
 			# Windows 2000/XP, Vista, 7, 8, 8.1:
@@ -203,11 +202,9 @@ if [ -f "/images/.mntcheck" ]; then
 					rm /tmp/pigz1;
 					debugPause;
 				done
+
 				dots "Restoring MBR";
-				applySfdiskPartitions "${hd}" "${imagePath}/d1.original.partitions";
-				fdisk $hd &>/dev/null << EOFRESTOREPART
-w
-EOFRESTOREPART
+				restoreOriginalPartitions "${hd}" "${imagePath}" "1";
 				echo "Done";
 				debugPause;
 				if [ "$osid" == "2" ]; then
@@ -228,14 +225,8 @@ EOFRESTOREPART
 				done
 			fi
 		elif [ "$imgType" == "mps" ]; then
-			hasgpt=`hasGPT $hd`;
-			if [ "$hasgpt" == "0" ]; then
-				have_extended_partition=`sfdisk -l $hd 2>/dev/null | egrep "^${hd}.*  (Extended|W95 Ext'd \(LBA\))$" | wc -l`;
-			else
-				have_extended_partition="0";
-			fi
 			if [ -d "$imagePath" ]; then
-				savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$hasgpt" "$have_extended_partition" "$imgPartitionType"
+				savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType"
 				debugPause
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				diskLength=`expr length $hd`;
@@ -252,14 +243,8 @@ EOFRESTOREPART
 			intDisk=1;
 			for disk in $disks; do
 				echo " * Processing Hard Disk: $disk";
-				hasgpt=`hasGPT $disk`;
-				if [ "$hasgpt" == "0" ]; then
-					have_extended_partition=`sfdisk -l $disk 2>/dev/null | egrep "^${disk}.*  (Extended|W95 Ext'd \(LBA\))$" | wc -l`;
-				else
-					have_extended_partition="0";
-				fi
 				if [ -d "$imagePath" ]; then
-					savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$hasgpt" "$have_extended_partition" "$imgPartitionType"
+					savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$imgPartitionType"
 					debugPause
 					parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
 					diskLength=`expr length $disk`;
