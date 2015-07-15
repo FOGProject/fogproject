@@ -69,7 +69,8 @@ class Host extends FOGController {
     public function load($field = 'id') {
         parent::load($field);
         $this->getMACAddress();
-        foreach(get_class_methods($this) AS &$method) {
+        $methods = get_class_methods($this);
+        foreach($methods AS $i => &$method) {
             if (strlen($method) > 5 && (strpos($method,'load') !== false)) $this->$method();
         }
         unset($method);
@@ -298,11 +299,11 @@ class Host extends FOGController {
         }
         if ($this->isLoaded(additionalMACs)) {
             $MAClist = array();
-            foreach ($this->get(additionalMACs) AS &$MAC) $MAClist[] = $MAC->__toString();
+            foreach ((array)$this->get(additionalMACs) AS &$MAC) $MAClist[] = $MAC->__toString();
             unset($MAC);
             $this->getClass(MACAddressAssociationManager)->destroy(array('hostID' => $this->get(id),'mac' => (array)$MAClist));
             $this->getClass(MACAddressAssociationManager)->destroy(array('hostID' => $this->get(id),'pending' => 0,'primary' => 0));
-            foreach($this->get(additionalMACs) AS &$me) {
+            foreach((array)$this->get(additionalMACs) AS $i => &$me) {
                 if (($me instanceof MACAddress) && $me->isValid()) {
                     $this->getClass(MACAddressAssociation)
                         ->set(hostID,$this->get(id))
@@ -318,11 +319,11 @@ class Host extends FOGController {
         }
         if ($this->isLoaded(pendingMACs)) {
             $MAClist = array();
-            foreach ($this->get(pendingMACs) AS &$MAC) $MAClist[] = $MAC->__toString();
+            foreach ((array)$this->get(pendingMACs) AS &$MAC) $MAClist[] = $MAC->__toString();
             unset($MAC);
-            $this->getClass(MACAddressAssociationManager)->destroy(array('hostID' => $this->get(id),'mac' => (array)$MAClist));
-            $this->getClass('MACAddressAssociationManager')->destroy(array('hostID' => $this->get(id),'pending' => 1,'primary' => 0));
-            foreach($this->get(pendingMACs) AS &$me) {
+            $this->getClass(MACAddressAssociationManager)->destroy(array(hostID=>$this->get(id),'mac' => (array)$MAClist));
+            $this->getClass(MACAddressAssociationManager)->destroy(array(hostID=>$this->get(id),'pending' => 1,'primary' => 0));
+            foreach((array)$this->get(pendingMACs) AS $i => &$me) {
                 if (($me instanceof MACAddress) && $me->isValid()) {
                     $this->getClass(MACAddressAssociation)
                         ->set(hostID,$this->get(id))
@@ -339,11 +340,11 @@ class Host extends FOGController {
         if ($this->isLoaded(modules)) {
             $this->getClass(ModuleAssociationManager)->destroy(array('hostID' => $this->get(id)));
             $moduleName = $this->getGlobalModuleStatus();
-            foreach($this->getClass(ModuleManager)->find(array('id' => $this->get(modules))) AS &$Module) {
-                if ($moduleName[$Module->get(shortName)]) {
+            foreach((array)$this->get(modules) AS $i => &$Module) {
+                if ($moduleName[$this->getClass(Module,$Module)->get(shortName)]) {
                     $this->getClass(ModuleAssociation)
-                        ->set(hostID,$this->get('id'))
-                        ->set(moduleID,$Module->get('id'))
+                        ->set(hostID,$this->get(id))
+                        ->set(moduleID,$Module)
                         ->set(state,1)
                         ->save();
                 }
@@ -351,10 +352,10 @@ class Host extends FOGController {
             unset($Module);
         }
         if ($this->isLoaded(printers)) {
-            $defPrint = $this->getClass(PrinterAssociationManager)->find(array('hostID' => $this->get(id),'isDefault' => 1),'','','','','','','printerID');
+            $defPrint = $this->getClass(PrinterAssociationManager)->find(array(hostID=>$this->get(id),'isDefault' => 1),'','','','','','','printerID');
             $defPrint = array_shift($defPrint);
-            $this->getClass(PrinterAssociationManager)->destroy(array('hostID' => $this->get(id)));
-            foreach ($this->get(printers) AS &$Printer) {
+            $this->getClass(PrinterAssociationManager)->destroy(array(hostID=>$this->get(id)));
+            foreach ((array)$this->get(printers) AS $i => &$Printer) {
                 $this->getClass(PrinterAssociation)
                     ->set(printerID,$Printer)
                     ->set(hostID,$this->get(id))
@@ -365,8 +366,8 @@ class Host extends FOGController {
             unset($Printer);
         }
         if ($this->isLoaded(snapins)) {
-            $this->getClass(SnapinAssociationManager)->destroy(array('hostID' => $this->get(id)));
-            foreach ($this->get(snapins) AS &$Snapin) {
+            $this->getClass(SnapinAssociationManager)->destroy(array(hostID=>$this->get(id)));
+            foreach ((array)$this->get(snapins) AS $i => &$Snapin) {
                 $this->getClass(SnapinAssociation)
                     ->set(hostID,$this->get(id))
                     ->set(snapinID,$Snapin)
@@ -378,7 +379,7 @@ class Host extends FOGController {
             // Remove old rows
             $this->getClass(GroupAssociationManager)->destroy(array('hostID' => $this->get(id)));
             // Create assoc
-            foreach ($this->get(groups) AS &$Group) {
+            foreach ((array)$this->get(groups) AS $i => &$Group) {
                 $this->getClass(GroupAssociation)
                     ->set(hostID,$this->get(id))
                     ->set(groupID,$Group)
@@ -392,7 +393,7 @@ class Host extends FOGController {
         return $this->get(id) && $this->get(name) && HostManager::isHostnameSafe($this->get(name)) && $this->getMACAddress();
     }
     public function getActiveTaskCount() {
-        return $this->getClass('TaskManager')->count(array('stateID' => array(1, 2, 3), 'hostID' => $this->get('id')));
+        return $this->getClass(TaskManager)->count(array(stateID => array(1, 2, 3),hostID => $this->get(id)));
     }
     public function isValidToImage() {
         $Image = $this->getImage();
@@ -401,30 +402,32 @@ class Host extends FOGController {
         $StorageNode = $StorageGroup->getStorageNode();
         return ($this->getImage()->isValid() && $this->getOS()->isValid() && $this->getImage()->getStorageGroup()->isValid() && $this->getImage()->getStorageGroup()->getStorageNode()->isValid());
     }
-    public function getOptimalStorageNode() {return $this->get('optimalStorageNode');}
-        public function checkIfExist($taskTypeID) {
-            $res = true;
-            // TaskType: Variables
-            $TaskType = $this->getClass(TaskType,$taskTypeID);
-            $isUpload = $TaskType->isUpload();
-            // Image: Variables
-            $Image = $this->getImage();
-            $StorageGroup = $Image->getStorageGroup();
-            $StorageNode = ($isUpload ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode());
-            if (!$isUpload)	$this->HookManager->processEvent('HOST_NEW_SETTINGS',array('Host' => &$this,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
-            if (!$StorageGroup || !$StorageGroup->isValid()) throw new Exception(_('No Storage Group found for this image'));
-            if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(_('No Storage Node found for this image'));
-            if (in_array($TaskType->get('id'),array('1','8','15','17'))) {
-                // FTP
-                $this->FOGFTP->set(username,$StorageNode->get(user))
-                    ->set(password,$StorageNode->get(pass))
-                    ->set(host,$StorageNode->get(ip));
-                $conn = $this->FOGFTP->connect();
-                if (!$conn || !$this->FOGFTP->exists('/'.trim($StorageNode->get(ftppath),'/').'/'.$Image->get(path))) $res = false;
-                $this->FOGFTP->close();
-            }
-            return $res;
+    public function getOptimalStorageNode() {
+        return $this->get(optimalStorageNode);
+    }
+    public function checkIfExist($taskTypeID) {
+        $res = true;
+        // TaskType: Variables
+        $TaskType = $this->getClass(TaskType,$taskTypeID);
+        $isUpload = $TaskType->isUpload();
+        // Image: Variables
+        $Image = $this->getImage();
+        $StorageGroup = $Image->getStorageGroup();
+        $StorageNode = ($isUpload ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode());
+        if (!$isUpload)	$this->HookManager->processEvent('HOST_NEW_SETTINGS',array('Host' => &$this,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
+        if (!$StorageGroup || !$StorageGroup->isValid()) throw new Exception(_('No Storage Group found for this image'));
+        if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(_('No Storage Node found for this image'));
+        if (in_array($TaskType->get('id'),array('1','8','15','17'))) {
+            // FTP
+            $this->FOGFTP->set(username,$StorageNode->get(user))
+                ->set(password,$StorageNode->get(pass))
+                ->set(host,$StorageNode->get(ip));
+            $conn = $this->FOGFTP->connect();
+            if (!$conn || !$this->FOGFTP->exists('/'.trim($StorageNode->get(ftppath),'/').'/'.$Image->get(path))) $res = false;
+            $this->FOGFTP->close();
         }
+        return $res;
+    }
     /** createTasking creates the tasking so I don't have to keep typing it in for each element.
      * @param $taskName the name to assign to the tasking
      * @param $taskTypeID the task type id to set the tasking
@@ -439,18 +442,18 @@ class Host extends FOGController {
      */
     private function createTasking($taskName, $taskTypeID, $username, $groupID, $memID, $imagingTask = true,$shutdown = false, $passreset = false, $debug = false) {
         $Task = $this->getClass(Task)
-            ->set('name',$taskName)
-            ->set('createdBy',$username)
-            ->set('hostID',$this->get('id'))
-            ->set('isForced',0)
-            ->set('stateID',1)
-            ->set('typeID',$taskTypeID)
-            ->set('NFSGroupID',$groupID)
-            ->set('NFSMemberID',$memID);
-        if ($imagingTask) $Task->set('imageID', $this->getImage()->get('id'));
-        if ($shutdown) $Task->set('shutdown', $shutdown);
-        if ($debug) $Task->set('isDebug', $debug);
-        if ($passreset) $Task->set('passreset', $passreset);
+            ->set(name,$taskName)
+            ->set(createdBy,$username)
+            ->set(hostID,$this->get(id))
+            ->set(isForced,0)
+            ->set(stateID,1)
+            ->set(typeID,$taskTypeID)
+            ->set(NFSGroupID,$groupID)
+            ->set(NFSMemberID,$memID);
+        if ($imagingTask) $Task->set(imageID,$this->getImage()->get(id));
+        if ($shutdown) $Task->set(shutdown,$shutdown);
+        if ($debug) $Task->set(isDebug,$debug);
+        if ($passreset) $Task->set(passreset,$passreset);
         return $Task;
     }
     /** cancelJobsSnapinsForHost cancels all jobs and tasks that are snapins associate
@@ -458,9 +461,12 @@ class Host extends FOGController {
      * @return void
      */
     private function cancelJobsSnapinsForHost() {
-        foreach($this->getClass('SnapinJobManager')->find(array('hostID' => $this->get('id'),'stateID' => array(-1,0,1))) AS &$SJ) {
-            foreach($this->getClass('SnapinTaskManager')->find(array('jobID' => $SJ->get('id'),'stateID' => array(-1,0,1))) AS $ST) $ST->set('stateID',2)->save();
-            $SJ->set('stateID',2)->set('return',-9999)->save();
+        $SnapinJobs = $this->getClass(SnapinJobManager)->find(array(hostID=>$this->get(id),stateID=>array(-1,0,1)));
+        foreach($SnapinJobs AS $i => &$SJ) {
+            $SnapinTasks = $this->getClass(SnapinTaskManager)->find(array(jobID=>$SJ->get(id),stateID=>array(-1,0,1)));
+            foreach($SnapinTasks AS $i => &$ST) $ST->set(stateID,2)->save();
+            unset($ST);
+            $SJ->set(stateID,2)->set('return',-9999)->save();
         }
         unset($SJ);
     }
@@ -512,12 +518,12 @@ class Host extends FOGController {
     public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false) {
         try {
             // Error checking
-            if (!$this->isValid()) throw new Exception($this->foglang['HostNotValid']);
-            if (!in_array($taskTypeID,array(12,13)) && $this->getActiveTaskCount()) throw new Exception($this->foglang['InTask']);
+            if (!$this->isValid()) throw new Exception($this->foglang[HostNotValid]);
+            if (!in_array($taskTypeID,array(12,13)) && $this->getActiveTaskCount()) throw new Exception($this->foglang[InTask]);
             // TaskType: Variables
-            $TaskType = $this->getClass('TaskType',$taskTypeID);
+            $TaskType = $this->getClass(TaskType,$taskTypeID);
             // TaskType: Error checking
-            if (!$TaskType->isValid()) throw new Exception($this->foglang['TaskTypeNotValid']);
+            if (!$TaskType->isValid()) throw new Exception($this->foglang[TaskTypeNotValid]);
             // Imaging types.
             $imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17,24));
             // Image: Error checking
@@ -526,20 +532,20 @@ class Host extends FOGController {
                 $Image = $this->getImage();
                 $StorageGroup = $Image->getStorageGroup();
                 $StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode());
-                if (!$Image->isValid()) throw new Exception($this->foglang['ImageNotValid']);
-                else if (!$Image->getStorageGroup()->isValid()) throw new Exception($this->foglang['ImageGroupNotValid']);
-                else if (!$StorageNode || !($StorageNode instanceof StorageNode)) throw new Exception($this->foglang['NoFoundSG']);
-                else if (!$StorageNode->isValid()) throw new Exception($this->foglang['SGNotValid']);
+                if (!$Image->isValid()) throw new Exception($this->foglang[ImageNotValid]);
+                else if (!$Image->getStorageGroup()->isValid()) throw new Exception($this->foglang[ImageGroupNotValid]);
+                else if (!$StorageNode || !($StorageNode instanceof StorageNode)) throw new Exception($this->foglang[NoFoundSG]);
+                else if (!$StorageNode->isValid()) throw new Exception($this->foglang[SGNotValid]);
                 else {
                     $imageTaskImgID = $this->get(imageID);
-                    $hostsWithImgID = $this->getClass(HostManager)->find(array('imageID' => $imageTaskImgID),'','','','','','','id');
-                    if (!in_array($this->get(id),(array)$hostsWithImgID)) $this->set('imageID',$this->getClass(Host,$this->get(id))->get(imageID));
+                    $hostsWithImgID = $this->getClass(HostManager)->find(array(imageID=>$imageTaskImgID),'','','','','','','id');
+                    if (!in_array($this->get(id),(array)$hostsWithImgID)) $this->set(imageID,$this->getClass(Host,$this->get(id))->get(imageID));
                     $this->save();
-                    $this->set('imageID',$imageTaskImgID);
+                    $this->set(imageID,$imageTaskImgID);
                 }
             }
             $isUpload = $TaskType->isUpload();
-            $username = ($this->FOGUser ? $this->FOGUser->get('name') : ($username ? $username : ''));
+            $username = ($this->FOGUser ? $this->FOGUser->get(name) : ($username ? $username : ''));
             // if deploySnapins is exactly compared with boolean true, set to -1 for all snapins
             if ($deploySnapins === true) $deploySnapins = -1;
             // Cancel any tasks and jobs that the host hasn't completed
@@ -550,17 +556,17 @@ class Host extends FOGController {
             if ($deploySnapins && !$isUpload && (($taskTypeID != 17 && $imagingTypes) || in_array($taskTypeID,array(12,13)))) $this->createSnapinTasking($deploySnapins);
             // Task: Create Task Object
             $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageGroup->getOptimalStorageNode()->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug);
-            if ($Image && $Image->isValid()) $Task->set('imageID',$Image->get(id));
+            if ($Image && $Image->isValid()) $Task->set(imageID,$Image->get(id));
             // Task: Save to database
             if (!$Task->save()) {
-                $this->FOGCore->logHistory(sprintf('Task failed: Task ID: %s, Task Name: %s, Host ID: %s, HostName: %s, Host MAC: %s',$Task->get('id'),$Task->get('name'),$this->get('id'),$this->get('name'),$this->getMACAddress()));
-                throw new Exception($this->foglang['FailedTask']);
+                $this->FOGCore->logHistory(sprintf('Task failed: Task ID: %s, Task Name: %s, Host ID: %s, HostName: %s, Host MAC: %s',$Task->get(id),$Task->get(name),$this->get(id),$this->get(name),$this->getMACAddress()));
+                throw new Exception($this->foglang[FailedTask]);
             }
             // If task is multicast create the tasking for multicast
             if ($TaskType->isMulticast()) {
                 $assoc = false;
-                $MultiSessName = current((array)$this->getClass('MulticastSessionsManager')->find(array('name' => $taskName,'stateID' => array(0,1,2,3))));
-                $MultiSessAssoc = current((array)$this->getClass('MulticastSessionsManager')->find(array('image' => $this->getImage()->get('id'),'stateID' => 0)));
+                $MultiSessName = current((array)$this->getClass(MulticastSessionsManager)->find(array(name=>$taskName,stateID=>array(0,1,2,3))));
+                $MultiSessAssoc = current((array)$this->getClass(MulticastSessionsManager)->find(array(image=>$this->getImage()->get(id),stateID=>0)));
                 if ($sessionjoin && $MultiSessName && $MultiSessName->isValid()) {
                     $MulticastSession = $MultiSessName;
                     $assoc = true;
@@ -569,38 +575,38 @@ class Host extends FOGController {
                     $assoc = true;
                 } else {
                     // Create New Multicast Session Job
-                    $MulticastSession = $this->getClass('MulticastSessions')
-                        ->set('name',$taskName)
-                        ->set('port',($this->FOGCore->getSetting('FOG_MULTICAST_PORT_OVERRIDE') ? $this->FOGCore->getSetting('FOG_MULTICAST_PORT_OVERRIDE') : $this->FOGCore->getSetting('FOG_UDPCAST_STARTINGPORT')))
-                        ->set('logpath',$this->getImage()->get('path'))
-                        ->set('image',$this->getImage()->get('id'))
+                    $MulticastSession = $this->getClass(MulticastSessions)
+                        ->set(name,$taskName)
+                        ->set(port,($this->FOGCore->getSetting(FOG_MULTICAST_PORT_OVERRIDE) ? $this->FOGCore->getSetting(FOG_MULTICAST_PORT_OVERRIDE) : $this->FOGCore->getSetting(FOG_UDPCAST_STARTINGPORT)))
+                        ->set(logpath,$this->getImage()->get(path))
+                        ->set(image,$this->getImage()->get(id))
                         ->set('interface',$StorageNode->get('interface'))
-                        ->set('stateID',0)
-                        ->set('starttime',$this->nice_date()->format('Y-m-d H:i:s'))
-                        ->set('percent',0)
-                        ->set('isDD',$this->getImage()->get('imageTypeID'))
-                        ->set('NFSGroupID', $StorageNode->get('storageGroupID'));
+                        ->set(stateID,0)
+                        ->set(starttime,$this->nice_date()->format('Y-m-d H:i:s'))
+                        ->set(percent,0)
+                        ->set(isDD,$this->getImage()->get(imageTypeID))
+                        ->set(NFSGroupID,$StorageNode->get(storageGroupID));
                     if ($MulticastSession->save()) {
                         // Sets a new port number so you can create multiple Multicast Tasks.
-                        if (!$this->FOGCore->getSetting('FOG_MULTICAST_PORT_OVERRIDE')) {
+                        if (!$this->FOGCore->getSetting(FOG_MULTICAST_PORT_OVERRIDE)) {
                             $randomnumber = mt_rand(24576,32766)*2;
-                            while ($randomnumber == $MulticastSession->get('port')) $randomnumber = mt_rand(24576,32766)*2;
-                            $this->FOGCore->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
+                            while ($randomnumber == $MulticastSession->get(port)) $randomnumber = mt_rand(24576,32766)*2;
+                            $this->FOGCore->setSetting(FOG_UDPCAST_STARTINGPORT,$randomnumber);
                         }
                     }
                     $assoc = true;
                 }
                 if ($assoc) {
-                    $this->getClass('MulticastSessionsAssociation')
-                        ->set('msID',$MulticastSession->get('id'))
-                        ->set('taskID',$Task->get('id'))
+                    $this->getClass(MulticastSessionsAssociation)
+                        ->set(msID,$MulticastSession->get(id))
+                        ->set(taskID,$Task->get(id))
                         ->save();
                 }
             }
             // Wake Host
             $this->wakeOnLAN();
             // Log History event
-            $this->FOGCore->logHistory(sprintf('Task Created: Task ID: %s, Task Name: %s, Host ID: %s, Host Name: %s, Host MAC: %s, Image ID: %s, Image Name: %s', $Task->get('id'), $Task->get('name'), $this->get('id'), $this->get('name'), $this->getMACAddress(), $this->getImage()->get('id'), $this->getImage()->get('name')));
+            $this->FOGCore->logHistory(sprintf('Task Created: Task ID: %s, Task Name: %s, Host ID: %s, Host Name: %s, Host MAC: %s, Image ID: %s, Image Name: %s', $Task->get(id), $Task->get(name), $this->get(id), $this->get(name), $this->getMACAddress(), $this->getImage()->get(id), $this->getImage()->get(name)));
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -625,18 +631,18 @@ class Host extends FOGController {
     }
     public function clearAVRecordsForHost() {
         $MACs = $this->getMyMacs();
-        $this->getClass(VirusManager)->destroy(array('hostMAC' => $MACs));
+        $this->getClass(VirusManager)->destroy(array(hostMAC=>$MACs));
         unset($MACs);
     }
     public function wakeOnLAN() {
         $MACs = $this->getMyMacs();
-        foreach((array)$MACs AS &$MAC) $this->FOGCore->wakeOnLAN(implode('|',(array)$MAC));
+        foreach((array)$MACs AS $i => &$MAC) $this->FOGCore->wakeOnLAN(implode('|',(array)$MAC));
         unset($MACs,$MAC);
         return;
     }
     public function addPrinter($addArray) {
         // Add
-        foreach ((array)$addArray AS &$item) {
+        foreach ((array)$addArray AS $i => &$item) {
             if (!is_object($item) && !in_array($item,$this->get(printers))) $this->add(printers,$item);
             else if (is_object($item) && $item->isValid() && !in_array($item->get(id),$PrinterIDs)) $this->add(printers, $item->get(id));
         }
@@ -646,23 +652,23 @@ class Host extends FOGController {
     }
     public function removePrinter($removeArray) {
         // Iterate array (or other as array)
-        foreach ((array)$removeArray AS &$remove) $this->remove(printers,$remove);
+        foreach ((array)$removeArray AS $i => &$remove) $this->remove(printers,$remove);
         unset($remove);
         // Return
         return $this;
     }
     public function addAddMAC($addArray,$pending = false) {
-        if ($pending) foreach((array)$addArray AS &$item) $this->add(pendingMACs, $item);
-        else foreach((array)$addArray AS &$item) $this->add(additionalMACs, $item);
+        if ($pending) foreach((array)$addArray AS $i => &$item) $this->add(pendingMACs, $item);
+        else foreach((array)$addArray AS $i => &$item) $this->add(additionalMACs, $item);
         unset($item);
         return $this;
     }
     public function addPendtoAdd($MACs = false) {
         $MAClist = array();
-        if (!$MACs) foreach ($this->get(pendingMACs) AS &$MAC) $MAClist[] = $MAC;
+        if (!$MACs) foreach ($this->get(pendingMACs) AS $i => &$MAC) $MAClist[] = $MAC;
         else {
             $MACs = array_map('strtolower',(array)$MACs);
-            foreach ($this->get(pendingMACs) AS &$MAC) {
+            foreach ($this->get(pendingMACs) AS $i => &$MAC) {
                 if (in_array(strtolower($MAC->__toString()),$MACs)) $MAClist[] = $MAC;
             }
         }
@@ -673,13 +679,13 @@ class Host extends FOGController {
         return $this;
     }
     public function removeAddMAC($removeArray) {
-        foreach((array)$removeArray AS &$item) $this->remove(additionalMACs,(($item instanceof MACAddress) ? $item : $this->getClass(MACAddress,$item)));
+        foreach((array)$removeArray AS $i => &$item) $this->remove(additionalMACs,(($item instanceof MACAddress) ? $item : $this->getClass(MACAddress,$item)));
         unset($item);
         // Return
         return $this;
     }
     public function removePendMAC($removeArray) {
-        foreach((array)$removeArray AS &$item) $this->remove(pendingMACs,(($item instanceof MACAddress) ? $item : $this->getClass(MACAddress,$item)));
+        foreach((array)$removeArray AS $i => &$item) $this->remove(pendingMACs,(($item instanceof MACAddress) ? $item : $this->getClass(MACAddress,$item)));
         unset($item);
         // Return
         return $this;
@@ -698,30 +704,30 @@ class Host extends FOGController {
             if (count($this->get(snapins)) >= $limit || count($addArray) > $limit) throw new Exception(sprintf('%s %d %s',_('You are only allowed to assign'),$limit,$limit == 1 ? _('snapin per host') : _('snapins per host')));
         }
         // Add
-        foreach ((array)$addArray AS &$item) $this->add(snapins,$item);
+        foreach ((array)$addArray AS $i => &$item) $this->add(snapins,$item);
         unset($item);
         // Return
         return $this;
     }
     public function removeSnapin($removeArray) {
         // Iterate array (or other as array)
-        foreach ((array)$removeArray AS &$remove) $this->remove(snapins,$remove);
+        foreach ((array)$removeArray AS $i => &$remove) $this->remove(snapins,$remove);
         unset($remove);
         // Return
         return $this;
     }
     public function addModule($addArray) {
-        $ModsExist = $this->getClass(ModuleAssociationManager)->find(array('hostID' => $this->get(id)),'','','','','','','moduleID');
+        $ModsExist = $this->getClass(ModuleAssociationManager)->find(array(hostID=>$this->get(id)),'','','','','','','moduleID');
         $NewMods = array_diff((array)$addArray,(array)$ModsExist);
         // Add
-        foreach ($NewMods AS &$item) $this->add(modules,$item);
+        foreach ($NewMods AS $i => &$item) $this->add(modules,$item);
         unset($item);
         // Return
         return $this;
     }
     public function removeModule($removeArray) {
         // Iterate array (or other as array)
-        foreach ((array)$removeArray AS &$remove) $this->remove(modules,$remove);
+        foreach ((array)$removeArray AS $i => &$remove) $this->remove(modules,$remove);
         unset($remove);
         // Return
         return $this;
@@ -733,19 +739,20 @@ class Host extends FOGController {
         foreach((array)$this->get(pendingMACs) AS $i => &$MAC) $MAC && $MAC->isValid() ? $KnownMacs[] = strtolower($MAC) : null;
         unset($MAC);
         if ($justme) return $KnownMacs;
-        foreach($this->getClass(MACAddressAssociationManager)->find() AS &$MAC) $MAC && $MAC->isValid() && !in_array(strtolower($MAC->get(mac)),(array)$KnownMacs) ? $KnownMacs[] = strtolower($MAC->get(mac)) : null;
+        $MACs = $this->getClass(MACAddressAssociationManager)->find();
+        foreach($MACs AS $i => &$MAC) $MAC && $MAC->isValid() && !in_array(strtolower($MAC->get(mac)),(array)$KnownMacs) ? $KnownMacs[] = strtolower($MAC->get(mac)) : null;
         unset($MAC);
         return array_unique($KnownMacs);
     }
     public function ignore($imageIgnore,$clientIgnore) {
         $MyMACs = $this->getMyMacs();
-        foreach((array)$imageIgnore AS &$igMAC) $igMACs[] = strtolower($igMAC);
+        foreach((array)$imageIgnore AS $i => &$igMAC) $igMACs[] = strtolower($igMAC);
         unset($igMAC);
-        foreach((array)$clientIgnore AS &$cgMAC) $cgMACs[] = strtolower($cgMAC);
+        foreach((array)$clientIgnore AS $i => &$cgMAC) $cgMACs[] = strtolower($cgMAC);
         unset($cgMAC);
-        foreach((array)$MyMACs AS &$MAC) {
-            $ignore = current((array)$this->getClass(MACAddressAssociationManager)->find(array('mac' => $MAC,'hostID' => $this->get(id))));
-            $ME = new MACAddress($ignore);
+        foreach((array)$MyMACs AS $i => &$MAC) {
+            $ignore = current((array)$this->getClass(MACAddressAssociationManager)->find(array(mac=>$MAC,hostID=>$this->get(id))));
+            $ME = $this->getClass(MACAddress,$ignore);
             if ($ME->isValid()) {
                 $mac = strtolower($MAC);
                 $ignore->set(imageIgnore,in_array($mac,(array)$igMACs))->save();
@@ -762,14 +769,14 @@ class Host extends FOGController {
     }
     public function addHost($addArray) {
         // Add
-        foreach((array)$addArray AS &$item) $this->add(groups,$item);
+        foreach((array)$addArray AS $i => &$item) $this->add(groups,$item);
         unset($item);
         // Return
         return $this;
     }
     public function removeHost($removeArray) {
         // Iterate array (or other as array)
-        foreach ((array)$removeArray AS &$remove) $this->remove(groups,$remove);
+        foreach ((array)$removeArray AS $i => &$remove) $this->remove(groups,$remove);
         unset($remove);
         // Return
         return $this;
@@ -815,10 +822,10 @@ class Host extends FOGController {
             'MACAddressAssociation',
             'SnapinAssociation',
         );
-        foreach ($assocs AS &$AssocRem) $this->getClass($AssocRem)->getManager()->destroy(array('hostID' => $this->get(id)));
+        foreach ($assocs AS $i => &$AssocRem) $this->getClass($AssocRem)->getManager()->destroy(array('hostID' => $this->get(id)));
         unset($AssocRem);
         // Update inventory to know when it was deleted
-        if ($this->get('inventory')) $this->get('inventory')->set('deleteDate',$this->nice_date()->format('Y-m-d H:i:s'))->save();
+        if ($this->get(inventory)) $this->get(inventory)->set(deleteDate,$this->nice_date()->format('Y-m-d H:i:s'))->save();
         $this->HookManager->processEvent('DESTROY_HOST',array('Host' => &$this));
         // Return
         return parent::destroy($field);
