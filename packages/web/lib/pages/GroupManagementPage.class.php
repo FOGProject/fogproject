@@ -542,7 +542,7 @@ class GroupManagementPage extends FOGPage {
                 // Printer Add/Rem
                 case 'group-printers';
                 $this->obj->addPrinter($_REQUEST[prntadd],$_REQUEST[prntdel],$_REQUEST[level]);
-                $this->obj->updateDefault($_REQUEST[printerid],$_REQUEST['default']);
+                $this->obj->updateDefault(isset($_REQUEST['default']) ? $_REQUEST['default'] : 0);
                 break;
                 // Update Services
                 case 'group-service';

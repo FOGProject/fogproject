@@ -81,11 +81,11 @@ class Host extends FOGController {
         return $PrinterMan && $PrinterMan->isValid() && $PrinterMan->get(isDefault);
     }
     public function updateDefault($printerid,$onoff) {
+        $this->loadPrinters();
         // Destroy All printers attached to host, to reset default
-        if ($this->isLoaded(printers)) $this->getClass(PrinterAssociationManager)->destroy(array('hostID' => $this->get(id)));
-        $def = false;
-        foreach ((array)$this->get(printers) AS &$Printer) {
-            if ($Printer == $printerid) $def = true;
+        $this->getClass(PrinterAssociationManager)->destroy(array(hostID=>$this->get(id)));
+        foreach ((array)$this->get(printers) AS $i => &$Printer) {
+            $def = (($onoff && (int)$Printer == (int)$printerid));
             $this->getClass(PrinterAssociation)
                 ->set(printerID,$Printer)
                 ->set(hostID,$this->get(id))
