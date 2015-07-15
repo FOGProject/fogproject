@@ -56,7 +56,7 @@ try {
                 "\nSerial Number: " => $Inventory->get(sysserial),
                 "\nMAC Address: " => $Host->getMACAddress(),
                 "\n" => '',
-                "\nImage Used: " => $this->getClass(ImagingLog,$id)->get(image),
+                "\nImage Used: " => $FOGCore->getClass(ImagingLog,$id)->get(image),
                 "\nSnapin Used: " => $snpusd,
                 "\n" => '',
                 "\nImaged By (Engineer): " => $engineer,
