@@ -102,13 +102,7 @@ class Group extends FOGController {
     }
     public function updateDefault($printerid,$onoff) {
         $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
-        foreach($Hosts AS $i => &$Host) {
-            foreach ($printerid AS &$printer) {
-                if ($printer == $onoff) $Host->updateDefault($printer,1);
-                else $Host->updateDefault($printer,0);
-            }
-            unset($printer);
-        }
+        foreach($Hosts AS $i => &$Host) $Host->updateDefault($printerid,$onoff);
         unset($Host);
         return $this;
     }
