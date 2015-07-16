@@ -3,22 +3,21 @@
 . /bin/fog.donate;
 for arg in `cat /proc/cmdline`; do
     case "$arg" in
-	initsh)
-	    ash -i
-	    ;;
-	*)
-	    ;;
+        initsh)
+        ash -i
+        ;;
+        *)
+        ;;
     esac
 done
-lookAtMe()
-{
+lookAtMe() {
 	while true; do
 		clear;
 		echo "";
 		echo " #############################################################################";
-		echo " #                                                                           #";	
+		echo " #                                                                           #";
 		echo " #                     An error has been detected!                           #";
-		echo " #                                                                           #";	
+		echo " #                                                                           #";
 		echo " #############################################################################";
 		echo -n -e "\007";
 		echo -n -e "\007";
@@ -29,12 +28,12 @@ lookAtMe()
 		echo "";
 		echo "";
 		echo " #############################################################################";
-		echo " #                                                                           #";	
+		echo " #                                                                           #";
 		echo " #                     An error has been detected!                           #";
-		echo " #                                                                           #";	
-		echo " #############################################################################";	
+		echo " #                                                                           #";
+		echo " #############################################################################";
 		echo "";
-		sleep 5;
+		usleep 5000000
 		strwhite="";
 		for i in $(seq 0 99); do
 			for z in $(seq 0 99); do
@@ -42,46 +41,46 @@ lookAtMe()
 			done
 		done
 		echo $strwhite;
-		sleep 1;
+		usleep 1000000
 		strblack="";
 		for i in $(seq 0 99); do
 			for z in $(seq 0 99); do
-				strblack="${strblack} ";
+				strblack="${strblack} "
 			done
 		done
-		echo $strblack;
-		sleep 1;
-		echo $strwhite;
-		sleep 1;
-		echo $strblack;
-		sleep 1;
+		echo $strblack
+		usleep 1000000
+		echo $strwhite
+		usleep 1000000
+		echo $strblack
+		usleep 1000000
 	done
 }
 export capone="1";
 clear;
 displayBanner;
 #setupDNS ${dns};
-echo " * Loading Capone...";	
+echo " * Loading Capone...";
 echo;
-dots "Looking up DMI field";	
+dots "Looking up DMI field";
 dmi="";
 while [ "$dmi" = "" ]; do
 	dmi=`wget -O - "http://${web}service/capone.php?action=dmi" 2>/dev/null`;
-	sleep 2;
-done	
+	usleep 2000000
+done
 echo "Done";
 dmivalue=`dmidecode -s "${dmi}"`;
 echo "";
 echo " * Using Key Value: ${dmivalue}";
 echo "";
-sleep 1;
+usleep 1000000
 dmi64=`echo $dmivalue | base64`;
 dots "Looking for images";
 img="";
 while [ "$img" = "" ]; do
 	img=`wget -O - "http://${web}service/capone.php?action=imagelookup&key=${dmi64}" 2>/dev/null`;
-	sleep 2;
-done	
+	usleep 2000000
+done
 echo "Done";
 oIFS=$IFS;
 IFS="
@@ -95,7 +94,7 @@ for line in $img; do
 		lookAtMe "No image definition was found for $dmivalue";
 	fi
 	cnt=`expr $cnt + 1`;
-	determineOS `echo $linedecode | awk -F"|" '{ print $2 }'`;	
+	determineOS `echo $linedecode | awk -F"|" '{ print $2 }'`;
 	echo -n " ID $cnt) ";
 	echo -n " OS: $osname";
 	echo -n " Image: ";
@@ -111,7 +110,7 @@ for line in $img; do
 	elif [ "$imgFormat" == 2 ]; then
 		echo "Partclone Split files";
 	fi
-	sleep 1;
+	usleep 1000000
 done
 echo "";
 if [ "$cnt" = "1" ]; then
@@ -130,7 +129,7 @@ else
 		read imgchoice;
 	done
 	cnt=0;
-	for line in $img; do		
+	for line in $img; do
 		linedecode=`echo "$line" | base64 -d`
 		cnt=`expr $cnt + 1`;
 		if [ "$cnt" = "$imgchoice" ]; then
@@ -154,6 +153,6 @@ export osid;
 export imgType;
 export imgPartitionType;
 export imgFormat;
-sleep 2;
+usleep 2000000
 clear;
 fog;

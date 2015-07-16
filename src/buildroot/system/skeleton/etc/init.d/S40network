@@ -26,18 +26,18 @@ done
 for iface in $ifaces; do
     # Check if each interface is up and if not wait up to 10 seconds
     for delay in `seq 10`; do
-        if [ "x$iface" != "xlo" ]; then 
-        linkstate=`/bin/cat /sys/class/net/$iface/carrier`
-        if [ "x$linkstate" == "x1" ] ; then
-            echo ' ' $iface up
-            echo "auto $iface" >> /etc/network/interfaces
-            echo "iface $iface inet dhcp" >> /etc/network/interfaces
-            echo -e "\tudhcpc_opts -t 3 -T 20\n" >> /etc/network/interfaces
-            ip link set $iface down
-            break
-        fi
-        echo -n .
-        /bin/usleep 1000000
+        if [ "x$iface" != "xlo" ]; then
+            linkstate=`/bin/cat /sys/class/net/$iface/carrier`
+            if [ "x$linkstate" == "x1" ] ; then
+                echo ' ' $iface up
+                echo "auto $iface" >> /etc/network/interfaces
+                echo "iface $iface inet dhcp" >> /etc/network/interfaces
+                echo -e "\tudhcpc_opts -t 3 -T 20\n" >> /etc/network/interfaces
+                ip link set $iface down
+                break
+            fi
+            echo -n .
+            /bin/usleep 1000000
         fi
     done
 done

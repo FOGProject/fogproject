@@ -62,7 +62,7 @@ if [ -n "$hd" ]; then
 		echo -n "    "
 		clamscan -V
 		debugPause
-		sleep 4
+		usleep 4000000
 		cd /ntfs
 		echo
 		start=`date +%s`
@@ -99,7 +99,7 @@ if [ -n "$hd" ]; then
 		debugPause
 	else
 		handleError "Unable to mount $part"
-	fi	
+	fi
 	echo
 	queueinfo=""
 	cd /tmp
@@ -112,11 +112,11 @@ if [ -n "$hd" ]; then
 		touch co.txt
 		wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
 		queueinfo=`cat co.txt`
-		sleep 2
-	done  
+		usleep 2000000
+	done
 	echo -e "\n * Database updated!\n"
 	echo " Task Complete"
 else
 	echo "hard disk not found!"
 fi
-sleep 2
+usleep 2000000

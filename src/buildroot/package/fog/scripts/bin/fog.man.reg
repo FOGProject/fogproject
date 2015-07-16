@@ -55,7 +55,7 @@ casesasset64="";
 echo "";
 echo "";
 if [ -n "$hd" ]; then
-	part=$hd'1';	
+	part=$hd'1';
 	dots "Using disk device"
 	echo $hd
 	echo " * Starting host registration...";
@@ -104,7 +104,7 @@ if [ -n "$hd" ]; then
 		do
 			echo
 			echo -n "    Enter the image ID for this computer (? for listing): ";
-			read imageid;	
+			read imageid;
 			if [ "$imageid" = "?" ]
 			then
 				clearScreen;
@@ -131,12 +131,12 @@ if [ -n "$hd" ]; then
 				imageid="";
 			else
 				imageid=`echo $imageid | base64`;
-			fi		
+			fi
 		done
 
 		res=`wget -O - "http://${web}service/locationcheck.php" 2>/dev/null`;
 		if [ "$res" == "##" ]; then
-			while [ "$locationid" == "" ]; do		
+			while [ "$locationid" == "" ]; do
 				echo
 				echo -n "    Enter the location ID for this system (? for listing): ";
 				read locationid;
@@ -174,7 +174,7 @@ if [ -n "$hd" ]; then
 			blDoAddGroup="0";
 			case "$askme" in
 				Y | y | yes | yEs | yES | Yes | YeS | YES )
-					while [ "$groupid" == "" ]; do		
+					while [ "$groupid" == "" ]; do
 						echo
 						echo -n "    Enter the group ID for this system (? for listing): ";
 						read groupid;
@@ -208,7 +208,7 @@ if [ -n "$hd" ]; then
 					;;
 				*)
 					;;
-			esac			
+			esac
 		fi
 		if [ "$blDoAddSnapin" = "" ]
 		then
@@ -219,7 +219,7 @@ if [ -n "$hd" ]; then
 			blDoAddSnapin="0";
 			case "$askme" in
 				Y | y | yes | yEs | yES | Yes | YeS | YES )
-					while [ "$snapinid" == "" ]; do		
+					while [ "$snapinid" == "" ]; do
 						echo
 						echo -n "    Enter the snapin ID for this system (? for listing): ";
 						read snapinid;
@@ -253,7 +253,7 @@ if [ -n "$hd" ]; then
 					;;
 				*)
 					;;
-			esac			
+			esac
 		fi
 		if [ "$keyEnter" = "" ]; then
 			echo
@@ -290,24 +290,24 @@ if [ -n "$hd" ]; then
 					;;
 				*)
 					;;
-			esac			
+			esac
 		fi
 		echo
 		echo -n "    Enter the primary user for this computer: ";
-		read primaryuser;		
-		primaryuser=`echo $primaryuser | base64`;		
+		read primaryuser;
+		primaryuser=`echo $primaryuser | base64`;
 		echo
 		echo -n "    Enter the other tag #1 for this computer: ";
-		read other1;	
+		read other1;
 		other1=`echo $other1 | base64`;
 		echo
 		echo -n "    Enter the other tag #2 for this computer: ";
-		read other2;		
+		read other2;
 		other2=`echo $other2 | base64`;
 		echo
 		echo "    If you entered all the required information, ";
 		echo -n "    Would you like to image this computer now? (y/N) ";
-		read blImage;		
+		read blImage;
 		realdoimage="0";
 		case "$blImage" in
 			Y | yes | y | Yes | YES )
@@ -330,7 +330,7 @@ if [ -n "$hd" ]; then
 					pass64=`echo -e $password | tr -d '\012' | base64`;
 					tmp=`wget -O - --post-data="mac=${mac}&username=$user64&password=$pass64" "http://${web}service/checkcredentials.php" 2>/dev/null`;
 					if [ "$tmp" = "#!ok" ]; then
-						echo 
+						echo
 						echo "    This host will reboot and imaging will start!";
 						echo
 						ret="1";
@@ -348,19 +348,19 @@ if [ -n "$hd" ]; then
 			*)
 				;;
 		esac
-		echo 
+		echo
 		dots "Attempting to register host";
 		res="";
 		while [ "${res}" = "" ]
 		do
 			res=`wget -O - --post-data="mac=$mac&advanced=1&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$locationid&username=$user64&groupid=$group64&snapinid=$snapin64&productKey=$productKey" "http://${web}service/auto.register.php" 2>/dev/null`
-			echo "${res}";			
-			sleep 2;
+			echo "${res}";
+			usleep 2000000
 		done;
 	else
 		echo " * Unable to register host for the following reasons:";
 		echo "        ${exists}";
-		sleep 10;
+		usleep 10000000
 	fi
 	doInventory;
 	echo -e "\n\n\n System Information";
@@ -370,8 +370,8 @@ if [ -n "$hd" ]; then
 	echo " * System Product Name: $sysproduct";
 	echo " * System Version: $sysversion";
 	echo " * System Serial Number: $sysserial";
-	echo " * Computer Form Factor: $systype";	
-	sleep 1;
+	echo " * Computer Form Factor: $systype";
+	usleep 1000000
 
 	echo -e "\n BIOS Information";
 	echo -e " ----------------\n";
@@ -379,43 +379,43 @@ if [ -n "$hd" ]; then
 	echo " * BIOS Version: $biosversion";
 	echo " * BIOS Vendor: $biosvendor";
 	echo " * BIOS Date: $biosdate";
-	sleep 1
+	usleep 1000000
 
 	echo -e "\n Motherboard Information";
 	echo -e " -----------------------\n";
 
 	echo " * Motherboard Manufacturer: $mbman";
-	echo " * Motherboard Product Name: $mbproductname";	
+	echo " * Motherboard Product Name: $mbproductname";
 	echo " * Motherboard Product Version: $mbversion";
-	echo " * Motherboard Serial Number: $mbserial";	
-	echo " * Motherboard Asset Tag: $mbasset";		
-	sleep 1	
+	echo " * Motherboard Serial Number: $mbserial";
+	echo " * Motherboard Asset Tag: $mbasset";
+	usleep 1000000
 
 	echo -e "\n CPU Information";
 	echo -e " ---------------\n";
 
-	echo " * CPU Manufacturer: $cpuman";	
-	echo " * CPU Version: $cpuversion";		
+	echo " * CPU Manufacturer: $cpuman";
+	echo " * CPU Version: $cpuversion";
 	echo " * CPU Current Speed: $cpucurrent";
-	echo " * CPU Max Speed: $cpumax";	
-	sleep 1		
+	echo " * CPU Max Speed: $cpumax";
+	usleep 1000000
 
 	echo -e "\n Memory Information";
 	echo -e " ------------------\n";
 
 	echo " * Memory: $mem";
-	sleep 1	
+	usleep 1000000
 
 	echo -e "\n Hard Disk Information";
 	echo -e " ---------------------\n";
-		
+
 	echo " * Hard Disk: $hdinfo";
-	sleep 1	
+	usleep 1000000
 
 	echo -e "\n Case Information";
 	echo -e " ----------------\n";
-	
-	echo " * Case Manufacturer: $caseman";	
+
+	echo " * Case Manufacturer: $caseman";
 	echo " * Case Version: $casever";
 	echo " * Case Serial Number: $caseserial";
 	echo -e " * Case Asset Number: ${casesasset}\n\n\n\n\n";
@@ -426,9 +426,9 @@ if [ -n "$hd" ]; then
 	while [ "$res" = "" ]; do
 		res=`wget -O - --post-data="${poststring}" "http://${web}service/inventory.php" 2>/dev/null`
 		echo "$res";
-		sleep 3;
+		usleep 3000000
 	done
 else
 	echo "hard disk not found!";
 fi
-sleep 2
+usleep 2000000

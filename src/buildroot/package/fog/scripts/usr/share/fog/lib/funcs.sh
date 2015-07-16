@@ -15,10 +15,6 @@ REG_HOSTNAME_KEY5_7="\ControlSet001\services\Tcpip\Parameters\Hostname"
 REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
 #If a sub shell gets involked and we lose kernel vars this will reimport them
 $(for var in $(cat /proc/cmdline); do echo export $var | grep =; done)
-sleep() {
-    local sleeptime=$(expr $1 '*' 1000000)
-    usleep $sleeptime
-}
 dots() {
     max=45
     if [ -n "$1" ]; then
@@ -165,8 +161,8 @@ shrinkPartition() {
         echo " * Possible resize partition size: $sizentfsresize k";
         dots "Running resize test $1";
         tmpSuc=`ntfsresize -f -n -s ${sizentfsresize}k $1 << EOFNTFS
-        Y
-        EOFNTFS`
+Y
+EOFNTFS`
         success=`echo $tmpSuc | grep "ended successfully"`;
         too_big=`echo $tmpSuc | grep "bigger than the device size"`;
         ok_size=`echo $tmpSuc | grep "volume size is already OK"`;
@@ -242,7 +238,7 @@ FORCEY
         sizeextresize=`expr $size '*' 103 '/' 100 '/' 1024`;
         echo "";
         echo " * Possible resize partition size: $sizeextresize k";
-        sleep 3;
+        usleep 3000000
         dots "Shrinking $fstype volume ($1)";
         resize2fs $1 -M &>/dev/null;
         echo "Done";
@@ -760,7 +756,7 @@ handleError() {
     echo " #                  Computer will reboot in 1 minute.                        #";
     echo " #                                                                           #";
     echo " #############################################################################";
-    sleep 60;
+    usleep 60000000
     debugPause;
     exit 0;
 }
@@ -781,7 +777,7 @@ handleWarning() {
     echo " #                  Will continue in 1 minute.                               #";
     echo " #                                                                           #";
     echo " #############################################################################";
-    sleep 60;
+    usleep 60000000
     debugPause;
 }
 # $1 is the drive
@@ -987,7 +983,7 @@ restorePartitionTablesAndBootLoaders() {
             echo "Done";
             runPartprobe "$disk";
             debugPause;
-            sleep 3;
+            usleep 3000000
         else
             handleError "Image Store Corrupt: Unable to locate MBR.";
         fi
@@ -1017,7 +1013,7 @@ savePartition() {
         if [ "$fstype" != "swap" ] || [ "$parttype" != "0x5" -a "$parttype" != "0xf" ]; then
             echo -n " * Using partclone.";
             echo $fstype;
-            sleep 5;
+            usleep 5000000
             imgpart="$imagePath/d${intDisk}p${partNum}.img";
             uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
             partclone.$fstype -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
@@ -1092,7 +1088,7 @@ restorePartition() {
         else
             imgpart="${imagePath}/d${intDisk}p${partNum}.img*";
         fi
-        sleep 2;
+        usleep 2000000
         if [ ! -f $imgpart ]; then
             echo " * Partition File Missing: $imgpart";
         else
