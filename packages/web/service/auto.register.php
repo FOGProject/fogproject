@@ -70,7 +70,7 @@ if ($FOGCore->getSetting(FOG_REGISTRATION_ENABLED)) {
                 ->addPriMAC($PriMAC)
                 ->addAddMAC($MACs)
                 ->save();
-            $LocPlugInst = in_array('location',$_SESSION[PluginsInstalled]);
+            $LocPlugInst = in_array('location',(array)$_SESSION[PluginsInstalled]);
             if ($LocPlugInst) {
                 $FOGCore->getClass(LocationAssociation)
                     ->set(locationID,$reallocid)

@@ -18,34 +18,42 @@ class MACAddress extends FOGBase {
      */
     public function setMAC() {
         try {
-            if (is_object($this->tmpMAC)) $MAC = trim(($this->tmpMAC instanceof MACAddress) ? strtolower($this->tmpMAC) : (($this->tmpMAC instanceof MACAddressAssociation) ? strtolower($this->tmpMAC->get('mac')) : ''));
+            if (is_object($this->tmpMAC)) $MAC = trim(($this->tmpMAC instanceof MACAddress) ? strtolower($this->tmpMAC) : (($this->tmpMAC instanceof MACAddressAssociation) ? strtolower($this->tmpMAC->get(mac)) : ''));
             else if (is_array($this->tmpMAC)) $MAC = trim($MAC[0]);
             else if (strlen($this->tmpMAC) == 12) {
-                for ($i = 0; $i < 12; $i = $i + 2) $newMAC[] = $this->tmpMAC{$i} . $this->tmpMAC{$i + 1};
+                for ($i=0;$i<12;$i=$i+2) $newMAC[] = $this->tmpMAC{$i}.$this->tmpMAC{$i+1};
                 $MAC = implode(':', $newMAC);
             } else if (strlen($this->tmpMAC) == 17) $MAC = str_replace('-', ':', $this->tmpMAC);
             else $MAC = $this->tmpMAC;
+            $MACTest = str_replace(':','',str_replace('-','',$MAC));
+            if (!ctype_xdigit($MACTest)) throw new Exception($this->foglang[InvalidMAC]);
             $this->MAC = $MAC;
         } catch (Exception $e) {
-            if ($this->debug) $this->FOGCore->debug('Invalid MAC Address: MAC: %s', $MAC);
+            if ($this->debug) $this->FOGCore->debug($e->getMessage().' MAC: %s',$MAC);
         }
         return $this;
     }
     /** getMACPrefix() get the MACs prefix
      * @return the prefix
      */
-    public function getMACPrefix() {return substr(str_replace(':','-',strtolower($this->MAC)), 0, 8);}
-        /** __toString() Magic method to return the string as defined
-         * @return the mac address with colons
-         */
-        public function __toString() {return str_replace('-',':',strtolower($this->MAC));}
-        /** isValid() returns if the mac is valid
-         * @return true or false
-         */
-        public function isValid() {return preg_match('#^([0-9a-fA-F][0-9a-fA-F][:-]){5}([0-9a-fA-F][0-9a-fA-F])$#',$this->MAC);}
-        public function isPending() {
-            if ($this->tmpMAC instanceof MACAddressAssociation && $this->tmpMAC->isValid()) return $this->tmpMAC->get('pending');
-        }
+    public function getMACPrefix() {
+        return substr(str_replace(':','-',strtolower($this->MAC)), 0, 8);
+    }
+    /** __toString() Magic method to return the string as defined
+     * @return the mac address with colons
+     */
+    public function __toString() {
+        return str_replace('-',':',strtolower($this->MAC));
+    }
+    /** isValid() returns if the mac is valid
+     * @return true or false
+     */
+    public function isValid() {
+        return ctype_xdigit(str_replace(':','',str_replace('-','',$this->MAC)));
+    }
+    public function isPending() {
+        if ($this->tmpMAC instanceof MACAddressAssociation && $this->tmpMAC->isValid()) return $this->tmpMAC->get('pending');
+    }
     public function isClientIgnored() {
         if ($this->tmpMAC instanceof MACAddressAssociation && $this->tmpMAC->isValid()) return $this->tmpMAC->get('clientIgnore');
     }
