@@ -114,47 +114,69 @@ class MySQL extends DatabaseManager {
     /** result() result of the query
      * @return the result
      */
-    public function result() {return $this->result;}
-        /** queryResult() queryResult of the sql query
-         * @return the queryResult
-         */
-        public function queryResult() {return $this->queryResult;}
-        /** sqlerror() the error if there is one
-         * @return the connection or sql error
-         */
-        public function sqlerror() {return $this->link->connect_error ? $this->link->connect_error.', Message: '.'Check that database is running' : $this->link->error;}
-        /** insert_id() the last insert id
-         * @return the value of the id
-         */
-        public function insert_id() {return (int)$this->link->insert_id ? $this->link->insert_id : $this->queryResult()->insert_id;}
-        /** affected_rows() the number of affected rows
-         * @return the number
-         */
-        public function affected_rows() {return (int)$this->link->affected_rows ? $this->link->affected_rows : $this->queryResult()->affected_rows;}
-        /** num_rows() the number of rows.
-         * @return the number
-         */
-        public function num_rows() {return (int)$this->link->num_rows ? $this->link->num_rows : $this->queryResult()->num_rows;}
-        /** escape() escape/clean the data
-         * @param $data the data to be cleaned
-         * @return the sanitized data
-         */
-        public function escape($data) {return $this->sanitize($data);}
-        /** clean() escape/clean the data
-         * @param $data the data to be cleaned
-         * @return the sanitized data
-         */
-        private function clean($data) {return $this->link->real_escape_string(strip_tags($data));}
-        /** sanitize() escape/clean the data
-         * @param $data the data to be cleaned
-         * @return the sanitized data
-         */
-        public function sanitize($data) {
-            if (!is_array($data)) return $this->clean($data);
-            foreach ($data AS $key => &$val) {
-                if (is_array($val)) $data[$this->clean($key)] = $this->escape($val);
-                else $data[$this->clean($key)] = $this->clean($val);
-            }
-            return $data;
+    public function result() {
+        return $this->result;
+    }
+    /** queryResult() queryResult of the sql query
+     * @return the queryResult
+     */
+    public function queryResult() {
+        return $this->queryResult;
+    }
+    /** sqlerror() the error if there is one
+     * @return the connection or sql error
+     */
+    public function sqlerror() {
+        return $this->link->connect_error ? $this->link->connect_error.', Message: '.'Check that database is running' : $this->link->error;
+    }
+    /** insert_id() the last insert id
+     * @return the value of the id
+     */
+    public function insert_id() {
+        return (int)$this->link->insert_id ? $this->link->insert_id : $this->queryResult()->insert_id;
+    }
+    /** affected_rows() the number of affected rows
+     * @return the number
+     */
+    public function affected_rows() {
+        return (int)$this->link->affected_rows ? $this->link->affected_rows : $this->queryResult()->affected_rows;
+    }
+    /** num_rows() the number of rows.
+     * @return the number
+     */
+    public function num_rows() {
+        return (int)$this->link->num_rows ? $this->link->num_rows : $this->queryResult()->num_rows;
+    }
+    /** escape() escape/clean the data
+     * @param $data the data to be cleaned
+     * @return the sanitized data
+     */
+    public function escape($data) {
+        return $this->sanitize($data);
+    }
+    /** clean() escape/clean the data
+     * @param $data the data to be cleaned
+     * @return the sanitized data
+     */
+    private function clean($data) {
+        return $this->link->real_escape_string(strip_tags($data));
+    }
+    /** sanitize() escape/clean the data
+     * @param $data the data to be cleaned
+     * @return the sanitized data
+     */
+    public function sanitize($data) {
+        if (!is_array($data)) return $this->clean($data);
+        foreach ($data AS $key => &$val) {
+            if (is_array($val)) $data[$this->clean($key)] = $this->escape($val);
+            else $data[$this->clean($key)] = $this->clean($val);
         }
+        return $data;
+    }
+    /** link() returns the link as is
+     * @return the link as connected
+     */
+    public function link() {
+        return $this->link;
+    }
 }
