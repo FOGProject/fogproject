@@ -205,7 +205,7 @@ abstract class FOGPage extends FOGBase {
      */
     private function replaceNeeds($data) {
         unset($this->dataFind,$this->dataReplace);
-        $urlvars = array('node' => $GLOBALS['node'],'sub' => $GLOBALS['sub'],'tab' => $GLOBALS['tab']);
+        $urlvars = array(node=>$GLOBALS[node],sub=>$GLOBALS[sub],tab=>$GLOBALS[tab]);
         $arrayReplace = array_merge($urlvars,(array)$data);
         foreach ($arrayReplace AS $name => &$val) {
             $this->dataFind[] = '#\$\{'.$name.'\}#';

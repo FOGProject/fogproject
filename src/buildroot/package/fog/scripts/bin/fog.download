@@ -26,6 +26,8 @@ debugPause;
 if [ ! -n $hd ]; then
 	handleError "HD is null, no hard disk found.";
 fi
+echo "Wiping $hd partition information"
+initHardDisk $hd
 # Generates the partitions.  If singledisk resizeable, it generates
 # based on default normal values.
 # Otherwise it uses MBR/GPT to generate the partition table(s).
@@ -37,8 +39,6 @@ if [ "$imgType" == "n" ]; then
 	win7rec="";
 	win7sys="";
 	if [ -f "$win7imgroot/sys.img.000" ] || grep -q "sys.img.000" /tmp/filelist.txt &>/dev/null ; then
-		echo "Wiping $hd partition information"
-		initHardDisk $hd
 		if [[ "$osid" == +([5-7]|9) ]]; then
 			dots "Windows Boot Partition Exists";
 			if [ -f "$win7imgroot/rec.img.000" ] || grep -q "rec.img.000" /tmp/filelist.txt &>/dev/null ; then
@@ -132,8 +132,6 @@ if [ "$imgType" == "n" ]; then
 		echo "Done";
 		debugPause;
 	elif [ -f "$imagePath" -o -f "$imagePath/$img" ] && [[ "$osid" == +([1-2]) ]];then
-		echo "Wiping $hd partition information"
-		initHardDisk $hd
 		if [ -d "$imagePath" ]; then
 			imagePath="$imagePath/$img";
 		fi
@@ -160,7 +158,7 @@ if [ "$imgType" == "n" ]; then
 		echo "Done";
 		debugPause;
 	fi
-	sleep 3;
+	usleep 3000000
 elif [ "$imgType" == "mps" ]; then
 	if [ -d "$imagePath" ]; then
 		restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
@@ -204,11 +202,10 @@ if [ "$imgType" == "n" ]; then
 			# It the partition doesn't make sense to save/restore EBR, then the functions skip it
 			tmpebrfilename=`tmpEBRFileName "1" "${partNum}"`;
 			saveEBR "$tmpebrfilename" "$part";
-			sleep 2;
+			usleep 2000000
 			restorePartition "$part";
 			restoreEBR "$tmpebrfilename" "$part";
 		done
-		makeAllSwapSystems "$hd" "1" "$imagePath" "$imgPartitionType";
 	fi
     killStatusReporter
 	for part in $parts; do
@@ -226,10 +223,10 @@ elif [ "$imgType" == "mps" ]; then
 			echo " * Skipping partition $partNum";
 		fi
 	done
-	makeAllSwapSystems "$hd" "1" "$imagePath" "$imgPartitionType";
 	dots "Stopping FOG Status Reporter";
 	kill -9 $statusReporter 2>/dev/null;
 	echo "Done";
+	makeAllSwapSystems "$hd" "1" "$imagePath" "$imgPartitionType";
 elif [ "$imgType" == "mpa" ]; then
 	disks=`fogpartinfo --list-devices 2>/dev/null`;
 	intDisk=1;
@@ -257,16 +254,14 @@ else
 	kill -9 $statusReporter 2>/dev/null;
 	echo "Done";
 fi
-# This can mess with "mps" and UEFI bootloaders
-# Should only be needed if the source and destination disks are on the same system
-# if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "mbr" ]; then
-# 	if [ "$gptcheck" == "yes" ]; then
-# 		dots "Randomizing GUIDS";
-# 		sgdisk -G $hd;
-# 		echo "Done";
-# 		debugPause;
-# 	fi
-# fi
+if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "mbr" ]; then
+	if [ "$gptcheck" == "yes" ]; then
+		dots "Randomizing GUIDS";
+		sgdisk -G $hd;
+		echo "Done";
+		debugPause;
+	fi
+fi
 if [ -f "/images/postdownloadscripts/fog.postdownload" ]; then
 	postdownpath="/images/postdownloadscripts/";
 	. ${postdownpath}fog.postdownload;
@@ -293,7 +288,7 @@ if [ "$capone" != "1" ]; then
 		rm co.txt;
 		wget -q -O /tmp/co.txt "http://${web}service/Post_Stage3.php?mac=$mac&type=$type" &>/dev/null;
 		queueinfo=`cat co.txt`;
-		sleep 5;
+		usleep 5000000
 	done
 	echo "";
 	echo " * Database Updated!";

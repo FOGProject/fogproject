@@ -185,29 +185,39 @@ configureTFTPandPXE() {
 		mv "$tftpconfig" "${tftpconfig}.fogbackup";
 	fi
 	echo -e "# default: off\n# description: The tftp server serves files using the trivial file transfer \n#	protocol.  The tftp protocol is often used to boot diskless \n#	workstations, download configuration files to network-aware printers, \n#	and to start the installation process for some operating systems.\nservice tftp\n{\n	socket_type		= dgram\n	protocol		= udp\n	wait			= yes\n	user			= root\n	server			= /usr/sbin/in.tftpd\n	server_args		= -s ${tftpdirdst}\n	disable			= no\n	per_source		= 11\n	cps			= 100 2\n	flags			= IPv4\n}" > "$tftpconfig";
-    if [ "$systemctl" == "yes" ]; then
-        systemctl enable xinetd >/dev/null 2>&1
-        systemctl restart xinetd >/dev/null 2>&1
-        sleep 2
-        systemctl status xinetd >/dev/null 2>&1
-    elif [ "$osid" -eq 2 ]; then
+    if [ "$osid" -eq 2 ]; then
         blUpstart=0
         if [ -f "$tftpconfigupstartdefaults" ]; then
             blUpstart=1
         fi
         if [ "$blUpstart" = "1" ]; then
             echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"-s\"" > "$tftpconfigupstartdefaults"
-            sysv-rc-conf xinetd off >/dev/null 2>&1
-            service xinetd stop >/dev/null 2>&1
-            sysv-rc-conf tftpd-hpa on >/dev/null 2>&1
-            service tftpd-hpa stop >/dev/null 2>&1
-            sleep 2
-            service tftpd-hpa start >/dev/null 2>&1
+            if [ "$systemctl" == "yes" ]; then
+                systemctl enable xinetd >/dev/null 2>&1
+                systemctl enable tftpd-hpa >/dev/null 2>&1
+                systemctl restart xinetd >/dev/null 2>&1
+                systemctl restart tftpd-hpa >/dev/null 2>&1
+                sleep 2
+                systemctl status xinetd >/dev/null 2>&1
+                systemctl status tftpd-hpa >/dev/null 2>&1
+            else
+                sysv-rc-conf xinetd off >/dev/null 2>&1
+                service xinetd stop >/dev/null 2>&1
+                sysv-rc-conf tftpd-hpa on >/dev/null 2>&1
+                service tftpd-hpa stop >/dev/null 2>&1
+                sleep 2
+                service tftpd-hpa start >/dev/null 2>&1
+            fi
         else
             sysv-rc-conf xinetd on >/dev/null 2>&1
             $initdpath/xinetd stop >/dev/null 2>&1
             $initdpach/xinetd start >/dev/null 2>&1
         fi
+    elif [ "$systemctl" == "yes" ]; then
+        systemctl enable xinetd >/dev/null 2>&1
+        systemctl restart xinetd >/dev/null 2>&1
+        sleep 2
+        systemctl status xinetd >/dev/null 2>&1
     else
         chkconfig xinetd on >/dev/null 2>&1
         service xinetd restart >/dev/nul 2>&1

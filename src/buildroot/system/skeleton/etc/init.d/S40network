@@ -8,32 +8,37 @@ if [ -n "$has_usb_nic" ]; then
     echo -n "Please press enter key to connect [Enter]";
     read;
     echo "Sleeping for 5 seconds to allow USB to sync back with system";
-    /bin/sleep 5;
+    /bin/usleep 5000000
 fi
 # Enable all interfaces
-ifaces=`ls -1 /sys/class/net | tr -d '@'`
-for iface in $ifaces; do
-    /sbin/ip link set $iface up
-done
 echo "auto lo" > /etc/network/interfaces
 echo "iface lo inet loopback" >> /etc/network/interfaces
+ifaces=`ls -1 /sys/class/net | tr -d '@'`
+for iface in $ifaces; do
+    if [ "x$iface" != "xlo" ]; then
+        /sbin/ip link set $iface up
+    fi
+done
 for packet in {1..5}; do
     udhcpc -t 1 -T 1 -n
-    sleep 2
+    /bin/usleep 2000000
 done
 for iface in $ifaces; do
     # Check if each interface is up and if not wait up to 10 seconds
     for delay in `seq 10`; do
-        linkstate=`/bin/cat /sys/class/net/$iface/carrier`
-        if [ "x$linkstate" == "x1" -a "x$iface" != "xlo" ] ; then
-            echo ' ' $iface up
-            echo "auto $iface" >> /etc/network/interfaces
-            echo "iface $iface inet dhcp" >> /etc/network/interfaces
-            echo -e "\tudhcpc_opts -t 3 -T 20\n" >> /etc/network/interfaces
-            break
+        if [ "x$iface" != "xlo" ]; then
+            linkstate=`/bin/cat /sys/class/net/$iface/carrier`
+            if [ "x$linkstate" == "x1" ] ; then
+                echo ' ' $iface up
+                echo "auto $iface" >> /etc/network/interfaces
+                echo "iface $iface inet dhcp" >> /etc/network/interfaces
+                echo -e "\tudhcpc_opts -t 3 -T 20\n" >> /etc/network/interfaces
+                ip link set $iface down
+                break
+            fi
+            echo -n .
+            /bin/usleep 1000000
         fi
-        echo -n .
-        sleep 1
     done
 done
 case "$1" in
@@ -56,4 +61,3 @@ case "$1" in
 esac
 
 exit $?
-

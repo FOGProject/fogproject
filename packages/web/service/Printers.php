@@ -33,6 +33,6 @@ try {
 	}
 	$FOGCore->sendData("#!ok\n$Datatosend");
 } catch (Exception $e) {
-        print $e->getMessage();
-        exit;
+	print $e->getMessage();
+	exit;
 }
