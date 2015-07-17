@@ -189,7 +189,7 @@ class PrinterManagementPage extends FOGPage {
             switch ($_REQUEST[tab]) {
                 case 'printer-type';
                 $this->FOGCore->setMessage('Printer type changed to: '.$_REQUEST[printertype]);
-                $this->FOGCore->redirect('?node=printer&sub=edit&id='.$this->obj->get(id));
+                $this->FOGCore->redirect('?node=printer&sub=add');
                 break;
                 case 'printer-gen';
                 //Remove spaces from beginning and end offields needed.
