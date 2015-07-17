@@ -138,7 +138,7 @@ if [ -f "/images/.mntcheck" ]; then
 				dots "Saving original partition table";
 				saveOriginalPartitions "${hd}" "${imagePath}" "1";
 				echo -n "" > "${imagePath}/d1.original.fstypes";
-				echo -n "" > "${imagePath}/d1.original.swapuuids";
+				echo -n "" > `swapUUIDFileName "${imagePath}" "1"`;
 				echo "Done";
 				debugPause
 				savePartitionTablesAndBootLoaders "${hd}" "1" "${imagePath}" "${osid}" "${imgPartitionType}";
@@ -186,7 +186,7 @@ if [ -f "/images/.mntcheck" ]; then
 					fstype=`fsTypeSetting $part`;
 					if [ "$fstype" != "swap" ]; then
 						echo " * Using partclone.${fstype}";
-						usleep 5000000
+						usleep 5000000;
 						imgpart="$imagePath/d1p${partNum}.img";
 						uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
 						partclone.$fstype -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
@@ -195,7 +195,7 @@ if [ -f "/images/.mntcheck" ]; then
 						echo " * Image uploaded";
 					else
 						echo " * Not uploading swap partition";
-						saveSwapUUID "${imagePath}/d1.original.swapuuids" "$part";
+						saveSwapUUID `swapUUIDFileName "${imagePath}" "1"` "$part"; 
 					fi
 					rm /tmp/pigz1;
 					debugPause;
@@ -276,7 +276,7 @@ if [ -f "/images/.mntcheck" ]; then
 		while [ "$queueinfo" != "##" ]; do
 			echo "		* $queueinfo";
 			queueinfo=`wget -q -O - "$post" 2>/dev/null`;
-			usleep 5000000
+			usleep 5000000;
 		done
 	else
 		handleError "Fatal Error: Invalid image name.";
