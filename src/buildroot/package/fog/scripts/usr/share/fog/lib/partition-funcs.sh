@@ -34,7 +34,7 @@ EOFRESTOREPART
 
 # $1 is the name of the disk drive
 hasExtendedPartition() {
-	sfdisk -d "$1" 2>/dev/null | egrep 'Id= [5f]' | wc -l
+	sfdisk -d "$1" 2>/dev/null | egrep '(Id|type)=\ *[5f]' | wc -l
 }
 
 # $1 is the name of the partition device (e.g. /dev/sda3)
@@ -42,7 +42,7 @@ partitionHasEBR() {
 	local part="$1";
 	local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
 	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
-	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$part | awk -F[,=] '{print $6+0}'`;
+	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}'`;
 	if [ "$part_type" == "5" -o "$part_type" == "f" -o "$part_number" -ge 5 ]; then
 		echo "1";
 	else
@@ -50,11 +50,11 @@ partitionHasEBR() {
 	fi
 }
 
-# $1 is the name of the file to save to (e.g. /net/dev/foo/d1p4.ebr)
-# $2 is the name of the partition device (e.g. /dev/sda3)
+# $1 is the name of the partition device (e.g. /dev/sda3)
+# $2 is the name of the file to save to (e.g. /net/dev/foo/d1p4.ebr)
 saveEBR() {
-	local dstfilename="$1";
-	local part="$2";
+	local part="$1";
+	local dstfilename="$2";
 	local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
 	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
 	local table_type=`getPartitionTableType "$disk"`;
@@ -62,8 +62,8 @@ saveEBR() {
 		return
 	fi
 	# Leaving the grep in place due to forward slashes
-	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$part | awk -F[,=] '{print $6+0}'`;
-	if [ "$part_type" == "5" -o "$part_type" == "f" -o "$part_number" -ge 5 ]; then
+	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}'`;
+	if [ `partitionHasEBR "${part}"` -gt 0 ]; then
 		dots "Saving EBR for ($part)";
 		dd if="$part" of="$dstfilename" bs=512 count=1 &> /dev/null;
 		echo "Done";
@@ -84,15 +84,16 @@ saveAllEBRs() {
 	for part in $parts; do
 		partNum=${part:$diskLength};
 		ebrfilename=`EBRFileName "${imagePath}" "${driveNum}" "${partNum}"`;
-		saveEBR "$ebrpart" "$part";
+		saveEBR "$part" "$ebrfilename";
 	done
 }
 
 
-# $1 is the name of the file to restore from (e.g. /net/foo/d1p4.ebr)
-# $2 is the name of the partition device (e.g. /dev/sda3)
+# $1 is the name of the partition device (e.g. /dev/sda3)
+# $2 is the name of the file to restore from (e.g. /net/foo/d1p4.ebr)
 restoreEBR() {
-	local part="$2";
+	local part="$1";
+	local srcfilename="$2";
 	local part_number=`echo $part | sed -r 's/^[^0-9]+//g'`;
 	local disk=`echo $part | sed -r 's/[0-9]+$//g'`;
 	local table_type=`getPartitionTableType "$disk"`;
@@ -100,14 +101,37 @@ restoreEBR() {
 		return
 	fi
 	# Leaving the grep in place due to forward slashes
-	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$2 | awk -F[,=] '{print $6+0}'`;
-	if [ "$part_type" == "5" -o "$part_type" == "f" -o "$part_number" -ge 5 ]; then
-		if [ -e "$1" ]; then
-			dots "Restoring EBR for ($2)";
-			dd of=$2 if=$1 bs=512 count=1 &> /dev/null;
+	local part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$part | awk -F[,=] '{print $6}'`;
+	if [ `partitionHasEBR "${part}"` -gt 0 ]; then
+		if [ -e "$srcfilename" ]; then
+			dots "Restoring EBR for ($part)";
+			dd of=$part if=$srcfilename bs=512 count=1 &> /dev/null;
 			echo "Done";
 		fi
 	fi
+}
+
+# $1 = DriveName  (e.g. /dev/sdb)
+# $2 = DriveNumber  (e.g. 1)
+# $3 = ImagePath  (e.g. /net/foo)
+# $4 = ImagePartitionType  (e.g. all, mbr, 1, 2, 3, etc.)
+restoreAllEBRs() {
+	local drive="$1";
+	local driveNum="$2";
+	local imagePath="$3";
+	local imgPartitionType="$4";
+	local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
+	local part="";
+	local diskLength=`expr length $drive`;
+	local partNum="";
+	for part in $parts; do
+		partNum=${part:$diskLength};
+		if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
+			local ebrfilename=`EBRFileName "${imagePath}" "${driveNum}" "${partNum}"`;
+			restoreEBR "$part" "$ebrfilename";
+		fi
+	done
+	runPartprobe "$drive";
 }
 
 # $1 is the name of the partition device (e.g. /dev/sda3)
@@ -219,7 +243,7 @@ makeSwapSystem() {
 		fi
 	else
 		# Leaving the grep in place due to forward slashes
-		part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$2 | awk -F[,=] '{print $6+0}'`;
+		part_type=`sfdisk -d "$disk" 2>/dev/null | grep ^$2 | awk -F[,=] '{print $6}'`;
 	fi
 	if [ "$part_type" == "82" ]; then
 		if [ -e "$1" ]; then
@@ -248,8 +272,7 @@ resizeSfdiskPartition() {
 	if [ "$?" == "0" ]; then
 		applySfdiskPartitions $disk $tmp_file2;
 	fi
-	mv $tmp_file $imagePath/d1.original.partitions &>/dev/null;
-	mv $tmp_file2 $imagePath/d1.minimum.partitions &>/dev/null;
+	mv $tmp_file2 `sfdiskMinimumPartitionFileName "$imagePath" "1"` &>/dev/null;
 }
 
 # $1 is the disk device (e.g. /dev/sda)
@@ -345,7 +368,7 @@ getPartitionTableType() {
 	local type="";
 	local mbrtype="";
 	local gpttype="";
-	if [ "$mbr" == "present" ]; then
+	if [ "$mbr" == "present" -o  "$mbr" == "MBR" ]; then
 		mbrtype="MBR";
 	elif [ "$mbr" == "hybrid" ]; then
 		mbrtype="HYBRID";

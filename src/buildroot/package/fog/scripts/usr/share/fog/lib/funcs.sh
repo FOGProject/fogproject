@@ -949,11 +949,16 @@ sfdiskPartitionFileName() {
 	local filename="${imagePath}/d${intDisk}.partitions";
 	echo "$filename";
 }
+sfdiskMinimumPartitionFileName() {
+	local imagePath="$1";  # e.g. /net/dev/foo
+	local intDisk="$2";    # e.g. 1
+	local filename="${imagePath}/d${intDisk}.minimum.partitions";
+	echo "$filename";
+}
 sfdiskOriginalPartitionFileName() {
 	local imagePath="$1";  # e.g. /net/dev/foo
 	local intDisk="$2";    # e.g. 1
-	local filename="${imagePath}/d${intDisk}.sfdisk.partitions";
-	echo "$filename";
+	sfdiskPartitionFileName "$imagePath" "$intDisk";
 }
 sgdiskOriginalPartitionFileName() {
 	local imagePath="$1";  # e.g. /net/dev/foo
@@ -1010,7 +1015,7 @@ savePartitionTablesAndBootLoaders() {
 	local hasgpt=`hasGPT "${disk}"`;    # e.g. 0 or 1
 	local have_extended_partition="0";  # e.g. 0 or 1-n (extended partition count)
 	if [ "$hasgpt" == "0" ]; then
-		have_extended_partition=`sfdisk -l "$disk" 2>/dev/null | egrep "^${disk}.*  (Extended|W95 Ext'd \(LBA\))$" | wc -l`;
+		have_extended_partition=`sfdisk -l "$disk" 2>/dev/null | egrep "^${disk}.* (Extended|W95 Ext'd \(LBA\))$" | wc -l`;
 	else
 		have_extended_partition="0";
 	fi
@@ -1024,7 +1029,8 @@ savePartitionTablesAndBootLoaders() {
 				dots "Saving Partition Tables (MBR)";
 			fi
 			saveGRUB "${disk}" "${intDisk}" "${imagePath}";
-			if [ "$have_extended_partition" == "1" ]; then
+			echo "Done";
+			if [ "$have_extended_partition" -ge "1" ]; then
 				local sfpartitionfilename=`sfdiskPartitionFileName "$imagePath" "$intDisk"`;
 				sfdisk -d $disk 2>/dev/null > "${sfpartitionfilename}";
 				saveAllEBRs "$disk" "$intDisk" "$imagePath";
@@ -1036,12 +1042,13 @@ savePartitionTablesAndBootLoaders() {
 				handleError "Error trying to save GPT partition tables."
 			fi
 			rm -f "${sfpartitionfilename}";
+			echo "Done";
 		fi
 	else
 		dots "Skipping partition tables and MBR";
+		echo "Done";
 	fi
 	runPartprobe "$disk";
-	echo "Done";
 	debugPause;
 }
 clearPartitionTables() {
@@ -1074,16 +1081,15 @@ restorePartitionTablesAndBootLoaders() {
 		has_GRUB=`hasGRUB "${disk}" "${intDisk}" "${imagePath}"`;
 		mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
 		if [ -f $tmpMBR ]; then
-            if [ -e "${imagePath}/d${intDisk}.original.partitions" ]; then
-                gpt=`awk '/label:/{print $2}' ${imagePath}/d${intDisk}.original.partitions`;
-            fi
-            if [ "$gpt" == 'gpt' ] || [[ "$mbrsize" != +(1048576|512|32256) ]] ; then
+			local table_type=`getDesiredPartitionTableType "${imagePath}" "${intDisk}"`;
+            if [ "$table_type" == 'GPT' ] || [[ "$mbrsize" != +(1048576|512|32256) ]] ; then
                 dots "Restoring Partition Tables (GPT)";
                 sgdisk -gel $tmpMBR $disk >/dev/null 2>&1;
 				if [ $? -ne 0 ]; then
 					handleError "Error trying to restore GPT partition tables."
 				fi
                 global_gptcheck="yes";
+				echo "Done";
             else
                 if [ "$osid" == "50" ]; then
                     dots "Restoring Partition Tables and GRUB (MBR)";
@@ -1091,18 +1097,22 @@ restorePartitionTablesAndBootLoaders() {
                     dots "Restoring Partition Tables (MBR)";
                 fi
                 restoreGRUB "${disk}" "${intDisk}" "${imagePath}";
-                if [ -e "${imagePath}/d${intDisk}.partitions" ]; then
-                    echo "Done";
+                echo "Done";
+				if [ `ls -1 ${imagePath}/*.ebr 2>/dev/null | wc -l` -gt 0 ]; then
+					restoreAllEBRs "${disk}" "${intDisk}" "${imagePath}" "${imgPartitionType}";
+				fi
+				local sfpartitionfilename=`sfdiskPartitionFileName "$imagePath" "$intDisk"`;
+                if [ -e "${sfpartitionfilename}" ]; then
                     debugPause;
                     dots "Extended partitions";
-                    sfdisk $disk < ${imagePath}/d${intDisk}.partitions &>/dev/null;
+                    sfdisk $disk < "${sfpartitionfilename}" &>/dev/null;
+					echo "Done";
                 else
-                    echo "Done";
                     debugPause;
                     dots "No extended partitions";
+					echo "Done";
                 fi
             fi
-            echo "Done";
             runPartprobe "$disk";
             debugPause;
             usleep 3000000;
@@ -1126,30 +1136,31 @@ savePartition() {
     local fstype="";
     local parttype="";
     local imgpart="";
+	local fifoname="/tmp/pigz1";
     partNum=${part:$diskLength};
     if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
-        mkfifo /tmp/pigz1;
+        mkfifo $fifoname;
         echo " * Processing Partition: $part ($partNum)";
         fstype=`fsTypeSetting $part`;
         parttype=`getPartType $part`;
         if [ "$fstype" != "swap" ] && [ "$parttype" != "0x5" -a "$parttype" != "0xf" ]; then
 			# normal filesystem data on partition
-			echo -n " * Using partclone.";
-			echo $fstype;
+			echo " * Using partclone.${fstype}";
 			usleep 5000000;
 			imgpart="$imagePath/d${intDisk}p${partNum}.img";
-			uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
-			partclone.$fstype -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
+			uploadFormat "$cores" "$fifoname" "$imgpart";
+			partclone.$fstype -c -s $part -O $fifoname -N -f 1 2>/tmp/status.fog;
 			mv $imgpart.000 $imgpart 2>/dev/null;
 			debugPause
 			clear;
 			echo " * Image uploaded";
 		else
 			if [ "$parttype" == "0x5" -o "$parttype" == "0xf" ]; then
-				# extended partition, we need to save the EBR
+				# extended partition, the EBR should have been saved with the partition table
 				echo " * Not uploading content of extended partition";
+				# leave an empty file to make restorePartition happy
 				local ebrfilename=`EBRFileName "${imagePath}" "${intDisk}" "${partNum}"`;
-				saveEBR "$ebrfilename" "$part";
+				touch "$ebrfilename";
 			elif [ "$fstype" == "swap" ]; then
 				echo " * Saving swap parition UUID";
 				local swapuuidfilename=`swapUUIDFileName "${imagePath}" "${intDisk}"`;
@@ -1158,7 +1169,7 @@ savePartition() {
 				handleError "Unexpected condition in savePartition.";
 			fi
 		fi
-		rm /tmp/pigz1;
+		rm $fifoname;
 	else
 		dots "Skipping partition $partNum";
 		echo "Done";
@@ -1221,7 +1232,8 @@ restorePartition() {
         if [ ! -f $imgpart ]; then
 			local ebrfilename=`EBRFileName "${imagePath}" "${intDisk}" "${partNum}"`;
 			if [ -e "$ebrfilename" ]; then
-				restoreEBR "$ebrfilename" "$part";
+				# extended partition, the EBR should have been restored with the partition table
+				echo " * Not downloading content of extended partition";
 			else
 				echo " * Partition File Missing: $imgpart";
 			fi
@@ -1236,28 +1248,6 @@ restorePartition() {
         echo "Done";
         debugPause;
     fi
-}
-# $1 = DriveName  (e.g. /dev/sdb)
-# $2 = DriveNumber  (e.g. 1)
-# $3 = ImagePath  (e.g. /net/foo)
-# $4 = ImagePartitionType  (e.g. all, mbr, 1, 2, 3, etc.)
-restoreAllEBRs() {
-	local drive="$1";
-	local driveNum="$2";
-	local imagePath="$3";
-	local imgPartitionType="$4";
-	local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
-	local part="";
-	local diskLength=`expr length $drive`;
-	local partNum="";
-	for part in $parts; do
-		partNum=${part:$diskLength};
-		if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
-			local ebrfilename=`EBRFileName "${imagePath}" "${driveNum}" "${partNum}"`;
-			restoreEBR "$ebrfilename" "$part";
-		fi
-	done
-	runPartprobe "$drive";
 }
 gptorMBRSave() {
     runPartprobe $1;

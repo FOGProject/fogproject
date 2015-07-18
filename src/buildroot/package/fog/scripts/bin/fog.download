@@ -201,12 +201,12 @@ if [ "$imgType" == "n" ]; then
 		for part in $parts; do
 			# saveEBR/restoreEBR are to support the resized partitions, on MBR tables
 			# since the partition image will contain the old (potentially incorrect) EBR data
-			# It the partition doesn't make sense to save/restore EBR, then the functions skip it
+			# If the partition doesn't make sense to save/restore EBR, then the functions skip it
 			tmpebrfilename=`tmpEBRFileName "1" "${partNum}"`;
-			saveEBR "$tmpebrfilename" "$part";
+			saveEBR "$part" "$tmpebrfilename";
 			usleep 2000000;
 			restorePartition "$part";
-			restoreEBR "$tmpebrfilename" "$part";
+			restoreEBR "$part" "$tmpebrfilename";
 		done
 		makeAllSwapSystems "$hd" "1" "$imagePath" "$imgPartitionType";
 	fi
