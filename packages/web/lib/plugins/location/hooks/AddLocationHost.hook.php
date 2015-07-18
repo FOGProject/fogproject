@@ -72,7 +72,7 @@ class AddLocationHost extends Hook {
         if (in_array($this->node,(array)$_SESSION[PluginsInstalled])) {
             $LocAssocs = $this->getClass(LocationAssociationManager)->find(array('hostID' => $arguments[data][$index][host_id]),'','','','','','','locationID');
             $locID = array_shift($LocAssocs);
-            $arguments[email] = $this->array_insert_after("\nSnapin Used: ","\nImaged From (Location): ",$this->getClass(Location,$locID)->get(name));
+            $arguments[email] = $this->array_insert_after("\nSnapin Used: ",$arguments[email],"\nImaged From (Location): ",$this->getClass(Location,$locID)->get(name));
         }
     }
 }
