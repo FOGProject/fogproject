@@ -9,10 +9,10 @@ try {
     // Set the task to state 4
     if (!in_array($Task->get(typeID),array(12,13))) $Task->set(stateID,4)->set(pct,100)->set(percent,100);
     // Log it
-    $id = @max($FOGCore->getClass(ImagingLogManager)->find(array('hostID' => $Host->get(id))));
-    $Host->set(deployed,$FOGCore->formatTime('now','Y-m-d H:i:s'))->save();
+    $Host->set(deployed,$FOGCore->nice_date()->format('Y-m-d H:i:s'))->save();
+    $id = @max($FOGCore->getClass(ImagingLogManager)->find(array('hostID' => $Host->get(id)),'','','','','','','id'));
     $FOGCore->getClass(ImagingLog,$id)
-        ->set(finish,$FOGCore->formatTime('now','Y-m-d H:i:s'))
+        ->set(finish,$FOGCore->nice_date()->format('Y-m-d H:i:s'))
         ->save();
     $FOGCore->getClass(TaskLog,$Task)
         ->set(taskID,$Task->get(id))
