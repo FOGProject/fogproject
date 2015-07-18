@@ -62,14 +62,13 @@ if ($FOGCore->getSetting(FOG_REGISTRATION_ENABLED)) {
                 ->set(ADPassLegacy,$strADPassLegacy)
                 ->set(productKey,$productKey)
                 ->set(createdTime,$FOGCore->formatTime('now','Y-m-d H:i:s'))
-                ->set(createdBy,'FOGREG');
-            if (!$Host->save()) throw new Exception(_('Failed to save new Host'));
-            $Host->addModule($ids)
+                ->set(createdBy,'FOGREG')
+                ->addModule($ids)
                 ->addGroup($groupid)
                 ->addSnapin($snapinid)
                 ->addPriMAC($PriMAC)
-                ->addAddMAC($MACs)
-                ->save();
+                ->addAddMAC($MACs);
+            if (!$Host->save()) throw new Exception(_('Failed to save new Host'));
             $LocPlugInst = in_array('location',(array)$_SESSION[PluginsInstalled]);
             if ($LocPlugInst) {
                 $FOGCore->getClass(LocationAssociation)
@@ -112,14 +111,13 @@ if ($FOGCore->getSetting(FOG_REGISTRATION_ENABLED)) {
                     ->set(name,$realhost)
                     ->set(description,sprintf('%s %s',_('Created by FOG Reg on'),$FOGCore->formatTime('now','F j, Y, g:i a')))
                     ->set(imageID,$realimageid)
-                    ->set(createdTime,$FOGCore->formatTime('now','Y-m-d H:i:s'))
-                    ->set(createdBy,'FOGREG');
-                if (!$Host->save()) throw new Exception(_('Failed to save new Host'));
-                $Host->addModule($ids)
+                    ->set(createdTime,$FOGCore->nice_date()->format('Y-m-d H:i:s'))
+                    ->set(createdBy,'FOGREG')
+                    ->addModule($ids)
                     ->addGroup($groupid)
                     ->addPriMAC($PriMAC)
-                    ->addAddMAC($MACs)
-                    ->save();
+                    ->addAddMAC($MACs);
+                if (!$Host->save()) throw new Exception(_('Failed to save new Host'));
                 if ($Image->isValid() && $Host->getImageMemberFromHostID()) {
                     if ($Host->createImagePackage(1,'AutoRegTask')) print _('Done, with imaging!');
                     else print _('Done, but unable to create task!');
@@ -132,12 +130,11 @@ if ($FOGCore->getSetting(FOG_REGISTRATION_ENABLED)) {
                         ->set(name,$realhost)
                         ->set(description,sprintf('%s %s',_('Created by FOG Reg on'),$FOGCore->formatTime('now','F j, Y, g:i a')))
                         ->set(createdTime,$FOGCore->formatTime('now','Y-m-d H:i:s'))
-                        ->set(createdBy,'FOGREG');
-                    if (!$Host->save()) throw new Exception(_('Failed to save new Host'));
-                    $Host->addModule($ids)
+                        ->set(createdBy,'FOGREG')
+                        ->addModule($ids)
                         ->addPriMAC($PriMAC)
-                        ->addAddMAC($MACs)
-                        ->save();
+                        ->addAddMAC($MACs);
+                    if (!$Host->save()) throw new Exception(_('Failed to save new Host'));
                     print _('Done');
                 } else print _('Already registered as').': '.$Host->get(name);
             }

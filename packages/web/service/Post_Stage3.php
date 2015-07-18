@@ -62,7 +62,7 @@ try {
                 "\nImaged By (Engineer): " => $engineer,
                 ($puser ? "\nImaged For (User): " : '') => ($puser ? $puser : ''),
             );
-            $HookManager->processEvent('EMAIL_ITEMS',array('email' => &$email,'Host' => &$Host));
+            $HookManager->processEvent(EMAIL_ITEMS,array(email=>&$email,Host=>&$Host));
             $emailMe = '';
             foreach($email AS $key => $val) $emailMe .= $key.$val;
             unset($email);
@@ -80,7 +80,7 @@ try {
     print '##';
     // If it's a multicast job, decrement the client count, though not fully needed.
     if ($Task->get(typeID) == 8) {
-        $MyMulticastTask = current($FOGCore->getClass('MulticastSessionsAssociationManager')->find(array('taskID' => $Task->get('id'))));
+        $MyMulticastTask = current($FOGCore->getClass(MulticastSessionsAssociationManager)->find(array(taskID=>$Task->get(id))));
         if ($MyMulticastTask && $MyMulticastTask->isValid()) {
             $MulticastSession = $FOGCore->getClass(MulticastSessions,$MyMulticastTask->get(msID));
             $MulticastSession

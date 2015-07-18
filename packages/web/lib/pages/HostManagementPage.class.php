@@ -1286,20 +1286,20 @@ class HostManagementPage extends FOGPage {
         $Hosts = $this->getClass(HostManager)->find();
         foreach($Hosts AS &$Host) {
             $macs[] = $Host->get(mac);
-            foreach($Host->get('additionalMACs') AS $AddMAC) {
+            foreach($Host->get(additionalMACs) AS $AddMAC) {
                 if ($AddMAC && $AddMAC->isValid()) $macs[] = $AddMAC->__toString();
             }
             $report->addCSVCell(implode('|',(array)$macs));
-            $report->addCSVCell($Host->get('name'));
-            $report->addCSVCell($Host->get('ip'));
-            $report->addCSVCell('"'.$Host->get('description').'"');
-            $report->addCSVCell($Host->get('imageID'));
-            $this->HookManager->processEvent('HOST_EXPORT_REPORT',array('report' => &$report,'Host' => &$Host));
+            $report->addCSVCell($Host->get(name));
+            $report->addCSVCell($Host->get(ip));
+            $report->addCSVCell('"'.$Host->get(description).'"');
+            $report->addCSVCell($Host->get(imageID));
+            $this->HookManager->processEvent(HOST_EXPORT_REPORT,array(report=>&$report,Host=>&$Host));
             $report->endCSVLine();
             unset($macs);
         }
         unset($Host);
-        $_SESSION['foglastreport']=serialize($report);
+        $_SESSION[foglastreport]=serialize($report);
         print '<form method="post" action="export.php?type=host">';
         foreach ((array)$fields AS $field => $input) {
             $this->data[] = array(
@@ -1308,7 +1308,7 @@ class HostManagementPage extends FOGPage {
             );
         }
         // Hook
-        $this->HookManager->processEvent('HOST_EXPORT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        $this->HookManager->processEvent(HOST_EXPORT,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
         print "</form>";
@@ -1341,12 +1341,12 @@ class HostManagementPage extends FOGPage {
     public function hostlogins() {
         $MainDate = $this->nice_date($_REQUEST[dte])->getTimestamp();
         $MainDate_1 = $this->nice_date($_REQUEST[dte])->modify('+1 day')->getTimestamp();
-        $Users = $this->getClass(UserTrackingManager)->find(array('hostID' => $_REQUEST['id'],'date' => $_REQUEST['dte'],'action' => array(null,0,1)),'','date','DESC');
+        $Users = $this->getClass(UserTrackingManager)->find(array(hostID=>$_REQUEST[id],'date'=>$_REQUEST[dte],action=>array(null,0,1)),'','date','DESC');
         foreach($Users AS &$Login) {
-            if ($Login->get('username') != 'Array') {
-                $time = $this->nice_date($Login->get('datetime'))->format('U');
-                if (!$Data[$Login->get('username')]) $Data[$Login->get('username')] = array('user' => $Login->get('username'),'min' => $MainDate,'max' => $MainDate_1);
-                if ($Login->get('action')) $Data[$Login->get('username')]['login'] = $time;
+            if ($Login->get(username) != 'Array') {
+                $time = $this->nice_date($Login->get(datetime))->format('U');
+                if (!$Data[$Login->get('username')]) $Data[$Login->get(username)] = array(user=>$Login->get(username),'min'=>$MainDate,'max'=>$MainDate_1);
+                if ($Login->get('action')) $Data[$Login->get(username)][login] = $time;
                 if (array_key_exists('login',$Data[$Login->get('username')]) && !$Login->get('action')) $Data[$Login->get('username')]['logout'] = $time;
                 if (array_key_exists('login',$Data[$Login->get('username')]) && array_key_exists('logout',$Data[$Login->get('username')])) {
                     $data[] = $Data[$Login->get('username')];
