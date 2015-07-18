@@ -136,7 +136,8 @@ if ($FOGCore->getSetting(FOG_REGISTRATION_ENABLED)) {
                     if (!$Host->save()) throw new Exception(_('Failed to save new Host'));
                     $Host->addModule($ids)
                         ->addPriMAC($PriMAC)
-                        ->addAddMAC($MACs);
+                        ->addAddMAC($MACs)
+                        ->save();
                     print _('Done');
                 } else print _('Already registered as').': '.$Host->get(name);
             }

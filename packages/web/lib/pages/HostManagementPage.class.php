@@ -1319,15 +1319,15 @@ class HostManagementPage extends FOGPage {
     public function save_group() {
         try {
             // Error checking
-            if (empty($_REQUEST['hostIDArray'])) throw new Exception( _('No Hosts were selected') );
-            if (empty($_REQUEST['group_new']) && empty($_REQUEST['group'])) throw new Exception(_('No Group selected and no new Group name entered'));
+            if (empty($_REQUEST[hostIDArray])) throw new Exception(_('No Hosts were selected'));
+            if (empty($_REQUEST[group_new]) && empty($_REQUEST[group])) throw new Exception(_('No Group selected and no new Group name entered'));
             // Determine which method to use
             // New group
             if (!empty($_REQUEST[group_new])) {
-                if ($this->getClass(Group)->set(name,$_REQUEST[group_new])->save()) throw new Exception(_('Failed to create new Group'));
-            } else {
-                if (!$Group = current($this->getClass(GroupManager)->find(array('id' => $_REQUEST[group])))) throw new Exception(_('Invalid Group ID'));
-            }
+                $Group = $this->getClass(Group)
+                    ->set(name,$_REQUEST[group_new]);
+                if (!$Group->save()) throw new Exception(_('Failed to create new Group'));
+            } else $Group = $this->getClass(Group,$_REQUEST[group]);
             // Valid
             if (!$Group->isValid()) throw new Exception(_('Group is Invalid'));
             // Main
@@ -1339,9 +1339,9 @@ class HostManagementPage extends FOGPage {
         }
     }
     public function hostlogins() {
-        $MainDate = $this->nice_date($_REQUEST['dte'])->getTimestamp();
-        $MainDate_1 = $this->nice_date($_REQUEST['dte'])->modify('+1 day')->getTimestamp();
-        $Users = $this->getClass('UserTrackingManager')->find(array('hostID' => $_REQUEST['id'],'date' => $_REQUEST['dte'],'action' => array(null,0,1)),'','date','DESC');
+        $MainDate = $this->nice_date($_REQUEST[dte])->getTimestamp();
+        $MainDate_1 = $this->nice_date($_REQUEST[dte])->modify('+1 day')->getTimestamp();
+        $Users = $this->getClass(UserTrackingManager)->find(array('hostID' => $_REQUEST['id'],'date' => $_REQUEST['dte'],'action' => array(null,0,1)),'','date','DESC');
         foreach($Users AS &$Login) {
             if ($Login->get('username') != 'Array') {
                 $time = $this->nice_date($Login->get('datetime'))->format('U');

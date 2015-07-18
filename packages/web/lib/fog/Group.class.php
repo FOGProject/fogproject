@@ -28,11 +28,25 @@ class Group extends FOGController {
         }
         return $this;
     }
-    public function getHostCount() {return $this->getClass(GroupAssociationManager)->count(array('groupID' => $this->get('id')));}
-        public function get($key = '') {
-            if (in_array($this->key($key),array('hosts','hostsnotinme'))) $this->loadHosts();
-            return parent::get($key);
-        }
+    public function getHostCount() {
+        return $this->getClass(GroupAssociationManager)->count(array(groupID=>$this->get(id)));
+    }
+    public function get($key = '') {
+        if (in_array($this->key($key),array(hosts,hostsnotinme))) $this->loadHosts();
+        return parent::get($key);
+    }
+    public function set($key,$value) {
+        if ($this->key($key) == 'hosts') $this->loadHosts();
+        return parent::set($key,$value);
+    }
+    public function add($key,$value) {
+        if ($this->key($key) == 'hosts') $this->loadHosts();
+        return parent::add($key,$value);
+    }
+    public function remove($key,$value) {
+        if ($this->key($key) == 'hosts') $this->loadHosts();
+        return parent::remove($key,$value);
+    }
     public function load($field = 'id') {
         parent::load($field);
         $methods = get_class_methods($this);
@@ -42,15 +56,11 @@ class Group extends FOGController {
         }
         unset($method);
     }
-    public function add($key,$value) {
-        if ($this->key($key) == 'hosts') $this->loadHosts();
-        return parent::add($key,$value);
-    }
     public function save() {
         parent::save();
         if ($this->isLoaded(hosts)) {
             // Remove old rows
-            $this->getClass(GroupAssociationManager)->destroy(array('groupID' => $this->get('id')));
+            $this->getClass(GroupAssociationManager)->destroy(array(groupID=>$this->get(id)));
             // Create assoc
             foreach ($this->get(hosts) AS $i => &$Host) $this->getClass(GroupAssociation)->set(hostID,$Host)->set(groupID,$this->get(id))->save();
             unset($Host);

@@ -39,7 +39,8 @@ class MySQL extends DatabaseManager {
             $this->link->set_charset('utf8');
             if (!$this->link->select_db(DATABASE_NAME)) throw new Exception(_('Issue working with the current DB, maybe it has not been created yet'));
         } catch (Exception $e) {
-            $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+            if (strstr($e->getMessage(),'MySQL server has gone away')) $this->connect();
+            else $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
         }
         return $this;
     }
