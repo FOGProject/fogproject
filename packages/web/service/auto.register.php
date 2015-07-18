@@ -88,7 +88,7 @@ if ($FOGCore->getSetting(FOG_REGISTRATION_ENABLED)) {
             } else print _('Done!');
             $FOGCore->getClass(Inventory)
                 ->set(hostID,$Host->get(id))
-                ->set(primaryUser,$primaryUser)
+                ->set(primaryUser,$primaryuser)
                 ->set(other1,$other1)
                 ->set(other2,$other2)
                 ->set(createdTime,$FOGCore->formatTime('now','Y-m-d H:i:s'))
