@@ -82,7 +82,8 @@ class PrinterManagementPage extends FOGPage {
     }
     public function search_post() {
         // Find data -> Push data
-        foreach ($this->getClass(PrinterManager)->search() AS &$Printer) {
+        $Printers = $this->getClass(PrinterManager)->search();
+        foreach ($Printers AS $i => &$Printer) {
             $this->data[] = array(
                 id=>$Printer->get(id),
                 name=>$Printer->get(name),
@@ -96,7 +97,7 @@ class PrinterManagementPage extends FOGPage {
         }
         unset($Printer);
         // Hook
-        $this->HookManager->processEvent('PRINTER_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        $this->HookManager->processEvent(PRINTER_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
     }

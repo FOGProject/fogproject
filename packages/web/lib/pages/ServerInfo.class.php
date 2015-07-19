@@ -41,7 +41,7 @@ class ServerInfo extends FOGPage {
                     $arGeneral = array();
                     $arFS = array();
                     $arNIC = array();
-                    foreach((array)$arRet AS &$line) {
+                    foreach((array)$arRet AS $i => &$line) {
                         $line = trim( $line );
                         if ($line == "@@start") {}
                         else if ($line == "@@general") $section = 0;
@@ -90,7 +90,7 @@ class ServerInfo extends FOGPage {
                             '<b>'._('Network Information').'</b>' => '&nbsp;',
                         );
                         $i = 0;
-                        foreach((array)$NICTrans AS &$txtran) {
+                        foreach((array)$NICTrans AS $i => &$txtran) {
                             $ethName = explode(' ',$NICTrans[$i]);
                             $fields['<b>'.$ethName[0].' '._('Information').'</b>'] = '&nbsp;';
                             $fields[$NICTrans[$i]] = $NICTransSized[$i];

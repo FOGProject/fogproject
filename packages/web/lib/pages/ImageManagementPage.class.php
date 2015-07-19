@@ -82,10 +82,10 @@ class ImageManagementPage extends FOGPage {
         $this->title = _('All Images');
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['ImageCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
         // Find data
-        $Images = $this->getClass('ImageManager')->find();
-        $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
+        $Images = $this->getClass(ImageManager)->find();
+        $SizeServer = $_SESSION[FOG_FTP_IMAGE_SIZE];
         // Row data
-        foreach ($Images AS &$Image) {
+        foreach ($Images AS $i => &$Image) {
             $imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
             $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
             if ($StorageNode && $StorageNode->isValid() && $SizeServer) $servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('ftppath').'/'.$Image->get('path') : null));
@@ -118,7 +118,8 @@ class ImageManagementPage extends FOGPage {
         // Get All images based on the keyword
         $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
         // Find data -> Push data
-        foreach ($this->getClass('ImageManager')->search() AS &$Image) {
+        $Images = $this->getClass(ImageManager)->search();
+        foreach ($Images AS $i => &$Image) {
             $imageSize = $this->FOGCore->formatByteSize((double)$Image->get('size'));
             $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
             if ($StorageNode && $StorageNode->isValid() && $SizeServer) $servSize = $this->FOGCore->getFTPByteSize($StorageNode,($StorageNode->isValid() ? $StorageNode->get('ftppath').'/'.$Image->get('path') : null));
@@ -173,7 +174,7 @@ class ImageManagementPage extends FOGPage {
         print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
         $StorageNodes = $this->getClass('StorageNodeManager')->find(array('isEnabled' => 1));
         unset($MasterGroupID,$MasterNode,$MastserSet);
-        foreach($StorageNodes AS &$Node) {
+        foreach($StorageNodes AS $i => &$Node) {
             if ($Node->isValid() && $Node->get('isMaster')) {
                 $MasterGroupID = $Node->get('storageGroupID');
                 $MasterNode = $Node;
@@ -182,7 +183,7 @@ class ImageManagementPage extends FOGPage {
         }
         unset($Node);
         if (!isset($MasterGroupID) || is_numeric($MasterGroupID) || $MasterGroupID <= 0) {
-            foreach($StorageNodes AS &$Node) {
+            foreach($StorageNodes AS $i => &$Node) {
                 if ($Node->isValid()) {
                     $MasterGroupID = $Node->get('storageGroupID');
                     $MasterNode = $Node;
@@ -329,27 +330,29 @@ class ImageManagementPage extends FOGPage {
         // Reset for next tab
         unset($this->data);
         print "\n\t\t\t\t<!-- Storage Groups with Assigned Image -->";
+        $ImageAssocs = $this->getClass(ImageAssociationManager)->find();
         $IAMan = new ImageAssociationManager();
-        $SGMan = new StorageGroupManager();
         // Get groups with this image assigned
-        foreach($this->getClass(StorageGroupManager)->find(array('id' => $Image->get(storageGroups))) AS &$Group) {
-            if ($Group->isValid()) $GroupsWithMe[] = $Group->get('id');
+        $MyStorageGroups = $this->getClass(StorageGroupManager)->find(array(id=>$this->obj->get(storageGroups)));
+        $StorageGroups = $this->getClass(StorageGroupManager)->find();
+        foreach($MyStorageGroups AS $i => &$Group) {
+            if ($Group->isValid()) $GroupsWithMe[] = $Group->get(id);
         }
         unset($Group);
         // Get all group IDs with an image assigned
-        foreach($IAMan->find() AS &$Group) {
+        foreach($ImageAssocs AS $i => &$Group) {
             if ($Group->getStorageGroup() && $Group->getStorageGroup()->isValid() && $Group->getImage()->isValid()) $GroupWithAnyImage[] = $Group->getStorageGroup()->get('id');
         }
         unset($Group);
         // Set the values
-        foreach($SGMan->find() AS &$Group) {
+        foreach($StorageGroups AS $i => &$Group) {
             if ($Group->isValid()) {
-                if (!in_array($Group->get('id'),$GroupWithAnyImage)) $GroupNotWithImage[] = $Group;
-                if (!in_array($Group->get('id'),$GroupsWithMe)) $GroupNotWithMe[] = $Group;
+                if (!in_array($Group->get(id),$GroupWithAnyImage)) $GroupNotWithImage[] = $Group;
+                if (!in_array($Group->get(id),$GroupsWithMe)) $GroupNotWithMe[] = $Group;
             }
         }
         unset($Group);
-        print "\n\t\t\t\t".'<div id="image-storage">';
+        print '<div id="image-storage">';
         // Create the header data:
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxgroup1" class="toggle-checkbox1" />',
@@ -366,7 +369,7 @@ class ImageManagementPage extends FOGPage {
             array(),
         );
         // All groups not with this set as the image
-        foreach((array)$GroupNotWithMe AS &$Group) {
+        foreach((array)$GroupNotWithMe AS $i => &$Group) {
             if ($Group->isValid()) {
                 $this->data[] = array(
                     'storageGroup_id' => $Group->get('id'),
@@ -396,7 +399,7 @@ class ImageManagementPage extends FOGPage {
             _('Storage Group Name'),
         );
         // All groups without an image
-        foreach((array)$GroupNotWithImage AS &$Group) {
+        foreach((array)$GroupNotWithImage AS $i => &$Group) {
             if ($Group->isValid()) {
                 $this->data[] = array(
                     'storageGroup_id' => $Group->get('id'),
@@ -434,7 +437,8 @@ class ImageManagementPage extends FOGPage {
             '<input type="checkbox" class="toggle-action" name="storagegroup-rm[]" value="${storageGroup_id}" />',
             '${storageGroup_name}',
         );
-        foreach($this->getClass(StorageGroupManager)->find(array('id' => $Image->get(storageGroups))) AS &$Group) {
+        $StorageGroups = $this->getClass(StorageGroupManager)->find(array(id=>$Image->get(storageGroups)));
+        foreach($StorageGroups AS $i => &$Group) {
             $this->data[] = array(
                 'storageGroup_id' => $Group->get('id'),
                 'storageGroup_name' => $Group->get('name'),
@@ -576,8 +580,8 @@ class ImageManagementPage extends FOGPage {
             '${mc_state}',
             '<a href="?node='.$this->node.'&sub=stop&mcid=${mc_id}" title="Remove"><i class="fa fa-minus-circle" alt="'._('Kill').'"></i></a>',
         );
-        $MulticastSessions = $this->getClass('MulticastSessionsManager')->find(array('stateID' => array(0,1,2,3)));
-        foreach($MulticastSessions AS &$MulticastSession) {
+        $MulticastSessions = $this->getClass(MulticastSessionsManager)->find(array(stateID=>array(0,1,2,3)));
+        foreach($MulticastSessions AS $i => &$MulticastSession) {
             if ($MulticastSession->isValid()) {
                 $Image = new Image($MulticastSession->get('image'));
                 $TaskState = new TaskState($MulticastSession->get('stateID'));
@@ -638,9 +642,10 @@ class ImageManagementPage extends FOGPage {
     public function stop() {
         if (is_numeric($_REQUEST['mcid']) && $_REQUEST['mcid'] > 0) {
             $MulticastSession = $this->getClass('MulticastSessions',$_REQUEST['mcid']);
-            foreach((array)$this->getClass('MulticastSessionsAssociationManager')->find(array('msid' => $MulticastSession->get('id'))) AS &$MulticastAssoc) $this->getClass('Task',$MulticastAssoc->get('taskID'))->cancel();
+            $sessions = $this->getClass(MulticastSessionsAssociationManager)->find(array(msID=>$MulticastSession->get(id)));
+            foreach((array)$sessions AS $i => &$MulticastAssoc) $this->getClass(Task,$MulticastAssoc->get(taskID))->cancel();
             unset($MulticastAssoc);
-            $MulticastSession->set('name',null)->set('stateID',5)->save();
+            $MulticastSession->set(name,null)->set(stateID,5)->save();
             $this->FOGCore->setMessage(_('Canceled task'));
             $this->FOGCore->redirect('?node='.$this->node.'&sub=multicast');
         }
