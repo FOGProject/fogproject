@@ -57,10 +57,11 @@ class EventManager extends FOGBase {
                     if (in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) $className = (substr($fileInfo->getFilename(),-10) == '.event.php' ? substr($fileInfo->getFilename(),0,-10) : null);
                     else if ($file && !preg_match('#plugins#',$fileInfo->getPathname())) {
                         $key = '$active';
-                        foreach($file AS $lineNumber => $line) {
+                        foreach($file AS $lineNumber => &$line) {
                             if (strpos($line,$key) !== false)
                                 break;
                         }
+                        unset($line);
                         if(preg_match('#true#i',$file[$lineNumber])) $className = (substr($fileInfo->getFileName(),-10) == '.event.php' ? substr($fileInfo->getFilename(),0,-10) : null);
                     }
                     if ($className && !in_array($className,get_declared_classes())) $this->getClass($className);

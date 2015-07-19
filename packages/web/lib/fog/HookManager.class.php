@@ -26,29 +26,37 @@ class HookManager extends EventManager {
         global $Init;
         $paths = array(BASEPATH.'/management');
         $paths = array_merge((array)$paths,(array)$Init->PagePaths,(array)$Init->FOGPaths);
-        foreach($paths AS $path) {
+        foreach($paths AS $i => &$path) {
             $dir = new RecursiveDirectoryIterator($path,FilesystemIterator::SKIP_DOTS);
             $Iterator = new RecursiveIteratorIterator($dir);
             $Iterator = new RegexIterator($Iterator,'/^.+\.php$/i',RecursiveRegexIterator::GET_MATCH);
             $regexp = '#processEvent\([\'\"](.*?)[\'\"]#';
-            foreach($Iterator AS $file)
-                preg_match_all($regexp,file_get_contents($file[0]),$matches[]);
+            foreach($Iterator AS $i => &$file) preg_match_all($regexp,file_get_contents($file[0]),$matches[]);
+            unset($file);
             $matches = $this->array_filter_recursive($matches);
-            foreach($matches AS $match => $value) {
+            foreach($matches AS $match => &$value) {
                 if ($matches[$match][1]) $matching[] = $matches[$match][1];
             }
-            foreach($matching AS $ind => $arr) {
-                foreach($arr AS $val) $this->events[] = $val;
+            unset($value);
+            foreach($matching AS $ind => &$arr) {
+                foreach($arr AS $i => &$val) $this->events[] = $val;
+                unset($val);
             }
+            unset($arr);
         }
-        foreach($this->getClass('ServiceManager')->getSettingCats() AS $CAT) {
+        unset($path);
+        $ServiceCats = $this->getClass(ServiceManager)->getSettingCats();
+        foreach($ServiceCats AS $i => &$CAT) {
             $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',preg_replace('/\./','_',$CAT)));
             array_push($this->events,'CLIENT_UPDATE_'.$divTab);
         }
-        foreach($this->getClass('PXEMenuOptionsManager')->find() AS $Menu) {
+        unset($CAT);
+        $PXEs = $this->getClass(PXEMenuOptionsManager)->find();
+        foreach($PXEs AS $i => &$Menu) {
             $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',preg_replace('/\./','_',$Menu->get('name'))));
             array_push($this->events,'BOOT_ITEMS_'.$divTab);
         }
+        unset($Menu);
         array_push($this->events,'HOST_DEL','HOST_DEL_POST','GROUP_DEL','GROUP_DEL_POST','IMAGE_DEL','IMAGE_DEL_POST','SNAPIN_DEL','SNAPIN_DEL_POST','PRINTER_DEL','PRINTER_DEL_POST','HOST_DEPLOY','GROUP_DEPLOY','HOST_EDIT_TASKS','GROUP_EDIT_TASKS','HOST_EDIT_ADV','GROUP_EDIT_ADV','HOST_EDIT_AD','GROUP_EDIT_AD');
         $this->events = array_unique($this->events);
         $this->events = array_values($this->events);
@@ -56,7 +64,7 @@ class HookManager extends EventManager {
     }
     public function processEvent($event, $arguments = array()) {
         if ($this->data[$event]) {
-            foreach ($this->data[$event] AS $function) {
+            foreach ($this->data[$event] AS $i => &$function) {
                 // Is hook active?
                 if ($function[0]->active) {
                     $this->log(sprintf('Running Hook: Event: %s, Class: %s', $event, get_class($function[0]), $function[0]));

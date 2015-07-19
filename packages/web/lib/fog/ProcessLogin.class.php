@@ -118,7 +118,7 @@ class ProcessLogin extends FOGBase {
             $this->password = trim($_REQUEST[upass]);
             $tmpUser = $this->FOGCore->attemptLogin($this->username,$this->password);
             // Hook
-            $this->HookManager->processEvent('USER_LOGGING_IN', array(User=>&$tmpUser,username=>&$this->username,password=>&$this->password));
+            $this->HookManager->processEvent(USER_LOGGING_IN,array(User=>&$tmpUser,username=>&$this->username,password=>&$this->password));
             try {
                 if (!$tmpUser || !$tmpUser->isValid()) throw new Exception($this->foglang[InvalidLogin]);
                 if (!preg_match('#/mobile/#',$_SERVER[PHP_SELF])) {
@@ -133,11 +133,11 @@ class ProcessLogin extends FOGBase {
     public function mainLoginForm() {
         $this->setLang();
         print '<form method="post" action="?node=login" id="login-form">';
-        if ($_GET['node'] != 'logout') {
+        if ($_GET[node] != 'logout') {
             foreach ($_GET AS $key => &$value) print '<input type ="hidden" name="'.$key.'" value="'.$value.'" />';
             unset($value);
         }
-        print '<label for="username">'.$this->foglang[Username].'</label><input type="text" class="input" name="uname" id="username" /><label for="password">'.$this->foglang[Password].'</label><input type="password" class="input" name="upass" id="password" /><label for="language">'.$this->foglang['LanguagePhrase'].'</label>';
+        print '<label for="username">'.$this->foglang[Username].'</label><input type="text" class="input" name="uname" id="username" /><label for="password">'.$this->foglang[Password].'</label><input type="password" class="input" name="upass" id="password" /><label for="language">'.$this->foglang[LanguagePhrase].'</label>';
         $this->getLanguages();
         print '<select name="ulang" id="language">'.$this->langMenu.'</select><label for="login-form-submit">&nbsp;</label><input type="submit" value="'.$this->foglang[Login].'" id="login-form-submit" /></form><div id="login-form-info"><p>'.$this->foglang[FOGSites].': <b><i class="icon fa fa-circle-o-notch fa-spin fa-1x"></i></b></p><p>'.$this->foglang[LatestVer].': <b><i class="icon fa fa-circle-o-notch fa-spin fa-1x"></i></b></p></div>';
     }

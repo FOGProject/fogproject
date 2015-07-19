@@ -62,8 +62,8 @@ class StorageManagementPage extends FOGPage {
         // Find data
         $StorageNodes = $this->getClass('StorageNodeManager')->find();
         // Row data
-        foreach ((array)$StorageNodes AS &$StorageNode) {
-            $StorageGroup = new StorageGroup($StorageNode->get('storageGroupID'));
+        foreach ((array)$StorageNodes AS $i => &$StorageNode) {
+            $StorageGroup = $this->getClass(StorageGroup,$StorageNode->get(storageGroupID));
             $this->data[] = array_merge(
                 (array)$StorageNode->get(),
                 array('isMasterText' => ($StorageNode->get('isMaster') ? 'Yes' : 'No'),
@@ -215,15 +215,16 @@ class StorageManagementPage extends FOGPage {
                 ->set('bandwidth',$_REQUEST[bandwidth]);
             // Save
             if ($StorageNode->save()) {
-                if ($StorageNode->get('isMaster')) {
+                if ($StorageNode->get(isMaster)) {
                     // Unset other Master Nodes in this Storage Group
-                    foreach ((array)$this->getClass('StorageNodeManager')->find(array('isMaster' => '1', 'storageGroupID' => $StorageNode->get('storageGroupID'))) AS &$StorageNodeMaster) {
-                        if ($StorageNode->get('id') != $StorageNodeMaster->get('id')) $StorageNodeMaster->set('isMaster', '0')->save();
+                    $Nodes = $this->getClass(StorageNodeManager)->find(array(isMaster=>1,storageGroupID=>$StorageNode->get(storageGroupID)));
+                    foreach ($Nodes AS $i => &$StorageNodeMaster) {
+                        if ($StorageNode->get(id) != $StorageNodeMaster->get(id)) $StorageNodeMaster->set(isMaster,0)->save();
                     }
                     unset($StorageNodeMaster);
                 }
                 // Hook
-                $this->HookManager->processEvent('STORAGE_NODE_ADD_SUCCESS', array('StorageNode' => &$StorageNode));
+                $this->HookManager->processEvent(STORAGE_NODE_ADD_SUCCESS,array(StorageNode=>&$StorageNode));
                 // Log History event
                 $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', $this->foglang['SNCreated'], $StorageNode->get('id'), $StorageNode->get('name')));
                 // Set session message
@@ -359,31 +360,27 @@ class StorageManagementPage extends FOGPage {
                 ->set('pass', $_REQUEST['pass'])
                 ->set('bandwidth',  $_REQUEST['bandwidth']);
             // Save
-            if ($StorageNode->save())
-            {
-                if ($StorageNode->get('isMaster'))
-                {
+            if ($StorageNode->save()) {
+                if ($StorageNode->get('isMaster')) {
+                    $Nodes = $this->getClass(StorageNodeManager)->find(array(isMaster=>1,storageGroupID=>$StorageNode->get(storageGroupID)));
                     // Unset other Master Nodes in this Storage Group
-                    foreach ((array)$this->getClass('StorageNodeManager')->find(array('isMaster' => '1', 'storageGroupID' => $StorageNode->get('storageGroupID'))) AS &$StorageNodeMaster) {
-                        if ($StorageNode->get('id') != $StorageNodeMaster->get('id'))
-                            $StorageNodeMaster->set('isMaster', '0')->save();
+                    foreach ($Nodes AS $i => &$StorageNodeMaster) {
+                        if ($StorageNode->get(id) != $StorageNodeMaster->get(id))
+                            $StorageNodeMaster->set(isMaster,0)->save();
                     }
                     unset($StorageNodeMaster);
                 }
                 // Hook
-                $this->HookManager->processEvent('STORAGE_NODE_EDIT_SUCCESS', array('StorageNode' => &$StorageNode));
+                $this->HookManager->processEvent(STORAGE_NODE_EDIT_SUCCESS,array(StorageNode=>&$StorageNode));
                 // Log History event
-                $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', $this->foglang['SNUpdated'], $StorageNode->get('id'), $StorageNode->get('name')));
+                $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', $this->foglang[SNUpdated],$StorageNode->get(id),$StorageNode->get(name)));
                 // Set session message
-                $this->FOGCore->setMessage($this->foglang['SNUpdated']);
+                $this->FOGCore->setMessage($this->foglang[SNUpdated]);
                 // Redirect back to self;
                 $this->FOGCore->redirect($this->formAction);
             }
-            else
-                throw new Exception($this->foglang['DBupfailed']);
-        }
-        catch (Exception $e)
-        {
+            else throw new Exception($this->foglang[DBupfailed]);
+        } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent('STORAGE_NODE_EDIT_FAIL', array('StorageNode' => &$StorageNode));
             // Log History event
@@ -415,8 +412,7 @@ class StorageManagementPage extends FOGPage {
         $fields = array(
             $this->foglang['ConfirmDel'].' <b>'.$StorageNode->get('name').'</b>' => '<input type="submit" value="${title}" />',
         );
-        foreach((array)$fields AS $field => &$input)
-        {
+        foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -424,7 +420,7 @@ class StorageManagementPage extends FOGPage {
             );
         }
         unset($input);
-        print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" class="c">';
+        print '<form method="post" action="'.$this->formAction.'" class="c">';
         // Hook
         $this->HookManager->processEvent('STORAGE_NODE_DELETE', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
@@ -472,7 +468,7 @@ class StorageManagementPage extends FOGPage {
         // Find data
         $StorageGroups = $this->getClass('StorageGroupManager')->find();
         // Row data
-        foreach ((array)$StorageGroups AS &$StorageGroup)
+        foreach ((array)$StorageGroups AS $i => &$StorageGroup)
             $this->data[] = $StorageGroup->get();
         unset($StorageGroup);
         // Header row

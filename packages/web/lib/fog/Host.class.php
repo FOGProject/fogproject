@@ -355,7 +355,6 @@ class Host extends FOGController {
                     ->set(hostID,$this->get(id))
                     ->set(isDefault,(int)$defPrint == $Printer)
                     ->save();
-                $i++;
             }
             unset($Printer);
         }
@@ -371,7 +370,7 @@ class Host extends FOGController {
         }
         if ($this->isLoaded(groups)) {
             // Remove old rows
-            $this->getClass(GroupAssociationManager)->destroy(array('hostID' => $this->get(id)));
+            $this->getClass(GroupAssociationManager)->destroy(array(hostID=>$this->get(id)));
             // Create assoc
             foreach ((array)$this->get(groups) AS $i => &$Group) {
                 $this->getClass(GroupAssociation)
@@ -408,10 +407,10 @@ class Host extends FOGController {
         $Image = $this->getImage();
         $StorageGroup = $Image->getStorageGroup();
         $StorageNode = ($isUpload ? $StorageGroup->getMasterStorageNode() : $this->getOptimalStorageNode());
-        if (!$isUpload)	$this->HookManager->processEvent('HOST_NEW_SETTINGS',array('Host' => &$this,'StorageNode' => &$StorageNode,'StorageGroup' => &$StorageGroup));
+        if (!$isUpload)	$this->HookManager->processEvent(HOST_NEW_SETTINGS,array(Host=>&$this,StorageNode=>&$StorageNode,StorageGroup=>&$StorageGroup));
         if (!$StorageGroup || !$StorageGroup->isValid()) throw new Exception(_('No Storage Group found for this image'));
         if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(_('No Storage Node found for this image'));
-        if (in_array($TaskType->get('id'),array('1','8','15','17'))) {
+        if (in_array($TaskType->get(id),array(1,8,15,17))) {
             // FTP
             $this->FOGFTP->set(username,$StorageNode->get(user))
                 ->set(password,$StorageNode->get(pass))
@@ -629,10 +628,8 @@ class Host extends FOGController {
         unset($MACs);
     }
     public function wakeOnLAN() {
-        $MACs = $this->getMyMacs();
-        foreach((array)$MACs AS $i => &$MAC) $this->FOGCore->wakeOnLAN(implode('|',(array)$MAC));
-        unset($MACs,$MAC);
-        return;
+        $this->getClass(WakeOnLan,$this->getMyMacs())->send();
+        return $this;
     }
     public function addPrinter($addArray) {
         // Add
@@ -665,6 +662,7 @@ class Host extends FOGController {
             foreach ($this->get(pendingMACs) AS $i => &$MAC) {
                 if (in_array(strtolower($MAC),$MACs)) $MAClist[] = $MAC;
             }
+            unset($MAC);
         }
         unset($MAC);
         $this->addAddMAC($MAClist);
@@ -776,11 +774,11 @@ class Host extends FOGController {
         return $this;
     }
     public function clientMacCheck($MAC = false) {
-        $mac = current($this->getClass(MACAddressAssociationManager)->find(array('mac' => $MAC ? $MAC : $this->getMACAddress()->__toString(),'hostID' => $this->get(id),'clientIgnore' => 1)));
+        $mac = current($this->getClass(MACAddressAssociationManager)->find(array(mac=>($MAC?$MAC:$this->getMACAddress()->__toString()),hostID=>$this->get(id),clientIgnore=>1)));
         return ($mac && $mac->isValid() ? 'checked' : '');
     }
     public function imageMacCheck($MAC = false) {
-        $mac = current((array)$this->getClass(MACAddressAssociationManager)->find(array('mac' => $MAC ? $MAC : $this->getMACAddress()->__toString(),'hostID' => $this->get(id),'imageIgnore' => 1)));
+        $mac = current((array)$this->getClass(MACAddressAssociationManager)->find(array(mac=>($MAC?$MAC:$this->getMACAddress()->__toString()),hostID=>$this->get(id),imageIgnore=>1)));
         return ($mac && $mac->isValid() ? 'checked' : '');
     }
     public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false,$nosave = false,$legacy = '') {
@@ -816,11 +814,11 @@ class Host extends FOGController {
             'MACAddressAssociation',
             'SnapinAssociation',
         );
-        foreach ($assocs AS $i => &$AssocRem) $this->getClass($AssocRem)->getManager()->destroy(array('hostID' => $this->get(id)));
+        foreach ($assocs AS $i => &$AssocRem) $this->getClass($AssocRem)->getManager()->destroy(array(hostID=>$this->get(id)));
         unset($AssocRem);
         // Update inventory to know when it was deleted
         if ($this->get(inventory)) $this->get(inventory)->set(deleteDate,$this->nice_date()->format('Y-m-d H:i:s'))->save();
-        $this->HookManager->processEvent('DESTROY_HOST',array('Host' => &$this));
+        $this->HookManager->processEvent(DESTROY_HOST,array(Host=>&$this));
         // Return
         return parent::destroy($field);
     }

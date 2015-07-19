@@ -20,9 +20,9 @@ class TaskScheduler extends FOGService {
             if ($Tasks) {
                 $this->outall(sprintf(" * %s active task(s) awaiting check-in sending WOL request(s).",$this->getClass('TaskManager')->count(array('stateID' => 1,'typeID' => array(1,15,17)))));
                 foreach($Tasks AS $i => &$Task) {
-                    $Host = new Host($Task->get('hostID'));
-                    $this->FOGCore->wakeOnLan($Host->get('mac'));
-                    $this->outall(sprintf("\t\t- Host: %s WOL sent using MAC: %s",$Host->get('name'),$Host->get('mac')));
+                    $Host = $Task->getHost();
+                    $Host->wakeOnLan();
+                    $this->outall(sprintf("\t\t- Host: %s WOL sent using MAC: %s",$Host->get(name),$Host->get(mac)));
                     usleep(500000);
                 }
                 unset($Task);

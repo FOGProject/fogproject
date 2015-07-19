@@ -4,7 +4,7 @@ class SnapinReplicator extends FOGService {
     public $log = SNAPINREPLOGPATH;
     public $zzz = SNAPINREPSLEEPTIME;
     private function commonOutput() {
-        $StorageNodes = $this->getClass(StorageNodeManager)->find(array('isMaster' => 1,'isEnabled' => 1));
+        $StorageNodes = $this->getClass(StorageNodeManager)->find(array(isMaster=>1,isEnabled=>1));
         foreach ($StorageNodes AS $i => &$SN) {
             if (in_array($this->FOGCore->resolveHostname($SN->get(ip)),$this->FOGCore->getIPAddress())) {
                 $StorageNode = $SN;
@@ -22,10 +22,10 @@ class SnapinReplicator extends FOGService {
             $this->outall(sprintf(" | We are group name: %s",$this->getClass(StorageGroup,$myStorageGroupID)->get(name)));
             $this->outall(sprintf(" * We have node ID: #%s",$myStorageNodeID));
             $this->outall(sprintf(" | We are node name: %s",$this->getClass(StorageNode,$myStorageNodeID)->get(name)));
-            $SnapinAssocCount = $this->getClass(SnapinGroupAssociationManager)->count(array('storageGroupID' => $myStorageGroupID));
+            $SnapinAssocCount = $this->getClass(SnapinGroupAssociationManager)->count(array(storageGroupID=>$myStorageGroupID));
             $SnapinCount = $this->getClass(SnapinManager)->count();
             if ($SnapinAssocCount <= 0 || $SnapinCount <= 0) throw new Exception(_('There is nothing to replicate'));
-            $Snapins = $this->getClass(SnapinManager)->find(array('id' => $this->getClass(SnapinGroupAssociationManager)->find(array('storageGroupID' => $myStorageGroupID),'','','','','','','snapinID')));
+            $Snapins = $this->getClass(SnapinManager)->find(array(id=>$this->getClass(SnapinGroupAssociationManager)->find(array(storageGroupID=>$myStorageGroupID),'','','','','','','snapinID')));
             foreach ($Snapins AS $i => &$Snapin) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Snapin,true);
             unset($Snapin);
             foreach ($Snapins AS $i => &$Snapin) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Snapin,false);

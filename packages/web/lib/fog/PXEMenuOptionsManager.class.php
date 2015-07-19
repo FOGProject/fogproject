@@ -14,9 +14,9 @@ class PXEMenuOptionsManager extends FOGManagerController {
         return $regVals;
     }
     public function regSelect($request = '') {
-        $regVals = '<select name="menu_regmenu">';
-        foreach($this->regText() AS $num => $val) $regMenuItems[] = '<option value="'.$num.'"'.($request == $num ? ' selected="selected"' : '').'>'.$val.'</option>';
-        $regVals .= implode("\n\t\t\t\t\t",$regMenuItems)."\n"."</select>";
-        return $regVals;
+        $regMenuItems = '';
+        foreach($this->regText() AS $num => &$val) $regMenuItems .= '<option value="'.$num.'"'.($request == $num ? ' selected="selected"' : '').'>'.$val.'</option>';
+        unset($val);
+        return '<select name="menu_regmenu">'.$regMenuItems.'</select>';
     }
 }

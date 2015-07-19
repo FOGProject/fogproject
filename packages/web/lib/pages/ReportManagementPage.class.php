@@ -84,12 +84,12 @@ class ReportManagementPage extends FOGPage {
         );
         // Get the dates to use!
         $AllDates = array_merge($this->DB->query("SELECT DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') start FROM `imagingLog` WHERE DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY start ORDER BY start DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'),$this->DB->query("SELECT DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') finish FROM `imagingLog` WHERE DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') != '0000-00-00' GROUP BY finish ORDER BY finish DESC")->fetch(MYSQLI_NUM,'fetch_all')->get('start'));
-        foreach($AllDates AS &$Date)
+        foreach($AllDates AS $i => &$Date)
             $Dates[] = array_shift($Date);
         unset($Date);
         $Dates = array_unique($Dates);
         if ($Dates) {
-            foreach($Dates AS &$Date) {
+            foreach($Dates AS $i => &$Date) {
                 $dates1 .= '<option value="'.$Date.'">'.$Date.'</option>';
                 $dates2 .= '<option value="'.$Date.'">'.$Date.'</option>';
             }
@@ -169,12 +169,12 @@ class ReportManagementPage extends FOGPage {
             _('Duration'),
             _('Download/Upload'),
         );
-        foreach((array)$csvHead AS &$csvHeader)
+        foreach((array)$csvHead AS $i => &$csvHeader)
             $ReportMaker->addCSVCell($csvHeader);
         unset($csvHeader);
         $ReportMaker->endCSVLine();
         $ImagingLogs = $this->getClass('ImagingLogManager')->find(array('start' => 'nope','finish' => 'nope'),'OR','','',"BETWEEN '$date1' AND '$date2'");
-        foreach((array)$ImagingLogs AS &$ImagingLog) {
+        foreach((array)$ImagingLogs AS $i => &$ImagingLog) {
             $start = $this->nice_date($ImagingLog->get('start'));
             $end = $this->nice_date($ImagingLog->get('finish'));
             // Find the host if it still exists.
@@ -278,7 +278,7 @@ class ReportManagementPage extends FOGPage {
         // Find hosts
         $Hosts = $this->getClass('HostManager')->find();
         // Store the data
-        foreach($Hosts AS &$Host) {
+        foreach($Hosts AS $i => &$Host) {
             $Image = $Host->getImage();
             $imgID = $Image->isValid() ? $Image->get('id') : '';
             $imgName = $Image->isValid() ? $Image->get('name') : '';
@@ -381,9 +381,9 @@ class ReportManagementPage extends FOGPage {
             array(),
         );
         // All hosts
-        $Hosts = $this->getClass('HostManager')->find();
+        $Hosts = $this->getClass('HostManager')->find('','','','','','name');
         // Loop through each of the hosts.
-        foreach($this->getClass('HostManager')->find('','','','','','name') AS &$Host) {
+        foreach($Hosts AS $i => &$Host) {
             if ($Host->isValid()) {
                 // Find the image information
                 if ($Host->get('imageID'))
@@ -439,7 +439,7 @@ class ReportManagementPage extends FOGPage {
         $Hosts = $this->getClass('HostManager')->find();
         // Approves All Pending MACs for all hosts.
         if ($_REQUEST['aprvall'] == 1) {
-            foreach($Hosts AS &$Host)
+            foreach($Hosts AS $i => &$Host)
                 $Host->addPendtoAdd()->save();
             unset($Host);
             $this->FOGCore->setMessage(_('All Pending MACs approved.'));
@@ -478,8 +478,8 @@ class ReportManagementPage extends FOGPage {
             array(),
             array(),
         );
-        foreach((array)$Hosts AS &$Host) {
-            foreach($Host->get('pendingMACs') AS &$MAC) {
+        foreach((array)$Hosts AS $i => &$Host) {
+            foreach($Host->get(pendingMACs) AS $i => &$MAC) {
                 if ($MAC && $MAC->isValid()) {
                     $this->data[] = array(
                         'host_name' => $Host->get('name'),
@@ -554,7 +554,7 @@ class ReportManagementPage extends FOGPage {
         $ReportMaker->endCSVLine();
         // Find all viruses
         $Viruses = $this->getClass('VirusManager')->find();
-        foreach($Viruses AS &$Virus) {
+        foreach($Viruses AS $i => &$Virus) {
             $Host = $this->getClass('HostManager')->getHostByMacAddresses($Virus->get('hostMAC'));
             $this->data[] = array(
                 'host_name' => $Host && $Host->isValid() ? $Host->get('name') : '',
@@ -588,7 +588,8 @@ class ReportManagementPage extends FOGPage {
      */
     public function vir_hist_post() {
         if ($_REQUEST['delvall'] == 'all') {
-            foreach($this->getClass('VirusManager')->find() AS &$Virus) $Virus->destroy();
+            $Viruses = $this->getClass(VirusManager)->find();
+            foreach($Viruses AS $i => &$Virus) $Virus->destroy();
             unset($Virus);
             $this->FOGCore->setMessage(_("All Virus' cleared"));
             $this->FOGCore->redirect($this->formAction);
@@ -630,14 +631,14 @@ class ReportManagementPage extends FOGPage {
         asort($HostNames);
         if($UserNames) {
             $UserNames = array_unique($UserNames);
-            foreach($UserNames AS &$Username) {
+            foreach($UserNames AS $i => &$Username) {
                 if($Username) $userSel .= "\n\t\t\t\t".'<option value="'.$Username.'">'.$Username.'</option>';
             }
             unset($Username);
             $userSelForm = "\n\t\t\t".'<select name="usersearch">'."\n\t\t\t\t".'<option value="">- '._('Please select an option').' -</option>'.$userSel.'</select>';
         }
         if ($HostNames) {
-            foreach($HostNames AS &$Hostname)
+            foreach($HostNames AS $i => &$Hostname)
                 $hostSel .= "\n\t\t\t\t".'<option value="'.$Hostname.'">'.$Hostname.'</option>';
             unset($Hostname);
             $hostSelForm = "\n\t\t\t".'<select name="hostsearch">'."\n\t\t\t\t".'<option value="">- '._('Please select an option').' -</option>'.$hostSel.'</option>';
@@ -683,12 +684,12 @@ class ReportManagementPage extends FOGPage {
             $Hostnames = $this->getClass('HostManager')->find(array('name' => $hostsearch),'','','','','','','name');
             $Hostnames = array_unique($Hostnames);
             asort($Hostnames);
-            foreach((array)$Hostnames AS &$Hostname) {
-                $Host = current($this->getClass('HostManager')->find(array('name' => $Hostname)));
+            foreach((array)$Hostnames AS $i => &$Hostname) {
+                $Host = current($this->getClass(HostManager)->find(array(name=>$Hostname)));
                 if ($Host && $Host->isValid()) {
                     $this->data[] = array(
-                        'host_id' => $Host->get('id'),
-                        'hostuser_name' => $Host->get('name'),
+                        'host_id' => $Host->get(id),
+                        'hostuser_name' => $Host->get(name),
                         'user_id' => base64_encode('%'),
                         'user_name' => '',
                     );
@@ -703,7 +704,7 @@ class ReportManagementPage extends FOGPage {
             $HostIDs = array_unique($HostIDs);
             asort($Usernames);
             asort($HostIDs);
-            foreach((array)$Usernames AS &$Username) {
+            foreach((array)$Usernames AS $i => &$Username) {
                 $Hosts = $this->getClass('HostManager')->find(array('id' => $HostIDs));
                 if($Hosts) {
                     $this->data[] = array(
@@ -724,7 +725,7 @@ class ReportManagementPage extends FOGPage {
             asort($Usernames);
             asort($HostIDs);
             $Hosts = $this->getClass('HostManager')->find(array('id' => $HostIDs,'name' => $hostsearch));
-            foreach((array)$Hosts AS &$Host) {
+            foreach((array)$Hosts AS $i => &$Host) {
                 $User = current($this->getClass('UserTrackingManager')->find(array('hostID' => $Host->get('id'),'username' => $Usernames)));
                 $this->data[] = array(
                     'host_id' => $Host->get('id'),
@@ -758,13 +759,13 @@ class ReportManagementPage extends FOGPage {
             $UserSearchDates = $this->getClass('UserTrackingManager')->find(array('hostID' => $_REQUEST['hostID']));
         if (base64_decode($_REQUEST['userID']) && $_REQUEST['hostID'])
             $UserSearchDates = $this->getClass('UserTrackingManager')->find(array('username' => base64_decode($_REQUEST['userID']),'hostID' => $_REQUEST['hostID']));
-        foreach((array)$UserSearchDates AS &$User)
+        foreach((array)$UserSearchDates AS $i => &$User)
             $Dates[] = $this->nice_date($User->get('datetime'))->format('Y-m-d');
         unset($User);
         if ($Dates) {
             $Dates = array_unique($Dates);
             rsort($Dates);
-            foreach((array)$Dates AS &$Date) {
+            foreach((array)$Dates AS $i => &$Date) {
                 $dates1 .= '<option value="'.$Date.'">'.$Date.'</option>';
                 $dates2 .= '<option value="'.$Date.'">'.$Date.'</option>';
             }
@@ -849,7 +850,7 @@ class ReportManagementPage extends FOGPage {
         if ($_REQUEST['hostID'])
             $compare .= ' AND '.$UserTracker->databaseFields['hostID']."='".$_REQUEST['hostID']."'";;
         $UserTrackers = $this->getClass('UserTrackingManager')->find(array('datetime' => ''),'','','',$compare);
-        foreach((array)$UserTrackers AS &$User) {
+        foreach((array)$UserTrackers AS $i => &$User) {
             $date = $this->nice_date($User->get('datetime'));
             $logintext = ($User->get('action') == 1 ? 'Login' : ($User->get('action') == 0 ? 'Logout' : ($User->get('action') == 99 ? 'Service Start' : 'N/A')));
             $Host = current($this->getClass('HostManager')->find(array('id' => $User->get('hostID'))));
@@ -891,7 +892,7 @@ class ReportManagementPage extends FOGPage {
         );
         // Get the dates to use!
         $SnapinLogs = $this->getClass('SnapinTaskManager')->find();
-        foreach ($SnapinLogs AS &$SnapinLog) {
+        foreach ($SnapinLogs AS $i => &$SnapinLog) {
             $datesold[] = $this->nice_date($SnapinLog->get('checkin'))->format('Y-m-d');
             $datesnew[] = $this->nice_date($SnapinLog->get('complete'))->format('Y-m-d');
         }
@@ -900,7 +901,7 @@ class ReportManagementPage extends FOGPage {
         if ($Dates) {
             $Dates = array_unique($Dates);
             rsort($Dates);
-            foreach((array)$Dates AS &$Date) {
+            foreach((array)$Dates AS $i => &$Date) {
                 $dates1 .= '<option value="'.$Date.'">'.$Date.'</option>';
                 $dates2 .= '<option value="'.$Date.'">'.$Date.'</option>';
             }
@@ -989,13 +990,13 @@ class ReportManagementPage extends FOGPage {
             _('Task Checkin Date'),
             _('Task Checkin Time'),
         );
-        foreach((array)$csvHead AS &$csvHeader)
+        foreach((array)$csvHead AS $i => &$csvHeader)
             $ReportMaker->addCSVCell($csvHeader);
         unset($csvHeader);
         $ReportMaker->endCSVLine();
         // Find all snapin tasks
         $SnapinTasks = $this->getClass('SnapinTaskManager')->find(array('checkin' => '','complete' => ''),'OR','','',"BETWEEN '$date1' AND '$date2'");
-        foreach($SnapinTasks AS &$SnapinTask) {
+        foreach($SnapinTasks AS $i => &$SnapinTask) {
             $SnapinCheckin1 = $this->nice_date($SnapinTask->get('checkin'));
             $SnapinCheckin2 = $this->nice_date($SnapinTask->get('complete'));
             // Get the Task based on create date thru complete date
@@ -1084,7 +1085,7 @@ class ReportManagementPage extends FOGPage {
         // Get data (other users) from inventory.
         $InventoryUsers = $this->getClass('InventoryManager')->find();
         // Create the select field.
-        foreach($InventoryUsers AS &$Inventory) {
+        foreach($InventoryUsers AS $i => &$Inventory) {
             if ($Inventory->get('primaryUser'))
                 $useropt .= "\n\t\t\t\t\t\t".'<option value="'.$Inventory->get('id').'">'.$Inventory->get('primaryUser').'</option>';
         }
