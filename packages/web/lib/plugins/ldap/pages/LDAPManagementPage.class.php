@@ -6,7 +6,7 @@ class LDAPManagementPage extends FOGPage {
         // Call parent constructor
         parent::__construct($name);
         if ($_REQUEST['id']) {
-            $this->obj = $this->getClass('LDAP',$_REQUEST[id]);
+            $this->obj = $this->getClass(LDAP,$_REQUEST[id]);
             $this->subMenu = array(
                 "$this->linkformat" => $this->foglang[General],
                 "$this->delformat" => $this->foglang[Delete],

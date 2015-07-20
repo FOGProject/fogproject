@@ -42,14 +42,16 @@ class Page extends FOGBase {
             }
             $this->main = array_unique(array_filter($this->main),SORT_REGULAR);
             $this->HookManager->processEvent('MAIN_MENU_DATA',array('main' => &$this->main));
-            foreach ($this->main AS $link => $title) $links[] = (!$isMobile ? $link : ($link != 'logout' ? $link.'s' : $link));
+            foreach ($this->main AS $link => &$title) $links[] = (!$isMobile ? $link : ($link != 'logout' ? $link.'s' : $link));
+            unset($title);
             if (!$isMobile) $links = array_merge((array)$links,array('hwinfo','client','schemaupdater'));
             if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links)) $this->FOGCore->redirect('index.php');
             $this->menu = (!$isMobile ? '<center><ul>' : '<div id="menuBar">');
-            foreach($this->main AS $link => $title) {
+            foreach($this->main AS $link => &$title) {
                 $activelink = (!$isMobile ? ($_REQUEST['node'] == $link || (!$_REQUEST['node'] && $link == 'home') ? $activelink = 1 : 0) : ($_REQUEST['node'] == $link.'s' || (!$_REQUEST['node'] && $link == 'home') ? 1 : 0));
                 $this->menu .= (!$isMobile ? sprintf('<li><a href="?node=%s" title="%s"%s><i class="%s"></i></a></li>',$link,$title[0],($activelink ? ' class="activelink"' : ''),$title[1]) : sprintf('<a href="?node=%s"%s><i class="%s"></i></a>',($link != 'logout' ? $link.'s' : $link),($activelink ? ' class="activelink"' : ''),$title[1]));
             }
+            unset($title);
             $this->menu .= (!$isMobile ? '</ul></center>' : '</div>');
         }
         if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) {
@@ -80,23 +82,22 @@ class Page extends FOGBase {
                 "js/fog/fog.{$_REQUEST['node']}.js",
                 "js/fog/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js",
             );
-            foreach($filepaths AS $jsFilepath)
-            {
+            foreach($filepaths AS $i => &$jsFilepath) {
                 if (file_exists($jsFilepath))
                     array_push($files,$jsFilepath);
             }
+            unset($jsFilepath);
             $pluginfilepaths = array(
                 BASEPATH."/lib/plugins/{$_REQUEST['node']}/js/fog.{$_REQUEST['node']}.js",
                 BASEPATH."/lib/plugins/{$_REQUEST['node']}/js/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js",
             );
-            foreach($pluginfilepaths AS $pluginfilepath)
-            {
-                if (file_exists($pluginfilepath) && !file_exists("js/fog/".basename($pluginfilepath)))
-                {
+            foreach($pluginfilepaths AS $i => &$pluginfilepath) {
+                if (file_exists($pluginfilepath) && !file_exists("js/fog/".basename($pluginfilepath))) {
                     $newfile = "js/fog/".basename($pluginfilepath);
                     file_put_contents($newfile,file_get_contents($pluginfilepath));
                 }
             }
+            unset($pluginfilepath);
             if ($this->isHomepage)
             {
                 array_push($files,'js/fog/fog.dashboard.js');
@@ -113,11 +114,10 @@ class Page extends FOGBase {
                 'js/fog/fog.login.js',
             );
         }
-        foreach((array)$files AS $path)
-        {
-            if (file_exists($path))
-                $this->addJavascript($path);
+        foreach((array)$files AS $i => &$path) {
+            if (file_exists($path)) $this->addJavascript($path);
         }
+        unset($path);
     }
     public function setTitle($title) {
         $this->pageTitle = $title;

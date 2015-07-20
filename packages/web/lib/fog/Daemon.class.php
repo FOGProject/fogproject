@@ -62,12 +62,13 @@ class Daemon {
         while (true) {
             $retarr = array();
             $retarr = $this->FOGCore->getIPAddress();
-            foreach ($retarr as $line) {
+            foreach ($retarr AS $i => &$line) {
                 if ($line !== false) {
                     $this->out("Interface now ready, with IPAddr $line\n");
                     break 2;
                 }
             }
+            unset($line);
             $this->out("Interface not ready, waiting..\n");
             sleep(10);
         }

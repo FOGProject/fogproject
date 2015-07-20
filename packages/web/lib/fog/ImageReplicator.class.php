@@ -4,7 +4,7 @@ class ImageReplicator extends FOGService {
     public $log = REPLICATORLOGPATH;
     public $zzz = REPLICATORSLEEPTIME;
     private function commonOutput() {
-        $StorageNodes = $this->getClass(StorageNodeManager)->find(array('isMaster' => 1,'isEnabled' => 1));
+        $StorageNodes = $this->getClass(StorageNodeManager)->find(array(isMaster=>1,isEnabled=>1));
         foreach ($StorageNodes AS $i => &$SN) {
             if (in_array($this->FOGCore->resolveHostname($SN->get(ip)),$this->FOGCore->getIPAddress())) {
                 $StorageNode = $SN;
@@ -28,10 +28,10 @@ class ImageReplicator extends FOGService {
             $this->outall(sprintf(" | We are group name: %s",$this->getClass(StorageGroup,$myStorageGroupID)->get(name)));
             $this->outall(sprintf(" * We have node ID: #%s",$myStorageNodeID));
             $this->outall(sprintf(" | We are node name: %s",$this->getClass(StorageNode,$myStorageNodeID)->get(name)));
-            $ImageAssocCount = $this->getClass(ImageAssociationManager)->count(array('storageGroupID' => $myStorageGroupID));
+            $ImageAssocCount = $this->getClass(ImageAssociationManager)->count(array(storageGroupID=>$myStorageGroupID));
             $ImageCount = $this->getClass(ImageManager)->count();
             if ($ImageAssocCount <= 0 || $ImageCount <= 0) throw new Exception(_('There is nothing to replicate'));
-            $Images = $this->getClass(ImageManager)->find(array('id' => $this->getClass(ImageAssociationManager)->find(array('storageGroupID' => $myStorageGroupID),'','','','','','','imageID')));
+            $Images = $this->getClass(ImageManager)->find(array(id=>$this->getClass(ImageAssociationManager)->find(array(storageGroupID=>$myStorageGroupID),'','','','','','','imageID')));
             foreach ($Images AS $i => &$Image) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Image,true);
             unset($Image);
             foreach ($Images AS $i => &$Image) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Image,false);

@@ -34,8 +34,10 @@ class FOGConfigurationPage extends FOGPage {
             print '<p>'._('Version: ').FOG_VERSION.'</p>';
             $URLs[] = 'http://fogproject.org/version/index.php?version='.FOG_VERSION;
             $Names[] = '';
-            $webroot = trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/') .'/': '/';
-            foreach($this->getClass('StorageNodeManager')->find(array('isEnabled' => 1)) AS &$StorageNode) {
+            $Nodes = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1));
+            foreach($Nodes AS $i => &$StorageNode) {
+                $curroot = trim(trim($StorageNode->get(webroot),'/'));
+                $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
                 $Names[] = $StorageNode->get(name);
                 $URLs[] = "http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php";
             }
@@ -219,7 +221,8 @@ class FOGConfigurationPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        foreach($this->getClass('PXEMenuOptionsManager')->find('','','id') AS &$Menu) {
+        $Menus = $this->getClass(PXEMenuOptionsManager)->find('','','id');
+        foreach ($Menus AS $i => &$Menu) {
             $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/\./','_',preg_replace('/:/','_',$Menu->get('name'))));
             print "\n\t\t\t\t\t\t".'<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$Menu->get('name').'</h3></a>';
             print "\n\t\t\t".'<div id="'.$divTab.'">';
@@ -272,7 +275,8 @@ class FOGConfigurationPage extends FOGPage {
                 ->set('regMenu',$_REQUEST['menu_regmenu'])
                 ->set('args',$_REQUEST['menu_options']);
             // Set all other menus that are default to non-default value.
-            foreach($this->getClass('PXEMenuOptionsManager')->find('','','id') AS &$MenusRemoveDefault) $MenusRemoveDefault->set('default',0)->save();
+            $Menus = $this->getClass(PXEMenuOptionsManager)->find('','','id');
+            foreach ($Menus AS $i => &$MenusRemoveDefault) $MenusRemoveDefault->set('default',0)->save();
             unset($MenusRemoveDefault);
             $Menu->set('default',$_REQUEST['menu_default']);
             if ($Menu->save()) $this->FOGCore->setMessage($Menu->get('name').' '._('successfully updated').'!');
@@ -342,7 +346,8 @@ class FOGConfigurationPage extends FOGPage {
             if ($Menu->save()) $this->FOGCore->setMessage($Menu->get('name').' '._('successfully added, editing now'));
             // Set all other menus that are default to non-default value.
             if ($_REQUEST['menu_default']) {
-                foreach($this->getClass('PXEMenuOptionsManager')->find('','','id') AS &$MenusRemoveDefault) $MenusRemoveDefault->set('default',0)->save();
+                $Menus = $this->getClass(PXEMenuOptionsManager)->find('','','id');
+                foreach ($Menus AS $i => &$MenusRemoveDefault) $MenusRemoveDefault->set('default',0)->save();
                 unset($MenusRemoveDefault);
                 $Menu->set('default',1)->save();
             }
@@ -381,15 +386,15 @@ class FOGConfigurationPage extends FOGPage {
         print "\n\t\t\t".'<div class="hostgroup">';
         print _("This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.");
         print "\n\t\t\t</div>";
-        $ClientUpdates = $this->getClass('ClientUpdaterManager')->find('','name');
-        foreach ($ClientUpdates AS &$ClientUpdate) {
+        $ClientUpdates = $this->getClass(ClientUpdaterManager)->find('','name');
+        foreach ($ClientUpdates AS $i => &$ClientUpdate) {
             $this->data[] = array(
                 'action' => $this->formAction.'&tab=clientupdater',
-                'name' => $ClientUpdate->get('name'),
+                'name' => $ClientUpdate->get(name),
                 'module' => $ClientUpdate->get('md5'),
-                'type' => $ClientUpdate->get('type'),
-                'client_id' => $ClientUpdate->get('id'),
-                'id' => $ClientUpdate->get('id'),
+                'type' => $ClientUpdate->get(type),
+                'client_id' => $ClientUpdate->get(id),
+                'id' => $ClientUpdate->get(id),
             );
         }
         unset($ClientUpdate);
@@ -584,13 +589,13 @@ class FOGConfigurationPage extends FOGPage {
             '${span}',
         );
         $ServiceCats = $this->getClass('ServiceManager')->getSettingCats();
-        print "\n\t\t\t\t\t\t".'<a href="#" class="trigger_expand"><h3>Expand All</h3></a>';
-        foreach ((array)$ServiceCats AS &$ServiceCAT) {
+        print '<a href="#" class="trigger_expand"><h3>Expand All</h3></a>';
+        foreach ((array)$ServiceCats AS $i => &$ServiceCAT) {
             $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',$ServiceCAT));
-            print "\n\t\t\t\t\t\t".'<a id="'.$divTab.'" class="expand_trigger" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$ServiceCAT.'</h3></a>';
-            print "\n\t\t\t".'<div id="'.$divTab.'">';
-            $ServMan = $this->getClass('ServiceManager')->find(array('category' => $ServiceCAT),'AND','id');
-            foreach ((array)$ServMan AS &$Service) {
+            print '<a id="'.$divTab.'" class="expand_trigger" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$ServiceCAT.'</h3></a>';
+            print '<div id="'.$divTab.'">';
+            $ServMan = $this->getClass(ServiceManager)->find(array('category' => $ServiceCAT),'AND','id');
+            foreach ((array)$ServMan AS $i => &$Service) {
                 if ($Service->get('name') == 'FOG_PIGZ_COMP') $type = '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
                 else if ($Service->get('name') == 'FOG_KERNEL_LOGLEVEL') $type = '<div id="loglvl" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showlogVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
                 else if ($Service->get('name') == 'FOG_INACTIVITY_TIMEOUT') $type = '<div id="inact" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showValInAct" maxsize="2" style="width: 15px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
@@ -601,9 +606,10 @@ class FOGConfigurationPage extends FOGPage {
                         $type .= '<br/><small><input type="button" value="Randomize Above Key" id="'.$Service->get('name').'_button" title="You will have to recompile the client if you change this key.'.($Service->get('name') == 'FOG_AES_ADPASS_ENCRYPT_KEY' ? ' You will also o need to reset the password for all hosts and the FOG_AD_DEFAULT_PASSWORD field.' : '').'" /></small>';
                     } else $type = '<input type="password" name="${service_id}" value="${service_value}" autocomplete="off" />';
                 } else if ($Service->get('name') == 'FOG_VIEW_DEFAULT_SCREEN') {
-                    foreach(array('SEARCH','LIST') AS $viewop) $options[] = '<option value="'.strtolower($viewop).'" '.($Service->get('value') == strtolower($viewop) ? 'selected="selected"' : '').'>'.$viewop.'</option>';
+                    $screens = array('SEARCH','LIST');
+                    foreach ($screens AS $i => &$viewop) $options[] = '<option value="'.strtolower($viewop).'" '.($Service->get(value) == strtolower($viewop) ? 'selected="selected"' : '').'>'.$viewop.'</option>';
                     unset($viewop);
-                    $type = "\n\t\t\t".'<select name="${service_id}" style="width: 220px" autocomplete="off">'."\n\t\t\t\t".implode("\n",$options)."\n\t\t\t".'</select>';
+                    $type = '<select name="${service_id}" style="width: 220px" autocomplete="off">'.implode($options).'</select>';
                     unset($options);
                 } else if ($Service->get('name') == 'FOG_MULTICAST_DUPLEX') {
                     $duplexTypes = array(
@@ -614,16 +620,16 @@ class FOGConfigurationPage extends FOGPage {
                     unset($val);
                     $type = "\n\t\t\t".'<select name="${service_id}" style="width: 220px" autocomplete="off">'."\n\t\t\t\t".implode("\n",$options)."\n\t\t\t".'</select>';
                 } else if ($Service->get('name') == 'FOG_BOOT_EXIT_TYPE') {
-                    foreach(array('sanboot','grub','exit') AS $viewop) $options[] = '<option value="'.$viewop.'" '.($Service->get('value') == $viewop ? 'selected="selected"' : '').'>'.strtoupper($viewop).'</option>';
+                    $types = array('sanboot','grub','exit');
+                    foreach($types AS $i => &$viewop) $options[] = '<option value="'.$viewop.'" '.($Service->get('value') == $viewop ? 'selected="selected"' : '').'>'.strtoupper($viewop).'</option>';
+                    unset($viewop);
                     $type = "\n\t\t\t".'<select name="${service_id}" style="width: 220px" autocomplete="off">'."\n\t\t\t\t".implode("\n",$options)."\n\t\t\t".'</select>';
                     unset($options);
                 } else if ($Service->get('name') == 'FOG_DHCP_BOOTFILENAME') {
-                    foreach(array('ipxe.pxe','ipxe.kpxe','ipxe.kkpxe','undionly.pxe','undionly.kpxe','undionly.kkpxe','ipxe.efi','snp.efi','snponly.efi') AS $viewop) $options[] = '<option value="'.$viewop.'"'.($Service->get('value') == $viewop ? 'selected="selected"' : '').'>'.$viewop.'</option>';
-                    $type = "\n\t\t\t".'<select name="${service_id}" style="width: 220px" autocomplete="off">'."\n\t\t\t\t".implode("\n",$options)."\n\t\t\t".'</select>';
-                    unset($options);
+                    $type = null;
                 } else if (in_array($Service->get('name'),$ServiceNames)) $type = '<input type="checkbox" name="${service_id}" value="1" '.($Service->get('value') ? 'checked' : '').' />';
-                else if ($Service->get('name') == 'FOG_DEFAULT_LOCALE') {
-                    foreach((array)$this->foglang['Language'] AS $lang => &$humanreadable) $options2[] = '<option value="'.$lang.'" '.($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') == $lang || $this->FOGCore->getSetting('FOG_DEFAULT_LOCAL') == $this->foglang['Language'][$lang] ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
+                else if ($Service->get(name) == 'FOG_DEFAULT_LOCALE') {
+                    foreach((array)$this->foglang[Language] AS $lang => &$humanreadable) $options2[] = '<option value="'.$lang.'" '.($this->FOGCore->getSetting('FOG_DEFAULT_LOCALE') == $lang || $this->FOGCore->getSetting('FOG_DEFAULT_LOCAL') == $this->foglang['Language'][$lang] ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
                     unset($humanreadable);
                     $type = "\n\t\t\t".'<select name="${service_id}" autocomplete="off" style="width: 220px">'."\n\t\t\t\t".implode("\n",$options2)."\n\t\t\t".'</select>';
                 } else if ($Service->get('name') == 'FOG_QUICKREG_IMG_ID') $type = $this->getClass('ImageManager')->buildSelectBox($this->FOGCore->getSetting('FOG_QUICKREG_IMG_ID'),$Service->get('id').'" id="${service_name}');
@@ -637,7 +643,7 @@ class FOGConfigurationPage extends FOGPage {
                     $dt = new DateTime('now',$utc);
                     $tzIDs = DateTimeZone::listIdentifiers();
                     $type = '<select name="${service_id}">';
-                    foreach($tzIDs AS &$tz) {
+                    foreach($tzIDs AS $i => &$tz) {
                         $current_tz = new DateTimeZone($tz);
                         $offset = $current_tz->getOffset($dt);
                         $transition = $current_tz->getTransitions($dt->getTimestamp(),$dt->getTimestamp());
@@ -686,7 +692,7 @@ class FOGConfigurationPage extends FOGPage {
      */
     public function settings_post() {
         $ServiceMan = $this->getClass('ServiceManager')->find();
-        foreach ((array)$ServiceMan AS &$Service) {
+        foreach ((array)$ServiceMan AS $i => &$Service) {
             $key = $Service->get('id');
             $_REQUEST[$key] = trim($_REQUEST[$key]);
             if ($Service->get('name') == 'FOG_MEMORY_LIMIT' && ($_REQUEST[$key] < 128 || !is_numeric($_REQUEST[$key]))) $Service->set('value',128)->save();
@@ -728,31 +734,30 @@ class FOGConfigurationPage extends FOGPage {
      * Just used to view these logs.  Can be used for more than this as well with some tweeking.
      */
     public function log() {
-        foreach($this->getClass(StorageGroupManager)->find() AS &$StorageGroup) {
-            if ($StorageGroup->isValid()) {
-                $StorageNode = $StorageGroup->getMasterStorageNode();
-                if ($StorageNode && $StorageNode->isValid()) {
-                    $user = $StorageNode->get(user);
-                    $pass = $StorageNode->get(pass);
-                    $host = $StorageNode->get(ip);
-                    $ftpstarter[$StorageNode->get('name')] = "ftp://$user:$pass@$host";
-                    $ftpstart = $ftpstarter[$StorageNode->get('name')];
-                    $apacheerrlog = (file_exists("$ftpstart/var/log/httpd/error_log") ? "$ftpstart/var/log/httpd/error_log" : (file_exists("$ftpstart/var/log/apache2/error.log") ? "$ftpstart/var/log/apache2/error.log" : false));
-                    $apacheacclog = (file_exists("$ftpstart/var/log/httpd/access_log") ? "$ftpstart/var/log/httpd/access_log" : (file_exists("$ftpstart/var/log/apache2/access.log") ? "$ftpstart/var/log/apache2/access.log" : false));
-                    $multicastlog = (file_exists("$ftpstart/var/log/fog/multicast.log") ? "$ftpstart/var/log/fog/multicast.log" : false);
-                    $schedulerlog = (file_exists("$ftpstart/var/log/fog/fogscheduler.log") ? "$ftpstart/var/log/fog/fogscheduler.log" : false);
-                    $imgrepliclog = (file_exists("$ftpstart/var/log/fog/fogreplicator.log") ? "$ftpstart/var/log/fog/fogreplicator.log" : false);
-                    $snapinreplog = (file_exists("$ftpstart/var/log/fog/fogsnapinrep.log") ? "$ftpstart/var/log/fog/fogsnapinrep.log" : false);
-                    $files[$StorageNode->get('name')] = array(
-                        $multicastlog ? 'Multicast' : null => $multicastlog ? $multicastlog : null,
-                        $schedulerlog ? 'Scheduler' : null => $schedulerlog ? $schedulerlog : null,
-                        $imgrepliclog ? 'Image Replicator' : null => $imgrepliclog ? $imgrepliclog : null,
-                        $snapinreplog ? 'Snapin Replicator' : null => $snapinreplog ? $snapinreplog : null,
-                        $apacheerrlog ? 'Apache Error Log' : null  => $apacheerrlog ? $apacheerrlog : null,
-                        $apacheacclog ? 'Apache Access Log' : null  => $apacheacclog ? $apacheacclog : null,
-                    );
-                    $files[$StorageNode->get('name')] = array_filter((array)$files[$StorageNode->get('name')]);
-                }
+        $StorageGroups = $this->getClass(StorageGroupManager)->find();
+        foreach($StorageGroups AS $i => &$StorageGroup) {
+            $StorageNode = $StorageGroup->getMasterStorageNode();
+            if ($StorageNode->isValid()) {
+                $user = $StorageNode->get(user);
+                $pass = $StorageNode->get(pass);
+                $host = $StorageNode->get(ip);
+                $ftpstarter[$StorageNode->get('name')] = "ftp://$user:$pass@$host";
+                $ftpstart = $ftpstarter[$StorageNode->get('name')];
+                $apacheerrlog = (file_exists("$ftpstart/var/log/httpd/error_log") ? "$ftpstart/var/log/httpd/error_log" : (file_exists("$ftpstart/var/log/apache2/error.log") ? "$ftpstart/var/log/apache2/error.log" : false));
+                $apacheacclog = (file_exists("$ftpstart/var/log/httpd/access_log") ? "$ftpstart/var/log/httpd/access_log" : (file_exists("$ftpstart/var/log/apache2/access.log") ? "$ftpstart/var/log/apache2/access.log" : false));
+                $multicastlog = (file_exists("$ftpstart/var/log/fog/multicast.log") ? "$ftpstart/var/log/fog/multicast.log" : false);
+                $schedulerlog = (file_exists("$ftpstart/var/log/fog/fogscheduler.log") ? "$ftpstart/var/log/fog/fogscheduler.log" : false);
+                $imgrepliclog = (file_exists("$ftpstart/var/log/fog/fogreplicator.log") ? "$ftpstart/var/log/fog/fogreplicator.log" : false);
+                $snapinreplog = (file_exists("$ftpstart/var/log/fog/fogsnapinrep.log") ? "$ftpstart/var/log/fog/fogsnapinrep.log" : false);
+                $files[$StorageNode->get('name')] = array(
+                    $multicastlog ? 'Multicast' : null => $multicastlog ? $multicastlog : null,
+                    $schedulerlog ? 'Scheduler' : null => $schedulerlog ? $schedulerlog : null,
+                    $imgrepliclog ? 'Image Replicator' : null => $imgrepliclog ? $imgrepliclog : null,
+                    $snapinreplog ? 'Snapin Replicator' : null => $snapinreplog ? $snapinreplog : null,
+                    $apacheerrlog ? 'Apache Error Log' : null  => $apacheerrlog ? $apacheerrlog : null,
+                    $apacheacclog ? 'Apache Access Log' : null  => $apacheacclog ? $apacheacclog : null,
+                );
+                $files[$StorageNode->get('name')] = array_filter((array)$files[$StorageNode->get('name')]);
             }
         }
         unset($StorageGroup);
@@ -761,10 +766,10 @@ class FOGConfigurationPage extends FOGPage {
             $first = true;
             foreach((array)$filearray AS $value => &$file) {
                 if ($first) {
-                    $options3[] = "\n\t\t\t\t".'<option disabled="disabled"> ------- '.$nodename.' ------- </option>';
+                    $options3[] = '<option disabled="disabled"> ------- '.$nodename.' ------- </option>';
                     $first = false;
                 }
-                $options3[] = "\n\t\t\t\t".'<option '.($value == $_REQUEST['logtype'] ? 'selected="selected"' : '').' value="'.$file.'">'.$value.'</option>';
+                $options3[] = '<option '.($value == $_REQUEST['logtype'] ? 'selected="selected"' : '').' value="'.$file.'">'.$value.'</option>';
             }
             unset($file);
         }
@@ -773,7 +778,9 @@ class FOGConfigurationPage extends FOGPage {
         $this->title = _('FOG Log Viewer');
         print '<p><form method="post" action="'.$this->formAction.'"><p>'._('File:');
         print '<select name="logtype" id="logToView">'.implode((array)$options3).'</select>'._('Number of lines:');
-        foreach (array(20, 50, 100, 200, 400, 500, 1000) AS $value) $options4[] = '<option '.($value == $_REQUEST['n'] ? 'selected="selected"' : '').' value="'.$value.'">'.$value.'</option>';
+        $vals = array(20,50,100,200,400,500,1000);
+        foreach ($vals AS $i => &$value) $options4[] = '<option '.($value == $_REQUEST['n'] ? 'selected="selected"' : '').' value="'.$value.'">'.$value.'</option>';
+        unset($value);
         print '<select name="n" id="linesToView">'.implode((array)$options4).'</select><center><input type="button" id="logpause" /></center></p></form><div id="logsGoHere">&nbsp;</div></p>';
     }
     /** config()
@@ -782,7 +789,7 @@ class FOGConfigurationPage extends FOGPage {
      * the old information restored.
      */
     public function config() {
-        $this->HookManager->processEvent('IMPORT');
+        $this->HookManager->processEvent(IMPORT);
         $this->title='Configuration Import/Export';
         $report = new ReportMaker();
         $_SESSION['foglastreport']=serialize($report);
@@ -799,7 +806,7 @@ class FOGConfigurationPage extends FOGPage {
             'field' => _('Click the button to export the database.'),
             'input' => '<input type="submit" name="export" value="'._('Export').'" />',
         );
-        print "\n\t\t\t".'<form method="post" action="export.php?type=sql">';
+        print '<form method="post" action="export.php?type=sql">';
         $this->render();
         unset($this->data);
         print '</form>';
@@ -812,7 +819,7 @@ class FOGConfigurationPage extends FOGPage {
             'field' => null,
             'input' => '<input type="submit" value="'._('Import').'" />',
         );
-        print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'" enctype="multipart/form-data">';
+        print '<form method="post" action="'.$this->formAction.'" enctype="multipart/form-data">';
         $this->render();
         unset($this->data);
         print "</form>";
@@ -833,11 +840,11 @@ class FOGConfigurationPage extends FOGPage {
                 exec($command,$output = array(),$worked);
                 switch ($worked) {
                 case 0:
-                    print "\n\t\t\t<h2>"._('Database Added!').'</h2>';
+                    print "<h2>"._('Database Added!').'</h2>';
                     exec('rm -rf "'.$dbFileName.'" > /dev/null 2>/dev/null &');
                     break;
                 case 1:
-                    print "\n\t\t\t<h2>"._('Database import failed!').'</h2>';
+                    print "<h2>"._('Database import failed!').'</h2>';
                     break;
                 }
             }

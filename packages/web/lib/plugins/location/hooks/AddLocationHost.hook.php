@@ -20,7 +20,7 @@ class AddLocationHost extends Hook {
         if (in_array($this->node,(array)$_SESSION[PluginsInstalled]) && $_REQUEST[node] == 'host' && $_REQUEST[sub] != 'pending') {
             $arguments[templates][4] = '${location}<br/><small>${deployed}</small>';
             foreach($arguments[data] AS $index => &$vals) {
-                $LocAssocs = $this->getClass(LocationAssociationManager)->find(array('hostID' => $arguments[data][$index][host_id]),'','','','','','','locationID');
+                $LocAssocs = $this->getClass(LocationAssociationManager)->find(array(hostID=>$arguments[data][$index][host_id]),'','','','','','','locationID');
                 $locID = array_shift($LocAssocs);
                 $arguments[data][$index][location] = $this->getClass(Location,$locID)->get(name);
                 unset($LocAssocs);
@@ -60,19 +60,19 @@ class AddLocationHost extends Hook {
     }
     public function HostExport($arguments) {
         if (in_array($this->node,(array)$_SESSION[PluginsInstalled])) {
-            $LocAssocs = $this->getClass(LocationAssociationManager)->find(array('hostID' => $arguments[data][$index][host_id]),'','','','','','','locationID');
+            $LocAssocs = $this->getClass(LocationAssociationManager)->find(array(hostID=>$arguments[Host]->get(id)),'','','','','','','locationID');
             $locID = array_shift($LocAssocs);
             $arguments[report]->addCSVCell($locID > 0 ? $locID : null);
         }
     }
     public function HostDestroy($arguments) {
-        if (in_array($this->node,(array)$_SESSION[PluginsInstalled])) $this->getClass(LocationAssociationManager)->destroy(array('hostID' => $arguments[Host]->get(id)));
+        if (in_array($this->node,(array)$_SESSION[PluginsInstalled])) $this->getClass(LocationAssociationManager)->destroy(array(hostID=>$arguments[Host]->get(id)));
     }
     public function HostEmailHook($arguments) {
         if (in_array($this->node,(array)$_SESSION[PluginsInstalled])) {
-            $LocAssocs = $this->getClass(LocationAssociationManager)->find(array('hostID' => $arguments[data][$index][host_id]),'','','','','','','locationID');
+            $LocAssocs = $this->getClass(LocationAssociationManager)->find(array(hostID=>$arguments[Host]->get(id)),'','','','','','','locationID');
             $locID = array_shift($LocAssocs);
-            $arguments[email] = $this->array_insert_after("\nSnapin Used: ","\nImaged From (Location): ",$this->getClass(Location,$locID)->get(name));
+            $arguments[email] = $this->array_insert_after("\nSnapin Used: ",$arguments[email],"\nImaged From (Location): ",$this->getClass(Location,$locID)->get(name));
         }
     }
 }

@@ -16,8 +16,7 @@ class Initiator {
     public function __construct() {
         define('BASEPATH', self::DetermineBasePath());
         $this->plugPaths = array_filter(glob(BASEPATH . '/lib/plugins/*'), 'is_dir');
-        foreach($this->plugPaths AS $plugPath)
-        {
+        foreach($this->plugPaths AS $plugPath) {
             $plug_class[] = $plugPath.'/class/';
             $plug_hook[] = $plugPath.'/hooks/';
             $plug_event[] = $plugPath.'/events/';
@@ -187,5 +186,4 @@ class Initiator {
         $HookManager->load();
         $EventManager->load();
         /** $HookManager initiates the FOGURLRequest class */
-        $FOGCore->FOGURLRequests = $FOGURLRequests = $FOGCore->getClass('FOGURLRequests');
-        $FOGCore->cleanupBadEntries();
+        $FOGCore->FOGURLRequests = $FOGURLRequests = $FOGCore->getClass(FOGURLRequests);

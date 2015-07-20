@@ -1995,3 +1995,8 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `" . DATABASE_NAME ."`.`printers` ADD COLUMN `pDesc` LONGTEXT",
 );
+// 188
+$this->schema[] = array(
+    "ALTER TABLE `" . DATABASE_NAME ."`.`nfsGroupMembers` ADD COLUMN `ngmWebroot` LONGTEXT NOT NULL",
+    "UPDATE `".DATABASE_NAME."`.`nfsGroupMembers` SET `ngmWebroot`='/fog/'",
+);

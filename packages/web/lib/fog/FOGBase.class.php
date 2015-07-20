@@ -189,11 +189,11 @@ abstract class FOGBase {
      */
     public function array_remove($key, array &$array) {
         if (is_array($key)) {
-            foreach($key AS &$val) unset($array[$val]);
+            foreach($key AS $i => &$val) unset($array[$val]);
             unset($val);
         }
         else {
-            foreach($array AS &$value) {
+            foreach($array AS $i => &$value) {
                 if (is_array($value)) $this->array_remove($key,$value);
             }
             unset($value);
@@ -299,9 +299,9 @@ abstract class FOGBase {
     public function resetRequest() {
         $_REQUESTVARS = $_REQUEST;
         unset($_REQUEST);
-        foreach((array)$_SESSION['post_request_vals'] AS $key => $val) $_REQUEST[$key] = $val;
+        foreach((array)$_SESSION['post_request_vals'] AS $key => &$val) $_REQUEST[$key] = $val;
         unset($val);
-        foreach((array)$_REQUESTVARS AS $key => $val) $_REQUEST[$key] = $val;
+        foreach((array)$_REQUESTVARS AS $key => &$val) $_REQUEST[$key] = $val;
         unset($val);
         unset($_SESSION['post_request_vals'], $_REQUESTVARS);
     }
@@ -316,9 +316,10 @@ abstract class FOGBase {
      * @return the filtered array
      */
     public function array_filter_recursive(&$input,$keepkeys = false) {
-        foreach($input AS &$value) {
+        foreach($input AS $i => &$value) {
             if (is_array($value)) $value = $this->array_filter_recursive($value);
         }
+        unset($value);
         $input = array_filter($input);
         if (!$keepkeys) $input = array_values($input);
         return $input;
@@ -408,21 +409,20 @@ abstract class FOGBase {
      * @return $MAClist, returns the list of valid MACs
      */
     public function parseMacList($stringlist,$image = false,$client = false) {
-        $MACs = $this->getClass('MACAddressAssociationManager')->find(array('mac' => explode('|',$stringlist)));
-        foreach((array)$MACs AS &$MAC) {
-            if ($MAC->isValid()) {
-                if (($image && !$MAC->get('imageIgnore')) || ($client && !$MAC->get('clientIgnore')) || (!$image && !$client)) $MAClist[] = strtolower($this->getClass('MACAddress',$MAC)->__toString());
-            }
+        $MACs = $this->getClass(MACAddressAssociationManager)->find(array(mac=>explode('|',$stringlist)));
+        foreach((array)$MACs AS $i => &$MAC) {
+            if (($image && !$MAC->get(imageIgnore)) || ($client && !$MAC->get(clientIgnore)) || (!$image && !$client)) $MAClist[] = strtolower($this->getClass(MACAddress,$MAC)->__toString());
         }
         unset($MAC);
         $MACs = explode('|',$stringlist);
-        foreach((array)$MACs AS $MAC) {
-            $MAC = $this->getClass('MACAddress',$MAC);
+        foreach((array)$MACs AS $i => &$MAC) {
+            $MAC = $this->getClass(MACAddress,$MAC);
             if ($MAC->isValid() && !in_array(strtolower($MAC->__toString()),(array)$MAClist)) $MAClist[] = strtolower($MAC->__toString());
         }
-        $Ignore = array_filter(array_map('trim',explode(',',$this->getClass('FOGCore')->getSetting('FOG_QUICKREG_PENDING_MAC_FILTER'))));
+        unset($MAC);
+        $Ignore = array_filter(array_map('trim',explode(',',$this->getClass(FOGCore)->getSetting(FOG_QUICKREG_PENDING_MAC_FILTER))));
         if (count($Ignore)) {
-            foreach($Ignore AS &$ignore) {
+            foreach($Ignore AS $i => &$ignore) {
                 $matches = preg_grep("#$ignore#i",$MAClist);
                 if (count($matches)) {
                     $NewMatches = array_merge((array)$NewMatches,$matches);
@@ -438,8 +438,7 @@ abstract class FOGBase {
      * @return the array of active plugin names.
      */
     public function getActivePlugins() {
-        foreach($this->getClass('PluginManager')->find(array('installed' => 1),'','','','','','','name') AS &$name) $res[] = strtolower($name);
-        unset($name);
+        $res = array_map('strtolower',$this->getClass(PluginManager)->find(array(installed=>1),'','','','','','','name'));
         return $res;
     }
     /** array_ksort() sorts the array by the keys.
@@ -449,7 +448,7 @@ abstract class FOGBase {
      */
     public function array_ksort(Array $array,Array $orderArray) {
         $ordered = array();
-        foreach($orderArray AS &$key) {
+        foreach($orderArray AS $i => &$key) {
             if (array_key_exists($key,$array)) {
                 $ordered[$key] = $array[$key];
                 unset($array[$key]);
@@ -512,7 +511,7 @@ abstract class FOGBase {
      * @return host item
      */
     public function getHostItem($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false,$override = false) {
-        $mac = isset($_REQUEST[mac]) ? $_REQUEST[mac] : $_REQUEST[wakeonlan];
+        $mac = isset($_REQUEST[mac]);
         if ($encoded === true) $mac = base64_decode($mac);
         $mac = trim($mac);
         $MACs = $this->parseMacList($mac,!$service,$service);
@@ -541,7 +540,7 @@ abstract class FOGBase {
     public function getAllBlamedNodes() {
         $NodeFailures = $this->getClass('NodeFailureManager')->find(array('taskID' => $this->getHostItem(false)->get('task')->get('id'), 'hostID' => $this->getHostItem(false)->get('id')));
         $DateInterval = $this->nice_date()->modify('-5 minutes');
-        foreach($NodeFailures AS &$NodeFailure) {
+        foreach($NodeFailures AS $i => &$NodeFailure) {
             $DateTime = $this->nice_date($NodeFailure->get('failureTime'));
             if ($DateTime >= $DateInterval) {
                 $node = $NodeFailure->get('id');
@@ -566,7 +565,7 @@ abstract class FOGBase {
      * @return if true or not
      */
     public function array_strpos($haystack, $needles, $case = true) {
-        foreach ($needles AS &$needle) {
+        foreach ($needles AS $i => &$needle) {
             if ($case) {
                 if (strpos($haystack,$needle) !== false) return true;
             } else {

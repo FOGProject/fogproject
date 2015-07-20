@@ -45,7 +45,8 @@ class PluginManagementPage extends FOGPage {
             $this->title = _('Activate Plugins');
             $Plugins = new Plugin(array('name' => null));
             // Find data
-            foreach ((array)$Plugins->getPlugins() AS &$Plugin) {
+            $AllPlugins = $Plugins->getPlugins();
+            foreach ((array)$AllPlugins AS $i => &$Plugin) {
                 if(!$Plugin->isActive()) {
                     $this->data[] = array(
                         'name' => $Plugin->getName(),
@@ -71,8 +72,9 @@ class PluginManagementPage extends FOGPage {
     public function install() {
         $this->title = 'Install Plugins';
         $Plugins = new Plugin(array('name' => null));
+        $AllPlugins = $Plugins->getPlugins();
         // Find data
-        foreach ((array)$Plugins->getPlugins() AS &$Plugin) {
+        foreach ((array)$AllPlugins AS $i => &$Plugin) {
             $PluginMan = current($this->getClass('PluginManager')->find(array('name' => $Plugin->getName())));
             if(($Plugin->isActive() && !$Plugin->isInstalled() && !$_REQUEST['plug_name']) || ($_REQUEST['plug_name'] && $_REQUEST['plug_name'] == $Plugin->getName())) {
                 $this->data[] = array(
@@ -100,7 +102,8 @@ class PluginManagementPage extends FOGPage {
         $this->title = _('Installed Plugins');
         $Plugins = new Plugin(array('name' => null));
         // Find data
-        foreach ((array)$Plugins->getPlugins() AS &$Plugin) {
+        $AllPlugins = $Plugins->getPlugins();
+        foreach ((array)$AllPlugins AS $i => &$Plugin) {
             $PluginMan = current($this->getClass('PluginManager')->find(array('name' => $Plugin->getName())));
             if($Plugin->isActive() && $Plugin->isInstalled()) {
                 $this->data[] = array(
@@ -165,7 +168,7 @@ class PluginManagementPage extends FOGPage {
                     array(),
                     array(),
                 );
-                foreach((array)$dmiFields AS &$dmifield) {
+                foreach((array)$dmiFields AS $i => &$dmifield) {
                     $checked = $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_DMI') == $dmifield ? 'selected="selected"' : '';
                     $dmiOpts[] = '<option value="'.$dmifield.'" label="'.$dmifield.'" '.$checked.'>'.$dmifield.'</option>';
                 }
@@ -229,7 +232,7 @@ class PluginManagementPage extends FOGPage {
                     array(),
                     array(),
                 );
-                foreach((array)$Capones AS &$Capone) {
+                foreach((array)$Capones AS $i => &$Capone) {
                     $Image = $this->getClass('Image',$Capone->get('imageID'));
                     $OS = $Image->getOS();
                     $this->data[] = array(

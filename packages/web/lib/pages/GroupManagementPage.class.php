@@ -62,7 +62,8 @@ class GroupManagementPage extends FOGPage {
         // Find data
         if ($_SESSION['DataReturn'] > 0 && $_SESSION['GroupCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER['PHP_SELF'], $this->node));
         // Row data
-        foreach ($this->getClass(GroupManager)->find() AS &$Group) {
+        $Groups = $this->getClass(GroupManager)->find();
+        foreach ($Groups AS $i => &$Group) {
             $this->data[] = array(
                 'id' => $Group->get(id),
                 'name' => $Group->get(name),
@@ -82,7 +83,8 @@ class GroupManagementPage extends FOGPage {
      */
     public function search_post() {
         // Find data -> Push data
-        foreach($this->getClass('GroupManager')->search() AS &$Group) {
+        $Groups = $this->getClass(GroupManager)->search();
+        foreach($Groups AS $i => &$Group) {
             $this->data[] = array(
                 'id' => $Group->get(id),
                 'name' => $Group->get(name),
@@ -271,7 +273,8 @@ class GroupManagementPage extends FOGPage {
             array('width' => 20, 'class' => 'r'),
         );
         // Get all snapins.
-        foreach($this->getClass(SnapinManager)->find() AS &$Snapin) {
+        $Snapins = $this->getClass(SnapinManager)->find();
+        foreach($Snapins AS $i => &$Snapin) {
             $this->data[] = array(
                 'snapin_id' => $Snapin->get(id),
                 'snapin_name' => $Snapin->get(name),
@@ -301,7 +304,8 @@ class GroupManagementPage extends FOGPage {
             array('width' => 20, 'class' => 'r'),
         );
         // Get all snapins.
-        foreach($this->getClass(SnapinManager)->find() AS &$Snapin) {
+        $Snapins = $this->getClass(SnapinManager)->find();
+        foreach($Snapins AS $i => &$Snapin) {
             $this->data[] = array(
                 'snapin_id' => $Snapin->get(id),
                 'snapin_name' => $Snapin->get(name),
@@ -334,7 +338,8 @@ class GroupManagementPage extends FOGPage {
         $ModOns = array_count_values($this->getClass(ModuleAssociationManager)->find(array('hostID' => $this->obj->get(hosts)),'','','','','','','moduleID'));
         $moduleName = $this->getGlobalModuleStatus();
         $HostCount = $this->obj->getHostCount();
-        foreach ($this->getClass(ModuleManager)->find() AS &$Module) {
+        $Modules = $this->getClass(ModuleManager)->find();
+        foreach ($Modules AS $i => &$Module) {
             $this->data[] = array(
                 'input' => '<input type="checkbox" '.($moduleName[$Module->get(shortName)] || ($moduleName[$Module->get(shortName)] && $Module->get(isDefault)) ? 'class="checkboxes"' : '').' name="modules[]" value="${mod_id}" ${checked} '.(!$moduleName[$Module->get(shortName)] ? 'disabled' : '').' />',
                 'span' => '<span class="icon fa fa-question fa-1x hand" title="${mod_desc}"></span>',
@@ -368,7 +373,7 @@ class GroupManagementPage extends FOGPage {
             '${span}',
         );
         $Services = $this->getClass(ServiceManager)->find(array('name' => array('FOG_SERVICE_DISPLAYMANAGER_X','FOG_SERVICE_DISPLAYMANAGER_Y','FOG_SERVICE_DISPLAYMANAGER_R')),'OR','id');
-        foreach($Services AS &$Service) {
+        foreach($Services AS $i => &$Service) {
             $this->data[] = array(
                 'input' => '<input type="text" name="${type}" value="${disp}" />',
                 'span' => '<span class="icon fa fa-question fa-1x hand" title="${desc}"></span>',
@@ -441,7 +446,8 @@ class GroupManagementPage extends FOGPage {
             array('width' => 50, 'class' => 'l'),
             array('width' => 50, 'class' => 'r'),
         );
-        foreach($this->getClass(PrinterManager)->find() AS &$Printer) {
+        $Printers = $this->getClass(PrinterManager)->find();
+        foreach($Printers AS $i => &$Printer) {
             $this->data[] = array(
                 'printer_id' => $Printer->get(id),
                 'printer_name' => addslashes($Printer->get(name)),
@@ -471,7 +477,8 @@ class GroupManagementPage extends FOGPage {
             array('width' => 50, 'class' => 'l'),
             array('width' => 50, 'class' => 'r'),
         );
-        foreach($this->getClass(PrinterManager)->find() AS &$Printer) {
+        $Printers = $this->getClass(PrinterManager)->find();
+        foreach($Printers AS $i => &$Printer) {
             $this->data[] = array(
                 'printer_id' => $Printer->get(id),
                 'printer_name' => addslashes($Printer->get(name)),
@@ -507,7 +514,7 @@ class GroupManagementPage extends FOGPage {
                         ->set(kernel,$_REQUEST[kern])
                         ->set(kernelArgs,$_REQUEST[args])
                         ->set(kernelDevice,$_REQUEST[dev]);
-                    foreach($this->obj->get(hosts) AS &$Host) {
+                    foreach($this->obj->get(hosts) AS $i => &$Host) {
                         $this->getClass(Host,$Host)
                             ->set(kernel,$_REQUEST[kern])
                             ->set(kernelArgs,$_REQUEST[args])
@@ -554,7 +561,7 @@ class GroupManagementPage extends FOGPage {
                 $tme = (is_numeric($_REQUEST[tme]) ? $_REQUEST[tme] : $this->FOGCore->getSetting(FOG_SERVICE_AUTOLOGOFF_MIN));
                 $modOn = $_REQUEST[modules];
                 $modOff = $this->getClass(ModuleManager)->find(array('id' => $modOn),'','','','','',true,'id');
-                foreach($this->obj->get(hosts) AS &$Host) {
+                foreach($this->obj->get(hosts) AS $i => &$Host) {
                     $host = $this->getClass(Host,$Host);
                     if (isset($_REQUEST[updatestatus])) {
                         $host->addModule($modOn)
@@ -608,7 +615,7 @@ class GroupManagementPage extends FOGPage {
             '${host_name}<br/><small>${host_mac}</small>',
             '<small>${host_deployed}</small>',
         );
-        foreach($this->obj->get(hosts) AS &$Host) {
+        foreach($this->obj->get(hosts) AS $i => &$Host) {
             $this->data[] = array(
                 'host_name' => $this-getClass(Host,$Host)->get(name),
                 'host_mac' => $this->getClass(Host,$Host)->get(mac),

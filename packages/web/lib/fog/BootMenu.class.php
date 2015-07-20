@@ -12,10 +12,11 @@ class BootMenu extends FOGBase {
         parent::__construct();
         $this->loglevel = 'loglevel='.$this->FOGCore->getSetting('FOG_KERNEL_LOGLEVEL');
         // Setups of the basic construct for the menu system.
-        $StorageNode = current($this->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'isMaster' => 1)));
+        $StorageNode = current($this->getClass(StorageNodeManager)->find(array(isEnabled=>1,isMaster=>1)));
         // Sets up the default values stored in the server. Lines 51 - 64
         $webserver = $this->FOGCore->getSetting('FOG_WEB_HOST');
-        $webroot = '/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/';
+        $curroot = trim(trim($this->FOGCore->getSetting(FOG_WEB_ROOT),'/'));
+        $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
         $this->web = "${webserver}${webroot}";
         $this->bootexittype = ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'exit' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'sanboot' ? 'sanboot --no-describe --drive 0x80' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'grub' ? 'chain -ar http://'.rtrim($this->web,'/').'/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"' : 'exit')));
         $ramsize = $this->FOGCore->getSetting('FOG_KERNEL_RAMDISK_SIZE');
@@ -222,7 +223,7 @@ class BootMenu extends FOGBase {
      * @return void
      */
     private function printTasking($kernelArgsArray) {
-        foreach($kernelArgsArray AS &$arg) {
+        foreach($kernelArgsArray AS $i => &$arg) {
             if (!is_array($arg) && !empty($arg) || (is_array($arg) && $arg['active'] && !empty($arg))) $kernelArgs[] = (is_array($arg) ? $arg['value'] : $arg);
         }
         unset($arg);
@@ -426,7 +427,7 @@ class BootMenu extends FOGBase {
             $this->parseMe($Send);
             $this->chainBoot();
         } else {
-            foreach($Images AS &$Image) {
+            foreach($Images AS $i => &$Image) {
                 // Only create menu items if the image is valid.
                 if ($Image && $Image->isValid()) {
                     array_push($Send['ImageListing'],"item ".$Image->get('path').' '.$Image->get('name'));
@@ -439,7 +440,7 @@ class BootMenu extends FOGBase {
             array_push($Send['ImageListing'],'item return Return to menu');
             // Insert the choice of menu item.
             array_push($Send['ImageListing'],$defItem);
-            foreach($Images AS& $Image) {
+            foreach($Images AS $i => &$Image) {
                 if ($Image && $Image->isValid()) {
                     $Send['pathofimage'.$Image->get('name')] = array(
                         ':'.$Image->get('path'),
@@ -851,7 +852,7 @@ class BootMenu extends FOGBase {
             $ArrayOfStuff = array(($this->Host && $this->Host->isValid() ? ($this->Host->get('pending') ? 6 : 1) : 0),2);
             if ($showDebug) array_push($ArrayOfStuff,3);
             if ($Advanced) array_push($ArrayOfStuff,($AdvLogin ? 5 : 4));
-            foreach($Menus AS &$Menu) {
+            foreach($Menus AS $i => &$Menu) {
                 if (!in_array($Menu->get('name'),array('fog.reg','fog.reginput')) || (in_array($Menu->get('name'),array('fog.reg','fog.reginput')) && $this->FOGCore->getSetting('FOG_REGISTRATION_ENABLED'))) {
                     if (in_array($Menu->get('regMenu'),$ArrayOfStuff)) $Send['item-'.$Menu->get('name')] = $this->menuItem($Menu, $desc);
                 }
@@ -860,7 +861,7 @@ class BootMenu extends FOGBase {
             $Send['default'] = array(
                 "$this->defaultChoice",
             );
-            foreach($Menus AS &$Menu) {
+            foreach($Menus AS $i => &$Menu) {
                 if (in_array($Menu->get('regMenu'),$ArrayOfStuff)) $Send['choice-'.$Menu->get('name')] = $Menu->get('args') ? $this->menuOpt($Menu,$Menu->get('args')) : $this->menuOpt($Menu,true);
             }
             unset($Menu);

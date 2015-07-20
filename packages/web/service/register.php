@@ -17,12 +17,11 @@ try {
             $Host = $FOGCore->getClass(Host)
                 ->set(name, $_REQUEST[hostname])
                 ->set(description,'Pending Registration created by FOG_CLIENT')
-                ->set(pending,1);
-            if (!$Host->save()) throw new Exception("#!ih\n");
-            $Host->addModule($ModuleIDs)
+                ->set(pending,1)
+                ->addModule($ModuleIDs)
                 ->addPriMAC($PriMAC)
-                ->addAddMAC($MACs)
-                ->save();
+                ->addAddMAC($MACs);
+            if (!$Host->save()) throw new Exception("#!ih\n");
             throw new Exception("#!ok\n");
         }
     }

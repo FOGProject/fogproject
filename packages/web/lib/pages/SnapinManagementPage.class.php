@@ -52,16 +52,16 @@ class SnapinManagementPage extends FOGPage {
         // Row data
         foreach ($Snapins AS $i => &$Snapin) {
             $this->data[] = array(
-                'id'		=> $Snapin->get(id),
-                'name'		=> $Snapin->get(name),
-                'storage_group' => $Snapin->getStorageGroup()->get(name),
-                'description'	=> $Snapin->get(description),
-                'file'		=> $Snapin->get('file')
+                id=>$Snapin->get(id),
+                name=>$Snapin->get(name),
+                storage_group=>$Snapin->getStorageGroup()->get(name),
+                description=>$Snapin->get(description),
+                file=>$Snapin->get(file)
             );
         }
         unset($Snapin);
         // Hook
-        $this->HookManager->processEvent('SNAPIN_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        $this->HookManager->processEvent(SNAPIN_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
     }
@@ -70,16 +70,16 @@ class SnapinManagementPage extends FOGPage {
         $Snapins = $this->getClass(SnapinManager)->search();
         foreach ($Snapins AS $i => &$Snapin) {
             $this->data[] = array(
-                'id'		=> $Snapin->get(id),
-                'name'		=> $Snapin->get(name),
-                'storage_group' => $Snapin->getStorageGroup()->get(name),
-                'description'	=> $Snapin->get(description),
-                'file'		=> $Snapin->get('file')
+                id=>$Snapin->get(id),
+                name=>$Snapin->get(name),
+                storage_group=>$Snapin->getStorageGroup()->get(name),
+                description=>$Snapin->get(description),
+                file=>$Snapin->get(file)
             );
         }
         unset($Snapin);
         // Hook
-        $this->HookManager->processEvent('SNAPIN_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        $this->HookManager->processEvent(SNAPIN_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
     }

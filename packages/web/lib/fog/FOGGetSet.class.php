@@ -2,7 +2,10 @@
 class FOGGetSet extends FOGBase {
     protected $data = array();
     // Constructor
-    public function __construct($data = array()) {foreach((array)$data AS $key => $value) $this->set($key,$value);}
+    public function __construct($data = array()) {
+        foreach((array)$data AS $key => &$value) $this->set($key,$value);
+        unset($value);
+    }
     public function set($key, $value) {
         try {
             if (!array_key_exists($key, $this->data)) throw new Exception('Invalid key being set');
@@ -13,5 +16,7 @@ class FOGGetSet extends FOGBase {
         return $this;
     }
     // Get
-    public function get($key = '') {return (!empty($key) && isset($this->data[$key]) ? $this->data[$key] : (empty($key) ? $this->data : ''));}
+    public function get($key = '') {
+        return (!empty($key) && isset($this->data[$key]) ? $this->data[$key] : (empty($key) ? $this->data : ''));
+    }
 }
