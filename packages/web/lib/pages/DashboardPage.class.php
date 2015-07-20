@@ -41,10 +41,11 @@ class DashboardPage extends FOGPage {
         $this->HookManager->processEvent('DashboardData', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
         print '</li><li><h4>'._('System Activity').'</h4><div class="graph pie-graph" id="graph-activity"></div></li><li><h4>'._('Disk Information').'</h4><div id="diskusage-selector">';
-        $webroot = '/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/';
         $Nodes = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1,isGraphEnabled=>1));
         foreach ($Nodes AS $i => &$StorageNode) {
-            $version = $this->FOGURLRequests->process($StorageNode->get('ip').$webroot.'/service/getversion.php','GET');
+            $curroot = trim(trim($StorageNode->get(webroot),'/'));
+            $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
+            $version = $this->FOGURLRequests->process($StorageNode->get(ip).$webroot.'/service/getversion.php','GET');
             $options .= '<option value="'.$StorageNode->get('id').'">'.$StorageNode->get('name').($StorageNode->get('isMaster') == '1' ? " * " : ' ')."(${version[0]})".'</option>';
         }
         unset($StorageNode);

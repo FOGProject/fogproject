@@ -12,10 +12,11 @@ class BootMenu extends FOGBase {
         parent::__construct();
         $this->loglevel = 'loglevel='.$this->FOGCore->getSetting('FOG_KERNEL_LOGLEVEL');
         // Setups of the basic construct for the menu system.
-        $StorageNode = current($this->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'isMaster' => 1)));
+        $StorageNode = current($this->getClass(StorageNodeManager)->find(array(isEnabled=>1,isMaster=>1)));
         // Sets up the default values stored in the server. Lines 51 - 64
         $webserver = $this->FOGCore->getSetting('FOG_WEB_HOST');
-        $webroot = '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/').'/';
+        $curroot = trim(trim($this->FOGCore->getSetting(FOG_WEB_ROOT),'/'));
+        $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
         $this->web = "${webserver}${webroot}";
         $this->bootexittype = ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'exit' ? 'exit' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'sanboot' ? 'sanboot --no-describe --drive 0x80' : ($this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE') == 'grub' ? 'chain -ar http://'.rtrim($this->web,'/').'/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"' : 'exit')));
         $ramsize = $this->FOGCore->getSetting('FOG_KERNEL_RAMDISK_SIZE');

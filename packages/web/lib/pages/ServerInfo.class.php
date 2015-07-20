@@ -33,7 +33,8 @@ class ServerInfo extends FOGPage {
                 '${input}',
             );
             if ($StorageNode) {
-                $webroot = $this->FOGCore->getSetting('FOG_WEB_ROOT') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/').'/' : '/';
+                $curroot = trim(trim($StorageNode->get(webroot),'/'));
+                $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
                 $URL = sprintf('http://%s%sstatus/hw.php',$StorageNode->get(ip),$webroot);
                 if ($ret = $this->FOGURLRequests->process($URL)) {
                     $arRet = explode("\n",$ret[0]);

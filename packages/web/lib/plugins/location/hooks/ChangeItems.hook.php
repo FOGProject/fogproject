@@ -33,11 +33,12 @@ class ChangeItems extends Hook {
     }
     public function BootItemSettings($arguments) {
         if (in_array($this->node,$_SESSION[PluginsInstalled])) {
-            $LocAssocs = $this->getClass(LocationAssociationManager)->find(array('hostID' => $arguments[Host]->get(id)));
+            $LocAssocs = $this->getClass(LocationAssociationManager)->find(array(hostID=>$arguments[Host]->get(id)));
             foreach ($LocAssocs AS $i => &$LA) {
                 if ($arguments[Host] && $arguments[Host]->isValid() && $LA->isTFTP()) {
                     $ip = $LA->getStorageNode()->get(ip);
-                    $webroot = $arguments[webroot];
+                    $curroot = trim(trim($LA->getStorageNode()->get(webroot),'/'));
+                    $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
                     $memtest = $arguments[memtest];
                     $memdisk = $arguments[memdisk];
                     $bzImage = $arguments[bzImage];

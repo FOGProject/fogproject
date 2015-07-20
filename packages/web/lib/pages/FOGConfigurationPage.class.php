@@ -34,9 +34,10 @@ class FOGConfigurationPage extends FOGPage {
             print '<p>'._('Version: ').FOG_VERSION.'</p>';
             $URLs[] = 'http://fogproject.org/version/index.php?version='.FOG_VERSION;
             $Names[] = '';
-            $webroot = trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/') .'/': '/';
             $Nodes = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1));
             foreach($Nodes AS $i => &$StorageNode) {
+                $curroot = trim(trim($StorageNode->get(webroot),'/'));
+                $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
                 $Names[] = $StorageNode->get(name);
                 $URLs[] = "http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php";
             }
