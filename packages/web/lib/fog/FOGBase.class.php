@@ -511,7 +511,7 @@ abstract class FOGBase {
      * @return host item
      */
     public function getHostItem($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false,$override = false) {
-        $mac = isset($_REQUEST[mac]) ? $_REQUEST[mac] : $_REQUEST[wakeonlan];
+        $mac = isset($_REQUEST[mac]);
         if ($encoded === true) $mac = base64_decode($mac);
         $mac = trim($mac);
         $MACs = $this->parseMacList($mac,!$service,$service);

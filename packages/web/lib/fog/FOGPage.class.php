@@ -960,4 +960,10 @@ abstract class FOGPage extends FOGBase {
             $this->FOGCore->redirect($this->formAction);
         }
     }
+    /** wakeEmUp()
+     * @return void
+     */
+    public function wakeEmUp() {
+        $this->getClass(WakeOnLan,$_REQUEST[mac])->send();
+    }
 }

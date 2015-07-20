@@ -213,7 +213,7 @@ class FOGCore extends FOGBase {
         foreach ($IPs AS $i => &$IP) {
             $IP = trim($IP);
             if (($bIp = ip2long($IP)) !== false) $output[] = $IP;
-           // $output[] = gethostbyaddr($IP);
+            $output[] = gethostbyaddr($IP);
         }
         unset($IP);
         return array_values(array_unique((array)$output));

@@ -9,9 +9,10 @@ class WakeOnLan extends FOGBase {
     public function __construct($mac) {
         parent::__construct();
         $this->arrMAC = array();
+        if (!is_array($mac) && strpos('|',$mac)) $mac = explode('|',$mac);
         foreach ((array)$mac AS $i => &$MAC) {
             $mac = $this->getClass(MACAddress,$MAC);
-            $this->arrMAC[] = strtolower($mac);
+            $this->arrMAC[] = strtolower($MAC);
         }
         unset($MAC);
     }

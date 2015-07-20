@@ -628,7 +628,12 @@ class Host extends FOGController {
         unset($MACs);
     }
     public function wakeOnLAN() {
-        $this->getClass(WakeOnLan,$this->getMyMacs())->send();
+        $URLs = array();
+        $mac = $this->getMyMacs();
+        $Nodes = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1));
+        $webroot = '/'.trim($this->FOGCore->getSetting(FOG_WEB_ROOT),'/').'/';
+        foreach ($Nodes AS $i => &$Node) $URLs[] = sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',$Node->get(ip),$webroot,implode('|',$mac));
+        $this->FOGURLRequests->process($URLs,'GET');
         return $this;
     }
     public function addPrinter($addArray) {
