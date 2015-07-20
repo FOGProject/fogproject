@@ -189,22 +189,34 @@ class FOGCore extends FOGBase {
         if (!$hdl = fopen($path,'a')) $this->out("\n * Error: Unable to open file: $path\n");
         if (fwrite($hdl,sprintf('[%s] %s',$this->getDateTime(),$string)) === FALSE) $this->out("\n * Error: Unable to write to file: $path\n");
     }
+    /** getBroadcast()
+     * Gets the interfaces broadcast ip
+     */
+    public function getBroadcast() {
+        $output = array();
+        exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $6}'|grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'", $IPs, $retVal);
+        if (!count($IPs)) exec("/sbin/ifconfig -a | awk '/(cast)/ {print $3}' | cut -d':' -f2' | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'", $IPs,$retVal);
+        foreach ($IPs AS $i => &$IP) {
+            $IP = trim($IP);
+            $output[] = $IP;
+        }
+        unset($IP);
+        return array_values(array_unique((array)$output));
+    }
     /** getIPAddress()
         Gets the service server's IP address.
      */
     public function getIPAddress() {
         $output = array();
-        exec("/sbin/ip addr | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'| cut -d/ -f1 | awk '{print $2}'", $IPs, $retVal);
+        exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'|grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'", $IPs, $retVal);
+        if (!count($IPs)) exec("/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d':' -f2' | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'", $IPs,$retVal);
         foreach ($IPs AS $i => &$IP) {
             $IP = trim($IP);
-            if ($IP != "127.0.0.1") {
-                if (($bIp = ip2long($IP)) !== false) $output[] = $IP;
-                $output[] = gethostbyaddr($IP);
-            }
+            if (($bIp = ip2long($IP)) !== false) $output[] = $IP;
+           // $output[] = gethostbyaddr($IP);
         }
         unset($IP);
-        $output = array_values(array_unique((array)$output));
-        return $output;
+        return array_values(array_unique((array)$output));
     }
     /** getBanner()
         Prints the FOG banner

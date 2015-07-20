@@ -25,13 +25,12 @@ class WakeOnLan extends FOGBase {
             $macBin = pack('H12',$macHex);
             $magicPacket = str_repeat(chr(0xff),6).str_repeat($macBin,16);
             // Always send to the main broadcast.
-            $BroadCast = array();
-            $BroadCast[] = '255.255.255.255';
+            $BroadCast[] = $this->FOGCore->getBroadcast();
             $this->HookManager->processEvent(BROADCAST_ADDR,array(broadcast=>&$BroadCast));
             foreach((array)$BroadCast AS $i => &$SendTo) {
-                if (!$sock = fsockopen('udp://'.$SendTo,9,$errNo,$errStr,2)) throw new Exception(_('Cannot open UDP Socket: '.$errStr),$errNo);
-                fputs($sock,$magicPacket);
-                fclose($sock);
+                if (!($sock = socket_create(AF_INET,SOCK_DGRAM,SOL_UDP))) throw new Exception(_('Socket error'));
+                $options = socket_set_option($sock,SOL_SOCKET,SO_BROADCAST,true);
+                if ($options >= 0 && socket_sendto($sock,$magicPacket,strlen($magicPacket),0,$SendTo,9)) socket_close($sock);
             }
             unset($SendTo);
         }
