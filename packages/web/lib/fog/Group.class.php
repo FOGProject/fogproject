@@ -133,8 +133,9 @@ class Group extends FOGController {
         return parent::destroy($field);
     }
     public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false) {
+
         $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
-        foreach ($Hosts AS $i => &$Host) if (!$Host->get(pending)) $success[] = $Host->createImagePackage($taskTypeID,$taskName,$enableShutdown,$enableDebug,$enableSnapins,$groupTask,$_SESSION[FOG_USERNAME],$passreset);
+        foreach ($Hosts AS $i => &$Host) if (!$Host->get(pending)) $success[] = $Host->createImagePackage($taskTypeID,$taskName,$shutdown,$debug,$deploySnapins,$isGroupTask,$_SESSION[FOG_USERNAME],$passreset,$sessionjoin);
         return $success;
     }
 }
