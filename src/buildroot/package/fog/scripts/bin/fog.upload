@@ -138,7 +138,7 @@ if [ -f "/images/.mntcheck" ]; then
 				dots "Saving original partition table";
 				saveOriginalPartitions "${hd}" "${imagePath}" "1";
 				echo -n "" > "${imagePath}/d1.original.fstypes";
-				echo -n "" > "${imagePath}/d1.original.swapuuids";
+				echo -n "" > `swapUUIDFileName "${imagePath}" "1"`;
 				echo "Done";
 				debugPause
 				savePartitionTablesAndBootLoaders "${hd}" "1" "${imagePath}" "${osid}" "${imgPartitionType}";
@@ -180,25 +180,7 @@ if [ -f "/images/.mntcheck" ]; then
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				diskLength=`expr length $hd`;
 				for part in $parts; do
-					mkfifo /tmp/pigz1;
-					partNum=${part:$diskLength};
-					echo " * Processing Partition: $part ($partNum)";
-					fstype=`fsTypeSetting $part`;
-					if [ "$fstype" != "swap" ]; then
-						echo " * Using partclone.${fstype}";
-						usleep 5000000
-						imgpart="$imagePath/d1p${partNum}.img";
-						uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
-						partclone.$fstype -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
-						mv $imgpart.000 $imgpart 2>/dev/null;
-						clear;
-						echo " * Image uploaded";
-					else
-						echo " * Not uploading swap partition";
-						saveSwapUUID "${imagePath}/d1.original.swapuuids" "$part";
-					fi
-					rm /tmp/pigz1;
-					debugPause;
+					savePartition "$part" "1" "$imagePath" "$diskLength" "$cores" "$imgPartitionType";
 				done
 
 				dots "Restoring MBR";
@@ -224,12 +206,12 @@ if [ -f "/images/.mntcheck" ]; then
 			fi
 		elif [ "$imgType" == "mps" ]; then
 			if [ -d "$imagePath" ]; then
-				savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType"
+				savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
 				debugPause
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				diskLength=`expr length $hd`;
 				for part in $parts; do
-					savePartition "$part" "1" "$imagePath" "$diskLength" "$cores" "$imgPartitionType"
+					savePartition "$part" "1" "$imagePath" "$diskLength" "$cores" "$imgPartitionType";
 					debugPause;
 				done
 				echo " * Task complete!";
@@ -276,7 +258,7 @@ if [ -f "/images/.mntcheck" ]; then
 		while [ "$queueinfo" != "##" ]; do
 			echo "		* $queueinfo";
 			queueinfo=`wget -q -O - "$post" 2>/dev/null`;
-			usleep 5000000
+			usleep 5000000;
 		done
 	else
 		handleError "Fatal Error: Invalid image name.";
