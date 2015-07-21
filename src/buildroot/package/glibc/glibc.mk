@@ -51,6 +51,8 @@ ifeq ($(BR2_ENABLE_DEBUG),y)
 GLIBC_EXTRA_CFLAGS += -g
 endif
 
+$(if $(BR2_i386),GLIBC_EXTRA_CFLAGS += -march=$(BR2_ARCH) -fomit-frame-pointer,)
+
 # The stubs.h header is not installed by install-headers, but is
 # needed for the gcc build. An empty stubs.h will work, as explained
 # in http://gcc.gnu.org/ml/gcc/2002-01/msg00900.html. The same trick
@@ -75,9 +77,7 @@ endif
 # built with -O2, so we pass our own CFLAGS and CXXFLAGS below.
 define GLIBC_CONFIGURE_CMDS
 	mkdir -p $(@D)/build
-	sed -e '/ia32/s/^/1:/' \
-	-e '/SSE2/s/^1://' \
-	-i $(@D)/sysdeps/i386/i686/multiarch/mempcpy_chk.S
+	$(if $(BR2_i386),sed -e '/ia32/s/^/1:/' -e '/SSE2/s/^1://' -i $(@D)/sysdeps/i386/i686/multiarch/mempcpy_chk.S,)
 	# Do the configuration
 	(cd $(@D)/build; \
 		$(TARGET_CONFIGURE_OPTS) \
