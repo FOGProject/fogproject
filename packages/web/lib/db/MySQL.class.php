@@ -91,9 +91,9 @@ class MySQL extends DatabaseManager {
             if ($this->queryResult === false || $this->queryResult === true) $this->result = $this->queryResult;
             else if (!$this->queryResult) throw new Exception('No query result present. Use query() first');
             else if ($fetchType == 'fetch_all') {
-                if (method_exists('mysqli_result','fetch_all')) $this->result = $this->queryResult->fetch_all($type);
-                else for($this->result = array();$tmp = $this->queryResult->fetch_array($type);) $this->result[] = $tmp;
-            } else $this->result = $this->queryResult->fetch_assoc();
+                if (method_exists('mysqli_result','fetch_all')) $this->result = (is_object($this->queryResult) ? $this->queryResult->fetch_all($type) : $this->link);
+                else for($this->result = array();$tmp = (is_object($this->queryResult) ? $this->queryResult->fetch_array($type) : $this->link);) $this->result[] = $tmp;
+            } else $this->result = (is_object($this->queryResult) ? $this->queryResult->fetch_assoc() : $this->link);
         } catch (Exception $e) {
             $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
         }
