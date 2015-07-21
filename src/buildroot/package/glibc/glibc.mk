@@ -78,7 +78,6 @@ define GLIBC_CONFIGURE_CMDS
 	sed -e '/ia32/s/^/1:/' \
 	-e '/SSE2/s/^1://' \
 	-i $(@D)/sysdeps/i386/i686/multiarch/mempcpy_chk.S
-	sed -i '/glibc.*pad/{i\  buflen = buflen > pad ? buflen - pad : 0;s/ + pad//}' $(@D)/resolv/nss_dns/dns-host.c
 	# Do the configuration
 	(cd $(@D)/build; \
 		$(TARGET_CONFIGURE_OPTS) \
