@@ -423,7 +423,7 @@ abstract class FOGBase {
         $Ignore = array_filter(array_map('trim',explode(',',$this->getClass(FOGCore)->getSetting(FOG_QUICKREG_PENDING_MAC_FILTER))));
         if (count($Ignore)) {
             foreach($Ignore AS $i => &$ignore) {
-                $matches = preg_grep("#$ignore#i",$MAClist);
+                $matches = preg_grep("#$ignore#i",(array)$MAClist);
                 if (count($matches)) {
                     $NewMatches = array_merge((array)$NewMatches,$matches);
                     unset($matches);
