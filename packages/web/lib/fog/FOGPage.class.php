@@ -439,8 +439,7 @@ abstract class FOGPage extends FOGBase {
         $this->additional = array();
         $ids = explode(',',$_REQUEST[strtolower($this->childClass).'IDArray']);
         $findWhere = array(id=>$ids);
-        if (array_key_exists('protected',$this->getClass($this->childClass)->databaseFields))
-            $findWhere['protected'] = array('',null,0,false);
+        if (array_key_exists('protected',$this->getClass($this->childClass)->databaseFields)) $findWhere['protected'] = array('',null,0,false);
         $_SESSION[delitems][$this->node] = $this->getClass($this->childClass)->getManager()->find($findWhere,'','','','','','','id');
         $Objects = $this->getClass($this->childClass)->getManager()->find(array(id=>$_SESSION[delitems][$this->node]));
         foreach ($Objects AS $i => &$Obj) {
@@ -468,14 +467,7 @@ abstract class FOGPage extends FOGBase {
      * @return void
      */
     public function deleteconf() {
-        foreach((array)$_SESSION[delitems][$this->node] AS $i => &$id) {
-            $Obj = $this->getClass($this->childClass,$id);
-            if ($Obj->isValid() && array_key_exists('protected',$Obj->databaseFields) && !$Obj->get('protected')) $ids[] = $id;
-        }
-        unset($id);
-        $ids = array_filter((array)array_unique((array)$ids));
-        if (count($ids)) $this->getClass($this->childClass)->getManager()->destroy(array('id' => $ids));
-        else $this->getClass($this->childClass)->getManager()->destroy(array('id' => $_SESSION[delitems][$this->node]));
+        $this->getClass($this->childClass)->getManager()->destroy(array(id=>$_SESSION[delitems][$this->node]));
         unset($_SESSION[delitems]);
         $this->FOGCore->setMessage('All selected items have been deleted');
         $this->FOGCore->redirect('?node='.$this->node);

@@ -1205,28 +1205,33 @@ restorePartition() {
     local partNum="";
     local imgpart="";
     partNum=${part:$diskLength};
+
     echo " * Processing Partition: $part ($partNum)";
     if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
-        if [ -f "$imagePath" ]; then
-            imgpart="$imagePath";
-        elif [ "$win7partcnt" == "1" -a -f "$imagePath/sys.img.000" ]; then
-            imgpart="$imagePath/sys.img.*";
-        elif [ "$win7partcnt" == "2" -a -f "$imagePath/sys.img.000" -a -f "$imagePath/rec.img.000" ]; then
-            if [ "$partNum" == "1" ]; then
-                imgpart="$imagePath/rec.img.000";
-            elif [ "$partNum" == "2" ]; then
-                imgpart="$imagePath/sys.img.*";
-            fi
-        elif [ "$win7partcnt" == "3" ]; then
-            if [ "$partNum" == "1" ]; then
-                imgpart="$imagePath/rec.img.000";
-            elif [ "$partNum" == "2" ]; then
-                imgpart="$imagePath/rec.img.001";
-            elif [ "$partNum" == "3" ]; then
-                imgpart="$imagePath/sys.img.*";
-            fi
+        if [ "$imgType" == "dd" ]; then
+            imgpart="$imagePath/$img";
         else
-            imgpart="${imagePath}/d${intDisk}p${partNum}.img*";
+            if [ -f "$imagePath" ]; then
+                imgpart="$imagePath";
+            elif [ "$win7partcnt" == "1" -a -f "$imagePath/sys.img.000" ]; then
+                imgpart="$imagePath/sys.img.*";
+            elif [ "$win7partcnt" == "2" -a -f "$imagePath/sys.img.000" -a -f "$imagePath/rec.img.000" ]; then
+                if [ "$partNum" == "1" ]; then
+                    imgpart="$imagePath/rec.img.000";
+                elif [ "$partNum" == "2" ]; then
+                    imgpart="$imagePath/sys.img.*";
+                fi
+            elif [ "$win7partcnt" == "3" ]; then
+                if [ "$partNum" == "1" ]; then
+                    imgpart="$imagePath/rec.img.000";
+                elif [ "$partNum" == "2" ]; then
+                    imgpart="$imagePath/rec.img.001";
+                elif [ "$partNum" == "3" ]; then
+                    imgpart="$imagePath/sys.img.*";
+                fi
+            else
+                imgpart="${imagePath}/d${intDisk}p${partNum}.img*";
+            fi
         fi
         usleep 2000000;
         if [ ! -f $imgpart ]; then
