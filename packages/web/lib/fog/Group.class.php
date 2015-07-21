@@ -101,7 +101,12 @@ class Group extends FOGController {
     }
     public function addPrinter($printAdd,$printDel,$level = 0) {
         $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
-        foreach($Hosts AS $i => &$Host) $Host->set(printerLevel,$level)->addPrinter($printAdd)->removePrinter($printDel)->save();
+        foreach($Hosts AS $i => &$Host) {
+            $Host->set(printerLevel,$level);
+            if ($printAdd) $Host->addPrinter($printAdd);
+            if ($printDel) $Host->removePrinter($printDel);
+            $Host->save();
+        }
         unset($Host);
         return $this;
     }
