@@ -123,7 +123,7 @@ class UserManagementPage extends FOGPage {
         try {
             // Error checking
             if ($this->getClass(UserManager)->exists($_REQUEST[name])) throw new Exception(_('Username already exists'));
-            if (!$UserManager->isPasswordValid($_REQUEST[password],$_REQUEST[password_confirm])) throw new Exception(_('Password is invalid'));
+            if (!$this->getClass(UserManager)->isPasswordValid($_REQUEST[password],$_REQUEST[password_confirm])) throw new Exception(_('Password is invalid'));
             // Create new Object
             $User = $this->getClass(User);
             $User->set(name,$_REQUEST[name])
