@@ -2008,3 +2008,10 @@ $this->schema[] = array(
     "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_HOST'",
     "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_INTERFACE'",
 );
+// 190
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`hosts` MODIFY `hostADPassLegacy` LONGTEXT NOT NULL",
+    "ALTER TABLE `".DATABASE_NAME."`.`hosts` MODIFY `hostPending` LONGTEXT NOT NULL",
+    "ALTER TABLE `".DATABASE_NAME."`.`hosts` MODIFY `hostPubKey` LONGTEXT NOT NULL",
+    "ALTER TABLE `".DATABASE_NAME."`.`hosts` MODIFY `hostSecToken` LONGTEXT NOT NULL",
+);
