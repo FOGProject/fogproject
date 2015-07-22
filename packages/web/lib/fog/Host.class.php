@@ -255,7 +255,7 @@ class Host extends FOGController {
         if (in_array($this->key($key),array('pendingMACs','additionalMACs')) && !($value instanceof MACAddress)) {
             if ($this->key($key) == 'additionalMACs') $this->loadAdditional();
             else $this->loadPending();
-            $value = $this->getClass(MACAddress,$this->getClass(MACAddressAssociation,$value));
+            if (!$value instanceof MACAddress) $value = $this->getClass(MACAddress,$value);
         } else if ($this->key($key) == 'printers') $this->loadPrinters();
         else if ($this->key($key) == 'snapins') $this->loadSnapins();
         else if ($this->key($key) == 'modules') $this->loadModules();

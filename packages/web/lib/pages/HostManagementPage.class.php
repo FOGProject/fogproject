@@ -975,13 +975,15 @@ class HostManagementPage extends FOGPage {
         $SnapinTasks = $this->getClass(SnapinTaskManager)->find(array('jobID' => $SnapinJobIDs));
         foreach($SnapinTasks AS $i => &$SnapinTask) {
             $Snapin = $SnapinTask->getSnapin();
-            $this->data[] = array(
-                'snapin_name' => $Snapin->isValid() ? $Snapin->get('name') : _('Snapin No longer exists'),
-                'snapin_start' => $this->formatTime($SnapinTask->get('checkin')),
-                'snapin_end' => $this->formatTime($SnapinTask->get('complete')),
-                'snapin_duration' => $this->diff($SnapinTask->get('checkin'),$SnapinTask->get('complete')),
-                'snapin_return' => $SnapinTask->get('return'),
-            );
+            if ($Snapin->isValid()) {
+                $this->data[] = array(
+                    snapin_name=>$Snapin->get(name),
+                    snapin_start=>$this->formatTime($SnapinTask->get(checkin)),
+                    snapin_end => $this->formatTime($SnapinTask->get(complete)),
+                    snapin_duration => $this->diff($SnapinTask->get(checkin),$SnapinTask->get('complete')),
+                    snapin_return=>$SnapinTask->get('return'),
+                );
+            }
         }
         unset($SnapinTask);
         // Hook
