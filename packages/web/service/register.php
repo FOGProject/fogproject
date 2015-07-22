@@ -7,6 +7,8 @@ try {
     // Get the actual host (if it is registered)
     $MACs = $FOGCore->getHostItem(true,false,false,true);
     $Host = $FOGCore->getHostItem(true,false,true,false,true);
+    $Hosts = $this->getClass(HostManager)->find(array(name=>$_REQUEST[hostname]));
+    if (!($Host instanceof Host && $Host->isValid())) $Host = @array_shift($Hosts);
     if (!($Host instanceof Host && $Host->isValid() && !$Host->get(pending)) && $_REQUEST[newService]) {
         if (!$FOGCore->getClass(Host)->isHostnameSafe($_REQUEST[hostname])) throw new Exception('#!ih');
         foreach ($FOGCore->getClass(HostManager)->find(array(name=>$_REQUEST[hostname])) AS $i => &$Host) if ($Host->isValid()) break;
