@@ -13,7 +13,7 @@ fi
 echo "auto lo" > /etc/network/interfaces
 echo "iface lo inet loopback" >> /etc/network/interfaces
 ifaces=`ls -1 /sys/class/net | tr -d '@'`
-$timeout = 10
+timeout=10
 for iface in $ifaces; do
     # Check if each interface is up and if not wait up to 10 seconds
     if [ "x$iface" == "xlo" ]; then
