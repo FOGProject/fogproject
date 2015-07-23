@@ -200,6 +200,11 @@ class PrinterManagementPage extends FOGPage {
                 $_REQUEST[model] = trim($_REQUEST[model]);
                 $_REQUEST[ip] = trim($_REQUEST[ip]);
                 $_REQUEST[description] = trim($_REQUEST[description]);
+                // Set the printer type
+                if (isset($_REQUEST[local])) $printertype = "Local";
+                else if (isset($_REQUEST[network])) $printertype = "Network";
+                else if (isset($_REQUEST[iprint])) $printertype = "iPrint";
+                else if (isset($_REQUEST[cups])) $printertype = "Cups";
                 // Error checking
                 if (isset($_REQUEST[local]) && (empty($_REQUEST[alias]) || empty($_REQUEST[port]) || empty($_REQUEST[inf]) || empty($_REQUEST[model]))) throw new Exception(_('You must specify the alias, port, model, and inf. Unable to create!'));
                 else if (isset($_REQUEST[iprint]) && (empty($_REQUEST[alias]) || empty($_REQUEST[port]))) throw new Exception(_('You must specify the alias and port. Unable to create!'));
@@ -210,7 +215,7 @@ class PrinterManagementPage extends FOGPage {
                 $Printer = $this->getClass(Printer)
                     ->set(description,$_REQUEST[description])
                     ->set(name,$this->DB->sanitize($_REQUEST[alias]))
-                    ->set(config,$_REQUEST[printertype])
+                    ->set(config,$printertype)
                     ->set(model,$_REQUEST[model])
                     ->set('file',$_REQUEST[inf])
                     ->set(port,$_REQUEST[port])
