@@ -48,7 +48,7 @@ class MACAddress extends FOGBase {
      * @return true or false
      */
     public function isValid() {
-		return preg_match('/([a-fA-F0-9]{2}[:|\-]?){6}/', $this->MAC);
+        return preg_match('#^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$#i',$this->MAC);
     }
     public function isPending() {
         if ($this->tmpMAC instanceof MACAddressAssociation && $this->tmpMAC->isValid()) return $this->tmpMAC->get('pending');
