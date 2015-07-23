@@ -25,9 +25,8 @@ class MACAddress extends FOGBase {
                 $MAC = implode(':', $newMAC);
             } else if (strlen($this->tmpMAC) == 17) $MAC = str_replace('-', ':', $this->tmpMAC);
             else $MAC = $this->tmpMAC;
-            $MACTest = str_replace(':','',str_replace('-','',$MAC));
-            if (!ctype_xdigit($MACTest)) throw new Exception($this->foglang[InvalidMAC]);
             $this->MAC = $MAC;
+			if (!$this->isValid()) throw new Exception("#!im\n");
         } catch (Exception $e) {
             if ($this->debug) $this->FOGCore->debug($e->getMessage().' MAC: %s',$MAC);
         }
@@ -49,7 +48,7 @@ class MACAddress extends FOGBase {
      * @return true or false
      */
     public function isValid() {
-        return ctype_xdigit(str_replace(':','',str_replace('-','',$this->MAC)));
+		return preg_match('/([a-fA-F0-9]{2}[:|\-]?){6}/', $this->MAC);
     }
     public function isPending() {
         if ($this->tmpMAC instanceof MACAddressAssociation && $this->tmpMAC->isValid()) return $this->tmpMAC->get('pending');

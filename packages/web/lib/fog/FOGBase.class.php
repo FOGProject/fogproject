@@ -411,7 +411,8 @@ abstract class FOGBase {
     public function parseMacList($stringlist,$image = false,$client = false) {
         $MACs = $this->getClass(MACAddressAssociationManager)->find(array(mac=>explode('|',$stringlist)));
         foreach((array)$MACs AS $i => &$MAC) {
-            if (($image && !$MAC->get(imageIgnore)) || ($client && !$MAC->get(clientIgnore)) || (!$image && !$client)) $MAClist[] = strtolower($this->getClass(MACAddress,$MAC)->__toString());
+            $MAC = $this->getClass(MACAddress,$MAC);
+            if ($MAC->isValid() && (($image && !$MAC->get(imageIgnore)) || ($client && !$MAC->get(clientIgnore)) || (!$image && !$client))) $MAClist[] = strtolower($this->getClass(MACAddress,$MAC)->__toString());
         }
         unset($MAC);
         $MACs = explode('|',$stringlist);
