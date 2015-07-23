@@ -183,18 +183,18 @@ abstract class FOGController extends FOGBase {
             foreach ($this->databaseFields AS $name => &$fieldName) {
                 if ($this->get($name) != '') {
                     $insertKeys[] = (preg_match('#default#i',$fieldName) ? '`'.$fieldName.'`' : $fieldName);
-                    $insertValues[] = $this->DB->sanitize($this->get($name));
+                    $insertValues[] = $this->get($name);
                 }
             }
             unset($fieldName);
             // Build update field array using filtered data
             foreach ($fieldsToUpdate AS $name => &$fieldName) {
                 $fieldName = (preg_match('#default#i',$fieldName) ? '`'.$fieldName.'`' : $fieldName);
-                $updateData[] = sprintf("%s = '%s'", $fieldName, $this->DB->sanitize($this->get($name)));
+                $updateData[] = sprintf("%s = '%s'", $fieldName, $this->get($name));
             }
             unset($fieldName);
             // Force ID to update so ID is returned on DUPLICATE UPDATE - No ID was returning when A) Nothing is inserted (already exists) or B) Nothing is updated (data has not changed)
-            $updateData[] = sprintf("%s = LAST_INSERT_ID(%s)", $this->databaseFields['id'], $this->databaseFields['id']);
+            $updateData[] = sprintf("%s = LAST_INSERT_ID(%s)", $this->databaseFields[id], $this->databaseFields[id]);
             // Insert & Update query all-in-one
             $query = sprintf("INSERT INTO %s (%s) VALUES ('%s') ON DUPLICATE KEY UPDATE %s",
                 $this->databaseTable,
@@ -204,10 +204,10 @@ abstract class FOGController extends FOGBase {
             );
             if (!$this->DB->query($query)) throw new Exception($this->DB->sqlerror());
             // Database query was successful - set ID if ID was not set
-            if (!$this->get('id')) $this->set('id', $this->DB->insert_id());
+            if (!$this->get(id)) $this->set(id,$this->DB->insert_id());
             $res = $this;
         } catch (Exception $e) {
-            $this->debug('Database Save Failed: ID: %s, Error: %s', array($this->get('id'), $e->getMessage()));
+            $this->debug('Database Save Failed: ID: %s, Error: %s', array($this->get(id), $e->getMessage()));
             $res = false;
         }
         return $res;
