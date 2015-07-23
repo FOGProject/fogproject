@@ -370,4 +370,56 @@ class FOGCore extends FOGBase {
         ini_set('upload_max_filesize',$this->getSetting(FOG_MAX_UPLOADSIZE).'M');
         ini_set('post_max_size',$this->getSetting(FOG_POST_MAXSIZE).'M');
     }
+    public function cleanInvalidEntries() {
+        $this->DB->query("DELETE FROM aloLog WHERE alID=0");
+        $this->DB->query("DELETE FROM clientUpdates WHERE cuID=0");
+        $this->DB->query("DELETE FROM dirCleaner WHERE dcID=0");
+        $this->DB->query("DELETE FROM globalSettings WHERE settingID=0");
+        $this->DB->query("DELETE FROM greenFog WHERE gfID=0 OR gfHostID=0");
+        $this->DB->query("DELETE FROM groupMembers WHERE gmID=0 OR gmHostID=0 OR gmGroupID=0");
+        $this->DB->query("DELETE FROM groups WHERE groupID=0");
+        $this->DB->query("DELETE FROM history WHERE hID=0");
+        $this->DB->query("DELETE FROM hostAutoLogOut WHERE haloID=0 OR haloHostID=0");
+        $this->DB->query("DELETE FROM hostMAC where hmID=0 OR hmHostID=0");
+        $this->DB->query("DELETE FROM hosts WHERE hostID=0");
+        $this->DB->query("DELETE FROM hostScreenSettings WHERE hssID=0 OR hssHostID=0");
+        $this->DB->query("DELETE FROM imageGroupAssoc WHERE igaID=0 OR igaImageID=0 OR igaStorageGroupID=0");
+        $this->DB->query("DELETE FROM imagePartitionTypes WHERE imagePartitionTypeID=0");
+        $this->DB->query("DELETE FROM images WHERE imageID=0");
+        $this->DB->query("DELETE FROM imageTypes WHERE imageTypeID=0");
+        $this->DB->query("DELETE FROM imagingLog WHERE ilID=0 OR ilHostID=0");
+        $this->DB->query("DELETE FROM inventory WHERE iID=0 OR iHostID=0");
+        $this->DB->query("DELETE FROM ipxeTable WHERE ipxeID=0");
+        $this->DB->query("DELETE FROM keySequence WHERE ksID=0");
+        $this->DB->query("DELETE FROM modules WHERE id=0");
+        $this->DB->query("DELETE FROM moduleStatusByHost WHERE msID=0 OR msHostID=0 OR msModuleID=0");
+        $this->DB->query("DELETE FROM multicastSessions WHERE msID=0 OR msNFSGroupID=0");
+        $this->DB->query("DELETE FROM multicastSessionsAssoc WHERE msaID=0 OR msID=0 OR tID=0");
+        $this->DB->query("DELETE FROM nfsFailures WHERE nfID=0 OR nfNodeID=0 OR nfTaskID=0 OR nfHostID=0 OR nfGroupID=0");
+        $this->DB->query("DELETE FROM nfsGroupMembers WHERE ngmID=0 OR ngmGroupID=0");
+        $this->DB->query("DELETE FROM nfsGroups WHERE ngID=0");
+        $this->DB->query("DELETE FROM os WHERE osID=0");
+        $this->DB->query("DELETE FROM oui WHERE ouiID=0");
+        $this->DB->query("DELETE FROM peer WHERE id=0");
+        $this->DB->query("DELETE FROM peer_torrent WHERE id=0 OR peer_id=0 OR torrent_id=0");
+        $this->DB->query("DELETE FROM plugins WHERE pID=0");
+        $this->DB->query("DELETE FROM printerAssoc WHERE paID=0 OR paHostID=0 OR paPrinterID=0");
+        $this->DB->query("DELETE FROM printers WHERE pID=0");
+        $this->DB->query("DELETE FROM pushbullet WHERE pID=0");
+        $this->DB->query("DELETE FROM pxeMenu WHERE pxeID=0");
+        $this->DB->query("DELETE FROM scheduledTasks WHERE stID=0 OR stTaskTypeID=0 OR stGroupHostID=0 OR stActive=0");
+        $this->DB->query("DELETE FROM schemaVersion WHERE vID=0");
+        $this->DB->query("DELETE FROM snapinAssoc WHERE saID=0 OR saHostID=0 OR saSnapinID=0");
+        $this->DB->query("DELETE FROM snapinGroupAssoc WHERE sgaID=0 OR sgaSnapinID=0 OR sgaStorageGroupID=0");
+        $this->DB->query("DELETE FROM snapinJobs WHERE sjID=0 OR sjHostID=0");
+        $this->DB->query("DELETE FROM snapins WHERE snapinID=0");
+        $this->DB->query("DELETE FROM snapinTasks WHERE stID=0 OR stJobID=0 OR stSnapinID=0");
+        $this->DB->query("DELETE FROM supportedOS WHERE osID=0");
+        $this->DB->query("DELETE FROM taskLog WHERE id=0 OR taskID=0");
+        $this->DB->query("DELETE FROM tasks WHERE taskID=0 OR taskHostID=0 OR taskTypeID=0");
+        $this->DB->query("DELETE FROM taskStates WHERE tsID=0");
+        $this->DB->query("DELETE FROM taskTypes WHERE ttID=0");
+        $this->DB->query("DELETE FROM torrent WHERE id=0");
+        $this->DB->query("DELETE FROM userCleanup WHERE ucID=0");
+    }
 }

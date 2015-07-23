@@ -175,6 +175,8 @@ class Initiator {
         $DatabaseManager = new DatabaseManager();
         /** $DB set's the DB class from the DatabaseManager */
         $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
+        /** Cleanup all invalid entrees */
+        $FOGCore->cleanInvalidEntries();
         /** Loads any Session variables */
         $FOGCore->setSessionEnv();
         /** $TimeZone the timezone setter */
