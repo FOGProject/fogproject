@@ -51,15 +51,23 @@ class MACAddress extends FOGBase {
         return preg_match('#^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$#i',$this->MAC);
     }
     public function isPending() {
-        if ($this->tmpMAC instanceof MACAddressAssociation && $this->tmpMAC->isValid()) return $this->tmpMAC->get('pending');
+        $MAC = $this->getClass(MACAddressAssociationManager)->find(array(mac=>$this->MAC));
+        $MAC = @array_shift($MAC);
+        return $MAC && $MAC->isValid() && $MAC->get(pending);
     }
     public function isClientIgnored() {
-        if ($this->tmpMAC instanceof MACAddressAssociation && $this->tmpMAC->isValid()) return $this->tmpMAC->get('clientIgnore');
+        $MAC = $this->getClass(MACAddressAssociationManager)->find(array(mac=>$this->MAC));
+        $MAC = @array_shift($MAC);
+        return $MAC && $MAC->isValid() && $MAC->get(clientIgnore);
     }
     public function isPrimary() {
-        if ($this->tmpMAC instanceof MACAddressAssociation && $this->tmpMAC->isValid()) return $this->tmpMAC->get('primary');
+        $MAC = $this->getClass(MACAddressAssociationManager)->find(array(mac=>$this->MAC));
+        $MAC = @array_shift($MAC);
+        return $MAC && $MAC->isValid() && $MAC->get(primary);
     }
     public function isImageIgnored() {
-        if ($this->tmpMAC instanceof MACAddressAssociation && $this->tmpMAC->isValid()) return $this->tmpMAC->get('imageIgnore');
+        $MAC = $this->getClass(MACAddressAssociationManager)->find(array(mac=>$this->MAC));
+        $MAC = @array_shift($MAC);
+        return $MAC && $MAC->isValid() && $MAC->get(imageIgnore);
     }
 }
