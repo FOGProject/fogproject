@@ -212,7 +212,7 @@ class PrinterManagementPage extends FOGPage {
                     ->set(name,$this->DB->sanitize($_REQUEST[alias]))
                     ->set(config,$_REQUEST[printertype])
                     ->set(model,$_REQUEST[model])
-                    ->set('file',$this->DB->sanitize($_REQUEST[inf]))
+                    ->set('file',$_REQUEST[inf])
                     ->set(port,$_REQUEST[port])
                     ->set(ip,$_REQUEST[ip]);
                 // Save
@@ -308,7 +308,7 @@ class PrinterManagementPage extends FOGPage {
                 'printer_name' => $this->DB->sanitize($this->obj->get(name)),
                 'printer_port' => $this->obj->get(port),
                 'printer_model' => $this->obj->get(model),
-                'printer_inf' => $this->DB->sanitize($this->obj->get('file')),
+                'printer_inf' => $this->obj->get('file'),
                 'printer_ip' => $this->obj->get(ip),
                 'desc' => $this->obj->get(description),
             );

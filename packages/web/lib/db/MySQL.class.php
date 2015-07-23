@@ -134,19 +134,19 @@ class MySQL extends DatabaseManager {
      * @return the value of the id
      */
     public function insert_id() {
-        return (int)$this->link->insert_id ? $this->link->insert_id : $this->queryResult()->insert_id;
+        return (int)($this->queryResult()->insert_id ? $this->queryResult()->insert_id : $this->link->insert_id);
     }
     /** affected_rows() the number of affected rows
      * @return the number
      */
     public function affected_rows() {
-        return (int)$this->link->affected_rows ? $this->link->affected_rows : $this->queryResult()->affected_rows;
+        return (int)($this->queryResult()->affected_rows ? $this->queryResult()->affected_rows : $this->link->affected_rows);
     }
     /** num_rows() the number of rows.
      * @return the number
      */
     public function num_rows() {
-        return (int)$this->link->num_rows ? $this->link->num_rows : $this->queryResult()->num_rows;
+        return (int)($this->queryResult()->num_rows ? $this->queryResult()->num_rows : $this->link->num_rows);
     }
     /** escape() escape/clean the data
      * @param $data the data to be cleaned
