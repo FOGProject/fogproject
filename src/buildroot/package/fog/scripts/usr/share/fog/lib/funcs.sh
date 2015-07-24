@@ -1164,7 +1164,7 @@ savePartition() {
 			elif [ "$fstype" == "swap" ]; then
 				echo " * Saving swap parition UUID";
 				local swapuuidfilename=`swapUUIDFileName "${imagePath}" "${intDisk}"`;
-				saveSwapUUID "$swapuuidfilename" "$part"; 
+				saveSwapUUID "$swapuuidfilename" "$part";
 			else
 				handleError "Unexpected condition in savePartition.";
 			fi
