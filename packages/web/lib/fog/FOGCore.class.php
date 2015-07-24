@@ -165,30 +165,6 @@ class FOGCore extends FOGBase {
             sleep(10);
         }
     }
-    // The below functions are from the FOG Service Scripts Data writing and checking.
-    /** out($sting, $device, $blLog=false,$blNewLine=true)
-        prints the information to the service log files.
-     */
-    public function out($string,$device,$blLog=false,$blNewLine=true) {
-        ($blNewLine ? $strOut = $string."\n" : null);
-        if (!$hdl = fopen($device,'w')) return;
-        if (fwrite($hdl,$strOut) === FALSE) return;
-        fclose($hdl);
-    }
-    /** getDateTime()
-        Returns the date format used at the start of each line in the service lines.
-     */
-    public function getDateTime() {
-        return $this->nice_date()->format('m-d-y g:i:s a');
-    }
-    /** wlog($string, $path)
-        Writes to the log file and clears if needed.
-     */
-    public function wlog($string, $path) {
-        if (filesize($path) > LOGMAXSIZE) unlink($path);
-        if (!$hdl = fopen($path,'a')) $this->out("\n * Error: Unable to open file: $path\n");
-        if (fwrite($hdl,sprintf('[%s] %s',$this->getDateTime(),$string)) === FALSE) $this->out("\n * Error: Unable to write to file: $path\n");
-    }
     /** getBroadcast()
      * Gets the interfaces broadcast ip
      */
@@ -203,51 +179,6 @@ class FOGCore extends FOGBase {
         unset($IP);
         return array_values(array_unique((array)$output));
     }
-    /** getIPAddress()
-        Gets the service server's IP address.
-     */
-    public function getIPAddress() {
-        $output = array();
-        exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'|grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'", $IPs, $retVal);
-        if (!count($IPs)) exec("/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d':' -f2' | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'", $IPs,$retVal);
-        foreach ($IPs AS $i => &$IP) {
-            $IP = trim($IP);
-            if (($bIp = ip2long($IP)) !== false) $output[] = $IP;
-            $output[] = gethostbyaddr($IP);
-        }
-        unset($IP);
-        return array_values(array_unique((array)$output));
-    }
-    /** getBanner()
-        Prints the FOG banner
-     */
-    public function getBanner() {
-        $str  = "        ___           ___           ___      \n";
-        $str .= "       /\  \         /\  \         /\  \     \n";
-        $str .= "      /::\  \       /::\  \       /::\  \    \n";
-        $str .= "     /:/\:\  \     /:/\:\  \     /:/\:\  \   \n";
-        $str .= "    /::\-\:\  \   /:/  \:\  \   /:/  \:\  \  \n";
-        $str .= "   /:/\:\ \:\__\ /:/__/ \:\__\ /:/__/_\:\__\ \n";
-        $str .= "   \/__\:\ \/__/ \:\  \ /:/  / \:\  /\ \/__/ \n";
-        $str .= "        \:\__\    \:\  /:/  /   \:\ \:\__\   \n";
-        $str .= "         \/__/     \:\/:/  /     \:\/:/  /   \n";
-        $str .= "                    \::/  /       \::/  /    \n";
-        $str .= "                     \/__/         \/__/     \n";
-        $str .= "\n";
-        $str .= "  ###########################################\n";
-        $str .= "  #     Free Computer Imaging Solution      #\n";
-        $str .= "  #                                         #\n";
-        $str .= "  #     Created by:                         #\n";
-        $str .= "  #         Chuck Syperski                  #\n";
-        $str .= "  #         Jian Zhang                      #\n";
-        $str .= "  #         Tom Elliott                     #\n";
-        $str .= "  #                                         #\n";
-        $str .= "  #     GNU GPL Version 3                   #\n";
-        $str .= "  ###########################################\n";
-        $str .= "\n";
-        return $str;
-    }
-
     /** getHWInfo()
      * Returns the hardware information for hwinfo link on dashboard.
      * @return $data

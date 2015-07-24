@@ -14,7 +14,7 @@ class SnapinReplicator extends FOGService {
         unset($SN);
         try {
             if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(_('I do not appear to be the group manager'));
-            $this->FOGCore->out(' * I am the group manager',$this->dev);
+            $this->out(' * I am the group manager',$this->dev);
             $myStorageGroupID = $StorageNode->get(storageGroupID);
             $myStorageNodeID = $StorageNode->get(id);
             $this->outall(" * Starting Snapin Replication.");
@@ -35,9 +35,9 @@ class SnapinReplicator extends FOGService {
         }
     }
     public function serviceRun() {
-        $this->FOGCore->out(' ',$this->dev);
-        $this->FOGCore->out(' +---------------------------------------------------------',$this->dev);
+        $this->out(' ',$this->dev);
+        $this->out(' +---------------------------------------------------------',$this->dev);
         $this->commonOutput();
-        $this->FOGCore->out(' +---------------------------------------------------------',$this->dev);
+        $this->out(' +---------------------------------------------------------',$this->dev);
     }
 }

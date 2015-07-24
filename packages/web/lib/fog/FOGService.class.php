@@ -6,35 +6,122 @@ abstract class FOGService extends FOGBase {
     public $log;
     /** @var $zzz int the sleep time for the service */
     public $zzz;
+    /** getIPAddress()
+     * Gets the service server's IP address.
+     */
+    public function getIPAddress() {
+        $output = array();
+        exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'|grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'", $IPs, $retVal);
+        if (!count($IPs)) exec("/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d':' -f2' | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'", $IPs,$retVal);
+        foreach ($IPs AS $i => &$IP) {
+            $IP = trim($IP);
+            if (($bIp = ip2long($IP)) !== false) $output[] = $IP;
+            $output[] = gethostbyaddr($IP);
+        }
+        unset($IP);
+        return array_values(array_unique((array)$output));
+    }
+    /** wait_interface_ready() wait for interface to be ready
+     * @return void
+     */
+    public function wait_interface_ready() {
+        $ipaddresses = $this->getIPAddress();
+        $ipcount = count($ipaddresses);
+        if (!$ipcount) {
+            $this->out('Interface not ready, waiting.');
+            sleep(10);
+            $this->wait_interface_ready();
+        }
+        foreach ($ipaddresses AS $i => &$ip) $this->out("Interface Ready with IP Address: $ip");
+        unset($ip);
+    }
+    /** wait_db_ready() wait for db to be ready
+     * @return void
+     */
+    public function wait_db_ready() {
+        while ($this->link()->connect_errno) {
+            $this->out('FOGService: '.get_class($this).' - Waiting for mysql to be available');
+            sleep(10);
+        }
+    }
+    /** getBanner() Prints the FOG banner
+     * @return $str the string as is
+     */
+    public function getBanner() {
+        $str  = "        ___           ___           ___      \n";
+        $str .= "       /\  \         /\  \         /\  \     \n";
+        $str .= "      /::\  \       /::\  \       /::\  \    \n";
+        $str .= "     /:/\:\  \     /:/\:\  \     /:/\:\  \   \n";
+        $str .= "    /::\-\:\  \   /:/  \:\  \   /:/  \:\  \  \n";
+        $str .= "   /:/\:\ \:\__\ /:/__/ \:\__\ /:/__/_\:\__\ \n";
+        $str .= "   \/__\:\ \/__/ \:\  \ /:/  / \:\  /\ \/__/ \n";
+        $str .= "        \:\__\    \:\  /:/  /   \:\ \:\__\   \n";
+        $str .= "         \/__/     \:\/:/  /     \:\/:/  /   \n";
+        $str .= "                    \::/  /       \::/  /    \n";
+        $str .= "                     \/__/         \/__/     \n";
+        $str .= "\n";
+        $str .= "  ###########################################\n";
+        $str .= "  #     Free Computer Imaging Solution      #\n";
+        $str .= "  #     Credits:                            #\n";
+        $str .= "  #     http://fogproject.org/credits       #\n";
+        $str .= "  #     GNU GPL Version 3                   #\n";
+        $str .= "  ###########################################\n";
+        $this->outall($str);
+    }
     /** @function outall() outputs to log file
      * @param $string string the data to write
      * @return null
      */
     public function outall($string) {
-        $this->FOGCore->out($string, $this->dev);
-        $this->FOGCore->wlog($string, $this->log);
+        $this->out($string,$this->dev);
+        $this->wlog($string,$this->log);
         return;
+    }
+    /** out($sting, $device, $blLog=false,$blNewLine=true)
+     * @param $string the string to send
+     * @param $device the file/device to output to
+     * @return void
+     */
+    public function out($string,$device) {
+        $strOut = $string."\n";
+        if (!$hdl = fopen($device,'w')) return;
+        if (fwrite($hdl,$strOut) === FALSE) return;
+        fclose($hdl);
+    }
+    /** getDateTime()
+     * Returns the date format used at the start of each line in the service lines.
+     */
+    public function getDateTime() {
+        return $this->nice_date()->format('m-d-y g:i:s a');
+    }
+    /** wlog($string, $path)
+     * Writes to the log file and clears if needed.
+     */
+    public function wlog($string, $path) {
+        if (filesize($path) > LOGMAXSIZE) unlink($path);
+        if (!$hdl = fopen($path,'a')) $this->out("\n * Error: Unable to open file: $path\n");
+        if (fwrite($hdl,sprintf('[%s] %s',$this->getDateTime(),$string)) === FALSE) $this->out("\n * Error: Unable to write to file: $path\n");
     }
     /** @function serviceStart() starts the service
      * @return null
      */
     public function serviceStart() {
-        $this->FOGCore->out($this->FOGCore->getBanner(), $this->log);
+        $this->out($this->getBanner(), $this->log);
         $this->outall(sprintf(' * Starting %s Service',get_class($this)));
         $this->outall(sprintf(' * Checking for new items every %s seconds',$this->zzz));
         $this->outall(' * Starting service loop');
         return;
     }
     public function serviceRun() {
-        $this->FOGCore->out(' ', $this->dev);
-        $this->FOGCore->out(' +---------------------------------------------------------', $this->dev);
+        $this->out('',$this->dev);
+        $this->out('+---------------------------------------------------------',$this->dev);
     }
     /** replicate_items() replicates data without having to keep repeating
      * @param $myStorageGroupID int this servers groupid
      * @param $myStorageNodeID int this servers nodeid
      * @param $Obj object that is trying to send data, e.g. images, snapins
      * @param $master bool set if sending to master->master or master->nodes
-     *     auto sets to false
+     * auto sets to false
      */
     public function replicate_items($myStorageGroupID,$myStorageNodeID,$Obj,$master = false) {
         // Ensure clean variables

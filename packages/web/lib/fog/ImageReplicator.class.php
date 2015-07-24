@@ -15,11 +15,11 @@ class ImageReplicator extends FOGService {
         try {
             if (!$StorageNode || !$StorageNode->isValid()) {
                 $message = _('I do not appear to be the group manager');
-                $this->FOGCore->wlog(' * '.$message,'/opt/fog/log/groupmanager.log');
+                $this->wlog(' * '.$message,'/opt/fog/log/groupmanager.log');
                 throw new Exception($message);
             }
-            $this->FOGCore->out(' * I am the group manager',$this->dev);
-            $this->FOGCore->wlog(' * I am the group manager','/opt/fog/log/groupmanager.log');
+            $this->out(' * I am the group manager',$this->dev);
+            $this->wlog(' * I am the group manager','/opt/fog/log/groupmanager.log');
             $myStorageGroupID = $StorageNode->get(storageGroupID);
             $myStorageNodeID = $StorageNode->get(id);
             $this->outall(" * Starting Image Replication.");
@@ -41,11 +41,11 @@ class ImageReplicator extends FOGService {
         }
     }
     public function serviceRun() {
-        $this->FOGCore->out(' ',$this->dev);
-        $this->FOGCore->out(' +---------------------------------------------------------',$this->dev);
-        $this->FOGCore->out(' * Checking if I am the group manager.',$this->dev);
-        $this->FOGCore->wlog(' * Checking if I am the group manager.','/opt/fog/log/groupmanager.log');
+        $this->out(' ',$this->dev);
+        $this->out(' +---------------------------------------------------------',$this->dev);
+        $this->out(' * Checking if I am the group manager.',$this->dev);
+        $this->wlog(' * Checking if I am the group manager.','/opt/fog/log/groupmanager.log');
         $this->commonOutput();
-        $this->FOGCore->out(' +---------------------------------------------------------',$this->dev);
+        $this->out(' +---------------------------------------------------------',$this->dev);
     }
 }

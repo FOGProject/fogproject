@@ -49,7 +49,7 @@ class MulticastManager extends FOGService {
                 if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(sprintf(" | This is not the master node"));
                 $myroot = $StorageNode->get('path');
                 $allTasks = MulticastTask::getAllMulticastTasks($myroot);
-                $this->FOGCore->out(sprintf(" | %s task(s) found",count($allTasks)),$this->dev);
+                $this->out(sprintf(" | %s task(s) found",count($allTasks)),$this->dev);
                 $RMTasks = $this->getMCTasksNotInDB($KnownTasks,$allTasks);
                 $jobcancelled = false;
                 if (count($RMTasks)) {
@@ -131,13 +131,13 @@ class MulticastManager extends FOGService {
             } catch(Exception $e) {
                 $this->outall($e->getMessage());
             }
-            $this->FOGCore->out(sprintf(" +---------------------------------------------------------"), $this->dev );
+            $this->out(sprintf(" +---------------------------------------------------------"), $this->dev );
             sleep(MULTICASTSLEEPTIME);
         }
     }
     public function serviceRun() {
-        $this->FOGCore->out(sprintf(' '),$this->dev);
-        $this->FOGCore->out(sprintf(' +---------------------------------------------------------'),$this->dev);
+        $this->out(sprintf(' '),$this->dev);
+        $this->out(sprintf(' +---------------------------------------------------------'),$this->dev);
         $this->serviceLoop();
     }
 }

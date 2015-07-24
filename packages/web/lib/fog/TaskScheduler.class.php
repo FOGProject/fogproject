@@ -84,9 +84,9 @@ class TaskScheduler extends FOGService {
         }
     }
     public function serviceRun() {
-        $this->FOGCore->out(' ',$this->dev);
-        $this->FOGCore->out(' +---------------------------------------------------------',$this->dev);
+        $this->out(' ',$this->dev);
+        $this->out(' +---------------------------------------------------------',$this->dev);
         $this->commonOutput();
-        $this->FOGCore->out(' +---------------------------------------------------------',$this->dev);
+        $this->out(' +---------------------------------------------------------',$this->dev);
     }
 }
