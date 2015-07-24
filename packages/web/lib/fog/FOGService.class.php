@@ -39,8 +39,8 @@ abstract class FOGService extends FOGBase {
      * @return void
      */
     public function wait_db_ready() {
-        while ($this->link()->connect_errno) {
-            $this->out('FOGService: '.get_class($this).' - Waiting for mysql to be available');
+        while ($this->DB->link()->connect_errno) {
+            $this->out('FOGService: '.get_class($this).' - Waiting for mysql to be available',$this->dev);
             sleep(10);
         }
     }
@@ -48,7 +48,8 @@ abstract class FOGService extends FOGBase {
      * @return $str the string as is
      */
     public function getBanner() {
-        $str  = "        ___           ___           ___      \n";
+        $str = "\n";
+        $str .= "        ___           ___           ___      \n";
         $str .= "       /\  \         /\  \         /\  \     \n";
         $str .= "      /::\  \       /::\  \       /::\  \    \n";
         $str .= "     /:/\:\  \     /:/\:\  \     /:/\:\  \   \n";
@@ -73,11 +74,11 @@ abstract class FOGService extends FOGBase {
      * @return null
      */
     public function outall($string) {
-        $this->out($string,$this->dev);
-        $this->wlog($string,$this->log);
+        $this->out($string."\n",$this->dev);
+        $this->wlog($string."\n",$this->log);
         return;
     }
-    /** out($sting, $device, $blLog=false,$blNewLine=true)
+    /** out()
      * @param $string the string to send
      * @param $device the file/device to output to
      * @return void
@@ -106,7 +107,6 @@ abstract class FOGService extends FOGBase {
      * @return null
      */
     public function serviceStart() {
-        $this->out($this->getBanner(), $this->log);
         $this->outall(sprintf(' * Starting %s Service',get_class($this)));
         $this->outall(sprintf(' * Checking for new items every %s seconds',$this->zzz));
         $this->outall(' * Starting service loop');

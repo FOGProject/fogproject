@@ -6,7 +6,7 @@ class SnapinReplicator extends FOGService {
     private function commonOutput() {
         $StorageNodes = $this->getClass(StorageNodeManager)->find(array(isMaster=>1,isEnabled=>1));
         foreach ($StorageNodes AS $i => &$SN) {
-            if (in_array($this->FOGCore->resolveHostname($SN->get(ip)),$this->FOGCore->getIPAddress())) {
+            if (in_array($this->FOGCore->resolveHostname($SN->get(ip)),$this->getIPAddress())) {
                 $StorageNode = $SN;
                 break;
             }
