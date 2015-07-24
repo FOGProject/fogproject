@@ -524,6 +524,7 @@ removePageFile() {
                 else
                     echo "No hibernate found";
                 fi
+                resetFlag "$part";
                 umount /ntfs;
             else
                 echo "Failed";
