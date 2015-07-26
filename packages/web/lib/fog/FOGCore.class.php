@@ -355,7 +355,6 @@ class FOGCore extends FOGBase {
     }
     public function cleanupNoLongerExistHosts() {
         $assocs = array(
-            'MACAddress',
             'Group',
             'Snapin',
             'Printer',
