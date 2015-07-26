@@ -32,7 +32,7 @@ abstract class FOGService extends FOGBase {
             sleep(10);
             $this->wait_interface_ready();
         }
-        foreach ($ipaddresses AS $i => &$ip) $this->out("Interface Ready with IP Address: $ip");
+        foreach ($ipaddresses AS $i => &$ip) $this->out("Interface Ready with IP Address: $ip",$this->log);
         unset($ip);
     }
     /** wait_db_ready() wait for db to be ready
