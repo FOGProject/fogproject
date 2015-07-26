@@ -177,8 +177,6 @@ class Initiator {
         $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
         /** Cleanup all invalid entrees */
         $FOGCore->cleanInvalidEntries();
-        /** Cleanup non-existing entries */
-        $FOGCore->cleanupNoLongerExistHosts();
         /** Loads any Session variables */
         $FOGCore->setSessionEnv();
         /** $TimeZone the timezone setter */
