@@ -32,7 +32,7 @@ class FOGConfigurationPage extends FOGPage {
             // Set title
             $this->title = _('FOG Version Information');
             print '<p>'._('Version: ').FOG_VERSION.'</p>';
-            $URLs[] = 'http://fogproject.org/version/index.php?version='.FOG_VERSION;
+            $URLs[] = 'https://fogproject.org/version/index.php?version='.FOG_VERSION;
             $Names[] = '';
             $Nodes = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1));
             foreach($Nodes AS $i => &$StorageNode) {
@@ -43,10 +43,10 @@ class FOGConfigurationPage extends FOGPage {
             }
             unset($StorageNode);
             $Responses = $this->FOGURLRequests->process($URLs,'GET');
-            ksort($Responses);
+            asort($Responses);
             foreach($Responses AS $i => &$data) {
                 if ($i === 0) {
-                    print '<p><div class="sub">'.$data.'</div></p>';
+                    print '<p><div class="sub">'.$Responses[$i].'</div></p>';
                     print '<h1>Kernel Versions</h1>';
                 } else {
                     print "<h2>{$Names[$i]}</h2>";

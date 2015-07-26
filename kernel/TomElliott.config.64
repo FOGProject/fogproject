@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86 4.1.2 Kernel Configuration
+# Linux/x86 4.1.3 Kernel Configuration
 #
 CONFIG_64BIT=y
 CONFIG_X86_64=y
@@ -536,6 +536,7 @@ CONFIG_PCIEPORTBUS=y
 # CONFIG_PCIEAER is not set
 # CONFIG_PCIEASPM is not set
 CONFIG_PCIE_PME=y
+CONFIG_PCI_BUS_ADDR_T_64BIT=y
 CONFIG_PCI_MSI=y
 # CONFIG_PCI_DEBUG is not set
 # CONFIG_PCI_REALLOC_ENABLE_AUTO is not set
