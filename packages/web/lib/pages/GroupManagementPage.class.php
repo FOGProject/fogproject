@@ -543,7 +543,9 @@ class GroupManagementPage extends FOGPage {
                 $ou = $_REQUEST[ou];
                 $user = $_REQUEST[domainuser];
                 $pass = $_REQUEST[domainpassword];
-                $this->obj->setAD($useAD,$domain,$ou,$user,$pass);
+                $legacy = $_REQUEST[domainpasswordlegacy];
+                $this->obj->setAD($useAD,$domain,$ou,$user,$pass,$legacy);
+                $this->resetRequest();
                 break;
                 // Printer Add/Rem
                 case 'group-printers';

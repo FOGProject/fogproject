@@ -132,6 +132,9 @@ class Host extends FOGController {
             ->save();
         return $this;
     }
+    private function loadADPass() {
+        if ($this->get(id) && $this->get(ADPass)) $this->set(ADPass,$this->encryptpw($this->get(ADPass)));
+    }
     private function loadSnapinJob() {
         if (!$this->isLoaded(snapinjob) && $this->get(id))
             $this->set(snapinjob,$this->getClass(SnapinJob,@max($this->getClass(SnapinJobManager)->find(array(stateID=>array(-1,0,1),hostID=>$this->get(id)),'','','','','','','id'))));
@@ -798,15 +801,15 @@ class Host extends FOGController {
                 if (empty($user)) $user = trim($this->get(ADUser));
                 if (empty($pass)) $pass = trim($this->get(ADPass));
             }
-            if ($pass) $pass = $this->encryptpw(trim($pass));
+            if ($pass) $pass = $this->encryptpw($pass);
             if ($useAD && !$this->get(ADPassLegacy) && !$legacy) $legacy = $this->FOGCore->getSetting(FOG_AD_DEFAULT_PASSWORD_LEGACY);
             else if ($this->get(ADPassLegacy) && !$legacy) $legacy = $this->get(ADPassLegacy);
             $this->set(useAD,$useAD)
                 ->set(ADDomain,trim($domain))
                 ->set(ADOU,trim($ou))
                 ->set(ADUser,trim($user))
-                ->set(ADPass,trim($pass))
-                ->set(ADPassLegacy,trim($legacy));
+                ->set(ADPass,$pass)
+                ->set(ADPassLegacy,$legacy);
             if (!$nosave) $this->save();
         }
         return $this;

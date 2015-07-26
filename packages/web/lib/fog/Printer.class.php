@@ -84,7 +84,7 @@ class Printer extends FOGController {
     }
     public function addHost($addArray) {
         // Add
-        foreach((array)$addArray AS $i => &$item) $this->add('hosts', $item);
+        foreach((array)$addArray AS $i => &$item) $this->add(hosts,$item);
         unset($item);
         // Return
         return $this;

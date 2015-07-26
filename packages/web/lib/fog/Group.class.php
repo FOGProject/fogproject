@@ -93,10 +93,8 @@ class Group extends FOGController {
         unset($Host);
         return $this;
     }
-    public function setAD($useAD, $domain, $ou, $user, $pass) {
-        $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
-        foreach($Hosts AS $i => &$Host) $Host->setAD($useAD,$domain,$ou,$user,$pass);
-        unset($Host);
+    public function setAD($useAD,$domain,$ou,$user,$pass,$legacy) {
+        $this->getClass(HostManager)->update(array(id=>$this->get(hosts)),'',array(useAD=>$useAD,ADDomain=>trim($domain),ADOU=>trim($ou),ADUser=>trim($user),ADPass=>$pass,ADPassLegacy=>$legacy));
         return $this;
     }
     public function addPrinter($printAdd,$printDel,$level = 0) {
@@ -123,12 +121,9 @@ class Group extends FOGController {
     }
     public function addImage($imageID) {
         if (!$imageID) throw new Exception(_('Select an image'));
-        $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
-        foreach($Hosts AS $i => &$Host) {
-            if ($Host->get(task)->isValid()) throw new Exception(_('There is a host in tasking'));
-            $Host->set(imageID,$imageID)->save();
-        }
-        unset($Host);
+        if (!$this->getClass(Image,$imageID)->isValid()) throw new Exception(_('Select a valid image'));
+        if ($this->getClass(TaskManager)->count(array(hostID=>$this->get(hosts),stateID=>array(0,1,2,3)))) throw new Exception(_('There is a host in a tasking'));
+        $this->getClass(HostManager)->update(array(id=>$this->get(hosts)),'',array(imageID=>$imageID));
         return $this;
     }
     public function destroy($field = 'id') {

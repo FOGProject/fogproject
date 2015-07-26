@@ -35,11 +35,11 @@ abstract class FOGManagerController extends FOGBase {
         // Get child class variables
         $this->classVariables = get_class_vars($this->childClass);
         // Set required child variable data
-        $this->aliasedFields = $this->classVariables['aliasedFields'];
-        $this->databaseTable = $this->classVariables['databaseTable'];
-        $this->databaseFields = $this->classVariables['databaseFields'];
+        $this->aliasedFields = $this->classVariables[aliasedFields];
+        $this->databaseTable = $this->classVariables[databaseTable];
+        $this->databaseFields = $this->classVariables[databaseFields];
         $this->databaseFieldsFlipped = array_flip($this->databaseFields);
-        $this->databaseFieldClassRelationships = $this->classVariables['databaseFieldClassRelationships'];
+        $this->databaseFieldClassRelationships = $this->classVariables[databaseFieldClassRelationships];
     }
     // Search
     public function search($keyword = null) {
@@ -235,18 +235,45 @@ abstract class FOGManagerController extends FOGBase {
             }
             // Count result rows
             $this->DB->query("SELECT COUNT(%s) AS total FROM %s%s LIMIT 1", array(
-                $this->databaseFields['id'],
+                $this->databaseFields[id],
                 $this->databaseTable,
                 (count($whereArray) ? ' WHERE ' . implode(' ' . $whereOperator . ' ', $whereArray) : '')
             ));
             // Return
-            return (int)$this->DB->fetch()->get('total');
+            return (int)$this->DB->fetch()->get(total);
         } catch (Exception $e) {
             $this->debug('Find all failed! Error: %s', array($e->getMessage()));
         }
         return false;
     }
-    // Blackout - 12:09 PM 26/04/2012
+    /** update() Updates items in mass
+     * @param $where data where to only insert data into
+     * @param $insertData data to insert
+     */
+    public function update($where = array(),$whereOperator = 'AND',$insertData) {
+        $sql = "UPDATE %s SET %s %s";
+        if (empty($whereOperator)) $whereOperator = 'AND';
+        if (empty($where)) $where = array();
+        foreach((array)$insertData AS $field => &$value) {
+            $insertKey = preg_match('#default#i',$this->databaseFields[$field]) ? '`'.$this->databaseFields[$field].'`' : $this->databaseFields[$field];
+            $insertVal = $this->DB->sanitize($value);
+            $insertArray[] = sprintf("%s='%s'",$insertKey,$insertVal);
+        }
+        unset($value);
+        if (count($where)) {
+            foreach((array)$where AS $field => &$value) {
+                if (is_array($value)) $whereArray[] = sprintf("%s IN ('%s')", $this->databaseFields[$field], implode("','",$value));
+                else $whereArray[] = sprintf("%s %s '%s'",$this->databaseFields[$field],(preg_match('#%#', $value) ? 'LIKE' : '='),$value);
+            }
+            unset($value);
+        }
+        $query = vsprintf($sql, array(
+            $this->databaseTable,
+            implode(',',(array)$insertArray),
+            (count($whereArray) ? ' WHERE '.implode(' '.$whereOperator.' ',(array)$whereArray) : '')
+        ));
+        $this->DB->query($query);
+    }
     // NOTE: VERY! powerful... use with care
     /** destroy($where = array(),$whereOperator = 'AND',$orderBy = 'name',$sort = 'ASC')
         Removes the relevant fields from the database.

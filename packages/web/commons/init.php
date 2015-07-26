@@ -177,14 +177,16 @@ class Initiator {
         $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
         /** Cleanup all invalid entrees */
         $FOGCore->cleanInvalidEntries();
+        /** Cleanup non-existing entries */
+        $FOGCore->cleanupNoLongerExistHosts();
         /** Loads any Session variables */
         $FOGCore->setSessionEnv();
         /** $TimeZone the timezone setter */
-        $TimeZone = $FOGCore->TimeZone = $_SESSION['TimeZone'];
+        $TimeZone = $FOGCore->TimeZone = $_SESSION[TimeZone];
         /** $EventManager initiates the EventManager class */
-        $FOGCore->EventManager = $EventManager = $FOGCore->getClass('EventManager');
+        $FOGCore->EventManager = $EventManager = $FOGCore->getClass(EventManager);
         /** $HookManager initiates the HookManager class */
-        $FOGCore->HookManager = $HookManager = $FOGCore->getClass('HookManager');
+        $FOGCore->HookManager = $HookManager = $FOGCore->getClass(HookManager);
         $HookManager->load();
         $EventManager->load();
         /** $HookManager initiates the FOGURLRequest class */

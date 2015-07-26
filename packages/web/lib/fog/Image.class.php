@@ -68,13 +68,10 @@ class Image extends FOGController {
     public function save() {
         parent::save();
         if ($this->isLoaded(hosts)) {
-            // Unset all hosts
-            $Hosts = $this->getClass(HostManager)->find(array(imageID=>$this->get(id)));
-            foreach($Hosts AS $i => &$Host) $Host->set(imageID, 0)->save();
-            unset($Host);
-            // Reset the hosts necessary
-            foreach ($Hosts AS $i => &$Host) $Host->set(imageID,$this->get(id))->save();
-            unset($Host);
+            // Unset Hosts with image
+            $this->getClass(HostManager)->update(array(imageID=>$this->get(id)),'',array(imageID=>0));
+            // Set these hosts
+            $this->getClass(HostManager)->update(array(id=>$this->get(hosts)),'',array(imageID=>$this->get(id)));
         }
         if ($this->isLoaded(storageGroups)) {
             // Remove old rows

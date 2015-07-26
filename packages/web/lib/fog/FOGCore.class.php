@@ -353,4 +353,17 @@ class FOGCore extends FOGBase {
         $this->DB->query("DELETE FROM torrent WHERE id=0");
         $this->DB->query("DELETE FROM userCleanup WHERE ucID=0");
     }
+    public function cleanupNoLongerExistHosts() {
+        $assocs = array(
+            'MACAddress',
+            'Group',
+            'Snapin',
+            'Printer',
+            'Module',
+        );
+        $HostIDs = $this->getClass(HostManager)->find('','','','','','','','id');
+        foreach ($assocs AS $i => &$Assoc) {
+            $this->getClass($Assoc.'Association')->getManager()->destroy(array(hostID=>$this->getClass($Assoc.'Association')->getManager()->find(array(hostID=>$HostIDs),'','','','','',true,'hostID')));
+        }
+    }
 }
