@@ -9,9 +9,10 @@ class WakeOnLan extends FOGBase {
     public function __construct($mac) {
         parent::__construct();
         $this->arrMAC = array();
+        if (!is_array($mac) && strpos('|',$mac)) $mac = explode('|',$mac);
         foreach ((array)$mac AS $i => &$MAC) {
             $mac = $this->getClass(MACAddress,$MAC);
-            if ($mac->isValid()) $this->arrMAC[] = $mac->__toString();
+            $this->arrMAC[] = strtolower($MAC);
         }
         unset($MAC);
     }
@@ -19,30 +20,23 @@ class WakeOnLan extends FOGBase {
         Creates the packet and sends it to wake up the machine.
      */
     public function send() {
-        try {
-            if (!count($this->arrMAC)) throw new Exception($foglang['InvalidMAC']);
-            foreach ((array)$this->arrMAC AS $i => &$MAC) {
-                $mac_array = split(':',$MAC);
-                unset($BroadCast,$this->hwaddr,$this->packet);
-                foreach($mac_array AS $i => &$octet) $this->hwaddr .= chr(hexdec($octet));
-                unset($octet);
-                for($i=0;$i<=6;$i++) $this->packet .= chr(255);
-                for($i=0;$i<=16;$i++) $this->packet .= $this->hwaddr;
-                // Always send to the main broadcast.
-                $BroadCast[] = '255.255.255.255';
-                $this->HookManager->processEvent('BROADCAST_ADDR',array('broadcast' => &$BroadCast));
-                foreach((array)$BroadCast AS $i => &$SendTo) {
-                    $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-                    if (!$sock) throw new Exception(sprintf('%s: %s :: %s',_('Socket Error'),socket_last_error(),socket_strerror(socket_last_error())));
+        if (!count($this->arrMAC)) throw new Exception($this->foglang[InvalidMAC]);
+        foreach ((array)$this->arrMAC AS $i=>&$MAC) {
+            $macHex = str_replace(':','',str_replace('-','',$MAC));
+            $macBin = pack('H12',$macHex);
+            $magicPacket = str_repeat(chr(0xff),6).str_repeat($macBin,16);
+            // Always send to the main broadcast.
+            $BroadCast[] = $this->FOGCore->getBroadcast();
+            $this->HookManager->processEvent(BROADCAST_ADDR,array(broadcast=>&$BroadCast));
+            foreach((array)$BroadCast AS $i => &$SendTo) {
+                foreach ((array)$SendTo AS $i => &$bcaddr) {
+                    if (!($sock = socket_create(AF_INET,SOCK_DGRAM,SOL_UDP))) throw new Exception(_('Socket error'));
                     $options = socket_set_option($sock,SOL_SOCKET,SO_BROADCAST,true);
-                    if ($options >= 0 && socket_sendto($sock,$this->packet,strlen($this->packet),0,$SendTo,9)) socket_close($sock);
+                    if ($options >= 0 && socket_sendto($sock,$magicPacket,(int)strlen($magicPacket),0,$bcaddr,9)) socket_close($sock);
                 }
-                unset($SendTo);
             }
-            unset($MAC);
-        } catch(Exception $e) {
-            return false;
+            unset($SendTo);
         }
-        return true;
+        unset($MAC);
     }
 }

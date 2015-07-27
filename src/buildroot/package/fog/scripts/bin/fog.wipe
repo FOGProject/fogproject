@@ -11,10 +11,10 @@ if [ -n "$hd" ]; then
 	echo " WARNING!  You are about to destroy the contents of the following hard disk:"
 	echo -e "      ${hd}\n"
 	echo -e " You have 60 seconds to turn off this computer to cancel!\n"
-	sleep 60
+	usleep 60000000
 	if [ "$wipemode" == "full" ]; then
 		echo -e " Starting disk wipe using shred...\n"
-		sleep 10
+		usleep 10000000
 		shred -f -v -z -n 3 ${hd}
 		echo -e "\n Wiping complete.\n"
 	elif [ "$wipemode" == "normal" ]; then
@@ -28,7 +28,7 @@ if [ -n "$hd" ]; then
 	fi
 
 	queueinfo=""
-	cd /tmp			
+	cd /tmp
 	wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
 	queueinfo=`cat co.txt`
 	while [ "$queueinfo" != "##" ]
@@ -37,11 +37,11 @@ if [ -n "$hd" ]; then
 		rm co.txt
 		wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
 		queueinfo=`cat co.txt`
-		sleep 5
-	done  
+		usleep 5000000
+	done
 	echo -e "\n * Database updated!\n"
 	echo -e " Task Complete"
 else
 	echo -e "Hard disk not found!\n"
 fi
-sleep 10
+usleep 10000000

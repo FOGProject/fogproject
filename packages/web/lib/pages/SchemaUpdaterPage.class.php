@@ -12,23 +12,24 @@ class SchemaUpdaterPage extends FOGPage {
      */
     public function index() {
         $this->title = _('Database Schema Installer / Updater');
-        print "\n\t\t\t\t\t<p>"._('Your FOG database schema is not up to date, either because you have updated FOG or this is a new FOG installation.  If this is a upgrade, we highly recommend that you backup your FOG database before updating the schema (this will allow you to return the previous installed version)').'.</p>';
-        print "\n\t\t\t\t\t<p>"._('Are you sure you wish to install/update the FOG database?').'</p><br/>';
-        print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-        print "\n\t\t\t\t\t<center>".'<input type="submit" name="confirm" value="'._('Install/Upgrade Now').'" /></center>';
-        print "\n\t\t\t\t</form>";
-        print "\n\t\t\t\t\t<p>"._('If you would like to backup your FOG database you can do so my using MySql Administrator or by running the following command in a terminal window (Applications -> System Tools -> Terminal), this will save sqldump in your home directory').'.</p>';
-        print "\n\t\t\t\t\t".'<div id="sidenotes">cd ~;mysqldump --allow-keywords -x -v fog > fogbackup.sql</div><br/>';
-        print "\n\t\t\t\t\t<p>"._('Alternatively, you can use the button below to obtain a copy of your current fog database').'.</p>';
-        print "\n\t\t\t\t".'<form method="post" action="export.php?type=sql">';
-        print "\n\t\t\t\t\t<center>".'<input type="submit" name="export" value="'._('Export-Backup DB').'" /></center>';
-        print "\n\t\t\t\t</form>";
+        print "<p>"._('Your FOG database schema is not up to date, either because you have updated FOG or this is a new FOG installation.  If this is a upgrade, we highly recommend that you backup your FOG database before updating the schema (this will allow you to return the previous installed version)').'.</p>';
+        print "<p>"._('Are you sure you wish to install/update the FOG database?').'</p><br/>';
+        print '<form method="post" action="'.$this->formAction.'">';
+        print "<center>".'<input type="submit" name="confirm" value="'._('Install/Upgrade Now').'" /></center>';
+        print "</form>";
+        print "<p>"._('If you would like to backup your FOG database you can do so my using MySql Administrator or by running the following command in a terminal window (Applications -> System Tools -> Terminal), this will save sqldump in your home directory').'.</p>';
+        print '<div id="sidenotes">cd ~;mysqldump --allow-keywords -x -v fog > fogbackup.sql</div><br/>';
+        print "<p>"._('Alternatively, you can use the button below to obtain a copy of your current fog database').'.</p>';
+        print '<form method="post" action="export.php?type=sql">';
+        print "<center>".'<input type="submit" name="export" value="'._('Export-Backup DB').'" /></center>';
+        print "</form>";
     }
     public function index_post() {
-        if (isset($_REQUEST['confirm'])) {
+        if (isset($_REQUEST[confirm])) {
             require_once(BASEPATH.'/commons/schema.php');
             if (count($this->schema) > $this->mySchema) {
-                foreach(array_slice($this->schema,$this->mySchema,null,true) AS $version => $updates) {
+                $items = array_slice($this->schema,$this->mySchema,null,true);
+                foreach($items AS $version => &$updates) {
                     ++$version;
                     foreach($updates AS $i => &$update) {
                         if (is_callable($update)) {
@@ -38,20 +39,24 @@ class SchemaUpdaterPage extends FOGPage {
                     }
                     unset($update);
                 }
+                unset($updates);
                 $this->DB->connect();
-                $newSchema = current($this->getClass('SchemaManager')->find());
-                if ($newSchema && $newSchema->isValid()) $newSchema->set('version',$version);
-                if ($newSchema && $newSchema->save() && count($this->schema) == $newSchema->get('version')) {
-                    print "\n\t\t\t\t\t<p>"._('Install / Update Successful!').'</p>';
-                    print "\n\t\t\t\t\t<p>"._('Click').' <a href="./index.php">'._('here').'</a> '._('to login').'.</p>';
-                } else print "\n\t\t\t\t\t<p>"._('Install / Update Failed!').'</p>';
-                if (count($errors)) {
-                    printf('<h2>%s</h2>',_('The following errors occured'));
-                    print implode("\n<hr/>\n",$errors);
+                $newSchema = $this->getClass(SchemaManager)->find();
+                $newSchema = @array_shift($newSchema);
+                if ($newSchema->isValid()) $newSchema->set(version,$version);
+                if (!$newSchema->save() || count($this->schema) != $newSchema->get(version)) print '<p>'._('Install / Update Failed!');
+                else {
+                    print '<p>'._('Install / Update Successful!').'</p>';
+                    print '<p>'._('Click').' <a href="./index.php">'._('here').'</a> '._('to login').'.</p>';
+                    if (count($errors)) {
+                        printf('<h2>%s</h2>',_('The following errors occured'));
+                        print implode("<hr/>",$errors);
+                    }
+
                 }
             } else {
-                print "\n\t\t\t\t\t<p>"._('Update not required, your database schema is up to date').'!</p>';
-                print "\n\t\t\t\t\t<p>"._('Click').' <a href="./index.php">'._('here').'</a> '._('to login').'.</p>';
+                print "<p>"._('Update not required, your database schema is up to date').'!</p>';
+                print "<p>"._('Click').' <a href="./index.php">'._('here').'</a> '._('to login').'.</p>';
             }
         }
     }

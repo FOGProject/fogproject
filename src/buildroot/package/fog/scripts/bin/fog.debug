@@ -55,4 +55,4 @@ getHardDisk
 echo "hd=${hd}";
 part=$hd"1";
 echo "part=${part}";
-sleep 5;
+debugPause;

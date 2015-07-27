@@ -164,12 +164,12 @@ $('#SnapinNotInHost').is(':checked') ? $('#snapinNotInHost').show() : $('#snapin
 $('#groupMeShow').click(function() {
         $('#groupNotInMe').toggle();
         });
-		$('.toggle-checkbox1').click(function() {
-			$('input.toggle-group1:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
-			});
-		$('.toggle-checkbox2').click(function() {
-			$('input.toggle-group2:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
-			});
+$('.toggle-checkbox1').click(function() {
+        $('input.toggle-group1:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+        });
+$('.toggle-checkbox2').click(function() {
+        $('input.toggle-group2:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
+        });
 $('#hostPrinterShow').click(function() {
         $('#printerNotInHost').toggle();
         });

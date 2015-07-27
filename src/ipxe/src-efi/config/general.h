@@ -37,7 +37,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define	NET_PROTO_IPV4		/* IPv4 protocol */
 #undef	NET_PROTO_IPV6		/* IPv6 protocol */
 #undef	NET_PROTO_FCOE		/* Fibre Channel over Ethernet protocol */
-#define        NET_PROTO_STP           /* Spanning Tree protocol */
+#define	NET_PROTO_STP		/* Spanning Tree protocol */
 
 /*
  * PXE support
@@ -141,7 +141,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
  *
  */
 #undef	NONPNP_HOOK_INT19	/* Hook INT19 on non-PnP BIOSes */
-#define        AUTOBOOT_ROM_FILTER     /* Autoboot only devices matching our ROM */
+#define	AUTOBOOT_ROM_FILTER	/* Autoboot only devices matching our ROM */
 
 /*
  * Error message tables to include
@@ -156,7 +156,6 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
  *
  */
 
-#define	NETDEV_DISCARD_RATE 0	/* Drop every N packets (0=>no drop) */
 #undef	BUILD_SERIAL		/* Include an automatic build serial
 				 * number.  Add "bs" to the list of
 				 * make targets.  For example:
@@ -167,6 +166,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #undef	GDBSERIAL		/* Remote GDB debugging over serial */
 #undef	GDBUDP			/* Remote GDB debugging over UDP
 				 * (both may be set) */
+//#define EFI_DOWNGRADE_UX	/* Downgrade UEFI user experience */
 
 #include <config/named.h>
 #include NAMED_CONFIG(general.h)

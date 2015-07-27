@@ -39,7 +39,8 @@ class MySQL extends DatabaseManager {
             $this->link->set_charset('utf8');
             if (!$this->link->select_db(DATABASE_NAME)) throw new Exception(_('Issue working with the current DB, maybe it has not been created yet'));
         } catch (Exception $e) {
-            $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+            if (strstr($e->getMessage(),'MySQL server has gone away')) $this->connect();
+            else $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
         }
         return $this;
     }
@@ -56,18 +57,18 @@ class MySQL extends DatabaseManager {
             $this->info($sql);
             $this->query = $sql;
             if (!$this->query) throw new Exception(_('No query sent'));
-            $this->queryResult = $this->link->query($this->query,DATABASE_CONNTYPE);
+            $this->queryResult = $this->link->query($this->query,DATABASE_CONNTYPE === MYSQLI_ASYNC ? MYSQLI_ASYNC : MYSQLI_STORE_RESULT);
             if (!$this->queryResult) throw new Exception(_('Error: ').$this->sqlerror());
             if (DATABASE_CONNTYPE === MYSQLI_ASYNC) {
                 $all_links[] = $this->link;
                 $processed = 0;
                 do {
                     $links = $errors = $reject = array();
-                    foreach($all_links AS &$link) $links[] = $errors[] = $reject[] = $link;
+                    foreach($all_links AS $i => &$link) $links[] = $errors[] = $reject[] = $link;
                     while (!$this->link->poll($links,$errors,$reject,1,0)) {
                         usleep(10000);
                     }
-                    foreach($links AS &$link) {
+                    foreach($links AS $i => &$link) {
                         $this->queryResult = $link->reap_async_query();
                         $processed++;
                     }
@@ -90,9 +91,9 @@ class MySQL extends DatabaseManager {
             if ($this->queryResult === false || $this->queryResult === true) $this->result = $this->queryResult;
             else if (!$this->queryResult) throw new Exception('No query result present. Use query() first');
             else if ($fetchType == 'fetch_all') {
-                if (method_exists('mysqli_result','fetch_all')) $this->result = $this->queryResult->fetch_all($type);
-                else for($this->result = array();$tmp = $this->queryResult->fetch_array($type);) $this->result[] = $tmp;
-            } else $this->result = $this->queryResult->fetch_assoc();
+                if (method_exists('mysqli_result','fetch_all')) $this->result = (is_object($this->queryResult) ? $this->queryResult->fetch_all($type) : $this->link);
+                else for($this->result = array();$tmp = (is_object($this->queryResult) ? $this->queryResult->fetch_array($type) : $this->link);) $this->result[] = $tmp;
+            } else $this->result = (is_object($this->queryResult) ? $this->queryResult->fetch_assoc() : $this->link);
         } catch (Exception $e) {
             $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
         }
@@ -133,19 +134,19 @@ class MySQL extends DatabaseManager {
      * @return the value of the id
      */
     public function insert_id() {
-        return (int)$this->link->insert_id ? $this->link->insert_id : $this->queryResult()->insert_id;
+        return (int)($this->queryResult()->insert_id ? $this->queryResult()->insert_id : $this->link->insert_id);
     }
     /** affected_rows() the number of affected rows
      * @return the number
      */
     public function affected_rows() {
-        return (int)$this->link->affected_rows ? $this->link->affected_rows : $this->queryResult()->affected_rows;
+        return (int)($this->queryResult()->affected_rows ? $this->queryResult()->affected_rows : $this->link->affected_rows);
     }
     /** num_rows() the number of rows.
      * @return the number
      */
     public function num_rows() {
-        return (int)$this->link->num_rows ? $this->link->num_rows : $this->queryResult()->num_rows;
+        return (int)($this->queryResult()->num_rows ? $this->queryResult()->num_rows : $this->link->num_rows);
     }
     /** escape() escape/clean the data
      * @param $data the data to be cleaned

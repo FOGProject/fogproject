@@ -1995,3 +1995,23 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `" . DATABASE_NAME ."`.`printers` ADD COLUMN `pDesc` LONGTEXT",
 );
+// 188
+$this->schema[] = array(
+    "ALTER TABLE `" . DATABASE_NAME ."`.`nfsGroupMembers` ADD COLUMN `ngmWebroot` LONGTEXT NOT NULL",
+    "UPDATE `".DATABASE_NAME."`.`nfsGroupMembers` SET `ngmWebroot`='/fog/'",
+);
+// 189
+$this->schema[] = array(
+    "ALTER IGNORE TABLE `".DATABASE_NAME."`.`globalSettings` ADD UNIQUE INDEX (settingKey)",
+    "ALTER TABLE `".DATABASE_NAME."`.`globalSettings` DROP INDEX settingKey",
+    "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_PATH'",
+    "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_HOST'",
+    "DELETE FROM `".DATABASE_NAME."`.`globalSettings` WHERE `settingKey`='FOG_WOL_INTERFACE'",
+);
+// 190
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`hosts` MODIFY `hostADPassLegacy` LONGTEXT NOT NULL",
+    "ALTER TABLE `".DATABASE_NAME."`.`hosts` MODIFY `hostPending` LONGTEXT NOT NULL",
+    "ALTER TABLE `".DATABASE_NAME."`.`hosts` MODIFY `hostPubKey` LONGTEXT NOT NULL",
+    "ALTER TABLE `".DATABASE_NAME."`.`hosts` MODIFY `hostSecToken` LONGTEXT NOT NULL",
+);

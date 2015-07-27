@@ -5,26 +5,33 @@ try {
     // The total number of pending macs that can be used.
     $maxPending = $FOGCore->getSetting(FOG_QUICKREG_MAX_PENDING_MACS);
     // Get the actual host (if it is registered)
-    $MACs = $FOGCore->getHostItem(true,false,false,true);
+	$MACs = $FOGCore->getHostItem(true,false,false,true);
     $Host = $FOGCore->getHostItem(true,false,true,false,true);
+	foreach ($MACs AS $i => &$MAC) {
+		if ($FOGCore->getClass(MACAddress,$MAC)->isValid()) $macs[] = strtolower($MAC);
+	}
+	unset($MAC);
+	$MACs = $macs;
+	unset($macs);
+    if (!($Host instanceof Host && $Host->isValid())) {
+    	$Hosts = $FOGCore->getClass(HostManager)->find(array(name=>$_REQUEST[hostname]),'','','','','','','id');
+		$hostID = @array_shift($Hosts);
+		$Host = $FOGCore->getClass(Host,$hostID);
+	}
     if (!($Host instanceof Host && $Host->isValid() && !$Host->get(pending)) && $_REQUEST[newService]) {
         if (!$FOGCore->getClass(Host)->isHostnameSafe($_REQUEST[hostname])) throw new Exception('#!ih');
-        foreach ($FOGCore->getClass(HostManager)->find(array(name=>$_REQUEST[hostname])) AS $i => &$Host) if ($Host->isValid()) break;
-        unset($Host);
-        if (!($Host instanceof Host && $Host->isValid())) {
-            $ModuleIDs = $FOGCore->getClass(ModuleManager)->find(array(isDefault => 1),'','','','','','',id);
-            $PriMAC = array_shift($MACs);
-            $Host = $FOGCore->getClass(Host)
-                ->set(name, $_REQUEST[hostname])
-                ->set(description,'Pending Registration created by FOG_CLIENT')
-                ->set(pending,1);
-            if (!$Host->save()) throw new Exception("#!ih\n");
-            $Host->addModule($ModuleIDs)
-                ->addPriMAC($PriMAC)
-                ->addAddMAC($MACs)
-                ->save();
-            throw new Exception("#!ok\n");
-        }
+		$ModuleIDs = $FOGCore->getClass(ModuleManager)->find(array(isDefault => 1),'','','','','','',id);
+		$PriMAC = array_shift($MACs);
+		$Host = $FOGCore->getClass(Host)
+			->set(name,$_REQUEST[hostname])
+			->set(description,'Pending Registration created by FOG_CLIENT')
+			->set(pending,1)
+			->addModule($ModuleIDs)
+			->addPriMAC($PriMAC)
+			->addAddMAC($MACs);
+		if (!$Host->save()) throw new Exception($this->DB->sqlerror());
+		//"#!ih\n");
+		throw new Exception("#!ok\n");
     }
     // Check if count is okay.
     if (count($MACs) > $maxPending + 1) throw new Exception('#!er:Too many MACs');

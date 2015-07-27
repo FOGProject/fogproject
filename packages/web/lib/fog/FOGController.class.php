@@ -194,7 +194,7 @@ abstract class FOGController extends FOGBase {
             }
             unset($fieldName);
             // Force ID to update so ID is returned on DUPLICATE UPDATE - No ID was returning when A) Nothing is inserted (already exists) or B) Nothing is updated (data has not changed)
-            $updateData[] = sprintf("%s = LAST_INSERT_ID(%s)", $this->databaseFields['id'], $this->databaseFields['id']);
+            $updateData[] = sprintf("%s = LAST_INSERT_ID(%s)", $this->databaseFields[id], $this->databaseFields[id]);
             // Insert & Update query all-in-one
             $query = sprintf("INSERT INTO %s (%s) VALUES ('%s') ON DUPLICATE KEY UPDATE %s",
                 $this->databaseTable,
@@ -204,10 +204,10 @@ abstract class FOGController extends FOGBase {
             );
             if (!$this->DB->query($query)) throw new Exception($this->DB->sqlerror());
             // Database query was successful - set ID if ID was not set
-            if (!$this->get('id')) $this->set('id', $this->DB->insert_id());
+            if (!$this->get(id)) $this->set(id,$this->DB->insert_id());
             $res = $this;
         } catch (Exception $e) {
-            $this->debug('Database Save Failed: ID: %s, Error: %s', array($this->get('id'), $e->getMessage()));
+            $this->debug('Database Save Failed: ID: %s, Error: %s', array($this->get(id), $e->getMessage()));
             $res = false;
         }
         return $res;
@@ -330,11 +330,12 @@ abstract class FOGController extends FOGBase {
      */
     public function isValid() {
         try {
-            foreach ($this->databaseFieldsRequired AS $i => &$field) if (!$this->get($field)) throw new Exception($foglang['RequiredDB']);
+            foreach ($this->databaseFieldsRequired AS $i => &$field) if (!$this->get($field)) throw new Exception($foglang[RequiredDB]);
             unset($field);
-            if ($this->get('id') || $this->get('name')) return true;
+            if (array_key_exists(name,$this->databaseFields) && !($this->get(id) && $this->get(name))) throw new Exception(_($this->childClass.' no longer exists'));
+            else if ($this->get(id)) return true;
         } catch (Exception $e) {
-            $this->debug('isValid Failed: Error: %s', array($e->getMessage()));
+            $this->debug('isValid Failed: Error: %s',array($e->getMessage()));
         }
         return false;
     }

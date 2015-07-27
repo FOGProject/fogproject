@@ -4,9 +4,9 @@ class SnapinReplicator extends FOGService {
     public $log = SNAPINREPLOGPATH;
     public $zzz = SNAPINREPSLEEPTIME;
     private function commonOutput() {
-        $StorageNodes = $this->getClass(StorageNodeManager)->find(array('isMaster' => 1,'isEnabled' => 1));
+        $StorageNodes = $this->getClass(StorageNodeManager)->find(array(isMaster=>1,isEnabled=>1));
         foreach ($StorageNodes AS $i => &$SN) {
-            if (in_array($this->FOGCore->resolveHostname($SN->get(ip)),$this->FOGCore->getIPAddress())) {
+            if (in_array($this->FOGCore->resolveHostname($SN->get(ip)),$this->getIPAddress())) {
                 $StorageNode = $SN;
                 break;
             }
@@ -14,7 +14,7 @@ class SnapinReplicator extends FOGService {
         unset($SN);
         try {
             if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(_('I do not appear to be the group manager'));
-            $this->FOGCore->out(' * I am the group manager',$this->dev);
+            $this->out(' * I am the group manager',$this->dev);
             $myStorageGroupID = $StorageNode->get(storageGroupID);
             $myStorageNodeID = $StorageNode->get(id);
             $this->outall(" * Starting Snapin Replication.");
@@ -22,10 +22,10 @@ class SnapinReplicator extends FOGService {
             $this->outall(sprintf(" | We are group name: %s",$this->getClass(StorageGroup,$myStorageGroupID)->get(name)));
             $this->outall(sprintf(" * We have node ID: #%s",$myStorageNodeID));
             $this->outall(sprintf(" | We are node name: %s",$this->getClass(StorageNode,$myStorageNodeID)->get(name)));
-            $SnapinAssocCount = $this->getClass(SnapinGroupAssociationManager)->count(array('storageGroupID' => $myStorageGroupID));
+            $SnapinAssocCount = $this->getClass(SnapinGroupAssociationManager)->count(array(storageGroupID=>$myStorageGroupID));
             $SnapinCount = $this->getClass(SnapinManager)->count();
             if ($SnapinAssocCount <= 0 || $SnapinCount <= 0) throw new Exception(_('There is nothing to replicate'));
-            $Snapins = $this->getClass(SnapinManager)->find(array('id' => $this->getClass(SnapinGroupAssociationManager)->find(array('storageGroupID' => $myStorageGroupID),'','','','','','','snapinID')));
+            $Snapins = $this->getClass(SnapinManager)->find(array(id=>$this->getClass(SnapinGroupAssociationManager)->find(array(storageGroupID=>$myStorageGroupID),'','','','','','','snapinID')));
             foreach ($Snapins AS $i => &$Snapin) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Snapin,true);
             unset($Snapin);
             foreach ($Snapins AS $i => &$Snapin) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Snapin,false);
@@ -35,9 +35,9 @@ class SnapinReplicator extends FOGService {
         }
     }
     public function serviceRun() {
-        $this->FOGCore->out(' ',$this->dev);
-        $this->FOGCore->out(' +---------------------------------------------------------',$this->dev);
+        $this->out(' ',$this->dev);
+        $this->out(' +---------------------------------------------------------',$this->dev);
         $this->commonOutput();
-        $this->FOGCore->out(' +---------------------------------------------------------',$this->dev);
+        $this->out(' +---------------------------------------------------------',$this->dev);
     }
 }

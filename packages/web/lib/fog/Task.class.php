@@ -38,16 +38,16 @@ class Task extends FOGController {
     );
     public function getInFrontOfHostCount() {
         $Tasks = $this->getClass(TaskManager)->find(array(
-            'stateID' => array(1,2),
-            'typeID' => array(1,15,17),
-            'NFSGroupID' => $this->get(NFSGroupID),
+            stateID=>array(1,2),
+            typeID=>array(1,15,17),
+            NFSGroupID=>$this->get(NFSGroupID),
         ));
         $count = 0;
         $curTime = $this->nice_date();
         foreach($Tasks AS $i => &$Task) {
-            if ($this->get('id') > $Task->get('id')) {
-                $tasktime = $this->nice_date($Task->get('checkInTime'));
-                if (($curTime->getTimestamp() - $tasktime->getTimestamp()) < $this->FOGCore->getSetting('FOG_CHECKIN_TIMEOUT')) $count++;
+            if ($this->get(id)>$Task->get(id)) {
+                $tasktime = $this->nice_date($Task->get(checkInTime));
+                if (($curTime->getTimestamp()-$tasktime->getTimestamp())<$this->FOGCore->getSetting(FOG_CHECKIN_TIMEOUT)) $count++;
             }
         }
         unset($Task);
@@ -57,26 +57,26 @@ class Task extends FOGController {
         // Set State to User cancelled
         $SnapinJob = $this->getHost()->getActiveSnapinJob();
         if ($SnapinJob instanceof SnapinJob && $SnapinJob->isValid()) {
-            $this->getClass(SnapinTaskManager)->destroy(array('jobID' => $SnapinJob->get('id')));
+            $this->getClass(SnapinTaskManager)->destroy(array(jobID=>$SnapinJob->get(id)));
             $SnapinJob->destroy();
         }
         if ($this->getTaskType()->isMulticast()) {
-            $MSAs = $this->getClass(MulticastSessionsAssociationManager)->find(array('taskID' => $this->get(id)));
+            $MSAs = $this->getClass(MulticastSessionsAssociationManager)->find(array(taskID=>$this->get(id)));
             foreach ($MSAs AS $i => &$MSA) {
                 if ($MSA->isValid()) {
                     $MS = $MSA->getMulticastSession();
-                    $clients = $MS->get('clients');
-                    $MS->set('clients',--$clients);
-                    if ($MS->get('clients') <= 0) {
-                        $MS->set('completetime',$this->formatTime('now','Y-m-d H:i:s'))
-                            ->set('stateID', 5);
+                    $clients = $MS->get(clients);
+                    $MS->set(clients,--$clients);
+                    if ($MS->get(clients)<=0) {
+                        $MS->set(completetime,$this->formatTime('now','Y-m-d H:i:s'))
+                            ->set(stateID,5);
                     }
                     $MS->save();
                 }
             }
             unset($MSA);
         }
-        $this->set('stateID', '5')->save();
+        $this->set(stateID,5)->save();
     }
     // Overrides
     public function set($key, $value) {
@@ -86,13 +86,12 @@ class Task extends FOGController {
         return parent::set($key, $value);
     }
     public function destroy($field = 'id') {
-        $Host = $this->getHost();
-        $SnapinJob = $Host->getActiveSnapinJob();
-        $SnapinTasks = $this->getClass('SnapinTaskManager')->find(array('jobID' => $SnapinJob->get('id'),'stateID' => array(0,1)));
+        $SnapinJob = $this->getHost()->getActiveSnapinJob();
+        $SnapinTasks = $this->getClass(SnapinTaskManager)->find(array(jobID=>$SnapinJob->get(id),stateID=>array(0,1)));
         // cancel's all the snapin tasks for that host.
         if ($SnapinTasks) {
             foreach($SnapinTasks AS $i => &$ST) {
-                foreach($ST AS $i => &$SnapinTask) $SnapinTask->set('stateID', -1)->save();
+                foreach($ST AS $i => &$SnapinTask) $SnapinTask->set(stateID,-1)->save();
                 unset($SnapinTask);
             }
             unset($ST);
@@ -101,8 +100,8 @@ class Task extends FOGController {
         return parent::destroy($field);
     }
     public function setHost($Host) {
-        if ($Host instanceof Host) $this->set('hostID', $Host->get('id'));
-        else $this->set('hostID', $Host);
+        if ($Host instanceof Host) $this->set(hostID,$Host->get(id));
+        else $this->set(hostID,$Host);
         return $this;
     }
     public function hasTransferData() {
@@ -115,12 +114,28 @@ class Task extends FOGController {
             $this->getTaskDataTotal() && strlen(trim($this->getTaskDataTotal())) > 0;
     }
     // Custom Functions
-    public function getHost() {return $this->getClass('Host',$this->get('hostID'));}
-        public function getStorageGroup() {return $this->getClass('StorageGroup',$this->get('NFSGroupID'));}
-        public function getStorageNode() {return $this->getClass('StorageNode',$this->get('NFSMemberID'));}
-        public function getImage() {return $this->getClass('Image',$this->get('imageID'));}
-        public function getTaskType() {return $this->getClass('TaskType',$this->get('typeID'));}
-        public function getTaskTypeText() {return $this->getTaskType()->get('name');}
-        public function getTaskState() {return $this->getClass('TaskState',$this->get('stateID'));}
-        public function getTaskStateText() {return $this->getTaskState()->get('name');}
+    public function getHost() {
+        return $this->getClass(Host,$this->get(hostID));
+    }
+    public function getStorageGroup() {
+        return $this->getClass(StorageGroup,$this->get(NFSGroupID));
+    }
+    public function getStorageNode() {
+        return $this->getClass(StorageNode,$this->get(NFSMemberID));
+    }
+    public function getImage() {
+        return $this->getClass(Image,$this->get(imageID));
+    }
+    public function getTaskType() {
+        return $this->getClass(TaskType,$this->get(typeID));
+    }
+    public function getTaskTypeText() {
+        return $this->getTaskType()->get(name);
+    }
+    public function getTaskState() {
+        return $this->getClass(TaskState,$this->get(stateID));
+    }
+    public function getTaskStateText() {
+        return $this->getTaskState()->get(name);
+    }
 }

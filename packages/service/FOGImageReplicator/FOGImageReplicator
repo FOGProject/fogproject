@@ -1,28 +1,21 @@
 #!/usr/bin/php -q
 <?php
-	@error_reporting(0);
-	require_once( dirname(realpath(__FILE__)) . "/../etc/config.php" );
-	require_once( dirname(realpath(__FILE__)) . "/../lib/service_lib.php" );
-	$service_name = "FOGImageReplicator";
-	service_persist($service_name);
-
-	// Safe to construct FOGBase/FOGCore
-	require_once( WEBROOT . "/commons/base.inc.php" );
-	$Daemon = new Daemon('REPLICATOR','FOG_NFS_ETH_MONITOR');
-	$Daemon->clear_screen();
-	$Daemon->out($Daemon->getBanner());
-	$Daemon->wait_db_ready();
-	$Daemon->wait_interface_ready();
-	unset($Daemon);
-	$IR = new ImageReplicator();
-	$IR->serviceStart();
-	while(true)
-	{
-		$IR = new ImageReplicator();
-		$IR->serviceRun();
-		sleep(REPLICATORSLEEPTIME);
-	}
-	$IR->outall(sprintf(" * Service has ended."));
-
-	exit(0);
-?>
+@error_reporting(0);
+require_once( dirname(realpath(__FILE__)) . "/../etc/config.php" );
+require_once( dirname(realpath(__FILE__)) . "/../lib/service_lib.php" );
+$service_name = "FOGImageReplicator";
+service_persist($service_name);
+// Safe to construct FOGBase/FOGCore
+require_once(WEBROOT.'/commons/base.inc.php');
+$ServiceClass = $FOGCore->getClass(ImageReplicator);
+@unlink($ServiceClass->log);
+$ServiceClass->getBanner();
+$ServiceClass->wait_interface_ready();
+$ServiceClass->wait_db_ready();
+$ServiceClass->serviceStart();
+while(true) {
+    $ServiceClass->serviceRun();
+    sleep($ServiceClass->zzz);
+}
+$ServiceClass->outall(sprintf(" * Service has ended."));
+exit(0);

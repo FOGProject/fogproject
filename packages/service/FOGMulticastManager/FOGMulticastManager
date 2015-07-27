@@ -1,30 +1,22 @@
 #!/usr/bin/php -q
 <?php
-
 @error_reporting(0);
 require_once( dirname(realpath(__FILE__)) . "/../etc/config.php" );
 require_once( dirname(realpath(__FILE__)) . "/../lib/service_lib.php" );
 $service_name = "FOGMulticastManager";
 service_persist($service_name);
-
 // Safe to construct FOGBase/FOGCore
-require_once( WEBROOT . "/commons/base.inc.php" );
-$Daemon = new Daemon('MULTICAST','FOG_UDPCAST_INTERFACE');
-$Daemon->clear_screen();
-$Daemon->out($Daemon->getBanner());
-$Daemon->wait_db_ready();
-$Daemon->wait_interface_ready();
-unset($Daemon);
-$MM = new MulticastManager();
-if(!file_exists(UDPSENDERPATH))
-  {
-    $MM->outall(sprintf(" * Unable to locate udp-sender!."));
+require_once(WEBROOT."/commons/base.inc.php" );
+$ServiceClass = $FOGCore->getClass(MulticastManager);
+@unlink($ServiceClass->log);
+$ServiceClass->getBanner();
+$ServiceClass->wait_interface_ready();
+$ServiceClass->wait_db_ready();
+if (!file_exists(UDPSENDERPATH)) {
+    $ServiceClass->outall(' * Unable to locate udp-sender!.');
     exit(1);
-  }
-$MM->serviceStart();
-$MM->serviceRun();
-$MM->outall(sprintf(" * Service has ended."));
-
+}
+$ServiceClass->serviceStart();
+$ServiceClass->serviceRun();
+$ServiceClass->outall(' * Service has ended.');
 exit(0);
-?>
-

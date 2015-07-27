@@ -5,6 +5,9 @@ $(function() {
 		$('.toggle-checkboxgroup').click(function() {
 			$('input.toggle-group[type="checkbox"]').prop('checked', $(this).is(':checked'));
 			});
+        $('.toggle-checkboxAction').click(function() {
+            $('input.toggle-host[type="checkbox"]').prop('checked', $(this).is(':checked'));
+        });
 		$('#action-box,#action-boxdel').submit(function() {
 			var checked = $('input.toggle-action:checked');
 			var hostIDArray = new Array();

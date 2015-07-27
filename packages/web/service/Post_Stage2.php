@@ -43,7 +43,7 @@ try {
     if (!$Task->save()) throw new Exception(_('Failed to update Task'));
     $EventManager->notify('HOST_IMAGEUP_COMPLETE', array(HostName=>$Host->get('name')));
     // Log it
-    $id = @max($FOGCore->getClass(ImagingLogManager)->find(array('hostID' => $Host->get('id')),'','','','','','','id'));
+    $id = @max($FOGCore->getClass(ImagingLogManager)->find(array(hostID=>$Host->get(id)),'','','','','','','id'));
     // Last Uploaded date of image.
     $Image->set(deployed,$FOGCore->formatTime('now','Y-m-d H:i:s'))->save();
     // Log
@@ -52,7 +52,7 @@ try {
         ->set(taskStateID,$Task->get(stateID))
         ->set(createdTime,$Task->get(createdTime))
         ->set(createdBy,$Task->get(createdBy))
-        ->set(finish,$FOGCore->formatTime('now','Y-m-d H:i:s'))
+        ->set(finish,$FOGCore->nice_date()->format('Y-m-d H:i:s'))
         ->save();
     // Task Logging.
     $FOGCore->getClass(TaskLog,$Task)

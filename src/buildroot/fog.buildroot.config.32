@@ -28,18 +28,14 @@ BR2_i386=y
 # BR2_sparc is not set
 # BR2_x86_64 is not set
 # BR2_xtensa is not set
-BR2_ARCH="i686"
+BR2_ARCH="i486"
 BR2_ENDIAN="LITTLE"
-BR2_GCC_TARGET_ARCH="nocona"
+BR2_GCC_TARGET_ARCH="i486"
 BR2_ARCH_HAS_ATOMICS=y
 BR2_BINFMT_SUPPORTS_SHARED=y
 BR2_BINFMT_ELF=y
-BR2_X86_CPU_HAS_MMX=y
-BR2_X86_CPU_HAS_SSE=y
-BR2_X86_CPU_HAS_SSE2=y
-BR2_X86_CPU_HAS_SSE3=y
 # BR2_x86_i386 is not set
-# BR2_x86_i486 is not set
+BR2_x86_i486=y
 # BR2_x86_i586 is not set
 # BR2_x86_i686 is not set
 # BR2_x86_pentiumpro is not set
@@ -49,7 +45,7 @@ BR2_X86_CPU_HAS_SSE3=y
 # BR2_x86_pentium3 is not set
 # BR2_x86_pentium4 is not set
 # BR2_x86_prescott is not set
-BR2_x86_nocona=y
+# BR2_x86_nocona is not set
 # BR2_x86_core2 is not set
 # BR2_x86_corei7 is not set
 # BR2_x86_corei7_avx is not set
@@ -160,9 +156,9 @@ BR2_TOOLCHAIN_BUILDROOT_GLIBC=y
 # BR2_TOOLCHAIN_BUILDROOT_MUSL is not set
 BR2_TOOLCHAIN_BUILDROOT_LIBC="glibc"
 BR2_PACKAGE_GLIBC=y
-# BR2_GLIBC_VERSION_2_20 is not set
-BR2_GLIBC_VERSION_2_21=y
-BR2_GLIBC_VERSION_STRING="2.21"
+BR2_GLIBC_VERSION_2_20=y
+# BR2_GLIBC_VERSION_2_21 is not set
+BR2_GLIBC_VERSION_STRING="2.20"
 
 #
 # Binutils Options

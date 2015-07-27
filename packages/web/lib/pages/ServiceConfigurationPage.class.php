@@ -53,8 +53,8 @@ class ServiceConfigurationPage extends FOGPage {
 		print "\n\t\t\t</div>";
 		$moduleName = $this->getGlobalModuleStatus();
 		$modNames = $this->getGlobalModuleStatus(true);
-		$Modules = $this->getClass('ModuleManager')->find();
-		foreach ($Modules AS &$Module) {
+		$Modules = $this->getClass(ModuleManager)->find();
+		foreach ($Modules AS $i => &$Module) {
 			unset($this->data,$this->headerData,$this->attributes,$this->templates);
 			$this->attributes = array(
 				array('width' => 270,'class' => 'l'),
@@ -127,7 +127,7 @@ class ServiceConfigurationPage extends FOGPage {
 				print "\n\t\t\t".'<p><input type="hidden" name="name" value="'.$modNames[$Module->get('shortName')].'" /><input type="submit" value="'._('Add Directory').'" /></p>';
 				print "\n\t\t\t<h2>"._('Directories Cleaned').'</h2>';
 				$dirs = $this->getClass('DirCleanerManager')->find();
-				foreach ((array)$dirs AS &$DirCleaner) {
+				foreach ((array)$dirs AS $i => &$DirCleaner) {
 					$this->data[] = array(
 						'dir_path' => $DirCleaner->get('path'),
 						'dir_id' => $DirCleaner->get('id'),
@@ -195,7 +195,7 @@ class ServiceConfigurationPage extends FOGPage {
 				print "\n\t\t\t<p>"._('Add Event (24 Hour Format):').'<input class="short" type="text" name="h" maxlength="2" value="HH" onFocus="this.value=\'\'" />:<input class="short" type="text" name="m" maxlength="2" value="MM" onFocus="this.value=\'\'" /><select name="style" size="1"><option value="">'._('Select One').'</option><option value="s">'._('Shut Down').'</option><option value="r">'._('Reboot').'</option></select></p>';
 				print "\n\t\t\t".'<p><input type="hidden" name="name" value="'.$modNames[$Module->get('shortName')].'" /><input type="submit" name="addevent" value="'._('Add Event').'" /></p>';
 				$greenfogs = $this->getClass('GreenFogManager')->find();
-				foreach((array)$greenfogs AS &$GreenFog) {
+				foreach((array)$greenfogs AS $i => &$GreenFog) {
 					if ($GreenFog && $GreenFog->isValid()) {
 						$gftime = $this->nice_date($GreenFog->get('hour').':'.$GreenFog->get('min'))->format('H:i');
 						$this->data[] = array(
@@ -252,7 +252,7 @@ class ServiceConfigurationPage extends FOGPage {
 				);
 				print "\n\t\t\t<h2>"._('Current Protected User Accounts').'</h2>';
 				$UCs = $this->getClass('UserCleanupManager')->find();
-				foreach ((array)$UCs AS &$UserCleanup) {
+				foreach ((array)$UCs AS $i => &$UserCleanup) {
 					$this->data[] = array(
 						'user_name' => $UserCleanup->get('name'),
 						'input' => $UserCleanup->get('id') < 7 ? null : '<input type="checkbox" id="rmuser${user_id}" class="delid" name="delid" onclick="this.form.submit()" value="${user_id}" /><label for="rmuser${user_id}" class="icon fa fa-minus-circle hand" title="'._('Delete').'">&nbsp;</label>',

@@ -810,6 +810,7 @@ EOF
 </VirtualHost>" > "$etcconf";
     errorStat $?
     dots "Restarting Apache2 for fog vhost"
+    ln -s $webdirdest $webdirdest
     if [ "$osid" -eq 2 ]; then
         a2enmod rewrite >/dev/null 2>&1
         a2enmod ssl >/dev/null 2>&1

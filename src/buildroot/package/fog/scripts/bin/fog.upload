@@ -1,11 +1,9 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.checkin
-
 echo " * Preparing to send image file to server."
 imagePath="/images/$macWinSafe"
 percent=$pct
-
 if [ $percent -lt 5 ] || [ $percent -ge 100 ]; then
 	percent=5
 fi
@@ -111,13 +109,13 @@ if [ -f "/images/.mntcheck" ]; then
 					clearMountedDevices $partClr;
 				done
 			fi
-			# All: 
+			# All:
 			#  save the list of fixed size partitions
 			fixed_size_partitions=`echo $fixed_size_partitions | sed -r 's/[^:0-9]//g' | sed -r 's/^://'`;
 			echo $fixed_size_partitions > "${imagePath}/d1.fixed_size_partitions";
 			# Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
 			#  Remove pagefile and hibernate file
-			if [[ "$osid" == +([1-2]|[5-7]|9) ]]; then
+			if [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
 				for partPage in $parts; do
 					removePageFile "$partPage";
 				done
@@ -138,11 +136,12 @@ if [ -f "/images/.mntcheck" ]; then
 			#  Start filesytem type record
 			if [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
 				dots "Saving original partition table";
-				#saveSfdiskPartitions "${hd}" "${imagePath}/d1.original.partitions";
+				saveOriginalPartitions "${hd}" "${imagePath}" "1";
 				echo -n "" > "${imagePath}/d1.original.fstypes";
-				echo -n "" > "${imagePath}/d1.original.swapuuids";
+				echo -n "" > `swapUUIDFileName "${imagePath}" "1"`;
 				echo "Done";
 				debugPause
+				savePartitionTablesAndBootLoaders "${hd}" "1" "${imagePath}" "${osid}" "${imgPartitionType}";
 			fi
 			# Windows 2000/XP, Vista, 7, 8, 8.1:
 			#  Save MBR
@@ -159,8 +158,6 @@ if [ -f "/images/.mntcheck" ]; then
 					shrinkPartition "$part" "${imagePath}/d1.original.fstypes";
 				done
 				runPartprobe $hd;
-				#saveSfdiskPartitions "${hd}" "${imagePath}/d1.minimum.partitions";
-				gptorMBRSave "$hd" "$imagePath";
 				debugPause
 			fi
 			# Windows 2000/XP, Vista, 7, 8, 8.1:
@@ -183,31 +180,11 @@ if [ -f "/images/.mntcheck" ]; then
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				diskLength=`expr length $hd`;
 				for part in $parts; do
-					mkfifo /tmp/pigz1;
-					partNum=${part:$diskLength};
-					echo " * Processing Partition: $part ($partNum)";
-					fstype=`fsTypeSetting $part`;
-					if [ "$fstype" != "swap" ]; then
-						echo " * Using partclone.${fstype}";
-						sleep 5;
-						imgpart="$imagePath/d1p${partNum}.img";
-						uploadFormat "$cores" "/tmp/pigz1" "$imgpart";
-						partclone.$fstype -c -s $part -O /tmp/pigz1 -N -f 1 2>/tmp/status.fog;
-						mv $imgpart.000 $imgpart 2>/dev/null;
-						clear;
-						echo " * Image uploaded";
-					else
-						echo " * Not uploading swap partition";
-						saveSwapUUID "${imagePath}/d1.original.swapuuids" "$part"; 
-					fi
-					rm /tmp/pigz1;
-					debugPause;
+					savePartition "$part" "1" "$imagePath" "$diskLength" "$cores" "$imgPartitionType";
 				done
+
 				dots "Restoring MBR";
-				applySfdiskPartitions "${hd}" "${imagePath}/d1.original.partitions";
-				fdisk $hd &>/dev/null << EOFRESTOREPART
-w
-EOFRESTOREPART
+				restoreOriginalPartitions "${hd}" "${imagePath}" "1";
 				echo "Done";
 				debugPause;
 				if [ "$osid" == "2" ]; then
@@ -215,9 +192,9 @@ EOFRESTOREPART
 				fi
 				debugPause;
 			fi
-			#  
+			#
 			#  expand the file systems in the restored partitions
-			#  
+			#
 			# Windows 7, 8, 8.1:
 			# Windows 2000/XP, Vista:
 			# Linux:
@@ -228,19 +205,13 @@ EOFRESTOREPART
 				done
 			fi
 		elif [ "$imgType" == "mps" ]; then
-			hasgpt=`hasGPT $hd`;
-			if [ "$hasgpt" == "0" ]; then
-				have_extended_partition=`sfdisk -l $hd 2>/dev/null | egrep "^${hd}.*  (Extended|W95 Ext'd \(LBA\))$" | wc -l`;
-			else
-				have_extended_partition="0";
-			fi
 			if [ -d "$imagePath" ]; then
-				savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$hasgpt" "$have_extended_partition" "$imgPartitionType"
+				savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
 				debugPause
 				parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
 				diskLength=`expr length $hd`;
 				for part in $parts; do
-					savePartition "$part" "1" "$imagePath" "$diskLength" "$cores" "$imgPartitionType"
+					savePartition "$part" "1" "$imagePath" "$diskLength" "$cores" "$imgPartitionType";
 					debugPause;
 				done
 				echo " * Task complete!";
@@ -252,14 +223,8 @@ EOFRESTOREPART
 			intDisk=1;
 			for disk in $disks; do
 				echo " * Processing Hard Disk: $disk";
-				hasgpt=`hasGPT $disk`;
-				if [ "$hasgpt" == "0" ]; then
-					have_extended_partition=`sfdisk -l $disk 2>/dev/null | egrep "^${disk}.*  (Extended|W95 Ext'd \(LBA\))$" | wc -l`;
-				else
-					have_extended_partition="0";
-				fi
 				if [ -d "$imagePath" ]; then
-					savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$hasgpt" "$have_extended_partition" "$imgPartitionType"
+					savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$imgPartitionType"
 					debugPause
 					parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
 					diskLength=`expr length $disk`;
@@ -293,7 +258,7 @@ EOFRESTOREPART
 		while [ "$queueinfo" != "##" ]; do
 			echo "		* $queueinfo";
 			queueinfo=`wget -q -O - "$post" 2>/dev/null`;
-			sleep 5;
+			usleep 5000000;
 		done
 	else
 		handleError "Fatal Error: Invalid image name.";

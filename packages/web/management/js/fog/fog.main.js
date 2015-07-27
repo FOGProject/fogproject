@@ -53,7 +53,7 @@ $('#adOU').val(data['ou']);
 });
 		}
 		}
-		});
+});
 var allRadios = $('.default');
 var radioChecked;
 var setCurrent = function(e) {

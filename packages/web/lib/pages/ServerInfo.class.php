@@ -33,7 +33,8 @@ class ServerInfo extends FOGPage {
                 '${input}',
             );
             if ($StorageNode) {
-                $webroot = $this->FOGCore->getSetting('FOG_WEB_ROOT') ? '/'.trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/').'/' : '/';
+                $curroot = trim(trim($StorageNode->get(webroot),'/'));
+                $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
                 $URL = sprintf('http://%s%sstatus/hw.php',$StorageNode->get(ip),$webroot);
                 if ($ret = $this->FOGURLRequests->process($URL)) {
                     $arRet = explode("\n",$ret[0]);
@@ -41,7 +42,7 @@ class ServerInfo extends FOGPage {
                     $arGeneral = array();
                     $arFS = array();
                     $arNIC = array();
-                    foreach((array)$arRet AS &$line) {
+                    foreach((array)$arRet AS $i => &$line) {
                         $line = trim( $line );
                         if ($line == "@@start") {}
                         else if ($line == "@@general") $section = 0;
@@ -90,7 +91,7 @@ class ServerInfo extends FOGPage {
                             '<b>'._('Network Information').'</b>' => '&nbsp;',
                         );
                         $i = 0;
-                        foreach((array)$NICTrans AS &$txtran) {
+                        foreach((array)$NICTrans AS $i => &$txtran) {
                             $ethName = explode(' ',$NICTrans[$i]);
                             $fields['<b>'.$ethName[0].' '._('Information').'</b>'] = '&nbsp;';
                             $fields[$NICTrans[$i]] = $NICTransSized[$i];
