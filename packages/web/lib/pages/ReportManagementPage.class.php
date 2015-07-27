@@ -195,7 +195,7 @@ class ReportManagementPage extends FOGPage {
             $hostDesc = ($Host && $Host->isValid() ? $Host->get('description') : '');
             $imgName = ($Image && $Image->isValid() ? $Image->get('name') : $ImagingLog->get('image'));
             $imgPath = ($Image && $Image->isValid() ? $Image->get('path') : '');
-            $imgType = ($ImagingLog->get('type') == 'down' ? _('Download') : _('Upload'));
+            $imgType = ($ImagingLog->get('type') == 'down' ? _('Download') : ($ImagingLog->get(type) == 'up' ? _('Upload') : $ImagingLog->get(type)));
             // For the html report (PDF)
             if ($checkStart && $checkEnd) {
                 $this->data[] = array(
