@@ -34,8 +34,11 @@ class MySQL extends DatabaseManager {
      */
     public function connect() {
         try {
-            if (!$this->link) $this->link = new mysqli(DATABASE_HOST, DATABASE_USERNAME, DATABASE_PASSWORD);
-            if ($this->link->connect_error) throw new Exception(sprintf('Host: %s, Username: %s, Database: %s, Error: %s', DATABASE_HOST, DATABASE_USERNAME, DATABASE_NAME, $this->sqlerror));
+            if (!$this->link) $this->link = new mysqli(DATABASE_HOST, DATABASE_USERNAME, DATABASE_PASSWORD,DATABASE_NAME);
+            if ($this->link->connect_error) {
+                $this->link = new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
+                if ($this->link->connect_error) throw new Exception(sprintf('Host: %s, Username: %s, Database: %s, Error: %s', DATABASE_HOST, DATABASE_USERNAME, DATABASE_NAME, $this->sqlerror));
+            }
             $this->link->set_charset('utf8');
             if (!$this->link->select_db(DATABASE_NAME)) throw new Exception(_('Issue working with the current DB, maybe it has not been created yet'));
         } catch (Exception $e) {
