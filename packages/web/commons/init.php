@@ -16,8 +16,7 @@ class Initiator {
     public function __construct() {
         define('BASEPATH', self::DetermineBasePath());
         $this->plugPaths = array_filter(glob(BASEPATH . '/lib/plugins/*'), 'is_dir');
-        foreach($this->plugPaths AS $plugPath)
-        {
+        foreach($this->plugPaths AS $plugPath) {
             $plug_class[] = $plugPath.'/class/';
             $plug_hook[] = $plugPath.'/hooks/';
             $plug_event[] = $plugPath.'/events/';
@@ -176,16 +175,17 @@ class Initiator {
         $DatabaseManager = new DatabaseManager();
         /** $DB set's the DB class from the DatabaseManager */
         $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
+        /** Cleanup all invalid entrees */
+        $FOGCore->cleanInvalidEntries();
         /** Loads any Session variables */
         $FOGCore->setSessionEnv();
         /** $TimeZone the timezone setter */
-        $TimeZone = $FOGCore->TimeZone = $_SESSION['TimeZone'];
+        $TimeZone = $FOGCore->TimeZone = $_SESSION[TimeZone];
         /** $EventManager initiates the EventManager class */
-        $FOGCore->EventManager = $EventManager = $FOGCore->getClass('EventManager');
+        $FOGCore->EventManager = $EventManager = $FOGCore->getClass(EventManager);
         /** $HookManager initiates the HookManager class */
-        $FOGCore->HookManager = $HookManager = $FOGCore->getClass('HookManager');
+        $FOGCore->HookManager = $HookManager = $FOGCore->getClass(HookManager);
         $HookManager->load();
         $EventManager->load();
         /** $HookManager initiates the FOGURLRequest class */
-        $FOGCore->FOGURLRequests = $FOGURLRequests = $FOGCore->getClass('FOGURLRequests');
-        $FOGCore->cleanupBadEntries();
+        $FOGCore->FOGURLRequests = $FOGURLRequests = $FOGCore->getClass(FOGURLRequests);

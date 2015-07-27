@@ -6,7 +6,7 @@
 
 PARTCLONE_VERSION = 0.2.78
 PARTCLONE_SOURCE = partclone_$(PARTCLONE_VERSION).orig.tar.gz
-PARTCLONE_SITE = http://sourceforge.net/projects/partclone/files/testing/src
+PARTCLONE_SITE = http://www.mirrorservice.org/sites/downloads.sourceforge.net/p/pa/partclone/testing/src
 PARTCLONE_INSTALL_STAGING = YES
 PARTCLONE_AUTORECONF = YES
 PARTCLONE_DEPENDENCIES = attr e2fsprogs libgcrypt lzo xz zlib xfsprogs ncurses host-pkgconf

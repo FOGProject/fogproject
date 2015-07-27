@@ -72,7 +72,7 @@ class FOGPageManager extends FOGBase {
     }
     public function getSideMenu() {
         if ($this->FOGUser && $this->FOGUser->isValid() && $this->FOGUser->isLoggedIn()) {
-            $this->FOGSubMenu = $this->getClass('FOGSubMenu');
+            $this->FOGSubMenu = $this->getClass(FOGSubMenu);
             $class = $this->getFOGPageClass();
             foreach((array)$class->menu AS $link => $title) {
                 $this->FOGSubMenu->addItems($class->node,array((string)$title => (string)$link));
@@ -80,11 +80,11 @@ class FOGPageManager extends FOGBase {
             unset($title);
             if (isset($class->obj) && is_object($class->obj)) {
                 foreach((array)$class->subMenu AS $link => $title) {
-                    $this->FOGSubMenu->addItems($class->node,array((string)$title => (string)$link),$class->id,sprintf($this->foglang['SelMenu'],get_class($class->obj)));
+                    $this->FOGSubMenu->addItems($class->node,array((string)$title => (string)$link),$class->id,sprintf($this->foglang[SelMenu],get_class($class->obj)));
                 }
                 unset($title);
                 foreach((array)$class->notes AS $title => $item) {
-                    $this->FOGSubMenu->addNotes($class->node,array((string)$title => (string)$item),$class->id,sprintf($this->foglang['SelMenu'],get_class($class->obj)));
+                    $this->FOGSubMenu->addNotes($class->node,array((string)$title => (string)$item),$class->id,sprintf($this->foglang[SelMenu],get_class($class->obj)));
                 }
                 unset($item);
             }
@@ -93,27 +93,26 @@ class FOGPageManager extends FOGBase {
     }
     // Load FOGPage classes
     private function loadPageClasses() {
-        $isMobile = preg_match('#/mobile/#',$_SERVER['PHP_SELF']);
-
-        if ($this->isLoaded('PageClasses')) return;
+        $isMobile = preg_match('#/mobile/#',$_SERVER[PHP_SELF]);
+        if ($this->isLoaded(PageClasses)) return;
         // This variable is required as each class file uses it
         global $Init;
-        foreach($Init->PagePaths AS &$path) {
+        foreach($Init->PagePaths AS $i => &$path) {
             if (file_exists($path)) {
                 $iterator = new DirectoryIterator($path);
                 foreach ($iterator AS $fileInfo) {
                     $PluginName = preg_match('#plugins#i',$path) ? basename(substr($path,0,-6)) : null;
-                    if (in_array($PluginName,(array)$_SESSION['PluginsInstalled'])) $className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
+                    if (in_array($PluginName,(array)$_SESSION[PluginsInstalled])) $className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
                     else if (!preg_match('#plugins#i',$path)) $className = (!$fileInfo->isDot() && $fileInfo->isFile() && substr($fileInfo->getFilename(),-10) == '.class.php' ? substr($fileInfo->getFilename(),0,-10) : null);
                     if ($className && !in_array($className,get_declared_classes())) {
                         $r = new ReflectionClass($className);
                         $vals = $r->getDefaultProperties();
-                        $node = $vals['node'];
+                        $node = $vals[node];
                         unset($r);
-                        if ($node === $_REQUEST['node']) {
+                        if ($node === $_REQUEST[node]) {
                             $class = $this->getClass($className);
                             $this->register($class);
-                        } else if (!$_REQUEST['node'] && in_array($node,array('home','homes'))) {
+                        } else if (!$_REQUEST[node] && in_array($node,array('home','homes'))) {
                             $class = $this->getClass($className);
                             $this->register($class);
                         }

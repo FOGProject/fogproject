@@ -19,7 +19,7 @@ if [ -n "$hd" ]; then
 		while [ "$blCont" == "0" ] && [ "$blStop" == "0" ]; do
 			part="${hd}${partNum}"
 			umount /ntfs 2>/dev/null >/dev/null
-			mount -o rw $part /ntfs 
+			mount -o rw $part /ntfs
 			getSAMLoc
 			if [ -f "$sam" ]; then
 				blCont="1"
@@ -29,7 +29,7 @@ if [ -n "$hd" ]; then
 				then
 					blStop="1"
 				fi
-			fi			
+			fi
 		done
 		umount /ntfs 2>/dev/null >/dev/null
 		if [ "$blCont" == "1" ]; then
@@ -44,7 +44,7 @@ y
 EOF
 			echo -e "Done\n"
 			echo " Task Complete"
-		else 
+		else
 			echo " Unable to locate SAM file."
 		fi
 	else
@@ -62,7 +62,7 @@ while [ "$queueinfo" != "##" ]; do
 	rm co.txt
 	wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
 	queueinfo=`cat co.txt`
-	sleep 5
-done  
+	usleep 5000000
+done
 echo -e "\n * Database updated!\n"
-sleep 3
+usleep 3000000

@@ -35,7 +35,7 @@ try {
     $casever=trim(base64_decode($_REQUEST[casever]));
     $caseserial=trim(base64_decode($_REQUEST[caseserial]));
     $casesasset=trim(base64_decode($_REQUEST[casesasset]));
-    $Inventory = $FOGCore->getClass(Inventory)
+    $Inventory = $Host->get(inventory)
         ->set(hostID,$Host->get(id))
         ->set(sysman,$sysman)
         ->set(sysproduct,$sysproduct)

@@ -84,8 +84,6 @@ ${routeraddress}
 	fi
 
 }
-
-
 configureHttpd() {
 	etcconf="/etc/apache2/sites-available/001-fog.conf";
 	if [ -f "$etcconf" ]; then
@@ -290,10 +288,14 @@ class Config {
 		chown -R ${apacheuser}:${apacheuser} /var/www;
 		echo "OK";
         dots "Downloading kernels and inits"
-        wget -O "${webdirdest}/service/ipxe/bzImage" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage" >/dev/null 2>&1 & disown
-        wget -O "${webdirdest}/service/ipxe/bzImage32" "http://downloads.sourceforge.net/project/freeghost/KernelList/bzImage32" >/dev/null 2>&1 & disown
-        wget -O "${webdirdest}/service/ipxe/init.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init.xz" >/dev/null 2>&1 & disown
-        wget -O "${webdirdest}/service/ipxe/init_32.xz" "http://downloads.sourceforge.net/project/freeghost/InitList/init_32.xz" >/dev/null 2>&1 & disown
+        curl -sl --silent -kf -L https://fogproject.org/inits/init.xz >/dev/null 2>&1 && \
+        curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz >/dev/null 2>&1 & disown
+        curl -sl --silent -kf -L https://fogproject.org/inits/init_32.xz >/dev/null 2>&1 && \
+        curl --silent -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz >/dev/null 2>&1 & disown
+        curl -sl --silent -kf -L https://fogproject.org/kernels/bzImage >/dev/null 2>&1 && \
+        curl --silent -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage >/dev/null 2>&1 & disown
+        curl -sl --silent -kf -L https://fogproject.org/kernels/bzImage32 >/dev/null 2>&1 && \
+        curl --silent -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >/dev/null 2>&1 & disown
         echo "Backgrounded"
         if [ ! -f "$webredirect" ]; then
             echo "<?php header('Location: ./${webroot}index.php');?>" > $webredirect

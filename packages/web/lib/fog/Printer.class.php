@@ -29,17 +29,18 @@ class Printer extends FOGController {
     );
     public function load($field = 'id') {
         parent::load($field);
-        foreach(get_class_methods($this) AS $i => &$method) {
+        $methods = get_class_methods($this);
+        foreach ($methods AS $i => &$method) {
             if (strlen($method) > 5 && strpos($method,'load')) $this->$method();
         }
         unset($method);
     }
     // Overrides
     private function loadHosts() {
-        if (!$this->isLoaded('hosts') && $this->get('id')) {
-            $HostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID' => $this->get('id')),'','','','','','','hostID');
-            $this->set('hosts',$this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','','','id'));
-            $this->set('hostsnotinme',$this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','',true,'id'));
+        if (!$this->isLoaded(hosts) && $this->get(id)) {
+            $HostIDs = $this->getClass(PrinterAssociationManager)->find(array(printerID=>$this->get(id)),'','','','','','','hostID');
+            $this->set(hosts,$this->getClass(HostManager)->find(array(id=>$HostIDs),'','','','','','','id'));
+            $this->set(hostsnotinme,$this->getClass(HostManager)->find(array(id=>$HostIDs),'','','','','',true,'id'));
         }
         return $this;
     }
@@ -66,7 +67,7 @@ class Printer extends FOGController {
         parent::save();
         if ($this->isLoaded(hosts)) {
             // Remove all old entries.
-            $this->getClass(PrinterAssociationManager)->destroy(array('printerID' => $this->get(id)));
+            $this->getClass(PrinterAssociationManager)->destroy(array(printerID=>$this->get(id)));
             // Create new Assocs
             $i = 0;
             foreach($this->get(hosts) AS $i => &$Host) {
@@ -83,7 +84,7 @@ class Printer extends FOGController {
     }
     public function addHost($addArray) {
         // Add
-        foreach((array)$addArray AS $i => &$item) $this->add('hosts', $item);
+        foreach((array)$addArray AS $i => &$item) $this->add(hosts,$item);
         unset($item);
         // Return
         return $this;
@@ -97,23 +98,27 @@ class Printer extends FOGController {
     }
     public function updateDefault($hostid,$onoff) {
         foreach((array)$hostid AS $i => &$id) {
-            $Host = $this->getClass('Host',$id);
-            if ($Host && $Host->isValid()) $Host->updateDefault($this->get('id'),in_array($Host->get('id'),$onoff));
+            $Host = $this->getClass(Host,$id);
+            $Host->updateDefault($this->get(id),in_array($Host->get(id),$onoff));
         }
         unset($id);
         return $this;
     }
     public function destroy($field = 'id') {
         // Remove all Host associations
-        $this->getClass('PrinterAssociationManager')->destroy(array('printerID' => $this->get('id')));
+        $this->getClass(PrinterAssociationManager)->destroy(array(printerID=>$this->get(id)));
         // Return
         return parent::destroy($field);
     }
     public function isValid() {
-        $ret = false;
-        if ($this->get('config') == 'Network') $ret = ($this->get('name') ? true : false);
-        else if ($this->get('config') == 'iPrint') $ret = ($this->get('name') && $this->get('port') ? true : false);
-        else if ($this->get('config') == 'Local') $ret = ($this->get('name') && $this->get('port') && $this->get('file') && $this->get('model') ? true : false);
-        return $ret;
+        $name = $this->get(name);
+        $port = $this->get(port);
+        $file = $this->get('file');
+        $ip = $this->get(ip);
+        $model = $this->get(model);
+        if ($this->get(config) == 'Network') return isset($name);
+        else if ($this->get(config) == 'iPrint') return (isset($name) && isset($port));
+        else if ($this->get(config) == 'Local') return (isset($name) && isset($port) && isset($file) && isset($model));
+        else if ($this->get(config) == 'Cups') return (isset($name) && isset($ip) && isset($file));
     }
 }

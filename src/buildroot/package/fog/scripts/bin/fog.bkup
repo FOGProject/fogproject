@@ -302,7 +302,7 @@ if [ -n "$type" ]; then
 										# --load-backup        -Pull int disk's original gpt
 										# --move-second-header -Moves the backup GPT header to the end of the new drive
 										# --extend             -Resizes the last partition to the max size
-										#sgdisk --zap-all $hd 2>&1 > /dev/null
+										#sgdisk --zap-all $hd >/dev/null 2>&1
 										#sleep 2
 										#runPartprobe
 										#sgdisk --mbrtogpt --load-backup=$win7imgroot/gpt.bak --move-second-header $hd &>/dev/null
@@ -835,7 +835,7 @@ IFS='
 						# This needs to be looked at
 						#TODO:review this
 						if [ "$win7rec" == "gpt" ]; then
-							sgdisk --backup=/gpt.bak $hd 2>&1 >/dev/null
+							sgdisk --backup=/gpt.bak $hd >/dev/null 2>&1
 						else
 							dd if=$hd of=/mbr.backup count=1 bs=512 &>/dev/null
 						fi
@@ -1000,7 +1000,7 @@ FORCEY
 
 								#TODO:review this
 								if [ "$win7partcnt" == "3" ] && [ "$win7rec" == "gpt" ]; then
-									sgdisk -g -l /gpt.bak $hd 2>&1 >/dev/null
+									sgdisk -g -l /gpt.bak $hd >/dev/null 2>&1
 								else
 									dd if=/mbr.backup of=$hd &>/dev/null
 									fdisk $hd &>/dev/null << EOFRESTOREPART

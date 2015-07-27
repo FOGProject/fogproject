@@ -24,7 +24,7 @@ class Plugin extends FOGController {
         $Plugins = $this->getPlugins();
         foreach($Plugins AS $i => &$Plugin) {
             if(md5(trim($Plugin->getName())) == trim($hash)) {
-                $_SESSION['fogactiveplugin']=serialize($Plugin);
+                $_SESSION[fogactiveplugin]=serialize($Plugin);
                 $entrypoint = $Plugin->getEntryPoint();
                 break;
             }
@@ -33,15 +33,15 @@ class Plugin extends FOGController {
         return $entrypoint;
     }
     public function getActivePlugs() {
-        $Plugin = current($this->getClass('PluginManager')->find(array('name' => $this->getName())));
-        $this->blIsActive = ($Plugin && $Plugin->isValid() ? ($Plugin->get('state') == 1 ? 1 : 0) : 0);
-        $this->blIsInstalled = ($Plugin && $Plugin->isValid() ? ($Plugin->get('installed') == 1 ? 1 : 0) : 0);
+        $Plugin = current($this->getClass(PluginManager)->find(array(name=>$this->getName())));
+        $this->blIsActive=($Plugin&&$Plugin->isValid()?($Plugin->get(state)==1?1:0):0);
+        $this->blIsInstalled = ($Plugin&&$Plugin->isValid()?($Plugin->get(installed)==1?1:0):0);
     }
     private function getDirs() {
-        $dir = trim($this->FOGCore->getSetting('FOG_PLUGINSYS_DIR'));
+        $dir = trim($this->FOGCore->getSetting(FOG_PLUGINSYS_DIR));
         // For now, automatically sets the plugin directory.  Should not be moved though so classes work properly.
-        $dir != '../lib/plugins/' ?	$this->FOGCore->setSetting('FOG_PLUGINSYS_DIR','../lib/plugins/') : null;
-        $dir = '../lib/plugins/';
+        $dir != '../lib/plugins/'?$this->FOGCore->setSetting(FOG_PLUGINSYS_DIR,'../lib/plugins/'):null;
+        $dir='../lib/plugins/';
         $handle=opendir($dir);
         while(false !== ($file=readdir($handle))) {
             if(file_exists($dir.$file.'/config/plugin.config.php')) $files[] = $dir.$file.'/';
@@ -54,13 +54,13 @@ class Plugin extends FOGController {
         $Dirs = $this->getDirs();
         foreach($Dirs AS $i => &$file) {
             require(rtrim($file,'/').'/config/'.$cfgfile);
-            $p=new Plugin(array('name' => $fog_plugin['name']));
+            $p=new Plugin(array(name=>$fog_plugin[name]));
             $p->strPath = $file;
-            $p->strName = $fog_plugin['name'];
-            $p->strDesc = $fog_plugin['description'];
-            $p->strEntryPoint = $file.$fog_plugin['entrypoint'];
-            $p->strIcon = $file.$fog_plugin['menuicon'];
-            $p->strIconHover = $file.$fog_plugin['menuicon_hover'];
+            $p->strName = $fog_plugin[name];
+            $p->strDesc = $fog_plugin[description];
+            $p->strEntryPoint = $file.$fog_plugin[entrypoint];
+            $p->strIcon = $file.$fog_plugin[menuicon];
+            $p->strIconHover = $file.$fog_plugin[menuicon_hover];
             $arPlugs[] = $p;
         }
         unset($file);
@@ -70,22 +70,42 @@ class Plugin extends FOGController {
         $Plugins = $this->getPlugins();
         foreach($Plugins AS $i => &$Plugin) {
             if(md5(trim($Plugin->getName())) == trim($plugincode)) {
-                $this->set('state',1)
-                    ->set('installed',0)
-                    ->set('name',$Plugin->getName())
+                $this->set(state,1)
+                    ->set(installed,0)
+                    ->set(name,$Plugin->getName())
                     ->save();
             }
         }
         unset($Plugin);
         return $this;
     }
-    public function getManager() {return $this->getClass(ucfirst($this->get(name)).'Manager');}
-        public function getPath() {return $this->strPath;}
-        public function getName() {return $this->strName;}
-        public function getDesc() {return $this->strDesc;}
-        public function getEntryPoint() {return $this->strEntryPoint;}
-        public function getIcon() {return $this->strIcon;}
-        public function isInstalled() {$this->getActivePlugs();return $this->blIsInstalled;}
-        public function isActive() {$this->getActivePlugs();return $this->blIsActive;}
-        public function getVersion() {return $this->strVersion;}
+    public function getManager() {
+        return $this->getClass(ucfirst($this->get(name)).'Manager');
+    }
+    public function getPath() {
+        return $this->strPath;
+    }
+    public function getName() {
+        return $this->strName;
+    }
+    public function getDesc() {
+        return $this->strDesc;
+    }
+    public function getEntryPoint() {
+        return $this->strEntryPoint;
+    }
+    public function getIcon() {
+        return $this->strIcon;
+    }
+    public function isInstalled() {
+        $this->getActivePlugs();
+        return $this->blIsInstalled;
+    }
+    public function isActive() {
+        $this->getActivePlugs();
+        return $this->blIsActive;
+    }
+    public function getVersion() {
+        return $this->strVersion;
+    }
 }

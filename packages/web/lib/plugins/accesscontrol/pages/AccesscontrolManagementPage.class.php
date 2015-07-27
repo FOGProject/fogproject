@@ -22,7 +22,7 @@ class AccesscontrolManagementPage extends FOGPage {
 		);
 		// Row Attributes
 		$this->attributes = array(
-			array('class' => 'c','width' => 16),
+			array('class'=>c,width=>16),
 			array(),
 			array(),
 			array(),
@@ -39,39 +39,40 @@ class AccesscontrolManagementPage extends FOGPage {
 		foreach ((array)$AccessControls AS $i => &$AccessControl) {
 			if ($AccessControl && $AccessControl->isValid()) {
 				$this->data[] = array(
-					id	=> $AccessControl->get(id),
-					name  => $AccessControl->get(name),
-					desc	=> $AccessControl->get(description),
-					other => $AccessControl->get(other),
-					user => $this->getClass(User,$AccessControl->get(userID))->get(name),
-					group => $AccessControl->get(groupID),
+					id=>$AccessControl->get(id),
+					name=>$AccessControl->get(name),
+					desc=>$AccessControl->get(description),
+					other=>$AccessControl->get(other),
+					user=>$this->getClass(User,$AccessControl->get(userID))->get(name),
+					group=>$AccessControl->get(groupID),
 				);
 			}
 		}
 		// Hook
-		$this->HookManager->processEvent('CONTROL_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		$this->HookManager->processEvent(CONTROL_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
 		// Output
 		$this->render();
 	}
 	public function search_post() {
 		// Variables
-		$keyword = preg_replace('#%+#', '%', '%' . preg_replace('#[[:space:]]#', '%', $_REQUEST[crit]) . '%');
+		$keyword = preg_replace('#%+#','%','%'.preg_replace('#[[:space:]]#','%',$_REQUEST[crit]).'%');
 		// Find data -> Push data
         foreach($this->getClass(AccessControlManager)->databaseFields AS $common => &$dbField) $findWhere[$common] = $keyword;
         unset($dbField);
         $AccessControls = $this->getClass(AccessControlManager)->find($findWhere);
         foreach($AccessControls AS $i => &$AccessControl) {
             $this->data[] = array(
-                id => $AccessControl->get(id),
-                name => $AccessControl->get(name),
-                desc => $AccessControl->get(description),
-                other => $AccessControl->get(other),
-                user => $this->getClass(User,$AccessControl->get(userID))->get(name),
-                group => $AccessControl->get(groupID),
+                id=>$AccessControl->get(id),
+                name=>$AccessControl->get(name),
+                desc=>$AccessControl->get(description),
+                other=>$AccessControl->get(other),
+                user=>$this->getClass(User,$AccessControl->get(userID))->get(name),
+                group=>$AccessControl->get(groupID),
             );
         }
+        unset($AccessControl);
 		// Hook
-		$this->HookManager->processEvent('CONTROL_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+		$this->HookManager->processEvent(CONTROL_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
 		// Output
 		$this->render();
 	}

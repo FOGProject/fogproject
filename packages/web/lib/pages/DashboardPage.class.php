@@ -41,9 +41,11 @@ class DashboardPage extends FOGPage {
         $this->HookManager->processEvent('DashboardData', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         $this->render();
         print '</li><li><h4>'._('System Activity').'</h4><div class="graph pie-graph" id="graph-activity"></div></li><li><h4>'._('Disk Information').'</h4><div id="diskusage-selector">';
-        $webroot = '/'.ltrim(rtrim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'),'/').'/';
-        foreach ((array)$this->getClass('StorageNodeManager')->find(array('isEnabled' => 1,'isGraphEnabled' => 1)) AS &$StorageNode) {
-            $version = $this->FOGURLRequests->process($StorageNode->get('ip').$webroot.'/service/getversion.php','GET');
+        $Nodes = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1,isGraphEnabled=>1));
+        foreach ($Nodes AS $i => &$StorageNode) {
+            $curroot = trim(trim($StorageNode->get(webroot),'/'));
+            $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
+            $version = $this->FOGURLRequests->process($StorageNode->get(ip).$webroot.'/service/getversion.php','GET');
             $options .= '<option value="'.$StorageNode->get('id').'">'.$StorageNode->get('name').($StorageNode->get('isMaster') == '1' ? " * " : ' ')."(${version[0]})".'</option>';
         }
         unset($StorageNode);
@@ -54,7 +56,8 @@ class DashboardPage extends FOGPage {
         $ActivityQueued = 0;
         $ActivitySlots = 0;
         $ActivityTotalClients = 0;
-        foreach($this->getClass('StorageNodeManager')->find(array('isEnabled' => 1)) AS &$StorageNode) {
+        $Nodes = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1));
+        foreach($Nodes AS $i => &$StorageNode) {
             if ($StorageNode->isValid()) {
                 $ActivityActive += $StorageNode->getUsedSlotCount();
                 $ActivityQueued += $StorageNode->getQueuedSlotCount();
@@ -71,9 +74,9 @@ class DashboardPage extends FOGPage {
     public function bandwidth() {
         $Nodes = $this->getClass('StorageNodeManager')->find(array('isGraphEnabled' => 1));
         // Loop each storage node -> grab stats
-        foreach($Nodes AS &$StorageNode) {
+        foreach($Nodes AS $i => &$StorageNode) {
             $fetchedData = $this->FOGURLRequests->process(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim($this->FOGCore->getSetting('FOG_NFS_BANDWIDTHPATH'),'/'), $StorageNode->get('interface')),'GET');
-            foreach((array)$fetchedData AS &$dataSet) {
+            foreach((array)$fetchedData AS $i => &$dataSet) {
                 if (preg_match('/(.*)##(.*)/U', $dataSet,$match)) $data[$StorageNode->get('name')] = array('rx' => $match[1],'tx' => $match[2]);
                 else $data[$StorageNode->get('name')] = json_decode($dataSet,true);
             }
@@ -113,7 +116,8 @@ class DashboardPage extends FOGPage {
         $ActivityActive = $ActivityQueued = $ActivityTotalClients = 0;
         $StorageNode = $this->getClass('StorageNode',$_REQUEST['id']);
         if ($StorageNode->isValid()) {
-            foreach($this->getClass('StorageNodeManager')->find(array('isEnabled' => 1, 'storageGroupID' => $StorageNode->get('storageGroupID'))) AS &$SN) {
+            $Nodes = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1,storageGroupID=>$StorageNode->get(storageGroupID)));
+           foreach($Nodes AS $i => &$SN) {
                 if ($SN->isValid()) {
                     $ActivityActive += $SN->getUsedSlotCount();
                     $ActivityQueued += $SN->getQueuedSlotCount();

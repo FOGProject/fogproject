@@ -24,7 +24,8 @@ function display_output(partition_names, partitions, \
 	}
 	printf("unit: %s\n\n", unit);
 	for(pName in partition_names) {
-		printf("%s : start=%10d, size=%10d, %2s", partitions[pName, "device"], partitions[pName, "start"], partitions[pName, "size"], partitions[pName, "type"]);
+		printf("%s : start=%10d, size=%10d, %s%2s", partitions[pName, "device"], partitions[pName, "start"], partitions[pName, "size"],
+		       type, partitions[pName, "type"]);
 		if(label == "dos") {
 			if(partitions[pName, "flags"] != "") {
 				printf("%s", partitions[pName, "flags"]);
@@ -183,6 +184,10 @@ function fill_disk(partition_names, partitions, args, \
 			original_fixed += CHUNK_SIZE;
 			continue;
 		}
+		# + CHUNK_SIZE to allow for margin after each logical partition (required if 2 or more logical partitions exist)
+		if(p_number >= 5) {
+			original_fixed += CHUNK_SIZE;
+		}
 		if(p_size == 0) { fixed_partitions[pName] = p_number; };
 		found = 0; for(i in fixed_partitions) { if(fixed_partitions[i] == p_number) { found = 1; } };
 		if(found) {
@@ -216,7 +221,8 @@ function fill_disk(partition_names, partitions, args, \
 		}
 		partitions[pName, "size"] = partitions[pName, "newsize"] - partitions[pName, "newsize"] % CHUNK_SIZE;
 		if(p_number >= 5) {
-			new_logical += partitions[pName, "size"];
+			# + CHUNK_SIZE to allow for margin after each logical partition (required if 2 or more logical partitions exist)
+			new_logical += partitions[pName, "size"] + CHUNK_SIZE;
 		}
 	}
 	#
@@ -241,6 +247,7 @@ function fill_disk(partition_names, partitions, args, \
 	for(i in ordered_starts) {
 		pName = ordered_starts[i];
 		p_type = partitions[pName, "type"];
+		p_number = partitions[pName, "number"] + 0;
 		p_size = partitions[pName, "size"] + 0;
 		if(p_size > 0) {
 			partitions[pName, "start"] = curr_start;
@@ -249,6 +256,10 @@ function fill_disk(partition_names, partitions, args, \
 			curr_start += CHUNK_SIZE;
 		} else {
 			curr_start += p_size;
+		}
+		# + CHUNK_SIZE to allow for margin after each logical partition (required if 2 or more logical partitions exist)
+		if(p_number >= 5) {
+			curr_start += CHUNK_SIZE;
 		}
 	}
 	PROCINFO["sorted_in"] = old_sorted_in;
@@ -295,12 +306,7 @@ BEGIN{
 	gsub(/.*size= */, "", fields[2])
 	partitions[part_name, "size"] = fields[2]
 	# Get type/id value
-	if (label == "") {
-		gsub(/.*type= */, "", fields[3])
-	} else {
-		gsub(/.*Id= */, "", fields[3])
-	}
-	#partitions[part_name, "type"] = fields[3]
+	gsub(/.*(type|Id)= */, "", fields[3])
 	partitions[part_name, "type"] = fields[3]
 	
 	if ( label == "dos" )

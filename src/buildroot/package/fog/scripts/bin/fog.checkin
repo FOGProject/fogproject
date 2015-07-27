@@ -115,7 +115,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 					echo ")"
 					queueinfo=`wget -q -O - "http://${web}service/Pre_Stage1.php?mac=$mac&type=$type" 2>/dev/null`;
 					blPass=`echo $queueinfo | grep "##"`;
-					sleep 5;
+					usleep 5000000
 					waittime=$(expr $waittime "+" 5);
 				done
 				echo "Done";
@@ -148,7 +148,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 					echo ")"
 					queueinfo=`wget -q -O - "http://${web}service/mc_checkin.php?mac=$mac&type=$type" 2>/dev/null`;
 					blPass=`echo $queueinfo | grep "##"`;
-					sleep 5;
+					usleep 5000000
 					waittime=$(expr $waittime "+" 5);
 				done
 				if [ "$mc" == "bt" ]; then
@@ -178,7 +178,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 						if [ ! "$blame" == "##" ]; then
 							echo $blame;
 						fi
-							sleep 5;
+							usleep 5000000
 					done
 				else
 					echo "Failed";
@@ -186,7 +186,7 @@ elif [ "$type" == "down" ] && [ "$capone" != "1" ]; then
 					cat /tmp/mntfail;
 					echo "";
 				fi
-				sleep 5;
+				usleep 5000000
 			else
 				echo "Done";
 				blGo="1";

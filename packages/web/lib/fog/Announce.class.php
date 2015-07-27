@@ -129,7 +129,8 @@ class Announce extends FOGBase {
         try {
             $seeders = 0;
             $leechers = 0;
-            foreach($this->getClass('PeerTorrentManager')->find() AS $PeerTorrentNew) {
+            $PTM = $this->getClass('PeerTorrentManager')->find();
+            foreach($PTM AS $i => &$PeerTorrentNew) {
                 $PeerNew = new Peer($PeerTorrentNew->get('peerID'));
                 $interval = $this->nice_date('+'.$this->FOGCore->getSetting('FOG_TORRENT_INTERVAL')+$this->FOGCore->getSetting('FOG_TORRENT_TIMEOUT').' seconds');
                 if ($PeerTorrentNew->get('torrentID') == $this->torrent->get('id') && !$PeerTorrentNew->get('stopped') && strtotime($PeerTorrentNew->get('lastUpdated')) <= strtotime($interval->format('Y-m-d H:i:s')) && $PeerNew->isValid() && $PeerNew->get('id') != $this->peer->get('id'))
@@ -137,6 +138,7 @@ class Announce extends FOGBase {
                 if ($PeerTorrentNew->get('torrentID') == $this->torrent->get('id') && !$PeerTorrentNew->get('stopped') && strtotime($PeerTorrentNew->get('lastUpdated')) <= strtotime($interval->format('Y-m-d H:i:s')))
                     ($PeerTorrentNew->get('left') > 0 ? $leechers++ : ($PeerTorrentNew->get('left') == 0 ? $seeders++ : null));
             }
+            unset($PeerTorrentNew);
             throw new Exception($this->FOGCore->track($reply,$seeders,$leechers));
         }
         catch (Exception $e) {

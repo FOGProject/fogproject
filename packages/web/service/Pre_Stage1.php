@@ -53,18 +53,18 @@ try {
         // Print failed node messages if we are unable to find a valid node
         if (count($messageArray)) print implode(PHP_EOL, $messageArray).PHP_EOL;
         throw new Exception(_("Unable to find a suitable Storage Node for transfer!"));
-        $Task->set('NFSMemberID',$winner->get(id));
+        $Task->set(NFSMemberID,$winner->get(id));
     }
     // All tests passed! Almost there!
-    $Task->set('stateID', '3');
-    $EventManager->notify('HOST_IMAGE_START', array('HostName' =>$Host->get(name)));
+    $Task->set(stateID,3);
+    $EventManager->notify(HOST_IMAGE_START,array(HostName=>$Host->get(name)));
     // Update Task State ID -> Update Storage Node ID -> Save
     if (!$Task->save()) throw new Exception(_('Failed to update Task'));
     if ($imagingTasks) {
         // Success!
         if ($MultiSess && $MultiSess->isValid()) $Host->set(imageID,$MultiSess->get(image));
         // Log it
-        $id = @max($FOGCore->getClass(ImagingLogManager)->find(array('hostID' => $Host->get(id),'type' => $_REQUEST[type],'complete' => '0000-00-00 00:00:00'),'','','','','','','id'));
+        $id = @max($FOGCore->getClass(ImagingLogManager)->find(array(hostID=>$Host->get(id),type=>$_REQUEST[type],complete=>'0000-00-00 00:00:00'),'','','','','','','id'));
         $FOGCore->getClass(ImagingLog,$id)
             ->set(hostID,$Host->get(id))
             ->set(start,$FOGCore->nice_date()->format('Y-m-d H:i:s'))

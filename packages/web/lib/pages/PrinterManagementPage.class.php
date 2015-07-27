@@ -82,7 +82,8 @@ class PrinterManagementPage extends FOGPage {
     }
     public function search_post() {
         // Find data -> Push data
-        foreach ($this->getClass(PrinterManager)->search() AS &$Printer) {
+        $Printers = $this->getClass(PrinterManager)->search();
+        foreach ($Printers AS $i => &$Printer) {
             $this->data[] = array(
                 id=>$Printer->get(id),
                 name=>$Printer->get(name),
@@ -96,7 +97,7 @@ class PrinterManagementPage extends FOGPage {
         }
         unset($Printer);
         // Hook
-        $this->HookManager->processEvent('PRINTER_DATA', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        $this->HookManager->processEvent(PRINTER_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
     }
@@ -189,7 +190,7 @@ class PrinterManagementPage extends FOGPage {
             switch ($_REQUEST[tab]) {
                 case 'printer-type';
                 $this->FOGCore->setMessage('Printer type changed to: '.$_REQUEST[printertype]);
-                $this->FOGCore->redirect('?node=printer&sub=edit&id='.$this->obj->get(id));
+                $this->FOGCore->redirect('?node=printer&sub=add');
                 break;
                 case 'printer-gen';
                 //Remove spaces from beginning and end offields needed.
@@ -199,6 +200,11 @@ class PrinterManagementPage extends FOGPage {
                 $_REQUEST[model] = trim($_REQUEST[model]);
                 $_REQUEST[ip] = trim($_REQUEST[ip]);
                 $_REQUEST[description] = trim($_REQUEST[description]);
+                // Set the printer type
+                if (isset($_REQUEST[local])) $printertype = "Local";
+                else if (isset($_REQUEST[network])) $printertype = "Network";
+                else if (isset($_REQUEST[iprint])) $printertype = "iPrint";
+                else if (isset($_REQUEST[cups])) $printertype = "Cups";
                 // Error checking
                 if (isset($_REQUEST[local]) && (empty($_REQUEST[alias]) || empty($_REQUEST[port]) || empty($_REQUEST[inf]) || empty($_REQUEST[model]))) throw new Exception(_('You must specify the alias, port, model, and inf. Unable to create!'));
                 else if (isset($_REQUEST[iprint]) && (empty($_REQUEST[alias]) || empty($_REQUEST[port]))) throw new Exception(_('You must specify the alias and port. Unable to create!'));
@@ -209,9 +215,9 @@ class PrinterManagementPage extends FOGPage {
                 $Printer = $this->getClass(Printer)
                     ->set(description,$_REQUEST[description])
                     ->set(name,$this->DB->sanitize($_REQUEST[alias]))
-                    ->set(config,$_REQUEST[printertype])
+                    ->set(config,$printertype)
                     ->set(model,$_REQUEST[model])
-                    ->set('file',$this->DB->sanitize($_REQUEST[inf]))
+                    ->set('file',$_REQUEST[inf])
                     ->set(port,$_REQUEST[port])
                     ->set(ip,$_REQUEST[ip]);
                 // Save
@@ -307,7 +313,7 @@ class PrinterManagementPage extends FOGPage {
                 'printer_name' => $this->DB->sanitize($this->obj->get(name)),
                 'printer_port' => $this->obj->get(port),
                 'printer_model' => $this->obj->get(model),
-                'printer_inf' => $this->DB->sanitize($this->obj->get('file')),
+                'printer_inf' => $this->obj->get('file'),
                 'printer_ip' => $this->obj->get(ip),
                 'desc' => $this->obj->get(description),
             );

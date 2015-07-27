@@ -10,7 +10,7 @@ class AddLocationGroup extends Hook {
     }
     public function GroupFields($arguments) {
         if (in_array($this->node,(array)$_SESSION[PluginsInstalled]) && $_REQUEST[node] == 'group') {
-            $locationID = array_unique($this->getClass(LocationAssociationManager)->find(array('hostID' => $arguments[Group]->get(hosts)),'','','','','','','locationID'));
+            $locationID = array_unique($this->getClass(LocationAssociationManager)->find(array(hostID=>$arguments[Group]->get(hosts)),'','','','','','','locationID'));
             $locID = array_shift($locationID);
             $arguments[fields] = $this->array_insert_after(_('Group Product Key'),$arguments[fields],_('Group Location'),$this->getClass(LocationManager)->buildSelectBox($locID));
         }
@@ -18,7 +18,7 @@ class AddLocationGroup extends Hook {
     public function GroupAddLocation($arguments) {
         if (in_array($this->node,(array)$_SESSION[PluginsInstalled]) && $_REQUEST[node] == 'group' && $_REQUEST[tab] == 'group-general') {
             // Remove Assocs
-            $this->getClass(LocationAssociationManager)->destroy(array('hostID' => $arguments[Group]->get(hosts)));
+            $this->getClass(LocationAssociationManager)->destroy(array(hostID=>$arguments[Group]->get(hosts)));
             if ($_REQUEST[location]) {
                 foreach($arguments[Group]->get(hosts) AS $i => &$Host) {
                     $this->getClass(LocationAssociation)

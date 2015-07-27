@@ -21,18 +21,32 @@ class Group extends FOGController {
     );
     // Overides
     private function loadHosts() {
-        if (!$this->isLoaded('hosts') && $this->get('id')) {
-            $HostIDs = $this->getClass(GroupAssociationManager)->find(array('groupID' => $this->get('id')),'','','','','','','hostID');
+        if (!$this->isLoaded(hosts) && $this->get(id)) {
+            $HostIDs = $this->getClass(GroupAssociationManager)->find(array(groupID=>$this->get(id)),'','','','','','','hostID');
             $this->set(hosts,$HostIDs);
-            $this->set(hostsnotinme,$this->getClass('HostManager')->find(array('id' => $HostIDs),'','','','','',true,'id'));
+            $this->set(hostsnotinme,$this->getClass(HostManager)->find(array(id=>$HostIDs),'','','','','',true,'id'));
         }
         return $this;
     }
-    public function getHostCount() {return $this->getClass(GroupAssociationManager)->count(array('groupID' => $this->get('id')));}
-        public function get($key = '') {
-            if (in_array($this->key($key),array('hosts','hostsnotinme'))) $this->loadHosts();
-            return parent::get($key);
-        }
+    public function getHostCount() {
+        return $this->getClass(GroupAssociationManager)->count(array(groupID=>$this->get(id)));
+    }
+    public function get($key = '') {
+        if (in_array($this->key($key),array(hosts,hostsnotinme))) $this->loadHosts();
+        return parent::get($key);
+    }
+    public function set($key,$value) {
+        if ($this->key($key) == 'hosts') $this->loadHosts();
+        return parent::set($key,$value);
+    }
+    public function add($key,$value) {
+        if ($this->key($key) == 'hosts') $this->loadHosts();
+        return parent::add($key,$value);
+    }
+    public function remove($key,$value) {
+        if ($this->key($key) == 'hosts') $this->loadHosts();
+        return parent::remove($key,$value);
+    }
     public function load($field = 'id') {
         parent::load($field);
         $methods = get_class_methods($this);
@@ -42,15 +56,11 @@ class Group extends FOGController {
         }
         unset($method);
     }
-    public function add($key,$value) {
-        if ($this->key($key) == 'hosts') $this->loadHosts();
-        return parent::add($key,$value);
-    }
     public function save() {
         parent::save();
         if ($this->isLoaded(hosts)) {
             // Remove old rows
-            $this->getClass(GroupAssociationManager)->destroy(array('groupID' => $this->get('id')));
+            $this->getClass(GroupAssociationManager)->destroy(array(groupID=>$this->get(id)));
             // Create assoc
             foreach ($this->get(hosts) AS $i => &$Host) $this->getClass(GroupAssociation)->set(hostID,$Host)->set(groupID,$this->get(id))->save();
             unset($Host);
@@ -72,32 +82,35 @@ class Group extends FOGController {
         return $this;
     }
     public function addSnapin($snapArray) {
-        $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
+        $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
         foreach($Hosts AS $i => &$Host) $Host->addSnapin($snapArray)->save();
         unset($Host);
         return $this;
     }
     public function removeSnapin($snapArray) {
-        $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
+        $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
         foreach($Hosts AS $i => &$Host) $Host->removeSnapin($snapArray)->save();
         unset($Host);
         return $this;
     }
-    public function setAD($useAD, $domain, $ou, $user, $pass) {
-        $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
-        foreach($Hosts AS $i => &$Host) $Host->setAD($useAD,$domain,$ou,$user,$pass);
-        unset($Host);
+    public function setAD($useAD,$domain,$ou,$user,$pass,$legacy) {
+        $this->getClass(HostManager)->update(array(id=>$this->get(hosts)),'',array(useAD=>$useAD,ADDomain=>trim($domain),ADOU=>trim($ou),ADUser=>trim($user),ADPass=>$pass,ADPassLegacy=>$legacy));
         return $this;
     }
     public function addPrinter($printAdd,$printDel,$level = 0) {
-        $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
-        foreach($Hosts AS $i => &$Host) $Host->set(printerLevel,$level)->addPrinter($printAdd)->removePrinter($printDel)->save();
+        $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
+        foreach($Hosts AS $i => &$Host) {
+            $Host->set(printerLevel,$level);
+            if ($printAdd) $Host->addPrinter($printAdd);
+            if ($printDel) $Host->removePrinter($printDel);
+            $Host->save();
+        }
         unset($Host);
         return $this;
     }
     // Custom Variables
     public function doMembersHaveUniformImages() {
-        $images = array_unique($this->getClass(HostManager)->find(array('id' => $this->get(hosts)),'','','','','','','imageID'));
+        $images = array_unique($this->getClass(HostManager)->find(array(id=>$this->get(hosts)),'','','','','','','imageID'));
         return (count($images) == 1);
     }
     public function updateDefault($printerid) {
@@ -108,23 +121,21 @@ class Group extends FOGController {
     }
     public function addImage($imageID) {
         if (!$imageID) throw new Exception(_('Select an image'));
-        $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
-        foreach($Hosts AS $i => &$Host) {
-            if ($Host->get(task)->isValid()) throw new Exception(_('There is a host in tasking'));
-            $Host->set(imageID,$imageID)->save();
-        }
-        unset($Host);
+        if (!$this->getClass(Image,$imageID)->isValid()) throw new Exception(_('Select a valid image'));
+        if ($this->getClass(TaskManager)->count(array(hostID=>$this->get(hosts),stateID=>array(0,1,2,3)))) throw new Exception(_('There is a host in a tasking'));
+        $this->getClass(HostManager)->update(array(id=>$this->get(hosts)),'',array(imageID=>$imageID));
         return $this;
     }
     public function destroy($field = 'id') {
         // Remove All Host Associations
-        $this->getClass(GroupAssociationManager)->destroy(array('groupID' => $this->get(id)));
+        $this->getClass(GroupAssociationManager)->destroy(array(groupID=>$this->get(id)));
         // Return
         return parent::destroy($field);
     }
     public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false) {
-        $Hosts = $this->getClass(HostManager)->find(array('id' => $this->get(hosts)));
-        foreach ($Hosts AS $i => &$Host) if (!$Host->get(pending)) $success[] = $Host->createImagePackage($taskTypeID,$taskName,$enableShutdown,$enableDebug,$enableSnapins,$groupTask,$_SESSION[FOG_USERNAME],$passreset);
+
+        $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
+        foreach ($Hosts AS $i => &$Host) if (!$Host->get(pending)) $success[] = $Host->createImagePackage($taskTypeID,$taskName,$shutdown,$debug,$deploySnapins,$isGroupTask,$_SESSION[FOG_USERNAME],$passreset,$sessionjoin);
         return $success;
     }
 }

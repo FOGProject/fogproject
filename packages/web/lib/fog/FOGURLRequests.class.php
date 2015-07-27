@@ -16,8 +16,8 @@ class FOGURLRequests extends FOGBase {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_CONNECTTIMEOUT_MS => 10000,
-            CURLOPT_TIMEOUT_MS => 10000,
+            CURLOPT_CONNECTTIMEOUT_MS => 2001,
+            CURLOPT_TIMEOUT_MS => 2000,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 20,
             CURLOPT_HEADER => false,
@@ -45,16 +45,16 @@ class FOGURLRequests extends FOGBase {
         foreach ($urls AS $i => &$url) {
             $ProxyUsed = false;
             if ($this->DB && $this->FOGCore->getSetting(FOG_PROXY_IP)) {
-                foreach($this->getClass(StorageNodeManager)->find() AS $StorageNode) $IPs[] = $this->FOGCore->resolveHostname($StorageNode->get(ip));
+                $IPs = $this->getClass(StorageNodeManager)->find('','','','','','','','ip');
                 $IPs = array_filter(array_unique((array)$IPs));
                 if (!preg_match('#^(?!.*'.implode('|',(array)$IPs).')$#i',$url)) $ProxyUsed = true;
-                $username = $this->FOGCore->getSetting('FOG_PROXY_USERNAME');
-                $password = $this->FOGCore->getSetting('FOG_PROXY_PASSWORD');
+                $username = $this->FOGCore->getSetting(FOG_PROXY_USERNAME);
+                $password = $this->FOGCore->getSetting(FOG_PROXY_PASSWORD);
             }
             if ($ProxyUsed) {
                 $this->contextOptions[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
-                $this->contextOptions[CURLOPT_PROXYPORT] = $this->FOGCore->getSetting('FOG_PROXY_PORT');
-                $this->contextOptions[CURLOPT_PROXY] = $this->FOGCore->getSetting('FOG_PROXY_IP');
+                $this->contextOptions[CURLOPT_PROXYPORT] = $this->FOGCore->getSetting(FOG_PROXY_PORT);
+                $this->contextOptions[CURLOPT_PROXY] = $this->FOGCore->getSetting(FOG_PROXY_IP);
                 if ($username) $this->contextOptions[CURLOPT_PROXYUSERPWD] = $username.':'.$password;
             }
             if ($method == 'GET' && $data !== null) $url .= '?'.http_build_query($data);
@@ -78,22 +78,20 @@ class FOGURLRequests extends FOGBase {
             }
             $this->contextOptions[CURLOPT_CUSTOMREQUEST] = $method;
             curl_setopt_array($ch,$this->contextOptions);
-            $curl[$url] = $ch;
+            $curl[$i] = $ch;
             curl_multi_add_handle($this->handle,$ch);
         }
         unset($url);
         $active = null;
         $response = array();
         do {
-            //if (curl_multi_select($this->handle) !== 0) usleep(1000);
-            $mrc = curl_multi_exec($this->handle, $active);
-            if ($state = curl_multi_info_read($this->handle)) {
-                $info = curl_getinfo($state[handle]);
-                if ($callback) $callback(curl_multi_getcontent($state[handle],$info));
-                $response[(int)$active] = curl_multi_getcontent($state[handle]);
-                curl_multi_remove_handle($this->handle,$state[handle]);
-            }
-        } while ($mrc == CURLM_CALL_MULTI_PERFORM || ($active && $mrc == CURLM_OK));
+            curl_multi_exec($this->handle,$active);
+        } while ($active > 0);
+        foreach ($curl AS $key => &$val) {
+            $response[] = curl_multi_getcontent($val);
+            curl_multi_remove_handle($this->handle,$val);
+        }
+        unset($val);
         if (!$file) return $response;
         @fclose($file);
     }
