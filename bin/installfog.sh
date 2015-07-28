@@ -95,7 +95,7 @@ fi
 displayBanner;
 echo -e "  Version: ${version} Installer/Updater\n";
 fogpriorconfig="$fogprogramdir/.fogsettings"
-optspec="h?dUHSCKYyf:-:W:D:"
+optspec="h?dUHSCKYyf:-:W:D:B:"
 while getopts "$optspec" o; do
     #long options
     case "${o}" in
@@ -129,6 +129,14 @@ while getopts "$optspec" o; do
                 help
                 exit 1
             fi
+            ;;
+            backuppath)
+            if [ ! -d "${OPTARG}" ]; then
+                echo "Path must be an existing directory"
+                help
+                exit 1
+            fi
+            backupPath="${OPTARG}"
             ;;
             *)
             if [ "$OPTERR" = 1 -a "${optspec:0:1}" != ":" ]; then
@@ -172,6 +180,14 @@ while getopts "$optspec" o; do
         fi
         fogpriorconfig="${OPTARG}"
         ;;
+        B)
+        if [ ! -d "${OPTARG}" ]; then
+            echo "Path must be an existing directory"
+            help
+            exit 1
+        fi
+        backupPath="${OPTARG}"
+        ;;
         :) echo "Option -${OPTARG} requires a value"; help; exit 1 ;;
         *)
         if [ "$OPTERR" = 1 -a "${optspec:0:1}" != ":" ]; then
@@ -210,6 +226,13 @@ elif [ "$webrootexists" -eq 0 -o ! -z "$webroot" ]; then
     webroot="${webroot#'/'}"
     webroot="${webroot%'/'}"
     webroot="${webroot}/"
+fi
+if [ -z "$backupPath" ]; then
+    backupPath="/home/";
+else
+    backupPath="${backupPath%'/'}"
+    backupPath="${backupPath#'/'}"
+    backupPath="/$backupPath"
 fi
 . ../lib/common/input.sh
 if [ "$installtype" = "N" ]; then
