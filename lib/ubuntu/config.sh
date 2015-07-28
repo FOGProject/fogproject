@@ -57,6 +57,11 @@ if [ "$docroot" == "/var/www/html/" -a ! -d "$docroot" ]; then
 fi
 webredirect="$docroot/index.php"
 apacheuser="www-data"
+apachelogdir="/var/log/apache2"
+apacheerrlog="$apachelogdir/error.log"
+apacheacclog="$apachelogdir/access.log"
+etcconf="/etc/apache2/sites-available/001-fog.conf"
+phpini="/etc/php5/apache2/php.ini"
 
 # where do we store the image files?
 storage="/images"
