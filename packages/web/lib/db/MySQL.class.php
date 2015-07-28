@@ -66,10 +66,11 @@ class MySQL extends DatabaseManager {
                 $all_links[] = $this->link;
                 $processed = 0;
                 do {
-                    $links = $errors = $reject = array();
                     foreach($all_links AS $i => &$link) $links[] = $errors[] = $reject[] = $link;
+                    unset($link);
                     while (!$this->link->poll($links,$errors,$reject,1,0)) {
                         usleep(10000);
+                        continue;
                     }
                     foreach($links AS $i => &$link) {
                         $this->queryResult = $link->reap_async_query();
