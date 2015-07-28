@@ -843,7 +843,7 @@ configureHttpd() {
     dots "Stopping web service"
     if [ "$osid" -eq 2 ]; then
         if [ "$systemctl" == "yes" ]; then
-            systemctl stop apache2 php5-fpm >dev/null 2>&1
+            systemctl stop apache php5-fpm >dev/null 2>&1
         fi
     elif [ "$systemctl" == "yes" ]; then
         systemctl stop httpd php-fpm >/dev/null 2>&1
