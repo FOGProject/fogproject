@@ -531,6 +531,7 @@ class Host extends FOGController {
                 $Image = $this->getImage();
                 $StorageGroup = $Image->getStorageGroup();
                 $StorageNode = ($isUpload ? $StorageGroup->getOptimalStorageNode() : $this->getOptimalStorageNode());
+                if (!$StorageNode || !$StorageNode->isValid()) $StorageNode = $StorageGroup->getOptimalStorageNode();
                 if (!$Image->isValid()) throw new Exception($this->foglang[ImageNotValid]);
                 else if (!$Image->getStorageGroup()->isValid()) throw new Exception($this->foglang[ImageGroupNotValid]);
                 else if (!$StorageNode || !($StorageNode instanceof StorageNode)) throw new Exception($this->foglang[NoFoundSG]);
