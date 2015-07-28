@@ -70,15 +70,8 @@ class FOGCore extends FOGBase {
         Get's global Setting Values
      */
     public function getSetting($key) {
-        $value = '';
-        $Services = $this->getClass(ServiceManager)->find(array(name=>$key));
-        foreach ($Services AS $i => &$Service) {
-            if ($Service->isValid()) {
-                $value = $Service->get(value);
-                break;
-            }
-        }
-        return $value;
+        $Service = current($this->getClass(ServiceManager)->find(array(name=>$key)));
+        return $Service && $Service->isValid()?$Service->get(value):'';
     }
     /** setSetting($key, $value)
         Set's a new default value.
@@ -122,8 +115,9 @@ class FOGCore extends FOGBase {
         bar.
      */
     public function resolveHostname($host) {
-        if (filter_var(trim($host),FILTER_VALIDATE_IP)) return trim($host);
-        return trim(gethostbyname(trim($host)));
+        if (filter_var($host,FILTER_VALIDATE_IP)) $ip = $host;
+        else $ip = gethostbyname($host);
+        return $ip;
     }
     /** makeTempFilePath()
         creates the temporary file.

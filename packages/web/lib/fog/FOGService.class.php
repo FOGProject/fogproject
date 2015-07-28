@@ -11,11 +11,11 @@ abstract class FOGService extends FOGBase {
      */
     public function getIPAddress() {
         $output = array();
-        exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);
-        if (!count($IPs)) exec("/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d':' -f2",$IPs,$retVal);
+        exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'|grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'", $IPs, $retVal);
+        if (!count($IPs)) exec("/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d':' -f2' | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'", $IPs,$retVal);
         foreach ($IPs AS $i => &$IP) {
             $IP = trim($IP);
-            if (filter_var($IP,FILTER_VALIDATE_IP)) $output[] = $IP;
+            if (($bIp = ip2long($IP)) !== false) $output[] = $IP;
             $output[] = gethostbyaddr($IP);
         }
         unset($IP);

@@ -37,8 +37,14 @@ class MulticastManager extends FOGService {
     }
     private function serviceLoop() {
         while(true) {
-            $StorageNode = $this->getClass(StorageNodeManager)->find(array(isMaster=>1,isEnabled=>1,ip=>$this->getIPAddress()));
-            $StorageNode = @array_shift($StorageNode);
+            $StorageNodes = $this->getClass(StorageNodeManager)->find(array('isMaster' => 1,'isEnabled' => 1));
+            foreach ($StorageNodes AS $i => &$SN) {
+                if (in_array($this->FOGCore->resolveHostname($SN->get(ip)),$this->getIPAddress())) {
+                    $StorageNode = $SN;
+                    break;
+                }
+            }
+            unset($SN);
             try {
                 if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(sprintf(" | This is not the master node"));
                 $myroot = $StorageNode->get('path');
