@@ -38,6 +38,11 @@ else
 fi
 webredirect="${webdirdest}/index.php"
 apacheuser="http"
+apachelogdir="/var/log/httpd"
+apacheerrlog="$apachelogdir/error_log"
+apacheacclog="$apachelogdir/access_log"
+etcconf="/etc/httpd/conf.d/fog.conf"
+phpini="/etc/php/php.ini"
 
 # where do we store the image files?
 storage="/images"
@@ -59,4 +64,3 @@ ftpconfig="/etc/xinetd.d/vsftpd"
 
 # where do snapins go?
 snapindir="/opt/fog/snapins"
-etcconf="/etc/httpd/conf.d/fog.conf"

@@ -83,6 +83,7 @@ help() {
     echo -e "\t            \t\t\t\t(E.G. http://127.0.0.1/fog,"
     echo -e "\t            \t\t\t\t      http://127.0.0.1/)"
     echo -e "\t            \t\t\t\tDefaults to /fog/"
+    echo -e "\t-B    --backuppath\t\tSpecify the backup path"
     echo -e "\t      --uninstall\t\tUninstall FOG"
     exit 0
 }
@@ -837,4 +838,257 @@ EOF
     fi
     errorStat $?
     caCreated="yes"
+}
+configureHttpd() {
+    dots "Stopping web service"
+    if [ "$osid" -eq 2 ]; then
+        if [ "$systemctl" == "yes" ]; then
+            systemctl stop apache php5-fpm >dev/null 2>&1
+        fi
+    elif [ "$systemctl" == "yes" ]; then
+        systemctl stop httpd php-fpm >/dev/null 2>&1
+    else
+        service httpd stop >/dev/null 2>&1
+        service php-fpm stop >/dev/null 2>&1
+    fi
+    errorStat $?
+    if [ -f "$etcconf" ]; then
+        dots "Removing vhost file"
+        if [ "$osid" == "2" ]; then
+            a2dissite 0001-fog >/dev/null 2>&1
+        fi
+        rm $etcconf >/dev/null 2>&1
+        errorStat $?
+    fi
+    if [ "$installtype" == "N" -a "$fogupdateloaded" != 1 -a -z "$autoaccept" ]; then
+        echo -n " * Is the MySQL password blank? (Y/n) "
+        read dummy
+        case "$dummy" in
+            [nN]*)
+            echo -n " * Enter the MySQL password: "
+            read -s PASSWORD1
+            echo
+            echo -n " * Re-enter the MySQL password: "
+            read -s PASSWORD2
+            echo
+            if [ ! -z "$PASSWORD1" -a "$PASSWORD2" == $PASSWORD1 ]; then
+                dbpass=$PASSWORD1
+            else
+                dppass=""
+                while [ ! -z "$PASSWORD1" -a "$PASSWORD2" == $PASSWORD1 ]; do
+                    echo -n " * Enter the MySQL password: "
+                    read -s PASSWORD1
+                    echo
+                    echo -n " * Re-enter the MySQL password: "
+                    read -s PASSWORD2
+                    echo
+                    if [ ! -z "$PASSWORD1" -a "$PASSWORD2" == $PASSWORD1 ]; then
+                        dbpass=$PASSWORD1
+                    fi
+                done
+            fi
+            if [ "$snmysqlpass" != "$dbpass" ]; then
+                snmysqlpass=$dbpass
+            fi
+            ;;
+            [yY]*)
+            ;;
+            *)
+            ;;
+        esac
+    fi
+    if [ "$installtype" == "S" -o "$fogupdateloaded" -eq 1 ]; then
+        if [ ! -z "$snmysqlhost" -a "$snmysqlhost" != "$dbhost" ]; then
+            dbhost=$snmysqlhost
+        elif [ ! -z "$snmysqlhost" ]; then
+            dbhost="p:127.0.0.1"
+        fi
+    fi
+    if [ ! -z "$snmysqluser" -a "$snmysqluser" != "$dbuser" ]; then
+        dbuser=$snmysqluser
+    fi
+    dots "Setting up Apache and PHP files"
+    if [ "$osid" -eq 3 ]; then
+        echo -e "<FilesMatch \.php$>\n\tSetHandler \"proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://127.0.0.1/\"\n</FilesMatch>\n<IfModule dir_module>\n\tDirectoryIndex index.php index.html\n</IfModule>" >> /etc/httpd/conf/httpd.conf
+        sed -i 's/;extension=mysqli.so/extension=mysqli.so/g' $phpini >/dev/null 2>&1
+    fi
+    sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' $phpini >/dev/null 2>&1
+    sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' $phpini >/dev/null 2>&1
+    errorStat $?
+    dots "Backing up and copying new fog web data"
+    if [ -d "$backupPath/fog_web_$version.BACKUP" ]; then
+        rm -rf "$backupPath/fog_web_$version.BACKUP" >/dev/null 2>&1
+    fi
+    if [ -d "$webdirdest" ]; then
+        mv "$webdirdest" "$backupPath/fog_web_$version.BACKUP" >/dev/null 2>&1
+    fi
+    mkdir -p "$webdirdest" >/dev/null 2>&1
+    cp -Rf $webdirsrc/* $webdirdest/
+    errorStat $?
+    dots "Creating config file"
+    echo "<?php
+class Config {
+    /** @function __construct() Calls the required functions to define items
+     * @return void
+     */
+    public function __construct() {
+        self::db_settings();
+        self::svc_setting();
+        self::init_setting();
+    }
+    /** @function db_settings() Defines the database settings for FOG
+     * @return void
+     */
+    private static function db_settings() {
+        define('DATABASE_TYPE','mysql'); // mysql or oracle
+        define('DATABASE_HOST','$dbhost');
+        define('DATABASE_NAME','fog');
+        define('DATABASE_USERNAME','$dbuser');
+        define('DATABASE_PASSWORD','$snmysqlpass');
+        define('DATABASE_CONNTYPE',$mysql_conntype);
+    }
+    /** @function svc_setting() Defines the service settings
+     * (e.g. FOGMulticastManager)
+     * @return void
+     */
+    private static function svc_setting() {
+        define('UDPSENDERPATH','/usr/local/sbin/udp-sender');
+        define('MULTICASTLOGPATH','/opt/fog/log/multicast.log');
+        define('MULTICASTDEVICEOUTPUT','/dev/tty2');
+        define('MULTICASTSLEEPTIME',10);
+        define('MULTICASTINTERFACE','${interface}');
+        define('UDPSENDER_MAXWAIT',null);
+        define('LOGMAXSIZE',1000000);
+        define('REPLICATORLOGPATH','/opt/fog/log/fogreplicator.log');
+        define('REPLICATORDEVICEOUTPUT','/dev/tty3');
+        define('REPLICATORSLEEPTIME', 600);
+        define('REPLICATORIFCONFIG','/sbin/ifconfig');
+        define('SCHEDULERLOGPATH','/opt/fog/log/fogscheduler.log');
+        define('SCHEDULERDEVICEOUTPUT','/dev/tty4');
+        define('SCHEDULERSLEEPTIME',60);
+        define('SNAPINREPLOGPATH','/opt/fog/log/fogsnapinrep.log');
+        define('SNAPINREPDEVICEOUTPUT','/dev/tty5');
+        define('SNAPINREPSLEEPTIME',600);
+        define('SERVICELOGPATH','/opt/fog/log/servicemaster.log');
+        define('SERVICESLEEPTIME',3);
+    }
+    /** @function init_setting() Initial values if fresh install are set here
+     * NOTE: These values are only used on initial
+     * installation to set the database values.
+     * If this is an upgrade, they do not change
+     * the values within the Database.
+     * Please use FOG Configuration->FOG Settings
+     * to change these values after everything is
+     * setup.
+     * @return void
+     */
+    private static function init_setting() {
+        define('TFTP_HOST', \"${ipaddress}\");
+        define('TFTP_FTP_USERNAME', \"${username}\");
+        define('TFTP_FTP_PASSWORD', \"${password}\");
+        define('TFTP_PXE_KERNEL_DIR', '${webdirdest}/service/ipxe/');
+        define('PXE_KERNEL', 'bzImage');
+        define('PXE_KERNEL_RAMDISK',127000);
+        define('USE_SLOPPY_NAME_LOOKUPS',true);
+        define('MEMTEST_KERNEL', 'memtest.bin');
+        define('PXE_IMAGE', 'init.xz');
+        define('PXE_IMAGE_DNSADDRESS', \"${dnsbootimage}\");
+        define('STORAGE_HOST', \"${ipaddress}\");
+        define('STORAGE_FTP_USERNAME', \"${username}\");
+        define('STORAGE_FTP_PASSWORD', \"${password}\");
+        define('STORAGE_DATADIR', '/${storageLocation}/');
+        define('STORAGE_DATADIR_UPLOAD', '/${storageLocation}/dev/');
+        define('STORAGE_BANDWIDTHPATH', '/${webroot}status/bandwidth.php');
+        define('UPLOADRESIZEPCT',5);
+        define('WEB_HOST', \"${ipaddress}\");
+        define('WOL_HOST', \"${ipaddress}\");
+        define('WOL_PATH', '/${webroot}wol/wol.php');
+        define('WOL_INTERFACE', \"${interface}\");
+        define('SNAPINDIR', \"${snapindir}/\");
+        define('QUEUESIZE', '10');
+        define('CHECKIN_TIMEOUT',600);
+        define('USER_MINPASSLENGTH',4);
+        define('USER_VALIDPASSCHARS','1234567890ABCDEFGHIJKLMNOPQRSTUVWZXYabcdefghijklmnopqrstuvwxyz_()^!#-');
+        define('NFS_ETH_MONITOR', \"${interface}\");
+        define('UDPCAST_INTERFACE', \"${interface}\");
+        define('UDPCAST_STARTINGPORT', 63100 ); // Must be an even number! recommended between 49152 to 65535
+        define('FOG_MULTICAST_MAX_SESSIONS',64);
+        define('FOG_JPGRAPH_VERSION', '2.3');
+        define('FOG_REPORT_DIR', './reports/');
+        define('FOG_UPLOADIGNOREPAGEHIBER',true);
+        define('FOG_DONATE_MINING', \"${donate}\");
+     }
+ }" > "${webdirdest}/lib/fog/Config.class.php"
+    errorStat $?
+    dots "Changing permissions on apache log files"
+    chmod +rx $apachelogdir
+    chmod +rx $apacheerrlog
+    chmod +rx $apacheacclog
+    chown -R ${apacheuser}:${apacheuser} /var/www
+    errorStat $?
+    dots "Downloading inits and kernels"
+    curl -sl --silent -kf -L https://fogproject.org/inits/init.xz >/dev/null 2>&1 && \
+    curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/     init.xz >/dev/null 2>&1 & disown
+    curl -sl --silent -kf -L https://fogproject.org/inits/init_32.xz >/dev/null 2>&1 && \
+    curl --silent -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/  init_32.xz >/dev/null 2>&1 & disown
+    curl -sl --silent -kf -L https://fogproject.org/kernels/bzImage >/dev/null 2>&1 && \
+    curl --silent -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/   bzImage >/dev/null 2>&1 & disown
+    curl -sl --silent -kf -L https://fogproject.org/kernels/bzImage32 >/dev/null 2>&1 && \
+    curl --silent -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/ bzImage32 >/dev/null 2>&1 & disown
+    echo "Backgrounded"
+    dots "Downloading New FOG Client file"
+    clientVer="`awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/System.class.php | tr -d '[[:space:]]'`"
+    clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi"
+    curl -sl --silent -f -L $clienturl >/dev/null 2>&1
+    if [ "$?" -eq 0 ]; then
+        curl --silent -ko "${webdirdest}/client/FOGService.msi" -L $clienturl >/dev/null 2>&1 & disown
+        echo "Backgrounded"
+    else
+        echo "Failed";
+        echo -e "\n\t\tYou can try downloading the file yourself by running";
+        echo -e "\n\t\tInstallation will continue.  Once complete you can";
+        echo -e "\n\t\trun the command:";
+        echo -e "\n\t\t\twget -O ${webdirdest}/client/FOGService.msi $clienturl";
+    fi
+    if [ "$osid" -eq 2 ]; then
+        php -m | grep mysqlnd >/dev/null 2>&1
+        if [ "$?" != 0 ]; then
+            php5enmod mysqlnd >/dev/null 2>&1
+            if [ "$?" != 0 ]; then
+                if [ -e "/etc/php5/conf.d/mysqlnd.ini" ]; then
+                    cp -f "/etc/php5/conf.d/mysqlnd.ini" "/etc/php5/mods-available/php5-mysqlnd.ini" >/dev/null 2>&1
+                    php5enmod mysqlnd >/dev/null 2>&1
+                fi
+            fi
+        fi
+        php -m | grep mcrypt >/dev/null 2>&1
+        if [ "$?" != 0 ]; then
+            php5enmod mcrypt >/dev/null 2>&1
+            if [ "$?" != 0 ]; then
+                if [ -e "/etc/php5/conf.d/mcrypt.ini" ]; then
+                    cp -f "/etc/php5/conf.d/mcrypt.ini" "/etc/php5/mods-available/php5-mcrypt.ini" >/dev/null 2>&1
+                    php5enmod mcrypt >/dev/null 2>&1
+                fi
+            fi
+        fi
+        cp /etc/apache2/mods-available/php5* /etc/apache2/mods-enabled/ >/dev/null 2>&1
+    fi
+    dots "Enabling apache and fpm services on boot"
+    if [ "$osid" -eq 2 ]; then
+        if [ "$systemctl" == "yes" ]; then
+            systemctl enable apache2 >/dev/null 2>&1
+            systemctl enable php5-fpm >/dev/null 2>&1
+        else
+            sysv-rc-conf apache2 on >/dev/null 2>&1
+            sysv-rc-conf php5-fpm on >/dev/null 2>&1
+        fi
+    elif [ "$systemctl" == "yes" ]; then
+        systemctl enable httpd php-fpm >/dev/null 2>&1
+    else
+        chkconfig php-fpm on >/dev/null 2>&1
+        chconfig httpd on >/dev/null 2>&1
+    fi
+    errorStat $?
+    createSSLCA
+    chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 }
