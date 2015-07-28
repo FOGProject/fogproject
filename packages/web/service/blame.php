@@ -10,7 +10,7 @@ try {
     $StorageGroup = $Task->getStorageGroup();
     if ($imagingTasks && !$StorageGroup->isValid()) throw new Exception(_('Invalid Storage Group'));
     // Get the node.
-    $StorageNodes = $StorageGroup->getStorageNodes();
+    $StorageNodes = $FOGCore->getClass(StorageNodeManager)->find(array(id=>$StorageGroup->getStorageNodes()));
     if ($imagingTasks && !$StorageNodes) throw new Exception(_('Could not find a Storage Node. Is there one enabled within this Storage Group?'));
     // Cycle through the nodes
     foreach ($StorageNodes AS $StorageNode) {
