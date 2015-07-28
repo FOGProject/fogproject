@@ -75,6 +75,11 @@ else
 fi
 webredirect="${webdirdest}/index.php";
 apacheuser="apache";
+apachelogdir="/var/log/httpd"
+apacheerrlog="$apachelogdir/error_log"
+apacheacclog="$apachelogdir/access_log"
+etcconf="/etc/httpd/conf.d/fog.conf";
+phpini="/etc/php.ini"
 
 # where do we store the image files?
 storage="/images";

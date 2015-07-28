@@ -11,30 +11,27 @@ class StorageGroup extends FOGController {
     // Additional Fields
     // Custom functions: Storage Group
     public function getStorageNodes() {
-        return $this->getClass(StorageNodeManager)->find(array(isEnabled=>1, storageGroupID=>$this->get(id)));
+        return $this->getClass(StorageNodeManager)->find(array(isEnabled=>1, storageGroupID=>$this->get(id)),'','','','','','','id');
     }
     public function getTotalSupportedClients() {
         $clients = 0;
-        foreach ($this->getStorageNodes() AS $i => &$StorageNode) $clients += $StorageNode->get(maxClients);
+        foreach ($this->getStorageNodes() AS $i => &$StorageNode) $clients += $this->getClass(StorageNode,$StorageNode)->get(maxClients);
         unset($StorageNode);
         return $clients;
     }
     public function getMasterStorageNode() {
-        if ($this->getClass(StorageNodeManager)->count(array(isEnabled=>1,storageGroupID=>$this->get(id)))>=1) $StorageNodes = $this->getStorageNodes();
-        foreach ($StorageNodes AS $i => &$StorageNode) {
-            if ($StorageNode->isValid() && $StorageNode->get(isMaster)) {
-                $Node = $StorageNode;
-                break;
-            }
+        foreach($this->getStorageNodes() AS $i => &$StorageNode) {
+            $TmpNode = $this->getClass(StorageNode,$StorageNode);
+            if ($TmpNode->isValid() && $TmpNode->get(isMaster) && $Node = $TmpNode) break;
         }
         unset($StorageNode);
-        if (!$Node || !$Node->isValid()) $Node = current($this->getStorageNodes());
+        if (!$Node) $Node = $this->getClass(StorageNode,@min($this->getStorageNodes()));
         return $Node;
     }
     public function getOptimalStorageNode() {
-        $StorageNodes = $this->getStorageNodes();
+        $StorageNodes = $this->getClass(StorageNodeManager)->find(array(id=>$this->getStorageNodes()));
         $winner = null;
-        foreach ($StorageNodes AS &$StorageNode) {
+        foreach ($StorageNodes AS $i => &$StorageNode) {
             if ($StorageNode->get(maxClients)>0) {
                 if ($winner == null) $winner = $StorageNode;
                 else if ($StorageNode->getClientLoad() < $winner->getClientLoad()) $winner = $StorageNode;
