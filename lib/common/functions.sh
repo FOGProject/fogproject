@@ -1086,7 +1086,7 @@ class Config {
         systemctl enable httpd php-fpm >/dev/null 2>&1
     else
         chkconfig php-fpm on >/dev/null 2>&1
-        chconfig httpd on >/dev/null 2>&1
+        chkconfig httpd on >/dev/null 2>&1
     fi
     errorStat $?
     createSSLCA
