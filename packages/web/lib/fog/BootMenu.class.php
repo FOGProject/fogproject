@@ -586,7 +586,7 @@ class BootMenu extends FOGBase {
                         $this->parseMe($Send);
                     }
                 }
-            } else $this->falseTasking('',$Image);
+            } else $this->falseTasking('',$this->getClass(Image,$imgID));
             $this->chainBoot(false,true);
         }
     }
