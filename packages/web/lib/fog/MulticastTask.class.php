@@ -1,21 +1,20 @@
 <?php
 class MulticastTask extends FOGBase {
     // Updated to only care about tasks in its group
-    public static function getAllMulticastTasks($root) {
-        global $FOGCore;
+    public function getAllMulticastTasks($root) {
         $Tasks = array();
-        $MulticastSessions = $FOGCore->getClass(MulticastSessionsManager)->find(array(stateID=>array(0,1,2,3)));
+        $MulticastSessions = $this->getClass(MulticastSessionsManager)->find(array(stateID=>array(0,1,2,3)));
         foreach($MulticastSessions AS $i => &$MultiSess) {
-            $Image = $FOGCore->getClass(Image,$MultiSess->get(image));
-            if (in_array($FOGCore->resolveHostname($Image->getStorageGroup()->getMasterStorageNode()->get(ip)),$FOGCore->getIPAddress())) {
-                $count = $FOGCore->getClass(MulticastSessionsAssociationManager)->count(array(msID=>$MultiSess->get(id)));
+            $Image = $this->getClass(Image,$MultiSess->get(image));
+            if (in_array($this->FOGCore->resolveHostname($Image->getStorageGroup()->getMasterStorageNode()->get(ip)),$this->getIPAddress())) {
+                $count = $this->getClass(MulticastSessionsAssociationManager)->count(array(msID=>$MultiSess->get(id)));
                 $Tasks[] = new self(
                     $MultiSess->get(id),
                     $MultiSess->get(name),
                     $MultiSess->get(port),
                     $root.'/'.$MultiSess->get(logpath),
-                    $Image->getStorageGroup()->getMasterStorageNode()->get('interface')? $Image->getStorageGroup()->getMasterStorageNode()->get('interface'):$FOGCore->getSetting(FOG_UDPCAST_INTERFACE),
-                    ($count>0?$count:($MultiSess->get(sessclients)>0?$MultiSess->get(sessclients):$FOGCore->getClass(HostManager)->count())),
+                    $Image->getStorageGroup()->getMasterStorageNode()->get('interface')? $Image->getStorageGroup()->getMasterStorageNode()->get('interface'):$this->getSetting(FOG_UDPCAST_INTERFACE),
+                    ($count>0?$count:($MultiSess->get(sessclients)>0?$MultiSess->get(sessclients):$this->getClass(HostManager)->count())),
                     $MultiSess->get(isDD),
                     $Image->get(osID)
                 );
