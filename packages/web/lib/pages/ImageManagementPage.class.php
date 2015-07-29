@@ -159,33 +159,29 @@ class ImageManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
+        $StorageNode = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1,isMaster=>1,storageGroupID=>@min($this->getClass(StorageGroupManager)->find('','','','','','','','id'))));
+        $StorageNode = @array_shift($StorageNode);
+        $StorageGroups = $this->getClass(StorageGroupManager)->buildSelectBox($_REQUEST[storagegroup] ? $_REQUEST[storagegroup] : $StorageNode->get(storageGroupID));
+        $OSs = $this->getClass(OSManager)->buildSelectBox($_REQUEST[os]);
+        $ImageTypes = $this->getClass(ImageTypeManager)->buildSelectBox($_REQUEST[imagetype] ? $_REQUEST[imagetype] : 1,'','id');
+        $ImagePartitionTypes = $this->getClass(ImagePartitionTypeManager)->buildSelectBox($_REQUEST[imagepartitiontype] ? $_REQUEST[imagepartitiontype] : 1,'','id');
+        $compression = isset($_REQUEST[compress]) ? intval($_REQUEST[compress]) : $this->FOGCore->getSetting(FOG_PIGZ_COMP);
         $fields = array(
-            _('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="${image_name}" />',
-            _('Image Description') => '<textarea name="description" rows="8" cols="40">${image_desc}</textarea>',
-            _('Storage Group') => '${storage_groups}',
-            _('Operating System') => '${operating_systems}',
-            _('Image Path') => '${image_path}<input type="text" name="file" id="iFile" value="${image_file}" />',
-            _('Image Type') => '${image_types}',
-            _('Partition') => '${image_partition_types}',
-            _('Compression') => '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="${image_comp}" />',
-            '<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" /><!--<i class="icon fa fa-question" title="TODO!"></i>-->',
+            _('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="'.$_REQUEST[name].'" />',
+            _('Image Description') => '<textarea name="description" rows="8" cols="40">'.$_REQUEST[description].'</textarea>',
+            _('Storage Group') => $StorageGroups,
+            _('Operating System') => $OSs,
+            _('Image Path') => $StorageNode->get(path).'/&nbsp;<input type="text" name="file" id="iFile" value="'.$_REQUEST['file'].'" />',
+            _('Image Type') => $ImageTypes,
+            _('Partition') => $ImagePartitionTypes,
+            _('Compression') => '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="'.$compression.'" />',
+            '&nbsp;' => '<input type="submit" name="add" value="'._('Add').'" /><!--<i class="icon fa fa-question" title="TODO!"></i>-->',
         );
-        print "\n\t\t\t<h2>"._('Add new image definition').'</h2>';
-        print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
-        $StorageNode = $this->getClass(StorageGroup,$Image->getStorageGroup())->getMasterStorageNode();
+        print '<h2>'._('Add new image definition').'</h2><form method="post" action="'.$this->formAction.'">';
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
                 input=>$input,
-                image_name=>$_REQUEST[name],
-                image_desc=>$_REQUEST[description],
-                storage_groups=>$StorageGroups,
-                operating_systems=>$this->getClass(OSManager)->buildSelectBox($_REQUEST[os]),
-                image_path=>$StorageNode->isValid() ? $StorageNode->get(path).'/&nbsp;' : _('No Storage Nodes Found'),
-                image_file=>$_REQUEST['file'],
-                image_types=>$this->getClass(ImageTypeManager)->buildSelectBox($_REQUEST[imagetype],'','id'),
-                image_partition_types => $this->getClass(ImagePartitionTypeManager)->buildSelectBox($_REQUEST[imagepartitiontype],'','id'),
-                image_comp=>isset($_REQUEST[compress]) ? intval($_REQUEST[compress]) : $this->FOGCore->getSetting(FOG_PIGZ_COMP),
             );
         }
         unset($input);
@@ -249,10 +245,8 @@ class ImageManagementPage extends FOGPage {
      * 	Creates the form and display for editing an existing image object.
      */
     public function edit() {
-        // Find
-        $Image = $this->obj;
         // Title - set title for page title in window
-        $this->title = sprintf('%s: %s', _('Edit'), $Image->get(name));
+        $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get(name));
         print '<div id="tab-container">';
         // Unset the headerData
         unset($this->headerData);
@@ -266,73 +260,44 @@ class ImageManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        // Set the fields and inputs.
+        $StorageNode = $this->obj->getStorageGroup()->getMasterStorageNode();
+        $OSs = $this->getClass(OSManager)->buildSelectBox(isset($_REQUEST[os]) && $_REQUEST[os] != $this->obj->get(osID) ? $_REQUEST[os] : $this->obj->get(osID));
+        $ImageTypes = $this->getClass(ImageTypeManager)->buildSelectBox(isset($_REQUEST[imagetype]) && $_REQUEST[imagetype] != $this->obj->get(imageTypeID) ? $_REQUEST[imagetype] : $this->obj->get(imageTypeID),'','id');
+        $ImagePartitionTypes = $this->getClass(ImagePartitionTypeManager)->buildSelectBox(isset($_REQUEST[imagepartitiontype]) && $_REQUEST[imagepartitiontype] != $this->obj->get(imagePartitionTypeID) ? $_REQUEST[imagepartitiontype] : $this->obj->get(imagePartitionTypeID),'','id');
+        $compression = isset($_REQUEST[compress]) && $_REQUEST[compress] != $this->obj->get(compress) ? intval($_REQUEST[compress]) : is_numeric($this->obj->get(compress)) && $this->obj->get(compress) > -1 ? $this->obj->get(compress) : $this->FOGCore->getSetting(FOG_PIGZ_COMP);
+        if ($_SESSION[FOG_FORMAT_FLAG_IN_GUI]) $format = '<select name="imagemanage"><option value="1" '.($this->obj->get(format) ? 'selected' : '').'>'._('Partimage').'</option><option value="0" '.(!$this->obj->get(format) ? 'selected' : '').'>'._('Partclone').'</option></select>';
         $fields = array(
-            _('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="${image_name}" />',
-            _('Image Description') => '<textarea name="description" rows="8" cols="40">${image_desc}</textarea>',
-            _('Operating System') => '${operating_systems}',
-            _('Image Path') => '${image_path}<input type="text" name="file" id="iFile" value="${image_file}" />',
-            _('Image Type') => '${image_types}',
-            _('Partition') => '${image_partition_types}',
-            _('Protected') => '<input type="checkbox" name="protected_image" value="1" ${image_protected} />',
-            _('Compression') => '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="${image_comp}" />',
-            $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ? _('Image Manager') : '' => $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ? '<select name="imagemanage"><option value="1" ${is_legacy}>'._('PartImage').'</option><option value="0" ${is_modern}>'._('PartClone').'</option></select>' : '',
-            '<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Update').'" /><!--<i class="icon fa fa-question" title="TODO!"></i>-->',
+            _('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="'.(isset($_REQUEST[name]) && $_REQUEST[name] != $this->obj->get(name) ? $_REQUEST[name] : $this->obj->get(name)).'" />',
+            _('Image Description') => '<textarea name="description" rows="8" cols="40">'.(isset($_REQUEST[description]) && $_REQUEST[description] != $this->obj->get(description) ? $_REQUEST[description] : $this->obj->get(description)).'</textarea>',
+            _('Operating System') => $OSs,
+            _('Image Path') => $StorageNode->get(path).'/&nbsp;<input type="text" name="file" id="iFile" value="'.(isset($_REQUEST['file']) && $_REQUEST['file'] != $this->obj->get(path) ? $_REQUEST['file'] : $this->obj->get(path)).'" />',
+            _('Image Type') => $ImageTypes,
+            _('Partition') => $ImagePartitionTypes,
+            _('Compression') => '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="'.$compression.'" />',
+            $_SESSION[FOG_FORMAT_FLAG_IN_GUI] ? _('Image Manager') : '' => $_SESSION[FOG_FORMAT_FLAG_IN_GUI] ? $format : '',
+            '&nbsp;' => '<input type="submit" name="update" value="'._('Update').'" /><!--<i class="icon fa fa-question" title="TODO!"></i>-->',
         );
-        $StorageNode = $Image->getStorageGroup()->getMasterStorageNode();
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
                 input=>$input,
-                image_name=>$Image->get(name),
-                image_desc=>$Image->get(description),
-                operating_systems=>$this->getClass(OSManager)->buildSelectBox($Image->get(osID)),
-                image_path=>$StorageNode && $StorageNode->isValid() ? $StorageNode->get(path).'/&nbsp;' : 'No nodes available.',
-                image_file=>$Image->get(path),
-                image_types=>$this->getClass(ImageTypeManager)->buildSelectBox($Image->get(imageTypeID),'','id'),
-                image_partition_types=>$this->getClass(ImagePartitionTypeManager)->buildSelectBox($Image->get(imagePartitionTypeID),'','id'),
-                is_legacy=>$Image->get(format) == 1 ? 'selected="selected"' : '',
-                is_modern=>$Image->get(format) == 0 ? 'selected="selected"' : '',
-                image_protected=>$Image->get('protected') ? 'checked' : '',
-                image_comp=>is_numeric($Image->get(compress)) && $Image->get(compress) > -1 ? $Image->get(compress) : $this->FOGCore->getSetting(FOG_PIGZ_COMP),
             );
         }
         unset($input);
         // Hook
         $this->HookManager->processEvent(IMAGE_EDIT,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
-        print "\n\t\t\t<!-- General -->";
-        print "\n\t\t\t".'<div id="image-gen">';
-        print "\n\t\t\t<h2>"._('Edit image definition').'</h2>';
-        print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-gen">';
+        print '<!-- General --><div id="image-gen"><h2>'._('Edit image definition').'</h2><form method="post" action="'.$this->formAction.'&tab=image-gen">';
         $this->render();
-        print '</form>';
-        print "\n\t\t\t\t</div>";
+        print '</form></div>';
         // Reset for next tab
         unset($this->data);
-        print "\n\t\t\t\t<!-- Storage Groups with Assigned Image -->";
-        $ImageAssocs = $this->getClass(ImageAssociationManager)->find();
-        $IAMan = new ImageAssociationManager();
-        // Get groups with this image assigned
-        $MyStorageGroups = $this->getClass(StorageGroupManager)->find(array(id=>$this->obj->get(storageGroups)));
-        $StorageGroups = $this->getClass(StorageGroupManager)->find();
-        foreach($MyStorageGroups AS $i => &$Group) {
-            if ($Group->isValid()) $GroupsWithMe[] = $Group->get(id);
-        }
-        unset($Group);
+        print '<!-- Storage Groups with Assigned Image -->';
         // Get all group IDs with an image assigned
-        foreach($ImageAssocs AS $i => &$Group) {
-            if ($Group->getStorageGroup() && $Group->getStorageGroup()->isValid() && $Group->getImage()->isValid()) $GroupWithAnyImage[] = $Group->getStorageGroup()->get('id');
-        }
-        unset($Group);
+        $GroupWithAnyImage = array_unique($this->getClass(ImageAssociationManager)->find('','','','','','','','storageGroupID'));
         // Set the values
-        foreach($StorageGroups AS $i => &$Group) {
-            if ($Group->isValid()) {
-                if (!in_array($Group->get(id),$GroupWithAnyImage)) $GroupNotWithImage[] = $Group;
-                if (!in_array($Group->get(id),$GroupsWithMe)) $GroupNotWithMe[] = $Group;
-            }
-        }
-        unset($Group);
+        $GroupNotWithImage = $this->getClass(StorageGroupManager)->find(array(id=>$GroupWithAnyImage),'','','','','',true);
+        $GroupNotWithMe = $this->getClass(StorageGroupManager)->find(array(id=>$this->obj->get(storageGroups)),'','','','','',true);
         print '<div id="image-storage">';
         // Create the header data:
         $this->headerData = array(
@@ -364,11 +329,7 @@ class ImageManagementPage extends FOGPage {
         if (count($this->data) > 0) {
             $GroupDataExists = true;
             $this->HookManager->processEvent(IMAGE_GROUP_ASSOC,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-            print "\n\t\t\t<center>".'<label for="groupMeShow">'._('Check here to see groups not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow" /></label>';
-            print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-storage">';
-            print "\n\t\t\t".'<div id="groupNotInMe">';
-            print "\n\t\t\t".'<h2>'._('Modify group association for').' '.$Image->get(name).'</h2>';
-            print "\n\t\t\t".'<p>'._('Add image to groups').' '.$Image->get(name).'</p>';
+            print '<center><label for="groupMeShow">'._('Check here to see groups not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow" /></label><form method="post" action="'.$this->formAction.'&tab=image-storage"><div id="groupNotInMe"><h2>'._('Modify group association for').' '.$this->obj->get(name).'</h2><p>'._('Add image to groups').' '.$this->obj->get(name).'</p>';
             $this->render();
             print "</div>";
         }
@@ -393,17 +354,12 @@ class ImageManagementPage extends FOGPage {
         if (count($this->data) > 0) {
             $GroupDataExists = true;
             $this->HookManager->processEvent(IMAGE_GROUP_NOT_WITH_ANY,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-            print "\n\t\t\t".'<label for="groupNoShow">'._('Check here to see groups not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="groupNoShow" id="groupNoShow" /></label>';
-            print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-storage">';
-            print "\n\t\t\t".'<div id="groupNoImage">';
-            print "\n\t\t\t".'<p>'._('Groups below have no image association').'</p>';
-            print "\n\t\t\t".'<p>'._('Assign image to groups').' '.$Image->get(name).'</p>';
+            print '<label for="groupNoShow">'._('Check here to see groups not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="groupNoShow" id="groupNoShow" /></label><form method="post" action="'.$this->formAction.'&tab=image-storage"><div id="groupNoImage"><p>'._('Groups below have no image association').'</p><p>'._('Assign image to groups').' '.$Image->get(name).'</p>';
             $this->render();
-            print "\n\t\t\t</div>";
+            print "</div>";
         }
         if ($GroupDataExists) {
-            print '<br/><input type="submit" value="'._('Add Image to Group(s)').'" />';
-            print "\n\t\t\t</form></center>";
+            print '<br/><input type="submit" value="'._('Add Image to Group(s)').'" /></form></center>';
         }
         unset($this->data);
         $this->headerData = array(
@@ -418,7 +374,7 @@ class ImageManagementPage extends FOGPage {
             '<input type="checkbox" class="toggle-action" name="storagegroup-rm[]" value="${storageGroup_id}" />',
             '${storageGroup_name}',
         );
-        $StorageGroups = $this->getClass(StorageGroupManager)->find(array(id=>$Image->get(storageGroups)));
+        $StorageGroups = $this->getClass(StorageGroupManager)->find(array(id=>$this->obj->get(storageGroups)));
         foreach($StorageGroups AS $i => &$Group) {
             $this->data[] = array(
                 storageGroup_id=>$Group->get(id),
@@ -429,21 +385,17 @@ class ImageManagementPage extends FOGPage {
         // Hook
         $this->HookManager->processEvent(IMAGE_EDIT_GROUP,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
-        print "\n\t\t\t\t".'<form method="post" action="'.$this->formAction.'&tab=image-storage">';
+        print '<form method="post" action="'.$this->formAction.'&tab=image-storage">';
         $this->render();
-        if (count($this->data) > 0) print "\n\t\t\t".'<center><input type="submit" value="'._('Delete Selected Group associations').'" name="remstorgroups"/></center>';
-        print '</form>';
-        print "\n\t\t\t\t</div>";
-        print "\n\t\t\t</div>";
+        if (count($this->data) > 0) print '<center><input type="submit" value="'._('Delete Selected Group associations').'" name="remstorgroups"/></center>';
+        print '</form></div></div>';
     }
     /** edit_post()
      * Actually updates the image object based on what was filled out in the form.
      */
     public function edit_post() {
-        // Find
-        $Image = $this->obj;
         // Hook
-        $this->HookManager->processEvent(IMAGE_EDIT_POST,array(Image=>&$Image));
+        $this->HookManager->processEvent(IMAGE_EDIT_POST,array(Image=>&$this->obj));
         // POST
         try {
             switch ($_REQUEST[tab]) {
@@ -451,14 +403,15 @@ class ImageManagementPage extends FOGPage {
                 $name = trim($_REQUEST[name]);
                 // Error checking
                 if (!$name) throw new Exception('An image name is required!');
-                if ($Image->get(name) != $_REQUEST[name] && $this->getClass(ImageManager)->exists($name,$Image->get(id))) throw new Exception('An image already exists with this name!');
+                if ($this->obj->get(name) != $_REQUEST[name] && $this->getClass(ImageManager)->exists($name,$this->obj->get(id))) throw new Exception('An image already exists with this name!');
                 if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev') throw new Exception('Please choose a different name, this one is reserved for FOG.');
                 if (empty($_REQUEST['file'])) throw new Exception('An image file name is required!');
                 if (empty($_REQUEST[os])) throw new Exception('An Operating System is required!');
                 if (empty($_REQUEST[imagetype]) && $_REQUEST[imagetype] != 0) throw new Exception('An image type is required!');
                 if (empty($_REQUEST['imagepartitiontype']) && $_REQUEST['imagepartitiontype'] != '0') throw new Exception('An image partition type is required!');
                 // Update Object
-                $Image->set(name,$_REQUEST[name])
+                $this->obj
+                    ->set(name,$_REQUEST[name])
                     ->set(description,$_REQUEST[description])
                     ->set(osID,$_REQUEST[os])
                     ->set(path,$_REQUEST['file'])
@@ -469,7 +422,7 @@ class ImageManagementPage extends FOGPage {
                     ->set(compress,$_REQUEST[compress]);
                 break;
                 case 'image-storage';
-                $Image->addGroup($_REQUEST[storagegroup]);
+                $this->obj->addGroup($_REQUEST[storagegroup]);
                 if (isset($_REQUEST[remstorgroups])) {
                     if (count($Image->get(storageGroups)) > 1) $Image->removeGroup($_REQUEST['storagegroup-rm']);
                     else throw new Exception(_('Image must be assigned to one Storage Group'));
@@ -477,18 +430,18 @@ class ImageManagementPage extends FOGPage {
                 break;
             }
             // Save
-            if (!$Image->save()) throw new Exception('Database update failed');
+            if (!$this->obj->save()) throw new Exception('Database update failed');
             // Hook
-            $this->HookManager->processEvent(IMAGE_UPDATE_SUCCESS,array(Image=>&$Image));
+            $this->HookManager->processEvent(IMAGE_UPDATE_SUCCESS,array(Image=>&$this->obj));
             // Log History event
             $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Image updated'), $Image->get(id),$Image->get(name)));
             // Set session message
             $this->FOGCore->setMessage(_('Image updated'));
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $this->request[node],$this->id,$Image->get(id),$_REQUEST[tab]));
+            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $this->request[node],$this->id,$this->obj->get(id),$_REQUEST[tab]));
         } catch (Exception $e) {
             // Hook
-            $this->HookManager->processEvent(IMAGE_UPDATE_FAIL,array(Image=>&$Image));
+            $this->HookManager->processEvent(IMAGE_UPDATE_FAIL,array(Image=>&$this->obj));
             // Log History event
             $this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Image'), $_REQUEST[name], $e->getMessage()));
             // Set session message
@@ -519,8 +472,7 @@ class ImageManagementPage extends FOGPage {
             _('Select Image') => '${select_image}',
             '<input type="hidden" name="start" value="1" />' => '<input type="submit" value="'._('Start').'" /><!--<i class="icon fa fa-question" title="TODO!"></i>-->',
         );
-        print "\n\t\t\t<h2>"._('Start Multicast Session').'</h2>';
-        print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'">';
+        print '<h2>'._('Start Multicast Session').'</h2><form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
