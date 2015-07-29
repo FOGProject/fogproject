@@ -68,7 +68,7 @@ class MySQL extends DatabaseManager {
                 do {
                     foreach($all_links AS $i => &$link) $links[] = $errors[] = $reject[] = $link;
                     unset($link);
-                    while (!mysqli_poll($links,$errors,$reject,1,1000)) {
+                    if (!$this->link->poll($links,$errors,$reject,1,1000)) {
                         usleep(1000);
                         continue;
                     }
@@ -76,7 +76,8 @@ class MySQL extends DatabaseManager {
                         $this->queryResult = $link->reap_async_query();
                         $processed++;
                     }
-                } while ($processed < 1);
+                    unset($link);
+                } while ($processed < count($all_links));
             }
         } catch (Exception $e) {
             $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
