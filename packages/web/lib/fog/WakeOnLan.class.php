@@ -26,6 +26,7 @@ class WakeOnLan extends FOGBase {
             $macBin = pack('H12',$macHex);
             $magicPacket = str_repeat(chr(0xff),6).str_repeat($macBin,16);
             // Always send to the main broadcast.
+            $BroadCast[] = '255.255.255.255';
             $BroadCast[] = $this->FOGCore->getBroadcast();
             $this->HookManager->processEvent(BROADCAST_ADDR,array(broadcast=>&$BroadCast));
             foreach((array)$BroadCast AS $i => &$SendTo) {
