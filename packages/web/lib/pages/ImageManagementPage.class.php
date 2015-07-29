@@ -354,7 +354,7 @@ class ImageManagementPage extends FOGPage {
         if (count($this->data) > 0) {
             $GroupDataExists = true;
             $this->HookManager->processEvent(IMAGE_GROUP_NOT_WITH_ANY,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-            print '<label for="groupNoShow">'._('Check here to see groups not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="groupNoShow" id="groupNoShow" /></label><form method="post" action="'.$this->formAction.'&tab=image-storage"><div id="groupNoImage"><p>'._('Groups below have no image association').'</p><p>'._('Assign image to groups').' '.$Image->get(name).'</p>';
+            print '<label for="groupNoShow">'._('Check here to see groups not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="groupNoShow" id="groupNoShow" /></label><form method="post" action="'.$this->formAction.'&tab=image-storage"><div id="groupNoImage"><p>'._('Groups below have no image association').'</p><p>'._('Assign image to groups').' '.$this->obj->get(name).'</p>';
             $this->render();
             print "</div>";
         }
@@ -417,14 +417,14 @@ class ImageManagementPage extends FOGPage {
                     ->set(path,$_REQUEST['file'])
                     ->set(imageTypeID,$_REQUEST[imagetype])
                     ->set(imagePartitionTypeID,$_REQUEST[imagepartitiontype])
-                    ->set(format,isset($_REQUEST[imagemanage]) ? $_REQUEST[imagemanage] : $Image->get(format))
+                    ->set(format,isset($_REQUEST[imagemanage]) ? $_REQUEST[imagemanage] : $this->obj->get(format))
                     ->set('protected', $_REQUEST[protected_image])
                     ->set(compress,$_REQUEST[compress]);
                 break;
                 case 'image-storage';
                 $this->obj->addGroup($_REQUEST[storagegroup]);
                 if (isset($_REQUEST[remstorgroups])) {
-                    if (count($Image->get(storageGroups)) > 1) $Image->removeGroup($_REQUEST['storagegroup-rm']);
+                    if (count($this->obj->get(storageGroups)) > 1) $this->obj->removeGroup($_REQUEST['storagegroup-rm']);
                     else throw new Exception(_('Image must be assigned to one Storage Group'));
                 }
                 break;
@@ -434,7 +434,7 @@ class ImageManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(IMAGE_UPDATE_SUCCESS,array(Image=>&$this->obj));
             // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Image updated'), $Image->get(id),$Image->get(name)));
+            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Image updated'), $this->obj->get(id),$this->obj->get(name)));
             // Set session message
             $this->FOGCore->setMessage(_('Image updated'));
             // Redirect to new entry

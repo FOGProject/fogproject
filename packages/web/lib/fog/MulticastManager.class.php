@@ -50,23 +50,17 @@ class MulticastManager extends FOGService {
                     $this->outall(sprintf(" | Cleaning %s task(s) removed from FOG Database.",count($RMTasks)));
                     foreach((array)$RMTasks AS $i => &$RMTask) {
                         $this->outall(sprintf(" | Cleaning Task (%s) %s",$RMTask->getID(),$RMTask->getName()));
-                        $Assocs = $this->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $RMTask->getID()));
-                        $curSession = new MulticastSessions($RMTask->getID());
-                        foreach($Assocs AS $i => &$Assoc) {
-                            if ($Assoc && $Assoc->isValid()) {
-                                if ($this->getClass('Task',$Assoc->get('taskID'))->get('stateID') == 5) $jobcancelled = true;
-                            }
-                        }
-                        unset($Assoc);
-                        if ($jobcancelled || $this->getClass('MulticastSessions',$RMTask->getID())->get('stateID') == 5) {
+                        if ($this->getClass(TaskManager)->count(array(id=>$this->getClass(MulticastSessionsAssociationManager)->find(array(msID=>$RMTask->getID()),'','','','','','','taskID'),stateID=>5))) $jobcancelled = true;
+                        $curSession = $this->getClass(MulticastSessions,$RMTask->getID());
+                        if ($jobcancelled || $this->getClass(MulticastSessions,$RMTask->getID())->get(stateID) == 5) {
                             $RMTask->killTask();
                             $KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
                             $this->outall(sprintf(" | Task (%s) %s has been cleaned as cancelled.",$RMTask->getID(),$RMTask->getName()));
-                            $this->getClass('MulticastSessionsAssociationManager')->destroy(array('msID' => $RMTask->getID()));
+                            $this->getClass(MulticastSessionsAssociationManager)->destroy(array(msID=>$RMTask->getID()));
                         } else {
                             $KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
                             $this->outall(sprintf(" | Task (%s) %s has been cleaned as complete.",$RMTask->getID(),$RMTask->getName()));
-                            $this->getClass('MulticastSessionsAssociationManager')->destroy(array('msID' => $RMTask->getID()));
+                            $this->getClass(MulticastSessionsAssociationManager)->destroy(array(msID=>$RMTask->getID()));
                         }
                     }
                     unset($RMTask);
