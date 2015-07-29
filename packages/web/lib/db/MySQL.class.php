@@ -68,8 +68,8 @@ class MySQL extends DatabaseManager {
                 do {
                     foreach($all_links AS $i => &$link) $links[] = $errors[] = $reject[] = $link;
                     unset($link);
-                    while (!$this->link->poll($links,$errors,$reject,1,0)) {
-                        usleep(10000);
+                    while (!mysqli_poll($links,$errors,$reject,1,1000)) {
+                        usleep(1000);
                         continue;
                     }
                     foreach($links AS $i => &$link) {
