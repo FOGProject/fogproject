@@ -218,7 +218,7 @@ class GroupManagementPage extends FOGPage {
             '<input type="hidden" name="updategroup" value="1" />' => '<input type="submit" value="'._('Update').'" />',
         );
         $this->HookManager->processEvent(GROUP_FIELDS,array(fields=>&$fields,Group=>&$this->obj));
-        print '<form method="post" action="'.$this->formAction.'&tab=group-general"><div id="tab-container"><!-- General --><div id="group-general"><h2>'._('Modify Group').': '.$this->obj->get(name).'</h2>';
+        print '<form method="post" action="'.$this->formAction.'&tab=group-general"><div id="tab-container"><!-- General --><div id="group-general"><h2>'._('Modify Group').': '.$this->obj->get(name).'</h2><center><div id="resetSecDataBox"></div><input type="button" id="resetSecData" /></center><br/>';
         foreach ((array)$fields AS $field => $input) {
             $this->data[] = array(
                 field=>$field,
