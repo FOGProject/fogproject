@@ -795,7 +795,8 @@ abstract class FOGPage extends FOGBase {
         exit;
     }
     public function clearAES() {
-        $this->getClass('Host',$_REQUEST['id'])->set('pub_key',null)->set('sec_tok',null)->save();
+        if (isset($_REQUEST[groupid])) $this->getClass(HostManager)->update(array(id=>$this->getClass(Group,$_REQUEST[groupid])->get(hosts)),'',array(pub_key=>'',sec_tok=>''));
+        else if (isset($_REQUEST[id])) $this->getClass(HostManager)->update(array(id=>$_REQUEST[id]),'',array(pub_key=>'',sec_tok=>''));
     }
     /** delete_post() actually delete the items
      * @return void
