@@ -312,7 +312,7 @@ class FOGCore extends FOGBase {
         $this->DB->query("DELETE FROM clientUpdates WHERE cuID=0");
         $this->DB->query("DELETE FROM dirCleaner WHERE dcID=0");
         $this->DB->query("DELETE FROM globalSettings WHERE settingID=0");
-        $this->DB->query("DELETE FROM greenFog WHERE gfID=0 OR gfHostID=0");
+        $this->DB->query("DELETE FROM greenFog WHERE gfID=0");
         $this->DB->query("DELETE FROM groupMembers WHERE gmID=0 OR gmHostID=0 OR gmGroupID=0");
         $this->DB->query("DELETE FROM groups WHERE groupID=0");
         $this->DB->query("DELETE FROM history WHERE hID=0");
