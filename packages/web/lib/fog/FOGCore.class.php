@@ -109,7 +109,7 @@ class FOGCore extends FOGBase {
         Clear's all entries in the table.
      */
     public function clearMACLookupTable() {
-        return !$this->DB->query("TRUNCATE TABLE %s",$this->getClass(OUI)->databaseTable)->fetch()->get();
+        return !$this->DB->query("TRUNCATE TABLE %s",$this->getClass(OUI)->databaseTable);
     }
     /** getMACLookupCount()
         returns the number of MAC's loaded.
@@ -267,7 +267,7 @@ class FOGCore extends FOGBase {
     }
     public function setSessionEnv() {
         /** This allows the database concatination system based on number of hosts */
-        $this->DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION[HostCount]})")->fetch()->get();
+        $this->DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION[HostCount]})");
         /** This below ensures the database is always MyISAM */
         $this->DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
         /** $tables just stores the tables to cycle through and change as needed */
