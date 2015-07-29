@@ -63,7 +63,7 @@ class MySQL extends DatabaseManager {
             $this->queryResult = $this->link->query($this->query,DATABASE_CONNTYPE === MYSQLI_ASYNC ? MYSQLI_ASYNC : MYSQLI_STORE_RESULT);
             if (!$this->queryResult) throw new Exception(_('Error: ').$this->sqlerror());
             if (DATABASE_CONNTYPE === MYSQLI_ASYNC) {
-                $all_links[] = $this->link;
+                $all_links = array($this->link);
                 $processed = 0;
                 do {
                     foreach($all_links AS $i => &$link) $links[] = $errors[] = $reject[] = $link;
