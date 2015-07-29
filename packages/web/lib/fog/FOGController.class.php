@@ -203,6 +203,7 @@ abstract class FOGController extends FOGBase {
                 implode(', ', (array)$updateData)
             );
             if (!$this->DB->query($query)) throw new Exception($this->DB->sqlerror());
+            if ($this->DB->queryResult() instanceof mysqli_result) $this->DB->queryResult()->free_result();
             // Database query was successful - set ID if ID was not set
             if (!$this->get(id)) $this->set(id,$this->DB->insert_id());
             $res = $this;

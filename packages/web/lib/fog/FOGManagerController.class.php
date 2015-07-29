@@ -204,10 +204,12 @@ abstract class FOGManagerController extends FOGBase {
                     unset($idstore);
                 }
                 else while ($id = $this->DB->fetch()->get($this->databaseFields[$idField])) $ids[] = $id;
+                if ($this->DB->queryResult() instanceof mysqli_result) $this->DB->queryResult()->free_result();
                 return array_unique((array)$ids);
             }
             while ($queryData = $this->DB->fetch()->get()) $data[] = $this->getClass($this->childClass)->setQuery($queryData);
             unset($id,$ids,$row,$queryData);
+            if ($this->DB->queryResult() instanceof mysqli_result) $this->DB->queryResult()->free_result();
             // Return
             return (array)$data;
         } catch (Exception $e) {
