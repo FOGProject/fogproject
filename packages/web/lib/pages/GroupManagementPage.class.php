@@ -618,7 +618,7 @@ class GroupManagementPage extends FOGPage {
         );
         foreach($this->obj->get(hosts) AS $i => &$Host) {
             $this->data[] = array(
-                'host_name' => $this-getClass(Host,$Host)->get(name),
+                'host_name' => $this->getClass(Host,$Host)->get(name),
                 'host_mac' => $this->getClass(Host,$Host)->get(mac),
                 'host_deployed' => $this->getClass(Host,$Host)->get(deployed),
             );
