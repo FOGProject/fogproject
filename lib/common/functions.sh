@@ -232,35 +232,27 @@ configureMinHttpd() {
 	echo "<?php die(\"This is a storage node, please do not access the web ui here!\")" > "$webdirdest/management/index.php"
 }
 installPackages() {
+    dots "Adding needed repository"
     if [ "$osid" -eq 1 ]; then
-        dots "Adding needed repository"
-        if [ "$osid" -eq 1 ]; then
-            ${packageinstaller} epel-release >/dev/null 2>&1
-            repo="enterprise"
-            if [[ "$linuxReleaseName" == +(*[Ff]'edora'*) ]]; then
-                repo="fedora"
-            fi
-            if [ -d "/etc/yum.repos.d/" -a ! -f "/etc/yum.repos.d/remi.repo" ]; then
-                rpm -Uvh http://rpms.famillecollet.com/$repo/remi-release-$OSVersion.rpm >/dev/null 2>&1
-                rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi >/dev/null 2>&1
-            else
-                true
-            fi
+        ${packageinstaller} epel-release >/dev/null 2>&1
+        repo="enterprise"
+        if [[ "$linuxReleaseName" == +(*[Ff]'edora'*) ]]; then
+            repo="fedora"
+        fi
+        if [ -d "/etc/yum.repos.d/" -a ! -f "/etc/yum.repos.d/remi.repo" ]; then
+            rpm -Uvh http://rpms.famillecollet.com/$repo/remi-release-$OSVersion.rpm >/dev/null 2>&1
+            rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi >/dev/null 2>&1
+        else
+            true
         fi
     elif [ "$osid" -eq 2 ]; then
-        dots "Adding needed repository"
-        DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >/dev/null 2>&1;
-        add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
         if [[ "$linuxReleaseName" != +(*'ebian'*) ]]; then
+            DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >/dev/null 2>&1;
+            add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
             if [ "$?" != 0 ]; then
                 apt-get update >/dev/null 2>&1
-                apt-get install python-software-properties >/dev/null 2>&1
+                apt-get -yq install python-software-properties >/dev/null 2>&1
                 add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
-                if [ "$?" != 0 ]; then
-                    apt-get update >/dev/null 2>&1
-                    apt-get install software-properties-common >/dev/null 2>&1
-                    add-apt-repository -y ppa:ondrej/php5-5.6 >/dev/null 2>&1
-                fi
             fi
         elif [[ "$linuxReleaseName" == +(*'ebian'*) ]]; then
             if [ "$OSVersion" -eq 7 ]; then
@@ -286,9 +278,7 @@ installPackages() {
                 false
             fi
         fi
-        if [[ "$linuxRelease" == +(*[Dd]'ebian'*) ]] && [ "$OSVersion" -eq 7 ]; then
-            packages="${packages} libapache2-mod-php5";
-        fi
+        packages="${packages} libapache2-mod-php5";
     fi
     errorStat $?
     echo -e " * Packages to be installed:\n\n\t$packages\n\n"
@@ -813,6 +803,7 @@ EOF
     dots "Restarting Apache2 for fog vhost"
     ln -s $webdirdest $webdirdest
     if [ "$osid" -eq 2 ]; then
+        a2enmod php5 >/dev/null 2>&1
         a2enmod rewrite >/dev/null 2>&1
         a2enmod ssl >/dev/null 2>&1
         a2ensite "001-fog" >/dev/null 2>&1
