@@ -801,7 +801,7 @@ EOF
 </VirtualHost>" > "$etcconf";
     errorStat $?
     dots "Restarting Apache2 for fog vhost"
-    ln -s $webdirdest $webdirdest
+    ln -s $webdirdest $webdirdest >/dev/null 2>&1
     if [ "$osid" -eq 2 ]; then
         a2enmod php5 >/dev/null 2>&1
         a2enmod rewrite >/dev/null 2>&1
@@ -912,6 +912,10 @@ configureHttpd() {
     fi
     if [ -d "$webdirdest" ]; then
         mv "$webdirdest" "$backupPath/fog_web_$version.BACKUP" >/dev/null 2>&1
+    fi
+    if [ "$osid" == 2 -a -d "/var/www/fog" ]; then
+        rm -rf /var/www/fog >/dev/null 2>&1
+        ln -s /var/www/html/fog /var/www/fog >/dev/null 2>&1
     fi
     mkdir -p "$webdirdest" >/dev/null 2>&1
     cp -Rf $webdirsrc/* $webdirdest/
