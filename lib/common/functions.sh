@@ -212,7 +212,7 @@ configureTFTPandPXE() {
         else
             sysv-rc-conf xinetd on >/dev/null 2>&1
             $initdpath/xinetd stop >/dev/null 2>&1
-            $initdpach/xinetd start >/dev/null 2>&1
+            $initdpath/xinetd start >/dev/null 2>&1
         fi
     elif [ "$systemctl" == "yes" ]; then
         systemctl enable xinetd >/dev/null 2>&1
@@ -915,7 +915,7 @@ configureHttpd() {
     fi
     if [ "$osid" == 2 -a -d "/var/www/fog" ]; then
         rm -rf /var/www/fog >/dev/null 2>&1
-        ln -s /var/www/html/fog /var/www/fog >/dev/null 2>&1
+        ln -s $webdirdest  /var/www/fog >/dev/null 2>&1
     fi
     mkdir -p "$webdirdest" >/dev/null 2>&1
     cp -Rf $webdirsrc/* $webdirdest/
