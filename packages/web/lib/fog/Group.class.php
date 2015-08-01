@@ -23,7 +23,9 @@ class Group extends FOGController {
     private function loadHosts() {
         if (!$this->isLoaded(hosts) && $this->get(id)) {
             $HostIDs = $this->getClass(GroupAssociationManager)->find(array(groupID=>$this->get(id)),'','','','','','','hostID');
-            $this->set(hosts,$HostIDs);
+            $PendHostsIDs = $this->getClass(HostManager)->find(array(pending=>1),'','','','','','','id');
+            $HostsIDs = array_diff((array)$HostIDs,(array)$PendHostsIDs);
+            $this->set(hosts,$HostsIDs);
             $this->set(hostsnotinme,$this->getClass(HostManager)->find(array(id=>$HostIDs),'','','','','',true,'id'));
         }
         return $this;
