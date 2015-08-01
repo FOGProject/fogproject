@@ -239,6 +239,12 @@ abstract class FOGPage extends FOGBase {
      * @return void
      */
     public function deploy() {
+        try {
+            if (($this->obj instanceof Group && !(count($this->obj->get(hosts)))) || ($this->obj instanceof Host && ($this->obj->get(pending) || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
+        } catch (Exception $e) {
+            $this->FOGCore->setMessage($e->getMessage());
+            $this->FOGCore->redirect('?node='.$this->node.'&sub=edit'.($_REQUEST[id] ? '&'.$this->id.'='.$_REQUEST[id] : ''));
+        }
         $TaskType = $this->getClass(TaskType,($_REQUEST[type]?$_REQUEST[type]:1));
         // Title
         $this->title = sprintf('%s %s %s %s',_('Create'),$TaskType->get(name),_('task for'),$this->obj->get(name));
@@ -323,13 +329,19 @@ abstract class FOGPage extends FOGBase {
         $this->HookManager->processEvent(strtoupper($this->childClass.'_DEPLOY'),array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        printf('%s%s%s','<p class="c"><input type="submit" value="',$this->title,'" /></p>');
+        if (count($this->data)) printf('%s%s%s','<p class="c"><input type="submit" value="',$this->title,'" /></p>');
         print '</form>';
     }
     /** deploy_post() actually create the deployment task
      * @return void
      */
     public function deploy_post() {
+        try {
+            if (($this->obj instanceof Group && !(count($this->obj->get(hosts)))) || ($this->obj instanceof Host && ($this->obj->get(pending) || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
+        } catch (Exception $e) {
+            $this->FOGCore->setMessage($e->getMessage());
+            $this->FOGCore->redirect('?node='.$this->node.'&sub=edit'.($_REQUEST[id] ? '&'.$this->id.'='.$_REQUEST[id] : ''));
+        }
         $TaskType = $this->getClass(TaskType,$_REQUEST[type]);
         $Snapin = $this->getClass(Snapin,$_REQUEST[snapin]);
         $enableShutdown = $_REQUEST[shutdown] ? true : false;
@@ -817,7 +829,7 @@ abstract class FOGPage extends FOGBase {
                     unset($Host);
                 }
                 // Remove hosts first
-                if (isset($_REQUEST['massDelHosts'])) $this->FOGCore->redirect('?node=group&sub=delete_hosts&id='.$Data->get('id'));
+                if (isset($_REQUEST['massDelHosts'])) $this->FOGCore->redirect('?node=group&sub=delete_hosts&id='.$Data->get(id));
             }
             if ($Data instanceof Image || $Data instanceof Snapin) {
                 if ($Data->get('protected')) throw new Exception($this->childClass.' '._('is protected, removal not allowed'));
