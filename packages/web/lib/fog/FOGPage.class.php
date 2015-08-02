@@ -94,7 +94,7 @@ abstract class FOGPage extends FOGBase {
         /** render() just prints the data
          * @return void
          */
-        public function render() {ob_start('sanitize_output',512); echo $this->process(); ob_end_flush();}
+        public function render() {ob_start(array('Initiator','sanitize_output'),512); echo $this->process(); ob_end_flush();}
         /** process() build the relevant html for the page
          * @return false or the result
          */
@@ -117,7 +117,7 @@ abstract class FOGPage extends FOGBase {
                         'form' => $this->form,
                     ));
                 } else {
-                    ob_start('sanitize_output');
+                    ob_start(array('Initiator','sanitize_output'));
                     $isMobile = preg_match('#/mobile/#',$_SERVER['PHP_SELF']);
                     // HTML output
                     if ($this->searchFormURL) {
@@ -219,7 +219,7 @@ abstract class FOGPage extends FOGBase {
      */
     public function buildRow($data) {
         $this->replaceNeeds($data);
-        ob_start('sanitize_output');
+        ob_start(array('Initiator','sanitize_output'));
         // Loop template data
         foreach ($this->templates AS $i => &$template) {
             // Replace variables in template with data -> wrap in $this->wrapper -> push into $result
