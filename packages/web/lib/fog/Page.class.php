@@ -12,7 +12,7 @@ class Page extends FOGBase {
             $this->addCSS('css/jquery.organicTabs.css');
             $this->addCSS($dispTheme);
         } else $this->addCSS('css/main.css');
-        $this->addCSS('css/font-awesome/css/font-awesome.css');
+        $this->addCSS('css/font-awesome.css');
         $this->isHomepage = (!$_REQUEST[node] || in_array($_REQUEST[node], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST[sub],array('configure','authorize')) || !$this->FOGUser || !$this->FOGUser->isLoggedIn());
         if ($this->FOGUser && $this->FOGUser->isLoggedIn() && strtolower($_REQUEST['node']) != 'schemaupdater') {
             if (!$isMobile) {
