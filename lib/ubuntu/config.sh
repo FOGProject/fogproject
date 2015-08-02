@@ -89,3 +89,8 @@ packagelist="apt-cache pkgnames | grep"
 packageupdater="apt-get -yq upgrade -o Dpkg::='--force-confdef' -o Dpkg::Options::='--force-confold'"
 packmanUpdate="apt-get update"
 jsontest="php5-json php5-common"
+if [ -e "/etc/init.d/${dhcpname}" ]; then
+    dhcpd="${dhcpname}"
+elif [ -e "/etc/init.d/${olddhcpname}" ]; then
+    dhcpd="${olddhcpname}"
+fi

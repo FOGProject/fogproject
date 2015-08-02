@@ -60,7 +60,6 @@ tftpconfig="/usr/lib/systemd/system/tftpd.service"
 
 # where is the ftp server config file?
 ftpconfig="/etc/xinetd.d/vsftpd"
-
-
+dhcpd="dhcpd"
 # where do snapins go?
 snapindir="/opt/fog/snapins"
