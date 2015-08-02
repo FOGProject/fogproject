@@ -84,9 +84,15 @@ class FOGCore extends FOGBase {
         Set's a new default value.
      */
     public function setSetting($key, $value) {
-        $ServMan = current($this->getClass(ServiceManager)->find(array(name=>$key)));
-        if ($ServMan && $ServMan->isValid()) return $ServMan->set(value,$value)->save();
-        return false;
+        $Services = $this->getClass(ServiceManager)->find(array(name=>$key));
+        foreach ($Services AS $i => &$Service) {
+            if ($Service->isValid()) {
+                $Service->set(value,$value);
+                if (!$Service->save()) return false;
+                break;
+            }
+        }
+        return $this;
     }
     /** getMACManufacturer($macprefix)
         Returns the Manufacturer of the prefix sent if the tables are loaded.

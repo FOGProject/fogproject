@@ -369,9 +369,6 @@ abstract class FOGPage extends FOGBase {
                     foreach($Hosts AS $id => &$Host) if (!$Host->get(pending)) $ImageExists[] = !$Host->checkIfExist($TaskType->get(id));
                     unset($Host);
                     if (in_array(true,$ImageExists)) throw new Exception(_('One or more hosts have an image that does not exist'));
-                    foreach($Hosts AS $i => &$Host) if ($Host->get(task) && $Host->get(task)->isValid()) $Tasks[] = $Host->get(task);
-                    unset($Host);
-                    if (count($Tasks) > 0) throw new Exception(_('One or more hosts are currently in a task'));
                 }
                 if ($TaskType->get(id) == 11 && empty($passreset)) throw New Exception(_('Password reset requires a user account to reset'));
                 try {

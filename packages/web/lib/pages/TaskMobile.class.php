@@ -5,7 +5,7 @@ class TaskMobile extends FOGPage {
         $this->name = 'Task Management';
         // Call parent constructor
         parent::__construct($this->name);
-        $this->obj = $this->getClass('Task',$_REQUEST[id]);
+        $this->obj = $this->getClass(Task,$_REQUEST[id]);
         // Header Data
         $this->headerData = array(
             _('Force'),
@@ -39,13 +39,13 @@ class TaskMobile extends FOGPage {
         foreach($Tasks AS $i => &$Task) {
             $Host = $Task->getHost();
             $this->data[] = array(
-                'task_force' => (!$Task->get('isForced') ? '<a href="?node=${node}&sub=force&id=${task_id}"><i class="fa fa-step-forward fa-2x task"></i></a>' : '<i class="fa fa-play fa-2x task"></i>'),
-                'node' => $_REQUEST['node'],
-                'task_id' => $Task->get('id'),
-                'task_name' => $Task->get('name'),
-                'host_name' => ($Task->get('isForced') ? '* '.$Host->get('name') : $Host->get('name')),
-                'task_type' => $Task->getTaskTypeText(),
-                'task_state' => $Task->getTaskStateText(),
+                task_force=>(!$Task->get(isForced) ? '<a href="?node=${node}&sub=force&id=${task_id}"><i class="fa fa-step-forward fa-2x task"></i></a>' : '<i class="fa fa-play fa-2x task"></i>'),
+                node=>$_REQUEST[node],
+                task_id=>$Task->get(id),
+                task_name=>$Task->get(name),
+                host_name=>($Task->get(isForced) ? '* '.$Host->get(name) : $Host->get(name)),
+                task_type=>$Task->getTaskTypeText(),
+                task_state=>$Task->getTaskStateText(),
             );
         }
         unset($Task);
@@ -61,11 +61,11 @@ class TaskMobile extends FOGPage {
         foreach($Tasks AS $i => &$Task) {
             $Host = $Task->getHost();
             $this->data[] = array(
-                'task_id' => $Task->get('id'),
-                'task_name' => $Task->get('name'),
-                'host_name' => ($Task->get('isForced') ? '* '.$Host->get('name') : $Host->get('name')),
-                'task_type' => $Task->getTaskTypeText(),
-                'task_state' => $Task->getTaskStateText(),
+                task_id=>$Task->get(id),
+                task_name=>$Task->get(name),
+                host_name=>($Task->get(isForced) ? '* '.$Host->get(name) : $Host->get(name)),
+                task_type=> $Task->getTaskTypeText(),
+                task_state=> $Task->getTaskStateText(),
             );
         }
         unset($Task);
@@ -73,7 +73,7 @@ class TaskMobile extends FOGPage {
     }
     public function force() {
         $Task = $this->obj;
-        $Task->set('isForced',true)->save();
+        $Task->set(isForced,true)->save();
         $this->FOGCore->redirect('?node='.$this->node);
     }
     public function killtask() {
