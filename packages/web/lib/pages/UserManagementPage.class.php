@@ -8,15 +8,15 @@ class UserManagementPage extends FOGPage {
         parent::__construct($this->name);
         if ($_REQUEST['id']) {
             $this->subMenu = array(
-                $this->linkformat => $this->foglang['General'],
-                $this->delformat => $this->foglang['Delete'],
+                $this->linkformat => $this->foglang[General],
+                $this->delformat => $this->foglang[Delete],
             );
-            $this->obj = $this->getClass('User',$_REQUEST['id']);
+            $this->obj = $this->getClass(User,$_REQUEST[id]);
             $this->notes = array(
-                $this->foglang['User'] => $this->obj->get('name')
+                $this->foglang[User] => $this->obj->get(name)
             );
         }
-        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
+        $this->HookManager->processEvent(SUB_MENULINK_DATA,array(menu=>&$this->menu,submenu=>&$this->subMenu,id=>&$this->id,notes=>&$this->notes));
         // Header row
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
@@ -31,16 +31,16 @@ class UserManagementPage extends FOGPage {
         );
         // Row attributes
         $this->attributes = array(
-            array('class' => 'c', 'width' => '16'),
+            array('class'=>c,width=>16),
             array(),
-            array('class' => 'c', 'width' => '55'),
+            array('class'=>c,width=>55),
         );
     }
     // Pages
     public function index() {
         // Set title
         $this->title = _('All Users');
-        if ($_SESSION[DataReturn] > 0 && $_SESSION[UserCount] > $_SESSION[DataReturn] && $_REQUEST['sub'] != 'list') $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER[PHP_SELF], $this->node));
+        if ($_SESSION[DataReturn] > 0 && $_SESSION[UserCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER[PHP_SELF], $this->node));
         // Find data
         $Users = $this->getClass(UserManager)->find();
         // Row data
@@ -102,19 +102,17 @@ class UserManagementPage extends FOGPage {
             _('Mobile/Quick Image Access Only?').'&nbsp;'.'<span class="icon icon-help hand" title="'._('Warning - if you tick this box, this user will not be able to log into this FOG Management Console in the future.').'"></span>' => '<input type="checkbox" name="isGuest" autocomplete="off" />',
             '&nbsp;' => '<input type="submit" value="'._('Create User').'" />',
         );
-        print "<h2>"._('Add new user account').'</h2>';
-        print '<form method="post" action="'.$this->formAction.'">';
-        print '<input type="hidden" name="add" value="1" />';
+        print '<h2>'._('Add new user account').'</h2><form method="post" action="'.$this->formAction.'"><input type="hidden" name="add" value="1" />';
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
+                field=>$field,
+                input=>$input,
             );
         }
         unset($input);
         $this->HookManager->processEvent(USER_ADD,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         $this->render();
-        print "</form>";
+        print '</form>';
     }
     public function add_post() {
         // Hook
@@ -125,8 +123,8 @@ class UserManagementPage extends FOGPage {
             if ($this->getClass(UserManager)->exists($_REQUEST[name])) throw new Exception(_('Username already exists'));
             if (!$this->getClass(UserManager)->isPasswordValid($_REQUEST[password],$_REQUEST[password_confirm])) throw new Exception(_('Password is invalid'));
             // Create new Object
-            $User = $this->getClass(User);
-            $User->set(name,$_REQUEST[name])
+            $User = $this->getClass(User)
+                ->set(name,$_REQUEST[name])
                 ->set(type,isset($_REQUEST[isGuest]))
                 ->set(password,$_REQUEST[password]);
             // Save
@@ -138,7 +136,7 @@ class UserManagementPage extends FOGPage {
             // Set session message
             $this->FOGCore->setMessage(_('User created').'<br>'._('You may now create another'));
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=add',$this->request[node],$this->id,$User->get(id)));
+            $this->FOGCore->redirect(sprintf('?node=%s&sub=add',$_REQUEST[node],$this->id,$User->get(id)));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(USER_ADD_FAIL,array(User=>&$User));
@@ -151,15 +149,13 @@ class UserManagementPage extends FOGPage {
         }
     }
     public function edit() {
-        // Find
-        $User = $this->obj;
         // Title
-        $this->title = sprintf('%s: %s',_('Edit'),$User->get(name));
+        $this->title = sprintf('%s: %s',_('Edit'),$this->obj->get(name));
         $fields = array(
-            _('User Name') => '<input type="text" name="name" value="'.$User->get('name').'" />',
+            _('User Name') => '<input type="text" name="name" value="'.$this->obj->get(name).'" />',
             _('New Password') => '<input type="password" name="password" value="" />',
             _('New Password (confirm)') => '<input type="password" name="password_confirm" value="" />',
-            _('Mobile/Quick Image Access Only?').'&nbsp;'.'<span class="icon icon-help hand" title="'._('Warning - if you tick this box, this user     will not be able to log into this FOG Management Console in the future.').'"></span>' => '<input type="checkbox" name="isGuest" '.($User->get('type') == 1 ? 'checked' : '').' />',
+            _('Mobile/Quick Image Access Only?').'&nbsp;'.'<span class="icon icon-help hand" title="'._('Warning - if you tick this box, this user     will not be able to log into this FOG Management Console in the future.').'"></span>' => '<input type="checkbox" name="isGuest" '.($this->obj->get(type) == 1 ? 'checked' : '').' />',
             '&nbsp;' => '<input type="submit" value="'._('Update').'" />',
         );
         unset ($this->headerData);
@@ -171,53 +167,49 @@ class UserManagementPage extends FOGPage {
             array(),
             array(),
         );
-        print '<form method="post" action="'.$this->formAction.'"><input type="hidden" name="update" value="'.$User->get(id).'" />';
+        print '<form method="post" action="'.$this->formAction.'"><input type="hidden" name="update" value="'.$this->obj->get(id).'" />';
         foreach ((array)$fields AS $field => &$formData) {
             $this->data[] = array(
-                'field' => $field,
-                'formData' => $formData,
+                field=>$field,
+                formData=>$formData,
             );
         }
         unset($formData);
-        $this->HookManager->processEvent('USER_EDIT', array('data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+        $this->HookManager->processEvent(USER_EDIT,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         $this->render();
-        print "\n\t\t\t</form>";
+        print '</form>';
     }
     public function edit_post() {
         // Find
         $User = $this->obj;
         // Hook
-        $this->HookManager->processEvent('USER_EDIT_POST', array('User' => &$User));
+        $this->HookManager->processEvent(USER_EDIT_POST,array(User=>&$this->obj));
         // POST
         try {
-            // UserManager
-            $UserManager = $this->getClass('UserManager');
+            $name = trim($_REQUEST[name]);
             // Error checking
-            if ($UserManager->exists($_REQUEST['name'], $User->get('id'))) throw new Exception(_('Username already exists'));
-            if ($_REQUEST['password'] && $_REQUEST['password_confirm']) {
-                if (!$UserManager->isPasswordValid($_REQUEST['password'], $_REQUEST['password_confirm'])) throw new Exception(_('Password is invalid'));
+            if ($name != $this->obj->get(name) && $this->obj->getManager()->exists($name,$this->obj->get(id))) throw new Exception(_('Username already exists'));
+            if ($_REQUEST[password] && $_REQUEST[password_confirm]) {
+                if (!$this->obj->getManager()->isPasswordValid($_REQUEST[password],$_REQUEST[password_confirm])) throw new Exception(_('Password is invalid'));
             }
-            // Update User Object
-            $User->set('name', $_REQUEST['name'])
-                ->set('type', ($_REQUEST['isGuest'] == 'on' ? '1' : '0'));
-            // Set new password if password was passed
-            if ($_REQUEST['password'] && $_REQUEST['password_confirm']) $User->set('password',	$_REQUEST['password']);
-            // Save
-            if ($User->save()) {
-                // Hook
-                $this->HookManager->processEvent('USER_UPDATE_SUCCESS', array('User' => &$User));
-                // Log History event
-                $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('User updated'), $User->get('id'), $User->get('name')));
-                // Set session message
-                $this->FOGCore->setMessage(_('User updated'));
-                // Redirect to new entry
-                $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s', $this->request['node'], $this->id, $User->get('id')));
-            } else throw new Exception('Database update failed');
+            $this->obj
+                ->set(name,$name)
+                ->set(type,(int)isset($_REQUEST[isGuest]))
+                ->set(password,$_REQUEST[password]);
+            if (!$this->obj->save()) throw new Exception(_('User update failed'));
+            // Hook
+            $this->HookManager->processEvent(USER_UPDATE_SUCCESS,array(User=>&$this->obj));
+            // Log History event
+            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('User updated'),$this->obj->get(id),$User->get(name)));
+            // Set session message
+            $this->FOGCore->setMessage(_('User updated'));
+            // Redirect to new entry
+            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s', $this->request[node],$this->id,$this->obj->get(id)));
         } catch (Exception $e) {
             // Hook
-            $this->HookManager->processEvent('USER_UPDATE_FAIL', array('User' => &$User));
+            $this->HookManager->processEvent(USER_UPDATE_FAIL,array(User=>&$User));
             // Log History event
-            $this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('User'), $_REQUEST['name'], $e->getMessage()));
+            $this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('User'), $_REQUEST[name], $e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect to new entry

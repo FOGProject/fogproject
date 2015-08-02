@@ -36,7 +36,7 @@ class WakeOnLan extends FOGBase {
                     if ($options >= 0 && socket_sendto($sock,$magicPacket,(int)strlen($magicPacket),0,$bcaddr,9)) socket_close($sock);
                 }
             }
-            unset($SendTo);
+            unset($SendTo,$BroadCast);
         }
         unset($MAC);
     }
