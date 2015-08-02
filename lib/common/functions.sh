@@ -449,19 +449,16 @@ doOSSpecificIncludes() {
         "1")
             echo -e "\n\n  Starting Redhat based Installation\n\n"
             osname="Redhat"
-            . ../lib/redhat/functions.sh
             . ../lib/redhat/config.sh
         ;;
         "2")
             echo -e "\n\n  Starting Debian based Installation\n\n"
             osname="Debian"
-            . ../lib/ubuntu/functions.sh
             . ../lib/ubuntu/config.sh
         ;;
         "3")
             echo -e "\n\n  Starting Arch Installation\n\n"
             osname="Arch"
-            . ../lib/arch/functions.sh
             . ../lib/arch/config.sh
             systemctl="yes"
         ;;
