@@ -97,6 +97,42 @@ backupReports() {
     fi
     errorStat $?
 }
+mask2cidr() {
+    nbits=0
+    IFS=.
+    for dec in $1; do
+        case $dec in
+            255) let nbits+=8;;
+            254) let nbits+=7; break ;;
+            252) let nbits+=6; break ;;
+            248) let nbits+=5; break ;;
+            240) let nbits+=4; break ;;
+            224) let nbits+=3; break ;;
+            192) let nbits+=2; break ;;
+            128) let nbits+=1; break ;;
+            0);;
+            *) echo "Error: $dec is not recognized"; exit 1
+        esac
+    done
+    echo "$nbits"
+}
+cidr2mask() {
+    local i=""
+    local mask=""
+    local full_octets=$(($1/8))
+    local partial_octet=$(($1%8))
+    for ((i=0;i<4;i+=1)); do
+        if [ $i -lt $full_octets ]; then
+            mask+=255
+        elif [ $i -eq $full_octets ]; then
+            mask+=$((256 - 2**(8-$partial_octet)))
+        else
+            mask+=0
+        fi
+        test $i -lt 3 && mask+=.
+    done
+    echo $mask
+}
 restoreReports() {
     dots "Restoring user reports"
     if [ -d "${webdirdest}/management/reports" ]; then
@@ -689,6 +725,7 @@ writeUpdateFile() {
 
 ipaddress=\"$ipaddress\";
 interface=\"$interface\";
+submask=\"$submask\";
 routeraddress=\"$routeraddress\";
 plainrouter=\"$plainrouter\";
 dnsaddress=\"$dnsaddress\";
@@ -1086,4 +1123,48 @@ class Config {
     errorStat $?
     createSSLCA
     chown -R ${apacheuser}:${apacheuser} "$webdirdest"
+}
+configureDHCP() {
+    dots "Setting up and starting DHCP Server"
+    if [ -f "$dhcpconfig" ]; then
+        mv "$dhcpconfig" "${dhcpconfig}.fogbackup"
+    fi
+    networkbase=`echo "${ipaddress}" | cut -d. -f1-3`
+    network="${networkbase}.0"
+    startrange="${networkbase}.10"
+    endrange="${networkbase}.254"
+    dhcptouse="$dhcpconfig"
+    if [ -f "${dhcpconfigother}" ]; then
+        dhcptouse="$dhcpconfigother"
+    fi
+    echo -e "# DHCP Server Configuration file\n#see /usr/share/doc/dhcp*/dhcpd.conf.sample\n# This file was created by FOG\n\n#Definition of PXE-specific options\n# Code 1: Multicast IP Address of bootfile\n# Code 2: UDP Port that client should monitor for MTFTP Responses\n# Code 3: UDP Port that MTFTP servers are using to listen for MTFTP requests\n# Code 4: Number of seconds a client must listen for activity before trying\n#         to start a new MTFTP transfer\n# Code
+    5: Number of seconds a client must listen before trying to restart\n#         a MTFTP transfer\n\n" > "$dhcptouse"
+    echo -e "option space PXE;\noption PXE.mtftp-ip code 1 = ip-address;\noption PXE.mtftp-cport code 2 = unsigned integer 16;\noption PXE.mtftp-sport code 3 = unsigned integer 16;\noption PXE.mtftp-tmout code 4 = unsigned integer 8;\noption PXE.mtftp-delay code 5 = unsigned integer 8;\noption arch code 93 = unsigned integer 16; # RFC4578\n\n" >> "$dhcptouse"
+    echo -e "use-host-decl-names on;\nddns-update-style interim;\nignore client-updates;\nnext-server $ipaddress;\n\n" >> "$dhcptouse"
+    echo -e "# Specify subnet of ether device you do NOT want service. for systems with\n# two or more ethernet devices.\n# subnet 136.165.0.0 netmask 255.255.0.0 {}\n\n" >> "$dhcptouse"
+    echo -e "subnet $network netmask $submask {\n\toption subnet-mask $submask;\n\trange dynamic-bootp $startrange $endrange;\n\tdefault-lease-time 21600\n\tmax-lease-time 43200;\n\t$dnsaddress\n\t$routeraddress\n\tfilename $bootfilename;\n}" >> "$dhcptouse";
+    if [ "$bldhcp" -eq 1 ]; then
+        if [ "$systemctl" == "yes" ]; then
+            systemctl enable $dhcpd >/dev/null 2>&1
+            systemctl restart $dhcpd >/dev/null 2>&1
+            sleep 2
+            systemctl status $dhcpd >/dev/null 2>&1
+            if [ "$?" != 0 -a "$osid" -eq 2 ]; then
+                sysv-rc-conf ${dhcpd} on >/dev/null 2>&1
+                /etc/init.d/${dhcpd} stop >/dev/null 2>&1
+                /etc/init.d/${dhcpd} start >/dev/null 2>&1
+            fi
+        elif [ "$osid" -eq 1 ]; then
+            chkconfig $dhcpd on >/dev/null 2>&1
+            service $dhcpd restart >/dev/null 2>&1
+            sleep 2
+            systemctl status $dhcpd >/dev/null 2>&1
+        elif [ "$osid" -eq 2 ]; then
+            sysv-rc-conf ${dhcpd} on >/dev/null 2>&1
+            /etc/init.d/${dhcpd} stop >/dev/null 2>&1
+            /etc/init.d/${dhcpd} start >/dev/null 2>&1
+        fi
+    else
+        echo "Skipped"
+    fi
 }

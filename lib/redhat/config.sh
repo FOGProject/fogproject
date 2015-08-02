@@ -112,3 +112,4 @@ then
     # NFS Subtree Check needed
     nfsexportsopts="no_subtree_check";
 fi
+dhcpd="dhcpd"
