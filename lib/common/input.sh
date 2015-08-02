@@ -45,7 +45,7 @@ if [ "${guessdefaults}" = "1" ]; then
         strSuggestedIntervace=`/sbin/ifconfig -a | grep "'${strSuggestedIPAddress}'" -B1 | awk -F'[:]+' '{print $1}' | head -n1`
 	fi
     ## Subnet Mask
-    strSuggestedSubMask=`/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $5}' | head -n2 | tail -n1cut -d' ' f 3 | cut -d'/' -f1`;
+    strSuggestedSubMask=`/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $5}' | head -n2 | tail -n1`
     if [ -z "$strSuggestedSubMask" ]; then
         strSuggestedSubMask=`/sbin/ifconfig -a | grep ${strSuggestedIPAddress} -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2`
         strSuggestedSubMask=`mask2cidr ${strSuggestedSubMask}`
