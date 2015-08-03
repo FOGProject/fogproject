@@ -20,8 +20,8 @@ class RemoveMenuItems extends Hook {
         if (in_array($this->node,$_SESSION[PluginsInstalled])) {
             foreach($arguments[submenu] AS $node => &$link) {
                 if (in_array($node,(array)$this->linksToFilter)) {
-                    $linkformat = $_SERVER[PHP_SELF]."?node=$node&sub=edit&id=".$_REQUEST[id];
-                    $delformat = $_SERVER[PHP_SELF]."?node=$node&sub=delete&id=".$_REQUEST[id];
+                    $linkformat = "?node=$node&sub=edit&id=".$_REQUEST[id];
+                    $delformat = "?node=$node&sub=delete&id=".$_REQUEST[id];
                     unset($arguments[submenu][$node][id]["$linkformat#host-printers"]);
                     unset($arguments[submenu][$node][id]["$linkformat#host-service"]);
                     unset($arguments[submenu][$node][id]["$linkformat#host-virus-history"]);

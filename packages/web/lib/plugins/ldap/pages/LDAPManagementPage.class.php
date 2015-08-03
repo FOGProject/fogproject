@@ -45,7 +45,7 @@ class LDAPManagementPage extends FOGPage {
         // Set title
         $this->title = _('Search');
         if ($this->FOGCore->getSetting(FOG_DATA_RETURNED) > 0 && $this->getClass(LDAPManager)->count() > $this->FOGCore->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list')
-            $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER[PHP_SELF], $this->node));
+            $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Find data
         $LDAPs = $this->getClass(LDAPManager)->find();
         // Row data

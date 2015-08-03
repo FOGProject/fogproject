@@ -93,7 +93,7 @@ class FOGPageManager extends FOGBase {
     }
     // Load FOGPage classes
     private function loadPageClasses() {
-        $isMobile = preg_match('#/mobile/#',$_SERVER[PHP_SELF]);
+        $isMobile = preg_match('#/mobile/#',$_SERVER['PHP_SELF']);
         if ($this->isLoaded(PageClasses)) return;
         // This variable is required as each class file uses it
         global $Init;
