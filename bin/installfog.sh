@@ -95,7 +95,7 @@ fi
 displayBanner;
 echo -e "  Version: ${version} Installer/Updater\n";
 fogpriorconfig="$fogprogramdir/.fogsettings"
-optspec="h?dUHSCKYyf:-:W:D:B:"
+optspec="h?dUHSCKYyf:-:W:D:B:s:e:"
 while getopts "$optspec" o; do
     #long options
     case "${o}" in
@@ -119,6 +119,12 @@ while getopts "$optspec" o; do
             webroot="${OPTARG}"
             webroot="${webroot#'/'}"
             webroot="${webroot%'/'}"
+            ;;
+            startrange)
+            startrange="${OPTARG}"
+            ;;
+            endrange)
+            endrange="${OPTARG}"
             ;;
             uninstall) uninstall; exit ;;
             file)
@@ -187,6 +193,12 @@ while getopts "$optspec" o; do
             exit 1
         fi
         backupPath="${OPTARG}"
+        ;;
+        s)
+        startrange="${OPTARG}"
+        ;;
+        e)
+        endrange="${OPTARG}"
         ;;
         :) echo "Option -${OPTARG} requires a value"; help; exit 1 ;;
         *)
