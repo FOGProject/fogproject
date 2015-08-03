@@ -46,6 +46,7 @@ fi
 debugPause;
 #fdisk -l &> /tmp/fdisk-before;
 echo "";
+verifyNetworkConnection;
 dots "Checking Operating System"
 echo $osname;
 dots "Checking CPU Cores"
