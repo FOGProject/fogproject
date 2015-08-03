@@ -85,6 +85,8 @@ help() {
     echo -e "\t            \t\t\t\tDefaults to /fog/"
     echo -e "\t-B    --backuppath\t\tSpecify the backup path"
     echo -e "\t      --uninstall\t\tUninstall FOG"
+    echo -e "\t-s    --startrange\t\tDHCP Start range"
+    echo -e "\t-e    --endrange\t\tDHCP End range"
     exit 0
 }
 backupReports() {
@@ -96,6 +98,19 @@ backupReports() {
         cp -a ${webdirdest}/management/reports/* "../rpttmp/" >/dev/null 2>&1
     fi
     errorStat $?
+}
+validip() {
+    local p=$1
+    local stat=1
+    if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        OIFS=$IFS
+        IFS='.'
+        ip=($ip)
+        IFS=$OIFS
+        [[ ${ip[0]} -le 255 && ${ip[1]} -le 255 && ${ip[2]} -le 255 && ${ip[3]} -le 255 ]]
+        stat=$?
+    fi
+    echo $stat
 }
 mask2cidr() {
     nbits=0
@@ -132,6 +147,12 @@ cidr2mask() {
         test $i -lt 3 && mask+=.
     done
     echo $mask
+}
+mask2network() {
+    IFS=.
+    read -r i1 i2 i3 i4 <<< "$1"
+    read -r m1 m2 m3 m4 <<< "$2"
+    printf "%d.%d.%d.%d\n"  "$((i1 & m1))" "$((i2 & m2))" "$((i3 & m3))" "$((i4 & m4))"
 }
 restoreReports() {
     dots "Restoring user reports"
@@ -746,6 +767,8 @@ storageftppass='$storageftppass';
 docroot=\"$docroot\";
 webroot=\"$webroot\";
 caCreated=\"$caCreated\";
+startrange=\"$startrange\";
+endrange=\"$endrange\";
 " > "$fogprogramdir/.fogsettings";
 }
 displayBanner() {
@@ -1126,10 +1149,18 @@ configureDHCP() {
     if [ -f "$dhcpconfig" ]; then
         mv "$dhcpconfig" "${dhcpconfig}.fogbackup"
     fi
-    networkbase=`echo "${ipaddress}" | cut -d. -f1-3`
-    network="${networkbase}.0"
-    startrange="${networkbase}.10"
-    endrange="${networkbase}.254"
+    serverip=`/sbin/ip addr show $interface | awk -F'[ /]+' '/global/ {print $3}'`
+    if [ -z "$serverip" ]; then
+        serverip=`/sbin/ifconfig $interface | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1`
+    fi
+    network=`mask2network $serverip $submask`
+    networkbase=`echo "$serverip" | cut -d. -f1-3`
+    if [ -z "$startrange" -o `validip $startrange` != 0 ]; then
+        startrange="${networkbase}.10"
+    fi
+    if [ -z "$endrange" -o `validip $endrange` != 0 ]; then
+        endrange="${networkbase}.254"
+    fi
     dhcptouse="$dhcpconfig"
     if [ -f "${dhcpconfigother}" ]; then
         dhcptouse="$dhcpconfigother"
