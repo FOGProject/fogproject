@@ -44,7 +44,7 @@ abstract class FOGManagerController extends FOGBase {
     // Search
     public function search($keyword = null) {
         try {
-            if (empty($keyword)) $keyword = preg_match('#mobile#i',$_SERVER[PHP_SELF])?$_REQUEST['host-search']:$_REQUEST[crit];
+            if (empty($keyword)) $keyword = preg_match('#mobile#i',$_SERVER['PHP_SELF'])?$_REQUEST['host-search']:$_REQUEST[crit];
             $keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', $keyword).'%');
             if ($keyword === '%') return $this->getClass($this->childClass.'Manager')->find();
             $_SESSION[caller] = __FUNCTION__;

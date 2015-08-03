@@ -39,7 +39,7 @@ class Initiator {
      * @return null
          */
         private static function DetermineBasePath() {
-            define('WEB_ROOT',sprintf('/%s',(preg_match('#/fog/#',$_SERVER[PHP_SELF])?'fog/':'')));
+            define('WEB_ROOT',sprintf('/%s',(preg_match('#/fog/#',$_SERVER['PHP_SELF'])?'fog/':'')));
             return (file_exists('/var/www/fog')?'/var/www/fog':(file_exists('/var/www/html/fog')?'/var/www/html/fog':$_SERVER[DOCUMENT_ROOT].WEB_ROOT));
         }
         /** __destruct() Cleanup after no longer needed
@@ -148,7 +148,7 @@ class Initiator {
          * @param $buffer the buffer to clean
          * @return the cleaned up buffer
          */
-        public function sanitize_output($buffer) {
+        public static function sanitize_output($buffer) {
             $search = array(
                 '/\>[^\S ]+/s', //strip whitespaces after tags, except space
                 '/[^\S ]+\</s', //strip whitespaces before tags, except space

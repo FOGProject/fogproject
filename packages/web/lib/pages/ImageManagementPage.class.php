@@ -80,7 +80,7 @@ class ImageManagementPage extends FOGPage {
     public function index() {
         // Set title
         $this->title = _('All Images');
-        if ($_SESSION[DataReturn] > 0 && $_SESSION[ImageCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER[PHP_SELF], $this->node));
+        if ($_SESSION[DataReturn] > 0 && $_SESSION[ImageCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Find data
         $Images = $this->getClass(ImageManager)->find();
         $SizeServer = $_SESSION[FOG_FTP_IMAGE_SIZE];
