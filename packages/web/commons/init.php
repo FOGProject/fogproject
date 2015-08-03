@@ -36,11 +36,11 @@ class Initiator {
         spl_autoload_register(array($this,'FOGEvents'));
     }
     /** DetermineBasePath() Gets the base path and sets WEB_ROOT constant
-     * @return void
+     * @return null
          */
         private static function DetermineBasePath() {
-            define('WEB_ROOT',sprintf('/%s',(preg_match('#/fog/#',$_SERVER['PHP_SELF']) ? 'fog/' : '')));
-            return (file_exists('/var/www/fog') ? '/var/www/fog' : (file_exists('/var/www/html/fog') ? '/var/www/html/fog' : $_SERVER['DOCUMENT_ROOT'].WEB_ROOT));
+            define('WEB_ROOT',sprintf('/%s',(preg_match('#/fog/#',$_SERVER['PHP_SELF'])?'fog/':'')));
+            return (file_exists('/var/www/fog')?'/var/www/fog':(file_exists('/var/www/html/fog')?'/var/www/html/fog':$_SERVER[DOCUMENT_ROOT].WEB_ROOT));
         }
         /** __destruct() Cleanup after no longer needed
          * @return void
@@ -59,7 +59,7 @@ class Initiator {
             @error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
             @ini_set('session.save_handler','mm');
             @ini_set('session.cookie_httponly',true);
-            @ob_start('sanitize_output');
+            @ob_start(array(self,'sanitize_output'));
             @session_start();
             @session_cache_limiter('no-cache');
             @session_set_cookie_params(0,null,null,true,true);
@@ -82,7 +82,7 @@ class Initiator {
          */
         private static function verCheck() {
             try {
-                if (!version_compare(phpversion(), '5.3.0', '>=')) throw new Exception('FOG Requires PHP v5.3.0 or higher.  You have PHP v'.phpversion());
+                if (!version_compare(phpversion(),'5.3.0','>=')) throw new Exception('FOG Requires PHP v5.3.0 or higher. You have PHP v'.phpversion());
             } catch (Exception $e) {
                 print $e->getMessage();
                 exit;
@@ -144,12 +144,11 @@ class Initiator {
             global $EventManager;
             foreach($this->EventPaths AS $path) (!class_exists($className) && file_exists($path.$className.'.event.php') ? require_once($path.$className.'.event.php') : null);
         }
-}
-/** sanitize_output cleans up any whitespace
- * @param $buffer the buffer to cleanup
- * @return the cleaned up buffer
+        /** sanitize_output() Clean the buffer
+         * @param $buffer the buffer to clean
+         * @return the cleaned up buffer
          */
-        function sanitize_output($buffer) {
+        public static function sanitize_output($buffer) {
             $search = array(
                 '/\>[^\S ]+/s', //strip whitespaces after tags, except space
                 '/[^\S ]+\</s', //strip whitespaces before tags, except space
@@ -162,30 +161,32 @@ class Initiator {
             );
             $buffer = preg_replace($search,$replace,$buffer);
             return $buffer;
+
         }
-        /** $Init the initiator class */
-        $Init = new Initiator();
-        /** Starts the init itself */
-        $Init::startInit();
-        /** $FOGFTP the FOGFTP class */
-        $FOGFTP = new FOGFTP();
-        /** $FOGCore the FOGCore class */
-        $FOGCore = new FOGCore();
-        /** $DatabaseManager the DatabaseManager class */
-        $DatabaseManager = new DatabaseManager();
-        /** $DB set's the DB class from the DatabaseManager */
-        $DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
-        /** Cleanup all invalid entrees */
-        $FOGCore->cleanInvalidEntries();
-        /** Loads any Session variables */
-        $FOGCore->setSessionEnv();
-        /** $TimeZone the timezone setter */
-        $TimeZone = $FOGCore->TimeZone = $_SESSION[TimeZone];
-        /** $EventManager initiates the EventManager class */
-        $FOGCore->EventManager = $EventManager = $FOGCore->getClass(EventManager);
-        /** $HookManager initiates the HookManager class */
-        $FOGCore->HookManager = $HookManager = $FOGCore->getClass(HookManager);
-        $HookManager->load();
-        $EventManager->load();
-        /** $HookManager initiates the FOGURLRequest class */
-        $FOGCore->FOGURLRequests = $FOGURLRequests = $FOGCore->getClass(FOGURLRequests);
+}
+/** $Init the initiator class */
+$Init = new Initiator();
+/** Starts the init itself */
+$Init::startInit();
+/** $FOGFTP the FOGFTP class */
+$FOGFTP = new FOGFTP();
+/** $FOGCore the FOGCore class */
+$FOGCore = new FOGCore();
+/** $DatabaseManager the DatabaseManager class */
+$DatabaseManager = new DatabaseManager();
+/** $DB set's the DB class from the DatabaseManager */
+$DB = $FOGCore->DB = $DatabaseManager->connect()->DB;
+/** Cleanup all invalid entrees */
+$FOGCore->cleanInvalidEntries();
+/** Loads any Session variables */
+$FOGCore->setSessionEnv();
+/** $TimeZone the timezone setter */
+$TimeZone = $FOGCore->TimeZone = $_SESSION[TimeZone];
+/** $EventManager initiates the EventManager class */
+$FOGCore->EventManager = $EventManager = $FOGCore->getClass(EventManager);
+/** $HookManager initiates the HookManager class */
+$FOGCore->HookManager = $HookManager = $FOGCore->getClass(HookManager);
+$HookManager->load();
+$EventManager->load();
+/** $HookManager initiates the FOGURLRequest class */
+$FOGCore->FOGURLRequests = $FOGURLRequests = $FOGCore->getClass(FOGURLRequests);

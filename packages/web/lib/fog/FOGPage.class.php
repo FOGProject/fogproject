@@ -94,7 +94,7 @@ abstract class FOGPage extends FOGBase {
         /** render() just prints the data
          * @return void
          */
-        public function render() {ob_start('sanitize_output',512); echo $this->process(); ob_end_flush();}
+        public function render() {ob_start(array('Initiator','sanitize_output'),512); echo $this->process(); ob_end_flush();}
         /** process() build the relevant html for the page
          * @return false or the result
          */
@@ -117,7 +117,7 @@ abstract class FOGPage extends FOGBase {
                         'form' => $this->form,
                     ));
                 } else {
-                    ob_start('sanitize_output');
+                    ob_start(array('Initiator','sanitize_output'));
                     $isMobile = preg_match('#/mobile/#',$_SERVER['PHP_SELF']);
                     // HTML output
                     if ($this->searchFormURL) {
@@ -219,7 +219,7 @@ abstract class FOGPage extends FOGBase {
      */
     public function buildRow($data) {
         $this->replaceNeeds($data);
-        ob_start('sanitize_output');
+        ob_start(array('Initiator','sanitize_output'));
         // Loop template data
         foreach ($this->templates AS $i => &$template) {
             // Replace variables in template with data -> wrap in $this->wrapper -> push into $result
@@ -239,6 +239,12 @@ abstract class FOGPage extends FOGBase {
      * @return void
      */
     public function deploy() {
+        try {
+            if (($this->obj instanceof Group && !(count($this->obj->get(hosts)))) || ($this->obj instanceof Host && ($this->obj->get(pending) || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
+        } catch (Exception $e) {
+            $this->FOGCore->setMessage($e->getMessage());
+            $this->FOGCore->redirect('?node='.$this->node.'&sub=edit'.($_REQUEST[id] ? '&'.$this->id.'='.$_REQUEST[id] : ''));
+        }
         $TaskType = $this->getClass(TaskType,($_REQUEST[type]?$_REQUEST[type]:1));
         // Title
         $this->title = sprintf('%s %s %s %s',_('Create'),$TaskType->get(name),_('task for'),$this->obj->get(name));
@@ -291,8 +297,8 @@ abstract class FOGPage extends FOGBase {
         );
         if ($this->obj instanceof Host) {
             $this->data[] = array(
-                host_link=>$_SERVER[PHP_SELF].'?node=host&sub=edit&id=${host_id}',
-                image_link=>$_SERVER[PHP_SELF].'?node=image&sub=edit&id=${image_id}',
+                host_link=>$_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
+                image_link=>$_SERVER['PHP_SELF'].'?node=image&sub=edit&id=${image_id}',
                 host_id=>$this->obj->get(id),
                 image_id=>$this->obj->getImage()->get(id),
                 host_name=>$this->obj->get(name),
@@ -306,8 +312,8 @@ abstract class FOGPage extends FOGBase {
             $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)));
             foreach($Hosts AS $i => &$Host) {
                 $this->data[] = array(
-                    host_link=>$_SERVER[PHP_SELF].'?node=host&sub=edit&id=${host_id}',
-                    image_link=>$_SERVER[PHP_SELF].'?node=image&sub=edit&id=${image_id}',
+                    host_link=>$_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
+                    image_link=>$_SERVER['PHP_SELF'].'?node=image&sub=edit&id=${image_id}',
                     host_id=>$Host->get(id),
                     image_id=>$Host->getImage()->get(id),
                     host_name=>$Host->get(name),
@@ -323,13 +329,19 @@ abstract class FOGPage extends FOGBase {
         $this->HookManager->processEvent(strtoupper($this->childClass.'_DEPLOY'),array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        printf('%s%s%s','<p class="c"><input type="submit" value="',$this->title,'" /></p>');
+        if (count($this->data)) printf('%s%s%s','<p class="c"><input type="submit" value="',$this->title,'" /></p>');
         print '</form>';
     }
     /** deploy_post() actually create the deployment task
      * @return void
      */
     public function deploy_post() {
+        try {
+            if (($this->obj instanceof Group && !(count($this->obj->get(hosts)))) || ($this->obj instanceof Host && ($this->obj->get(pending) || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
+        } catch (Exception $e) {
+            $this->FOGCore->setMessage($e->getMessage());
+            $this->FOGCore->redirect('?node='.$this->node.'&sub=edit'.($_REQUEST[id] ? '&'.$this->id.'='.$_REQUEST[id] : ''));
+        }
         $TaskType = $this->getClass(TaskType,$_REQUEST[type]);
         $Snapin = $this->getClass(Snapin,$_REQUEST[snapin]);
         $enableShutdown = $_REQUEST[shutdown] ? true : false;
@@ -357,9 +369,6 @@ abstract class FOGPage extends FOGBase {
                     foreach($Hosts AS $id => &$Host) if (!$Host->get(pending)) $ImageExists[] = !$Host->checkIfExist($TaskType->get(id));
                     unset($Host);
                     if (in_array(true,$ImageExists)) throw new Exception(_('One or more hosts have an image that does not exist'));
-                    foreach($Hosts AS $i => &$Host) if ($Host->get(task) && $Host->get(task)->isValid()) $Tasks[] = $Host->get(task);
-                    unset($Host);
-                    if (count($Tasks) > 0) throw new Exception(_('One or more hosts are currently in a task'));
                 }
                 if ($TaskType->get(id) == 11 && empty($passreset)) throw New Exception(_('Password reset requires a user account to reset'));
                 try {
@@ -632,7 +641,7 @@ abstract class FOGPage extends FOGBase {
      */
     public function getPing() {
         try {
-            $ping = $_REQUEST['ping'];
+            $ping = $_REQUEST[ping];
             if (!$_SESSION['AllowAJAXTasks']) throw new Exception(_('FOG Session Invalid'));
             if (!$ping || $ping == 'undefined') throw new Exception(_('Undefined host to ping'));
             if (!HostManager::isHostnameSafe($ping)) throw new Exception(_('Invalid Hostname'));
@@ -817,7 +826,7 @@ abstract class FOGPage extends FOGBase {
                     unset($Host);
                 }
                 // Remove hosts first
-                if (isset($_REQUEST['massDelHosts'])) $this->FOGCore->redirect('?node=group&sub=delete_hosts&id='.$Data->get('id'));
+                if (isset($_REQUEST['massDelHosts'])) $this->FOGCore->redirect('?node=group&sub=delete_hosts&id='.$Data->get(id));
             }
             if ($Data instanceof Image || $Data instanceof Snapin) {
                 if ($Data->get('protected')) throw new Exception($this->childClass.' '._('is protected, removal not allowed'));

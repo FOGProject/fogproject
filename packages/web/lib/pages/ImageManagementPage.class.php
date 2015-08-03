@@ -24,7 +24,7 @@ class ImageManagementPage extends FOGPage {
             $this->notes = array(
                 $this->foglang[Images] => $this->obj->get(name),
                 $this->foglang[LastUploaded] => $this->obj->get(deployed),
-                $this->foglang[DeployMethod] => $this->obj->get(format) ? 'Partimage' : 'Partclone',
+                $this->foglang[DeployMethod] => $this->obj->get(format) ? _('Partimage') : _('Partclone'),
                 $this->foglang[ImageType] => $this->obj->getImageType() ? $this->obj->getImageType() : $this->foglang[NoAvail],
                 _('Primary Storage Group') => $this->obj->getStorageGroup()->get(name),
             );
@@ -65,7 +65,7 @@ class ImageManagementPage extends FOGPage {
             array(width=>50,'class'=>l),
             array(width=>50,'class'=>c),
         );
-        $SizeServer ? array_push($this->attributes,array('width' => 50, 'class' => 'c')) : null;
+        $SizeServer ? array_push($this->attributes,array(width=>50,'class'=>c)) : null;
         array_push(
             $this->attributes,
             array(width=>50,'class'=>c),
@@ -80,7 +80,7 @@ class ImageManagementPage extends FOGPage {
     public function index() {
         // Set title
         $this->title = _('All Images');
-        if ($_SESSION[DataReturn] > 0 && $_SESSION[ImageCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER[PHP_SELF], $this->node));
+        if ($_SESSION[DataReturn] > 0 && $_SESSION[ImageCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Find data
         $Images = $this->getClass(ImageManager)->find();
         $SizeServer = $_SESSION[FOG_FTP_IMAGE_SIZE];
@@ -94,14 +94,14 @@ class ImageManagementPage extends FOGPage {
                 name=>$Image->get(name),
                 description=>$Image->get(description),
                 storageGroup=>$Image->getStorageGroup()->get(name),
-                os=>$Image->getOS() && $Image->getOS()->isValid() ? $Image->getOS()->get('name') : _('Not set'),
+                os=>$Image->getOS() && $Image->getOS()->isValid() ? $Image->getOS()->get(name) : _('Not set'),
                 deployed=>$this->validDate($Image->get(deployed)) ? $this->FOGCore->formatTime($Image->get(deployed)) : 'No Data',
                 size => $imageSize,
                 $SizeServer ? serv_size : null => $SizeServer ? $servSize : null,
                 image_type=>$Image->getImageType()->get(name),
                 image_partition_type => $Image->getImagePartitionType()->get(name),
                 'protected'=>'<i class="fa fa-'.(!$Image->get('protected') ? 'un' : '').'lock fa-1x icon hand" title="'.(!$Image->get('protected') ? _('Not Protected') : _('Protected')).'"></i>',
-                type=>_($Image->get(format) ? 'Partimage' : 'Partclone'),
+                type=>$Image->get(format) ? _('Partimage') : _('Partclone'),
             );
         }
         unset($Image);
@@ -134,7 +134,7 @@ class ImageManagementPage extends FOGPage {
                 $SizeServer ? serv_size : null => $SizeServer ? $servSize : null,
                 image_type=>$Image->getImageType()->get(name),
                 image_partition_type=>$Image->getImagePartitionType()->get(name),
-                type=>_($Image->get(format) ? 'Partimage' : 'Partclone'),
+                type=>_($Image->get(format) ? _('Partimage') : _('Partclone')),
                 'protected' => '<i class="fa fa-'.(!$Image->get('protected') ? 'un' : '').'lock fa-1x icon hand" title="'.(!$Image->get('protected') ? _('Not Protected') : _('Protected')).'"></i>',
             );
         }
@@ -331,7 +331,7 @@ class ImageManagementPage extends FOGPage {
             $this->HookManager->processEvent(IMAGE_GROUP_ASSOC,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
             print '<center><label for="groupMeShow">'._('Check here to see groups not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow" /></label><form method="post" action="'.$this->formAction.'&tab=image-storage"><div id="groupNotInMe"><h2>'._('Modify group association for').' '.$this->obj->get(name).'</h2><p>'._('Add image to groups').' '.$this->obj->get(name).'</p>';
             $this->render();
-            print "</div>";
+            print '</div>';
         }
         // Reset the data for the next value
         unset($this->data);
@@ -356,7 +356,7 @@ class ImageManagementPage extends FOGPage {
             $this->HookManager->processEvent(IMAGE_GROUP_NOT_WITH_ANY,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
             print '<label for="groupNoShow">'._('Check here to see groups not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="groupNoShow" id="groupNoShow" /></label><form method="post" action="'.$this->formAction.'&tab=image-storage"><div id="groupNoImage"><p>'._('Groups below have no image association').'</p><p>'._('Assign image to groups').' '.$this->obj->get(name).'</p>';
             $this->render();
-            print "</div>";
+            print '</div>';
         }
         if ($GroupDataExists) {
             print '<br/><input type="submit" value="'._('Add Image to Group(s)').'" /></form></center>';
@@ -503,7 +503,7 @@ class ImageManagementPage extends FOGPage {
             array(),
             array(),
             array(),
-            array('class' => 'r'),
+            array('class'=>r),
         );
         $this->templates = array(
             '${mc_name}<br/><small>${image_name}:${os}</small>',

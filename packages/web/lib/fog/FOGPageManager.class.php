@@ -61,7 +61,7 @@ class FOGPageManager extends FOGBase {
                 $this->arguments = (!empty($GLOBALS[$class->id]) ? array('id' => $GLOBALS[$class->id]) : array());
                 (!$this->FOGCore->isPOSTRequest() ? $this->resetRequest() : $this->setRequest());
                 // Render result to variable - we do this so we can send HTTP Headers in a class method
-                ob_start('sanitize_output');
+                ob_start(array('Initiator','sanitize_output'));
                 call_user_func(array($class,$method));
                 $this->resetRequest();
             } catch (Exception $e) {
@@ -93,7 +93,7 @@ class FOGPageManager extends FOGBase {
     }
     // Load FOGPage classes
     private function loadPageClasses() {
-        $isMobile = preg_match('#/mobile/#',$_SERVER[PHP_SELF]);
+        $isMobile = preg_match('#/mobile/#',$_SERVER['PHP_SELF']);
         if ($this->isLoaded(PageClasses)) return;
         // This variable is required as each class file uses it
         global $Init;

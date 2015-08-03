@@ -23,7 +23,9 @@ class Group extends FOGController {
     private function loadHosts() {
         if (!$this->isLoaded(hosts) && $this->get(id)) {
             $HostIDs = $this->getClass(GroupAssociationManager)->find(array(groupID=>$this->get(id)),'','','','','','','hostID');
-            $this->set(hosts,$HostIDs);
+            $PendHostsIDs = $this->getClass(HostManager)->find(array(pending=>1),'','','','','','','id');
+            $HostsIDs = array_diff((array)$HostIDs,(array)$PendHostsIDs);
+            $this->set(hosts,$HostsIDs);
             $this->set(hostsnotinme,$this->getClass(HostManager)->find(array(id=>$HostIDs),'','','','','',true,'id'));
         }
         return $this;
@@ -133,7 +135,7 @@ class Group extends FOGController {
         return parent::destroy($field);
     }
     public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false) {
-
+        if ($this->getClass(TaskManager)->count(array(hostID=>$this->get(hosts),stateID=>array(0,1,2,3)))) throw new Exception(_('One or more hosts are currently in a tasking'));
         $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
         foreach ($Hosts AS $i => &$Host) if (!$Host->get(pending)) $success[] = $Host->createImagePackage($taskTypeID,$taskName,$shutdown,$debug,$deploySnapins,$isGroupTask,$_SESSION[FOG_USERNAME],$passreset,$sessionjoin);
         return $success;

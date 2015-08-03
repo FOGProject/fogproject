@@ -35,15 +35,23 @@ if [ "${guessdefaults}" = "1" ]; then
 		strSuggestedOS="3";
 	fi
 	## IP Address
-    strSuggestedIPaddress=`ip -f inet -o addr show | cut -d\  -f 7 | cut -d/ -f 1 | head -n2 | tail -n1`;
-	if [ -z "$strSuggestedIPaddress" ]; then
-		strSuggestedIPaddress=`ifconfig | grep "inet" | head -n 1  | awk '{print $2}'`;
+    strSuggestedIPAddress=`/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $4}' | head -n2 | tail -n1`
+	if [ -z "$strSuggestedIPAddress" ]; then
+        strSuggestedIPAddress=`/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1`
 	fi
 	## Interface
-    strSuggestedInterface=`ip -f inet -o addr show | cut -d' ' -f 2 | head -n2 | tail -n1`;
+    strSuggestedInterface=`/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $2}' | head -n2 | tail -n1`
 	if [ -z "$strSuggestedInterface" ]; then
-		strSuggestedInterface=`ifconfig | grep "RUNNING" | head -n 1 | cut -d':' -f1`;
+        strSuggestedIntervace=`/sbin/ifconfig -a | grep "'${strSuggestedIPAddress}'" -B1 | awk -F'[:]+' '{print $1}' | head -n1`
 	fi
+    ## Subnet Mask
+    strSuggestedSubMask=`/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $5}' | head -n2 | tail -n1`
+    if [ -z "$strSuggestedSubMask" ]; then
+        strSuggestedSubMask=`/sbin/ifconfig -a | grep ${strSuggestedIPAddress} -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2`
+        strSuggestedSubMask=`mask2cidr ${strSuggestedSubMask}`
+    fi
+    strSuggestedSubMask=`cidr2mask ${strSuggestedSubMask}`
+    submask=$strSuggestedSubMask
 	## Route
     strSuggestedRoute=`ip route | head -n1 | cut -d' ' -f3 | tr -d [:blank:]`;
 	if [ -z "$strSuggestedRoute" ]; then
