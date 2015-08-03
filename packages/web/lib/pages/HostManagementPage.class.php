@@ -89,7 +89,7 @@ class HostManagementPage extends FOGPage {
         // Set title
         $this->title = $this->foglang[AllHosts];
         // Find data -> Push data
-        if ($_SESSION[DataReturn] > 0 && $_SESSION[HostCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER[PHP_SELF], $this->node));
+        if ($_SESSION[DataReturn] > 0 && $_SESSION[HostCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
         $Hosts = $this->getClass(HostManager)->find(array(pending=>array('',0,null)));
         foreach ($Hosts AS $i => &$Host) {
             $this->data[] = array(

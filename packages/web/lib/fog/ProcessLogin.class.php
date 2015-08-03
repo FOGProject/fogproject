@@ -94,7 +94,7 @@ class ProcessLogin extends FOGBase {
         $this->currentUser = $currentUser;
         unset($currentUser);
         // Hook
-        if (!preg_match('#/mobile/#',$_SERVER[PHP_SELF])) $this->HookManager->processEvent(LoginSuccess,array(user=>&$this->currentUser,username=>$this->username, password=>&$this->password));
+        if (!preg_match('#/mobile/#',$_SERVER['PHP_SELF'])) $this->HookManager->processEvent(LoginSuccess,array(user=>&$this->currentUser,username=>$this->username, password=>&$this->password));
     }
     private function setRedirMode() {
         $redirect = array_merge($_GET, $_POST);
@@ -102,7 +102,7 @@ class ProcessLogin extends FOGBase {
         if (in_array($redirect[node],array(login,logout))) unset($redirect[node]);
         foreach ($redirect AS $key => &$value) $redirectData[] = $key.'='.$value;
         unset($value);
-        $this->FOGCore->redirect($_SERVER[PHP_SELF].($redirectData ? '?' . implode('&',(array)$redirectData) : ''));
+        $this->FOGCore->redirect($_SERVER['PHP_SELF'].($redirectData ? '?' . implode('&',(array)$redirectData) : ''));
     }
     public function loginFail($string) {
         $this->setLang();
@@ -121,7 +121,7 @@ class ProcessLogin extends FOGBase {
             $this->HookManager->processEvent(USER_LOGGING_IN,array(User=>&$tmpUser,username=>&$this->username,password=>&$this->password));
             try {
                 if (!$tmpUser || !$tmpUser->isValid()) throw new Exception($this->foglang[InvalidLogin]);
-                if (!preg_match('#/mobile/#',$_SERVER[PHP_SELF])) {
+                if (!preg_match('#/mobile/#',$_SERVER['PHP_SELF'])) {
                     if ($tmpUser->get(type) == 0 && $tmpUser->get(type) != 1) $this->setCurUser($tmpUser);
                     else if ($tmpUser->get(type) == 0) throw new Exception($this->foglang[NotAllowedHere]);
                 } else $this->setCurUser($tmpUser);

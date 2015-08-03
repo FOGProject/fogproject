@@ -19,7 +19,7 @@ class FOGCore extends FOGBase {
         Redirect the page.
      */
     public function redirect($url = '') {
-        if ($url == '') $url = $_SERVER[PHP_SELF].($_SERVER[QUERY_STRING]?'?'.$_SERVER[QUERY_STRING]:'');
+        if ($url == '') $url = $_SERVER['PHP_SELF'].($_SERVER['QUERY_STRING']?'?'.$_SERVER['QUERY_STRING']:'');
         if (headers_sent()) printf('<meta http-equiv="refresh" content="0; url=%s">', $url);
         else {
             header('X-Content-Type-Options: nosniff');
@@ -285,7 +285,7 @@ class FOGCore extends FOGBase {
         $_SESSION[theme] = $this->getSetting(FOG_THEME);
         $_SESSION[theme] = $_SESSION[theme]?$_SESSION[theme]:'default/fog.css';
         if (!file_exists(BASEPATH.'/css/'.$_SESSION[theme])) $_SESSION[theme] = 'default/fog.css';
-        $_SESSION[imagelink] = !preg_match('#/mobile/#i',$_SERVER[PHP_SELF]) ? 'css/'.($_SESSION[theme]?dirname($_SESSION[theme]):'default').'/images/':'css/images/';
+        $_SESSION[imagelink] = !preg_match('#/mobile/#i',$_SERVER['PHP_SELF']) ? 'css/'.($_SESSION[theme]?dirname($_SESSION[theme]):'default').'/images/':'css/images/';
         $_SESSION[PLUGSON] = $this->getSetting(FOG_PLUGINSYS_ENABLED);
         $_SESSION[PluginsInstalled] = $this->getActivePlugins();
         $_SESSION[FOG_VIEW_DEFAULT_SCREEN] = $this->getSetting(FOG_VIEW_DEFAULT_SCREEN);

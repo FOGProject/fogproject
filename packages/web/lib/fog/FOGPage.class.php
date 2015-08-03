@@ -297,8 +297,8 @@ abstract class FOGPage extends FOGBase {
         );
         if ($this->obj instanceof Host) {
             $this->data[] = array(
-                host_link=>$_SERVER[PHP_SELF].'?node=host&sub=edit&id=${host_id}',
-                image_link=>$_SERVER[PHP_SELF].'?node=image&sub=edit&id=${image_id}',
+                host_link=>$_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
+                image_link=>$_SERVER['PHP_SELF'].'?node=image&sub=edit&id=${image_id}',
                 host_id=>$this->obj->get(id),
                 image_id=>$this->obj->getImage()->get(id),
                 host_name=>$this->obj->get(name),
@@ -312,8 +312,8 @@ abstract class FOGPage extends FOGBase {
             $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)));
             foreach($Hosts AS $i => &$Host) {
                 $this->data[] = array(
-                    host_link=>$_SERVER[PHP_SELF].'?node=host&sub=edit&id=${host_id}',
-                    image_link=>$_SERVER[PHP_SELF].'?node=image&sub=edit&id=${image_id}',
+                    host_link=>$_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
+                    image_link=>$_SERVER['PHP_SELF'].'?node=image&sub=edit&id=${image_id}',
                     host_id=>$Host->get(id),
                     image_id=>$Host->getImage()->get(id),
                     host_name=>$Host->get(name),
@@ -641,7 +641,7 @@ abstract class FOGPage extends FOGBase {
      */
     public function getPing() {
         try {
-            $ping = $_REQUEST['ping'];
+            $ping = $_REQUEST[ping];
             if (!$_SESSION['AllowAJAXTasks']) throw new Exception(_('FOG Session Invalid'));
             if (!$ping || $ping == 'undefined') throw new Exception(_('Undefined host to ping'));
             if (!HostManager::isHostnameSafe($ping)) throw new Exception(_('Invalid Hostname'));

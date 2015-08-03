@@ -46,7 +46,7 @@ class SnapinManagementPage extends FOGPage {
         // Set title
         $this->title = _('All Snap-ins');
         if ($this->FOGCore->getSetting(FOG_DATA_RETURNED) > 0 && $this->getClass(SnapinManager)->count() > $this->FOGCore->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list')
-            $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER[PHP_SELF], $this->node));
+            $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Find data
         $Snapins = $this->getClass(SnapinManager)->find();
         // Row data

@@ -26,7 +26,8 @@ for iface in $ifaces; do
     for delay in `seq 10`; do
         linkstate=`/bin/cat /sys/class/net/$iface/carrier`
         if [ "x$linkstate" == "x1" ]; then
-            /sbin/udhcpc -i $iface -t 2 -T `expr $timeout '+' 5`
+            /sbin/udhcpc -i $iface -t 2 -T $timeout
+            timeout=`expr $timeout '+' 5`
             if [ "$?" == 0 ]; then
                 break;
             fi
