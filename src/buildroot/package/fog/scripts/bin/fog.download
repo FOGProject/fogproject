@@ -152,8 +152,9 @@ if [ "$imgType" == "n" ]; then
 	#  resize original partition table to current disk, and apply it
 	elif [[ "$osid" == +([1-2]|[5-7]|9|50) ]]; then
 		restorePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
-		dots "Expanding partition table to fill disk";
 		do_fill=`fillDiskWithPartitionsIsOK "${hd}" "${imagePath}" "1"`;
+		majorDebugEcho "Filling disk = $do_fill.";
+		dots "Expanding partition table to fill disk";
 		if [ "$do_fill" != "0" ]; then
 			fillDiskWithPartitions "${hd}" "${imagePath}" "1";
 		fi

@@ -14,12 +14,18 @@
 # $2 is name of file to save to.
 saveSfdiskPartitions() {
 	sfdisk -d "$1" 2>/dev/null > "$2";
+    if [ "$?" != 0 ]; then
+        majorDebugEcho "sfdisk failed in saveSfdiskPartitions";
+    fi
 }
 
 # $1 is the name of the disk drive
 # $2 is name of file to load from.
 applySfdiskPartitions() {
 	sfdisk "$1" &>/dev/null < "$2";
+    if [ "$?" != 0 ]; then
+        majorDebugEcho "sfdisk failed in applySfdiskPartitions";
+    fi
 }
 
 # $1 is the name of the disk drive
@@ -29,12 +35,18 @@ restoreSfdiskPartitions() {
 	fdisk "$1" &>/dev/null << EOFRESTOREPART
 w
 EOFRESTOREPART
+    if [ "$?" != 0 ]; then
+        majorDebugEcho "fdisk failed in restoreSfdiskPartitions";
+    fi
 }
 
 
 # $1 is the name of the disk drive
 hasExtendedPartition() {
 	sfdisk -d "$1" 2>/dev/null | egrep '(Id|type)=\ *[5f]' | wc -l
+    if [ "$?" != 0 ]; then
+        majorDebugEcho "sfdisk failed in hasExtendedPartition";
+    fi
 }
 
 # $1 is the name of the partition device (e.g. /dev/sda3)
@@ -284,11 +296,19 @@ fillSfdiskWithPartitions() {
 	local disk_size=`blockdev --getsize64 "$1" | awk '{printf("%d\n",$1/1024);}'`;
 	local tmp_file2="/tmp/sfdisk2.$$";
 	processSfdisk "$2" filldisk "$1" "$disk_size" "$3" > $tmp_file2;
+	if [ "$ismajordebug" -gt 0 ]; then
+		majorDebugEcho "Trying to fill with the disk with these partititions:";
+		cat $tmp_file2;
+		majorDebugPause;
+	fi
 	if [ "$?" == "0" ]; then
 		applySfdiskPartitions $1 $tmp_file2;
 	fi
 	runPartprobe "$1";
 	rm -f $tmp_file2;
+	majorDebugEcho "Applied the preceding table.";
+	majorDebugShowCurrentPartitionTable "$1" "1";
+	majorDebugPause;
 }
 
 
@@ -802,6 +822,10 @@ fillDiskWithPartitions() {
 	
 	if [ "$table_type" == "MBR" ]; then
 		local filename=`sfdiskOriginalPartitionFileName "$imagePath" "$intDisk"`;
+		local legacyfilename=`sfdiskLegacyOriginalPartitionFileName "$imagePath" "$intDisk"`;
+		if [ ! -r "$filename" ]; then
+			filename="$legacyfilename";
+		fi
 		fillSfdiskWithPartitions "$disk" "$filename" "$fixed_size_partitions";
 	elif [ "$table_type" == "GPT" ]; then
 		local filename=`sgdiskOriginalPartitionFileName "$imagePath" "$intDisk"`;
@@ -829,7 +853,8 @@ fillDiskWithPartitionsIsOK() {
 	
 	if [ "$table_type" == "MBR" ]; then
 		local filename=`sfdiskOriginalPartitionFileName "$imagePath" "$intDisk"`;
-		if [ -r "$filename" ]; then
+		local legacyfilename=`sfdiskLegacyOriginalPartitionFileName "$imagePath" "$intDisk"`;
+		if [ -r "$filename" -o -r "$legacyfilename" ]; then
 			result="1";
 		fi
 	elif [ "$table_type" == "GPT" ]; then
@@ -839,6 +864,30 @@ fillDiskWithPartitionsIsOK() {
 		fi
 	fi
 	echo "$result";
+}
+
+
+#
+# Show the current partition table
+#
+# $1 : the disk device (e.g. /dev/sda)
+# $2 : disk number (e.g. 1)
+majorDebugShowCurrentPartitionTable() {
+	if [ "$ismajordebug" -le 0 ]; then
+		return;
+	fi
+	
+	local disk="$1";
+	local intDisk="$2";
+	local table_type=`getDesiredPartitionTableType "$imagePath" "$intDisk"`;
+	echo "";
+	echo "Current partition table:";
+	if [ "$table_type" == "MBR" ]; then
+		sfdisk -d "$disk";
+	elif [ "$table_type" == "GPT" ]; then
+		sgdisk -p "$disk";
+	fi
+	echo "";
 }
 
 # Local Variables:

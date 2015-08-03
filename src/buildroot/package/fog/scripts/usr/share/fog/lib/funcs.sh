@@ -13,6 +13,7 @@ REG_HOSTNAME_KEY3_7="\ControlSet001\Control\ComputerName\ComputerName\ComputerNa
 REG_HOSTNAME_KEY4_7="\ControlSet001\services\Tcpip\Parameters\NV Hostname"
 REG_HOSTNAME_KEY5_7="\ControlSet001\services\Tcpip\Parameters\Hostname"
 REG_HOSTNAME_MOUNTED_DEVICES_7="\MountedDevices"
+ismajordebug=0  # 1 to turn on massive debugging of partition table restoration
 #If a sub shell gets involked and we lose kernel vars this will reimport them
 $(for var in $(cat /proc/cmdline); do echo export $var | grep =; done)
 dots() {
@@ -31,6 +32,16 @@ dots() {
 getMACAddresses() {
     local lomac="00:00:00:00:00:00"
     echo `cat /sys/class/net/*/address | grep -v $lomac | tr '\n' '|' | sed s/.$//g`;
+}
+# verify that there is a network interface
+verifyNetworkConnection() {
+	local count=`ifconfig | grep 'inet addr' | grep -v '127.0.0.1' | wc -l`;
+	dots "Verifying network interface configuration";
+	if [ -z "$count" -o "$count" -lt 1 ]; then
+		echo "Failed";
+		handleError "No network interfaces found.";
+	fi
+	echo "Done";
 }
 # $1 is the drive
 enableWriteCache()  {
@@ -938,6 +949,17 @@ debugEcho() {
 		echo "$*";
 	fi
 }
+majorDebugEcho() {
+	if [ "$ismajordebug" -gt 0 ]; then
+		echo "$*";
+	fi
+}
+majorDebugPause() {
+	if [ "$ismajordebug" -gt 0 ]; then
+        echo 'Press [Enter] key to continue.';
+        read -p "$*";
+    fi
+}
 swapUUIDFileName() {
 	local imagePath="$1";  # e.g. /net/dev/foo
 	local intDisk="$2";    # e.g. 1
@@ -948,6 +970,12 @@ sfdiskPartitionFileName() {
 	local imagePath="$1";  # e.g. /net/dev/foo
 	local intDisk="$2";    # e.g. 1
 	local filename="${imagePath}/d${intDisk}.partitions";
+	echo "$filename";
+}
+sfdiskLegacyOriginalPartitionFileName() {
+	local imagePath="$1";  # e.g. /net/dev/foo
+	local intDisk="$2";    # e.g. 1
+	local filename="${imagePath}/d${intDisk}.original.partitions";
 	echo "$filename";
 }
 sfdiskMinimumPartitionFileName() {
@@ -1065,6 +1093,7 @@ clearPartitionTables() {
 	else
 		handleError "Error trying to erase partition tables."
 	fi
+	runPartprobe "$disk";
     debugPause;
 }
 restorePartitionTablesAndBootLoaders() {
@@ -1078,11 +1107,15 @@ restorePartitionTablesAndBootLoaders() {
 	local mbrsize="";
 	if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "mbr" ]; then
 		clearPartitionTables $disk;
+		majorDebugEcho "Partition table should be empty now.";
+		majorDebugShowCurrentPartitionTable "$disk" "$intDisk";
+		majorDebugPause;
 		tmpMBR=`MBRFileName "$imagePath" "${intDisk}"`;
 		has_GRUB=`hasGRUB "${disk}" "${intDisk}" "${imagePath}"`;
 		mbrsize=`ls -l $tmpMBR | awk '{print $5}'`;
 		if [ -f $tmpMBR ]; then
 			local table_type=`getDesiredPartitionTableType "${imagePath}" "${intDisk}"`;
+			majorDebugEcho "Trying to restore to $table_type partition table.";
             if [ "$table_type" == 'GPT' ] || [[ "$mbrsize" != +(1048576|512|32256) ]] ; then
                 dots "Restoring Partition Tables (GPT)";
                 sgdisk -gel $tmpMBR $disk >/dev/null 2>&1;
@@ -1099,14 +1132,22 @@ restorePartitionTablesAndBootLoaders() {
                 fi
                 restoreGRUB "${disk}" "${intDisk}" "${imagePath}";
                 echo "Done";
+				majorDebugShowCurrentPartitionTable "$disk" "$intDisk";
+				majorDebugPause;
 				if [ `ls -1 ${imagePath}/*.ebr 2>/dev/null | wc -l` -gt 0 ]; then
 					restoreAllEBRs "${disk}" "${intDisk}" "${imagePath}" "${imgPartitionType}";
 				fi
 				local sfpartitionfilename=`sfdiskPartitionFileName "$imagePath" "$intDisk"`;
+				local sflegacypartitionfilename=`sfdiskLegacyOriginalPartitionFileName "$imagePath" "$intDisk"`;
                 if [ -e "${sfpartitionfilename}" ]; then
                     debugPause;
                     dots "Extended partitions";
                     sfdisk $disk < "${sfpartitionfilename}" &>/dev/null;
+					echo "Done";
+				elif [ -e "${sflegacypartitionfilename}" ]; then
+                    debugPause;
+                    dots "Extended partitions (legacy)";
+                    sfdisk $disk < "${sflegacypartitionfilename}" &>/dev/null;
 					echo "Done";
                 else
                     debugPause;
@@ -1115,6 +1156,8 @@ restorePartitionTablesAndBootLoaders() {
                 fi
             fi
             runPartprobe "$disk";
+			majorDebugShowCurrentPartitionTable "$disk" "$intDisk";
+			majorDebugPause;
             debugPause;
             usleep 3000000;
         else
