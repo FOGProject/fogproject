@@ -8,26 +8,26 @@ hd=""
 getHardDisk
 echo -e "\n"
 if [ -n "$hd" ]; then
-	echo " Starting TestDisk on "
-	echo -e "      ${hd}\n"
-	usleep 2000000
-	testdisk ${hd}1
-	echo
-	queueinfo=""
-	cd /tmp
-	wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-	queueinfo=`cat co.txt`
-	while [ "$queueinfo" != "##" ]
-	do
-		echo "       * $queueinfo"
-		rm co.txt
-		wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
-		queueinfo=`cat co.txt`
-		usleep 5000000
-	done
-	echo -e "\n * Database updated!\n"
-	echo " Task Complete"
+    echo " Starting TestDisk on "
+    echo -e "      ${hd}\n"
+    usleep 2000000
+    testdisk ${hd}1
+    echo
+    queueinfo=""
+    cd /tmp
+    wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+    queueinfo=`cat co.txt`
+    while [ "$queueinfo" != "##" ]
+    do
+        echo "       * $queueinfo"
+        rm co.txt
+        wget -q -O co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
+        queueinfo=`cat co.txt`
+        usleep 5000000
+    done
+    echo -e "\n * Database updated!\n"
+    echo " Task Complete"
 else
-	echo "Hard disk not found!"
+    echo "Hard disk not found!"
 fi
 usleep 10000000
