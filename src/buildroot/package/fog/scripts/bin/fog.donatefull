@@ -14,8 +14,7 @@ cd /tmp
 touch co.txt
 wget -q -O /tmp/co.txt "http://${web}service/Post_Wipe.php?mac=$mac" &>/dev/null
 queueinfo=`cat co.txt`;
-while [ "$queueinfo" != "##" ]
-do
+while [ "$queueinfo" != "##" ]; do
     echo
     echo "       * $queueinfo";
     rm co.txt

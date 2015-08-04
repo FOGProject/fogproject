@@ -25,7 +25,7 @@ function display_output(partition_names, partitions, \
 	printf("unit: %s\n\n", unit);
 	for(pName in partition_names) {
 		printf("%s : start=%10d, size=%10d, %s%2s", partitions[pName, "device"], partitions[pName, "start"], partitions[pName, "size"],
-		       type, partitions[pName, "type"]);
+               type, partitions[pName, "type"]);
 		if(label == "dos") {
 			if(partitions[pName, "flags"] != "") {
 				printf("%s", partitions[pName, "flags"]);
@@ -130,7 +130,7 @@ function resize_partition(partition_names, partitions, args, \
 }
 
 function move_partition(partition_names, partitions, args, \
-	   	pName, new_start, new_size) {
+                        pName, new_start, new_size) {
 	for(pName in partition_names) {
 		if(pName == target) {
 			if(unit == "sectors") {
@@ -290,7 +290,7 @@ BEGIN{
 	part_name=$1
 	partitions[part_name, "device"] = part_name
 	partition_names[part_name] = part_name
-	
+
 	# Isolate Partition Number
 	# The regex can handle devices like mmcblk0p3
 	part_number = gensub(/^[^0-9]*[0-9]*[^0-9]+/, "", 1, part_name)
@@ -308,7 +308,7 @@ BEGIN{
 	# Get type/id value
 	gsub(/.*(type|Id)= */, "", fields[3])
 	partitions[part_name, "type"] = fields[3]
-	
+
 	if ( label == "dos" )
 	{
 		split($0, typeList, "type=")
@@ -326,12 +326,12 @@ BEGIN{
 		partitions[part_name, "name"] = fields[5]
 		# Get attrs value
 		if (fields[6])
-		{   
+		{
 			gsub(/.*attrs= */, "", fields[6])
 			partitions[part_name, "attrs"] = fields[6]
 		}
 	}
-	else 
+	else
 	{
 		split($0, typeList, "Id=")
 		part_flags = gensub(/^[^\,$]*/, "",1,typeList[2])
