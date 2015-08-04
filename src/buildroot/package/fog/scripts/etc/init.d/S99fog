@@ -10,21 +10,17 @@
 #               Modified for RHS Linux by Damien Neil
 #               Modified for FOG by Chuck Syperski
 #
-if [ "$mdraid" = "true" ]
-then
+if [ "$mdraid" = "true" ]; then
     mdadm --assemble --scan
     mdadm --incremental --run --scan
 fi
-
-if [ -n "$keymap" ]
-then
+if [ -n "$keymap" ]; then
     loadkeys $keymap;
 fi
 run="";
 after="";
 afterActionTerm="reboot -f";
-if [ "$shutdown" = "1" ]
-then
+if [ "$shutdown" = "1" ]; then
     afterActionTerm="poweroff";
 fi
 export afterActionTerm="$afterActionTerm";
