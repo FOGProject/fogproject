@@ -374,6 +374,8 @@ class TaskManagementPage extends FOGPage {
             if ($MS->get(id) == $MulticastSession->get(id)) $MSA->getTask()->cancel();
         }
         unset($MSA);
+        $this->FOGCore->setMessage(_('Multicast Task cancelled'));
+        $this->FOGCore->redirect(sprintf('?node=%s&sub=%s',$this->node,'active-multicast'));
     }
     public function active_multicast() {
         // Set title
