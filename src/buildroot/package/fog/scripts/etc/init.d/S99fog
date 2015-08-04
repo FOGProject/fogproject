@@ -10,6 +10,12 @@
 #               Modified for RHS Linux by Damien Neil
 #               Modified for FOG by Chuck Syperski
 #
+if [ "$mdraid" = "true" ]
+then
+    mdadm --assemble --scan
+    mdadm --incremental --run --scan
+fi
+
 if [ -n "$keymap" ]
 then
     loadkeys $keymap;
