@@ -368,7 +368,7 @@ class TaskManagementPage extends FOGPage {
     public function remove_multicast_task() {
         $MulticastSession = $this->getClass(MulticastSessions,$_REQUEST[id]);
         $this->HookManager->processEvent(MULTICAST_TASK_CANCEL,array(MulticastSession=>&$MulticastSession));
-        $MulticastSessions = $this->getClass(MulticastSessionsAssociationManager)->find(array(msID=>$Multicastsession->get(id)));
+        $MulticastSessions = $this->getClass(MulticastSessionsAssociationManager)->find(array(msID=>$MulticastSession->get(id)));
         foreach($MulticastSessions AS $i => &$MSA) {
             $MS = $MSA->getMulticastSession();
             if ($MS->get(id) == $MulticastSession->get(id)) $MSA->getTask()->cancel();

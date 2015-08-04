@@ -42,7 +42,7 @@ class MulticastManager extends FOGService {
             try {
                 if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(sprintf(" | This is not the master node"));
                 $myroot = $StorageNode->get('path');
-                $allTasks = MulticastTask::getAllMulticastTasks($myroot);
+                $allTasks = $KnownTasks = MulticastTask::getAllMulticastTasks($myroot);
                 $this->out(sprintf(" | %s task(s) found",count($allTasks)),$this->dev);
                 $RMTasks = $this->getMCTasksNotInDB($KnownTasks,$allTasks);
                 $jobcancelled = false;
@@ -50,7 +50,8 @@ class MulticastManager extends FOGService {
                     $this->outall(sprintf(" | Cleaning %s task(s) removed from FOG Database.",count($RMTasks)));
                     foreach((array)$RMTasks AS $i => &$RMTask) {
                         $this->outall(sprintf(" | Cleaning Task (%s) %s",$RMTask->getID(),$RMTask->getName()));
-                        if ($this->getClass(TaskManager)->count(array(id=>$this->getClass(MulticastSessionsAssociationManager)->find(array(msID=>$RMTask->getID()),'','','','','','','taskID'),stateID=>5))) $jobcancelled = true;
+                        $taskIDs = array_unique($this->getClass(MulticastSessionsAssociationManager)->find(array(msID=>$RMTask->getID()),'','','','','','','taskID'));
+                        if ($this->getClass(TaskManager)->count(array(id=>$taskIDs,stateID=>5))) $jobcancelled = true;
                         $curSession = $this->getClass(MulticastSessions,$RMTask->getID());
                         if ($jobcancelled || $this->getClass(MulticastSessions,$RMTask->getID())->get(stateID) == 5) {
                             $RMTask->killTask();
