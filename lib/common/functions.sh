@@ -1155,10 +1155,10 @@ configureDHCP() {
     fi
     network=`mask2network $serverip $submask`
     networkbase=`echo "$serverip" | cut -d. -f1-3`
-    if [ -z "$startrange" -o `validip $startrange` != 0 ]; then
+    if [ -z "$startrange" ]; then
         startrange="${networkbase}.10"
     fi
-    if [ -z "$endrange" -o `validip $endrange` != 0 ]; then
+    if [ -z "$endrange" ]; then
         endrange="${networkbase}.254"
     fi
     dhcptouse="$dhcpconfig"
