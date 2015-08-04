@@ -42,7 +42,7 @@ class MulticastManager extends FOGService {
             try {
                 if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(sprintf(" | This is not the master node"));
                 $myroot = $StorageNode->get('path');
-                $allTasks = $KnownTasks = MulticastTask::getAllMulticastTasks($myroot);
+                $allTasks = MulticastTask::getAllMulticastTasks($myroot);
                 $this->out(sprintf(" | %s task(s) found",count($allTasks)),$this->dev);
                 $RMTasks = $this->getMCTasksNotInDB($KnownTasks,$allTasks);
                 $jobcancelled = false;
