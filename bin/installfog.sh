@@ -121,9 +121,19 @@ while getopts "$optspec" o; do
             webroot="${webroot%'/'}"
             ;;
             startrange)
+            if [ `validip ${OPTARG}` != 0 ]; then
+                echo "Invalid ip passed"
+                help
+                exit 1
+            fi
             startrange="${OPTARG}"
             ;;
             endrange)
+            if [ `validip ${OPTARG}` != 0 ]; then
+                echo "Invalid ip passed"
+                help
+                exit 1
+            fi
             endrange="${OPTARG}"
             ;;
             uninstall) uninstall; exit ;;
@@ -195,9 +205,19 @@ while getopts "$optspec" o; do
         backupPath="${OPTARG}"
         ;;
         s)
+        if [ `validip ${OPTARG}` != 0 ]; then
+            echo "Invalid ip passed"
+            help
+            exit 1
+        fi
         startrange="${OPTARG}"
         ;;
         e)
+        if [ `validip ${OPTARG}` != 0 ]; then
+            echo "Invalid ip passed"
+            help
+            exit 1
+        fi
         endrange="${OPTARG}"
         ;;
         :) echo "Option -${OPTARG} requires a value"; help; exit 1 ;;
