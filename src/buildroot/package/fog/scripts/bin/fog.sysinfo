@@ -3,11 +3,11 @@
 . /bin/fog.donate
 for arg in `cat /proc/cmdline`; do
     case "$arg" in
-	initsh)
-	    ash -i
-	    ;;
-	*)
-	    ;;
+        initsh)
+        ash -i
+        ;;
+        *)
+        ;;
     esac
 done
 clearScreen;
@@ -18,128 +18,128 @@ echo -e "\n\n   System MAC Address(es): ${mac}\n";
 blreboot="0";
 while [ "$blreboot" = "0" ]
 do
-	echo -e "\n   1) Reboot"
-	echo -e   "   2) Network Information"
-	echo -e   "   3) Partition Information"
-	echo -e   "   4) Check FOG Compatibility"
-	echo -e   "   5) Ping a Host"
-	echo -e   "   6) Display MAC Address"
-	echo -e   "   7) Show DMI Information"
+    echo -e "\n   1) Reboot"
+    echo -e   "   2) Network Information"
+    echo -e   "   3) Partition Information"
+    echo -e   "   4) Check FOG Compatibility"
+    echo -e   "   5) Ping a Host"
+    echo -e   "   6) Display MAC Address"
+    echo -e   "   7) Show DMI Information"
 
-	echo -en "\n   Please enter your choice: "
+    echo -en "\n   Please enter your choice: "
 
-	read choice;	
-	if [ "$choice" == "1" ]; then 
-		blreboot="1"
-	elif [ "$choice" == "2" ]; then
-		clearScreen
-		echo -e "\n   ======================="
-		echo -e   "   = Network Information =";
-		echo -e   "   =======================\n";
-		echo -e   "   ip addr"
-		echo -e   "   ======="
-		ip addr
-		echo -e "\n   /etc/resolv.conf"
-		echo -e   "   ================"
-		cat /etc/resolv.conf
-		echo -e "\n   Press enter to continue.";
-		read tmp
-	elif [ "$choice" == "3" ]; then
-		clearScreen
-		echo -e "\n   =========================";
-		echo -e   "   = Partition Information =";
-		echo -e   "   =========================\n";
-		parted --list 2>/dev/null
-		echo -e "\n   Press enter to continue.";
-		read tmp	
-	elif [ "$choice" == "4" ]; then
-		clearScreen
-		echo -e "\n   ==========================";
-		echo -e   "   = FOG Compatibility Test =";
-		echo -e   "   ==========================\n";
-		blDiskOk="Fail";
-		blNicOk="Fail";
-		tmpDisk=`parted --list | grep "Disk"`
-		if [ "$tmpDisk" != "" ]
-		then
-			blDiskOk="Pass";
-		fi 
-		tmpNic=`ip addr | grep "link/ether"`;
-		if [ "$tmpNic" != "" ]
-		then
-			blNicOk="Pass";
-		fi 		
+    read choice;
+    if [ "$choice" == "1" ]; then
+        blreboot="1"
+    elif [ "$choice" == "2" ]; then
+        clearScreen
+        echo -e "\n   ======================="
+        echo -e   "   = Network Information =";
+        echo -e   "   =======================\n";
+        echo -e   "   ip addr"
+        echo -e   "   ======="
+        ip addr
+        echo -e "\n   /etc/resolv.conf"
+        echo -e   "   ================"
+        cat /etc/resolv.conf
+        echo -e "\n   Press enter to continue.";
+        read tmp
+    elif [ "$choice" == "3" ]; then
+        clearScreen
+        echo -e "\n   =========================";
+        echo -e   "   = Partition Information =";
+        echo -e   "   =========================\n";
+        parted --list 2>/dev/null
+        echo -e "\n   Press enter to continue.";
+        read tmp
+    elif [ "$choice" == "4" ]; then
+        clearScreen
+        echo -e "\n   ==========================";
+        echo -e   "   = FOG Compatibility Test =";
+        echo -e   "   ==========================\n";
+        blDiskOk="Fail";
+        blNicOk="Fail";
+        tmpDisk=`parted --list | grep "Disk"`
+        if [ "$tmpDisk" != "" ]
+        then
+            blDiskOk="Pass";
+        fi
+        tmpNic=`ip addr | grep "link/ether"`;
+        if [ "$tmpNic" != "" ]
+        then
+            blNicOk="Pass";
+        fi
 
-		if [ "$blNicOk" = "Pass" ] && [ "$blDiskOk" = "Pass" ]; then
-			echo -e "\n\n   This computer appears to be compatible with FOG!\n";
-		else
-			echo -e "\n\n   This computer is NOT compatible with FOG!\n";
-		fi
-		echo -e "   Results"
-		echo -e "   =======\n";
-		echo -e "      Network........................[ $blNicOk ]"		
-		echo -e "      Disk...........................[ $blDiskOk ]\n"
+        if [ "$blNicOk" = "Pass" ] && [ "$blDiskOk" = "Pass" ]; then
+            echo -e "\n\n   This computer appears to be compatible with FOG!\n";
+        else
+            echo -e "\n\n   This computer is NOT compatible with FOG!\n";
+        fi
+        echo -e "   Results"
+        echo -e "   =======\n";
+        echo -e "      Network........................[ $blNicOk ]"
+        echo -e "      Disk...........................[ $blDiskOk ]\n"
 
-		if [ "$blNicOk" = "Fail" ] || [ "$blDiskOk" = "Fail" ]; then
-			echo -e "   Try using a newer kernel that may be compatible"
-			echo -e "   with this device.\n"
-			echo -e "   New kernels can be downloaded with the \"Kernel Updater\""
-			echo -e "   in the FOG management interface.\n"
-		fi
-		echo -e "\n\n   Press enter to continue.";
-		read tmp	
-	elif [ "$choice" == "5" ]; 	then
-		clearScreen
-		echo -e "\n   ===============";
-		echo -e   "   = Ping a Host =";
-		echo -e   "   ===============\n";
-		while [ "$phost" = "" ]
-		do
-			echo -n "   Enter a host to ping: [${dns}] "
-			read phost;
-			
-			if [ "$phost" = "" ] && [ -n ${dns} ]; then
-				phost=$dns;
-			fi
-		done
-		echo 
-		ping -c 4 $phost
-		unset phost
-		echo -e "\n   Press enter to continue.";
-		read tmp
-	elif [ "$choice" == "6" ]; then
-		clearScreen
-		echo -e "\n   ==================="
-		echo -e   "   = MAC Address(es) =";
-		echo -e   "   ===================\n";
-		echo -e "   ${mac}\n";
+        if [ "$blNicOk" = "Fail" ] || [ "$blDiskOk" = "Fail" ]; then
+            echo -e "   Try using a newer kernel that may be compatible"
+            echo -e "   with this device.\n"
+            echo -e "   New kernels can be downloaded with the \"Kernel Updater\""
+            echo -e "   in the FOG management interface.\n"
+        fi
+        echo -e "\n\n   Press enter to continue.";
+        read tmp
+    elif [ "$choice" == "5" ]; 	then
+        clearScreen
+        echo -e "\n   ===============";
+        echo -e   "   = Ping a Host =";
+        echo -e   "   ===============\n";
+        while [ "$phost" = "" ]
+        do
+            echo -n "   Enter a host to ping: [${dns}] "
+            read phost;
 
-		echo "   Press enter to continue.";
-		read tmp
-	elif [ "$choice" == "7" ]; then
-		clearScreen
-		test="bios-vendor bios-version bios-release-date system-manufacturer system-product-name system-version system-serial-number system-uuid baseboard-manufacturer baseboard-product-name baseboard-version baseboard-serial-number baseboard-asset-tag chassis-manufacturer chassis-type chassis-version chassis-serial-number chassis-asset-tag processor-family processor-manufacturer processor-version processor-frequency" 
-		oIFS=$IFS
-		IFS=' '
-		i=0;
-		for t in $test
-		do
-			str="DMI String: $t\n";
-			v=`dmidecode --string $t`
-			echo -e "$str   $v\n\n";
-			i=$((i+1));
-			if [ "$i" = "5" ]
-			then
-				echo -n "Press Enter to Proceed..."
-				read tmp;
-				i=0;
-			fi
-		done
-		IFS=$oIFS;
-		echo -e "\n   Press enter to continue.";
-		read tmp									
-	else
-		blreboot="1"
-	fi
-	clearScreen
+            if [ "$phost" = "" ] && [ -n ${dns} ]; then
+                phost=$dns;
+            fi
+        done
+        echo
+        ping -c 4 $phost
+        unset phost
+        echo -e "\n   Press enter to continue.";
+        read tmp
+    elif [ "$choice" == "6" ]; then
+        clearScreen
+        echo -e "\n   ==================="
+        echo -e   "   = MAC Address(es) =";
+        echo -e   "   ===================\n";
+        echo -e "   ${mac}\n";
+
+        echo "   Press enter to continue.";
+        read tmp
+    elif [ "$choice" == "7" ]; then
+        clearScreen
+        test="bios-vendor bios-version bios-release-date system-manufacturer system-product-name system-version system-serial-number system-uuid baseboard-manufacturer baseboard-product-name baseboard-version baseboard-serial-number baseboard-asset-tag chassis-manufacturer chassis-type chassis-version chassis-serial-number chassis-asset-tag processor-family processor-manufacturer processor-version processor-frequency"
+        oIFS=$IFS
+        IFS=' '
+        i=0;
+        for t in $test
+        do
+            str="DMI String: $t\n";
+            v=`dmidecode --string $t`
+            echo -e "$str   $v\n\n";
+            i=$((i+1));
+            if [ "$i" = "5" ]
+            then
+                echo -n "Press Enter to Proceed..."
+                read tmp;
+                i=0;
+            fi
+        done
+        IFS=$oIFS;
+        echo -e "\n   Press enter to continue.";
+        read tmp
+    else
+        blreboot="1"
+    fi
+    clearScreen
 done;
