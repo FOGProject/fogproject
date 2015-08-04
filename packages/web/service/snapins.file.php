@@ -16,7 +16,7 @@ try {
     // Assign the file for sending.
     if (!$StorageGroup || !$StorageGroup->isValid()) {
         if (file_exists(rtrim($FOGCore->getSetting(FOG_SNAPINDIR),'/').'/'.$Snapin->get('file'))) $SnapinFile = rtrim($FOGCore->getSetting(FOG_SNAPINDIR),'/').'/'.$Snapin->get('file');
-        elseif (file_exists($Snapin->get('file'))) $SnapinFile = $Snapin->get('file');
+        else if (file_exists($Snapin->get('file'))) $SnapinFile = $Snapin->get('file');
     } else {
         $StorageNode = $StorageGroup->getMasterStorageNode();
         // Allow plugins to enact against this. (e.g. location)

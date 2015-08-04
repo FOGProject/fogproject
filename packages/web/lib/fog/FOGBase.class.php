@@ -502,7 +502,7 @@ abstract class FOGBase {
                 if ($values[$mid] == $needle) return $keys[$mid];
             }
             if ($values[$mid] > $needle) $right = $mid - 1;
-            elseif ($values[$mid] < $needle) $left = $mid + 1;
+            else if ($values[$mid] < $needle) $left = $mid + 1;
         }
         return -1;
     }
