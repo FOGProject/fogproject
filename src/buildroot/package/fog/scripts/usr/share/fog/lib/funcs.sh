@@ -417,7 +417,7 @@ makeAllSwapSystems() {
     runPartprobe "$drive";
 }
 changeHostname() {
-    if [ "$hostearly" == "1" ]; then
+    if [ "$hostearly" == "1" -a ! -z "$hostname" ]; then
         dots "Changing hostname";
         mkdir /ntfs &>/dev/null
         ntfs-3g -o force,rw $part /ntfs &> /tmp/ntfs-mount-output
