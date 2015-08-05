@@ -206,7 +206,7 @@ while getopts "$optspec" o; do
         backupPath="${OPTARG}"
         ;;
         s)
-        if [ `validip ${OPTARG}` != 0 ]; then
+        if [ "`validip ${OPTARG}`" != 0 ]; then
             echo "Invalid ip passed"
             help
             exit 1
@@ -214,7 +214,7 @@ while getopts "$optspec" o; do
         startrange="${OPTARG}"
         ;;
         e)
-        if [ `validip ${OPTARG}` != 0 ]; then
+        if [ "`validip ${OPTARG}`" != 0 ]; then
             echo "Invalid ip passed"
             help
             exit 1
