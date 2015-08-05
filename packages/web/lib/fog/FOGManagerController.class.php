@@ -307,13 +307,13 @@ abstract class FOGManagerController extends FOGBase {
             array(
                 $this->databaseFields[$idfield],
                 $this->databaseTable,
-                $this->databaseFields['name'],
+                $this->databaseFields[name],
                 $name,
                 $this->databaseFields[$idfield],
                 $id
             )
         );
-        return ($this->DB->fetch()->get('total') ? true : false);
+        return ($this->DB->fetch()->get(total) ? true : false);
     }
     // Key
     /** key($key)

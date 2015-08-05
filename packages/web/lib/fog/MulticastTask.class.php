@@ -1,9 +1,16 @@
 <?php
-class MulticastTask extends FOGBase {
+class MulticastTask extends MulticastManager {
+    public function getSession($method = 'find') {
+        if (!in_array($method,array('find','count'))) $method = 'find';
+        return $this->getClass(MulticastSessionsManager)->$method(array(stateID=>array(0,1,2,3)));
+    }
     // Updated to only care about tasks in its group
     public function getAllMulticastTasks($root) {
         $Tasks = array();
-        $MulticastSessions = $this->getClass(MulticastSessionsManager)->find(array(stateID=>array(0,1,2,3)));
+        // Grace period to ensure tasks are actually submitted to the db
+        $this->outall(sprintf(' | Sleeping for %s seconds to ensure tasks are properly submitted',$this->zzz));
+        sleep($this->zzz);
+        $MulticastSessions = self::getSession('find');
         foreach($MulticastSessions AS $i => &$MultiSess) {
             $Image = $this->getClass(Image,$MultiSess->get(image));
             if (in_array($this->FOGCore->resolveHostname($Image->getStorageGroup()->getMasterStorageNode()->get(ip)),$this->getIPAddress())) {
