@@ -6,6 +6,8 @@ abstract class FOGService extends FOGBase {
     public $log;
     /** @var $zzz int the sleep time for the service */
     public $zzz;
+    /** @var $ip array of ips/hostnames */
+    public $ips;
     /** getIPAddress()
      * Gets the service server's IP address.
      */
@@ -19,7 +21,18 @@ abstract class FOGService extends FOGBase {
             $output[] = gethostbyaddr($IP);
         }
         unset($IP);
-        return array_values(array_unique((array)$output));
+        $this->ips = array_values(array_unique((array)$output));
+        return $this->ips;
+    }
+    /** checkIfNodeMaster()
+     * Verifies if this is the node master
+     * @return the node or throw error if not
+     */
+    public function checkIfNodeMaster() {
+        $StorageNode = $this->getClass(StorageNodeManager)->find(array(isMaster=>1,isEnabled=>1,ip=>$this->ips));
+        $StorageNode = @array_shift($StorageNode);
+        if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(' | '._('This is not the master node'));
+        return $StorageNode;
     }
     /** wait_interface_ready() wait for interface to be ready
      * @return void
@@ -28,11 +41,11 @@ abstract class FOGService extends FOGBase {
         $ipaddresses = $this->getIPAddress();
         $ipcount = count($ipaddresses);
         if (!$ipcount) {
-            $this->out('Interface not ready, waiting.');
+            $this->out('Interface not ready, waiting.',$this->dev);
             sleep(10);
             $this->wait_interface_ready();
         }
-        foreach ($ipaddresses AS $i => &$ip) $this->out("Interface Ready with IP Address: $ip",$this->log);
+        foreach ($ipaddresses AS $i => &$ip) $this->out("Interface Ready with IP Address: $ip",$this->dev);
         unset($ip);
     }
     /** wait_db_ready() wait for db to be ready
@@ -100,8 +113,8 @@ abstract class FOGService extends FOGBase {
      */
     public function wlog($string, $path) {
         if (filesize($path) > LOGMAXSIZE) unlink($path);
-        if (!$hdl = fopen($path,'a')) $this->out("\n * Error: Unable to open file: $path\n");
-        if (fwrite($hdl,sprintf('[%s] %s',$this->getDateTime(),$string)) === FALSE) $this->out("\n * Error: Unable to write to file: $path\n");
+        if (!$hdl = fopen($path,'a')) $this->out("\n * Error: Unable to open file: $path\n",$this->dev);
+        if (fwrite($hdl,sprintf('[%s] %s',$this->getDateTime(),$string)) === FALSE) $this->out("\n * Error: Unable to write to file: $path\n",$this->dev);
     }
     /** @function serviceStart() starts the service
      * @return null

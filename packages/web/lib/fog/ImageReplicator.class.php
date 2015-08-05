@@ -4,20 +4,8 @@ class ImageReplicator extends FOGService {
     public $log = REPLICATORLOGPATH;
     public $zzz = REPLICATORSLEEPTIME;
     private function commonOutput() {
-        $StorageNodes = $this->getClass(StorageNodeManager)->find(array(isMaster=>1,isEnabled=>1));
-        foreach ($StorageNodes AS $i => &$SN) {
-            if (in_array($this->FOGCore->resolveHostname($SN->get(ip)),$this->getIPAddress())) {
-                $StorageNode = $SN;
-                break;
-            }
-        }
-        unset($SN);
         try {
-            if (!$StorageNode || !$StorageNode->isValid()) {
-                $message = _('I do not appear to be the group manager');
-                $this->wlog(' * '.$message,'/opt/fog/log/groupmanager.log');
-                throw new Exception($message);
-            }
+            $StorageNode = $this->checkIfNodeMaster();
             $this->out(' * I am the group manager',$this->dev);
             $this->wlog(' * I am the group manager','/opt/fog/log/groupmanager.log');
             $myStorageGroupID = $StorageNode->get(storageGroupID);
