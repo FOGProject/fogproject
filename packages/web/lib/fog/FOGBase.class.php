@@ -420,7 +420,7 @@ abstract class FOGBase {
         $MACs = explode('|',$stringlist);
         foreach((array)$MACs AS $i => &$MAC) {
             $MAC = $this->getClass(MACAddress,$MAC);
-            if ($MAC->isValid() && !in_array(strtolower($MAC->__toString()),(array)$MAClist)) $MAClist[] = strtolower($MAC->__toString());
+            if ($MAC->isValid() && !in_array(strtolower($MAC->__toString()),(array)$MAClist) && (($image && !$MAC->isImageIgnored()) || ($client && !$MAC->isClientIgnored()) || (!$image && !$client))) $MAClist[] = strtolower($this->getClass(MACAddress,$MAC)->__toString());
         }
         unset($MAC);
         $Ignore = array_filter(array_map('trim',explode(',',$this->getClass(FOGCore)->getSetting(FOG_QUICKREG_PENDING_MAC_FILTER))));
