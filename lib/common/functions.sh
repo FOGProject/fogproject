@@ -771,6 +771,7 @@ webroot=\"$webroot\";
 caCreated=\"$caCreated\";
 startrange=\"$startrange\";
 endrange=\"$endrange\";
+bootfilename=\"$bootfilename\";
 " > "$fogprogramdir/.fogsettings";
 }
 displayBanner() {
