@@ -4,17 +4,8 @@ class SnapinReplicator extends FOGService {
     public $log = SNAPINREPLOGPATH;
     public $zzz = SNAPINREPSLEEPTIME;
     private function commonOutput() {
-        $StorageNodes = $this->getClass(StorageNodeManager)->find(array(isMaster=>1,isEnabled=>1));
-        foreach ($StorageNodes AS $i => &$SN) {
-            if (in_array($this->FOGCore->resolveHostname($SN->get(ip)),$this->getIPAddress())) {
-                $StorageNode = $SN;
-                break;
-            }
-        }
-        unset($SN);
         try {
-            if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(_('I do not appear to be the group manager'));
-            $this->out(' * I am the group manager',$this->dev);
+            $StorageNode = $this->checkIfNodeMaster();
             $myStorageGroupID = $StorageNode->get(storageGroupID);
             $myStorageNodeID = $StorageNode->get(id);
             $this->outall(" * Starting Snapin Replication.");
