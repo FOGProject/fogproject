@@ -881,75 +881,53 @@ abstract class FOGPage extends FOGBase {
         printf('<div id="%s-membership">',$this->node);
         $this->headerData = array(
             sprintf('<input type="checkbox" name="toggle-checkbox%s1" class="toggle-checkbox1"',$this->node),
-            _(($objType? 'Group' : 'Host').' Name'),
+            _(($objType?'Group':'Host').' Name'),
         );
         $this->templates = array(
             '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-'.($objType ? 'group' : 'host').'${check_num}" />',
-            sprintf('<a href="?node=%s&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',$objType ? 'group' : 'host'),
+            sprintf('<a href="?node=%s&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',($objType ? 'group' : 'host')),
         );
         $this->attributes = array(
             array(width=>16,'class'=>c),
             array(width=>150,'class'=>l),
         );
-        if (!$objType) {
-            $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hostsnotinme)));
-            foreach($Hosts AS $i => &$Host) {
-                $this->data[] = array(
-                    host_id=>$Host->get(id),
-                    host_name=>$Host->get(name),
-                    check_num=>1,
-                );
-            }
-            unset($Host);
-        } else {
-            $Groups = $this->getClass(GroupManager)->find(array(id=>$this->obj->get(groupsnotinme)));
-            foreach($Groups AS $i => &$Group) {
-                $this->data[] = array(
-                    host_id=>$Group->get(id),
-                    host_name=>$Group->get(name),
-                    check_num=>1,
-                );
-            }
-            unset($Group);
+        $ClassCall = ($objType ? 'Group' : 'Host');
+        $Hosts = $this->getClass($ClassCall)->getManager()->find(array(id=>$this->obj->get(strtolower($ClassCall).'snotinme')));
+        foreach($Hosts AS $i => &$Host) {
+            $this->data[] = array(
+                host_id=>$Host->get(id),
+                host_name=>$Host->get(name),
+                check_num=>1,
+            );
         }
+        unset($Host);
         if (count($this->data) > 0) {
-            $this->HookManager->processEvent('OBJ_'.($objType ? 'GROUP' : 'HOST').'_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
-            echo '<form method="post" action="'.$this->formAction.'"><center><label for="'.($objType ? 'group' : 'host').'MeShow">'._('Check here to see '.($objType ? 'groups' : 'hosts').' not within this '.$this->node).'&nbsp;&nbsp;<input type="checkbox" name="'.($objType ? 'group' : 'host').'MeShow" id="'.($objType ? 'group' : 'host').'MeShow" /></label></center><div id="'.($objType ? 'group' : 'host').'NotInMe"><h2>'._('Modify Membership for').' '.$this->obj->get(name).'</h2>';
+            $this->HookManager->processEvent('OBJ_'.strtoupper($ClassCall).'_NOT_IN_ME',array('headerData' => &$this->headerData,'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
+            echo '<form method="post" action="'.$this->formAction.'"><center><label for="'.strtolower($ClassCall).'MeShow">'._('Check here to see '.strtolower($ClassCall).'s not within this '.$this->node).'&nbsp;&nbsp;<input type="checkbox" name="'.strtolower($ClassCall).'MeShow" id="'.strtolower($ClassCall).'MeShow" /></label></center><div id="'.strtolower($ClassCall).'NotInMe"><h2>'._('Modify Membership for').' '.$this->obj->get(name).'</h2>';
             $this->render();
             echo '</div></center><br/><center><input type="submit" value="'._('Add '.($objType ? 'Group' : 'Host').'(s) to '.$this->node).'" name="addHosts" /></center><br/></form>';
         }
         unset($this->data);
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
-            _(($this->obj instanceof Host ? 'Group' : 'Host').' Name'),
+            _($ClassCall.' Name'),
         );
         $this->templates = array(
             '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" />',
-            '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',
+            sprintf('<a href="?node=%s&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',strtolower($ClassCall)),
         );
-        if (!$objType) {
-            $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)));
-            foreach($Hosts AS $i => &$Host) {
-                $this->data[] = array(
-                    host_id=>$Host->get(id),
-                    host_name=>$Host->get(name),
-                );
-            }
-            unset($Host);
-        } else {
-            $Groups = $this->getClass(GroupManager)->find(array('id' => $this->obj->get(groups)));
-            foreach($Groups AS &$Group) {
-                $this->data[] = array(
-                    host_id=>$Group->get(id),
-                    host_name=>$Group->get(name),
-                );
-            }
-            unset($Group);
+        $Hosts = $this->getClass($ClassCall)->getManager()->find(array(id=>$this->obj->get(strtolower($ClassCall).'s')));
+        foreach($Hosts AS $i => &$Host) {
+            $this->data[] = array(
+                host_id=>$Host->get(id),
+                host_name=>$Host->get(name),
+            );
         }
+        unset($Host);
         $this->HookManager->processEvent(OBJ_MEMBERSHIP,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         print '<form method="post" action="'.$this->formAction.'">';
         $this->render();
-        if (count($this->data)) print '<center><input type="submit" value="'._('Delete Selected '.($objType ? 'Groups' : 'Hosts').' From '.$this->node).'" name="remhosts"/></center>';
+        if (count($this->data)) print '<center><input type="submit" value="'._('Delete Selected '.$ClassCall.'s From '.$this->node).'" name="remhosts"/></center>';
     }
     /** membership_post() the membership poster of specific class
      * @return void
