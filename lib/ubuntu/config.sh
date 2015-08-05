@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 #  FOG is a computer imaging solution.
 #  Copyright (C) 2007  Chuck Syperski & Jian Zhang
