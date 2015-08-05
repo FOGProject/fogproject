@@ -88,6 +88,7 @@ help() {
     echo -e "\t      --uninstall\t\tUninstall FOG"
     echo -e "\t-s    --startrange\t\tDHCP Start range"
     echo -e "\t-e    --endrange\t\tDHCP End range"
+    echo -e "\t-b    --bootfile\t\tDHCP Boot file"
     exit 0
 }
 backupReports() {
@@ -1150,7 +1151,7 @@ configureDHCP() {
     if [ -f "$dhcpconfig" ]; then
         mv "$dhcpconfig" "${dhcpconfig}.fogbackup"
     fi
-    serverip=`/sbin/ip addr show $interface | awk -F'[ /]+' '/global/ {print $3}'`
+    serverip=`/sbin/ip -4 addr show $interface | awk -F'[ /]+' '/global/ {print $3}'`
     if [ -z "$serverip" ]; then
         serverip=`/sbin/ifconfig $interface | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1`
     fi
@@ -1166,11 +1167,14 @@ configureDHCP() {
     if [ -f "${dhcpconfigother}" ]; then
         dhcptouse="$dhcpconfigother"
     fi
+    if [ -z "$bootfilename" ]; then
+        bootfilename="undionly.kpxe";
+    fi
     echo -e "# DHCP Server Configuration file\n#see /usr/share/doc/dhcp*/dhcpd.conf.sample\n# This file was created by FOG\n\n#Definition of PXE-specific options\n# Code 1: Multicast IP Address of bootfile\n# Code 2: UDP Port that client should monitor for MTFTP Responses\n# Code 3: UDP Port that MTFTP servers are using to listen for MTFTP requests\n# Code 4: Number of seconds a client must listen for activity before trying\n#         to start a new MTFTP transfer\n# Code 5: Number of seconds a client must listen before trying to restart\n#         a MTFTP transfer\n\n" > "$dhcptouse"
     echo -e "option space PXE;\noption PXE.mtftp-ip code 1 = ip-address;\noption PXE.mtftp-cport code 2 = unsigned integer 16;\noption PXE.mtftp-sport code 3 = unsigned integer 16;\noption PXE.mtftp-tmout code 4 = unsigned integer 8;\noption PXE.mtftp-delay code 5 = unsigned integer 8;\noption arch code 93 = unsigned integer 16; # RFC4578\n\n" >> "$dhcptouse"
     echo -e "use-host-decl-names on;\nddns-update-style interim;\nignore client-updates;\nnext-server $ipaddress;\n\n" >> "$dhcptouse"
     echo -e "# Specify subnet of ether device you do NOT want service. for systems with\n# two or more ethernet devices.\n# subnet 136.165.0.0 netmask 255.255.0.0 {}\n\n" >> "$dhcptouse"
-    echo -e "subnet $network netmask $submask {\n\toption subnet-mask $submask;\n\trange dynamic-bootp $startrange $endrange;\n\tdefault-lease-time 21600\n\tmax-lease-time 43200;\n\t$dnsaddress\n\t$routeraddress\n\tfilename $bootfilename;\n}" >> "$dhcptouse";
+    echo -e "subnet $network netmask $submask {\n\toption subnet-mask $submask;\n\trange dynamic-bootp $startrange $endrange;\n\tdefault-lease-time 21600;\n\tmax-lease-time 43200;\n\t$dnsaddress\n\t$routeraddress\n\tfilename \"$bootfilename\";\n}" >> "$dhcptouse";
     if [ "$bldhcp" -eq 1 ]; then
         if [ "$systemctl" == "yes" ]; then
             systemctl enable $dhcpd >/dev/null 2>&1

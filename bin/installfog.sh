@@ -95,7 +95,7 @@ fi
 displayBanner;
 echo -e "  Version: ${version} Installer/Updater\n";
 fogpriorconfig="$fogprogramdir/.fogsettings"
-optspec="h?dUHSCKYyf:-:W:D:B:s:e:"
+optspec="h?dUHSCKYyf:-:W:D:B:s:e:b:"
 while getopts "$optspec" o; do
     #long options
     case "${o}" in
@@ -136,6 +136,7 @@ while getopts "$optspec" o; do
             fi
             endrange="${OPTARG}"
             ;;
+            bootfile) bootfilename="${OPTARG}" ;;
             uninstall) uninstall; exit ;;
             file)
             if [ -f "${OPTARG}" ]; then
@@ -220,6 +221,7 @@ while getopts "$optspec" o; do
         fi
         endrange="${OPTARG}"
         ;;
+        b) bootfilename="${OPTARG}" ;;
         :) echo "Option -${OPTARG} requires a value"; help; exit 1 ;;
         *)
         if [ "$OPTERR" = 1 -a "${optspec:0:1}" != ":" ]; then
