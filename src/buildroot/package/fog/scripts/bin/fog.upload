@@ -178,9 +178,8 @@ if [ -f "/images/.mntcheck" ]; then
                 echo " * Now FOG will attempt to upload the image using Partclone.";
                 echo "";
                 parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
-                diskLength=`expr length $hd`;
                 for part in $parts; do
-                    savePartition "$part" "1" "$imagePath" "$diskLength" "$cores" "$imgPartitionType";
+                    savePartition "$part" "1" "$imagePath" "$cores" "$imgPartitionType";
                 done
 
                 dots "Restoring MBR";
@@ -209,9 +208,8 @@ if [ -f "/images/.mntcheck" ]; then
                 savePartitionTablesAndBootLoaders "$hd" "1" "$imagePath" "$osid" "$imgPartitionType";
                 debugPause
                 parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
-                diskLength=`expr length $hd`;
                 for part in $parts; do
-                    savePartition "$part" "1" "$imagePath" "$diskLength" "$cores" "$imgPartitionType";
+                    savePartition "$part" "1" "$imagePath" "$cores" "$imgPartitionType";
                     debugPause;
                 done
                 echo " * Task complete!";
@@ -227,9 +225,8 @@ if [ -f "/images/.mntcheck" ]; then
                     savePartitionTablesAndBootLoaders "$disk" "$intDisk" "$imagePath" "$osid" "$imgPartitionType"
                     debugPause
                     parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
-                    diskLength=`expr length $disk`;
                     for part in $parts; do
-                        savePartition "$part" "$intDisk" "$imagePath" "$diskLength" "$cores" "$imgPartitionType"
+                        savePartition "$part" "$intDisk" "$imagePath" "$cores" "$imgPartitionType"
                         debugPause;
                     done
                 else

@@ -91,10 +91,9 @@ saveAllEBRs() {
     local imagePath="$3";
     local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
     local part="";
-    local diskLength=`expr length $drive`;
     local partNum="";
     for part in $parts; do
-        partNum=${part:$diskLength};
+        partNum=`echo $part | grep -o '[0-9]*$'`;
         ebrfilename=`EBRFileName "${imagePath}" "${driveNum}" "${partNum}"`;
         saveEBR "$part" "$ebrfilename";
     done
@@ -134,10 +133,9 @@ restoreAllEBRs() {
     local imgPartitionType="$4";
     local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
     local part="";
-    local diskLength=`expr length $drive`;
     local partNum="";
     for part in $parts; do
-        partNum=${part:$diskLength};
+        partNum=`echo $part | grep -p '[0-9]*$'`;
         if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
             local ebrfilename=`EBRFileName "${imagePath}" "${driveNum}" "${partNum}"`;
             restoreEBR "$part" "$ebrfilename";
@@ -224,7 +222,6 @@ saveAllSwapUUIDs() {
     local imagePath="$3";
     local parts=`fogpartinfo --list-parts $drive 2>/dev/null`;
     local part="";
-    local diskLength=`expr length $drive`;
     local partNum="";
     local swapfilename=`swapUUIDFileName "$imagePath" "$driveNum"`;
     for part in $parts; do
@@ -478,14 +475,13 @@ saveSgdiskPartitions() {
     local filename="$2";
     local parts=`fogpartinfo --list-parts $disk 2>/dev/null`;
     local part="";
-    local diskLength=`expr length $disk`;
     local partNum="";
     rm -f $filename;
     sgdisk -p "$disk" | \
     awk '/^Logical sector size:/{sectorsize=$4;} /Disk identifier \(GUID\):/{diskcode=$4;}  /^First usable sector is/{split($5, a, ",", seps); first=a[1]; last=$10;}  /^Partitions will be aligned on/{split($6, a, "-", seps); boundary=a[1];}  /^ *[0-9]+ +/{partnum=$1; start=$2; end=$3; code=$6; print "part:" partnum ":" start ":" end ":" code;}  END{print "'$disk':" sectorsize ":" diskcode ":" first ":" last ":" boundary}' \
     >> $filename;
     for part in $parts; do
-        partNum=${part:$diskLength};
+        partNum=`echo $part | grep -o '[0-9]*$'`;
 
         sgdisk -i "$partNum" "$disk" | \
         awk '/^Partition GUID code:/{typecode=$4;} /Partition unique GUID:/{partcode=$4;} /^Partition name:/{name=$3; for(i=4;i<=NF;i++) {name = name " " $i}} /^First sector:/{first=$3;} /^Last sector:/{last=$3;} END{print "'$part':" typecode ":" partcode ":" first ":" last ":" name;}' \

@@ -184,7 +184,6 @@ elif [ "$imgType" == "mpa" ]; then
 fi
 if [ "$imgType" == "n" ]; then
     parts=`fogpartinfo --list-parts $hd 2>/dev/null`;
-    diskLength=`expr length $hd`;
     if [ -f "$win7imgroot/sys.img.000" ] && [[ "$osid" == +([5-7]|9) ]]; then
         if [ "$win7partcnt" == "1" ]; then
             restorePartition "$win7sys";
@@ -218,11 +217,10 @@ if [ "$imgType" == "n" ]; then
     done
 elif [ "$imgType" == "mps" ]; then
     parts=`getValidRestorePartitions $hd 1 $imagePath`;
-    diskLength=`expr length $hd`;
     for part in $parts; do
-        partNum=${part:$diskLength};
+        partNum=`echo $part | grep -o '[0-9]*$'`;
         if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
-            restorePartition "$part" "1" "$imagePath" "$diskLength" "$imgPartitionType";
+            restorePartition "$part" "1" "$imagePath" "$imgPartitionType";
         else
             echo " * Skipping partition $partNum";
         fi
@@ -236,12 +234,11 @@ elif [ "$imgType" == "mpa" ]; then
     intDisk=1;
     for disk in $disks; do
         parts=`getValidRestorePartitions $disk $intDisk $imagePath`;
-        diskLength=`expr length $disk`;
         for part in $parts; do
-            partNum=${part:$diskLength};
+            partNum=`echo $part | grep -o '[0-9]*$'`;
             if [ "$imgPartitionType" == "all" -o "$imgPartitionType" == "$partNum" ]; then
                 echo " * Processing Partition: $part ($partNum)";
-                restorePartition "$part" "$intDisk" "$imagePath" "$diskLength" "$imgPartitionType";
+                restorePartition "$part" "$intDisk" "$imagePath" "$imgPartitionType";
             else
                 echo " * Skipping partition $partNum";
             fi
