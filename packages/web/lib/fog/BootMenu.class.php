@@ -638,8 +638,9 @@ class BootMenu extends FOGBase {
             $imgPartitionType = in_array($TaskType->get('id'),$imagingTasks) ? $Image->getImagePartitionType()->get('type') : null;
             $imgid = in_array($TaskType->get('id'),$imagingTasks) ? $Image->get('id') : null;
             $ftp = $StorageNode instanceof StorageNode && $StorageNode->isValid() ? $StorageNode->get('ip') : $this->FOGCore->getSetting(FOG_TFTP_HOST);
-            $chkdsk = $this->FOGCore->getSetting('FOG_DISABLE_CHKDSK') == 1 ? 0 : 1;
-            $PIGZ_COMP = in_array($TaskType->get('id'),$imagingTasks) ? ($Image->get('compress') > -1 && is_numeric($Image->get('compress')) ? $Image->get('compress') : $this->FOGCore->getSetting('FOG_PIGZ_COMP')) : $this->FOGCore->getSetting('FOG_PIGZ_COMP');
+            $chkdsk = $this->FOGCore->getSetting(FOG_DISABLE_CHKDSK) == 1 ? 0 : 1;
+            $PIGZ_COMP = in_array($TaskType->get(id),$imagingTasks) ? ($Image->get(compress) > -1 && is_numeric($Image->get(compress)) ? $Image->get(compress) : $this->FOGCore->getSetting(FOG_PIGZ_COMP)) : $this->FOGCore->getSetting(FOG_PIGZ_COMP);
+            $clientMacs = array_filter($this->parseMacList($this->Host->getMyMacs(),false,true));
             $kernelArgsArray = array(
                 "mac=$mac",
                 "ftp=$ftp",
@@ -649,7 +650,10 @@ class BootMenu extends FOGBase {
                 "osid=$osid",
                 "consoleblank=0",
                 "irqpoll",
-                "hostname=".$this->Host->get('name'),
+                array(
+                    'value' => 'hostname='.$this->Host->get(name),
+                    'active' => count($clientMacs),
+                ),
                 array(
                     'value' => "clamav=$clamav",
                     'active' => in_array($TaskType->get('id'),array(21,22)),
