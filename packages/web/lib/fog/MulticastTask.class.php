@@ -8,8 +8,10 @@ class MulticastTask extends MulticastManager {
     public function getAllMulticastTasks($root) {
         $Tasks = array();
         // Grace period to ensure tasks are actually submitted to the db
-        $this->outall(sprintf(' | Sleeping for %s seconds to ensure tasks are properly submitted',$this->zzz));
-        sleep($this->zzz);
+        if (self::getSession('count')) {
+            $this->outall(sprintf(' | Sleeping for %s seconds to ensure tasks are properly submitted',$this->zzz));
+            sleep($this->zzz);
+        }
         $MulticastSessions = self::getSession('find');
         foreach($MulticastSessions AS $i => &$MultiSess) {
             $Image = $this->getClass(Image,$MultiSess->get(image));
