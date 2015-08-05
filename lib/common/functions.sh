@@ -1197,6 +1197,7 @@ configureDHCP() {
             /etc/init.d/${dhcpd} stop >/dev/null 2>&1
             /etc/init.d/${dhcpd} start >/dev/null 2>&1
         fi
+        errorStat $?
     else
         echo "Skipped"
     fi
