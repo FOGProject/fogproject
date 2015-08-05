@@ -161,7 +161,9 @@ class MulticastTask extends FOGBase {
     public function killTask() {
         foreach($this->arPipes AS $i => &$closeme) @fclose($closeme);
         unset($closeme);
+        $running = 4;
         if ($this->isRunning()) {
+            $running = 5;
             $pid = $this->getPID();
             if ($pid) self::killAll($pid, SIGTERM);
             @proc_terminate($this->procRef, SIGTERM);
@@ -171,14 +173,14 @@ class MulticastTask extends FOGBase {
         @unlink($this->getUDPCastLogFile());
         $Assocs = $this->getClass(MulticastSessionsAssociationManager)->find(array(msID=>$this->intID));
         foreach($Assocs AS $i => &$MultiSessAssoc) {
-            $this->getClass($MultiSessAssoc->get(taskID))
-                ->set(stateID,5)
+            $this->getClass(Task,$MultiSessAssoc->get(taskID))
+                ->set(stateID,$running)
                 ->save();
         }
         unset($Assocs,$MultiSessAssoc);
         $this->getClass(MulticastSessions,$this->intID)
             ->set(name,null)
-            ->set(stateID,5)
+            ->set(stateID,$running)
             ->save();
         return true;
     }
