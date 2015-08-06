@@ -99,14 +99,7 @@ if [ "$doupdate" = "1" ]; then
     if [ -f "$fogpriorconfig" ]; then
         echo "";
         echo "  * Found FOG Settings from previous install at: $fogprogramdir/.fogsettings";
-        echo -n "  * Performing upgrade using these settings";
-        sleep 1;
-        echo -n ".";
-        sleep 1;
-        echo -n ".";
-        sleep 1;
-        echo ".";
-        sleep 1;
+        echo -n "  * Performing upgrade using these settings...";
         . "$fogpriorconfig";
         doOSSpecificIncludes;
     fi
@@ -141,23 +134,6 @@ while getopts "$optspec" o; do
             webroot="${webroot#'/'}"
             webroot="${webroot%'/'}"
             ;;
-            startrange)
-            if [ `validip ${OPTARG}` != 0 ]; then
-                echo "Invalid ip passed"
-                help
-                exit 1
-            fi
-            startrange="${OPTARG}"
-            ;;
-            endrange)
-            if [ `validip ${OPTARG}` != 0 ]; then
-                echo "Invalid ip passed"
-                help
-                exit 1
-            fi
-            endrange="${OPTARG}"
-            ;;
-            bootfile) bootfilename="${OPTARG}" ;;
             uninstall) uninstall; exit ;;
             file)
             if [ -f "${OPTARG}" ]; then
@@ -176,6 +152,23 @@ while getopts "$optspec" o; do
             fi
             backupPath="${OPTARG}"
             ;;
+            startrange)
+            if [ `validip ${OPTARG}` != 0 ]; then
+                echo "Invalid ip passed"
+                help
+                exit 1
+            fi
+            startrange="${OPTARG}"
+            ;;
+            endrange)
+            if [ `validip ${OPTARG}` != 0 ]; then
+                echo "Invalid ip passed"
+                help
+                exit 1
+            fi
+            endrange="${OPTARG}"
+            ;;
+            bootfile) bootfilename="${OPTARG}" ;;
             *)
             if [ "$OPTERR" = 1 -a "${optspec:0:1}" != ":" ]; then
                 echo "Unknown option: --${OPTARG}"
