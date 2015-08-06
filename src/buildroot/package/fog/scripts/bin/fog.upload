@@ -111,7 +111,7 @@ if [ -f "/images/.mntcheck" ]; then
             fi
             # All:
             #  save the list of fixed size partitions
-            fixed_size_partitions=`echo $fixed_size_partitions | sed -r 's/[^:0-9]//g' | sed -r 's/^://'`;
+            fixed_size_partitions=`echo $fixed_size_partitions | grep -o '[0-9]\+$'`;
             echo $fixed_size_partitions > "${imagePath}/d1.fixed_size_partitions";
             # Windows 2000/XP, Vista, 7, 8, 8.1, Linux:
             #  Remove pagefile and hibernate file
