@@ -274,6 +274,7 @@ class ImageManagementPage extends FOGPage {
             _('Image Type') => $ImageTypes,
             _('Partition') => $ImagePartitionTypes,
             _('Compression') => '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="'.$compression.'" />',
+            _('Protected') => '<input type="checkbox" name="protected_image" '.($this->obj->get('protected') ? ' checked' : '').'/>',
             $_SESSION[FOG_FORMAT_FLAG_IN_GUI] ? _('Image Manager') : '' => $_SESSION[FOG_FORMAT_FLAG_IN_GUI] ? $format : '',
             '&nbsp;' => '<input type="submit" name="update" value="'._('Update').'" /><!--<i class="icon fa fa-question" title="TODO!"></i>-->',
         );
@@ -418,7 +419,7 @@ class ImageManagementPage extends FOGPage {
                     ->set(imageTypeID,$_REQUEST[imagetype])
                     ->set(imagePartitionTypeID,$_REQUEST[imagepartitiontype])
                     ->set(format,isset($_REQUEST[imagemanage]) ? $_REQUEST[imagemanage] : $this->obj->get(format))
-                    ->set('protected', $_REQUEST[protected_image])
+                    ->set('protected',(int)isset($_REQUEST[protected_image]))
                     ->set(compress,$_REQUEST[compress]);
                 break;
                 case 'image-storage';
