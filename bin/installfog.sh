@@ -95,6 +95,27 @@ fi
 displayBanner;
 echo -e "  Version: ${version} Installer/Updater\n";
 fogpriorconfig="$fogprogramdir/.fogsettings"
+if [ "$doupdate" = "1" ]; then
+    if [ -f "$fogpriorconfig" ]; then
+        echo "";
+        echo "  * Found FOG Settings from previous install at: $fogprogramdir/.fogsettings";
+        echo -n "  * Performing upgrade using these settings";
+        sleep 1;
+        echo -n ".";
+        sleep 1;
+        echo -n ".";
+        sleep 1;
+        echo ".";
+        sleep 1;
+        . "$fogpriorconfig";
+        doOSSpecificIncludes;
+    fi
+else
+    echo "";
+    echo "  FOG Installer will NOT attempt to upgrade from";
+    echo "  previous version of FOG.";
+    echo "";
+fi
 optspec="h?dUHSCKYyf:-:W:D:B:s:e:b:"
 while getopts "$optspec" o; do
     #long options
@@ -232,27 +253,6 @@ while getopts "$optspec" o; do
         ;;
     esac
 done
-if [ "$doupdate" = "1" ]; then
-    if [ -f "$fogpriorconfig" ]; then
-        echo "";
-        echo "  * Found FOG Settings from previous install at: $fogprogramdir/.fogsettings";
-        echo -n "  * Performing upgrade using these settings";
-        sleep 1;
-        echo -n ".";
-        sleep 1;
-        echo -n ".";
-        sleep 1;
-        echo ".";
-        sleep 1;
-        . "$fogpriorconfig";
-        doOSSpecificIncludes;
-    fi
-else
-    echo "";
-    echo "  FOG Installer will NOT attempt to upgrade from";
-    echo "  previous version of FOG.";
-    echo "";
-fi
 webrootexists=`grep -l 'webroot' "/opt/fog/.fogsettings" >/dev/null 2>&1; echo $?`;
 if [ "$webrootexists" != 0 -a -z "$webroot" ]; then
     webroot="fog/";
