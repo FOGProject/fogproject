@@ -801,10 +801,9 @@ class Host extends FOGController {
                 if (empty($ou)) $ou = trim($this->get(ADOU));
                 if (empty($user)) $user = trim($this->get(ADUser));
                 if (empty($pass)) $pass = trim($this->get(ADPass));
+                if (empty($legacy)) $legacy = trim($this->get(ADPassLegacy));
             }
             if ($pass) $pass = $this->encryptpw($pass);
-            if ($useAD && !$this->get(ADPassLegacy) && !$legacy) $legacy = $this->FOGCore->getSetting(FOG_AD_DEFAULT_PASSWORD_LEGACY);
-            else if ($this->get(ADPassLegacy) && !$legacy) $legacy = $this->get(ADPassLegacy);
             $this->set(useAD,$useAD)
                 ->set(ADDomain,trim($domain))
                 ->set(ADOU,trim($ou))

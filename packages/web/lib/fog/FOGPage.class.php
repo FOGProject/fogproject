@@ -612,7 +612,7 @@ abstract class FOGPage extends FOGBase {
                 'ad_ou' => $Data instanceof Host ? $Data->get('ADOU') : $_REQUEST['ou'],
                 'host_aduser' => $Data instanceof Host ? $Data->get(ADUser) : $_REQUEST['domainuser'],
                 'host_adpass' => $Data instanceof Host ? $Data->get(ADPass) : $_REQUEST['domainpassword'],
-                'host_adpasslegacy' => $Data instanceof Host ? $Data->get(ADPassLegacy) : $_REQUEST['domainpasswordlegacy'],
+                'host_adpasslegacy' => $Data instanceof Host ? $Data->get(ADPassLegacy) : $_REQUEST[domainpasswordlegacy],
             );
         }
         unset($input);
