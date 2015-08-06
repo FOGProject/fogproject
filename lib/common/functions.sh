@@ -68,7 +68,9 @@ installUtils() {
     errorStat $?
 }
 help() {
-    echo -e "Usage: $0 [-hdUuHSCKY] [-f <filename>]";
+    echo -e "Usage: $0 [-hdUuHSCKY] [-f <filename>] [-D </directory/to/document/root/>]";
+    echo -e "\t\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]";
+    echo -e "\t\t\t[-s <192.168.1.10>] [-e 192.168.1.254] [-b <undionly.kpxe>]";
     echo -e "\t-h -? --help\t\t\tDisplay this info"
     echo -e "\t-d    --no-defaults\t\tDon't guess defaults"
     echo -e "\t-U    --no-upgrade\t\tDon't attempt to upgrade"
