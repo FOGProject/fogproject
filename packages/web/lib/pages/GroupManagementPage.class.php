@@ -190,10 +190,23 @@ class GroupManagementPage extends FOGPage {
      */
     public function edit() {
         // If all hosts have the same image setup up the selection.
-        $imageID = array_unique($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts)),'','','','','','','imageID'));
-        $groupKey = array_unique($this->getClass(HostManager)->find(array('id' => $this->obj->get(hosts)),'','','','','','','productKey'));
+        $imageID = array_unique($this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)),'','','','','','','imageID'));
+        $groupKey = array_unique($this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)),'','','','','','','productKey'));
         $groupKeyMatch = (count($groupKey) == 1 ? base64_decode($groupKey[0]) : '');
         $imageMatchID = (count($imageID) == 1 ? $imageID[0] : '');
+        $aduse = array_unique($this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)),'','','','','','','useAD'));
+        $adDomain = array_unique($this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)),'','','','','','','ADDomain'));
+        $adOU = array_unique($this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)),'','','','','','','ADOU'));
+        $adUser = array_unique($this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)),'','','','','','','ADUser'));
+        $adPass = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)),'','','','','','','ADPass');
+        $adPassLegacy = array_unique($this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)),'','','','','','','ADPassLegacy'));
+        $useAD = (int)(count($aduse) == 1);
+        $ADOU = (count($adOU) == 1 ? @array_shift($adOU) : '');
+        $ADDomain = (count($adDomain) == 1 ? @array_shift($adDomain) : '');
+        $ADUser = (count($adUser) == 1 ? @array_shift($adUser) : '');
+        $adPass = (count($adPass) == $this->obj->getHostCount() ? @array_shift($adPass) : '');
+        $ADPass = $this->encryptpw($adPass);
+        $ADPassLegacy = (count($adPassLegacy) == 1 ? @array_shift($adPassLegacy) : '');
         // Title - set title for page title in window
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get(name));
         // Headerdata
@@ -423,7 +436,7 @@ class GroupManagementPage extends FOGPage {
         $this->render();
         unset($this->data);
         print '</fieldset></form></div>';
-        $this->adFieldsToDisplay();
+        $this->adFieldsToDisplay($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,$ADPassLegacy);
         print '<!-- Printers --><div id="group-printers"><form method="post" action="'.$this->formAction.'&tab=group-printers"><h2>'._('Select Management Level for all hosts in this group').'</h2><p class="l"><span class="icon fa fa-question hand" title="'._('This setting turns off all FOG Printer Management.  Although there are multiple levels already between host and global settings, this is just another to ensure safety').'"></span><input type="radio" name="level" value="0" />'._('No Printer Management').'<br/><span class="icon fa fa-question hand" title="'._('This setting only adds and removes printers that are managed by FOG.  If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unsigned host.  It will add printers to the host that are assigned.').'"></span><input type="radio" name="level" value="1" />'._('FOG Managed Printers').'<br/><span class="icon fa fa-question hand" title="'._('This setting will only allow FOG Assigned printers to be added to the host.  Any printer that is assigned will be removed including non-FOG managed printers.').'"></span><input type="radio" name="level" value="2" />'._('Add and Remove').'<br/></p><div class="hostgroup">';
         // Create Header for printers
         $this->headerData = array(
