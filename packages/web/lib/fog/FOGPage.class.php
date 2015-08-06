@@ -558,9 +558,15 @@ abstract class FOGPage extends FOGBase {
     /** adFieldsToDisplay() display the Active Directory stuff
      * @return void
      */
-    public function adFieldsToDisplay() {
+    public function adFieldsToDisplay($useAD = '',$ADDomain = '',$ADOU = '',$ADUser = '',$ADPass = '',$ADPassLegacy = '') {
+        if (empty($useAD)) $useAD = ($this->obj instanceof Host ? $this->obj->get(useAD) : $_REQUEST[domain]);
+        if (empty($ADDomain)) $ADDomain = ($this->obj instanceof Host ? $this->obj->get(ADDomain) : $_REQUEST[domainname]);
+        if (empty($ADOU)) $ADOU = ($this->obj instanceof Host ? $this->obj->get(ADOU) : $_REQUEST[ou]);
+        if (empty($ADUser)) $ADUser = ($this->obj instanceof Host ? $this->obj->get(ADUser) : $_REQUEST[domainuser]);
+        if (empty($ADPass)) $ADPass = ($this->obj instanceof Host ? $this->obj->get(ADPass) : $_REQUEST[domainpassword]);
+        if (empty($ADPassLegacy)) $ADPassLegacy = ($this->obj instanceof Host ? $this->obj->get(ADPassLegacy) : $_REQUEST[domainpasswordlegacy]);
         $Data = &$this->obj;
-        $OUs = explode('|',$this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'));
+        $OUs = explode('|',$this->FOGCore->getSetting(FOG_AD_DEFAULT_OU));
         foreach((array)$OUs AS $i => &$OU) $OUOptions[] = $OU;
         unset($OU);
         $OUOPtions = array_filter($OUOptions);
@@ -570,11 +576,11 @@ abstract class FOGPage extends FOGBase {
             $optFound = false;
             foreach($OUs AS $i => &$OU) {
                 $opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
-                if ($opt == $Data->get(ADOU)) $optFound = true;
+                if ($opt == $ADOU) $optFound = true;
             }
             foreach($OUs AS $i => &$OU) {
                 $opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
-                if ($optFound) $optionOU .= '<option value="'.$opt.'" '.($Data instanceof Host && $Data->isValid() && trim($Data->get(ADOU)) == trim($opt) ? 'selected="selected"' : '').'>'.$opt.'</option>';
+                if ($optFound) $optionOU .= '<option value="'.$opt.'" '.(trim($ADOU) == trim($opt) ? 'selected="selected"' : '').'>'.$opt.'</option>';
                 else $optionOU .= '<option value="'.$opt.'" '.(preg_match('#;#i',$OU) ? 'selected="selected"' : '').'>'.$opt.'</option>';
             }
             unset($OU);
@@ -606,13 +612,13 @@ abstract class FOGPage extends FOGBase {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
-                'domainon' => $Data instanceof Host && $Data->get('useAD') ? 'checked' : '',
-                'host_dom' => $Data instanceof Host ? $Data->get('ADDomain') : $_REQUEST['domainname'],
+                'domainon' => $useAD ? 'checked' : '',
+                'host_dom' => $ADDomain,
                 'host_ou' => $OUOptions,
-                'ad_ou' => $Data instanceof Host ? $Data->get('ADOU') : $_REQUEST['ou'],
-                'host_aduser' => $Data instanceof Host ? $Data->get(ADUser) : $_REQUEST['domainuser'],
-                'host_adpass' => $Data instanceof Host ? $Data->get(ADPass) : $_REQUEST['domainpassword'],
-                'host_adpasslegacy' => $Data instanceof Host ? $Data->get(ADPassLegacy) : $_REQUEST[domainpasswordlegacy],
+                'ad_ou' => $ADOU,
+                'host_aduser' => $ADUser,
+                'host_adpass' => $ADPass,
+                'host_adpasslegacy' => $ADPassLegacy,
             );
         }
         unset($input);
