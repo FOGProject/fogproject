@@ -77,7 +77,7 @@ class FOGConfigurationPage extends FOGPage {
          */
         public function kernel_update() {
             $this->kernelselForm(pk);
-            $htmlData = $this->FOGURLRequests->process('http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version='.FOG_VERSION,'GET');
+            $htmlData = $this->FOGURLRequests->process('https://fogproject.org/kernels/kernelupdate.php?version='.FOG_VERSION,'GET');
             print $htmlData[0];
         }
     /** kernelselForm($type)
@@ -102,7 +102,7 @@ class FOGConfigurationPage extends FOGPage {
             switch ($_REQUEST[kernelsel]) {
             case 'pk':
                 $this->kernelselForm(pk);
-                $htmlData = $this->FOGURLRequests->process("http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version=" . FOG_VERSION,'GET');
+                $htmlData = $this->FOGURLRequests->process("https://fogproject.org/kernels/kernelupdate.php?version=" . FOG_VERSION,'GET');
                 print $htmlData[0];
                 break;
             case 'uk':
@@ -117,7 +117,7 @@ class FOGConfigurationPage extends FOGPage {
                 break;
             default:
                 $this->kernelselForm(pk);
-                $htmlData = $this->FOGURRequestsL('http://freeghost.sourceforge.net/kernelupdates/kernelupdate.php?version='.FOG_VERSION,'GET');
+                $htmlData = $this->FOGURRequests->process('https://fogproject.org/kernels/kernelupdate.php?version='.FOG_VERSION,'GET');
                 print $htmlData[0];
                 break;
             }
