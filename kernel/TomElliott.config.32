@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/i386 4.1.3 Kernel Configuration
+# Linux/i386 4.1.4 Kernel Configuration
 #
 # CONFIG_64BIT is not set
 CONFIG_X86_32=y
@@ -1167,7 +1167,7 @@ CONFIG_ATL1E=y
 CONFIG_ATL1C=y
 CONFIG_ALX=y
 CONFIG_NET_CADENCE=y
-# CONFIG_MACB is not set
+CONFIG_MACB=y
 CONFIG_NET_VENDOR_BROADCOM=y
 CONFIG_B44=y
 CONFIG_B44_PCI_AUTOSELECT=y
