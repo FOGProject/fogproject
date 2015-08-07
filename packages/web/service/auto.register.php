@@ -21,8 +21,6 @@ if ($FOGCore->getSetting(FOG_REGISTRATION_ENABLED)) {
             $imageid = trim(base64_decode($_REQUEST[imageid]));
             $Image = $FOGCore->getClass(Image,$imageid);
             $realimageid = ($Image && $Image->isValid() ? $Image->get('id') : '0');
-            $locationid=trim(base64_decode($_REQUEST[location]));
-            ($locationid != null && is_numeric($locationid) && $locationid > 0 ? $reallocid = $locationid : $locationid = '');
             $primaryuser=trim(base64_decode($_REQUEST[primaryuser]));
             $other1=trim(base64_decode($_REQUEST[other1]));
             $other2=trim(base64_decode($_REQUEST[other2]));
@@ -68,14 +66,8 @@ if ($FOGCore->getSetting(FOG_REGISTRATION_ENABLED)) {
                 ->addSnapin($snapinid)
                 ->addPriMAC($PriMAC)
                 ->addAddMAC($MACs);
-            if (!$Host->save()) throw new Exception(_('Failed to save new Host'));
-            $LocPlugInst = in_array('location',(array)$_SESSION[PluginsInstalled]);
-            if ($LocPlugInst) {
-                $FOGCore->getClass(LocationAssociation)
-                    ->set(locationID,$reallocid)
-                    ->set(hostID,$Host->get(id))
-                    ->save();
-            }
+            $HookManager->processEvent('HOST_REGISTER',array(Host=>&$Host));
+            if (!$Host->get(id) && !$Host->save()) throw new Exception(_('Failed to save new Host'));
             if ($doimage) {
                 if (!$Host->getImageMemberFromHostID()) throw new Exception(_('No image assigned for this host.'));
                 $other .= ' chkdsk='.($FOGCore->getSetting(FOG_DISABLE_CHKDSK) == 1 ? 0 : 1);
