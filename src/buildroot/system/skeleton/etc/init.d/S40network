@@ -27,13 +27,12 @@ for iface in $ifaces; do
         linkstate=`/bin/cat /sys/class/net/$iface/carrier`
         if [ "x$linkstate" == "x1" ]; then
             /sbin/udhcpc -i $iface -t 2 -T $timeout
-            timeout=`expr $timeout '+' 5`
             if [ "$?" == 0 ]; then
                 break;
             fi
+            timeout=`expr $timeout '+' 5`
         fi
         /bin/usleep 1000000
     done
 done
-
 exit $?
