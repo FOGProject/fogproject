@@ -75,6 +75,17 @@ class AddLocationHost extends Hook {
             $arguments[email] = $this->array_insert_after("\nSnapin Used: ",$arguments[email],"\nImaged From (Location): ",$this->getClass(Location,$locID)->get(name));
         }
     }
+    public function HostRegister($arguments) {
+        if (in_array($this->node,(array)$_SESSION[PluginsInstalled])) {
+            $locationid = trim(base64_decode($_REQUEST[location]));
+            $reallocid = $locationid && is_numeric($locationid) && $locationid > 0 ? $locationid : '';
+            if (!$arguments[Host]->get(id)) $arguments[Host]->save();
+            $this->getClass(LocationAssociation)
+                ->set(locationID,$reallocid)
+                ->set(hostID,$arguments[Host]->get(id))
+                ->save();
+        }
+    }
 }
 $AddLocationHost = new AddLocationHost();
 // Register hooks
@@ -83,6 +94,7 @@ $HookManager->register('HOST_DATA', array($AddLocationHost, 'HostData'));
 $HookManager->register('HOST_FIELDS', array($AddLocationHost, 'HostFields'));
 $HookManager->register('HOST_ADD_SUCCESS', array($AddLocationHost, 'HostAddLocation'));
 $HookManager->register('HOST_EDIT_SUCCESS', array($AddLocationHost, 'HostAddLocation'));
+$HookManager->register('HOST_REGISTER', array($AddLocationHost, 'HostRegister'));
 $HookManager->register('HOST_IMPORT', array($AddLocationHost, 'HostImport'));
 $HookManager->register('HOST_EXPORT_REPORT', array($AddLocationHost, 'HostExport'));
 $HookManager->register('DESTROY_HOST', array($AddLocationHost, 'HostDestroy'));
