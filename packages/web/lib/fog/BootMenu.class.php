@@ -640,7 +640,8 @@ class BootMenu extends FOGBase {
             $ftp = $StorageNode instanceof StorageNode && $StorageNode->isValid() ? $StorageNode->get('ip') : $this->FOGCore->getSetting(FOG_TFTP_HOST);
             $chkdsk = $this->FOGCore->getSetting(FOG_DISABLE_CHKDSK) == 1 ? 0 : 1;
             $PIGZ_COMP = in_array($TaskType->get(id),$imagingTasks) ? ($Image->get(compress) > -1 && is_numeric($Image->get(compress)) ? $Image->get(compress) : $this->FOGCore->getSetting(FOG_PIGZ_COMP)) : $this->FOGCore->getSetting(FOG_PIGZ_COMP);
-            $clientMacs = array_filter($this->parseMacList($this->Host->getMyMacs(),false,true));
+            $MACs = $this->Host->getMyMacs();
+            $clientMacs = array_filter((array)$this->parseMacList(implode('|',(array)$MACs),false,true));
             $kernelArgsArray = array(
                 "mac=$mac",
                 "ftp=$ftp",

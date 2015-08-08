@@ -22,7 +22,7 @@ class Page extends FOGBase {
                     'host' => array($this->foglang['Host Management'], 'fa fa-desktop fa-2x'),
                     'group' => array($this->foglang['Group Management'], 'fa fa-sitemap fa-2x'),
                     'image' => array($this->foglang['Image Management'], 'fa fa-picture-o fa-2x'),
-                    'storage' => array($this->foglang['Storage Management'], 'fa fa-download fa-2x'),
+                    'storage' => array($this->foglang['Storage Management'], 'fa fa-archive fa-2x'),
                     'snapin' => array($this->foglang['Snapin Management'], 'fa fa-files-o fa-2x'),
                     'printer' => array($this->foglang['Printer Management'], 'fa fa-print fa-2x'),
                     'service' => array($this->foglang['Service Configuration'], 'fa fa-cogs fa-2x'),
