@@ -60,10 +60,13 @@ class HostManagementPage extends FOGPage {
             '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-action" />',
         );
         $_SESSION[FOGPingActive] ? array_push($this->templates,'<span class="icon ping"></span>') : null;
+        $up = $this->getClass(TaskType,2);
+        $down = $this->getClass(TaskType,1);
+        $mc = $this->getClass(TaskType,8);
         array_push($this->templates,
             '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name}" id="host-${host_name}">${host_name}</a><br /><small>${host_mac}</small>',
             '<small>${deployed}</small>',
-            '<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${host_id}"><i class="icon fa fa-arrow-down" title="Download"></i></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${host_id}"><i class="icon fa fa-arrow-up" title="Upload"></i></a> <a href="?node=host&sub=deploy&type=8&id=${host_id}"><i class="icon fa fa-share-alt" title="Multi-cast"></i></a> <a href="?node=host&sub=edit&id=${host_id}#host-tasks"><i class="icon fa fa-arrows-alt" title="Deploy"></i></a>',
+            '<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${host_id}"><i class="icon fa fa-'.$down->get(icon).'" title="'.$down->get(name).'"></i></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${host_id}"><i class="icon fa fa-'.$up->get(icon).'" title="'.$up->get(name).'"></i></a> <a href="?node=host&sub=deploy&type=8&id=${host_id}"><i class="icon fa fa-'.$mc->get(icon).'" title="'.$mc->get(name).'"></i></a> <a href="?node=host&sub=edit&id=${host_id}#host-tasks"><i class="icon fa fa-arrows-alt" title="Deploy"></i></a>',
             '<a href="?node=host&sub=edit&id=${host_id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=host&sub=delete&id=${host_id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>',
             '${image_name}'
         );

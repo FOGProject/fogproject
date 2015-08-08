@@ -267,7 +267,7 @@ abstract class FOGPage extends FOGBase {
         printf("<h2>%s</h2>",_('Advanced Settings'));
         printf("%s%s%s <u>%s</u> %s%s",'<p class="hideFromDebug">','<input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">',_('Schedule'),_('Shutdown'),_('after task completion'),'</label></p>');
         if (!$TaskType->isDebug() && $TaskType->get(id) != 11) {
-            printf("%s%s%s",'<p><input type="checkbox" name="isDebugTask" id="isDebugTask" autocomplete="off" /><label for="isDebugTask">',_('Schedule task as a debug task'),'</label></p>');
+            if (!($this->obj instanceof Group)) printf("%s%s%s",'<p><input type="checkbox" name="isDebugTask" id="isDebugTask" autocomplete="off" /><label for="isDebugTask">',_('Schedule task as a debug task'),'</label></p>');
             printf("%s%s %s%s%s",'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked/><label for="scheduleInstant">',_('Schedule '),'<u>',_('Instant Deployment'),'</u></label></p>');
             printf("%s%s %s%s%s",'<p class="hideFromDebug"><input type="radio" name="scheduleType" id="scheduleSingle" value="single" autocomplete="off" /><label for="scheduleSingle">',_('Schedule '),'<u>',_('Delayed Deployment'),'</u></label></p>');
             printf("%s",'<p class="hidden hideFromDebug" id="singleOptions"><input type="text" name="scheduleSingleTime" id="scheduleSingleTime" autocomplete="off" /></p>');
@@ -485,10 +485,9 @@ abstract class FOGPage extends FOGBase {
      * @return void
      */
     public function basictasksOptions() {
-        $Data = &$this->obj;
         unset($this->headerData);
         $this->templates = array(
-            '<a href="?node=${node}&sub=${sub}&id=${'.$this->node.'_id}${task_type}"><img src="'.$this->imagelink.'${task_icon}" /><br/>${task_name}</a>',
+            '<a href="?node=${node}&sub=${sub}&id=${'.$this->node.'_id}${task_type}"><i class="fa fa-${task_icon} fa-3x"></i><br/>${task_name}</a>',
             '${task_desc}',
         );
         $this->attributes = array(
@@ -499,57 +498,57 @@ abstract class FOGPage extends FOGBase {
         printf("%s",'<div id="'.$this->node.'-tasks" class="organic-tabs-hidden">');
         printf("<h2>%s</h2>",_($this->childClass.' Tasks'));
         // Find TaskTypes
-        $TaskTypes = $this->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 0), 'AND', 'id');
+        $TaskTypes = $this->getClass(TaskTypeManager)->find(array(access=>array('both',$this->node),isAdvanced=>0),'AND','id');
         // Iterate -> Print
         foreach($TaskTypes AS $i => &$TaskType) {
             if ($TaskType->isValid()) {
                 $this->data[] = array(
-                    'node' => $this->node,
-                    'sub' => 'deploy',
-                    $this->node.'_id' => $Data->get('id'),
-                    'task_type' => '&type='.$TaskType->get('id'),
-                    'task_icon' => $TaskType->get('icon'),
-                    'task_name' => $TaskType->get('name'),
-                    'task_desc' => $TaskType->get('description'),
+                    node=>$this->node,
+                    sub=>'deploy',
+                    $this->node.'_id' => $this->obj->get(id),
+                    task_type=>'&type='.$TaskType->get(id),
+                    task_icon=>$TaskType->get(icon),
+                    task_name=>$TaskType->get(name),
+                    task_desc=>$TaskType->get(description),
                 );
             }
         }
         unset($TaskType);
         $this->data[] = array(
-            'node' => $this->node,
-            'sub' => 'edit',
-            $this->node.'_id' => $Data->get('id'),
-            'task_type' => '#'.$this->node.'-tasks" class="advanced-tasks-link',
-            'task_icon' => 'host-advanced.png',
-            'task_name' => _('Advanced'),
-            'task_desc' => _('View advanced tasks for this').' '._($this->node),
+            node=>$this->node,
+            sub=>'edit',
+            $this->node.'_id'=>$this->obj->get(id),
+            task_type=>'#'.$this->node.'-tasks" class="advanced-tasks-link',
+            task_icon=>'bars',
+            task_name=>_('Advanced'),
+            task_desc=>_('View advanced tasks for this').' '._($this->node),
         );
         // Hook
-        $this->HookManager->processEvent(strtoupper($this->childClass).'_EDIT_TASKS', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' &$this->attributes));
+        $this->HookManager->processEvent(strtoupper($this->childClass).'_EDIT_TASKS', array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
         unset($this->data);
         printf("%s",'<div id="advanced-tasks" class="hidden">');
         printf("<h2>%s</h2>",_('Advanced Actions'));
         // Find TaskTypes
-        $TaskTypes = $this->getClass('TaskTypeManager')->find(array('access' => array('both',$this->node),'isAdvanced' => 1), 'AND', 'id');
+        $TaskTypes = $this->getClass(TaskTypeManager)->find(array(access=>array('both',$this->node),isAdvanced=>1),'AND','id');
         // Iterate -> Print
         foreach($TaskTypes AS $i => &$TaskType) {
             if ($TaskType->isValid()) {
                 $this->data[] = array(
-                    'node' => $this->node,
-                    'sub' => 'deploy',
-                    $this->node.'_id' => $Data->get('id'),
-                    'task_type' => '&type='.$TaskType->get('id'),
-                    'task_icon' => $TaskType->get('icon'),
-                    'task_name' => $TaskType->get('name'),
-                    'task_desc' => $TaskType->get('description'),
+                    node=>$this->node,
+                    sub=>'deploy',
+                    $this->node.'_id'=>$this->obj->get(id),
+                    task_type=>'&type='.$TaskType->get(id),
+                    task_icon=>$TaskType->get(icon),
+                    task_name=>$TaskType->get(name),
+                    task_desc=>$TaskType->get(description),
                 );
             }
         }
         unset($TaskType);
         // Hook
-        $this->HookManager->processEvent(strtoupper($this->node).'_DATA_ADV', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' &$this->attributes));
+        $this->HookManager->processEvent(strtoupper($this->node).'_DATA_ADV', array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
         print '</div></div>';
@@ -565,7 +564,6 @@ abstract class FOGPage extends FOGBase {
         if (empty($ADUser)) $ADUser = ($this->obj instanceof Host ? $this->obj->get(ADUser) : $_REQUEST[domainuser]);
         if (empty($ADPass)) $ADPass = ($this->obj instanceof Host ? $this->obj->get(ADPass) : $_REQUEST[domainpassword]);
         if (empty($ADPassLegacy)) $ADPassLegacy = ($this->obj instanceof Host ? $this->obj->get(ADPassLegacy) : $_REQUEST[domainpasswordlegacy]);
-        $Data = &$this->obj;
         $OUs = explode('|',$this->FOGCore->getSetting(FOG_AD_DEFAULT_OU));
         foreach((array)$OUs AS $i => &$OU) $OUOptions[] = $OU;
         unset($OU);
@@ -736,10 +734,8 @@ abstract class FOGPage extends FOGBase {
      * @return void
      */
     public function delete() {
-        // Find
-        $Data = &$this->obj;
         // Title
-        $this->title = sprintf('%s: %s',_('Remove'),$Data->get('name'));
+        $this->title = sprintf('%s: %s',_('Remove'),$this->obj->get(name));
         // Header Data
         unset($this->headerData);
         // Attributes
@@ -753,9 +749,9 @@ abstract class FOGPage extends FOGBase {
             '${input}',
         );
         $fields = array(
-            sprintf('%s <b>%s</b>',_('Please confirm you want to delete'),addslashes($Data->get(name))) => '&nbsp;',
-            ($Data instanceof Group ? _('Delete all hosts within group') : null) => ($Data instanceof Group ? '<input type="checkbox" name="massDelHosts" value="1" />' : null),
-            ($Data instanceof Image || $Data instanceof Snapin ? _('Delete file data') : null) => ($Data instanceof Image || $Data instanceof Snapin ? '<input type="checkbox" name="andFile" id="andFile" value="1" />' : null),
+            sprintf('%s <b>%s</b>',_('Please confirm you want to delete'),addslashes($this->obj->get(name))) => '&nbsp;',
+            ($this->obj instanceof Group ? _('Delete all hosts within group') : null) => ($this->obj instanceof Group ? '<input type="checkbox" name="massDelHosts" value="1" />' : null),
+            ($this->obj instanceof Image || $this->obj instanceof Snapin ? _('Delete file data') : null) => ($this->obj instanceof Image || $this->obj instanceof Snapin ? '<input type="checkbox" name="andFile" id="andFile" value="1" />' : null),
             '&nbsp;' => '<input type="submit" value="${label}" />',
         );
         $fields = array_filter($fields);
@@ -768,7 +764,7 @@ abstract class FOGPage extends FOGBase {
         }
         unset($input);
         // Hook
-        $this->HookManager->processEvent(strtoupper($this->childClass).'_DEL', array($this->childClass => &$Data));
+        $this->HookManager->processEvent(strtoupper($this->childClass).'_DEL', array($this->childClass => &$this->obj));
         printf('<form method="post" action="%s" class="c">',$this->formAction);
         $this->render();
         printf('</form>');
@@ -817,44 +813,42 @@ abstract class FOGPage extends FOGBase {
      * @return void
      */
     public function delete_post() {
-        // Find
-        $Data = &$this->obj;
         // Hook
-        $this->HookManager->processEvent(strtoupper($this->node).'_DEL_POST', array($this->childClass => &$Data));
+        $this->HookManager->processEvent(strtoupper($this->node).'_DEL_POST', array($this->childClass => &$this->obj));
         // POST
         try {
-            if ($Data instanceof Group) {
+            if ($this->obj instanceof Group) {
                 if ($_REQUEST['delHostConfirm'] == '1') {
-                    $Hosts = $this->getClass(HostManager)->find(array('id' => $Data->get(hosts)));
+                    $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)));
                     foreach($Hosts AS $i => &$Host) {
                         if ($Host->isValid()) $Host->destroy();
                     }
                     unset($Host);
                 }
                 // Remove hosts first
-                if (isset($_REQUEST['massDelHosts'])) $this->FOGCore->redirect('?node=group&sub=delete_hosts&id='.$Data->get(id));
+                if (isset($_REQUEST['massDelHosts'])) $this->FOGCore->redirect('?node=group&sub=delete_hosts&id='.$this->obj->get(id));
             }
-            if ($Data instanceof Image || $Data instanceof Snapin) {
-                if ($Data->get('protected')) throw new Exception($this->childClass.' '._('is protected, removal not allowed'));
-                if (isset($_REQUEST['andFile'])) $Data->deleteFile();
+            if ($this->obj instanceof Image || $this->obj instanceof Snapin) {
+                if ($this->obj->get('protected')) throw new Exception($this->childClass.' '._('is protected, removal not allowed'));
+                if (isset($_REQUEST[andFile])) $this->obj->deleteFile();
             }
             // Error checking
-            if (!$Data->destroy()) throw new Exception(_('Failed to destroy'));
+            if (!$this->obj->destroy()) throw new Exception(_('Failed to destroy'));
             // Hook
-            $this->HookManager->processEvent(strtoupper($this->childClass).'_DELETE_SUCCESS', array($this->childClass => &$Data));
+            $this->HookManager->processEvent(strtoupper($this->childClass).'_DELETE_SUCCESS', array($this->childClass => &$this->obj));
             // Log History event
-            $this->FOGCore->logHistory($this->childClass.' deleted: ID: '.$Data->get('id').', Name:'.$Data->get('name'));
+            $this->FOGCore->logHistory($this->childClass.' deleted: ID: '.$this->obj->get(id).', Name:'.$this->obj->get(name));
             // Set session message
-            $this->FOGCore->setMessage($this->childClass.' deleted: '.$Data->get('name'));
+            $this->FOGCore->setMessage($this->childClass.' deleted: '.$this->obj->get(name));
             // Reset request
             $this->resetRequest();
             // Redirect
             $this->FOGCore->redirect('?node='.$this->node);
         } catch (Exception $e) {
             // Hook
-            $this->HookManager->processEvent(strtoupper($this->node).'_DELETE_FAIL', array($this->childClass => &$Data));
+            $this->HookManager->processEvent(strtoupper($this->node).'_DELETE_FAIL', array($this->childClass => &$this->obj));
             // Log History event
-            $this->FOGCore->logHistory(sprintf('%s %s: ID: %s, Name: %s',_($this->childClass), _('delete failed'),$Data->get('id'),$Data->get('name')));
+            $this->FOGCore->logHistory(sprintf('%s %s: ID: %s, Name: %s',_($this->childClass), _('delete failed'),$this->obj->get(id),$this->obj->get(name)));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect
