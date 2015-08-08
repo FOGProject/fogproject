@@ -97,7 +97,7 @@ class TasktypeeditManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $accessTypes = array('both','host','user');
+        $accessTypes = array('both','host','group');
         $access_opt = '';
         foreach ($accessTypes AS $i => &$type) $access_opt .= sprintf('<option value="%s"%s>%s</option>',$type,$_REQUEST[access] == $type ? ' selected' : '',ucfirst($type));
         $fields = array(
@@ -172,7 +172,7 @@ class TasktypeeditManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $accessTypes = array('both','host','user');
+        $accessTypes = array('both','host','group');
         $access_opt = '';
         foreach ($accessTypes AS $i => &$type) $access_opt .= sprintf('<option value="%s"%s>%s</option>',$type,$this->obj->get(access) == $type ? ' selected' : '',ucfirst($type));
         $fields = array(
