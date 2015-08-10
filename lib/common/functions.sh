@@ -950,7 +950,7 @@ configureHttpd() {
             ;;
         esac
     fi
-    if [ "$installtype" == "S" -o "$fogupdateloaded" -eq 1 ]; then
+    if [ "$installtype" == "S" -o "$fogupdateloaded" = 1 ]; then
         if [ ! -z "$snmysqlhost" -a "$snmysqlhost" != "$dbhost" ]; then
             dbhost=$snmysqlhost
         elif [ ! -z "$snmysqlhost" ]; then
