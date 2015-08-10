@@ -237,7 +237,7 @@ fieldset table tbody td select {
 .nav-item .nav-link, .fa {
     color: #00567a;
 }
-.nav-link:hover, .activelink .fa, .fa:hover, .notifier, .notifier:hover {
+.nav-link:hover, .activelink.fa, .fa:hover, .notifier, .notifier:hover {
     color: orange;
 }
 .nav-link > i {
@@ -518,8 +518,16 @@ pre {
     border-radius: 3px;
     box-shadow: 0 0 10px #bbb;
 }
+#loader i, #loader p {
+    vertical-align: center;
+    display: inline-block;
+}
+#loader p {
+    text-align: center;
+}
+
 #loader.loading {
-    background: #fff url('images/loader.gif') 5px center no-repeat;
+    /*background: #fff url('images/loader.gif') 5px center no-repeat;*/
     padding-left: 25px;
 }
 #loader.error {
@@ -751,7 +759,9 @@ pre {
 .icon-advanced { background: url('images/icon-advanced.png') no-repeat center center; }
 .icon-taskrunning { background: url('images/icon-taskrunning.png') no-repeat center center; width: 20px; height: 20px; }
 .icon-task { background: url('images/icon-task.png') no-repeat center center; width: 20px; height: 20px; }
-.icon-ping-error { background: url('images/host-down-error.png') no-repeat center center; }
+.icon-ping-error {
+    background: url('images/host-down-error.png') no-repeat center center;
+}
 .icon-ping-up { background: url('images/host-up.png') no-repeat center center; }
 .icon-ping-down { background: url('images/host-down.png') no-repeat center center; }
 .icon-add { background: url('images/icon-add.png') no-repeat center center; }
