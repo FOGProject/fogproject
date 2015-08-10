@@ -45,16 +45,23 @@ function ActiveTasksUpdate() {
         cache: false,
         dataType: 'json',
         beforeSend:	function() {
-            Loader.addClass('loading');
+            Loader
+            .addClass('loading');
             if (ActiveTasksLastCount) {
                 Loader
                 .fogStatusUpdate(_L['ACTIVE_TASKS_FOUND']
                     .replace(/%1/, ActiveTasksLastCount)
                     .replace(/%2/, ActiveTasksLastCount != 1 ? 's' : '')
                 );
+                i
+                .removeClass('fa-refresh fa-spin fa-fw')
+                .addClass('fa-exclamation-circle');
             } else {
                 Loader
                 .fogStatusUpdate(_L['ACTIVE_TASKS_LOADING']);
+                i
+                .removeClass('fa-exclamation-circle')
+                .addClass('fa-refresh fa-spin fa-fw');
             }
         },
         success: function(response)	{
@@ -64,8 +71,11 @@ function ActiveTasksUpdate() {
             .fogStatusUpdate(_L['ACTIVE_TASKS_FOUND']
                 .replace(/%1/, response['data'].length)
                 .replace(/%2/, response['data'].length != 1 ? 's' : '')
-            )
-            .addClass('fa fa-exclamation-circle fa-1x');
+            );
+            i = Loader.find('i');
+            i
+            .removeClass('fa-refresh fa-spin fa-fw')
+            .addClass('fa-exclamation-circle');
             ActiveTasksAJAX = null;
             var tbody = $('tbody',ActiveTasksContainer);
             ActiveTasksLastCount = response['data'].length;
