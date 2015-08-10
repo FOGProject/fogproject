@@ -11,7 +11,7 @@ class ReportMaker extends FOGBase {
     public function appendHTML($html){$this->strHTML[] = $html;}
     public function addCSVCell($item){$this->strCSV[] = trim($item);}
     public function endCSVLine() {
-        $this->strLine[] = '"'.implode('","',$this->strCSV).'"';
+        $this->strLine[] = '"'.implode('","',addslashes($this->strCSV)).'"';
         unset($this->strCSV);
     }
     public function setFileName($filename){$this->filename = $filename;}
