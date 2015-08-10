@@ -17,27 +17,27 @@ class Page extends FOGBase {
         if ($this->FOGUser && $this->FOGUser->isLoggedIn() && strtolower($_REQUEST['node']) != 'schemaupdater') {
             if (!$isMobile) {
                 $this->main = array(
-                    'home' => array($this->foglang['Home'], 'fa fa-home fa-2x'),
-                    'user' => array($this->foglang['User Management'], 'fa fa-users fa-2x'),
-                    'host' => array($this->foglang['Host Management'], 'fa fa-desktop fa-2x'),
-                    'group' => array($this->foglang['Group Management'], 'fa fa-sitemap fa-2x'),
-                    'image' => array($this->foglang['Image Management'], 'fa fa-picture-o fa-2x'),
-                    'storage' => array($this->foglang['Storage Management'], 'fa fa-archive fa-2x'),
-                    'snapin' => array($this->foglang['Snapin Management'], 'fa fa-files-o fa-2x'),
-                    'printer' => array($this->foglang['Printer Management'], 'fa fa-print fa-2x'),
-                    'service' => array($this->foglang['Service Configuration'], 'fa fa-cogs fa-2x'),
-                    'task' => array($this->foglang['Task Management'], 'fa fa-tasks fa-2x'),
-                    'report' => array($this->foglang['Report Management'], 'fa fa-file-text fa-2x'),
-                    'about' => array($this->foglang['FOG Configuration'],'fa fa-wrench fa-2x'),
-                    $_SESSION['PLUGSON'] ? 'plugin' : '' => $_SESSION['PLUGSON'] ? array($this->foglang['Plugin Management'],'fa fa-cog fa-2x') : '',
-                    'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-2x'),
+                    home=>array($this->foglang[Home],'fa fa-home fa-2x'),
+                    user=>array($this->foglang['User Management'],'fa fa-users fa-2x'),
+                    host=>array($this->foglang['Host Management'],'fa fa-desktop fa-2x'),
+                    group=>array($this->foglang['Group Management'],'fa fa-sitemap fa-2x'),
+                    image=>array($this->foglang['Image Management'],'fa fa-picture-o fa-2x'),
+                    storage=>array($this->foglang['Storage Management'],'fa fa-archive fa-2x'),
+                    snapin=>array($this->foglang['Snapin Management'],'fa fa-files-o fa-2x'),
+                    printer=>array($this->foglang['Printer Management'],'fa fa-print fa-2x'),
+                    service=>array($this->foglang['Service Configuration'],'fa fa-cogs fa-2x'),
+                    task=>array($this->foglang['Task Management'],'fa fa-tasks fa-2x'),
+                    report=>array($this->foglang['Report Management'],'fa fa-file-text fa-2x'),
+                    about=>array($this->foglang['FOG Configuration'],'fa fa-wrench fa-2x'),
+                    logout=>array($this->foglang[Logout],'fa fa-sign-out fa-2x'),
                 );
+                if ($_SESSION[PLUGSON]) $this->main = $this->array_insert_after(about,$this->main,plugin,array($this->foglang['Plugin Management'],'fa fa-cog fa-2x'));
             } else {
                 $this->main = array(
-                    'home' => array($this->foglang['Home'], 'fa fa-home fa-2x'),
-                    'host' => array($this->foglang['Host Management'], 'fa fa-desktop fa-2x'),
-                    'task' => array($this->foglang['Task Management'], 'fa fa-tasks fa-2x'),
-                    'logout' => array($this->foglang['Logout'], 'fa fa-sign-out fa-2x'),
+                    home=>array($this->foglang[Home],'fa fa-home fa-2x'),
+                    host=>array($this->foglang['Host Management'],'fa fa-desktop fa-2x'),
+                    task=>array($this->foglang['Task Management'],'fa fa-tasks fa-2x'),
+                    logout=>array($this->foglang[Logout],'fa fa-sign-out fa-2x'),
                 );
             }
             $this->main = array_unique(array_filter($this->main),SORT_REGULAR);
@@ -45,14 +45,15 @@ class Page extends FOGBase {
             foreach ($this->main AS $link => &$title) $links[] = (!$isMobile ? $link : ($link != 'logout' ? $link.'s' : $link));
             unset($title);
             if (!$isMobile) $links = array_merge((array)$links,array('hwinfo','client','schemaupdater'));
-            if ($_REQUEST['node'] && !in_array($_REQUEST['node'],$links)) $this->FOGCore->redirect('index.php');
-            $this->menu = (!$isMobile ? '<center><ul>' : '<div id="menuBar">');
+            if ($_REQUEST[node] && !in_array($_REQUEST[node],$links)) $this->FOGCore->redirect('index.php');
+            $this->menu = '<nav class="menu"><ul class="nav-list">';
             foreach($this->main AS $link => &$title) {
-                $activelink = (!$isMobile ? ($_REQUEST['node'] == $link || (!$_REQUEST['node'] && $link == 'home') ? $activelink = 1 : 0) : ($_REQUEST['node'] == $link.'s' || (!$_REQUEST['node'] && $link == 'home') ? 1 : 0));
-                $this->menu .= (!$isMobile ? sprintf('<li><a href="?node=%s" title="%s"%s><i class="%s"></i></a></li>',$link,$title[0],($activelink ? ' class="activelink"' : ''),$title[1]) : sprintf('<a href="?node=%s"%s><i class="%s"></i></a>',($link != 'logout' ? $link.'s' : $link),($activelink ? ' class="activelink"' : ''),$title[1]));
+                if (!$_REQUEST[node]) $_REQUEST[node] = 'home'.($isMobile ? 's' : '');
+                $activelink = (int)($_REQUEST[node] == ($isMobile && $_REQUEST[node] != 'logout' ? $link.'s' : $link));
+                $this->menu .= sprintf('<li class="nav-item"><a href="?node=%s" class="nav-link%s" title="%s"><i class="%s"></i></a></li></span>',($isMobile && $link != 'logout' ? $link.'s' : $link),($activelink ? ' activelink' : ''),$title[0],$title[1]);
             }
             unset($title);
-            $this->menu .= (!$isMobile ? '</ul></center>' : '</div>');
+            $this->menu .= '</ul></nav>';
         }
         if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) {
             $files = array(
@@ -72,7 +73,6 @@ class Page extends FOGBase {
                 'js/flot/jquery.flot.JUMlib.js',
                 'js/flot/jquery.flot.gantt.js',
                 'js/jquery-ui-timepicker-addon.js',
-                'js/hideShowPassword.min.js',
                 'js/fog/fog.js',
                 'js/fog/fog.main.js',
             );

@@ -33,7 +33,7 @@ class TaskManagementPage extends FOGPage {
             '',
             '${details_taskname}',
             '<small>${time}</small>',
-            '<span class="icon icon-${icon_state}" title="${state}"></span> <span class="icon icon-${icon_type}" title="${type}"></span>',
+            '<i class="fa fa-${icon_state} fa-1x icon" title="${state}"></i> <i class="fa fa-${icon_type} fa-1x icon" title="${type}"></i>',
             '${columnkill}',
         );
         // Row attributes
@@ -58,7 +58,7 @@ class TaskManagementPage extends FOGPage {
         foreach ($Tasks AS $i => &$Task) {
             $Host = $Task->getHost();
             $this->data[] = array(
-                columnkill=>$Task->get(stateID) == 1 || $Task->get(stateID) == 2 || $Task->get(stateID) == 3 ? '${details_taskforce} <a href="?node=task&sub=cancel-task&id=${id}"><i class="icon fa fa-minus-circle" title="' . _('Cancel Task') . '"></i></a>' : '',
+                columnkill=>$Task->get(stateID) == 1 || $Task->get(stateID) == 2 || $Task->get(stateID) == 3 ? '${details_taskforce} <a href="?node=task&sub=cancel-task&id=${id}" class="icon-kill"><i title="' . _('Cancel Task') . '"></i></a>' : '',
                 startedby=>$Task->get(createdBy),
                 id=>$Task->get(id),
                 name=>$Task->get(name),
@@ -76,12 +76,12 @@ class TaskManagementPage extends FOGPage {
                 total=>$Task->get(dataTotal),
                 bpm=>$Task->get(bpm),
                 details_taskname=>($Task->get(name)?sprintf('<div class="task-name">%s</div>',$Task->get(name)):''),
-                details_taskforce=>($Task->get(isForced)?sprintf('<span class="icon fa fa-play" title="%s"></i>',_('Task forced to start')):($Task->get(typeID) < 3 && $Task->get(stateID) < 3?sprintf('<a href="?node=task&sub=force-task&id=%s"><i class="icon fa fa-step-forward" title="%s"></i></a>',$Task->get(id),_('Force task to start')):'&nbsp;')),
+                details_taskforce=>($Task->get(isForced)?sprintf('<i class="icon-forced" title="%s"></i>',_('Task forced to start')):($Task->get(typeID) < 3 && $Task->get(stateID) < 3?sprintf('<a href="?node=task&sub=force-task&id=%s" class="icon-force"><i title="%s"></i></a>',$Task->get(id),_('Force task to start')):'&nbsp;')),
                 host_id=>$Task->get(hostID),
                 host_name=>$Host ? $Host->get(name) : '',
                 host_mac=>$Host ? $Host->get(mac)->__toString() : '',
-                icon_state=>strtolower(str_replace(' ', '', $Task->getTaskStateText())),
-                icon_type=>strtolower(preg_replace(array('#[[:space:]]+#', '#[^\w-]#','#\d+#','#-{2,}#'),array('-', '', '', '-'),$Task->getTaskTypeText())),
+                icon_state=>$Task->getTaskState()->getIcon(),
+                icon_type=>$Task->getTaskType()->get(icon),
             );
         }
         unset($Task);
@@ -292,7 +292,7 @@ class TaskManagementPage extends FOGPage {
         foreach ($Tasks AS $i => &$Task) {
             $Host = $Task->getHost();
             $this->data[] = array(
-                columnkill=>'${details_taskforce} <a href="?node=task&sub=cancel-task&id=${id}"><i class="fa fa-minus-circle" title="' . _('Cancel Task') . '"></i></a>',
+                columnkill=>$Task->get(stateID) == 1 || $Task->get(stateID) == 2 || $Task->get(stateID) == 3 ? '${details_taskforce} <a href="?node=task&sub=cancel-task&id=${id}" class="icon-kill"><i title="' . _('Cancel Task') . '"></i></a>' : '',
                 startedby=>$Task->get(createdBy),
                 id=>$Task->get(id),
                 name=>$Task->get(name),
@@ -310,12 +310,12 @@ class TaskManagementPage extends FOGPage {
                 total=>$Task->get(dataTotal),
                 bpm=>$Task->get(bpm),
                 details_taskname=>($Task->get(name)?sprintf('<div class="task-name">%s</div>',$Task->get(name)):''),
-                details_taskforce=>($Task->get(isForced) ? sprintf('<i class="fa fa-play" title="%s"></i>', _('Task forced to start')) : ($Task->get(typeID) < 3 && $Task->get(stateID) < 3 ? sprintf('<a href="?node=task&sub=force-task&id=%s"><i class="fa fa-step-forward" title="%s"></i></a>', $Task->get(id),_('Force task to start')) : '&nbsp;')),
+                details_taskforce=>($Task->get(isForced) ? sprintf('<i class="icon-forced" title="%s"></i>', _('Task forced to start')) : ($Task->get(typeID) < 3 && $Task->get(stateID) < 3 ? sprintf('<a href="?node=task&sub=force-task&id=%s" class="icon-force"><i title="%s"></i></a>', $Task->get(id),_('Force task to start')) : '&nbsp;')),
                 host_id=>$Host->get(id),
                 host_name=>$Host->get(name),
                 host_mac=>$Host->get(mac)->__toString(),
-                icon_state=>strtolower(str_replace(' ', '', $Task->getTaskStateText())),
-                icon_type=>strtolower(preg_replace(array('#[[:space:]]+#', '#[^\w-]#', '#\d+#', '#-{2,}#'), array('-', '', '', '-'), $Task->getTaskTypeText())),
+                icon_state=>$Task->getTaskState()->getIcon(),
+                icon_type=>$Task->getTaskType()->get(icon),
             );
         }
         unset($Task);
@@ -331,16 +331,16 @@ class TaskManagementPage extends FOGPage {
         // Hook
         $this->HookManager->processEvent(TASK_FORCE,array(Task=>&$Task));
         // Force
+        unset($result);
         try {
-            $result[success] = $Task->set(isForced,1)->save();
+            if ($this->getClass(Task,$_REQUEST[id])->set(isForced,1)->save()) $result[success] = true;
         } catch (Exception $e) {
             $result[error] = $e->getMessage();
         }
-        // Output
         if ($this->isAJAXRequest()) print json_encode($result);
         else {
             if ($result[error]) $this->fatalError($result[error]);
-            else $this->FOGCore->redirect(sprintf('?node=%s', $this->node));
+            else $this->FOGCore->redirect(sprintf('?node=%s',$this->node));
         }
     }
     // Active Tasks - Cancel Task
