@@ -141,7 +141,14 @@ $("#showValRegen").val(ui.value);
 });
 }
 // Show Password information
-$(':password').hideShowPassword({innerToggle: true});
+$(':password').after('&nbsp;<i class="fa fa-eye-slash fa-2x"></i>&nbsp;');
+$(':password').next('i').mousedown(function() {
+    $(this).removeClass('fa-eye-slash').addClass('fa-eye');
+    $(this).prev('input').prop('type','text');
+}).mouseup(function() {
+    $(this).removeClass('fa-eye').addClass('fa-eye-slash');
+    $(this).prev('input').prop('type','password');
+});
 // Process FOG JS Variables
 $('.fog-variable').fogVariable();
 // Process FOG Message Boxes
@@ -151,7 +158,7 @@ $('.ping').fogPing();
 // Placeholder support
 $('input[placeholder]').placeholder();
 // Nav Menu: Add hover label
-$('#menu li a').each(function() {
+$('.menu li a').each(function() {
         // Variables
         var $img = $(this).find('img');
         // Add our label

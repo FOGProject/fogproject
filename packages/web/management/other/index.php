@@ -34,25 +34,23 @@ unset($stylesheet); ?>
     } else print $this->body;
 } else { // Main Login
      ?><!-- FOG Message Boxes -->
-				<div id="loader-wrapper"><div id="loader"><div id="progress"></div></div></div>
+				<div id="loader-wrapper"><div id="loader"></div><div id="progress"></div></div>
 					<!-- Main -->
 					<div id="wrapper">
-					<!-- Header -->
+					<!-- Header --><header>
 					<div id="header"<?php !$this->FOGUser ? print ' class="login"' : '' ?>>
 					<div id="logo">
 					<h1><a href="<?php print $_SERVER['PHP_SELF'] ?>"><img src="<?php print $this->imagelink ?>fog-logo.png" title="<?php print $this->foglang['Home'] ?>" /><sup><?php print FOG_VERSION ?></sup></a></h1>
 					<h2><?php print $this->foglang['Slogan'] ?></h2>
 					</div>
 					<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn()) { ?><!-- Mainmenu -->
-						<div id="menu">
 							<?php print $this->menu ?>
-							</div>
 							<?php
     } ?></div>
 							<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !$this->isHomepage) { ?><!-- Submenu -->
 								<?php print $this->FOGPageManager->getSideMenu();
     } ?>
-								<!-- Content -->
+								</header><!-- Content -->
 								<div id="content"<?php $this->isHomepage ? print ' class="dashboard"' : '' ?>>
 								<?php print "<h1>$this->sectionTitle</h1>\n" ?>
 								<div id="content-inner">

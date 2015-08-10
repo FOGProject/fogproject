@@ -13,14 +13,17 @@ div#header {
 background: url('images/mobile.png') no-repeat center;
 height: 28px;
 }
-div#menuBar {
-width: 100%;
-       text-align: center;
-       margin-top: 5px;
-       border-width: 0px 0px 0px 0px;
-       border-color: black;
-       border-style: dashed;
+/* Menu */
+.menu { text-align: center; }
+.nav-list .nav-item { text-align: center;display: inline-block; }
+.nav-item .nav-link:first-child { }
+.nav-item .nav-link {
+    display: block;
+    padding: 2px 2px 2px 2px;
+    color: #00567a;
 }
+.nav-link:hover, .activelink .fa, .notifier, .notifier:hover { color: orange; }
+.nav-link > i { margin: 2px 2px 2px 2px; }
 h1, h2{
 	text-align: center;
 }
