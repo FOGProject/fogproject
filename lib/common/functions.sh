@@ -1147,6 +1147,10 @@ class Config {
     fi
     errorStat $?
     createSSLCA
+    ln -s "$webdirdest/management/css/font-awesome.css" "$webdirdest/mobile/css/font-awesome.css";
+    ln -s "$webdirdest/management/fonts" "$webdirdest/mobile/";
+    ln -s "$webdirdest/management/less" "$webdirdest/mobile/";
+    ln -s "$webdirdest/management/scss" "$webdirdest/mobile/";
     chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 }
 configureDHCP() {

@@ -122,14 +122,16 @@ abstract class FOGPage extends FOGBase {
                     $isMobile = preg_match('#/mobile/#',$_SERVER['PHP_SELF']);
                     // HTML output
                     if ($this->searchFormURL) {
-                        printf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><input id="%s-search-submit" class="search-submit" type="%s" value="%s"/></form>',
+                        printf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><%s id="%s-search-submit" class="search-submit" type="%s" value="%s"></form>%s',
                             $this->searchFormURL,
                             (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
                             sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), $this->foglang['Search']),
                             $isMobile ? 'name="host-search"' : '',
+                            $isMobile ? 'input' : 'button',
                             (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
                             $isMobile ? 'submit' : 'button',
-                            $isMobile ? $this->foglang['Search'] : ''
+                            $isMobile ? $this->foglang['Search'] : '',
+                            $isMobile ? '</input>' : '</button>'
                         );
                     }
                     if ($this->form) $result .= printf($this->form);
