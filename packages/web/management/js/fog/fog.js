@@ -13,19 +13,16 @@ _L['PERFORMING_SEARCH'] = 'Searching...';
 _L['ERROR_SEARCHING'] = 'Search failed';
 _L['SEARCH_LENGTH_MIN'] = 'Search query too short';
 _L['SEARCH_RESULTS_FOUND'] = '%1 result%2 found';
-
 // Active Tasks
 _L['NO_ACTIVE_TASKS'] = "No results found";
 _L['ACTIVE_TASKS_UPDATE_FAILED'] = "Failed to fetch active tasks";
 _L['UPDATING_ACTIVE_TASKS'] = "Fetching active tasks";
 _L['ACTIVE_TASKS_FOUND'] = '%1 active task%2 found';
 _L['ACTIVE_TASKS_LOADING'] = 'Loading...';
-
 // Ping
 _L['PING_START'] = 'Pinging %1 hosts...';
 _L['PING_PROGRESS'] = '<p>Pinging: %1</p><p>Progress: %2/%3</p>';
 _L['PING_COMPLETE'] = 'Pinging %1 hosts complete!';
-
 // Variables
 var FOGPingActive = new Array();
 var StatusAutoHideTimer;
@@ -36,7 +33,6 @@ var ActiveTasksUpdateTimer;
 var ActiveTasksUpdateInterval = 5000;
 var ActiveTasksRequests = new Array();
 var ActiveTasksAJAX = null;
-
 // DOM Elements used frequently
 var Content;
 var Loader;
@@ -52,199 +48,217 @@ function getQueryParams(qs) {
     return params;
 }
 // Auto loader
-
 // Main FOG JQuery Functions
 (function($) {
- Content = $('#content');
- Loader = $('#loader');
- var ActionBox = $('#action-box');
- var ActionBoxDel = $('#action-boxdel');
- if (!$_GET['sub'] || $_GET['sub'] == 'list') {
- ActionBox.show();
- ActionBoxDel.show();
- } else {
- ActionBox.hide();
- ActionBoxDel.hide();
- }
- // Custom FOG JQuery functions
- $.fn.fogAjaxSearch = function(opts) {
- // If no elements were found before this was called
- if (this.length == 0) return this;
- // Default Options
- var Defaults = {
-URL: $('#search-wrapper').attr('action'),
-Container: '#search-content',
-SearchDelay: 500,
-SearchMinLength: 1,
-Template: function(data, i) {
-    return '<tr><td>'+data['host_name']+'</td></tr>';
-}
-};
-// Variables
-var SearchAJAX = null;
-var SearchTimer;
-var SearchLastQuery;
-var Options = $.extend({}, Defaults, opts || {});
-var Container = $(Options.Container);
-// Check if containers exist
-if (!Container.length) {
-    alert('No Container element found: ' + Options.Container);
-    return this;
-}
-// If the container already contains data, show, else hide
-if ($('tbody > tr', Container).filter('.no-active-tasks').length > 0) {
-    Container.show();
-    ActionBox.show();
-    ActionBoxDel.show();
-} else {
-    Container.hide();
-    ActionBox.hide();
-    ActionBoxDel.hide();
-}
-// Iterate each element
-return this.each(function() {
+    Content = $('#content');
+    Loader = $('#loader');
+    Loader.append('&nbsp;<i class="fa fa-1x"></i>&nbsp;');
+    i = Loader.find('i');
+    var ActionBox = $('#action-box');
+    var ActionBoxDel = $('#action-boxdel');
+    if (!$_GET['sub'] || $_GET['sub'] == 'list') {
+        ActionBox.show();
+        ActionBoxDel.show();
+    } else {
+        ActionBox.hide();
+        ActionBoxDel.hide();
+    }
+    // Custom FOG JQuery functions
+    $.fn.fogAjaxSearch = function(opts) {
+        // If no elements were found before this was called
+        if (this.length == 0) return this;
+        // Default Options
+        var Defaults = {
+            URL: $('#search-wrapper').prop('action'),
+            Container: '#search-content',
+            SearchDelay: 500,
+            SearchMinLength: 1,
+            Template: function(data,i) {
+                return '<tr><td>'+data['host_name']+'</td></tr>';
+            },
+        };
         // Variables
-        var $this = $(this);
-        var SubmitButton = $('#' + $this.attr('id') + '-submit');
-        SubmitButton.append('<i class="fa fa-play fa-1x icon"></i>');
-        // Bind search input
-        // keyup - perform search
-        $this.keyup(function() {
-            if (this.SearchTimer) clearTimeout(this.SearchTimer);
-            this.SearchTimer = setTimeout(function() {
-                PerformSearch();
+        var SearchAJAX = null;
+        var SearchTimer;
+        var SearchLastQuery;
+        var Options = $.extend({},Defaults,opts || {});
+        var Container = $(Options.Container);
+        // Check if containers exist
+        if (!Container.length) {
+            alert('No Container element found: ' + Options.Container);
+            return this;
+        }
+        // If the container already contains data, show, else hide
+        if ($('tbody > tr', Container).filter('.no-active-tasks').length > 0) {
+            Container.show();
+            ActionBox.show();
+            ActionBoxDel.show();
+        } else {
+            //Container.hide();
+            ActionBox.hide();
+            ActionBoxDel.hide();
+        }
+        // Iterate each element
+        return this.each(function() {
+            // Variables
+            var $this = $(this);
+            var SubmitButton = $('#'+$this.prop('id')+'-submit');
+            SubmitButton.append('<i class="fa fa-play fa-1x icon"></i>');
+            // Bind search input
+            // keyup - perform search
+            $this
+            .keyup(function() {
+                if (this.SearchTimer) clearTimeout(this.SearchTimer);
+                this.SearchTimer = setTimeout(function() {
+                    PerformSearch();
                 }, Options.SearchDelay);
-            // focus
-            }).focus(function() {
+                // focus
+            })
+            .focus(function() {
                 var $this = $(this).removeClass('placeholder');
-                if ($this.val() == $this.attr('placeholder')) {
-                $this.val('');
-                }
+                if ($this.val() == $this.prop('placeholder')) $this.val('');
                 // blur - if the search textbox is empty, reset everything!
-                }).blur(function() {
-                    var $this = $(this);
-                    if ($this.val() == '') {
-                    $this.addClass('placeholder').val($this.attr('placeholder'));
+            })
+            .blur(function() {
+                var $this = $(this);
+                if ($this.val() == '') {
+                    $this.addClass('placeholder').val($this.prop('placeholder'));
                     if (this.SearchAJAX) this.SearchAJAX.abort();
                     if (this.SearchTimer) clearTimeout(this.SearchTimer);
                     Loader.fogStatusUpdate();
                     $('tbody', Container).empty().parents('table').hide();
-                    }
-                    // set value to nothing - occurs on refresh for browsers that remember
-                    }).each(function() {
-                        var $this = $(this);
-                        if ($this.val() != $this.attr('placeholder')) {
-                        $this.val('');
+                }
+                // set value to nothing - occurs on refresh for browsers that remember
+            })
+            .each(function() {
+                var $this = $(this);
+                if ($this.val() != $this.prop('placeholder')) $this.val('');
+                // Stop submit event for parent form - when you press enter in the search box
+            })
+            .parents('form')
+            .submit(function() {
+                return false;
+            });
+            function PerformSearch() {
+                // Extract Query
+                var Query = $this.val();
+                // Is this query different from the last?
+                if (Query == this.SearchLastQuery) return;
+                this.SearchLastQuery = Query;
+                // Length check
+                if (Query.length < Options.SearchMinLength) return;
+                // Abort previous AJAX query if one is already running
+                if (this.SearchAJAX) this.SearchAJAX.abort();
+                // Run AJAX
+                this.SearchAJAX = $.ajax({
+                    type: $('#search-wrapper').prop('method'),
+                    cache: false,
+                    url: $('#search-wrapper').prop('action'),
+                    data: {
+                        crit: Query
+                    },
+                    dataType: 'json',
+                    beforeSend: function() {
+                        // Abort all pings of current hosts
+                        $('.ping').fogPingAbort();
+                        // Update Status
+                        Loader.fogStatusUpdate();
+                        // Submit button spinner
+                        SubmitButton.find('i').removeClass('fa-play').addClass('fa-spinner fa-pulse fa-fw');
+                    },
+                    success: function(response) {
+                        // Submit button spinner
+                        SubmitButton.removeClass('searching').find('i').removeClass('fa-spinner fa-pulse fa-fw').addClass('fa-play');
+                        // Variables
+                        var tbody = $('tbody',Container);
+                        var rows = '';
+                        // Empty search table
+                        tbody.empty();
+                        // Do we have search results?
+                        if (response['data'].length > 0) {
+                            // Status Update
+                            Loader
+                            .fogStatusUpdate(_L['SEARCH_RESULTS_FOUND']
+                                .replace(/%1/,response['data'].length)
+                                .replace(/%2/,(response['data'].length == 1 ? '' : 's'))
+                            );
+                            i = Loader.find('i');
+                            i
+                            .removeClass('fa-spinner fa-pulse fa-fw')
+                            .addClass('fa-exclamation-circle');
+                            // Iterate data
+                            for (var i in response['data']) {
+                                // Reset
+                                var row = "<tr>";
+                                // Add column templates
+                                for (var j in response['templates']) {
+                                    // Add attributes to columns
+                                    var attributes = [];
+                                    for (var k in response['attributes'][j]) {
+                                        attributes[attributes.length] = k+'="'+response['attributes'][j][k]+'"';
+                                }
+                                // Create row
+                                row += "<td"+(attributes.length?' '+attributes.join(' '):'')+">"+response['templates'][j]+"</td>";
+                            }
+                            // Replace variable data
+                            for (var k in response['data'][i]) {
+                                row = row.replace(new RegExp('\\$\\{' + k + '\\}', 'g'), (typeof(response['data'][i][k]) != 'undefined' ? response['data'][i][k] : ''));
+                            }
+                            // Add to rows
+                            rows += row+"</tr>";
                         }
-                        // Stop submit event for parent form - when you press enter in the search box
-                        }).parents('form').submit(function() {
-                            return false;
+                        // Append rows into tbody
+                        tbody.append(rows);
+                        // Add data to new elements - elements should be in tbody, so we dont have to search all DOM
+                        var tr = $('tr', tbody);
+                        for (i in response['data']) {
+                            tr
+                            .eq(i)
+                            .addClass((i % 2 ? 'alt1' : 'alt2'))
+                            .data({
+                                id: response['data'][i]['id'],
+                                host_name: response['data'][i]['host_name']
                             });
-        function PerformSearch() {
-            // Extract Query
-            var Query = $this.val();
-            // Is this query different from the last?
-            if (Query == this.SearchLastQuery) return;
-            this.SearchLastQuery = Query;
-            // Length check
-            if (Query.length < Options.SearchMinLength) {
-                return;
-            }
-            // Abort previous AJAX query if one is already running
-            if (this.SearchAJAX) this.SearchAJAX.abort();
-            // Run AJAX
-            this.SearchAJAX = $.ajax({
-type: $('#search-wrapper').attr('method'),
-cache: false,
-url: $('#search-wrapper').attr('action'),
-data: {crit: Query},
-dataType: 'json',
-beforeSend: function() {
-// Abort all pings of current hosts
-$('.ping').fogPingAbort();
-// Update Status
-Loader.fogStatusUpdate();
-// Submit button spinner
-SubmitButton.find('i').removeClass('fa-play').addClass('fa-spinner fa-spin');
-},
-success: function(response) {
-// Submit button spinner
-SubmitButton.removeClass('searching').find('i').removeClass('fa-spinner fa-spin').addClass('fa-play');
-// Variables
-var tbody = $('tbody', Container);
-var rows = '';
-// Empty search table
-tbody.empty();
-// Do we have search results?
-if (response['data'].length > 0) {
-    // Status Update
-    Loader
-    .fogStatusUpdate(_L['SEARCH_RESULTS_FOUND']
-        .replace(/%1/, response['data'].length)
-        .replace(/%2/, (response['data'].length == 1 ? '' : 's'))
-    )
-    .find('p')
-    .prepend('<i class="fa fa-exclamation-circle fa-1x"></i>&nbsp;');
-    // Iterate data
-    for (var i in response['data']) {
-        // Reset
-        var row = "<tr>";
-        // Add column templates
-        for (var j in response['templates']) {
-            // Add attributes to columns
-            var attributes = [];
-            for (var k in response['attributes'][j]) {
-                attributes[attributes.length] = k + '="' + response['attributes'][j][k] + '"';
-            }
-            // Create row
-            row += "<td" + (attributes.length ? ' ' + attributes.join(' ') : '') + ">" + response['templates'][j] + "</td>";
+                        }
+                        // Tooltips
+                        HookTooltips();
+                        // Show results
+                        Container.show();
+                        ActionBox.show();
+                        ActionBoxDel.show();
+                        // Ping hosts
+                        $('.ping', Container).fogPing();
+                    } else {
+                        // No results - hide content boxes, show nice message
+                        Container.hide();
+                        ActionBox.hide();
+                        ActionBoxDel.hide();
+                        // Show nice error
+                        Loader
+                        .addClass('error')
+                        .fogStatusUpdate(_L['SEARCH_RESULTS_FOUND']
+                            .replace(/%1/, '0')
+                            .replace(/%2/, 's')
+                        );
+                    }
+                    this.SearchAJAX = null;
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // Error - hide content boxes, show nice message
+                    Container.hide();
+                    ActionBox.hide();
+                    ActionBoxDel.hide();
+                    // Show nice error
+                    Loader
+                    .addClass('error')
+                    .fogStatusUpdate(_L['ERROR_SEARCHING']+(errorThrown != ''?': '+(errorThrown == 'Not Found'?'URL Not Found':errorThrown):''));
+                    // Reset
+                    this.SearchAJAX = null;
+                    this.SearchLastQuery = null;
+                }
+            });
         }
-        // Replace variable data
-        for (var k in response['data'][i]) {
-            row = row.replace(new RegExp('\\$\\{' + k + '\\}', 'g'), (typeof(response['data'][i][k]) != 'undefined' ? response['data'][i][k] : ''));
-        }
-        // Add to rows
-        rows += row + "</tr>";
-    }
-    // Append rows into tbody
-    tbody.append(rows);
-    // Add data to new elements - elements should be in tbody, so we dont have to search all DOM
-    var tr = $('tr', tbody);
-    for (i in response['data']) tr.eq(i).addClass((i % 2 ? 'alt1' : 'alt2')).data({ 'id': response['data'][i]['id'], 'host_name': response['data'][i]['host_name'] });
-    // Tooltips
-    HookTooltips();
-    // Show results
-    Container.show();
-    ActionBox.show();
-    ActionBoxDel.show();
-    // Ping hosts
-    $('.ping', Container).fogPing();
-    // Callback
-    Options.CallbackSearchSuccess(Container);
-} else {
-    // No results - hide content boxes, show nice message
-    Container.hide();
-    ActionBox.hide();
-    ActionBoxDel.hide();
-    // Show nice error
-    Loader.fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/, '0').replace(/%2/, 's'), { 'Class': 'error' });
-}
-this.SearchAJAX = null;
-},
-error:	function(jqXHR, textStatus, errorThrown) {
-            // Error - hide content boxes, show nice message
-            Container.hide();
-            ActionBox.hide();
-            ActionBoxDel.hide();
-            // Show nice error
-            Loader.fogStatusUpdate(_L['ERROR_SEARCHING'] + (errorThrown != '' ? ': ' + (errorThrown == 'Not Found' ? 'URL Not Found' : errorThrown) : ''), { 'Class': 'error' });
-            // Reset
-            this.SearchAJAX = null;
-            this.SearchLastQuery = null;
-        }
-});
-}
-});
+    });
 }
 $.fn.fogTableInfo = function() {
     // Add table header sorting information.
@@ -258,9 +272,9 @@ $.fn.fogPing = function(opts) {
     if (typeof(FOGPingActive) != 'undefined' && FOGPingActive != 1) return this;
     // Default Options
     var Defaults = {
-Threads: 100,
-         Delay: PingDelay,
-         UpdateStatus: true
+        Threads: 100,
+        Delay: PingDelay,
+        UpdateStatus: true
     };
     // Variables
     var Options = $.extend({}, Defaults, opts || {});
@@ -270,15 +284,16 @@ Threads: 100,
     var StartTime = new Date().getTime();
     var Timer;
     // Main
-    if (Options.Delay) {
-        setTimeout(Run, Options.Delay);
-    } else {
-        Run();
-    }
+    if (Options.Delay) setTimeout(Run, Options.Delay);
+    else Run();
     function Run() {
         // Log
         if (Options.UpdateStatus) {
-            Loader.fogStatusUpdate(_L['PING_START'].replace(/%1/, ListTotal), { 'Class': 'info' });
+            Loader
+            .addClass('info')
+            .fogStatusUpdate(_L['PING_START']
+                .replace(/%1/,ListTotal)
+            );
         }
         // Start threads
         for (var i = 0; i < Options.Threads; i++) {
@@ -297,54 +312,84 @@ Threads: 100,
         element = $(element);
         // Get element's TR - this contains hostname data
         var tr = element.parents('tr');
-        var hostname = tr.find('td > a[id^=host-]').attr('id');
+        var hostname = tr.find('td > a[id^=host-]').prop('id');
         hostname = (typeof(hostname) !== 'undefined' ? hostname.replace(/^host-/,'') : false);
         // Extract hostname
         // If we found the Hostname
         if (hostname) {
-            element.data('fog-ping', $.ajax({
-url: '../management/index.php',
-type: 'POST',
-data: {
-node: 'host',
-sub: 'getPing',
-ping: hostname,
-timeout: Options.Delay / 1000
-},
-//dataType: 'text',
-beforeSend: function() {
-element.addClass('fa fa-refresh fa-spin fa-1x icon');
-},
-success: function(data) {
-element.removeClass('icon-loading');
-var codes = new Array();
-codes = [['Host Down','icon-ping-down'],['Host Up','icon-ping-up']];
-//alert(hostname + data);
-if ($.inArray(data,['0','1']) !== -1) {
-element.attr('title',codes[data][0]).addClass(codes[data][1]);
-} else {
-    element.attr('title',data).addClass('icon-ping-error');
-}
-// Tooltip
-element.tipsy({gravity:'s'});
-var ListCount = List.length;
-// Start another Ping if there are still elements to process
-if (ListCount) {
-    if (Options.UpdateStatus) {
-        Loader.fogStatusUpdate(_L['PING_PROGRESS'].replace(/%1/, hostname).replace(/%2/, (ListTotal-ListCount)).replace(/%3/, ListTotal), { 'Progress': Math.round((ListTotal-ListCount)/ListTotal*100) });
+            element.data('ping', $.ajax({
+                url: '../management/index.php',
+                type: 'POST',
+                data: {
+                    node: 'host',
+                    sub: 'getPing',
+                    ping: hostname,
+                    timeout: Options.Delay / 1000
+                },
+                //dataType: 'text',
+                beforeSend: function() {
+                    element
+                    .removeClass()
+                    .addClass('fa fa-refresh fa-spin fa-fw fa-1x');
+                },
+                success: function(data) {
+                    var codes = new Array();
+                    codes = [['Host Down','icon-ping-down'],['Host Up','icon-ping-up']];
+                    element
+                    .removeClass('fa-refresh fa-spin icon-loading loading')
+                    .addClass('fa-exclamation-circle');
+                    //.removeClass('fa-refresh fa-spin fa-1x');
+                    //.removeClass('fa fa-refresh fa-spin fa-1x icon');
+                    //alert(hostname + data);
+                    if ($.inArray(data,['0','1']) !== -1) {
+                        element
+                        .prop('title',codes[data][0])
+                        .addClass(codes[data][1])
+                        .css({
+                            color: '#18f008'
+                        });
+                    } else {
+                        element
+                        .prop('title',data)
+                        .css({
+                            color: '#ce0f0f'
+                        })
+                        .tipsy({
+                            gravity: 's'
+                        });
+                        var ListCount = List.length;
+                        // Start another Ping if there are still elements to process
+                        if (ListCount) {
+                            if (Options.UpdateStatus) {
+                                Loader
+                                .fogStatusUpdate(_L['PING_PROGRESS']
+                                    .replace(/%1/, hostname)
+                                    .replace(/%2/,(ListTotal-ListCount))
+                                    .replace(/%3/, ListTotal), {
+                                        Progress: Math.round((ListTotal-ListCount)/ListTotal*100)
+                                    }
+                                );
+                            }
+                            PerformPing();
+                        } else if (Options.UpdateStatus) {
+                            Loader
+                            .fogStatusUpdate(_L['PING_COMPLETE']
+                                .replace(/%1/, ListTotal), {
+                                    Progress: 100
+                                }
+                            );
+                        }
+                    }
+                },
+                error: function(data) {
+                    element.prop('title','Ping Aborted')
+                    .addClass('icon-ping-error')
+                    .tipsy({gravity: 's'});
+                }
+            }));
+        }
+        return $(this);
     }
-    PerformPing();
-} else if (Options.UpdateStatus) {
-    Loader.fogStatusUpdate(_L['PING_COMPLETE'].replace(/%1/, ListTotal), { 'Progress': 100 });
-}
-},
-error: function(data) {
-           element.attr('title', 'Ping Aborted').addClass('icon-ping-error').tipsy({ 'gravity': 's' });
-       }
-}));
-}
-}
-return $(this);
 }
 $.fn.fogPingAbort = function(opts) {
     // If Ping function has been disabled, return
@@ -380,28 +425,31 @@ $.fn.fogMessageBox = function() {
 $.fn.fogStatusUpdate = function(txt, opts) {
     // Defaults
     var Defaults = {
-AutoHide: 0,
-          Class: '',
-          Raw: false,
-          Progress: null
+        AutoHide: 0,
+        Raw: false,
+        Progress: null
     };
     // Build Options
-    var Options = $.extend({}, Defaults, opts || {});
+    var Options = $.extend({},Defaults,opts || {});
     var Loader = $(this);
-    var ProgressBar = $('#progress', this);
+    var i = Loader.find('i');
+    var p = Loader.find('p');
+    var ProgressBar = $('#progress',this);
     // Progress bar update
-    if (Options.Progress) {
-        ProgressBar.show().progressBar(Options.Progress);
-    } else {
-        ProgressBar.hide().progressBar(0);
-    }
+    if (Options.Progress) ProgressBar.show().progressBar(Options.Progress);
+    else ProgressBar.hide().progressBar(0);
     // Status text update
     if (!txt) {
         // Reset status and hide
-        Loader.find('p').remove().end().hide();
+        p.remove().end().hide();
     } else {
         // Set and show status
-        Loader.find('p').remove().end().prepend((Options.Raw ? txt : '<p>' + txt + '</p>')).show();
+        i
+        .addClass('fa-exclamation-circle');
+        p
+        .remove()
+        .end()
+        .append((Options.Raw?txt:'<p>'+txt+'</p>')).show();
     }
     // Class
     Loader.removeClass();

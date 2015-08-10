@@ -14,7 +14,7 @@ class Page extends FOGBase {
         } else $this->addCSS('css/main.css');
         $this->addCSS('css/font-awesome.css');
         $this->isHomepage = (!$_REQUEST[node] || in_array($_REQUEST[node], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST[sub],array('configure','authorize')) || !$this->FOGUser || !$this->FOGUser->isLoggedIn());
-        if ($this->FOGUser && $this->FOGUser->isLoggedIn() && strtolower($_REQUEST['node']) != 'schemaupdater') {
+        if ($this->FOGUser && $this->FOGUser->isLoggedIn() && strtolower($_REQUEST[node]) != 'schemaupdater') {
             if (!$isMobile) {
                 $this->main = array(
                     home=>array($this->foglang[Home],'fa fa-home fa-2x'),
@@ -42,6 +42,7 @@ class Page extends FOGBase {
             }
             $this->main = array_unique(array_filter($this->main),SORT_REGULAR);
             $this->HookManager->processEvent(MAIN_MENU_DATA,array('main'=>&$this->main));
+            $links = array();
             foreach ($this->main AS $link => &$title) $links[] = (!$isMobile ? $link : ($link != 'logout' ? $link.'s' : $link));
             unset($title);
             if (!$isMobile) $links = array_merge((array)$links,array('hwinfo','client','schemaupdater'));
@@ -50,7 +51,7 @@ class Page extends FOGBase {
             foreach($this->main AS $link => &$title) {
                 if (!$_REQUEST[node]) $_REQUEST[node] = 'home'.($isMobile ? 's' : '');
                 $activelink = (int)($_REQUEST[node] == ($isMobile && $_REQUEST[node] != 'logout' ? $link.'s' : $link));
-                $this->menu .= sprintf('<li class="nav-item"><a href="?node=%s" class="nav-link%s" title="%s"><i class="%s"></i></a></li></span>',($isMobile && $link != 'logout' ? $link.'s' : $link),($activelink ? ' activelink' : ''),$title[0],$title[1]);
+                $this->menu .= sprintf('<li class="nav-item"><a href="?node=%s" class="nav-link%s" title="%s"><i class="%s"></i></a></li>',($isMobile && $link != 'logout' ? $link.'s' : $link),($activelink ? ' activelink' : ''),$title[0],$title[1]);
             }
             unset($title);
             $this->menu .= '</ul></nav>';
@@ -76,20 +77,18 @@ class Page extends FOGBase {
                 'js/fog/fog.js',
                 'js/fog/fog.main.js',
             );
-            if ($_REQUEST['sub'] == 'membership')
-                $_REQUEST['sub'] = 'edit';
+            if ($_REQUEST[sub] == 'membership') $_REQUEST[sub] = 'edit';
             $filepaths = array(
-                "js/fog/fog.{$_REQUEST['node']}.js",
-                "js/fog/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js",
+                "js/fog/fog.{$_REQUEST[node]}.js",
+                "js/fog/fog.{$_REQUEST[node]}.{$_REQUEST[sub]}.js",
             );
             foreach($filepaths AS $i => &$jsFilepath) {
-                if (file_exists($jsFilepath))
-                    array_push($files,$jsFilepath);
+                if (file_exists($jsFilepath)) array_push($files,$jsFilepath);
             }
             unset($jsFilepath);
             $pluginfilepaths = array(
-                BASEPATH."/lib/plugins/{$_REQUEST['node']}/js/fog.{$_REQUEST['node']}.js",
-                BASEPATH."/lib/plugins/{$_REQUEST['node']}/js/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js",
+                BASEPATH."/lib/plugins/{$_REQUEST[node]}/js/fog.{$_REQUEST[node]}.js",
+                BASEPATH."/lib/plugins/{$_REQUEST[node]}/js/fog.{$_REQUEST[node]}.{$_REQUEST['sub']}.js",
             );
             foreach($pluginfilepaths AS $i => &$pluginfilepath) {
                 if (file_exists($pluginfilepath) && !file_exists("js/fog/".basename($pluginfilepath))) {
@@ -98,15 +97,12 @@ class Page extends FOGBase {
                 }
             }
             unset($pluginfilepath);
-            if ($this->isHomepage)
-            {
+            if ($this->isHomepage) {
                 array_push($files,'js/fog/fog.dashboard.js');
-                if (preg_match('#MSIE [6|7|8|9|10|11]#',$_SERVER['HTTP_USER_AGENT']))
-                    array_push($files,'js/flot/excanvas.js');
+                if (preg_match('#MSIE [6|7|8|9|10|11]#',$_SERVER[HTTP_USER_AGENT])) array_push($files,'js/flot/excanvas.js');
             }
         }
-        else if (!preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
-        {
+        else if (!preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) {
             $files = array(
                 'js/jquery-latest.js',
                 'js/jquery.progressbar.js',
@@ -138,10 +134,8 @@ class Page extends FOGBase {
         $this->body = ob_get_clean();
     }
     public function render($path = '') {
-        if (!$path && preg_match('#/mobile/#i',$_SERVER['PHP_SELF']))
-            $path = '../management/other/index.php';
-        else
-            $path = 'other/index.php';
+        if (!$path && preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) $path = '../management/other/index.php';
+        else $path = 'other/index.php';
         ob_start(array('Initiator','sanitize_output'),$_SESSION['chunksize']);
         require_once($path);
         while(ob_end_flush());

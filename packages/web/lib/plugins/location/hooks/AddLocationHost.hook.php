@@ -36,7 +36,7 @@ class AddLocationHost extends Hook {
         }
     }
     public function HostAddLocation($arguments) {
-        if (in_array($this->node,(array)$_SESSION[PluginsInstalled]) && $_REQUEST[node] == 'host' && $_REQUEST[tab] == 'host-general') {
+        if (in_array($this->node,(array)$_SESSION[PluginsInstalled]) && $_REQUEST[node] == 'host' && ($_REQUEST[sub] == 'add' || $_REQUEST[tab] == 'host-general')) {
             // Remove Assocs
             $this->getClass(LocationAssociationManager)->destroy(array('hostID' => $arguments[Host]->get(id)));
             if ($_REQUEST[location]) {
