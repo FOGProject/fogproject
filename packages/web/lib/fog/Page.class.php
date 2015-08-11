@@ -12,7 +12,8 @@ class Page extends FOGBase {
             $this->addCSS('css/jquery.organicTabs.css');
             $this->addCSS($dispTheme);
         } else $this->addCSS('css/main.css');
-        $this->addCSS('css/font-awesome.css');
+        $this->addCSS('../management/css/font-awesome.css');
+        $this->addCSS('../management/css/select2.min.css');
         $this->isHomepage = (!$_REQUEST[node] || in_array($_REQUEST[node], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST[sub],array('configure','authorize')) || !$this->FOGUser || !$this->FOGUser->isLoggedIn());
         if ($this->FOGUser && $this->FOGUser->isLoggedIn() && strtolower($_REQUEST[node]) != 'schemaupdater') {
             if (!$isMobile) {
@@ -74,6 +75,7 @@ class Page extends FOGBase {
                 'js/flot/jquery.flot.JUMlib.js',
                 'js/flot/jquery.flot.gantt.js',
                 'js/jquery-ui-timepicker-addon.js',
+                'js/select2.min.js',
                 'js/fog/fog.js',
                 'js/fog/fog.main.js',
             );
