@@ -110,7 +110,7 @@ fieldset {
 }
 /* Form elements */
 input, textarea, select {
-    font-family: Ubuntu, Arial, Helvetica, sans-serif;
+    font-family: 'FontAwesome', Ubuntu, Arial, Helvetica, sans-serif;
     font-size: 13px;
     color: #333;
     border: 1px solid #94c3d3;
@@ -131,19 +131,6 @@ input[type="password"]:focus, input[type="text"]:focus {
 input:focus, textarea:focus, select:focus {
     border-color: #5372af;
     background: url('images/icon_pencil.png') no-repeat 97% center;
-}
-.hideShowPassword-toggle {
-	background-image: url(images/wink.svg);
-		background-position: -44px center;
-		background-repeat: no-repeat;
-		cursor: pointer;
-		overflow: hidden;
-		text-indent: -9999em;
-		height: 26px;
-		width: 44px;
-}
-.hideShowPassword-toggle-hide {
-	background-position: 0px center;
 }
 textarea:focus {
     background-position: 95% 90%;

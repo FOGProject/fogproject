@@ -141,7 +141,7 @@ $("#showValRegen").val(ui.value);
 });
 }
 // Show Password information
-$(':password').after('&nbsp;<i class="fa fa-eye-slash fa-2x"></i>&nbsp;');
+$(':password').not('[name="fakepasswordremembered"]').after('&nbsp;<i class="fa fa-eye-slash fa-2x"></i>&nbsp;');
 $(':password').next('i').mousedown(function() {
     $(this).removeClass('fa-eye-slash').addClass('fa-eye');
     $(this).prev('input').prop('type','text');
@@ -186,6 +186,17 @@ $('.search-input').fogAjaxSearch();
 $('#content-inner').fogTableInfo();
 // Disable text selection in <label> elements
 $('label').disableSelection();
+function format(icon) {
+    if (!icon.id) return icon.text;
+    var $icon = $('<i class="fa fa-'+icon.element.value.toLowerCase()+' fa-1x">'+icon.text+'</i>'+icon.text);
+    return $icon;
+}
+$('select')
+.not('[name=storagesel]')
+.select2({
+    templateResult: format,
+    templateSelection: format
+});
 $('#scheduleSingleTime').datetimepicker({
 dateFormat: 'yy/mm/dd',
 timeFormat: 'HH:mm'
