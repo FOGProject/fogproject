@@ -15,7 +15,7 @@
 
 [Unit]
 Description=FOGMulticastManager
-After=syslog.target network.target mariadb.service
+After=syslog.target network.target mysql.service
 
 [Service]
 PrivateTmp=true

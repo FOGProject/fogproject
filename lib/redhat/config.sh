@@ -52,6 +52,12 @@ dhcpname="dhcp"
 if [ "$OSVersion" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$OSVersion" -ge 7 -a "$linuxReleaseName" != "Fedora" -a "$linuxReleaseName" != "Mageia" ]; then
 	initdpath="/usr/lib/systemd/system";
 	initdsrc="../packages/systemd";
+    if [[ -e /usr/lib/systemd/system/mariadb.service ]]; then
+        ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysql.service >/dev/null 2>&1
+        ln -s /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysqld.service >/dev/null 2>&1
+    elif [[ -e /usr/lib/systemd/system/mysqld.service ]]; then
+        ln -s /usr/lib/systemd/system/mysqld.service /usr/lib/systemd/system/mysql.service >/dev/null 2>&1
+    fi
 	initdMCfullname="FOGMulticastManager.service";
 	initdIRfullname="FOGImageReplicator.service";
 	initdSDfullname="FOGScheduler.service";

@@ -31,6 +31,12 @@ olddhcpname="dhcp3-server"
 if [ "$systemctl" == "yes" ]; then
 	initdpath="/lib/systemd/system";
 	initdsrc="../packages/systemd";
+    if [[ -e /lib/systemd/system/mariadb.service ]]; then
+        ln -s /lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysql.service >/dev/null 2>&1
+        ln -s /lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysqld.service >/dev/null 2>&1
+    elif [[ -e /lib/systemd/system/mysqld.service ]]; then
+        ln -s /lib/systemd/system/mysqld.service /lib/systemd/system/mysql.service >/dev/null 2>&1
+    fi
 	initdMCfullname="FOGMulticastManager.service";
 	initdIRfullname="FOGImageReplicator.service";
 	initdSDfullname="FOGScheduler.service";
