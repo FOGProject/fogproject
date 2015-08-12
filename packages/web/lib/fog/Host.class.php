@@ -525,6 +525,8 @@ class Host extends FOGController {
             if (!$TaskType->isValid()) throw new Exception($this->foglang[TaskTypeNotValid]);
             // Imaging types.
             $imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17,24));
+            // WOL Types:
+            $wolTypes = in_array($taskTypeID,array_merge(range(1,11),range(14-24)));
             // Image: Error checking
             if ($imagingTypes) {
                 // Image: Variables
@@ -604,7 +606,7 @@ class Host extends FOGController {
                 }
             }
             // Wake Host
-            $this->wakeOnLAN();
+            if ($wolTypes) $this->wakeOnLAN();
             // Log History event
             $this->FOGCore->logHistory(sprintf('Task Created: Task ID: %s, Task Name: %s, Host ID: %s, Host Name: %s, Host MAC: %s, Image ID: %s, Image Name: %s', $Task->get(id), $Task->get(name), $this->get(id), $this->get(name), $this->getMACAddress(), $this->getImage()->get(id), $this->getImage()->get(name)));
         } catch (Exception $e) {
