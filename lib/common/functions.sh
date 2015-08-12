@@ -572,11 +572,19 @@ configureMySql() {
 		systemctl="yes";
 		systemctl enable mariadb.service >/dev/null 2>&1 && \
 		systemctl restart mariadb.service >/dev/null 2>&1 && \
+        sleep 2 && \
 		systemctl status mariadb.service >/dev/null 2>&1
 		if [ "$?" != "0" ]; then
 			systemctl enable mysql.service >/dev/null 2>&1 && \
 			systemctl restart mysql.service >/dev/null 2>&1 && \
+            sleep 2 && \
 			systemctl status mysql.service >/dev/null 2>&1
+            if [ "$?" != "0"]; then
+                systemctl enable mysqld.service >/dev/null 2>&1 && \
+                systemctl restart mysqld.service >/dev/null 2>&1 && \
+                sleep 2 && \
+                systemctl status mysqld.service >/dev/null 2>&1
+            fi
 		fi
     elif [ "$osid" -eq 2 ]; then
         sysv-rc-conf mysql on >/dev/null 2>&1 && \
