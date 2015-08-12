@@ -14,7 +14,7 @@
 
 [Unit]
 Description=FOGScheduler
-After=syslog.target network.target
+After=syslog.target network.target mariadb.service
 
 [Service]
 PrivateTmp=true
