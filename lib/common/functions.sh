@@ -579,7 +579,7 @@ configureMySql() {
 			systemctl restart mysql.service >/dev/null 2>&1 && \
             sleep 2 && \
 			systemctl status mysql.service >/dev/null 2>&1
-            if [ "$?" != "0"]; then
+            if [ "$?" != "0" ]; then
                 systemctl enable mysqld.service >/dev/null 2>&1 && \
                 systemctl restart mysqld.service >/dev/null 2>&1 && \
                 sleep 2 && \
@@ -1085,12 +1085,6 @@ class Config {
      }
  }" > "${webdirdest}/lib/fog/Config.class.php"
     errorStat $?
-    dots "Changing permissions on apache log files"
-    chmod +rx $apachelogdir
-    chmod +rx $apacheerrlog
-    chmod +rx $apacheacclog
-    chown -R ${apacheuser}:${apacheuser} /var/www
-    errorStat $?
     dots "Downloading inits and kernels"
     curl -sl --silent -kf -L https://fogproject.org/inits/init.xz >/dev/null 2>&1 && \
     curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz >/dev/null 2>&1 & disown
@@ -1155,6 +1149,12 @@ class Config {
     fi
     errorStat $?
     createSSLCA
+    dots "Changing permissions on apache log files"
+    chmod +rx $apachelogdir
+    chmod +rx $apacheerrlog
+    chmod +rx $apacheacclog
+    chown -R ${apacheuser}:${apacheuser} $webdirdest
+    errorStat $?
     ln -s "$webdirdest/management/css/font-awesome.css" "$webdirdest/mobile/css/font-awesome.css";
     ln -s "$webdirdest/management/fonts" "$webdirdest/mobile/";
     ln -s "$webdirdest/management/less" "$webdirdest/mobile/";
