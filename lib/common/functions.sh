@@ -566,35 +566,35 @@ installInitScript() {
     enableInitScript
 }
 configureMySql() {
-	stopInitScript
+    stopInitScript
     dots "Setting up and starting MySQL"
     if [ "$systemctl" == "yes" ]; then
-		systemctl="yes";
-		systemctl enable mariadb.service >/dev/null 2>&1 && \
-		systemctl restart mariadb.service >/dev/null 2>&1 && \
+        systemctl="yes";
+        systemctl enable mysql.service >/dev/null 2>&1 && \
+        systemctl restart mysql.service >/dev/null 2>&1 && \
         sleep 2 && \
-		systemctl status mariadb.service >/dev/null 2>&1
-		if [ "$?" != "0" ]; then
-			systemctl enable mysql.service >/dev/null 2>&1 && \
-			systemctl restart mysql.service >/dev/null 2>&1 && \
+        systemctl status mysql.service >/dev/null 2>&1
+        if [ "$?" != "0" ]; then
+            systemctl enable mysqld.service >/dev/null 2>&1 && \
+            systemctl restart mysqld.service >/dev/null 2>&1 && \
             sleep 2 && \
-			systemctl status mysql.service >/dev/null 2>&1
-            if [ "$?" != "0" ]; then
-                systemctl enable mysqld.service >/dev/null 2>&1 && \
-                systemctl restart mysqld.service >/dev/null 2>&1 && \
-                sleep 2 && \
-                systemctl status mysqld.service >/dev/null 2>&1
-            fi
-		fi
+            systemctl status mysqld.service >/dev/null 2>&1
+        fi
+        if [ "$?" != "0" ]; then
+            systemctl enable mariadb.service >/dev/null 2>&1 && \
+            systemctl restart mariadb.service >/dev/null 2>&1 && \
+            sleep 2 && \
+            systemctl status mariadb.service >/dev/null 2>&1
+        fi
     elif [ "$osid" -eq 2 ]; then
         sysv-rc-conf mysql on >/dev/null 2>&1 && \
         service mysql stop >/dev/null 2>&1 && \
         service mysql start >/dev/null 2>&1
-	else
-		chkconfig mysqld on >/dev/null 2>&1 && \
-		service mysqld restart >/dev/null 2>&1 && \
-		service mysqld status >/dev/null 2>&1
-	fi
+    else
+        chkconfig mysqld on >/dev/null 2>&1 && \
+        service mysqld restart >/dev/null 2>&1 && \
+        service mysqld status >/dev/null 2>&1
+    fi
     errorStat $?
 }
 configureFOGService() {
