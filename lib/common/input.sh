@@ -109,13 +109,13 @@ while [ "${installtype}" = "" ]; do
 done
 count=0
 while [ "${ipaddress}" = "" ]; do
-	ipaddress=`echo ${strSuggestedIPaddress} | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]'`
+	ipaddress=`echo ${strSuggestedIPAddress} | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]'`
     if [ "$count" -ge 1 -o -z "$autoaccept" ]; then
         echo
-        echo -n "  What is the IP address to be used by this FOG Server? [${strSuggestedIPaddress}]";
+        echo -n "  What is the IP address to be used by this FOG Server? [${strSuggestedIPAddress}]";
         read ipaddress;
-        if [ ! -z "$strSuggestedIPaddress" -a "$ipaddress" = "" ]; then
-            ipaddress=`echo ${strSuggestedIPaddress} | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' | tr -d '[[:space:]]'`
+        if [ ! -z "$strSuggestedIPAddress" -a "$ipaddress" = "" ]; then
+            ipaddress=`echo ${strSuggestedIPAddress} | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' | tr -d '[[:space:]]'`
         fi
     fi
 	test=`echo ${ipaddress} | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]'`
