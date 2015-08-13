@@ -109,7 +109,7 @@ fieldset {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#dedede',GradientType=0); /* IE6-9 */
 }
 /* Form elements */
-input, textarea, select {
+input, textarea, select:not([name="storagesel"]) {
     font-family: 'FontAwesome', Ubuntu, Arial, Helvetica, sans-serif;
     min-width: 250px;
     max-width: 350px;
