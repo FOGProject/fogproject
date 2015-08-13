@@ -109,11 +109,8 @@ fieldset {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#dedede',GradientType=0); /* IE6-9 */
 }
 /* Form elements */
-input, textarea, select:not([name="storagesel"],[name="ulang"]) {
-    font-family: 'FontAwesome', Ubuntu, Arial, Helvetica, sans-serif;
-    min-width: 250px;
-    max-width: 350px;
-    width: 250px;
+input, textarea, select {
+    font-family: Ubuntu, Arial, Helvetica, sans-serif;
     font-size: 13px;
     color: #333;
     border: 1px solid #94c3d3;
@@ -124,6 +121,10 @@ input, textarea, select:not([name="storagesel"],[name="ulang"]) {
 }
 select {
     padding: 4px 3px 4px 8px;
+}
+select:not([name=ulang]):not([name=storagesel]) {
+    min-width: 250px;
+    max-width: 350px;
 }
 input[type="password"], input[type="text"] {
     width: 250px;
@@ -224,10 +225,10 @@ fieldset table tbody td select {
     display: block;
     padding: 2px 2px 2px 2px;
 }
-.nav-item .nav-link, .fa {
+.nav-item .nav-link, a > i { /*, .fa:not(select) {*/
     color: #00567a;
 }
-.nav-link:hover, .activelink.fa, .fa:hover, .notifier, .notifier:hover {
+.nav-link:hover, .activelink > i, a:hover > i, .notifier, .notifier:hover { /*.fa:hover:not(select), .notifier, .notifier:hover {*/
     color: orange;
 }
 .nav-link > i {
@@ -507,14 +508,18 @@ pre {
     min-height: 28px;
     border-radius: 3px;
     box-shadow: 0 0 10px #bbb;
-}
-#loader i, #loader p {
-    vertical-align: center;
-    display: inline-block;
-}
-#loader p {
     text-align: center;
 }
+#loader > i, #loader p {
+    margin: auto;
+    display: inline-block;
+}
+#loader > .fa-exclamation-circle {
+    color: #00567a;
+}
+/*#loader p {
+    text-align: center;
+}*/
 
 #loader.loading {
     /*background: #fff url('images/loader.gif') 5px center no-repeat;*/

@@ -192,7 +192,9 @@ function format(icon) {
     return $icon;
 }
 $('select')
-.not('[name=storagesel]')
+.not('[name="storagesel"]')
+.select2();
+$('[name="icon"]')
 .select2({
     templateResult: format,
     templateSelection: format
