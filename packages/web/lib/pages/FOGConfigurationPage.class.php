@@ -175,6 +175,7 @@ class FOGConfigurationPage extends FOGPage {
             _('Boot Key Sequence') => $bootKeys,
             _('Menu Timeout (in seconds)').':*' => '<input type="text" name="timeout" value="'.$timeout.'" id="timeout" />',
             _('Exit to Hard Drive Type') => '<select name="bootTypeExit"><option value="sanboot" '.($this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE) == 'sanboot' ? 'selected="selected"' : '').'>Sanboot style</option><option value="exit" '.($this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE) == 'exit' ? 'selected="selected"' : '').'>Exit style</option><option value="grub" '.($this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE) == 'grub' ? 'selected="selected"' : '').'>Grub style</option></select>',
+            _('Exit to Hard Drive Type(EFI)') => '<select name="efiBootTypeExit"><option value="sanboot" '.($this->FOGCore->getSetting(FOG_EFI_BOOT_EXIT_TYPE) == 'sanboot' ? 'selected="selected"' : '').'>Sanboot style</option><option value="exit" '.($this->FOGCore->getSetting(FOG_EFI_BOOT_EXIT_TYPE) == 'exit' ? 'selected="selected"' : '').'>Exit style</option><option value="grub" '.($this->FOGCore->getSetting(FOG_EFI_BOOT_EXIT_TYPE) == 'grub' ? 'selected="selected"' : '').'>Grub style</option></select>',
             '<a href="#" onload="$(\'#advancedTextArea\').hide();" onclick="$(\'#advancedTextArea\').toggle();" id="pxeAdvancedLink">Advanced Configuration Options</a>' => '<div id="advancedTextArea" class="hidden"><div class="lighterText tabbed">Add any custom text you would like included added as part of your <i>default</i> file.</div><textarea rows="5" cols="40" name="adv">'.$advanced.'</textarea></div>',
             '&nbsp;' => '<input type="submit" value="'._('Save PXE MENU').'" />',
         );
@@ -212,6 +213,7 @@ class FOGConfigurationPage extends FOGPage {
                 ->setSetting(FOG_KEY_SEQUENCE,$_REQUEST[keysequence])
                 ->setSetting(FOG_NO_MENU,$_REQUEST[nomenu])
                 ->setSetting(FOG_BOOT_EXIT_TYPE,$_REQUEST[bootTypeExit])
+                ->setSetting(FOG_EFI_BOOT_EXIT_TYPE,$_REQUEST[efiBootTypeExit])
                 ->setSetting(FOG_ADVANCED_MENU_LOGIN,$_REQUEST[advmenulogin])
                 ->setSetting(FOG_PXE_HIDDENMENU_TIMEOUT,$hidetimeout)) throw new Exception(_('PXE Menu update failed'));
             throw new Exception(_('PXE Menu has been updated'));
@@ -608,6 +610,12 @@ class FOGConfigurationPage extends FOGPage {
                     unset($val);
                     $type = '<select name="${service_id}" style="width: 220px" autocomplete="off">'.implode($options).'</select>';
                 } else if ($Service->get(name) == 'FOG_BOOT_EXIT_TYPE') {
+                    $types = array('sanboot','grub','exit');
+                    foreach($types AS $i => &$viewop) $options[] = '<option value="'.$viewop.'" '.($Service->get(value) == $viewop ? 'selected="selected"' : '').'>'.strtoupper($viewop).'</option>';
+                    unset($viewop);
+                    $type = '<select name="${service_id}" style="width: 220px" autocomplete="off">'.implode($options).'</select>';
+                    unset($options);
+                } else if ($Service->get(name) == 'FOG_EFI_BOOT_EXIT_TYPE') {
                     $types = array('sanboot','grub','exit');
                     foreach($types AS $i => &$viewop) $options[] = '<option value="'.$viewop.'" '.($Service->get(value) == $viewop ? 'selected="selected"' : '').'>'.strtoupper($viewop).'</option>';
                     unset($viewop);
