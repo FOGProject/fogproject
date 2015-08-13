@@ -2041,3 +2041,8 @@ $this->schema[] = array(
     "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttIcon`='btc' WHERE `ttID`=23",
     "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttIcon`='share-alt-square' WHERE `ttID`=24",
 );
+// 192
+$this->schema[] = array(
+    "INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
+    values('FOG_EFI_BOOT_EXIT_TYPE','The method (U)EFI uses to boot the next boot entry/hard drive.  Most will require exit.','exit','FOG Boot Settings')",
+);

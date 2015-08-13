@@ -18,7 +18,20 @@ class BootMenu extends FOGBase {
         $curroot = trim(trim($this->FOGCore->getSetting(FOG_WEB_ROOT),'/'));
         $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
         $this->web = "${webserver}${webroot}";
-        $this->bootexittype = ($this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE) == 'exit' ? 'exit' : ($this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE) == 'sanboot' ? 'sanboot --no-describe --drive 0x80' : ($this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE) == 'grub' ? 'chain -ar http://'.rtrim($this->web,'/').'/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"' : 'exit')));
+
+        $exitTypes = array("exit" => "exit", 
+            "sanboot" => "sanboot --no-describe --drive 0x80",
+            "grub" => 'chain -ar http://'.rtrim($this->web,'/').'/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"');
+        $exitSetting = false;
+
+        if (isset($_REQUEST[platform]) && $_REQUEST[platform] == 'efi') {
+            $exitSetting = $this->FOGCore->getSetting(FOG_EFI_BOOT_EXIT_TYPE);
+        } else {
+            $exitSetting = $this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE);
+        }
+
+        $this->bootexittype = $exitTypes[$exitSetting ? $exitSetting : "exit"];
+
         $ramsize = $this->FOGCore->getSetting(FOG_KERNEL_RAMDISK_SIZE);
         $dns = $this->FOGCore->getSetting(FOG_PXE_IMAGE_DNSADDRESS);
         $keymap = $this->FOGCore->getSetting(FOG_KEYMAP);
@@ -129,6 +142,7 @@ class BootMenu extends FOGBase {
                 "params",
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
+                'param platform ${platform}',
                 "param menuAccess 1",
                 "param debug ".($debug ? 1 : 0),
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
@@ -148,6 +162,7 @@ class BootMenu extends FOGBase {
                 "params",
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
+                'param platform ${platform}',
                 'param username ${username}',
                 'param password ${password}',
                 "param menuaccess 1",
@@ -247,6 +262,7 @@ class BootMenu extends FOGBase {
             "params",
             'param mac0 ${net0/mac}',
             'param arch ${arch}',
+            'param platform ${platform}',
             "param delconf 1",
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
@@ -266,6 +282,7 @@ class BootMenu extends FOGBase {
             "params",
             'param mac0 ${net0/mac}',
             'param arch ${arch}',
+            'param platform ${platform}',
             "param aprvconf 1",
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
@@ -286,6 +303,7 @@ class BootMenu extends FOGBase {
             "params",
             'param mac0 ${net0/mac}',
             'param arch ${arch}',
+            'param platform ${platform}',
             'param key ${key}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
@@ -309,6 +327,7 @@ class BootMenu extends FOGBase {
                 "params",
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
+                'param platform ${platform}',
                 "param sessionJoin 1",
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
@@ -330,6 +349,7 @@ class BootMenu extends FOGBase {
             "params",
             'param mac0 ${net0/mac}',
             'param arch ${arch}',
+            'param platform ${platform}',
             'param sessname ${sessname}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
