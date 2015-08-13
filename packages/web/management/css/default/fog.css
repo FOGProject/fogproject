@@ -111,6 +111,9 @@ fieldset {
 /* Form elements */
 input, textarea, select {
     font-family: 'FontAwesome', Ubuntu, Arial, Helvetica, sans-serif;
+    min-width: 250px;
+    max-width: 350px;
+    width: 250px;
     font-size: 13px;
     color: #333;
     border: 1px solid #94c3d3;
