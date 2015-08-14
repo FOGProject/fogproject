@@ -1,4 +1,9 @@
 $(function() {
+    $('input,select,textarea').not('[type="checkbox"],[name="storagesel"],[name="ulang"]').click(function() {
+        field = $(this);
+        if (!field.is(':focus')) field.next('i').hide();
+        if (field.is(':focus')) field.append('<i class="fa fa-pencil fa-1x fa-fw"></i>');
+    });
         // Advanced Tasks stuff
         $('.advanced-tasks-link').click(function() {
             $(this).parents('tr').toggle('fast', function() {

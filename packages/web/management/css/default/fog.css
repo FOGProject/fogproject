@@ -99,13 +99,13 @@ fieldset {
     border: 1px solid #94C3D3;
     border-radius: 5px; margin-bottom: 40px;
     padding: 10px;
-    background: #ffffff; /* Old browsers */
-    background: -moz-linear-gradient(top,#ffffff 70%,#dedede 97%); /* FF3.6+ */
-    background: -webkit-gradient(linear,left top,left bottom,color-stop(70%,#ffffff),color-stop(97%,#dedede)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,#ffffff 70%,#dedede 97%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,#ffffff 70%,#dedede 97%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,#ffffff 70%,#dedede 97%); /* IE10+ */
-    background: linear-gradient(top,#ffffff 70%,#dedede 97%); /* W3C */
+    background: #fff; /* Old browsers */
+    background: -moz-linear-gradient(top,#fff 70%,#dedede 97%); /* FF3.6+ */
+    background: -webkit-gradient(linear,left top,left bottom,color-stop(70%,#fff),color-stop(97%,#dedede)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,#fff 70%,#dedede 97%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,#fff 70%,#dedede 97%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,#fff 70%,#dedede 97%); /* IE10+ */
+    background: linear-gradient(top,#fff 70%,#dedede 97%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#dedede',GradientType=0); /* IE6-9 */
 }
 /* Form elements */
@@ -126,14 +126,18 @@ select:not([name=ulang]):not([name=storagesel]) {
     min-width: 250px;
     max-width: 350px;
 }
-input[type="password"], input[type="text"] {
+input:not([type=checkbox]), select:not([name=ulang]):not([name=storagesel]) {
     width: 250px;
 }
-input[type="password"]:focus, input[type="text"]:focus {
-    padding-right: 8px;
+textarea {
+    width: 40em;
+    height: 8em;
 }
-input:focus, textarea:focus, select:focus {
+input:focus, select:focus, textarea:focus {
+    padding-right: 8px;
     border-color: #5372af;
+}
+input:not([type="checkbox"]):focus, select:focus, textarea:focus {
     background: url('images/icon_pencil.png') no-repeat 97% center;
 }
 textarea:focus {
