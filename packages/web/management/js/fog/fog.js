@@ -50,6 +50,8 @@ function getQueryParams(qs) {
 // Auto loader
 // Main FOG JQuery Functions
 (function($) {
+        //$(this).focus().append('<i class="fa fa-pencil fa-fw fa-1x"></i>');
+    //}
     Content = $('#content');
     Loader = $('#loader');
     Loader.append('&nbsp;<i class="fa fa-1x"></i>&nbsp;');
