@@ -39,7 +39,7 @@ h2 {
     font-size: 23px;
 }
 h3 {
-    font-size: 16px;
+    font-size: 12px;
     font-weight: bold;
     line-height: 16px;
 }
@@ -271,6 +271,7 @@ fieldset table tbody td select {
 #content {
     float: right;
     width: 590px;
+    margin-top: 0px;
     padding-bottom: 21px;
     background: url('images/content-bkg.png') no-repeat center top;
 }
@@ -506,8 +507,8 @@ pre {
 #loader-wrapper {
     z-index: 2;
     position: absolute;
-    min-width: 233px;
-    max-width: 300px;
+    min-width: 100px;
+    max-width: 200px;
     top: 25px;
     left: 50%;
     padding: 0px;
@@ -520,14 +521,14 @@ pre {
     display: none;
     border: 1px solid #bbb;
     background: #fff;
-    min-height: 28px;
+    min-height: 15px;
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     box-shadow: 0 0 10px #bbb;
     text-align: center;
     vertical-align: middle;
-    padding-left: 25px;
+    margin: auto auto;
 }
 #loader > i, #loader p {
     margin: auto;
