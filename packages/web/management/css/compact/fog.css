@@ -304,7 +304,6 @@ fieldset table tbody td select {
 /* Header */
 header {
     width: 820px;
-    margin: 0 auto 20 auto;
     padding-top: 15px;
     border-bottom: 1px solid #efefef;
 }
