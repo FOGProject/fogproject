@@ -5,15 +5,15 @@ class Page extends FOGBase {
         parent::__construct();
         while (@ob_end_clean());
         $isMobile = preg_match('#/mobile/#i',@$_SERVER['PHP_SELF']);
-        $dispTheme = 'css/'.($_SESSION['theme'] ? $_SESSION['theme'] : 'default/fog.css');
-        if (!file_exists(BASEPATH.'/'.$dispTheme)) $dispTheme = 'css/default/fog.css';
+        $dispTheme = 'css/'.$_SESSION[theme];
+        if (!file_exists(BASEPATH.'/management/'.$dispTheme)) $dispTheme = 'css/default/fog.css';
         if (!$isMobile) {
             $this->addCSS('css/jquery-ui.css');
             $this->addCSS('css/jquery.organicTabs.css');
             $this->addCSS($dispTheme);
         } else $this->addCSS('css/main.css');
-        $this->addCSS('../management/css/font-awesome.css');
-        $this->addCSS('../management/css/select2.min.css');
+        $this->addCSS('css/font-awesome.css');
+        $this->addCSS('css/select2.min.css');
         $this->isHomepage = (!$_REQUEST[node] || in_array($_REQUEST[node], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST[sub],array('configure','authorize')) || !$this->FOGUser || !$this->FOGUser->isLoggedIn());
         if ($this->FOGUser && $this->FOGUser->isLoggedIn() && strtolower($_REQUEST[node]) != 'schemaupdater') {
             if (!$isMobile) {
@@ -124,7 +124,7 @@ class Page extends FOGBase {
         $this->sectionTitle = $title;
     }
     public function addCSS($path) {
-        $this->stylesheets[] = $path;
+        $this->stylesheets[] = '../management/'.$path;
     }
     public function addJavascript($path){
         $this->javascripts[] = $path;
