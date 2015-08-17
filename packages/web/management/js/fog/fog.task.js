@@ -9,9 +9,44 @@
 var ActiveTasksContainer;
 var ActiveTasksLastCount;
 $(function() {
+    $('.toggle-checkboxAction').click(function() {
+        $('input.toggle-action[type="checkbox"]')
+        .prop('checked', $(this).is(':checked'));
+    });
+    $('#action-box,#action-boxdel').submit(function() {
+        var checked = $('input.toggle-action:checked');
+        var taskIDArray = new Array();
+        for (var i = 0,len = checked.size();i < len;i++) taskIDArray[taskIDArray.length] = checked.eq(i).prop('value');
+        $('input[name="taskIDArray"]').val(taskIDArray.join(','));
+    });
     // Show Task Container if we have items
     ActiveTasksContainer = $('#active-tasks');
     if (ActiveTasksContainer.find('tbody > tr').size() > 0) ActiveTasksContainer.show();
+    ActiveTasksContainer.after('<center><div id="canceltasks"></div><input type="button" name="Cancel" value="Cancel selected tasks?"/></center>');
+    $('input[name="Cancel"]').click(function() {
+        checkedIDs = getChecked();
+        if (checkedIDs.length > 0) {
+            $('#canceltasks').html('Are you sure you wish to cancel these tasks?');
+            $('#canceltasks').dialog({
+                resizable: false,
+                modal: true,
+                title: 'Cancel tasks',
+                buttons: {
+                    'Yes': function() {
+                        $.ajax({
+                            type: 'POST',
+                            url: '?node=task&sub=active_post',
+                            data: {task: checkedIDs}
+                        });
+                        $(this).dialog('close');
+                    },
+                    'No': function() {
+                        $(this).dialog('close');
+                    }
+                }
+            });
+        }
+    });
     // Hook buttons
     ActiveTasksButtonHook();
     // Update timer
@@ -65,6 +100,7 @@ function ActiveTasksUpdate() {
             }
         },
         success: function(response)	{
+            checkedIDs = getChecked();
             // Loader
             Loader
             .removeClass('loading')
@@ -118,13 +154,16 @@ function ActiveTasksUpdate() {
             } else {
                 ActiveTasksTableCheck();
             }
+            setChecked(checkedIDs);
             ActiveTasksUpdateTimerStart();
         },
         error: function() {
-            ActiveTasksAJAC = nul;
+            ActiveTasksAJAX = null;
             Loader
             .fogStatusUpdate(_L['ACTIVE_TASKS_UPDATE_FAILED'])
             .addClass('error');
+            i = Loader.find('i');
+            i.css({color: 'red'});
         }
     });
 }

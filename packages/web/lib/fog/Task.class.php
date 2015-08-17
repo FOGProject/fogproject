@@ -89,11 +89,8 @@ class Task extends FOGController {
         $SnapinJob = $this->getHost()->getActiveSnapinJob();
         $SnapinTasks = $this->getClass(SnapinTaskManager)->find(array(jobID=>$SnapinJob->get(id),stateID=>array(0,1)));
         // cancel's all the snapin tasks for that host.
-        if ($SnapinTasks) {
-            foreach($SnapinTasks AS $i => &$ST) {
-                foreach($ST AS $i => &$SnapinTask) $SnapinTask->set(stateID,-1)->save();
-                unset($SnapinTask);
-            }
+        if (count($SnapinTasks)) {
+            foreach($SnapinTasks AS $i => &$SnapinTask) $SnapinTask->set(stateID,-1)->save();
             unset($ST);
         }
         // FOGController destroy

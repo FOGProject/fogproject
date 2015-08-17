@@ -62,9 +62,9 @@ abstract class FOGPage extends FOGBase {
         $this->ajax = $this->isAJAXRequest();
         $this->childClass = preg_replace('#ManagementPage#', '', preg_replace('#Mobile#','',get_class($this)));
         $this->menu = array(
-            'search' => $this->foglang['NewSearch'],
-            'list' => sprintf($this->foglang['ListAll'],_($this->childClass.'s')),
-            'add' => sprintf($this->foglang['CreateNew'],_($this->childClass)),
+            search=>$this->foglang[NewSearch],
+            'list'=>sprintf($this->foglang[ListAll],_($this->childClass.'s')),
+            add=>sprintf($this->foglang[CreateNew],_($this->childClass)),
         );
         $this->formAction = sprintf('%s?%s', $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
         $this->HookManager->processEvent('SEARCH_PAGES',array('searchPages' => &$this->searchPages));
@@ -163,7 +163,7 @@ abstract class FOGPage extends FOGBase {
                     echo '</tbody></table>';
                     if (((!$_REQUEST[sub] || ($_REQUEST[sub] && in_array($_REQUEST[sub],$defaultScreens))) && in_array($_REQUEST[node],$this->searchPages)) && !$isMobile) {
                         if ($this->childClass == 'Host') $actionbox = sprintf('<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>');
-                        $actionbox .= sprintf('<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value=""autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>');
+                        $actionbox .= sprintf('<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value="" autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>');
                     }
                 }
                 $this->HookManager->event[] = 'ACTIONBOX';
@@ -452,12 +452,12 @@ abstract class FOGPage extends FOGBase {
             '<a href="?node='.$this->node.'&sub=edit&id=${id}">${name}</a>',
         );
         $this->additional = array();
-        $ids = explode(',',$_REQUEST[strtolower($this->childClass).'IDArray']);
+        $ids = array_filter(array_unique(explode(',',$_REQUEST[strtolower($this->childClass).'IDArray'])));
         $findWhere = array(id=>$ids);
         if (array_key_exists('protected',$this->getClass($this->childClass)->databaseFields)) $findWhere['protected'] = array('',null,0,false);
-        $_SESSION[delitems][$this->node] = $this->getClass($this->childClass)->getManager()->find($findWhere,'','','','','','','id');
-        $Objects = $this->getClass($this->childClass)->getManager()->find(array(id=>$_SESSION[delitems][$this->node]));
+        $Objects = $this->getClass($this->childClass)->getManager()->find($findWhere);
         foreach ($Objects AS $i => &$Obj) {
+            $_SESSION[delitems][$this->node][] = $Obj->get(id);
             $this->data[] = array(
                 id=>$Obj->get(id),
                 name=>$Obj->get(name),
@@ -867,12 +867,13 @@ abstract class FOGPage extends FOGBase {
     public function search() {
         if ($this->node == 'task' && $_REQUEST['sub'] != 'search') $this->FOGCore->redirect(sprintf('?node=%s&sub=active',$this->node));
         // Set Title
-        if ($this->childClass == 'Task') $this->childClass = 'host';
+        $eventClass = $this->childClass;
+        if ($this->childClass == 'Task') $eventClass = 'host';
         $this->title = _('Search');
         // Set search form
         if (in_array($this->node,$this->searchPages)) $this->searchFormURL = sprintf('?node=%s&sub=search',$this->node);
         // Hook
-        $this->HookManager->processEvent(strtoupper($this->childClass).'_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'headerData' => &$this->headerData,'attributes' => &$this->attributes,'title' => &$this->title,'searchFormURL' => &$this->searchFormURL));
+        $this->HookManager->processEvent(strtoupper($eventClass).'_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'headerData' => &$this->headerData,'attributes' => &$this->attributes,'title' => &$this->title,'searchFormURL' => &$this->searchFormURL));
         $this->HookManager->processEvent(strtoupper($this->childClass).'_HEADER_DATA', array('headerData' => &$this->headerData));
         // Output
         $this->render();

@@ -5,39 +5,40 @@ class TaskManagementPage extends FOGPage {
         $this->name = 'Task Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'search' => $this->foglang[NewSearch],
-            'active' => $this->foglang[ActiveTasks],
-            'listhosts' => sprintf($this->foglang[ListAll],$this->foglang[Hosts]),
-            'listgroups' => sprintf($this->foglang[ListAll],$this->foglang[Groups]),
-            'active-multicast' => $this->foglang[ActiveMCTasks],
-            'active-snapins' => $this->foglang[ActiveSnapins],
-            'scheduled' => $this->foglang[ScheduledTasks],
+            search=>$this->foglang[NewSearch],
+            active=>$this->foglang[ActiveTasks],
+            listhosts=>sprintf($this->foglang[ListAll],$this->foglang[Hosts]),
+            listgroups=>sprintf($this->foglang[ListAll],$this->foglang[Groups]),
+            'active-multicast'=>$this->foglang[ActiveMCTasks],
+            'active-snapins'=>$this->foglang[ActiveSnapins],
+            scheduled=>$this->foglang[ScheduledTasks],
         );
         $this->subMenu = array();
         $this->notes = array();
         $this->HookManager->processEvent(SUB_MENULINK_DATA,array(menu=>&$this->menu,submenu=>&$this->subMenu,id=>&$this->id,notes=>&$this->notes));
         // Header row
         $this->headerData = array(
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             _('Started By:'),
             _('Hostname<br><small>MAC</small>'),
             '',
             '',
             _('Start Time'),
             _('Status'),
-            _('Actions'),
         );
         // Row templates
         $this->templates = array(
+            '<input type="checkbox" name="task[]" value="${id}" class="toggle-action"/>',
             '${startedby}',
             '<p><a href="?node=host&sub=edit&id=${host_id}" title="' . _('Edit Host') . '">${host_name}</a></p><small>${host_mac}</small>',
             '',
             '${details_taskname}',
             '<small>${time}</small>',
             '<i class="fa fa-${icon_state} fa-1x icon" title="${state}"></i> <i class="fa fa-${icon_type} fa-1x icon" title="${type}"></i>',
-            '${columnkill}',
         );
         // Row attributes
         $this->attributes = array(
+            array(width=>16,'class'=>c),
             array(width=>65,'class'=>l,id=>'host-${host_id}'),
             array(width=>120,'class'=>l),
             array(),
@@ -45,7 +46,6 @@ class TaskManagementPage extends FOGPage {
             array(width=>70,'class'=>r),
             array(width=>100,'class'=>r),
             array(width=>50,'class'=>r),
-            array(),
         );
     }
     // Pages
@@ -58,7 +58,6 @@ class TaskManagementPage extends FOGPage {
         foreach ($Tasks AS $i => &$Task) {
             $Host = $Task->getHost();
             $this->data[] = array(
-                columnkill=>$Task->get(stateID) == 1 || $Task->get(stateID) == 2 || $Task->get(stateID) == 3 ? '${details_taskforce} <a href="?node=task&sub=cancel-task&id=${id}" class="icon-kill"><i title="' . _('Cancel Task') . '"></i></a>' : '',
                 startedby=>$Task->get(createdBy),
                 id=>$Task->get(id),
                 name=>$Task->get(name),
@@ -284,7 +283,7 @@ class TaskManagementPage extends FOGPage {
     // Active Tasks
     public function active() {
         // Set title
-        $this->form = "<center>".'<input type="button" id="taskpause" /></center><br/>';
+        $this->form = '<center><input type="button" id="taskpause"/></center><br/>';
         $this->title = _('Active Tasks');
         // Tasks
         $i = 0;
@@ -292,7 +291,6 @@ class TaskManagementPage extends FOGPage {
         foreach ($Tasks AS $i => &$Task) {
             $Host = $Task->getHost();
             $this->data[] = array(
-                columnkill=>$Task->get(stateID) == 1 || $Task->get(stateID) == 2 || $Task->get(stateID) == 3 ? '${details_taskforce} <a href="?node=task&sub=cancel-task&id=${id}" class="icon-kill"><i title="' . _('Cancel Task') . '"></i></a>' : '',
                 startedby=>$Task->get(createdBy),
                 id=>$Task->get(id),
                 name=>$Task->get(name),
@@ -322,7 +320,15 @@ class TaskManagementPage extends FOGPage {
         // Hook
         $this->HookManager->processEvent(HOST_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
+        //printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
+        //print '<center><input type="submit" value="'._('Cancel selected tasks').'"/></center></form>';
+    }
+    public function active_post() {
+        $Tasks = $this->getClass(TaskManager)->find(array(id=>$_REQUEST[task]));
+        foreach ($Tasks AS $i => &$Task) $Task->cancel();
+        $this->FOGCore->setMessage(_('Successfully cancelled'));
+        $this->FOGCore->redirect(preg_replace('#_post#','',$this->formAction));
     }
     // Active Tasks - Force Task Start
     public function force_task() {
@@ -543,7 +549,6 @@ class TaskManagementPage extends FOGPage {
             $taskTime = $this->nice_date()->setTimestamp($taskTime);
             $hostGroupName = ($task->isGroupBased() ? $task->getGroup() : $task->getHost());
             $this->data[] = array(
-                columnkill=>'${details_taskforce} <a href="?node=task&sub=cancel-task&id=${id}"><i class="icon fa fa-minus-circle" title="' . _('Cancel Task') . '"></i></a>',
                 hostgroup=>$task->isGroupBased() ? 'group' : 'host',
                 hostgroupname=>$hostGroupName,
                 id=>$hostGroupName->get(id),
