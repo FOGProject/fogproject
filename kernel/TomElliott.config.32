@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/i386 4.1.5 Kernel Configuration
+# Linux/i386 4.1.6 Kernel Configuration
 #
 # CONFIG_64BIT is not set
 CONFIG_X86_32=y
