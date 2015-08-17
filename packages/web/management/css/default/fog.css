@@ -595,45 +595,6 @@ pre {
     font-weight: bold;
     background-color: #bcbcbc;
 }
-/* Task Start Info */
-.task-start-ok *, .task-start-failed * {
-    border: 2px solid #ccc;
-    background-color: #efefef;
-    font-size: 16px;
-    padding: 20px;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    margin: 0 0 5px 0;
-    text-align: center;
-}
-.task-start-ok {
-    border-color: #008000;
-    background: #dfffdf;
-    color: #008000;
-}
-.task-start-failed {
-    border-color: #ff0000;
-    background: #ffd8d8;
-    color: #ff0000;
-}
-.confirm-message {
-    padding: 10px;
-    margin: 5px 10px;
-    min-height: 50px;
-    border-width: 1px;
-    border-style: dashed;
-    border-color: #999;
-    font-size: 13px;
-    font-weight: bold;
-    border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-}
-.no-active-tasks {
-    padding: 15px 0;
-    text-align: center;
-}
 /* Login Form */
 #login-form {
     margin: 20px auto;
@@ -974,10 +935,14 @@ pre {
 #additionalMACsRow {
     display: none;
 }
-/* Task Conformations */
+/* Task Confirmations */
+#deploy-container {
+    margin: 0 auto;
+    width: 350px;
+    padding: 5px 5px;
+}
 .advanced-settings {
     border: 1px solid #ccc;
-    padding: 0 15px;
     background: #efefef;
     margin: 0 auto;
     width: 300px;
@@ -988,8 +953,16 @@ pre {
 }
 .advanced-settings h2 {
     text-align: center;
-    margin: 7px 0;
     background: #e9e9e9;
+    padding: 5px 0;
+    margin: 7px 0;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ccc;
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ccc;
+    border-radius: 0;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
 }
 #deploy-container .advanced-settings h2 {
     padding: 5px 0;
@@ -1001,10 +974,6 @@ pre {
     border-right: 1px solid #ccc;
     border-top: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
-}
-#deploy-container .confirm-message p {
-    margin: 5px 0;
-    line-height: 24px;
 }
 #deploy-container input[type=text]:focus {
     padding: 4px 8px;
@@ -1029,6 +998,48 @@ pre {
     text-align: center;
     display: block;
     cursor: pointer;
+}
+/* Task Start Info */
+.task-start-ok, .task-start-failed {
+    border: 2px solid;
+    font-size: 16px;
+    padding: 20px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    margin: 0 0 5px 0;
+    text-align: center;
+}
+.task-start-ok {
+    border-color: #008000;
+    background-color: #dfffdf;
+    color: #008000;
+}
+.task-start-failed {
+    border-color: #ff0000;
+    background-color: #ffd8d8;
+    color: #ff0000;
+}
+.confirm-message {
+    padding: 10px;
+    margin: 5px 10px;
+    min-height: 50px;
+    border-width: 1px;
+    border-style: dashed;
+    border-color: #999;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+.confirm-message p {
+    margin: 5px 0;
+    line-height: 24px;
+}
+.no-active-tasks {
+    padding: 15px 0;
+    text-align: center;
 }
 .task-name {
     float: right;

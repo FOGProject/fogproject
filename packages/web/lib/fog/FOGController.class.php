@@ -303,14 +303,14 @@ abstract class FOGController extends FOGBase {
             if (!$this->get($field)) throw new Exception(sprintf('Operation field not set: %s', strtoupper($field)));
             // Query row data
             if (!$this->DB->query(sprintf("DELETE FROM %s WHERE %s='%s'",
-                $this->DB->sanitize($this->databaseTable),
-                $this->DB->sanitize($this->databaseFields[$field]),
+                $this->databaseTable,
+                $this->databaseFields[$field],
                 $this->DB->sanitize($this->get($field))))->fetch()->get())
                 throw new Exception('Failed to delete');
             // Success
             return true;
         } catch (Exception $e) {
-            $this->debug('Database Destroy Failed: ID: %s, Error: %s', array($this->get('id'), $e->getMessage()));
+            $this->debug('Database Destroy Failed: ID: %s, Error: %s', array($this->get(id), $e->getMessage()));
         }
         // Fail
         return false;

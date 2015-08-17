@@ -46,14 +46,14 @@ abstract class FOGManagerController extends FOGBase {
         try {
             if (empty($keyword)) $keyword = preg_match('#mobile#i',$_SERVER['PHP_SELF'])?$_REQUEST['host-search']:$_REQUEST[crit];
             $keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', $keyword).'%');
-            if ($keyword === '%') return $this->getClass($this->childClass.'Manager')->find();
+            if ($keyword === '%') return $this->getClass($this->childClass)->getManager()->find();
             $_SESSION[caller] = __FUNCTION__;
             if (empty($keyword)) throw new Exception('No keyword passed');
             $this->array_remove($this->aliasedFields,$this->databaseFields);
             $findWhere = array_fill_keys(array_keys($this->databaseFields),$keyword);
             $Main = $this->getClass($this->childClass);
-            if ($this->childClass == 'User') return $this->getClass(UserManager)->find($findWhere,'OR');
-            $HostIDs = ($this->childClass == 'Host'?$this->getClass(HostManager)->find($findWhere,'OR','','','','','','id'):$this->getClass(HostManager)->find(array(name=>$keyword,description=>$keyword,ip=>$keyword),'OR','','','','','','id'));
+            if ($this->childClass == 'User') return $Main->getManager()->find($findWhere,'OR');
+            $HostIDs = ($this->childClass == 'Host' ? $Main->getManager()->find($findWhere,'OR','','','','','','id') : $Main->getManager()->find(array(name=>$keyword,description=>$keyword,ip=>$keyword),'OR','','','','','','id'));
             // Get all the hosts host search is different than other searches
             $MACHosts = $this->getClass(MACAddressAssociationManager)->find(array(mac=>$keyword,description=>$keyword),'OR','','','','','','hostID');
             $InventoryHosts = $this->getClass(InventoryManager)->find(array(sysserial=>$keyword,caseserial=>$keyword,mbserial=>$keyword,primaryUser=>$keyword,other1=>$keyword,other2=>$keyword,sysman=>$keyword,sysproduct=>$keyword),'OR','','','','','','hostID');
@@ -96,33 +96,34 @@ abstract class FOGManagerController extends FOGBase {
                 $findWhere = array(id=>$PrinterIDs);
                 unset($PrinterIDs,$PrinterHostIDs,$HostIDs);
             } else if ($this->childClass == 'Task') {
-                $TaskIDs = $this->getClass(TaskManager)->find($findWhere,'OR','','','','','','id');
-                $TaskStateIDs = $this->getClass(TaskStateManager)->find(array(name=>$keyword),'','','','','','','id');
-                $TaskTypeIDs = $this->getClass(TaskTypeManager)->find(array(name=>$keyword),'','','','','','','id');
+                $TaskIDs = array_unique($Main->getManager()->find($findWhere,'OR','','','','','','id'));
+                unset($findWhere);
+                $TaskStateIDs = $this->getClass(TaskStateManager)->find(array(name=>$keyword),'OR','','','','','','id');
+                $TaskTypeIDs = $this->getClass(TaskTypeManager)->find(array(name=>$keyword),'OR','','','','','','id');
                 $GroupIDs = $this->getClass(GroupManager)->find(array(name=>$keyword,description=>$keyword),'OR','','','','','','id');
                 $ImageIDs = $this->getClass(ImageManager)->find(array(name=>$keyword,description=>$keyword),'OR','','','','','','id');
-                $SnapinIDs = $this->getClass(SnapinManager)->find(array(name=>$keyword,description=>$keyword,'file'=>$keyword),'OR','','','','','','id');
-                $PrinterIDs = $this->getClass(PrinterManager)->find(array(name=>$keyword),'OR','','','','','','id');
+                $SnapinIDs = $this->getClass(SnapinManager)->find(array(name=>$keyword,description=>$keyword),'OR','','','','','','id');
+                $PrinterIDs = $this->getClass(PrinterManager)->find(array(name=>$keyword,description=>$keyword),'OR','','','','','','id');
                 if (count($GroupIDs)) $GroupHostIDs = $this->getClass(GroupAssociationManager)->find(array(groupID=>$GroupIDs),'','','','','','','hostID');
                 if (count($ImageIDs)) $ImageHostIDs = $this->getClass(HostManager)->find(array(imageID=>$ImageIDs),'','','','','','','id');
                 if (count($SnapinIDs)) $SnapinHostIDs = $this->getClass(SnapinAssociationManager)->find(array(snapinID=>$SnapinIDs),'','','','','','','hostID');
                 if (count($PrinterIDs)) $PrinterHostIDs = $this->getClass(PrinterAssociationManager)->find(array(printerID=>$PrinterIDs),'','','','','','','hostID');
-                $HostIDs = array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs));
+                $HostIDs = array_filter(array_unique(array_merge((array)$HostIDs,(array)$GroupHostIDs,(array)$ImageHostIDs,(array)$SnapinHostIDs,(array)$PrinterHostIDs)));
                 $findWhere = array();
                 if (count($TaskIDs)) $findWhere[id] = $TaskIDs;
                 if (count($TaskTypeIDs)) $findWhere[typeID] = $TaskTypeIDs;
                 if (count($TaskStateIDs)) $findWhere[stateID] = $TaskStateIDs;
                 if (count($HostIDs)) $findWhere[hostID] = $HostIDs;
-                unset($TaskIDs,$TaskTypeIDs,$GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$GroupHostIDs,$ImageHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
+                unset($TaskIDs,$TaskStateIDs,$TaskTypeIDs,$GroupIDs,$ImageIDs,$SnapinIDs,$PrinterIDs,$GroupHostIDs,$ImageHostIDs,$SnapinHostIDs,$PrinterHostIDs,$HostIDs);
             } else {
-                $ObjIDs = $this->getClass($this->childClass.'Manager')->find($findWhere,'OR','','','','','','id');
+                $ObjIDs = $Main->getManager()->find($findWhere,'OR','','','','','','id');
                 if (count($HostIDs)) $ObjHostIDs = $this->getClass($this->childClass.'AssociationManager')->find(array(hostID=>$HostIDs),'','','','','','',strtolower($this->childClass).'ID');
                 $ObjIDs = array_unique(array_merge((array)$ObjIDs,(array)$ObjHostIDs));
                 $findWhere = array(id=>$ObjIDs);
                 unset($ObjIDs,$ObjHostIDs,$HostIDs);
             }
             unset($_SESSION[caller]);
-            return array_unique($this->getClass($this->childClass)->getManager()->find($findWhere));
+            return $Main->getManager()->find($findWhere);
         } catch (Exception $e) {
             $this->debug('Search failed! Error: %s', array($e->getMessage()));
         }
@@ -281,9 +282,13 @@ abstract class FOGManagerController extends FOGBase {
         Removes the relevant fields from the database.
      */
     public function destroy($where = array(),$whereOperator = 'AND',$orderBy = 'name',$sort = 'ASC',$compare = '',$groupBy = false,$not = false) {
-        $remObj = $this->find($where,$whereOperator,$orderBy,$sort,$compare,$groupBy,$not);
-        foreach($remObj AS $i => &$Object) $Object->destroy();
-        unset($Object);
+        if (array_key_exists('id',$where)) $ids = $where[id];
+        else $ids = $this->find($where,$whereOperator,$orderBy,$sort,$compare,$groupBy,$not,'id');
+        $query = sprintf('DELETE FROM %s WHERE %s IN (%s)',$this->databaseTable,$this->databaseFields[id],implode(',',(array)$ids));
+        foreach ($ids AS $i => &$id) $this->getClass($this->childClass,$id)->destroy(id);
+        unset($id);
+        $this->DB->query($query)->fetch()->get();
+        return true;
     }
     // Blackout - 11:28 AM 22/11/2011
     /** buildSelectBox($matchID = '',$elementName = '',$orderBy = 'name')
