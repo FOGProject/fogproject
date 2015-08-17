@@ -446,12 +446,6 @@ table p {
     line-height: 10px;
     margin: 2px 0;
 }
-table tr {
-    height: 20px;
-}
-table td {
-    height: 10px;
-}
 table tr td:first-child, table tr td:last-child {
     padding: 0px 0px;
 }
@@ -584,10 +578,10 @@ pre {
     background-image: url('images/statusbg.jpg');
     margin: 5px 5px 6px 0;
     width: 220px;
-    float: left;
     padding: 1px;
     text-align: left;
     overflow: hidden;
+    display: inline-flex;
 }
 .dashboard p {
     vertical-align: center;
@@ -686,8 +680,6 @@ pre {
     outline: 0;
     border: 0;
     display: inline-block;
-    width: 16px;
-    height: 16px;
 }
 .hand {
     cursor: pointer;
@@ -802,7 +794,7 @@ pre {
     margin: 0;
     line-height: 20px;
 }
-#dashboard-boxes table td {
+#active-tasks td {
     padding: 4px 5px;
 }
 /* Dashboard - Disk usage graph */
