@@ -579,9 +579,8 @@ pre {
     margin: 5px 5px 6px 0;
     width: 220px;
     padding: 1px;
-    text-align: left;
     overflow: hidden;
-    display: inline-flex;
+    display: inline-block;
 }
 .dashboard p {
     vertical-align: center;

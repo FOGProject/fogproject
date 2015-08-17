@@ -326,7 +326,7 @@ class TaskManagementPage extends FOGPage {
         $Tasks = $this->getClass(TaskManager)->find(array(id=>$_REQUEST[task]));
         foreach ($Tasks AS $i => &$Task) $Task->cancel();
         $this->FOGCore->setMessage(_('Successfully cancelled selected tasks'));
-        $this->FOGCore->redirect(preg_replace('#_post#','',$this->formAction));
+        $this->FOGCore->redirect('?node='.$this->node.'&sub=active');
     }
     // Active Tasks - Force Task Start
     public function force_task() {
