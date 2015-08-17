@@ -578,10 +578,9 @@ pre {
     background-image: url('images/statusbg.jpg');
     margin: 5px 5px 6px 0;
     width: 237px;
-    float: left;
     padding: 2px;
     overflow: hidden;
-    display: inline-flex;
+    display: inline-block;
 }
 .dashboard p {
     vertical-align: center;
