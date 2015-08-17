@@ -526,7 +526,7 @@ class Host extends FOGController {
             // Imaging types.
             $imagingTypes = in_array($taskTypeID,array(1,2,8,15,16,17,24));
             // WOL Types:
-            $wolTypes = in_array($taskTypeID,array_merge(range(1,11),range(14-24)));
+            $wolTypes = in_array($taskTypeID,array_merge(range(1,11),range(14,24)));
             // Image: Error checking
             if ($imagingTypes) {
                 // Image: Variables

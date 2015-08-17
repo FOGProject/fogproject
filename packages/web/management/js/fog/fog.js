@@ -36,6 +36,19 @@ var ActiveTasksAJAX = null;
 // DOM Elements used frequently
 var Content;
 var Loader;
+var checkedIDs;
+function getChecked() {
+    var val = [];
+    $('.toggle-action:checked').each(function(i) {
+        val[i] = $(this).val();
+    });
+    return val;
+}
+function setChecked(ids) {
+    $('.toggle-action').each(function(i) {
+        if ($.inArray($(this).val(),ids) != -1 && $(this).not(':checked')) $(this).prop('checked',true);
+    });
+}
 var $_GET = getQueryParams(document.location.search);
 function getQueryParams(qs) {
     qs = qs.split("+").join(" ");
