@@ -2,10 +2,12 @@
 require_once('../commons/base.inc.php');
 try {
     // Just list all the images available.
+    $val = '';
+    if (!$FOGCore->getClass(ImageManager)->count()) throw new Exception(_('There are no images on this server.'));
     $Images = $FOGCore->getClass(ImageManager)->find();
-    if (!$Images) throw new Exception(_('There are no images on this server.'));
-    foreach ($Images AS &$Image) printf('\tID# %d\t-\t%s\n',$Image->get(id),$Image->get(name));
+    foreach ($Images AS $i => &$Image) $val .= sprintf('\tID# %d\t-\t%s\n',$Image->get(id),$Image->get(name));
     unset($Image);
 } catch (Exception $e) {
-    print $e->getMessage();
+    $val = $e->getMessage();
 }
+print $val;

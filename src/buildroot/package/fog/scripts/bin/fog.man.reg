@@ -109,12 +109,12 @@ if [ -n "$hd" ]; then
             then
                 clearScreen;
                 res=`wget -q -O- "http://${web}service/imagelisting.php" 2>/dev/null`;
-                res=`echo -e $res`;
                 i=0
+                res=`echo -e $res`;
                 OLDIFS=$IFS;
                 IFS='
-                ';
-                for line in $res
+';
+                for `echo -e $res` in $res
                 do
                     i=$((i+1));
                     echo $line;
@@ -147,7 +147,7 @@ if [ -n "$hd" ]; then
                     i=0
                     OLDIFS=$IFS;
                     IFS='
-                    '	;
+';
                     for line in $res; do
                         i=$((i+1));
                         echo $line;
@@ -185,7 +185,7 @@ if [ -n "$hd" ]; then
                         i=0
                         OLDIFS=$IFS;
                         IFS='
-                        '	;
+';
                         for line in $res; do
                             i=$((i+1));
                             echo $line;
@@ -230,7 +230,7 @@ if [ -n "$hd" ]; then
                         i=0
                         OLDIFS=$IFS;
                         IFS='
-                        '	;
+'	;
                         for line in $res; do
                             i=$((i+1));
                             echo $line;
