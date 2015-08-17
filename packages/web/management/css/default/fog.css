@@ -271,7 +271,7 @@ fieldset table tbody td select {
 #content {
     float: left;
     width: 620px;
-    margin-top: -30px;
+    margin-top: 0;
     padding-bottom: 21px;
     background: url('images/content-bkg.png') no-repeat center top;
 }
