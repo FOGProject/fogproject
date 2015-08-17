@@ -84,7 +84,7 @@ if [ -n "$hd" ]; then
         debugPause
         output=`cat /ntfs/fog/log/log.txt | grep FOUND`
         IFS="
-        "
+"
         cd /tmp
         cnt=0
         for line in $output; do
