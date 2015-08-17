@@ -35,7 +35,7 @@ $(function() {
                     'Yes': function() {
                         $.ajax({
                             type: 'POST',
-                            url: '?node=task&sub=active_post',
+                            url: '?node=task&sub=canceltasks',
                             data: {task: checkedIDs}
                         });
                         $(this).dialog('close');
