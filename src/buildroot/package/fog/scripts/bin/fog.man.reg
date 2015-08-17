@@ -114,7 +114,7 @@ if [ -n "$hd" ]; then
                 OLDIFS=$IFS;
                 IFS='
 ';
-                for `echo -e $res` in $res
+                for line in $res
                 do
                     i=$((i+1));
                     echo $line;
