@@ -320,14 +320,12 @@ class TaskManagementPage extends FOGPage {
         // Hook
         $this->HookManager->processEvent(HOST_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
-        //printf('<form method="post" action="%s">',$this->formAction);
         $this->render();
-        //print '<center><input type="submit" value="'._('Cancel selected tasks').'"/></center></form>';
     }
-    public function active_post() {
+    public function canceltasks() {
         $Tasks = $this->getClass(TaskManager)->find(array(id=>$_REQUEST[task]));
         foreach ($Tasks AS $i => &$Task) $Task->cancel();
-        $this->FOGCore->setMessage(_('Successfully cancelled'));
+        $this->FOGCore->setMessage(_('Successfully cancelled selected tasks'));
         $this->FOGCore->redirect(preg_replace('#_post#','',$this->formAction));
     }
     // Active Tasks - Force Task Start

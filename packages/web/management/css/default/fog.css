@@ -580,8 +580,8 @@ pre {
     width: 237px;
     float: left;
     padding: 2px;
-    text-align: left;
     overflow: hidden;
+    display: inline-flex;
 }
 .dashboard p {
     vertical-align: center;
@@ -680,8 +680,6 @@ pre {
     outline: 0;
     border: 0;
     display: inline-block;
-    width: 16px;
-    height: 16px;
 }
 .hand {
     cursor: pointer;
