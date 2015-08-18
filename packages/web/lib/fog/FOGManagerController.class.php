@@ -62,6 +62,8 @@ abstract class FOGManagerController extends FOGBase {
             $HostIDs = array_merge($HostIDs,$this->getSubObjectIDs('Inventory',array(sysserial=>$keyword,caseserial=>$keyword,mbserial=>$keyword,primaryUser=>$keyword,other1=>$keyword,other2=>$keyword,sysman=>$keyword,sysproduct=>$keyword),'hostID'));
             $HostIDs = array_merge($HostIDs,$this->getSubObjectIDs('Host',array(name=>$keyword,description=>$keyword,ip=>$keyword)));
             switch ($this->childClass) {
+                case 'User';
+                break;
                 case 'Host';
                 $ImageIDs = $this->getSubObjectIDs('Image',array(name=>$keyword));
                 $GroupIDs = $this->getSubObjectIDs('Group',array(name=>$keyword));
@@ -88,6 +90,7 @@ abstract class FOGManagerController extends FOGBase {
                 break;
                 case 'Task';
                 $TaskStateIDs = $this->getSubObjectIDs('TaskState',array(name=>$keyword));
+                //print_r($TaskStateIDs);
                 $TaskTypeIDs = $this->getSubObjectIDs('TaskType',array(name=>$keyword));
                 $ImageIDs = $this->getSubObjectIDs('Image',array(name=>$keyword));
                 $GroupIDs = $this->getSubObjectIDs('Group',array(name=>$keyword));
@@ -97,6 +100,8 @@ abstract class FOGManagerController extends FOGBase {
                 if (count($GroupIDs)) $HostIDs = array_merge($HostIDs,$this->getSubObjectIDs('GroupAssociation',array(id=>$GroupIDs),'hostID'));
                 if (count($SnapinIDs)) $HostIDs = array_merge($HostIDs,$this->getSubObjectIDs('SnapinAssociation',array(id=>$SnapinIDs),'hostID'));
                 if (count($PrinterIDs)) $HostIDs = array_merge($HostIDs,$this->getSubObjectIDs('PrinterAssociation',array(id=>$PrinterIDs),'hostID'));
+                if (count($TaskStateIDs)) $itemIDs = array_merge($itemIDs,$this->getSubObjectIDs('Task',array(stateID=>$TaskStateIDs)));
+                if (count($TaskTypeIDs)) $itemIDs = array_merge($itemIDs,$this->getSubObjectIDs('Task',array(typeID=>$TaskTypeIDs)));
                 if (count($HostIDs)) $itemIDs = array_merge($itemIDs,$this->getSubObjectIDs('Task',array(hostID=>$HostIDs)));
                 break;
                 default;
