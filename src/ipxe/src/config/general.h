@@ -67,6 +67,15 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 //#undef	SANBOOT_PROTO_AOE	/* AoE protocol */
 //#undef	SANBOOT_PROTO_IB_SRP	/* Infiniband SCSI RDMA protocol */
 //#undef	SANBOOT_PROTO_FCP	/* Fibre Channel protocol */
+//#undef	SANBOOT_PROTO_HTTP	/* HTTP SAN protocol */
+
+/*
+ * HTTP extensions
+ *
+ */
+#define HTTP_AUTH_BASIC		/* Basic authentication */
+#define HTTP_AUTH_DIGEST	/* Digest authentication */
+//#define HTTP_ENC_PEERDIST	/* PeerDist content encoding */
 
 /*
  * 802.11 cryptosystems and handshaking protocols
@@ -111,7 +120,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define	CONFIG_CMD		/* Option configuration console */
 #define	IFMGMT_CMD		/* Interface management commands */
 //#define	IWMGMT_CMD		/* Wireless interface management commands */
-//#define FCMGMT_CMD		/* Fibre Channel management commands */
+#define FCMGMT_CMD		/* Fibre Channel management commands */
 #define	ROUTE_CMD		/* Routing table management commands */
 #define IMAGE_CMD		/* Image management commands */
 #define DHCP_CMD		/* DHCP management commands */

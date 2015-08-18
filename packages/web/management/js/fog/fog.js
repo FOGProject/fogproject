@@ -250,7 +250,6 @@ function getQueryParams(qs) {
                         ActionBoxDel.hide();
                         // Show nice error
                         Loader
-                        .addClass('error')
                         .fogStatusUpdate(_L['SEARCH_RESULTS_FOUND']
                             .replace(/%1/, '0')
                             .replace(/%2/, 's')

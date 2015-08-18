@@ -126,23 +126,18 @@ class PrinterManagementPage extends FOGPage {
         );
         foreach ((array)$printerTypes AS $short => &$long)
             $optionPrinter .= '<option value="'.$short.'" '.($_REQUEST[printertype] == $short ? 'selected="selected"' : '').'>'.$long.'</option>';
+        print '<center><select name="printertype" onchange="this.form.submit()">'.$optionPrinter.'</select></center></form><br/>';
         unset($long);
-        print '<select name="printertype" onchange="this.form.submit()">'.$optionPrinter.'</select></form>';
+        $fields = array(
+            _('Printer Description') => '<textarea name="description">${desc}</textarea>',
+            _('Printer Alias').'*' => '<input type="text" name="alias" value="${printer_name}"/>',
+        );
         switch (strtolower($_REQUEST[printertype])) {
             case 'network';
-            $fields = array(
-                _('Printer Description') => '<textarea name="description" rows="8" cols="40">${desc}</textarea>',
-                _('Printer Alias').'*' => '<input type="text" name="alias" value="${printer_name}" />',
-                addslashes('e.g. \\\\printerserver\\printername') => '&nbsp;',
-            );
+            $fields[addslashes('e.g. \\\\printerserver\\printername')] = '&nbsp;';
             break;
             case 'cups';
-            $fields = array(
-                _('Printer Description') => '<textarea name="description" rows="8" cols="40">${desc}</textarea>',
-                _('Printer Alias').'*' => '<input type="text" name="alias" value="${printer_name}" />',
-                _('Printer INF File').'*' => '<input type="text" name="inf" value="${printer_inf}" />',
-                _('Printer IP').'*' => '<input type="text" name="ip" value="${printer_ip}" />',
-            );
+            $fields = array_merge($fields, array(_('Printer INF File').'*' => '<input type="text" name="inf" value="${printer_inf}" />',_('Printer IP').'*' => '<input type="text" name="ip" value="${printer_ip}" />'));
             break;
             case 'iprint';
             $fields = array(
