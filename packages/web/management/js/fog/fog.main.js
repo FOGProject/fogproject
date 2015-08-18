@@ -4,166 +4,165 @@ $(function() {
         if (!field.is(':focus')) field.next('i').hide();
         if (field.is(':focus')) field.append('<i class="fa fa-pencil fa-1x fa-fw"></i>');
     });
-        // Advanced Tasks stuff
-        $('.advanced-tasks-link').click(function() {
-            $(this).parents('tr').toggle('fast', function() {
-                $('#advanced-tasks').toggle('slow');
-                });
-            $(this).parents('tr').toggle('fast');
-            event.preventDefault();
-            });
-        $('#FOG_QUICKREG_IMG_ID').change(function() {
-            $.ajax({
-url: '?node=about',
-cache: false,
-type: 'POST',
-data: {
-sub: 'getOSID',
-image_id: $(this).val()
-},
-success: function(data) {
-$('#FOG_QUICKREG_OS_ID').html(data.replace(/\"/g,""));
-}
-});
-            });
-// Make button
-$('#adClear').html('<br/><input type="button" id="clearAD" value="Clear Fields"></input>');
-// Clear fields
-$('#clearAD').click(function() {
+    $('#refinesearch').remove();
+    // Advanced Tasks stuff
+    $('.advanced-tasks-link').click(function() {
+        $(this).parents('tr').toggle('fast', function() {
+            $('#advanced-tasks').toggle('slow');
+        });
+        $(this).parents('tr').toggle('fast');
+        event.preventDefault();
+    });
+    $('#FOG_QUICKREG_IMG_ID').change(function() {
+        $.ajax({
+            url: '?node=about',
+            cache: false,
+            type: 'POST',
+            data: {
+                sub: 'getOSID',
+                image_id: $(this).val()
+            },
+            success: function(data) {
+                $('#FOG_QUICKREG_OS_ID').html(data.replace(/\"/g,""));
+            }
+        });
+    });
+    // Make button
+    $('#adClear').html('<br/><input type="button" id="clearAD" value="Clear Fields"></input>');
+    // Clear fields
+    $('#clearAD').click(function() {
         $('#adEnabled').prop('checked',false);
         $('#adOU').is('input:text') ? $('#adOU').val('') : null;
         $('#adDomain').val('');
         $('#adUsername').val('');
         $('#adPassword').val('');
         $('#adPasswordLegacy').val('');
-        });
-// Bind to AD Settings checkbox
-$('#adEnabled').change(function() {
+    });
+    // Bind to AD Settings checkbox
+    $('#adEnabled').change(function() {
         if ($(this).is(':checked')) {
-        if ($('#adDomain').val() == '' || $('#adUsername').val() == '' ||  $('#adPassword').val() == '' || $('#adPasswordLegacy').val() == '') {
-        $.ajax({
-url: '../management/index.php',
-type: 'POST',
-timeout: 1000,
-data: {sub: 'adInfo'},
-dataType: 'json',
-success: function(data) {
-if ($('#adDomain').val() == '') $('#adDomain').val(data['domainname']);
-if ($('#adUsername').val() == '') $('#adUsername').val(data['domainuser']);
-if ($('#adPassword').val() == '') $('#adPassword').val(data['domainpass']);
-if ($('#adPasswordLegacy').val() == '') $('#adPasswordLegacy').val(data['domainpasslegacy']);
-if ($('#adOU').is('input:text') && $('#adOU').val() == '') {
-$('#adOU').val(data['ou']);
-}
-}
-});
+            if ($('#adDomain').val() == '' || $('#adUsername').val() == '' ||  $('#adPassword').val() == '' || $('#adPasswordLegacy').val() == '') {
+                $.ajax({
+                    url: '../management/index.php',
+                    type: 'POST',
+                    timeout: 1000,
+                    data: {
+                        sub: 'adInfo'
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        if ($('#adDomain').val() == '') $('#adDomain').val(data['domainname']);
+                        if ($('#adUsername').val() == '') $('#adUsername').val(data['domainuser']);
+                        if ($('#adPassword').val() == '') $('#adPassword').val(data['domainpass']);
+                        if ($('#adPasswordLegacy').val() == '') $('#adPasswordLegacy').val(data['domainpasslegacy']);
+                        if ($('#adOU').is('input:text') && $('#adOU').val() == '') $('#adOU').val(data['ou']);
+                    }
+                });
+            }
         }
-        }
-});
-var allRadios = $('.default');
-var radioChecked;
-var setCurrent = function(e) {
-    var obj = e.target;
-    radioChecked = $(obj).is(':checked');
-}
-var setCheck = function(e) {
-    if (e.type == 'keypress' && e.charCode != 32) {
-        return false;
+    });
+    var allRadios = $('.default');
+    var radioChecked;
+    var setCurrent = function(e) {
+        var obj = e.target;
+        radioChecked = $(obj).is(':checked');
     }
-    var obj = e.target;
-    $(obj).prop('checked',!radioChecked);
-}
-$.each(allRadios, function(i, val) {
+    var setCheck = function(e) {
+        if (e.type == 'keypress' && e.charCode != 32) return false;
+        var obj = e.target;
+        $(obj).prop('checked',!radioChecked);
+    }
+    $.each(allRadios, function(i, val) {
         var label = $('label[for='+$(this).prop('id')+']');
         $(this).bind('mousedown keydown', function(e) {
             setCurrent(e);
-            });
+        });
         label.bind('mousedown keydown', function(e) {
             e.target = $('#'+$(this).attr("for"));
             setCurrent(e);
-            });
+        });
         $(this).bind('click', function(e) {
             setCheck(e);
-            });
         });
-$('.trigger_expand').click(function() {
+    });
+    $('.trigger_expand').click(function() {
         var all = $('.expand_trigger'),
         active = all.filter('.active');
         if (all.length && all.length === active.length) {
-        // All open; close them
-        all.removeClass('active').next().slideUp();
-        $('.trigger_expand').html('<a href="#" class="trigger_expand"><h3>Expand All</h3></a>');
+            // All open; close them
+            all.removeClass('active').next().slideUp();
+            $('.trigger_expand').html('<a href="#" class="trigger_expand"><h3>Expand All</h3></a>');
         } else {
-        all.not('.active').addClass('active').next().slideDown();
-        $('.trigger_expand').html('<a href="#" class="trigger_expand"><h3>Collapse All</h3></a>');
+            all.not('.active').addClass('active').next().slideDown();
+            $('.trigger_expand').html('<a href="#" class="trigger_expand"><h3>Collapse All</h3></a>');
         }
         return false;
+    });
+    // Assign DOM elements
+    if (typeof($("#pigz").slider) == typeof(Function)) {
+        $("#pigz").slider({
+            min: 0,
+            max: 9,
+            range: 'min',
+            value: $("#showVal").val(),
+            slide: function(event, ui) {
+                $("#showVal").val(ui.value);
+            }
         });
-// Assign DOM elements
-if (typeof($("#pigz").slider) == typeof(Function)) {
-    $("#pigz").slider({
-min: 0,
-max: 9,
-range: 'min',
-value: $("#showVal").val(),
-slide: function(event, ui) {
-$("#showVal").val(ui.value);
-}
-});
-}
-if (typeof($("#loglvl").slider) == typeof(Function)) {
-    $("#loglvl").slider({
-min: 0,
-max: 7,
-range: 'min',
-value: $("#showlogVal").val(),
-slide: function(event, ui) {
-$("#showlogVal").val(ui.value);
-}
-});
-}
-if (typeof($("#inact").slider) == typeof(Function)) {
-    $("#inact").slider({
-min: 1,
-max: 24,
-range: 'min',
-value: $("#showValInAct").val(),
-slide: function(event, ui) {
-$("#showValInAct").val(ui.value);
-}
-});
-}
-if (typeof($("#regen").slider) == typeof(Function)) {
-    $("#regen").slider({
-step: 0.25,
-min: 0.25,
-max: 24,
-range: 'min',
-value: $("#showValRegen").val(),
-slide: function(event, ui) {
-$("#showValRegen").val(ui.value);
-}
-});
-}
-// Show Password information
-$(':password').not('[name="fakepasswordremembered"]').after('&nbsp;<i class="fa fa-eye-slash fa-2x"></i>&nbsp;');
-$(':password').next('i').mousedown(function() {
-    $(this).removeClass('fa-eye-slash').addClass('fa-eye');
-    $(this).prev('input').prop('type','text');
-}).mouseup(function() {
-    $(this).removeClass('fa-eye').addClass('fa-eye-slash');
-    $(this).prev('input').prop('type','password');
-});
-// Process FOG JS Variables
-$('.fog-variable').fogVariable();
-// Process FOG Message Boxes
-$('.fog-message-box').fogMessageBox();
-// Host Ping
-$('.ping').fogPing();
-// Placeholder support
-$('input[placeholder]').placeholder();
-// Nav Menu: Add hover label
-$('.menu li a').each(function() {
+    }
+    if (typeof($("#loglvl").slider) == typeof(Function)) {
+        $("#loglvl").slider({
+            min: 0,
+            max: 7,
+            range: 'min',
+            value: $("#showlogVal").val(),
+            slide: function(event, ui) {
+                $("#showlogVal").val(ui.value);
+            }
+        });
+    }
+    if (typeof($("#inact").slider) == typeof(Function)) {
+        $("#inact").slider({
+            min: 1,
+            max: 24,
+            range: 'min',
+            value: $("#showValInAct").val(),
+            slide: function(event, ui) {
+                $("#showValInAct").val(ui.value);
+            }
+        });
+    }
+    if (typeof($("#regen").slider) == typeof(Function)) {
+        $("#regen").slider({
+            step: 0.25,
+            min: 0.25,
+            max: 24,
+            range: 'min',
+            value: $("#showValRegen").val(),
+            slide: function(event, ui) {
+                $("#showValRegen").val(ui.value);
+            }
+        });
+    }
+    // Show Password information
+    $(':password').not('[name="fakepasswordremembered"]').after('&nbsp;<i class="fa fa-eye-slash fa-2x"></i>&nbsp;');
+    $(':password').next('i').mousedown(function() {
+        $(this).removeClass('fa-eye-slash').addClass('fa-eye');
+        $(this).prev('input').prop('type','text');
+    }).mouseup(function() {
+        $(this).removeClass('fa-eye').addClass('fa-eye-slash');
+        $(this).prev('input').prop('type','password');
+    });
+    // Process FOG JS Variables
+    $('.fog-variable').fogVariable();
+    // Process FOG Message Boxes
+    $('.fog-message-box').fogMessageBox();
+    // Host Ping
+    $('.ping').fogPing();
+    // Placeholder support
+    $('input[placeholder]').placeholder();
+    // Nav Menu: Add hover label
+    $('.menu li a').each(function() {
         // Variables
         var $img = $(this).find('img');
         // Add our label
@@ -178,73 +177,76 @@ $('.menu li a').each(function() {
             var center = ($label.width() - $(this).width()) / 2;
             var left = $(this).offset().left - (center > 0 ? center : -center/2);
             // Set 'left'
-            $label.css({left: left+'px',top: $(this).offset().top+55+'px'}).show();
-            }, function() {
+            $label.css({
+                left: left+'px',
+                top: $(this).offset().top+55+'px'
+            }).show();
+        }, function() {
             $label.hide();
-            });
         });
-// Tooltips
-$('#logo > h1 > a > img').tipsy({gravity: 's'});
-HookTooltips();
-// Search boxes
-$('.search-input').fogAjaxSearch();
-$('#content-inner').fogTableInfo();
-// Disable text selection in <label> elements
-$('label').disableSelection();
-function format(icon) {
-    if (!icon.id) return icon.text;
-    var $icon = $('<i class="fa fa-'+icon.element.value.toLowerCase()+' fa-1x">'+icon.text+'</i>'+icon.text);
-    return $icon;
-}
-$('select')
-.not('[name="storagesel"]')
-.select2();
-$('[name="icon"]')
-.select2({
-    templateResult: format,
-    templateSelection: format
-});
-$('#scheduleSingleTime').datetimepicker({
-dateFormat: 'yy/mm/dd',
-timeFormat: 'HH:mm'
-});
-// Snapin uploader for existing snapins
-$('#snapin-upload').click(function() {
+    });
+    // Tooltips
+    $('#logo > h1 > a > img').tipsy({gravity: 's'});
+    HookTooltips();
+    // Search boxes
+    $('.search-input').fogAjaxSearch();
+    $('#content-inner').fogTableInfo();
+    // Disable text selection in <label> elements
+    $('label').disableSelection();
+    function format(icon) {
+        if (!icon.id) return icon.text;
+        var $icon = $('<i class="fa fa-'+icon.element.value.toLowerCase()+' fa-1x">'+icon.text+'</i>'+icon.text);
+        return $icon;
+    }
+    $('select')
+    .not('[name="storagesel"]')
+    .select2();
+    $('[name="icon"]')
+    .select2({
+        templateResult: format,
+        templateSelection: format
+    });
+    $('#scheduleSingleTime').datetimepicker({
+        dateFormat: 'yy/mm/dd',
+        timeFormat: 'HH:mm'
+    });
+    // Snapin uploader for existing snapins
+    $('#snapin-upload').click(function() {
         $('#uploader').html('<input type="file" name="snapin" />').find('input').click();
-        });
-// Host Management - Select all checkbox
-$('.header input[type="checkbox"][name="no"]').click(function() {
+    });
+    // Host Management - Select all checkbox
+    $('.header input[type="checkbox"][name="no"]').click(function() {
         $('input[type="checkbox"][name^="HID"]').prop('checked',$(this).is(':checked'));
-        });
-$('#checkAll').click(function() {
+    });
+    $('#checkAll').click(function() {
         selectAll = $(this).is(':checked');
         $('.checkboxes').each(function(){$(this).prop('checked',selectAll)});
-        });
-// Tabs
-// Blackout - 9:14 AM 30/11/2011
-$('.organic-tabs').organicTabs({targetID: '#tab-container'});
-// Hides all the divs in the Service menu
-$('#tab-container-1 > div').hide();
-// Shows the div of the containing element.
-$('#tab-container-1 > a').click(function() {
+    });
+    // Tabs
+    // Blackout - 9:14 AM 30/11/2011
+    $('.organic-tabs').organicTabs({
+        targetID: '#tab-container'
+    });
+    // Hides all the divs in the Service menu
+    $('#tab-container-1 > div').hide();
+    // Shows the div of the containing element.
+    $('#tab-container-1 > a').click(function() {
         $('#tab-container-1 div#'+$(this).attr('id')).fadeToggle('slow','swing');
         return false;
-        });
+    });
 });
 function debug(txt) {
-    if (console) {
-        console.log(txt);
-    }
+    if (console) console.log(txt);
 }
 function HookTooltips() {
     // TODO: Clean up - use LIVE - tipsy fails on IE with LIVE
     setTimeout(function() {
-            $('.tipsy').remove();
-            $('a[title]', Content).tipsy({gravity: 'e'});
-            $('.remove-mac[title], .add-mac[title], .icon-help[title]', Content).tipsy({gravity: 'w'});
-            $('.task-name[title], .icon[title]', Content).tipsy({gravity: 's'});
-            $('img[title]', Content).tipsy();
-            }, 20);
+        $('.tipsy').remove();
+        $('a[title]', Content).tipsy({gravity: 'e'});
+        $('.remove-mac[title], .add-mac[title], .icon-help[title]', Content).tipsy({gravity: 'w'});
+        $('.task-name[title], .icon[title]', Content).tipsy({gravity: 's'});
+        $('img[title]', Content).tipsy();
+    }, 400);
 }
 function duplicateImageName() {
     if (document.getElementById('iName') != null && document.getElementById('iFile')) {

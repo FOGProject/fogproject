@@ -135,7 +135,7 @@ select:not([name=ulang]):not([name=storagesel]) {
     max-width: 350px;
 }
 input[type=text], input[type=search], select:not([name=ulang]):not([name=storagesel]) {
-    width: 250px;
+    width: 200px;
 }
 textarea {
     width: 40em;
@@ -952,7 +952,7 @@ pre {
     text-align: center;
     background: #e9e9e9;
     padding: 5px 0;
-    margin: 7px 0;
+    margin: auto auto;
     border-top: 1px solid #ddd;
     border-left: 1px solid #ccc;
     border-bottom: 1px solid #ddd;
@@ -960,17 +960,6 @@ pre {
     border-radius: 0;
     -moz-border-radius: 0;
     -webkit-border-radius: 0;
-}
-#deploy-container .advanced-settings h2 {
-    padding: 5px 0;
-    margin: 7px -16px;
-    border-radius: 0;
-    -moz-border-radius: 0;
-    -webkit-border-radius: 0;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #ccc;
-    border-top: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
 }
 #deploy-container input[type=text]:focus {
     padding: 4px 8px;
