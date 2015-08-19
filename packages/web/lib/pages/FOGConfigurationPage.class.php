@@ -167,6 +167,8 @@ class FOGConfigurationPage extends FOGPage {
         $bootKeys = $this->getClass(KeySequenceManager)->buildSelectBox($this->FOGCore->getSetting(FOG_KEY_SEQUENCE));
         $advLogin = ($this->FOGCore->getSetting(FOG_ADVANCED_MENU_LOGIN) ? 'checked' : '');
         $advanced = $this->FOGCore->getSetting(FOG_PXE_ADVANCED);
+        $exitNorm = Service::buildExitSelector('bootTypeExit',$this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE));
+        $exitEfi = Service::buildExitSelector('efiBootTypeExit',$this->FOGCore->getSetting(FOG_EFI_BOOT_EXIT_TYPE));
         $fields = array(
             _('No Menu') => '<input type="checkbox" name="nomenu" value="1" '.$noMenu.'/><i class="icon fa fa-question hand" title="Option sets if there will even be the presence of a menu to the client systems.  If there is not a task set, it boots to the first device, if there is a task, it performs that task."></i>',
             _('Hide Menu') => '<input type="checkbox" name="hidemenu" value="1" '.$hidChecked.'/><i class="icon fa fa-question hand" title="Option below sets the key sequence.  If none is specified, ESC is defaulted. Login with the FOG credentials and you will see the menu.  Otherwise it will just boot like normal."></i>',
@@ -174,8 +176,8 @@ class FOGConfigurationPage extends FOGPage {
             _('Advanced Menu Login') => '<input type="checkbox" name="advmenulogin" value="1" '.$advLogin.'/><i class="icon fa fa-question hand" title="Option below enforces a Login system for the Advanced menu parameters.  If off no login will appear, if on, it will only allow login to the advanced system.."></i>',
             _('Boot Key Sequence') => $bootKeys,
             _('Menu Timeout (in seconds)').':*' => '<input type="text" name="timeout" value="'.$timeout.'" id="timeout" />',
-            _('Exit to Hard Drive Type') => '<select name="bootTypeExit"><option value="sanboot" '.($this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE) == 'sanboot' ? 'selected="selected"' : '').'>Sanboot style</option><option value="exit" '.($this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE) == 'exit' ? 'selected="selected"' : '').'>Exit style</option><option value="grub" '.($this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE) == 'grub' ? 'selected="selected"' : '').'>Grub style</option></select>',
-            _('Exit to Hard Drive Type(EFI)') => '<select name="efiBootTypeExit"><option value="sanboot" '.($this->FOGCore->getSetting(FOG_EFI_BOOT_EXIT_TYPE) == 'sanboot' ? 'selected="selected"' : '').'>Sanboot style</option><option value="exit" '.($this->FOGCore->getSetting(FOG_EFI_BOOT_EXIT_TYPE) == 'exit' ? 'selected="selected"' : '').'>Exit style</option><option value="grub" '.($this->FOGCore->getSetting(FOG_EFI_BOOT_EXIT_TYPE) == 'grub' ? 'selected="selected"' : '').'>Grub style</option></select>',
+            _('Exit to Hard Drive Type') => $exitNorm,
+            _('Exit to Hard Drive Type(EFI)') => $exitEfi,
             '<a href="#" onload="$(\'#advancedTextArea\').hide();" onclick="$(\'#advancedTextArea\').toggle();" id="pxeAdvancedLink">Advanced Configuration Options</a>' => '<div id="advancedTextArea" class="hidden"><div class="lighterText tabbed">Add any custom text you would like included added as part of your <i>default</i> file.</div><textarea rows="5" cols="40" name="adv">'.$advanced.'</textarea></div>',
             '&nbsp;' => '<input type="submit" value="'._('Save PXE MENU').'" />',
         );
@@ -609,18 +611,8 @@ class FOGConfigurationPage extends FOGPage {
                     foreach($duplexTypes AS $types => &$val) $options[] = '<option value="'.$val.'" '.($Service->get(value) == $val ? 'selected="selected"' : '').'>'.$types.'</option>';
                     unset($val);
                     $type = '<select name="${service_id}" style="width: 220px" autocomplete="off">'.implode($options).'</select>';
-                } else if ($Service->get(name) == 'FOG_BOOT_EXIT_TYPE') {
-                    $types = array('sanboot','grub','exit');
-                    foreach($types AS $i => &$viewop) $options[] = '<option value="'.$viewop.'" '.($Service->get(value) == $viewop ? 'selected="selected"' : '').'>'.strtoupper($viewop).'</option>';
-                    unset($viewop);
-                    $type = '<select name="${service_id}" style="width: 220px" autocomplete="off">'.implode($options).'</select>';
-                    unset($options);
-                } else if ($Service->get(name) == 'FOG_EFI_BOOT_EXIT_TYPE') {
-                    $types = array('sanboot','grub','exit');
-                    foreach($types AS $i => &$viewop) $options[] = '<option value="'.$viewop.'" '.($Service->get(value) == $viewop ? 'selected="selected"' : '').'>'.strtoupper($viewop).'</option>';
-                    unset($viewop);
-                    $type = '<select name="${service_id}" style="width: 220px" autocomplete="off">'.implode($options).'</select>';
-                    unset($options);
+                } else if (in_array($Service->get(name),array('FOG_BOOT_EXIT_TYPE','FOG_EFI_BOOT_EXIT_TYPE'))) {
+                    $type = Service::buildExitSelector($Service->get(id),$Service->get(value));
                 } else if ($Service->get(name) == 'FOG_DHCP_BOOTFILENAME') {
                     $type = null;
                 } else if (in_array($Service->get(name),$ServiceNames)) $type = '<input type="checkbox" name="${service_id}" value="1" '.($Service->get(value) ? 'checked' : '').' />';
