@@ -58,4 +58,25 @@ class Service extends FOGController {
     public function remUser($id) {
         $this->getClass(UserCleanup,$id)->destroy();
     }
+    // Select option statement for exit types
+    /** buildExitSelector creates select option statement for exit
+     * @param $name the name to generate the select under
+     * @param $selected the item to show as selected
+     * @return the built select statement
+     */
+    public static function buildExitSelector($name = '',$selected = '') {
+        if (empty($name)) $name = $this->get(name);
+        $types = array(
+            'sanboot',
+            'grub',
+            'grub_first_hdd',
+            'grub_first_cdrom',
+            'grub_first_found_windows',
+            'exit'
+        );
+        $options = sprintf('<select name="%s" autocomplete="off">',$name);
+        foreach ($types AS $i => &$viewop) $options .= sprintf('<option value="%s"%s>%s</option>',$viewop,strtolower($selected) == $viewop ? 'selected' : '',strtoupper($viewop));
+        unset ($viewop);
+        return $options.'</select>';
+    }
 }

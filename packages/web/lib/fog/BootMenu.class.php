@@ -17,21 +17,31 @@ class BootMenu extends FOGBase {
         $webserver = $this->FOGCore->getSetting(FOG_WEB_HOST);
         $curroot = trim(trim($this->FOGCore->getSetting(FOG_WEB_ROOT),'/'));
         $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
+        $Send['booturl'] = array(
+            '#!ipxe',
+            'set fog-ip '.$this->FOGCore->getSetting(FOG_WEB_HOST),
+            'set fog-webroot '.basename($this->FOGCore->getSetting(FOG_WEB_ROOT)),
+            'set boot-url http://${fog-ip}/${fog-webroot}',
+        );
+        $this->parseMe($Send);
         $this->web = "${webserver}${webroot}";
 
-        $exitTypes = array("exit" => "exit", 
-            "sanboot" => "sanboot --no-describe --drive 0x80",
-            "grub" => 'chain -ar http://'.rtrim($this->web,'/').'/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"');
+        $exitTypes = array(
+            sanboot=>'sanboot --no-describe --drive 0x80',
+            grub=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"',
+            grub_first_hdd=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"',
+            grub_first_cdrom=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="cdrom --init;map --hook;root (cd0);chainloader (cd0)"',
+            grub_first_found_windows=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="find --set-root /BOOTMGR;chainloader /BOOTMGR"',
+            'exit'=>'exit',
+        );
         $exitSetting = false;
-
+        $exitKeys = array_keys($exitTypes);
         if (isset($_REQUEST[platform]) && $_REQUEST[platform] == 'efi') {
             $exitSetting = $this->FOGCore->getSetting(FOG_EFI_BOOT_EXIT_TYPE);
         } else {
             $exitSetting = $this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE);
         }
-
-        $this->bootexittype = $exitTypes[$exitSetting ? $exitSetting : "exit"];
-
+        $this->bootexittype = (in_array($exitSetting,$exitKeys) ? $exitTypes[$exitSetting] : $exitSetting);
         $ramsize = $this->FOGCore->getSetting(FOG_KERNEL_RAMDISK_SIZE);
         $dns = $this->FOGCore->getSetting(FOG_PXE_IMAGE_DNSADDRESS);
         $keymap = $this->FOGCore->getSetting(FOG_KEYMAP);
@@ -845,9 +855,6 @@ class BootMenu extends FOGBase {
         $Menus = $this->getClass('PXEMenuOptionsManager')->find('','','id');
         $Send['head'] = array(
             "#!ipxe",
-            'set fog-ip '.$this->FOGCore->getSetting(FOG_WEB_HOST),
-            'set fog-webroot '.basename($this->FOGCore->getSetting(FOG_WEB_ROOT)),
-            'set boot-url http://${fog-ip}/${fog-webroot}',
             "cpuid --ext 29 && set arch x86_64 || set arch i386",
             "goto get_console",
             ":console_set",
