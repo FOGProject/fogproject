@@ -323,7 +323,7 @@ class TaskManagementPage extends FOGPage {
         $this->render();
     }
     public function canceltasks() {
-        $Tasks = $this->getClass(TaskManager)->find(array(id=>$_REQUEST[task]));
+        $Tasks = $this->getClass(TaskManager)->find(array(id=>(array)$_REQUEST[task]));
         foreach ($Tasks AS $i => &$Task) $Task->cancel();
         $this->FOGCore->setMessage(_('Successfully cancelled selected tasks'));
         $this->FOGCore->redirect('?node='.$this->node.'&sub=active');
@@ -369,42 +369,42 @@ class TaskManagementPage extends FOGPage {
             else $this->FOGCore->redirect(sprintf('?node=%s', $this->node));
         }
     }
-    public function remove_multicast_task() {
-        $MulticastSession = $this->getClass(MulticastSessions,$_REQUEST[id]);
-        $this->HookManager->processEvent(MULTICAST_TASK_CANCEL,array(MulticastSession=>&$MulticastSession));
-        $MulticastSessions = $this->getClass(MulticastSessionsAssociationManager)->find(array(msID=>$MulticastSession->get(id)));
-        foreach($MulticastSessions AS $i => &$MSA) {
-            $MS = $MSA->getMulticastSession();
-            if ($MS->get(id) == $MulticastSession->get(id)) $MSA->getTask()->cancel();
-        }
-        unset($MSA);
-        $this->FOGCore->setMessage(_('Multicast Task cancelled'));
-        $this->FOGCore->redirect(sprintf('?node=%s&sub=%s',$this->node,'active-multicast'));
+    public function remove_multicast_post() {
+        $MulticastSessionIDs = $this->getClass(MulticastSessionsManager,$_REQUEST[task])->find(array(id=>$_REQUEST[task]),'','','','','','','id');
+        $MulticastAssocIDs = $this->getClass(MulticastSessionsAssociationManager)->find(array(id=>$MulticastSessionIDs),'','','','','','','msID');
+        $TaskIDs = $this->getClass(MulticastSessionsAssociationManager)->find(array(id=>$MulticastAssocIDs),'','','','','','','taskID');
+        $Tasks = $this->getClass(TaskManager)->find(array(id=>$MulticastAssocIDs));
+        foreach ($Tasks AS $i => &$Task) $Task->cancel();
+        unset($Task);
+        $this->getClass(MulticastSessionsAssociationManager)->destroy(array(id=>$MulticastAssocIDs));
+        $this->getClass(MulticastSessionsManager)->destroy(array(id=>$MulticastSessionIDs));
+        $this->FOGCore->setMessage(_('Successfully cancelled selected tasks'));
+        $this->FOGCore->redirect('?node='.$this->node.'&sub=active');
     }
     public function active_multicast() {
         // Set title
         $this->title = _('Active Multi-cast Tasks');
         // Header row
         $this->headerData = array(
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             _('Task Name'),
             _('Hosts'),
             _('Start Time'),
             _('State'),
             _('Status'),
-            _('Kill')
         );
         // Row templates
         $this->templates = array(
+            '<input type="checkbox" name="task[]" value="${id}" class="toggle-action"/>',
             '${name}',
             '${count}',
             '${start_date}',
             '${state}',
             '${percent}',
-            '<a href="?node=task&sub=remove-multicast-task&id=${id}"><i class="icon fa fa-minus-circle" title="Kill Task"></i></a>',
         );
         // Row attributes
         $this->attributes = array(
-            array(),
+            array(width=>16,'class'=>c),
             array('class'=>c),
             array('class'=>c),
             array('class'=>c),
@@ -435,21 +435,21 @@ class TaskManagementPage extends FOGPage {
         $this->title = 'Active Snapins';
         // Header row
         $this->headerData = array(
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             _('Host Name'),
             _('Snapin'),
             _('Start Time'),
             _('State'),
-            _('Kill'),
         );
         $this->templates = array(
+            '<input type="checkbox" name="task[]" value="${id}" class="toggle-action"/>',
             '${host_name}',
             '<form method="post" method="?node=task&sub=active-snapins">${name}',
             '${startDate}',
             '${state}',
-            '<input type="checkbox" id="${id}" class="delid" name="rmid" value="${id}" onclick="this.form.submit()" title="Kill Task" /><label for="${id}" class="icon fa fa-minus-circle" title="'._('Delete').'">&nbsp;</label></form>',
         );
         $this->attributes = array(
-            array(),
+            array('class'=>c,width=>16),
             array('class'=>c),
             array('class'=>c),
             array('class'=>c),
@@ -477,79 +477,68 @@ class TaskManagementPage extends FOGPage {
         $this->render();
     }
     public function active_snapins_post() {
-        if(isset($_REQUEST[rmid])) {
-            // Get the snapin task.
-            $SnapinTask = $this->getClass(SnapinTask,$_REQUEST[rmid]);
-            // Get the job associated with the task.
-            $SnapinJob = $SnapinTask->getSnapinJob();
-            // Get the referenced host.
-            $Host = $SnapinJob->getHost();
-            // Get the active task.
-            $Task = current($this->getClass(TaskManager)->find(array(hostID=>$Host->get(id),stateID=>array(1,2,3))));
-            // Check the Jobs to Snapin tasks to verify if this is the only one.
-            $SnapinJobManager = $this->getClass(SnapinTaskManager)->find(array(jobID=>$SnapinJob->get(id)));
-            // This task is the last task, destroy the job and the task
-            if (count($SnapinJobManager) <= 1) {
-                $SnapinJob->destroy();
-                if ($Task) $Task->cancel();
-            }
-            // Destroy the individual task.
-            $SnapinTask->destroy();
-            // Redirect to the current page.
-            $this->FOGCore->redirect("?node=".$this->node."&sub=active-snapins");
-        }
+        $SnapinTaskIDs = $this->getClass(SnapinTaskManager)->find(array(id=>$_REQUEST[task]),'','','','','','','id');
+        $SnapinJobIDs = $this->getClass(SnapinTaskManager)->find(array(id=>$_REQUEST[task]),'','','','','','','jobID');
+        $HostIDs = $this->getClass(SnapinJobManager)->find(array(id=>$SnapinJobIDs),'','','','','','','hostID');
+        $ActiveTaskIDs = $this->getClass(TaskManager)->find(array(hostID=>$HostIDs,stateID=>array(1,2,3)),'','','','','','','id');
+        $Tasks = $this->getClass(TaskManager)->find(array(id=>$ActiveTaskIDs));
+        foreach ($Tasks AS $i => &$Task) $Task->cancel();
+        $this->getClass(SnapinJobManager)->destroy(array(id=>$SnapinJobIDs));
+        $this->getClass(SnapinTaskManager)->destroy(array(id=>$SnapinTaskIDs));
+        $this->FOGCore->setMessage(_('Successfully cancelled selected tasks'));
+        $this->FOGCore->redirect('?node='.$this->node.'&sub=active');
+    }
+    public function cancelscheduled() {
+        $this->getClass(ScheduledTaskManager)->destroy(array(id=>$_REQUEST[task]),'','','','','','','id');
+        $this->FOGCore->setMessage(_('Successfully cancelled selected tasks'));
+        $this->FOGCore->redirect('?node='.$this->node.'&sub=active');
     }
     public function scheduled() {
         // Set title
         $this->title = 'Scheduled Tasks';
         // Header row
         $this->headerData = array(
+            '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             _('Name:'),
             _('Is Group'),
             _('Task Name'),
             _('Task Type'),
             _('Start Time'),
             _('Active/Type'),
-            _('Kill'),
         );
         // Row templates
         $this->templates = array(
-            '<a href="?node=${hostgroup}&sub=edit&id=${id}" title="Edit ${hostgroupname}">${hostgroupname}</a>',
+            '<input type="checkbox" name="task[]" value="${id}" class="toggle-action"/>',
+            '<a href="?node=${hostgroup}&sub=edit&id=${host_id}" title="Edit ${hostgroupname}">${hostgroupname}</a>',
             '${groupbased}<form method="post" action="?node=task&sub=scheduled">',
             '${details_taskname}',
             '${task_type}',
             '<small>${time}</small>',
             '${active}/${type}',
-            '<input type="checkbox" name="rmid" id="r${schedtaskid}" class="delid" value="${schedtaskid}" onclick="this.form.submit()" /><label for="r${schedtaskid}" class="icon fa fa-minus-circle" title="'._('Delete').'">&nbsp;</label></form>',
         );
         // Row attributes
         $this->attributes = array(
+            array(width=>16,'class'=>c),
             array(width=>120,'class'=>l),
             array(),
             array(width=>110,'class'=>l),
             array('class'=>c,width=>80),
             array(width=>70,'class'=>c),
             array(width=>100,'class'=>c,style=>'padding-right: 10px'),
-            array('class'=>c),
         );
         $SchedTasks = $this->getClass(ScheduledTaskManager)->find();
         foreach ($SchedTasks AS $i => &$task) {
             $Host = $task->getHost();
             $taskType = $task->getTaskType();
-            if ($task->get(type) == 'C') {
-                $taskTime = FOGCron::parse($task->get(minute).' '.$task->get(hour).' '.$task->get(dayOfMonth).' '.$task->get(month).' '.$task->get(dayOfWeek));
-                print_r($taskTime);
-            }
-            else {
-                $taskTime = $task->get(scheduleTime);
-                print_r($taskTime);
-            }
+            if ($task->get(type) == 'C') $taskTime = FOGCron::parse($task->get(minute).' '.$task->get(hour).' '.$task->get(dayOfMonth).' '.$task->get(month).' '.$task->get(dayOfWeek));
+            else $taskTime = $task->get(scheduleTime);
             $taskTime = $this->nice_date()->setTimestamp($taskTime);
             $hostGroupName = ($task->isGroupBased() ? $task->getGroup() : $task->getHost());
             $this->data[] = array(
+                id=>$task->get(id),
                 hostgroup=>$task->isGroupBased() ? 'group' : 'host',
                 hostgroupname=>$hostGroupName,
-                id=>$hostGroupName->get(id),
+                host_id=>$hostGroupName->get(id),
                 groupbased=>$task->isGroupBased() ? _('Yes') : _('No'),
                 details_taskname=>$task->get(name),
                 'time'=>$this->formatTime($taskTime),
@@ -564,13 +553,5 @@ class TaskManagementPage extends FOGPage {
         $this->HookManager->processEvent(TaskScheduledData,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-    }
-    public function scheduled_post() {
-        if(isset($_REQUEST[rmid])) {
-            $this->HookManager->processEvent(TaskScheduledRemove);
-            if (!$this->getClass(ScheduledTask,$_REQUEST[rmid])->destroy()) $this->HookManager->processEvent(TaskSchedulerRemoveFail);
-            else $this->HookManager->processEvent(TaskSchedulerRemoveSuccess);
-            $this->FOGCore->redirect($this->formAction);
-        }
     }
 }

@@ -698,15 +698,18 @@ class TaskType extends FOGController {
     }
     // Custom functions
     public function isUpload() {
-        return preg_match('#type=(2|16|up)#i', $this->get(kernelArgs));
+        return in_array($this->get(id),array(2,16)) || preg_match('#type=(2|16|up)#i',$this->get(kernelArgs));
+    }
+    public function isSnapinTask() {
+        return $this->isDownload() && $this->get(id) != 17;
     }
     public function isDownload() {
-        return preg_match('#type=(1|8|15|17|down)#i', $this->get(kernelArgs));
+        return in_array($this->get(id),array(1,8,15,17,24)) || preg_match('#type=(1|8|15|17|24|down)#i', $this->get(kernelArgs));
     }
     public function isMulticast() {
-        return preg_match('#(type=8|mc=yes)#i', $this->get(kernelArgs));
+        return $this->get(id) == 8 || preg_match('#(type=8|mc=yes)#i', $this->get(kernelArgs));
     }
     public function isDebug() {
-        return (preg_match('#mode=debug#i', $this->get(kernelArgs)) || preg_match('#mode=onlydebug#i', $this->get(kernelArgs)));
+        return in_array($this->get(id),array(15,16)) || preg_match('#mode=debug#i', $this->get(kernelArgs)) || preg_match('#mode=onlydebug#i', $this->get(kernelArgs));
     }
 }
