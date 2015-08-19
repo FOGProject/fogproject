@@ -196,6 +196,8 @@ abstract class FOGManagerController extends FOGBase {
             while ($queryData = $this->DB->fetch()->get()) $data[] = $this->getClass($this->childClass)->setQuery($queryData);
             unset($id,$ids,$row,$queryData);
             if ($this->DB->queryResult() instanceof mysqli_result) $this->DB->queryResult()->free_result();
+            foreach ($data AS $i => &$object) $object->load();
+            unset($object);
             // Return
             return (array)$data;
         } catch (Exception $e) {

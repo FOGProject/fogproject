@@ -22,9 +22,28 @@ $(function() {
     // Show Task Container if we have items
     ActiveTasksContainer = $('#active-tasks');
     if (ActiveTasksContainer.find('tbody > tr').size() > 0) ActiveTasksContainer.show();
+    var URL;
     ActiveTasksContainer.after('<center><div id="canceltasks"></div><input type="button" name="Cancel" value="Cancel selected tasks?"/></center>');
+    switch($_GET['sub']) {
+        case 'active':
+        URL = '?node=task&sub=canceltasks';
+        break;
+        case 'active-snapins':
+        URL = '?node=task&sub=active_snapins_post';
+        break;
+        case 'active-multicast':
+        URL = '?node=task&sub=remove_multicast_post';
+        break;
+        case 'scheduled':
+        URL = '?node=task&sub=cancelscheduled';
+        break;
+        default:
+        $('input[name="Cancel"]').remove();
+        break;
+    }
     $('input[name="Cancel"]').click(function() {
         checkedIDs = getChecked();
+        sub = $_GET['sub'];
         if (checkedIDs.length > 0) {
             $('#canceltasks').html('Are you sure you wish to cancel these tasks?');
             $('#canceltasks').dialog({
@@ -35,10 +54,16 @@ $(function() {
                     'Yes': function() {
                         $.ajax({
                             type: 'POST',
-                            url: '?node=task&sub=canceltasks',
-                            data: {task: checkedIDs}
+                            url: URL,
+                            data: {
+                                task: checkedIDs
+                            },
+                            success: function(data) {
+                                window.location.href = '?node=task&sub='+sub;
+                            }
                         });
                         $(this).dialog('close');
+                        if ($_GET['sub'] == 'active') ActiveTasksUpdate();
                     },
                     'No': function() {
                         $(this).dialog('close');

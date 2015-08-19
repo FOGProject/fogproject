@@ -136,8 +136,10 @@ class Group extends FOGController {
     }
     public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false) {
         if ($this->getClass(TaskManager)->count(array(hostID=>$this->get(hosts),stateID=>array(0,1,2,3)))) throw new Exception(_('One or more hosts are currently in a tasking'));
-        $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
-        foreach ($Hosts AS $i => &$Host) if (!$Host->get(pending)) $success[] = $Host->createImagePackage($taskTypeID,$taskName,$shutdown,$debug,$deploySnapins,$isGroupTask,$_SESSION[FOG_USERNAME],$passreset,$sessionjoin);
+        $success = array();
+        $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts),pending=>array('',false,null,0)));
+        foreach ($Hosts AS $i => &$Host) $success[] = $Host->createImagePackage($taskTypeID,$taskName,$shutdown,$debug,$deploySnapins,$isGroupTask,$_SESSION[FOG_USERNAME],$passreset,$sessionjoin);
+        unset($Host);
         return $success;
     }
 }
