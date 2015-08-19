@@ -23,9 +23,9 @@ try {
     $hdinfo=trim(base64_decode($_REQUEST[hdinfo]));
     if ($hdinfo != null) {
         $arHd = explode(',',$hdinfo);
-        $hdmodel = trim(str_replace("Model=","",trim( $arHd[0])));
-        $hdfirmware = trim(str_replace("FwRev=","",trim( $arHd[1])));
-        $hdserial = trim(str_replace("SerialNo=","",trim( $arHd[2])));
+        $hdmodel = trim(str_replace("Model=","",trim($arHd[0])));
+        $hdfirmware = trim(str_replace("FwRev=","",trim($arHd[1])));
+        $hdserial = trim(str_replace("SerialNo=","",trim($arHd[2])));
     } else {
         $hdmodel = '';
         $hdfirmware = '';
