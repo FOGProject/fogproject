@@ -16,13 +16,13 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 
 //#define	CONSOLE_PCBIOS		/* Default BIOS console */
 //#define	CONSOLE_SERIAL		/* Serial port */
-//#define	CONSOLE_DIRECT_VGA	/* Direct access to VGA card */
+#define	CONSOLE_DIRECT_VGA	/* Direct access to VGA card */
 //#define	CONSOLE_PC_KBD		/* Direct access to PC keyboard */
 //#define	CONSOLE_SYSLOG		/* Syslog console */
 //#define	CONSOLE_SYSLOGS		/* Encrypted syslog console */
-//#define	CONSOLE_VMWARE		/* VMware logfile console */
+#define	CONSOLE_VMWARE		/* VMware logfile console */
 //#define	CONSOLE_DEBUGCON	/* Debug port console */
-//#define	CONSOLE_VESAFB		/* VESA framebuffer console */
+#define	CONSOLE_VESAFB		/* VESA framebuffer console */
 //#define	CONSOLE_INT13		/* INT13 disk log console */
 
 #define	KEYBOARD_MAP	us
