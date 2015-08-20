@@ -21,16 +21,12 @@ try {
     $cpumax=trim(base64_decode($_REQUEST[cpumax]));
     $mem=trim(base64_decode($_REQUEST[mem]));
     $hdinfo=trim(base64_decode($_REQUEST[hdinfo]));
-    if ($hdinfo != null) {
-        $arHd = explode(',',$hdinfo);
-        $hdmodel = trim(str_replace("Model=","",trim($arHd[0])));
-        $hdfirmware = trim(str_replace("FwRev=","",trim($arHd[1])));
-        $hdserial = trim(str_replace("SerialNo=","",trim($arHd[2])));
-    } else {
-        $hdmodel = '';
-        $hdfirmware = '';
-        $hdserial = '';
-    }
+    preg_match('#model=(.*?),#i',$hdinfo,$hdmodel);
+    preg_match('#fwrev=(.*?),#i',$hdinfo,$hdfirmware);
+    preg_match('#serialno=.*#i',$hdinfo,$hdserial);
+    $hdmodel = count($hdmodel) > 1 ? trim($hdmodel[1]) : '';
+    $hdfirmware = count($hdfirmware) > 1 ? trim($hdfirmware[1]) : '';
+    $hdserial = count($hdserial) ? trim(str_ireplace('serialno=','',trim($hdserial[0]))) : '';
     $caseman=trim(base64_decode($_REQUEST[caseman]));
     $casever=trim(base64_decode($_REQUEST[casever]));
     $caseserial=trim(base64_decode($_REQUEST[caseserial]));
