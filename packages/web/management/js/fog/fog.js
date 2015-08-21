@@ -238,6 +238,7 @@ function getQueryParams(qs) {
                         // Tooltips
                         HookTooltips();
                         // Show results
+                        $('table').trigger('update');
                         Container.show();
                         ActionBox.show();
                         ActionBoxDel.show();
@@ -276,8 +277,14 @@ function getQueryParams(qs) {
 }
 $.fn.fogTableInfo = function() {
     // Add table header sorting information.
-    //$('table:not(#search-content) > thead > tr > td').addClass('hand');
-    //$('table:not(#search-content)').tablesorter();
+    $('table').tablesorter({
+        theme: 'blue',
+        widgets: ["zebra","filter"],
+        widgetOptions: {
+            filter_ignoreCase: true,
+        }
+    });
+    $('table > thead > tr > td').addClass('hand');
 }
 $.fn.fogPing = function(opts) {
     // If no elements were found before this was called

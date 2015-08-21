@@ -118,11 +118,13 @@ abstract class FOGPage extends FOGBase {
                         'title' => $this->title,
                         'attributes'	=> $this->attributes,
                         'form' => $this->form,
+                        'searchFormURL' => $this->searchFormURL,
                     ));
                 } else {
                     ob_start(array('Initiator','sanitize_output'));
                     $isMobile = preg_match('#/mobile/#',$_SERVER['PHP_SELF']);
                     // HTML output
+                    $contentField = 'active-tasks';
                     if ($this->searchFormURL) {
                         printf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><%s id="%s-search-submit" class="search-submit" type="%s" value="%s"></form>%s',
                             $this->searchFormURL,
@@ -135,18 +137,20 @@ abstract class FOGPage extends FOGBase {
                             $isMobile ? $this->foglang['Search'] : '',
                             $isMobile ? '</input>' : '</button>'
                         );
+                        $contentField = 'search-content';
                     }
                     if ($this->form) $result .= printf($this->form);
                     // Table -> Header Row
                     printf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s"><thead><tr class="header">%s</tr></thead><tbody>',
                         '100%',
-                        ($this->searchFormURL ? 'search-content' : 'active-tasks'),
+                        $contentField,
                         $this->buildHeaderRow()
                     );
                     if (!count($this->data)) {
                         // No data found
-                        printf('<tr><td colspan="%s" class="no-active-tasks">%s</td></tr></tbody></table>',
+                        printf('<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
                             count($this->templates),
+                            $contentField,
                             ($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : $this->foglang['NoResults'])
                         );
                     } else {
