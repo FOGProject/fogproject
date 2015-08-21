@@ -61,7 +61,7 @@ class Page extends FOGBase {
             $files = array(
                 'js/jquery-latest.js',
                 'js/jquery-migrate-1.2.1.min.js',
-                //'js/jquery.tablesorter.min.js',
+                'js/jquery.tablesorter.min.js',
                 'js/jquery.tipsy.js',
                 'js/jquery.progressbar.js',
                 'js/jquery.tmpl.js',
