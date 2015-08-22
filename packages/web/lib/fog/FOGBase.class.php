@@ -220,7 +220,7 @@ abstract class FOGBase {
         if (!$key) {
             $addKey = true;
             $key = openssl_random_pseudo_bytes($iv_size,$cstrong);
-        }
+        } else $key = $this->hex2bin($key);
         $iv = mcrypt_create_iv($iv_size,MCRYPT_DEV_URANDOM);
         $cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
         return bin2hex($iv).'|'.bin2hex($cipher).($addKey ? '|'.bin2hex($key) : '');
@@ -338,40 +338,27 @@ abstract class FOGBase {
      */
     public function certEncrypt($data,$Host) {
         if (!$Host || !$Host->isValid()) throw new Exception('#!ih');
-        if (!$Host->get('pub_key')) throw new Exception('#!ihc');
-        return $this->aesencrypt($data,$this->hex2bin($Host->get('pub_key')));
-        if (!$pub_key = openssl_pkey_get_public($Host->get('pub_key'))) throw new Exception('#!ihc');
-        $a_key = openssl_pkey_get_details($pub_key);
-        $chunkSize = ceil($a_key['bits'] / 8) - 11;
-        $output = '';
-        while ($data) {
-            $chunk = substr($data,0,$chunkSize);
-            $data = substr($data,$chunkSize);
-            $encrypt = '';
-            if (!openssl_public_encrypt($chunk,$encrypt,$pub_key)) throw new Exception('Failed to encrypt data');
-            $output .= $encrypt;
-        }
-        openssl_free_key($pub_key);
-        return base64_encode($output);
+        if (!$Host->get(pub_key)) throw new Exception('#!ihc');
+        return $this->aesencrypt($data,$Host->get(pub_key));
     }
     /** hex2bin()
      * @param $hex Function simply takes the data and transforms it into hexadecimal.
      * @return the hex coded data.
      */
     public function hex2bin($hex) {
-        if (function_exists('hex2bin')) $sbin = hex2bin($hex);
-        else {
-            $n = strlen($hex);
+        $hex2bin = function($keyToUnhex) {
+            if (function_exists('hex2bin')) return hex2bin($hexToUnhex);
+            $n = strlen($keyToUnhex);
             $i = 0;
+            $sbin = '';
             while ($i<$n) {
                 $a = substr($hex,$i,2);
-                $c = pack("H*",$a);
-                if ($i == 0) $sbin = $c;
-                else $sbin .= $c;
+                $sbin .= pack('H*',$a);
                 $i += 2;
             }
-        }
-        return $sbin;
+            return $sbin;
+        };
+        return $hex2bin($hex);
     }
     /** createSecToken() create security token
      * @return trimmed hex of token
@@ -532,8 +519,8 @@ abstract class FOGBase {
     public function sendData($datatosend,$service = true) {
         if ($service) {
             $Host = $this->getHostItem();
-            if ($_REQUEST['newService'] && $this->getClass('FOGCore')->getSetting('FOG_AES_ENCRYPT')) print "#!enkey=".$this->certEncrypt($datatosend,$Host);
-            else if ($_REQUEST['newService'] && ($Host->get('useAD') && preg_match('#hostname.php#',$_SERVER['PHP_SELF']))) print "#!enkey=".$this->certEncrypt($datatosend,$Host);
+            if ($_REQUEST[newService] && $this->getClass(FOGCore)->getSetting(FOG_AES_ENCRYPT)) print "#!enkey=".$this->certEncrypt($datatosend,$Host);
+            else if ($_REQUEST[newService] && ($Host->get(useAD) && preg_match('#hostname.php#',$_SERVER['REQUEST_URI']))) print "#!enkey=".$this->certEncrypt($datatosend,$Host);
             else print $datatosend;
         }
     }
