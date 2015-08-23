@@ -19,7 +19,21 @@ class Group extends FOGController {
         'hosts',
         'hostsnotinme',
     );
-    // Overides
+    // Required database fields
+    public $databaseFieldsRequired = array(
+        'id',
+        'name',
+    );
+    public $databaseFieldClassRelationships = array();
+    // Load the items
+    public function load($field = 'id') {
+        parent::load($field);
+        $methods = get_class_methods($this);
+        foreach($methods AS $i => &$method) {
+            if (strlen($method) > 5 && strpos($method,'load')) $this->$method();
+        }
+        unset($method);
+    }
     private function loadHosts() {
         if (!$this->isLoaded(hosts) && $this->get(id)) {
             $HostIDs = $this->getClass(GroupAssociationManager)->find(array(groupID=>$this->get(id)),'','','','','','','hostID');
@@ -30,9 +44,7 @@ class Group extends FOGController {
         }
         return $this;
     }
-    public function getHostCount() {
-        return $this->getClass(GroupAssociationManager)->count(array(groupID=>$this->get(id)));
-    }
+    // Overrides
     public function get($key = '') {
         if (in_array($this->key($key),array(hosts,hostsnotinme))) $this->loadHosts();
         return parent::get($key);
@@ -49,15 +61,6 @@ class Group extends FOGController {
         if ($this->key($key) == 'hosts') $this->loadHosts();
         return parent::remove($key,$value);
     }
-    public function load($field = 'id') {
-        parent::load($field);
-        $methods = get_class_methods($this);
-        foreach($methods AS $i => &$method) {
-            if (strlen($method) > 5 && strpos($method,'load'))
-                $this->$method();
-        }
-        unset($method);
-    }
     public function save() {
         parent::save();
         if ($this->isLoaded(hosts)) {
@@ -68,6 +71,10 @@ class Group extends FOGController {
             unset($Host);
         }
         return $this;
+    }
+    // Custom Functions
+    public function getHostCount() {
+        return $this->getClass(GroupAssociationManager)->count(array(groupID=>$this->get(id)));
     }
     public function addHost($addArray) {
         // Add

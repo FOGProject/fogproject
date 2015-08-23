@@ -7,7 +7,8 @@ class Announce extends FOGBase {
     private $torrent;
     private $peer_torrent;
     private $numwant;
-    /** @function __construct() the constructor for this class.  Sets up when class is called.
+    /** @function __construct() the constructor for this class.
+     * Sets up when class is called.
      * @return void
      */
     public function __construct() {

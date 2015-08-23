@@ -1,7 +1,12 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<?php if (!preg_match('#/mobile/#i', $_SERVER['PHP_SELF'])) { ?><meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<?php if (!preg_match('#/mobile/#i', $_SERVER['PHP_SELF'])) {
+    foreach ($this->headJavascripts AS $i => &$javascript) {
+        print '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" defer></script>';
+    }
+    unset($javascript);
+?><meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 	<meta http-equiv="content-type" content="text/json; charset=utf-8" />
 		<title><?php $this->pageTitle ? print "$this->pageTitle &gt; $this->sectionTitle &gt; FOG &gt; {$this->foglang['Slogan']}" : "$this->sectionTitle &gt; FOG &gt; {$this->foglang['Slogan']}" ?></title><?php
 } else { ?><meta name="viewport" content="width=device-width" />
@@ -11,9 +16,7 @@
 }
 $cnt = 0;
 $this->HookManager->processEvent('CSS', array('stylesheets' => & $this->stylesheets));
-foreach ($this->stylesheets AS $i => & $stylesheet) {
-    print ($cnt++ > 0 ? "\t\t" : '') . '<link href="' . $stylesheet . '?ver=' . FOG_BCACHE_VER . '" rel="stylesheet" type="text/css" />' . "\n";
-}
+foreach ($this->stylesheets AS $i => & $stylesheet) print '<link href="'.$stylesheet.'?ver='.FOG_BCACHE_VER.'" rel="stylesheet" type="text/css" />';
 unset($stylesheet); ?>
 <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
 </head>
@@ -68,8 +71,8 @@ unset($stylesheet); ?>
 					<!-- <div id="footer"><a href="http://fogproject.org/wiki/index.php/Credits">Credits</a>&nbsp;&nbsp;<a href="?node=client">FOG Client/FOG Prep</a> Memory Usage: <?php print $this->formatByteSize(memory_get_usage(true)) ?></div> -->
 					<!-- Javascript -->
 					<?php $cnt = 0;
-    $this->HookManager->processEvent('JAVASCRIPT', array('javascripts' => & $this->javascripts));
-    foreach ($this->javascripts AS $i => & $javascript) {
+    $this->HookManager->processEvent(JAVASCRIPT,array(javascripts=>&$this->javascripts));
+    foreach ($this->javascripts AS $i => &$javascript) {
         print ($cnt++ > 0 ? "\t\t" : '') . '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" defer></script>' . "\n";
     }
     unset($javascript);
