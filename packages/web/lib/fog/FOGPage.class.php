@@ -148,7 +148,7 @@ abstract class FOGPage extends FOGBase {
                 }
                 if ($this->form) $result .= printf($this->form);
                 // Table -> Header Row
-                printf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s"><thead><tr class="header">%s</tr></thead><tbody>',
+                printf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s">%s</thead><tbody>',
                     '100%',
                     $contentField,
                     $this->buildHeaderRow()
@@ -205,6 +205,7 @@ abstract class FOGPage extends FOGBase {
         $this->setAtts();
         // Loop data
         if ($this->headerData) {
+            $result = '<thead><tr class="header">';
             foreach ($this->headerData AS $i => &$content) {
                 // Push into results array
                 $result .= sprintf(
@@ -218,7 +219,7 @@ abstract class FOGPage extends FOGBase {
             }
             unset($content);
             // Return result
-            return $result;
+            return $result.'</tr></thead>';
         }
     }
     /** replaceNeeds() sets the template data to replace

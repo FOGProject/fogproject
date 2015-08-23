@@ -276,7 +276,7 @@ function getQueryParams(qs) {
 }
 $.fn.fogTableInfo = function() {
     // Add table header sorting information
-    $('table').tablesorter({
+    $('table:has(thead)').tablesorter({
         theme: 'blue',
         widgets: ["zebra","filter"],
         widgetOptions: {
