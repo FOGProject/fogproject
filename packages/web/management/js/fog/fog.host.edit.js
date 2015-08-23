@@ -86,100 +86,92 @@ position: "nw"
     $.plot(LoginHistory, LoginHistoryData, LoginHistoryOpts);
 }
 $(function() {
-        $('#resetSecData').val('Reset Encryption Data');
-        $('#resetSecData').click(function() {
-            $('#resetSecDataBox').html('Are you sure you wish to reset this hosts encryption data?');
-            $('#resetSecDataBox').dialog({
-resizable: false,
-modal: true,
-title: 'Clear Encryption',
-buttons: {
-'Yes': function() {
-$.ajax({
-url: '../management/index.php',
-type: 'POST',
-timeout: 1000,
-data: {
-sub: 'clearAES',
-id: $_GET['id'],
-},
-});
-$(this).dialog('close');
-},
-'No': function() {
-$(this).dialog('close');
-}
-}
-});
-});
-UpdateLoginGraph();
-// Uncheck default printer boxes.
-$('input:checkbox[name="default"]').click(function() {
-        var ischecked = $(this).attr('checked');
-        $('input:checkbox').attr('checked',false);
-        $(this).attr('checked', ischecked);
+    $('#resetSecData').val('Reset Encryption Data');
+    $('#resetSecData').click(function() {
+        $('#resetSecDataBox').html('Are you sure you wish to reset this hosts encryption data?');
+        $('#resetSecDataBox').dialog({
+            resizable: false,
+            modal: true,
+            title: 'Clear Encryption',
+            buttons: {
+                'Yes': function() {
+                    $.ajax({
+                        url: '../management/index.php',
+                        type: 'POST',
+                        timeout: 1000,
+                        data: {
+                            sub: 'clearAES',
+                            id: $_GET['id'],
+                        },
+                    });
+                    $(this).dialog('close');
+                },
+                'No': function() {
+                    $(this).dialog('close');
+                }
+            }
         });
-
-// Fetch MAC Manufactors
-$('.mac-manufactor').each(function()
-        {
+    });
+    UpdateLoginGraph();
+    // Uncheck default printer boxes.
+    $('input:not(:hidden):checkbox[name="default"]').click(function() {
+        var ischecked = $(this).prop('checked');
+        $('input:checkbox').prop('checked',false);
+        $(this).prop('checked',ischecked);
+    });
+    // Fetch MAC Manufactors
+    $('.mac-manufactor').each(function() {
         var $this = $(this);
         var input = $this.parent().find('input');
         var mac = (input.size() ? input.val() : $this.parent().find('.mac').html());
         $this.load('../management/index.php?sub=getmacman&prefix=' + mac);
-        });
-
-// Remove MAC Buttons
-$('.remove-mac').click(function()
-        {
+    });
+    // Remove MAC Buttons
+    $('.remove-mac').click(function() {
         //$(this).parent().remove();
         //$('.tipsy').remove();
-        if ($('#additionalMACsCell').find('.additionalMAC').size() == 0)
-        {
-        $('#additionalMACsRow').hide();
-        }
+        if ($('#additionalMACsCell').find('.additionalMAC').size() == 0) $('#additionalMACsRow').hide();
         //$(this).attr('checked', ischecked);
-        });
-
-// Add MAC Buttons - TODO: Rewrite OLD CODE
-$('.add-mac').click(function()
-        {
+    });
+    // Add MAC Buttons - TODO: Rewrite OLD CODE
+    $('.add-mac').click(function() {
         $('#additionalMACsRow').show();
         $('#additionalMACsCell').append('<div><input class="additionalMAC" type="text" name="additionalMACs[]" /><i class="icon fa fa-minus-circle remove-mac hand" title="Remove MAC"></i><br/><span class="mac-manufactor"></span></div>');
-
         HookTooltips();
-
         return false;
-        });
-
-if ($('.additionalMAC').size())
-{
-    $('#additionalMACsRow').show();
-}
-
-// Show hide based on checked state.
-$('#groupMeShow').is(':checked') ? $('#groupNotInMe').show() : $('#groupNotInMe').hide();
-$('#printerNotInHost').is(':checked') ? $('#printerNotInHost').show() : $('#printerNotInHost').hide();
-$('#SnapinNotInHost').is(':checked') ? $('#snapinNotInHost').show() : $('#snapinNotInHost').hide();
-$('#groupMeShow').click(function() {
+    });
+    if ($('.additionalMAC').size()) $('#additionalMACsRow').show();
+    // Show hide based on checked state.
+    $('#groupMeShow').is(':checked') ? $('#groupNotInMe').show() : $('#groupNotInMe').hide();
+    $('#printerNotInHost').is(':checked') ? $('#printerNotInHost').show() : $('#printerNotInHost').hide();
+    $('#SnapinNotInHost').is(':checked') ? $('#snapinNotInHost').show() : $('#snapinNotInHost').hide();
+    $('#groupMeShow').click(function() {
         $('#groupNotInMe').toggle();
-        });
-$('.toggle-checkbox1').click(function() {
-        $('input.toggle-group1:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
-        });
-$('.toggle-checkbox2').click(function() {
-        $('input.toggle-group2:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
-        });
-$('#hostPrinterShow').click(function() {
+    });
+    $('.toggle-checkbox1').click(function() {
+        $('input.toggle-group1:checkbox')
+        .not(':hidden')
+        .prop('checked',$(this).is(':checked'));
+    });
+    $('.toggle-checkbox2').click(function() {
+        $('input.toggle-group2:checkbox')
+        .not(':hidden')
+        .prop('checked',$(this).is(':checked'));
+    });
+    $('#hostPrinterShow').click(function() {
         $('#printerNotInHost').toggle();
-        });
-$('#hostSnapinShow').click(function() {
+    });
+    $('#hostSnapinShow').click(function() {
         $('#snapinNotInHost').toggle();
-        });
-$('.toggle-checkboxprint').click(function() {
-        $('input.toggle-print:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
-        });
-$('.toggle-checkboxsnapin').click(function() {
-        $('input.toggle-snapin:checkbox').attr('checked', ($(this).attr('checked') ? 'checked' : false));
-        });
+    });
+    $('.toggle-checkboxprint').click(function() {
+        $('input.toggle-print:checkbox')
+        .not(':hidden')
+        .prop('checked',$(this).is(':checked'));
+    });
+    $('.toggle-checkboxsnapin').click(function() {
+        $('input.toggle-snapin:checkbox')
+        .not(':hidden')
+        .prop('checked',$(this).is(':checked'));
+    });
 });

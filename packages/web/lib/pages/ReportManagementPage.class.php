@@ -519,7 +519,7 @@ class ReportManagementPage extends FOGPage {
             array(),
             array(),
             array(),
-            array(),
+            array('class'=>'filter-false'),
         );
         foreach((array)$csvHead AS $csvHeader => &$classGet) $ReportMaker->addCSVCell($csvHeader);
         unset($classGet);
