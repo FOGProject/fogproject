@@ -458,28 +458,28 @@ table td .icon {
 table tr.header {
     color: #ededed;
 }
-table tr.header td {
+table tr.header th {
     padding: 4px;
     border: 0;
     background: #7386ad;
 }
-table tr.header td:first-child {
+table tr.header th:first-child {
     border-radius: 3px 0 0 0;
     -moz-border-radius: 3px 0 0 0;
     -webkit-border-radius: 3px 0 0 0;
 }
-table tr.header td:last-child {
+table tr.header th:last-child {
     border-radius: 0 3px 0 0;
     -moz-border-radius: 0 3px 0 0;
     -webkit-border-radius: 0 3px 0 0;
 }
-table tr.header td.toggle {
+table tr.header th.toggle {
     width: 25px;
 }
-table tr.header td.edit {
+table tr.header th.edit {
     width: 25px;
 }
-table tr.header td.ping {
+table tr.header th.ping {
     width: 25px;
 }
 table tr td {
@@ -489,13 +489,10 @@ table tr:last-child td {
     border-bottom: 0;
 }
 table tr.header a {
-    color: #ededed;
+    color: #000;
 }
-.alt1 {
-    background: transparent;
-}
-.alt2 {
-    background: #efefef;
+.tablesorter .filtered {
+    display: none;
 }
 pre {
     white-space: pre-wrap;

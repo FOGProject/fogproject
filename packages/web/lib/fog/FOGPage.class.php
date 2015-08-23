@@ -31,6 +31,8 @@ abstract class FOGPage extends FOGBase {
     public $searchFormURL = '';
     /** $wrapper this is the wrapper for the tables cells */
     private $wrapper = 'td';
+    /** $headerWrap this is the wrapper for the table header cells */
+    private $headerWrap = 'th';
     /** $result this is the result of the items as parsed */
     private $result;
     // Method & Form
@@ -58,8 +60,7 @@ abstract class FOGPage extends FOGBase {
         $this->linkformat = "?node={$this->node}&sub=edit&{$this->id}={$_REQUEST[id]}";
         $this->membership = "?node={$this->node}&sub=membership&{$this->id}={$_REQUEST[id]}";
         $this->request = $this->REQUEST = $this->DB->sanitize($_REQUEST);
-        $this->REQUEST['id'] = $_REQUEST[$this->id];
-        $this->request['id'] = $_REQUEST[$this->id];
+        $this->REQUEST[id] = $this->request[id] = $_REQUEST[$this->id];
         $this->post = $this->isPOSTRequest();
         $this->ajax = $this->isAJAXRequest();
         $this->childClass = preg_replace('#ManagementPage#', '', preg_replace('#Mobile#','',get_class($this)));
@@ -68,9 +69,9 @@ abstract class FOGPage extends FOGBase {
             'list'=>sprintf($this->foglang[ListAll],_($this->childClass.'s')),
             add=>sprintf($this->foglang[CreateNew],_($this->childClass)),
         );
-        $this->formAction = sprintf('%s?%s', $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
-        $this->HookManager->processEvent('SEARCH_PAGES',array('searchPages' => &$this->searchPages));
-        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu' => &$this->menu,'submenu' => &$this->subMenu,'id' => &$this->id,'notes' => &$this->notes));
+        $this->formAction = sprintf('%s?%s',$_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
+        $this->HookManager->processEvent(SEARCH_PAGES,array(searchPages=>&$this->searchPages));
+        $this->HookManager->processEvent(SUB_MENULINK_DATA,array(menu=>&$this->menu,submenu=>&$this->subMenu,id=>&$this->id,notes=>&$this->notes));
     }
     /** index() the default index for all pages that extend this class */
     public function index() {
@@ -88,99 +89,106 @@ abstract class FOGPage extends FOGBase {
     /** get() gets the data from the sent key
      * @return the value of the key
      */
-    public function get($key) {return $this->$key;}
-        /** __toString() magic function that just returns the data
-         * @return void
-         */
-        public function __toString() {$this->process();}
-        /** render() just prints the data
-         * @return void
-         */
-        public function render() {ob_start(array('Initiator','sanitize_output'),512); echo $this->process(); ob_end_flush();}
-        /** process() build the relevant html for the page
-         * @return false or the result
-         */
-        public function process() {
-            try {
-                unset($actionbox);
-                $defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
-                $defaultScreens = array('search','list');
-                $result = '';
-                // Error checking
-                if (!count($this->templates)) throw new Exception('Requires templates to process');
-                // Is AJAX Request?
-                if ($this->isAJAXRequest()) {
-                    // JSON output
-                    return @json_encode(array(
-                        'data'		=> $this->data,
-                        'templates'	=> $this->templates,
-                        'headerData' => $this->headerData,
-                        'title' => $this->title,
-                        'attributes'	=> $this->attributes,
-                        'form' => $this->form,
-                        'searchFormURL' => $this->searchFormURL,
-                    ));
-                } else {
-                    ob_start(array('Initiator','sanitize_output'));
-                    $isMobile = preg_match('#/mobile/#',$_SERVER['PHP_SELF']);
-                    // HTML output
-                    $contentField = 'active-tasks';
-                    if ($this->searchFormURL) {
-                        printf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><%s id="%s-search-submit" class="search-submit" type="%s" value="%s"></form>%s',
-                            $this->searchFormURL,
-                            (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
-                            sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), $this->foglang['Search']),
-                            $isMobile ? 'name="host-search"' : '',
-                            $isMobile ? 'input' : 'button',
-                            (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
-                            $isMobile ? 'submit' : 'button',
-                            $isMobile ? $this->foglang['Search'] : '',
-                            $isMobile ? '</input>' : '</button>'
-                        );
-                        $contentField = 'search-content';
-                    }
-                    if ($this->form) $result .= printf($this->form);
-                    // Table -> Header Row
-                    printf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s"><thead><tr class="header">%s</tr></thead><tbody>',
-                        '100%',
-                        $contentField,
-                        $this->buildHeaderRow()
+    public function get($key) {
+        return $this->$key;
+    }
+    /** __toString() magic function that just returns the data
+     * @return void
+     */
+    public function __toString() {
+        $this->process();
+    }
+    /** render() just prints the data
+     * @return void
+     */
+    public function render() {
+        ob_start(array('Initiator','sanitize_output'),512); echo $this->process(); ob_end_flush();
+    }
+    /** process() build the relevant html for the page
+     * @return false or the result
+     */
+    public function process() {
+        try {
+            unset($actionbox);
+            $defaultScreen = strtolower($_SESSION[FOG_VIEW_DEFAULT_SCREEN]);
+            $defaultScreens = array('search','list');
+            $result = '';
+            // Error checking
+            if (!count($this->templates)) throw new Exception('Requires templates to process');
+            // Is AJAX Request?
+            if ($this->isAJAXRequest()) {
+                // JSON output
+                return @json_encode(array(
+                    data=>&$this->data,
+                    templates=>&$this->templates,
+                    headerData=>&$this->headerData,
+                    title=>&$this->title,
+                    attributes=>&$this->attributes,
+                    form=>&$this->form,
+                    searchFormURL=>&$this->searchFormURL,
+                ));
+            } else {
+                ob_start(array('Initiator','sanitize_output'));
+                $isMobile = preg_match('#/mobile/#',$_SERVER['PHP_SELF']);
+                // HTML output
+                $contentField = 'active-tasks';
+                if ($this->searchFormURL) {
+                    printf('<form method="post" action="%s" id="search-wrapper"><input id="%s-search" class="search-input placeholder" type="text" value="" placeholder="%s" autocomplete="off" %s/><%s id="%s-search-submit" class="search-submit" type="%s" value="%s"></form>%s',
+                        $this->searchFormURL,
+                        (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
+                        sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), $this->foglang['Search']),
+                        $isMobile ? 'name="host-search"' : '',
+                        $isMobile ? 'input' : 'button',
+                        (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
+                        $isMobile ? 'submit' : 'button',
+                        $isMobile ? $this->foglang['Search'] : '',
+                        $isMobile ? '</input>' : '</button>'
                     );
-                    if (!count($this->data)) {
-                        // No data found
-                        printf('<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
-                            count($this->templates),
-                            $contentField,
-                            ($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : $this->foglang['NoResults'])
-                        );
-                    } else {
-                        foreach ($this->data AS $i => &$rowData) {
-                            printf('<tr id="%s-%s"%s>%s</tr>',
-                                strtolower($this->childClass),
-                                $rowData['id'],
-                                ((++$i % 2) ? ' class="alt1"' : ((!$_REQUEST[sub] && $defaultScreen == 'list') || (in_array($_REQUEST[sub],$defaultScreens) && in_array($_REQUEST[node],$this->searchPages)) ? ' class="alt2"' : '')),
-                                $this->buildRow($rowData)
-                            );
-                        }
-                        unset($rowData);
-                        if ((!$_REQUEST[sub] && $defaultScreen == 'list') || (in_array($_REQUEST[sub],$defaultScreens) && in_array($_REQUEST[node],$this->searchPages)))
-                        $this->FOGCore->setMessage(count($this->data).' '.$this->childClass.(count($this->data) > 1 ? 's' : '')._(' found'));
-                    }
-                    echo '</tbody></table>';
-                    if (((!$_REQUEST[sub] || ($_REQUEST[sub] && in_array($_REQUEST[sub],$defaultScreens))) && in_array($_REQUEST[node],$this->searchPages)) && !$isMobile) {
-                        if ($this->childClass == 'Host') $actionbox = sprintf('<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>');
-                        $actionbox .= sprintf('<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value="" autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>');
-                    }
+                    $contentField = 'search-content';
                 }
-                $this->HookManager->event[] = 'ACTIONBOX';
-                $this->HookManager->processEvent(ACTIONBOX,array(actionbox=>&$actionbox));
-                print $actionbox;
-                // Return output
-                return ob_get_clean();
-            } catch (Exception $e) {
-                return $e->getMessage();
+                if ($this->form) $result .= printf($this->form);
+                // Table -> Header Row
+                printf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s"><thead><tr class="header">%s</tr></thead><tbody>',
+                    '100%',
+                    $contentField,
+                    $this->buildHeaderRow()
+                );
+                if (!count($this->data)) {
+                    // No data found
+                    printf('<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
+                        count($this->templates),
+                        $contentField,
+                        ($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : $this->foglang['NoResults'])
+                    );
+                } else {
+                    $id_field = $_REQUEST[node].'_id';
+                    foreach ($this->data AS $i => &$rowData) {
+                        printf('<tr id="%s-%s"%s>%s</tr>',
+                            strtolower($this->childClass),
+                            $rowData[id] ? $rowData[id] : $rowData[$id_field],
+                            ((++$i % 2) ? ' class="alt1"' : ((!$_REQUEST[sub] && $defaultScreen == 'list') || (in_array($_REQUEST[sub],$defaultScreens) && in_array($_REQUEST[node],$this->searchPages)) ? ' class="alt2"' : '')),
+                            $this->buildRow($rowData)
+                        );
+                    }
+                    unset($rowData);
+                    if ((!$_REQUEST[sub] && $defaultScreen == 'list') || (in_array($_REQUEST[sub],$defaultScreens) && in_array($_REQUEST[node],$this->searchPages)))
+                        $this->FOGCore->setMessage(count($this->data).' '.$this->childClass.(count($this->data) > 1 ? 's' : '')._(' found'));
+                }
+                echo '</tbody></table>';
+                if (((!$_REQUEST[sub] || ($_REQUEST[sub] && in_array($_REQUEST[sub],$defaultScreens))) && in_array($_REQUEST[node],$this->searchPages)) && !$isMobile) {
+                    if ($this->childClass == 'Host') $actionbox = sprintf('<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>');
+                    $actionbox .= sprintf('<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value="" autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>');
+                }
             }
+            $this->HookManager->event[] = 'ACTIONBOX';
+            $this->HookManager->processEvent(ACTIONBOX,array(actionbox=>&$actionbox));
+            print $actionbox;
+            // Return output
+            return ob_get_clean();
+        } catch (Exception $e) {
+            return $e->getMessage();
         }
+    }
     private function setAtts() {
         foreach((array)$this->attributes AS $i => &$vals) {
             foreach((array)$vals AS $name => &$val) $this->atts[$i] .= sprintf(' %s="%s" ',$name,($this->dataFind ? preg_replace($this->dataFind,$this->dataReplace,$val) : $val));
@@ -199,11 +207,12 @@ abstract class FOGPage extends FOGBase {
             foreach ($this->headerData AS $i => &$content) {
                 // Push into results array
                 $result .= sprintf(
-                    '<%s%s>%s</%s>',
-                    $this->wrapper,
+                    '<%s%s data-column="%s">%s</%s>',
+                    $this->headerWrap,
                     ($this->atts[$i] ? $this->atts[$i] : ''),
+                    $i,
                     $content,
-                    $this->wrapper
+                    $this->headerWrap
                 );
             }
             unset($content);
@@ -230,6 +239,8 @@ abstract class FOGPage extends FOGBase {
      * @return the results as parsed
      */
     public function buildRow($data) {
+        unset($this->atts);
+        $this->setAtts();
         $this->replaceNeeds($data);
         ob_start(array('Initiator','sanitize_output'));
         // Loop template data

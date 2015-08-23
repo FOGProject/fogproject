@@ -1,6 +1,6 @@
 <?php
 class Page extends FOGBase {
-    private $pageTitle,$sectionTitle,$stylesheets=array(),$javascripts=array(),$body,$isHomepage, $menu, $media;
+    private $pageTitle,$sectionTitle,$stylesheets=array(),$javascripts=array(),$body,$isHomepage, $menu, $media,$headJavascripts=array();
     public function __construct() {
         parent::__construct();
         while (@ob_end_clean());
@@ -14,6 +14,7 @@ class Page extends FOGBase {
         } else $this->addCSS('css/main.css');
         $this->addCSS('css/font-awesome.css');
         $this->addCSS('css/select2.min.css');
+        $this->addCSS('css/theme.blue.css');
         $this->isHomepage = (!$_REQUEST[node] || in_array($_REQUEST[node], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST[sub],array('configure','authorize')) || !$this->FOGUser || !$this->FOGUser->isLoggedIn());
         if ($this->FOGUser && $this->FOGUser->isLoggedIn() && strtolower($_REQUEST[node]) != 'schemaupdater') {
             if (!$isMobile) {
@@ -59,9 +60,10 @@ class Page extends FOGBase {
         }
         if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) {
             $files = array(
-                'js/jquery-latest.js',
+                'hjs/jquery-latest.js',
+                'hjs/jquery.tablesorter.combined.js',
+                'hjs/select2.min.js',
                 'js/jquery-migrate-1.2.1.min.js',
-                'js/jquery.tablesorter.min.js',
                 'js/jquery.tipsy.js',
                 'js/jquery.progressbar.js',
                 'js/jquery.tmpl.js',
@@ -75,7 +77,6 @@ class Page extends FOGBase {
                 'js/flot/jquery.flot.JUMlib.js',
                 'js/flot/jquery.flot.gantt.js',
                 'js/jquery-ui-timepicker-addon.js',
-                'js/select2.min.js',
                 'js/fog/fog.js',
                 'js/fog/fog.main.js',
             );
@@ -113,7 +114,7 @@ class Page extends FOGBase {
             );
         }
         foreach((array)$files AS $i => &$path) {
-            if (file_exists($path)) $this->addJavascript($path);
+            if (file_exists(preg_replace('#^h#','',$path))) $this->addJavascript($path);
         }
         unset($path);
     }
@@ -127,7 +128,8 @@ class Page extends FOGBase {
         $this->stylesheets[] = '../management/'.$path;
     }
     public function addJavascript($path){
-        $this->javascripts[] = $path;
+        if (preg_match('#^h#',$path)) $this->headJavascripts[] = preg_replace('#^h#','',$path);
+        else $this->javascripts[] = $path;
     }
     public function startBody() {
         ob_start(array('Initiator','sanitize_output'));
