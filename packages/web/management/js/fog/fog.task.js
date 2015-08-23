@@ -182,6 +182,7 @@ function ActiveTasksUpdate() {
             }
             setChecked(checkedIDs);
             ActiveTasksUpdateTimerStart();
+            $('table').trigger('update');
         },
         error: function() {
             ActiveTasksAJAX = null;
@@ -295,17 +296,15 @@ $('tr[id^="progress-"]').hover(function() {
 		});
 }
 function ActiveTasksTableCheck() {
-	// Variables
-	var tbody = $('tbody', ActiveTasksContainer);
-	var tbodyRows = tbody.find('tr');
-	// If we have rows in the table
-	if (tbodyRows.size() > 0) {
-		// Adjust alt colours
-		var i = 0;
-		tbodyRows.each(function() {
-				$(this).removeClass().addClass('alt' + (i++ % 2 ? '2' : '1'));
-				});
-	} else {
-		tbody.html('<tr><td colspan="7" class="no-active-tasks">' + _L['NO_ACTIVE_TASKS'] + '</td></tr>');
-	}
+    // Variables
+    var tbody = $('tbody', ActiveTasksContainer);
+    var tbodyRows = tbody.find('tr');
+    // If we have rows in the table
+    if (tbodyRows.size() > 0) {
+        // Adjust alt colours
+        var i = 0;
+        tbodyRows.each(function() {
+            $(this).removeClass().addClass('alt' + (i++ % 2 ? '2' : '1'));
+        });
+    } else tbody.html('<tr><td colspan="7" class="no-active-tasks">' + _L['NO_ACTIVE_TASKS'] + '</td></tr>');
 }

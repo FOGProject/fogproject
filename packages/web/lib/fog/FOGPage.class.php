@@ -154,6 +154,7 @@ abstract class FOGPage extends FOGBase {
                     $this->buildHeaderRow()
                 );
                 if (!count($this->data)) {
+                    $contentField = 'no-active-tasks';
                     // No data found
                     printf('<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
                         count($this->templates),
