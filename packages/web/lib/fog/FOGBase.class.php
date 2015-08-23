@@ -235,10 +235,10 @@ abstract class FOGBase {
     public function aesdecrypt($encdata,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC) {
         $iv_size = mcrypt_get_iv_size($enctype,$mode);
         $data = explode('|',$encdata);
-        $iv = pack('H*',$data[0]);
-        $encoded = pack('H*',$data[1]);
+        $iv = @pack('H*',$data[0]);
+        $encoded = @pack('H*',$data[1]);
         if (!$key && $data[2]) {
-            $key = pack('H*',$data[2]);
+            $key = @pack('H*',$data[2]);
             $decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
         }
         return $decipher;
@@ -353,7 +353,7 @@ abstract class FOGBase {
             $sbin = '';
             while ($i<$n) {
                 $a = substr($hex,$i,2);
-                $sbin .= pack('H*',$a);
+                $sbin .= @pack('H*',$a);
                 $i += 2;
             }
             return $sbin;
