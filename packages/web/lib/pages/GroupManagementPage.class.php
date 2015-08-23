@@ -45,11 +45,11 @@ class GroupManagementPage extends FOGPage {
         );
         // Row attributes
         $this->attributes = array(
-            array(width=>16,'class'=>c),
+            array(width=>16,'class'=>'c disabled filter-false'),
             array(),
             array(width=>30,'class'=>c),
-            array(width=>90,'class'=>c),
-            array(width=>50,'class'=>c),
+            array(width=>90,'class'=>'c disabled filter-false'),
+            array(width=>50,'class'=>'c disabled filter-false'),
         );
     }
     /** index()
@@ -282,7 +282,7 @@ class GroupManagementPage extends FOGPage {
             '${snapin_created}',
         );
         $this->attributes = array(
-            array(width=>16,'class'=>c),
+            array(width=>16,'class'=>'c disabled filter-false'),
             array(width=>90,'class'=>l),
             array(width=>20,'class'=>r),
         );
@@ -313,7 +313,7 @@ class GroupManagementPage extends FOGPage {
             '${snapin_created}',
         );
         $this->attributes = array(
-            array(width=>16,'class'=>c),
+            array(width=>16,'class'=>'c disabled filter-false'),
             array(width=>90,'class'=>l),
             array(width=>20,'class'=>r),
         );
@@ -455,7 +455,7 @@ class GroupManagementPage extends FOGPage {
             '${printer_type}',
         );
         $this->attributes = array(
-            array(width=>16,'class'=>c),
+            array(width=>16,'class'=>'c disabled filter-false'),
             array(width=>20),
             array(width=>50,'class'=>l),
             array(width=>50,'class'=>r),
@@ -487,7 +487,7 @@ class GroupManagementPage extends FOGPage {
             '${printer_type}',
         );
         $this->attributes = array(
-            array(width=>16,'class'=>c),
+            array(width=>16,'class'=>'c disabled filter-false'),
             array(width=>50,'class'=>l),
             array(width=>50,'class'=>r),
         );

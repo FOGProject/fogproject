@@ -60,8 +60,8 @@ class ImageManagementPage extends FOGPage {
         );
         // Row attributes
         $this->attributes = array(
-            array(width=>5,'class'=>c),
-            array(width=>16,'class'=>c),
+            array(width=>5,'class'=>'c disabled filter-false'),
+            array(width=>16,'class'=>'c disabled filter-false'),
             array(width=>50,'class'=>l),
             array(width=>50,'class'=>c),
         );
@@ -312,7 +312,7 @@ class ImageManagementPage extends FOGPage {
         );
         // Create the attributes data:
         $this->attributes = array(
-            array('class'=>c,width=>16),
+            array('class'=>'c disabled filter-false',width=>16),
             array(),
         );
         // All groups not with this set as the image
@@ -368,7 +368,7 @@ class ImageManagementPage extends FOGPage {
             _('Storage Group Name'),
         );
         $this->attributes = array(
-            array(width=>16,'class'=>c),
+            array(width=>16,'class'=>'c disabled filter-false'),
             array('class'=>r),
         );
         $this->templates = array(
@@ -504,7 +504,7 @@ class ImageManagementPage extends FOGPage {
             array(),
             array(),
             array(),
-            array('class'=>r),
+            array('class'=>'r disabled filter-false'),
         );
         $this->templates = array(
             '${mc_name}<br/><small>${image_name}:${os}</small>',

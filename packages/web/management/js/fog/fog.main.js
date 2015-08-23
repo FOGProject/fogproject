@@ -393,6 +393,8 @@ function checkDOWField(DOW) {
 function checkboxToggleSearchListPages() {
     // Checkbox toggle
     $('.toggle-checkboxAction').click(function() {
-            $('input.toggle-action[type="checkbox"]').prop('checked', $(this).is(':checked'));
-            });
+        $('input.toggle-action[type="checkbox"]')
+        .not(':hidden')
+        .prop('checked',$(this).is(':checked'));
+    });
 }

@@ -11,6 +11,7 @@ var ActiveTasksLastCount;
 $(function() {
     $('.toggle-checkboxAction').click(function() {
         $('input.toggle-action[type="checkbox"]')
+        .not(':hidden')
         .prop('checked', $(this).is(':checked'));
     });
     $('#action-box,#action-boxdel').submit(function() {

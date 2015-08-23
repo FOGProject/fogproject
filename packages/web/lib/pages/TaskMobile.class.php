@@ -22,7 +22,7 @@ class TaskMobile extends FOGPage {
             array(),
             array(),
             array(),
-            array(),
+            array('class'=>'filter-false'),
         );
         // Templates
         $this->templates = array(

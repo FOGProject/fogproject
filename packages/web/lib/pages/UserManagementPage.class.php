@@ -31,9 +31,9 @@ class UserManagementPage extends FOGPage {
         );
         // Row attributes
         $this->attributes = array(
-            array('class'=>c,width=>16),
+            array('class'=>'c filter-false',width=>16),
             array(),
-            array('class'=>c,width=>55),
+            array('class'=>'c filter-false',width=>55),
         );
     }
     // Pages
