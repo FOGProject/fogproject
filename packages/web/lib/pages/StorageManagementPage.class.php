@@ -95,7 +95,7 @@ class StorageManagementPage extends FOGPage {
             array('class'=>c,width=>90),
             array('class'=>c,width=>90),
             array('class'=>c,width=>90),
-            array('class'=>c,width=>50),
+            array('class'=>'c filter-false',width=>50),
         );
         // Hook
         $this->HookManager->processEvent(STORAGE_NODE_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
@@ -443,7 +443,7 @@ class StorageManagementPage extends FOGPage {
         // Row attributes
         $this->attributes = array(
             array(),
-            array('class'=>c,width=>50),
+            array('class'=>'c filter-false',width=>50),
         );
         // Hook
         $this->HookManager->processEvent(STORAGE_GROUP_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));

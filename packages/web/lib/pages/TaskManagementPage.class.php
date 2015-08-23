@@ -22,7 +22,6 @@ class TaskManagementPage extends FOGPage {
             _('Started By:'),
             _('Hostname<br><small>MAC</small>'),
             '',
-            '',
             _('Start Time'),
             _('Status'),
         );
@@ -31,21 +30,18 @@ class TaskManagementPage extends FOGPage {
             '<input type="checkbox" name="task[]" value="${id}" class="toggle-action"/>',
             '${startedby}',
             '<p><a href="?node=host&sub=edit&id=${host_id}" title="' . _('Edit Host') . '">${host_name}</a></p><small>${host_mac}</small>',
-            '',
             '${details_taskname}',
             '<small>${time}</small>',
             '<i class="fa fa-${icon_state} fa-1x icon" title="${state}"></i> <i class="fa fa-${icon_type} fa-1x icon" title="${type}"></i>',
         );
         // Row attributes
         $this->attributes = array(
-            array(width=>16,'class'=>c),
+            array(width=>16,'class'=>'c filter-false'),
             array(width=>65,'class'=>l,id=>'host-${host_id}'),
             array(width=>120,'class'=>l),
-            array(),
-            array(width=>110,'class'=>l),
             array(width=>70,'class'=>r),
             array(width=>100,'class'=>r),
-            array(width=>50,'class'=>r),
+            array(width=>50,'class'=>'r filter-false'),
         );
     }
     // Pages

@@ -17,22 +17,24 @@ class PluginManagementPage extends FOGPage {
             _('Plugin Name'),
             _('Description'),
             _('Location'),
-            $_REQUEST[sub] == 'installed' || $_REQUEST[sub] == 'install' ? _('Remove') : null,
         );
         //Row templates
         $this->templates = array(
-            '<a href="?node=plugin&sub=${type}&run=${encname}&${type}=${encname}" title="Plugin: ${name}"><img alt="${name}" src="${icon}"/></a>',
+            '<a href="?node=plugin&sub=${type}&run=${encname}&${type}=${encname}" title="Plugin: ${name}"><img alt="${name}" src="${icon}"/><br/><small>${name}</small></a>',
             '${desc}',
             '${location}',
-            $_REQUEST[sub] == 'installed' || $_REQUEST[sub] == 'install' ? '<a href="?node=plugin&sub=removeplugin&rmid=${pluginid}"><i class="icon fa fa-minus-circle" title="Remove Plugin"></i></a>' : null,
         );
         //Row attributes
         $this->attributes = array(
             array(),
             array(),
             array(),
-            $_REQUEST[sub] == 'installed' || $_REQUEST[sub] == 'install' ? array() : null,
         );
+        if (in_array($_REQUEST[sub],array('installed','install'))) {
+            array_push($this->headerData,_('Remove'));
+            array_push($this->templates,'${location}');
+            array_push($this->attributes,array());
+        }
     }
     // Pages
     public function index() {
@@ -229,7 +231,7 @@ class PluginManagementPage extends FOGPage {
                     array(),
                     array(),
                     array(),
-                    array(),
+                    array('class'=>'filter-false'),
                 );
                 foreach((array)$Capones AS $i => &$Capone) {
                     $Image = $this->getClass(Image,$Capone->get(imageID));

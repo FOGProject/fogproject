@@ -71,12 +71,11 @@ function getQueryParams(qs) {
     i = Loader.find('i');
     var ActionBox = $('#action-box');
     var ActionBoxDel = $('#action-boxdel');
+    ActionBox.hide();
+    ActionBoxDel.hide();
     if (!$_GET['sub'] || $_GET['sub'] == 'list') {
         ActionBox.show();
         ActionBoxDel.show();
-    } else {
-        ActionBox.hide();
-        ActionBoxDel.hide();
     }
     // Custom FOG JQuery functions
     $.fn.fogAjaxSearch = function(opts) {
@@ -109,7 +108,7 @@ function getQueryParams(qs) {
             ActionBox.show();
             ActionBoxDel.show();
         } else {
-            //Container.hide();
+            Container.hide();
             ActionBox.hide();
             ActionBoxDel.hide();
         }
@@ -276,14 +275,18 @@ function getQueryParams(qs) {
     });
 }
 $.fn.fogTableInfo = function() {
-    // Add table header sorting information.
+    // Add table header sorting information
     $('table').tablesorter({
         theme: 'blue',
-        widthFixed: true,
         widgets: ["zebra","filter"],
         widgetOptions: {
             filter_ignoreCase: true,
-        }
+            filter_hideFilters: true,
+            filter_hideEmpty: true,
+            filter_liveSearch: true,
+            filter_placeholder: { search: 'Search...'},
+            filter_reset: 'button.reset',
+        },
     });
     $('table > thead > tr > td').addClass('hand');
 }

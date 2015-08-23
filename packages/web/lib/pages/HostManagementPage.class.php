@@ -72,15 +72,15 @@ class HostManagementPage extends FOGPage {
         );
         // Row attributes
         $this->attributes = array(
-            array(width=>22,id=>'host-${host_name}'),
-            array('class'=>c,width=>16),
+            array(width=>22,id=>'host-${host_name}','class'=>'disabled filter-false'),
+            array('class'=>'c disabled filter-false',width=>16),
         );
-        $_SESSION[FOGPingActive] ? array_push($this->attributes,array(width=>20)) : null;
+        $_SESSION[FOGPingActive] ? array_push($this->attributes,array(width=>20,'class'=>'disabled filter-false')) : null;
         array_push($this->attributes,
             array(),
             array(width=>50,'class'=>c),
-            array(width=>90,'class'=>r),
-            array(width=>80,'class'=>c),
+            array(width=>90,'class'=>'r disabled filter-false'),
+            array(width=>80,'class'=>'c disabled filter-false'),
             array(width=>50,'class'=>r),
             array(width=>20,'class'=>r)
         );
@@ -157,12 +157,12 @@ class HostManagementPage extends FOGPage {
         );
         // Row attributes
         $this->attributes = array(
-            array(width=>22,id=>'host-${host_name}'),
-            array('class' =>c,width=>16),
-            ($_SESSION[FOGPingActive] ? array(width=>20) : ''),
+            array(width=>22,id=>'host-${host_name}','class'=>'disabled filter-false'),
+            array('class' =>'c disabled filter-false',width=>16),
+            ($_SESSION[FOGPingActive] ? array(width=>20,'class'=>'disabled filter-false') : ''),
             array(),
             array(width=>80,'class'=>c),
-            array(width=>50,'class'=>r),
+            array(width=>50,'class'=>'r disabled filter-false'),
         );
         $Hosts = $this->getClass(HostManager)->find(array(pending=>1));
         foreach($Hosts AS $i => &$Host) {
@@ -458,7 +458,7 @@ class HostManagementPage extends FOGPage {
             '${printer_type}',
         );
         $this->attributes = array(
-            array(width=>16,'class'=>c),
+            array(width=>16,'class'=>'c disabled filter-false'),
             array(width=>50,'class'=>l),
             array(width=>50,'class'=>r),
         );
@@ -490,7 +490,7 @@ class HostManagementPage extends FOGPage {
             _('Printer Type'),
         );
         $this->attributes = array(
-            array('class'=>c,width=>16),
+            array('class'=>'c disabled filter-false',width=>16),
             array(),
             array(),
             array(),
@@ -535,7 +535,7 @@ class HostManagementPage extends FOGPage {
         );
         // Create the attributes:
         $this->attributes = array(
-            array(width=>16,'class'=>c),
+            array(width=>16,'class'=>'c disabled filter-false'),
             array(width=>90,'class'=>l),
             array(width=>20,'class'=>r),
         );
@@ -560,7 +560,7 @@ class HostManagementPage extends FOGPage {
             _('Snapin Name'),
         );
         $this->attributes = array(
-            array('class'=>c,width=>16),
+            array('class'=>'c disabled filter-false',width=>16),
             array(),
         );
         $this->templates = array(

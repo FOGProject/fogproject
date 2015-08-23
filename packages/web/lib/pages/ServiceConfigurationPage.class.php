@@ -34,7 +34,7 @@ class ServiceConfigurationPage extends FOGPage {
         // Row attributes
         $this->attributes = array(
             array(),
-            array('class' => 'c', 'width' => '55'),
+            array('class'=>'c filter-false',width=>55),
         );
     }
     public function home() {$this->index();}
@@ -102,7 +102,7 @@ class ServiceConfigurationPage extends FOGPage {
                 );
                 $this->attributes = array(
                     array('class'=>l),
-                    array(),
+                    array('class'=>'filter-false'),
                 );
                 $this->templates = array(
                     '${dir_path}',
@@ -164,7 +164,7 @@ class ServiceConfigurationPage extends FOGPage {
                 $this->attributes = array(
                     array(),
                     array(),
-                    array(),
+                    array('class'=>'filter-false'),
                 );
                 $this->templates = array(
                     '${gf_time}',
@@ -219,7 +219,7 @@ class ServiceConfigurationPage extends FOGPage {
                 );
                 $this->attributes = array(
                     array(),
-                    array(),
+                    array('class'=>'filter-false'),
                 );
                 $this->templates = array(
                     '${user_name}',

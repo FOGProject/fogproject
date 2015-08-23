@@ -386,7 +386,7 @@ class FOGConfigurationPage extends FOGPage {
             array(),
             array(),
             array(),
-            array(),
+            array('class'=>'filter-false disabled'),
         );
         print '<div class="hostgroup">'._('This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.').'</div>';
         $ClientUpdates = $this->getClass(ClientUpdaterManager)->find('','name');
@@ -414,7 +414,7 @@ class FOGConfigurationPage extends FOGPage {
         );
         $this->attributes = array(
             array(),
-            array(),
+            array('class'=>'filter-false'),
         );
         $this->templates = array(
             '${field}',

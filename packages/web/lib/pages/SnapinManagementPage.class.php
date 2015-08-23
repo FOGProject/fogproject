@@ -35,10 +35,10 @@ class SnapinManagementPage extends FOGPage {
         );
         // Row attributes
         $this->attributes = array(
-            array('class'=>c,width=>16),
+            array('class'=>'c filter-false',width=>16),
             array(),
             array('class'=>c,width=>50),
-            array('class'=>r),
+            array('class'=>'r filter-false'),
         );
     }
     // Pages
@@ -308,7 +308,7 @@ class SnapinManagementPage extends FOGPage {
         );
         // Create the attributes data:
         $this->attributes = array(
-            array('class'=>c,width=>16),
+            array('class'=>'c filter-false',width=>16),
             array(),
         );
         // All Groups not with this set as the Snapin
@@ -333,7 +333,7 @@ class SnapinManagementPage extends FOGPage {
             _('Storage Group Name'),
         );
         $this->attributes = array(
-            array(width=>16,'class'=>c),
+            array(width=>16,'class'=>'c filter-false'),
             array('class'=>r),
         );
         $this->templates = array(

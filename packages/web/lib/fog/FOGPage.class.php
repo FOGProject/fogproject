@@ -928,7 +928,7 @@ abstract class FOGPage extends FOGBase {
             sprintf('<a href="?node=%s&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',($objType ? 'group' : 'host')),
         );
         $this->attributes = array(
-            array(width=>16,'class'=>c),
+            array(width=>16,'class'=>'c filter-false'),
             array(width=>150,'class'=>l),
         );
         $ClassCall = ($objType ? 'Group' : 'Host');
