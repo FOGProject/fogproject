@@ -279,6 +279,7 @@ $.fn.fogTableInfo = function() {
     // Add table header sorting information.
     $('table').tablesorter({
         theme: 'blue',
+        widthFixed: true,
         widgets: ["zebra","filter"],
         widgetOptions: {
             filter_ignoreCase: true,
