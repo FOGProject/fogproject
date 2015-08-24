@@ -115,15 +115,17 @@ class DashboardPage extends FOGPage {
      */
     public function clientcount() {
         $ActivityActive = $ActivityQueued = $ActivityTotalClients = 0;
-        $Nodes = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1,storageGroupID=>$this->obj->get(storageGroupID)));
-        foreach($Nodes AS $i => &$SN) {
-            if ($SN->isValid()) {
-                $ActivityActive += $SN->getUsedSlotCount();
-                $ActivityQueued += $SN->getQueuedSlotCount();
-                $ActivityTotalClients += $SN->get(maxClients) - $SN->getUsedSlotCount();
+        if ($this->obj instanceof StorageNode) {
+            $Nodes = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1,storageGroupID=>$this->obj->get(storageGroupID)));
+            foreach($Nodes AS $i => &$SN) {
+                if ($SN->isValid()) {
+                    $ActivityActive += $SN->getUsedSlotCount();
+                    $ActivityQueued += $SN->getQueuedSlotCount();
+                    $ActivityTotalClients += $SN->get(maxClients) - $SN->getUsedSlotCount();
+                }
             }
+            unset($SN);
         }
-        unset($SN);
         $data = array(
             ActivityActive=>$ActivityActive,
             ActivityQueued=>$ActivityQueued,
