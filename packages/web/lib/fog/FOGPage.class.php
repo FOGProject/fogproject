@@ -810,20 +810,20 @@ abstract class FOGPage extends FOGBase {
             // Get the host or error out
             $Host = $this->getHostItem(true);
             // Store the key and potential token
-            $key = bin2hex($this->certDecrypt($_REQUEST['sym_key']));
-            $token = bin2hex($this->certDecrypt($_REQUEST['token']));
+            $key = bin2hex($this->certDecrypt($_REQUEST[sym_key]));
+            $token = bin2hex($this->certDecrypt($_REQUEST[token]));
             // Test if the sec_tok is valid and the received token don't match error out
-            if ($Host->get('sec_tok') && $token !== $Host->get('sec_tok')) {
+            if ($Host->get(sec_tok) && $token !== $Host->get(sec_tok)) {
                 $Host->set('pub_key',null)->save();
                 throw new Exception('#!ist');
             }
             // generate next token
-            $Host->set('sec_tok',$this->createSecToken())
-                ->set('sec_time',$this->nice_date()->format('Y-m-d H:i:s'));
-            if ($Host->get('sec_tok') && !$key) throw new Exception('#!ihc');
-            $Host->set('pub_key',$key)
+            $Host->set(sec_tok,$this->createSecToken())
+                ->set(sec_time,$this->nice_date()->format('Y-m-d H:i:s'));
+            if ($Host->get(sec_tok) && !$key) throw new Exception('#!ihc');
+            $Host->set(pub_key,$key)
                 ->save();
-            print '#!en='.$this->certEncrypt("#!ok\n#token=".$Host->get('sec_tok'),$Host);
+            print '#!en='.$this->certEncrypt("#!ok\n#token=".$Host->get(sec_tok),$Host);
         }
         catch (Exception $e) {
             print  $e->getMessage();
@@ -843,7 +843,7 @@ abstract class FOGPage extends FOGBase {
         // POST
         try {
             if ($this->obj instanceof Group) {
-                if ($_REQUEST['delHostConfirm'] == '1') {
+                if ($_REQUEST[delHostConfirm] == '1') {
                     $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)));
                     foreach($Hosts AS $i => &$Host) {
                         if ($Host->isValid()) $Host->destroy();
@@ -853,7 +853,7 @@ abstract class FOGPage extends FOGBase {
                 // Remove hosts first
                 if (isset($_REQUEST['massDelHosts'])) $this->FOGCore->redirect('?node=group&sub=delete_hosts&id='.$this->obj->get(id));
             }
-            if ($this->obj instanceof Image || $this->obj instanceof Snapin) {
+            else if ($this->obj instanceof Image || $this->obj instanceof Snapin) {
                 if ($this->obj->get('protected')) throw new Exception($this->childClass.' '._('is protected, removal not allowed'));
                 if (isset($_REQUEST[andFile])) $this->obj->deleteFile();
             }
