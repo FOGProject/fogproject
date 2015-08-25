@@ -148,10 +148,10 @@ abstract class FOGPage extends FOGBase {
                 }
                 if ($this->form) $result .= printf($this->form);
                 // Table -> Header Row
-                printf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s">%s</thead><tbody>',
+                printf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s">%s<tbody>',
                     '100%',
                     $contentField,
-                    $this->buildHeaderRow()
+                    count($this->data) ? $this->buildHeaderRow() : ''
                 );
                 if (!count($this->data)) {
                     $contentField = 'no-active-tasks';
