@@ -273,6 +273,7 @@ function getQueryParams(qs) {
                         );
                     }
                     this.SearchAJAX = null;
+                    checkboxToggleSearchListPages();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     // Error - hide content boxes, show nice message

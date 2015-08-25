@@ -51,14 +51,17 @@ abstract class FOGManagerController extends FOGBase {
     public function search($keyword = null) {
         try {
             if (empty($keyword)) $keyword = preg_match('#mobile#i',$_SERVER['PHP_SELF'])?$_REQUEST['host-search']:$_REQUEST[crit];
+            $mac_keyword = str_replace(array('-',':'),'',$keyword);
+            $mac_keyword = join(':',str_split($mac_keyword,2));
             $keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', $keyword).'%');
+            $mac_keyword = preg_replace('#%+#', '%', '%'.preg_replace('#[[:space:]]#', '%', $mac_keyword).'%');
             $Main = $this->getClass($this->childClass);
             if ($keyword === '%') return $Main->getManager()->find();
             $_SESSION[caller] = __FUNCTION__;
             $this->array_remove($this->aliasedFields,$this->databaseFields);
             $findWhere = array_fill_keys(array_keys($this->databaseFields),$keyword);
             $itemIDs = array_filter(array_unique($Main->getManager()->find($findWhere,'OR','','','','','','id')));
-            $HostIDs = $this->getSubObjectIDs('MACAddressAssociation',array(mac=>$keyword,description=>$keyword),'hostID');
+            $HostIDs = $this->getSubObjectIDs('MACAddressAssociation',array(mac=>$mac_keyword,description=>$keyword),'hostID');
             $HostIDs = array_merge($HostIDs,$this->getSubObjectIDs('Inventory',array(sysserial=>$keyword,caseserial=>$keyword,mbserial=>$keyword,primaryUser=>$keyword,other1=>$keyword,other2=>$keyword,sysman=>$keyword,sysproduct=>$keyword),'hostID'));
             $HostIDs = array_merge($HostIDs,$this->getSubObjectIDs('Host',array(name=>$keyword,description=>$keyword,ip=>$keyword)));
             switch ($this->childClass) {
