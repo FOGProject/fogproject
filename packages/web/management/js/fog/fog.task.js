@@ -23,8 +23,8 @@ $(function() {
     // Show Task Container if we have items
     ActiveTasksContainer = $('#active-tasks');
     if (ActiveTasksContainer.find('tbody > tr').size() > 0) ActiveTasksContainer.show();
+    if (ActiveTasksContainer.find('td').prop('colspan') != 6) ActiveTasksContainer.after('<center><div id="canceltasks"></div><input type="button" name="Cancel" value="Cancel selected tasks?"/></center>');
     var URL;
-    ActiveTasksContainer.after('<center><div id="canceltasks"></div><input type="button" name="Cancel" value="Cancel selected tasks?"/></center>');
     switch($_GET['sub']) {
         case 'active':
         URL = '?node=task&sub=canceltasks';
@@ -60,11 +60,15 @@ $(function() {
                                 task: checkedIDs
                             },
                             success: function(data) {
-                                window.location.href = '?node=task&sub='+sub;
+                                clearTimeout(ActiveTasksUpdateTimer);
+                                if ($_GET['sub'] == 'active') {
+                                    ActiveTasksUpdate();
+                                    ActiveTasksTableCheck();
+                                    ActiveTasksUpdateTimerStart();
+                                }
                             }
                         });
                         $(this).dialog('close');
-                        if ($_GET['sub'] == 'active') ActiveTasksUpdate();
                     },
                     'No': function() {
                         $(this).dialog('close');
@@ -140,8 +144,22 @@ function ActiveTasksUpdate() {
             .addClass('fa-exclamation-circle');
             ActiveTasksAJAX = null;
             var tbody = $('tbody',ActiveTasksContainer);
+            var thead = $('thead',ActiveTasksContainer);
             ActiveTasksLastCount = response['data'].length;
             tbody.empty();
+            if (thead.length == 0) {
+                var head = '<tr class="header">';
+                for (var i in response['headerData']) {
+                    var headatts = [];
+                    for (var j in response['attributes'][i]) {
+                        headatts[headatts.length] = j+'="'+response['attributes'][i][j]+'"';
+                    }
+                    // Create row
+                    head += '<th'+(headatts.length?' '+headatts.join(' '):'')+'>'+response['headerData'][i]+'</th>';
+                }
+                head += '</tr>';
+                tbody.before('<thead>'+head+'</thead>');
+            }
             if (response['data'].length > 0) {
                 var rows = '';
                 for (var i in response['data']) {
@@ -297,8 +315,11 @@ $('tr[id^="progress-"]').hover(function() {
 }
 function ActiveTasksTableCheck() {
     // Variables
+    var table = $('table', ActiveTasksContainer);
     var tbody = $('tbody', ActiveTasksContainer);
+    var thead = $('thead', ActiveTasksContainer);
     var tbodyRows = tbody.find('tr');
+    var tbodyCols = thead.find('th');
     // If we have rows in the table
     if (tbodyRows.size() > 0) {
         // Adjust alt colours
@@ -306,5 +327,9 @@ function ActiveTasksTableCheck() {
         tbodyRows.each(function() {
             $(this).removeClass().addClass('alt' + (i++ % 2 ? '2' : '1'));
         });
-    } else tbody.html('<tr><td colspan="7" class="no-active-tasks">' + _L['NO_ACTIVE_TASKS'] + '</td></tr>');
+    } else {
+        $('table').removeClass('tablesorter-blue');
+        thead.remove();
+        tbody.html('<tr><td colspan="6" class="no-active-tasks">' + _L['NO_ACTIVE_TASKS'] + '</td></tr>');
+    }
 }

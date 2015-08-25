@@ -85,7 +85,7 @@ function getQueryParams(qs) {
         var Defaults = {
             URL: $('#search-wrapper').prop('action'),
             Container: '#search-content',
-            SearchDelay: 500,
+            SearchDelay: 300,
             SearchMinLength: 1,
             Template: function(data,i) {
                 return '<tr><td>'+data['host_name']+'</td></tr>';
@@ -185,9 +185,23 @@ function getQueryParams(qs) {
                         SubmitButton.removeClass('searching').find('i').removeClass('fa-spinner fa-pulse fa-fw').addClass('fa-play');
                         // Variables
                         var tbody = $('tbody',Container);
+                        var thead = $('thead',Container);
                         var rows = '';
                         // Empty search table
                         tbody.empty();
+                        if (thead.length == 0) {
+                            var head = '<tr class="header">';
+                            for (var i in response['headerData']) {
+                                var headatts = [];
+                                for (var j in response['attributes'][i]) {
+                                    headatts[headatts.length] = j+'="'+response['attributes'][i][j]+'"';
+                                }
+                                // Create row
+                                head += '<th'+(headatts.length?' '+headatts.join(' '):'')+'>'+response['headerData'][i]+'</th>';
+                            }
+                            head += '</tr>';
+                            tbody.before('<thead>'+head+'</thead>');
+                        }
                         // Do we have search results?
                         if (response['data'].length > 0) {
                             // Status Update
@@ -237,7 +251,8 @@ function getQueryParams(qs) {
                         // Tooltips
                         HookTooltips();
                         // Show results
-                        $('table').trigger('update');
+                        $('#content-inner').fogTableInfo();
+                        $('table:has(thead)').trigger('update');
                         Container.show();
                         ActionBox.show();
                         ActionBoxDel.show();
@@ -245,6 +260,8 @@ function getQueryParams(qs) {
                         $('.ping', Container).fogPing();
                     } else {
                         // No results - hide content boxes, show nice message
+                        $('#content-inner').fogTableInfo();
+                        $('table:has(thead)').trigger('update');
                         Container.hide();
                         ActionBox.hide();
                         ActionBoxDel.hide();
@@ -281,7 +298,7 @@ $.fn.fogTableInfo = function() {
         widgets: ["zebra","filter"],
         widgetOptions: {
             filter_ignoreCase: true,
-            filter_hideFilters: true,
+            filter_hideFilters: false,
             filter_hideEmpty: true,
             filter_liveSearch: true,
             filter_placeholder: { search: 'Search...'},
