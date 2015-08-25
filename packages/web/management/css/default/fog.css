@@ -491,7 +491,7 @@ table tr:last-child td {
 table tr.header a {
     color: #ededed;
 }
-.tablesorter .filtered {
+.tablesorter .filtered, input[type=search].disabled {
     display: none;
 }
 pre {
