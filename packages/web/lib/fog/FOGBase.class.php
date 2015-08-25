@@ -347,7 +347,7 @@ abstract class FOGBase {
      */
     public function hex2bin($hex) {
         $hex2bin = function($keyToUnhex) {
-            if (function_exists('hex2bin')) return hex2bin($hexToUnhex);
+            if (function_exists('hex2bin')) return hex2bin($keyToUnhex);
             $n = strlen($keyToUnhex);
             $i = 0;
             $sbin = '';
