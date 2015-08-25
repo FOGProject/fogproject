@@ -22,7 +22,7 @@ class MACAddress extends FOGBase {
             else if (is_array($this->tmpMAC)) $MAC = trim($MAC[0]);
             else if (strlen($this->tmpMAC) == 12) {
                 for ($i=0;$i<12;$i=$i+2) $newMAC[] = $this->tmpMAC{$i}.$this->tmpMAC{$i+1};
-                $MAC = implode(':', $newMAC);
+                $MAC = implode(':',$newMAC);
             } else if (strlen($this->tmpMAC) == 17) $MAC = str_replace('-', ':', $this->tmpMAC);
             else $MAC = $this->tmpMAC;
             $this->MAC = $MAC;
@@ -36,19 +36,23 @@ class MACAddress extends FOGBase {
      * @return the prefix
      */
     public function getMACPrefix() {
-        return substr(str_replace(':','-',strtolower($this->MAC)), 0, 8);
+        $tmpMAC = strtolower($this->MAC);
+        $tmpMAC = substr(str_replace(array(':','-'),'',$tmpMAC),0,8);
+        return join('-',str_split($tmpMAC,2));
     }
     /** __toString() Magic method to return the string as defined
      * @return the mac address with colons
      */
     public function __toString() {
-        return str_replace('-',':',strtolower($this->MAC));
+        $tmpMAC = strtolower($this->MAC);
+        $tmpMAC = str_replace(array(':','-'),'',$tmpMAC);
+        return join(':',str_split($tmpMAC,2));
     }
     /** isValid() returns if the mac is valid
      * @return true or false
      */
     public function isValid() {
-        return preg_match('#^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$#i',$this->MAC);
+        return preg_match('/([a-fA-F0-9]{2}[-:]){5}[0-9A-Fa-f]{2}|([0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}/',$this->MAC);
     }
     public function isPending() {
         $MAC = $this->getClass(MACAddressAssociationManager)->find(array(mac=>$this->MAC));
