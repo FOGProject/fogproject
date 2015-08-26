@@ -131,10 +131,9 @@ select {
     padding: 4px;
 }
 select:not([name=ulang]):not([name=storagesel]) {
-    min-width: 200px;
-    max-width: 300px;
+    min-width: 250px;
 }
-input[type=text], input[type=search], select:not([name=ulang]):not([name=storagesel]) {
+input[type=text], input[type=search] {
     width: 200px;
 }
 textarea {
