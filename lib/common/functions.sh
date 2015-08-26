@@ -241,6 +241,7 @@ configureTFTPandPXE() {
 	chown -R ${username} "${tftpdirdst}";
 	chown -R ${username} "${webdirdest}/service/ipxe";
 	find "${tftpdirdst}" -type d -exec chmod 755 {} \;
+	find "${webdirdest}" -type d -exec chmod 755 {} \;
 	find "${tftpdirdst}" ! -type d -exec chmod 644 {} \;
 	configureDefaultiPXEfile;
     if [ -f "$tftpconfig" ]; then
