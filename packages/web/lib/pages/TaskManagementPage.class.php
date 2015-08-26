@@ -103,16 +103,16 @@ class TaskManagementPage extends FOGPage {
         );
         // Row attributes
         $this->attributes = array(
-            array(width=>55,'class'=>l),
+            array('class'=>l),
             array(width=>60,'class'=>c),
-            array(width=>60,'class'=>r),
+            array(width=>60,'class'=>'r filter-false'),
         );
         $Hosts = $this->getClass(HostManager)->find('','','','','','name');
         foreach($Hosts AS $i => &$Host) {
             if ($Host->isValid() && !$Host->get(pending)) {
-                $imgUp = '<a href="?node=task&sub=hostdeploy&type=2&id=${id}"><i class="icon hand fa fa-arrow-up" title="'._('Upload').'"></i></a>';
-                $imgDown = '<a href="?node=task&sub=hostdeploy&type=1&id=${id}"><i class="icon hand fa fa-arrow-down" title="'._('Download').'"></i></a>';
-                $imgAdvanced = '<a href="?node=task&sub=hostadvanced&id=${id}#host-tasks"><i class="icon hand fa fa-arrows-alt" title="'._('Advanced').'"></i></a>';
+                $imgUp = '<a href="?node=task&sub=hostdeploy&type=2&id=${id}"><i class="icon hand fa fa-${upicon} fa-1x" title="'._('Upload').'"></i></a>';
+                $imgDown = '<a href="?node=task&sub=hostdeploy&type=1&id=${id}"><i class="icon hand fa fa-${downicon} fa-1x" title="'._('Download').'"></i></a>';
+                $imgAdvanced = '<a href="?node=task&sub=hostadvanced&id=${id}#host-tasks"><i class="icon hand fa fa-arrows-alt fa-1x" title="'._('Advanced').'"></i></a>';
                 $this->data[] = array(
                     uploadLink=>$imgUp,
                     downLink=>$imgDown,
@@ -121,6 +121,8 @@ class TaskManagementPage extends FOGPage {
                     host_name=>$Host->get(name),
                     host_mac=>$Host->get(mac)->__toString(),
                     image_name=>$Host->getImage()->get(name),
+                    upicon=>$this->getClass(TaskType,2)->get(icon),
+                    downicon=>$this->getClass(TaskType,1)->get(icon),
                 );
             }
         }
@@ -224,8 +226,8 @@ class TaskManagementPage extends FOGPage {
             _('Deploy'),
         );
         $this->attributes = array(
-            array(width=>55,'class'=>l),
-            array(width=>60,'class'=>c),
+            array('class'=>l),
+            array(width=>60,'class'=>'r filter-false'),
         );
         $this->templates = array(
             '<a href="?node=group&sub=edit&id=${id}"/>${name}</a>',
@@ -233,8 +235,8 @@ class TaskManagementPage extends FOGPage {
         );
         $Groups = $this->getClass(GroupManager)->find();
         foreach ($Groups AS $i => &$Group) {
-            $deployLink = '<a href="?node=task&sub=groupdeploy&type=1&id=${id}"><i class="icon hand fa fa-arrow-down" title="'._('Download').'"></i></a>';
-            $multicastLink = '<a href="?node=task&sub=groupdeploy&type=8&id=${id}"><i class="icon hand fa fa-share-alt" title="'._('Multicast').'"></i></a>';
+            $deployLink = '<a href="?node=task&sub=groupdeploy&type=1&id=${id}"><i class="icon hand fa fa-${downicon} fa-1x" title="'._('Download').'"></i></a>';
+            $multicastLink = '<a href="?node=task&sub=groupdeploy&type=8&id=${id}"><i class="icon hand fa fa-${multicon} fa-1x" title="'._('Multicast').'"></i></a>';
             $advancedLink = '<a href="?node=task&sub=groupadvanced&id=${id}"><i class="icon hand fa fa-arrows-alt" title="'._('Advanced').'"></i></a>';
             $this->data[] = array(
                 deployLink=>$deployLink,
@@ -242,6 +244,8 @@ class TaskManagementPage extends FOGPage {
                 multicastLink=>$multicastLink,
                 id=>$Group->get(id),
                 name=>$Group->get(name),
+                downicon=>$this->getClass(TaskType,1)->get(icon),
+                multiicon=>$this->getClass(TaskType,8)->get(icon),
             );
         }
         unset($Group);
