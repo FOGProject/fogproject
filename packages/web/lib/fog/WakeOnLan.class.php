@@ -22,9 +22,11 @@ class WakeOnLan extends FOGBase {
     public function send() {
         if (!count($this->arrMAC)) throw new Exception($this->foglang[InvalidMAC]);
         foreach ((array)$this->arrMAC AS $i=>&$MAC) {
-            $macHex = str_replace(':','',str_replace('-','',$MAC));
-            $macBin = pack('H12',$macHex);
-            $magicPacket = str_repeat(chr(0xff),6).str_repeat($macBin,16);
+            $macHex = explode(':',$MAC);
+            $magicPacket = $hw_addr = '';
+            foreach ($macHex AS $i => &$hex) $hw_addr .= chr(hexdec($hex));
+            unset($hex);
+            $magicPacket .= str_repeat(chr(255),6).str_repeat($hw_addr,16);
             // Always send to the main broadcast.
             $BroadCast[] = '255.255.255.255';
             $BroadCast[] = $this->FOGCore->getBroadcast();
