@@ -111,6 +111,8 @@ fsTypeSetting() {
         echo "fat";
     elif [ "$fstype" == "hfsplus" ]; then
         echo "hfsp";
+    elif [ "$fstype" == "btrfs" ]; then
+        echo "btrfs";
     elif [ "$fstype" == "swap" ]; then
         echo "swap";
     else
