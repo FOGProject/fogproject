@@ -162,7 +162,7 @@ class GroupManagementPage extends FOGPage {
                 ->set(kernelArgs,$_REQUEST[args])
                 ->set(kernelDevice,$_REQUEST[dev]);
             // Save to database
-            if ($Group->save()) throw new Exception(_('Group create failed'));
+            if (!$Group->save()) throw new Exception(_('Group create failed'));
             // Hook
             $this->HookManager->processEvent('GROUP_ADD_SUCCESS', array('Group' => &$Group));
             // Log History event
