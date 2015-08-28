@@ -188,7 +188,7 @@ class UserManagementPage extends FOGPage {
         try {
             $name = trim($_REQUEST[name]);
             // Error checking
-            if ($name != $this->obj->get(name) && $this->obj->getManager()->exists($name,$this->obj->get(id))) throw new Exception(_('Username already exists'));
+            if ($name != trim($this->obj->get(name)) && $this->obj->getManager()->exists($name,$this->obj->get(id))) throw new Exception(_('Username already exists'));
             if ($_REQUEST[password] && $_REQUEST[password_confirm]) {
                 if (!$this->obj->getManager()->isPasswordValid($_REQUEST[password],$_REQUEST[password_confirm])) throw new Exception(_('Password is invalid'));
             }
