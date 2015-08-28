@@ -723,8 +723,11 @@ class Host extends FOGController {
         foreach ($Nodes AS $i => &$Node) {
             $curroot = trim(trim($Node->get(webroot),'/'));
             $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
-            $URLs[] = sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',$Node->get(ip),$webroot,implode('|',$mac));
+            $URLs[] = sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',$Node->get(ip),$webroot,implode('|',(array)$mac));
         }
+        $curroot = trim(trim($this->FOGCore->getSetting(FOG_WEB_ROOT),'/'));
+        $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/':'');
+        $URLs[] = sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',$this->FOGCore->getSetting(FOG_WEB_HOST),$webroot,implode('|',(array)$mac));
         $this->FOGURLRequests->process($URLs,'GET');
         return $this;
     }
