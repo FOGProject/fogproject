@@ -100,7 +100,7 @@ class Page extends FOGBase {
                 }
             }
             unset($pluginfilepath);
-            if ($this->isHomepage) {
+            if ($this->isHomepage && ($_REQUEST[node] == 'home' || !$_REQUEST[node])) {
                 array_push($files,'js/fog/fog.dashboard.js');
                 if (preg_match('#MSIE [6|7|8|9|10|11]#',$_SERVER[HTTP_USER_AGENT])) array_push($files,'js/flot/excanvas.js');
             }
