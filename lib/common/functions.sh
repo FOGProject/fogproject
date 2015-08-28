@@ -258,11 +258,11 @@ configureTFTPandPXE() {
             if [ "$systemctl" == "yes" ]; then
                 systemctl enable xinetd >/dev/null 2>&1
                 systemctl enable tftpd-hpa >/dev/null 2>&1
-                systemctl restart xinetd >/dev/null 2>&1
                 systemctl restart tftpd-hpa >/dev/null 2>&1
+                systemctl restart xinetd >/dev/null 2>&1
                 sleep 2
-                systemctl status xinetd >/dev/null 2>&1
                 systemctl status tftpd-hpa >/dev/null 2>&1
+                systemctl status xinetd >/dev/null 2>&1
             else
                 sysv-rc-conf xinetd off >/dev/null 2>&1
                 service xinetd stop >/dev/null 2>&1
