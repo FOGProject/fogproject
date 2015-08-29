@@ -824,7 +824,8 @@ class FOGConfigurationPage extends FOGPage {
                 print '<h2>'._('File Import successful!').'</h2>';
                 $password = (DATABASE_PASSWORD ? ' -p"'.DATABASE_PASSWORD.'"' : '');
                 $command = 'mysql -u ' . DATABASE_USERNAME . $password .' -h '.preg_replace('#p:#','',DATABASE_HOST).' '.DATABASE_NAME.' < "'.$dbFileName.'"';
-                exec($command,$output = array(),$worked);
+                $output = array();
+                exec($command,$output,$worked);
                 switch ($worked) {
                 case 0:
                     print '<h2>'._('Database Added!').'</h2>';

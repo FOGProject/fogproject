@@ -74,8 +74,10 @@ function getQueryParams(qs) {
     ActionBox.hide();
     ActionBoxDel.hide();
     if (!$_GET['sub'] || $_GET['sub'] == 'list') {
-        ActionBox.show();
-        ActionBoxDel.show();
+        if ($('.no-active-tasks').size() == 0) {
+            ActionBox.show();
+            ActionBoxDel.show();
+        }
     }
     // Custom FOG JQuery functions
     $.fn.fogAjaxSearch = function(opts) {
