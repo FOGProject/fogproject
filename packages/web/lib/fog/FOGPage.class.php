@@ -469,6 +469,7 @@ abstract class FOGPage extends FOGBase {
         );
         $this->templates = array(
             '<a href="?node='.$this->node.'&sub=edit&id=${id}">${name}</a>',
+            '<input type="hidden" value="${id}" name="remitems[]"/>',
         );
         $this->additional = array();
         $ids = array_filter(array_unique(explode(',',$_REQUEST[strtolower($this->childClass).'IDArray'])));
@@ -476,7 +477,6 @@ abstract class FOGPage extends FOGBase {
         if (array_key_exists('protected',$this->getClass($this->childClass)->databaseFields)) $findWhere['protected'] = array('',null,0,false);
         $Objects = $this->getClass($this->childClass)->getManager()->find($findWhere);
         foreach ($Objects AS $i => &$Obj) {
-            $_SESSION[delitems][$this->node][] = $Obj->get(id);
             $this->data[] = array(
                 id=>$Obj->get(id),
                 name=>$Obj->get(name),
@@ -484,11 +484,11 @@ abstract class FOGPage extends FOGBase {
             array_push($this->additional,'<p>'.$Obj->get(name).'</p>');
         }
         unset($Obj);
-        if (count($_SESSION[delitems])) {
+        if (count($this->data)) {
             print '<div class="confirm-message">';
             print '<p>'._($this->childClass.'s to be removed').':</p>';
+            print '<form method="post" action="'.$this->formAction.'_conf">';
             $this->render();
-            print '<form method="post" action="?node='.$this->node.'&sub=deleteconf">';
             print '<center><input type="submit" value="'._('Are you sure you wish to remove these items').'?"/></center>';
             print '</form>';
             print '</div>';
@@ -497,12 +497,11 @@ abstract class FOGPage extends FOGBase {
             $this->FOGCore->redirect('?node='.$this->node);
         }
     }
-    /** deleteconf() deletes the items after being confirmed.
+    /** deletemulti_conf() deletes the items after being confirmed.
      * @return void
      */
-    public function deleteconf() {
-        $this->getClass($this->childClass)->getManager()->destroy(array(id=>$_SESSION[delitems][$this->node]));
-        unset($_SESSION[delitems]);
+    public function deletemulti_conf() {
+        $this->getClass($this->childClass)->getManager()->destroy(array(id=>$_REQUEST[remitems]));
         $this->FOGCore->setMessage('All selected items have been deleted');
         $this->FOGCore->redirect('?node='.$this->node);
     }
