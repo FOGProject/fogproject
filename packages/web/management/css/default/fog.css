@@ -131,7 +131,8 @@ select {
     padding: 4px 4px 4px 4px;
 }
 select:not([name=ulang]):not([name=storagesel]) {
-    min-width: 250px;
+    width: 200px;
+    min-width: 200px;
 }
 input[type=text], input[type=search] {
     width: 200px;
