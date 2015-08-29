@@ -23,7 +23,7 @@ $(function() {
     // Show Task Container if we have items
     ActiveTasksContainer = $('#active-tasks');
     if (ActiveTasksContainer.find('tbody > tr').size() > 0) ActiveTasksContainer.show();
-    if (ActiveTasksContainer.find('td').prop('colspan') != 6) ActiveTasksContainer.after('<center><div id="canceltasks"></div><input type="button" name="Cancel" value="Cancel selected tasks?"/></center>');
+    ActiveTasksTableCheck();
     var URL;
     switch($_GET['sub']) {
         case 'active':
@@ -71,6 +71,7 @@ $(function() {
                         $(this).dialog('close');
                     },
                     'No': function() {
+                        ActiveTasksTableCheck();
                         $(this).dialog('close');
                     }
                 }
@@ -332,4 +333,6 @@ function ActiveTasksTableCheck() {
         thead.remove();
         tbody.html('<tr><td colspan="6" class="no-active-tasks">' + _L['NO_ACTIVE_TASKS'] + '</td></tr>');
     }
+    if ($('.no-active-tasks').size() == 0) ActiveTasksContainer.after('<center><div id="canceltasks"><input type="button" name="Cancel" value="Cancel selected tasks?"/></div></center>');
+    else $('#canceltasks').hide();
 }
