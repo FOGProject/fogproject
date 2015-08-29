@@ -570,7 +570,13 @@ configureMySql() {
     stopInitScript
     dots "Setting up and starting MySQL"
     if [ "$systemctl" == "yes" ]; then
-        systemctl="yes";
+        if [ "$osid" == 3 ]; then
+            if [ ! -d "/var/lib/mysql" ]; then
+                mkdir /var/lib/mysql >/dev/null 2>&1
+            fi
+            chown -R mysql:mysql /var/lib/mysql >/dev/null 2>&1
+            mysql_install_db --user=mysql --ldata=/var/lib/mysql/ >/dev/null 2>&1
+        fi
         systemctl enable mysql.service >/dev/null 2>&1 && \
         systemctl restart mysql.service >/dev/null 2>&1 && \
         sleep 2 && \
@@ -972,7 +978,12 @@ configureHttpd() {
     dots "Setting up Apache and PHP files"
     if [ "$osid" -eq 3 ]; then
         echo -e "<FilesMatch \.php$>\n\tSetHandler \"proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://127.0.0.1/\"\n</FilesMatch>\n<IfModule dir_module>\n\tDirectoryIndex index.php index.html\n</IfModule>" >> /etc/httpd/conf/httpd.conf
+        sed -i 's@#LoadModule ssl_module modules/mod_ssl.so@LoadModule ssl_module modules/mod_ssl.so@g' /etc/httpd/conf/httpd.conf >/dev/null 2>&1
+        sed -i 's@#LoadModule socache_shmcb_module modules/mod_socache_shmcb.so@LoadModule socache_shmcb_module modules/mod_socache_shmcb.so@g' /etc/httpd/conf/httpd.conf >/dev/null 2>&1
+        echo -e "# FOG Virtual Host\nInclude conf/extra/fog.conf" >> /etc/httpd/conf/httpd.conf >/dev/null 2>&1
         sed -i 's/;extension=mysqli.so/extension=mysqli.so/g' $phpini >/dev/null 2>&1
+        sed -i 's/;extension=openssl.so/extension=openssl.so/g' $phpini >/dev/null 2>&1
+        sed -i 's/;extension=mcrypt.so/extension=mcrypt.so/g' $phpini >/dev/null 2>&1
     fi
     sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' $phpini >/dev/null 2>&1
     sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' $phpini >/dev/null 2>&1
