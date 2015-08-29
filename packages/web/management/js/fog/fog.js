@@ -27,7 +27,7 @@ _L['PING_COMPLETE'] = 'Pinging %1 hosts complete!';
 var FOGPingActive = new Array();
 var StatusAutoHideTimer;
 var StatusAutoHideDelay = 3000;
-var PingDelay = 2000;
+var PingDelay = 100;
 // Active Tasks
 var ActiveTasksUpdateTimer;
 var ActiveTasksUpdateInterval = 5000;
@@ -329,8 +329,9 @@ $.fn.fogPing = function(opts) {
     var StartTime = new Date().getTime();
     var Timer;
     // Main
-    if (Options.Delay) setTimeout(Run, Options.Delay);
-    else Run();
+    //if (Options.Delay) setTimeout(Run, Options.Delay);
+    //else 
+        Run();
     function Run() {
         // Log
         if (Options.UpdateStatus) {
@@ -365,11 +366,12 @@ $.fn.fogPing = function(opts) {
             element.data('ping', $.ajax({
                 url: '../management/index.php',
                 type: 'POST',
+                cache: false,
                 data: {
                     node: 'host',
                     sub: 'getPing',
                     ping: hostname,
-                    timeout: Options.Delay / 1000
+                    timeout: Options.Delay,
                 },
                 //dataType: 'text',
                 beforeSend: function() {
