@@ -20,8 +20,8 @@
 
 # pacman packages to install
 #packages="apache php-apache php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc htmldoc perl perl-crypt-passwdmd5 lftp"
-packages="apache php-fpm php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc perl perl-crypt-passwdmd5 lftp curl"
-storageNodePackages="apache php-fpm php mariadb nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp curl"
+packages="apache php-fpm php-gd php mariadb dhcp tftp-hpa nfs-utils vsftpd net-tools wget xinetd tar gzip make m4 gcc perl perl-crypt-passwdmd5 lftp curl openssl openssh"
+storageNodePackages="apache php-fpm php mariadb nfs-utils vsftpd xinetd tar gzip make m4 gcc gcc-c++ lftp curl openssl openssh"
 packageinstaller="pacman -Sy --noconfirm"
 packagelist="pacman -Si"
 packageupdater="pacman -Syu --noconfirm"
@@ -30,7 +30,7 @@ langPackages="iso-codes"
 dhcpname="dhcp"
 # where do the php files go?
 if [ -z "$docroot" ]; then
-    docroot="/srv/httpd/"
+    docroot="/srv/http/"
     webdirdest="${docroot}fog"
 elif [[ "$docroot" != *'fog'* ]]; then
     webdirdest="${docroot}fog"
@@ -42,7 +42,7 @@ apacheuser="http"
 apachelogdir="/var/log/httpd"
 apacheerrlog="$apachelogdir/error_log"
 apacheacclog="$apachelogdir/access_log"
-etcconf="/etc/httpd/conf.d/fog.conf"
+etcconf="/etc/httpd/conf/extra/fog.conf"
 phpini="/etc/php/php.ini"
 initdpath="/usr/lib/systemd/system";
 initdsrc="../packages/systemd";
