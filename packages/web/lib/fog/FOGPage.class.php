@@ -68,6 +68,8 @@ abstract class FOGPage extends FOGBase {
             search=>$this->foglang[NewSearch],
             'list'=>sprintf($this->foglang[ListAll],_($this->childClass.'s')),
             add=>sprintf($this->foglang[CreateNew],_($this->childClass)),
+            export=>sprintf($this->foglang['Export'.$this->childClass]),
+            import=>sprintf($this->foglang['Import'.$this->childClass]),
         );
         $this->formAction = sprintf('%s?%s',$_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
         $this->HookManager->processEvent(SEARCH_PAGES,array(searchPages=>&$this->searchPages));
@@ -986,5 +988,41 @@ abstract class FOGPage extends FOGBase {
      */
     public function wakeEmUp() {
         $this->getClass(WakeOnLan,$_REQUEST[mac])->send();
+    }
+    /** import() allows importing of csv
+     * @return void
+     */
+    public function import() {
+        // Title
+        $this->title = sprintf('Import %s List',$this->childClass);
+        // Header Data
+        unset($this->headerData);
+        // Attributes
+        $this->attributes = array(
+            array(),
+            array(),
+        );
+        // Templates
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        if ($this->childClass == 'Host') print '<p>'._('This page allows you to upload a CSV file of hosts into FOG to ease migration.  Right click').' <a href="./other/hostimport.csv">'._('here').'</a>'._(' and select ').'<strong>'._('Save target as...').'</strong>'._(' or ').'<strong>'.('Save link as...').'</strong>'._(' to download a template file.  The only fields that are required are hostname and MAC address.  Do ').'<strong>'._('NOT').'</strong>'._('include a header row, and make sure you resave the file as a CSV file and not XLS!').'</p>';
+        printf('<form enctype="multipart/form-data" method="post" action="%s">',$this->formAction);
+        $fields = array(
+            _('CSV File') => '<input class="smaller" type="file" name="file" />',
+            '&nbsp;' => sprintf('<input class="smaller" type="submit" value="%s"/>',_('Upload CSV')),
+        );
+        foreach ((array)$fields AS $field => &$input) {
+            $this->data[] = array(
+                field=>$field,
+                input=>$input,
+            );
+        }
+        // Hook
+        $this->HookManager->processEvent(strtoupper($this->childClass).'_IMPORT_OUT',array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
+        // Output
+        $this->render();
+        print '</form>';
     }
 }
