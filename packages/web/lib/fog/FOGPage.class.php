@@ -1025,4 +1025,289 @@ abstract class FOGPage extends FOGBase {
         $this->render();
         print '</form>';
     }
+    /** export() export csv for relative class item
+     * @return void()
+     */
+    public function export() {
+        $this->title = sprintf('Export %s',$this->childClass);
+        // Header Data
+        unset($this->headerData);
+        // Attributes
+        $this->attributes = array(
+            array(),
+            array(),
+        );
+        // Templates
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        // Fields
+        $fields = array(
+            _(sprintf("Click the button to download the %s's table backup.",strtolower($this->childClass))) => sprintf('<input type="submit" value="%s"/>',_('Export')),
+        );
+        $report = $this->getClass(ReportMaker);
+        $Items = $this->getClass($this->childClass)->getManager()->find();
+        switch (strtolower($this->childClass)) {
+        case 'user':
+            $fieldsForCSV = array(
+                'name',
+                'password',
+                'type',
+            );
+            break;
+        case 'host':
+            $fieldsForCSV = array(
+                'name',
+                'description',
+                'ip',
+                'imageID',
+                'building',
+                'useAD',
+                'ADDomain',
+                'ADOU',
+                'ADUser',
+                'ADPass',
+                'ADPassLegacy',
+                'productKey',
+                'kernel',
+                'kernelArgs',
+                'kernelDevice',
+            );
+            break;
+        case 'group':
+            $fieldsForCSV = array(
+                'name',
+                'description',
+                'building',
+                'kernel',
+                'kernelArgs',
+                'kernelDevice',
+            );
+            break;
+        case 'image':
+            $fieldsForCSV = array(
+                'name',
+                'description',
+                'path',
+                'building',
+                'size',
+                'imageTypeID',
+                'imagePartitionTypeID',
+                'osID',
+                'size',
+                'deployed',
+                'format',
+                'protected',
+                'compress',
+            );
+            break;
+        case 'snapin':
+            $fieldsForCSV = array(
+                'name',
+                'description',
+                'file',
+                'args',
+                'reboot',
+                'runWith',
+                'runWithArgs',
+                'protected',
+            );
+            break;
+        case 'printer':
+            $fieldsForCSV = array(
+                'name',
+                'description',
+                'port',
+                'file',
+                'model',
+                'config',
+                'ip',
+            );
+            break;
+        }
+        // Vary the items to get based on the class in question
+        foreach ($Items AS $i => &$Item) {
+            if ($Item instanceof Host) {
+                $macs[] = $Item->get(mac);
+                foreach ($Item->get(additionalMACs) AS $i => &$AddMAC) $macs[] = $AddMAC->__toString();
+                unset($AddMAC);
+                $report->addCSVCell(implode('|',(array)$macs));
+            }
+            foreach ($fieldsForCSV AS $i => &$field) $report->addCSVCell($Item->get($field));
+            unset($field);
+            $this->HookManager->processEvent(strtoupper($this->childClass).'_EXPORT_REPORT',array(report=>&$report,$this->childClass=>&$Item));
+            $report->endCSVLine();
+            unset($macs);
+        }
+        unset($Item);
+        $_SESSION[foglastreport]=serialize($report);
+        printf('<form method="post" action="export.php?type=%s">',strtolower($this->childClass));
+        foreach ((array)$fields AS $field => &$input) {
+            $this->data[] = array(
+                field=>$field,
+                input=>$input,
+            );
+        }
+        // Hook
+        $this->HookManager->processEvent(strtoupper($this->childClass).'_EXPORT',array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
+        // Output
+        $this->render();
+        print '</form>';
+    }
+    /** import_post() imports the data and inserts into the database
+     * @return void()
+     */
+    public function import_post() {
+        try {
+            // Error Checking
+            if ($_FILES['file']['error'] > 0) throw new Exception(sprintf('Error: '.(is_array($_FILES['file']['error']) ? implode(', ',$_FILES['file']['error']) : $_FILES['file']['error'])));
+            if (!file_exists($_FILES['file']['tmp_name'])) throw new Exception(_('Could not find temp filename'));
+            // Success in finding the file
+            $numSuccess = $numFailed = $numAlreadExist = 0;
+            $handle = fopen($_FILES['file']['tmp_name'],'rb');
+            switch (strtolower($this->childClass)) {
+            case 'user':
+                $fieldsForCSV = array(
+                    'name',
+                    'password',
+                    'type',
+                );
+                break;
+            case 'host':
+                $fieldsForCSV = array(
+                    'name',
+                    'description',
+                    'ip',
+                    'imageID',
+                    'building',
+                    'useAD',
+                    'ADDomain',
+                    'ADOU',
+                    'ADUser',
+                    'ADPass',
+                    'ADPassLegacy',
+                    'productKey',
+                    'kernel',
+                    'kernelArgs',
+                    'kernelDevice',
+                );
+                break;
+            case 'group':
+                $fieldsForCSV = array(
+                    'name',
+                    'description',
+                    'building',
+                    'kernel',
+                    'kernelArgs',
+                    'kernelDevice',
+                );
+                break;
+            case 'image':
+                $fieldsForCSV = array(
+                    'name',
+                    'description',
+                    'path',
+                    'building',
+                    'size',
+                    'imageTypeID',
+                    'imagePartitionTypeID',
+                    'osID',
+                    'size',
+                    'deployed',
+                    'format',
+                    'protected',
+                    'compress',
+                );
+                break;
+            case 'snapin':
+                $fieldsForCSV = array(
+                    'name',
+                    'description',
+                    'file',
+                    'args',
+                    'reboot',
+                    'runWith',
+                    'runWithArgs',
+                    'protected',
+                );
+                break;
+            case 'printer':
+                $fieldsForCSV = array(
+                    'name',
+                    'description',
+                    'port',
+                    'file',
+                    'model',
+                    'config',
+                    'ip',
+                );
+                break;
+            }
+            while (($data = fgetcsv($handle, 1000, ',')) !== false) {
+                $totalRows++;
+                try {
+                    $Item = $this->getClass($this->childClass);
+                    // Error Checking
+                    if ($Item instanceof Host) {
+                        $ModuleIDs = $this->getClass(ModuleManager)->find('','','','','','','','id');
+                        $MACs = $this->parseMacList($data[0]);
+                        $Host = $this->getClass(HostManager)->getHostByMacAddresses($MACs);
+                        if ($Host && $Host->isValid()) throw new Exception(_('Host al ready exists with at least one of the listed MACs'));
+                        $PriMAC = array_shift($MACs);
+                        $iterator = 1;
+                    } else $iterator = 0;
+                    if ($Item->getManager()->exists($data[$iterator])) throw new Exception(_($this->childClass.' already exists with this name: '.$data[$iterator]));
+                    foreach ($fieldsForCSV AS $i => $field) {
+                        $Item->set($field,$data[$iterator]);
+                        $iterator++;
+                    }
+                    if ($Item instanceof Host) {
+                        $Item->addModule($ModuleIDs)
+                            ->addPriMAC($PriMAC)
+                            ->addAddMAC($MACs);
+                        unset($ModuleIDs,$MACs,$PriMAC);
+                    }
+                    if ($Item->save()) {
+                        $this->HookManager->processEvent(strtoupper($this->childClass).'_IMPORT',array(data=>&$data,$this->childClass=>&$Item));
+                        $numSuccess++;
+                    } else $numFailed++;
+                } catch (Exception $e) {
+                    $numFailed++;
+                    $uploadErrors .= sprintf('%s #%s: %s<br/>',_('Row'),$totalRows,$e->getMessage());
+                }
+            }
+            fclose($handle);
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+        }
+        // Title
+        $this->title = _(sprintf('Import %s Results',$this->childClass));
+        unset($this->headerData);
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        $this->attributes = array(
+            array(),
+            array(),
+        );
+        $fields = array(
+            _('Total Rows')=>$totalRows,
+            _(sprintf("Successful %s's",$this->childClass))=>$numSuccess,
+            _(sprintf("Failed %s's",$this->childClass))=>$numFailed,
+            _('Errors')=>$uploadErrors,
+        );
+        foreach ((array)$fields AS $field => &$input) {
+            $this->data[] = array(
+                field=>$field,
+                input=>$input,
+            );
+        }
+        unset($input);
+        // Hook
+        $this->HookManager->processEvent(strtoupper($this->childClass).'_IMPORT_FIELDS',array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
+        // Output
+        $this->render();
+    }
 }

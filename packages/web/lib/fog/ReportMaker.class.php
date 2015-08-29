@@ -6,20 +6,29 @@ class ReportMaker extends FOGBase {
         'csv' => 1,
         'pdf' => 2,
         'sql' => 3,
+        'user' => 4,
         'host' => 4,
+        'group' => 4,
+        'image' => 4,
+        'snapin' => 4,
+        'printer' => 4,
     );
     public function appendHTML($html) {
         $this->strHTML[] = $html;
+        return $this;
     }
     public function addCSVCell($item) {
         $this->strCSV[] = addslashes(trim($item));
+        return $this;
     }
     public function endCSVLine() {
         $this->strLine[] = '"'.implode('","',$this->strCSV).'"';
         unset($this->strCSV);
+        return $this;
     }
     public function setFileName($filename) {
         $this->filename = $filename;
+        return $this;
     }
     public function outputReport($intType = 0) {
         if (!isset($_REQUEST['export'])) $this->setFileName($_REQUEST['filename']);
@@ -68,7 +77,7 @@ class ReportMaker extends FOGBase {
             header('X-Frame-Options: deny');
             header('Cache-Control: no-cache');
             header('Content-Type: application/octet-stream');
-            header("Content-Disposition: attachment; filename=host_export.csv");
+            header("Content-Disposition: attachment; filename=".$_REQUEST[type]."_export.csv");
             print implode($this->strLine,"\n");
         }
     }
