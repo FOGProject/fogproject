@@ -6,7 +6,7 @@ class UserManagementPage extends FOGPage {
         $this->name = 'User Management';
         // Call parent constructor
         parent::__construct($this->name);
-        if ($_REQUEST['id']) {
+        if ($_REQUEST[id]) {
             $this->subMenu = array(
                 $this->linkformat => $this->foglang[General],
                 $this->delformat => $this->foglang[Delete],

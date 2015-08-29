@@ -5,8 +5,6 @@ class HostManagementPage extends FOGPage {
         $this->name = 'Host Management';
         parent::__construct($this->name);
         if ($_SESSION[Pending-Hosts]) $this->menu[pending] = $this->foglang[PendingHosts];
-        $this->menu[export] = $this->foglang[ExportHost];
-        $this->menu[import] = $this->foglang[ImportHost];
         if ($_REQUEST[id]) {
             $this->obj = $this->getClass(Host,$_REQUEST[id]);
             if ($this->obj->isValid()) {
@@ -1093,41 +1091,6 @@ class HostManagementPage extends FOGPage {
             // Redirect
             $this->FOGCore->redirect('?node=host&sub=edit&id='.$this->obj->get(id).'#'.$_REQUEST[tab]);
         }
-    }
-    /** import()
-        Import host form.
-     */
-    public function import() {
-        // Title
-        $this->title = 'Import Host List';
-        // Header Data
-        unset($this->headerData);
-        // Attributes
-        $this->attributes = array(
-            array(),
-            array(),
-        );
-        // Templates
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        print "\n\t\t\t".'<form enctype="multipart/form-data" method="post" action="'.$this->formAction.'">';
-        $fields = array(
-            _('CSV File') => '<input class="smaller" type="file" name="file" />',
-            '&nbsp;' => '<input class="smaller" type="submit" value="'._('Upload CSV').'" />',
-        );
-        foreach ((array)$fields AS $field => $input) {
-            $this->data[] = array(
-                field=>$field,
-                input=>$input,
-            );
-        }
-        // Hook
-        $this->HookManager->processEvent(HOST_IMPORT_OUT,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        // Output
-        $this->render();
-        print '</form><p>'._('This page allows you to upload a CSV file of hosts into FOG to ease migration.  Right click').' <a href="./other/hostimport.csv">'._('here').'</a>'._(' and select ').'<strong>'._('Save target as...').'</strong>'._(' or ').'<strong>'.('Save link as...').'</strong>'._(' to download a template file.  The only fields that are required are hostname and MAC address.  Do ').'<strong>'._('NOT').'</strong>'._(' include a header row, and make sure you resave the file as a CSV file and not XLS!').'</p>';
     }
     /** import_post()
         Actually imports the post.
