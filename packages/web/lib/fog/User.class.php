@@ -38,8 +38,8 @@ class User extends FOGController {
         }
         return $res;
     }
-    public function set($key, $value) {
-        if ($this->key($key) == 'password') $value = $this->generate_hash($value);
+    public function set($key, $value, $override = false) {
+        if ($this->key($key) == 'password' && !$override) $value = $this->generate_hash($value);
         // Set
         return parent::set($key, $value);
     }
