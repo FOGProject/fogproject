@@ -1007,7 +1007,7 @@ abstract class FOGPage extends FOGBase {
             '${field}',
             '${input}',
         );
-        if ($this->childClass == 'Host') print '<p>'._('This page allows you to upload a CSV file of hosts into FOG to ease migration.  Right click').' <a href="./other/hostimport.csv">'._('here').'</a>'._(' and select ').'<strong>'._('Save target as...').'</strong>'._(' or ').'<strong>'.('Save link as...').'</strong>'._(' to download a template file.  The only fields that are required are hostname and MAC address.  Do ').'<strong>'._('NOT').'</strong>'._('include a header row, and make sure you resave the file as a CSV file and not XLS!').'</p>';
+        print _('This page allows you to upload a CSV file into FOG to ease migration. It will operate based on the fields that are normally required by each area.  For example, Hosts will have macs, name, description, etc....');
         printf('<form enctype="multipart/form-data" method="post" action="%s">',$this->formAction);
         $fields = array(
             _('CSV File') => '<input class="smaller" type="file" name="file" />',
@@ -1255,12 +1255,11 @@ abstract class FOGPage extends FOGBase {
                         $Host = $this->getClass(HostManager)->getHostByMacAddresses($MACs);
                         if ($Host && $Host->isValid()) throw new Exception(_('Host al ready exists with at least one of the listed MACs'));
                         $PriMAC = array_shift($MACs);
-                        $iterator = 1;
                     } else $iterator = 0;
                     if ($Item->getManager()->exists($data[$iterator])) throw new Exception(_($this->childClass.' already exists with this name: '.$data[$iterator]));
                     foreach ($fieldsForCSV AS $i => $field) {
-                        $Item->set($field,$data[$iterator]);
-                        $iterator++;
+                        if ($Item instanceof Host) $i++;
+                        $Item->set($field,$data[$i],($field == 'password'));
                     }
                     if ($Item instanceof Host) {
                         $Item->addModule($ModuleIDs)
