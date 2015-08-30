@@ -984,6 +984,8 @@ configureHttpd() {
         sed -i 's/;extension=mysqli.so/extension=mysqli.so/g' $phpini >/dev/null 2>&1
         sed -i 's/;extension=openssl.so/extension=openssl.so/g' $phpini >/dev/null 2>&1
         sed -i 's/;extension=mcrypt.so/extension=mcrypt.so/g' $phpini >/dev/null 2>&1
+        sed -i 's/;extension=posix.so/extension=posix.so/g' $phpini >/dev/null 2>&1
+        sed -i 's/open_basedir\ =/;open_basedir\ ="/g' $phpini >/dev/null 2>&1
     fi
     sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' $phpini >/dev/null 2>&1
     sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' $phpini >/dev/null 2>&1
