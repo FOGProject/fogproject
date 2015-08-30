@@ -205,7 +205,11 @@ configureFTP() {
 	if [ "$vsvermaj" -gt 3 ] || [ "$vsvermaj" -eq 3 -a "$vsverbug" -ge 2 ]; then
 		seccompsand="seccomp_sandbox=NO"
 	fi
-	echo -e  "anonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\ntcp_wrappers=YES\n$seccompsand" > "$ftpconfig"
+    tcpwrappers="YES"
+    if [ "$osid" == 3 ]; then
+        tcpwrappers="NO"
+    fi
+	echo -e  "anonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\ntcp_wrappers=$tcpwrappers\n$seccompsand" > "$ftpconfig"
     if [ "$systemctl" == "yes" ]; then
         systemctl enable vsftpd >/dev/null 2>&1
         systemctl restart vsftpd >/dev/null 2>&1
