@@ -40,7 +40,7 @@ class Initiator {
          */
         private static function DetermineBasePath() {
             define('WEB_ROOT',sprintf('/%s',(preg_match('#/fog/#',$_SERVER['PHP_SELF'])?'fog/':'')));
-            return $_SERVER['DOCUMENT_ROOT'].WEB_ROOT;
+            return (file_exists('/srv/http/') ? '/srv/http/fog/' : (file_exists('/var/www/html/') ? '/var/www/html/fog/' : (file_exists('/var/www/') ? '/var/www/fog/' : '/'.trim($_SERVER['DOCUMENT_ROOT'],'/').'/'.WEB_ROOT)));
         }
         /** __destruct() Cleanup after no longer needed
          * @return void
