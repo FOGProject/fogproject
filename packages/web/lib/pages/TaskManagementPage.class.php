@@ -18,6 +18,7 @@ class TaskManagementPage extends FOGPage {
         $this->HookManager->processEvent(SUB_MENULINK_DATA,array(menu=>&$this->menu,submenu=>&$this->subMenu,id=>&$this->id,notes=>&$this->notes));
         // Header row
         $this->headerData = array(
+            '',
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction"/>',
             _('Started By:'),
             _('Hostname<br><small>MAC</small>'),
@@ -27,6 +28,7 @@ class TaskManagementPage extends FOGPage {
         );
         // Row templates
         $this->templates = array(
+            '',
             '<input type="checkbox" name="task[]" value="${id}" class="toggle-action"/>',
             '${startedby}',
             '<p><a href="?node=host&sub=edit&id=${host_id}" title="' . _('Edit Host') . '">${host_name}</a></p><small>${host_mac}</small>',
@@ -36,6 +38,7 @@ class TaskManagementPage extends FOGPage {
         );
         // Row attributes
         $this->attributes = array(
+            array(width=>1,'','class'=>'filter-false'),
             array(width=>16,'class'=>'c filter-false'),
             array(width=>65,'class'=>l,id=>'host-${host_id}'),
             array(width=>120,'class'=>l),

@@ -175,7 +175,7 @@ function ActiveTasksUpdate() {
                     }
                     // Replace variable data
                     if (response['data'][i]['percent'] > 0 && response['data'][i]['percent'] < 100) {
-                        row += '<td colspan="7">' + '<tr id="progress-${host_id}" class="${class}"><td colspan="7" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percentText}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr></td>';
+                        row += '<tr id="progress-${host_id}" class="${class}"><td colspan="6" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percentText}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr>';
                     }
                     for (var k in response['data'][i]) {
                         row = row.replace(new RegExp('\\$\\{' + k + '\\}', 'g'), response['data'][i][k]);
@@ -331,7 +331,7 @@ function ActiveTasksTableCheck() {
     } else {
         $('table').removeClass('tablesorter-blue');
         thead.remove();
-        tbody.html('<tr><td colspan="6" class="no-active-tasks">' + _L['NO_ACTIVE_TASKS'] + '</td></tr>');
+        tbody.html('<tr><td colspan="7" class="no-active-tasks">' + _L['NO_ACTIVE_TASKS'] + '</td></tr>');
     }
     if ($('.no-active-tasks').size() == 0) ActiveTasksContainer.after('<center><div id="canceltasks"><input type="button" name="Cancel" value="Cancel selected tasks?"/></div></center>');
     else $('#canceltasks').hide();
