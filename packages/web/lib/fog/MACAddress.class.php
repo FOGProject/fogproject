@@ -37,7 +37,7 @@ class MACAddress extends FOGBase {
      */
     public function getMACPrefix() {
         $tmpMAC = strtolower($this->MAC);
-        $tmpMAC = substr(str_replace(array(':','-'),'',$tmpMAC),0,8);
+        $tmpMAC = substr(str_replace(array(':','-'),'',$tmpMAC),0,6);
         return join('-',str_split($tmpMAC,2));
     }
     /** __toString() Magic method to return the string as defined

@@ -1,14 +1,3 @@
 <?php
 require_once('../commons/base.inc.php');
-try {
-	// Poll the manager to see if it's set per host.
-	$HaloMan = current($FOGCore->getClass(HostAutoLogoutManager)->find(array('hostID' => $FOGCore->getHostItem()->get(id))));
-	// Set the time.  If host is set, use it, if not use global.
-	$HaloMan ? $time = $HaloMan->get('time') : $time = $FOGCore->getSetting(FOG_SERVICE_AUTOLOGOFF_MIN);
-	// Send it.
-	$Datatosend = ($_REQUEST[newService] && $time >= 5 ? "#!ok\n#time=".($time * 60) : ($_REQUEST[newService] && $time < 5 ? "#!time\n" : base64_encode($time)));
-	print $Datatosend;
-} catch(Exception $e) {
-	print $e->getMessage();
-	exit;
-}
+$FOGCore->getClass(Autologout);
