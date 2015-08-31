@@ -94,13 +94,6 @@ class FOGCore extends FOGBase {
         }
         return $this;
     }
-    /** getMACManufacturer($macprefix)
-        Returns the Manufacturer of the prefix sent if the tables are loaded.
-     */
-    public function getMACManufacturer($macprefix) {
-        $OUI = current($this->getClass(OUIManager)->find(array(prefix=>$macprefix)));
-        return ($OUI && $OUI->isValid()?$OUI->get(name):$this->foglang['n/a']);
-    }
     /** addUpdateMACLookupTable($macprefix,$strMan)
         Updates/add's MAC Manufacturers
      */

@@ -1,13 +1,7 @@
 <?php
-$Response = function() {
-    print "#!ok\n#Foo=bar\n#Empty=\n#-X=Special";
-};
-$ResponseArray = function() {
-    print "#!ok\n#obj0=Foo\n#obj1=bar\n#obj2=22!";
-};
-$BadResponse = function() {
-    print "#!er";
-};
+$Response = function() {print "#!ok\n#Foo=bar\n#Empty=\n#-X=Special";};
+$ResponseArray = function() {print "#!ok\n#obj0=Foo\n#obj1=bar\n#obj2=22!";};
+$BadResponse = function() {print "#!er";};
 $Download = function() {
     header('Content-Disposition: attachment; filename=test.txt');
     header('Content-Type: application/force-download');
@@ -32,21 +26,8 @@ $AESDecryption = function($key,$iv,$data) {
     $iv = bin2hex($iv);
     print "$iv|$cipher";
 };
-$RawResponse = function() {
-    print 'Foobar22!';
-};
-$units = array_keys(
-    array(
-        'Response',
-        'ResponseArray',
-        'BadResponse',
-        'Download',
-        'AESDecryptionResponse1',
-        'AESDecryptionResponse2',
-        'AESDecryption',
-        'RawResponse',
-    )
-);
+$RawResponse = function() {print 'Foobar22!';};
+$units = array_keys(array('Response','ResponseArray','BadResponse','Download','AESDecryptionResponse1','AESDecryptionResponse2','AESDecryption','RawResponse'));
 if (in_array($_REQUEST['unit'],$units)) {
     if (strpos($_REQUEST['unit'],'AESDecryption') !== false) {
         $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128,MCRYPT_MODE_CBC);

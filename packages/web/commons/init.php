@@ -22,7 +22,7 @@ class Initiator {
             $plug_event[] = $plugPath.'/events/';
             $plug_page[] = $plugPath.'/pages/';
         }
-        $FOGPaths = array(BASEPATH . '/lib/fog/', BASEPATH . '/lib/db/');
+        $FOGPaths = array(BASEPATH . '/lib/fog/', BASEPATH . '/lib/db/',BASEPATH.'/lib/client/');
         $HookPaths = array(BASEPATH . '/lib/hooks/');
         $EventPaths = array(BASEPATH . '/lib/events/');
         $PagePaths = array(BASEPATH . '/lib/pages/');
