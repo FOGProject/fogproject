@@ -745,12 +745,14 @@ abstract class FOGPage extends FOGBase {
      */
     public function getmacman() {
         try {
-            if (!$_SESSION['AllowAJAXTasks']) throw new Exception(_('FOG Session Invalid'));
-            $prefix = $_REQUEST['prefix'];
-            if (!$prefix && strlen($prefix) >= 8) throw new Exception(_('Unknown'));
-            if (!$this->FOGCore->getMACLookupCount() > 0) throw new Exception('<a href="?node=about&sub=mac-list">'._('Load MAC Vendors').'</a>');
-            $MAC = new MACAddress($prefix);
-            if ($MAC && $MAC->isValid()) $Data = '<small>'.($mac == 'n/a' ? _('Unknown') : $this->FOGCore->getMACManufacturer($MAC->getMACPrefix())).'</small>';
+            if (!$_SESSION['AllowAJAXTasks']) throw new Exception(_('<small>FOG Session Invalid</small>'));
+            if (!$this->FOGCore->getMACLookupCount()) throw new Exception('<small><a href="?node=about&sub=mac-list">'._('Load MAC Vendors').'</a></small>');
+            $MAC = $this->getClass(MACAddress,$_REQUEST[prefix]);
+            $prefix = $MAC->getMACPrefix();
+            if (!$MAC->isValid() || !$prefix) throw new Exception('<small>'._('Unknown').'</small>');
+            $OUI = $this->getClass(OUIManager)->find(array(prefix=>$prefix));
+            $OUI = @array_shift($OUI);
+            $Data = '<small>'.$OUI->get(name).'</small>';
         } catch (Exception $e) {
             $Data = $e->getMessage();
         }
