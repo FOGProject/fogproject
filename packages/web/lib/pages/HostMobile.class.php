@@ -24,11 +24,12 @@ class HostMobile extends FOGPage {
             array(),
         );
         // Templates
+        $icon = $this->getClass(TaskType,1)->get(icon);
         $this->templates = array(
             '${host_id}',
             '${host_name}',
             '${host_mac}',
-            '<a href="index.php?node=${node}&sub=deploy&id=${host_id}"><i class="fa fa-arrow-down fa-2x"></i></a>',
+            '<a href="index.php?node=${node}&sub=deploy&id=${host_id}"><i class="fa fa-'.$icon.' fa-2x"></i></a>',
         );
     }
     public function index() {
