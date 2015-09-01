@@ -131,7 +131,8 @@ select {
     padding: 4px;
 }
 select:not([name=ulang]):not([name=storagesel]) {
-    min-width: 250px;
+    width: 200px;
+    min-width: 200px;
 }
 input[type=text], input[type=search] {
     width: 200px;
@@ -453,6 +454,17 @@ table tr td:first-child, table tr td:last-child {
 }
 table td .icon {
     margin: 0 3px;
+}
+.header {
+    padding: 4px;
+    border: 0;
+    background: #7386ad;
+    color: #fff;
+    font-weight: normal;
+    text-align: center;
+    border-radius: 3px 3px 0 0;
+    -moz-border-radius: 3px 3px 0 0;
+    -webkit-border-radius: 3px 3px 0 0;
 }
 table tr.header {
     color: #ededed;
