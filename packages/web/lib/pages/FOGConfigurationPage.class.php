@@ -408,10 +408,7 @@ class FOGConfigurationPage extends FOGPage {
         print '</form>';
         // reset for next element
         unset($this->headerData,$this->attributes,$this->templates,$this->data);
-        $this->headerData = array(
-            _('Upload a new client module/configuration file'),
-            '',
-        );
+        print '<p class="header">'._('Upload a new client module/configuration file').'</p>';
         $this->attributes = array(
             array(),
             array('class'=>'filter-false'),
@@ -445,24 +442,16 @@ class FOGConfigurationPage extends FOGPage {
             $this->getClass(ClientUpdaterManager)->destroy(array(id=>$_REQUEST[delcu]));
             $this->FOGCore->setMessage(_('Client module update deleted!'));
         }
-        if ($_FILES['module']) {
-            foreach((array)$_FILES['module']['tmp_name'] AS $index => &$tmp_name) {
-                if (file_exists($_FILES['module']['tmp_name'][$index])) {
-                    $ClientUpdater = current($this->getClass(ClientUpdaterManager)->find(array(name=>$_FILES[module][name][$index])));
-                    if(file_get_contents($_FILES[module][tmp_name][$index])) {
-                        if ($ClientUpdater) {
-                            $ClientUpdater->set(name,basename($_FILES[module][name][$index]))
-                                ->set('md5',md5(file_get_contents($_FILES[module][tmp_name][$index])))
-                                ->set(type,($this->FOGCore->endsWith($_FILES[module][name][$index],'.ini')?'txt':'bin'))
-                                ->set('file',file_get_contents($_FILES[module][tmp_name][$index]));
-                        } else {
-                            $ClientUpdater = $this->getClass(ClientUpdater)
-                                ->set(name,basename($_FILES[module][name][$index]))
-                                ->set('md5',md5(file_get_contents($_FILES[module][tmp_name][$index])))
-                                ->set(type,$this->FOGCore->endsWith($_FILES[module][name][$index],'.ini')?'txt':'bin')
-                                ->set('file',file_get_contents($_FILES[module][name][$index]));
-                        }
-                        if ($ClientUpdater->save()) $this->FOGCore->setMessage(_('Modules Added/Updated').'!');
+        if ($_FILES[module]) {
+            foreach((array)$_FILES[module][tmp_name] AS $index => &$tmp_name) {
+                if (file_exists($tmp_name)) {
+                    if (file_get_contents($tmp_name)) {
+                        $ClientUpdater = $this->getClass(ClientUpdater)
+                            ->set(name,basename($_FILES[module][name][$index]))
+                            ->set(md5,md5(file_get_contents($tmp_name)))
+                            ->set(type,$this->FOGCore->endsWith($_FILES[module][name][$index],'.ini')?'txt':'bin')
+                            ->set(file,file_get_contents($tmp_name));
+                        if ($ClientUpdater->save()) $this->FOGCore->setMessage(_('Modules Added/Updated'));
                     }
                 }
             }

@@ -190,7 +190,7 @@ abstract class FOGController extends FOGBase {
             // Build update field array using filtered data
             foreach ($fieldsToUpdate AS $name => &$fieldName) {
                 $fieldName = (preg_match('#default#i',$fieldName) ? '`'.$fieldName.'`' : $fieldName);
-                $updateData[] = sprintf("%s = '%s'", $fieldName, $this->DB->sanitize($this->get($name)));
+                $updateData[] = sprintf("%s = values(%s)", $fieldName, $filedName);
             }
             unset($fieldName);
             // Force ID to update so ID is returned on DUPLICATE UPDATE - No ID was returning when A) Nothing is inserted (already exists) or B) Nothing is updated (data has not changed)

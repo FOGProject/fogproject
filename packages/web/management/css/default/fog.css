@@ -128,7 +128,7 @@ input, textarea, select {
     padding: 4px 4px;
 }
 select {
-    padding: 4px 4px 4px 4px;
+    padding: 4px;
 }
 select:not([name=ulang]):not([name=storagesel]) {
     width: 210px;
@@ -455,8 +455,19 @@ table tr td:first-child, table tr td:last-child {
 table td .icon {
     margin: 0 3px;
 }
+.header {
+    padding: 8px;
+    border: 0;
+    background: #7386ad;
+    color: #fff;
+    font-weight: normal;
+    text-align: center;
+    border-radius: 3px 3px 0 0;
+    -moz-border-radius: 3px 3px 0 0;
+    -webkit-border-radius: 3px 3px 0 0;
+}
 table tr.header {
-    color: #000;
+    color: #ededed;
 }
 table tr.header th {
     padding: 8px;
