@@ -895,26 +895,10 @@ abstract class FOGPage extends FOGBase {
         // Set search form
         if (in_array($this->node,$this->searchPages)) $this->searchFormURL = sprintf('?node=%s&sub=search',$this->node);
         // Hook
-        $this->HookManager->processEvent(strtoupper($eventClass).'_DATA', array('data' => &$this->data, 'templates' => &$this->templates, 'headerData' => &$this->headerData,'attributes' => &$this->attributes,'title' => &$this->title,'searchFormURL' => &$this->searchFormURL,'refineSearch' =>&$this->refineSearch));
-        $this->HookManager->processEvent(strtoupper($this->childClass).'_HEADER_DATA', array('headerData' => &$this->headerData));
+        $this->HookManager->processEvent(strtoupper($eventClass).'_DATA',array(data=>&$this->data,templates=>&$this->templates,headerData=>&$this->headerData,attributes=>&$this->attributes,title=>&$this->title,searchFormURL=>&$this->searchFormURL));
+        $this->HookManager->processEvent(strtoupper($this->childClass).'_HEADER_DATA', array(headerData=>&$this->headerData));
         // Output
         $this->render();
-        print '<div id="refinesearch"><br><center><h2>'._('Refine').'</h2><table><tbody>';
-        $increment = 1;
-        $result = '<tr>';
-        $newRow = false;
-        $this->refineSearch = array_keys($this->getClass($this->childClass)->databaseFields);
-        foreach ($this->refineSearch AS $i => &$fieldName) {
-            if ($newRow) $result .= '<tr>';
-            $result .= '<td>'.$fieldName.'</td><td><input type="checkbox" value="'.$fieldName.'"/></td>';
-            if ($increment % 3 === 0) {
-                $result .= '</tr>';
-                $newRow = true;
-            } else $newRow = false;
-            $increment++;
-        }
-        $result = rtrim($result,'</tr>').'</tr>';
-        print $result.'</tbody><table></center></div>';
     }
     /** membership() the membership of specific class
      * @return void

@@ -131,11 +131,11 @@ select {
     padding: 4px 4px 4px 4px;
 }
 select:not([name=ulang]):not([name=storagesel]) {
-    width: 200px;
-    min-width: 200px;
+    width: 210px;
+    min-width: 210px;
 }
 input[type=text], input[type=search] {
-    width: 200px;
+    width: 210px;
 }
 textarea {
     width: 40em;
@@ -615,6 +615,7 @@ pre {
 }
 #login-form input[type=text]:focus, #login-form input[type=password]:focus {
     background-image: none;
+    width: 210px;
 }
 #login-form select {
     border: 1px solid #666;
