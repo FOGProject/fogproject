@@ -11,7 +11,7 @@ class Page extends FOGBase {
             $this->addCSS('css/jquery-ui.css');
             $this->addCSS('css/jquery.organicTabs.css');
             $this->addCSS($dispTheme);
-        } else $this->addCSS('css/main.css');
+        } else $this->addCSS('../mobile/css/main.css');
         $this->addCSS('css/font-awesome.css');
         $this->addCSS('css/select2.min.css');
         $this->addCSS('css/theme.blue.css');

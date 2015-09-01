@@ -31,7 +31,7 @@ abstract class FOGBase {
     /** @var $isLoaded sets the "isLoaded" variable */
     protected $isLoaded = array();
     /** @var $searchPages sets the pages that have search as a selector. */
-    protected $searchPages = array('user','host','group','image','snapin','printer','tasks','task','hosts');
+    protected $searchPages = array('user','host','group','image','snapin','printer','task','hosts','tasks');
     /** @function __construct() initiates the FOGBase class
      * @return void
      */
