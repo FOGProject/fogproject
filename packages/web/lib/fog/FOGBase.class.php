@@ -519,8 +519,8 @@ abstract class FOGBase {
     public function sendData($datatosend,$service = true) {
         if ($service) {
             $Host = $this->getHostItem();
-            if ($_REQUEST[newService] && $this->getClass(FOGCore)->getSetting(FOG_AES_ENCRYPT)) print "#!enkey=".$this->certEncrypt($datatosend,$Host);
-            else if ($_REQUEST[newService] && ($Host->get(useAD) && preg_match('#hostname.php#',$_SERVER['REQUEST_URI']))) print "#!enkey=".$this->certEncrypt($datatosend,$Host);
+            if (isset($_REQUEST[newService]) && $this->getClass(FOGCore)->getSetting(FOG_AES_ENCRYPT)) print "#!enkey=".$this->certEncrypt($datatosend,$Host);
+            else if (isset($_REQUEST[newService]) && ($Host->get(useAD) && preg_match('#hostname.php#',$_SERVER['REQUEST_URI']))) print "#!enkey=".$this->certEncrypt($datatosend,$Host);
             else print $datatosend;
         }
     }
