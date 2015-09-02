@@ -446,10 +446,14 @@ class FOGConfigurationPage extends FOGPage {
             foreach((array)$_FILES[module][tmp_name] AS $index => &$tmp_name) {
                 if (file_exists($tmp_name)) {
                     if (file_get_contents($tmp_name)) {
-                        $ClientUpdater = $this->getClass(ClientUpdater)
-                            ->set(name,basename($_FILES[module][name][$index]))
-                            ->set(md5,md5(file_get_contents($tmp_name)))
-                            ->set(type,$this->FOGCore->endsWith($_FILES[module][name][$index],'.ini')?'txt':'bin')
+                        $md5 = md5(file_get_contents($tmp_name));
+                        $filename = basename($_FILES[module][name][$index]);
+                        $ClientUpdater = $this->getClass(ClientUpdaterManager)->find(array(name=>$filename));
+                        $ClientUpdater = @array_shift($ClientUpdater);
+                        if (!$ClientUpdater || $ClientUpdater->get(md5) != $md5) $ClientUpdater = $this->getClass(ClientUpdater);
+                        $ClientUpdater->set(name,$filename)
+                            ->set(md5,$md5)
+                            ->set(type,$this->FOGCore->endsWith($filename,'.ini')?'txt':'bin')
                             ->set(file,file_get_contents($tmp_name));
                         if ($ClientUpdater->save()) $this->FOGCore->setMessage(_('Modules Added/Updated'));
                     }
