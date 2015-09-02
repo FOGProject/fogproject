@@ -131,7 +131,6 @@ select {
     padding: 4px;
 }
 select:not([name=ulang]):not([name=storagesel]) {
-    width: 210px;
     min-width: 210px;
 }
 input[type=text], input[type=search] {
@@ -155,6 +154,7 @@ input[type=text]:hover, textarea:hover, select:hover {
     border-color: #5372af;
 }
 input[type=submit], input[type=button] {
+	padding-bottom: 22px;
     border: 1px solid #eee;
     border-radius: 5px 5px 5px 5px;
     -moz-border-radius: 5px 5px 5px 5px;
