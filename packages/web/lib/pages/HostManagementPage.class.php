@@ -251,45 +251,8 @@ class HostManagementPage extends FOGPage {
         $this->HookManager->processEvent(HOST_ADD_GEN,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes,fields=>&$fields));
         // Output
         $this->render();
-        // unset for use later.
-        unset ($this->data);
-        print '<h2>'._('Active Directory').'</h2>';
-        $OUs = explode('|',$this->FOGCore->getSetting(FOG_AD_DEFAULT_OU));
-        foreach ((array)$OUs AS $i => &$OU) $OUOptions[] = $OU;
-        unset($OU);
-        $OUOptions = array_filter($OUOptions);
-        if (count($OUOptions) > 1) {
-            $OUs = array_unique((array)$OUOptions);
-            $optionOU[] = '<option value=""> - '._('Please select an option').' - </option>';
-            foreach ($OUs AS $i => &$OU) {
-                $opt = preg_match('#;#i',$OU) ? preg_replace('#;#i','',$OU) : $OU;
-                $optionOU[] = '<option value="'.$opt.'"'.($_REQUEST['ou'] == $opt ? ' selected="selected"' : (preg_match('#;#i',$OU) ? ' selected="selected"' : '')).'>'.$opt.'</option>';
-            }
-            unset($OU);
-            $OUOptions = '<select id="adOU" class="smaller" name="ou">'.implode($optionOU).'</select>';
-        } else $OUOptions = '<input id="adOU" class="smaller" type="text" name="ou" value="'.$_REQUEST[ad_ou].'" autocomplete="off" />';
-        $ad_dom = (isset($_REQUEST[domain]) ? 'checked' : '');
-        $fieldsad = array(
-            '<input style="display:none" type="text" name="fakeusernameremembered"/>' => '<input style="display:none" type="password" name="fakepasswordremembered"/>',
-            _('Join Domain after image task') => '<input id="adEnabled" type="checkbox" name="domain" '.$ad_dom.'/>',
-            _('Domain Name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="'.$_REQUEST[domainname].'" autocomplete="off" />',
-            _('Domain OU') => $OUOptions,
-            _('Domain Username') => '<input id="adUsername" class="smaller" type="text" name="domainuser" value="'.$_REQUEST[domainuser].'" autocomplete="off" />',
-            _('Domain Password').'<br />('._('Will auto-encrypt plaintext').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="'.$_REQUEST[domainpassword].'" autocomplete="off" />',
-            _('Domain Password Legacy').'<br />('._('Must be encrypted').')' => '<input id="adPasswordLegacy" class="smaller" type="password" name="domainpasswordlegacy" value="'.$_REQUEST[domainpasswordlegacy].'" autocomplete="off" />',
-            '<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" />'
-        );
-        foreach ((array)$fieldsad AS $field => &$input) {
-            $this->data[] = array(
-                field=>$field,
-                input=>$input,
-            );
-        }
-        unset($input);
-        // Hook
-        $this->HookManager->processEvent(HOST_ADD_AD,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
-        $this->render();
+        print $this->adFieldsToDisplay();
         print "</form>";
     }
     /** add_post()
@@ -442,7 +405,7 @@ class HostManagementPage extends FOGPage {
         if (!$this->obj->get(pending)) $this->basictasksOptions();
         $this->adFieldsToDisplay();
         print "<!-- Printers -->";
-        print '<div id="host-printers" class="organic-tabs-hidden">';
+        print '<div id="host-printers" >';
         print '<form method="post" action="'.$this->formAction.'&tab=host-printers">';
         // Create Header for non associated printers
         $this->headerData = array(
@@ -519,7 +482,7 @@ class HostManagementPage extends FOGPage {
         if (count($this->data) > 0) print '&nbsp;&nbsp;<input type="submit" value="'._('Remove selected printers').'" name="printdel"/></center>';
         // Reset for next tab
         unset($this->data, $this->headerData);
-        print '</form></div><!-- Snapins --><div id="host-snapins" class="organic-tabs-hidden"><h2>'._('Snapins').'</h2><form method="post" action="'.$this->formAction.'&tab=host-snapins">';
+        print '</form></div><!-- Snapins --><div id="host-snapins" ><h2>'._('Snapins').'</h2><form method="post" action="'.$this->formAction.'&tab=host-snapins">';
         // Create the header:
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxsnapin" class="toggle-checkboxsnapin" />',
@@ -597,7 +560,7 @@ class HostManagementPage extends FOGPage {
             input=>'<input type="checkbox" class="checkboxes" id="checkAll" name="checkAll" value="checkAll" />',
             span=>''
         );
-        print '<div id="host-service" class="organic-tabs-hidden"><form method="post" action="'.$this->formAction.'&tab=host-service"><h2>'._('Service Configuration').'</h2><fieldset><legend>'._('General').'</legend>';
+        print '<div id="host-service" ><form method="post" action="'.$this->formAction.'&tab=host-service"><h2>'._('Service Configuration').'</h2><fieldset><legend>'._('General').'</legend>';
         $ModOns = $this->getClass(ModuleAssociationManager)->find(array(hostID=>$this->obj->get(id)),'','','','','','','moduleID');
         $moduleName = $this->getGlobalModuleStatus();
         $Modules = $this->getClass(ModuleManager)->find();
@@ -729,7 +692,7 @@ class HostManagementPage extends FOGPage {
             _('Chassis Asset') => '${case_asset}',
             '<input type="hidden" name="update" value="1" />' => '<input type="submit" value="'._('Update').'" />',
         );
-        print '<div id="host-hardware-inventory" class="organic-tabs-hidden"><form method="post" action="'.$this->formAction.'&tab=host-hardware-inventory"><h2>'._('Host Hardware Inventory').'</h2>';
+        print '<div id="host-hardware-inventory" ><form method="post" action="'.$this->formAction.'&tab=host-hardware-inventory"><h2>'._('Host Hardware Inventory').'</h2>';
         if ($Inventory && $Inventory->isValid()) {
             foreach(array('cpuman','cpuversion') AS &$x) $Inventory->set($x,implode(' ',array_unique(explode(' ',$Inventory->get($x)))));
             unset($x);
@@ -798,7 +761,7 @@ class HostManagementPage extends FOGPage {
             '${virus_date}',
             '<input type="checkbox" id="vir_del${virus_id}" class="delvid" name="delvid" onclick="this.form.submit()" value="${virus_id}" /><label for="${virus_id}" class="icon icon-hand" title="'._('Delete').' ${virus_name}"><i class="icon fa fa-minus-circle link"></i>&nbsp;</label>',
         );
-        print '<div id="host-virus-history" class="organic-tabs-hidden"><form method="post" action="'.$this->formAction.'&tab=host-virus-history"><h2>'._('Virus History').'</h2><h2><a href="#"><input type="checkbox" class="delvid" id="all" name="delvid" value="all" onclick="this.form.submit()" /><label for="all">('._('clear all history').')</label></a></h2>';
+        print '<div id="host-virus-history" ><form method="post" action="'.$this->formAction.'&tab=host-virus-history"><h2>'._('Virus History').'</h2><h2><a href="#"><input type="checkbox" class="delvid" id="all" name="delvid" value="all" onclick="this.form.submit()" /><label for="all">('._('clear all history').')</label></a></h2>';
         $MACs = $this->obj->getMyMacs();
         $Viruses = $this->getClass(VirusManager)->find(array(hostMAC=>$MACs));
         unset($MACs);
@@ -818,7 +781,7 @@ class HostManagementPage extends FOGPage {
         $this->render();
         // Reset for next tab
         unset($this->data,$this->headerData);
-        print '</form></div><!-- Login History --><div id="host-login-history" class="organic-tabs-hidden"><h2>'._('Host Login History').'</h2><form id="dte" method="post" action="'.$this->formAction.'&tab=host-login-history">';
+        print '</form></div><!-- Login History --><div id="host-login-history" ><h2>'._('Host Login History').'</h2><form id="dte" method="post" action="'.$this->formAction.'&tab=host-login-history">';
         $this->headerData = array(
             _('Time'),
             _('Action'),
@@ -868,7 +831,7 @@ class HostManagementPage extends FOGPage {
         else print '<p>'._('No user history data found!').'</p>';
         // Reset for next tab
         unset($this->data,$this->headerData);
-        print '<div id="login-history" style="width:575px;height:200px;" /></div></form></div><div id="host-image-history" class="organic-tabs-hidden"><h2>'._('Host Imaging History').'</h2>';
+        print '<div id="login-history" style="width:575px;height:200px;" /></div></form></div><div id="host-image-history" ><h2>'._('Host Imaging History').'</h2>';
         // Header Data for host image history
         $this->headerData = array(
             _('Image Name'),

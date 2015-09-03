@@ -521,7 +521,7 @@ abstract class FOGPage extends FOGBase {
             array('style' => 'padding-left: 20px'),
         );
         printf("<!-- Basic Tasks -->");
-        printf("%s",'<div id="'.$this->node.'-tasks" class="organic-tabs-hidden">');
+        printf("%s",'<div id="'.$this->node.'-tasks">');
         printf("<h2>%s</h2>",_($this->childClass.' Tasks'));
         // Find TaskTypes
         $TaskTypes = $this->getClass(TaskTypeManager)->find(array(access=>array('both',$this->node),isAdvanced=>0),'AND','id');
@@ -584,6 +584,7 @@ abstract class FOGPage extends FOGBase {
      * @return void
      */
     public function adFieldsToDisplay($useAD = '',$ADDomain = '',$ADOU = '',$ADUser = '',$ADPass = '',$ADPassLegacy = '') {
+        unset($this->data,$this->headerData,$this->templates,$this->attributes);
         if (empty($useAD)) $useAD = ($this->obj instanceof Host ? $this->obj->get(useAD) : $_REQUEST[domain]);
         if (empty($ADDomain)) $ADDomain = ($this->obj instanceof Host ? $this->obj->get(ADDomain) : $_REQUEST[domainname]);
         if (empty($ADOU)) $ADOU = ($this->obj instanceof Host ? $this->obj->get(ADOU) : $_REQUEST[ou]);
@@ -627,9 +628,9 @@ abstract class FOGPage extends FOGBase {
             _('Domain Username') => '<input id="adUsername" class="smaller" type="text"name="domainuser" value="${host_aduser}" autocomplete="off" />',
             _('Domain Password').'<br />('._('Will auto-encrypt plaintext').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="${host_adpass}" autocomplete="off" />',
             _('Domain Password Legacy').'<br />('._('Must be encrypted').')' => '<input id="adPasswordLegacy" class="smaller" type="password" name="domainpasswordlegacy" value="${host_adpasslegacy}" autocomplete="off" />',
-            '<input type="hidden" name="updatead" value="1" />' => '<input type="submit"value="'._('Update').'" />',
+            '<input type="hidden" name="updatead" value="1" />' => '<input type="submit"value="'.($_REQUEST[sub] == 'add' ? _('Add') : _('Update')).'" />',
         );
-        print '<div id="'.$this->node.'-active-directory" class="organic-tabs-hidden">';
+        print '<div id="'.$this->node.'-active-directory">';
         printf("%s",'<form method="post" action="'.$this->formAction.'&tab='.$this->node.'-active-directory">');
         printf('<h2>%s<div id="adClear"></div></h2>',_('Active Directory'));
         foreach((array)$fields AS $field => &$input) {

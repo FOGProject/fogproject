@@ -18,4 +18,5 @@ $(function() {
         }, MACLookupTimeout);
     };
     $('#mac').keyup(MACUpdate).blur(MACUpdate);
+    $('#host-active-directory').show();
 });

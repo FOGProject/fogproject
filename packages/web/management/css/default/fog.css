@@ -127,13 +127,10 @@ input, textarea, select {
     vertical-align: top;
     padding: 4px 4px;
 }
-select {
-    padding: 4px;
-}
 select:not([name=ulang]):not([name=storagesel]) {
-    min-width: 210px;
+    min-width: 220px;
 }
-input[type=text], input[type=search] {
+input[type=text], input[type=search], input[type=password] {
     width: 210px;
 }
 textarea {
@@ -224,7 +221,7 @@ fieldset table tbody td input[type=submit] {
     margin: 15px 0 10px 0;
 }
 fieldset table tbody td select {
-    min-width: 220px;
+    min-width: 210px;
 }
 /* Menu */
 .menu {
