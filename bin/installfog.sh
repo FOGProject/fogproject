@@ -34,7 +34,7 @@ else
         linuxReleaseName=`sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"'`
         OSVersion=`sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"'`
     elif [ -f /etc/redhat-release ]; then
-        linuxReleaseName=`cat /etc/redhat-release | sed s/.*\(// | sed s/\)//`
+        linuxReleaseName=`cat /etc/redhat-release | awk '{print $1}'`;
         OSVersion=`cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
     elif [ -f /etc/debian_version ]; then
         linuxReleaseName='Debian'
