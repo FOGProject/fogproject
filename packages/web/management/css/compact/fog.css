@@ -127,15 +127,12 @@ input, textarea, select {
     vertical-align: top;
     padding: 4px;
 }
-select {
-    padding: 4px;
-}
 select:not([name=ulang]):not([name=storagesel]) {
     width: 200px;
     min-width: 200px;
 }
-input[type=text], input[type=search] {
-    width: 200px;
+input[type=text], input[type=search], input[type=password] {
+    width: 210px;
 }
 textarea {
     width: 40em;
