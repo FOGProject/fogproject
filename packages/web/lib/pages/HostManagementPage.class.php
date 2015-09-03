@@ -275,7 +275,8 @@ class HostManagementPage extends FOGPage {
             _('Domain Name') => '<input id="adDomain" class="smaller" type="text" name="domainname" value="'.$_REQUEST[domainname].'" autocomplete="off" />',
             _('Domain OU') => $OUOptions,
             _('Domain Username') => '<input id="adUsername" class="smaller" type="text" name="domainuser" value="'.$_REQUEST[domainuser].'" autocomplete="off" />',
-            _('Domain Password').'<br/>'._('Must be encrypted') => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="'.$_REQUEST[domainpassword].'" autocomplete="off" />',
+            _('Domain Password').'<br />('._('Will auto-encrypt plaintext').')' => '<input id="adPassword" class="smaller" type="password" name="domainpassword" value="'.$_REQUEST[domainpassword].'" autocomplete="off" />',
+            _('Domain Password Legacy').'<br />('._('Must be encrypted').')' => '<input id="adPasswordLegacy" class="smaller" type="password" name="domainpasswordlegacy" value="'.$_REQUEST[domainpasswordlegacy].'" autocomplete="off" />',
             '<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" />'
         );
         foreach ((array)$fieldsad AS $field => &$input) {
