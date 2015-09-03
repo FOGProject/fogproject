@@ -888,15 +888,15 @@ class Host extends FOGController {
                 if (empty($pass)) $pass = trim($this->get(ADPass));
                 if (empty($legacy)) $legacy = trim($this->get(ADPassLegacy));
             }
-            if ($pass) $pass = $this->encryptpw($pass);
-            $this->set(useAD,$useAD)
-                ->set(ADDomain,trim($domain))
-                ->set(ADOU,trim($ou))
-                ->set(ADUser,trim($user))
-                ->set(ADPass,$pass)
-                ->set(ADPassLegacy,$legacy);
-            if (!$nosave) $this->save();
         }
+        if ($pass) $pass = $this->encryptpw($pass);
+        $this->set(useAD,$useAD)
+            ->set(ADDomain,trim($domain))
+            ->set(ADOU,trim($ou))
+            ->set(ADUser,trim($user))
+            ->set(ADPass,$pass)
+            ->set(ADPassLegacy,$legacy);
+        if (!$nosave) $this->save();
         return $this;
     }
     public function destroy($field = 'id') {
