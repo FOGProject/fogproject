@@ -33,7 +33,7 @@ class RegisterClient extends FOGClient implements FOGClientSend {
         if (count($MACs) > $maxPending + 1) throw new Exception('#!er: Too many MACs');
         foreach ($MACs AS $i => &$MAC) $AllMACs[] = strtolower($MAC);
         unset($MAC);
-        $KnownMACs = $this->getClass(Host)->getMyMacs(false);
+        $KnownMACs = $this->Host->getMyMacs(false);
         $MACs = array_unique(array_diff((array)$AllMACs,(array)$KnownMACs));
         if (count($MACs)) {
             $this->Host->addPendMAC($MACs);

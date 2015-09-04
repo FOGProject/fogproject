@@ -219,12 +219,12 @@ class Host extends FOGController {
     public function save() {
         parent::save();
         if ($this->isLoaded(mac)) {
-            $this->getClass(MACAddressAssociationManager)->destroy(array(hostID=>$this->get(id),mac=>$this->getMACAddress()->__toString()));
+            $this->getClass(MACAddressAssociationManager)->destroy(array(hostID=>$this->get(id),mac=>$this->getMACAddress()));
             $this->getClass(MACAddressAssociationManager)->destroy(array(hostID=>$this->get(id),primary=>1));
             if (($this->get(mac) instanceof MACAddress) && $this->get(mac)->isValid()) {
                 $this->getClass(MACAddressAssociation)
                     ->set(hostID,$this->get(id))
-                    ->set(mac,strtolower($this->getMACAddress()->__toString()))
+                    ->set(mac,strtolower($this->getMACAddress()))
                     ->set(primary,1)
                     ->set(pending,0)
                     ->set(clientIgnore,$this->get(mac)->isClientIgnored())
@@ -632,7 +632,7 @@ class Host extends FOGController {
                 // Cancel any tasks and jobs that the host hasn't completed
                 $this->cancelJobsSnapinsForHost();
                 // Variables
-                $mac = $this->getMACAddress()->__toString();
+                $mac = $this->getMACAddress();
                 // Snapin deploy/cancel after deploy
                 if ($deploySnapins) $this->createSnapinTasking($deploySnapins);
             }
@@ -871,11 +871,11 @@ class Host extends FOGController {
         return $this;
     }
     public function clientMacCheck($MAC = false) {
-        $mac = current($this->getClass(MACAddressAssociationManager)->find(array(mac=>($MAC?$MAC:$this->getMACAddress()->__toString()),hostID=>$this->get(id),clientIgnore=>1)));
+        $mac = current($this->getClass(MACAddressAssociationManager)->find(array(mac=>($MAC?$MAC:$this->getMACAddress()),hostID=>$this->get(id),clientIgnore=>1)));
         return ($mac && $mac->isValid() ? 'checked' : '');
     }
     public function imageMacCheck($MAC = false) {
-        $mac = current((array)$this->getClass(MACAddressAssociationManager)->find(array(mac=>($MAC?$MAC:$this->getMACAddress()->__toString()),hostID=>$this->get(id),imageIgnore=>1)));
+        $mac = current((array)$this->getClass(MACAddressAssociationManager)->find(array(mac=>($MAC?$MAC:$this->getMACAddress()),hostID=>$this->get(id),imageIgnore=>1)));
         return ($mac && $mac->isValid() ? 'checked' : '');
     }
     public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false,$nosave = false,$legacy = '') {
