@@ -1198,7 +1198,7 @@ savePartition() {
             usleep 5000000;
             imgpart="$imagePath/d${intDisk}p${partNum}.img";
             uploadFormat "$cores" "$fifoname" "$imgpart";
-            partclone.$fstype -c -s $part -O $fifoname -N -f 1 2>/tmp/status.fog;
+            partclone.$fstype -fsck-src-part-y -c -s $part -O $fifoname -N -f 1 2>/tmp/status.fog;
             mv $imgpart.000 $imgpart 2>/dev/null;
             debugPause
             clear;
