@@ -1,6 +1,7 @@
 <?php
 class HostnameChanger extends FOGClient implements FOGClientSend {
     public function send() {
+        sleep(15);
         $this->send = '#!ok';
         $password = $this->Host->get(ADPassLegacy);
         if ($this->newService) {
