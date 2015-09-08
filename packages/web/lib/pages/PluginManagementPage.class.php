@@ -32,8 +32,8 @@ class PluginManagementPage extends FOGPage {
         );
         if (in_array($_REQUEST[sub],array('installed','install'))) {
             array_push($this->headerData,_('Remove'));
-            array_push($this->templates,'${location}');
-            array_push($this->attributes,array());
+            array_push($this->templates,'<a href="?node=plugin&sub=removeplugin&rmid=${pluginid}"><i class="icon fa fa-minus-circle" title="Remove Plugin"></i></a>');
+            array_push($this->attributes,array('class'=>'c filter-false'));
         }
     }
     // Pages
