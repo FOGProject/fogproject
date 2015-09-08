@@ -12,7 +12,8 @@ class BootMenu extends FOGBase {
         parent::__construct();
         $this->loglevel = 'loglevel='.$this->FOGCore->getSetting(FOG_KERNEL_LOGLEVEL);
         // Setups of the basic construct for the menu system.
-        $StorageNode = current($this->getClass(StorageNodeManager)->find(array(isEnabled=>1,isMaster=>1)));
+        $StorageNode = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1,isMaster=>1));
+        $StorageNode = @array_shift($StorageNode);
         // Sets up the default values stored in the server. Lines 51 - 64
         $webserver = $this->FOGCore->getSetting(FOG_WEB_HOST);
         $curroot = trim(trim($this->FOGCore->getSetting(FOG_WEB_ROOT),'/'));
@@ -25,7 +26,6 @@ class BootMenu extends FOGBase {
         );
         $this->parseMe($Send);
         $this->web = "${webserver}${webroot}";
-
         $exitTypes = array(
             sanboot=>'sanboot --no-describe --drive 0x80',
             grub=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"',
