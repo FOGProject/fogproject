@@ -60,6 +60,7 @@ class MySQL extends DatabaseManager {
             $this->info($sql);
             $this->query = $sql;
             if (!$this->query) throw new Exception(_('No query sent'));
+            if (!$this->link) $this->connect();
             $this->queryResult = $this->link->query($this->query,DATABASE_CONNTYPE === MYSQLI_ASYNC ? MYSQLI_ASYNC : MYSQLI_STORE_RESULT);
             if (!$this->queryResult) throw new Exception(_('Error: ').$this->sqlerror());
             if (DATABASE_CONNTYPE === MYSQLI_ASYNC) {

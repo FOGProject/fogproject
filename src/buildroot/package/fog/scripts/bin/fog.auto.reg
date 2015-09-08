@@ -105,7 +105,7 @@ if [ -n "$hd" ]; then
     usleep 1000000
 
     echo -e "\n Memory Information";
-    echo " ------------------\n";
+    echo -e " ------------------\n";
 
     echo " * Memory: $mem";
     usleep 1000000

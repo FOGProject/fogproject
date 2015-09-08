@@ -187,20 +187,20 @@ abstract class FOGManagerController extends FOGBase {
             // Select all
             if ($idField) {
                 if (is_array($idField)) {
-                    foreach($idField AS $i => &$idstore) {
+                    foreach((array)$idField AS $i => &$idstore) {
                         while ($id = $this->DB->fetch()->get($this->databaseFields[$idstore])) $ids[$idstore][] = $id;
                     }
                     unset($idstore);
-                }
-                else while ($id = $this->DB->fetch()->get($this->databaseFields[$idField])) $ids[] = $id;
+                } else while ($id = $this->DB->fetch()->get($this->databaseFields[$idField])) $ids[] = $id;
                 if ($this->DB->queryResult() instanceof mysqli_result) $this->DB->queryResult()->free_result();
                 return array_unique((array)$ids);
             }
             while ($queryData = $this->DB->fetch()->get()) $data[] = $this->getClass($this->childClass)->setQuery($queryData);
             unset($id,$ids,$row,$queryData);
             if ($this->DB->queryResult() instanceof mysqli_result) $this->DB->queryResult()->free_result();
-            /*foreach ($data AS $i => &$object) $object->load();
-            unset($object);*/
+            array_walk($data,function(&$object) {
+                $object->load();
+            });
             // Return
             return (array)$data;
         } catch (Exception $e) {

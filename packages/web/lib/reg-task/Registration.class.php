@@ -27,6 +27,7 @@ class Registration extends FOGBase {
     }
     private function regExists() {
         try {
+            $sendStr = '%s %s';
             if ($this->Host instanceof Host && $this->Host->isValid()) throw new Exception(sprintf($sendStr,_('Already registered as'),$this->Host->get(name)));
         } catch (Exception $e) {
             print $e->getMessage();
