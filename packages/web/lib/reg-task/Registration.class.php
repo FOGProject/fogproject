@@ -127,6 +127,7 @@ class Registration extends FOGBase {
                 ->addAddMAC($this->MACs);
             $this->HookManager->processEvent('HOST_REGISTER',array(Host=>&$this->Host));
             if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
+            $this->FOGCore->setSetting(FOG_QUICKREG_SYS_NUMBER,++$autoRegSysNumber);
             if ($imageid && $this->Host->getImageMemberFromHostID()) {
                 if (!$this->Host->createImagePackage(1,'AutoRegTask')) throw new Exception(_('Done, Failed to create tasking'));
                 throw new Exception(_('Done, with imaging!'));

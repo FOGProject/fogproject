@@ -331,7 +331,7 @@ class SnapinManagementPage extends FOGPage {
             $this->HookManager->processEvent(SNAPIN_GROUP_ASSOC,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
             print '<center><label for="groupMeShow">'._('Check here to see groups not assigned with this snapin').'&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow" /></label><div id="groupNotInMe"><form method="post" action="'.$this->formAction.'&tab=snap-storage"><h2>'._('Modify group association for').' '.$this->obj->get(name).'</h2><p>'._('Add snapin to groups').'</p>';
             $this->render();
-            print '<br/><input type="submit" value="'._('Add Snapin to Group(s)').'" /></form></center></div></div>';
+            print '<br/><input type="submit" value="'._('Add Snapin to Group(s)').'" /></form></center>';
         }
         // Reset the data for the next value
         unset($this->data);
