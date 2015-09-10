@@ -553,7 +553,7 @@ class GroupManagementPage extends FOGPage {
                 break;
                 // Active Directory
                 case 'group-active-directory';
-                $useAD = ($_REQUEST[domain] == 'on');
+                $useAD = (int)isset($_REQUEST[domain]);
                 $domain = $_REQUEST[domainname];
                 $ou = $_REQUEST[ou];
                 $user = $_REQUEST[domainuser];

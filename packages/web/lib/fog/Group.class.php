@@ -62,7 +62,7 @@ class Group extends FOGController {
         return parent::remove($key,$value);
     }
     public function save() {
-        parent::save();
+        if (!$this->get(id)) parent::save();
         if ($this->isLoaded(hosts)) {
             // Remove old rows
             $this->getClass(GroupAssociationManager)->destroy(array(groupID=>$this->get(id)));
@@ -70,7 +70,7 @@ class Group extends FOGController {
             foreach ($this->get(hosts) AS $i => &$Host) $this->getClass(GroupAssociation)->set(hostID,$Host)->set(groupID,$this->get(id))->save();
             unset($Host);
         }
-        return $this;
+        return parent::save();
     }
     // Custom Functions
     public function getHostCount() {
