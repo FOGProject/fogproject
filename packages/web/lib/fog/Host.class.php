@@ -62,7 +62,7 @@ class Host extends FOGController {
     );
     // Load the items
     public function load($field = 'id') {
-        parent::load($field);
+        //parent::load($field);
         $this->getMACAddress();
         $methods = get_class_methods($this);
         foreach($methods AS $i => &$method) {
