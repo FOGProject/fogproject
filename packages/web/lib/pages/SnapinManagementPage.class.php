@@ -134,6 +134,13 @@ class SnapinManagementPage extends FOGPage {
         // Output
         $this->render();
         print '</form>';
+        unset($this->data,$this->templates,$this->attributes,$this->headerData);
+        $this->templates = array(
+            _('Snapin Command').': ${snapincmd}',
+        );
+        $this->attributes = array(
+            array('class'=>c),
+        );
     }
     public function add_post() {
         // Hook

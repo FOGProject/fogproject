@@ -128,7 +128,6 @@ input, textarea, select {
     padding: 4px;
 }
 select:not([name=ulang]):not([name=storagesel]) {
-    width: 200px;
     min-width: 200px;
 }
 input[type=text], input[type=search], input[type=password] {
@@ -143,7 +142,7 @@ input[type=text]:focus, input[type=search]:focus, select:focus, textarea:focus {
     border-color: #5372af;
 }
 input[type=text]:focus, input[type=search]:focus, select:not([name=storagesel]):not([name=ulang]):focus, textarea:focus {
-    background: url('images/icon_pencil.png') no-repeat 97% center;
+    background: #fff url('images/icon_pencil.png') no-repeat 98% center;
 }
 textarea:focus {
     backgroun-position: 95% 90%;

@@ -217,7 +217,7 @@ class Host extends FOGController {
         return parent::remove($key, $object);
     }
     public function save() {
-        parent::save();
+        if (!$this->get(id)) parent::save();
         if ($this->isLoaded(mac)) {
             $this->getClass(MACAddressAssociationManager)->destroy(array(hostID=>$this->get(id),mac=>$this->getMACAddress()));
             $this->getClass(MACAddressAssociationManager)->destroy(array(hostID=>$this->get(id),primary=>1));
@@ -321,7 +321,7 @@ class Host extends FOGController {
             }
             unset($Group);
         }
-        return $this;
+        return parent::save();
     }
     public function isValid() {
         return $this->get(id) && $this->get(name) && HostManager::isHostnameSafe($this->get(name)) && $this->getMACAddress();
