@@ -1104,13 +1104,9 @@ class Config {
  }" > "${webdirdest}/lib/fog/Config.class.php"
     errorStat $?
     dots "Downloading inits and kernels"
-    curl -sl --silent -kf -L https://fogproject.org/inits/init.xz >/dev/null 2>&1 && \
     curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz >/dev/null 2>&1 & disown
-    curl -sl --silent -kf -L https://fogproject.org/inits/init_32.xz >/dev/null 2>&1 && \
     curl --silent -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz >/dev/null 2>&1 & disown
-    curl -sl --silent -kf -L https://fogproject.org/kernels/bzImage >/dev/null 2>&1 && \
     curl --silent -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage >/dev/null 2>&1 & disown
-    curl -sl --silent -kf -L https://fogproject.org/kernels/bzImage32 >/dev/null 2>&1 && \
     curl --silent -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >/dev/null 2>&1 & disown
     echo "Backgrounded"
     dots "Downloading New FOG Client file"
