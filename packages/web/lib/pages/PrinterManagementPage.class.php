@@ -1,11 +1,13 @@
 <?php
 class PrinterManagementPage extends FOGPage {
     public $node = 'printer';
+    private $config;
     public function __construct($name = '') {
         $this->name = 'Printer Management';
         parent::__construct($this->name);
         if ($_REQUEST[id]) {
             $this->obj = $this->getClass(Printer,$_REQUEST[id]);
+            $this->config = stripos($this->obj->get(config),'local') !== false ? _('TCP/IP') : $this->obj->get(config);
             $this->subMenu = array(
                 "$this->linkformat#$this->node-gen" => $this->foglang[General],
                 $this->membership => $this->foglang[Membership],
@@ -13,7 +15,7 @@ class PrinterManagementPage extends FOGPage {
             );
             $this->notes = array(
                 $this->foglang[Printer] => $this->obj->get(name),
-                $this->foglang[Type] => $this->obj->get(config),
+                $this->foglang[Type] => $this->config,
             );
         }
         $this->HookManager->processEvent(SUB_MENULINK_DATA,array(menu=>&$this->menu,submenu=>&$this->subMenu,id=>&$this->id,notes=>&$this->notes));
@@ -64,10 +66,11 @@ class PrinterManagementPage extends FOGPage {
         $Printers = $this->getClass(PrinterManager)->find();
         // Row data
         foreach ($Printers AS $i => &$Printer) {
+            $this->config = stripos($Printer->get(config),'local') !== false ? _('TCP/IP') : $Printer->get(config);
             $this->data[] = array(
                 id=>$Printer->get(id),
                 name=>quotemeta($Printer->get(name)),
-                config=>$Printer->get(config),
+                config=>$this->config,
                 model=>$Printer->get(model),
                 port=>$Printer->get(port),
                 file=>$Printer->get(file),
@@ -85,10 +88,11 @@ class PrinterManagementPage extends FOGPage {
         // Find data -> Push data
         $Printers = $this->getClass(PrinterManager)->search();
         foreach ($Printers AS $i => &$Printer) {
+            $this->config = stripos($Printer->get(config),'local') !== false ? _('TCP/IP') : $Printer->get(config);
             $this->data[] = array(
                 id=>$Printer->get(id),
                 name=>$Printer->get(name),
-                config=>$Printer->get(config),
+                config=>$this->config,
                 model=>$Printer->get(model),
                 port=>$Printer->get(port),
                 file=>$Printer->get(file),
