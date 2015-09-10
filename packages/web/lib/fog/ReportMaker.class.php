@@ -58,17 +58,21 @@ class ReportMaker extends FOGBase {
             fpassthru($pipes[1]);
             $status = proc_close($proc);
         } else if ($intType == 3) {
+            @session_write_close();
             $filename="fog_backup.sql";
             $path=BASEPATH.'/management/other/';
             exec('mysqldump --opt -u'.DATABASE_USERNAME.' -p"'.DATABASE_PASSWORD.'" -h'.preg_replace('#p:#','',DATABASE_HOST).' '.DATABASE_NAME.' > '.$path.$filename);
-            header('X-Content-Type-Options: nosniff');
-            header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
-            header('X-XSS-Protection: 1; mode=block');
-            header('X-Frame-Options: deny');
-            header('Cache-Control: no-cache');
+            header('X-Sendfile: '.$path.$filename);
             header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename=fog_backup.sql');
-            readfile($path.$filename);
+            header('Content-Length: '.filesize($path.$filename));
+            header('Content-Disposition: attachment; filename='.$filename);
+            if (false !== ($handle = fopen($path.$filename,'rb'))) {
+                while (!feof($handle)) {
+                    echo fread($handle,8*1024*1024);
+                    ob_flush();
+                    flush();
+                }
+            }
             exec('rm -rf '.$path.$filename);
         } else if ($intType == 4) {
             header('X-Content-Type-Options: nosniff');
