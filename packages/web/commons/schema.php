@@ -2046,3 +2046,11 @@ $this->schema[] = array(
     "INSERT INTO `" . DATABASE_NAME ."`.globalSettings(settingKey, settingDesc, settingValue, settingCategory)
     values('FOG_EFI_BOOT_EXIT_TYPE','The method (U)EFI uses to boot the next boot entry/hard drive.  Most will require exit.','exit','FOG Boot Settings')",
 );
+// 193
+$this->schema[] = array(
+    "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttName`='Deploy' WHERE `ttID`=1",
+    "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttName`='Capture' WHERE `ttID`=2",
+    "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttName`='Deploy - Debug' WHERE `ttID`=15",
+    "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttName`='Capture - Debug' WHERE `ttID`=16",
+    "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttName`='Deploy - No Snapins' WHERE `ttID`=17",
+);
