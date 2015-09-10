@@ -251,7 +251,7 @@ abstract class FOGBase {
         $decrypt = $this->aesdecrypt($pass);
         $newpass = $pass;
         if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true)) $newpass = $decrypt;
-        return $this->aesencrypt($newpass);
+        return ($newpass ? $this->aesencrypt($newpass) : '');
     }
 	/** @function diff() Simply a function to return the difference of time between the start and end.
      * @param $start Translate the sent start time to DateTime format for easy differentials.
