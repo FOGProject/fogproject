@@ -19,15 +19,9 @@ _L['ACTIVE_TASKS_UPDATE_FAILED'] = "Failed to fetch active tasks";
 _L['UPDATING_ACTIVE_TASKS'] = "Fetching active tasks";
 _L['ACTIVE_TASKS_FOUND'] = '%1 active task%2 found';
 _L['ACTIVE_TASKS_LOADING'] = 'Loading...';
-// Ping
-_L['PING_START'] = 'Pinging %1 hosts...';
-_L['PING_PROGRESS'] = '<p>Pinging: %1</p><p>Progress: %2/%3</p>';
-_L['PING_COMPLETE'] = 'Pinging %1 hosts complete!';
 // Variables
-var FOGPingActive = new Array();
 var StatusAutoHideTimer;
 var StatusAutoHideDelay = 3000;
-var PingDelay = 100;
 // Active Tasks
 var ActiveTasksUpdateTimer;
 var ActiveTasksUpdateInterval = 5000;
@@ -175,8 +169,6 @@ function getQueryParams(qs) {
                     },
                     dataType: 'json',
                     beforeSend: function() {
-                        // Abort all pings of current hosts
-                        $('.ping').fogPingAbort();
                         // Update Status
                         Loader.fogStatusUpdate();
                         // Submit button spinner
@@ -258,8 +250,6 @@ function getQueryParams(qs) {
                         Container.show();
                         ActionBox.show();
                         ActionBoxDel.show();
-                        // Ping hosts
-                        $('.ping', Container).fogPing();
                     } else {
                         // No results - hide content boxes, show nice message
                         $('#content-inner').fogTableInfo();
@@ -309,146 +299,6 @@ $.fn.fogTableInfo = function() {
         },
     });
     $('table > thead > tr > td').addClass('hand');
-}
-$.fn.fogPing = function(opts) {
-    // If no elements were found before this was called
-    if (this.length == 0) return this;
-    // If Ping function has been disabled, return
-    if (typeof(FOGPingActive) != 'undefined' && FOGPingActive != 1) return this;
-    // Default Options
-    var Defaults = {
-        Threads: 100,
-        Delay: PingDelay,
-        UpdateStatus: true
-    };
-    // Variables
-    var Options = $.extend({}, Defaults, opts || {});
-    // Row List
-    var List = $(this).get();
-    var ListTotal = List.length;
-    var StartTime = new Date().getTime();
-    var Timer;
-    // Main
-    //if (Options.Delay) setTimeout(Run, Options.Delay);
-    //else 
-        Run();
-    function Run() {
-        // Log
-        if (Options.UpdateStatus) {
-            Loader
-            .addClass('info')
-            .fogStatusUpdate(_L['PING_START']
-                .replace(/%1/,ListTotal)
-            );
-        }
-        // Start threads
-        for (var i = 0; i < Options.Threads; i++) {
-            PerformPing();
-        }
-    }
-    // Ping()
-    function PerformPing(start) {
-        // Variables
-        var start = start || 0;
-        // Extract element from List - dont turn into JQuery object yet (for speed)
-        var element = List[start];
-        // Remove element from List so no other thread can use it
-        List.splice(start, 1);
-        // JQuery element
-        element = $(element);
-        // Get element's TR - this contains hostname data
-        var tr = element.parents('tr');
-        var hostname = tr.find('td > a[id^=host-]').prop('id');
-        hostname = (typeof(hostname) !== 'undefined' ? hostname.replace(/^host-/,'') : false);
-        // Extract hostname
-        // If we found the Hostname
-        if (hostname) {
-            element.data('ping', $.ajax({
-                url: '../management/index.php',
-                type: 'POST',
-                cache: false,
-                data: {
-                    node: 'host',
-                    sub: 'getPing',
-                    ping: hostname,
-                    timeout: Options.Delay,
-                },
-                //dataType: 'text',
-                beforeSend: function() {
-                    element
-                    .removeClass()
-                    .addClass('fa fa-refresh fa-spin fa-fw fa-1x');
-                },
-                success: function(data) {
-                    var codes = new Array();
-                    codes = [['Host Down','icon-ping-down'],['Host Up','icon-ping-up']];
-                    element
-                    .removeClass('fa-refresh fa-spin icon-loading loading')
-                    .addClass('fa-exclamation-circle');
-                    //.removeClass('fa-refresh fa-spin fa-1x');
-                    //.removeClass('fa fa-refresh fa-spin fa-1x icon');
-                    //alert(hostname + data);
-                    if ($.inArray(data,['0','1']) !== -1) {
-                        element
-                        .prop('title',codes[data][0])
-                        .addClass(codes[data][1])
-                        .css({
-                            color: '#18f008'
-                        });
-                    } else {
-                        element
-                        .prop('title',data)
-                        .css({
-                            color: '#ce0f0f'
-                        })
-                        .tipsy({
-                            gravity: 's'
-                        });
-                        var ListCount = List.length;
-                        // Start another Ping if there are still elements to process
-                        if (ListCount) {
-                            if (Options.UpdateStatus) {
-                                Loader
-                                .fogStatusUpdate(_L['PING_PROGRESS']
-                                    .replace(/%1/, hostname)
-                                    .replace(/%2/,(ListTotal-ListCount))
-                                    .replace(/%3/, ListTotal), {
-                                        Progress: Math.round((ListTotal-ListCount)/ListTotal*100)
-                                    }
-                                );
-                            }
-                            PerformPing();
-                        } else if (Options.UpdateStatus) {
-                            Loader
-                            .fogStatusUpdate(_L['PING_COMPLETE']
-                                .replace(/%1/, ListTotal), {
-                                    Progress: 100
-                                }
-                            );
-                        }
-                    }
-                },
-                error: function(data) {
-                    element.prop('title','Ping Aborted')
-                    .addClass('icon-ping-error')
-                    .tipsy({gravity: 's'});
-                }
-            }));
-        }
-        return $(this);
-    }
-}
-$.fn.fogPingAbort = function(opts) {
-    // If Ping function has been disabled, return
-    if (typeof(FOGPingActive) != 'undefined' && FOGPingActive != 1) return this;
-    // Process each ping element -> check data for AJAX request -> abort AJAX request if it exists
-    return $(this).each(function() {
-            var $this = $(this);
-            if ($this.data('fog-ping')) {
-            $this.data('fog-ping').abort();
-            $this.data('fog-ping', '');
-            }
-            });
 }
 $.fn.fogMessageBox = function() {
     // If no elements were found before this was called

@@ -20,6 +20,13 @@ class Ping {
         $this->port = $port;
     }
     /**
+     * @function sockErrToString() error code to string
+     * @param $errCode the code to translate
+     * @returns the error string
+     */
+    protected static function sockErrToString() {
+    }
+    /**
      * @function execSend()
      * Use original methods to ping host
      * @param string $host IP Address or Hostname of host to ping
@@ -29,10 +36,10 @@ class Ping {
      */
     protected static function execSend($host,$timeout,$port) {
         $fsocket = @fsockopen($host,$port,$errno,$errstr,$timeout);
-        if (!$foscket) $status = 111;
+        if (!$fsocket) $status = 111;
         else $status = $errno;
         @fclose($fsocket);
-        return ($errno == 0 ? true : $errstr);
+        return ($errno == 0 ? true : $errno);
     }
     public function execute() {
         return self::execSend($this->host,$this->timeout,$this->port);

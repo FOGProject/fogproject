@@ -57,7 +57,7 @@ class HostManagementPage extends FOGPage {
             '<span class="icon fa fa-question hand" title="${host_desc}"></span>',
             '<input type="checkbox" name="host[]" value="${host_id}" class="toggle-action" />',
         );
-        $_SESSION[FOGPingActive] ? array_push($this->templates,'<span class="icon ping"></span>') : null;
+        $_SESSION[FOGPingActive] ? array_push($this->templates,'${pingstatus}') : null;
         $up = $this->getClass(TaskType,2);
         $down = $this->getClass(TaskType,1);
         $mc = $this->getClass(TaskType,8);
@@ -100,6 +100,7 @@ class HostManagementPage extends FOGPage {
                 host_mac=>$Host->getMACAddress(),
                 host_desc=>$Host->get(description),
                 image_name=>$Host->getImageName(),
+                pingstatus=>$Host->getPingCodeStr(),
             );
         }
         // Hook
@@ -123,6 +124,7 @@ class HostManagementPage extends FOGPage {
                 host_mac=>$Host->getMACAddress()->__toString(),
                 host_desc=>$Host->get(description),
                 image_name=>$Host->getImageName(),
+                pingstatus=>$Host->getPingCodeStr(),
             );
         }
         unset($Host);
