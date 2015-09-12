@@ -4,6 +4,5 @@ class ALOBG extends FOGClient implements FOGClientSend {
     public function send() {
         $this->image = $this->FOGCore->getSetting(FOG_SERVICE_AUTOLOGOFF_BGIMAGE);
         if (!$this->newService) $this->image = base64_encode($this->image);
-        $this->sendData($this->image);
     }
 }
