@@ -65,6 +65,7 @@ if [ "$OSVersion" -ge 15 -a "$linuxReleaseName" == "Fedora" ] || [ "$OSVersion" 
 	initdIRfullname="FOGImageReplicator.service";
 	initdSDfullname="FOGScheduler.service";
 	initdSRfullname="FOGSnapinReplicator.service";
+	initdPHfullname="FOGPingHosts.service";
 else
 	initdpath="/etc/rc.d/init.d";
 	initdsrc="../packages/init.d/redhat";
@@ -72,6 +73,7 @@ else
 	initdIRfullname="FOGImageReplicator";
 	initdSDfullname="FOGScheduler";
 	initdSRfullname="FOGSnapinReplicator";
+	initdPHfullname="FOGPingHosts";
 fi
 
 # where do the php files go?
