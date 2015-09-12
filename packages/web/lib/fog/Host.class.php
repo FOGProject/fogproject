@@ -28,6 +28,7 @@ class Host extends FOGController {
         'pub_key' => 'hostPubKey',
         'sec_tok' => 'hostSecToken',
         'sec_time' => 'hostSecTime',
+        'pingstatus' => 'hostPingCode',
     );
     // Allow setting / getting of these additional fields
     public $additionalFields = array(

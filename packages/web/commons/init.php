@@ -18,11 +18,14 @@ class Initiator {
         $this->plugPaths = array_filter(glob(BASEPATH . '/lib/plugins/*'), 'is_dir');
         foreach($this->plugPaths AS $plugPath) {
             $plug_class[] = $plugPath.'/class/';
+            $plug_class[] = $plugPath.'/client/';
+            $plug_class[] = $plugPath.'/reg-task/';
+            $plug_class[] = $plugPath.'/service/';
             $plug_hook[] = $plugPath.'/hooks/';
             $plug_event[] = $plugPath.'/events/';
             $plug_page[] = $plugPath.'/pages/';
         }
-        $FOGPaths = array(BASEPATH . '/lib/fog/', BASEPATH . '/lib/db/',BASEPATH.'/lib/client/',BASEPATH.'/lib/reg-task/');
+        $FOGPaths = array(BASEPATH . '/lib/fog/', BASEPATH . '/lib/db/',BASEPATH.'/lib/client/',BASEPATH.'/lib/reg-task/',BASEPATH.'/lib/service/');
         $HookPaths = array(BASEPATH . '/lib/hooks/');
         $EventPaths = array(BASEPATH . '/lib/events/');
         $PagePaths = array(BASEPATH . '/lib/pages/');
