@@ -13,6 +13,5 @@ class Autologout extends FOGClient implements FOGClientSend {
             if ($this->time < 5) $time = '#!time';
             $SendMe = $time;
         }
-        $this->sendData($SendMe);
     }
 }
