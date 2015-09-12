@@ -64,7 +64,7 @@ class HostManagementPage extends FOGPage {
         array_push($this->templates,
             '<a href="?node=host&sub=edit&id=${host_id}" title="Edit: ${host_name}" id="host-${host_name}">${host_name}</a><br /><small>${host_mac}</small>',
             '<small>${deployed}</small>',
-            '<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${host_id}"><i class="icon fa fa-'.$down->get(icon).'" title="'.$down->get(name).'"></i></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${host_id}"><i class="icon fa fa-'.$up->get(icon).'" title="'.$up->get(name).'"></i></a> <a href="?node=host&sub=deploy&type=8&id=${host_id}"><i class="icon fa fa-'.$mc->get(icon).'" title="'.$mc->get(name).'"></i></a> <a href="?node=host&sub=edit&id=${host_id}#host-tasks"><i class="icon fa fa-arrows-alt" title="Deploy"></i></a>',
+            '<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${host_id}"><i class="icon fa fa-'.$down->get(icon).'" title="'.$down->get(name).'"></i></a> <a href="?node=host&sub=deploy&sub=deploy&type=2&id=${host_id}"><i class="icon fa fa-'.$up->get(icon).'" title="'.$up->get(name).'"></i></a> <a href="?node=host&sub=deploy&type=8&id=${host_id}"><i class="icon fa fa-'.$mc->get(icon).'" title="'.$mc->get(name).'"></i></a> <a href="?node=host&sub=edit&id=${host_id}#host-tasks"><i class="icon fa fa-arrows-alt" title="Goto Task List"></i></a>',
             '<a href="?node=host&sub=edit&id=${host_id}"><i class="icon fa fa-pencil" title="Edit"></i></a> <a href="?node=host&sub=delete&id=${host_id}"><i class="icon fa fa-minus-circle" title="Delete"></i></a>',
             '${image_name}'
         );
