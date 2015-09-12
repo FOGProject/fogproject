@@ -1,12 +1,5 @@
 $(function() {
     checkboxToggleSearchListPages();
-    // Host ping
-    $('.host-ping')
-    .fogPing({
-        Delay: 0,
-        UpdateStatus: 0
-    })
-    .removeClass('host-ping');
     $('.toggle-checkboxgroup')
     .click(function() {
         $('input.toggle-group[type="checkbox"]')

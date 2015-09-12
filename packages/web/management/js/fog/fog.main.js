@@ -157,8 +157,6 @@ $(function() {
     $('.fog-variable').fogVariable();
     // Process FOG Message Boxes
     $('.fog-message-box').fogMessageBox();
-    // Host Ping
-    $('.ping').fogPing();
     // Placeholder support
     $('input[placeholder]').placeholder();
     // Nav Menu: Add hover label

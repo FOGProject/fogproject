@@ -195,7 +195,6 @@ function ActiveTasksUpdate() {
                 HookTooltips();
                 ActiveTasksButtonHook();
                 ActiveTasksContainer.show();
-                $('.ping').fogPing().removeClass('.ping');
             } else {
                 ActiveTasksTableCheck();
             }
