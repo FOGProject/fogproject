@@ -10,7 +10,7 @@ class PingHosts extends FOGService {
             $Hosts = $this->getClass(HostManager)->find();
             foreach ($Hosts AS $i => &$Host) {
                 $ip = $this->FOGCore->resolveHostname($ping);
-                if (!filter_var($IP,FILTER_VALIDATE_IP)) {
+                if (!filter_var($ip,FILTER_VALIDATE_IP)) {
                     $Host->set(pingstatus,-1)->save();
                     continue;
                 }
