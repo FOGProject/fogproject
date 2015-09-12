@@ -52,7 +52,7 @@ class MACAddress extends FOGBase {
      * @return true or false
      */
     public function isValid() {
-        return preg_match('/([a-fA-F0-9]{2}[-:]){5}[0-9A-Fa-f]{2}|([0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}/',$this->MAC);
+        return preg_match('/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$/', $this->MAC);
     }
     public function isPending() {
         $MAC = $this->getClass(MACAddressAssociationManager)->find(array(mac=>$this->MAC));
