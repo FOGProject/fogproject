@@ -5,17 +5,6 @@ class TaskScheduler extends FOGService {
     public $zzz = SCHEDULERSLEEPTIME;
     private function commonOutput() {
         try {
-            $DateInterval = $this->nice_date('-30 minutes');
-            $Hosts = $this->getClass(HostManager)->find();
-            foreach($Hosts AS $i => &$Host) {
-                if ($Host->isValid()) {
-                    if ($this->validDate($Host->get(sec_time))) {
-                        $DateTime = $this->nice_date($Host->get(sec_time));
-                        if ($DateTime->format('Y-m-d H:i:s') >= $DateInterval->format('Y-m-d H:i:s')) $Host->set(pub_key,null)->set(sec_time,null)->save();
-                    }
-                }
-            }
-            unset($Host);
             $findWhere = array(stateID=>1,typeID=>array_merge(range(1,11),range(14,24)));
             $taskcount = $this->getClass(TaskManager)->count($findWhere);
             if ($taskcount) {
