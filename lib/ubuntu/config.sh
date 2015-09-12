@@ -44,6 +44,7 @@ if [ "$systemctl" == "yes" ]; then
 	initdIRfullname="FOGImageReplicator.service";
 	initdSDfullname="FOGScheduler.service";
 	initdSRfullname="FOGSnapinReplicator.service";
+	initdPHfullname="FOGPingHosts.service";
 else
 	initdpath="/etc/init.d";
 	initdsrc="../packages/init.d/ubuntu";
@@ -51,6 +52,7 @@ else
 	initdIRfullname="FOGImageReplicator";
 	initdSDfullname="FOGScheduler";
 	initdSRfullname="FOGSnapinReplicator";
+	initdPHfullname="FOGPingHosts";
 fi
 
 # where do the php files go?

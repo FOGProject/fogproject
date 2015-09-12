@@ -515,7 +515,7 @@ errorStat() {
     echo "OK"
 }
 stopInitScript() {
-    serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname"
+    serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname"
     for serviceItem in $serviceList; do
         dots "Stopping $serviceItem Service"
         if [ "$systemctl" == "yes" ]; then
@@ -527,7 +527,7 @@ stopInitScript() {
     done
 }
 startInitScript() {
-    serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname"
+    serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname"
     for serviceItem in $serviceList; do
         dots "Starting $serviceItem Service"
         if [ "$systemctl" == "yes" ]; then
@@ -539,7 +539,7 @@ startInitScript() {
     done
 }
 enableInitScript() {
-    serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname"
+    serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname"
     for serviceItem in $serviceList; do
         dots "Setting $serviceItem script executable"
         chmod 755 $initdpath/$serviceItem >/dev/null 2>&1
@@ -1054,6 +1054,9 @@ class Config {
         define('SNAPINREPSLEEPTIME',600);
         define('SERVICELOGPATH','/opt/fog/log/servicemaster.log');
         define('SERVICESLEEPTIME',3);
+        define('PINGHOSTLOGPATH','/opt/fog/log/pinghosts.log');
+        define('PINGHOSTDEVICEOUTPUT','/dev/tty5');
+        define('PINGHOSTSLEEPTIME',300);
     }
     /** @function init_setting() Initial values if fresh install are set here
      * NOTE: These values are only used on initial

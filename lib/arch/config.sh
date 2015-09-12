@@ -59,6 +59,7 @@ initdMCfullname="FOGMulticastManager.service";
 initdIRfullname="FOGImageReplicator.service";
 initdSDfullname="FOGScheduler.service";
 initdSRfullname="FOGSnapinReplicator.service";
+initdPHfullname="FOGPingHosts.service";
 
 # where do we store the image files?
 storage="/images"
