@@ -29,10 +29,12 @@ abstract class FOGService extends FOGBase {
      * @return the node or throw error if not
      */
     public function checkIfNodeMaster() {
-        $StorageNode = $this->getClass(StorageNodeManager)->find(array(isMaster=>1,isEnabled=>1,ip=>$this->ips));
-        $StorageNode = @array_shift($StorageNode);
-        if (!$StorageNode || !$StorageNode->isValid()) throw new Exception(' | '._('This is not the master node'));
-        return $StorageNode;
+		$this->getIPAddress();
+        $StorageNodes = $this->getClass(StorageNodeManager)->find(array(isMaster=>1,isEnabled=>1));
+		foreach ($StorageNodes AS $i => &$StorageNode) {
+			if (in_array($this->FOGCore->resolveHostname($StorageNode->get(ip)),$this->ips) && $StorageNode->isValid()) return $StorageNode;
+		}
+        throw new Exception(' | '._('This is not the master node'));
     }
     /** wait_interface_ready() wait for interface to be ready
      * @return void
