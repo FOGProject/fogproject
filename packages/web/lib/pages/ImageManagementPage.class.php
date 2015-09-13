@@ -177,7 +177,7 @@ class ImageManagementPage extends FOGPage {
             _('Compression') => '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="compress" id="showVal" maxsize="1" style="width: 10px; top: -5px; left: 225px; position: relative;" value="'.$compression.'" />',
             '&nbsp;' => '<input type="submit" name="add" value="'._('Add').'" /><!--<i class="icon fa fa-question" title="TODO!"></i>-->',
         );
-        print '<h2>'._('Add new image definition').'</h2><form method="post" action="'.$this->formAction.'">';
+        echo '<h2>'._('Add new image definition').'</h2><form method="post" action="'.$this->formAction.'">';
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
@@ -189,7 +189,7 @@ class ImageManagementPage extends FOGPage {
         $this->HookManager->processEvent(IMAGE_ADD,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     /** add_post()
      * Actually creates the new image object.
@@ -247,7 +247,7 @@ class ImageManagementPage extends FOGPage {
     public function edit() {
         // Title - set title for page title in window
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get(name));
-        print '<div id="tab-container">';
+        echo '<div id="tab-container">';
         // Unset the headerData
         unset($this->headerData);
         // Set the table row information
@@ -288,18 +288,18 @@ class ImageManagementPage extends FOGPage {
         // Hook
         $this->HookManager->processEvent(IMAGE_EDIT,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
-        print '<!-- General --><div id="image-gen"><h2>'._('Edit image definition').'</h2><form method="post" action="'.$this->formAction.'&tab=image-gen">';
+        echo '<!-- General --><div id="image-gen"><h2>'._('Edit image definition').'</h2><form method="post" action="'.$this->formAction.'&tab=image-gen">';
         $this->render();
-        print '</form></div>';
+        echo '</form></div>';
         // Reset for next tab
         unset($this->data);
-        print '<!-- Storage Groups with Assigned Image -->';
+        echo '<!-- Storage Groups with Assigned Image -->';
         // Get all group IDs with an image assigned
         $GroupWithAnyImage = array_unique($this->getClass(ImageAssociationManager)->find('','','','','','','','storageGroupID'));
         // Set the values
         $GroupNotWithImage = $this->getClass(StorageGroupManager)->find(array(id=>$GroupWithAnyImage),'','','','','',true);
         $GroupNotWithMe = $this->getClass(StorageGroupManager)->find(array(id=>$this->obj->get(storageGroups)),'','','','','',true);
-        print '<div id="image-storage">';
+        echo '<div id="image-storage">';
         // Create the header data:
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxgroup1" class="toggle-checkbox1" />',
@@ -330,9 +330,9 @@ class ImageManagementPage extends FOGPage {
         if (count($this->data) > 0) {
             $GroupDataExists = true;
             $this->HookManager->processEvent(IMAGE_GROUP_ASSOC,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-            print '<center><label for="groupMeShow">'._('Check here to see groups not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow" /></label><form method="post" action="'.$this->formAction.'&tab=image-storage"><div id="groupNotInMe"><h2>'._('Modify group association for').' '.$this->obj->get(name).'</h2><p>'._('Add image to groups').' '.$this->obj->get(name).'</p>';
+            echo '<center><label for="groupMeShow">'._('Check here to see groups not assigned with this image').'&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow" /></label><form method="post" action="'.$this->formAction.'&tab=image-storage"><div id="groupNotInMe"><h2>'._('Modify group association for').' '.$this->obj->get(name).'</h2><p>'._('Add image to groups').' '.$this->obj->get(name).'</p>';
             $this->render();
-            print '</div>';
+            echo '</div>';
         }
         // Reset the data for the next value
         unset($this->data);
@@ -355,13 +355,11 @@ class ImageManagementPage extends FOGPage {
         if (count($this->data) > 0) {
             $GroupDataExists = true;
             $this->HookManager->processEvent(IMAGE_GROUP_NOT_WITH_ANY,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-            print '<label for="groupNoShow">'._('Check here to see groups not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="groupNoShow" id="groupNoShow" /></label><form method="post" action="'.$this->formAction.'&tab=image-storage"><div id="groupNoImage"><p>'._('Groups below have no image association').'</p><p>'._('Assign image to groups').' '.$this->obj->get(name).'</p>';
+            echo '<label for="groupNoShow">'._('Check here to see groups not with any image associated').'&nbsp;&nbsp;<input type="checkbox" name="groupNoShow" id="groupNoShow" /></label><form method="post" action="'.$this->formAction.'&tab=image-storage"><div id="groupNoImage"><p>'._('Groups below have no image association').'</p><p>'._('Assign image to groups').' '.$this->obj->get(name).'</p>';
             $this->render();
-            print '</div>';
+            echo '</div>';
         }
-        if ($GroupDataExists) {
-            print '<br/><input type="submit" value="'._('Add Image to Group(s)').'" /></form></center>';
-        }
+        if ($GroupDataExists) echo '<br/><input type="submit" value="'._('Add Image to Group(s)').'" /></form></center>';
         unset($this->data);
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
@@ -386,10 +384,10 @@ class ImageManagementPage extends FOGPage {
         // Hook
         $this->HookManager->processEvent(IMAGE_EDIT_GROUP,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
-        print '<form method="post" action="'.$this->formAction.'&tab=image-storage">';
+        echo '<form method="post" action="'.$this->formAction.'&tab=image-storage">';
         $this->render();
-        if (count($this->data) > 0) print '<center><input type="submit" value="'._('Delete Selected Group associations').'" name="remstorgroups"/></center>';
-        print '</form></div></div>';
+        if (count($this->data) > 0) echo '<center><input type="submit" value="'._('Delete Selected Group associations').'" name="remstorgroups"/></center>';
+        echo '</form></div></div>';
     }
     /** edit_post()
      * Actually updates the image object based on what was filled out in the form.
@@ -473,7 +471,7 @@ class ImageManagementPage extends FOGPage {
             _('Select Image') => '${select_image}',
             '<input type="hidden" name="start" value="1" />' => '<input type="submit" value="'._('Start').'" /><!--<i class="icon fa fa-question" title="TODO!"></i>-->',
         );
-        print '<h2>'._('Start Multicast Session').'</h2><form method="post" action="'.$this->formAction.'">';
+        echo '<h2>'._('Start Multicast Session').'</h2><form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
@@ -533,7 +531,7 @@ class ImageManagementPage extends FOGPage {
         $this->HookManager->processEvent(IMAGE_MULTICAST_START,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function multicast_post() {
         try {

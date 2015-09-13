@@ -166,17 +166,22 @@ abstract class FOGPage extends FOGBase {
                 } else {
                     $id_field = $_REQUEST[node].'_id';
                     foreach ($this->data AS $i => &$rowData) {
+                        ob_start(array('Initiator','sanitize_output'));
                         printf('<tr id="%s-%s"%s>%s</tr>',
                             strtolower($this->childClass),
                             $rowData[id] ? $rowData[id] : $rowData[$id_field],
                             ((++$i % 2) ? ' class="alt1"' : ((!$_REQUEST[sub] && $defaultScreen == 'list') || (in_array($_REQUEST[sub],$defaultScreens) && in_array($_REQUEST[node],$this->searchPages)) ? ' class="alt2"' : '')),
                             $this->buildRow($rowData)
                         );
+                        flush();
+                        $res .= ob_get_clean();
+                        usleep(1000);
                     }
                     unset($rowData);
                     if ((!$_REQUEST[sub] && $defaultScreen == 'list') || (in_array($_REQUEST[sub],$defaultScreens) && in_array($_REQUEST[node],$this->searchPages)))
                         $this->FOGCore->setMessage(count($this->data).' '.$this->childClass.(count($this->data) > 1 ? 's' : '')._(' found'));
                 }
+                echo $res;
                 echo '</tbody></table>';
                 if (((!$_REQUEST[sub] || ($_REQUEST[sub] && in_array($_REQUEST[sub],$defaultScreens))) && in_array($_REQUEST[node],$this->searchPages)) && !$isMobile) {
                     if ($this->childClass == 'Host') $actionbox = sprintf('<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>');
@@ -185,7 +190,7 @@ abstract class FOGPage extends FOGBase {
             }
             $this->HookManager->event[] = 'ACTIONBOX';
             $this->HookManager->processEvent(ACTIONBOX,array(actionbox=>&$actionbox));
-            print $actionbox;
+            echo $actionbox;
             // Return output
             return ob_get_clean();
         } catch (Exception $e) {
@@ -278,7 +283,7 @@ abstract class FOGPage extends FOGBase {
         // Deploy
         printf('%s%s%s','<p class="c"><b>',_('Are you sure you wish to deploy task to these machines'),'</b></p>');
         printf('<form method="post" action="%s" id="deploy-container">',$this->formAction);
-        print '<div class="confirm-message">';
+        echo '<div class="confirm-message">';
         if ($TaskType->get(id) == 13) {
             printf('<center><p>%s</p>',_('Please select the snapin you want to deploy'));
             if ($this->obj instanceof Host) {
@@ -310,7 +315,7 @@ abstract class FOGPage extends FOGBase {
             printf("<p>%s</p>",_('Which account would you like to reset the pasword for'));
             printf("%s",'<input type="text" name="account" value="Administrator" />');
         }
-        print '</div></div><h2>'._('Hosts in Task').'</h2>';
+        echo '</div></div><h2>'._('Hosts in Task').'</h2>';
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -338,6 +343,7 @@ abstract class FOGPage extends FOGBase {
         if ($this->obj instanceof Group) {
             $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)));
             foreach($Hosts AS $i => &$Host) {
+                $Host->load();
                 $this->data[] = array(
                     host_link=>$_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
                     image_link=>$_SERVER['PHP_SELF'].'?node=image&sub=edit&id=${image_id}',
@@ -357,7 +363,7 @@ abstract class FOGPage extends FOGBase {
         // Output
         $this->render();
         if (count($this->data)) printf('%s%s%s','<p class="c"><input type="submit" value="',$this->title,'" /></p>');
-        print '</form>';
+        echo '</form>';
     }
     /** deploy_post() actually create the deployment task
      * @return void
@@ -390,7 +396,10 @@ abstract class FOGPage extends FOGBase {
                     if ($TaskType->isMulticast() && !$this->obj->doMembersHaveUniformImages()) throw new Exception(_('Hosts do not contain the same image assignments'));
                     unset($NoImage,$ImageExists,$Tasks);
                     $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)));
-                    foreach($Hosts AS $i => &$Host) if (!$Host->get(pending)) $NoImage[] = !$Host->getImage() || !$Host->getImage()->isValid();
+                    foreach($Hosts AS $i => &$Host) {
+                        $Host->load();
+                        if (!$Host->get(pending)) $NoImage[] = !$Host->getImage() || !$Host->getImage()->isValid();
+                    }
                     unset($Host);
                     if (in_array(true,$NoImage)) throw new Exception(_('One or more hosts do not have an image set'));
                     foreach($Hosts AS $id => &$Host) if (!$Host->get(pending)) $ImageExists[] = !$Host->checkIfExist($TaskType->get(id));
@@ -432,6 +441,7 @@ abstract class FOGPage extends FOGBase {
                             if ($this->obj instanceof Group) {
                                 $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)));
                                 foreach($Hosts AS $i => &$Host) {
+                                    $Host->load();
                                     if ($Host->isValid() && !$Host->get(pending)) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get(name),$Host->getImage()->get(name));
                                 }
                                 unset($Host);
@@ -487,13 +497,13 @@ abstract class FOGPage extends FOGBase {
         }
         unset($Obj);
         if (count($this->data)) {
-            print '<div class="confirm-message">';
-            print '<p>'._($this->childClass.'s to be removed').':</p>';
-            print '<form method="post" action="'.$this->formAction.'_conf">';
+            echo '<div class="confirm-message">';
+            echo '<p>'._($this->childClass.'s to be removed').':</p>';
+            echo '<form method="post" action="'.$this->formAction.'_conf">';
             $this->render();
-            print '<center><input type="submit" value="'._('Are you sure you wish to remove these items').'?"/></center>';
-            print '</form>';
-            print '</div>';
+            echo '<center><input type="submit" value="'._('Are you sure you wish to remove these items').'?"/></center>';
+            echo '</form>';
+            echo '</div>';
         } else {
             $this->FOGCore->setMessage('No items to delete<br/>None selected or item is protected');
             $this->FOGCore->redirect('?node='.$this->node);
@@ -577,7 +587,7 @@ abstract class FOGPage extends FOGBase {
         $this->HookManager->processEvent(strtoupper($this->node).'_DATA_ADV', array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</div></div>';
+        echo '</div></div>';
         unset($this->data);
     }
     /** adFieldsToDisplay() display the Active Directory stuff
@@ -630,7 +640,7 @@ abstract class FOGPage extends FOGBase {
             _('Domain Password Legacy').'<br />('._('Must be encrypted').')' => '<input id="adPasswordLegacy" class="smaller" type="password" name="domainpasswordlegacy" value="${host_adpasslegacy}" autocomplete="off" />',
             '<input type="hidden" name="updatead" value="1" />' => '<input type="submit"value="'.($_REQUEST[sub] == 'add' ? _('Add') : _('Update')).'" />',
         );
-        print '<div id="'.$this->node.'-active-directory">';
+        echo '<div id="'.$this->node.'-active-directory">';
         printf("%s",'<form method="post" action="'.$this->formAction.'&tab='.$this->node.'-active-directory">');
         printf('<h2>%s<div id="adClear"></div></h2>',_('Active Directory'));
         foreach((array)$fields AS $field => &$input) {
@@ -652,7 +662,7 @@ abstract class FOGPage extends FOGBase {
         // Output
         $this->render();
         unset($this->data);
-        print '</form></div>';
+        echo '</form></div>';
     }
     /** adInfo() Returns AD Information to host/group
      * @return void
@@ -665,31 +675,7 @@ abstract class FOGPage extends FOGBase {
             'domainpass' => $this->encryptpw($this->FOGCore->getSetting(FOG_AD_DEFAULT_PASSWORD)),
             'domainpasslegacy' => $this->FOGCore->getSetting(FOG_AD_DEFAULT_PASSWORD_LEGACY),
         );
-        if ($this->isAJAXRequest()) print json_encode($Data);
-    }
-    /** getPing() Performs the ping stuff.
-     * @return void
-     */
-    public function getPing() {
-        try {
-            $ping = $_REQUEST[ping];
-            if (!$_SESSION['AllowAJAXTasks']) throw new Exception(_('FOG Session Invalid'));
-            if (!$ping || $ping == 'undefined') throw new Exception(_('Undefined host to ping'));
-            if (!HostManager::isHostnameSafe($ping)) throw new Exception(_('Invalid Hostname'));
-            if (is_numeric($ping)) {
-                $Host = $this->getClass(Host,$ping);
-                $ping = $Host->get(name);
-            }
-            // Resolve Hostname
-            $ip = $this->FOGCore->resolveHostname($ping);
-            if ($ip == $ping) throw new Exception(_('Unable to resolve hostname'));
-            $result = $this->getClass(Ping,$ip)->execute();
-            if ($result !== true) throw new Exception($result);
-            $SendMe = true;
-        } catch (Exception $e) {
-            $SendMe = $e->getMessage();
-        }
-        if ($this->isAJAXRequest()) print $SendMe;
+        if ($this->isAJAXRequest()) echo json_encode($Data);
     }
     /** kernelfetch() the kernel fetcher stuff.
      * @return void
@@ -725,10 +711,10 @@ abstract class FOGPage extends FOGBase {
                 }
             }
         } catch (Exception $e) {
-            print $e->getMessage();
+            echo $e->getMessage();
         }
         $this->FOGFTP->close();
-        print $SendME;
+        echo $SendME;
     }
     /** loginInfo() login information getter
      * @return void
@@ -739,7 +725,7 @@ abstract class FOGPage extends FOGBase {
         else $data['sites'] = $data[0];
         if (!$data[1]) $data['error-version'] = _('Error contacting server');
         else $data['version'] = $data[1];
-        print json_encode($data);
+        echo json_encode($data);
     }
     /** getmacman() get the mac manager information
      * @return void
@@ -757,7 +743,7 @@ abstract class FOGPage extends FOGBase {
         } catch (Exception $e) {
             $Data = $e->getMessage();
         }
-        print $Data;
+        echo $Data;
     }
     /** delete() Delete items from their respective pages.
      * @return void
@@ -803,7 +789,7 @@ abstract class FOGPage extends FOGBase {
      */
     public function configure() {
         $Datatosend = "#!ok\n#sleep={$this->FOGCore->getSetting(FOG_SERVICE_CHECKIN_TIME)}\n#force={$this->FOGCore->getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={$this->FOGCore->getSetting(FOG_CLIENT_MAXSIZE)}\n#promptTime={$this->FOGCore->getSetting(FOG_GRACE_TIMEOUT)}";
-        print $Datatosend;
+        echo $Datatosend;
         exit;
     }
     /** authorize() authorize the client information
@@ -827,10 +813,10 @@ abstract class FOGPage extends FOGBase {
             if ($Host->get(sec_tok) && !$key) throw new Exception('#!ihc');
             $Host->set(pub_key,$key)
                 ->save();
-            print '#!en='.$this->certEncrypt("#!ok\n#token=".$Host->get(sec_tok),$Host);
+            echo '#!en='.$this->certEncrypt("#!ok\n#token=".$Host->get(sec_tok),$Host);
         }
         catch (Exception $e) {
-            print  $e->getMessage();
+            echo  $e->getMessage();
         }
         exit;
     }
@@ -907,7 +893,7 @@ abstract class FOGPage extends FOGBase {
     public function membership() {
         $objType = ($this->obj instanceof Host);
         $this->data = array();
-        print '<!-- Membership -->';
+        echo '<!-- Membership -->';
         printf('<div id="%s-membership">',$this->node);
         $this->headerData = array(
             sprintf('<input type="checkbox" name="toggle-checkbox%s1" class="toggle-checkbox1"',$this->node),
@@ -955,9 +941,9 @@ abstract class FOGPage extends FOGBase {
         }
         unset($Host);
         $this->HookManager->processEvent(OBJ_MEMBERSHIP,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         $this->render();
-        if (count($this->data)) print '<center><input type="submit" value="'._('Delete Selected '.$ClassCall.'s From '.$this->node).'" name="remhosts"/></center>';
+        if (count($this->data)) echo '<center><input type="submit" value="'._('Delete Selected '.$ClassCall.'s From '.$this->node).'" name="remhosts"/></center>';
     }
     /** membership_post() the membership poster of specific class
      * @return void
@@ -994,7 +980,7 @@ abstract class FOGPage extends FOGBase {
             '${field}',
             '${input}',
         );
-        print _('This page allows you to upload a CSV file into FOG to ease migration. It will operate based on the fields that are normally required by each area.  For example, Hosts will have macs, name, description, etc....');
+        echo _('This page allows you to upload a CSV file into FOG to ease migration. It will operate based on the fields that are normally required by each area.  For example, Hosts will have macs, name, description, etc....');
         printf('<form enctype="multipart/form-data" method="post" action="%s">',$this->formAction);
         $fields = array(
             _('CSV File') => '<input class="smaller" type="file" name="file" />',
@@ -1010,7 +996,7 @@ abstract class FOGPage extends FOGBase {
         $this->HookManager->processEvent(strtoupper($this->childClass).'_IMPORT_OUT',array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     /** export() export csv for relative class item
      * @return void()
@@ -1140,7 +1126,7 @@ abstract class FOGPage extends FOGBase {
         $this->HookManager->processEvent(strtoupper($this->childClass).'_EXPORT',array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     /** import_post() imports the data and inserts into the database
      * @return void()

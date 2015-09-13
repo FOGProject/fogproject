@@ -11,7 +11,7 @@ if  ($plugin == null)
 //Set's the title
 $FOGCore->title = _('Plugin').': '.$plugin->getName();
 /** Print the description. */
-print "\n\t\t\t<p>"._('Plugin Description').': '.$plugin->getDesc().'</p>';
+echo '<p>'._('Plugin Description').': '.$plugin->getDesc().'</p>';
 // If the plugin is installed run these items. Only if there's anything to do.
 if ($_REQUEST['basics'] == 1)
 {
@@ -32,4 +32,4 @@ if($_REQUEST['kill'] !== null)
 	$Capone = new Capone($_REQUEST['kill']);
 	$Capone->destroy();
 }
-print "\n\t\t\t".'<p>This is just an example of information pushed out if the plugin is installed!</p>';
+echo '<p>This is just an example of information pushed out if the plugin is installed!</p>';

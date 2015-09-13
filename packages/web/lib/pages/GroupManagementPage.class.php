@@ -130,7 +130,7 @@ class GroupManagementPage extends FOGPage {
             _('Group Primary Disk') => '<input type="text" name="dev" name="'.$_REQUEST[dev].'" />',
             '' => '<input type="submit" value="'._('Add').'" />',
         );
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         foreach ((array)$fields AS $field => $formField) {
             $this->data[] = array(
                 field=>$field,
@@ -141,7 +141,7 @@ class GroupManagementPage extends FOGPage {
         $this->HookManager->processEvent(GROUP_ADD,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     /** add_post()
      * This is the function that actually creates the group.
@@ -233,7 +233,7 @@ class GroupManagementPage extends FOGPage {
             '<input type="hidden" name="updategroup" value="1" />' => '<input type="submit" value="'._('Update').'" />',
         );
         $this->HookManager->processEvent(GROUP_FIELDS,array(fields=>&$fields,Group=>&$this->obj));
-        print '<form method="post" action="'.$this->formAction.'&tab=group-general"><div id="tab-container"><!-- General --><div id="group-general"><h2>'._('Modify Group').': '.$this->obj->get(name).'</h2><center><div id="resetSecDataBox"></div><input type="button" id="resetSecData" /></center><br/>';
+        echo '<form method="post" action="'.$this->formAction.'&tab=group-general"><div id="tab-container"><!-- General --><div id="group-general"><h2>'._('Modify Group').': '.$this->obj->get(name).'</h2><center><div id="resetSecDataBox"></div><input type="button" id="resetSecData" /></center><br/>';
         foreach ((array)$fields AS $field => $input) {
             $this->data[] = array(
                 field=>$field,
@@ -245,13 +245,13 @@ class GroupManagementPage extends FOGPage {
         // Output
         $this->render();
         unset ($this->data);
-        print '</form></div>';
+        echo '</form></div>';
         $this->basictasksOptions();
-        print '<!-- Image Association -->';
+        echo '<!-- Image Association -->';
         $imageSelector = $this->getClass(ImageManager)->buildSelectBox($imageMatchID,'image');
-        print '<div id="group-image">';
-        print '<h2>'._('Image Association for').': '.$this->obj->get(name).'</h2>';
-        print '<form method="post" action="'.$this->formAction.'&tab=group-image">';
+        echo '<div id="group-image">';
+        echo '<h2>'._('Image Association for').': '.$this->obj->get(name).'</h2>';
+        echo '<form method="post" action="'.$this->formAction.'&tab=group-image">';
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -270,7 +270,7 @@ class GroupManagementPage extends FOGPage {
         // Output
         $this->render();
         unset($this->data);
-        print '</form></div><!-- Add Snap-ins --><div id="group-snap-add"><h2>'._('Add Snapin to all hosts in').': '.$this->obj->get(name).'</h2><form method="post" action="'.$this->formAction.'&tab=group-snap-add">';
+        echo '</form></div><!-- Add Snap-ins --><div id="group-snap-add"><h2>'._('Add Snapin to all hosts in').': '.$this->obj->get(name).'</h2><form method="post" action="'.$this->formAction.'&tab=group-snap-add">';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxsnapin" class="toggle-checkboxsnapin" />',
             _('Snapin Name'),
@@ -301,7 +301,7 @@ class GroupManagementPage extends FOGPage {
         // Output
         $this->render();
         unset($this->data);
-        print '<center><input type="submit" value="'._('Add Snapin(s)').'" /></center></form></div><!-- Remove Snap-ins --><div id="group-snap-del"><h2>'._('Remove Snapin to all hosts in').': '.$this->obj->get(name).'</h2><form method="post" action="'.$this->formAction.'&tab=group-snap-del">';
+        echo '<center><input type="submit" value="'._('Add Snapin(s)').'" /></center></form></div><!-- Remove Snap-ins --><div id="group-snap-del"><h2>'._('Remove Snapin to all hosts in').': '.$this->obj->get(name).'</h2><form method="post" action="'.$this->formAction.'&tab=group-snap-del">';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxsnapinrm" class="toggle-checkboxsnapinrm" />',
             _('Snapin Name'),
@@ -332,7 +332,7 @@ class GroupManagementPage extends FOGPage {
         // Output
         $this->render();
         unset($this->headerData,$this->data);
-        print '<center><input type="submit" value="'._('Remove Snapin(s)').'" /></center></form></div><!-- Service Settings -->';
+        echo '<center><input type="submit" value="'._('Remove Snapin(s)').'" /></center></form></div><!-- Service Settings -->';
         $this->attributes = array(
             array(width=>270),
             array('class'=>c),
@@ -348,7 +348,7 @@ class GroupManagementPage extends FOGPage {
             input=>'<input type="checkbox" class="checkboxes" id="checkAll" name="checkAll" value="checkAll" />',
             span=>''
         );
-        print '<div id="group-service"><h2>'._('Service Configuration').'</h2><form method="post" action="'.$this->formAction.'&tab=group-service"><fieldset><legend>'._('General').'</legend>';
+        echo '<div id="group-service"><h2>'._('Service Configuration').'</h2><form method="post" action="'.$this->formAction.'&tab=group-service"><fieldset><legend>'._('General').'</legend>';
         $ModOns = array_count_values($this->getClass(ModuleAssociationManager)->find(array(hostID=>$this->obj->get(hosts)),'','','','','','','moduleID'));
         $moduleName = $this->getGlobalModuleStatus();
         $HostCount = $this->obj->getHostCount();
@@ -375,7 +375,7 @@ class GroupManagementPage extends FOGPage {
         // Output
         $this->render();
         unset($this->data);
-        print '</fieldset></form><form method="post" action="'.$this->formAction.'&tab=group-service"><fieldset><legend>'._('Group Screen Resolution').'</legend>';
+        echo '</fieldset></form><form method="post" action="'.$this->formAction.'&tab=group-service"><fieldset><legend>'._('Group Screen Resolution').'</legend>';
         $this->attributes = array(
             array('class'=>l,style=>'padding-right: 25px'),
             array('class'=>c),
@@ -408,7 +408,7 @@ class GroupManagementPage extends FOGPage {
         // Output
         $this->render();
         unset($this->data);
-        print '</fieldset></form><form method="post" action="'.$this->formAction.'&tab=group-service"><fieldset><legend>'._('Auto Log Out Settings').'</legend>';
+        echo '</fieldset></form><form method="post" action="'.$this->formAction.'&tab=group-service"><fieldset><legend>'._('Auto Log Out Settings').'</legend>';
         $this->attributes = array(
             array(width=>270),
             array('class'=>c),
@@ -437,9 +437,9 @@ class GroupManagementPage extends FOGPage {
         // Output
         $this->render();
         unset($this->data);
-        print '</fieldset></form></div>';
+        echo '</fieldset></form></div>';
         $this->adFieldsToDisplay($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,$ADPassLegacy);
-        print '<!-- Printers --><div id="group-printers"><form method="post" action="'.$this->formAction.'&tab=group-printers"><h2>'._('Select Management Level for all hosts in this group').'</h2><p class="l"><span class="icon fa fa-question hand" title="'._('This setting turns off all FOG Printer Management.  Although there are multiple levels already between host and global settings, this is just another to ensure safety').'"></span><input type="radio" name="level" value="0" />'._('No Printer Management').'<br/><span class="icon fa fa-question hand" title="'._('This setting only adds and removes printers that are managed by FOG.  If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unsigned host.  It will add printers to the host that are assigned.').'"></span><input type="radio" name="level" value="1" />'._('FOG Managed Printers').'<br/><span class="icon fa fa-question hand" title="'._('This setting will only allow FOG Assigned printers to be added to the host.  Any printer that is assigned will be removed including non-FOG managed printers.').'"></span><input type="radio" name="level" value="2" />'._('Add and Remove').'<br/></p><div class="hostgroup">';
+        echo '<!-- Printers --><div id="group-printers"><form method="post" action="'.$this->formAction.'&tab=group-printers"><h2>'._('Select Management Level for all hosts in this group').'</h2><p class="l"><span class="icon fa fa-question hand" title="'._('This setting turns off all FOG Printer Management.  Although there are multiple levels already between host and global settings, this is just another to ensure safety').'"></span><input type="radio" name="level" value="0" />'._('No Printer Management').'<br/><span class="icon fa fa-question hand" title="'._('This setting only adds and removes printers that are managed by FOG.  If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unsigned host.  It will add printers to the host that are assigned.').'"></span><input type="radio" name="level" value="1" />'._('FOG Managed Printers').'<br/><span class="icon fa fa-question hand" title="'._('This setting will only allow FOG Assigned printers to be added to the host.  Any printer that is assigned will be removed including non-FOG managed printers.').'"></span><input type="radio" name="level" value="2" />'._('Add and Remove').'<br/></p><div class="hostgroup">';
         // Create Header for printers
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxprint" class="toggle-checkboxprint" />',
@@ -470,11 +470,11 @@ class GroupManagementPage extends FOGPage {
         }
         unset($Printer);
         if (count($this->data) > 0) {
-            print '<h2>'._('Add new printer(s) to all hosts in this group.').'</h2>';
+            echo '<h2>'._('Add new printer(s) to all hosts in this group.').'</h2>';
             $this->HookManager->processEvent(GROUP_ADD_PRINTER,array(data=>&$this->data,templates=>&$this->templates,headerData=>&$this->headerData,attributes=>&$this->attributes));
             $this->render();
             unset($this->data);
-        } else print '<h2>'._('There are no printers to assign.').'</h2></div><div class="hostgroup">';
+        } else echo '<h2>'._('There are no printers to assign.').'</h2></div><div class="hostgroup">';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxprint" class="toggle-checkboxprintrm" />',
             _('Printer Name'),
@@ -501,12 +501,12 @@ class GroupManagementPage extends FOGPage {
         }
         unset($Printer);
         if (count($this->data) > 0) {
-            print '<h2>'._('Remove printer from all hosts in this group.').'</h2>';
+            echo '<h2>'._('Remove printer from all hosts in this group.').'</h2>';
             $this->HookManager->processEvent(GROUP_REM_PRINTER,array(data=>&$this->data,templates=>&$this->templates,headerData=>&$this->headerData,attributes=>&$this->attributes));
             $this->render();
             unset($this->data);
-        } else print '<h2>'._('There are no printers to assign.').'</h2>';
-        print '</div><input type="hidden" name="update" value="1" /><input type="submit" value="'._('Update').'" /></form></div></div>';
+        } else echo '<h2>'._('There are no printers to assign.').'</h2>';
+        echo '</div><input type="hidden" name="update" value="1" /><input type="submit" value="'._('Update').'" /></form></div></div>';
     }
     /** edit_post()
      * This updates the information from the edit function.

@@ -538,7 +538,7 @@ class BootMenu extends FOGBase {
      */
     private function parseMe($Send) {
         $this->HookManager->processEvent('IPXE_EDIT',array('ipxe' => &$Send,'Host' => &$this->Host,'kernel' => &$this->kernel,'initrd' => &$this->initrd,'booturl' => &$this->booturl, 'memdisk' => &$this->memdisk,'memtest' => &$this->memtest, 'web' => &$this->web, 'defaultChoice' => &$this->defaultChoice, 'bootexittype' => &$this->bootexittype,'storage' => &$this->storage,'shutdown' => &$this->shutdown,'path' => &$this->path,'timeout' => &$this->timeout,'KS' => $this->ks));
-        foreach($Send AS $ipxe => &$val) print implode("\n",$val)."\n";
+        foreach($Send AS $ipxe => &$val) echo implode("\n",$val)."\n";
         unset($val);
     }
     /** @function advLogin() If advanced login is set this just passes when verifyCreds is correct

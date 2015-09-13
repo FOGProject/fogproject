@@ -133,7 +133,7 @@ class PluginManagementPage extends FOGPage {
         try {
             if ($plugin == null) throw new Exception('Unable to determine plugin details.');
             $this->title = _('Plugin').': '.$plugin->getName();
-            print '<p>'._('Plugin Description').': '.$plugin->getDesc().'</p>';
+            echo '<p>'._('Plugin Description').': '.$plugin->getDesc().'</p>';
             if ($plugin->isInstalled() && $plugin->getName() == 'capone') {
                 $dmiFields = array(
                     "bios-vendor",
@@ -159,7 +159,7 @@ class PluginManagementPage extends FOGPage {
                     "processor-version",
                     "processor-frequency",
                 );
-                print '<p class="titleBottomLeft">'._('Settings').'</p>';
+                echo '<p class="titleBottomLeft">'._('Settings').'</p>';
                 unset($this->headerData,$this->data);
                 $this->templates = array(
                     '${field}',
@@ -192,11 +192,11 @@ class PluginManagementPage extends FOGPage {
                     );
                 }
                 unset($input);
-                print '<form method="post" action="'.$this->formAction.'">';
+                echo '<form method="post" action="'.$this->formAction.'">';
                 $this->render();
-                print '</form>';
+                echo '</form>';
                 unset($this->headerData,$this->data,$fields);
-                print '<p class="titleBottomLeft">'._('Add Image to DMI Associations').'</p>';
+                echo '<p class="titleBottomLeft">'._('Add Image to DMI Associations').'</p>';
                 $fields = array(
                     _('Image Definition').':' => $this->getClass(ImageManager)->buildSelectBox(),
                     _('DMI Result').':' => '<input type="text" name="key" />',
@@ -209,12 +209,12 @@ class PluginManagementPage extends FOGPage {
                     );
                 }
                 unset($input);
-                print '<form method="post" action="'.$this->formAction.'">';
+                echo '<form method="post" action="'.$this->formAction.'">';
                 $this->render();
-                print '</form>';
+                echo '</form>';
                 unset($this->headerData,$this->data,$fields);
                 $Capones = $this->getClass(CaponeManager)->find();
-                print '<p class="titleBottomLeft">'._('Current Image to DMI Associations').'</p>';
+                echo '<p class="titleBottomLeft">'._('Current Image to DMI Associations').'</p>';
                 $this->headerData = array(
                     _('Image Name'),
                     _('OS Name'),
@@ -245,15 +245,15 @@ class PluginManagementPage extends FOGPage {
                     );
                 }
                 unset($Capone);
-                print '<form method="post" action="'.$this->formAction.'">';
+                echo '<form method="post" action="'.$this->formAction.'">';
                 $this->render();
-                print '</form>';
+                echo '</form>';
             } else if ($plugin->isInstalled() && !$plugin->getname() == 'capone') $this->FOGCore->setMessage(_('Already installed!'));
             else if (!$plugin->isInstalled()) {
-                print '<p class="titleBottomLeft">'._('Plugin Installation').'</p><p>'._('This plugin is currently not installed, would you like to install it now?').'</p><div><form method="post" action="'.$this->formAction.'"><input type="submit" value="Install Plugin" name="install" /></form></div>';
+                echo '<p class="titleBottomLeft">'._('Plugin Installation').'</p><p>'._('This plugin is currently not installed, would you like to install it now?').'</p><div><form method="post" action="'.$this->formAction.'"><input type="submit" value="Install Plugin" name="install" /></form></div>';
             }
         } catch (Exception $e) {
-            print $this->FOGCore->setMessage($e->getMessage());
+            echo $this->FOGCore->setMessage($e->getMessage());
             $this->FOGCore->redirect('?node='.$_REQUEST[node].'&sub='.$_REQUEST[sub].'&run='.$_REQUEST[run]);
         }
     }

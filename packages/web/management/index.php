@@ -27,12 +27,12 @@ $content = $FOGPageManager->render();
 $sectionTitle = $FOGPageManager->getFOGPageName();
 $pageTitle = $FOGPageManager->getFOGPageTitle();
 if ($FOGCore->isAJAXRequest()) {
-    print $content;
+    echo $content;
     exit;
 }
 $Page->setTitle($pageTitle);
 $Page->setSecTitle($sectionTitle);
 $Page->startBody();
-print $content;
+echo $content;
 $Page->endBody();
 $Page->render();

@@ -113,7 +113,7 @@ class ServerInfo extends FOGPage {
                 $this->HookManager->processEvent(SERVER_INFO_DISP,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
                 // Output
                 $this->render();
-            } else print '<p>'._('Unable to pull server information!').'</p>';
-        } else print '<p>'._('Invalid Server Information!').'</p>';
+            } else echo '<p>'._('Unable to pull server information!').'</p>';
+        } else echo '<p>'._('Invalid Server Information!').'</p>';
     }
 }

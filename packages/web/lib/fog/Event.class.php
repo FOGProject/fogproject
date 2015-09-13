@@ -48,6 +48,6 @@ abstract class Event extends FOGBase {
      * @return void
      */
     public function onEvent($event, $data) {
-        print $event.' Registered';
+        echo $event.' Registered';
     }
 }
