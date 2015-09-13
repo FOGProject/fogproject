@@ -169,7 +169,6 @@ abstract class FOGPage extends FOGBase {
                     );
                     flush();
                 } else {
-                    $iteration = 0;
                     $id_field = $_REQUEST[node].'_id';
                     foreach ($this->data AS $i => &$rowData) {
                         ob_start(array('Initiator','sanitize_output'));
@@ -181,11 +180,6 @@ abstract class FOGPage extends FOGBase {
                         );
                         flush();
                         echo ob_get_clean();
-                        $iteration++;
-                        if ($iteration == 50) {
-                            $iteration = 0;
-                            usleep(10000);
-                        }
                     }
                     unset($rowData);
                     if ((!$_REQUEST[sub] && $defaultScreen == 'list') || (in_array($_REQUEST[sub],$defaultScreens) && in_array($_REQUEST[node],$this->searchPages)))
@@ -1255,6 +1249,7 @@ abstract class FOGPage extends FOGBase {
                         $Host = $this->getClass(HostManager)->getHostByMacAddresses($MACs);
                         if ($Host && $Host->isValid()) throw new Exception(_('Host al ready exists with at least one of the listed MACs'));
                         $PriMAC = array_shift($MACs);
+                        $iterator = 1;
                     } else $iterator = 0;
                     if ($Item->getManager()->exists($data[$iterator])) throw new Exception(_($this->childClass.' already exists with this name: '.$data[$iterator]));
                     foreach ($fieldsForCSV AS $i => $field) {
