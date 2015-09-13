@@ -57,8 +57,9 @@ function getQueryParams(qs) {
 // Auto loader
 // Main FOG JQuery Functions
 (function($) {
-        //$(this).focus().append('<i class="fa fa-pencil fa-fw fa-1x"></i>');
-    //}
+    // Apply tipsy to all icon elements
+    $('.icon,.icon-ping-up,.icon-ping-down').tipsy({gravity: $.fn.tipsy.autoNS,fade: true});
+    $('#logo > h1 > a > img').tipsy({gravity: $.fn.tipsy.autoNS,fade: true});
     Content = $('#content');
     Loader = $('#loader');
     Loader.append('&nbsp;<i class="fa fa-1x"></i>&nbsp;');

@@ -729,11 +729,13 @@ class FOGConfigurationPage extends FOGPage {
                 $schedulerlog = (file_exists("$ftpstart/var/log/fog/fogscheduler.log") ? "$ftpstart/var/log/fog/fogscheduler.log" : false);
                 $imgrepliclog = (file_exists("$ftpstart/var/log/fog/fogreplicator.log") ? "$ftpstart/var/log/fog/fogreplicator.log" : false);
                 $snapinreplog = (file_exists("$ftpstart/var/log/fog/fogsnapinrep.log") ? "$ftpstart/var/log/fog/fogsnapinrep.log" : false);
+                $pinghostlog = (file_exists("$ftpstart/var/log/fog/pinghosts.log") ? "$ftpstart/var/log/fog/fogpinghosts.log" : false);
                 $files[$StorageNode->get(name)] = array(
                     $multicastlog ? _('Multicast') : null => $multicastlog ? $multicastlog : null,
                     $schedulerlog ? _('Scheduler') : null => $schedulerlog ? $schedulerlog : null,
                     $imgrepliclog ? _('Image Replicator') : null => $imgrepliclog ? $imgrepliclog : null,
                     $snapinreplog ? _('Snapin Replicator') : null => $snapinreplog ? $snapinreplog : null,
+                    $pinghostlog ? _('Ping Hosts') : null => $pinghostlog ? $pinghostlog : null,
                     $apacheerrlog ? _('Apache Error Log') : null  => $apacheerrlog ? $apacheerrlog : null,
                     $apacheacclog ? _('Apache Access Log') : null  => $apacheacclog ? $apacheacclog : null,
                 );
