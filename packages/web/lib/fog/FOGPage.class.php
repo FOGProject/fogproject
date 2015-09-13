@@ -104,7 +104,10 @@ abstract class FOGPage extends FOGBase {
      * @return void
      */
     public function render() {
-        ob_start(array('Initiator','sanitize_output'),512); echo $this->process(); ob_end_flush();
+        ob_start(array('Initiator','sanitize_output'),512);
+        echo $this->process();
+        flush();
+        ob_end_flush();
     }
     /** process() build the relevant html for the page
      * @return false or the result
@@ -114,7 +117,6 @@ abstract class FOGPage extends FOGBase {
             unset($actionbox);
             $defaultScreen = strtolower($_SESSION[FOG_VIEW_DEFAULT_SCREEN]);
             $defaultScreens = array('search','list');
-            $result = '';
             // Error checking
             if (!count($this->templates)) throw new Exception('Requires templates to process');
             // Is AJAX Request?
@@ -130,7 +132,7 @@ abstract class FOGPage extends FOGBase {
                     searchFormURL=>&$this->searchFormURL,
                 ));
             } else {
-                ob_start(array('Initiator','sanitize_output'));
+                ob_start(array('Initiator','sanitize_output'),1024);
                 $isMobile = preg_match('#/mobile/#',$_SERVER['PHP_SELF']);
                 // HTML output
                 $contentField = 'active-tasks';
@@ -146,15 +148,17 @@ abstract class FOGPage extends FOGBase {
                         $isMobile ? $this->foglang['Search'] : '',
                         $isMobile ? '</input>' : '</button>'
                     );
+                    flush();
                     $contentField = 'search-content';
                 }
-                if ($this->form) $result .= printf($this->form);
+                if ($this->form) $res .= printf($this->form);
                 // Table -> Header Row
                 printf('<table width="%s" cellpadding="0" cellspacing="0" border="0" id="%s">%s<tbody>',
                     '100%',
                     $contentField,
                     count($this->data) ? $this->buildHeaderRow() : ''
                 );
+                flush();
                 if (!count($this->data)) {
                     $contentField = 'no-active-tasks';
                     // No data found
@@ -163,7 +167,9 @@ abstract class FOGPage extends FOGBase {
                         $contentField,
                         ($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : $this->foglang['NoResults'])
                     );
+                    flush();
                 } else {
+                    $iteration = 0;
                     $id_field = $_REQUEST[node].'_id';
                     foreach ($this->data AS $i => &$rowData) {
                         ob_start(array('Initiator','sanitize_output'));
@@ -174,15 +180,19 @@ abstract class FOGPage extends FOGBase {
                             $this->buildRow($rowData)
                         );
                         flush();
-                        $res .= ob_get_clean();
-                        usleep(1000);
+                        echo ob_get_clean();
+                        $iteration++;
+                        if ($iteration == 50) {
+                            $iteration = 0;
+                            usleep(10000);
+                        }
                     }
                     unset($rowData);
                     if ((!$_REQUEST[sub] && $defaultScreen == 'list') || (in_array($_REQUEST[sub],$defaultScreens) && in_array($_REQUEST[node],$this->searchPages)))
                         $this->FOGCore->setMessage(count($this->data).' '.$this->childClass.(count($this->data) > 1 ? 's' : '')._(' found'));
                 }
-                echo $res;
                 echo '</tbody></table>';
+                flush();
                 if (((!$_REQUEST[sub] || ($_REQUEST[sub] && in_array($_REQUEST[sub],$defaultScreens))) && in_array($_REQUEST[node],$this->searchPages)) && !$isMobile) {
                     if ($this->childClass == 'Host') $actionbox = sprintf('<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>');
                     $actionbox .= sprintf('<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value="" autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>');
@@ -191,6 +201,7 @@ abstract class FOGPage extends FOGBase {
             $this->HookManager->event[] = 'ACTIONBOX';
             $this->HookManager->processEvent(ACTIONBOX,array(actionbox=>&$actionbox));
             echo $actionbox;
+            flush();
             // Return output
             return ob_get_clean();
         } catch (Exception $e) {
@@ -212,10 +223,13 @@ abstract class FOGPage extends FOGBase {
         $this->setAtts();
         // Loop data
         if ($this->headerData) {
-            $result = '<thead><tr class="header">';
+            ob_start(array('Initiator','sanitize_output'),1024);
+            echo '<thead><tr class="header">';
+            flush();
             foreach ($this->headerData AS $i => &$content) {
                 // Push into results array
-                $result .= sprintf(
+                ob_start(array('Initiator','sanitize_output'),1024);
+                printf(
                     '<%s%s data-column="%s">%s</%s>',
                     $this->headerWrap,
                     ($this->atts[$i] ? $this->atts[$i] : ''),
@@ -223,10 +237,14 @@ abstract class FOGPage extends FOGBase {
                     $content,
                     $this->headerWrap
                 );
+                flush();
+                echo ob_get_clean();
             }
             unset($content);
             // Return result
-            return $result.'</tr></thead>';
+            echo '</tr></thead>';
+            flush();
+            return ob_get_clean();
         }
     }
     /** replaceNeeds() sets the template data to replace
@@ -254,6 +272,7 @@ abstract class FOGPage extends FOGBase {
         ob_start(array('Initiator','sanitize_output'));
         // Loop template data
         foreach ($this->templates AS $i => &$template) {
+            ob_start(array('Initiator','sanitize_output'));
             // Replace variables in template with data -> wrap in $this->wrapper -> push into $result
             printf(
                 '<%s%s>%s</%s>',
@@ -262,9 +281,12 @@ abstract class FOGPage extends FOGBase {
                 preg_replace($this->dataFind,$this->dataReplace,$template),
                 $this->wrapper
             );
+            flush();
+            echo ob_get_clean();
         }
         unset($template);
         // Return result
+        flush();
         return ob_get_clean();
     }
     /** deploy() build the tasking output
@@ -282,22 +304,28 @@ abstract class FOGPage extends FOGBase {
         $this->title = sprintf('%s %s %s %s',_('Create'),$TaskType->get(name),_('task for'),$this->obj->get(name));
         // Deploy
         printf('%s%s%s','<p class="c"><b>',_('Are you sure you wish to deploy task to these machines'),'</b></p>');
+        flush();
         printf('<form method="post" action="%s" id="deploy-container">',$this->formAction);
+        flush();
         echo '<div class="confirm-message">';
+        flush();
         if ($TaskType->get(id) == 13) {
             printf('<center><p>%s</p>',_('Please select the snapin you want to deploy'));
+            flush();
             if ($this->obj instanceof Host) {
                 $Snapins = $this->getClass(SnapinManager)->find(array(id=>$this->obj->get(snapins)));
                 foreach($Snapins AS $i => &$Snapin) $optionSnapin .= sprintf('<option value="%s">%s - (%s)</option>',$Snapin->get(id),$Snapin->get(name),$Snapin->get(id));
                 unset($Snapin);
                 if ($optionSnapin) printf('<select name="snapin">%s</select></center>',$optionSnapin);
                 else printf('%s</center>',_('No snapins associated'));
+                flush();
             }
             if ($this->obj instanceof Group) printf($this->getClass(SnapinManager)->buildSelectBox('','snapin').'</center>');
         }
         printf("%s",'<div class="advanced-settings">');
         printf("<h2>%s</h2>",_('Advanced Settings'));
         printf("%s%s%s <u>%s</u> %s%s",'<p class="hideFromDebug">','<input type="checkbox" name="shutdown" id="shutdown" value="1" autocomplete="off"><label for="shutdown">',_('Schedule'),_('Shutdown'),_('after task completion'),'</label></p>');
+        flush();
         if (!$TaskType->isDebug() && $TaskType->get(id) != 11) {
             if (!($this->obj instanceof Group)) printf("%s%s%s",'<p><input type="checkbox" name="isDebugTask" id="isDebugTask" autocomplete="off" /><label for="isDebugTask">',_('Schedule task as a debug task'),'</label></p>');
             printf("%s%s %s%s%s",'<p><input type="radio" name="scheduleType" id="scheduleInstant" value="instant" autocomplete="off" checked/><label for="scheduleInstant">',_('Schedule '),'<u>',_('Instant Deployment'),'</u></label></p>');
@@ -316,6 +344,7 @@ abstract class FOGPage extends FOGBase {
             printf("%s",'<input type="text" name="account" value="Administrator" />');
         }
         echo '</div></div><h2>'._('Hosts in Task').'</h2>';
+        flush();
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -363,6 +392,7 @@ abstract class FOGPage extends FOGBase {
         $this->render();
         if (count($this->data)) printf('%s%s%s','<p class="c"><input type="submit" value="',$this->title,'" /></p>');
         echo '</form>';
+        flush();
     }
     /** deploy_post() actually create the deployment task
      * @return void
@@ -796,6 +826,7 @@ abstract class FOGPage extends FOGBase {
         try {
             // Get the host or error out
             $Host = $this->getHostItem(true);
+            $Host->load();
             // Store the key and potential token
             $key = bin2hex($this->certDecrypt($_REQUEST[sym_key]));
             $token = bin2hex($this->certDecrypt($_REQUEST[token]));
@@ -810,6 +841,7 @@ abstract class FOGPage extends FOGBase {
             if ($Host->get(sec_tok) && !$key) throw new Exception('#!ihc');
             $Host->set(pub_key,$key)
                 ->save();
+            $Host->load();
             echo '#!en='.$this->certEncrypt("#!ok\n#token=".$Host->get(sec_tok),$Host);
         }
         catch (Exception $e) {
@@ -832,9 +864,7 @@ abstract class FOGPage extends FOGBase {
             if ($this->obj instanceof Group) {
                 if ($_REQUEST[delHostConfirm] == '1') {
                     $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)));
-                    foreach($Hosts AS $i => &$Host) {
-                        if ($Host->isValid()) $Host->destroy();
-                    }
+                    foreach($Hosts AS $i => &$Host) $Host->destroy();
                     unset($Host);
                 }
                 // Remove hosts first

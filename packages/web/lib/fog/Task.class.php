@@ -91,7 +91,7 @@ class Task extends FOGController {
         // cancel's all the snapin tasks for that host.
         if (count($SnapinTasks)) {
             foreach($SnapinTasks AS $i => &$SnapinTask) $SnapinTask->set(stateID,-1)->save();
-            unset($ST);
+            unset($SnapinTask);
         }
         // FOGController destroy
         return parent::destroy($field);
