@@ -58,8 +58,8 @@ function getQueryParams(qs) {
 // Main FOG JQuery Functions
 (function($) {
     // Apply tipsy to all icon elements
-    $('.icon,.icon-ping-up,.icon-ping-down').tipsy({gravity: $.fn.tipsy.autoNS,fade: true});
-    $('#logo > h1 > a > img').tipsy({gravity: $.fn.tipsy.autoNS,fade: true});
+    $('.icon,.icon-ping-up,.icon-ping-down').tipsy({gravity: $.fn.tipsy.autoNS});
+    $('#logo > h1 > a > img').tipsy({gravity: $.fn.tipsy.autoNS});
     Content = $('#content');
     Loader = $('#loader');
     Loader.append('&nbsp;<i class="fa fa-1x"></i>&nbsp;');

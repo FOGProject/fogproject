@@ -50,8 +50,8 @@ try {
     }
     // Failed to find a Storage Node - this should only occur if all Storage Nodes in this Storage Group have failed
     if ($imagingTasks && (!isset($winner) || !$winner->isValid())) {
-        // Print failed node messages if we are unable to find a valid node
-        if (count($messageArray)) print implode(PHP_EOL, $messageArray).PHP_EOL;
+        // failed node messages if we are unable to find a valid node
+        if (count($messageArray)) echo implode(PHP_EOL, $messageArray).PHP_EOL;
         throw new Exception(_("Unable to find a suitable Storage Node for transfer!"));
         $Task->set(NFSMemberID,$winner->get(id));
     }
@@ -73,13 +73,13 @@ try {
             ->save();
     }
     // Task Logging
-    $FOGCore->getClass(TaskLog)
+    $FOGCore->getClass(TaskLog,$Task)
         ->set(taskID,$Task->get(id))
         ->set(taskStateID,$Task->get(stateID))
         ->set(createdType,$Task->get(createdTime))
         ->set(createdBy,$Task->get(createdBy))
         ->save();
-    print '##@GO';
+    echo '##@GO';
 } catch (Exception $e) {
-    print $e->getMessage();
+    echo $e->getMessage();
 }

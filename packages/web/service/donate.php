@@ -5,12 +5,12 @@ try {
     $abortHour = $FOGCore->getSetting(FOG_MINING_FULL_RESTART_HOUR);
     $ignoreWeekends = $FOGCore->getSetting(FOG_MINING_FULL_RUN_ON_WEEKEND);
     $date = $FOGCore->nice_date();
-    if  ($ignoreWeekends == 1 && $date->format("N") > 5) print "#!OK";
+    if  ($ignoreWeekends == 1 && $date->format("N") > 5) echo "#!OK";
     else {
         // it is a weekday check the hour
         if (!($abortHour == ($date->format('G')))) throw new Exception("Restarting the client...");
-        print "#!OK";
+        echo "#!OK";
     }
 } catch (Exception $e) {
-    print $e->getMessage();
+    echo $e->getMessage();
 }

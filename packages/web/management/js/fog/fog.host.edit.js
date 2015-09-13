@@ -129,7 +129,6 @@ $(function() {
     // Remove MAC Buttons
     $('.remove-mac').click(function() {
         //$(this).parent().remove();
-        //$('.tipsy').remove();
         if ($('#additionalMACsCell').find('.additionalMAC').size() == 0) $('#additionalMACsRow').hide();
         //$(this).attr('checked', ischecked);
     });
