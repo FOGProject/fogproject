@@ -31,7 +31,7 @@ class FOGConfigurationPage extends FOGPage {
             $Names = array();
             // Set title
             $this->title = _('FOG Version Information');
-            print '<p>'._('Version: ').FOG_VERSION.'</p>';
+            echo '<p>'._('Version: ').FOG_VERSION.'</p>';
             $URLs[] = 'https://fogproject.org/version/index.php?version='.FOG_VERSION;
             $Names[] = '';
             $Nodes = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1));
@@ -46,11 +46,11 @@ class FOGConfigurationPage extends FOGPage {
             asort($Responses);
             foreach($Responses AS $i => &$data) {
                 if ($i === 0) {
-                    print '<p><div class="sub">'.$Responses[$i].'</div></p>';
-                    print '<h1>Kernel Versions</h1>';
+                    echo '<p><div class="sub">'.$Responses[$i].'</div></p>';
+                    echo '<h1>Kernel Versions</h1>';
                 } else {
-                    print "<h2>{$Names[$i]}</h2>";
-                    print "<pre>$data</pre>";
+                    echo "<h2>{$Names[$i]}</h2>";
+                    echo "<pre>$data</pre>";
                 }
             }
             unset($data);
@@ -61,8 +61,8 @@ class FOGConfigurationPage extends FOGPage {
     public function license() {
         // Set title
         $this->title = _('FOG License Information');
-        if (file_exists('./languages/'.$_SESSION[locale].'/gpl-3.0.txt')) print "<pre>".file_get_contents('./languages/'.$_SESSION[locale].'/gpl-3.0.txt').'</pre>';
-        else print "<pre>".file_get_contents('./other/gpl-3.0.txt').'</pre>';
+        if (file_exists('./languages/'.$_SESSION[locale].'/gpl-3.0.txt')) echo "<pre>".file_get_contents('./languages/'.$_SESSION[locale].'/gpl-3.0.txt').'</pre>';
+        else echo "<pre>".file_get_contents('./other/gpl-3.0.txt').'</pre>';
     }
     /** kernel()
      * Redirects as the sub information is currently incorrect.
@@ -78,7 +78,7 @@ class FOGConfigurationPage extends FOGPage {
         public function kernel_update() {
             $this->kernelselForm(pk);
             $htmlData = $this->FOGURLRequests->process('https://fogproject.org/kernels/kernelupdate.php?version='.FOG_VERSION,'GET');
-            print $htmlData[0];
+            echo $htmlData[0];
         }
     /** kernelselForm($type)
      * Gives the user the option to select between:
@@ -86,12 +86,12 @@ class FOGConfigurationPage extends FOGPage {
      * Unofficial Kernels (from mastacontrola.com)
      */
     public function kernelselForm($type) {
-        print '<div class="hostgroup">';
-        print _('This section allows you to update the Linux kernel which is used to boot the client computers.  In FOG, this kernel holds all the drivers for the client computer, so if you are unable to boot a client you may wish to update to a newer kernel which may have more drivers built in.  This installation process may take a few minutes, as FOG will attempt to go out to the internet to get the requested Kernel, so if it seems like the process is hanging please be patient.');
-        print '</div><div><form method="post" action="'.$this->formAction.'"><select name="kernelsel" onchange="this.form.submit()">';
-        print '<option value="pk"'.($type == 'pk' ? ' selected="selected"' : '').'>'._('Published Kernels').'</option>';
-        print '<option value="ok"'.($type == 'ok' ? ' selected="selected"' : '').'>'._('Old Published Kernels').'</option>';
-        print '<option value="uk"'.($type == 'uk' ? ' selected="selected"' : '').'>'._('Unofficial Kernels').'</option></select></form></div>';
+        echo '<div class="hostgroup">';
+        echo _('This section allows you to update the Linux kernel which is used to boot the client computers.  In FOG, this kernel holds all the drivers for the client computer, so if you are unable to boot a client you may wish to update to a newer kernel which may have more drivers built in.  This installation process may take a few minutes, as FOG will attempt to go out to the internet to get the requested Kernel, so if it seems like the process is hanging please be patient.');
+        echo '</div><div><form method="post" action="'.$this->formAction.'"><select name="kernelsel" onchange="this.form.submit()">';
+        echo '<option value="pk"'.($type == 'pk' ? ' selected="selected"' : '').'>'._('Published Kernels').'</option>';
+        echo '<option value="ok"'.($type == 'ok' ? ' selected="selected"' : '').'>'._('Old Published Kernels').'</option>';
+        echo '<option value="uk"'.($type == 'uk' ? ' selected="selected"' : '').'>'._('Unofficial Kernels').'</option></select></form></div>';
     }
     /** kernel_update_post()
      * Displays the kernel based on the list selected.
@@ -103,22 +103,22 @@ class FOGConfigurationPage extends FOGPage {
             case 'pk':
                 $this->kernelselForm(pk);
                 $htmlData = $this->FOGURLRequests->process("https://fogproject.org/kernels/kernelupdate.php?version=" . FOG_VERSION,'GET');
-                print $htmlData[0];
+                echo $htmlData[0];
                 break;
             case 'uk':
                 $this->kernelselForm(uk);
                 $htmlData = $this->FOGURLRequests->process("http://mastacontrola.com/fogboot/kernel/index.php?version=" . FOG_VERSION,'GET');
-                print $htmlData[0];
+                echo $htmlData[0];
                 break;
             case 'ok':
                 $this->kernelselForm(ok);
                 $htmlData = $this->FOGURLRequests->process("http://freeghost.sourceforge.net/kernelupdates/index.php?version=".FOG_VERSION,'GET');
-                print $htmlData[0];
+                echo $htmlData[0];
                 break;
             default:
                 $this->kernelselForm(pk);
                 $htmlData = $this->FOGURRequests->process('https://fogproject.org/kernels/kernelupdate.php?version='.FOG_VERSION,'GET');
-                print $htmlData[0];
+                echo $htmlData[0];
                 break;
             }
         } else if ($_REQUEST[install]) {
@@ -127,11 +127,11 @@ class FOGConfigurationPage extends FOGPage {
             $_SESSION["tmp-kernel-file"] = rtrim(sys_get_temp_dir(),'/').'/'.basename($_SESSION["dest-kernel-file"]);
             $_SESSION["dl-kernel-file"] = base64_decode($_REQUEST["file"]);
             if (file_exists($_SESSION["tmp-kernel-file"])) @unlink($_SESSION["tmp-kernel-file"]);
-            print '<div id="kdlRes"><p id="currentdlstate">'._('Starting process...').'</p><i id="img" class="fa fa-cog fa-2x fa-spin"></i></div>';
+            echo '<div id="kdlRes"><p id="currentdlstate">'._('Starting process...').'</p><i id="img" class="fa fa-cog fa-2x fa-spin"></i></div>';
         } else {
-            print '<form method="post" action="?node='.$_REQUEST[node].'&sub=kernel&install=1&file='.$_REQUEST['file'].'">';
-            print "<p>"._('New Kernel name:').'<input class="smaller" type="text" name="dstName" value="'.($_REQUEST[arch] == 64 || !$_REQUEST[arch] ? 'bzImage' : 'bzImage32').'" /></p>';
-            print '<p><input class="smaller" type="submit" value="Next" /></p></form>';
+            echo '<form method="post" action="?node='.$_REQUEST[node].'&sub=kernel&install=1&file='.$_REQUEST['file'].'">';
+            echo "<p>"._('New Kernel name:').'<input class="smaller" type="text" name="dstName" value="'.($_REQUEST[arch] == 64 || !$_REQUEST[arch] ? 'bzImage' : 'bzImage32').'" /></p>';
+            echo '<p><input class="smaller" type="submit" value="Next" /></p></form>';
         }
     }
     /** pxemenu()
@@ -181,7 +181,7 @@ class FOGConfigurationPage extends FOGPage {
             '<a href="#" onload="$(\'#advancedTextArea\').hide();" onclick="$(\'#advancedTextArea\').toggle();" id="pxeAdvancedLink">Advanced Configuration Options</a>' => '<div id="advancedTextArea" class="hidden"><div class="lighterText tabbed">Add any custom text you would like included added as part of your <i>default</i> file.</div><textarea rows="5" cols="40" name="adv">'.$advanced.'</textarea></div>',
             '&nbsp;' => '<input type="submit" value="'._('Save PXE MENU').'" />',
         );
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
@@ -193,7 +193,7 @@ class FOGConfigurationPage extends FOGPage {
         $this->HookManager->processEvent(PXE_BOOT_MENU,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     /** pxemenu_post()
      * Performs the updates for the form sent from pxemenu().
@@ -226,8 +226,8 @@ class FOGConfigurationPage extends FOGPage {
     }
     public function customize_edit() {
         $this->title = $this->foglang[PXEMenuCustomization];
-        print '<p>'._('This item allows you to edit all of the PXE Menu items as you see fit.  Mind you, iPXE syntax is very finicky when it comes to edits.  If you need help understanding what items are needed, please see the forums.  You can also look at ipxe.org for syntactic usage and methods.  Some of the items here are bound to limitations.  Documentation will follow when enough time is provided.').'</p>';
-        print '<div id="tab-container-1">';
+        echo '<p>'._('This item allows you to edit all of the PXE Menu items as you see fit.  Mind you, iPXE syntax is very finicky when it comes to edits.  If you need help understanding what items are needed, please see the forums.  You can also look at ipxe.org for syntactic usage and methods.  Some of the items here are bound to limitations.  Documentation will follow when enough time is provided.').'</p>';
+        echo '<div id="tab-container-1">';
         $this->templates = array(
             '${field}',
             '${input}',
@@ -235,9 +235,9 @@ class FOGConfigurationPage extends FOGPage {
         $Menus = $this->getClass(PXEMenuOptionsManager)->find('','','id');
         foreach ($Menus AS $i => &$Menu) {
             $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/\./','_',preg_replace('/:/','_',$Menu->get('name'))));
-            print '<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$Menu->get(name).'</h3></a>';
-            print '<div id="'.$divTab.'">';
-            print '<form method="post" action="'.$this->formAction.'">';
+            echo '<a id="'.$divTab.'" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$Menu->get(name).'</h3></a>';
+            echo '<div id="'.$divTab.'">';
+            echo '<form method="post" action="'.$this->formAction.'">';
             $menuid = in_array($Menu->get(id),array(1,2,3,4,5,6,7,8,9,10,11,12,13));
             $menuDefault = $Menu->get('default') ? 'checked' : '';
             $fields = array(
@@ -261,13 +261,12 @@ class FOGConfigurationPage extends FOGPage {
             $this->HookManager->processEvent('BOOT_ITEMS_'.$divTab,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes,headerData=>&$this->headerData));
             // Output
             $this->render();
-            print "</form>";
-            print '</div>';
+            echo '</form></div>';
             // Reset for use again.
             unset($this->data);
         }
         unset($Menu);
-        print '</div>';
+        echo '</div>';
     }
     public function customize_edit_post() {
         if (isset($_REQUEST[saveform]) && $_REQUEST[menu_id]) {
@@ -298,7 +297,7 @@ class FOGConfigurationPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         $menudefault = $_REQUEST[menu_default] ? 'checked' : '';
         $fields = array(
             _('Menu Item:') => '<input type="text" name="menu_item" value="'.$_REQUEST[menu_item].'" id="menu_item" />',
@@ -320,7 +319,7 @@ class FOGConfigurationPage extends FOGPage {
         $this->HookManager->processEvent(BOOT_ITEMS_ADD,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes,headerData=>&$this->headerData));
         // Output
         $this->render();
-        print "</form>";
+        echo "</form>";
     }
     public function new_menu_post() {
         try {
@@ -388,7 +387,7 @@ class FOGConfigurationPage extends FOGPage {
             array(),
             array('class'=>'filter-false disabled'),
         );
-        print '<div class="hostgroup">'._('This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.').'</div>';
+        echo '<div class="hostgroup">'._('This section allows you to update the modules and config files that run on the client computers.  The clients will checkin with the server from time to time to see if a new module is published.  If a new module is published the client will download the module and use it on the next time the service is started.').'</div>';
         $ClientUpdates = $this->getClass(ClientUpdaterManager)->find('','name');
         foreach ($ClientUpdates AS $i => &$ClientUpdate) {
             $this->data[] = array(
@@ -403,12 +402,12 @@ class FOGConfigurationPage extends FOGPage {
         // Hook
         $this->HookManager->processEvent(CLIENT_UPDATE,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
-        print '<form method="post" action="'.$this->formAction.'&tab=clientupdater">';
+        echo '<form method="post" action="'.$this->formAction.'&tab=clientupdater">';
         $this->render();
-        print '</form>';
+        echo '</form>';
         // reset for next element
         unset($this->headerData,$this->attributes,$this->templates,$this->data);
-        print '<p class="header">'._('Upload a new client module/configuration file').'</p>';
+        echo '<p class="header">'._('Upload a new client module/configuration file').'</p>';
         $this->attributes = array(
             array(),
             array('class'=>'filter-false'),
@@ -429,10 +428,10 @@ class FOGConfigurationPage extends FOGPage {
         unset($input);
         // Hook
         $this->HookManager->processEvent(CLIENT_UPDATE,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        print '<form method="post" action="'.$this->formAction.'&tab=clientupdater" enctype="multipart/form-data"><input type="hidden" name="name" value="FOG_SERVICE_CLIENTUPDATER_ENABLED"/>';
+        echo '<form method="post" action="'.$this->formAction.'&tab=clientupdater" enctype="multipart/form-data"><input type="hidden" name="name" value="FOG_SERVICE_CLIENTUPDATER_ENABLED"/>';
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     /** client_updater_post()
      * Just updates the values set in client_updater().
@@ -473,7 +472,7 @@ class FOGConfigurationPage extends FOGPage {
         // Set title
         $this->title = _('MAC Address Manufacturer Listing');
         // Allow the updating and deleting of the mac-lists.
-        print '<div class="hostgroup">'._('This section allows you to import known mac address makers into the FOG database for easier identification.').'</div><div><p>'._('Current Records: ').$this->FOGCore->getMACLookupCount().'</p><p><div id="delete"></div><div id="update"></div><input class="macButtons" type="button" title="'._('Delete MACs').'" value="'._('Delete Current Records').'" onclick="clearMacs()" /><input class="macButtons" style="margin-left: 20px" type="button" title="'._('Update MACs').'" value="'._('Update Current Listing').'" onclick="updateMacs()" /></p><p>'._('MAC address listing source: ').'<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>';
+        echo '<div class="hostgroup">'._('This section allows you to import known mac address makers into the FOG database for easier identification.').'</div><div><p>'._('Current Records: ').$this->FOGCore->getMACLookupCount().'</p><p><div id="delete"></div><div id="update"></div><input class="macButtons" type="button" title="'._('Delete MACs').'" value="'._('Delete Current Records').'" onclick="clearMacs()" /><input class="macButtons" style="margin-left: 20px" type="button" title="'._('Update MACs').'" value="'._('Update Current Listing').'" onclick="updateMacs()" /></p><p>'._('MAC address listing source: ').'<a href="http://standards.ieee.org/regauth/oui/oui.txt">http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>';
     }
     /** mac_list_post()
      * This just performs the actions when mac_list() is updated.
@@ -503,7 +502,7 @@ class FOGConfigurationPage extends FOGPage {
                 fclose($handle);
                 $this->FOGCore->addUpdateMACLookupTable($macsandmakers);
                 $this->FOGCore->setMessage($imported._(' mac addresses updated!'));
-            } else print (_('Unable to locate file').': '.$f);
+            } else echo (_('Unable to locate file').': '.$f);
         } else if ($_REQUEST[clear]) $this->FOGCore->clearMACLookupTable();
         $this->resetRequest();
         $this->FOGCore->redirect('?node=about&sub=mac-list');
@@ -558,7 +557,7 @@ class FOGConfigurationPage extends FOGPage {
         );
         // Set title
         $this->title = _("FOG System Settings");
-        print '<p class="hostgroup">'._('This section allows you to customize or alter the way in which FOG operates.  Please be very careful changing any of the following settings, as they can cause issues that are difficult to troubleshoot.').'</p><form method="post" action="'.$this->formAction.'"><div id="tab-container-1">';
+        echo '<p class="hostgroup">'._('This section allows you to customize or alter the way in which FOG operates.  Please be very careful changing any of the following settings, as they can cause issues that are difficult to troubleshoot.').'</p><form method="post" action="'.$this->formAction.'"><div id="tab-container-1">';
         // Header Data
         unset($this->headerData);
         // Attributes
@@ -574,11 +573,11 @@ class FOGConfigurationPage extends FOGPage {
             '${span}',
         );
         $ServiceCats = $this->getClass(ServiceManager)->getSettingCats();
-        print '<a href="#" class="trigger_expand"><h3>Expand All</h3></a>';
+        echo '<a href="#" class="trigger_expand"><h3>Expand All</h3></a>';
         foreach ((array)$ServiceCats AS $i => &$ServiceCAT) {
             $divTab = preg_replace('/[[:space:]]/','_',preg_replace('/:/','_',$ServiceCAT));
-            print '<a id="'.$divTab.'" class="expand_trigger" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$ServiceCAT.'</h3></a>';
-            print '<div id="'.$divTab.'">';
+            echo '<a id="'.$divTab.'" class="expand_trigger" style="text-decoration:none;" href="#'.$divTab.'"><h3>'.$ServiceCAT.'</h3></a>';
+            echo '<div id="'.$divTab.'">';
             $ServMan = $this->getClass(ServiceManager)->find(array(category=>$ServiceCAT),'AND','id');
             foreach ((array)$ServMan AS $i => &$Service) {
                 if ($Service->get(name) == 'FOG_PIGZ_COMP') $type = '<div id="pigz" style="width: 200px; top: 15px;"></div><input type="text" readonly="true" name="${service_id}" id="showVal" maxsize="1" style="width: 10px; top: -5px; left:225px; position: relative;" value="${service_value}" />';
@@ -656,15 +655,15 @@ class FOGConfigurationPage extends FOGPage {
             $this->HookManager->processEvent('CLIENT_UPDATE_'.$divTab,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
             // Output
             $this->render();
-            print '</div>';
+            echo '</div>';
             unset($this->data,$options);
         }
         unset($ServiceCAT);
-        print '</div></form>';
+        echo '</div></form>';
     }
     public function getOSID() {
         $osname = $this->getClass(Image,$_REQUEST[image_id])->getOS()->get(name);
-        print json_encode($osname ? $osname : _('No Image specified'));
+        echo json_encode($osname ? $osname : _('No Image specified'));
     }
     /** settings_post()
      * Updates the settings set from the fields.
@@ -758,12 +757,12 @@ class FOGConfigurationPage extends FOGPage {
         unset($filearray);
         // Set title
         $this->title = _('FOG Log Viewer');
-        print '<p><form method="post" action="'.$this->formAction.'"><p>'._('File:');
-        print '<select name="logtype" id="logToView">'.implode((array)$options3).'</select>'._('Number of lines:');
+        echo '<p><form method="post" action="'.$this->formAction.'"><p>'._('File:');
+        echo '<select name="logtype" id="logToView">'.implode((array)$options3).'</select>'._('Number of lines:');
         $vals = array(20,50,100,200,400,500,1000);
         foreach ($vals AS $i => &$value) $options4[] = '<option '.($value == $_REQUEST[n] ? 'selected="selected"' : '').' value="'.$value.'">'.$value.'</option>';
         unset($value);
-        print '<select name="n" id="linesToView">'.implode((array)$options4).'</select><center><input type="button" id="logpause" /></center></p></form><div id="logsGoHere">&nbsp;</div></p>';
+        echo '<select name="n" id="linesToView">'.implode((array)$options4).'</select><center><input type="button" id="logpause" /></center></p></form><div id="logsGoHere">&nbsp;</div></p>';
     }
     /** config()
      * This feature is relatively new.  It's a means for the user to save the fog database
@@ -788,10 +787,10 @@ class FOGConfigurationPage extends FOGPage {
             'field' => _('Click the button to export the database.'),
             'input' => '<input type="submit" name="export" value="'._('Export').'" />',
         );
-        print '<form method="post" action="export.php?type=sql">';
+        echo '<form method="post" action="export.php?type=sql">';
         $this->render();
         unset($this->data);
-        print '</form>';
+        echo '</form>';
         $this->data[] = array(
             'field' => _('Import a previous backup file.'),
             'input' => '<span class="lightColor">Max Size: ${size}</span><input type="file" name="dbFile" />',
@@ -801,10 +800,10 @@ class FOGConfigurationPage extends FOGPage {
             'field' => null,
             'input' => '<input type="submit" value="'._('Import').'" />',
         );
-        print '<form method="post" action="'.$this->formAction.'" enctype="multipart/form-data">';
+        echo '<form method="post" action="'.$this->formAction.'" enctype="multipart/form-data">';
         $this->render();
         unset($this->data);
-        print "</form>";
+        echo "</form>";
     }
     /** config_post()
      * Imports the file and installs the file as needed.
@@ -816,18 +815,18 @@ class FOGConfigurationPage extends FOGPage {
             if($_FILES[dbFile] != null) {
                 $dbFileName = BASEPATH.'/management/other/'.basename($_FILES[dbFile][name]);
                 if(!move_uploaded_file($_FILES[dbFile][tmp_name],$dbFileName)) throw new Exception('Could not upload file!');
-                print '<h2>'._('File Import successful!').'</h2>';
+                echo '<h2>'._('File Import successful!').'</h2>';
                 $password = (DATABASE_PASSWORD ? ' -p"'.DATABASE_PASSWORD.'"' : '');
                 $command = 'mysql -u ' . DATABASE_USERNAME . $password .' -h '.preg_replace('#p:#','',DATABASE_HOST).' '.DATABASE_NAME.' < "'.$dbFileName.'"';
                 $output = array();
                 exec($command,$output,$worked);
                 switch ($worked) {
                 case 0:
-                    print '<h2>'._('Database Added!').'</h2>';
+                    echo '<h2>'._('Database Added!').'</h2>';
                     exec('rm -rf "'.$dbFileName.'" > /dev/null 2>/dev/null &');
                     break;
                 case 1:
-                    print "<h2>"._('Database import failed!').'</h2>';
+                    echo "<h2>"._('Database import failed!').'</h2>';
                     break;
                 }
             }

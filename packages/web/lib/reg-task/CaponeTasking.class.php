@@ -6,7 +6,7 @@ class CaponeTasking extends FOGBase {
         parent::__construct();
         switch (strtolower($_REQUEST[action])) {
         case 'dmi':
-            print $this->FOGCore->getSetting(FOG_PLUGIN_CAPONE_DMI);
+            echo $this->FOGCore->getSetting(FOG_PLUGIN_CAPONE_DMI);
             break;
         case 'imagelookup':
             if ($_REQUEST[key]) {
@@ -25,7 +25,7 @@ class CaponeTasking extends FOGBase {
                     unset($Capone);
                     throw new Exception(count($ret) ? implode("\n",(array)$ret) : base64_encode('null'));
                 } catch (Exception $e) {
-                    print $e->getMessage();
+                    echo $e->getMessage();
                 }
             }
             break;

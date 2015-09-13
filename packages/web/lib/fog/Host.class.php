@@ -581,7 +581,7 @@ class Host extends FOGController {
                 }
             }
         } catch (Exception $e) {
-            print $e->getMessage();
+            echo $e->getMessage();
         }
         return;
     }

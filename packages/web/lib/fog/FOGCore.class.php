@@ -42,12 +42,12 @@ class FOGCore extends FOGBase {
         Get's the current message in the store to display to the screen
      */
     public function getMessages() {
-        print "<!-- FOG Variables -->";
+        echo "<!-- FOG Variables -->";
         foreach ((array)$_SESSION[FOG_MESSAGES] AS $i => &$message) {
             // Hook
             $this->HookManager->processEvent(MessageBox,array(data=>&$message));
             // Message Box
-            print '<div class="fog-message-box">'.$message.'</div>';
+            echo '<div class="fog-message-box">'.$message.'</div>';
         }
         unset($message);
         unset($_SESSION[FOG_MESSAGES]);

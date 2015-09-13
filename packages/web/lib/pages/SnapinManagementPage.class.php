@@ -121,7 +121,7 @@ class SnapinManagementPage extends FOGPage {
             _('Reboot after install') => '<input type="checkbox" name="reboot" />',
             '<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" />',
         );
-        print '<form method="post" action="'.$this->formAction.'" enctype="multipart/form-data">';
+        echo '<form method="post" action="'.$this->formAction.'" enctype="multipart/form-data">';
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
@@ -133,7 +133,7 @@ class SnapinManagementPage extends FOGPage {
         $this->HookManager->processEvent(SNAPIN_ADD,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
         unset($this->data,$this->templates,$this->attributes,$this->headerData);
         $this->templates = array(
             _('Snapin Command').': ${snapincmd}',
@@ -270,10 +270,10 @@ class SnapinManagementPage extends FOGPage {
             _('Reboot after install') => '<input type="checkbox" name="reboot" ${checked} />',
             '<input type="hidden" name="snapinid" value="${snapin_id}" /><input type="hidden" name="update" value="1" />' => '<input type="hidden" name="snapinfile" value="${snapin_file}" /><input type="submit" value="'._('Update').'" />',
         );
-        print '<div id="tab-container">';
-        print '<!-- General -->';
-        print '<div id="snap-gen">';
-        print '<form method="post" action="'.$this->formAction.'&tab=snap-gen" enctype="multipart/form-data">';
+        echo '<div id="tab-container">';
+        echo '<!-- General -->';
+        echo '<div id="snap-gen">';
+        echo '<form method="post" action="'.$this->formAction.'&tab=snap-gen" enctype="multipart/form-data">';
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
@@ -296,13 +296,13 @@ class SnapinManagementPage extends FOGPage {
         $this->HookManager->processEvent(SNAPIN_EDIT,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form></div>';
+        echo '</form></div>';
         unset($this->data);
-        print "<!-- Storage Groups with Assigned Snapin -->";
+        echo "<!-- Storage Groups with Assigned Snapin -->";
         // Get groups with this snapin assigned
         $GroupsWithMe = $this->getClass(StorageGroupManager)->find(array('id' => $this->obj->get(storageGroups)));
         $GroupsNotWithMe = $this->getClass(StorageGroupManager)->find(array('id' => $this->obj->get(storageGroups)),'','','','','',true);
-        print '<div id="snap-storage">';
+        echo '<div id="snap-storage">';
         // Create the Header Data:
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxsnapin1" class="toggle-checkbox1"/>',
@@ -329,9 +329,9 @@ class SnapinManagementPage extends FOGPage {
         unset($Group);
         if (count($this->data) > 0) {
             $this->HookManager->processEvent(SNAPIN_GROUP_ASSOC,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-            print '<center><label for="groupMeShow">'._('Check here to see groups not assigned with this snapin').'&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow" /></label><div id="groupNotInMe"><form method="post" action="'.$this->formAction.'&tab=snap-storage"><h2>'._('Modify group association for').' '.$this->obj->get(name).'</h2><p>'._('Add snapin to groups').'</p>';
+            echo '<center><label for="groupMeShow">'._('Check here to see groups not assigned with this snapin').'&nbsp;&nbsp;<input type="checkbox" name="groupMeShow" id="groupMeShow" /></label><div id="groupNotInMe"><form method="post" action="'.$this->formAction.'&tab=snap-storage"><h2>'._('Modify group association for').' '.$this->obj->get(name).'</h2><p>'._('Add snapin to groups').'</p>';
             $this->render();
-            print '<br/><input type="submit" value="'._('Add Snapin to Group(s)').'" /></form></center>';
+            echo '<br/><input type="submit" value="'._('Add Snapin to Group(s)').'" /></form></center>';
         }
         // Reset the data for the next value
         unset($this->data);
@@ -357,10 +357,10 @@ class SnapinManagementPage extends FOGPage {
         // Hook
         $this->HookManager->processEvent(SNAPIN_EDIT_GROUP,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
-        print '<form method="post" action="'.$this->formAction.'&tab=snap-storage">';
+        echo '<form method="post" action="'.$this->formAction.'&tab=snap-storage">';
         $this->render();
-        if (count($this->data) > 0) print '<center><input type="submit" value="'._('Delete Selected Group associations').'" name="remstorgroups"/></center>';
-        print '</form></div></div>';
+        if (count($this->data) > 0) echo '<center><input type="submit" value="'._('Delete Selected Group associations').'" name="remstorgroups"/></center>';
+        echo '</form></div></div>';
     }
     public function edit_post() {
         // Find

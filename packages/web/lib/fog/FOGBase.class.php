@@ -54,7 +54,7 @@ abstract class FOGBase {
      * @return void
      */
     public function fatalError($txt, $data = array()) {
-        if (!preg_match('#/service/#', $_SERVER['PHP_SELF']) && !$this->isAJAXRequest()) print sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
+        if (!preg_match('#/service/#', $_SERVER['PHP_SELF']) && !$this->isAJAXRequest()) echo sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
 	}
     /** @function error() prints the error to the screen
      * @param $txt the text to print
@@ -62,7 +62,7 @@ abstract class FOGBase {
      * @return void
      */
     public function error($txt, $data = array()) {
-        if ((((isset($this->debug)) && $this->debug === true)) && !preg_match('#/service/#', $_SERVER['PHP_SELF']) && !$this->isAJAXRequest()) print sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
+        if ((((isset($this->debug)) && $this->debug === true)) && !preg_match('#/service/#', $_SERVER['PHP_SELF']) && !$this->isAJAXRequest()) echo sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
 	}
     /** @function debug() prints debug information
      * @param $txt the text to print
@@ -70,7 +70,7 @@ abstract class FOGBase {
      * @return void
      */
     public function debug($txt, $data = array()) {
-        if ((!isset($this) || (isset($this->debug) && $this->debug === true)) && !$this->isAJAXRequest() && !preg_match('#/service/#', $_SERVER['PHP_SELF'])) print sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
+        if ((!isset($this) || (isset($this->debug) && $this->debug === true)) && !$this->isAJAXRequest() && !preg_match('#/service/#', $_SERVER['PHP_SELF'])) echo sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
     }
     /** @function info() prints informational messages
      * @param $txt the text to print
@@ -78,7 +78,7 @@ abstract class FOGBase {
      * @return void
      */
     public function info($txt, $data = array()) {
-        if ((!isset($this) || (isset($this->info) && $this->info === true)) && !preg_match('#/service/#',$_SERVER['PHP_SELF'])) print sprintf('<div class="debug-info">FOG INFO: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
+        if ((!isset($this) || (isset($this->info) && $this->info === true)) && !preg_match('#/service/#',$_SERVER['PHP_SELF'])) echo sprintf('<div class="debug-info">FOG INFO: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
     }
     /** @function __toString() magic function in php as defined
      * @return the item in string format
@@ -520,9 +520,9 @@ abstract class FOGBase {
         if ($service) {
             $Host = $this->getHostItem();
             if ($this->nice_date() >= $this->nice_date($Host->get(sec_time))) $Host->set(pub_key,null)->save();
-            if (isset($_REQUEST[newService]) && $this->getClass(FOGCore)->getSetting(FOG_AES_ENCRYPT)) print "#!enkey=".$this->certEncrypt($datatosend,$Host);
-            else if (isset($_REQUEST[newService]) && ($Host->get(useAD) && preg_match('#hostname.php#',$_SERVER['REQUEST_URI']))) print "#!enkey=".$this->certEncrypt($datatosend,$Host);
-            else print $datatosend;
+            if (isset($_REQUEST[newService]) && $this->getClass(FOGCore)->getSetting(FOG_AES_ENCRYPT)) echo "#!enkey=".$this->certEncrypt($datatosend,$Host);
+            else if (isset($_REQUEST[newService]) && ($Host->get(useAD) && preg_match('#hostname.php#',$_SERVER['REQUEST_URI']))) echo "#!enkey=".$this->certEncrypt($datatosend,$Host);
+            else echo $datatosend;
         }
     }
     /** getAllBlamedNodes() sets the failure of a node

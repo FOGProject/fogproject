@@ -40,7 +40,7 @@ class ReportManagementPage extends FOGPage {
     public function upload() {
         // Title
         $this->title = _('Upload FOG Reports');
-        print '<div class="hostgroup">'._('This section allows you to upload user defined reports that may not be part of the base FOG package.  The report files should end in .php').'</div><p class="titleBottomLeft">'._('Upload a FOG report').'</p><form method="post" action="'.$this->formAction.'" enctype="multipart/form-data"><input type="file" name="report" /><span class="lightColor">Max Size: '.ini_get('post_max_size').'</span><p><input type="submit" value="'._('Upload File').'" /></p></form>';
+        echo '<div class="hostgroup">'._('This section allows you to upload user defined reports that may not be part of the base FOG package.  The report files should end in .php').'</div><p class="titleBottomLeft">'._('Upload a FOG report').'</p><form method="post" action="'.$this->formAction.'" enctype="multipart/form-data"><input type="file" name="report" /><span class="lightColor">Max Size: '.ini_get('post_max_size').'</span><p><input type="submit" value="'._('Upload File').'" /></p></form>';
     }
     // Pages
     /** index()
@@ -49,7 +49,7 @@ class ReportManagementPage extends FOGPage {
     public function index() {
         // Set title
         $this->title = _('About FOG Reports');
-        print '<p>'._('FOG reports exist to give you information about what is going on with your FOG system.  To view a report, select an item from the menu on the left-hand side of this page.').'</p>';
+        echo '<p>'._('FOG reports exist to give you information about what is going on with your FOG system.  To view a report, select an item from the menu on the left-hand side of this page.').'</p>';
     }
     /** file()
         Checks if the file actually exists, from the menu item clicked.
@@ -100,9 +100,9 @@ class ReportManagementPage extends FOGPage {
                 );
             }
             unset($input);
-            print '<form method="post" action="'.$this->formAction.'">';
+            echo '<form method="post" action="'.$this->formAction.'">';
             $this->render();
-            print '</form>';
+            echo '</form>';
         } else $this->render();
     }
     /** imaging_log_post()
@@ -112,7 +112,7 @@ class ReportManagementPage extends FOGPage {
         // Set title
         $this->title = _('FOG Imaging Log');
         // This gets the download links for which type of file you want.
-        print '<h2><a href="export.php?type=csv&filename=ImagingLog" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=ImagingLog" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
+        echo '<h2><a href="export.php?type=csv&filename=ImagingLog" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=ImagingLog" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
         // Header Data
         $this->headerData = array(
             _('Engineer'),
@@ -232,7 +232,7 @@ class ReportManagementPage extends FOGPage {
         // Set Title
         $this->title = _('Host Listing Export');
         // This gets the download links for which type of file you want.
-        print '<h2>'.'<a href="export.php?type=csv&filename=HostList" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=HostList" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
+        echo '<h2>'.'<a href="export.php?type=csv&filename=HostList" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=HostList" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
         // CSV Header row:
         $csvHead = array(
             _('Host ID') => 'id',
@@ -304,7 +304,7 @@ class ReportManagementPage extends FOGPage {
         // Set Title
         $this->title = _('Full Inventory Export');
         // This gets the download links for which type of file you want.
-        print '<h2>'.'<a href="export.php?type=csv&filename=InventoryReport" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=InventoryReport" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
+        echo '<h2>'.'<a href="export.php?type=csv&filename=InventoryReport" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=InventoryReport" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
         $csvHead = array(
             _('Host ID')=>'id',
             _('Host name')=>'name',
@@ -428,7 +428,7 @@ class ReportManagementPage extends FOGPage {
         // Set Title
         $this->title = _('Pending MAC Export');
         // This gets the download links for which type of file you want.
-        print '<h2><a href="export.php?type=csv&filename=PendingMACsList" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=PendingMACsList" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a><br /><a href="?node=report&sub=pend-mac&aprvall=1">'._('Approve All Pending MACs for all hosts?').'</a></h2>';
+        echo '<h2><a href="export.php?type=csv&filename=PendingMACsList" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=PendingMACsList" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a><br /><a href="?node=report&sub=pend-mac&aprvall=1">'._('Approve All Pending MACs for all hosts?').'</a></h2>';
         // CSV Header
         $csvHead = array(
             _('Host ID'),
@@ -488,7 +488,7 @@ class ReportManagementPage extends FOGPage {
         // Set Title
         $this->title = _('FOG Virus Summary');
         // This gets the download links for which type of file you want.
-        print '<h2>'.'<a href="export.php?type=csv&filename=VirusHistory" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=VirusHistory" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2><form method="post" action="'.$this->formAction.'" /><h2><a href="#"><input onclick="this.form.submit()" type="checkbox" class="delvid" name="delvall" id="delvid" value="all" /><label for="delvid">('._('clear all history').')</label></a></h2></form>';
+        echo '<h2>'.'<a href="export.php?type=csv&filename=VirusHistory" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=VirusHistory" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2><form method="post" action="'.$this->formAction.'" /><h2><a href="#"><input onclick="this.form.submit()" type="checkbox" class="delvid" name="delvall" id="delvid" value="all" /><label for="delvid">('._('clear all history').')</label></a></h2></form>';
         // CSV Header
         $csvHead = array(
             _('Host Name')=>'name',
@@ -547,9 +547,9 @@ class ReportManagementPage extends FOGPage {
         unset($Virus);
         // This is for the pdf.
         $ReportMaker->appendHTML($this->process());
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         $ReportMaker->outputReport(false);
-        print '</form>';
+        echo '</form>';
         $_SESSION[foglastreport] = serialize($ReportMaker);
     }
     /** vir_hist_post()
@@ -621,9 +621,9 @@ class ReportManagementPage extends FOGPage {
             );
         }
         unset($input);
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     /** user_track_post()
         Looks up the user/host user&&host matches.
@@ -748,9 +748,9 @@ class ReportManagementPage extends FOGPage {
                 );
             }
             unset($input);
-            print '<form method="post" action="'.$this->formAction.'">';
+            echo '<form method="post" action="'.$this->formAction.'">';
             $this->render();
-            print '</form>';
+            echo '</form>';
         }
         else $this->render();
     }
@@ -795,7 +795,7 @@ class ReportManagementPage extends FOGPage {
         $ReportMaker->addCSVCell(_('Description'));
         $ReportMaker->endCSVLine();
         // This gets the download links for which type of file you want.
-        print '<h2><a href="export.php?type=csv&filename=UserTrackingList" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=UserTrackingList" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
+        echo '<h2><a href="export.php?type=csv&filename=UserTrackingList" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=UserTrackingList" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
         // Set dates and check order is proper
         $date1 = $_REQUEST[date1];
         $date2 = $_REQUEST[date2];
@@ -881,9 +881,9 @@ class ReportManagementPage extends FOGPage {
                     );
                 }
                 unset($input);
-                print '<form method="post" action="'.$this->formAction.'">';
+                echo '<form method="post" action="'.$this->formAction.'">';
                 $this->render();
-                print '</form>';
+                echo '</form>';
             }
             else
                 $this->render();
@@ -898,7 +898,7 @@ class ReportManagementPage extends FOGPage {
         // Set title
         $this->title = _('FOG Snapin Log');
         // This gets the download links for which type of file you want.
-        print '<h2><a href="export.php?type=csv&filename=SnapinLog" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=SnapinLog" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
+        echo '<h2><a href="export.php?type=csv&filename=SnapinLog" alt="Export CSV" title="Export CSV" target="_blank">'.$this->csvfile.'</a> <a href="export.php?type=pdf&filename=SnapinLog" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
         // Header Data
         $this->headerData = array(
             _('Snapin Name'),
@@ -1058,9 +1058,9 @@ class ReportManagementPage extends FOGPage {
                 );
             }
             unset($input);
-            print '<form method="post" action="'.$this->formAction.'">';
+            echo '<form method="post" action="'.$this->formAction.'">';
             $this->render();
-            print '</form>';
+            echo '</form>';
         }
         else $this->render();
     }
@@ -1072,7 +1072,7 @@ class ReportManagementPage extends FOGPage {
         // Set title
         $this->title = _('FOG Equipment Loan Form');
         // This gets the download links for which type of file you want.
-        print '<h2><a href="export.php?type=pdf&filename='.$Inventory->get(primaryuser).'EquipmentLoanForm" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
+        echo '<h2><a href="export.php?type=pdf&filename='.$Inventory->get(primaryuser).'EquipmentLoanForm" alt="Export PDF" title="Export PDF" target="_blank">'.$this->pdffile.'</a></h2>';
         // Report Maker
         $ReportMaker = $this->getClass(ReportMaker);
         // Get the current Inventory based on what was selected.
@@ -1108,7 +1108,7 @@ class ReportManagementPage extends FOGPage {
         $ReportMaker->appendHTML( "<hr />" );
         $ReportMaker->appendHTML( "<h4>"._("Your terms and conditions here")."</h4>" );
         $ReportMaker->appendHTML( "<h4><b>"._("Signed").": </b>"._("X")." _____________________________  "._("Date").": _________/_________/20_______</h4>" );
-        print '<p>'._('Your form is ready.').'</p>';
+        echo '<p>'._('Your form is ready.').'</p>';
         $_SESSION[foglastreport] = serialize($ReportMaker);
     }
 }

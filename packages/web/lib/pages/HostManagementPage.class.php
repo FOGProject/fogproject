@@ -139,7 +139,7 @@ class HostManagementPage extends FOGPage {
      */
     public function pending() {
         $this->title = _('Pending Host List');
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         $this->headerData = array(
             '',
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
@@ -179,8 +179,8 @@ class HostManagementPage extends FOGPage {
         $this->HookManager->processEvent(HOST_HEADER_DATA,array(headerData=>&$this->headerData));
         // Output
         $this->render();
-        if (count($this->data) > 0) print '<center><input name="approvependhost" type="submit" value="'._('Approve selected Hosts').'"/>&nbsp;&nbsp;<input name="delpendhost" type="submit" value="'._('Delete selected Hosts').'"/></center>';
-        print '</form>';
+        if (count($this->data) > 0) echo '<center><input name="approvependhost" type="submit" value="'._('Approve selected Hosts').'"/>&nbsp;&nbsp;<input name="delpendhost" type="submit" value="'._('Delete selected Hosts').'"/></center>';
+        echo '</form>';
     }
     /** @function pending_post() approve/delete hosts
      * @return void
@@ -239,8 +239,8 @@ class HostManagementPage extends FOGPage {
             _('Host Kernel Arguments') => '<input type="text" name="args" value="'.$_REQUEST[args].'" />',
             _('Host Primary Disk') => '<input type="text" name="dev" value="'.$_REQUEST[dev].'" />',
         );
-        print '<h2>'._('Add new host definition').'</h2>';
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<h2>'._('Add new host definition').'</h2>';
+        echo '<form method="post" action="'.$this->formAction.'">';
         $this->HookManager->processEvent(HOST_FIELDS,array(fields=>&$fields));
         foreach ($fields AS $field => &$input) {
             $this->data[] = array(
@@ -254,8 +254,8 @@ class HostManagementPage extends FOGPage {
         // Output
         $this->render();
         // Output
-        print $this->adFieldsToDisplay();
-        print "</form>";
+        echo $this->adFieldsToDisplay();
+        echo "</form>";
     }
     /** add_post()
         Actually add's the host.
@@ -335,7 +335,7 @@ class HostManagementPage extends FOGPage {
             else $this->FOGCore->setMessage(_('Host approval failed.'));
             $this->FOGCore->redirect('?node='.$_REQUEST[node].'&sub='.$_REQUEST[sub].'&id='.$_REQUEST[id]);
         }
-        if ($this->obj->get(pending)) print '<h2><a href="'.$this->formAction.'&approveHost=1">'._('Approve this host?').'</a></h2>';
+        if ($this->obj->get(pending)) echo '<h2><a href="'.$this->formAction.'&approveHost=1">'._('Approve this host?').'</a></h2>';
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -385,12 +385,12 @@ class HostManagementPage extends FOGPage {
             '&nbsp' => '<input type="submit" value="'._('Update').'" />',
         );
         $this->HookManager->processEvent('HOST_FIELDS', array('fields' => &$fields,'Host' => &$this->obj));
-        print '<div id="tab-container">';
-        print "<!-- General -->";
-        print '<div id="host-general">';
+        echo '<div id="tab-container">';
+        echo "<!-- General -->";
+        echo '<div id="host-general">';
         if ($this->obj->get(pub_key) || $this->obj->get(sec_tok)) $this->form = '<center><div id="resetSecDataBox"></div><input type="button" id="resetSecData" /></center><br/>';
-        print '<form method="post" action="'.$this->formAction.'&tab=host-general">';
-        print '<h2>'._('Edit host definition').'</h2>';
+        echo '<form method="post" action="'.$this->formAction.'&tab=host-general">';
+        echo '<h2>'._('Edit host definition').'</h2>';
         foreach($fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
@@ -401,14 +401,14 @@ class HostManagementPage extends FOGPage {
         // Hook
         $this->HookManager->processEvent(HOST_EDIT_GEN,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes,Host=>&$this->obj));
         $this->render();
-        print '</form></div>';
+        echo '</form></div>';
         unset($this->data,$this->form);
         unset($this->data,$this->headerData,$this->attributes);
         if (!$this->obj->get(pending)) $this->basictasksOptions();
         $this->adFieldsToDisplay();
-        print "<!-- Printers -->";
-        print '<div id="host-printers" >';
-        print '<form method="post" action="'.$this->formAction.'&tab=host-printers">';
+        echo "<!-- Printers -->";
+        echo '<div id="host-printers" >';
+        echo '<form method="post" action="'.$this->formAction.'&tab=host-printers">';
         // Create Header for non associated printers
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxprint" class="toggle-checkboxprint" />',
@@ -438,13 +438,13 @@ class HostManagementPage extends FOGPage {
         $PrintersFound = false;
         if (count($this->data) > 0) {
             $PrintersFound = true;
-            print '<center><label for="hostPrinterShow">'._('Check here to see what printers can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostPrinterShow" id="hostPrinterShow" /></label></center>';
-            print '<div id="printerNotInHost">';
-            print '<h2>'._('Add new printer(s) to this host').'</h2>';
+            echo '<center><label for="hostPrinterShow">'._('Check here to see what printers can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostPrinterShow" id="hostPrinterShow" /></label></center>';
+            echo '<div id="printerNotInHost">';
+            echo '<h2>'._('Add new printer(s) to this host').'</h2>';
             $this->HookManager->processEvent(HOST_ADD_PRINTER,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
             // Output
             $this->render();
-            print '</div>';
+            echo '</div>';
         }
         unset($this->data);
         $this->headerData = array(
@@ -465,7 +465,7 @@ class HostManagementPage extends FOGPage {
             '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
             '${printer_type}',
         );
-        print '<h2>'._('Host Printer Configuration').'</h2><p>'._('Select Management Level for this Host').'</p><p><span class="icon fa fa-question hand" title="'._('This setting turns off all FOG Printer Management.  Although there are multiple levels already between host and global settings, this is just another to ensure safety').'"></span><input type="radio" name="level" value="0"'.($this->obj->get(printerLevel) == 0 ? 'checked' : '').' />'._('No Printer Management').'<br/><span class="icon fa fa-question hand" title="'._('This setting only adds and removes printers that are managed by FOG.  If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unsigned host.  It will add printers to the host that are assigned.').'"></span><input type="radio" name="level" value="1"'.($this->obj->get(printerLevel) == 1 ? 'checked' : '').' />'._('FOG Managed Printers').'<br/><span class="icon fa fa-question hand" title="'._('This setting will only allow FOG Assigned printers to be added to the host.  Any printer that is not assigned will be removed including non-FOG managed printers.').'"></span><input type="radio" name="level" value="2"'.($this->obj->get(printerLevel) == 2 ? 'checked' : '').' />'._('Only Assigned Printers').'<br/></p>';
+        echo '<h2>'._('Host Printer Configuration').'</h2><p>'._('Select Management Level for this Host').'</p><p><span class="icon fa fa-question hand" title="'._('This setting turns off all FOG Printer Management.  Although there are multiple levels already between host and global settings, this is just another to ensure safety').'"></span><input type="radio" name="level" value="0"'.($this->obj->get(printerLevel) == 0 ? 'checked' : '').' />'._('No Printer Management').'<br/><span class="icon fa fa-question hand" title="'._('This setting only adds and removes printers that are managed by FOG.  If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unsigned host.  It will add printers to the host that are assigned.').'"></span><input type="radio" name="level" value="1"'.($this->obj->get(printerLevel) == 1 ? 'checked' : '').' />'._('FOG Managed Printers').'<br/><span class="icon fa fa-question hand" title="'._('This setting will only allow FOG Assigned printers to be added to the host.  Any printer that is not assigned will be removed including non-FOG managed printers.').'"></span><input type="radio" name="level" value="2"'.($this->obj->get(printerLevel) == 2 ? 'checked' : '').' />'._('Only Assigned Printers').'<br/></p>';
         $Printers = $this->getClass(PrinterManager)->find(array(id=>$this->obj->get(printers)));
         foreach ($Printers AS $i => &$Printer) {
             $this->data[] = array(
@@ -480,11 +480,11 @@ class HostManagementPage extends FOGPage {
         $this->HookManager->processEvent(HOST_EDIT_PRINTER,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        if ($PrintersFound || count($this->data) > 0) print '<center><input type="submit" value="'._('Update').'" name="updateprinters"/>';
-        if (count($this->data) > 0) print '&nbsp;&nbsp;<input type="submit" value="'._('Remove selected printers').'" name="printdel"/></center>';
+        if ($PrintersFound || count($this->data) > 0) echo '<center><input type="submit" value="'._('Update').'" name="updateprinters"/>';
+        if (count($this->data) > 0) echo '&nbsp;&nbsp;<input type="submit" value="'._('Remove selected printers').'" name="printdel"/></center>';
         // Reset for next tab
         unset($this->data, $this->headerData);
-        print '</form></div><!-- Snapins --><div id="host-snapins" ><h2>'._('Snapins').'</h2><form method="post" action="'.$this->formAction.'&tab=host-snapins">';
+        echo '</form></div><!-- Snapins --><div id="host-snapins" ><h2>'._('Snapins').'</h2><form method="post" action="'.$this->formAction.'&tab=host-snapins">';
         // Create the header:
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxsnapin" class="toggle-checkboxsnapin" />',
@@ -513,10 +513,10 @@ class HostManagementPage extends FOGPage {
         }
         unset($Snapin);
         if (count($this->data) > 0) {
-            print '<center><label for="hostSnapinShow">'._('Check here to see what snapins can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostSnapinShow" id="hostSnapinShow" /></label><div id="snapinNotInHost">';
+            echo '<center><label for="hostSnapinShow">'._('Check here to see what snapins can be added').'&nbsp;&nbsp;<input type="checkbox" name="hostSnapinShow" id="hostSnapinShow" /></label><div id="snapinNotInHost">';
             $this->HookManager->processEvent(HOST_SNAPIN_JOIN,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
             $this->render();
-            print '<input type="submit" value="'._('Add Snapin(s)').'" /></form></div></center><form method="post" action="'.$this->formAction.'&tab=host-snapins">';
+            echo '<input type="submit" value="'._('Add Snapin(s)').'" /></form></div></center><form method="post" action="'.$this->formAction.'&tab=host-snapins">';
             unset($this->data);
         }
         $this->headerData = array(
@@ -543,10 +543,10 @@ class HostManagementPage extends FOGPage {
         $this->HookManager->processEvent(HOST_EDIT_SNAPIN,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '<center><input type="submit" name="snaprem" value="'._('Remove selected snapins').'"/></center></form></div>';
+        echo '<center><input type="submit" name="snaprem" value="'._('Remove selected snapins').'"/></center></form></div>';
         // Reset for next tab
         unset($this->data, $this->headerData);
-        print '<!-- Service Configuration -->';
+        echo '<!-- Service Configuration -->';
         $this->attributes = array(
             array(width=>270),
             array('class'=>c),
@@ -562,7 +562,7 @@ class HostManagementPage extends FOGPage {
             input=>'<input type="checkbox" class="checkboxes" id="checkAll" name="checkAll" value="checkAll" />',
             span=>''
         );
-        print '<div id="host-service" ><form method="post" action="'.$this->formAction.'&tab=host-service"><h2>'._('Service Configuration').'</h2><fieldset><legend>'._('General').'</legend>';
+        echo '<div id="host-service" ><form method="post" action="'.$this->formAction.'&tab=host-service"><h2>'._('Service Configuration').'</h2><fieldset><legend>'._('General').'</legend>';
         $ModOns = $this->getClass(ModuleAssociationManager)->find(array(hostID=>$this->obj->get(id)),'','','','','','','moduleID');
         $moduleName = $this->getGlobalModuleStatus();
         $Modules = $this->getClass(ModuleManager)->find();
@@ -589,8 +589,8 @@ class HostManagementPage extends FOGPage {
         $this->render();
         // Reset for next tab
         unset($this->data);
-        print '</fieldset></form>';
-        print '<form method="post" action="'.$this->formAction.'&tab=host-service"><fieldset><legend>'._('Host Screen Resolution').'</legend>';
+        echo '</fieldset></form>';
+        echo '<form method="post" action="'.$this->formAction.'&tab=host-service"><fieldset><legend>'._('Host Screen Resolution').'</legend>';
         $this->attributes = array(
             array('class'=>l,style=>'padding-right: 25px'),
             array('class'=>c),
@@ -624,7 +624,7 @@ class HostManagementPage extends FOGPage {
         $this->render();
         // Reset for next tab
         unset($this->data);
-        print '</fieldset></form><form method="post" action="'.$this->formAction.'&tab=host-service"><fieldset><legend>'._('Auto Log Out Settings').'</legend>';
+        echo '</fieldset></form><form method="post" action="'.$this->formAction.'&tab=host-service"><fieldset><legend>'._('Auto Log Out Settings').'</legend>';
         $this->attributes = array(
             array(width=>270),
             array('class'=>c),
@@ -654,7 +654,7 @@ class HostManagementPage extends FOGPage {
         $this->render();
         // Reset for next tab
         unset($this->data,$fields);
-        print '</fieldset></form></div><!-- Inventory -->';
+        echo '</fieldset></form></div><!-- Inventory -->';
         $this->attributes = array(
             array(),
             array(),
@@ -694,7 +694,7 @@ class HostManagementPage extends FOGPage {
             _('Chassis Asset') => '${case_asset}',
             '<input type="hidden" name="update" value="1" />' => '<input type="submit" value="'._('Update').'" />',
         );
-        print '<div id="host-hardware-inventory" ><form method="post" action="'.$this->formAction.'&tab=host-hardware-inventory"><h2>'._('Host Hardware Inventory').'</h2>';
+        echo '<div id="host-hardware-inventory" ><form method="post" action="'.$this->formAction.'&tab=host-hardware-inventory"><h2>'._('Host Hardware Inventory').'</h2>';
         if ($Inventory && $Inventory->isValid()) {
             foreach(array('cpuman','cpuversion') AS &$x) $Inventory->set($x,implode(' ',array_unique(explode(' ',$Inventory->get($x)))));
             unset($x);
@@ -741,7 +741,7 @@ class HostManagementPage extends FOGPage {
         $this->render();
         // Reset for next tab
         unset($this->data,$fields);
-        print '</form></div><!-- Virus -->';
+        echo '</form></div><!-- Virus -->';
         $this->headerData = array(
             _('Virus Name'),
             _('File'),
@@ -763,7 +763,7 @@ class HostManagementPage extends FOGPage {
             '${virus_date}',
             '<input type="checkbox" id="vir_del${virus_id}" class="delvid" name="delvid" onclick="this.form.submit()" value="${virus_id}" /><label for="${virus_id}" class="icon icon-hand" title="'._('Delete').' ${virus_name}"><i class="icon fa fa-minus-circle link"></i>&nbsp;</label>',
         );
-        print '<div id="host-virus-history" ><form method="post" action="'.$this->formAction.'&tab=host-virus-history"><h2>'._('Virus History').'</h2><h2><a href="#"><input type="checkbox" class="delvid" id="all" name="delvid" value="all" onclick="this.form.submit()" /><label for="all">('._('clear all history').')</label></a></h2>';
+        echo '<div id="host-virus-history" ><form method="post" action="'.$this->formAction.'&tab=host-virus-history"><h2>'._('Virus History').'</h2><h2><a href="#"><input type="checkbox" class="delvid" id="all" name="delvid" value="all" onclick="this.form.submit()" /><label for="all">('._('clear all history').')</label></a></h2>';
         $MACs = $this->obj->getMyMacs();
         $Viruses = $this->getClass(VirusManager)->find(array(hostMAC=>$MACs));
         unset($MACs);
@@ -783,7 +783,7 @@ class HostManagementPage extends FOGPage {
         $this->render();
         // Reset for next tab
         unset($this->data,$this->headerData);
-        print '</form></div><!-- Login History --><div id="host-login-history" ><h2>'._('Host Login History').'</h2><form id="dte" method="post" action="'.$this->formAction.'&tab=host-login-history">';
+        echo '</form></div><!-- Login History --><div id="host-login-history" ><h2>'._('Host Login History').'</h2><form id="dte" method="post" action="'.$this->formAction.'&tab=host-login-history">';
         $this->headerData = array(
             _('Time'),
             _('Action'),
@@ -806,13 +806,13 @@ class HostManagementPage extends FOGPage {
         $Dates = array_unique((array)$Dates);
         if ($Dates) {
             rsort($Dates);
-            print '<p>'._('View History for').'</p>';
+            echo '<p>'._('View History for').'</p>';
             foreach((array)$Dates AS $i => &$Date) {
                 if ($_REQUEST[dte] == '') $_REQUEST[dte] = $Date;
                 $optionDate[] = '<option value="'.$Date.'" '.($Date == $_REQUEST[dte] ? 'selected="selected"' : '').'>'.$Date.'</option>';
             }
             unset($Date);
-            print '<select name="dte" id="loghist-date" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select><a href="#" onclick="document.getElementByID(\'dte\').submit()"><i class="icon fa fa-play noBorder"></i></a></p>';
+            echo '<select name="dte" id="loghist-date" size="1" onchange="document.getElementById(\'dte\').submit()">'.implode($optionDate).'</select><a href="#" onclick="document.getElementByID(\'dte\').submit()"><i class="icon fa fa-play noBorder"></i></a></p>';
             $UserTracking = $this->getClass(UserTrackingManager)->find(array(id=>$this->obj->get(users)));
             foreach ($UserTracking AS $i => &$UserLogin) {
                 if ($UserLogin->get('date') == $_REQUEST[dte]) {
@@ -830,10 +830,10 @@ class HostManagementPage extends FOGPage {
             // Output
             $this->render();
         }
-        else print '<p>'._('No user history data found!').'</p>';
+        else echo '<p>'._('No user history data found!').'</p>';
         // Reset for next tab
         unset($this->data,$this->headerData);
-        print '<div id="login-history" style="width:575px;height:200px;" /></div></form></div><div id="host-image-history" ><h2>'._('Host Imaging History').'</h2>';
+        echo '<div id="login-history" style="width:575px;height:200px;" /></div></form></div><div id="host-image-history" ><h2>'._('Host Imaging History').'</h2>';
         // Header Data for host image history
         $this->headerData = array(
             _('Image Name'),
@@ -870,7 +870,7 @@ class HostManagementPage extends FOGPage {
         // Output
         $this->render();
         unset($this->data);
-        print '</div><div id="host-snapin-history">';
+        echo '</div><div id="host-snapin-history">';
         $this->headerData = array(
             _('Snapin Name'),
             _('Start Time'),
@@ -904,7 +904,7 @@ class HostManagementPage extends FOGPage {
         $this->HookManager->processEvent(HOST_SNAPIN_HIST,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</div></div>';
+        echo '</div></div>';
     }
     /** edit_post()
         Actually saves the data.
@@ -1078,7 +1078,7 @@ class HostManagementPage extends FOGPage {
             // Main
             $Group->addHost(explode(',',$_REQUEST[hostIDArray]))->save();
             // Success
-            print '<div class="task-start-ok"><p>'._('Successfully associated Hosts with the Group ').$Group->get(name).'</p></div>';
+            echo '<div class="task-start-ok"><p>'._('Successfully associated Hosts with the Group ').$Group->get(name).'</p></div>';
         } catch (Exception $e) {
             printf('<div class="task-start-failed"><p>%s</p><p>%s</p></div>', _('Failed to Associate Hosts with Group'), $e->getMessage());
         }
@@ -1100,6 +1100,6 @@ class HostManagementPage extends FOGPage {
             }
         }
         unset($Login);
-        print json_encode($data);
+        echo json_encode($data);
     }
 }

@@ -14,4 +14,4 @@ $vals = function() {
 	else return _("No data to read")."\n";
 	return implode("\n",$linearr);
 };
-print json_encode($vals());
+echo json_encode($vals());

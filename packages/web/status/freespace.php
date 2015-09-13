@@ -14,4 +14,4 @@ unset($n);
 $free = $hdtotal;
 $used = $hdused;
 $Data = array('free' => $free, 'used' => $used);
-print json_encode($Data);
+echo json_encode($Data);
