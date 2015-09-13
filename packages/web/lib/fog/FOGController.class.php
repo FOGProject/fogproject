@@ -60,7 +60,7 @@ abstract class FOGController extends FOGBase {
     /** @var Manager
      * Just sets the class manager field as needed.
      */
-    private $Manager;
+    protected $Manager;
     /** @param data
      * Initializer of the objects themselves.
      */
@@ -100,50 +100,54 @@ abstract class FOGController extends FOGBase {
      * if autoSave is enabled for that class.
      * @return void
      */
-    public function __destruct() {if ($this->autoSave) $this->save();}
-        // Set
-        /** set($key, $value)
-         * @param $key the key to set
-         * @param $value the value to set into the key, can be
-         *    an array of items too as needed.
-         * Set's the fields relevent for that class.
-         */
-        public function set($key, $value) {
-            try {
-                $this->info('Setting Key: %s, Value: %s',array($key,$value));
-                if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key,$this->databaseFieldClassRelationships)) throw new Exception('Invalid key being set');
-                if (array_key_exists($key, $this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
-                $this->data[$key] = $value;
-            } catch (Exception $e) {
-                $this->debug('Set Failed: Key: %s, Value: %s, Error: %s', array($key, $value, $e->getMessage()));
-            }
-            return $this;
+    public function __destruct() {
+        if ($this->autoSave) $this->save();
+    }
+    // Set
+    /** set($key, $value)
+     * @param $key the key to set
+     * @param $value the value to set into the key, can be
+     *    an array of items too as needed.
+     * Set's the fields relevent for that class.
+     */
+    public function set($key, $value) {
+        try {
+            $this->info('Setting Key: %s, Value: %s',array($key,$value));
+            if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key,$this->databaseFieldClassRelationships)) throw new Exception('Invalid key being set');
+            if (array_key_exists($key, $this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
+            $this->data[$key] = $value;
+        } catch (Exception $e) {
+            $this->debug('Set Failed: Key: %s, Value: %s, Error: %s', array($key, $value, $e->getMessage()));
         }
+        return $this;
+    }
     // Get
     /** get($key = '')
      * Get's all fields or the specified field for the class member.
      * @return the data from
      */
-    public function get($key = '') {return ($key && isset($this->data[$key]) ? $this->data[$key] : (!$key ? $this->data : ''));}
-        // Add
-        /** add($key, $value)
-         * @param $key the key to add value into
-         * @param $value the item to add to the key
-         * @return the class returned with data set
-         * Used to add a new field to the database relevant to the class.
-         * Could potentially be used to add a new moderation field to the database??
-         */
-        public function add($key, $value) {
-            try {
-                if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key,$this->databaseFieldClassRelationships)) throw new Exception('Invalid data being added');
-                $this->info('Adding Key: %s, Value: %s',array($key,$value));
-                $key = $this->key($key);
-                $this->data[$key][] = $value;
-            } catch (Exception $e) {
-                $this->debug('Add Failed: Key: %s, Value: %s, Error: %s', array($key, $value, $e->getMessage()));
-            }
-            return $this;
+    public function get($key = '') {
+        return ($key && isset($this->data[$key]) ? $this->data[$key] : (!$key ? $this->data : ''));
+    }
+    // Add
+    /** add($key, $value)
+     * @param $key the key to add value into
+     * @param $value the item to add to the key
+     * @return the class returned with data set
+     * Used to add a new field to the database relevant to the class.
+     * Could potentially be used to add a new moderation field to the database??
+     */
+    public function add($key, $value) {
+        try {
+            if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key,$this->databaseFieldClassRelationships)) throw new Exception('Invalid data being added');
+            $this->info('Adding Key: %s, Value: %s',array($key,$value));
+            $key = $this->key($key);
+            $this->data[$key][] = $value;
+        } catch (Exception $e) {
+            $this->debug('Add Failed: Key: %s, Value: %s, Error: %s', array($key, $value, $e->getMessage()));
         }
+        return $this;
+    }
     // Remove
     /** remove($key, $object)
      * @param $key the key to remove
@@ -174,7 +178,6 @@ abstract class FOGController extends FOGBase {
     public function save() {
         try {
             // Ensure the whole of the element is loaded before trying to save it.
-            $this->load();
             // Error checking
             if (!$this->isTableDefined()) throw new Exception('No Table defined for this class');
             // Variables
@@ -212,7 +215,6 @@ abstract class FOGController extends FOGBase {
             $this->debug('Database Save Failed: ID: %s, Error: %s', array($this->get(id), $e->getMessage()));
             return false;
         }
-        // Reload before returning
         $this->load();
         return $this;
     }
@@ -349,10 +351,7 @@ abstract class FOGController extends FOGBase {
      * @return the manager itself.
      */
     public function getManager() {
-        if (!is_object($this->Manager)) {
-            $managerClass = get_class($this) . 'Manager';
-            $this->Manager = $this->getClass($managerClass);
-        }
+        $this->Manager = $this->getClass(get_class($this).'Manager');
         return $this->Manager;
     }
 
@@ -360,12 +359,16 @@ abstract class FOGController extends FOGBase {
     /** istableDefined() tests if the table is defined for the class.
      * @return boolean
      */
-    private function isTableDefined() {return !empty($this->databaseTable);}
-        // Name is returned if class is printed
-        /** __toString()
-         * @return string name of the class
-         */
-        public function __toString() {return ($this->get('name') ? $this->get('name') : sprintf('%s #%s', get_class($this), $this->get('id')));}
+    private function isTableDefined() {
+        return !empty($this->databaseTable);
+    }
+    // Name is returned if class is printed
+    /** __toString()
+     * @return string name of the class
+     */
+    public function __toString() {
+        return ($this->get(name) ? $this->get(name) : sprintf('%s #%s', get_class($this), $this->get(id)));
+    }
 }
 /* Local Variables: */
 /* indent-tabs-mode: t */
