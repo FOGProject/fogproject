@@ -41,14 +41,14 @@ class StorageNode extends FOGController {
         return $this->getClass(StorageGroup,$this->get(storageGroupID));
     }
     public function getNodeFailure($Host) {
-        $DateInterval = $this->nice_date('-5 minutes');
+        $CurrTime = $this->nice_date();
         $NodeFailures = $this->getClass(NodeFailureManager)->find(array(
             storageNodeID=>$this->get(id),
             hostID=>$this->DB->sanitize($Host instanceof Host ? $Host->get(id) : $Host),
         ));
         foreach($NodeFailures AS $i => &$NodeFailure) {
-            $DateTime = $this->nice_date($NodeFailure->get(failureTime));
-            if ($DateTime->format('Y-m-d H:i:s') >= $DateInterval->format('Y-m-d H:i:s')) return $NodeFailure;
+            $FailUntil = $this->nice_date($NodeFailure->get(failureTime));
+            if ($CurrTime < $FailUntil) return $NodeFailure;
         }
         unset($NodeFailure);
     }
