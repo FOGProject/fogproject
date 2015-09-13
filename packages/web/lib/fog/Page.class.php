@@ -10,6 +10,7 @@ class Page extends FOGBase {
         if (!$isMobile) {
             $this->addCSS('css/jquery-ui.css');
             $this->addCSS('css/jquery.organicTabs.css');
+            $this->addCSS('css/jquery.tipsy.css');
             $this->addCSS($dispTheme);
         } else $this->addCSS('../mobile/css/main.css');
         $this->addCSS('css/font-awesome.css');
@@ -109,6 +110,7 @@ class Page extends FOGBase {
             $files = array(
                 'js/jquery-latest.js',
                 'js/jquery.progressbar.js',
+                'js/jquery.tipsy.js',
                 'js/fog/fog.js',
                 'js/fog/fog.login.js',
             );

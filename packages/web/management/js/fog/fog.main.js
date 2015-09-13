@@ -161,30 +161,9 @@ $(function() {
     $('input[placeholder]').placeholder();
     // Nav Menu: Add hover label
     $('.menu li a').each(function() {
-        // Variables
-        var $img = $(this).find('img');
-        // Add our label
-        $(this).prepend('<span class="nav-label">'+$(this).attr('title')+'</span>');
-        // Label variable
-        var $label = $(this).parent().find('span');
-        // Unset 'title' so the browser does not display its own lame popup
-        $(this).attr('title', '');
-        // Add show/hide hover
-        $(this).hover(function() {
-            // Recalculate left to center labels
-            var center = ($label.width() - $(this).width()) / 2;
-            var left = $(this).offset().left - (center > 0 ? center : -center/2);
-            // Set 'left'
-            $label.css({
-                left: left+'px',
-                top: $(this).offset().top+55+'px'
-            }).show();
-        }, function() {
-            $label.hide();
-        });
+        $(this).tipsy({gravity: $.fn.tipsy.autoNS,fade: true});
     });
     // Tooltips
-    $('#logo > h1 > a > img').tipsy({gravity: 's'});
     HookTooltips();
     // Search boxes
     $('.search-input').fogAjaxSearch();
@@ -237,12 +216,11 @@ function debug(txt) {
     if (console) console.log(txt);
 }
 function HookTooltips() {
-    // TODO: Clean up - use LIVE - tipsy fails on IE with LIVE
     setTimeout(function() {
         $('.tipsy').remove();
-        $('a[title]', Content).tipsy({gravity: 'e'});
-        $('.remove-mac[title], .add-mac[title], .icon-help[title]', Content).tipsy({gravity: 'w'});
-        $('.task-name[title], .icon[title]', Content).tipsy({gravity: 's'});
+        $('a[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS,fade: true});
+        $('.remove-mac[title], .add-mac[title], .icon-help[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS,fade: true});
+        $('.task-name[title], .icon[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS,fade: true});
         $('img[title]', Content).tipsy();
     }, 400);
 }
