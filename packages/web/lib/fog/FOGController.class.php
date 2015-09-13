@@ -215,7 +215,6 @@ abstract class FOGController extends FOGBase {
             $this->debug('Database Save Failed: ID: %s, Error: %s', array($this->get(id), $e->getMessage()));
             return false;
         }
-        $this->load();
         return $this;
     }
     // Load
