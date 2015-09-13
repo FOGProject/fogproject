@@ -936,11 +936,10 @@ class Host extends FOGController {
         return $this->get(snapinjob);
     }
     public function getPingCodeStr() {
-        if ((int)$this->get(pingstatus) === 0) return '<span class="icon-ping-down fa fa-exclamation-circle fa-1x" style="color: #ce0f0f" title="'._('Connection Timed Out').'"></span>';
+        if ((int)$this->get(pingstatus) === 0) return '<span class="icon-ping-down fa fa-exclamation-circle fa-1x" style="color: #ce0f0f" title="'._('No Response').'"></span>';
         if ((int)$this->get(pingstatus) === -1) return '<span class="icon-ping-down fa fa-exclamation-circle fa-1x" style="color: #ce0f0f" title="'._('Unable to resolve hostname').'"></span>';
         if ((int)$this->get(pingstatus) === 1) return '<span class="icon-ping-up fa fa-exclamation-circle fa-1x" style="color: #18f008" title="'._('Host Up').'"></span>';
-        $_SESSION[FOGPingActive] ? array_push($this->templates,'<span class="icon ping"></span>') : null;
-        return '<span class="icon-ping-down fa fa-exclamation-circle-1x" style="color: #ce0f0f" title="'._(socket_strerror((int)$this->get(pingstatus))).'"></span>';
+        return '<span class="icon-ping-down fa fa-exclamation-circle fa-1x" style="color: #ce0f0f" title="'._(socket_strerror((int)$this->get(pingstatus))).'"></span>';
     }
 }
 /* Local Variables: */
