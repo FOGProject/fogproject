@@ -173,6 +173,8 @@ abstract class FOGController extends FOGBase {
      */
     public function save() {
         try {
+            // Ensure the whole of the element is loaded before trying to save it.
+            $this->load();
             // Error checking
             if (!$this->isTableDefined()) throw new Exception('No Table defined for this class');
             // Variables
@@ -206,12 +208,13 @@ abstract class FOGController extends FOGBase {
             if ($this->DB->queryResult() instanceof mysqli_result) $this->DB->queryResult()->free_result();
             // Database query was successful - set ID if ID was not set
             if (!$this->get(id)) $this->set(id,$this->DB->insert_id());
-            $res = $this;
         } catch (Exception $e) {
             $this->debug('Database Save Failed: ID: %s, Error: %s', array($this->get(id), $e->getMessage()));
-            $res = false;
+            return false;
         }
-        return $res;
+        // Reload before returning
+        $this->load();
+        return $this;
     }
     // Load
     /** load($field = 'id')
