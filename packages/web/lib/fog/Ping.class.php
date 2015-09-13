@@ -35,7 +35,7 @@ class Ping {
      * @return error codes
      */
     protected static function execSend($host,$timeout,$port) {
-        $fsocket = @fsockopen($host,$port,$errno,$errstr,$timeout);
+        $fsocket = @pfsockopen($host,$port,$errno,$errstr,$timeout);
         if (!$fsocket) $status = 111;
         else $status = $errno;
         @fclose($fsocket);
