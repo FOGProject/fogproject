@@ -77,7 +77,7 @@ try {
         }
     }
     ////============================== Email Notification End	==============================
-    print '##';
+    echo '##';
     // If it's a multicast job, decrement the client count, though not fully needed.
     if ($Task->get(typeID) == 8) {
         $MyMulticastTask = current($FOGCore->getClass(MulticastSessionsAssociationManager)->find(array(taskID=>$Task->get(id))));
@@ -89,5 +89,5 @@ try {
         }
     }
 } catch (Exception $e) {
-    print $e->getMessage();
+    echo $e->getMessage();
 }

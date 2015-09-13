@@ -10,4 +10,4 @@ try {
 } catch (Exception $e) {
     $val = $e->getMessage();
 }
-print $val;
+echo $val;

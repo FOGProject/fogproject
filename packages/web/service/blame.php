@@ -26,7 +26,7 @@ try {
             if ($NodeFailure->save()) $Task->set('stateID',1);
         } else $Task->set(stateID,1);
     }
-    if ($Task->save()) print '##';
+    if ($Task->save()) echo '##';
 } catch (Exception $e) {
-    print $e->getMessage();
+    echo $e->getMessage();
 }

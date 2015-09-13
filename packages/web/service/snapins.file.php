@@ -44,6 +44,6 @@ try {
         exit;
     }
 } catch (Exception $e) {
-    print $e->getMessage();
+    echo $e->getMessage();
     exit;
 }

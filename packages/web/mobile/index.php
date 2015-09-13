@@ -26,6 +26,6 @@ $pageTitle = $FOGPageManager->getFOGPageTitle();
 $Page->setTitle($pageTitle);
 $Page->setSecTitle($sectionTitle);
 $Page->startBody();
-print $content;
+echo $content;
 $Page->endBody();
 $Page->render();

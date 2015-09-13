@@ -59,7 +59,7 @@ try {
         ->set(caseserial,$caseserial)
         ->set(caseasset,$casesasset);
     if (!$Inventory->save()) throw new Exception(_('Failed to create inventory for this host!'));
-    print _('Done');
+    echo _('Done');
 } catch (Exception $e) {
-    print $e->getMessage();
+    echo $e->getMessage();
 }

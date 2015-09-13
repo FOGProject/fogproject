@@ -29,7 +29,7 @@ try {
             $Snapins = ($SnapinTasks ? 1 : 0);
         }
     }
-    print $Snapins;
+    echo $Snapins;
 } catch (Exception $e) {
-    print $e->getMessage();
+    echo $e->getMessage();
 }

@@ -91,7 +91,7 @@ class Initiator {
         try {
             if (!version_compare(phpversion(),'5.3.0','>=')) throw new Exception('FOG Requires PHP v5.3.0 or higher. You have PHP v'.phpversion());
         } catch (Exception $e) {
-            print $e->getMessage();
+            echo $e->getMessage();
             exit;
         }
     }
@@ -106,7 +106,7 @@ class Initiator {
         try {
             if (count($missingExtensions)) throw new Exception('Missing Extensions: '. implode(', ',(array)$missingExtensions));
         } catch (Exception $e) {
-            print $e->getMessage();
+            echo $e->getMessage();
             exit;
         }
     }

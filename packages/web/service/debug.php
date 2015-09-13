@@ -1,2 +1,2 @@
 <?php
-print _('Hello FOG Client');
+echo _('Hello FOG Client');

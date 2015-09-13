@@ -5,5 +5,5 @@ try {
     if (!$Snapins) throw new Exception(_('There are no snapins on this server.'));
     foreach ($Snapins AS $Snapin) printf('\tID# %s\t-\t%s\n',$Snapin->get(id),$Snapin->get(name));
 } catch (Exception $e) {
-    print $e->getMessage();
+    echo $e->getMessage();
 }
