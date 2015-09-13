@@ -31,7 +31,7 @@ class DashboardPage extends FOGPage {
             array(),
             array(),
         );
-        print '<ul id="dashboard-boxes"><li><h4>'._('System Overview').'</h4>';
+        echo '<ul id="dashboard-boxes"><li><h4>'._('System Overview').'</h4>';
         foreach ((array)$fields AS $field => &$fielddata) {
             $this->data[] = array(
                 'field' => $field,
@@ -41,7 +41,7 @@ class DashboardPage extends FOGPage {
         unset($fielddata);
         $this->HookManager->processEvent(DashboardData,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         $this->render();
-        print '</li><li><h4>'._('System Activity').'</h4><div class="graph pie-graph" id="graph-activity"></div></li><li><h4>'._('Disk Information').'</h4><div id="diskusage-selector">';
+        echo '</li><li><h4>'._('System Activity').'</h4><div class="graph pie-graph" id="graph-activity"></div></li><li><h4>'._('Disk Information').'</h4><div id="diskusage-selector">';
         $Nodes = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1,isGraphEnabled=>1));
         foreach ($Nodes AS $i => &$StorageNode) {
             $curroot = trim(trim($StorageNode->get(webroot),'/'));
@@ -50,8 +50,8 @@ class DashboardPage extends FOGPage {
             $options .= '<option value="'.$StorageNode->get(id).'">'.$StorageNode->get(name).($StorageNode->get(isMaster) == 1 ? " * " : ' ')."(${version[0]})".'</option>';
         }
         unset($StorageNode);
-        $options ? print '<select name="storagesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">'.$options.'</select>' : null;
-        print '</div><a href="?node=hwinfo"><div class="graph pie-graph" id="graph-diskusage"></div></a></li></ul><h3>'._('Imaging over the last 30 days').'</h3><div id="graph-30day" class="graph"></div><h3 id="graph-bandwidth-title">'.$this->foglang[Bandwidth].'- <span>'.$this->foglang[Transmit].'</span><!-- (<span>2 Minutes</span>)--></h3><div id="graph-bandwidth-filters"><div><a href="#" id="graph-bandwidth-filters-transmit" class="l active">'.$this->foglang[Transmit].'</a><a href="#" id="graph-bandwidth-filters-receive" class="l">'.$this->foglang[Receive].'</a></div><div class="spacer"></div><div><a href="#" rel="3600" class="r">'._('1 hour').'</a><a href="#" rel="1800" class="r">'._('30 Minutes').'</a><a href="#" rel="600" class="r">'._('10 Minutes').'</a><a href="#" rel="120" class="r active">'._('2 Minutes').'</a></div></div><div id="graph-bandwidth" class="graph"></div>';
+        echo ($options ? '<select name="storagesel" style="whitespace: no-wrap; width: 100px; position: relative; top: 100px;">'.$options.'</select>' : null);
+        echo '</div><a href="?node=hwinfo"><div class="graph pie-graph" id="graph-diskusage"></div></a></li></ul><h3>'._('Imaging over the last 30 days').'</h3><div id="graph-30day" class="graph"></div><h3 id="graph-bandwidth-title">'.$this->foglang[Bandwidth].'- <span>'.$this->foglang[Transmit].'</span><!-- (<span>2 Minutes</span>)--></h3><div id="graph-bandwidth-filters"><div><a href="#" id="graph-bandwidth-filters-transmit" class="l active">'.$this->foglang[Transmit].'</a><a href="#" id="graph-bandwidth-filters-receive" class="l">'.$this->foglang[Receive].'</a></div><div class="spacer"></div><div><a href="#" rel="3600" class="r">'._('1 hour').'</a><a href="#" rel="1800" class="r">'._('30 Minutes').'</a><a href="#" rel="600" class="r">'._('10 Minutes').'</a><a href="#" rel="120" class="r active">'._('2 Minutes').'</a></div></div><div id="graph-bandwidth" class="graph"></div>';
         for ($i = 0; $i <= 30; $i++) $Graph30dayData .= '["'.(1000*$this->nice_date()->modify("-$i days")->getTimestamp()).'", '.$this->getClass(ImagingLogManager)->count(array(start=>$this->nice_date()->modify("-$i days")->format('Y-m-d%'),finish=>$this->nice_date()->modify("-$i days")->format('Y-m-d%')),'OR').']'.($i < 30 ? ', ' : '');
         $ActivityActive = 0;
         $ActivityQueued = 0;
@@ -67,7 +67,7 @@ class DashboardPage extends FOGPage {
         }
         unset($StorageNode);
         $ActivitySlots = $ActivityTotalClients -  $ActivityActive - $ActivityQueued;
-        print '<div class="fog-variable" id="ActivityActive">'.$ActivityActive.'</div><div class="fog-variable" id="ActivityQueued">'.$ActivityQueued.'</div><div class="fog-variable" id="ActivitySlots">'.($ActivitySlots < 0 ? 0 : $ActivitySlots).'</div><!-- Variables --><div class="fog-variable" id="Graph30dayData">['.$Graph30dayData.']</div>';
+        echo '<div class="fog-variable" id="ActivityActive">'.$ActivityActive.'</div><div class="fog-variable" id="ActivityQueued">'.$ActivityQueued.'</div><div class="fog-variable" id="ActivitySlots">'.($ActivitySlots < 0 ? 0 : $ActivitySlots).'</div><!-- Variables --><div class="fog-variable" id="Graph30dayData">['.$Graph30dayData.']</div>';
     }
     /** bandwidth()
      * Display's the bandwidth bar on the dashboard page.
@@ -84,7 +84,7 @@ class DashboardPage extends FOGPage {
             unset($dataSet);
         }
         unset($StorageNode);
-        print json_encode((array)$data);
+        echo json_encode((array)$data);
     }
     /** diskusage()
      * Display's the disk usage graph on the dashboard page.
@@ -108,7 +108,7 @@ class DashboardPage extends FOGPage {
                 $Data[error] = $e->getMessage();
             }
         }
-        print json_encode((array)$Data);
+        echo json_encode((array)$Data);
     }
     /** clientCount()
      * Display's the current client count on the activity graph
@@ -131,6 +131,6 @@ class DashboardPage extends FOGPage {
             ActivityQueued=>$ActivityQueued,
             ActivitySlots=>$ActivityTotalClients,
         );
-        print json_encode($data);
+        echo json_encode($data);
     }
 }

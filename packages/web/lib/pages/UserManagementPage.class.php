@@ -102,7 +102,7 @@ class UserManagementPage extends FOGPage {
             _('Mobile/Quick Image Access Only?').'&nbsp;'.'<span class="icon icon-help hand" title="'._('Warning - if you tick this box, this user will not be able to log into this FOG Management Console in the future.').'"></span>' => '<input type="checkbox" name="isGuest" autocomplete="off" />',
             '&nbsp;' => '<input type="submit" value="'._('Create User').'" />',
         );
-        print '<h2>'._('Add new user account').'</h2><form method="post" action="'.$this->formAction.'"><input type="hidden" name="add" value="1" />';
+        echo '<h2>'._('Add new user account').'</h2><form method="post" action="'.$this->formAction.'"><input type="hidden" name="add" value="1" />';
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
@@ -112,7 +112,7 @@ class UserManagementPage extends FOGPage {
         unset($input);
         $this->HookManager->processEvent(USER_ADD,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function add_post() {
         // Hook
@@ -167,7 +167,7 @@ class UserManagementPage extends FOGPage {
             array(),
             array(),
         );
-        print '<form method="post" action="'.$this->formAction.'"><input type="hidden" name="update" value="'.$this->obj->get(id).'" />';
+        echo '<form method="post" action="'.$this->formAction.'"><input type="hidden" name="update" value="'.$this->obj->get(id).'" />';
         foreach ((array)$fields AS $field => &$formData) {
             $this->data[] = array(
                 field=>$field,
@@ -177,7 +177,7 @@ class UserManagementPage extends FOGPage {
         unset($formData);
         $this->HookManager->processEvent(USER_EDIT,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function edit_post() {
         // Find

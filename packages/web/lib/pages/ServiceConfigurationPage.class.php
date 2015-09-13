@@ -40,12 +40,12 @@ class ServiceConfigurationPage extends FOGPage {
     public function home() {$this->index();}
         // Pages
         public function index() {
-            print '<h2>'._('FOG Client Download').'</h2><p>'._('Use the following link to go to the Client page to download the FOG Client, FOG Prep, and FOG Crypt Information.').'</p><a href="?node=client">'._('Click Here').'</a><h2>'._('FOG Service Configuration Information').'</h2><p>'._('This section of the FOG management portal allows you to configure how the FOG service functions on client computers.  The settings in this section tend to be global settings that effect all hosts.  If you are looking to configure settings for a service module that is specific to a host, please see the Servicesection.  To get started editing global settings, please select an item from the left hand menu.').'</p>';
+            echo '<h2>'._('FOG Client Download').'</h2><p>'._('Use the following link to go to the Client page to download the FOG Client, FOG Prep, and FOG Crypt Information.').'</p><a href="?node=client">'._('Click Here').'</a><h2>'._('FOG Service Configuration Information').'</h2><p>'._('This section of the FOG management portal allows you to configure how the FOG service functions on client computers.  The settings in this section tend to be global settings that effect all hosts.  If you are looking to configure settings for a service module that is specific to a host, please see the Servicesection.  To get started editing global settings, please select an item from the left hand menu.').'</p>';
         }
     public function edit() {
-        print '<div id="tab-container"><div id="home">';
+        echo '<div id="tab-container"><div id="home">';
         $this->index();
-        print '</div>';
+        echo '</div>';
         $moduleName = $this->getGlobalModuleStatus();
         $modNames = $this->getGlobalModuleStatus(true);
         $Modules = $this->getClass(ModuleManager)->find();
@@ -83,14 +83,14 @@ class ServiceConfigurationPage extends FOGPage {
                 span=>'<input type="submit" name="updatestatus" value="'._('Update').'" />',
                 mod_name=>$modNames[$Module->get(shortName)],
             );
-            print '<!-- '._($Module->get(name)).'  --><div id="'.$Module->get(shortName).'"><h2>'._($Module->get(name)).'</h2><form method="post" action="?node=service&sub=edit&tab='.$Module->get(shortName).'"><p>'._($Module->get(description)).'</p><h2>'._('Service Status').'</h2>';
+            echo '<!-- '._($Module->get(name)).'  --><div id="'.$Module->get(shortName).'"><h2>'._($Module->get(name)).'</h2><form method="post" action="?node=service&sub=edit&tab='.$Module->get(shortName).'"><p>'._($Module->get(description)).'</p><h2>'._('Service Status').'</h2>';
             // Hook
             // Output
             $this->render();
-            print '</form>';
+            echo '</form>';
             if ($Module->get(shortName) == 'autologout') {
-                print '<h2>'._('Default Setting').'</h2>';
-                print '<form method="post" action="?node=service&sub=edit&tab='.$Module->get(shortName).'"><p>'._('Default log out time (in minutes): ').'<input type="text" name="tme" value="'.$this->FOGCore->getSetting(FOG_SERVICE_AUTOLOGOFF_MIN).'" /></p><p><input type="hidden" name="name" value="FOG_SERVICE_AUTOLOGOFF_MIN" /><input type="hidden" name="updatedefaults" value="1" /><input type="submit" value="'._('Update Defaults').'" /></p></form>';
+                echo '<h2>'._('Default Setting').'</h2>';
+                echo '<form method="post" action="?node=service&sub=edit&tab='.$Module->get(shortName).'"><p>'._('Default log out time (in minutes): ').'<input type="text" name="tme" value="'.$this->FOGCore->getSetting(FOG_SERVICE_AUTOLOGOFF_MIN).'" /></p><p><input type="hidden" name="name" value="FOG_SERVICE_AUTOLOGOFF_MIN" /><input type="hidden" name="updatedefaults" value="1" /><input type="submit" value="'._('Update Defaults').'" /></p></form>';
             } else if ($Module->get(shortName) == 'clientupdater') {
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->getClass(FOGConfigurationPage)->client_updater();
@@ -108,7 +108,7 @@ class ServiceConfigurationPage extends FOGPage {
                     '${dir_path}',
                     '<input type="checkbox" id="rmdir${dir_id}" class="delid" name="delid" onclick="this.form.submit()" value="${dir_id}" /><label for="rmdir${dir_id}" class="icon fa fa-minus-circle hand" title="'._('Delete').'">&nbsp;</label>',
                 );
-                print '<h2>'._('Add Directory').'</h2><form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'"><p>'._('Directory Path').': <input type="text" name="adddir" /></p><p><input type="hidden" name="name" value="'.$modNames[$Module->get(shortName)].'" /><input type="submit" value="'._('Add Directory').'" /></p><h2>'._('Directories Cleaned').'</h2>';
+                echo '<h2>'._('Add Directory').'</h2><form method="post" action="?node=service&sub=edit&tab='.$Module->get('shortName').'"><p>'._('Directory Path').': <input type="text" name="adddir" /></p><p><input type="hidden" name="name" value="'.$modNames[$Module->get(shortName)].'" /><input type="submit" value="'._('Add Directory').'" /></p><h2>'._('Directories Cleaned').'</h2>';
                 $dirs = $this->getClass(DirCleanerManager)->find();
                 foreach ((array)$dirs AS $i => &$DirCleaner) {
                     $this->data[] = array(
@@ -120,7 +120,7 @@ class ServiceConfigurationPage extends FOGPage {
                 // Hook
                 // $this->HookManager->processEvent()
                 $this->render();
-                print '</form>';
+                echo '</form>';
             } else if ($Module->get(shortName) == 'displaymanager') {
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->attributes = array(
@@ -137,8 +137,8 @@ class ServiceConfigurationPage extends FOGPage {
                     _('Default Refresh Rate') => '<input type="text" name="refresh" value="${refresh}" />',
                     '<input type="hidden" name="name" value="${mod_name}" /><input type="hidden" name="updatedefaults" value="1" />' => '<input type="submit" value="'._('Update Defaults').'" />',
                 );
-                print '<h2>'._('Default Setting').'</h2>';
-                print '<form method="post" action="?node=service&sub=edit&tab='.$Module->get(shortName).'">';
+                echo '<h2>'._('Default Setting').'</h2>';
+                echo '<form method="post" action="?node=service&sub=edit&tab='.$Module->get(shortName).'">';
                 foreach((array)$fields AS $field => &$input) {
                     $this->data[] = array(
                         field=>$field,
@@ -153,7 +153,7 @@ class ServiceConfigurationPage extends FOGPage {
                 // Hook
                 // $this->HookManager->processEvent()
                 $this->render();
-                print '</form>';
+                echo '</form>';
             } else if ($Module->get(shortName) == 'greenfog') {
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->headerData = array(
@@ -171,7 +171,7 @@ class ServiceConfigurationPage extends FOGPage {
                     '${gf_action}',
                     '<input type="checkbox" id="gfrem${gf_id}" class="delid" name="delid" onclick="this.form.submit()" value="${gf_id}" /><label for="gfrem${gf_id}" class="icon fa fa-minus-circle hand" title="'._('Delete').'">&nbsp;</label>',
                 );
-                print '<h2>'._('Shutdown/Reboot Schedule').'</h2><form method="post" action="?node=service&sub=edit&tab='.$Module->get(shortName).'"><p>'._('Add Event (24 Hour Format):').'<input class="short" type="text" name="h" maxlength="2" value="HH" onFocus="this.value=\'\'" />:<input class="short" type="text" name="m" maxlength="2" value="MM" onFocus="this.value=\'\'" /><select name="style" size="1"><option value="">'._('Select One').'</option><option value="s">'._('Shut Down').'</option><option value="r">'._('Reboot').'</option></select></p><p><input type="hidden" name="name" value="'.$modNames[$Module->get(shortName)].'" /><input type="submit" name="addevent" value="'._('Add Event').'" /></p>';
+                echo '<h2>'._('Shutdown/Reboot Schedule').'</h2><form method="post" action="?node=service&sub=edit&tab='.$Module->get(shortName).'"><p>'._('Add Event (24 Hour Format):').'<input class="short" type="text" name="h" maxlength="2" value="HH" onFocus="this.value=\'\'" />:<input class="short" type="text" name="m" maxlength="2" value="MM" onFocus="this.value=\'\'" /><select name="style" size="1"><option value="">'._('Select One').'</option><option value="s">'._('Shut Down').'</option><option value="r">'._('Reboot').'</option></select></p><p><input type="hidden" name="name" value="'.$modNames[$Module->get(shortName)].'" /><input type="submit" name="addevent" value="'._('Add Event').'" /></p>';
                 $greenfogs = $this->getClass(GreenFogManager)->find();
                 foreach((array)$greenfogs AS $i => &$GreenFog) {
                     if ($GreenFog && $GreenFog->isValid()) {
@@ -187,7 +187,7 @@ class ServiceConfigurationPage extends FOGPage {
                 // Hook
                 // $this->HookManager->processEvent()
                 $this->render();
-                print '</form>';
+                echo '</form>';
             } else if ($Module->get(shortName) == 'usercleanup') {
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->attributes = array(
@@ -202,7 +202,7 @@ class ServiceConfigurationPage extends FOGPage {
                     _('Username') => '<input type="text" name="usr" />',
                     '<input type="hidden" name="name" value="${mod_name}" /><input type="hidden" name="adduser" value="1" />' => '<input type="submit" value="'._('Add User').'" />',
                 );
-                print '<h2>'._('Add Protected User').'</h2><form method="post" action="?node=service&sub=edit&tab='.$Module->get(shortName).'">';
+                echo '<h2>'._('Add Protected User').'</h2><form method="post" action="?node=service&sub=edit&tab='.$Module->get(shortName).'">';
                 foreach((array)$fields AS $field => &$input) {
                     $this->data[] = array(
                         field=>$field,
@@ -225,7 +225,7 @@ class ServiceConfigurationPage extends FOGPage {
                     '${user_name}',
                     '${input}',
                 );
-                print '<h2>'._('Current Protected User Accounts').'</h2>';
+                echo '<h2>'._('Current Protected User Accounts').'</h2>';
                 $UCs = $this->getClass(UserCleanupManager)->find();
                 foreach ((array)$UCs AS $i => &$UserCleanup) {
                     $this->data[] = array(
@@ -236,12 +236,12 @@ class ServiceConfigurationPage extends FOGPage {
                 }
                 unset($UserCleanup);
                 $this->render();
-                print '</form>';
+                echo '</form>';
             }
-            print '</div>';
+            echo '</div>';
         }
         unset($Module);
-        print '</div>';
+        echo '</div>';
     }
     public function edit_post() {
         $Service = $this->getClass(ServiceManager)->find(array(name=>$_REQUEST[name]));

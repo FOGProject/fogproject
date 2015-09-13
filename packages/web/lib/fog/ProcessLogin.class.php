@@ -132,21 +132,21 @@ class ProcessLogin extends FOGBase {
     }
     public function mainLoginForm() {
         $this->setLang();
-        print '<form method="post" action="?node=login" id="login-form">';
+        echo '<form method="post" action="?node=login" id="login-form">';
         if ($_GET[node] != 'logout') {
-            foreach ($_GET AS $key => &$value) print '<input type ="hidden" name="'.$key.'" value="'.$value.'" />';
+            foreach ($_GET AS $key => &$value) echo '<input type ="hidden" name="'.$key.'" value="'.$value.'" />';
             unset($value);
         }
-        print '<label for="username">'.$this->foglang[Username].'</label><input type="text" class="input" name="uname" id="username" /><label for="password">'.$this->foglang[Password].'</label><input type="password" class="input" name="upass" id="password" /><label for="language">'.$this->foglang[LanguagePhrase].'</label>';
+        echo '<label for="username">'.$this->foglang[Username].'</label><input type="text" class="input" name="uname" id="username" /><label for="password">'.$this->foglang[Password].'</label><input type="password" class="input" name="upass" id="password" /><label for="language">'.$this->foglang[LanguagePhrase].'</label>';
         $this->getLanguages();
-        print '<select name="ulang" id="language">'.$this->langMenu.'</select><label for="login-form-submit">&nbsp;</label><input type="submit" value="'.$this->foglang[Login].'" id="login-form-submit" /></form><div id="login-form-info"><p>'.$this->foglang[FOGSites].': <b><i class="icon fa fa-circle-o-notch fa-spin fa-1x"></i></b></p><p>'.$this->foglang[LatestVer].': <b><i class="icon fa fa-circle-o-notch fa-spin fa-1x"></i></b></p></div>';
+        echo '<select name="ulang" id="language">'.$this->langMenu.'</select><label for="login-form-submit">&nbsp;</label><input type="submit" value="'.$this->foglang[Login].'" id="login-form-submit" /></form><div id="login-form-info"><p>'.$this->foglang[FOGSites].': <b><i class="icon fa fa-circle-o-notch fa-spin fa-1x"></i></b></p><p>'.$this->foglang[LatestVer].': <b><i class="icon fa fa-circle-o-notch fa-spin fa-1x"></i></b></p></div>';
     }
     public function mobileLoginForm() {
         $this->setLang();
-        print '<center><div class="login"><p class="loginTitle">'.$this->foglang[FOGMobile].'</p><form method="post" action="?node=login"><div class="loginElement">'.$this->foglang[Username].':</div><div class="loginElement"><input type="text" class="login" name="uname" /></div><div class="loginElement">'.$this->foglang[Password].':</div><div class="loginElement"><input type="password" class="login" name="upass" /></div>'."\n";
+        echo '<center><div class="login"><p class="loginTitle">'.$this->foglang[FOGMobile].'</p><form method="post" action="?node=login"><div class="loginElement">'.$this->foglang[Username].':</div><div class="loginElement"><input type="text" class="login" name="uname" /></div><div class="loginElement">'.$this->foglang[Password].':</div><div class="loginElement"><input type="password" class="login" name="upass" /></div>'."\n";
         $this->getLanguages();
-        print '<div class="loginElement">'.$this->foglang[LanguagePhrase].':</div><div class="loginElement"><select class="login" name="ulang">';
-        print $this->langMenu;
-        print '</select></div><p><input type="submit" value="'.$this->foglang[Login].'" /></p></form></div></center>';
+        echo '<div class="loginElement">'.$this->foglang[LanguagePhrase].':</div><div class="loginElement"><select class="login" name="ulang">';
+        echo $this->langMenu;
+        echo '</select></div><p><input type="submit" value="'.$this->foglang[Login].'" /></p></form></div></center>';
     }
 }

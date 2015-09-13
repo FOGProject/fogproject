@@ -118,7 +118,7 @@ class LDAPManagementPage extends FOGPage {
             _('Server Port') => '<input class="smaller" type="text" name="port" />',
             '<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
         );
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
@@ -131,7 +131,7 @@ class LDAPManagementPage extends FOGPage {
         $this->HookManager->processEvent('LDAP_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function add_post() {
         try {
@@ -180,7 +180,7 @@ class LDAPManagementPage extends FOGPage {
             _('Server Port') => '<input class="smaller" type="text" name="port" value="${ldap_port}" />',
             '<input type="hidden" name="update" value="1" />' => '<input type="submit" class="smaller" value="'._('Update').'" />',
         );
-        print '<form method="post" action="'.$this->formAction.'&id='.$LDAP->get('id').'">';
+        echo '<form method="post" action="'.$this->formAction.'&id='.$LDAP->get('id').'">';
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
@@ -197,7 +197,7 @@ class LDAPManagementPage extends FOGPage {
         $this->HookManager->processEvent('LDAP_EDIT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function edit_post() {
         $LDAP = $this->obj;

@@ -92,5 +92,5 @@ class FOGSubMenu {
         return false;
     }
     // Debug
-    public function debug($txt) {if ($this->DEBUG) print '[' . $this->nice_date()->format("m/d/y H:i:s") . "] " . htmlspecialchars(is_array($txt) ? print_r($txt, 1) : $txt) . "\n";}
+    public function debug($txt) {if ($this->DEBUG) echo '[' . $this->nice_date()->format("m/d/y H:i:s") . "] " . htmlspecialchars(is_array($txt) ? print_r($txt, 1) : $txt) . "\n";}
 }

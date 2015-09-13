@@ -29,11 +29,11 @@ class EventManager extends FOGBase {
      */
     public function notify($event, $eventData=array()) {
         try {
-            if (!is_array($eventData)) throw new Exception('Data is invalid');
+            if  (!is_array($eventData)) throw new Exception('Data is invalid');
             $this->log(sprintf('Notifiying listeners: Event: %s, Data: %d', $event, $eventData));
-            if(isset($this->data[$event])) {
-                foreach($this->data[$event] AS $i => &$className) {
-                    if($className->active) $className->onEvent($event, $eventData);
+            if (isset($this->data[$event])) {
+                foreach ($this->data[$event] AS $i => &$className) {
+                    if ($className->active) $className->onEvent($event, $eventData);
                 }
                 unset($classname);
             }

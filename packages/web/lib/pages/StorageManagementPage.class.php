@@ -139,7 +139,7 @@ class StorageManagementPage extends FOGPage {
             $this->foglang[ManPass] => '<input type="password" name="pass" value="${node_pass}" autocomplete="off" />*',
             '<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'.$this->foglang[Add].'" autocomplete="off" />',
         );
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
@@ -167,7 +167,7 @@ class StorageManagementPage extends FOGPage {
         $this->HookManager->processEvent(STORAGE_NODE_ADD,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function add_storage_node_post() {
         // Hook
@@ -266,7 +266,7 @@ class StorageManagementPage extends FOGPage {
             $this->foglang[ManPass] => '<input type="password" name="pass" value="${node_pass}" autocomplete="off" />*',
             '&nbsp;' => '<input type="submit" name="update" value="'.$this->foglang[Update].'" />',
         );
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
@@ -297,7 +297,7 @@ class StorageManagementPage extends FOGPage {
         $this->HookManager->processEvent(STORAGE_NODE_EDIT,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print "</form>";
+        echo "</form>";
     }
     public function edit_storage_node_post() {
         // Hook
@@ -388,12 +388,12 @@ class StorageManagementPage extends FOGPage {
             );
         }
         unset($input);
-        print '<form method="post" action="'.$this->formAction.'" class="c">';
+        echo '<form method="post" action="'.$this->formAction.'" class="c">';
         // Hook
         $this->HookManager->processEvent(STORAGE_NODE_DELETE,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function delete_storage_node_post() {
         // Hook
@@ -471,7 +471,7 @@ class StorageManagementPage extends FOGPage {
             $this->foglang[SGDesc] => '<textarea name="description" rows="8" cols="40">${storgrp_desc}</textarea>',
             '&nbsp;' => '<input type="submit" value="'.$this->foglang[Add].'" />',
         );
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
@@ -485,7 +485,7 @@ class StorageManagementPage extends FOGPage {
         $this->HookManager->processEvent(STORAGE_GROUP_ADD,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function add_storage_group_post() {
         // Hook
@@ -541,7 +541,7 @@ class StorageManagementPage extends FOGPage {
             $this->foglang[SGDesc]=>'<textarea name="description" rows="8" cols="40">'.$this->obj->get(description).'</textarea>',
             '&nbsp;'=>'<input type="submit" value="'.$this->foglang[Update].'" />',
         );
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
@@ -553,7 +553,7 @@ class StorageManagementPage extends FOGPage {
         $this->HookManager->processEvent(STORAGE_GROUP_EDIT,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function edit_storage_group_post() {
         // Hook
@@ -613,12 +613,12 @@ class StorageManagementPage extends FOGPage {
             );
         }
         unset($input);
-        print '<form method="post" action="'.$this->formAction.'" class="c">';
+        echo '<form method="post" action="'.$this->formAction.'" class="c">';
         // Hook
         $this->HookManager->processEvent(STORAGE_GROUP_DELETE,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function delete_storage_group_post() {
         // Hook

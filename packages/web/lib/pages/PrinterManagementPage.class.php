@@ -120,9 +120,9 @@ class PrinterManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        print '<!-- General --><div id="printer-gen">';
+        echo '<!-- General --><div id="printer-gen">';
         if(!isset($_REQUEST[printertype])) $_REQUEST[printertype] = "Local";
-        print '<form id="printerform" action="?node='.$_REQUEST[node].'&sub='.$_REQUEST[sub].'&tab=printer-type" method="post" >';
+        echo '<form id="printerform" action="?node='.$_REQUEST[node].'&sub='.$_REQUEST[sub].'&tab=printer-type" method="post" >';
         $printerTypes = array(
             'Local'=>_('TCP/IP Printer'),
             'iPrint'=>_('iPrint Printer'),
@@ -131,7 +131,7 @@ class PrinterManagementPage extends FOGPage {
         );
         foreach ((array)$printerTypes AS $short => &$long)
             $optionPrinter .= '<option value="'.$short.'" '.($_REQUEST[printertype] == $short ? 'selected="selected"' : '').'>'.$long.'</option>';
-        print '<center><select name="printertype" onchange="this.form.submit()">'.$optionPrinter.'</select></center></form><br/>';
+        echo '<center><select name="printertype" onchange="this.form.submit()">'.$optionPrinter.'</select></center></form><br/>';
         unset($long);
         $fields = array(
             _('Printer Description') => '<textarea name="description">${desc}</textarea>',
@@ -176,12 +176,12 @@ class PrinterManagementPage extends FOGPage {
             );
         }
         unset($input);
-        print '<form method="post" action="'.$this->formAction.'&tab=printer-gen">';
+        echo '<form method="post" action="'.$this->formAction.'&tab=printer-gen">';
         // Hook
         $this->HookManager->processEvent(PRINTER_ADD,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function add_post() {
         try {
@@ -246,7 +246,7 @@ class PrinterManagementPage extends FOGPage {
     public function edit() {
         // Title
         $this->title = sprintf('%s: %s', 'Edit', $this->obj->get(name));
-        print '<div id="tab-container">';
+        echo '<div id="tab-container">';
         // Header Data
         unset($this->headerData);
         // Attributes
@@ -260,7 +260,7 @@ class PrinterManagementPage extends FOGPage {
             '${input}',
         );
         // Output
-        print '<!-- General --><div id="printer-gen">';
+        echo '<!-- General --><div id="printer-gen">';
         if (!$_REQUEST[printertype]) $_REQUEST[printertype] = $this->obj->get(config);
         if (!$_REQUEST[printertype]) $_REQUEST[printertype] = 'Local';
         $printerTypes = array(
@@ -321,9 +321,9 @@ class PrinterManagementPage extends FOGPage {
         unset($input);
         // Hook
         $this->HookManager->processEvent(PRINTER_EDIT,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
-        print '<form method="post" action="'.$this->formAction.'&tab=printer-type"><select name="printertype" onchange="this.form.submit()">'.$optionPrinter.'</select></form><form method="post" action="'.$this->formAction.'&tab=printer-gen">';
+        echo '<form method="post" action="'.$this->formAction.'&tab=printer-type"><select name="printertype" onchange="this.form.submit()">'.$optionPrinter.'</select></form><form method="post" action="'.$this->formAction.'&tab=printer-gen">';
         $this->render();
-        print '</form></div></div>';
+        echo '</form></div></div>';
         unset($this->data);
     }
     public function edit_post() {

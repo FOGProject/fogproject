@@ -34,7 +34,7 @@ class ReportMaker extends FOGBase {
         if (!isset($_REQUEST['export'])) $this->setFileName($_REQUEST['filename']);
         if ($intType !== false) $intType = (isset($_REQUEST['export']) ? 3 : $this->types[$_REQUEST['type']]);
         else $intType = 0;
-        if ($intType == 0) print implode($this->strHTML,"\n");
+        if ($intType == 0) echo implode($this->strHTML,"\n");
         else if ($intType == 1) {
             header('X-Content-Type-Options: nosniff');
             header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
@@ -43,7 +43,7 @@ class ReportMaker extends FOGBase {
             header('Cache-Control: no-cache');
             header('Content-Type: application/octet-stream');
             header('Content-Disposition: attachment; filename="'.$this->filename.'.csv"');
-            print implode($this->strLine,"\n");
+            echo implode($this->strLine,"\n");
         } else if ($intType == 2) {
             header('X-Content-Type-Options: nosniff');
             header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
@@ -73,7 +73,7 @@ class ReportMaker extends FOGBase {
                     flush();
                 }
             }
-            exec('rm -rf '.$path.$filename);
+            exec('rm -rf "'.$path.$filename.'"');
         } else if ($intType == 4) {
             header('X-Content-Type-Options: nosniff');
             header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
@@ -82,7 +82,7 @@ class ReportMaker extends FOGBase {
             header('Cache-Control: no-cache');
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=".$_REQUEST[type]."_export.csv");
-            print implode($this->strLine,"\n");
+            echo implode($this->strLine,"\n");
         }
     }
 }

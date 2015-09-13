@@ -111,7 +111,7 @@ class WOLBroadcastManagementPage extends FOGPage {
             _('Broadcast IP') => '<input class="smaller" type="text" name="broadcast" />',
             '<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
         );
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => $input) {
             $this->data[] = array(
                 'field' => $field,
@@ -122,7 +122,7 @@ class WOLBroadcastManagementPage extends FOGPage {
         $this->HookManager->processEvent('BROADCAST_ADD', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function add_post() {
         try {
@@ -171,7 +171,7 @@ class WOLBroadcastManagementPage extends FOGPage {
             _('Broadcast Address') => '<input class="smaller" type="text" name="broadcast" value="${broadcast_ip}" />',
             '<input type="hidden" name="update" value="1" />' => '<input type="submit" class="smaller" value="'._('Update').'" />',
         );
-        print "\n\t\t\t".'<form method="post" action="'.$this->formAction.'&id='.$WOLBroadcast->get('id').'">';
+        echo '<form method="post" action="'.$this->formAction.'&id='.$WOLBroadcast->get('id').'">';
         foreach ((array)$fields AS $field => $input) {
             $this->data[] = array(
                 'field' => $field,
@@ -184,7 +184,7 @@ class WOLBroadcastManagementPage extends FOGPage {
         $this->HookManager->processEvent('BROADCAST_EDIT', array('headerData' => &$this->headerData, 'data' => &$this->data, 'templates' => &$this->templates, 'attributes' => &$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function edit_post() {
         $WOLBroadcast = $this->obj;

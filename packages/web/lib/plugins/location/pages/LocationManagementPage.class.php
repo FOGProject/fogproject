@@ -117,7 +117,7 @@ class LocationManagementPage extends FOGPage {
             _('TFTP From Node') => '<input type="checkbox" name="tftp" value="on" />',
             '<input type="hidden" name="add" value="1" />' => '<input class="smaller" type="submit" value="'.('Add').'" />',
         );
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
@@ -130,7 +130,7 @@ class LocationManagementPage extends FOGPage {
         $this->HookManager->processEvent(LOCATION_ADD,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function add_post() {
         try {
@@ -176,7 +176,7 @@ class LocationManagementPage extends FOGPage {
             $this->obj->get(storageNodeID)?_('TFTP From Node'):''=>$this->obj->get(storageNodeID)?'<input type="checkbox" name="tftp" value="on" ${checked} />':'',
             '<input type="hidden" name="update" value="1" />' => '<input type="submit" class="smaller" value="'._('Update').'" />',
         );
-        print '<form method="post" action="'.$this->formAction.'&id='.$this->obj->get(id).'">';
+        echo '<form method="post" action="'.$this->formAction.'&id='.$this->obj->get(id).'">';
         foreach ((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
@@ -193,7 +193,7 @@ class LocationManagementPage extends FOGPage {
         $this->HookManager->processEvent(LOCATION_EDIT,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function edit_post() {
         $LocationMan = new LocationManager();

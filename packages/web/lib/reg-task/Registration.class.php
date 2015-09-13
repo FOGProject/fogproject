@@ -30,7 +30,7 @@ class Registration extends FOGBase {
             $sendStr = '%s %s';
             if ($this->Host instanceof Host && $this->Host->isValid()) throw new Exception(sprintf($sendStr,_('Already registered as'),$this->Host->get(name)));
         } catch (Exception $e) {
-            print $e->getMessage();
+            echo $e->getMessage();
             return true;
         }
         return false;
@@ -89,7 +89,7 @@ class Registration extends FOGBase {
                 if (!$this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,$username)) throw new Exception(_('Done, Failed to create tasking'));
                 throw new Exception(_('Done, with imaging!'));
             } catch (Exception $e) {
-                print $e->getMessage();
+                echo $e->getMessage();
             }
             $this->getClass(Inventory)
                 ->set(hostID,$this->Host->get(id))
@@ -98,7 +98,7 @@ class Registration extends FOGBase {
                 ->set(other2, $other2)
                 ->save();
         } catch (Exception $e) {
-            print $e->getMessage();
+            echo $e->getMessage();
         }
     }
     private function quickRegAuto() {
@@ -134,7 +134,7 @@ class Registration extends FOGBase {
             }
             throw new Exception(_('Done'));
         } catch (Exception $e) {
-            print $e->getMessage();
+            echo $e->getMessage();
         }
     }
     private function quickReg() {
@@ -149,7 +149,7 @@ class Registration extends FOGBase {
             if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
             throw new Exception(_('Done'));
         } catch (Exception $e) {
-            print $e->getMessage();
+            echo $e->getMessage();
         }
     }
 }

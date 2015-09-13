@@ -15,6 +15,7 @@ class PingHosts extends FOGService {
                     continue;
                 }
                 $Host->set(pingstatus,(int)$this->getClass(Ping,$ip)->execute())->save();
+                usleep(1000);
             }
             unset($Host);
             $this->outall(' * All status\' have been updated');

@@ -162,10 +162,10 @@ class TaskManagementPage extends FOGPage {
         );
         // Templates
         $this->templates = array(
-            '<a href="?node=${node}&sub=${sub}&id=${id}&type=${type}"><img src="'.$this->imagelink.'${task_icon}" /><br />${task_name}</a>',
+            '<a href="?node=${node}&sub=${sub}&id=${id}&type=${type}"><i class="fa fa-${task_icon} fa-fw fa-2x" /></i><br />${task_name}</a>',
             '${task_desc}',
         );
-        print '<div><h2>'._('Advanced Actions').'</h2>';
+        echo '<div><h2>'._('Advanced Actions').'</h2>';
         // Find TaskTypes
         $TaskTypes = $this->getClass(TaskTypeManager)->find(array(access=>array('both', 'host'),isAdvanced=>1),'AND','id');
         // Iterate -> Print
@@ -185,7 +185,7 @@ class TaskManagementPage extends FOGPage {
         $this->HookManager->processEvent(TASK_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</div>';
+        echo '</div>';
     }
     public function groupadvanced() {
         // Header Data
@@ -197,10 +197,10 @@ class TaskManagementPage extends FOGPage {
         );
         // Templates
         $this->templates = array(
-            '<a href="?node=${node}&sub=${sub}&id=${id}&type=${type}"><img src="'.$this->imagelink.'${task_icon}" /><br />${task_name}</a>',
+            '<a href="?node=${node}&sub=${sub}&id=${id}&type=${type}"><i class="fa fa-${task_icon} fa-fw fa-2x" /></i><br />${task_name}</a>',
             '${task_desc}',
         );
-        print '<div><h2>'._('Advanced Actions').'</h2>';
+        echo '<div><h2>'._('Advanced Actions').'</h2>';
         // Find TaskTypes
         $TaskTypes = $this->getClass(TaskTypeManager)->find(array(access=>array('both', 'group'),isAdvanced=>1),'AND','id');
         // Iterate -> Print
@@ -220,7 +220,7 @@ class TaskManagementPage extends FOGPage {
         $this->HookManager->processEvent(TASK_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</div>';
+        echo '</div>';
     }
     public function listgroups() {
         $this->title = _('List all Groups');
@@ -342,7 +342,7 @@ class TaskManagementPage extends FOGPage {
         } catch (Exception $e) {
             $result[error] = $e->getMessage();
         }
-        if ($this->isAJAXRequest()) print json_encode($result);
+        if ($this->isAJAXRequest()) echo json_encode($result);
         else {
             if ($result[error]) $this->fatalError($result[error]);
             else $this->FOGCore->redirect(sprintf('?node=%s',$this->node));
@@ -364,7 +364,7 @@ class TaskManagementPage extends FOGPage {
             $result[error] = $e->getMessage();
         }
         // Output
-        if ($this->isAJAXRequest()) print json_encode($result);
+        if ($this->isAJAXRequest()) echo json_encode($result);
         else {
             if ($result[error]) $this->fatalError($result[error]);
             else $this->FOGCore->redirect(sprintf('?node=%s', $this->node));

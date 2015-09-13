@@ -111,7 +111,7 @@ class TasktypeeditManagementPage extends FOGPage {
             _('Accessed By') => '<select name="access">'.$access_opt.'</select>',
             '&nbsp;'=>'<input class="smaller" type="submit" value="'._('Add').'"/>',
         );
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
@@ -124,7 +124,7 @@ class TasktypeeditManagementPage extends FOGPage {
         $this->HookManager->processEvent(TASKTYPE_ADD,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function add_post() {
         try {
@@ -187,7 +187,7 @@ class TasktypeeditManagementPage extends FOGPage {
             _('Accessed By') => '<select name="access">'.$access_opt.'</select>',
             '&nbsp;'=>'<input class="smaller" type="submit" value="'._('Update').'"/>',
         );
-        print '<form method="post" action="'.$this->formAction.'">';
+        echo '<form method="post" action="'.$this->formAction.'">';
         foreach((array)$fields AS $field => &$input) {
             $this->data[] = array(
                 field=>$field,
@@ -200,7 +200,7 @@ class TasktypeeditManagementPage extends FOGPage {
         $this->HookManager->processEvent(TASKTYPE_EDIT,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
         $this->render();
-        print '</form>';
+        echo '</form>';
     }
     public function edit_post() {
         $this->HookManager->event[] = 'TASKTYPE_EDIT_POST';
