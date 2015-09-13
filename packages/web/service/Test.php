@@ -1,32 +1,32 @@
 <?php
-$Response = function() {print "#!ok\n#Foo=bar\n#Empty=\n#-X=Special";};
-$ResponseArray = function() {print "#!ok\n#obj0=Foo\n#obj1=bar\n#obj2=22!";};
-$BadResponse = function() {print "#!er";};
+$Response = function() {echo "#!ok\n#Foo=bar\n#Empty=\n#-X=Special";};
+$ResponseArray = function() {echo "#!ok\n#obj0=Foo\n#obj1=bar\n#obj2=22!";};
+$BadResponse = function() {echo "#!er";};
 $Download = function() {
     header('Content-Disposition: attachment; filename=test.txt');
     header('Content-Type: application/force-download');
     header('Content-Length: '.strlen('Foobar22!'));
     header('Connection: close');
-    print 'Foobar22!';
+    echo 'Foobar22!';
 };
 $AESDecryptionResponse1 = function($key,$iv,$data) {
     $data = "#!ok\n#data=$data";
     $cipher = bin2hex(mcrypt_encrypt(MCRYPT_RIJNDAEL_128,$key,$data,MCRYPT_MODE_CBC,$iv));
     $iv = bin2hex($iv);
-    print "#!en=$iv|$cipher";
+    echo "#!en=$iv|$cipher";
 };
 $AESDecryptionResponse2 = function($key,$iv,$data) {
     $data = "#!ok\n#data=$data";
     $cipher = bin2hex(mcrypt_encrypt(MCRYPT_RIJNDAEL_128,$key,$data,MCRYPT_MODE_CBC,$iv));
     $iv = bin2hex($iv);
-    print "#!enkey=$iv|$cipher";
+    echo "#!enkey=$iv|$cipher";
 };
 $AESDecryption = function($key,$iv,$data) {
     $cipher = bin2hex(mcrypt_encrypt(MCRYPT_RIJNDAEL_128,$key,$data,MCRYPT_MODE_CBC,$iv));
     $iv = bin2hex($iv);
-    print "$iv|$cipher";
+    echo "$iv|$cipher";
 };
-$RawResponse = function() {print 'Foobar22!';};
+$RawResponse = function() {echo 'Foobar22!';};
 $units = array_keys(array('Response','ResponseArray','BadResponse','Download','AESDecryptionResponse1','AESDecryptionResponse2','AESDecryption','RawResponse'));
 if (in_array($_REQUEST['unit'],$units)) {
     if (strpos($_REQUEST['unit'],'AESDecryption') !== false) {

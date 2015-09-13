@@ -161,7 +161,7 @@ $(function() {
     $('input[placeholder]').placeholder();
     // Nav Menu: Add hover label
     $('.menu li a').each(function() {
-        $(this).tipsy({gravity: $.fn.tipsy.autoNS,fade: true});
+        $(this).tipsy({gravity: $.fn.tipsy.autoNS});
     });
     // Tooltips
     HookTooltips();
@@ -218,10 +218,10 @@ function debug(txt) {
 function HookTooltips() {
     setTimeout(function() {
         $('.tipsy').remove();
-        $('a[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS,fade: true});
-        $('.remove-mac[title], .add-mac[title], .icon-help[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS,fade: true});
-        $('.task-name[title], .icon[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS,fade: true});
-        $('img[title]', Content).tipsy();
+        $('a[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS});
+        $('.remove-mac[title], .add-mac[title], .icon-help[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS});
+        $('.task-name[title], .icon[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS});
+        $('img[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS});
     }, 400);
 }
 function duplicateImageName() {

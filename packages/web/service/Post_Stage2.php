@@ -61,7 +61,7 @@ try {
         ->set(createdTime,$Task->get(createdTime))
         ->set(createdBy,$Task->get(createdBy))
         ->save();
-    print '##';
+    echo '##';
 } catch (Exception $e) {
-    print $e->getMessage();
+    echo $e->getMessage();
 }

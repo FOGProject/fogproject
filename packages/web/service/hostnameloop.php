@@ -10,5 +10,5 @@ try {
     unset($Host);
     throw new Exception('#!ok');
 } catch (Exception $e) {
-    print $e->getMessage();
+    echo $e->getMessage();
 }

@@ -37,14 +37,14 @@ try {
             ->set(image,$Task->getImage()->get(name))
             ->set(type,$_REQUEST[type])
             ->save();
-        $FOGCore->getClass(TaskLog)
+        $FOGCore->getClass(TaskLog,$Task)
             ->set(taskID,$Task->get(id))
             ->set(taskStateID,$Task->get(stateID))
             ->set(createdTime,$Task->get(createdTime))
             ->set(createdBy,$Task->get(createdBy))
             ->save();
-        print '##@GO';
+        echo '##@GO';
     }
 } catch (Exception $e) {
-    print $e->getMessage();
+    echo $e->getMessage();
 }

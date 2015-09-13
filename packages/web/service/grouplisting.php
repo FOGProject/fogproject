@@ -6,5 +6,5 @@ try {
     foreach ($Groups AS &$Group) printf('\tID# %d\t-\t%s\n',$Group->get(id),$Group->get(name));
     unset($Group);
 } catch (Exception $e) {
-    print $e->getMessage();
+    echo $e->getMessage();
 }

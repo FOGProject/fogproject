@@ -15,5 +15,5 @@ try {
     if ($Virus->save()) throw new Exception(_('Accepted'));
     else throw new Exception(_('Failed'));
 } catch (Exception $e) {
-    print $e->getMessage();
+    echo $e->getMessage();
 }
