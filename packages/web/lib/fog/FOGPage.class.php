@@ -343,7 +343,6 @@ abstract class FOGPage extends FOGBase {
         if ($this->obj instanceof Group) {
             $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)));
             foreach($Hosts AS $i => &$Host) {
-                $Host->load();
                 $this->data[] = array(
                     host_link=>$_SERVER['PHP_SELF'].'?node=host&sub=edit&id=${host_id}',
                     image_link=>$_SERVER['PHP_SELF'].'?node=image&sub=edit&id=${image_id}',
@@ -397,7 +396,6 @@ abstract class FOGPage extends FOGBase {
                     unset($NoImage,$ImageExists,$Tasks);
                     $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)));
                     foreach($Hosts AS $i => &$Host) {
-                        $Host->load();
                         if (!$Host->get(pending)) $NoImage[] = !$Host->getImage() || !$Host->getImage()->isValid();
                     }
                     unset($Host);
@@ -441,7 +439,6 @@ abstract class FOGPage extends FOGBase {
                             if ($this->obj instanceof Group) {
                                 $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)));
                                 foreach($Hosts AS $i => &$Host) {
-                                    $Host->load();
                                     if ($Host->isValid() && !$Host->get(pending)) $success[] = sprintf('<li>%s &ndash; %s</li>',$Host->get(name),$Host->getImage()->get(name));
                                 }
                                 unset($Host);
