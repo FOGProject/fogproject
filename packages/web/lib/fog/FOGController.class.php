@@ -44,7 +44,7 @@ abstract class FOGController extends FOGBase {
     /** @var data
      * The data to actually set and return to the object
      */
-    protected static $data = array();
+    protected $data = array();
     /** @var autoSave
      * If set, when the object is destroyed it will save first.
      */
