@@ -858,7 +858,7 @@ class BootMenu extends FOGBase {
             "cpuid --ext 29 && set arch x86_64 || set arch i386",
             "goto get_console",
             ":console_set",
-            "colour --rgb 0xff6600 2 ||",
+            "colour --rgb 0x00567a 2 ||",
             "cpair --foreground 7 --background 2 2 ||",
             "goto MENU",
             ":alt_console",
@@ -872,7 +872,7 @@ class BootMenu extends FOGBase {
             $Send['menustart'] = array(
                 ":MENU",
                 "menu",
-                "colour --rgb ".($this->Host && $this->Host->isValid() ? "0x00ff00" : "0xff0000")." 0 ||",
+                "colour --rgb ".($this->Host && $this->Host->isValid() ? "0x00567a" : "0xff0000")." 0 ||",
                 "cpair --foreground 0 3 ||",
                 "item --gap Host is ".($this->Host && $this->Host->isValid() ? ($this->Host->get('pending') ? 'pending ' : '')."registered as ".$this->Host->get('name') : "NOT registered!"),
                 "item --gap -- -------------------------------------",
