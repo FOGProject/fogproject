@@ -64,7 +64,6 @@ class Host extends FOGController {
     // Load the items
     public function load($field = 'id') {
         parent::load($field);
-        $this->getMACAddress();
         $methods = get_class_methods($this);
         foreach($methods AS $i => &$method) {
             if (strlen($method) > 5 && (strpos($method,'load') !== false)) $this->$method();
@@ -224,7 +223,7 @@ class Host extends FOGController {
             if (($this->get(mac) instanceof MACAddress) && $this->get(mac)->isValid()) {
                 $this->getClass(MACAddressAssociation)
                     ->set(hostID,$this->get(id))
-                    ->set(mac,strtolower($this->getMACAddress()))
+                    ->set(mac,strtolower($this->get(mac)->__toString()))
                     ->set(primary,1)
                     ->set(pending,0)
                     ->set(clientIgnore,$this->get(mac)->isClientIgnored())
@@ -324,7 +323,7 @@ class Host extends FOGController {
         return parent::save();
     }
     public function isValid() {
-        return $this->get(id) && $this->get(name) && HostManager::isHostnameSafe($this->get(name)) && $this->getMACAddress();
+        return $this->get(id) && $this->get(name) && HostManager::isHostnameSafe($this->get(name)) && $this->get(mac);
     }
     // Custom functons
     public function isHostnameSafe($hostname = '') {
@@ -623,7 +622,7 @@ class Host extends FOGController {
             $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get(id) : 0, $imagingTypes ? $StorageGroup->getOptimalStorageNode()->get(id) : 0, $imagingTypes,$shutdown,$passreset,$debug);
             // Task: Save to database
             if (!$Task->save()) {
-                $this->FOGCore->logHistory(sprintf('Task failed: Task ID: %s, Task Name: %s, Host ID: %s, HostName: %s, Host MAC: %s',$Task->get(id),$Task->get(name),$this->get(id),$this->get(name),$this->getMACAddress()));
+                $this->FOGCore->logHistory(sprintf('Task failed: Task ID: %s, Task Name: %s, Host ID: %s, HostName: %s, Host MAC: %s',$Task->get(id),$Task->get(name),$this->get(id),$this->get(name),$this->get(mac)));
                 throw new Exception($this->foglang[FailedTask]);
             }
             if ($TaskType->isSnapinTask()) {
@@ -632,14 +631,14 @@ class Host extends FOGController {
                 // Cancel any tasks and jobs that the host hasn't completed
                 $this->cancelJobsSnapinsForHost();
                 // Variables
-                $mac = $this->getMACAddress();
+                $mac = $this->get(mac);
                 // Snapin deploy/cancel after deploy
                 if ($deploySnapins) $this->createSnapinTasking($deploySnapins);
             }
             if ($Image && $Image->isValid()) $Task->set(imageID,$Image->get(id));
             // Task: Save to database
             if (!$Task->save()) {
-                $this->FOGCore->logHistory(sprintf('Task failed: Task ID: %s, Task Name: %s, Host ID: %s, HostName: %s, Host MAC: %s',$Task->get(id),$Task->get(name),$this->get(id),$this->get(name),$this->getMACAddress()));
+                $this->FOGCore->logHistory(sprintf('Task failed: Task ID: %s, Task Name: %s, Host ID: %s, HostName: %s, Host MAC: %s',$Task->get(id),$Task->get(name),$this->get(id),$this->get(name),$this->get(mac)));
                 throw new Exception($this->foglang[FailedTask]);
             }
             // If task is multicast create the tasking for multicast
@@ -688,7 +687,7 @@ class Host extends FOGController {
             // Wake Host
             if ($wolTypes) $this->wakeOnLAN();
             // Log History event
-            $this->FOGCore->logHistory(sprintf('Task Created: Task ID: %s, Task Name: %s, Host ID: %s, Host Name: %s, Host MAC: %s, Image ID: %s, Image Name: %s', $Task->get(id), $Task->get(name), $this->get(id), $this->get(name), $this->getMACAddress(), $this->getImage()->get(id), $this->getImage()->get(name)));
+            $this->FOGCore->logHistory(sprintf('Task Created: Task ID: %s, Task Name: %s, Host ID: %s, Host Name: %s, Host MAC: %s, Image ID: %s, Image Name: %s', $Task->get(id), $Task->get(name), $this->get(id), $this->get(name), $this->get(mac), $this->getImage()->get(id), $this->getImage()->get(name)));
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -871,11 +870,11 @@ class Host extends FOGController {
         return $this;
     }
     public function clientMacCheck($MAC = false) {
-        $mac = current($this->getClass(MACAddressAssociationManager)->find(array(mac=>($MAC?$MAC:$this->getMACAddress()),hostID=>$this->get(id),clientIgnore=>1)));
+        $mac = current($this->getClass(MACAddressAssociationManager)->find(array(mac=>($MAC?$MAC:$this->get(mac)),hostID=>$this->get(id),clientIgnore=>1)));
         return ($mac && $mac->isValid() ? 'checked' : '');
     }
     public function imageMacCheck($MAC = false) {
-        $mac = current((array)$this->getClass(MACAddressAssociationManager)->find(array(mac=>($MAC?$MAC:$this->getMACAddress()),hostID=>$this->get(id),imageIgnore=>1)));
+        $mac = current((array)$this->getClass(MACAddressAssociationManager)->find(array(mac=>($MAC?$MAC:$this->get(mac)),hostID=>$this->get(id),imageIgnore=>1)));
         return ($mac && $mac->isValid() ? 'checked' : '');
     }
     public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false,$nosave = false,$legacy = '') {
@@ -927,9 +926,6 @@ class Host extends FOGController {
     }
     public function getOS() {
         return $this->getImage()->getOS()->get(name);
-    }
-    public function getMACAddress() {
-        return $this->get(mac);
     }
     public function getActiveSnapinJob() {
         return $this->get(snapinjob);

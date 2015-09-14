@@ -4,7 +4,7 @@ try {
     $Host = $FOGCore->getHostItem(false);
     $Task = $Host->get(task);
     // Task for Host
-    if (!$Task || !$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get(name),$Host->getMACAddress()));
+    if (!$Task || !$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get(name),$Host->get(mac)));
     $TaskType = $FOGCore->getClass(TaskType,$Task->get(typeID));
     // Set the task to state 4
     if (!in_array($Task->get(typeID),array(12,13))) $Task->set(stateID,4)->set(pct,100)->set(percent,100);
@@ -54,7 +54,7 @@ try {
                 "\nHostName: " => $Host->get(name),
                 "\nComputer Model: " => $Inventory->get(sysproduct),
                 "\nSerial Number: " => $Inventory->get(sysserial),
-                "\nMAC Address: " => $Host->getMACAddress(),
+                "\nMAC Address: " => $Host->get(mac),
                 "\n" => '',
                 "\nImage Used: " => $FOGCore->getClass(ImagingLog,$id)->get(image),
                 "\nSnapin Used: " => $snpusd,
