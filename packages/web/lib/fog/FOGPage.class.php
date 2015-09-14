@@ -820,7 +820,6 @@ abstract class FOGPage extends FOGBase {
         try {
             // Get the host or error out
             $Host = $this->getHostItem(true);
-            $Host->load();
             // Store the key and potential token
             $key = bin2hex($this->certDecrypt($_REQUEST[sym_key]));
             $token = bin2hex($this->certDecrypt($_REQUEST[token]));
@@ -835,7 +834,6 @@ abstract class FOGPage extends FOGBase {
             if ($Host->get(sec_tok) && !$key) throw new Exception('#!ihc');
             $Host->set(pub_key,$key)
                 ->save();
-            $Host->load();
             echo '#!en='.$this->certEncrypt("#!ok\n#token=".$Host->get(sec_tok),$Host);
         }
         catch (Exception $e) {
