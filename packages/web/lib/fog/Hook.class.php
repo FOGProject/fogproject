@@ -1,5 +1,12 @@
 <?php
 abstract class Hook extends Event {
+    /** @function __construct() constructs the base elements
+     * @return void
+     */
+    public function __construct() {
+        parent::__construct();
+        if (!$this->FOGUser) $this->FOGUser = unserialize($_SESSION['FOG_USER']);
+    }
     /** @function log() logs the Hook
      * @param $txt the text to log
      * @param $level the level of logging defaults to 1

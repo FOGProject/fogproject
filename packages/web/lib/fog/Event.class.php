@@ -21,8 +21,7 @@ abstract class Event extends FOGBase {
      */
     public function __construct() {
         parent::__construct();
-        if (!$this->FOGUser)
-            $this->FOGUser = unserialize($_SESSION['FOG_USER']);
+        if (!$this->FOGUser) $this->FOGUser = unserialize($_SESSION['FOG_USER']);
     }
     /** @function run() what to run if anything
      * @param $arguments the event/hookevent to enact upon
