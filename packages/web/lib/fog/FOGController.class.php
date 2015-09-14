@@ -3,12 +3,12 @@ abstract class FOGController extends FOGBase {
     /** @var databaseTable
      * Sets the databaseTable to perform lookups
      */
-    public $databaseTable = '';
+    protected $databaseTable = '';
     /** @var databaseFields
      * The Fields the database contains
      * using common for friendly names
      */
-    public $databaseFields = array();
+    protected $databaseFields = array();
     /** @var loadQueryTemplateMultiple
      * The Query template in case of multiple items passed to data
      * Protected so as to allow other classes to assign into them
@@ -44,7 +44,7 @@ abstract class FOGController extends FOGBase {
     /** @var data
      * The data to actually set and return to the object
      */
-    protected $data = array();
+    protected static $data = array();
     /** @var autoSave
      * If set, when the object is destroyed it will save first.
      */
@@ -110,12 +110,16 @@ abstract class FOGController extends FOGBase {
      *    an array of items too as needed.
      * Set's the fields relevent for that class.
      */
-    public function set($key, $value) {
+    public function set($key, &$value) {
         try {
+            $this->data[$this->key($key)] = '';
             $this->info('Setting Key: %s, Value: %s',array($key,$value));
-            if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key,$this->databaseFieldClassRelationships)) throw new Exception('Invalid key being set');
+            if (!array_key_exists($key, $this->databaseFields)) null;
+            if (!array_key_exists($key, $this->databaseFieldsFlipped)) null;
+            if (!array_key_exists($key, $this->databaseFieldClassRelationships)) null;
+            //if (!array_key_exists($key, $this->databaseFields) && !in_array($key, $this->additionalFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !array_key_exists($key,$this->databaseFieldClassRelationships)) throw new Exception('Invalid key being set');
             if (array_key_exists($key, $this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
-            $this->data[$key] = $value;
+            $this->data[$this->key($key)] = $value;
         } catch (Exception $e) {
             $this->debug('Set Failed: Key: %s, Value: %s, Error: %s', array($key, $value, $e->getMessage()));
         }
@@ -165,7 +169,7 @@ abstract class FOGController extends FOGBase {
             asort($this->data[$key]);
             $index = $this->binary_search($object,$this->data[$key]);
             if ($index > -1) unset($this->data[$key][$index]);
-            $this->data[$key] = array_values(array_filter($this->data[$key]));
+            $this->data[$key] = array_values($this->data[$key]);
         } catch (Exception $e) {
             $this->debug('Remove Failed: Key: %s, Object: %s, Error: %s', array($key, $object, $e->getMessage()));
         }
@@ -252,7 +256,9 @@ abstract class FOGController extends FOGBase {
                     count($where) ? '  AND '.implode(' AND ',$where) : ''
                 );
             }
-            $this->setQuery($this->DB->query($query)->fetch()->get());
+            $vals = $this->DB->query($query)->fetch()->get();
+            $this->data = array();
+            $this->setQuery($vals);
             // Success
             $res = true;
         } catch (Exception $e) {
@@ -286,8 +292,8 @@ abstract class FOGController extends FOGBase {
      * @param $queryData
      * @return the set class
      */
-    public function setQuery($queryData) {
-        foreach((array)$queryData AS $key => &$val) $this->data[$this->key($key)] = $val;
+    public function setQuery(&$queryData) {
+        foreach((array)$queryData AS $key => &$val) $this->set($this->key($key),$val);
         unset($val);
         if (count($this->databaseFieldClassRelationships)) {
             foreach((array)$this->databaseFieldClassRelationships AS $class => &$fields) $this->set($fields[2],$this->getClass($class)->setQuery($queryData));
