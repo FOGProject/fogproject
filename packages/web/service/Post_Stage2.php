@@ -4,7 +4,7 @@ try {
     $Host = $FOGCore->getHostItem(false);
     $Task = $Host->get(task);
     // Task for Host
-    if (!$Task || !$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get(name),$Host->getMACAddress()));
+    if (!$Task || !$Task->isValid()) throw new Exception(sprintf('%s: %s (%s)', _('No Active Task found for Host'), $Host->get(name),$Host->get(mac)));
     $TaskType = $FOGCore->getClass(TaskType,$Task->get(typeID));
     // Get the storage group
     $StorageGroup = $Task->getStorageGroup();
