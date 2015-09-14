@@ -14,6 +14,5 @@ class MACAddressAssociation extends FOGController {
         'imageIgnore' => 'hmIgnoreImaging',
     );
     // Custom
-    public function getHost() {$this->getClass('Host',$this->get('hostID'));}
-    public function getMACAddress() {return $this->get('mac');}
+    public function getHost() {$this->getClass(Host,$this->get(hostID));}
 }

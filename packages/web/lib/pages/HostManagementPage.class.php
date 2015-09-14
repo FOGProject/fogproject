@@ -97,7 +97,7 @@ class HostManagementPage extends FOGPage {
                 host_id=>$Host->get(id),
                 deployed=>$this->formatTime($Host->get(deployed)),
                 host_name=>$Host->get(name),
-                host_mac=>$Host->getMACAddress(),
+                host_mac=>$Host->get(mac),
                 host_desc=>$Host->get(description),
                 image_name=>$Host->getImageName(),
                 pingstatus=>$Host->getPingCodeStr(),
@@ -121,7 +121,7 @@ class HostManagementPage extends FOGPage {
                 host_id=>$Host->get(id),
                 deployed=>$this->formatTime($Host->get(deployed)),
                 host_name=>$Host->get(name),
-                host_mac=>$Host->getMACAddress()->__toString(),
+                host_mac=>$Host->get(mac)->__toString(),
                 host_desc=>$Host->get(description),
                 image_name=>$Host->getImageName(),
                 pingstatus=>$Host->getPingCodeStr(),
@@ -169,7 +169,7 @@ class HostManagementPage extends FOGPage {
             $this->data[] = array(
                 host_id=>$Host->get(id),
                 host_name=>$Host->get(name),
-                host_mac=>$Host->getMACAddress(),
+                host_mac=>$Host->get(mac),
                 host_desc=>$Host->get(description),
             );
         }
@@ -941,7 +941,7 @@ class HostManagementPage extends FOGPage {
                     ->set(kernelArgs,$_REQUEST[args])
                     ->set(kernelDevice,$_REQUEST[dev])
                     ->set(productKey,base64_encode($_REQUEST['key']));
-                if (strtolower($this->obj->getMACAddress()) != strtolower($mac->__toString()))
+                if (strtolower($this->obj->get(mac)) != strtolower($mac->__toString()))
                     $this->obj->set(mac, strtolower($mac->__toString()));
                 $MyMACs = $AddMe = array();
                 foreach((array)$_REQUEST[additionalMACs] AS $i => &$MAC) {
