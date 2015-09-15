@@ -255,14 +255,12 @@ abstract class FOGController extends FOGBase {
             $vals = $this->DB->query($query)->fetch()->get();
             $this->data = array();
             $this->setQuery($vals);
-            // Success
-            $res = true;
         } catch (Exception $e) {
             $this->set('id', 0)->debug('Database Load Failed: ID: %s, Error: %s', array($this->get('id'), $e->getMessage()));
-            $res = false;
+            return false;
         }
         // Fail
-        return $res;
+        return $this;
     }
     /** buildQuery builds the joins as needed for the associative
      *     linking of objects.
