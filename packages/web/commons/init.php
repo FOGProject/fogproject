@@ -170,6 +170,10 @@ class Initiator {
         return $buffer;
     }
 }
+/*ini_set('opcache.enable',1);
+ini_set('opcache.memory_consumption',256);
+ini_set('opcache.max_accelerated_files',4000);
+ini_set('opcache_revalidate_freq',240);*/
 /** $Init the initiator class */
 $Init = new Initiator();
 /** Starts the init itself */

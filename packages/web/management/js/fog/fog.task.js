@@ -65,6 +65,8 @@ $(function() {
                                     ActiveTasksUpdate();
                                     ActiveTasksTableCheck();
                                     ActiveTasksUpdateTimerStart();
+                                } else {
+                                    location.reload();
                                 }
                             }
                         });

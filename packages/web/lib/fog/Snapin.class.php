@@ -119,6 +119,7 @@ class Snapin extends FOGController {
             if (strlen($method) > 5 && strpos($method,'load')) $this->$method();
         }
         unset($method);
+        return $this;
     }
     public function addGroup($addArray) {
         // Add
