@@ -79,7 +79,6 @@ class AddLocationHost extends Hook {
         if (in_array($this->node,(array)$_SESSION[PluginsInstalled])) {
             $locationid = trim(base64_decode($_REQUEST[location]));
             $reallocid = $locationid && is_numeric($locationid) && $locationid > 0 ? $locationid : '';
-            if (!$arguments[Host]->get(id)) $arguments[Host]->save();
             $this->getClass(LocationAssociation)
                 ->set(locationID,$reallocid)
                 ->set(hostID,$arguments[Host]->get(id))
