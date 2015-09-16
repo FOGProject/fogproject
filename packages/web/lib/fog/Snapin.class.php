@@ -77,6 +77,7 @@ class Snapin extends FOGController {
         return parent::remove($key, $object);
     }
     public function save() {
+        parent::save();
         if ($this->isLoaded(hosts)) {
             // Remove old rows
             $this->getClass(SnapinAssociationManager)->destroy(array('snapinID' => $this->get(id)));
@@ -102,7 +103,7 @@ class Snapin extends FOGController {
             }
             unset($Group);
         }
-        return parent::save();
+        return $this;
     }
     public function addHost($addArray) {
         // Add
