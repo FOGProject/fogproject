@@ -64,7 +64,6 @@ class Printer extends FOGController {
         return parent::remove($key, $object);
     }
     public function save() {
-        if (!$this->get(id)) parent::save();
         if ($this->isLoaded(hosts)) {
             // Remove all old entries.
             $this->getClass(PrinterAssociationManager)->destroy(array(printerID=>$this->get(id)));
