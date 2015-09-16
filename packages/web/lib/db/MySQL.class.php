@@ -140,19 +140,28 @@ class MySQL extends DatabaseManager {
      * @return the value of the id
      */
     public function insert_id() {
-        return (int)($this->queryResult()->insert_id ? $this->queryResult()->insert_id : $this->link->insert_id);
+		$insert_id = $this->queryResult()->insert_id;
+		if (intval($insert_id) <= 0) $insert_id = $this->link->insert_id;
+		if (intval($insert_id) <= 0) throw new Exception(_('No insert id found'));
+		return (int)$insert_id;
     }
     /** affected_rows() the number of affected rows
      * @return the number
      */
     public function affected_rows() {
-        return (int)($this->queryResult()->affected_rows ? $this->queryResult()->affected_rows : $this->link->affected_rows);
+		$affected_rows = $this->queryResult()->affected_rows;
+		if (intval($affected_rows) <= 0) $affected_rows = $this->link->affected_rows;
+		if (intval($affected_rows) <= 0) throw new Exception(_('No affected rows found'));
+		return (int)$affected_rows;
     }
     /** num_rows() the number of rows.
      * @return the number
      */
     public function num_rows() {
-        return (int)($this->queryResult()->num_rows ? $this->queryResult()->num_rows : $this->link->num_rows);
+		$num_rows = $this->queryResult()->num_rows;
+		if (intval($num_rows) <= 0) $num_rows = $this->link->num_rows;
+		if (intval($num_rows) <= 0) throw new Exception(_('No num rows found'));
+		return (int)$num_rows;
     }
     /** escape() escape/clean the data
      * @param $data the data to be cleaned
