@@ -57,7 +57,6 @@ class Location extends FOGController {
         unset($method);
     }
     public function save() {
-        if (!$this->get(id)) parent::save();
         if ($this->isLoaded(hosts)) {
             // Remove old rows
             $this->getClass(LocationAssociationManager)->destroy(array(groupID=>$this->get(id)));
