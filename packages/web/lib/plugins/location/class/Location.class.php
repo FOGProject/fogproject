@@ -55,6 +55,7 @@ class Location extends FOGController {
                 $this->$method();
         }
         unset($method);
+        return $this;
     }
     public function save() {
         parent::save();
