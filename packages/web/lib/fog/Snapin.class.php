@@ -77,7 +77,6 @@ class Snapin extends FOGController {
         return parent::remove($key, $object);
     }
     public function save() {
-        if (!$this->get(id)) parent::save();
         if ($this->isLoaded(hosts)) {
             // Remove old rows
             $this->getClass(SnapinAssociationManager)->destroy(array('snapinID' => $this->get(id)));

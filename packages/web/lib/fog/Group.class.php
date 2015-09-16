@@ -62,7 +62,6 @@ class Group extends FOGController {
         return parent::remove($key,$value);
     }
     public function save() {
-        if (!$this->get(id)) parent::save();
         if ($this->isLoaded(hosts)) {
             // Remove old rows
             $this->getClass(GroupAssociationManager)->destroy(array(groupID=>$this->get(id)));
