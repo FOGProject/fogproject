@@ -66,7 +66,6 @@ class Image extends FOGController {
         return parent::remove($key, $object);
     }
     public function save() {
-        if (!$this->get(id)) parent::save();
         if ($this->isLoaded(hosts)) {
             // Unset Hosts with image
             $this->getClass(HostManager)->update(array(imageID=>$this->get(id)),'',array(imageID=>0));
