@@ -213,7 +213,6 @@ abstract class FOGController extends FOGBase {
             if (!$this->get(id)) $this->set(id,$this->DB->insert_id());
         } catch (Exception $e) {
             $this->debug('Database Save Failed: ID: %s, Error: %s', array($this->get(id), $e->getMessage()));
-            return false;
         }
         return $this;
     }
