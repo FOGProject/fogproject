@@ -73,6 +73,7 @@ class Service extends FOGController {
             'grub_first_hdd',
             'grub_first_cdrom',
             'grub_first_found_windows',
+            'refind_efi',
             'exit'
         );
         $options = sprintf('<select name="%s" autocomplete="off">',$name);
