@@ -209,6 +209,10 @@ class GroupManagementPage extends FOGPage {
         $adPass = (count($adPass) == $this->obj->getHostCount() ? @array_shift($adPass) : '');
         $ADPass = $this->encryptpw($adPass);
         $ADPassLegacy = (count($adPassLegacy) == 1 ? @array_shift($adPassLegacy) : '');
+        $biosExit = array_unique($this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)),'','','','','','','biosexit'));
+        $efiExit = array_unique($this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)),'','','','','','','efiexit'));
+        $exitNorm = Service::buildExitSelector('bootTypeExit',(count($biosExit) == 1 ? @array_shift($biosExit) : $_REQUEST[bootTypeExit]),true);
+        $exitEfi = Service::buildExitSelector('efiBootTypeExit',(count($efiExit) == 1 ? @array_shift($efiExit) : $_REQUEST[efiBootTypeExit]),true);
         // Title - set title for page title in window
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get(name));
         // Headerdata
@@ -230,6 +234,8 @@ class GroupManagementPage extends FOGPage {
             _('Group Kernel') => '<input type="text" name="kern" value="'.$this->obj->get(kernel).'" />',
             _('Group Kernel Arguments') => '<input type="text" name="args" value="'.$this->obj->get(kernelArgs).'" />',
             _('Group Primary Disk') => '<input type="text" name="dev" value="'.$this->obj->get(kernelDev).'" />',
+            _('Group Bios Exit Type') => $exitNorm,
+            _('Group EFI Exit Type') => $exitEfi,
             '<input type="hidden" name="updategroup" value="1" />' => '<input type="submit" value="'._('Update').'" />',
         );
         $this->HookManager->processEvent(GROUP_FIELDS,array(fields=>&$fields,Group=>&$this->obj));
@@ -529,7 +535,7 @@ class GroupManagementPage extends FOGPage {
                         ->set(kernelArgs,$_REQUEST[args])
                         ->set(kernelDevice,$_REQUEST[dev]);
                     // Update all hosts at once
-                    $this->getClass(HostManager)->update(array(id=>$this->get(hosts)),'',array(kernel=>$_REQUEST[kern],kernelArgs,$_REQUEST[args],kernelDevice=>$_REQUEST[dev]));
+                    $this->getClass(HostManager)->update(array(id=>$this->obj->get(hosts)),'',array(kernel=>$_REQUEST[kern],kernelArgs=>$_REQUEST[args],kernelDevice=>$_REQUEST[dev],efiexit=>$_REQUEST[efiBootTypeExit],biosexit=>$_REQUEST[bootTypeExit]));
                 }
                 break;
                 // Image Association

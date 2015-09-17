@@ -2054,7 +2054,12 @@ $this->schema[] = array(
     "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttName`='Capture - Debug' WHERE `ttID`=16",
     "UPDATE `".DATABASE_NAME."`.`taskTypes` set `ttName`='Deploy - No Snapins' WHERE `ttID`=17",
 );
-// 190
+// 194
 $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`hosts` ADD COLUMN `hostPingCode` VARCHAR(20)",
+);
+// 195
+$this->schema[] = array(
+    "ALTER TABLE `".DATABASE_NAME."`.`hosts` ADD COLUMN `hostExitBios` LONGTEXT",
+    "ALTER TABLE `".DATABASE_NAME."`.`hosts` ADD COLUMN `hostExitEfi` LONGTEXT",
 );
