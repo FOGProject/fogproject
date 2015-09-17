@@ -7,6 +7,7 @@ abstract class FOGClient extends FOGBase {
             parent::__construct();
             $this->newService = isset($_REQUEST[newService]);
             $this->Host = $this->getHostItem($service,$encoded,$hostnotrequired,$returnmacs,$override);
+            if ($this->Host->get(sec_token) && !$this->Host->get(pub_key)) throw new Exception(_('#!ist'));
             $this->send();
             $this->sendData($this->send);
         } catch (Exception $e) {
