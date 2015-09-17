@@ -64,7 +64,7 @@ elif [[ "$docroot" != *'fog'* ]]; then
 else
     webdirdest="${docroot}"
 fi
-if [ "$docroot" == "/var/www/html/" -a ! -d "$docroot" ]; then
+if [ "$docroot" == "/var/www/html/" ] && [ ! -d "$docroot" ]; then
     docroot="/var/www/";
 fi
 webredirect="$docroot/index.php"
