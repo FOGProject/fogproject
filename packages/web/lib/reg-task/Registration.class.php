@@ -81,8 +81,8 @@ class Registration extends FOGBase {
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs)
                 ->setAD($useAD,$ADDomain,$ADOU,$ADUser,$ADPass,false,true,$ADPassLegacy);
-            if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
             $this->HookManager->processEvent('HOST_REGISTER',array(Host=>&$this->Host));
+            if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
             try {
                 if (!$doimage) throw new Exception(_('Done, without imaging!'));
                 if (!$this->Host->getImageMemberFromHostID()) throw new Exception(_('Done, No image assigned!'));
