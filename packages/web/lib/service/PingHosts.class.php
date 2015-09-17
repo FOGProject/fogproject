@@ -9,22 +9,12 @@ class PingHosts extends FOGService {
             $this->outall(' * Attempting to ping '.$this->getClass(HostManager)->count().' host(s).');
             $Hosts = $this->getClass(HostManager)->find();
             foreach ($Hosts AS $i => &$Host) {
-                // Ensures the hostIP regardless of how it is entered,
-                // to remove any beginning/ending white space
-                $hostIP = trim($Host->get(ip));
-                // Test IP Value and if valid, use it as the pinging source
-                if (filter_var($hostIP,FILTER_VALIDATE_IP)) $ip = $hostIP;
-                // Otherwise attempt to get the hostname resolved.
-                else $ip = $this->FOGCore->resolveHostname($Host->load()->get(name));
-                // If the host still isn't found, set value to -1
-                // Allows us to clarify what is up.
+                $ip = $this->FOGCore->resolveHostname($Host->get(name));
                 if (!filter_var($ip,FILTER_VALIDATE_IP)) {
                     $Host->set(pingstatus,-1)->save();
                     continue;
                 }
-                // If all above makes it here, perform the ping
                 $Host->set(pingstatus,(int)$this->getClass(Ping,$ip)->execute())->save();
-                // Give CPU a little breather between pings
                 usleep(1000);
             }
             unset($Host);

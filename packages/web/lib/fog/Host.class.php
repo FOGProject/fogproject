@@ -70,7 +70,6 @@ class Host extends FOGController {
         }
         unset($method);
         $this->getActiveSnapinJob();
-        return $this;
     }
     // Overrides
     public function get($key = '') {
@@ -371,20 +370,19 @@ class Host extends FOGController {
             ->set(height, $y)
             ->set(refresh,$r)
             ->save();
-        return $this;
     }
     public function getAlo() {
         $HostALO = current($this->getClass(HostAutoLogoutManager)->find(array(hostID=>$this->get(id))));
         $Service = current($this->getClass(ServiceManager)->find(array(name=>'FOG_SERVICE_AUTOLOGOFF_MIN')));
         return ($HostALO && $HostALO->isValid() ? $HostALO->get('time') : ($Service && $Service->isValid() ? $Service->get(value) : ''));
     }
-    public function setAlo($time) {
+    public function setAlo($tme) {
         // Clear Current setting
         $this->getClass(HostAutoLogoutManager)->destroy(array(hostID=>$this->get(id)));
         // Set new setting
         $this->getClass(HostAutoLogout)
-            ->set(hostID,$this->get(id))
-            ->set(time,$time)
+            ->set(hostID, $this->get(id))
+            ->set('time', $tme)
             ->save();
         return $this;
     }
@@ -559,30 +557,31 @@ class Host extends FOGController {
                 ->set(stateID,0)
                 ->set(createdTime,$this->nice_date()->format('Y-m-d H:i:s'));
             // Create Snapin Tasking
-            if (!$SnapinJob->save()) throw new Exception(_('Failed to create Snapin Job'));
-            if ($snapin == -1) {
-                foreach ((array)$this->get(snapins) AS $i => &$Snapin) {
-                    $this->getClass(SnapinTask)
-                        ->set(jobID,$SnapinJob->get(id))
-                        ->set(stateID,0)
-                        ->set(snapinID,$Snapin)
-                        ->save();
-                }
-                unset($Snapin);
-            } else {
-                $Snapin = $this->getClass(Snapin,$snapin);
-                if ($Snapin->isValid()) {
-                    $this->getClass(SnapinTask)
-                        ->set(jobID,$SnapinJob->get(id))
-                        ->set(stateID,0)
-                        ->set(snapinID,$Snapin->get(id))
-                        ->save();
+            if ($SnapinJob->save()) {
+                if ($snapin == -1) {
+                    foreach ((array)$this->get(snapins) AS $i => &$Snapin) {
+                        $this->getClass(SnapinTask)
+                            ->set(jobID,$SnapinJob->get(id))
+                            ->set(stateID,0)
+                            ->set(snapinID,$Snapin)
+                            ->save();
+                    }
+                    unset($Snapin);
+                } else {
+                    $Snapin = $this->getClass(Snapin,$snapin);
+                    if ($Snapin && $Snapin->isValid()) {
+                        $this->getClass(SnapinTask)
+                            ->set(jobID,$SnapinJob->get(id))
+                            ->set(stateID,0)
+                            ->set(snapinID,$Snapin->get(id))
+                            ->save();
+                    }
                 }
             }
         } catch (Exception $e) {
             echo $e->getMessage();
         }
-        return $this;
+        return;
     }
     // Should be called: createDeployTask
     public function createImagePackage($taskTypeID, $taskName = '', $shutdown = false, $debug = false, $deploySnapins = false, $isGroupTask = false, $username = '', $passreset = '',$sessionjoin = false) {
@@ -698,14 +697,13 @@ class Host extends FOGController {
     public function getImageMemberFromHostID() {
         try {
             $Image = $this->getImage();
-            if(!$Image->isValid() || !$Image->get(id)) throw new Exception(_('No Image defined for this host'));
+            if(!$Image->isValid() || !$Image->get(id)) throw new Exception('No Image defined for this host');
             $StorageGroup = $Image->getStorageGroup();
             if(!$StorageGroup->get(id)) throw new Exception('No StorageGroup defined for this host');
             $Task = $this->getClass(Task)
                 ->set(hostID,$this->get(id))
                 ->set(NFSGroupID,$StorageGroup->get(id))
-                ->set(NFSMemberID,$StorageGroup->getOptimalStorageNode()->get(id))
-                ->set(imageID,$Image->get(id));
+                ->set(NFSMemberID,$StorageGroup->getOptimalStorageNode()->get(id));
         } catch (Exception $e) {
             $this->FOGCore->error(sprintf('%s():xError: %s', __FUNCTION__, $e->getMessage()));
             $Task = false;
@@ -757,7 +755,9 @@ class Host extends FOGController {
         if (!$MACs) foreach ($this->get(pendingMACs) AS $i => &$MAC) $MAClist[] = $MAC;
         else {
             $MACs = array_map('strtolower',(array)$MACs);
-            foreach ($this->get(pendingMACs) AS $i => &$MAC) if (in_array(strtolower($MAC),$MACs)) $MAClist[] = $MAC;
+            foreach ($this->get(pendingMACs) AS $i => &$MAC) {
+                if (in_array(strtolower($MAC),$MACs)) $MAClist[] = $MAC;
+            }
             unset($MAC);
         }
         unset($MAC);

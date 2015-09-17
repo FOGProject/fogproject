@@ -12,7 +12,8 @@ class FOGCore extends FOGBase {
         Stops the scheduled task.
      */
     public function stopScheduledTask($task) {
-        return $this->getClass(ScheduledTask,$task->get(id))->set(isActive,(int)false)->save();
+        $ScheduledTask = new ScheduledTask($task->get(id));
+        return $ScheduledTask->set(isActive,0)->save();
     }
     /** redirect($url = '')
         Redirect the page.
@@ -55,8 +56,8 @@ class FOGCore extends FOGBase {
         Logs the actions to the database.
      */
     public function logHistory($string) {
-        global $currentUser;
-        $uname = '';
+        global $conn, $currentUser;
+        $uname = "";
         if ($currentUser != null) $uname = $currentUser->get(name);
         $this->getClass(History)
             ->set(info,$string)
@@ -85,11 +86,12 @@ class FOGCore extends FOGBase {
     public function setSetting($key, $value) {
         $Services = $this->getClass(ServiceManager)->find(array(name=>$key));
         foreach ($Services AS $i => &$Service) {
-            $Service->set(value,$value);
-            if (!$Service->save()) return false;
-            break;
+            if ($Service->isValid()) {
+                $Service->set(value,$value);
+                if (!$Service->save()) return false;
+                break;
+            }
         }
-        unset($Service);
         return $this;
     }
     /** addUpdateMACLookupTable($macprefix,$strMan)

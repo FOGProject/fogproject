@@ -94,7 +94,6 @@ class Image extends FOGController {
             if (strlen($method) > 5 && strpos($method,'load')) $this->$method();
         }
         unset($method);
-        return $this;
     }
     public function add($key,$value) {
         if ($this->key($key) == 'hosts') $this->loadHosts();

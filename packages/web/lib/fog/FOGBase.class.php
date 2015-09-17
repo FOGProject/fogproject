@@ -507,9 +507,9 @@ abstract class FOGBase {
         $MACs = $this->parseMacList($mac,!$service,$service);
         if (!$MACs && !$hostnotrequired) throw new Exception($service ? '#!im' : $this->foglang['InvalidMAC']);
         if ($returnmacs) return (is_array($MACs) ? $MACs : array($MACs));
-        $Host = $this->getClass(HostManager)->getHostByMacAddresses($MACs);
-        if (!$hostnotrequired && (!$Host || !$Host->isValid() || $Host->get(pending)) && !$override) throw new Exception($service ? '#!ih' : _('Invalid Host'));
-        return $Host->load();
+        $Host = $this->getClass('HostManager')->getHostByMacAddresses($MACs);
+        if (!$hostnotrequired && (!$Host || !$Host->isValid() || $Host->get('pending')) && !$override) throw new Exception($service ? '#!ih' : _('Invalid Host'));
+        return $Host;
     }
     /** sendData() prints the return values as needed
      * @param $datatosend the data to send out
@@ -529,13 +529,12 @@ abstract class FOGBase {
      * @return $nodeRet the node to return if it's already used
      */
     public function getAllBlamedNodes() {
-        $Host = $this->getHostItem(false);
-        $NodeFailures = $this->getClass(NodeFailureManager)->find(array(taskID=>$Host->get(task)->get(id),hostID=>$Host->get(id)));
+        $NodeFailures = $this->getClass('NodeFailureManager')->find(array('taskID' => $this->getHostItem(false)->get('task')->get('id'), 'hostID' => $this->getHostItem(false)->get('id')));
         $DateInterval = $this->nice_date()->modify('-5 minutes');
         foreach($NodeFailures AS $i => &$NodeFailure) {
-            $DateTime = $this->nice_date($NodeFailure->get(failureTime));
+            $DateTime = $this->nice_date($NodeFailure->get('failureTime'));
             if ($DateTime >= $DateInterval) {
-                $node = $NodeFailure->get(id);
+                $node = $NodeFailure->get('id');
                 if (!in_array($node,(array)$nodeRet)) $nodeRet[] = $node;
             } else $NodeFailure->destroy();
         }
