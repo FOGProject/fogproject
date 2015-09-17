@@ -48,10 +48,10 @@ class HostManagementPage extends FOGPage {
         );
         $_SESSION[FOGPingActive] ? array_push($this->headerData,'') : null;
         array_push($this->headerData,
-            _('Host Name'),
-            _('Deployed'),
+            _('Host'),
+            _('Imaged'),
             _('Task'),
-            _('Edit/Remove'),
+            '',
             _('Image')
         );
         // Row templates
@@ -72,15 +72,15 @@ class HostManagementPage extends FOGPage {
         );
         // Row attributes
         $this->attributes = array(
-            array(width=>22,id=>'host-${host_name}','class'=>'disabled filter-false'),
-            array('class'=>'c disabled filter-false',width=>16),
+            array(width=>16,id=>'host-${host_name}','class'=>'filter-false'),
+            array('class'=>'filter-false',width=>16),
         );
-        $_SESSION[FOGPingActive] ? array_push($this->attributes,array(width=>20,'class'=>'disabled filter-false')) : null;
+        $_SESSION[FOGPingActive] ? array_push($this->attributes,array(width=>16,'class'=>'filter-false')) : null;
         array_push($this->attributes,
-            array(),
-            array(width=>50,'class'=>c),
-            array(width=>90,'class'=>'r disabled filter-false'),
-            array(width=>80,'class'=>'c disabled filter-false'),
+            array(width=>50),
+            array(width=>145),
+            array(width=>80,'class'=>'r filter-false'),
+            array(width=>40,'class'=>'r filter-false'),
             array(width=>50,'class'=>r),
             array(width=>20,'class'=>r)
         );
