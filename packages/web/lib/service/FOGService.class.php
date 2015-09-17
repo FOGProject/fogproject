@@ -114,7 +114,7 @@ abstract class FOGService extends FOGBase {
      * Writes to the log file and clears if needed.
      */
     public function wlog($string, $path) {
-        if (filesize($path) > LOGMAXSIZE) unlink($path);
+        if (file_exists($path) && filesize($path) >= LOGMAXSIZE) unlink($path);
         if (!$hdl = fopen($path,'a')) $this->out("\n * Error: Unable to open file: $path\n",$this->dev);
         if (fwrite($hdl,sprintf('[%s] %s',$this->getDateTime(),$string)) === FALSE) $this->out("\n * Error: Unable to write to file: $path\n",$this->dev);
     }

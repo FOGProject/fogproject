@@ -279,16 +279,47 @@ abstract class FOGBase {
         if (!$format) $format = 'm/d/Y';
         return DateTime::createFromFormat($format,$Date->format($format),$this->getClass(DateTimeZone,$this->TimeZone));
     }
+    public function humanify($diff, $unit) {
+        $before = _($diff < 0 ? 'In ' : '');
+        $after = _($diff > 0 ? ' ago' : '');
+        $diff = floor(abs($diff));
+        if ($diff > 1) $unit .= 's';
+        return sprintf('%s%d %s%s',$before,$diff,$unit,$after);
+    }
+
     /** @function formatTime() format the time
      * @param $time the time to format
      * @param $format what format to output the time if set.
      * @param $utc whether to use UTC or local timezone.
      * @return formatted time
      */
-    public function formatTime($time, $format = false, $utc = false) {
+    public function formatTime($time, $format = false, $utc = false, $unit) {
         if (!$time instanceof DateTime) $time = $this->nice_date($time,$utc);
-        // Forced format
         if ($format) return $time->format($format);
+        $now = $this->nice_date('now',$utc);
+        // Get difference of the current to supplied.
+        $diff = $now->format('U') - $time->format('U');
+        $absolute = abs($diff);
+        if (is_nan($diff)) return _('Not a number');
+        if (!$this->validDate($time)) return _('No Data');
+        $date = $time->format('Y/m/d');
+        if ($now->format('Y/m/d') == $date) {
+            if (0 <= $diff && $absolute < 60) return 'Moments ago';
+            else if ($diff < 0 && $absolute < 60) return 'Seconds from now';
+            else if ($absolute < 3600) return $this->humanify($diff / 60,'minute');
+            else return $this->humanify($diff / 3600,'hour');
+        }
+        $dayAgo = clone $now;
+        $dayAgo->modify('-1 day');
+        $dayAhead = clone $now;
+        $dayAhead->modify('+1 day');
+        if ($dayAgo->format('Y/m/d') == $date) return 'Ran Yesterday at '.$time->format('H:i');
+        else if ($dayAhead->format('Y/m/d') == $date) return 'Runs today at '.$time->format('H:i');
+        else if ($absolute / 86400 <= 7) return $this->humanify($diff / 86400,'day');
+        else if ($absolute / 604800 <= 5) return $this->humanify($diff / 604800,'week');
+        else if ($absolute / 2628000 < 12) return $this->humanify($diff / 2628000,'month');
+        return $this->humanify($diff / 31536000,'year');
+        // Forced format
         if (!$this->validDate($time)) return 'No Data';
         $CurrTime = $this->nice_date('now',$utc);
         if ($time < $CurrTime) $TimeVal = $CurrTime->diff($time);

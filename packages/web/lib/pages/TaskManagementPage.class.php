@@ -285,6 +285,7 @@ class TaskManagementPage extends FOGPage {
     }
     // Active Tasks
     public function active() {
+        unset($this->data);
         // Set title
         $this->form = '<center><input type="button" id="taskpause"/></center><br/>';
         $this->title = _('Active Tasks');
@@ -450,11 +451,11 @@ class TaskManagementPage extends FOGPage {
             '${state}',
         );
         $this->attributes = array(
-            array('class'=>c,width=>16),
-            array('class'=>c),
-            array('class'=>c),
-            array('class'=>c),
-            array(width=>40,'class'=>c),
+            array('class'=>'c filter-false',width=>16),
+            array('class'=>l,width=>50),
+            array('class'=>l,width=>50),
+            array('class'=>l,width=>50),
+            array('class'=>r,width=>40),
         );
         $STasks = $this->getClass(SnapinTaskManager)->find(array(stateID=>array(-1,0,1)));
         foreach($STasks AS $i => &$SnapinTask) {
