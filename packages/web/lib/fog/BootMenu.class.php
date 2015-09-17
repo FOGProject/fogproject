@@ -82,19 +82,19 @@ class BootMenu extends FOGBase {
         // Create menu item if not exists and Capone is installed as well as the DMI is specified.
         if ($CaponePlugInst && $DMISet) {
             // Check for fog.capone if the pxe menu entry exists.
-            $PXEMenuItem = $this->getClass(PXEMenuOptionsManager)->find(array(name=>'fog.capone'));
-            $PXEMenuItme = @array_shift($PxeMenuItem);
-            if ($PXEMenuItem instanceof PXEMenuOptions && $PXEMenuItem->isValid()) $PXEMenuItem->set(args,"mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path")->save();
+            $PXEMenuItem = current($this->getClass(PXEMenuOptionsManager)->find(array(name=>'fog.capone')));
+            // If it does exist, generate the updated arguments for each call.
+            if ($PXEMenuItem && $PXEMenuItem->isValid()) $PXEMenuItem->set(args,"mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path");
             // If it does not exist, create the menu entry.
             else {
-                $this->getClass(PXEMenuOptions)
-                    ->set(name,'fog.capone')
-                    ->set(description,'Capone Deploy')
-                    ->set(args,"mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path")
-                    ->set(params,null)
-                    ->set('default',0)
-                    ->set(regMenu,2)
-                    ->save();
+                $PXEMenuItem = new PXEMenuOptions(array(
+                    name=>'fog.capone',
+                    description=>'Capone Deploy',
+                    args=>"mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path",
+                    params=>null,
+                    'default'=>0,
+                    regMenu=>2,
+                ));
             }
             $PXEMenuItem->save();
         }
@@ -107,23 +107,22 @@ class BootMenu extends FOGBase {
         $defMenuItem = current($this->getClass(PXEMenuOptionsManager)->find(array('default'=>1)));
         $this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get(name) : 'fog.local').(!$this->hiddenmenu ? " --timeout $timeout" : " --timeout 0").' target && goto ${target}';
         // Register the success of the boot to the database:
-        $iPXE = $this->getClass(iPXEManager)->find(array(product=>$_REQUEST[product],manufacturer=>$_REQUEST[manufacturer],'file'=>$_REQUEST[filename]));
-        $iPXE = @array_shift($iPXE);
-        if ($iPXE instanceof iPXE && $iPXE->isValid()) {
+        $iPXE = current($this->getClass(iPXEManager)->find(array(product=>$_REQUEST[product],manufacturer=>$_REQUEST[manufacturer],'file'=>$_REQUEST[filename])));
+        if ($iPXE && $iPXE->isValid()) {
             if ($iPXE->get(failure)) $iPXE->set(failure,0);
             if (!$iPXE->get(success)) $iPXE->set(success,1);
             if (!$iPXE->get(version)) $iPXE->set(version,$_REQUEST[ipxever]);
-            $iPXE->save();
-        } else {
-            $this->getClass(iPXE)
-                ->set(product,$_REQUEST[product])
-                ->set(manufacturer,$_REQUEST[manufacturer])
-                ->set(mac,$Host instanceof Host && $Host->isValid() ? $Host->get(mac) : 'no mac')
-                ->set(success,1)
-                ->set(file,$_REQUEST[filename])
-                ->set(version,$_REQUEST[ipxever])
-                ->save();
+        } else if (!$iPXE || !$iPXE->isValid()) {
+            $iPXE = new iPXE(array(
+                product=>$_REQUEST[product],
+                manufacturer=>$_REQUEST[manufacturer],
+                mac=>$Host && $Host->isValid() ? $Host->get(mac) : 'no mac',
+                success=>1,
+                'file'=>$_REQUEST[filename],
+                version=>$_REQUEST[ipxever],
+            ));
         }
+        $iPXE->save();
         if ($_REQUEST[username] && $_REQUEST[password]) $this->verifyCreds();
         else if ($_REQUEST[delconf]) $this->delHost();
         else if ($_REQUEST['key']) $this->keyset();
@@ -224,7 +223,7 @@ class BootMenu extends FOGBase {
      * @return void
      */
     private function approveHost() {
-        if ($this->Host->load()->set('pending',null)->save()) {
+        if ($this->Host->set('pending',null)->save()) {
             $Send['approvesuccess'] = array(
                 "#!ipxe",
                 "echo Host approved successfully",
@@ -522,7 +521,7 @@ class BootMenu extends FOGBase {
      * @return void
      */
     public function keyset() {
-        $this->Host->load()->set('productKey',base64_encode($_REQUEST['key']));
+        $this->Host->set('productKey',base64_encode($_REQUEST['key']));
         if ($this->Host->save()) {
             $Send['keychangesuccess'] = array(
                 "#!ipxe",

@@ -5,7 +5,7 @@ class TaskMobile extends FOGPage {
         $this->name = 'Task Management';
         // Call parent constructor
         parent::__construct($this->name);
-        if (is_numeric($_REQUEST[id]) && intval($_REQUEST[id])) $this->obj = $this->getClass(Task,$_REQUEST[id]);
+        $this->obj = $this->getClass(Task,$_REQUEST[id]);
         // Header Data
         $this->headerData = array(
             _('Force'),
@@ -72,11 +72,13 @@ class TaskMobile extends FOGPage {
         $this->render();
     }
     public function force() {
-        $this->obj->set(isForced,true)->save();
+        $Task = $this->obj;
+        $Task->set(isForced,true)->save();
         $this->FOGCore->redirect('?node='.$this->node);
     }
     public function killtask() {
-        $this->obj->cancel();
+        $Task = $this->obj;
+        $Task->destroy();
         $this->FOGCore->redirect('?node='.$this->node);
     }
 }

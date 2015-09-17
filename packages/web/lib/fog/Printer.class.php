@@ -34,7 +34,6 @@ class Printer extends FOGController {
             if (strlen($method) > 5 && strpos($method,'load')) $this->$method();
         }
         unset($method);
-        return $this;
     }
     // Overrides
     private function loadHosts() {
