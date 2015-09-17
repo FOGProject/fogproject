@@ -480,18 +480,15 @@ class TaskManagementPage extends FOGPage {
     public function active_snapins_post() {
         $SnapinTaskIDs = $this->getClass(SnapinTaskManager)->find(array(id=>$_REQUEST[task]),'','','','','','','id');
         $SnapinJobIDs = $this->getClass(SnapinTaskManager)->find(array(id=>$_REQUEST[task]),'','','','','','','jobID');
-        $HostIDs = $this->getClass(SnapinJobManager)->find(array(id=>$SnapinJobIDs),'','','','','','','hostID');
-        // Don't cancel the main tasking as maybe we just dont want these snapins to run
-        //$ActiveTaskIDs = $this->getClass(TaskManager)->find(array(hostID=>$HostIDs,stateID=>array(1,2,3)),'','','','','','','id');
-        //$Tasks = $this->getClass(TaskManager)->find(array(id=>$ActiveTaskIDs));
-        //foreach ($Tasks AS $i => &$Task) $Task->cancel();
-        $this->getClass(SnapinJobManager)->destroy(array(id=>$SnapinJobIDs));
+        // Delete All selected Tasks
         $this->getClass(SnapinTaskManager)->destroy(array(id=>$SnapinTaskIDs));
+        // Only remove the job if all of the tasks that were a part of that job tasking are no longer present.
+        if (!$this->getClass(SnapinTaskManager)->count(array(jobID=>$SnapinJobIDs))) $this->getClass(SnapinJobManager)->destroy(array(id=>$SnapinJobIDs));
         $this->FOGCore->setMessage(_('Successfully cancelled selected tasks'));
         $this->FOGCore->redirect('?node='.$this->node.'&sub=active');
     }
     public function cancelscheduled() {
-        $this->getClass(ScheduledTaskManager)->destroy(array(id=>$_REQUEST[task]),'','','','','','','id');
+        $this->getClass(ScheduledTaskManager)->destroy(array(id=>$_REQUEST[task]));
         $this->FOGCore->setMessage(_('Successfully cancelled selected tasks'));
         $this->FOGCore->redirect('?node='.$this->node.'&sub=active');
     }
