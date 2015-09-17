@@ -32,6 +32,7 @@ class BootMenu extends FOGBase {
             grub_first_hdd=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"',
             grub_first_cdrom=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="cdrom --init;map --hook;root (cd0);chainloader (cd0)"',
             grub_first_found_windows=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="find --set-root /BOOTMGR;chainloader /BOOTMGR"',
+            refind_efi=>"imgfetch \${boot-url}/service/ipxe/refind.conf\nchain -ar \${boot-url}/service/ipxe/refind.efi",
             'exit'=>'exit',
         );
         $exitSetting = false;
