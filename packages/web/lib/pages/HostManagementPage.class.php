@@ -38,7 +38,9 @@ class HostManagementPage extends FOGPage {
                 unset($Group);
             }
         }
-        $this->HookManager->processEvent(SUB_MENULINK_DATA,array(menu=>&$this->menu,submenu=>&$this->subMenu,id=>&$this->id,notes=>&$this->notes));
+        $this->exitNorm = Service::buildExitSelector('bootTypeExit',($this->obj && $this->obj->isValid() ? $this->obj->get(biosexit) : $_REQUEST[bootTypeExit]),true);
+        $this->exitEfi = Service::buildExitSelector('efiBootTypeExit',($this->obj && $this->obj->isValid() ? $this->obj->get(efiexit) : $_REQUEST[efiBootTypeExit]),true);
+        $this->HookManager->processEvent(SUB_MENULINK_DATA,array(menu=>&$this->menu,submenu=>&$this->subMenu,id=>&$this->id,notes=>&$this->notes,biosexit=>&$this->exitNorm,efiexit=>&$this->exitEfi));
         // Header row
         $this->headerData = array(
             '',
@@ -238,6 +240,8 @@ class HostManagementPage extends FOGPage {
             _('Host Kernel') => '<input type="text" name="kern" value="'.$_REQUEST[kern].'" />',
             _('Host Kernel Arguments') => '<input type="text" name="args" value="'.$_REQUEST[args].'" />',
             _('Host Primary Disk') => '<input type="text" name="dev" value="'.$_REQUEST[dev].'" />',
+            _('Host Bios Exit Type') => $this->exitNorm,
+            _('Host EFI Exit Type') => $this->exitEfi,
         );
         echo '<h2>'._('Add new host definition').'</h2>';
         echo '<form method="post" action="'.$this->formAction.'">';
@@ -296,6 +300,8 @@ class HostManagementPage extends FOGPage {
                 ->set(kernelArgs,$_REQUEST[args])
                 ->set(kernelDevice,$_REQUEST[dev])
                 ->set(productKey,base64_encode($_REQUEST['key']))
+                ->set(biosexit,$_REQUEST[bootTypeExit])
+                ->set(efiexit,$_REQUEST[efiBootTypeExit])
                 ->addModule($ModuleIDs)
                 ->addPriMAC($MAC)
                 ->setAD($useAD,$domain,$ou,$user,$pass,true,true,$passlegacy);
@@ -382,6 +388,8 @@ class HostManagementPage extends FOGPage {
             _('Host Kernel') => '<input type="text" name="kern" value="'.$this->obj->get(kernel).'" />',
             _('Host Kernel Arguments') => '<input type="text" name="args" value="'.$this->obj->get(kernelArgs).'" />',
             _('Host Primary Disk') => '<input type="text" name="dev" value="'.$this->obj->get(kernelDevice).'" />',
+            _('Host Bios Exit Type') => $this->exitNorm,
+            _('Host EFI Exit Type') => $this->exitEfi,
             '&nbsp' => '<input type="submit" value="'._('Update').'" />',
         );
         $this->HookManager->processEvent('HOST_FIELDS', array('fields' => &$fields,'Host' => &$this->obj));
@@ -940,7 +948,9 @@ class HostManagementPage extends FOGPage {
                     ->set(kernel,$_REQUEST[kern])
                     ->set(kernelArgs,$_REQUEST[args])
                     ->set(kernelDevice,$_REQUEST[dev])
-                    ->set(productKey,base64_encode($_REQUEST['key']));
+                    ->set(productKey,base64_encode($_REQUEST['key']))
+                    ->set(biosexit,$_REQUEST[bootTypeExit])
+                    ->set(efiexit,$_REQUEST[efiBootTypeExit]);
                 if (strtolower($this->obj->get(mac)) != strtolower($mac->__toString()))
                     $this->obj->set(mac, strtolower($mac->__toString()));
                 $MyMACs = $AddMe = array();

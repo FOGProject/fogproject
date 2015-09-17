@@ -38,9 +38,9 @@ class BootMenu extends FOGBase {
         $exitSetting = false;
         $exitKeys = array_keys($exitTypes);
         if (isset($_REQUEST[platform]) && $_REQUEST[platform] == 'efi') {
-            $exitSetting = $this->FOGCore->getSetting(FOG_EFI_BOOT_EXIT_TYPE);
+            $exitSetting = $Host instanceof Host && $Host->isValid() && $Host->get(efiexit) ? $Host->get(efiexit) : $this->FOGCore->getSetting(FOG_EFI_BOOT_EXIT_TYPE);
         } else {
-            $exitSetting = $this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE);
+            $exitSetting = $Host instanceof Host && $Host->isValid() && $Host->get(biosexit) ? $Host->get(biosexit) : $this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE);
         }
         $this->bootexittype = (in_array($exitSetting,$exitKeys) ? $exitTypes[$exitSetting] : $exitSetting);
         $ramsize = $this->FOGCore->getSetting(FOG_KERNEL_RAMDISK_SIZE);

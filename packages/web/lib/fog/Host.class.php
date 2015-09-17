@@ -29,6 +29,8 @@ class Host extends FOGController {
         'sec_tok' => 'hostSecToken',
         'sec_time' => 'hostSecTime',
         'pingstatus' => 'hostPingCode',
+        'biosexit' => 'hostExitBios',
+        'efiexit' => 'hostExitEfi',
     );
     // Allow setting / getting of these additional fields
     public $additionalFields = array(
@@ -220,8 +222,8 @@ class Host extends FOGController {
     public function save() {
         parent::save();
         if ($this->isLoaded(mac)) {
-            $this->getClass(MACAddressAssociationManager)->destroy(array(hostID=>$this->get(id),primary=>1));
             if (($this->get(mac) instanceof MACAddress) && $this->get(mac)->isValid()) {
+                $this->getClass(MACAddressAssociationManager)->destroy(array(hostID=>$this->get(id),primary=>1));
                 $this->getClass(MACAddressAssociation)
                     ->set(hostID,$this->get(id))
                     ->set(mac,strtolower($this->get(mac)->__toString()))

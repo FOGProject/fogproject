@@ -63,9 +63,10 @@ class Service extends FOGController {
     /** buildExitSelector creates select option statement for exit
      * @param $name the name to generate the select under
      * @param $selected the item to show as selected
+     * @param $nullField if we need a null option
      * @return the built select statement
      */
-    public static function buildExitSelector($name = '',$selected = '') {
+    public static function buildExitSelector($name = '',$selected = '',$nullField = false) {
         if (empty($name)) $name = $this->get(name);
         $types = array(
             'sanboot',
@@ -74,10 +75,19 @@ class Service extends FOGController {
             'grub_first_cdrom',
             'grub_first_found_windows',
             'refind_efi',
-            'exit'
+            'exit',
         );
+        if ($nullField) array_unshift($types,sprintf(' - %s -',_('Please Select an option')));
         $options = sprintf('<select name="%s" autocomplete="off">',$name);
-        foreach ($types AS $i => &$viewop) $options .= sprintf('<option value="%s"%s>%s</option>',$viewop,strtolower($selected) == $viewop ? 'selected' : '',strtoupper($viewop));
+        foreach ($types AS $i => &$viewop) {
+            $show = strtoupper($viewop);
+            $value = $viewop;
+            if ($nullField && $i == 0) {
+                $show = $viewop;
+                $value = '';
+            }
+            $options .= sprintf('<option value="%s"%s>%s</option>',$value,strtolower($selected) == $value ? 'selected' : '',$show);
+        }
         unset ($viewop);
         return $options.'</select>';
     }
