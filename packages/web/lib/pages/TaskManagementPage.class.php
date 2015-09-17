@@ -481,9 +481,10 @@ class TaskManagementPage extends FOGPage {
         $SnapinTaskIDs = $this->getClass(SnapinTaskManager)->find(array(id=>$_REQUEST[task]),'','','','','','','id');
         $SnapinJobIDs = $this->getClass(SnapinTaskManager)->find(array(id=>$_REQUEST[task]),'','','','','','','jobID');
         $HostIDs = $this->getClass(SnapinJobManager)->find(array(id=>$SnapinJobIDs),'','','','','','','hostID');
-        $ActiveTaskIDs = $this->getClass(TaskManager)->find(array(hostID=>$HostIDs,stateID=>array(1,2,3)),'','','','','','','id');
-        $Tasks = $this->getClass(TaskManager)->find(array(id=>$ActiveTaskIDs));
-        foreach ($Tasks AS $i => &$Task) $Task->cancel();
+        // Don't cancel the main tasking as maybe we just dont want these snapins to run
+        //$ActiveTaskIDs = $this->getClass(TaskManager)->find(array(hostID=>$HostIDs,stateID=>array(1,2,3)),'','','','','','','id');
+        //$Tasks = $this->getClass(TaskManager)->find(array(id=>$ActiveTaskIDs));
+        //foreach ($Tasks AS $i => &$Task) $Task->cancel();
         $this->getClass(SnapinJobManager)->destroy(array(id=>$SnapinJobIDs));
         $this->getClass(SnapinTaskManager)->destroy(array(id=>$SnapinTaskIDs));
         $this->FOGCore->setMessage(_('Successfully cancelled selected tasks'));

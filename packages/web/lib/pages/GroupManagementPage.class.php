@@ -528,15 +528,8 @@ class GroupManagementPage extends FOGPage {
                         ->set(kernel,$_REQUEST[kern])
                         ->set(kernelArgs,$_REQUEST[args])
                         ->set(kernelDevice,$_REQUEST[dev]);
-                    foreach($this->obj->get(hosts) AS $i => &$Host) {
-                        $this->getClass(Host,$Host)
-                            ->set(kernel,$_REQUEST[kern])
-                            ->set(kernelArgs,$_REQUEST[args])
-                            ->set(kernelDevice,$_REQUEST[dev])
-                            ->set(productKey,base64_encode($_REQUEST['key']))
-                            ->save();
-                    }
-                    unset($Host);
+                    // Update all hosts at once
+                    $this->getClass(HostManager)->update(array(id=>$this->get(hosts)),'',array(kernel=>$_REQUEST[kern],kernelArgs,$_REQUEST[args],kernelDevice=>$_REQUEST[dev]));
                 }
                 break;
                 // Image Association
@@ -574,19 +567,14 @@ class GroupManagementPage extends FOGPage {
                 $x =(is_numeric($_REQUEST[x]) ? $_REQUEST[x] : $this->FOGCore->getSetting(FOG_SERVICE_DISPLAYMANAGER_X));
                 $y =(is_numeric($_REQUEST[y]) ? $_REQUEST[y] : $this->FOGCore->getSetting(FOG_SERVICE_DISPLAYMANAGER_Y));
                 $r =(is_numeric($_REQUEST[r]) ? $_REQUEST[r] : $this->FOGCore->getSetting(FOG_SERVICE_DISPLAYMANAGER_R));
-                $tme = (is_numeric($_REQUEST[tme]) ? $_REQUEST[tme] : $this->FOGCore->getSetting(FOG_SERVICE_AUTOLOGOFF_MIN));
+                $time = (is_numeric($_REQUEST[tme]) ? $_REQUEST[tme] : $this->FOGCore->getSetting(FOG_SERVICE_AUTOLOGOFF_MIN));
                 $modOn = $_REQUEST[modules];
-                $modOff = $this->getClass(ModuleManager)->find(array('id' => $modOn),'','','','','',true,'id');
-                foreach($this->obj->get(hosts) AS $i => &$Host) {
-                    $host = $this->getClass(Host,$Host);
-                    if (isset($_REQUEST[updatestatus])) {
-                        $host->addModule($modOn)
-                            ->removeModule($modOff);
-                    }
-                    if (isset($_REQUEST[updatedisplay])) $host->setDisp($x,$y,$r);
-                    if (isset($_REQUEST[updatealo])) $host->setAlo($tme);
-                    $host->save();
-                    unset($host);
+                $modOff = $this->getClass(ModuleManager)->find(array(id=>$modOn),'','','','','',true,'id');
+                $this->obj->addModule($modOn)->removeModule($modOff);
+                $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)));
+                foreach($Hosts AS $i => &$Host) {
+                    if (isset($_REQUEST[updatedisplay])) $Host->setDisp($x,$y,$r);
+                    if (isset($_REQUEST[updatealo])) $Host->setAlo($time);
                 }
                 unset($Host);
                 break;

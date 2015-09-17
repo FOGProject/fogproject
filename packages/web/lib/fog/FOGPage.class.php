@@ -856,7 +856,7 @@ abstract class FOGPage extends FOGBase {
             if ($this->obj instanceof Group) {
                 if ($_REQUEST[delHostConfirm] == '1') {
                     $Hosts = $this->getClass(HostManager)->find(array(id=>$this->obj->get(hosts)));
-                    foreach($Hosts AS $i => &$Host) $Host->destroy();
+                    foreach($Hosts AS $i => &$Host) $Host->load()->destroy();
                     unset($Host);
                 }
                 // Remove hosts first

@@ -52,7 +52,8 @@ class Service extends FOGController {
     //Add Users for cleanup
     public function addUser($user) {
         if ($this->getClass(UserCleanupManager)->count(array(name=>$user))>0) throw new Exception($this->foglang[UserExists]);
-        $this->getClass(UserCleanup,array(name=>$user))->save();
+        foreach ((array)$user AS $i => &$name) $this->getClass(User)->set(name,$name)->save();
+        unset($name);
     }
     //Remove Cleanup user
     public function remUser($id) {
