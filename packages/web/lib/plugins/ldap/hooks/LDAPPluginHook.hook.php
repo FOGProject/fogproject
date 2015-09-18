@@ -12,7 +12,7 @@ class LDAPPluginHook extends Hook {
         // If we aren't active but we are loaded for some reason, return
         if (!in_array($this->node,$_SESSION[PluginsInstalled])) return;
 		$username = $arguments[username];
-		$password = md5($arguments[password]);
+		$password = $arguments[password];
         $User = $arguments[User];
         // If the user logging in is already valid don't continue on
         // May think about commenting the line below in case you ONLY
@@ -24,7 +24,7 @@ class LDAPPluginHook extends Hook {
             // Then authenticate, if LDAP auth is correct and
             // the user exists in fog, update users password to the
             // new value.  This way it is truly in sync with LDAP
-            $User = $this->getClass(UserManager)->find(array(name=>$User->get(name)));
+            $User = $this->getClass(UserManager)->find(array(name=>$username));
             $User = @array_shift($User);
             if ($LDAP->authLDAP($username,$password)) {
                 // If the user authenticates, update the users password to match.
