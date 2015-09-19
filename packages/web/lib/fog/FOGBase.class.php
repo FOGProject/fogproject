@@ -293,7 +293,7 @@ abstract class FOGBase {
      * @param $utc whether to use UTC or local timezone.
      * @return formatted time
      */
-    public function formatTime($time, $format = false, $utc = false, $unit) {
+    public function formatTime($time, $format = false, $utc = false) {
         if (!$time instanceof DateTime) $time = $this->nice_date($time,$utc);
         if ($format) return $time->format($format);
         $now = $this->nice_date('now',$utc);

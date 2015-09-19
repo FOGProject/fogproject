@@ -36,20 +36,10 @@ class ReportMaker extends FOGBase {
         else $intType = 0;
         if ($intType == 0) echo implode($this->strHTML,"\n");
         else if ($intType == 1) {
-            header('X-Content-Type-Options: nosniff');
-            header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
-            header('X-XSS-Protection: 1; mode=block');
-            header('X-Frame-Options: deny');
-            header('Cache-Control: no-cache');
             header('Content-Type: application/octet-stream');
             header('Content-Disposition: attachment; filename="'.$this->filename.'.csv"');
             echo implode($this->strLine,"\n");
         } else if ($intType == 2) {
-            header('X-Content-Type-Options: nosniff');
-            header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
-            header('X-XSS-Protection: 1; mode=block');
-            header('X-Frame-Options: deny');
-            header('Cache-Control: no-cache');
             header('Content-Type: application/octet-stream');
             header('Content-Disposition: attachment; filename="'.$this->filename.'.pdf"');
             $proc = proc_open("htmldoc --links --header . --linkstyle plain --numbered --size letter --no-localfiles -t pdf14 --quiet --jpeg --webpage --size letter --left 0.25in --right 0.25in --top 0.25in --bottom 0.25in --header ... --footer ... -", array(0 => array("pipe", "r"), 1 => array("pipe", "w")), $pipes);
@@ -75,11 +65,6 @@ class ReportMaker extends FOGBase {
             }
             exec('rm -rf "'.$path.$filename.'"');
         } else if ($intType == 4) {
-            header('X-Content-Type-Options: nosniff');
-            header('Strict-Transport-Security: max-age=16070400; includeSubDomains');
-            header('X-XSS-Protection: 1; mode=block');
-            header('X-Frame-Options: deny');
-            header('Cache-Control: no-cache');
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=".$_REQUEST[type]."_export.csv");
             echo implode($this->strLine,"\n");

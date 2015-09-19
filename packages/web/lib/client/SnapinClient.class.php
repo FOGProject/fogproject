@@ -1,5 +1,112 @@
 <?php
 class SnapinClient extends FOGClient implements FOGClientSend {
     public function send() {
+        // Common checks before anything is done or sent
+        // Is this host in non-snapin tasking?
+        if ($this->Host->get(task)->isValid() && !in_array($this->Host->get(task)->get(typeID),array(12,13))) throw new Exception('#!it');
+        // Is there actually a job for this host?
+        if (!$this->Host->get(snapinjob)->isValid()) throw new Exception('#!ns');
+        // Work on the current snapin task
+        $SnapinTask = $this->getClass(SnapinTaskManager)->find(array(jobID=>$this->Host->get(snapinjob)->get(id),stateID=>array(-1,0,1)),'','name');
+        $SnapinTask = @array_shift($SnapinTask);
+        // Is this snapin task actually valid?
+        if (!($SnapinTask instanceof SnapinTask && $SnapinTask->isValid())) {
+            // If a job exists but no snapin tasks
+            // remove the job.
+            if ($this->getClass(SnapinTask)->count(array(jobID=>$this->Host->get(snapinjob)->get(id)))) $this->Host->get(snapinjob)->destroy();
+            // If host has snapin tasking, update to complete
+            if ($this->Host->get(task)->isValid()) $this->Host->get(task)->set(stateID,4)->save();
+            throw new Exception('#!ns');
+        }
+        // Get this Snapin
+        $Snapin = $SnapinTask->getSnapin();
+        // Get the storage group
+        if ($Snapin->getStorageGroup()->isValid() && $Snapin->isValid()) $StorageGroup = $Snapin->getStorageGroup();
+        // Send the hook to alter the group as needed
+        $this->HookManager->processEvent('SNAPIN_GROUP',array(Host=>&$this->Host,Snapin=>&$Snapin,StorageGroup=>&$StorageGroup));
+        // If the Storage Group isn't valid, set file using legacy method
+        if (!$StorageGroup->isValid()) {
+            $SnapinFile = '/'.trim($this->getSetting(FOG_SNAPINDIR),'/').'/';
+            // If the files don't exist throw and error
+            if (!file_exists($SnapinFile) && !file_exists($Snapin->get(file))) throw new Exception('Snapin file does not exist');
+        } else {
+            // Get the master node
+            $StorageNode = $StorageGroup->getMasterStorageNode();
+            // Send the hook to alter the node as needed
+            $this->HookManager->processEvent('SNAPIN_NODE',array(Host=>&$this->Host,Snapin=>&$Snapin,StorageNode=>&$StorageNode));
+            // If we cannot find a node we cannot download the file
+            // Inform the client of this
+            if (!$StorageNode->isValid()) throw new Exception(_('Failed to find a node'));
+            // If we cannot connect to the ftp server we cannot download the file
+            // Inform the client of this
+            $this->FOGFTP
+                ->set(host,$StorageNode->get(ip))
+                ->set(username,$StorageNode->get(user))
+                ->set(password,$StorageNode->get(pass));
+            if (!$this->FOGFTP->connect()) throw new Exception(_('Failed to connect to download'));
+            // Disconnect as we will download it directly
+            $this->FOGFTP->close();
+            // Trim the path and get the basename of the file
+            $path = trim($StorageNode->get(snapinpath),'/');
+            $file = basename($Snapin->get(file));
+            // Create the file link
+            $SnapinFile = "ftp://{$StorageNode->get(user)}:{$StorageNode->get(pass)}@{$StorageNode->get(ip)}/$path/$file";
+            // Is the file existing and readable?
+            if (!file_exists($SnapinFile) || !is_readable($SnapinFile)) throw new Exception(_('Failed to find snapin file'));
+            $size = filesize($SnapinFile);
+        }
+        // Perform checkin if the taskid is not set
+        if (!isset($_REQUEST[taskid])) {
+            // Is snapin complete and proper?
+            if (strlen($_REQUEST[exitcode]) > 0 && is_numeric($_REQUEST[exitcode])) {
+                $SnapinTask->set(stateID,2)->set('return',$_REQUEST[exitcode])->set(details,$_REQUEST[exitdesc])->set(complete,$this->nice_date()->format('Y-m-d H:i:s'));
+                if ($SnapinTask->save()) echo '#!ok';
+                // If this is the last task, update the job
+                if ($this->getClass(SnapinTaskManager)->count(array(stateID=>array(-1,0,1))) < 1) $this->Host->get(snapinjob)->set(stateID,2)->save();
+            } else {
+                // Update Job to in progress
+                $this->Host->get(snapinjob)->set(stateID,1)->save();
+                // If host has snapin tasking, update to in progress
+                if ($this->Host->get(task)->isValid()) $this->Host->get(task)->set(stateID,3)->set(checkInTime,$this->nice_date()->format('Y-m-d H:i:s'))->save();
+                // Update the actual Snapin Tasking
+                $SnapinTask->set(stateID,0)->set(checkin,$this->nice_date()->format('Y-m-d H:i:s'));
+                // If snapin tasking fails inform the client
+                if (!$SnapinTask->save()) throw new Exception(_('Failed to update snapin tasking'));
+                // All successful, give the client the details
+                $goodArray = array(
+                    '#!ok',
+                    sprintf('JOBTASKID=%d',$SnapinTask->get(id)),
+                    sprintf('JOBCREATION=%s',$this->Host->get(snapinjob)->get(createdTime)),
+                    sprintf('SNAPINNAME=%s',$Snapin->get(name)),
+                    sprintf('SNAPINARGS=%s',$Snapin->get(args)),
+                    sprintf('SNAPINBOUNCE=%s',$Snapin->get(reboot)),
+                    sprintf('SNAPINFILENAME=%s',$Snapin->get(file)),
+                    sprintf('SNAPINRUNWITH=%s',$Snapin->get(runWith)),
+                    sprintf('SNAPINRUNWITHARGS=%s',$Snapin->get(runWithArgs)),
+                );
+                if (isset($_REQUEST[newService])) {
+                    array_push($goodArray,sprintf('SNAPINHASH=%s',hash_file('sha512',$SnapinFile)));
+                    array_push($goodArray,sprintf('SNAPINSIZE=%s',$size));
+                }
+                $this->send = implode("\n",$goodArray);
+            }
+        } else {
+            // Clear out the buffer just in case
+            while (ob_get_level()) ob_end_clean();
+            header("X-Sendfile: $SnapinFile");
+            header('Content-Type: application/octet-stream');
+            header("Content-Length: $size");
+            header("Content-Disposition: attachment; filename=$file");
+            if (false !== ($handle = fopen($SnapinFile,'rb'))) {
+                while (!feof($handle)) {
+                    echo fread($handle,4*1024*1024);
+                    flush();
+                    ob_flush();
+                }
+            }
+            if ($this->Host->get(task)->isValid()) $this->Host->get(task)->set(stateID,3)->save();
+            $SnapinTask->set(stateID,1)->set('return',-1)->set(details,_('Pending...'))->save();
+            exit;
+        }
     }
 }
