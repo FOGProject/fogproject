@@ -56,6 +56,12 @@ class TaskManagementPage extends FOGPage {
         $Tasks = $this->getClass(TaskManager)->search();
         foreach ($Tasks AS $i => &$Task) {
             $Host = $Task->getHost();
+            if ($Host instanceof Host && $Host->isValid()) {
+                $hostname = $Host->get(name);
+                $MAC = $Host->get(mac);
+            }
+            if ($MAC instanceof MACAddress) $MAC = $MAC->__toString();
+            else $MAC = $this->getClass(MACAddress,$MAC)->__toString();
             $this->data[] = array(
                 startedby=>$Task->get(createdBy),
                 id=>$Task->get(id),
@@ -75,8 +81,8 @@ class TaskManagementPage extends FOGPage {
                 details_taskname=>($Task->get(name)?sprintf('<div class="task-name">%s</div>',$Task->get(name)):''),
                 details_taskforce=>($Task->get(isForced)?sprintf('<i class="icon-forced" title="%s"></i>',_('Task forced to start')):($Task->get(typeID) < 3 && $Task->get(stateID) < 3?sprintf('<a href="?node=task&sub=force-task&id=%s" class="icon-force"><i title="%s"></i></a>',$Task->get(id),_('Force task to start')):'&nbsp;')),
                 host_id=>$Task->get(hostID),
-                host_name=>$Host ? $Host->get(name) : '',
-                host_mac=>$Host ? $Host->get(mac)->__toString() : '',
+                host_name=>$hostname,
+                host_mac=>$MAC,
                 icon_state=>$Task->getTaskState()->getIcon(),
                 icon_type=>$Task->getTaskType()->get(icon),
             );

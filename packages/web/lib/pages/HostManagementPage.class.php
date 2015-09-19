@@ -846,13 +846,13 @@ class HostManagementPage extends FOGPage {
         $this->headerData = array(
             _('Image Name'),
             _('Imaging Type'),
-            '<small>'._('Start - End').'</small><br />'._('Duration'),
+            '<small>'._('Completed').'</small><br />'._('Duration'),
         );
         // Templates for the host image history
         $this->templates = array(
             '${image_name}',
             '${image_type}',
-            '<small>${start_time} - ${end_time}</small><br />${duration}',
+            '<small>${completed}</small><br />${duration}',
         );
         // Attributes
         $this->attributes = array(
@@ -865,8 +865,7 @@ class HostManagementPage extends FOGPage {
             $Start = $ImageLog->get(start);
             $End = $ImageLog->get(finish);
             $this->data[] = array(
-                start_time=>$this->formatTime($Start),
-                end_time=>$this->formatTime($End),
+                completed=>$this->formatTime($End),
                 duration=>$this->diff($Start,$End),
                 image_name=>$ImageLog->get(image),
                 image_type=>$ImageLog->get(type),
@@ -901,7 +900,7 @@ class HostManagementPage extends FOGPage {
                 $this->data[] = array(
                     snapin_name=>$Snapin->get(name),
                     snapin_start=>$this->formatTime($SnapinTask->get(checkin)),
-                    snapin_end => $this->formatTime($SnapinTask->get(complete)),
+                    snapin_end => '<span class="icon" title="'.$this->formatTime($SnapinTask->get(complete)).'">'.$this->getClass(TaskState,$SnapinTask->get(stateID)).'</span>',
                     snapin_duration => $this->diff($SnapinTask->get(checkin),$SnapinTask->get(complete)),
                     snapin_return=>$SnapinTask->get('return'),
                 );
