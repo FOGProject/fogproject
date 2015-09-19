@@ -134,12 +134,13 @@ function ActiveTasksUpdate() {
         },
         success: function(response)	{
             checkedIDs = getChecked();
+            dataLength = response.data !== null ? response.data.length : 0;
             // Loader
             Loader
             .removeClass('loading')
             .fogStatusUpdate(_L['ACTIVE_TASKS_FOUND']
-                .replace(/%1/, response['data'].length)
-                .replace(/%2/, response['data'].length != 1 ? 's' : '')
+                .replace(/%1/, dataLength)
+                .replace(/%2/, dataLength != 1 ? 's' : '')
             );
             i = Loader.find('i');
             i
@@ -148,7 +149,7 @@ function ActiveTasksUpdate() {
             ActiveTasksAJAX = null;
             var tbody = $('tbody',ActiveTasksContainer);
             var thead = $('thead',ActiveTasksContainer);
-            ActiveTasksLastCount = response['data'].length;
+            ActiveTasksLastCount = dataLength;
             tbody.empty();
             if (thead.length == 0) {
                 var head = '<tr class="header">';
@@ -163,7 +164,7 @@ function ActiveTasksUpdate() {
                 head += '</tr>';
                 tbody.before('<thead>'+head+'</thead>');
             }
-            if (response['data'].length > 0) {
+            if (dataLength > 0) {
                 var rows = '';
                 for (var i in response['data']) {
                     var row = '<tr id="task-'+response['data'][i]['id']+'" class="'+(i % 2 ? 'alt2' : 'alt1')+(response['data'][i]['percent'] ? ' with-progress' : '')+'">';
