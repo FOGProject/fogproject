@@ -20,9 +20,9 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             // If a job exists but no snapin tasks
             // remove the job.
             if ($this->getClass(SnapinTaskManager)->count(array(jobID=>$this->Host->get(snapinjob)->get(id),stateID=>array(-1,0,1,2,3))) < 1) {
-                $this->Host->get(snapinjob)->set(stateID,5)->save();
                 // If host has snapin tasking, update to cancelled as it does not exist
                 if ($this->Host->get(task)->isValid()) $this->Host->get(task)->cancel();
+                $this->Host->get(snapinjob)->set(stateID,5)->save();
             }
             throw new Exception('#!ns');
         }
@@ -62,7 +62,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             // Is the file existing and readable?
             if (!file_exists($SnapinFile) || !is_readable($SnapinFile)) {
                 // Put this snapin into cancelled state so other snapins can run
-                $SnapinTask->set(stateID,5)->save();
+                $SnapinTask->set(stateID,5)->set(complete,$this->nice_date()->format('Y-m-d H:i:s'))->save();
                 throw new Exception(_('Failed to find snapin file'));
             }
             $size = filesize($SnapinFile);
@@ -75,9 +75,9 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                 if ($SnapinTask->save()) echo '#!ok';
                 // If this is the last task, update the job
                 if ($this->getClass(SnapinTaskManager)->count(array(stateID=>array(-1,0,1,2,3))) < 1) {
-                    $this->Host->get(snapinjob)->set(stateID,4)->save();
                     // If host has snapin tasking, update to complete
                     if ($this->Host->get(task)->isValid()) $this->Host->get(task)->set(stateID,4)->save();
+                    $this->Host->get(snapinjob)->set(stateID,4)->save();
                 }
             } else {
                 // Update Job to in progress
