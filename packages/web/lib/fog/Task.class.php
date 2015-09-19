@@ -77,6 +77,7 @@ class Task extends FOGController {
             unset($MSA);
         }
         $this->set(stateID,5)->save();
+        return $this;
     }
     // Overrides
     public function set($key, $value) {
