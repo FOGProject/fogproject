@@ -60,12 +60,11 @@ class TaskManagementPage extends FOGPage {
                 startedby=>$Task->get(createdBy),
                 id=>$Task->get(id),
                 name=>$Task->get(name),
-                'time'=>$this->formatTime($Task->get(createdTime),'Y-m-d H:i:s'),
+                time=>$this->formatTime($Task->get(createdTime)),
                 state=>$Task->getTaskStateText(),
                 forced=>($Task->get(isForced) ? 1 : 0),
                 type=>$Task->getTaskTypeText(),
                 percentText=>$Task->get(percent),
-                'class'=> ++$i % 2 ? 'alt2' : 'alt1',
                 width=>600*($Task->get(percent)/100),
                 elapsed=>$Task->get(timeElapsed),
                 remains=>$Task->get(timeRemaining),
@@ -298,12 +297,11 @@ class TaskManagementPage extends FOGPage {
                 startedby=>$Task->get(createdBy),
                 id=>$Task->get(id),
                 name=>$Task->get(name),
-                'time'=>$this->formatTime($Task->get(createdTime),'Y-m-d H:i:s'),
+                time=>$this->formatTime($Task->get(createdTime)),
                 state=>$Task->getTaskStateText(),
                 forced=>$Task->get(isForced),
                 type=>$Task->getTaskTypeText(),
                 percentText=>$Task->get(percent),
-                'class'=>++$i % 2 ? 'alt2' : 'alt1',
                 width=> 600 * ($Task->get(percent)/100),
                 elapsed=>$Task->get(timeElapsed),
                 remains=>$Task->get(timeRemaining),
@@ -421,7 +419,7 @@ class TaskManagementPage extends FOGPage {
                 id=>$MS->get(id),
                 name=>($MS->get(name)?$MS->get(name): _('Multicast Task')),
                 'count'=>$this->getClass(MulticastSessionsAssociationManager)->count(array(msID=>$MS->get(id))),
-                start_date=>$MS->get(starttime),
+                start_date=>$this->formatTime($MS->get(starttime)),
                 state=>($TS->get(name)?$TS->get(name):null),
                 percent=>$MS->get(percent),
             );
@@ -457,7 +455,7 @@ class TaskManagementPage extends FOGPage {
             array('class'=>l,width=>50),
             array('class'=>r,width=>40),
         );
-        $STasks = $this->getClass(SnapinTaskManager)->find(array(stateID=>array(-1,0,1)));
+        $STasks = $this->getClass(SnapinTaskManager)->find(array(stateID=>array(-1,0,1,2,3)));
         foreach($STasks AS $i => &$SnapinTask) {
             $Host = $this->getClass(SnapinJob,$SnapinTask->get(jobID))->getHost();
             $Snapin = $this->getClass(Snapin,$SnapinTask->get(snapinID));
@@ -467,8 +465,8 @@ class TaskManagementPage extends FOGPage {
                     name => $Snapin->get(name),
                     hostID => $Host->get(id),
                     host_name => $Host->get(name),
-                    startDate => $SnapinTask->get(checkin),
-                    state => $SnapinTask->get(stateID) == 0 ? 'Queued' : ($SnapinTask->get(stateID) == 1 ? 'In-Progress' : 'N/A'),
+                    startDate => $this->formatTime($SnapinTask->get(checkin)),
+                    state => $this->getClass(TaskState,$SnapinTask->get(stateID))->get(name),
                 );
             }
         }
@@ -541,7 +539,7 @@ class TaskManagementPage extends FOGPage {
                 host_id=>$hostGroupName->get(id),
                 groupbased=>$task->isGroupBased() ? _('Yes') : _('No'),
                 details_taskname=>$task->get(name),
-                'time'=>$this->formatTime($taskTime),
+                time=>$this->formatTime($taskTime),
                 active=>$task->get(isActive) ? 'Yes' : 'No',
                 type=>$task->get(type) == 'C' ? 'Cron' : 'Delayed',
                 schedtaskid=>$task->get(id),
