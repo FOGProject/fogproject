@@ -4,17 +4,23 @@ class SnapinClient extends FOGClient implements FOGClientSend {
         // Common checks before anything is done or sent
         // Is this host in non-snapin tasking?
         if ($this->Host->get(task)->isValid() && !in_array($this->Host->get(task)->get(typeID),array(12,13))) throw new Exception('#!it');
-        // Is there actually a job for this host?
-        if (!$this->Host->get(snapinjob)->isValid()) throw new Exception('#!ns');
-        // Work on the current snapin task
-        $SnapinTask = $this->getClass(SnapinTaskManager)->find(array(jobID=>$this->Host->get(snapinjob)->get(id),stateID=>array(-1,0,1)),'','name');
-        $SnapinTask = @array_shift($SnapinTask);
+        // If the task is sent, is it valid?
+        if (isset($_REQUEST[taskid])) {
+            $SnapinTask = $this->getClass(SnapinTask,$_REQUEST[taskid]);
+            if (!$SnapinTask->isValid() || in_array($SnapinTask->get(stateID),array(4,5))) throw new Exception(_('Invalid snapin tasking passed'));
+        } else {
+            // Is there actually a job for this host?
+            if (!$this->Host->get(snapinjob)->isValid()) throw new Exception('#!ns');
+            // Work on the current snapin task
+            $SnapinTask = $this->getClass(SnapinTaskManager)->find(array(jobID=>$this->Host->get(snapinjob)->get(id),stateID=>array(-1,0,1,2,3)),'','name');
+            $SnapinTask = @array_shift($SnapinTask);
+        }
         // Is this snapin task actually valid?
         if (!($SnapinTask instanceof SnapinTask && $SnapinTask->isValid())) {
             // If a job exists but no snapin tasks
             // remove the job.
-            if ($this->getClass(SnapinTaskManager)->count(array(jobID=>$this->Host->get(snapinjob)->get(id))) < 1) {
-                $this->Host->get(snapinjob)->set(stateID,2)->save();
+            if ($this->getClass(SnapinTaskManager)->count(array(jobID=>$this->Host->get(snapinjob)->get(id),stateID=>array(-1,0,1,2,3))) < 1) {
+                $this->Host->get(snapinjob)->set(stateID,5)->save();
                 // If host has snapin tasking, update to cancelled as it does not exist
                 if ($this->Host->get(task)->isValid()) $this->Host->get(task)->cancel();
             }
@@ -54,30 +60,35 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             // Create the file link
             $SnapinFile = "ftp://{$StorageNode->get(user)}:{$StorageNode->get(pass)}@{$StorageNode->get(ip)}/$path/$file";
             // Is the file existing and readable?
-            if (!file_exists($SnapinFile) || !is_readable($SnapinFile)) throw new Exception(_('Failed to find snapin file'));
+            if (!file_exists($SnapinFile) || !is_readable($SnapinFile)) {
+                // Put this snapin into cancelled state so other snapins can run
+                $SnapinTask->set(stateID,5)->save();
+                throw new Exception(_('Failed to find snapin file'));
+            }
             $size = filesize($SnapinFile);
         }
         // Perform checkin if the taskid is not set
         if (!isset($_REQUEST[taskid])) {
             // Is snapin complete and proper?
             if (strlen($_REQUEST[exitcode]) > 0 && is_numeric($_REQUEST[exitcode])) {
-                $SnapinTask->set(stateID,2)->set('return',$_REQUEST[exitcode])->set(details,$_REQUEST[exitdesc])->set(complete,$this->nice_date()->format('Y-m-d H:i:s'));
+                $SnapinTask->set(stateID,4)->set('return',$_REQUEST[exitcode])->set(details,$_REQUEST[exitdesc])->set(complete,$this->nice_date()->format('Y-m-d H:i:s'));
                 if ($SnapinTask->save()) echo '#!ok';
                 // If this is the last task, update the job
-                if ($this->getClass(SnapinTaskManager)->count(array(stateID=>array(-1,0,1))) < 1) {
-                    $this->Host->get(snapinjob)->set(stateID,2)->save();
+                if ($this->getClass(SnapinTaskManager)->count(array(stateID=>array(-1,0,1,2,3))) < 1) {
+                    $this->Host->get(snapinjob)->set(stateID,4)->save();
                     // If host has snapin tasking, update to complete
                     if ($this->Host->get(task)->isValid()) $this->Host->get(task)->set(stateID,4)->save();
                 }
             } else {
                 // Update Job to in progress
-                $this->Host->get(snapinjob)->set(stateID,1)->save();
+                $this->Host->get(snapinjob)->set(stateID,3)->save();
                 // If host has snapin tasking, update to in progress
                 if ($this->Host->get(task)->isValid()) $this->Host->get(task)->set(stateID,3)->set(checkInTime,$this->nice_date()->format('Y-m-d H:i:s'))->save();
                 // Update the actual Snapin Tasking
-                $SnapinTask->set(stateID,0)->set(checkin,$this->nice_date()->format('Y-m-d H:i:s'));
+                $SnapinTask->set(stateID,2)->set(checkin,$this->nice_date()->format('Y-m-d H:i:s'));
                 // If snapin tasking fails inform the client
                 if (!$SnapinTask->save()) throw new Exception(_('Failed to update snapin tasking'));
+                if ($this->newService) $snapinHash = hash_file('sha512',$SnapinFile);
                 // All successful, give the client the details
                 $goodArray = array(
                     '#!ok',
@@ -90,8 +101,8 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                     sprintf('SNAPINRUNWITH=%s',$Snapin->get(runWith)),
                     sprintf('SNAPINRUNWITHARGS=%s',$Snapin->get(runWithArgs)),
                 );
-                if (isset($_REQUEST[newService])) {
-                    array_push($goodArray,sprintf('SNAPINHASH=%s',hash_file('sha512',$SnapinFile)));
+                if ($this->newService) {
+                    array_push($goodArray,sprintf('SNAPINHASH=%s',$snapinHash));
                     array_push($goodArray,sprintf('SNAPINSIZE=%s',$size));
                 }
                 $this->send = implode("\n",$goodArray);
@@ -111,7 +122,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                 }
             }
             if ($this->Host->get(task)->isValid()) $this->Host->get(task)->set(stateID,3)->save();
-            $SnapinTask->set(stateID,1)->set('return',-1)->set(details,_('Pending...'))->save();
+            $SnapinTask->set(stateID,3)->set('return',-1)->set(details,_('Pending...'))->save();
             exit;
         }
     }

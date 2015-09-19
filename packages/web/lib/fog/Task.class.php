@@ -57,8 +57,8 @@ class Task extends FOGController {
         // Set State to User cancelled
         $SnapinJob = $this->getHost()->getActiveSnapinJob();
         if ($SnapinJob instanceof SnapinJob && $SnapinJob->isValid()) {
-            $this->getClass(SnapinTaskManager)->destroy(array(jobID=>$SnapinJob->get(id)));
-            $SnapinJob->destroy();
+            $this->getClass(SnapinTaskManager)->update(array(jobID=>$SnapinJob->get(id)),'',array(stateID=>5));
+            $SnapinJob->set(stateID,5)->save();
         }
         if ($this->getTaskType()->isMulticast()) {
             $MSAs = $this->getClass(MulticastSessionsAssociationManager)->find(array(taskID=>$this->get(id)));

@@ -2063,3 +2063,8 @@ $this->schema[] = array(
     "ALTER TABLE `".DATABASE_NAME."`.`hosts` ADD COLUMN `hostExitBios` LONGTEXT",
     "ALTER TABLE `".DATABASE_NAME."`.`hosts` ADD COLUMN `hostExitEfi` LONGTEXT",
 );
+// 196 this will set all current snapin jobs and taskings to complete
+$this->schema[] = array(
+    "UPDATE `".DATABASE_NAME."`.`snapinTasks` SET `stState`=4",
+    "UPDATE `".DATABASE_NAME."`.`snapinJobs` SET `sjStateID`=4",
+);
