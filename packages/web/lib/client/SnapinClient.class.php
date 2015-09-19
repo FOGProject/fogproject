@@ -13,9 +13,11 @@ class SnapinClient extends FOGClient implements FOGClientSend {
         if (!($SnapinTask instanceof SnapinTask && $SnapinTask->isValid())) {
             // If a job exists but no snapin tasks
             // remove the job.
-            if ($this->getClass(SnapinTask)->count(array(jobID=>$this->Host->get(snapinjob)->get(id)))) $this->Host->get(snapinjob)->destroy();
-            // If host has snapin tasking, update to complete
-            if ($this->Host->get(task)->isValid()) $this->Host->get(task)->set(stateID,4)->save();
+            if ($this->getClass(SnapinTaskManager)->count(array(jobID=>$this->Host->get(snapinjob)->get(id))) < 1) {
+                $this->Host->get(snapinjob)->set(stateID,2)->save();
+                // If host has snapin tasking, update to cancelled as it does not exist
+                if ($this->Host->get(task)->isValid()) $this->Host->get(task)->cancel();
+            }
             throw new Exception('#!ns');
         }
         // Get this Snapin
@@ -62,7 +64,11 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                 $SnapinTask->set(stateID,2)->set('return',$_REQUEST[exitcode])->set(details,$_REQUEST[exitdesc])->set(complete,$this->nice_date()->format('Y-m-d H:i:s'));
                 if ($SnapinTask->save()) echo '#!ok';
                 // If this is the last task, update the job
-                if ($this->getClass(SnapinTaskManager)->count(array(stateID=>array(-1,0,1))) < 1) $this->Host->get(snapinjob)->set(stateID,2)->save();
+                if ($this->getClass(SnapinTaskManager)->count(array(stateID=>array(-1,0,1))) < 1) {
+                    $this->Host->get(snapinjob)->set(stateID,2)->save();
+                    // If host has snapin tasking, update to complete
+                    if ($this->Host->get(task)->isValid()) $this->Host->get(task)->set(stateID,4)->save();
+                }
             } else {
                 // Update Job to in progress
                 $this->Host->get(snapinjob)->set(stateID,1)->save();
