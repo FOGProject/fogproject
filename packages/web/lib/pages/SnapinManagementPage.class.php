@@ -113,13 +113,14 @@ class SnapinManagementPage extends FOGPage {
             _('Snapin Name') => '<input type="text" name="name" value="'.$_REQUEST[name].'" />',
             _('Snapin Description') => '<textarea name="description" rows="8" cols="40">'.$_REQUEST[description].'</textarea>',
             _('Snapin Storage Group') => $this->getClass(StorageGroupManager)->buildSelectBox($_REQUEST[storagegroup]),
-            _('Snapin Run With') => '<input type="text" name="rw" value="'.$_REQUEST[rw].'" />',
-            _('Snapin Run With Argument') => '<input type="text" name="rwa" value="'.$_REQUEST[rwa].'" />',
-            _('Snapin File').' <span class="lightColor">'._('Max Size').':'.ini_get('post_max_size').'</span>' => '<input type="file" name="snapin" value="'.$_FILES[snapin].'"/>',
-            (count($files) > 0 ?_('Snapin File (exists)') : null)=> (count($files) > 0 ? '<select name="snapinfileexist"><span class="lightColor"><option value="">- '._('Please select an option').'-</option>'.$filesFound.'</select>' : null),
-            _('Snapin Arguments') => '<input type="text" name="args" value="'.$_REQUEST[args].'"/>',
+            _('Snapin Run With') => '<input class="cmdlet1" type="text" name="rw" value="'.$_REQUEST[rw].'" />',
+            _('Snapin Run With Argument') => '<input class="cmdlet2" type="text" name="rwa" value="'.$_REQUEST[rwa].'" />',
+            _('Snapin File').' <span class="lightColor">'._('Max Size').':'.ini_get('post_max_size').'</span>' => '<input class="cmdlet3" type="file" name="snapin" value="'.$_FILES[snapin].'"/>',
+            (count($files) > 0 ?_('Snapin File (exists)') : null)=> (count($files) > 0 ? '<select class="cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- '._('Please select an option').'-</option>'.$filesFound.'</select>' : null),
+            _('Snapin Arguments') => '<input class="cmdlet4" type="text" name="args" value="'.$_REQUEST[args].'"/>',
             _('Reboot after install') => '<input type="checkbox" name="reboot" />',
-            '<input type="hidden" name="add" value="1" />' => '<input type="submit" value="'._('Add').'" />',
+            _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
+            '' => '<input name="add" type="submit" value="'._('Add').'" />',
         );
         echo '<form method="post" action="'.$this->formAction.'" enctype="multipart/form-data">';
         foreach ((array)$fields AS $field => &$input) {
@@ -135,12 +136,6 @@ class SnapinManagementPage extends FOGPage {
         $this->render();
         echo '</form>';
         unset($this->data,$this->templates,$this->attributes,$this->headerData);
-        $this->templates = array(
-            _('Snapin Command').': ${snapincmd}',
-        );
-        $this->attributes = array(
-            array('class'=>c),
-        );
     }
     public function add_post() {
         // Hook
@@ -261,14 +256,15 @@ class SnapinManagementPage extends FOGPage {
         $fields = array(
             _('Snapin Name') => '<input type="text" name="name" value="${snapin_name}" />',
             _('Snapin Description') => '<textarea name="description" rows="8" cols="40" value="${snapin_desc}">${snapin_desc}</textarea>',
-            _('Snapin Run With') => '<input type="text" name="rw" value="${snapin_rw}" />',
-            _('Snapin Run With Argument') => '<input type="text" name="rwa" value="${snapin_rwa}" />',
-            _('Snapin File').' <span class="lightColor">'._('Max Size').':${max_size}</span>' => '<span id="uploader">${snapin_file}<a href="#" id="snapin-upload"><i class="fa fa-arrow-up noBorder"></i></a></span>',
-            (count($files) > 0 ? _('Snapin File (exists)') : null)=> (count($files) > 0 ? '<select name="snapinfileexist"><<span class="lightColor"><option value="">- '._('Please select an option').'-</option>${snapin_filesexist}</select>' : null),
-            _('Snapin Arguments') => '<input type="text" name="args" value="${snapin_args}" />',
+            _('Snapin Run With') => '<input class="cmdlet1" type="text" name="rw" value="${snapin_rw}" />',
+            _('Snapin Run With Argument') => '<input class="cmdlet2" type="text" name="rwa" value="${snapin_rwa}" />',
+            _('Snapin File').' <span class="lightColor">'._('Max Size').':${max_size}</span>' => '<label id="uploader" for="snapin-uploader">${snapin_file}<a href="#" id="snapin-upload">&nbsp;<i class="fa fa-arrow-up noBorder"></i></a></label>',
+            (count($files) > 0 ? _('Snapin File (exists)') : null)=> (count($files) > 0 ? '<select class="cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- '._('Please select an option').'-</option>${snapin_filesexist}</select>' : null),
+            _('Snapin Arguments') => '<input class="cmdlet4" type="text" name="args" value="${snapin_args}" />',
             _('Protected') => '<input type="checkbox" name="protected_snapin" value="1" ${snapin_protected} />',
             _('Reboot after install') => '<input type="checkbox" name="reboot" ${checked} />',
-            '<input type="hidden" name="snapinid" value="${snapin_id}" /><input type="hidden" name="update" value="1" />' => '<input type="hidden" name="snapinfile" value="${snapin_file}" /><input type="submit" value="'._('Update').'" />',
+            _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
+            '' => '<input name="update" type="submit" value="'._('Add').'" />',
         );
         echo '<div id="tab-container">';
         echo '<!-- General -->';
