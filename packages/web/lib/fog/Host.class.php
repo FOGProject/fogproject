@@ -395,7 +395,7 @@ class Host extends FOGController {
     }
     private function loadSnapinJob() {
         if (!$this->isLoaded(snapinjob) && $this->get(id))
-            $this->set(snapinjob,$this->getClass(SnapinJob,@max($this->getClass(SnapinJobManager)->find(array(stateID=>array(-1,0,1),hostID=>$this->get(id)),'','','','','','','id'))));
+            $this->set(snapinjob,$this->getClass(SnapinJob,@max($this->getClass(SnapinJobManager)->find(array(stateID=>array(-1,0,1,2,3),hostID=>$this->get(id)),'','','','','','','id'))));
         return $this;
     }
     private function loadPrimary() {
@@ -537,12 +537,12 @@ class Host extends FOGController {
      * @return void
      */
     private function cancelJobsSnapinsForHost() {
-        $SnapinJobs = $this->getClass(SnapinJobManager)->find(array(hostID=>$this->get(id),stateID=>array(-1,0,1)));
+        $SnapinJobs = $this->getClass(SnapinJobManager)->find(array(hostID=>$this->get(id),stateID=>array(-1,0,1,2,3)));
         foreach($SnapinJobs AS $i => &$SJ) {
-            $SnapinTasks = $this->getClass(SnapinTaskManager)->find(array(jobID=>$SJ->get(id),stateID=>array(-1,0,1)));
-            foreach($SnapinTasks AS $i => &$ST) $ST->set(stateID,2)->save();
+            $SnapinTasks = $this->getClass(SnapinTaskManager)->find(array(jobID=>$SJ->get(id),stateID=>array(-1,0,1,2,3)));
+            foreach($SnapinTasks AS $i => &$ST) $ST->set(stateID,5)->save();
             unset($ST);
-            $SJ->set(stateID,2)->set('return',-9999)->save();
+            $SJ->set(stateID,5)->set('return',-9999)->set(details,_('Cancelled due to new tasking'))->save();
         }
         unset($SJ);
     }
