@@ -66,6 +66,7 @@ else
 fi
 if [ "$docroot" == "/var/www/html/" ] && [ ! -d "$docroot" ]; then
     docroot="/var/www/";
+    webdirdest="${docroot}fog";
 fi
 webredirect="$docroot/index.php"
 apacheuser="www-data"
