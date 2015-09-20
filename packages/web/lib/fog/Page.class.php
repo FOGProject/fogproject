@@ -146,6 +146,8 @@ class Page extends FOGBase {
     }
     public function endBody() {
         $this->body = ob_get_clean();
+        flush();
+        ob_end_flush();
     }
     public function render($path = '') {
         self::sendHeaders();

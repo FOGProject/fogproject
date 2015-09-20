@@ -96,6 +96,7 @@ class UserManagementPage extends FOGPage {
             array(),
         );
         $fields = array(
+            '<input style="display:none" type="text" name="fakeusernameremembered"/>'=>'<input style="display:none" type="password" name="fakepasswordremembered"/>',
             _('User Name') => '<input type="text" name="name" value="'.$_REQUEST[name].'" autocomplete="off" />',
             _('User Password') => '<input type="password" name="password" value="" autocomplete="off" />',
             _('User Password (confirm)') => '<input type="password" name="password_confirm" value="" autocomplete="off" />',
