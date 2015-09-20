@@ -68,46 +68,44 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             $size = filesize($SnapinFile);
         }
         // Perform checkin if the taskid is not set
-        if (!isset($_REQUEST[taskid])) {
-            // Is snapin complete and proper?
-            if (strlen($_REQUEST[exitcode]) > 0 && is_numeric($_REQUEST[exitcode])) {
-                $SnapinTask->set(stateID,4)->set('return',$_REQUEST[exitcode])->set(details,$_REQUEST[exitdesc])->set(complete,$this->nice_date()->format('Y-m-d H:i:s'));
-                if ($SnapinTask->save()) echo '#!ok';
-                // If this is the last task, update the job
-                if ($this->getClass(SnapinTaskManager)->count(array(stateID=>array(-1,0,1,2,3))) < 1) {
-                    // If host has snapin tasking, update to complete
-                    if ($this->Host->get(task)->isValid()) $this->Host->get(task)->set(stateID,4)->save();
-                    $this->Host->get(snapinjob)->set(stateID,4)->save();
-                }
-            } else {
-                // Update Job to in progress
-                $this->Host->get(snapinjob)->set(stateID,3)->save();
-                // If host has snapin tasking, update to in progress
-                if ($this->Host->get(task)->isValid()) $this->Host->get(task)->set(stateID,3)->set(checkInTime,$this->nice_date()->format('Y-m-d H:i:s'))->save();
-                // Update the actual Snapin Tasking
-                $SnapinTask->set(stateID,2)->set(checkin,$this->nice_date()->format('Y-m-d H:i:s'));
-                // If snapin tasking fails inform the client
-                if (!$SnapinTask->save()) throw new Exception(_('Failed to update snapin tasking'));
-                if ($this->newService) $snapinHash = hash_file('sha512',$SnapinFile);
-                // All successful, give the client the details
-                $goodArray = array(
-                    '#!ok',
-                    sprintf('JOBTASKID=%d',$SnapinTask->get(id)),
-                    sprintf('JOBCREATION=%s',$this->Host->get(snapinjob)->get(createdTime)),
-                    sprintf('SNAPINNAME=%s',$Snapin->get(name)),
-                    sprintf('SNAPINARGS=%s',$Snapin->get(args)),
-                    sprintf('SNAPINBOUNCE=%s',$Snapin->get(reboot)),
-                    sprintf('SNAPINFILENAME=%s',$Snapin->get(file)),
-                    sprintf('SNAPINRUNWITH=%s',$Snapin->get(runWith)),
-                    sprintf('SNAPINRUNWITHARGS=%s',$Snapin->get(runWithArgs)),
-                );
-                if ($this->newService) {
-                    array_push($goodArray,sprintf('SNAPINHASH=%s',$snapinHash));
-                    array_push($goodArray,sprintf('SNAPINSIZE=%s',$size));
-                }
-                $this->send = implode("\n",$goodArray);
+        // Is snapin complete and proper?
+        if (strlen($_REQUEST[exitcode]) > 0 && is_numeric($_REQUEST[exitcode])) {
+            $SnapinTask->set(stateID,4)->set('return',$_REQUEST[exitcode])->set(details,$_REQUEST[exitdesc])->set(complete,$this->nice_date()->format('Y-m-d H:i:s'));
+            if ($SnapinTask->save()) echo '#!ok';
+            // If this is the last task, update the job
+            if ($this->getClass(SnapinTaskManager)->count(array(stateID=>array(-1,0,1,2,3))) < 1) {
+                // If host has snapin tasking, update to complete
+                if ($this->Host->get(task)->isValid()) $this->Host->get(task)->set(stateID,4)->save();
+                $this->Host->get(snapinjob)->set(stateID,4)->save();
             }
-        } else {
+        } else if (!isset($_REQUEST[taskid])) {
+            // Update Job to in progress
+            $this->Host->get(snapinjob)->set(stateID,3)->save();
+            // If host has snapin tasking, update to in progress
+            if ($this->Host->get(task)->isValid()) $this->Host->get(task)->set(stateID,3)->set(checkInTime,$this->nice_date()->format('Y-m-d H:i:s'))->save();
+            // Update the actual Snapin Tasking
+            $SnapinTask->set(stateID,2)->set(checkin,$this->nice_date()->format('Y-m-d H:i:s'));
+            // If snapin tasking fails inform the client
+            if (!$SnapinTask->save()) throw new Exception(_('Failed to update snapin tasking'));
+            if ($this->newService) $snapinHash = hash_file('sha512',$SnapinFile);
+            // All successful, give the client the details
+            $goodArray = array(
+                '#!ok',
+                sprintf('JOBTASKID=%d',$SnapinTask->get(id)),
+                sprintf('JOBCREATION=%s',$this->Host->get(snapinjob)->get(createdTime)),
+                sprintf('SNAPINNAME=%s',$Snapin->get(name)),
+                sprintf('SNAPINARGS=%s',$Snapin->get(args)),
+                sprintf('SNAPINBOUNCE=%s',$Snapin->get(reboot)),
+                sprintf('SNAPINFILENAME=%s',$Snapin->get(file)),
+                sprintf('SNAPINRUNWITH=%s',$Snapin->get(runWith)),
+                sprintf('SNAPINRUNWITHARGS=%s',$Snapin->get(runWithArgs)),
+            );
+            if ($this->newService) {
+                array_push($goodArray,sprintf('SNAPINHASH=%s',$snapinHash));
+                array_push($goodArray,sprintf('SNAPINSIZE=%s',$size));
+            }
+            $this->send = implode("\n",$goodArray);
+        } else if (isset($_REQUEST[taskid])) {
             // Clear out the buffer just in case
             while (ob_get_level()) ob_end_clean();
             header("X-Sendfile: $SnapinFile");
