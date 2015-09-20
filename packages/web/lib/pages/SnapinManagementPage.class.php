@@ -264,7 +264,7 @@ class SnapinManagementPage extends FOGPage {
             _('Protected') => '<input type="checkbox" name="protected_snapin" value="1" ${snapin_protected} />',
             _('Reboot after install') => '<input type="checkbox" name="reboot" ${checked} />',
             _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
-            '' => '<input name="update" type="submit" value="'._('Add').'" />',
+            '' => '<input name="update" type="submit" value="'._('Update').'" />',
         );
         echo '<div id="tab-container">';
         echo '<!-- General -->';
