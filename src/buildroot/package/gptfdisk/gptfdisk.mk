@@ -5,7 +5,7 @@
 ################################################################################
 
 GPTFDISK_VERSION = 1.0.0
-GPTFDISK_SITE = http://www.rodsbooks.com/gdisk
+GPTFDISK_SITE = http://downloads.sourceforge.net/sourceforge/gptfdisk
 GPTFDISK_LICENSE = GPLv2+
 GPTFDISK_LICENSE_FILES = COPYING
 
