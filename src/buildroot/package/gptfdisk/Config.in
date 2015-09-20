@@ -44,8 +44,8 @@ config BR2_PACKAGE_GPTFDISK_CGDISK
 	  manipulator /usr/sbin/cgdisk.
 
 config BR2_PACKAGE_GPTFDISK_FIXPARTS
-	bool "command line fixparts"
-	help
-		Install the fixparts binaries
+    bool "command line fixparts"
+    help
+        Install the fixparts binaries
 
 endif
