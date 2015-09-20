@@ -219,8 +219,8 @@ class ReportManagementPage extends FOGPage {
         }
         unset($ImagingLog);
         // This is for the pdf.
-        $ReportMaker->appendHTML($this->process());
-        $ReportMaker->outputReport(false);
+        $ReportMaker->appendHTML($this->__toString());
+        $ReportMaker->outputReport(0);
         $_SESSION[foglastreport] = serialize($ReportMaker);
     }
     /** host_list()
@@ -291,7 +291,7 @@ class ReportManagementPage extends FOGPage {
         }
         unset($Host);
         // This is for the pdf.
-        $ReportMaker->appendHTML($this->process());
+        $ReportMaker->appendHTML($this->__toString());
         $ReportMaker->outputReport(false);
         $_SESSION[foglastreport] = serialize($ReportMaker);
     }
@@ -406,7 +406,7 @@ class ReportManagementPage extends FOGPage {
         }
         unset($Host);
         // This is for the pdf.
-        $ReportMaker->appendHTML($this->process());
+        $ReportMaker->appendHTML($this->__toString());
         $ReportMaker->outputReport(false);
         $_SESSION[foglastreport] = serialize($ReportMaker);
     }
@@ -475,7 +475,7 @@ class ReportManagementPage extends FOGPage {
         }
         unset($Host);
         // This is for the pdf.
-        $ReportMaker->appendHTML($this->process());
+        $ReportMaker->appendHTML($this->__toString());
         $ReportMaker->outputReport(false);
         $_SESSION[foglastreport] = serialize($ReportMaker);
     }
@@ -546,7 +546,7 @@ class ReportManagementPage extends FOGPage {
         }
         unset($Virus);
         // This is for the pdf.
-        $ReportMaker->appendHTML($this->process());
+        $ReportMaker->appendHTML($this->__toString());
         echo '<form method="post" action="'.$this->formAction.'">';
         $ReportMaker->outputReport(false);
         echo '</form>';
@@ -833,7 +833,7 @@ class ReportManagementPage extends FOGPage {
         }
         unset($User);
         // This is for the pdf.
-        $ReportMaker->appendHTML($this->process());
+        $ReportMaker->appendHTML($this->__toString());
         $ReportMaker->outputReport(false);
         $_SESSION[foglastreport] = serialize($ReportMaker);
     }
@@ -1014,7 +1014,7 @@ class ReportManagementPage extends FOGPage {
         }
         unset($SnapinTask);
         // This is for the pdf.
-        $ReportMaker->appendHTML($this->process());
+        $ReportMaker->appendHTML($this->__toString());
         $ReportMaker->outputReport(false);
         $_SESSION[foglastreport] = serialize($ReportMaker);
     }
