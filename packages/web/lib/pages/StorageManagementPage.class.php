@@ -120,6 +120,7 @@ class StorageManagementPage extends FOGPage {
         );
         // Fields
         $fields = array(
+            '<input style="display:none" type="text" name="fakeusernameremembered"/>'=>'<input style="display:none" type="text" name="fakepasswordremembered"/>',
             $this->foglang[SNName] => '<input type="text" name="name" value="${node_name}" autocomplete="off" />*',
             $this->foglang[SNDesc] => '<textarea name="description" rows="8" cols="40" autocomplete="off">${node_desc}</textarea>',
             $this->foglang[IPAdr] => '<input type="text" name="ip" value="${node_ip}" autocomplete="off" />*',
@@ -247,6 +248,7 @@ class StorageManagementPage extends FOGPage {
         );
         // Fields
         $fields = array(
+            '<input style="display:none" type="text" name="fakeusernameremembered"/>'=>'<input style="display:none" type="text" name="fakepasswordremembered"/>',
             $this->foglang[SNName] => '<input type="text" name="name" value="${node_name}" autocomplete="off" />*',
             $this->foglang[SNDesc] => '<textarea name="description" rows="8" cols="40" autocomplete="off">${node_desc}</textarea>',
             $this->foglang[IPAdr] => '<input type="text" name="ip" value="${node_ip}" autocomplete="off" />*',
