@@ -100,7 +100,7 @@ abstract class FOGPage extends FOGBase {
     public function __toString() {
         $this->result = $this->process();
         $res = '';
-        foreach ($this->result AS $i => &$line) $res .= $line;
+        foreach ((array)$this->result AS $i => &$line) $res .= $line;
         unset($line);
         return $res;
     }
@@ -109,7 +109,7 @@ abstract class FOGPage extends FOGBase {
      */
     public function render() {
         $this->result = $this->process();
-        foreach ($this->result AS $i => &$line) echo $line;
+        foreach ((array)$this->result AS $i => &$line) echo $line;
         unset($line);
     }
     /** process() build the relevant html for the page
