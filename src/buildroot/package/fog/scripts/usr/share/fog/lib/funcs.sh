@@ -198,7 +198,8 @@ shrinkPartition() {
         dots "Running resize test $1";
         tmpSuc=`ntfsresize -f -n -s ${sizentfsresize}k $1 << EOFNTFS
 Y
-EOFNTFS`
+EOFNTFS
+`
         success=`echo $tmpSuc | grep "ended successfully"`;
         too_big=`echo $tmpSuc | grep "bigger than the device size"`;
         ok_size=`echo $tmpSuc | grep "volume size is already OK"`;
@@ -441,7 +442,7 @@ changeHostname() {
             key4=$REG_HOSTNAME_KEY4_XP
             key5=$REG_HOSTNAME_KEY5_XP
         fi
-        reged -e $regfile &>/dev/null <<EOFREG
+        reged -e $regfile &>/dev/null << EOFREG
 ed $key1
 $hostname
 ed $key2
