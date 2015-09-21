@@ -117,6 +117,10 @@ class TaskManagementPage extends FOGPage {
         );
         $Hosts = $this->getClass(HostManager)->find('','','','','','name');
         foreach($Hosts AS $i => &$Host) {
+            if ($Host instanceof Host && $Host->isValid()) {
+                $hostname = $Host->get(name);
+                $MAC = $Host->get(mac);
+            }
             if ($Host->isValid() && !$Host->get(pending)) {
                 $imgUp = '<a href="?node=task&sub=hostdeploy&type=2&id=${id}"><i class="icon hand fa fa-${upicon} fa-1x" title="'._('Upload').'"></i></a>';
                 $imgDown = '<a href="?node=task&sub=hostdeploy&type=1&id=${id}"><i class="icon hand fa fa-${downicon} fa-1x" title="'._('Download').'"></i></a>';
@@ -127,7 +131,7 @@ class TaskManagementPage extends FOGPage {
                     advancedLink=>$imgAdvanced,
                     id=>$Host->get(id),
                     host_name=>$Host->get(name),
-                    host_mac=>$Host->get(mac)->__toString(),
+                    host_mac=>$MAC,
                     image_name=>$Host->getImage()->get(name),
                     upicon=>$this->getClass(TaskType,2)->get(icon),
                     downicon=>$this->getClass(TaskType,1)->get(icon),
@@ -299,6 +303,12 @@ class TaskManagementPage extends FOGPage {
         $Tasks = $this->getClass(TaskManager)->find(array(stateID=>array(1,2,3)));
         foreach ($Tasks AS $i => &$Task) {
             $Host = $Task->getHost();
+            if ($Host instanceof Host && $Host->isValid()) {
+                $hostname = $Host->get(name);
+                $MAC = $Host->get(mac);
+            }
+            if ($MAC instanceof MACAddress) $MAC = $MAC->__toString();
+            else $MAC = $this->getClass(MACAddress,$MAC)->__toString();
             $this->data[] = array(
                 startedby=>$Task->get(createdBy),
                 id=>$Task->get(id),
@@ -319,7 +329,7 @@ class TaskManagementPage extends FOGPage {
                 details_taskforce=>($Task->get(isForced) ? sprintf('<i class="icon-forced" title="%s"></i>', _('Task forced to start')) : ($Task->get(typeID) < 3 && $Task->get(stateID) < 3 ? sprintf('<a href="?node=task&sub=force-task&id=%s" class="icon-force"><i title="%s"></i></a>', $Task->get(id),_('Force task to start')) : '&nbsp;')),
                 host_id=>$Host->get(id),
                 host_name=>$Host->get(name),
-                host_mac=>$Host->get(mac)->__toString(),
+                host_mac=>$MAC,
                 icon_state=>$Task->getTaskState()->getIcon(),
                 icon_type=>$Task->getTaskType()->get(icon),
             );
