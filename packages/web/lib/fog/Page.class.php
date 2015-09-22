@@ -151,11 +151,12 @@ class Page extends FOGBase {
     }
     public function render($path = '') {
         self::sendHeaders();
-        if (!$path && preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) $path = '../management/other/index.php';
-        else $path = 'other/index.php';
-        ob_start(array('Initiator','sanitize_output'),$_SESSION['chunksize']);
+        ob_start(array('Initiator','sanitize_output'),$_SESSION[chunksize]);
+        require_once '../management/other/index.php';
         require_once($path);
-        while(ob_end_flush());
-        session_write_close();
+        while(ob_get_level()) {
+            flush();
+            ob_end_flush();
+        }
     }
 }
