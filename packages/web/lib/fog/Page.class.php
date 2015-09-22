@@ -153,7 +153,6 @@ class Page extends FOGBase {
         self::sendHeaders();
         ob_start(array('Initiator','sanitize_output'),$_SESSION[chunksize]);
         require_once '../management/other/index.php';
-        require_once($path);
         while(ob_get_level()) {
             flush();
             ob_end_flush();
