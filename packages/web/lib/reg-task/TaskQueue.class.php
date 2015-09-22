@@ -36,7 +36,7 @@ class TaskQueue extends TaskingElement {
                             $this->StorageNode = self::nodeFail($StorageNode,$this->Host);
                             continue;
                         }
-                        if ($StorageNode->getClientNode() < $this->StorageNode->getClientLoad()) $this->StorageNode = self::nodeFail($StorageNode,$this->Host);
+                        if ($StorageNode->getClientLoad() < $this->StorageNode->getClientLoad()) $this->StorageNode = self::nodeFail($StorageNode,$this->Host);
                     }
                 }
             }
