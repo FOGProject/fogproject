@@ -52,5 +52,7 @@ class DatabaseManager extends FOGBase {
     /** getVersion() get the version of the schema
      * @return the version or false (0)
      */
-    public function getVersion() {return (int)$this->DB->query('SELECT vValue FROM schemaVersion')->fetch()->get('vValue');}
+    public function getVersion() {
+        return (int)$this->DB->query('SELECT vValue FROM schemaVersion')->fetch()->get('vValue');
+    }
 }
