@@ -46,7 +46,7 @@ abstract class TaskingElement extends FOGBase {
     }
     protected static function nodeFail(&$StorageNode,&$Host) {
         if ($StorageNode->getNodeFailure($Host)) {
-            $StorageNode = $this->getClass(StorageNode,0);
+            $StorageNode = $StorageNode->getClass(StorageNode,0);
             printf('%s %s (%s) %s',_('Storage Node'),$StorageNode->get(name),$StorageNode->get(ip),_('is open, but has recently failed for this Host'));
         }
         return $StorageNode;
@@ -69,7 +69,5 @@ abstract class TaskingElement extends FOGBase {
         return $this->getClass(ImagingLog,@max($this->getClass(ImagingLogManager)->find(array(hostID=>$this->Host->get(id)),'','','','','','','id')))
             ->set(finish,$this->nice_date()->format('Y-m-d H:i:s'))
             ->save();
-    }
-    private function getOptimalNode() {
     }
 }
