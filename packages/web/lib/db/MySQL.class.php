@@ -69,9 +69,9 @@ class MySQL extends DatabaseManager {
                 do {
                     foreach($all_links AS $i => &$link) $links[] = $errors[] = $reject[] = $link;
                     unset($link);
-                    if (!$this->link->poll($links,$errors,$reject,1,1000)) {
-                        usleep(1000);
+                    if (!mysqli_poll($links,$errors,$reject,1,1000)) {
                         continue;
+                        usleep(1000);
                     }
                     foreach($links AS $i => &$link) {
                         $this->queryResult = $link->reap_async_query();
@@ -89,17 +89,20 @@ class MySQL extends DatabaseManager {
      * @param $type what type of data to fetch in
      * @return the class as is
      */
-    public function fetch($type = MYSQLI_ASSOC,$fetchType = 'fetch_array') {
+    public function fetch($type = MYSQLI_ASSOC,$fetchType = 'fetch_assoc') {
         try {
+            if (empty($this->queryResult)) throw new Exception(_('No query result, use query() first'));
             $this->result = array();
             if (empty($type)) $type = MYSQLI_ASSOC;
-            if (empty($fetchType)) $fetchType = 'fetch_array';
-            if ($this->queryResult === false || $this->queryResult === true) $this->result = $this->queryResult;
-            else if (!$this->queryResult) throw new Exception('No query result present. Use query() first');
+            if (empty($fetchType)) $fetchType = 'fetch_assoc';
+            if (in_array($this->queryResult,array(true,false),true)) $this->result = $this->queryResult;
+            else if (!is_object($this->queryResult)) $this->result = $this->link;
+            else if ($fetchType == 'fetch_assoc') $this->result = $this->queryResult->fetch_assoc();
+            else if ($fetchType == 'fetch_array') $this->result = $this->queryResult->fetch_array();
             else if ($fetchType == 'fetch_all') {
-                if (method_exists('mysqli_result','fetch_all')) $this->result = (is_object($this->queryResult) ? $this->queryResult->fetch_all($type) : $this->link);
-                else for($this->result = array();$tmp = (is_object($this->queryResult) ? $this->queryResult->fetch_array($type) : $this->link);) $this->result[] = $tmp;
-            } else $this->result = (is_object($this->queryResult) ? $this->queryResult->fetch_assoc() : $this->link);
+                if (method_exists('mysqli_result','fetch_all')) $this->result = $this->queryResult->fetch_all($type);
+                else for ($this->result = array();$tmp = $this->queryResult->fetch_array($type);) $this->result[] = $tmp;
+            }
         } catch (Exception $e) {
             $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
         }
