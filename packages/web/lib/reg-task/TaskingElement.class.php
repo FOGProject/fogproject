@@ -9,9 +9,9 @@ abstract class TaskingElement extends FOGBase {
     protected $imagingTask;
     public function __construct() {
         parent::__construct();
-        $this->Host = $this->getHostItem(false);
-        $this->Task = $this->Host->get(task);
         try {
+            $this->Host = $this->getHostItem(false);
+            $this->Task = $this->Host->get(task);
             // Shouldn't fail but just in case
             // Check the tasking, if not valid it will return
             // immediately
@@ -32,6 +32,7 @@ abstract class TaskingElement extends FOGBase {
             }
         } catch (Exception $e) {
             echo $e->getMessage();
+            exit;
         }
     }
     protected static function checkTasking(&$Task,$name,$mac) {
