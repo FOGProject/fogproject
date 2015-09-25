@@ -27,22 +27,24 @@ class HookManager extends EventManager {
         $paths = array(BASEPATH.'/management');
         $paths = array_merge((array)$paths,(array)$Init->PagePaths,(array)$Init->FOGPaths);
         foreach($paths AS $i => &$path) {
-            $dir = new RecursiveDirectoryIterator($path,FilesystemIterator::SKIP_DOTS);
-            $Iterator = new RecursiveIteratorIterator($dir);
-            $Iterator = new RegexIterator($Iterator,'/^.+\.php$/i',RecursiveRegexIterator::GET_MATCH);
-            $regexp = '#processEvent\([\'\"](.*?)[\'\"]#';
-            foreach($Iterator AS $i => &$file) preg_match_all($regexp,file_get_contents($file[0]),$matches[]);
-            unset($file);
-            $matches = $this->array_filter_recursive($matches);
-            foreach($matches AS $match => &$value) {
-                if ($matches[$match][1]) $matching[] = $matches[$match][1];
+            if (is_dir($path)) {
+                $dir = new RecursiveDirectoryIterator($path,FilesystemIterator::SKIP_DOTS);
+                $Iterator = new RecursiveIteratorIterator($dir);
+                $Iterator = new RegexIterator($Iterator,'/^.+\.php$/i',RecursiveRegexIterator::GET_MATCH);
+                $regexp = '#processEvent\([\'\"](.*?)[\'\"]#';
+                foreach($Iterator AS $i => $file) preg_match_all($regexp,file_get_contents($file[0]),$matches[]);
+                unset($file);
+                $matches = $this->array_filter_recursive($matches);
+                foreach($matches AS $match => &$value) {
+                    if ($matches[$match][1]) $matching[] = $matches[$match][1];
+                }
+                unset($value);
+                foreach($matching AS $ind => &$arr) {
+                    foreach($arr AS $i => &$val) $this->events[] = $val;
+                    unset($val);
+                }
+                unset($arr);
             }
-            unset($value);
-            foreach($matching AS $ind => &$arr) {
-                foreach($arr AS $i => &$val) $this->events[] = $val;
-                unset($val);
-            }
-            unset($arr);
         }
         unset($path);
         $ServiceCats = $this->getClass(ServiceManager)->getSettingCats();

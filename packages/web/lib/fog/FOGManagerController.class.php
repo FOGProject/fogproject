@@ -184,6 +184,10 @@ abstract class FOGManagerController extends FOGBase {
             }
             $data = array();
             $this->DB->query($sql,$fieldValues);
+            if (isset($_REQUEST[node]) && $_REQUEST[node] != 'login') @session_write_close();
+            header("Connection: close",true);
+            header("Content-Encoding: none\r\n");
+            ignore_user_abort(true);
             // Select all
             if ($idField) {
                 if (is_array($idField)) {
