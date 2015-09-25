@@ -80,7 +80,6 @@ class User extends FOGController {
         // Destroy session
         $locale = $_SESSION['locale'];
         $this->set('authIP',null);
-        @session_write_close();
         @session_set_cookie_params(0);
         @session_start();
         @session_regenerate_id(true);

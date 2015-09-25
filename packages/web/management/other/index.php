@@ -1,9 +1,17 @@
+<?php
+header('Strict-Transport-Security: "max-age=15768000"');
+header('X-Content-Type-Options: nosniff');
+header('X-XSS-Protection: 1; mode=block');
+header('X-Robots-Tag: none');
+header('X-Frame-Options: SAMEORIGIN');
+header('Cache-Control: no-cache');
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <?php if (!preg_match('#/mobile/#i', $_SERVER['PHP_SELF'])) {
     foreach ($this->headJavascripts AS $i => &$javascript) {
-        echo '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" defer></script>';
+        echo '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" async="async"></script>';
     }
     unset($javascript);
 ?><meta http-equiv="X-UA-Compatible" content="IE=Edge" />
@@ -73,7 +81,7 @@ unset($stylesheet); ?>
 					<?php $cnt = 0;
     $this->HookManager->processEvent(JAVASCRIPT,array(javascripts=>&$this->javascripts));
     foreach ($this->javascripts AS $i => &$javascript) {
-        echo ($cnt++ > 0 ? "\t\t" : '') . '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" defer></script>' . "\n";
+        echo ($cnt++ > 0 ? "\t\t" : '') . '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" async="async"></script>' . "\n";
     }
     unset($javascript);
 } ?>
