@@ -11,7 +11,7 @@ header('Cache-Control: no-cache');
 <head>
 <?php if (!preg_match('#/mobile/#i', $_SERVER['PHP_SELF'])) {
     foreach ($this->headJavascripts AS $i => &$javascript) {
-        echo '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" async="async"></script>';
+        echo '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" defer></script>';
     }
     unset($javascript);
 ?><meta http-equiv="X-UA-Compatible" content="IE=Edge" />
@@ -81,7 +81,7 @@ unset($stylesheet); ?>
 					<?php $cnt = 0;
     $this->HookManager->processEvent(JAVASCRIPT,array(javascripts=>&$this->javascripts));
     foreach ($this->javascripts AS $i => &$javascript) {
-        echo ($cnt++ > 0 ? "\t\t" : '') . '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" async="async"></script>' . "\n";
+        echo ($cnt++ > 0 ? "\t\t" : '') . '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" defer></script>' . "\n";
     }
     unset($javascript);
 } ?>
