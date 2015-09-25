@@ -9,8 +9,8 @@ class UserTrack extends FOGClient implements FOGClientSend {
             $action = strtolower($_REQUEST[action]);
             $user = strtolower($_REQUEST[user]);
             $date = $_REQUEST[date];
-        } else $this->Host = $this->getHostItem(true,true);
-        if (!in_array($action,array_keys($this->actions))) throw new Exception('#!er: '._('Postfix requires and action of login, logout, or start to operate'));
+        }
+        if (!in_array($action,array_keys($this->actions))) throw new Exception(_('Postfix requires an action of login, logout, or start to operate'));
         if (strpos($user,chr(92))) {
             $user = explode(chr(92),$user);
             $user = $user[1];
