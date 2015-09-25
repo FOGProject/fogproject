@@ -120,16 +120,6 @@ class Page extends FOGBase {
         }
         unset($path);
     }
-    public static function sendHeaders() {
-        if (!headers_sent()) {
-            header('Strict-Transport-Security: "max-age=15768000"');
-            header('X-Content-Type-Options: nosniff');
-            header('X-XSS-Protection: 1; mode=block');
-            header('X-Robots-Tag: none');
-            header('X-Frame-Options: SAMEORIGIN');
-            header('Cache-Control: no-cache');
-        }
-    }
     public function setTitle($title) {
         $this->pageTitle = $title;
     }
@@ -148,16 +138,12 @@ class Page extends FOGBase {
     }
     public function endBody() {
         $this->body = ob_get_clean();
-        flush();
-        ob_end_flush();
     }
     public function render($path = '') {
-        self::sendHeaders();
         ob_start(array('Initiator','sanitize_output'),$_SESSION[chunksize]);
         require_once '../management/other/index.php';
-        while(ob_get_level()) {
-            flush();
-            ob_end_flush();
-        }
+        ob_end_flush();
+        ob_flush();
+        flush();
     }
 }
