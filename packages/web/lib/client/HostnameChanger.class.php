@@ -9,8 +9,9 @@ class HostnameChanger extends FOGClient implements FOGClientSend {
             $this->Host->setAD();
         }
         else $this->send .= '='.$this->Host->get(name)."\n";
-        if (strpos($this->Host->get(ADUser),array(chr(92),chr(64)))) $adUser = $this->Host->get(ADUser);
-        else if (trim($this->Host->get(ADUser))) $adUser = sprintf('%s\%s',$this->Host->get(ADDomain),trim($this->Host->get(ADUser)));
+        $username = trim($this->Host->get(ADUser));
+        if (strpos($username,chr(92)) || strpos($username,chr(64))) $adUser = $username;
+        else if ($username) $adUser = sprintf('%s\%s',$this->Host->get(ADDomain),$username);
         else $adUser = '';
         $this->send .= '#AD='.$this->Host->get(useAD)."\n";
         if (!$this->newService || $this->Host->get(useAD)) {
