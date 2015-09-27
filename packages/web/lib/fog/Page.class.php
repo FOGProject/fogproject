@@ -4,10 +4,9 @@ class Page extends FOGBase {
     public function __construct() {
         parent::__construct();
         while (@ob_end_clean());
-        $isMobile = preg_match('#/mobile/#i',@$_SERVER['PHP_SELF']);
         $dispTheme = 'css/'.$_SESSION[theme];
         if (!file_exists(BASEPATH.'/management/'.$dispTheme)) $dispTheme = 'css/default/fog.css';
-        if (!$isMobile) {
+        if (!$this->isMobile) {
             $this->addCSS('css/jquery-ui.css');
             $this->addCSS('css/jquery.organicTabs.css');
             $this->addCSS('css/jquery.tipsy.css');
@@ -18,7 +17,7 @@ class Page extends FOGBase {
         $this->addCSS('css/theme.blue.css');
         $this->isHomepage = (!$_REQUEST[node] || in_array($_REQUEST[node], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST[sub],array('configure','authorize')) || !$this->FOGUser || !$this->FOGUser->isLoggedIn());
         if ($this->FOGUser && $this->FOGUser->isLoggedIn() && strtolower($_REQUEST[node]) != 'schemaupdater') {
-            if (!$isMobile) {
+            if (!$this->isMobile) {
                 $this->main = array(
                     home=>array($this->foglang[Home],'fa fa-home fa-2x'),
                     user=>array($this->foglang['User Management'],'fa fa-users fa-2x'),
@@ -46,20 +45,20 @@ class Page extends FOGBase {
             $this->main = array_unique(array_filter($this->main),SORT_REGULAR);
             $this->HookManager->processEvent(MAIN_MENU_DATA,array('main'=>&$this->main));
             $links = array();
-            foreach ($this->main AS $link => &$title) $links[] = (!$isMobile ? $link : ($link != 'logout' ? $link.'s' : $link));
+            foreach ($this->main AS $link => &$title) $links[] = (!$this->isMobile ? $link : ($link != 'logout' ? $link.'s' : $link));
             unset($title);
-            if (!$isMobile) $links = array_merge((array)$links,array('hwinfo','client','schemaupdater'));
+            if (!$this->isMobile) $links = array_merge((array)$links,array('hwinfo','client','schemaupdater'));
             if ($_REQUEST[node] && !in_array($_REQUEST[node],$links)) $this->FOGCore->redirect('index.php');
             $this->menu = '<nav class="menu"><ul class="nav-list">';
             foreach($this->main AS $link => &$title) {
-                if (!$_REQUEST[node]) $_REQUEST[node] = 'home'.($isMobile ? 's' : '');
-                $activelink = (int)($_REQUEST[node] == ($isMobile && $_REQUEST[node] != 'logout' ? $link.'s' : $link));
-                $this->menu .= sprintf('<li class="nav-item"><a href="?node=%s" class="nav-link%s" title="%s"><i class="%s"></i></a></li>',($isMobile && $link != 'logout' ? $link.'s' : $link),($activelink ? ' activelink' : ''),$title[0],$title[1]);
+                if (!$_REQUEST[node]) $_REQUEST[node] = 'home'.($this->isMobile ? 's' : '');
+                $activelink = (int)($_REQUEST[node] == ($this->isMobile && $_REQUEST[node] != 'logout' ? $link.'s' : $link));
+                $this->menu .= sprintf('<li class="nav-item"><a href="?node=%s" class="nav-link%s" title="%s"><i class="%s"></i></a></li>',($this->isMobile && $link != 'logout' ? $link.'s' : $link),($activelink ? ' activelink' : ''),$title[0],$title[1]);
             }
             unset($title);
             $this->menu .= '</ul></nav>';
         }
-        if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) {
+        if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !$this->isMobile) {
             $files = array(
                 'hjs/jquery-latest.js',
                 'hjs/jquery.tablesorter.combined.js',
@@ -106,7 +105,7 @@ class Page extends FOGBase {
                 if (preg_match('#MSIE [6|7|8|9|10|11]#',$_SERVER[HTTP_USER_AGENT])) array_push($files,'js/flot/excanvas.js');
             }
         }
-        else if (!preg_match('#/mobile/#i',$_SERVER['PHP_SELF'])) {
+        else if (!$this->isMobile) {
             $files = array(
                 'js/jquery-latest.js',
                 'js/jquery.progressbar.js',

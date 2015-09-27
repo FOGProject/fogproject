@@ -9,7 +9,7 @@ header('Cache-Control: no-cache');
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<?php if (!preg_match('#/mobile/#i', $_SERVER['PHP_SELF'])) {
+<?php if (!$this->isMobile) {
     foreach ($this->headJavascripts AS $i => &$javascript) {
         echo '<script src="' . $javascript . '?ver=' . FOG_BCACHE_VER . '" language="javascript" type="text/javascript" defer></script>';
     }
@@ -29,11 +29,11 @@ unset($stylesheet); ?>
 <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
 </head>
 <body>
-<?php if (!preg_match('#/mobile/#i', $_SERVER['PHP_SELF'])) { ?><div class="fog-variable" id="FOGPingActive"><?php echo intval($_SESSION['FOGPingActive']) ?></div><?php
+<?php if (!$this->isMobile) { ?><div class="fog-variable" id="FOGPingActive"><?php echo intval($_SESSION['FOGPingActive']) ?></div><?php
 } ?>
 <!-- Session Messages -->
-<?php !preg_match('#mobile#i', $_SERVER['PHP_SELF']) ? $this->FOGCore->getMessages() : '' ?>
-<?php if (preg_match('#/mobile/#i', $_SERVER['PHP_SELF'])) { // Mobile Login
+<?php !$this->isMobile ? $this->FOGCore->getMessages() : '' ?>
+<?php if ($this->isMobile) { // Mobile Login
      ?><div id="header"></div>
 	<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn()) { ?><div id="mainContainer">
 		<div class="mainContent"><?php echo $this->menu;

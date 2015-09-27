@@ -28,6 +28,8 @@ abstract class FOGBase {
     public $db;
     /** @var $conn Legacy calls for $db/$conn */
     public $conn;
+    /** @var $isMobile is this a mobile page */
+    protected $isMobile;
     /** @var $isLoaded sets the "isLoaded" variable */
     protected $isLoaded = array();
     /** @var $searchPages sets the pages that have search as a selector. */
@@ -47,6 +49,7 @@ abstract class FOGBase {
         $this->TimeZone = $GLOBALS['TimeZone'];
         $this->FOGURLRequests = $GLOBALS['FOGURLRequests'];
         $this->imagelink = $_SESSION['imagelink'];
+        $this->isMobile = (bool)preg_match('#/mobile/#i',$_SERVER['PHP_SELF']);
     }
     /** @function fatalError() prints error to the screen and exits script
      * @param $txt the text of the error

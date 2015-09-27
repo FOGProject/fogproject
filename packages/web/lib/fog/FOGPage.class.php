@@ -136,7 +136,6 @@ abstract class FOGPage extends FOGBase {
                 ));
             } else {
                 $result = array();
-                $isMobile = preg_match('#/mobile/#',$_SERVER['PHP_SELF']);
                 // HTML output
                 $contentField = 'active-tasks';
                 if ($this->searchFormURL) {
@@ -144,12 +143,12 @@ abstract class FOGPage extends FOGBase {
                         $this->searchFormURL,
                         (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
                         sprintf('%s %s', ucwords((substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node)), $this->foglang['Search']),
-                        $isMobile ? 'name="host-search"' : '',
-                        $isMobile ? 'input' : 'button',
+                        $this->isMobile ? 'name="host-search"' : '',
+                        $this->isMobile ? 'input' : 'button',
                         (substr($this->node, -1) == 's' ? substr($this->node, 0, -1) : $this->node),
-                        $isMobile ? 'submit' : 'button',
-                        $isMobile ? $this->foglang['Search'] : '',
-                        $isMobile ? '</input>' : '</button>'
+                        $this->isMobile ? 'submit' : 'button',
+                        $this->isMobile ? $this->foglang['Search'] : '',
+                        $this->isMobile ? '</input>' : '</button>'
                     );
                     $contentField = 'search-content';
                 }
@@ -183,7 +182,7 @@ abstract class FOGPage extends FOGBase {
                         $this->FOGCore->setMessage(count($this->data).' '.$this->childClass.(count($this->data) > 1 ? 's' : '')._(' found'));
                 }
                 $result[] = '</tbody></table>';
-                if (((!$_REQUEST[sub] || ($_REQUEST[sub] && in_array($_REQUEST[sub],$defaultScreens))) && in_array($_REQUEST[node],$this->searchPages)) && !$isMobile) {
+                if (((!$_REQUEST[sub] || ($_REQUEST[sub] && in_array($_REQUEST[sub],$defaultScreens))) && in_array($_REQUEST[node],$this->searchPages)) && !$this->isMobile) {
                     if ($this->childClass == 'Host') $actionbox = sprintf('<form method="post" action="'.sprintf('?node=%s&sub=save_group', $this->node).'" id="action-box"><input type="hidden" name="hostIDArray" value="" autocomplete="off" /><p><label for="group_new">'._('Create new group').'</label><input type="text" name="group_new" id="group_new" autocomplete="off" /></p><p class="c">'._('OR').'</p><p><label for="group">'._('Add to group').'</label>'.$this->getClass('GroupManager')->buildSelectBox().'</p><p class="c"><input type="submit" value="'._("Process Group Changes").'" /></p></form>');
                     $actionbox .= sprintf('<form method="post" class="c" id="action-boxdel" action="'.sprintf('?node=%s&sub=deletemulti',$this->node).'"><p>'._('Delete all selected items').'</p><input type="hidden" name="'.strtolower($this->childClass).'IDArray" value="" autocomplete="off" /><input type="submit" value="'._('Delete all selected '.strtolower($this->childClass).'s').'?"/></form>');
                 }

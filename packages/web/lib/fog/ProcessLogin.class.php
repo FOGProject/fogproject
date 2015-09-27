@@ -94,7 +94,7 @@ class ProcessLogin extends FOGBase {
         $this->currentUser = $currentUser;
         unset($currentUser);
         // Hook
-        if (!preg_match('#/mobile/#',$_SERVER['PHP_SELF'])) $this->HookManager->processEvent(LoginSuccess,array(user=>&$this->currentUser,username=>$this->username, password=>&$this->password));
+        if (!$this->isMobile) $this->HookManager->processEvent(LoginSuccess,array(user=>&$this->currentUser,username=>$this->username, password=>&$this->password));
     }
     private function setRedirMode() {
         $redirect = array_merge($_GET, $_POST);
@@ -121,7 +121,7 @@ class ProcessLogin extends FOGBase {
             $this->HookManager->processEvent(USER_LOGGING_IN,array(User=>&$tmpUser,username=>&$this->username,password=>&$this->password));
             try {
                 if (!$tmpUser || !$tmpUser->isValid()) throw new Exception($this->foglang[InvalidLogin]);
-                if (!preg_match('#/mobile/#',$_SERVER['PHP_SELF'])) {
+                if (!$this->isMobile) {
                     if ($tmpUser->get(type) == 0 && $tmpUser->get(type) != 1) $this->setCurUser($tmpUser);
                     else if ($tmpUser->get(type) == 0) throw new Exception($this->foglang[NotAllowedHere]);
                 } else $this->setCurUser($tmpUser);
