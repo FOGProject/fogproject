@@ -5,14 +5,10 @@ class HookManager extends EventManager {
     public $events;
     public function register($event, $function) {
         try {
-            if (preg_match('#/mobile/#',$_SERVER['PHP_SELF']))
-                throw new Exception('Hooks not allowed in mobile space');
-            if (!is_array($function) || count($function) != 2)
-                throw new Exception('Function is invalid');
-            if (!method_exists($function[0], $function[1]))
-                throw new Exception('Function does not exist');
-            if (!($function[0] instanceof Hook))
-                throw new Exception('Not a valid hook class');
+            if ($this->isMobile) throw new Exception('Hooks not allowed in mobile space');
+            if (!is_array($function) || count($function) != 2) throw new Exception('Function is invalid');
+            if (!method_exists($function[0], $function[1])) throw new Exception('Function does not exist');
+            if (!($function[0] instanceof Hook)) throw new Exception('Not a valid hook class');
             $this->log(sprintf('Registering Hook: Event: %s, Function: %s', $event, $function[1]));
             $this->data[$event][] = $function;
             return true;

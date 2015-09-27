@@ -280,7 +280,6 @@ class HostManagementPage extends FOGPage {
             // Check if host exists with MAC Address.
             $Host = $this->getClass(HostManager)->getHostByMacAddresses($MAC);
             if ($Host && $Host->isValid()) throw new Exception(_('A host with this MAC already exists with Hostname: ').$Host->get(name));
-            if ($this->getClass(HostManager)->exists($_REQUEST[host])) throw new Exception(_('Hostname already exists'));
             // Get all the service id's so they can be enabled.
             $ModuleIDs = $this->getClass(ModuleManager)->find('','','','','','','','id');
             $password = $_REQUEST[domainpassword];
