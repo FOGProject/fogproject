@@ -35,9 +35,10 @@ abstract class FOGController extends FOGBase {
             if (is_numeric($data)) $this->set(id,$data)->load();
             else if (is_array($data)) {
                 foreach ($data AS $key => &$val) {
-                    $this->key($key);
+                    $key = $this->key($key);
                     $this->set($key, $val);
                 }
+                unset($val);
             }
         } catch (Exception $e) {
             $this->error(_('Record not found, Error: %s'),array($e->getMessage()));
@@ -52,7 +53,7 @@ abstract class FOGController extends FOGBase {
         return ($this->get(name) ? $this->get(name) : sprintf('%s ID: %s',get_class($this),$this->get(id)));
     }
     public function get($key = '') {
-        $this->key($key);
+        $key = $this->key($key);
         if ($key) $this->info(_('Getting Value of Key: %s'),array($key));
         try {
             if (!isset($this->data[$key])) throw new Exception(_('No value set'));
@@ -64,7 +65,7 @@ abstract class FOGController extends FOGBase {
         return '';
     }
     public function set($key, $value) {
-        $this->key($key);
+        $key = $this->key($key);
         $this->info(_('Setting Key: %s, Value: %s'),array($key, $value));
         try {
             if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being set'));
@@ -75,7 +76,7 @@ abstract class FOGController extends FOGBase {
         return $this;
     }
     public function add($key, $value) {
-        $this->key($key);
+        $key = $this->key($key);
         $this->info(_('Adding Key: %s, Values: %s'),array($key, $value));
         try {
             if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being added'));
@@ -86,7 +87,7 @@ abstract class FOGController extends FOGBase {
         return $this;
     }
     public function remove($key, $value) {
-        $this->key($key);
+        $key = $this->key($key);
         $this->info(_('Removing Key: %s, Value: %s'),array($key, $value));
         try {
             if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being removed'));
@@ -130,31 +131,34 @@ abstract class FOGController extends FOGBase {
             if (!trim($this->get($field))) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
             // Get the query elements
             list($join, $where) = $this->buildQuery();
-            // Actually Build the real query:
-            if (!is_array($this->get($field))) {
-                // Single Value
-                $query = sprintf($this->loadQueryTemplateSingle,
-                    $this->databaseTable,
-                    $join,
-                    $this->databaseFields[$field],
-                    $this->DB->sanitize($this->get($field)),
-                    count($where) ? ' AND '.implode(' AND ',$where) : ''
-                );
-            } else {
-                $fieldData = array();
-                $fields = $this->get($field);
-                foreach((array)$fields AS $i => &$fieldValue) $fieldData[] = sprintf("%s='%s'",$this->databaseFields[$field],$this->DB->sanitize($fieldValue));
-                // Multiple Values
-                $query = sprintf($this->loadQueryTemplateMultiple,
-                    $this->databaseTable,
-                    $join,
-                    implode(' OR ', $fieldData),
-                    count($where) ? ' AND '.implode(' AND ',$where) : ''
-                );
+            foreach ((array)$field AS $i => &$key) {
+                $key = $this->key($key);
+                // Actually Build the real query:
+                if (!is_array($this->get($key))) {
+                    // Single Value
+                    $query = sprintf($this->loadQueryTemplateSingle,
+                        $this->databaseTable,
+                        $join,
+                        $this->databaseFields[$key],
+                        $this->DB->sanitize($this->get($key)),
+                        count($where) ? ' AND '.implode(' AND ',$where) : ''
+                    );
+                } else {
+                    $fieldData = array();
+                    $fields = $this->get($key);
+                    foreach((array)$fields AS $i => &$fieldValue) $fieldData[] = sprintf("%s='%s'",$this->databaseFields[$key],$this->DB->sanitize($fieldValue));
+                    // Multiple Values
+                    $query = sprintf($this->loadQueryTemplateMultiple,
+                        $this->databaseTable,
+                        $join,
+                        implode(' OR ', $fieldData),
+                        count($where) ? ' AND '.implode(' AND ',$where) : ''
+                    );
+                }
+                $vals = $this->DB->query($query)->fetch('','fetch_all')->get();
+                $vals = @array_shift($vals);
+                $this->setQuery($vals);
             }
-            $vals = $this->DB->query($query)->fetch('','fetch_all')->get();
-            $vals = @array_shift($vals);
-            $this->setQuery($vals);
         } catch (Exception $e) {
             $this->debug(_('Load failed: %s'),array($e->getMessage()));
         }
@@ -208,9 +212,9 @@ abstract class FOGController extends FOGBase {
     }
     public function setQuery(&$queryData) {
         $classData = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
-        foreach ((array)$classData AS $field => &$val) {
-            $this->key($field);
-            $this->data[$field] = $val;
+        foreach ((array)$classData AS $key => &$val) {
+            $key = $this->key($key);
+            $this->data[$key] = $val;
         }
         unset($val);
         foreach((array)$this->databaseFieldClassRelationships AS $class => &$fields) $this->set($fields[2],$this->getClass($class)->setQuery($queryData));
