@@ -35,7 +35,7 @@ abstract class FOGController extends FOGBase {
             if (is_numeric($data)) $this->set(id,$data)->load();
             else if (is_array($data)) {
                 foreach ($data AS $key => &$val) {
-                    $key = trim($this->key($key));
+                    $this->key($key);
                     $this->set($key, $val);
                 }
             }
@@ -52,7 +52,7 @@ abstract class FOGController extends FOGBase {
         return ($this->get(name) ? $this->get(name) : sprintf('%s ID: %s',get_class($this),$this->get(id)));
     }
     public function get($key = '') {
-        $key = $this->key(trim($key));
+        $this->key($key);
         if ($key) $this->info(_('Getting Value of Key: %s'),array($key));
         try {
             if (!isset($this->data[$key])) throw new Exception(_('No value set'));
@@ -64,7 +64,7 @@ abstract class FOGController extends FOGBase {
         return '';
     }
     public function set($key, $value) {
-        $key = $this->key(trim($key));
+        $this->key($key);
         $this->info(_('Setting Key: %s, Value: %s'),array($key, $value));
         try {
             if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being set'));
@@ -75,7 +75,7 @@ abstract class FOGController extends FOGBase {
         return $this;
     }
     public function add($key, $value) {
-        $key = $this->key(trim($key));
+        $this->key($key);
         $this->info(_('Adding Key: %s, Values: %s'),array($key, $value));
         try {
             if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being added'));
@@ -86,7 +86,7 @@ abstract class FOGController extends FOGBase {
         return $this;
     }
     public function remove($key, $value) {
-        $key = $this->key(trim($key));
+        $this->key($key);
         $this->info(_('Removing Key: %s, Value: %s'),array($key, $value));
         try {
             if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being removed'));
@@ -175,15 +175,16 @@ abstract class FOGController extends FOGBase {
         }
         return $this;
     }
-    protected function key($key) {
+    protected function key(&$key) {
         $key = trim($key);
         if (array_key_exists($key, $this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
         return $key;
     }
     public function isValid() {
         try {
-            foreach ($this->databaseFieldsRequired AS $i => &$field) if (!trim($this->get($field))) throw new Exception($this->foglang[RequiredDB]);
-            if (isset($this->databaseFields[name]) && !(trim($this->get(id)) && trim($this->get(name)))) throw new Exception(_(get_class($this).' no longer exists'));
+            foreach ($this->databaseFieldsRequired AS $i => &$field) if (is_string($this->get($field)) && !trim($this->get($field))) throw new Exception($this->foglang['RequiredDB']);
+            unset($field);
+            if (isset($this->databaseFields['name']) && !(trim($this->get('id')) && trim($this->get('name')))) throw new Exception(_(get_class($this).' no longer exists'));
         } catch (Exception $e) {
             $this->debug('isValid Failed: Error: %s',array($e->getMessage()));
             return false;
@@ -207,9 +208,9 @@ abstract class FOGController extends FOGBase {
     }
     public function setQuery(&$queryData) {
         $classData = array_intersect_key($queryData,$this->databaseFieldsFlipped);
-        foreach ((array)$classData AS $key => &$val) {
-            $key = $this->key(trim($key));
-            $this->data[$key] = $val;
+        foreach ((array)$classData AS $field => &$val) {
+            $this->key($field);
+            $this->data[$field] = $val;
         }
         unset($val);
         foreach((array)$this->databaseFieldClassRelationships AS $class => &$fields) $this->set($fields[2],$this->getClass($class)->setQuery($queryData));
