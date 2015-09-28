@@ -21,7 +21,7 @@ class DatabaseManager extends FOGCore {
         if ($this->getVersion() < FOG_SCHEMA && !preg_match('#schemaupdater#i',$_SERVER['PHP_SELF']) && !preg_match('#schemaupdater#i',$_SERVER['QUERY_STRING'])) $this->redirect('?node=schemaupdater');
         return $this;
     }
-    protected function getVersion() {
+    public function getVersion() {
         return (int)$this->DB->query('SELECT vValue FROM schemaVersion')->fetch()->get('vValue');
     }
 }
