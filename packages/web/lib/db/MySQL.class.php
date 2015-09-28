@@ -114,8 +114,17 @@ class MySQL extends DatabaseManager {
      */
     public function get($field = '') {
         try {
+            $field = trim($field);
             if ($this->result === false) throw new Exception(_('No data returned'));
-            return ($field && array_key_exists((string)$field,(array)$this->result) ? $this->result[$field] : $this->result);
+            if (array_key_exists((string)$field,(array)$this->result)) return $this->result[$field];
+            else {
+                $result = array();
+                foreach ((array)$this->result AS $i => &$arr) {
+                    if (array_key_exists((string)$field,(array)$arr)) $result[] = $arr[$field];
+                }
+            }
+            if (count($result)) return $result;
+            return $this->result;
         } catch (Exception $e) {
             $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
         }

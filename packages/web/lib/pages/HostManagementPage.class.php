@@ -105,12 +105,12 @@ class HostManagementPage extends FOGPage {
                 pingstatus=>$Host->getPingCodeStr(),
             );
         }
+        unset($Host);
         // Hook
         $this->HookManager->processEvent(HOST_DATA,array(data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         $this->HookManager->processEvent(HOST_HEADER_DATA,array(headerData=>&$this->headerData,title=>&$this->title));
         // Output
         $this->render();
-        unset($Host);
     }
     /** search_post()
         Provides the data from the search.

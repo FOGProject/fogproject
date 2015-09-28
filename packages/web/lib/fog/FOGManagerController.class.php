@@ -14,6 +14,18 @@ abstract class FOGManagerController extends FOGController {
         foreach ((array)$this->classVariables AS $name => &$value) $this->$name = $value;
         parent::__construct();
     }
+    private function orderBy(&$orderBy) {
+        if (empty($orderBy)) {
+            $orderBy = 'id';
+            if (isset($this->databaseFields['name'])) $orderBy = 'name';
+        } else {
+            $orderBy = trim($orderBy);
+            if (!isset($this->databaseFields[$orderBy])) {
+                $orderBy = 'id';
+                if (isset($this->databaseFields['name'])) $orderBy = 'name';
+            }
+        }
+    }
     protected function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id') {
         if (empty($object)) $object = 'Host';
         if (empty($getField)) $getField = 'id';
@@ -23,17 +35,8 @@ abstract class FOGManagerController extends FOGController {
         // Fail safe defaults
         if (empty($findWhere)) $findWhere = array();
         if (empty($whereOperator)) $whereOperator = 'AND';
-        if (empty($orderBy)) {
-            $orderBy = 'id';
-            if (isset($this->databaseFields[name])) $orderBy = 'name';
-        } else {
-            $orderBy = trim($orderBy);
-            if (!isset($this->databaseFields[$orderBy])) {
-                $orderBy = 'id';
-                if (isset($this->databaseFields[name])) $orderBy = 'name';
-            }
-        }
         if (empty($sort)) $sort = 'ASC';
+        $this->orderBy($orderBy);
         if (empty($compare)) $compare = '=';
         $not = ($not ? ' NOT ' : ' ');
         if (count($findWhere)) {
@@ -78,7 +81,7 @@ abstract class FOGManagerController extends FOGController {
         }
         $data = array();
         $this->DB->query($query);
-        if (isset($_REQUEST[node]) && $_REQUEST[node] != 'login') @session_write_close();
+        if (isset($_REQUEST['node']) && $_REQUEST['node'] != 'login') @session_write_close();
         header('Connection: close',true);
         header("Content-Encoding: none\r\n");
         ignore_user_abort(true);
@@ -86,17 +89,19 @@ abstract class FOGManagerController extends FOGController {
             if (is_array($idField)) {
                 foreach ((array)$idField AS $i => &$idstore) {
                     $idstore = trim($idstore);
-                    $ids[$idstore] = array();
-                    while ($id = $this->DB->fetch()->get($this->databaseFields[$idstore])) $ids[$idstore][] = $id;
+                    $ids[$idstore] = $this->DB->fetch('','fetch_all')->get($this->databaseFields[$idstore]);
                 }
                 unset($idstore);
             } else {
                 $idField = trim($idField);
-                $ids = array();
-                while ($id = $this->DB->fetch()->get($this->databaseFields[$idField])) $ids[] = $id;
+                $ids = $this->DB->fetch('','fetch_all')->get($this->databaseFields[$idField]);
             }
             $data = $ids;
-        } else while ($queryData = $this->DB->fetch()->get()) $data[] = $this->getClass($this->childClass)->setQuery($queryData);
+        } else {
+            $queryData = $this->DB->fetch('','fetch_all')->get();
+            foreach ((array)$queryData AS $i => &$row) $data[] = $this->getClass($this->childClass)->setQuery($row);
+            unset($row);
+        }
         if ($this->DB->queryResult() instanceof mysqli_result) $this->DB->queryResult()->close();
         return (array)$data;
     }
@@ -118,7 +123,7 @@ abstract class FOGManagerController extends FOGController {
             $this->databaseTable,
             (count($whereArray) ? ' WHERE '.implode(' '.$whereOperator.' ',$whereArray) : '')
         );
-        return (int)$this->DB->query($query)->fetch()->get(total);
+        return (int)$this->DB->query($query)->fetch()->get('total');
     }
     public function update($findWhere = array(), $whereOperator = 'AND', $insertData) {
         if (empty($findWhere)) $findWhere = array();
@@ -150,36 +155,28 @@ abstract class FOGManagerController extends FOGController {
     public function destroy($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false) {
         if (empty($findWhere)) $findWhere = array();
         if (empty($whereOperator)) $whereOperator = 'AND';
-        if (empty($orderBy)) {
-            $orderBy = 'id';
-            if (isset($this->databaseFields[name])) $orderBy = 'name';
-        } else {
-            $orderBy = trim($orderBy);
-            if (!isset($this->databaseFields[$orderBy])) {
-                $orderBy = 'id';
-                if (isset($this->databaseFields[name])) $orderBy = 'name';
-            }
-        }
+        $this->orderBy($orderBy);
         if (empty($sort)) $sort = 'ASC';
         if (empty($compare)) $compare = '=';
-        if (array_key_exists('id',$findWhere)) $ids = $findWhere[id];
+        if (array_key_exists('id',$findWhere)) $ids = $findWhere['id'];
         else $ids = $this->find($findWhere, $whereOperator, $orderBy, $sort, $compare, $groupBy, $not, 'id');
         $query = sprintf(
             $this->destroyQueryTemplate,
             $this->databaseTable,
             $this->databaseTable,
-            $this->databaseFields[id],
+            $this->databaseFields['id'],
             implode(',',(array)$ids)
         );
-        foreach ((array)$ids AS $i => &$id) $this->getClass($this->childClass,$id)->destroy(id);
+        foreach ((array)$ids AS $i => &$id) $this->getClass($this->childClass,$id)->destroy('id');
         unset($id);
         return $this->DB->query($query)->fetch()->get();
     }
     public function buildSelectBox($matchID = '', $elementName = '', $orderBy = 'name', $filter = '', $template = false) {
-        $matchID = ($_REQUEST[node] == 'image' ? ($matchID === 0 ? 1 : $matchID) : $matchID);
+        $matchID = ($_REQUEST['node'] == 'image' ? ($matchID === 0 ? 1 : $matchID) : $matchID);
         if (empty($elementName)) $elementName = strtolower($this->childClass);
-        $Objects = $this->find($filter ? array(id=>$filter) : '', '', $orderBy, '', '', '',($filter ? true : false));
-        foreach ($Objects AS $i => &$Object) $listArray[] = sprintf('<option value="%s"%s>%s</option>',$Object->get(id),($matchID == $Object->get(id) ? ' selected' : ($template ? ' ${selected_item'.$Object->get(id).'}' : '')),$Object->get(name).' - ('.$Object->get(id).')');
+        $this->orderBy($orderBy);
+        $Objects = $this->find($filter ? array('id'=>$filter) : '', '', $orderBy, '', '', '',($filter ? true : false));
+        foreach ($Objects AS $i => &$Object) $listArray[] = sprintf('<option value="%s"%s>%s</option>',$Object->get('id'),($matchID == $Object->get('id') ? ' selected' : ($template ? ' ${selected_item'.$Object->get('id').'}' : '')),$Object->get('name').' - ('.$Object->get('id').')');
         unset($Object);
         return (isset($listArray) ? sprintf('<select name="%s" autocomplete="off"><option value="">%s</option>%s</select>',($template ? '${selector_name}' : $elementName),'- '.$this->foglang[PleaseSelect].' -',implode($listArray)) : false);
     }
