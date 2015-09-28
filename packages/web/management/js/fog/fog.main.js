@@ -220,7 +220,7 @@ function HookTooltips() {
         $('.tipsy').remove();
         $('a[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS});
         $('.remove-mac[title], .add-mac[title], .icon-help[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS});
-        $('.task-name[title], .icon[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS});
+        $('.task-name[title], .icon[title], .icon-ping[title], .icon-ping-down[title], .icon-ping-up[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS});
         $('img[title]', Content).tipsy({gravity: $.fn.tipsy.autoNS});
     }, 400);
 }
