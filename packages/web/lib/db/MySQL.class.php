@@ -1,5 +1,5 @@
 <?php
-class MySQL extends DatabaseManager {
+class MySQL extends FOGBase {
     /** @var $link the link after connected */
     private $link;
     /** @var $query the query to call */
