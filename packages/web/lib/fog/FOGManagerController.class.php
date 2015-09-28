@@ -5,7 +5,7 @@ abstract class FOGManagerController extends FOGController {
     protected $loadQueryTemplate = 'SELECT * FROM `%s` %s %s %s %s %s';
     protected $loadQueryGroupTemplate = 'SELECT * FROM (%s) `%s` %s %s %s %s %s';
     protected $countQueryTemplate = 'SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s`%s LIMIT 1';
-    protected $updateQueryTemplate = 'UPDATE `%s` SET %s';
+    protected $updateQueryTemplate = 'UPDATE `%s` SET %s %s';
     protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE `%s`.`%s` IN ('%s')";
     protected $existsQueryTemplate = "SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s` WHERE `%s`.`%s`='%s' AND `%s`.`%s` <> '%s'";
     public function __construct() {
