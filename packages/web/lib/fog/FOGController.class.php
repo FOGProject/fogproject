@@ -207,7 +207,7 @@ abstract class FOGController extends FOGBase {
         return array(implode((array)$join),$whereArrayAnd);
     }
     public function setQuery(&$queryData) {
-        $classData = array_intersect_key($queryData,$this->databaseFieldsFlipped);
+        $classData = array_intersect_key((array)$queryData,(array)$this->databaseFieldsFlipped);
         foreach ((array)$classData AS $field => &$val) {
             $this->key($field);
             $this->data[$field] = $val;
