@@ -126,24 +126,24 @@ abstract class FOGController extends FOGBase {
     }
     public function load($field = 'id') {
         $this->info(_('Loading data to field %s'),array($field));
-        try {
-            if (!trim($this->get($field))) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
             // Get the query elements
-            list($join, $where) = $this->buildQuery();
+        list($join, $where) = $this->buildQuery();
+        foreach ((array)$field AS $i => $key) {
+            $this->key($key);
             // Actually Build the real query:
-            if (!is_array($this->get($field))) {
+            if (!is_array($this->get($key))) {
                 // Single Value
                 $query = sprintf($this->loadQueryTemplateSingle,
                     $this->databaseTable,
                     $join,
-                    $this->databaseFields[$field],
-                    $this->DB->sanitize($this->get($field)),
+                    $this->databaseFields[$key],
+                    $this->DB->sanitize($this->get($key)),
                     count($where) ? ' AND '.implode(' AND ',$where) : ''
                 );
             } else {
                 $fieldData = array();
-                $fields = $this->get($field);
-                foreach((array)$fields AS $i => &$fieldValue) $fieldData[] = sprintf("%s='%s'",$this->databaseFields[$field],$this->DB->sanitize($fieldValue));
+                $fields = $this->get($key);
+                foreach((array)$fields AS $i => &$fieldValue) $fieldData[] = sprintf("%s='%s'",$this->databaseFields[$key],$this->DB->sanitize($fieldValue));
                 // Multiple Values
                 $query = sprintf($this->loadQueryTemplateMultiple,
                     $this->databaseTable,
@@ -152,11 +152,11 @@ abstract class FOGController extends FOGBase {
                     count($where) ? ' AND '.implode(' AND ',$where) : ''
                 );
             }
-            $vals = $this->DB->query($query)->fetch('','fetch_all')->get();
+            $vals = $this->DB->query($query)->fetch('','fetch_all')->get($key);
+            if ($this->DB->queryResult() instanceof mysqli_result) $this->DB->queryResult()->close();
             $vals = @array_shift($vals);
             $this->setQuery($vals);
-        } catch (Exception $e) {
-            $this->debug(_('Load failed: %s'),array($e->getMessage()));
+            unset ($query,$vals);
         }
         return $this;
     }
