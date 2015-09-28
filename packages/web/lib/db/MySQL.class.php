@@ -1,5 +1,5 @@
 <?php
-class MySQL extends DatabaseManager {
+class MySQL extends FOGBase {
     /** @var $link the link after connected */
     private $link;
     /** @var $query the query to call */
@@ -114,21 +114,21 @@ class MySQL extends DatabaseManager {
      */
     public function get($field = '') {
         try {
-            $field = trim($field);
             if ($this->result === false) throw new Exception(_('No data returned'));
-            if (array_key_exists((string)$field,(array)$this->result)) return $this->result[$field];
-            else {
-                $result = array();
-                foreach ((array)$this->result AS $i => &$arr) {
-                    if (array_key_exists((string)$field,(array)$arr)) $result[] = $arr[$field];
-                }
-            }
-            if (count(array_filter((array)$result))) return array_filter((array)$result);
-            return $this->result;
         } catch (Exception $e) {
             $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
+            return false;
         }
-        return false;
+        $result = array();
+        foreach ((array)$field AS $i => &$key) {
+            $key = trim($key);
+            if (array_key_exists($key,$this->result)) return $this->result[$key];
+            foreach ((array)$this->result AS $index => &$value) {
+                if (array_key_exists($key, $value)) $result[] = $value[$key];
+            }
+        }
+        if (count($result)) return $result;
+        return $this->result;
     }
     /** result() result of the query
      * @return the result
