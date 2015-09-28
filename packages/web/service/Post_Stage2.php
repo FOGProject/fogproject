@@ -16,7 +16,6 @@ try {
     $Image = $Task->getImage();
     $ImageName = $Image->get(name);
     // Sets the class for ftp of files and deletion as necessary.
-    $ftp = $FOGFTP;
     // Sets the mac address for tftp delete later.
     $mactftp = strtolower(str_replace(':','-',$_REQUEST[mac]));
     // Sets the mac address for ftp upload later.
@@ -26,16 +25,16 @@ try {
     // Where is it going?
     $dest = $StorageNode->get(ftppath).'/'.$_REQUEST[to];
     //Attempt transfer of image file to Storage Node
-    $ftp->set(host,$StorageNode->get(ip))
+    $FOGFTP->set(host,$StorageNode->get(ip))
         ->set(username,$StorageNode->get(user))
         ->set(password,$StorageNode->get(pass));
-    if (!$ftp->connect())
+    if (!$FOGFTP->connect())
         throw new Exception(_('Storage Node: '.$StorageNode->get(ip).' FTP Connection has failed!'));
     // Try to delete the file.  Doesn't hurt anything if it doesn't delete anything.
-    $ftp->delete($dest);
-    if (!$ftp->rename($dest,$src) && !$ftp->put($dest,$src)) throw new Exception(_('Move/rename failed'));
-    in_array($_REQUEST[osid],array(1,2)) ? $ftp->delete($StorageNode->get(ftppath).'/dev/'.$macftp) : null;
-    $ftp->close();
+    $FOGFTP->delete($dest);
+    if (!$FOGFTP->rename($dest,$src) && !$FOGFTP->put($dest,$src)) throw new Exception(_('Move/rename failed'));
+    in_array($_REQUEST[osid],array(1,2)) ? $FOGFTP->delete($StorageNode->get(ftppath).'/dev/'.$macftp) : null;
+    $FOGFTP->close();
     // If image is currently legacy, set as not legacy.
     if ($Image->get(format) == 1) $Image->set(format,0)->save();
     // Complete the Task.

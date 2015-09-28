@@ -544,7 +544,7 @@ class TaskManagementPage extends FOGPage {
         foreach ($SchedTasks AS $i => &$task) {
             $Host = $task->getHost();
             $taskType = $task->getTaskType();
-            if ($task->get(type) == 'C') $taskTime = FOGCron::parse($task->get(minute).' '.$task->get(hour).' '.$task->get(dayOfMonth).' '.$task->get(month).' '.$task->get(dayOfWeek));
+            if ($task->get(type) == 'C') $taskTime = FOGCron::parse($this->FOGCore,$task->get(minute).' '.$task->get(hour).' '.$task->get(dayOfMonth).' '.$task->get(month).' '.$task->get(dayOfWeek));
             else $taskTime = $task->get(scheduleTime);
             $taskTime = $this->nice_date()->setTimestamp($taskTime);
             $hostGroupName = ($task->isGroupBased() ? $task->getGroup() : $task->getHost());

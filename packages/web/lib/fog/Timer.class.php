@@ -12,7 +12,7 @@ class Timer extends FOGCron {
             $this->blSingle = true;
         } else {
             $this->cron = $minute.' '.$hour.' '.$dom.' '.$month.' '.$dow;
-            $this->lngSingle = self::parse($this->cron);
+            $this->lngSingle = self::parse($this->FOGCore,$this->cron);
             $this->debug = false;
             $this->blSingle = false;
         }
