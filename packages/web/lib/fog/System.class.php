@@ -6,7 +6,7 @@ class System {
      * @return void
      */
     public function __construct() {
-        define('FOG_VERSION', '4780');
+        define('FOG_VERSION', '4782');
         define('FOG_SCHEMA', 196);
         define('FOG_BCACHE_VER',26);
         define('FOG_SVN_REVISION', '$Revision: 2868 $');
