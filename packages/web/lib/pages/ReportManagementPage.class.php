@@ -418,7 +418,7 @@ class ReportManagementPage extends FOGPage {
         $Hosts = $this->getClass(HostManager)->find();
         // Approves All Pending MACs for all hosts.
         if ($_REQUEST[aprvall] == 1) {
-            foreach($Hosts AS $i => &$Host) $Host->load()->addPendtoAdd()->save();
+            foreach($Hosts AS $i => &$Host) $Host->addPendtoAdd()->save();
             unset($Host);
             $this->FOGCore->setMessage(_('All Pending MACs approved.'));
             $this->FOGCore->redirect('?node=report&sub=pend-mac');
