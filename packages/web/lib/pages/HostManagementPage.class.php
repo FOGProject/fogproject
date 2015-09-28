@@ -193,7 +193,7 @@ class HostManagementPage extends FOGPage {
         if (isset($_REQUEST[approvependhost])) {
             $Hosts = $this->getClass(HostManager)->find(array(id=>$_REQUEST[host]));
             foreach ($Hosts AS $i => &$Host) {
-                $Host->load()->set(pending,null);
+                $Host->set(pending,null);
                 if ($Host->save()) $count++;
             }
             unset($HostID);

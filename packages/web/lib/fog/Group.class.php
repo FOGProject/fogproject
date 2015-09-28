@@ -80,7 +80,7 @@ class Group extends FOGController {
     public function addPrinter($printAdd,$printDel,$level = 0) {
         $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
         foreach($Hosts AS $i => &$Host) {
-            $Host->load()->set(printerLevel,$level);
+            $Host->set(printerLevel,$level);
             if ($printAdd) $Host->addPrinter($printAdd);
             if ($printDel) $Host->removePrinter($printDel);
             $Host->save();
@@ -90,25 +90,25 @@ class Group extends FOGController {
     }
     public function addSnapin($addArray) {
         $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
-        foreach($Hosts AS $i => &$Host) $Host->load()->addSnapin($addArray)->save();
+        foreach($Hosts AS $i => &$Host) $Host->addSnapin($addArray)->save();
         unset($Host);
         return $this;
     }
     public function removeSnapin($removeArray) {
         $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
-        foreach($Hosts AS $i => &$Host) $Host->load()->removeSnapin($removeArray)->save();
+        foreach($Hosts AS $i => &$Host) $Host->removeSnapin($removeArray)->save();
         unset($Host);
         return $this;
     }
     public function addModule($addArray) {
         $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
-        foreach($Hosts AS $i => &$Host) $Host->load()->addModule($addArray)->save();
+        foreach($Hosts AS $i => &$Host) $Host->addModule($addArray)->save();
         unset($Host);
         return $this;
     }
     public function removeModule($removeArray) {
         $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
-        foreach($Hosts AS $i => &$Host) $Host->load()->removeModule($removeArray)->save();
+        foreach($Hosts AS $i => &$Host) $Host->removeModule($removeArray)->save();
         unset($Host);
         return $this;
     }
@@ -137,7 +137,7 @@ class Group extends FOGController {
     }
     public function updateDefault($printerid) {
         $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts)));
-        foreach($Hosts AS $i => &$Host) $Host->load()->updateDefault($printerid,true);
+        foreach($Hosts AS $i => &$Host) $Host->updateDefault($printerid,true);
         unset($Host);
         return $this;
     }
@@ -159,7 +159,7 @@ class Group extends FOGController {
         $success = array();
         $Hosts = $this->getClass(HostManager)->find(array(id=>$this->get(hosts),pending=>array('',false,null,0)));
         foreach ($Hosts AS $i => &$Host) {
-            $success[] = $Host->load()->createImagePackage($taskTypeID,$taskName,$shutdown,$debug,$deploySnapins,$isGroupTask,$_SESSION[FOG_USERNAME],$passreset,$sessionjoin);
+            $success[] = $Host->createImagePackage($taskTypeID,$taskName,$shutdown,$debug,$deploySnapins,$isGroupTask,$_SESSION[FOG_USERNAME],$passreset,$sessionjoin);
         }
         unset($Host);
         return $success;
