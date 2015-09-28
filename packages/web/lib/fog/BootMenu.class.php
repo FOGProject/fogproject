@@ -225,7 +225,7 @@ class BootMenu extends FOGBase {
      * @return void
      */
     private function approveHost() {
-        if ($this->Host->load()->set('pending',null)->save()) {
+        if ($this->Host->set('pending',null)->save()) {
             $Send['approvesuccess'] = array(
                 "#!ipxe",
                 "echo Host approved successfully",
@@ -523,7 +523,7 @@ class BootMenu extends FOGBase {
      * @return void
      */
     public function keyset() {
-        $this->Host->load()->set('productKey',base64_encode($_REQUEST['key']));
+        $this->Host->set('productKey',base64_encode($_REQUEST['key']));
         if ($this->Host->save()) {
             $Send['keychangesuccess'] = array(
                 "#!ipxe",
