@@ -103,6 +103,7 @@ abstract class FOGManagerController extends FOGController {
             unset($row);
         }
         if ($this->DB->queryResult() instanceof mysqli_result) $this->DB->queryResult()->close();
+        session_start();
         return (array)$data;
     }
     public function count($findWhere = array(), $whereOperator = 'AND', $compare = '=') {
