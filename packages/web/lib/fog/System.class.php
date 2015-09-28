@@ -1,12 +1,7 @@
 <?php
 class System {
-    /**
-     * __construct()
-     * method called default_values()
-     * @return void
-     */
     public function __construct() {
-        define('FOG_VERSION', '4784');
+        define('FOG_VERSION', '4786');
         define('FOG_SCHEMA', 196);
         define('FOG_BCACHE_VER',26);
         define('FOG_SVN_REVISION', '$Revision: 2868 $');
@@ -15,7 +10,6 @@ class System {
         define('PHP_VERSION_REQUIRED', '5.3.0');
         define('PHP_COMPATIBLE', version_compare(PHP_VERSION, PHP_VERSION_REQUIRED, '>='));
         define('SPACE_DEFAULT_STORAGE', '/images');
-        // PHP: Version check
         if (PHP_COMPATIBLE === false) {
             die(sprintf(_('Your systems PHP version is not sufficient. You have version %s, version %s is required.'), PHP_VERSION, PHP_VERSION_REQUIRED));
             exit;
