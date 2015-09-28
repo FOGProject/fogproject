@@ -1,7 +1,6 @@
 <?php
 class FOGCron extends FOGBase {
-    public static function parse($Cron,$TimeStamp = null) {
-        global $FOGCore;
+    public static function parse(&$FOGCore,$Cron,$TimeStamp = null) {
         if (!preg_match('/^((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)$/i',trim($Cron))) throw new Exception("Invalid cron string: ".$Cron);
         if ($TimeStamp && !is_numeric($TimeStamp)) throw new Exception("Invalid timestamp passed: ".$TimeStamp);
         $Cron = preg_split("/[\s]+/",trim($Cron));
@@ -14,11 +13,11 @@ class FOGCron extends FOGBase {
             'dow' => self::_parseCronNumbers($Cron[4],0,6),
         );
         for ($i = 0; $i <= (60*60*24*366); $i += 60) {
-            $minutes = in_array(intval($FOGCore->nice_date('',true)->setTimestamp($Start+$i)->format('i')),$date['minutes']);
-            $hours = in_array(intval($FOGCore->nice_date('',true)->setTimestamp($Start+$i)->format('H')),$date['hours']);
-            $dom = in_array(intval($FOGCore->nice_date('',true)->setTimestamp($Start+$i)->format('j')),$date['dom']);
-            $month = in_array(intval($FOGCore->nice_date('',true)->setTimestamp($Start+$i)->format('n')),$date['month']);
-            $dow = in_array(intval($FOGCore->nice_date('',true)->setTimestamp($Start+$i)->format('N')),$date['dow']);
+            $minutes = in_array(intval($FOGCore->nice_date()->setTimestamp($Start+$i)->format('i')),$date['minutes']);
+            $hours = in_array(intval($FOGCore->nice_date()->setTimestamp($Start+$i)->format('H')),$date['hours']);
+            $dom = in_array(intval($FOGCore->nice_date()->setTimestamp($Start+$i)->format('j')),$date['dom']);
+            $month = in_array(intval($FOGCore->nice_date()->setTimestamp($Start+$i)->format('n')),$date['month']);
+            $dow = in_array(intval($FOGCore->nice_date()->setTimestamp($Start+$i)->format('N')),$date['dow']);
             if ($dom && $month && $dow && $hours && $minutes) return $Start+$i;
         }
         return false;
