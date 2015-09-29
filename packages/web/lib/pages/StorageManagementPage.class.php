@@ -59,15 +59,12 @@ class StorageManagementPage extends FOGPage {
         // Row data
         foreach ((array)$StorageNodes AS $i => &$StorageNode) {
             $StorageGroup = $this->getClass(StorageGroup,$StorageNode->get(storageGroupID));
-            $this->data[] = array_merge(
-                (array)$StorageNode->get(),
-                array(
-                    isMasterText=>($StorageNode->get(isMaster)?'Yes':'No'),
-                    isEnabledText=>($StorageNode->get(isEnabled)?'Yes':'No'),
-                    isGraphEnabledText=>($StorageNode->get(isGraphEnabled) ? 'Yes' : 'No'),
-                    storage_group=>$StorageGroup->get(name),
-                )
-            );
+            $this->data[] = array_merge($StorageNode->data,array(
+                isMasterText=>($StorageNode->get(isMaster)?'Yes':'No'),
+                isEnabledText=>($StorageNode->get(isEnabled)?'Yes':'No'),
+                isGraphEnabledText=>($StorageNode->get(isGraphEnabled) ? 'Yes' : 'No'),
+                storage_group=>$StorageGroup->get(name),
+            ));
         }
         unset($StorageNode);
         // Header row
@@ -447,6 +444,12 @@ class StorageManagementPage extends FOGPage {
             array(),
             array('class'=>'c filter-false',width=>50),
         );
+        unset($this->data);
+        $StorageGroups = $this->getClass(StorageGroup)->getManager()->find();
+        foreach ($StorageGroups AS $i => &$StorageGroup) {
+            $this->data[] = $StorageGroup->data;
+        }
+        unset($StorageGroup);
         // Hook
         $this->HookManager->processEvent(STORAGE_GROUP_DATA,array(headerData=>&$this->headerData,data=>&$this->data,templates=>&$this->templates,attributes=>&$this->attributes));
         // Output
@@ -571,14 +574,14 @@ class StorageManagementPage extends FOGPage {
                 ->set(description,$_REQUEST[description]);
             // Save
             if (!$this->obj->save()) throw new Exception($this->foglang[DBupfailed]);
-                // Hook
-                $this->HookManager->processEvent(STORAGE_GROUP_EDIT_POST_SUCCESS,array(StorageGroup=>&$this->obj));
-                // Log History event
-                $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', $this->foglang[SGUpdated],$this->obj->get(id),$this->obj->get(name)));
-                // Set session message
-                $this->FOGCore->setMessage($this->foglang[SGUpdated]);
-                // Redirect to new entry
-                $this->FOGCore->redirect(sprintf('?node=%s&sub=storage-group', $_REQUEST[node],$this->id,$this->obj->get(id)));
+            // Hook
+            $this->HookManager->processEvent(STORAGE_GROUP_EDIT_POST_SUCCESS,array(StorageGroup=>&$this->obj));
+            // Log History event
+            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', $this->foglang[SGUpdated],$this->obj->get(id),$this->obj->get(name)));
+            // Set session message
+            $this->FOGCore->setMessage($this->foglang[SGUpdated]);
+            // Redirect to new entry
+            $this->FOGCore->redirect(sprintf('?node=%s&sub=storage-group', $_REQUEST[node],$this->id,$this->obj->get(id)));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_EDIT_FAIL,array(StorageGroup=>&$this->obj));

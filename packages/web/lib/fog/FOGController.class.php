@@ -11,7 +11,7 @@ abstract class FOGController extends FOGBase {
     protected $additionalFields = array();
     protected $aliasedFields = array();
     protected $databaseFieldsRequired = array();
-    protected $data = array();
+    public $data = array();
     protected $autoSave = false;
     protected $databaseFieldClassRelationships = array();
     public function __construct($data = '') {
