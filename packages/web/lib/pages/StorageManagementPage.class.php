@@ -305,7 +305,7 @@ class StorageManagementPage extends FOGPage {
         try {
             // Error checking
             if (empty($_REQUEST[name])) throw new Exception($this->foglang[StorageNameRequired]);
-            if ($this->getClass(StorageNodeManager)->exists($_REQUEST[name],$this->obj->get(id))) throw new Exception($this->foglang[StorageNameExists]);
+            if ($this->obj->get(name) != $_REQUEST[name] && $this->getClass(StorageNodeManager)->exists($_REQUEST[name], $this->obj->get(id))) throw new Exception($this->foglang[StorageNameExists]);
             if (empty($_REQUEST[ip])) throw new Exception($this->foglang[StorageIPRequired]);
             if (!is_numeric($_REQUEST[maxClients]) || $_REQUEST[maxClients] < 0) throw new Exception($this->foglang[StorageClientRequired]);
             if (empty($_REQUEST['interface'])) throw new Exception($this->foglang[StorageIntRequired]);
@@ -567,7 +567,7 @@ class StorageManagementPage extends FOGPage {
         try {
             // Error checking
             if (empty($_REQUEST[name])) throw new Exception($this->foglang[SGName]);
-            if ($this->getClass(StorageGroupManager)->exists($_REQUEST[name], $this->obj->get(id))) throw new Exception($this->foglang[SGExist]);
+            if ($this->obj->get(name) != $_REQUEST[name] && $this->getClass(StorageGroupManager)->exists($_REQUEST[name], $this->obj->get(id))) throw new Exception($this->foglang[SGExist]);
             // Update Object
             $this->obj
                 ->set(name,$_REQUEST[name])
