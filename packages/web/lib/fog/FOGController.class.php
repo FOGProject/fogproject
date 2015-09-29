@@ -11,7 +11,7 @@ abstract class FOGController extends FOGBase {
     protected $additionalFields = array();
     protected $aliasedFields = array();
     protected $databaseFieldsRequired = array();
-    public $data = array();
+    protected $data = array();
     protected $autoSave = false;
     protected $databaseFieldClassRelationships = array();
     public function __construct($data = '') {
@@ -55,10 +55,13 @@ abstract class FOGController extends FOGBase {
     public function get($key = '') {
         $key = $this->key($key);
         if ($key) $this->info(_('Getting Value of Key: %s'),array($key));
+        if (!$key) {
+            $this->info(_('Getting All values of: %s'),array(get_class($this)));
+            return $this->data;
+        }
         try {
             if (!isset($this->data[$key])) throw new Exception(_('No value set'));
             if ($key) return $this->data[$key];
-            return $this->data;
         } catch (Exception $e) {
             $this->debug(_('Get Failed: Key: %s, Error: %s'),array($key,$e->getMessage()));
         }

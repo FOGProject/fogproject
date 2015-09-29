@@ -59,7 +59,7 @@ class StorageManagementPage extends FOGPage {
         // Row data
         foreach ((array)$StorageNodes AS $i => &$StorageNode) {
             $StorageGroup = $this->getClass(StorageGroup,$StorageNode->get(storageGroupID));
-            $this->data[] = array_merge($StorageNode->data,array(
+            $this->data[] = array_merge((array)$StorageNode->get(),array(
                 isMasterText=>($StorageNode->get(isMaster)?'Yes':'No'),
                 isEnabledText=>($StorageNode->get(isEnabled)?'Yes':'No'),
                 isGraphEnabledText=>($StorageNode->get(isGraphEnabled) ? 'Yes' : 'No'),
@@ -447,7 +447,7 @@ class StorageManagementPage extends FOGPage {
         unset($this->data);
         $StorageGroups = $this->getClass(StorageGroup)->getManager()->find();
         foreach ($StorageGroups AS $i => &$StorageGroup) {
-            $this->data[] = $StorageGroup->data;
+            $this->data[] = $StorageGroup->get();
         }
         unset($StorageGroup);
         // Hook
