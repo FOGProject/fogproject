@@ -113,6 +113,7 @@ class MySQL extends FOGBase {
      * @return the requested data or all
      */
     public function get($field = '') {
+        if ($this->result === true) return $this->result;
         try {
             if ($this->result === false) throw new Exception(_('No data returned'));
         } catch (Exception $e) {
@@ -123,7 +124,7 @@ class MySQL extends FOGBase {
         foreach ((array)$field AS $i => &$key) {
             $key = trim($key);
             if (array_key_exists($key,$this->result)) return $this->result[$key];
-            foreach ((array)$this->result AS $index => &$value) {
+            foreach ((array)$this->result AS $i => &$value) {
                 if (array_key_exists($key, $value)) $result[] = $value[$key];
             }
         }
