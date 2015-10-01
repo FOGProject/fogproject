@@ -63,13 +63,15 @@ abstract class FOGManagerController extends FOGController {
         if ($groupBy) {
             $query = sprintf(
                 $this->loadQueryGroupTemplate,
-                $this->loadQueryTemplate,
-                $this->databaseTable,
-                $join,
-                (count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
-                (count($whereArrayAnd) ? (count($whereArray) ? 'AND ' : 'WHERE ').implode(' '.$whereOperator.' ',$whereArrayAnd) : ''),
-                $orderBy,
-                $sort,
+                sprintf(
+                    $this->loadQueryTemplate,
+                    $this->databaseTable,
+                    $join,
+                    (count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
+                    (count($whereArrayAnd) ? (count($whereArray) ? 'AND ' : 'WHERE ').implode(' '.$whereOperator.' ',$whereArrayAnd) : ''),
+                    $orderBy,
+                    $sort
+                ),
                 $this->databaseTable,
                 $join,
                 (count($whereArray) ? 'WHERE '.implode(' '.$whereOperator.' ',$whereArray) : ''),
