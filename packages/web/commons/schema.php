@@ -2068,3 +2068,7 @@ $this->schema[] = array(
     "UPDATE `".DATABASE_NAME."`.`snapinTasks` SET `stState`=4",
     "UPDATE `".DATABASE_NAME."`.`snapinJobs` SET `sjStateID`=4",
 );
+// 197
+$this->schema[] = array(
+    "ALTER TABLE`".DATABASE_NAME."`.`hostMAC` MODIFY `hmMAC` VARCHAR(59) NOT NULL",
+);
