@@ -886,7 +886,7 @@ class Host extends FOGController {
                 if (empty($domain))	$domain = trim($this->get(ADDomain));
                 if (empty($ou)) $ou = trim($this->get(ADOU));
                 if (empty($user)) $user = trim($this->get(ADUser));
-                if (empty($pass)) $pass = trim($this->get(ADPass));
+                if (empty($pass)) $pass = trim($this->encryptpw($this->get(ADPass)));
                 if (empty($legacy)) $legacy = trim($this->get(ADPassLegacy));
             }
         }
@@ -895,7 +895,7 @@ class Host extends FOGController {
             ->set(ADDomain,trim($domain))
             ->set(ADOU,trim($ou))
             ->set(ADUser,trim($user))
-            ->set(ADPass,$pass)
+            ->set(ADPass,trim($this->encryptpw($pass)))
             ->set(ADPassLegacy,$legacy);
         if (!$nosave) $this->save();
         return $this;
