@@ -52,7 +52,6 @@ abstract class FOGBase {
         $this->FOGURLRequests = $GLOBALS['FOGURLRequests'];
         $this->imagelink = $_SESSION['imagelink'];
         $this->isMobile = (bool)preg_match('#/mobile/#i',$_SERVER['PHP_SELF']);
-        if ($this->FOGUser instanceof User && $this->FOGUser->isLoggedIn()) $this->FOGSubMenu = $this->getClass('FOGSubMenu');
     }
     /** @function fatalError() prints error to the screen and exits script
      * @param $txt the text of the error
