@@ -123,9 +123,9 @@ class MySQL extends FOGBase {
         $result = array();
         foreach ((array)$field AS $i => &$key) {
             $key = trim($key);
-            if (array_key_exists($key,$this->result)) return $this->result[$key];
+            if (array_key_exists($key, (array)$this->result)) return $this->result[$key];
             foreach ((array)$this->result AS $i => &$value) {
-                if (array_key_exists($key, $value)) $result[] = $value[$key];
+                if (array_key_exists($key, (array)$value)) $result[] = $value[$key];
             }
         }
         if (count($result)) return $result;

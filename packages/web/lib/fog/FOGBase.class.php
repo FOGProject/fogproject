@@ -24,6 +24,8 @@ abstract class FOGBase {
     public $EventManager;
     /** @var $FOGURLRequests the FOGURLRequests class */
     public $FOGURLRequests;
+    /** @var $FOGSubMenu the FOGSubMenu class */
+    public $FOGSubMenu;
     /** @var $db Legacy calls for $db/$conn */
     public $db;
     /** @var $conn Legacy calls for $db/$conn */
@@ -50,6 +52,7 @@ abstract class FOGBase {
         $this->FOGURLRequests = $GLOBALS['FOGURLRequests'];
         $this->imagelink = $_SESSION['imagelink'];
         $this->isMobile = (bool)preg_match('#/mobile/#i',$_SERVER['PHP_SELF']);
+        if ($this->FOGUser instanceof User && $this->FOGUser->isLoggedIn()) $this->FOGSubMenu = $this->getClass('FOGSubMenu');
     }
     /** @function fatalError() prints error to the screen and exits script
      * @param $txt the text of the error
