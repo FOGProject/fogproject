@@ -246,7 +246,7 @@ abstract class FOGBase {
             $key = @pack('H*',$data[2]);
             $decipher = mcrypt_decrypt($enctype,$key,$encoded,$mode,$iv);
         }
-        return $decipher;
+        return html_entity_decode($decipher);
     }
     /** @function encryptpw() encrypts the passwords for us
      * @param $pass the password to work from
