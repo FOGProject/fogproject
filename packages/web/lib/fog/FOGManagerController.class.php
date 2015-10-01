@@ -245,6 +245,7 @@ abstract class FOGManagerController extends FOGController {
                 if (count($HostIDs)) $itemIDs = array_merge($itemIDs,$this->getSubObjectIDs('Task',array(hostID=>$HostIDs)));
                 break;
             default:
+                if (!class_exists($this->childClass.'Association')) break;
                 $HostIDs = array_merge($HostIDs,$this->getSubObjectIDs($this->childClass.'Association',array(strtolower($this->childClass).'ID'=>$itemIDs),'hostID'));
                 if (count($HostIDs)) $itemIDs = array_merge($itemIDs,$this->getSubObjectIDs($this->childClass.'Association',array(hostID=>$HostIDs),strtolower($this->childClass).'ID'));
                 break;
