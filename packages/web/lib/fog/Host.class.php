@@ -123,26 +123,26 @@ class Host extends FOGController {
         switch ($this->key($key)) {
             case 'mac':
                 $this->loadPrimary();
-                if (!($value instanceof MACAddress)) $value = $this->getClass(MACAddress,$value);
+                if (!($value instanceof MACAddress)) $value = $this->getClass('MACAddress',$value);
                 break;
             case 'additionalMACs':
             case 'pendingMACs':
                 $this->key($key) == 'additionalMACs' ? $this->loadAdditional() : $this->loadPending();
-                foreach((array)$value AS $i => &$mac) $newValue[] = $this->getClass(MACAddress,$this->getClass(MACAddressAssociation,$mac));
+                foreach((array)$value AS $i => &$mac) $newValue[] = $this->getClass('MACAddress',$this->getClass('MACAddressAssociation',$mac));
                 unset($mac);
                 $value = (array)$newValue;
                 break;
             case 'snapinjob':
                 $this->loadSnapinJob();
-                if (!($value instanceof SnapinJob)) $value = $this->getClass(SnapinJob,$value);
+                if (!($value instanceof SnapinJob)) $value = $this->getClass('SnapinJob',$value);
                 break;
             case 'inventory':
                 $this->loadInventory();
-                if (!($value instanceof Inventory)) $value = $this->getClass(Inventory,$value);
+                if (!($value instanceof Inventory)) $value = $this->getClass('Inventory',$value);
                 break;
             case 'task':
                 $this->loadTask();
-                if (!($value instanceof Task)) $value = $this->getClass(Task,$value);
+                if (!($value instanceof Task)) $value = $this->getClass('Task',$value);
                 break;
             case 'printers':
                 $this->loadPrinters();
@@ -168,7 +168,7 @@ class Host extends FOGController {
             case 'additionalMACs':
             case 'pendingMACs':
                 $this->key($key) == 'additionalMACs' ? $this->loadAdditional() : $this->loadPending();
-                if (!($value instanceof MACAddress)) $value = $this->getClass(MACAddress,$value);
+                if (!($value instanceof MACAddress)) $value = $this->getClass('MACAddress',$value);
                 break;
             case 'printers':
                 $this->loadPrinters();
@@ -221,106 +221,132 @@ class Host extends FOGController {
     }
     public function save() {
         parent::save();
-        if ($this->isLoaded(mac)) {
-            if (($this->get(mac) instanceof MACAddress) && $this->get(mac)->isValid()) {
-                $this->getClass(MACAddressAssociationManager)->destroy(array(hostID=>$this->get(id),primary=>1));
-                $this->getClass(MACAddressAssociation)
-                    ->set(hostID,$this->get(id))
-                    ->set(mac,strtolower($this->get(mac)->__toString()))
-                    ->set(primary,1)
-                    ->set(pending,0)
-                    ->set(clientIgnore,$this->get(mac)->isClientIgnored())
-                    ->set(imageIgnore,$this->get(mac)->isImageIgnored())
-                    ->save();
+        if ($this->isLoaded('mac')) {
+            // Remove Original Primary Mac's if it changed.
+            $PriMACs = $this->getClass('MACAddressAssociationManager')->find(array('primary'=>1,'hostID'=>$this->get('id')));
+            foreach ((array)$PriMACs AS $i => &$PriMAC) {
+                if (($this->get('mac') instanceof MACAddress) && $this->get('mac')->isValid()) $compare = trim(strtolower($this->get('mac')->__toString()));
+                else $compare = trim(strtolower($this->get('mac')));
+                if ($compare != trim(strtolower($PriMAC->get('mac')))) $PriMAC->destroy();
+            }
+            // Recreate new Primary MAC Address
+            if (!$this->getClass('MACAddressAssociationManager')->count(array('hostID'=>$this->get('id'),'primary'=>1))) {
+                if (!($this->get('mac') instanceof MACAddress)) $this->set('mac',$this->getClass('MACAddress',strtolower($this->get('mac'))));
+                if ($this->get('mac')->isValid()) {
+                    $this->getClass('MACAddressAssociation')
+                        ->set('hostID',$this->get('id'))
+                        ->set('mac',strtolower($this->get('mac')->__toString()))
+                        ->set('primary',1)
+                        ->set('pending',0)
+                        ->set('clientIgnore',$this->get('mac')->isClientIgnored())
+                        ->set('imageIgnore',$this->get('mac')->isImageIgnored())
+                        ->save();
+                } else throw new Exception($this->foglang['InvalidMAC']);
             }
         }
-        if ($this->isLoaded(additionalMACs)) {
-            $MAClist = array();
-            foreach ((array)$this->get(additionalMACs) AS $i => &$MAC) $MAClist[] = $MAC;
-            unset($MAC);
-            $this->getClass(MACAddressAssociationManager)->destroy(array(hostID=>$this->get(id),mac=>(array)$MAClist));
-            $this->getClass(MACAddressAssociationManager)->destroy(array(hostID=>$this->get(id),pending=>0,primary=>0));
-            foreach((array)$this->get(additionalMACs) AS $i => &$me) {
-                if (($me instanceof MACAddress) && $me->isValid()) {
-                    $this->getClass(MACAddressAssociation)
-                        ->set(hostID,$this->get(id))
-                        ->set(mac,strtolower($me))
-                        ->set(primary,0)
-                        ->set(pending,0)
-                        ->set(clientIgnore,$me->isClientIgnored())
-                        ->set(imageIgnore,$me->isImageIgnored())
+        if ($this->isLoaded('additionalMACs')) {
+            $RealAddMACs = array();
+            $TheseAddMACs = $this->get('additionalMACs');
+            foreach ((array)$TheseAddMACs AS $i => &$ThisAddMAC) {
+                if ($ThisAddMAC instanceof MACAddress) $mac = trim(strtolower($ThisAddMAC->__toString()));
+                else $mac = trim(strtolower($ThisAddMAC));
+                $RealAddMACs[] = $mac;
+            }
+            unset($ThisAddMAC);
+            $DBAddMACs = $this->getClass('MACAddressAssociationManager')->find(array('primary'=>0,'hostID'=>$this->get('id'),'pending'=>array('',null,'0')));
+            foreach ((array)$DBAddMACs AS $i => &$DBMAC) {
+                if (!in_array(trim(strtolower($DBMAC->get('mac'))),$RealAddMACs)) $DBMAC->destroy();
+            }
+            unset($DBMAC);
+            foreach ((array)$RealAddMACs AS $i => &$RealAddMAC) {
+                $findMac = $this->getClass('MACAddressAssociationManager')->find(array('hostID'=>$this->get('id'),'primary'=>0,'pending'=>array('',null,0)),'','','','','','','mac');
+                $findMac = array_map('strtolower',(array)$findMac);
+                $findMac = array_map('trim',(array)$findMac);
+                if (!in_array($RealAddMAC,(array)$findMac)) {
+                    $this->getClass('MACAddressAssociation')
+                        ->set('hostID',$this->get('id'))
+                        ->set('mac',$RealAddMAC)
+                        ->set('primary',0)
+                        ->set('pending',0)
                         ->save();
                 }
             }
-            unset($me);
+            unset($RealAddMAC);
         }
-        if ($this->isLoaded(pendingMACs)) {
-            $MAClist = array();
-            foreach ((array)$this->get(pendingMACs) AS $i => &$MAC) $MAClist[] = $MAC;
-            unset($MAC);
-            $this->getClass(MACAddressAssociationManager)->destroy(array(hostID=>$this->get(id),mac=>(array)$MAClist));
-            $this->getClass(MACAddressAssociationManager)->destroy(array(hostID=>$this->get(id),pending=>1,primary=>0));
-            foreach((array)$this->get(pendingMACs) AS $i => &$me) {
-                if (($me instanceof MACAddress) && $me->isValid()) {
-                    $this->getClass(MACAddressAssociation)
-                        ->set(hostID,$this->get(id))
-                        ->set(mac,strtolower($me))
-                        ->set(primary,0)
-                        ->set(pending,1)
-                        ->set(clientIgnore,$me->isClientIgnored())
-                        ->set(imageIgnore,$me->isImageIgnored())
+        if ($this->isLoaded('pendingMACs')) {
+            $RealPendMACs = array();
+            $ThesePendMACs = $this->get('pendingMACs');
+            foreach ((array)$ThesePendMACs AS $i => &$ThisPendMAC) {
+                if ($ThisPendMAC instanceof MACAddress) $mac = trim(strtolower($ThisPendMAC->__toString()));
+                else $mac = trim(strtolower($ThisPendMAC));
+                $RealAddMACs[] = $mac;
+            }
+            unset($ThisPendMAC);
+            $DBPendMACs = $this->getClass('MACAddressAssociationManager')->find(array('primary'=>0,'hostID'=>$this->get('id'),'pending'=>1));
+            foreach ((array)$DBPendMACs AS $i => &$DBMAC) {
+                if (!in_array(trim(strtolower($DBMAC->get('mac'))),$RealPendMACs)) $DBMAC->destroy();
+            }
+            unset($DBMAC);
+            foreach ((array)$RealPendMACs AS $i => &$RealPendMAC) {
+                $findMac = $this->getClass('MACAddressAssociationManager')->find(array('hostID'=>$this->get('id'),'primary'=>0,'pending'=>1),'','','','','','','mac');
+                $findMac = array_map('strtolower',(array)$findMac);
+                $findMac = array_map('trim',(array)$findMac);
+                if (!in_array($RealPendMAC,(array)$findMac)) {
+                    $this->getClass('MACAddressAssociation')
+                        ->set('hostID',$this->get('id'))
+                        ->set('mac',$RealPendMAC)
+                        ->set('primary',0)
+                        ->set('pending',1)
                         ->save();
                 }
             }
-            unset($me);
+            unset($RealPendMAC);
         }
-        if ($this->isLoaded(modules)) {
-            $this->getClass(ModuleAssociationManager)->destroy(array(hostID=>$this->get(id)));
+        if ($this->isLoaded('modules')) {
+            $DBModuleIDs = $this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
+            $RemoveModuleIDs = array_diff((array)$this->get('modules'),(array)$DBModuleIDs);
+            $this->getClass('ModuleAssociationManager')->destroy(array('moduleID'=>$RemoveModuleIDs,'hostID'=>$this->get('id')));
+            $ModuleIDs = $this->get('modules');
+            $this->getClass('ModuleAssociationManager')->destroy(array('id'=>$this->getClass('ModuleAssociationManager')->find(array('moduleID'=>$this->get('modules'),'hostID'=>$this->get('id')))));
+            $DBModuleIDs = $this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
+            $ModuleIDs = array_diff((array)$this->get('modules'),(array)$DBModuleIDs);
             $moduleName = $this->getGlobalModuleStatus();
-            foreach((array)$this->get(modules) AS $i => &$Module) {
-                if ($moduleName[$this->getClass(Module,$Module)->get(shortName)]) {
-                    $this->getClass(ModuleAssociation)
-                        ->set(hostID,$this->get(id))
-                        ->set(moduleID,$Module)
-                        ->set(state,1)
+            foreach((array)$ModuleIDs AS $i => &$Module) {
+                if ($moduleName[$this->getClass('Module',$Module)->get('shortName')]) {
+                    $this->getClass('ModuleAssociation')
+                        ->set('hostID',$this->get('id'))
+                        ->set('moduleID',$Module)
+                        ->set('state',1)
                         ->save();
                 }
             }
             unset($Module);
         }
-        if ($this->isLoaded(printers)) {
-            $defPrint = $this->getClass(PrinterAssociationManager)->find(array(hostID=>$this->get(id),isDefault=>1),'','','','','','','printerID');
-            $defPrint = array_shift($defPrint);
-            $this->getClass(PrinterAssociationManager)->destroy(array(hostID=>$this->get(id)));
-            foreach ((array)$this->get(printers) AS $i => &$Printer) {
-                $this->getClass(PrinterAssociation)
-                    ->set(printerID,$Printer)
-                    ->set(hostID,$this->get(id))
-                    ->set(isDefault,(int)$defPrint == $Printer)
-                    ->save();
-            }
+        if ($this->isLoaded('printers')) {
+            $DBPrinterIDs = $this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
+            $RemovePrinterIDs = array_diff((array)$DBPrinterIDs,(array)$this->get('printers'));
+            $this->getClass('PrinterAssociationManager')->destroy(array('hostID'=>$this->get('id'),'printerID'=>$RemovePrinterIDs));
+            $DBPrinterIDs = $this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID');
+            $PrinterIDs = array_diff((array)$this->get('printers'),(array)$DBPrinterIDs);
+            foreach ((array)$PrinterIDs AS $i => $Printer) $this->getClass('Printer',$Printer)->addHost($this->get('id'))->save();
             unset($Printer);
         }
         if ($this->isLoaded(snapins)) {
-            $this->getClass(SnapinAssociationManager)->destroy(array(hostID=>$this->get(id)));
-            foreach ((array)$this->get(snapins) AS $i => &$Snapin) {
-                $this->getClass(SnapinAssociation)
-                    ->set(hostID,$this->get(id))
-                    ->set(snapinID,$Snapin)
-                    ->save();
-            }
+            $DBSnapinIDs = $this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
+            $RemoveSnapinIDs = array_diff((array)$DBSnapinIDs,(array)$this->get('snapins'));
+            $this->getClass('SnapinAssociationManager')->destroy(array('hostID'=>$this->get('id'),'snapinID'=>$RemoveSnapinIDs));
+            $DBSnapinIDs = $this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID');
+            $Snapins = array_diff((array)$this->get('snapins'),(array)$DBSnapinIDs);
+            foreach ((array)$Snapins AS $i => $Snapin) $this->getClass('Snapin',$Snapin)->addHost($this->get('id'))->save();
             unset($Snapin);
         }
         if ($this->isLoaded(groups)) {
-            // Remove old rows
-            $this->getClass(GroupAssociationManager)->destroy(array(hostID=>$this->get(id)));
-            // Create assoc
-            foreach ((array)$this->get(groups) AS $i => &$Group) {
-                $this->getClass(GroupAssociation)
-                    ->set(hostID,$this->get(id))
-                    ->set(groupID,$Group)
-                    ->save();
-            }
+            $DBGroupIDs = $this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
+            $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('groups'));
+            $this->getClass('GroupAssociationManager')->destroy(array('hostID'=>$this->get('id'),'groupID'=>$RemoveGroupIDs));
+            $DBGroupIDs = $this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID');
+            $Groups = array_diff((array)$this->get('groups'),(array)$DBGroupIDs);
+            foreach ((array)$Groups AS $i => $Group) $this->getClass('Group',$Group)->addHost($this->get('id'))->save();
             unset($Group);
         }
         return $this;
