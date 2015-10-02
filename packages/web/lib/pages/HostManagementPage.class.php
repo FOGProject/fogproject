@@ -368,7 +368,7 @@ class HostManagementPage extends FOGPage {
         }
         foreach($this->obj->get(additionalMACs) AS $i => &$MAC) {
             if ($MAC && $MAC->isValid())
-                $addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" /><input title="'._('Remove MAC').'" type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" /><label for="rm'.$MAC.'" class="icon fa fa-minus-circle hand">&nbsp;</label><span class="icon icon-hand" title="'._('Make Primary').'"><input type="radio" name="primaryMAC" value="'.$MAC.'" /></span><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$this->obj->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$this->obj->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span></div>';
+                $addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" />&nbsp;&nbsp;<input title="'._('Remove MAC').'" type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" /><label for="rm'.$MAC.'" class="icon fa fa-minus-circle hand"></label><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$this->obj->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$this->obj->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span></div>';
         }
         unset($MAC);
         foreach ($this->obj->get(pendingMACs) AS $i => &$MAC) $pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC.'" /><a href="'.$this->formAction.'&confirmMAC='.$MAC.'"><i class="icon fa fa-check-circle"></i></a><span class="mac-manufactor"></span></div>';
@@ -378,7 +378,7 @@ class HostManagementPage extends FOGPage {
         $imageSelect = $this->getClass('ImageManager')->buildSelectBox($this->obj->get(imageID));
         $fields = array(
             _('Host Name') => '<input type="text" name="host" value="'.$this->obj->get(name).'" maxlength="15" class="hostname-input" />*',
-            _('Primary MAC') => '<input type="text" name="mac" id="mac" value="'.$this->obj->get(mac).'" />*<span id="priMaker"></span><i class="icon add-mac fa fa-plus-circle hand" title="'._('Add MAC').'"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$this->obj->get(mac).'" '.$this->obj->clientMacCheck().' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$this->obj->get(mac).'" '.$this->obj->imageMacCheck().'/></span><br/><span class="mac-manufactor"></span>',
+            _('Primary MAC') => '<input type="text" name="mac" id="mac" value="'.$this->obj->get(mac).'" />*<span id="priMaker"></span><i class="icon add-mac fa fa-plus-circle hand" title="'._('Add MAC').'"></i><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$this->obj->get(mac).'" '.$this->obj->clientMacCheck().' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$this->obj->get(mac).'" '.$this->obj->imageMacCheck().'/></span><br/><span class="mac-manufactor"></span>',
             '<div id="additionalMACsRow">'._('Additional MACs').'</div>' => '<div id="additionalMACsCell">'.$addMACs.'</div>',
             ($this->obj->get('pendingMACs') ? _('Pending MACs') : null) => ($this->obj->get('pendingMACs') ? $pending : null),
             _('Host Description') => '<textarea name="description" rows="8" cols="40">'.$this->obj->get(description).'</textarea>',
@@ -916,75 +916,63 @@ class HostManagementPage extends FOGPage {
         Actually saves the data.
      */
     public function edit_post() {
-        $Inventory = $this->obj->get(inventory);
+        $Inventory = $this->obj->get('inventory');
         // Hook
-        $this->HookManager->processEvent(HOST_EDIT_POST,array(Host=>&$this->obj));
+        $this->HookManager->processEvent('HOST_EDIT_POST',array('Host'=>&$this->obj));
         // POST
         try {
             // Tabs
-            switch ($_REQUEST[tab]) {
+            switch ($_REQUEST['tab']) {
                 case 'host-general';
-                $hostName = trim($_REQUEST[host]);
+                $hostName = trim($_REQUEST['host']);
                 // Error checking
                 if (empty($hostName)) throw new Exception('Please enter a hostname');
-                if ($this->obj->get(name) != $hostName && !$this->obj->isHostnameSafe($hostName)) throw new Exception(_('Please enter a valid hostname'));
-                if ($this->obj->get(name) != $hostName && $this->obj->getManager()->exists($hostName)) throw new Exception('Hostname Exists already');
-                if (empty($_REQUEST[mac])) throw new Exception('MAC Address is required');
+                if ($this->obj->get('name') != $hostName && !$this->obj->isHostnameSafe($hostName)) throw new Exception(_('Please enter a valid hostname'));
+                if ($this->obj->get('name') != $hostName && $this->obj->getManager()->exists($hostName)) throw new Exception('Hostname Exists already');
+                if (empty($_REQUEST['mac'])) throw new Exception('MAC Address is required');
                 // Variables
-                $mac = $this->getClass(MACAddress,$_REQUEST[mac]);
+                $mac = $this->getClass('MACAddress',$_REQUEST['mac']);
                 // Task variable.
-                $Task = $this->obj->get(task);
+                $Task = $this->obj->get('task');
                 // Error checking
                 if (!$mac->isValid()) throw new Exception(_('MAC Address is not valid'));
-                if ((!$_REQUEST[image] && $Task->isValid()) || ($_REQUEST[image] && $_REQUEST[image] != $this->obj->get(imageID) && $Task->isValid())) throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
+                if ((!$_REQUEST['image'] && $Task->isValid()) || ($_REQUEST['image'] && $_REQUEST['image'] != $this->obj->get('imageID') && $Task->isValid())) throw new Exception('Cannot unset image.<br />Host is currently in a tasking.');
                 // Define new Image object with data provided
 
                 $this->obj
-                    ->set(name,$hostName)
-                    ->set(description,$_REQUEST[description])
-                    ->set(imageID,$_REQUEST[image])
-                    ->set(kernel,$_REQUEST[kern])
-                    ->set(kernelArgs,$_REQUEST[args])
-                    ->set(kernelDevice,$_REQUEST[dev])
-                    ->set(productKey,base64_encode($_REQUEST['key']))
-                    ->set(biosexit,$_REQUEST[bootTypeExit])
-                    ->set(efiexit,$_REQUEST[efiBootTypeExit]);
-                if (strtolower($this->obj->get(mac)) != strtolower($mac->__toString()))
-                    $this->obj->set(mac, strtolower($mac->__toString()));
-                $MyMACs = $AddMe = array();
-                foreach((array)$_REQUEST[additionalMACs] AS $i => &$MAC) {
-                    $MAC = (!($MAC instanceof MACAddress) ? $this->getClass(MACAddress,$MAC) : $MAC);
-                    if ($MAC && $MAC->isValid()) $AddMe[] = strtolower($MAC->__toString());
+                    ->set('name',$hostName)
+                    ->set('description',$_REQUEST['description'])
+                    ->set('imageID',$_REQUEST['image'])
+                    ->set('kernel',$_REQUEST['kern'])
+                    ->set('kernelArgs',$_REQUEST['args'])
+                    ->set('kernelDevice',$_REQUEST['dev'])
+                    ->set('productKey',base64_encode($_REQUEST['key']))
+                    ->set('biosexit',$_REQUEST['bootTypeExit'])
+                    ->set('efiexit',$_REQUEST['efiBootTypeExit']);
+                if (strtolower($this->obj->get('mac')->__toString()) != strtolower($mac->__toString())) $this->addPriMAC($mac->__toString());
+                $AddMe = array();
+                foreach((array)$_REQUEST['additionalMACs'] AS $i => &$MAC) {
+                    $MAC = (!($MAC instanceof MACAddress) ? $this->getClass('MACAddress',$MAC) : $MAC);
+                    if ($MAC->isValid()) $AddMe[] = strtolower($MAC->__toString());
                 }
                 unset($MAC);
-                foreach($this->obj->get(additionalMACs) AS $i => &$MyMAC) {
-                    if ($MyMAC instanceof MACAddress && $MyMAC->isValid()) $MyMACs[] = strtolower($MyMAC->__toString());
-                }
-                unset($MyMAC);
-                if (isset($_REQUEST[primaryMAC])) {
-                    $AddMe[] = strtolower($mac->__toString());
-                    $this->obj
-                        ->removeAddMAC($_REQUEST[primaryMAC])
-                        ->set(mac, strtolower($_REQUEST[primaryMAC]));
-                }
-                $AddMe = array_diff((array)$AddMe,(array)$MyMACs);
                 if (count($AddMe)) $this->obj->addAddMAC($AddMe);
-                if(isset($_REQUEST[additionalMACsRM])) $this->obj->removeAddMAC($_REQUEST[additionalMACsRM]);
+                if(isset($_REQUEST['additionalMACsRM'])) $this->obj->removeAddMAC($_REQUEST['additionalMACsRM']);
                 break;
                 case 'host-active-directory';
-                $useAD = isset($_REQUEST[domain]);
-                $domain = trim($_REQUEST[domainname]);
-                $ou = trim($_REQUEST[ou]);
-                $user = trim($_REQUEST[domainuser]);
-                $pass = trim($_REQUEST[domainpassword]);
-                $passlegacy = trim($_REQUEST[domainpasswordlegacy]);
+                $useAD = isset($_REQUEST['domain']);
+                $domain = trim($_REQUEST['domainname']);
+                $ou = trim($_REQUEST['ou']);
+                $user = trim($_REQUEST['domainuser']);
+                $pass = trim($_REQUEST['domainpassword']);
+                $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
                 $this->obj->setAD($useAD,$domain,$ou,$user,$pass,true,false,$passlegacy);
                 break;
                 case 'host-printers';
-                $PrinterManager = $this->getClass(PrinterAssociationManager);
+                $PrinterManager = $this->getClass('PrinterAssociationManager');
                 // Set printer level for Host
-                if (isset($_REQUEST[level]))
-                    $this->obj->set(printerLevel,$_REQUEST[level]);
+                if (isset($_REQUEST['level']))
+                    $this->obj->set('printerLevel',$_REQUEST['level']);
                 // Add
                 if (isset($_REQUEST[updateprinters])) {
                     $this->obj->addPrinter($_REQUEST[printer]);
