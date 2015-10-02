@@ -26,11 +26,6 @@ abstract class FOGManagerController extends FOGController {
             }
         }
     }
-    protected function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id') {
-        if (empty($object)) $object = 'Host';
-        if (empty($getField)) $getField = 'id';
-        return array_filter(array_unique($this->getClass($object)->getManager()->find($findWhere,'OR','','','','','',$getField)));
-    }
     public function find($findWhere = array(), $whereOperator = 'AND', $orderBy = 'name', $sort = 'ASC', $compare = '=', $groupBy = false, $not = false, $idField = false) {
         // Fail safe defaults
         if (empty($findWhere)) $findWhere = array();
