@@ -125,6 +125,7 @@ abstract class FOGController extends FOGBase {
             if (!$this->data[id]) $this->data[id] = $this->DB->insert_id();
         } catch (Exception $e) {
             $this->debug(_('Database save failed: ID: %s, Error: %s'),array($this->data[id],$e->getMessage()));
+            return false;
         }
         return $this;
     }
@@ -181,6 +182,11 @@ abstract class FOGController extends FOGBase {
             $this->debug(_('Destroy failed: %s'),array($e->getMessage()));
         }
         return $this;
+    }
+    protected function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id') {
+        if (empty($object)) $object = 'Host';
+        if (empty($getField)) $getField = 'id';
+        return array_filter(array_unique($this->getClass($object)->getManager()->find($findWhere,'OR','','','','','',$getField)));
     }
     protected function key(&$key) {
         $key = trim($key);

@@ -30,21 +30,21 @@ class Image extends FOGController {
         'storageGroupsnotinme',
     );
     public function isValid() {
-        return $this->get(id) && $this->get(name);
+        return $this->get('id') && $this->get('name');
     }
     // Overrides
     private function loadHosts() {
-        if (!$this->isLoaded(hosts) && $this->get(id)) {
-            $this->set(hosts,array_unique($this->getClass(HostManager)->find(array(imageID=>$this->get(id)),'','','','','','','id')));
-            $this->set(hostsnotinme,array_unique($this->getClass(HostManager)->find(array(imageID=>$this->get(id)),'','','','','',true,'id')));
+        if (!$this->isLoaded('hosts') && $this->get('id')) {
+            $this->set('hosts',array_unique($this->getClass('HostManager')->find(array('imageID'=>$this->get('id')),'','','','','','','id')));
+            $this->set('hostsnotinme',array_unique($this->getClass('HostManager')->find(array('imageID'=>$this->get('id')),'','','','','',true,'id')));
         }
         return $this;
     }
     private function loadGroups() {
-        if (!$this->isLoaded(storageGroups) && $this->get(id)) {
-            $StorageGroupIDs = array_unique($this->getClass(ImageAssociationManager)->find(array(imageID=>$this->get(id)),'','','','','','','storageGroupID'));
-            $this->set(storageGroups,$StorageGroupIDs);
-            $this->set(storageGroupsnotinme,array_unique($this->getClass(StorageGroupManager)->find(array(id=>$StorageGroupIDs),'','','','','',true,'id')));
+        if (!$this->isLoaded('storageGroups') && $this->get('id')) {
+            $StorageGroupIDs = array_unique($this->getClass('ImageAssociationManager')->find(array('imageID'=>$this->get('id')),'','','','','','','storageGroupID'));
+            $this->set('storageGroups',$StorageGroupIDs);
+            $this->set('storageGroupsnotinme',array_unique($this->getClass('StorageGroupManager')->find(array('id'=>$StorageGroupIDs),'','','','','',true,'id')));
         }
         return $this;
     }
@@ -67,20 +67,29 @@ class Image extends FOGController {
     }
     public function save() {
         parent::save();
-        if ($this->isLoaded(hosts)) {
-            // Unset Hosts with image
-            $this->getClass(HostManager)->update(array(imageID=>$this->get(id)),'',array(imageID=>0));
-            // Set these hosts
-            $this->getClass(HostManager)->update(array(id=>$this->get(hosts)),'',array(imageID=>$this->get(id)));
+        if ($this->isLoaded('hosts')) {
+            // Destroy only the removed elements
+            $DBHostIDs = $this->getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'hostID');
+            $RemoveHostIDs = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
+            $this->getClass('HostManager')->update(array('imageID'=>$this->get('id')),'',array('imageID'=>0));
+            $DBHostIDs = $this->getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'hostID');
+            $HostIDs = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
+            unset($RemoveHostIDs);
+            $this->getClass('HostManager')->update(array('id'=>$HostIDs),'',array('imageID'=>$this->get('id')));
         }
-        if ($this->isLoaded(storageGroups)) {
-            // Remove old rows
-            $this->getClass(ImageAssociationManager)->destroy(array(imageID=>$this->get(id)));
+        if ($this->isLoaded('storageGroups')) {
+            // Destroy only the removed elements
+            $DBGroupIDs = $this->getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID');
+            $RemoveGroupIDs = array_diff($DBGroupIDs,(array)$this->get('storageGroups'));
+            $this->getClass('ImageAssociationManager')->destroy(array('imageID'=>$this->get('id'),'storageGroupID'=>$RemoveGroupIDs));
+            $DBGroupIDs = $this->getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID');
+            $Groups = array_diff((array)$this->get('storageGroups'),(array)$DBGroupIDs);
+            unset($RemoveGroupIDs);
             // Create Assoc
-            foreach($this->get(storageGroups) AS $i => &$Group) {
-                $this->getClass(ImageAssociation)
-                    ->set(imageID,$this->get(id))
-                    ->set(storageGroupID,$Group)
+            foreach((array)$Groups AS $i => &$Group) {
+                $this->getClass('ImageAssociation')
+                    ->set('imageID',$this->get('id'))
+                    ->set('storageGroupID',$Group)
                     ->save();
             }
             unset($Group);
@@ -103,66 +112,66 @@ class Image extends FOGController {
     }
     public function addHost($addArray) {
         // Add
-        foreach((array)$addArray AS $i => &$item) $this->add(hosts, $item);
+        foreach((array)$addArray AS $i => &$item) $this->add('hosts', $item);
         unset($item);
         // Return
         return $this;
     }
     public function addGroup($addArray) {
         // Add
-        foreach((array)$addArray AS $i => &$item) $this->add(storageGroups,$item);
+        foreach((array)$addArray AS $i => &$item) $this->add('storageGroups',$item);
         unset($item);
         // Return
         return $this;
     }
     public function removeHost($removeArray) {
         // Iterate array (or other as array)
-        foreach((array)$removeArray AS $i => &$remove) $this->remove(hosts, $remove);
+        foreach((array)$removeArray AS $i => &$remove) $this->remove('hosts',$remove);
         unset($remove);
         // Return
         return $this;
     }
     public function removeGroup($removeArray) {
         // Iterate array (or other as array)
-        foreach((array)$removeArray AS $i => &$remove) $this->remove(storageGroups,$remove);
+        foreach((array)$removeArray AS $i => &$remove) $this->remove('storageGroups',$remove);
         unset($remove);
         // Return
         return $this;
     }
     public function getStorageGroup() {
-        $StorageGroup = $this->getClass(StorageGroup,current((array)$this->get(storageGroups)));
+        $StorageGroup = $this->getClass('StorageGroup',current((array)$this->get('storageGroups')));
         if (!$StorageGroup->isValid()) {
-            $this->add(storageGroups,@min($this->getClass(StorageGroupManager)->find('','','','','','','','id')));
-            $StorageGroup = $this->getClass(StorageGroup,current((array)$this->get(storageGroups)));
+            $this->add('storageGroups',@min($this->getClass('StorageGroupManager')->find('','','','','','','','id')));
+            $StorageGroup = $this->getClass('StorageGroup',current((array)$this->get('storageGroups')));
         }
         return $StorageGroup;
     }
     public function getOS() {
-        return $this->getClass(OS,$this->get(osID));
+        return $this->getClass('OS',$this->get('osID'));
     }
     public function getImageType() {
-        return $this->getClass(ImageType,$this->get(imageTypeID));
+        return $this->getClass('ImageType',$this->get('imageTypeID'));
     }
     public function getImagePartitionType() {
-        if ($this->get(imagePartitionTypeID)) $IPT = $this->getClass(ImagePartitionType,$this->get(imagePartitionTypeID));
-        else $IPT = $this->getClass(ImagePartitionType,1);
+        if ($this->get('imagePartitionTypeID')) $IPT = $this->getClass('ImagePartitionType',$this->get('imagePartitionTypeID'));
+        else $IPT = $this->getClass('ImagePartitionType',1);
         return $IPT;
     }
     public function deleteFile() {
-        if ($this->get('protected')) throw new Exception($this->foglang[ProtectedImage]);
+        if ($this->get('protected')) throw new Exception($this->foglang['ProtectedImage']);
         $SN = $this->getStorageGroup()->getMasterStorageNode();
-        $SNME = ($SN->get(isEnabled) == 1);
-        if (!$SNME)	throw new Exception($this->foglang[NoMasterNode]);
-        $ftphost = $SN->get(ip);
-        $ftpuser = $SN->get(user);
-        $ftppass = $SN->get(pass);
-        $ftproot = rtrim($SN->get(ftppath),'/').'/'.$this->get(path);
+        $SNME = ($SN->get('isEnabled') == 1);
+        if (!$SNME)	throw new Exception($this->foglang['NoMasterNode']);
+        $ftphost = $SN->get('ip');
+        $ftpuser = $SN->get('user');
+        $ftppass = $SN->get('pass');
+        $ftproot = rtrim($SN->get('ftppath'),'/').'/'.$this->get('path');
         $this->FOGFTP
-            ->set(host,$ftphost)
-            ->set(username,$ftpuser)
-            ->set(password,$ftppass)
+            ->set('host',$ftphost)
+            ->set('username',$ftpuser)
+            ->set('password',$ftppass)
             ->connect();
-        if(!$this->FOGFTP->delete($ftproot)) throw new Exception($this->foglang[FailedDeleteImage]);
+        if(!$this->FOGFTP->delete($ftproot)) throw new Exception($this->foglang['FailedDeleteImage']);
     }
 }
 /* Local Variables: */
