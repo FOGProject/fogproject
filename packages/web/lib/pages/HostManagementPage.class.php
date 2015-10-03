@@ -949,7 +949,7 @@ class HostManagementPage extends FOGPage {
                     ->set('productKey',base64_encode($_REQUEST['key']))
                     ->set('biosexit',$_REQUEST['bootTypeExit'])
                     ->set('efiexit',$_REQUEST['efiBootTypeExit']);
-                if (strtolower($this->obj->get('mac')->__toString()) != strtolower($mac->__toString())) $this->addPriMAC($mac->__toString());
+                if (strtolower($this->obj->get('mac')->__toString()) != strtolower($mac->__toString())) $this->obj->addPriMAC($mac->__toString());
                 $AddMe = array();
                 foreach((array)$_REQUEST['additionalMACs'] AS $i => &$MAC) {
                     $MAC = (!($MAC instanceof MACAddress) ? $this->getClass('MACAddress',$MAC) : $MAC);
