@@ -97,11 +97,10 @@ abstract class FOGBase {
      * @param $key the key to check if it is loaded
      * @return whether key is loaded or not
      */
-    public function isLoaded($key) {
-        $result = (isset($this->isLoaded[$key]) ? $this->isLoaded[$key] : 0);
-        $this->isLoaded[$key]++;
-        return ($result ? $result : false);
-    }
+	public function isLoaded($key) {
+		$this->isLoaded[$key] = (isset($this->isLoaded[$key]) ? true : false);
+        return $this->isLoaded[$key];
+	}
     /** @function getClass($class)
      * @param $class the class to get items of.
      * @return The instance of the class.
@@ -510,22 +509,14 @@ abstract class FOGBase {
      */
     public function binary_search($needle, $haystack) {
         $left = 0;
-        $right = count($haystack) - 1;
+        $right = sizeof($haystack) - 1;
         $values = array_values($haystack);
         $keys = array_keys($haystack);
         while ($left <= $right) {
             $mid = $left + $right >> 1;
-            if (is_object($needle) && is_object($values[$mid])) {
-                if (!($needle instanceof MACAddress) && !($values[$mid] instanceof MACAddress)) {
-                    if ($values[$mid]->get('id') == $needle->get('id')) return $keys[$mid];
-                } else {
-                    if (strtolower($values[$mid]->__toString()) == strtolower($needle->__toString())) return $keys[$mid];
-                }
-            } else {
-                if ($values[$mid] == $needle) return $keys[$mid];
-            }
-            if ($values[$mid] > $needle) $right = $mid - 1;
-            else if ($values[$mid] < $needle) $left = $mid + 1;
+            if ($values[$mid] < $needle) $left = $mid + 1;
+            elseif ($values[$mid] > $needle) $right = $mid - 1;
+            else return $mid;
         }
         return -1;
     }
