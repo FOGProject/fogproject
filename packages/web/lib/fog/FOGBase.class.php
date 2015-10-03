@@ -514,7 +514,8 @@ abstract class FOGBase {
         $keys = array_keys($haystack);
         while ($left <= $right) {
             $mid = $left + $right >> 1;
-            if ($values[$mid] < $needle) $left = $mid + 1;
+            if ($values[$mid] == $needle) return $keys[$mid];
+            elseif ($values[$mid] < $needle) $left = $mid + 1;
             elseif ($values[$mid] > $needle) $right = $mid - 1;
             else return $mid;
         }
