@@ -94,17 +94,13 @@ abstract class FOGController extends FOGBase {
         $this->info(_('Removing Key: %s, Value: %s'),array($key, $value));
         try {
             if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being removed'));
-            if (!is_array($this->data[$key])) $this->data[$key] = array($this->data[$key]);
+            if (!is_array($this->data[$key])) $this->data[$key] = (array)$this->data[$key];
+            $this->data[$key] = array_unique($this->data[$key]);
             asort($this->data[$key]);
+            ksort($this->data[$key]);
             $index = $this->binary_search($value,$this->data[$key]);
-            $data = array();
-            foreach ((array)$this->data[$key] AS $i => &$val) {
-                if ($val != $value) $data[] = $val;
-            }
-            unset($val);
-            $this->data[$key] = array();
-            $this->data[$key] = $data;
-            unset($data);
+            unset($this->data[$key][$index]);
+            $this->data[$key] = array_values(array_filter($this->data[$key]));
         } catch (Exception $e) {
             $this->debug(_('Remove Failed: Key: %s, Value: %s, Error: %s'),array($key, $value, $e->getMessage()));
         }
