@@ -30,33 +30,33 @@ $(function() {
     // Checkbox toggles
     $('.toggle-checkbox1').click(function() {
         $('input.toggle-host1:checkbox')
-        .not(':hidden')
-        .prop('checked',$(this).is(':checked'));
+            .not(':hidden')
+            .prop('checked',$(this).is(':checked'));
     });
     $('.toggle-checkbox2').click(function() {
         $('input.toggle-host2:checkbox')
-        .not(':hidden')
-        .prop('checked',$(this).is(':checked'));
+            .not(':hidden')
+            .prop('checked',$(this).is(':checked'));
     });
     $('.toggle-checkboxprint').click(function() {
         $('input.toggle-print:checkbox')
-        .not(':hidden')
-        .prop('checked',$(this).is(':checked'));
+            .not(':hidden')
+            .prop('checked',$(this).is(':checked'));
     });
     $('.toggle-checkboxprintrm').click(function() {
         $('input.toggle-printrm:checkbox')
-        .not(':hidden')
-        .prop('checked',$(this).is(':checked'));
+            .not(':hidden')
+            .prop('checked',$(this).is(':checked'));
     });
     $('.toggle-checkboxsnapin').click(function() {
         $('input.toggle-snapin:checkbox')
-        .not(':hidden')
-        .prop('checked',$(this).is(':checked'));
+            .not(':hidden')
+            .prop('checked',$(this).is(':checked'));
     });
     $('.toggle-checkboxsnapinrm').click(function() {
         $('input.toggle-snapinrm:checkbox')
-        .not(':hidden')
-        .prop('checked',$(this).is(':checked'));
+            .not(':hidden')
+            .prop('checked',$(this).is(':checked'));
     });
     // Show hide based on checked state.
     $('#hostNotInMe').hide();
