@@ -35,6 +35,7 @@ class Host extends FOGController {
     // Allow setting / getting of these additional fields
     public $additionalFields = array(
         'mac',
+        'primac',
         'imagename',
         'additionalMACs',
         'pendingMACs',
@@ -59,13 +60,17 @@ class Host extends FOGController {
         'name',
     );
     public $databaseFieldClassRelationships = array(
+        'MACAddressAssociation' => array('hostID','id','primac',array('primary'=>1)),
         'Image' => array('id','imageID','imagename'),
     );
     // Load the items
     public function load($field = 'id') {
-        parent::load($field);
-        //$this->loadPrimary();
-        $this->loadAdditional();
+        $methods = get_class_methods($this);
+        foreach($methods AS $i => &$method) {
+            if (strlen($method) > 5 && strpos($method,'load')) $this->$method();
+        }
+        unset($method);
+        return parent::load($field);
     }
     // Overrides
     public function get($key = '') {
@@ -391,9 +396,7 @@ class Host extends FOGController {
     }
     private function loadPrimary() {
         if (!$this->isLoaded('mac') && $this->get('id')) {
-            $MAC = $this->getClass('MACAddressAssociationManager')->find(array('hostID'=>$this->get('id'),'primary'=>1));
-            $MAC = @array_shift($MAC);
-            $this->set('mac',$this->getClass('MACAddress',$MAC));
+            $this->set('mac',$this->getClass('MACAddress',$this->get('primac')->get('mac')));
         }
         return $this;
     }
