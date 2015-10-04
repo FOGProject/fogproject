@@ -368,7 +368,7 @@ class HostManagementPage extends FOGPage {
         }
         foreach($this->obj->get(additionalMACs) AS $i => &$MAC) {
             if ($MAC && $MAC->isValid())
-                $addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" />&nbsp;&nbsp;<input title="'._('Remove MAC').'" type="checkbox" onclick="this.form.submit()" class="delvid" id="rm'.$MAC.'" name="additionalMACsRM[]" value="'.$MAC.'" /><label for="rm'.$MAC.'" class="icon fa fa-minus-circle hand"></label><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$this->obj->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$this->obj->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span></div>';
+                $addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" />&nbsp;&nbsp;<i class="icon fa fa-minus-circle remove-mac hand" title="'._('Remove MAC').'"></i><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$this->obj->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$this->obj->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span><index type="hidden" name="additionalMACsRM[]"/></div>';
         }
         unset($MAC);
         foreach ($this->obj->get(pendingMACs) AS $i => &$MAC) $pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC.'" /><a href="'.$this->formAction.'&confirmMAC='.$MAC.'"><i class="icon fa fa-check-circle"></i></a><span class="mac-manufactor"></span></div>';
@@ -911,6 +911,12 @@ class HostManagementPage extends FOGPage {
         // Output
         $this->render();
         echo '</div></div>';
+    }
+    /** edit_ajax()
+     * Ajax is used to remove macs automatically
+     */
+    public function edit_ajax() {
+        $this->obj->removeAddMAC($_REQUEST['additionalMACsRM'])->save();
     }
     /** edit_post()
         Actually saves the data.

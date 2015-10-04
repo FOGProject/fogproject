@@ -85,6 +85,25 @@ position: "nw"
     };
     $.plot(LoginHistory, LoginHistoryData, LoginHistoryOpts);
 }
+function removeMACField() {
+    $('.remove-mac').click(function(e) {
+        e.preventDefault();
+        remove = $(this);
+        val = remove.prev().val();
+        if (val.length > 0) {
+            console.log('here');
+            $.post(
+                remove.prev('form').prop('action'),
+                {additionalMACsRM: val},
+                function(data) {
+                    console.log(data);
+                }
+            );
+        }
+        remove.parent().remove();
+        HookTooltips();
+    });
+}
 $(function() {
     $('#resetSecData').val('Reset Encryption Data');
     $('#resetSecData').click(function() {
@@ -127,17 +146,14 @@ $(function() {
         $this.load('../management/index.php?sub=getmacman&prefix=' + mac);
     });
     // Remove MAC Buttons
-    $('.remove-mac').click(function() {
-        //$(this).parent().remove();
-        if ($('#additionalMACsCell').find('.additionalMAC').size() == 0) $('#additionalMACsRow').hide();
-        //$(this).attr('checked', ischecked);
-    });
+    removeMACField();
     // Add MAC Buttons - TODO: Rewrite OLD CODE
-    $('.add-mac').click(function() {
+    $('.add-mac').click(function(e) {
         $('#additionalMACsRow').show();
-        $('#additionalMACsCell').append('<div><input class="additionalMAC" type="text" name="additionalMACs[]" /><i class="icon fa fa-minus-circle remove-mac hand" title="Remove MAC"></i><br/><span class="mac-manufactor"></span></div>');
+        $('#additionalMACsCell').append('<div><input class="additionalMAC" type="text" name="additionalMACs[]" />&nbsp;&nbsp;<i class="icon fa fa-minus-circle remove-mac hand" title="Remove MAC"></i><br/><span class="mac-manufactor"></span></div>');
+        removeMACField();
+        e.preventDefault();
         HookTooltips();
-        return false;
     });
     if ($('.additionalMAC').size()) $('#additionalMACsRow').show();
     // Show hide based on checked state.
