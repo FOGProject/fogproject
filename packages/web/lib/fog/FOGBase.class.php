@@ -60,7 +60,7 @@ abstract class FOGBase {
      */
     public function fatalError($txt, $data = array()) {
         if (!preg_match('#/service/#', $_SERVER['PHP_SELF']) && !$this->isAJAXRequest()) echo sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
-	}
+    }
     /** @function error() prints the error to the screen
      * @param $txt the text to print
      * @param $data the data to parse
@@ -68,7 +68,7 @@ abstract class FOGBase {
      */
     public function error($txt, $data = array()) {
         if ((((isset($this->debug)) && $this->debug === true)) && !preg_match('#/service/#', $_SERVER['PHP_SELF']) && !$this->isAJAXRequest()) echo sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>', get_class($this), (count($data) ? vsprintf($txt, $data) : $txt));
-	}
+    }
     /** @function debug() prints debug information
      * @param $txt the text to print
      * @param $data the data to parse
@@ -97,10 +97,10 @@ abstract class FOGBase {
      * @param $key the key to check if it is loaded
      * @return whether key is loaded or not
      */
-	public function isLoaded($key) {
-		$this->isLoaded[$key] = (isset($this->isLoaded[$key]) ? true : false);
+    public function isLoaded($key) {
+        $this->isLoaded[$key] = (isset($this->isLoaded[$key]) ? true : false);
         return $this->isLoaded[$key];
-	}
+    }
     /** @function getClass($class)
      * @param $class the class to get items of.
      * @return The instance of the class.
@@ -186,7 +186,7 @@ abstract class FOGBase {
         }
         return false;
     }
-	/** @function array_remove() removes specified key or keys (in array) from an array
+    /** @function array_remove() removes specified key or keys (in array) from an array
      * @param $key the key or set of keys to remove
      * @param $array the array to keys from
      * @return void
@@ -229,7 +229,7 @@ abstract class FOGBase {
         $cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
         return bin2hex($iv).'|'.bin2hex($cipher).($addKey ? '|'.bin2hex($key) : '');
     }
-	/** @function aesencrypt() aes decrypts the data sent.
+    /** @function aesencrypt() aes decrypts the data sent.
      * @param $encdata the data to decrypt
      * @param $key if false, have fog grab it from the output.
      * @param $enctype can be set to anything but defaults to MCRYPT_RIJNDAEL_128
@@ -257,7 +257,7 @@ abstract class FOGBase {
         if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true)) $newpass = $decrypt;
         return ($newpass ? $this->aesencrypt($newpass) : '');
     }
-	/** @function diff() Simply a function to return the difference of time between the start and end.
+    /** @function diff() Simply a function to return the difference of time between the start and end.
      * @param $start Translate the sent start time to DateTime format for easy differentials.
      * @param $end Translate the sent end time to Datetime format for easy differentials.
      * @return $interval->format('%H:%I:%S') returns the datetime in number of hours, minutes, and seconds it took to perform the task.
@@ -517,11 +517,11 @@ abstract class FOGBase {
             if ($values[$mid] == $needle) return $keys[$mid];
             elseif ($values[$mid] < $needle) $left = $mid + 1;
             elseif ($values[$mid] > $needle) $right = $mid - 1;
-            else return $mid;
+            elseif ($mid == $needle) return $mid;
         }
         return -1;
     }
-	/** getHostItem() returns the host or error of host for the service files.
+    /** getHostItem() returns the host or error of host for the service files.
      * @param $service if the caller is a service
      * @param $encoded if the item is base64 encoded or not.
      * @param $hostnotrequired let us know if the host is required or not
