@@ -11,8 +11,8 @@ var ActiveTasksLastCount;
 $(function() {
     $('.toggle-checkboxAction').click(function() {
         $('input.toggle-action[type="checkbox"]')
-        .not(':hidden')
-        .prop('checked', $(this).is(':checked'));
+            .not(':hidden')
+            .prop('checked', $(this).is(':checked'));
     });
     $('#action-box,#action-boxdel').submit(function() {
         var checked = $('input.toggle-action:checked');
@@ -27,20 +27,20 @@ $(function() {
     var URL;
     switch($_GET['sub']) {
         case 'active':
-        URL = '?node=task&sub=canceltasks';
-        break;
+            URL = '?node=task&sub=canceltasks';
+            break;
         case 'active-snapins':
-        URL = '?node=task&sub=active_snapins_post';
-        break;
+            URL = '?node=task&sub=active_snapins_post';
+            break;
         case 'active-multicast':
-        URL = '?node=task&sub=remove_multicast_post';
-        break;
+            URL = '?node=task&sub=remove_multicast_post';
+            break;
         case 'scheduled':
-        URL = '?node=task&sub=cancelscheduled';
-        break;
+            URL = '?node=task&sub=cancelscheduled';
+            break;
         default:
-        $('input[name="Cancel"]').remove();
-        break;
+            $('input[name="Cancel"]').remove();
+            break;
     }
     $('input[name="Cancel"]').click(function() {
         checkedIDs = getChecked();
@@ -53,23 +53,18 @@ $(function() {
                 title: 'Cancel tasks',
                 buttons: {
                     'Yes': function() {
-                        $.ajax({
-                            type: 'POST',
-                            url: URL,
-                            data: {
-                                task: checkedIDs
-                            },
-                            success: function(data) {
-                                clearTimeout(ActiveTasksUpdateTimer);
-                                if ($_GET['sub'] == 'active') {
-                                    ActiveTasksUpdate();
-                                    ActiveTasksTableCheck();
-                                    ActiveTasksUpdateTimerStart();
-                                } else {
-                                    location.reload();
+                        $.post(
+                                URL,
+                                {task: checkedIDs},
+                                function(data) {
+                                    clearTimeout(ActiveTasksUpdateTimer);
+                                    if ($_GET['sub'] == 'active') {
+                                        ActiveTasksUpdate();
+                                        ActiveTasksTableCheck();
+                                        ActiveTasksUpdateTimerStart();
+                                    } else location.reload();
                                 }
-                            }
-                        });
+                              );
                         $(this).dialog('close');
                     },
                     'No': function() {
@@ -90,46 +85,46 @@ $(function() {
     $('#taskpause').click(function(e) {
         e.preventDefault();
         if (!$(this).hasClass('active')) {
-			$(this).addClass('active').val('Pause auto update');
-			ActiveTasksUpdateTimerStart();
-		} else {
-			$(this).removeClass('active').val('Continue auto update');
-			clearTimeout(ActiveTasksUpdateTimer);
-		}
-	});
+            $(this).addClass('active').val('Pause auto update');
+            ActiveTasksUpdateTimerStart();
+        } else {
+            $(this).removeClass('active').val('Continue auto update');
+            clearTimeout(ActiveTasksUpdateTimer);
+        }
+    });
 });
 function ActiveTasksUpdateTimerStart() {
-	if (typeof($_GET['sub']) == 'undefined' || $_GET['sub'] == 'active') {
-		ActiveTasksUpdateTimer = setTimeout(function() {
+    if (typeof($_GET['sub']) == 'undefined' || $_GET['sub'] == 'active') {
+        ActiveTasksUpdateTimer = setTimeout(function() {
             if (!ActiveTasksRequests.length && $('#taskpause').hasClass('active')) ActiveTasksUpdate();
         },ActiveTasksUpdateInterval);
-	}
+    }
 }
 function ActiveTasksUpdate() {
-	if (ActiveTasksAJAX) return;
-	ActiveTasksAJAX = $.ajax({
+    if (ActiveTasksAJAX) return;
+    ActiveTasksAJAX = $.ajax({
         type: 'POST',
         url: '?node=task&sub=active',
         cache: false,
         dataType: 'json',
         beforeSend:	function() {
             Loader
-            .addClass('loading');
+                .addClass('loading');
             if (ActiveTasksLastCount) {
                 Loader
-                .fogStatusUpdate(_L['ACTIVE_TASKS_FOUND']
-                    .replace(/%1/, ActiveTasksLastCount)
-                    .replace(/%2/, ActiveTasksLastCount != 1 ? 's' : '')
-                );
+                    .fogStatusUpdate(_L['ACTIVE_TASKS_FOUND']
+                            .replace(/%1/, ActiveTasksLastCount)
+                            .replace(/%2/, ActiveTasksLastCount != 1 ? 's' : '')
+                            );
                 i
-                .removeClass('fa-refresh fa-spin fa-fw')
-                .addClass('fa-exclamation-circle');
+                    .removeClass('fa-refresh fa-spin fa-fw')
+                    .addClass('fa-exclamation-circle');
             } else {
                 Loader
-                .fogStatusUpdate(_L['ACTIVE_TASKS_LOADING']);
+                    .fogStatusUpdate(_L['ACTIVE_TASKS_LOADING']);
                 i
-                .removeClass('fa-exclamation-circle')
-                .addClass('fa-refresh fa-spin fa-fw');
+                    .removeClass('fa-exclamation-circle')
+                    .addClass('fa-refresh fa-spin fa-fw');
             }
         },
         success: function(response)	{
@@ -137,15 +132,15 @@ function ActiveTasksUpdate() {
             dataLength = response.data !== null ? response.data.length : 0;
             // Loader
             Loader
-            .removeClass('loading')
-            .fogStatusUpdate(_L['ACTIVE_TASKS_FOUND']
-                .replace(/%1/, dataLength)
-                .replace(/%2/, dataLength != 1 ? 's' : '')
-            );
+                .removeClass('loading')
+                .fogStatusUpdate(_L['ACTIVE_TASKS_FOUND']
+                        .replace(/%1/, dataLength)
+                        .replace(/%2/, dataLength != 1 ? 's' : '')
+                        );
             i = Loader.find('i');
             i
-            .removeClass('fa-refresh fa-spin fa-fw')
-            .addClass('fa-exclamation-circle');
+                .removeClass('fa-refresh fa-spin fa-fw')
+                .addClass('fa-exclamation-circle');
             ActiveTasksAJAX = null;
             var tbody = $('tbody',ActiveTasksContainer);
             var thead = $('thead',ActiveTasksContainer);
@@ -208,8 +203,8 @@ function ActiveTasksUpdate() {
         error: function() {
             ActiveTasksAJAX = null;
             Loader
-            .fogStatusUpdate(_L['ACTIVE_TASKS_UPDATE_FAILED'])
-            .addClass('error');
+                .fogStatusUpdate(_L['ACTIVE_TASKS_UPDATE_FAILED'])
+                .addClass('error');
             i = Loader.find('i');
             i.css({color: 'red'});
         }
@@ -217,7 +212,7 @@ function ActiveTasksUpdate() {
 }
 function ActiveTasksButtonHook() {
     var waiting = 'fa fa-refrest fa-1x fa-spin icon';
-	// Hook: Click: Kill Button - Legacy GET call still works if AJAX fails
+    // Hook: Click: Kill Button - Legacy GET call still works if AJAX fails
     $('.icon-kill').find('i').addClass('fa fa-minus-circle fa-1x icon');
     $('.icon-kill').unbind('click').click(function() {
         var a = $(this);
@@ -298,23 +293,23 @@ function ActiveTasksButtonHook() {
         // Stop Default action
         return false;
     });
-// Hook: Hover: Show Progress Bar on Active Task
-$('.with-progress').hover(function() {
-		var id = $(this).attr('id').replace(/^host-/, '');
-		var progress = $('#progress-' + id);
-		progress.show();
-		progress.find('.min').addClass('no-min').removeClass('min').end().find('ul').show();
-		}, function() {
-		var id = $(this).attr('id').replace(/^host-/, '');
-		var progress = $('#progress-' + id);
-		progress.find('.no-min').addClass('min').removeClass('no-min').end().find('ul').hide();
-		});
-// Hook: Hover: Show Progress Bar on Progress Bar
-$('tr[id^="progress-"]').hover(function() {
-		$(this).find('.min').addClass('no-min').removeClass('min').end().find('ul').show();
-		}, function() {
-		$(this).find('.no-min').addClass('min').removeClass('no-min').end().find('ul').hide();
-		});
+    // Hook: Hover: Show Progress Bar on Active Task
+    $('.with-progress').hover(function() {
+        var id = $(this).attr('id').replace(/^host-/, '');
+        var progress = $('#progress-' + id);
+        progress.show();
+        progress.find('.min').addClass('no-min').removeClass('min').end().find('ul').show();
+    }, function() {
+        var id = $(this).attr('id').replace(/^host-/, '');
+        var progress = $('#progress-' + id);
+        progress.find('.no-min').addClass('min').removeClass('no-min').end().find('ul').hide();
+    });
+    // Hook: Hover: Show Progress Bar on Progress Bar
+    $('tr[id^="progress-"]').hover(function() {
+        $(this).find('.min').addClass('no-min').removeClass('min').end().find('ul').show();
+    }, function() {
+        $(this).find('.no-min').addClass('min').removeClass('no-min').end().find('ul').hide();
+    });
 }
 function ActiveTasksTableCheck() {
     // Variables

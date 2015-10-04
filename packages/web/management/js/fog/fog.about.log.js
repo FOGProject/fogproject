@@ -3,27 +3,27 @@ var LinesToView;
 var LogTimer
 $(function() {
     LogToView = $('#logToView').val()
-    LinesToView = $('#linesToView').val()
-    $('#logpause').val('Pause')
-    LogGetData()
-    $('#logpause').click(function(e) {
-        e.preventDefault()
-        if ($(this).hasClass('active')) {
-            $(this).removeClass('active')
-            $(this).val('Pause')
-            LogGetData()
-        } else {
-            $(this).addClass('active')
-            $(this).val('Continue')
-        }
-    })
-    $('#logToView, #linesToView').change(function(e) {
-        e.preventDefault()
-        LogToView = $('#logToView').val()
         LinesToView = $('#linesToView').val()
         $('#logpause').val('Pause')
-        if ($('#logpause').hasClass('active')) $('#logpause').removeClass('active')
         LogGetData()
+        $('#logpause').click(function(e) {
+            e.preventDefault()
+                if ($(this).hasClass('active')) {
+                    $(this).removeClass('active')
+                        $(this).val('Pause')
+                        LogGetData()
+                } else {
+                    $(this).addClass('active')
+                        $(this).val('Continue')
+                }
+        })
+    $('#logToView, #linesToView').change(function(e) {
+        e.preventDefault()
+            LogToView = $('#logToView').val()
+            LinesToView = $('#linesToView').val()
+            $('#logpause').val('Pause')
+            if ($('#logpause').hasClass('active')) $('#logpause').removeClass('active')
+                LogGetData()
     })
 })
 function LogGetData() {
