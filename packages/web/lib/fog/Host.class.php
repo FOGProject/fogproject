@@ -279,7 +279,7 @@ class Host extends FOGController {
                         ->set('mac',$RealAddMAC)
                         ->save();
                 }
-            case ($this->isLoading('pendingMACs')):
+            case ($this->isLoaded('pendingMACs')):
                 $theseMACs = $this->get('pendingMACs');
                 $RealPendMACs = $PreOwnedMACs = array();
                 foreach ((array)$theseMACs AS $i => &$thisMAC) {
@@ -312,10 +312,9 @@ class Host extends FOGController {
                 }
             case ($this->isLoaded('modules')):
                 $DBModuleIDs = $this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
-                $RemoveModuleIDs = array_diff((array)$this->get('modules'),(array)$DBModuleIDs);
+                $RemoveModuleIDs = array_diff((array)$DBModuleIDs,(array)$this->get('modules'));
                 $this->getClass('ModuleAssociationManager')->destroy(array('moduleID'=>$RemoveModuleIDs,'hostID'=>$this->get('id')));
                 $ModuleIDs = $this->get('modules');
-                $this->getClass('ModuleAssociationManager')->destroy(array('id'=>$this->getClass('ModuleAssociationManager')->find(array('moduleID'=>$this->get('modules'),'hostID'=>$this->get('id')))));
                 $DBModuleIDs = $this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID');
                 $ModuleIDs = array_diff((array)$this->get('modules'),(array)$DBModuleIDs);
                 $moduleName = $this->getGlobalModuleStatus();
