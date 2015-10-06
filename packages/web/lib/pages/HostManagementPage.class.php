@@ -367,11 +367,15 @@ class HostManagementPage extends FOGPage {
             }
         }
         foreach($this->obj->get('additionalMACs') AS $i => &$MAC) {
-            if ($MAC->isValid())
+            if ($MAC instanceof MACAddress && $MAC->isValid())
                 $addMACs .= '<div><input class="additionalMAC" type="text" name="additionalMACs[]" value="'.$MAC.'" />&nbsp;&nbsp;<i class="icon fa fa-minus-circle remove-mac hand" title="'._('Remove MAC').'"></i><span class="icon icon-hand" title="'._('Ignore MAC on Client').'"><input type="checkbox" name="igclient[]" value="'.$MAC.'" '.$this->obj->clientMacCheck($MAC).' /></span><span class="icon icon-hand" title="'._('Ignore MAC for imaging').'"><input type="checkbox" name="igimage[]" value="'.$MAC.'" '.$this->obj->imageMacCheck($MAC).'/></span><br/><span class="mac-manufactor"></span><index type="hidden" name="additionalMACsRM[]"/></div>';
         }
         unset($MAC);
-        foreach ($this->obj->get('pendingMACs') AS $i => &$MAC) $pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC.'" /><a href="'.$this->formAction.'&confirmMAC='.$MAC.'"><i class="icon fa fa-check-circle"></i></a><span class="mac-manufactor"></span></div>';
+        foreach ($this->obj->get('pendingMACs') AS $i => &$MAC) {
+            if ($MAC instanceof MACAddress && $MAC->isValid()) {
+                $pending .= '<div><input class="pending-mac" type="text" name="pendingMACs[]" value="'.$MAC.'" /><a href="'.$this->formAction.'&confirmMAC='.$MAC.'"><i class="icon fa fa-check-circle"></i></a><span class="mac-manufactor"></span></div>';
+            }
+        }
         unset($MAC);
         if ($pending != null && $pending != '')
             $pending .= '<div>'._('Approve All MACs?').'<a href="'.$this->formAction.'&approveAll=1"><i class="icon fa fa-check-circle"></i></a></div>';
