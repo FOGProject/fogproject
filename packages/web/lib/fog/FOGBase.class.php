@@ -166,14 +166,16 @@ abstract class FOGBase {
     public function binary_search($needle, $haystack) {
         $left = 0;
         $right = sizeof($haystack) - 1;
-        $values = array_values($haystack);
-        $keys = array_keys($haystack);
+        //$values = array_values($haystack);
+        //$keys = array_keys($haystack);
         while ($left <= $right) {
             $mid = $left + $right >> 1;
             if ($mid == $needle) return $mid;
-            elseif ($values[$mid] == $needle) return $keys[$mid];
-            elseif ($values[$mid] < $needle) $left = $mid + 1;
-            elseif ($values[$mid] > $needle) $right = $mid - 1;
+            elseif ($mid > $needle) $right = $mid - 1;
+            elseif ($mid < $needle) $left = $mid + 1;
+            //elseif ($values[$mid] == $needle) return $keys[$mid];
+            //elseif ($values[$mid] < $needle) $left = $mid + 1;
+            //elseif ($values[$mid] > $needle) $right = $mid - 1;
         }
         return -1;
     }
