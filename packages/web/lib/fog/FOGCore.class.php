@@ -259,10 +259,10 @@ class FOGCore extends FOGBase {
         /** This allows the database concatination system based on number of hosts */
         $this->DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION[HostCount]})");
         /** This below ensures the database is always MyISAM */
-        $this->DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
+        $this->DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'INNODB'");
         /** $tables just stores the tables to cycle through and change as needed */
         $tables = $this->DB->fetch(MYSQLI_NUM,'fetch_all')->get('TABLE_NAME');
-        foreach ((array)$tables AS $i => &$table) $this->DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=MyISAM");
+        foreach ((array)$tables AS $i => &$table) $this->DB->query("ALTER TABLE `".DATABASE_NAME."`.`".array_shift($table)."` ENGINE=INNODB");
         unset($table);
         /** frees the memory of the $tables and $table values */
         unset($tables,$table);
