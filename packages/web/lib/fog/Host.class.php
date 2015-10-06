@@ -874,7 +874,7 @@ class Host extends FOGController {
         return $this->addHost($addArray);
     }
     public function removeGroup($removeArray) {
-        return $this->removeGroup($removeArray);
+        return $this->removeHost($removeArray);
     }
     public function addHost($addArray) {
         // Add
