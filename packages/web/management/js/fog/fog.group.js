@@ -7,6 +7,5 @@ $(function() {
             groupIDArray[groupIDArray.length] = checked.eq(i).not(':hidden').attr('value');
         }
         $('input[name="groupIDArray"]').val(groupIDArray.join(','));
-        e.preventDefault();
     });
 });
