@@ -10,7 +10,7 @@ class AddTasktypeeditMenuItem extends Hook {
 	}
     public function MenuData($arguments) {
 		if (in_array($this->node,$_SESSION[PluginsInstalled]))
-			$arguments['main'] = $this->array_insert_after(task,$arguments['main'],$this->node,array(_('Task Type Management'),'fa fa-th-list fa-2x'));
+			$arguments['main'] = $this->array_insert_after('task',$arguments['main'],$this->node,array(_('Task Type Management'),'fa fa-th-list fa-2x'));
 	}
     public function addSearch($arguments) {
 		if (in_array($this->node,$_SESSION[PluginsInstalled])) array_push($arguments[searchPages],$this->node);

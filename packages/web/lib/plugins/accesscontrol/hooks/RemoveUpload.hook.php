@@ -25,7 +25,7 @@ class RemoveUpload extends Hook {
     }
 	public function SubMenuData($arguments) {
 		if (in_array($this->node,$_SESSION[PluginsInstalled])) {
-			if (!in_array($this->FOGUser->get(type),array(0))) {
+			if (!in_array($this->FOGUser->get('type'),array(0))) {
 				$i = 0;
 				foreach($arguments[submenu][$_REQUEST[node]][id] AS $link => &$info) {
 					if (in_array($i,array(0,5,10,3))) unset($arguments[submenu][$_REQUEST[node]][id][$link]);

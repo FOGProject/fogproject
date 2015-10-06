@@ -357,7 +357,7 @@ class TaskManagementPage extends FOGPage {
         } catch (Exception $e) {
             $result[error] = $e->getMessage();
         }
-        if ($this->isAJAXRequest()) echo json_encode($result);
+        if ($this->ajax) echo json_encode($result);
         else {
             if ($result[error]) $this->fatalError($result[error]);
             else $this->FOGCore->redirect(sprintf('?node=%s',$this->node));

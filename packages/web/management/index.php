@@ -1,10 +1,10 @@
 <?php
 require_once ('../commons/base.inc.php');
 if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'], array('deletemulti', 'deleteconf'))) unset($_SESSION['delitems']);
-$currentUser = $FOGCore->FOGUser = ($_SESSION['FOG_USER'] ? unserialize($_SESSION['FOG_USER']) : null);
+$currentUser = ($_SESSION['FOG_USER'] ? unserialize($_SESSION['FOG_USER']) : $FOGCore->getClass('User'));
 /** $FOGPageManager initiates the FOGPageManager */
-$FOGPageManager = $FOGCore->FOGPageManager = $FOGCore->getClass('FOGPageManager');
-$Page = $FOGCore->FOGPage = $FOGCore->getClass('Page');
+$FOGPageManager = $FOGCore->getClass('FOGPageManager');
+$Page = $FOGCore->getClass('Page');
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 if (!in_array($node, array('schemaupdater', 'client')) && !in_array($sub, array('configure', 'authorize')) && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn())) {
     @session_regenerate_id(true);
@@ -26,7 +26,7 @@ if (!in_array($node, array('schemaupdater', 'client')) && !in_array($sub, array(
     $content = $FOGPageManager->render();
     $sectionTitle = $FOGPageManager->getFOGPageName();
     $pageTitle = $FOGPageManager->getFOGPageTitle();
-    if ($FOGCore->isAJAXRequest()) {
+    if ($FOGCore->ajax) {
         echo $content;
         exit;
     }
