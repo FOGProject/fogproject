@@ -113,13 +113,6 @@ class Snapin extends FOGController {
         }
         return $this;
     }
-    public function addHost($addArray) {
-        // Add
-        foreach((array)$addArray AS $i => &$item) $this->add('hosts',$item);
-        unset($item);
-        // Return
-        return $this;
-    }
     public function load($field = 'id') {
         parent::load($field);
         $methods = get_class_methods($this);
@@ -131,22 +124,25 @@ class Snapin extends FOGController {
     }
     public function addGroup($addArray) {
         // Add
-        foreach((array)$addArray AS $i => &$item) $this->add('storageGroups',$item);
-        unset($item);
-        // Return
-        return $this;
-    }
-    public function removeHost($removeArray) {
-        // Iterate array (or other as array)
-        foreach ((array)$removeArray AS $i => &$remove) $this->remove('hosts',$remove);
-        unset($remove);
+        $this->set('hosts',array_unique(array_merge((array)$this->get('storageGroups'),(array)$addArray)));
         // Return
         return $this;
     }
     public function removeGroup($removeArray) {
         // Iterate array (or other as array)
-        foreach((array)$removeArray AS $i => &$remove) $this->remove('storageGroups',$remove);
-        unset($remove);
+        $this->set('hosts',array_unique(array_diff((array)$this->get('storageGroups'),(array)$removeArray)));
+        // Return
+        return $this;
+    }
+    public function addHost($addArray) {
+        // Add
+        $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
+        // Return
+        return $this;
+    }
+    public function removeHost($removeArray) {
+        // Iterate array (or other as array)
+        $this->set('hosts',array_unique(array_diff((array)$this->get('hosts'),(array)$removeArray)));
         // Return
         return $this;
     }
