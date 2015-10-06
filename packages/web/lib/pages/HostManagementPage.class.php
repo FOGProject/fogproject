@@ -360,11 +360,9 @@ class HostManagementPage extends FOGPage {
             $this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
         }
         else if ($_REQUEST['approveAll']) {
-            $this->obj->addPendtoAdd();
-            if ($this->obj->save()) {
-                $this->FOGCore->setMessage('All Pending MACs approved.');
-                $this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
-            }
+            $this->getClass('MACAddressAssociationManager')->update(array('hostID'=>$this->obj->get('id')),'',array('pending'=>0));
+            $this->FOGCore->setMessage('All Pending MACs approved.');
+            $this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
         }
         foreach($this->obj->get('additionalMACs') AS $i => &$MAC) {
             if ($MAC instanceof MACAddress && $MAC->isValid())
