@@ -36,10 +36,6 @@ abstract class FOGPage extends FOGBase {
     /** $result this is the result of the items as parsed */
     private $result;
     // Method & Form
-    /** $post sets up if the form is a POST request */
-    protected $post = false;
-    /** $ajax sets up if the form is an AJAX request */
-    protected $ajax = false;
     /** $request sets up the total of all post/get vars */
     protected $request = array();
     /** $formAction sets up the form action based on current items */
@@ -61,8 +57,6 @@ abstract class FOGPage extends FOGBase {
         $this->membership = "?node={$this->node}&sub=membership&{$this->id}={$_REQUEST[id]}";
         $this->request = $this->REQUEST = $this->DB->sanitize($_REQUEST);
         $this->REQUEST[id] = $this->request[id] = $_REQUEST[$this->id];
-        $this->post = $this->isPOSTRequest();
-        $this->ajax = $this->isAJAXRequest();
         $this->childClass = preg_replace('#ManagementPage#', '', preg_replace('#Mobile#','',get_class($this)));
         $this->menu = array(
             search=>$this->foglang[NewSearch],
@@ -123,7 +117,7 @@ abstract class FOGPage extends FOGBase {
             // Error checking
             if (!count($this->templates)) throw new Exception('Requires templates to process');
             // Is AJAX Request?
-            if ($this->isAJAXRequest()) {
+            if ($this->ajax) {
                 // JSON output
                 return @json_encode(array(
                     data=>&$this->data,
@@ -669,13 +663,13 @@ abstract class FOGPage extends FOGBase {
      */
     public function adInfo() {
         $Data = array(
-            'domainname' => $this->FOGCore->getSetting(FOG_AD_DEFAULT_DOMAINNAME),
-            'ou' => $this->FOGCore->getSetting(FOG_AD_DEFAULT_OU),
-            'domainuser' => $this->FOGCore->getSetting(FOG_AD_DEFAULT_USER),
-            'domainpass' => $this->encryptpw($this->FOGCore->getSetting(FOG_AD_DEFAULT_PASSWORD)),
-            'domainpasslegacy' => $this->FOGCore->getSetting(FOG_AD_DEFAULT_PASSWORD_LEGACY),
+            'domainname' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_DOMAINNAME'),
+            'ou' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'),
+            'domainuser' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_USER'),
+            'domainpass' => $this->encryptpw($this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD')),
+            'domainpasslegacy' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY'),
         );
-        if ($this->isAJAXRequest()) echo json_encode($Data);
+        if ($this->ajax) echo json_encode($Data);
     }
     /** kernelfetch() the kernel fetcher stuff.
      * @return void

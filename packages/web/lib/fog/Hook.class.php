@@ -1,12 +1,5 @@
 <?php
 abstract class Hook extends Event {
-    /** @function __construct() constructs the base elements
-     * @return void
-     */
-    public function __construct() {
-        parent::__construct();
-        if (!$this->FOGUser) $this->FOGUser = unserialize($_SESSION['FOG_USER']);
-    }
     /** @function log() logs the Hook
      * @param $txt the text to log
      * @param $level the level of logging defaults to 1
@@ -14,7 +7,7 @@ abstract class Hook extends Event {
      */
     public function log($txt, $level = 1) {
         $log = trim(preg_replace(array("#\r#", "#\n#", "#\s+#", "# ,#"), array("", " ", " ", ","), $txt));
-        if ($this->logToBrowser && $this->logLevel >= $level && !$this->isAJAXRequest())
+        if ($this->logToBrowser && $this->logLevel >= $level && !$this->post)
             printf('%s<div class="debug-hook">%s</div>%s', "\n", $log, "\n");
         if ($this->logToFile)
             file_put_contents(BASEPATH . '/lib/hooks/' . get_class($this) . '.log', sprintf("[%s] %s\r\n", $this->nice_date()->format("d-m-Y H:i:s"), $log), FILE_APPEND | LOCK_EX);
