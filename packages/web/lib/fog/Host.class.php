@@ -830,18 +830,18 @@ class Host extends FOGController {
     public function getMyMacs($justme = true) {
         $KnownMacs[] = strtolower($this->get('mac'));
         foreach((array)$this->get('additionalMACs') AS $i => &$MAC) {
-            if ($MAC->isValid()) $KnownMACs[] = $MAC->__toString();
+            if ($MAC instanceof MACAddress && $MAC->isValid()) $KnownMACs[] = $MAC->__toString();
         }
         unset($MAC);
         foreach((array)$this->get('pendingMACs') AS $i => &$MAC) {
-            if ($MAC->isValid()) $KnownMacs[] = $MAC->__toString();
+            if ($MAC instanceof MACAddress && $MAC->isValid()) $KnownMacs[] = $MAC->__toString();
         }
         unset($MAC);
         if ($justme) return $KnownMacs;
         $MACs = $this->getClass('MACAddressAssociationManager')->find();
         foreach ((array)$MACs AS $i => &$MAC) {
             $MAC = $this->getClass('MACAddress',$MAC);
-            if ($MAC->isValid() && !in_array($MAC->__toString(),$KnownMacs)) $KnownMacs[] = $MAC->__toString();
+            if ($MAC instanceof MACAddress && $MAC->isValid() && !in_array($MAC->__toString(),$KnownMacs)) $KnownMacs[] = $MAC->__toString();
         }
         unset($MAC);
         return array_unique($KnownMacs);
