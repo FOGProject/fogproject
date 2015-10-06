@@ -55,7 +55,7 @@ class FOGPageManager Extends FOGBase {
                 $displayScreen = trim(strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']));
                 if (!array_key_exists($this->classValue, $this->nodes)) throw new Exception(_('No FOGPage Class found for this node'));
                 if ($_REQUEST[$class->id]) $this->arguments = array('id'=>$_REQUEST[$class->id]);
-                if ($this->isPOSTRequest()) $this->setRequest();
+                if ($this->post) $this->setRequest();
                 else $this->resetRequest();
                 if ($this->classValue != 'schemaupdater' && $method == 'index' && $displayScreen != 'list' && $this->methodValue != 'list' && method_exists($class, 'search') && in_array($class->node,$this->searchPages)) $method = 'search';
                 if ($this->ajax && method_exists($class, $method.'_ajax')) $method = $this->methodValue.'_ajax';
