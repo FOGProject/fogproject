@@ -773,9 +773,11 @@ class Host extends FOGController {
     }
     public function addPrinter($addArray) {
         $Prints = array_unique(array_diff((array)$addArray,(array)$this->get('printers')));
-        $Prints = array_merge((array)$this->get('printers'),(array)$Prints);
         // Add
-        if (count($Prints)) $this->set('printers',$Prints);
+        if (count($Prints)) {
+            $Prints = array_merge((array)$this->get('printers'),(array)$Prints);
+            $this->set('printers',$Prints);
+        }
         // Return
         return $this;
     }
@@ -833,9 +835,11 @@ class Host extends FOGController {
             if ($this->getClass('SnapinManager')->count(array('id'=>$this->get('snapins'))) >= $limit || count($addArray) > $limit) throw new Exception(sprintf('%s %d %s',_('You are only allowed to assign'),$limit,$limit == 1 ? _('snapin per host') : _('snapins per host')));
         }
         $Snaps = array_unique(array_diff((array)$addArray,(array)$this->get('snapins')));
-        $Snaps = array_merge((array)$this->get('snapins'),(array)$Snaps);
         // Add
-        if (count($Snaps)) $this->set('snapins',$Snaps);
+        if (count($Snaps)) {
+            $Snaps = array_merge((array)$this->get('snapins'),(array)$Snaps);
+            $this->set('snapins',$Snaps);
+        }
         // Return
         return $this;
     }
@@ -847,9 +851,11 @@ class Host extends FOGController {
     }
     public function addModule($addArray) {
         $Mods = array_unique(array_diff((array)$addArray,(array)$this->get('modules')));
-        $Mods = array_merge((array)$this->get('modules'),$Mods);
         // Add
-        if (count($Mods)) $this->set('modules',$Mods);
+        if (count($Mods)) {
+            $Mods = array_merge((array)$this->get('modules'),$Mods);
+            $this->set('modules',$Mods);
+        }
         // Return
         return $this;
     }
@@ -911,9 +917,11 @@ class Host extends FOGController {
     }
     public function addHost($addArray) {
         $Groups = array_unique(array_diff((array)$addArray,(array)$this->get('groups')));
-        $Groups = array_merge((array)$this->get('groups'),(array)$Groups);
         // Add
-        if (count($Groups)) $this->set('groups',$Groups);
+        if (count($Groups)) {
+            $Groups = array_merge((array)$this->get('groups'),(array)$Groups);
+            $this->set('groups',$Groups);
+        }
         // Return
         return $this;
     }
