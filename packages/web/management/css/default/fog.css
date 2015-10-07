@@ -721,8 +721,11 @@ pre {
     height: 25px;
     background: #6f9dcf;
 }
-.task-progress-td.min {
+.task-progress-td .min {
     height: 3px;
+}
+.task-progress-td .no-min {
+    height: 25px;
 }
 .task-progress-fill {
     background: #5cdb65;
