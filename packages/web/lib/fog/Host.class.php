@@ -772,13 +772,16 @@ class Host extends FOGController {
         return $this;
     }
     public function addPrinter($addArray) {
+        $Prints = array_unique(array_diff((array)$addArray,(array)$this->get('printers')));
+        $Prints = array_merge((array)$this->get('printers'),(array)$Prints);
         // Add
-        $this->set('printers',array_unique(array_merge((array)$this->get('printers'),(array)$addArray)));
+        if (count($Prints)) $this->set('printers',$Prints);
         // Return
         return $this;
     }
     public function removePrinter($removeArray) {
-        $this->set('printers',array_unique(array_diff((array)$this->get('printers'),(array)$removeArray)));
+        $Prints = array_unique(array_diff((array)$this->get('printers'),(array)$removeArray));
+        if (count($Prints)) $this->set('printers',$Prints);
         // Return
         return $this;
     }
@@ -829,26 +832,31 @@ class Host extends FOGController {
         if ($limit > 0) {
             if ($this->getClass('SnapinManager')->count(array('id'=>$this->get('snapins'))) >= $limit || count($addArray) > $limit) throw new Exception(sprintf('%s %d %s',_('You are only allowed to assign'),$limit,$limit == 1 ? _('snapin per host') : _('snapins per host')));
         }
+        $Snaps = array_unique(array_diff((array)$addArray,(array)$this->get('snapins')));
+        $Snaps = array_merge((array)$this->get('snapins'),(array)$Snaps);
         // Add
-        $this->set('snapins',array_unique(array_merge((array)$this->get('snapins'),(array)$addArray)));
+        if (count($Snaps)) $this->set('snapins',$Snaps);
         // Return
         return $this;
     }
     public function removeSnapin($removeArray) {
-        $this->set('snapins',array_unique(array_diff((array)$this->get('snapins'),(array)$removeArray)));
+        $Snaps = array_unique(array_diff((array)$this->get('snapins'),(array)$removeArray));
+        if (count($Snaps)) $this->set('snapins',$Snaps);
         // Return
         return $this;
     }
     public function addModule($addArray) {
-        $ModsExist = $this->getClass('ModuleAssociationManager')->find(array('hostID'=>$this->get('id')),'','','','','','','moduleID');
+        $Mods = array_unique(array_diff((array)$addArray,(array)$this->get('modules')));
+        $Mods = array_merge((array)$this->get('modules'),$Mods);
         // Add
-        $this->set('modules',array_unique(array_diff((array)$addArray,(array)$ModsExist)));
+        if (count($Mods)) $this->set('modules',$Mods);
         // Return
         return $this;
     }
     public function removeModule($removeArray) {
+        $Mods = array_unique(array_diff((array)$this->get('modules'),(array)$removeArray));
         // Remove
-        $this->set('modules',array_unique(array_diff((array)$this->get('modules'),(array)$removeArray)));
+        if (count($Mods)) $this->set('modules',$Mods);
         // Return
         return $this;
     }
@@ -902,14 +910,17 @@ class Host extends FOGController {
         return $this->removeHost($removeArray);
     }
     public function addHost($addArray) {
+        $Groups = array_unique(array_diff((array)$addArray,(array)$this->get('groups')));
+        $Groups = array_merge((array)$this->get('groups'),(array)$Groups);
         // Add
-        $this->set('groups',array_unique(array_merge((array)$this->get('groups'),(array)$addArray)));
+        if (count($Groups)) $this->set('groups',$Groups);
         // Return
         return $this;
     }
     public function removeHost($removeArray) {
+        $Groups = array_unique(array_diff((array)$this->get('groups'),(array)$removeArray));
         // Iterate array (or other as array)
-        $this->set('groups',array_unique(array_diff((array)$this->get('groups'),(array)$removeArray)));
+        if (count($Groups)) $this->set('groups',$Groups);
         // Return
         return $this;
     }
