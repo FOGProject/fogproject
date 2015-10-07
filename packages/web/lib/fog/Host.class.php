@@ -183,19 +183,24 @@ class Host extends FOGController {
             case 'pendingMACs':
                 $this->key($key) == 'additionalMACs' ? $this->loadAdditional() : $this->loadPending();
                 if (!($value instanceof MACAddress)) $value = $this->getClass('MACAddress',$value);
+                break;
             case 'printers':
                 $this->loadPrinters();
+                break;
             case 'snapins':
                 $this->loadSnapins();
+                break;
             case 'modules':
                 $this->loadModules();
+                break;
             case 'groups':
                 $this->loadGroups();
+                break;
             case 'users':
                 $this->loadUsers();
-            default:
-                return parent::add($key,$value);
+                break;
         }
+        return parent::add($key,$value);
     }
     public function remove($key, $object) {
         switch ($this->key($key)) {
