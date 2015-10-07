@@ -75,6 +75,8 @@ $(function() {
             });
         }
     });
+    // Update Tasks
+    ActiveTasksUpdate();
     // Hook buttons
     ActiveTasksButtonHook();
     // Update timer
@@ -86,6 +88,11 @@ $(function() {
         e.preventDefault();
         if (!$(this).hasClass('active')) {
             $(this).addClass('active').val('Pause auto update');
+            // Update Tasks
+            ActiveTasksUpdate();
+            // Hook buttons
+            ActiveTasksButtonHook();
+            // Update timer
             ActiveTasksUpdateTimerStart();
         } else {
             $(this).removeClass('active').val('Continue auto update');
@@ -138,9 +145,7 @@ function ActiveTasksUpdate() {
                         .replace(/%2/, dataLength != 1 ? 's' : '')
                         );
             i = Loader.find('i');
-            i
-                .removeClass('fa-refresh fa-spin fa-fw')
-                .addClass('fa-exclamation-circle');
+            i.removeClass('fa-refresh fa-spin fa-fw').addClass('fa-exclamation-circle');
             ActiveTasksAJAX = null;
             var tbody = $('tbody',ActiveTasksContainer);
             var thead = $('thead',ActiveTasksContainer);
@@ -162,7 +167,7 @@ function ActiveTasksUpdate() {
             if (dataLength > 0) {
                 var rows = '';
                 for (var i in response['data']) {
-                    var row = '<tr id="task-'+response['data'][i]['id']+'" class="'+(i % 2 ? 'alt2' : 'alt1')+(response['data'][i]['percent'] ? ' with-progress' : '')+'">';
+                    var row = '<tr id="task-'+response['data'][i]['id']+(response['data'][i]['percent'] ? 'class="with-progress"' : '')+'>';
                     for (var j in response['templates']) {
                         var attributes = [];
                         for (var k in response['attributes'][j]) {
@@ -173,7 +178,8 @@ function ActiveTasksUpdate() {
                     }
                     // Replace variable data
                     if (response['data'][i]['percent'] > 0 && response['data'][i]['percent'] < 100) {
-                        row += '<tr id="progress-${host_id}" class="${class}"><td colspan="6" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percentText}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr>';
+                        numRows = $('#active-tasks tr td').length;
+                        row += '<tr id="progress-${host_id}" class="${class}"><td colspan="'+numRows+'" class="task-progress-td min"><div class="task-progress-fill min" style="width: ${width}px"></div><div class="task-progress min"><ul><li>${elapsed}/${remains}</li><li>${percentText}%</li><li>${copied} of ${total} (${bpm}/min)</li></ul></div></td></tr>';
                     }
                     for (var k in response['data'][i]) {
                         row = row.replace(new RegExp('\\$\\{' + k + '\\}', 'g'), response['data'][i][k]);
@@ -298,17 +304,17 @@ function ActiveTasksButtonHook() {
         var id = $(this).attr('id').replace(/^host-/, '');
         var progress = $('#progress-' + id);
         progress.show();
-        progress.find('.min').addClass('no-min').removeClass('min').end().find('ul').show();
+        progress.find('.min').removeClass('min').addClass('no-min').end().find('ul').show();
     }, function() {
         var id = $(this).attr('id').replace(/^host-/, '');
         var progress = $('#progress-' + id);
-        progress.find('.no-min').addClass('min').removeClass('no-min').end().find('ul').hide();
+        progress.find('.no-min').removeClass('no-min').addClass('min').end().find('ul').hide();
     });
     // Hook: Hover: Show Progress Bar on Progress Bar
     $('tr[id^="progress-"]').hover(function() {
-        $(this).find('.min').addClass('no-min').removeClass('min').end().find('ul').show();
+        $(this).find('.min').removeClass('min').addClass('no-min').end().find('ul').show();
     }, function() {
-        $(this).find('.no-min').addClass('min').removeClass('no-min').end().find('ul').hide();
+        $(this).find('.no-min').removeClass('no-min').addClass('min').end().find('ul').hide();
     });
 }
 function ActiveTasksTableCheck() {
