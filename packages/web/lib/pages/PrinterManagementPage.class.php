@@ -224,8 +224,6 @@ class PrinterManagementPage extends FOGPage {
                 if (!$Printer->save()) throw new Exception(_('Could not create printer'));
                 // Hook
                 $this->HookManager->processEvent(PRINTER_ADD_SUCCESS,array(Printer=>&$Printer));
-                // Log History event
-                $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Printer created'),$Printer->get(id),$Printer->get(name)));
                 //Send message to user
                 $this->FOGCore->setMessage(_('Printer was created! Editing now!'));
                 //Redirect to edit
@@ -235,8 +233,6 @@ class PrinterManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(PRINTER_ADD_FAIL,array(Printer=>&$Printer));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s', _('User'), $_REQUEST[name], $e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect user.
@@ -377,15 +373,11 @@ class PrinterManagementPage extends FOGPage {
             if (!$this->obj->save()) throw new Exception('Printer update failed!');
             // Hook
             $this->HookManager->processEvent(PRINTER_UPDATE_SUCCESS,array(Printer=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Printer updated'),$this->obj->get(id),$this->obj->get(name)));
             // Set session message
             $this->FOGCore->setMessage('Printer updated!');
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(PRINTER_UPDATE_FAIL,array(Printer=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Printer'), $_REQUEST[alias], $e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
         }

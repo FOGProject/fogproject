@@ -343,8 +343,6 @@ class FOGConfigurationPage extends FOGPage {
             if ($countDefault == 0 || $countDefault > 1) $this->getClass(PXEMenuOptions,1)->set('default',1)->save();
             // Hook
             $this->HookManager->processEvent(MENU_ADD_SUCCESS,array(Menu=>&$Menu));
-            // Log History Event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s',_('Menu added'),$Menu->get(id),$Menu->get(name)));
             // Set session message
             $this->FOGCore->setMessage(_('Menu Added'));
             // Redirect to edit entry
@@ -352,8 +350,6 @@ class FOGConfigurationPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(MENU_ADD_FAIL,array(Menu=>&$Menu));
-            // Log History Event
-            $this->FOGCore->logHistory(sprintf('%s: %s: %s, %s: %s',_('Menu add failed'),_('Name'),$_REQUEST[name],_('Error'),$e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect to original entry

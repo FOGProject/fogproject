@@ -132,8 +132,6 @@ class UserManagementPage extends FOGPage {
             if (!$User->save()) throw new Exception(_('Failed to create user'));
             // Hook
             $this->HookManager->processEvent(USER_ADD_SUCCESS,array(User=>&$User));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('User created'),$User->get(id),$User->get(name)));
             // Set session message
             $this->FOGCore->setMessage(_('User created').'<br>'._('You may now create another'));
             // Redirect to new entry
@@ -141,8 +139,6 @@ class UserManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(USER_ADD_FAIL,array(User=>&$User));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s',_('User'),$_REQUEST[name],$e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect to new entry
@@ -200,8 +196,6 @@ class UserManagementPage extends FOGPage {
             if (!$this->obj->save()) throw new Exception(_('User update failed'));
             // Hook
             $this->HookManager->processEvent(USER_UPDATE_SUCCESS,array(User=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('User updated'),$this->obj->get(id),$User->get(name)));
             // Set session message
             $this->FOGCore->setMessage(_('User updated'));
             // Redirect to new entry
@@ -209,8 +203,6 @@ class UserManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(USER_UPDATE_FAIL,array(User=>&$User));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('User'), $_REQUEST[name], $e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect to new entry

@@ -165,8 +165,6 @@ class GroupManagementPage extends FOGPage {
             if (!$Group->save()) throw new Exception(_('Group create failed'));
             // Hook
             $this->HookManager->processEvent('GROUP_ADD_SUCCESS', array('Group' => &$Group));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Group added'), $Group->get(id), $Group->get(name)));
             // Set session message
             $this->FOGCore->setMessage(_('Group added'));
             // Redirect to new entry
@@ -174,8 +172,6 @@ class GroupManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent('GROUP_ADD_FAIL', array('Group' => &$Group));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s', _('Group'), $_REQUEST[name], $e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect to new entry
@@ -589,8 +585,6 @@ class GroupManagementPage extends FOGPage {
             if ($this->obj->save()) {
                 // Hook
                 $this->HookManager->processEvent('GROUP_EDIT_SUCCESS', array('Group' => &$this->obj));
-                // Log History event
-                $this->FOGCore->logHistory(sprintf('Group updated: ID: %s, Name: %s', $this->obj->get(id), $this->obj->get(name)));
                 // Set session message
                 $this->FOGCore->setMessage('Group information updated!');
                 // Redirect to new entry
@@ -599,8 +593,6 @@ class GroupManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent('GROUP_EDIT_FAIL', array('Group' => &$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Group'), $this->obj->get(name), $e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect

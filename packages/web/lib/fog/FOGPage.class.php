@@ -844,8 +844,6 @@ abstract class FOGPage extends FOGBase {
             if (!$this->obj->destroy()) throw new Exception(_('Failed to destroy'));
             // Hook
             $this->HookManager->processEvent(strtoupper($this->childClass).'_DELETE_SUCCESS', array($this->childClass => &$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory($this->childClass.' deleted: ID: '.$this->obj->get(id).', Name:'.$this->obj->get(name));
             // Set session message
             $this->FOGCore->setMessage($this->childClass.' deleted: '.$this->obj->get(name));
             // Reset request
@@ -855,8 +853,6 @@ abstract class FOGPage extends FOGBase {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(strtoupper($this->node).'_DELETE_FAIL', array($this->childClass => &$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s %s: ID: %s, Name: %s',_($this->childClass), _('delete failed'),$this->obj->get(id),$this->obj->get(name)));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect

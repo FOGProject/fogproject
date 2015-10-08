@@ -190,8 +190,6 @@ class SnapinManagementPage extends FOGPage {
             if (!$Snapin->save()) throw new Exception(_('Add snapin failed!'));
             // Hook
             $this->HookManager->processEvent(SNAPIN_ADD_SUCCESS,array(Snapin=>&$Snapin));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Snapin created'),$Snapin->get(id),$Snapin->get(name)));
             // Set session message
             $this->FOGCore->setMessage('Snapin added, Editing now!');
             // Redirect to new entry
@@ -199,8 +197,6 @@ class SnapinManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(SNAPIN_ADD_FAIL,array(Snapin=>&$Snapin));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s',_('Storage'),$_REQUEST[name],$e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect to new entry
@@ -415,8 +411,6 @@ class SnapinManagementPage extends FOGPage {
             if (!$this->obj->save()) throw new Exception(_('Snapin update failed'));
             // Hook
             $this->HookManager->processEvent(SNAPIN_UPDATE_SUCCESS,array(Snapin=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Snapin updated'), $this->obj->get(id), $this->obj->get(name)));
             // Set session message
             $this->FOGCore->setMessage(_('Snapin updated'));
             // Redirect to new entry
@@ -424,8 +418,6 @@ class SnapinManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(SNAPIN_UPDATE_FAIL,array(Snapin=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Snapin'), $_REQUEST[name], $e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect to new entry
