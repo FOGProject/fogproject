@@ -1,6 +1,6 @@
 <?php
 class HomeMobile extends FOGPage {
-    public $node = 'homes';
+    public $node = 'home';
     public function __construct($name = '') {
         $this->name = 'Dashboard';
         // Call parent constructor

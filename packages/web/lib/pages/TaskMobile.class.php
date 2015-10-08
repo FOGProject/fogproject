@@ -1,6 +1,6 @@
 <?php
 class TaskMobile extends FOGPage {
-    public $node = 'tasks';
+    public $node = 'task';
     public function __construct($name = '') {
         $this->name = 'Task Management';
         // Call parent constructor

@@ -45,15 +45,15 @@ class Page extends FOGBase {
             $this->main = array_unique(array_filter($this->main),SORT_REGULAR);
             $this->HookManager->processEvent(MAIN_MENU_DATA,array('main'=>&$this->main));
             $links = array();
-            foreach ($this->main AS $link => &$title) $links[] = (!$this->isMobile ? $link : ($link != 'logout' ? $link.'s' : $link));
+            foreach ($this->main AS $link => &$title) $links[] = $link;
             unset($title);
             if (!$this->isMobile) $links = array_merge((array)$links,array('hwinfo','client','schemaupdater'));
             if ($_REQUEST[node] && !in_array($_REQUEST[node],$links)) $this->FOGCore->redirect('index.php');
             $this->menu = '<nav class="menu"><ul class="nav-list">';
             foreach($this->main AS $link => &$title) {
-                if (!$_REQUEST[node]) $_REQUEST[node] = 'home'.($this->isMobile ? 's' : '');
-                $activelink = (int)($_REQUEST[node] == ($this->isMobile && $_REQUEST[node] != 'logout' ? $link.'s' : $link));
-                $this->menu .= sprintf('<li class="nav-item"><a href="?node=%s" class="nav-link%s" title="%s"><i class="%s"></i></a></li>',($this->isMobile && $link != 'logout' ? $link.'s' : $link),($activelink ? ' activelink' : ''),$title[0],$title[1]);
+                if (!$_REQUEST['node'] && $link == 'home') $_REQUEST['node'] = $link;
+                $activelink = (int)($_REQUEST[node] == $link);
+                $this->menu .= sprintf('<li class="nav-item"><a href="?node=%s" class="nav-link%s" title="%s"><i class="%s"></i></a></li>',$link,($activelink ? ' activelink' : ''),$title[0],$title[1]);
             }
             unset($title);
             $this->menu .= '</ul></nav>';
@@ -141,8 +141,10 @@ class Page extends FOGBase {
     public function render($path = '') {
         ob_start(array('Initiator','sanitize_output'),$_SESSION[chunksize]);
         require_once '../management/other/index.php';
-        ob_end_flush();
-        ob_flush();
-        flush();
+        while (ob_get_level()) {
+            ob_end_flush();
+            ob_flush();
+            flush();
+        }
     }
 }
