@@ -660,11 +660,9 @@ class Host extends FOGController {
             $username = ($this->FOGUser ? $this->FOGUser->get('name') : ($username ? $username : ''));
             // Task: Create Task Object
             $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageGroup->getOptimalStorageNode()->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug);
+            if ($Image && $Image->isValid()) $Task->set('imageID',$Image->get('id'));
             // Task: Save to database
-            if (!$Task->save()) {
-                $this->FOGCore->logHistory(sprintf('Task failed: Task ID: %s, Task Name: %s, Host ID: %s, HostName: %s, Host MAC: %s',$Task->get('id'),$Task->get('name'),$this->get('id'),$this->get('name'),$this->get('mac')));
-                throw new Exception($this->foglang['FailedTask']);
-            }
+            if (!$Task->save()) throw new Exception($this->foglang['FailedTask']);
             if ($TaskType->isSnapinTask()) {
                 // if deploySnapins is exactly compared with boolean true, set to -1 for all snapins
                 if ($deploySnapins === true) $deploySnapins = -1;
@@ -674,12 +672,6 @@ class Host extends FOGController {
                 $mac = $this->get('mac');
                 // Snapin deploy/cancel after deploy
                 if ($deploySnapins) $this->createSnapinTasking($deploySnapins);
-            }
-            if ($Image && $Image->isValid()) $Task->set('imageID',$Image->get('id'));
-            // Task: Save to database
-            if (!$Task->save()) {
-                $this->FOGCore->logHistory(sprintf('Task failed: Task ID: %s, Task Name: %s, Host ID: %s, HostName: %s, Host MAC: %s',$Task->get('id'),$Task->get('name'),$this->get('id'),$this->get('name'),$this->get('mac')));
-                throw new Exception($this->foglang['FailedTask']);
             }
             // If task is multicast create the tasking for multicast
             if ($TaskType->isMulticast()) {
@@ -726,8 +718,6 @@ class Host extends FOGController {
             }
             // Wake Host
             if ($wolTypes) $this->wakeOnLAN();
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('Task Created: Task ID: %s, Task Name: %s, Host ID: %s, Host Name: %s, Host MAC: %s, Image ID: %s, Image Name: %s', $Task->get('id'), $Task->get('name'), $this->get('id'), $this->get('name'), $this->get('mac'), $this->getImage()->get('id'), $this->getImage()->get('name')));
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

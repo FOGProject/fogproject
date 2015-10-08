@@ -38,7 +38,6 @@ class LDAPPluginHook extends Hook {
                         ->set(createdBy,$this->FOGUser->get(name));
                 }
                 if (!$User->save()) throw new Exception('User create/update failed');
-				if ($noUser === true) $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('User created'), $User->get(id), $User->get(name)));
                 $arguments[User] = $User;
                 break;
 			}

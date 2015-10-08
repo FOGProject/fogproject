@@ -294,8 +294,6 @@ class ServiceConfigurationPage extends FOGPage {
             if (!$Service->save()) throw new Exception(_('Service update failed'));
             // Hook
             $this->HookManager->processEvent(SERVICE_EDIT_SUCCESS,array(Service=>&$Service));
-            // Log History event
-            $this->FOGCore->logHistory('Service updated: ID: '.$Service->get(id).', Name: '.$Service->get(name).', Tab: '.$_REQUEST[tab]);
             // Set session message
             $this->FOGCore->setMessage('Service Updated!');
             // Redirect to new entry
@@ -303,8 +301,6 @@ class ServiceConfigurationPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(SERVICE_EDIT_FAIL,array(Service=>&$Service));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Tab: %s, Error: %s',_('Service'),$_REQUEST[name],$_REQUEST[tab], $e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect

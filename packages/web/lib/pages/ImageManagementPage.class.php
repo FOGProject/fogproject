@@ -224,8 +224,6 @@ class ImageManagementPage extends FOGPage {
             if (!$Image->save()) throw new Exception('Database update failed');
             // Hook
             $this->HookManager->processEvent(IMAGE_ADD_SUCCESS,array(Image=>&$Image));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Image created'),$Image->get(id),$Image->get(name)));
             // Set session message
             $this->FOGCore->setMessage(_('Image created'));
             // Redirect to new entry
@@ -233,8 +231,6 @@ class ImageManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(IMAGE_ADD_FAIL,array(Image=>&$Image));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s', _('Image'), $_REQUEST[name], $e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect to new entry
@@ -432,8 +428,6 @@ class ImageManagementPage extends FOGPage {
             if (!$this->obj->save()) throw new Exception('Database update failed');
             // Hook
             $this->HookManager->processEvent(IMAGE_UPDATE_SUCCESS,array(Image=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Image updated'), $this->obj->get(id),$this->obj->get(name)));
             // Set session message
             $this->FOGCore->setMessage(_('Image updated'));
             // Redirect to new entry
@@ -441,8 +435,6 @@ class ImageManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(IMAGE_UPDATE_FAIL,array(Image=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s update failed: Name: %s, Error: %s', _('Image'), $_REQUEST[name], $e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect

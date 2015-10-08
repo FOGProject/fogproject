@@ -14,8 +14,6 @@ class MySQL extends FOGBase {
     public function __construct() {
         parent::__construct();
         try {
-            $this->debug = false;
-            $this->info = false;
             if (!class_exists('mysqli')) throw new Exception(sprintf('%s PHP extension not loaded', __CLASS__));
             if (!$this->connect()) throw new Exception('Failed to connect');
         } catch (Exception $e) {

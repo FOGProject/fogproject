@@ -27,7 +27,9 @@ class FOGCore extends FOGBase {
         Sets the message at the top of the screen (e.g. 14 Active Tasks Found)
      */
     public function setMessage($txt, $data = array()) {
-        $_SESSION[FOG_MESSAGES] = (!is_array($txt) ? array(vsprintf($txt, $data)) : $txt);
+        $text = (count($data) ? vsprintf($txt, (array)$data) : $txt);
+        if ($this->DB) $this->logHistory(strip_tags($text));
+        $_SESSION['FOG_MESSAGES'] = (!is_array($txt) ? array($text) : $text);
         return $this;
     }
     /** getMessage()
@@ -43,20 +45,6 @@ class FOGCore extends FOGBase {
         }
         unset($message);
         unset($_SESSION[FOG_MESSAGES]);
-    }
-    /** logHistory($string)
-        Logs the actions to the database.
-     */
-    public function logHistory($string) {
-        global $currentUser;
-        $uname = '';
-        if ($currentUser != null) $uname = $currentUser->get(name);
-        $this->getClass(History)
-            ->set(info,$string)
-            ->set(createdBy,$uname)
-            ->set(createdTime,$this->nice_date()->format('Y-m-d H:i:s'))
-            ->set(ip,$_SERVER[REMOTE_ADDR])
-            ->save();
     }
     /** getSetting($key)
         Get's global Setting Values
