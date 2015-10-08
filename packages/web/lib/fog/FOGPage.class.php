@@ -159,7 +159,7 @@ abstract class FOGPage extends FOGBase {
                     $result[] = sprintf('<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
                         count($this->templates),
                         $contentField,
-                        ($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : ($this->node != 'tasks' ? (!in_array($this->node,array('tasks','hosts')) ? $this->foglang['NoResults'] : '') : ''))
+                        ($this->data['error'] ? (is_array($this->data['error']) ? '<p>' . implode('</p><p>', $this->data['error']) . '</p>' : $this->data['error']) : ($this->node != 'tasks' ? (!$this->isMobile ? $this->foglang['NoResults'] : '') : ''))
                     );
                 } else {
                     $id_field = $_REQUEST[node].'_id';
@@ -867,6 +867,7 @@ abstract class FOGPage extends FOGBase {
         // Set Title
         $eventClass = $this->childClass;
         if ($this->childClass == 'Task') $eventClass = 'host';
+        if ($this->isMobile && $eventClass != 'logout') $eventClass .= 's';
         $this->title = _('Search');
         // Set search form
         if (in_array($this->node,$this->searchPages)) $this->searchFormURL = sprintf('?node=%s&sub=search',$this->node);
