@@ -773,7 +773,7 @@ class Host extends FOGController {
     }
     public function removePrinter($removeArray) {
         $Prints = array_unique(array_diff((array)$this->get('printers'),(array)$removeArray));
-        if (count($Prints)) $this->set('printers',$Prints);
+        $this->set('printers',$Prints);
         // Return
         return $this;
     }
@@ -835,7 +835,7 @@ class Host extends FOGController {
     }
     public function removeSnapin($removeArray) {
         $Snaps = array_unique(array_diff((array)$this->get('snapins'),(array)$removeArray));
-        if (count($Snaps)) $this->set('snapins',$Snaps);
+        $this->set('snapins',$Snaps);
         // Return
         return $this;
     }
@@ -852,7 +852,7 @@ class Host extends FOGController {
     public function removeModule($removeArray) {
         $Mods = array_unique(array_diff((array)$this->get('modules'),(array)$removeArray));
         // Remove
-        if (count($Mods)) $this->set('modules',$Mods);
+        $this->set('modules',$Mods);
         // Return
         return $this;
     }
@@ -918,7 +918,7 @@ class Host extends FOGController {
     public function removeHost($removeArray) {
         $Groups = array_unique(array_diff((array)$this->get('groups'),(array)$removeArray));
         // Iterate array (or other as array)
-        if (count($Groups)) $this->set('groups',$Groups);
+        $this->set('groups',$Groups);
         // Return
         return $this;
     }
