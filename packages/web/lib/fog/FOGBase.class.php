@@ -195,10 +195,6 @@ abstract class FOGBase {
     protected function setRequest() {
         if (!$_SESSION['post_request_vals'] && $this->post) $_SESSION['post_request_vals'] = $_REQUEST;
     }
-    protected function nice_date($Date = 'now',$utc = false) {
-        $TZ = $this->getClass('DateTimeZone',($utc ? 'UTC' : $this->TimeZone));
-        return $this->getClass('DateTime',$Date,$TZ);
-    }
     protected function formatByteSize($size) {
         $units = array('iB','KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
         $factor = floor((strlen($size) - 1)/3);
@@ -220,7 +216,11 @@ abstract class FOGBase {
             'usertracker' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_USERTRACKER_ENABLED') : 'FOG_SERVICE_USERTRACKER_ENABLED',
         );
     }
-    protected function formatTime($time, $format = false, $utc = false) {
+    public function nice_date($Date = 'now',$utc = false) {
+        $TZ = $this->getClass('DateTimeZone',($utc ? 'UTC' : $this->TimeZone));
+        return $this->getClass('DateTime',$Date,$TZ);
+    }
+    public function formatTime($time, $format = false, $utc = false) {
         if (!$time instanceof DateTime) $time = $this->nice_date($time,$utc);
         if ($format) return $time->format($format);
         $now = $this->nice_date('now',$utc);
