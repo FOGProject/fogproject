@@ -4,8 +4,8 @@ class FOGCore extends FOGBase {
         Checks the login and returns the user or nothing if not valid/not exist.
      */
     public function attemptLogin($username,$password) {
-        $User = current($this->getClass(UserManager)->find(array('name' => $username)));
-        if ($User && $User->isValid() && $User->validate_pw($password)) return $User;
+        $User = $this->getClass('User',@max($this->getClass('UserManager')->find(array('name'=>$username),'','','','','','','id')));
+        if ($User->isValid() && $User->validate_pw($password)) return $User;
         return false;
     }
     /** stopScheduledTask($task)
@@ -37,14 +37,14 @@ class FOGCore extends FOGBase {
      */
     public function getMessages() {
         echo "<!-- FOG Variables -->";
-        foreach ((array)$_SESSION[FOG_MESSAGES] AS $i => &$message) {
+        foreach ((array)$_SESSION['FOG_MESSAGES'] AS $i => &$message) {
             // Hook
-            $this->HookManager->processEvent(MessageBox,array(data=>&$message));
+            $this->HookManager->processEvent('MessageBox',array('data'=>&$message));
             // Message Box
             echo '<div class="fog-message-box">'.$message.'</div>';
         }
         unset($message);
-        unset($_SESSION[FOG_MESSAGES]);
+        unset($_SESSION['FOG_MESSAGES']);
     }
     /** getSetting($key)
         Get's global Setting Values

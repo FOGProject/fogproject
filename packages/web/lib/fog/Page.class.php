@@ -141,10 +141,8 @@ class Page extends FOGBase {
     public function render($path = '') {
         ob_start(array('Initiator','sanitize_output'),$_SESSION[chunksize]);
         require_once '../management/other/index.php';
-        while (ob_get_level()) {
-            ob_end_flush();
-            ob_flush();
-            flush();
-        }
+        ob_end_flush();
+        ob_flush();
+        flush();
     }
 }

@@ -6,7 +6,7 @@ $currentUser = ($_SESSION['FOG_USER'] ? unserialize($_SESSION['FOG_USER']) : $FO
 $FOGPageManager = $FOGCore->getClass('FOGPageManager');
 $Page = $FOGCore->getClass('Page');
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
-if (!in_array($node, array('schemaupdater', 'client')) && !in_array($sub, array('configure', 'authorize')) && ($node == 'logout' || $currentUser == null || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn())) {
+if (!in_array($node, array('schemaupdater', 'client')) && !in_array($sub, array('configure', 'authorize')) && ($node == 'logout' || !$currentUser->isValid() || !method_exists($currentUser, 'isLoggedIn') || !$currentUser->isLoggedIn())) {
     @session_regenerate_id(true);
     // Hook
     $HookManager->processEvent('LOGOUT', array('user'=>&$currentUser));

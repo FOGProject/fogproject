@@ -132,6 +132,7 @@ class ProcessLogin extends FOGBase {
     }
     public function mainLoginForm() {
         $this->setLang();
+        if ($_GET['node'] == 'logout') $this->FOGCore->redirect('index.php');
         echo '<form method="post" action="?node=login" id="login-form">';
         if ($_GET[node] != 'logout') {
             foreach ($_GET AS $key => &$value) echo '<input type ="hidden" name="'.$key.'" value="'.$value.'" />';
