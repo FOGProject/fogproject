@@ -44,16 +44,16 @@ abstract class FOGBase {
         $this->FOGCore = &$FOGCore;
         $this->DB = &$DB;
         $this->FOGUser = &$currentUser;
-        $this->HookManager = &$HookManager;
         $this->EventManager = &$EventManager;
+        $this->HookManager = &$HookManager;
         $this->FOGURLRequests = &$FOGURLRequests;
         $this->FOGPageManager = &$FOGPageManager;
         $this->TimeZone = &$TimeZone;
         $this->imagelink = &$_SESSION['imagelink'];
         $this->isMobile = (bool)preg_match('#/mobile/#i',$_SERVER['PHP_SELF']);
-        $this->isAJAXRequest();
-        $this->isPOSTRequest();
         $this->service = (bool)preg_match('#/service/#i', $_SERVER['PHP_SELF']);
+        $this->ajax = (bool)preg_match('#^xmlhttprequest$#i',$_SERVER['HTTP_X_REQUESTED_WITH']);
+        $this->post = (bool)preg_match('#^post$#i',$_SERVER['REQUEST_METHOD']);
     }
     public function __toString() {
         return (string)get_class($this);
@@ -91,12 +91,6 @@ abstract class FOGBase {
     }
     protected function getActivePlugins() {
         return array_map('strtolower',$this->getClass('PluginManager')->find(array('installed'=>1),'','','','','','','name'));
-    }
-    private function isAJAXRequest() {
-        $this->ajax = preg_match('#^xmlhttprequest$#i',$_SERVER['HTTP_X_REQUESTED_WITH']);
-    }
-    private function isPOSTRequest() {
-        $this->post = preg_match('#^post$#i',$_SERVER['REQUEST_METHOD']);
     }
     protected function fatalError($txt, $data = array()) {
         if (!$this->service && !$this->ajax) {

@@ -71,7 +71,8 @@ abstract class FOGController extends FOGBase {
         $this->info(sprintf(_('Setting Key: %s, Value: %s'),$key, $value));
         try {
             if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being set'));
-            if ((is_numeric($this->data[$key]) && $this->data[$key] > ($key == 'id' ? 0 : -1)) || !isset($this->data[$key])) $this->data[$key] = $value;
+            if (is_numeric($value) && $value < ($key == 'id' ? 1 : -1)) throw new Exception(_('Invalid numeric entry'));
+            $this->data[$key] = $value;
         } catch (Exception $e) {
             unset($this->data);
             $this->debug(_('Set Failed: Key: %s, Value: %s, Error: %s'),array($key, $value, $e->getMessage()));

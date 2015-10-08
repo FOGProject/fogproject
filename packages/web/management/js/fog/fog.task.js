@@ -167,7 +167,7 @@ function ActiveTasksUpdate() {
             if (dataLength > 0) {
                 var rows = '';
                 for (var i in response['data']) {
-                    var row = '<tr id="task-'+response['data'][i]['id']+(response['data'][i]['percent'] ? 'class="with-progress"' : '')+'>';
+                    var row = '<tr id="task-'+response['data'][i]['id']+'" '+(response['data'][i]['percent'] ? 'class="with-progress"' : '')+'>';
                     for (var j in response['templates']) {
                         var attributes = [];
                         for (var k in response['attributes'][j]) {

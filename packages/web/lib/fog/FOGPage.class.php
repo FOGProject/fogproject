@@ -867,7 +867,6 @@ abstract class FOGPage extends FOGBase {
         // Set Title
         $eventClass = $this->childClass;
         if ($this->childClass == 'Task') $eventClass = 'host';
-        if ($this->isMobile && $eventClass != 'logout') $eventClass .= 's';
         $this->title = _('Search');
         // Set search form
         if (in_array($this->node,$this->searchPages)) $this->searchFormURL = sprintf('?node=%s&sub=search',$this->node);
