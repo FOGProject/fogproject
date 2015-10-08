@@ -165,7 +165,7 @@ class ImageManagementPage extends FOGPage {
         $OSs = $this->getClass(OSManager)->buildSelectBox($_REQUEST[os]);
         $ImageTypes = $this->getClass(ImageTypeManager)->buildSelectBox($_REQUEST[imagetype] ? $_REQUEST[imagetype] : 1,'','id');
         $ImagePartitionTypes = $this->getClass(ImagePartitionTypeManager)->buildSelectBox($_REQUEST[imagepartitiontype] ? $_REQUEST[imagepartitiontype] : 1,'','id');
-        $compression = isset($_REQUEST[compress]) ? intval($_REQUEST[compress]) : $this->FOGCore->getSetting(FOG_PIGZ_COMP);
+        $compression = is_numeric($_REQUEST['compress']) && $_REQUEST['compress'] > -1 && $_REQUEST['compress'] < 10 ? intval($_REQUEST['compress']) : $this->FOGCore->getSetting('FOG_PIGZ_COMP');
         $fields = array(
             _('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="'.$_REQUEST[name].'" />',
             _('Image Description') => '<textarea name="description" rows="8" cols="40">'.$_REQUEST[description].'</textarea>',
@@ -390,32 +390,32 @@ class ImageManagementPage extends FOGPage {
      */
     public function edit_post() {
         // Hook
-        $this->HookManager->processEvent(IMAGE_EDIT_POST,array(Image=>&$this->obj));
+        $this->HookManager->processEvent('IMAGE_EDIT_POST',array('Image'=>&$this->obj));
         // POST
         try {
-            switch ($_REQUEST[tab]) {
-                case 'image-gen';
-                $name = trim($_REQUEST[name]);
-                // Error checking
-                if (!$name) throw new Exception('An image name is required!');
-                if ($this->obj->get(name) != $_REQUEST[name] && $this->getClass(ImageManager)->exists($name,$this->obj->get(id))) throw new Exception('An image already exists with this name!');
-                if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev') throw new Exception('Please choose a different name, this one is reserved for FOG.');
-                if (empty($_REQUEST['file'])) throw new Exception('An image file name is required!');
-                if (empty($_REQUEST[os])) throw new Exception('An Operating System is required!');
-                if (empty($_REQUEST[imagetype]) && $_REQUEST[imagetype] != 0) throw new Exception('An image type is required!');
-                if (empty($_REQUEST['imagepartitiontype']) && $_REQUEST['imagepartitiontype'] != '0') throw new Exception('An image partition type is required!');
-                // Update Object
-                $this->obj
-                    ->set(name,$_REQUEST[name])
-                    ->set(description,$_REQUEST[description])
-                    ->set(osID,$_REQUEST[os])
-                    ->set(path,$_REQUEST['file'])
-                    ->set(imageTypeID,$_REQUEST[imagetype])
-                    ->set(imagePartitionTypeID,$_REQUEST[imagepartitiontype])
-                    ->set(format,isset($_REQUEST[imagemanage]) ? $_REQUEST[imagemanage] : $this->obj->get(format))
-                    ->set('protected',(int)isset($_REQUEST[protected_image]))
-                    ->set(compress,$_REQUEST[compress]);
-                break;
+            switch ($_REQUEST['tab']) {
+                case 'image-gen':
+                    $name = trim($_REQUEST['name']);
+                    // Error checking
+                    if (!$name) throw new Exception('An image name is required!');
+                    if ($this->obj->get(name) != $_REQUEST[name] && $this->getClass(ImageManager)->exists($name,$this->obj->get(id))) throw new Exception('An image already exists with this name!');
+                    if ($_REQUEST['file'] == 'postdownloadscripts' && $_REQUEST['file'] == 'dev') throw new Exception('Please choose a different name, this one is reserved for FOG.');
+                    if (empty($_REQUEST['file'])) throw new Exception('An image file name is required!');
+                    if (empty($_REQUEST[os])) throw new Exception('An Operating System is required!');
+                    if (empty($_REQUEST[imagetype]) && $_REQUEST[imagetype] != 0) throw new Exception('An image type is required!');
+                    if (empty($_REQUEST['imagepartitiontype']) && $_REQUEST['imagepartitiontype'] != '0') throw new Exception('An image partition type is required!');
+                    // Update Object
+                    $this->obj
+                        ->set(name,$_REQUEST[name])
+                        ->set(description,$_REQUEST[description])
+                        ->set(osID,$_REQUEST[os])
+                        ->set(path,$_REQUEST['file'])
+                        ->set(imageTypeID,$_REQUEST[imagetype])
+                        ->set(imagePartitionTypeID,$_REQUEST[imagepartitiontype])
+                        ->set(format,isset($_REQUEST[imagemanage]) ? $_REQUEST[imagemanage] : $this->obj->get(format))
+                        ->set('protected',(int)isset($_REQUEST[protected_image]))
+                        ->set('compress',$_REQUEST['compress']);
+                    break;
                 case 'image-storage';
                 $this->obj->addGroup($_REQUEST[storagegroup]);
                 if (isset($_REQUEST[remstorgroups])) {
