@@ -74,7 +74,7 @@ class FOGPageManager Extends FOGBase {
         try {
             if (!($class instanceof FOGPage)) throw new Exception($this->foglang['NotExtended']);
             if (!$class->node) throw new Exception(_('No node associated'));
-            $this->info('Adding FOGPage: %s, Node: %s',array(get_class($class),$class->node));
+            $this->info(sprintf(_('Adding FOGPage: %s, Node: %s'),get_class($class),$class->node));
             $this->nodes[$class->node] = $class;
         } catch (Exception $e) {
             $this->debug('Failed to add Page: Node: %s, Page Class: %s, Error: $s',array($class->node,get_class($class),$e->getMessage()));

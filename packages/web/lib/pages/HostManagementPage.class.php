@@ -308,8 +308,6 @@ class HostManagementPage extends FOGPage {
             if (!$Host->save()) throw new Exception(_('Host create failed'));
             // Hook
             $this->HookManager->processEvent('HOST_ADD_SUCCESS',array('Host'=>&$Host));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', _('Host added'), $Host->get('id'), $Host->get('name')));
             // Set session message
             $this->FOGCore->setMessage(_('Host added'));
             // Redirect to new entry
@@ -317,8 +315,6 @@ class HostManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent('HOST_ADD_FAIL',array('Host'=>&$Host));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('Host add failed: Name: %s, Error: %s',$_REQUEST['name'],$e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect to new entry
@@ -1039,23 +1035,18 @@ class HostManagementPage extends FOGPage {
                 break;
             }
             // Save to database
-            if ($this->obj->save()) {
-                $this->obj->setAD();
-                if ($_REQUEST[tab] == 'host-general') $this->obj->ignore($_REQUEST[igimage],$_REQUEST[igclient]);
-                // Hook
-                $this->HookManager->processEvent(HOST_EDIT_SUCCESS,array(Host=>&$this->obj));
-                // Log History event
-                $this->FOGCore->logHistory('Host updated: ID: '.$this->obj->get(id).', Name: '.$this->obj->get(name).', Tab: '.$_REQUEST[tab]);
-                // Set session message
-                $this->FOGCore->setMessage('Host updated!');
-                // Redirect to new entry
-                $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $this->REQUEST['node'], $this->id, $this->obj->get(id), $_REQUEST[tab]));
-            } else throw new Exception('Host update failed');
+            if (!$this->obj->save()) throw new Exception(_('Host Update Failed'));
+            $this->obj->setAD();
+            if ($_REQUEST[tab] == 'host-general') $this->obj->ignore($_REQUEST[igimage],$_REQUEST[igclient]);
+            // Hook
+            $this->HookManager->processEvent(HOST_EDIT_SUCCESS,array(Host=>&$this->obj));
+            // Set session message
+            $this->FOGCore->setMessage('Host updated!');
+            // Redirect to new entry
+            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $this->REQUEST['node'], $this->id, $this->obj->get(id), $_REQUEST[tab]));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(HOST_EDIT_FAIL,array(Host=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory('Host update failed: Name: '.$_REQUEST[name].', Tab: '.$_REQUEST[tab].', Error: '.$e->getMessage());
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect

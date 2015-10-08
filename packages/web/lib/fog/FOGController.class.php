@@ -53,26 +53,25 @@ abstract class FOGController extends FOGBase {
         return ($this->get(name) ? $this->get(name) : sprintf('%s ID: %s',get_class($this),$this->get(id)));
     }
     public function get($key = '') {
-        $key = $this->key($key);
-        if ($key) $this->info(_('Getting Value of Key: %s'),array($key));
         if (!$key) {
-            $this->info(_('Getting All values of: %s'),array(get_class($this)));
+            $this->info(sprintf(_('Getting All values of: %s'),get_class($this)));
             return $this->data;
         }
         try {
-            if (!isset($this->data[$key])) throw new Exception(_('No value set'));
-            if ($key) return $this->data[$key];
+            $key = $this->key($key);
+            if ($key) $this->info(sprintf(_('Getting Value of Key: %s, Value: %s'),$key, $this->data[$key]));
+            return $this->data[$key];
         } catch (Exception $e) {
-            $this->debug(_('Get Failed: Key: %s, Error: %s'),array($key,$e->getMessage()));
+            $this->debug(sprintf(_('Get Failed: Key: %s, Error: %s'),$key,$e->getMessage()));
         }
         return '';
     }
     public function set($key, $value) {
         $key = $this->key($key);
-        $this->info(_('Setting Key: %s, Value: %s'),array($key, $value));
+        $this->info(sprintf(_('Setting Key: %s, Value: %s'),$key, $value));
         try {
             if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being set'));
-            $this->data[$key] = $value;
+            if (!isset($this->data[$key])) $this->data[$key] = $value;
         } catch (Exception $e) {
             $this->debug(_('Set Failed: Key: %s, Value: %s, Error: %s'),array($key, $value, $e->getMessage()));
         }
@@ -80,7 +79,7 @@ abstract class FOGController extends FOGBase {
     }
     public function add($key, $value) {
         $key = $this->key($key);
-        $this->info(_('Adding Key: %s, Values: %s'),array($key, $value));
+        $this->info(sprintf(_('Adding Key: %s, Values: %s'),$key, $value));
         try {
             if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being added'));
             $this->data[$key][] = $value;
@@ -91,7 +90,7 @@ abstract class FOGController extends FOGBase {
     }
     public function remove($key, $value) {
         $key = $this->key($key);
-        $this->info(_('Removing Key: %s, Value: %s'),array($key, $value));
+        $this->info(sprintf(_('Removing Key: %s, Value: %s'),$key, $value));
         try {
             if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being removed'));
             if (!is_array($this->data[$key])) $this->data[$key] = array($this->data[$key]);
@@ -138,7 +137,7 @@ abstract class FOGController extends FOGBase {
         return $this;
     }
     public function load($field = 'id') {
-        $this->info(_('Loading data to field %s'),array($field));
+        $this->info(sprintf(_('Loading data to field %s'),$field));
         try {
             if (!trim($this->get($field))) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
             // Get the query elements
@@ -177,7 +176,7 @@ abstract class FOGController extends FOGBase {
         return $this;
     }
     public function destroy($field = 'id') {
-        $this->info(_('Destroying data from field %s'),array($field));
+        $this->info(sprintf(_('Destroying data from field %s'),$field));
         try {
             if (!trim($this->get($field))) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
             $query = sprintf($this->destroyQueryTemplate,

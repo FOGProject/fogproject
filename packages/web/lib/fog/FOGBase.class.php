@@ -1,20 +1,20 @@
 <?php
 abstract class FOGBase {
-    public $debug = false;
-    public $info = false;
-    public $FOGFTP;
-    public $FOGCore;
-    public $DB;
-    public $HookManager;
-    public $EventManager;
-    public $FOGUser;
-    public $FOGPageManager;
-    public $FOGURLRequests;
-    public $FOGSubMenu;
-    public $foglang;
-    public $isMobile;
-    public $isLoaded = array();
-    public $searchPages = array(
+    protected $debug = false;
+    protected $info = false;
+    protected $FOGFTP;
+    protected $FOGCore;
+    protected $DB;
+    protected $HookManager;
+    protected $EventManager;
+    protected $FOGUser;
+    protected $FOGPageManager;
+    protected $FOGURLRequests;
+    protected $FOGSubMenu;
+    protected $foglang;
+    protected $isMobile;
+    protected $isLoaded = array();
+    protected $searchPages = array(
         'user',
         'host',
         'group',
@@ -27,6 +27,7 @@ abstract class FOGBase {
     );
     public $ajax = false;
     public $post = false;
+    public $service = false;
     public function __construct() {
         global $foglang;
         global $FOGFTP;
@@ -52,6 +53,7 @@ abstract class FOGBase {
         $this->isMobile = (bool)preg_match('#/mobile/#i',$_SERVER['PHP_SELF']);
         $this->isAJAXRequest();
         $this->isPOSTRequest();
+        $this->service = (bool)preg_match('#/service/#i', $_SERVER['PHP_SELF']);
     }
     public function __toString() {
         return (string)get_class($this);
@@ -87,48 +89,48 @@ abstract class FOGBase {
         unset($NodeFailure);
         return $nodeRet;
     }
-    public function getActivePlugins() {
+    protected function getActivePlugins() {
         return array_map('strtolower',$this->getClass('PluginManager')->find(array('installed'=>1),'','','','','','','name'));
     }
-    public function isAJAXRequest() {
+    private function isAJAXRequest() {
         $this->ajax = preg_match('#^xmlhttprequest$#i',$_SERVER['HTTP_X_REQUESTED_WITH']);
     }
-    public function isPOSTRequest() {
+    private function isPOSTRequest() {
         $this->post = preg_match('#^post$#i',$_SERVER['REQUEST_METHOD']);
     }
-    public function fatalError($txt, $data= array()) {
-        if (!preg_match('#/service/#i', $_SERVER['PHP_SELF']) && !$this->ajax) {
+    protected function fatalError($txt, $data = array()) {
+        if (!$this->service && !$this->ajax) {
             echo sprintf('<div class="debug-error">FOG FATAL ERROR: %s: %s</div>',
                 get_class($this),
-                (count($data) ? vsprintf($txt, (array)$data) : $txt)
+                (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
             );
         }
     }
-    public function error($txt, $data = array()) {
-        if ($this->debug && !preg_match('#/service/#i', $_SERVER['PHP_SELF']) && !$this->ajax) {
+    protected function error($txt, $data = array()) {
+        if ($this->debug && !$this->service && !$this->ajax) {
             echo sprintf('<div class="debug-error">FOG ERROR: %s: %s</div>',
                 get_class($this),
-                (count($data) ? vsprintf($txt, (array)$data) : $txt)
+                (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
             );
         }
     }
-    public function debug($txt, $data = array()) {
-        if ((!isset($this) || $this->debug) && !preg_match('#/service/#i', $_SERVER['PHP_SELF']) && !$this->ajax) {
+    protected function debug($txt, $data = array()) {
+        if ($this->debug && !$this->service && !$this->ajax) {
             echo sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>',
                 get_class($this),
-                (count($data) ? vsprintf($txt, (array)$data) : $txt)
+                (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
             );
         }
     }
-    public function info($txt, $data = array()) {
-        if ((!isset($this) || $this->info) && !preg_match('#/service/#i', $_SERVER['PHP_SELF']) && !$this->ajax) {
-            echo sprintf('<div class="debug-error">FOG DEBUG: %s: %s</div>',
+    protected function info($txt, $data = array()) {
+        if ($this->info && !$this->service && !$this->ajax) {
+            echo sprintf('<div class="debug-info">FOG INFO: %s: %s</div>',
                 get_class($this),
-                (count($data) ? vsprintf($txt, (array)$data) : $txt)
+                (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt)
             );
         }
     }
-    public function array_insert_before($key, array &$array, $new_key, $new_value) {
+    protected function array_insert_before($key, array &$array, $new_key, $new_value) {
         if ($this->binary_search($key, $array) > -1) {
             $new = array();
             foreach ($array as $k => &$value) {
@@ -140,7 +142,7 @@ abstract class FOGBase {
         }
         return false;
     }
-    public function array_insert_after($key, array &$array, $new_key, $new_value) {
+    protected function array_insert_after($key, array &$array, $new_key, $new_value) {
         if ($this->binary_search($key, $array) > -1) {
             $new = array();
             foreach ($array as $k => &$value) {
@@ -152,7 +154,7 @@ abstract class FOGBase {
         }
         return false;
     }
-    public function array_remove($key, array &$array) {
+    protected function array_remove($key, array &$array) {
         if (is_array($key)) {
             foreach ($key AS $k => &$value) unset($array[$value]);
             unset($value);
@@ -163,7 +165,7 @@ abstract class FOGBase {
             unset($value);
         }
     }
-    public function binary_search($needle, $haystack) {
+    protected function binary_search($needle, $haystack) {
         $left = 0;
         $right = sizeof($haystack) - 1;
         $values = array_values($haystack);
@@ -177,11 +179,11 @@ abstract class FOGBase {
         }
         return -1;
     }
-    public function isLoaded($key) {
+    protected function isLoaded($key) {
         $this->isLoaded[$key] = (isset($this->isLoaded[$key]) ? true : false);
         return $this->isLoaded[$key];
     }
-    public function resetRequest() {
+    protected function resetRequest() {
         $reqVars = $_REQUEST;
         unset($_REQUEST);
         foreach((array)$_SESSION['post_request_vals'] AS $key => &$val) $_REQUEST[$key] = $val;
@@ -190,19 +192,19 @@ abstract class FOGBase {
         unset($val);
         unset($_SESSION['post_request_vals'], $reqVars);
     }
-    public function setRequest() {
+    protected function setRequest() {
         if (!$_SESSION['post_request_vals'] && $this->post) $_SESSION['post_request_vals'] = $_REQUEST;
     }
-    public function nice_date($Date = 'now',$utc = false) {
+    protected function nice_date($Date = 'now',$utc = false) {
         $TZ = $this->getClass('DateTimeZone',($utc ? 'UTC' : $this->TimeZone));
         return $this->getClass('DateTime',$Date,$TZ);
     }
-    public function formatByteSize($size) {
+    protected function formatByteSize($size) {
         $units = array('iB','KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
         $factor = floor((strlen($size) - 1)/3);
         return sprintf('%3.2f %s',$size/pow(1024,$factor),@$units[$factor]);
     }
-    public function getGlobalModuleStatus($names = false) {
+    protected function getGlobalModuleStatus($names = false) {
         return array(
             'dircleanup' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_DIRECTORYCLEANER_ENABLED') : 'FOG_SERVICE_DIRECTORYCLEANER_ENABLED',
             'usercleanup' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_USERCLEANUP_ENABLED') : 'FOG_SERVICE_USERCLEANUP_ENABLED',
@@ -218,7 +220,7 @@ abstract class FOGBase {
             'usertracker' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_USERTRACKER_ENABLED') : 'FOG_SERVICE_USERTRACKER_ENABLED',
         );
     }
-    public function formatTime($time, $format = false, $utc = false) {
+    protected function formatTime($time, $format = false, $utc = false) {
         if (!$time instanceof DateTime) $time = $this->nice_date($time,$utc);
         if ($format) return $time->format($format);
         $now = $this->nice_date('now',$utc);
@@ -251,29 +253,29 @@ abstract class FOGBase {
         if ($time > $CurrTime) $TimeVal = $time->diff($CurrTime);
         return ($time > $CurrTime ? _('Next Run Time: ') : _('Ran At: ')).$time->format('Y-m-d H:i:s');
     }
-    public function validDate($Date, $format = '') {
+    protected function validDate($Date, $format = '') {
         if ($format == 'N') return ($Date instanceof DateTime ? ($Date->format('N') >= 0 && $Date->format('N') <= 7) : $Date >= 0 && $Date <= 7);
         if (!$Date instanceof DateTime) $Date = $this->nice_date($Date);
         if (!$format) $format = 'm/d/Y';
         return DateTime::createFromFormat($format,$Date->format($format),$this->getClass(DateTimeZone,$this->TimeZone));
     }
-    public function diff($start, $end) {
+    protected function diff($start, $end) {
         if (!$start instanceof DateTime) $start = $this->nice_date($start);
         if (!$end instanceof DateTime) $end = $this->nice_date($end);
         $Duration = $start->diff($end);
         return $Duration->format('%H:%I:%S');
     }
-    public function humanify($diff, $unit) {
+    protected function humanify($diff, $unit) {
         $before = _($diff < 0 ? 'In ' : '');
         $after = _($diff > 0 ? ' ago' : '');
         $diff = floor(abs($diff));
         if ($diff > 1) $unit .= 's';
         return sprintf('%s%d %s%s',$before,$diff,$unit,$after);
     }
-    public function endsWith($str, $sub) {
+    protected function endsWith($str, $sub) {
         return (bool)(substr($str,strlen($str)-strlen($sub)) === $sub);
     }
-    public function getFTPByteSize($StorageNode,$file) {
+    protected function getFTPByteSize($StorageNode,$file) {
         try {
             if (!$StorageNode || !$StorageNode->isValid()) throw new Exception('No Storage Node');
             $this->FOGFTP
@@ -288,7 +290,7 @@ abstract class FOGBase {
         $this->FOGFTP->close();
         return $size;
     }
-    public function array_filter_recursive(&$input,$keepkeys = false) {
+    protected function array_filter_recursive(&$input,$keepkeys = false) {
         foreach($input AS $i => &$value) {
             if (is_array($value)) $value = $this->array_filter_recursive($value);
         }
@@ -297,10 +299,10 @@ abstract class FOGBase {
         if (!$keepkeys) $input = array_values($input);
         return $input;
     }
-    public function byteconvert($kilobytes) {
+    protected function byteconvert($kilobytes) {
         return (($kilobytes / 8) * 1024);
     }
-    public function hex2bin($hex) {
+    protected function hex2bin($hex) {
         $hex2bin = function($keyToUnhex) {
             if (function_exists('hex2bin')) return hex2bin($keyToUnhex);
             $n = strlen($keyToUnhex);
@@ -315,17 +317,17 @@ abstract class FOGBase {
         };
         return $hex2bin($hex);
     }
-    public function createSecToken() {
+    protected function createSecToken() {
         $token = md5(uniqid(mt_rand(), true)).md5(uniqid(mt_rand(),true));
         return trim(bin2hex($token));
     }
-    public function encryptpw($pass) {
+    protected function encryptpw($pass) {
         $decrypt = $this->aesdecrypt($pass);
         $newpass = $pass;
         if ($decrypt && mb_detect_encoding($decrypt,'UTF-8',true)) $newpass = $decrypt;
         return ($newpass ? $this->aesencrypt($newpass) : '');
     }
-    public function aesencrypt($data,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC) {
+    protected function aesencrypt($data,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC) {
         $iv_size = mcrypt_get_iv_size($enctype,$mode);
         if (!$key) {
             $addKey = true;
@@ -335,7 +337,7 @@ abstract class FOGBase {
         $cipher = mcrypt_encrypt($enctype,$key,$data,$mode,$iv);
         return bin2hex($iv).'|'.bin2hex($cipher).($addKey ? '|'.bin2hex($key) : '');
     }
-    public function aesdecrypt($encdata,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC) {
+    protected function aesdecrypt($encdata,$key = false,$enctype = MCRYPT_RIJNDAEL_128,$mode = MCRYPT_MODE_CBC) {
         $iv_size = mcrypt_get_iv_size($enctype,$mode);
         $data = explode('|',$encdata);
         $iv = @pack('H*',$data[0]);
@@ -346,12 +348,12 @@ abstract class FOGBase {
         }
         return html_entity_decode($decipher);
     }
-    public function certEncrypt($data,$Host) {
+    protected function certEncrypt($data,$Host) {
         if (!$Host || !$Host->isValid()) throw new Exception('#!ih');
         if (!$Host->get('pub_key')) throw new Exception('#!ihc');
         return $this->aesencrypt($data,$Host->get('pub_key'));
     }
-    public function certDecrypt($data,$padding = true) {
+    protected function certDecrypt($data,$padding = true) {
         if ($padding) $padding = OPENSSL_PKCS1_PADDING;
         else $padding = OPENSSL_NO_PADDING;
         $data = $this->hex2bin($data);
@@ -371,7 +373,7 @@ abstract class FOGBase {
         openssl_free_key($priv_key);
         return $output;
     }
-    public function parseMacList($stringlist,$image = false,$client = false) {
+    protected function parseMacList($stringlist,$image = false,$client = false) {
         $MAClist = array();
         $MACs = $this->getClass('MACAddressAssociationManager')->find(array('mac'=>explode('|',$stringlist)));
         foreach((array)$MACs AS $i => &$MAC) {
@@ -399,7 +401,7 @@ abstract class FOGBase {
         if (!count($MAClist)) return false;
         return array_unique(array_diff((array)$MAClist,(array)$NewMatches));
     }
-    public function sendData($datatosend,$service = true) {
+    protected function sendData($datatosend,$service = true) {
         if ($service) {
             $Host = $this->getHostItem();
             if ($this->nice_date() >= $this->nice_date($Host->get(sec_time))) $Host->set(pub_key,null)->save();
@@ -408,15 +410,21 @@ abstract class FOGBase {
             else echo $datatosend;
         }
     }
-    public function array_strpos($haystack, $needles, $case = true) {
+    protected function array_strpos($haystack, $needles, $case = true) {
         foreach ($needles AS $i => &$needle) {
-            if ($case) {
-                if (strpos($haystack,$needle) !== false) return true;
-            } else {
-                if (stripos($haystack,$needle) !== false) return true;
-            }
+            if ($case) return (bool)strpos($haystack,$needle) !== false;
+            else return (bool)stripos($haystack,$needle) !== false;
         }
         unset($needle);
         return false;
+    }
+    protected function logHistory($string) {
+        $name = $_SESSION['FOG_USERNAME'] ? $_SESSION['FOG_USERNAME'] : 'fog';
+        if ($this->DB) {
+            $this->getClass('History')
+                ->set('info',strip_tags($string))
+                ->set('ip',$_SERVER['REMOTE_ADDR'])
+                ->save();
+        }
     }
 }

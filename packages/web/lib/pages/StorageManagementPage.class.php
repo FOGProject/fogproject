@@ -211,8 +211,6 @@ class StorageManagementPage extends FOGPage {
             }
             // Hook
             $this->HookManager->processEvent(STORAGE_NODE_ADD_SUCCESS,array(StorageNode=>&$StorageNode));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s',$this->foglang[SNCreated],$StorageNode->get(id),$StorageNode->get(name)));
             // Set session message
             $this->FOGCore->setMessage($this->foglang[SNCreated]);
             // Redirect to new entry
@@ -220,8 +218,6 @@ class StorageManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(STORAGE_NODE_ADD_FAIL,array(StorageNode=>&$StorageNode));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s',$this->foglang[SN],$_REQUEST[name], $e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect to new entry
@@ -344,8 +340,6 @@ class StorageManagementPage extends FOGPage {
             }
             // Hook
             $this->HookManager->processEvent(STORAGE_NODE_EDIT_SUCCESS,array(StorageNode=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', $this->foglang[SNUpdated],$this->obj->get(id),$this->obj->get(name)));
             // Set session message
             $this->FOGCore->setMessage($this->foglang[SNUpdated]);
             // Redirect back to self;
@@ -353,8 +347,6 @@ class StorageManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(STORAGE_NODE_EDIT_FAIL,array(StorageNode=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s',$this->foglang[SN],$_REQUEST[name],$e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect to new entry
@@ -403,8 +395,6 @@ class StorageManagementPage extends FOGPage {
             if (!$this->obj->destroy()) throw new Exception($this->foglang[FailDelSN]);
             // Hook
             $this->HookManager->processEvent(STORAGE_NODE_DELETE_SUCCESS,array(StorageNode=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', $this->foglang[SNDelSuccess],$this->obj->get(id),$this->obj->get(name)));
             // Set session message
             $this->FOGCore->setMessage(sprintf('%s: %s',$this->foglang[SNDelSuccess],$this->obj->get(name)));
             // Redirect
@@ -412,8 +402,6 @@ class StorageManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(STORAGE_NODE_DELETE_FAIL,array(StorageNode=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s %s: ID: %s, Name: %s',$this->foglang[SN],$this->foglang[Deleted],$this->obj->get(id),$this->obj->get(name)));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect
@@ -508,8 +496,6 @@ class StorageManagementPage extends FOGPage {
             if (!$StorageGroup->save()) throw new Exception($this->foglang[DBupfailed]);
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_ADD_POST_SUCCESS,array(StorageGroup=>&$StorageGroup));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s',$this->foglang[SGCreated],$StorageGroup->get(id),$StorageGroup->get(name)));
             // Set session message
             $this->FOGCore->setMessage($this->foglang[SGCreated]);
             // Redirect to new entry
@@ -517,8 +503,6 @@ class StorageManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_ADD_POST_FAIL, array(StorageGroup=>&$StorageGroup));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s', $this->foglang[SG],$_REQUEST[name],$e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect to new entry
@@ -576,8 +560,6 @@ class StorageManagementPage extends FOGPage {
             if (!$this->obj->save()) throw new Exception($this->foglang[DBupfailed]);
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_EDIT_POST_SUCCESS,array(StorageGroup=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', $this->foglang[SGUpdated],$this->obj->get(id),$this->obj->get(name)));
             // Set session message
             $this->FOGCore->setMessage($this->foglang[SGUpdated]);
             // Redirect to new entry
@@ -585,8 +567,6 @@ class StorageManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_EDIT_FAIL,array(StorageGroup=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s add failed: Name: %s, Error: %s', $this->foglang[SG],$_REQUEST[name],$e->getMessage()));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect to new entry
@@ -636,8 +616,6 @@ class StorageManagementPage extends FOGPage {
             if (!$this->obj->destroy()) throw new Exception($this->foglang[FailDelSG]);
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_DELETE_POST_SUCCESS, array(StorageGroup=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s: ID: %s, Name: %s', $this->foglang[SGDelSuccess],$this->obj->get(id),$this->obj->get(name)));
             // Set session message
             $this->FOGCore->setMessage(sprintf('%s: %s',$this->foglang[SGDelSuccess],$this->obj->get(name)));
             // Redirect
@@ -645,8 +623,6 @@ class StorageManagementPage extends FOGPage {
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_DELETE_POST_FAIL,array(StorageGroup=>&$this->obj));
-            // Log History event
-            $this->FOGCore->logHistory(sprintf('%s %s: ID: %s, Name: %s',$this->foglang[SG],$this->foglang[Deleted],$this->obj->get(id),$this->obj->get(name)));
             // Set session message
             $this->FOGCore->setMessage($e->getMessage());
             // Redirect
