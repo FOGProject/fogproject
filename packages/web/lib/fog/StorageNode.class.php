@@ -26,9 +26,12 @@ class StorageNode extends FOGController {
     );
     // Required database fields
     public $databaseFieldsRequired = array(
+        'storageGroupID',
         'ip',
         'path',
         'ftppath',
+        'user',
+        'pass',
     );
     // Overrides
     public function get($key = '') {

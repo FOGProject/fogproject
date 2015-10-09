@@ -1,19 +1,19 @@
 <?php
 abstract class FOGController extends FOGBase {
+    protected $data = array();
+    protected $autoSave = false;
     protected $databaseTable = '';
     protected $databaseFields = array();
+    protected $databaseFieldsRequired = array();
+    protected $additionalFields = array();
     protected $databaseFieldsFlipped = array();
+    protected $databaseFieldsToIgnore = array('createdBy','createdTime');
+    protected $aliasedFields = array();
+    protected $databaseFieldClassRelationships = array();
     protected $loadQueryTemplateSingle = "SELECT * FROM %s %s WHERE %s='%s' %s";
     protected $loadQueryTemplateMultiple = 'SELECT * FROM %s %s WHERE %s %s';
     protected $insertQueryTemplate = "INSERT INTO %s (%s) VALUES ('%s') ON DUPLICATE KEY UPDATE %s";
     protected $destroyQueryTemplate = "DELETE FROM %s WHERE %s='%s'";
-    protected $databaseFieldsToIgnore = array('createdBy','createdTime');
-    protected $additionalFields = array();
-    protected $aliasedFields = array();
-    protected $databaseFieldsRequired = array();
-    protected $data = array();
-    protected $autoSave = false;
-    protected $databaseFieldClassRelationships = array();
     public function __construct($data = '') {
         /** FOGBase Constructor */
         parent::__construct();
@@ -138,7 +138,7 @@ abstract class FOGController extends FOGBase {
         }
         return $this;
     }
-    public function load($field = 'id') {
+    protected function load($field = 'id') {
         $this->info(sprintf(_('Loading data to field %s'),$field));
         try {
             if (!trim($this->get($field))) throw new Exception(sprintf(_('Operation Field not set: %s'),$field));
@@ -192,10 +192,10 @@ abstract class FOGController extends FOGBase {
         }
         return $this;
     }
-    protected function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id') {
+    public function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id',$not = false) {
         if (empty($object)) $object = 'Host';
         if (empty($getField)) $getField = 'id';
-        return array_filter(array_unique($this->getClass($object)->getManager()->find($findWhere,'OR','','','','','',$getField)));
+        return array_filter(array_unique($this->getClass($object)->getManager()->find($findWhere,'OR','','','','',$not,$getField)));
     }
     protected function key(&$key) {
         $key = trim($key);

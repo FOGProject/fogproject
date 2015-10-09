@@ -10,7 +10,7 @@ abstract class FOGManagerController extends FOGController {
     protected $existsQueryTemplate = "SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s` WHERE `%s`.`%s`='%s' AND `%s`.`%s` <> '%s'";
     public function __construct() {
         $this->childClass = preg_replace('#_?Manager$#', '', get_class($this));
-        $this->classVariables = get_class_vars($this->childClass);
+        $this->classVariables = $this->getClass('ReflectionClass',$this->childClass)->getDefaultProperties();
         foreach ((array)$this->classVariables AS $name => &$value) $this->$name = $value;
         parent::__construct();
     }

@@ -15,7 +15,6 @@ class NodeFailure extends FOGController {
     );
     // Required database fields
     public $databaseFieldsRequired = array(
-        'id',
         'storageNodeID',
         'taskID',
         'hostID',

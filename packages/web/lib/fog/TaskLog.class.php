@@ -22,13 +22,19 @@ class TaskLog extends FOGController {
     /** @function getTask() return the task
      * @return the task
      */
-    public function getTask() {return $this->getClass('Task',$this->get('taskID'));}
-        /** @function getTaskState() return the task state
-         * @return the task state
-         */
-        public function getTaskState() {return $this->getClass('TaskState',$this->get('taskStateID'));}
-        /** @function getHost() return the host
-         * @return the task host
-         */
-        public function getHost() {return $this->getTask()->getHost();}
+    public function getTask() {
+        return $this->getClass('Task',$this->get('taskID'));
+    }
+    /** @function getTaskState() return the task state
+     * @return the task state
+     */
+    public function getTaskState() {
+        return $this->getClass('TaskState',$this->get('taskStateID'));
+    }
+    /** @function getHost() return the host
+     * @return the task host
+     */
+    public function getHost() {
+        return $this->getTask()->getHost();
+    }
 }

@@ -1,9 +1,7 @@
 <?php
 class Printer extends FOGController {
-    // Table
-    public $databaseTable = 'printers';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'printers';
+    protected $databaseFields = array(
         'id' => 'pID',
         'name' => 'pAlias',
         'description' => 'pDesc',
@@ -17,64 +15,41 @@ class Printer extends FOGController {
         'pAnon4' => 'pAnon4',
         'pAnon5' => 'pAnon5',
     );
-    // Allow setting / getting of these additional fields
-    public $additionalFields = array(
+    protected $databaseFieldsRequired = array(
+        'name',
+    );
+    protected $additionalFields = array(
         'hosts',
         'hostsnotinme',
     );
-    // Required database fields
-    public $databaseFieldsRequired = array(
-        'id',
-        'name',
-    );
-    public function load($field = 'id') {
-        parent::load($field);
-        $methods = get_class_methods($this);
-        foreach ($methods AS $i => &$method) {
-            if (strlen($method) > 5 && strpos($method,'load')) $this->$method();
-        }
-        unset($method);
-        return $this;
-    }
-    // Overrides
-    private function loadHosts() {
-        if (!$this->isLoaded('hosts') && $this->get('id')) {
-            $HostIDs = $this->getClass('PrinterAssociationManager')->find(array('printerID'=>$this->get('id')),'','','','','','','hostID');
-            $this->set('hosts',$this->getClass('HostManager')->find(array('id'=>$HostIDs),'','','','','','','id'));
-            $this->set('hostsnotinme',$this->getClass('HostManager')->find(array('id'=>$HostIDs),'','','','','',true,'id'));
-        }
-        return $this;
-    }
     public function get($key = '') {
-        if (in_array($this->key($key),array('hosts','hostsnotinme'))) $this->loadHosts();
+        if (in_array($key,array('hosts','hostsnotinme'))) $this->loadHosts();
         return parent::get($key);
     }
-    public function set($key, $value) {
-        if ($this->key($key) == 'hosts') $this->loadHosts();
-        // Set
+    public function set($key,$value) {
+        if (in_array($key,array('hosts','hostsnotinme'))) $this->loadHosts();
         return parent::set($key,$value);
     }
-    public function add($key, $value) {
-        if ($this->key($key) == 'hosts') $this->loadHosts();
-        // Add
-        return parent::add($key, $value);
+    public function add($key,$value) {
+        if (in_array($key,array('hosts','hostsnotinme'))) $this->loadHosts();
+        return parent::add($key,$value);
     }
-    public function remove($key, $object) {
-        if ($this->key($key) == 'hosts') $this->loadHosts();
-        // Remove
-        return parent::remove($key, $object);
+    public function remove($key,$value) {
+        if (in_array($key,array('hosts','hostsnotinme'))) $this->loadHosts();
+        return parent::remove($key,$value);
     }
     public function save() {
         parent::save();
         if ($this->isLoaded('hosts')) {
-            // Remove only the removed elements
             $DBHostIDs = $this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
-            $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
-            $this->getClass('PrinterAssociationManager')->destroy(array('hostID'=>$RemoveHostIDs,'printerID'=>$this->get('id')));
-            $DBHostIDs = $this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
+            $RemoveHostIDs = array_unique(array_diff((array)$DBHostIDs,(array)$this->get('hosts')));
+            if (count($RemoveHostIDs)) {
+                $this->getClass('PrinterAssociationManager')->destroy(array('hostID'=>$RemoveHostIDs,'printerID'=>$this->get('id')));
+                $DBHostIDs = $this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID');
+                unset($RemoveHostIDs);
+            }
             $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
-            // Create new Assocs
-            foreach((array)$Hosts AS $i => &$Host) {
+            foreach ((array)$Hosts AS $i => &$Host) {
                 $hasDefault = $this->getClass('PrinterAssociationManager')->count(array('isDefault'=>1,'hostID'=>$Host));
                 $this->getClass('PrinterAssociation')
                     ->set('printerID',$this->get('id'))
@@ -86,41 +61,28 @@ class Printer extends FOGController {
         }
         return $this;
     }
+    public function destroy($field = 'id') {
+        $this->getClass('PrinterAssociationManager')->destroy(array('printerID'=>$this->get('id')));
+        return parent::destroy($field);
+    }
     public function addHost($addArray) {
-        // Add
         $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
-        // Return
         return $this;
     }
     public function removeHost($removeArray) {
-        // Iterate array (or other as array)
         $this->set('hosts',array_unique(array_diff((array)$this->get('hosts'),(array)$removeArray)));
-        // Return
+        return $this;
+    }
+    private function loadHosts() {
+        if (!$this->isLoaded('hosts') && $this->get('id')) {
+            $this->set('hosts',$this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID'));
+            $this->set('hostsnotinme',$this->getSubObjectIDs('Host',array('id'=>$this->get('hosts')),'id',true));
+        }
         return $this;
     }
     public function updateDefault($hostid,$onoff) {
-        foreach((array)$hostid AS $i => &$id) {
-            $Host = $this->getClass('Host',$id);
-            $Host->updateDefault($this->get('id'),in_array($Host->get('id'),$onoff));
-        }
+        foreach ((array)$hostid AS $i => &$id) $Host->updateDefault($this->get('id'),in_array($id,(array)$onoff));
         unset($id);
         return $this;
-    }
-    public function destroy($field = 'id') {
-        // Remove all Host associations
-        $this->getClass('PrinterAssociationManager')->destroy(array('printerID'=>$this->get('id')));
-        // Return
-        return parent::destroy($field);
-    }
-    public function isValid() {
-        $name = $this->get('name');
-        $port = $this->get('port');
-        $file = $this->get('file');
-        $ip = $this->get('ip');
-        $model = $this->get('model');
-        if ($this->get('config') == 'Network') return isset($name);
-        else if ($this->get('config') == 'iPrint') return (isset($name) && isset($port));
-        else if ($this->get('config') == 'Local') return (isset($name) && isset($port) && isset($file) && isset($model));
-        else if ($this->get('config') == 'Cups') return (isset($name) && isset($ip) && isset($file));
     }
 }
