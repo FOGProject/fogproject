@@ -13,4 +13,9 @@ class PeerTorrent extends FOGController {
         'lastUpdated' => 'last_updated',
         'stopped' => 'stopped',
     );
+    // Required database fields
+    public $databaseFieldsRequired = array(
+        'peerID',
+        'torrentID',
+    );
 }

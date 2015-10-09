@@ -59,7 +59,7 @@ class PrinterManagementPage extends FOGPage {
     // Pages
     public function index() {
         // Set title
-        $this->title = _('Search');
+        $this->title = _('All printers');
         if ($_SESSION[DataReturn] > 0 && $_SESSION[PrinterCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list')
             $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Find data
