@@ -11,4 +11,12 @@ class ImagingLog extends FOGController {
         'image' => 'ilImageName',
         'type' => 'ilType',
     );
+    // Required database fields
+    public $databaseFieldsRequired = array(
+        'hostID',
+        'start',
+        'finish',
+        'image',
+        'type',
+    );
 }
