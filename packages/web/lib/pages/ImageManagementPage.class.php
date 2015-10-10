@@ -80,7 +80,7 @@ class ImageManagementPage extends FOGPage {
     public function index() {
         // Set title
         $this->title = _('All Images');
-        if ($_SESSION[DataReturn] > 0 && $_SESSION[ImageCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
+        if ($_SESSION[DataReturn] > 0 && $_SESSION[ImageCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Find data
         $Images = $this->getClass(ImageManager)->find();
         $SizeServer = $_SESSION[FOG_FTP_IMAGE_SIZE];
@@ -225,16 +225,16 @@ class ImageManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(IMAGE_ADD_SUCCESS,array(Image=>&$Image));
             // Set session message
-            $this->FOGCore->setMessage(_('Image created'));
+            $this->setMessage(_('Image created'));
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s', $_REQUEST[node],$this->id,$Image->get(id)));
+            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s', $_REQUEST[node],$this->id,$Image->get(id)));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(IMAGE_ADD_FAIL,array(Image=>&$Image));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect to new entry
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
     /** edit()
@@ -429,16 +429,16 @@ class ImageManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(IMAGE_UPDATE_SUCCESS,array(Image=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage(_('Image updated'));
+            $this->setMessage(_('Image updated'));
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $this->request[node],$this->id,$this->obj->get(id),$_REQUEST[tab]));
+            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $this->request[node],$this->id,$this->obj->get(id),$_REQUEST[tab]));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(IMAGE_UPDATE_FAIL,array(Image=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
     /** multicast()
@@ -551,16 +551,16 @@ class ImageManagementPage extends FOGPage {
                 ->set('interface',$StorageNode->get('interface'))
                 ->set(logpath,$Image->get(path))
                 ->set(NFSGroupID,$StorageNode->get(id));
-            if (!$MulticastSession->save()) $this->FOGCore->setMessage(_('Failed to create Session'));
+            if (!$MulticastSession->save()) $this->setMessage(_('Failed to create Session'));
             // Sets a new port number so you can create multiple Multicast Tasks.
             $randomnumber = mt_rand(24576,32766)*2;
             while ($randomnumber == $MulticastSession->get(port)) $randomnumber = mt_rand(24576,32766)*2;
             $this->FOGCore->setSetting(FOG_UDPCAST_STARTINGPORT,$randomnumber);
-            $this->FOGCore->setMessage(_('Multicast session created').'<br />'.$MulticastSession->get(name).' has been started on port '.$MulticastSession->get(port));
+            $this->setMessage(_('Multicast session created').'<br />'.$MulticastSession->get(name).' has been started on port '.$MulticastSession->get(port));
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
         }
-        $this->FOGCore->redirect('?node='.$this->node.'&sub=multicast');
+        $this->redirect('?node='.$this->node.'&sub=multicast');
     }
     public function stop() {
         if (is_numeric($_REQUEST[mcid]) && $_REQUEST[mcid] > 0) {
@@ -569,8 +569,8 @@ class ImageManagementPage extends FOGPage {
             foreach((array)$sessions AS $i => &$MulticastAssoc) $this->getClass(Task,$MulticastAssoc->get(taskID))->cancel();
             unset($MulticastAssoc);
             $MulticastSession->set(name,null)->set(stateID,5)->save();
-            $this->FOGCore->setMessage(_('Cancelled task'));
-            $this->FOGCore->redirect('?node='.$this->node.'&sub=multicast');
+            $this->setMessage(_('Cancelled task'));
+            $this->redirect('?node='.$this->node.'&sub=multicast');
         }
     }
 }

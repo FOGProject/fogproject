@@ -295,16 +295,16 @@ class ServiceConfigurationPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(SERVICE_EDIT_SUCCESS,array(Service=>&$Service));
             // Set session message
-            $this->FOGCore->setMessage('Service Updated!');
+            $this->setMessage('Service Updated!');
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit#%s', $this->request[node],$_REQUEST[tab]));
+            $this->redirect(sprintf('?node=%s&sub=edit#%s', $this->request[node],$_REQUEST[tab]));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(SERVICE_EDIT_FAIL,array(Service=>&$Service));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit#%s', $_REQUEST[node], $_REQUEST[tab]));
+            $this->redirect(sprintf('?node=%s&sub=edit#%s', $_REQUEST[node], $_REQUEST[tab]));
         }
     }
     public function search() {

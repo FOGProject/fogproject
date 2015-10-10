@@ -99,8 +99,8 @@ abstract class FOGManagerController extends FOGController {
             foreach ((array)$queryData AS $i => &$row) $data[] = $this->getClass($this->childClass)->setQuery($row);
             unset($row);
         }
-        if ($this->DB->queryResult() instanceof mysqli_result) $this->DB->queryResult()->close();
         session_start();
+        if ($this->DB->queryResult() instanceof mysqli_result) $this->DB->queryResult()->close();
         return (array)$data;
     }
     public function count($findWhere = array(), $whereOperator = 'AND', $compare = '=') {

@@ -34,8 +34,8 @@ class RemoveMenuItems extends Hook {
     public function NotAllowed($arguments) {
         if (in_array($this->node,$_SESSION[PluginsInstalled])) {
             if (in_array($_REQUEST[node],(array)$this->linksToFilter)) {
-                $this->FOGCore->setMessage('Not Allowed!');
-                $this->FOGCore->redirect('index.php');
+                $this->setMessage('Not Allowed!');
+                $this->redirect('index.php');
             }
         }
     }

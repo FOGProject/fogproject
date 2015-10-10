@@ -45,7 +45,7 @@ class LDAPManagementPage extends FOGPage {
         // Set title
         $this->title = _('Search');
         if ($this->FOGCore->getSetting(FOG_DATA_RETURNED) > 0 && $this->getClass(LDAPManager)->count() > $this->FOGCore->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list')
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
+            $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Find data
         $LDAPs = $this->getClass(LDAPManager)->find();
         // Row data
@@ -147,12 +147,12 @@ class LDAPManagementPage extends FOGPage {
                 ->set(DN,$REQUEST[DN])
                 ->set(port,$_REQUEST[port]);
             if ($LDAP->save()) {
-                $this->FOGCore->setMessage('LDAP Server Added, editing!');
-                $this->FOGCore->redirect('?node=ldap&sub=edit&id='.$LDAP->get('id'));
+                $this->setMessage('LDAP Server Added, editing!');
+                $this->redirect('?node=ldap&sub=edit&id='.$LDAP->get('id'));
             }
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage($e->getMessage());
+            $this->redirect($this->formAction);
         }
     }
     public function edit() {
@@ -216,13 +216,13 @@ class LDAPManagementPage extends FOGPage {
                 if ($_REQUEST[DN] != $LDAP->get(DN)) $LDAP->set(DN,$_REQUEST[DN]);
                 if ($_REQUEST[port] != $LDAP->get(port)) $LDAP->set(port,$_REQUEST[port]);
                 if ($LDAP->save()) {
-                    $this->FOGCore->setMessage('LDAP Server Updated');
-                    $this->FOGCore->redirect('?node=ldap&sub=edit&id='.$LDAP->get('id'));
+                    $this->setMessage('LDAP Server Updated');
+                    $this->redirect('?node=ldap&sub=edit&id='.$LDAP->get('id'));
                 }
             }
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage($e->getMessage());
+            $this->redirect($this->formAction);
         }
     }
 }

@@ -220,8 +220,8 @@ class FOGConfigurationPage extends FOGPage {
                 ->setSetting(FOG_PXE_HIDDENMENU_TIMEOUT,$hidetimeout)) throw new Exception(_('PXE Menu update failed'));
             throw new Exception(_('PXE Menu has been updated'));
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage($e->getMessage());
+            $this->redirect($this->formAction);
         }
     }
     public function customize_edit() {
@@ -278,18 +278,18 @@ class FOGConfigurationPage extends FOGPage {
                 ->set(regMenu,$_REQUEST[menu_regmenu])
                 ->set(args,$_REQUEST[menu_options])
                 ->set('default',$_REQUEST[menu_default]);
-            if ($Menu->save()) $this->FOGCore->setMessage($Menu->get(name).' '._('successfully updated').'!');
+            if ($Menu->save()) $this->setMessage($Menu->get(name).' '._('successfully updated').'!');
         }
         if (isset($_REQUEST[delform]) && $_REQUEST[rmid]) {
             $Menu = $this->getClass(PXEMenuOptions,$_REQUEST[rmid]);
             $menuname = $Menu->get(name);
-            if($Menu->destroy()) $this->FOGCore->setMessage($menuname.' '._('successfully removed').'!');
+            if($Menu->destroy()) $this->setMessage($menuname.' '._('successfully removed').'!');
         }
         // Ensure there's only one default value.
         $countDefault = $this->getClass(PXEMenuOptionsManager)->count(array('default'=>1));
         // If there's no defaults, set the first id (local disk) to default.
         if ($countDefault == 0 || $countDefault > 1) $this->getClass(PXEMenuOptions,1)->set('default',1)->save();
-        $this->FOGCore->redirect($this->formAction);
+        $this->redirect($this->formAction);
     }
     public function new_menu() {
         $this->title = _('Create New iPXE Menu Entry');
@@ -344,16 +344,16 @@ class FOGConfigurationPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(MENU_ADD_SUCCESS,array(Menu=>&$Menu));
             // Set session message
-            $this->FOGCore->setMessage(_('Menu Added'));
+            $this->setMessage(_('Menu Added'));
             // Redirect to edit entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s',$this->node,$this->id,$Menu->get(id)));
+            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s',$this->node,$this->id,$Menu->get(id)));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(MENU_ADD_FAIL,array(Menu=>&$Menu));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect to original entry
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
     /** client_updater()
@@ -435,7 +435,7 @@ class FOGConfigurationPage extends FOGPage {
     public function client_updater_post() {
         if ($_REQUEST[delcu]) {
             $this->getClass(ClientUpdaterManager)->destroy(array(id=>$_REQUEST[delcu]));
-            $this->FOGCore->setMessage(_('Client module update deleted!'));
+            $this->setMessage(_('Client module update deleted!'));
         }
         if ($_FILES[module]) {
             foreach((array)$_FILES[module][tmp_name] AS $index => &$tmp_name) {
@@ -450,13 +450,13 @@ class FOGConfigurationPage extends FOGPage {
                             ->set(md5,$md5)
                             ->set(type,$this->FOGCore->endsWith($filename,'.ini')?'txt':'bin')
                             ->set(file,file_get_contents($tmp_name));
-                        if ($ClientUpdater->save()) $this->FOGCore->setMessage(_('Modules Added/Updated'));
+                        if ($ClientUpdater->save()) $this->setMessage(_('Modules Added/Updated'));
                     }
                 }
             }
             unset($tmp_name);
         }
-        $this->FOGCore->redirect(sprintf('?node=%s&sub=%s#%s',$_REQUEST[node],edit,$_REQUEST[tab]));
+        $this->redirect(sprintf('?node=%s&sub=%s#%s',$_REQUEST[node],edit,$_REQUEST[tab]));
     }
     /** mac_list()
      * This is where you update the mac address listing.
@@ -497,11 +497,11 @@ class FOGConfigurationPage extends FOGPage {
                 }
                 fclose($handle);
                 $this->FOGCore->addUpdateMACLookupTable($macsandmakers);
-                $this->FOGCore->setMessage($imported._(' mac addresses updated!'));
+                $this->setMessage($imported._(' mac addresses updated!'));
             } else echo (_('Unable to locate file').': '.$f);
         } else if ($_REQUEST[clear]) $this->FOGCore->clearMACLookupTable();
         $this->resetRequest();
-        $this->FOGCore->redirect('?node=about&sub=mac-list');
+        $this->redirect('?node=about&sub=mac-list');
     }
     /** settings()
      * This is where you set the values for FOG itself.  You can update
@@ -701,8 +701,8 @@ class FOGConfigurationPage extends FOGPage {
             $Service->save();
         }
         unset($Service);
-        $this->FOGCore->setMessage('Settings Successfully stored!');
-        $this->FOGCore->redirect(sprintf('?node=%s&sub=%s',$_REQUEST[node],$_REQUEST[sub]));
+        $this->setMessage('Settings Successfully stored!');
+        $this->redirect(sprintf('?node=%s&sub=%s',$_REQUEST[node],$_REQUEST[sub]));
     }
     /** log()
      * Views the log files for the FOG Services on the server (FOGImageReplicator, FOGTaskScheduler, FOGMulticastManager).
@@ -827,8 +827,8 @@ class FOGConfigurationPage extends FOGPage {
                 }
             }
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage($e->getMessage());
+            $this->redirect($this->formAction);
         }
     }
 }

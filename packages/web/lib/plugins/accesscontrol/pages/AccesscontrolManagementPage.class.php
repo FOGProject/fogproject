@@ -32,7 +32,7 @@ class AccesscontrolManagementPage extends FOGPage {
 	public function index() {
 		// Set title
 		$this->title = _('All Access Controls');
-		if ($this->FOGCore->getSetting(FOG_DATA_RETURNED) > 0 && $this->getClass(AccesscontrolManager)->count() > $this->FOGCore->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list') $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
+		if ($this->FOGCore->getSetting(FOG_DATA_RETURNED) > 0 && $this->getClass(AccesscontrolManager)->count() > $this->FOGCore->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
 		// Find data
 		$AccessControls = $this->getClass(AccesscontrolManager)->find();
 		// Row data

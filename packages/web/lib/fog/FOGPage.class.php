@@ -173,7 +173,7 @@ abstract class FOGPage extends FOGBase {
                     }
                     unset($rowData);
                     if ((!$_REQUEST[sub] && $defaultScreen == 'list') || (in_array($_REQUEST[sub],$defaultScreens) && in_array($_REQUEST[node],$this->searchPages)))
-                        if ($this->node != 'home') $this->FOGCore->setMessage(count($this->data).' '.$this->childClass.(count($this->data) > 1 ? 's' : '')._(' found'));
+                        if ($this->node != 'home') $this->setMessage(count($this->data).' '.$this->childClass.(count($this->data) > 1 ? 's' : '')._(' found'));
                 }
                 $result[] = '</tbody></table>';
                 if (((!$_REQUEST[sub] || ($_REQUEST[sub] && in_array($_REQUEST[sub],$defaultScreens))) && in_array($_REQUEST[node],$this->searchPages)) && !$this->isMobile) {
@@ -269,8 +269,8 @@ abstract class FOGPage extends FOGBase {
         try {
             if (($this->obj instanceof Group && !(count($this->obj->get(hosts)))) || ($this->obj instanceof Host && ($this->obj->get(pending) || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect('?node='.$this->node.'&sub=edit'.($_REQUEST[id] ? '&'.$this->id.'='.$_REQUEST[id] : ''));
+            $this->setMessage($e->getMessage());
+            $this->redirect('?node='.$this->node.'&sub=edit'.($_REQUEST[id] ? '&'.$this->id.'='.$_REQUEST[id] : ''));
         }
         $TaskType = $this->getClass(TaskType,($_REQUEST[type]?$_REQUEST[type]:1));
         // Title
@@ -366,8 +366,8 @@ abstract class FOGPage extends FOGBase {
         try {
             if (($this->obj instanceof Group && !(count($this->obj->get(hosts)))) || ($this->obj instanceof Host && ($this->obj->get(pending) || !$this->obj->isValid())) || (!($this->obj instanceof Host || $this->obj instanceof Group))) throw new Exception(_('Cannot set taskings to pending or invalid items'));
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect('?node='.$this->node.'&sub=edit'.($_REQUEST[id] ? '&'.$this->id.'='.$_REQUEST[id] : ''));
+            $this->setMessage($e->getMessage());
+            $this->redirect('?node='.$this->node.'&sub=edit'.($_REQUEST[id] ? '&'.$this->id.'='.$_REQUEST[id] : ''));
         }
         $TaskType = $this->getClass(TaskType,$_REQUEST[type]);
         $Snapin = $this->getClass(Snapin,$_REQUEST[snapin]);
@@ -499,8 +499,8 @@ abstract class FOGPage extends FOGBase {
             echo '</form>';
             echo '</div>';
         } else {
-            $this->FOGCore->setMessage('No items to delete<br/>None selected or item is protected');
-            $this->FOGCore->redirect('?node='.$this->node);
+            $this->setMessage('No items to delete<br/>None selected or item is protected');
+            $this->redirect('?node='.$this->node);
         }
     }
     /** deletemulti_conf() deletes the items after being confirmed.
@@ -508,8 +508,8 @@ abstract class FOGPage extends FOGBase {
      */
     public function deletemulti_conf() {
         $this->getClass($this->childClass)->getManager()->destroy(array(id=>$_REQUEST[remitems]));
-        $this->FOGCore->setMessage('All selected items have been deleted');
-        $this->FOGCore->redirect('?node='.$this->node);
+        $this->setMessage('All selected items have been deleted');
+        $this->redirect('?node='.$this->node);
     }
     /** basictasksOptions() builds the tasks list
      * @return void
@@ -834,7 +834,7 @@ abstract class FOGPage extends FOGBase {
                     unset($Host);
                 }
                 // Remove hosts first
-                if (isset($_REQUEST['massDelHosts'])) $this->FOGCore->redirect('?node=group&sub=delete_hosts&id='.$this->obj->get(id));
+                if (isset($_REQUEST['massDelHosts'])) $this->redirect('?node=group&sub=delete_hosts&id='.$this->obj->get(id));
             }
             else if ($this->obj instanceof Image || $this->obj instanceof Snapin) {
                 if ($this->obj->get('protected')) throw new Exception($this->childClass.' '._('is protected, removal not allowed'));
@@ -845,25 +845,25 @@ abstract class FOGPage extends FOGBase {
             // Hook
             $this->HookManager->processEvent(strtoupper($this->childClass).'_DELETE_SUCCESS', array($this->childClass => &$this->obj));
             // Set session message
-            $this->FOGCore->setMessage($this->childClass.' deleted: '.$this->obj->get(name));
+            $this->setMessage($this->childClass.' deleted: '.$this->obj->get(name));
             // Reset request
             $this->resetRequest();
             // Redirect
-            $this->FOGCore->redirect('?node='.$this->node);
+            $this->redirect('?node='.$this->node);
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(strtoupper($this->node).'_DELETE_FAIL', array($this->childClass => &$this->obj));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
     /** search() the search methods
      * @return void
      */
     public function search() {
-        if (in_array($this->node,array('task','tasks')) && $_REQUEST['sub'] != 'search') $this->FOGCore->redirect(sprintf('?node=%s&sub=active',$this->node));
+        if (in_array($this->node,array('task','tasks')) && $_REQUEST['sub'] != 'search') $this->redirect(sprintf('?node=%s&sub=active',$this->node));
         // Set Title
         $eventClass = $this->childClass;
         if ($this->childClass == 'Task') $eventClass = 'host';
@@ -941,8 +941,8 @@ abstract class FOGPage extends FOGBase {
         if (isset($_REQUEST[addHosts])) $this->obj->addHost($_REQUEST[host]);
         if (isset($_REQUEST[remhosts])) $this->obj->removeHost($_REQUEST[hostdel]);
         if ($this->obj->save()) {
-            $this->FOGCore->setMessage($this->obj->get(name).' '._('saved successfully'));
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage($this->obj->get(name).' '._('saved successfully'));
+            $this->redirect($this->formAction);
         }
     }
     /** wakeEmUp()

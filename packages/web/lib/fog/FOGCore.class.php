@@ -1,50 +1,12 @@
 <?php
 class FOGCore extends FOGBase {
-    /** attemptLogin($username,$password)
-        Checks the login and returns the user or nothing if not valid/not exist.
-     */
     public function attemptLogin($username,$password) {
         $User = $this->getClass('User',@max($this->getClass('UserManager')->find(array('name'=>$username),'','','','','','','id')));
-        if ($User->isValid() && $User->validate_pw($password)) return $User;
+        if ($User->validate_pw($password)) return $User;
         return false;
     }
-    /** stopScheduledTask($task)
-        Stops the scheduled task.
-     */
     public function stopScheduledTask($task) {
-        return $this->getClass(ScheduledTask,$task->get(id))->set(isActive,(int)false)->save();
-    }
-    /** redirect($url = '')
-        Redirect the page.
-     */
-    public function redirect($url = '') {
-        if ($url == '') $url = $_SERVER['PHP_SELF'].($_SERVER['QUERY_STRING']?'?'.$_SERVER['QUERY_STRING']:'');
-        if (headers_sent()) printf('<meta http-equiv="refresh" content="0; url=%s">', $url);
-        else header("Location: $url");
-        exit;
-    }
-    /** setMessage(,$txt, $data = array())
-        Sets the message at the top of the screen (e.g. 14 Active Tasks Found)
-     */
-    public function setMessage($txt, $data = array()) {
-        $text = (count($data) ? vsprintf($txt, (array)$data) : $txt);
-        if ($this->DB) $this->logHistory(strip_tags($text));
-        $_SESSION['FOG_MESSAGES'] = (!is_array($txt) ? array($text) : $text);
-        return $this;
-    }
-    /** getMessage()
-        Get's the current message in the store to display to the screen
-     */
-    public function getMessages() {
-        echo "<!-- FOG Variables -->";
-        foreach ((array)$_SESSION['FOG_MESSAGES'] AS $i => &$message) {
-            // Hook
-            $this->HookManager->processEvent('MessageBox',array('data'=>&$message));
-            // Message Box
-            echo '<div class="fog-message-box">'.$message.'</div>';
-        }
-        unset($message);
-        unset($_SESSION['FOG_MESSAGES']);
+        return $this->getClass('ScheduledTask',$task->get('id'))->set('isActive',(int)false)->save();
     }
     /** getSetting($key)
         Get's global Setting Values

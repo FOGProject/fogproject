@@ -57,7 +57,7 @@ class HostMobile extends FOGPage {
             );
         }
         $this->render();
-        $this->FOGCore->redirect('?node=tasks');
+        $this->redirect('?node=tasks');
     }
     public function search_post() {
         $Hosts = $this->getClass(HostManager)->search();
