@@ -66,8 +66,8 @@ class PluginManagementPage extends FOGPage {
             // Activate plugin if it's not already!
             if (!empty($_REQUEST[activate])&&$_REQUEST[sub] == 'activate') {
                 $Plugin->activatePlugin($_REQUEST[activate]);
-                $this->FOGCore->setMessage('Successfully added Plugin!');
-                $this->FOGCore->redirect('?node=plugin&sub=activate');
+                $this->setMessage('Successfully added Plugin!');
+                $this->redirect('?node=plugin&sub=activate');
             }
         }
     public function install() {
@@ -248,13 +248,13 @@ class PluginManagementPage extends FOGPage {
                 echo '<form method="post" action="'.$this->formAction.'">';
                 $this->render();
                 echo '</form>';
-            } else if ($plugin->isInstalled() && !$plugin->getname() == 'capone') $this->FOGCore->setMessage(_('Already installed!'));
+            } else if ($plugin->isInstalled() && !$plugin->getname() == 'capone') $this->setMessage(_('Already installed!'));
             else if (!$plugin->isInstalled()) {
                 echo '<p class="titleBottomLeft">'._('Plugin Installation').'</p><p>'._('This plugin is currently not installed, would you like to install it now?').'</p><div><form method="post" action="'.$this->formAction.'"><input type="submit" value="Install Plugin" name="install" /></form></div>';
             }
         } catch (Exception $e) {
-            echo $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect('?node='.$_REQUEST[node].'&sub='.$_REQUEST[sub].'&run='.$_REQUEST[run]);
+            echo $this->setMessage($e->getMessage());
+            $this->redirect('?node='.$_REQUEST[node].'&sub='.$_REQUEST[sub].'&run='.$_REQUEST[run]);
         }
     }
     public function install_post() {
@@ -270,12 +270,12 @@ class PluginManagementPage extends FOGPage {
                     $Plugin
                         ->set(installed,1)
                         ->set(version,1);
-                    if (!$Plugin->save()) $this->FOGCore->setMessage(_('Plugin Install Failed!'));
-                    else $this->FOGCore->setMessage(_('Plugin Installed!'));
+                    if (!$Plugin->save()) $this->setMessage(_('Plugin Install Failed!'));
+                    else $this->setMessage(_('Plugin Installed!'));
                 }
             }
             if ($_REQUEST[sub] == 'install') $_REQUEST[sub] = 'installed';
-            $this->FOGCore->redirect('?node='.$_REQUEST[node].'&sub='.$_REQUEST[sub].'&run='.$_REQUEST[run]);
+            $this->redirect('?node='.$_REQUEST[node].'&sub='.$_REQUEST[sub].'&run='.$_REQUEST[run]);
         }
         if ($_REQUEST[basics]) {
             $this->FOGCore->setSetting(FOG_PLUGIN_CAPONE_DMI,$_REQUEST[dmifield]);
@@ -289,15 +289,15 @@ class PluginManagementPage extends FOGPage {
                 ->save();
         }
         if ($_REQUEST[kill]) $this->getClass(Capone,$_REQUEST[kill])->destroy();
-        $this->FOGCore->setMessage('Plugin updated!');
-        $this->FOGCore->redirect($this->formAction);
+        $this->setMessage('Plugin updated!');
+        $this->redirect($this->formAction);
     }
     public function removeplugin() {
         if ($_REQUEST[rmid]) $Plugin = $this->getClass(Plugin,$_REQUEST[rmid]);
         $Plugin->getManager()->uninstall();
         if ($Plugin->destroy()) {
-            $this->FOGCore->setMessage('Plugin Removed');
-            $this->FOGCore->redirect('?node='.$_REQUEST[node].'&sub=activate');
+            $this->setMessage('Plugin Removed');
+            $this->redirect('?node='.$_REQUEST[node].'&sub=activate');
         }
     }
 }

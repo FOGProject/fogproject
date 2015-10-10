@@ -62,7 +62,7 @@ class GroupManagementPage extends FOGPage {
         // Set title
         $this->title = _('All Groups');
         // Find data
-        if ($_SESSION[DataReturn] > 0 && $_SESSION[GroupCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
+        if ($_SESSION[DataReturn] > 0 && $_SESSION[GroupCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Row data
         $Groups = $this->getClass(GroupManager)->find();
         foreach ($Groups AS $i => &$Group) {
@@ -166,16 +166,16 @@ class GroupManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent('GROUP_ADD_SUCCESS', array('Group' => &$Group));
             // Set session message
-            $this->FOGCore->setMessage(_('Group added'));
+            $this->setMessage(_('Group added'));
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s', $_REQUEST[node], $this->id, $Group->get(id)));
+            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s', $_REQUEST[node], $this->id, $Group->get(id)));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent('GROUP_ADD_FAIL', array('Group' => &$Group));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect to new entry
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
     /** edit()
@@ -586,17 +586,17 @@ class GroupManagementPage extends FOGPage {
                 // Hook
                 $this->HookManager->processEvent('GROUP_EDIT_SUCCESS', array('Group' => &$this->obj));
                 // Set session message
-                $this->FOGCore->setMessage('Group information updated!');
+                $this->setMessage('Group information updated!');
                 // Redirect to new entry
-                $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $_REQUEST[node],$this->id,$this->obj->get(id),$_REQUEST[tab]));
+                $this->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $_REQUEST[node],$this->id,$this->obj->get(id),$_REQUEST[tab]));
             } else throw new Exception('Database update failed');
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent('GROUP_EDIT_FAIL', array('Group' => &$this->obj));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $_REQUEST[node],$this->id,$this->obj->get(id),$_REQUEST[tab]));
+            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $_REQUEST[node],$this->id,$this->obj->get(id),$_REQUEST[tab]));
         }
     }
     public function delete_hosts() {

@@ -1,5 +1,5 @@
 <?php
-class TasktypeEditManager extends TaskTypeManager {
+class TasktypeeditManager extends TaskTypeManager {
     public function install($name) {
         return true;
     }

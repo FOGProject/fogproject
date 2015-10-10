@@ -40,7 +40,7 @@ class UserManagementPage extends FOGPage {
     public function index() {
         // Set title
         $this->title = _('All Users');
-        if ($_SESSION[DataReturn] > 0 && $_SESSION[UserCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->FOGCore->redirect(sprintf('%s?node=%s&sub=search', $_SERVER[PHP_SELF], $this->node));
+        if ($_SESSION[DataReturn] > 0 && $_SESSION[UserCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list') $this->redirect(sprintf('%s?node=%s&sub=search', $_SERVER[PHP_SELF], $this->node));
         // Find data
         $Users = $this->getClass(UserManager)->find();
         // Row data
@@ -133,16 +133,16 @@ class UserManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(USER_ADD_SUCCESS,array(User=>&$User));
             // Set session message
-            $this->FOGCore->setMessage(_('User created').'<br>'._('You may now create another'));
+            $this->setMessage(_('User created').'<br>'._('You may now create another'));
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=add',$_REQUEST[node],$this->id,$User->get(id)));
+            $this->redirect(sprintf('?node=%s&sub=add',$_REQUEST[node],$this->id,$User->get(id)));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(USER_ADD_FAIL,array(User=>&$User));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect to new entry
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
     public function edit() {
@@ -197,16 +197,16 @@ class UserManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(USER_UPDATE_SUCCESS,array(User=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage(_('User updated'));
+            $this->setMessage(_('User updated'));
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s', $this->request[node],$this->id,$this->obj->get(id)));
+            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s', $this->request[node],$this->id,$this->obj->get(id)));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(USER_UPDATE_FAIL,array(User=>&$User));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect to new entry
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
 }

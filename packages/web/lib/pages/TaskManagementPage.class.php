@@ -155,8 +155,8 @@ class TaskManagementPage extends FOGPage {
         try {
             if ($TaskType->isUpload() && $Host->getImage()->isValid() && $Host->getImage()->get('protected')) throw new Exception(sprintf('%s: %s %s: %s %s',_('Hostname'),$Host->get(name),_('Image'),$Host->getImage()->get(name),_('is protected')));
             $Host->createImagePackage($taskTypeID, $taskName, false, false, $enableSnapins, false, $this->FOGUser->get(name));
-            $this->FOGCore->setMessage(_('Successfully created tasking!'));
-            $this->FOGCore->redirect('?node=task&sub=active');
+            $this->setMessage(_('Successfully created tasking!'));
+            $this->redirect('?node=task&sub=active');
         } catch (Exception $e) {
             printf('<div class="task-start-failed"><p>%s</p><p>%s</p></div>',_('Failed to create deploy task'), $e->getMessage());
         }
@@ -285,11 +285,11 @@ class TaskManagementPage extends FOGPage {
             }
             unset($Host);
             $Group->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, true, $this->FOGUser->get(name));
-            $this->FOGCore->setMessage('Successfully created Group tasking!');
-            $this->FOGCore->redirect('?node=task&sub=active');
+            $this->setMessage('Successfully created Group tasking!');
+            $this->redirect('?node=task&sub=active');
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect('?node=task&sub=listgroups');
+            $this->setMessage($e->getMessage());
+            $this->redirect('?node=task&sub=listgroups');
         }
     }
     // Active Tasks
@@ -360,7 +360,7 @@ class TaskManagementPage extends FOGPage {
         if ($this->ajax) echo json_encode($result);
         else {
             if ($result[error]) $this->fatalError($result[error]);
-            else $this->FOGCore->redirect(sprintf('?node=%s',$this->node));
+            else $this->redirect(sprintf('?node=%s',$this->node));
         }
     }
     // Active Tasks - Cancel Task
@@ -382,7 +382,7 @@ class TaskManagementPage extends FOGPage {
         if ($this->isAJAXRequest()) echo json_encode($result);
         else {
             if ($result[error]) $this->fatalError($result[error]);
-            else $this->FOGCore->redirect(sprintf('?node=%s', $this->node));
+            else $this->redirect(sprintf('?node=%s', $this->node));
         }
     }
     public function remove_multicast_post() {
@@ -394,8 +394,8 @@ class TaskManagementPage extends FOGPage {
         unset($Task);
         $this->getClass(MulticastSessionsAssociationManager)->destroy(array(id=>$MulticastAssocIDs));
         $this->getClass(MulticastSessionsManager)->destroy(array(id=>$MulticastSessionIDs));
-        $this->FOGCore->setMessage(_('Successfully cancelled selected tasks'));
-        $this->FOGCore->redirect('?node='.$this->node.'&sub=active');
+        $this->setMessage(_('Successfully cancelled selected tasks'));
+        $this->redirect('?node='.$this->node.'&sub=active');
     }
     public function active_multicast() {
         // Set title
@@ -499,13 +499,13 @@ class TaskManagementPage extends FOGPage {
         $this->getClass(SnapinTaskManager)->destroy(array(id=>$SnapinTaskIDs));
         // Only remove the job if all of the tasks that were a part of that job tasking are no longer present.
         if (!$this->getClass(SnapinTaskManager)->count(array(jobID=>$SnapinJobIDs))) $this->getClass(SnapinJobManager)->destroy(array(id=>$SnapinJobIDs));
-        $this->FOGCore->setMessage(_('Successfully cancelled selected tasks'));
-        $this->FOGCore->redirect('?node='.$this->node.'&sub=active');
+        $this->setMessage(_('Successfully cancelled selected tasks'));
+        $this->redirect('?node='.$this->node.'&sub=active');
     }
     public function cancelscheduled() {
         $this->getClass(ScheduledTaskManager)->destroy(array(id=>$_REQUEST[task]));
-        $this->FOGCore->setMessage(_('Successfully cancelled selected tasks'));
-        $this->FOGCore->redirect('?node='.$this->node.'&sub=active');
+        $this->setMessage(_('Successfully cancelled selected tasks'));
+        $this->redirect('?node='.$this->node.'&sub=active');
     }
     public function scheduled() {
         // Set title

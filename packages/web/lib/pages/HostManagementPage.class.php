@@ -92,7 +92,7 @@ class HostManagementPage extends FOGPage {
         // Set title
         $this->title = $this->foglang['AllHosts'];
         // Find data -> Push data
-        if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
+        if ($_SESSION['DataReturn'] > 0 && $_SESSION['HostCount'] > $_SESSION['DataReturn'] && $_REQUEST['sub'] != 'list') $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         $Hosts = $this->getClass('HostManager')->find(array('pending'=>array('',0,null)));
         foreach ($Hosts AS $i => &$Host) {
             $this->data[] = array(
@@ -204,12 +204,12 @@ class HostManagementPage extends FOGPage {
         }
         $appdel = (isset($_REQUEST['approvependhost']) ? 'approved' : 'deleted');
         if ($count == $countOfHosts) {
-            $this->FOGCore->setMessage(_("All hosts $appdel successfully"));
-            $this->FOGCore->redirect('?node='.$_REQUEST['node']);
+            $this->setMessage(_("All hosts $appdel successfully"));
+            $this->redirect('?node='.$_REQUEST['node']);
         }
         if ($count != $countOfHosts) {
-            $this->FOGCore->setMessage($countApproved.' '._('of').' '.$countOfHosts.' '._("$appdel successfully"));
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage($countApproved.' '._('of').' '.$countOfHosts.' '._("$appdel successfully"));
+            $this->redirect($this->formAction);
         }
     }
     /** add()
@@ -309,16 +309,16 @@ class HostManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent('HOST_ADD_SUCCESS',array('Host'=>&$Host));
             // Set session message
-            $this->FOGCore->setMessage(_('Host added'));
+            $this->setMessage(_('Host added'));
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s', $_REQUEST['node'], $this->id, $Host->get('id')));
+            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s', $_REQUEST['node'], $this->id, $Host->get('id')));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent('HOST_ADD_FAIL',array('Host'=>&$Host));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect to new entry
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
     /** edit()
@@ -332,9 +332,9 @@ class HostManagementPage extends FOGPage {
         $this->title = sprintf('%s: %s', 'Edit', $this->obj->get('name'));
         if ($_REQUEST['approveHost']) {
             $this->obj->set('pending',null);
-            if ($this->obj->save()) $this->FOGCore->setMessage(_('Host approved'));
-            else $this->FOGCore->setMessage(_('Host approval failed.'));
-            $this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
+            if ($this->obj->save()) $this->setMessage(_('Host approved'));
+            else $this->setMessage(_('Host approval failed.'));
+            $this->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
         }
         if ($this->obj->get('pending')) echo '<h2><a href="'.$this->formAction.'&approveHost=1">'._('Approve this host?').'</a></h2>';
         unset($this->headerData);
@@ -349,16 +349,16 @@ class HostManagementPage extends FOGPage {
         if ($_REQUEST['confirmMAC']) {
             try {
                 $this->obj->addPendtoAdd($_REQUEST['confirmMAC']);
-                if ($this->obj->save()) $this->FOGCore->setMessage('MAC: '.$_REQUEST['confirmMAC'].' Approved!');
+                if ($this->obj->save()) $this->setMessage('MAC: '.$_REQUEST['confirmMAC'].' Approved!');
             } catch (Exception $e) {
-                $this->FOGCore->setMessage($e->getMessage());
+                $this->setMessage($e->getMessage());
             }
-            $this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
+            $this->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
         }
         else if ($_REQUEST['approveAll']) {
             $this->getClass('MACAddressAssociationManager')->update(array('hostID'=>$this->obj->get('id')),'',array('pending'=>0));
-            $this->FOGCore->setMessage('All Pending MACs approved.');
-            $this->FOGCore->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
+            $this->setMessage('All Pending MACs approved.');
+            $this->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
         }
         foreach($this->obj->get('additionalMACs') AS $i => &$MAC) {
             if ($MAC instanceof MACAddress && $MAC->isValid())
@@ -1024,12 +1024,12 @@ class HostManagementPage extends FOGPage {
                 }
                 break;
                 case 'host-login-history';
-                $this->FOGCore->redirect("?node=host&sub=edit&id=".$this->obj->get(id)."&dte=".$_REQUEST[dte]."#".$_REQUEST[tab]);
+                $this->redirect("?node=host&sub=edit&id=".$this->obj->get(id)."&dte=".$_REQUEST[dte]."#".$_REQUEST[tab]);
                 break;
                 case 'host-virus-history';
                 if (isset($_REQUEST[delvid]) && $_REQUEST[delvid] == 'all') {
                     $this->obj->clearAVRecordsForHost();
-                    $this->FOGCore->redirect('?node=host&sub=edit&id='.$this->obj->get(id).'#'.$_REQUEST[tab]);
+                    $this->redirect('?node=host&sub=edit&id='.$this->obj->get(id).'#'.$_REQUEST[tab]);
                 }
                 else if (isset($_REQUEST[delvid])) $this->getClass(VirusManager)->destroy(array('id' => $_REQUEST[delvid]));
                 break;
@@ -1041,16 +1041,16 @@ class HostManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(HOST_EDIT_SUCCESS,array(Host=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage('Host updated!');
+            $this->setMessage('Host updated!');
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $this->REQUEST['node'], $this->id, $this->obj->get(id), $_REQUEST[tab]));
+            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $this->REQUEST['node'], $this->id, $this->obj->get(id), $_REQUEST[tab]));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(HOST_EDIT_FAIL,array(Host=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect
-            $this->FOGCore->redirect('?node=host&sub=edit&id='.$this->obj->get(id).'#'.$_REQUEST[tab]);
+            $this->redirect('?node=host&sub=edit&id='.$this->obj->get(id).'#'.$_REQUEST[tab]);
         }
     }
     /** save_group()

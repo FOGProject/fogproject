@@ -212,16 +212,16 @@ class StorageManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(STORAGE_NODE_ADD_SUCCESS,array(StorageNode=>&$StorageNode));
             // Set session message
-            $this->FOGCore->setMessage($this->foglang[SNCreated]);
+            $this->setMessage($this->foglang[SNCreated]);
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s',$_REQUEST[node],$this->id, $StorageNode->get(id)));
+            $this->redirect(sprintf('?node=%s',$_REQUEST[node],$this->id, $StorageNode->get(id)));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(STORAGE_NODE_ADD_FAIL,array(StorageNode=>&$StorageNode));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect to new entry
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
     public function edit_storage_node() {
@@ -341,16 +341,16 @@ class StorageManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(STORAGE_NODE_EDIT_SUCCESS,array(StorageNode=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage($this->foglang[SNUpdated]);
+            $this->setMessage($this->foglang[SNUpdated]);
             // Redirect back to self;
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(STORAGE_NODE_EDIT_FAIL,array(StorageNode=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect to new entry
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
     public function delete_storage_node() {
@@ -396,16 +396,16 @@ class StorageManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(STORAGE_NODE_DELETE_SUCCESS,array(StorageNode=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage(sprintf('%s: %s',$this->foglang[SNDelSuccess],$this->obj->get(name)));
+            $this->setMessage(sprintf('%s: %s',$this->foglang[SNDelSuccess],$this->obj->get(name)));
             // Redirect
-            $this->FOGCore->redirect(sprintf('?node=%s',$_REQUEST[node]));
+            $this->redirect(sprintf('?node=%s',$_REQUEST[node]));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(STORAGE_NODE_DELETE_FAIL,array(StorageNode=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
     // STORAGE GROUP
@@ -497,16 +497,16 @@ class StorageManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_ADD_POST_SUCCESS,array(StorageGroup=>&$StorageGroup));
             // Set session message
-            $this->FOGCore->setMessage($this->foglang[SGCreated]);
+            $this->setMessage($this->foglang[SGCreated]);
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit-storage-group&%s=%s',$_REQUEST[node],$this->id,$StorageGroup->get(id)));
+            $this->redirect(sprintf('?node=%s&sub=edit-storage-group&%s=%s',$_REQUEST[node],$this->id,$StorageGroup->get(id)));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_ADD_POST_FAIL, array(StorageGroup=>&$StorageGroup));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect to new entry
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
     public function edit_storage_group() {
@@ -561,16 +561,16 @@ class StorageManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_EDIT_POST_SUCCESS,array(StorageGroup=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage($this->foglang[SGUpdated]);
+            $this->setMessage($this->foglang[SGUpdated]);
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=storage-group', $_REQUEST[node],$this->id,$this->obj->get(id)));
+            $this->redirect(sprintf('?node=%s&sub=storage-group', $_REQUEST[node],$this->id,$this->obj->get(id)));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_EDIT_FAIL,array(StorageGroup=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect to new entry
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
     public function delete_storage_group() {
@@ -617,16 +617,16 @@ class StorageManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_DELETE_POST_SUCCESS, array(StorageGroup=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage(sprintf('%s: %s',$this->foglang[SGDelSuccess],$this->obj->get(name)));
+            $this->setMessage(sprintf('%s: %s',$this->foglang[SGDelSuccess],$this->obj->get(name)));
             // Redirect
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=storage-group', $_REQUEST[node]));
+            $this->redirect(sprintf('?node=%s&sub=storage-group', $_REQUEST[node]));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(STORAGE_GROUP_DELETE_POST_FAIL,array(StorageGroup=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
 }

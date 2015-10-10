@@ -47,7 +47,7 @@ class LocationManagementPage extends FOGPage {
         // Set title
         $this->title = _('Search');
         if ($this->FOGCore->getSetting(FOG_DATA_RETURNED)>0 && $this->getClass(LocationManager)->count() > $this->FOGCore->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list')
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
+            $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Find data
         $Locations = $this->getClass(LocationManager)->find();
         // Row data
@@ -145,12 +145,12 @@ class LocationManagementPage extends FOGPage {
                 ->set(tftp,$_REQUEST[tftp]);
             if ($_REQUEST[storagenode] && $Location->get(storageGroupID) != $this->getClass(StorageNode,$_REQUEST[storagenode])->get(storageGroupID)) $Location->set(storageGroupID,$this->getClass(StorageNode,$_REQUEST[storagenode])->get(storageGroupID));
             if ($Location->save()) {
-                $this->FOGCore->setMessage('Location Added, editing!');
-                $this->FOGCore->redirect('?node=location&sub=edit&id='.$Location->get(id));
+                $this->setMessage('Location Added, editing!');
+                $this->redirect('?node=location&sub=edit&id='.$Location->get(id));
             }
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage($e->getMessage());
+            $this->redirect($this->formAction);
         }
     }
     public function edit() {
@@ -209,13 +209,13 @@ class LocationManagementPage extends FOGPage {
                 $this->obj->set(storageNodeID,$_REQUEST[storagenode])
                     ->set(tftp,$_REQUEST[tftp]);
                 if ($this->obj->save()) {
-                    $this->FOGCore->setMessage('Location Updated');
-                    $this->FOGCore->redirect('?node=location&sub=edit&id='.$this->obj->get(id));
+                    $this->setMessage('Location Updated');
+                    $this->redirect('?node=location&sub=edit&id='.$this->obj->get(id));
                 }
             }
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage($e->getMessage());
+            $this->redirect($this->formAction);
         }
     }
 }
