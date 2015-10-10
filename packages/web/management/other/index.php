@@ -32,7 +32,7 @@ unset($stylesheet); ?>
 <?php if (!$this->isMobile) { ?><div class="fog-variable" id="FOGPingActive"><?php echo intval($_SESSION['FOGPingActive']) ?></div><?php
 } ?>
 <!-- Session Messages -->
-<?php !$this->isMobile ? $this->FOGCore->getMessages() : '' ?>
+<?php !$this->isMobile ? $this->getMessages() : '' ?>
 <?php if ($this->isMobile) { // Mobile Login
      ?><div id="header"></div>
 	<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn()) { ?><div id="mainContainer">

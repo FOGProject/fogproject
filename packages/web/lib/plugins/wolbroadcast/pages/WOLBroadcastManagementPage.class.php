@@ -40,7 +40,7 @@ class WOLBroadcastManagementPage extends FOGPage {
         // Set title
         $this->title = _('All Broadcasts');
         if ($this->FOGCore->getSetting('FOG_DATA_RETURNED') > 0 && $this->getClass('WolbroadcastManager')->count() > $this->FOGCore->getSetting('FOG_DATA_RETURNED') && $_REQUEST['sub'] != 'list')
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
+            $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Find data
         $Broadcasts = $this->getClass('WolbroadcastManager')->find();
         // Row data
@@ -141,12 +141,12 @@ class WOLBroadcastManagementPage extends FOGPage {
                 'broadcast' => $ip,
             ));
             if ($WOLBroadcast->save()) {
-                $this->FOGCore->setMessage('Broadcast Added, editing!');
-                $this->FOGCore->redirect('?node=wolbroadcast&sub=edit&id='.$WOLBroadcast->get('id'));
+                $this->setMessage('Broadcast Added, editing!');
+                $this->redirect('?node=wolbroadcast&sub=edit&id='.$WOLBroadcast->get('id'));
             }
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage($e->getMessage());
+            $this->redirect($this->formAction);
         }
     }
     public function edit() {
@@ -205,13 +205,13 @@ class WOLBroadcastManagementPage extends FOGPage {
                 if ($name != $WOLBroadcast->get('name'))
                     $WOLBroadcast->set('name',$name);
                 if ($WOLBroadcast->save()) {
-                    $this->FOGCore->setMessage('Broadcast Updated');
-                    $this->FOGCore->redirect('?node=wolbroadcast&sub=edit&id='.$WOLBroadcast->get('id'));
+                    $this->setMessage('Broadcast Updated');
+                    $this->redirect('?node=wolbroadcast&sub=edit&id='.$WOLBroadcast->get('id'));
                 }
             }
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage($e->getMessage());
+            $this->redirect($this->formAction);
         }
     }
 }

@@ -75,11 +75,11 @@ class TaskMobile extends FOGPage {
     }
     public function force() {
         $this->obj->set(isForced,true)->save();
-        $this->FOGCore->redirect('?node='.$this->node);
+        $this->redirect('?node='.$this->node);
     }
     public function killtask() {
         $this->obj->cancel();
-        $this->FOGCore->redirect('?node='.$this->node);
+        $this->redirect('?node='.$this->node);
     }
     public function active() {
         $Tasks = $this->getClass(TaskManager)->find(array(stateID=>array(1,2,3)));

@@ -12,9 +12,9 @@ class DashboardPage extends FOGPage {
     public function index() {
         $hostPend = '<i class="fa fa-circle fa-1x notifier"></i>&nbsp;'._('There are pending hosts awaiting approval').'<br/>'._('Click').' '.'<a href="?node=host&sub=pending">'._('here').'</a> '._('to go to the approval page');
         $macPend = '<i class="fa fa-circle fa-1x notifier"></i>&nbsp;'._('There are pending macs awaiting approval').'<br/>'._('Click').' '.'<a href="?node=report&sub=pend-mac">'._('here').'</a> '._('to go to the approval page');
-        if ($_SESSION['Pending-Hosts'] && $_SESSION['Pending-MACs']) $this->FOGCore->setMessage($hostPend.'<br/>'.$macPend);
-        else if ($_SESSION['Pending-Hosts']) $this->FOGCore->setMessage($hostPend);
-        else if ($_SESSION['Pending-MACs']) $this->FOGCore->setMessage($macPend);
+        if ($_SESSION['Pending-Hosts'] && $_SESSION['Pending-MACs']) $this->setMessage($hostPend.'<br/>'.$macPend);
+        else if ($_SESSION['Pending-Hosts']) $this->setMessage($hostPend);
+        else if ($_SESSION['Pending-MACs']) $this->setMessage($macPend);
         $SystemUptime = $this->FOGCore->SystemUptime();
         $fields = array(
             _('Username') => $_SESSION['FOG_USERNAME'],

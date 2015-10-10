@@ -418,8 +418,8 @@ class ReportManagementPage extends FOGPage {
         // Approves All Pending MACs for all hosts.
         if ($_REQUEST[aprvall] == 1) {
             $this->getClass('MACAddressAssociationManager')->update('','',array('pending'=>0));;
-            $this->FOGCore->setMessage(_('All Pending MACs approved.'));
-            $this->FOGCore->redirect('?node=report&sub=pend-mac');
+            $this->setMessage(_('All Pending MACs approved.'));
+            $this->redirect('?node=report&sub=pend-mac');
         }
         // Setup Report Maker for this object.
         $ReportMaker = new ReportMaker();
@@ -558,13 +558,13 @@ class ReportManagementPage extends FOGPage {
             $Viruses = $this->getClass(VirusManager)->find();
             foreach($Viruses AS $i => &$Virus) $Virus->destroy();
             unset($Virus);
-            $this->FOGCore->setMessage(_("All Virus' cleared"));
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage(_("All Virus' cleared"));
+            $this->redirect($this->formAction);
         }
         if (is_numeric($_REQUEST[delvid])) {
             $this->getClass(Virus,$_REQUEST[delvid])->destroy();
-            $this->FOGCore->setMessage(_('Virus cleared'));
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage(_('Virus cleared'));
+            $this->redirect($this->formAction);
         }
     }
     /** user_track()
@@ -703,7 +703,7 @@ class ReportManagementPage extends FOGPage {
             }
             unset($Host);
         }
-        else if (!$hostsearch && !$usersearch) $this->FOGCore->redirect('?node='.$this->node.'sub=user-track');
+        else if (!$hostsearch && !$usersearch) $this->redirect('?node='.$this->node.'sub=user-track');
         $this->render();
     }
     /** user_track_disp()

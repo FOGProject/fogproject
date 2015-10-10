@@ -102,14 +102,14 @@ class ProcessLogin extends FOGBase {
         if (in_array($redirect[node],array(login,logout))) unset($redirect[node]);
         foreach ($redirect AS $key => &$value) $redirectData[] = $key.'='.$value;
         unset($value);
-        $this->FOGCore->redirect($_SERVER['PHP_SELF'].($redirectData ? '?' . implode('&',(array)$redirectData) : ''));
+        $this->redirect($_SERVER['PHP_SELF'].($redirectData ? '?' . implode('&',(array)$redirectData) : ''));
     }
     public function loginFail($string) {
         $this->setLang();
         // Hook
         $this->EventManager->notify(LoginFail,array(Failure=>$this->username));
         $this->HookManager->processEvent(LoginFail,array(username=>&$this->username,password=>&$this->password));
-        $this->FOGCore->setMessage($string);
+        $this->setMessage($string);
     }
     public function processMainLogin() {
         $this->setLang();
@@ -132,7 +132,7 @@ class ProcessLogin extends FOGBase {
     }
     public function mainLoginForm() {
         $this->setLang();
-        if ($_GET['node'] == 'logout') $this->FOGCore->redirect('index.php');
+        if (in_array($_GET['node'],array('login','logout'))) $this->redirect('index.php');
         echo '<form method="post" action="?node=login" id="login-form">';
         if ($_GET[node] != 'logout') {
             foreach ($_GET AS $key => &$value) echo '<input type ="hidden" name="'.$key.'" value="'.$value.'" />';

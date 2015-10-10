@@ -46,7 +46,7 @@ class SnapinManagementPage extends FOGPage {
         // Set title
         $this->title = _('All Snap-ins');
         if ($this->FOGCore->getSetting(FOG_DATA_RETURNED) > 0 && $this->getClass(SnapinManager)->count() > $this->FOGCore->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list')
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
+            $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Find data
         $Snapins = $this->getClass(SnapinManager)->find();
         // Row data
@@ -191,16 +191,16 @@ class SnapinManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(SNAPIN_ADD_SUCCESS,array(Snapin=>&$Snapin));
             // Set session message
-            $this->FOGCore->setMessage('Snapin added, Editing now!');
+            $this->setMessage('Snapin added, Editing now!');
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s', $this->request[node],$this->id,$Snapin->get(id)));
+            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s', $this->request[node],$this->id,$Snapin->get(id)));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(SNAPIN_ADD_FAIL,array(Snapin=>&$Snapin));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect to new entry
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
     public function edit() {
@@ -412,16 +412,16 @@ class SnapinManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(SNAPIN_UPDATE_SUCCESS,array(Snapin=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage(_('Snapin updated'));
+            $this->setMessage(_('Snapin updated'));
             // Redirect to new entry
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s',$this->node, $this->id, $this->obj->get(id),$_REQUEST[tab]));
+            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s',$this->node, $this->id, $this->obj->get(id),$_REQUEST[tab]));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(SNAPIN_UPDATE_FAIL,array(Snapin=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect to new entry
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
 }

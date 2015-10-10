@@ -41,7 +41,7 @@ class TasktypeeditManagementPage extends FOGPage {
         // Set title
         $this->title = _('All Task Types');
         if ($this->FOGCore->getSetting(FOG_DATA_RETURNED)>0 && $this->getClass(TaskTypeManager)->count() > $this->FOGCore->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list')
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
+            $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Find data
         $TaskTypes = $this->getClass(TaskTypeManager)->find('','','id');
         // Row data
@@ -148,12 +148,12 @@ class TasktypeeditManagementPage extends FOGPage {
                 ->set(isAdvanced,$advanced)
                 ->set(access,$access);
             if ($TaskType->save()) {
-                $this->FOGCore->setMessage(_('Task Type added, editing'));
-                $this->FOGCore->redirect(sprintf('?node=%s&sub=edit&id=%s',$this->node,$TaskType->get(id)));
+                $this->setMessage(_('Task Type added, editing'));
+                $this->redirect(sprintf('?node=%s&sub=edit&id=%s',$this->node,$TaskType->get(id)));
             }
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage($e->getMessage());
+            $this->redirect($this->formAction);
         }
     }
     public function edit() {
@@ -226,12 +226,12 @@ class TasktypeeditManagementPage extends FOGPage {
                 ->set(isAdvanced,$advanced)
                 ->set(access,$access);
             if ($this->obj->save()) {
-                $this->FOGCore->setMessage('TaskType Updated');
-                $this->FOGCore->redirect('?node='.$this->node.'&sub=edit&id='.$this->obj->get(id));
+                $this->setMessage('TaskType Updated');
+                $this->redirect('?node='.$this->node.'&sub=edit&id='.$this->obj->get(id));
             }
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage($e->getMessage());
+            $this->redirect($this->formAction);
         }
     }
 }

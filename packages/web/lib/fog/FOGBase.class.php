@@ -124,6 +124,33 @@ abstract class FOGBase {
             );
         }
     }
+    protected function setMessage($txt, $data = array()) {
+        $_SESSION['FOG_MESSAGES'] = (count($data) ? vsprintf($txt, (is_array($data) ? $data : array($data))) : $txt);
+    }
+    protected function getMessages() {
+        $messages = $_SESSION['FOG_MESSAGES'];
+        unset($_SESSION['FOG_MESSAGES']);
+        $this->HookManager->processEvent('MessageBox',array('data'=>&$messages));
+        foreach ((array)$messages AS $i => &$message) {
+            if (!$i) echo '<!-- FOG Messages -->';
+            echo '<div class="fog-message-box">'.$message.'</div>';
+        }
+        unset($message);
+    }
+    protected function redirect($url = '') {
+        if (empty($url)) $url = sprintf('%s?%s',$_SERVER['PHP_SELF'],$_SERVER['QUERY_STRING']);
+        if (!headers_sent()) {
+            header('Strict-Transport-Security: "max-age=15768000"');
+            header('X-Content-Type-Options: nosniff');
+            header('X-XSS-Protection: 1; mode=block');
+            header('X-Robots-Tag: none');
+            header('X-Frame-Options: SAMEORIGIN');
+            header('Cache-Control: no-cache');
+            header("Location: $url");
+            exit;
+        }
+        $this->getMessages();
+    }
     protected function array_insert_before($key, array &$array, $new_key, $new_value) {
         if ($this->binary_search($key, $array) > -1) {
             $new = array();

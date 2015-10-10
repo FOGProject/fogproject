@@ -111,12 +111,12 @@ class PushbulletManagementPage extends FOGPage {
             ));
             if ($Bullet->save()) {
                 $this->getClass('PushbulletHandler',$token)->pushNote('', 'FOG', 'Account linked');
-                $this->FOGCore->setMessage('Account Added!');
-                $this->FOGCore->redirect('?node=pushbullet&sub=list');
+                $this->setMessage('Account Added!');
+                $this->redirect('?node=pushbullet&sub=list');
             }
         } catch (Exception $e) {
-            $this->FOGCore->setMessage($e->getMessage());
-            $this->FOGCore->redirect($this->formAction);
+            $this->setMessage($e->getMessage());
+            $this->redirect($this->formAction);
         }
     }
 }

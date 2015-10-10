@@ -61,7 +61,7 @@ class PrinterManagementPage extends FOGPage {
         // Set title
         $this->title = _('All printers');
         if ($_SESSION[DataReturn] > 0 && $_SESSION[PrinterCount] > $_SESSION[DataReturn] && $_REQUEST[sub] != 'list')
-            $this->FOGCore->redirect(sprintf('?node=%s&sub=search',$this->node));
+            $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Find data
         $Printers = $this->getClass(PrinterManager)->find();
         // Row data
@@ -189,8 +189,8 @@ class PrinterManagementPage extends FOGPage {
             $this->HookManager->processEvent(PRINTER_ADD_POST);
             switch ($_REQUEST[tab]) {
                 case 'printer-type';
-                $this->FOGCore->setMessage('Printer type changed to: '.$_REQUEST[printertype]);
-                $this->FOGCore->redirect('?node=printer&sub=add');
+                $this->setMessage('Printer type changed to: '.$_REQUEST[printertype]);
+                $this->redirect('?node=printer&sub=add');
                 break;
                 case 'printer-gen';
                 //Remove spaces from beginning and end offields needed.
@@ -225,18 +225,18 @@ class PrinterManagementPage extends FOGPage {
                 // Hook
                 $this->HookManager->processEvent(PRINTER_ADD_SUCCESS,array(Printer=>&$Printer));
                 //Send message to user
-                $this->FOGCore->setMessage(_('Printer was created! Editing now!'));
+                $this->setMessage(_('Printer was created! Editing now!'));
                 //Redirect to edit
-                $this->FOGCore->redirect('?node=printer&sub=edit&id='.$Printer->get(id));
+                $this->redirect('?node=printer&sub=edit&id='.$Printer->get(id));
                 break;
             }
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(PRINTER_ADD_FAIL,array(Printer=>&$Printer));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
             // Redirect user.
-            $this->FOGCore->redirect($this->formAction);
+            $this->redirect($this->formAction);
         }
     }
     public function edit() {
@@ -330,8 +330,8 @@ class PrinterManagementPage extends FOGPage {
             switch ($_REQUEST[tab]) {
                 // Switch the printer type
                 case 'printer-type';
-                $this->FOGCore->setMessage('Printer type changed to: '.$_REQUEST[printertype]);
-                $this->FOGCore->redirect('?node=printer&sub=edit&id='.$this->obj->get(id));
+                $this->setMessage('Printer type changed to: '.$_REQUEST[printertype]);
+                $this->redirect('?node=printer&sub=edit&id='.$this->obj->get(id));
                 break;
                 case 'printer-gen';
                 //Remove beginning and trailing spaces
@@ -374,14 +374,14 @@ class PrinterManagementPage extends FOGPage {
             // Hook
             $this->HookManager->processEvent(PRINTER_UPDATE_SUCCESS,array(Printer=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage('Printer updated!');
+            $this->setMessage('Printer updated!');
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(PRINTER_UPDATE_FAIL,array(Printer=>&$this->obj));
             // Set session message
-            $this->FOGCore->setMessage($e->getMessage());
+            $this->setMessage($e->getMessage());
         }
         // Redirect for user
-        $this->FOGCore->redirect('?node=printer&sub=edit&id='.$this->obj->get(id).'#'.$_REQUEST[tab]);
+        $this->redirect('?node=printer&sub=edit&id='.$this->obj->get('id').'#'.$_REQUEST['tab']);
     }
 }

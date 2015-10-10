@@ -48,7 +48,7 @@ class Page extends FOGBase {
             foreach ($this->main AS $link => &$title) $links[] = $link;
             unset($title);
             if (!$this->isMobile) $links = array_merge((array)$links,array('hwinfo','client','schemaupdater'));
-            if ($_REQUEST[node] && !in_array($_REQUEST[node],$links)) $this->FOGCore->redirect('index.php');
+            if ($_REQUEST[node] && !in_array($_REQUEST[node],$links)) $this->redirect('index.php');
             $this->menu = '<nav class="menu"><ul class="nav-list">';
             foreach($this->main AS $link => &$title) {
                 if (!$_REQUEST['node'] && $link == 'home') $_REQUEST['node'] = $link;
