@@ -13,6 +13,7 @@ class FOGPageManager Extends FOGBase {
     public function __construct() {
         parent::__construct();
         $this->classValue = $_REQUEST['node'] ? $this->replaceVariable($_REQUEST['node']) : 'home';
+        unset($value);
         $this->methodValue = $this->replaceVariable($_REQUEST['sub']);
         $this->HookManager->processEvent('SEARCH_PAGES',array('searchPages'=>&$this->searchPages));
     }

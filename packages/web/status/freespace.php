@@ -15,3 +15,4 @@ $free = $hdtotal;
 $used = $hdused;
 $Data = array('free' => $free, 'used' => $used);
 echo json_encode($Data);
+exit;
