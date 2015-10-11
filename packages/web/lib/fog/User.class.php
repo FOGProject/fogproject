@@ -13,6 +13,10 @@ class User extends FOGController {
         'createdBy' => 'uCreateBy',
         'type' => 'uType'
     );
+    protected $databaseFieldsRequired = array(
+        'name',
+        'password',
+    );
     protected $additionalFields = array(
         'authIP',
         'authTime',
