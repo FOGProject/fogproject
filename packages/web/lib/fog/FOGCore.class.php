@@ -1,9 +1,7 @@
 <?php
 class FOGCore extends FOGBase {
     public function attemptLogin($username,$password) {
-        $User = $this->getClass('User',@max($this->getClass('UserManager')->find(array('name'=>$username),'','','','','','','id')));
-        if ($User->validate_pw($password)) return $User;
-        return false;
+        return $this->getClass('User',@max($this->getClass('UserManager')->find(array('name'=>$username),'','','','','','','id')))->validate_pw($password);
     }
     public function stopScheduledTask($task) {
         return $this->getClass('ScheduledTask',$task->get('id'))->set('isActive',(int)false)->save();
