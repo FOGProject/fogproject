@@ -15,3 +15,4 @@ $vals = function() {
 	return implode("\n",$linearr);
 };
 echo json_encode($vals());
+exit;
