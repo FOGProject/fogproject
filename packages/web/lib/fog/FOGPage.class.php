@@ -52,18 +52,18 @@ abstract class FOGPage extends FOGBase {
         parent::__construct();
         if (!empty($name)) $this->name = $name;
         $this->title = $this->name;
-        $this->delformat = "?node={$this->node}&sub=delete&{$this->id}={$_REQUEST[id]}";
-        $this->linkformat = "?node={$this->node}&sub=edit&{$this->id}={$_REQUEST[id]}";
-        $this->membership = "?node={$this->node}&sub=membership&{$this->id}={$_REQUEST[id]}";
-        $this->request = $this->REQUEST = $this->DB->sanitize($_REQUEST);
-        $this->REQUEST[id] = $this->request[id] = $_REQUEST[$this->id];
+        $this->delformat = "?node={$this->node}&sub=delete&{$this->id}={$_REQUEST['id']}";
+        $this->linkformat = "?node={$this->node}&sub=edit&{$this->id}={$_REQUEST['id']}";
+        $this->membership = "?node={$this->node}&sub=membership&{$this->id}={$_REQUEST['id']}";
+        $this->request = $this->REQUEST = $_REQUEST;
+        $this->REQUEST['id'] = $this->request['id'] = $_REQUEST[$this->id];
         $this->childClass = preg_replace('#ManagementPage#', '', preg_replace('#Mobile#','',get_class($this)));
         $this->menu = array(
-            search=>$this->foglang[NewSearch],
-            'list'=>sprintf($this->foglang[ListAll],_($this->childClass.'s')),
-            add=>sprintf($this->foglang[CreateNew],_($this->childClass)),
-            export=>sprintf($this->foglang['Export'.$this->childClass]),
-            import=>sprintf($this->foglang['Import'.$this->childClass]),
+            'search'=>$this->foglang['NewSearch'],
+            'list'=>sprintf($this->foglang['ListAll'],_($this->childClass.'s')),
+            'add'=>sprintf($this->foglang['CreateNew'],_($this->childClass)),
+            'export'=>sprintf($this->foglang['Export'.$this->childClass]),
+            'import'=>sprintf($this->foglang['Import'.$this->childClass]),
         );
         $this->formAction = sprintf('%s?%s',$_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
         $this->HookManager->processEvent(SEARCH_PAGES,array(searchPages=>&$this->searchPages));
