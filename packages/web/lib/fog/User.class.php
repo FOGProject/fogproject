@@ -45,6 +45,7 @@ class User extends FOGController {
                 $this->set('authID',session_id());
             }
             $this->set('authIP',$_SERVER['REMOTE_ADDR']);
+            if (!$this->get('authLastActivity')) $this->set('authLastActivity',time());
         } else if (md5($password) == $this->get('password')) {
             $this->set('password',$password)->save();
             return $this->validate_pw($password);
@@ -59,18 +60,19 @@ class User extends FOGController {
         if (!$this->checkedalready) {
             $this->inactivitySessionTimeout = $this->FOGCore->getSetting('FOG_INACTIVITY_TIMEOUT');
             $this->regenerateSessionTimeout = $this->FOGCore->getSetting('FOG_REGENERATE_TIMEOUT');
-            $this->alwaysloggedin = $this->FOGCore->getSetting('FOG_ALWAYS_LOGGED_IN');
+            $this->alwaysloggedin = (int)$this->FOGCore->getSetting('FOG_ALWAYS_LOGGED_IN');
             $this->checkedalready = true;
         }
         if ($this->get('authID')) {
-            $this->set('authLastActivity',time());
             if ($this->get('authIP') != $_SERVER['REMOTE_ADDR']) {
                 $this->logout();
-                return false;
+                $this->setMessage(_('Session IP has changed'));
+                $this->redirect('index.php');
             }
-            if (!$this->alwaysloggedin && ((time() - $this->get('authLastActivity')) >= ($this->inactivitySessionTimeout * 60 * 60))) {
+            if (!$this->alwaysloggedin && ((time() - $this->get('authLastActivity')) >= ($this->inactivitySessionTimeout*60*60))) {
                 $this->logout();
                 $this->setMessage($this->foglang['SessionTimeout']);
+                $this->redirect('index.php');
             }
             if (!$this->get('authTime')) $this->set('authTime',time());
             else if ((time() - $this->get('authTime')) > ($this->regenerateSessionTimeout * 60 * 60)) {
@@ -82,6 +84,7 @@ class User extends FOGController {
             }
             $_SESSION['FOG_USER'] = serialize($this);
             $_SESSION['FOG_USERNAME'] = $this->get('name');
+            $this->set('authLastActivity',time());
             return $this;
         } else {
             $this->logout();

@@ -12,6 +12,7 @@ abstract class FOGManagerController extends FOGController {
         $this->childClass = preg_replace('#_?Manager$#', '', get_class($this));
         $this->classVariables = $this->getClass('ReflectionClass',$this->childClass)->getDefaultProperties();
         foreach ((array)$this->classVariables AS $name => &$value) $this->$name = $value;
+        unset($value);
         parent::__construct();
     }
     private function orderBy(&$orderBy) {
