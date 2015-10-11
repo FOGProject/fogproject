@@ -1,9 +1,7 @@
 <?php
 class Snapin extends FOGController {
-    // Table
-    public $databaseTable = 'snapins';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'snapins';
+    protected $databaseFields = array(
         'id' => 'sID',
         'name' => 'sName',
         'description' => 'sDesc',
@@ -15,175 +13,162 @@ class Snapin extends FOGController {
         'runWith' => 'sRunWith',
         'runWithArgs' => 'sRunWithArgs',
         'protected' => 'snapinProtect',
-        'anon3' => 'sAnon3'
+        'anon3' => 'sAnon3',
     );
-    // Allow setting / getting of these additional fields
-    public $additionalFields = array(
+    protected $databaseFieldsRequired = array(
+        'name',
+        'file',
+    );
+    protected $additionalFields = array(
         'hosts',
         'hostsnotinme',
         'storageGroups',
         'path',
     );
-    private function loadPath() {
-        $this->set('path',$this->get('file'));
+    public function get($key = '') {
+        switch ($this->key($key)) {
+            case 'hosts':
+            case 'hostsnotinme':
+                $this->loadHosts();
+                break;
+            case 'storageGroups':
+                $this->loadGroups();
+                break;
+        }
+        return parent::get($key);
     }
-    // Overides
+    public function set($key,$value) {
+        switch ($this->key($key)) {
+            case 'hosts':
+            case 'hostsnotinme':
+                $this->loadHosts();
+                break;
+            case 'storageGroups':
+                $this->loadGroups();
+                break;
+            case 'path':
+                $value = $this->get('file');
+                break;
+        }
+        return parent::set($key,$value);
+    }
+    public function add($key,$value) {
+        switch ($this->key($key)) {
+            case 'hosts':
+            case 'hostsnotinme':
+                $this->loadHosts();
+                break;
+            case 'storageGroups':
+                $this->loadGroups();
+                break;
+        }
+        return parent::add($key,$value);
+    }
+    public function remove($key,$value) {
+        switch ($this->key($key)) {
+            case 'hosts':
+            case 'hostsnotinme':
+                $this->loadHosts();
+                break;
+            case 'storageGroups':
+                $this->loadGroups();
+                break;
+        }
+        return parent::remove($key,$value);
+    }
+    public function save() {
+        parent::save();
+        switch (true) {
+            case ($this->isLoaded('hosts')):
+                $DBHostIDs = $this->getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID');
+                $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
+                if (count($RemoveHostIDs)) {
+                    $this->getClass('SnapinAssociationManager')->destroy(array('snapinID'=>$this->get('id'),'hostID'=>$RemoveHostIDs));
+                    $DBHostIDs = $this->getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID');
+                    unset($RemoveHostIDs);
+                }
+                $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
+                foreach ((array)$Hosts AS $i => &$Host) {
+                    $this->getClass('SnapinAssociation')
+                        ->set('hostID',$Host)
+                        ->set('snapinID',$this->get('id'))
+                        ->save();
+                }
+                unset($Host);
+                break;
+            case ($this->isLoaded('storageGroups')):
+                $DBGroupIDs = $this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID');
+                $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('storageGroups'));
+                if (count($RemoveGroupIDs)) {
+                    $this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$this->get('id'),'storageGroupID'=>$RemoveGroupIDs));
+                    $DBGroupIDs = $this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID');
+                    unset($RemoveGroupIDs);
+                }
+                $Groups = array_diff((array)$this->get('storageGroups'),(array)$DBGroupIDs);
+                foreach ((array)$Groups AS $i => &$Group) {
+                    $this->getClass('SnapinGroupAssociation')
+                        ->set('snapinID',$this->get('id'))
+                        ->set('storageGroupID',$Group)
+                        ->save();
+                }
+                unset($Group);
+                break;
+        }
+        return $this;
+    }
+    public function destroy($field = 'id') {
+        $this->getClass('SnapinJobManager')->destroy(array('id'=>$this->getSubObjectIDs('SnapinTask',array('snapinID'=>$this->get('id')),'jobID')));
+        $this->getClass('SnapinTaskManager')->destroy(array('snapinID'=>$this->get('id')));
+        $this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$this->get('id')));
+        $this->getClass('SnapinAssociation')->destroy(array('snapinID'=>$this->get('id')));
+        return parent::destroy($field);
+    }
+    public function deleteFile() {
+        if (!$this->getStorageGroup()->getMasterStorageNode()->get('isEnabled')) throw new Exception($this->foglang['NoMasterNode']);
+        $delete = rtrim($this->getStorageGroup()->getMasterStorageNode()->get('snapinpath'),'/').DIRECTORY_SEPARATOR.$this->get('file');
+        $this->FOGFTP
+            ->set('host',$this->getStorageGroup()->getMasterStorageNode()->get('ip'))
+            ->set('username',$this->getStorageGroup()->getMasterStorageNode()->get('username'))
+            ->set('password',$this->getStorageGroup()->getMasterStorageNode()->get('password'));
+        if (!$this->FOGFTP->connect()) throw new Exception(_('Failed to connect to node'));
+        if (!$this->FOGFTP->delete($delete)) {
+            $this->FOGFTP->close();
+            throw new Exception($this->foglang['FailedDelete']);
+        }
+        $this->FOGFTP->close();
+    }
+    public function addHost($addArray) {
+        $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
+        return $this;
+    }
+    public function removeHost($removeArray) {
+        $this->set('hosts',array_unique(array_diff((array)$this->get('hosts'),(array)$removeArray)));
+        return $this;
+    }
+    public function addGroup($addArray) {
+        $this->set('storageGroups',array_unique(array_merge((array)$this->get('storageGroups'),(array)$addArray)));
+        return $this;
+    }
+    public function removeGroup($removeArray) {
+        $this->set('storageGroups',array_unique(array_diff((array)$this->get('storageGroups'),(array)$removeArray)));
+        return $this;
+    }
+    public function getStorageGroup() {
+        if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min($this->getSubObjectIDs('StorageGroup','','id')));
+        return $this->getClass('StorageGroup',@min($this->get('storageGroups')));
+    }
     private function loadHosts() {
         if (!$this->isLoaded('hosts') && $this->get('id')) {
-            $HostIDs = $this->getClass('SnapinAssociationManager')->find(array('snapinID'=>$this->get('id')),'','','','','','','hostID');
-            $this->set('hosts',$HostIDs);
-            $this->set('hostsnotinme',$this->getClass('HostManager')->find(array('id'=>$HostIDs),'','','','','',true,'id'));
+            $this->set('hosts',array_unique($this->getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID')));
+            $this->set('hostsnotinme',$this->getSubObjectIDs('Host',array('id'=>$this->get('hosts')),'id',true));
         }
         return $this;
     }
     private function loadGroups() {
         if (!$this->isLoaded('storageGroups') && $this->get('id')) {
-            $StorageGroupIDs = array_unique($this->getClass('SnapinGroupAssociationManager')->find(array('snapinID'=>$this->get('id')),'','','','','','','storageGroupID'));
-            if (!count($StorageGroupIDs)) {
-                $Groups = $this->getClass('StorageGroupManager')->find();
-                foreach($Groups AS $i => &$Group) {
-                    if ($Group->isValid()) {
-                        $StorageGroupIDs = $Group->get('id');
-                        break;
-                    }
-                }
-                unset($Group);
-            }
-            $this->set('storageGroups',$StorageGroupIDs);
+            $this->set('storageGroups',array_unique($this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID')));
+            if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min($this->getSubObjectIDs('StorageGroup','','id')));
         }
         return $this;
-    }
-    public function get($key = '') {
-        if (in_array($this->key($key),array('hosts','hostsnotinme'))) $this->loadHosts();
-        else if ($this->key($key) == 'storageGroups') $this->loadGroups();
-        return parent::get($key);
-    }
-    public function set($key, $value) {
-        if ($this->key($key) == 'hosts') $this->loadHosts();
-        else if ($this->key($key) == 'storageGroups') $this->loadGroups();
-        // Set
-        return parent::set($key, $value);
-    }
-    public function add($key, $value) {
-        if ($this->key($key) == 'hosts') $this->loadHosts();
-        else if ($this->key($key) == 'storageGroups') $this->loadGroups();
-        // Add
-        return parent::add($key, $value);
-    }
-    public function remove($key, $object) {
-        if ($this->key($key) == 'hosts') $this->loadHosts();
-        else if ($this->key($key) == 'storageGroups') $this->loadGroups();
-        // Remove
-        return parent::remove($key, $object);
-    }
-    public function save() {
-        parent::save();
-        if ($this->isLoaded('hosts')) {
-            // Destroy only the removed elements
-            $DBHostIDs = $this->getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID');
-            $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
-            $this->getClass('SnapinAssociationManager')->destroy(array('snapinID'=>$this->get('id'),'hostID'=>$RemoveHostIDs));
-            $DBHostIDs = $this->getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID');
-            $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
-            unset($RemoveHostIDs);
-            // Create assoc
-            foreach ((array)$Hosts AS $i => &$Host) {
-                $this->getClass('SnapinAssociation')
-                    ->set('hostID',$Host)
-                    ->set('snapinID',$this->get('id'))
-                    ->save();
-            }
-            unset($Host);
-        }
-        if ($this->isLoaded('storageGroups')) {
-            // Destroy only the removed elements
-            $DBGroupIDs = $this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID');
-            $RemoveGroupIDs = array_diff((array)$this->get('storageGroups'),(array)$DBGroupIDs);
-            $this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$this->get('id'),'storageGroupID'=>$RemoveGroupIDs));
-            $DBGroupIDs = $this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID');
-            $Groups = array_diff((array)$this->get('storageGroups'),(array)$DBGroupIDs);
-            // Create Assoc
-            foreach((array)$Groups AS $i => &$Group) {
-                $this->getClass('SnapinGroupAssociation')
-                    ->set('snapinID',$this->get('id'))
-                    ->set('storageGroupID',$Group)
-                    ->save();
-            }
-            unset($Group);
-        }
-        return $this;
-    }
-    public function load($field = 'id') {
-        parent::load($field);
-        $methods = get_class_methods($this);
-        foreach ($methods AS $i => &$method) {
-            if (strlen($method) > 5 && strpos($method,'load')) $this->$method();
-        }
-        unset($method);
-        return $this;
-    }
-    public function addGroup($addArray) {
-        // Add
-        $this->set('hosts',array_unique(array_merge((array)$this->get('storageGroups'),(array)$addArray)));
-        // Return
-        return $this;
-    }
-    public function removeGroup($removeArray) {
-        // Iterate array (or other as array)
-        $this->set('hosts',array_unique(array_diff((array)$this->get('storageGroups'),(array)$removeArray)));
-        // Return
-        return $this;
-    }
-    public function addHost($addArray) {
-        // Add
-        $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
-        // Return
-        return $this;
-    }
-    public function removeHost($removeArray) {
-        // Iterate array (or other as array)
-        $this->set('hosts',array_unique(array_diff((array)$this->get('hosts'),(array)$removeArray)));
-        // Return
-        return $this;
-    }
-    public function getStorageGroup() {
-        $StorageGroup = $this->getClass('StorageGroup',current((array)$this->get('storageGroups')));
-        if (!$StorageGroup->isValid()) {
-            $this->add('storageGroups',@min($this->getClass('StorageGroupManager')->find('','','','','','','','id')));
-            $StorageGroup = $this->getClass('StorageGroup',current((array)$this->get('storageGroups')));
-        }
-        return $StorageGroup;
-    }
-    public function destroy($field = 'id') {
-        // Remove all associations
-        $this->getClass('SnapinAssociationManager')->destroy(array('snapinID'=>$this->get('id')));
-        $ST = $this->getClass('SnapinTaskManager')->find(array('snapinID'=>$this->get('id')));
-        foreach($ST AS $i => &$SnapJob) {
-            $this->getClass('SnapinJobManager')->destroy(array('jobID'=>$SnapJob->get('jobID')));
-            $SnapJob->destroy();
-        }
-        unset($SnapJob);
-        $this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$this->get('id')));
-        // Return
-        return parent::destroy($field);
-    }
-    /** deleteFile()
-        This function just deletes the file(s) via FTP.
-        Only used if the user checks the Add File? checkbox.
-     */
-    public function deleteFile() {
-        $SN = $this->getStorageGroup()->getMasterStorageNode();
-        $SNME = ($SN && $SN->get('isEnabled') == 1 ? true : false);
-        if (!$SNME) throw new Exception($this->foglang['NoMasterNode']);
-        $ftphost = $SN->get('ip');
-        $ftpuser = $SN->get('user');
-        $ftppass = $SN->get('pass');
-        $ftproot = rtrim($SN->get('snapinpath'),'/').'/'.$this->get('file');
-        $this->FOGFTP
-            ->set('host',$ftphost)
-            ->set('username',$ftpuser)
-            ->set('password',$ftppass)
-            ->connect();
-        if (!$this->FOGFTP->delete($ftproot)) throw new Exception($this->foglang['FailedDelete']);
     }
 }
