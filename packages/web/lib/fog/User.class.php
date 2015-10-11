@@ -53,7 +53,7 @@ class User extends FOGController {
             $this->checkedalready = true;
         }
         if ($this->get('authIP') != $_SERVER['REMOTE_ADDR']) return false;
-        if (!$this->alwaysloggedin && (time() - $_SESSION['LAST_ACTIVITY'] >= ($this->inactivitySessionTimeout * 60 * 60))) {
+        if (!$this->alwaysloggedin && (($_SESSION['LAST_ACTIVITY'] - time()) >= ($this->inactivitySessionTimeout * 60 * 60))) {
             $this->logout();
             $this->setMessage($this->foglang['SessionTimeout']);
         }
