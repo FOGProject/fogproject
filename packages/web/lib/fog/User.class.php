@@ -36,10 +36,10 @@ class User extends FOGController {
     }
     public function validate_pw($password) {
         $res = false;
-        session_start();
+        if (session_id() == '') session_start();
         if (crypt($password,$this->get('password')) == $this->get('password')) $res = $this;
         if ($res) {
-            if (!$this->sessionID) $this->sessionID = sha1(openssl_random_pseudo_bytes(rand(1000,10000)));
+            if (!$this->sessionID) $this->sessionID = session_id();
             $this->set('authID',$this->sessionID)
                 ->set('authIP',$_SERVER['REMOTE_ADDR'])
                 ->set('authTime',time())
@@ -78,7 +78,8 @@ class User extends FOGController {
                 $this->redirect('index.php');
             }
             if ((time() - $this->get('authTime')) > ($this->regenerateSessionTimeout * 60 * 60)) {
-                $this->sessionID = sha1(openssl_random_pseudo_bytes(rand(1000,10000)));
+                session_regenerate_id(true);
+                $this->sessionID = session_id();
                 $this->set('authID',$this->sessionID)
                     ->set('authIP',$_SERVER['REMOTE_ADDR'])
                     ->set('authTime',time());
@@ -97,14 +98,14 @@ class User extends FOGController {
         // Destroy session
         $locale = $_SESSION['locale'];
         $messages = $this->getMessages();
+        unset($this->sessionID);
         $this->set('authID',null);
         $this->set('authIP',null);
         $this->set('authTime',null);
         $this->set('authLastActivity',null);
         session_set_cookie_params(0);
-        session_unset();
-        session_destroy();
-        session_start();
+        while(session_unset());
+        while(session_destroy());
         $_SESSION=array();
         $_SESSION['locale'] = $locale;
         if (isset($messages)) $this->setMessage($messages);
