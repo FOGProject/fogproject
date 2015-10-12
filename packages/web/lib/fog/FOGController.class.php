@@ -192,15 +192,23 @@ abstract class FOGController extends FOGBase {
         }
         return $this;
     }
-    public function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id',$not = false) {
+    public function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id',$not = false,$operator = 'AND') {
         if (empty($object)) $object = 'Host';
         if (empty($getField)) $getField = 'id';
-        return array_filter(array_unique($this->getClass($object)->getManager()->find($findWhere,'OR','','','','',$not,$getField)));
+        if (empty($operator)) $operator = 'AND';
+        return array_filter(array_unique($this->getClass($object)->getManager()->find($findWhere,$operator,'','','','',$not,$getField)));
     }
     protected function key(&$key) {
         $key = trim($key);
         if (array_key_exists($key, $this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
         return $key;
+    }
+    protected function loadItem($key) {
+        if (!array_key_exists($key, $this->databaseFields) && !array_key_exists($key, $this->databaseFieldsFlipped) && !in_array($key, $this->additionalFields)) return $this;
+        $methodCall = 'load'.ucfirst($key);
+        if (method_exists($this,$methodCall)) $this->$methodCall();
+        unset($methodCall);
+        return $this;
     }
     public function isValid() {
         try {

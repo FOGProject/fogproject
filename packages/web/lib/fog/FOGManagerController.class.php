@@ -100,7 +100,7 @@ abstract class FOGManagerController extends FOGController {
             foreach ((array)$queryData AS $i => &$row) $data[] = $this->getClass($this->childClass)->setQuery($row);
             unset($row);
         }
-        session_start();
+        @session_start();
         if ($this->DB->queryResult() instanceof mysqli_result) $this->DB->queryResult()->close();
         return (array)$data;
     }
@@ -206,18 +206,18 @@ abstract class FOGManagerController extends FOGController {
         $_SESSION[caller] = __FUNCTION__;
         $this->array_remove($this->aliasedFields,$this->databaseFields);
         $findWhere = array_fill_keys(array_keys($this->databaseFields),$keyword);
-        $itemIDs = $this->getSubObjectIDs($this->childClass,$findWhere,'id');
-        $HostIDs = $this->getSubObjectIDs('MACAddressAssociation',array(mac=>$mac_keyword,description=>$keyword),'hostID');
-        $HostIDs = array_merge($HostIDs,$this->getSubObjectIDs('Inventory',array(sysserial=>$keyword,caseserial=>$keyword,mbserial=>$keyword,primaryUser=>$keyword,other1=>$keyword,other2=>$keyword,sysman=>$keyword,sysproduct=>$keyword),'hostID'));
-        $HostIDs = array_merge($HostIDs,$this->getSubObjectIDs('Host',array(name=>$keyword,description=>$keyword,ip=>$keyword)));
+        $itemIDs = $this->getSubObjectIDs($this->childClass,$findWhere,'id','','OR');
+        $HostIDs = $this->getSubObjectIDs('MACAddressAssociation',array(mac=>$mac_keyword,description=>$keyword),'hostID','','OR');
+        $HostIDs = array_merge($HostIDs,$this->getSubObjectIDs('Inventory',array(sysserial=>$keyword,caseserial=>$keyword,mbserial=>$keyword,primaryUser=>$keyword,other1=>$keyword,other2=>$keyword,sysman=>$keyword,sysproduct=>$keyword),'hostID','','OR'));
+        $HostIDs = array_merge($HostIDs,$this->getSubObjectIDs('Host',array(name=>$keyword,description=>$keyword,ip=>$keyword),'','','OR'));
         switch (strtolower($this->childClass)) {
             case 'user':
                 break;
             case 'host':
-                $ImageIDs = $this->getSubObjectIDs('Image',array(name=>$keyword,description=>$keyword));
-                $GroupIDs = $this->getSubObjectIDs('Group',array(name=>$keyword,description=>$keyword));
-                $SnapinIDs = $this->getSubObjectIDs('Snapin',array(name=>$keyword,description=>$keyword));
-                $PrinterIDs = $this->getSubObjectIDs('Printer',array(name=>$keyword,description=>$keyword));
+                $ImageIDs = $this->getSubObjectIDs('Image',array(name=>$keyword,description=>$keyword),'','','OR');
+                $GroupIDs = $this->getSubObjectIDs('Group',array(name=>$keyword,description=>$keyword),'','','OR');
+                $SnapinIDs = $this->getSubObjectIDs('Snapin',array(name=>$keyword,description=>$keyword),'','','OR');
+                $PrinterIDs = $this->getSubObjectIDs('Printer',array(name=>$keyword,description=>$keyword),'','','OR');
                 if (count($ImageIDs)) $itemIDs = array_merge($itemIDs,$this->getSubObjectIDs('Host',array(imageID=>$ImageIDs)));
                 if (count($GroupIDs)) $itemIDs = array_merge($itemIDs,$this->getSubObjectIDs('GroupAssociation',array(groupID=>$GroupIDs),'hostID'));
                 if (count($SnapinIDs)) $itemIDs = array_merge($itemIDs,$this->getSubObjectIDs('SnapinAssociation',array(snapinID=>$SnapinIDs),'hostID'));
@@ -228,12 +228,12 @@ abstract class FOGManagerController extends FOGController {
                 if (count($HostIDs)) $itemIDs = array_merge($itemIDs,$this->getSubObjectIDs('Host',array(id=>$HostIDs),'imageID'));
                 break;
             case 'task':
-                $TaskStateIDs = $this->getSubObjectIDs('TaskState',array(name=>$keyword,description=>$keyword));
-                $TaskTypeIDs = $this->getSubObjectIDs('TaskType',array(name=>$keyword,description=>$keyword));
-                $ImageIDs = $this->getSubObjectIDs('Image',array(name=>$keyword,description=>$keyword));
-                $GroupIDs = $this->getSubObjectIDs('Group',array(name=>$keyword,description=>$keyword));
-                $SnapinIDs = $this->getSubObjectIDs('Snapin',array(name=>$keyword,description=>$keyword));
-                $PrinterIDs = $this->getSubObjectIDs('Printer',array(name=>$keyword,description=>$keyword));
+                $TaskStateIDs = $this->getSubObjectIDs('TaskState',array(name=>$keyword,description=>$keyword),'','','OR');
+                $TaskTypeIDs = $this->getSubObjectIDs('TaskType',array(name=>$keyword,description=>$keyword),'','','OR');
+                $ImageIDs = $this->getSubObjectIDs('Image',array(name=>$keyword,description=>$keyword),'','','OR');
+                $GroupIDs = $this->getSubObjectIDs('Group',array(name=>$keyword,description=>$keyword),'','','OR');
+                $SnapinIDs = $this->getSubObjectIDs('Snapin',array(name=>$keyword,description=>$keyword),'','','OR');
+                $PrinterIDs = $this->getSubObjectIDs('Printer',array(name=>$keyword,description=>$keyword),'','','OR');
                 if (count($ImageIDs)) $itemIDs = array_merge($itemIDs,$this->getSubObjectIDs('Host',array(imageID=>$ImageIDs)));
                 if (count($GroupIDs)) $itemIDs = array_merge($itemIDs,$this->getSubObjectIDs('GroupAssociation',array(groupID=>$GroupIDs),'hostID'));
                 if (count($SnapinIDs)) $itemIDs = array_merge($itemIDs,$this->getSubObjectIDs('SnapinAssociation',array(snapinID=>$SnapinIDs),'hostID'));
