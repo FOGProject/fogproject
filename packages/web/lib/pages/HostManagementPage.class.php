@@ -31,7 +31,7 @@ class HostManagementPage extends FOGPage {
                     $this->foglang['Image']=>$this->obj->getImageName(),
                     $this->foglang['LastDeployed']=>$this->obj->get('deployed'),
                 );
-                foreach ($this->obj->get('groups') AS $i=>&$Group) {
+                foreach ((array)$this->obj->get('groups') AS $i => &$Group) {
                     $this->notes[$this->foglang['PrimaryGroup']] = $this->getClass('Group',$Group)->get('name');
                     break;
                 }
