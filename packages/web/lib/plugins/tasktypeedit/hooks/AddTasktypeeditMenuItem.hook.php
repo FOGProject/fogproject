@@ -9,18 +9,18 @@ class AddTasktypeeditMenuItem extends Hook {
 		$this->node = 'tasktypeedit';
 	}
     public function MenuData($arguments) {
-		if (in_array($this->node,$_SESSION[PluginsInstalled]))
+		if (in_array($this->node,(array)$_SESSION['PluginsInstalled']))
 			$arguments['main'] = $this->array_insert_after('task',$arguments['main'],$this->node,array(_('Task Type Management'),'fa fa-th-list fa-2x'));
 	}
     public function addSearch($arguments) {
-		if (in_array($this->node,$_SESSION[PluginsInstalled])) array_push($arguments[searchPages],$this->node);
+		if (in_array($this->node,(array)$_SESSION['PluginsInstalled'])) array_push($arguments['searchPages'],$this->node);
     }
     public function removeActionBox($arguments) {
-        if (in_array($this->node,$_SESSION[PluginsInstalled]) && $_REQUEST[node] == $this->node) $arguments[actionbox] = '';
+        if (in_array($this->node,(array)$_SESSION['PluginsInstalled']) && $_REQUEST['node'] == $this->node) $arguments['actionbox'] = '';
     }
 }
-$AddTasktypeeditMenuItem = new AddTasktypeeditMenuItem();
+$AddTasktypeeditMenuItem = $FOGCore->getClass('AddTasktypeeditMenuItem');
 // Register hooks
-$HookManager->register(MAIN_MENU_DATA,array($AddTasktypeeditMenuItem,MenuData));
-$HookManager->register(SEARCH_PAGES,array($AddTasktypeeditMenuItem,addSearch));
-$HookManager->register(ACTIONBOX,array($AddTasktypeeditMenuItem,removeActionBox));
+$HookManager->register('MAIN_MENU_DATA',array($AddTasktypeeditMenuItem,'MenuData'));
+$HookManager->register('SEARCH_PAGES',array($AddTasktypeeditMenuItem,'addSearch'));
+$HookManager->register('ACTIONBOX',array($AddTasktypeeditMenuItem,'removeActionBox'));
