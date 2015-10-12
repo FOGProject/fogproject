@@ -57,7 +57,7 @@ class User extends FOGController {
         return parent::set($key, $value);
     }
     public function isLoggedIn() {
-        if (!$this->checkedalready) {
+        if (!$this->checkedalready && $this->FOGCore instanceof FOGCore) {
             $this->inactivitySessionTimeout = $this->FOGCore->getSetting('FOG_INACTIVITY_TIMEOUT');
             $this->regenerateSessionTimeout = $this->FOGCore->getSetting('FOG_REGENERATE_TIMEOUT');
             $this->alwaysloggedin = (int)$this->FOGCore->getSetting('FOG_ALWAYS_LOGGED_IN');
@@ -100,11 +100,13 @@ class User extends FOGController {
         $this->set('authIP',null);
         $this->set('authTime',null);
         $this->set('authLastActivity',null);
-        session_set_cookie_params(0);
-        session_unset();
-        session_destroy();
-        $_SESSION=array();
-        $_SESSION['locale'] = $locale;
+        if (session_id()) {
+            session_set_cookie_params(0);
+            session_unset();
+            session_destroy();
+            $_SESSION=array();
+            $_SESSION['locale'] = $locale;
+        }
         if (isset($messages)) $this->setMessage($messages);
     }
 }
