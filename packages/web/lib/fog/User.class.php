@@ -4,6 +4,7 @@ class User extends FOGController {
     private $regenerateSessionTimeout;
     private $alwaysloggedin;
     private $checkedalready;
+    private $sessionID;
     protected $databaseTable = 'users';
     protected $databaseFields = array(
         'id' => 'uId',
@@ -35,17 +36,14 @@ class User extends FOGController {
     }
     public function validate_pw($password) {
         $res = false;
+        session_start();
         if (crypt($password,$this->get('password')) == $this->get('password')) $res = $this;
         if ($res) {
-            if (!session_id()) session_start();
-            if (!$this->get('authID')) {
-                session_set_cookie_params(0);
-                session_id(sha1(openssl_random_pseudo_bytes(rand(1000,10000))));
-                session_regenerate_id(true);
-                $this->set('authID',session_id());
-            }
-            $this->set('authIP',$_SERVER['REMOTE_ADDR']);
-            if (!$this->get('authLastActivity')) $this->set('authLastActivity',time());
+            if (!$this->sessionID) $this->sessionID = sha1(openssl_random_pseudo_bytes(rand(1000,10000)));
+            $this->set('authID',$this->sessionID)
+                ->set('authIP',$_SERVER['REMOTE_ADDR'])
+                ->set('authTime',time())
+                ->set('authLastActivity',time());
         } else if (md5($password) == $this->get('password')) {
             $this->set('password',$password)->save();
             return $this->validate_pw($password);
@@ -64,23 +62,26 @@ class User extends FOGController {
             $this->checkedalready = true;
         }
         if ($this->get('authID')) {
-            if ($this->get('authIP') != $_SERVER['REMOTE_ADDR']) {
+            if ($this->sessionID != $this->get('authID')) {
+                $this->setMessage(_('Session ID is invalid'));
                 $this->logout();
+                $this->redirect('index.php');
+            }
+            if ($this->get('authIP') != $_SERVER['REMOTE_ADDR']) {
                 $this->setMessage(_('Session IP has changed'));
+                $this->logout();
                 $this->redirect('index.php');
             }
             if (!$this->alwaysloggedin && ((time() - $this->get('authLastActivity')) >= ($this->inactivitySessionTimeout*60*60))) {
-                $this->logout();
                 $this->setMessage($this->foglang['SessionTimeout']);
+                $this->logout();
                 $this->redirect('index.php');
             }
-            if (!$this->get('authTime')) $this->set('authTime',time());
-            else if ((time() - $this->get('authTime')) > ($this->regenerateSessionTimeout * 60 * 60)) {
-                session_set_cookie_params(0);
-                session_id(sha1(openssl_random_pseudo_bytes(rand(1000,10000))));
-                session_regenerate_id(true);
-                $this->set('authID',session_id());
-                $this->set('authTime',time());
+            if ((time() - $this->get('authTime')) > ($this->regenerateSessionTimeout * 60 * 60)) {
+                $this->sessionID = sha1(openssl_random_pseudo_bytes(rand(1000,10000)));
+                $this->set('authID',$this->sessionID)
+                    ->set('authIP',$_SERVER['REMOTE_ADDR'])
+                    ->set('authTime',time());
             }
             $_SESSION['FOG_USER'] = serialize($this);
             $_SESSION['FOG_USERNAME'] = $this->get('name');
@@ -100,13 +101,12 @@ class User extends FOGController {
         $this->set('authIP',null);
         $this->set('authTime',null);
         $this->set('authLastActivity',null);
-        if (session_id()) {
-            session_set_cookie_params(0);
-            session_unset();
-            session_destroy();
-            $_SESSION=array();
-            $_SESSION['locale'] = $locale;
-        }
+        session_set_cookie_params(0);
+        session_unset();
+        session_destroy();
+        session_start();
+        $_SESSION=array();
+        $_SESSION['locale'] = $locale;
         if (isset($messages)) $this->setMessage($messages);
     }
 }
