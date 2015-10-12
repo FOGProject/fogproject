@@ -36,10 +36,10 @@ class User extends FOGController {
     }
     public function validate_pw($password) {
         $res = false;
-        if (session_id() == '') session_start();
+        if (@session_id() == '') @session_start();
         if (crypt($password,$this->get('password')) == $this->get('password')) $res = $this;
         if ($res) {
-            if (!$this->sessionID) $this->sessionID = session_id();
+            if (!$this->sessionID) $this->sessionID = @session_id();
             $this->set('authID',$this->sessionID)
                 ->set('authIP',$_SERVER['REMOTE_ADDR'])
                 ->set('authTime',time())
@@ -81,8 +81,8 @@ class User extends FOGController {
                 return false;
             }
             if ((time() - $this->get('authTime')) > ($this->regenerateSessionTimeout * 60 * 60)) {
-                session_regenerate_id(true);
-                $this->sessionID = session_id();
+                @session_regenerate_id(true);
+                $this->sessionID = @session_id();
                 $this->set('authID',$this->sessionID)
                     ->set('authIP',$_SERVER['REMOTE_ADDR'])
                     ->set('authTime',time());
@@ -105,14 +105,13 @@ class User extends FOGController {
         $this->set('authTime',null);
         $this->set('authLastActivity',null);
         $messages = $this->getMessages();
-        if (session_id() != '') {
-            $locale = $_SESSION['locale'];
-            session_set_cookie_params(0);
-            while(session_unset());
-            while(session_destroy());
-            $_SESSION=array();
-            $_SESSION['locale'] = $locale;
-        }
+        if (@session_id() == '') @session_start();
+        $locale = $_SESSION['locale'];
+        @session_set_cookie_params(0);
+        @session_unset();
+        @session_destroy();
+        $_SESSION=array();
+        $_SESSION['locale'] = $locale;
         if (isset($messages)) $this->setMessage($messages);
     }
 }

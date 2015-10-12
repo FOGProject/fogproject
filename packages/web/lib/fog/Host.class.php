@@ -1,9 +1,7 @@
 <?php
 class Host extends FOGController {
-    // Table
-    public $databaseTable = 'hosts';
-    // Name -> Database field name
-    public $databaseFields = array(
+    protected $databaseTable = 'hosts';
+    protected $databaseFields = array(
         'id' => 'hostID',
         'name' => 'hostName',
         'description' => 'hostDesc',
@@ -32,8 +30,10 @@ class Host extends FOGController {
         'biosexit' => 'hostExitBios',
         'efiexit' => 'hostExitEfi',
     );
-    // Allow setting / getting of these additional fields
-    public $additionalFields = array(
+    protected $databaseFieldsRequired = array(
+        'name',
+    );
+    protected $additionalFields = array(
         'mac',
         'primac',
         'imagename',
@@ -47,190 +47,100 @@ class Host extends FOGController {
         'snapins',
         'snapinsnotinme',
         'modules',
-        'hardware',
         'inventory',
         'task',
         'snapinjob',
         'users',
         'fingerprint',
     );
-    // Required database fields
-    public $databaseFieldsRequired = array(
-        'id',
-        'name',
-    );
-    public $databaseFieldClassRelationships = array(
+    protected $databaseFieldClassRelationships = array(
         'MACAddressAssociation' => array('hostID','id','primac',array('primary'=>1)),
         'Image' => array('id','imageID','imagename'),
     );
-    // Load the items
-    public function load($field = 'id') {
-        parent::load($field);
-        $methods = get_class_methods($this);
-        foreach($methods AS $i => &$method) {
-            if (strlen($method) > 5 && strpos($method,'load')) $this->$method();
-        }
-        unset($method);
-    }
-    // Overrides
+    private $arrayKeys = array(
+        'additionalMACs',
+        'pendingMACs',
+        'groups',
+        'groupsnotinme',
+        'printers',
+        'printersnotinme',
+        'snapins',
+        'snapinsnotinme',
+        'modules',
+        'users',
+    );
     public function get($key = '') {
-        $arrayKeys = array(
-            'additionalMACs',
-            'pendingMACs',
-            'modules',
-            'users',
-            'printers',
-            'printersnotinme',
-            'snapins',
-            'snapinsnotinme',
-            'groups',
-            'groupsnotinme',
-        );
-        switch ($this->key($key)) {
-            case 'additionalMACs':
-                $this->loadAdditional();
-                break;
-            case 'pendingMACs':
-                $this->loadPending();
-                break;
-            case 'modules':
-                $this->loadModules();
-                break;
-            case 'users':
-                $this->loadUsers();
-                break;
-            case 'printers':
-            case 'printersnotinme':
-                $this->loadPrinters();
-                break;
-            case 'snapins':
-            case 'snapinsnotinme':
-                $this->loadSnapins();
-                break;
-            case 'groups':
-            case 'groupsnotinme':
-                $this->loadGroups();
-                break;
-            case 'mac':
-                $this->loadPrimary();
-                break;
-            case 'snapinjob':
-                $this->loadSnapinJob();
-                break;
-            case 'inventory':
-                $this->loadInventory();
-                break;
-            case 'task':
-                $this->loadTask();
-                break;
-            case 'optimalStorageNode':
-                $this->loadOptimalStorageNode();
-                break;
-        }
-        if (in_array($this->key($key),(array)$arrayKeys)) {
-            unset($arrayKeys);
-            return (array)parent::get($key);
-        }
+        $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
+        if (in_array($key,(array)$this->arrayKeys)) return (array)parent::get($key);
         return parent::get($key);
     }
     public function set($key, $value) {
-        switch ($this->key($key)) {
+        $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
+        switch ($key) {
             case 'mac':
-                $this->loadPrimary();
                 if (!($value instanceof MACAddress)) $value = $this->getClass('MACAddress',$value);
                 break;
             case 'additionalMACs':
             case 'pendingMACs':
-                $this->key($key) == 'additionalMACs' ? $this->loadAdditional() : $this->loadPending();
                 foreach((array)$value AS $i => &$mac) $newValue[] = $this->getClass('MACAddress',$this->getClass('MACAddressAssociation',$mac));
                 unset($mac);
                 $value = (array)$newValue;
                 break;
             case 'snapinjob':
-                $this->loadSnapinJob();
                 if (!($value instanceof SnapinJob)) $value = $this->getClass('SnapinJob',$value);
                 break;
             case 'inventory':
-                $this->loadInventory();
                 if (!($value instanceof Inventory)) $value = $this->getClass('Inventory',$value);
                 break;
             case 'task':
-                $this->loadTask();
                 if (!($value instanceof Task)) $value = $this->getClass('Task',$value);
                 break;
-            case 'printers':
-                $this->loadPrinters();
-                break;
-            case 'snapins':
-                $this->loadSnapins();
-                break;
-            case 'modules':
-                $this->loadModules();
-                break;
-            case 'groups':
-                $this->loadGroups();
-                break;
-            case 'users':
-                $this->loadUsers();
+            default:
                 break;
         }
         // Set
         return parent::set($key, $value);
     }
     public function add($key, $value) {
-        switch ($this->key($key)) {
+        $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
+        switch ($key) {
             case 'additionalMACs':
             case 'pendingMACs':
-                $this->key($key) == 'additionalMACs' ? $this->loadAdditional() : $this->loadPending();
                 if (!($value instanceof MACAddress)) $value = $this->getClass('MACAddress',$value);
                 break;
-            case 'printers':
-                $this->loadPrinters();
-                break;
-            case 'snapins':
-                $this->loadSnapins();
-                break;
-            case 'modules':
-                $this->loadModules();
-                break;
-            case 'groups':
-                $this->loadGroups();
-                break;
-            case 'users':
-                $this->loadUsers();
+            default:
                 break;
         }
         return parent::add($key,$value);
     }
-    public function remove($key, $object) {
-        switch ($this->key($key)) {
-            case 'mac':
-                $this->loadPrimary();
-                break;
-            case 'additionalMACs':
-                $this->loadAdditional();
-                break;
-            case 'pendingMACs':
-                $this->loadPending();
-                break;
-            case 'printers':
-                $this->loadPrinters();
-                break;
-            case 'snapins':
-                $this->loadSnapins();
-                break;
-            case 'modules':
-                $this->loadModules();
-                break;
-            case 'groups':
-                $this->loadGroups();
-                break;
-            case 'users':
-                $this->loadUsers();
-                break;
-        }
+    public function remove($key, $value) {
+        $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         // Remove
-        return parent::remove($key, $object);
+        return parent::remove($key, $value);
+    }
+    public function destroy($field = 'id') {
+        $find = array('hostID'=>$this->get('id'));
+        $this->getClass('NodeFailureManager')->destroy($find);
+        $this->getClass('ImagingLogManager')->destroy($find);
+        $this->getClass('SnapinTaskManager')->destroy(array('jobID'=>$this->getSubObjectIDs('SnapinJob',$find,'id')));
+        $this->getClass('SnapinJobManager')->destroy($find);
+        $this->getClass('TaskManager')->destroy($find);
+        $this->getClass('ScheduledTaskManager')->destroy($find);
+        $this->getClass('HostAutoLogoutManager')->destroy($find);
+        $this->getClass('HostScreenSettingsManager')->destroy($find);
+        $this->getClass('GroupAssociationManager')->destroy($find);
+        $this->getClass('SnapinAssociationManager')->destroy($find);
+        $this->getClass('PrinterAssociationManager')->destroy($find);
+        $this->getClass('ModuleAssociationManager')->destroy($find);
+        $this->getClass('GreenFogManager')->destroy($find);
+        $this->getClass('InventoryManager')->destroy($find);
+        $this->getClass('UserTrackingManager')->destroy($find);
+        $this->getClass('MACAddressAssociationManager')->destroy($find);
+        return parent::destroy($field);
     }
     public function save() {
         parent::save();
@@ -384,16 +294,14 @@ class Host extends FOGController {
     public function isValid() {
         return parent::isValid() && $this->isHostnameSafe() && $this->get('mac') instanceof MACAddress && $this->get('mac')->isValid();
     }
-    // Custom functons
     public function isHostnameSafe($hostname = '') {
         if (empty($hostname)) $hostname = $this->get('name');
         return (strlen($hostname) > 0 && strlen($hostname) <= 15 && preg_replace('#[0-9a-zA-Z_\-]#', '', $hostname) == '');
     }
     public function getDefault($printerid) {
-        return $this->getClass('Printer',@max($this->getClass('PrinterAssociationManager')->find(array('hostID'=>$this->get('id'),'printerID'=>$printerid,'isDefault'=>1),'','','','','','','printerID')))->isValid();
+        return $this->getClass('Printer',@max($this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id'),'printerID'=>$printerid,'isDefault'=>1),'printerID')));
     }
     public function updateDefault($printerid,$onoff) {
-        // Unset all default
         $this->getClass('PrinterAssociationManager')->update(array('printerID'=>$this->get('printers'),'hostID'=>$this->get('id')),'',array('isDefault'=>0));
         $this->getClass('PrinterAssociationManager')->update(array('printerID'=>$printerid,'hostID'=>$this->get('id')),'',array('isDefault'=>(int)$onoff));
         return $this;
@@ -435,79 +343,64 @@ class Host extends FOGController {
             ->save();
         return $this;
     }
-    private function loadADPass() {
-        if ($this->get('id') && $this->get('ADPass')) $this->set('ADPass',$this->encryptpw($this->get('ADPass')));
+    protected function loadMac() {
+        if ($this->get('id')) $this->set('mac',$this->getClass('MACAddress',$this->get('primac')->get('mac')));
     }
-    private function loadSnapinJob() {
-        if (!$this->isLoaded('snapinjob') && $this->get('id'))
-            $this->set('snapinjob',$this->getClass('SnapinJob',@max($this->getClass('SnapinJobManager')->find(array('stateID'=>array(-1,0,1,2,3),'hostID'=>$this->get('id')),'','','','','','','id'))));
+    protected function loadAdditionalMACs() {
+        if ($this->get('id')) $this->set('additionalMACs',$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>array(null,0,'')),'id'));
     }
-    private function loadPrimary() {
-        if (!$this->isLoaded('mac') && $this->get('id')) {
-            $this->set('mac',$this->getClass('MACAddress',$this->get('primac')->get('mac')));
-        }
-        return $this;
+    protected function loadPendingMACs() {
+        if ($this->get('id')) $this->set('pendingMACs',$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>1),'id'));
     }
-    private function loadAdditional() {
-        if (!$this->isLoaded('additionalMACs') && $this->get('id')) {
-            $MACAssocs = $this->getClass('MACAddressAssociationManager')->find(array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>array(null,0,'')),'','','','','','','mac');
-            foreach ((array)$MACAssocs AS $i => &$MACAssoc) $this->add('additionalMACs',$this->getClass('MACAddress',$MACAssoc));
-            unset($MACAssoc);
-        }
-        return $this;
-    }
-    private function loadPending() {
-        if (!$this->isLoaded('pendingMACs') && $this->get('id')) $this->set('pendingMACs',$this->getClass('MACAddressAssociationManager')->find(array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>1),'','','','','','','id'));
-    }
-    private function loadPrinters() {
-        if (!$this->isLoaded('printers') && $this->get('id')) {
-            // Printers I have
-            $PrinterIDs = array_unique($this->getClass('PrinterAssociationManager')->find(array('hostID'=>$this->get('id')),'','','','','','','printerID'));
-            $this->set('printers',$PrinterIDs);
-            $this->set('printersnotinme',array_unique($this->getClass('PrinterManager')->find(array('id'=>$PrinterIDs),'','','','','',true,'id')));
-            unset($PrinterIDs);
+    protected function loadGroups() {
+        if ($this->get('id')) {
+            $this->set('groups',$this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID'));
+            $find = array('id'=>$this->get('groups'));
+            $this->set('groupsnotinme',$this->getSubObjectIDs('Group',$find,'id',true));
+            unset($find);
         }
     }
-    private function loadGroups() {
-        if (!$this->isLoaded('groups') && $this->get('id')) {
-            // Groups I am in
-            $GroupIDs = array_unique($this->getClass('GroupAssociationManager')->find(array('hostID'=>$this->get('id')),'','','','','','','groupID'));
-            $this->set('groups',$GroupIDs);
-            $this->set('groupsnotinme',array_unique($this->getClass('GroupManager')->find(array('id'=>$GroupIDs),'','','','','',true,'id')));
-            unset($GroupIDs);
+    protected function loadPrinters() {
+        if ($this->get('id')) {
+            $this->set('printers',$this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID'));
+            $find = array('id'=>$this->get('printers'));
+            $this->set('printersnotinme',$this->getSubObjectIDs('Printer',$find,'id',true));
+            unset($find);
         }
     }
-    private function loadInventory() {
-        if (!$this->isLoaded('inventory') && $this->get('id')) $this->set('inventory',$this->getClass('Inventory',@max($this->getClass('InventoryManager')->find(array('hostID'=>$this->get('id')),'','','','','','','id'))));
-    }
-    private function loadModules() {
-        if (!$this->isLoaded('modules') && $this->get('id')) {
-            $ModuleIDs = array_unique($this->getClass('ModuleAssociationManager')->find(array('hostID'=>$this->get('id')),'','','','','','','moduleID'));
-            $this->set('modules',$ModuleIDs);
-            unset($ModuleIDs);
+    protected function loadSnapins() {
+        if ($this->get('id')) {
+            $this->set('snapins',$this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID'));
+            $find = array('id'=>$this->get('snapins'));
+            $this->set('snapinsnotinme',$this->getSubObjectIDs('Snapin',$find,'id',true));
+            unset($find);
         }
     }
-    private function loadSnapins() {
-        if ($this->get('id') && !$this->isLoaded('snapins')) {
-            $SnapinIDs = array_unique($this->getClass('SnapinAssociationManager')->find(array('hostID'=>$this->get('id')),'','','','','','','snapinID'));
-            $this->set('snapins',$SnapinIDs);
-            $this->set('snapinsnotinme',array_unique($this->getClass('SnapinManager')->find(array('id'=>$SnapinIDs),'','','','','',true,'id')));
-            unset($SnapinIDs);
+    protected function loadModules() {
+        if ($this->get('id')) $this->set('modules',$this->getSubObjectIDs('ModuleAssociation',array('hostID'=>$this->get('id')),'moduleID'));
+    }
+    protected function loadUsers() {
+        if ($this->get('id')) $this->set('users',$this->getSubObjectIDs('UserTracking',array('hostID'=>$this->get('id'),'action'=>array(null,0,'')),'id'));
+    }
+    protected function loadSnapinjob() {
+        if ($this->get('id')) $this->set('snapinjob',@max($this->getSubObjectIDs('SnapinJob',array('stateID'=>array(-1,0,1,2,3),'hostID'=>$this->get('id')),'id')));
+    }
+    protected function loadInventory() {
+        if ($this->get('id')) $this->set('inventory',@max($this->getSubObjectIDs('Inventory',array('hostID'=>$this->get('id')),'id')));
+    }
+    protected function loadTask() {
+        if ($this->get('id')) {
+            $find['hostID'] = $this->get('id');
+            $find['stateID'] = array(0,1,2,3);
+            if (in_array($_REQUEST['type'], array('up','down'))) $find['typeID'] = ($_REQUEST['type'] == 'up' ? array(2,16) : array(1,8,15,17,24));
+            $this->set('task',@max($this->getSubObjectIDs('Task',$find,'id')));
+            unset($find);
         }
     }
-    private function loadTask() {
-        if (!$this->isLoaded('task') && $this->get('id')) {
-            $findWhere['hostID'] = $this->get('id');
-            $findWhere['stateID'] = array(0,1,2,3);
-            if (in_array($_REQUEST['type'],array('up','down'))) $findWhere['typeID'] = ($_REQUEST['type'] == 'up' ? array(2,16) : array(1,8,15,17,24));
-            $this->set('task',$this->getClass('Task',@max($this->getClass('TaskManager')->find($findWhere,'','','','','','','id'))));
+    protected function loadOptimalStorageNode() {
+        if ($this->get('id')) {
+            $this->set('optimalStorageNode', $this->getClass('Image',$this->get('imageID'))->getStorageGroup()->getOptimalStorageNode());
         }
-    }
-    private function loadUsers() {
-        if (!$this->isLoaded('users') && $this->get('id')) $this->set('users',$this->getClass('UserTrackingManager')->find(array('hostID'=>$this->get('id'),'action'=>array(null,0,1)),'','datetime','','','','','id'));
-    }
-    private function loadOptimalStorageNode() {
-        if (!$this->isLoaded('optimalStorageNode') && $this->get('id') && $this->getImage() && $this->getImage()->isValid()) $this->set('optimalStorageNode',$this->getImage()->getStorageGroup()->getOptimalStorageNode());
     }
     public function getActiveTaskCount() {
         return $this->getClass('TaskManager')->count(array('stateID' => array(1, 2, 3),'hostID' => $this->get('id')));
@@ -923,12 +816,10 @@ class Host extends FOGController {
         return $this;
     }
     public function clientMacCheck($MAC = false) {
-        $mac = $this->getClass('MACAddress',current($this->getClass('MACAddressAssociationManager')->find(array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'clientIgnore'=>1))));
-        return $mac->isValid() ? 'checked' : '';
+        return $this->getClass('MACAddress',$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'clientIgnore'=>1),'mac'))->isValid() ? 'checked' : '';
     }
     public function imageMacCheck($MAC = false) {
-        $mac = $this->getClass('MACAddress',current($this->getClass('MACAddressAssociationManager')->find(array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'imageIgnore'=>1))));
-        return $mac->isValid() ? 'checked' : '';
+        return $this->getClass('MACAddress',$this->getSubObjectIDs('MACAddressAssociation',array('mac'=>($MAC ? $MAC : $this->get('mac')),'hostID'=>$this->get('id'),'imageIgnore'=>1),'mac'))->isValid() ? 'checked' : '';
     }
     public function setAD($useAD = '',$domain = '',$ou = '',$user = '',$pass = '',$override = false,$nosave = false,$legacy = '') {
         if ($this->get('id')) {
@@ -951,26 +842,6 @@ class Host extends FOGController {
         if (!$nosave) $this->save();
         return $this;
     }
-    public function destroy($field = 'id') {
-        // Complete active tasks
-        if ($this->get('task')->isValid()) $this->get('task')->set('stateID',5)->save();
-        // Remove Snapinjob Associations
-        if ($this->get('snapinjob')->isValid()) $this->get('snapinjob')->set('stateID',5)->save();
-        $assocs = array(
-            'GroupAssociation',
-            'ModuleAssociation',
-            'MACAddressAssociation',
-            'SnapinAssociation',
-        );
-        foreach ($assocs AS $i => &$AssocRem) $this->getClass($AssocRem)->getManager()->destroy(array('hostID'=>$this->get('id')));
-        unset($AssocRem);
-        // Update inventory to know when it was deleted
-        if ($this->get('inventory')) $this->get('inventory')->set('deleteDate',$this->nice_date()->format('Y-m-d H:i:s'))->save();
-        $this->HookManager->processEvent('DESTROY_HOST',array('Host'=>&$this));
-        // Return
-        return parent::destroy($field);
-    }
-    // Custom functions
     public function getImage() {
         return $this->getClass('Image',$this->get('imageID'));
     }
