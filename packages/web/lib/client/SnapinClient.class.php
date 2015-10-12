@@ -28,7 +28,6 @@ class SnapinClient extends FOGClient implements FOGClientSend {
         }
         // Get this Snapin
         $Snapin = $SnapinTask->getSnapin();
-        print $Snapin;
         // Get the storage group
         if ($Snapin->getStorageGroup()->isValid() && $Snapin->isValid()) $StorageGroup = $Snapin->getStorageGroup();
         // Send the hook to alter the group as needed
