@@ -66,16 +66,19 @@ class User extends FOGController {
                 $this->setMessage(_('Session ID is invalid'));
                 $this->logout();
                 $this->redirect('index.php');
+                return false;
             }
             if ($this->get('authIP') != $_SERVER['REMOTE_ADDR']) {
                 $this->setMessage(_('Session IP has changed'));
                 $this->logout();
                 $this->redirect('index.php');
+                return false;
             }
             if (!$this->alwaysloggedin && ((time() - $this->get('authLastActivity')) >= ($this->inactivitySessionTimeout*60*60))) {
                 $this->setMessage($this->foglang['SessionTimeout']);
                 $this->logout();
                 $this->redirect('index.php');
+                return false;
             }
             if ((time() - $this->get('authTime')) > ($this->regenerateSessionTimeout * 60 * 60)) {
                 session_regenerate_id(true);
@@ -107,10 +110,9 @@ class User extends FOGController {
             session_set_cookie_params(0);
             while(session_unset());
             while(session_destroy());
+            $_SESSION=array();
+            $_SESSION['locale'] = $locale;
         }
-        session_start();
-        $_SESSION=array();
-        $_SESSION['locale'] = $locale;
         if (isset($messages)) $this->setMessage($messages);
     }
 }
