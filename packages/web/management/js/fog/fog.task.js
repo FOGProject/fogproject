@@ -75,30 +75,32 @@ $(function() {
             });
         }
     });
-    // Update Tasks
-    ActiveTasksUpdate();
-    // Hook buttons
-    ActiveTasksButtonHook();
-    // Update timer
-    ActiveTasksUpdateTimerStart();
-    // Add Pause/Continue button text.
-    $('#taskpause').val('Pause auto update').addClass('active');
-    ActiveTasksUpdateTimerStart();
-    $('#taskpause').click(function(e) {
-        e.preventDefault();
-        if (!$(this).hasClass('active')) {
-            $(this).addClass('active').val('Pause auto update');
-            // Update Tasks
-            ActiveTasksUpdate();
-            // Hook buttons
-            ActiveTasksButtonHook();
-            // Update timer
-            ActiveTasksUpdateTimerStart();
-        } else {
-            $(this).removeClass('active').val('Continue auto update');
-            clearTimeout(ActiveTasksUpdateTimer);
-        }
-    });
+    if ($_GET['sub'] == 'active' || !$_GET['sub']) {
+        // Update Tasks
+        ActiveTasksUpdate();
+        // Hook buttons
+        ActiveTasksButtonHook();
+        // Update timer
+        ActiveTasksUpdateTimerStart();
+        // Add Pause/Continue button text.
+        $('#taskpause').val('Pause auto update').addClass('active');
+        ActiveTasksUpdateTimerStart();
+        $('#taskpause').click(function(e) {
+            e.preventDefault();
+            if (!$(this).hasClass('active')) {
+                $(this).addClass('active').val('Pause auto update');
+                // Update Tasks
+                ActiveTasksUpdate();
+                // Hook buttons
+                ActiveTasksButtonHook();
+                // Update timer
+                ActiveTasksUpdateTimerStart();
+            } else {
+                $(this).removeClass('active').val('Continue auto update');
+                clearTimeout(ActiveTasksUpdateTimer);
+            }
+        });
+    }
 });
 function ActiveTasksUpdateTimerStart() {
     if (typeof($_GET['sub']) == 'undefined' || $_GET['sub'] == 'active') {
