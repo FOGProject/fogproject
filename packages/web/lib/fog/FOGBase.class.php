@@ -130,7 +130,7 @@ abstract class FOGBase {
     protected function getMessages() {
         $messages = $_SESSION['FOG_MESSAGES'];
         unset($_SESSION['FOG_MESSAGES']);
-        $this->HookManager->processEvent('MessageBox',array('data'=>&$messages));
+        if ($this->HookManager instanceof HookManager) $this->HookManager->processEvent('MessageBox',array('data'=>&$messages));
         foreach ((array)$messages AS $i => &$message) {
             if (!$i) echo '<!-- FOG Messages -->';
             echo '<div class="fog-message-box">'.$message.'</div>';

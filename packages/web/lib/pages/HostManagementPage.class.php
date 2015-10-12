@@ -353,12 +353,12 @@ class HostManagementPage extends FOGPage {
             } catch (Exception $e) {
                 $this->setMessage($e->getMessage());
             }
-            $this->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
+            $this->redirect($this->formAction);
         }
         else if ($_REQUEST['approveAll']) {
             $this->getClass('MACAddressAssociationManager')->update(array('hostID'=>$this->obj->get('id')),'',array('pending'=>0));
             $this->setMessage('All Pending MACs approved.');
-            $this->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&id='.$_REQUEST['id']);
+            $this->redirect($this->formAction);
         }
         foreach($this->obj->get('additionalMACs') AS $i => &$MAC) {
             if ($MAC instanceof MACAddress && $MAC->isValid())
@@ -1037,21 +1037,19 @@ class HostManagementPage extends FOGPage {
             // Save to database
             if (!$this->obj->save()) throw new Exception(_('Host Update Failed'));
             $this->obj->setAD();
-            if ($_REQUEST[tab] == 'host-general') $this->obj->ignore($_REQUEST[igimage],$_REQUEST[igclient]);
+            if ($_REQUEST['tab'] == 'host-general') $this->obj->ignore($_REQUEST[igimage],$_REQUEST[igclient]);
             // Hook
             $this->HookManager->processEvent(HOST_EDIT_SUCCESS,array(Host=>&$this->obj));
             // Set session message
             $this->setMessage('Host updated!');
-            // Redirect to new entry
-            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $this->REQUEST['node'], $this->id, $this->obj->get(id), $_REQUEST[tab]));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(HOST_EDIT_FAIL,array(Host=>&$this->obj));
             // Set session message
             $this->setMessage($e->getMessage());
-            // Redirect
-            $this->redirect('?node=host&sub=edit&id='.$this->obj->get(id).'#'.$_REQUEST[tab]);
         }
+        // Redirect
+        $this->redirect(sprintf('%s#%s',$this->formAction, $_REQUEST['tab']));
     }
     /** save_group()
         Saves the data to a host.

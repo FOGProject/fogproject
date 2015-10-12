@@ -430,16 +430,14 @@ class ImageManagementPage extends FOGPage {
             $this->HookManager->processEvent(IMAGE_UPDATE_SUCCESS,array(Image=>&$this->obj));
             // Set session message
             $this->setMessage(_('Image updated'));
-            // Redirect to new entry
-            $this->redirect(sprintf('?node=%s&sub=edit&%s=%s#%s', $this->request[node],$this->id,$this->obj->get(id),$_REQUEST[tab]));
         } catch (Exception $e) {
             // Hook
             $this->HookManager->processEvent(IMAGE_UPDATE_FAIL,array(Image=>&$this->obj));
             // Set session message
             $this->setMessage($e->getMessage());
-            // Redirect
-            $this->redirect($this->formAction);
         }
+        // Redirect
+        $this->redirect(sprintf('%s#%s',$this->formAction,$_REQUEST['tab']));
     }
     /** multicast()
      * Creates the multicast session.
