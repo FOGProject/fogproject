@@ -19,7 +19,7 @@ class AddTasktypeeditMenuItem extends Hook {
         if (in_array($this->node,(array)$_SESSION['PluginsInstalled']) && $_REQUEST['node'] == $this->node) $arguments['actionbox'] = '';
     }
 }
-$AddTasktypeeditMenuItem = $FOGCore->getClass('AddTasktypeeditMenuItem');
+$AddTasktypeeditMenuItem = new AddTasktypeeditMenuItem();
 // Register hooks
 $HookManager->register('MAIN_MENU_DATA',array($AddTasktypeeditMenuItem,'MenuData'));
 $HookManager->register('SEARCH_PAGES',array($AddTasktypeeditMenuItem,'addSearch'));
