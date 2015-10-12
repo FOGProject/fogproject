@@ -96,16 +96,19 @@ class User extends FOGController {
     }
     public function logout() {
         // Destroy session
-        $locale = $_SESSION['locale'];
-        $messages = $this->getMessages();
         unset($this->sessionID);
         $this->set('authID',null);
         $this->set('authIP',null);
         $this->set('authTime',null);
         $this->set('authLastActivity',null);
-        session_set_cookie_params(0);
-        while(session_unset());
-        while(session_destroy());
+        $messages = $this->getMessages();
+        if (session_id() != '') {
+            $locale = $_SESSION['locale'];
+            session_set_cookie_params(0);
+            while(session_unset());
+            while(session_destroy());
+        }
+        session_start();
         $_SESSION=array();
         $_SESSION['locale'] = $locale;
         if (isset($messages)) $this->setMessage($messages);
