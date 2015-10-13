@@ -36,7 +36,6 @@ class User extends FOGController {
     }
     public function validate_pw($password) {
         $res = false;
-        if (@session_id() == '') @session_start();
         if (crypt($password,$this->get('password')) == $this->get('password')) $res = $this;
         if ($res) {
             if (!$this->sessionID) $this->sessionID = @session_id();
@@ -105,7 +104,6 @@ class User extends FOGController {
         $this->set('authTime',null);
         $this->set('authLastActivity',null);
         $messages = $this->getMessages();
-        if (@session_id() == '') @session_start();
         $locale = $_SESSION['locale'];
         @session_set_cookie_params(0);
         @session_unset();
