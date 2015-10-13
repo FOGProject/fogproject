@@ -64,7 +64,6 @@ class ReportMaker extends FOGBase {
                 }
             }
             exec('rm -rf "'.$path.$filename.'"');
-            @session_start();
         } else if ($intType == 4) {
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=".$_REQUEST[type]."_export.csv");
