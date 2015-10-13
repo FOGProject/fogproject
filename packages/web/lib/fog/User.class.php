@@ -88,7 +88,7 @@ class User extends FOGController {
             $this->redirect('index.php');
             return false;
         } else if ((time() - $this->get('authTime')) > ($this->regenerateSessionTimeout * 60 * 60)) {
-            session_regenerate_id(true);
+            session_regenerate_id(false);
             $this->sessionID = session_id();
             session_write_close();
             session_id($this->sessionID);
