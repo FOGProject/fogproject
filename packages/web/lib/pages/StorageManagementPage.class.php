@@ -6,34 +6,33 @@ class StorageManagementPage extends FOGPage {
         $this->name = 'Storage Management';
         parent::__construct($this->name);
         $this->menu = array(
-            '' => $this->foglang[AllSN],
-            'add-storage-node' => $this->foglang[AddSN],
-            'storage-group' => $this->foglang[AllSG],
-            'add-storage-group' => $this->foglang[AddSG],
+            '' => $this->foglang['AllSN'],
+            'add-storage-node' => $this->foglang['AddSN'],
+            'storage-group' => $this->foglang['AllSG'],
+            'add-storage-group' => $this->foglang['AddSG'],
         );
-        if (in_array($_REQUEST[sub],array('edit','delete','delete-storage-node')) && $_REQUEST[id]) {
-            $this->obj = $this->getClass('StorageNode',$_REQUEST[id]);
+        if (in_array($_REQUEST['sub'],array('edit','delete','delete-storage-node')) && $_REQUEST[id]) {
+            $this->obj = $this->getClass('StorageNode',$_REQUEST['id']);
             $this->subMenu = array(
-                "?node={$this->node}&sub={$_REQUEST[sub]}&id={$_REQUEST[id]}" => $this->foglang[General],
-                "?node={$this->node}&sub=delete-storage-node&id={$_REQUEST[id]}" => $this->foglang[Delete],
+                "?node={$this->node}&sub={$_REQUEST['sub']}&id={$_REQUEST['id']}" => $this->foglang['General'],
+                "?node={$this->node}&sub=delete-storage-node&id={$_REQUEST['id']}" => $this->foglang['Delete'],
             );
             $this->notes = array(
-                "{$this->foglang[Storage]} {$this->foglang[Node]}" => $this->obj->get(name),
-                $this->foglang[ImagePath] => $this->obj->get(path),
-                $this->foglang[FTPPath] => $this->obj->get(ftppath),
+                "{$this->foglang['Storage']} {$this->foglang['Node']}" => $this->obj->get('name'),
+                $this->foglang['ImagePath'] => $this->obj->get('path'),
+                $this->foglang['FTPPath'] => $this->obj->get('ftppath'),
             );
-        } else if (in_array($_REQUEST[sub],array('edit-storage-group','delete-storage-group')) && $_REQUEST[id]) {
-            $this->obj = $this->getClass(StorageGroup,$_REQUEST[id]);
+        } else if (in_array($_REQUEST['sub'],array('edit-storage-group','delete-storage-group')) && $_REQUEST['id']) {
+            $this->obj = $this->getClass('StorageGroup',$_REQUEST['id']);
             $this->subMenu = array(
-                "?node={$this->node}&sub={$_REQUEST[sub]}&id={$_REQUEST[id]}" => $this->foglang[General],
-                "?node={$this->node}&sub=delete-storage-group&id={$_REQUEST[id]}" => $this->foglang[Delete],
+                "?node={$this->node}&sub={$_REQUEST['sub']}&id={$_REQUEST['id']}" => $this->foglang['General'],
+                "?node={$this->node}&sub=delete-storage-group&id={$_REQUEST['id']}" => $this->foglang['Delete'],
             );
             $this->notes = array(
-                "{$this->foglang[Storage]} {$this->foglang[Group]}" => $this->obj->get(name),
+                "{$this->foglang['Storage']} {$this->foglang['Group']}" => $this->obj->get('name'),
             );
         }
     }
-
     // Common functions - call Storage Node functions if the default sub's are used
     public function search() {
         $this->index();
@@ -511,7 +510,7 @@ class StorageManagementPage extends FOGPage {
     }
     public function edit_storage_group() {
         // Title
-        $this->title = sprintf('%s: %s', $this->foglang[Edit], $this->obj->get(name));
+        $this->title = sprintf('%s: %s', $this->foglang['Edit'], $this->obj->get('name'));
         // Header Data
         unset($this->headerData);
         // Attributes

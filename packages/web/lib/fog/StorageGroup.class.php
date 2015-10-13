@@ -11,7 +11,8 @@ class StorageGroup extends FOGController {
     // Additional Fields
     // Custom functions: Storage Group
     public function getStorageNodes() {
-        return $this->getClass(StorageNodeManager)->find(array(isEnabled=>1, storageGroupID=>$this->get(id)),'','','','','','','id');
+        if (!count($this->getSubObjectIDs('StorageNode',array('isEnabled'=>1,'storageGroupID'=>$this->get('id')),'id'))) die(_('There are no enabled storage nodes for this group'));
+        return $this->getSubObjectIDs('StorageNode',array('isEnabled'=>1,'storageGroupID'=>$this->get('id')),'id');
     }
     public function getTotalSupportedClients() {
         $clients = 0;
