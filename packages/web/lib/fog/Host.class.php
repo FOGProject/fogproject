@@ -750,7 +750,7 @@ class Host extends FOGController {
         return $this;
     }
     public function getMyMacs($justme = true) {
-        $KnownMacs[] = strtolower($this->get('mac'));
+        $KnownMacs = $this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id')),'mac');
         foreach((array)$this->get('additionalMACs') AS $i => &$MAC) {
             if ($MAC instanceof MACAddress && $MAC->isValid()) $KnownMACs[] = $MAC->__toString();
         }
@@ -781,16 +781,10 @@ class Host extends FOGController {
             if ($cgMAC->isValid()) $cgMACs[] = $cgMAC->__toString();
         }
         unset($cgMAC);
-        foreach((array)$MyMACs AS $i => &$MAC) {
-            $ignore = current((array)$this->getClass('MACAddressAssociationManager')->find(array('mac'=>$MAC,'hostID'=>$this->get('id'))));
-            $ME = $this->getClass('MACAddress',$ignore);
-            if ($ME->isValid()) {
-                $mac = $ME->__toString();
-                $ignore->set('imageIgnore',in_array($mac,(array)$igMACs))->save();
-                $ignore->set('clientIgnore',in_array($mac,(array)$cgMACs))->save();
-            }
-        }
-        unset($MAC);
+        $this->getClass('MACAddressAssociationManager')->update(array('mac'=>array_diff($MyMACs,$cgMACs),'hostID'=>$this->get('id')),'',array('clientIgnore'=>0));
+        $this->getClass('MACAddressAssociationManager')->update(array('mac'=>array_diff($MyMACs,$igMACs),'hostID'=>$this->get('id')),'',array('imageIgnore'=>0));
+        if (count($cgMACs)) $this->getClass('MACAddressAssociationManager')->update(array('mac'=>$cgMACs,'hostID'=>$this->get('id')),'',array('clientIgnore'=>1));
+        if (count($igMACs)) $this->getClass('MACAddressAssociationManager')->update(array('mac'=>$igMACs,'hostID'=>$this->get('id')),'',array('imageIgnore'=>1));
     }
     public function addGroup($addArray) {
         return $this->addHost($addArray);
