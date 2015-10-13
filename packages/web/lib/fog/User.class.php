@@ -67,22 +67,27 @@ class User extends FOGController {
         session_set_cookie_params(0,'/',$domain,$secure,true);
         session_start();
         if (!isset($this->sessionID)) $this->sessionID = session_id();
-        if (!$this->get('authIP') || !$this->get('authUserAgent')) return false;
-        elseif ($this->get('authIP') != $_SERVER['REMOTE_ADDR']) return false;
-        elseif ($this->get('authUserAgent') != $_SERVER['HTTP_USER_AGENT']) return false;
-        if ($this->get('authID') && $this->sessionID != $this->get('authID')) {
+        if ($this->get('authIP') && $this->get('authIP') != $_SERVER['REMOTE_ADDR']) {
+            $this->setMessage(_('IP Address Changed'));
+            $this->logout();
+            $this->redirect('index.php');
+            return false;
+        } else if ($this->get('authUserAgent') && $this->get('authUserAgent') != $_SERVER['HTTP_USER_AGENT']) {
+            $this->setMessage(_('User Agent Changed'));
+            $this->logout();
+            $this->redirect('index.php');
+            return false;
+        } else if ($this->get('authID') && $this->sessionID != $this->get('authID')) {
             $this->setMessage(_('Session ID has changed'));
             $this->logout();
             $this->redirect('index.php');
             return false;
-        }
-        if (!$this->alwaysloggedin && ((time() - $this->get('authLastActivity')) >= ($this->inactivitySessionTimeout*60*60))) {
+        } else if (!$this->alwaysloggedin && ((time() - $this->get('authLastActivity')) >= ($this->inactivitySessionTimeout*60*60))) {
             $this->setMessage($this->foglang['SessionTimeout']);
             $this->logout();
             $this->redirect('index.php');
             return false;
-        }
-        if ((time() - $this->get('authTime')) > ($this->regenerateSessionTimeout * 60 * 60)) {
+        } else if ((time() - $this->get('authTime')) > ($this->regenerateSessionTimeout * 60 * 60)) {
             session_regenerate_id(true);
             $this->sessionID = session_id();
             session_write_close();
@@ -91,7 +96,7 @@ class User extends FOGController {
             $this
                 ->set('authID',$this->sessionID)
                 ->set('authTime',time());
-        }
+        } else if (!$this->get('authIP') || !$this->get('authUserAgent')) return false;
         $_SESSION['FOG_USER'] = serialize($this);
         $_SESSION['FOG_USERNAME'] = $this->get('name');
         $this->set('authLastActivity',time());
@@ -107,6 +112,7 @@ class User extends FOGController {
         $this->set('authUserAgent',null);
         $messages = $this->getMessages();
         $locale = $_SESSION['locale'];
+        session_regenerate_id(true);
         session_unset();
         session_destroy();
         session_start();

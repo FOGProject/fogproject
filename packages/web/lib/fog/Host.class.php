@@ -353,8 +353,10 @@ class Host extends FOGController {
         if ($this->get('id')) $this->set('pendingMACs',$this->getSubObjectIDs('MACAddressAssociation',array('hostID'=>$this->get('id'),'primary'=>array(null,0,''),'pending'=>1),'id'));
     }
     protected function loadGroups() {
+        if ($this->get('id')) $this->set('groups',$this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID'));
+    }
+    protected function loadGroupsnotinme() {
         if ($this->get('id')) {
-            $this->set('groups',$this->getSubObjectIDs('GroupAssociation',array('hostID'=>$this->get('id')),'groupID'));
             $find = array('id'=>$this->get('groups'));
             $this->set('groupsnotinme',$this->getSubObjectIDs('Group',$find,'id',true));
             unset($find);
@@ -363,6 +365,10 @@ class Host extends FOGController {
     protected function loadPrinters() {
         if ($this->get('id')) {
             $this->set('printers',$this->getSubObjectIDs('PrinterAssociation',array('hostID'=>$this->get('id')),'printerID'));
+        }
+    }
+    protected function loadPrintersnotinme() {
+        if ($this->get('id')) {
             $find = array('id'=>$this->get('printers'));
             $this->set('printersnotinme',$this->getSubObjectIDs('Printer',$find,'id',true));
             unset($find);
@@ -371,6 +377,10 @@ class Host extends FOGController {
     protected function loadSnapins() {
         if ($this->get('id')) {
             $this->set('snapins',$this->getSubObjectIDs('SnapinAssociation',array('hostID'=>$this->get('id')),'snapinID'));
+        }
+    }
+    protected function loadSnapinsnotinme() {
+        if ($this->get('id')) {
             $find = array('id'=>$this->get('snapins'));
             $this->set('snapinsnotinme',$this->getSubObjectIDs('Snapin',$find,'id',true));
             unset($find);
