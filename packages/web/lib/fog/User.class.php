@@ -92,7 +92,7 @@ class User extends FOGController {
             $this->sessionID = session_id();
             session_write_close();
             session_id($this->sessionID);
-            session_start();
+            if (!session_id()) session_start();
             $this
                 ->set('authID',$this->sessionID)
                 ->set('authTime',time());
