@@ -1037,7 +1037,7 @@ class HostManagementPage extends FOGPage {
             // Save to database
             if (!$this->obj->save()) throw new Exception(_('Host Update Failed'));
             $this->obj->setAD();
-            if ($_REQUEST['tab'] == 'host-general') $this->obj->ignore($_REQUEST[igimage],$_REQUEST[igclient]);
+            if ($_REQUEST['tab'] == 'host-general') $this->obj->ignore($_REQUEST['igimage'],$_REQUEST['igclient']);
             // Hook
             $this->HookManager->processEvent(HOST_EDIT_SUCCESS,array(Host=>&$this->obj));
             // Set session message
