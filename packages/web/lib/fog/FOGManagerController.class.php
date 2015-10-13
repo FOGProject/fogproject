@@ -79,9 +79,6 @@ abstract class FOGManagerController extends FOGController {
         }
         $data = array();
         $this->DB->query($query);
-        if (isset($_REQUEST['node']) && $_REQUEST['node'] != 'login') @session_write_close();
-        header('Connection: close',true);
-        header("Content-Encoding: none\r\n");
         ignore_user_abort(true);
         if ($idField) {
             if (is_array($idField)) {
@@ -100,7 +97,6 @@ abstract class FOGManagerController extends FOGController {
             foreach ((array)$queryData AS $i => &$row) $data[] = $this->getClass($this->childClass)->setQuery($row);
             unset($row);
         }
-        @session_start();
         if ($this->DB->queryResult() instanceof mysqli_result) $this->DB->queryResult()->close();
         return (array)$data;
     }
