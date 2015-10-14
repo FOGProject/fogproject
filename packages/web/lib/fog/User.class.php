@@ -65,7 +65,7 @@ class User extends FOGController {
         $domain = isset($_SERVER['SERVER_NAME']);
         $https = isset($_SERVER['HTTPS']);
         session_set_cookie_params(0,'/',$domain,$secure,true);
-        session_start();
+        if (!session_id()) session_start();
         if (!isset($this->sessionID)) $this->sessionID = session_id();
         if ($this->get('authIP') && $this->get('authIP') != $_SERVER['REMOTE_ADDR']) {
             $this->setMessage(_('IP Address Changed'));
