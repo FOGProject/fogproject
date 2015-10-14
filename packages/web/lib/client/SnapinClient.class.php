@@ -94,11 +94,11 @@ class SnapinClient extends FOGClient implements FOGClientSend {
                 sprintf('JOBTASKID=%d',$SnapinTask->get('id')),
                 sprintf('JOBCREATION=%s',$this->Host->get('snapinjob')->get('createdTime')),
                 sprintf('SNAPINNAME=%s',$Snapin->get('name')),
-                sprintf('SNAPINARGS=%s',stripslashes(htmlentities($Snapin->get('args')))),
+                sprintf('SNAPINARGS=%s',$Snapin->get('args')),
                 sprintf('SNAPINBOUNCE=%s',$Snapin->get('reboot')),
                 sprintf('SNAPINFILENAME=%s',$Snapin->get('file')),
-                sprintf('SNAPINRUNWITH=%s',stripslashes(htmlentities($Snapin->get('runWith')))),
-                sprintf('SNAPINRUNWITHARGS=%s',stripslashes(htmlentities($Snapin->get('runWithArgs')))),
+                sprintf('SNAPINRUNWITH=%s',$Snapin->get('runWith')),
+                sprintf('SNAPINRUNWITHARGS=%s',$Snapin->get('runWithArgs')),
             );
             if ($this->newService) {
                 array_push($goodArray,sprintf('SNAPINHASH=%s',$snapinHash));
