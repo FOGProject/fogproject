@@ -66,11 +66,10 @@ class Initiator {
         @error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
         @ini_set('session.save_handler','mm');
         @ini_set('session.cookie_httponly',true);
-        @session_start();
-        @session_cache_limiter('no-cache');
-        @session_set_cookie_params(0,null,null,true,true);
+        session_cache_limiter('no-cache');
+        if (!session_id()) session_start();
         @set_magic_quotes_runtime(0);
-        @ob_start(array(self,'sanitize_output'));
+        ob_start(array(self,'sanitize_output'));
         self::verCheck();
         self::extCheck();
         foreach($_REQUEST as $key => $val) $_REQUEST[$key] = is_array($val) ? filter_var_array($val,FILTER_SANITIZE_FULL_SPECIAL_CHARS,FILTER_FLAG_NO_ENCODE_QUOTES) : filter_var($val,FILTER_SANITIZE_FULL_SPECIAL_CHARS,FILTER_FLAG_NO_ENCODE_QUOTES);
