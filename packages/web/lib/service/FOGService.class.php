@@ -89,8 +89,8 @@ abstract class FOGService extends FOGBase {
      * @return null
      */
     public function outall($string) {
-        $this->out($string."\n",$this->dev);
-        $this->wlog($string."\n",$this->log);
+        $this->out('* '.$string."\n",$this->dev);
+        $this->wlog('* '.$string."\n",$this->log);
         return;
     }
     /** out()
