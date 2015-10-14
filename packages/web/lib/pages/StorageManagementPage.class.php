@@ -11,7 +11,7 @@ class StorageManagementPage extends FOGPage {
             'storage-group' => $this->foglang['AllSG'],
             'add-storage-group' => $this->foglang['AddSG'],
         );
-        if (in_array($_REQUEST['sub'],array('edit','delete','delete-storage-node')) && $_REQUEST[id]) {
+        if (in_array($_REQUEST['sub'],array('edit','delete','delete-storage-node','delete_storage_node')) && $_REQUEST[id]) {
             $this->obj = $this->getClass('StorageNode',$_REQUEST['id']);
             $this->subMenu = array(
                 "?node={$this->node}&sub={$_REQUEST['sub']}&id={$_REQUEST['id']}" => $this->foglang['General'],
@@ -22,7 +22,7 @@ class StorageManagementPage extends FOGPage {
                 $this->foglang['ImagePath'] => $this->obj->get('path'),
                 $this->foglang['FTPPath'] => $this->obj->get('ftppath'),
             );
-        } else if (in_array($_REQUEST['sub'],array('edit-storage-group','delete-storage-group')) && $_REQUEST['id']) {
+        } else if (in_array($_REQUEST['sub'],array('edit-storage-group','delete-storage-group','edit_storage_group','delete_storage_group')) && $_REQUEST['id']) {
             $this->obj = $this->getClass('StorageGroup',$_REQUEST['id']);
             $this->subMenu = array(
                 "?node={$this->node}&sub={$_REQUEST['sub']}&id={$_REQUEST['id']}" => $this->foglang['General'],
