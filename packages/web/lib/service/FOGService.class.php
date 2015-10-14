@@ -1,5 +1,5 @@
 <?php
-abstract class FOGService extends FOGBase {
+abstract class FOGService extends FOGController {
     /** @var $dev string the device output for console */
     public $dev;
     /** @var $log string the log file to write to */
@@ -89,8 +89,8 @@ abstract class FOGService extends FOGBase {
      * @return null
      */
     public function outall($string) {
-        $this->out('* '.$string."\n",$this->dev);
-        $this->wlog('* '.$string."\n",$this->log);
+        $this->out($string."\n",$this->dev);
+        $this->wlog($string."\n",$this->log);
         return;
     }
     /** out()
