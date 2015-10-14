@@ -180,10 +180,10 @@ class SnapinManagementPage extends FOGPage {
                 ->set('name',$snapinName)
                 ->set('description',$_REQUEST['description'])
                 ->set('file',$_REQUEST['snapinfileexist'] ? $_REQUEST['snapinfileexist'] : $_FILES['snapin']['name'])
-                ->set('args',$_REQUEST['args'])
+                ->set('args',addslashes($_REQUEST['args']))
                 ->set('reboot',(int)isset($_REQUEST['reboot']))
-                ->set('runWith',$_REQUEST['rw'])
-                ->set('runWithArgs',$_REQUEST['rwa'])
+                ->set('runWith',addslashes($_REQUEST['rw']))
+                ->set('runWithArgs',addslashes($_REQUEST['rwa']))
                 ->addGroup($_REQUEST['storagegroup']);
             // Save
             if (!$Snapin->save()) throw new Exception(_('Add snapin failed!'));
@@ -252,11 +252,11 @@ class SnapinManagementPage extends FOGPage {
         $fields = array(
             _('Snapin Name') => '<input type="text" name="name" value="'.$this->obj->get('name').'" />',
             _('Snapin Description') => '<textarea name="description" rows="8" cols="40">'.$this->obj->get('description').'</textarea>',
-            _('Snapin Run With') => '<input class="cmdlet1" type="text" name="rw" value="'.htmlentities($this->obj->get('runWith')).'" />',
-            _('Snapin Run With Argument') => '<input class="cmdlet2" type="text" name="rwa" value="'.htmlentities($this->obj->get('runWithArgs')).'" />',
+            _('Snapin Run With') => '<input class="cmdlet1" type="text" name="rw" value="'.stripslashes(htmlentities($this->obj->get('runWith'))).'" />',
+            _('Snapin Run With Argument') => '<input class="cmdlet2" type="text" name="rwa" value="'.stripslashes(htmlentities($this->obj->get('runWithArgs'))).'" />',
             _('Snapin File').' <span class="lightColor">'._('Max Size').':'.ini_get('post_max_size').'</span>' => '<label id="uploader" for="snapin-uploader">'.$this->obj->get('file').'<a href="#" id="snapin-upload">&nbsp;<i class="fa fa-arrow-up noBorder"></i></a></label>',
             (count($files) > 0 ? _('Snapin File (exists)') : null)=> (count($files) > 0 ? '<select class="cmdlet3" name="snapinfileexist"><span class="lightColor"><option value="">- '._('Please select an option').'-</option>'.$filesFound.'</select>' : null),
-            _('Snapin Arguments') => '<input class="cmdlet4" type="text" name="args" value="'.htmlentities($this->obj->get('args')).'" />',
+            _('Snapin Arguments') => '<input class="cmdlet4" type="text" name="args" value="'.stripslashes(htmlentities($this->obj->get('args'))).'" />',
             _('Protected') => '<input type="checkbox" name="protected_snapin" value="1"'.($this->obj->get('protected') ? ' checked' : '').'/>',
             _('Reboot after install') => '<input type="checkbox" name="reboot" '.($this->obj->get('reboot') ? ' checked' : '').'/>',
             _('Snapin Command') => '<textarea class="snapincmd" disabled></textarea>',
@@ -383,10 +383,10 @@ class SnapinManagementPage extends FOGPage {
                     ->set('name',$_REQUEST['name'])
                     ->set('description',$_REQUEST['description'])
                     ->set('file',($_REQUEST['snapinfileexist'] ? $_REQUEST['snapinfileexist'] : ($_FILES['snapin']['name'] ? $_FILES['snapin']['name'] : $this->obj->get('file'))))
-                    ->set('args',$_REQUEST['args'])
+                    ->set('args',addslashes($_REQUEST['args']))
                     ->set('reboot',(int)isset($_REQUEST['reboot']))
-                    ->set('runWith',$_REQUEST['rw'])
-                    ->set('runWithArgs',$_REQUEST['rwa'])
+                    ->set('runWith',addslashes($_REQUEST['rw']))
+                    ->set('runWithArgs',addslashes($_REQUEST['rwa']))
                     ->set('protected',$_REQUEST['protected_snapin']);
                 break;
                 case 'snap-storage';
