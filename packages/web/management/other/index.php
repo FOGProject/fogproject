@@ -35,7 +35,7 @@ unset($stylesheet); ?>
 <?php !$this->isMobile ? $this->getMessages() : '' ?>
 <?php if ($this->isMobile) { // Mobile Login
      ?><div id="header"></div>
-	<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn()) { ?><div id="mainContainer">
+	<?php if ($this->FOGUser) { ?><div id="mainContainer">
 		<div class="mainContent"><?php echo $this->menu;
         echo ($this->pageTitle ? "<h2>$this->pageTitle</h2>" : null) . "\n" ?>
 			<div id="mobile_content">
@@ -54,18 +54,18 @@ unset($stylesheet); ?>
 					<h1><a href="<?php echo $_SERVER['PHP_SELF'] ?>"><img src="<?php echo $this->imagelink ?>fog-logo.png" title="<?php echo $this->foglang['Home'] ?>" /><sup><?php echo FOG_VERSION ?></sup></a></h1>
 					<h2><?php echo $this->foglang['Slogan'] ?></h2>
 					</div>
-					<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn()) { ?><!-- Mainmenu -->
+					<?php if ($this->FOGUser) { ?><!-- Mainmenu -->
 							<?php echo $this->menu ?>
 							<?php
     } ?></div>
-							<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !$this->isHomepage) { ?><!-- Submenu -->
+							<?php if ($this->FOGUser && !$this->isHomepage) { ?><!-- Submenu -->
 								<?php echo $this->FOGPageManager->getSideMenu();
     } ?>
 								</header><!-- Content -->
 								<div id="content"<?php echo ($this->isHomepage ? ' class="dashboard"' : '') ?>>
 								<?php echo "<h1>$this->sectionTitle</h1>\n" ?>
 								<div id="content-inner">
-								<?php if ($this->FOGUser && $this->FOGUser->isLoggedIn()) {
+								<?php if ($this->FOGUser) {
         echo ($this->pageTitle ? "<h2>$this->pageTitle</h2>" : null);
         $this->HookManager->processEvent('CONTENT_DISPLAY', array('content' => & $this->body, 'sectionTitle' => & $this->sectionTitle, 'pageTitle' => & $this->pageTitle));
     }
