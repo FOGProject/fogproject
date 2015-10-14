@@ -111,15 +111,11 @@ class Image extends FOGController {
         return parent::add($key,$value);
     }
     public function addGroup($addArray) {
-        // Add
-        $this->set('hosts',array_unique(array_merge((array)$this->get('storageGroups'),(array)$addArray)));
-        // Return
+        $this->set('storageGroups',array_unique(array_merge((array)$this->get('storageGroups'),(array)$addArray)));
         return $this;
     }
     public function removeGroup($removeArray) {
-        // Iterate array (or other as array)
-        $this->set('hosts',array_unique(array_diff((array)$this->get('storageGroups'),(array)$removeArray)));
-        // Return
+        $this->set('storageGroups',array_unique(array_diff((array)$this->get('storageGroups'),(array)$removeArray)));
         return $this;
     }
     public function addHost($addArray) {
