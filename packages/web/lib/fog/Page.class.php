@@ -14,8 +14,8 @@ class Page extends FOGBase {
         $this->addCSS('css/font-awesome.css');
         $this->addCSS('css/select2.min.css');
         $this->addCSS('css/theme.blue.css');
-        $this->isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST['sub'],array('configure','authorize')) || !$this->FOGUser || !$this->FOGUser->isLoggedIn());
-        if ($this->FOGUser && $this->FOGUser->isLoggedIn() && strtolower($_REQUEST['node']) != 'schemaupdater') {
+        $this->isHomepage = (!$_REQUEST['node'] || in_array($_REQUEST['node'], array('home', 'dashboard','schemaupdater','client','logout','login')) || in_array($_REQUEST['sub'],array('configure','authorize')) || !$this->FOGUser);
+        if ($this->FOGUser && strtolower($_REQUEST['node']) != 'schemaupdater') {
             if (!$this->isMobile) {
                 $this->main = array(
                     'home'=>array($this->foglang['Home'],'fa fa-home fa-2x'),
@@ -57,7 +57,7 @@ class Page extends FOGBase {
             unset($title);
             $this->menu .= '</ul></nav>';
         }
-        if ($this->FOGUser && $this->FOGUser->isLoggedIn() && !$this->isMobile) {
+        if ($this->FOGUser && !$this->isMobile) {
             $files = array(
                 'hjs/jquery-latest.js',
                 'hjs/jquery.tablesorter.combined.js',

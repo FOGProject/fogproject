@@ -10,7 +10,7 @@ class RemoveMenuItems extends Hook {
         $this->getLoggedIn();
     }
     public function getLoggedIn() {
-        if ($this->FOGUser && $this->FOGUser->isLoggedIn() && in_array($this->FOGUser->get(type),array(2))) $this->linksToFilter = array('accesscontrol','printer','service','about');
+        if ($this->FOGUser && in_array($this->FOGUser->get(type),array(2))) $this->linksToFilter = array('accesscontrol','printer','service','about');
     }
     public function MenuData($arguments) {
         if (in_array($this->node,$_SESSION[PluginsInstalled])) foreach((array)$this->linksToFilter AS $i => &$link) unset($arguments['main'][$link]);
