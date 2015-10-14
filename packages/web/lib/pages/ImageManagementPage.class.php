@@ -159,7 +159,7 @@ class ImageManagementPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $StorageNode = $this->getClass('StorageGroup',@min($this->getClass('StorageGroup','','id')))->getMasterStorageNode();
+        $StorageNode = $this->getClass('StorageGroup',@min($this->getClass('StorageGroup')->getSubObjectIDs('StorageGroup','','id')))->getMasterStorageNode();
         if (!(($StorageNode instanceof StorageNode) && $StorageNode)) die(_('There is no active/enabled Storage nodes on this server.'));
         $StorageGroups = $this->getClass('StorageGroupManager')->buildSelectBox($_REQUEST['storagegroup'] ? $_REQUEST['storagegroup'] : $StorageNode->get('storageGroupID'));
         $OSs = $this->getClass(OSManager)->buildSelectBox($_REQUEST[os]);
