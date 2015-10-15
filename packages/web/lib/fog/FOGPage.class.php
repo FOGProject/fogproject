@@ -433,15 +433,16 @@ abstract class FOGPage extends FOGBase {
         );
         $this->additional = array();
         $ids = array_filter(array_unique(explode(',',$_REQUEST[strtolower($this->childClass).'IDArray'])));
-        $findWhere = array(id=>$ids);
-        if (array_key_exists('protected',$this->getClass($this->childClass)->databaseFields)) $findWhere['protected'] = array('',null,0,false);
+        $findWhere['id'] = $ids;
         $Objects = $this->getClass($this->childClass)->getManager()->find($findWhere);
         foreach ($Objects AS $i => &$Obj) {
-            $this->data[] = array(
-                id=>$Obj->get(id),
-                name=>$Obj->get(name),
-            );
-            array_push($this->additional,'<p>'.$Obj->get(name).'</p>');
+            if (!$Obj->get('protected')) {
+                $this->data[] = array(
+                    id=>$Obj->get(id),
+                    name=>$Obj->get(name),
+                );
+                array_push($this->additional,'<p>'.$Obj->get(name).'</p>');
+            }
         }
         unset($Obj);
         if (count($this->data)) {
