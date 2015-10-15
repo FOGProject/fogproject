@@ -5,12 +5,12 @@ class TaskScheduler extends FOGService {
     public $zzz = SCHEDULERSLEEPTIME;
     private function commonOutput() {
         try {
-            $findWhere = array(stateID=>1,typeID=>array_merge(range(1,11),range(14,24)));
-            $taskcount = $this->getClass(TaskManager)->count($findWhere);
+            $findWhere = array('stateID'=>1,'typeID'=>array_merge(range(1,11),range(14,24)));
+            $taskcount = $this->getClass('TaskManager')->count($findWhere);
             if ($taskcount) {
                 $this->outall(sprintf(" * %s active task(s) awaiting check-in.",$taskcount));
                 $this->outall(' | Sending WOL Packet(s)');
-                $Hosts = $this->getClass(HostManager)->find(array(id=>array_unique($this->getClass(TaskManager)->find($findWhere,'','','','','','','hostID'))));
+                $Hosts = $this->getSubObjectIDs('Task',$findWhere,'hostID');
                 foreach($Hosts AS $i => &$Host) {
                     $this->outall(sprintf("\t\t- Host: %s WOL sent to all macs associated",$Host->get(name)));
                     $Host->wakeOnLan();
@@ -18,9 +18,9 @@ class TaskScheduler extends FOGService {
                 }
                 unset($Hosts,$taskcount,$findWhere);
             } else $this->outall(" * 0 active task(s) awaiting check-in.");
-            $findWhere = array(isActive=>1);
-            $taskcount = $this->getClass(ScheduledTaskManager)->count($findWhere);
-            $Tasks = $this->getClass(ScheduledTaskManager)->find($findWhere);
+            $findWhere = array('isActive'=>1);
+            $taskcount = $this->getClass('ScheduledTaskManager')->count($findWhere);
+            $Tasks = $this->getClass('ScheduledTaskManager')->find($findWhere);
             if (!$taskcount) throw new Exception(' * No tasks found!');
             $this->outall(sprintf(" * %s task(s) found.",count($Tasks)));
             foreach($Tasks AS $i => &$Task) {
@@ -34,11 +34,10 @@ class TaskScheduler extends FOGService {
                 if ($Task->isGroupBased()) {
                     $this->outall(sprintf("\t\t - Is a group based task."));
                     $Group = $Task->getGroup();
-                    $Hosts = $this->getClass(HostManager)->find(array('id' => $Group->get(hosts)));
-                    if ($Task->get(taskType) == 8) $this->outall("\t\t - Multicast task found!");
+                    if ($Task->get('taskType') == 8) $this->outall("\t\t - Multicast task found!");
                     else $this->outall("\t\t - Regular task found!");
-                    $this->outall(sprintf("\t\t - Group %s",$Group->get(name)));
-                    if ($Group->createImagePackage($Task->get(taskType),$Task->get(name),$Task->get(shutdown),false,true,'FOG_SCHED')) $this->outall(sprintf("\t\t - Tasks started for group %s!",$Group->get(name)));
+                    $this->outall(sprintf("\t\t - Group %s",$Group->get('name')));
+                    if ($Group->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,true,'FOG_SCHED')) $this->outall(sprintf("\t\t - Tasks started for group %s!",$Group->get('name')));
                     if ($Timer->isSingleRun()) {
                         if ($this->FOGCore->stopScheduledTask($Task)) $this->outall("\t\t - Scheduled Task cleaned.");
                         else $this->outall("\t\t - failed to clean task.");
@@ -46,8 +45,8 @@ class TaskScheduler extends FOGService {
                 } else {
                     $this->outall("\t\t - Is a host based task.");
                     $Host = $Task->getHost();
-                    $Host->createImagePackage($Task->get(taskType),$Task->get(name),$Task->get(shutdown),false,$Task->get(other2),false,$Task->get(other3));
-                    $this->outall(sprintf("\t\t - Task Started for host %s!",$Host->get(name)));
+                    $Host->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$Task->get('other2'),false,$Task->get('other3'));
+                    $this->outall(sprintf("\t\t - Task Started for host %s!",$Host->get('name')));
                 }
                 if ($Timer->isSingleRun()) {
                     if ($this->FOGCore->stopScheduledTask($Task)) $this->outall("\t\t - Scheduled Task cleaned.");

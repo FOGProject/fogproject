@@ -30,9 +30,9 @@ abstract class FOGService extends FOGController {
      */
     public function checkIfNodeMaster() {
 		$this->getIPAddress();
-        $StorageNodes = $this->getClass(StorageNodeManager)->find(array(isMaster=>1,isEnabled=>1));
+        $StorageNodes = $this->getSubObjectIDs('StorageNode',array('isMaster'=>1,'isEnabled'=>1),'id');
 		foreach ($StorageNodes AS $i => &$StorageNode) {
-			if (in_array($this->FOGCore->resolveHostname($StorageNode->get(ip)),$this->ips) && $StorageNode->isValid()) return $StorageNode;
+			if ($this->getClass('StorageNode',$StorageNode)->isValid() && in_array($this->FOGCore->resolveHostname($this->getClass('StorageNode',$StorageNode)->get('ip')),$this->ips)) return $this->getClass('StorageNode',$StorageNode);
 		}
         throw new Exception(' | '._('This is not the master node'));
     }
@@ -144,39 +144,39 @@ abstract class FOGService extends FOGController {
         $message = $onlyone = false;
         $itemType = $master ? 'group' : 'node';
         // Define the way to search for items
-        $findWhere[isEnabled] = 1;
-        $findWhere[isMaster] = (int)$master;
-        $findWhere[storageGroupID] = $master ? $Obj->get(storageGroups) : $myStorageGroupID;
+        $findWhere['isEnabled'] = 1;
+        $findWhere['isMaster'] = (int)$master;
+        $findWhere['storageGroupID'] = $master ? $Obj->get('storageGroups') : $myStorageGroupID;
         // Storage Node
-        $StorageNode = $this->getClass(StorageNode,$myStorageNodeID);
-        if (!$StorageNode->isValid() || !$StorageNode->get(isMaster)) throw new Exception(_('I am not the master'));
+        $StorageNode = $this->getClass('StorageNode',$myStorageNodeID);
+        if (!($StorageNode->isValid() && $StorageNode->get('isMaster'))) throw new Exception(_('I am not the master'));
         // Get the Object Type
         $objType = get_class($Obj);
         // Get count of items to transfer to
-        $groupOrNodeCount = $this->getClass(StorageNodeManager)->count($findWhere);
+        $groupOrNodeCount = $this->getClass('StorageNodeManager')->count($findWhere);
         // No need to try doing anything as nothing exists for it to do
         if ((!$master && $groupOrNodeCount <= 0) || ($master && $groupOrNodeCount <= 1)) {
             $this->outall(_(" * Not syncing $objType between $itemType(s)"));
-            $this->outall(_(" | $objType Name: ".$Obj->get(name)));
+            $this->outall(_(" | $objType Name: ".$Obj->get('name')));
             $this->outall(_(" | I am the only member"));
             $onlyone = true;
         }
         if (!$onlyone) {
             $this->outall(sprintf(" * Found $objType to transfer to %s %s(s)",$groupOrNodeCount,$itemType));
-            $this->outall(sprintf(" | $objType name: %s",$Obj->get(name)));
+            $this->outall(sprintf(" | $objType name: %s",$Obj->get('name')));
             // Get the path based off the object
             $getPathOfItemField = $objType == 'Snapin' ? 'snapinpath' : 'ftppath';
             // Get the file itself
             $getFileOfItemField = $objType == 'Snapin' ? 'file' : 'path';
             // Get all the potential nodes of this group
-            $PotentialStorageNodes = $this->getClass(StorageNodeManager)->find($findWhere);
+            $PotentialStorageNodes = $this->getClass('StorageNodeManager')->find($findWhere);
             // Group to group is item specific
             foreach ($PotentialStorageNodes AS $i => &$StorageNodeToSend) {
-                if (($master && $StorageNodeToSend->get(storageGroupID) != $myStorageGroupID) || !$master) {
+                if (($master && $StorageNodeToSend->get('storageGroupID') != $myStorageGroupID) || !$master) {
                     $this->FOGFTP
-                        ->set(username,$StorageNodeToSend->get(user))
-                        ->set(password,$StorageNodeToSend->get(pass))
-                        ->set(host,$StorageNodeToSend->get(ip));
+                        ->set('username',$StorageNodeToSend->get('user'))
+                        ->set('password',$StorageNodeToSend->get('pass'))
+                        ->set('host',$StorageNodeToSend->get('ip'));
                     // Test if we can even talk with the remote end
                     if (!$this->FOGFTP->connect()) {
                         $this->outall(_(' * Cannot connect to '.$StorageNodeToSend->get(name)));
@@ -188,7 +188,7 @@ abstract class FOGService extends FOGController {
                     $myAddItem = '/'.trim($StorageNode->get($getPathOfItemField),'/').($master ? '/'.$Obj->get($getFileOfItemField) : '');
                     if (!file_exists($myAddItem)) {
                         $this->outall(_(" * Not syncing $objType between $itemType(s)"));
-                        $this->outall(_(" | $objType Name: ".$Obj->get(name)));
+                        $this->outall(_(" | $objType Name: ".$Obj->get('name')));
                         $this->outall(_(" | File or path cannot be reached"));
                         continue;
                     }
@@ -201,12 +201,12 @@ abstract class FOGService extends FOGController {
                         $myItem[] = $myAddItem;
                         $includeFile[] = null;
                     }
-                    $nodename[] = $StorageNodeToSend->get(name);
-                    $username[] = $StorageNodeToSend->get(user);
-                    $password[] = $StorageNodeToSend->get(pass);
+                    $nodename[] = $StorageNodeToSend->get('name');
+                    $username[] = $StorageNodeToSend->get('user');
+                    $password[] = $StorageNodeToSend->get('pass');
                     $ip[] = $StorageNodeToSend->get(ip);
-                    $limitmain = $this->byteconvert($StorageNode->get(bandwidth));
-                    $limitsend = $this->byteconvert($StorageNodeToSend->get(bandwidth));
+                    $limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
+                    $limitsend = $this->byteconvert($StorageNodeToSend->get('bandwidth'));
                     if ($limitmain > 0) $limitset = "set net:limit-total-rate 0:$limitmain;";
                     if ($limitsend > 0) $limitset .= "set net:limit-rate 0:$limitsend;";
                     $limit[] = $limitset;
