@@ -783,7 +783,6 @@ snmysqlhost=\"$snmysqlhost\";
 installlang=\"$installlang\";
 donate=\"$donate\";
 storageLocation=\"$storageLocation\";
-mysql_conntype=\"$mysql_conntype\";
 fogupdateloaded=\"1\";
 storageftpuser=\"$storageftpuser\";
 storageftppass='$storageftppass';
@@ -1028,7 +1027,6 @@ class Config {
         define('DATABASE_NAME','fog');
         define('DATABASE_USERNAME','$dbuser');
         define('DATABASE_PASSWORD','$snmysqlpass');
-        define('DATABASE_CONNTYPE',$mysql_conntype);
     }
     /** @function svc_setting() Defines the service settings
      * (e.g. FOGMulticastManager)
