@@ -13,16 +13,16 @@ class ImageReplicator extends FOGService {
             $this->outall(" * Starting Image Replication.");
 
             $this->outall(sprintf(" * We are group ID: #%s",$myStorageGroupID));
-            $this->outall(sprintf(" | We are group name: %s",$this->getClass(StorageGroup,$myStorageGroupID)->get(name)));
+            $this->outall(sprintf(" | We are group name: %s",$this->getClass('StorageGroup',$myStorageGroupID)->get('name')));
             $this->outall(sprintf(" * We have node ID: #%s",$myStorageNodeID));
-            $this->outall(sprintf(" | We are node name: %s",$this->getClass(StorageNode,$myStorageNodeID)->get(name)));
-            $ImageAssocCount = $this->getClass(ImageAssociationManager)->count(array(storageGroupID=>$myStorageGroupID));
-            $ImageCount = $this->getClass(ImageManager)->count();
+            $this->outall(sprintf(" | We are node name: %s",$this->getClass('StorageNode',$myStorageNodeID)->get('name')));
+            $ImageAssocCount = $this->getClass('ImageAssociationManager')->count(array('storageGroupID'=>$myStorageGroupID));
+            $ImageCount = $this->getClass('ImageManager')->count();
             if ($ImageAssocCount <= 0 || $ImageCount <= 0) throw new Exception(_('There is nothing to replicate'));
-            $Images = $this->getClass(ImageManager)->find(array(id=>$this->getClass(ImageAssociationManager)->find(array(storageGroupID=>$myStorageGroupID),'','','','','','','imageID')));
-            foreach ($Images AS $i => &$Image) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Image,true);
+            $Images = $this->getSubObjectIDs('ImageAssociation',array('storageGroupID'=>$myStorageGroup),'imageID');
+            foreach ($Images AS $i => &$Image) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$this->getClass('Image',$Image),true);
             unset($Image);
-            foreach ($Images AS $i => &$Image) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$Image,false);
+            foreach ($Images AS $i => &$Image) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$this->getClass('Image',$Image),false);
             unset($Image);
         } catch (Exception $e) {
             $this->outall(' * '.$e->getMessage());

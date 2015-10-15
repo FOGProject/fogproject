@@ -16,7 +16,7 @@ class SnapinReplicator extends FOGService {
             $SnapinAssocCount = $this->getClass('SnapinGroupAssociationManager')->count(array('storageGroupID'=>$myStorageGroupID));
             $SnapinCount = $this->getClass('SnapinManager')->count();
             if ($SnapinAssocCount <= 0 || $SnapinCount <= 0) throw new Exception(_('There is nothing to replicate'));
-            $Snapins = $this->getClass('SnapinGroupAssociationManager')->getSubObjectIDs('SnapinGroupAssociation',array('storageGroupID'=>$myStorageGroupID),'snapinID');
+            $Snapins = $this->getSubObjectIDs('SnapinGroupAssociation',array('storageGroupID'=>$myStorageGroup),'snapinID');
             foreach ($Snapins AS $i => &$Snapin) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$this->getClass('Snapin',$Snapin),true);
             unset($Snapin);
             foreach ($Snapins AS $i => &$Snapin) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$this->getClass('Snapin',$Snapin),false);
