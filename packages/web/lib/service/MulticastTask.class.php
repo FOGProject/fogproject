@@ -2,7 +2,7 @@
 class MulticastTask extends MulticastManager {
     public function getSession($method = 'find') {
         if (!in_array($method,array('find','count'))) $method = 'find';
-        return $this->getClass(MulticastSessionsManager)->$method(array(stateID=>array(0,1,2,3)));
+        return $this->getClass('MulticastSessionsManager')->$method(array('stateID'=>array(0,1,2,3)));
     }
     // Updated to only care about tasks in its group
     public function getAllMulticastTasks($root) {
@@ -14,18 +14,18 @@ class MulticastTask extends MulticastManager {
         }
         $MulticastSessions = self::getSession('find');
         foreach($MulticastSessions AS $i => &$MultiSess) {
-            $Image = $this->getClass(Image,$MultiSess->get(image));
-            if (in_array($this->FOGCore->resolveHostname($Image->getStorageGroup()->getMasterStorageNode()->get(ip)),$this->getIPAddress())) {
-                $count = $this->getClass(MulticastSessionsAssociationManager)->count(array(msID=>$MultiSess->get(id)));
+            $Image = $this->getClass('Image',$MultiSess->get('image'));
+            if (in_array($this->FOGCore->resolveHostname($Image->getStorageGroup()->getMasterStorageNode()->get('ip')),$this->getIPAddress())) {
+                $count = $this->getClass('MulticastSessionsAssociationManager')->count(array(msID=>$MultiSess->get('id')));
                 $Tasks[] = new self(
-                    $MultiSess->get(id),
-                    $MultiSess->get(name),
-                    $MultiSess->get(port),
-                    $root.'/'.$MultiSess->get(logpath),
-                    $Image->getStorageGroup()->getMasterStorageNode()->get('interface')? $Image->getStorageGroup()->getMasterStorageNode()->get('interface'):$this->getSetting(FOG_UDPCAST_INTERFACE),
-                    ($count>0?$count:($MultiSess->get(sessclients)>0?$MultiSess->get(sessclients):$this->getClass(HostManager)->count())),
-                    $MultiSess->get(isDD),
-                    $Image->get(osID)
+                    $MultiSess->get('id'),
+                    $MultiSess->get('name'),
+                    $MultiSess->get('port'),
+                    $root.'/'.$MultiSess->get('logpath'),
+                    $Image->getStorageGroup()->getMasterStorageNode()->get('interface')? $Image->getStorageGroup()->getMasterStorageNode()->get('interface'):$this->getSetting('FOG_UDPCAST_INTERFACE'),
+                    ($count>0?$count:($MultiSess->get('sessclients')>0?$MultiSess->get('sessclients'):$this->getClass('HostManager')->count())),
+                    $MultiSess->get('isDD'),
+                    $Image->get('osID')
                 );
             }
         }
@@ -40,7 +40,7 @@ class MulticastTask extends MulticastManager {
         parent::__construct();
         $this->intID = $id;
         $this->strName = $name;
-        $this->intPort = $this->FOGCore->getSetting(FOG_MULTICAST_PORT_OVERRIDE)?$this->FOGCore->getSetting(FOG_MULTICAST_PORT_OVERRIDE):$port;
+        $this->intPort = $this->FOGCore->getSetting('FOG_MULTICAST_PORT_OVERRIDE')?$this->FOGCore->getSetting('FOG_MULTICAST_PORT_OVERRIDE'):$port;
         $this->strImage = $image;
         $this->strEth = $eth;
         $this->intClients = $clients;
@@ -77,7 +77,7 @@ class MulticastTask extends MulticastManager {
         return MULTICASTLOGPATH.".udpcast.".$this->getID();
     }
     public function getBitrate() {
-        return $this->getClass(Image,$this->getClass(MulticastSessions,$this->getID())->get(image))->getStorageGroup()->getMasterStorageNode()->get(bitrate);
+        return $this->getClass('Image',$this->getClass('MulticastSessions',$this->getID())->get('image'))->getStorageGroup()->getMasterStorageNode()->get('bitrate');
     }
     public function getCMD() {
         unset($filelist,$buildcmd,$cmd);
@@ -86,10 +86,10 @@ class MulticastTask extends MulticastManager {
             $this->getBitrate() ? sprintf(' --max-bitrate %s',$this->getBitrate()) : null,
             $this->getInterface() ? sprintf(' --interface %s',$this->getInterface()) : null,
             sprintf(' --min-receivers %d',($this->getClientCount()?$this->getClientCount():$this->getClass(HostManager)->count())),
-            sprintf(' --max-wait %d',$this->FOGCore->getSetting(FOG_UDPCAST_MAXWAIT)?$this->FOGCore->getSetting(FOG_UDPCAST_MAXWAIT)*60:UDPSENDER_MAXWAIT),
-            $this->FOGCore->getSetting(FOG_MULTICAST_ADDRESS)?sprintf(' --mcast-data-address %s',$this->FOGCore->getSetting(FOG_MULTICAST_ADDRESS)):null,
+            sprintf(' --max-wait %d',$this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT')?$this->FOGCore->getSetting('FOG_UDPCAST_MAXWAIT')*60:UDPSENDER_MAXWAIT),
+            $this->FOGCore->getSetting('FOG_MULTICAST_ADDRESS')?sprintf(' --mcast-data-address %s',$this->FOGCore->getSetting('FOG_MULTICAST_ADDRESS')):null,
             sprintf(' --portbase %s',$this->getPortBase()),
-            sprintf(' %s',$this->FOGCore->getSetting(FOG_MULTICAST_DUPLEX)),
+            sprintf(' %s',$this->FOGCore->getSetting('FOG_MULTICAST_DUPLEX')),
             ' --ttl 32',
             ' --nokbd',
             ' --nopointopoint;',
@@ -151,7 +151,7 @@ class MulticastTask extends MulticastManager {
         $descriptor = array(0 => array('pipe','r'), 1 => array('file',$this->getUDPCastLogFile(),'w'), 2 => array('file',$this->getUDPCastLogFile(),'w'));
         $this->procRef = @proc_open($this->getCMD(),$descriptor,$pipes);
         $this->arPipes = $pipes;
-        $this->getClass(MulticastSessions,$this->intID)
+        $this->getClass('MulticastSessions',$this->intID)
             ->set(stateID,1)
             ->save();
         return $this->isRunning();
@@ -180,37 +180,37 @@ class MulticastTask extends MulticastManager {
         @proc_close($this->procRef);
         $this->procRef=null;
         @unlink($this->getUDPCastLogFile());
-        $Assocs = $this->getClass(MulticastSessionsAssociationManager)->find(array(msID=>$this->intID));
-        foreach($Assocs AS $i => &$MultiSessAssoc) {
-            $this->getClass(Task,$MultiSessAssoc->get(taskID))
-                ->set(stateID,$running)
+        $taskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$RMTask->getID()),'taskID');
+        foreach((array)$taskIDs AS $i => &$taskID) {
+            $this->getClass('Task',$taskID)
+                ->set('stateID',$running)
                 ->save();
         }
-        unset($Assocs,$MultiSessAssoc);
-        $this->getClass(MulticastSessions,$this->intID)
-            ->set(name,null)
-            ->set(stateID,$running)
+        unset($taskID);
+        $this->getClass('MulticastSessions',$this->intID)
+            ->set('name',null)
+            ->set('stateID',$running)
             ->save();
         return true;
     }
     public function updateStats() {
-        $Assocs = $this->getClass(MulticastSessionsAssociationManager)->find(array(msID=>$this->intID));
-        foreach($Assocs AS $i => &$MultiSessAssoc) $TaskPercent[] = $this->getClass(Task,$MultiSessAssoc->get(taskID))->get(percent);
-        unset($MultiSessAssoc);
+        $taskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$this->intID),'taskID');
+        foreach($taskIDs AS $i => &$taskID) $TaskPercent[] = $this->getClass('Task',$taskID)->get('percent');
+        unset($taskID);
         $TaskPercent = array_unique((array)$TaskPercent);
-        $this->getClass(MulticastSessions,$this->intID)->set(percent,@max((array)$TaskPercent))->save();
+        $this->getClass('MulticastSessions',$this->intID)->set('percent',@max((array)$TaskPercent))->save();
     }
     public function isRunning() {
         if ($this->procRef) {
             $ar = proc_get_status($this->procRef);
-            return $ar[running];
+            return $ar['running'];
         }
         return false;
     }
     public function getPID() {
         if ($this->procRef) {
             $ar = proc_get_status($this->procRef);
-            return $ar[pid];
+            return $ar['pid'];
         }
         return -1;
     }
