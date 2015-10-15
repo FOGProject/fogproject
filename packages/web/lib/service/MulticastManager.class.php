@@ -39,7 +39,7 @@ class MulticastManager extends FOGService {
         while(true) {
             try {
                 $StorageNode = $this->checkIfNodeMaster();
-                $myroot = $StorageNode->get(path);
+                $myroot = $StorageNode->get('path');
                 $taskCount = MulticastTask::getSession('count');
                 if ($oldCount != $taskCount) $allTasks = MulticastTask::getAllMulticastTasks($myroot);
                 $RMTasks = $this->getMCTasksNotInDB($KnownTasks,$allTasks);
@@ -49,18 +49,17 @@ class MulticastManager extends FOGService {
                 if (count($RMTasks)) $this->outall(sprintf(" | Cleaning %s task(s) removed from FOG Database.",count($RMTasks)));
                 foreach((array)$RMTasks AS $i => &$RMTask) {
                     $this->outall(sprintf(" | Cleaning Task (%s) %s",$RMTask->getID(),$RMTask->getName()));
-                    $taskIDs = array_unique($this->getClass(MulticastSessionsAssociationManager)->find(array(msID=>$RMTask->getID()),'','','','','','','taskID'));
-                    if ($this->getClass(TaskManager)->count(array(id=>$taskIDs,stateID=>5))) $jobcancelled = true;
-                    $curSession = $this->getClass(MulticastSessions,$RMTask->getID());
-                    if ($jobcancelled || $this->getClass(MulticastSessions,$RMTask->getID())->get(stateID) == 5) {
+                    $taskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$RMTask->getID()),'taskID');
+                    if ($this->getClass('TaskManager')->count(array('id'=>$taskIDs,'stateID'=>5) > 0)) $jobcancelled = true;
+                    if ($jobcancelled || $this->getClass('MulticastSessions',$RMTask->getID())->get('stateID') == 5) {
                         $RMTask->killTask();
                         $KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
                         $this->outall(sprintf(" | Task (%s) %s has been cleaned as cancelled.",$RMTask->getID(),$RMTask->getName()));
-                        $this->getClass(MulticastSessionsAssociationManager)->destroy(array(msID=>$RMTask->getID()));
+                        $this->getClass('MulticastSessionsAssociationManager')->destroy(array('msID'=>$RMTask->getID()));
                     } else {
                         $KnownTasks = $this->removeFromKnownList($KnownTasks,$RMTask->getID());
                         $this->outall(sprintf(" | Task (%s) %s has been cleaned as complete.",$RMTask->getID(),$RMTask->getName()));
-                        $this->getClass(MulticastSessionsAssociationManager)->destroy(array(msID=>$RMTask->getID()));
+                        $this->getClass('MulticastSessionsAssociationManager')->destroy(array('msID'=>$RMTask->getID()));
                     }
                 }
                 unset($RMTask);
@@ -88,26 +87,19 @@ class MulticastManager extends FOGService {
                         $KnownTasks[] = $curTask;
                     } else {
                         $runningTask = $this->getMCExistingTask($KnownTasks, $curTask->getID());
-                        $curSession = new MulticastSessions($runningTask->getID());
-                        $Assocs = $this->getClass('MulticastSessionsAssociationManager')->find(array('msID' => $curSession->get('id')));
-                        foreach($Assocs AS $i => &$Assoc) {
-                            if ($Assoc && $Assoc->isValid()) {
-                                $curTaskGet = new Task($Assoc->get('taskID'));
-                                if ($curTaskGet->get('stateID') == 5) $jobcancelled = true;
-                            }
-                        }
-                        unset($Assoc);
+                        $taskIDs = $this->getSubObjectIDs('MulticastSessionsAssociation',array('msID'=>$runningTask->getID()),'taskID');
+                        if ($this->getClass('TaskManager')->count(array('id'=>$taskIDs,'stateID'=>5) > 0)) $jobcancelled = true;
                         if ($runningTask->isRunning()) {
                             $this->outall(sprintf(" | Task (%s) %s is already running PID %s",$runningTask->getID(),$runningTask->getName(),$runningTask->getPID()));
                             $runningTask->updateStats();
                         } else {
                             $this->outall(sprintf(" | Task (%s) %s is no longer running.",$runningTask->getID(),$runningTask->getName()));
-                            if ($jobcancelled || $curSession->get('stateID') == 5) {
+                            if ($jobcancelled || $this->getClass('MulticastSessions',$runningTask->getID())->get('stateID') == 5) {
                                 $KnownTasks = $this->removeFromKnownList($KnownTasks,$runningTask->getID());
                                 if (!$runningTask->killTask()) throw new Exception(sprintf(" Failed to kill task (%s) %s PID:%s!",$runningTask->getID(),$runningTask->getName(),$runningTask->getPID()));
                                 $this->outall(sprintf(" | Task (%s) %s has been cleaned as cancelled.",$runningTask->getID(),$runningTask->getName()));
                             } else {
-                                $curSession->set('clients',0)->set('completetime',$this->nice_date()->format('Y-m-d H:i:s'))->set('name','')->set('stateID',4)->save();
+                                $this->getClass('MulticastSessions',$runningTask->getID())->set('clients',0)->set('completetime',$this->nice_date()->format('Y-m-d H:i:s'))->set('name','')->set('stateID',4)->save();
                                 $KnownTasks = $this->removeFromKnownList($KnownTasks,$runningTask->getID());
                                 $this->outall(sprintf(" | Task (%s) %s has been cleaned as complete.",$runningTask->getID(),$runningTask->getName()));
                             }
