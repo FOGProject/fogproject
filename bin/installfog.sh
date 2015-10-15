@@ -387,9 +387,6 @@ while [ "$blGo" = "" ]; do
         elif [ ! -n "$storageLocation" -a "$autoaccept" == "yes" ]; then
             storageLocation="/images";
         fi
-        if [ -z "$mysql_conntype" ]; then
-            mysql_conntype="MYSQLI_ASYNC";
-        fi
         if [ "$installtype" = "S" ]; then
             # Storage Node installation
             configureUsers;

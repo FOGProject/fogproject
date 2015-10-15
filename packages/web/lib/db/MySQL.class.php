@@ -59,24 +59,12 @@ class MySQL extends FOGBase {
             $this->query = $sql;
             if (!$this->query) throw new Exception(_('No query sent'));
             if (!$this->link) $this->connect();
-            $this->queryResult = $this->link->query($this->query,DATABASE_CONNTYPE === MYSQLI_ASYNC ? MYSQLI_ASYNC : MYSQLI_STORE_RESULT);
-            if (!$this->queryResult) throw new Exception(_('Error: ').$this->sqlerror());
-            if (DATABASE_CONNTYPE === MYSQLI_ASYNC) {
-                $all_links = array($this->link);
-                $processed = 0;
-                do {
-                    foreach($all_links AS $i => &$link) $links[] = $errors[] = $reject[] = $link;
-                    unset($link);
-                    if (!mysqli_poll($links,$errors,$reject,1,1000)) {
-                        continue;
-                        usleep(1000);
-                    }
-                    foreach($links AS $i => &$link) {
-                        $this->queryResult = $link->reap_async_query();
-                        $processed++;
-                    }
-                    unset($link);
-                } while ($processed < count($all_links));
+            if ($_REQUEST['node'] == 'schemaupdater') $sqlMethod = 'query';
+            else $sqlMethod = 'prepare';
+            if (!$this->queryResult = $this->link->$sqlMethod($this->query)) throw new Exception(_('Error: ').$this->sqlerror());
+            if ($sqlMethod == 'prepare') {
+                $this->queryResult->execute();
+                $this->queryResult = $this->queryResult->get_result();
             }
         } catch (Exception $e) {
             $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
