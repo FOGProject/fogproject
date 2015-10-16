@@ -86,7 +86,6 @@ class FOGPageManager Extends FOGBase {
         if ($this->isLoaded('PageClasses')) return;
         global $Init;
         foreach ($Init->PagePaths AS $i => &$path) {
-            $className = null;
             if (file_exists($path)) {
                 $iterator = new DirectoryIterator($path);
                 foreach ($iterator AS $i => $fileInfo) {
