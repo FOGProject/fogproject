@@ -50,9 +50,9 @@ class Group extends FOGController {
             $RemoveHostIDs = array_diff((array)$DBHostIDs,(array)$this->get('hosts'));
             if (count($RemoveHostIDs)) {
                 $this->getClass('GroupAssociationManager')->destroy(array('groupID'=>$this->get('id'),'hostID'=>$RemoveHostIDs));
-                $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
                 unset($RemoveHostIDs);
             }
+            $Hosts = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
             foreach ((array)$Hosts AS $i => &$Host) {
                 $this->getClass('GroupAssociation')
                     ->set('hostID',$Host)
@@ -98,7 +98,11 @@ class Group extends FOGController {
         return $this;
     }
     public function addHost($addArray) {
-        $this->set('hosts',array_merge($this->get('hosts'),array_unique(array_diff((array)$addArray,(array)$this->get('hosts')))));
+        $Hosts = array_unique(array_diff((array)$addArray,(array)$this->get('groups')));
+        if (count($Hosts)) {
+            $Hosts = array_merge((array)$this->get('hosts'),(array)$Hosts);
+            $this->set('hosts',$Hosts);
+        }
         return $this;
     }
     public function removeHost($removeArray) {

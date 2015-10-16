@@ -1,5 +1,5 @@
 <?php
-abstract class Event extends FOGBase {
+abstract class Event extends FOGController {
     /** @var $name the name of the event/hook */
     protected $name;
     /** @var $description the description of the event/hook */
