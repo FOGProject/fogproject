@@ -71,20 +71,24 @@ class Image extends FOGController {
             // Destroy only the removed elements
             $DBHostIDs = $this->getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'hostID');
             $RemoveHostIDs = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
-            $this->getClass('HostManager')->update(array('imageID'=>$this->get('id')),'',array('imageID'=>0));
-            $DBHostIDs = $this->getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'hostID');
+            if (count($RemoveHostIDs)) {
+                $this->getClass('HostManager')->update(array('imageID'=>$this->get('id')),'',array('imageID'=>0));
+                $DBHostIDs = $this->getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'hostID');
+                unset($RemoveHostIDs);
+            }
             $HostIDs = array_diff((array)$this->get('hosts'),(array)$DBHostIDs);
-            unset($RemoveHostIDs);
             $this->getClass('HostManager')->update(array('id'=>$HostIDs),'',array('imageID'=>$this->get('id')));
         }
         if ($this->isLoaded('storageGroups')) {
             // Destroy only the removed elements
             $DBGroupIDs = $this->getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID');
             $RemoveGroupIDs = array_diff($DBGroupIDs,(array)$this->get('storageGroups'));
-            $this->getClass('ImageAssociationManager')->destroy(array('imageID'=>$this->get('id'),'storageGroupID'=>$RemoveGroupIDs));
-            $DBGroupIDs = $this->getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID');
+            if (count($RemoveHostIDs)) {
+                $this->getClass('ImageAssociationManager')->destroy(array('imageID'=>$this->get('id'),'storageGroupID'=>$RemoveGroupIDs));
+                $DBGroupIDs = $this->getSubObjectIDs('ImageAssociation',array('imageID'=>$this->get('id')),'storageGroupID');
+                unset($RemoveGroupIDs);
+            }
             $Groups = array_diff((array)$this->get('storageGroups'),(array)$DBGroupIDs);
-            unset($RemoveGroupIDs);
             // Create Assoc
             foreach((array)$Groups AS $i => &$Group) {
                 $this->getClass('ImageAssociation')

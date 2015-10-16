@@ -1,33 +1,17 @@
 <?php
-/****************************************************
- * FOG Hook: HostVNCLink
- *	Author:		Blackout
- *	Created:	9:26 AM 3/09/2011
- *	Revision:	$Revision: 3563 $
- *	Last Update:	$LastChangedDate: 2015-06-16 12:02:44 -0400 (Tue, 16 Jun 2015) $
- ***/
-// HostVNCLink - custom hook class
-class HostVNCLink extends Hook
-{
-	// Class variables
-	var $name = 'HostVNCLink';
-	var $description = 'Adds a "VNC" link to the Host Lists';
-	var $author = 'Blackout';
-	var $active = false;
-	// Custom variable
-	var $port = 5800;
-	function HostData($arguments)
-	{
-		// Add column template into 'templates' array
-		$arguments['templates'][8] = sprintf('<a href="http://%s:%d" target="_blank">VNC</a>', '${host_name}', $this->port);
-		// Add these HTML attributes to that column
-		$arguments['attributes'][8] = array('class' => 'c');
-	}
-	function HostTableHeader($arguments)
-	{
-		// Add new Header column with the content 'VNC'
-		$arguments['headerData'][8] = 'VNC';
-	}
+class HostVNCLink extends Hook {
+    public $name = 'HostVNCLink';
+    public $description = 'Adds a "VNC" link to the Host Lists';
+    public $author = 'Blackout';
+    public $active = false;
+    public $port = 5800;
+    public function HostData($arguments) {
+        $arguments['templates'][8] = sprintf('<a href="http://%s:%d" target="_blank">VNC</a>', '${host_name}', $this->port);
+        $arguments['attributes'][8] = array('class' => 'c');
+    }
+    public function HostTableHeader($arguments) {
+        $arguments['headerData'][8] = 'VNC';
+    }
 }
 // Register hooks with HookManager on desired events
 $HookManager->register('HOST_DATA', array(new HostVNCLink(), 'HostData'));
