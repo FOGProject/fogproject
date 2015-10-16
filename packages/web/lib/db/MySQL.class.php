@@ -20,25 +20,16 @@ class MySQL extends FOGBase {
             $this->error(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
         }
     }
-    /** __destruct destroys the class
-     * @return void
-     */
-    public function __destruct() {
-        if (!$this->link) return;
-        unset($this->link,$this->result);
-    }
     /** connect establishes the link
      * @return the class
      */
     public function connect() {
         try {
-            if (!$this->link) $this->link = new mysqli(DATABASE_HOST, DATABASE_USERNAME, DATABASE_PASSWORD,DATABASE_NAME);
-            if ($this->link->connect_error) {
-                $this->link = new mysqli(DATABASE_HOST,DATABASE_USERNAME,DATABASE_PASSWORD);
-                if ($this->link->connect_error) throw new Exception(sprintf('Host: %s, Username: %s, Database: %s, Error: %s', DATABASE_HOST, DATABASE_USERNAME, DATABASE_NAME, $this->sqlerror));
-            }
-            $this->link->set_charset('utf8');
+            if (!$this->link = mysqli_init()) die(_('Could not initialize mysqli'));
+            if (!$this->link->real_connect(DATABASE_HOST, DATABASE_USERNAME, DATABASE_PASSWORD)) die(_('MySQL does not appear to be running'));
+            if ($this->link->connect_error) throw new Exception(sprintf('Host: %s, Username: %s, Database: %s, Error: %s', DATABASE_HOST, DATABASE_USERNAME, DATABASE_NAME, $this->sqlerror));
             if (!$this->link->select_db(DATABASE_NAME)) throw new Exception(_('Issue working with the current DB, maybe it has not been created yet'));
+            $this->link->set_charset('utf8');
         } catch (Exception $e) {
             if (strstr($e->getMessage(),'MySQL server has gone away')) $this->connect();
             else $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
