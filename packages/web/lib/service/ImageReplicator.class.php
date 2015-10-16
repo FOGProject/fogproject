@@ -8,8 +8,8 @@ class ImageReplicator extends FOGService {
             $StorageNode = $this->checkIfNodeMaster();
             $this->out(' * I am the group manager',$this->dev);
             $this->wlog(' * I am the group manager','/opt/fog/log/groupmanager.log');
-            $myStorageGroupID = $StorageNode->get(storageGroupID);
-            $myStorageNodeID = $StorageNode->get(id);
+            $myStorageGroupID = $StorageNode->get('storageGroupID');
+            $myStorageNodeID = $StorageNode->get('id');
             $this->outall(" * Starting Image Replication.");
 
             $this->outall(sprintf(" * We are group ID: #%s",$myStorageGroupID));
