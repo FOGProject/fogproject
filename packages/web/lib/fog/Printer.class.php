@@ -23,19 +23,23 @@ class Printer extends FOGController {
         'hostsnotinme',
     );
     public function get($key = '') {
-        if (in_array($key,array('hosts','hostsnotinme'))) $this->loadHosts();
+        $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         return parent::get($key);
     }
     public function set($key,$value) {
-        if (in_array($key,array('hosts','hostsnotinme'))) $this->loadHosts();
+        $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         return parent::set($key,$value);
     }
     public function add($key,$value) {
-        if (in_array($key,array('hosts','hostsnotinme'))) $this->loadHosts();
+        $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         return parent::add($key,$value);
     }
     public function remove($key,$value) {
-        if (in_array($key,array('hosts','hostsnotinme'))) $this->loadHosts();
+        $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         return parent::remove($key,$value);
     }
     public function save() {
@@ -74,14 +78,18 @@ class Printer extends FOGController {
         return $this;
     }
     private function loadHosts() {
-        if (!$this->isLoaded('hosts') && $this->get('id')) {
-            $this->set('hosts',$this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID'));
-            $this->set('hostsnotinme',$this->getSubObjectIDs('Host',array('id'=>$this->get('hosts')),'id',true));
+        if ($this->get('id')) $this->set('hosts',$this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID'));
+    }
+    private function loadHostsnotinme() {
+        if ($this->get('id')) {
+            $find = array('id'=>$this->get('hosts'));
+            $this->set('hostsnotinme',$this->getSubObjectIDs('Host',$find,'id',true));
+            unset($find);
         }
         return $this;
     }
     public function updateDefault($hostid,$onoff) {
-        foreach ((array)$hostid AS $i => &$id) $Host->updateDefault($this->get('id'),in_array($id,(array)$onoff));
+        foreach ((array)$hostid AS $i => &$id) $this->getClass('Host',$id)->updateDefault($this->get('id'),in_array($id,(array)$onoff));
         unset($id);
         return $this;
     }

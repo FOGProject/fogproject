@@ -21,8 +21,6 @@ abstract class FOGPage extends FOGBase {
     protected $formPostAction;
     protected $childClass;
     public function __construct($name = '') {
-        $this->debug = false;
-        $this->info = false;
         parent::__construct();
         if (!empty($name)) $this->name = $name;
         $this->title = $this->name;
