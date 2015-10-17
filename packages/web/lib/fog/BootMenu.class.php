@@ -27,74 +27,74 @@ class BootMenu extends FOGBase {
         $this->parseMe($Send);
         $this->web = "${webserver}${webroot}";
         $exitTypes = array(
-            sanboot=>'sanboot --no-describe --drive 0x80',
-            grub=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"',
-            grub_first_hdd=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"',
-            grub_first_cdrom=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="cdrom --init;map --hook;root (cd0);chainloader (cd0)"',
-            grub_first_found_windows=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="find --set-root /BOOTMGR;chainloader /BOOTMGR"',
-            refind_efi=>"imgfetch \${boot-url}/service/ipxe/refind.conf\nchain -ar \${boot-url}/service/ipxe/refind.efi",
+            'sanboot'=>'sanboot --no-describe --drive 0x80',
+            'grub'=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"',
+            'grub_first_hdd'=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1"',
+            'grub_first_cdrom'=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="cdrom --init;map --hook;root (cd0);chainloader (cd0)"',
+            'grub_first_found_windows'=>'chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="find --set-root /BOOTMGR;chainloader /BOOTMGR"',
+            'refind_efi'=>"imgfetch \${boot-url}/service/ipxe/refind.conf\nchain -ar \${boot-url}/service/ipxe/refind.efi",
             'exit'=>'exit',
         );
         $exitSetting = false;
         $exitKeys = array_keys($exitTypes);
-        if (isset($_REQUEST[platform]) && $_REQUEST[platform] == 'efi') {
-            $exitSetting = $Host instanceof Host && $Host->isValid() && $Host->get(efiexit) ? $Host->get(efiexit) : $this->FOGCore->getSetting(FOG_EFI_BOOT_EXIT_TYPE);
+        if (isset($_REQUEST['platform']) && $_REQUEST['platform'] == 'efi') {
+            $exitSetting = $Host instanceof Host && $Host->isValid() && $Host->get('efiexit') ? $Host->get('efiexit') : $this->FOGCore->getSetting('FOG_EFI_BOOT_EXIT_TYPE');
         } else {
-            $exitSetting = $Host instanceof Host && $Host->isValid() && $Host->get(biosexit) ? $Host->get(biosexit) : $this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE);
+            $exitSetting = $Host instanceof Host && $Host->isValid() && $Host->get('biosexit') ? $Host->get('biosexit') : $this->FOGCore->getSetting('FOG_BOOT_EXIT_TYPE');
         }
         $this->bootexittype = (in_array($exitSetting,$exitKeys) ? $exitTypes[$exitSetting] : $exitSetting);
-        $ramsize = $this->FOGCore->getSetting(FOG_KERNEL_RAMDISK_SIZE);
-        $dns = $this->FOGCore->getSetting(FOG_PXE_IMAGE_DNSADDRESS);
-        $keymap = $this->FOGCore->getSetting(FOG_KEYMAP);
+        $ramsize = $this->FOGCore->getSetting('FOG_KERNEL_RAMDISK_SIZE');
+        $dns = $this->FOGCore->getSetting('FOG_PXE_IMAGE_DNSADDRESS');
+        $keymap = $this->FOGCore->getSetting('FOG_KEYMAP');
         $memdisk = 'memdisk';
-        $memtest = $this->FOGCore->getSetting(FOG_MEMTEST_KERNEL);
+        $memtest = $this->FOGCore->getSetting('FOG_MEMTEST_KERNEL');
         // Default bzImage and imagefile based on arch received.
-        $bzImage = ($_REQUEST[arch] == 'x86_64' ? $this->FOGCore->getSetting(FOG_TFTP_PXE_KERNEL) : $this->FOGCore->getSetting(FOG_TFTP_PXE_KERNEL_32));
+        $bzImage = ($_REQUEST['arch'] == 'x86_64' ? $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL') : $this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_32'));
         $kernel = $bzImage;
-        $imagefile = ($_REQUEST[arch] == 'x86_64' ? $this->FOGCore->getSetting(FOG_PXE_BOOT_IMAGE) : $this->FOGCore->getSetting(FOG_PXE_BOOT_IMAGE_32));
+        $imagefile = ($_REQUEST['arch'] == 'x86_64' ? $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE') : $this->FOGCore->getSetting('FOG_PXE_BOOT_IMAGE_32'));
         $initrd = $imagefile;
         // Adjust file info if host is valid.
         if ($Host && $Host->isValid()) {
             // If the host kernel param is set, use that kernel to boot the host.
-            ($Host->get(kernel) ? $bzImage = $Host->get(kernel) : null);
+            ($Host->get('kernel') ? $bzImage = $Host->get('kernel') : null);
             $kernel = $bzImage;
-            $this->HookManager->processEvent(BOOT_ITEM_NEW_SETTINGS,array(Host=>&$Host,StorageGroup=>&$StorageGroup,StorageNode=>&$StorageNode,memtest=>&$memtest,memdisk=>&$memdisk,bzImage=>&$bzImage,initrd=>&$initrd,webroot=>&$webroot,imagefile=>&$imagefile));
+            $this->HookManager->processEvent('BOOT_ITEM_NEW_SETTINGS',array('Host'=>&$Host,'StorageGroup'=>&$StorageGroup,'StorageNode'=>&$StorageNode,'memtest'=>&$memtest,'memdisk'=>&$memdisk,'bzImage'=>&$bzImage,'initrd'=>&$initrd,'webroot'=>&$webroot,'imagefile'=>&$imagefile));
         }
         // Sets the key sequence.  Only used if the hidden menu option is selected.
-        $keySequence = $this->FOGCore->getSetting(FOG_KEY_SEQUENCE);
-        if ($keySequence) $this->KS = new KeySequence($keySequence);
+        $keySequence = $this->FOGCore->getSetting('FOG_KEY_SEQUENCE');
+        if ($keySequence) $this->KS = $this->getClass('KeySequence',$keySequence);
         // menu Access sets if the menu is displayed.  Menu access is a url get variable if a user has specified hidden menu it will override if menuAccess is set.
-        if (!$_REQUEST[menuAccess]) $this->hiddenmenu = $this->FOGCore->getSetting(FOG_PXE_MENU_HIDDEN);
-        $timeout = ($this->hiddenmenu ? $this->FOGCore->getSetting(FOG_PXE_HIDDENMENU_TIMEOUT) : $this->FOGCore->getSetting(FOG_PXE_MENU_TIMEOUT))* 1000;
+        if (!$_REQUEST['menuAccess']) $this->hiddenmenu = $this->FOGCore->getSetting('FOG_PXE_MENU_HIDDEN');
+        $timeout = ($this->hiddenmenu ? $this->FOGCore->getSetting('FOG_PXE_HIDDENMENU_TIMEOUT') : $this->FOGCore->getSetting('FOG_PXE_MENU_TIMEOUT'))* 1000;
         $this->timeout = $timeout;
         // Generate the URL to boot from.
         $this->booturl = "http://${webserver}${webroot}service";
         // Store the host call into class global.
         $this->Host = $Host;
         // Capone menu setup.
-        $CaponePlugInst = in_array('capone',(array)$_SESSION[PluginsInstalled]);
-        $DMISet = $CaponePlugInst ? $this->FOGCore->getSetting(FOG_PLUGIN_CAPONE_DMI) : false;
+        $CaponePlugInst = in_array('capone',(array)$_SESSION['PluginsInstalled']);
+        $DMISet = $CaponePlugInst ? $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_DMI') : false;
         // If it is installed store the needed elements into variables.
         if ($CaponePlugInst) {
-            $this->storage = $StorageNode->get(ip);
-            $this->path = $StorageNode->get(path);
-            $this->shutdown = $this->FOGCore->getSetting(FOG_PLUGIN_CAPONE_SHUTDOWN);
+            $this->storage = $StorageNode->get('ip');
+            $this->path = $StorageNode->get('path');
+            $this->shutdown = $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN');
         }
         // Create menu item if not exists and Capone is installed as well as the DMI is specified.
         if ($CaponePlugInst && $DMISet) {
             // Check for fog.capone if the pxe menu entry exists.
-            $PXEMenuItem = $this->getClass(PXEMenuOptionsManager)->find(array(name=>'fog.capone'));
+            $PXEMenuItem = $this->getClass('PXEMenuOptionsManager')->find(array('name'=>'fog.capone'));
             $PXEMenuItme = @array_shift($PxeMenuItem);
             if ($PXEMenuItem instanceof PXEMenuOptions && $PXEMenuItem->isValid()) $PXEMenuItem->set(args,"mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path")->save();
             // If it does not exist, create the menu entry.
             else {
-                $this->getClass(PXEMenuOptions)
-                    ->set(name,'fog.capone')
-                    ->set(description,'Capone Deploy')
-                    ->set(args,"mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path")
-                    ->set(params,null)
+                $this->getClass('PXEMenuOptions')
+                    ->set('name','fog.capone')
+                    ->set('description','Capone Deploy')
+                    ->set('args',"mode=capone shutdown=$this->shutdown storage=$this->storage:$this->path")
+                    ->set('params',null)
                     ->set('default',0)
-                    ->set(regMenu,2)
+                    ->set('regMenu',2)
                     ->save();
             }
             $PXEMenuItem->save();
@@ -102,34 +102,34 @@ class BootMenu extends FOGBase {
         // Specify the default calls.
         $this->memdisk = "kernel $memdisk";
         $this->memtest = "initrd $memtest";
-        $this->kernel = "kernel $bzImage $this->loglevel initrd=$initrd root=/dev/ram0 rw ramdisk_size=$ramsize keymap=$keymap web=${webserver}${webroot} consoleblank=0".($this->FOGCore->getSetting(FOG_KERNEL_DEBUG) ? ' debug' : '');
+        $this->kernel = "kernel $bzImage $this->loglevel initrd=$initrd root=/dev/ram0 rw ramdisk_size=$ramsize keymap=$keymap web=${webserver}${webroot} consoleblank=0".($this->FOGCore->getSetting('FOG_KERNEL_DEBUG') ? ' debug' : '');
         $this->initrd = "imgfetch $imagefile";
         // Set the default line based on all the menu entries and only the one with the default set.
-        $defMenuItem = current($this->getClass(PXEMenuOptionsManager)->find(array('default'=>1)));
-        $this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get(name) : 'fog.local').(!$this->hiddenmenu ? " --timeout $timeout" : " --timeout 0").' target && goto ${target}';
+        $defMenuItem = current($this->getClass('PXEMenuOptionsManager')->find(array('default'=>1)));
+        $this->defaultChoice = "choose --default ".($defMenuItem && $defMenuItem->isValid() ? $defMenuItem->get('name') : 'fog.local').(!$this->hiddenmenu ? " --timeout $timeout" : " --timeout 0").' target && goto ${target}';
         // Register the success of the boot to the database:
-        $iPXE = $this->getClass(iPXEManager)->find(array(product=>$_REQUEST[product],manufacturer=>$_REQUEST[manufacturer],'file'=>$_REQUEST[filename]));
+        $iPXE = $this->getClass(iPXEManager)->find(array('product'=>$_REQUEST['product'],'manufacturer'=>$_REQUEST['manufacturer'],'file'=>$_REQUEST['filename']));
         $iPXE = @array_shift($iPXE);
         if ($iPXE instanceof iPXE && $iPXE->isValid()) {
-            if ($iPXE->get(failure)) $iPXE->set(failure,0);
-            if (!$iPXE->get(success)) $iPXE->set(success,1);
-            if (!$iPXE->get(version)) $iPXE->set(version,$_REQUEST[ipxever]);
+            if ($iPXE->get('failure')) $iPXE->set('failure',0);
+            if (!$iPXE->get('success')) $iPXE->set('success',1);
+            if (!$iPXE->get('version')) $iPXE->set('version',$_REQUEST['ipxever']);
             $iPXE->save();
         } else {
-            $this->getClass(iPXE)
-                ->set(product,$_REQUEST[product])
-                ->set(manufacturer,$_REQUEST[manufacturer])
-                ->set(mac,$Host instanceof Host && $Host->isValid() ? $Host->get(mac) : 'no mac')
-                ->set(success,1)
-                ->set(file,$_REQUEST[filename])
-                ->set(version,$_REQUEST[ipxever])
+            $this->getClass('iPXE')
+                ->set('product',$_REQUEST['product'])
+                ->set('manufacturer',$_REQUEST['manufacturer'])
+                ->set('mac',$Host instanceof Host && $Host->isValid() ? $Host->get('mac') : 'no mac')
+                ->set('success',1)
+                ->set('file',$_REQUEST['filename'])
+                ->set('version',$_REQUEST['ipxever'])
                 ->save();
         }
-        if ($_REQUEST[username] && $_REQUEST[password]) $this->verifyCreds();
-        else if ($_REQUEST[delconf]) $this->delHost();
+        if ($_REQUEST['username'] && $_REQUEST['password']) $this->verifyCreds();
+        else if ($_REQUEST['delconf']) $this->delHost();
         else if ($_REQUEST['key']) $this->keyset();
-        else if ($_REQUEST[sessname]) $this->sesscheck();
-        else if ($_REQUEST[aprvconf]) $this->approveHost();
+        else if ($_REQUEST['sessname']) $this->sesscheck();
+        else if ($_REQUEST['aprvconf']) $this->approveHost();
         else if (!$Host || !$Host->isValid()) $this->printDefault();
         else $this->getTasking();
     }
