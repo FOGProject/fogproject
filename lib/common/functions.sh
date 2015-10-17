@@ -1175,6 +1175,7 @@ class Config {
     chmod +rx $apacheacclog
     chown -R ${apacheuser}:${apacheuser} $webdirdest
     errorStat $?
+    rm -f "$webdirdest/mobile/css/font-awesome.css" $webdirdest/mobile/{fonts,less,scss} &>/dev/null 2>&1;
     ln -s "$webdirdest/management/css/font-awesome.css" "$webdirdest/mobile/css/font-awesome.css";
     ln -s "$webdirdest/management/fonts" "$webdirdest/mobile/";
     ln -s "$webdirdest/management/less" "$webdirdest/mobile/";
