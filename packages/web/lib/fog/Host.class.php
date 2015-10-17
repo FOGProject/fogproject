@@ -560,7 +560,7 @@ class Host extends FOGController {
                 }
             }
             $isUpload = $TaskType->isUpload();
-            $username = ($this->FOGUser ? $this->FOGUser->get('name') : ($username ? $username : ''));
+            $username = ($username ? $username : $_SESSION['FOG_USERNAME']);
             // Task: Create Task Object
             $Task = $this->createTasking($taskName, $taskTypeID, $username, $imagingTypes ? $StorageGroup->get('id') : 0, $imagingTypes ? $StorageGroup->getOptimalStorageNode()->get('id') : 0, $imagingTypes,$shutdown,$passreset,$debug);
             if ($Image && $Image->isValid()) $Task->set('imageID',$Image->get('id'));

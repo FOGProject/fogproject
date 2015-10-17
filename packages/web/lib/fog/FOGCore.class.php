@@ -219,7 +219,7 @@ class FOGCore extends FOGBase {
         if (!file_exists(BASEPATH.'/management/css/'.$_SESSION['theme'])) $_SESSION['theme'] = 'default/fog.css';
         $_SESSION['imagelink'] = !$this->isMobile ? 'css/'.($_SESSION['theme']?dirname($_SESSION['theme']):'default').'/images/':'css/images/';
         $_SESSION['PLUGSON'] = $this->getSetting('FOG_PLUGINSYS_ENABLED');
-        $_SESSION['PluginsInstalled'] = $this->getActivePlugins();
+        $_SESSION['PluginsInstalled'] = (array)$this->getActivePlugins();
         $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = $this->getSetting('FOG_VIEW_DEFAULT_SCREEN');
         $_SESSION['FOG_FTP_IMAGE_SIZE'] = $this->getSetting('FOG_FTP_IMAGE_SIZE');
         $_SESSION['Pending-Hosts'] = $this->getClass('HostManager')->count(array('pending'=>1));

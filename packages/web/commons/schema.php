@@ -1,6 +1,5 @@
 <?php
-global $DatabaseManager;
-$this->mySchema = $DatabaseManager->getVersion();
+$this->mySchema = $this->DB->getVersion();
 // 0
 $this->schema[] = array(
 	"CREATE DATABASE " . DATABASE_NAME ,
@@ -901,12 +900,11 @@ $this->schema[] = array(
 	// Update `images`.`imageOSID`
 	function() {
 		// Get all imageID's from Hosts -> Push imageID and osID into an array
-        global $DB;
-        $DB->query("SELECT DISTINCT hostImage, hostOS FROM `%s`.`hosts` WHERE hostImage > 0", array(DATABASE_NAME));
-        while ($host = $DB->fetch()->get()) $allImageID[$host['hostImage']] = $host['hostOS'];
+        $this->DB->query("SELECT DISTINCT hostImage, hostOS FROM `%s`.`hosts` WHERE hostImage > 0", array(DATABASE_NAME));
+        while ($host = $this->DB->fetch()->get()) $allImageID[$host['hostImage']] = $host['hostOS'];
 		// Iterate imageID's -> Update Image setting new osID -> Save
 		foreach ((array)$allImageID AS $imageID => $osID) {
-            $Image = new Image($imageID);
+            $Image = $this->getClass('Image',$imageID);
             if (!$Image->set('osID', $osID)->save()) $errors[] = sprintf('<div>Failed updating the osID of imageID: imageID: %s, osID: %s</div>', $imageID, $osID);
         }
         // Return true on succes, (string) on error

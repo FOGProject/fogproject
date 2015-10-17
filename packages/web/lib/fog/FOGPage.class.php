@@ -673,6 +673,7 @@ abstract class FOGPage extends FOGBase {
         if (!$data[1]) $data['error-version'] = _('Error contacting server');
         else $data['version'] = $data[1];
         echo json_encode($data);
+        exit;
     }
     /** getmacman() get the mac manager information
      * @return void

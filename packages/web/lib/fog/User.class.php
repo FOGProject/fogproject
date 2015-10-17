@@ -37,18 +37,26 @@ class User extends FOGController {
     }
     public function validate_pw($password) {
         $res = false;
-        if (crypt($password,$this->get('password')) == $this->get('password')) $res = $this;
+        if (crypt($password,$this->get('password')) == $this->get('password')) $res = true;
+        else if (md5($password) == $this->get('password')) {
+            $this->set('password',$password)->save();
+            $res = $this->validate_pw($password);
+        }
         if ($res) {
             $this
                 ->set('authUserAgent',$_SERVER['HTTP_USER_AGENT'])
                 ->set('authIP',$_SERVER['REMOTE_ADDR'])
                 ->set('authTime',time())
                 ->set('authLastActivity',time());
-        } else if (md5($password) == $this->get('password')) {
-            $this->set('password',$password)->save();
-            return $this->validate_pw($password);
+            $_SESSION['FOG_USER'] = serialize($this);
+            $_SESSION['FOG_USERNAME'] = $this->get('name');
+            return $this;
+        } else {
+            $this->EventManager->notify('LoginFail',array('Failure'=>$this->get('name')));
+            $this->HookManager->processEvent('LoginFail',array('username'=>$this->get('name'),'password'=>&$password));
+            $this->setMessage($this->foglang['InvalidLogin']);
+            $this->redirect($index);
         }
-        return $res;
     }
     public function set($key, $value, $override = false) {
         if ($this->key($key) == 'password' && !$override) $value = $this->generate_hash($value);
@@ -61,10 +69,6 @@ class User extends FOGController {
             $this->alwaysloggedin = (int)$this->FOGCore->getSetting('FOG_ALWAYS_LOGGED_IN');
             $this->checkedalready = true;
         }
-        session_name('FOG_GUI_Session');
-        $domain = isset($_SERVER['SERVER_NAME']);
-        $https = isset($_SERVER['HTTPS']);
-        session_set_cookie_params(0,'/',$domain,$secure,true);
         if (!session_id()) session_start();
         if (!isset($this->sessionID)) $this->sessionID = session_id();
         if (!$this->get('authIP') || !$this->get('authUserAgent')) return false;
@@ -77,12 +81,12 @@ class User extends FOGController {
         } else if ($this->get('authID') && $this->sessionID != $this->get('authID')) {
             $this->setMessage(_('Session ID has changed'));
             return false;
-        } else if (!$this->alwaysloggedin && ((time() - $this->get('authLastActivity')) >= ($this->inactivitySessionTimeout*60*60))) {
+        } else if ($this->get('authLastActivity') && !$this->alwaysloggedin && ((time() - $this->get('authLastActivity')) >= ($this->inactivitySessionTimeout*60*60))) {
             $this->setMessage($this->foglang['SessionTimeout']);
             return false;
         }
         if ((time() - $this->get('authTime')) > ($this->regenerateSessionTimeout * 60 * 60)) {
-            session_regenerate_id(false);
+            session_regenerate_id(true);
             $this->sessionID = session_id();
             session_write_close();
             session_id($this->sessionID);
@@ -91,23 +95,23 @@ class User extends FOGController {
                 ->set('authID',$this->sessionID)
                 ->set('authTime',time());
         }
-        $_SESSION['FOG_USER'] = serialize($this);
-        $_SESSION['FOG_USERNAME'] = $this->get('name');
         $this->set('authLastActivity',time());
         return $this;
     }
     public function logout() {
         $locale = $_SESSION['locale'];
-        $messages = $_SESSION['FOG_MESSAGES'];
+        if ($_SESSION['FOG_MESSAGES']) $messages = $_SESSION['FOG_MESSAGES'];
         // Destroy session
-        if ($this->sessionID || session_id()) {
-            unset($this->sessionID);
-            session_unset();
-            session_destroy();
-        }
+        unset($this->sessionID);
         $this->set('authID',null);
         $this->set('authTime',null);
         $this->set('authLastActivity',null);
+        if (!session_id()) session_start();
+        session_regenerate_id(true);
+        session_unset();
+        session_destroy();
+        session_write_close();
+        session_start();
         $_SESSION=array();
         $_SESSION['locale'] = $locale;
         if (isset($messages)) $this->setMessage($messages);
