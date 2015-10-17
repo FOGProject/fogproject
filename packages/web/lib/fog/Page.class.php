@@ -80,9 +80,13 @@ class Page extends FOGBase {
                 'js/fog/fog.main.js',
             );
             if ($_REQUEST['sub'] == 'membership') $_REQUEST['sub'] = 'edit';
+            $node = preg_replace('#_#','-',$_REQUEST['node']);
+            $sub = preg_replace('#_#','-',$_REQUEST['sub']);
             $filepaths = array(
                 "js/fog/fog.{$_REQUEST['node']}.js",
                 "js/fog/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js",
+                "js/fog/fog.$node.js",
+                "js/fog/fog.$node.$sub.js",
             );
             foreach($filepaths AS $i => &$jsFilepath) {
                 if (file_exists($jsFilepath)) array_push($files,$jsFilepath);
@@ -91,6 +95,8 @@ class Page extends FOGBase {
             $pluginfilepaths = array(
                 BASEPATH."/lib/plugins/{$_REQUEST['node']}/js/fog.{$_REQUEST['node']}.js",
                 BASEPATH."/lib/plugins/{$_REQUEST['node']}/js/fog.{$_REQUEST['node']}.{$_REQUEST['sub']}.js",
+                BASEPATH."/lib/plugins/$node/js/fog.$node.js",
+                BASEPATH."/lib/plugins/$node/js/fog.$node.$sub.js",
             );
             foreach($pluginfilepaths AS $i => &$pluginfilepath) {
                 if (file_exists($pluginfilepath) && !file_exists("js/fog/".basename($pluginfilepath))) {
