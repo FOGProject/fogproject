@@ -1085,8 +1085,8 @@ class Config {
         define('STORAGE_HOST', \"${ipaddress}\");
         define('STORAGE_FTP_USERNAME', \"${username}\");
         define('STORAGE_FTP_PASSWORD', \"${password}\");
-        define('STORAGE_DATADIR', '/${storageLocation}/');
-        define('STORAGE_DATADIR_UPLOAD', '/${storageLocation}/dev/');
+        define('STORAGE_DATADIR', '${storageLocation}/');
+        define('STORAGE_DATADIR_UPLOAD', '${storageLocation}/dev/');
         define('STORAGE_BANDWIDTHPATH', '/${webroot}status/bandwidth.php');
         define('UPLOADRESIZEPCT',5);
         define('WEB_HOST', \"${ipaddress}\");
