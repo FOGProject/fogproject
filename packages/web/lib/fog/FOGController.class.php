@@ -192,12 +192,6 @@ abstract class FOGController extends FOGBase {
         }
         return $this;
     }
-    public function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id',$not = false,$operator = 'AND') {
-        if (empty($object)) $object = 'Host';
-        if (empty($getField)) $getField = 'id';
-        if (empty($operator)) $operator = 'AND';
-        return array_filter(array_unique($this->getClass($object)->getManager()->find($findWhere,$operator,'','','','',$not,$getField)));
-    }
     protected function key(&$key) {
         $key = trim($key);
         if (array_key_exists($key, $this->databaseFieldsFlipped)) $key = $this->databaseFieldsFlipped[$key];
