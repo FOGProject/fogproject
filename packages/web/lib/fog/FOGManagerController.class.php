@@ -1,5 +1,5 @@
 <?php
-abstract class FOGManagerController extends FOGController {
+abstract class FOGManagerController extends FOGBase {
     protected $childClass;
     protected $classVariables;
     protected $loadQueryTemplate = 'SELECT * FROM `%s` %s %s %s %s %s';

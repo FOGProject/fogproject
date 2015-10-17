@@ -1,5 +1,5 @@
 <?php
-abstract class FOGClient extends FOGController {
+abstract class FOGClient extends FOGBase {
     protected $newService;
     protected $Host;
     public function __construct($service = true,$encoded = false,$hostnotrequired = false,$returnmacs = false,$override = false) {
