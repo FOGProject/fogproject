@@ -9,11 +9,16 @@ abstract class FOGManagerController extends FOGController {
     protected $destroyQueryTemplate = "DELETE FROM `%s` WHERE `%s`.`%s` IN ('%s')";
     protected $existsQueryTemplate = "SELECT COUNT(`%s`.`%s`) AS `total` FROM `%s` WHERE `%s`.`%s`='%s' AND `%s`.`%s` <> '%s'";
     public function __construct() {
-        $this->childClass = preg_replace('#_?Manager$#', '', get_class($this));
-        $this->classVariables = $this->getClass('ReflectionClass',$this->childClass)->getDefaultProperties();
-        foreach ((array)$this->classVariables AS $name => &$value) $this->$name = $value;
-        unset($value);
         parent::__construct();
+        $this->childClass = preg_replace('#_?Manager$#', '', get_class($this));
+        $this->classVariables = $this->getClass('ReflectionClass',$this->childClass)->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
+        foreach ((array)$this->classVariables AS $i => &$prop) {
+            if ($prop->isProtected()) $prop->setAccessible(true);
+            $name = $prop->getName();
+            $value = $prop->getValue($this->getClass($this->childClass));
+            $this->$name = $value;
+        }
+        unset($value);
     }
     private function orderBy(&$orderBy) {
         if (empty($orderBy)) {
