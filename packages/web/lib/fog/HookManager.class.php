@@ -5,7 +5,7 @@ class HookManager extends EventManager {
     public $events;
     public function register($event, $function) {
         try {
-            if ($this->isMobile) throw new Exception('Hooks not allowed in mobile space');
+            //if ($this->isMobile) throw new Exception('Hooks not allowed in mobile space');
             if (!is_array($function) || count($function) != 2) throw new Exception('Function is invalid');
             if (!method_exists($function[0], $function[1])) throw new Exception('Function does not exist');
             if (!($function[0] instanceof Hook)) throw new Exception('Not a valid hook class');
@@ -61,6 +61,7 @@ class HookManager extends EventManager {
         asort($this->events);
     }
     public function processEvent($event, $arguments = array()) {
+        if (!in_array($event,(array)$this->events)) array_push($this->events,$event);
         if ($this->data[$event]) {
             foreach ($this->data[$event] AS $i => &$function) {
                 // Is hook active?
@@ -81,18 +82,11 @@ class HookManager extends EventManager {
                     if ($fileInfo->isDot() || !$fileInfo->isFile() || substr($fileInfo->getFilename(),-9) != '.hook.php') continue;
                     $className = substr($fileInfo->getFilename(),0,-9);
                     if (!$className || in_array($className,get_declared_classes())) continue;
-                    if (preg_match('#plugins#',$hookDirectory)) $PluginName = basename(substr($hookDirectory,0,-6));
-                    if (preg_match('#plugins#',$fileInfo->getPathname()) && in_array($PluginName, (array)$_SESSION['PluginsInstalled'])) {
-                        $className = substr($fileInfo->getFilename(),-9) == '.hook.php' ?  substr($fileInfo->getFilename(),0,-9) : null;
-                        if ($className) {
-                            $this->getClass($className);
-                            continue;
-                        }
-                    }
-                    if ($className) {
-                        $vals = $this->getClass('ReflectionClass',$className)->getDefaultProperties();
-                        if ($vals['active']) $this->getClass($className);
-                    }
+                    if (preg_match('#plugins#',$hookDirectory) && !in_array(basename(substr($hookDirectory,0,-6)),(array)$_SESSION['PluginsInstalled'])) continue;
+                    else if (preg_match('#plugins#',$fileInfo->getPathname())) {
+                        $this->getClass($className);
+                        continue;
+                    } else if ($this->getClass('ReflectionClass',$className)->getProperty('active')->getValue($this->getClass($className))) $this->getClass($className);
                 }
             }
         }
@@ -102,8 +96,3 @@ class HookManager extends EventManager {
             printf('[%s] %s%s', $this->nice_date()->format("d-m-Y H:i:s"), trim(preg_replace(array("#\r#", "#\n#", "#\s+#", "# ,#"), array("", " ", " ", ","), $txt)), "<br />\n");
     }
 }
-/* Local Variables: */
-/* indent-tabs-mode: t */
-/* c-basic-offset: 4 */
-/* tab-width: 4 */
-/* End: */

@@ -10,7 +10,7 @@ class LDAPPluginHook extends Hook {
     public function check_addUser($arguments) {
         $noUser = false;
         // If we aren't active but we are loaded for some reason, return
-        if (!in_array($this->node,$_SESSION[PluginsInstalled])) return;
+        if (!in_array($this->node,(array)$_SESSION['PluginsInstalled'])) return;
 		$username = $arguments[username];
 		$password = $arguments[password];
         $User = $arguments[User];

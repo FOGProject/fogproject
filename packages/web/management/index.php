@@ -1,15 +1,12 @@
 <?php
 require_once ('../commons/base.inc.php');
 if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'], array('deletemulti', 'deleteconf'))) unset($_SESSION['delitems']);
-$currentUser = ($_SESSION['FOG_USER'] ? unserialize($_SESSION['FOG_USER']) : $FOGCore->getClass('User'));
-$currentUser = $currentUser->isLoggedIn();
 $FOGPageManager = $FOGCore->getClass('FOGPageManager');
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 $Page = $FOGCore->getClass('Page');
-if (!in_array($_REQUEST['node'],array('schemaupdater','client')) && !in_array($_REQUEST['sub'],array('configure','authorize')) && ($node == 'logout' || !$currentUser)) {
+if ($_REQUEST['node'] == 'logout' || (!in_array($_REQUEST['sub'],array('configure','authorize','loginInfo')) && !in_array($_REQUEST['node'],array('schemaupdater','client')) && !$currentUser->isValid())) {
     $HookManager->processEvent('LOGOUT', array('user'=>&$currentUser));
-    $FOGCore->getClass('User')->logout();
-    unset($currentUser, $_SESSION['FOG_USERNAME'], $_SESSION['FOG_USER'], $_SESSION['AllowAJAXTasks']);
+    $currentUser->logout();
     $Page->setTitle($foglang['Login']);
     $Page->setSecTitle($foglang['ManagementLogin']);
     $Page->startBody();
