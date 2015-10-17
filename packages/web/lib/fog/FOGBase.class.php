@@ -448,4 +448,10 @@ abstract class FOGBase {
                 ->save();
         }
     }
+    public function getSubObjectIDs($object = 'Host',$findWhere = array(),$getField = 'id',$not = false,$operator = 'AND') {
+        if (empty($object)) $object = 'Host';
+        if (empty($getField)) $getField = 'id';
+        if (empty($operator)) $operator = 'AND';
+        return array_filter(array_unique($this->getClass($object)->getManager()->find($findWhere,$operator,'','','','',$not,$getField)));
+    }
 }

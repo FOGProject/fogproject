@@ -1,5 +1,5 @@
 <?php
-abstract class FOGService extends FOGController {
+abstract class FOGService extends FOGBase {
     /** @var $dev string the device output for console */
     public $dev;
     /** @var $log string the log file to write to */
