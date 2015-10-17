@@ -23,58 +23,35 @@ class Snapin extends FOGController {
         'hosts',
         'hostsnotinme',
         'storageGroups',
+        'storageGroupsnotinme',
         'path',
     );
     public function get($key = '') {
-        switch ($this->key($key)) {
-            case 'hosts':
-            case 'hostsnotinme':
-                $this->loadHosts();
-                break;
-            case 'storageGroups':
-                $this->loadGroups();
-                break;
-        }
+        $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         return parent::get($key);
     }
     public function set($key,$value) {
-        switch ($this->key($key)) {
-            case 'hosts':
-            case 'hostsnotinme':
-                $this->loadHosts();
-                break;
-            case 'storageGroups':
-                $this->loadGroups();
-                break;
-            case 'path':
-                $value = $this->get('file');
-                break;
-        }
+        $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         return parent::set($key,$value);
     }
     public function add($key,$value) {
-        switch ($this->key($key)) {
-            case 'hosts':
-            case 'hostsnotinme':
-                $this->loadHosts();
-                break;
-            case 'storageGroups':
-                $this->loadGroups();
-                break;
-        }
+        $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         return parent::add($key,$value);
     }
     public function remove($key,$value) {
-        switch ($this->key($key)) {
-            case 'hosts':
-            case 'hostsnotinme':
-                $this->loadHosts();
-                break;
-            case 'storageGroups':
-                $this->loadGroups();
-                break;
-        }
+        $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         return parent::remove($key,$value);
+    }
+    public function destroy($field = 'id') {
+        $this->getClass('SnapinJobManager')->destroy(array('id'=>$this->getSubObjectIDs('SnapinTask',array('snapinID'=>$this->get('id')),'jobID')));
+        $this->getClass('SnapinTaskManager')->destroy(array('snapinID'=>$this->get('id')));
+        $this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$this->get('id')));
+        $this->getClass('SnapinAssociation')->destroy(array('snapinID'=>$this->get('id')));
+        return parent::destroy($field);
     }
     public function save() {
         parent::save();
@@ -94,8 +71,7 @@ class Snapin extends FOGController {
                         ->set('snapinID',$this->get('id'))
                         ->save();
                 }
-                unset($Host);
-                break;
+                unset($Host,$Hosts,$DBHostIDs);
             case ($this->isLoaded('storageGroups')):
                 $DBGroupIDs = $this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID');
                 $RemoveGroupIDs = array_diff((array)$DBGroupIDs,(array)$this->get('storageGroups'));
@@ -111,19 +87,12 @@ class Snapin extends FOGController {
                         ->set('storageGroupID',$Group)
                         ->save();
                 }
-                unset($Group);
-                break;
+                unset($Group,$Groups,$DBGroupIDs);
         }
         return $this;
     }
-    public function destroy($field = 'id') {
-        $this->getClass('SnapinJobManager')->destroy(array('id'=>$this->getSubObjectIDs('SnapinTask',array('snapinID'=>$this->get('id')),'jobID')));
-        $this->getClass('SnapinTaskManager')->destroy(array('snapinID'=>$this->get('id')));
-        $this->getClass('SnapinGroupAssociationManager')->destroy(array('snapinID'=>$this->get('id')));
-        $this->getClass('SnapinAssociation')->destroy(array('snapinID'=>$this->get('id')));
-        return parent::destroy($field);
-    }
     public function deleteFile() {
+        if ($this->get('protected')) throw new Exception($this->foglang['ProtectedSnapin']);
         if (!$this->getStorageGroup()->getMasterStorageNode()->get('isEnabled')) throw new Exception($this->foglang['NoMasterNode']);
         $delete = rtrim($this->getStorageGroup()->getMasterStorageNode()->get('snapinpath'),'/').DIRECTORY_SEPARATOR.$this->get('file');
         $this->FOGFTP
@@ -138,7 +107,11 @@ class Snapin extends FOGController {
         $this->FOGFTP->close();
     }
     public function addHost($addArray) {
-        $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));
+        $Hosts = array_unique(array_merge((array)$addArray,(array)$this->get('hosts')));
+        if (count($Hosts)) {
+            $Hosts = array_merge((array)$this->get('hosts'),(array)$Hosts);
+            $this->set('hosts',$Hosts);
+        }
         return $this;
     }
     public function removeHost($removeArray) {
@@ -146,7 +119,11 @@ class Snapin extends FOGController {
         return $this;
     }
     public function addGroup($addArray) {
-        $this->set('storageGroups',array_unique(array_merge((array)$this->get('storageGroups'),(array)$addArray)));
+        $Groups = array_unique(array_merge((array)$addArray,(array)$this->get('storageGroups')));
+        if (count($Groups)) {
+            $Hosts = array_merge((array)$this->get('storageGroups'),(array)$Groups);
+            $this->set('storageGroups',$Groups);
+        }
         return $this;
     }
     public function removeGroup($removeArray) {
@@ -157,18 +134,30 @@ class Snapin extends FOGController {
         if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min($this->getSubObjectIDs('StorageGroup','','id')));
         return $this->getClass('StorageGroup',@min($this->get('storageGroups')));
     }
-    private function loadHosts() {
-        if (!$this->isLoaded('hosts') && $this->get('id')) {
-            $this->set('hosts',array_unique($this->getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID')));
-            $this->set('hostsnotinme',$this->getSubObjectIDs('Host',array('id'=>$this->get('hosts')),'id',true));
-        }
-        return $this;
+    protected function loadHosts() {
+        if ($this->get('id')) $this->set('hosts',$this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID'));
     }
-    private function loadGroups() {
-        if (!$this->isLoaded('storageGroups') && $this->get('id')) {
-            $this->set('storageGroups',array_unique($this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID')));
-            if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min($this->getSubObjectIDs('StorageGroup','','id')));
+    protected function loadHostsnotinme() {
+        if ($this->get('id')) {
+            $find = array('id'=>$this->get('hosts'));
+            $this->set('hostsnotinme',$this->getSubObjectIDs('Host',$find,'',true));
+            unset($find);
         }
+    }
+    protected function loadStorageGroups() {
+        if ($this->get('id')) $this->set('storageGroups',$this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID'));
+        if (!count($this->get('storageGroups'))) $this->set('storageGroups',(array)@min($this->getSubObjectIDs('StorageGroup','','id')));
+    }
+    protected function loadStorageGroupsnotinme() {
+        if ($this->get('id')) $this->set('storageGroups',$this->getSubObjectIDs('SnapinGroupAssociation',array('snapinID'=>$this->get('id')),'storageGroupID'));
+        if ($this->get('id')) {
+            $find = array('id'=>$this->get('storageGroups'));
+            $this->set('storageGroupsnotinme',$this->getSubObjectIDs('StorageGroup',$find,'',true));
+            unset($find);
+        }
+    }
+    protected function loadPath() {
+        if ($this->get('id')) $this->set('path',$this->get('file'));
         return $this;
     }
 }

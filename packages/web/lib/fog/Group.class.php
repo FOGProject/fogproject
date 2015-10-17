@@ -98,7 +98,7 @@ class Group extends FOGController {
         return $this;
     }
     public function addHost($addArray) {
-        $Hosts = array_unique(array_diff((array)$addArray,(array)$this->get('groups')));
+        $Hosts = array_unique(array_diff((array)$addArray,(array)$this->get('hosts')));
         if (count($Hosts)) {
             $Hosts = array_merge((array)$this->get('hosts'),(array)$Hosts);
             $this->set('hosts',$Hosts);
