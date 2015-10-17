@@ -79,11 +79,11 @@ fi
 # where do the php files go?
 if [ -z "$docroot" ]; then
     docroot="/var/www/html/"
-    webdirdest="${docroot}fog"
+    webdirdest="${docroot}fog/"
 elif [[ "$docroot" != *'fog'* ]]; then
-    webdirdest="${docroot}fog"
+    webdirdest="${docroot}fog/"
 else
-    webdirdest="${docroot}"
+    webdirdest="${docroot}/"
 fi
 webredirect="${webdirdest}/index.php";
 apacheuser="apache";

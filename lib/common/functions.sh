@@ -993,7 +993,7 @@ configureHttpd() {
     sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' $phpini >/dev/null 2>&1
     sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' $phpini >/dev/null 2>&1
     errorStat $?
-    dots "Backing up and copying new fog web data"
+    dots "Backing up old data"
     if [ -d "$backupPath/fog_web_$version.BACKUP" ]; then
         rm -rf "$backupPath/fog_web_$version.BACKUP" >/dev/null 2>&1
     fi
@@ -1005,6 +1005,11 @@ configureHttpd() {
         ln -s $webdirdest  /var/www/fog >/dev/null 2>&1
     fi
     mkdir -p "$webdirdest" >/dev/null 2>&1
+    errorStat $?
+    dots "Copying back old web folder as is";
+    cp -Rf $backupPath/fog_web_$version.BACKUP/* $webdirdest/;
+    errorStat $?
+    dots "Copying new files to web folder";
     cp -Rf $webdirsrc/* $webdirdest/
     errorStat $?
     dots "Creating config file"
@@ -1070,7 +1075,7 @@ class Config {
         define('TFTP_HOST', \"${ipaddress}\");
         define('TFTP_FTP_USERNAME', \"${username}\");
         define('TFTP_FTP_PASSWORD', \"${password}\");
-        define('TFTP_PXE_KERNEL_DIR', '${webdirdest}/service/ipxe/');
+        define('TFTP_PXE_KERNEL_DIR', \"${webdirdest}/service/ipxe/\");
         define('PXE_KERNEL', 'bzImage');
         define('PXE_KERNEL_RAMDISK',127000);
         define('USE_SLOPPY_NAME_LOOKUPS',true);
