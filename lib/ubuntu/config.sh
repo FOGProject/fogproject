@@ -58,15 +58,15 @@ fi
 # where do the php files go?
 if [ -z "$docroot" ]; then
     docroot="/var/www/html/"
-    webdirdest="${docroot}fog"
+    webdirdest="${docroot}fog/"
 elif [[ "$docroot" != *'fog'* ]]; then
-    webdirdest="${docroot}fog"
+    webdirdest="${docroot}fog/"
 else
-    webdirdest="${docroot}"
+    webdirdest="${docroot}/"
 fi
 if [ "$docroot" == "/var/www/html/" ] && [ ! -d "$docroot" ]; then
     docroot="/var/www/";
-    webdirdest="${docroot}fog";
+    webdirdest="${docroot}fog/";
 fi
 webredirect="$docroot/index.php"
 apacheuser="www-data"
