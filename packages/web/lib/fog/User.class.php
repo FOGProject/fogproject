@@ -56,6 +56,7 @@ class User extends FOGController {
             $this->HookManager->processEvent('LoginFail',array('username'=>$this->get('name'),'password'=>&$password));
             $this->setMessage($this->foglang['InvalidLogin']);
             $this->redirect($index);
+            return false;
         }
     }
     public function set($key, $value, $override = false) {
@@ -71,7 +72,7 @@ class User extends FOGController {
         }
         if (!session_id()) session_start();
         if (!isset($this->sessionID)) $this->sessionID = session_id();
-        if (!$this->get('authIP') || !$this->get('authUserAgent')) return false;
+        if (!$this->isValid()) return false;
         else if ($this->get('authIP') && $this->get('authIP') != $_SERVER['REMOTE_ADDR']) {
             $this->setMessage(_('IP Address Changed'));
             return false;

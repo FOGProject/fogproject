@@ -219,6 +219,7 @@ $foglang['LatestVer']				= _('Latest Version');
 $foglang['FOGMobile']				= _('FOG Mobile Login');
 // Image class Translates
 $foglang['ProtectedImage']			= _('Image is protected and cannot be deleted');
+$foglang['ProtectedSnapin']			= _('Snapin is protected and cannot be deleted');
 $foglang['NoMasterNode']			= _('No master nodes are enabled to delete this image');
 $foglang['FailedDeleteImage']		= _('Failed to delete image files');
 $foglang['FailedDelete']			= _('Failed to delete file');
