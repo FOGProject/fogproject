@@ -372,7 +372,7 @@ abstract class FOGPage extends FOGBase {
                             ->set(other2,$enableSnapins)
                             ->set(type,($_REQUEST[scheduleType] == 'single' ? 'S' : 'C'))
                             ->set(isGroupTask,$groupTask)
-                            ->set(other3,$this->FOGUser->get(name))
+                            ->set(other3,$_SESSION['FOG_USERNAME'])
                             ->set(isActive,1);
                         if ($_REQUEST[scheduleType] == 'single') $ScheduledTask->set(scheduleTime,$scheduleDeployTime->getTimestamp());
                         else if ($_REQUEST[scheduleType] == 'cron') {
