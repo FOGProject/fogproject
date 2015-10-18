@@ -30,7 +30,7 @@ class FOGPageManager Extends FOGBase {
         return (bool)$this->getFOGPageClass()->titleEnabled == true && !empty($this->FOGPageClass()->title);
     }
     public function getSideMenu() {
-        if ($this->FOGUser) {
+        if ($this->FOGUser->isValid()) {
             $class = $this->getFOGPageClass();
             $this->FOGSubMenu = $this->getClass('FOGSubMenu');
             foreach ((array)$class->menu AS $link => &$title) $this->FOGSubMenu->addItems($this->classValue,array((string)$title=>(string)$link));
@@ -45,7 +45,7 @@ class FOGPageManager Extends FOGBase {
         }
     }
     public function render() {
-        $toRender = in_array($_REQUEST['node'],array('client','schemaupdater')) || in_array($_REQUEST['sub'],array('configure','authorize')) || ($this->FOGUser);
+        $toRender = in_array($_REQUEST['node'],array('client','schemaupdater')) || in_array($_REQUEST['sub'],array('configure','authorize')) || ($this->FOGUser->isValid());
         if ($toRender) {
             $this->loadPageClasses();
             try {

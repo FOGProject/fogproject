@@ -5,8 +5,8 @@ $FOGPageManager = $FOGCore->getClass('FOGPageManager');
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 $Page = $FOGCore->getClass('Page');
 if ($_REQUEST['node'] == 'logout' || (!in_array($_REQUEST['sub'],array('configure','authorize','loginInfo')) && !in_array($_REQUEST['node'],array('schemaupdater','client')) && !$currentUser->isValid())) {
-    $HookManager->processEvent('LOGOUT', array('user'=>&$currentUser));
     $currentUser->logout();
+    $HookManager->processEvent('LOGOUT', array('user'=>&$currentUser));
     $Page->setTitle($foglang['Login']);
     $Page->setSecTitle($foglang['ManagementLogin']);
     $Page->startBody();

@@ -85,6 +85,7 @@ class DashboardPage extends FOGPage {
         }
         unset($StorageNode);
         echo json_encode((array)$data);
+        exit;
     }
     /** diskusage()
      * Display's the disk usage graph on the dashboard page.
@@ -109,6 +110,7 @@ class DashboardPage extends FOGPage {
             }
         }
         echo json_encode((array)$Data);
+        exit;
     }
     /** clientCount()
      * Display's the current client count on the activity graph

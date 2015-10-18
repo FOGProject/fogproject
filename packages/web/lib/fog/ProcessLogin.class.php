@@ -106,11 +106,7 @@ class ProcessLogin extends FOGBase {
             $tmpUser = $this->FOGCore->attemptLogin($this->username,$this->password);
             // Hook
             $this->HookManager->processEvent('USER_LOGGING_IN',array('User'=>&$tmpUser,'username'=>&$this->username,'password'=>&$this->password));
-            if (!($tmpUser && $tmpUser->isValid())) {
-                $this->setMessage($this->foglang['InvalidLogin']);
-                $this->getClass('User')->logout();
-                $this->redirect('index.php');
-            } else if (!$this->isMobile && $tmpUser->get('type') != 0) {
+            if (!$this->isMobile && $tmpUser->get('type') != 0) {
                 $this->setMessage($this->foglang['NotAllowedHere']);
                 $this->getClass('User')->logout();
                 $this->redirect('index.php');
@@ -119,9 +115,12 @@ class ProcessLogin extends FOGBase {
     }
     public function mainLoginForm() {
         $this->setLang();
-        if (in_array($_GET['node'],array('login','logout'))) $this->redirect('index.php');
+        if (in_array($_REQUEST['node'],array('login','logout'))) {
+            $this->setMessage($_SESSION['FOG_MESSAGES']);
+            $this->redirect('index.php');
+        }
         echo '<form method="post" action="?node=login" id="login-form">';
-        if ($_GET['node'] != 'logout') {
+        if ($_REQUEST['node'] != 'logout') {
             foreach ($_GET AS $key => &$value) echo '<input type ="hidden" name="'.$key.'" value="'.$value.'" />';
             unset($value);
         }
@@ -131,6 +130,7 @@ class ProcessLogin extends FOGBase {
     }
     public function mobileLoginForm() {
         $this->setLang();
+        if (in_array($_GET['node'],array('login','logout'))) $this->redirect('index.php');
         echo '<center><div class="login"><p class="loginTitle">'.$this->foglang['FOGMobile'].'</p><form method="post" action="?node=login"><div class="loginElement">'.$this->foglang['Username'].':</div><div class="loginElement"><input type="text" class="login" name="uname" /></div><div class="loginElement">'.$this->foglang['Password'].':</div><div class="loginElement"><input type="password" class="login" name="upass" /></div>'."\n";
         $this->getLanguages();
         echo '<div class="loginElement">'.$this->foglang['LanguagePhrase'].':</div><div class="loginElement"><select class="login" name="ulang">';
