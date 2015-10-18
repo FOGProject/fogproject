@@ -65,15 +65,12 @@ class Initiator {
         ob_start(array('Initiator','sanitize_output'));
         @set_time_limit(0);
         @error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
-        @ini_set('session.save_handler','mm');
-        @ini_set('session.cookie_httponly',true);
-        if (!session_id()) {
+        if (!count($_SESSION)) {
             session_start();
             session_cache_limiter('no-cache');
-            session_name('FOG_GUI_Session');
             $domain = isset($_SERVER['SERVER_NAME']);
             $https = isset($_SERVER['HTTPS']);
-            session_set_cookie_params(0,'/',$domain,$secure,true);
+            session_set_cookie_params(0,'/',$domain,$https,true);
         }
         @set_magic_quotes_runtime(0);
         self::verCheck();
@@ -207,6 +204,6 @@ $EventManager->load();
 $FOGURLRequests = $FOGCore->getClass('FOGURLRequests');
 /** Get the current user */
 if (!in_array($_REQUEST['sub'],array('configure','authorize','loginInfo')) && !in_array($_REQUEST['node'],array('schemaupdater','client')) && $_SESSION['FOG_USER']) {
-    $UserLoad = true;
     $currentUser = unserialize($_SESSION['FOG_USER']);
+    $currentUser->isLoggedIn();
 }
