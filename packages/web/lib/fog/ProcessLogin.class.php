@@ -106,7 +106,7 @@ class ProcessLogin extends FOGBase {
             $tmpUser = $this->FOGCore->attemptLogin($this->username,$this->password);
             // Hook
             $this->HookManager->processEvent('USER_LOGGING_IN',array('User'=>&$tmpUser,'username'=>&$this->username,'password'=>&$this->password));
-            if (!$this->isMobile && $tmpUser->get('type') != 0) {
+            if (!$this->isMobile && $tmpUser->get('type') == 1) {
                 $this->setMessage($this->foglang['NotAllowedHere']);
                 $this->getClass('User')->logout();
                 $this->redirect('index.php');
