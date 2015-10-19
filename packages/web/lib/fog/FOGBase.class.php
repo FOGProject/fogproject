@@ -49,7 +49,6 @@ abstract class FOGBase {
         $this->FOGURLRequests = &$FOGURLRequests;
         $this->FOGPageManager = &$FOGPageManager;
         $this->TimeZone = &$TimeZone;
-        $this->imagelink = &$_SESSION['imagelink'];
         $this->isMobile = (bool)preg_match('#/mobile/#i',$_SERVER['PHP_SELF']);
         $this->service = (bool)preg_match('#/service/#i', $_SERVER['PHP_SELF']);
         $this->ajax = (bool)preg_match('#^xmlhttprequest$#i',$_SERVER['HTTP_X_REQUESTED_WITH']);

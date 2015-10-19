@@ -214,11 +214,6 @@ class FOGCore extends FOGBase {
         unset($table);
         /** frees the memory of the $tables and $table values */
         unset($tables,$table);
-        $_SESSION['theme'] = $this->getSetting('FOG_THEME');
-        $_SESSION['theme'] = $_SESSION['theme']?$_SESSION['theme']:'default/fog.css';
-        if (!file_exists(BASEPATH.'/management/css/'.$_SESSION['theme'])) $_SESSION['theme'] = 'default/fog.css';
-        $_SESSION['imagelink'] = !$this->isMobile ? 'css/'.($_SESSION['theme']?dirname($_SESSION['theme']):'default').'/images/':'css/images/';
-        $_SESSION['PLUGSON'] = $this->getSetting('FOG_PLUGINSYS_ENABLED');
         $_SESSION['PluginsInstalled'] = (array)$this->getActivePlugins();
         $_SESSION['FOG_VIEW_DEFAULT_SCREEN'] = $this->getSetting('FOG_VIEW_DEFAULT_SCREEN');
         $_SESSION['FOG_FTP_IMAGE_SIZE'] = $this->getSetting('FOG_FTP_IMAGE_SIZE');
