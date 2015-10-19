@@ -1,10 +1,25 @@
 <?php
 class Page extends FOGBase {
-    private $pageTitle,$sectionTitle,$stylesheets=array(),$javascripts=array(),$body,$isHomepage, $menu, $media,$headJavascripts=array();
+    private $body;
+    private $menu;
+    private $media;
+    private $theme;
+    private $isHomepage;
+    private $pageTitle;
+    private $sectionTitle;
+    private $stylesheets = array();
+    private $javascripts = array();
+    private $headJavascripts = array();
     public function __construct() {
         parent::__construct();
-        $dispTheme = 'css/'.$_SESSION['theme'];
-        if (!file_exists(BASEPATH.'/management/'.$dispTheme)) $dispTheme = 'css/default/fog.css';
+        if (!$this->theme) {
+            $this->theme = $this->FOGCore->getSetting('FOG_THEME');
+            $this->theme = $this->theme ? $this->theme : 'default/fog.css';
+            if (!file_exists(BASEPATH.'/management/css/'.$this->theme)) $this->theme = 'default/fog.css';
+            $dispTheme = 'css/'.$this->theme;
+            $this->imagelink = 'css/'.(!$this->isMobile ? dirname($this->theme).DIRECTORY_SEPARATOR : '').'images/';
+            if (!file_exists(BASEPATH.'/management/'.$dispTheme)) $dispTheme = 'css/default/fog.css';
+        }
         if (!$this->isMobile) {
             $this->addCSS('css/jquery-ui.css');
             $this->addCSS('css/jquery.organicTabs.css');
@@ -33,7 +48,7 @@ class Page extends FOGBase {
                     'about'=>array($this->foglang['FOG Configuration'],'fa fa-wrench fa-2x'),
                     'logout'=>array($this->foglang['Logout'],'fa fa-sign-out fa-2x'),
                 );
-                if ($_SESSION['PLUGSON']) $this->main = $this->array_insert_after('about',$this->main,'plugin',array($this->foglang['Plugin Management'],'fa fa-cog fa-2x'));
+                if ($this->FOGCore->getSetting('FOG_PLUGINSYS_ENABLED')) $this->main = $this->array_insert_after('about',$this->main,'plugin',array($this->foglang['Plugin Management'],'fa fa-cog fa-2x'));
             } else {
                 $this->main = array(
                     'home'=>array($this->foglang['Home'],'fa fa-home fa-2x'),
@@ -145,7 +160,7 @@ class Page extends FOGBase {
         $this->body = ob_get_clean();
     }
     public function render($path = '') {
-        ob_start(array('Initiator','sanitize_output'),$_SESSION['chunksize']);
+        ob_start(array('Initiator','sanitize_output'),8192);
         require_once '../management/other/index.php';
         ob_end_flush();
         ob_flush();

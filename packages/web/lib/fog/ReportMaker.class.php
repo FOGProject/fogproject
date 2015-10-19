@@ -48,7 +48,6 @@ class ReportMaker extends FOGBase {
             fpassthru($pipes[1]);
             $status = proc_close($proc);
         } else if ($intType == 3) {
-            @session_write_close();
             $filename="fog_backup.sql";
             $path=BASEPATH.'/management/other/';
             exec('mysqldump --opt -u'.DATABASE_USERNAME.' -p"'.DATABASE_PASSWORD.'" -h'.preg_replace('#p:#','',DATABASE_HOST).' '.DATABASE_NAME.' > '.$path.$filename);

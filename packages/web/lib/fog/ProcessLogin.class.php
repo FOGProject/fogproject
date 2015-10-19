@@ -104,13 +104,14 @@ class ProcessLogin extends FOGBase {
             $this->username = trim($_REQUEST['uname']);
             $this->password = trim($_REQUEST['upass']);
             $tmpUser = $this->FOGCore->attemptLogin($this->username,$this->password);
-            // Hook
-            $this->HookManager->processEvent('USER_LOGGING_IN',array('User'=>&$tmpUser,'username'=>&$this->username,'password'=>&$this->password));
-            if (!$this->isMobile && $tmpUser->get('type') == 1) {
-                $this->setMessage($this->foglang['NotAllowedHere']);
-                $this->getClass('User')->logout();
-                $this->redirect('index.php');
-            } else $this->setCurUser($tmpUser);
+            if ($tmpUser instanceof User) {
+                // Hook
+                $this->HookManager->processEvent('USER_LOGGING_IN',array('User'=>&$tmpUser,'username'=>&$this->username,'password'=>&$this->password));
+                if (!$this->isMobile && $tmpUser->get('type') == 1) {
+                    $this->setMessage($this->foglang['NotAllowedHere']);
+                    $this->redirect('index.php?node=logout');
+                } else $this->setCurUser($tmpUser);
+            }
         }
     }
     public function mainLoginForm() {
