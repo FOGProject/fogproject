@@ -21,6 +21,8 @@ class Plugin extends FOGController {
         'name',
     );
     public function getRunInclude($hash) {
+        print $hash;
+        exit;
         $Plugins = $this->getPlugins();
         foreach($Plugins AS $i => &$Plugin) {
             if(md5(trim($Plugin->getName())) == trim($hash)) {
