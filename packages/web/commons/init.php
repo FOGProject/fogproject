@@ -186,6 +186,11 @@ $TimeZone = $_SESSION['TimeZone'];
 $EventManager = $FOGCore->getClass('EventManager');
 /** $HookManager initiates the HookManager class */
 $HookManager = $FOGCore->getClass('HookManager');
+$FOGCore->setSessionEnv();
+/** Get the current user */
+if (!in_array($_REQUEST['sub'],array('configure','authorize','loginInfo')) && !in_array($_REQUEST['node'],array('schemaupdater','client')) && $_SESSION['FOG_USER']) $currentUser = unserialize($_SESSION['FOG_USER']);
+else $currentUser = $FOGCore->getClass('User');
+$currentUser->isLoggedIn();
 $HookManager->load();
 $EventManager->load();
 /** $HookManager initiates the FOGURLRequest class */
