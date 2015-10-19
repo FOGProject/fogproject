@@ -62,16 +62,8 @@ class Initiator {
      * @return void
      */
     public static function startInit() {
-        ob_start(array('Initiator','sanitize_output'));
         @set_time_limit(0);
         @error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
-        if (!count($_SESSION)) {
-            session_start();
-            session_cache_limiter('no-cache');
-            $domain = isset($_SERVER['SERVER_NAME']);
-            $https = isset($_SERVER['HTTPS']);
-            session_set_cookie_params(0,'/',$domain,$https,true);
-        }
         @set_magic_quotes_runtime(0);
         self::verCheck();
         self::extCheck();
@@ -184,14 +176,10 @@ $Init::startInit();
 $FOGFTP = new FOGFTP();
 /** $FOGCore the FOGCore class */
 $FOGCore = new FOGCore();
-$currentUser = new User();
 /** $DatabaseManager the DatabaseManager class */
 $DatabaseManager = $FOGCore->getClass('DatabaseManager');
 /** $DB set's the DB class from the DatabaseManager */
 $DB = $DatabaseManager->connect()->DB;
-/** Cleanup all invalid entrees */
-/** Loads any Session variables */
-$FOGCore->setSessionEnv();
 /** $TimeZone the timezone setter */
 $TimeZone = $_SESSION['TimeZone'];
 /** $EventManager initiates the EventManager class */
@@ -202,8 +190,3 @@ $HookManager->load();
 $EventManager->load();
 /** $HookManager initiates the FOGURLRequest class */
 $FOGURLRequests = $FOGCore->getClass('FOGURLRequests');
-/** Get the current user */
-if (!in_array($_REQUEST['sub'],array('configure','authorize','loginInfo')) && !in_array($_REQUEST['node'],array('schemaupdater','client')) && $_SESSION['FOG_USER']) {
-    $currentUser = unserialize($_SESSION['FOG_USER']);
-    $currentUser->isLoggedIn();
-}
