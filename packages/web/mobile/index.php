@@ -8,11 +8,6 @@ if (session_id() === '') {
 }
 require_once ('../commons/base.inc.php');
 if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'], array('deletemulti', 'deleteconf'))) unset($_SESSION['delitems']);
-$FOGCore->setSessionEnv();
-/** Get the current user */
-if (!in_array($_REQUEST['sub'],array('configure','authorize','loginInfo')) && !in_array($_REQUEST['node'],array('schemaupdater','client')) && $_SESSION['FOG_USER']) $currentUser = unserialize($_SESSION['FOG_USER']);
-else $currentUser = $FOGCore->getClass('User');
-$currentUser->isLoggedIn();
 $FOGPageManager = $FOGCore->getClass('FOGPageManager');
 $FOGCore->getClass('ProcessLogin')->processMainLogin();
 $Page = $FOGCore->getClass('Page');
