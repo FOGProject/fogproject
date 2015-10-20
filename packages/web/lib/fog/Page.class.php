@@ -135,6 +135,7 @@ class Page extends FOGBase {
                 'js/fog/fog.login.js',
             );
         }
+        $files = array_unique($files);
         foreach((array)$files AS $i => &$path) {
             if (file_exists(preg_replace('#^h#','',$path))) $this->addJavascript($path);
         }
