@@ -851,12 +851,12 @@ abstract class FOGPage extends FOGBase {
             array(width=>150,'class'=>l),
         );
         $ClassCall = ($objType ? 'Group' : 'Host');
-        $Hosts = $this->getClass($ClassCall)->getManager()->find(array(id=>$this->obj->get(strtolower($ClassCall).'snotinme')));
+        $Hosts = $this->obj->get(strtolower($ClassCall).'snotinme');
         foreach($Hosts AS $i => &$Host) {
             $this->data[] = array(
-                host_id=>$Host->get(id),
-                host_name=>$Host->get(name),
-                check_num=>1,
+                'host_id'=>$Host,
+                'host_name'=>$this->getClass($ClassCall,$Host)->get('name'),
+                'check_num'=>1,
             );
         }
         unset($Host);
@@ -875,11 +875,11 @@ abstract class FOGPage extends FOGBase {
             '<input type="checkbox" name="hostdel[]" value="${host_id}" class="toggle-action" />',
             sprintf('<a href="?node=%s&sub=edit&id=${host_id}" title="Edit: ${host_name}">${host_name}</a>',strtolower($ClassCall)),
         );
-        $Hosts = $this->getClass($ClassCall)->getManager()->find(array(id=>$this->obj->get(strtolower($ClassCall).'s')));
+        $Hosts = $this->obj->get(strtolower($ClassCall).'s');
         foreach($Hosts AS $i => &$Host) {
             $this->data[] = array(
-                host_id=>$Host->get(id),
-                host_name=>$Host->get(name),
+                'host_id'=>$Host,
+                'host_name'=>$this->getClass($ClassCall,$Host)->get('name'),
             );
         }
         unset($Host);

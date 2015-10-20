@@ -135,7 +135,7 @@ class Snapin extends FOGController {
         return $this->getClass('StorageGroup',@min($this->get('storageGroups')));
     }
     protected function loadHosts() {
-        if ($this->get('id')) $this->set('hosts',$this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID'));
+        if ($this->get('id')) $this->set('hosts',$this->getSubObjectIDs('SnapinAssociation',array('snapinID'=>$this->get('id')),'hostID'));
     }
     protected function loadHostsnotinme() {
         if ($this->get('id')) {

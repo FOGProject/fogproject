@@ -145,7 +145,7 @@ class Image extends FOGController {
         return $IPT;
     }
     protected function loadHosts() {
-        if ($this->get('id')) $this->set('hosts',$this->getSubObjectIDs('GroupAssociation',array('groupID'=>$this->get('id')),'hostID'));
+        if ($this->get('id')) $this->set('hosts',$this->getSubObjectIDs('Host',array('imageID'=>$this->get('id')),'id'));
     }
     protected function loadHostsnotinme() {
         if ($this->get('id')) {
