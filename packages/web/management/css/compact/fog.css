@@ -336,6 +336,7 @@ header {
 #footer {
     height: 21px;
     padding: 0;
+    margin-top: 2px;
     background: #00567a;
     border-top: 1px solid #003448;
     color: #fff;
