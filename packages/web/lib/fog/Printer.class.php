@@ -77,10 +77,10 @@ class Printer extends FOGController {
         $this->set('hosts',array_unique(array_diff((array)$this->get('hosts'),(array)$removeArray)));
         return $this;
     }
-    private function loadHosts() {
+    protected function loadHosts() {
         if ($this->get('id')) $this->set('hosts',$this->getSubObjectIDs('PrinterAssociation',array('printerID'=>$this->get('id')),'hostID'));
     }
-    private function loadHostsnotinme() {
+    protected function loadHostsnotinme() {
         if ($this->get('id')) {
             $find = array('id'=>$this->get('hosts'));
             $this->set('hostsnotinme',$this->getSubObjectIDs('Host',$find,'id',true));
