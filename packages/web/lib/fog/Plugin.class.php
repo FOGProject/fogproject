@@ -1,48 +1,51 @@
 <?php
 class Plugin extends FOGController {
-    private $strName, $strDesc, $strEntryPoint, $strVersion, $strPath, $strIcon, $strIconHover, $blIsInstalled, $blIsActive;
-    // Table
-    public $databaseTable = 'plugins';
+    private $strName;
+    private $strDesc;
+    private $strEntryPoint;
+    private $strVersion;
+    private $strPath;
+    private $strIcon;
+    private $strIconHover;
+    private $blIsInstalled;
+    private $blIsActive;
+    protected $databaseTable = 'plugins';
     // Name -> Database field name
-    public $databaseFields = array(
-        'id'			=> 'pID',
-        'name'			=> 'pName',
-        'state'			=> 'pState',
-        'installed'		=> 'pInstalled',
-        'version'		=> 'pVersion',
-        'pAnon1'		=> 'pAnon1',
-        'pAnon2'		=> 'pAnon2',
-        'pAnon3'		=> 'pAnon3',
-        'pAnon4'		=> 'pAnon4',
-        'pAnon5'		=> 'pAnon5',
+    protected $databaseFields = array(
+        'id' => 'pID',
+        'name' => 'pName',
+        'state' => 'pState',
+        'installed' => 'pInstalled',
+        'version' => 'pVersion',
+        'pAnon1' => 'pAnon1',
+        'pAnon2' => 'pAnon2',
+        'pAnon3' => 'pAnon3',
+        'pAnon4' => 'pAnon4',
+        'pAnon5' => 'pAnon5',
     );
     // Required database fields
-    public $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = array(
         'name',
     );
     public function getRunInclude($hash) {
-        print $hash;
-        exit;
         $Plugins = $this->getPlugins();
         foreach($Plugins AS $i => &$Plugin) {
-            if(md5(trim($Plugin->getName())) == trim($hash)) {
-                $_SESSION[fogactiveplugin]=serialize($Plugin);
-                $entrypoint = $Plugin->getEntryPoint();
-                break;
+            if(trim(md5(trim($Plugin->getName()))) == trim($hash)) {
+                $_SESSION['fogactiveplugin'] = serialize($Plugin);
+                return $Plugin->getEntryPoint();
             }
         }
         unset($Plugin);
-        return $entrypoint;
     }
     public function getActivePlugs() {
-        $Plugin = current($this->getClass(PluginManager)->find(array(name=>$this->getName())));
-        $this->blIsActive=($Plugin&&$Plugin->isValid()?($Plugin->get(state)==1?1:0):0);
-        $this->blIsInstalled = ($Plugin&&$Plugin->isValid()?($Plugin->get(installed)==1?1:0):0);
+        $Plugin = $this->getClass('Plugin',@min($this->getSubObjectIDs('Plugin',array('name'=>$this->getName()),'id')));
+        $this->blIsActive = (bool)($Plugin->get('state') == 1);
+        $this->blIsInstalled = (bool)($Plugin->get('installed') == 1);
     }
     private function getDirs() {
-        $dir = trim($this->FOGCore->getSetting(FOG_PLUGINSYS_DIR));
+        $dir = trim($this->FOGCore->getSetting('FOG_PLUGINSYS_DIR'));
         // For now, automatically sets the plugin directory.  Should not be moved though so classes work properly.
-        $dir != '../lib/plugins/'?$this->FOGCore->setSetting(FOG_PLUGINSYS_DIR,'../lib/plugins/'):null;
+        if ($dir != '../lib/plugins/') $this->FOGCore->setSetting('FOG_PLUGINSYS_DIR','../lib/plugins/');
         $dir='../lib/plugins/';
         $handle=opendir($dir);
         while(false !== ($file=readdir($handle))) {
@@ -56,13 +59,13 @@ class Plugin extends FOGController {
         $Dirs = $this->getDirs();
         foreach($Dirs AS $i => &$file) {
             require(rtrim($file,'/').'/config/'.$cfgfile);
-            $p=new Plugin(array(name=>$fog_plugin[name]));
+            $p = $this->getClass('Plugin',array('name'=>$fog_plugin['name']));
             $p->strPath = $file;
-            $p->strName = $fog_plugin[name];
-            $p->strDesc = $fog_plugin[description];
-            $p->strEntryPoint = $file.$fog_plugin[entrypoint];
-            $p->strIcon = $file.$fog_plugin[menuicon];
-            $p->strIconHover = $file.$fog_plugin[menuicon_hover];
+            $p->strName = $fog_plugin['name'];
+            $p->strDesc = $fog_plugin['description'];
+            $p->strEntryPoint = $file.$fog_plugin['entrypoint'];
+            $p->strIcon = $file.$fog_plugin['menuicon'];
+            $p->strIconHover = $file.$fog_plugin['menuicon_hover'];
             $arPlugs[] = $p;
         }
         unset($file);
@@ -71,10 +74,10 @@ class Plugin extends FOGController {
     public function activatePlugin($plugincode) {
         $Plugins = $this->getPlugins();
         foreach($Plugins AS $i => &$Plugin) {
-            if(md5(trim($Plugin->getName())) == trim($plugincode)) {
-                $this->set(state,1)
-                    ->set(installed,0)
-                    ->set(name,$Plugin->getName())
+            if(trim(md5(trim($Plugin->getName()))) == trim($plugincode)) {
+                $this->set('state',1)
+                    ->set('installed',0)
+                    ->set('name',$Plugin->getName())
                     ->save();
             }
         }
@@ -82,13 +85,15 @@ class Plugin extends FOGController {
         return $this;
     }
     public function getManager() {
-        return $this->getClass(ucfirst($this->get(name)).'Manager');
+        if (!class_exists(ucfirst($this->get('name')).'Manager')) return parent::getManager();
+        return $this->getClass(ucfirst($this->get('name')).'Manager');
     }
     public function getPath() {
         return $this->strPath;
     }
     public function getName() {
-        return $this->strName;
+        if (isset($this->strName)) return $this->strName;
+        return $this->get('name');
     }
     public function getDesc() {
         return $this->strDesc;

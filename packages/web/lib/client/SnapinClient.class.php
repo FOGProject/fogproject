@@ -33,7 +33,7 @@ class SnapinClient extends FOGClient implements FOGClientSend {
         // Send the hook to alter the group as needed
         $this->HookManager->processEvent('SNAPIN_GROUP',array('Host'=>&$this->Host,'Snapin'=>&$Snapin,'StorageGroup'=>&$StorageGroup));
         // If the Storage Group isn't valid, set file using legacy method
-        if (!$StorageGroup->isValid()) {
+        if (!($StorageGroup instanceof StorageGroup && $StorageGroup->isValid())) {
             $SnapinFile = '/'.trim($this->getSetting('FOG_SNAPINDIR'),'/').'/';
             // If the files don't exist throw and error
             if (!file_exists($SnapinFile) && !file_exists($Snapin->get('file'))) throw new Exception('Snapin file does not exist');

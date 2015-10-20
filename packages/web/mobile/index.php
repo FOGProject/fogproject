@@ -1,11 +1,4 @@
 <?php
-if (session_id() === '') {
-    session_start();
-    session_cache_limiter('no-cache');
-    $domain = isset($_SERVER['SERVER_NAME']);
-    $https = isset($_SERVER['HTTPS']);
-    session_set_cookie_params(0,'/',$domain,$https,true);
-}
 require_once ('../commons/base.inc.php');
 if (isset($_SESSION['delitems']) && !in_array($_REQUEST['sub'], array('deletemulti', 'deleteconf'))) unset($_SESSION['delitems']);
 $FOGPageManager = $FOGCore->getClass('FOGPageManager');
