@@ -164,6 +164,13 @@ class Initiator {
         return $buffer;
     }
 }
+if (session_id() === '') {
+    session_start();
+    session_cache_limiter('no-cache');
+    $domain = isset($_SERVER['SERVER_NAME']);
+    $https = isset($_SERVER['HTTPS']);
+    session_set_cookie_params(0,'/',$domain,$https,true);
+}
 /*ini_set('opcache.enable',1);
 ini_set('opcache.memory_consumption',256);
 ini_set('opcache.max_accelerated_files',4000);

@@ -204,8 +204,9 @@ class FOGCore extends FOGBase {
         }
     }
     public function setSessionEnv() {
+        $_SESSION['HostCount'] = $this->getClass('HostManager')->count();
         /** This allows the database concatination system based on number of hosts */
-        $this->DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION[HostCount]})");
+        $this->DB->query("SET SESSION group_concat_max_len=(1024 * {$_SESSION['HostCount']})");
         /** This below ensures the database is always MyISAM */
         $this->DB->query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".DATABASE_NAME."' AND ENGINE != 'MyISAM'");
         /** $tables just stores the tables to cycle through and change as needed */
@@ -221,7 +222,6 @@ class FOGCore extends FOGBase {
         $_SESSION['Pending-MACs'] = $this->getClass('MACAddressAssociationManager')->count(array('pending'=>1));
         $_SESSION['DataReturn'] = $this->getSetting('FOG_DATA_RETURNED');
         $_SESSION['UserCount'] = $this->getClass('UserManager')->count();
-        $_SESSION['HostCount'] = $this->getClass('HostManager')->count();
         $_SESSION['GroupCount'] = $this->getClass('GroupManager')->count();
         $_SESSION['ImageCount'] = $this->getClass('ImageManager')->count();
         $_SESSION['SnapinCount'] = $this->getClass('SnapinManager')->count();
@@ -229,15 +229,12 @@ class FOGCore extends FOGBase {
         $_SESSION['FOGPingActive'] = $this->getSetting('FOG_HOST_LOOKUP');
         // Set the memory limits
         $_SESSION['memory'] = $this->getSetting('FOG_MEMORY_LIMIT');
-        ini_set('memory_limit',is_numeric($_SESSION[memory])?$_SESSION[memory].'M' : ini_get('memory_limit'));
-        $_SESSION[chunksize]=8192;
-        $_SESSION[FOG_FORMAT_FLAG_IN_GUI] = $this->getSetting(FOG_FORMAT_FLAG_IN_GUI);
-        $_SESSION[FOG_SNAPINDIR] = $this->getSetting(FOG_SNAPINDIR);
-        $_SESSION[FOG_REPORT_DIR] = $this->getSetting(FOG_REPORT_DIR);
+        ini_set('memory_limit',is_numeric($_SESSION['memory']) ? $_SESSION['memory'].'M' : ini_get('memory_limit'));
+        $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] = $this->getSetting('FOG_FORMAT_FLAG_IN_GUI');
+        $_SESSION['FOG_SNAPINDIR'] = $this->getSetting('FOG_SNAPINDIR');
+        $_SESSION['FOG_REPORT_DIR'] = $this->getSetting('FOG_REPORT_DIR');
         /** $TimeZone set the TimeZone based on the stored data */
-        $_SESSION[TimeZone] = (ini_get('date.timezone')?ini_get('date.timezone'):$this->getSetting(FOG_TZ_INFO));
+        $_SESSION['TimeZone'] = (ini_get('date.timezone')?ini_get('date.timezone'):$this->getSetting('FOG_TZ_INFO'));
         ini_set('max_input_vars',5000);
-        ini_set('upload_max_filesize',$this->getSetting(FOG_MAX_UPLOADSIZE).'M');
-        ini_set('post_max_size',$this->getSetting(FOG_POST_MAXSIZE).'M');
     }
 }
