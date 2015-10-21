@@ -620,10 +620,12 @@ configureNFS() {
 #            sed -in '/##FOG_SHARE_START##/,/##FOG_END_SHARE##/{//d;D}' $nfsconfig
 #        fi
 #    fi
+    dots "Setting up exports file";
     if [ "$blexports" != 1 ]; then
         echo "Skipped";
     else
         echo -e "$storageLocation *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)\n$storageLocation/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "$nfsconfig";
+        errorStat $?
         dots "Setting up and starting RPCBind";
         if [ "$systemctl" == "yes" ]; then
             systemctl enable rpcbind.service >/dev/null 2>&1 && \
