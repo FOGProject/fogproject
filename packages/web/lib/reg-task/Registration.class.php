@@ -38,9 +38,9 @@ class Registration extends FOGBase {
     private function fullReg() {
         try {
             if (base64_decode($_REQUEST[productKey],true)) $productKey = trim($_REQUEST[productKey]);
-            $username = $this->stripAndDecode($_REQUEST[username]);
+            $username = $this->stripAndDecode($_REQUEST['username']);
             $hostname = $this->stripAndDecode($_REQUEST[host]);
-            $hostname = ($this->getClass(HostManager)->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
+            $hostname = ($this->getClass('HostManager')->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
             $ip = $this->stripAndDecode($_REQUEST[ip]);
             $imageid = $this->stripAndDecode($_REQUEST[imageid]);
             $imageid = ($this->getClass(Image,$imageid)->isValid() ? $imageid : 0);
@@ -129,8 +129,7 @@ class Registration extends FOGBase {
             if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
             $this->FOGCore->setSetting(FOG_QUICKREG_SYS_NUMBER,++$autoRegSysNumber);
             if ($imageid && $this->Host->getImageMemberFromHostID()) {
-                if (!$this->Host->createImagePackage(1,'AutoRegTask')) throw new Exception(_('Done, Failed to create tasking'));
-                throw new Exception(_('Done, with imaging!'));
+                if (!$this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,$username)) throw new Exception(_('Done, Failed to create tasking'));
             }
             throw new Exception(_('Done'));
         } catch (Exception $e) {

@@ -154,7 +154,7 @@ class TaskManagementPage extends FOGPage {
         $taskName = 'Quick Deploy';
         try {
             if ($TaskType->isUpload() && $Host->getImage()->isValid() && $Host->getImage()->get('protected')) throw new Exception(sprintf('%s: %s %s: %s %s',_('Hostname'),$Host->get(name),_('Image'),$Host->getImage()->get(name),_('is protected')));
-            $Host->createImagePackage($taskTypeID, $taskName, false, false, $enableSnapins, false, $this->FOGUser->get(name));
+            $Host->createImagePackage($taskTypeID, $taskName, false, false, $enableSnapins, false, $_SESSION['FOG_USERNAME']);
             $this->setMessage(_('Successfully created tasking!'));
             $this->redirect('?node=task&sub=active');
         } catch (Exception $e) {
@@ -284,7 +284,7 @@ class TaskManagementPage extends FOGPage {
                 if (!$Host->checkIfExist($taskTypeID)) throw new Exception(_('To setup download task, you must first upload an image'));
             }
             unset($Host);
-            $Group->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, true, $this->FOGUser->get(name));
+            $Group->createImagePackage($taskTypeID, $taskName, $enableShutdown, $enableDebug, $enableSnapins, true, $_SESSION['FOG_USERNAME']);
             $this->setMessage('Successfully created Group tasking!');
             $this->redirect('?node=task&sub=active');
         } catch (Exception $e) {

@@ -87,18 +87,18 @@ class SnapinClient extends FOGClient implements FOGClientSend {
             $SnapinTask->set('stateID',2)->set('checkin',$this->nice_date()->format('Y-m-d H:i:s'));
             // If snapin tasking fails inform the client
             if (!$SnapinTask->save()) throw new Exception(_('Failed to update snapin tasking'));
-            if ($this->newService) $snapinHash = hash_file('sha512',$SnapinFile);
+            if ($this->newService) $snapinHash = strtoupper(hash_file('sha512',$SnapinFile));
             // All successful, give the client the details
             $goodArray = array(
                 '#!ok',
                 sprintf('JOBTASKID=%d',$SnapinTask->get('id')),
                 sprintf('JOBCREATION=%s',$this->Host->get('snapinjob')->get('createdTime')),
                 sprintf('SNAPINNAME=%s',$Snapin->get('name')),
-                sprintf('SNAPINARGS=%s',$Snapin->get('args')),
+                sprintf('SNAPINARGS=%s',$this->DB->sanitize($Snapin->get('args'))),
                 sprintf('SNAPINBOUNCE=%s',$Snapin->get('reboot')),
                 sprintf('SNAPINFILENAME=%s',$Snapin->get('file')),
-                sprintf('SNAPINRUNWITH=%s',$Snapin->get('runWith')),
-                sprintf('SNAPINRUNWITHARGS=%s',$Snapin->get('runWithArgs')),
+                sprintf('SNAPINRUNWITH=%s',$this->DB->sanitize($Snapin->get('runWith'))),
+                sprintf('SNAPINRUNWITHARGS=%s',$this->DB->sanitize($Snapin->get('runWithArgs'))),
             );
             if ($this->newService) {
                 array_push($goodArray,sprintf('SNAPINHASH=%s',$snapinHash));

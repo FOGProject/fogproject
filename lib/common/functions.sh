@@ -91,6 +91,7 @@ help() {
     echo -e "\t-s    --startrange\t\tDHCP Start range"
     echo -e "\t-e    --endrange\t\tDHCP End range"
     echo -e "\t-b    --bootfile\t\tDHCP Boot file"
+    echo -e "\t-E    --no-exportsbuild\t\tSkip building nfs file"
     exit 0
 }
 backupReports() {
@@ -614,42 +615,51 @@ define( \"WEBROOT\", \"${webdirdest}\" );" > ${servicedst}/etc/config.php
     startInitScript
 }
 configureNFS() {
-    echo -e "$storageLocation *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)\n$storageLocation/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "$nfsconfig";
-    dots "Setting up and starting RPCBind";
-    if [ "$systemctl" == "yes" ]; then
-        systemctl enable rpcbind.service >/dev/null 2>&1 && \
-        systemctl restart rpcbind.service >/dev/null 2>&1 && \
-        systemctl status rpcbind.service >/dev/null 2>&1
-    elif [ "$osid" -eq 2 ]; then
-        true
+#    if [ -f "$nfsconfig" ]; then
+#        if [ $(grep -c "##FOG_SHARE_START##" $nfsconfig) -ne 0 ]; then
+#            sed -in '/##FOG_SHARE_START##/,/##FOG_END_SHARE##/{//d;D}' $nfsconfig
+#        fi
+#    fi
+    if [ "$blexports" != 1 ]; then
+        echo "Skipped";
     else
-        chkconfig rpcbind on >/dev/null 2>&1 && \
-        $initdpath/rpcbind restart >/dev/null 2>&1 && \
-        $initdpath/rpcbind status >/dev/null 2>&1
-    fi
-    errorStat $?
-    dots "Setting up and starting NFS Server..."
-    for nfsItem in $nfsservice; do
+        echo -e "$storageLocation *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)\n$storageLocation/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "$nfsconfig";
+        dots "Setting up and starting RPCBind";
         if [ "$systemctl" == "yes" ]; then
-            systemctl enable $nfsItem >/dev/null 2>&1 && \
-            systemctl restart $nfsItem >/dev/null 2>&1 && \
-            systemctl status $nfsItem >/dev/null 2>&1
+            systemctl enable rpcbind.service >/dev/null 2>&1 && \
+            systemctl restart rpcbind.service >/dev/null 2>&1 && \
+            systemctl status rpcbind.service >/dev/null 2>&1
+        elif [ "$osid" -eq 2 ]; then
+            true
         else
-            if [ "$osid" == 2 ]; then
-                sysv-rc-conf $nfsItem on >/dev/null 2>&1 && \
-                $initdpath/nfs-kernel-server stop >/dev/null 2>&1 && \
-                $initdpath/nfs-kernel-server start >/dev/null 2>&1
+            chkconfig rpcbind on >/dev/null 2>&1 && \
+            $initdpath/rpcbind restart >/dev/null 2>&1 && \
+            $initdpath/rpcbind status >/dev/null 2>&1
+        fi
+        errorStat $?
+        dots "Setting up and starting NFS Server..."
+        for nfsItem in $nfsservice; do
+            if [ "$systemctl" == "yes" ]; then
+                systemctl enable $nfsItem >/dev/null 2>&1 && \
+                systemctl restart $nfsItem >/dev/null 2>&1 && \
+                systemctl status $nfsItem >/dev/null 2>&1
             else
-                chkconfig $nfsItem on >/dev/null 2>&1 && \
-                $initdpath/$nfsItem restart >/dev/null 2>&1 && \
-                $initdpath/$nfsItem status >/dev/null 2>&1
+                if [ "$osid" == 2 ]; then
+                    sysv-rc-conf $nfsItem on >/dev/null 2>&1 && \
+                    $initdpath/nfs-kernel-server stop >/dev/null 2>&1 && \
+                    $initdpath/nfs-kernel-server start >/dev/null 2>&1
+                else
+                    chkconfig $nfsItem on >/dev/null 2>&1 && \
+                    $initdpath/$nfsItem restart >/dev/null 2>&1 && \
+                    $initdpath/$nfsItem status >/dev/null 2>&1
+                fi
             fi
-        fi
-        if [ "$?" -eq 0 ]; then
-            break
-        fi
-    done
-    errorStat $?
+            if [ "$?" -eq 0 ]; then
+                break
+            fi
+        done
+        errorStat $?
+    fi
 }
 configureSnapins() {
     dots "Setting up FOG Snapins"
@@ -776,6 +786,7 @@ osid=\"$osid\";
 osname=\"$osname\";
 dodhcp=\"$dodhcp\";
 bldhcp=\"$bldhcp\";
+blexports=\"$blexports\";
 installtype=\"$installtype\";
 snmysqluser=\"$snmysqluser\"
 snmysqlpass='$snmysqlpass';
@@ -1006,9 +1017,11 @@ configureHttpd() {
     fi
     mkdir -p "$webdirdest" >/dev/null 2>&1
     errorStat $?
-    dots "Copying back old web folder as is";
-    cp -Rf $backupPath/fog_web_$version.BACKUP/* $webdirdest/;
-    errorStat $?
+    if [ -d "$backupPath/fog_web_$version.BACKUP" ]; then
+        dots "Copying back old web folder as is";
+        cp -Rf $backupPath/fog_web_$version.BACKUP/* $webdirdest/;
+        errorStat $?
+    fi
     dots "Copying new files to web folder";
     cp -Rf $webdirsrc/* $webdirdest/
     errorStat $?
@@ -1206,12 +1219,12 @@ configureDHCP() {
     if [ -z "$bootfilename" ]; then
         bootfilename="undionly.kpxe";
     fi
-    echo -e "# DHCP Server Configuration file\n#see /usr/share/doc/dhcp*/dhcpd.conf.sample\n# This file was created by FOG\n\n#Definition of PXE-specific options\n# Code 1: Multicast IP Address of bootfile\n# Code 2: UDP Port that client should monitor for MTFTP Responses\n# Code 3: UDP Port that MTFTP servers are using to listen for MTFTP requests\n# Code 4: Number of seconds a client must listen for activity before trying\n#         to start a new MTFTP transfer\n# Code 5: Number of seconds a client must listen before trying to restart\n#         a MTFTP transfer\n\n" > "$dhcptouse"
-    echo -e "option space PXE;\noption PXE.mtftp-ip code 1 = ip-address;\noption PXE.mtftp-cport code 2 = unsigned integer 16;\noption PXE.mtftp-sport code 3 = unsigned integer 16;\noption PXE.mtftp-tmout code 4 = unsigned integer 8;\noption PXE.mtftp-delay code 5 = unsigned integer 8;\noption arch code 93 = unsigned integer 16; # RFC4578\n\n" >> "$dhcptouse"
-    echo -e "use-host-decl-names on;\nddns-update-style interim;\nignore client-updates;\nnext-server $ipaddress;\n\n" >> "$dhcptouse"
-    echo -e "# Specify subnet of ether device you do NOT want service. for systems with\n# two or more ethernet devices.\n# subnet 136.165.0.0 netmask 255.255.0.0 {}\n\n" >> "$dhcptouse"
-    echo -e "subnet $network netmask $submask {\n\toption subnet-mask $submask;\n\trange dynamic-bootp $startrange $endrange;\n\tdefault-lease-time 21600;\n\tmax-lease-time 43200;\n\t$dnsaddress\n\t$routeraddress\n\tfilename \"$bootfilename\";\n}" >> "$dhcptouse";
     if [ "$bldhcp" -eq 1 ]; then
+        echo -e "# DHCP Server Configuration file\n#see /usr/share/doc/dhcp*/dhcpd.conf.sample\n# This file was created by FOG\n\n#Definition of PXE-specific options\n# Code 1: Multicast IP Address of bootfile\n# Code 2: UDP Port that client should monitor for MTFTP Responses\n# Code 3: UDP Port that MTFTP servers are using to listen for MTFTP requests\n# Code 4: Number of seconds a client must listen for activity before trying\n#         to start a new MTFTP transfer\n# Code 5: Number of seconds a client must listen before trying to restart\n#         a MTFTP transfer\n\n" > "$dhcptouse"
+        echo -e "option space PXE;\noption PXE.mtftp-ip code 1 = ip-address;\noption PXE.mtftp-cport code 2 = unsigned integer 16;\noption PXE.mtftp-sport code 3 = unsigned integer 16;\noption PXE.mtftp-tmout code 4 = unsigned integer 8;\noption PXE.mtftp-delay code 5 = unsigned integer 8;\noption arch code 93 = unsigned integer 16; # RFC4578\n\n" >> "$dhcptouse"
+        echo -e "use-host-decl-names on;\nddns-update-style interim;\nignore client-updates;\nnext-server $ipaddress;\n\n" >> "$dhcptouse"
+        echo -e "# Specify subnet of ether device you do NOT want service. for systems with\n# two or more ethernet devices.\n# subnet 136.165.0.0 netmask 255.255.0.0 {}\n\n" >> "$dhcptouse"
+        echo -e "subnet $network netmask $submask {\n\toption subnet-mask $submask;\n\trange dynamic-bootp $startrange $endrange;\n\tdefault-lease-time 21600;\n\tmax-lease-time 43200;\n\t$dnsaddress\n\t$routeraddress\n\tfilename \"$bootfilename\";\n}" >> "$dhcptouse";
         if [ "$systemctl" == "yes" ]; then
             systemctl enable $dhcpd >/dev/null 2>&1
             systemctl restart $dhcpd >/dev/null 2>&1

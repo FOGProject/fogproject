@@ -356,7 +356,7 @@ abstract class FOGPage extends FOGBase {
                     $groupTask = $this->obj instanceof Group;
                     switch ($_REQUEST[scheduleType]) {
                     case 'instant':
-                        $success = $this->obj->createImagePackage($TaskType->get(id),$taskName,$enableShutdown,$enableDebug,$enableSnapins,$groupTask,$_SESSION[FOG_USERNAME],$passreset);
+                        $success = $this->obj->createImagePackage($TaskType->get('id'),$taskName,$enableShutdown,$enableDebug,$enableSnapins,$groupTask,$_SESSION['FOG_USERNAME'],$passreset);
                         if (!is_array($success)) $success = array($success);
                         break;
                     case 'single':
