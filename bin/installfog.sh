@@ -110,7 +110,7 @@ else
     echo "  previous version of FOG.";
     echo "";
 fi
-optspec="h?dUHSCKYyfE:-:W:D:B:s:e:b:"
+optspec="h?dEUHSCKYyf:-:W:D:B:s:e:b:"
 while getopts "$optspec" o; do
     #long options
     case "${o}" in
