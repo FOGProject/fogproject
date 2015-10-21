@@ -466,18 +466,18 @@ class HostManagementPage extends FOGPage {
         );
         $this->templates = array(
             '<input type="checkbox" name="printerRemove[]" value="${printer_id}" class="toggle-action" />',
-            '<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}"${is_default} /><label for="printer${printer_id}" class="icon icon-hand" title="'._('Default Printer Select').'">&nbsp;</label><input type="hidden" name="printerid[]" value="${printer_id}" />',
+            '<input class="default" type="radio" name="default" id="printer${printer_id}" value="${printer_id}" ${is_default}/><label for="printer${printer_id}" class="icon icon-hand" title="'._('Default Printer Select').'">&nbsp;</label><input type="hidden" name="printerid[]" value="${printer_id}" />',
             '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
             '${printer_type}',
         );
         echo '<h2>'._('Host Printer Configuration').'</h2><p>'._('Select Management Level for this Host').'</p><p><span class="icon fa fa-question hand" title="'._('This setting turns off all FOG Printer Management.  Although there are multiple levels already between host and global settings, this is just another to ensure safety').'"></span><input type="radio" name="level" value="0"'.($this->obj->get('printerLevel') == 0 ? 'checked' : '').' />'._('No Printer Management').'<br/><span class="icon fa fa-question hand" title="'._('This setting only adds and removes printers that are managed by FOG.  If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unsigned host.  It will add printers to the host that are assigned.').'"></span><input type="radio" name="level" value="1"'.($this->obj->get('printerLevel') == 1 ? 'checked' : '').' />'._('FOG Managed Printers').'<br/><span class="icon fa fa-question hand" title="'._('This setting will only allow FOG Assigned printers to be added to the host.  Any printer that is not assigned will be removed including non-FOG managed printers.').'"></span><input type="radio" name="level" value="2"'.($this->obj->get('printerLevel') == 2 ? 'checked' : '').' />'._('Only Assigned Printers').'<br/></p>';
-        $Printers = $this->getClass('PrinterManager')->find(array(id=>$this->obj->get('printers')));
+        $Printers = $this->obj->get('printers');
         foreach ($Printers AS $i => &$Printer) {
             $this->data[] = array(
-                'printer_id'=>$Printer->get('id'),
-                'is_default'=>($this->obj->getDefault($Printer->get('id')) ? 'checked' : ''),
-                'printer_name'=>addslashes($Printer->get('name')),
-                'printer_type'=>$Printer->get('config'),
+                'printer_id'=>$Printer,
+                'is_default'=>($this->obj->getDefault($Printer) ? 'checked' : ''),
+                'printer_name'=>$this->DB->sanitize($this->getClass('Printer',$Printer)->get('name')),
+                'printer_type'=>$this->getClass('Printer',$Printer)->get('config'),
             );
         }
         unset($Printer);
@@ -981,7 +981,7 @@ class HostManagementPage extends FOGPage {
                 if (isset($_REQUEST['updateprinters'])) {
                     if (isset($_REQUEST['printer'])) $this->obj->addPrinter($_REQUEST['printer']);
                     // Set Default
-                    foreach($_REQUEST['printerid'] AS $i => &$printerid) $this->obj->updateDefault($_REQUEST['default'],isset($_REQUEST['default']));
+                    $this->obj->updateDefault($_REQUEST['default'],isset($_REQUEST['default']));
                     unset($printerid);
                 }
                 // Remove

@@ -14,6 +14,24 @@ class Initiator {
      * @return void
      */
     public function __construct() {
+        if (!isset($_SESSION)) {
+            session_start();
+            session_cache_limiter('no-cache');
+            //$domain = function() {
+            //    $parseUrl = parse_url('//'.trim($_SERVER['SERVER_NAME']));
+            //    $host = trim($parseUrl['host'] ? $parseUrl['host'] : array_shift(explode('/',$parseUrl['path'],2)));
+            //    $parts = explode('.',$host);
+            //    $num_parts = count($parts);
+            //    if ($parts[0] == 'www') {
+            //        for ($i = 1; $i < $num_parts; $i++) $h .= $parts[$i].'.';
+            //    } else {
+            //        for ($i=0;$i < $num_parts; $i++) $h .= $parts[$i].'.';
+            //    }
+            //    return substr($h,0,-1);
+            //};
+            //$https = isset($_SERVER['HTTPS']);
+            //session_set_cookie_params(0,'/','.'.$domain(),$https,true);
+        }
         define('BASEPATH', self::DetermineBasePath());
         $this->plugPaths = array_filter(glob(BASEPATH . '/lib/plugins/*'), 'is_dir');
         foreach($this->plugPaths AS $plugPath) {
@@ -62,6 +80,7 @@ class Initiator {
      * @return void
      */
     public static function startInit() {
+        ignore_user_abort();
         @set_time_limit(0);
         @error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
         @set_magic_quotes_runtime(0);
@@ -163,13 +182,6 @@ class Initiator {
         $buffer = preg_replace($search,$replace,$buffer);
         return $buffer;
     }
-}
-if (session_id() === '') {
-    session_start();
-    session_cache_limiter('no-cache');
-    $domain = isset($_SERVER['SERVER_NAME']);
-    $https = isset($_SERVER['HTTPS']);
-    session_set_cookie_params(0,'/',$domain,$https,true);
 }
 /*ini_set('opcache.enable',1);
 ini_set('opcache.memory_consumption',256);

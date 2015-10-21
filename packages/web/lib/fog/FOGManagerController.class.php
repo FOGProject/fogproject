@@ -84,7 +84,6 @@ abstract class FOGManagerController extends FOGBase {
         }
         $data = array();
         $this->DB->query($query);
-        ignore_user_abort(true);
         if ($idField) {
             if (is_array($idField)) {
                 foreach ((array)$idField AS $i => &$idstore) {
