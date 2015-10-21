@@ -68,7 +68,7 @@ installUtils() {
     errorStat $?
 }
 help() {
-    echo -e "Usage: $0 [-hdUuHSCKY] [-f <filename>] [-D </directory/to/document/root/>]";
+    echo -e "Usage: $0 [-h?dEUuHSCKY] [-f <filename>] [-D </directory/to/document/root/>]";
     echo -e "\t\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]";
     echo -e "\t\t\t[-s <192.168.1.10>] [-e 192.168.1.254] [-b <undionly.kpxe>]";
     echo -e "\t-h -? --help\t\t\tDisplay this info"
