@@ -17,20 +17,6 @@ class Initiator {
         if (!isset($_SESSION)) {
             session_start();
             session_cache_limiter('no-cache');
-            //$domain = function() {
-            //    $parseUrl = parse_url('//'.trim($_SERVER['SERVER_NAME']));
-            //    $host = trim($parseUrl['host'] ? $parseUrl['host'] : array_shift(explode('/',$parseUrl['path'],2)));
-            //    $parts = explode('.',$host);
-            //    $num_parts = count($parts);
-            //    if ($parts[0] == 'www') {
-            //        for ($i = 1; $i < $num_parts; $i++) $h .= $parts[$i].'.';
-            //    } else {
-            //        for ($i=0;$i < $num_parts; $i++) $h .= $parts[$i].'.';
-            //    }
-            //    return substr($h,0,-1);
-            //};
-            //$https = isset($_SERVER['HTTPS']);
-            //session_set_cookie_params(0,'/','.'.$domain(),$https,true);
         }
         define('BASEPATH', self::DetermineBasePath());
         $this->plugPaths = array_filter(glob(BASEPATH . '/lib/plugins/*'), 'is_dir');

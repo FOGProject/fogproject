@@ -83,7 +83,7 @@ class Group extends FOGController {
         return $this;
     }
     public function removeSnapin($removeArray) {
-        foreach ((array)$this->get('hosts') AS $i => &$HostID) $this->getClass('Host',$HostID)->removeSnapin($addArray)->save();
+        foreach ((array)$this->get('hosts') AS $i => &$HostID) $this->getClass('Host',$HostID)->removeSnapin($removeArray)->save();
         unset($Host);
         return $this;
     }
@@ -93,7 +93,7 @@ class Group extends FOGController {
         return $this;
     }
     public function removeModule($removeArray) {
-        foreach ((array)$this->get('hosts') AS $i => &$HostID) $this->getClass('Host',$HostID)->removeModule($addArray)->save();
+        foreach ((array)$this->get('hosts') AS $i => &$HostID) $this->getClass('Host',$HostID)->removeModule($removeArray)->save();
         unset($Host);
         return $this;
     }
