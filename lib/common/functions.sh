@@ -91,7 +91,7 @@ help() {
     echo -e "\t-s    --startrange\t\tDHCP Start range"
     echo -e "\t-e    --endrange\t\tDHCP End range"
     echo -e "\t-b    --bootfile\t\tDHCP Boot file"
-    echo -e "\t-E    --no-exportsbuild\t\tSkip building nfs file"
+    echo -e "\t-E    --no-exportbuild\t\tSkip building nfs file"
     exit 0
 }
 backupReports() {
