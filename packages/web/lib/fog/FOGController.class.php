@@ -32,7 +32,7 @@ abstract class FOGController extends FOGBase {
             // Flip the generic and real table values for ease
             $this->databaseFieldsFlipped = array_flip($this->databaseFields);
             // If the data called is a valid ID load the object
-            if (is_numeric($data)) $this->set(id,$data)->load();
+            if (is_numeric($data)) $this->set('id',$data)->load();
             else if (is_array($data)) {
                 foreach ($data AS $key => &$val) {
                     $key = $this->key($key);
@@ -50,7 +50,7 @@ abstract class FOGController extends FOGBase {
         return null;
     }
     public function __toString() {
-        return ($this->get(name) ? $this->get(name) : sprintf('%s ID: %s',get_class($this),$this->get(id)));
+        return ($this->get('name') ? $this->get('name') : sprintf('%s ID: %s',get_class($this),$this->get('id')));
     }
     public function get($key = '') {
         if (!$key) {

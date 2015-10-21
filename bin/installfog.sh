@@ -65,6 +65,7 @@ osid="";
 osname="";
 dodhcp="";
 bldhcp="";
+blexports=1;
 # new with version 0.24
 snmysqluser=""
 snmysqlpass="";
@@ -109,7 +110,7 @@ else
     echo "  previous version of FOG.";
     echo "";
 fi
-optspec="h?dUHSCKYyf:-:W:D:B:s:e:b:"
+optspec="h?dUHSCKYyfE:-:W:D:B:s:e:b:"
 while getopts "$optspec" o; do
     #long options
     case "${o}" in
@@ -169,6 +170,7 @@ while getopts "$optspec" o; do
             endrange="${OPTARG}"
             ;;
             bootfile) bootfilename="${OPTARG}" ;;
+            no-exportbuild) blexports=0 ;;
             *)
             if [ "$OPTERR" = 1 -a "${optspec:0:1}" != ":" ]; then
                 echo "Unknown option: --${OPTARG}"
@@ -236,6 +238,7 @@ while getopts "$optspec" o; do
         endrange="${OPTARG}"
         ;;
         b) bootfilename="${OPTARG}" ;;
+        E) blexports=0 ;;
         :) echo "Option -${OPTARG} requires a value"; help; exit 1 ;;
         *)
         if [ "$OPTERR" = 1 -a "${optspec:0:1}" != ":" ]; then

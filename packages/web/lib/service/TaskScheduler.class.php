@@ -37,7 +37,7 @@ class TaskScheduler extends FOGService {
                     if ($Task->get('taskType') == 8) $this->outall("\t\t - Multicast task found!");
                     else $this->outall("\t\t - Regular task found!");
                     $this->outall(sprintf("\t\t - Group %s",$Group->get('name')));
-                    if ($Group->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,true,'FOG_SCHED')) $this->outall(sprintf("\t\t - Tasks started for group %s!",$Group->get('name')));
+                    if ($Group->createImagePackage($Task->get('taskType'),$Task->get('name'),$Task->get('shutdown'),false,$Task->get('other2'),true,$Task->get('other3'))) $this->outall(sprintf("\t\t - Tasks started for group %s!",$Group->get('name')));
                     if ($Timer->isSingleRun()) {
                         if ($this->FOGCore->stopScheduledTask($Task)) $this->outall("\t\t - Scheduled Task cleaned.");
                         else $this->outall("\t\t - failed to clean task.");

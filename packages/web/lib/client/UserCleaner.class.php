@@ -1,7 +1,7 @@
 <?php
 class UserCleaner extends FOGClient implements FOGClientSend {
     public function send() {
-        $UserCleanups = $this->getClass(UserCleanupManager)->find();
+        $UserCleanups = $this->getClass('UserCleanupManager')->find();
         if ($this->newService) {
             foreach ($UserCleanups AS $i => &$User) {
                 if (!$i) $this->send = "#!ok\n";
@@ -10,7 +10,7 @@ class UserCleaner extends FOGClient implements FOGClientSend {
             unset($User);
         } else {
             $this->send = "#!start\n";
-            foreach ($UserCleanups AS $i => &$User) $this->send .= base64_encode($User->get(name))."\n";
+            foreach ($UserCleanups AS $i => &$User) $this->send .= base64_encode($User->get('name'))."\n";
             unset($User);
             $this->send .= "#!end";
         }
