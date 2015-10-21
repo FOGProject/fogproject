@@ -47,7 +47,7 @@ class HostMobile extends FOGPage {
                 '${task_started}',
             );
             if (!$this->obj->getImageMemberFromHostID($_REQUEST[id])) throw new Exception($this->foglang[ErrorImageAssoc]);
-            if (!$this->obj->createImagePackage('1', "Mobile: ".$this->obj->get(name),false,false,true,false,$_SESSION[FOG_USERNAME])) throw new Exception($this->foglang[FailedTask]);
+            if (!$this->obj->createImagePackage('1', "Mobile: ".$this->obj->get('name'),false,false,true,false,$_SESSION['FOG_USERNAME'])) throw new Exception($this->foglang['FailedTask']);
             $this->data[] = array(
                 $this->foglang[TaskStarted],
             );

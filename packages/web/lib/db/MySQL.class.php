@@ -165,7 +165,7 @@ class MySQL extends DatabaseManager {
      * @return the sanitized data
      */
     private function clean($data) {
-        return $this->link->real_escape_string(strip_tags($data));
+        return $this->link->real_escape_string(stripslashes(addslashes(strip_tags($data))));
     }
     /** sanitize() escape/clean the data
      * @param $data the data to be cleaned
