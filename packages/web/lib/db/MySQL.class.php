@@ -25,8 +25,8 @@ class MySQL extends DatabaseManager {
      */
     public function connect() {
         try {
-            if (!$this->link = mysqli_init()) die(_('Could not initialize mysqli'));
-            if (!$this->link->real_connect(DATABASE_HOST, DATABASE_USERNAME, DATABASE_PASSWORD)) die(_('MySQL does not appear to be running'));
+            if (!$this->link && !$this->link = mysqli_init()) die(_('Could not initialize mysqli'));
+            if (!$this->link && !$this->link->real_connect(DATABASE_HOST, DATABASE_USERNAME, DATABASE_PASSWORD)) die(_('MySQL does not appear to be running'));
             if ($this->link->connect_error) throw new Exception(sprintf('Host: %s, Username: %s, Database: %s, Error: %s', DATABASE_HOST, DATABASE_USERNAME, DATABASE_NAME, $this->sqlerror));
             if (!$this->link->select_db(DATABASE_NAME)) throw new Exception(_('Issue working with the current DB, maybe it has not been created yet'));
             $this->link->set_charset('utf8');
