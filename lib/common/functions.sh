@@ -1011,7 +1011,8 @@ configureHttpd() {
         rm -rf "$backupPath/fog_web_$version.BACKUP" >/dev/null 2>&1
     fi
     if [ -d "$webdirdest" ]; then
-        mv "$webdirdest" "$backupPath/fog_web_$version.BACKUP" >/dev/null 2>&1
+        cp -RT "$webdirdest" "$backupPath/fog_web_$version.BACKUP"
+        rm -rf "$webdirdest" >/dev/null 2>&1
     fi
     if [ "$osid" == 2 -a -d "/var/www/fog" ]; then
         rm -rf /var/www/fog >/dev/null 2>&1
