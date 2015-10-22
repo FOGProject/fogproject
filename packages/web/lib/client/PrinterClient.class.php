@@ -28,7 +28,7 @@ class PrinterClient extends FOGClient implements FOGClientSend {
             } else {
                 $Printer = $this->getClass('Printer',$_REQUEST['id']);
                 $strtosend = "#type=%s\n#port=%s\n#file=%s\n#model=%s\n#name=%s\n#ip=%s\n#default=%s";
-                $this->send .= $this->getvals($strtosend,$Printer);
+                $this->send .= $this->getvals(sprintf($strtosend,$Printer->get('config')),$Printer);
             }
         }
     }
