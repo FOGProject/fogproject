@@ -22,25 +22,9 @@ class Printer extends FOGController {
         'hosts',
         'hostsnotinme',
     );
-    public function get($key = '') {
-        $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
-        return parent::get($key);
-    }
-    public function set($key,$value) {
-        $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
-        return parent::set($key,$value);
-    }
-    public function add($key,$value) {
-        $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
-        return parent::add($key,$value);
-    }
-    public function remove($key,$value) {
-        $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
-        return parent::remove($key,$value);
+    public function destroy($field = 'id') {
+        $this->getClass('PrinterAssociationManager')->destroy(array('printerID'=>$this->get('id')));
+        return parent::destroy($field);
     }
     public function save() {
         parent::save();
@@ -64,10 +48,6 @@ class Printer extends FOGController {
             unset($Host);
         }
         return $this;
-    }
-    public function destroy($field = 'id') {
-        $this->getClass('PrinterAssociationManager')->destroy(array('printerID'=>$this->get('id')));
-        return parent::destroy($field);
     }
     public function addHost($addArray) {
         $this->set('hosts',array_unique(array_merge((array)$this->get('hosts'),(array)$addArray)));

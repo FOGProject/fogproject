@@ -1007,11 +1007,11 @@ configureHttpd() {
     sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 100M/g' $phpini >/dev/null 2>&1
     errorStat $?
     dots "Backing up old data"
-    if [ -d "$backupPath/fog_web_$version.BACKUP" ]; then
-        rm -rf "$backupPath/fog_web_$version.BACKUP" >/dev/null 2>&1
+    if [ -d "$backupPath/fog_web_${version}.BACKUP" ]; then
+        rm -rf "$backupPath/fog_web_${version}.BACKUP" >/dev/null 2>&1
     fi
     if [ -d "$webdirdest" ]; then
-        cp -RT "$webdirdest" "$backupPath/fog_web_$version.BACKUP"
+        cp -RT "$webdirdest" "${backupPath}/fog_web_${version}.BACKUP" >/dev/null 2>&1
         rm -rf "$webdirdest" >/dev/null 2>&1
     fi
     if [ "$osid" == 2 -a -d "/var/www/fog" ]; then
@@ -1020,9 +1020,9 @@ configureHttpd() {
     fi
     mkdir -p "$webdirdest" >/dev/null 2>&1
     errorStat $?
-    if [ -d "$backupPath/fog_web_$version.BACKUP" ]; then
+    if [ -d "${backupPath}/fog_web_${version}.BACKUP" ]; then
         dots "Copying back old web folder as is";
-        cp -Rf $backupPath/fog_web_$version.BACKUP/* $webdirdest/;
+        cp -Rf ${backupPath}/fog_web_${version}.BACKUP/* $webdirdest/;
         errorStat $?
     fi
     dots "Copying new files to web folder";

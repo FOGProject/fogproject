@@ -116,12 +116,6 @@ class Host extends FOGController {
         }
         return parent::add($key,$value);
     }
-    public function remove($key, $value) {
-        $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
-        // Remove
-        return parent::remove($key, $value);
-    }
     public function destroy($field = 'id') {
         $find = array('hostID'=>$this->get('id'));
         $this->getClass('NodeFailureManager')->destroy($find);
