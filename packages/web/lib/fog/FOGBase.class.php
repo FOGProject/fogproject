@@ -222,18 +222,18 @@ abstract class FOGBase {
     }
     protected function getGlobalModuleStatus($names = false) {
         return array(
-            'dircleanup' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_DIRECTORYCLEANER_ENABLED') : 'FOG_SERVICE_DIRECTORYCLEANER_ENABLED',
-            'usercleanup' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_USERCLEANUP_ENABLED') : 'FOG_SERVICE_USERCLEANUP_ENABLED',
-            'displaymanager' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_DISPLAYMANAGER_ENABLED') : 'FOG_SERVICE_DISPLAYMANAGER_ENABLED',
-            'autologout' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_ENABLED') : 'FOG_SERVICE_AUTOLOGOFF_ENABLED',
-            'greenfog' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_GREENFOG_ENABLED') : 'FOG_SERVICE_GREENFOG_ENABLED',
-            'hostnamechanger' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_HOSTNAMECHANGER_ENABLED') : 'FOG_SERVICE_HOSTNAMECHANGER_ENABLED',
-            'snapinclient' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_SNAPIN_ENABLED') : 'FOG_SERVICE_SNAPIN_ENABLED',
-            'clientupdater' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_CLIENTUPDATER_ENABLED') : 'FOG_SERVICE_CLIENTUPDATER_ENABLED',
-            'hostregister' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_HOSTREGISTER_ENABLED') : 'FOG_SERVICE_HOSTREGISTER_ENABLED',
-            'printermanager' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_PRINTERMANAGER_ENABLED') : 'FOG_SERVICE_PRINTERMANAGER_ENABLED',
-            'taskreboot' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_TASKREBOOT_ENABLED') : 'FOG_SERVICE_TASKREBOOT_ENABLED',
-            'usertracker' => !$names ? $this->FOGCore->getSetting('FOG_SERVICE_USERTRACKER_ENABLED') : 'FOG_SERVICE_USERTRACKER_ENABLED',
+            'dircleanup' => !$names ? $this->getSetting('FOG_SERVICE_DIRECTORYCLEANER_ENABLED') : 'FOG_SERVICE_DIRECTORYCLEANER_ENABLED',
+            'usercleanup' => !$names ? $this->getSetting('FOG_SERVICE_USERCLEANUP_ENABLED') : 'FOG_SERVICE_USERCLEANUP_ENABLED',
+            'displaymanager' => !$names ? $this->getSetting('FOG_SERVICE_DISPLAYMANAGER_ENABLED') : 'FOG_SERVICE_DISPLAYMANAGER_ENABLED',
+            'autologout' => !$names ? $this->getSetting('FOG_SERVICE_AUTOLOGOFF_ENABLED') : 'FOG_SERVICE_AUTOLOGOFF_ENABLED',
+            'greenfog' => !$names ? $this->getSetting('FOG_SERVICE_GREENFOG_ENABLED') : 'FOG_SERVICE_GREENFOG_ENABLED',
+            'hostnamechanger' => !$names ? $this->getSetting('FOG_SERVICE_HOSTNAMECHANGER_ENABLED') : 'FOG_SERVICE_HOSTNAMECHANGER_ENABLED',
+            'snapinclient' => !$names ? $this->getSetting('FOG_SERVICE_SNAPIN_ENABLED') : 'FOG_SERVICE_SNAPIN_ENABLED',
+            'clientupdater' => !$names ? $this->getSetting('FOG_SERVICE_CLIENTUPDATER_ENABLED') : 'FOG_SERVICE_CLIENTUPDATER_ENABLED',
+            'hostregister' => !$names ? $this->getSetting('FOG_SERVICE_HOSTREGISTER_ENABLED') : 'FOG_SERVICE_HOSTREGISTER_ENABLED',
+            'printermanager' => !$names ? $this->getSetting('FOG_SERVICE_PRINTERMANAGER_ENABLED') : 'FOG_SERVICE_PRINTERMANAGER_ENABLED',
+            'taskreboot' => !$names ? $this->getSetting('FOG_SERVICE_TASKREBOOT_ENABLED') : 'FOG_SERVICE_TASKREBOOT_ENABLED',
+            'usertracker' => !$names ? $this->getSetting('FOG_SERVICE_USERTRACKER_ENABLED') : 'FOG_SERVICE_USERTRACKER_ENABLED',
         );
     }
     public function nice_date($Date = 'now',$utc = false) {
@@ -377,7 +377,7 @@ abstract class FOGBase {
         if ($padding) $padding = OPENSSL_PKCS1_PADDING;
         else $padding = OPENSSL_NO_PADDING;
         $data = $this->hex2bin($data);
-        $path = '/'.trim($this->FOGCore->getSetting('FOG_SNAPINDIR'),'/');
+        $path = '/'.trim($this->getSetting('FOG_SNAPINDIR'),'/');
         $path = !$path ? '/opt/fog/snapins/ssl/' : $path.'/ssl/';
         if (!$priv_key = openssl_pkey_get_private(file_get_contents($path.'.srvprivate.key'))) throw new Exception('Private Key Failed');
         $a_key = openssl_pkey_get_details($priv_key);
@@ -452,5 +452,13 @@ abstract class FOGBase {
         if (empty($getField)) $getField = 'id';
         if (empty($operator)) $operator = 'AND';
         return array_values(array_filter(array_unique($this->getClass($object)->getManager()->find($findWhere,$operator,'','','','',$not,$getField))));
+    }
+    public function getSetting($key) {
+        $value = $this->getSubObjectIDs('Service',array('name'=>$key),'value');
+        return array_shift($value);
+    }
+    public function setSetting($key, $value) {
+        $this->getClass('ServiceManager')->update(array('name'=>$key),'',$value);
+        return $this;
     }
 }

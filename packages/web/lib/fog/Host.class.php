@@ -308,7 +308,7 @@ class Host extends FOGController {
         );
         $HostScreen = $this->getClass('HostScreenSettingsManager')->find(array('hostID'=>$this->get('id')));
         $HostScreen = @array_shift($HostScreen);
-        $gScreen = $this->FOGCore->getSetting($keyTran[$key]);
+        $gScreen = $this->getSetting($keyTran[$key]);
         return ($HostScreen instanceof HostScreenSettings && $HostScreen->isValid() ? $HostScreen->get($key) : $gScreen);
     }
     public function setDisp($x,$y,$r) {
@@ -324,7 +324,7 @@ class Host extends FOGController {
     public function getAlo() {
         $HostALO = $this->getClass('HostAutoLogoutManager')->find(array('hostID'=>$this->get('id')));
         $HostALO = @array_shift($HostALO);
-        $gTime = $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN');
+        $gTime = $this->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN');
         return ($HostALO && $HostALO->isValid() ? $HostALO->get('time') : $gTime);
     }
     public function setAlo($time) {
@@ -582,8 +582,8 @@ class Host extends FOGController {
                     $MulticastSession = $MultiSessAssoc;
                     $assoc = true;
                 } else {
-                    $port = $this->FOGCore->getSetting('FOG_UDPCAST_STARTINGPORT');
-                    $portOverride = $this->FOGCore->getSetting('FOG_MULTICAST_PORT_OVERRIDE');
+                    $port = $this->getSetting('FOG_UDPCAST_STARTINGPORT');
+                    $portOverride = $this->getSetting('FOG_MULTICAST_PORT_OVERRIDE');
                     // Create New Multicast Session Job
                     $MulticastSession = $this->getClass('MulticastSessions')
                         ->set('name',$taskName)
@@ -598,10 +598,10 @@ class Host extends FOGController {
                         ->set('NFSGroupID',$StorageNode->get('storageGroupID'));
                     if ($MulticastSession->save()) {
                         // Sets a new port number so you can create multiple Multicast Tasks.
-                        if (!$this->FOGCore->getSetting('FOG_MULTICAST_PORT_OVERRIDE')) {
+                        if (!$this->getSetting('FOG_MULTICAST_PORT_OVERRIDE')) {
                             $randomnumber = mt_rand(24576,32766)*2;
                             while ($randomnumber == $MulticastSession->get('port')) $randomnumber = mt_rand(24576,32766)*2;
-                            $this->FOGCore->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
+                            $this->setSetting('FOG_UDPCAST_STARTINGPORT',$randomnumber);
                         }
                     }
                     $assoc = true;
@@ -652,9 +652,9 @@ class Host extends FOGController {
             $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
             $URLs[] = sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',$Node->get('ip'),$webroot,implode('|',(array)$mac));
         }
-        $curroot = trim(trim($this->FOGCore->getSetting('FOG_WEB_ROOT'),'/'));
+        $curroot = trim(trim($this->getSetting('FOG_WEB_ROOT'),'/'));
         $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/':'');
-        $URLs[] = sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',$this->FOGCore->getSetting('FOG_WEB_HOST'),$webroot,implode('|',(array)$mac));
+        $URLs[] = sprintf('http://%s%smanagement/index.php?node=client&sub=wakeEmUp&mac=%s',$this->getSetting('FOG_WEB_HOST'),$webroot,implode('|',(array)$mac));
         $this->FOGURLRequests->process($URLs,'GET');
         return $this;
     }
@@ -717,7 +717,7 @@ class Host extends FOGController {
         return $this;
     }
     public function addSnapin($addArray) {
-        $limit = $this->FOGCore->getSetting('FOG_SNAPIN_LIMIT');
+        $limit = $this->getSetting('FOG_SNAPIN_LIMIT');
         if ($limit > 0) {
             if ($this->getClass('SnapinManager')->count(array('id'=>$this->get('snapins'))) >= $limit || count($addArray) > $limit) throw new Exception(sprintf('%s %d %s',_('You are only allowed to assign'),$limit,$limit == 1 ? _('snapin per host') : _('snapins per host')));
         }

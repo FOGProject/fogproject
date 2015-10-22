@@ -165,7 +165,7 @@ class ImageManagementPage extends FOGPage {
         $OSs = $this->getClass(OSManager)->buildSelectBox($_REQUEST[os]);
         $ImageTypes = $this->getClass(ImageTypeManager)->buildSelectBox($_REQUEST[imagetype] ? $_REQUEST[imagetype] : 1,'','id');
         $ImagePartitionTypes = $this->getClass(ImagePartitionTypeManager)->buildSelectBox($_REQUEST[imagepartitiontype] ? $_REQUEST[imagepartitiontype] : 1,'','id');
-        $compression = is_numeric($_REQUEST['compress']) && $_REQUEST['compress'] > -1 && $_REQUEST['compress'] < 10 ? intval($_REQUEST['compress']) : $this->FOGCore->getSetting('FOG_PIGZ_COMP');
+        $compression = is_numeric($_REQUEST['compress']) && $_REQUEST['compress'] > -1 && $_REQUEST['compress'] < 10 ? intval($_REQUEST['compress']) : $this->getSetting('FOG_PIGZ_COMP');
         $fields = array(
             _('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="'.$_REQUEST[name].'" />',
             _('Image Description') => '<textarea name="description" rows="8" cols="40">'.$_REQUEST[description].'</textarea>',
@@ -260,7 +260,7 @@ class ImageManagementPage extends FOGPage {
         $OSs = $this->getClass(OSManager)->buildSelectBox(isset($_REQUEST[os]) && $_REQUEST[os] != $this->obj->get(osID) ? $_REQUEST[os] : $this->obj->get(osID));
         $ImageTypes = $this->getClass(ImageTypeManager)->buildSelectBox(isset($_REQUEST[imagetype]) && $_REQUEST[imagetype] != $this->obj->get(imageTypeID) ? $_REQUEST[imagetype] : $this->obj->get(imageTypeID),'','id');
         $ImagePartitionTypes = $this->getClass(ImagePartitionTypeManager)->buildSelectBox(isset($_REQUEST[imagepartitiontype]) && $_REQUEST[imagepartitiontype] != $this->obj->get(imagePartitionTypeID) ? $_REQUEST[imagepartitiontype] : $this->obj->get(imagePartitionTypeID),'','id');
-        $compression = isset($_REQUEST[compress]) && $_REQUEST[compress] != $this->obj->get(compress) ? intval($_REQUEST[compress]) : is_numeric($this->obj->get(compress)) && $this->obj->get(compress) > -1 ? $this->obj->get(compress) : $this->FOGCore->getSetting(FOG_PIGZ_COMP);
+        $compression = isset($_REQUEST[compress]) && $_REQUEST[compress] != $this->obj->get(compress) ? intval($_REQUEST[compress]) : is_numeric($this->obj->get(compress)) && $this->obj->get(compress) > -1 ? $this->obj->get(compress) : $this->getSetting(FOG_PIGZ_COMP);
         if ($_SESSION[FOG_FORMAT_FLAG_IN_GUI]) $format = '<select name="imagemanage"><option value="1" '.($this->obj->get(format) ? 'selected' : '').'>'._('Partimage').'</option><option value="0" '.(!$this->obj->get(format) ? 'selected' : '').'>'._('Partclone').'</option></select>';
         $fields = array(
             _('Image Name') => '<input type="text" name="name" id="iName" onblur="duplicateImageName()" value="'.(isset($_REQUEST[name]) && $_REQUEST[name] != $this->obj->get(name) ? $_REQUEST[name] : $this->obj->get(name)).'" />',
@@ -531,16 +531,16 @@ class ImageManagementPage extends FOGPage {
             if (!$_REQUEST[image]) throw new Exception(_('Please choose an image'));
             if ($this->getClass(MulticastSessionsManager)->exists($name)) throw new Exception(_('Session with that name already exists'));
             if ($this->getClass(HostManager)->exists($name)) throw new Exception(_('Session name cannot be the same as an existing hostname'));
-            if (is_numeric($_REQUEST[timeout]) && $_REQUEST[timeout] > 0) $this->FOGCore->setSetting(FOG_UDPCAST_MAXWAIT,$_REQUEST[timeout]);
+            if (is_numeric($_REQUEST[timeout]) && $_REQUEST[timeout] > 0) $this->setSetting(FOG_UDPCAST_MAXWAIT,$_REQUEST[timeout]);
             $countmc = $this->getClass(MulticastSessionsManager)->count(array(stateID=>array(0,1,2,3)));
-            $countmctot = $this->FOGCore->getSetting(FOG_MULTICAST_MAX_SESSIONS);
+            $countmctot = $this->getSetting(FOG_MULTICAST_MAX_SESSIONS);
             $Image = $this->getClass(Image,$_REQUEST[image]);
             $StorageGroup = $Image->getStorageGroup();
             $StorageNode = $StorageGroup->getMasterStorageNode();
             if ($countmc >= $countmctot) throw new Exception(_('Please wait until a slot is open<br/>There are currently '.$countmc.' tasks in queue<br/>Your server only allows '.$countmctot));
             $MulticastSession = $this->getClass(MulticastSessions)
                 ->set(name,$name)
-                ->set(port,$this->FOGCore->getSetting(FOG_UDPCAST_STARTINGPORT))
+                ->set(port,$this->getSetting(FOG_UDPCAST_STARTINGPORT))
                 ->set(image,$Image->get(id))
                 ->set(stateID,0)
                 ->set(sessclients,$_REQUEST['count'])
@@ -553,7 +553,7 @@ class ImageManagementPage extends FOGPage {
             // Sets a new port number so you can create multiple Multicast Tasks.
             $randomnumber = mt_rand(24576,32766)*2;
             while ($randomnumber == $MulticastSession->get(port)) $randomnumber = mt_rand(24576,32766)*2;
-            $this->FOGCore->setSetting(FOG_UDPCAST_STARTINGPORT,$randomnumber);
+            $this->setSetting(FOG_UDPCAST_STARTINGPORT,$randomnumber);
             $this->setMessage(_('Multicast session created').'<br />'.$MulticastSession->get(name).' has been started on port '.$MulticastSession->get(port));
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());

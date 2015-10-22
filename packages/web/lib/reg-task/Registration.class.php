@@ -8,7 +8,7 @@ class Registration extends FOGBase {
     protected $description;
     public function __construct() {
         parent::__construct();
-        if ($this->FOGCore->getSetting(FOG_REGISTRATION_ENABLED)) {
+        if ($this->getSetting(FOG_REGISTRATION_ENABLED)) {
             $this->MACs = $this->getHostItem(false,true,true,true);
             $this->PriMAC = @array_shift($this->MACs);
             $this->Host = $this->getHostItem(false,true,true);
@@ -17,7 +17,7 @@ class Registration extends FOGBase {
                 $this->modulesToJoin = $this->getClass(ModuleManager)->find('','','','','','','','id');
                 $this->description = sprintf('%s %s',_('Created by FOG Reg on'),$this->formatTime('now','F j, Y, g:i a'));
                 if (isset($_REQUEST[advanced])) $this->fullReg();
-                else if ($this->FOGCore->getSetting(FOG_QUICKREG_AUTOPOP)) $this->quickRegAuto();
+                else if ($this->getSetting(FOG_QUICKREG_AUTOPOP)) $this->quickRegAuto();
                 else $this->quickReg();
             }
         }
@@ -49,7 +49,7 @@ class Registration extends FOGBase {
             $other2 = $this->stripAndDecode($_REQUEST[other2]);
             $doimage = trim($_REQUEST[doimage]);
             if ($_REQUEST[doad]) {
-                $OUs = explode('|',$this->FOGCore->getSetting(FOG_AD_DEFAULT_OU));
+                $OUs = explode('|',$this->getSetting(FOG_AD_DEFAULT_OU));
                 foreach ((array)$OUs AS $i => &$OU) $OUOptions[] = $OU;
                 unset($OU);
                 if ($OUOptions) {
@@ -62,11 +62,11 @@ class Registration extends FOGBase {
                     if (!$opt) $opt = $OUs[0];
                 }
                 $useAD = 1;
-                $ADDomain = $this->FOGCore->getSetting(FOG_AD_DEFAULT_DOMAINNAME);
+                $ADDomain = $this->getSetting(FOG_AD_DEFAULT_DOMAINNAME);
                 $ADOU = $opt;
-                $ADUser = $this->FOGCore->getSetting(FOG_AD_DEFAULT_USER);
-                $ADPass = $this->FOGCore->getSetting(FOG_AD_DEFAULT_PASSWORD);
-                $ADPassLegacy = $this->FOGCore->getSetting(FOG_AD_DEFAULT_PASSWORD_LEGACY);
+                $ADUser = $this->getSetting(FOG_AD_DEFAULT_USER);
+                $ADPass = $this->getSetting(FOG_AD_DEFAULT_PASSWORD);
+                $ADPassLegacy = $this->getSetting(FOG_AD_DEFAULT_PASSWORD_LEGACY);
             }
             $groupsToJoin = explode(',',$this->stripAndDecode($_REQUEST[groupid]));
             $snapinsToJoin = explode(',',$this->stripAndDecode($_REQUEST[snapinid]));
@@ -103,9 +103,9 @@ class Registration extends FOGBase {
     }
     private function quickRegAuto() {
         try {
-            $groupsToJoin = explode(',',trim($this->FOGCore->getSetting(FOG_QUICKREG_GROUP_ASSOC)));
-            $autoRegSysName = trim($this->FOGCore->getSetting(FOG_QUICKREG_SYS_NAME));
-            $autoRegSysNumber = (int)$this->FOGCore->getSetting(FOG_QUICKREG_SYS_NUMBER);
+            $groupsToJoin = explode(',',trim($this->getSetting(FOG_QUICKREG_GROUP_ASSOC)));
+            $autoRegSysName = trim($this->getSetting(FOG_QUICKREG_SYS_NAME));
+            $autoRegSysNumber = (int)$this->getSetting(FOG_QUICKREG_SYS_NUMBER);
             $hostname = trim((strtoupper($autoRegSysName) == 'MAC' ? $this->macsimple : $autoRegSysName));
             $hostname = ($this->getClass(HostManager)->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
             $paddingLen = substr_count($autoRegSysName,'*');
@@ -116,7 +116,7 @@ class Registration extends FOGBase {
                 $hostname = trim((strtoupper($autoRegSysName) == 'MAC' ? $this->macsimple : str_replace($paddingString,$paddedInsert,$autoRegSysName)));
                 $hostname = ($this->getClass(HostManager)->isHostnameSafe($hostname) ? $hostname : $this->macsimple);
             }
-            $imageid = $this->FOGCore->getSetting(FOG_QUICKREG_IMG_ID);
+            $imageid = $this->getSetting(FOG_QUICKREG_IMG_ID);
             $this->Host = $this->getClass(Host)
                 ->set(name,$hostname)
                 ->set(description,$this->description)
@@ -127,7 +127,7 @@ class Registration extends FOGBase {
                 ->addAddMAC($this->MACs);
             $this->HookManager->processEvent('HOST_REGISTER',array(Host=>&$this->Host));
             if (!$this->Host->save()) throw new Exception(_('Failed to create Host'));
-            $this->FOGCore->setSetting(FOG_QUICKREG_SYS_NUMBER,++$autoRegSysNumber);
+            $this->setSetting(FOG_QUICKREG_SYS_NUMBER,++$autoRegSysNumber);
             if ($imageid && $this->Host->getImageMemberFromHostID()) {
                 if (!$this->Host->createImagePackage(1,'AutoRegTask',false,false,true,false,$username)) throw new Exception(_('Done, Failed to create tasking'));
             }

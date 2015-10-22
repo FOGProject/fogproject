@@ -46,7 +46,7 @@ class LocationManagementPage extends FOGPage {
     public function index() {
         // Set title
         $this->title = _('Search');
-        if ($this->FOGCore->getSetting(FOG_DATA_RETURNED)>0 && $this->getClass(LocationManager)->count() > $this->FOGCore->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list')
+        if ($this->getSetting(FOG_DATA_RETURNED)>0 && $this->getClass(LocationManager)->count() > $this->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list')
             $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Find data
         $Locations = $this->getClass(LocationManager)->find();

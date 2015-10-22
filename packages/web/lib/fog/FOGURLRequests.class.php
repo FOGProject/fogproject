@@ -44,17 +44,17 @@ class FOGURLRequests extends FOGBase {
         if (empty($method)) $method = 'GET';
         foreach ($urls AS $i => &$url) {
             $ProxyUsed = false;
-            if ($this->DB && $this->FOGCore->getSetting(FOG_PROXY_IP)) {
+            if ($this->DB && $this->getSetting(FOG_PROXY_IP)) {
                 $IPs = $this->getClass(StorageNodeManager)->find('','','','','','','','ip');
                 $IPs = array_filter(array_unique((array)$IPs));
                 if (!preg_match('#^(?!.*'.implode('|',(array)$IPs).')$#i',$url)) $ProxyUsed = true;
-                $username = $this->FOGCore->getSetting(FOG_PROXY_USERNAME);
-                $password = $this->FOGCore->getSetting(FOG_PROXY_PASSWORD);
+                $username = $this->getSetting(FOG_PROXY_USERNAME);
+                $password = $this->getSetting(FOG_PROXY_PASSWORD);
             }
             if ($ProxyUsed) {
                 $this->contextOptions[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
-                $this->contextOptions[CURLOPT_PROXYPORT] = $this->FOGCore->getSetting(FOG_PROXY_PORT);
-                $this->contextOptions[CURLOPT_PROXY] = $this->FOGCore->getSetting(FOG_PROXY_IP);
+                $this->contextOptions[CURLOPT_PROXYPORT] = $this->getSetting(FOG_PROXY_PORT);
+                $this->contextOptions[CURLOPT_PROXY] = $this->getSetting(FOG_PROXY_IP);
                 if ($username) $this->contextOptions[CURLOPT_PROXYUSERPWD] = $username.':'.$password;
             }
             if ($method == 'GET' && $data !== null) $url .= '?'.http_build_query($data);

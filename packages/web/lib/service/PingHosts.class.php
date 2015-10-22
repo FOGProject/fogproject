@@ -5,15 +5,15 @@ class PingHosts extends FOGService {
     public $zzz = PINGHOSTSLEEPTIME;
     private function commonOutput() {
         try {
-            if (!$this->FOGCore->getSetting('FOG_HOST_LOOKUP')) throw new Exception(_('Host Ping is not enabled'));
-            $webServerIP = $this->FOGCore->resolveHostName($this->FOGCore->getSetting('FOG_WEB_HOST'));
+            if (!$this->getSetting('FOG_HOST_LOOKUP')) throw new Exception(_('Host Ping is not enabled'));
+            $webServerIP = $this->FOGCore->resolveHostName($this->getSetting('FOG_WEB_HOST'));
             $this->outall(sprintf(' * FOG Web Host IP: %s',$webServerIP));
             $serverIPs = $this->getIPAddress();
             foreach ((array)$serverIPs AS $i => &$ip) {
                 if (!$i) $this->outall(" * This server's IP Addresses");
                 $this->outall(" |\t$ip");
             }
-            if (!in_array($this->FOGCore->resolveHostname($this->FOGCore->getSetting('FOG_WEB_HOST')),$this->getIPAddress())) throw new Exception(_('I am not the fog web server'));
+            if (!in_array($this->FOGCore->resolveHostname($this->getSetting('FOG_WEB_HOST')),$this->getIPAddress())) throw new Exception(_('I am not the fog web server'));
             $this->outall(' * Attempting to ping '.$this->getClass('HostManager')->count().' host(s).');
             $Hosts = $this->getClass('HostManager')->getSubObjectIDs('','','id');
             foreach ($Hosts AS $i => &$Host) {
