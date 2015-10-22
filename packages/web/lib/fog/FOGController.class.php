@@ -59,6 +59,7 @@ abstract class FOGController extends FOGBase {
         }
         try {
             $key = $this->key($key);
+            if (!$this->isLoaded($key)) $this->loadItem($key);
             if ($key) $this->info(sprintf(_('Getting Value of Key: %s, Value: %s'),$key, $this->data[$key]));
             return $this->data[$key];
         } catch (Exception $e) {
@@ -68,6 +69,7 @@ abstract class FOGController extends FOGBase {
     }
     public function set($key, $value) {
         $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         $this->info(sprintf(_('Setting Key: %s, Value: %s'),$key, $value));
         try {
             if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being set'));
@@ -81,6 +83,7 @@ abstract class FOGController extends FOGBase {
     }
     public function add($key, $value) {
         $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         $this->info(sprintf(_('Adding Key: %s, Values: %s'),$key, $value));
         try {
             if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being added'));
@@ -92,6 +95,7 @@ abstract class FOGController extends FOGBase {
     }
     public function remove($key, $value) {
         $key = $this->key($key);
+        if (!$this->isLoaded($key)) $this->loadItem($key);
         $this->info(sprintf(_('Removing Key: %s, Value: %s'),$key, $value));
         try {
             if (!array_key_exists($key,(array)$this->databaseFields) && !array_key_exists($key,(array)$this->databaseFieldsFlipped) && !in_array($key,(array)$this->additionalFields)) throw new Exception(_('Invalid key being removed'));

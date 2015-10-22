@@ -709,36 +709,49 @@ class FOGConfigurationPage extends FOGPage {
      * Just used to view these logs.  Can be used for more than this as well with some tweeking.
      */
     public function log() {
-        $StorageGroups = $this->getClass(StorageGroupManager)->find();
+        $StorageGroups = $this->getClass('StorageGroupManager')->find();
         foreach($StorageGroups AS $i => &$StorageGroup) {
+            if (!$StorageGroup->getMasterStorageNode()->isValid()) continue;
             $StorageNode = $StorageGroup->getMasterStorageNode();
-            if ($StorageNode->isValid()) {
-                $user = $StorageNode->get(user);
-                $pass = $StorageNode->get(pass);
-                $host = $StorageNode->get(ip);
-                $ftpstarter[$StorageNode->get(name)] = "ftp://$user:$pass@$host";
-                $ftpstart = $ftpstarter[$StorageNode->get(name)];
-                $apacheerrlog = (file_exists("$ftpstart/var/log/httpd/error_log") ? "$ftpstart/var/log/httpd/error_log" : (file_exists("$ftpstart/var/log/apache2/error.log") ? "$ftpstart/var/log/apache2/error.log" : false));
-                $apacheacclog = (file_exists("$ftpstart/var/log/httpd/access_log") ? "$ftpstart/var/log/httpd/access_log" : (file_exists("$ftpstart/var/log/apache2/access.log") ? "$ftpstart/var/log/apache2/access.log" : false));
-                $multicastlog = (file_exists("$ftpstart/var/log/fog/multicast.log") ? "$ftpstart/var/log/fog/multicast.log" : false);
-                $schedulerlog = (file_exists("$ftpstart/var/log/fog/fogscheduler.log") ? "$ftpstart/var/log/fog/fogscheduler.log" : false);
-                $imgrepliclog = (file_exists("$ftpstart/var/log/fog/fogreplicator.log") ? "$ftpstart/var/log/fog/fogreplicator.log" : false);
-                $snapinreplog = (file_exists("$ftpstart/var/log/fog/fogsnapinrep.log") ? "$ftpstart/var/log/fog/fogsnapinrep.log" : false);
-                $pinghostlog = (file_exists("$ftpstart/var/log/fog/pinghosts.log") ? "$ftpstart/var/log/fog/pinghosts.log" : false);
-                $files[$StorageNode->get(name)] = array(
-                    $multicastlog ? _('Multicast') : null => $multicastlog ? $multicastlog : null,
-                    $schedulerlog ? _('Scheduler') : null => $schedulerlog ? $schedulerlog : null,
-                    $imgrepliclog ? _('Image Replicator') : null => $imgrepliclog ? $imgrepliclog : null,
-                    $snapinreplog ? _('Snapin Replicator') : null => $snapinreplog ? $snapinreplog : null,
-                    $pinghostlog ? _('Ping Hosts') : null => $pinghostlog ? $pinghostlog : null,
-                    $apacheerrlog ? _('Apache Error Log') : null  => $apacheerrlog ? $apacheerrlog : null,
-                    $apacheacclog ? _('Apache Access Log') : null  => $apacheacclog ? $apacheacclog : null,
-                );
-                $files[$StorageNode->get(name)] = array_filter((array)$files[$StorageNode->get(name)]);
-            }
+            $user = $StorageNode->get('user');
+            $pass = $StorageNode->get('pass');
+            $host = $StorageNode->get('ip');
+            $this->FOGFTP
+                ->set('host',$host)
+                ->set('username',$user)
+                ->set('password',$pass);
+            if (!$this->FOGFTP->connect()) continue;
+            $ftpstart = "ftp://$user:$pass@$host";
+            $fogfiles = array();
+            $fogfiles = array_merge($this->FOGFTP->nlist('/var/log/httpd/'),$this->FOGFTP->nlist('/var/log/apache2/'),$this->FOGFTP->nlist('/var/log/fog'));
+            $this->FOGFTP->close();
+            $apacheerrlog = preg_grep('#(error\.log$|.*error_log$)#i',$fogfiles);
+            $apacheerrlog = $ftpstart.@array_shift($apacheerrlog);
+            $apacheacclog = preg_grep('#(access\.log$|.*access_log$)#i',$fogfiles);
+            $apacheacclog = $ftpstart.@array_shift($apacheacclog);
+            $multicastlog = preg_grep('#(multicast.log$)#i',$fogfiles);
+            $multicastlog = $ftpstart.@array_shift($multicastlog);
+            $schedulerlog = preg_grep('#(fogscheduler.log$)#i',$fogfiles);
+            $schedulerlog = $ftpstart.@array_shift($schedulerlog);
+            $imgrepliclog = preg_grep('#(fogreplicator.log$)#i',$fogfiles);
+            $imgrepliclog = $ftpstart.@array_shift($imgrepliclog);
+            $snapinreplog = preg_grep('#(fogsnapinrep.log$)#i',$fogfiles);
+            $snapinreplog = $ftpstart.@array_shift($snapinreplog);
+            $pinghostlog = preg_grep('#(pinghosts.log$)#i',$fogfiles);
+            $pinghostlog = $ftpstart.@array_shift($pinghostlog);
+            $files[$StorageNode->get('name')] = array(
+                $multicastlog ? _('Multicast') : null => $multicastlog ? $multicastlog : null,
+                $schedulerlog ? _('Scheduler') : null => $schedulerlog ? $schedulerlog : null,
+                $imgrepliclog ? _('Image Replicator') : null => $imgrepliclog ? $imgrepliclog : null,
+                $snapinreplog ? _('Snapin Replicator') : null => $snapinreplog ? $snapinreplog : null,
+                $pinghostlog ? _('Ping Hosts') : null => $pinghostlog ? $pinghostlog : null,
+                $apacheerrlog ? _('Apache Error Log') : null  => $apacheerrlog ? $apacheerrlog : null,
+                $apacheacclog ? _('Apache Access Log') : null  => $apacheacclog ? $apacheacclog : null,
+            );
+            $files[$StorageNode->get('name')] = array_filter((array)$files[$StorageNode->get('name')]);
         }
         unset($StorageGroup);
-        $this->HookManager->processEvent(LOG_VIEWER_HOOK,array(files=>&$files,ftpstart=>&$ftpstarter));
+        $this->HookManager->processEvent('LOG_VIEWER_HOOK',array('files'=>&$files,'ftpstart'=>&$ftpstarter));
         foreach((array)$files AS $nodename => &$filearray) {
             $first = true;
             foreach((array)$filearray AS $value => &$file) {
@@ -746,7 +759,7 @@ class FOGConfigurationPage extends FOGPage {
                     $options3[] = '<option disabled="disabled"> ------- '.$nodename.' ------- </option>';
                     $first = false;
                 }
-                $options3[] = '<option '.($value == $_REQUEST[logtype] ? 'selected="selected"' : '').' value="'.$file.'">'.$value.'</option>';
+                $options3[] = '<option '.($value == $_REQUEST['logtype'] ? 'selected="selected"' : '').' value="'.$file.'">'.$value.'</option>';
             }
             unset($file);
         }
@@ -766,14 +779,14 @@ class FOGConfigurationPage extends FOGPage {
      * the old information restored.
      */
     public function config() {
-        $this->HookManager->processEvent(IMPORT);
+        $this->HookManager->processEvent('IMPORT');
         $this->title='Configuration Import/Export';
-        $report = $this->getClass(ReportMaker);
-        $_SESSION[foglastreport]=serialize($report);
+        $report = $this->getClass('ReportMaker');
+        $_SESSION['foglastreport']=serialize($report);
         unset($this->data,$this->headerData);
         $this->attributes = array(
             array(),
-            array('class'=>r),
+            array('class'=>'r'),
         );
         $this->templates = array(
             '${field}',
@@ -805,11 +818,11 @@ class FOGConfigurationPage extends FOGPage {
      * Imports the file and installs the file as needed.
      */
     public function config_post() {
-        $this->HookManager->processEvent(IMPORT_POST);
+        $this->HookManager->processEvent('IMPORT_POST');
         //POST
         try {
-            if($_FILES[dbFile] != null) {
-                $dbFileName = BASEPATH.'/management/other/'.basename($_FILES[dbFile][name]);
+            if($_FILES['dbFile'] != null) {
+                $dbFileName = BASEPATH.'/management/other/'.basename($_FILES['dbFile']['name']);
                 if(!move_uploaded_file($_FILES[dbFile][tmp_name],$dbFileName)) throw new Exception('Could not upload file!');
                 echo '<h2>'._('File Import successful!').'</h2>';
                 $password = (DATABASE_PASSWORD ? ' -p"'.DATABASE_PASSWORD.'"' : '');
