@@ -65,10 +65,10 @@ class User extends FOGController {
         return parent::set($key, $value);
     }
     public function isLoggedIn() {
-        if (!$this->checkedalready && $this->FOGCore instanceof FOGCore) {
-            $this->inactivitySessionTimeout = $this->FOGCore->getSetting('FOG_INACTIVITY_TIMEOUT');
-            $this->regenerateSessionTimeout = $this->FOGCore->getSetting('FOG_REGENERATE_TIMEOUT');
-            $this->alwaysloggedin = (int)$this->FOGCore->getSetting('FOG_ALWAYS_LOGGED_IN');
+        if (!$this->checkedalready) {
+            $this->inactivitySessionTimeout = $this->getSetting('FOG_INACTIVITY_TIMEOUT');
+            $this->regenerateSessionTimeout = $this->getSetting('FOG_REGENERATE_TIMEOUT');
+            $this->alwaysloggedin = (int)$this->getSetting('FOG_ALWAYS_LOGGED_IN');
             $this->checkedalready = true;
         }
         if (!$this->get('authIP') || !$this->get('authUserAgent')) return false;

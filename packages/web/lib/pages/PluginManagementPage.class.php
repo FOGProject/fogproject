@@ -169,7 +169,7 @@ class PluginManagementPage extends FOGPage {
                     array(),
                 );
                 foreach((array)$dmiFields AS $i => &$dmifield) {
-                    $checked = $this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_DMI') == $dmifield ? 'selected="selected"' : '';
+                    $checked = $this->getSetting('FOG_PLUGIN_CAPONE_DMI') == $dmifield ? 'selected="selected"' : '';
                     $dmiOpts[] = '<option value="'.$dmifield.'" label="'.$dmifield.'" '.$checked.'>'.$dmifield.'</option>';
                 }
                 unset($dmifield);
@@ -177,8 +177,8 @@ class PluginManagementPage extends FOGPage {
                     _('Reboot after deploy'),
                     _('Shutdown after deploy'),
                 );
-                $shutOpts[] = '<option value="0" '.(!$this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? 'selected="selected"' : ''). '>'._('Reboot after deploy').'</option>';
-                $shutOpts[] = '<option value="1" '.($this->FOGCore->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? 'selected="selected"' : ''). '>'._('Shutdown after deploy').'</option>';
+                $shutOpts[] = '<option value="0" '.(!$this->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? 'selected="selected"' : ''). '>'._('Reboot after deploy').'</option>';
+                $shutOpts[] = '<option value="1" '.($this->getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN') ? 'selected="selected"' : ''). '>'._('Shutdown after deploy').'</option>';
                 $fields = array(
                     _('DMI Field').':' => '<select name="dmifield" size="1"><option value="">- '._('Please select an option').' -</option>'.implode($dmiOpts).'</select>',
                     _('Shutdown').':' => '<select name="shutdown" size="1"><option value="">- '._('Please select an option').' -</option>'.implode($shutOpts).'</select>',
@@ -275,8 +275,8 @@ class PluginManagementPage extends FOGPage {
             $this->redirect('?node='.$_REQUEST['node'].'&sub='.$_REQUEST['sub'].'&run='.$_REQUEST[run]);
         }
         if ($_REQUEST['basics']) {
-            $this->FOGCore->setSetting('FOG_PLUGIN_CAPONE_DMI',$_REQUEST['dmifield']);
-            $this->FOGCore->setSetting('FOG_PLUGIN_CAPONE_SHUTDOWN',$_REQUEST['shutdown']);
+            $this->setSetting('FOG_PLUGIN_CAPONE_DMI',$_REQUEST['dmifield']);
+            $this->setSetting('FOG_PLUGIN_CAPONE_SHUTDOWN',$_REQUEST['shutdown']);
         }
         if ($_REQUEST['addass']) {
             $this->getClass('Capone')

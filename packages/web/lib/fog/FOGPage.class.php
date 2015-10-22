@@ -548,7 +548,7 @@ abstract class FOGPage extends FOGBase {
         if (empty($ADUser)) $ADUser = ($this->obj instanceof Host ? $this->obj->get(ADUser) : $_REQUEST[domainuser]);
         if (empty($ADPass)) $ADPass = ($this->obj instanceof Host ? $this->obj->get(ADPass) : $_REQUEST[domainpassword]);
         if (empty($ADPassLegacy)) $ADPassLegacy = ($this->obj instanceof Host ? $this->obj->get(ADPassLegacy) : $_REQUEST[domainpasswordlegacy]);
-        $OUs = explode('|',$this->FOGCore->getSetting(FOG_AD_DEFAULT_OU));
+        $OUs = explode('|',$this->getSetting('FOG_AD_DEFAULT_OU'));
         foreach((array)$OUs AS $i => &$OU) $OUOptions[] = $OU;
         unset($OU);
         $OUOPtions = array_filter($OUOptions);
@@ -616,11 +616,11 @@ abstract class FOGPage extends FOGBase {
      */
     public function adInfo() {
         $Data = array(
-            'domainname' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_DOMAINNAME'),
-            'ou' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_OU'),
-            'domainuser' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_USER'),
-            'domainpass' => $this->encryptpw($this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD')),
-            'domainpasslegacy' => $this->FOGCore->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY'),
+            'domainname' => $this->getSetting('FOG_AD_DEFAULT_DOMAINNAME'),
+            'ou' => $this->getSetting('FOG_AD_DEFAULT_OU'),
+            'domainuser' => $this->getSetting('FOG_AD_DEFAULT_USER'),
+            'domainpass' => $this->encryptpw($this->getSetting('FOG_AD_DEFAULT_PASSWORD')),
+            'domainpasslegacy' => $this->getSetting('FOG_AD_DEFAULT_PASSWORD_LEGACY'),
         );
         if ($this->ajax) echo json_encode($Data);
     }
@@ -642,11 +642,11 @@ abstract class FOGPage extends FOGBase {
                     $destfile = $_SESSION['dest-kernel-file'];
                     $tmpfile = $_SESSION['tmp-kernel-file'];
                     unset($_SESSION['dest-kernel-file'],$_SESSION['tmp-kernel-file'],$_SESSION['dl-kernel-file']);
-                    $this->FOGFTP->set(host,$this->FOGCore->getSetting(FOG_TFTP_HOST))
-                        ->set(username,trim($this->FOGCore->getSetting(FOG_TFTP_FTP_USERNAME)))
-                        ->set(password,trim($this->FOGCore->getSetting(FOG_TFTP_FTP_PASSWORD)));
+                    $this->FOGFTP->set(host,$this->getSetting('FOG_TFTP_HOST'))
+                        ->set(username,trim($this->getSetting('FOG_TFTP_FTP_USERNAME')))
+                        ->set(password,trim($this->getSetting('FOG_TFTP_FTP_PASSWORD')));
                     if (!$this->FOGFTP->connect()) throw new Exception(_('Error: Unable to connect to tftp server'));
-                    $orig = rtrim($this->FOGCore->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/');
+                    $orig = rtrim($this->getSetting('FOG_TFTP_PXE_KERNEL_DIR'),'/');
                     $backuppath = $orig.'/backup/';
                     $orig .= '/'.$destfile;
                     $backupfile = $backuppath.$destfile.$this->formatTime('','Ymd_His');
@@ -737,7 +737,7 @@ abstract class FOGPage extends FOGBase {
      * @return void
      */
     public function configure() {
-        $Datatosend = "#!ok\n#sleep={$this->FOGCore->getSetting(FOG_SERVICE_CHECKIN_TIME)}\n#force={$this->FOGCore->getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={$this->FOGCore->getSetting(FOG_CLIENT_MAXSIZE)}\n#promptTime={$this->FOGCore->getSetting(FOG_GRACE_TIMEOUT)}";
+        $Datatosend = "#!ok\n#sleep={$this->getSetting(FOG_SERVICE_CHECKIN_TIME)}\n#force={$this->getSetting(FOG_TASK_FORCE_REBOOT)}\n#maxsize={$this->getSetting(FOG_CLIENT_MAXSIZE)}\n#promptTime={$this->getSetting(FOG_GRACE_TIMEOUT)}";
         echo $Datatosend;
         exit;
     }

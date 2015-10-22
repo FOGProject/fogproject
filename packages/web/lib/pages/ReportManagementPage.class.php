@@ -57,7 +57,7 @@ class ReportManagementPage extends FOGPage {
         file as opjects of the report class.
      */
     public function file() {
-        $path = rtrim($this->FOGCore->getSetting(FOG_REPORT_DIR), '/') . '/' . basename(base64_decode($this->REQUEST[f]));
+        $path = rtrim($this->getSetting(FOG_REPORT_DIR), '/') . '/' . basename(base64_decode($this->REQUEST[f]));
         if (!file_exists($path)) $this->fatalError('Report file does not exist! Path: %s', array($path));
         require_once($path);
     }

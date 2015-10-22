@@ -40,7 +40,7 @@ class TasktypeeditManagementPage extends FOGPage {
     public function index() {
         // Set title
         $this->title = _('All Task Types');
-        if ($this->FOGCore->getSetting(FOG_DATA_RETURNED)>0 && $this->getClass(TaskTypeManager)->count() > $this->FOGCore->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list')
+        if ($this->getSetting(FOG_DATA_RETURNED)>0 && $this->getClass(TaskTypeManager)->count() > $this->getSetting(FOG_DATA_RETURNED) && $_REQUEST[sub] != 'list')
             $this->redirect(sprintf('?node=%s&sub=search',$this->node));
         // Find data
         $TaskTypes = $this->getClass(TaskTypeManager)->find('','','id');

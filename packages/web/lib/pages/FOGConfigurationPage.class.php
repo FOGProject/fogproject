@@ -160,15 +160,15 @@ class FOGConfigurationPage extends FOGPage {
             '${field}',
             '${input}',
         );
-        $noMenu = $this->FOGCore->getSetting(FOG_NO_MENU) ? 'checked' : '';
-        $hidChecked = ($this->FOGCore->getSetting(FOG_PXE_MENU_HIDDEN) ? 'checked' : '');
-        $hideTimeout = $this->FOGCore->getSetting(FOG_PXE_HIDDENMENU_TIMEOUT);
-        $timeout = $this->FOGCore->getSetting(FOG_PXE_MENU_TIMEOUT);
-        $bootKeys = $this->getClass(KeySequenceManager)->buildSelectBox($this->FOGCore->getSetting(FOG_KEY_SEQUENCE));
-        $advLogin = ($this->FOGCore->getSetting(FOG_ADVANCED_MENU_LOGIN) ? 'checked' : '');
-        $advanced = $this->FOGCore->getSetting(FOG_PXE_ADVANCED);
-        $exitNorm = Service::buildExitSelector('bootTypeExit',$this->FOGCore->getSetting(FOG_BOOT_EXIT_TYPE));
-        $exitEfi = Service::buildExitSelector('efiBootTypeExit',$this->FOGCore->getSetting(FOG_EFI_BOOT_EXIT_TYPE));
+        $noMenu = $this->getSetting(FOG_NO_MENU) ? 'checked' : '';
+        $hidChecked = ($this->getSetting(FOG_PXE_MENU_HIDDEN) ? 'checked' : '');
+        $hideTimeout = $this->getSetting(FOG_PXE_HIDDENMENU_TIMEOUT);
+        $timeout = $this->getSetting(FOG_PXE_MENU_TIMEOUT);
+        $bootKeys = $this->getClass(KeySequenceManager)->buildSelectBox($this->getSetting(FOG_KEY_SEQUENCE));
+        $advLogin = ($this->getSetting(FOG_ADVANCED_MENU_LOGIN) ? 'checked' : '');
+        $advanced = $this->getSetting(FOG_PXE_ADVANCED);
+        $exitNorm = Service::buildExitSelector('bootTypeExit',$this->getSetting(FOG_BOOT_EXIT_TYPE));
+        $exitEfi = Service::buildExitSelector('efiBootTypeExit',$this->getSetting(FOG_EFI_BOOT_EXIT_TYPE));
         $fields = array(
             _('No Menu') => '<input type="checkbox" name="nomenu" value="1" '.$noMenu.'/><i class="icon fa fa-question hand" title="Option sets if there will even be the presence of a menu to the client systems.  If there is not a task set, it boots to the first device, if there is a task, it performs that task."></i>',
             _('Hide Menu') => '<input type="checkbox" name="hidemenu" value="1" '.$hidChecked.'/><i class="icon fa fa-question hand" title="Option below sets the key sequence.  If none is specified, ESC is defaulted. Login with the FOG credentials and you will see the menu.  Otherwise it will just boot like normal."></i>',
@@ -605,14 +605,14 @@ class FOGConfigurationPage extends FOGPage {
                     $type = null;
                 } else if (in_array($Service->get(name),$ServiceNames)) $type = '<input type="checkbox" name="${service_id}" value="1" '.($Service->get(value) ? 'checked' : '').' />';
                 else if ($Service->get(name) == 'FOG_DEFAULT_LOCALE') {
-                    foreach((array)$this->foglang[Language] AS $lang => &$humanreadable) $options2[] = '<option value="'.$lang.'" '.($this->FOGCore->getSetting(FOG_DEFAULT_LOCALE) == $lang || $this->FOGCore->getSetting(FOG_DEFAULT_LOCALE) == $this->foglang[Language][$lang] ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
+                    foreach((array)$this->foglang[Language] AS $lang => &$humanreadable) $options2[] = '<option value="'.$lang.'" '.($this->getSetting(FOG_DEFAULT_LOCALE) == $lang || $this->getSetting(FOG_DEFAULT_LOCALE) == $this->foglang[Language][$lang] ? 'selected="selected"' : '').'>'.$humanreadable.'</option>';
                     unset($humanreadable);
                     $type = '<select name="${service_id}" autocomplete="off" style="width: 220px">'.implode($options2).'</select>';
-                } else if ($Service->get(name) == 'FOG_QUICKREG_IMG_ID') $type = $this->getClass(ImageManager)->buildSelectBox($this->FOGCore->getSetting(FOG_QUICKREG_IMG_ID),$Service->get(id).'" id="${service_name}');
-                else if ($Service->get(name) == 'FOG_QUICKREG_GROUP_ASSOC') $type = $this->getClass(GroupManager)->buildSelectBox($this->FOGCore->getSetting(FOG_QUICKREG_GROUP_ASSOC),$Service->get(id));
-                else if ($Service->get(name) == 'FOG_KEY_SEQUENCE') $type = $this->getClass(KeySequenceManager)->buildSelectBox($this->FOGCore->getSetting(FOG_KEY_SEQUENCE),$Service->get(id));
+                } else if ($Service->get(name) == 'FOG_QUICKREG_IMG_ID') $type = $this->getClass(ImageManager)->buildSelectBox($this->getSetting(FOG_QUICKREG_IMG_ID),$Service->get(id).'" id="${service_name}');
+                else if ($Service->get(name) == 'FOG_QUICKREG_GROUP_ASSOC') $type = $this->getClass(GroupManager)->buildSelectBox($this->getSetting(FOG_QUICKREG_GROUP_ASSOC),$Service->get(id));
+                else if ($Service->get(name) == 'FOG_KEY_SEQUENCE') $type = $this->getClass(KeySequenceManager)->buildSelectBox($this->getSetting(FOG_KEY_SEQUENCE),$Service->get(id));
                 else if ($Service->get(name) == 'FOG_QUICKREG_OS_ID') {
-                    if ($this->FOGCore->getSetting(FOG_QUICKREG_IMG_ID) > 0) $Image = $this->getClass(Image,$this->FOGCore->getSetting(FOG_QUICKREG_IMG_ID));
+                    if ($this->getSetting(FOG_QUICKREG_IMG_ID) > 0) $Image = $this->getClass(Image,$this->getSetting(FOG_QUICKREG_IMG_ID));
                     $type = '<p id="${service_name}">'.($Image && $Image->isValid() ? $Image->getOS()->get(name) : _('No image specified')).'</p>';
                 } else if ($Service->get(name) == 'FOG_TZ_INFO') {
                     $dt = $this->nice_date('now',$utc);

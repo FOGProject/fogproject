@@ -30,7 +30,7 @@ class Announce extends FOGBase {
         // User Agent is required.
         !$_SERVER['HTTP_USER_AGENT'] ? $_SERVER['HTTP_USER_AGENT'] = 'N/A' : null;
         if ($_REQUEST['event'] && $_REQUEST['event'] === 'stopped') $this->stopTorrent();
-        if ($_REQUEST['numwant'] && ctype_digit($_REQUEST['numwant']) && $_REQUEST['numwant'] <= $this->FOGCore->getSetting('FOG_TORRENT_PPR') && $_REQUEST['numwant'] >= 0) $this->numwant = intval($_REQUEST['numwant']);
+        if ($_REQUEST['numwant'] && ctype_digit($_REQUEST['numwant']) && $_REQUEST['numwant'] <= $this->getSetting('FOG_TORRENT_PPR') && $_REQUEST['numwant'] >= 0) $this->numwant = intval($_REQUEST['numwant']);
         $this->doTheWork();
     }
     /** @function checkPort() Checks the port setting.  If in valid returns as invalid.
@@ -128,7 +128,7 @@ class Announce extends FOGBase {
             $PTM = $this->getClass('PeerTorrentManager')->find();
             foreach($PTM AS $i => &$PeerTorrentNew) {
                 $PeerNew = new Peer($PeerTorrentNew->get('peerID'));
-                $interval = $this->nice_date('+'.$this->FOGCore->getSetting('FOG_TORRENT_INTERVAL')+$this->FOGCore->getSetting('FOG_TORRENT_TIMEOUT').' seconds');
+                $interval = $this->nice_date('+'.$this->getSetting('FOG_TORRENT_INTERVAL')+$this->getSetting('FOG_TORRENT_TIMEOUT').' seconds');
                 if ($PeerTorrentNew->get('torrentID') == $this->torrent->get('id') && !$PeerTorrentNew->get('stopped') && strtotime($PeerTorrentNew->get('lastUpdated')) <= strtotime($interval->format('Y-m-d H:i:s')) && $PeerNew->isValid() && $PeerNew->get('id') != $this->peer->get('id'))
                     $reply[] = array(long2ip($PeerNew->get(ip)),$PeerNew->get(port),$PeerNew->get(hash));
                 if ($PeerTorrentNew->get('torrentID') == $this->torrent->get('id') && !$PeerTorrentNew->get('stopped') && strtotime($PeerTorrentNew->get('lastUpdated')) <= strtotime($interval->format('Y-m-d H:i:s')))

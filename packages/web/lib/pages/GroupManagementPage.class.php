@@ -566,10 +566,10 @@ class GroupManagementPage extends FOGPage {
                 case 'group-service';
                 // The values below set the display Width, Height, and Refresh.  If they're not set by you, they'll
                 // be set to the default values within the system.
-                $x =(is_numeric($_REQUEST[x]) ? $_REQUEST[x] : $this->FOGCore->getSetting(FOG_SERVICE_DISPLAYMANAGER_X));
-                $y =(is_numeric($_REQUEST[y]) ? $_REQUEST[y] : $this->FOGCore->getSetting(FOG_SERVICE_DISPLAYMANAGER_Y));
-                $r =(is_numeric($_REQUEST[r]) ? $_REQUEST[r] : $this->FOGCore->getSetting(FOG_SERVICE_DISPLAYMANAGER_R));
-                $time = (is_numeric($_REQUEST[tme]) ? $_REQUEST[tme] : $this->FOGCore->getSetting(FOG_SERVICE_AUTOLOGOFF_MIN));
+                $x =(is_numeric($_REQUEST[x]) ? $_REQUEST[x] : $this->getSetting(FOG_SERVICE_DISPLAYMANAGER_X));
+                $y =(is_numeric($_REQUEST[y]) ? $_REQUEST[y] : $this->getSetting(FOG_SERVICE_DISPLAYMANAGER_Y));
+                $r =(is_numeric($_REQUEST[r]) ? $_REQUEST[r] : $this->getSetting(FOG_SERVICE_DISPLAYMANAGER_R));
+                $time = (is_numeric($_REQUEST[tme]) ? $_REQUEST[tme] : $this->getSetting(FOG_SERVICE_AUTOLOGOFF_MIN));
                 $modOn = $_REQUEST[modules];
                 $modOff = $this->getClass(ModuleManager)->find(array(id=>$modOn),'','','','','',true,'id');
                 $this->obj->addModule($modOn)->removeModule($modOff);

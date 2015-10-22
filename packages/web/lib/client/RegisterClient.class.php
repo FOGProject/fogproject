@@ -3,7 +3,7 @@ class RegisterClient extends FOGClient implements FOGClientSend {
     public function send() {
         $maxPending = 0;
         $MACs = array();
-        $maxPending = $this->FOGCore->getSetting('FOG_QUICKREG_MAX_PENDING_MACS');
+        $maxPending = $this->getSetting('FOG_QUICKREG_MAX_PENDING_MACS');
         $MACs = $this->getHostItem(true,false,false,true);
         foreach ($MACs AS $i => &$MAC) $this->getClass('MACAddress',$MAC)->isValid() ? $macs[] = strtolower($MAC) : null;
         unset($MAC);
