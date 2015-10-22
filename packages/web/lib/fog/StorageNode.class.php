@@ -63,7 +63,7 @@ class StorageNode extends FOGController {
         return 0;
     }
     public function getUsedSlotCount() {
-        $UsedTasks = explode(',',$this->FOGCore->getSetting(FOG_USED_TASKS));
+        $UsedTasks = explode(',',$this->getSetting('FOG_USED_TASKS'));
         $countTasks = 0;
         if (in_array(8,(array)$UsedTasks)) {
             foreach($UsedTasks AS $ind => &$val) if ($val = 8) unset($UsedTasks[$ind]);

@@ -47,7 +47,7 @@ class Task extends FOGController {
         foreach($Tasks AS $i => &$Task) {
             if ($this->get(id)>$Task->get(id)) {
                 $tasktime = $this->nice_date($Task->get(checkInTime));
-                if (($curTime->getTimestamp()-$tasktime->getTimestamp())<$this->FOGCore->getSetting(FOG_CHECKIN_TIMEOUT)) $count++;
+                if (($curTime->getTimestamp()-$tasktime->getTimestamp()) < $this->getSetting(FOG_CHECKIN_TIMEOUT)) $count++;
             }
         }
         unset($Task);

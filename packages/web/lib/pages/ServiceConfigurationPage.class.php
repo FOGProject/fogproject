@@ -90,7 +90,7 @@ class ServiceConfigurationPage extends FOGPage {
             echo '</form>';
             if ($Module->get(shortName) == 'autologout') {
                 echo '<h2>'._('Default Setting').'</h2>';
-                echo '<form method="post" action="?node=service&sub=edit&tab='.$Module->get(shortName).'"><p>'._('Default log out time (in minutes): ').'<input type="text" name="tme" value="'.$this->FOGCore->getSetting(FOG_SERVICE_AUTOLOGOFF_MIN).'" /></p><p><input type="hidden" name="name" value="FOG_SERVICE_AUTOLOGOFF_MIN" /><input type="hidden" name="updatedefaults" value="1" /><input type="submit" value="'._('Update Defaults').'" /></p></form>';
+                echo '<form method="post" action="?node=service&sub=edit&tab='.$Module->get(shortName).'"><p>'._('Default log out time (in minutes): ').'<input type="text" name="tme" value="'.$this->getSetting(FOG_SERVICE_AUTOLOGOFF_MIN).'" /></p><p><input type="hidden" name="name" value="FOG_SERVICE_AUTOLOGOFF_MIN" /><input type="hidden" name="updatedefaults" value="1" /><input type="submit" value="'._('Update Defaults').'" /></p></form>';
             } else if ($Module->get(shortName) == 'clientupdater') {
                 unset($this->data,$this->headerData,$this->attributes,$this->templates);
                 $this->getClass(FOGConfigurationPage)->client_updater();
@@ -143,9 +143,9 @@ class ServiceConfigurationPage extends FOGPage {
                     $this->data[] = array(
                         field=>$field,
                         input=>$input,
-                        width=>$this->FOGCore->getSetting(FOG_SERVICE_DISPLAYMANAGER_X),
-                        height=>$this->FOGCore->getSetting(FOG_SERVICE_DISPLAYMANAGER_Y),
-                        refresh=>$this->FOGCore->getSetting(FOG_SERVICE_DISPLAYMANAGER_R),
+                        width=>$this->getSetting(FOG_SERVICE_DISPLAYMANAGER_X),
+                        height=>$this->getSetting(FOG_SERVICE_DISPLAYMANAGER_Y),
+                        refresh=>$this->getSetting(FOG_SERVICE_DISPLAYMANAGER_R),
                         mod_name=>$modNames[$Module->get(shortName)],
                     );
                 }

@@ -3,7 +3,7 @@ class Autologout extends FOGClient implements FOGClientSend {
     private $HostAutoLogout;
     private $time;
     public function send() {
-        $this->time = $this->FOGCore->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN');
+        $this->time = $this->getSetting('FOG_SERVICE_AUTOLOGOFF_MIN');
         if ($this->Host->getAlo() instanceof HostAutoLogout) $this->time = $this->Host->getAlo()->get('time');
         $this->send = base64_encode($this->time);
         if ($this->newService) {

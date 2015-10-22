@@ -6,7 +6,7 @@ class CaponeTasking extends FOGBase {
         parent::__construct();
         switch (strtolower($_REQUEST[action])) {
         case 'dmi':
-            echo $this->FOGCore->getSetting(FOG_PLUGIN_CAPONE_DMI);
+            echo $this->getSetting(FOG_PLUGIN_CAPONE_DMI);
             break;
         case 'imagelookup':
             if ($_REQUEST[key]) {

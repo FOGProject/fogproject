@@ -1644,7 +1644,7 @@ $this->schema[] = array(
 // 133
 $this->schema[] = array(
 	"ALTER TABLE `".DATABASE_NAME."`.`nfsGroupMembers` ADD COLUMN `ngmSnapinPath` LONGTEXT NOT NULL AFTER `ngmRootPath`",
-	"UPDATE `".DATABASE_NAME."`.`nfsGroupMembers` SET `ngmSnapinPath`='".($this->FOGCore->getSetting('FOG_SNAPINDIR') ? $this->FOGCore->getSetting('FOG_SNAPINDIR') : '/opt/fog/snapins')."'",
+	"UPDATE `".DATABASE_NAME."`.`nfsGroupMembers` SET `ngmSnapinPath`='".($this->getSetting('FOG_SNAPINDIR') ? $this->getSetting('FOG_SNAPINDIR') : '/opt/fog/snapins')."'",
 );
 // 134
 $this->schema[] = array(

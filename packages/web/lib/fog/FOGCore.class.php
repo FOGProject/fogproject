@@ -9,30 +9,9 @@ class FOGCore extends FOGBase {
     /** getSetting($key)
         Get's global Setting Values
      */
-    public function getSetting($key) {
-        $value = '';
-        $Services = $this->getClass(ServiceManager)->find(array(name=>$key));
-        foreach ($Services AS $i => &$Service) {
-            if ($Service->isValid()) {
-                $value = $Service->get(value);
-                break;
-            }
-        }
-        return $value;
-    }
     /** setSetting($key, $value)
         Set's a new default value.
      */
-    public function setSetting($key, $value) {
-        $Services = $this->getClass(ServiceManager)->find(array(name=>$key));
-        foreach ($Services AS $i => &$Service) {
-            $Service->set(value,$value);
-            if (!$Service->save()) return false;
-            break;
-        }
-        unset($Service);
-        return $this;
-    }
     /** addUpdateMACLookupTable($macprefix,$strMan)
         Updates/add's MAC Manufacturers
      */

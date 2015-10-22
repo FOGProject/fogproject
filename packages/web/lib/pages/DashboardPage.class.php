@@ -18,8 +18,8 @@ class DashboardPage extends FOGPage {
         $SystemUptime = $this->FOGCore->SystemUptime();
         $fields = array(
             _('Username') => $_SESSION['FOG_USERNAME'],
-            _('Web Server') => $this->FOGCore->getSetting('FOG_WEB_HOST'),
-            _('TFTP Server') => $this->FOGCore->getSetting('FOG_TFTP_HOST'),
+            _('Web Server') => $this->getSetting('FOG_WEB_HOST'),
+            _('TFTP Server') => $this->getSetting('FOG_TFTP_HOST'),
             _('Load Average') => $SystemUptime['load'],
             _('System Uptime') => $SystemUptime['uptime'],
         );
@@ -76,7 +76,7 @@ class DashboardPage extends FOGPage {
         $Nodes = $this->getClass('StorageNodeManager')->find(array('isGraphEnabled'=>1));
         // Loop each storage node -> grab stats
         foreach($Nodes AS $i => &$StorageNode) {
-            $fetchedData = $this->FOGURLRequests->process(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim($this->FOGCore->getSetting('FOG_NFS_BANDWIDTHPATH'),'/'), $StorageNode->get('interface')),'GET');
+            $fetchedData = $this->FOGURLRequests->process(sprintf('http://%s/%s?dev=%s',$StorageNode->get('ip'),ltrim($this->getSetting('FOG_NFS_BANDWIDTHPATH'),'/'), $StorageNode->get('interface')),'GET');
             foreach((array)$fetchedData AS $i => &$dataSet) {
                 if (preg_match('/(.*)##(.*)/U', $dataSet,$match)) $data[$StorageNode->get(name)] = array(rx=>$match[1],tx=>$match[2]);
                 else $data[$StorageNode->get('name')] = json_decode($dataSet,true);
