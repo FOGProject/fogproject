@@ -471,14 +471,9 @@ class Host extends FOGController {
      * @return void
      */
     private function cancelJobsSnapinsForHost() {
-        $SnapinJobs = $this->getClass('SnapinJobManager')->find(array('hostID'=>$this->get('id'),'stateID'=>array(-1,0,1,2,3)));
-        foreach($SnapinJobs AS $i => &$SJ) {
-            $SnapinTasks = $this->getClass('SnapinTaskManager')->find(array('jobID'=>$SJ->get('id'),'stateID'=>array(-1,0,1,2,3)));
-            foreach($SnapinTasks AS $i => &$ST) $ST->set('stateID',5)->save();
-            unset($ST);
-            $SJ->set('stateID',5)->set('return',-9999)->set('details',_('Cancelled due to new tasking'))->save();
-        }
-        unset($SJ);
+        $SnapinJobs = $this->getSubObjectIDs('SnapinJob',array('hostID'=>$this->get('id'),'stateID'=>array(-1,0,1,2,3)),'id');
+        $this->getClass('SnapinTaskManager')->update(array('jobID'=>$SnapinJobs,'stateID'=>array(-1,0,1,2,3)),'',array('return'=>-9999,'details'=>_('Cancelled due to new tasking.')));
+        $this->getClass('SnapinJobManager')->update(array('id'=>$SnapinJobs),'',array('stateID'=>5));
     }
     /** createSnapinTasking creates the snapin tasking or taskings as needed
      * @param $snapin usually -1 or the valid snapin identifier, defaults to all snapins (-1)
