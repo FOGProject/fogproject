@@ -1,58 +1,57 @@
 <?php
 class StorageGroup extends FOGController {
-    // Table
-    public $databaseTable = 'nfsGroups';
-    // Name -> Database field name
-    public $databaseFields = array(
-        'id'		=> 'ngID',
-        'name'		=> 'ngName',
-        'description'	=> 'ngDesc'
+    protected $databaseTable = 'nfsGroups';
+    protected $databaseFields = array(
+        'id' => 'ngID',
+        'name' => 'ngName',
+        'description' => 'ngDesc',
     );
-    // Additional Fields
-    // Custom functions: Storage Group
-    public function getStorageNodes() {
-        if (!count($this->getSubObjectIDs('StorageNode',array('isEnabled'=>1,'storageGroupID'=>$this->get('id')),'id'))) die(_('There are no enabled storage nodes for this group'));
-        return $this->getSubObjectIDs('StorageNode',array('isEnabled'=>1,'storageGroupID'=>$this->get('id')),'id');
+    protected $databaseFieldsRequired = array(
+        'name',
+    );
+    protected $additionalFields = array(
+        'allnodes',
+        'enablednodes',
+    );
+    protected function loadAllnodes() {
+        if ($this->get('id')) $this->set('allnodes',$this->getSubObjectIDs('StorageNode',array('storageGroupID'=>$this->get('id')),'id'));
+    }
+    protected function loadEnablednodes() {
+        if ($this->get('id')) $this->set('enablednodes',$this->getSubObjectIDs('StorageNode',array('id'=>$this->get('allnodes'),'isEnabled'=>1),'id'));
     }
     public function getTotalSupportedClients() {
-        $clients = 0;
-        foreach ($this->getStorageNodes() AS $i => &$StorageNode) $clients += $this->getClass(StorageNode,$StorageNode)->get(maxClients);
-        unset($StorageNode);
-        return $clients;
+        return array_sum((array)$this->getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes')),'maxClients'));
     }
     public function getMasterStorageNode() {
-        foreach($this->getStorageNodes() AS $i => &$StorageNode) {
-            $TmpNode = $this->getClass(StorageNode,$StorageNode);
-            if ($TmpNode->isValid() && $TmpNode->get(isMaster) && $Node = $TmpNode) break;
-        }
-        unset($StorageNode);
-        if (!$Node) $Node = $this->getClass(StorageNode,@min($this->getStorageNodes()));
-        return $Node;
+        $masternode = $this->getSubObjectIDs('StorageNode',array('id'=>$this->get('enablednodes'),'isMaster'=>1,'isEnabled'=>1),'id');
+        $masternode = array_shift($masternode);
+        if (!count($masternode)) $masternode = @min($this->get('enablednodes'));
+        if (!count($masternode)) $masternode = @min($this->getSubObjectIDs('StorageNode',array('isEnabled'=>1),'id'));
+        return $this->getClass('StorageNode',$masternode);
     }
     public function getOptimalStorageNode() {
-        $StorageNodes = $this->getClass(StorageNodeManager)->find(array(id=>$this->getStorageNodes()));
         $winner = null;
-        foreach ($StorageNodes AS $i => &$StorageNode) {
-            if ($StorageNode->get(maxClients)>0) {
-                if ($winner == null) $winner = $StorageNode;
-                else if ($StorageNode->getClientLoad() < $winner->getClientLoad()) $winner = $StorageNode;
+        foreach ((array)$this->get('enablednodes') AS $i => &$StorageNode) {
+            if ($this->getClass('StorageNode',$StorageNode)->get('maxClients') > 0) {
+                if ($winner == null) $winner = $this->getClass('StorageNode',$StorageNode);
+                else if ($this->getClass('StorageNode',$StorageNode)->getClientLoad() < $winner->getClientLoad()) $winner = $this->getClass('StorageNode',$StorageNode);
             }
         }
         unset($StorageNode);
         return $winner;
     }
     public function getUsedSlotCount() {
-        return $this->getClass(TaskManager)->count(array(
-            stateID=>3,
-            typeID=>array(1,15,17), // Only download tasks are Used! Uploads/Multicast can be as many as needed.
-            NFSGroupID=>$this->get(id),
+        return $this->getClass('TaskManager')->count(array(
+            'stateID'=>3,
+            'typeID'=>explode(',',$this->getSetting('FOG_USED_TASKS')),
+            'NFSGroupID'=>$this->get('id'),
         ));
     }
     public function getQueuedSlotCount() {
-        return $this->getClass(TaskManager)->count(array(
-            stateID=>array(1,2),
-            typeID=>array(1,2,8,15,16,17), // Just so we can see what's queued we get all tasks (Upload/Download/Multicast).
-            NFSGroupID=>$this->get(id),
+        return $this->getClass('TaskManager')->count(array(
+            'stateID'=>array(1,2),
+            'typeID'=>array(1,2,8,15,16,17,24),
+            'NFSGroupID'=>$this->get('id'),
         ));
     }
 }

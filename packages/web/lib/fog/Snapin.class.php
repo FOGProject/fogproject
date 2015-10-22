@@ -26,26 +26,6 @@ class Snapin extends FOGController {
         'storageGroupsnotinme',
         'path',
     );
-    public function get($key = '') {
-        $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
-        return parent::get($key);
-    }
-    public function set($key,$value) {
-        $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
-        return parent::set($key,$value);
-    }
-    public function add($key,$value) {
-        $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
-        return parent::add($key,$value);
-    }
-    public function remove($key,$value) {
-        $key = $this->key($key);
-        if (!$this->isLoaded($key)) $this->loadItem($key);
-        return parent::remove($key,$value);
-    }
     public function destroy($field = 'id') {
         $this->getClass('SnapinJobManager')->destroy(array('id'=>$this->getSubObjectIDs('SnapinTask',array('snapinID'=>$this->get('id')),'jobID')));
         $this->getClass('SnapinTaskManager')->destroy(array('snapinID'=>$this->get('id')));
