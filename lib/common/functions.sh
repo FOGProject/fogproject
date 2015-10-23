@@ -1001,6 +1001,8 @@ configureHttpd() {
         sed -i 's/;extension=openssl.so/extension=openssl.so/g' $phpini >/dev/null 2>&1
         sed -i 's/;extension=mcrypt.so/extension=mcrypt.so/g' $phpini >/dev/null 2>&1
         sed -i 's/;extension=posix.so/extension=posix.so/g' $phpini >/dev/null 2>&1
+        sed -i 's/;extension=sockets.so/extension=sockets.so/g' $phpini >/dev/null 2>&1
+        sed -i 's/;extension=ftp.so/extension=ftp.so/g' $phpini >/dev/null 2>&1
         sed -i 's/open_basedir\ =/;open_basedir\ ="/g' $phpini >/dev/null 2>&1
     fi
     sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 100M/g' $phpini >/dev/null 2>&1
