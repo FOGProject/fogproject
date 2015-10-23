@@ -56,13 +56,7 @@ class MySQL extends DatabaseManager {
             $this->query = $sql;
             if (!$this->query) throw new Exception(_('No query sent'));
             if (!$this->link) $this->connect();
-            if ($_REQUEST['node'] == 'schemaupdater') $sqlMethod = 'query';
-            else $sqlMethod = 'prepare';
-            if (!$this->queryResult = $this->link->$sqlMethod($this->query)) throw new Exception(_('Error: ').$this->sqlerror());
-            if ($sqlMethod == 'prepare') {
-                $this->queryResult->execute();
-                $this->queryResult = $this->queryResult->get_result();
-            }
+            if (!$this->queryResult = $this->link->query($this->query)) throw new Exception(_('Error: ').$this->sqlerror());
         } catch (Exception $e) {
             $this->debug(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
         }
