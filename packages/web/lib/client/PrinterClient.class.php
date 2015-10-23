@@ -1,7 +1,7 @@
 <?php
 class PrinterClient extends FOGClient implements FOGClientSend {
     private function getvals($strtosend,$Printer) {
-        return sprintf($strtosend,$Printer->get('port'),$this->DB->sanitize($Printer->get('file')),$Printer->get('model'),$this->DB->sanitize($Printer->get('name')),$Printer->get('ip'),(int)$this->Host->getDefault($Printer->get('id')));
+        return sprintf($strtosend,$Printer->get('port'),$this->DB->sanitize($Printer->get('file')),$Printer->get('model'),$Printer->get('name'),$Printer->get('ip'),(int)$this->Host->getDefault($Printer->get('id')));
     }
     public function send() {
         $level = $this->Host->get('printerLevel');
