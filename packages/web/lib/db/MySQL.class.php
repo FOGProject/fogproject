@@ -20,12 +20,6 @@ class MySQL extends DatabaseManager {
             $this->error(sprintf('Failed to %s: %s', __FUNCTION__, $e->getMessage()));
         }
     }
-    public function __destruct() {
-        if (!$this->link) return;
-        if (method_exists($this->link,'close')) $this->link->close();
-        $this->link = null;
-        return;
-    }
     /** connect establishes the link
      * @return the class
      */
