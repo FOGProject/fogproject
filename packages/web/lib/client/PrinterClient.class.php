@@ -1,6 +1,6 @@
 <?php
 class PrinterClient extends FOGClient implements FOGClientSend {
-    private function getvals(&$strtosend,&$Printer) {
+    private function getvals($strtosend,$Printer) {
         return sprintf($strtosend,$Printer->get('port'),$this->DB->sanitize($Printer->get('file')),$Printer->get('model'),$this->DB->sanitize($Printer->get('name')),$Printer->get('ip'),(int)$this->Host->getDefault($Printer->get('id')));
     }
     public function send() {
@@ -27,8 +27,8 @@ class PrinterClient extends FOGClient implements FOGClientSend {
                 foreach ($Printers AS $i => &$Printer) $this->send .= sprintf($strtosend,$i,$Printer->get('id'));
             } else {
                 $Printer = $this->getClass('Printer',$_REQUEST['id']);
-                $strtosend = "#type=%s\n#port=%s\n#file=%s\n#model=%s\n#name=%s\n#ip=%s\n#default=%s";
-                $this->send .= $this->getvals(sprintf($strtosend,$Printer->get('config')),$Printer);
+                $strtosend = "#port=%s\n#file=%s\n#model=%s\n#name=%s\n#ip=%s\n#default=%s";
+                $this->send .= $this->getvals(sprintf("#type=%s\n",$Printer->get('config')).$strtosend,$Printer);
             }
         }
     }

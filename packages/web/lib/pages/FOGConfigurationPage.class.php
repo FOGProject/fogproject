@@ -5,56 +5,57 @@ class FOGConfigurationPage extends FOGPage {
         $this->name = 'FOG Configuration';
         parent::__construct($this->name);
         $this->menu = array(
-            license=>$this->foglang[License],
-            'kernel-update'=>$this->foglang[KernelUpdate],
-            pxemenu=>$this->foglang[PXEBootMenu],
-            'customize-edit'=>$this->foglang[PXEConfiguration],
-            'new-menu'=>$this->foglang[NewMenu],
-            'client-updater'=>$this->foglang[ClientUpdater],
-            'mac-list'=>$this->foglang[MACAddrList],
-            settings=>$this->foglang[FOGSettings],
-            'log'=>$this->foglang[LogViewer],
-            config=>$this->foglang[ConfigSave],
-            'http://www.sf.net/projects/freeghost'=>$this->foglang[FOGSFPage],
-            'https://fogproject.org'=>$this->foglang[FOGWebPage],
+            'license'=>$this->foglang['License'],
+            'kernel-update'=>$this->foglang['KernelUpdate'],
+            'pxemenu'=>$this->foglang['PXEBootMenu'],
+            'customize-edit'=>$this->foglang['PXEConfiguration'],
+            'new-menu'=>$this->foglang['NewMenu'],
+            'client-updater'=>$this->foglang['ClientUpdater'],
+            'mac-list'=>$this->foglang['MACAddrList'],
+            'settings'=>$this->foglang['FOGSettings'],
+            'log'=>$this->foglang['LogViewer'],
+            'config'=>$this->foglang['ConfigSave'],
+            'http://www.sf.net/projects/freeghost'=>$this->foglang['FOGSFPage'],
+            'https://fogproject.org'=>$this->foglang['FOGWebPage'],
         );
-        $this->HookManager->processEvent(SUB_MENULINK_DATA,array(menu=>&$this->menu,submenu=>&$this->subMenu,id=>&$this->id,notes=>&$this->notes));
+        $this->HookManager->processEvent('SUB_MENULINK_DATA',array('menu'=>&$this->menu,'submenu'=>&$this->subMenu,'id'=>&$this->id,'notes'=>&$this->notes));
     }
     /** index()
      * Displays the configuration page.  Right now it redirects to display
      * whether the user is on the current version.
      */
-    public function index() {$this->version();}
-        /** version() Pulls the current version from the internet. */
-        public function version() {
-            $URLs = array();
-            $Names = array();
-            // Set title
-            $this->title = _('FOG Version Information');
-            echo '<p>'._('Version: ').FOG_VERSION.'</p>';
-            $URLs[] = 'https://fogproject.org/version/index.php?version='.FOG_VERSION;
-            $Names[] = '';
-            $Nodes = $this->getClass(StorageNodeManager)->find(array(isEnabled=>1));
-            foreach($Nodes AS $i => &$StorageNode) {
-                $curroot = trim(trim($StorageNode->get(webroot),'/'));
-                $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
-                $Names[] = $StorageNode->get(name);
-                $URLs[] = "http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php";
-            }
-            unset($StorageNode);
-            $Responses = $this->FOGURLRequests->process($URLs,'GET');
-            asort($Responses);
-            foreach($Responses AS $i => &$data) {
-                if ($i === 0) {
-                    echo '<p><div class="sub">'.$Responses[$i].'</div></p>';
-                    echo '<h1>Kernel Versions</h1>';
-                } else {
-                    echo "<h2>{$Names[$i]}</h2>";
-                    echo "<pre>$data</pre>";
-                }
-            }
-            unset($data);
+    public function index() {
+        $this->version();
+    }
+    /** version() Pulls the current version from the internet. */
+    public function version() {
+        $URLs = array();
+        $Names = array();
+        // Set title
+        $this->title = _('FOG Version Information');
+        echo '<p>'._('Version: ').FOG_VERSION.'</p>';
+        $URLs[] = 'https://fogproject.org/version/index.php?version='.FOG_VERSION;
+        $Nodes = $this->getClass('StorageNodeManager')->find(array('isEnabled'=>1));
+        foreach($Nodes AS $i => &$StorageNode) {
+            $curroot = trim(trim($StorageNode->get('webroot'),'/'));
+            $webroot = '/'.(strlen($curroot) > 1 ? $curroot.'/' : '');
+            $Names[] = $StorageNode->get('name');
+            $URLs[] = "http://{$StorageNode->get(ip)}{$webroot}status/kernelvers.php";
         }
+        unset($StorageNode);
+        $Responses = $this->FOGURLRequests->process($URLs,'GET');
+        asort($Responses);
+        foreach($Responses AS $i => &$data) {
+            if ($i === 0) {
+                echo '<p><div class="sub">'.$Responses[$i].'</div></p>';
+                echo '<h1>Kernel Versions</h1>';
+            } else {
+                echo "<h2>{$Names[$i]}</h2>";
+                echo "<pre>$data</pre>";
+            }
+        }
+        unset($data);
+    }
     /** license()
      * Displays the GNU License to the user.  Currently Version 3.
      */
