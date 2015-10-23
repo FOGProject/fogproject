@@ -62,7 +62,7 @@ class FOGConfigurationPage extends FOGPage {
     public function license() {
         // Set title
         $this->title = _('FOG License Information');
-        if (file_exists('./languages/'.$_SESSION[locale].'/gpl-3.0.txt')) echo "<pre>".file_get_contents('./languages/'.$_SESSION[locale].'/gpl-3.0.txt').'</pre>';
+        if (file_exists('./languages/'.$_SESSION['locale'].'/gpl-3.0.txt')) echo "<pre>".file_get_contents('./languages/'.$_SESSION['locale'].'/gpl-3.0.txt').'</pre>';
         else echo "<pre>".file_get_contents('./other/gpl-3.0.txt').'</pre>';
     }
     /** kernel()
@@ -70,17 +70,19 @@ class FOGConfigurationPage extends FOGPage {
      * This is because the class files go to post, but it only
      * tries to kernel_post.  The sub is kernel_update though.
      */
-    public function kernel() {$this->kernel_update_post();}
-        /** kernel_update()
-         * Display's the published kernels for update.
-         * This information is obtained from the internet.
-         * Displays the default of Published kernels.
-         */
-        public function kernel_update() {
-            $this->kernelselForm(pk);
-            $htmlData = $this->FOGURLRequests->process('https://fogproject.org/kernels/kernelupdate.php?version='.FOG_VERSION,'GET');
-            echo $htmlData[0];
-        }
+    public function kernel() {
+        $this->kernel_update_post();
+    }
+    /** kernel_update()
+     * Display's the published kernels for update.
+     * This information is obtained from the internet.
+     * Displays the default of Published kernels.
+     */
+    public function kernel_update() {
+        $this->kernelselForm('pk');
+        $htmlData = $this->FOGURLRequests->process('https://fogproject.org/kernels/kernelupdate.php?version='.FOG_VERSION,'GET');
+        echo $htmlData[0];
+    }
     /** kernelselForm($type)
      * Gives the user the option to select between:
      * Published Kernels (from sourceforge)
@@ -99,39 +101,39 @@ class FOGConfigurationPage extends FOGPage {
      * Defaults to published kernels.
      */
     public function kernel_update_post() {
-        if ($_REQUEST[sub] == 'kernel-update') {
+        if ($_REQUEST['sub'] == 'kernel-update') {
             switch ($_REQUEST[kernelsel]) {
             case 'pk':
-                $this->kernelselForm(pk);
+                $this->kernelselForm('pk');
                 $htmlData = $this->FOGURLRequests->process("https://fogproject.org/kernels/kernelupdate.php?version=" . FOG_VERSION,'GET');
                 echo $htmlData[0];
                 break;
             case 'uk':
-                $this->kernelselForm(uk);
+                $this->kernelselForm('uk');
                 $htmlData = $this->FOGURLRequests->process("http://mastacontrola.com/fogboot/kernel/index.php?version=" . FOG_VERSION,'GET');
                 echo $htmlData[0];
                 break;
             case 'ok':
-                $this->kernelselForm(ok);
+                $this->kernelselForm('ok');
                 $htmlData = $this->FOGURLRequests->process("http://freeghost.sourceforge.net/kernelupdates/index.php?version=".FOG_VERSION,'GET');
                 echo $htmlData[0];
                 break;
             default:
-                $this->kernelselForm(pk);
+                $this->kernelselForm('pk');
                 $htmlData = $this->FOGURRequests->process('https://fogproject.org/kernels/kernelupdate.php?version='.FOG_VERSION,'GET');
                 echo $htmlData[0];
                 break;
             }
-        } else if ($_REQUEST[install]) {
-            $_SESSION[allow_ajax_kdl] = true;
-            $_SESSION["dest-kernel-file"] = trim($_REQUEST[dstName]);
-            $_SESSION["tmp-kernel-file"] = rtrim(sys_get_temp_dir(),'/').'/'.basename($_SESSION["dest-kernel-file"]);
-            $_SESSION["dl-kernel-file"] = base64_decode($_REQUEST["file"]);
-            if (file_exists($_SESSION["tmp-kernel-file"])) @unlink($_SESSION["tmp-kernel-file"]);
+        } else if ($_REQUEST['install']) {
+            $_SESSION['allow_ajax_kdl'] = true;
+            $_SESSION['dest-kernel-file'] = trim($_REQUEST['dstName']);
+            $_SESSION['tmp-kernel-file'] = rtrim(sys_get_temp_dir(),'/').'/'.basename($_SESSION['dest-kernel-file']);
+            $_SESSION['dl-kernel-file'] = base64_decode($_REQUEST['file']);
+            if (file_exists($_SESSION['tmp-kernel-file'])) @unlink($_SESSION['tmp-kernel-file']);
             echo '<div id="kdlRes"><p id="currentdlstate">'._('Starting process...').'</p><i id="img" class="fa fa-cog fa-2x fa-spin"></i></div>';
         } else {
-            echo '<form method="post" action="?node='.$_REQUEST[node].'&sub=kernel&install=1&file='.$_REQUEST['file'].'">';
-            echo "<p>"._('New Kernel name:').'<input class="smaller" type="text" name="dstName" value="'.($_REQUEST[arch] == 64 || !$_REQUEST[arch] ? 'bzImage' : 'bzImage32').'" /></p>';
+            echo '<form method="post" action="?node='.$_REQUEST['node'].'&sub=kernel&install=1&file='.$_REQUEST['file'].'">';
+            echo "<p>"._('New Kernel name:').'<input class="smaller" type="text" name="dstName" value="'.($_REQUEST['arch'] == 64 || !$_REQUEST['arch'] ? 'bzImage' : 'bzImage32').'" /></p>';
             echo '<p><input class="smaller" type="submit" value="Next" /></p></form>';
         }
     }
