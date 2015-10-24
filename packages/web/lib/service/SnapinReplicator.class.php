@@ -19,11 +19,10 @@ class SnapinReplicator extends FOGService {
             $Snapins = $this->getSubObjectIDs('SnapinGroupAssociation',array('storageGroupID'=>$myStorageGroupID),'snapinID');
             foreach ($Snapins AS $i => &$Snapin) {
                 if (!$this->getClass('Snapin',$Snapin)->getPrimaryGroup($myStorageGroupID)) {
-                    $this->outall(_(' | Not syncing to other groups'));
+                    $this->outall(_(' | Not syncing Snapin: '.$this->getClass('Snapin',$Snapin)->get('name')));
                     $this->outall(_(' | This is not the primary group'));
                     continue;
-                }
-                $this->replicate_items($myStorageGroupID,$myStorageNodeID,$this->getClass('Snapin',$Snapin),true);
+                } else $this->replicate_items($myStorageGroupID,$myStorageNodeID,$this->getClass('Snapin',$Snapin),true);
             }
             unset($Snapin);
             foreach ($Snapins AS $i => &$Snapin) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$this->getClass('Snapin',$Snapin),false);
