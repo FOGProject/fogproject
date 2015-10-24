@@ -61,7 +61,7 @@ $(function() {
             }
         }
     });
-    var allRadios = $('.default');
+    var allRadios = $('.primary,.default');
     var radioChecked;
     var setCurrent = function(e) {
         var obj = e.target;

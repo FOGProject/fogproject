@@ -318,20 +318,24 @@ class SnapinManagementPage extends FOGPage {
         unset($this->data);
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class="toggle-checkboxAction" />',
+            '',
             _('Storage Group Name'),
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'c filter-false'),
+            array('width'=>16,'class'=>'l filter-false'),
+            array('width'=>22,'class'=>'l filter-false'),
             array('class'=>'r'),
         );
         $this->templates = array(
             '<input type="checkbox" class="toggle-action" name="storagegroup-rm[]" value="${storageGroup_id}" />',
+            '<input class="primary" type="radio" name="primary" id="group${storageGroup_id}" value="${storageGroup_id}" ${is_primary}/><label for ="group${storageGroup_id}" class="icon icon-hand" title="'._('Primary Group Selector').'">&nbsp;</label>',
             '${storageGroup_name}',
         );
         foreach($GroupsWithMe AS $i => &$Group) {
             $this->data[] = array(
                 'storageGroup_id'=>$Group->get('id'),
                 'storageGroup_name'=>$Group->get('name'),
+                'is_primary'=>$this->obj->getPrimaryGroup($Group->get('id')) ? 'checked' : '',
             );
         }
         unset($Group);
@@ -340,7 +344,7 @@ class SnapinManagementPage extends FOGPage {
         // Output
         echo '<form method="post" action="'.$this->formAction.'&tab=snap-storage">';
         $this->render();
-        if (count($this->data) > 0) echo '<center><input type="submit" value="'._('Delete Selected Group associations').'" name="remstorgroups"/></center>';
+        if (count($this->data) > 0) echo '<center><input name="update" type="submit" value="'._('Update Primary Group').'"/>&nbsp;<input name="deleteGroup" type="submit" value="'._('Delete Selected Group associations').'" name="remstorgroups"/></center>';
         echo '</form></div></div>';
     }
     public function edit_post() {
@@ -349,7 +353,7 @@ class SnapinManagementPage extends FOGPage {
         // POST
         try {
             switch ($_REQUEST['tab']) {
-                case 'snap-gen';
+                case 'snap-gen':
                 // SnapinManager
                 $SnapinManager = $this->getClass('SnapinManager');
                 // Error checking
@@ -389,10 +393,14 @@ class SnapinManagementPage extends FOGPage {
                     ->set('runWithArgs',addslashes($_REQUEST['rwa']))
                     ->set('protected',$_REQUEST['protected_snapin']);
                 break;
-                case 'snap-storage';
-                $this->obj->addGroup($_REQUEST['storagegroup']);
-                if (isset($_REQUEST['remstorgroups'])) $this->obj->removeGroup($_REQUEST['storagegroup-rm']);
-                break;
+                case 'snap-storage':
+                    $this->obj->addGroup($_REQUEST['storagegroup']);
+                    if (isset($_REQUEST['update'])) $this->obj->setPrimaryGroup($_REQUEST['primary']);
+                    if (isset($_REQUEST['deleteGroup']) && isset($_REQUEST['remstorgroups'])) {
+                        if (count($this->obj->get('storageGroups')) < 2) throw new Exception(_('Snapin must be assigned to one Storage Group'));
+                        $this->obj->removeGroup($_REQUEST['storagegroup-rm']);
+                    }
+                    break;
             }
             // Save
             if (!$this->obj->save()) throw new Exception(_('Snapin update failed'));

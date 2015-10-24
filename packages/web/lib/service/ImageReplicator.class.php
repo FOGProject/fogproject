@@ -20,7 +20,14 @@ class ImageReplicator extends FOGService {
             $ImageCount = $this->getClass('ImageManager')->count();
             if ($ImageAssocCount <= 0 || $ImageCount <= 0) throw new Exception(_('There is nothing to replicate'));
             $Images = $this->getSubObjectIDs('ImageAssociation',array('storageGroupID'=>$myStorageGroupID),'imageID');
-            foreach ($Images AS $i => &$Image) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$this->getClass('Image',$Image),true);
+            foreach ($Images AS $i => &$Image) {
+                if (!$this->getClass('Image',$Image)->getPrimaryGroup($myStorageGroupID)) {
+                    $this->outall(_(' | Not syncing to other groups'));
+                    $this->outall(_(' | This is not the primary group'));
+                    continue;
+                }
+                $this->replicate_items($myStorageGroupID,$myStorageNodeID,$this->getClass('Image',$Image),true);
+            }
             unset($Image);
             foreach ($Images AS $i => &$Image) $this->replicate_items($myStorageGroupID,$myStorageNodeID,$this->getClass('Image',$Image),false);
             unset($Image);
