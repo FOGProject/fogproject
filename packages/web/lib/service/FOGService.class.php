@@ -1,17 +1,10 @@
 <?php
 abstract class FOGService extends FOGBase {
-    /** @var $dev string the device output for console */
-    public $dev;
-    /** @var $log string the log file to write to */
-    public $log;
-    /** @var $zzz int the sleep time for the service */
-    public $zzz;
-    /** @var $ip array of ips/hostnames */
-    public $ips;
-    /** getIPAddress()
-     * Gets the service server's IP address.
-     */
-    public function getIPAddress() {
+    protected $dev = '';
+    protected $log = '';
+    protected $zzz = '';
+    protected $ips = array();
+    protected function getIPAddress() {
         $output = array();
         exec("/sbin/ip addr | awk -F'[ /]+' '/global/ {print $3}'",$IPs,$retVal);
         if (!count($IPs)) exec("/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d':' -f2",$IPs,$retVal);
@@ -24,11 +17,7 @@ abstract class FOGService extends FOGBase {
         $this->ips = array_values(array_unique((array)$output));
         return $this->ips;
     }
-    /** checkIfNodeMaster()
-     * Verifies if this is the node master
-     * @return the node or throw error if not
-     */
-    public function checkIfNodeMaster() {
+    protected function checkIfNodeMaster() {
 		$this->getIPAddress();
         $StorageNodes = $this->getSubObjectIDs('StorageNode',array('isMaster'=>1,'isEnabled'=>1),'id');
 		foreach ($StorageNodes AS $i => &$StorageNode) {
@@ -36,9 +25,6 @@ abstract class FOGService extends FOGBase {
 		}
         throw new Exception(' | '._('This is not the master node'));
     }
-    /** wait_interface_ready() wait for interface to be ready
-     * @return void
-     */
     public function wait_interface_ready() {
         $ipaddresses = $this->getIPAddress();
         $ipcount = count($ipaddresses);
@@ -50,18 +36,12 @@ abstract class FOGService extends FOGBase {
         foreach ($ipaddresses AS $i => &$ip) $this->out("Interface Ready with IP Address: $ip",$this->dev);
         unset($ip);
     }
-    /** wait_db_ready() wait for db to be ready
-     * @return void
-     */
     public function wait_db_ready() {
         while ($this->DB->link()->connect_errno) {
             $this->out('FOGService: '.get_class($this).' - Waiting for mysql to be available',$this->dev);
             sleep(10);
         }
     }
-    /** getBanner() Prints the FOG banner
-     * @return $str the string as is
-     */
     public function getBanner() {
         $str = "\n";
         $str .= "        ___           ___           ___      \n";
@@ -84,43 +64,25 @@ abstract class FOGService extends FOGBase {
         $str .= "  ###########################################\n";
         $this->outall($str);
     }
-    /** @function outall() outputs to log file
-     * @param $string string the data to write
-     * @return null
-     */
     public function outall($string) {
         $this->out($string."\n",$this->dev);
         $this->wlog($string."\n",$this->log);
         return;
     }
-    /** out()
-     * @param $string the string to send
-     * @param $device the file/device to output to
-     * @return void
-     */
-    public function out($string,$device) {
+    protected function out($string,$device) {
         $strOut = $string."\n";
         if (!$hdl = fopen($device,'w')) return;
         if (fwrite($hdl,$strOut) === FALSE) return;
         fclose($hdl);
     }
-    /** getDateTime()
-     * Returns the date format used at the start of each line in the service lines.
-     */
-    public function getDateTime() {
+    protected function getDateTime() {
         return $this->nice_date()->format('m-d-y g:i:s a');
     }
-    /** wlog($string, $path)
-     * Writes to the log file and clears if needed.
-     */
-    public function wlog($string, $path) {
+    protected function wlog($string, $path) {
         if (file_exists($path) && filesize($path) >= LOGMAXSIZE) unlink($path);
         if (!$hdl = fopen($path,'a')) $this->out("\n * Error: Unable to open file: $path\n",$this->dev);
         if (fwrite($hdl,sprintf('[%s] %s',$this->getDateTime(),$string)) === FALSE) $this->out("\n * Error: Unable to write to file: $path\n",$this->dev);
     }
-    /** @function serviceStart() starts the service
-     * @return null
-     */
     public function serviceStart() {
         $this->outall(sprintf(' * Starting %s Service',get_class($this)));
         $this->outall(sprintf(' * Checking for new items every %s seconds',$this->zzz));
@@ -138,7 +100,7 @@ abstract class FOGService extends FOGBase {
      * @param $master bool set if sending to master->master or master->nodes
      * auto sets to false
      */
-    public function replicate_items($myStorageGroupID,$myStorageNodeID,$Obj,$master = false) {
+    protected function replicate_items($myStorageGroupID,$myStorageNodeID,$Obj,$master = false) {
         // Ensure clean variables
         unset($username,$password,$ip,$remItem,$myItem,$limitmain,$limitsend,$limit,$includeFile);
         $message = $onlyone = false;
@@ -169,9 +131,10 @@ abstract class FOGService extends FOGBase {
             // Get the file itself
             $getFileOfItemField = $objType == 'Snapin' ? 'file' : 'path';
             // Get all the potential nodes of this group
-            $PotentialStorageNodes = $this->getClass('StorageNodeManager')->find($findWhere);
+            $PotentialStorageNodes = array_diff((array)$this->getSubObjectIDs('StorageNode',$findWhere,'id'),(array)$myStorageNodeID);
             // Group to group is item specific
-            foreach ($PotentialStorageNodes AS $i => &$StorageNodeToSend) {
+            foreach ($PotentialStorageNodes AS $i => &$PotentialStorageNode) {
+                $StorageNodeToSend = $this->getClass('StorageNode',$PotentialStorageNode);
                 if (($master && $StorageNodeToSend->get('storageGroupID') != $myStorageGroupID) || !$master) {
                     $this->FOGFTP
                         ->set('username',$StorageNodeToSend->get('user'))
@@ -179,8 +142,7 @@ abstract class FOGService extends FOGBase {
                         ->set('host',$StorageNodeToSend->get('ip'));
                     // Test if we can even talk with the remote end
                     if (!$this->FOGFTP->connect()) {
-                        $this->outall(_(' * Cannot connect to '.$StorageNodeToSend->get(name)));
-                        $this->FOGFTP->close();
+                        $this->outall(_(' * Cannot connect to '.$StorageNodeToSend->get('name')));
                         break;
                     }
                     $this->FOGFTP->close();
@@ -204,7 +166,7 @@ abstract class FOGService extends FOGBase {
                     $nodename[] = $StorageNodeToSend->get('name');
                     $username[] = $StorageNodeToSend->get('user');
                     $password[] = $StorageNodeToSend->get('pass');
-                    $ip[] = $StorageNodeToSend->get(ip);
+                    $ip[] = $StorageNodeToSend->get('ip');
                     $limitmain = $this->byteconvert($StorageNode->get('bandwidth'));
                     $limitsend = $this->byteconvert($StorageNodeToSend->get('bandwidth'));
                     if ($limitmain > 0) $limitset = "set net:limit-total-rate 0:$limitmain;";
@@ -215,7 +177,7 @@ abstract class FOGService extends FOGBase {
             unset($StorageNodeToSend);
             $this->outall(_(' * Starting Sync Actions'));
             foreach ((array)$nodename AS $i => &$name) {
-                $process[$name] = popen("lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; ".$limit[$i]." mirror -R --ignore-time ".$includeFile[$i]." -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first ".$myItem[$i].' '.$remItem[$i]."; exit' -u ".$username[$i].','.$password[$i].' '.$ip[$i]." 2>&1","r");
+                $process[$name] = popen("lftp -e 'set ftp:list-options -a;set net:max-retries 10;set net:timeout 30; ".$limit[$i]." mirror -C -R --ignore-time ".$includeFile[$i]." -vvv --exclude 'dev/' --exclude 'ssl/' --exclude 'CA/' --delete-first ".$myItem[$i].' '.$remItem[$i]."; exit' -u ".$username[$i].','.$password[$i].' '.$ip[$i]." 2>&1","r");
                 stream_set_blocking($process[$name],false);
             }
             unset($name);
