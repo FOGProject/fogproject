@@ -1,20 +1,20 @@
 <?php
 class MulticastManager extends FOGService {
-    public $dev = MULTICASTDEVICEOUTPUT;
-    public $log = MULTICASTLOGPATH;
-    public $zzz = MULTICASTSLEEPTIME;
-    public function isMCTaskNew($KnownTasks, $id) {
+    protected $dev = MULTICASTDEVICEOUTPUT;
+    protected $log = MULTICASTLOGPATH;
+    protected $zzz = MULTICASTSLEEPTIME;
+    private function isMCTaskNew($KnownTasks, $id) {
         foreach((array)$KnownTasks AS $i => &$Known) $output[] = $Known->getID();
         unset($Known);
         return !in_array($id,$output);
     }
-    public function getMCExistingTask($KnownTasks, $id) {
+    private function getMCExistingTask($KnownTasks, $id) {
         foreach((array)$KnownTasks AS $i => &$Known) {
             if ($Known->getID() == $id) return $Known;
         }
         unset($Known);
     }
-    public function removeFromKnownList($KnownTasks, $id) {
+    private function removeFromKnownList($KnownTasks, $id) {
         $new = array();
         foreach((array)$KnownTasks AS $i => $Known) {
             if ($Known->getID() != $id) $new[] = $Known;
@@ -22,7 +22,7 @@ class MulticastManager extends FOGService {
         unset($Known);
         return array_filter($new);
     }
-    public function getMCTasksNotInDB($KnownTasks, $AllTasks) {
+    private function getMCTasksNotInDB($KnownTasks, $AllTasks) {
         $ret = array();
         $allIDs = array();
         foreach((array)$AllTasks AS $i => &$AllTask) {
@@ -43,7 +43,7 @@ class MulticastManager extends FOGService {
                 $taskCount = MulticastTask::getSession('count');
                 if ($oldCount != $taskCount) $allTasks = MulticastTask::getAllMulticastTasks($myroot);
                 $RMTasks = $this->getMCTasksNotInDB($KnownTasks,$allTasks);
-                $this->out(sprintf(' | %s task%s found',$taskCount,($taskCount > 1 || !$taskCount ? 's' : '')),$this->dev);
+                $this->outall(sprintf(' | %s task%s found',$taskCount,($taskCount > 1 || !$taskCount ? 's' : '')));
                 if (!count($RMTasks) && (!$taskCount || $taskCount < 0)) throw new Exception(' * No tasks found!');
                 $jobcancelled = false;
                 if (count($RMTasks)) $this->outall(sprintf(" | Cleaning %s task(s) removed from FOG Database.",count($RMTasks)));
@@ -110,7 +110,7 @@ class MulticastManager extends FOGService {
             } catch(Exception $e) {
                 $this->outall($e->getMessage());
             }
-            $this->out(sprintf(" +---------------------------------------------------------"), $this->dev );
+            $this->outall(sprintf(" +---------------------------------------------------------"));
             sleep(MULTICASTSLEEPTIME);
             $oldCount = $taskCount;
         }
